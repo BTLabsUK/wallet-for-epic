@@ -10,7 +10,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskInvoicesShownProvider;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/amount.dart' as amount show formatEpic, headlineEpic;
+import 'package:epic_wallet/src/amount.dart' as amount show displayEpic, exactEpic;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -79,12 +79,12 @@ void main() {
     await tester.pump(const Duration(seconds: 6));
   });
 
-  testWidgets('the Overview balance shows two decimals and the exact amount on hover', (tester) async {
+  testWidgets('the Overview balance shows four decimals and the exact amount on hover', (tester) async {
     final container = await _open(tester, _Wallet(), DeskRoute.overview);
     final spendable = BigInt.from(container.read(deskProvider).balance!.spendable);
-    final exact = amount.formatEpic(spendable, grouped: true);
-    final headline = amount.headlineEpic(spendable);
-    // The mock's balance has more than two decimals, so the cut shows.
+    final exact = amount.exactEpic(spendable);
+    final headline = amount.displayEpic(spendable);
+    // The mock's balance has more than four decimals, so the cut shows.
     expect(exact.length, greaterThan(headline.length), reason: exact);
     final row = find.byKey(const ValueKey('balance-row'));
     expect(find.descendant(of: row, matching: find.textContaining(headline, findRichText: true)), findsOneWidget);

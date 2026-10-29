@@ -219,17 +219,22 @@ void main() {
     expect(ownChangeOffChain([tx(TxKind.received, 3, transport: 'self')]), _epic(3));
   });
 
-  group('the headline figure shows two decimals, the exact amount a tap away', () {
-    testWidgets('Wallet and the Send title cut to two decimals; a tap tells the rest', (
+  group('every figure shows four decimals, the exact amount a tap away', () {
+    testWidgets('Wallet and the Send header cut to four decimals; a tap opens the balance sheet', (
       tester,
     ) async {
       final session = FakeWalletSession(summary: _summary(spendable: 1234.56781234));
       await _pump(tester, session, width: 360);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '1,234.56');
-      expect(find.text('Exact amount: 1,234.56781234 EPIC'), findsNothing);
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '1,234.5678');
+      expect(find.text('1,234.56781234 EPIC'), findsNothing);
       await tester.tap(find.byKey(balanceFigureKey));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Exact amount: 1,234.56781234 EPIC'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.byKey(balanceSheetKey), findsOneWidget);
+      // Total and Spendable are the same here: both rows say it in full.
+      expect(find.text('1,234.56781234 EPIC'), findsNWidgets(2));
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(find.byKey(balanceSheetKey), findsNothing);
       // The screen reader hears the exact amount without the tap.
       final handle = tester.ensureSemantics();
       expect(
@@ -239,10 +244,11 @@ void main() {
       handle.dispose();
 
       await _tab(tester, l.homeSendButton);
-      expect(_titleText(tester), startsWith('1,234.56'));
+      expect(_titleText(tester), startsWith('1,234.5678'));
       await tester.tap(find.byKey(titleFigureKey));
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Exact amount: 1,234.56781234 EPIC'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.byKey(balanceSheetKey), findsOneWidget);
+      expect(find.text('1,234.56781234 EPIC'), findsNWidgets(2));
     });
 
     testWidgets('hidden balances show dots and tell nothing on a tap', (tester) async {
@@ -270,7 +276,7 @@ void main() {
         summary: _summary(locked: 10, confirming: 7.492),
       );
       await _pump(tester, session, width: 360);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.00');
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0000');
       // Wallet says it in tiles: the 10 locked in sends and the 7.492 confirming.
       for (final (kind, text) in [
         (BalanceKind.locked, '10.0000'),
@@ -284,26 +290,26 @@ void main() {
       expect(tester.getRect(_inTile(BalanceKind.locked, '10.0000')), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
-      // The title on Send and Receive agrees: the same 0, and the same words.
+      // The header on Send and Receive agrees: the same 0, and the same amounts as tokens
+      // (the test font is wide, so the line may be collapsed; a screen reader hears each).
+      final handle = tester.ensureSemantics();
       for (final tab in [l.homeSendButton, l.homeReceiveButton]) {
         await _tab(tester, tab);
         expect(_titleText(tester), startsWith('0'), reason: tab);
-        for (final text in ['10 locked', '+7.492 coming in']) {
+        for (final text in ['10.0000 locked', '+7.4920 coming in']) {
           expect(
-            find.descendant(
-              of: find.byType(ShellBarTitle),
-              matching: find.textContaining(text),
-            ),
+            find.bySemanticsLabel(RegExp(RegExp.escape(text))),
             findsOneWidget,
             reason: '$tab: $text',
           );
         }
       }
+      handle.dispose();
     });
 
     testWidgets(
-      'a tile per pending balance; the title keeps two items: on hold, and '
-      'everything on chain coming in',
+      'a tile per pending balance; the header keeps three tokens: locked, '
+      'everything on chain coming in, and not on chain yet',
       (tester) async {
         final session = FakeWalletSession(
           summary: _summary(
@@ -324,19 +330,18 @@ void main() {
           (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
         ]);
         expect(_inTile(BalanceKind.confirming, '2.0000'), findsOneWidget);
-        // Send and Receive keep the two items: 2 confirming and 16 maturing are coming in;
-        // the 0.5 not on chain yet is not counted.
+        // Send and Receive keep three tokens: 5 locked, 2 confirming and 16 maturing coming
+        // in, and the 0.5 not on chain yet apart (never counted as coming in).
         await _tab(tester, l.homeSendButton);
-        for (final text in ['5 locked', '+18 coming in']) {
+        final handle = tester.ensureSemantics();
+        for (final text in ['5.0000 locked', '+18.0000 coming in', 'Not on chain yet: 0.5000']) {
           expect(
-            find.descendant(
-              of: find.byType(ShellBarTitle),
-              matching: find.textContaining(text),
-            ),
+            find.bySemanticsLabel(RegExp(RegExp.escape(text))),
             findsOneWidget,
             reason: text,
           );
         }
+        handle.dispose();
         // The ? still lists each balance with its own words.
         final rows = BalanceHelp.rows(l, session.summaryValue);
         expect(rows.map((r) => r.$1), [
@@ -364,7 +369,14 @@ void main() {
       expect(_inTile(BalanceKind.waitingSender, '1,000,000.0000'), findsOneWidget);
       await _tab(tester, l.homeSendButton);
       expect(find.textContaining('coming in'), findsNothing);
-      expect(find.textContaining('1,000,000'), findsNothing);
+      // The header names it for what it is, not on chain yet, never as coming in.
+      final handle = tester.ensureSemantics();
+      expect(find.bySemanticsLabel(RegExp('coming in')), findsNothing);
+      expect(
+        find.bySemanticsLabel(RegExp(RegExp.escape('Not on chain yet: 1,000,000.0000'))),
+        findsOneWidget,
+      );
+      handle.dispose();
       final rows = BalanceHelp.rows(l, session.summaryValue);
       expect(rows.map((r) => r.$1), [
         l.balanceTotal,
@@ -383,7 +395,7 @@ void main() {
       expect(tester.takeException(), isNull);
       // The tiles grow with the text; the first is whole, the others scroll in.
       expect(
-        _inTile(BalanceKind.confirming, '6.48473').hitTestable(),
+        _inTile(BalanceKind.confirming, '6.4847').hitTestable(),
         findsOneWidget,
       );
       expect(find.byKey(balanceTileKey(BalanceKind.locked)), findsOneWidget);

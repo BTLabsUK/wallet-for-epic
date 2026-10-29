@@ -422,7 +422,7 @@ class ConnectionsSheet extends ConsumerWidget {
         ),
       );
     }
-    return Padding(
+    return SingleChildScrollView(
       key: connectionsSheetKey,
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
       child: Column(

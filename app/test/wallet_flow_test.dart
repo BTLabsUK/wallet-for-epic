@@ -669,7 +669,7 @@ void main() {
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       await _unlockToHome(tester);
 
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.50');
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '12.5000');
       final handle = tester.ensureSemantics();
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider).
@@ -712,9 +712,9 @@ void main() {
         findsNothing,
       );
 
-      await _reveal(tester, find.text('+5 EPIC'));
+      await _reveal(tester, find.text('+5.0000 EPIC'));
       expect(find.text('Incoming payment'), findsOneWidget);
-      expect(find.text('-1 EPIC'), findsOneWidget);
+      expect(find.text('-1.0000 EPIC'), findsOneWidget);
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
       expect(find.textContaining('Received'), findsOneWidget);
       // No actions on rows: cancel lives in the details.
@@ -736,7 +736,7 @@ void main() {
       // The label tile above the rows pushes the fee below a short screen's first page.
       await _reveal(tester, find.text('Fee'));
       expect(find.text('Fee'), findsOneWidget);
-      expect(find.text('0.008 EPIC'), findsOneWidget);
+      expect(find.text('0.00800000 EPIC'), findsOneWidget);
       final cancel = find.widgetWithText(DangerButton, 'Cancel payment');
       await _tap(tester, cancel.first);
       await _tapText(tester, 'Keep');
@@ -1071,18 +1071,18 @@ void main() {
         ListenerEvent(
           kind: ListenerEventKind.received,
           slateId: 's',
-          message: 'Received 3 EPIC from zz…',
+          message: 'Received 3.0000 EPIC from zz…',
           amount: _epic(3),
         ),
       );
       await tester.pumpAndSettle();
       // A notice in words, not the listener's raw message.
       expect(
-        find.text('3 EPIC on the way. It completes when the sender finishes.'),
+        find.text('3.0000 EPIC on the way. It completes when the sender finishes.'),
         findsOneWidget,
       );
-      expect(find.text('Received 3 EPIC from zz…'), findsNothing);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.00');
+      expect(find.text('Received 3.0000 EPIC from zz…'), findsNothing);
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0000');
 
       await _clearNotices(tester);
       await _tap(tester, find.byTooltip('Lock wallet'));
@@ -1110,7 +1110,7 @@ void main() {
           .deliver(const SlateFile(name: 'shared.tx', json: incoming));
       await _unlockToHome(tester);
       await tester.pumpAndSettle();
-      expect(find.text('Someone is sending you 2 EPIC.'), findsOneWidget);
+      expect(find.text('Someone is sending you 2.00000000 EPIC.'), findsOneWidget);
     });
   });
 

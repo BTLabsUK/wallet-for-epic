@@ -235,11 +235,10 @@ Semantics _semantics(WidgetTester tester, Key key) => tester.widget<Semantics>(
       .first,
 );
 
-String _tip_(WidgetTester tester, Key key) => tester
-    .widget<Tooltip>(
-      find.descendant(of: find.byKey(key), matching: find.byType(Tooltip)),
-    )
-    .message!;
+/// The status's detail: what the connections sheet's row says under the service, and a
+/// screen reader's hint (the icon has no tooltip: its long press opens the sheet).
+String _tip_(WidgetTester tester, Key key) =>
+    tester.widget<StatusIcon>(find.byKey(key)).detail;
 
 IconData _icon(WidgetTester tester, Key key) => tester
     .widget<Icon>(
@@ -447,14 +446,29 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('a tap opens the picker; a long press the tooltip', (
+    testWidgets('a tap opens the picker; a long press the connections sheet', (
       tester,
     ) async {
       await _pump(tester);
       await tester.longPress(find.byKey(nodeStatusKey));
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text(_tip_(tester, nodeStatusKey)), findsOneWidget);
-      await tester.pump(const Duration(seconds: 7));
+      await tester.pumpAndSettle();
+      // Every connection as a row, the service and its state word, the detail under it.
+      final sheet = find.byKey(connectionsSheetKey);
+      expect(sheet, findsOneWidget);
+      expect(find.descendant(of: sheet, matching: find.text('Connections')), findsOneWidget);
+      for (final key in [nodeStatusKey, epicboxStatusKey, torIconKey, directIconKey]) {
+        final label = _label(tester, key);
+        expect(find.descendant(of: sheet, matching: find.text(label)), findsOneWidget, reason: label);
+      }
+      expect(find.descendant(of: sheet, matching: find.text(_tip_(tester, nodeStatusKey))), findsOneWidget);
+      // A row closes the sheet and opens the service as its icon does.
+      await tester.tap(find.descendant(of: sheet, matching: find.text('Node, Synced')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(connectionsSheetKey), findsNothing);
+      expect(find.byType(ServerListSheet), findsOneWidget);
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(find.byType(ServerListSheet), findsNothing);
       await tester.tap(find.byKey(nodeStatusKey));
       await tester.pumpAndSettle();
       expect(find.byType(ServerListSheet), findsOneWidget);
@@ -709,40 +723,38 @@ void main() {
     }
   });
 
-  group("in Send's and Receive's app bar", () {
-    // The shell's bar: logo, the title, and the scan, lock and settings buttons.
-    Widget bar({double openness = 0}) => AppBar(
-      leadingWidth: shellLeadingWidth,
-      leading: const SizedBox(),
-      titleSpacing: 0,
-      title: ShellBarTitle(openness: openness),
-      actions: [
-        for (var i = 0; i < 3; i++)
-          IconButton(icon: const Icon(Icons.circle_outlined), onPressed: () {}),
-      ],
-    );
+  group("in Send's and Receive's balance header", () {
+    // The header under the shell's bar: the figure with its details, then the icons.
+    Widget header() => const BalanceHeader();
 
     WalletTokens tokens(WidgetTester tester) =>
         tester.element(find.byKey(barNodeIconKey)).tokens;
 
-    testWidgets('all fine: Node and Epicbox green, on the bar with the figure', (
+    testWidgets('all fine: every icon on the header, after the figure', (
       tester,
     ) async {
-      await _pump(tester, child: bar());
+      await _pump(tester, child: header());
       final t = tokens(tester);
       expect(find.byKey(barStatusesKey), findsOneWidget);
       expect(_label(tester, barNodeIconKey), 'Node, Synced');
       expect(_label(tester, barEpicboxIconKey), 'Epicbox, Connected');
       expect(_dot(tester, barNodeIconKey), t.ok);
       expect(_dot(tester, barEpicboxIconKey), t.ok);
-      // Off services show only on Wallet: the bar keeps its room for the figure.
-      expect(find.byKey(barTorIconKey), findsNothing);
-      expect(find.byKey(barLinkIconKey), findsNothing);
-      // Right after the figure, on its line.
+      // Off services show too, faint: the header has the room the bar had not.
+      expect(_label(tester, barTorIconKey), 'Tor, Off');
+      expect(_label(tester, barLinkIconKey), 'Link, Off');
+      // Right after the figure, on its line, each a full target.
       final figure = tester.getRect(find.byKey(titleFigureKey));
       final node = tester.getRect(find.byKey(barNodeIconKey));
       expect(node.left, greaterThanOrEqualTo(figure.right));
-      expect(node.center.dy, closeTo(figure.center.dy, 12));
+      expect(node.center.dy, closeTo(tester.getRect(find.byKey(balanceHeaderKey)).center.dy, 12));
+      for (final key in [barNodeIconKey, barEpicboxIconKey, barTorIconKey, barLinkIconKey]) {
+        final r = tester.getRect(find.byKey(key));
+        expect(r.width, statusTarget, reason: '$key target');
+        expect(r.height, statusTarget, reason: '$key target');
+      }
+      // Wallet's row is not on the header.
+      expect(find.byKey(nodeStatusKey), findsNothing);
     });
 
     testWidgets('node down and Epicbox lost show the problem colour', (
@@ -750,7 +762,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        child: bar(),
+        child: header(),
         tip: AsyncError(StateError('down'), StackTrace.empty),
         listener: _lost,
       );
@@ -761,46 +773,46 @@ void main() {
       expect(_dot(tester, barEpicboxIconKey), t.risk);
     });
 
-    testWidgets('Tor on: its icon joins; Wallet shows none of the bar row', (
-      tester,
-    ) async {
-      await _pump(tester, child: bar(), tor: _torReady);
+    testWidgets('Tor on: its icon lights up', (tester) async {
+      await _pump(tester, child: header(), tor: _torReady);
       expect(_label(tester, barTorIconKey), 'Tor, On');
       expect(_dot(tester, barTorIconKey), tokens(tester).ok);
-      await tester.pumpWidget(const SizedBox());
-      await _pump(tester, child: bar(openness: 1));
-      expect(find.byKey(barStatusesKey), findsNothing);
-      expect(find.byKey(barNodeIconKey), findsNothing);
     });
 
-    testWidgets('no Tor on this phone (the build without Tor): the bar row never names Tor, not even to a screen reader', (
+    testWidgets('no Tor on this phone (the build without Tor): the header never names Tor, not even to a screen reader', (
       tester,
     ) async {
       final handle = tester.ensureSemantics();
       await _pump(
         tester,
-        child: bar(),
+        child: header(),
         tor: const PhoneTorState(phase: PhoneTorPhase.unavailable, receiving: true),
       );
-      final row = tester.getSemantics(find.byKey(barStatusesKey));
-      expect(row.label, contains('Node, Synced'));
-      expect(row.label, isNot(contains('Tor')));
+      expect(find.byKey(barTorIconKey), findsNothing);
+      expect(find.bySemanticsLabel(RegExp('Tor')), findsNothing);
+      expect(_label(tester, barNodeIconKey), 'Node, Synced');
       handle.dispose();
     });
 
-    testWidgets('a tap opens the same picker as on Wallet', (tester) async {
-      await _pump(tester, child: bar());
+    testWidgets('a tap opens the same picker as on Wallet; a long press the connections sheet', (tester) async {
+      await _pump(tester, child: header());
       await tester.tap(find.byKey(barNodeIconKey));
       await tester.pumpAndSettle();
       expect(find.byType(ServerListSheet), findsOneWidget);
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      await tester.longPress(find.byKey(barEpicboxIconKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(connectionsSheetKey), findsOneWidget);
     });
 
     for (final (width, scale, big) in [
       (360.0, 1.0, false),
       (360.0, 1.0, true),
       (360.0, 1.3, true),
+      (320.0, 1.0, true),
     ]) {
-      testWidgets('$width dp at $scale${big ? ', big balance' : ''}: icons and figure fit', (
+      testWidgets('$width dp at $scale${big ? ', big balance' : ''}: icons and figure fit, the figure at its one size', (
         tester,
       ) async {
         final home = HomeData(
@@ -811,7 +823,7 @@ void main() {
         );
         await _pump(
           tester,
-          child: bar(),
+          child: header(),
           home: home,
           tor: _torReady,
           width: width,
@@ -819,14 +831,16 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        final bars = tester.getRect(find.byType(AppBar));
+        final header_ = tester.getRect(find.byKey(balanceHeaderKey));
         final figure = tester.getRect(find.byKey(titleFigureKey));
-        for (final key in [barNodeIconKey, barEpicboxIconKey, barTorIconKey]) {
+        for (final key in [barNodeIconKey, barEpicboxIconKey, barTorIconKey, barLinkIconKey]) {
           final r = tester.getRect(find.byKey(key));
-          expect(r.width, greaterThanOrEqualTo(24), reason: '$key target');
-          expect(r.right, lessThanOrEqualTo(bars.right - 3 * 48), reason: '$key');
+          expect(r.width, statusTarget, reason: '$key target');
+          expect(r.right, lessThanOrEqualTo(header_.right + 0.5), reason: '$key');
+          expect(r.left, greaterThanOrEqualTo(figure.right - 0.5), reason: '$key after the figure');
         }
-        // The test font is far wider than Montserrat: the figure's legibility is judged on the tour shots.
+        // The figure never shrinks: its style is the fixed size whatever the width.
+        expect(tester.widget<Text>(find.byKey(titleFigureKey)).style?.fontSize, titleFigureSize);
         expect(figure.height, greaterThan(0));
       });
     }

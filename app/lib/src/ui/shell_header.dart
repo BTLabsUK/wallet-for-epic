@@ -580,7 +580,7 @@ class BalanceHeader extends StatelessWidget {
             children: [
               const Expanded(child: _FigureTitle()),
               const SizedBox(width: 4),
-              StatusIcons(key: barStatusesKey),
+              StatusIcons(key: barStatusesKey, bar: true),
             ],
           ),
         ),
@@ -751,7 +751,15 @@ class BalanceTap extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: open,
-        child: child,
+        // A full-height target in the header; Wallet's figure is taller anyway.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: statusTarget),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: 1,
+            child: child,
+          ),
+        ),
       ),
     );
   }
@@ -790,7 +798,8 @@ class BalanceSheet extends StatelessWidget {
       color: t.text,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
-    return Padding(
+    // A short screen scrolls the rows under the handle rather than clips them.
+    return SingleChildScrollView(
       key: balanceSheetKey,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Column(

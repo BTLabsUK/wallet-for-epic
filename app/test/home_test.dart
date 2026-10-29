@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
+import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey;
 import 'package:epic_wallet/src/ui/method_art.dart' show TransferMethod;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_status.dart' show NetworkStatusCard;
@@ -421,6 +422,14 @@ Future<void> _tab(
   settle ? await tester.pumpAndSettle() : await _frames(tester);
 }
 
+/// Flings the shell's pages by [offset] at [speed], from a point in the band under the app
+/// bar: Send's and Receive's balance header, or Wallet's caption. The pages' centre on
+/// Receive is its address field, which takes a horizontal drag for selecting text.
+Future<void> _swipe(WidgetTester tester, Offset offset, double speed) async {
+  final pages = tester.getRect(find.byType(PageView));
+  await tester.flingFrom(Offset(pages.center.dx, pages.top + 24), offset, speed);
+}
+
 /// [count] frames 100 ms apart.
 Future<void> _frames(WidgetTester tester, [int count = 10]) async {
   for (var i = 0; i < count; i++) {
@@ -459,17 +468,6 @@ Finder _inTile(BalanceKind kind, String text) => find.descendant(
   matching: find.text(text),
 );
 
-/// The left edge of the app bar's actions: the first of scan and lock. Invoices has no icon
-/// in the bar any more.
-double _actionsLeft(WidgetTester tester) => [
-  for (final icon in [Icons.qr_code_scanner, Icons.lock_outline])
-    for (final e
-        in find
-            .descendant(of: find.byType(AppBar), matching: find.byIcon(icon))
-            .evaluate())
-      tester.getRect(find.byElementPredicate((x) => x == e)).left,
-].reduce(math.min);
-
 /// The fade the node row's bars pulse with.
 Finder get _nodePulse => find
     .descendant(
@@ -496,20 +494,6 @@ double _glow(WidgetTester tester) =>
             as ProtocolBackdropPainter)
         .glow
         .a;
-
-/// How much of each title shows: Wallet's name, and Send's and Receive's figure.
-({double wallet, double tab}) _titleOpacity(WidgetTester tester) {
-  // The title's layers: IgnorePointer › ExcludeSemantics › Opacity under its Stack. On Wallet
-  // the figure's layer is not built (its status icons would share keys with Wallet's).
-  final stack = tester.widget<Stack>(
-    find.descendant(of: find.byType(ShellBarTitle), matching: find.byType(Stack)).first,
-  );
-  final values = [
-    for (final c in stack.children)
-      (((c as IgnorePointer).child! as ExcludeSemantics).child! as Opacity).opacity,
-  ];
-  return (wallet: values.first, tab: values.length > 1 ? values[1] : 0.0);
-}
 
 /// How much of Wallet's balance area shows.
 double _balanceOpacity(WidgetTester tester) => tester
@@ -567,7 +551,7 @@ Future<void> _sendOne(WidgetTester tester, String to) async {
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
-  await _tap(tester, find.text('Send 1 EPIC'));
+  await _tap(tester, find.text('Send 1.00000000 EPIC'));
   await tester.enterText(find.byType(TextField).last, _Harness._pin);
   await tester.pumpAndSettle();
 }
@@ -688,7 +672,7 @@ void main() {
 
     test('EPIC amounts group thousands for display, not for fields', () {
       expect(epicText(englishStrings, _epic(1234.5678)), '1,234.5678 EPIC');
-      expect(epicText(englishStrings, _epic(-1234567)), '-1,234,567 EPIC');
+      expect(epicText(englishStrings, _epic(-1234567)), '-1,234,567.0000 EPIC');
       expect(formatEpic(_epic(1234.5)), '1234.5');
       expect(
         matchesQuery(fakeTx(amountCredited: _epic(1234.5)), '1,234'),
@@ -819,8 +803,8 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'rent');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.text('+5 EPIC'), findsOneWidget);
-      expect(find.text('-2 EPIC'), findsNothing);
+      expect(find.text('+5.0000 EPIC'), findsOneWidget);
+      expect(find.text('-2.0000 EPIC'), findsNothing);
 
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'zzz');
       await tester.pump(searchDebounce);
@@ -829,16 +813,16 @@ void main() {
 
       await _tap(tester, find.byTooltip('Clear search'));
       await _tap(tester, find.widgetWithText(ChoiceChip, 'Sent'));
-      expect(find.text('-2 EPIC'), findsOneWidget);
-      expect(find.text('+5 EPIC'), findsNothing);
+      expect(find.text('-2.0000 EPIC'), findsOneWidget);
+      expect(find.text('+5.0000 EPIC'), findsNothing);
       // The cancelled send has its own filter.
-      expect(find.text('-1 EPIC'), findsNothing);
+      expect(find.text('-1.0000 EPIC'), findsNothing);
       await _tap(tester, find.widgetWithText(ChoiceChip, 'Cancelled'));
-      expect(find.text('-1 EPIC'), findsOneWidget);
+      expect(find.text('-1.0000 EPIC'), findsOneWidget);
 
       await _tap(tester, find.widgetWithText(ChoiceChip, 'Received'));
-      expect(find.text('+5 EPIC'), findsOneWidget);
-      expect(find.text('+7.25 EPIC'), findsOneWidget);
+      expect(find.text('+5.0000 EPIC'), findsOneWidget);
+      expect(find.text('+7.2500 EPIC'), findsOneWidget);
     });
 
     testWidgets('empty states in plain words', (tester) async {
@@ -855,7 +839,7 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester);
 
-      expect(_figure(tester), '12.50');
+      expect(_figure(tester), '12.5000');
       expect(find.text('≈ 6.25 USD'), findsOneWidget);
       expect(_statusWord(tester, nodeStatusKey), 'Node, Synced');
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Connecting');
@@ -906,8 +890,8 @@ void main() {
       );
       await h.pump(tester);
       expect(find.byType(TxTile), findsNWidgets(recentActivityCount));
-      expect(find.text('+7 EPIC'), findsOneWidget);
-      expect(find.text('+2 EPIC'), findsNothing);
+      expect(find.text('+7.0000 EPIC'), findsOneWidget);
+      expect(find.text('+2.0000 EPIC'), findsNothing);
     });
 
     testWidgets('the eye hides every amount and remembers it', (tester) async {
@@ -917,12 +901,12 @@ void main() {
       await _tap(tester, find.byTooltip('Hide amounts'));
       expect(_figure(tester), hiddenAmount);
       expect(find.text('≈ 6.25 USD'), findsNothing);
-      expect(find.text('+5 EPIC'), findsNothing);
+      expect(find.text('+5.0000 EPIC'), findsNothing);
       expect(find.text(hiddenAmount), findsWidgets);
       expect(h.store.values['app.hide_balances'], 'true');
 
       await _tap(tester, find.byTooltip('Show balances'));
-      expect(_figure(tester), '12.50');
+      expect(_figure(tester), '12.5000');
     });
 
     testWidgets('no fiat line when prices are off or unknown', (tester) async {
@@ -962,12 +946,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(_figure(tester), '20.00');
+      expect(_figure(tester), '20.0000');
 
       h.session.summaryValue = _summary(spendable: _epic(30));
       await tester.pump(autoRefreshInterval);
       await tester.pumpAndSettle();
-      expect(_figure(tester), '30.00');
+      expect(_figure(tester), '30.0000');
     });
 
     // A tester's phone stayed on Confirming x/3 after a direct send and after an Epicbox
@@ -1174,7 +1158,8 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
 
-      expect(find.text('+5 EPIC'), findsOneWidget);
+      // The details say the exact amount.
+      expect(find.text('+5.00000000 EPIC'), findsOneWidget);
       expect(find.text('≈ 2.50 USD'), findsOneWidget);
       expect(find.text('Completed in block 2,499,300.'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
@@ -1580,7 +1565,7 @@ void main() {
       // The listener only accepted it: the sender still has to finish.
       expect(
         paymentNotice(englishStrings, received, tx),
-        '1.5 EPIC on the way. It completes when the sender finishes.',
+        '1.5000 EPIC on the way. It completes when the sender finishes.',
       );
       expect(
         paymentNotice(
@@ -1593,7 +1578,7 @@ void main() {
           null,
           contactName: 'Alice',
         ),
-        '2 EPIC from Alice on the way. It completes when the sender finishes.',
+        '2.0000 EPIC from Alice on the way. It completes when the sender finishes.',
       );
       expect(
         paymentNotice(englishStrings, received, null),
@@ -1637,13 +1622,13 @@ void main() {
         ListenerEvent(
           kind: ListenerEventKind.received,
           slateId: 'from-alice',
-          message: 'Received 5 EPIC from esAlice…',
+          message: 'Received 5.0000 EPIC from esAlice…',
           amount: _epic(5),
         ),
       );
       await tester.pumpAndSettle();
       expect(
-        find.text('5 EPIC on the way. It completes when the sender finishes.'),
+        find.text('5.0000 EPIC on the way. It completes when the sender finishes.'),
         findsOneWidget,
       );
       expect(find.textContaining('esAlice'), findsNothing);
@@ -1709,7 +1694,7 @@ void main() {
         const ListenerEvent(
           kind: ListenerEventKind.finalized,
           slateId: 'send-bob',
-          message: 'Sent 2 EPIC, posted to the node',
+          message: 'Sent 2.0000 EPIC, posted to the node',
         ),
       );
       await tester.pumpAndSettle();
@@ -1761,7 +1746,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byKey(noticeKey), findsOneWidget);
-      expect(find.textContaining('5 EPIC on the way'), findsOneWidget);
+      expect(find.textContaining('5.0000 EPIC on the way'), findsOneWidget);
       expect(find.byType(SnackBar), findsNothing);
       // Docked between the app bar and the balance: nothing overlaps, and the balance
       // moved down by the dock's height.
@@ -1929,7 +1914,7 @@ void main() {
       // Syncing shows once it lasts (walletStatusProvider).
       await tester.pump(statusSettle);
       // Local figures while the refresh against the node runs, with its progress.
-      expect(_figure(tester), '12.50');
+      expect(_figure(tester), '12.5000');
       expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40 %');
       // The line along the app bar's foot is drawn as far as the sync has come, and no
       // other progress shows.
@@ -1940,7 +1925,7 @@ void main() {
 
       session.gate.complete();
       await tester.pumpAndSettle();
-      expect(_figure(tester), '20.00');
+      expect(_figure(tester), '20.0000');
       expect(find.textContaining('Syncing'), findsNothing);
       expect(_syncLine(tester), isNull);
       expect(session.refreshCalls, 1);
@@ -1958,7 +1943,7 @@ void main() {
       await h.pump(tester);
       session.gate.complete();
       await tester.pumpAndSettle();
-      expect(_figure(tester), '12.50');
+      expect(_figure(tester), '12.5000');
       expect(find.byType(ErrorText), findsOneWidget);
       expect(find.textContaining('Syncing'), findsNothing);
     });
@@ -2150,7 +2135,7 @@ void main() {
       final h = _Harness(price: 0.5);
       await h.pump(tester, const HistoryScreen());
       // The cancelled 1 EPIC send would be 0.50 USD.
-      expect(find.text('-1 EPIC'), findsOneWidget);
+      expect(find.text('-1.0000 EPIC'), findsOneWidget);
       expect(find.text('≈ 0.50 USD'), findsNothing);
       expect(find.text('≈ 1.00 USD'), findsOneWidget);
       // Cancelled is said by the chip, not the title.
@@ -2256,7 +2241,7 @@ void main() {
       final h = _Harness();
       h.session.summaryValue = _summary(spendable: _epic(1234.5678));
       await h.pump(tester);
-      expect(_figure(tester), '1,234.56');
+      expect(_figure(tester), '1,234.5678');
     });
   });
 
@@ -2343,7 +2328,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(
-        find.text('2 EPIC stays locked until the recipient’s wallet answers.'),
+        find.text('2.0000 EPIC stays locked until the recipient’s wallet answers.'),
         findsOneWidget,
       );
       expect(find.textContaining('on its way'), findsNothing);
@@ -2446,7 +2431,7 @@ void main() {
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
       expect(find.byType(TxTile), findsOneWidget);
-      expect(find.text('+1,501 EPIC'), findsOneWidget);
+      expect(find.text('+1,501.0000 EPIC'), findsOneWidget);
     });
 
     testWidgets('2,000 payments: home shows five', (tester) async {
@@ -2482,7 +2467,7 @@ void main() {
           status: 'Received',
           hidden: false,
         ),
-        'Received 10 EPIC from Alice, received, Today, 10:01',
+        'Received 10.0000 EPIC from Alice, received, Today, 10:01',
       );
       expect(
         txSpokenLabel(
@@ -2509,7 +2494,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:send-bob'))),
         matchesSemantics(
-          label: 'Sending 2 EPIC to Bob, waiting for recipient, Today, 09:00',
+          label: 'Sending 2.0000 EPIC to Bob, waiting for recipient, Today, 09:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -2518,7 +2503,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
         matchesSemantics(
-          label: 'Received 5 EPIC, received, Yesterday, 18:00',
+          label: 'Received 5.0000 EPIC, received, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -3292,14 +3277,12 @@ void main() {
         // Every frame of the move: Wallet's title and figure stay out of sight.
         for (var i = 0; i < 20; i++) {
           await tester.pump(const Duration(milliseconds: 16));
-          expect(_titleOpacity(tester), (wallet: 0.0, tab: 1.0));
           expect(_balanceOpacity(tester), 0, reason: '$from to $to');
         }
         await _frames(tester);
       }
       // A tap to Wallet still opens it.
       await _tab(tester, 'Wallet', settle: false);
-      expect(_titleOpacity(tester), (wallet: 1.0, tab: 0.0));
       expect(_balanceOpacity(tester), 1);
     });
 
@@ -3349,7 +3332,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      final title = tester.element(find.byType(ShellBarTitle));
+      final title = tester.element(find.byType(ShellTitle));
       final bar = tester.element(find.byType(NavigationBar));
       final appBar = tester.element(find.byType(AppBar));
       expect(_selectedTab(tester), ShellTab.wallet);
@@ -3361,7 +3344,7 @@ void main() {
       expect(_selectedTab(tester), ShellTab.send);
       expect(find.byType(SendView), findsOneWidget);
 
-      expect(tester.element(find.byType(ShellBarTitle)), same(title));
+      expect(tester.element(find.byType(ShellTitle)), same(title));
       expect(tester.element(find.byType(NavigationBar)), same(bar));
       expect(tester.element(find.byType(AppBar)), same(appBar));
     });
@@ -3369,21 +3352,21 @@ void main() {
     testWidgets('a swipe changes tab; title and tab bar stay', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      final title = tester.element(find.byType(ShellBarTitle));
+      final title = tester.element(find.byType(ShellTitle));
       final bar = tester.element(find.byType(NavigationBar));
 
-      await tester.fling(find.byType(PageView), const Offset(-300, 0), 1000);
+      await _swipe(tester, const Offset(-300, 0), 1000);
       await _frames(tester);
       expect(_selectedTab(tester), ShellTab.receive);
       expect(find.byType(ReceiveView), findsOneWidget);
 
-      await tester.fling(find.byType(PageView), const Offset(300, 0), 1000);
+      await _swipe(tester, const Offset(300, 0), 1000);
       await _frames(tester);
-      await tester.fling(find.byType(PageView), const Offset(300, 0), 1000);
+      await _swipe(tester, const Offset(300, 0), 1000);
       await _frames(tester);
       expect(_selectedTab(tester), ShellTab.send);
 
-      expect(tester.element(find.byType(ShellBarTitle)), same(title));
+      expect(tester.element(find.byType(ShellTitle)), same(title));
       expect(tester.element(find.byType(NavigationBar)), same(bar));
     });
 
@@ -3392,25 +3375,35 @@ void main() {
       (tester) async {
         final h = _Harness(price: 0.5);
         await h.pump(tester);
-        // On Wallet the title is the name; the figure title waits out of sight.
-        expect(_titleOpacity(tester), (wallet: 1.0, tab: 0.0));
+        // On Wallet the title is the name and there is no balance header.
+        expect(find.byKey(balanceHeaderKey), findsNothing);
         expect(find.text('Epic Cash'), findsOneWidget);
         for (final tab in ['Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
-          expect(_titleOpacity(tester), (wallet: 0.0, tab: 1.0), reason: tab);
-          expect(_titleText(tester), '12.50 EPIC', reason: tab);
-          // 2 EPIC are locked: the line under the figure says so, as Wallet's does.
+          expect(find.byKey(balanceHeaderKey), findsOneWidget, reason: tab);
+          expect(find.text('Epic Cash'), findsOneWidget, reason: tab);
+          expect(_titleText(tester), '12.5000 EPIC', reason: tab);
+          // 2 EPIC are locked: the line under the figure says so, as a token.
           final pending = find.byKey(titlePendingKey);
-          expect(tester.widget<Text>(pending).data, '2 locked', reason: tab);
+          expect(
+            find.descendant(of: pending, matching: find.text('2.0000')),
+            findsOneWidget,
+            reason: tab,
+          );
           expect(
             tester.getRect(pending).top,
             greaterThanOrEqualTo(
               tester.getRect(find.byKey(titleFigureKey)).bottom,
             ),
           );
+          // The header sits under the app bar, and holds the line.
+          expect(
+            tester.getRect(find.byKey(balanceHeaderKey)).top,
+            greaterThanOrEqualTo(tester.getRect(find.byType(AppBar)).bottom),
+          );
           expect(
             tester.getRect(pending).bottom,
-            lessThanOrEqualTo(tester.getRect(find.byType(AppBar)).bottom),
+            lessThanOrEqualTo(tester.getRect(find.byKey(balanceHeaderKey)).bottom),
           );
           // No figure, fiat, caption or pending line in the body.
           expect(find.byKey(balanceFigureKey).hitTestable(), findsNothing);
@@ -3431,7 +3424,7 @@ void main() {
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
         expect(find.byKey(titlePendingKey), findsNothing);
-        expect(_titleText(tester), '12.50 EPIC');
+        expect(_titleText(tester), '12.5000 EPIC');
         // Hidden: the title hides the figure too.
         await _tab(tester, 'Wallet');
         await _tap(tester, find.byTooltip('Hide amounts'));
@@ -3470,10 +3463,8 @@ void main() {
       // A little past halfway to Receive: about 0.4 open.
       await gesture.moveBy(const Offset(-215, 0));
       await tester.pump();
-      final (:wallet, :tab) = _titleOpacity(tester);
+      final wallet = _balanceOpacity(tester);
       expect(wallet, allOf(greaterThan(0), lessThan(1)));
-      expect(tab, allOf(greaterThan(0), lessThan(1)));
-      expect(_balanceOpacity(tester), wallet);
       // The page under the app bar does not move up or down.
       expect(
         tester.getRect(find.byKey(walletBalanceKey)).top,
@@ -3497,11 +3488,14 @@ void main() {
       final fiat = tester.getRect(find.byKey(fiatValueKey));
       final caption = tester.getRect(find.byKey(balanceCaptionKey));
       final style = tester.widget<Text>(find.byKey(balanceFigureKey)).style!;
-      expect(style.fontSize, figureSize);
+      // The test font is far wider than Montserrat: four decimals step the size down here;
+      // the tour shots judge the real size. Never under the least size.
+      expect(style.fontSize, greaterThanOrEqualTo(figureMinSize));
+      expect(style.fontSize, lessThanOrEqualTo(figureSize));
       expect(style.fontFamily, montserrat);
       expect(style.fontWeight, FontWeight.w600);
       expect(style.fontFeatures, contains(const FontFeature.tabularFigures()));
-      expect(_figure(tester), '12.50');
+      expect(_figure(tester), '12.5000');
       // EPIC small and gold at the figure's top right.
       final unitText = tester.widget<Text>(find.byKey(balanceUnitKey));
       final tokens = protocolLight;
@@ -3561,7 +3555,7 @@ void main() {
           hasTapAction: true,
         ),
       );
-      expect(find.bySemanticsLabel('Spendable: 12.5 EPIC'), findsOneWidget);
+      expect(find.bySemanticsLabel('Spendable: 12.50000000 EPIC'), findsOneWidget);
       handle.dispose();
     });
 
@@ -3840,21 +3834,24 @@ void main() {
               );
               expect(tester.takeException(), isNull, reason: tab);
             }
-            // Send and Receive bodies start right under the app bar.
+            // Send's and Receive's balance header starts right under the app bar, and
+            // their bodies right under it.
             for (final (tab, body) in [
               ('Send', find.byType(SendView)),
               ('Receive', find.byType(ReceiveView)),
             ]) {
               await _tab(tester, tab);
+              final header = tester.getRect(find.byKey(balanceHeaderKey));
               expect(
-                tester.getRect(body).top,
+                header.top,
                 tester.getRect(appBar).bottom + progressSlotHeight,
                 reason: tab,
               );
-              // The figure title has the bar to itself, and shrinks rather than overflows.
+              expect(tester.getRect(body).top, header.bottom, reason: tab);
+              // The figure keeps its size and ends before the status icons beside it.
               expect(
                 tester.getRect(find.byKey(titleFigureKey)).right,
-                lessThanOrEqualTo(_actionsLeft(tester) + 0.5),
+                lessThanOrEqualTo(tester.getRect(find.byKey(barNodeIconKey)).left + 0.5),
               );
             }
           },
@@ -3921,8 +3918,8 @@ void main() {
         await _reload(tester);
         final row = tester.getRect(find.byKey(balanceTilesKey));
         for (final (kind, text) in [
-          (BalanceKind.locked, '5.12345'),
-          (BalanceKind.confirming, '2.12345'),
+          (BalanceKind.locked, '5.1234'),
+          (BalanceKind.confirming, '2.1234'),
         ]) {
           final tile = tester.getRect(find.byKey(balanceTileKey(kind)));
           final words = tester.getRect(_inTile(kind, text));
@@ -3930,9 +3927,9 @@ void main() {
           expect(words.right, lessThanOrEqualTo(tile.right), reason: text);
           expect(tile.left, greaterThanOrEqualTo(row.left), reason: text);
         }
-        final at = tester.getRect(_inTile(BalanceKind.locked, '5.12345'));
+        final at = tester.getRect(_inTile(BalanceKind.locked, '5.1234'));
         await tester.pump(const Duration(seconds: 3));
-        expect(tester.getRect(_inTile(BalanceKind.locked, '5.12345')), at);
+        expect(tester.getRect(_inTile(BalanceKind.locked, '5.1234')), at);
         expect(tester.binding.hasScheduledFrame, isFalse);
         expect(tester.takeException(), isNull);
       },
@@ -4128,7 +4125,7 @@ void main() {
       await _frames(tester);
       expect(_selectedTab(tester), ShellTab.receive);
       // A swipe afterwards still changes the tab.
-      await tester.fling(find.byType(PageView), const Offset(300, 0), 1000);
+      await _swipe(tester, const Offset(300, 0), 1000);
       await _frames(tester);
       expect(_selectedTab(tester), ShellTab.wallet);
     });
@@ -4260,9 +4257,9 @@ void main() {
       ).toPlainText();
       expect(
         tip,
-        'Total: 14.5 EPIC\nEverything in this wallet, spendable or not.\n\n'
-        'Spendable: 12.5 EPIC\n\n'
-        'Locked by a payment in progress: 2 EPIC\n'
+        'Total: 14.50000000 EPIC\nEverything in this wallet, spendable or not.\n\n'
+        'Spendable: 12.50000000 EPIC\n\n'
+        'Locked by a payment in progress: 2.00000000 EPIC\n'
         'Held for a payment you started; the change comes back when it '
         'completes.',
       );
@@ -4364,6 +4361,14 @@ void main() {
             .hand(payee);
         await tester.pumpAndSettle();
         expect(find.text('Waiting for the response file'), findsOneWidget);
+        // Done is the list's last row, under the first page of a short phone.
+        await tester.scrollUntilVisible(
+          find.widgetWithText(TextButton, 'Done'),
+          200,
+          scrollable: find
+              .descendant(of: find.byType(SendView), matching: find.byType(Scrollable))
+              .first,
+        );
         await _tap(tester, find.widgetWithText(TextButton, 'Done'));
         await _tab(tester, 'Send');
         expect(_toField(tester), payee);
@@ -4393,7 +4398,7 @@ void main() {
           const ListenerEvent(
             kind: ListenerEventKind.finalized,
             slateId: 'send-1',
-            message: 'Sent 1 EPIC, posted to the node',
+            message: 'Sent 1.0000 EPIC, posted to the node',
           ),
         );
         await tester.pumpAndSettle();
@@ -4515,7 +4520,7 @@ void main() {
               await _reload(tester);
               final shown = mode == 'hidden'
                   ? hiddenAmount
-                  : headlineEpic(amount);
+                  : displayEpic(amount);
               for (final tab in ['Wallet', 'Send', 'Receive']) {
                 await _tab(tester, tab);
                 final why = '${formatEpic(amount)} on $tab';
@@ -4544,12 +4549,17 @@ void main() {
                     expect(find.byKey(fiatValueKey), findsNothing);
                   }
                 } else {
-                  // The title: the figure and its unit, clear of the actions.
+                  // The header: the figure and its unit at a fixed size, before the icons.
                   expect(_titleText(tester), '$shown EPIC', reason: why);
                   final title = tester.getRect(find.byKey(titleFigureKey));
                   expect(
                     title.right,
-                    lessThanOrEqualTo(_actionsLeft(tester) + 0.5),
+                    lessThanOrEqualTo(tester.getRect(find.byKey(barNodeIconKey)).left + 0.5),
+                    reason: why,
+                  );
+                  expect(
+                    tester.widget<Text>(find.byKey(titleFigureKey)).style?.fontSize,
+                    titleFigureSize,
                     reason: why,
                   );
                 }
