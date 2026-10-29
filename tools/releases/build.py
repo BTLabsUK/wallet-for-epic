@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The public releases page for Epic Cash Desktop and Epic Cash Mobile.
 
-    tools/releases/build.py add <version> <dir> [--date YYYY-MM-DD]
+    tools/releases/build.py add <version> <dir> [--date YYYY-MM-DD] [--gitlab]
         Record a release from a folder holding its files and SHA256SUMS (the release lead's
         folder, e.g. /srv/wfe-release/26.10.24). Every file in SHA256SUMS whose name
         carries <version> is taken; its checksum is recomputed and must agree. Replaces an
@@ -73,6 +73,10 @@ PLAT = {p[0]: p for p in PLATFORMS}
 
 # The Android release key: shown so an APK can be checked against it (apksigner verify
 # --print-certs). Signer certificate SHA-256, CN=BT Labs Epic Wallet, O=BT Labs.
+# A release mirrored on GitLab (the gitlab-releases tool, off until switched on) gets a Mirror
+# link when its record says "gitlab": true (build.py add --gitlab).
+GITLAB_RELEASE = 'https://gitlab.com/epic-cash-bt/wallet-for-epic/-/releases/v{version}'
+
 ANDROID_CERT_SHA256 = '59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa'
 
 ICONS = {
@@ -205,7 +209,10 @@ def cmd_add(args):
     assert files, f'no file for {ver} in {d}/SHA256SUMS'
     data = load()
     data['releases'] = [r for r in data['releases'] if r['version'] != ver]
-    data['releases'].append({'version': ver, 'date': date, 'files': files})
+    rec = {'version': ver, 'date': date, 'files': files}
+    if '--gitlab' in args:
+        rec['gitlab'] = True
+    data['releases'].append(rec)
     save(data)
     print(f'{ver}: {len(files)} files, {date}')
 
@@ -303,6 +310,11 @@ def platform_card(key, g, latest):
     return '\n'.join(out)
 
 
+def mirror(r):
+    return (f' · <a href="{GITLAB_RELEASE.format(version=esc(r["version"]))}" rel="noopener">Mirror on GitLab</a>'
+            if r.get('gitlab') else '')
+
+
 def older_release(r):
     g = group(r)
     plats = ''.join(f'<span class="ico sm" title="{esc(PLAT[k][1])}">{ICONS[k]}</span>' for k in g if k in PLAT)
@@ -311,7 +323,7 @@ def older_release(r):
              f'<time datetime="{r["date"]}">{human_date(r["date"])}</time>'
              f'<span class="rp" aria-hidden="true">{plats}</span>'
              f'<span class="rn">{len(r["files"])} file{"s" if len(r["files"]) != 1 else ""}</span></summary><div class="rb">'
-             f'<p class="rl"><a href="changelog/#v{esc(r["version"])}">What changed in {esc(r["version"])}</a></p>']
+             f'<p class="rl"><a href="changelog/#v{esc(r["version"])}">What changed in {esc(r["version"])}</a>{mirror(r)}</p>']
     for k, gg in g.items():
         heading = PLAT[k][1] if k in PLAT else 'Other files'
         parts.append(f'<section class="rg"><h4>{ICONS.get(k, ICONS["other"])}{esc(heading)}</h4><ul class="fl-list">')
@@ -370,7 +382,7 @@ def render(out_dir):
 </section>
 
 <section class="latest" id="latest" aria-labelledby="latest-h">
-  <div class="sh"><h2 id="latest-h">Latest <span translate="no">{esc(latest['version'])}</span></h2><a class="sl" href="changelog/#v{esc(latest['version'])}">What changed</a></div>
+  <div class="sh"><h2 id="latest-h">Latest <span translate="no">{esc(latest['version'])}</span></h2><p class="sl"><a href="changelog/#v{esc(latest['version'])}">What changed</a>{mirror(latest)}</p></div>
   <div class="cards">
 {cards}
   </div>
