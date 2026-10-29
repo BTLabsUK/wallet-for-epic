@@ -16,6 +16,7 @@ import '../../data/logs.dart';
 import '../../data/net_mode_view.dart';
 import '../../../network_gate.dart' show NetBlock;
 import '../../widgets/kit.dart';
+import '../../../settings_file/host_settings.dart' show hostSettings;
 
 /// Settings › Help › Report a problem: what happened, an optional contact and the app log,
 /// cleaned, previewed, sealed to the developer and sent to the support intake. The same report
@@ -122,9 +123,12 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     final log = _attachLogs ? (_log ?? '') : null;
     final at = _at;
     final context = ref.read(feedbackCleanContextProvider);
-    return Isolate.run(
-      () => buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context),
-    );
+    // The cleaning keeps the hosts the settings file names: the other isolate gets a copy.
+    final settings = hostSettings;
+    return Isolate.run(() {
+      hostSettings = settings;
+      return buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context);
+    });
   }
 
   bool get _empty => _description.text.trim().isEmpty;
