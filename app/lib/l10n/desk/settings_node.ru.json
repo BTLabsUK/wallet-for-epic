@@ -1,5 +1,5 @@
 {
-  "deskSetNodePortNote": "Проверьте адрес и порт (обычно 3413).",
+  "deskSetNodePortNote": "Проверьте адрес и порт (обычно {port}).",
   "deskSetNodeListNote": "Состояние по данным {site}; задержка измерена с этого компьютера.",
   "deskSetNodeStartTitle": "Запустить локальный узел?",
   "deskSetNodeStartDesc": "Отдельная программа синхронизирует блокчейн Epic на этом компьютере.",

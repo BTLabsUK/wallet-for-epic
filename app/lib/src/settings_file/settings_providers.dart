@@ -15,8 +15,15 @@ import 'settings_layout.dart' show settingsKeys;
 import 'settings_notice.dart';
 import 'settings_platform.dart';
 
-/// The shipped default, an asset of every build.
-const String shippedSettingsAsset = 'assets/settings/settings.toml';
+/// The default copy of `settings.toml`, an asset of every build: written to the data folder on
+/// the first start.
+const String defaultSettingsAsset = 'assets/config/settings.default.toml';
+
+/// `app-config.toml`, an asset of every build, read from there only.
+const String appConfigAsset = 'assets/config/app-config.toml';
+
+/// The default copy's name in a dev chain's folder.
+const String defaultSettingsFileName = 'settings.default.toml';
 
 SettingsFileController? _installed;
 String? _installedChain;
@@ -39,43 +46,63 @@ SettingsFileController? get installedSettingsFile => _installed;
 /// The hidden dev chain whose file is open, or null for the data folder's own.
 String? get installedSettingsChain => _installedChain;
 
-/// A hidden dev chain has no settings file: its servers are nowhere, so it does not start.
+/// A hidden dev chain lacks its files (`settings.default.toml`, `app-config.toml`): its servers
+/// are nowhere, so it does not start.
 class DevSettingsMissing implements Exception {
   const DevSettingsMissing(this.chain, this.where);
   final String chain;
 
-  /// Where the file was looked for.
+  /// Where the files were looked for.
   final String where;
 
   @override
   String toString() =>
-      'No settings for the dev chain $chain at $where: copy one there with app/tool/dev_settings.sh $chain';
+      'No settings for the dev chain $chain in $where: copy them there with app/tool/dev_settings.sh $chain';
+}
+
+/// The shipped default copy and configuration as the settings in use and the default copy's,
+/// for runs that read and write no file (the mock wallet, the desktop web prototype, the
+/// screenshot tours).
+Future<HostSettings> loadShippedSettings({AssetBundle? bundle}) async {
+  final b = bundle ?? rootBundle;
+  final config = AppConfig.fromText(await b.loadString(appConfigAsset));
+  final shipped = HostSettings.fromText(await b.loadString(defaultSettingsAsset), config: config);
+  hostSettings = shipped;
+  shippedHostSettings = shipped;
+  return shipped;
 }
 
 /// Opens the settings for this run and makes them the process-wide [hostSettings]: on the
 /// desktop the data folder's `settings.toml`, watched for edits; on the phone the same file,
-/// not watched; on the web the text in [store] (`app.settingsToml`).
+/// not watched; on the web the text in [store] (`app.settingsToml`). `app-config.toml` is the
+/// shipped asset, read-only.
 ///
-/// [devChain] picks a hidden dev chain's own file (`<data>/dev/<chain>/settings.toml`, which
-/// `app/tool/dev_settings.sh` copies there): it is its own default, so it must exist, else
-/// this throws [DevSettingsMissing]. [shippedText] replaces the shipped asset (the web demo's
-/// file from its server).
+/// [devChain] picks a hidden dev chain (a `WFE_DEV_NETWORKS` build): its own folder
+/// `<data>/dev/<chain>/` holds its `settings.default.toml`, `app-config.toml` and
+/// `settings.toml` (`app/tool/dev_settings.sh` copies the first two there); without them this
+/// throws [DevSettingsMissing]. [shippedText] and [configText] replace the two (the web demo's,
+/// from its server).
 Future<SettingsFileController> openAppSettings({
   required SecretStore store,
   String? devChain,
   String? shippedText,
+  String? configText,
   AssetBundle? bundle,
 }) async {
   final backend = await platformSettingsBackend(store: store, devChain: devChain);
   var shipped = shippedText;
+  var config = configText;
   if (devChain != null) {
-    shipped ??= await backend.read();
-    if (shipped == null) throw DevSettingsMissing(devChain, settingsWhere(backend));
+    shipped ??= await readDevChainFile(devChain, defaultSettingsFileName);
+    config ??= await readDevChainFile(devChain, AppConfig.fileName);
+    if (shipped == null || config == null) throw DevSettingsMissing(devChain, await devChainWhere(devChain));
   }
-  shipped ??= await (bundle ?? rootBundle).loadString(shippedSettingsAsset, cache: false);
+  shipped ??= await (bundle ?? rootBundle).loadString(defaultSettingsAsset, cache: false);
+  config ??= await (bundle ?? rootBundle).loadString(appConfigAsset, cache: false);
   final c = await SettingsFileController.open(
     backend: backend,
     shippedText: shipped,
+    config: AppConfig.fromText(config),
     watch: settingsWatchSupported,
     publishGlobal: true,
   );

@@ -29,7 +29,7 @@ void main() {
     var h = await open('w1', book);
     await h.seedContacts(bundledSeedContacts);
     expect(book.list().map((c) => c.name), ['BT Labs']);
-    expect(book.list().single.epicbox, btLabsContact.address);
+    expect(book.list().single.epicbox, btLabsContact!.address);
     await h.deleteContact(book.list().single.id);
     h.close();
     h = await open('w1', book);

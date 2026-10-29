@@ -12,7 +12,7 @@ import 'support/test_settings.dart';
 /// and so does the pulse on Send's tracker. A loop never lets `pumpAndSettle` settle, so the
 /// tests see both still (the full current mark, a plain ring). `test/tx_icon_test.dart` turns
 /// the tile's loop on for the tests of the loader. Every test reads its hosts from
-/// `test/settings/test.toml` (example hosts only), the process-wide settings.
+/// `test/settings/` (the two files, example hosts only), the process-wide settings.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   txEdgeRunMoves = false;
   sendPulseMoves = false;

@@ -28,3 +28,13 @@ bool get settingsWatchSupported => Platform.isLinux || Platform.isWindows || Pla
 /// Where [backend]'s text is, for a message.
 String settingsWhere(SettingsBackend backend) =>
     backend is FileSettingsBackend ? backend.file.path : backend.fileName;
+
+/// A dev chain's own file [name] (`settings.default.toml`, `app-config.toml`) in its folder,
+/// which `app/tool/dev_settings.sh` fills; null when it is not there.
+Future<String?> readDevChainFile(String devChain, String name) async {
+  final f = File('${(await settingsFolder(devChain: devChain)).path}${Platform.pathSeparator}$name');
+  return await f.exists() ? f.readAsString() : null;
+}
+
+/// Where a dev chain's files are, for a message.
+Future<String> devChainWhere(String devChain) async => (await settingsFolder(devChain: devChain)).path;

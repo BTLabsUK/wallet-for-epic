@@ -38,6 +38,7 @@ import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/secret_store_api.dart' as app;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
 
 final _env = Platform.environment;
@@ -102,7 +103,7 @@ lepic.WalletConfig _config(String name, {String relay = _relay, bool mainnet = f
   nodeUrl: mainnet ? _mainnetNode : _node,
   epicboxDomain: relay,
   epicboxPort: 443,
-  onionRoutes: const [],
+  onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
 );
 
 /// One install: the session, its LEPIC wallet and, for A and B, its linked devices.

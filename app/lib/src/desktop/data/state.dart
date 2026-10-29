@@ -315,7 +315,7 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(settings: s);
     statusSite.on = s.useStatusSite;
     if (ref.read(hostSettingsProvider).statusEnabled != s.useStatusSite) {
-      await ref.read(hostSettingsProvider.notifier).set('status.enabled', s.useStatusSite);
+      await ref.read(hostSettingsProvider.notifier).set('online.status_site', s.useStatusSite);
     }
     await api.saveSettings(s);
     await ref.read(deskStoreProvider)?.saveSettings(s);

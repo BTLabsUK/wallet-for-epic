@@ -26,17 +26,18 @@ import '../data/models.dart';
 import '../data/server_lists.dart';
 import '../data/state.dart';
 import '../data/tor_view.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 import '../screens/settings/prefs.dart' show settingsPrefsProvider;
 
 export '../../node_failover.dart' show NodeFailover;
 
 /// How often a move held back (Tor starting, nothing working) is tried again while the node
 /// stays down.
-const Duration deskFailoverRetry = Duration(seconds: 30);
+Duration get deskFailoverRetry => appConfig.nodeFailoverAfter;
 
 /// How often the chosen own node is asked while a public node stands in for it, or while it
 /// may be syncing.
-const Duration ownAskBackEvery = Duration(seconds: 15);
+Duration get ownAskBackEvery => appConfig.ownNodeAsk;
 
 /// Good answers in a row before the wallet moves back to the own node.
 const int ownBackAfter = 2;

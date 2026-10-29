@@ -83,7 +83,7 @@
   "deskOnbUnlockWhoWindows": "Każdy, kto używa tego konta Windows, może otworzyć ten portfel.",
   "deskOnbUnlockWho": "Każdy, kto używa tego konta, może otworzyć ten portfel.",
   "deskOnbUnlockWrong": "Nieprawidłowe hasło. Sprawdź Caps Lock i układ klawiatury.",
-  "deskOnbUnlockPortInUse": "Port 3415 zajmuje inny program. Zamknij go i spróbuj ponownie.",
+  "deskOnbUnlockPortInUse": "Port {port} zajmuje inny program. Zamknij go i spróbuj ponownie.",
   "deskOnbUnlockStageCheck": "Sprawdzanie plików portfela",
   "deskOnbUnlockStageProcesses": "Szukanie wciąż działających procesów portfela",
   "deskOnbUnlockStageClosing": "Zamykanie starych procesów portfela",

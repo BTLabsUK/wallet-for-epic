@@ -1,0 +1,19 @@
+# Epic Cash wallet settings for usernet (a hidden dev chain). app/tool/dev_settings.sh usernet copies
+# this file to <data folder>/dev/usernet/ as settings.default.toml and, the first time, settings.toml.
+
+[node]
+# The first node is in use; when it does not answer, the next one is tried.
+servers = [
+  "http://127.0.0.1:23413",
+]
+
+[epicbox]
+# The first server is part of every wallet's address: moving another to the top changes them all.
+servers = [
+  "127.0.0.1:3423",
+]
+
+[online]
+status_site = true   # health of the servers above
+update_check = true
+price = false        # test coins have no price

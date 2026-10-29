@@ -83,7 +83,7 @@
   "deskOnbUnlockWhoWindows": "ใครที่ใช้บัญชี Windows นี้ก็เปิดกระเป๋าเงินนี้ได้",
   "deskOnbUnlockWho": "ใครที่ใช้บัญชีนี้ก็เปิดกระเป๋าเงินนี้ได้",
   "deskOnbUnlockWrong": "รหัสผ่านไม่ถูกต้อง ตรวจ Caps Lock และภาษาของแป้นพิมพ์",
-  "deskOnbUnlockPortInUse": "พอร์ต 3415 ถูกโปรแกรมอื่นใช้อยู่ ปิดโปรแกรมนั้นแล้วลองอีกครั้ง",
+  "deskOnbUnlockPortInUse": "พอร์ต {port} ถูกโปรแกรมอื่นใช้อยู่ ปิดโปรแกรมนั้นแล้วลองอีกครั้ง",
   "deskOnbUnlockStageCheck": "กำลังตรวจไฟล์กระเป๋าเงิน",
   "deskOnbUnlockStageProcesses": "กำลังหาโปรเซสกระเป๋าเงินที่ยังทำงานอยู่",
   "deskOnbUnlockStageClosing": "กำลังปิดโปรเซสกระเป๋าเงินเดิม",

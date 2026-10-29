@@ -25,10 +25,11 @@ import '../../widgets/server_row.dart' show digitsText;
 import 'local_node.dart' show LocalTab, NodeTile, NodeSyncBar, StageStrip;
 import 'local_node_peers.dart';
 import 'prefs.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
 import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// How often an own node is asked while its panel is open.
-const Duration ownAskEvery = Duration(seconds: 15);
+Duration get ownAskEvery => appConfig.ownNodeAsk;
 
 /// From this panel width, status and details (or peers) sit side by side.
 double get nodePanelWideFrom => 1040.u;

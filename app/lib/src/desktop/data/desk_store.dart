@@ -16,6 +16,7 @@ import '../../l10n.dart' show appLanguages;
 import '../../secret_store_api.dart';
 import '../../settings.dart' show autoLockChoice;
 import 'models.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 
 class DeskStore {
   const DeskStore(this._secrets);
@@ -140,7 +141,7 @@ class DeskStore {
     if (walletId != null) {
       return writeJson(httpKeyOf(walletId), {
         'publicMode': p.publicMode,
-        'httpPort': p.port,
+        'httpPort': ?p.portChosen,
         'autostart': p.autostart,
       });
     }
@@ -149,7 +150,7 @@ class DeskStore {
     await writeJson(settingsKey, {
       ...?(settings is Map<String, dynamic> ? settings : null),
       'publicMode': p.publicMode,
-      'httpPort': p.port,
+      'httpPort': ?p.portChosen,
     });
     await writeJson(prefsKey, {
       ...?(prefs is Map<String, dynamic> ? prefs : null),
@@ -188,7 +189,7 @@ class DeskStore {
       deskSettingsToJson(
         s.copyWith(
           publicMode: saved.publicMode,
-          httpPort: saved.httpPort,
+          httpPort: saved.httpPortChosen,
           tourSeen: s.tourSeen || saved.tourSeen,
           importWarningSeen: s.importWarningSeen || saved.importWarningSeen,
         ),
@@ -234,10 +235,15 @@ class AutostartPrefs {
 /// A wallet's HTTP listener settings.
 @immutable
 class HttpPrefs {
-  const HttpPrefs({this.publicMode = false, this.port = 3415, this.autostart = false});
+  const HttpPrefs({this.publicMode = false, int? port, this.autostart = false}) : portChosen = port;
 
   final bool publicMode;
-  final int port;
+
+  /// The port the user chose, else `http.listen_port` of `app-config.toml`.
+  int get port => portChosen ?? appConfig.httpListenPort;
+
+  /// The port the user chose; null: the configured one.
+  final int? portChosen;
   final bool autostart;
 
   @override
@@ -253,7 +259,7 @@ HttpPrefs _httpPrefsFromJson(Map<String, dynamic> j, HttpPrefs d) {
   final auto = j['autostart'];
   return HttpPrefs(
     publicMode: public is bool ? public : d.publicMode,
-    port: port is int && port > 0 && port < 65536 ? port : d.port,
+    port: port is int && port > 0 && port < 65536 ? port : d.portChosen,
     autostart: auto is bool ? auto : d.autostart,
   );
 }
@@ -271,7 +277,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'autoLock': s.autoLockMinutes,
   'autoLockOn': s.autoLockOn,
   'publicMode': s.publicMode,
-  'httpPort': s.httpPort,
+  'httpPort': ?s.httpPortChosen,
   'advanced': s.advanced.toJson(),
   'payments': s.payments.toJson(),
   if (s.pairingSeenAs.isNotEmpty) 'pairingSeenAs': s.pairingSeenAs,
@@ -319,7 +325,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
         _ => false,
       },
     ),
-    httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPort,
+    httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPortChosen,
     autoLockMinutes: lock is int ? autoLockChoice(lock) : d.autoLockMinutes,
     autoLockOn: lockOn is bool ? lockOn : d.autoLockOn,
   );

@@ -132,8 +132,10 @@ flutter:
     # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see
     # lib/src/ui/theme/fonts.dart).
     - assets/flags/
-    # The shipped settings file (docs/settings-file.md): every server and site the app uses.
-    - assets/settings/settings.toml
+    # The two settings files (docs/settings-file.md): the first-start copy of the user's
+    # settings.toml, and the read-only app configuration.
+    - assets/config/settings.default.toml
+    - assets/config/app-config.toml
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat

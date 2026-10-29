@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/devices/device_service.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/secret_store_api.dart' as app;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
 
 final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
@@ -56,7 +57,7 @@ void main() {
       nodeUrl: 'https://node.btlabs.uk',
       epicboxDomain: relay,
       epicboxPort: 443,
-      onionRoutes: const [],
+      onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
     );
     final store = lepic.lepicSecretStore(_MemoryStore());
     final wallet = pin

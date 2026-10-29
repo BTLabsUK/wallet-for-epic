@@ -749,5 +749,9 @@
   "deskKitMethodConnected": "Connected",
   "@deskKitMethodConnected": {
     "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
+  },
+  "deskKitReachTorOff": "The check needs Tor off.",
+  "@deskKitReachTorOff": {
+    "description": "Notice in the Link · HTTP guide when the status server cannot check the port over Tor. Short, impersonal."
   }
 }

@@ -74,9 +74,9 @@ void main() {
   setUp(() {
     secrets = MemorySecretStore();
     probe = FakeRelayProbe();
-    // Empty lists in the settings file: the mock wallet's servers fill them, as a first run's
-    // public servers would.
-    hostSettings = testSettings().withValues({'node.servers': const <Object>[], 'epicbox.servers': const <Object>[]});
+    // The settings file's lists are the mock wallet's servers: the default copy's, and its own
+    // home node (which a user adds by hand; nothing adds it by itself).
+    hostSettings = testSettings().withValues({'node.servers': [...testSettings().nodeUrls, 'http://10.0.1.24:3413']});
     container = make();
   });
 
@@ -279,23 +279,19 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('the bin removes with Undo; Restore shows only while a public server is removed', (tester) async {
+  testWidgets('the bin removes with Undo; a removed server is gone, with no Restore', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     final at = nodes().indexOf(_epiccash);
-    expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
     await tap(tester, find.byKey(const ValueKey('server-row-remove-$_epiccash')));
     expect(row(_epiccash), findsNothing);
     expect(find.text('Removed node.epic.invalid:3413.'), findsOneWidget);
-    expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
+    expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
     await tap(tester, find.byKey(const ValueKey('server-list-undo')));
     expect(nodes().indexOf(_epiccash), at, reason: 'back where it was');
-    expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
 
     await tap(tester, find.byKey(const ValueKey('server-row-remove-$_epiccash')));
-    await tap(tester, find.byKey(const ValueKey('server-list-restore')));
-    expect(nodes(), contains(_epiccash));
+    expect(container.read(hostSettingsProvider).nodeUrls, isNot(contains(_epiccash)), reason: 'gone from the file');
     expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
-    expect(find.text('Removed servers restored.'), findsOneWidget);
     await end(tester);
   });
 
@@ -432,29 +428,29 @@ void main() {
   });
 
   group('the list in the settings file', () {
-    test('directory servers join as they are seen; removed ones stay out until restored', () async {
+    test('the list is the file\'s: an add and a removal are written; nothing joins by itself', () async {
+      hostSettings = hostSettings.withValues({'node.servers': const <String>[], 'epicbox.servers': const <String>[]});
       final c = make();
       addTearDown(c.dispose);
       final n = c.read(deskServerListProvider(ServerKind.relay).notifier);
-      await n.sync(const DeskServerSource(public: ['a.example', 'b.example'], inUse: 'a.example'));
+      await n.add('a.example');
+      await n.add('b.example');
       expect(n.state!.entries, ['a.example', 'b.example']);
       await n.remove('b.example');
-      await n.sync(const DeskServerSource(public: ['a.example', 'b.example', 'c.example'], inUse: 'a.example'));
-      expect(n.state!.entries, ['a.example', 'c.example']);
-      expect(n.state!.restorable(ServerKind.relay, ['a.example', 'b.example', 'c.example']), ['b.example']);
-      await n.restore(['a.example', 'b.example', 'c.example']);
-      expect(n.state!.entries, ['a.example', 'c.example', 'b.example']);
-      expect(serverListOf(c.read(hostSettingsProvider), ServerKind.relay), n.state, reason: 'written to the settings');
+      expect(n.state!.entries, ['a.example']);
+      expect(serverListOf(c.read(hostSettingsProvider), ServerKind.relay).entries, n.state!.entries, reason: 'written to the settings');
+      expect(c.read(hostSettingsProvider).epicboxUse, 'a.example', reason: 'the first is in use');
     });
 
-    test('a server the user typed in has no operator in the file; a directory one has its own', () async {
+    test('a server the user typed in has no operator; one under an operator\'s domain has it', () async {
+      hostSettings = hostSettings.withValues({'node.servers': const <String>[], 'epicbox.servers': const <String>[]});
       final c = make();
       addTearDown(c.dispose);
       final n = c.read(deskServerListProvider(ServerKind.node).notifier);
-      await n.sync(nodeSource(const [NodeServer(url: 'https://node.example.org', label: 'Ex', operator: 'Example')], inUse: 'https://node.example.org'));
+      await n.add('https://node2.lab.invalid');
       await n.add('http://10.0.1.24:3413', own: true);
       final servers = c.read(hostSettingsProvider).nodeServers;
-      expect([for (final s in servers) (s.url, s.operator)], [('https://node.example.org', 'Example'), ('http://10.0.1.24:3413', null)]);
+      expect([for (final s in servers) (s.url, s.operator)], [('https://node2.lab.invalid', 'BT Labs'), ('http://10.0.1.24:3413', null)]);
       expect(n.state!.isAddedByUser(ServerKind.node, 'http://10.0.1.24:3413'), isTrue);
     });
 

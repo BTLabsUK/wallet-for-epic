@@ -4,7 +4,7 @@
 /// is anything but "wrong"; "wrong" fails the unlock.
 library;
 
-import '../../settings_file/host_settings.dart' show hostSettings;
+import '../../settings_file/host_settings.dart' show appConfig, hostSettings;
 import 'mock_hosts.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -137,7 +137,7 @@ class MockDeskWallet implements DeskWalletApi {
     Contact(id: 'c8', name: 'Northwind Exchange', address: _northwindAddr),
     Contact(id: 'c9', name: 'Marta W.', address: 'esQka2Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@$mockBox'),
     // Seeded into every new wallet.
-    Contact(id: 'btlabs', name: btLabsContact.name, address: btLabsContact.address, note: btLabsContact.note),
+    if (btLabsContact case final b?) Contact(id: 'btlabs', name: b.name, address: b.address, note: b.note),
   ];
 
   late final List<Tx> _txs = [
@@ -1011,7 +1011,7 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> useBuiltInNode(bool on) async {
     await _wait();
-    _node = on ? 'http://127.0.0.1:3413' : hostSettings.nodeUse;
+    _node = on ? 'http://127.0.0.1:${appConfig.localNodeApiPort}' : hostSettings.nodeUse;
   }
 
   @override

@@ -19,7 +19,7 @@ import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 import '../settings/settings_advanced.dart' show openAdvanced;
-import '../../../settings_file/host_settings.dart' show hostSettings;
+import '../../../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 enum RxEpicbox { on, off, down, blocked }
 
@@ -116,7 +116,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       httpListener: http,
       tor: tor,
       httpProblem: a.http == RxHttp.failed ? HttpProblem.portInUse : s.httpProblem,
-      httpProblemPort: a.http == RxHttp.failed ? 3415 : s.httpProblemPort,
+      httpProblemPort: a.http == RxHttp.failed ? appConfig.httpListenPort : s.httpProblemPort,
       torProgress: a.tor == RxTor.connecting ? 45 : s.torProgress,
       torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: tour demo state
       torCanSend: a.tor == RxTor.connecting ? false : s.torCanSend,

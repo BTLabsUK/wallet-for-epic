@@ -26,8 +26,9 @@ import 'settings_file/settings_providers.dart' show hostSettingsChanges;
 /// `--dart-define=WFE_STATUS_URL=...` replaces the settings' status file (a test monitor).
 const String _statusUrlOverride = String.fromEnvironment('WFE_STATUS_URL');
 
-/// The monitor's status file: `[status] directory` of the settings file.
-String get relayStatusUrl => _statusUrlOverride.isNotEmpty ? _statusUrlOverride : hostSettings.statusDirectory;
+/// The monitor's status file: `[status] directory` of `app-config.toml`; null when it is left
+/// out (no status site: every screen takes its site-off path).
+String? get relayStatusUrl => _statusUrlOverride.isNotEmpty ? _statusUrlOverride : hostSettings.statusDirectory;
 
 /// Settings › Privacy › Use the status site: `[status] enabled` of the settings file, on by
 /// default. Off, [HttpRelayDirectory] fails at once without a request, so every screen takes
@@ -66,13 +67,16 @@ class StatusSiteSwitch extends ChangeNotifier {
 
   StreamSubscription<SettingsChange>? _follow;
 
-  /// Takes `status.enabled` from the settings in use now and after every change (an app
+  /// The site may be asked: `[online] status_site` on and a status file configured.
+  static bool _siteOn(HostSettings s) => s.statusEnabled && s.statusDirectory != null;
+
+  /// Takes `[online] status_site` from the settings in use now and after every change (an app
   /// change or a hand edit of the file).
   void followSettings() {
     _loading = null;
-    if (hostSettingsLoaded) on = hostSettings.statusEnabled;
+    if (hostSettingsLoaded) on = _siteOn(hostSettings);
     unawaited(_follow?.cancel());
-    _follow = hostSettingsChanges.listen((c) => on = c.after.statusEnabled);
+    _follow = hostSettingsChanges.listen((c) => on = _siteOn(c.after));
   }
 
   /// Whether a request to the site may go out now.
@@ -161,7 +165,9 @@ ServerIcon? parseServerIcon(Object? v) {
   final hash = v['hash'];
   final urls = v['urls'];
   if (hash is! String || hash.isEmpty || urls is! Map) return null;
-  final site = Uri.parse(relayStatusUrl).host;
+  final status = relayStatusUrl;
+  if (status == null) return null;
+  final site = Uri.parse(status).host;
   final out = <int, Uri>{};
   for (final MapEntry(:key, :value) in urls.entries) {
     final size = int.tryParse('$key');
@@ -468,11 +474,13 @@ abstract interface class NetworkDirectory {
 /// answer, or failure, for [fresh], so the lists do not ask again on every screen. The only way
 /// to the site: with [site] off it throws [NetError] without a request.
 class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirectory {
+  /// [timeout], [torTimeout] and [fresh] are `status.timeout_s`, `status.tor_timeout_s` and
+  /// `status.fresh_s` of `app-config.toml` unless given.
   HttpRelayDirectory({
-    this.timeout = const Duration(seconds: 4),
-    this.torTimeout = const Duration(seconds: 30),
+    this._timeout,
+    this._torTimeout,
     this.torRetryPause = const Duration(seconds: 1),
-    this.fresh = const Duration(minutes: 1),
+    this._fresh,
     Future<HttpReply> Function(Uri url, {Duration timeout})? get,
     DateTime Function()? now,
     StatusSiteSwitch? site,
@@ -480,14 +488,18 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
        _now = now ?? DateTime.now,
        _site = site ?? statusSite;
 
-  final Duration timeout;
+  final Duration? _timeout;
+  final Duration? _torTimeout;
+  final Duration? _fresh;
+
+  Duration get timeout => _timeout ?? appConfig.statusTimeout;
 
   /// Over Tor the site is its onion: a first rendezvous takes several seconds and a warm one
   /// about 3 s, so [timeout] would fail most fetches. Also covers the wait for tor to connect
   /// and one more try after [torRetryPause] when the first fails.
-  final Duration torTimeout;
+  Duration get torTimeout => _torTimeout ?? appConfig.statusTorTimeout;
   final Duration torRetryPause;
-  final Duration fresh;
+  Duration get fresh => _fresh ?? appConfig.statusFresh;
   final Future<HttpReply> Function(Uri url, {Duration timeout}) _get;
   final DateTime Function() _now;
   final StatusSiteSwitch _site;
@@ -508,8 +520,9 @@ class HttpRelayDirectory implements RelayDirectory, NodeDirectory, NetworkDirect
   }
 
   Future<String> _fetch(String chain) async {
-    if (!await _site.allowed()) throw const NetError('status site off');
-    final url = Uri.parse(relayStatusUrl)
+    final status = relayStatusUrl;
+    if (status == null || !await _site.allowed()) throw const NetError('status site off');
+    final url = Uri.parse(status)
         .replace(queryParameters: chain == 'mainnet' ? null : {'chain': chain});
     final tor = TorSwitch.on;
     final limit = tor ? torTimeout : timeout;

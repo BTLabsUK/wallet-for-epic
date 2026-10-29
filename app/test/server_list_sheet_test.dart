@@ -128,21 +128,20 @@ const _relayServers = [
   ('box.lab.invalid', 'BT Labs'),
 ];
 
-/// The settings in use: mainnet, its default node, a relay that is not the default, the lists
-/// above (or [lists] by kind). Set as the process-wide (and shipped) settings; the sheet's
+/// The settings in use: mainnet, its default node, a relay that is not the default (first of its
+/// list), the lists above (or [lists] by kind). Set as the process-wide (and shipped) settings; the sheet's
 /// writes then change its container's settings ([_settings]).
 MemorySecretStore _store([Map<ServerKind, ServerList> lists = const {}, Map<String, String> extra = const {}]) {
   final base = testSettings().withValues({
-    'node.use': _btlabs,
-    'node.servers': [for (final (u, o) in _nodeServers) {'url': u, 'operator': o}],
-    'epicbox.use': 'box.epic.invalid',
-    'epicbox.default': 'box.epic.invalid',
-    'epicbox.servers': [for (final (h, o) in _relayServers) {'host': h, 'operator': o}],
+    'node.servers': [for (final (u, _) in _nodeServers) u],
+    'epicbox.servers': [for (final (h, _) in _relayServers) h],
+    'operators': {...testSettings().config.operators, 'pool.example.org': 'Pool'},
   });
   shippedHostSettings = base;
-  var s = base.withValues({'epicbox.use': _stack});
+  // The relay in use is the first of the list.
+  var s = base.withValues(useServerValues(base, relay: _stack));
   for (final MapEntry(key: kind, value: list) in lists.entries) {
-    s = s.withValues(serverListValues(s, kind, list));
+    s = s.withValues(serverListValues(kind, list));
   }
   hostSettings = s;
   return MemorySecretStore({'app.network': 'mainnet', ...extra});
@@ -324,7 +323,6 @@ void main() {
       expect(_check(_epicnet), findsNothing);
       // Nothing typed: no Add, no restore, no match line, a bin on every row.
       expect(find.byKey(serverListAddKey), findsNothing);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
       expect(find.text(_noMatch), findsNothing);
       expect(find.byKey(serverListRemoveKey(_btlabs)), findsOneWidget);
       expect(find.byKey(serverListRemoveKey(_epicnet)), findsOneWidget);
@@ -685,9 +683,6 @@ void main() {
       );
       final list = _saved(tester, ServerKind.node);
       expect(list.entries, isNot(contains(_epicnet)));
-      expect(list.removed, contains('node.net.invalid:3413'));
-      // The list was removed from the public one: restore shows.
-      expect(find.byKey(serverListRestoreKey), findsOneWidget);
 
       await tester.tap(
         find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Undo')),
@@ -699,8 +694,6 @@ void main() {
         _saved(tester, ServerKind.node).entries,
         list.entries.toList()..insert(1, _epicnet),
       );
-      expect(_saved(tester, ServerKind.node).removed, isEmpty);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
       await _timers(tester);
       expect(find.byKey(serverListFootKey), findsNothing, reason: 'the line goes away by itself');
     });
@@ -733,130 +726,9 @@ void main() {
       await _timers(tester);
     });
 
-    testWidgets('Restore removed servers shows only while a public server is removed, and puts '
-        'them back', (tester) async {
-      final env = _Env();
-      await _pump(tester, ServerKind.node, env);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
-      await tester.tap(find.byKey(serverListRemoveKey(_epicnet)));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(serverListRemoveKey(_epiccash)));
-      await tester.pumpAndSettle();
-      expect(find.text('Restore removed servers · 2 removed'), findsOneWidget);
-
-      await tester.tap(find.byKey(serverListRestoreKey));
-      await tester.pumpAndSettle();
-      expect(_foot('Removed servers restored.'), findsOneWidget);
-      expect(_row(_epicnet), findsOneWidget);
-      expect(_row(_epiccash), findsOneWidget);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
-      final list = _saved(tester, ServerKind.node);
-      expect(list.removed, isEmpty);
-      expect(list.entries, containsAll([_epicnet, _epiccash]));
-      await _timers(tester);
-    });
-
-    testWidgets('removing a server of your own does not offer to restore the public list', (
-      tester,
-    ) async {
-      final env = _Env();
-      await _pump(tester, ServerKind.relay, env);
-      await _type(tester, 'relay.example.org');
-      await _tapAdd(tester);
-      await tester.tap(find.byKey(serverListRemoveKey('relay.example.org')));
-      await tester.pumpAndSettle();
-      expect(_row('relay.example.org'), findsNothing);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
-      await _timers(tester);
-    });
   });
 
   group('the directory', () {
-    const added = 'https://node.new.example:3413';
-    final newNode = [
-      const NodeStatus(
-        url: added,
-        healthy: true,
-        verified: false,
-        operator: 'New Ops',
-        state: NodeHealthState.healthy,
-        tipLag: 0,
-      ),
-    ];
-
-    testWidgets('a new server of the monitor joins the list; once removed it stays out when '
-        'the directory answers again', (tester) async {
-      final env = _Env(directory: _Directory(nodeList: newNode));
-      await _pump(tester, ServerKind.node, env);
-      expect(_row(added), findsOneWidget);
-      expect(_saved(tester, ServerKind.node).entries.last, added);
-      expect(_inRow(added, 'New Ops'), findsOneWidget);
-
-      await tester.tap(find.byKey(serverListRemoveKey(added)));
-      await tester.pumpAndSettle();
-      await _timers(tester);
-      expect(_row(added), findsNothing);
-
-      // The sheet opens again; the directory lists it still.
-      await _pump(tester, ServerKind.node, env);
-      expect(_row(added), findsNothing);
-      expect(_saved(tester, ServerKind.node).entries, isNot(contains(added)));
-      expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
-
-      // Restore brings it back.
-      await tester.tap(find.byKey(serverListRestoreKey));
-      await tester.pumpAndSettle();
-      expect(_row(added), findsOneWidget);
-      await _timers(tester);
-    });
-
-    testWidgets('a built-in server the user removed stays out too, with the directory answering '
-        'for it', (tester) async {
-      final env = _Env(
-        directory: _Directory(
-          nodeList: const [
-            NodeStatus(
-              url: _epicnet,
-              healthy: true,
-              verified: true,
-              operator: 'EpicNet',
-              state: NodeHealthState.healthy,
-              tipLag: 0,
-            ),
-          ],
-        ),
-      );
-      await _pump(tester, ServerKind.node, env);
-      expect(_inRow(_epicnet, 'at tip'), findsOneWidget);
-      await tester.tap(find.byKey(serverListRemoveKey(_epicnet)));
-      await tester.pumpAndSettle();
-      await _timers(tester);
-      await _pump(tester, ServerKind.node, env);
-      expect(_row(_epicnet), findsNothing);
-      expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
-      await _timers(tester);
-    });
-
-    testWidgets('epicbox: a monitor relay joins the list as well', (tester) async {
-      final env = _Env(
-        directory: _Directory(
-          relayList: const [
-            RelayStatus(
-              relay: EpicboxRelay(host: 'epicbox.new.example'),
-              healthy: true,
-              verified: false,
-              operator: 'New Ops',
-              latencyMs: 120,
-            ),
-          ],
-        ),
-      );
-      await _pump(tester, ServerKind.relay, env);
-      expect(_row('epicbox.new.example'), findsOneWidget);
-      expect(_saved(tester, ServerKind.relay).entries, contains('epicbox.new.example'));
-      expect(_inRow('epicbox.new.example', '120 ms'), findsOneWidget);
-    });
-
     testWidgets('no answer from the monitor: the built-in list still shows, health unknown', (
       tester,
     ) async {
@@ -949,7 +821,11 @@ void main() {
     testWidgets('a server with no icon shows its operator initials: "EU" for epicnet.us', (
       tester,
     ) async {
+      // The user's own server, which the monitor knows (the status site never adds it).
       final env = _Env(
+        store: _store({
+          ServerKind.relay: ServerList(entries: [_stack, for (final (h, _) in _relayServers) if (h != _stack) h, 'relay.monitor.example']),
+        }),
         directory: _Directory(
           relayList: const [
             RelayStatus(

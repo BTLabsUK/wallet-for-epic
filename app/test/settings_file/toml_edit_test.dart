@@ -40,6 +40,26 @@ line # not a comment
 """
 ''';
 
+/// An array of tables as the editor still sets them (the onion routes of app-config.toml are
+/// one); these two are the tests' own.
+String _nodeIdentity(Map<String, Object?> e) => '${e['url'] ?? ''}'.toLowerCase().replaceFirst(RegExp(r'/$'), '');
+String _epicboxIdentity(Map<String, Object?> e) => epicboxLabel('${e['host'] ?? ''}', e['port'] is int ? e['port']! as int : 443);
+
+const nodeServersKind = TablesKind([
+  EntryField('url', TextKind(checkNodeAddress), required: true),
+  EntryField('operator', TextKind(anyText)),
+], _nodeIdentity);
+
+const epicboxServersKind = TablesKind(
+  [
+    EntryField('host', TextKind(checkEpicboxServer), required: true),
+    EntryField('port', IntKind(min: 1, max: 65535, problem: ValueProblem.notPort), byDefault: 443),
+    EntryField('operator', TextKind(anyText)),
+  ],
+  _epicboxIdentity,
+  omitDefaults: {'port'},
+);
+
 List<Map<String, Object?>> _servers(String text) => [
   for (final e in rawValue(parseSettingsToml(text), 'node.servers')! as List) Map<String, Object?>.from(e as Map),
 ];

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'demo.dart';
+import 'server_list_file.dart' show useServerValues;
 import 'settings_file/settings_providers.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
@@ -29,6 +30,7 @@ import 'wallet_service.dart';
 
 export 'models.dart' show defaultMinimumConfirmations;
 import 'phrase_clipboard.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 import 'pairing_providers.dart' show invoiceSessionProvider;
 import 'devices/device_service.dart' show DeviceSyncTrigger;
 import 'devices/phone_devices.dart' show deviceServiceProvider;
@@ -153,7 +155,8 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     ref.invalidateSelf();
   }
 
-  /// Writes [nodeUrl] and [relay] as `node.use` and `epicbox.use`: every wallet uses them.
+  /// Moves [nodeUrl] and [relay] to the top of their lists in `settings.toml`: every wallet uses
+  /// the first of each.
   Future<void> save(
     NetworkPreset preset,
     String nodeUrl, {
@@ -162,7 +165,7 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     // The demo's network cannot change.
     if (ref.read(demoModeProvider)) return;
     final r = relay ?? await relayFor(preset);
-    await ref.read(hostSettingsProvider.notifier).setAll({'node.use': nodeUrl, 'epicbox.use': r.label});
+    await ref.read(hostSettingsProvider.notifier).setAll(useServerValues(ref.read(hostSettingsProvider), node: nodeUrl, relay: r.label));
     logInfo(
       'network',
       // Logs reach support reports: mainnet is never named there.
@@ -900,10 +903,10 @@ const Duration listenerStopWait = Duration(seconds: 5);
 /// it on its own. LEPIC retries a lost connection itself; this catches a listener that stays
 /// down anyway (a dead socket it never noticed, a stream that ended, a backoff on a clock that
 /// slept). Each restart that does not connect doubles the wait, up to [listenerHealMax].
-const Duration listenerHealAfter = Duration(seconds: 30);
+Duration get listenerHealAfter => appConfig.listenerHealAfter;
 
 /// The longest wait between two self-heal restarts of a listener that does not connect.
-const Duration listenerHealMax = Duration(minutes: 5);
+Duration get listenerHealMax => appConfig.listenerHealMax;
 
 class ListenerNotifier extends Notifier<ListenerState> {
   StreamSubscription<ListenerEvent>? _events;

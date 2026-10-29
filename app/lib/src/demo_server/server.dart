@@ -106,6 +106,7 @@ class DemoServer {
   int _creating = 0;
   final List<StaticSite> _sites = [];
   String? _settingsText;
+  String? _configText;
   DemoCspHosts _csp = const DemoCspHosts();
 
   HttpServer? _http;
@@ -144,9 +145,10 @@ class DemoServer {
       ServerLogLevel.info,
       'start-up: ${loaded.live.length} live demos, ${loaded.removed} removed',
     );
-    if (config.settingsFile case final file?) {
-      final text = await File(file).readAsString();
-      _settingsText = text;
+    if (config.settingsFile case final dir?) {
+      _settingsText = await File('$dir${Platform.pathSeparator}settings.default.toml').readAsString();
+      final text = await File('$dir${Platform.pathSeparator}app-config.toml').readAsString();
+      _configText = text;
       _csp = _cspHostsOf(text);
     }
     if (config.webRoot case final web?) {
@@ -330,6 +332,9 @@ class DemoServer {
       if (path == '/demo/settings.toml' && _settingsText != null) {
         return await _settings(request, _settingsText!);
       }
+      if (path == '/demo/app-config.toml' && _configText != null) {
+        return await _settings(request, _configText!);
+      }
       if (path == '/api/health') return await _health(request);
       if (path == '/api/demo') return await _demo(request);
       if (path == '/api/ws') return await _socket(request);
@@ -510,9 +515,9 @@ class DemoServer {
   }
 }
 
-/// The `[demo]` table's `csp_fonts` and `csp_connect` of a settings file.
+/// The `[demo]` table's `csp_fonts` and `csp_connect` of an `app-config.toml`.
 DemoCspHosts _cspHostsOf(String text) {
-  final demo = parseSettingsToml(text)['demo'];
+  final demo = parseSettingsToml(text, file: 'app-config.toml')['demo'];
   List<String> list(String key) {
     final v = demo is Map ? demo[key] : null;
     return v is List ? [for (final e in v) if (e is String) e] : const [];

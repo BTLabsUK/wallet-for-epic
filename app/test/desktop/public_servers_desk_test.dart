@@ -110,13 +110,13 @@ void main() {
     expect(await w.nodes(), hasLength(deskPublicNodes.length));
     await changed.timeout(const Duration(seconds: 2));
     final nodes = await w.nodes();
-    expect(nodes, hasLength(deskPublicNodes.length + 1));
+    expect(nodes.map((n) => n.url), containsAllInOrder([...deskPublicNodes.map((n) => n.url), 'https://new.example:3413']));
     expect(nodes.first.url, hostSettings.nodeServers.first.url);
-    expect(nodes.last.url, 'https://new.example:3413');
-    expect(nodes.last.operator, 'New op');
+    expect(nodes.firstWhere((n) => n.url == 'https://new.example:3413').operator, 'New op');
     final boxes = await w.epicboxes();
-    expect(boxes.map((b) => b.domain), [..._boxes, 'box.example']);
-    expect(boxes.last.operator, 'Box op');
+    expect(boxes.map((b) => b.domain), containsAllInOrder([..._boxes, 'box.example']));
+    expect(boxes.firstWhere((b) => b.domain == 'box.example').operator, 'Box op');
+    expect(hostSettings.nodeUrls, isNot(contains('https://new.example:3413')), reason: 'never into the list');
     expect(boxes.first.health, ServiceHealth.ok);
   });
 
@@ -130,7 +130,7 @@ void main() {
     expect((await w.epicboxes()).map((b) => b.domain), _boxes);
     expect(dir.reads, 0, reason: 'nothing asked while Tor connects');
     TorNet.useDirect();
-    expect((await w.epicboxes()).map((b) => b.domain), [..._boxes, 'box.example']);
+    expect((await w.epicboxes()).map((b) => b.domain), containsAllInOrder([..._boxes, 'box.example']));
     expect(dir.reads, 1);
   });
 

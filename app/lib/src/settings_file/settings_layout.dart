@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The keys of `settings.toml` (version 1): each key's path, the kind of value it holds and
-/// what makes a value good. The model reads only these; any other key is unknown (kept in the
+/// The keys of the two files (docs/settings-file.md): [settingsKeys], the user's
+/// `settings.toml` (the server lists and three switches, kept in step with the app), and
+/// [configKeys], the read-only `app-config.toml` shipped with the app (every other address,
+/// timeout, interval, port and limit). Each key has its path, the kind of value it holds and
+/// what makes a value good. A key of `settings.toml` the layout lacks is unknown (kept in the
 /// file, named once in a notice).
 library;
 
@@ -44,14 +47,26 @@ class BoolKind extends ValueKind {
 }
 
 class TextListKind extends ValueKind {
-  const TextListKind(this.check);
+  const TextListKind(this.check, {this.minLength = 0});
   final TextCheck check;
+
+  /// The fewest items a good list has (a server list needs the one in use).
+  final int minLength;
 }
 
-/// A text-to-text inline table (`renamed_epicbox = { "old" = "new" }`), both sides checked.
+/// A list of whole numbers (`start_backoff_s = [2, 10, 30, 60]`), each in [min]..[max].
+class IntListKind extends ValueKind {
+  const IntListKind({this.min = 0, this.max = 1 << 31});
+  final int min;
+  final int max;
+}
+
+/// A text-to-text inline table (`renamed_epicbox = { "old" = "new" }`): keys checked by
+/// [keyCheck] (else [check]), values by [check].
 class TextMapKind extends ValueKind {
-  const TextMapKind(this.check);
+  const TextMapKind(this.check, {this.keyCheck});
   final TextCheck check;
+  final TextCheck? keyCheck;
 }
 
 /// One field of an array of tables' entry.
@@ -65,13 +80,13 @@ class EntryField {
   final Object? byDefault;
 }
 
-/// An array of tables (`[[node.servers]]`): entries with [fields], told apart by [identity].
+/// An array of tables (`onions = [{ … }, …]`): entries with [fields], told apart by [identity].
 class TablesKind extends ValueKind {
   const TablesKind(this.fields, this.identity, {this.omitDefaults = const {}});
   final List<EntryField> fields;
   final String Function(Map<String, Object?> entry) identity;
 
-  /// Fields a new block leaves out when they hold their default (`port = 443` for Epicbox).
+  /// Fields a new block leaves out when they hold their default.
   final Set<String> omitDefaults;
 
   EntryField? field(String name) {
@@ -83,9 +98,17 @@ class TablesKind extends ValueKind {
 }
 
 class SettingsKey {
-  const SettingsKey(this.path, this.kind);
+  const SettingsKey(this.path, this.kind, {this.byDefault, this.requiredWith});
   final String path;
   final ValueKind kind;
+
+  /// The value of an optional key a file leaves out (`app-config.toml` only): empty text or an
+  /// empty list, which reads as "not configured" (the feature is hidden). Null: required.
+  final Object? byDefault;
+
+  /// A key needed only while one of these keys is set (not empty): the timing of a service
+  /// whose address may be left out. Without them it may be missing too, and is never read.
+  final List<String>? requiredWith;
 
   List<String> get parts => path.split('.');
 }
@@ -174,7 +197,7 @@ String hostOf(String address) {
   return (i < 0 ? address : address.substring(0, i)).toLowerCase();
 }
 
-/// `host:port` of a node address (`node.removed` names them this way).
+/// `host:port` of a node address, the port filled in from the scheme.
 String nodeHostPort(String url) {
   final uri = Uri.tryParse(url);
   if (uri == null || uri.host.isEmpty) return url.toLowerCase();
@@ -182,21 +205,8 @@ String nodeHostPort(String url) {
   return '${uri.host.toLowerCase()}:$port';
 }
 
-/// A node entry's identity: its address, without a trailing `/`, host in lower case.
-String nodeIdentity(Map<String, Object?> e) {
-  final url = '${e['url'] ?? ''}';
-  final uri = Uri.tryParse(url);
-  if (uri == null || uri.host.isEmpty) return url;
-  return uri.replace(host: uri.host.toLowerCase()).toString().replaceFirst(RegExp(r'/$'), '');
-}
-
-/// `host` on 443, else `host:port`: an Epicbox server's label and identity.
+/// `host` on 443, else `host:port`: an Epicbox server's label, as an address names it.
 String epicboxLabel(String host, int port) => port == 443 ? host.toLowerCase() : '${host.toLowerCase()}:$port';
-
-String epicboxIdentity(Map<String, Object?> e) {
-  final port = e['port'];
-  return epicboxLabel('${e['host'] ?? ''}', port is int ? port : 443);
-}
 
 /// An onion route's identity: `host:port`.
 String onionIdentity(Map<String, Object?> e) {
@@ -209,21 +219,9 @@ String onionIdentity(Map<String, Object?> e) {
 const _port = IntKind(min: 1, max: 65535, problem: ValueProblem.notPort);
 const _url = TextKind(checkWebAddress);
 const _urls = TextListKind(checkWebAddress);
-
-const nodeServersKind = TablesKind([
-  EntryField('url', TextKind(checkNodeAddress), required: true),
-  EntryField('operator', TextKind(anyText)),
-], nodeIdentity);
-
-const epicboxServersKind = TablesKind(
-  [
-    EntryField('host', TextKind(checkEpicboxServer), required: true),
-    EntryField('port', _port, byDefault: 443),
-    EntryField('operator', TextKind(anyText)),
-  ],
-  epicboxIdentity,
-  omitDefaults: {'port'},
-);
+const _seconds = IntKind(min: 1, max: 86400);
+const _ms = IntKind(min: 1, max: 600000);
+const _count = IntKind(min: 1, max: 100000);
 
 const torOnionsKind = TablesKind([
   EntryField('host', TextKind(checkHostName), required: true),
@@ -233,58 +231,153 @@ const torOnionsKind = TablesKind([
   EntryField('tls', BoolKind(), byDefault: true),
 ], onionIdentity);
 
-/// Every key the app reads, in the shipped file's order.
+/// Every key of the user's `settings.toml`, in the default copy's order. The first entry of
+/// each server list is the one in use; an empty list means none is configured.
 const List<SettingsKey> settingsKeys = [
-  SettingsKey('version', IntKind(min: 1)),
-  SettingsKey('node.use', TextKind(checkNodeAddress)),
-  SettingsKey('node.fallback', TextKind(checkNodeAddress)),
-  SettingsKey('node.removed', TextListKind(checkHostPort)),
-  SettingsKey('node.servers', nodeServersKind),
-  SettingsKey('epicbox.use', TextKind(checkEpicboxServer)),
-  SettingsKey('epicbox.default', TextKind(checkEpicboxServer)),
-  SettingsKey('epicbox.removed', TextListKind(checkEpicboxServer)),
-  SettingsKey('epicbox.servers', epicboxServersKind),
-  SettingsKey('pairing.servers', TextListKind(checkEpicboxServer)),
-  SettingsKey('devices.link_servers', TextListKind(checkEpicboxServer)),
+  SettingsKey('node.servers', TextListKind(checkNodeAddress)),
+  SettingsKey('epicbox.servers', TextListKind(checkEpicboxServer)),
+  SettingsKey('online.status_site', BoolKind()),
+  SettingsKey('online.update_check', BoolKind()),
+  SettingsKey('online.price', BoolKind()),
+];
+
+/// Every key of `app-config.toml`, in its order. Read-only: the app never writes it.
+const List<SettingsKey> configKeys = [
+  SettingsKey('operators', TextMapKind(anyText, keyCheck: checkHostName)),
+  // [node]: the wallet core's node client (LEPIC's tuning), then the app's own checks.
+  SettingsKey('node.connect_timeout_s', _seconds),
+  SettingsKey('node.request_timeout_s', _seconds),
+  SettingsKey('node.idle_timeout_s', _seconds),
+  SettingsKey('node.retry_attempts', IntKind(max: 100)),
+  SettingsKey('node.retry_backoff_min_ms', _ms),
+  SettingsKey('node.retry_backoff_max_ms', _ms),
+  SettingsKey('node.outputs_per_request', _count),
+  SettingsKey('node.concurrent_requests', IntKind(min: 1, max: 64)),
+  SettingsKey('node.check_timeout_s', _seconds),
+  SettingsKey('node.tor_check_timeout_s', _seconds),
+  SettingsKey('node.tip_check_s', _seconds),
+  SettingsKey('node.poll_s', _seconds),
+  SettingsKey('node.refresh_s', _seconds),
+  SettingsKey('node.recheck_s', _seconds),
+  SettingsKey('node.stale_after_s', _seconds),
+  SettingsKey('node.failover_after_s', _seconds),
+  SettingsKey('node.failover_probe_s', _seconds),
+  SettingsKey('node.own_node_ask_s', _seconds),
+  SettingsKey('node.local.api_port', _port),
+  SettingsKey('node.local.p2p_port', _port),
+  // [epicbox]
+  SettingsKey('epicbox.address_default', TextKind(checkEpicboxServer)),
+  SettingsKey('epicbox.pairing_servers', IntKind(min: 1, max: 10)),
+  SettingsKey('epicbox.link_servers', IntKind(min: 1, max: 10)),
+  SettingsKey('epicbox.connect_timeout_s', _seconds),
+  SettingsKey('epicbox.response_timeout_s', _seconds),
+  SettingsKey('epicbox.ping_interval_s', _seconds),
+  SettingsKey('epicbox.reconnect_min_s', _seconds),
+  SettingsKey('epicbox.reconnect_max_s', _seconds),
+  SettingsKey('epicbox.drain_timeout_s', _seconds),
+  SettingsKey('epicbox.tor_connect_timeout_s', _seconds),
+  SettingsKey('epicbox.onion_discovery_timeout_s', _seconds),
+  SettingsKey('epicbox.onion_discovery_retry_s', _seconds),
+  SettingsKey('epicbox.listener_heal_after_s', _seconds),
+  SettingsKey('epicbox.listener_heal_max_s', _seconds),
+  // [http]: the Link · HTTP listener and HTTP sends.
+  SettingsKey('http.listen_port', _port),
+  SettingsKey('http.header_timeout_s', _seconds),
+  SettingsKey('http.body_timeout_s', _seconds),
+  SettingsKey('http.request_timeout_s', _seconds),
+  SettingsKey('http.answer_timeout_s', _seconds),
+  SettingsKey('http.max_connections', _count),
+  SettingsKey('http.max_connections_per_address', _count),
+  SettingsKey('http.requests_per_minute', _count),
+  SettingsKey('http.receives_per_minute', _count),
+  SettingsKey('http.send_connect_timeout_s', _seconds),
+  SettingsKey('http.send_request_timeout_s', _seconds),
+  // [tor]
+  SettingsKey('tor.start_backoff_s', IntListKind(min: 1, max: 3600)),
+  SettingsKey('tor.send_wait_s', _seconds),
+  SettingsKey('tor.onion_retry_s', _seconds),
+  SettingsKey('tor.bootstrap_timeout_s', _seconds),
+  SettingsKey('tor.cold_bootstrap_timeout_s', _seconds),
+  SettingsKey('tor.stall_timeout_s', _seconds),
+  SettingsKey('tor.cold_stall_timeout_s', _seconds),
+  SettingsKey('tor.publish_timeout_s', _seconds),
+  SettingsKey('tor.connect_timeout_s', _seconds),
+  SettingsKey('tor.request_timeout_s', _seconds),
   SettingsKey('tor.onion_only_domains', TextListKind(checkHostName)),
   SettingsKey('tor.onions', torOnionsKind),
-  SettingsKey('status.enabled', BoolKind()),
-  SettingsKey('status.directory', _url),
-  SettingsKey('status.icons', _url),
-  SettingsKey('status.price', _url),
-  SettingsKey('price.source', _url),
-  SettingsKey('updates.check', BoolKind()),
-  SettingsKey('updates.manifests', _urls),
-  SettingsKey('updates.downloads', _url),
-  SettingsKey('updates.releases_page', _url),
-  SettingsKey('updates.pages', _urls),
-  SettingsKey('support.report', _url),
-  SettingsKey('support.email', TextKind(checkEmail)),
-  SettingsKey('support.donation', TextKind(checkEpicboxAddress)),
-  SettingsKey('support.directory', _url),
-  SettingsKey('links.website', _url),
-  SettingsKey('links.community', _url),
-  SettingsKey('links.source', _url),
-  SettingsKey('links.explorer_block', TextKind(_explorerBlock)),
-  SettingsKey('links.explorer_kernel', TextKind(_explorerKernel)),
-  SettingsKey('reach.ip_lookup', _url),
-  SettingsKey('reach.port_check', _url),
+  // [status]
+  SettingsKey('status.timeout_s', _seconds, requiredWith: _statusSite),
+  SettingsKey('status.tor_timeout_s', _seconds, requiredWith: _statusSite),
+  SettingsKey('status.fresh_s', _seconds, requiredWith: _statusSite),
+  SettingsKey('status.directory', _url, byDefault: ''),
+  SettingsKey('status.icons', _url, byDefault: ''),
+  SettingsKey('status.price', _url, byDefault: ''),
+  SettingsKey('status.ip', _url, byDefault: ''),
+  SettingsKey('status.reach', TextKind(_reachTemplate), byDefault: ''),
+  SettingsKey('status.reach_timeout_s', _seconds, requiredWith: ['status.ip', 'status.reach']),
+  // [price]
+  SettingsKey('price.refresh_min', IntKind(min: 1, max: 1440), requiredWith: ['price.source', 'status.price']),
+  SettingsKey('price.timeout_s', _seconds, requiredWith: ['price.source']),
+  SettingsKey('price.fallback_timeout_s', _seconds, requiredWith: ['status.price']),
+  SettingsKey('price.max_age_min', IntKind(min: 1, max: 10080), requiredWith: ['price.source', 'status.price']),
+  SettingsKey('price.source', _url, byDefault: ''),
+  // [updates]
+  SettingsKey('updates.first_check_s', _seconds, requiredWith: ['updates.manifests']),
+  SettingsKey('updates.check_every_h', IntKind(min: 1, max: 720), requiredWith: ['updates.manifests']),
+  SettingsKey('updates.timeout_s', _seconds, requiredWith: ['updates.manifests']),
+  SettingsKey('updates.download_stall_s', _seconds, requiredWith: ['updates.downloads']),
+  SettingsKey('updates.manifests', _urls, byDefault: <String>[]),
+  SettingsKey('updates.downloads', _url, byDefault: ''),
+  SettingsKey('updates.releases_page', _url, byDefault: ''),
+  SettingsKey('updates.pages', _urls, byDefault: <String>[]),
+  // [support]
+  SettingsKey('support.timeout_s', _seconds, requiredWith: ['support.report']),
+  SettingsKey('support.report', _url, byDefault: ''),
+  SettingsKey('support.email', TextKind(_optionalEmail), byDefault: ''),
+  SettingsKey('support.donation', TextKind(_donation), byDefault: ''),
+  SettingsKey('support.signed_file', _url, byDefault: ''),
+  // [links]
+  SettingsKey('links.website', _url, byDefault: ''),
+  SettingsKey('links.community', _url, byDefault: ''),
+  SettingsKey('links.source', _url, byDefault: ''),
+  // [explorer]: a block by its height; no kernel page.
+  SettingsKey('explorer.block', TextKind(_explorerBlock), byDefault: ''),
+  // [import]
   SettingsKey('import.gui_node', TextKind(checkNodeAddress)),
   SettingsKey('import.gui_epicbox', TextKind(checkEpicboxServer)),
   SettingsKey('import.old_epicbox', TextKind(checkEpicboxServer)),
   SettingsKey('import.renamed_epicbox', TextMapKind(checkEpicboxServer)),
   SettingsKey('import.dead_fallbacks', TextListKind(checkHostName)),
+  // [report]
   SettingsKey('report.keep_hosts', TextListKind(checkHostName)),
   SettingsKey('report.keep_domains', TextListKind(checkHostName)),
+  // [network]
   SettingsKey('network.vpn_suffixes', TextListKind(checkSuffix)),
+  // [payments]
+  SettingsKey('payments.watch_fast_every_s', _seconds),
+  SettingsKey('payments.watch_fast_for_s', _seconds),
+  SettingsKey('payments.watch_slow_every_s', _seconds),
+  // Above the 180 s the network holds a new transaction (Dandelion's embargo).
+  SettingsKey('payments.watch_for_s', IntKind(min: 181, max: 86400)),
+  SettingsKey('payments.repost_waits_min', IntListKind(min: 1, max: 1440)),
+  SettingsKey('payments.answer_resend_waits_min', IntListKind(min: 1, max: 1440)),
 ];
 
-ValueProblem? _explorerBlock(String v) => checkTemplate('height')(v);
-ValueProblem? _explorerKernel(String v) => checkTemplate('kernel', optional: true)(v);
+ValueProblem? _explorerBlock(String v) => checkTemplate('height', optional: true)(v);
+ValueProblem? _optionalEmail(String v) => v.isEmpty ? null : checkEmail(v);
+ValueProblem? _reachTemplate(String v) => checkTemplate('port', optional: true)(v);
+
+/// The status site's addresses: its timing keys are needed only with one of them.
+const _statusSite = ['status.directory', 'status.icons', 'status.price'];
+
+/// An Epicbox address, or empty: no donation entry.
+ValueProblem? _donation(String v) => v.isEmpty ? null : checkEpicboxAddress(v);
 
 final Map<String, SettingsKey> settingsKeysByPath = {for (final k in settingsKeys) k.path: k};
 
-/// The tables the layout has (`node`, `epicbox`, …).
+final Map<String, SettingsKey> configKeysByPath = {for (final k in configKeys) k.path: k};
+
+/// The tables `settings.toml` has (`node`, `epicbox`, `online`).
 final Set<String> settingsTables = {
   for (final k in settingsKeys)
     if (k.path.contains('.')) k.path.split('.').first,
@@ -305,7 +398,7 @@ class Checked {
 }
 
 /// Checks a raw value from the TOML parser against [kind] and returns it in the model's
-/// shape: `String`, `int`, `bool`, `List<String>`, `Map<String, String>` or
+/// shape: `String`, `int`, `bool`, `List<String>`, `List<int>`, `Map<String, String>` or
 /// `List<Map<String, Object?>>` with every default filled in and unknown fields kept.
 Checked checkValue(ValueKind kind, Object? raw) {
   switch (kind) {
@@ -318,7 +411,7 @@ Checked checkValue(ValueKind kind, Object? raw) {
       return raw >= min && raw <= max ? Checked.good(raw) : Checked.bad(problem);
     case BoolKind():
       return raw is bool ? Checked.good(raw) : const Checked.bad(ValueProblem.notSwitch);
-    case TextListKind(:final check):
+    case TextListKind(:final check, :final minLength):
       if (raw is! List) return const Checked.bad(ValueProblem.notList);
       final out = <String>[];
       for (final v in raw) {
@@ -327,14 +420,23 @@ Checked checkValue(ValueKind kind, Object? raw) {
         if (p != null) return Checked.bad(p);
         out.add(v);
       }
+      if (out.length < minLength) return const Checked.bad(ValueProblem.notList);
       return Checked.good(List<String>.unmodifiable(out));
-    case TextMapKind(:final check):
+    case IntListKind(:final min, :final max):
+      if (raw is! List || raw.isEmpty) return const Checked.bad(ValueProblem.notList);
+      final out = <int>[];
+      for (final v in raw) {
+        if (v is! int || v < min || v > max) return const Checked.bad(ValueProblem.notNumber);
+        out.add(v);
+      }
+      return Checked.good(List<int>.unmodifiable(out));
+    case TextMapKind(:final check, :final keyCheck):
       if (raw is! Map) return const Checked.bad(ValueProblem.notList);
       final out = <String, String>{};
       for (final e in raw.entries) {
         final v = e.value;
         if (v is! String) return const Checked.bad(ValueProblem.notText);
-        final p = check('${e.key}') ?? check(v);
+        final p = (keyCheck ?? check)('${e.key}') ?? check(v);
         if (p != null) return Checked.bad(p);
         out['${e.key}'] = v;
       }

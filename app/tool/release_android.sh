@@ -28,7 +28,10 @@
 # names instead of building one: epic-cash-mobile-<version>-arm64-v8a.apk for the top level and
 # epic-cash-mobile-<version>-notor-arm64-v8a.apk for the notor section, both required, as a
 # release builds and ships both variants (https://docs.btlabs.uk/developers/releases/). The manifest names them under
-# download-base-url by those names, e.g. https://examples.btlabs.uk/epic-cash-wallets/downloads.
+# download-base-url by those names: https://examples.btlabs.uk/epic-cash-wallets/downloads, the
+# release folder that https://epiccash.btlabs.uk/releases/downloads/ also serves. The manifest keeps
+# the examples.btlabs.uk address while installed apps need it: with Tor on, apps up to 26.10.23
+# reach only that name through the downloads onion (https://docs.btlabs.uk/developers/releases/, Release addresses).
 # WFE_DESKTOP_DIR=<folder> adds the per-system desktop blocks (tool/desktop_update_entry.sh) from
 # the published setups, AppImages and dmgs in that folder, the -notor ones into the notor section.
 #

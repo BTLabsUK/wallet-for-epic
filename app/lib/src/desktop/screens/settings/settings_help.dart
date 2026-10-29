@@ -336,13 +336,14 @@ class _SupportBar extends StatelessWidget {
                 Text(context.l10n.deskSetHelpReportText, style: ts.small),
                 SizedBox(height: 2.u),
                 // Wraps in a narrow window: the label and the address, the address selectable.
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text('${context.l10n.contactLabel}: ', style: ts.small),
-                    SelectableText(supportEmail, style: ts.small),
-                  ],
-                ),
+                if (supportEmail case final email?)
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text('${context.l10n.contactLabel}: ', style: ts.small),
+                      SelectableText(email, style: ts.small),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -360,6 +361,9 @@ class _DonateBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // No donation contact in app-config.toml: no bar.
+    final address = btLabsContact?.address;
+    if (address == null) return const SizedBox.shrink();
     final c = context.dc;
     final ts = context.ts;
     return Container(
@@ -378,7 +382,7 @@ class _DonateBar extends StatelessWidget {
             ),
           ),
           SizedBox(width: Sp.x5),
-          ECopyButton(text: btLabsContact.address, label: context.l10n.helpDonateCopy, withLabel: true, kind: EBtnKind.secondary, size: EBtnSize.sm),
+          ECopyButton(text: address, label: context.l10n.helpDonateCopy, withLabel: true, kind: EBtnKind.secondary, size: EBtnSize.sm),
         ],
       ),
     );

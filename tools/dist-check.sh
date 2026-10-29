@@ -84,7 +84,7 @@ case "$dist" in
     # addresses in libapp.so, which the compiler leaves out with the updater).
     hits="$(dex_hits 'InstallResultReceiver|MANAGE_UNKNOWN_APP_SOURCES')"
     [[ -z "$hits" ]] && r=0 || r=1; check "no installer code in the dex ${hits:+($hits)}" "$r"
-    hits="$(find "$work/x" -name libapp.so -exec env LC_ALL=C grep -aolE 'btlabs-epic\.github\.io(/-/raw/main)?/update\.json|epic-cash-wallets/update\.json' {} + | sed "s|$work/x/||" | tr '\n' ' ' || true)"
+    hits="$(find "$work/x" -name libapp.so -exec env LC_ALL=C grep -aolE 'btlabs-epic\.github\.io(/-/raw/main)?/update\.json|epic-cash-wallets/update\.json|api/v1/update\.json' {} + | sed "s|$work/x/||" | tr '\n' ' ' || true)"
     [[ -z "$hits" ]] && r=0 || r=1; check "no update feed in the Dart code ${hits:+($hits)}" "$r"
     ;;
 esac

@@ -21,6 +21,7 @@ import '../data/tor_view.dart' hide isLocalNodeUrl;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 
 /// One row's content, whatever the service.
 class RailItem {
@@ -195,7 +196,7 @@ RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
 );
 
 /// How often the rail asks about a remote node again.
-const Duration railNodeRefresh = Duration(seconds: 60);
+Duration get railNodeRefresh => appConfig.nodeRefresh;
 
 /// The rail: Node, Epicbox, HTTP, Tor, a divider between every two. [horizontal] lays the
 /// compact rows side by side (the phone's top bar).

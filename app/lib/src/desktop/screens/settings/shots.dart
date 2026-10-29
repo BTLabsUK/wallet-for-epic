@@ -12,7 +12,6 @@ import '../../data/desk_update.dart';
 import '../../../btlabs_public.dart' show WalletDesktopFile, walletDesktopDownloads;
 import '../../data/desk_node.dart';
 import '../../data/mock_wallet.dart';
-import '../../data/pairing_state.dart' show deskPairingRelaysProvider;
 import '../../data/server_lists.dart' show ServerKind, deskServerListProvider;
 import '../../widgets/kit.dart';
 import 'backup.dart';
@@ -27,7 +26,6 @@ import 'settings_phrase.dart';
 import 'settings_privacy.dart' show PrivacyDemo;
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
-import 'settings_advanced.dart' show AdvancedDemo;
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
 import 'settings_help.dart' show HelpDemo;
@@ -37,6 +35,7 @@ import '../wallet/tx_detail.dart' show txMoreDemoProvider;
 import '../transfer/send_code.dart' show showExperimentalOffDialog;
 import '../../../advanced.dart';
 import '../../../payment_prefs.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
 
 /// A wallet that is not open, for the remove dialog's shots.
 const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', network: 'mainnet');
@@ -71,7 +70,7 @@ void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
     version: v,
     page: deskReleasesUrl,
     checkedAt: DateTime.now(),
-    file: inApp ? WalletDesktopFile(url: Uri.parse('${walletDesktopDownloads}EpicCashDesktop-$v-x86_64.AppImage'), sha256: '0' * 64, size: 1) : null,
+    file: inApp ? WalletDesktopFile(url: Uri.parse('${walletDesktopDownloads ?? ''}EpicCashDesktop-$v-x86_64.AppImage'), sha256: '0' * 64, size: 1) : null,
     download: phase == DeskUpdatePhase.ready ? File('EpicCashDesktop-$v-x86_64.AppImage') : null,
   ));
 }
@@ -309,7 +308,7 @@ final List<DeskShot> settingsShots = [
     title: 'Receive from the internet: the guide',
     route: DeskRoute.settingsReceiving,
     prepare: (c, _) => resetSettingsDemo(c),
-    dialog: (c) => showEDialog<InternetGuideChoice>(c, builder: (_) => const InternetGuide(port: 3415, isPublic: false)),
+    dialog: (c) => showEDialog<InternetGuideChoice>(c, builder: (_) => InternetGuide(port: appConfig.httpListenPort, isPublic: false)),
   ),
   DeskShot(id: '30c-dlg-report-problem', title: 'Report a problem', route: DeskRoute.settingsHelp, dialog: showReportProblemDialog),
   DeskShot(id: '33-dlg-remove-wallet', title: 'Remove wallet', route: DeskRoute.settingsWallets, dialog: (c) => showRemoveWalletDialog(c, demoOtherWallet)),
@@ -351,13 +350,6 @@ final List<DeskShot> settingsShots = [
   // Settings › Advanced › Experimental: Pairing and Invoices on, then off (the default), and
   // what off leaves: Contacts without Pair, a pairing link that says where to turn it on.
   const DeskShot(id: '43k-advanced-experimental', title: 'Settings › Advanced › Experimental, Pairing and Invoices on', route: DeskRoute.settingsAdvanced, height: 1450),
-  // Connection servers: the row, the list as a set to tick (the defaults at the limit, two chosen,
-  // a server the user added chosen). The window width at 2474 shows the field on one line.
-  const DeskShot(id: '43o-connection-servers', title: 'Settings › Advanced › Connection servers', route: DeskRoute.settingsAdvanced, height: 1450),
-  const DeskShot(id: '43p-connection-servers-open', title: 'Connection servers list, the defaults chosen (at the limit)', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900),
-  DeskShot(id: '43q-connection-servers-two', title: 'Connection servers list, two chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900, prepare: (c, _) => _chooseServers(c, [mockBox, mockBoxAt(1)])),
-  DeskShot(id: '43r-connection-servers-added', title: 'Connection servers list, a server the user added chosen', route: DeskRoute.settingsAdvanced, arg: AdvancedDemo.connectionServersOpen, height: 1900, prepare: (c, _) => _chooseServers(c, [mockBox, 'relay.example.org'], added: 'relay.example.org')),
-  DeskShot(id: '43s-connection-servers-2474', title: 'Connection servers, 2474x1338', route: DeskRoute.settingsAdvanced, width: 2474, height: 1338),
   const DeskShot(id: '43l-advanced-experimental-off', title: 'Settings › Advanced › Experimental, both off', route: DeskRoute.settingsAdvanced, height: 1450),
   const DeskShot(id: '43m-contacts-pairing-off', title: 'Contacts with Pairing off: no Pair, no paired marks', route: DeskRoute.contacts),
   DeskShot(id: '43n-pairing-link-off', title: 'A pairing link with Pairing off', route: DeskRoute.send, dialog: (context) async => showExperimentalOffDialog(context)),
@@ -395,12 +387,6 @@ Future<void> _addedServer(ProviderContainer c) async {
   await c.read(deskServerListProvider(ServerKind.relay).notifier).add('relay.example.org', own: true);
 }
 
-/// Connection servers set to [hosts]; [added] is a server of them the user typed in.
-Future<void> _chooseServers(ProviderContainer c, List<String> hosts, {String? added}) async {
-  if (added != null) await c.read(deskServerListProvider(ServerKind.relay).notifier).add(added, own: true);
-  await c.read(deskPairingRelaysProvider.notifier).set(hosts);
-}
-
 Future<void> _networkMode(ProviderContainer c, NetworkMode mode) async {
   final n = c.read(deskProvider.notifier);
   final s = c.read(deskProvider).settings;
@@ -425,9 +411,4 @@ final List<ImportConflict> _conflicts = [
 /// shot runs as a new install, with both off. The invoice shots are all in the invoice shots (invoices/shots.dart).
 const deskExperimentalShots = {
   '43k-advanced-experimental',
-  '43o-connection-servers',
-  '43p-connection-servers-open',
-  '43q-connection-servers-two',
-  '43r-connection-servers-added',
-  '43s-connection-servers-2474',
 };

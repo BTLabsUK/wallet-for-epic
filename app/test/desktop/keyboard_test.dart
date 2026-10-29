@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
 
 import 'advanced_on.dart';
 
@@ -199,8 +200,8 @@ void main() {
     });
 
     testWidgets('Setup › Epicbox on a test network starts on its own server (LNX-6)', (tester) async {
-      // A test network's settings file names its own server (`epicbox.use`).
-      hostSettings = hostSettings.withValues({'epicbox.use': 'box.lab.invalid'});
+      // A test network's settings file names its own server (the first of its Epicbox list).
+      hostSettings = hostSettings.withValues(useServerValues(hostSettings, relay: 'box.lab.invalid'));
       await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox, api: _Floonet());
       expect(find.text('box.lab.invalid'), findsWidgets);
       expect(find.text('box.epic.invalid'), findsNothing);
@@ -501,6 +502,8 @@ void main() {
     setUp(() => hostSettings = hostSettings.withValues({'node.servers': const <Object>[], 'epicbox.servers': const <Object>[]}));
 
     Future<void> pumpCombo(WidgetTester tester, {bool busy = false, ValueChanged<String>? onPicked}) async {
+      // The panel shows the settings file's list: a.example (in use) and b.example.
+      hostSettings = hostSettings.withValues({'epicbox.servers': ['a.example', 'b.example']});
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -751,6 +754,7 @@ void main() {
     });
 
     testWidgets('Esc on an open combo in a dialog closes the combo first, then the dialog', (tester) async {
+      hostSettings = hostSettings.withValues({'epicbox.servers': ['a.example', 'b.example']});
       await tester.pumpWidget(ProviderScope(child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SizedBox()))));
       final ctx = tester.element(find.byType(Scaffold));
       showDialog<void>(

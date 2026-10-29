@@ -14,3 +14,6 @@ List<Override> webDemoOverrides() => const [];
 
 /// No demo settings off the web.
 Future<String?> demoSettingsText() async => null;
+
+/// No demo configuration off the web.
+Future<String?> demoConfigText() async => null;

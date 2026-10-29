@@ -84,13 +84,12 @@ void main() {
 
     test('the sample matches every built-in server, one row each', () {
       final nodes = mergePublicNodes(parseNodeStatus(_sample));
-      expect(nodes.map((n) => n.url), builtInNodes.map((n) => n.url));
+      // The built-in ones first, in order; the monitor's others after them (a lookup for health
+      // and names: they never join a user's list).
+      expect(nodes.take(builtInNodes.length).map((n) => n.url), builtInNodes.map((n) => n.url));
       expect(nodes.every((n) => n.status != null), isTrue);
-      // Iniaku pool's node is in the sample but shipped as removed: it does not come back.
-      expect(nodes.any((n) => n.url.contains('iniaku')), isFalse);
       final relays = mergePublicRelays(parseRelayStatus(_sample));
-      expect(relays.map((r) => r.relay), builtInRelays.map((r) => r.relay));
-      expect(relays.any((r) => r.relay.host.contains('iniaku')), isFalse);
+      expect(relays.take(builtInRelays.length).map((r) => r.relay), builtInRelays.map((r) => r.relay));
       // Every shipped server the sample knows has its health; a server the sample does not list has none.
       final listed = parseRelayStatus(_sample).map((r) => r.relay.host).toSet();
       for (final r in relays) {

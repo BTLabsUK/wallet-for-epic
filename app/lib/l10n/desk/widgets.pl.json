@@ -124,5 +124,6 @@
   "deskKitQrShow": "Pokaż QR",
   "deskKitQrHide": "Ukryj QR",
   "deskKitQrHideCode": "Ukryj QR",
-  "deskKitMethodConnected": "Połączono"
+  "deskKitMethodConnected": "Połączono",
+  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora."
 }

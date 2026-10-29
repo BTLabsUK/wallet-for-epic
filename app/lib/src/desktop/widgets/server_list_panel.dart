@@ -273,7 +273,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   double _width = 480;
   Timer? _busyTimer;
   bool _slow = false;
-  String _sourceSig = '';
   ServerList? _list;
 
   String? _fieldError;
@@ -714,29 +713,12 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     _say(context.l10n.slReset, undo: () => _undoTo(before));
   }
 
-  Future<void> _restore() async {
-    await ref.read(deskServerListProvider(widget.kind).notifier).restore(widget.source.public);
-    if (mounted) _say(context.l10n.slRestored);
-  }
-
-  /// Keeps the list in step with the directory, after the frame.
-  void _sync() {
-    final s = widget.source;
-    final sig = '${s.public.join(' ')}|${s.own.join(' ')}|${s.inUse}|${s.keep.join(' ')}';
-    if (sig == _sourceSig) return;
-    _sourceSig = sig;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) unawaited(ref.read(deskServerListProvider(widget.kind).notifier).sync(s));
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
     _list = ref.watch(deskServerListProvider(widget.kind));
-    _sync();
     final open = _portal.isShowing;
     final field = FocusableActionDetector(
       focusNode: _button,
@@ -860,7 +842,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final addable = filtering && (shown.isEmpty || (typedValue != null && !listed));
     final local = widget.local;
     final showLocal = local != null && (!filtering || serverMatches(_typed, host: l.deskSetNodeLocalNode, operator: local.stateText));
-    final restorable = _list == null ? const <String>[] : _list!.restorable(widget.kind, widget.source.public);
     final selected = sel != null ? '' : widget.value;
     final known = [for (final s in widget.servers) (operator: s.listedAs ?? s.operator, icon: s.icon)];
 
@@ -893,19 +874,6 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           dimmed: sel != null && !_isChosen(s.value) && _chosen!.length >= sel.limit,
           onTap: () => _pick(s.value),
           onRemove: () => _remove(s),
-        ),
-      if (restorable.isNotEmpty && !filtering)
-        Padding(
-          padding: EdgeInsets.only(top: Sp.x1),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: EButton.ghost(
-              key: const ValueKey('server-list-restore'),
-              label: '${l.slRestore} · ${l.slRemovedCount(restorable.length)}',
-              icon: EIcons.history,
-              onPressed: _restore,
-            ),
-          ),
         ),
       if (sel != null && !filtering && !sameServerSet(widget.kind, _chosen!, sel.defaults))
         Padding(

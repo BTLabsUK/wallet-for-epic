@@ -17,23 +17,24 @@
 library;
 
 import 'models.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 
-/// How often the tip is asked in the first part of watch mode.
-const Duration watchFastEvery = Duration(seconds: 4);
+/// How often the tip is asked in the first part of watch mode (`payments.watch_fast_every_s`).
+Duration get watchFastEvery => appConfig.watchFastEvery;
 
 /// How long after a payment's last step the tip is asked every [watchFastEvery].
-const Duration watchFastFor = Duration(minutes: 2);
+Duration get watchFastFor => appConfig.watchFastFor;
 
 /// How often the tip is asked after [watchFastFor], until [watchWindow].
-const Duration watchSlowEvery = Duration(seconds: 10);
+Duration get watchSlowEvery => appConfig.watchSlowEvery;
 
 /// How long a payment that waits for a block (or for the other side) is watched, from its last
 /// step: created, finalized, or reported posted by the sender. After it, a note says why it is
 /// still waiting.
-const Duration watchWindow = Duration(minutes: 5);
+Duration get watchWindow => appConfig.watchFor;
 
 /// How often the tip is asked in watch mode at its fastest; the pacing step.
-const Duration watchTipEvery = watchFastEvery;
+Duration get watchTipEvery => watchFastEvery;
 
 /// How closely a payment is watched now.
 enum WatchPace { none, slow, fast }
@@ -200,10 +201,12 @@ class BlockWatch {
 class TipPacer {
   TipPacer({
     required this.normal,
-    this.watch = watchFastEvery,
-    this.watchSlow = watchSlowEvery,
+    Duration? watch,
+    Duration? watchSlow,
     Duration? step,
-  }) : step = step ?? _common([normal, watch, watchSlow]);
+  }) : watch = watch ?? watchFastEvery,
+       watchSlow = watchSlow ?? watchSlowEvery,
+       step = step ?? _common([normal, watch ?? watchFastEvery, watchSlow ?? watchSlowEvery]);
 
   /// The longest step every pace is a whole number of: the paces keep their exact length.
   static Duration _common(List<Duration> paces) {

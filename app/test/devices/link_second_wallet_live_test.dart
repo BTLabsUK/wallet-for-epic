@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/secret_store_api.dart' as app;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
 
 final _env = Platform.environment;
@@ -56,7 +57,7 @@ Future<LepicWalletSession> _open(String name, {String? mnemonic}) async {
     nodeUrl: 'https://node.btlabs.uk',
     epicboxDomain: 'epicbox.stackwallet.com',
     epicboxPort: 443,
-    onionRoutes: const [],
+    onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
   );
   final secrets = File('$_dir/$name.secrets.json');
   final exists = secrets.existsSync();

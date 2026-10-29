@@ -1871,7 +1871,7 @@ class WalletConfig {
   final String dataDir;
   final Chain chain;
 
-  /// Node base URL, e.g. `https://node.example.org` or `http://127.0.0.1:23413`.
+  /// Node base URL, e.g. `https://node.example.org` or `http://127.0.0.1:<port>`.
   final String nodeUrl;
 
   /// Basic-auth secret (user `epic`) sent with every node request. Optional: public nodes need

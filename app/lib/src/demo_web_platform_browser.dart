@@ -33,7 +33,7 @@ List<Override> webDemoOverrides() {
   final api = ServerDemoApi(
     http: browserDemoHttp(),
     origin: page,
-    faucet: () async => demoFaucetFrom(await demoSettingsText()),
+    faucet: () async => demoFaucetFrom(await demoConfigText()),
     ended: wallet.pushes
         .where((push) => push.name == demoEndedPushName)
         .map((_) {}),
@@ -46,12 +46,18 @@ List<Override> webDemoOverrides() {
 
 DemoHttp browserDemoHttp() => const _FetchDemoHttp();
 
-/// The web demo's settings file, which its server serves beside the page
-/// (`demo/settings.toml`, the floonet file): the demo's servers come from there, never the
-/// shipped mainnet file. Null outside demo mode; throws when the server does not give it.
-Future<String?> demoSettingsText() async {
+/// The web demo's default copy of `settings.toml`, which its server serves beside the page
+/// (`demo/settings.toml`, floonet's): the demo's servers come from there, never the shipped
+/// mainnet file. Null outside demo mode; throws when the server does not give it.
+Future<String?> demoSettingsText() => _demoFile('demo/settings.toml');
+
+/// The web demo's `app-config.toml` (`demo/app-config.toml`, floonet's, with its `[demo]`
+/// table). Null outside demo mode; throws when the server does not give it.
+Future<String?> demoConfigText() => _demoFile('demo/app-config.toml');
+
+Future<String?> _demoFile(String path) async {
   if (webFakeBackend || !demoBuild) return null;
-  final reply = await browserDemoHttp().api('GET', Uri.base.resolve('demo/settings.toml'));
+  final reply = await browserDemoHttp().api('GET', Uri.base.resolve(path));
   if (!reply.ok) throw StateError('the demo settings did not load (${reply.status})');
   return reply.body;
 }

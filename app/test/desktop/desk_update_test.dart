@@ -166,7 +166,7 @@ void main() {
     });
 
     for (final tag in ['v26.10.8', 'v26.10.21', 'v26.10.22']) {
-      test('a $tag client, phone or desktop, reads the new manifest as before: the release with Tor only', () async {
+      test('a $tag client, phone or desktop, reads the old manifest as before: the release with Tor only', () async {
         // The old parsers accept the real download address, which is the shipped one.
         hostSettings = shippedSettings();
         // The parser exactly as that release shipped it, run on its own against a manifest with
@@ -178,6 +178,10 @@ void main() {
           return;
         }
         final files = tag != 'v26.10.8';
+        // An old parser takes files only under its own download prefix (in its source): the old
+        // manifest names them there.
+        final oldSource = old.stdout as String;
+        final base = RegExp(r"walletDesktopDownloads = '([^']+)'").firstMatch(oldSource)?.group(1) ?? walletDesktopDownloads;
         final dir = await tmp.createTemp('old');
         File('${dir.path}/old.dart').writeAsStringSync(old.stdout as String);
         final readFile = files ? 'out.add(d.forSystem(s)!.file!.url.pathSegments.last);' : '';
@@ -201,19 +205,20 @@ Future<void> main(List<String> a) async {
   }
 }
 ''');
+        Map<String, Object?> entry(String name, String version) => {..._entry(name, version: version), 'url': '$base$name'};
         Map<String, Object?> desktop(String version, String mark) => {
-          'windows': _entry('epic-cash-desktop-$version$mark-windows-x64-setup.exe', version: version),
-          'linux': _entry('EpicCashDesktop-$version$mark-x86_64.AppImage', version: version),
-          'macos': _entry('EpicCashDesktop-$version$mark-macos.dmg', version: version),
+          'windows': entry('epic-cash-desktop-$version$mark-windows-x64-setup.exe', version),
+          'linux': entry('EpicCashDesktop-$version$mark-x86_64.AppImage', version),
+          'macos': entry('EpicCashDesktop-$version$mark-macos.dmg', version),
         };
         final payload = testUpdatePayload(
           versionName: '26.10.23',
-          apks: [testApk(versionCode: 26102300, url: '${walletDesktopDownloads}epic-cash-mobile-26.10.23-arm64-v8a.apk')],
+          apks: [testApk(versionCode: 26102300, url: '${base}epic-cash-mobile-26.10.23-arm64-v8a.apk')],
           desktop: desktop('26.10.23', ''),
           notor: false,
         )..['notor'] = <String, Object?>{
             'versionName': '26.10.24',
-            'apks': [testApk(versionCode: 26102400, url: '${walletDesktopDownloads}epic-cash-mobile-26.10.24-notor-arm64-v8a.apk')],
+            'apks': [testApk(versionCode: 26102400, url: '${base}epic-cash-mobile-26.10.24-notor-arm64-v8a.apk')],
             'desktop': desktop('26.10.24', '-notor'),
           };
         final env = File('${dir.path}/update.json')..writeAsStringSync(await signedUpdate(payload));
@@ -237,13 +242,11 @@ Future<void> main(List<String> a) async {
         );
         expect(seen, isNot(contains('notor')));
         expect(seen, isNot(contains('26.10.24')));
-        // This version reads the same file the same way with Tor, and the notor section without.
-        final current = await verifyWalletUpdate(env.readAsStringSync(), keyring: testUpdateKeyring, now: now.toUtc());
-        final m = (current as Accepted<WalletUpdate>).manifest;
-        expect(m.release(tor: true)!.desktop!.forSystem('macos')!.file!.url.pathSegments.last, 'EpicCashDesktop-26.10.23-macos.dmg');
-        final n = m.release(tor: false)!;
-        expect((n.versionName, n.apks.single.versionCode), ('26.10.24', 26102400));
-        expect(n.desktop!.forSystem('macos')!.file!.url.pathSegments.last, 'EpicCashDesktop-26.10.24-notor-macos.dmg');
+        // This version reads only the new manifest: files under the old prefix are refused.
+        if (files) {
+          final current = await verifyWalletUpdate(env.readAsStringSync(), keyring: testUpdateKeyring, now: now.toUtc());
+          expect(current, isA<Rejected<WalletUpdate>>());
+        }
       });
     }
   });

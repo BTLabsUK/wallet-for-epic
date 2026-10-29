@@ -27,7 +27,6 @@ void main() {
       final out = l.absorb(relay, ['a.example', 'gone.example', 'new.example', 'new.example:443']);
       expect(out.entries, ['a.example', 'new.example']);
       expect(out.removed, {'gone.example'});
-      expect(l.missing(relay, ['a.example', 'gone.example', 'new.example']), ['new.example']);
       expect(identical(out.absorb(relay, ['a.example']), out), isTrue);
     });
 
@@ -49,22 +48,6 @@ void main() {
       final l = const ServerList(entries: ['https://node.lab.invalid']);
       expect(l.add(node, 'https://node.lab.invalid'), same(l));
       expect(l.add(node, 'https://mine.example:3413').entries.last, 'https://mine.example:3413');
-    });
-
-    test('restore shows only while a public server is removed, and puts them back in order', () {
-      const public = ['a.example', 'b.example', 'c.example'];
-      final l = const ServerList(
-        entries: ['a.example', 'mine.example'],
-        removed: {'c.example', 'b.example'},
-      );
-      expect(l.restorable(relay, public), ['b.example', 'c.example']);
-      final out = l.restore(relay, public);
-      expect(out.entries, ['a.example', 'mine.example', 'b.example', 'c.example']);
-      expect(out.removed, isEmpty);
-      expect(out.restorable(relay, public), isEmpty);
-      // An own server removed is not a public one: nothing to restore.
-      final own = const ServerList(entries: ['a.example'], removed: {'mine.example'});
-      expect(own.restorable(relay, public), isEmpty);
     });
 
     test('a stored list reads back; a broken one is null so the caller seeds again', () {

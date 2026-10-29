@@ -32,7 +32,7 @@
   "deskNodeNoProgress": "ไม่คืบหน้า 5 นาที เริ่มใหม่ไปแล้วหนึ่งครั้ง",
   "deskNodeUsingMeanwhile": "ใช้ {host} ระหว่างนี้",
   "deskNodeStartIt": "เริ่มได้ที่ การตั้งค่า › โหนด",
-  "deskNodeFailPort": "พอร์ต 3413 ถูกโปรแกรมอื่นใช้อยู่",
+  "deskNodeFailPort": "พอร์ต {port} ถูกโปรแกรมอื่นใช้อยู่",
   "deskNodeFailDisk": "พื้นที่ดิสก์ไม่พอ",
   "deskNodeFailMissing": "ไม่พบโปรแกรมโหนด",
   "deskNodeFailExited": "โปรแกรมโหนดหยุดทำงาน",

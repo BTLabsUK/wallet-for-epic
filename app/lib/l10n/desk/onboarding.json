@@ -381,9 +381,15 @@
   "@deskOnbUnlockWrong": {
     "description": "Error under the password field after a wrong password."
   },
-  "deskOnbUnlockPortInUse": "Port 3415 is in use by another program. Close it, then try again.",
+  "deskOnbUnlockPortInUse": "Port {port} is in use by another program. Close it, then try again.",
   "@deskOnbUnlockPortInUse": {
-    "description": "Failure text when the wallet service cannot start because its port is taken. Keep the number 3415."
+    "description": "Failure text when the wallet service cannot start because its port is taken. Keep the number <port>.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskOnbUnlockStageCheck": "Checking wallet files",
   "@deskOnbUnlockStageCheck": {
@@ -574,7 +580,7 @@
   },
   "deskOnbNodeFoundAt": "Epic {version} at {address}",
   "@deskOnbNodeFoundAt": {
-    "description": "Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:3413'.",
+    "description": "Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:<port>'.",
     "placeholders": {
       "version": {
         "type": "String"

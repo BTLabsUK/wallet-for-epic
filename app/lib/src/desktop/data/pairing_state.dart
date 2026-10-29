@@ -9,7 +9,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkMode;
-import '../../connection_servers.dart';
 import '../../log.dart';
 import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf;
 import '../../pairing_api.dart';
@@ -40,26 +39,11 @@ final deskPairingApiProvider = Provider<PairingApi>((ref) {
   ref.watch(deskProvider.select((s) => s.account));
   ref.watch(deskProvider.select((s) => s.session));
   final api = ref.watch(deskApiProvider).pairing;
-  // The words calls meet on the Connection servers (Settings › Advanced, the settings file).
-  api.setConnectionServers(ref.watch(deskPairingRelaysProvider));
+  // The words calls meet on the first `epicbox.pairing_servers` of the Epicbox list (a hand
+  // edit of settings.toml shows at once).
+  api.setConnectionServers(ref.watch(hostSettingsProvider.select((s) => s.pairingServers)));
   return api;
 });
-
-/// The Connection servers, as Epicbox list values: `pairing.servers` of the settings file
-/// (a hand edit shows at once). Never null.
-final deskPairingRelaysProvider = NotifierProvider<DeskPairingRelays, List<String>?>(DeskPairingRelays.new);
-
-class DeskPairingRelays extends Notifier<List<String>?> {
-  @override
-  List<String>? build() => ref.watch(hostSettingsProvider.select((s) => s.pairingServers));
-
-  /// Writes [chosen] to the settings file.
-  Future<void> set(List<String> chosen) async {
-    final clean = cleanConnectionServers(chosen);
-    state = clean;
-    await ref.read(hostSettingsProvider.notifier).set('pairing.servers', clean);
-  }
-}
 
 /// Whether this wallet pairs: Pair, the Pairing block and the trust badges show.
 final deskPairsProvider = Provider<bool>((ref) => ref.watch(deskPairingApiProvider).supported);

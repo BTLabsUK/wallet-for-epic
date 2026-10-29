@@ -2,6 +2,8 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/server_list.dart' show ServerKind;
+import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/settings_file/settings_backend.dart';
 import 'package:epic_wallet/src/settings_file/settings_backend_io.dart';
@@ -16,11 +18,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/test_settings.dart';
 
+const _lab = 'https://node.lab.invalid';
+const _net = 'https://node.net.invalid:3413';
+const _lan = 'http://192.0.2.10:3413';
+
 void main() {
   late Directory dir;
   late File file;
   final shippedText = testSettingsText();
-  final shipped = HostSettings.fromText(shippedText);
+  final config = testConfig();
+  final shipped = HostSettings.fromText(shippedText, config: config);
   final opened = <SettingsFileController>[];
 
   setUp(() async {
@@ -36,10 +43,11 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  Future<SettingsFileController> open({bool watch = false, String? shippedOverride, DateTime Function()? clock}) async {
+  Future<SettingsFileController> open({bool watch = false, DateTime Function()? clock}) async {
     final c = await SettingsFileController.open(
       backend: FileSettingsBackend(dir),
-      shippedText: shippedOverride ?? shippedText,
+      shippedText: shippedText,
+      config: config,
       watch: watch,
       clock: clock ?? DateTime.now,
     );
@@ -56,7 +64,7 @@ void main() {
 
   int lineOf(String text, String needle) => text.substring(0, text.indexOf(needle)).split('\n').length;
 
-  test('the first start writes the shipped file byte for byte; later starts read it', () async {
+  test('the first start writes the default copy byte for byte; later starts read it, unmerged', () async {
     final c = await open();
     expect(await file.readAsString(), shippedText);
     expect(c.settings, shipped);
@@ -64,76 +72,56 @@ void main() {
     await c.close();
     opened.clear();
 
-    await handEdit('use = "https://node.lab.invalid"', 'use = "https://node.net.invalid:3413"');
+    // A hand-made short list stays short: no default server joins it.
+    await file.writeAsString('[node]\nservers = ["$_net"]\n');
     final again = await open();
-    expect(again.settings.nodeUse, 'https://node.net.invalid:3413');
+    expect(again.settings.nodeUrls, [_net]);
+    expect(again.settings.epicboxServers, shipped.epicboxServers, reason: 'a missing key reads as the default copy');
+    expect(await file.readAsString(), '[node]\nservers = ["$_net"]\n', reason: 'nothing is written on open');
     expect(again.notices, isEmpty);
   });
 
-  test('an app change edits the file in place: comments, unknown keys and order stay', () async {
-    await file.writeAsString(
-      shippedText
-          .replaceFirst('[epicbox]\n', '[epicbox]\n# my own note\nmine = "kept"\n')
-          .replaceFirst('[[node.servers]]\nurl = "http://192.0.2.10:3413"', '# my LAN node\n[[node.servers]]\nurl = "http://192.0.2.10:3413"'),
-    );
+  test('a pick moves the server to the top in place: comments, unknown keys and order stay', () async {
+    await file.writeAsString(shippedText.replaceFirst('[epicbox]\n', '[epicbox]\n# my own note\nmine = "kept"\n'));
     final c = await open();
     expect(c.notices.single.kind, SettingsNoticeKind.unknownKey);
-    final before = await file.readAsString();
     final uses = <UseChange>[];
     c.useChanges.listen(uses.add);
 
-    final servers = c.settings.nodeServers.reversed.toList();
-    await c.setAll({
-      'epicbox.use': 'box.stack.invalid',
-      'node.use': 'http://192.0.2.10:3413',
-      'node.servers': servers,
-    });
+    await c.setAll(useServerValues(c.settings, node: _lan, relay: 'box.stack.invalid'));
     final after = await file.readAsString();
     expect(after, contains('# my own note\nmine = "kept"\n'));
-    expect(after, contains('# my LAN node\n[[node.servers]]\nurl = "http://192.0.2.10:3413"'));
-    expect(after, contains('use = "box.stack.invalid"'));
-    expect(c.settings.nodeServers, servers);
+    expect(c.settings.nodeUse, _lan);
+    expect(c.settings.nodeUrls.length, shipped.nodeUrls.length, reason: 'moved, not added');
     expect(c.settings.epicboxUse, 'box.stack.invalid');
-    expect(uses.map((u) => '${u.key} ${u.fromApp}'), ['node.use true', 'epicbox.use true']);
-    // Only the lines of what changed moved: the rest of the file is the same text.
-    final untouched = before.substring(before.indexOf('[pairing]'));
-    expect(after, endsWith(untouched));
+    expect(uses.map((u) => '${u.key} ${u.fromApp}'), ['${UseChange.node} true', '${UseChange.epicbox} true']);
+    expect(after, endsWith(shippedText.substring(shippedText.indexOf('[online]'))), reason: 'only the lists moved');
     expect(c.notices, hasLength(1), reason: 'the unknown key is named once');
   });
 
-  test('an older file is brought up to the shipped version on open', () async {
-    await file.writeAsString(shippedText.replaceFirst('\n# Whether the wallet looks for updates.\ncheck = true\n', '\n'));
-    final newer = shippedText
-        .replaceFirst('version = 1', 'version = 2')
-        .replaceFirst(
-          '[[epicbox.servers]]\nhost = "box.lab.invalid"\noperator = "BT Labs"',
-          '[[epicbox.servers]]\nhost = "box.lab.invalid"\noperator = "BT Labs"\n\n'
-              '[[epicbox.servers]]\nhost = "new.example.invalid"\noperator = "New"',
-        );
-    final c = await open(shippedOverride: newer);
-    final text = await file.readAsString();
-    expect(text, contains('version = 2'));
-    expect(text, contains('# Whether the wallet looks for updates.\ncheck = true\n'));
-    expect(c.settings.epicboxServers.last.host, 'new.example.invalid');
-    expect(c.settings.updatesCheck, isTrue);
+  test('a picked server not in the list joins it at the top', () {
+    final v = useServerValues(shipped, node: 'https://new.example.invalid');
+    expect((v['node.servers']! as List).first, 'https://new.example.invalid');
+    expect((v['node.servers']! as List).length, shipped.nodeUrls.length + 1);
+    expect(ServerKind.values, contains(ServerKind.relay));
   });
 
   group('per-key merge with hand edits', () {
     test('only the app changed: the app value is written', () async {
       final c = await open();
-      await c.set('status.enabled', false);
-      expect(await file.readAsString(), contains('enabled = false'));
+      await c.set('online.status_site', false);
+      expect(await file.readAsString(), contains('status_site = false'));
       expect(c.notices, isEmpty);
     });
 
     test('only the file changed: its value stays next to the app change', () async {
       final c = await open();
-      await handEdit('fallback = "https://node.epic.invalid:3413"', 'fallback = "https://node.net.invalid:3413"');
-      await c.set('status.enabled', false);
+      await handEdit('  "$_lab",\n', '');
+      await c.set('online.status_site', false);
       final text = await file.readAsString();
-      expect(text, contains('fallback = "https://node.net.invalid:3413"'));
-      expect(text, contains('enabled = false'));
-      expect(c.settings.nodeFallback, 'https://node.net.invalid:3413');
+      expect(text, isNot(contains('"$_lab"')));
+      expect(text, contains('status_site = false'));
+      expect(c.settings.nodeUse, 'https://node.epic.invalid:3413', reason: 'the next node is in use');
       expect(c.notices, isEmpty);
     });
 
@@ -141,35 +129,36 @@ void main() {
       final c = await open();
       final uses = <UseChange>[];
       c.useChanges.listen(uses.add);
-      await handEdit('use = "https://node.lab.invalid"', 'use = "https://node.net.invalid:3413"');
-      await c.set('node.use', 'https://node.epic.invalid:3413');
-      expect(await file.readAsString(), contains('use = "https://node.net.invalid:3413"'));
-      expect(c.settings.nodeUse, 'https://node.net.invalid:3413');
-      expect(c.notices.single, const SettingsNotice(SettingsNoticeKind.conflict, file: 'settings.toml', key: 'node.use'));
-      expect(settingsNoticeText(AppLocalizationsEn(), c.notices.single), 'settings.toml was edited at the same time; its value for node.use is kept.');
+      await handEdit('"$_lab"', '"$_net"');
+      await c.setAll(useServerValues(c.settings, node: _lan));
+      expect(c.settings.nodeUse, _net);
+      expect(c.notices.single, const SettingsNotice(SettingsNoticeKind.conflict, file: 'settings.toml', key: 'node.servers'));
+      expect(settingsNoticeText(AppLocalizationsEn(), c.notices.single), 'settings.toml was edited at the same time; its value for node.servers is kept.');
       expect(uses.single.fromApp, isFalse);
     });
   });
 
   group('the desktop watcher', () {
-    test('reloads a hand edit after the quiet time; ignores its own writes', () async {
+    test('reloads a hand reorder after the quiet time; ignores its own writes', () async {
       final c = await open(watch: true);
       final changes = <SettingsChange>[];
       final uses = <UseChange>[];
       c.changes.listen(changes.add);
       c.useChanges.listen(uses.add);
 
-      await c.set('epicbox.use', 'box.stack.invalid');
+      await c.setAll(useServerValues(c.settings, relay: 'box.stack.invalid'));
       await Future<void>.delayed(const Duration(milliseconds: 1500));
       expect(changes, hasLength(1), reason: 'the own write is not read back as an edit');
-      expect(changes.single.appKeys, {'epicbox.use'});
+      expect(changes.single.appKeys, {'epicbox.servers'});
+      expect(changes.single.epicboxUseChanged, isTrue);
 
-      // An editor saving by rename, in two steps.
+      // An editor saving by rename, in two steps: box.net.invalid moved to the top.
       final tmp = File('${dir.path}/settings.toml.swp');
-      final edited = (await file.readAsString()).replaceFirst(
-        'use = "box.stack.invalid"',
-        'use = "box.net.invalid"',
-      );
+      final now = await file.readAsString();
+      final edited = now
+          .replaceFirst('"box.stack.invalid"', '"swap"')
+          .replaceFirst('"box.net.invalid"', '"box.stack.invalid"')
+          .replaceFirst('"swap"', '"box.net.invalid"');
       await tmp.writeAsString(edited.substring(0, 10));
       await tmp.writeAsString(edited);
       await tmp.rename(file.path);
@@ -189,22 +178,21 @@ void main() {
       final c = await open(clock: () => at);
       final good = c.settings;
       final text = await file.readAsString();
-      final broken = text.replaceFirst('[status]', '[status');
+      final broken = text.replaceFirst('[online]', '[online');
       await file.writeAsString(broken);
       await c.reload();
       expect(c.settings, good);
       expect(c.notices.single.kind, SettingsNoticeKind.syntaxError);
-      expect(c.notices.single.line, lineOf(broken, '[status'));
+      expect(c.notices.single.line, lineOf(broken, '[online'));
       expect(await file.readAsString(), broken);
       expect(dir.listSync().map((e) => e.uri.pathSegments.last), isNot(contains(startsWith('settings.toml.bad'))));
       await c.reload();
       expect(c.notices, hasLength(1), reason: 'the same broken text is named once');
 
-      await c.set('status.enabled', false);
+      await c.set('online.status_site', false);
       final saved = File('${dir.path}/settings.toml.bad-20261029-141500');
       expect(await saved.readAsString(), broken);
-      final now = await file.readAsString();
-      expect(now, text.replaceFirst('enabled = true', 'enabled = false'));
+      expect(await file.readAsString(), text.replaceFirst('status_site = true', 'status_site = false'));
       expect(c.notices.last, const SettingsNotice(SettingsNoticeKind.brokenSaved, file: 'settings.toml', backup: 'settings.toml.bad-20261029-141500'));
       expect(
         settingsNoticeText(AppLocalizationsEn(), c.notices.last),
@@ -214,16 +202,16 @@ void main() {
 
     test('a bad value is skipped with its line; the last good value stays', () async {
       final c = await open();
-      await handEdit('use = "https://node.lab.invalid"', 'use = "node.lab.invalid"');
+      await handEdit('"$_lab"', '"node.lab.invalid"');
       await c.reload();
       final text = await file.readAsString();
-      expect(c.settings.nodeUse, 'https://node.lab.invalid');
+      expect(c.settings.nodeUse, _lab);
       final n = c.notices.single;
       expect((n.kind, n.key, n.problem, n.line), (
         SettingsNoticeKind.badValue,
-        'node.use',
+        'node.servers',
         ValueProblem.notNodeAddress,
-        lineOf(text, 'use = "node.lab'),
+        lineOf(text, 'servers = ['),
       ));
       expect(
         settingsNoticeText(AppLocalizationsEn(), n),
@@ -234,56 +222,64 @@ void main() {
 
   test('an unknown key is kept and named once per run', () async {
     final c = await open();
-    await handEdit('[epicbox]\n', '[epicbox]\ndefualt = "box.epic.invalid"\n');
+    await handEdit('[epicbox]\n', '[epicbox]\nuse = "box.epic.invalid"\n');
     await c.reload();
-    await handEdit('removed = []', 'removed = ["a.example.invalid:443"]');
+    await handEdit('price = true', 'price = false');
     await c.reload();
     expect(c.notices.single.kind, SettingsNoticeKind.unknownKey);
-    expect(c.notices.single.key, 'epicbox.defualt');
-    await c.set('status.enabled', false);
-    expect(await file.readAsString(), contains('defualt = "box.epic.invalid"'));
+    expect(c.notices.single.key, 'epicbox.use');
+    await c.set('online.status_site', false);
+    expect(await file.readAsString(), contains('use = "box.epic.invalid"'));
     expect(c.notices, hasLength(1));
   });
 
   test('a deleted file is written again from the settings in use', () async {
     final c = await open();
-    await c.set('node.use', 'http://192.0.2.10:3413');
+    await c.setAll(useServerValues(c.settings, node: _lan));
     final text = await file.readAsString();
     await file.delete();
     await c.reload();
     expect(await file.readAsString(), text);
     expect(c.notices.single.kind, SettingsNoticeKind.recreated);
-    expect(c.settings.nodeUse, 'http://192.0.2.10:3413');
+    expect(c.settings.nodeUse, _lan);
+  });
+
+  test('empty lists are taken: none configured, no crash', () async {
+    final c = await open();
+    await c.setAll({'node.servers': const <String>[], 'epicbox.servers': const <String>[]});
+    expect(c.settings.hasNode, isFalse);
+    expect(c.settings.hasEpicbox, isFalse);
+    expect(await file.readAsString(), contains('servers = []'));
   });
 
   test('two controllers on one folder do not undo each other', () async {
     final a = await open();
     final b = await open();
     await Future.wait([
-      a.set('node.use', 'http://192.0.2.10:3413'),
-      b.set('epicbox.use', 'box.stack.invalid'),
-      a.set('status.enabled', false),
-      b.set('updates.check', false),
+      a.setAll(useServerValues(a.settings, node: _lan)),
+      b.setAll(useServerValues(b.settings, relay: 'box.stack.invalid')),
+      a.set('online.status_site', false),
+      b.set('online.update_check', false),
     ]);
     final text = await file.readAsString();
-    expect(text, contains('use = "http://192.0.2.10:3413"'));
-    expect(text, contains('use = "box.stack.invalid"'));
-    expect(text, contains('enabled = false'));
-    expect(text, contains('check = false'));
+    expect(text, contains('status_site = false'));
+    expect(text, contains('update_check = false'));
+    await b.reload();
+    expect(b.settings.nodeUse, _lan, reason: 'B read what A wrote');
+    expect(b.settings.epicboxUse, 'box.stack.invalid');
     expect(a.notices, isEmpty);
     expect(b.notices, isEmpty);
-    expect(b.settings.nodeUse, 'http://192.0.2.10:3413', reason: 'B read what A wrote before writing');
   });
 
   group('the web store', () {
-    test('keeps the shipped file until the first change, then the edited text', () async {
+    test('keeps the default copy until the first change, then the edited text', () async {
       final store = MemorySecretStore();
-      final c = await SettingsFileController.open(backend: StoreSettingsBackend(store), shippedText: shippedText);
+      final c = await SettingsFileController.open(backend: StoreSettingsBackend(store), shippedText: shippedText, config: config);
       opened.add(c);
       expect(store.values, isEmpty);
       expect(c.settings, shipped);
-      await c.set('status.enabled', false);
-      expect(store.values['app.settingsToml'], shippedText.replaceFirst('enabled = true', 'enabled = false'));
+      await c.set('online.status_site', false);
+      expect(store.values['app.settingsToml'], shippedText.replaceFirst('status_site = true', 'status_site = false'));
     });
   });
 
@@ -296,10 +292,10 @@ void main() {
       addTearDown(sub.close);
       container.listen(settingsNoticesProvider, (_, _) {});
 
-      await container.read(hostSettingsProvider.notifier).set('epicbox.use', 'box.stack.invalid');
+      await container.read(hostSettingsProvider.notifier).setAll(useServerValues(c.settings, relay: 'box.stack.invalid'));
       expect(container.read(hostSettingsProvider).epicboxUse, 'box.stack.invalid');
 
-      await handEdit('use = "box.stack.invalid"', 'use = "x y"');
+      await handEdit('"box.stack.invalid"', '"x y"');
       await c.reload();
       final notices = container.read(settingsNoticesProvider);
       expect(notices.single.problem, ValueProblem.notEpicboxServer);

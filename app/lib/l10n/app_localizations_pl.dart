@@ -4878,8 +4878,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get serverOtherNode => 'Inny węzeł, host lub host:port';
 
   @override
-  String get serverOtherNodeInvalid =>
-      'Wpisz adres węzła, np. node.example.com:3413';
+  String serverOtherNodeInvalid(String port) {
+    return 'Wpisz adres węzła, np. node.example.com:$port';
+  }
 
   @override
   String get serverAdd => 'Dodaj';
@@ -5904,7 +5905,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get methodLinkPayment => 'Płatność linkiem';
 
   @override
-  String get methodDirectShape => 'http://host:3415 lub xxxx….onion';
+  String methodDirectShape(String port) {
+    return 'http://host:$port lub xxxx….onion';
+  }
 
   @override
   String get methodSendDirectLine =>
@@ -6670,7 +6673,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskNodeStartIt => 'Uruchom go w Ustawienia › Węzeł.';
 
   @override
-  String get deskNodeFailPort => 'port 3413 zajmuje inny program';
+  String deskNodeFailPort(String port) {
+    return 'port $port zajmuje inny program';
+  }
 
   @override
   String get deskNodeFailDisk => 'za mało miejsca na dysku';
@@ -9852,8 +9857,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nieprawidłowe hasło. Sprawdź Caps Lock i układ klawiatury.';
 
   @override
-  String get deskOnbUnlockPortInUse =>
-      'Port 3415 zajmuje inny program. Zamknij go i spróbuj ponownie.';
+  String deskOnbUnlockPortInUse(String port) {
+    return 'Port $port zajmuje inny program. Zamknij go i spróbuj ponownie.';
+  }
 
   @override
   String get deskOnbUnlockStageCheck => 'Sprawdzanie plików portfela';
@@ -11942,7 +11948,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Uruchom ponownie albo sprawdź log węzła.';
 
   @override
-  String get deskSetLnodePortInUse => 'Port 3413 zajmuje inny program.';
+  String deskSetLnodePortInUse(String port) {
+    return 'Port $port zajmuje inny program.';
+  }
 
   @override
   String get deskSetLnodePortInUseText =>
@@ -12287,8 +12295,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetPeersUnbannedToast => 'Odblokowano peera';
 
   @override
-  String get deskSetPeersNotAddress =>
-      'To nie jest adres IP z portem, np. 203.0.113.5:3414.';
+  String deskSetPeersNotAddress(String port) {
+    return 'To nie jest adres IP z portem, np. 203.0.113.5:$port.';
+  }
 
   @override
   String get deskSetPeersAlreadyPreferred => 'Już jest preferowany.';
@@ -12487,7 +12496,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Otwórz folder logów';
 
   @override
-  String get deskSetNodePortNote => 'Sprawdź adres i port (zwykle 3413).';
+  String deskSetNodePortNote(String port) {
+    return 'Sprawdź adres i port (zwykle $port).';
+  }
 
   @override
   String deskSetNodeListNote(String site) {
@@ -14403,8 +14414,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txMethodsHeader => 'Metody płatności';
 
   @override
-  String get txLinkHttpHint =>
-      'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany, nie jest osiągalny z internetu ani przez dane komórkowe i jest wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij i Odbierz.';
+  String txLinkHttpHint(String port) {
+    return 'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:$port) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany, nie jest osiągalny z internetu ani przez dane komórkowe i jest wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij i Odbierz.';
+  }
 
   @override
   String get txLinkTorHint =>
@@ -14612,8 +14624,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pozostałe metody nadal działają.';
 
   @override
-  String get deskSetTxDirectHint =>
-      'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:3415), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte; wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
+  String deskSetTxDirectHint(String port) {
+    return 'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:$port), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte; wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
+  }
 
   @override
   String get deskSetTxFileHint =>
@@ -17932,8 +17945,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Offline wstrzymuje Epicbox i sprawdzanie stanu. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
-  String get txLinkHttpHintNoTor =>
-      'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:3415) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany i nie jest osiągalny z internetu ani przez dane komórkowe. Dodaje Link · HTTP do Wyślij i Odbierz.';
+  String txLinkHttpHintNoTor(String port) {
+    return 'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:$port) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany i nie jest osiągalny z internetu ani przez dane komórkowe. Dodaje Link · HTTP do Wyślij i Odbierz.';
+  }
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -17952,8 +17966,9 @@ class AppLocalizationsPl extends AppLocalizations {
       'Adres http(s). Portfel odbiorcy musi być otwarty.';
 
   @override
-  String get deskNoTorSetTxDirectHint =>
-      'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:3415), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
+  String deskNoTorSetTxDirectHint(String port) {
+    return 'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:$port), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
+  }
 
   @override
   String get deskNoTorAdvNetworkHint =>
@@ -19012,4 +19027,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return 'Nie udało się odczytać $file. Obowiązują wbudowane ustawienia.';
   }
+
+  @override
+  String get deskKitReachTorOff => 'Sprawdzenie wymaga wyłączenia Tora.';
 }

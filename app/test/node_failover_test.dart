@@ -307,8 +307,7 @@ class _Harness {
   _Harness(this._async, {Set<String> deadNodes = const {_a}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false}) {
     // The node in use and the Node list: the settings file's.
     hostSettings = testSettings().withValues({
-      'node.use': _a,
-      'node.servers': [for (final u in [_a, _b, _c, _d]) {'url': u, 'operator': 'Op'}],
+      'node.servers': [_a, _b, _c, _d],
     });
     if (prefs != null) store.values['app.advanced_prefs'] = prefs.encode();
     final service = _Service(deadNodes);

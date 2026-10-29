@@ -16,12 +16,14 @@ import 'advanced.dart';
 import 'network_gate.dart';
 import 'server_list.dart';
 import 'tor_routes.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 
-/// How long the node in use must have stopped answering before the wallet moves on.
-const Duration nodeFailoverAfter = Duration(seconds: 30);
+/// How long the node in use must have stopped answering before the wallet moves on to the
+/// next of the Node list (`node.failover_after_s`).
+Duration get nodeFailoverAfter => appConfig.nodeFailoverAfter;
 
-/// How long a node the wallet may move to has to answer a tip request.
-const Duration nodeFailoverProbe = Duration(seconds: 15);
+/// How long a node the wallet may move to has to answer a tip request (`node.failover_probe_s`).
+Duration get nodeFailoverProbe => appConfig.nodeFailoverProbe;
 
 /// What is known of a node in the list before it is asked.
 enum FailoverHealth {

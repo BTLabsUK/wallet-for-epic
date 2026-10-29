@@ -124,5 +124,6 @@
   "deskKitQrShow": "显示二维码",
   "deskKitQrHide": "隐藏二维码",
   "deskKitQrHideCode": "隐藏二维码",
-  "deskKitMethodConnected": "已连接"
+  "deskKitMethodConnected": "已连接",
+  "deskKitReachTorOff": "此检查需要关闭 Tor。"
 }

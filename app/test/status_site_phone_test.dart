@@ -40,7 +40,7 @@ void main() {
       addTearDown(tester.view.reset);
       final store = MemorySecretStore();
       // The settings file's switch, as main.dart follows it before the first frame.
-      hostSettings = testSettings().withValues({'status.enabled': on});
+      hostSettings = testSettings().withValues({'online.status_site': on});
       statusSite.followSettings();
       final hosts = <String>[];
       final directory = HttpRelayDirectory(

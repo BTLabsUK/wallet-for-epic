@@ -32,7 +32,7 @@ import '../../app_version.dart';
 import '../desk_l10n.dart' show deskStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
-import '../../settings_file/host_settings.dart' show hostSettings;
+import '../../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../../tor_build.dart' show inAppUpdates, torBuilt;
 import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrls, updateStateKey;
 import 'desk_store.dart';
@@ -47,8 +47,8 @@ const String deskAppVersion = appVersion;
 List<String> get deskUpdatePageHosts => hostSettings.updatePages;
 
 /// Where an update is downloaded, when the manifest names no page of its own (the settings
-/// file's `updates.releases_page`).
-String get deskReleasesUrl => hostSettings.releasesPage;
+/// file's `updates.releases_page`); null when none is configured (no link shown).
+String? get deskReleasesUrl => hostSettings.releasesPage;
 
 enum DeskUpdatePhase {
   idle,
@@ -117,8 +117,8 @@ class DeskUpdateState {
 }
 
 /// The first check after the wallet opens, and the ones after it while the app runs.
-const Duration deskUpdateFirst = Duration(seconds: 20);
-const Duration deskUpdateEvery = Duration(hours: 1);
+Duration get deskUpdateFirst => appConfig.updatesFirstCheck;
+Duration get deskUpdateEvery => appConfig.updatesEvery;
 final deskUpdateScheduleProvider = Provider<(Duration, Duration)>((ref) => (deskUpdateFirst, deskUpdateEvery));
 
 /// Whether the shell starts the timed checks ([DeskUpdateController.schedule]): the real app
@@ -128,7 +128,7 @@ final deskUpdateAutoProvider = Provider<bool>((ref) => false);
 /// Whether this build looks for updates at all: not a store build ([inAppUpdates]), which its
 /// store updates (no checks, notices or downloads then; the About page leaves out its Updates
 /// group). macOS downloads its disk image and the user replaces the app ([DmgApplier]).
-bool get deskUpdatesSupported => inAppUpdates;
+bool get deskUpdatesSupported => inAppUpdates && hostSettings.updateManifests.isNotEmpty;
 
 /// The manifest's HTTP status and body; tests replace it.
 typedef ManifestFetch = Future<(int, String)> Function(Uri url);
@@ -138,7 +138,7 @@ typedef ManifestFetch = Future<(int, String)> Function(Uri url);
 /// [DeskUpdateController] treats as a manifest that does not verify.
 Future<(int, String)> _fetch(Uri url) async {
   try {
-    final reply = await httpGet(url, timeout: const Duration(seconds: 30), maxBytes: btlabsMaxEnvelopeBytes);
+    final reply = await httpGet(url, timeout: appConfig.updatesTimeout, maxBytes: btlabsMaxEnvelopeBytes);
     return (reply.status, reply.body);
   } on NetTooLarge {
     return (deskManifestTooLarge, '');
@@ -212,6 +212,8 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   void schedule() {
     if (_every != null || !deskUpdatesSupported) return;
     unawaited(detect());
+    // `[online] update_check` off in settings.toml: no automatic check; About still checks.
+    if (!hostSettings.updatesCheck) return;
     final (first, every) = ref.read(deskUpdateScheduleProvider);
     _first = Timer(first, () => unawaited(check()));
     _every = Timer.periodic(every, (_) => unawaited(check()));

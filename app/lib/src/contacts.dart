@@ -11,6 +11,7 @@ import 'payment_method.dart' show MethodKind;
 import 'providers.dart';
 import 'recipient.dart';
 import 'wallet_service.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 
 export 'recipient.dart';
 export 'wallet_service.dart' show Contact;
@@ -185,7 +186,7 @@ String? checkRecipient(AppLocalizations l, WalletService service, String text) {
     case RecipientKind.http:
       final uri = Uri.tryParse(recipient.address);
       if (uri == null || uri.host.isEmpty) {
-        return l.contactsUrlIncomplete('http://203.0.113.5:3415');
+        return l.contactsUrlIncomplete('http://203.0.113.5:${appConfig.httpListenPort}');
       }
       return null;
     case RecipientKind.epicbox:

@@ -53,15 +53,15 @@ void main() {
         '{"schema":$schema,"coin":"epic-cash","updated_at":"$at","prices":{"usd":$usd,"eur":0.66}}';
 
     test('reads the currency', () {
-      expect(priceFromBtlabs(body(), 'usd', now: now), 0.747664);
-      expect(priceFromBtlabs(body(), 'eur', now: now), 0.66);
+      expect(priceFromBtlabs(body(), 'usd', now: now, maxAge: const Duration(minutes: 30)), 0.747664);
+      expect(priceFromBtlabs(body(), 'eur', now: now, maxAge: const Duration(minutes: 30)), 0.66);
     });
 
     test('no price for another schema, a stale file or a missing currency', () {
-      expect(priceFromBtlabs(body(schema: 2), 'usd', now: now), isNull);
-      expect(priceFromBtlabs(body(at: '2026-10-23T13:00:00Z'), 'usd', now: now), isNull);
-      expect(priceFromBtlabs(body(), 'gbp', now: now), isNull);
-      expect(priceFromBtlabs(body(usd: 0), 'usd', now: now), isNull);
+      expect(priceFromBtlabs(body(schema: 2), 'usd', now: now, maxAge: const Duration(minutes: 30)), isNull);
+      expect(priceFromBtlabs(body(at: '2026-10-23T13:00:00Z'), 'usd', now: now, maxAge: const Duration(minutes: 30)), isNull);
+      expect(priceFromBtlabs(body(), 'gbp', now: now, maxAge: const Duration(minutes: 30)), isNull);
+      expect(priceFromBtlabs(body(usd: 0), 'usd', now: now, maxAge: const Duration(minutes: 30)), isNull);
     });
   });
 }

@@ -84,8 +84,10 @@ class DemoServerConfig {
   /// The landing page directory, served at `/`.
   final String? landingRoot;
 
-  /// The settings file the demo's wallets use (the floonet one), served at
-  /// `/demo/settings.toml`; its `[demo]` table gives the faucet and the page's CSP hosts.
+  /// The folder of the two settings files the demo's wallets use (floonet's,
+  /// `app/tool/config/floonet`): `settings.default.toml` served at `/demo/settings.toml`,
+  /// `app-config.toml` at `/demo/app-config.toml`; the latter's `[demo]` table gives the faucet
+  /// and the page's CSP hosts.
   final String? settingsFile;
 
   /// [allowedOrigins], or this server's loopback origins when none are set.
@@ -116,7 +118,7 @@ Each option also reads from its environment variable; a flag wins.
   --lepic-lib <file>       WFE_DEMO_LEPIC_LIB     liblepic_ffi.so to load
   --web-root <dir>         WFE_DEMO_WEB_ROOT      built web app, served under /app/
   --landing-root <dir>     WFE_DEMO_LANDING_ROOT  landing page, served at /
-  --settings <file>        WFE_DEMO_SETTINGS      settings file served to the demo page at /demo/settings.toml
+  --settings <dir>         WFE_DEMO_SETTINGS      folder of settings.default.toml and app-config.toml served to the demo page
   --help
 
 Durations are a number with s, m or h, such as 90s, 15m or 24h.''';

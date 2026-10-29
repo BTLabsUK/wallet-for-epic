@@ -431,7 +431,7 @@ String shortAddress(String address, {String? ownServer}) {
   final text = address.trim();
   final lower = text.toLowerCase();
   // A link: its host and port without the scheme, the ends kept, so two links that differ
-  // only at the end still tell apart ("pay.ex…m:3415"); the full link stays on the details.
+  // only at the end still tell apart ("pay.ex…m:<port>"); the full link stays on the details.
   if (lower.startsWith('http://') || lower.startsWith('https://')) {
     final rest = text.substring(text.indexOf('://') + 3).replaceAll(RegExp(r'/+$'), '');
     return rest.length <= 14

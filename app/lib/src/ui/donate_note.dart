@@ -18,6 +18,9 @@ class DonateNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // No donation contact in app-config.toml: no note.
+    final address = btLabsContact?.address;
+    if (address == null) return const SizedBox.shrink();
     final l = context.l10n;
     final text = Theme.of(context).textTheme;
     return Padding(
@@ -37,7 +40,7 @@ class DonateNote extends StatelessWidget {
               label: Text(l.helpDonateCopy),
               onPressed: () async {
                 final messenger = ScaffoldMessenger.of(context);
-                await Clipboard.setData(ClipboardData(text: btLabsContact.address));
+                await Clipboard.setData(ClipboardData(text: address));
                 messenger.showSnackBar(SnackBar(content: Text(l.helpDonateCopied)));
               },
             ),

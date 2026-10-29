@@ -17,7 +17,7 @@ import 'launch_screen.dart';
 import 'server_list_sheet.dart' show showEpicboxListSheet, showNodeListSheet;
 
 export '../server_list_store.dart'
-    show ServerKind, builtInNodesFor, builtInRelaysFor, rememberServers, typedNodeUrl;
+    show ServerKind, builtInNodesFor, builtInRelaysFor, typedNodeUrl;
 
 // Providers.
 

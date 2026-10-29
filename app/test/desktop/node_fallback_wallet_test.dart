@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
 
 const _password = 'test-pass-1234';
 const _remote = 'https://node.example';
@@ -162,7 +163,7 @@ void main() {
     dir = await Directory.systemTemp.createTemp('desk-fallback-test-');
     File('${dir.path}/epic').writeAsStringSync('');
     secrets = MemorySecretStore();
-    hostSettings = hostSettings.withValues({'node.use': _remote});
+    hostSettings = hostSettings.withValues(useServerValues(hostSettings, node: _remote));
     session = _Session();
     service = _Opens(session)..existingWallets.add('${dir.path}/wallet');
     spawned = 0;

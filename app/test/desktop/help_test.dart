@@ -98,7 +98,7 @@ void main() {
   testWidgets('the support bar shows the contact address', (tester) async {
     await _pump(tester);
     expect(find.text('Contact: '), findsOneWidget);
-    expect(find.text(hostSettings.supportEmail), findsOneWidget);
+    expect(find.text(hostSettings.supportEmail!), findsOneWidget);
   });
 
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {

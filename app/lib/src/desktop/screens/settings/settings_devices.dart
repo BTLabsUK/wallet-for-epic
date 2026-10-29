@@ -12,17 +12,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../devices/device_model.dart';
 import '../../../devices/device_providers.dart' show DeviceView;
 import '../../../devices/device_service.dart';
-import '../../../net/probe_not_run.dart' show ProbeNotRun;
-import '../../../network.dart' show EpicboxRelay;
 import '../../../relay_directory.dart' show NodeHealthState;
-import '../../../send_preflight.dart' show relayProbeProvider;
-import '../../../tor_build.dart' show torBuilt;
 import '../../data/devices_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider;
 import '../../data/server_lists.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../../widgets/server_list_panel.dart';
 import '../devices/link_flow.dart';
 import 'settings_frame.dart' show SettingsFrame;
 
@@ -256,17 +251,6 @@ class _ServersGroup extends ConsumerWidget {
   final DeviceView view;
   final DeviceService service;
 
-  static Future<String?> _test(WidgetRef ref, BuildContext context, String value) async {
-    final l = context.l10n;
-    final relay = EpicboxRelay.parse(value);
-    if (relay == null) return l.slNotAnAddress;
-    try {
-      return await ref.read(relayProbeProvider).reachable(relay) ? null : l.slRelayNoAnswer;
-    } on ProbeNotRun {
-      return torBuilt ? l.deskSlTorWait : l.slRelayNoAnswer;
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
@@ -291,11 +275,6 @@ class _ServersGroup extends ConsumerWidget {
       _ when down >= chosen.length => (l.deskDevServersAllDown, c.risk),
       _ => (l.deskDevServersDown(down, chosen.length), c.warn),
     };
-    final listed = {for (final b in boxes) serverKeyOf(ServerKind.relay, relayLabel(b))};
-    final extra = [
-      for (final v in {...chosen, ...?proposal?.servers})
-        if (!listed.contains(serverKeyOf(ServerKind.relay, v))) v,
-    ];
     final waiting = proposal != null && proposal.fromHere;
     final incoming = proposal != null && !proposal.fromHere;
     final from = incoming ? view.nameOf(proposal.accepted.firstOrNull ?? '') : '';
@@ -310,34 +289,8 @@ class _ServersGroup extends ConsumerWidget {
           hintIcon: EIcons.epicbox,
           text: l.devicesServersNote,
           stacked: true,
-          control: ServerListPanel(
-            kind: ServerKind.relay,
-            label: l.devicesServers,
-            value: '',
-            fieldText: chosen.join(', '),
-            tone: down == 0 ? ETone.ok : (down >= chosen.length ? ETone.risk : ETone.warn),
-            servers: [
-              ...relayPanelRows(boxes),
-              for (final v in extra) PanelServer.bare(ServerKind.relay, v),
-            ],
-            source: DeskServerSource(
-              public: [
-                for (final b in boxes) relayLabel(b),
-                for (final v in [...defaults, ...chosen])
-                  if (!listed.contains(serverKeyOf(ServerKind.relay, v))) v,
-              ],
-            ),
-            onChoose: (_) async {},
-            onTest: (v) => _test(ref, context, v),
-            selection: RelaySelection(
-              limit: maxLinkServers,
-              chosen: chosen,
-              defaults: defaults,
-              onChanged: (set) => unawaited(service.proposeServers(set)),
-              title: l.devicesServers,
-              note: l.deskDevServersNote,
-            ),
-          ),
+          // Read-only: the first servers of the Epicbox list (Settings › Receiving) are the link's.
+          control: Text(chosen.join(', '), key: const ValueKey('devices-servers-value'), style: ts.body),
           below: line == null
               ? null
               : Semantics(
