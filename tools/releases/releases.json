@@ -6,58 +6,58 @@
    "files": [
     {
      "name": "EpicCashDesktop-26.10.24-macos.dmg",
-     "size": 70890672,
-     "sha256": "64d3be7138c5fdd754269956809d22c41d311bc643e6307989c2fe766c544867"
+     "size": 70889220,
+     "sha256": "8ea0bcc3d30cd3280881f605cba639dd6737fe25e6c351eba20ca372421b6725"
     },
     {
      "name": "EpicCashDesktop-26.10.24-notor-macos.dmg",
-     "size": 62014378,
-     "sha256": "bcd089311ffa35484f9a7c3eca0980b65f4145113428ac9e36a7fa76c0b56f7a"
+     "size": 62014058,
+     "sha256": "e213bf00b612667b9fcd0351e2b382130a977edb056c1905cb98a3aa1673a8bc"
     },
     {
      "name": "EpicCashDesktop-26.10.24-notor-x86_64.AppImage",
      "size": 34253304,
-     "sha256": "1ba9c007b11fe3d745566458d57937cb7dd03596a428e770046e2d2f572d074a"
+     "sha256": "7e94b9f0e76c10987b69758884e5b38bd7865e9d44dff8b3a8876fb10915077a"
     },
     {
      "name": "EpicCashDesktop-26.10.24-x86_64.AppImage",
-     "size": 38418936,
-     "sha256": "c770cd226c1f35acdcbbd552beb457bb18d3c38cd92e6decc15f5296c519c2f1"
+     "size": 38414840,
+     "sha256": "a4371b69da005c5c96ce01727042549896b1a4cc123126520bb395dae95ea5dc"
     },
     {
      "name": "EpicCashMobile-26.10.24-ios-simulator.zip",
-     "size": 66245101,
-     "sha256": "8a8ed55144671b169ce26606c5d2a22ea387fe305e97950e0fcb1e2fc8264b0d"
+     "size": 66243225,
+     "sha256": "d6179c6ec913717ea8e68ab0fcb07ddfb1c43e1df3ab72e7ae173168cfde297b"
     },
     {
      "name": "EpicCashMobile-26.10.24-ios-unsigned.ipa",
-     "size": 21481150,
-     "sha256": "69d5b65fc46f2b3fc4b3b69f95b35b0da1b3c0fe6f907ef954ee351191c81819"
+     "size": 21481311,
+     "sha256": "12255f57686fcdf55334b2ec00e4610f6240830e62aeb225fb9711f18c5c508d"
     },
     {
      "name": "EpicCashMobile-26.10.24-notor-ios-unsigned.ipa",
-     "size": 21236658,
-     "sha256": "a430d04ac4701611790e214727438895e5441c13f3e032282c62267a3dfd13d4"
+     "size": 21235931,
+     "sha256": "8155a584c831578f46e352a199f330940685b45b82ee526bce039eef1aea242c"
     },
     {
      "name": "epic-cash-desktop-26.10.24-notor-windows-x64-setup.exe",
-     "size": 33680325,
-     "sha256": "3d98ae2297f10e1a656f5813d286fca8c41cb7a94fdacf0bd6dfb4d8c103a7ad"
+     "size": 33709422,
+     "sha256": "06e4b85331591b52514f4b64ca660d9a6af3507eb8a937e59a808d5caca1eafe"
     },
     {
      "name": "epic-cash-desktop-26.10.24-windows-x64-setup.exe",
-     "size": 36420409,
-     "sha256": "d117ffe7ce2026e766d8a5c8ac7e70574f12eee03003997543b115204cda123f"
+     "size": 36422554,
+     "sha256": "63acc425a9369a3db47c46f892f0ae8c949ae525640dfead93825a42ee5bdb21"
     },
     {
      "name": "epic-cash-mobile-26.10.24-arm64-v8a.apk",
-     "size": 27289244,
-     "sha256": "39eb31049e175fe8af872866bad5d521ba3a019fefb5d28d6e7075ca913116c8"
+     "size": 27289028,
+     "sha256": "d6b5d3a92bc56edcdb520fba5de190e41a1fd7edc8c1ac1453d4c7312c10855e"
     },
     {
      "name": "epic-cash-mobile-26.10.24-notor-arm64-v8a.apk",
-     "size": 23064115,
-     "sha256": "dac672f6750a0c97b575c25e56b705fa10f0d59d749d695d8a4459059016020b"
+     "size": 23063643,
+     "sha256": "ba7150cdbbfc60030d92b086844cbc30e53aa0731806c0904436baebfd5b5aba"
     }
    ]
   }
