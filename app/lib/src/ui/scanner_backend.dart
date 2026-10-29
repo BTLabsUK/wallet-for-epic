@@ -47,7 +47,10 @@ class ScannerController extends ChangeNotifier {
   bool _torchOn = false;
   bool _decoding = false;
   bool _closed = false;
+  bool _starting = false;
+  Future<void>? _releasing;
   String? _last;
+  late final _lifecycle = ScannerLifecycle(onPause: _release, onResume: start);
 
   ScannerError? get error => _error;
 
@@ -63,10 +66,17 @@ class ScannerController extends ChangeNotifier {
   }
 
   Future<void> start() async {
-    if (_closed || (_camera?.value.isStreamingImages ?? false)) return;
+    if (_closed || _starting || (_camera?.value.isStreamingImages ?? false)) {
+      return;
+    }
+    _lifecycle.watch();
+    _starting = true;
     _error = null;
     _changed();
     try {
+      // zxing's worker is shared: a release still under way must stop it before this starts it.
+      await _releasing;
+      if (_closed) return;
       var camera = _camera;
       if (camera == null) {
         final cameras = await availableCameras();
@@ -106,7 +116,30 @@ class ScannerController extends ChangeNotifier {
       unawaited(camera?.dispose());
       _changed();
       throw ScannerException(_error!);
+    } finally {
+      _starting = false;
     }
+  }
+
+  /// Gives the camera back while the app is in the background: the system takes it, and the
+  /// old controller shows black from then on. [ScannerLifecycle] starts it again on return.
+  /// Not while a start is under way: the permission prompt itself makes the app inactive.
+  Future<void> _release() {
+    final camera = _camera;
+    if (_closed || _starting || camera == null) return Future.value();
+    _camera = null;
+    _torchOn = false;
+    _changed();
+    return _releasing = () async {
+      try {
+        if (camera.value.isStreamingImages) await camera.stopImageStream();
+      } on CameraException {
+        // Released anyway.
+      }
+      await camera.dispose();
+      zxing.zx.stopCameraProcessing();
+      _releasing = null;
+    }();
   }
 
   /// Reads the frames one at a time: those that come while one is read are dropped.
@@ -157,6 +190,7 @@ class ScannerController extends ChangeNotifier {
   Future<void> close() async {
     if (_closed) return;
     _closed = true;
+    _lifecycle.stop();
     final camera = _camera;
     _camera = null;
     try {
@@ -170,6 +204,52 @@ class ScannerController extends ChangeNotifier {
     zxing.zx.stopCameraProcessing();
     await _codes.close();
     dispose();
+  }
+}
+
+/// Calls [onPause] when the app leaves the foreground and [onResume] when it is back, once
+/// each, from [watch] until [stop]. [onResume] comes only after an [onPause], so a screen
+/// that came back from the system settings tries the camera again.
+class ScannerLifecycle with WidgetsBindingObserver {
+  ScannerLifecycle({required this.onPause, required this.onResume});
+
+  final Future<void> Function() onPause;
+  final Future<void> Function() onResume;
+  bool _watching = false;
+  bool _paused = false;
+
+  void watch() {
+    if (_watching) return;
+    _watching = true;
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void stop() {
+    if (!_watching) return;
+    _watching = false;
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.inactive ||
+          AppLifecycleState.hidden ||
+          AppLifecycleState.paused:
+        if (_paused) return;
+        _paused = true;
+        unawaited(onPause());
+      case AppLifecycleState.resumed:
+        if (!_paused) return;
+        _paused = false;
+        unawaited(
+          onResume().catchError((Object _) {
+            // A failed restart is kept in the controller's error, which the screen shows.
+          }),
+        );
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 }
 
