@@ -10,7 +10,8 @@ import 'wallet_service.dart';
 
 /// Waits before each automatic repost of a finished payment the chain has not taken: the first
 /// from when the app first saw it waiting, each next one from the try before. The last wait
-/// repeats for as long as the wallet stays open. Posting it again is safe: the same payment
+/// repeats for as long as the wallet stays open. A post the node refused
+/// ([TxEntry.repostable]) goes once more at once, when the app first sees it, and then waits. Posting it again is safe: the same payment
 /// cannot go through twice, and a node that holds it already says so.
 const List<Duration> repostWaits = [
   Duration(minutes: 1),
@@ -109,9 +110,11 @@ class StallRetry {
       for (final tx in list) {
         if (awaitsChain(tx)) {
           final from = _seen.putIfAbsent(tx.key, () => now);
-          // Back after an outage: a post the node refused goes again now. A payment that is
+          // A post the node refused goes again now when first seen (a node hiccup often
+          // passes), and again now when the node is back after an outage. A payment that is
           // posted and waiting gains nothing from it, and keeps its waits.
-          if (!(back && tx.repostable) && !_due(tx.key, from, now, repostWaits, repeat: true)) continue;
+          final atOnce = tx.repostable && (back || !_tries.containsKey(tx.key));
+          if (!atOnce && !_due(tx.key, from, now, repostWaits, repeat: true)) continue;
           _tried(tx.key, now);
           try {
             await session.repostTransaction(key: tx.key);

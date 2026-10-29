@@ -76,17 +76,18 @@ void main() {
     Future<bool> at(Duration d) =>
         retry.run(session, session.transactionsValue, _t0.add(d));
 
-    expect(await at(Duration.zero), isFalse, reason: 'first seen now');
+    expect(await at(Duration.zero), isTrue, reason: 'first seen now: the refused one goes at once');
+    expect(session.repostedKeys, ['refused'], reason: 'the posted one waits');
     expect(await at(const Duration(seconds: 59)), isFalse);
     expect(await at(const Duration(minutes: 1)), isTrue);
-    expect(session.repostedKeys, ['refused', 'posted']);
+    expect(session.repostedKeys, ['refused', 'refused', 'posted']);
     expect(await at(const Duration(minutes: 3)), isFalse);
     expect(await at(const Duration(minutes: 4)), isTrue);
     expect(await at(const Duration(minutes: 14)), isTrue);
     expect(await at(const Duration(minutes: 44)), isTrue);
     expect(await at(const Duration(minutes: 73)), isFalse);
     expect(await at(const Duration(minutes: 74)), isTrue, reason: 'the last wait repeats');
-    expect(session.repostedKeys.length, 10);
+    expect(session.repostedKeys.length, 11);
     expect(session.cancelledTxIds, isEmpty, reason: 'nothing is ever cancelled');
   });
 
@@ -97,9 +98,10 @@ void main() {
     final retry = StallRetry();
     Future<bool> at(Duration d) =>
         retry.run(session, session.transactionsValue, _t0.add(d));
-    await at(Duration.zero);
-    expect(await at(const Duration(minutes: 1)), isFalse);
+    expect(await at(Duration.zero), isFalse, reason: 'the try at once fails too');
     expect(session.repostedKeys, isEmpty);
+    expect(session.transactionsValue.single.repostable, isTrue, reason: 'it still reads Not posted');
+    expect(await at(const Duration(minutes: 1)), isFalse);
     expect(await at(const Duration(minutes: 4)), isTrue);
     expect(session.repostedKeys, ['refused']);
   });
