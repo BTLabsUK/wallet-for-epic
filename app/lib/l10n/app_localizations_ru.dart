@@ -18909,4 +18909,23 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskUpdDmgHint =>
       'Приложение закроется и откроется образ диска: перетащите Epic Cash Desktop в «Программы», замените старую версию и откройте её.';
+
+  @override
+  String get balanceSheetTitle => 'Балансы';
+
+  @override
+  String pendingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count в ожидании',
+      many: '$count в ожидании',
+      few: '$count в ожидании',
+      one: '$count в ожидании',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get connectionsSheetTitle => 'Подключения';
 }

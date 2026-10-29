@@ -28633,6 +28633,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.'**
   String get deskUpdDmgHint;
+
+  /// Title of the sheet a tap on the balance opens: every balance of the wallet with its exact amount and a short explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances'**
+  String get balanceSheetTitle;
+
+  /// Under the balance in Send's and Receive's header when the detail line (locked, coming in, not on chain) does not fit: how many such balances there are; a tap opens the balances sheet. Keep it to two words.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 pending} other{{count} pending}}'**
+  String pendingCount(int count);
+
+  /// Title of the sheet a long press on a status icon opens: one row per connection (node, Epicbox, Tor, Link) with its state.
+  ///
+  /// In en, this message translates to:
+  /// **'Connections'**
+  String get connectionsSheetTitle;
 }
 
 class _AppLocalizationsDelegate

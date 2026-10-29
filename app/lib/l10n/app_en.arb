@@ -24303,5 +24303,22 @@
   "deskUpdDmgHint": "The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.",
   "@deskUpdDmgHint": {
     "description": "macOS: what happens and what to do, one line under the downloaded update and in its dialog. Epic Cash Desktop is the app's name; Applications is the macOS folder (use its name in this language's macOS)."
+  },
+  "balanceSheetTitle": "Balances",
+  "@balanceSheetTitle": {
+    "description": "Title of the sheet a tap on the balance opens: every balance of the wallet with its exact amount and a short explanation."
+  },
+  "pendingCount": "{count, plural, =1{1 pending} other{{count} pending}}",
+  "@pendingCount": {
+    "description": "Under the balance in Send's and Receive's header when the detail line (locked, coming in, not on chain) does not fit: how many such balances there are; a tap opens the balances sheet. Keep it to two words.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "connectionsSheetTitle": "Connections",
+  "@connectionsSheetTitle": {
+    "description": "Title of the sheet a long press on a status icon opens: one row per connection (node, Epicbox, Tor, Link) with its state."
   }
 }

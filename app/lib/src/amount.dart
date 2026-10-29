@@ -33,45 +33,37 @@ String formatEpic(BigInt atomic, {int minDecimals = 0, bool grouped = false}) {
   return negative ? '-$text' : text;
 }
 
-/// Digits, whole and decimal, that [displayEpic] shows before it drops decimals.
-const int displayDigits = 10;
+/// Decimals every shown amount has: the one display rule of both apps, phone and desktop
+/// (headers, tiles, detail rows, activity lists, summaries, notices). Four, always written out
+/// (`0.0000`, `12.5000`), so figures line up and a balance never reads as fiat.
+const int displayDecimals = 4;
 
-/// Decimals [displayEpic] keeps at most for [atomic]: all 8 up to 99.99999999, then one fewer
-/// for each further digit of the whole part, so whole and decimal digits stay within
-/// [displayDigits], and never fewer than 2 (`20,999,999.99`).
-int displayDecimals(BigInt atomic) {
-  final wholeDigits = (atomic.abs() ~/ atomicPerEpic).toString().length;
-  return (displayDigits - wholeDigits).clamp(2, epicDecimals);
-}
+/// Decimals an exact amount has: all eight, always written out (`1.69154322`, `12.50000000`).
+/// Only where exactness is the point: the balance sheet, a payment's exact amount, fees.
+const int exactDecimals = 8;
 
-/// [atomic] as the app shows an amount: grouped, with [displayDecimals] decimals at most and
-/// trailing zeros dropped. The digits beyond are cut off, never rounded, so a balance never
-/// reads more than it is: `1,234,567.12345678` shows as `1,234,567.123`.
-///
-/// Display only. Where the exact value matters (the Send review, transaction details, the
-/// balance help, CSV, fields), use [formatEpic].
-String displayEpic(BigInt atomic) {
-  final cut = BigInt.from(10).pow(epicDecimals - displayDecimals(atomic));
+/// [atomic] cut to [decimals] decimals (towards zero, never rounded, so a balance never reads
+/// more than it is), shown with exactly that many, grouped (`1,234.5600`).
+String cutEpic(BigInt atomic, int decimals) {
+  assert(decimals >= 0 && decimals <= epicDecimals);
+  final cut = BigInt.from(10).pow(epicDecimals - decimals);
   // `remainder` keeps the sign, so a negative amount is cut towards zero too.
-  return formatEpic(atomic - atomic.remainder(cut), grouped: true);
-}
-
-/// Decimals the headline balance shows: the big figure on the phone's Wallet and in its Send
-/// and Receive bar, and on the desktop's Overview.
-const int headlineDecimals = 2;
-
-/// [atomic] as the headline balance shows it: grouped, with exactly [headlineDecimals]
-/// decimals, the rest cut off, never rounded, so the figure never reads more than the wallet
-/// holds: `1,234.56781234` shows as `1,234.56`, and `0` as `0.00`. The exact amount stays a
-/// tap or a hover away ([formatEpic]); everywhere exactness matters keeps all 8.
-String headlineEpic(BigInt atomic) {
-  final cut = BigInt.from(10).pow(epicDecimals - headlineDecimals);
   return formatEpic(
     atomic - atomic.remainder(cut),
-    minDecimals: headlineDecimals,
+    minDecimals: decimals,
     grouped: true,
   );
 }
+
+/// [atomic] as the app shows an amount anywhere: [displayDecimals] decimals, cut off, grouped:
+/// `1,234.56781234` shows as `1,234.5678`, `0` as `0.0000`, `20,999,999.99999999` as
+/// `20,999,999.9999`. Display only; where the exact value matters use [exactEpic] (text) or
+/// [formatEpic] (fields, the clipboard, files).
+String displayEpic(BigInt atomic) => cutEpic(atomic, displayDecimals);
+
+/// [atomic] with every decimal, grouped: `1,234.56781234`, `12.50000000`.
+String exactEpic(BigInt atomic) =>
+    formatEpic(atomic, minDecimals: exactDecimals, grouped: true);
 
 String _group(String digits) {
   final out = StringBuffer();

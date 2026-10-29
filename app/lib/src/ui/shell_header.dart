@@ -36,11 +36,24 @@ const Key balanceCaptionKey = ValueKey('balance-caption');
 /// The key of the pending line under the fiat row, for tests.
 const Key pendingLineKey = ValueKey('pending-line');
 
-/// The key of the figure in the app bar's title on Send and Receive, for tests.
+/// The key of the balance header under Send's and Receive's app bar, for tests.
+const Key balanceHeaderKey = ValueKey('balance-header');
+
+/// The key of the figure in that header, for tests.
 const Key titleFigureKey = ValueKey('title-figure');
 
-/// The key of the line under that figure with what is on hold and coming in, for tests.
+/// The key of the line under that figure with what is on hold, coming in or not on chain,
+/// for tests: the tokens, or the count they collapse to.
 const Key titlePendingKey = ValueKey('title-pending');
+
+/// The key of the balance sheet a tap on a figure opens, for tests.
+const Key balanceSheetKey = ValueKey('balance-sheet');
+
+/// The size of the figure in the balance header: fixed, whatever is under it.
+const double titleFigureSize = 17;
+
+/// The size of the detail line under it: fixed too; the line collapses before it shrinks.
+const double titleDetailSize = 12;
 
 /// The key of the statuses in Wallet's fiat row.
 const Key walletStatusesKey = ValueKey('statuses-wallet');
@@ -138,7 +151,48 @@ List<PendingItem> pendingItems(
   ];
 }
 
-/// What a screen reader says for the spendable balance.
+/// One token of the balance header's detail line: a small glyph and an amount, and what a
+/// screen reader says for it.
+typedef PendingToken = ({IconData icon, String amount, String label});
+
+/// The detail line's tokens for [summary], at most three, in the order the money settles:
+/// what a send holds (locked), what is on its way in (confirming, mining rewards), and what
+/// is not on chain yet (payments offered or sent that no block holds, own change). Each is a
+/// glyph with the amount by the display rule; the words are for screen readers.
+List<PendingToken> pendingTokens(
+  AppLocalizations l,
+  WalletSummary summary, {
+  required bool hidden,
+}) {
+  String amount(BigInt v) =>
+      hidden ? hiddenAmount : localDigits(l, displayEpic(v));
+  final incoming = comingIn(summary);
+  return [
+    if (summary.locked > BigInt.zero)
+      (
+        icon: Icons.lock_outline,
+        amount: amount(summary.locked),
+        label: l.balanceLineOnHold(amount(summary.locked)),
+      ),
+    if (incoming > BigInt.zero)
+      (
+        icon: Icons.south_west,
+        amount: '+${amount(incoming)}',
+        label: l.balanceLineComingIn(amount(incoming)),
+      ),
+    if (summary.awaitingFinalization > BigInt.zero)
+      (
+        icon: Icons.schedule,
+        amount: amount(summary.awaitingFinalization),
+        label: l.balanceHelpRow(
+          l.homeBalanceNotOnChain,
+          amount(summary.awaitingFinalization),
+        ),
+      ),
+  ];
+}
+
+/// What a screen reader says for the spendable balance: the exact amount.
 String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
     l.balanceHelpRow(
       l.homeBalanceSpendable,
@@ -247,7 +301,7 @@ class WalletBalance extends ConsumerWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
-                    : _Figure(spendable: summary.spendable, hidden: hidden),
+                    : _Figure(summary: summary, hidden: hidden),
               ),
             ),
             const SizedBox(height: 2),
@@ -322,15 +376,17 @@ double _textWidth(
   return width;
 }
 
-/// Wallet's figure (two decimals, [headlineEpic]) and its gold EPIC, in a box [figureSize]
+/// Wallet's figure (four decimals, [displayEpic]) and its gold EPIC, in a box [figureSize]
 /// high. The figure takes the largest whole size from [figureSize] down to [figureMinSize] at
 /// which it fits beside the unit. It does not follow the text scale, which would only shrink
-/// it back; the unit does, up to 1.3x. A tap shows the exact amount.
+/// it back; the unit does, up to 1.3x. A tap opens the balance sheet ([showBalanceSheet]).
 class _Figure extends StatelessWidget {
-  const _Figure({required this.spendable, required this.hidden});
+  const _Figure({required this.summary, required this.hidden});
 
-  final BigInt spendable;
+  final WalletSummary summary;
   final bool hidden;
+
+  BigInt get spendable => summary.spendable;
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +394,7 @@ class _Figure extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final direction = Directionality.of(context);
-    final text = hidden ? hiddenAmount : localDigits(l, headlineEpic(spendable));
+    final text = hidden ? hiddenAmount : localDigits(l, displayEpic(spendable));
     TextStyle figure(double size) =>
         (theme.textTheme.displaySmall ?? const TextStyle()).copyWith(
           fontFamily: t.headFamily,
@@ -394,9 +450,8 @@ class _Figure extends StatelessWidget {
           if (!showUnit) size = best(unit: false);
           // The figure and its unit are centred as one; the figure's Flexible is loose, so
           // the row's free space falls on both sides.
-          return exactAmountTip(
-            context,
-            spendable,
+          return BalanceTap(
+            summary: summary,
             hidden: hidden,
             child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -499,56 +554,47 @@ class PendingLine extends StatelessWidget {
   }
 }
 
-/// The app bar's title on every tab, cross-faded by the page position ([openness], 1 on
-/// Wallet): Wallet's [ShellTitle] (the wordmark, or the demo's pill in [trailing]), and on
-/// Send and Receive the spendable figure with a small gold EPIC, and under it what is on hold
-/// or coming in. Each shrinks rather than overflows when the bar is narrow.
-class ShellBarTitle extends StatelessWidget {
-  const ShellBarTitle({super.key, required this.openness, this.trailing});
-
-  final double openness;
-  final Widget? trailing;
+/// The balance header at the top of Send and Receive, under the app bar, [statusTarget]
+/// high: at its start the spendable figure at a fixed [titleFigureSize] with a small gold
+/// EPIC, and under it the detail line ([pendingTokens]); at its end the status icons
+/// ([StatusIcons]), the same row as under Wallet's figure. The figure never shrinks and
+/// nothing wraps: the detail line collapses into a count ("3 pending") when it does not fit,
+/// and a tap anywhere on the figure opens the balance sheet with every amount in full.
+class BalanceHeader extends StatelessWidget {
+  const BalanceHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final t = openness;
-    // The title that is more than half shown takes taps and screen readers.
-    Widget layer(double opacity, bool active, Widget child) => IgnorePointer(
-      ignoring: !active,
-      child: ExcludeSemantics(
-        excluding: !active,
-        child: Opacity(opacity: opacity, child: child),
+    final t = context.tokens;
+    return Container(
+      key: balanceHeaderKey,
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: t.line)),
       ),
-    );
-    return Stack(
-      alignment: AlignmentDirectional.centerStart,
-      children: [
-        layer(shellFade(t), t >= 0.5, ShellTitle(trailing: trailing)),
-        // Not built on Wallet: its icons are in the page, and the two rows must not share keys.
-        if (t < 1)
-          layer(
-            shellFade(1 - t),
-            t < 0.5,
-            // The figure, and the compact statuses right after it: a dropped node shows
-            // before a payment is begun. The figure shrinks, the icons keep their size.
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Flexible(child: _FigureTitle()),
-                const SizedBox(width: 4),
-                StatusIcons(key: barStatusesKey, compact: true),
-              ],
-            ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: statusTarget),
+        child: Padding(
+          // The figure starts at the text gutter; the last icon's target reaches the edge.
+          padding: const EdgeInsetsDirectional.only(start: 16),
+          child: Row(
+            children: [
+              const Expanded(child: _FigureTitle()),
+              const SizedBox(width: 4),
+              StatusIcons(key: barStatusesKey),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
 }
 
-/// The spendable figure (two decimals, [headlineEpic]) as Send's and Receive's title: the app
-/// bar's title style with tabular figures and a small gold EPIC after it; while anything is on
-/// hold or coming in, a quiet line under it with the same words as Wallet's pending line, so
-/// the two never disagree. A tap shows the exact amount.
+/// The spendable figure ([displayEpic]) in the balance header: [titleFigureSize] in the
+/// heading face with tabular figures and a small gold EPIC after it, never any smaller.
+/// Under it, while anything is locked, coming in or not on chain, the detail line at
+/// [titleDetailSize]: the [pendingTokens] as glyph and amount, or, when they would not fit
+/// the width, the count of them ([AppLocalizations.pendingCount]) with a chevron. A tap
+/// opens the balance sheet; a screen reader hears the exact amount and every detail.
 class _FigureTitle extends ConsumerWidget {
   const _FigureTitle();
 
@@ -560,12 +606,18 @@ class _FigureTitle extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final hidden = amountDisplay(ref).hidden;
-    final pending = [
-      for (final i in pendingItems(l, summary, hidden: hidden, empty: false))
-        if (i.kind != null) i.text,
-    ];
-    final style = DefaultTextStyle.of(context).style
-        .copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+    final tokens = pendingTokens(l, summary, hidden: hidden);
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    final figureStyle = TextStyle(
+      fontFamily: t.headFamily,
+      fontWeight: FontWeight.w600,
+      fontSize: titleFigureSize,
+      height: 1.2,
+      color: t.text,
+      letterSpacing: -0.01 * titleFigureSize,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     final figure = Text.rich(
       key: titleFigureKey,
       TextSpan(
@@ -573,7 +625,7 @@ class _FigureTitle extends ConsumerWidget {
           TextSpan(
             text: hidden
                 ? hiddenAmount
-                : localDigits(l, headlineEpic(summary.spendable)),
+                : localDigits(l, displayEpic(summary.spendable)),
           ),
           const WidgetSpan(child: SizedBox(width: 6)),
           TextSpan(
@@ -588,45 +640,197 @@ class _FigureTitle extends ConsumerWidget {
       ),
       maxLines: 1,
       softWrap: false,
-      style: style,
+      overflow: TextOverflow.clip,
+      style: figureStyle,
     );
-    return Semantics(
-      container: true,
+    final detailStyle = TextStyle(
+      fontSize: titleDetailSize,
+      height: 1.2,
+      color: t.dim,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    // The glyph before each amount, the gap after it, and the dot between two tokens.
+    const glyph = 12.0, gap = 3.0, dot = ' · ';
+    Widget token(PendingToken item) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(item.icon, size: scaler.scale(glyph), color: t.dim),
+        const SizedBox(width: gap),
+        Text(item.amount, maxLines: 1, softWrap: false, style: detailStyle),
+      ],
+    );
+    return BalanceTap(
+      summary: summary,
+      hidden: hidden,
       label: [
         _spendableLabel(l, summary.spendable, hidden),
-        ...pending,
+        for (final item in tokens) item.label,
       ].join('\n'),
-      excludeSemantics: true,
-      child: exactAmountTip(
-        context,
-        summary.spendable,
-        hidden: hidden,
-        child: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: AlignmentDirectional.centerStart,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            figure,
-            if (pending.isNotEmpty)
-              Text(
-                pending.join(' · '),
-                key: titlePendingKey,
-                maxLines: 1,
-                softWrap: false,
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 1.2,
-                  color: t.dim,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          figure,
+          if (tokens.isNotEmpty)
+            LayoutBuilder(
+              builder: (context, constraints) {
+                var width = 0.0;
+                for (final (n, item) in tokens.indexed) {
+                  if (n > 0) {
+                    width += _textWidth(dot, detailStyle, scaler, direction);
+                  }
+                  width += scaler.scale(glyph) +
+                      gap +
+                      _textWidth(item.amount, detailStyle, scaler, direction);
+                }
+                final fits = width <= constraints.maxWidth;
+                return Row(
+                  key: titlePendingKey,
+                  mainAxisSize: MainAxisSize.min,
+                  children: fits
+                      ? [
+                          for (final (n, item) in tokens.indexed) ...[
+                            if (n > 0) Text(dot, style: detailStyle),
+                            token(item),
+                          ],
+                        ]
+                      : [
+                          Flexible(
+                            child: Text(
+                              l.pendingCount(tokens.length),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                              style: detailStyle,
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            size: scaler.scale(14),
+                            color: t.dim,
+                          ),
+                        ],
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A figure that opens the balance sheet on a tap: a button to a screen reader, [label] (the
+/// exact amount and the details) its words when given, the sheet's purpose its hint.
+class BalanceTap extends StatelessWidget {
+  const BalanceTap({
+    super.key,
+    required this.summary,
+    required this.hidden,
+    required this.child,
+    this.label,
+  });
+
+  final WalletSummary summary;
+  final bool hidden;
+  final Widget child;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    void open() => showBalanceSheet(context, summary: summary, hidden: hidden);
+    return Semantics(
+      container: true,
+      button: true,
+      label: label,
+      hint: l.balanceHelpLabel,
+      excludeSemantics: label != null,
+      onTap: open,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: open,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Opens the balance sheet: every balance of [summary] that is not zero (the total always)
+/// with its exact amount ([epicExact]) and a short explanation, from [BalanceHelp.rows].
+/// With [hidden] the amounts are dots and the sheet says nothing more.
+Future<void> showBalanceSheet(
+  BuildContext context, {
+  required WalletSummary summary,
+  required bool hidden,
+}) => showModalBottomSheet<void>(
+  context: context,
+  showDragHandle: true,
+  useSafeArea: true,
+  builder: (_) => BalanceSheet(summary: summary, hidden: hidden),
+);
+
+/// The balance sheet's body: a title and one row per balance, the label and its explanation
+/// at the start, the exact amount in the mono face at the end, so every digit is readable.
+class BalanceSheet extends StatelessWidget {
+  const BalanceSheet({super.key, required this.summary, required this.hidden});
+
+  final WalletSummary summary;
+  final bool hidden;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final amountStyle = TextStyle(
+      fontFamily: t.monoFamily,
+      fontSize: 15,
+      color: t.text,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    return Padding(
+      key: balanceSheetKey,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(l.balanceSheetTitle, style: theme.textTheme.titleMedium),
+          ),
+          const SizedBox(height: 8),
+          for (final (label, amount, help) in BalanceHelp.rows(l, summary))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(label, style: theme.textTheme.bodyLarge),
+                        if (help != null)
+                          Text(
+                            help,
+                            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    shownEpic(l, amount, hidden: hidden, exact: true),
+                    style: amountStyle,
+                    textAlign: TextAlign.end,
+                  ),
+                ],
               ),
-          ],
-        ),
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -697,8 +901,8 @@ class _ShellEdgeState extends ConsumerState<ShellEdge>
   }
 }
 
-/// The ? beside the balance: a tap shows every balance that is not zero, each with a few
-/// words on what it is. Spendable needs none.
+/// The ? beside a balance: a tap opens the balance sheet ([showBalanceSheet]), every balance
+/// that is not zero with a few words on what it is. Spendable needs none.
 class BalanceHelp extends StatefulWidget {
   const BalanceHelp({super.key, required this.summary, required this.hidden});
 
@@ -759,25 +963,20 @@ class BalanceHelp extends StatefulWidget {
 }
 
 class _BalanceHelpState extends State<BalanceHelp> {
-  final _tooltip = GlobalKey<TooltipState>();
-
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    // A button, so screen readers can press it; the tooltip holds the answer.
-    return Tooltip(
-      key: _tooltip,
-      richMessage: BalanceHelp.message(l, widget.summary, widget.hidden),
-      triggerMode: TooltipTriggerMode.manual,
-      showDuration: const Duration(seconds: 10),
-      child: IconButton(
-        icon: Icon(
-          Icons.help_outline,
-          size: 20,
-          color: context.tokens.dim,
-          semanticLabel: l.balanceHelpLabel,
-        ),
-        onPressed: () => _tooltip.currentState?.ensureTooltipVisible(),
+    return IconButton(
+      icon: Icon(
+        Icons.help_outline,
+        size: 20,
+        color: context.tokens.dim,
+        semanticLabel: l.balanceHelpLabel,
+      ),
+      onPressed: () => showBalanceSheet(
+        context,
+        summary: widget.summary,
+        hidden: widget.hidden,
       ),
     );
   }

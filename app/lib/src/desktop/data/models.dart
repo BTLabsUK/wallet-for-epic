@@ -5,6 +5,7 @@
 library;
 
 import '../../advanced.dart';
+import '../../amount.dart' show cutEpic, displayDecimals, exactDecimals, exactEpic;
 import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
@@ -29,22 +30,18 @@ export '../../send_summary.dart' show SendEstimate, SendSummary;
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
 
-/// "1,234.5000": thousands grouped, trailing zeros trimmed down to [minDecimals] (4, as the
-/// GUI shows amounts, so a zero balance reads 0.0000 and never a bare 0).
-String formatEpic(int nano, {int decimals = 8, bool trim = true, int minDecimals = 4}) {
-  final neg = nano < 0;
-  final v = nano.abs();
-  final whole = v ~/ nanoPerEpic;
-  var frac = (v % nanoPerEpic).toString().padLeft(8, '0').substring(0, decimals);
-  if (trim) frac = frac.replaceFirst(RegExp(r'0+$'), '');
-  if (frac.length < minDecimals) frac = frac.padRight(minDecimals, '0');
-  final w = whole.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
-  return '${neg ? '-' : ''}$w${frac.isEmpty ? '' : '.$frac'}';
+/// The one display rule of both apps ([displayEpic] in amount.dart): four decimals, cut off,
+/// grouped, `1,234.5000`. [decimals] 8 gives the exact amount ([exactEpic]), for the places
+/// where exactness is the point; other values cut to that many. [trim] and [minDecimals] are
+/// kept for callers and ignored: every shown amount writes its decimals out.
+String formatEpic(int nano, {int decimals = displayDecimals, bool trim = true, int minDecimals = displayDecimals}) {
+  final atomic = BigInt.from(nano);
+  return decimals >= exactDecimals ? exactEpic(atomic) : cutEpic(atomic, decimals);
 }
 
-/// [formatEpic] in [l]'s separators (`1.281,52615` in German): for text shown, never for a field,
+/// [formatEpic] in [l]'s separators (`1.281,5261` in German): for text shown, never for a field,
 /// the clipboard or a file.
-String formatEpicL(AppLocalizations l, int nano, {int decimals = 8, bool trim = true, int minDecimals = 4}) =>
+String formatEpicL(AppLocalizations l, int nano, {int decimals = displayDecimals, bool trim = true, int minDecimals = displayDecimals}) =>
     localDigits(l, formatEpic(nano, decimals: decimals, trim: trim, minDecimals: minDecimals));
 
 /// [parseEpic]'s answer for more than 8 decimals.

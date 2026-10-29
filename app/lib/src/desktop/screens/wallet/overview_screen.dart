@@ -9,7 +9,7 @@ import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
-import '../../../amount.dart' show headlineEpic;
+import '../../../amount.dart' show displayEpic;
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../../ui/common.dart' show epicExact, exactAmountTip;
 import '../../widgets/kit.dart';
@@ -494,8 +494,8 @@ class _UpdatingTag extends StatelessWidget {
   Widget build(BuildContext context) => EBadge(context.l10n.deskOvUpdating, busy: true, liveRegion: true);
 }
 
-/// The balance in Montserrat 44: whole part bright, the two decimals ([headlineEpic]) dim,
-/// unit in mono. A hover shows the exact amount.
+/// The balance in Montserrat 44: whole part bright, the four decimals ([displayEpic], the one
+/// display rule) dim, unit in mono. A hover shows the exact amount.
 class _BigAmount extends StatelessWidget {
   const _BigAmount({required this.nano, required this.hidden, this.dim = false});
 
@@ -508,7 +508,7 @@ class _BigAmount extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final canonical = headlineEpic(BigInt.from(nano));
+    final canonical = displayEpic(BigInt.from(nano));
     final dot = canonical.indexOf('.');
     final whole = localDigits(l, dot < 0 ? canonical : canonical.substring(0, dot));
     final frac = dot < 0 ? '' : localDigits(l, canonical.substring(dot));

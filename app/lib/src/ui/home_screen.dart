@@ -611,13 +611,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           titleSpacing: 0,
-          title: AnimatedBuilder(
-            animation: _pages,
-            builder: (context, _) => ShellBarTitle(
-              openness: _openness(),
-              trailing: demo ? const DemoCountdown() : null,
-            ),
-          ),
+          // The name on every tab; Send and Receive carry the balance in their header below.
+          title: ShellTitle(trailing: demo ? const DemoCountdown() : null),
           actions: [
             // Invoices moved to the destinations row; the entry keeps its event wiring.
             const InvoicesEntry(visible: false),
@@ -668,13 +663,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           onPageChanged: _pageChanged,
           children: [
             _KeepAlive(
-              child: SendView(
-                key: ValueKey('send-$_sendForm'),
-                onDone: _sendDone,
+              child: _withBalanceHeader(
+                SendView(
+                  key: ValueKey('send-$_sendForm'),
+                  onDone: _sendDone,
+                ),
               ),
             ),
             _KeepAlive(child: _walletTab(context)),
-            const _KeepAlive(child: ReceiveView()),
+            _KeepAlive(child: _withBalanceHeader(const ReceiveView())),
           ],
         ),
       ),
@@ -704,6 +701,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// The middle tab: the balance tiles, the destinations, reminders,
   /// pending sends and recent activity, with pull to refresh.
+  /// Send and Receive under the balance header ([BalanceHeader]): the figure with its
+  /// details and the status icons, pinned above the page.
+  Widget _withBalanceHeader(Widget page) => Column(
+    children: [
+      const BalanceHeader(),
+      Expanded(child: page),
+    ],
+  );
+
   Widget _walletTab(BuildContext context) {
     final config = ref.watch(walletConfigProvider);
     final home = ref.watch(homeProvider);

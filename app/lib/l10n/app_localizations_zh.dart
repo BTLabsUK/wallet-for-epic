@@ -17213,4 +17213,20 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskUpdDmgHint =>
       '应用会关闭并打开磁盘映像：将 Epic Cash Desktop 拖到“应用程序”中替换旧版本，然后打开它。';
+
+  @override
+  String get balanceSheetTitle => '余额';
+
+  @override
+  String pendingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 项待处理',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get connectionsSheetTitle => '连接';
 }

@@ -379,17 +379,15 @@ class CenteredScroll extends StatelessWidget {
   }
 }
 
-/// `1,234.5 EPIC`, with [l]'s separators (`1.234,5 EPIC` in German), by the app's display
-/// rule ([displayEpic]): large amounts lose decimals, cut off, never rounded up. For balances,
-/// lists and notices. Display only; see [localDigits].
+/// [atomic] as text with its unit, by the one display rule ([displayEpic]: four decimals, cut
+/// off, never rounded). For everything shown; the exact amount is [epicExact].
 String epicText(AppLocalizations l, BigInt atomic) =>
     '${localDigits(l, displayEpic(atomic))} EPIC';
 
-/// [epicText] with every decimal there is: `1,234,567.12345678 EPIC`. For the places that hold
-/// the full value one tap from a balance or a row: the balance help, transaction details, the
-/// Send form's fee and total, the review and its result, payment files and invoice reviews.
+/// [atomic] with every decimal and its unit ([exactEpic]): the balance sheet, a payment's
+/// exact amount, fees.
 String epicExact(AppLocalizations l, BigInt atomic) =>
-    '${localDigits(l, formatEpic(atomic, grouped: true))} EPIC';
+    '${localDigits(l, exactEpic(atomic))} EPIC';
 
 /// What an amount shows while balances are hidden.
 const String hiddenAmount = '•••••';

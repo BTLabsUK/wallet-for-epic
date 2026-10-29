@@ -177,16 +177,24 @@ FakeWalletSession _previewSession() {
   final biller = _address('northwind', relay: 'epicbox.example.com');
   final now = DateTime.now();
   int ago(Duration d) => now.subtract(d).millisecondsSinceEpoch ~/ 1000;
+  // `?pending=0..3` on the page's URL picks how many balances are pending beside the
+  // spendable one (locked, then coming in, then not on chain), for design reviews of the
+  // balance header; the page's default is all three.
+  final pending = int.tryParse(Uri.base.queryParameters['pending'] ?? '') ?? 3;
+  final locked = pending >= 1 ? _epic(15.713) : BigInt.zero;
+  final confirming = pending >= 2 ? _epic(25) : BigInt.zero;
+  final immature = pending >= 2 ? _epic(2) : BigInt.zero;
+  final notOnChain = pending >= 3 ? _epic(12.5) : BigInt.zero;
   final session = FakeWalletSession(
     summary: WalletSummary(
       lastConfirmedHeight: tip,
       minimumConfirmations: BigInt.from(3),
-      total: _epic(1327.44515),
+      total: _epic(1284.73215) + locked + confirming + immature + notOnChain,
       spendable: _epic(1284.73215),
-      awaitingConfirmation: _epic(25),
-      awaitingFinalization: _epic(12.5),
-      immature: _epic(2),
-      locked: _epic(15.713),
+      awaitingConfirmation: confirming,
+      awaitingFinalization: notOnChain,
+      immature: immature,
+      locked: locked,
       validatedWithNode: true,
     ),
     transactions: [

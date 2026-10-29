@@ -321,17 +321,11 @@ enum StatusDot {
 /// The diameter of the state dot at a status glyph's bottom right, ring included.
 const double statusDotSize = 10;
 
-/// The compact form's tap target width (its height is [statusTarget]), glyph and dot: the
-/// small row in Send's and Receive's app bar.
-const double statusCompactWidth = 30;
-const double statusCompactGlyph = 18;
-const double statusCompactDot = 9;
 
-/// One status as its glyph on a [statusTarget] square, in the dim colour, with the state's
-/// [dot] at its bottom right (ringed in the page colour so it stands off the glyph). A tap
-/// runs [onTap] (the service's screen); a long press or hover shows the tooltip with
-/// [detail]; a screen reader hears [label] (the service and its state word), then [detail]
-/// and [actionHint]. A [StatusDot.busy] status pulses.
+/// One status as its glyph on a [statusTarget] square ([StatusGlyph]). A tap runs [onTap]
+/// (the service's screen); a long press runs [onLongPress] (the connections sheet) or, without
+/// one, shows the tooltip with [detail]; a screen reader hears [label] (the service and its
+/// state word), then [detail] and [actionHint]. A [StatusDot.busy] status pulses.
 class StatusIcon extends StatelessWidget {
   const StatusIcon({
     super.key,
@@ -340,9 +334,9 @@ class StatusIcon extends StatelessWidget {
     required this.label,
     required this.detail,
     required this.onTap,
+    this.onLongPress,
     this.actionHint,
     this.pulse = false,
-    this.compact = false,
     this.enabled = true,
   });
 
@@ -356,64 +350,85 @@ class StatusIcon extends StatelessWidget {
   final String detail;
   final String? actionHint;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final bool pulse;
 
-  /// The small form for the app bar: a narrower target, a smaller glyph and dot.
-  final bool compact;
+  @override
+  Widget build(BuildContext context) {
+    final ring = Theme.of(context).scaffoldBackgroundColor;
+    final target = SizedBox.square(
+      dimension: statusTarget,
+      child: InkResponse(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        radius: statusTarget / 2,
+        child: Center(
+          child: Pulse(
+            active: pulse,
+            child: StatusGlyph(icon: icon, enabled: enabled, dot: dot, ring: ring),
+          ),
+        ),
+      ),
+    );
+    // The semantics node is the widget's root, so tests and screen readers find it by key;
+    // the tooltip inside it is excluded (its text is the hint).
+    return Semantics(
+      container: true,
+      button: true,
+      label: label,
+      // A detail that only repeats the state in the label is said once.
+      hint: [if (!label.toLowerCase().contains(detail.trim().toLowerCase())) detail, ?actionHint].join('\n'),
+      liveRegion: true,
+      excludeSemantics: true,
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: onLongPress != null
+          ? target
+          : Tooltip(
+              message: detail,
+              triggerMode: TooltipTriggerMode.longPress,
+              showDuration: const Duration(seconds: 6),
+              child: target,
+            ),
+    );
+  }
+}
+
+/// A status's glyph, [statusGlyph] across, with its state at the bottom right: the outline
+/// says on (green) or off (faint, no dot); the dot says how an enabled service's connection
+/// goes, with a second cue beside its colour: ring = in progress, "!" = a problem, solid = ok.
+class StatusGlyph extends StatelessWidget {
+  const StatusGlyph({
+    super.key,
+    required this.icon,
+    required this.enabled,
+    required this.dot,
+    required this.ring,
+  });
+
+  final IconData icon;
+  final bool enabled;
+  final StatusDot dot;
+
+  /// The page colour the dot is ringed in, so it stands off the glyph.
+  final Color ring;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final glyph = compact ? statusCompactGlyph : statusGlyph;
-    final dotSize = compact ? statusCompactDot : statusDotSize;
-    final ring = Theme.of(context).scaffoldBackgroundColor;
-    // The semantics node is the widget's root, so tests and screen readers find it by key;
-    // the tooltip inside it is excluded (its text is the hint).
-    // The compact form only shows: the row around it is the one tap target (StatusIcons).
-    return Semantics(
-      container: true,
-      button: !compact,
-      label: label,
-      // A detail that only repeats the state in the label is said once.
-      hint: [if (!label.toLowerCase().contains(detail.trim().toLowerCase())) detail, if (!compact) ?actionHint].join('\n'),
-      liveRegion: true,
-      excludeSemantics: true,
-      onTap: compact && enabled ? null : onTap,
-      child: Tooltip(
-        message: detail,
-        triggerMode: TooltipTriggerMode.longPress,
-        showDuration: const Duration(seconds: 6),
-        child: SizedBox(
-          width: compact ? statusCompactWidth : statusTarget,
-          height: statusTarget,
-          child: InkResponse(
-            onTap: compact && enabled ? null : onTap,
-            radius: statusTarget / 2,
-            child: Center(
-              child: Pulse(
-                active: pulse,
-                child: SizedBox.square(
-                  dimension: glyph,
-                  // The outline says on (green) or off (faint, no dot); the dot says how an
-                  // enabled service's connection goes, with a second cue beside its colour:
-                  // ring = in progress, "!" = a problem, solid = ok.
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Icon(icon, size: glyph, color: !enabled || dot == StatusDot.off ? t.dim.withValues(alpha: 0.4) : t.ok),
-                      if (enabled && dot != StatusDot.off)
-                        Positioned(
-                          right: -3,
-                          bottom: -3,
-                          child: StateDot(dot: dot, size: dotSize, ring: ring),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+    return SizedBox.square(
+      dimension: statusGlyph,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Icon(icon, size: statusGlyph, color: !enabled || dot == StatusDot.off ? t.dim.withValues(alpha: 0.4) : t.ok),
+          if (enabled && dot != StatusDot.off)
+            Positioned(
+              right: -3,
+              bottom: -3,
+              child: StateDot(dot: dot, size: statusDotSize, ring: ring),
             ),
-          ),
-        ),
+        ],
       ),
     );
   }

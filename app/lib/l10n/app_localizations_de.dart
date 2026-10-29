@@ -18497,4 +18497,21 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskUpdDmgHint =>
       'Die App schließt sich und das Disk-Image öffnet sich: Ziehen Sie Epic Cash Desktop in „Programme“, ersetzen Sie die alte App und öffnen Sie sie dann.';
+
+  @override
+  String get balanceSheetTitle => 'Guthaben';
+
+  @override
+  String pendingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ausstehend',
+      one: '1 ausstehend',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get connectionsSheetTitle => 'Verbindungen';
 }

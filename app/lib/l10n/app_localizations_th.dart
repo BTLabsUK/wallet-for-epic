@@ -17869,4 +17869,20 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskUpdDmgHint =>
       'แอปจะปิดและดิสก์อิมเมจจะเปิดขึ้น: ลาก Epic Cash Desktop ไปไว้ในโฟลเดอร์แอปพลิเคชัน แทนที่เวอร์ชันเก่า แล้วเปิดแอป';
+
+  @override
+  String get balanceSheetTitle => 'ยอดคงเหลือ';
+
+  @override
+  String pendingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'รอดำเนินการ $count รายการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get connectionsSheetTitle => 'การเชื่อมต่อ';
 }

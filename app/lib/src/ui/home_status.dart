@@ -121,12 +121,9 @@ const Key netModeStatusKey = ValueKey('status-net-mode');
 /// What the network mode says in place of the node and Epicbox icons: "Offline" (neutral) or
 /// "Waiting for Tor" (the in-progress blue). The words, not a pulse; a tap opens Advanced.
 class NetModeStatus extends StatelessWidget {
-  const NetModeStatus(this.block, {super.key, this.compact = false});
+  const NetModeStatus(this.block, {super.key});
 
   final NetBlock block;
-
-  /// The glyph alone, for the app bar; the word is still what a screen reader says.
-  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -153,29 +150,25 @@ class NetModeStatus extends StatelessWidget {
           onTap: open,
           borderRadius: BorderRadius.circular(t.radiusSmall),
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: statusTarget, minWidth: compact ? statusTarget : 0),
+            constraints: const BoxConstraints(minHeight: statusTarget),
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: compact ? 4 : statusInset,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: statusInset),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     offline ? Icons.cloud_off_outlined : torIcon,
-                    size: compact ? statusCompactGlyph : statusGlyph,
+                    size: statusGlyph,
                     color: color,
                   ),
-                  if (!compact) ...[
-                    const SizedBox(width: 8),
-                    Text(
-                      word,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: color,
-                      ),
+                  const SizedBox(width: 8),
+                  Text(
+                    word,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: color,
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
@@ -186,153 +179,284 @@ class NetModeStatus extends StatelessWidget {
   }
 }
 
-/// The status icons side by side: Node, Epicbox, Tor, Direct, in that order. While the network
-/// mode holds the network back (Offline, or Tor only without Tor) one word stands in for the
-/// Node and Epicbox icons. [compact] is the small row in Send's and Receive's app bar: the same
-/// icons, dots, labels, details and taps, smaller and without Direct receive (which belongs to
-/// Wallet), and the mode's word shrinks to its glyph.
-class StatusIcons extends ConsumerWidget {
-  const StatusIcons({super.key, this.compact = false});
+/// One status for the icon rows ([StatusIcons]) and the connections sheet
+/// ([ConnectionsSheet]): the service's glyph, whether it is on, its dot, the service and its
+/// state word for a screen reader ([label]), the detail a long press or the sheet shows, the
+/// hint of what a tap does, and the tap itself (the service's screen or switch).
+typedef StatusEntry = ({
+  Key key,
+  IconData icon,
+  bool enabled,
+  StatusDot dot,
+  String label,
+  String detail,
+  String actionHint,
+  bool pulse,
+  VoidCallback onTap,
+});
 
-  final bool compact;
+/// The statuses in their order, Node, Epicbox, Tor, Link, and the network mode that holds
+/// the network back ([block]: Offline, or Tor only without Tor), which stands in for the Node
+/// and Epicbox icons while it lasts. [bar] picks the header row's keys over Wallet's.
+({NetBlock block, List<StatusEntry> entries}) statusEntries(
+  BuildContext context,
+  WidgetRef ref, {
+  required bool bar,
+}) {
+  final l = context.l10n;
+  final t = context.tokens;
+  final status = watchWalletStatus(ref);
+  final config = ref.watch(walletConfigProvider);
+  final choice = ref.watch(networkChoiceProvider).value;
+  final tor = ref.watch(phoneTorProvider);
+  final torState = phoneTorState(tor);
+  final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
+  final node = nodeIconFace(
+    context,
+    status.node,
+    config,
+    behind: nodeBehind(ref, status.node, choice?.preset),
+  );
+  final failover = ref.watch(nodeFailoverProvider);
+  final nodeTor = underTor(
+    context,
+    dot: node.dot,
+    label: '${l.netStatusNode}, ${node.word}',
+    detail: failover == null
+        ? node.detail
+        : '${node.detail}\n${l.nodeFailoverInsteadOf(serverHost(failover.chosen))}',
+    way: nodeTorWay(nodeUrl, torState),
+  );
+  final epicbox = epicboxIconFace(context, status.epicbox, config);
+  final epicboxTor = underTor(
+    context,
+    dot: epicbox.dot,
+    label: '${l.netStatusEpicbox}, ${epicbox.word}',
+    detail: epicbox.detail,
+    way: torWay(TorRoute.epicbox, torState),
+  );
+  final torFace = torStatusOf(l, t, tor);
+  final payments = ref.watch(appSettingsProvider).value?.payments ?? const PaymentPrefs();
+  // On by either Link switch, or while the onion is published anyway (a running Link · Tor).
+  final linkOn = payments.linkHttp || payments.linkTor || directIconShown(tor);
+  final link = linkFace(l, t, tor, payments, ref.watch(phoneHttpProvider).listener, linkOn: linkOn);
+  final block = watchNetBlock(context, ref);
+  final torOn = torIconShown(tor);
+  return (
+    block: block,
+    entries: [
+      if (block == NetBlock.none) ...[
+        (
+          key: bar ? barNodeIconKey : nodeStatusKey,
+          icon: node.icon,
+          enabled: true,
+          dot: nodeTor.dot,
+          label: nodeTor.label,
+          detail: nodeTor.detail,
+          actionHint: l.netStatusOpenHint,
+          // Only a sync in progress pulses: a connecting or waiting service sits still.
+          pulse: status.node.state == NodeState.syncing,
+          onTap: () => showNodePicker(context),
+        ),
+        (
+          key: bar ? barEpicboxIconKey : epicboxStatusKey,
+          icon: epicbox.icon,
+          enabled: status.epicbox != null,
+          dot: epicboxTor.dot,
+          label: epicboxTor.label,
+          detail: status.epicbox == null ? l.netStatusTurnOnHint : epicboxTor.detail,
+          actionHint: status.epicbox == null ? l.netStatusTurnOnHint : l.netStatusOpenHint,
+          pulse: false,
+          onTap: status.epicbox == null
+              ? () => openSettingsSection(context, SettingsSection.transactions)
+              : () => showEpicboxPicker(context),
+        ),
+      ],
+      // Tor and Link are always there: off, faint without a dot, a tap opens the switch; on,
+      // the dot says how the connection goes.
+      if (block != NetBlock.offline && torShown(tor))
+        (
+          key: bar ? barTorIconKey : torIconKey,
+          icon: torIcon,
+          enabled: torOn,
+          dot: torDot(torState),
+          label: torOn ? '${l.netStatusTor}, ${torWord(l, torState)}' : '${l.netStatusTor}, ${l.netStatusOff}',
+          detail: !torOn ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? l.netStatusOn : torFace.text,
+          actionHint: l.netStatusTorOpenHint,
+          pulse: torState == TorState.starting,
+          onTap: () => openPrivacySettings(context),
+        ),
+      if (block == NetBlock.none)
+        (
+          key: bar ? barLinkIconKey : directIconKey,
+          icon: EpicGlyphs.link,
+          enabled: linkOn,
+          dot: link.dot,
+          label: '${l.receiveTabDirect}, ${link.word}',
+          detail: linkOn ? link.detail : l.netStatusTurnOnHint,
+          actionHint: linkOn ? l.netStatusDirectOpenHint : l.netStatusTurnOnHint,
+          pulse: link.dot == StatusDot.busy,
+          onTap: linkOn
+              ? () {
+                  ref.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
+                  ref.read(shellTabProvider.notifier).go(ShellTab.receive);
+                }
+              : () => openSettingsSection(context, SettingsSection.transactions),
+        ),
+    ],
+  );
+}
+
+/// The status icons side by side: Node, Epicbox, Tor, Link, in that order ([statusEntries]).
+/// While the network mode holds the network back (Offline, or Tor only without Tor) one word
+/// stands in for the Node and Epicbox icons. Under Wallet's figure and, with [bar], in Send's
+/// and Receive's balance header: the same icons, dots, labels, details and taps. A long press
+/// on any icon opens the connections sheet ([showConnectionsSheet]).
+class StatusIcons extends ConsumerWidget {
+  const StatusIcons({super.key, this.bar = false});
+
+  /// Whether this is the balance header's row, with its own keys for tests.
+  final bool bar;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final (:block, :entries) = statusEntries(context, ref, bar: bar);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (block != NetBlock.none)
+          NetModeStatus(block, key: bar ? barNetModeKey : netModeStatusKey),
+        for (final e in entries)
+          StatusIcon(
+            key: e.key,
+            icon: e.icon,
+            enabled: e.enabled,
+            dot: e.dot,
+            label: e.label,
+            detail: e.detail,
+            actionHint: e.actionHint,
+            pulse: e.pulse,
+            onTap: e.onTap,
+            onLongPress: () => showConnectionsSheet(context),
+          ),
+      ],
+    );
+  }
+}
+
+/// The key of the connections sheet, for tests.
+const Key connectionsSheetKey = ValueKey('connections-sheet');
+
+/// Opens the connections sheet: one row per status ([statusEntries]) with its glyph, the
+/// service and its state word, the detail under them, and a tap that closes the sheet and
+/// opens the service as its icon does. The network mode, when one holds the network back, is
+/// the first row.
+Future<void> showConnectionsSheet(BuildContext context) => showModalBottomSheet<void>(
+  context: context,
+  showDragHandle: true,
+  useSafeArea: true,
+  builder: (_) => const ConnectionsSheet(),
+);
+
+/// The connections sheet's body.
+class ConnectionsSheet extends ConsumerWidget {
+  const ConnectionsSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final status = watchWalletStatus(ref);
-    final config = ref.watch(walletConfigProvider);
-    final choice = ref.watch(networkChoiceProvider).value;
-    final tor = ref.watch(phoneTorProvider);
-    final torState = phoneTorState(tor);
-    final nodeUrl = config?.nodeUrl ?? choice?.nodeUrl;
-    final node = nodeIconFace(
-      context,
-      status.node,
-      config,
-      behind: nodeBehind(ref, status.node, choice?.preset),
-    );
-    final failover = ref.watch(nodeFailoverProvider);
-    final nodeTor = underTor(
-      context,
-      dot: node.dot,
-      label: '${l.netStatusNode}, ${node.word}',
-      detail: failover == null
-          ? node.detail
-          : '${node.detail}\n${l.nodeFailoverInsteadOf(serverHost(failover.chosen))}',
-      way: nodeTorWay(nodeUrl, torState),
-    );
-    final epicbox = epicboxIconFace(context, status.epicbox, config);
-    final epicboxTor = underTor(
-      context,
-      dot: epicbox.dot,
-      label: '${l.netStatusEpicbox}, ${epicbox.word}',
-      detail: epicbox.detail,
-      way: torWay(TorRoute.epicbox, torState),
-    );
-    final torFace = torStatusOf(l, t, tor);
-    final payments = ref.watch(appSettingsProvider).value?.payments ?? const PaymentPrefs();
-    // On by either Link switch, or while the onion is published anyway (a running Link · Tor).
-    final linkOn = payments.linkHttp || payments.linkTor || directIconShown(tor);
-    final link = linkFace(l, t, tor, payments, ref.watch(phoneHttpProvider).listener, linkOn: linkOn);
-    final block = watchNetBlock(context, ref);
-    final row = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (block != NetBlock.none)
-          NetModeStatus(
-            block,
-            key: compact ? barNetModeKey : netModeStatusKey,
-            compact: compact,
-          )
-        else ...[
-          StatusIcon(
-            key: compact ? barNodeIconKey : nodeStatusKey,
-            compact: compact,
-            icon: node.icon,
-            dot: nodeTor.dot,
-            label: nodeTor.label,
-            detail: nodeTor.detail,
-            actionHint: l.netStatusOpenHint,
-            // Only a sync in progress pulses: a connecting or waiting service sits still.
-            pulse: status.node.state == NodeState.syncing,
-            onTap: () => showNodePicker(context),
+    final theme = Theme.of(context);
+    final (:block, :entries) = statusEntries(context, ref, bar: false);
+    final ring = theme.scaffoldBackgroundColor;
+    Widget row({
+      required Widget glyph,
+      required String label,
+      required String detail,
+      required StatusDot dot,
+      required VoidCallback onTap,
+    }) {
+      final problem = dot == StatusDot.bad;
+      return Semantics(
+        button: true,
+        label: label,
+        hint: detail,
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).pop();
+            onTap();
+          },
+          borderRadius: BorderRadius.circular(t.radiusSmall),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 56),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: problem
+                ? BoxDecoration(
+                    color: t.riskSoft,
+                    borderRadius: BorderRadius.circular(t.radiusSmall),
+                  )
+                : null,
+            child: Row(
+              children: [
+                SizedBox(width: 28, child: Center(child: glyph)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(label, style: theme.textTheme.bodyLarge),
+                      Text(
+                        detail,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: problem ? t.risk : t.dim,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 20, color: t.faint),
+              ],
+            ),
           ),
-          StatusIcon(
-            key: compact ? barEpicboxIconKey : epicboxStatusKey,
-            compact: compact,
-            enabled: status.epicbox != null,
-            icon: epicbox.icon,
-            dot: epicboxTor.dot,
-            label: epicboxTor.label,
-            detail: status.epicbox == null ? l.netStatusTurnOnHint : epicboxTor.detail,
-            actionHint: status.epicbox == null ? l.netStatusTurnOnHint : l.netStatusOpenHint,
-            onTap: status.epicbox == null ? () => openSettingsSection(context, SettingsSection.transactions) : () => showEpicboxPicker(context),
-          ),
-        ],
-        // Tor and Link are always there on Wallet: off, faint without a dot, a tap
-        // opens the switch; on, the dot says how the connection goes. The compact row in Send's
-        // and Receive's bar shows them only when on: its room goes to the balance beside it.
-        if (block != NetBlock.offline && torShown(tor) && (!compact || torIconShown(tor)))
-          StatusIcon(
-            key: compact ? barTorIconKey : torIconKey,
-            compact: compact,
-            enabled: torIconShown(tor),
-            icon: torIcon,
-            dot: torDot(torState),
-            label: torIconShown(tor) ? '${l.netStatusTor}, ${torWord(l, torState)}' : '${l.netStatusTor}, ${l.netStatusOff}',
-            detail: !torIconShown(tor) ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? l.netStatusOn : torFace.text,
-            actionHint: l.netStatusTorOpenHint,
-            pulse: torState == TorState.starting,
-            onTap: () => openPrivacySettings(context),
-          ),
-        if (block == NetBlock.none && (!compact || linkOn))
-          StatusIcon(
-            key: compact ? barLinkIconKey : directIconKey,
-            compact: compact,
-            enabled: linkOn,
-            icon: EpicGlyphs.link,
-            dot: link.dot,
-            label: '${l.receiveTabDirect}, ${link.word}',
-            detail: linkOn ? link.detail : l.netStatusTurnOnHint,
-            actionHint: linkOn ? l.netStatusDirectOpenHint : l.netStatusTurnOnHint,
-            pulse: link.dot == StatusDot.busy,
-            onTap: linkOn
-                ? () {
-                    ref.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
-                    ref.read(shellTabProvider.notifier).go(ShellTab.receive);
-                  }
-                : () => openSettingsSection(context, SettingsSection.transactions),
-          ),
-      ],
-    );
-    if (!compact || block != NetBlock.none) return row;
-    // The compact row is one tap target (its icons are too narrow to be one each): it says
-    // every status, and a tap opens what has a problem first, else the node list.
-    final torOn = torIconShown(tor);
-    final torBad = torOn && torDot(torState) == StatusDot.bad;
-    final torLabel = torOn ? '${l.netStatusTor}, ${torWord(l, torState)}' : '${l.netStatusTor}, ${l.netStatusOff}';
-    void open() => nodeTor.dot == StatusDot.bad || epicboxTor.dot != StatusDot.bad && !torBad
-        ? showNodePicker(context)
-        : epicboxTor.dot == StatusDot.bad
-        ? showEpicboxPicker(context)
-        : openPrivacySettings(context);
-    return Semantics(
-      container: true,
-      button: true,
-      // Tor is named only where it is shown (never in the build without Tor).
-      label: [nodeTor.label, epicboxTor.label, if (torShown(tor)) torLabel, '${l.receiveTabDirect}, ${link.word}'].join('\n'),
-      hint: l.netStatusOpenHint,
-      liveRegion: true,
-      excludeSemantics: true,
-      onTap: open,
-      child: InkWell(
-        onTap: open,
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: statusTarget, minHeight: statusTarget),
-          child: row,
         ),
+      );
+    }
+    return Padding(
+      key: connectionsSheetKey,
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: Semantics(
+              header: true,
+              child: Text(l.connectionsSheetTitle, style: theme.textTheme.titleMedium),
+            ),
+          ),
+          if (block != NetBlock.none)
+            row(
+              glyph: Icon(
+                block == NetBlock.offline ? Icons.cloud_off_outlined : torIcon,
+                size: statusGlyph,
+                color: block == NetBlock.offline ? t.dim : t.info,
+              ),
+              label: block == NetBlock.offline ? l.advModeOffline : l.torWayWaiting,
+              detail: block == NetBlock.offline ? l.homeOfflineDetail : l.homeWaitingTorDetail,
+              dot: StatusDot.off,
+              onTap: () => openSettingsSection(context, SettingsSection.advanced),
+            ),
+          for (final e in entries)
+            row(
+              glyph: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: ring),
+              label: e.label,
+              detail: e.detail,
+              dot: e.enabled ? e.dot : StatusDot.off,
+              onTap: e.onTap,
+            ),
+        ],
       ),
     );
   }
