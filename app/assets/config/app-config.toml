@@ -133,6 +133,7 @@ signed_file = "https://btlabs-epic.github.io/btlabs.json"
 website = "https://epiccash.com"
 community = "https://t.me/EpicCash"
 source = "https://gitlab.com/epic-cash-bt/wallet-for-epic"
+privacy = "https://btlabs.uk/privacy/"   # the privacy policy; comment out to hide its link
 
 [explorer]
 block = "https://explorer.epiccash.com/blockdetail/{height}"   # a block by its height

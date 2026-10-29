@@ -126,6 +126,7 @@ signed_file = "https://pages.example.invalid/btlabs.json"
 website = "https://epic.invalid"
 community = "https://chat.example.invalid/EpicCash"
 source = "https://git.example.invalid/epic-cash-bt/wallet-for-epic"
+privacy = "https://example.invalid/privacy/"
 [explorer]
 block = "https://explorer.example.invalid/blockdetail/{height}"
 [import]

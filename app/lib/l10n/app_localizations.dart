@@ -5101,6 +5101,12 @@ abstract class AppLocalizations {
   /// **'Source code'**
   String get settingsSourceCode;
 
+  /// About row (phone and desktop) with the link to BT Labs' privacy policy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get settingsPrivacyPolicy;
+
   /// Label before the public contact email address, in Help (report a problem) and About.
   ///
   /// In en, this message translates to:

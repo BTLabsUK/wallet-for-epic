@@ -276,6 +276,7 @@ class AppConfig {
   String? get linkWebsite => _orNull(_text('links.website'));
   String? get linkCommunity => _orNull(_text('links.community'));
   String? get linkSource => _orNull(_text('links.source'));
+  String? get linkPrivacy => _orNull(_text('links.privacy'));
 
   // [explorer]
 
@@ -424,6 +425,7 @@ class HostSettings {
   String? get linkWebsite => config.linkWebsite;
   String? get linkCommunity => config.linkCommunity;
   String? get linkSource => config.linkSource;
+  String? get linkPrivacy => config.linkPrivacy;
   String? explorerBlock(int height) => config.explorerBlock(height);
   String get importGuiNode => config.importGuiNode;
   String get importGuiEpicbox => config.importGuiEpicbox;

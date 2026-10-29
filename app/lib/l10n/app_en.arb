@@ -4020,6 +4020,10 @@
   "@settingsSourceCode": {
     "description": "Settings row with the link to the app's source code."
   },
+  "settingsPrivacyPolicy": "Privacy policy",
+  "@settingsPrivacyPolicy": {
+    "description": "About row (phone and desktop) with the link to BT Labs' privacy policy."
+  },
   "contactLabel": "Contact",
   "@contactLabel": {
     "description": "Label before the public contact email address, in Help (report a problem) and About."

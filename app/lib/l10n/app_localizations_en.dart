@@ -3172,6 +3172,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSourceCode => 'Source code';
 
   @override
+  String get settingsPrivacyPolicy => 'Privacy policy';
+
+  @override
   String get contactLabel => 'Contact';
 
   @override

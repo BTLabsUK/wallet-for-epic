@@ -3116,6 +3116,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSourceCode => 'ซอร์สโค้ด';
 
   @override
+  String get settingsPrivacyPolicy => 'นโยบายความเป็นส่วนตัว';
+
+  @override
   String get contactLabel => 'ติดต่อ';
 
   @override

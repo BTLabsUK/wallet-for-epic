@@ -5,7 +5,7 @@ import '../../../dist_build.dart' show distStore;
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show TorSourceNote;
-import '../../../ui/settings_screen.dart' show communityUrl, epicCashUrl, projectRepoPublic, projectRepoUrl, supportEmail;
+import '../../../ui/settings_screen.dart' show communityUrl, epicCashUrl, privacyPolicyUrl, projectRepoPublic, projectRepoUrl, supportEmail;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 
 import 'package:flutter/material.dart';
@@ -130,6 +130,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                 ),
               ),
               if (projectRepoPublic && projectRepoUrl != null) linkRow(l.deskSetAboutSource, shownUrl(projectRepoUrl!), projectRepoUrl!),
+              if (privacyPolicyUrl case final url?) linkRow(l.settingsPrivacyPolicy, shownUrl(url), url),
               ESetRow(
                 title: l.licencesFull,
                 control: ERowControl(

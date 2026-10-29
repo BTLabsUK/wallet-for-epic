@@ -2992,6 +2992,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSourceCode => '源代码';
 
   @override
+  String get settingsPrivacyPolicy => '隐私政策';
+
+  @override
   String get contactLabel => '联系方式';
 
   @override

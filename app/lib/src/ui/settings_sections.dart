@@ -74,6 +74,9 @@ export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 /// The project's source code; null when `app-config.toml` leaves it out (no link).
 String? get projectRepoUrl => hostSettings.linkSource;
 
+/// BT Labs' privacy policy; null when `app-config.toml` leaves it out (no link).
+String? get privacyPolicyUrl => hostSettings.linkPrivacy;
+
 /// Whether the repositories are public. Until they are, no screen links to them (the phone's
 /// and the desktop's About, the Licences page) and no text says the code is public; set it
 /// to true when they are, and the links come back.
@@ -1292,6 +1295,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // A proper name, the same in every language.
       if (epicCashUrl case final site?) LinkTile(title: 'Epic Cash', url: site),
       if (projectRepoPublic && projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!),
+      if (privacyPolicyUrl case final url?) LinkTile(title: l.settingsPrivacyPolicy, url: url),
       if (supportEmail case final email?) LinkTile(title: l.contactLabel, url: email, email: true),
     ];
   }

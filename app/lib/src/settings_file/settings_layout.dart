@@ -340,6 +340,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('links.website', _url, byDefault: ''),
   SettingsKey('links.community', _url, byDefault: ''),
   SettingsKey('links.source', _url, byDefault: ''),
+  SettingsKey('links.privacy', _url, byDefault: ''),
   // [explorer]: a block by its height; no kernel page.
   SettingsKey('explorer.block', TextKind(_explorerBlock), byDefault: ''),
   // [import]

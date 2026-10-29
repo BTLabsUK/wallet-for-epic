@@ -3277,6 +3277,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSourceCode => 'Kod źródłowy';
 
   @override
+  String get settingsPrivacyPolicy => 'Polityka prywatności';
+
+  @override
   String get contactLabel => 'Kontakt';
 
   @override

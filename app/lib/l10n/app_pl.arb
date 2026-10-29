@@ -830,6 +830,7 @@
   "settingsSendFeedback": "Zgłoś problem",
   "settingsSendFeedbackHint": "Zgłoś problem lub zaproponuj twórcom pomysł. Logi idą tylko wtedy, gdy je dołączysz; fraza odzyskiwania, PIN i inne poufne dane są wcześniej usuwane.",
   "settingsSourceCode": "Kod źródłowy",
+  "settingsPrivacyPolicy": "Polityka prywatności",
   "contactLabel": "Kontakt",
   "settingsLicences": "Licencje",
   "licencesLead": "Oprogramowanie open source w tym portfelu, każde na własnej licencji.",

@@ -3217,6 +3217,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSourceCode => 'Quellcode';
 
   @override
+  String get settingsPrivacyPolicy => 'Datenschutzerklärung';
+
+  @override
   String get contactLabel => 'Kontakt';
 
   @override
