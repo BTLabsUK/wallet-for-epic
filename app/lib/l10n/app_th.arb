@@ -4803,5 +4803,9 @@
   "deskSetBackupServersTitle": "ใช้เซิร์ฟเวอร์จากไฟล์นี้?",
   "deskSetBackupServersBody": "รายการโหนดและเซิร์ฟเวอร์ Epicbox ในไฟล์ต่างจากของคอมพิวเตอร์เครื่องนี้ กระเป๋าเงินทุกใบในเครื่องนี้ใช้รายการเดียวกัน",
   "deskSetBackupServersKeep": "ใช้ของเครื่องนี้",
-  "deskSetBackupServersUse": "ใช้ของไฟล์"
+  "deskSetBackupServersUse": "ใช้ของไฟล์",
+  "deskSlNoNodeTitle": "ยังไม่ได้ตั้งโหนด",
+  "deskSlNoNodeText": "รายการโหนดว่างอยู่ เพิ่มโหนดเพื่อตรวจยอดเงินและส่ง",
+  "deskSlNoEpicboxTitle": "ยังไม่ได้ตั้งเซิร์ฟเวอร์ Epicbox",
+  "deskSlNoEpicboxText": "รายการเซิร์ฟเวอร์ Epicbox ว่างอยู่ เพิ่มเซิร์ฟเวอร์เพื่อให้มีที่อยู่ Epicbox"
 }

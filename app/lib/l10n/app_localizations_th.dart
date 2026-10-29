@@ -17982,4 +17982,18 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupServersUse => 'ใช้ของไฟล์';
+
+  @override
+  String get deskSlNoNodeTitle => 'ยังไม่ได้ตั้งโหนด';
+
+  @override
+  String get deskSlNoNodeText =>
+      'รายการโหนดว่างอยู่ เพิ่มโหนดเพื่อตรวจยอดเงินและส่ง';
+
+  @override
+  String get deskSlNoEpicboxTitle => 'ยังไม่ได้ตั้งเซิร์ฟเวอร์ Epicbox';
+
+  @override
+  String get deskSlNoEpicboxText =>
+      'รายการเซิร์ฟเวอร์ Epicbox ว่างอยู่ เพิ่มเซิร์ฟเวอร์เพื่อให้มีที่อยู่ Epicbox';
 }

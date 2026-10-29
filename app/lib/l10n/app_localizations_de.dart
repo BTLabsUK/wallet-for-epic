@@ -18612,4 +18612,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupServersUse => 'Die der Datei';
+
+  @override
+  String get deskSlNoNodeTitle => 'Kein Node eingerichtet';
+
+  @override
+  String get deskSlNoNodeText =>
+      'Die Node-Liste ist leer. Fügen Sie einen Node hinzu, um Guthaben zu prüfen und zu senden.';
+
+  @override
+  String get deskSlNoEpicboxTitle => 'Kein Epicbox-Server eingerichtet';
+
+  @override
+  String get deskSlNoEpicboxText =>
+      'Die Liste der Epicbox-Server ist leer. Fügen Sie einen Server hinzu, um eine Epicbox-Adresse zu erhalten.';
 }

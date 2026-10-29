@@ -19028,4 +19028,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupServersUse => 'Из файла';
+
+  @override
+  String get deskSlNoNodeTitle => 'Узел не задан';
+
+  @override
+  String get deskSlNoNodeText =>
+      'Список узлов пуст. Добавьте узел, чтобы проверять баланс и отправлять.';
+
+  @override
+  String get deskSlNoEpicboxTitle => 'Сервер Epicbox не задан';
+
+  @override
+  String get deskSlNoEpicboxText =>
+      'Список серверов Epicbox пуст. Добавьте сервер, чтобы получить адрес Epicbox.';
 }

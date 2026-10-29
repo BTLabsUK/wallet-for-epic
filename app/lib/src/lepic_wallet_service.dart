@@ -591,6 +591,18 @@ int lepicTxId(String key) {
 /// The transports whose undelivered sends are sent again: Epicbox, HTTP and Tor.
 const resendTransports = {'epicbox', 'http', 'tor'};
 
+/// What LEPIC is given when the Node list is empty (`[node] servers = []`): it opens a wallet
+/// only with a node address, so it gets one that never answers (an RFC 2606 `.invalid` name
+/// never resolves). The app keeps the empty address, so its screens say no node is set, and
+/// nothing connects until a node is added.
+const noNodeUrl = 'https://no-node.invalid';
+
+/// The same for an empty Epicbox list (`[epicbox] servers = []`): LEPIC gets a server that never
+/// answers rather than none, so the wallet still has its address key (the `.wfeh` files are
+/// matched by it) and a server added later moves the open wallet onto it like any other
+/// change. The app keeps the empty name and shows no address.
+const noEpicboxDomain = 'epicbox.invalid';
+
 /// The wait before the one more try of a Tor send whose onion was not reached: a published
 /// onion is often reached at the second try, once its circuits are built.
 Duration get onionRetryWait => appConfig.onionRetry;
@@ -831,9 +843,9 @@ class LepicWalletService implements WalletService {
       lepic.WalletConfig(
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
-        nodeUrl: await lanNodeUrl(config.nodeUrl),
+        nodeUrl: config.nodeUrl.trim().isEmpty ? noNodeUrl : await lanNodeUrl(config.nodeUrl),
         nodeApiSecret: config.nodeApiSecret,
-        epicboxDomain: config.epicboxDomain,
+        epicboxDomain: config.epicboxDomain.trim().isEmpty ? noEpicboxDomain : config.epicboxDomain,
         epicboxPort: config.epicboxPort,
         onionRoutes: [
           for (final r in settingsOnionRoutes())

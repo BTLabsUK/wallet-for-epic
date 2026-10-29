@@ -28735,6 +28735,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use the file’s'**
   String get deskSetBackupServersUse;
+
+  /// Notice title when settings.toml lists no node (an empty Node list): nothing reads the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'No node set'**
+  String get deskSlNoNodeTitle;
+
+  /// Under deskSlNoNodeTitle; a button to the node settings follows.
+  ///
+  /// In en, this message translates to:
+  /// **'The node list is empty. Add a node to check balances and send.'**
+  String get deskSlNoNodeText;
+
+  /// Notice title when settings.toml lists no Epicbox server (an empty Epicbox list): the wallet has no Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'No Epicbox server set'**
+  String get deskSlNoEpicboxTitle;
+
+  /// Under deskSlNoEpicboxTitle; a button to the Epicbox settings follows.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox server list is empty. Add a server for an Epicbox address.'**
+  String get deskSlNoEpicboxText;
 }
 
 class _AppLocalizationsDelegate

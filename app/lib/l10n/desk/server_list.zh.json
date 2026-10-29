@@ -8,5 +8,9 @@
   "deskSlDefault": "默认",
   "deskSlTesting": "正在测试 {host}…",
   "deskSlSetupEpicboxOn": "通过 Epicbox 接收",
-  "deskSlHelpChoose": "选择一个，或输入以筛选列表或添加服务器。"
+  "deskSlHelpChoose": "选择一个，或输入以筛选列表或添加服务器。",
+  "deskSlNoNodeTitle": "未设置节点",
+  "deskSlNoNodeText": "节点列表为空。添加节点后才能核对余额和发送。",
+  "deskSlNoEpicboxTitle": "未设置 Epicbox 服务器",
+  "deskSlNoEpicboxText": "Epicbox 服务器列表为空。添加服务器后才有 Epicbox 地址。"
 }

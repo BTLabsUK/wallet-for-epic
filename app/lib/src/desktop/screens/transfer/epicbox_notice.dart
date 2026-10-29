@@ -25,7 +25,8 @@ EpicboxServer? healthiestOtherEpicbox(DeskState st) {
 /// When the network blocks the relay ([ServiceStatus.epicboxBlocked]) it says so instead, with
 /// one button that moves to [ServiceStatus.epicboxInstead] at once (no confirmation) and, under
 /// it, that the Epicbox address changes. [sentence] false: the screen's state line already says
-/// it (Receive, Settings), so only the button and the caption show.
+/// it (Receive, Settings), so only the button and the caption show (nothing when no other
+/// server answers).
 class EpicboxDownNotice extends ConsumerStatefulWidget {
   const EpicboxDownNotice({super.key, this.sentence = true, this.status});
 
@@ -91,6 +92,8 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
     final s = widget.status ?? st.status;
     if (s != null && s.epicboxBlocked) return _blocked(l, s);
     final other = healthiestOtherEpicbox(st);
+    // Under a state line that says "Not answering" already: only an offer to switch adds to it.
+    if (!widget.sentence && other == null) return const SizedBox.shrink();
     return ENotice(
       title: l.deskSendEpicboxDownTitle,
       text: other == null ? l.deskSendEpicboxDownWait : l.deskSendEpicboxSwitchTo(other.domain),

@@ -4803,5 +4803,9 @@
   "deskSetBackupServersTitle": "Server aus dieser Datei übernehmen?",
   "deskSetBackupServersBody": "Ihre Listen der Nodes und Epicbox-Server weichen von denen dieses Computers ab. Alle Wallets hier nutzen dieselben Listen.",
   "deskSetBackupServersKeep": "Die dieses Computers",
-  "deskSetBackupServersUse": "Die der Datei"
+  "deskSetBackupServersUse": "Die der Datei",
+  "deskSlNoNodeTitle": "Kein Node eingerichtet",
+  "deskSlNoNodeText": "Die Node-Liste ist leer. Fügen Sie einen Node hinzu, um Guthaben zu prüfen und zu senden.",
+  "deskSlNoEpicboxTitle": "Kein Epicbox-Server eingerichtet",
+  "deskSlNoEpicboxText": "Die Liste der Epicbox-Server ist leer. Fügen Sie einen Server hinzu, um eine Epicbox-Adresse zu erhalten."
 }

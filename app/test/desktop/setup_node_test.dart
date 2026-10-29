@@ -53,6 +53,13 @@ class _Checking extends _Wallet {
       : [for (final n in await super.nodes()) NodeServer(url: n.url, label: n.label, operator: n.operator, health: ServiceHealth.checking)];
 }
 
+/// No network: every node's check came back down.
+class _AllDown extends _Wallet {
+  @override
+  Future<List<NodeServer>> nodes() async =>
+      [for (final n in await super.nodes()) NodeServer(url: n.url, label: n.label, operator: n.operator, health: ServiceHealth.down)];
+}
+
 void main() {
   late _Wallet wallet;
   late MockDeskNode node;
@@ -95,6 +102,24 @@ void main() {
     expect(combo.fieldText, 'node.net.invalid:3413');
     expect(find.text('default'), findsNothing);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
+    await end(tester);
+  });
+
+  testWidgets('no node answers (no network): nothing preselected, and the step says why', (tester) async {
+    wallet = _AllDown();
+    container.dispose();
+    container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), deskNodeProvider.overrideWithValue(node)]);
+    await show(tester, SetupStep.node);
+    expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, '');
+    expect(find.byKey(const ValueKey('setup-no-node-answers')), findsOneWidget);
+    expect(find.text('No node answers'), findsOneWidget);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNull);
+    await end(tester);
+  });
+
+  testWidgets('a healthy node: no "No node answers" line', (tester) async {
+    await show(tester, SetupStep.node);
+    expect(find.byKey(const ValueKey('setup-no-node-answers')), findsNothing);
     await end(tester);
   });
 

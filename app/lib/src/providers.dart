@@ -165,7 +165,8 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     // The demo's network cannot change.
     if (ref.read(demoModeProvider)) return;
     final r = relay ?? await relayFor(preset);
-    await ref.read(hostSettingsProvider.notifier).setAll(useServerValues(ref.read(hostSettingsProvider), node: nodeUrl, relay: r.label));
+    final values = useServerValues(ref.read(hostSettingsProvider), node: nodeUrl, relay: r.label);
+    if (values.isNotEmpty) await ref.read(hostSettingsProvider.notifier).setAll(values);
     logInfo(
       'network',
       // Logs reach support reports: mainnet is never named there.

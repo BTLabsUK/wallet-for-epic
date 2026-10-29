@@ -4803,5 +4803,9 @@
   "deskSetBackupServersTitle": "Использовать серверы из этого файла?",
   "deskSetBackupServersBody": "Его списки узлов и серверов Epicbox отличаются от списков этого компьютера. Все кошельки здесь используют одни и те же списки.",
   "deskSetBackupServersKeep": "Этого компьютера",
-  "deskSetBackupServersUse": "Из файла"
+  "deskSetBackupServersUse": "Из файла",
+  "deskSlNoNodeTitle": "Узел не задан",
+  "deskSlNoNodeText": "Список узлов пуст. Добавьте узел, чтобы проверять баланс и отправлять.",
+  "deskSlNoEpicboxTitle": "Сервер Epicbox не задан",
+  "deskSlNoEpicboxText": "Список серверов Epicbox пуст. Добавьте сервер, чтобы получить адрес Epicbox."
 }

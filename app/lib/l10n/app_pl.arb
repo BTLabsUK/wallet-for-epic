@@ -4803,5 +4803,9 @@
   "deskSetBackupServersTitle": "Użyć serwerów z tego pliku?",
   "deskSetBackupServersBody": "Jego listy węzłów i serwerów Epicbox różnią się od list tego komputera. Wszystkie portfele tutaj używają tych samych list.",
   "deskSetBackupServersKeep": "Z tego komputera",
-  "deskSetBackupServersUse": "Z pliku"
+  "deskSetBackupServersUse": "Z pliku",
+  "deskSlNoNodeTitle": "Brak węzła",
+  "deskSlNoNodeText": "Lista węzłów jest pusta. Dodaj węzeł, aby sprawdzać saldo i wysyłać.",
+  "deskSlNoEpicboxTitle": "Brak serwera Epicbox",
+  "deskSlNoEpicboxText": "Lista serwerów Epicbox jest pusta. Dodaj serwer, aby mieć adres Epicbox."
 }

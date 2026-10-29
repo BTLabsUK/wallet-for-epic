@@ -4803,5 +4803,9 @@
   "deskSetBackupServersTitle": "使用此文件中的服务器？",
   "deskSetBackupServersBody": "文件中的节点和 Epicbox 服务器列表与这台电脑的不同。这里的所有钱包都使用同一份列表。",
   "deskSetBackupServersKeep": "保留这台电脑的",
-  "deskSetBackupServersUse": "使用文件的"
+  "deskSetBackupServersUse": "使用文件的",
+  "deskSlNoNodeTitle": "未设置节点",
+  "deskSlNoNodeText": "节点列表为空。添加节点后才能核对余额和发送。",
+  "deskSlNoEpicboxTitle": "未设置 Epicbox 服务器",
+  "deskSlNoEpicboxText": "Epicbox 服务器列表为空。添加服务器后才有 Epicbox 地址。"
 }

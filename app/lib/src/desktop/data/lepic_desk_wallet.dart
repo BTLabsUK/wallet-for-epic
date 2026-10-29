@@ -1258,7 +1258,8 @@ class LepicDeskWallet implements DeskWalletApi {
     // Every wallet's: the first of each list in the settings file.
     Future<void> save() async {
       if (!keep) return;
-      await writeHostSettings(useServerValues(hostSettings, node: nodeUrl, relay: relay.label));
+      final values = useServerValues(hostSettings, node: nodeUrl, relay: relay.label);
+      if (values.isNotEmpty) await writeHostSettings(values);
     }
 
     final password = _password;
@@ -2502,7 +2503,12 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<DeskSettings> settings() async => _settings;
 
   @override
-  Future<String> epicboxAddress() => _open.epicboxAddress();
+  Future<String> epicboxAddress() async {
+    final session = _open;
+    // No Epicbox server in the list: LEPIC's is a placeholder (noEpicboxDomain), no address.
+    if (_config?.epicboxDomain.isEmpty ?? false) return '';
+    return session.epicboxAddress();
+  }
 
   @override
   Future<String> httpAddress() async {
