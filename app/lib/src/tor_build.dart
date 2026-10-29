@@ -19,7 +19,8 @@ const String _torDefine = String.fromEnvironment('WFE_TOR', defaultValue: 'true'
 const bool torBuilt = _torDefine != 'false' && _torDefine != '0' && _torDefine != 'off';
 
 /// The in-app update check and download run: in every build from our own page ([distUpdates]),
-/// never in a store build, which its store updates (and Google Play allows no other way). Each
-/// variant reads its own signed feed (`lib/src/updater.dart`): the build with Tor update.json,
-/// the build without Tor update-notor.json, so an update never puts Tor back or takes it out.
+/// never in a store build, which its store updates (and Google Play allows no other way). Both
+/// variants read the same signed update.json (`lib/src/updater.dart`): the build with Tor its top
+/// level, the build without Tor its `notor` section, so an update never puts Tor back or takes it
+/// out.
 const bool inAppUpdates = distUpdates;
