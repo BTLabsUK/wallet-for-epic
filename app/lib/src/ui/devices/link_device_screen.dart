@@ -275,16 +275,37 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
   Widget _failed(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
     final t = context.tokens;
+    final linked = flow.failure == LinkFailure.tooMany ? _service?.book.devices.firstOrNull : null;
     return ScreenBody(
       bottom: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FilledButton(
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            onPressed: () => _service?.closeLink(),
-            child: Text(l.linkTryAgain),
-          ),
+          // Two devices at most: a refused link offers to remove the one linked, not to try again.
+          if (linked != null)
+            FilledButton(
+              key: linkRemoveKey,
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () async {
+                final yes = await confirmDeviceAction(
+                  context,
+                  title: l.devicesRemoveTitle(linked.name),
+                  body: l.devicesRemoveBody(linked.name),
+                  action: l.devicesRemove,
+                  risky: true,
+                );
+                if (!yes || !context.mounted) return;
+                await _service?.removeDevice(linked.deviceId);
+                if (context.mounted) await Navigator.of(context).maybePop();
+              },
+              child: Text(l.devicesRemove),
+            )
+          else if (flow.failure != LinkFailure.tooMany)
+            FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () => _service?.closeLink(),
+              child: Text(l.linkTryAgain),
+            ),
           const SizedBox(height: 8),
           TextButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(l.commonClose)),
         ],

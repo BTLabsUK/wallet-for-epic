@@ -19,6 +19,7 @@ import '../../../settings_file/settings_providers.dart' show hostSettingsProvide
 import '../../data/devices_state.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
+import '../settings/settings_devices.dart' show removeLinkedDevice;
 import '../../widgets/kit.dart';
 
 const Key deskLinkCodeKey = ValueKey('desk-link-code');
@@ -30,6 +31,7 @@ const Key deskLinkNoMatchKey = ValueKey('desk-link-no-match');
 const Key deskLinkDoneKey = ValueKey('desk-link-done');
 const Key deskLinkCancelKey = ValueKey('desk-link-cancel');
 const Key deskLinkRetryKey = ValueKey('desk-link-retry');
+const Key deskLinkRemoveKey = ValueKey('desk-link-remove');
 
 /// Opens the link dialog. With [pasted], a device code that came in as text (Send's field, the
 /// Pair page) is answered at once; else this computer shows its own code.
@@ -325,8 +327,20 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
     }
     if (phase == LinkPhase.failed) {
       final again = link!.role == LinkRole.shows && link.failure != LinkFailure.tooMany && link.failure != LinkFailure.unsupported;
+      // Two devices at most: a refused link offers to remove the one linked, not to try again.
+      final linked = link.failure == LinkFailure.tooMany ? _service?.book.devices.firstOrNull : null;
       return [
         EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: _close),
+        if (linked != null)
+          EButton.primary(
+            key: deskLinkRemoveKey,
+            label: l.devicesRemove,
+            size: EBtnSize.sm,
+            onPressed: () async {
+              await removeLinkedDevice(context, _service!, linked);
+              if (_service.book.device(linked.deviceId) == null) _close();
+            },
+          ),
         if (again)
           EButton.primary(
             key: deskLinkRetryKey,

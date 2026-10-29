@@ -176,6 +176,7 @@ class LinkDeviceOffer extends ConsumerWidget {
 
 const Key devicesRelayUseKey = ValueKey('devices-relay-use');
 const Key devicesRelayKeepKey = ValueKey('devices-relay-keep');
+const Key linkRemoveKey = ValueKey('link-remove');
 
 /// Both devices use one Epicbox server, so both answer a payment to it: the question, once, to
 /// move this one to the next server of its list. Use moves it (the address changes, as on any

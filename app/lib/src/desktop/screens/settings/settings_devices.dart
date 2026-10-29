@@ -188,7 +188,7 @@ class _DevicesGroup extends ConsumerWidget {
                       label: l.devicesRemove,
                       kind: EBtnKind.danger,
                       size: EBtnSize.sm,
-                      onPressed: () => unawaited(_remove(context, service, d)),
+                      onPressed: () => unawaited(removeLinkedDevice(context, service, d)),
                     ),
                   ],
                 ),
@@ -236,7 +236,8 @@ Future<void> _rename(BuildContext context, WidgetRef ref, DeviceService service,
   }
 }
 
-Future<void> _remove(BuildContext context, DeviceService service, LinkedDevice d) async {
+/// Asks, then ends the link with [d] on both devices.
+Future<void> removeLinkedDevice(BuildContext context, DeviceService service, LinkedDevice d) async {
   final l = context.l10n;
   final ok = await showEDialog<bool>(
     context,
