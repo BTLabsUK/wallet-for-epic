@@ -5,6 +5,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
+import '../settings_file/host_settings.dart' show hostSettings;
 
 const List<HelpSection> helpSectionsDe = [
   (id: 'start', title: 'Erste Schritte', lede: 'Empfangen, senden und per Datei bezahlen.', art: 'help-start'),
@@ -40,7 +41,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Die ersten EPIC empfangen',
       'Öffnen Sie Empfangen, kopieren Sie die Epicbox-Adresse und geben Sie sie dem Absender. Die Zahlung kommt von selbst an.',
       [
-        const HelpBlock.p('Die Epicbox-Adresse ist ein langer Code, der auf **@** und den Namen des Epicbox-Servers endet, zum Beispiel **…@epicbox.example.org**. Sie kann gefahrlos weitergegeben werden: Andere brauchen sie zum Bezahlen, und niemand kann damit etwas wegnehmen.'),
+        HelpBlock.p('Die Epicbox-Adresse ist ein langer Code, der auf **@** und den Namen des Epicbox-Servers endet, zum Beispiel **…@${hostSettings.epicboxUse}**. Sie kann gefahrlos weitergegeben werden: Andere brauchen sie zum Bezahlen, und niemand kann damit etwas wegnehmen.'),
         const HelpBlock.ol(['Öffnen Sie [[Empfangen|Receive]].', 'Kopieren Sie die Adresse (oder zeigen Sie ihren QR-Code) und senden Sie sie der Person, die bezahlt.', 'Die Zahlung erscheint von selbst unter Aktivität.']),
         if (phone)
           const HelpBlock.p('Empfangen funktioniert, solange die App geöffnet und der Node synchronisiert ist. Eine Zahlung, die bei geschlossener App gesendet wird, wartet auf dem Epicbox-Server, wie in einem Postfach, und kommt beim nächsten Entsperren an.')
@@ -112,7 +113,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         tor ? 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse oder endet auf .onion.' : 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse.',
         [
           HelpBlock.ul([
-            '**Epicbox**: etwa 52 Zeichen, beginnend mit **es**, dann **@** und der Server, zum Beispiel **esXXXX…XXXX@epicbox.example.org**. Die Standardmethode; der Empfänger darf offline sein.',
+            '**Epicbox**: etwa 52 Zeichen, beginnend mit **es**, dann **@** und der Server, zum Beispiel **esXXXX…XXXX@${hostSettings.epicboxUse}**. Die Standardmethode; der Empfänger darf offline sein.',
             if (tor)
               '**Link · HTTP** und **Link · Tor**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:3415** läuft über Link · HTTP; eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet, über Link · Tor, also über Tor.'
             else

@@ -5,6 +5,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
+import '../settings_file/host_settings.dart' show hostSettings;
 
 const List<HelpSection> helpSectionsPl = [
   (id: 'start', title: 'Pierwsze kroki', lede: 'Odbieranie, wysyłanie i płacenie plikiem.', art: 'help-start'),
@@ -40,7 +41,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Odbierz pierwsze EPIC',
       'Otwórz Odbierz, skopiuj adres Epicbox i przekaż go nadawcy. Płatność dotrze sama.',
       [
-        const HelpBlock.p('Adres Epicbox to długi kod, który kończy się znakiem **@** i nazwą serwera Epicbox, na przykład **…@epicbox.example.org**. Można go bezpiecznie udostępniać: inni potrzebują go, aby zapłacić, i nikt nie może nim nic zabrać.'),
+        HelpBlock.p('Adres Epicbox to długi kod, który kończy się znakiem **@** i nazwą serwera Epicbox, na przykład **…@${hostSettings.epicboxUse}**. Można go bezpiecznie udostępniać: inni potrzebują go, aby zapłacić, i nikt nie może nim nic zabrać.'),
         const HelpBlock.ol(['Otwórz [[Odbierz|Receive]].', 'Skopiuj adres (lub pokaż jego kod QR) i wyślij go osobie, która płaci.', 'Płatność sama pojawi się w Aktywności.']),
         if (phone)
           const HelpBlock.p('Odbieranie działa, gdy aplikacja jest otwarta, a węzeł zsynchronizowany. Płatność wysłana przy zamkniętej aplikacji czeka na serwerze Epicbox jak w skrytce pocztowej i dociera po następnym odblokowaniu.')
@@ -112,7 +113,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         tor ? 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy lub kończy się na .onion.' : 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy.',
         [
           HelpBlock.ul([
-            '**Epicbox**: około 52 znaków zaczynających się od **es**, potem **@** i serwer, na przykład **esXXXX…XXXX@epicbox.example.org**. Domyślny sposób; odbiorca może być offline.',
+            '**Epicbox**: około 52 znaków zaczynających się od **es**, potem **@** i serwer, na przykład **esXXXX…XXXX@${hostSettings.epicboxUse}**. Domyślny sposób; odbiorca może być offline.',
             if (tor)
               '**Link · HTTP** i **Link · Tor**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:3415**, idzie przez Link · HTTP; adres Tor z 56 znaków kończący się na **.onion** — przez Link · Tor, czyli przez Tor.'
             else

@@ -5,6 +5,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
+import '../settings_file/host_settings.dart' show hostSettings;
 
 const List<HelpSection> helpSectionsZh = [
   (id: 'start', title: '入门', lede: '接收、发送，以及用文件付款。', art: 'help-start'),
@@ -38,7 +39,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '接收你的第一笔 EPIC',
       '打开“接收”，复制 Epicbox 地址并发给付款方。付款会自动到账。',
       [
-        const HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@epicbox.example.org**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
+        HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@${hostSettings.epicboxUse}**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
         const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款方。', '付款会自动出现在“活动”中。']),
         if (phone)
           const HelpBlock.p('应用打开且节点已同步时才能接收。应用关闭期间发来的付款会像放在邮政信箱里一样在 Epicbox 服务器上等待，并在下次解锁时到账。')
@@ -110,7 +111,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         tor ? 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址，或以 .onion 结尾。' : 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址。',
         [
           HelpBlock.ul([
-            '**Epicbox**：约 52 个字符，以 **es** 开头，然后是 **@** 和服务器，例如 **esXXXX…XXXX@epicbox.example.org**。默认方式；收款方可以不在线。',
+            '**Epicbox**：约 52 个字符，以 **es** 开头，然后是 **@** 和服务器，例如 **esXXXX…XXXX@${hostSettings.epicboxUse}**。默认方式；收款方可以不在线。',
             if (tor)
               '**链接 · HTTP** 和 **链接 · Tor**：收款方自己的钱包，且此刻处于打开状态。**http://host:3415** 这样的网址走 链接 · HTTP；以 **.onion** 结尾、共 56 个字符的 Tor 地址走 链接 · Tor，即经由 Tor 发送。'
             else

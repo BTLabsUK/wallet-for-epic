@@ -9,6 +9,7 @@ library;
 import '../../l10n/app_localizations.dart';
 import '../advanced.dart';
 import 'help_devices.dart';
+import '../settings_file/host_settings.dart' show hostSettings;
 
 /// One block of a topic's body. Inline, `**bold**` marks a term and `[[Settings › Node]]` a
 /// place in the app. A translation writes a place as `[[translated label|Settings › Node]]`: what
@@ -213,7 +214,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Receive your first EPIC',
       'Open Receive, copy the Epicbox address and give it to the sender. The payment arrives by itself.',
       [
-        const HelpBlock.p('The Epicbox address is a long code that ends in **@** and the name of the Epicbox server, for example **…@epicbox.example.org**. It is safe to share: people need it to pay, and nobody can take anything with it.'),
+        HelpBlock.p('The Epicbox address is a long code that ends in **@** and the name of the Epicbox server, for example **…@${hostSettings.epicboxUse}**. It is safe to share: people need it to pay, and nobody can take anything with it.'),
         const HelpBlock.ol(['Open [[Receive]].', 'Copy the address (or show its QR code) and send it to the person who pays.', 'The payment shows up in Activity on its own.']),
         if (phone)
           const HelpBlock.p('Receiving works while the app is open and the node is synced. A payment sent while the app is closed waits on the Epicbox server, like a post-office box, and arrives at the next unlock.')
@@ -287,7 +288,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             : 'An Epicbox address starts with es and ends in @ and a server name. A Link address is a web address.',
         [
           HelpBlock.ul([
-            '**Epicbox**: about 52 characters starting with **es**, then **@** and the server, for example **esXXXX…XXXX@epicbox.example.org**. The default; the recipient can be offline.',
+            '**Epicbox**: about 52 characters starting with **es**, then **@** and the server, for example **esXXXX…XXXX@${hostSettings.epicboxUse}**. The default; the recipient can be offline.',
             if (tor)
               '**Link · HTTP** and **Link · Tor**: the recipient’s own wallet, open right now. A web address such as **http://host:3415** goes by Link · HTTP; a Tor address of 56 characters ending in **.onion** goes by Link · Tor, over Tor.'
             else

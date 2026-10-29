@@ -9,6 +9,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
+import '../settings_file/host_settings.dart' show hostSettings;
 
 const List<HelpSection> helpSectionsTh = [
   (id: 'start', title: 'เริ่มต้นใช้งาน', lede: 'การรับ การส่ง และการจ่ายด้วยไฟล์', art: 'help-start'),
@@ -44,7 +45,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
       'รับ EPIC ครั้งแรก',
       'เปิดหน้า รับ คัดลอกที่อยู่ Epicbox แล้วส่งให้ผู้จ่าย เงินจะเข้าเอง',
       [
-        const HelpBlock.p('ที่อยู่ Epicbox เป็นรหัสยาวที่ลงท้ายด้วย **@** และชื่อเซิร์ฟเวอร์ Epicbox เช่น **…@epicbox.example.org** แชร์ได้อย่างปลอดภัย: คนอื่นต้องใช้ที่อยู่นี้เพื่อจ่ายเงิน และไม่มีใครใช้ที่อยู่นี้เอาเงินไปได้'),
+        HelpBlock.p('ที่อยู่ Epicbox เป็นรหัสยาวที่ลงท้ายด้วย **@** และชื่อเซิร์ฟเวอร์ Epicbox เช่น **…@${hostSettings.epicboxUse}** แชร์ได้อย่างปลอดภัย: คนอื่นต้องใช้ที่อยู่นี้เพื่อจ่ายเงิน และไม่มีใครใช้ที่อยู่นี้เอาเงินไปได้'),
         const HelpBlock.ol(['เปิด [[รับ|Receive]]', 'คัดลอกที่อยู่ (หรือแสดง QR Code) แล้วส่งให้คนที่จะจ่าย', 'รายการจะแสดงในประวัติเอง']),
         if (phone)
           const HelpBlock.p('รับเงินได้ขณะที่แอปเปิดอยู่และโหนดซิงก์แล้ว รายการที่ส่งมาตอนแอปปิดจะรออยู่บนเซิร์ฟเวอร์ Epicbox เหมือนตู้ไปรษณีย์ และเข้าเมื่อปลดล็อกครั้งถัดไป')
@@ -116,7 +117,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
         tor ? 'ที่อยู่ Epicbox ขึ้นต้นด้วย es และลงท้ายด้วย @ กับชื่อเซิร์ฟเวอร์ ที่อยู่ลิงก์เป็นที่อยู่เว็บ หรือลงท้ายด้วย .onion' : 'ที่อยู่ Epicbox ขึ้นต้นด้วย es และลงท้ายด้วย @ กับชื่อเซิร์ฟเวอร์ ที่อยู่ลิงก์เป็นที่อยู่เว็บ',
         [
           HelpBlock.ul([
-            '**Epicbox**: ประมาณ 52 ตัวอักษร ขึ้นต้นด้วย **es** ตามด้วย **@** และเซิร์ฟเวอร์ เช่น **esXXXX…XXXX@epicbox.example.org** เป็นค่าเริ่มต้น ผู้รับออฟไลน์อยู่ก็ได้',
+            '**Epicbox**: ประมาณ 52 ตัวอักษร ขึ้นต้นด้วย **es** ตามด้วย **@** และเซิร์ฟเวอร์ เช่น **esXXXX…XXXX@${hostSettings.epicboxUse}** เป็นค่าเริ่มต้น ผู้รับออฟไลน์อยู่ก็ได้',
             if (tor)
               '**ลิงก์ · HTTP** และ **ลิงก์ · Tor**: กระเป๋าเงินของผู้รับเองที่เปิดอยู่ตอนนี้ ที่อยู่เว็บ เช่น **http://host:3415** ไปทาง ลิงก์ · HTTP ส่วนที่อยู่ Tor ยาว 56 ตัวอักษรที่ลงท้ายด้วย **.onion** ไปทาง ลิงก์ · Tor ซึ่งส่งผ่าน Tor'
             else
