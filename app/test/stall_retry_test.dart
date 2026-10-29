@@ -80,14 +80,19 @@ void main() {
     expect(session.repostedKeys, ['refused'], reason: 'the posted one waits');
     expect(await at(const Duration(seconds: 59)), isFalse);
     expect(await at(const Duration(minutes: 1)), isTrue);
-    expect(session.repostedKeys, ['refused', 'refused', 'posted']);
-    expect(await at(const Duration(minutes: 3)), isFalse);
+    expect(session.repostedKeys, ['refused', 'posted']);
+    // The refused one goes on from its try at once: 3, 10, 30 minutes after each try.
+    expect(await at(const Duration(minutes: 2)), isFalse);
+    expect(await at(const Duration(minutes: 3)), isTrue);
     expect(await at(const Duration(minutes: 4)), isTrue);
+    expect(await at(const Duration(minutes: 13)), isTrue);
     expect(await at(const Duration(minutes: 14)), isTrue);
+    expect(await at(const Duration(minutes: 43)), isTrue);
     expect(await at(const Duration(minutes: 44)), isTrue);
-    expect(await at(const Duration(minutes: 73)), isFalse);
-    expect(await at(const Duration(minutes: 74)), isTrue, reason: 'the last wait repeats');
-    expect(session.repostedKeys.length, 11);
+    expect(await at(const Duration(minutes: 72)), isFalse);
+    expect(await at(const Duration(minutes: 73)), isTrue, reason: 'the last wait repeats');
+    expect(await at(const Duration(minutes: 74)), isTrue);
+    expect(session.repostedKeys.length, 10);
     expect(session.cancelledTxIds, isEmpty, reason: 'nothing is ever cancelled');
   });
 
