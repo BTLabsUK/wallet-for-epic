@@ -38,16 +38,11 @@ import 'tx_label.dart';
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
 
-/// A link to the payment in a block explorer, once it is on chain: the kernel when the
-/// settings file names a kernel page (`links.explorer_kernel`), else the block
-/// (`links.explorer_block`). Null before confirmation, when the kernel is not on chain yet
-/// (and for a receive is only our partial excess).
+/// A link to the payment's block in the explorer (`[explorer] block` of `app-config.toml`),
+/// once it is on chain. Null before confirmation, or when no explorer is configured.
 String? explorerUrl(Chain chain, TxEntry tx) {
   if (tx.status != TxStatus.confirmed) return null;
-  final kernel = tx.kernelExcess;
   final height = tx.blockHeight;
-  final byKernel = kernel == null ? null : hostSettings.explorerKernel(kernel);
-  if (byKernel != null) return byKernel;
   return height == null ? null : hostSettings.explorerBlock(height.toInt());
 }
 

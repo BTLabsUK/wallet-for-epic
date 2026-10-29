@@ -1,5 +1,5 @@
 {
-  "deskSetNodePortNote": "Sprawdź adres i port (zwykle 3413).",
+  "deskSetNodePortNote": "Sprawdź adres i port (zwykle {port}).",
   "deskSetNodeListNote": "Stan ze {site}; opóźnienie mierzone z tego komputera.",
   "deskSetNodeStartTitle": "Uruchomić węzeł lokalny?",
   "deskSetNodeStartDesc": "Osobny program synchronizuje łańcuch Epic na tym komputerze.",

@@ -14,6 +14,7 @@ import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
 
 enum LocalNodeHow { bundled, existing }
 
@@ -64,8 +65,11 @@ class LocalNodeStep extends ConsumerStatefulWidget {
 
 class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
   LocalNodeFacts? _facts;
-  late final _url = TextEditingController(text: 'http://127.0.0.1:3413');
-  var _choice = const LocalNodeChoice(how: LocalNodeHow.bundled, existingUrl: 'http://127.0.0.1:3413', useFallback: true);
+  /// A node of its own on this computer, at the built-in node's API port (`node.local.api_port`).
+  static String get _localUrl => 'http://127.0.0.1:${appConfig.localNodeApiPort}';
+
+  late final _url = TextEditingController(text: _localUrl);
+  var _choice = LocalNodeChoice(how: LocalNodeHow.bundled, existingUrl: _localUrl, useFallback: true);
   bool _checking = false;
 
   @override
@@ -78,8 +82,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
       // Never inside the first build: the parent gets the choice a microtask later.
       await Future<void>.delayed(Duration.zero);
       final p = switch (widget.demo) {
-        LocalNodeDemo.found => LocalNodeProbe(url: 'http://127.0.0.1:3413', answers: true, version: '4.1.1', height: mockTip, readyForTxs: true, latencyMs: 3),
-        LocalNodeDemo.notFound => const LocalNodeProbe(url: 'http://127.0.0.1:3413', answers: false),
+        LocalNodeDemo.found => LocalNodeProbe(url: _localUrl, answers: true, version: '4.1.1', height: mockTip, readyForTxs: true, latencyMs: 3),
+        LocalNodeDemo.notFound => LocalNodeProbe(url: _localUrl, answers: false),
         LocalNodeDemo.none => await api.probe(),
       };
       if (!mounted) return;
@@ -204,7 +208,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
                         size: EBtnSize.sm,
                         controller: _url,
                         mono: true,
-                        hint: '127.0.0.1:3413',
+                        hint: '127.0.0.1:${appConfig.localNodeApiPort}',
                         semanticLabel: l.deskOnbNodeAddress,
                         onChanged: (_) => _set(_choice.copyWith(clearProbe: true)),
                         onSubmitted: (_) => _check(),

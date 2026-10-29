@@ -83,7 +83,7 @@
   "deskOnbUnlockWhoWindows": "Этот кошелёк может открыть любой, кто пользуется этой учётной записью Windows.",
   "deskOnbUnlockWho": "Этот кошелёк может открыть любой, кто пользуется этой учётной записью.",
   "deskOnbUnlockWrong": "Неверный пароль. Проверьте Caps Lock и раскладку клавиатуры.",
-  "deskOnbUnlockPortInUse": "Порт 3415 занят другой программой. Закройте её и повторите попытку.",
+  "deskOnbUnlockPortInUse": "Порт {port} занят другой программой. Закройте её и повторите попытку.",
   "deskOnbUnlockStageCheck": "Проверка файлов кошелька",
   "deskOnbUnlockStageProcesses": "Поиск ещё работающих процессов кошелька",
   "deskOnbUnlockStageClosing": "Закрытие старых процессов кошелька",

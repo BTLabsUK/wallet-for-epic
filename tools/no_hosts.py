@@ -1,8 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The scanner behind tools/check-no-hosts.sh.
+"""The scanner behind tools/check-no-hosts.sh: "All configuration in settings.toml (no hardcoded
+configuration)".
 
 Reads NUL-separated paths (relative to <dir>) on stdin, prints every line that names a host,
-a URL with a literal host, an IPv4 address or an onion address, and exits 1 when there is one.
+a URL with a literal host, an IPv4 address, an onion address, a port or an HTTP API path, and
+exits 1 when there is one. Ports: `:NNNN` inside a string, a port-named variable, parameter or
+field set to a number, and the Epic ports anywhere (comments too); 80 and 443 are the web's own
+(protocol) and pass. API paths: a string literal starting `/v1/`, `/v2/` or `/api/`.
 
 Usage: python3 -I no_hosts.py <label> <dir> <allow file>
 
@@ -31,6 +35,18 @@ URL_RE = re.compile(r'\b(?:https?|wss?)://([A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)+)'
 IP_RE = re.compile(r'(?<![0-9.])((?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])(?:\.(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])){3})(?![0-9.])')
 ONION_RE = re.compile(r'[a-z2-7]{56}\.onion', re.IGNORECASE)
 
+# The ports of Epic's node, wallet listener, stratum and Epicbox on each chain.
+EPIC_PORTS = '3413|3414|3415|3416|3420|3423|13413|13414|13415|13416|23413|23414|23415|23416'
+EPIC_PORT_RE = re.compile(r'(?<![0-9A-Za-z_.])(' + EPIC_PORTS + r')(?![0-9])')
+# `host:NNNN` in a string: after a name character, not part of a time (`13:58:01`) or a version.
+STRING_PORT_RE = re.compile(r'(?<=[A-Za-z0-9\]}])\:([0-9]{2,5})(?![0-9:.])')
+# `port = 3415`, `this.port = 3415`, `httpPort: 3415`, `"port": 3415`, `port_number = 3415`.
+NAMED_PORT_RE = re.compile(
+    r'(?<![A-Za-z0-9_])(?:[a-z][A-Za-z0-9_]*Port|[pP]ort)(?:_?[A-Za-z0-9_]*)?["\']?\s*(?:=(?!=)|:)\s*([0-9]+)(?![0-9.])')
+API_PATH_RE = re.compile(r'[\'"]/(?:v[0-9]+|api)/')
+# The web's own ports: protocol, not configuration.
+PROTOCOL_PORTS = {80, 443}
+
 OK_HOST = re.compile(
     r'^(?:localhost|(?:[a-z0-9-]+\.)*example(?:\.(?:com|org|net))?|(?:[a-z0-9-]+\.)+(?:invalid|test|localhost|example|local|lan|internal|home\.arpa))$',
     re.IGNORECASE)
@@ -54,8 +70,48 @@ def ok_host(h):
     return bool(OK_HOST.match(h))
 
 
-def findings(text):
+def port_findings(text):
+    """The port and API path findings of one line (a string's port and the API path only inside a
+    string literal)."""
     out = []
+    for m in EPIC_PORT_RE.finditer(text):
+        out.append(f'port {m.group(1)}')
+    for m in STRING_PORT_RE.finditer(text):
+        p = int(m.group(1))
+        if 80 <= p <= 65535 and p not in PROTOCOL_PORTS and in_text(text, m.start(), strings_only=True) \
+                and host_before(text, m.start()):
+            out.append(f'port :{p}')
+    for m in NAMED_PORT_RE.finditer(text):
+        p = int(m.group(1))
+        if 0 < p <= 65535 and p not in PROTOCOL_PORTS and not in_text(text, m.start(1), strings_only=True) and not is_comment(text, m.start(1)):
+            out.append(f'port {m.group(0).strip()}')
+    for m in API_PATH_RE.finditer(text):
+        if in_text(text, m.start() + 1, strings_only=True):
+            out.append(f'API path {text[m.start() + 1:m.start() + 24].split(chr(39))[0].split(chr(34))[0]}')
+    return out
+
+
+def host_before(line, pos):
+    """Whether the text before the `:` at [pos] is a host: a dotted name or address,
+    `localhost`, an IPv6 address in brackets, or an interpolation (`${host}`). An id such as
+    `l:103` is not."""
+    if line[pos - 1] in ']}':
+        return True
+    start = pos
+    while start > 0 and re.match(r'[A-Za-z0-9.\-_]', line[start - 1]):
+        start -= 1
+    token = line[start:pos]
+    return '.' in token or token.lower() == 'localhost'
+
+
+def is_comment(line, pos):
+    """Whether [pos] of [line] is in a comment (the line is one, or one starts before it outside a
+    string)."""
+    return in_text(line, pos) and not in_text(line, pos, strings_only=True)
+
+
+def findings(text):
+    out = port_findings(text)
     text = text.replace('\\.', '.')  # a host written as a regex (`fastepic\.eu`)
     for m in ONION_RE.finditer(text):
         out.append(m.group(0))
@@ -74,11 +130,12 @@ def findings(text):
     return out
 
 
-def in_text(line, pos):
+def in_text(line, pos, strings_only=False):
     """Whether [pos] is inside a string literal or a comment of [line] (one line, so a string
-    or a block comment that started on an earlier line is not seen)."""
+    or a block comment that started on an earlier line is not seen). [strings_only]: inside a
+    string literal only."""
     if re.match(r'\s*(\*|#|///|//)', line):
-        return True
+        return not strings_only
     quote = None
     i = 0
     while i < pos:
@@ -91,7 +148,7 @@ def in_text(line, pos):
         elif c in '\'"`':
             quote = c
         elif line.startswith('//', i) or line.startswith('/*', i):
-            return True
+            return not strings_only
         i += 1
     return quote is not None
 

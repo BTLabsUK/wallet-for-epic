@@ -36,13 +36,13 @@ String mockBoxOp(int i) {
 
 /// An operator icon's address on the status site.
 String mockIconUrl(String hash, int px) =>
-    '${hostSettings.statusIcons}$hash-$px.png';
+    '${hostSettings.statusIcons ?? ''}$hash-$px.png';
 
 /// An onion address for [name] (56 letters and digits, padded with `a`), built at run time.
 String mockOnion(String name) => '${name.padRight(56, 'a')}.${'onion'}';
 
 /// A host of the status site's own (a page address), read from the settings.
-String get mockStatusUrl => hostSettings.statusDirectory;
+String get mockStatusUrl => hostSettings.statusDirectory ?? '';
 
 /// The onion the fake and mock wallets answer for their own address.
 String get fakeWalletOnion =>

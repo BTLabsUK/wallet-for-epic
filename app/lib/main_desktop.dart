@@ -13,7 +13,6 @@ import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path_provider/path_provider.dart';
@@ -45,7 +44,6 @@ import 'src/password_lists.dart';
 import 'src/tor_licence.dart';
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
-import 'src/settings_file/host_settings.dart';
 import 'src/settings_file/settings_providers.dart';
 import 'src/tor_location.dart';
 import 'src/wallet_backend.dart';
@@ -64,9 +62,7 @@ Future<void> main() async {
   if (_mock) {
     WidgetsFlutterBinding.ensureInitialized();
     // The mock wallet shows the shipped servers; it reads and writes no file.
-    final shipped = HostSettings.fromText(await rootBundle.loadString(shippedSettingsAsset));
-    hostSettings = shipped;
-    shippedHostSettings = shipped;
+    await loadShippedSettings();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
     runApp(ProviderScope(overrides: [if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));

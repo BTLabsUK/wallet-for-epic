@@ -40,7 +40,6 @@ class LinkDeviceScreen extends ConsumerStatefulWidget {
 
 class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
   final _paste = TextEditingController();
-  List<String>? _servers;
   bool _busy = false;
 
   @override
@@ -122,7 +121,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
 
   Widget _start(BuildContext context) {
     final l = context.l10n;
-    final servers = _servers ?? phoneLinkServers(ref);
+    final servers = phoneLinkServers(ref);
     final scanner = ref.watch(qrScannerProvider);
     return ScreenBody(
       children: [
@@ -134,9 +133,8 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
               key: linkServersKey,
               leading: const Icon(Icons.dns_outlined),
               title: Text(l.devicesServers),
+              // Read-only: the first servers of the Epicbox list (Settings › Epicbox).
               subtitle: Text(servers.join(', ')),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => pickLinkServers(context, ref, chosen: servers, onChanged: (next) => setState(() => _servers = next)),
             ),
           ],
         ),

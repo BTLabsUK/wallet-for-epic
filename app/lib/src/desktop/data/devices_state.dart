@@ -113,8 +113,8 @@ final deskHeldProvider = Provider<List<({String device, int value})>>((ref) {
   return [for (final e in byDevice.entries) (device: e.key, value: e.value)];
 });
 
-/// The servers a first link proposes ([defaultLinkServers]): this wallet's Epicbox server, then
-/// the first of the settings' `devices.link_servers` that is not it.
+/// The servers a link proposes ([defaultLinkServers]): this wallet's Epicbox server, then the
+/// others of the first `epicbox.link_servers` of the Epicbox list.
 List<String> deskDefaultLinkServers({required String ownHost, int ownPort = 443, List<String>? servers}) =>
     defaultLinkServers(ownHost: ownHost, ownPort: ownPort, servers: servers);
 

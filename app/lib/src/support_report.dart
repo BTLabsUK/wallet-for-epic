@@ -25,7 +25,7 @@ import 'package:crypto/crypto.dart' as hash;
 import 'package:cryptography/cryptography.dart';
 
 import 'net/http.dart';
-import 'settings_file/host_settings.dart' show hostSettings;
+import 'settings_file/host_settings.dart' show appConfig, hostSettings;
 
 /// The developer's public key (the GUI's `src/shared/supportKey.js`), and its id: the first 8
 /// bytes of its SHA-256. Rotating it means shipping a new key with the next release.
@@ -34,9 +34,9 @@ const String supportKeyId = 'd9749febd701c2fe';
 
 const String _supportUrlOverride = String.fromEnvironment('WFE_SUPPORT_URL');
 
-/// Where reports go: the settings file's `support.report`. A build can point elsewhere with
-/// `--dart-define=WFE_SUPPORT_URL=...`.
-String get supportUrlSetting => _supportUrlOverride.isEmpty ? hostSettings.supportReport : _supportUrlOverride;
+/// Where reports go: `support.report` of `app-config.toml`; null when it is left out (no Send
+/// report). A build can point elsewhere with `--dart-define=WFE_SUPPORT_URL=...`.
+String? get supportUrlSetting => _supportUrlOverride.isEmpty ? hostSettings.supportReport : _supportUrlOverride;
 
 /// The intake's limits: a sealed report, the tail kept of each file, the description, the
 /// contact.
@@ -45,8 +45,8 @@ const int maxSupportFileText = 512 * 1024;
 const int maxSupportDescription = 2000;
 const int maxSupportContact = 100;
 
-/// How long a send may take before it counts as failed.
-const Duration supportTimeout = Duration(seconds: 20);
+/// How long a send may take before it counts as failed (`support.timeout_s`).
+Duration get supportTimeout => appConfig.supportTimeout;
 
 final Uint8List _magic = ascii.encode('EPICSUP1');
 final Uint8List _info = ascii.encode('epic-gui-support v1');
@@ -325,10 +325,13 @@ abstract interface class SupportSender {
 }
 
 class HttpSupportSender implements SupportSender {
-  HttpSupportSender(this.url, {this.timeout = supportTimeout});
+  HttpSupportSender(this.url, {this._timeout});
 
   final Uri url;
-  final Duration timeout;
+  final Duration? _timeout;
+
+  /// `support.timeout_s` unless given.
+  Duration get timeout => _timeout ?? supportTimeout;
 
   @override
   Future<String> send(SupportReport report, {required String appVersion}) async {

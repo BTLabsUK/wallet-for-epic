@@ -15,6 +15,7 @@ import 'package:crypto/crypto.dart';
 import 'chain_folders.dart';
 import 'models.dart' show Chain;
 import 'node/node_api_types.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 
 /// Settings-store key that holds whether the built-in node is on for [chain] ("true"/"false").
 String builtInNodeSettingKey(Chain chain) => 'node.builtin.${chain.name}';
@@ -229,8 +230,8 @@ bool _sameList(List<String> a, List<String> b) {
   return true;
 }
 
-/// True for a peer address the node accepts in `peers_preferred`: "203.0.113.4:3414" or
-/// "[2001:db8::1]:3414", port 1..65535. Host names are not (the node wants a socket address).
+/// True for a peer address the node accepts in `peers_preferred`: `203.0.113.4:<port>` or
+/// `[2001:db8::1]:<port>`, port 1..65535. Host names are not (the node wants a socket address).
 bool isPeerAddress(String addr) {
   final m = RegExp(r'^(?:\[([0-9A-Fa-f:.]+)\]|(\d{1,3}(?:\.\d{1,3}){3})):(\d{1,5})$')
       .firstMatch(addr.trim());
@@ -297,17 +298,16 @@ typedef NodeApi = Future<Map<String, dynamic>?> Function(
   String? secret,
 });
 
-/// The ports a chain's node uses, as the Electron GUI 6.1 used them.
+/// The ports a chain's node uses: `[node.local] api_port` and `p2p_port` of the chain's
+/// `app-config.toml` (each dev chain has its own file), the wallet listener and stratum after
+/// them as the Electron GUI 6.1 laid them out.
 class NodePorts {
   const NodePorts(this.api, this.p2p, this.walletListener, this.stratum);
 
+  /// [chain]'s ports: the configuration in use is that chain's own.
   factory NodePorts.of(Chain chain) {
-    final base = switch (chain) {
-      Chain.mainnet => 3413,
-      Chain.floonet => 13413,
-      Chain.usernet => 23413,
-    };
-    return NodePorts(base, base + 1, base + 2, base + 3);
+    final api = appConfig.localNodeApiPort;
+    return NodePorts(api, appConfig.localNodeP2pPort, api + 2, api + 3);
   }
 
   final int api;

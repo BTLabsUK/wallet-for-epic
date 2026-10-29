@@ -34,7 +34,7 @@ Future<String> Function(String url) relayUrl = lanNodeUrl;
 const int maxReplyBytes = 16 * 1024 * 1024;
 
 class NodeApiClient {
-  /// [baseUrl] is `http://127.0.0.1:3413` or `https://node.example`: plain http only for a
+  /// [baseUrl] is `http://127.0.0.1:<port>` or `https://node.example`: plain http only for a
   /// node on this computer, the local network or a tailnet ([isLocalNodeUrl]), reached through
   /// the node relay ([lanNodeUrl]) as the wallet core reaches it, so the request (and an owner
   /// secret) goes only to the address looked up once. Plain http to anything else fails each

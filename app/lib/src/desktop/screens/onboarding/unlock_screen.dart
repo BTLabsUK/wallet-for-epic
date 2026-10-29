@@ -14,6 +14,7 @@ import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
 import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
 import 'reset_password_screen.dart' show ResetPasswordArg;
 import 'setup_screen.dart' show SetupFirstRun, setupSkippedThisSession;
 
@@ -86,7 +87,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         _stage = 'wallet';
       case UnlockShow.failed:
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) setState(() => _failure = context.l10n.deskOnbUnlockPortInUse);
+          if (mounted) setState(() => _failure = context.l10n.deskOnbUnlockPortInUse('${appConfig.httpListenPort}'));
         });
         _failedStage = 'wallet';
       case UnlockShow.missing:
@@ -265,7 +266,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     if (!await _run('wallet')) return;
     if (mock && !remembered && password == 'fail') {
       setState(() {
-        _failure = context.l10n.deskOnbUnlockPortInUse;
+        _failure = context.l10n.deskOnbUnlockPortInUse('${appConfig.httpListenPort}');
         _failedStage = 'wallet';
         _stage = null;
       });

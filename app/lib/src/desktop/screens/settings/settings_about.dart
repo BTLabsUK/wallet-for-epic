@@ -22,9 +22,10 @@ import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
-/// The Epic Cash community links, from the settings file (`links.community`, `links.website`).
-String get telegramUrl => communityUrl;
-String get websiteUrl => epicCashUrl;
+/// The Epic Cash community links, from `app-config.toml` (`links.community`,
+/// `links.website`); null when left out (the row is not shown).
+String? get telegramUrl => communityUrl;
+String? get websiteUrl => epicCashUrl;
 
 /// The Licences group, the same words as the phone's Licences screen (lib/l10n, `licences*`).
 List<String> licenceLines(AppLocalizations l) => [
@@ -105,9 +106,9 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
           ESetGroup(
             title: l.deskSetAboutCommunity,
             rows: [
-              linkRow('Telegram', shownUrl(telegramUrl), telegramUrl), // l10n-ok: a name
-              linkRow(shownUrl(websiteUrl), shownUrl(websiteUrl), websiteUrl),
-              _LinkRow(title: l.contactLabel, shown: supportEmail, url: 'mailto:$supportEmail', copy: supportEmail),
+              if (telegramUrl case final t?) linkRow('Telegram', shownUrl(t), t), // l10n-ok: a name
+              if (websiteUrl case final w?) linkRow(shownUrl(w), shownUrl(w), w),
+              if (supportEmail case final e?) _LinkRow(title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
             ],
           ),
           if (deskUpdatesSupported) const _Updates(),
@@ -128,7 +129,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   ],
                 ),
               ),
-              if (projectRepoPublic) linkRow(l.deskSetAboutSource, shownUrl(projectRepoUrl), projectRepoUrl),
+              if (projectRepoPublic && projectRepoUrl != null) linkRow(l.deskSetAboutSource, shownUrl(projectRepoUrl!), projectRepoUrl!),
               ESetRow(
                 title: l.licencesFull,
                 control: ERowControl(
@@ -248,7 +249,7 @@ class _Updates extends ConsumerWidget {
               ? ERowControl(child: check)
               : Row(mainAxisSize: MainAxisSize.min, children: [if (checks) ...[check, SizedBox(width: Sp.x2)], step]),
         ),
-        _LinkRow(title: l.deskSetAboutDownloadPage, shown: shownUrl(deskReleasesUrl), url: deskReleasesUrl),
+        if (deskReleasesUrl case final page?) _LinkRow(title: l.deskSetAboutDownloadPage, shown: shownUrl(page), url: page),
       ],
     );
   }

@@ -12,9 +12,7 @@ import '../../devices/device_service.dart';
 import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
 import '../../providers.dart';
-import '../../server_list.dart';
 import '../badge.dart';
-import '../server_list_sheet.dart';
 import '../theme/tokens.dart';
 import 'link_device_screen.dart';
 
@@ -61,44 +59,6 @@ List<String> phoneLinkServers(WidgetRef ref) {
   return ref.read(deviceServiceProvider)?.linkServers(defaults) ?? defaults;
 }
 
-/// Opens the server picker in selection mode, up to [maxLinkServers]; [onChanged] gets the set
-/// after every change.
-Future<void> pickLinkServers(BuildContext context, WidgetRef ref, {required List<String> chosen, required void Function(List<String>) onChanged}) {
-  final l = context.l10n;
-  final config = ref.read(walletConfigProvider);
-  final defaults = config == null
-      ? chosen
-      : defaultLinkServers(ownHost: config.epicboxDomain, ownPort: config.epicboxPort);
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: true,
-    builder: (context) {
-      final sheet = DraggableScrollableController();
-      return DraggableScrollableSheet(
-        controller: sheet,
-        expand: false,
-        initialChildSize: 0.85,
-        minChildSize: 0.5,
-        maxChildSize: 1,
-        builder: (context, scroll) => ServerListSheet(
-          kind: ServerKind.relay,
-          scrollController: scroll,
-          sheetController: sheet,
-          selection: RelaySelection(
-            limit: maxLinkServers,
-            chosen: chosen,
-            defaults: defaults,
-            onChanged: onChanged,
-            title: l.devicesServers,
-            note: l.devicesServersNote,
-          ),
-        ),
-      );
-    },
-  );
-}
 
 /// A name, typed in a dialog; null when cancelled.
 Future<String?> askDeviceName(BuildContext context, String initial) => showDialog<String>(

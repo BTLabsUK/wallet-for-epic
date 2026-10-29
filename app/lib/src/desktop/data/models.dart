@@ -9,6 +9,7 @@ import '../../amount.dart' show cutEpic, displayDecimals, exactDecimals, exactEp
 import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 
 import 'package:intl/intl.dart' show NumberFormat;
 
@@ -855,7 +856,7 @@ class RestoreScan {
 /// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).
 enum HttpProblem { portInUse, portUnavailable, stopped }
 
-/// [ServiceStatus.httpProblem] in a few words: "Port 3415 in use".
+/// [ServiceStatus.httpProblem] in a few words: `Port <port> in use`.
 String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p) {
   HttpProblem.portInUse => l.deskErrPortInUse(port),
   HttpProblem.portUnavailable => l.deskErrPortUnavailable(port),
@@ -1138,7 +1139,7 @@ class DeskSettings {
     this.directHttp = false,
     this.tor = false,
     this.publicMode = false,
-    this.httpPort = 3415,
+    int? httpPort,
     this.httpAutostart = false,
     this.epicboxAutostart = true,
     this.torAutostart = false,
@@ -1154,7 +1155,7 @@ class DeskSettings {
     this.payments = PaymentPrefs.defaults,
     this.pairingSeenAs = '',
     this.pairingClipSeen = '',
-  });
+  }) : httpPortChosen = httpPort;
 
   final ThemeChoice theme;
 
@@ -1187,8 +1188,12 @@ class DeskSettings {
   /// not only this computer. Set only from the guide's explicit choice.
   final bool publicMode;
 
-  /// The HTTP listener's port.
-  final int httpPort;
+  /// The HTTP listener's port: the one the user chose, else `http.listen_port` of
+  /// `app-config.toml`.
+  int get httpPort => httpPortChosen ?? appConfig.httpListenPort;
+
+  /// The port the user chose; null: the configured one.
+  final int? httpPortChosen;
 
   /// The HTTP listener starts at unlock. Like [publicMode] and [httpPort] it is the open
   /// wallet's own, not app-wide.
@@ -1264,7 +1269,7 @@ class DeskSettings {
     directHttp: directHttp ?? this.directHttp,
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,
-    httpPort: httpPort ?? this.httpPort,
+    httpPort: httpPort ?? httpPortChosen,
     httpAutostart: httpAutostart ?? this.httpAutostart,
     epicboxAutostart: epicboxAutostart ?? this.epicboxAutostart,
     torAutostart: torAutostart ?? this.torAutostart,

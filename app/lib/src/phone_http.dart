@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The phone's one owner of the Link · HTTP listener for the open wallet: wallets on the same
-/// Wi-Fi network pay this one at `http://<this phone's LAN address>:3415`. It runs only while a
+/// Wi-Fi network pay this one at `http://<this phone's LAN address>:<port>` (`http.listen_port`). It runs only while a
 /// wallet is open, Link · HTTP is on (Settings › Transactions), the network mode allows it,
 /// Tor is off and the phone has a Wi-Fi or wired address; it stops on lock, and after the app
 /// comes back it starts again if it should run.
@@ -21,9 +21,11 @@ import 'settings.dart' show appSettingsProvider, networkModeProvider;
 import 'tor_phone.dart' show phoneTorState;
 import 'tor_routes.dart';
 import 'wallet_service.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 
-/// The phone's HTTP listener port: no setting, so every wallet on the network can guess it.
-const int phoneHttpPort = 3415;
+/// The phone's HTTP listener port (`http.listen_port` of `app-config.toml`): no user setting,
+/// so every wallet on the network can guess it.
+int get phoneHttpPort => appConfig.httpListenPort;
 
 enum PhoneHttpPhase {
   /// Not running: locked, or Link · HTTP is off.
@@ -56,11 +58,11 @@ enum PhoneHttpPhase {
 }
 
 class PhoneHttpState {
-  const PhoneHttpState({
+  PhoneHttpState({
     this.listener = PhoneHttpPhase.off,
     this.address,
-    this.port = phoneHttpPort,
-  });
+    int? port,
+  }) : port = port ?? phoneHttpPort;
 
   /// What the listener does; [phase] adds [PhoneHttpPhase.noNetwork] on top of it.
   final PhoneHttpPhase listener;
@@ -176,7 +178,7 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
       WidgetsBinding.instance.removeObserver(lifecycle);
       unawaited(network.cancel());
     });
-    if (session == null) return const PhoneHttpState();
+    if (session == null) return PhoneHttpState();
     // After the change has reached every provider: in a listener, one that depends on the
     // changed one (the network mode on the settings) still reads its old value.
     void later() => scheduleMicrotask(() {
@@ -192,7 +194,7 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
       await _readAddress();
       if (_current(generation)) _apply();
     });
-    return const PhoneHttpState();
+    return PhoneHttpState();
   }
 
   bool _current(int generation) => generation == _generation && ref.mounted;

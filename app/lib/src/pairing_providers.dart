@@ -9,7 +9,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart' show NetworkMode;
-import 'connection_servers.dart';
 import 'contacts.dart';
 import 'providers.dart';
 import 'settings.dart';
@@ -45,26 +44,10 @@ final pairingApiProvider = Provider<PairingApi>((ref) {
   if (!ref.watch(pairingOnProvider)) return const NoPairing();
   final session = ref.watch(sessionProvider);
   final api = session?.pairing ?? const NoPairing();
-  // The words calls meet on the Connection servers (Settings › Advanced, the settings file).
-  api.setConnectionServers(ref.watch(pairingRelaysProvider).value ?? ref.watch(hostSettingsProvider).pairingServers);
+  // The words calls meet on the first `epicbox.pairing_servers` of the Epicbox list.
+  api.setConnectionServers(ref.watch(hostSettingsProvider.select((s) => s.pairingServers)));
   return api;
 });
-
-/// The Connection servers, as Epicbox list values: `pairing.servers` of the settings file of
-/// the chain the app runs on. Never null.
-final pairingRelaysProvider = AsyncNotifierProvider<PairingRelaysNotifier, List<String>?>(PairingRelaysNotifier.new);
-
-class PairingRelaysNotifier extends AsyncNotifier<List<String>?> {
-  @override
-  Future<List<String>?> build() async => ref.watch(hostSettingsProvider.select((s) => s.pairingServers));
-
-  /// Writes [chosen] to the settings file.
-  Future<void> set(List<String> chosen) async {
-    final clean = cleanConnectionServers(chosen);
-    state = AsyncData(clean);
-    await ref.read(hostSettingsProvider.notifier).set('pairing.servers', clean);
-  }
-}
 
 /// Whether this wallet pairs: the screens show Pair, the Pairing block and the trust badges.
 final pairingSupportedProvider = Provider<bool>((ref) => ref.watch(pairingApiProvider).supported);

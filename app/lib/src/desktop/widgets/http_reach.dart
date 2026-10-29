@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desk_l10n.dart';
-import '../data/http_address.dart' show HttpReach;
+import '../data/http_address.dart' show HttpReach, WebReachProbe;
 import 'kit.dart';
 
 /// The check's notice: checking, reachable, not reachable (forward the port), or could not
@@ -60,6 +60,8 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
 
   @override
   Widget build(BuildContext context) {
+    // No reach check in app-config.toml: no notice.
+    if (!WebReachProbe.configured) return const SizedBox.shrink();
     // The listener restarts on a new port: check that one.
     ref.listen(deskProvider.select((s) => (s.settings.httpPort, s.status?.httpListener)), (a, b) {
       if (a != b) unawaited(_read());
@@ -77,6 +79,9 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
       return _checking
           ? ENotice(key: const ValueKey('http-reach'), title: l.deskKitReachChecking)
           : const SizedBox.shrink();
+    }
+    if (r.needsTorOff) {
+      return ENotice(key: const ValueKey('http-reach'), title: l.deskKitReachTorOff, actions: [check]);
     }
     final lan = r.lanAddress;
     final (tone, title, text) = switch ((r.publicIp, r.reachable)) {

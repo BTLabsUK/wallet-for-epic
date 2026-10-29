@@ -7641,8 +7641,8 @@ abstract class AppLocalizations {
   /// Error under the Other node field when the text is not a host, host:port or http(s) address.
   ///
   /// In en, this message translates to:
-  /// **'Enter a node address such as node.example.com:3413'**
-  String get serverOtherNodeInvalid;
+  /// **'Enter a node address such as node.example.com:{port}'**
+  String serverOtherNodeInvalid(String port);
 
   /// Button beside the Other node / Other server field: the typed server joins My nodes or My servers and is offered for a switch.
   ///
@@ -9223,8 +9223,8 @@ abstract class AppLocalizations {
   /// Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are.
   ///
   /// In en, this message translates to:
-  /// **'http://host:3415 or xxxx….onion'**
-  String get methodDirectShape;
+  /// **'http://host:{port} or xxxx….onion'**
+  String methodDirectShape(String port);
 
   /// Send's strip line for Link.
   ///
@@ -10423,8 +10423,8 @@ abstract class AppLocalizations {
   /// Why the local node failed, as a detail after the word "Failed". Lowercase fragment.
   ///
   /// In en, this message translates to:
-  /// **'port 3413 is used by another program'**
-  String get deskNodeFailPort;
+  /// **'port {port} is used by another program'**
+  String deskNodeFailPort(String port);
 
   /// Why the local node failed. Lowercase fragment.
   ///
@@ -14955,11 +14955,11 @@ abstract class AppLocalizations {
   /// **'Wrong password. Check Caps Lock and the keyboard layout.'**
   String get deskOnbUnlockWrong;
 
-  /// Failure text when the wallet service cannot start because its port is taken. Keep the number 3415.
+  /// Failure text when the wallet service cannot start because its port is taken. Keep the number <port>.
   ///
   /// In en, this message translates to:
-  /// **'Port 3415 is in use by another program. Close it, then try again.'**
-  String get deskOnbUnlockPortInUse;
+  /// **'Port {port} is in use by another program. Close it, then try again.'**
+  String deskOnbUnlockPortInUse(String port);
 
   /// Progress step while unlocking.
   ///
@@ -15189,7 +15189,7 @@ abstract class AppLocalizations {
   /// **'Found'**
   String get deskOnbNodeFound;
 
-  /// Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:3413'.
+  /// Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:<port>'.
   ///
   /// In en, this message translates to:
   /// **'Epic {version} at {address}'**
@@ -18138,8 +18138,8 @@ abstract class AppLocalizations {
   /// Local node panel: notice title when the node cannot open its port.
   ///
   /// In en, this message translates to:
-  /// **'Port 3413 is used by another program.'**
-  String get deskSetLnodePortInUse;
+  /// **'Port {port} is used by another program.'**
+  String deskSetLnodePortInUse(String port);
 
   /// Local node panel: notice text when the port is in use. "Node server" is a row title in Settings > Node.
   ///
@@ -18666,8 +18666,8 @@ abstract class AppLocalizations {
   /// Peers tab: error under the preferred peer field.
   ///
   /// In en, this message translates to:
-  /// **'Not an IP address and port, such as 203.0.113.5:3414.'**
-  String get deskSetPeersNotAddress;
+  /// **'Not an IP address and port, such as 203.0.113.5:{port}.'**
+  String deskSetPeersNotAddress(String port);
 
   /// Peers tab: error under the preferred peer field when the address is already in the list.
   ///
@@ -18965,8 +18965,8 @@ abstract class AppLocalizations {
   /// Settings > Node: error under the node picker when the typed node does not answer.
   ///
   /// In en, this message translates to:
-  /// **'Check the address and the port (usually 3413).'**
-  String get deskSetNodePortNote;
+  /// **'Check the address and the port (usually {port}).'**
+  String deskSetNodePortNote(String port);
 
   /// Settings > Node: footer under the node list. The status site's host name {site} stays as it is.
   ///
@@ -22067,8 +22067,8 @@ abstract class AppLocalizations {
   /// Info sheet behind the Link › HTTP row on Settings › Transactions (phone).
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.'**
-  String get txLinkHttpHint;
+  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.'**
+  String txLinkHttpHint(String port);
 
   /// Info sheet behind the Link › Tor row on Settings › Transactions (phone).
   ///
@@ -22367,8 +22367,8 @@ abstract class AppLocalizations {
   /// Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.'**
-  String get deskSetTxDirectHint;
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.'**
+  String deskSetTxDirectHint(String port);
 
   /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
   ///
@@ -27257,8 +27257,8 @@ abstract class AppLocalizations {
   /// txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.'**
-  String get txLinkHttpHintNoTor;
+  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.'**
+  String txLinkHttpHintNoTor(String port);
 
   /// tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox.
   ///
@@ -27287,8 +27287,8 @@ abstract class AppLocalizations {
   /// Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.'**
-  String get deskNoTorSetTxDirectHint;
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.'**
+  String deskNoTorSetTxDirectHint(String port);
 
   /// Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline.
   ///
@@ -28705,6 +28705,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{file} could not be read. The built-in settings are in use.'**
   String settingsFileReadFailed(String file);
+
+  /// Notice in the Link · HTTP guide when the status server cannot check the port over Tor. Short, impersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'The check needs Tor off.'**
+  String get deskKitReachTorOff;
 }
 
 class _AppLocalizationsDelegate

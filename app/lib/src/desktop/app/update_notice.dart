@@ -85,7 +85,8 @@ Future<void> deskUpdateAct(BuildContext context, WidgetRef ref) async {
     case DeskUpdatePhase.ready when u.problem == null:
       await restartToUpdate(context, ref);
     case DeskUpdatePhase.available || DeskUpdatePhase.ready:
-      await openUpdatePage(context, ref, u.page ?? deskReleasesUrl);
+      final page = u.page ?? deskReleasesUrl;
+      if (page != null) await openUpdatePage(context, ref, page);
     default:
       return;
   }

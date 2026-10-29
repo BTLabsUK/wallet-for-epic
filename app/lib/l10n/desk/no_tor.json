@@ -3,9 +3,15 @@
   "@deskNoTorSendDirectLine2": {
     "description": "Under Send › Link, the line under the method in the build without Tor (no onion addresses)."
   },
-  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.",
+  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.",
   "@deskNoTorSetTxDirectHint": {
-    "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on')."
+    "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
   "@deskNoTorAdvNetworkHint": {

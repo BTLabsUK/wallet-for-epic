@@ -129,14 +129,11 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         };
 
   /// The core's own fields: ids, height, kernel, status and type.
-  /// The phone's block explorer link (GP-015): the kernel on Floonet, the block on mainnet,
-  /// once the payment is confirmed; null before that.
+  /// The phone's block explorer link (GP-015): the block by its height, once the payment is
+  /// confirmed; null before that, or when `app-config.toml` names no explorer.
   String? _explorerUrl(Tx t) {
     if (t.state != TxState.confirmed) return null;
     final settings = ref.watch(hostSettingsProvider);
-    final kernel = t.kernel;
-    final byKernel = kernel == null ? null : settings.explorerKernel(kernel);
-    if (byKernel != null) return byKernel;
     final height = t.height;
     return height == null ? null : settings.explorerBlock(height);
   }

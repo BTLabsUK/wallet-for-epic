@@ -15,8 +15,8 @@ import '../settings_file/host_settings.dart';
 /// The most devices one wallet links, this one included.
 const int maxLinkedDevices = 5;
 
-/// The most servers a link uses.
-const int maxLinkServers = 2;
+/// The most servers a link uses: `epicbox.link_servers` of `app-config.toml`.
+int get maxLinkServers => appConfig.linkServerCount;
 
 /// A random 128-bit id, 32 lowercase hex characters: a device id or a notice id.
 String randomHexId([Random? random]) {
@@ -508,12 +508,12 @@ class DeviceBook {
 
 DateTime? _time(Object? ms) => ms is num ? DateTime.fromMillisecondsSinceEpoch(ms.toInt()) : null;
 
-/// The servers a first link proposes: this wallet's Epicbox server, then the first of the
-/// settings' `devices.link_servers` that is not it ([servers] in tests). Values as the server
-/// list writes them: `host`, or `host:port` off 443.
+/// The servers a link proposes: this wallet's Epicbox server, then the others of the first
+/// `epicbox.link_servers` of the Epicbox list ([servers] in tests), [maxLinkServers] in all.
+/// Values as the server list writes them: `host`, or `host:port` off 443.
 List<String> defaultLinkServers({required String ownHost, int ownPort = 443, List<String>? servers}) {
   final own = ownPort == 443 ? ownHost : '$ownHost:$ownPort';
   String key(String v) => v.toLowerCase().endsWith(':443') ? v.substring(0, v.length - 4).toLowerCase() : v.toLowerCase();
-  final other = (servers ?? hostSettings.deviceLinkServers).where((v) => key(v) != key(own)).firstOrNull;
-  return other == null ? [own] : [own, other];
+  final others = (servers ?? hostSettings.deviceLinkServers).where((v) => key(v) != key(own));
+  return [own, ...others].take(maxLinkServers).toList();
 }

@@ -4857,8 +4857,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverOtherNode => 'Другой узел, host или host:port';
 
   @override
-  String get serverOtherNodeInvalid =>
-      'Введите адрес узла, например node.example.com:3413';
+  String serverOtherNodeInvalid(String port) {
+    return 'Введите адрес узла, например node.example.com:$port';
+  }
 
   @override
   String get serverAdd => 'Добавить';
@@ -5882,7 +5883,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodLinkPayment => 'Платёж по ссылке';
 
   @override
-  String get methodDirectShape => 'http://host:3415 или xxxx….onion';
+  String methodDirectShape(String port) {
+    return 'http://host:$port или xxxx….onion';
+  }
 
   @override
   String get methodSendDirectLine =>
@@ -6642,7 +6645,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskNodeStartIt => 'Запустите его в разделе «Настройки › Узел».';
 
   @override
-  String get deskNodeFailPort => 'порт 3413 занят другой программой';
+  String deskNodeFailPort(String port) {
+    return 'порт $port занят другой программой';
+  }
 
   @override
   String get deskNodeFailDisk => 'недостаточно места на диске';
@@ -9825,8 +9830,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Неверный пароль. Проверьте Caps Lock и раскладку клавиатуры.';
 
   @override
-  String get deskOnbUnlockPortInUse =>
-      'Порт 3415 занят другой программой. Закройте её и повторите попытку.';
+  String deskOnbUnlockPortInUse(String port) {
+    return 'Порт $port занят другой программой. Закройте её и повторите попытку.';
+  }
 
   @override
   String get deskOnbUnlockStageCheck => 'Проверка файлов кошелька';
@@ -11914,7 +11920,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Перезапустите или проверьте журнал узла.';
 
   @override
-  String get deskSetLnodePortInUse => 'Порт 3413 занят другой программой.';
+  String deskSetLnodePortInUse(String port) {
+    return 'Порт $port занят другой программой.';
+  }
 
   @override
   String get deskSetLnodePortInUseText =>
@@ -12258,8 +12266,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPeersUnbannedToast => 'Пир разблокирован';
 
   @override
-  String get deskSetPeersNotAddress =>
-      'Это не IP-адрес с портом, например 203.0.113.5:3414.';
+  String deskSetPeersNotAddress(String port) {
+    return 'Это не IP-адрес с портом, например 203.0.113.5:$port.';
+  }
 
   @override
   String get deskSetPeersAlreadyPreferred => 'Уже в предпочтительных.';
@@ -12458,7 +12467,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Открыть папку журналов';
 
   @override
-  String get deskSetNodePortNote => 'Проверьте адрес и порт (обычно 3413).';
+  String deskSetNodePortNote(String port) {
+    return 'Проверьте адрес и порт (обычно $port).';
+  }
 
   @override
   String deskSetNodeListNote(String site) {
@@ -14377,8 +14388,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txMethodsHeader => 'Способы оплаты';
 
   @override
-  String get txLinkHttpHint =>
-      'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется, недоступен из интернета и по мобильным данным и выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  String txLinkHttpHint(String port) {
+    return 'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:$port) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется, недоступен из интернета и по мобильным данным и выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  }
 
   @override
   String get txLinkTorHint =>
@@ -14589,8 +14601,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Платите и получайте платежи через сервер Epicbox. Так идёт большинство платежей. Выключен: кошелёк не подключается ни к одному серверу Epicbox, то есть без платежей Epicbox и счетов. Остальные способы по-прежнему работают.';
 
   @override
-  String get deskSetTxDirectHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:3415), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  String deskSetTxDirectHint(String port) {
+    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  }
 
   @override
   String get deskSetTxFileHint =>
@@ -17914,8 +17927,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Офлайн приостанавливает Epicbox и проверки состояния. «Оплата по QR» и «Передача файла» по-прежнему работают: они используют текущий узел для чтения цепочки и отправки, в том числе публичный. С узлом в вашей локальной сети также работают «Сверка баланса» и отправка через «Ссылку» на локальные адреса. Пиры узла — настройка самого узла.';
 
   @override
-  String get txLinkHttpHintNoTor =>
-      'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется и недоступен из интернета и по мобильным данным. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  String txLinkHttpHintNoTor(String port) {
+    return 'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:$port) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется и недоступен из интернета и по мобильным данным. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  }
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -17934,8 +17948,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Адрес http(s). Кошелёк получателя должен быть открыт.';
 
   @override
-  String get deskNoTorSetTxDirectHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:3415), без сервера посередине. Работает, только пока оба кошелька открыты. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  String deskNoTorSetTxDirectHint(String port) {
+    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  }
 
   @override
   String get deskNoTorAdvNetworkHint =>
@@ -18995,4 +19010,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return 'Не удалось прочитать $file. Действуют встроенные настройки.';
   }
+
+  @override
+  String get deskKitReachTorOff =>
+      'Проверка работает только с выключенным Tor.';
 }

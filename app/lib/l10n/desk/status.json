@@ -204,9 +204,15 @@
   "@deskNodeStartIt": {
     "description": "Local node tooltip line when the node is stopped."
   },
-  "deskNodeFailPort": "port 3413 is used by another program",
+  "deskNodeFailPort": "port {port} is used by another program",
   "@deskNodeFailPort": {
-    "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment."
+    "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskNodeFailDisk": "not enough disk space",
   "@deskNodeFailDisk": {

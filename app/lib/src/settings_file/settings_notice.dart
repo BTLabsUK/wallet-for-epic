@@ -90,14 +90,22 @@ class SettingsChange {
   /// The keys the app set in this change; the rest came from the file.
   final Set<String> appKeys;
 
-  bool get nodeUseChanged => keys.contains('node.use');
-  bool get epicboxUseChanged => keys.contains('epicbox.use');
+  /// The node in use (the first of the Node list) changed.
+  bool get nodeUseChanged => before.nodeUse != after.nodeUse;
+
+  /// The Epicbox server in use (the first of the Epicbox list) changed.
+  bool get epicboxUseChanged => before.epicboxUse != after.epicboxUse;
 }
 
-/// The node or Epicbox server every wallet uses changed ([key] is `node.use` or
-/// `epicbox.use`): the node to reconnect to, or the server every wallet's address now names.
+/// The node or Epicbox server every wallet uses (the first of its list) changed ([key] is
+/// [node] or [epicbox]): the node to reconnect to, or the server every wallet's address now
+/// names.
 class UseChange {
   const UseChange(this.key, this.from, this.to, {required this.fromApp});
+
+  static const String node = 'node';
+  static const String epicbox = 'epicbox';
+
   final String key;
   final String from;
   final String to;
@@ -105,8 +113,8 @@ class UseChange {
   /// Set in the app; false for a hand edit of the file.
   final bool fromApp;
 
-  bool get isNode => key == 'node.use';
-  bool get isEpicbox => key == 'epicbox.use';
+  bool get isNode => key == node;
+  bool get isEpicbox => key == epicbox;
 
   @override
   String toString() => 'UseChange($key: $from -> $to, ${fromApp ? 'app' : 'file'})';

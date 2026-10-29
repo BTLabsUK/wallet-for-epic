@@ -5,7 +5,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
-import '../settings_file/host_settings.dart' show hostSettings;
+import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 const List<HelpSection> helpSectionsPl = [
   (id: 'start', title: 'Pierwsze kroki', lede: 'Odbieranie, wysyłanie i płacenie plikiem.', art: 'help-start'),
@@ -115,9 +115,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           HelpBlock.ul([
             '**Epicbox**: około 52 znaków zaczynających się od **es**, potem **@** i serwer, na przykład **esXXXX…XXXX@${hostSettings.epicboxUse}**. Domyślny sposób; odbiorca może być offline.',
             if (tor)
-              '**Link · HTTP** i **Link · Tor**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:3415**, idzie przez Link · HTTP; adres Tor z 56 znaków kończący się na **.onion** — przez Link · Tor, czyli przez Tor.'
+              '**Link · HTTP** i **Link · Tor**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:${appConfig.httpListenPort}**, idzie przez Link · HTTP; adres Tor z 56 znaków kończący się na **.onion** — przez Link · Tor, czyli przez Tor.'
             else
-              '**Link · HTTP**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:3415**, idzie przez Link · HTTP.',
+              '**Link · HTTP**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:${appConfig.httpListenPort}**, idzie przez Link · HTTP.',
           ]),
           HelpBlock.p('Wyślij wybiera sposób na podstawie adresu wklejonego w pole Do. Gdy odczytujesz adres na głos, porównaj pierwsze sześć i ostatnie sześć znaków.'),
         ],
@@ -327,7 +327,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             '**Tylko Tor**: Tor jest zawsze włączony, a jego przełącznik zablokowany. Nic nie idzie przez otwarty internet. Gdy Tor się uruchamia lub zawiódł, portfel mówi **Czeka na Tor**, a wszystko, co wymaga sieci, czeka; powód podaje wyszarzona akcja.${phone ? '' : ' Odbieranie przez HTTP jest wyłączone, bo zwykły adres ujawniłby ten komputer.'}',
           '**Offline**: bez Epicbox, bez Link poza adresami lokalnymi, ${!phone && tor ? 'bez Tora, ' : ''}bez sprawdzania stanu. Saldo i historia zostają takie, jakie widziano ostatnio. ${phone ? '**Bezpośrednio · Płatność QR** i **Bezpośrednio · Przesyłanie pliku**' : '**Bezpośrednio · Przesyłanie pliku**'} nadal działają: używają używanego węzła, by czytać łańcuch i go wysyłać, także publicznego, a ekran o tym mówi. Dla największej prywatności użyj węzła ${phone ? 'w sieci lokalnej' : 'na tym komputerze lub w sieci lokalnej'}: wtedy saldo się odświeża${phone ? '' : ', Link · HTTP odbiera przez sieć lokalną przy odbieraniu przez HTTP ustawionym na **Z internetu**,'} i Sprawdź saldo też działa.',
         ]),
-        const HelpBlock.p('W trybie Offline podaj węzeł jego adresem IP, na przykład **10.100.10.20:3413**. Nazwy nie są wyszukiwane.'),
+        HelpBlock.p('W trybie Offline podaj węzeł jego adresem IP, na przykład **10.100.10.20:${appConfig.localNodeApiPort}**. Nazwy nie są wyszukiwane.'),
         if (!phone) const HelpBlock.p('Peery wbudowanego węzła to ustawienie samego węzła, nie trybu.'),
         HelpBlock.p('${phone ? 'Ekran główny' : 'Pasek boczny'} pokazuje, gdy portfel jest offline${tor ? ' albo czeka na Tor' : ''}. Po wróceniu do trybu **Standardowy** wszystko znów działa.'),
       ],
@@ -384,7 +384,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone && tor)
           const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w [[Ustawienia › Prywatność i sieć|Settings › Privacy & network]] albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
         if (!phone) ...[
-          HelpBlock.p('**„Port 3415 jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Link · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. ${tor ? 'Epicbox, Link · Tor i Bezpośrednio · Przesyłanie pliku działają' : 'Epicbox i Bezpośrednio · Przesyłanie pliku działają'} w tym czasie dalej.'),
+          HelpBlock.p('**„Port ${appConfig.httpListenPort} jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Link · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. ${tor ? 'Epicbox, Link · Tor i Bezpośrednio · Przesyłanie pliku działają' : 'Epicbox i Bezpośrednio · Przesyłanie pliku działają'} w tym czasie dalej.'),
           const HelpBlock.p('**„Inny program Epic używa tego folderu”.** Inny portfel lub węzeł Epic ma otwarte te same pliki. Zamknij go i spróbuj ponownie.'),
         ],
         if (phone)
@@ -449,24 +449,26 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'maintenance',
       'Plik ustawień',
-      'Jeden plik wymienia każdy serwer, z którym łączy się portfel. Błąd w nim nigdy nie kosztuje ostatnich dobrych ustawień.',
+      'Jeden plik zawiera Twoje listy węzłów i serwerów Epicbox. Błąd w nim nigdy nie kosztuje ostatnich dobrych ustawień.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'Aplikacja prowadzi plik z każdym serwerem i każdą stroną, z którymi łączy się portfel: węzły, serwery Epicbox, strona stanu oraz źródła aktualizacji i cen. Zmienia się go w aplikacji, na przykład w $nodePlace i $epicboxPlace, nie ręcznie.',
+            'Aplikacja prowadzi plik z Twoimi listami węzłów i serwerów Epicbox oraz trzema przełącznikami: strona stanu, sprawdzanie aktualizacji i ceny. Wszystko inne przychodzi z aplikacją. Plik zmienia się w aplikacji, na przykład w $nodePlace i $epicboxPlace, nie ręcznie.',
           ),
           HelpBlock.ul([
-            '**Używany serwer Epicbox ustala adres Epicbox każdego portfela.** Po jego zmianie każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
+            '**Pierwszy serwer każdej listy jest tym używanym.** Wybrany serwer przechodzi na górę; zmiana kolejności zmienia używany. Gdy pierwszy węzeł nie odpowiada, próbowany jest następny.',
+            '**Pierwszy serwer Epicbox jest w adresie Epicbox każdego portfela.** Gdy na górę trafi inny, każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
             '**Plik, którego nie da się odczytać:** ostatnie dobre ustawienia pozostają w użyciu. Zanim aplikacja zapisze nowy plik, zachowuje stary jako **settings.toml.bad-<time>**.',
             'Usunięty plik jest zapisywany ponownie.',
           ]),
         ] else ...[
           HelpBlock.p(
-            'Plik **settings.toml** wymienia każdy serwer i każdą stronę, z którymi łączy się portfel: węzły, serwery Epicbox, stronę stanu oraz źródła aktualizacji i cen. Leży w folderze danych: **~/.epic_cash_desktop/settings.toml** w Linuksie i macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** w Windows (**Otwórz folder** obok [[Ustawienia › Ten portfel › Pliki aplikacji|Settings › This wallet › App files]]).',
+            'Plik **settings.toml** zawiera Twoje listy węzłów i serwerów Epicbox oraz trzy przełączniki: strona stanu, sprawdzanie aktualizacji i ceny. Wszystko inne przychodzi z aplikacją. Leży w folderze danych: **~/.epic_cash_desktop/settings.toml** w Linuksie i macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** w Windows (**Otwórz folder** obok [[Ustawienia › Ten portfel › Pliki aplikacji|Settings › This wallet › App files]]).',
           ),
           HelpBlock.ul([
             'Zmiana w aplikacji jest od razu zapisywana do pliku. Zmiana zapisana w pliku działa, gdy aplikacja pracuje, po chwili.',
-            '**Używany serwer Epicbox ustala adres Epicbox każdego portfela.** Po jego zmianie każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
+            '**Pierwszy serwer każdej listy jest tym używanym.** Wybrany serwer przechodzi na górę; zmiana kolejności zmienia używany. Gdy pierwszy węzeł nie odpowiada, próbowany jest następny.',
+            '**Pierwszy serwer Epicbox jest w adresie Epicbox każdego portfela.** Gdy na górę trafi inny, każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
             '**Błąd w pliku:** ostatnie dobre ustawienia pozostają w użyciu, komunikat wskazuje wiersz, a uszkodzony plik nigdy nie jest nadpisywany.',
             'Gdy aplikacja musi zapisać plik z błędami, najpierw zachowuje go jako **settings.toml.bad-<time>**, a potem zapisuje dobry.',
             'Usunięty plik jest zapisywany ponownie.',

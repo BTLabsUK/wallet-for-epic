@@ -14,6 +14,7 @@ import '../../../builtin_node.dart' show isPeerAddress;
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart' show hhmm, digits;
 import '../../widgets/kit.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
 import 'local_node.dart' show localNodeOptionsProvider;
 import 'own_node_panel.dart' show ownAskEvery;
 
@@ -97,7 +98,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
     final t = _preferred.text.trim();
     // The node's peers_preferred takes socket addresses only, no host names.
     if (!isPeerAddress(t)) {
-      setState(() => _preferredError = l.deskSetPeersNotAddress);
+      setState(() => _preferredError = l.deskSetPeersNotAddress('${appConfig.localNodeP2pPort}'));
       return;
     }
     if (o.preferredPeers.contains(t)) {

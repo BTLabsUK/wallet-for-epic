@@ -22,6 +22,7 @@ import '../../relay_directory.dart' show NodeHealthState, NetworkStatus;
 import '../../secret_store_api.dart' show MemorySecretStore;
 import '../screens/settings/prefs.dart' show settingsPrefsProvider;
 import 'own_node.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 
 export '../../builtin_node.dart' show NodeTomlOptions, NodeFailure;
 export '../../node/node.dart';
@@ -428,7 +429,7 @@ class MockDeskNode implements DeskNodeApi {
   int peerCount;
   bool _startWithApp = true;
   NodeTomlOptions _options = const NodeTomlOptions();
-  final Set<String> _banned = {'203.0.113.9:3414'};
+  final Set<String> _banned = {'203.0.113.9:${appConfig.localNodeP2pPort}'};
   int _deleted = 0;
 
   LocalNodeState get state => _state;
@@ -528,7 +529,7 @@ class MockDeskNode implements DeskNodeApi {
     );
   }
 
-  static String _peerAddr(int i) => '${[95, 135, 51, 172, 88, 65][i % 6]}.${(i * 37) % 250 + 1}.${(i * 11) % 200 + 3}.${(i * 53) % 250 + 2}:3414';
+  static String _peerAddr(int i) => '${[95, 135, 51, 172, 88, 65][i % 6]}.${(i * 37) % 250 + 1}.${(i * 11) % 200 + 3}.${(i * 53) % 250 + 2}:${appConfig.localNodeP2pPort}';
 
   @override
   List<PeerCountSample> peerHistory() => [
@@ -581,7 +582,7 @@ class MockDeskNode implements DeskNodeApi {
 
   @override
   Future<LocalNodeProbe> probe({String? url}) async =>
-      probeAnswer ?? LocalNodeProbe(url: url ?? 'http://127.0.0.1:3413', answers: false);
+      probeAnswer ?? LocalNodeProbe(url: url ?? 'http://127.0.0.1:${appConfig.localNodeApiPort}', answers: false);
 
   @override
   Future<LocalNodeFacts> facts() async =>

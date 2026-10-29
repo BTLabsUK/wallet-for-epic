@@ -20,6 +20,7 @@ import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import 'local_node_dialogs.dart';
 import 'local_node_peers.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
 import 'own_node_panel.dart' show nodePanelWideFrom, nodeChartHeight;
 
 enum LocalTab { status, peers }
@@ -425,7 +426,7 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
         notice: switch (s.failure) {
           NodeFailure.portInUse => (
             tone: ETone.risk,
-            title: l.deskSetLnodePortInUse,
+            title: l.deskSetLnodePortInUse('${appConfig.localNodeApiPort}'),
             text: l.deskSetLnodePortInUseText,
             action: NodeAct.log,
           ),
