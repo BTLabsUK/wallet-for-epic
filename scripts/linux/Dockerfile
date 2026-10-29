@@ -19,6 +19,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && git config --system --add safe.directory '*'
 
+# clang 18 from LLVM's own packages for 22.04: flutter_zxing's zxing-cpp (the QR scanner, built
+# into the desktop too) uses C++20 parenthesised aggregate initialisation, which clang has only
+# from 16, and 22.04's own clang is 14. Same glibc and libstdc++ as before. /usr/bin/clang and
+# clang++ point at it, so Flutter's `clang`/`clang++` and a build folder CMake configured
+# before (its cache keeps /usr/bin/clang++) both get this one.
+ARG LLVM_KEY_SHA256=8b2a587ffd672c4687e7581dad4b2f6c1bb2ad6b480cd9771ba2ff48e0b8c75d
+RUN curl -fsSL -o /etc/apt/trusted.gpg.d/apt.llvm.org.asc https://apt.llvm.org/llvm-snapshot.gpg.key \
+    && echo "${LLVM_KEY_SHA256}  /etc/apt/trusted.gpg.d/apt.llvm.org.asc" | sha256sum -c - \
+    && echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main" > /etc/apt/sources.list.d/llvm-18.list \
+    && apt-get update && apt-get install -y --no-install-recommends clang-18 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && ln -sf clang-18 /usr/bin/clang && ln -sf clang++-18 /usr/bin/clang++
+
 # Flutter SDK at the version the app pins. World-writable so the build can run as the host user.
 RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git /opt/flutter \
     && /opt/flutter/bin/flutter config --no-analytics --enable-linux-desktop >/dev/null \
