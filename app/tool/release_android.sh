@@ -179,7 +179,7 @@ PY
 # published copy is read from BT Labs' own server, the first source the apps read.
 published="$out/update.published.json"
 rm -f "$published"
-status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' https://epiccash.btlabs.uk/api/v1/update.json || true)"
+status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' https://examples.btlabs.uk/epic-cash-wallets/update.json || true)"
 case "$status" in
   200) sign+=(--prev "$published") ;;
   404) rm -f "$published"; echo "No update.json published yet: signing without --prev." ;;
