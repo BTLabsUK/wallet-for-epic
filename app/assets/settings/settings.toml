@@ -27,9 +27,10 @@ use = "https://node.epiccash.com:3413"
 # The node offered when the node in use does not answer: another operator's than the default.
 fallback = "https://node.btlabs.uk"
 
-# Public nodes you took out of the list (host:port). They stay out when the status site lists
-# them again. Settings › Node › Restore brings them back.
-removed = []
+# Public nodes taken out of the list (host:port): yours, and ones the status site lists that the
+# wallet does not offer. They stay out when the status site lists them again. Settings › Node ›
+# Restore brings them back.
+removed = ["epic-node.iniaku.my.id:443"]
 
 # The Node list, in order. `url` is the node's API root (https unless you write http://),
 # `operator` who runs it. Add your own node here or in the app.
@@ -63,8 +64,9 @@ use = "epicbox.epiccash.com"
 # their addresses and imports keep reading the same.
 default = "epicbox.epiccash.com"
 
-# Public servers you took out of the list (host, or host:port off 443).
-removed = []
+# Public servers taken out of the list (host, or host:port off 443): yours, and ones the status
+# site lists that the wallet does not offer.
+removed = ["epicbox.iniaku.my.id"]
 
 # The Epicbox list, in order. `host` is the server's name, `port` its TLS port (443 when left
 # out), `operator` who runs it.
