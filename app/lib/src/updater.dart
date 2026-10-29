@@ -5,7 +5,10 @@
 /// Labs' Pages site; the split APKs stay on the GitHub release. `update.json` is a signed
 /// envelope (btlabs-public FORMAT.md §6): the app verifies it with the bundled keys
 /// ([btlabsKeyring]) before it shows or downloads anything, and an unsigned, forged, expired or
-/// older one means "no update information". Then it picks the APK for this device's ABI,
+/// older one means "no update information". The build without Tor reads only the file's `notor`
+/// section, the release of the builds without Tor, and the build with Tor only the rest
+/// ([WalletUpdate.release]), so an update never puts Tor back nor takes it out. Then it picks the
+/// APK for this device's ABI,
 /// downloads it, checks its size and SHA-256, and hands it to Android's PackageInstaller
 /// (`AppUpdater.kt`), which also insists on the same package name, a higher version code and
 /// the same signing key.
@@ -142,14 +145,16 @@ class UpdateManifestRead {
 }
 
 /// Verifies [envelope] (FORMAT.md §5 and §6) with [keyring] before reading anything from it,
-/// then picks the update for [app] ([pickUpdate]). [state] is what the last read in this run
-/// accepted, so an older manifest replayed later in the run is refused. [now] is the clock.
+/// then picks the update for [app] ([pickUpdate]) from the release of this build's variant
+/// ([tor], [torBuilt]). [state] is what the last read in this run accepted, so an older manifest
+/// replayed later in the run is refused. [now] is the clock.
 Future<UpdateManifestRead> readUpdateManifest(
   String envelope,
   InstalledApp app, {
   required Keyring keyring,
   required DateTime now,
   ManifestState? state,
+  bool tor = torBuilt,
 }) async {
   final result = await verifyWalletUpdate(
     envelope,
@@ -160,7 +165,7 @@ Future<UpdateManifestRead> readUpdateManifest(
   return switch (result) {
     Rejected(:final reason) => UpdateManifestRead.rejected(reason),
     Accepted(:final manifest, :final state) => UpdateManifestRead.accepted(
-      pickUpdate(manifest, app),
+      pickUpdate(manifest, app, tor: tor),
       state,
     ),
   };
@@ -168,11 +173,14 @@ Future<UpdateManifestRead> readUpdateManifest(
 
 /// Picks the update for [app] from a verified [manifest], or null when it is up to date or
 /// no APK fits this device's ABIs. A manifest for another app is an [UpdateError]. A test
-/// build (`26.10.0-rc1`) is never offered, whatever its version code.
-AvailableUpdate? pickUpdate(WalletUpdate manifest, InstalledApp app) {
-  if (manifest.packageName != app.packageName) {
+/// build (`26.10.0-rc1`) is never offered, whatever its version code. The build without Tor
+/// ([tor] false) reads only the manifest's `notor` release: none means nothing newer.
+AvailableUpdate? pickUpdate(WalletUpdate verified, InstalledApp app, {bool tor = torBuilt}) {
+  if (verified.packageName != app.packageName) {
     throw UpdateError((l) => l.updateManifestOtherApp);
   }
+  final manifest = verified.release(tor: tor);
+  if (manifest == null) return null;
   if (isTestVersion(manifest.versionName)) return null;
   // The signed manifest's URLs are https and its hashes 64 lowercase hex (the verifier's
   // schema); unique ABIs.
@@ -475,8 +483,8 @@ class UpdateState {
   final String Function(AppLocalizations l)? text;
 }
 
-/// Null where the app cannot update itself: off Android, and in the builds without in-app
-/// updates ([inAppUpdates]), whose native side has no installer.
+/// Null where the app cannot update itself: off Android, and in the store builds
+/// ([inAppUpdates]), whose native side has no installer.
 final updatePlatformProvider = Provider<UpdatePlatform?>((ref) {
   if (!inAppUpdates || kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
   return AndroidUpdatePlatform();
@@ -644,7 +652,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
     return const UpdateState(UpdatePhase.idle);
   }
 
-  /// Never in the build without Tor ([inAppUpdates]): its store updates it.
+  /// Never in a store build ([inAppUpdates]): its store updates it.
   bool get supported => inAppUpdates && ref.read(updatePlatformProvider) != null;
 
   void _onInstallEvent(({String status, String? message}) event) {
@@ -685,7 +693,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// quiet reports itself and still keeps a known update.
   Future<void> check({bool quiet = false}) async {
     final platform = ref.read(updatePlatformProvider);
-    // No update.json is asked in the build without Tor ([inAppUpdates]).
+    // No update.json is asked in a store build ([inAppUpdates]).
     if (platform == null || !inAppUpdates) return;
     // An update waiting for the install permission keeps its line ([resumed] carries it on).
     final busy = {

@@ -7,7 +7,9 @@
 /// ([updateKeyringProvider]) before anything is read from it, and only its `desktop` entry:
 /// the phone's `versionName` is the Android build's. The entry is
 /// `{"version": "26.10.0", "page": "…"}`, or per system `{"windows": {…}, "linux": {…}}`; a
-/// manifest without it offers nothing, and one that does not verify means no information.
+/// manifest without it offers nothing, and one that does not verify means no information. The
+/// build without Tor reads the same from the file's `notor` section ([WalletUpdate.release]); a
+/// file without one offers it nothing newer.
 /// The page opens only on [deskUpdatePageHosts]; any other falls back to [deskReleasesUrl].
 ///
 /// When the entry also names this system's release file (`url`, `sha256`, `size`) and this copy
@@ -30,7 +32,7 @@ import '../../app_version.dart';
 import '../desk_l10n.dart' show deskStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
-import '../../tor_build.dart' show inAppUpdates;
+import '../../tor_build.dart' show inAppUpdates, torBuilt;
 import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrls, updateStateKey;
 import 'desk_store.dart';
 import 'desk_update_apply.dart';
@@ -127,8 +129,8 @@ final deskUpdateScheduleProvider = Provider<(Duration, Duration)>((ref) => (desk
 final deskUpdateAutoProvider = Provider<bool>((ref) => false);
 
 /// Whether this build looks for updates at all: not macOS, which has no update file yet, and not
-/// the build without Tor ([inAppUpdates]), which a store updates (no checks, notices or downloads
-/// then; the About page leaves out its Updates group).
+/// a store build ([inAppUpdates]), which its store updates (no checks, notices or downloads then;
+/// the About page leaves out its Updates group).
 bool get deskUpdatesSupported => inAppUpdates && (kIsWeb || !Platform.isMacOS);
 
 /// The manifest's HTTP status and body; tests replace it.
@@ -501,7 +503,10 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   Future<DeskUpdateState> _offer(Accepted<WalletUpdate> result) async {
     await _keepState(result.state);
     _known = null;
-    final mine = result.manifest.desktop?.forSystem(_system);
+    // The build without Tor reads the `notor` release; a file without one has nothing newer for it.
+    final release = result.manifest.release(tor: torBuilt);
+    if (release == null) return const DeskUpdateState(DeskUpdatePhase.latest);
+    final mine = release.desktop?.forSystem(_system);
     if (mine == null) {
       return DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdNone);
     }

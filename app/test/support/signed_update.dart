@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 // Test helper: signed update.json envelopes (btlabs-public FORMAT.md §6), signed with the
-// committed TEST keys in test/fixtures/btlabs. Never trusted by a release build.
+// committed TEST keys in test/fixtures/btlabs. Never trusted by a release build. In the build
+// without Tor (`--dart-define=WFE_TOR=false`) [testUpdatePayload] puts the release in the
+// `notor` section, the part that build reads.
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:epic_wallet/src/btlabs_public.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 
 import 'btlabs_sign.dart';
 
@@ -39,7 +42,10 @@ Map<String, Object?> testApk({
   'size': size,
 };
 
-/// The payload of a manifest: valid by default, issued 2026-10-01, expiring 2027-04-01.
+/// The payload of a manifest: valid by default, issued 2026-10-01, expiring 2027-04-01. Its
+/// [apks] and [desktop] are this build's release: the top-level one with Tor, the `notor`
+/// section without ([notor], by default the build's), beside a top-level release the build
+/// does not read.
 Map<String, Object?> testUpdatePayload({
   String packageName = 'uk.btlabs.epiccash.mobile',
   String versionName = '1.0.1',
@@ -49,6 +55,7 @@ Map<String, Object?> testUpdatePayload({
   int serial = 1790000000,
   String issuedAt = '2026-10-01T00:00:00Z',
   String expiresAt = '2027-04-01T00:00:00Z',
+  bool notor = !torBuilt,
 }) => {
   'schema': 1,
   'serial': serial,
@@ -57,8 +64,12 @@ Map<String, Object?> testUpdatePayload({
   'packageName': packageName,
   'versionName': versionName,
   'notes': ?notes,
-  'apks': apks ?? [testApk()],
-  'desktop': ?desktop,
+  if (!notor) ...{'apks': apks ?? [testApk()], 'desktop': ?desktop},
+  if (notor) ...{
+    // The release with Tor, newer than anything a test offers: this build must never take it.
+    'apks': [testApk(versionCode: 2000000000, url: 'https://example.org/releases/v9.9.9/app-tor.apk')],
+    'notor': {'apks': apks ?? [testApk()], 'desktop': ?desktop},
+  },
 };
 
 /// [payload] (JSON-encoded, or the bytes as given) signed into an envelope, by test key A

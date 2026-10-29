@@ -140,7 +140,7 @@ void main() {
   group('manifest', () {
     test('a per-system entry carries its release file; the one-entry form takes none', () async {
       final r = await verifyWalletUpdate(
-        await signedUpdate(testUpdatePayload(desktop: _desktop())),
+        await signedUpdate(testUpdatePayload(desktop: _desktop(), notor: false)),
         keyring: testUpdateKeyring,
         now: now.toUtc(),
       );
@@ -153,24 +153,26 @@ void main() {
       expect(m.desktop!.forSystem('macos'), isNull);
 
       final single = await verifyWalletUpdate(
-        await signedUpdate(testUpdatePayload(desktop: _entry(_linuxName))),
+        await signedUpdate(testUpdatePayload(desktop: _entry(_linuxName), notor: false)),
         keyring: testUpdateKeyring,
         now: now.toUtc(),
       );
       expect((single as Rejected<WalletUpdate>).reason, RejectReason.malformed);
     });
 
-    test('a 26.10.8 client, phone or desktop, reads the new manifest as before', () async {
-      // The parser exactly as 26.10.8 shipped it, run on its own against a manifest with the
-      // new fields: it must accept the file and see each system's version.
-      final old = await Process.run('git', ['show', 'v26.10.8:app/lib/src/btlabs_public.dart']);
-      if (old.exitCode != 0) {
-        markTestSkipped('no v26.10.8 tag in this checkout: ${old.stderr}');
-        return;
-      }
-      final dir = await tmp.createTemp('old');
-      File('${dir.path}/old.dart').writeAsStringSync(old.stdout as String);
-      File('${dir.path}/main.dart').writeAsStringSync(r'''
+    for (final tag in ['v26.10.8', 'v26.10.22']) {
+      test('a $tag client, phone or desktop, reads the new manifest as before', () async {
+        // The parser exactly as that release shipped it, run on its own against a manifest with
+        // the newer fields (per-system files, the notor section): it must accept the file and
+        // see each system's version of the release with Tor.
+        final old = await Process.run('git', ['show', '$tag:app/lib/src/btlabs_public.dart']);
+        if (old.exitCode != 0) {
+          markTestSkipped('no $tag tag in this checkout: ${old.stderr}');
+          return;
+        }
+        final dir = await tmp.createTemp('old');
+        File('${dir.path}/old.dart').writeAsStringSync(old.stdout as String);
+        File('${dir.path}/main.dart').writeAsStringSync(r'''
 import 'dart:io';
 import 'old.dart';
 
@@ -185,18 +187,20 @@ Future<void> main(List<String> a) async {
   }
 }
 ''');
-      final env = File('${dir.path}/update.json')
-        ..writeAsStringSync(await signedUpdate(testUpdatePayload(versionName: '26.10.9', desktop: _desktop())));
-      final run = await Process.run('dart', [
-        '--packages=${File('.dart_tool/package_config.json').absolute.path}',
-        '${dir.path}/main.dart',
-        env.path,
-        File('test/fixtures/btlabs/test-keyring.json').absolute.path,
-        now.toUtc().toIso8601String(),
-      ]);
-      expect(run.exitCode, 0, reason: '${run.stderr}');
-      expect((run.stdout as String).trim(), 'accepted 26.10.9 $_next $_next null');
-    });
+        final payload = testUpdatePayload(versionName: '26.10.9', desktop: _desktop(), notor: false)
+          ..['notor'] = {'versionName': '26.10.10', 'apks': [testApk(versionCode: 9)], 'desktop': _desktop(version: '26.10.10')};
+        final env = File('${dir.path}/update.json')..writeAsStringSync(await signedUpdate(payload));
+        final run = await Process.run('dart', [
+          '--packages=${File('.dart_tool/package_config.json').absolute.path}',
+          '${dir.path}/main.dart',
+          env.path,
+          File('test/fixtures/btlabs/test-keyring.json').absolute.path,
+          now.toUtc().toIso8601String(),
+        ]);
+        expect(run.exitCode, 0, reason: '${run.stderr}');
+        expect((run.stdout as String).trim(), 'accepted 26.10.9 $_next $_next null');
+      });
+    }
   });
 
   group('download', () {
@@ -306,6 +310,24 @@ Future<void> main(List<String> a) async {
       envelope['payload'] = base64.encode(utf8.encode(jsonEncode(payload)));
       return jsonEncode(envelope);
     };
+
+    test('one update.json for both variants: this build offers its own part, the notor section without Tor', () async {
+      Future<String> both() => signedUpdate(
+            testUpdatePayload(notor: false, desktop: _desktop(version: '99.2.0'))
+              ..['notor'] = {'apks': [testApk()], 'desktop': _desktop(version: '99.3.0')},
+          );
+      final asked = <Uri>[];
+      final c = make(bodyAt: {for (final u in updateManifestSources) u: both}, asked: asked);
+      await c.read(deskUpdateProvider.notifier).check();
+      expect(c.read(deskUpdateProvider).version, torBuilt ? '99.2.0' : '99.3.0');
+      // The same sources and file in both variants.
+      expect(asked.map((u) => '$u'), unorderedEquals(updateManifestSources));
+      // A file without the section offers the build without Tor nothing newer.
+      Future<String> torOnly() => signedUpdate(testUpdatePayload(notor: false, desktop: _desktop(version: '99.2.0')));
+      final d = make(bodyAt: {for (final u in updateManifestSources) u: torOnly});
+      await d.read(deskUpdateProvider.notifier).check();
+      expect(d.read(deskUpdateProvider).phase, torBuilt ? DeskUpdatePhase.available : DeskUpdatePhase.latest);
+    }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     test('our server down or without the file: another source\'s manifest is used', () async {
       for (final down in [404, 503]) {
@@ -722,7 +744,7 @@ Future<void> main(List<String> a) async {
     expect(run.exitCode, 0, reason: '${run.stderr}');
     final block = jsonDecode(run.stdout as String) as Map<String, dynamic>;
     final r = await verifyWalletUpdate(
-      await signedUpdate(testUpdatePayload(desktop: block['desktop'])),
+      await signedUpdate(testUpdatePayload(desktop: block['desktop'], notor: false)),
       keyring: testUpdateKeyring,
       now: now.toUtc(),
     );

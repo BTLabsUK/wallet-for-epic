@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // The build without Tor (`--dart-define=WFE_TOR=false`) on the desktop: no Tor only mode, no Tor
-// chip, an onion in To says this version cannot send there, no update check. Skipped in the
-// default build.
+// chip, an onion in To says this version cannot send there, updates from update.json's notor
+// section. Skipped in the default build.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart';
@@ -9,7 +9,9 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/dist_build.dart';
 import 'package:epic_wallet/src/tor_build.dart';
+import 'package:epic_wallet/src/updater.dart' show updateManifestSources;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,7 +45,7 @@ void main() {
 
   test('the flags', () {
     expect(DeskFeatures.tor, isFalse);
-    expect(inAppUpdates, isFalse);
+    expect(inAppUpdates, distUpdates);
   }, skip: skip);
 
   test('an onion as a Link address: this version cannot send there', () {
@@ -68,22 +70,17 @@ void main() {
     expect(find.text('Turn on Tor'), findsNothing);
   }, skip: skip != null);
 
-  test('the updater asks nothing', () async {
-    var fetched = 0;
+  test('the updater reads update.json like the build with Tor', () async {
+    final asked = <Uri>[];
     final c = ProviderContainer(overrides: [
-      deskManifestFetchProvider.overrideWithValue((_) async {
-        fetched++;
+      deskManifestFetchProvider.overrideWithValue((url) async {
+        asked.add(url);
         return (404, '');
       }),
-      deskUpdateScheduleProvider.overrideWithValue((Duration.zero, const Duration(milliseconds: 10))),
     ]);
     addTearDown(c.dispose);
-    final n = c.read(deskUpdateProvider.notifier);
-    n.schedule();
-    await n.checkOnce();
-    await n.check();
-    await Future<void>.delayed(const Duration(milliseconds: 50));
-    expect(fetched, 0);
+    await c.read(deskUpdateProvider.notifier).check();
+    expect(asked.map((u) => '$u'), unorderedEquals(updateManifestSources));
     expect(c.read(deskUpdateProvider).offered, isFalse);
-  }, skip: skip);
+  }, skip: skip ?? (inAppUpdates ? null : 'no in-app updates in this build'));
 }

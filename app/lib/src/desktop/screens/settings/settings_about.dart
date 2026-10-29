@@ -49,7 +49,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // The build without Tor has no in-app updates: nothing asks update.json.
+      // A store build has no in-app updates: nothing asks for the feed.
       if (mounted && inAppUpdates) ref.read(deskUpdateProvider.notifier).checkOnce();
     });
   }

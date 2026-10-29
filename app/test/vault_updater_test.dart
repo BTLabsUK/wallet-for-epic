@@ -435,6 +435,49 @@ void main() {
       },
     );
 
+    test('one update.json for both variants: Tor reads the top level, no Tor the notor section', () async {
+      final payload = testUpdatePayload(
+        notor: false,
+        versionName: '1.0.1',
+        notes: 'With Tor',
+        apks: [testApk(versionCode: 3002, url: 'https://example.org/v1.0.1/epic-cash-mobile-1.0.1-arm64-v8a.apk')],
+      )..['notor'] = <String, Object?>{
+          'apks': [testApk(versionCode: 4002, url: 'https://example.org/v1.0.1/epic-cash-mobile-1.0.1-notor-arm64-v8a.apk')],
+        };
+      final env = await signedUpdate(payload);
+      Future<UpdateManifestRead> as(String e, {required bool tor}) =>
+          readUpdateManifest(e, app, keyring: testUpdateKeyring, now: now, tor: tor);
+
+      final tor = (await as(env, tor: true)).update!;
+      expect((tor.apk.versionCode, tor.versionName, tor.notes), (3002, '1.0.1', 'With Tor'));
+      expect(tor.apk.url.pathSegments.last, 'epic-cash-mobile-1.0.1-arm64-v8a.apk');
+      // Without Tor: the section's files, its version and notes defaulting to the top level.
+      final noTor = (await as(env, tor: false)).update!;
+      expect((noTor.apk.versionCode, noTor.versionName, noTor.notes), (4002, '1.0.1', 'With Tor'));
+      expect(noTor.apk.url.pathSegments.last, 'epic-cash-mobile-1.0.1-notor-arm64-v8a.apk');
+      // Its own version and notes when it names them.
+      (payload['notor']! as Map<String, Object?>).addAll({'versionName': '1.0.2', 'notes': 'Without Tor'});
+      final own = (await as(await signedUpdate(payload), tor: false)).update!;
+      expect((own.versionName, own.notes), ('1.0.2', 'Without Tor'));
+
+      // A file without the section: verified (its state is kept), nothing newer without Tor.
+      final plain = await signedUpdate(testUpdatePayload(notor: false));
+      final none = await as(plain, tor: false);
+      expect((none.rejected, none.update, none.state?.serial), (null, null, 1790000000));
+      expect((await as(plain, tor: true)).update, isNotNull);
+
+      // A bad section is a bad file, for both.
+      payload['notor'] = {'apks': [testApk(url: 'http://example.org/a.apk')]};
+      final bad = await signedUpdate(payload);
+      expect((await as(bad, tor: true)).rejected, RejectReason.malformed);
+      expect((await as(bad, tor: false)).rejected, RejectReason.malformed);
+      payload['notor'] = {'apks': <Object?>[]};
+      expect((await as(await signedUpdate(payload), tor: false)).rejected, RejectReason.malformed);
+
+      // This build reads its own part by default (testUpdatePayload puts the release there).
+      expect((await read(await signedUpdate(testUpdatePayload()))).update?.apk.versionCode, 2002);
+    });
+
     test('an expired manifest is not used', () async {
       final env = await signedUpdate(
         testUpdatePayload(
