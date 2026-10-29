@@ -43,7 +43,7 @@ entry() {
   local file="$dir/$1"
   [[ -f "$file" ]] || { echo "missing $file" >&2; exit 1; }
   jq -n --arg version "$version" --arg url "$base/$1" \
-    --arg sha "$(sha256sum "$file" | cut -d' ' -f1)" --argjson size "$(stat -c %s "$file")" \
+    --arg sha "$(sha256sum "$file" | cut -d' ' -f1)" --argjson size "$(stat -L -c %s "$file")" \
     '{version: $version, url: $url, sha256: $sha, size: $size}'
 }
 

@@ -115,7 +115,7 @@ for abi in arm64-v8a; do
   [[ "$version_name" == "$version" && "$code" == "$want_code" ]] \
     || { echo "$apk is $version_name ($code), not $version ($want_code)" >&2; exit 1; }
   sha="$(sha256sum "$apk" | cut -d' ' -f1)"
-  size="$(stat -c %s "$apk")"
+  size="$(stat -L -c %s "$apk")"
   entry="$(jq -n --arg abi "$abi" --argjson code "$code" --arg url "$base_url/$file" \
     --arg sha "$sha" --argjson size "$size" \
     '{abi: $abi, versionCode: $code, url: $url, sha256: $sha, size: $size}')"
