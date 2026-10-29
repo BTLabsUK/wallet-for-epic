@@ -18898,4 +18898,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskErrMacKeychain =>
       'macOS не разрешила приложению прочитать его сохранённые данные в связке ключей. Закройте Epic Cash Desktop и откройте снова; когда macOS спросит, введите пароль входа в Mac и выберите «Всегда разрешать».';
+
+  @override
+  String get deskUpdOpenDmg => 'Открыть образ диска';
+
+  @override
+  String get deskUpdDmgHint =>
+      'Приложение закроется и откроется образ диска: перетащите Epic Cash Desktop в «Программы», замените старую версию и откройте её.';
 }

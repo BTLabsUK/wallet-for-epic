@@ -20,5 +20,7 @@
   "deskUpdReadyTitle": "重启以更新",
   "deskUpdReadyBody": "钱包会锁定，应用会重新打开。",
   "deskUpdRestartNow": "立即重启",
-  "deskUpdLater": "稍后"
+  "deskUpdLater": "稍后",
+  "deskUpdOpenDmg": "打开磁盘映像",
+  "deskUpdDmgHint": "应用会关闭并打开磁盘映像：将 Epic Cash Desktop 拖到“应用程序”中替换旧版本，然后打开它。"
 }

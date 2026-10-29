@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/desk_update.dart';
+import '../../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../../data/files.dart' show deskOpenUrlProvider;
 import '../../data/net_mode_view.dart';
 import '../../app/update_notice.dart' show deskUpdateAct, deskUpdateActLabel;
@@ -197,12 +198,13 @@ class _Updates extends ConsumerWidget {
     final checked = u.checkedAt == null ? null : l.deskSetAboutChecked(_ago(l, now.difference(u.checkedAt!)));
     // Where this copy cannot install the update, it says so: every step opens the page.
     final manual = u.file == null ? l.deskUpdManual : null;
+    final byHand = ref.read(deskUpdateApplierProvider)?.byHand ?? false;
     final (title, text) = switch (u.phase) {
       DeskUpdatePhase.idle || DeskUpdatePhase.checking => (l.updateChecking, checked),
       DeskUpdatePhase.latest => (l.deskSetAboutLatest(deskAppVersion), checked),
       DeskUpdatePhase.failed => (l.deskSetAboutCouldNotCheck, [u.reason, checked].nonNulls.join(' ')),
       DeskUpdatePhase.downloading => (l.deskSetAboutAvailable(v), l.deskUpdDownloading(localInt(l, ((u.progress ?? 0) * 100).floor()))),
-      DeskUpdatePhase.ready when u.problem == null => (l.deskUpdReady(v), l.deskUpdRestartHint),
+      DeskUpdatePhase.ready when u.problem == null => (l.deskUpdReady(v), byHand ? l.deskUpdDmgHint : l.deskUpdRestartHint),
       DeskUpdatePhase.ready => (l.deskUpdInstallFailed, u.problem),
       DeskUpdatePhase.unfinished => (l.deskUpdUnfinished, [u.problem, manual].nonNulls.join(' ')),
       _ when u.problem != null => (l.deskUpdFailed, [u.problem, manual].nonNulls.join(' ')),
@@ -210,7 +212,7 @@ class _Updates extends ConsumerWidget {
     };
     final busy = u.phase == DeskUpdatePhase.checking || u.phase == DeskUpdatePhase.idle;
     final block = ref.watch(deskNetBlockProvider);
-    final act = deskUpdateActLabel(l, u);
+    final act = deskUpdateActLabel(l, u, byHand: byHand);
     // A check changes nothing while the update downloads, waits for its restart or for Try again.
     final checks = !(u.phase == DeskUpdatePhase.downloading ||
         u.phase == DeskUpdatePhase.unfinished ||

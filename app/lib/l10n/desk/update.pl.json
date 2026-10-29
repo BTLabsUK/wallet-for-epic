@@ -20,5 +20,7 @@
   "deskUpdReadyTitle": "Uruchom ponownie, aby zaktualizować",
   "deskUpdReadyBody": "Portfel zostanie zablokowany, a aplikacja otworzy się ponownie.",
   "deskUpdRestartNow": "Uruchom ponownie",
-  "deskUpdLater": "Później"
+  "deskUpdLater": "Później",
+  "deskUpdOpenDmg": "Otwórz obraz dysku",
+  "deskUpdDmgHint": "Aplikacja zamknie się i otworzy się obraz dysku: przeciągnij Epic Cash Desktop do folderu Aplikacje, zastąp starą wersję, a potem ją otwórz."
 }

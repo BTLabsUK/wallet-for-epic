@@ -20,5 +20,7 @@
   "deskUpdReadyTitle": "Перезапустите для обновления",
   "deskUpdReadyBody": "Кошелёк заблокируется, а приложение откроется снова.",
   "deskUpdRestartNow": "Перезапустить",
-  "deskUpdLater": "Позже"
+  "deskUpdLater": "Позже",
+  "deskUpdOpenDmg": "Открыть образ диска",
+  "deskUpdDmgHint": "Приложение закроется и откроется образ диска: перетащите Epic Cash Desktop в «Программы», замените старую версию и откройте её."
 }

@@ -20,5 +20,7 @@
   "deskUpdReadyTitle": "Neu starten zum Aktualisieren",
   "deskUpdReadyBody": "Die Wallet wird gesperrt und die App öffnet sich wieder.",
   "deskUpdRestartNow": "Jetzt neu starten",
-  "deskUpdLater": "Später"
+  "deskUpdLater": "Später",
+  "deskUpdOpenDmg": "Disk-Image öffnen",
+  "deskUpdDmgHint": "Die App schließt sich und das Disk-Image öffnet sich: Ziehen Sie Epic Cash Desktop in „Programme“, ersetzen Sie die alte App und öffnen Sie sie dann."
 }

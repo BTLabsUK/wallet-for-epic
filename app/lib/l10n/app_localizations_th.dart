@@ -17858,4 +17858,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskErrMacKeychain =>
       'macOS ไม่อนุญาตให้แอปอ่านข้อมูลที่บันทึกไว้ในพวงกุญแจ ปิด Epic Cash Desktop แล้วเปิดใหม่ เมื่อ macOS ถาม ให้ป้อนรหัสผ่านเข้าสู่ระบบ Mac แล้วเลือก \"อนุญาตเสมอ\"';
+
+  @override
+  String get deskUpdOpenDmg => 'เปิดดิสก์อิมเมจ';
+
+  @override
+  String get deskUpdDmgHint =>
+      'แอปจะปิดและดิสก์อิมเมจจะเปิดขึ้น: ลาก Epic Cash Desktop ไปไว้ในโฟลเดอร์แอปพลิเคชัน แทนที่เวอร์ชันเก่า แล้วเปิดแอป';
 }

@@ -128,10 +128,10 @@ final deskUpdateScheduleProvider = Provider<(Duration, Duration)>((ref) => (desk
 /// only (`main_desktop.dart`), not the mock or widget tests.
 final deskUpdateAutoProvider = Provider<bool>((ref) => false);
 
-/// Whether this build looks for updates at all: not macOS, which has no update file yet, and not
-/// a store build ([inAppUpdates]), which its store updates (no checks, notices or downloads then;
-/// the About page leaves out its Updates group).
-bool get deskUpdatesSupported => inAppUpdates && (kIsWeb || !Platform.isMacOS);
+/// Whether this build looks for updates at all: not a store build ([inAppUpdates]), which its
+/// store updates (no checks, notices or downloads then; the About page leaves out its Updates
+/// group). macOS downloads its disk image and the user replaces the app ([DmgApplier]).
+bool get deskUpdatesSupported => inAppUpdates;
 
 /// The manifest's HTTP status and body; tests replace it.
 typedef ManifestFetch = Future<(int, String)> Function(Uri url);

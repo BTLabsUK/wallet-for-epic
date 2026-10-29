@@ -110,5 +110,13 @@
   "deskUpdLater": "Later",
   "@deskUpdLater": {
     "description": "Dialog button: not now; 'Restart to update' stays in the sidebar and in Settings › About."
+  },
+  "deskUpdOpenDmg": "Open the disk image",
+  "@deskUpdOpenDmg": {
+    "description": "macOS: button and sidebar line once the update's disk image is downloaded and checked: the app closes and the disk image opens in Finder (the app cannot install itself there)."
+  },
+  "deskUpdDmgHint": "The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.",
+  "@deskUpdDmgHint": {
+    "description": "macOS: what happens and what to do, one line under the downloaded update and in its dialog. Epic Cash Desktop is the app's name; Applications is the macOS folder (use its name in this language's macOS)."
   }
 }

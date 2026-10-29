@@ -9,6 +9,8 @@
 ///  - Linux: the AppImage this app runs from (`$APPIMAGE`), replaced in its folder by an atomic
 ///    rename and started again once this process has exited, so the single-instance lock is
 ///    free by then.
+///  - macOS: by hand, as the app is not signed for a silent install: the disk image is opened in
+///    Finder and the app closes; the user drags the new app into Applications over the old one.
 /// Anything else has no applier: the desktop opens the download page instead.
 library;
 
@@ -236,6 +238,10 @@ abstract interface class DeskUpdateApplier {
   /// Whether this copy of the app can put a release in place by itself.
   Future<bool> canApply();
 
+  /// Whether the user puts the release in place ([DmgApplier]): the steps say "open" instead of
+  /// "restart", and what to do then.
+  bool get byHand;
+
   /// Puts [file] in place and starts what opens the new version once this process has exited.
   /// The app quits right after. Throws when nothing was started; then nothing was changed
   /// either, except on Linux after the swap (the new AppImage is in place, the old one gone).
@@ -275,6 +281,9 @@ class WindowsSetupApplier implements DeskUpdateApplier {
 
   @override
   String get suffix => '.exe';
+
+  @override
+  bool get byHand => false;
 
   @override
   Future<bool> canApply() async {
@@ -337,6 +346,9 @@ class AppImageApplier implements DeskUpdateApplier {
   String get suffix => '.AppImage';
 
   @override
+  bool get byHand => false;
+
+  @override
   Future<bool> canApply() async {
     final target = _target;
     if (target == null || !await File(target).exists()) return false;
@@ -372,6 +384,30 @@ class AppImageApplier implements DeskUpdateApplier {
     logInfo('update', 'desktop: the AppImage is replaced; it starts again once this app has closed');
     final env = Map.of(environment)..removeWhere((k, _) => runtimeVars.contains(k));
     await start('/bin/sh', ['-c', relaunch, 'epic-cash-desktop-update', '$pid', target], workingDirectory: dir, environment: env);
+  }
+}
+
+/// macOS: the downloaded, checked disk image is opened in Finder (`open`), and the app closes so
+/// the old copy can be replaced; the user drags the new app into Applications. No silent
+/// install: the app is not signed for one.
+class DmgApplier implements DeskUpdateApplier {
+  const DmgApplier({this.start = _startDetached});
+
+  final DeskStart start;
+
+  @override
+  String get suffix => '.dmg';
+
+  @override
+  bool get byHand => true;
+
+  @override
+  Future<bool> canApply() async => true;
+
+  @override
+  Future<void> apply(File file) async {
+    logInfo('update', 'desktop: opening the disk image; the user replaces the app');
+    await start('/usr/bin/open', [file.path], workingDirectory: file.parent.path);
   }
 }
 
@@ -436,6 +472,7 @@ final deskUpdateApplierProvider = Provider<DeskUpdateApplier?>((ref) {
   if (kIsWeb) return null;
   if (Platform.isWindows) return const WindowsSetupApplier();
   if (Platform.isLinux) return AppImageApplier(environment: Platform.environment, pid: pid);
+  if (Platform.isMacOS) return const DmgApplier();
   return null;
 });
 

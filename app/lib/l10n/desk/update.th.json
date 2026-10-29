@@ -20,5 +20,7 @@
   "deskUpdReadyTitle": "รีสตาร์ทเพื่ออัปเดต",
   "deskUpdReadyBody": "กระเป๋าเงินจะล็อก แล้วแอปจะเปิดใหม่",
   "deskUpdRestartNow": "รีสตาร์ทตอนนี้",
-  "deskUpdLater": "ภายหลัง"
+  "deskUpdLater": "ภายหลัง",
+  "deskUpdOpenDmg": "เปิดดิสก์อิมเมจ",
+  "deskUpdDmgHint": "แอปจะปิดและดิสก์อิมเมจจะเปิดขึ้น: ลาก Epic Cash Desktop ไปไว้ในโฟลเดอร์แอปพลิเคชัน แทนที่เวอร์ชันเก่า แล้วเปิดแอป"
 }

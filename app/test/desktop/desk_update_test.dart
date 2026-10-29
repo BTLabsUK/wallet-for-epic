@@ -91,6 +91,9 @@ class _FakeApplier implements DeskUpdateApplier {
 
   @override
   final String suffix;
+
+  @override
+  bool get byHand => false;
   final bool can;
   final bool fails;
   final applied = <File>[];
@@ -160,19 +163,21 @@ void main() {
       expect((single as Rejected<WalletUpdate>).reason, RejectReason.malformed);
     });
 
-    for (final tag in ['v26.10.8', 'v26.10.22']) {
-      test('a $tag client, phone or desktop, reads the new manifest as before', () async {
+    for (final tag in ['v26.10.8', 'v26.10.21', 'v26.10.22']) {
+      test('a $tag client, phone or desktop, reads the new manifest as before: the release with Tor only', () async {
         // The parser exactly as that release shipped it, run on its own against a manifest with
-        // the newer fields (per-system files, the notor section): it must accept the file and
-        // see each system's version of the release with Tor.
+        // the newer fields (per-system files, macOS, the notor section): it must accept the file
+        // and pick the release with Tor, never a -notor file. 26.10.8 reads no desktop files.
         final old = await Process.run('git', ['show', '$tag:app/lib/src/btlabs_public.dart']);
         if (old.exitCode != 0) {
           markTestSkipped('no $tag tag in this checkout: ${old.stderr}');
           return;
         }
+        final files = tag != 'v26.10.8';
         final dir = await tmp.createTemp('old');
         File('${dir.path}/old.dart').writeAsStringSync(old.stdout as String);
-        File('${dir.path}/main.dart').writeAsStringSync(r'''
+        final readFile = files ? 'out.add(d.forSystem(s)!.file!.url.pathSegments.last);' : '';
+        File('${dir.path}/main.dart').writeAsStringSync('''
 import 'dart:io';
 import 'old.dart';
 
@@ -180,15 +185,33 @@ Future<void> main(List<String> a) async {
   final r = await verifyWalletUpdate(File(a[0]).readAsStringSync(),
       keyring: Keyring.parse(File(a[1]).readAsStringSync()), now: DateTime.parse(a[2]));
   if (r is Accepted<WalletUpdate>) {
-    final d = r.manifest.desktop!;
-    print('accepted ${r.manifest.versionName} ${d.forSystem('windows')!.version} ${d.forSystem('linux')!.version} ${d.forSystem('linux')!.page}');
+    final m = r.manifest, d = m.desktop!;
+    final out = [m.versionName, m.apks.single.url.pathSegments.last];
+    for (final s in ['windows', 'linux', 'macos']) {
+      out.add(d.forSystem(s)!.version);
+      $readFile
+    }
+    print('accepted \${out.join(' ')}');
   } else {
-    print('rejected ${(r as Rejected).reason.code}');
+    print('rejected \${(r as Rejected).reason.code}');
   }
 }
 ''');
-        final payload = testUpdatePayload(versionName: '26.10.9', desktop: _desktop(), notor: false)
-          ..['notor'] = {'versionName': '26.10.10', 'apks': [testApk(versionCode: 9)], 'desktop': _desktop(version: '26.10.10')};
+        Map<String, Object?> desktop(String version, String mark) => {
+          'windows': _entry('epic-cash-desktop-$version$mark-windows-x64-setup.exe', version: version),
+          'linux': _entry('EpicCashDesktop-$version$mark-x86_64.AppImage', version: version),
+          'macos': _entry('EpicCashDesktop-$version$mark-macos.dmg', version: version),
+        };
+        final payload = testUpdatePayload(
+          versionName: '26.10.23',
+          apks: [testApk(versionCode: 26102300, url: '${walletDesktopDownloads}epic-cash-mobile-26.10.23-arm64-v8a.apk')],
+          desktop: desktop('26.10.23', ''),
+          notor: false,
+        )..['notor'] = <String, Object?>{
+            'versionName': '26.10.24',
+            'apks': [testApk(versionCode: 26102400, url: '${walletDesktopDownloads}epic-cash-mobile-26.10.24-notor-arm64-v8a.apk')],
+            'desktop': desktop('26.10.24', '-notor'),
+          };
         final env = File('${dir.path}/update.json')..writeAsStringSync(await signedUpdate(payload));
         final run = await Process.run('dart', [
           '--packages=${File('.dart_tool/package_config.json').absolute.path}',
@@ -198,7 +221,25 @@ Future<void> main(List<String> a) async {
           now.toUtc().toIso8601String(),
         ]);
         expect(run.exitCode, 0, reason: '${run.stderr}');
-        expect((run.stdout as String).trim(), 'accepted 26.10.9 $_next $_next null');
+        final seen = (run.stdout as String).trim();
+        expect(
+          seen,
+          files
+              ? 'accepted 26.10.23 epic-cash-mobile-26.10.23-arm64-v8a.apk '
+                    '26.10.23 epic-cash-desktop-26.10.23-windows-x64-setup.exe '
+                    '26.10.23 EpicCashDesktop-26.10.23-x86_64.AppImage '
+                    '26.10.23 EpicCashDesktop-26.10.23-macos.dmg'
+              : 'accepted 26.10.23 epic-cash-mobile-26.10.23-arm64-v8a.apk 26.10.23 26.10.23 26.10.23',
+        );
+        expect(seen, isNot(contains('notor')));
+        expect(seen, isNot(contains('26.10.24')));
+        // This version reads the same file the same way with Tor, and the notor section without.
+        final current = await verifyWalletUpdate(env.readAsStringSync(), keyring: testUpdateKeyring, now: now.toUtc());
+        final m = (current as Accepted<WalletUpdate>).manifest;
+        expect(m.release(tor: true)!.desktop!.forSystem('macos')!.file!.url.pathSegments.last, 'EpicCashDesktop-26.10.23-macos.dmg');
+        final n = m.release(tor: false)!;
+        expect((n.versionName, n.apks.single.versionCode), ('26.10.24', 26102400));
+        expect(n.desktop!.forSystem('macos')!.file!.url.pathSegments.last, 'EpicCashDesktop-26.10.24-notor-macos.dmg');
       });
     }
   });
@@ -662,6 +703,17 @@ Future<void> main(List<String> a) async {
       expect(files[0], contains(r'Excludes: "*.lib,*.exp,*.pdb,*.ilk,\lepic_ffi.dll,\data\app.so,\epic_wallet.exe"'));
       expect(files.skip(1).map((l) => l.split('"')[1]), [r'{#SourceDir}\lepic_ffi.dll', r'{#SourceDir}\data\app.so', r'{#SourceDir}\epic_wallet.exe']);
     });
+  });
+
+  test('macOS: the disk image is opened in Finder, by hand', () async {
+    final started = <(String, List<String>)>[];
+    final a = DmgApplier(start: (exe, args, {workingDirectory, environment}) async => started.add((exe, args)));
+    expect((a.suffix, a.byHand, await a.canApply()), ('.dmg', true, true));
+    await a.apply(File('/cache/updates/EpicCashDesktop-$_next-macos.dmg'));
+    expect(started.single.$1, '/usr/bin/open');
+    expect(started.single.$2, ['/cache/updates/EpicCashDesktop-$_next-macos.dmg']);
+    // Every desktop that is not a store build looks for updates, macOS included.
+    expect(deskUpdatesSupported, inAppUpdates);
   });
 
   group('Linux AppImage', () {
