@@ -10,7 +10,7 @@ import '../l10n.dart';
 import '../tor_build.dart';
 import '../tor_licence.dart';
 import 'common.dart';
-import 'settings_screen.dart' show openFlutterLicences, projectRepoPublic, projectRepoUrl;
+import 'settings_screen.dart' show openFlutterLicences, projectRepoUrl;
 import 'theme/fonts.dart' show flagsLicenceNote;
 import 'theme/tokens.dart';
 
@@ -56,7 +56,7 @@ class LicencesScreen extends StatelessWidget {
             TorSourceNote(
               style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),
-          if (projectRepoPublic && projectRepoUrl != null) ...[
+          if (projectRepoUrl != null) ...[
             const SizedBox(height: 8),
             SelectableText(
               projectRepoUrl!,

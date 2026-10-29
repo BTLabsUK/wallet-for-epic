@@ -7,7 +7,7 @@ import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
-import 'package:epic_wallet/src/ui/settings_screen.dart' show projectRepoPublic;
+import 'package:epic_wallet/src/ui/settings_screen.dart' show projectRepoUrl;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/btlabs_public.dart' show ManifestState;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
@@ -71,11 +71,10 @@ void main() {
     return (container, opened);
   }
 
-  testWidgets('windows-02: no link to the source repository while it is private', (tester) async {
+  testWidgets('windows-02: the source code link is the one in app-config.toml', (tester) async {
     await pump(tester, (_) async => (200, newer));
-    expect(projectRepoPublic, isFalse);
-    expect(find.text('Source code'), findsNothing);
-    expect(find.textContaining('wallet-for-epic'), findsNothing);
+    expect(projectRepoUrl, isNotNull);
+    expect(find.text('Source code'), findsOneWidget);
     expect(find.textContaining('code is on GitHub'), findsNothing);
     expect(find.textContaining('Apache-2.0'), findsWidgets, reason: 'the licence line stays');
   });

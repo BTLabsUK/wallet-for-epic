@@ -1566,7 +1566,7 @@ void main() {
   });
 
   group('about', () {
-    testWidgets('windows-02: no link to the source repository while it is private', (
+    testWidgets('About shows the source code link from app-config.toml', (
       tester,
     ) async {
       registerTorLicence();
@@ -1574,9 +1574,10 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.about);
-      expect(projectRepoPublic, isFalse);
+      expect(projectRepoUrl, isNotNull);
       expect(find.text('Licences'), findsOneWidget);
-      expect(find.text('Source code'), findsNothing);
+      await _reveal(tester, find.text('Source code'));
+      expect(find.text('Source code'), findsOneWidget);
       expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
       await _reveal(tester, find.text(hostSettings.supportEmail!));
       expect(find.text('Contact'), findsOneWidget);
