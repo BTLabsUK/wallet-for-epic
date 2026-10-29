@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Help as the settings design draws it: the support bar first, six sections with their
 // art, lede and count, the topic set with bodies, search over the bodies, and the copy rules.
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
@@ -41,7 +42,7 @@ void main() {
       'When something goes wrong',
       'Maintenance',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 27 : 26));
+    expect(topics, hasLength(DeskFeatures.tor ? 28 : 27));
     expect(topics.map((t) => t.title), contains('What an address looks like'));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));
@@ -89,7 +90,7 @@ void main() {
       expect(find.text(s.title), findsNWidgets(2), reason: 'chip and head');
     }
     expect(find.text('5 topics'), findsWidgets, reason: 'Pairing');
-    expect(find.text('1 topic'), findsOneWidget, reason: 'Maintenance');
+    expect(find.text('2 topics'), findsWidgets, reason: 'Maintenance');
     expect(find.text('4 topics'), findsWidgets, reason: 'Troubleshooting, Payments by another wallet, Cancelling a payment and Coins held by another device');
     expect(find.byType(HelpArt), findsNWidgets(7));
   }, skip: !torBuilt);
@@ -97,7 +98,7 @@ void main() {
   testWidgets('the support bar shows the contact address', (tester) async {
     await _pump(tester);
     expect(find.text('Contact: '), findsOneWidget);
-    expect(find.text('support@btlabs.uk'), findsOneWidget);
+    expect(find.text(hostSettings.supportEmail), findsOneWidget);
   });
 
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {

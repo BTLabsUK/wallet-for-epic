@@ -28,7 +28,7 @@ final Finder _addressText = find.byWidgetPredicate(
 );
 
 const String _address =
-    'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@epicbox.epiccash.com';
+    'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@box.epic.invalid';
 
 /// Starts with [session] already unlocked.
 class _OpenSession extends SessionNotifier {
@@ -129,7 +129,7 @@ class _Harness {
             dataDir: '/fake',
             chain: chain,
             nodeUrl: 'https://node.example',
-            epicboxDomain: 'epicbox.epiccash.com',
+            epicboxDomain: 'box.epic.invalid',
             epicboxPort: 443,
           ),
         );
@@ -528,22 +528,22 @@ void main() {
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Connected · epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
       expect(find.byIcon(EpicGlyphs.epicbox), findsWidgets);
       expect(find.text('Retry'), findsNothing);
 
       await h.listener(tester, ListenerEventKind.disconnected);
-      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
       expect(find.textContaining('wait on the Epicbox server'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Connected · epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
       expect(find.textContaining('wait on the Epicbox server'), findsNothing);
 
       // A stopped listener receives nothing either.
       await h.listener(tester, ListenerEventKind.stopped);
-      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
     });
 
@@ -570,7 +570,7 @@ void main() {
       expect(find.text('Epicbox connecting'), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
-      expect(find.text('Connected · epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
     });
 
     testWidgets(
@@ -598,7 +598,7 @@ void main() {
       await h.session.listenerEvents.close();
       await tester.pumpAndSettle();
       expect(h.container.read(listenerProvider).stopped, isTrue);
-      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
     });
 
@@ -621,13 +621,13 @@ void main() {
       tester,
     ) async {
       await _Harness().pump(tester);
-      expect(find.text('Server: epicbox.epiccash.com:443'), findsNothing);
+      expect(find.text('Server: box.epic.invalid:443'), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await _Harness(advanced: true).pump(tester);
-      expect(find.text('Server: epicbox.epiccash.com:443'), findsOneWidget);
+      expect(find.text('Server: box.epic.invalid:443'), findsOneWidget);
     });
 
-    // Report gwuouzfy: a network filter refuses every handshake with epicbox.epiccash.com.
+    // Report gwuouzfy: a network filter refuses every handshake with box.epic.invalid.
     const refused = 'could not connect to the relay: received fatal alert: CloseNotify';
 
     testWidgets('blocked by the network: says so and switches to another relay in one tap', (
@@ -648,7 +648,7 @@ void main() {
       expect(find.text('Epicbox blocked'), findsOneWidget);
       expect(
         find.text(
-          'This network blocks epicbox.epiccash.com. A network filter may be the cause. '
+          'This network blocks box.epic.invalid. A network filter may be the cause. '
           'Try another Epicbox server or a private DNS.',
         ),
         findsOneWidget,
@@ -657,8 +657,8 @@ void main() {
       expect(find.textContaining('wait on the Epicbox server'), findsNothing);
       expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
 
-      await _tap(tester, find.text('Switch to epicbox.stackwallet.com'));
-      expect(h.session.serverSwitches.single.epicboxDomain, 'epicbox.stackwallet.com');
+      await _tap(tester, find.text('Switch to box.stack.invalid'));
+      expect(h.session.serverSwitches.single.epicboxDomain, 'box.stack.invalid');
       expect(
         h.session.serverSwitches.single.nodeUrl,
         h.container.read(networkChoiceProvider).value!.nodeUrl,
@@ -685,7 +685,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pump(statusSettle);
       await tester.pumpAndSettle();
-      expect(find.text('Not connected · epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
       expect(find.text('Epicbox blocked'), findsNothing);
       expect(find.textContaining('Switch to'), findsNothing);
       expect(find.text('Retry'), findsOneWidget);

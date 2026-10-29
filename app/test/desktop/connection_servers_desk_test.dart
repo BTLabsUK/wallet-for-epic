@@ -48,7 +48,7 @@ void main() {
     expect(find.byKey(connectionServersRowKey), findsOneWidget);
     expect(find.text('Connection servers'), findsOneWidget);
     expect(find.text('Where two wallets find each other when they connect. The other wallet must use at least one of them too.'), findsOneWidget);
-    expect(find.text('epicbox.epiccash.com, epicbox.stackwallet.com, epicbox.btlabs.uk'), findsOneWidget);
+    expect(find.text('box.epic.invalid, box.stack.invalid, box.lab.invalid'), findsOneWidget);
     expect(find.text('3 servers · Defaults'), findsOneWidget);
   });
 
@@ -59,26 +59,26 @@ void main() {
 
   testWidgets('the list takes ticks up to three; the set is kept in the settings file', (tester) async {
     await _open(tester);
-    await tester.tap(find.text('epicbox.epiccash.com, epicbox.stackwallet.com, epicbox.btlabs.uk'));
+    await tester.tap(find.text('box.epic.invalid, box.stack.invalid, box.lab.invalid'));
     await _settle(tester);
     expect(find.text('Choose up to 3.'), findsOneWidget);
     expect(find.text('3 of 3'), findsOneWidget);
 
-    await tester.tap(_row('epicbox.epicnet.us'));
+    await tester.tap(_row('box.net.invalid'));
     await _settle(tester);
     expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
     expect(_container.read(deskPairingRelaysProvider), shippedHostSettings.pairingServers, reason: 'the settings file keeps the defaults');
 
-    await tester.tap(_row('epicbox.btlabs.uk'));
+    await tester.tap(_row('box.lab.invalid'));
     await _settle(tester);
-    expect(_container.read(deskPairingRelaysProvider), ['epicbox.epiccash.com', 'epicbox.stackwallet.com']);
+    expect(_container.read(deskPairingRelaysProvider), ['box.epic.invalid', 'box.stack.invalid']);
     expect(find.text('2 servers · Changed'), findsOneWidget);
 
     // The reset sits at the foot of the list, inside the window: scrolled to before the tap.
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('server-list-reset')),
       80,
-      scrollable: find.ancestor(of: _row('epicbox.epiccash.com'), matching: find.byType(Scrollable)).first,
+      scrollable: find.ancestor(of: _row('box.epic.invalid'), matching: find.byType(Scrollable)).first,
     );
     await _settle(tester);
     final reset = tester.getRect(find.byKey(const ValueKey('server-list-reset')));

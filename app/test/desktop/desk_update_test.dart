@@ -17,6 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/signed_update.dart';
+import '../support/test_settings.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 
 /// Newer than any version this app will carry.
 const _next = '99.1.0';
@@ -165,6 +167,8 @@ void main() {
 
     for (final tag in ['v26.10.8', 'v26.10.21', 'v26.10.22']) {
       test('a $tag client, phone or desktop, reads the new manifest as before: the release with Tor only', () async {
+        // The old parsers accept the real download address, which is the shipped one.
+        hostSettings = shippedSettings();
         // The parser exactly as that release shipped it, run on its own against a manifest with
         // the newer fields (per-system files, macOS, the notor section): it must accept the file
         // and pick the release with Tor, never a -notor file. 26.10.8 reads no desktop files.
@@ -789,6 +793,8 @@ Future<void> main(List<String> a) async {
   });
 
   test('the release helper prints the blocks clients read, with Tor and without', () async {
+    // The helper writes the real download address, which is the shipped one.
+    hostSettings = shippedSettings();
     final dir = await tmp.createTemp('release');
     File('${dir.path}/epic-cash-desktop-$_next-windows-x64-setup.exe').writeAsBytesSync(_bytes);
     File('${dir.path}/EpicCashDesktop-$_next-x86_64.AppImage').writeAsBytesSync(_bytes.sublist(1));

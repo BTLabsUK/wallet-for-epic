@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Phone first run with Use status.btlabs.uk off: the network setup lists the built-in Epicbox
+// Phone first run with Use status.lab.invalid off: the network setup lists the built-in Epicbox
 // servers, says nothing about the site and asks it nothing.
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/net/http.dart';
@@ -78,7 +78,7 @@ void main() {
         await tester.scrollUntilVisible(relay, 300, scrollable: find.byType(Scrollable).first);
       }
       expect(relay, findsWidgets);
-      expect(find.textContaining('status.btlabs.uk not reachable', skipOffstage: false), on ? findsWidgets : findsNothing);
+      expect(find.textContaining('status.lab.invalid not reachable', skipOffstage: false), on ? findsWidgets : findsNothing);
       expect(hosts, on ? hasLength(1) : isEmpty);
       expect(tester.takeException(), isNull);
     });

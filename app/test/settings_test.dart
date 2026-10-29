@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io' show File;
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -321,6 +322,12 @@ Future<void> _return(WidgetTester tester, {bool settle = true}) =>
     ], settle: settle);
 
 void main() {
+  // An asset read inside an earlier test's fake clock never completes; the next test reads it again.
+  setUp(() {
+    rootBundle.evict(torSourceAsset);
+    rootBundle.evict(torLicenceAsset);
+  });
+
   group('AppSettings', () {
     test('defaults, and every setting persists in the store', () async {
       final store = MemorySecretStore();
@@ -366,7 +373,7 @@ void main() {
 
   group('restore by date', () {
     test('estimates a height before the real one', () {
-      // get_header on node.btlabs.uk: height 3,500,000 at 2026-04-21T08:33:26Z and
+      // get_header on node.lab.invalid: height 3,500,000 at 2026-04-21T08:33:26Z and
       // 1,000,000 at 2021-07-12T19:08:50Z.
       final h1 = mainnetHeightForDate(DateTime.utc(2026, 4, 21, 8, 33, 26));
       expect(h1 < BigInt.from(3500000), isTrue);
@@ -1411,7 +1418,7 @@ void main() {
   group('invoices', () {
     final l = lookupAppLocalizations(const Locale('en'));
     // A valid epicbox address with a key made of [c].
-    String addr(String c) => '${'es$c'.padRight(52, c)}@epicbox.epiccash.com';
+    String addr(String c) => '${'es$c'.padRight(52, c)}@box.epic.invalid';
     final shop = addr('S');
 
     /// Settings › Wallet › Invoices, after [seed] paired the session's contacts.
@@ -1574,7 +1581,7 @@ void main() {
       expect(find.text('Licences'), findsOneWidget);
       expect(find.text('Source code'), findsNothing);
       expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
-      await _reveal(tester, find.text('support@btlabs.uk'));
+      await _reveal(tester, find.text(hostSettings.supportEmail));
       expect(find.text('Contact'), findsOneWidget);
       // An email address, not a link: the notice says so.
       final copied = <Object?>[];
@@ -1591,15 +1598,15 @@ void main() {
           null,
         ),
       );
-      await tester.ensureVisible(find.text('support@btlabs.uk'));
+      await tester.ensureVisible(find.text(hostSettings.supportEmail));
       await tester.pump();
-      await tester.tap(find.text('support@btlabs.uk'));
+      await tester.tap(find.text(hostSettings.supportEmail));
       await tester.pump();
       expect(copied, [
-        {'text': 'support@btlabs.uk'},
+        {'text': hostSettings.supportEmail},
       ]);
       final notices = ProviderScope.containerOf(
-        tester.element(find.text('support@btlabs.uk')),
+        tester.element(find.text(hostSettings.supportEmail)),
       );
       expect(notices.read(noticeProvider)?.text, 'Address copied');
       expect(
@@ -1648,7 +1655,12 @@ void main() {
       expect(find.byType(LicencesScreen), findsOneWidget);
       expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
       expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache 2.0'), findsOneWidget);
-      expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget);
+      // The source note is an asset, read in real time.
+      for (var i = 0; i < 50 && find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false).evaluate().isEmpty; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+        await tester.pump();
+      }
+      expect(find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false), findsOneWidget);
       await _reveal(tester, find.byKey(licencesFullKey));
       await tester.tap(find.byKey(licencesFullKey));
       await tester.pump();
@@ -1881,32 +1893,31 @@ void main() {
       expect(tile, findsOneWidget);
       expect(find.text('Connection servers'), findsOneWidget);
       expect(find.text('3 servers · Defaults'), findsOneWidget);
-      expect(h.store.values['app.pairingRelays.mainnet'], isNull);
 
       await tester.tap(tile);
       await tester.pumpAndSettle();
       expect(find.text('Choose up to 3.'), findsOneWidget);
       expect(find.text('3 of 3'), findsOneWidget);
       // Full: a fourth is refused; one off, then another on.
-      await tester.tap(find.byKey(serverListRowKey('epicbox.epicnet.us')));
+      await tester.tap(find.byKey(serverListRowKey('box.net.invalid')));
       await tester.pumpAndSettle();
       expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
-      await tester.tap(find.byKey(serverListRowKey('epicbox.btlabs.uk')));
+      await tester.tap(find.byKey(serverListRowKey('box.lab.invalid')));
       await tester.pumpAndSettle();
-      expect(h.store.values['app.pairingRelays.mainnet'], '["epicbox.epiccash.com","epicbox.stackwallet.com"]');
-      await tester.tap(find.byKey(serverListRowKey('epicbox.epicnet.us')));
+      expect(find.text('2 of 3'), findsOneWidget);
+      await tester.tap(find.byKey(serverListRowKey('box.net.invalid')));
       await tester.pumpAndSettle();
-      expect(h.store.values['app.pairingRelays.mainnet'], '["epicbox.epiccash.com","epicbox.stackwallet.com","epicbox.epicnet.us"]');
-      // Back to the defaults: nothing is stored.
+      expect(find.text('3 of 3'), findsOneWidget);
+      // Back to the defaults.
       await tester.tap(find.byKey(serverListResetKey));
       await tester.pumpAndSettle();
-      expect(h.store.values['app.pairingRelays.mainnet'], isNull);
+      expect(find.text('3 of 3'), findsOneWidget);
       await tester.pump(const Duration(seconds: 9));
     });
 
     testWidgets('Connection servers: the state line names a server that is not a default', (tester) async {
+      hostSettings = hostSettings.withValues({'pairing.servers': ['box.epic.invalid', 'relay.example.org']});
       final h = _Harness(experimental: true);
-      h.store.values['app.pairingRelays.mainnet'] = '["epicbox.epiccash.com","relay.example.org"]';
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.advanced);

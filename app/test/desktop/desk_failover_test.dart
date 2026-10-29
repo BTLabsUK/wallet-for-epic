@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,7 +37,7 @@ class _Wallet extends MockDeskWallet {
     node: NodeServer(url: inUse, label: inUse),
     nodeHealth: dead.contains(inUse) ? ServiceHealth.down : ServiceHealth.ok,
     nodeHeight: 2914414,
-    epicbox: const EpicboxServer(domain: 'epicbox.stackwallet.com'),
+    epicbox: const EpicboxServer(domain: 'box.stack.invalid'),
     epicboxHealth: ServiceHealth.ok,
     httpListener: ServiceHealth.off,
     tor: torStarting ? ServiceHealth.checking : ServiceHealth.ok,
@@ -72,6 +73,10 @@ class _Wallet extends MockDeskWallet {
 class _Harness {
   _Harness(this._async, {String inUse = _a, Set<String> dead = const {_a}, AdvancedPrefs? prefs, bool tor = false})
     : wallet = _Wallet(inUse: inUse, dead: dead) {
+    // The failover walks the node list of the settings.
+    hostSettings = hostSettings.withValues({
+      'node.servers': [for (final u in const [_a, _b, _c, _d]) {'url': u}],
+    });
     container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
     container.listen(deskFailoverWatchProvider, (_, _) {}, fireImmediately: true);
     container.listen(deskFailoverProvider, (_, _) {}, fireImmediately: true);

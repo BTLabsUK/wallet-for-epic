@@ -238,6 +238,10 @@ old_epicbox = "epicbox.stackwallet.com"
 # Epicbox servers that changed their name: old = new.
 renamed_epicbox = { "epicbox.epic.tech" = "epicbox.epiccash.com" }
 
+# Old fallback nodes the GUI wallet used that no longer answer: these hosts (and the names
+# under them) are replaced by the node above when an import names one.
+dead_fallbacks = ["fastepic.eu", "116.203.211.229"]
+
 # ---------------------------------------------------------------------------------------------
 # Support reports keep these names as they are and hide every other host. Every host in this
 # file is kept too.

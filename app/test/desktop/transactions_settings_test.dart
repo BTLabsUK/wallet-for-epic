@@ -460,7 +460,7 @@ void main() {
     }, skip: !torBuilt);
 
     testWidgets('picks by method: a code with an Epicbox and an onion address fills the one that is on (qa-next)', (tester) async {
-      const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+      const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@box.epic.invalid';
       await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'epic:$anna?method=direct&direct=$_onion'), payments: const PaymentPrefs(linkHttp: true));
       expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, anna);
       expect(_selected<TxMethod>(tester), TxMethod.epicbox);
@@ -468,7 +468,7 @@ void main() {
     });
 
     testWidgets('picks by method: Epicbox off, the code\'s onion with Link · Tor on (qa-next)', (tester) async {
-      const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+      const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@box.epic.invalid';
       await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'epic:$anna?direct=$_onion'), payments: const PaymentPrefs(epicbox: false, linkTor: true));
       expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion.substring('http://'.length));
       expect(_selected<TxMethod>(tester), TxMethod.http);
@@ -503,7 +503,7 @@ void main() {
 
     testWidgets('Epicbox off: the segment is disabled with the reason, the notice names a contact with only that address', (tester) async {
       // Mining pool payouts has only an Epicbox address (Anna has a Link · HTTP one too).
-      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@epicbox.epicnet.us', amount: '1'), payments: const PaymentPrefs(epicbox: false));
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@box.net.invalid', amount: '1'), payments: const PaymentPrefs(epicbox: false));
       final epicbox = tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>).first).segments.firstWhere((s) => s.label == 'Epicbox');
       expect(epicbox.enabled, isFalse);
       expect(epicbox.tooltip, 'Epicbox is off in Settings › Transactions.');

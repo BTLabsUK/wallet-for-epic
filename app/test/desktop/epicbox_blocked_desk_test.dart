@@ -163,20 +163,20 @@ void main() {
 
     testWidgets('blocked: the word and sentence, one button, the address caption; a tap switches at once', (tester) async {
       wallet.epicboxBlocked = true;
-      wallet.epicboxInstead = const EpicboxRelay(host: 'epicbox.stackwallet.com');
+      wallet.epicboxInstead = const EpicboxRelay(host: 'box.stack.invalid');
       await show(tester);
       expect(find.textContaining('Blocked', findRichText: true), findsOneWidget);
       expect(
-        find.textContaining('This network blocks epicbox.epiccash.com. Choose another Epicbox server', findRichText: true),
+        find.textContaining('This network blocks box.epic.invalid. Choose another Epicbox server', findRichText: true),
         findsOneWidget,
       );
-      expect(find.widgetWithText(EButton, 'Switch to epicbox.stackwallet.com'), findsOneWidget);
+      expect(find.widgetWithText(EButton, 'Switch to box.stack.invalid'), findsOneWidget);
       expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
       expect(find.text('Not answering', findRichText: true), findsNothing);
       expect(find.textContaining('Retry', findRichText: true), findsNothing);
-      await tester.tap(find.widgetWithText(EButton, 'Switch to epicbox.stackwallet.com'));
+      await tester.tap(find.widgetWithText(EButton, 'Switch to box.stack.invalid'));
       await tester.pumpAndSettle();
-      expect(wallet.used, ['epicbox.stackwallet.com']);
+      expect(wallet.used, ['box.stack.invalid']);
       expect(find.textContaining('Blocked', findRichText: true), findsNothing);
     });
 

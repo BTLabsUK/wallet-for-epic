@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/dist_build.dart' show distStore;
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
@@ -20,10 +21,15 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/signed_update.dart';
 
 void main() {
+  // An asset read inside an earlier test's fake clock never completes; the next test reads it again.
+  setUp(() {
+    rootBundle.evict('assets/licenses/tor-source.txt');
+  });
+
   final now = DateTime(2026, 10, 22, 12);
 
   // Signed manifests (test key A; the test keyring stands in for the bundled one).
-  const page = 'https://github.com/BTLabs-EPIC/epic-wallet/releases/tag/v26.10.1';
+  const page = 'https://hub.example.invalid/BTLabs-EPIC/epic-wallet/releases/tag/v26.10.1';
   late String newer, same, phoneOnly, offAccounts, unsignedNewer, forgedNewer, olderLatest, testBuild;
   // A version newer than any this app will carry, so the tests hold whatever the app's version is.
   const next = '99.1.0';
@@ -33,7 +39,7 @@ void main() {
     phoneOnly = await signedUpdate(testUpdatePayload(versionName: '0.2.0'));
     // The verifier's schema only takes pages on the project's GitHub accounts, so a page
     // elsewhere is a manifest that does not verify, not one that opens a fallback.
-    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': 'https://github.com.evil.example/BTLabs-EPIC/'}));
+    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': 'https://hub.example.invalid.evil.example/BTLabs-EPIC/'}));
     unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "$next", "page": "$page"}}';
     forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': page}), keys: [await testUpdateStrangerKey()]);
     // Older than [newer] (a replay): it says this version is the latest, which must not win.
@@ -90,7 +96,7 @@ void main() {
   testWidgets('About shows the contact address', (tester) async {
     await pump(tester, (_) async => (200, newer));
     expect(find.text('Contact'), findsOneWidget);
-    expect(find.text('support@btlabs.uk'), findsOneWidget);
+    expect(find.text(hostSettings.supportEmail), findsOneWidget);
   });
 
   test('versions compare by number', () {
@@ -122,7 +128,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Open').first);
     await tester.tap(find.widgetWithText(EButton, 'Open').at(1));
     await tester.pumpAndSettle();
-    expect(opened, ['https://t.me/EpicCash', 'https://epiccash.com']);
+    expect(opened, [hostSettings.linkCommunity, hostSettings.linkWebsite]);
     expect(find.text('Telegram'), findsOneWidget);
   });
 
@@ -132,11 +138,22 @@ void main() {
     expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
     expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache 2.0'), findsOneWidget);
     expect(find.textContaining('Flutter and its Dart packages'), findsOneWidget);
+    // The note is an asset, read after the first frame.
+    for (var i = 0; i < 10; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump();
+    }
+    await tester.pump();
+    await tester.pump();
     expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget, reason: 'the GPL notice with the source');
     expect(find.text('Credits'), findsNothing);
     await tester.ensureVisible(find.widgetWithText(EButton, 'View'));
     await tester.tap(find.widgetWithText(EButton, 'View'));
-    await tester.pumpAndSettle();
+    // The licences are read from assets, in real time.
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+    }
     expect(find.byType(LicensePage), findsOneWidget);
   }, skip: !torBuilt);
 
@@ -209,22 +226,22 @@ void main() {
   }, skip: !inAppUpdates);
 
   test('the fallback download page is the public BT Labs page', () {
-    expect(deskReleasesUrl, 'https://examples.btlabs.uk/epic-cash-wallets/');
-    expect(isDeskUpdatePage('https://examples.btlabs.uk/epic-cash-wallets/#download'), isTrue);
-    expect(isDeskUpdatePage('https://examples.btlabs.uk/other/'), isFalse);
-    expect(isDeskUpdatePage('https://examples.btlabs.uk.evil.example/epic-cash-wallets/'), isFalse);
+    expect(deskReleasesUrl, 'https://examples.lab.invalid/epic-cash-wallets/');
+    expect(isDeskUpdatePage('https://examples.lab.invalid/epic-cash-wallets/#download'), isTrue);
+    expect(isDeskUpdatePage('https://examples.lab.invalid/other/'), isFalse);
+    expect(isDeskUpdatePage('https://examples.lab.invalid.evil.example/epic-cash-wallets/'), isFalse);
     expect(isDeskUpdatePage(deskReleasesUrl), isTrue);
   });
 
   test('download pages: https on the project account only', () {
-    expect(isDeskUpdatePage('https://github.com/BTLabs-EPIC/epic-wallet/releases'), isTrue);
-    expect(isDeskUpdatePage('https://GitHub.com/BTLabs-EPIC/x'), isTrue);
-    expect(isDeskUpdatePage('http://github.com/BTLabs-EPIC/x'), isFalse);
-    expect(isDeskUpdatePage('https://github.com/someone/x'), isFalse);
+    expect(isDeskUpdatePage('https://hub.example.invalid/BTLabs-EPIC/epic-wallet/releases'), isTrue);
+    expect(isDeskUpdatePage('https://HUB.example.invalid/BTLabs-EPIC/x'), isTrue);
+    expect(isDeskUpdatePage('http://hub.example.invalid/BTLabs-EPIC/x'), isFalse);
+    expect(isDeskUpdatePage('https://hub.example.invalid/someone/x'), isFalse);
     // The developer's own account is no download place any more.
-    expect(isDeskUpdatePage('https://github.com/blacktyger/wallet-for-epic/releases/latest'), isFalse);
-    expect(isDeskUpdatePage('https://github.com/BTLabs-EPIC.evil/x'), isFalse);
-    expect(isDeskUpdatePage('https://user@github.com/BTLabs-EPIC/x'), isFalse);
+    expect(isDeskUpdatePage('https://hub.example.invalid/blacktyger/wallet-for-epic/releases/latest'), isFalse);
+    expect(isDeskUpdatePage('https://hub.example.invalid/BTLabs-EPIC.evil/x'), isFalse);
+    expect(isDeskUpdatePage('https://user@hub.example.invalid/BTLabs-EPIC/x'), isFalse);
     expect(isDeskUpdatePage('https://example.com/get'), isFalse);
   });
 
@@ -241,7 +258,7 @@ void main() {
     expect(await tester.runAsync(() => copyLink('https://t.me/EpicCash')), isTrue);
     expect(copied, ['https://t.me/EpicCash']);
     refusals = 2;
-    expect(await tester.runAsync(() => copyLink('https://epiccash.com')), isFalse);
+    expect(await tester.runAsync(() => copyLink(hostSettings.linkWebsite)), isFalse);
   });
 
   test('the desktop keeps the last manifest across restarts: an older one is refused', () async {

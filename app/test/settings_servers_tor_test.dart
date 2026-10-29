@@ -4,6 +4,7 @@
 // not connected.
 import 'dart:io';
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -115,10 +116,11 @@ void main() {
   group('the Node and Epicbox rows are the pickers (one place to change servers)', () {
     final store = MemorySecretStore({
       'app.network': 'mainnet',
-      'app.node.mainnet': 'https://node.epicnet.us:3413',
-      'app.relay.mainnet': 'epicbox.stackwallet.com:443',
     });
     const off = PhoneTorState(phase: PhoneTorPhase.off);
+
+    // The servers in use are the settings' (`node.use`, `epicbox.use`).
+    setUp(() => hostSettings = hostSettings.withValues({'node.use': 'https://node.net.invalid:3413', 'epicbox.use': 'box.stack.invalid'}));
 
     Future<void> openPage(WidgetTester tester) async {
       await _pump(tester, const SettingsScreen(section: SettingsSection.privacyNetwork), off, store: store);
@@ -137,7 +139,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: find.byKey(settingsNodeKey), matching: find.text('node.epicnet.us:3413')),
+        find.descendant(of: find.byKey(settingsNodeKey), matching: find.text('node.net.invalid:3413')),
         findsOneWidget,
       );
       expect(
@@ -145,7 +147,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: find.byKey(settingsEpicboxKey), matching: find.text('epicbox.stackwallet.com')),
+        find.descendant(of: find.byKey(settingsEpicboxKey), matching: find.text('box.stack.invalid')),
         findsOneWidget,
       );
     });

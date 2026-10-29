@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/net/tor_net.dart';
 import 'package:epic_wallet/src/net/tor_switch.dart';
@@ -688,7 +689,7 @@ void main() {
       expect(TorNet.mode, TorNetMode.tor);
       await ask();
       // Through tor's SOCKS port, and the price from BT Labs' copy, never CoinGecko.
-      expect(recorder.opened.map((u) => u.host), isNot(contains('api.coingecko.com')));
+      expect(recorder.opened.map((u) => u.host), isNot(contains(Uri.parse(hostSettings.priceSource).host)));
       expect(recorder.opened, isNotEmpty);
     });
 
@@ -699,7 +700,7 @@ void main() {
       await h.unlock();
       expect(TorNet.mode, TorNetMode.direct);
       await ask();
-      expect(recorder.opened.map((u) => u.host), contains('api.coingecko.com'));
+      expect(recorder.opened.map((u) => u.host), contains(Uri.parse(hostSettings.priceSource).host));
     });
 
     test('on for any network counts', () async {

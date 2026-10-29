@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Desktop release check, pairing by words (RFC 0002 7.7, report utc3fhjj): a second LEPIC
 // wallet in this process, on a relay outside the words meeting list (WFE_WORDS_RELAY, by
-// default epicbox.iniaku.my.id), offers pairing words; the real desktop types them under Enter
+// default an example host: name a live relay), offers pairing words; the real desktop types them under Enter
 // link or words, answers, and both sides see the same four words. Before the fix the other
 // wallet was refused words outright ("Can't reach the relay"). Real LEPIC, real node and
 // relays; no funds move. Never prints a phrase or a password.
@@ -59,7 +59,7 @@ void main() {
         config: mainnetPreset.config(
           dataDir: otherDir!.path,
           nodeUrl: node,
-          relay: const EpicboxRelay(host: String.fromEnvironment('WFE_WORDS_RELAY', defaultValue: 'epicbox.iniaku.my.id'), port: 443),
+          relay: const EpicboxRelay(host: String.fromEnvironment('WFE_WORDS_RELAY', defaultValue: 'epicbox.other.example'), port: 443),
         ),
         password: randomPassword(),
       ),

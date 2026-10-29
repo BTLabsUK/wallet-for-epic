@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/send_tracker.dart';
+import 'package:flutter_test/flutter_test.dart' show setUp;
 
 import 'support/test_settings.dart';
 
@@ -16,5 +17,10 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   txEdgeRunMoves = false;
   sendPulseMoves = false;
   hostSettings = testSettings();
+  // A test that changes the settings (a pick, a switch) does not leak into the next one.
+  setUp(() {
+    hostSettings = testSettings();
+    shippedHostSettings = hostSettings;
+  });
   await testMain();
 }

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../data/mock_hosts.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show Uint8List;
@@ -114,7 +115,7 @@ final List<DeskShot> walletShots = [
     id: '37c-add-contact-from-tx',
     title: 'New contact from a payment, its address filled in',
     route: DeskRoute.contacts,
-    arg: const ContactsArgs(adding: true, address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', fromTx: 28),
+    arg: ContactsArgs(adding: true, address: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox', fromTx: 28),
     prepare: _forgetAnna,
   ),
   DeskShot(
@@ -270,8 +271,8 @@ void _contactsFile(ProviderContainer c) {
     [
       ContactFields(name: 'Anna', epicbox: epicbox('c1'), tor: '${'q' * 55}d.onion'), // l10n-ok
       ContactFields(name: 'Exchange deposit', epicbox: epicbox('c3')), // l10n-ok
-      const ContactFields(name: 'Lena Fischer', epicbox: 'esLf4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epiccash.com'), // l10n-ok
-      const ContactFields(name: 'Test', epicbox: 'zz1234@epicbox.btlabs.uk'), // l10n-ok
+      ContactFields(name: 'Lena Fischer', epicbox: 'esLf4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@$mockBox'), // l10n-ok
+      ContactFields(name: 'Test', epicbox: 'zz1234@${mockBoxAt(3)}'), // l10n-ok
     ],
     network: c.read(deskApiProvider).network,
     now: DateTime(2026, 10, 25),

@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:epic_wallet/src/demo_server/config.dart';
 import 'package:epic_wallet/src/demo_server/server.dart';
 import 'package:epic_wallet/src/demo_server/ws_channel.dart';
+import 'package:epic_wallet/src/network.dart' show floonetPreset;
 import 'package:epic_wallet/src/remote/client.dart';
 import 'package:epic_wallet/src/remote/protocol.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -122,8 +123,8 @@ void main() {
       expect(fake.createdConfig, expected);
       expect(expected.dataDir, h.server.store.walletDirOf(id));
       expect(expected.chain, Chain.floonet);
-      expect(expected.nodeUrl, 'https://floo-node.btlabs.uk');
-      expect(expected.epicboxDomain, 'epicbox.btlabs.uk');
+      expect(expected.nodeUrl, floonetPreset.nodeUrl);
+      expect(expected.epicboxDomain, floonetPreset.epicboxDomain);
       expect(await client.walletExists(config: clientConfig), isTrue);
       expect(fake.createdPin, '123456');
       expect(await created.session.epicboxAddress(), fake.session.address);

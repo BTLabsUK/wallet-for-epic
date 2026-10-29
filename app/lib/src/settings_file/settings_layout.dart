@@ -273,6 +273,7 @@ const List<SettingsKey> settingsKeys = [
   SettingsKey('import.gui_epicbox', TextKind(checkEpicboxServer)),
   SettingsKey('import.old_epicbox', TextKind(checkEpicboxServer)),
   SettingsKey('import.renamed_epicbox', TextMapKind(checkEpicboxServer)),
+  SettingsKey('import.dead_fallbacks', TextListKind(checkHostName)),
   SettingsKey('report.keep_hosts', TextListKind(checkHostName)),
   SettingsKey('report.keep_domains', TextListKind(checkHostName)),
   SettingsKey('network.vpn_suffixes', TextListKind(checkSuffix)),

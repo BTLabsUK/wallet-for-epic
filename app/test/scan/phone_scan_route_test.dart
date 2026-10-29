@@ -45,14 +45,14 @@ import '../support/send_pin.dart';
 const _key = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK';
 
 /// A valid Epicbox address (the one the epic: URI examples use).
-const _e = '$_key@epicbox.epiccash.com';
+const _e = '$_key@box.epic.invalid';
 
 /// Another valid Epicbox address.
-final String _other = 'es${'x' * 50}@epicbox.epiccash.com';
+final String _other = 'es${'x' * 50}@box.epic.invalid';
 
 /// An Epicbox address of the other network, as [_OtherChainService] tells it.
 const _floonet =
-    'fsWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com';
+    'fsWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid';
 
 /// A Direct HTTP address.
 const _d = 'http://1.2.3.4:3415';

@@ -153,7 +153,7 @@ void main() {
     final w = await _open(tester);
     await w.session.setEpicboxOverTor(true);
     await w.session.setOnionRoutes(const [
-      (host: 'epicbox.btlabs.uk', port: 443, onion: 'x.onion', onionPort: 443),
+      (host: 'box.lab.invalid', port: 443, onion: 'x.onion', onionPort: 443),
     ]);
     w.session.routeLog.clear();
 
@@ -210,7 +210,7 @@ void main() {
     final w = await _open(tester);
     // Receive watches it; held here as an open page holds it.
     final receive = w.container.listen(addressProvider, (_, _) {});
-    expect(await w.container.read(addressProvider.future), endsWith('@epicbox.epiccash.com'));
+    expect(await w.container.read(addressProvider.future), endsWith('@box.epic.invalid'));
 
     await _offer(tester, 'relay.example.org');
     await _switch(tester);

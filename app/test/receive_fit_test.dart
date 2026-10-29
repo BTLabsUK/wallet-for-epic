@@ -29,7 +29,7 @@ import 'support/experimental.dart';
 
 /// A full-length address, as long as a real one.
 const String _address =
-    'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@epicbox.epiccash.com';
+    'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@box.epic.invalid';
 
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);

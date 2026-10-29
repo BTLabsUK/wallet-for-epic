@@ -54,7 +54,7 @@ void main() {
 
   test('a book that has the address already gets nothing added', () async {
     final book = await ContactStore.open(tmp.path);
-    await book.save(const ContactFields(name: 'Imported', epicbox: 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com'));
+    await book.save(const ContactFields(name: 'Imported', epicbox: 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid'));
     final h = await open('w1', book);
     await h.seedContacts(bundledSeedContacts);
     expect(book.list().map((c) => c.name), ['Imported']);

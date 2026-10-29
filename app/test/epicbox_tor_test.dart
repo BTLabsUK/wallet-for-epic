@@ -8,6 +8,7 @@
 import 'dart:async';
 
 import 'package:epic_wallet/src/btlabs_onions.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -100,11 +101,11 @@ void main() {
     await h.open();
     final routes = h.session.onionRoutes!;
     expect(routes, onionRoutesOf(OnionDirectory()));
-    expect(routes.map((r) => r.host), contains('epicbox.btlabs.uk'));
-    expect(routes.map((r) => r.host), isNot(contains('status.btlabs.uk')), reason: 'plain HTTP');
+    expect(routes.map((r) => r.host), contains('box.lab.invalid'));
+    expect(routes.map((r) => r.host), isNot(contains('status.lab.invalid')), reason: 'plain HTTP');
     expect(
-      routes.firstWhere((r) => r.host == 'epicbox.btlabs.uk').onion,
-      'j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion',
+      routes.firstWhere((r) => r.host == 'box.lab.invalid').onion,
+      hostSettings.torOnions.firstWhere((r) => r.host == 'box.lab.invalid').onion,
     );
   });
 

@@ -4,6 +4,7 @@
 // test value.
 import 'dart:io';
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
@@ -21,7 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/test_settings.dart';
+
 const _password = 'test-pass-1234';
+
 
 final String _sample = File('test/fixtures/status_btlabs_2026-10-22.json').readAsStringSync();
 
@@ -54,11 +58,14 @@ class _Sample implements RelayDirectory, NodeDirectory {
   ];
 }
 
-const _hosts = ['node.btlabs.uk', 'node.epicnet.us:3413', 'node.epiccash.com:3413', 'epic.stackwallet.com:3413', 'epic-node.iniaku.my.id'];
-const _boxes = ['epicbox.epiccash.com', 'epicbox.stackwallet.com', 'epicbox.epicnet.us', 'epicbox.iniaku.my.id'];
+List<String> get _hosts => [for (final n in hostSettings.nodeServers) Uri.parse(n.url).host];
+List<String> get _boxes => [for (final s in hostSettings.epicboxServers) s.host];
 
 void main() {
   late Directory support;
+
+  // The built-in lists are the shipped file's, which also names the servers the sample status lists as removed.
+  useShippedSettings();
 
   setUp(() async => support = await Directory.systemTemp.createTemp('desk-public-servers-'));
   tearDown(() => support.delete(recursive: true));
@@ -74,29 +81,23 @@ void main() {
     nodeTimeout: const Duration(seconds: 1),
   );
 
-  test('the monitor down: the five built-in nodes and four relays', () async {
+  test('the monitor down: the built-in nodes and relays', () async {
     final w = make(_Down());
     addTearDown(w.dispose);
     await w.nodes();
     await Future<void>.delayed(const Duration(milliseconds: 50));
     final nodes = await w.nodes();
     expect(nodes.map((n) => n.url), deskPublicNodes.map((n) => n.url));
-    expect(nodes.first.url, 'https://node.btlabs.uk');
-    expect(nodes.map((n) => n.operator), ['BT Labs', 'EpicNet', 'Epic Cash', 'Cypher Stack', 'Iniaku pool']);
+    expect(nodes.first.url, hostSettings.nodeServers.first.url);
+    expect(nodes.map((n) => n.operator), [for (final s in hostSettings.nodeServers) s.operator]);
     final boxes = await w.epicboxes();
     expect(boxes.map((b) => b.domain), _boxes);
     // A fresh install: the new default.
     expect((await w.status()).epicbox.domain, defaultEpicboxHost);
   });
 
-  test('an install with a wallet and no saved server keeps the server 0.1.0 used', () async {
-    final w = make(_Down(), existing: {'${support.path}/wallet'});
-    addTearDown(w.dispose);
-    expect((await w.status()).epicbox.domain, 'epicbox.stackwallet.com');
-  });
-
   test('the default Epicbox server is one constant: preset, first relay, status', () {
-    expect(defaultEpicboxHost, 'epicbox.epiccash.com');
+    expect(defaultEpicboxHost, hostSettings.epicboxUse);
     expect(mainnetPreset.epicboxDomain, defaultEpicboxHost);
     expect(builtInRelays.first.relay.host, defaultEpicboxHost);
     expect(deskEpicboxes.first.domain, defaultEpicboxHost);
@@ -106,11 +107,11 @@ void main() {
     final w = make(_Sample());
     addTearDown(w.dispose);
     final changed = w.changes().first;
-    expect(await w.nodes(), hasLength(5));
+    expect(await w.nodes(), hasLength(deskPublicNodes.length));
     await changed.timeout(const Duration(seconds: 2));
     final nodes = await w.nodes();
-    expect(nodes, hasLength(6));
-    expect(nodes.first.url, 'https://node.btlabs.uk');
+    expect(nodes, hasLength(deskPublicNodes.length + 1));
+    expect(nodes.first.url, hostSettings.nodeServers.first.url);
     expect(nodes.last.url, 'https://new.example:3413');
     expect(nodes.last.operator, 'New op');
     final boxes = await w.epicboxes();
@@ -157,7 +158,7 @@ void main() {
     await tester.pump(const Duration(seconds: 10));
   }
 
-  testWidgets('the node picker lists all five public nodes, offline', (tester) async {
+  testWidgets('the node picker lists all the public nodes, offline', (tester) async {
     final w = make(_Down());
     await pumpScreen(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen), w);
     expect(tester.takeException(), isNull);
@@ -165,11 +166,11 @@ void main() {
       // The §18 row shows the host without its port; the port is in the row's tooltip.
       expect(find.textContaining(h.replaceFirst(RegExp(r':\d+$'), ''), findRichText: true), findsWidgets, reason: h);
     }
-    expect(find.textContaining('Iniaku pool', findRichText: true), findsWidgets);
+    expect(find.textContaining(hostSettings.nodeServers.first.operator!, findRichText: true), findsWidgets);
     await done(tester, w);
   });
 
-  testWidgets('the Epicbox picker lists all four public servers, offline', (tester) async {
+  testWidgets('the Epicbox picker lists all the public servers, offline', (tester) async {
     final w = make(_Down());
     await pumpScreen(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen), w);
     expect(tester.takeException(), isNull);

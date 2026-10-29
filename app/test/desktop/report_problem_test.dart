@@ -106,7 +106,7 @@ void main() {
   testWidgets('the preview is the cleaned report, exactly as it is sent', (tester) async {
     final h = _Harness();
     h.log.record(LogLevel.info, 'dart.restore', 'words $_phrase');
-    h.log.record(LogLevel.warn, 'dart.send', 'to $_address@epicbox.epiccash.com via 203.0.113.7:3413');
+    h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid via 203.0.113.7:3413');
     await h.pump(tester);
     await describe(tester, 'Sending to $_address fails');
     await tester.enterText(find.descendant(of: find.byType(ReportProblemDialog), matching: find.byType(TextField)).at(1), 'me@example.com');
@@ -120,7 +120,7 @@ void main() {
     expect(preview, contains('Contact: me@example.com'));
     expect(preview, contains('== app/wfe.log =='));
     expect(preview, contains('[recovery phrase removed]'));
-    expect(preview, contains('to <address-1>@epicbox.epiccash.com via <ip-1>:3413'));
+    expect(preview, contains('to <address-1>@box.epic.invalid via <ip-1>:3413'));
     for (final secret in ['abandon', 'esWn9r', '203.0.113.7']) {
       expect(preview, isNot(contains(secret)), reason: secret);
     }

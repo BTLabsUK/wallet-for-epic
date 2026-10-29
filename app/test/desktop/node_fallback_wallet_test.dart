@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, ScanStep, SendRequest, SendFailed, TxMethod;
@@ -17,7 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _password = 'test-pass-1234';
 const _remote = 'https://node.example';
-const _public = 'https://node.epiccash.com:3413';
+const _public = 'https://node.epic.invalid:3413';
 const _local = 'http://127.0.0.1:3413';
 const _other = 'https://other.example';
 final _epicbox = '${'2' * 52}@epicbox.example';
@@ -161,7 +162,7 @@ void main() {
     dir = await Directory.systemTemp.createTemp('desk-fallback-test-');
     File('${dir.path}/epic').writeAsStringSync('');
     secrets = MemorySecretStore();
-    await secrets.write('app.node.mainnet', _remote);
+    hostSettings = hostSettings.withValues({'node.use': _remote});
     session = _Session();
     service = _Opens(session)..existingWallets.add('${dir.path}/wallet');
     spawned = 0;
@@ -180,7 +181,7 @@ void main() {
     await w.applyNodeFallback(usePublic: true, publicUrl: _public);
     await w.applyNodeFallback(usePublic: false);
     expect(service.nodeUrls.length, opens);
-    expect(await secrets.read('app.node.mainnet'), _remote);
+    expect(hostSettings.nodeUse, _remote);
     await w.dispose();
   });
 
@@ -192,7 +193,7 @@ void main() {
     expect(service.nodeUrls.sublist(opens), [_public]);
     await w.applyNodeFallback(usePublic: false);
     expect(service.nodeUrls.sublist(opens), [_public, _local]);
-    expect(await secrets.read('app.node.mainnet'), _local);
+    expect(hostSettings.nodeUse, _local);
     await w.dispose();
   });
 
@@ -221,7 +222,7 @@ void main() {
     g.complete();
     await Future.wait([fallback, pick]);
     expect(service.nodeUrls.last, _other);
-    expect(await secrets.read('app.node.mainnet'), _other);
+    expect(hostSettings.nodeUse, _other);
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'false');
     // A later decision finds the built-in node off and leaves the pick alone.
     final opens = service.nodeUrls.length;
@@ -243,7 +244,7 @@ void main() {
     await on;
     await _settle();
     expect(service.nodeUrls.reversed.take(2).toList().reversed, [_public, _local]);
-    expect(await secrets.read('app.node.mainnet'), _local);
+    expect(hostSettings.nodeUse, _local);
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'true');
     await w.dispose();
   });

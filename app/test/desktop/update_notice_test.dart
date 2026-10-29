@@ -267,7 +267,7 @@ void main() {
   testWidgets('Settings › About: the page address is always there, to open or copy', (tester) async {
     await pump(tester, const DeskUpdateState(DeskUpdatePhase.latest), home: about);
     expect(find.text('Download page'), findsOneWidget);
-    expect(find.text('examples.btlabs.uk/epic-cash-wallets'), findsOneWidget);
+    expect(find.text('examples.lab.invalid/epic-cash-wallets'), findsOneWidget);
     final row = find.ancestor(of: find.text('Download page'), matching: find.byType(ESetRow));
     expect(find.descendant(of: row, matching: find.byType(LinkCopyButton)), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Check now'), findsOneWidget);

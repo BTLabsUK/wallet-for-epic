@@ -5,6 +5,7 @@
 /// quiet link offers. The phone is a [MockPhone] over the mock wallet's fake pairing engine.
 library;
 
+import '../../data/mock_hosts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../devices/device_service.dart';
@@ -46,7 +47,7 @@ Future<void> _linkedHeld(ProviderContainer c) async {
 Future<void> _checking(ProviderContainer c) async {
   final (wallet, desk) = await _desk(c);
   final phone = await MockPhone.create(wallet);
-  await desk.startShowing(const ['epicbox.epiccash.com', 'epicbox.stackwallet.com']);
+  await desk.startShowing([mockBox, mockBoxAt(1)]);
   await phone.scan(desk);
 }
 
@@ -60,7 +61,7 @@ Future<void> _failed(ProviderContainer c) async {
 Future<void> _proposal(ProviderContainer c) async {
   final (_, desk) = await _desk(c);
   await _linked(c);
-  await desk.proposeServers(const ['epicbox.epiccash.com', 'epicbox.btlabs.uk']);
+  await desk.proposeServers([mockBox, mockBoxAt(3)]);
 }
 
 final List<DeskShot> deviceShots = [
@@ -98,7 +99,7 @@ final List<DeskShot> deviceShots = [
     id: '44l-send-held',
     title: 'Send, the amount is held by the phone’s payment',
     route: DeskRoute.send,
-    arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1280', step: SendStep.errors),
+    arg: SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox', amount: '1280', step: SendStep.errors),
     prepare: (c, _) => _linkedHeld(c),
   ),
   DeskShot(

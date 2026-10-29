@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Settings › Node › Privacy › Use status.btlabs.uk on the desktop: off, the wallet asks the site
+// Settings › Node › Privacy › Use the status site on the desktop: off, the wallet asks the site
 // nothing and lists the built-in nodes and Epicbox servers; turning it off drops what the site
 // gave without a restart. The password is a throwaway
 // test value.
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import 'package:flutter_test/flutter_test.dart';
+import '../support/test_settings.dart';
 
 const _password = 'test-pass-1234';
 
@@ -31,6 +32,9 @@ String _withExtraNode() {
 }
 
 void main() {
+  // These tests read the old GUI's real data against the shipped defaults.
+  useShippedSettings();
+
   late Directory support;
   late List<String> hosts;
 
@@ -126,7 +130,7 @@ void main() {
     ));
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Status site'), findsOneWidget);
-    expect(find.text('Use status.btlabs.uk'), findsOneWidget);
+    expect(find.text('Use ${Uri.parse(hostSettings.statusDirectory).host}'), findsOneWidget);
     // Label only; the sentence is the info icon's tooltip.
     expect(find.byTooltip('Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'), findsOneWidget);
     expect(find.textContaining('Server health'), findsNothing);

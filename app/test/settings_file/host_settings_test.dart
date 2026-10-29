@@ -126,8 +126,8 @@ void main() {
 
     test('allHosts names every host and leaves domain lists out', () {
       final hosts = s.allHosts;
-      expect(hosts, containsAll(['node.lab.example.invalid', 'epicbox.epic.example.invalid', '192.0.2.10']));
-      expect(hosts, contains('lab.example.invalid'), reason: 'the e-mail host');
+      expect(hosts, containsAll(['node.lab.invalid', 'box.epic.invalid', '192.0.2.10']));
+      expect(hosts, contains('lab.invalid'), reason: 'the e-mail host');
       expect(hosts, contains('statusaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion'));
       expect(hosts, isNot(contains('.vpn.invalid')));
       expect(hosts, isNot(contains('BT Labs')));

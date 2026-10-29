@@ -13,11 +13,11 @@ enum ProtoNet {
   relayDown,
 }
 
-const _coffeeAddr = 'esP9o78uY7tR6eW5qA4sD3fG2hJ1kL9zX9cV8bN7mQ6wE5rT@epicbox.stackwallet.com';
-const _northwindAddr = 'esNw7kq8TzWmR2uPfVc9LdN6hJx3gA7sKeQ1oBnC5vD9rHtF7a@relay.northwind.example';
-const _annaAddr = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
-const _tomAddr = 'es2oC3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9UuzHYD@epicbox.epiccash.com';
-const _olaAddr = 'esQka2kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@epicbox.epiccash.com';
+String get _coffeeAddr => 'esP9o78uY7tR6eW5qA4sD3fG2hJ1kL9zX9cV8bN7mQ6wE5rT@${mockBoxAt(1)}';
+String get _northwindAddr => 'esNw7kq8TzWmR2uPfVc9LdN6hJx3gA7sKeQ1oBnC5vD9rHtF7a@relay.northwind.example';
+String get _annaAddr => 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox';
+String get _tomAddr => 'es2oC3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9UuzHYD@$mockBox';
+String get _olaAddr => 'esQka2kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@$mockBox';
 
 /// The mock's invoices: both sides' state machines, a clock the prototype moves, and the
 /// "other side" the Prototype panel plays (a payer who pays or declines, a service that bills,
@@ -145,7 +145,7 @@ class InvoiceProto {
         IssuedRequest(
           slateId: _newSlate(),
           txId: 142,
-          payerAddress: 'esQ7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2bZr8mQ2pVtW5kNcY@epicbox.epiccash.com',
+          payerAddress: 'esQ7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2bZr8mQ2pVtW5kNcY@$mockBox',
           amount: _epic(40),
           message: 'Table, Saturday market',
           issuedAt: now.subtract(const Duration(days: 1, hours: 3)),

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/desktop/app/screens.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
@@ -413,34 +414,12 @@ void main() {
   });
 
   group('the Epicbox server of an install that never saved one', () {
-    test('a wallet in the first folder keeps the server 0.1.0 used, and it is saved', () async {
-      service.existingWallets.add(await walletDir(core.Chain.mainnet));
-      expect((await wallet.status()).epicbox.domain, 'epicbox.stackwallet.com');
-      expect(secrets.values['app.relay.mainnet'], 'epicbox.stackwallet.com');
-    });
-
-    test('a wallet in wallets.json keeps it too', () async {
-      await wallet.createWallet(name: 'Main', password: _password);
-      await wallet.createWallet(name: 'Second', password: _password);
-      secrets.values.remove('app.relay.mainnet');
-      service.existingWallets.remove(await walletDir(core.Chain.mainnet));
-      final again = make(service);
-      addTearDown(again.dispose);
-      expect((await again.status()).epicbox.domain, 'epicbox.stackwallet.com');
-    });
-
-    test('a fresh install starts on the new default and keeps it once a wallet exists', () async {
-      expect((await wallet.status()).epicbox.domain, 'epicbox.epiccash.com');
+    test('a fresh install starts on the server in the settings and keeps it once a wallet exists', () async {
+      expect((await wallet.status()).epicbox.domain, hostSettings.epicboxUse);
       await wallet.createWallet(name: 'Main', password: _password);
       final again = make(service);
       addTearDown(again.dispose);
-      expect((await again.status()).epicbox.domain, 'epicbox.epiccash.com');
-    });
-
-    test('a saved server is left alone', () async {
-      secrets.values['app.relay.mainnet'] = 'epicbox.epicnet.us';
-      service.existingWallets.add(await walletDir(core.Chain.mainnet));
-      expect((await wallet.status()).epicbox.domain, 'epicbox.epicnet.us');
+      expect((await again.status()).epicbox.domain, hostSettings.epicboxUse);
     });
   });
 
@@ -493,9 +472,9 @@ void main() {
         validatedWithNode: true,
       );
       s.transactionsValue = [
-        core.fakeTx(id: 1, slateId: 's1', kind: core.TxKind.received, status: core.TxStatus.confirmed, amountCredited: BigInt.from(300), blockHeight: BigInt.from(2400000), counterparty: 'esA@epicbox.epiccash.com', messages: const [core.SlateMessage(role: core.SlateRole.sender, text: 'hi')]),
+        core.fakeTx(id: 1, slateId: 's1', kind: core.TxKind.received, status: core.TxStatus.confirmed, amountCredited: BigInt.from(300), blockHeight: BigInt.from(2400000), counterparty: 'esA@box.epic.invalid', messages: const [core.SlateMessage(role: core.SlateRole.sender, text: 'hi')]),
         core.fakeTx(id: 2, slateId: 's2', kind: core.TxKind.sent, status: core.TxStatus.awaitingRecipient, amountDebited: BigInt.from(1000), amountCredited: BigInt.from(390), fee: BigInt.from(10)),
-        core.fakeTx(id: 3, slateId: 's3', kind: core.TxKind.sent, status: core.TxStatus.awaitingConfirmation, amountDebited: BigInt.from(110), fee: BigInt.from(10), blockHeight: BigInt.from(2499998), counterparty: 'esB@epicbox.epiccash.com'),
+        core.fakeTx(id: 3, slateId: 's3', kind: core.TxKind.sent, status: core.TxStatus.awaitingConfirmation, amountDebited: BigInt.from(110), fee: BigInt.from(10), blockHeight: BigInt.from(2499998), counterparty: 'esB@box.epic.invalid'),
         core.fakeTx(kind: core.TxKind.coinbase, source: core.TxSource.restored, status: core.TxStatus.cancelled),
       ];
       await wallet.sync();
@@ -531,12 +510,12 @@ void main() {
 
       await wallet.setTxLabel('s:s1', '  Rent  ');
       expect(s.labels, {'s:s1': 'Rent'});
-      await wallet.setTxDetails('c:aa', counterparty: 'esA@epicbox.epiccash.com', transport: 'file', note: 'Pool');
+      await wallet.setTxDetails('c:aa', counterparty: 'esA@box.epic.invalid', transport: 'file', note: 'Pool');
       txs = await wallet.transactions();
       expect(txs[0].label, 'Rent');
       expect(txs[0].manualFields, {ManualField.label});
       expect(txs[0].manualEditedAt, isNotNull);
-      expect((txs[1].counterparty, txs[1].transport, txs[1].method, txs[1].note), ('esA@epicbox.epiccash.com', 'file', TxMethod.file, 'Pool'));
+      expect((txs[1].counterparty, txs[1].transport, txs[1].method, txs[1].note), ('esA@box.epic.invalid', 'file', TxMethod.file, 'Pool'));
       expect(txs[1].manualFields, {ManualField.counterparty, ManualField.transport, ManualField.note});
 
       // Removing: a blank label, and every detail cleared.
@@ -559,7 +538,7 @@ void main() {
 
     test('status follows the node, the sync and the listener', () async {
       final st = await wallet.status();
-      expect(st.node.url, 'https://node.btlabs.uk');
+      expect(st.node.url, 'https://node.lab.invalid');
       expect(st.nodeHeight, 2500000);
       expect(st.nodeHealth, ServiceHealth.ok);
       // Made on a fresh install: the new default.
@@ -593,7 +572,7 @@ void main() {
     });
 
     test('contacts round trip, favourites kept by the app', () async {
-      await wallet.saveContact(Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      await wallet.saveContact(Contact(id: '', name: 'Ann', address: 'esA@box.epic.invalid', favourite: true));
       final cs = (await wallet.contacts()).where((c) => c.name != 'BT Labs');
       expect(cs.single.name, 'Ann');
       expect(cs.single.favourite, isTrue);
@@ -656,7 +635,7 @@ void main() {
       final max = await wallet.estimateMax();
       expect(max.amount + max.fee, 100000000);
       expect(max.locked, greaterThan(0));
-      final to = '${'1' * 52}@epicbox.epiccash.com';
+      final to = '${'1' * 52}@box.epic.invalid';
       expect(await wallet.send(const SendRequest(method: TxMethod.epicbox, amount: 1000, to: 'nope')), isA<SendFailed>());
       final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: to, message: ' lunch '));
       expect(r, isA<SendDone>());
@@ -666,13 +645,13 @@ void main() {
 
     test('a refused Epicbox send says the payment waits', () async {
       service.session.sendError = const core.WalletError(kind: core.WalletErrorKind.transportFailed, message: 'relay down');
-      final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: '${'1' * 52}@epicbox.epiccash.com'));
+      final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: '${'1' * 52}@box.epic.invalid'));
       expect((r as SendFailed).message, startsWith('Not delivered'));
       expect(r.inActivity, isTrue, reason: 'the payment exists: no second review');
     });
 
     test('send all sends the reviewed amount, not a new maximum', () async {
-      final to = '${'1' * 52}@epicbox.epiccash.com';
+      final to = '${'1' * 52}@box.epic.invalid';
       final r = await wallet.send(SendRequest(method: TxMethod.epicbox, amount: 1234, to: to, sendAll: true));
       expect(r, isA<SendDone>());
       expect(service.session.epicboxSends.single.amount, BigInt.from(1234));
@@ -756,24 +735,24 @@ void main() {
     expect(await secrets.read(DeskStore.walletKey('mainnet')), isNull);
   });
 
-  test('node and Epicbox choices are saved under the phone keys and reopen the wallet', () async {
+  test('node and Epicbox choices are saved in the settings and reopen the wallet', () async {
     await created();
-    await wallet.useNode('https://node.epicnet.us:3413');
-    expect(await secrets.read('app.node.mainnet'), 'https://node.epicnet.us:3413');
-    expect((await wallet.status()).node.url, 'https://node.epicnet.us:3413');
-    await wallet.useEpicbox('epicbox.epicnet.us');
-    expect(await secrets.read('app.relay.mainnet'), 'epicbox.epicnet.us');
-    expect((await wallet.status()).epicbox.domain, 'epicbox.epicnet.us');
-    final checked = await wallet.checkNode('https://node.btlabs.uk');
+    await wallet.useNode('https://node.net.invalid:3413');
+    expect(hostSettings.nodeUse, 'https://node.net.invalid:3413');
+    expect((await wallet.status()).node.url, 'https://node.net.invalid:3413');
+    await wallet.useEpicbox('box.net.invalid');
+    expect(hostSettings.epicboxUse, 'box.net.invalid');
+    expect((await wallet.status()).epicbox.domain, 'box.net.invalid');
+    final checked = await wallet.checkNode('https://node.lab.invalid');
     expect((checked.health, checked.height, checked.version), (ServiceHealth.ok, 2500000, '3.6.0'));
     await wallet.addNode(const NodeServer(url: 'http://10.0.0.5:3413', label: 'Home', own: true));
-    expect((await wallet.nodes()).where((n) => n.own).single.label, 'Home');
+    expect((await wallet.nodes()).where((n) => n.own).single.url, 'http://10.0.0.5:3413');
   });
 
   group('server changes reopen the wallet', () {
     late _Opens opens;
     late LepicDeskWallet w;
-    const next = 'https://node.epicnet.us:3413';
+    const next = 'https://node.net.invalid:3413';
 
     setUp(() async {
       opens = _Opens();
@@ -787,7 +766,7 @@ void main() {
     test('a node the wallet cannot open on is not saved; the old one is back', () async {
       opens.refuse = (c) => c.nodeUrl == next;
       await expectLater(w.useNode(next), throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isFalse).having((e) => e.message, 'message', startsWith('Not changed'))));
-      expect(await secrets.read('app.node.mainnet'), isNull);
+      expect(hostSettings.nodeUse, isNot(next));
       expect((await w.status()).node.url, isNot(next));
       expect(await w.epicboxAddress(), opens.session.address, reason: 'open on the old node');
     });
@@ -796,7 +775,7 @@ void main() {
       opens.refuse = (_) => true;
       await expectLater(w.useNode(next), throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isTrue)));
       await expectLater(w.balance(), throwsA(isA<DeskError>()));
-      expect(await secrets.read('app.node.mainnet'), isNull);
+      expect(hostSettings.nodeUse, isNot(next));
     });
 
     test('a lock during the reopen wins: the new session closes at once', () async {
@@ -1132,9 +1111,9 @@ void main() {
       await w.createWallet(name: 'Savings', password: _password);
       final id = rec.createdConfig!.walletId!;
       expect(await w.unlock(_password), isTrue);
-      await w.useNode('https://node.epicnet.us:3413');
+      await w.useNode('https://node.net.invalid:3413');
       expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id'));
-      await w.useEpicbox('epicbox.epicnet.us');
+      await w.useEpicbox('box.net.invalid');
       expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id'));
       expect((await w.account()).id, id);
     });
@@ -1145,7 +1124,7 @@ void main() {
       final id = rec.createdConfig!.walletId!;
       await w.selectWallet('legacy-mainnet');
       expect(await w.unlock(_password), isTrue);
-      await w.saveContact(Contact(id: '', name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      await w.saveContact(Contact(id: '', name: 'Ann', address: 'esA@box.epic.invalid', favourite: true));
       Future<Contact> ann() async => (await w.contacts()).singleWhere((c) => c.name == 'Ann');
       expect((await ann()).favourite, isTrue);
       expect(await secrets.read('desk.favourites'), isNotNull);
@@ -1154,7 +1133,7 @@ void main() {
       expect((await w.contacts()).where((c) => c.name == 'Ann').single.favourite, isFalse, reason: 'wallet 2 has not marked it');
       expect(await secrets.read('desk.favourites.$id'), isNull);
       final firstFavourites = await secrets.read('desk.favourites');
-      await w.saveContact(Contact(id: (await ann()).id, name: 'Ann', address: 'esA@epicbox.epiccash.com', favourite: true));
+      await w.saveContact(Contact(id: (await ann()).id, name: 'Ann', address: 'esA@box.epic.invalid', favourite: true));
       expect(await secrets.read('desk.favourites.$id'), isNotNull);
       expect(await secrets.read('desk.favourites'), firstFavourites);
     });

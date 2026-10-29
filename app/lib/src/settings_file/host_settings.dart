@@ -189,6 +189,7 @@ class HostSettings {
   String get importGuiEpicbox => value('import.gui_epicbox') as String;
   String get importOldEpicbox => value('import.old_epicbox') as String;
   Map<String, String> get importRenamedEpicbox => value('import.renamed_epicbox') as Map<String, String>;
+  List<String> get importDeadFallbacks => _texts('import.dead_fallbacks');
 
   // [report]
   List<String> get reportKeepHosts => _texts('report.keep_hosts');

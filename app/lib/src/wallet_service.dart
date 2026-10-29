@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 
+import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'history/wallet_history.dart';
 import 'models.dart';
 import 'pairing_api.dart';
@@ -1679,8 +1680,7 @@ class FakeWalletSession implements WalletSession {
   Future<HttpListenerInfo?> httpListenerStatus() async => httpListenerInfo;
 
   /// What [onionAddress] answers.
-  String onion =
-      'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
+  String onion = fakeWalletOnion;
 
   /// Events tor emits; tests add to them. [stopTor] adds `stopped`.
   final StreamController<TorEvent> torEvents =

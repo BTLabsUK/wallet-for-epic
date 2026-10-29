@@ -19,7 +19,7 @@ import '../support/btlabs_public_file.dart';
 import '../support/btlabs_sign.dart';
 
 const _password = 'test-pass-1234';
-const _moved = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.stackwallet.com';
+const _moved = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.stack.invalid';
 
 void main() {
   late Directory files;
@@ -392,13 +392,13 @@ void main() {
     }
 
     test('a fetched file with onions replaces the built-in copy, and the cache keeps it', () async {
-      final body = await signedPublicFile(d, serial: 3, onions: [onionEntry('node.btlabs.uk', service: 'node')]);
+      final body = await signedPublicFile(d, serial: 3, onions: [onionEntry('node.lab.invalid', service: 'node')]);
       final o = await openAnswering((_) async => body);
-      expect(o.entries.map((e) => e.host), ['node.btlabs.uk']);
+      expect(o.entries.map((e) => e.host), ['node.lab.invalid']);
       final cached = OnionDirectory();
       final w = app(onions: cached);
       expect(await w.unlock(_password), isTrue);
-      expect(cached.entries.map((e) => e.host), ['node.btlabs.uk']);
+      expect(cached.entries.map((e) => e.host), ['node.lab.invalid']);
     });
 
     test('a file without the field keeps the built-in copy', () async {
@@ -407,27 +407,27 @@ void main() {
     });
 
     test('a forged or unsigned file changes nothing', () async {
-      final good = await signedPublicFile(d, serial: 3, onions: [onionEntry('node.btlabs.uk')]);
+      final good = await signedPublicFile(d, serial: 3, onions: [onionEntry('node.lab.invalid')]);
       final forged = good.replaceFirst('"sig": "', '"sig": "Z');
       expect((await openAnswering((_) async => forged)).entries, builtInOnions);
-      final unsigned = String.fromCharCodes(publicPayload(d, serial: 3, onions: [onionEntry('node.btlabs.uk')]));
+      final unsigned = String.fromCharCodes(publicPayload(d, serial: 3, onions: [onionEntry('node.lab.invalid')]));
       expect((await openAnswering((_) async => unsigned)).entries, builtInOnions);
     });
 
     test('a rolled-back file never replaces what a newer one gave', () async {
       final o = OnionDirectory();
-      var body = await signedPublicFile(d, serial: 4, onions: [onionEntry('new.btlabs.uk')]);
+      var body = await signedPublicFile(d, serial: 4, onions: [onionEntry('new.lab.invalid')]);
       final w = app(web: (_) async => body, onions: o);
       expect(await w.unlock(_password), isTrue);
       await pumpEventQueue(times: 50);
-      expect(o.entries.single.host, 'new.btlabs.uk');
+      expect(o.entries.single.host, 'new.lab.invalid');
       await w.lock();
       setCache({...await cache(), 'at': 0, 'tried': 0});
-      body = await signedPublicFile(d, serial: 3, onions: [onionEntry('old.btlabs.uk')]);
+      body = await signedPublicFile(d, serial: 3, onions: [onionEntry('old.lab.invalid')]);
       final again = app(web: (_) async => body, onions: o);
       expect(await again.unlock(_password), isTrue);
       await pumpEventQueue(times: 50);
-      expect(o.entries.single.host, 'new.btlabs.uk');
+      expect(o.entries.single.host, 'new.lab.invalid');
     });
   });
 }

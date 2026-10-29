@@ -109,7 +109,7 @@ void main() {
   test('the gap does not grow: an own node added, then another node picked, later and later', () async {
     await open(const Duration(milliseconds: 50));
     await settled();
-    const picked = 'https://node.epicnet.us:3413';
+    const picked = 'https://node.net.invalid:3413';
     for (final (blocks, step) in [(64, 'own node added'), (66, 'another node picked')]) {
       chain.height += blocks;
       await Future<void>.delayed(const Duration(milliseconds: 60));
@@ -130,21 +130,21 @@ void main() {
     await settled();
     chain.height += 130;
     await Future<void>.delayed(const Duration(milliseconds: 60));
-    await wallet.checkNode('https://node.epicnet.us:3413');
+    await wallet.checkNode('https://node.net.invalid:3413');
     final rows = nodePanelRows(await wallet.nodes());
-    expect(rows.where((r) => r.behind != null).map((r) => r.value), ['https://node.epicnet.us:3413']);
-    expect(rows.firstWhere((r) => r.value == 'https://node.btlabs.uk').behind, isNull);
+    expect(rows.where((r) => r.behind != null).map((r) => r.value), ['https://node.net.invalid:3413']);
+    expect(rows.firstWhere((r) => r.value == 'https://node.lab.invalid').behind, isNull);
     expect(rows.every((r) => (r.behind ?? 0) == 0), isTrue, reason: 'no row reads 130 behind');
   });
 
   test('a node that stops answering is shown down, never with its old height behind', () async {
     await open(const Duration(milliseconds: 50));
     await settled();
-    chain.dead.add('https://node.epiccash.com:3413');
+    chain.dead.add('https://node.epic.invalid:3413');
     chain.height += 64;
     await Future<void>.delayed(const Duration(milliseconds: 60));
     final rows = nodePanelRows(await settled());
-    final gone = rows.firstWhere((r) => r.value == 'https://node.epiccash.com:3413');
+    final gone = rows.firstWhere((r) => r.value == 'https://node.epic.invalid:3413');
     expect(gone.state, NodeHealthState.down);
     expect(gone.behind, isNull);
     expect([for (final r in rows) if (r.value != gone.value) r.behind], everyElement(0));
@@ -153,13 +153,13 @@ void main() {
   test('a node whose check hangs loses its height once the check is older than nodeStale', () async {
     await open(const Duration(milliseconds: 50), stale: const Duration(milliseconds: 150));
     await settled();
-    chain.hung.add('https://node.epiccash.com:3413');
+    chain.hung.add('https://node.epic.invalid:3413');
     chain.height += 64;
     await Future<void>.delayed(const Duration(milliseconds: 60));
     await settled();
     await Future<void>.delayed(const Duration(milliseconds: 120));
     final rows = nodePanelRows(await settled());
-    expect(rows.firstWhere((r) => r.value == 'https://node.epiccash.com:3413').behind, isNull);
+    expect(rows.firstWhere((r) => r.value == 'https://node.epic.invalid:3413').behind, isNull);
     expect([for (final r in rows) r.behind ?? 0], everyElement(0), reason: 'no row reads 64 behind');
   });
 

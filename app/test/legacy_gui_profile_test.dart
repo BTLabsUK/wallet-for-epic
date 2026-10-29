@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/legacy/gui_rules.dart';
 import 'package:epic_wallet/src/legacy_gui_profile.dart';
 import 'package:epic_wallet/src/legacy_wallets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/test_settings.dart';
 
 /// [path] with '/' between its parts: the app joins with the platform's separator, the tests
 /// with '/', so paths compare by their parts (Windows, item 28).
@@ -16,6 +17,9 @@ String _p(String path) => path.replaceAll(r'\', '/');
 /// filled in), with the IndexedDB folders real Chromium wrote (tool/legacy_gui_fixtures.py) put
 /// where each GUI keeps them. No real wallet or profile is ever opened.
 void main() {
+  // These tests read the old GUI's real data against the shipped defaults.
+  useShippedSettings();
+
   const fixtures = 'test/fixtures/legacy_gui';
   late Directory tmp;
   late String home;

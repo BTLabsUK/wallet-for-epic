@@ -64,9 +64,9 @@ void main() {
     await c.close();
     opened.clear();
 
-    await handEdit('use = "https://node.lab.example.invalid"', 'use = "https://node.net.example.invalid:3413"');
+    await handEdit('use = "https://node.lab.invalid"', 'use = "https://node.net.invalid:3413"');
     final again = await open();
-    expect(again.settings.nodeUse, 'https://node.net.example.invalid:3413');
+    expect(again.settings.nodeUse, 'https://node.net.invalid:3413');
     expect(again.notices, isEmpty);
   });
 
@@ -84,16 +84,16 @@ void main() {
 
     final servers = c.settings.nodeServers.reversed.toList();
     await c.setAll({
-      'epicbox.use': 'epicbox.stack.example.invalid',
+      'epicbox.use': 'box.stack.invalid',
       'node.use': 'http://192.0.2.10:3413',
       'node.servers': servers,
     });
     final after = await file.readAsString();
     expect(after, contains('# my own note\nmine = "kept"\n'));
     expect(after, contains('# my LAN node\n[[node.servers]]\nurl = "http://192.0.2.10:3413"'));
-    expect(after, contains('use = "epicbox.stack.example.invalid"'));
+    expect(after, contains('use = "box.stack.invalid"'));
     expect(c.settings.nodeServers, servers);
-    expect(c.settings.epicboxUse, 'epicbox.stack.example.invalid');
+    expect(c.settings.epicboxUse, 'box.stack.invalid');
     expect(uses.map((u) => '${u.key} ${u.fromApp}'), ['node.use true', 'epicbox.use true']);
     // Only the lines of what changed moved: the rest of the file is the same text.
     final untouched = before.substring(before.indexOf('[pairing]'));
@@ -106,8 +106,8 @@ void main() {
     final newer = shippedText
         .replaceFirst('version = 1', 'version = 2')
         .replaceFirst(
-          '[[epicbox.servers]]\nhost = "epicbox.pool.example.invalid"\noperator = "Iniaku pool"',
-          '[[epicbox.servers]]\nhost = "epicbox.pool.example.invalid"\noperator = "Iniaku pool"\n\n'
+          '[[epicbox.servers]]\nhost = "box.lab.invalid"\noperator = "BT Labs"',
+          '[[epicbox.servers]]\nhost = "box.lab.invalid"\noperator = "BT Labs"\n\n'
               '[[epicbox.servers]]\nhost = "new.example.invalid"\noperator = "New"',
         );
     final c = await open(shippedOverride: newer);
@@ -128,12 +128,12 @@ void main() {
 
     test('only the file changed: its value stays next to the app change', () async {
       final c = await open();
-      await handEdit('fallback = "https://node.epic.example.invalid:3413"', 'fallback = "https://node.net.example.invalid:3413"');
+      await handEdit('fallback = "https://node.epic.invalid:3413"', 'fallback = "https://node.net.invalid:3413"');
       await c.set('status.enabled', false);
       final text = await file.readAsString();
-      expect(text, contains('fallback = "https://node.net.example.invalid:3413"'));
+      expect(text, contains('fallback = "https://node.net.invalid:3413"'));
       expect(text, contains('enabled = false'));
-      expect(c.settings.nodeFallback, 'https://node.net.example.invalid:3413');
+      expect(c.settings.nodeFallback, 'https://node.net.invalid:3413');
       expect(c.notices, isEmpty);
     });
 
@@ -141,10 +141,10 @@ void main() {
       final c = await open();
       final uses = <UseChange>[];
       c.useChanges.listen(uses.add);
-      await handEdit('use = "https://node.lab.example.invalid"', 'use = "https://node.net.example.invalid:3413"');
-      await c.set('node.use', 'https://node.epic.example.invalid:3413');
-      expect(await file.readAsString(), contains('use = "https://node.net.example.invalid:3413"'));
-      expect(c.settings.nodeUse, 'https://node.net.example.invalid:3413');
+      await handEdit('use = "https://node.lab.invalid"', 'use = "https://node.net.invalid:3413"');
+      await c.set('node.use', 'https://node.epic.invalid:3413');
+      expect(await file.readAsString(), contains('use = "https://node.net.invalid:3413"'));
+      expect(c.settings.nodeUse, 'https://node.net.invalid:3413');
       expect(c.notices.single, const SettingsNotice(SettingsNoticeKind.conflict, file: 'settings.toml', key: 'node.use'));
       expect(settingsNoticeText(AppLocalizationsEn(), c.notices.single), 'settings.toml was edited at the same time; its value for node.use is kept.');
       expect(uses.single.fromApp, isFalse);
@@ -159,7 +159,7 @@ void main() {
       c.changes.listen(changes.add);
       c.useChanges.listen(uses.add);
 
-      await c.set('epicbox.use', 'epicbox.stack.example.invalid');
+      await c.set('epicbox.use', 'box.stack.invalid');
       await Future<void>.delayed(const Duration(milliseconds: 1500));
       expect(changes, hasLength(1), reason: 'the own write is not read back as an edit');
       expect(changes.single.appKeys, {'epicbox.use'});
@@ -167,18 +167,18 @@ void main() {
       // An editor saving by rename, in two steps.
       final tmp = File('${dir.path}/settings.toml.swp');
       final edited = (await file.readAsString()).replaceFirst(
-        'use = "epicbox.stack.example.invalid"',
-        'use = "epicbox.net.example.invalid"',
+        'use = "box.stack.invalid"',
+        'use = "box.net.invalid"',
       );
       await tmp.writeAsString(edited.substring(0, 10));
       await tmp.writeAsString(edited);
       await tmp.rename(file.path);
-      await _until(() => c.settings.epicboxUse == 'epicbox.net.example.invalid');
+      await _until(() => c.settings.epicboxUse == 'box.net.invalid');
       expect(changes, hasLength(2));
       expect(changes.last.appKeys, isEmpty);
       expect(uses.map((u) => '${u.to} ${u.fromApp}'), [
-        'epicbox.stack.example.invalid true',
-        'epicbox.net.example.invalid false',
+        'box.stack.invalid true',
+        'box.net.invalid false',
       ]);
     });
   });
@@ -214,10 +214,10 @@ void main() {
 
     test('a bad value is skipped with its line; the last good value stays', () async {
       final c = await open();
-      await handEdit('use = "https://node.lab.example.invalid"', 'use = "node.lab.example.invalid"');
+      await handEdit('use = "https://node.lab.invalid"', 'use = "node.lab.invalid"');
       await c.reload();
       final text = await file.readAsString();
-      expect(c.settings.nodeUse, 'https://node.lab.example.invalid');
+      expect(c.settings.nodeUse, 'https://node.lab.invalid');
       final n = c.notices.single;
       expect((n.kind, n.key, n.problem, n.line), (
         SettingsNoticeKind.badValue,
@@ -234,14 +234,14 @@ void main() {
 
   test('an unknown key is kept and named once per run', () async {
     final c = await open();
-    await handEdit('[epicbox]\n', '[epicbox]\ndefualt = "epicbox.epic.example.invalid"\n');
+    await handEdit('[epicbox]\n', '[epicbox]\ndefualt = "box.epic.invalid"\n');
     await c.reload();
     await handEdit('removed = []', 'removed = ["a.example.invalid:443"]');
     await c.reload();
     expect(c.notices.single.kind, SettingsNoticeKind.unknownKey);
     expect(c.notices.single.key, 'epicbox.defualt');
     await c.set('status.enabled', false);
-    expect(await file.readAsString(), contains('defualt = "epicbox.epic.example.invalid"'));
+    expect(await file.readAsString(), contains('defualt = "box.epic.invalid"'));
     expect(c.notices, hasLength(1));
   });
 
@@ -261,13 +261,13 @@ void main() {
     final b = await open();
     await Future.wait([
       a.set('node.use', 'http://192.0.2.10:3413'),
-      b.set('epicbox.use', 'epicbox.stack.example.invalid'),
+      b.set('epicbox.use', 'box.stack.invalid'),
       a.set('status.enabled', false),
       b.set('updates.check', false),
     ]);
     final text = await file.readAsString();
     expect(text, contains('use = "http://192.0.2.10:3413"'));
-    expect(text, contains('use = "epicbox.stack.example.invalid"'));
+    expect(text, contains('use = "box.stack.invalid"'));
     expect(text, contains('enabled = false'));
     expect(text, contains('check = false'));
     expect(a.notices, isEmpty);
@@ -296,10 +296,10 @@ void main() {
       addTearDown(sub.close);
       container.listen(settingsNoticesProvider, (_, _) {});
 
-      await container.read(hostSettingsProvider.notifier).set('epicbox.use', 'epicbox.stack.example.invalid');
-      expect(container.read(hostSettingsProvider).epicboxUse, 'epicbox.stack.example.invalid');
+      await container.read(hostSettingsProvider.notifier).set('epicbox.use', 'box.stack.invalid');
+      expect(container.read(hostSettingsProvider).epicboxUse, 'box.stack.invalid');
 
-      await handEdit('use = "epicbox.stack.example.invalid"', 'use = "x y"');
+      await handEdit('use = "box.stack.invalid"', 'use = "x y"');
       await c.reload();
       final notices = container.read(settingsNoticesProvider);
       expect(notices.single.problem, ValueProblem.notEpicboxServer);

@@ -22,7 +22,9 @@ String get guiDefaultEpicbox => hostSettings.importGuiEpicbox;
 const List<String> guiLocales = ['bg', 'cz', 'de', 'en', 'fa', 'hi', 'pl'];
 
 // nodeAddress.js: the fallbacks of older GUIs that are gone, and the mainnet nodes a GUI saved
-final _deadFallbackHosts = [RegExp(r'^(.+\.)?fastepic\.eu$', caseSensitive: false), RegExp(r'^116\.203\.211\.229$')];
+List<RegExp> get _deadFallbackHosts => [
+  for (final h in hostSettings.importDeadFallbacks) RegExp('^(.+\\.)?${RegExp.escape(h)}\$', caseSensitive: false),
+];
 List<RegExp> get _mainnetDefaultHosts => [
   RegExp('^${RegExp.escape(Uri.parse(guiDefaultNode).host)}\$', caseSensitive: false),
   ..._deadFallbackHosts,

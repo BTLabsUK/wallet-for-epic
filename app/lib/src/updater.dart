@@ -675,7 +675,8 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// no unlock (`app/README.md` "In-app updates"). Never on a timer. Stays quiet on failure.
   Future<void> checkOnOpening() async {
     // Offline checks nothing (network_gate.dart).
-    if (!supported || NetGate.offline) return;
+    // The settings file can turn the automatic check off (`updates.check`); Settings still checks by hand.
+    if (!supported || NetGate.offline || !hostSettings.updatesCheck) return;
     await check(quiet: true);
   }
 

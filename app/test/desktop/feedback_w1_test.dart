@@ -180,7 +180,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Save contact'));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'), findsOneWidget, reason: '"$bad"');
+      expect(find.text('Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'), findsOneWidget, reason: '"$bad"');
     }
   });
 
@@ -206,10 +206,10 @@ void main() {
   const ownKey = 'esWnT8kBf3yXqPZ2r9cLhVd7JmK4uA6gYsN1pQeRtC5vD8xHwF2b';
   for (final (to, refused) in [
     (ownKey, true),
-    ('$ownKey@epicbox.epiccash.com:443', true),
-    ('$ownKey@EPICBOX.epiccash.com', true),
-    ('${ownKey.toLowerCase()}@epicbox.epiccash.com', false),
-    ('$ownKey@epicbox.stackwallet.com', false),
+    ('$ownKey@box.epic.invalid:443', true),
+    ('$ownKey@BOX.epic.invalid', true),
+    ('${ownKey.toLowerCase()}@box.epic.invalid', false),
+    ('$ownKey@box.stack.invalid', false),
   ]) {
     testWidgets('"$to" is ${refused ? '': 'not '}the wallet\'s own address', (tester) async {
       final api = _Wallet();

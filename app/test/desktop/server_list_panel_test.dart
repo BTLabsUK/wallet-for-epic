@@ -50,9 +50,9 @@ class _LanDown extends MockDeskWallet {
   ];
 }
 
-const _btlabs = 'https://node.btlabs.uk';
-const _epicnet = 'https://node.epicnet.us:3413';
-const _epiccash = 'https://node.epiccash.com:3413';
+const _btlabs = 'https://node.lab.invalid';
+const _epicnet = 'https://node.net.invalid:3413';
+const _epiccash = 'https://node.epic.invalid:3413';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -124,10 +124,10 @@ void main() {
   }
 
   group('selection mode', () {
-    const epiccash = 'epicbox.epiccash.com';
-    const stack = 'epicbox.stackwallet.com';
-    const floo = 'epicbox.btlabs.uk';
-    const epicnet = 'epicbox.epicnet.us';
+    const epiccash = 'box.epic.invalid';
+    const stack = 'box.stack.invalid';
+    const floo = 'box.lab.invalid';
+    const epicnet = 'box.net.invalid';
     const defaults = [epiccash, stack, floo];
     final calls = <List<String>>[];
 
@@ -226,7 +226,7 @@ void main() {
     }
 
     await type(tester, 'cypher');
-    expect(row('https://epic.stackwallet.com:3413'), findsOneWidget);
+    expect(row('https://node.stack.invalid:3413'), findsOneWidget);
     expect(row(_btlabs), findsNothing);
     expect(helper(tester), '1 match.');
     expect(find.byKey(const ValueKey('server-list-add')), findsNothing, reason: 'something matches and it is no address');
@@ -274,7 +274,7 @@ void main() {
     await settle(tester, 10);
     expect(find.byType(Dialog), findsNothing);
     expect(container.read(deskProvider).status!.node.url, _epicnet);
-    expect(find.text('Switched to node.epicnet.us:3413'), findsOneWidget);
+    expect(find.text('Switched to node.net.invalid:3413'), findsOneWidget);
     expect(tester.widget<EditableText>(field).controller.text, '');
     await end(tester);
   });
@@ -285,7 +285,7 @@ void main() {
     expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
     await tap(tester, find.byKey(const ValueKey('server-row-remove-$_epiccash')));
     expect(row(_epiccash), findsNothing);
-    expect(find.text('Removed node.epiccash.com:3413.'), findsOneWidget);
+    expect(find.text('Removed node.epic.invalid:3413.'), findsOneWidget);
     expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('server-list-undo')));
     expect(nodes().indexOf(_epiccash), at, reason: 'back where it was');
@@ -326,8 +326,8 @@ void main() {
     Finder says(String value, String text) => find.descendant(of: row(value), matching: find.textContaining(text, findRichText: true));
     expect(says('http://10.0.1.24:3413', 'Not reachable from this computer'), findsOneWidget);
     expect(says('http://10.0.1.24:3413', 'Not responding'), findsNothing);
-    expect(says('https://epic-node.iniaku.my.id', 'Not responding'), findsOneWidget);
-    expect(says('https://epic-node.iniaku.my.id', 'Not reachable'), findsNothing);
+    expect(says('https://node.stack.invalid:3413', 'Not responding'), findsOneWidget);
+    expect(says('https://node.stack.invalid:3413', 'Not reachable'), findsNothing);
     await end(tester);
   });
 
@@ -337,7 +337,7 @@ void main() {
     await settle(tester);
     expect(find.descendant(of: row(_btlabs), matching: find.byKey(ServerTileView.imageKey)), findsOneWidget);
     expect(find.descendant(of: row(_epicnet), matching: find.byKey(ServerTileView.imageKey)), findsNothing);
-    expect(find.descendant(of: row(_epicnet), matching: find.text('EU')), findsOneWidget, reason: 'status.btlabs.uk names it epicnet.us');
+    expect(find.descendant(of: row(_epicnet), matching: find.text('EN')), findsOneWidget, reason: 'the operator EpicNet gives its initials');
     expect(find.descendant(of: row(_epicnet), matching: find.text('EpicNet', findRichText: true)), findsNothing);
     await end(tester);
   });
@@ -361,9 +361,9 @@ void main() {
     const warning = 'Changing the server changes your Epicbox address. Share the new one.';
     expect(find.text(warning), findsOneWidget);
     final before = container.read(deskProvider).status!.epicbox.domain;
-    await tap(tester, row('epicbox.stackwallet.com'));
+    await tap(tester, row('box.stack.invalid'));
     expect(find.byType(EDialog), findsOneWidget);
-    expect(find.text('Switch to epicbox.stackwallet.com?'), findsOneWidget);
+    expect(find.text('Switch to box.stack.invalid?'), findsOneWidget);
     expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('server-list-cancel')));
     expect(find.byType(EDialog), findsNothing);
@@ -405,7 +405,7 @@ void main() {
             label: 'Node server',
             value: '',
             fieldText: 'Pick a node',
-            servers: const [PanelServer(value: _btlabs, host: 'node.btlabs.uk')],
+            servers: const [PanelServer(value: _btlabs, host: 'node.lab.invalid')],
             source: const DeskServerSource(public: [_btlabs]),
             chooseOnly: true,
             openInitially: true,

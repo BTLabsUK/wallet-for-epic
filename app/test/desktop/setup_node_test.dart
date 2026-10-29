@@ -23,10 +23,10 @@ class _Wallet extends MockDeskWallet {
 
   @override
   Future<List<NodeServer>> nodes() async => const [
-    NodeServer(url: 'https://epic-node.iniaku.my.id', label: 'Iniaku pool', operator: 'Iniaku pool', health: ServiceHealth.down, version: '4.1.1'),
-    NodeServer(url: 'https://node.epiccash.com:3413', label: 'Epic Cash', operator: 'Epic Cash', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '4.1.1'),
-    NodeServer(url: 'https://epic.stackwallet.com:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.1'),
-    NodeServer(url: 'https://node.epicnet.us:3413', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.ok, latencyMs: 132, height: 2914414, version: '4.1.1'),
+    NodeServer(url: 'https://node.pool.example.org', label: 'Pool op', operator: 'Pool op', health: ServiceHealth.down, version: '4.1.1'),
+    NodeServer(url: 'https://node.epic.invalid:3413', label: 'Epic Cash', operator: 'Epic Cash', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '4.1.1'),
+    NodeServer(url: 'https://node.stack.invalid:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.1'),
+    NodeServer(url: 'https://node.net.invalid:3413', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.ok, latencyMs: 132, height: 2914414, version: '4.1.1'),
   ];
 
   @override
@@ -91,8 +91,8 @@ void main() {
     expect(find.text('Choose a node'), findsOneWidget);
     expect(find.text('The wallet reads the chain and sends through an Epic node.'), findsOneWidget);
     final combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
-    expect(combo.value, 'https://node.epicnet.us:3413', reason: 'healthy, the lowest latency');
-    expect(combo.fieldText, 'node.epicnet.us:3413');
+    expect(combo.value, 'https://node.net.invalid:3413', reason: 'healthy, the lowest latency');
+    expect(combo.fieldText, 'node.net.invalid:3413');
     expect(find.text('default'), findsNothing);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     await end(tester);
@@ -107,7 +107,7 @@ void main() {
     expect(find.text('What running the node here means, and which node to use.'), findsOneWidget);
     expect(find.textContaining('A separate program.', findRichText: true), findsOneWidget);
     expect(find.text('Start the bundled node'), findsOneWidget);
-    expect(find.bySemanticsLabel(RegExp('^Use node.epiccash.com until the local node is synced')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('^Use node.epic.invalid until the local node is synced')), findsOneWidget);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull, reason: 'bundled is preselected when nothing answers');
 
     await tester.tap(find.text('Use a node already running on this computer'));
@@ -142,9 +142,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Review settings'), findsOneWidget);
     expect(find.text('Local node, bundled'), findsOneWidget);
-    expect(find.text('node.epiccash.com'), findsOneWidget);
+    expect(find.text('node.epic.invalid'), findsOneWidget);
     expect(find.text(mockDataFolder), findsOneWidget);
-    expect(find.textContaining('Save starts the node; node.epiccash.com stands in'), findsOneWidget);
+    expect(find.textContaining('Save starts the node; node.epic.invalid stands in'), findsOneWidget);
     expect(wallet.calls, isEmpty);
     expect(node.calls.where((c) => c.startsWith('start')), isEmpty);
 
@@ -170,11 +170,11 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('Remote node'), findsOneWidget);
-    expect(find.text('https://node.epicnet.us:3413'), findsOneWidget);
+    expect(find.text('https://node.net.invalid:3413'), findsOneWidget);
     await tester.tap(find.text('Save settings'));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(wallet.calls, ['node https://node.epicnet.us:3413']);
+    expect(wallet.calls, ['node https://node.net.invalid:3413']);
     expect(node.calls, isEmpty);
     await end(tester);
   });
@@ -194,7 +194,7 @@ void main() {
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     await tester.pump();
     combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
-    expect(combo.value, 'https://node.epicnet.us:3413', reason: 'healthy, the lowest latency');
+    expect(combo.value, 'https://node.net.invalid:3413', reason: 'healthy, the lowest latency');
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     await end(tester);
   });
@@ -205,12 +205,12 @@ void main() {
     container.dispose();
     container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(checking), deskNodeProvider.overrideWithValue(node)]);
     await show(tester, SetupStep.node);
-    tester.widget<ServerListPanel>(find.byType(ServerListPanel)).onChoose('epic.stackwallet.com:3413');
+    tester.widget<ServerListPanel>(find.byType(ServerListPanel)).onChoose('node.stack.invalid:3413');
     await tester.pump();
     checking.answered = true;
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     await tester.pump();
-    expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, 'https://epic.stackwallet.com:3413', reason: 'typed without a scheme: https');
+    expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, 'https://node.stack.invalid:3413', reason: 'typed without a scheme: https');
     await end(tester);
   });
 

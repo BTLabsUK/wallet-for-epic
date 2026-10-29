@@ -9,6 +9,7 @@
 /// that long, as the preview wants.
 library;
 
+import 'desktop/data/mock_hosts.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -51,7 +52,8 @@ List<SasWord> fakeSasWords(String seed, {int count = sasWordCount}) {
 }
 
 /// A fake Epicbox address for [seed] on [relay]: 52 base58 characters, as the fakes accept.
-String fakePairedAddress(String seed, [String relay = 'epicbox.epiccash.com']) {
+String fakePairedAddress(String seed, [String? relay]) {
+  relay ??= mockBox;
   const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
   var h = 0x9e3779b9;
   final b = StringBuffer('es');
@@ -87,7 +89,7 @@ class FakePairing implements PairingApi {
   DateTime Function() clock = DateTime.now;
 
   /// The relay the fake's own invites name ("Delivered via").
-  String homeRelay = 'epicbox.epiccash.com';
+  String homeRelay = mockBox;
 
   /// When set, the other side answers invites and confirms answers on its own after this long.
   Duration? autoAnswerAfter;

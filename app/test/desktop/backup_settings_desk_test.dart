@@ -66,9 +66,9 @@ void main() {
           BackupKey.payments: PaymentPrefs.defaults.copyWith(linkTor: true).toJson(),
           BackupKey.sendStrategy: 'all',
           BackupKey.splitChange: false,
-          BackupKey.node: {'mainnet': 'https://node.epicnet.us:3413'},
-          BackupKey.relay: {'mainnet': 'epicbox.stackwallet.com'},
-          BackupKey.nodeList: {'mainnet': serverListJson(const ServerList(entries: ['https://node.epicnet.us:3413', 'http://10.0.0.5:3413']))},
+          BackupKey.node: {'mainnet': 'https://node.net.invalid:3413'},
+          BackupKey.relay: {'mainnet': 'box.stack.invalid'},
+          BackupKey.nodeList: {'mainnet': serverListJson(const ServerList(entries: ['https://node.net.invalid:3413', 'http://10.0.0.5:3413']))},
           BackupKey.tor: true,
           BackupKey.seenAs: 'Alice',
         },
@@ -100,12 +100,12 @@ void main() {
       expect(mock.proto.expiry, const Duration(hours: 1));
       expect(mock.seedsDeleted, {'btlabs'});
       expect((await mock.contacts()).any((x) => x.id == 'btlabs'), isFalse);
-      expect(mock.nodeList.entries, ['https://node.epicnet.us:3413', 'http://10.0.0.5:3413']);
+      expect(mock.nodeList.entries, ['https://node.net.invalid:3413', 'http://10.0.0.5:3413']);
       expect((await mock.nodes()).any((n) => n.url == 'https://mine.example:3413' && n.label == 'mine' && n.own), isTrue);
       expect((await mock.wallets()).firstWhere((w) => w.id == 'legacy-mainnet').name, 'Savings');
       final mine = (await mock.backupSettings()).mine;
-      expect(mine[BackupKey.node], {'mainnet': 'https://node.epicnet.us:3413'});
-      expect(mine[BackupKey.relay], {'mainnet': 'epicbox.stackwallet.com'});
+      expect(mine[BackupKey.node], {'mainnet': 'https://node.net.invalid:3413'});
+      expect(mine[BackupKey.relay], {'mainnet': 'box.stack.invalid'});
 
       expect((await glue.plan(HistoryImport(settings: settings, walletName: 'Savings'))).isEmpty, isTrue, reason: 'the same file again');
     }, skip: torBuilt ? null : 'no Tor in this build');
@@ -125,7 +125,7 @@ void main() {
       expect(await glue.apply(plan, takeConflicts: false), 1);
       expect(c.read(deskProvider).settings.theme, ThemeChoice.system);
       expect(c.read(deskProvider).settings.hideAmounts, isTrue);
-      expect((await mock.backupSettings()).mine[BackupKey.node], {'mainnet': 'https://node.btlabs.uk'});
+      expect((await mock.backupSettings()).mine[BackupKey.node], {'mainnet': 'https://node.lab.invalid'});
 
       expect(await glue.apply(plan, takeConflicts: true), 3);
       expect(c.read(deskProvider).settings.theme, ThemeChoice.light);
@@ -209,9 +209,9 @@ void main() {
       addTearDown(() => hostSettings = before);
       expect((await wallet.contacts()).any((x) => x.name == 'BT Labs'), isTrue, reason: 'seeded on open');
       await wallet.restoreBackupItems(
-        nodeList: const ServerList(entries: ['https://node.epicnet.us:3413']),
-        relayList: ServerList(entries: const ['epicbox.epicnet.us'], removed: {serverKeyOf(ServerKind.relay, 'epicbox.stackwallet.com')}),
-        ownRelay: (relay: 'epicbox.epicnet.us'),
+        nodeList: const ServerList(entries: ['https://node.net.invalid:3413']),
+        relayList: ServerList(entries: const ['box.net.invalid'], removed: {serverKeyOf(ServerKind.relay, 'box.stack.invalid')}),
+        ownRelay: (relay: 'box.net.invalid'),
         seedsDeleted: ['btlabs', 'unknown-seed'],
       );
       final mine = (await wallet.backupSettings()).mine;
@@ -220,9 +220,9 @@ void main() {
       // Every wallet uses the settings' Epicbox server: an older backup's own one is not taken.
       expect(desk[BackupKey.ownRelay], isNull);
       expect(mine[BackupKey.relay], {'mainnet': EpicboxRelay.parse(hostSettings.epicboxUse)!.label});
-      expect((mine[BackupKey.nodeList]! as Map)['mainnet'], {'entries': ['https://node.epicnet.us:3413'], 'removed': <Object?>[]});
+      expect((mine[BackupKey.nodeList]! as Map)['mainnet'], {'entries': ['https://node.net.invalid:3413'], 'removed': <Object?>[]});
       final relays = serverListFromJson(ServerKind.relay, (mine[BackupKey.relayList]! as Map)['mainnet'])!;
-      expect(relays.removed, {serverKeyOf(ServerKind.relay, 'epicbox.stackwallet.com')});
+      expect(relays.removed, {serverKeyOf(ServerKind.relay, 'box.stack.invalid')});
       expect((await wallet.contacts()).any((x) => x.name == 'BT Labs'), isFalse);
     });
   });

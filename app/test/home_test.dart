@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -53,7 +54,7 @@ int _at(DateTime t) => t.millisecondsSinceEpoch ~/ 1000;
 /// The fake node's tip height.
 final BigInt _tip = BigInt.from(2500000);
 
-const String _bob = 'esBobAddress1234567890@epicbox.epiccash.com';
+const String _bob = 'esBobAddress1234567890@box.epic.invalid';
 
 /// A price that tests can change, counting how often it was asked.
 class _FakePrice implements PriceSource {
@@ -519,7 +520,7 @@ String _titleText(WidgetTester tester) {
 }
 
 /// The status words of the card row with [key], as its label opens: "Node online" of
-/// "Node online, node.btlabs.uk, Synced".
+/// "Node online, node.lab.invalid, Synced".
 /// What a screen reader says for the status icon with [key]: the service and its word.
 String _statusWord(WidgetTester tester, Key key) =>
     _statusSemantics(tester, key).label;
@@ -631,7 +632,7 @@ void main() {
         expect(txTitle(englishStrings, tx, contactName: 'Bob'), 'Bob');
         expect(
           txTitle(englishStrings, tx),
-          'esBobA…567890@epicbox.epiccash.com',
+          'esBobA…567890@box.epic.invalid',
         );
         expect(
           txTitle(englishStrings, fakeTx(kind: TxKind.sent, status: status)),
@@ -726,33 +727,17 @@ void main() {
       );
     });
 
-    test('explorer links: floonet kernel, mainnet block, none on usernet', () {
+    test('explorer links: the kernel when the file names a kernel page, else the block, none without either', () {
       final tx = fakeTx(
         status: TxStatus.confirmed,
         kernelExcess: '09ff',
         blockHeight: BigInt.from(42),
       );
-      expect(
-        explorerUrl(Chain.floonet, tx),
-        'https://floo-explorer.btlabs.uk/kernel/09ff',
-      );
-      expect(
-        explorerUrl(Chain.mainnet, tx),
-        'https://explorer.epicmine.io/block/42',
-      );
-      expect(explorerUrl(Chain.usernet, tx), isNull);
-      expect(
-        explorerUrl(Chain.mainnet, fakeTx(status: TxStatus.confirmed)),
-        isNull,
-      );
-      // Before it is on chain the kernel is not there (for a receive, only our part of it).
-      expect(
-        explorerUrl(
-          Chain.floonet,
-          fakeTx(status: TxStatus.awaitingConfirmation, kernelExcess: '09ff'),
-        ),
-        isNull,
-      );
+      expect(explorerUrl(Chain.mainnet, tx), hostSettings.explorerBlock(42));
+      hostSettings = hostSettings.withValues({'links.explorer_kernel': 'https://explorer.explorer.example.invalid/kernel/{kernel}'});
+      expect(explorerUrl(Chain.floonet, tx), 'https://explorer.explorer.example.invalid/kernel/09ff');
+      expect(explorerUrl(Chain.mainnet, fakeTx(status: TxStatus.confirmed)), isNull);
+      expect(explorerUrl(Chain.mainnet, fakeTx(status: TxStatus.confirmed, blockHeight: BigInt.from(1))), hostSettings.explorerBlock(1));
     });
 
     test('fiat text groups thousands and keeps satoshis for BTC', () {
@@ -1127,7 +1112,7 @@ void main() {
       final h = _Harness(scanSupported: true, still: true);
       // A whole address: the scan router sends anything else to its "not an Epic code" sheet.
       const scanned =
-          'esBobKey2345678923456789ABCDEFGHJKLMNPQRSTUVWXYZabcd@epicbox.epiccash.com';
+          'esBobKey2345678923456789ABCDEFGHJKLMNPQRSTUVWXYZabcd@box.epic.invalid';
       h.scanner.codes.add(scanned);
       await h.pump(tester);
       await _tap(tester, find.byTooltip('Scan a QR code to send'));
@@ -1166,7 +1151,7 @@ void main() {
       expect(find.text('Completed in block 2,499,300.'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
       expect(
-        find.text('https://explorer.epicmine.io/block/2499300'),
+        find.text(hostSettings.explorerBlock(2499300)),
         findsOneWidget,
       );
       expect(find.text('08commit'), findsNothing);
@@ -1448,10 +1433,11 @@ void main() {
     });
 
     testWidgets('floonet links the kernel', (tester) async {
+      hostSettings = hostSettings.withValues({'links.explorer_kernel': 'https://explorer.explorer.example.invalid/kernel/{kernel}'});
       final h = _Harness(chain: Chain.floonet);
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
       expect(
-        find.text('https://floo-explorer.btlabs.uk/kernel/09abc'),
+        find.text('https://explorer.explorer.example.invalid/kernel/09abc'),
         findsOneWidget,
       );
     });
@@ -1497,7 +1483,7 @@ void main() {
 
   group('addresses', () {
     test('lists shorten the key around an ellipsis and keep the relay', () {
-      expect(shortAddress(_bob), 'esBobA…567890@epicbox.epiccash.com');
+      expect(shortAddress(_bob), 'esBobA…567890@box.epic.invalid');
       // A link: host and port without the scheme, the ends kept.
       expect(shortAddress('http://203.0.113.5:3415'), '203.0.…5:3415');
       expect(shortAddress('https://pay.example.com:3415/'), 'pay.ex…m:3415');
@@ -1507,16 +1493,16 @@ void main() {
     });
 
     test('titles drop the server when it is the wallet\'s own', () {
-      const own = 'epicbox.epiccash.com';
+      const own = 'box.epic.invalid';
       expect(shortAddress(_bob, ownServer: own), 'esBobA…567890');
       expect(
-        shortAddress('${'a' * 52}@EPICBOX.epiccash.com:443', ownServer: own),
+        shortAddress('${'a' * 52}@BOX.EPIC.INVALID:443', ownServer: own),
         'aaaaaa…aaaaaa',
       );
       // Another server stays, since it is part of where the payment went.
       expect(
-        shortAddress('${'a' * 52}@epicbox.epicnet.us', ownServer: own),
-        'aaaaaa…aaaaaa@epicbox.epicnet.us',
+        shortAddress('${'a' * 52}@box.net.invalid', ownServer: own),
+        'aaaaaa…aaaaaa@box.net.invalid',
       );
       expect(
         shortAddress('http://203.0.113.5:3415', ownServer: own),
@@ -1592,7 +1578,7 @@ void main() {
       );
       expect(
         paymentNotice(englishStrings, finalized, tx),
-        'Payment to esBobA…567890@epicbox.epiccash.com finished. Waiting for confirmations.',
+        'Payment to esBobA…567890@box.epic.invalid finished. Waiting for confirmations.',
       );
       expect(
         paymentNotice(englishStrings, finalized, tx, contactName: 'Bob'),
@@ -3261,7 +3247,7 @@ void main() {
   });
 
   group('shell', () {
-    final payee = '${'b' * 52}@epicbox.epiccash.com';
+    final payee = '${'b' * 52}@box.epic.invalid';
 
     testWidgets('a tap from Send to Receive keeps the figure title on the way', (
       tester,
@@ -4336,7 +4322,7 @@ void main() {
         await h.pump(tester, const HomeScreen(), 1, const Size(1080, 2340));
         await _sendOne(tester, payee);
         expect(find.text('Waiting for their wallet'), findsOneWidget);
-        final carol = '${'c' * 52}@epicbox.epiccash.com';
+        final carol = '${'c' * 52}@box.epic.invalid';
         ProviderScope.containerOf(tester.element(find.byType(SendView)))
             .read(sendRecipientProvider.notifier)
             .hand(carol);
@@ -4619,13 +4605,13 @@ void main() {
 
     testWidgets('a pasted Epicbox address and a picked contact both clear', (tester) async {
       final h = _Harness(still: true);
-      final carol = '${'c' * 52}@epicbox.epicnet.us';
+      final carol = '${'c' * 52}@box.net.invalid';
       await h.session.saveContact(
         contact: Contact(id: '', name: 'Carol', address: carol, note: null),
       );
       await h.pump(tester);
       await _tab(tester, 'Send');
-      final bob = '${'b' * 52}@epicbox.epiccash.com';
+      final bob = '${'b' * 52}@box.epic.invalid';
       await tester.enterText(find.widgetWithText(TextField, 'To'), bob);
       await tester.pumpAndSettle();
       await leaveAndBack(tester);

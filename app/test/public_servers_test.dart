@@ -9,7 +9,10 @@ import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/public_servers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/test_settings.dart';
 
 final String _sample = File('test/fixtures/status_btlabs_2026-10-22.json').readAsStringSync();
 
@@ -65,50 +68,55 @@ void main() {
   });
 
   group('merge', () {
+    // The built-in lists are the shipped file's.
+    useShippedSettings();
+
     test('the monitor down: the built-in lists, BT Labs and Epic Cash first', () {
       final nodes = mergePublicNodes(null);
       expect(nodes.map((n) => n.url), builtInNodes.map((n) => n.url));
-      expect(nodes, hasLength(5));
-      expect(nodes.first.url, 'https://node.btlabs.uk');
+      expect(nodes, hasLength(hostSettings.nodeServers.length));
+      expect(nodes.first.url, hostSettings.nodeServers.first.url);
       expect(nodes.every((n) => n.status == null), isTrue);
       final relays = mergePublicRelays(null);
-      expect(relays, hasLength(4));
-      expect(relays.first.relay.host, 'epicbox.epiccash.com');
-      // Mainnet never offers the floonet relay.
-      expect(relays.any((r) => r.relay.host == 'epicbox.btlabs.uk'), isFalse);
+      expect(relays, hasLength(hostSettings.epicboxServers.length));
+      expect(relays.first.relay.host, hostSettings.epicboxServers.first.host);
     });
 
     test('the sample matches every built-in server, one row each', () {
       final nodes = mergePublicNodes(parseNodeStatus(_sample));
       expect(nodes.map((n) => n.url), builtInNodes.map((n) => n.url));
       expect(nodes.every((n) => n.status != null), isTrue);
-      // :443 on https is the same node as no port.
-      expect(nodes.last.url, 'https://epic-node.iniaku.my.id');
-      expect(nodes.last.operator, 'Iniaku pool');
+      // Iniaku pool's node is in the sample but shipped as removed: it does not come back.
+      expect(nodes.any((n) => n.url.contains('iniaku')), isFalse);
       final relays = mergePublicRelays(parseRelayStatus(_sample));
       expect(relays.map((r) => r.relay), builtInRelays.map((r) => r.relay));
-      expect(relays.every((r) => r.status != null), isTrue);
+      expect(relays.any((r) => r.relay.host.contains('iniaku')), isFalse);
+      // Every shipped server the sample knows has its health; a server the sample does not list has none.
+      final listed = parseRelayStatus(_sample).map((r) => r.relay.host).toSet();
+      for (final r in relays) {
+        expect(r.status != null, listed.contains(r.relay.host), reason: r.relay.host);
+      }
     });
 
     test('a node only the monitor lists comes after, with its operator', () {
       final nodes = mergePublicNodes([
         _node('https://new.example:3413', operator: 'New op'),
-        _node('https://NODE.btlabs.uk:443'),
+        _node('https://${Uri.parse(builtInNodes.first.url).host.toUpperCase()}:${Uri.parse(builtInNodes.first.url).port}'),
         _node('https://bare.example'),
         _node('https://new.example:3413', operator: 'Twice'),
       ]);
       expect(nodes.map((n) => n.url), [...builtInNodes.map((n) => n.url), 'https://new.example:3413', 'https://bare.example']);
       expect(nodes.first.status, isNotNull);
-      expect(nodes[5].operator, 'New op');
-      expect(nodes[6].operator, 'bare.example');
+      expect(nodes[builtInNodes.length].operator, 'New op');
+      expect(nodes[builtInNodes.length + 1].operator, 'bare.example');
     });
 
     test('a relay only the monitor lists comes after, with its operator', () {
       final relays = mergePublicRelays([
         const RelayStatus(relay: EpicboxRelay(host: 'box.example', port: 8443), healthy: true, verified: false, operator: 'Box op'),
-        const RelayStatus(relay: EpicboxRelay(host: 'epicbox.epiccash.com'), healthy: false, verified: true),
+        RelayStatus(relay: builtInRelays.first.relay, healthy: false, verified: true),
       ]);
-      expect(relays, hasLength(5));
+      expect(relays, hasLength(builtInRelays.length + 1));
       expect(relays.last.relay, const EpicboxRelay(host: 'box.example', port: 8443));
       expect(relays.last.operator, 'Box op');
       expect(relays.first.status?.healthy, isFalse);

@@ -23,10 +23,10 @@ import 'support/send_pin.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
-final String _bob = '${'b' * 52}@epicbox.epiccash.com';
+final String _bob = '${'b' * 52}@box.epic.invalid';
 final String _carol = '${'c' * 52}@relay.example.org';
 
-const EpicboxRelay _bobRelay = EpicboxRelay(host: 'epicbox.epiccash.com');
+const EpicboxRelay _bobRelay = EpicboxRelay(host: 'box.epic.invalid');
 
 RelayStatus _status(EpicboxRelay relay, {required bool healthy}) =>
     RelayStatus(relay: relay, healthy: healthy, verified: true);
@@ -410,7 +410,7 @@ void main() {
         (
           AsyncData([
             _status(
-              const EpicboxRelay(host: 'epicbox.epicnet.us'),
+              const EpicboxRelay(host: 'box.net.invalid'),
               healthy: false,
             ),
           ]),
@@ -422,7 +422,7 @@ void main() {
         ),
         (healthy, null),
         // The same host on another port is another relay.
-        (healthy, const EpicboxRelay(host: 'epicbox.epiccash.com', port: 444)),
+        (healthy, const EpicboxRelay(host: 'box.epic.invalid', port: 444)),
       ]) {
         final checks = sendPreflight(
           node: AsyncData(_tip),
@@ -486,7 +486,7 @@ void main() {
             reason: host,
           );
         }
-        for (final host in ['epicbox.epiccash.com', '128.0.0.1', '10.0.0.1']) {
+        for (final host in ['box.epic.invalid', '128.0.0.1', '10.0.0.1']) {
           expect(
             relayProbeUri(EpicboxRelay(host: host)).scheme,
             'wss',
@@ -505,8 +505,8 @@ void main() {
     test('recipientRelay reads the relay after the @', () {
       expect(recipientRelay(_bob), _bobRelay);
       expect(
-        recipientRelay('${'d' * 52}@epicbox.btlabs.uk:443'),
-        const EpicboxRelay(host: 'epicbox.btlabs.uk'),
+        recipientRelay('${'d' * 52}@box.lab.invalid:443'),
+        const EpicboxRelay(host: 'box.lab.invalid'),
       );
       expect(
         recipientRelay('${'d' * 52}@relay.example.org:8443'),
@@ -523,7 +523,7 @@ void main() {
       // The method selector up front, Epicbox chosen, and one address field.
       expect(find.byKey(sendMethodsKey), findsOneWidget);
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
-      expect(find.text('esXXXX…XXXX@epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('esXXXX…XXXX@box.epic.invalid'), findsOneWidget);
 
       await _tap(tester, find.text('Direct · File'));
       expect(find.text('Direct · File Transfer'), findsOneWidget);
@@ -853,8 +853,8 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _bob, note: 'For rent');
-        await _reveal(tester, find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."));
-        expect(find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."), findsOneWidget);
+        await _reveal(tester, find.text("Their Epicbox server (box.epic.invalid) is not answering."));
+        expect(find.text("Their Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
         expect(_sendButton, findsNothing);
         expect(_enabled(tester, _fileButton), isTrue);
         // Sending is still possible.
@@ -916,7 +916,7 @@ void main() {
         expect(find.byTooltip('Back'), findsNothing);
         // The message block above pushes the line down: scroll to it.
         final refused = find.text(
-          'Their Epicbox server (epicbox.epiccash.com) refused it. The amount stays locked until you cancel '
+          'Their Epicbox server (box.epic.invalid) refused it. The amount stays locked until you cancel '
           'it, or for up to 1 day.',
         );
         await tester.scrollUntilVisible(refused, 100);
@@ -1000,7 +1000,7 @@ void main() {
       await _review(tester, _bob);
       await _tap(tester, _sendButton);
       // Balance and payments as before: nothing is held, so a file cannot pay twice.
-      expect(find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."), findsOneWidget);
+      expect(find.text("Their Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
       expect(find.text('Cancel and pay with a file'), findsNothing);
       expect(find.text('Send anyway'), findsNothing);
       expect(_sendButton, findsNothing);
@@ -1033,7 +1033,7 @@ void main() {
         await _tap(tester, _sendButton);
         expect(
           find.text(
-            "Their Epicbox server (epicbox.epiccash.com) refused it. Check Wallet before you send again.",
+            "Their Epicbox server (box.epic.invalid) refused it. Check Wallet before you send again.",
           ),
           findsOneWidget,
         );
@@ -1225,9 +1225,9 @@ void main() {
         isTrue,
       );
       expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.stackwalle')), isFalse);
-      expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.stackwallet.com')), isTrue);
-      expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.btlabs.uk')), isTrue);
-      expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.epiccash.com', port: 444)), isFalse);
+      expect(isKnownRelay(const EpicboxRelay(host: 'box.stack.invalid')), isTrue);
+      expect(isKnownRelay(const EpicboxRelay(host: 'box.net.invalid')), isTrue);
+      expect(isKnownRelay(const EpicboxRelay(host: 'box.epic.invalid', port: 444)), isFalse);
     });
 
     testWidgets(
@@ -1281,7 +1281,7 @@ void main() {
       await h.connect(tester);
       await _review(tester, _bob);
       expect(probe.probed, [_bobRelay]);
-      expect(find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."), findsOneWidget);
+      expect(find.text("Their Epicbox server (box.epic.invalid) is not answering."), findsOneWidget);
     });
   });
 
