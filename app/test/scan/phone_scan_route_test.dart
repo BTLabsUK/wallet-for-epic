@@ -180,7 +180,7 @@ class _Harness {
           ),
           networkChangesProvider.overrideWithValue(const Stream<bool>.empty()),
           phoneTorTimingProvider.overrideWithValue(
-            const PhoneTorTiming(
+            PhoneTorTiming(
               backoff: [Duration(hours: 1)],
               sendWait: Duration(hours: 1),
             ),

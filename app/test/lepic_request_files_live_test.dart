@@ -14,6 +14,7 @@ import 'dart:io';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
 
 final String? _lib = Platform.environment['WFE_LEPIC_MOCK_LIB'];
@@ -74,7 +75,7 @@ void main() {
         nodeUrl: 'http://127.0.0.1:1',
         epicboxDomain: _relay,
         epicboxPort: 443,
-        onionRoutes: const [],
+        onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
       ),
       store: lepic.lepicSecretStore(_MemoryStore()),
       password: _password,

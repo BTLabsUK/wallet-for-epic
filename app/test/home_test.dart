@@ -3,7 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
-import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show AppConfig, hostSettings;
 import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -43,6 +43,8 @@ import 'package:flutter/semantics.dart' show SemanticsData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'support/test_settings.dart' show testConfigWithout;
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -727,17 +729,18 @@ void main() {
       );
     });
 
-    test('explorer links: the kernel when the file names a kernel page, else the block, none without either', () {
+    test('explorer links: the block by its height, none before it is known or without an explorer', () {
       final tx = fakeTx(
         status: TxStatus.confirmed,
         kernelExcess: '09ff',
         blockHeight: BigInt.from(42),
       );
       expect(explorerUrl(Chain.mainnet, tx), hostSettings.explorerBlock(42));
-      hostSettings = hostSettings.withValues({'links.explorer_kernel': 'https://explorer.explorer.example.invalid/kernel/{kernel}'});
-      expect(explorerUrl(Chain.floonet, tx), 'https://explorer.explorer.example.invalid/kernel/09ff');
+      expect(explorerUrl(Chain.mainnet, tx), endsWith('/blockdetail/42'));
       expect(explorerUrl(Chain.mainnet, fakeTx(status: TxStatus.confirmed)), isNull);
       expect(explorerUrl(Chain.mainnet, fakeTx(status: TxStatus.confirmed, blockHeight: BigInt.from(1))), hostSettings.explorerBlock(1));
+      hostSettings = hostSettings.withConfig(AppConfig.fromText(testConfigWithout(['[explorer]'])));
+      expect(explorerUrl(Chain.mainnet, tx), isNull, reason: 'no explorer in app-config.toml: no link');
     });
 
     test('fiat text groups thousands and keeps satoshis for BTC', () {
@@ -1151,7 +1154,7 @@ void main() {
       expect(find.text('Completed in block 2,499,300.'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
       expect(
-        find.text(hostSettings.explorerBlock(2499300)),
+        find.text(hostSettings.explorerBlock(2499300)!),
         findsOneWidget,
       );
       expect(find.text('08commit'), findsNothing);
@@ -1430,16 +1433,6 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       expect(find.text(_bob), findsOneWidget);
       expect(find.text('Add to contacts'), findsOneWidget);
-    });
-
-    testWidgets('floonet links the kernel', (tester) async {
-      hostSettings = hostSettings.withValues({'links.explorer_kernel': 'https://explorer.explorer.example.invalid/kernel/{kernel}'});
-      final h = _Harness(chain: Chain.floonet);
-      await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
-      expect(
-        find.text('https://explorer.explorer.example.invalid/kernel/09abc'),
-        findsOneWidget,
-      );
     });
 
     testWidgets(

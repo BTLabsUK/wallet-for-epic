@@ -331,7 +331,7 @@ void main() {
     });
   });
 
-  group('with Tor on, an APK on examples.lab.invalid (android-16)', () {
+  group('with Tor on, an APK on releases.lab.invalid (android-16)', () {
     late ServerSocket socks;
     final connects = <String>[];
 
@@ -367,7 +367,7 @@ void main() {
           apk: ReleaseApk(
             abi: 'arm64-v8a',
             versionCode: 26100100,
-            url: Uri.parse('https://examples.lab.invalid/epic-cash-wallets/downloads/app.apk'),
+            url: Uri.parse('https://releases.lab.invalid/releases/downloads/app.apk'),
             sha256: update.apk.sha256,
             size: update.apk.size,
           ),
@@ -384,16 +384,16 @@ void main() {
     test('the download goes to the built-in onion as a name, never to the host itself', () async {
       await notifier().install();
       expect(connects, [
-        '${hostSettings.torOnions.firstWhere((r) => r.host == 'examples.lab.invalid').onion}:443',
+        '${hostSettings.torOnions.firstWhere((r) => r.host == 'releases.lab.invalid').onion}:443',
       ]);
-      expect(torBuiltInOnion('examples.lab.invalid', 443)?.tls, isTrue);
+      expect(torBuiltInOnion('releases.lab.invalid', 443)?.tls, isTrue);
       expect(hits, 0);
       expect(state().phase, UpdatePhase.failed, reason: 'the fake proxy drops the connection');
       expect(platform.installs, isEmpty);
     });
 
     test('the signed btlabs.json list is asked first', () async {
-      TorNet.onions = (host, port) => host == 'examples.lab.invalid'
+      TorNet.onions = (host, port) => host == 'releases.lab.invalid'
           ? (onion: 'listedlistedlistedlistedlistedlistedlistedlistedlistedlist.onion', port: 443, tls: true)
           : null;
       await notifier().install();

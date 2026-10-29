@@ -1,0 +1,149 @@
+# Test configuration (test/settings/app-config.toml): the shipped app-config.toml's layout
+# with example hosts only (*.invalid, RFC 5737 addresses, made-up onions).
+
+# Who runs a server, by its domain, for the server lists (the status site may name others).
+[operators]
+"lab.invalid" = "BT Labs"
+"net.invalid" = "EpicNet"
+"epic.invalid" = "Epic Cash"
+"stack.invalid" = "Cypher Stack"
+"192.0.2.10" = "Test LAN"
+[node]
+# Talking to a node (the wallet core).
+connect_timeout_s = 15
+request_timeout_s = 90
+idle_timeout_s = 10            # below the node server's keep-alive
+retry_attempts = 3
+retry_backoff_min_ms = 500
+retry_backoff_max_ms = 4000
+outputs_per_request = 500
+concurrent_requests = 4
+# The app's own checks.
+check_timeout_s = 15           # tip and status asks, direct
+tor_check_timeout_s = 90       # the same over Tor
+tip_check_s = 15               # phone: new block check
+poll_s = 30                    # desktop: new block check
+refresh_s = 60                 # full refresh
+recheck_s = 60                 # heights in the Node list
+stale_after_s = 180            # a height older than this is not shown as current
+failover_after_s = 30          # the node in use silent this long: try the next in the list
+failover_probe_s = 15
+own_node_ask_s = 15            # a node of your own is asked directly this often
+
+[node.local]
+# The node the desktop can run itself.
+api_port = 3413
+p2p_port = 3414
+
+[epicbox]
+address_default = "box.epic.invalid"   # the server of an address written without one
+pairing_servers = 3            # connecting two wallets: the first N of the user's Epicbox list
+link_servers = 2               # linked devices: the first N
+connect_timeout_s = 15
+response_timeout_s = 15
+ping_interval_s = 25
+reconnect_min_s = 1
+reconnect_max_s = 60
+drain_timeout_s = 120
+tor_connect_timeout_s = 90
+onion_discovery_timeout_s = 45
+onion_discovery_retry_s = 600
+listener_heal_after_s = 30     # a listener down this long is restarted, backing off to
+listener_heal_max_s = 300
+
+[http]
+# The Link · HTTP listener and HTTP sends.
+listen_port = 3415
+header_timeout_s = 10
+body_timeout_s = 15
+request_timeout_s = 60
+answer_timeout_s = 10
+max_connections = 16
+max_connections_per_address = 4
+requests_per_minute = 120
+receives_per_minute = 30
+send_connect_timeout_s = 10
+send_request_timeout_s = 60
+
+[tor]
+start_backoff_s = [2, 10, 30, 60]
+send_wait_s = 180              # a send waits this long for Tor to be ready
+onion_retry_s = 30             # an onion not reached is tried once more after this
+bootstrap_timeout_s = 120
+cold_bootstrap_timeout_s = 240
+stall_timeout_s = 60
+cold_stall_timeout_s = 120
+publish_timeout_s = 180
+connect_timeout_s = 75
+request_timeout_s = 120
+# Hosts under these domains are reached over Tor only at an onion; the signed BT Labs file may
+# give them new onions.
+onion_only_domains = ["lab.invalid"]
+onions = [
+  { host = "node.lab.invalid", port = 443, onion = "nodeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
+  { host = "box.lab.invalid", port = 443, onion = "relayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
+  { host = "support.lab.invalid", port = 443, onion = "supportaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
+  { host = "releases.lab.invalid", port = 443, onion = "downloadsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
+  { host = "status.lab.invalid", port = 443, onion = "statusaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 80, tls = false },
+]
+
+[status]
+timeout_s = 4
+tor_timeout_s = 30
+fresh_s = 60
+directory = "https://status.lab.invalid/api/v1/status.json"
+icons = "https://status.lab.invalid/api/v1/icons/"
+price = "https://status.lab.invalid/api/v1/price.json"
+ip = "https://status.lab.invalid/api/v1/ip"
+reach = "https://status.lab.invalid/api/v1/reach?port={port}"
+reach_timeout_s = 10
+[price]
+refresh_min = 5
+timeout_s = 10
+fallback_timeout_s = 30
+max_age_min = 30
+source = "https://api.price.example.invalid/api/v3/simple/price"
+[updates]
+first_check_s = 20
+check_every_h = 1
+timeout_s = 30
+download_stall_s = 60
+manifests = [
+  "https://releases.lab.invalid/api/v1/update.json",
+  "https://git.example.invalid/epic-cash-bt/pages.example.invalid/-/raw/main/update-v2.json",
+  "https://pages.example.invalid/update-v2.json",
+]
+downloads = "https://releases.lab.invalid/releases/downloads/"
+releases_page = "https://releases.lab.invalid/releases/"
+pages = ["https://releases.lab.invalid/releases/", "https://hub.example.invalid/BTLabs-EPIC/"]
+[support]
+timeout_s = 20
+report = "https://support.lab.invalid/v1/report"
+email = "support@lab.invalid"
+donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid"
+signed_file = "https://pages.example.invalid/btlabs.json"
+[links]
+website = "https://epic.invalid"
+community = "https://chat.example.invalid/EpicCash"
+source = "https://git.example.invalid/epic-cash-bt/wallet-for-epic"
+[explorer]
+block = "https://explorer.example.invalid/blockdetail/{height}"
+[import]
+gui_node = "https://node.epic.invalid:3413"
+gui_epicbox = "box.epic.invalid"
+old_epicbox = "box.stack.invalid"
+renamed_epicbox = { "epicbox.old.example.invalid" = "box.epic.invalid" }
+dead_fallbacks = ["dead.example.invalid", "192.0.2.99"]
+[report]
+keep_hosts = ["api.hub.example.invalid", "objects.hubcontent.example.invalid"]
+keep_domains = ["epic.invalid", "old.example.invalid", "net.invalid", "stack.invalid", "lab.invalid", "hub.example.invalid", "hubcontent.example.invalid", "price.example.invalid"]
+[network]
+vpn_suffixes = [".vpn.invalid"]
+[payments]
+# After a payment is posted: how often the tip is read, then how long, then how often after.
+watch_fast_every_s = 4
+watch_fast_for_s = 120
+watch_slow_every_s = 10
+watch_for_s = 300              # stays above the 3 min the network holds a new transaction
+repost_waits_min = [1, 3, 10, 30]
+answer_resend_waits_min = [2, 5, 10]

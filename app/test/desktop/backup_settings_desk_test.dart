@@ -222,7 +222,8 @@ void main() {
       expect(mine[BackupKey.relay], {'mainnet': EpicboxRelay.parse(hostSettings.epicboxUse)!.label});
       expect((mine[BackupKey.nodeList]! as Map)['mainnet'], {'entries': ['https://node.net.invalid:3413'], 'removed': <Object?>[]});
       final relays = serverListFromJson(ServerKind.relay, (mine[BackupKey.relayList]! as Map)['mainnet'])!;
-      expect(relays.removed, {serverKeyOf(ServerKind.relay, 'box.stack.invalid')});
+      // settings.toml keeps no removed list: a backup's removals are not stored any more.
+      expect(relays.removed, isEmpty);
       expect((await wallet.contacts()).any((x) => x.name == 'BT Labs'), isFalse);
     });
   });

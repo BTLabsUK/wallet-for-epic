@@ -375,8 +375,8 @@ void main() {
       await savingsOnBox();
       hostSettings = hostSettings.withValues({
         'epicbox.servers': [
-          for (final s in hostSettings.epicboxServers) s.toEntry(),
-          {'host': box, 'port': 443},
+          for (final s in hostSettings.epicboxServers) s.label,
+          box,
         ],
       });
       final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);

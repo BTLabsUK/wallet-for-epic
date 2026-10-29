@@ -23,12 +23,9 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
-import 'package:epic_wallet/src/ui/pairing/connection_servers_tile.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
     show
         ServerListSheet,
-        serverListResetKey,
-        serverListRowKey,
         serverListAddKey,
         serverListFieldKey,
         serverListFootKey,
@@ -1581,7 +1578,7 @@ void main() {
       expect(find.text('Licences'), findsOneWidget);
       expect(find.text('Source code'), findsNothing);
       expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
-      await _reveal(tester, find.text(hostSettings.supportEmail));
+      await _reveal(tester, find.text(hostSettings.supportEmail!));
       expect(find.text('Contact'), findsOneWidget);
       // An email address, not a link: the notice says so.
       final copied = <Object?>[];
@@ -1598,15 +1595,15 @@ void main() {
           null,
         ),
       );
-      await tester.ensureVisible(find.text(hostSettings.supportEmail));
+      await tester.ensureVisible(find.text(hostSettings.supportEmail!));
       await tester.pump();
-      await tester.tap(find.text(hostSettings.supportEmail));
+      await tester.tap(find.text(hostSettings.supportEmail!));
       await tester.pump();
       expect(copied, [
-        {'text': hostSettings.supportEmail},
+        {'text': hostSettings.supportEmail!},
       ]);
       final notices = ProviderScope.containerOf(
-        tester.element(find.text(hostSettings.supportEmail)),
+        tester.element(find.text(hostSettings.supportEmail!)),
       );
       expect(notices.read(noticeProvider)?.text, 'Address copied');
       expect(
@@ -1881,58 +1878,6 @@ void main() {
       expect(find.text('From a block height'), findsNothing);
     });
 
-    testWidgets('Connection servers: under Pairing, hidden while it is off; a tick is stored, the defaults store nothing', (
-      tester,
-    ) async {
-      final h = _Harness(experimental: true);
-      await h.pump(tester);
-      await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.advanced);
-      final tile = find.byKey(connectionServersTileKey);
-      await tester.scrollUntilVisible(tile, 300, scrollable: find.byType(Scrollable).first);
-      expect(tile, findsOneWidget);
-      expect(find.text('Connection servers'), findsOneWidget);
-      expect(find.text('3 servers · Defaults'), findsOneWidget);
-
-      await tester.tap(tile);
-      await tester.pumpAndSettle();
-      expect(find.text('Choose up to 3.'), findsOneWidget);
-      expect(find.text('3 of 3'), findsOneWidget);
-      // Full: a fourth is refused; one off, then another on.
-      await tester.tap(find.byKey(serverListRowKey('box.net.invalid')));
-      await tester.pumpAndSettle();
-      expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
-      await tester.tap(find.byKey(serverListRowKey('box.lab.invalid')));
-      await tester.pumpAndSettle();
-      expect(find.text('2 of 3'), findsOneWidget);
-      await tester.tap(find.byKey(serverListRowKey('box.net.invalid')));
-      await tester.pumpAndSettle();
-      expect(find.text('3 of 3'), findsOneWidget);
-      // Back to the defaults.
-      await tester.tap(find.byKey(serverListResetKey));
-      await tester.pumpAndSettle();
-      expect(find.text('3 of 3'), findsOneWidget);
-      await tester.pump(const Duration(seconds: 9));
-    });
-
-    testWidgets('Connection servers: the state line names a server that is not a default', (tester) async {
-      hostSettings = hostSettings.withValues({'pairing.servers': ['box.epic.invalid', 'relay.example.org']});
-      final h = _Harness(experimental: true);
-      await h.pump(tester);
-      await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.advanced);
-      await tester.scrollUntilVisible(find.byKey(connectionServersTileKey), 300, scrollable: find.byType(Scrollable).first);
-      expect(find.text('relay.example.org is not a default. Wallets that also use it find you there.'), findsOneWidget);
-    });
-
-    testWidgets('Connection servers: Pairing off hides the row', (tester) async {
-      final h = _Harness();
-      await h.pump(tester);
-      await h.unlock(tester);
-      await h.openSettings(tester, SettingsSection.advanced);
-      expect(find.byKey(connectionServersTileKey), findsNothing);
-    });
-
     // Tester report 26.10.21: Connection servers on the phone, not on the tablet. The tablet had
     // Pairing off; every width gets the same Settings, which this keeps true.
     group('the same rows at every width', () {
@@ -1977,7 +1922,8 @@ void main() {
               await h.openSettings(tester, section);
               pages[section] = await pageRows(tester);
               if (section == SettingsSection.advanced) {
-                expect(pages[section], experimental ? contains('key:adv-connection-servers') : isNot(contains('key:adv-connection-servers')), reason: '$size');
+                // No Connection servers row: they are the first of the Epicbox list.
+                expect(pages[section], isNot(contains('key:adv-connection-servers')), reason: '$size');
                 for (final row in ['adv-pairing', 'adv-invoices', 'adv-linkedDevices', 'adv-mode-standard', 'adv-mode-offline']) {
                   expect(pages[section], contains('key:$row'), reason: '$row at $size');
                 }

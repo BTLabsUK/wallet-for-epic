@@ -3,50 +3,58 @@ import 'dart:io';
 
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/settings_file/settings_layout.dart';
-import 'package:epic_wallet/src/settings_file/settings_merge.dart';
-import 'package:epic_wallet/src/settings_file/toml_scan.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/test_settings.dart';
 
-String get _shippedText => File('assets/settings/settings.toml').readAsStringSync();
+String get _defaultText => File('assets/config/settings.default.toml').readAsStringSync();
+String get _configText => File('assets/config/app-config.toml').readAsStringSync();
 
 void main() {
-  group('the shipped file', () {
-    test('parses, has every key the model reads, and every value is good', () {
-      final doc = parseSettingsToml(_shippedText);
+  group('the shipped pair', () {
+    test('the default copy has every key of settings.toml, all good, and nothing else', () {
+      final doc = parseSettingsToml(_defaultText);
       for (final k in settingsKeys) {
         expect(rawValue(doc, k.path), isNotNull, reason: k.path);
       }
-      final s = HostSettings.fromText(_shippedText);
-      final read = readSettings(_shippedText, shipped: s);
+      final s = HostSettings.fromText(_defaultText, config: AppConfig.fromText(_configText));
+      final read = readSettings(_defaultText, shipped: s);
       expect(read.issues, isEmpty);
       expect(read.unknown, isEmpty);
-      expect(s.version, 1);
-      expect(s.nodeServers, isNotEmpty);
-      expect(s.nodeServers.map((n) => n.url), contains(s.nodeUse));
-      expect(s.epicboxServers.map((e) => e.label), contains(s.epicboxUse));
-      expect(s.statusEnabled, isTrue);
-      expect(s.updatesCheck, isTrue);
-      expect(s.torOnions.where((o) => !o.tls).single.onionPort, 80);
-      expect(s.explorerKernel('k'), isNull);
+      expect(s.statusEnabled && s.updatesCheck && s.priceEnabled, isTrue);
     });
 
-    test('has a comment over every key', () {
-      final scan = TomlScan(_shippedText);
-      for (final st in scan.stmts) {
-        if (st.kind != TomlStmtKind.keyValue || st.path.contains('#0') || st.path.any((p) => p.startsWith('#'))) {
-          continue;
-        }
-        expect(scan.attachedComments(st), isNotEmpty, reason: '${st.dotted} has no comment');
+    test('app-config.toml has every key, all good', () {
+      final doc = parseSettingsToml(_configText);
+      for (final k in configKeys) {
+        if (k.byDefault == null) expect(rawValue(doc, k.path), isNotNull, reason: k.path);
       }
+      final c = AppConfig.fromText(_configText);
+      expect(c.torOnions.where((o) => !o.tls).single.onionPort, 80);
+      expect(c.updateManifests, hasLength(3));
+      expect(c.supportDonation, isNotNull);
+      expect(c.explorerBlock(3774693), endsWith('/3774693'));
+      expect(c.statusReach(3415), contains('port=3415'));
+      expect(c.localNodeApiPort, isNot(c.localNodeP2pPort));
+    });
+
+    test('the first entry of each list is in use; the next node is the fallback', () {
+      final s = HostSettings.fromText(_defaultText, config: AppConfig.fromText(_configText));
+      expect(s.nodeUse, s.nodeUrls.first);
+      expect(s.nodeFallback, s.nodeUrls[1]);
+      expect(s.epicboxUse, s.epicboxServers.first.label);
+      expect(s.pairingServers, [for (final b in s.epicboxServers.take(s.config.pairingServerCount)) b.label]);
+      expect(s.deviceLinkServers, hasLength(s.config.linkServerCount));
+      expect(s.nodeServers.first.operator, isNotNull, reason: 'operators by domain');
     });
   });
 
-  group('the test file', () {
+  group('the test pair', () {
     test('has the shipped layout with example hosts only', () {
       final s = testSettings();
-      expect(s.values.keys.toSet(), HostSettings.fromText(_shippedText).values.keys.toSet());
+      final shipped = HostSettings.fromText(_defaultText, config: AppConfig.fromText(_configText));
+      expect(s.values.keys.toSet(), shipped.values.keys.toSet());
+      expect(s.config.values.keys.toSet(), shipped.config.values.keys.toSet());
       for (final h in s.allHosts) {
         final ok =
             h.endsWith('.invalid') ||
@@ -63,50 +71,58 @@ void main() {
   group('readSettings', () {
     final shipped = testSettings();
 
-    test('a missing key reads as shipped', () {
-      final r = readSettings('version = 1\n[node]\nuse = "https://n.example.invalid"\n', shipped: shipped);
+    test('a missing key reads as the default copy; nothing is merged', () {
+      final r = readSettings('[node]\nservers = ["https://n.example.invalid"]\n', shipped: shipped);
       expect(r.settings.nodeUse, 'https://n.example.invalid');
+      expect(r.settings.nodeUrls, ['https://n.example.invalid'], reason: 'no default server joins');
       expect(r.settings.epicboxServers, shipped.epicboxServers);
+      expect(r.settings.statusEnabled, shipped.statusEnabled);
       expect(r.issues, isEmpty);
     });
 
     test('a bad value is skipped with its line and problem; the last good value is used', () {
-      const text = 'version = 1\n[node]\nuse = "ftp://n.example.invalid"\n\n[status]\nenabled = "yes"\n';
-      final lastGood = shipped.withValues({'node.use': 'https://good.example.invalid'});
+      const text = '[node]\nservers = ["ftp://n.example.invalid"]\n\n[online]\nstatus_site = "yes"\n';
+      final lastGood = shipped.withValues({'node.servers': ['https://good.example.invalid']});
       final r = readSettings(text, shipped: shipped, lastGood: lastGood);
       expect(r.issues, [
-        const ValueIssue('node.use', 3, ValueProblem.notNodeAddress),
-        const ValueIssue('status.enabled', 6, ValueProblem.notSwitch),
+        const ValueIssue('node.servers', 2, ValueProblem.notNodeAddress),
+        const ValueIssue('online.status_site', 5, ValueProblem.notSwitch),
       ]);
       expect(r.settings.nodeUse, 'https://good.example.invalid');
       expect(r.settings.statusEnabled, shipped.statusEnabled);
     });
 
-    test('a bad server entry names the line of its field', () {
-      const text = '[[epicbox.servers]]\nhost = "a.example.invalid"\n\n[[epicbox.servers]]\nhost = "b.example.invalid"\nport = 99999\n';
-      final r = readSettings(text, shipped: shipped);
-      expect(r.issues.single, const ValueIssue('epicbox.servers', 6, ValueProblem.notPort));
+    test('a bad Epicbox server is not used', () {
+      final r = readSettings('[epicbox]\nservers = ["a.example.invalid", "b.example.invalid:99999"]\n', shipped: shipped);
+      expect(r.issues.single, const ValueIssue('epicbox.servers', 2, ValueProblem.notEpicboxServer));
       expect(r.settings.epicboxServers, shipped.epicboxServers);
     });
 
-    test('unknown keys are named with their lines, values kept out', () {
-      const text = '[epicbox]\ndefualt = "x"\n[[node.servers]]\nurl = "https://a.example.invalid"\nweight = 3\n[future]\nx = 1\n';
+    test('empty lists are read as none configured, without a crash', () {
+      final r = readSettings('[node]\nservers = []\n[epicbox]\nservers = []\n', shipped: shipped);
+      expect(r.issues, isEmpty);
+      expect(r.settings.hasNode, isFalse);
+      expect(r.settings.nodeUse, '');
+      expect(r.settings.nodeFallback, '');
+      expect(r.settings.hasEpicbox, isFalse);
+      expect(r.settings.epicboxUse, '');
+      expect(r.settings.pairingServers, isEmpty);
+      expect(r.settings.deviceLinkServers, isEmpty);
+    });
+
+    test('unknown keys are named with their lines; old layouts too', () {
+      const text = 'version = 1\n[node]\nuse = "https://a.example.invalid"\n[future]\nx = 1\n';
       final r = readSettings(text, shipped: shipped);
-      expect(r.unknown.map((u) => '${u.key}@${u.line}'), [
-        'epicbox.defualt@2',
-        'node.servers.weight@5',
-        'future@6',
-      ]);
-      expect(r.settings.nodeServers.single.url, 'https://a.example.invalid');
+      expect(r.unknown.map((u) => '${u.key}@${u.line}'), ['version@1', 'node.use@3', 'future@4']);
     });
 
     test('a syntax error names its line', () {
       expect(
-        () => readSettings('version = 1\n[node\nuse = "x"\n', shipped: shipped),
-        throwsA(isA<SettingsSyntaxError>().having((e) => e.line, 'line', 2)),
+        () => readSettings('[node\nservers = []\n', shipped: shipped),
+        throwsA(isA<SettingsSyntaxError>().having((e) => e.line, 'line', 1)),
       );
       expect(
-        () => readSettings('[node]\nuse = "a"\nuse = "b"\n', shipped: shipped),
+        () => readSettings('[online]\nprice = true\nprice = false\n', shipped: shipped),
         throwsA(isA<SettingsSyntaxError>().having((e) => e.line, 'line', 3)),
       );
     });
@@ -116,12 +132,20 @@ void main() {
     final s = testSettings();
 
     test('withValues checks what the app sets', () {
-      final n = s.withValues({
-        'epicbox.servers': [const EpicboxServer(host: 'n.example.invalid', port: 8443)],
-      });
+      final n = s.withValues({'epicbox.servers': ['n.example.invalid:8443']});
       expect(n.epicboxServers.single.label, 'n.example.invalid:8443');
-      expect(() => s.withValues({'node.use': 'not a url'}), throwsArgumentError);
-      expect(() => s.withValues({'node.nope': 'x'}), throwsArgumentError);
+      expect(n.epicboxUse, 'n.example.invalid:8443');
+      expect(() => s.withValues({'node.servers': ['not a url']}), throwsArgumentError);
+      expect(() => s.withValues({'node.use': 'https://a.example.invalid'}), throwsArgumentError);
+      expect(s.withValues({'node.check_timeout_s': 3}).config.nodeCheckTimeout, const Duration(seconds: 3));
+    });
+
+    test('operators come from app-config.toml by domain, the longest first', () {
+      expect(s.config.operatorOf('node.lab.invalid'), 'BT Labs');
+      expect(s.config.operatorOf('deep.box.net.invalid'), 'EpicNet');
+      expect(s.config.operatorOf('lab.invalid'), 'BT Labs');
+      expect(s.config.operatorOf('other.invalid'), isNull);
+      expect(s.nodeServers.last.operator, 'Test LAN');
     });
 
     test('allHosts names every host and leaves domain lists out', () {
@@ -133,97 +157,48 @@ void main() {
       expect(hosts, isNot(contains('BT Labs')));
     });
 
-    test('explorer links fill their placeholder', () {
-      expect(s.explorerBlock(12), endsWith('/block/12'));
+    test('the explorer link fills its placeholder', () {
+      expect(s.explorerBlock(12), endsWith('/blockdetail/12'));
     });
   });
 
-  group('version merge', () {
-    const shipped = '''
-version = 2
+  group('an entry left out of app-config.toml is not configured', () {
+    AppConfig without(List<String> keys) => AppConfig.fromText(testConfigWithout(keys));
 
-[node]
-# Use.
-use = "https://a.example.invalid"
-removed = []
-
-# The list.
-[[node.servers]]
-url = "https://a.example.invalid"
-
-# New in 2.
-[[node.servers]]
-url = "https://new.example.invalid"
-
-[[node.servers]]
-url = "https://gone.example.invalid"
-
-[pairing]
-servers = ["p1.example.invalid", "p2.example.invalid"]
-
-# Status.
-[status]
-
-# On.
-enabled = true
-''';
-
-    test('adds what is missing, appends new servers, keeps everything of the user', () {
-      const user = '''
-version = 1
-
-[node]
-use = "https://mine.example.invalid" # mine
-removed = ["gone.example.invalid:443"]
-
-[[node.servers]]
-url = "https://mine.example.invalid"
-
-[[node.servers]]
-url = "https://a.example.invalid"
-
-[pairing]
-servers = ["p1.example.invalid"]
-''';
-      final merged = mergeShippedVersion(user, shipped)!;
-      expect(merged, '''
-version = 2
-
-[node]
-use = "https://mine.example.invalid" # mine
-removed = ["gone.example.invalid:443"]
-
-[[node.servers]]
-url = "https://mine.example.invalid"
-
-[[node.servers]]
-url = "https://a.example.invalid"
-
-# New in 2.
-[[node.servers]]
-url = "https://new.example.invalid"
-
-[pairing]
-servers = ["p1.example.invalid"]
-
-# Status.
-[status]
-
-# On.
-enabled = true
-''');
-      expect(mergeShippedVersion(merged, shipped), isNull);
+    test('donation', () => expect(without(['donation']).supportDonation, isNull));
+    test('explorer', () => expect(without(['[explorer]']).explorerBlock(1), isNull));
+    test('the whole status site', () {
+      final c = without(['[status]']);
+      expect([c.statusDirectory, c.statusIcons, c.statusPrice, c.statusIp, c.statusReach(1)], everyElement(isNull));
     });
-
-    test('a file at the shipped version or newer is left alone', () {
-      expect(mergeShippedVersion('version = 2\n', shipped), isNull);
-      expect(mergeShippedVersion('version = 3\n', shipped), isNull);
+    test('one status address', () {
+      final c = without(['icons']);
+      expect(c.statusIcons, isNull);
+      expect(c.statusDirectory, isNotNull);
     });
-
-    test('removed matches Epicbox by host on 443', () {
-      expect(isRemovedServer('epicbox.servers', {'host': 'a.example.invalid', 'port': 443}, ['a.example.invalid']), isTrue);
-      expect(isRemovedServer('epicbox.servers', {'host': 'a.example.invalid', 'port': 8443}, ['a.example.invalid']), isFalse);
-      expect(isRemovedServer('node.servers', {'url': 'https://a.example.invalid'}, ['a.example.invalid:443']), isTrue);
+    test('the reach check', () => expect(without(['ip', 'reach', 'reach_timeout_s']).statusIp, isNull));
+    test('the price source', () => expect(without(['source']).priceSource, isNull));
+    test('the update manifests', () {
+      final c = AppConfig.fromText(testConfigText().replaceFirst(RegExp(r'manifests = \[[^\]]*\]'), 'manifests = []'));
+      expect(c.updateManifests, isEmpty);
+    });
+    test('support report and e-mail', () {
+      final c = without(['report', 'email']);
+      expect(c.supportReport, isNull);
+      expect(c.supportEmail, isNull);
+    });
+    test('each link', () {
+      final c = without(['website', 'community']);
+      expect(c.linkWebsite, isNull);
+      expect(c.linkCommunity, isNull);
+      expect(c.linkSource, isNotNull);
+    });
+    test('a timing key is needed while its address is there', () {
+      expect(() => without(['timeout_s']), throwsStateError, reason: 'status, price, updates, support timeouts with their addresses');
+      expect(() => without(['[status]', 'reach_timeout_s']), returnsNormally);
+    });
+    test('a required key is still required', () {
+      expect(() => without(['listen_port']), throwsStateError);
     });
   });
 }

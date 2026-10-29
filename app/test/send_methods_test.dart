@@ -199,7 +199,7 @@ class _Harness {
           torBundleFinderProvider.overrideWithValue(() async => _bundle),
           networkChangesProvider.overrideWithValue(network.stream),
           phoneTorTimingProvider.overrideWithValue(
-            const PhoneTorTiming(
+            PhoneTorTiming(
               backoff: [Duration(hours: 1)],
               sendWait: Duration(hours: 1),
             ),

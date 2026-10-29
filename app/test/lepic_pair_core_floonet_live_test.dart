@@ -21,6 +21,7 @@ import 'dart:io';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
 
 final _env = Platform.environment;
@@ -67,7 +68,7 @@ lepic.WalletConfig _config(String name, {String relay = _relay}) => lepic.Wallet
   nodeUrl: _node,
   epicboxDomain: relay,
   epicboxPort: 443,
-  onionRoutes: const [],
+  onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
 );
 
 lepic.AppSecretStore _store(String name) => lepic.lepicSecretStore(_FileStore(File('$_dir/$name.secrets.json')));

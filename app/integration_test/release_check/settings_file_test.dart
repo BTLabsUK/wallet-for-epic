@@ -13,7 +13,8 @@ import 'package:epic_wallet/src/desktop/app/routes.dart' show DeskRoute, deskNav
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
 import 'package:epic_wallet/src/desktop/data/server_lists.dart' show ServerKind, deskServerListProvider;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
-import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings, parseSettingsToml;
+import 'package:epic_wallet/src/settings_file/toml_edit.dart' show TomlEditor;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -31,7 +32,7 @@ void main() {
     record('fresh data folder has no settings.toml', !file.existsSync(), file.path);
 
     await boot(tester);
-    final shipped = (await tester.runAsync(() => rootBundle.loadString('assets/settings/settings.toml')))!;
+    final shipped = (await tester.runAsync(() => rootBundle.loadString('assets/config/settings.default.toml')))!;
     record('first start writes settings.toml', file.existsSync(), file.path);
     record('first file is the shipped default, byte for byte', file.existsSync() && file.readAsStringSync() == shipped,
         '${file.existsSync() ? file.lengthSync() : 0} bytes vs ${utf8.encode(shipped).length}');
@@ -60,11 +61,17 @@ void main() {
     await pickNode(tester, node);
     String nodeInUse() => containerOf(tester).read(deskProvider).status?.node.url ?? '?';
     String relayInUse() => containerOf(tester).read(deskProvider).status?.epicbox.domain ?? '?';
-    record('app pick of the node is written to the file', file.readAsStringSync().contains('use = "$node"'), nodeInUse());
+    // The first entry of each list is the one in use.
+    List<String> listOf(String table) => [for (final v in (parseSettingsToml(file.readAsStringSync())[table] as Map)['servers'] as List) '$v'];
+    void writeList(String table, List<String> servers) =>
+        file.writeAsStringSync((TomlEditor(file.readAsStringSync())..setValue('$table.servers', servers)).text);
+    List<String> withFirst(List<String> list, String first) => [first, for (final v in list) if (v != first) v];
+    record('app pick of the node is written to the file (first of the list)', listOf('node').first == node, nodeInUse());
 
     // File → app: a hand-added Epicbox server shows in the Epicbox list while the app runs.
-    final handBlock = '\n# Added by hand while the app runs.\n[[epicbox.servers]]\nhost = "relay.example.invalid"\noperator = "Hand edit"\n';
-    file.writeAsStringSync(file.readAsStringSync() + handBlock);
+    const handComment = '# Added by hand while the app runs.';
+    file.writeAsStringSync('${file.readAsStringSync()}\n$handComment\n');
+    writeList('epicbox', [...listOf('epicbox'), 'relay.example.invalid']);
     await pumpUntil(tester, () => hostSettings.epicboxServers.any((s) => s.host == 'relay.example.invalid'),
         timeout: const Duration(seconds: 20), what: 'hand edit read');
     containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving);
@@ -88,14 +95,14 @@ void main() {
     await addNode('https://node.example.invalid:3413');
     final afterAdd = file.readAsStringSync();
     record('node added in the app is in the file', afterAdd.contains('node.example.invalid:3413'), '');
-    record('the hand edit and its comment are kept', afterAdd.contains(handBlock.trim()), '');
+    record('the hand edit and its comment are kept', afterAdd.contains(handComment) && afterAdd.contains('relay.example.invalid'), '');
     record('the shipped comments are kept', afterAdd.contains('# Epic Cash wallet settings'), '');
 
     // A hand edit of the node in use: the wallet reconnects to it.
     final otherNode = node2 == node ? node : node2;
-    file.writeAsStringSync(file.readAsStringSync().replaceFirst('use = "$node"', 'use = "$otherNode"'));
+    writeList('node', withFirst(listOf('node'), otherNode));
     await pumpUntil(tester, () => nodeInUse() == otherNode, timeout: const Duration(minutes: 2), what: 'node switch');
-    record('hand-edited node.use is used live', nodeInUse() == otherNode, nodeInUse());
+    record('a hand reorder of the Node list is used live', nodeInUse() == otherNode, nodeInUse());
 
     // A broken file: kept as it is, the last good settings stay, a notice names the line.
     final broken = '${file.readAsStringSync()}\n[[broken\n';
@@ -135,11 +142,11 @@ void main() {
     final before = (await tester.runAsync(api.epicboxAddress))!;
     final from = hostSettings.epicboxUse;
     final target = from == relay ? freshRelay : relay;
-    file.writeAsStringSync(file.readAsStringSync().replaceFirst('use = "$from"', 'use = "$target"'));
+    writeList('epicbox', withFirst(listOf('epicbox'), target));
     await pumpUntil(tester, () => relayInUse() == target, timeout: const Duration(minutes: 2), what: 'relay switch');
     await settle(tester, ms: 3000);
     final after = (await tester.runAsync(api.epicboxAddress))!;
-    record('hand-edited epicbox.use moves the address', after.endsWith('@$target') && after.split('@').first == before.split('@').first,
+    record('a hand reorder of the Epicbox list moves the address', after.endsWith('@$target') && after.split('@').first == before.split('@').first,
         '${before.split('@').last} -> ${after.split('@').last}');
     await shot(tester, 'settings-04-relay-switched');
 

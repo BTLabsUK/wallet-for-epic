@@ -689,7 +689,7 @@ void main() {
       expect(TorNet.mode, TorNetMode.tor);
       await ask();
       // Through tor's SOCKS port, and the price from BT Labs' copy, never CoinGecko.
-      expect(recorder.opened.map((u) => u.host), isNot(contains(Uri.parse(hostSettings.priceSource).host)));
+      expect(recorder.opened.map((u) => u.host), isNot(contains(Uri.parse(hostSettings.priceSource!).host)));
       expect(recorder.opened, isNotEmpty);
     });
 
@@ -700,7 +700,7 @@ void main() {
       await h.unlock();
       expect(TorNet.mode, TorNetMode.direct);
       await ask();
-      expect(recorder.opened.map((u) => u.host), contains(Uri.parse(hostSettings.priceSource).host));
+      expect(recorder.opened.map((u) => u.host), contains(Uri.parse(hostSettings.priceSource!).host));
     });
 
     test('on for any network counts', () async {

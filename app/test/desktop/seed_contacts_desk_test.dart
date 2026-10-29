@@ -101,8 +101,8 @@ void main() {
     await w.createWallet(name: 'Main', password: _password);
     expect(await w.unlock(_password), isTrue);
     final cs = await bt(w);
-    expect(cs.single.address, btLabsContact.address);
-    expect(cs.single.note, btLabsContact.note);
+    expect(cs.single.address, btLabsContact!.address);
+    expect(cs.single.note, btLabsContact!.note);
     await w.lock();
     expect(await w.unlock(_password), isTrue);
     expect(await bt(w), hasLength(1), reason: 'never added twice');
@@ -138,7 +138,7 @@ void main() {
     );
     await web.lock();
     await secrets.delete('desk.btlabsPublic');
-    final later = app(web: (_) => webFile(btLabsContact, serial: 2));
+    final later = app(web: (_) => webFile(btLabsContact!, serial: 2));
     expect(await later.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
     expect((await bt(later)).single.name, 'BT Labs (mine)');
@@ -149,12 +149,12 @@ void main() {
     await w.createWallet(name: 'Main', password: _password);
     expect(await w.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
-    expect((await bt(w)).single.address, btLabsContact.address);
+    expect((await bt(w)).single.address, btLabsContact!.address);
     await w.lock();
     final bad = app(web: (_) async => '{"version": 2}');
     expect(await bad.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
-    expect((await bt(bad)).single.address, btLabsContact.address);
+    expect((await bt(bad)).single.address, btLabsContact!.address);
   });
 
   test("an edit of the name alone keeps the website's update away", () async {
@@ -170,7 +170,7 @@ void main() {
     await pumpEventQueue(times: 50);
     final after = (await bt(web)).single;
     expect(after.name, 'BT Labs donations');
-    expect(after.address, btLabsContact.address, reason: 'an edited contact is left alone');
+    expect(after.address, btLabsContact!.address, reason: 'an edited contact is left alone');
   });
 
   test('the website file adds no contact the app does not ship', () async {
@@ -183,7 +183,7 @@ void main() {
     expect(await w.unlock(_password), isTrue);
     final cs = await w.contacts();
     expect(cs.where((c) => c.name == 'Someone'), isEmpty);
-    expect((await bt(w)).single.address, btLabsContact.address);
+    expect((await bt(w)).single.address, btLabsContact!.address);
   });
 
   test('a lost seed record never adds a second BT Labs row', () async {
@@ -233,7 +233,7 @@ void main() {
     Future<void> unchanged(Future<String?> Function(Uri) web) async {
       await makeWallet();
       final w = await openWith(web);
-      expect((await bt(w)).single.address, btLabsContact.address);
+      expect((await bt(w)).single.address, btLabsContact!.address);
       expect(secrets.values['desk.btlabsPublic']?.contains('"envelope"') ?? false, isFalse, reason: 'nothing cached');
     }
 
@@ -258,7 +258,7 @@ void main() {
       final body = await webFile(moved);
       final env = jsonDecode(body) as Map<String, dynamic>;
       final payload = utf8.decode(base64.decode(env['payload'] as String));
-      env['payload'] = base64.encode(utf8.encode(payload.replaceFirst(_moved, btLabsContact.address.replaceFirst('Wxbo', 'Wxbp'))));
+      env['payload'] = base64.encode(utf8.encode(payload.replaceFirst(_moved, btLabsContact!.address.replaceFirst('Wxbo', 'Wxbp'))));
       await unchanged((_) async => jsonEncode(env));
     });
 
@@ -280,7 +280,7 @@ void main() {
       // The window passes (at and tried cleared); the website now serves serial 1.
       final c = await cache();
       setCache({...c, 'at': 0, 'tried': 0});
-      final again = await openWith((_) => webFile(btLabsContact, serial: 1));
+      final again = await openWith((_) => webFile(btLabsContact!, serial: 1));
       expect((await bt(again)).single.address, _moved);
       expect((await cache())['state']['serial'], 2);
     });
@@ -310,7 +310,7 @@ void main() {
       final c = (await bt(w)).single;
       expect(c.address, _moved);
       expect(c.name, 'BT Labs');
-      expect(c.note, btLabsContact.note);
+      expect(c.note, btLabsContact!.note);
     });
 
     test('a rejected file is not fetched again within a day', () async {
@@ -376,7 +376,7 @@ void main() {
   });
 
   group('onions', () {
-    final d = [donation(btLabsContact.id, btLabsContact.address)];
+    final d = [donation(btLabsContact!.id, btLabsContact!.address)];
 
     setUp(() async {
       final w = app();

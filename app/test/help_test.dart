@@ -130,7 +130,7 @@ void main() {
     testWidgets('the index ends with the contact address', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      await tester.scrollUntilVisible(find.text(hostSettings.supportEmail), 300, scrollable: _list.last);
+      await tester.scrollUntilVisible(find.text(hostSettings.supportEmail!), 300, scrollable: _list.last);
       expect(find.text('Contact'), findsOneWidget);
     });
 
