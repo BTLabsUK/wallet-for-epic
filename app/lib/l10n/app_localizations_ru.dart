@@ -4072,6 +4072,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get sendTorTryEpicbox =>
+      'Epicbox доставляет платёж, даже когда кошелёк получателя не в сети.';
+
+  @override
   String sendTorNothingSent(String reason) {
     return '$reason Ничего не отправлено.';
   }
@@ -6100,7 +6104,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskErrOnionUnreachable =>
-      'Кошелёк получателя недоступен через Tor';
+      'Кошелёк получателя недоступен через Tor. Epicbox доставляет платёж, даже когда кошелёк не в сети';
 
   @override
   String get deskErrWalletBusy => 'Кошелёк занят. Повторите через минуту.';

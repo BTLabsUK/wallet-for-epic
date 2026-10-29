@@ -12,7 +12,7 @@
   "deskErrPlainHttp": "Отправка по обычному HTTP не подтверждена",
   "deskErrNotOnion": "Это не адрес .onion",
   "deskErrTorNotConnected": "Tor не подключён",
-  "deskErrOnionUnreachable": "Кошелёк получателя недоступен через Tor",
+  "deskErrOnionUnreachable": "Кошелёк получателя недоступен через Tor. Epicbox доставляет платёж, даже когда кошелёк не в сети",
   "deskErrWalletBusy": "Кошелёк занят. Повторите через минуту.",
   "deskErrDbDamaged": "База данных кошелька повреждена, идёт восстановление",
   "deskErrPaymentExpired": "Срок платежа истёк",

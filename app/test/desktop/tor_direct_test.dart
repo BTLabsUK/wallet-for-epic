@@ -510,7 +510,7 @@ void main() {
       session().sendError = const core.WalletError(kind: core.WalletErrorKind.onionUnreachable, message: 'not reached');
       final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
       expect((r as SendFailed).inActivity, isTrue);
-      expect(r.message, 'The recipient’s wallet is not reachable over Tor. $waits');
+      expect(r.message, 'The recipient’s wallet is not reachable over Tor. Epicbox delivers a payment while it is offline. $waits');
       final waiting = (await wallet.transactions()).where((t) => t.state == TxState.waitingRecipient && !t.incoming);
       expect(waiting.single.method, TxMethod.tor);
     });

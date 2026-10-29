@@ -6463,6 +6463,12 @@ abstract class AppLocalizations {
   /// **'{days, plural, =1{Their wallet was not reached over Tor. The amount stays locked until you cancel it, or for up to 1 day.} other{Their wallet was not reached over Tor. The amount stays locked until you cancel it, or for up to {days} days.}}'**
   String sendTorNotReached(int days);
 
+  /// Send, review: line after sendTorNotReached once the Tor send failed (it was tried twice): Epicbox is the method that works while the recipient's wallet is offline. A pointer only; the method is not changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox delivers a payment while their wallet is offline.'**
+  String get sendTorTryEpicbox;
+
   /// Send, review: tor did not connect before anything was sent; {reason} is one of the torFailure sentences.
   ///
   /// In en, this message translates to:
@@ -9592,10 +9598,10 @@ abstract class AppLocalizations {
   /// **'Tor is not connected'**
   String get deskErrTorNotConnected;
 
-  /// An error message the user reads when a Tor send finds no wallet at the onion address.
+  /// An error message the user reads when a Tor send finds no wallet at the onion address, after a second try; it points to Epicbox, which works while the recipient is offline (the method is not changed).
   ///
   /// In en, this message translates to:
-  /// **'The recipient’s wallet is not reachable over Tor'**
+  /// **'The recipient’s wallet is not reachable over Tor. Epicbox delivers a payment while it is offline'**
   String get deskErrOnionUnreachable;
 
   /// An error message the user reads when the wallet is busy with another operation.

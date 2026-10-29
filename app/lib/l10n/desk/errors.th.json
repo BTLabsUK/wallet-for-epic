@@ -12,7 +12,7 @@
   "deskErrPlainHttp": "ยังไม่ได้ยืนยันการใช้ HTTP ธรรมดา",
   "deskErrNotOnion": "ไม่ใช่ที่อยู่ onion",
   "deskErrTorNotConnected": "Tor ไม่ได้เชื่อมต่อ",
-  "deskErrOnionUnreachable": "ติดต่อกระเป๋าเงินของผู้รับผ่าน Tor ไม่ได้",
+  "deskErrOnionUnreachable": "ติดต่อกระเป๋าเงินของผู้รับผ่าน Tor ไม่ได้ Epicbox ส่งการชำระเงินได้แม้กระเป๋าเงินออฟไลน์อยู่",
   "deskErrWalletBusy": "กระเป๋าเงินไม่ว่าง ลองอีกครั้งในอีกสักครู่",
   "deskErrDbDamaged": "ฐานข้อมูลกระเป๋าเงินเสียหาย กำลังสร้างใหม่",
   "deskErrPaymentExpired": "รายการหมดอายุ",

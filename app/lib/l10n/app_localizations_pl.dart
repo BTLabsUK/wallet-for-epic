@@ -4092,6 +4092,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get sendTorTryEpicbox =>
+      'Epicbox dostarcza płatność także wtedy, gdy portfel odbiorcy jest offline.';
+
+  @override
   String sendTorNothingSent(String reason) {
     return '$reason Nic nie zostało wysłane.';
   }
@@ -6123,7 +6127,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskErrOnionUnreachable =>
-      'Portfel odbiorcy jest nieosiągalny przez Tor';
+      'Portfel odbiorcy jest nieosiągalny przez Tor. Epicbox dostarcza płatność także wtedy, gdy portfel jest offline';
 
   @override
   String get deskErrWalletBusy =>

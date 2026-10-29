@@ -12,7 +12,7 @@
   "deskErrPlainHttp": "未确认使用明文 HTTP",
   "deskErrNotOnion": "不是 onion 地址",
   "deskErrTorNotConnected": "Tor 未连接",
-  "deskErrOnionUnreachable": "无法经由 Tor 连接接收方的钱包",
+  "deskErrOnionUnreachable": "无法经由 Tor 连接接收方的钱包。即使钱包离线，Epicbox 也能送达付款",
   "deskErrWalletBusy": "钱包正忙。请稍后重试。",
   "deskErrDbDamaged": "钱包数据库已损坏，正在重建",
   "deskErrPaymentExpired": "付款已过期",

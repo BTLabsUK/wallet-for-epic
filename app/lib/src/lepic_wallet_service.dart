@@ -590,6 +590,36 @@ int lepicTxId(String key) {
 /// The transports whose undelivered sends are sent again: Epicbox, HTTP and Tor.
 const resendTransports = {'epicbox', 'http', 'tor'};
 
+/// The wait before the one more try of a Tor send whose onion was not reached: a published
+/// onion is often reached at the second try, once its circuits are built.
+const Duration onionRetryWait = Duration(seconds: 30);
+
+/// Sends over Tor with [send]. When the onion was not reached and the send stayed stored (the
+/// one waiting sent payment not in the list before), waits [wait] and delivers it again once
+/// with [resend]; its failure is the answer. Never another method.
+@visibleForTesting
+Future<HttpSent> sendTorRetryingOnce({
+  required Future<HttpSent> Function() send,
+  required Future<HttpSent> Function(int txId) resend,
+  required Future<List<TxEntry>> Function() transactions,
+  Duration wait = onionRetryWait,
+}) async {
+  final before = {for (final t in await transactions()) t.key};
+  try {
+    return await send();
+  } on WalletError catch (e) {
+    if (e.kind != WalletErrorKind.onionUnreachable) rethrow;
+    final left = [
+      for (final t in await transactions())
+        if (!before.contains(t.key) && t.kind == TxKind.sent && t.status == TxStatus.awaitingRecipient && t.id != null) t,
+    ];
+    if (left.length != 1) rethrow;
+    logInfo('tor', 'onion not reached; one more try in ${wait.inSeconds} s');
+    await Future<void>.delayed(wait);
+    return resend(left.single.id!);
+  }
+}
+
 /// A LEPIC transaction as a history row. Keys are `l:<tx id>` ([lepicTxId]) until the merge
 /// gives the stable one: a row a scan restored is then known by its output's commitment, which
 /// a restore finds again while the id changes. Notes, labels, contacts and imported rows are
@@ -1713,19 +1743,23 @@ class LepicWalletSession implements WalletSession {
     required String onion,
     String? message,
     SendOptions? options,
-  }) => _netGuard('send over Tor', () async {
-    final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
-    final tx = await _counted(
-      () => _wallet.sendTor(
-        amount: amount,
-        minimumConfirmations: minimumConfirmations,
-        onion: onion,
-        message: _message(message),
-        options: sendOptions,
-      ),
-    );
-    return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
-  });
+  }) => sendTorRetryingOnce(
+    transactions: () => transactions(refresh: false),
+    resend: (txId) => resendTor(txId: txId, onion: onion),
+    send: () => _netGuard('send over Tor', () async {
+      final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
+      final tx = await _counted(
+        () => _wallet.sendTor(
+          amount: amount,
+          minimumConfirmations: minimumConfirmations,
+          onion: onion,
+          message: _message(message),
+          options: sendOptions,
+        ),
+      );
+      return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
+    }),
+  );
 
   @override
   Future<HttpSent> resendTor({required int txId, required String onion}) =>

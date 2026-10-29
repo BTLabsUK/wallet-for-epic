@@ -3978,6 +3978,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get sendTorTryEpicbox =>
+      'Epicbox delivers a payment while their wallet is offline.';
+
+  @override
   String sendTorNothingSent(String reason) {
     return '$reason Nothing was sent.';
   }
@@ -5957,7 +5961,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskErrOnionUnreachable =>
-      'The recipient’s wallet is not reachable over Tor';
+      'The recipient’s wallet is not reachable over Tor. Epicbox delivers a payment while it is offline';
 
   @override
   String get deskErrWalletBusy => 'Wallet busy. Try again in a moment.';

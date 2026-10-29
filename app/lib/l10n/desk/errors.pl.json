@@ -12,7 +12,7 @@
   "deskErrPlainHttp": "Nie potwierdzono zwykłego HTTP",
   "deskErrNotOnion": "To nie jest adres onion",
   "deskErrTorNotConnected": "Tor nie jest połączony",
-  "deskErrOnionUnreachable": "Portfel odbiorcy jest nieosiągalny przez Tor",
+  "deskErrOnionUnreachable": "Portfel odbiorcy jest nieosiągalny przez Tor. Epicbox dostarcza płatność także wtedy, gdy portfel jest offline",
   "deskErrWalletBusy": "Portfel jest zajęty. Spróbuj ponownie za chwilę.",
   "deskErrDbDamaged": "Baza danych portfela uszkodzona, trwa odbudowa",
   "deskErrPaymentExpired": "Płatność wygasła",

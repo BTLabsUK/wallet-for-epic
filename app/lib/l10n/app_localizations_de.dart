@@ -4034,6 +4034,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get sendTorTryEpicbox =>
+      'Epicbox stellt eine Zahlung auch zu, während die Wallet der Gegenseite offline ist.';
+
+  @override
   String sendTorNothingSent(String reason) {
     return '$reason Es wurde nichts gesendet.';
   }
@@ -6034,7 +6038,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskErrOnionUnreachable =>
-      'Die Wallet des Empfängers ist über Tor nicht erreichbar';
+      'Die Wallet des Empfängers ist über Tor nicht erreichbar. Epicbox stellt eine Zahlung auch zu, während sie offline ist';
 
   @override
   String get deskErrWalletBusy =>

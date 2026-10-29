@@ -12,7 +12,7 @@
   "deskErrPlainHttp": "Unverschlüsseltes HTTP nicht bestätigt",
   "deskErrNotOnion": "Keine Onion-Adresse",
   "deskErrTorNotConnected": "Tor ist nicht verbunden",
-  "deskErrOnionUnreachable": "Die Wallet des Empfängers ist über Tor nicht erreichbar",
+  "deskErrOnionUnreachable": "Die Wallet des Empfängers ist über Tor nicht erreichbar. Epicbox stellt eine Zahlung auch zu, während sie offline ist",
   "deskErrWalletBusy": "Wallet beschäftigt. Versuchen Sie es gleich noch einmal.",
   "deskErrDbDamaged": "Wallet-Datenbank beschädigt, wird neu aufgebaut",
   "deskErrPaymentExpired": "Zahlung abgelaufen",

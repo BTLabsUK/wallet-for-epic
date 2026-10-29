@@ -3094,7 +3094,9 @@ class _SendViewState extends ConsumerState<SendView> {
                   ? l.torFailureNetwork
                   : torFailureText(l, tor.failure!),
             )
-          : l.sendTorNotReached(sendTtlDays);
+          // Tried twice by then (lepic_wallet_service.dart): Epicbox is the method for an
+          // offline wallet; the method stays the user's choice.
+          : '${l.sendTorNotReached(sendTtlDays)}\n${l.sendTorTryEpicbox}';
     } else {
       // The relay is named: a mistyped domain is the usual reason it never answers. A
       // pairing's mailbox is on the contact's own relay.

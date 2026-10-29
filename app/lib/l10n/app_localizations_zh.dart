@@ -3753,6 +3753,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get sendTorTryEpicbox => '即使对方钱包离线，Epicbox 也能送达付款。';
+
+  @override
   String sendTorNothingSent(String reason) {
     return '$reason未发送任何内容。';
   }
@@ -5632,7 +5635,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskErrTorNotConnected => 'Tor 未连接';
 
   @override
-  String get deskErrOnionUnreachable => '无法经由 Tor 连接接收方的钱包';
+  String get deskErrOnionUnreachable =>
+      '无法经由 Tor 连接接收方的钱包。即使钱包离线，Epicbox 也能送达付款';
 
   @override
   String get deskErrWalletBusy => '钱包正忙。请稍后重试。';

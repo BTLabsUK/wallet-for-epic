@@ -51,9 +51,9 @@
   "@deskErrTorNotConnected": {
     "description": "An error message the user reads when a Tor send is asked while Tor is not connected."
   },
-  "deskErrOnionUnreachable": "The recipient’s wallet is not reachable over Tor",
+  "deskErrOnionUnreachable": "The recipient’s wallet is not reachable over Tor. Epicbox delivers a payment while it is offline",
   "@deskErrOnionUnreachable": {
-    "description": "An error message the user reads when a Tor send finds no wallet at the onion address."
+    "description": "An error message the user reads when a Tor send finds no wallet at the onion address, after a second try; it points to Epicbox, which works while the recipient is offline (the method is not changed)."
   },
   "deskErrWalletBusy": "Wallet busy. Try again in a moment.",
   "@deskErrWalletBusy": {

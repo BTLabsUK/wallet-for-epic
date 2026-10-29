@@ -3913,6 +3913,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get sendTorTryEpicbox =>
+      'Epicbox ส่งการชำระเงินได้แม้กระเป๋าเงินของผู้รับออฟไลน์อยู่';
+
+  @override
   String sendTorNothingSent(String reason) {
     return '$reason ไม่มีสิ่งใดถูกส่งออกไป';
   }
@@ -5854,7 +5858,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskErrOnionUnreachable =>
-      'ติดต่อกระเป๋าเงินของผู้รับผ่าน Tor ไม่ได้';
+      'ติดต่อกระเป๋าเงินของผู้รับผ่าน Tor ไม่ได้ Epicbox ส่งการชำระเงินได้แม้กระเป๋าเงินออฟไลน์อยู่';
 
   @override
   String get deskErrWalletBusy => 'กระเป๋าเงินไม่ว่าง ลองอีกครั้งในอีกสักครู่';
