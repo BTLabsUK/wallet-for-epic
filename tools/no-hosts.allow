@@ -1,0 +1,4 @@
+# Exceptions to tools/check-no-hosts.sh, one per line: `<glob><TAB><regex>`. The glob matches
+# `<tree>/<path>` (tree: app, lepic, lepic-flutter); text the regex matches on a line of such a
+# file is ignored. Every exception has a comment above it saying why. There are none: every
+# address lives in a settings file (docs/settings-file.md).
