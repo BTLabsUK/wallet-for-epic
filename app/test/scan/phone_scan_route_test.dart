@@ -896,10 +896,21 @@ void main() {
       await h.pump(tester, size: const Size(1080, 2400));
       await h.scan(tester, 'epic:$url?amount=1&message=$note');
       expect(tester.takeException(), isNull);
+      // The 264-character note takes the room above the field: it is built once scrolled to.
+      await tester.dragUntilVisible(
+        find.byKey(sendAmountFieldKey),
+        find.byType(Scrollable).first,
+        const Offset(0, -200),
+      );
       expect(_onAmount(), isTrue);
       expect(_inPayee(note), findsOneWidget);
       await _continue(tester);
       expect(tester.takeException(), isNull);
+      await tester.dragUntilVisible(
+        find.byKey(sendOriginPillKey),
+        find.byType(Scrollable).first,
+        const Offset(0, 200),
+      );
       expect(_origin('From a QR code'), findsOneWidget);
       final host = find.text('1.2.3.4:3415');
       await tester.ensureVisible(host);

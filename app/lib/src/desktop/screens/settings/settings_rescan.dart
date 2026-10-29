@@ -195,10 +195,14 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
       child: Semantics(
         label: l.deskSetRescanLog,
-        child: ListView(
-          shrinkWrap: true,
+        // A scroll view of a column: lines are added at the top, which a lazy list under the
+        // text selection cannot take.
+        child: SingleChildScrollView(
           padding: EdgeInsets.all(Sp.x3),
-          children: [for (final line in _log) Text(line, style: ts.mono(size: Fs.xs, color: c.dim))],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [for (final line in _log) Text(line, style: ts.mono(size: Fs.xs, color: c.dim))],
+          ),
         ),
       ),
     );
