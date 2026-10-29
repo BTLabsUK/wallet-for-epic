@@ -437,8 +437,8 @@ class HostSettings {
   List<String> get vpnSuffixes => config.vpnSuffixes;
 
   /// Every host the two files name (servers, sites, onions, the e-mail and donation hosts, the
-  /// kept hosts, the operators' domains), lower case: what a report keeps besides
-  /// [reportKeepDomains]. Domain and suffix lists (`onion_only_domains`, `keep_domains`,
+  /// kept hosts, the operators' domains), lower case: on the default copy, what a report keeps
+  /// besides [reportKeepDomains]. Domain and suffix lists (`onion_only_domains`, `keep_domains`,
   /// `vpn_suffixes`) are not hosts.
   Set<String> get allHosts {
     const notHosts = {'tor.onion_only_domains', 'report.keep_domains', 'network.vpn_suffixes'};

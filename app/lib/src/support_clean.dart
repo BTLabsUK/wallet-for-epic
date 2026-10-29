@@ -19,10 +19,12 @@ library;
 
 import 'bip39_words.dart';
 import 'redact.dart';
-import 'settings_file/host_settings.dart' show hostSettings;
+import 'settings_file/host_settings.dart' show hostSettings, shippedHostSettings;
 
-/// Hosts kept as they are: every host the settings file names, and its `report.keep_hosts`.
-Set<String> get knownPublicHosts => {...hostSettings.allHosts, ...hostSettings.reportKeepHosts};
+/// Hosts kept as they are: every host the shipped files name (the default copy's servers and
+/// `app-config.toml`'s sites), and `report.keep_hosts`. A server the user added to
+/// `settings.toml` (a home node, a private relay) is not public and is redacted like any other.
+Set<String> get knownPublicHosts => {...shippedHostSettings.allHosts, ...hostSettings.reportKeepHosts};
 
 List<String> get _keepDomains => hostSettings.reportKeepDomains;
 
