@@ -40,6 +40,7 @@ final Map<String, DeskHelpPlace> _places = {
   'Settings › This wallet › Export wallet data': _page(DeskRoute.settingsAccount),
   'Settings › This wallet › Wallet folder': _page(DeskRoute.settingsAccount),
   'Settings › This wallet › App files': _page(DeskRoute.settingsAccount),
+  'Settings › This wallet › Linked devices': _page(DeskRoute.settingsDevices),
   'Settings › All wallets': _page(DeskRoute.settingsWallets),
   'Settings › Recovery phrase': _page(DeskRoute.settingsPhrase),
   'Settings › Recheck balance': _page(DeskRoute.settingsRescan),

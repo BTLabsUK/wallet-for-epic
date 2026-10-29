@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show autoLockLabel;
 import '../../../settings.dart' show autoLockChoices;
+import '../../../ui/devices/device_parts.dart' show devicesStateLine;
 import '../../desk_l10n.dart';
+import '../../data/devices_state.dart' show deskDeviceBookProvider, deskLinkedDevicesOnProvider;
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -133,6 +135,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                   ),
                 ),
               ),
+              if (ref.watch(deskLinkedDevicesOnProvider)) const _DevicesRow(),
             ],
           ),
           BackupGroup(demo: widget.arg is BackupDemo ? widget.arg as BackupDemo : null),
@@ -174,6 +177,36 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The button that opens Linked devices from This wallet.
+const settingsDevicesOpenKey = ValueKey('settings-devices-open');
+
+/// Linked devices, a page of this wallet (as on the phone): the state line names the device seen
+/// last; Open goes to the page.
+class _DevicesRow extends ConsumerWidget {
+  const _DevicesRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final devices = ref.watch(deskDeviceBookProvider)?.devices ?? const [];
+    return ESetRow(
+      title: l.expLinkedDevices,
+      text: devicesStateLine(l, devices, DateTime.now()),
+      badge: EBadge(l.advExperimental),
+      hint: l.expLinkedDevicesHint,
+      control: ERowControl(
+        child: EButton(
+          key: settingsDevicesOpenKey,
+          label: l.commonOpen,
+          icon: EIcons.devices,
+          size: EBtnSize.sm,
+          onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsDevices),
+        ),
       ),
     );
   }

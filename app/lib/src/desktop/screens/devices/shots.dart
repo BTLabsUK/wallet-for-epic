@@ -67,11 +67,11 @@ final List<DeskShot> deviceShots = [
   // Help › How linked devices work: the sync picture over the body, the live status panel under it
   // with the linked phone and the servers.
   DeskShot(id: '30h-settings-help-linked-devices', title: 'Help › How linked devices work: the sync picture, the body, the live status', route: DeskRoute.settingsHelp, arg: HelpAt.topic(HelpId.linkedDevices), height: 1700, prepare: (c, _) => _linked(c)),
-  const DeskShot(id: '44a-devices-none', title: 'Settings › Linked devices, none linked', route: DeskRoute.settingsDevices),
-  DeskShot(id: '44b-devices-linked', title: 'Settings › Linked devices, a phone and a held payment', route: DeskRoute.settingsDevices, height: 1100, prepare: (c, _) => _linkedHeld(c)),
+  const DeskShot(id: '44a-devices-none', title: 'Settings › This wallet › Linked devices, none linked', route: DeskRoute.settingsDevices),
+  DeskShot(id: '44b-devices-linked', title: 'Settings › This wallet › Linked devices, a phone and a held payment', route: DeskRoute.settingsDevices, height: 1100, prepare: (c, _) => _linkedHeld(c)),
   DeskShot(
     id: '44b-devices-linked-2474',
-    title: 'Settings › Linked devices at 2474x1338',
+    title: 'Settings › This wallet › Linked devices at 2474x1338',
     route: DeskRoute.settingsDevices,
     width: 2474,
     height: 1338,

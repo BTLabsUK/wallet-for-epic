@@ -10,16 +10,16 @@ import 'help_content.dart';
 
 /// The linked devices topics in [lang] (`en`, `de`, `pl`, `ru`, `zh`, `th`).
 List<HelpTopic> deviceHelpTopics(String lang, {required bool phone}) => switch (lang) {
-  'de' => _de(phone),
-  'pl' => _pl(phone),
-  'ru' => _ru(phone),
-  'zh' => _zh(phone),
-  'th' => _th(phone),
-  _ => _en(phone),
+  'de' => _de(),
+  'pl' => _pl(),
+  'ru' => _ru(),
+  'zh' => _zh(),
+  'th' => _th(),
+  _ => _en(),
 };
 
-List<HelpTopic> _en(bool phone) {
-  final place = phone ? '[[Settings › This wallet › Linked devices]]' : 'the **Linked devices** section in Settings';
+List<HelpTopic> _en() {
+  final place = '[[Settings › This wallet › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -82,10 +82,8 @@ List<HelpTopic> _en(bool phone) {
   ];
 }
 
-List<HelpTopic> _de(bool phone) {
-  final place = phone
-      ? '[[Einstellungen › Diese Wallet › Verknüpfte Geräte|Settings › This wallet › Linked devices]]'
-      : 'den Bereich **Verknüpfte Geräte** in den Einstellungen';
+List<HelpTopic> _de() {
+  final place = '[[Einstellungen › Diese Wallet › Verknüpfte Geräte|Settings › This wallet › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -148,10 +146,8 @@ List<HelpTopic> _de(bool phone) {
   ];
 }
 
-List<HelpTopic> _pl(bool phone) {
-  final place = phone
-      ? '[[Ustawienia › Ten portfel › Połączone urządzenia|Settings › This wallet › Linked devices]]'
-      : 'sekcję **Połączone urządzenia** w Ustawieniach';
+List<HelpTopic> _pl() {
+  final place = '[[Ustawienia › Ten portfel › Połączone urządzenia|Settings › This wallet › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -214,10 +210,8 @@ List<HelpTopic> _pl(bool phone) {
   ];
 }
 
-List<HelpTopic> _ru(bool phone) {
-  final place = phone
-      ? '[[Настройки › Этот кошелёк › Связанные устройства|Settings › This wallet › Linked devices]]'
-      : 'раздел **Связанные устройства** в Настройках';
+List<HelpTopic> _ru() {
+  final place = '[[Настройки › Этот кошелёк › Связанные устройства|Settings › This wallet › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -280,8 +274,8 @@ List<HelpTopic> _ru(bool phone) {
   ];
 }
 
-List<HelpTopic> _zh(bool phone) {
-  final place = phone ? '[[设置 › 此钱包 › 关联设备|Settings › This wallet › Linked devices]]' : '设置中的 **关联设备** 部分';
+List<HelpTopic> _zh() {
+  final place = '[[设置 › 此钱包 › 关联设备|Settings › This wallet › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -344,10 +338,8 @@ List<HelpTopic> _zh(bool phone) {
   ];
 }
 
-List<HelpTopic> _th(bool phone) {
-  final place = phone
-      ? '[[การตั้งค่า › กระเป๋าเงินนี้ › อุปกรณ์ที่เชื่อมโยง|Settings › This wallet › Linked devices]]'
-      : 'ส่วน **อุปกรณ์ที่เชื่อมโยง** ในการตั้งค่า';
+List<HelpTopic> _th() {
+  final place = '[[การตั้งค่า › กระเป๋าเงินนี้ › อุปกรณ์ที่เชื่อมโยง|Settings › This wallet › Linked devices]]';
   return [
     HelpTopic(
       'how',

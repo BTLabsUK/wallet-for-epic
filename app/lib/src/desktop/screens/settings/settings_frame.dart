@@ -9,12 +9,12 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
-import '../../data/devices_state.dart' show deskLinkedDevicesOnProvider;
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 /// The sections; [invoices] adds Invoices below Transactions (wallets that take invoices), its label
-/// in the app's language.
-List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices, required bool devices}) => [
+/// in the app's language. Linked devices has no entry of its own: it belongs to one wallet, so it
+/// opens from This wallet (as on the phone) and that entry stays raised on its page.
+List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices}) => [
   (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
   (DeskRoute.settingsReceiving, l.deskSetFrameTransactions, EIcons.antenna),
   (DeskRoute.settingsPrivacy, l.deskSetFramePrivacy, EIcons.shield),
@@ -22,7 +22,6 @@ List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required boo
   (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),
   null,
   (DeskRoute.settingsAccount, l.deskSetFrameThisWallet, EIcons.wallet),
-  if (devices) (DeskRoute.settingsDevices, l.expLinkedDevices, EIcons.devices),
   if (DeskFeatures.multiWallet) (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
   (DeskRoute.settingsPhrase, l.deskSetFramePhrase, EIcons.key),
   (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
@@ -58,7 +57,9 @@ class SettingsFrame extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
-    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), devices: ref.watch(deskLinkedDevicesOnProvider));
+    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider));
+    // Linked devices is a page of This wallet.
+    final current = route == DeskRoute.settingsDevices ? DeskRoute.settingsAccount : route;
     // A big window centres the capped column instead of leaving it at the left.
     final content = Align(
       alignment: Alignment.topCenter,
@@ -82,7 +83,7 @@ class SettingsFrame extends ConsumerWidget {
                     label: l.deskSetFrameSections,
                     child: ESubnav(
                       items: items,
-                      current: route,
+                      current: current,
                       onTap: (r) => nav.go(r as DeskRoute),
                       wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
                     ),
@@ -103,7 +104,7 @@ class SettingsFrame extends ConsumerWidget {
                       for (final i in items.whereType<(DeskRoute, String, IconData)>())
                         Padding(
                           padding: EdgeInsets.only(right: Sp.x2),
-                          child: _Chip(icon: i.$3, label: i.$2, selected: i.$1 == route, onTap: () => nav.go(i.$1)),
+                          child: _Chip(icon: i.$3, label: i.$2, selected: i.$1 == current, onTap: () => nav.go(i.$1)),
                         ),
                     ],
                   ),

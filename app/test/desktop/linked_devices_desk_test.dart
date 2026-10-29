@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/data/devices_state.dart';
 import 'package:epic_wallet/src/desktop/data/mock_devices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/devices/link_flow.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_account.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_devices.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -90,6 +91,30 @@ void main() {
     expect(find.text('No device linked yet.'), findsOneWidget);
     expect(find.text('No coins held.'), findsOneWidget);
     expect(tester.widget<EButton>(find.byKey(devicesLinkKey)).onPressed, isNotNull);
+    await end(tester);
+  });
+
+  testWidgets('Linked devices is a page of This wallet: a row there opens it, no section of its own, This wallet stays raised', (tester) async {
+    await show(tester, const SettingsAccountScreen());
+    final subnav = find.byType(ESubnav);
+    expect(find.descendant(of: subnav, matching: find.text('Linked devices')), findsNothing);
+    expect(find.descendant(of: subnav, matching: find.text('This wallet')), findsOneWidget);
+    expect(find.text('Linked devices'), findsOneWidget);
+    expect(find.text('None'), findsOneWidget);
+    await tester.tap(find.byKey(settingsDevicesOpenKey));
+    await settle(tester);
+    expect(container.read(deskNavProvider).route, DeskRoute.settingsDevices);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsDevicesScreen())),
+      ),
+    );
+    await settle(tester);
+    final raised = tester.widgetList<ENavItem>(find.descendant(of: find.byType(ESubnav), matching: find.byType(ENavItem))).where((e) => e.selected).map((e) => e.label);
+    expect(raised, ['This wallet']);
+    expect(find.byKey(devicesLinkKey), findsOneWidget);
     await end(tester);
   });
 
