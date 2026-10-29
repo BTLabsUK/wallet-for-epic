@@ -7,14 +7,14 @@
 # Usage: tools/dist-check.sh <web|play|fdroid> <file.apk|file.aab>
 #
 #   every   no Firebase (removed in 26.10.20): not in the manifest, the dex strings or the
-#           resources; no notification permission.
+#           resources; no notification permission. Nothing of Google Play services, ML Kit,
+#           Google's data transport or Play Core (removed in 26.10.24, the free QR scanner in
+#           every build): not in the manifest, the dex strings or META-INF, and no ML Kit
+#           library.
 #   web     the in-app updater's install permission is there.
 #   play    no install permissions, no installer code, no update feed (Google Play updates the app).
-#   fdroid  as play, and nothing of Google Play services, ML Kit, Google's data transport or Play
-#           Core: not in the manifest, the dex strings or META-INF, and no ML Kit library. With
-#           FDROID=<path to fdroid> (from fdroidserver) it also runs `fdroid scanner` on an APK,
-#           the check F-Droid itself runs. (web and play keep the ML Kit scanner, which brings
-#           Play services' base library with it.)
+#   fdroid  as play. With FDROID=<path to fdroid> (from fdroidserver) it also runs
+#           `fdroid scanner` on an APK, the check F-Droid itself runs.
 #
 # Dex code may be renamed by R8, so the class checks read what renaming keeps: the manifest's
 # component names, the strings in the dex files (class names in reflection, keep rules and log
@@ -55,9 +55,8 @@ case "$file" in
 esac
 
 install_perm='android\.permission\.(REQUEST_INSTALL_PACKAGES|UPDATE_PACKAGES_WITHOUT_USER_ACTION)'
-# ML Kit (the QR scanner in web and play) registers its parts through com.google.firebase.components:
-# its plumbing, not Firebase's app, messaging or push code, so only those count (as in
-# build_android_release.sh).
+# Firebase's app, messaging and push code. (com.google.firebase.components was ML Kit's
+# plumbing; ML Kit itself is refused below with the rest of Play services.)
 firebase='com[./]google[./]firebase[./](messaging|iid|installations|FirebaseApp)|firebase-(messaging|common|installations|iid)|com\.google\.android\.c2dm'
 firebase_config='google_app_id|gcm_defaultSenderId|google_api_key'
 proprietary='com[./]google[./](android[./]gms|mlkit|android[./]datatransport|android[./]play[./]core)|play-services-|barhopper|libmlkit'
@@ -89,18 +88,18 @@ case "$dist" in
     ;;
 esac
 
-if [[ "$dist" == fdroid ]]; then
-  hits="$(grep -oiE "$proprietary" <<<"$manifest" | sort -u | tr '\n' ' ' || true)"
-  [[ -z "$hits" ]] && r=0 || r=1; check "manifest names nothing proprietary ${hits:+($hits)}" "$r"
-  hits="$(dex_hits "$proprietary")"
-  [[ -z "$hits" ]] && r=0 || r=1; check "dex strings name nothing proprietary ${hits:+($hits)}" "$r"
-  hits="$(find "$work/x" -path '*/lib/*' -name '*.so' | grep -iE 'barhopper|mlkit|firebase|gms' | sed "s|$work/x/||" | tr '\n' ' ' || true)"
-  [[ -z "$hits" ]] && r=0 || r=1; check "no proprietary native library ${hits:+($hits)}" "$r"
-  hits="$(find "$work/x" -name '*.properties' -path '*META-INF*' | grep -iE 'firebase|play-services|mlkit|datatransport' | sed "s|$work/x/||" | tr '\n' ' ' || true)"
-  [[ -z "$hits" ]] && r=0 || r=1; check "no Google library version files in META-INF ${hits:+($hits)}" "$r"
-  if [[ -n "${FDROID:-}" && "$file" == *.apk ]]; then
-    "$FDROID" scanner --exit-code "$file" && r=0 || r=1; check "fdroid scanner $(basename "$file")" "$r"
-  fi
+# Every build: nothing of Google Play services or ML Kit. File names are matched without the
+# temp dir, whose path may itself contain such a word.
+hits="$(grep -oiE "$proprietary" <<<"$manifest" | sort -u | tr '\n' ' ' || true)"
+[[ -z "$hits" ]] && r=0 || r=1; check "manifest names nothing proprietary ${hits:+($hits)}" "$r"
+hits="$(dex_hits "$proprietary")"
+[[ -z "$hits" ]] && r=0 || r=1; check "dex strings name nothing proprietary ${hits:+($hits)}" "$r"
+hits="$(find "$work/x" -path '*/lib/*' -name '*.so' | sed "s|$work/x/||" | grep -iE 'barhopper|mlkit|firebase|gms' | tr '\n' ' ' || true)"
+[[ -z "$hits" ]] && r=0 || r=1; check "no proprietary native library ${hits:+($hits)}" "$r"
+hits="$(find "$work/x" -name '*.properties' -path '*META-INF*' | sed "s|$work/x/||" | grep -iE 'firebase|play-services|mlkit|datatransport' | tr '\n' ' ' || true)"
+[[ -z "$hits" ]] && r=0 || r=1; check "no Google library version files in META-INF ${hits:+($hits)}" "$r"
+if [[ "$dist" == fdroid && -n "${FDROID:-}" && "$file" == *.apk ]]; then
+  "$FDROID" scanner --exit-code "$file" && r=0 || r=1; check "fdroid scanner $(basename "$file")" "$r"
 fi
 [[ $fail == 0 ]] || { echo "dist check FAILED" >&2; exit 1; }
 echo "dist check passed"

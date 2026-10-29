@@ -61,12 +61,12 @@ val distUpdates = dist == "web"
 // sets it) leaves the fdroid release unsigned and skips the release key check. Every other build
 // is still signed with the release key or stops.
 val unsignedRelease = dist == "fdroid" && System.getenv("WFE_ANDROID_UNSIGNED") == "1"
-// The F-Droid build reads QR codes with a free scanner: Google ML Kit (mobile_scanner) must be
-// gone from pubspec.yaml before Gradle runs.
-if (dist == "fdroid" && rootProject.findProject(":mobile_scanner") != null) { // dist-prep: names only
+// Every build reads QR codes with the free scanner (camera + flutter_zxing): Google ML Kit
+// (mobile_scanner) must never come back through pubspec.yaml.
+if (rootProject.findProject(":mobile_scanner") != null) { // dist-prep: names only
     throw GradleException(
-        "WFE_DIST=fdroid with the Google ML Kit scanner still in pubspec.yaml: run " +
-            "tools/dist-prep.sh fdroid first (https://docs.btlabs.uk/developers/build/variants/).",
+        "The Google ML Kit scanner is in pubspec.yaml: no build may carry ML Kit or Play " +
+            "services (https://docs.btlabs.uk/developers/build/variants/).",
     )
 }
 
@@ -96,7 +96,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         // The Play bundle is arm64 only, like the APK. Flutter compiles the app for the
-        // --target-platform alone, but plugins (ML Kit, CameraX) and tor bring their own other
+        // --target-platform alone, but plugins (flutter_zxing, CameraX) and tor bring their own other
         // ABIs: Play would serve those phones a split without libflutter.so. The Flutter plugin
         // has already set its own list here (armeabi-v7a, arm64-v8a, x86_64), hence the clear.
         if (dist == "play") ndk { abiFilters.clear(); abiFilters += "arm64-v8a" }

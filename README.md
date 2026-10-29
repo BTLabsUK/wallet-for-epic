@@ -94,8 +94,8 @@ cd app && flutter run -t lib/main.dart
 
 `app/tool/build_android_release.sh` builds the release APK (arm64-v8a). It needs a signing key
 named by `WFE_ANDROID_KEY_PROPERTIES`; without one it stops. Store builds use `WFE_DIST`:
-`play` builds the Google Play bundle, and `fdroid` builds the APK without Google ML Kit, after
-`tools/dist-prep.sh fdroid` has prepared a clean copy of the checkout.
+`play` builds the Google Play bundle, and `fdroid` the F-Droid APK. No build has Google ML Kit
+or Play services: the QR scanner is camera + flutter_zxing everywhere.
 
 ### Windows
 

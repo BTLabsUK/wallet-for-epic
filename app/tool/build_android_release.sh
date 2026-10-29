@@ -22,10 +22,8 @@
 #   play    an Android App Bundle for Google Play, epic-cash-mobile-<version>[-notor]-play.aab
 #           (arm64-v8a, signed with the same key as the APK).
 #   fdroid  epic-cash-mobile-<version>[-notor]-fdroid-arm64-v8a.apk, the APK for IzzyOnDroid and
-#           the one F-Droid's own build must reproduce: the free QR scanner instead of ML Kit, so
-#           the checkout must be prepared first (tools/dist-prep.sh fdroid, in a build copy), with
-#           pubspec.lock enforced as prepared and tor built from source
-#           (tools/build-tor-android.sh) instead of the Tor Project's binary.
+#           the one F-Droid's own build must reproduce, with pubspec.lock enforced and tor built
+#           from source (tools/build-tor-android.sh) instead of the Tor Project's binary.
 # tools/dist-check.sh checks each output against its distribution.
 #
 # No WFE_UPDATE_URL is passed: the default feed is BT Labs' signed update.json, and the
@@ -63,10 +61,6 @@ readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readel
 
 dist="${WFE_DIST:-web}"
 case "$dist" in web|play|fdroid) ;; *) echo "WFE_DIST=$dist: use web, play or fdroid" >&2; exit 2 ;; esac
-if [[ $dist == fdroid ]] && grep -q '^  mobile_scanner:' "$app_dir/pubspec.yaml"; then
-  echo "WFE_DIST=fdroid needs a prepared checkout: tools/dist-prep.sh fdroid, in a build copy" >&2
-  exit 1
-fi
 
 # The build without Tor names its files epic-cash-mobile-<version>-notor-<abi>.apk; a store
 # build adds -play or -fdroid.
@@ -208,8 +202,8 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   # lying in android/app: not in the resources, the manifest or the code.
   "$aapt2" dump resources "$apk" 2>/dev/null | grep -qiE 'google_app_id|gcm_defaultSenderId|firebase' && r=1 || r=0
   check "no Firebase config" $r
-  # ML Kit (the QR scanner) registers its parts through com.google.firebase.components: that
-  # is ML Kit's plumbing, not Firebase's app, messaging or a push service, so it does not count.
+  # com.google.firebase.components was ML Kit's plumbing (no build has ML Kit since 26.10.24;
+  # dist-check refuses it): only Firebase's app, messaging or a push service counts here.
   grep -iE 'firebase|com\.google\.android\.c2dm|POST_NOTIFICATIONS' <<<"$manifest" | grep -qviE 'com\.google\.firebase\.components' && r=1 || r=0
   check "no Firebase or notification entries in the manifest" $r
   dex="$(mktemp -d)"
@@ -217,7 +211,7 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   LC_ALL=C grep -aqiE 'com/google/firebase/(messaging|iid|installations|FirebaseApp)|firebase-messaging' "$dex"/classes*.dex && r=1 || r=0
   check "no Firebase classes" $r
   rm -r -- "$dex"
-  # What the distribution must and must not carry: the updater, proprietary code (fdroid).
+  # What the distribution must and must not carry: the updater, proprietary code.
   "$app_dir/../tools/dist-check.sh" "$dist" "$apk" && r=0 || r=1; check "tools/dist-check.sh $dist" $r
 done
 if [[ $dist == play ]]; then
