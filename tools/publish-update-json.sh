@@ -51,10 +51,12 @@ token_file="${GITLAB_TOKEN_FILE:-$HOME/.config/btlabs/gitlab-token}"
 kit="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/publish"
 [[ -r "$token_file" ]] || { echo "no GitLab token at $token_file" >&2; exit 1; }
 
-for f in "$file" "$file2"; do
-  python3 "$tool" verify --type update --keyring "$keyring" --envelope "$f" >/dev/null \
-    || { echo "$f does not verify against $keyring" >&2; exit 1; }
-done
+# update-v2.json's file URLs are checked against [updates] of the app's app-config.toml, as the
+# app checks them; update.json's against the tool's old download folder.
+python3 "$tool" verify --type update --keyring "$keyring" --envelope "$file" >/dev/null \
+  || { echo "$file does not verify against $keyring" >&2; exit 1; }
+python3 "$tool" verify --type update --app-config "$root/app/assets/config/app-config.toml" --keyring "$keyring" \
+  --envelope "$file2" >/dev/null || { echo "$file2 does not verify against $keyring" >&2; exit 1; }
 sum="$(sha256sum "$file" | cut -d' ' -f1)"
 sum2="$(sha256sum "$file2" | cut -d' ' -f1)"
 version="$(jq -r .payload "$file" | base64 -d | jq -r .versionName)"

@@ -228,7 +228,7 @@ case "$status" in
   *) echo "Cannot read the published update-v2.json (HTTP ${status:-none}); not signing it." >&2; exit 1 ;;
 esac
 "${sign2[@]}"
-python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest2"
+python3 "$tool" verify --type update --app-config "$config" --keyring "$keyring" --envelope "$manifest2"
 echo "1. Publish the files it names: $(jq -r '[.apks[].url, .notor.apks[]?.url] | join(" ")' "$payload")"
 echo "2. Then publish both: tools/publish-update-json.sh $manifest $manifest2"
 echo "3. For 0.1.0 phones, publish $legacy as update.json on the latest GitHub release of"
