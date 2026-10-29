@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/net/http.dart';
+import 'package:epic_wallet/src/net/tor_net.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/public_servers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -34,11 +35,16 @@ class _Down implements RelayDirectory, NodeDirectory {
 
 /// The sample, plus one node and one relay the app does not know.
 class _Sample implements RelayDirectory, NodeDirectory {
+  int reads = 0;
+
   @override
-  Future<List<RelayStatus>> relays(String chain) async => [
-    ...parseRelayStatus(_sample),
-    const RelayStatus(relay: EpicboxRelay(host: 'box.example'), healthy: true, verified: false, operator: 'Box op'),
-  ];
+  Future<List<RelayStatus>> relays(String chain) async {
+    reads++;
+    return [
+      ...parseRelayStatus(_sample),
+      const RelayStatus(relay: EpicboxRelay(host: 'box.example'), healthy: true, verified: false, operator: 'Box op'),
+    ];
+  }
 
   @override
   Future<List<NodeStatus>> nodes(String chain) async => [
@@ -110,6 +116,20 @@ void main() {
     expect(boxes.map((b) => b.domain), [..._boxes, 'box.example']);
     expect(boxes.last.operator, 'Box op');
     expect(boxes.first.health, ServiceHealth.ok);
+  });
+
+  test('Tor still connecting at start: the built-in lists, the directory read once Tor is up', () async {
+    final dir = _Sample();
+    final w = make(dir);
+    addTearDown(w.dispose);
+    TorNet.waitForTor();
+    addTearDown(TorNet.useDirect);
+    expect((await w.nodes()).map((n) => n.url), deskPublicNodes.map((n) => n.url));
+    expect((await w.epicboxes()).map((b) => b.domain), _boxes);
+    expect(dir.reads, 0, reason: 'nothing asked while Tor connects');
+    TorNet.useDirect();
+    expect((await w.epicboxes()).map((b) => b.domain), [..._boxes, 'box.example']);
+    expect(dir.reads, 1);
   });
 
   Future<void> pumpScreen(WidgetTester tester, Widget screen, LepicDeskWallet w) async {

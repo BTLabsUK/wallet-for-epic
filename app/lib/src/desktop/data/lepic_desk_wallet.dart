@@ -2482,6 +2482,8 @@ class LepicDeskWallet implements DeskWalletApi {
     final at = _dirNodesAt;
     if (dir == null || chain == null || _dirNodesLoading) return;
     if (at != null && DateTime.now().difference(at) < const Duration(minutes: 5)) return;
+    // Tor still connecting: the built-in list for now, the directory at a later call.
+    if (TorNet.mode == TorNetMode.waiting) return;
     _dirNodesLoading = true;
     unawaited(
       dir
@@ -2505,6 +2507,8 @@ class LepicDeskWallet implements DeskWalletApi {
     final at = _boxesAt;
     if (dir == null || preset.statusChain == null) return _builtInBoxes;
     if (_boxes != null && at != null && DateTime.now().difference(at) < const Duration(minutes: 5)) return _boxes!;
+    // Tor still connecting: the list known now, read again by a later call once it is up.
+    if (TorNet.mode == TorNetMode.waiting) return _boxes ?? _builtInBoxes;
     try {
       final listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
       if (!statusSite.on) return _builtInBoxes;
