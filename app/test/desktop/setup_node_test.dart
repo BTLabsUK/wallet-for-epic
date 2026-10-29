@@ -11,9 +11,12 @@ import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show nodeUrlOf;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/test_settings.dart';
 
 /// The mock wallet with a shuffled node list, recording the node calls.
 class _Wallet extends MockDeskWallet {
@@ -151,6 +154,34 @@ void main() {
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     expect(node.calls.where((c) => c == 'start'), isEmpty);
     expect(wallet.calls, isEmpty, reason: 'nothing moves before Save');
+    await end(tester);
+  });
+
+  testWidgets('an empty Node list: no fallback is offered, Review says the wallet waits, Save declines it', (tester) async {
+    // Audit 26.10.24: the checkbox read "Use  until…" with no host and a yes stored an empty node.
+    hostSettings = testSettings().withValues({'node.servers': <String>[]});
+    expect(hasFallbackNode, isFalse);
+    await show(tester, SetupStep.node);
+    await tester.tap(find.text('Local node'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('Start the bundled node'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('until the local node is synced')), findsNothing);
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('Review settings'), findsOneWidget);
+    expect(find.text('wait'), findsOneWidget);
+    expect(find.textContaining('stands in'), findsNothing);
+    await tester.tap(find.text('Save settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Download fresh'));
+    await tester.tap(find.text('Continue'));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(node.calls.where((c) => c.startsWith('fallback accepted')), isEmpty);
     await end(tester);
   });
 

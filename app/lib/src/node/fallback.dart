@@ -15,6 +15,10 @@ import 'local_node_state.dart';
 /// file's `node.fallback` (changeable; no node is the wallet's own).
 String get defaultFallbackNodeUrl => hostSettings.nodeFallback;
 
+/// Whether there is a public node to offer while the local node syncs: none with an empty
+/// Node list, and then no fallback is offered or asked.
+bool get hasFallbackNode => defaultFallbackNodeUrl.isNotEmpty;
+
 enum FallbackConsent {
   /// Not asked yet: the first time the local node syncs, the user is asked.
   unasked,

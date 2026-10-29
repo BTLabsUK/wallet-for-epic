@@ -45,6 +45,8 @@ Future<void> maybeAskFallback(BuildContext context, WidgetRef ref) async {
   if (d == null || d.action != FallbackAction.ask || fallbackAskedThisSession) return;
   fallbackAskedThisSession = true;
   final url = d.nodeUrl ?? defaultFallbackNodeUrl;
+  // No public node to offer (an empty Node list): nothing to ask.
+  if (url.isEmpty) return;
   final yes = await showFallbackAskDialog(context, host: nodeHost(url));
   if (yes == null) return;
   await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(yes ? FallbackConsent.accepted : FallbackConsent.declined, nodeUrl: url, at: DateTime.now()));
@@ -69,6 +71,7 @@ Future<String?> showFallbackPickerDialog(BuildContext context, {required String 
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (rows.isEmpty) Text(l.deskSlNoNodeTitle, style: context.ts.body),
             for (final r in rows) ServerRow(kind: ServerKind.node, info: r, selected: r.value == current, onTap: () => Navigator.of(context).pop(r.value)),
             SizedBox(height: Sp.x2),
             Text(nodeListNoteText(l), style: context.ts.caption),

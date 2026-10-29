@@ -69,7 +69,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
   static String get _localUrl => 'http://127.0.0.1:${appConfig.localNodeApiPort}';
 
   late final _url = TextEditingController(text: _localUrl);
-  var _choice = LocalNodeChoice(how: LocalNodeHow.bundled, existingUrl: _localUrl, useFallback: true);
+  // No fallback to offer with an empty Node list: the wallet waits for the local node.
+  var _choice = LocalNodeChoice(how: LocalNodeHow.bundled, existingUrl: _localUrl, useFallback: hasFallbackNode);
   bool _checking = false;
 
   @override
@@ -232,7 +233,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
           onTap: () => _set(_choice.copyWith(how: LocalNodeHow.bundled)),
         ),
         ExpandFade(
-          open: !existing,
+          open: !existing && hasFallbackNode,
           child: Padding(
             padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, 0, Sp.x1),
             child: ECheckbox(

@@ -152,6 +152,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
     final choice = ref.watch(deskFallbackProvider).value;
     final fallback = fallbackHost(choice);
     final accepted = choice?.consent == FallbackConsent.accepted;
+    final hasFallback = (choice?.nodeUrl ?? defaultFallbackNodeUrl).isNotEmpty;
     if (s == null) {
       return Padding(
         padding: EdgeInsets.all(Sp.x5),
@@ -267,7 +268,8 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(
           title: l.deskSetLnodeWhileSyncing,
-          text: l.deskSetLnodeWhileSyncingText(fallback),
+          // An empty Node list has no public node to offer: the list's own state, nothing to pick.
+          text: hasFallback ? l.deskSetLnodeWhileSyncingText(fallback) : l.deskSlNoNodeTitle,
           control: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -275,14 +277,14 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                 child: EButton(
                   label: l.deskSetLnodeChange,
                   size: EBtnSize.sm,
-                  onPressed: () async {
+                  onPressed: !hasFallback ? null : () async {
                     final url = await showFallbackPickerDialog(context, current: choice?.nodeUrl ?? defaultFallbackNodeUrl);
                     if (url != null) await ref.read(deskFallbackProvider.notifier).node(url);
                   },
                 ),
               ),
               SizedBox(width: Sp.x3),
-              ESwitch(value: accepted, semanticLabel: l.deskSetLnodeUseWhileSyncing(fallback), onChanged: (v) => ref.read(deskFallbackProvider.notifier).answer(v)),
+              ESwitch(value: accepted && hasFallback, semanticLabel: l.deskSetLnodeUseWhileSyncing(fallback), onChanged: !hasFallback ? null : (v) => ref.read(deskFallbackProvider.notifier).answer(v)),
             ],
           ),
         ),

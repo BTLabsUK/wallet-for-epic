@@ -569,7 +569,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         (l.deskSetupType, Text(l.deskSetupExistingNode(hostOf(local!.existingUrl)), style: ts.body)),
       ] else ...[
         (l.deskSetupType, Text(l.deskSetupBundledNode, style: ts.body)),
-        (l.deskSetupWhileSyncing, Text(local?.useFallback ?? true ? fallback : l.deskSetupWait, style: ts.mono())),
+        (l.deskSetupWhileSyncing, Text(local?.useFallback ?? hasFallbackNode ? fallback : l.deskSetupWait, style: ts.mono())),
         (l.deskSetupDataFolder, Text(folder, style: ts.mono(), overflow: TextOverflow.ellipsis)),
       ],
     ];
@@ -589,7 +589,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
             nodeRows,
             _local ? SetupStep.local : SetupStep.node,
             caption: bundled && _local
-                ? (local?.useFallback ?? true ? l.deskSetupSaveStartsFallback(fallback) : l.deskSetupSaveStarts)
+                ? (local?.useFallback ?? hasFallbackNode ? l.deskSetupSaveStartsFallback(fallback) : l.deskSetupSaveStarts)
                 : null,
           ),
           EDivider(space: Sp.x2),
