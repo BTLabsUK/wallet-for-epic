@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """The public releases page for Epic Cash Desktop and Epic Cash Mobile.
 
-    tools/releases/build.py add <version> <dir> [--date YYYY-MM-DD] [--gitlab]
+    tools/releases/build.py add <version> <dir> [--date YYYY-MM-DD] [--gitlab] [--github]
         Record a release from a folder holding its files and SHA256SUMS (the release lead's
         folder, e.g. /srv/wfe-release/26.10.24). Every file in SHA256SUMS whose name
         carries <version> is taken; its checksum is recomputed and must agree. Replaces
-        whatever record was there: the page shows the current release only.
+        whatever record was there: the page shows the current release only. --gitlab and
+        --github add the Mirror links (only once that host's release exists and is public);
+        a SHA256SUMS.sig in <dir> adds the signature check to every Before you install.
     tools/releases/build.py render [--out DIR]
         Write the page (index.html, style.css, page.js, theme.js, fonts/, img/) into DIR,
         the page repo's site/epic-cash/ by default ($WFE_RELEASES_SITE). Deploy from there
@@ -73,6 +75,13 @@ PLAT = {p[0]: p for p in PLATFORMS}
 # A release mirrored on GitLab (the gitlab-releases tool, off until switched on) gets a Mirror
 # link when its record says "gitlab": true (build.py add --gitlab).
 GITLAB_RELEASE = 'https://gitlab.com/epic-cash-bt/wallet-for-epic/-/releases/v{version}'
+# The same for GitHub ("github": true, build.py add --github): off while the BTLabs-EPIC account
+# is hidden from logged-out visitors.
+GITHUB_RELEASE = 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/tag/v{version}'
+
+# BT Labs' release key in minisign's format (tools/gitlab-release.py pubkey): it signs SHA256SUMS
+# into SHA256SUMS.sig and update.json. A release whose record says "sig": true shows the check.
+MINISIGN_PUBKEY = 'RWQ+swweZiIFJfbre/aOhYqQ1+82BHFnw8gF6ETbhCp5b7RB6RuMEVtP'
 
 ANDROID_CERT_SHA256 = '59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa'
 
@@ -208,6 +217,10 @@ def cmd_add(args):
     rec = {'version': ver, 'date': date, 'files': files}
     if '--gitlab' in args:
         rec['gitlab'] = True
+    if '--github' in args:
+        rec['github'] = True
+    if os.path.exists(os.path.join(d, 'SHA256SUMS.sig')):
+        rec['sig'] = True
     data['releases'] = [rec]
     save(data)
     print(f'{ver}: {len(files)} files, {date}')
@@ -273,14 +286,27 @@ def platform_card(key, g, latest):
         out.append(f'<details class="fold before" data-before="{key}"><summary>Before you install</summary>'
                    f'<div class="bt">{text.format(file=esc(p["name"]))}'
                    f'<p class="verify"><span>Check the download</span><code data-copy translate="no">'
-                   f'{esc(cmd.format(file=p["name"]))}</code></p></div></details>')
+                   f'{esc(cmd.format(file=p["name"]))}</code></p>{sig_check(latest)}</div></details>')
     out.append('</div></article>')
     return '\n'.join(out)
 
 
+def sig_check(r):
+    """The signature check of SHA256SUMS, for a release published with SHA256SUMS.sig."""
+    if not r.get('sig'):
+        return ''
+    cmd = f'minisign -Vm SHA256SUMS -x SHA256SUMS.sig -P {MINISIGN_PUBKEY}'
+    return ('<p>To check the checksums themselves: download <a href="downloads/SHA256SUMS" download>SHA256SUMS</a> '
+            'and <a href="downloads/SHA256SUMS.sig" download>SHA256SUMS.sig</a>, check the signature with BT Labs\' '
+            'release key, then compare the file\'s SHA-256 with its line.</p>'
+            f'<p class="verify"><span>Check the signature</span><code data-copy translate="no">{esc(cmd)}</code></p>')
+
+
 def mirror(r):
-    return (f' · <a href="{GITLAB_RELEASE.format(version=esc(r["version"]))}" rel="noopener">Mirror on GitLab</a>'
-            if r.get('gitlab') else '')
+    links = [(GITLAB_RELEASE, 'Mirror on GitLab', r.get('gitlab')),
+             (GITHUB_RELEASE, 'Mirror on GitHub', r.get('github'))]
+    return ''.join(f' · <a href="{url.format(version=esc(r["version"]))}" rel="noopener">{label}</a>'
+                   for url, label, on in links if on)
 
 
 def render(out_dir):
