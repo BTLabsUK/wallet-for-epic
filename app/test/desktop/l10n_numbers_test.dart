@@ -31,8 +31,8 @@ void main() {
       ]);
     });
     for (final (lang, amount, height) in [
-      ('de', '1.281,52615', '3.214.557'),
-      ('en', '1,281.52615', '3,214,557'),
+      ('de', '1.281,5261', '3.214.557'),
+      ('en', '1,281.5261', '3,214,557'),
     ]) {
       await tester.pumpWidget(_app(lang, h));
       expect(tester.widget<Text>(find.byKey(const Key('amount'))).data, amount);
@@ -40,7 +40,7 @@ void main() {
     }
     expect(ctx, isNotNull);
     // The canonical form stays what fields, files and logic use.
-    expect(formatEpic(nano), '1,281.52615');
+    expect(formatEpic(nano), '1,281.5261');
   });
 
   for (final (lang, key) in [('de', 'Seed-Phrase'), ('pl', 'Fraza odzyskiwania'), ('de', 'Guthaben neu prüfen')]) {

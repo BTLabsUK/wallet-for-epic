@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../amount.dart' as shared show formatEpic;
+
 import '../../desk_l10n.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -90,6 +92,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                 (t.counterparty ?? '').toLowerCase().contains(q) ||
                 (t.message ?? '').toLowerCase().contains(q) ||
                 t.slateId.contains(q) ||
+                // The exact amount, and the four decimals the list shows.
+                shared.formatEpic(BigInt.from(t.amount)).contains(q) ||
                 formatEpic(t.amount).contains(q) ||
                 // As the list shows it (1.234,5 in German); a typed space matches the no-break one.
                 formatEpicL(l, t.amount).replaceAll(_nbsp, ' ').contains(q.replaceAll(_nbsp, ' '))))

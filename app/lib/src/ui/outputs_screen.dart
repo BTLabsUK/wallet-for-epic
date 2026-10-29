@@ -897,11 +897,14 @@ mixin _SelfSend<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   }
 }
 
+/// A label at the start and its [value] at the end; a value too wide for the room left
+/// wraps rather than overflows (amounts carry four decimals).
 Widget _fact(BuildContext context, String label, Widget value) {
   final t = context.tokens;
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Text(
@@ -910,7 +913,10 @@ Widget _fact(BuildContext context, String label, Widget value) {
                 ?.copyWith(color: t.dim),
           ),
         ),
-        value,
+        const SizedBox(width: 12),
+        Flexible(
+          child: DefaultTextStyle.merge(textAlign: TextAlign.end, child: value),
+        ),
       ],
     ),
   );

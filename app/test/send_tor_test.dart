@@ -272,6 +272,18 @@ List<String> _steps(WidgetTester tester, TimelineState state) => [
       if (step.state == state) step.label,
 ];
 
+
+/// Scrolls Send's list until [finder] is built and in sight: the balance header above the
+/// page leaves the rows under the review past a short phone's first page, and the list is
+/// lazy, so a row out of sight is not in the tree at all.
+Future<void> _reveal(WidgetTester tester, Finder finder) => tester.scrollUntilVisible(
+  finder,
+  200,
+  scrollable: find
+      .descendant(of: find.byType(ListView).last, matching: find.byType(Scrollable))
+      .first,
+);
+
 void main() {
   // Tor's own behaviour: nothing of it is in the build without Tor.
   if (!torBuilt) {
@@ -366,7 +378,7 @@ void main() {
       expect(find.textContaining('minute'), findsNothing);
 
       h.session.torSendGate = Completer<void>();
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       expect(h.session.torSends, hasLength(1));
       expect(h.session.torSends.single.onion, _onion);
       expect(
@@ -394,7 +406,7 @@ void main() {
         'Posted to the network',
       ]);
       expect(_steps(tester, TimelineState.current).single, contains('onfirm'));
-      expect(find.text('1 EPIC'), findsOneWidget);
+      expect(find.text('1.00000000 EPIC'), findsOneWidget);
       expect(find.textContaining('wfe7q3…abcdid.onion'), findsOneWidget);
       // Tor stays up for the session; nothing was stopped.
       expect(h.session.torStops, 0);
@@ -411,7 +423,7 @@ void main() {
       await h.emit(tester, TorEventKind.ready);
       await h.toReview(tester);
       expect(find.text('Ready to send over Tor'), findsOneWidget);
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       expect(h.session.torStarts, hasLength(1));
       expect(h.session.torSends, hasLength(1));
     });
@@ -428,7 +440,8 @@ void main() {
         message: 'not reached',
       );
       await h.toReview(tester);
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
+      await _reveal(tester, find.textContaining('Their wallet was not reached over Tor.'));
       expect(
         find.textContaining('Their wallet was not reached over Tor.'),
         findsOneWidget,
@@ -436,7 +449,7 @@ void main() {
       expect(find.textContaining('stays locked until you cancel it'), findsOne);
       expect(find.byKey(sendTryAgainKey), findsOneWidget);
       expect(find.byKey(sendCancelPaymentKey), findsOneWidget);
-      expect(find.text('Send 1 EPIC'), findsNothing);
+      expect(find.text('Send 1.00000000 EPIC'), findsNothing);
       expect(find.byTooltip('Back'), findsNothing);
       // The coins are on hold, as after a refused epicbox send.
       expect(h.session.transactionsValue, hasLength(1));
@@ -463,7 +476,7 @@ void main() {
         message: 'closed',
       );
       await h.toReview(tester);
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       expect(find.byKey(sendTryAgainKey), findsOneWidget);
       await _tap(tester, find.byKey(sendCancelPaymentKey));
       expect(h.session.cancelledTxIds, [101]);
@@ -487,7 +500,7 @@ void main() {
       expect(
         tester
             .widget<FilledButton>(
-              find.widgetWithText(FilledButton, 'Send 1 EPIC'),
+              find.widgetWithText(FilledButton, 'Send 1.00000000 EPIC'),
             )
             .onPressed,
         isNull,

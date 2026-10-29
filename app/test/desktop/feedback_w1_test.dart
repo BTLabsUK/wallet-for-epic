@@ -75,13 +75,14 @@ Finder _input(String label) => find.descendant(of: find.widgetWithText(EField, l
 
 void main() {
   group('amounts always carry decimals', () {
-    test('four decimals at least, eight at most, thousands grouped', () {
+    test('exactly four decimals, cut not rounded, thousands grouped', () {
       expect(formatEpic(0), '0.0000');
       expect(formatEpic(150000000), '1.5000');
-      expect(formatEpic(123456789), '1.23456789');
+      expect(formatEpic(123456789), '1.2345');
       expect(formatEpic(1234500000000), '12,345.0000');
       expect(formatEpic(-50000000), '-0.5000');
-      expect(formatEpic(100000000, minDecimals: 0), '1');
+      expect(formatEpic(100000000, minDecimals: 0), '1.0000');
+      expect(formatEpic(123456789, decimals: 8), '1.23456789');
     });
   });
 

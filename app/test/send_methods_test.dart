@@ -396,6 +396,18 @@ void _clipboard(WidgetTester tester, String? Function() text) {
 /// them.
 const _directOn = PaymentPrefs(linkHttp: true, linkTor: true);
 
+
+/// Scrolls Send's list until [finder] is built and in sight: the balance header above the
+/// page leaves the rows under the review past a short phone's first page, and the list is
+/// lazy, so a row out of sight is not in the tree at all.
+Future<void> _reveal(WidgetTester tester, Finder finder) => tester.scrollUntilVisible(
+  finder,
+  200,
+  scrollable: find
+      .descendant(of: find.byType(ListView).last, matching: find.byType(Scrollable))
+      .first,
+);
+
 void main() {
   group('selector and strip', () {
     testWidgets('Link is listed from the start, its switches on or not', (
@@ -480,6 +492,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
+      await _reveal(tester, find.text('Can be cancelled until the response file is finalized.'));
       expect(
         find.text('Can be cancelled until the response file is finalized.'),
         findsOneWidget,
@@ -859,7 +872,7 @@ void main() {
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
       );
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       expect(h.session.httpSends, hasLength(1));
       expect(h.session.httpSends.single.url, _https);
       expect(h.session.httpSends.single.allowPlainHttp, isFalse);
@@ -878,7 +891,7 @@ void main() {
         kind: WalletErrorKind.transportFailed,
         message: 'their wallet did not answer',
       );
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       expect(
         find.text(
           'Their wallet was not reached. The amount stays locked until you cancel '
@@ -888,7 +901,7 @@ void main() {
       );
       expect(find.byKey(sendTryAgainKey), findsOneWidget);
       expect(find.byKey(sendCancelPaymentKey), findsOneWidget);
-      expect(find.text('Send 1 EPIC'), findsNothing);
+      expect(find.text('Send 1.00000000 EPIC'), findsNothing);
 
       h.session.sendError = null;
       await _tap(tester, find.byKey(sendTryAgainKey));
@@ -907,7 +920,7 @@ void main() {
         kind: WalletErrorKind.transportFailed,
         message: 'their wallet did not answer',
       );
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       await _tap(tester, find.byKey(sendCancelPaymentKey));
       expect(h.session.cancelledTxIds, hasLength(1));
       expect(find.text('2 of 3'), findsOneWidget);
@@ -917,13 +930,13 @@ void main() {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _lan);
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
       await _tap(tester, find.text('Cancel'));
       expect(h.session.httpSends, isEmpty);
       expect(find.text('Review'), findsOneWidget);
 
-      await _tap(tester, find.text('Send 1 EPIC'));
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
       await _tap(tester, find.text('Send anyway'));
       expect(h.session.httpSends.single.allowPlainHttp, isTrue);
     });

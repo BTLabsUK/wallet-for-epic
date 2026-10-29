@@ -222,21 +222,21 @@ void main() {
     final h = _Harness();
     await h.pump(tester, const OutputsScreen());
     expect(find.text(_l.outputsTitle), findsOneWidget);
-    expect(find.text('17 EPIC'), findsOneWidget);
-    expect(find.text('3 EPIC'), findsNWidgets(2)); // tile and row
+    expect(find.text('17.0000 EPIC'), findsOneWidget);
+    expect(find.text('3.0000 EPIC'), findsNWidgets(2)); // tile and row
     expect(find.text('3 outputs'), findsOneWidget);
     // Confirming and Locked both count one.
     expect(find.text('1 output'), findsNWidgets(2));
     // Total instead of Immature on a phone: every output not spent, the whole balance.
     expect(find.text('5 outputs'), findsOneWidget);
-    expect(find.text('20 EPIC'), findsOneWidget);
+    expect(find.text('20.0000 EPIC'), findsOneWidget);
     expect(find.text(_l.outputsLockedTile), findsOneWidget);
     expect(find.text(_l.homeTileTotal), findsOneWidget);
     expect(find.text(_l.outputsImmature), findsNothing);
     // The label is the eyebrow, the count the main line, the value the last.
     final label = tester.getTopLeft(find.text(_l.outputsSpendable).first).dy;
     final count = tester.getTopLeft(find.text('3 outputs')).dy;
-    final value = tester.getTopLeft(find.text('17 EPIC')).dy;
+    final value = tester.getTopLeft(find.text('17.0000 EPIC')).dy;
     expect(label, lessThan(count));
     expect(count, lessThan(value));
   });
@@ -267,10 +267,10 @@ void main() {
     );
     await h.pump(tester, const OutputsScreen());
     // Confirming: 0.5 + 0.6 + 0.4, three outputs; the unpaid invoice is in no tile.
-    expect(find.text('1.5 EPIC'), findsOneWidget);
+    expect(find.text('1.5000 EPIC'), findsOneWidget);
     expect(find.text('3 outputs'), findsOneWidget);
     // Total: 2 + 0.5, two outputs; nothing awaiting finalization.
-    expect(find.text('2.5 EPIC'), findsOneWidget);
+    expect(find.text('2.5000 EPIC'), findsOneWidget);
     expect(find.text('2 outputs'), findsOneWidget);
   });
 
@@ -282,7 +282,7 @@ void main() {
     // Filters, then the header, then the rows.
     final filters = tester.getTopLeft(find.text(_l.outputsFilterAll(5))).dy;
     final head = tester.getTopLeft(find.text(_l.outputsColState)).dy;
-    final row = tester.getTopLeft(find.text('10 EPIC')).dy;
+    final row = tester.getTopLeft(find.text('10.0000 EPIC')).dy;
     expect(filters, lessThan(head));
     expect(head, lessThan(row));
     expect(find.text(_l.outputsColValue), findsOneWidget);
@@ -292,7 +292,7 @@ void main() {
     // The advanced section follows the last row and holds the actions.
     final advanced = find.text(_l.outputsAdvanced);
     expect(advanced, findsOneWidget);
-    final lastRow = tester.getBottomLeft(find.text('4 EPIC').last).dy;
+    final lastRow = tester.getBottomLeft(find.text('4.0000 EPIC').last).dy;
     expect(tester.getTopLeft(advanced).dy, greaterThan(lastRow));
     for (final label in [
       _l.outputsSplitButton,
@@ -394,7 +394,7 @@ void main() {
     h.session.summaryValue = _summary(locked: 4, spendable: 13);
     await h.pump(tester, const OutputsScreen());
     expect(find.text(_l.outputsLockedTile), findsOneWidget);
-    expect(find.text('4 EPIC'), findsNWidgets(2)); // tile and row
+    expect(find.text('4.0000 EPIC'), findsNWidgets(2)); // tile and row
   });
 
   testWidgets('filters narrow the list and spent rows wait for the toggle', (
@@ -406,23 +406,23 @@ void main() {
     expect(find.text(_l.outputsFilterSpendable(3)), findsOneWidget);
     expect(find.text(_l.outputsFilterConfirming(1)), findsOneWidget);
     expect(find.text(_l.outputsFilterLocked(1)), findsOneWidget);
-    expect(find.text('10 EPIC'), findsOneWidget);
-    expect(find.text('1 EPIC'), findsNothing);
+    expect(find.text('10.0000 EPIC'), findsOneWidget);
+    expect(find.text('1.0000 EPIC'), findsNothing);
     await tester.tap(find.text(_l.outputsFilterConfirming(1)));
     await tester.pumpAndSettle();
-    expect(find.text('10 EPIC'), findsNothing);
+    expect(find.text('10.0000 EPIC'), findsNothing);
     expect(find.text('1'), findsOneWidget);
     await tester.tap(find.text(_l.outputsFilterAll(5)));
     await tester.tap(find.text(_l.outputsShowSpent));
     await tester.pumpAndSettle();
-    expect(find.text('1 EPIC'), findsOneWidget);
+    expect(find.text('1.0000 EPIC'), findsOneWidget);
   });
 
   testWidgets('opens on the filter it is given', (tester) async {
     final h = _Harness();
     await h.pump(tester, const OutputsScreen(filter: OutputsFilter.locked));
-    expect(find.text('4 EPIC'), findsWidgets);
-    expect(find.text('10 EPIC'), findsNothing);
+    expect(find.text('4.0000 EPIC'), findsWidgets);
+    expect(find.text('10.0000 EPIC'), findsNothing);
     expect(find.textContaining(_l.outputsWordLocked), findsWidgets);
   });
 
@@ -431,7 +431,7 @@ void main() {
   ) async {
     final h = _Harness();
     await h.pump(tester, const OutputsScreen());
-    await tester.tap(find.text('10 EPIC'));
+    await tester.tap(find.text('10.0000 EPIC'));
     await tester.pumpAndSettle();
     expect(find.text(_commit('a')), findsOneWidget);
     expect(find.text(_l.outputsMeanSpendable), findsOneWidget);

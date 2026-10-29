@@ -214,12 +214,12 @@ void main() {
       final label = tester
           .getSemantics(find.byKey(const ValueKey('tx-s:plain')))
           .label;
-      expect(label, startsWith('Rent, September, Received 5 EPIC from esAlic'));
+      expect(label, startsWith('Rent, September, Received 5.0000 EPIC from esAlic'));
       // An unlabelled row reads as before.
       final plain = tester
           .getSemantics(find.byKey(const ValueKey('tx-s:known')))
           .label;
-      expect(plain, startsWith('Sent 2.992 EPIC to Knut'));
+      expect(plain, startsWith('Sent 2.9920 EPIC to Knut'));
       semantics.dispose();
     });
 

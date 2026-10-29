@@ -682,7 +682,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           estimate: max,
           options: const SendOptions(strategy: SelectionStrategy.all),
         );
-        _amount.text = localDecimal(context.l10n, formatEpic(n, minDecimals: 0).replaceAll(',', ''));
+        // The field takes the exact amount in its canonical form, never the display cut.
+        _amount.text = localDecimal(context.l10n, shared.formatEpic(BigInt.from(n)));
       });
     } catch (_) {
       if (mounted) setState(() => _allError = context.l10n.deskSendAllFailed);

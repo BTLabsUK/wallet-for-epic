@@ -307,13 +307,26 @@ Future<void> _review(WidgetTester tester, String to, {String? note}) async {
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
 }
 
-Finder get _sendButton => find.widgetWithText(FilledButton, 'Send 1.5 EPIC');
+Finder get _sendButton => find.widgetWithText(FilledButton, 'Send 1.50000000 EPIC');
 
 Finder get _fileButton =>
     find.widgetWithText(FilledButton, 'Pay with a file instead');
 
 bool _enabled(WidgetTester tester, Finder button) =>
     tester.widget<ButtonStyleButton>(button).onPressed != null;
+
+
+/// Scrolls Send's list until [finder] is built and in sight: the balance header above the
+/// page leaves the rows under the review past a short phone's first page, and the list is
+/// lazy, so a row out of sight is not in the tree at all.
+Future<void> _reveal(WidgetTester tester, Finder finder, {double delta = 200}) =>
+    tester.scrollUntilVisible(
+  finder,
+  delta,
+  scrollable: find
+      .descendant(of: find.byType(ListView).last, matching: find.byType(Scrollable))
+      .first,
+);
 
 void main() {
   group('sendPreflight', () {
@@ -551,7 +564,7 @@ void main() {
       expect(h.service.tipCalls, 0);
       // The tracker: made, waiting for the reply, then the network.
       expect(find.text('File made'), findsOneWidget);
-      expect(find.text('1.5 EPIC locked'), findsOneWidget);
+      expect(find.text('1.50000000 EPIC locked'), findsOneWidget);
       expect(find.text('Waiting for the response file'), findsOneWidget);
       expect(find.text('Posted to the network'), findsOneWidget);
       expect(find.text('Open response file'), findsOneWidget);
@@ -648,15 +661,15 @@ void main() {
         expect(find.text('Review'), findsOneWidget);
         expect(find.text('3 of 3'), findsOneWidget);
         expect(find.text('New recipient'), findsOneWidget);
-        expect(find.text('1.5 EPIC'), findsOneWidget);
+        expect(find.text('1.50000000 EPIC'), findsOneWidget);
         expect(find.text('Network fee'), findsOneWidget);
-        expect(find.text('0.008 EPIC'), findsOneWidget);
+        expect(find.text('0.00800000 EPIC'), findsOneWidget);
         expect(find.text('Total'), findsOneWidget);
-        expect(find.text('1.508 EPIC'), findsOneWidget);
+        expect(find.text('1.50800000 EPIC'), findsOneWidget);
         // What stays: 40 spendable minus the total. The fake locks nothing beyond the total,
         // so no "until change confirms" line.
         expect(find.text('Balance after'), findsOneWidget);
-        expect(find.text('38.492 EPIC'), findsOneWidget);
+        expect(find.text('38.49200000 EPIC'), findsOneWidget);
         expect(find.text('Spendable until change confirms'), findsNothing);
         // The message is there as typed, with where it goes.
         final block = find.byKey(sendReviewMessageKey);
@@ -840,6 +853,7 @@ void main() {
         await h.pump(tester);
         await h.connect(tester);
         await _review(tester, _bob, note: 'For rent');
+        await _reveal(tester, find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."));
         expect(find.text("Their Epicbox server (epicbox.epiccash.com) is not answering."), findsOneWidget);
         expect(_sendButton, findsNothing);
         expect(_enabled(tester, _fileButton), isTrue);
@@ -847,6 +861,8 @@ void main() {
         expect(find.text('Send anyway'), findsOneWidget);
 
         await _tap(tester, _fileButton);
+        // The list kept its scroll from the review: the file step's title is back at the top.
+        await _reveal(tester, find.text('Direct · File Transfer'), delta: -200);
         expect(find.text('Direct · File Transfer'), findsOneWidget);
         expect(
           tester
@@ -956,7 +972,7 @@ void main() {
         await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
         await _tap(
           tester,
-          find.widgetWithText(FilledButton, 'Send 39.992 EPIC'),
+          find.widgetWithText(FilledButton, 'Send 39.99200000 EPIC'),
         );
         await _tap(tester, find.text('Cancel and pay with a file'));
         expect(
@@ -1152,6 +1168,7 @@ void main() {
       await h.connect(tester);
       await _review(tester, _bob);
       await _tap(tester, _sendButton);
+      await _reveal(tester, find.textContaining('Not enough spendable EPIC'));
       expect(find.textContaining('Not enough spendable EPIC'), findsOneWidget);
       expect(_fileButton, findsNothing);
     });
@@ -1225,6 +1242,8 @@ void main() {
         expect(_enabled(tester, _fileButton), isTrue);
         expect(_sendButton, findsNothing);
         await _tap(tester, _fileButton);
+        // The list kept its scroll from the review: the file step's title is back at the top.
+        await _reveal(tester, find.text('Direct · File Transfer'), delta: -200);
         expect(find.text('Direct · File Transfer'), findsOneWidget);
         expect(h.session.epicboxSends, isEmpty);
       },
@@ -1279,7 +1298,7 @@ void main() {
       confirmations: BigInt.from(10),
     );
 
-    /// Sends 1.5 EPIC to Bob from a wallet of two outputs (30 and 10 EPIC) with the strategy
+    /// Sends 1.5000 EPIC to Bob from a wallet of two outputs (30 and 10.0000 EPIC) with the strategy
     /// and Split change set on Outputs; returns the harness after the send.
     Future<_Harness> send(
       WidgetTester tester, {
@@ -1329,7 +1348,7 @@ void main() {
         splitChange: true,
         atReview: (_) => expect(find.byKey(sendUsesAllOutputsKey), findsNothing),
       );
-      // The 10 EPIC output pays; one output stays, so 8.49 EPIC of change comes back in 3.
+      // The 10.0000 EPIC output pays; one output stays, so 8.4900 EPIC of change comes back in 3.
       expect(
         h.session.sentOptions.single,
         const SendOptions(strategy: SelectionStrategy.smallest, changeOutputs: 3),
