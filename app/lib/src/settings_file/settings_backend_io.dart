@@ -32,7 +32,7 @@ class FileSettingsBackend implements SettingsBackend {
     try {
       final text = utf8.decode(await file.readAsBytes(), allowMalformed: true);
       // Notepad's "UTF-8 with BOM".
-      return text.startsWith('﻿') ? text.substring(1) : text;
+      return text.startsWith('\uFEFF') ? text.substring(1) : text;
     } on PathNotFoundException {
       return null;
     }
