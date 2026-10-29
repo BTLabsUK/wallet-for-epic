@@ -70,8 +70,6 @@ PLATFORMS = [
 ]
 PLAT = {p[0]: p for p in PLATFORMS}
 
-# The Android release key: shown so an APK can be checked against it (apksigner verify
-# --print-certs). Signer certificate SHA-256, CN=BT Labs Epic Wallet, O=BT Labs.
 # A release mirrored on GitLab (the gitlab-releases tool, off until switched on) gets a Mirror
 # link when its record says "gitlab": true (build.py add --gitlab).
 GITLAB_RELEASE = 'https://gitlab.com/epic-cash-bt/wallet-for-epic/-/releases/v{version}'
@@ -83,6 +81,8 @@ GITHUB_RELEASE = 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/tag/v{
 # into SHA256SUMS.sig and update.json. A release whose record says "sig": true shows the check.
 MINISIGN_PUBKEY = 'RWQ+swweZiIFJfbre/aOhYqQ1+82BHFnw8gF6ETbhCp5b7RB6RuMEVtP'
 
+# The Android release key: shown so an APK can be checked against it (apksigner verify
+# --print-certs). Signer certificate SHA-256, CN=BT Labs Epic Wallet, O=BT Labs.
 ANDROID_CERT_SHA256 = '59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa'
 
 ICONS = {
@@ -249,7 +249,7 @@ def group(release):
     return ordered
 
 
-def file_row(e, with_label=True):
+def file_row(e):
     return (
         f'<li class="f"><a class="fl" href="downloads/{esc(e["name"])}" download>'
         f'<span class="fk">{esc(e["label"])}</span>'
