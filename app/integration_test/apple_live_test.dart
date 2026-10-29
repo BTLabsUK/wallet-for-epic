@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart' show scanFailedPrefix;
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show openAppSettings;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -101,6 +102,7 @@ void main() {
 
   setUpAll(() async {
     await initLepic();
+    await openAppSettings(store: MemorySecretStore());
   });
 
   tearDownAll(() async {

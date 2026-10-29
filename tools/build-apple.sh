@@ -406,7 +406,7 @@ smoke() {
     result FAIL smoke-tor "tor in the build without Tor"; status=1
   elif [ -x "$tor" ]; then
     tor_check "$bundle" || status=1
-    if (cd "$app" && flutter test integration_test/tor_apple_test.dart -d macos \
+    if (cd "$app" && flutter test integration_test/tor_apple_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json \
         --dart-define=WFE_TEST_TOR="$tor") > "$out/smoke-tor-app.log" 2>&1; then
       result PASS smoke-tor-app "$(grep -m1 'over tor: height' "$out/smoke-tor-app.log" | sed 's/.*TOR-CHECK //')"
     else
@@ -424,14 +424,14 @@ live() {
   say live
   mkdir -p "$out"
   local status=0 udid
-  if (cd "$app" && flutter test integration_test/apple_live_test.dart -d macos $(tor_define)) \
+  if (cd "$app" && flutter test integration_test/apple_live_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json $(tor_define)) \
       > "$out/live-macos.log" 2>&1; then
     result PASS live-macos "$(grep 'LIVE-CHECK' "$out/live-macos.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
   else
     result FAIL live-macos "see live-macos.log"; status=1
   fi
   udid="$(simulator)"
-  if [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" $(tor_define)) \
+  if [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" --dart-define-from-file=integration_test/live-hosts.json $(tor_define)) \
       > "$out/live-ios-sim.log" 2>&1; then
     result PASS live-ios-sim "$(grep 'LIVE-CHECK' "$out/live-ios-sim.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
   else

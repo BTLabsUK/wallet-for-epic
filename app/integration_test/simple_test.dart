@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show openAppSettings;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart' show balanceFigureKey;
@@ -85,6 +86,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     await initLepic();
+    await openAppSettings(store: MemorySecretStore());
   });
 
 
