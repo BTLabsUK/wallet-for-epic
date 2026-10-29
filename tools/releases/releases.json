@@ -1,0 +1,65 @@
+{
+ "releases": [
+  {
+   "version": "26.10.23",
+   "date": "2026-10-29",
+   "files": [
+    {
+     "name": "EpicCashDesktop-26.10.23-macos.dmg",
+     "size": 68572752,
+     "sha256": "039eb10f25f0ac990b4e040a2fa92ca199d3173d08c88d4929fe72d79d6b8acf"
+    },
+    {
+     "name": "EpicCashDesktop-26.10.23-notor-macos.dmg",
+     "size": 59719416,
+     "sha256": "3ec60eedd0c9617a80890c7bb87b2d9ea577af99cfb89300538cb08b8cd709d6"
+    },
+    {
+     "name": "EpicCashDesktop-26.10.23-notor-x86_64.AppImage",
+     "size": 33024504,
+     "sha256": "22f8f71a041c115fa1db1e707a18c1a8875dbeff3a7495863a5456469e8e6006"
+    },
+    {
+     "name": "EpicCashDesktop-26.10.23-x86_64.AppImage",
+     "size": 37194232,
+     "sha256": "bdfd016b3bb172e64d28d7ebd72d533b6d9b60c95c977a6a075417731a7ed425"
+    },
+    {
+     "name": "EpicCashMobile-26.10.23-ios-simulator.zip",
+     "size": 59386365,
+     "sha256": "ee5f84370f92d5258e3814ba53b8e0c690760b5043a56e5d17df683eb41a6953"
+    },
+    {
+     "name": "EpicCashMobile-26.10.23-ios-unsigned.ipa",
+     "size": 20204049,
+     "sha256": "dd06baad2bad4f15ea2f2a9bffa195756edc4c8e98cea8e21b925e448ebce8aa"
+    },
+    {
+     "name": "EpicCashMobile-26.10.23-notor-ios-unsigned.ipa",
+     "size": 19972221,
+     "sha256": "3d082fd07c6ea25b30c41be0742a2de1e6e6bd99f409defb4510de67d5f5d578"
+    },
+    {
+     "name": "epic-cash-desktop-26.10.23-notor-windows-x64-setup.exe",
+     "size": 32892650,
+     "sha256": "4cae8ae6efe16292d0f93e2bdd16e1fc953af32ad66bd085c7207b6a5672fad9"
+    },
+    {
+     "name": "epic-cash-desktop-26.10.23-windows-x64-setup.exe",
+     "size": 35620380,
+     "sha256": "4ecd26d0b0b2ff066203d11628a2b48a68c2ae5c435e5d539f6e28ab956152cd"
+    },
+    {
+     "name": "epic-cash-mobile-26.10.23-arm64-v8a.apk",
+     "size": 29109180,
+     "sha256": "27684a1ea591e48c51410d9b08bc106d3a9fb6af3a6a008465e0876866295833"
+    },
+    {
+     "name": "epic-cash-mobile-26.10.23-notor-arm64-v8a.apk",
+     "size": 24883371,
+     "sha256": "932c977db47e78c9638ba6b000f0e99ede829da47f0c181bdb5f251934684bdb"
+    }
+   ]
+  }
+ ]
+}
