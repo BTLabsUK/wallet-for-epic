@@ -10,7 +10,7 @@
 ///  "theme": "dark", "language": "pl", "helpLanguage": null, "hideBalances": false,
 ///  "statusSite": true, "autoLock": 15, "advanced": {...}, "payments": {...},
 ///  "sendStrategy": "smallest", "splitChange": true, "fiat": "usd", "showFiat": true,
-///  "node": {"mainnet": "https://..."}, "relay": {"mainnet": "epicbox.epiccash.com"},
+///  "node": {"mainnet": "https://..."}, "relay": {"mainnet": "epicbox.example.org"},
 ///  "nodeList": {"mainnet": {"entries": [...], "removed": [...]}}, "relayList": {...},
 ///  "tor": false, "seenAs": "Alice",
 ///  "desktop": {"nodes": [{"url": "...", "label": "home"}], "invoiceExpiry": 86400,

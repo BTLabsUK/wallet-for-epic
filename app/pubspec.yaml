@@ -125,6 +125,7 @@ flutter:
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
     - assets/licenses/tor.txt
+    - assets/licenses/tor-source.txt
     - assets/licenses/status-icons.txt
     # Help illustrations (settings design); drawn in the theme colours by HelpArt.
     - assets/help/

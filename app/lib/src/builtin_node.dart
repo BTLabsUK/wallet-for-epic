@@ -229,7 +229,7 @@ bool _sameList(List<String> a, List<String> b) {
   return true;
 }
 
-/// True for a peer address the node accepts in `peers_preferred`: "1.2.3.4:3414" or
+/// True for a peer address the node accepts in `peers_preferred`: "203.0.113.4:3414" or
 /// "[2001:db8::1]:3414", port 1..65535. Host names are not (the node wants a socket address).
 bool isPeerAddress(String addr) {
   final m = RegExp(r'^(?:\[([0-9A-Fa-f:.]+)\]|(\d{1,3}(?:\.\d{1,3}){3})):(\d{1,5})$')

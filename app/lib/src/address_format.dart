@@ -39,9 +39,13 @@ String shortAddress(String address, {bool compact = false}) {
   return '${_mid(key)}${compact ? '' : host}';
 }
 
+/// [url] as people read it: without the scheme and a closing slash (`https://example.org/` is
+/// `example.org`).
+String shownUrl(String url) => url.replaceFirst(RegExp(r'^[a-z][a-z0-9+.-]*://', caseSensitive: false), '').replaceFirst(RegExp(r'/$'), '');
+
 /// The rail's host line: when [host] has three or more labels and the first equals [rowName]
 /// (case-insensitive) that label is dropped, since the row's name already says it.
-/// `railHost('Epicbox', 'epicbox.stackwallet.com')` is `stackwallet.com`.
+/// `railHost('Epicbox', 'epicbox.example.org')` is `example.org`.
 String railHost(String rowName, String host) {
   final labels = host.split('.');
   if (labels.length >= 3 && labels.first.toLowerCase() == rowName.toLowerCase()) {
@@ -51,8 +55,8 @@ String railHost(String rowName, String host) {
 }
 
 /// A server's name for a one-line summary: [host] (or a node URL) without its port, scheme and
-/// first label when it has three or more, so `node.btlabs.uk:3413` and `epicbox.epiccash.com`
-/// read `btlabs.uk` and `epiccash.com`. An IP address or a two-label name stays as it is.
+/// first label when it has three or more, so `node.example.org:3413` and `epicbox.example.net`
+/// read `example.org` and `example.net`. An IP address or a two-label name stays as it is.
 String shortHost(String host) {
   var h = host.trim().toLowerCase();
   if (h.contains('://')) h = Uri.tryParse(h)?.host ?? h;

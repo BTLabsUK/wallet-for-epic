@@ -5,14 +5,17 @@
 /// setupDefaults.js (supportedLocale). Pure Dart.
 library;
 
-/// WALLET_DEFAULTS.check_node_api_http_addr (settingsStore.js) and MAINNET_FALLBACK_NODE.
-const String guiDefaultNode = 'https://node.epiccash.com:3413';
+import '../settings_file/host_settings.dart' show hostSettings;
+
+/// WALLET_DEFAULTS.check_node_api_http_addr (settingsStore.js) and MAINNET_FALLBACK_NODE: the
+/// settings file's `import.gui_node`.
+String get guiDefaultNode => hostSettings.importGuiNode;
 
 /// nodeAddress.js LOCAL_NODE: the built-in node on every network.
 const String guiLocalNode = 'http://127.0.0.1:3413';
 
-/// WALLET_DEFAULTS.epicbox_domain.
-const String guiDefaultEpicbox = 'epicbox.epiccash.com';
+/// WALLET_DEFAULTS.epicbox_domain: the settings file's `import.gui_epicbox`.
+String get guiDefaultEpicbox => hostSettings.importGuiEpicbox;
 
 /// The languages GUI 6.1.6 offers (configService.js langs); importer.js supportedLocale maps any
 /// other to 'en'. ru and zh were offered by older GUIs.
@@ -20,11 +23,14 @@ const List<String> guiLocales = ['bg', 'cz', 'de', 'en', 'fa', 'hi', 'pl'];
 
 // nodeAddress.js: the fallbacks of older GUIs that are gone, and the mainnet nodes a GUI saved
 final _deadFallbackHosts = [RegExp(r'^(.+\.)?fastepic\.eu$', caseSensitive: false), RegExp(r'^116\.203\.211\.229$')];
-final _mainnetDefaultHosts = [RegExp(r'^node\.epiccash\.com$', caseSensitive: false), ..._deadFallbackHosts];
+List<RegExp> get _mainnetDefaultHosts => [
+  RegExp('^${RegExp.escape(Uri.parse(guiDefaultNode).host)}\$', caseSensitive: false),
+  ..._deadFallbackHosts,
+];
 final _hasScheme = RegExp(r'^[a-z][a-z0-9+.-]*://', caseSensitive: false);
 
-/// importer.js EPICBOX_RENAMED.
-const Map<String, String> _epicboxRenamed = {'epicbox.epic.tech': 'epicbox.epiccash.com'};
+/// importer.js EPICBOX_RENAMED: the settings file's `import.renamed_epicbox`.
+Map<String, String> get _epicboxRenamed => hostSettings.importRenamedEpicbox;
 
 /// nodeAddress.js isPrivateHost: this computer or the local network.
 bool isPrivateHost(String host) {

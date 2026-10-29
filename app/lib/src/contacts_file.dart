@@ -10,7 +10,7 @@
 /// ```json
 /// { "format": "epic-cash-contacts", "version": 1,
 ///   "exported": "2026-10-25T14:02:11Z",
-///   "contacts": [ { "name": "Anna", "epicbox": "es…@epicbox.epiccash.com", "note": "Flatmate" } ] }
+///   "contacts": [ { "name": "Anna", "epicbox": "es…@epicbox.example.org", "note": "Flatmate" } ] }
 /// ```
 ///
 /// A mainnet file names no network: an exported file without one is mainnet's. Only a dev

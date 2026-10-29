@@ -53,8 +53,7 @@ class LicencesScreen extends StatelessWidget {
           // source is. English, as the licence texts themselves.
           // No tor in the build without Tor ([torBuilt]): nothing to name.
           if (torBuilt)
-            Text(
-              torSourceNote,
+            TorSourceNote(
               style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),
           if (projectRepoPublic) ...[

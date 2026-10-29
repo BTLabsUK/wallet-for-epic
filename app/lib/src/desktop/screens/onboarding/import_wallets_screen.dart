@@ -11,6 +11,7 @@ import '../../desk_l10n.dart';
 import '../../data/api.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
+import '../../../settings_file/host_settings.dart' show hostSettings;
 
 /// The steps of the import wizard; also the [arg] a tour or a link can start on.
 enum ImportStep { find, found, none, choose, check, import, done }
@@ -140,7 +141,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
         id: f.id,
         name: f.name,
         oldRelay: f == todo.first ? 'epicbox.example.org' : null, // l10n-ok: a sample host
-        appRelay: 'epicbox.epiccash.com', // l10n-ok: a host
+        appRelay: hostSettings.epicboxUse,
         // The tour's sample proof lines (the real ones come from the wallet service).
         proof: [
           ImportProof.l10n((l) => l.deskErrProofSeedRead),

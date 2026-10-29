@@ -3,7 +3,7 @@
 /// them. Security, Privacy & network, Wallet, Transactions, Display, Advanced and About open a
 /// page each (`settings_sections.dart`); Help & feedback opens Help, which starts with Send
 /// feedback. A group's row shows its state on a
-/// second line ("btlabs.uk · epiccash.com · Tor off"), so the state is visible without opening
+/// second line ("example.org · example.net · Tor off"), so the state is visible without opening
 /// the page. No search: the hub is scanned at a glance, and Help has its own search for
 /// questions.
 library;

@@ -10,21 +10,29 @@ import 'dart:io';
 const String enforcedCsp =
     "frame-ancestors 'none'; base-uri 'self'; object-src 'none'";
 
+/// The hosts the demo's page may load fonts from and connect to, from the `[demo]` table of
+/// its settings file (`csp_fonts` and `csp_connect`, origins such as `https://host`).
+class DemoCspHosts {
+  const DemoCspHosts({this.fonts = const [], this.connect = const []});
+
+  final List<String> fonts;
+  final List<String> connect;
+}
+
 /// Report-only until a build has been tested against it.
-const String reportOnlyCsp =
+String reportOnlyCsp([DemoCspHosts hosts = const DemoCspHosts()]) =>
     "default-src 'self'; "
     "script-src 'self' 'wasm-unsafe-eval'; "
     "style-src 'self' 'unsafe-inline'; "
     "img-src 'self' data: blob:; "
-    "font-src 'self' data: https://fonts.gstatic.com; "
-    "connect-src 'self' https://fonts.gstatic.com https://floo-explorer.btlabs.uk "
-    "https://status.btlabs.uk https://api.coingecko.com "
+    "font-src 'self' data: ${hosts.fonts.join(' ')}; "
+    "connect-src 'self' ${hosts.connect.join(' ')} "
     // Send checks a recipient's relay with a WebSocket handshake; relays are anywhere.
     "wss:; "
     "worker-src 'self'";
 
 /// Sets the headers every response carries.
-void setSecurityHeaders(HttpHeaders h) {
+void setSecurityHeaders(HttpHeaders h, [DemoCspHosts hosts = const DemoCspHosts()]) {
   h.set('Strict-Transport-Security', 'max-age=31536000');
   h.set('X-Content-Type-Options', 'nosniff');
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -34,7 +42,7 @@ void setSecurityHeaders(HttpHeaders h) {
     'camera=(), microphone=(), geolocation=(), payment=()',
   );
   h.set('Content-Security-Policy', enforcedCsp);
-  h.set('Content-Security-Policy-Report-Only', reportOnlyCsp);
+  h.set('Content-Security-Policy-Report-Only', reportOnlyCsp(hosts));
 }
 
 const Map<String, String> _types = {

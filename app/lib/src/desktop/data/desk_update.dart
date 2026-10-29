@@ -32,6 +32,7 @@ import '../../app_version.dart';
 import '../desk_l10n.dart' show deskStrings;
 import '../../btlabs_public.dart';
 import '../../net/http.dart';
+import '../../settings_file/host_settings.dart' show hostSettings;
 import '../../tor_build.dart' show inAppUpdates, torBuilt;
 import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrls, updateStateKey;
 import 'desk_store.dart';
@@ -42,16 +43,12 @@ import 'state.dart' show deskProvider, deskQuitProvider;
 /// About and the support report show it with the build id (`shell.dart`).
 const String deskAppVersion = appVersion;
 
-/// Where a download page may be: BT Labs' public download page and the project's GitHub
-/// account.
-const List<String> deskUpdatePageHosts = [
-  'https://examples.btlabs.uk/epic-cash-wallets/',
-  'https://github.com/BTLabs-EPIC/',
-];
+/// Where a download page may be (the settings file's `updates.pages`).
+List<String> get deskUpdatePageHosts => hostSettings.updatePages;
 
-/// Where an update is downloaded, when the manifest names no page of its own: the public
-/// download page (the GitHub repository is private and has no releases).
-const String deskReleasesUrl = 'https://examples.btlabs.uk/epic-cash-wallets/';
+/// Where an update is downloaded, when the manifest names no page of its own (the settings
+/// file's `updates.releases_page`).
+String get deskReleasesUrl => hostSettings.releasesPage;
 
 enum DeskUpdatePhase {
   idle,

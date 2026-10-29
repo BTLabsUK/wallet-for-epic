@@ -19,6 +19,7 @@ import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 import '../settings/settings_advanced.dart' show openAdvanced;
+import '../../../settings_file/host_settings.dart' show hostSettings;
 
 enum RxEpicbox { on, off, down, blocked }
 
@@ -111,7 +112,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       epicbox: s.epicbox,
       epicboxHealth: epicbox,
       epicboxBlocked: blocked || s.epicboxBlocked,
-      epicboxInstead: blocked ? const EpicboxRelay(host: 'epicbox.stackwallet.com') : s.epicboxInstead, // l10n-ok: tour demo relay
+      epicboxInstead: blocked ? EpicboxRelay(host: hostSettings.epicboxServers.last.host) : s.epicboxInstead, // l10n-ok: tour demo relay
       httpListener: http,
       tor: tor,
       httpProblem: a.http == RxHttp.failed ? HttpProblem.portInUse : s.httpProblem,

@@ -25,7 +25,7 @@ List<String> requestProblemLines(
   if (problems.contains(RequestProblem.tooLong)) l.sendCodeTooLong,
 ];
 
-/// The host of a Direct address, with its port: `1.2.3.4:3415`, `<56 characters>.onion`.
+/// The host of a Direct address, with its port: `203.0.113.4:3415`, `<56 characters>.onion`.
 String directHostOf(String address) {
   final uri = Uri.tryParse(
     address.contains('://') ? address : 'http://$address',

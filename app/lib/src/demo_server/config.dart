@@ -32,6 +32,7 @@ class DemoServerConfig {
     this.lepicLibrary,
     this.webRoot,
     this.landingRoot,
+    this.settingsFile,
   });
 
   /// Holds `demos/<id>/` for every demo. Nothing else is written outside it.
@@ -42,7 +43,7 @@ class DemoServerConfig {
   /// 0 picks a free port, for tests.
   final int port;
 
-  /// `Origin` values a WebSocket and the demo API accept, such as `https://try.btlabs.uk`.
+  /// `Origin` values a WebSocket and the demo API accept, such as `https://demo.example.org`.
   /// Empty means this server's own loopback origins only ([effectiveOrigins]).
   final Set<String> allowedOrigins;
 
@@ -83,6 +84,10 @@ class DemoServerConfig {
   /// The landing page directory, served at `/`.
   final String? landingRoot;
 
+  /// The settings file the demo's wallets use (the floonet one), served at
+  /// `/demo/settings.toml`; its `[demo]` table gives the faucet and the page's CSP hosts.
+  final String? settingsFile;
+
   /// [allowedOrigins], or this server's loopback origins when none are set.
   Set<String> effectiveOrigins(int boundPort) => allowedOrigins.isNotEmpty
       ? allowedOrigins
@@ -111,6 +116,7 @@ Each option also reads from its environment variable; a flag wins.
   --lepic-lib <file>       WFE_DEMO_LEPIC_LIB     liblepic_ffi.so to load
   --web-root <dir>         WFE_DEMO_WEB_ROOT      built web app, served under /app/
   --landing-root <dir>     WFE_DEMO_LANDING_ROOT  landing page, served at /
+  --settings <file>        WFE_DEMO_SETTINGS      settings file served to the demo page at /demo/settings.toml
   --help
 
 Durations are a number with s, m or h, such as 90s, 15m or 24h.''';
@@ -211,6 +217,7 @@ Durations are a number with s, m or h, such as 90s, 15m or 24h.''';
       lepicLibrary: read('lepic-lib'),
       webRoot: read('web-root'),
       landingRoot: read('landing-root'),
+      settingsFile: read('settings'),
     );
   }
 
@@ -232,6 +239,7 @@ Durations are a number with s, m or h, such as 90s, 15m or 24h.''';
     'lepic-lib': 'WFE_DEMO_LEPIC_LIB',
     'web-root': 'WFE_DEMO_WEB_ROOT',
     'landing-root': 'WFE_DEMO_LANDING_ROOT',
+    'settings': 'WFE_DEMO_SETTINGS',
   };
 }
 

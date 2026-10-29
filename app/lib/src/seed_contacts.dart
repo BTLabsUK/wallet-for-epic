@@ -6,6 +6,7 @@
 library;
 
 import 'btlabs_public.dart';
+import 'settings_file/host_settings.dart' show hostSettings;
 
 /// One contact a new wallet starts with. [id] stays the same when the website changes the
 /// address, so an update can find the contact it seeded.
@@ -28,20 +29,20 @@ class SeedContact {
   String toString() => 'SeedContact($id, $name, $address)';
 }
 
-/// BT Labs' donation address.
-const btLabsContact = SeedContact(
+/// BT Labs' donation address (the settings file's `support.donation`).
+SeedContact get btLabsContact => SeedContact(
   id: 'btlabs',
   name: 'BT Labs',
-  address: 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com',
+  address: hostSettings.supportDonation,
   note: 'Donations support development of this wallet.',
 );
 
 /// What the app ships with; used whenever the website cannot be read.
-const List<SeedContact> bundledSeedContacts = [btLabsContact];
+List<SeedContact> get bundledSeedContacts => [btLabsContact];
 
 /// BT Labs' signed public file (btlabs-public FORMAT.md): the donation address may change
 /// there; nothing else is read from it yet. The keys that may sign it are in `btlabs_keys.dart`.
-const String btlabsPublicUrl = 'https://btlabs-epic.github.io/btlabs.json';
+String get btlabsPublicUrl => hostSettings.supportDirectory;
 
 /// The seed contacts in a verified file: for each bundled seed id, the address of its Epic
 /// mainnet Epicbox donation when [validAddress] accepts it (the wallet core's checksum). Only

@@ -90,7 +90,7 @@ class LegacyGuiImport {
   /// The node address, cleaned as importer.js does; null when the old GUI had none (its default).
   final String? nodeUrl;
 
-  /// The Epicbox domain, cleaned (epicbox.epic.tech → epicbox.epiccash.com); null when none.
+  /// The Epicbox domain, cleaned (a renamed server becomes its new name); null when none.
   final String? epicboxDomain;
 
   /// The Epicbox port: 443 unless the wallet's toml says otherwise; null with no [epicboxDomain].

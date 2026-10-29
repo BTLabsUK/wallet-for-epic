@@ -16,7 +16,7 @@ import 'settings_advanced.dart' show openAdvanced;
 enum PrivacyDemo { torOn, torStarting, torFailed }
 
 /// Settings › Privacy: the one Tor switch (what it covers is `tor_routes.dart`'s) and whether
-/// status.btlabs.uk is asked.
+/// the status site is asked.
 class SettingsPrivacyScreen extends ConsumerWidget {
   const SettingsPrivacyScreen({super.key, this.arg});
 
@@ -185,7 +185,7 @@ MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status,
   };
 }
 
-/// Whether status.btlabs.uk is asked ([DeskSettings.useStatusSite]). Off, the node and
+/// Whether the status site is asked ([DeskSettings.useStatusSite]). Off, the node and
 /// Epicbox lists are the built-in ones with health from the servers themselves. Applies at once.
 class PrivacyGroup extends ConsumerWidget {
   const PrivacyGroup({super.key});

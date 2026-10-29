@@ -9,6 +9,7 @@ import 'dart:io';
 
 import '../../l10n.dart' show AppLocalizations, englishStrings;
 import '../../tor_build.dart' show torBuilt;
+import '../../settings_file/host_settings.dart' show hostSettings;
 
 /// The port `epic-wallet` and the GUI listen on.
 const int defaultHttpPort = 3415;
@@ -120,14 +121,15 @@ abstract interface class PublicReachProbe {
   Future<bool?> reachable(String ip, int port);
 }
 
-/// [PublicReachProbe] on api.ipify.org (the IP, as the GUI 6.1.6 asks it) and portchecker.io
+/// [PublicReachProbe] on the settings file's `reach.ip_lookup` (the IP, as the GUI 6.1.6 asks it)
+/// and `reach.port_check`
 /// (a connection from its server, so it tells what a sender sees, unlike a connection from this
 /// computer through the router). No user agent, no cookies, no redirects.
 class WebReachProbe implements PublicReachProbe {
   const WebReachProbe();
 
-  static final Uri _ip = Uri.parse('https://api.ipify.org?format=json');
-  static final Uri _check = Uri.parse('https://portchecker.io/api/v1/query');
+  static Uri get _ip => Uri.parse(hostSettings.reachIpLookup);
+  static Uri get _check => Uri.parse(hostSettings.reachPortCheck);
   static const Duration _timeout = Duration(seconds: 10);
 
   @override

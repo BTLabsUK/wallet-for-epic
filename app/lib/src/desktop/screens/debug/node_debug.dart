@@ -12,6 +12,7 @@ import '../../../network.dart';
 import '../../../node/local_node_state.dart';
 import '../../../node/node_info.dart';
 import '../../../node/node_providers.dart';
+import '../../../settings_file/host_settings.dart' show hostSettings;
 
 class NodeDebugView extends ConsumerWidget {
   const NodeDebugView({super.key, this.chain = Chain.mainnet});
@@ -67,7 +68,7 @@ class NodeDebugView extends ConsumerWidget {
             ));
           }),
           const _Head('Node info'),
-          for (final url in ['https://node.btlabs.uk', 'http://127.0.0.1:3413']) _Info(url),
+          for (final url in [hostSettings.nodeUse, 'http://127.0.0.1:3413']) _Info(url),
         ],
       ),
     );

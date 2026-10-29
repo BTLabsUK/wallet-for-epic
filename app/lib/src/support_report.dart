@@ -9,7 +9,7 @@
 ///   info = `epic-gui-support v1`). Layout: `EPICSUP1` (8) | key id (8) | ephemeral public
 ///   key (32) | nonce (12) | AES-256-GCM ciphertext | tag (16), the 60 header bytes being the
 ///   additional data. The app holds only the public key, so it cannot open what it sent.
-/// - `POST https://support.btlabs.uk/v1/report` with
+/// - `POST` to the settings file's `support.report` with
 ///   `{"v": 2, "bundle": "<base64>", "app": "<version>"}`; the intake answers `{"ok": true, "id": "<8 chars>"}`.
 ///
 /// What goes in is cleaned first (`support_clean.dart`), and [SupportReport.text] shows all of
@@ -25,17 +25,18 @@ import 'package:crypto/crypto.dart' as hash;
 import 'package:cryptography/cryptography.dart';
 
 import 'net/http.dart';
+import 'settings_file/host_settings.dart' show hostSettings;
 
 /// The developer's public key (the GUI's `src/shared/supportKey.js`), and its id: the first 8
 /// bytes of its SHA-256. Rotating it means shipping a new key with the next release.
 const String supportPublicKey = 'YM65I1OjO76rTaLGRAbLux2+rIObMMd+3v092QufNSU=';
 const String supportKeyId = 'd9749febd701c2fe';
 
-/// Where reports go. A build can point elsewhere with `--dart-define=WFE_SUPPORT_URL=...`.
-const String supportUrlSetting = String.fromEnvironment(
-  'WFE_SUPPORT_URL',
-  defaultValue: 'https://support.btlabs.uk/v1/report',
-);
+const String _supportUrlOverride = String.fromEnvironment('WFE_SUPPORT_URL');
+
+/// Where reports go: the settings file's `support.report`. A build can point elsewhere with
+/// `--dart-define=WFE_SUPPORT_URL=...`.
+String get supportUrlSetting => _supportUrlOverride.isEmpty ? hostSettings.supportReport : _supportUrlOverride;
 
 /// The intake's limits: a sealed report, the tail kept of each file, the description, the
 /// contact.

@@ -8,7 +8,7 @@ library;
 
 import 'btlabs_public.dart';
 
-/// `https://btlabs-epic.github.io/btlabs-keyring.json` serves the same keys.
+/// The BT Labs public site serves the same keys as `btlabs-keyring.json`.
 const String btlabsKeyringJson = '''
 {
   "keys": [

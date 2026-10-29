@@ -17,6 +17,7 @@ import 'amount.dart';
 import 'net/http.dart';
 import 'net/tor_switch.dart';
 import 'providers.dart';
+import 'settings_file/host_settings.dart' show hostSettings;
 import 'settings.dart';
 import 'wallet_service.dart' show Chain;
 
@@ -48,7 +49,7 @@ abstract interface class PriceSource {
   Future<double?> price(String currency);
 }
 
-/// CoinGecko's `simple/price` for `epic-cash`.
+/// The price source's (`price.source`) `simple/price` for `epic-cash`, in CoinGecko's shape.
 class CoinGeckoPriceSource implements PriceSource {
   const CoinGeckoPriceSource({this.timeout = const Duration(seconds: 10)});
 
@@ -57,7 +58,9 @@ class CoinGeckoPriceSource implements PriceSource {
   @override
   Future<double?> price(String currency) async {
     try {
-      final uri = Uri.https('api.coingecko.com', '/api/v3/simple/price', {
+      final source = Uri.parse(hostSettings.priceSource);
+      final uri = source.replace(queryParameters: {
+        ...source.queryParameters,
         'ids': 'epic-cash',
         'vs_currencies': currency,
       });
@@ -80,9 +83,8 @@ class CoinGeckoPriceSource implements PriceSource {
   }
 }
 
-/// BT Labs' copy of CoinGecko's price, refreshed by the status site every few minutes:
-/// `status.btlabs.uk/api/v1/price.json`, which the app's HTTP reaches over the status onion
-/// while Tor is on. A file older than [maxAge], another schema or a missing currency is no
+/// BT Labs' copy of the price, refreshed by the status site every few minutes (`status.price`
+/// in the settings file), which the app's HTTP reaches over the status onion while Tor is on. A file older than [maxAge], another schema or a missing currency is no
 /// price.
 class BtlabsPriceSource implements PriceSource {
   BtlabsPriceSource({
@@ -91,7 +93,7 @@ class BtlabsPriceSource implements PriceSource {
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
-  static final Uri url = Uri.https('status.btlabs.uk', '/api/v1/price.json');
+  static Uri get url => Uri.parse(hostSettings.statusPrice);
 
   final Duration timeout;
   final Duration maxAge;
@@ -140,19 +142,17 @@ final priceSourceProvider = Provider<PriceSource>(
 /// CoinGecko, BT Labs' copy: CoinGecko refuses a request without a User-Agent (403) and ours
 /// carry none (`net/http.dart`).
 class TorAwarePriceSource implements PriceSource {
-  const TorAwarePriceSource({PriceSource? coinGecko, PriceSource? btlabs})
-    : _coinGecko = coinGecko,
-      _btlabs = btlabs;
+  const TorAwarePriceSource({this.coinGecko, this.btlabs});
 
-  final PriceSource? _coinGecko;
-  final PriceSource? _btlabs;
+  final PriceSource? coinGecko;
+  final PriceSource? btlabs;
 
-  PriceSource get _copy => _btlabs ?? BtlabsPriceSource();
+  PriceSource get _copy => btlabs ?? BtlabsPriceSource();
 
   @override
   Future<double?> price(String currency) async {
     if (TorSwitch.on) return _copy.price(currency);
-    return await (_coinGecko ?? const CoinGeckoPriceSource()).price(currency) ?? await _copy.price(currency);
+    return await (coinGecko ?? const CoinGeckoPriceSource()).price(currency) ?? await _copy.price(currency);
   }
 }
 

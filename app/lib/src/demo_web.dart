@@ -12,15 +12,25 @@ import 'dart:convert';
 
 import 'demo.dart';
 import 'l10n.dart';
+import 'settings_file/host_settings.dart' show SettingsSyntaxError, parseSettingsToml;
 
 /// The push the demo server sends over the wallet socket when a demo ends. The server's
 /// `demoEndedPush` names the same; a test keeps them equal.
 const String demoEndedPushName = 'demoEnded';
 
-/// The floonet faucet's claim endpoint. Its answers carry `Access-Control-Allow-Origin: *`.
-final Uri floonetFaucetClaim = Uri.parse(
-  'https://floo-explorer.btlabs.uk/api/faucet/claim',
-);
+/// The floonet faucet's claim endpoint, from the `faucet` key of the `[demo]` table of the
+/// demo's settings file (`demo/settings.toml`). Its answers must carry
+/// `Access-Control-Allow-Origin: *`. Null when [settingsText] names none.
+Uri? demoFaucetFrom(String? settingsText) {
+  if (settingsText == null) return null;
+  try {
+    final demo = parseSettingsToml(settingsText)['demo'];
+    final faucet = demo is Map ? demo['faucet'] : null;
+    return faucet is String ? Uri.tryParse(faucet) : null;
+  } on SettingsSyntaxError {
+    return null;
+  }
+}
 
 /// The cooldown when the faucet's 429 does not say: one claim per IP every 39 s.
 const int defaultFaucetCooldownSeconds = 39;
@@ -52,14 +62,14 @@ class ServerDemoApi implements DemoApi {
     required this._http,
     required Uri origin,
     required this._ended,
-    Uri? faucet,
+    Future<Uri?> Function()? faucet,
   }) : _demo = origin.resolve('/api/demo'),
-       _faucet = faucet ?? floonetFaucetClaim;
+       _faucet = faucet ?? (() async => null);
 
   final DemoHttp _http;
   final Uri _demo;
   final Stream<void> _ended;
-  final Uri _faucet;
+  final Future<Uri?> Function() _faucet;
 
   @override
   Stream<void> get ended => _ended;
@@ -97,11 +107,13 @@ class ServerDemoApi implements DemoApi {
 
   @override
   Future<TestCoinsResult> claimTestCoins(String address) async {
-    final url = _faucet.replace(
-      queryParameters: {'method': 'epicbox', 'destination': address},
-    );
     final DemoReply reply;
     try {
+      final faucet = await _faucet();
+      if (faucet == null) return const TestCoinsFailed();
+      final url = faucet.replace(
+        queryParameters: {'method': 'epicbox', 'destination': address},
+      );
       reply = await _http.simplePost(url);
     } catch (_) {
       return const TestCoinsFailed();

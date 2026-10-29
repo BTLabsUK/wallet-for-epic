@@ -19,6 +19,7 @@ import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
+import '../../../settings_file/host_settings.dart' show hostSettings;
 
 /// States the tour can start Overview in.
 enum OverviewDemo { loading, empty, nodeDown, starting, syncing, nodeProblem }
@@ -95,7 +96,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
     final txs = empty ? const <Tx>[] : (demo == OverviewDemo.loading ? null : s.txs);
     final nav = ref.read(deskNavProvider.notifier);
-    final nodeUrl = (s.status?.node.url ?? 'https://node.epiccash.com').replaceFirst(RegExp(r'^https?://'), '');
+    final nodeUrl = (s.status?.node.url ?? hostSettings.nodeFallback).replaceFirst(RegExp(r'^https?://'), '');
 
     final recent = _Recent(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;

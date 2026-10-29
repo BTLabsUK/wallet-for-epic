@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_info.dart';
 import '../app_log.dart';
 import '../app_version.dart';
+import '../settings_file/host_settings.dart' show hostSettings;
 import '../demo.dart';
 import '../dist_build.dart';
 import '../errors.dart';
@@ -70,16 +71,19 @@ import 'wallet_delete.dart';
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 
 /// The project's source code.
-const String projectRepoUrl = 'https://gitlab.com/epic-cash-bt/wallet-for-epic';
+String get projectRepoUrl => hostSettings.linkSource;
 
 /// Whether the repositories are public. Until they are, no screen links to them (the phone's
 /// and the desktop's About, the Licences page) and no text says the code is public; set it
 /// to true when they are, and the links come back.
 const bool projectRepoPublic = false;
-const String epicCashUrl = 'https://epiccash.com';
+String get epicCashUrl => hostSettings.linkWebsite;
+
+/// The Epic Cash community chat.
+String get communityUrl => hostSettings.linkCommunity;
 
 /// The public contact address, shown in Help and About. Never translated.
-const String supportEmail = 'support@btlabs.uk';
+String get supportEmail => hostSettings.supportEmail;
 
 
 /// The app version and the core's: the installed package's on Android, else the one this
@@ -1281,7 +1285,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         onTap: () => _push(LicencesScreen(version: version.value)),
       ),
       // A proper name, the same in every language.
-      const LinkTile(title: 'Epic Cash', url: epicCashUrl),
+      LinkTile(title: 'Epic Cash', url: epicCashUrl),
       if (projectRepoPublic) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
       LinkTile(title: l.contactLabel, url: supportEmail, email: true),
     ];

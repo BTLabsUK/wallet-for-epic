@@ -15,6 +15,7 @@ import '../network.dart' show EpicboxRelay;
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingByIdProvider, pairingSlateProvider;
 import '../send_preflight.dart' show recipientRelay;
 import '../settings.dart';
+import '../settings_file/host_settings.dart' show hostSettings;
 import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
@@ -37,20 +38,17 @@ import 'tx_label.dart';
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
 
-/// A link to the payment in a block explorer, once it is on chain: the kernel on floonet, the
-/// block on mainnet (no mainnet explorer shows kernels). Null before confirmation, when the
-/// kernel is not on chain yet (and for a receive is only our partial excess), and elsewhere.
+/// A link to the payment in a block explorer, once it is on chain: the kernel when the
+/// settings file names a kernel page (`links.explorer_kernel`), else the block
+/// (`links.explorer_block`). Null before confirmation, when the kernel is not on chain yet
+/// (and for a receive is only our partial excess).
 String? explorerUrl(Chain chain, TxEntry tx) {
   if (tx.status != TxStatus.confirmed) return null;
   final kernel = tx.kernelExcess;
   final height = tx.blockHeight;
-  return switch (chain) {
-    Chain.floonet when kernel != null =>
-      'https://floo-explorer.btlabs.uk/kernel/$kernel',
-    Chain.mainnet when height != null =>
-      'https://explorer.epicmine.io/block/$height',
-    _ => null,
-  };
+  final byKernel = kernel == null ? null : hostSettings.explorerKernel(kernel);
+  if (byKernel != null) return byKernel;
+  return height == null ? null : hostSettings.explorerBlock(height.toInt());
 }
 
 /// The unit a rough duration is said in.

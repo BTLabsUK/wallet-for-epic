@@ -380,7 +380,7 @@ class EAddress extends StatelessWidget {
         : [TextSpan(text: a)];
     final restStyle = base.copyWith(color: c.dim);
     // When the address needs two lines it breaks only before "@": the server stays whole on
-    // the last line, never "epicca" / "sh.com".
+    // the last line, never a server cut in the middle of its name.
     final text = LayoutBuilder(
       builder: (context, box) {
         final whole = TextSpan(style: base, children: [...keySpans, TextSpan(text: rest, style: restStyle)]);

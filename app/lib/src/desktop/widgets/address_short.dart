@@ -50,7 +50,7 @@ class EShortAddress extends StatelessWidget {
 
 /// An address in full where a detail view shows it (never cut): the checked part in
 /// fixed chunks of [chunk] characters, one per line, its first and last six in the accent as
-/// on Receive; a server part ("@epicbox.epiccash.com") whole on its own line.
+/// on Receive; a server part ("@epicbox.example.org") whole on its own line.
 class EFullAddress extends StatelessWidget {
   const EFullAddress(this.address, {super.key, this.chunk = 26, this.size});
 

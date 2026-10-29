@@ -34,30 +34,21 @@ import 'network_gate.dart';
 import 'net/http.dart';
 import 'net/socks.dart' show SocksError;
 import 'providers.dart' show secretStoreProvider;
+import 'settings_file/host_settings.dart' show hostSettings;
 import 'tor_build.dart';
 
-/// Where releases publish the signed `update.json`, in order. Every source is read and checked
-/// against the same keys and anti-rollback state; the valid copy with the highest serial is
-/// used, the first source on a tie. The release lead publishes the same signed file to each
-/// (https://docs.btlabs.uk/developers/releases/). Add, remove or reorder sources here only.
-const List<String> updateManifestSources = [
-  // BT Labs' own server, beside the download page (with Tor on, its onion).
-  'https://examples.btlabs.uk/epic-cash-wallets/update.json',
-  // The GitLab copy of BT Labs' signed public files, as the raw file on main. GitLab Pages
-  // would need CI, which the GitLab projects never run. While the project is private this
-  // answers a sign-in page, which is not a manifest, so it is skipped.
-  'https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update.json',
-  // GitHub Pages, last: GitHub hid the site on 2026-10-28 and no app saw 26.10.20. It may
-  // come back.
-  'https://btlabs-epic.github.io/update.json',
-];
+/// Where releases publish the signed `update.json`, in order (the settings file's
+/// `updates.manifests`). Every source is read and checked against the same keys and
+/// anti-rollback state; the valid copy with the highest serial is used, the first source on a
+/// tie. The release lead publishes the same signed file to each (https://docs.btlabs.uk/developers/releases/).
+List<String> get updateManifestSources => hostSettings.updateManifests;
 
 /// `--dart-define=WFE_UPDATE_URL=...` replaces the sources with that one; it must still be
 /// signed with the bundled keys.
 const String _updateUrlOverride = String.fromEnvironment('WFE_UPDATE_URL');
 
 /// [updateManifestSources] (or the override) as addresses.
-final List<Uri> updateManifestUrls = [
+List<Uri> get updateManifestUrls => [
   for (final u in _updateUrlOverride.isEmpty ? updateManifestSources : const [_updateUrlOverride]) Uri.parse(u),
 ];
 
