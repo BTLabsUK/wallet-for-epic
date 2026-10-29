@@ -187,7 +187,8 @@ echo "Wrote $legacy for 0.1.0 (\"Update to $legacy_name\")."
 tool="$btlabs_public/tool/btlabs_sign.py"
 keyring="$btlabs_public/keys/btlabs-keyring.json"
 sign=(python3 "$tool" sign --type update --key "$signing_key" --keyring "$keyring" --payload "$payload" --out "$manifest")
-sign2=(python3 "$tool" sign --type update --key "$signing_key" --keyring "$keyring" --payload "$payload2" --out "$manifest2")
+# update-v2.json's links are checked against [updates] of the app's app-config.toml.
+sign2=(python3 "$tool" sign --type update --app-config "$config" --key "$signing_key" --keyring "$keyring" --payload "$payload2" --out "$manifest2")
 if [[ ! -f "$tool" || ! -f "$keyring" || ! -f "$signing_key" ]]; then
   echo "Not signed: needs $tool, $keyring and the signing key $signing_key." >&2
   echo "On the signing machine run:" >&2

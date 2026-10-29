@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
-// The vendored verifier (lib/src/btlabs_public.dart, a copy of btlabs-public's
-// dart/btlabs_public) must reproduce btlabs-public's shared vectors, for both the public file
-// and the signed update manifest.
+// The vendored verifier (lib/src/btlabs_public.dart, from btlabs-public's dart/btlabs_public)
+// must reproduce btlabs-public's shared vectors, for the public file and for update-v2.json, the
+// signed update manifest this app reads. update-vectors.json (update.json, the old format with
+// links in the old folders) is not here: only installed apps up to 26.10.23 read it, with
+// btlabs-public's own verifier, whose tests run those vectors.
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/btlabs_public.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/btlabs_sign.dart';
+import 'support/test_settings.dart';
 
 const _fixtures = 'test/fixtures/btlabs';
 
@@ -25,13 +29,23 @@ Future<VerifyResult<Object?>> _run(Map<String, dynamic> c, Keyring keyring) {
 }
 
 void main() {
-  for (final name in ['vectors.json', 'update-vectors.json']) {
+  for (final name in ['vectors.json', 'update-v2-vectors.json']) {
     group(name, () {
       final vectors = jsonDecode(File('$_fixtures/$name').readAsStringSync()) as Map<String, dynamic>;
       final keyring = Keyring.parse(jsonEncode(vectors['keyring']));
       final cases = (vectors['cases'] as List).cast<Map<String, dynamic>>();
 
       test('has cases', () => expect(cases, isNotEmpty));
+
+      if (vectors.containsKey('downloads')) {
+        // The update vectors are made for the folders of the shipped app-config.toml, read as
+        // the app reads them; regenerate them in btlabs-public when [updates] changes.
+        useShippedSettings();
+        test('made for [updates] of the shipped app-config.toml', () {
+          expect(vectors['downloads'], hostSettings.updateDownloads);
+          expect(vectors['pages'], hostSettings.updatePages);
+        });
+      }
 
       for (final c in cases) {
         test(c['name'] as String, () async {
