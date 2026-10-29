@@ -130,14 +130,14 @@ class EMoney extends ConsumerWidget {
   final bool unit;
   final FontWeight? weight;
 
-  /// At least this many decimals (default 4).
+  /// Decimals shown: 4 (the display rule) unless exact, 8 (`exactDecimals`).
   final int? decimals;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final c = context.dc;
-    final text = '${sign && nano > 0 ? '+' : ''}${formatEpicL(context.l10n, nano, minDecimals: decimals ?? 4)}';
+    final text = '${sign && nano > 0 ? '+' : ''}${formatEpicL(context.l10n, nano, decimals: decimals ?? 4)}';
     final style = context.ts.mono(size: size, color: color, weight: weight ?? FontWeight.w500);
     final row = Text.rich(
       TextSpan(

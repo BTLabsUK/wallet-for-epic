@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../amount.dart' as shared show formatEpic;
+import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
 import '../../../payment_prefs.dart' show PaymentPrefs;
 import '../../../providers.dart' show defaultMinimumConfirmations;
@@ -2366,7 +2367,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Flexible(child: Text(formatEpicL(l, d.amount), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
+              Flexible(child: Text(formatEpicL(l, d.amount, decimals: exactDecimals), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
               SizedBox(width: Sp.x2),
               Text('EPIC', style: ts.lead),
             ],
@@ -2417,12 +2418,12 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  EMoney(d.fee),
+                  EMoney(d.fee, decimals: exactDecimals),
                   if (lines?.feeSecondLine != null) Text(lines!.feeSecondLine!, style: ts.small),
                 ],
               ),
             ),
-            (l.deskSendTotal, EMoney(d.total, weight: FontWeight.w600)),
+            (l.deskSendTotal, EMoney(d.total, decimals: exactDecimals, weight: FontWeight.w600)),
             ...?lines?.facts,
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
