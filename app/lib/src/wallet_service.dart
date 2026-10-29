@@ -363,7 +363,7 @@ abstract interface class WalletSession {
   /// Sends to the wallet at [onion] over Tor, then finalizes its answer and posts, as
   /// [sendHttp]. Needs tor connected, else [WalletErrorKind.torNotRunning] and nothing is
   /// stored. Reaching an onion that is not online takes up to about 150 seconds, and is tried
-  /// once more after 30 s, before [WalletErrorKind.onionUnreachable]; that, `torNotRunning`
+  /// once more after `[tor] onion_retry_s`, before [WalletErrorKind.onionUnreachable]; that, `torNotRunning`
   /// after the start and
   /// `transportFailed` leave the send stored as waiting: [resendTor] or cancel it.
   Future<HttpSent> sendTor({
