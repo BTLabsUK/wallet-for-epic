@@ -274,6 +274,11 @@ String? relayOfAddress(String address) {
   return at < 0 ? null : linkServerOf(address.substring(at + 1));
 }
 
+/// The Epicbox server this device can move to when both devices use [shared]: the first of
+/// [list] (this device's Epicbox list, in order) that is not [shared]; null when there is none.
+String? relayToMoveTo(Iterable<String> list, String shared) =>
+    list.map(linkServerOf).whereType<String>().where((s) => s != shared).firstOrNull;
+
 /// The receives remembered from the linked device.
 const int _theirReceivesKept = 200;
 

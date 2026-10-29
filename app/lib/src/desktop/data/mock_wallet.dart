@@ -14,7 +14,7 @@ import 'dart:typed_data';
 
 import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
-import '../../devices/device_service.dart' show DeviceHost;
+import '../../devices/device_service.dart' show DeviceHost, linkServerOf;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show DeviceEnding, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
@@ -543,7 +543,7 @@ class MockDeskWallet implements DeskWalletApi {
   DeviceBook? Function()? _deviceBook;
 
   @override
-  DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs);
+  DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs, () => _epicbox);
 
   /// The canned outputs as the core lists them, for linked devices.
   Future<List<WalletOutput>> walletOutputs() async => [
@@ -1472,12 +1472,13 @@ class MockDeskWallet implements DeskWalletApi {
 
 /// The mock's linked-devices host: the prototype's pairing engine, no coins of its own.
 class _MockDeviceHost implements DeviceHost {
-  _MockDeviceHost(this.pairing, this._online, this._outputs);
+  _MockDeviceHost(this.pairing, this._online, this._outputs, this._relay);
 
   @override
   final FakePairing pairing;
   final bool Function() _online;
   final Future<List<WalletOutput>> Function() _outputs;
+  final String Function() _relay;
 
   @override
   bool get online => _online();
@@ -1486,7 +1487,7 @@ class _MockDeviceHost implements DeviceHost {
   Future<String> walletKey() async => _epicboxKey;
 
   @override
-  Future<String?> walletRelay() async => null;
+  Future<String?> walletRelay() async => linkServerOf(_relay());
 
   @override
   Future<void> cancelTransaction(int txId) async {}

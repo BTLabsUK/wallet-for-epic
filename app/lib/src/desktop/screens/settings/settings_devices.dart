@@ -103,6 +103,7 @@ class DevicesSettingsBlock extends ConsumerWidget {
             ENotice(title: l.devicesUnsupported, tone: ETone.info, icon: EIcons.info),
             SizedBox(height: Sp.x4),
           ],
+          const DeskRelayClashNotice(),
           _DevicesGroup(view: view, service: service),
           _ServersGroup(view: view, service: service),
           _SyncGroup(view: view, service: service, net: net),
@@ -136,16 +137,18 @@ class _DevicesGroup extends ConsumerWidget {
     final ts = context.ts;
     final book = view.book;
     final now = ref.watch(deskDeviceClockProvider)();
-    final canLink = view.supported && service.canLinkMore;
+    // One device can be linked: Link a device until it is, then that device with Remove.
     return ESetGroup(
       title: l.devicesOthers,
-      trailing: EButton.primary(
-        key: devicesLinkKey,
-        label: l.devicesLink,
-        icon: EIcons.link,
-        size: EBtnSize.sm,
-        onPressed: canLink ? () => unawaited(showDeskLinkDevice(context)) : null,
-      ),
+      trailing: book.linked != null
+          ? null
+          : EButton.primary(
+              key: devicesLinkKey,
+              label: l.devicesLink,
+              icon: EIcons.link,
+              size: EBtnSize.sm,
+              onPressed: view.supported ? () => unawaited(showDeskLinkDevice(context)) : null,
+            ),
       rows: [
         ESetRow(
           key: const ValueKey('dev-this'),
@@ -158,10 +161,7 @@ class _DevicesGroup extends ConsumerWidget {
             onPressed: () => unawaited(_rename(context, ref, service, book.deviceName, thisDevice: true)),
           ),
         ),
-        if (book.devices.isEmpty)
-          ESetRow(key: const ValueKey('dev-none'), text: l.devicesEmpty)
-        else
-          for (final d in book.devices)
+        if (book.linked case final d?)
             ESetRow(
               key: ValueKey('dev-${d.deviceId}'),
               leading: EIcons.phone,
@@ -185,7 +185,10 @@ class _DevicesGroup extends ConsumerWidget {
                 ],
               ),
             ),
-        if (!canLink && book.devices.isNotEmpty && !service.canLinkMore) ESetRow(text: l.linkFailTooMany(maxLinkedDevices)),
+        if (book.linked == null)
+          ESetRow(key: const ValueKey('dev-none'), text: l.devicesEmpty)
+        else
+          ESetRow(key: const ValueKey('dev-one-only'), text: l.devicesOneOnly),
       ],
     );
   }

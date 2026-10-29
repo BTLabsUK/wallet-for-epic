@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Linked devices end to end over the fake engine: a link needs the pictures checked on both
 // devices and the same wallet; notices hold and release coins; the one receive path drops what
-// it must and keeps the order; removing a device re-keys the others.
+// it must and keeps the order (two devices at most: device_two_only_test.dart).
 import 'dart:convert';
 
 import 'package:fake_async/fake_async.dart';
@@ -601,43 +601,5 @@ void main() {
     expect(a.pairing.posted.where((p) => utf8.decode(p.bytes).contains('"send"')), hasLength(2));
     await b.sync();
     expect(b.service.book.holds, hasLength(1));
-  });
-
-  test('only the device that held coins releases them', () async {
-    final c = Side('Laptop', clock: clock, net: net);
-    await linkBoth(a, b);
-    await linkBoth(c, b);
-    _send(a, 'pay-1');
-    await settle(a, b);
-    final seq = b.service.book.device(c.service.book.deviceId)!.seqIn + 1;
-    _inject(c, b, _env(c, seq, 'status', {'slateId': 'pay-1', 'state': 'released'}));
-    await b.sync();
-    expect(b.service.book.holds.single.state, HoldState.held);
-  });
-
-  test('removing a device unpairs it on both ends and re-keys the others', () async {
-    final c = Side('Laptop', clock: clock, net: net);
-    await linkBoth(a, b);
-    await linkBoth(a, c);
-    await linkBoth(b, c);
-    final oldAb = a.service.book.device(b.service.book.deviceId)!.pairings.values.single;
-    await a.service.removeDevice(c.service.book.deviceId);
-    for (var i = 0; i < 4; i++) {
-      await a.sync();
-      await b.sync();
-      await c.sync();
-    }
-    expect(a.service.book.devices.map((d) => d.name), ['Phone']);
-    expect(b.service.book.devices.map((d) => d.name), ['Desktop']);
-    expect(c.service.book.devices, isEmpty);
-    expect(c.service.book.removedBy, isNotNull);
-    expect(await c.pairing.privatePairings(), everyElement(predicate<PairingRecord>((r) => r.removedByPeer)));
-    final newAb = a.service.book.device(b.service.book.deviceId)!.pairings.values.single;
-    expect(newAb, isNot(oldAb));
-    expect((await a.pairing.privatePairings()).map((r) => r.id), [newAb]);
-    // The re-keyed channel carries notices.
-    _send(a, 'pay-2');
-    await settle(a, b);
-    expect(b.service.book.heldCommitments, {cm(2)});
   });
 }

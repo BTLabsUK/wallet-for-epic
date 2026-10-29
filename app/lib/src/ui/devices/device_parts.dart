@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The phone's linked devices pieces shared by its screens: the "seen" line, why a link failed,
-/// the rename and confirm dialogs, the servers sheet, and the quiet offer that turns the
-/// feature on.
+/// the rename and confirm dialogs, the servers sheet, the question to move off the linked
+/// device's Epicbox server, and the quiet offer that turns the feature on.
 library;
 
 import 'package:flutter/material.dart';
@@ -11,8 +11,12 @@ import '../../devices/device_model.dart';
 import '../../devices/device_service.dart';
 import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
+import '../../network.dart' show EpicboxRelay;
 import '../../providers.dart';
+import '../../relay_block_phone.dart' show switchToRelayInstead;
+import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../badge.dart';
+import '../pairing/pairing_parts.dart' show PairEdgeNotice;
 import '../theme/tokens.dart';
 import 'link_device_screen.dart';
 
@@ -44,7 +48,7 @@ String linkFailureText(AppLocalizations l, LinkFailure f) => switch (f) {
   LinkFailure.otherWalletCode => l.linkFailOtherWalletCode,
   LinkFailure.mismatch => l.linkFailMismatch,
   LinkFailure.cancelled => l.linkFailCancelled,
-  LinkFailure.tooMany => l.linkFailTooMany(maxLinkedDevices - 1),
+  LinkFailure.tooMany => l.linkFailTooMany,
   LinkFailure.unreachable => l.linkFailUnreachable,
   LinkFailure.unsupported => l.devicesUnsupported,
 };
@@ -166,6 +170,62 @@ class LinkDeviceOffer extends ConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+const Key devicesRelayUseKey = ValueKey('devices-relay-use');
+const Key devicesRelayKeepKey = ValueKey('devices-relay-keep');
+
+/// Both devices use one Epicbox server, so both answer a payment to it: the question, once, to
+/// move this one to the next server of its list. Use moves it (the address changes, as on any
+/// server switch); Keep leaves both where they are. Nothing while there is no question or no
+/// other server to offer.
+class RelayClashNotice extends ConsumerStatefulWidget {
+  const RelayClashNotice({super.key});
+
+  @override
+  ConsumerState<RelayClashNotice> createState() => _RelayClashNoticeState();
+}
+
+class _RelayClashNoticeState extends ConsumerState<RelayClashNotice> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final shared = ref.watch(phoneDevices.view)?.book.relayAsk;
+    if (shared == null) return const SizedBox.shrink();
+    final next = relayToMoveTo([for (final s in ref.watch(hostSettingsProvider).epicboxServers) s.label], shared);
+    if (next == null) return const SizedBox.shrink();
+    final service = ref.read(deviceServiceProvider);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: PairEdgeNotice(
+        tone: BadgeTone.info,
+        title: l.devicesRelayAsk(shared, next),
+        body: l.devicesRelayWhy,
+        actions: [
+          TextButton(key: devicesRelayKeepKey, onPressed: _busy ? null : () => service?.keepRelay(), child: Text(l.devicesRelayKeep)),
+          FilledButton(
+            key: devicesRelayUseKey,
+            onPressed: _busy
+                ? null
+                : () async {
+                    final relay = EpicboxRelay.parse(next);
+                    if (relay == null) return;
+                    setState(() => _busy = true);
+                    try {
+                      await switchToRelayInstead(ref, relay);
+                      await service?.relayMoved();
+                    } finally {
+                      if (mounted) setState(() => _busy = false);
+                    }
+                  },
+            child: Text(l.devicesRelayUse),
+          ),
+        ],
+      ),
     );
   }
 }

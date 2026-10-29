@@ -24,6 +24,8 @@ import 'package:epic_wallet/src/models.dart' show CancelReason, Chain, DeviceEnd
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
+import 'package:epic_wallet/src/desktop/data/mock_hosts.dart' show mockBox;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -192,6 +194,66 @@ void main() {
     final stored = (await tester.runAsync(() => again.load(defaultName: 'x')))!;
     expect(stored.devices.single.deviceId, phone.service.book.deviceId);
     await end(tester);
+  });
+
+  testWidgets('one device linked: no Link a device, the device with Remove and the one-device line', (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    final phone = await linkedPhone(tester, desk);
+    await settle(tester);
+    expect(find.byKey(devicesLinkKey), findsNothing);
+    expect(find.byKey(ValueKey('dev-remove-${phone.service.book.deviceId}')), findsOneWidget);
+    expect(find.text('One device can be linked. Remove it to link another.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('dev-none')), findsNothing);
+    await end(tester);
+  });
+
+  group('both devices on one Epicbox server', () {
+    String other() => hostSettings.epicboxServers.map((s) => s.label).firstWhere((s) => s != mockBox);
+
+    /// The phone moves off the computer's server and back: the computer, the other side, asks.
+    Future<MockPhone> phoneComesBack(WidgetTester tester, DeviceService desk) async {
+      final phone = await linkedPhone(tester, desk);
+      await settle(tester);
+      expect(find.byKey(deskRelayUseKey), findsNothing, reason: 'the computer showed the code: the phone asks, not the computer');
+      phone.session.address = '$mockEpicboxKey@${other()}';
+      await tester.runAsync(() => phone.rounds(desk));
+      phone.session.address = '$mockEpicboxKey@$mockBox';
+      await tester.runAsync(() => phone.rounds(desk));
+      await settle(tester);
+      return phone;
+    }
+
+    testWidgets('a later change asks once; Keep keeps both and is not asked again', (tester) async {
+      final desk = await show(tester, const DevicesSettingsBlock());
+      final phone = await phoneComesBack(tester, desk);
+      expect(find.text('Both devices use $mockBox. Use ${other()} on this device?'), findsOneWidget);
+      expect(phone.service.relayClash, isNull, reason: 'the device that changed does not ask');
+      await tester.tap(find.byKey(deskRelayKeepKey));
+      await settle(tester);
+      expect(find.byKey(deskRelayUseKey), findsNothing);
+      await tester.runAsync(() => phone.rounds(desk));
+      await settle(tester);
+      expect(find.byKey(deskRelayUseKey), findsNothing);
+      expect(desk.book.relayKept, mockBox);
+      await end(tester);
+    });
+
+    testWidgets('Use moves this computer to the next server and the phone hears it', (tester) async {
+      final desk = await show(tester, const DevicesSettingsBlock());
+      final phone = await phoneComesBack(tester, desk);
+      await tester.tap(find.byKey(deskRelayUseKey));
+      await settle(tester);
+      await tester.runAsync(() async {
+        await wallet.epicboxAddress();
+        await phone.rounds(desk);
+      });
+      await settle(tester);
+      expect(find.byKey(deskRelayUseKey), findsNothing);
+      expect((await tester.runAsync(wallet.epicboxAddress))!, endsWith('@${other()}'));
+      expect(phone.service.book.devices.single.relay, other());
+      expect(phone.service.relayClash, isNull);
+      await end(tester);
+    });
   });
 
   testWidgets('a pasted code from another computer answers the link', (tester) async {

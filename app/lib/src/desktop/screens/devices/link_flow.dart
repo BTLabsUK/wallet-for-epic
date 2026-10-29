@@ -13,10 +13,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../devices/device_link_code.dart';
-import '../../../devices/device_model.dart' show maxLinkedDevices;
 import '../../../devices/device_service.dart';
 import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../data/devices_state.dart';
+import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
@@ -220,6 +221,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
                   Text(l.linkDoneTitle, style: ts.strong),
                   SizedBox(height: Sp.x1),
                   Text(l.linkDone(name), style: ts.bodyDim),
+                  const DeskRelayClashNotice(),
                 ],
               ),
             ),
@@ -363,8 +365,66 @@ String deskLinkFailureText(AppLocalizations l, LinkFailure? failure, String? nam
   LinkFailure.otherWallet => l.linkFailOtherWallet,
   LinkFailure.otherWalletCode => l.linkFailOtherWalletCode,
   LinkFailure.mismatch => l.linkFailMismatch,
-  LinkFailure.tooMany => l.linkFailTooMany(maxLinkedDevices),
+  LinkFailure.tooMany => l.linkFailTooMany,
   LinkFailure.unreachable => l.linkFailUnreachable,
   LinkFailure.unsupported => l.devicesUnsupported,
   LinkFailure.cancelled || null => l.linkFailCancelled,
 };
+
+const Key deskRelayUseKey = ValueKey('desk-relay-use');
+const Key deskRelayKeepKey = ValueKey('desk-relay-keep');
+
+/// Both devices use one Epicbox server, so both answer a payment to it: the question, once, to
+/// move this computer to the next server of its Epicbox list. Use moves it as the server list
+/// does (the listener restarts, the usual notice); Keep leaves both where they are.
+class DeskRelayClashNotice extends ConsumerStatefulWidget {
+  const DeskRelayClashNotice({super.key});
+
+  @override
+  ConsumerState<DeskRelayClashNotice> createState() => _DeskRelayClashNoticeState();
+}
+
+class _DeskRelayClashNoticeState extends ConsumerState<DeskRelayClashNotice> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final shared = ref.watch(deskDeviceViewProvider)?.book.relayAsk;
+    if (shared == null) return const SizedBox.shrink();
+    final next = relayToMoveTo([for (final s in ref.watch(hostSettingsProvider).epicboxServers) s.label], shared);
+    if (next == null) return const SizedBox.shrink();
+    final service = ref.read(deskDeviceServiceProvider);
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Sp.x3),
+      child: ENotice(
+        title: l.devicesRelayAsk(shared, next),
+        text: l.devicesRelayWhy,
+        tone: ETone.info,
+        icon: EIcons.epicbox,
+        actions: [
+          EButton(key: deskRelayKeepKey, label: l.devicesRelayKeep, size: EBtnSize.sm, onPressed: _busy ? null : () => unawaited(service?.keepRelay())),
+          EButton.primary(
+            key: deskRelayUseKey,
+            label: l.devicesRelayUse,
+            size: EBtnSize.sm,
+            onPressed: _busy
+                ? null
+                : () async {
+                    setState(() => _busy = true);
+                    try {
+                      await ref.read(deskProvider.notifier).useEpicbox(next);
+                      await service?.relayMoved();
+                      if (context.mounted) showEToast(context, l.deskSendEpicboxSwitched(next), tone: ETone.ok);
+                    } on Object catch (e) {
+                      if (context.mounted) showEToast(context, l.devicesRelayUse, text: deskErrorText(e, l), tone: ETone.risk);
+                    } finally {
+                      if (mounted) setState(() => _busy = false);
+                    }
+                  },
+          ),
+        ],
+      ),
+    );
+  }
+}

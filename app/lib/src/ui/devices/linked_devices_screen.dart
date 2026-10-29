@@ -45,6 +45,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
                 if (!view.supported) ...[PairEdgeNotice(tone: BadgeTone.warn, title: l.devicesUnsupported), const SizedBox(height: 12)],
                 if (view.book.removedBy case final by?) _removedBy(context, ref, by),
                 if (view.book.proposal case final p? when !p.fromHere) _proposal(context, ref, view, p),
+                const RelayClashNotice(),
                 PairSection(l.devicesThisDevice),
                 PairCard(
                   children: [
@@ -61,21 +62,22 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   ],
                 ),
                 PairSection(l.devicesOthers),
-                if (view.devices.isEmpty)
-                  Padding(padding: const EdgeInsets.only(bottom: 8), child: PairSmallPrint(l.devicesEmpty))
-                else
-                  PairCard(children: [for (final d in view.devices) _DeviceRow(device: d, now: now)]),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  key: devicesLinkKey,
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  icon: const Icon(Icons.add_link),
-                  label: Text(l.devicesLink),
-                  onPressed: view.supported && ref.read(deviceServiceProvider)!.canLinkMore ? () => openLinkDevice(context, ref) : null,
-                ),
-                if (view.devices.length >= maxLinkedDevices - 1) ...[
+                // One device can be linked: Link a device until it is, then that device (Remove
+                // is on its row).
+                if (view.book.linked case final d?) ...[
+                  PairCard(children: [_DeviceRow(device: d, now: now)]),
                   const SizedBox(height: 4),
-                  PairSmallPrint(l.linkFailTooMany(maxLinkedDevices - 1)),
+                  PairSmallPrint(l.devicesOneOnly),
+                ] else ...[
+                  Padding(padding: const EdgeInsets.only(bottom: 8), child: PairSmallPrint(l.devicesEmpty)),
+                  const SizedBox(height: 4),
+                  FilledButton.icon(
+                    key: devicesLinkKey,
+                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                    icon: const Icon(Icons.add_link),
+                    label: Text(l.devicesLink),
+                    onPressed: view.supported ? () => openLinkDevice(context, ref) : null,
+                  ),
                 ],
                 const SizedBox(height: 12),
                 PairCard(

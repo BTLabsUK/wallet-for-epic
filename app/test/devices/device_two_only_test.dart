@@ -90,9 +90,12 @@ void main() {
 
     test('an invite that never finishes is dropped after a while and made again', () async {
       await linkBoth(a, b, servers: const [_s1, _s2]);
-      // The invite went out but the other device never read it.
+      await settle(a, b, rounds: 4);
+      // The inviter lost its pairing on the second server and invites again, but the other
+      // device never reads it.
       final inviter = a.service.book.deviceId.compareTo(b.service.book.deviceId) < 0 ? a : b;
       final other = inviter == a ? b : a;
+      await inviter.pairing.removePairing(inviter.service.book.devices.single.pairings[_s2]!);
       await inviter.sync();
       expect(inviter.service.book.devices.single.pending, hasLength(1));
       final first = inviter.service.book.devices.single.pending.single.pairingId;

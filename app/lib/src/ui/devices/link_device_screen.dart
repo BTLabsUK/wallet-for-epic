@@ -266,6 +266,8 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
         Text(l.linkDoneTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
         const SizedBox(height: 8),
         PairLead(l.linkDone(flow.device?.name ?? flow.otherName ?? '')),
+        const SizedBox(height: 16),
+        const RelayClashNotice(),
       ],
     );
   }
