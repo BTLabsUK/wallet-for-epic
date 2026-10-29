@@ -21,6 +21,8 @@ import 'package:epic_wallet/src/server_list.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/network.dart' show EpicboxRelay;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:flutter_test/flutter_test.dart';
 
 const _password = 'test-pass-1234';
@@ -188,8 +190,10 @@ void main() {
       expect(settings[BackupKey.from], 'desktop');
       expect(settings[BackupKey.theme], 'light');
       final desk = settings[BackupKey.desktop]! as Map<String, Object?>;
+      // The node is in the settings file's Node list, as one the user added (no operator): its
+      // label is not kept there.
       expect(desk[BackupKey.deskNodes], [
-        {'url': 'https://mine.example:3413', 'label': 'mine'},
+        {'url': 'https://mine.example:3413', 'label': ''},
       ]);
       expect(desk[BackupKey.invoiceExpiry], 7200);
       final all = jsonEncode(settings);
@@ -198,7 +202,11 @@ void main() {
       }
     });
 
-    test('the wallet\'s items: lists merge, its own relay is kept, a deleted seed contact goes again', () async {
+    test('the wallet\'s items: lists merge, a wallet\'s own relay is not taken, a deleted seed contact goes again', () async {
+      // Empty lists in the settings file, so the merge shows only the backup's.
+      final before = hostSettings;
+      hostSettings = before.withValues({'node.servers': const <Object>[], 'epicbox.servers': const <Object>[]});
+      addTearDown(() => hostSettings = before);
       expect((await wallet.contacts()).any((x) => x.name == 'BT Labs'), isTrue, reason: 'seeded on open');
       await wallet.restoreBackupItems(
         nodeList: const ServerList(entries: ['https://node.epicnet.us:3413']),
@@ -209,8 +217,9 @@ void main() {
       final mine = (await wallet.backupSettings()).mine;
       final desk = mine[BackupKey.desktop]! as Map<String, Object?>;
       expect(desk[BackupKey.seedsDeleted], ['btlabs']);
-      expect(desk[BackupKey.ownRelay], 'epicbox.epicnet.us');
-      expect(mine[BackupKey.relay], {'mainnet': 'epicbox.epicnet.us'}, reason: 'the wallet\'s own server is its relay');
+      // Every wallet uses the settings' Epicbox server: an older backup's own one is not taken.
+      expect(desk[BackupKey.ownRelay], isNull);
+      expect(mine[BackupKey.relay], {'mainnet': EpicboxRelay.parse(hostSettings.epicboxUse)!.label});
       expect((mine[BackupKey.nodeList]! as Map)['mainnet'], {'entries': ['https://node.epicnet.us:3413'], 'removed': <Object?>[]});
       final relays = serverListFromJson(ServerKind.relay, (mine[BackupKey.relayList]! as Map)['mainnet'])!;
       expect(relays.removed, {serverKeyOf(ServerKind.relay, 'epicbox.stackwallet.com')});

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Epicbox relays and public nodes with their health, from the public monitor at
-/// `status.btlabs.uk`.
+/// Epicbox relays and public nodes with their health, from the public monitor, the status site
+/// (`[status] directory` of the settings file).
 ///
-/// The monitor probes every known relay and node every few seconds (endpoint
-/// `/api/v1/status.json`, open CORS, `no-store`). The lists are advice for the network
+/// The monitor probes every known relay and node every few seconds (its status file, open
+/// CORS, `no-store`). The lists are advice for the network
 /// settings screens. Nothing switches relay or node on its own: the relay is part of the
 /// wallet's address, and the node is the user's pick.
 library;
@@ -19,18 +19,21 @@ import 'models.dart' show Chain;
 import 'net/http.dart';
 import 'net/tor_switch.dart';
 import 'network.dart';
+import 'settings_file/host_settings.dart';
+import 'settings_file/settings_notice.dart' show SettingsChange;
+import 'settings_file/settings_providers.dart' show hostSettingsChanges;
 
-/// The monitor's status endpoint. Override with `--dart-define=WFE_STATUS_URL=...`.
-const String relayStatusUrl = String.fromEnvironment(
-  'WFE_STATUS_URL',
-  defaultValue: 'https://status.btlabs.uk/api/v1/status.json',
-);
+/// `--dart-define=WFE_STATUS_URL=...` replaces the settings' status file (a test monitor).
+const String _statusUrlOverride = String.fromEnvironment('WFE_STATUS_URL');
 
-/// Settings › Privacy › Use status.btlabs.uk, on by default. Off, [HttpRelayDirectory] fails
-/// at once without a request, so every screen takes its site-down path: built-in lists, the
-/// servers' own answers ("limited info"), no error. Read on every request, so a change applies
-/// at once. The desktop and phone settings set it; the saved value is applied before the app
-/// asks anything ([loadFrom]).
+/// The monitor's status file: `[status] directory` of the settings file.
+String get relayStatusUrl => _statusUrlOverride.isNotEmpty ? _statusUrlOverride : hostSettings.statusDirectory;
+
+/// Settings › Privacy › Use the status site: `[status] enabled` of the settings file, on by
+/// default. Off, [HttpRelayDirectory] fails at once without a request, so every screen takes
+/// its site-down path: built-in lists, the servers' own answers ("limited info"), no error.
+/// Read on every request, so a change applies at once. It follows the settings file
+/// ([followSettings]) from before the app asks anything.
 class StatusSiteSwitch extends ChangeNotifier {
   bool _on = true;
   int _changes = 0;
@@ -59,6 +62,17 @@ class StatusSiteSwitch extends ChangeNotifier {
         if (identical(_loading, loading)) on = value;
       }),
     );
+  }
+
+  StreamSubscription<SettingsChange>? _follow;
+
+  /// Takes `status.enabled` from the settings in use now and after every change (an app
+  /// change or a hand edit of the file).
+  void followSettings() {
+    _loading = null;
+    if (hostSettingsLoaded) on = hostSettings.statusEnabled;
+    unawaited(_follow?.cancel());
+    _follow = hostSettingsChanges.listen((c) => on = c.after.statusEnabled);
   }
 
   /// Whether a request to the site may go out now.
@@ -538,10 +552,10 @@ final relayDirectoryProvider = Provider<RelayDirectory>(
   (ref) => HttpRelayDirectory(),
 );
 
-/// Relay health for [NetworkPreset.statusChain]. Empty for usernet. BT Labs' relay
-/// ([btlabsRelayHost]) is one host serving both chains, and the monitor lists it
-/// under floonet only: on mainnet its floonet entry stands in when the mainnet list has none,
-/// so it does not look dead beside the others. A failed floonet fetch leaves it unknown.
+/// Relay health for [NetworkPreset.statusChain]. Empty for usernet. A relay the settings list
+/// (Epicbox list, connection servers) may serve both chains, and the monitor may list it under
+/// floonet only: on mainnet its floonet entry stands in when the mainnet list has none, so it
+/// does not look dead beside the others. A failed floonet fetch leaves it unknown.
 final relayStatusProvider = FutureProvider.autoDispose
     .family<List<RelayStatus>, NetworkPreset>((ref, preset) async {
       final chain = preset.statusChain;
@@ -549,9 +563,13 @@ final relayStatusProvider = FutureProvider.autoDispose
       ref.watch(useStatusSiteProvider);
       final directory = ref.watch(relayDirectoryProvider);
       final list = await directory.relays(chain);
-      const btlabs = btlabsRelayHost;
-      if (preset.chain != Chain.mainnet ||
-          list.any((r) => r.relay.host == btlabs)) {
+      final settings = hostSettings;
+      final ours = {
+        for (final b in settings.epicboxServers) b.host.toLowerCase(),
+        for (final p in settings.pairingServers) ?EpicboxRelay.parse(p)?.host,
+      };
+      final missing = ours.difference({for (final r in list) r.relay.host.toLowerCase()});
+      if (preset.chain != Chain.mainnet || missing.isEmpty) {
         return list;
       }
       try {
@@ -559,7 +577,7 @@ final relayStatusProvider = FutureProvider.autoDispose
         return [
           ...list,
           for (final r in floonet)
-            if (r.relay.host == btlabs) r,
+            if (missing.contains(r.relay.host.toLowerCase())) r,
         ];
       } catch (_) {
         return list;

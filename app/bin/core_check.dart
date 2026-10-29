@@ -5,7 +5,8 @@
 ///
 ///     dart run bin/core_check.dart [path/to/liblepic_ffi.so]
 ///
-/// It loads the Linux LEPIC library, creates a floonet wallet with a PIN in a temp directory
+/// It reads floonet's settings file (`tool/settings/floonet.toml`, its node and Epicbox
+/// server), loads the Linux LEPIC library, creates a floonet wallet with a PIN in a temp directory
 /// through [LepicWalletService], reads its epicbox address, deletes the wallet, checks that a
 /// wallet still opens after its data directory moves, and prints `ok`.
 /// Any failure prints `failed: <error>` and exits 1. A Flutter import anywhere on the path
@@ -18,13 +19,19 @@ import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/redact.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+
+/// Floonet's settings file, from `app/`.
+const String floonetSettings = 'tool/settings/floonet.toml';
 
 const String defaultLibrary =
     'third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so';
 
 Future<void> main(List<String> args) async {
   final library = args.isEmpty ? defaultLibrary : args.first;
+  // Floonet's own settings: the only place its addresses are.
+  hostSettings = HostSettings.fromText(File(floonetSettings).readAsStringSync());
   final dir = Directory.systemTemp.createTempSync('wfe-core-check-');
   try {
     await check(library, '${dir.path}/plain');

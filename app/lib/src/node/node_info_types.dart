@@ -22,7 +22,7 @@ enum NodeHead { synced, syncing, behind, down }
 
 /// Where an own node's reference tip came from: never the node itself.
 enum TipReference {
-  /// status.btlabs.uk's network tip.
+  /// The status site's network tip.
   statusSite,
 
   /// The median tip of the public nodes the app could reach.
@@ -30,7 +30,7 @@ enum TipReference {
 }
 
 /// The network tip from the public nodes and how many gave it, for an own node's "behind"
-/// when status.btlabs.uk does not answer.
+/// when the status site does not answer.
 typedef PublicTip = ({int tip, int nodes});
 
 /// One node as the app sees it now. Fields a source does not give are null.
@@ -152,7 +152,7 @@ class NodeInfo {
   }
 }
 
-/// -1, 0 or 1 comparing dotted versions ("4.1.0" < "4.1.1"; "4.1.0-1" counts as 4.1.0.1), or null
+/// -1, 0 or 1 comparing dotted versions ("4.1.0" < "4.1.1"; "4.1.0-1" counts as the parts 4, 1, 0 and 1), or null
 /// when either is not a version.
 int? compareVersions(String a, String b) {
   List<int>? parts(String v) {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider]), seeded
-/// from the built-in servers and status.btlabs.uk, which the user edits in place. One field at
+/// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider], the settings
+/// file's), which the status site's servers join and the user edits in place. One field at
 /// the top starts empty, filters the list while typed in, and offers Add as soon as nothing
 /// matches; the server in use shows only in its row (the check) and the Current card. A tap on
 /// a Node row switches at once and the foot says so; on an Epicbox row it asks first, as the
@@ -26,6 +26,7 @@ import '../providers.dart';
 import '../public_servers.dart';
 import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
+import '../settings_file/host_settings.dart' show shippedHostSettings;
 import '../server_list_store.dart';
 import '../server_switch.dart';
 import '../net/tor_switch.dart' show TorSwitch;
@@ -140,8 +141,8 @@ class _Entry {
   final String host;
   final String? operator;
 
-  /// The name a tile takes its initials from: the monitor's, as status.btlabs.uk shows it
-  /// ("epicnet.us" → EU), else [operator].
+  /// The name a tile takes its initials from: the monitor's, as the status site shows it
+  /// (a host such as "epicnet.example" → EP), else [operator].
   final String? tileName;
   final NodeStatus? node;
   final RelayStatus? relay;
@@ -661,6 +662,22 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     ];
   }
 
+  /// Who runs each public server, by [serverKeyOf]: written to the file with a server the list
+  /// takes in from the directory.
+  Map<String, String> _publicOperators(NetworkChoice choice) {
+    final preset = choice.preset;
+    if (_node) {
+      return {
+        for (final n in mergePublicNodes(ref.read(publicNodeStatusProvider(preset)).value, builtIn: builtInNodesFor(preset)))
+          serverKeyOf(ServerKind.node, n.url): n.operator,
+      };
+    }
+    return {
+      for (final r in mergePublicRelays(ref.read(relayStatusProvider(preset)).value, builtIn: builtInRelaysFor(preset)))
+        serverKeyOf(ServerKind.relay, r.relay.label): r.operator,
+    };
+  }
+
   bool _matches(_Entry e, String q) => serverMatches(q, host: e.host, operator: e.operator);
 
   @override
@@ -754,7 +771,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
       if (missing.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          ref.read(serverListProvider((widget.kind, chain)).notifier).absorb(missing);
+          ref.read(serverListProvider((widget.kind, chain)).notifier).absorb(missing, operators: _publicOperators(choice));
         });
       }
     }
@@ -894,7 +911,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           entry: e,
           isDefault: _sel != null
               ? _sel!.defaults.any((d) => _same(d, e.value))
-              : !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
+              : !_node && EpicboxRelay.parse(e.value) == EpicboxRelay.parse(shippedHostSettings.epicboxUse),
           addedByYou: listState?.isAddedByUser(widget.kind, e.value) ?? false,
           current: _sel == null && _same(e.value, current),
           selected: _sel != null ? _isChosen(e.value) : _same(e.value, current),
@@ -1531,7 +1548,7 @@ class _FootLine extends StatelessWidget {
   }
 }
 
-/// Under the list: a thin bar while status.btlabs.uk is asked, the "health unknown" line when
+/// Under the list: a thin bar while the status site is asked, the "health unknown" line when
 /// it did not answer, nothing when the user turned it off or the network has no monitor.
 class _HealthCaption extends ConsumerWidget {
   const _HealthCaption({required this.status, required this.preset});

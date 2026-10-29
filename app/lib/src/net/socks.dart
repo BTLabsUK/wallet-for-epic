@@ -11,6 +11,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import '../settings_file/host_settings.dart';
+
 /// Where tor's SOCKS port listens: an IP literal on this computer, so connecting to it needs
 /// no lookup either.
 class SocksProxy {
@@ -34,7 +36,7 @@ class SocksError implements IOException {
   const SocksError(this.message, {this.reply});
 
   /// A BT Labs host without an onion, which tor does not reach (by design).
-  static const noBtLabsOnion = 'no onion for this BT Labs server';
+  static const noBtLabsOnion = 'no onion for this onion-only server';
 
   final String message;
 
@@ -291,8 +293,8 @@ class _HandedSocket extends StreamView<Uint8List> implements Socket {
   void setRawOption(RawSocketOption option) => _socket.setRawOption(option);
 }
 
-/// Where a host is reached over Tor instead of its own address: BT Labs' onions from the signed
-/// list. [tls] false is plain HTTP on the onion (the onion itself is the encryption).
+/// Where a host is reached over Tor instead of its own address: an onion of the settings file
+/// or of the signed list. [tls] false is plain HTTP on the onion (the onion itself is the encryption).
 typedef OnionTarget = ({String onion, int port, bool tls});
 
 /// The onion for [host]:[port], or null to go through an exit to the host itself.
@@ -328,9 +330,8 @@ Future<ConnectionTask<Socket>> Function(Uri, String?, int?) socksConnectionFacto
             ? socksConnectTls(proxy, target.onion, target.port, tlsHost: url.host, timeout: timeout, context: context)
             : socksConnect(proxy, target.onion, target.port, timeout: timeout);
       }
-      final h = url.host.toLowerCase();
-      if (h == 'btlabs.uk' || h.endsWith('.btlabs.uk')) {
-        // Tor exits cannot reach BT Labs' own address: its servers only at their onions.
+      if (isOnionOnlyHost(url.host)) {
+        // Tor exits cannot reach these hosts' own address: only their onions.
         throw const SocksError(SocksError.noBtLabsOnion);
       }
       if (!secure && !allowPlainExit) {
@@ -347,4 +348,16 @@ Future<ConnectionTask<Socket>> Function(Uri, String?, int?) socksConnectionFacto
     socket.ignore();
     return ConnectionTask.fromSocket(socket, () {});
   };
+}
+
+/// Whether [host] is under one of the settings' `[tor] onion_only_domains`: over Tor it is
+/// reached only at an onion, never through an exit.
+bool isOnionOnlyHost(String host) {
+  if (!hostSettingsLoaded) return false;
+  final h = host.toLowerCase();
+  for (final d in hostSettings.torOnionOnlyDomains) {
+    final domain = d.toLowerCase();
+    if (h == domain || h.endsWith('.$domain')) return true;
+  }
+  return false;
 }

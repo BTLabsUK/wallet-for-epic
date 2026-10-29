@@ -18,7 +18,9 @@ import '../pairing_providers.dart' show PairingSeenAs, pairingSeenAsProvider;
 import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
+import '../server_list_file.dart' show serverListOf;
 import '../server_list_store.dart';
+import '../settings_file/host_settings.dart' show shippedHostSettings;
 import '../server_switch.dart' show switchServersLive;
 import '../settings.dart';
 import '../wallet_service.dart' show Chain, WalletError;
@@ -89,10 +91,10 @@ class PhoneBackupSettings {
     return phoneBackupMap(
       AppSettings(payments: read(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults),
       chain: chain,
-      node: preset.nodeUrl,
-      relay: preset.defaultRelay.label,
-      nodeList: ServerList.seed(ServerKind.node, builtInValues(ServerKind.node, chain)),
-      relayList: ServerList.seed(ServerKind.relay, builtInValues(ServerKind.relay, chain)),
+      node: shippedHostSettings.nodeUse,
+      relay: EpicboxRelay.parse(shippedHostSettings.epicboxUse)?.label ?? preset.defaultRelay.label,
+      nodeList: serverListOf(shippedHostSettings, ServerKind.node),
+      relayList: serverListOf(shippedHostSettings, ServerKind.relay),
       tor: false,
       seenAs: '',
     );
@@ -153,10 +155,7 @@ class PhoneBackupSettings {
       final provider = serverListProvider((kind, chain));
       final now = await read(provider.future);
       final next = mergeServerLists(kind, now, from);
-      if (next != now) {
-        await read(secretStoreProvider).write(serverListKey(kind, chain), next.encode());
-        invalidate(provider);
-      }
+      if (next != now) await read(provider.notifier).replace(next);
       changed++;
     }
 

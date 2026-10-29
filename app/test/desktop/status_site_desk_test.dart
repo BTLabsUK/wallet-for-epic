@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import 'package:flutter_test/flutter_test.dart';
 
 const _password = 'test-pass-1234';
@@ -61,12 +62,11 @@ void main() {
     );
   }
 
-  test('the setting is on by default and saved', () {
+  test('the setting is on by default and kept in the settings file, not the desk store', () {
     expect(const DeskSettings().useStatusSite, isTrue);
     expect(deskSettingsFromJson(const {}).useStatusSite, isTrue);
-    expect(deskSettingsFromJson(const {'useStatusSite': 'x'}).useStatusSite, isTrue);
-    final off = deskSettingsFromJson(deskSettingsToJson(const DeskSettings(useStatusSite: false)));
-    expect(off.useStatusSite, isFalse);
+    expect(deskSettingsToJson(const DeskSettings(useStatusSite: false)).containsKey('useStatusSite'), isFalse);
+    expect(hostSettings.statusEnabled, isTrue);
   });
 
   test('off: no request to the site, the built-in nodes and servers', () async {

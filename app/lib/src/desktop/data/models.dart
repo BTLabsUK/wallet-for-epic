@@ -705,10 +705,10 @@ class NodeServer {
   /// Added by the user (the old "My nodes").
   final bool own;
 
-  /// The operator's icon on status.btlabs.uk, or null: the tile shows initials.
+  /// The operator's icon on the status site, or null: the tile shows initials.
   final ServerIcon? icon;
 
-  /// The operator's name as status.btlabs.uk lists it (the tile's initials), or null.
+  /// The operator's name as the status site lists it (the tile's initials), or null.
   final String? listedAs;
 }
 
@@ -723,10 +723,10 @@ class EpicboxServer {
   final ServiceHealth health;
   final int? latencyMs;
 
-  /// The operator's icon on status.btlabs.uk, or null: the tile shows initials.
+  /// The operator's icon on the status site, or null: the tile shows initials.
   final ServerIcon? icon;
 
-  /// The operator's name as status.btlabs.uk lists it (the tile's initials), or null.
+  /// The operator's name as the status site lists it (the tile's initials), or null.
   final String? listedAs;
 }
 
@@ -1219,8 +1219,9 @@ class DeskSettings {
   /// shows once per install.
   final bool importWarningSeen;
 
-  /// Settings › Privacy: server health and node lists from status.btlabs.uk (`statusSite`).
-  /// Off, only the servers themselves are asked.
+  /// Settings › Privacy: server health and node lists from the status site (`statusSite`), the
+  /// settings file's `status.enabled` (not saved with the rest). Off, only the servers
+  /// themselves are asked.
   final bool useStatusSite;
 
   /// Settings › Transactions: the methods Send and Receive offer and Send's first one.

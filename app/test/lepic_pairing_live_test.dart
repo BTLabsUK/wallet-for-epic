@@ -82,6 +82,7 @@ void main() {
         nodeUrl: 'http://127.0.0.1:1',
         epicboxDomain: _relay,
         epicboxPort: 443,
+        onionRoutes: const [],
       ),
       store: lepic.lepicSecretStore(_MemoryStore()),
       mnemonic: mnemonic,

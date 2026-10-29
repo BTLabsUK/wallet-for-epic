@@ -14,6 +14,7 @@ import 'mock_wallet.dart';
 import 'models.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../relay_directory.dart' show statusSite;
+import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../widgets/kit.dart' show DeskFeatures;
 import '../../phrase_clipboard.dart';
 
@@ -100,8 +101,13 @@ class DeskController extends Notifier<DeskState> {
   @override
   DeskState build() {
     ref.onDispose(_stopLive);
-    final settings = ref.read(deskBootProvider).settings;
+    // The status-site switch is the settings file's `status.enabled`, a hand edit too.
+    final settings = ref.read(deskBootProvider).settings.copyWith(useStatusSite: ref.read(hostSettingsProvider).statusEnabled);
     statusSite.on = settings.useStatusSite;
+    ref.listen(hostSettingsProvider.select((h) => h.statusEnabled), (_, on) {
+      statusSite.on = on;
+      if (state.settings.useStatusSite != on) state = state.copyWith(settings: state.settings.copyWith(useStatusSite: on));
+    });
     return DeskState(settings: settings);
   }
 
@@ -308,6 +314,9 @@ class DeskController extends Notifier<DeskState> {
     s = _keepTourSeen(s);
     state = state.copyWith(settings: s);
     statusSite.on = s.useStatusSite;
+    if (ref.read(hostSettingsProvider).statusEnabled != s.useStatusSite) {
+      await ref.read(hostSettingsProvider.notifier).set('status.enabled', s.useStatusSite);
+    }
     await api.saveSettings(s);
     await ref.read(deskStoreProvider)?.saveSettings(s);
     if (state.account != null) {

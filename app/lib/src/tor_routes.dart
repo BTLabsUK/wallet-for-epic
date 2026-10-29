@@ -38,7 +38,7 @@ enum TorRoute {
   /// The node the wallet reads the chain from and posts to.
   node,
 
-  /// The app's own requests: status.btlabs.uk, the price, the update check, support reports
+  /// The app's own requests: the status site, the price, the update check, support reports
   /// and the relay probes.
   appHttp,
 

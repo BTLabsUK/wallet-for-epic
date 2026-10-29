@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The Node and Epicbox lists the phone and the desktop share: one editable list per kind,
-/// seeded from the built-in servers and status.btlabs.uk, then the user's.
+/// The Node and Epicbox lists the phone and the desktop share: one editable list per kind, the
+/// settings file's (`server_list_file.dart`), which the status site's servers join.
 ///
 /// A list is its [ServerList.entries] (values in list order: a node URL or a relay label) and
 /// [ServerList.removed] (keys of public servers the user took out, so a directory update does
-/// not bring them back until "Restore removed servers"). Nothing here reads or writes a store
-/// or the network: each app keeps its list where it keeps its settings.
+/// not bring them back until "Restore removed servers"). Nothing here reads or writes a file
+/// or the network.
 library;
 
 import 'dart:convert';

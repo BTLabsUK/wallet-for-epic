@@ -64,7 +64,7 @@ final localNodeControllerProvider = FutureProvider.family<LocalNodeController, C
     peersHeight: () async => medianPeerHeight(await (await ref.read(localNodeApiProvider(chain).future)).connectedPeers()),
   );
   await controller.load();
-  // Turning status.btlabs.uk off drops the tip it gave; the directory asks no more.
+  // Turning the status site off drops the tip it gave; the directory asks no more.
   ref.listen(useStatusSiteProvider, (_, on) {
     if (!on) controller.forgetDirectoryTip();
   });

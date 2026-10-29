@@ -277,6 +277,14 @@ set hostSettings(HostSettings s) => _current = s;
 
 bool get hostSettingsLoaded => _current != null;
 
+HostSettings? _shippedCurrent;
+
+/// The shipped file's settings of the file in use ("Reset to defaults", "Restore removed", the
+/// public servers); [hostSettings] where none was opened (tests).
+HostSettings get shippedHostSettings => _shippedCurrent ?? hostSettings;
+
+set shippedHostSettings(HostSettings s) => _shippedCurrent = s;
+
 // --- reading a text ------------------------------------------------------------------------
 
 /// The text is not valid TOML: nothing of it is used.
@@ -421,6 +429,8 @@ List<UnknownKey> _unknownKeys(Map<String, dynamic> doc, TomlScan scan) {
   final out = <UnknownKey>[];
   for (final e in doc.entries) {
     final top = e.key;
+    // The web demo's own table (faucet, page hosts): its server reads it, the wallet does not.
+    if (top == 'demo') continue;
     if (settingsKeysByPath.containsKey(top)) continue;
     if (!settingsTables.contains(top) || e.value is! Map) {
       out.add(UnknownKey(top, scan.lineOf([top])));

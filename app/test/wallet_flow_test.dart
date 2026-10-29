@@ -35,6 +35,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:flutter_test/flutter_test.dart';
 
 const _mainnetDir = '/fake/wallets/mainnet';
@@ -455,8 +457,9 @@ void main() {
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(service.createdConfig?.chain, Chain.usernet);
-      expect(service.createdConfig?.nodeUrl, 'http://127.0.0.1:23413');
-      expect(service.createdConfig?.epicboxPort, 3423);
+      // Its node and Epicbox server come from usernet's own settings file; a test opens none, so
+      // the settings in use stay.
+      expect(service.createdConfig?.nodeUrl, hostSettings.nodeUse);
     });
   });
 
@@ -497,7 +500,7 @@ void main() {
 
     await _tap(tester, row);
     await _tap(tester, find.byKey(serverListSwitchKey));
-    expect(device.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
+    expect(ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first)).read(hostSettingsProvider).epicboxUse, 'epicbox.epicnet.us');
     await _tapText(tester, 'Create a new wallet');
     await _enter(tester, 'PIN', _pin);
     await _enter(tester, 'Repeat PIN', _pin);

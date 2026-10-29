@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'package:flutter_test/flutter_test.dart';
 
 final _sample = File('test/fixtures/status_btlabs_2026-10-22.json').readAsStringSync();
@@ -212,16 +213,16 @@ void main() {
   });
 
   group('phone setting', () {
-    test('on by default, saved, and applied to the switch', () async {
+    test('on by default, kept in the settings file, and applied to the switch', () async {
       final store = MemorySecretStore();
       final container = ProviderContainer(overrides: [secretStoreProvider.overrideWithValue(store)]);
       addTearDown(container.dispose);
       expect((await container.read(appSettingsProvider.future)).useStatusSite, isTrue);
-      expect(await readUseStatusSite(store), isTrue);
+      expect(container.read(hostSettingsProvider).statusEnabled, isTrue);
       await container.read(appSettingsProvider.notifier).setUseStatusSite(false);
       expect(statusSite.on, isFalse);
       expect(container.read(appSettingsProvider).value!.useStatusSite, isFalse);
-      expect(await readUseStatusSite(store), isFalse);
+      expect(container.read(hostSettingsProvider).statusEnabled, isFalse, reason: 'written to the settings file');
       statusSite.on = true;
       container.invalidate(appSettingsProvider);
       expect((await container.read(appSettingsProvider.future)).useStatusSite, isFalse);

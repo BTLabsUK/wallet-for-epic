@@ -22,7 +22,7 @@ final nodeInfoServiceProvider = Provider<NodeInfoService>((ref) {
 /// [NodeInfo] of a node URL on a network preset's chain. Refresh with `ref.invalidate`.
 final nodeInfoProvider = FutureProvider.autoDispose.family<NodeInfo, ({String url, NetworkPreset preset})>(
   (ref, key) {
-    // Read again when status.btlabs.uk is turned on or off.
+    // Read again when the status site is turned on or off.
     ref.watch(useStatusSiteProvider);
     return ref.watch(nodeInfoServiceProvider).info(key.url, chain: key.preset.statusChain);
   },

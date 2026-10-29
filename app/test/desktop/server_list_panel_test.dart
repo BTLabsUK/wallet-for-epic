@@ -22,10 +22,15 @@ import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/server_icons.dart';
+import 'package:epic_wallet/src/server_list_file.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
+import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/ui/server_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/test_settings.dart';
 
 /// The fixture PNG for an icon URL, by its hash.
 Future<Uint8List?> _fixtureIcon(Uri url) async {
@@ -69,6 +74,9 @@ void main() {
   setUp(() {
     secrets = MemorySecretStore();
     probe = FakeRelayProbe();
+    // Empty lists in the settings file: the mock wallet's servers fill them, as a first run's
+    // public servers would.
+    hostSettings = testSettings().withValues({'node.servers': const <Object>[], 'epicbox.servers': const <Object>[]});
     container = make();
   });
 
@@ -423,9 +431,11 @@ void main() {
     await end(tester);
   });
 
-  group('the stored list', () {
+  group('the list in the settings file', () {
     test('directory servers join as they are seen; removed ones stay out until restored', () async {
-      final n = container.read(deskServerListProvider(ServerKind.relay).notifier);
+      final c = make();
+      addTearDown(c.dispose);
+      final n = c.read(deskServerListProvider(ServerKind.relay).notifier);
       await n.sync(const DeskServerSource(public: ['a.example', 'b.example'], inUse: 'a.example'));
       expect(n.state!.entries, ['a.example', 'b.example']);
       await n.remove('b.example');
@@ -434,36 +444,18 @@ void main() {
       expect(n.state!.restorable(ServerKind.relay, ['a.example', 'b.example', 'c.example']), ['b.example']);
       await n.restore(['a.example', 'b.example', 'c.example']);
       expect(n.state!.entries, ['a.example', 'c.example', 'b.example']);
-      expect(await DeskStore(secrets).serverList(ServerKind.relay, 'mainnet'), n.state, reason: 'kept in the desk store');
+      expect(serverListOf(c.read(hostSettingsProvider), ServerKind.relay), n.state, reason: 'written to the settings');
     });
 
-    test('a store that cannot be written: the list still shows, sync never throws (WIN-4)', () async {
-      secrets = _RefusingStore();
+    test('a server the user typed in has no operator in the file; a directory one has its own', () async {
       final c = make();
       addTearDown(c.dispose);
-      final n = c.read(deskServerListProvider(ServerKind.relay).notifier);
-      await n.sync(const DeskServerSource(public: ['a.example'], inUse: 'a.example'));
-      expect(n.state!.entries, ['a.example']);
-    });
-
-    test('the first list carries the old My nodes and removedNodes; later starts read what was kept', () async {
-      final old = [
-        const NodeServer(url: _btlabs, label: 'BT Labs'),
-        const NodeServer(url: _epiccash, label: 'Epic Cash'),
-        const NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', own: true),
-        const NodeServer(url: 'http://10.0.0.9:3413', label: 'Office', own: true),
-      ];
-      final n = container.read(deskServerListProvider(ServerKind.node).notifier);
-      await n.sync(nodeSource(old, removedNodes: {_epiccash, 'http://10.0.0.9:3413'}, inUse: _btlabs));
-      expect(n.state!.entries, [_btlabs, 'http://10.0.1.24:3413'], reason: 'own nodes kept, removed ones out');
-      expect(n.state!.restorable(ServerKind.node, [_btlabs, _epiccash]), [_epiccash]);
-
-      // The next start reads the kept list: nothing seeds again.
-      final again = make();
-      addTearDown(again.dispose);
-      final m = again.read(deskServerListProvider(ServerKind.node).notifier);
-      await m.sync(nodeSource(old, inUse: _btlabs));
-      expect(m.state!.entries, [_btlabs, 'http://10.0.1.24:3413']);
+      final n = c.read(deskServerListProvider(ServerKind.node).notifier);
+      await n.sync(nodeSource(const [NodeServer(url: 'https://node.example.org', label: 'Ex', operator: 'Example')], inUse: 'https://node.example.org'));
+      await n.add('http://10.0.1.24:3413', own: true);
+      final servers = c.read(hostSettingsProvider).nodeServers;
+      expect([for (final s in servers) (s.url, s.operator)], [('https://node.example.org', 'Example'), ('http://10.0.1.24:3413', null)]);
+      expect(n.state!.isAddedByUser(ServerKind.node, 'http://10.0.1.24:3413'), isTrue);
     });
 
     test('an own node keeps its label as the row\'s operator', () {
@@ -474,8 +466,4 @@ void main() {
   });
 }
 
-/// A secret store whose writes fail, as a read-only store file does on Windows.
-class _RefusingStore extends MemorySecretStore {
-  @override
-  Future<void> write(String key, String value) async => throw const FileSystemException('MoveFileEx failed (5)');
-}
+

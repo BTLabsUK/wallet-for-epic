@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../../network.dart' show mainnetPreset;
+import '../../../settings_file/host_settings.dart' show shippedHostSettings;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -275,8 +276,9 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   ServerPanelDemo? get _panelDemo => switch (widget.arg) {
     NodeDemo.typed => const ServerPanelDemo(query: 'node.example.org:3413'), // l10n-ok: a node address
     NodeDemo.badAddress => const ServerPanelDemo(query: 'my home node', submit: true), // l10n-ok: what a user might type
-    NodeDemo.removed => const ServerPanelDemo(remove: 'https://epic-node.iniaku.my.id'), // l10n-ok: a node address
-    NodeDemo.picked => const ServerPanelDemo(pick: 'https://node.epicnet.us:3413'), // l10n-ok: a node address
+    // The shipped list's last and second nodes.
+    NodeDemo.removed => ServerPanelDemo(remove: shippedHostSettings.nodeServers.last.url),
+    NodeDemo.picked => ServerPanelDemo(pick: shippedHostSettings.nodeServers.elementAtOrNull(1)?.url ?? shippedHostSettings.nodeUse),
     _ => null,
   };
 
@@ -467,7 +469,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
                       return c.own ? ownLabel(l, c, url) : null;
                     }),
-                    source: nodeSource(nodes, removedNodes: prefs.removedNodes, inUse: prefs.builtin ? null : current.url),
+                    source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
                     // Advanced › Built-in node; the node in use stays listed.
                     local: DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin) ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
                     listNote: nodeListNoteText(l),

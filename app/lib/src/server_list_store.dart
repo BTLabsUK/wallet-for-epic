@@ -1,64 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's Node and Epicbox lists ([ServerList], shared with the desktop), kept in the
-/// secret store: one JSON object per kind and chain under `app.serverList.<kind>.<chain>`.
+/// The phone's Node and Epicbox lists ([ServerList], shared with the desktop): the settings
+/// file's `[node]` and `[epicbox]` lists (`server_list_file.dart`). The file is the chain's
+/// own (a dev chain has its own file), so a list belongs to the chain the app runs on.
 ///
-/// A first use seeds the list from the built-in servers and what the old "My nodes" / "My
-/// servers" lists held; the sheets add the directory's servers as they are seen.
+/// The sheets add the directory's servers as they are seen; "Restore removed servers" and
+/// "Reset to defaults" take the shipped file's.
 library;
-
-import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'models.dart' show Chain;
 import 'network.dart';
-import 'providers.dart';
 import 'public_servers.dart';
 import 'server_list.dart';
+import 'server_list_file.dart';
+import 'settings_file/settings_providers.dart';
 
 export 'server_list.dart';
 
-/// The secret-store key of a kind's list on a chain.
-String serverListKey(ServerKind kind, Chain chain) => 'app.serverList.${kind.name}.${chain.name}';
+/// The public nodes of a network: the shipped settings' (of the chain the app runs on).
+List<PublicNode> builtInNodesFor(NetworkPreset preset) => builtInNodes;
 
-/// Where 26.10.11 and older kept the nodes the user added (a JSON list of addresses); read
-/// once, into the first list.
-String myNodesKey(Chain chain) => 'app.myNodes.${chain.name}';
+/// The public relays of a network: the shipped settings'.
+List<PublicRelay> builtInRelaysFor(NetworkPreset preset) => builtInRelays;
 
-/// Where 26.10.11 and older kept the relays the wallet used (a JSON list of labels).
-String myRelaysKey(Chain chain) => 'app.myRelays.${chain.name}';
+/// The shipped servers of a kind, as list values.
+List<String> builtInValues(ServerKind kind, Chain chain) => shippedServers(kind);
 
-/// The built-in nodes of a network: the public mainnet list, else the network's own node.
-List<PublicNode> builtInNodesFor(NetworkPreset preset) => preset.chain == Chain.mainnet
-    ? builtInNodes
-    : [PublicNode(url: preset.nodeUrl, operator: preset.chain == Chain.floonet ? 'BT Labs' : '')];
-
-/// The built-in relays of a network: the public mainnet list and BT Labs' relay, else the
-/// network's own relay (on floonet that is BT Labs' relay).
-List<PublicRelay> builtInRelaysFor(NetworkPreset preset) => preset.chain == Chain.mainnet
-    ? [
-        ...builtInRelays,
-        const PublicRelay(
-          relay: EpicboxRelay(host: btlabsRelayHost),
-          operator: 'BT Labs',
-        ),
-      ]
-    : [
-        PublicRelay(
-          relay: preset.defaultRelay,
-          operator: preset.chain == Chain.floonet ? 'BT Labs' : '',
-        ),
-      ];
-
-/// The built-in servers of a kind on a chain, as list values.
-List<String> builtInValues(ServerKind kind, Chain chain) {
-  final preset = networkPresets.firstWhere((p) => p.chain == chain);
-  return kind == ServerKind.node
-      ? [for (final n in builtInNodesFor(preset)) n.url]
-      : [for (final r in builtInRelaysFor(preset)) r.relay.label];
-}
-
-/// The user's list of a kind on a chain.
+/// The user's list of a kind on a chain: the settings file's.
 final serverListProvider =
     AsyncNotifierProvider.family<ServerListNotifier, ServerList, (ServerKind, Chain)>(
       ServerListNotifier.new,
@@ -73,40 +42,21 @@ class ServerListNotifier extends AsyncNotifier<ServerList> {
   Chain get chain => arg.$2;
 
   @override
-  Future<ServerList> build() async {
-    final store = ref.watch(secretStoreProvider);
-    final saved = ServerList.decode(await store.read(serverListKey(kind, chain)));
-    if (saved != null) return saved;
-    // First use (or a broken record): the built-in servers, then what the old list held.
-    final carried = <String>[];
-    final old = await store.read(kind == ServerKind.node ? myNodesKey(chain) : myRelaysKey(chain));
-    if (old != null) {
-      try {
-        final decoded = jsonDecode(old);
-        if (decoded is List) {
-          for (final e in decoded) {
-            if (e is String && e.isNotEmpty) carried.add(e);
-          }
-        }
-      } on FormatException {
-        // Nothing to carry over.
-      }
-    }
-    final seeded = ServerList.seed(kind, builtInValues(kind, chain), carried: carried);
-    await store.write(serverListKey(kind, chain), seeded.encode());
-    return seeded;
-  }
+  Future<ServerList> build() async => serverListOf(ref.watch(hostSettingsProvider), kind);
 
-  Future<void> _apply(ServerList Function(ServerList now) change) async {
+  Future<void> _apply(ServerList Function(ServerList now) change, {Map<String, String> operators = const {}}) async {
     final now = await future;
     final next = change(now);
     if (next == now) return;
     state = AsyncData(next);
-    await ref.read(secretStoreProvider).write(serverListKey(kind, chain), next.encode());
+    final settings = ref.read(hostSettingsProvider.notifier);
+    await settings.setAll(serverListValues(ref.read(hostSettingsProvider), kind, next, operators: operators));
   }
 
-  /// Directory servers seen now: those neither listed nor removed join the end.
-  Future<void> absorb(Iterable<String> public) => _apply((l) => l.absorb(kind, public));
+  /// Directory servers seen now: those neither listed nor removed join the end, with who
+  /// runs them ([operators], by [serverKeyOf]).
+  Future<void> absorb(Iterable<String> public, {Map<String, String> operators = const {}}) =>
+      _apply((l) => l.absorb(kind, public), operators: operators);
 
   /// Adds [value] at [at], else last; it is no longer removed. [own]: the user typed it in.
   Future<void> add(String value, {int? at, bool own = false}) => _apply((l) => l.add(kind, value, at: at, own: own));
@@ -123,7 +73,10 @@ class ServerListNotifier extends AsyncNotifier<ServerList> {
   }
 
   /// Forgets every removal and puts the [public] servers back.
-  Future<void> restore(Iterable<String> public) => _apply((l) => l.restore(kind, public));
+  Future<void> restore(Iterable<String> public) => _apply((l) => restoreRemoved(kind, l, public));
+
+  /// Replaces the whole list (a settings backup read back).
+  Future<void> replace(ServerList list) => _apply((_) => list);
 }
 
 /// After a switch: the servers the wallet moved onto are in their lists, whichever way they

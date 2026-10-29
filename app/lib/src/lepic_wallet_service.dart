@@ -32,6 +32,7 @@ import 'network_gate.dart';
 import 'relay_block.dart' show refusedHandshake;
 import 'redact.dart';
 import 'secret_store_api.dart';
+import 'settings_file/host_settings.dart';
 import 'wallet_service.dart';
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS, Linux and
@@ -822,7 +823,9 @@ class LepicWalletService implements WalletService {
   static Future<lepic.WalletConfig> lepicConfigOf(WalletConfig config) => _lepicConfig(config, config.dataDir);
 
   /// A plain-http node on the local network goes to LEPIC through a loopback relay
-  /// ([lanNodeUrl]): LEPIC refuses plain http to anything but loopback.
+  /// ([lanNodeUrl]): LEPIC refuses plain http to anything but loopback. The onion routes are
+  /// the settings file's TLS ones ([settingsOnionRoutes]) from the first connection; the app
+  /// replaces them later with [WalletSession.setOnionRoutes] (the signed list).
   static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
         dataDir: dataDir,
@@ -831,7 +834,19 @@ class LepicWalletService implements WalletService {
         nodeApiSecret: config.nodeApiSecret,
         epicboxDomain: config.epicboxDomain,
         epicboxPort: config.epicboxPort,
+        onionRoutes: [
+          for (final r in settingsOnionRoutes())
+            lepic.OnionRoute(host: r.host, port: r.port, onion: r.onion, onionPort: r.onionPort),
+        ],
       );
+
+  /// The settings file's onion routes LEPIC takes: TLS ones only (the connection still checks
+  /// the host's certificate). None before the settings are open (a bare core check).
+  static List<OnionRoute> settingsOnionRoutes() => [
+    if (hostSettingsLoaded)
+      for (final r in hostSettings.torOnions)
+        if (r.tls) r,
+  ];
 
   /// `<anything>/wallets/<32 hex>`, the folder of a registry wallet.
   static final RegExp _registryFolder = RegExp(
@@ -954,12 +969,12 @@ class LepicWalletService implements WalletService {
 
   @override
   bool validateEpicboxAddress({required String address}) => lepic
-      .validateEpicboxAddress(address: address, chain: _lepicChain(_chain));
+      .validateEpicboxAddress(address: lepicEpicboxAddress(address), chain: _lepicChain(_chain));
 
   @override
   bool epicboxAddressOtherChain({required String address}) =>
       lepic.validateEpicboxAddress(
-        address: address,
+        address: lepicEpicboxAddress(address),
         chain: _lepicChain(_chain) == lepic.Chain.mainnet
             ? lepic.Chain.floonet
             : lepic.Chain.mainnet,
@@ -1542,7 +1557,7 @@ class LepicWalletSession implements WalletSession {
       tx = await _wallet.sendEpicbox(
         amount: amount,
         minimumConfirmations: minimumConfirmations,
-        address: address,
+        address: lepicEpicboxAddress(address),
         message: _message(message),
         options: await _optionsFor(amount, minimumConfirmations, options),
       );
@@ -1990,7 +2005,7 @@ class LepicWalletSession implements WalletSession {
           // The contact form's checks, as the contacts file import uses.
           checks: AddressChecks(
             epicbox: (a) => lepic.validateEpicboxAddress(
-              address: a,
+              address: lepicEpicboxAddress(a),
               chain: _lepicChain(_history.chain),
             ),
             onion: (a) => lepic.validateOnionAddress(address: a),
@@ -2743,12 +2758,15 @@ class _LepicPairing implements PairingApi {
 
   final StreamController<PairingEvent> _events = StreamController<PairingEvent>.broadcast();
 
-  /// The Connection servers (`host[:port]`) words meet on, or null for LEPIC's built-in list.
-  // ignore: unused_field -- read once LEPIC takes the per-call `meeting_relays` (see makeInvite and openWords)
-  List<String>? _meetingRelays;
+  /// The Connection servers (`host[:port]`) words meet on: the app's, else the settings file's
+  /// `pairing.servers`. LEPIC has none of its own.
+  List<String>? _connectionServers;
+
+  List<String> get _meetingRelays =>
+      _connectionServers ?? (hostSettingsLoaded ? hostSettings.pairingServers : const <String>[]);
 
   @override
-  void setConnectionServers(List<String>? hosts) => _meetingRelays = hosts == null ? null : List.unmodifiable(hosts);
+  void setConnectionServers(List<String>? hosts) => _connectionServers = hosts == null ? null : List.unmodifiable(hosts);
 
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
@@ -2931,8 +2949,8 @@ class _LepicPairing implements PairingApi {
     String? label,
     String? contactId,
   }) => _call(() async {
-    // Words meet on the Connection servers (null: LEPIC's built-in list). In Tor only they
-    // wait for tor: the words go to the meeting relays.
+    // Words meet on the Connection servers (the settings file's). In Tor only they wait for
+    // tor: the words go to the meeting relays.
     if (words) checkTorReady('pairing words');
     final invite = await _w.pairingInvite(
       name: name.trim(),
@@ -3369,6 +3387,8 @@ class _LepicPairing implements PairingApi {
           expiry: lepic.InviteExpiry.oneHour,
           offerWords: false,
           relayMode: lepicRelayMode(),
+          // No words: no meeting relay is asked.
+          meetingRelays: const [],
           homeRelay: homeRelay,
           pairingClass: lepic.PairingClass.private,
         );
@@ -3511,3 +3531,11 @@ class _LepicPairing implements PairingApi {
 
 /// LEPIC's armored sealed text (RFC 3.5): `BEGINEPICSEALED` after optional whitespace.
 bool isSealedLepicText(String text) => text.trimLeft().startsWith('BEGINEPICSEALED');
+
+/// [address] with its Epicbox server: a bare key names the settings' `epicbox.default`. LEPIC
+/// refuses an address without one and has no default of its own.
+String lepicEpicboxAddress(String address) {
+  final a = address.trim();
+  if (a.isEmpty || a.contains('@') || a.contains('://') || !hostSettingsLoaded) return address;
+  return '$a@${hostSettings.epicboxDefault}';
+}

@@ -11,7 +11,6 @@ import '../../devices/device_model.dart';
 import '../../devices/device_service.dart';
 import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
-import '../../models.dart' show Chain;
 import '../../providers.dart';
 import '../../server_list.dart';
 import '../badge.dart';
@@ -52,13 +51,13 @@ String linkFailureText(AppLocalizations l, LinkFailure f) => switch (f) {
   LinkFailure.unsupported => l.devicesUnsupported,
 };
 
-/// The servers a new link proposes here: the link's set, else this wallet's server and one of
-/// another operator.
+/// The servers a new link proposes here: the link's set, else this wallet's server and the
+/// settings' next link server.
 List<String> phoneLinkServers(WidgetRef ref) {
   final config = ref.read(walletConfigProvider);
   final defaults = config == null
       ? const <String>[]
-      : defaultLinkServers(ownHost: config.epicboxDomain, ownPort: config.epicboxPort, mainnet: config.chain == Chain.mainnet);
+      : defaultLinkServers(ownHost: config.epicboxDomain, ownPort: config.epicboxPort);
   return ref.read(deviceServiceProvider)?.linkServers(defaults) ?? defaults;
 }
 
@@ -69,7 +68,7 @@ Future<void> pickLinkServers(BuildContext context, WidgetRef ref, {required List
   final config = ref.read(walletConfigProvider);
   final defaults = config == null
       ? chosen
-      : defaultLinkServers(ownHost: config.epicboxDomain, ownPort: config.epicboxPort, mainnet: config.chain == Chain.mainnet);
+      : defaultLinkServers(ownHost: config.epicboxDomain, ownPort: config.epicboxPort);
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,

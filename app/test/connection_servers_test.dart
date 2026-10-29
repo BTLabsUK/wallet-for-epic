@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/relay_directory.dart' show NodeHealthState;
 import 'package:epic_wallet/src/server_list.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _cash = 'epicbox.epiccash.com';
@@ -20,34 +21,27 @@ ConnectionServersLine _line(
   bool offline = false,
 }) => connectionServersLine(
   chosen: chosen,
-  defaults: defaultConnectionServers(Chain.mainnet),
+  defaults: const [_cash, _stack, _floo],
   health: health,
   epicboxOff: epicboxOff,
   offline: offline,
 );
 
 void main() {
-  test('the defaults are the three meeting relays on mainnet; floonet and usernet have none and hide the setting', () {
-    expect(defaultConnectionServers(Chain.mainnet), [_cash, _stack, _floo]);
+  test('the defaults are the settings file\'s meeting relays; with none the setting hides', () {
+    expect(defaultConnectionServers(Chain.mainnet), hostSettings.pairingServers);
     expect(connectionServersShown(Chain.mainnet), isTrue);
-    expect(connectionServersShown(Chain.floonet), isFalse);
-    expect(connectionServersShown(Chain.usernet), isFalse);
   });
 
-  test('a stored set decodes to at most three valid servers, each once; anything else is the defaults', () {
-    expect(decodeConnectionServers(null), isNull);
-    expect(decodeConnectionServers('not json'), isNull);
-    expect(decodeConnectionServers('[]'), isNull);
-    expect(decodeConnectionServers('["not a server"]'), isNull);
-    expect(decodeConnectionServers('["$_cash","$_cash","wss://$_net/","a.example.org","b.example.org"]'), [_cash, _net, 'a.example.org']);
-    expect(encodeConnectionServers([_cash, _net]), '["$_cash","$_net"]');
+  test('a set is kept as at most three valid servers, each once, none local', () {
+    expect(cleanConnectionServers(const []), isEmpty);
+    expect(cleanConnectionServers(['not a server']), isEmpty);
+    expect(cleanConnectionServers([_cash, _cash, 'wss://$_net/', 'a.example.org', 'b.example.org']), [_cash, _net, 'a.example.org']);
+    expect(cleanConnectionServers(['127.0.0.1:3423', _cash]), [_cash]);
   });
 
-  test('the defaults, in any order, store nothing; any other set is stored', () {
-    expect(storableConnectionServers(Chain.mainnet, [_cash, _stack, _floo]), isNull);
-    expect(storableConnectionServers(Chain.mainnet, [_cash, _stack]), [_cash, _stack]);
-    expect(storableConnectionServers(Chain.mainnet, [_cash, _net, _floo]), [_cash, _net, _floo]);
-    expect(connectionServersIn(Chain.mainnet, null), [_cash, _stack, _floo]);
+  test('the set in force is the file\'s, else the defaults', () {
+    expect(connectionServersIn(Chain.mainnet, null), hostSettings.pairingServers);
     expect(connectionServersIn(Chain.mainnet, [_net]), [_net]);
   });
 

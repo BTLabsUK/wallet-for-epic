@@ -402,6 +402,7 @@ Future<HistoryPayload> decodeFile(WidgetTester tester, String phrase, Uint8List 
         nodeUrl: 'http://127.0.0.1:9',
         epicboxDomain: preset.epicboxDomain,
         epicboxPort: preset.epicboxPort,
+        onionRoutes: const [],
       ),
       store: lepic.lepicSecretStore(_MemoryLepicStore()),
       mnemonic: phrase,

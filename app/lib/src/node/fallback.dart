@@ -8,11 +8,12 @@
 /// and moves its node setting when the answer changes).
 library;
 
+import '../settings_file/host_settings.dart';
 import 'local_node_state.dart';
 
-/// The public node the fallback offers by default while the local node syncs
-/// 2026-10-22: node.epiccash.com, changeable; no node is the wallet's own).
-const String defaultFallbackNodeUrl = 'https://node.epiccash.com:3413';
+/// The public node the fallback offers by default while the local node syncs: the settings
+/// file's `node.fallback` (changeable; no node is the wallet's own).
+String get defaultFallbackNodeUrl => hostSettings.nodeFallback;
 
 enum FallbackConsent {
   /// Not asked yet: the first time the local node syncs, the user is asked.
@@ -25,14 +26,18 @@ enum FallbackConsent {
 
 /// The user's answer, with the node it was about. Stored by [NodeSettings].
 class FallbackChoice {
-  const FallbackChoice(this.consent, {this.nodeUrl = defaultFallbackNodeUrl, this.at});
+  // The parameter keeps its public name; the field is private behind [nodeUrl].
+  // ignore: prefer_initializing_formals
+  const FallbackChoice(this.consent, {String? nodeUrl, this.at}) : _nodeUrl = nodeUrl;
 
   const FallbackChoice.unasked() : this(FallbackConsent.unasked);
 
   final FallbackConsent consent;
 
-  /// The public node the answer was about. A yes is for this node only.
-  final String nodeUrl;
+  /// The public node the answer was about ([defaultFallbackNodeUrl] when none was given). A
+  /// yes is for this node only.
+  String get nodeUrl => _nodeUrl ?? defaultFallbackNodeUrl;
+  final String? _nodeUrl;
   final DateTime? at;
 
   Map<String, Object?> toJson() => {
@@ -69,7 +74,7 @@ enum FallbackAction {
   /// The wallet uses [FallbackDecision.nodeUrl] until the local node is synced.
   usePublic,
 
-  /// Ask the user once ("Use node.epiccash.com until the local node is synced?"); meanwhile the
+  /// Ask the user once ("Use the fallback node until the local node is synced?"); meanwhile the
   /// wallet stays where it is.
   ask,
 }

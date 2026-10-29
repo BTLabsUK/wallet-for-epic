@@ -10,6 +10,7 @@ library;
 import 'dart:math';
 
 import '../models.dart' show DeviceEnding;
+import '../settings_file/host_settings.dart';
 
 /// The most devices one wallet links, this one included.
 const int maxLinkedDevices = 5;
@@ -507,13 +508,12 @@ class DeviceBook {
 
 DateTime? _time(Object? ms) => ms is num ? DateTime.fromMillisecondsSinceEpoch(ms.toInt()) : null;
 
-/// The servers a first link proposes: this wallet's Epicbox server, then on mainnet one
-/// built-in server of another operator (epiccash.com → stackwallet, stackwallet → epiccash.com,
-/// any other → stackwallet). Values as the server list writes them: `host`, or `host:port` off
-/// 443.
-List<String> defaultLinkServers({required String ownHost, int ownPort = 443, required bool mainnet}) {
+/// The servers a first link proposes: this wallet's Epicbox server, then the first of the
+/// settings' `devices.link_servers` that is not it ([servers] in tests). Values as the server
+/// list writes them: `host`, or `host:port` off 443.
+List<String> defaultLinkServers({required String ownHost, int ownPort = 443, List<String>? servers}) {
   final own = ownPort == 443 ? ownHost : '$ownHost:$ownPort';
-  if (!mainnet) return [own];
-  final other = ownHost.endsWith('stackwallet.com') ? 'epicbox.epiccash.com' : 'epicbox.stackwallet.com';
-  return other == ownHost ? [own] : [own, other];
+  String key(String v) => v.toLowerCase().endsWith(':443') ? v.substring(0, v.length - 4).toLowerCase() : v.toLowerCase();
+  final other = (servers ?? hostSettings.deviceLinkServers).where((v) => key(v) != key(own)).firstOrNull;
+  return other == null ? [own] : [own, other];
 }

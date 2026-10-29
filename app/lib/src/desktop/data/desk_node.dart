@@ -835,7 +835,7 @@ const List<String> mockNodeLog = [
   '20261022 13:58:01.112 INFO epic_servers::epic::server - Starting server, genesis block: 0000…', // l10n-ok: mock node log (log lines are English)
   '20261022 13:58:01.530 INFO epic_p2p::serv - P2P server started on 0.0.0.0:3414', // l10n-ok: mock node log (log lines are English)
   '20261022 13:58:04.882 INFO epic_servers::epic::sync::syncer - sync: waiting for peers', // l10n-ok: mock node log (log lines are English)
-  '20261022 13:58:12.301 WARN epic_p2p::peers - connect to 51.38.4.1:3414 timed out', // l10n-ok: mock node log (log lines are English)
+  '20261022 13:58:12.301 WARN epic_p2p::peers - connect to 198.51.100.4:3414 timed out', // l10n-ok: mock node log (log lines are English)
   '20261022 13:58:19.004 INFO epic_servers::epic::sync::header_sync - header sync: 1480200 of 3764975', // l10n-ok: mock node log (log lines are English)
   '20261022 14:01:44.770 ERROR epic_p2p::protocol - bad block from 203.0.113.9:3414, banning', // l10n-ok: mock node log (log lines are English)
   '20261022 14:02:00.010 INFO epic_servers::epic::sync::header_sync - header sync: 1482900 of 3764975', // l10n-ok: mock node log (log lines are English)

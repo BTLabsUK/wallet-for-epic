@@ -138,7 +138,7 @@ class _Store implements lepic.SecretStore {
 /// the same history files, so it reads what an export holds and seals a version 1 file.
 Future<lepic.EpicWallet> twinOf(String phrase, String dir) => lepic.EpicWallet.create(
   runtime: lepic.LepicRuntime(logLevel: lepic.LogLevel.warn),
-  config: lepic.WalletConfig(dataDir: dir, chain: lepic.Chain.floonet, nodeUrl: flooNode, epicboxDomain: flooRelay, epicboxPort: 443),
+  config: lepic.WalletConfig(dataDir: dir, chain: lepic.Chain.floonet, nodeUrl: flooNode, epicboxDomain: flooRelay, epicboxPort: 443, onionRoutes: const []),
   store: lepic.lepicSecretStore(_Store()),
   mnemonic: phrase,
   password: randomPassword(),

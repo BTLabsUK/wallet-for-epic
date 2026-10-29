@@ -70,7 +70,7 @@ class PanelServer {
   /// The row's operator text: the built-in name, else the label of an own node.
   final String? operator;
 
-  /// The operator as status.btlabs.uk names it: the tile's initials.
+  /// The operator as the status site names it: the tile's initials.
   final String? listedAs;
   final ServerIcon? icon;
 
@@ -719,10 +719,10 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     if (mounted) _say(context.l10n.slRestored);
   }
 
-  /// Seeds the list and keeps it in step with the directory, after the frame.
+  /// Keeps the list in step with the directory, after the frame.
   void _sync() {
     final s = widget.source;
-    final sig = '${s.public.join(' ')}|${s.carried.join(' ')}|${s.removed.join(' ')}|${s.inUse}|${s.keep.join(' ')}';
+    final sig = '${s.public.join(' ')}|${s.own.join(' ')}|${s.inUse}|${s.keep.join(' ')}';
     if (sig == _sourceSig) return;
     _sourceSig = sig;
     WidgetsBinding.instance.addPostFrameCallback((_) {

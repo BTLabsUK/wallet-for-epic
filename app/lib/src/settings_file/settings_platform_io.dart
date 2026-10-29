@@ -24,3 +24,7 @@ Future<SettingsBackend> platformSettingsBackend({required SecretStore store, Str
 
 /// Only the desktop watches the file: on the phone only the app writes it.
 bool get settingsWatchSupported => Platform.isLinux || Platform.isWindows || Platform.isMacOS;
+
+/// Where [backend]'s text is, for a message.
+String settingsWhere(SettingsBackend backend) =>
+    backend is FileSettingsBackend ? backend.file.path : backend.fileName;

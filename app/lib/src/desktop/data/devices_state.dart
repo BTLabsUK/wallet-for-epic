@@ -16,6 +16,7 @@ import '../../log.dart' show logWarn;
 import '../../models.dart' show Chain;
 import '../../network_gate.dart';
 import '../../providers.dart' show secretStoreProvider;
+import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../desk_l10n.dart';
 import 'state.dart';
 
@@ -112,24 +113,18 @@ final deskHeldProvider = Provider<List<({String device, int value})>>((ref) {
   return [for (final e in byDevice.entries) (device: e.key, value: e.value)];
 });
 
-/// The servers a first link proposes: this wallet's Epicbox server, then on mainnet one
-/// built-in server of another operator (epiccash.com → stackwallet, stackwallet → epiccash.com,
-/// any other → stackwallet). Values as the server list writes them: `host`, or `host:port` off
-/// 443.
-List<String> deskDefaultLinkServers({required String ownHost, int ownPort = 443, required bool mainnet}) {
-  final own = ownPort == 443 ? ownHost : '$ownHost:$ownPort';
-  if (!mainnet) return [own];
-  final other = ownHost.endsWith('stackwallet.com') ? 'epicbox.epiccash.com' : 'epicbox.stackwallet.com';
-  return other == ownHost ? [own] : [own, other];
-}
+/// The servers a first link proposes ([defaultLinkServers]): this wallet's Epicbox server, then
+/// the first of the settings' `devices.link_servers` that is not it.
+List<String> deskDefaultLinkServers({required String ownHost, int ownPort = 443, List<String>? servers}) =>
+    defaultLinkServers(ownHost: ownHost, ownPort: ownPort, servers: servers);
 
 /// [deskDefaultLinkServers] for the open wallet, from its Epicbox address.
 final deskLinkServersProvider = Provider<List<String>>((ref) {
   final address = ref.watch(deskProvider.select((s) => s.epicboxAddress)) ?? '';
-  final mainnet = ref.watch(deskProvider.select((s) => s.account?.network != 'floonet'));
+  final settings = ref.watch(hostSettingsProvider);
   final at = address.lastIndexOf('@');
-  final server = at < 0 ? 'epicbox.epiccash.com' : address.substring(at + 1);
+  final server = at < 0 ? settings.epicboxUse : address.substring(at + 1);
   final colon = server.lastIndexOf(':');
   final port = colon < 0 ? null : int.tryParse(server.substring(colon + 1));
-  return deskDefaultLinkServers(ownHost: port == null ? server : server.substring(0, colon), ownPort: port ?? 443, mainnet: mainnet);
+  return deskDefaultLinkServers(ownHost: port == null ? server : server.substring(0, colon), ownPort: port ?? 443, servers: settings.deviceLinkServers);
 });

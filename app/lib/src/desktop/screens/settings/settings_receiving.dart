@@ -9,7 +9,8 @@ import '../../data/method_names.dart';
 import '../../data/net_mode_view.dart' show netTorState;
 import '../../desk_l10n.dart';
 import '../../../net/probe_not_run.dart';
-import '../../../network.dart' show EpicboxRelay, defaultEpicboxHost;
+import '../../../network.dart' show EpicboxRelay;
+import '../../../settings_file/host_settings.dart' show shippedHostSettings;
 import '../../../send_preflight.dart' show relayProbeProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -499,13 +500,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               fieldText: relayLabel(box),
               fieldSub: box.operator,
               tone: epicboxTone(status.epicboxHealth),
-              servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: defaultEpicboxHost),
+              servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: EpicboxRelay.parse(shippedHostSettings.epicboxUse)?.label ?? shippedHostSettings.epicboxUse),
               source: relaySource(boxes, inUse: relayLabel(box)),
               listNote: st.settings.useStatusSite ? l.deskSetRecvListNote : null,
               busy: _switching,
               busyLabel: l.deskSetRecvSwitchingServer,
               openInitially: widget.arg == ReceivingDemo.comboOpen,
-              demo: widget.arg == ReceivingDemo.picked ? const ServerPanelDemo(pick: 'epicbox.stackwallet.com') : null, // l10n-ok: a relay host
+              demo: widget.arg == ReceivingDemo.picked ? ServerPanelDemo(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
               onChoose: _switch,
               onTest: _test,
             ),

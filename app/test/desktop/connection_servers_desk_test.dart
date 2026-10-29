@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/connection_servers_row.
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show shippedHostSettings;
 import 'package:flutter_test/flutter_test.dart';
 
 late ProviderContainer _container;
@@ -56,7 +57,7 @@ void main() {
     expect(find.byKey(connectionServersRowKey), findsNothing);
   });
 
-  testWidgets('the list takes ticks up to three; the set is kept, the defaults keep nothing', (tester) async {
+  testWidgets('the list takes ticks up to three; the set is kept in the settings file', (tester) async {
     await _open(tester);
     await tester.tap(find.text('epicbox.epiccash.com, epicbox.stackwallet.com, epicbox.btlabs.uk'));
     await _settle(tester);
@@ -66,7 +67,7 @@ void main() {
     await tester.tap(_row('epicbox.epicnet.us'));
     await _settle(tester);
     expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
-    expect(_container.read(deskPairingRelaysProvider), isNull);
+    expect(_container.read(deskPairingRelaysProvider), shippedHostSettings.pairingServers, reason: 'the settings file keeps the defaults');
 
     await tester.tap(_row('epicbox.btlabs.uk'));
     await _settle(tester);
@@ -84,7 +85,7 @@ void main() {
     expect(reset.bottom, lessThanOrEqualTo(tester.view.physicalSize.height), reason: 'the list keeps its foot in the window');
     await tester.tap(find.byKey(const ValueKey('server-list-reset')));
     await _settle(tester);
-    expect(_container.read(deskPairingRelaysProvider), isNull);
+    expect(_container.read(deskPairingRelaysProvider), shippedHostSettings.pairingServers);
     expect(find.text('3 servers · Defaults'), findsOneWidget);
     await tester.pump(const Duration(seconds: 9));
   });

@@ -47,7 +47,7 @@ SocksProxy? phoneTorSocks(PhoneTorState s) {
   return s.canSend && port != null ? SocksProxy('127.0.0.1', port) : null;
 }
 
-/// BT Labs' onion for a host from [onions] (the signed list in use), else the built-in table.
+/// The onion for a host from [onions] (the directory in use), else the settings file's.
 OnionLookup onionLookupOf(OnionDirectory onions) => (host, port) {
   final e = onions.onionFor(host, port);
   return e == null ? torBuiltInOnion(host, port) : (onion: e.onion, port: e.onionPort, tls: e.tls);

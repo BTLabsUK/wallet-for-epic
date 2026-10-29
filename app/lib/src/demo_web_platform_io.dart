@@ -11,3 +11,6 @@ DemoHttp browserDemoHttp() =>
 
 /// Nothing to change off the web.
 List<Override> webDemoOverrides() => const [];
+
+/// No demo settings off the web.
+Future<String?> demoSettingsText() async => null;

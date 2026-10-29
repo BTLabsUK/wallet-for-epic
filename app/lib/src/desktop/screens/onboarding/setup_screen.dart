@@ -4,7 +4,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../network.dart' show EpicboxRelay, defaultEpicboxHost;
+import '../../../network.dart' show EpicboxRelay;
+import '../../../settings_file/host_settings.dart' show hostSettings;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
@@ -76,7 +77,9 @@ class SetupScreen extends ConsumerStatefulWidget {
 
 class _SetupScreenState extends ConsumerState<SetupScreen> {
   /// The Epicbox server chosen (its label), and whether the wallet receives through Epicbox.
-  String _relay = defaultEpicboxHost;
+  /// It starts on the one every wallet uses (`epicbox.use`).
+  late final String _startRelay = EpicboxRelay.parse(hostSettings.epicboxUse)?.label ?? hostSettings.epicboxUse;
+  late String _relay = _startRelay;
   bool _epicboxOn = true;
   SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : _demo?.first;
   late final List<SetupStep> _steps = [if (DeskFeatures.languages && _first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
@@ -134,7 +137,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         if (!mounted) return;
         _currentNode = x.node.url;
         if (!_wasBuiltin && _nodeUrl == null) setState(() => _nodeUrl = x.node.url);
-        if (_relay == defaultEpicboxHost) setState(() => _relay = relayLabel(x.epicbox));
+        if (_relay == _startRelay) setState(() => _relay = relayLabel(x.epicbox));
       });
     }
     if (_rerun) {
@@ -154,20 +157,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     });
     api.epicboxes().then((b) {
       if (!mounted) return;
-      setState(() {
-        _boxes = b;
-        // A test network's own server when mainnet's default is not among its servers.
-        if (_relay == defaultEpicboxHost) _relay = _defaultRelay(b);
-      });
+      setState(() => _boxes = b);
     });
   }
 
-  /// The server a new wallet starts on: mainnet's default, or on a test network ([boxes]
-  /// without it) its first server (LNX-6).
-  static String _defaultRelay(List<EpicboxServer>? boxes) {
-    if (boxes == null || boxes.isEmpty || boxes.any((b) => b.domain == defaultEpicboxHost)) return defaultEpicboxHost;
-    return EpicboxRelay(host: boxes.first.domain, port: boxes.first.port).label;
-  }
 
   /// On a first run, until the user picks: the healthiest, then fastest node whose check came
   /// back healthy, in the neutral order (no hard-coded host, never by list position). A node
@@ -404,7 +397,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         ServiceHealth.down => ETone.risk,
       },
       servers: rows,
-      source: nodeSource(nodes ?? const [], removedNodes: ref.watch(settingsPrefsProvider).removedNodes, inUse: st.status?.node.url ?? _currentNode),
+      source: nodeSource(nodes ?? const [], inUse: st.status?.node.url ?? _currentNode),
       listNote: nodeListNoteText(l),
       chooseOnly: true,
       keepBelow: Ctl.md + Sp.x8,
@@ -471,7 +464,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final ts = context.ts;
     final boxes = _boxes;
     final l = context.l10n;
-    final rows = relayPanelRows(boxes ?? const [], defaultHost: _defaultRelay(boxes));
+    final rows = relayPanelRows(boxes ?? const [], defaultHost: _startRelay);
     final row = rows.where((r) => r.value == _relay).firstOrNull;
     // Ctrl+Enter is Continue; Enter on the server opens its list.
     return EForm(

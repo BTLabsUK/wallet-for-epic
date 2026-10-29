@@ -35,7 +35,10 @@ class SettingsFileController {
   }) async {
     final shipped = HostSettings.fromText(shippedText);
     final c = SettingsFileController._(backend, shippedText, shipped, publishGlobal, clock);
-    if (publishGlobal) hostSettings = shipped;
+    if (publishGlobal) {
+      hostSettings = shipped;
+      shippedHostSettings = shipped;
+    }
     await c._queued(c._open);
     if (watch) {
       c._watch = backend.changes()?.listen((_) {

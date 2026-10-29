@@ -15,6 +15,7 @@ import 'history/wallet_history.dart';
 import 'models.dart';
 import 'pairing_api.dart';
 import 'pairing_fake.dart';
+import 'settings_file/host_settings.dart' show hostSettings, hostSettingsLoaded;
 
 export 'models.dart';
 export 'pairing_api.dart';
@@ -1085,7 +1086,8 @@ class FakeWalletSession implements WalletSession {
   /// The pairing engine's fake, both sides in memory (`pairing_fake.dart`).
   @override
   late final FakePairing pairing = FakePairing(this);
-  String address = 'esFakeAddress1234567890@epicbox.epiccash.com';
+  /// On the settings' Epicbox server in use (the test settings' in tests).
+  late String address = 'esFakeAddress1234567890@${hostSettingsLoaded ? hostSettings.epicboxUse : 'relay.example.invalid'}';
   BigInt fee = BigInt.from(800000);
   Slate sendSlate = const Slate(slateId: 'slate-1', json: '{"id":"slate-1"}');
   Slate responseSlate = const Slate(

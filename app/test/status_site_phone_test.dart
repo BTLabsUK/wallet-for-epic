@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/public_servers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
-import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
@@ -16,7 +15,10 @@ import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/test_settings.dart';
 
 class _NoPrice implements PriceSource {
   const _NoPrice();
@@ -26,7 +28,10 @@ class _NoPrice implements PriceSource {
 }
 
 void main() {
-  tearDown(() => statusSite.on = true);
+  tearDown(() {
+    statusSite.on = true;
+    hostSettings = testSettings();
+  });
 
   for (final on in [false, true]) {
     testWidgets('first run, site ${on ? 'on but down' : 'off'}: built-in servers, no request${on ? ' storm' : ''}', (tester) async {
@@ -34,9 +39,9 @@ void main() {
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       final store = MemorySecretStore();
-      if (!on) store.values[AppSettingsNotifier.statusSiteKey] = 'false';
-      // As main.dart does before the first frame.
-      statusSite.loadFrom(readUseStatusSite(store));
+      // The settings file's switch, as main.dart follows it before the first frame.
+      hostSettings = testSettings().withValues({'status.enabled': on});
+      statusSite.followSettings();
       final hosts = <String>[];
       final directory = HttpRelayDirectory(
         get: (url, {timeout = defaultHttpTimeout}) async {

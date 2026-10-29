@@ -10,3 +10,7 @@ Future<SettingsBackend> platformSettingsBackend({required SecretStore store, Str
     StoreSettingsBackend(store, key: devChain == null ? 'app.settingsToml' : 'app.settingsToml.$devChain');
 
 bool get settingsWatchSupported => false;
+
+/// Where [backend]'s text is, for a message.
+String settingsWhere(SettingsBackend backend) =>
+    backend is StoreSettingsBackend ? 'the app store key ${backend.key}' : backend.fileName;

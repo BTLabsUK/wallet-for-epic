@@ -11,11 +11,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../connection_servers.dart' show decodeConnectionServers, encodeConnectionServers;
 import '../../log.dart';
 import '../../l10n.dart' show appLanguages;
 import '../../secret_store_api.dart';
-import '../../server_list.dart' show ServerKind, ServerList;
 import '../../settings.dart' show autoLockChoice;
 import 'models.dart';
 
@@ -159,24 +157,6 @@ class DeskStore {
     });
   }
 
-  /// The Node or Epicbox list ([ServerList]) of [chain], as `ServerList.encode()` writes it;
-  /// null before its first use (the panel seeds it then).
-  static String serverListKey(ServerKind kind, String chain) => 'desk.serverList.${kind.name}.$chain';
-
-  Future<ServerList?> serverList(ServerKind kind, String chain) async => ServerList.decode(await _secrets.read(serverListKey(kind, chain)));
-
-  Future<void> saveServerList(ServerKind kind, String chain, ServerList list) => _secrets.write(serverListKey(kind, chain), list.encode());
-
-  /// The Connection servers of [chain] (Settings › Advanced): a JSON list of `host[:port]`; null
-  /// while they are the defaults.
-  static String pairingRelaysKey(String chain) => 'desk.pairingRelays.$chain';
-
-  Future<List<String>?> pairingRelays(String chain) async => decodeConnectionServers(await _secrets.read(pairingRelaysKey(chain)));
-
-  /// Stores [hosts]; null (the defaults) removes the record.
-  Future<void> savePairingRelays(String chain, List<String>? hosts) =>
-      hosts == null ? _secrets.delete(pairingRelaysKey(chain)) : _secrets.write(pairingRelaysKey(chain), encodeConnectionServers(hosts));
-
   Future<Object?> readJson(String key) async {
     final text = await _secrets.read(key);
     if (text == null) return null;
@@ -288,7 +268,6 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'internetGuideSeen': s.internetGuideSeen,
   'tourSeen': s.tourSeen,
   'importWarningSeen': s.importWarningSeen,
-  'useStatusSite': s.useStatusSite,
   'autoLock': s.autoLockMinutes,
   'autoLockOn': s.autoLockOn,
   'publicMode': s.publicMode,
@@ -311,7 +290,6 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   final guide = j['internetGuideSeen'];
   final tour = j['tourSeen'];
   final importWarned = j['importWarningSeen'];
-  final site = j['useStatusSite'];
   // The key before 26.10.13 held a value nothing read: it is not taken over.
   final lock = j['autoLock'];
   final lockOn = j['autoLockOn'];
@@ -331,7 +309,6 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     internetGuideSeen: guide is bool ? guide : d.internetGuideSeen,
     tourSeen: tour is bool ? tour : d.tourSeen,
     importWarningSeen: importWarned is bool ? importWarned : d.importWarningSeen,
-    useStatusSite: site is bool ? site : d.useStatusSite,
     publicMode: public is bool ? public : d.publicMode,
     advanced: AdvancedPrefs.fromJson(j['advanced']),
     // Direct was Advanced's "Direct receiving" switch before 26.10.13.

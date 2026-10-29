@@ -16,6 +16,7 @@ import 'l10n.dart' show appLanguages;
 import 'network_gate.dart';
 import 'providers.dart';
 import 'relay_directory.dart' show statusSite;
+import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'models.dart' show SelectionStrategy;
 import 'secret_store.dart';
 import 'wallet_backend.dart' show hostIsPhone;
@@ -151,8 +152,8 @@ class AppSettings {
 
   final ThemeMode themeMode;
 
-  /// Server health and node lists from status.btlabs.uk (`statusSite`). Off, only the servers
-  /// themselves are asked.
+  /// Server health and node lists from the status site (`statusSite`): `status.enabled` of the
+  /// settings file. Off, only the servers themselves are asked.
   final bool useStatusSite;
 
   /// Show the technical controls: node, relay, block heights, transport, files and logs.
@@ -271,11 +272,6 @@ class AppSettings {
   );
 }
 
-/// The saved Use status.btlabs.uk choice, read before the first screen (`main.dart`), so an
-/// opted-out phone never asks the site while its settings load.
-Future<bool> readUseStatusSite(SecretStore store) async =>
-    await store.read(AppSettingsNotifier.statusSiteKey) != 'false';
-
 /// The network mode the phone runs in now (network_gate.dart): Standard, Tor only or Offline.
 /// Before the settings load, the mode read at launch.
 final networkModeProvider = Provider<NetworkMode>(
@@ -308,7 +304,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   static const String _qrMethodKey = 'app.qr_method_seen';
   static const String _strategyKey = 'app.send_strategy';
   static const String _splitChangeKey = 'app.split_change';
-  static const String statusSiteKey = 'app.status_site';
   static const String tipsHiddenKey = 'app.tips_hidden';
   static const String phoneTourSeenKey = 'app.phone_tour_seen';
   static const String importWarningSeenKey = 'app.import_warning_seen';
@@ -325,6 +320,8 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
   Future<AppSettings> build() async {
     final store = ref.watch(secretStoreProvider);
+    final site = ref.watch(hostSettingsProvider.select((s) => s.statusEnabled));
+    statusSite.on = site;
     const defaults = AppSettings();
     final theme = await store.read(_themeKey);
     final currency = await store.read(_currencyKey);
@@ -344,8 +341,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final tips = await store.read(tipsHiddenKey);
     final tourSeen = await store.read(phoneTourSeenKey);
     final importWarned = await store.read(importWarningSeenKey);
-    final site = await store.read(statusSiteKey) != 'false';
-    statusSite.on = site;
     Future<Map<String, int>> perChain(String Function(Chain) key) async => {
       for (final chain in Chain.values)
         chain.name: ?int.tryParse(await store.read(key(chain)) ?? ''),
@@ -563,14 +558,13 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> setNodeFailover(bool on) async =>
       setAdvanced((await _current()).advanced.withNodeFailover(on));
 
-  /// Settings › Privacy › Use status.btlabs.uk; applies at once ([statusSite]).
+  /// Settings › Privacy › Use the status site: `status.enabled` in the settings file; applies
+  /// at once ([statusSite]).
   Future<void> setUseStatusSite(bool on) async {
     statusSite.on = on;
-    await _put(
-      statusSiteKey,
-      '$on',
-      (await _current()).copyWith(useStatusSite: on),
-    );
+    final next = (await _current()).copyWith(useStatusSite: on);
+    await ref.read(hostSettingsProvider.notifier).set('status.enabled', on);
+    state = AsyncData(next);
   }
 
   Future<void> setAutoLockMinutes(int? minutes) async => _put(
