@@ -31,13 +31,13 @@ Future<SimpleKeyPair> testUpdateStrangerKey() =>
 Map<String, Object?> testApk({
   String abi = 'arm64-v8a',
   int versionCode = 2002,
-  String url = 'https://example.org/releases/v1.0.1/app-arm64-v8a-release.apk',
+  String? url,
   String? sha256,
   int size = 10,
 }) => {
   'abi': abi,
   'versionCode': versionCode,
-  'url': url,
+  'url': url ?? testApkUrl('app-arm64-v8a-release.apk'),
   'sha256': sha256 ?? 'a' * 64,
   'size': size,
 };
@@ -67,7 +67,7 @@ Map<String, Object?> testUpdatePayload({
   if (!notor) ...{'apks': apks ?? [testApk()], 'desktop': ?desktop},
   if (notor) ...{
     // The release with Tor, newer than anything a test offers: this build must never take it.
-    'apks': [testApk(versionCode: 2000000000, url: 'https://example.org/releases/v9.9.9/app-tor.apk')],
+    'apks': [testApk(versionCode: 2000000000, url: testApkUrl('app-tor.apk'))],
     'notor': {'apks': apks ?? [testApk()], 'desktop': ?desktop},
   },
 };
@@ -88,3 +88,6 @@ Future<String> signedUpdate(
     payloadType: payloadType,
   );
 }
+
+/// A phone APK at [name] in the update download folder, the only place one may be.
+String testApkUrl(String name) => '${walletUpdateDownloads!}$name';

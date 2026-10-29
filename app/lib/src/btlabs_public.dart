@@ -529,9 +529,9 @@ class WalletDesktopEntry {
   final WalletDesktopFile? file;
 }
 
-/// Where a desktop release file may be: the download folder of `app-config.toml`
-/// (`updates.downloads`), a plain file name after it; null: no in-app download.
-String? get walletDesktopDownloads => hostSettings.updateDownloads;
+/// Where a release file, phone APK or desktop file, may be: the download folder of
+/// `app-config.toml` (`updates.downloads`), a plain file name after it; null: no in-app download.
+String? get walletUpdateDownloads => hostSettings.updateDownloads;
 
 /// A desktop release file the app may download and install by itself: the Windows setup or
 /// the Linux AppImage. Clients before 26.10.9 ignore it.
@@ -539,7 +539,7 @@ class WalletDesktopFile {
   /// Creates the entry.
   const WalletDesktopFile({required this.url, required this.sha256, required this.size});
 
-  /// https, under [walletDesktopDownloads].
+  /// https, under [walletUpdateDownloads].
   final Uri url;
 
   /// 64 lowercase hex characters. The client still checks it after download.
@@ -1191,8 +1191,8 @@ final _versionRe = RegExp(r'^[0-9]+\.[0-9]+\.[0-9]+$');
 final _sha256Re = RegExp(r'^[0-9a-f]{64}$');
 bool _pageOk(String page) => hostSettings.updatePages.any(page.startsWith);
 final _fileNameRe = RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]*$');
-bool _desktopFileOk(String url) {
-  final base = walletDesktopDownloads;
+bool _fileOk(String url) {
+  final base = walletUpdateDownloads;
   return base != null && url.startsWith(base) && _fileNameRe.hasMatch(url.substring(base.length));
 }
 const _abis = ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'universal'];
@@ -1251,10 +1251,13 @@ List<WalletApk> _apks(Object? v) {
     final o = _obj(e);
     final sha = o['sha256'];
     if (sha is! String || !_sha256Re.hasMatch(sha)) throw const _Bad();
+    // Held to the download folder as the desktop files are (audit 26.10.24).
+    final url = _url(o['url']);
+    if (!_fileOk(url)) throw const _Bad();
     return WalletApk(
       abi: _enum(o['abi'], _abis),
       versionCode: _int(o['versionCode'], 1, 2147483647),
-      url: Uri.parse(_url(o['url'])),
+      url: Uri.parse(url),
       sha256: sha,
       size: _int(o['size'], 1, 4294967296),
     );
@@ -1290,7 +1293,7 @@ WalletDesktopEntry _desktopEntry(Object? v, {required bool perSystem}) {
   if (given != 0) {
     if (given != 3 || !perSystem) throw const _Bad();
     final url = _url(o['url']);
-    if (!_desktopFileOk(url)) throw const _Bad();
+    if (!_fileOk(url)) throw const _Bad();
     final sha = o['sha256'];
     if (sha is! String || !_sha256Re.hasMatch(sha)) throw const _Bad();
     file = WalletDesktopFile(url: Uri.parse(url), sha256: sha, size: _int(o['size'], 1, 4294967296));

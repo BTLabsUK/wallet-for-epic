@@ -318,7 +318,7 @@ void main() {
       testApk(
         abi: 'x86_64',
         versionCode: 4002,
-        url: 'https://example.org/v1.0.1/app-x86_64-release.apk',
+        url: testApkUrl('app-x86_64-release.apk'),
       ),
       testApk(),
     ];
@@ -336,7 +336,7 @@ void main() {
       expect(update.apk.sha256, 'a' * 64);
       expect(
         update.apk.url.toString(),
-        'https://example.org/releases/v1.0.1/app-arm64-v8a-release.apk',
+        testApkUrl('app-arm64-v8a-release.apk'),
       );
       expect(r.state!.serial, 1790000000);
     });
@@ -441,9 +441,9 @@ void main() {
         notor: false,
         versionName: '1.0.1',
         notes: 'With Tor',
-        apks: [testApk(versionCode: 3002, url: 'https://example.org/v1.0.1/epic-cash-mobile-1.0.1-arm64-v8a.apk')],
+        apks: [testApk(versionCode: 3002, url: testApkUrl('epic-cash-mobile-1.0.1-arm64-v8a.apk'))],
       )..['notor'] = <String, Object?>{
-          'apks': [testApk(versionCode: 4002, url: 'https://example.org/v1.0.1/epic-cash-mobile-1.0.1-notor-arm64-v8a.apk')],
+          'apks': [testApk(versionCode: 4002, url: testApkUrl('epic-cash-mobile-1.0.1-notor-arm64-v8a.apk'))],
         };
       final env = await signedUpdate(payload);
       Future<UpdateManifestRead> as(String e, {required bool tor}) =>
@@ -487,6 +487,21 @@ void main() {
         ),
       );
       expect((await read(env)).rejected, RejectReason.expired);
+    });
+
+    test('an APK outside the update download folder makes the manifest unusable', () async {
+      // Audit 26.10.24: held to [updates] downloads as the desktop files are, in both parts.
+      for (final url in [
+        'https://example.org/a.apk',
+        '${walletUpdateDownloads!}sub/a.apk',
+        walletUpdateDownloads!,
+      ]) {
+        final top = testUpdatePayload(notor: false, apks: [testApk(url: url)]);
+        expect((await read(await signedUpdate(top))).rejected, RejectReason.malformed, reason: url);
+        final notor = testUpdatePayload(notor: false)..['notor'] = {'apks': [testApk(url: url)]};
+        expect((await read(await signedUpdate(notor))).rejected, RejectReason.malformed, reason: url);
+      }
+      expect((await read(await signedUpdate(testUpdatePayload()))).rejected, isNull);
     });
 
     test('an http APK URL or a bad hash makes the manifest unusable', () async {

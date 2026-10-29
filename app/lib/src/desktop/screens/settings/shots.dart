@@ -9,7 +9,7 @@ import '../../app/shots.dart';
 import '../../app/tour.dart';
 import '../../app/update_notice.dart' show showUpdateReadyDialog;
 import '../../data/desk_update.dart';
-import '../../../btlabs_public.dart' show WalletDesktopFile, walletDesktopDownloads;
+import '../../../btlabs_public.dart' show WalletDesktopFile, walletUpdateDownloads;
 import '../../data/desk_node.dart';
 import '../../data/mock_wallet.dart';
 import '../../data/server_lists.dart' show ServerKind, deskServerListProvider;
@@ -70,7 +70,7 @@ void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
     version: v,
     page: deskReleasesUrl,
     checkedAt: DateTime.now(),
-    file: inApp ? WalletDesktopFile(url: Uri.parse('${walletDesktopDownloads ?? ''}EpicCashDesktop-$v-x86_64.AppImage'), sha256: '0' * 64, size: 1) : null,
+    file: inApp ? WalletDesktopFile(url: Uri.parse('${walletUpdateDownloads ?? ''}EpicCashDesktop-$v-x86_64.AppImage'), sha256: '0' * 64, size: 1) : null,
     download: phase == DeskUpdatePhase.ready ? File('EpicCashDesktop-$v-x86_64.AppImage') : null,
   ));
 }

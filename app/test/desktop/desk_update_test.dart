@@ -31,7 +31,7 @@ final _sha = sha256.convert(_bytes).toString();
 
 Map<String, Object?> _entry(String name, {String? sha, int? size, String version = _next}) => {
   'version': version,
-  'url': '$walletDesktopDownloads$name',
+  'url': '$walletUpdateDownloads$name',
   'sha256': sha ?? _sha,
   'size': size ?? _bytes.length,
 };
@@ -137,7 +137,7 @@ void main() {
   }
 
   WalletDesktopFile file({String? sha, int? size}) => WalletDesktopFile(
-    url: Uri.parse('$walletDesktopDownloads$_linuxName'),
+    url: Uri.parse('$walletUpdateDownloads$_linuxName'),
     sha256: sha ?? _sha,
     size: size ?? _bytes.length,
   );
@@ -151,7 +151,7 @@ void main() {
       );
       final m = (r as Accepted<WalletUpdate>).manifest;
       final linux = m.desktop!.forSystem('linux')!.file!;
-      expect(linux.url.toString(), '$walletDesktopDownloads$_linuxName');
+      expect(linux.url.toString(), '$walletUpdateDownloads$_linuxName');
       expect(linux.sha256, _sha);
       expect(linux.size, _bytes.length);
       expect(m.desktop!.forSystem('windows')!.file!.url.pathSegments.last, _winName);
@@ -181,7 +181,7 @@ void main() {
         // An old parser takes files only under its own download prefix (in its source): the old
         // manifest names them there.
         final oldSource = old.stdout as String;
-        final base = RegExp(r"walletDesktopDownloads = '([^']+)'").firstMatch(oldSource)?.group(1) ?? walletDesktopDownloads;
+        final base = RegExp(r"walletDesktopDownloads = '([^']+)'").firstMatch(oldSource)?.group(1) ?? walletUpdateDownloads;
         final dir = await tmp.createTemp('old');
         File('${dir.path}/old.dart').writeAsStringSync(old.stdout as String);
         final readFile = files ? 'out.add(d.forSystem(s)!.file!.url.pathSegments.last);' : '';
@@ -806,7 +806,7 @@ Future<void> main(List<String> a) async {
     File('${dir.path}/EpicCashDesktop-$_next-notor-macos.dmg').writeAsBytesSync(_bytes.sublist(4));
     // The block the new-format manifest carries: under the app's own download address.
     final run = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path],
-        environment: {'WFE_DOWNLOADS_BASE': walletDesktopDownloads!});
+        environment: {'WFE_DOWNLOADS_BASE': walletUpdateDownloads!});
     expect(run.exitCode, 0, reason: '${run.stderr}');
     final block = jsonDecode(run.stdout as String) as Map<String, dynamic>;
     final payload = testUpdatePayload(desktop: block['desktop'], notor: false)
@@ -820,7 +820,7 @@ Future<void> main(List<String> a) async {
     final d = m.desktop!;
     expect(d.forSystem('windows')!.file!.sha256, _sha);
     expect(d.forSystem('linux')!.file!.size, _bytes.length - 1);
-    expect(d.forSystem('linux')!.file!.url.toString(), '${walletDesktopDownloads}EpicCashDesktop-$_next-x86_64.AppImage');
+    expect(d.forSystem('linux')!.file!.url.toString(), '${walletUpdateDownloads}EpicCashDesktop-$_next-x86_64.AppImage');
     expect(d.forSystem('macos'), isNull, reason: 'no dmg with Tor in this folder');
     final n = m.release(tor: false)!.desktop!;
     expect(n.forSystem('windows')!.file!.size, _bytes.length - 2);

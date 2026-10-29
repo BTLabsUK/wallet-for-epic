@@ -8,7 +8,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:epic_wallet/src/tor_build.dart';
-import 'package:epic_wallet/src/btlabs_public.dart' show WalletDesktopFile, walletDesktopDownloads;
+import 'package:epic_wallet/src/btlabs_public.dart' show WalletDesktopFile, walletUpdateDownloads;
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update_apply.dart' show DeskUpdateApplier, DmgApplier, deskUpdateApplierProvider;
@@ -22,7 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _v = '99.1.0';
 const _manual = 'This copy cannot install updates itself.';
-final _file = WalletDesktopFile(url: Uri.parse('${walletDesktopDownloads}EpicCashDesktop-$_v-x86_64.AppImage'), sha256: 'a' * 64, size: 100);
+final _file = WalletDesktopFile(url: Uri.parse('${walletUpdateDownloads}EpicCashDesktop-$_v-x86_64.AppImage'), sha256: 'a' * 64, size: 100);
 
 DeskUpdateState _state(DeskUpdatePhase phase, {bool inApp = true, double? progress, String? problem}) => DeskUpdateState(
   phase,
