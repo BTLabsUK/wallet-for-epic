@@ -4813,7 +4813,7 @@
   "devicesRelayAsk": "两台设备都在使用 {relay}。要在本设备上改用 {next} 吗？",
   "devicesRelayUse": "改用",
   "devicesRelayKeep": "保持不变",
-  "devicesRelayWhy": "在同一个服务器上，两台设备会回应相同的付款。在不同的服务器上，每台设备只回应发往自己地址的付款。",
+  "devicesRelayWhy": "在同一个 Epicbox 服务器上，两台设备会回应相同的付款。在不同的服务器上，每台设备只回应发往自己地址的付款。",
   "txReceivedOnDevice": "在 {device} 上收到",
   "txSpokenReceivedOnDevice": "在 {device} 上收到，{amount}",
   "txDetailsDeviceIn": "与本钱包关联的 {device} 收到了这些币。"

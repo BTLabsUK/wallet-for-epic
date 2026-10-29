@@ -19077,7 +19077,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesRelayWhy =>
-      'Na jednym serwerze oba urządzenia odpowiadają na te same płatności. Na różnych serwerach każde odpowiada na płatności na swój adres.';
+      'Na jednym serwerze Epicbox oba urządzenia odpowiadają na te same płatności. Na różnych serwerach każde odpowiada na płatności na swój adres.';
 
   @override
   String txReceivedOnDevice(String device) {

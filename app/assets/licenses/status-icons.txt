@@ -17,7 +17,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 Epicbox: "server-proxy" from Carbon Icons (IBM), Apache License 2.0.
 Direct · HTTP: "http" from Material Symbols (Google), Apache License 2.0.
 Link Payment: "link" from Material Symbols (Google), Apache License 2.0.
-Both: licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0);
+All three: licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0);
 unless required by applicable law or agreed to in writing, the work is distributed on an "AS IS"
 BASIS, without warranties or conditions of any kind.
 

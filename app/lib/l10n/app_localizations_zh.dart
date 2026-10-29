@@ -17366,7 +17366,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get devicesRelayWhy =>
-      '在同一个服务器上，两台设备会回应相同的付款。在不同的服务器上，每台设备只回应发往自己地址的付款。';
+      '在同一个 Epicbox 服务器上，两台设备会回应相同的付款。在不同的服务器上，每台设备只回应发往自己地址的付款。';
 
   @override
   String txReceivedOnDevice(String device) {

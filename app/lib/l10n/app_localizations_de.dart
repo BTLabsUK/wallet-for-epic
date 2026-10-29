@@ -18646,7 +18646,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get devicesRelayWhy =>
-      'Auf einem Server beantworten beide Geräte dieselben Zahlungen. Auf verschiedenen Servern beantwortet jedes die Zahlungen an seine eigene Adresse.';
+      'Auf einem Epicbox-Server beantworten beide Geräte dieselben Zahlungen. Auf verschiedenen Servern beantwortet jedes die Zahlungen an seine eigene Adresse.';
 
   @override
   String txReceivedOnDevice(String device) {

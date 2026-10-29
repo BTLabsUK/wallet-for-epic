@@ -4813,7 +4813,7 @@
   "devicesRelayAsk": "Oba urządzenia używają {relay}. Użyć {next} na tym urządzeniu?",
   "devicesRelayUse": "Użyj",
   "devicesRelayKeep": "Zostaw",
-  "devicesRelayWhy": "Na jednym serwerze oba urządzenia odpowiadają na te same płatności. Na różnych serwerach każde odpowiada na płatności na swój adres.",
+  "devicesRelayWhy": "Na jednym serwerze Epicbox oba urządzenia odpowiadają na te same płatności. Na różnych serwerach każde odpowiada na płatności na swój adres.",
   "txReceivedOnDevice": "Odebrano na: {device}",
   "txSpokenReceivedOnDevice": "Odebrano na: {device}, {amount}",
   "txDetailsDeviceIn": "{device}, połączone z tym portfelem, odebrało te monety."
