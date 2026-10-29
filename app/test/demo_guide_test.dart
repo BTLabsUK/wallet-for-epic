@@ -62,7 +62,7 @@ TxEntry _faucet() => fakeTx(
   status: TxStatus.awaitingConfirmation,
   createdAtUnix: _at(_now.subtract(const Duration(minutes: 3))),
   amountCredited: _epic(10),
-  counterparty: 'esFaucet123@flooepicbox.btlabs.uk',
+  counterparty: 'esFaucet123@epicbox.btlabs.uk',
 );
 
 /// 2.5 EPIC to a friend's demo, not answered yet.
@@ -75,7 +75,7 @@ TxEntry _send() => fakeTx(
   amountCredited: _epic(7.492),
   amountDebited: _epic(10),
   fee: _epic(0.008),
-  counterparty: 'esFriend123@flooepicbox.btlabs.uk',
+  counterparty: 'esFriend123@epicbox.btlabs.uk',
 );
 
 WalletSummary _summary({num spendable = 0, num waiting = 0, num locked = 0}) =>

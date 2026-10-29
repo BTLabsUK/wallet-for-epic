@@ -114,7 +114,7 @@ class PreviewDirectory implements RelayDirectory, NodeDirectory, NetworkDirector
       RelayStatus(relay: EpicboxRelay(host: 'epicbox.stackwallet.com'), healthy: true, verified: true, label: 'Stack Wallet', operator: 'Cypher Stack', icon: _icon('9a573fcde155e6753f68'), latencyMs: 488, uptime24h: 1.0),
       RelayStatus(relay: EpicboxRelay(host: 'epicbox.epicnet.us'), healthy: true, verified: true, operator: 'epicnet.us', latencyMs: 766, uptime24h: 0.9779),
       RelayStatus(relay: EpicboxRelay(host: 'epicbox.iniaku.my.id'), healthy: true, verified: true, operator: 'Iniaku pool', icon: _icon('73de63f69b0165b85c44'), latencyMs: 360, uptime24h: 0.9997),
-      RelayStatus(relay: EpicboxRelay(host: 'flooepicbox.btlabs.uk'), healthy: true, verified: true, operator: 'btlabs', icon: _icon('7f31acd64c95a28ca70a'), latencyMs: 45, uptime24h: 0.9999),
+      RelayStatus(relay: EpicboxRelay(host: 'epicbox.btlabs.uk'), healthy: true, verified: true, operator: 'btlabs', icon: _icon('7f31acd64c95a28ca70a'), latencyMs: 45, uptime24h: 0.9999),
       RelayStatus(relay: EpicboxRelay(host: 'epicbox.epic.example'), healthy: false, verified: false, operator: 'Example pool', uptime24h: 0.41),
     ];
   }

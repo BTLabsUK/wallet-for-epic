@@ -26,7 +26,7 @@ const List<String> knownPublicHosts = [
   'epicbox.epic.tech', 'explorer.epic.tech', 'epic.tech',
   'epicbox.epicnet.us', 'epicnet.us',
   'epicbox.stackwallet.com', 'stackwallet.com',
-  'flooepicbox.btlabs.uk', 'status.btlabs.uk', 'btlabs.uk',
+  'epicbox.btlabs.uk', 'status.btlabs.uk', 'btlabs.uk',
   'github.com', 'api.github.com', 'objects.githubusercontent.com',
   'api.coingecko.com', 'api.ipify.org',
 ];

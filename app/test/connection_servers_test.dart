@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _cash = 'epicbox.epiccash.com';
 const _stack = 'epicbox.stackwallet.com';
-const _floo = 'flooepicbox.btlabs.uk';
+const _floo = 'epicbox.btlabs.uk';
 const _net = 'epicbox.epicnet.us';
 
 ConnectionServersLine _line(

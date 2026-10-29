@@ -123,7 +123,7 @@ void main() {
       expect(expected.dataDir, h.server.store.walletDirOf(id));
       expect(expected.chain, Chain.floonet);
       expect(expected.nodeUrl, 'https://floo-node.btlabs.uk');
-      expect(expected.epicboxDomain, 'flooepicbox.btlabs.uk');
+      expect(expected.epicboxDomain, 'epicbox.btlabs.uk');
       expect(await client.walletExists(config: clientConfig), isTrue);
       expect(fake.createdPin, '123456');
       expect(await created.session.epicboxAddress(), fake.session.address);

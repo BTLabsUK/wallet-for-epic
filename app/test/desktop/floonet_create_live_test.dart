@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Live: LNX-6 on the real LEPIC core through LepicDeskWallet. Welcome's Floonet choice makes a
-// floonet wallet: its folder, its Epicbox address (floonet key, flooepicbox) and, after a fresh
+// floonet wallet: its folder, its Epicbox address (floonet key, epicbox.btlabs.uk) and, after a fresh
 // start over the same store, the floonet list again. Temp folders, unreachable node. Needs the
 // Linux library:
 //

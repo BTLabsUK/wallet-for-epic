@@ -49,7 +49,7 @@ final List<String> _meeting = (_env['WFE_MEETING'] ?? 'epicbox.epicnet.us').spli
 
 const _node = 'https://floo-node.btlabs.uk';
 const _mainnetNode = 'https://node.btlabs.uk';
-const _relay = 'flooepicbox.btlabs.uk';
+const _relay = 'epicbox.btlabs.uk';
 const _password = 'live-device-link-2610';
 final _oneConf = BigInt.one;
 final _epic = BigInt.from(100000000);

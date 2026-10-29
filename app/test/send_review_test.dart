@@ -505,8 +505,8 @@ void main() {
     test('recipientRelay reads the relay after the @', () {
       expect(recipientRelay(_bob), _bobRelay);
       expect(
-        recipientRelay('${'d' * 52}@flooepicbox.btlabs.uk:443'),
-        const EpicboxRelay(host: 'flooepicbox.btlabs.uk'),
+        recipientRelay('${'d' * 52}@epicbox.btlabs.uk:443'),
+        const EpicboxRelay(host: 'epicbox.btlabs.uk'),
       );
       expect(
         recipientRelay('${'d' * 52}@relay.example.org:8443'),
@@ -1226,7 +1226,7 @@ void main() {
       );
       expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.stackwalle')), isFalse);
       expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.stackwallet.com')), isTrue);
-      expect(isKnownRelay(const EpicboxRelay(host: 'flooepicbox.btlabs.uk')), isTrue);
+      expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.btlabs.uk')), isTrue);
       expect(isKnownRelay(const EpicboxRelay(host: 'epicbox.epiccash.com', port: 444)), isFalse);
     });
 

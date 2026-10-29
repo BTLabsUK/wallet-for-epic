@@ -27,7 +27,7 @@ const int connectionServersLimit = 3;
 /// built-in relays. Empty where there are none (floonet and the local test network): the
 /// setting is not shown there.
 List<String> defaultConnectionServers(Chain chain) => chain == Chain.mainnet
-    ? const ['epicbox.epiccash.com', 'epicbox.stackwallet.com', 'flooepicbox.btlabs.uk']
+    ? const ['epicbox.epiccash.com', 'epicbox.stackwallet.com', 'epicbox.btlabs.uk']
     : const [];
 
 /// Whether the setting shows on [chain].

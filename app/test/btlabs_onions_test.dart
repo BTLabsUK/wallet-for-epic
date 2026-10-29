@@ -18,7 +18,7 @@ void main() {
   test('nothing fetched: the built-in copy', () {
     final o = OnionDirectory();
     expect(o.entries, builtInOnions);
-    final e = o.onionFor('flooepicbox.btlabs.uk', 443)!;
+    final e = o.onionFor('epicbox.btlabs.uk', 443)!;
     expect(e.onion, 'j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion');
     expect(e.tls, isTrue);
     final s = o.onionFor('status.btlabs.uk')!;
@@ -36,7 +36,7 @@ void main() {
   test('a verified file with onions replaces the built-in copy', () async {
     final o = OnionDirectory()..adopt(await file(onions: [onionEntry('node.btlabs.uk', id: 'n', service: 'node')]));
     expect(o.entries.map((e) => e.host), ['node.btlabs.uk']);
-    expect(o.onionFor('flooepicbox.btlabs.uk'), isNull);
+    expect(o.onionFor('epicbox.btlabs.uk'), isNull);
     expect(o.onionFor('node.btlabs.uk')!.onion, '${'a' * 56}.onion');
   });
 

@@ -132,7 +132,7 @@ void main() {
 
   group('claimTestCoins', () {
     const address =
-        'esYsa7ozBHwpHTfDdyTQsw3GkVpjL1xxtnbjSq8NJAS8XcZKgSC5@flooepicbox.btlabs.uk:443';
+        'esYsa7ozBHwpHTfDdyTQsw3GkVpjL1xxtnbjSq8NJAS8XcZKgSC5@epicbox.btlabs.uk:443';
 
     test('a simple POST to the faucet with the address in the query', () async {
       http.answers.add(const DemoReply(202, '{"ok":true}'));

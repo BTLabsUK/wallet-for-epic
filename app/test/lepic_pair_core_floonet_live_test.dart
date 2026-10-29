@@ -29,7 +29,7 @@ final String? _dir = _env['WFE_LIVE_DIR'];
 final String _step = _env['WFE_LIVE_STEP'] ?? '';
 
 const _node = 'https://floo-node.btlabs.uk';
-const _relay = 'flooepicbox.btlabs.uk';
+const _relay = 'epicbox.btlabs.uk';
 const _password = 'live-pair-core-2610';
 
 // ignore: avoid_print

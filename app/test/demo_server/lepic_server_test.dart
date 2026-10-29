@@ -93,7 +93,7 @@ void main() {
         expect(w.sealedPassword, isNotEmpty);
         final address = await w.session.epicboxAddress();
         expect(remote.validateEpicboxAddress(address: address), isTrue);
-        expect(address, endsWith('@flooepicbox.btlabs.uk'));
+        expect(address, endsWith('@epicbox.btlabs.uk'));
         // A reload: the PIN opens the same wallet on a new socket.
         await remote.close();
         final again = RemoteWalletService(

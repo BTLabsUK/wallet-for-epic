@@ -56,7 +56,7 @@ import 'package:lepic/lepic.dart' as lepic;
 import 'support.dart';
 
 const flooNode = 'https://floo-node.btlabs.uk';
-const flooRelay = 'flooepicbox.btlabs.uk';
+const flooRelay = 'epicbox.btlabs.uk';
 const faucet = 'https://floo-explorer.btlabs.uk/api/faucet/claim';
 
 final phase = Platform.environment['HB_PHASE'] ?? 'build';

@@ -47,7 +47,7 @@ void main() {
     expect(find.byKey(connectionServersRowKey), findsOneWidget);
     expect(find.text('Connection servers'), findsOneWidget);
     expect(find.text('Where two wallets find each other when they connect. The other wallet must use at least one of them too.'), findsOneWidget);
-    expect(find.text('epicbox.epiccash.com, epicbox.stackwallet.com, flooepicbox.btlabs.uk'), findsOneWidget);
+    expect(find.text('epicbox.epiccash.com, epicbox.stackwallet.com, epicbox.btlabs.uk'), findsOneWidget);
     expect(find.text('3 servers · Defaults'), findsOneWidget);
   });
 
@@ -58,7 +58,7 @@ void main() {
 
   testWidgets('the list takes ticks up to three; the set is kept, the defaults keep nothing', (tester) async {
     await _open(tester);
-    await tester.tap(find.text('epicbox.epiccash.com, epicbox.stackwallet.com, flooepicbox.btlabs.uk'));
+    await tester.tap(find.text('epicbox.epiccash.com, epicbox.stackwallet.com, epicbox.btlabs.uk'));
     await _settle(tester);
     expect(find.text('Choose up to 3.'), findsOneWidget);
     expect(find.text('3 of 3'), findsOneWidget);
@@ -68,7 +68,7 @@ void main() {
     expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
     expect(_container.read(deskPairingRelaysProvider), isNull);
 
-    await tester.tap(_row('flooepicbox.btlabs.uk'));
+    await tester.tap(_row('epicbox.btlabs.uk'));
     await _settle(tester);
     expect(_container.read(deskPairingRelaysProvider), ['epicbox.epiccash.com', 'epicbox.stackwallet.com']);
     expect(find.text('2 servers · Changed'), findsOneWidget);

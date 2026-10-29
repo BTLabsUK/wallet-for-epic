@@ -106,7 +106,7 @@ void main() {
     final (api, files, _) = await _open(tester);
     final before = (await api.contacts()).length;
     final file = encodeContactsFile(
-      [const ContactFields(name: 'F', epicbox: 'zz1234@flooepicbox.btlabs.uk')],
+      [const ContactFields(name: 'F', epicbox: 'zz1234@epicbox.btlabs.uk')],
       network: 'floonet',
       now: DateTime(2026, 10, 25),
     );

@@ -67,7 +67,7 @@ void main() {
 
   test('the TLS onion routes reach the wallet at unlock', () async {
     expect(session().onionRoutes, onionRoutesOf(wallet.onions));
-    expect(session().onionRoutes!.map((r) => r.host), contains('flooepicbox.btlabs.uk'));
+    expect(session().onionRoutes!.map((r) => r.host), contains('epicbox.btlabs.uk'));
   });
 
   test('tor that starts with the wallet is announced before the first Epicbox connection', () async {

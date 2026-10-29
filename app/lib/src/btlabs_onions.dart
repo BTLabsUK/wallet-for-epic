@@ -12,7 +12,7 @@ const List<BtlOnion> builtInOnions = [
   BtlOnion(
     id: 'epicbox',
     service: 'epicbox',
-    host: 'flooepicbox.btlabs.uk',
+    host: 'epicbox.btlabs.uk',
     port: 443,
     onion: 'j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion',
     onionPort: 443,

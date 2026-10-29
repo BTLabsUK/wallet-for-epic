@@ -100,10 +100,10 @@ void main() {
     await h.open();
     final routes = h.session.onionRoutes!;
     expect(routes, onionRoutesOf(OnionDirectory()));
-    expect(routes.map((r) => r.host), contains('flooepicbox.btlabs.uk'));
+    expect(routes.map((r) => r.host), contains('epicbox.btlabs.uk'));
     expect(routes.map((r) => r.host), isNot(contains('status.btlabs.uk')), reason: 'plain HTTP');
     expect(
-      routes.firstWhere((r) => r.host == 'flooepicbox.btlabs.uk').onion,
+      routes.firstWhere((r) => r.host == 'epicbox.btlabs.uk').onion,
       'j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion',
     );
   });

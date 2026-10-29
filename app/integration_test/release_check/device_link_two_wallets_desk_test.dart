@@ -32,7 +32,7 @@ import 'package:integration_test/integration_test.dart';
 import 'support.dart';
 
 final String syncDir = Platform.environment['RC_SYNC'] ?? 'build/rc_sync';
-const homeRelay = 'flooepicbox.btlabs.uk';
+const homeRelay = 'epicbox.btlabs.uk';
 const otherRelay = 'epicbox.stackwallet.com';
 /// RC_REOPEN: unset, the wallet reopens while the link is under way; `after`, only once the
 /// link is made (with the 5 s reads running); `both`, both.

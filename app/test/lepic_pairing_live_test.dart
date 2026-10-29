@@ -23,7 +23,7 @@ import 'package:lepic/lepic.dart' as lepic;
 final String? _lib = Platform.environment['WFE_LEPIC_MOCK_LIB'];
 
 /// A built-in floonet relay, so pairing words are offered; the mock relay serves it.
-const _relay = 'flooepicbox.btlabs.uk';
+const _relay = 'epicbox.btlabs.uk';
 const _password = 'test-pass-1234';
 final _epic = BigInt.from(100000000);
 

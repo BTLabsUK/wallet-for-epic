@@ -271,7 +271,7 @@ void _contactsFile(ProviderContainer c) {
       ContactFields(name: 'Anna', epicbox: epicbox('c1'), tor: '${'q' * 55}d.onion'), // l10n-ok
       ContactFields(name: 'Exchange deposit', epicbox: epicbox('c3')), // l10n-ok
       const ContactFields(name: 'Lena Fischer', epicbox: 'esLf4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epiccash.com'), // l10n-ok
-      const ContactFields(name: 'Test', epicbox: 'zz1234@flooepicbox.btlabs.uk'), // l10n-ok
+      const ContactFields(name: 'Test', epicbox: 'zz1234@epicbox.btlabs.uk'), // l10n-ok
     ],
     network: c.read(deskApiProvider).network,
     now: DateTime(2026, 10, 25),

@@ -310,7 +310,7 @@ void main() {
       expect(_inRow(defaultEpicboxHost, 'Default'), findsOneWidget);
       expect(_inRow(_stack, 'Current'), findsOneWidget);
       expect(_check(_stack), findsOneWidget);
-      expect(_row('flooepicbox.btlabs.uk'), findsOneWidget, reason: 'the push relay');
+      expect(_row('epicbox.btlabs.uk'), findsOneWidget, reason: 'the push relay');
     });
 
     testWidgets('epicbox: the address warning on the sheet; a tap opens the confirm with the '
@@ -1213,7 +1213,7 @@ void main() {
 
   group('selection mode', () {
     const epiccash = 'epicbox.epiccash.com';
-    const floo = 'flooepicbox.btlabs.uk';
+    const floo = 'epicbox.btlabs.uk';
     const epicnet = 'epicbox.epicnet.us';
     const iniaku = 'epicbox.iniaku.my.id';
     const defaults = [epiccash, _stack, floo];

@@ -60,7 +60,7 @@ Future<void> _failed(ProviderContainer c) async {
 Future<void> _proposal(ProviderContainer c) async {
   final (_, desk) = await _desk(c);
   await _linked(c);
-  await desk.proposeServers(const ['epicbox.epiccash.com', 'flooepicbox.btlabs.uk']);
+  await desk.proposeServers(const ['epicbox.epiccash.com', 'epicbox.btlabs.uk']);
 }
 
 final List<DeskShot> deviceShots = [

@@ -75,7 +75,7 @@ void main() {
       expect(relays, hasLength(4));
       expect(relays.first.relay.host, 'epicbox.epiccash.com');
       // Mainnet never offers the floonet relay.
-      expect(relays.any((r) => r.relay.host == 'flooepicbox.btlabs.uk'), isFalse);
+      expect(relays.any((r) => r.relay.host == 'epicbox.btlabs.uk'), isFalse);
     });
 
     test('the sample matches every built-in server, one row each', () {

@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 final String _anna = 'es${'a' * 50}@epicbox.epiccash.com';
 final String _tom = 'es${'b' * 50}@epicbox.epicnet.us';
-final String _floonet = 'zz${'c' * 50}@flooepicbox.btlabs.uk';
+final String _floonet = 'zz${'c' * 50}@epicbox.btlabs.uk';
 final String _onion = '${'t' * 55}d.onion';
 const String _http = 'https://pay.example.net:3415';
 

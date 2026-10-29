@@ -1891,7 +1891,7 @@ void main() {
       await tester.tap(find.byKey(serverListRowKey('epicbox.epicnet.us')));
       await tester.pumpAndSettle();
       expect(find.text('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
-      await tester.tap(find.byKey(serverListRowKey('flooepicbox.btlabs.uk')));
+      await tester.tap(find.byKey(serverListRowKey('epicbox.btlabs.uk')));
       await tester.pumpAndSettle();
       expect(h.store.values['app.pairingRelays.mainnet'], '["epicbox.epiccash.com","epicbox.stackwallet.com"]');
       await tester.tap(find.byKey(serverListRowKey('epicbox.epicnet.us')));

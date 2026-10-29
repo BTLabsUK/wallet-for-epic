@@ -118,7 +118,7 @@ void main() {
   group('selection mode', () {
     const epiccash = 'epicbox.epiccash.com';
     const stack = 'epicbox.stackwallet.com';
-    const floo = 'flooepicbox.btlabs.uk';
+    const floo = 'epicbox.btlabs.uk';
     const epicnet = 'epicbox.epicnet.us';
     const defaults = [epiccash, stack, floo];
     final calls = <List<String>>[];

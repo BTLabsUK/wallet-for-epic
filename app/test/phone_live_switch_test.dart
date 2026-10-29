@@ -153,7 +153,7 @@ void main() {
     final w = await _open(tester);
     await w.session.setEpicboxOverTor(true);
     await w.session.setOnionRoutes(const [
-      (host: 'flooepicbox.btlabs.uk', port: 443, onion: 'x.onion', onionPort: 443),
+      (host: 'epicbox.btlabs.uk', port: 443, onion: 'x.onion', onionPort: 443),
     ]);
     w.session.routeLog.clear();
 

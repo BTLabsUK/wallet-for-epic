@@ -86,7 +86,7 @@ const NetworkPreset mainnetPreset = NetworkPreset(
 
 /// BT Labs' Epicbox server: one host for both chains, floonet's own relay and a built-in
 /// mainnet relay.
-const String btlabsRelayHost = 'flooepicbox.btlabs.uk';
+const String btlabsRelayHost = 'epicbox.btlabs.uk';
 
 const NetworkPreset floonetPreset = NetworkPreset(
   chain: Chain.floonet,

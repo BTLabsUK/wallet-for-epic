@@ -30,7 +30,7 @@ class _Floonet extends MockDeskWallet {
   _Floonet() : super(delay: Duration.zero);
 
   @override
-  Future<List<EpicboxServer>> epicboxes() async => [EpicboxServer(domain: 'flooepicbox.btlabs.uk', port: 443, health: ServiceHealth.ok)];
+  Future<List<EpicboxServer>> epicboxes() async => [EpicboxServer(domain: 'epicbox.btlabs.uk', port: 443, health: ServiceHealth.ok)];
 }
 
 Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Object? arg, MockDeskWallet? api}) async {
@@ -199,7 +199,7 @@ void main() {
 
     testWidgets('Setup › Epicbox on a test network starts on its own server (LNX-6)', (tester) async {
       await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox, api: _Floonet());
-      expect(find.text('flooepicbox.btlabs.uk'), findsWidgets);
+      expect(find.text('epicbox.btlabs.uk'), findsWidgets);
       expect(find.text('epicbox.epiccash.com'), findsNothing);
       await _end(tester);
     });
