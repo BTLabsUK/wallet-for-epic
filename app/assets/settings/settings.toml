@@ -49,10 +49,6 @@ operator = "EpicNet"
 url = "https://epic.stackwallet.com:3413"
 operator = "Cypher Stack"
 
-[[node.servers]]
-url = "https://epic-node.iniaku.my.id"
-operator = "Iniaku pool"
-
 # ---------------------------------------------------------------------------------------------
 # Epicbox servers: where payments wait until the other wallet picks them up. The server is part
 # of a wallet's Epicbox address (es…@server).
@@ -83,10 +79,6 @@ operator = "Cypher Stack"
 [[epicbox.servers]]
 host = "epicbox.epicnet.us"
 operator = "EpicNet"
-
-[[epicbox.servers]]
-host = "epicbox.iniaku.my.id"
-operator = "Iniaku pool"
 
 [[epicbox.servers]]
 host = "epicbox.btlabs.uk"
