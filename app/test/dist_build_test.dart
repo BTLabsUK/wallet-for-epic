@@ -22,7 +22,7 @@ void main() {
   test('the constants follow WFE_DIST', () {
     expect(dist.name, _define);
     expect(distUpdates, _define == 'web');
-    expect(inAppUpdates, torBuilt && _define == 'web');
+    expect(inAppUpdates, _define == 'web');
     expect(distStore, switch (_define) { 'play' => 'Google Play', 'fdroid' => 'F-Droid', 'msstore' => 'Microsoft Store', _ => null });
   });
 

@@ -4783,5 +4783,7 @@
   "netStatusTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
   "netStatusTurnOnHintPrivacy": "Aus. Einschalten unter Einstellungen › Datenschutz & Netzwerk.",
   "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
-  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie Epic Cash Desktop und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“."
+  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie Epic Cash Desktop und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“.",
+  "deskUpdOpenDmg": "Disk-Image öffnen",
+  "deskUpdDmgHint": "Die App schließt sich und das Disk-Image öffnet sich: Ziehen Sie Epic Cash Desktop in „Programme“, ersetzen Sie die alte App und öffnen Sie sie dann."
 }

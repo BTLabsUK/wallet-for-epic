@@ -24291,5 +24291,13 @@
   "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.",
   "@deskErrMacKeychain": {
     "description": "Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, Epic Cash Desktop and the button name 'Always Allow' (as macOS shows it in each language) are names."
+  },
+  "deskUpdOpenDmg": "Open the disk image",
+  "@deskUpdOpenDmg": {
+    "description": "macOS: button and sidebar line once the update's disk image is downloaded and checked: the app closes and the disk image opens in Finder (the app cannot install itself there)."
+  },
+  "deskUpdDmgHint": "The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.",
+  "@deskUpdDmgHint": {
+    "description": "macOS: what happens and what to do, one line under the downloaded update and in its dialog. Epic Cash Desktop is the app's name; Applications is the macOS folder (use its name in this language's macOS)."
   }
 }

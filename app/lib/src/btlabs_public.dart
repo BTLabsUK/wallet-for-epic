@@ -575,6 +575,7 @@ class WalletUpdate {
     required this.apks,
     required this.desktop,
     required this.revokedKeys,
+    this.notor,
   });
 
   /// Always 1.
@@ -606,6 +607,48 @@ class WalletUpdate {
 
   /// Revoked keyids named by the file (not yet filtered by rank).
   final List<String> revokedKeys;
+
+  /// The release of the builds without Tor, the `notor` section; null when the file has none.
+  final WalletNotor? notor;
+
+  /// The release a build reads: the top-level one for the build with Tor ([tor]), the `notor`
+  /// section for the build without, whose absence means nothing newer is known (null).
+  WalletUpdate? release({required bool tor}) {
+    if (tor) return this;
+    final n = notor;
+    if (n == null) return null;
+    return WalletUpdate(
+      schema: schema,
+      serial: serial,
+      issuedAt: issuedAt,
+      expiresAt: expiresAt,
+      packageName: packageName,
+      versionName: n.versionName,
+      notes: n.notes,
+      apks: n.apks,
+      desktop: n.desktop,
+      revokedKeys: revokedKeys,
+    );
+  }
+}
+
+/// The `notor` section of a release manifest: the release of the builds without Tor. Its
+/// version and notes default to the top-level ones.
+class WalletNotor {
+  /// Creates the section.
+  const WalletNotor({required this.versionName, required this.notes, required this.apks, required this.desktop});
+
+  /// `major.minor.patch`.
+  final String versionName;
+
+  /// Plain text, may hold line feeds; empty when absent.
+  final String notes;
+
+  /// 1 to 8 APKs with unique ABIs.
+  final List<WalletApk> apks;
+
+  /// Desktop versions, if given.
+  final WalletDesktop? desktop;
 }
 
 /// Verifies [envelope] by FORMAT.md section 5, steps 1 to 9. Never throws.
@@ -1157,7 +1200,47 @@ _Parsed<WalletUpdate> _parseWalletUpdate(List<int> bytes) {
   final versionName = _version(root['versionName']);
   final notes = root.containsKey('notes') ? _notes(root['notes']) : '';
 
-  final apks = _list(root['apks'], 8, (e) {
+  final apks = _apks(root['apks']);
+  final desktop = root.containsKey('desktop') ? _desktop(root['desktop']) : null;
+
+  // The release of the builds without Tor (FORMAT.md section 6), checked as the top-level one: a
+  // bad section rejects the whole file. Clients up to 26.10.22 ignore it.
+  WalletNotor? notor;
+  if (root.containsKey('notor')) {
+    final n = _obj(root['notor']);
+    notor = WalletNotor(
+      versionName: n.containsKey('versionName') ? _version(n['versionName']) : versionName,
+      notes: n.containsKey('notes') ? _notes(n['notes']) : notes,
+      apks: _apks(n['apks']),
+      desktop: n.containsKey('desktop') ? _desktop(n['desktop']) : null,
+    );
+  }
+
+  final revoked = _revokedKeys(root);
+  return _Parsed<WalletUpdate>(
+    WalletUpdate(
+      schema: 1,
+      serial: serial,
+      issuedAt: issued,
+      expiresAt: expires,
+      packageName: packageName,
+      versionName: versionName,
+      notes: notes,
+      apks: apks,
+      desktop: desktop,
+      revokedKeys: List.unmodifiable(revoked),
+      notor: notor,
+    ),
+    text,
+    serial: serial,
+    expiresAt: expires,
+    revokedKeys: revoked,
+  );
+}
+
+/// An `apks` list.
+List<WalletApk> _apks(Object? v) {
+  final apks = _list(v, 8, (e) {
     final o = _obj(e);
     final sha = o['sha256'];
     if (sha is! String || !_sha256Re.hasMatch(sha)) throw const _Bad();
@@ -1171,38 +1254,16 @@ _Parsed<WalletUpdate> _parseWalletUpdate(List<int> bytes) {
   });
   if (apks.isEmpty) throw const _Bad();
   _unique(apks.map((e) => e.abi));
+  return List.unmodifiable(apks);
+}
 
-  WalletDesktop? desktop;
-  if (root.containsKey('desktop')) {
-    final d = _obj(root['desktop']);
-    if (d.containsKey('version')) {
-      desktop = WalletDesktop(all: _desktopEntry(d, perSystem: false));
-    } else {
-      if (d.isEmpty || d.keys.any((k) => !_systems.contains(k))) throw const _Bad();
-      desktop = WalletDesktop(
-        bySystem: Map.unmodifiable({for (final e in d.entries) e.key: _desktopEntry(e.value, perSystem: true)}),
-      );
-    }
-  }
-
-  final revoked = _revokedKeys(root);
-  return _Parsed<WalletUpdate>(
-    WalletUpdate(
-      schema: 1,
-      serial: serial,
-      issuedAt: issued,
-      expiresAt: expires,
-      packageName: packageName,
-      versionName: versionName,
-      notes: notes,
-      apks: List.unmodifiable(apks),
-      desktop: desktop,
-      revokedKeys: List.unmodifiable(revoked),
-    ),
-    text,
-    serial: serial,
-    expiresAt: expires,
-    revokedKeys: revoked,
+/// A `desktop` block, one entry for all or one per system.
+WalletDesktop _desktop(Object? v) {
+  final d = _obj(v);
+  if (d.containsKey('version')) return WalletDesktop(all: _desktopEntry(d, perSystem: false));
+  if (d.isEmpty || d.keys.any((k) => !_systems.contains(k))) throw const _Bad();
+  return WalletDesktop(
+    bySystem: Map.unmodifiable({for (final e in d.entries) e.key: _desktopEntry(e.value, perSystem: true)}),
   );
 }
 

@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/btlabs_public.dart' show WalletDesktopFile, walletDesktopDownloads;
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
+import 'package:epic_wallet/src/desktop/data/desk_update_apply.dart' show DeskUpdateApplier, DmgApplier, deskUpdateApplierProvider;
 import 'package:epic_wallet/src/desktop/data/files.dart' show deskOpenUrlProvider;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -97,6 +98,7 @@ void main() {
     Size size = const Size(1280, 800),
     bool restartOk = false,
     DeskUpdateState? downloadEnds,
+    DeskUpdateApplier? applier,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -111,6 +113,7 @@ void main() {
         return true;
       }),
       deskQuitProvider.overrideWithValue(() async => quits++),
+      if (applier != null) deskUpdateApplierProvider.overrideWithValue(applier),
     ]);
     addTearDown(container.dispose);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
@@ -170,6 +173,24 @@ void main() {
     expect(ready(), findsNothing);
     expect(fake.restarts, 0);
     expect(find.descendant(of: line(), matching: find.text('Restart now')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  }, skip: !inAppUpdates);
+
+  testWidgets('macOS: the checked disk image opens and the app closes; the user replaces the app', (tester) async {
+    const hint = 'The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.';
+    await pump(tester, _state(DeskUpdatePhase.available), downloadEnds: _state(DeskUpdatePhase.ready), restartOk: true, applier: const DmgApplier());
+    await tester.tap(line());
+    await tester.pumpAndSettle();
+    expect(ready(), findsOneWidget);
+    expect(find.descendant(of: ready(), matching: find.text('$_v is ready')), findsOneWidget);
+    expect(find.descendant(of: ready(), matching: find.text(hint)), findsOneWidget);
+    expect(find.text('Restart now'), findsNothing);
+    await tester.tap(find.widgetWithText(EButton, 'Later'));
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: line(), matching: find.text('Open the disk image')), findsOneWidget);
+    expect(tip(tester), contains(hint));
+    await tapAndRun(tester, line());
+    expect((fake.restarts, quits), (1, 1));
     await tester.pumpWidget(const SizedBox());
   }, skip: !inAppUpdates);
 

@@ -17,6 +17,7 @@ import '../../advanced.dart' show NetworkMode;
 import '../../node/local_node_state.dart' show LocalNodePhase;
 import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeInfoProvider, deskOwnerSecretProvider, deskOwnStatusProvider, NodeHead, nodeClassOf;
 import '../data/desk_update.dart' show DeskUpdatePhase, deskUpdateProvider;
+import '../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
 import '../data/node_view.dart' show localNodeView, digits, percent;
 import 'desk_failover.dart' show deskFailoverProvider;
@@ -111,7 +112,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   final u = ref.watch(deskUpdateProvider);
   NowItem? downloading;
   if (inAppUpdates && u.offered) {
-    final w = deskUpdateWords(l, u);
+    final w = deskUpdateWords(l, u, byHand: ref.read(deskUpdateApplierProvider)?.byHand ?? false);
     if (u.phase == DeskUpdatePhase.downloading) {
       downloading = NowItem(id: 'update', icon: EIcons.download, tone: ETone.info, title: w.title, progress: u.progress ?? -1);
     } else {

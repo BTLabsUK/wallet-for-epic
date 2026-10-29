@@ -12,9 +12,9 @@ import 'package:epic_wallet/src/tor_location.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('the desktop flag and in-app updates follow the switch', () {
+  test('the desktop flag follows the switch; in-app updates are on in both variants', () {
     expect(DeskFeatures.tor, torBuilt);
-    expect(inAppUpdates, torBuilt && distUpdates);
+    expect(inAppUpdates, distUpdates);
   });
 
   test('Link · Tor stays on only with Tor in, however it was stored', () {

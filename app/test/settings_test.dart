@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
+import 'dart:io' show File;
 
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
@@ -88,7 +89,8 @@ class _ScanSession extends FakeWalletSession {
 /// What the update check finds, and how often the app asked. With [offer], every opening
 /// finds it, through the phases the real check passes.
 class _UpdateScript {
-  bool supported = false;
+  /// Null: the real rule ([UpdateNotifier.supported]: this build has an updater and a platform).
+  bool? supported = false;
   AvailableUpdate? offer;
   int checks = 0;
   int installs = 0;
@@ -100,7 +102,7 @@ class _ScriptedUpdates extends UpdateNotifier {
   final _UpdateScript script;
 
   @override
-  bool get supported => script.supported;
+  bool get supported => script.supported ?? super.supported;
 
   @override
   Future<void> checkOnOpening() async {
@@ -156,6 +158,9 @@ class _Harness {
   }
 
   final store = MemorySecretStore();
+
+  /// The phone's installer side; null as off Android.
+  UpdatePlatform? updatePlatform;
   final bio = MemoryBiometricStore(available: false);
   final files = FakeHistoryFiles();
   final session = _ScanSession();
@@ -183,7 +188,7 @@ class _Harness {
           ),
           secretStoreProvider.overrideWithValue(store),
           biometricStoreProvider.overrideWithValue(bio),
-          updatePlatformProvider.overrideWithValue(null),
+          updatePlatformProvider.overrideWithValue(updatePlatform),
           updateProvider.overrideWith(() => _ScriptedUpdates(updates)),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
@@ -1664,6 +1669,18 @@ void main() {
     }, skip: !torBuilt);
   });
 
+  testWidgets('About offers Check for updates wherever the updater runs, with Tor and without', (tester) async {
+    final h = _Harness()
+      ..updates.supported = null
+      ..updatePlatform = _NoInstaller();
+    await h.pump(tester);
+    await h.unlock(tester);
+    await h.openSettings(tester, SettingsSection.about);
+    // Every build from our own page has it, the build without Tor too; a store build none.
+    expect(find.text('Check for updates'), inAppUpdates ? findsOneWidget : findsNothing);
+    expect(h.container.read(updateProvider.notifier).supported, inAppUpdates);
+  });
+
   group('a notice under the finger (android-02)', () {
     // Phone sizes in dp: a 411 x 914 and a 360 x 740, where the hub and About fit on screen
     // or nearly so and cannot scroll by themselves.
@@ -2012,4 +2029,20 @@ void main() {
       );
     });
   });
+}
+
+/// An Android platform side that is never asked to install.
+class _NoInstaller implements UpdatePlatform {
+  @override
+  Future<InstalledApp> installedApp() async =>
+      const InstalledApp(packageName: 'uk.btlabs.epiccash.mobile', versionCode: 1, versionName: '1.0.0', abis: ['arm64-v8a']);
+
+  @override
+  Future<String> install(File apk) => throw UnimplementedError();
+
+  @override
+  Future<void> requestInstallPermission() async {}
+
+  @override
+  Stream<({String status, String? message})> get installEvents => const Stream.empty();
 }

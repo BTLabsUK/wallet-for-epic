@@ -5,19 +5,27 @@
 # (lib/src/desktop/data/desk_update.dart), with its SHA-256 and size read from the file.
 # Usage: tool/desktop_update_entry.sh <version> <folder>
 #   version  the release, e.g. 26.10.9
-#   folder   holds the two files exactly as published in
+#   folder   holds the files exactly as published in
 #            https://examples.btlabs.uk/epic-cash-wallets/downloads/:
 #              epic-cash-desktop-<version>-windows-x64-setup.exe
 #              EpicCashDesktop-<version>-x86_64.AppImage
+#              EpicCashDesktop-<version>-macos.dmg          (when the Apple build ships)
+#            and their -notor twins for the builds without Tor
+#            (epic-cash-desktop-<version>-notor-windows-x64-setup.exe, …), which go into
+#            {"notor": {"desktop": {...}}}, the part only those builds read. A release ships
+#            both variants: the Windows and Linux files of each are required.
 #
-# Output: {"desktop": {...}}, to put into the payload by hand or with
+# Output: {"desktop": {...}, "notor": {"desktop": {...}}}, to put into the payload by hand or with
 #   jq -s '.[0] * .[1]' update.payload.json <(tool/desktop_update_entry.sh 26.10.9 <folder>)
-# Clients up to 26.10.8 read only `version` from it (and `page`, which this block leaves out:
-# a page off GitHub would make every client, phone included, reject the whole file).
+# (tool/release_android.sh does it with WFE_DESKTOP_DIR). Clients up to 26.10.8 read only
+# `version` from it (and `page`, which this block leaves out: a page off GitHub would make every
+# client, phone included, reject the whole file); every client reads only its own system's entry,
+# and clients up to 26.10.22 ignore the notor section.
 set -euo pipefail
+shopt -s inherit_errexit
 
 if [[ $# -ne 2 ]]; then
-  sed -n '5,10p' "${BASH_SOURCE[0]}" >&2
+  sed -n '6,16p' "${BASH_SOURCE[0]}" >&2
   exit 64
 fi
 version="$1"
@@ -33,6 +41,16 @@ entry() {
     '{version: $version, url: $url, sha256: $sha, size: $size}'
 }
 
-windows="$(entry "epic-cash-desktop-$version-windows-x64-setup.exe")"
-linux="$(entry "EpicCashDesktop-$version-x86_64.AppImage")"
-jq -n --argjson windows "$windows" --argjson linux "$linux" '{desktop: {windows: $windows, linux: $linux}}'
+# One variant's block: Windows and Linux required, macOS when its dmg is there. $1 is "" or -notor.
+systems() {
+  local v="$1" windows linux macos="null"
+  windows="$(entry "epic-cash-desktop-$version$v-windows-x64-setup.exe")"
+  linux="$(entry "EpicCashDesktop-$version$v-x86_64.AppImage")"
+  [[ -f "$dir/EpicCashDesktop-$version$v-macos.dmg" ]] && macos="$(entry "EpicCashDesktop-$version$v-macos.dmg")"
+  jq -n --argjson windows "$windows" --argjson linux "$linux" --argjson macos "$macos" \
+    '{windows: $windows, linux: $linux} + (if $macos == null then {} else {macos: $macos} end)'
+}
+
+tor="$(systems "")"
+notor="$(systems -notor)"
+jq -n --argjson tor "$tor" --argjson notor "$notor" '{desktop: $tor, notor: {desktop: $notor}}'

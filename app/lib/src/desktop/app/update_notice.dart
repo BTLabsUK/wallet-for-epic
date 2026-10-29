@@ -15,14 +15,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n.dart' show localInt;
 import '../data/desk_update.dart';
+import '../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../data/files.dart' show deskOpenUrlProvider;
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 
 /// What the slot's line says in state [u]: two lines, the hover text, and whether it is a warning.
-/// [act] is false while the download runs (nothing to click).
-({String title, String second, String? tip, bool warn, bool act}) deskUpdateWords(AppLocalizations l, DeskUpdateState u) {
+/// [act] is false while the download runs (nothing to click). [byHand]: the user replaces the app
+/// (macOS, [DeskUpdateApplier.byHand]).
+({String title, String second, String? tip, bool warn, bool act}) deskUpdateWords(AppLocalizations l, DeskUpdateState u, {bool byHand = false}) {
   final v = u.version ?? '';
   return switch (u.phase) {
     DeskUpdatePhase.downloading => (
@@ -34,8 +36,8 @@ import 'desk_app.dart' show deskNavigatorKey;
     ),
     DeskUpdatePhase.ready when u.problem == null => (
       title: l.deskUpdReady(v),
-      second: l.deskUpdRestartNow,
-      tip: l.deskUpdRestartHint,
+      second: byHand ? l.deskUpdOpenDmg : l.deskUpdRestartNow,
+      tip: byHand ? l.deskUpdDmgHint : l.deskUpdRestartHint,
       warn: false,
       act: true,
     ),
@@ -59,11 +61,11 @@ import 'desk_app.dart' show deskNavigatorKey;
 }
 
 /// The button for the step [deskUpdateAct] takes in state [u] (Settings › About); null while
-/// there is none (nothing offered, or the download runs).
-String? deskUpdateActLabel(AppLocalizations l, DeskUpdateState u) => switch (u.phase) {
+/// there is none (nothing offered, or the download runs). [byHand] as for [deskUpdateWords].
+String? deskUpdateActLabel(AppLocalizations l, DeskUpdateState u, {bool byHand = false}) => switch (u.phase) {
   DeskUpdatePhase.unfinished => l.deskUpdTryAgain,
   DeskUpdatePhase.available when u.file != null => u.problem == null ? l.deskUpdDownloadInstall : l.deskUpdTryAgain,
-  DeskUpdatePhase.ready when u.problem == null => l.deskUpdRestart,
+  DeskUpdatePhase.ready when u.problem == null => byHand ? l.deskUpdOpenDmg : l.deskUpdRestart,
   DeskUpdatePhase.available || DeskUpdatePhase.ready => l.deskUpdOpenPage,
   _ => null,
 };
@@ -106,19 +108,20 @@ Future<void> showUpdateReadyDialog(ProviderContainer container, BuildContext? fa
   if (container.read(deskProvider.notifier).sending > 0) return;
   final shown = deskNavigatorKey.currentContext ?? (fallback != null && fallback.mounted ? fallback : null);
   if (shown == null) return;
+  final byHand = container.read(deskUpdateApplierProvider)?.byHand ?? false;
   final now = await showEDialog<bool>(
     shown,
     builder: (context) {
       final l = context.l10n;
       return EDialog(
         key: const ValueKey('update-ready'),
-        title: l.deskUpdReadyTitle,
-        description: l.deskUpdReadyBody,
+        title: byHand ? l.deskUpdReady(u.version ?? '') : l.deskUpdReadyTitle,
+        description: byHand ? l.deskUpdDmgHint : l.deskUpdReadyBody,
         icon: EIcons.restart,
         tone: ETone.gold,
         actions: [
           EButton(label: l.deskUpdLater, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-          EButton(label: l.deskUpdRestartNow, kind: EBtnKind.primary, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+          EButton(label: byHand ? l.deskUpdOpenDmg : l.deskUpdRestartNow, kind: EBtnKind.primary, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
         ],
       );
     },
