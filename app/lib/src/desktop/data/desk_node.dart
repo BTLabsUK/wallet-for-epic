@@ -13,7 +13,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../builtin_node.dart' show NodeTomlOptions, NodeFailure;
+import '../../builtin_node.dart' show NodeTomlOptions, NodeFailure, realPortInUse;
 import '../../models.dart' show Chain;
 import '../../net/local_address.dart' show nodeClassOf;
 import '../../node/node.dart';
@@ -47,6 +47,10 @@ abstract interface class DeskNodeApi {
   /// Preferred peers and the two maxima; changes apply at the next start.
   Future<NodeTomlOptions> options();
   Future<void> setPeerOptions({List<String>? preferred, int? maxInbound, int? maxOutbound});
+
+  /// Whether [port] of this computer is taken (something answers on it). The built-in node's
+  /// own port counts as taken while it runs: a changed port is checked before the restart.
+  Future<bool> portInUse(int port);
 
   Future<List<String>> logTail({int lines = 200});
   Future<String> logPath();
@@ -372,6 +376,9 @@ class LepicDeskNode implements DeskNodeApi {
   Future<void> reuseChainData(ChainDataInfo source, ReuseMode how) async => (await _m).reuseChainData(source, how: how);
 
   @override
+  Future<bool> portInUse(int port) => realPortInUse(port);
+
+  @override
   Future<LocalNodeProbe> probe({String? url}) async {
     if (url == null) return _ref.read(localNodeProbeProvider(chain).future);
     return detectLocalNode(chain, url: url);
@@ -431,6 +438,12 @@ class MockDeskNode implements DeskNodeApi {
   NodeTomlOptions _options = const NodeTomlOptions();
   final Set<String> _banned = {'203.0.113.9:${appConfig.localNodeP2pPort}'};
   int _deleted = 0;
+
+  /// Ports [portInUse] reports taken (a test's "another node runs here").
+  final Set<int> busyPorts = {};
+
+  @override
+  Future<bool> portInUse(int port) async => busyPorts.contains(port);
 
   LocalNodeState get state => _state;
 

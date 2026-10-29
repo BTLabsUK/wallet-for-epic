@@ -219,5 +219,14 @@
   "deskOnbWalletNameEdit": "Wallet-Namen ändern",
   "deskOnbWalletNameField": "Wallet-Name",
   "deskOnbWalletNameIs": "Wallet-Name: {name}",
-  "deskOnbUnlockOpened": "Geöffnet {when}"
+  "deskOnbUnlockOpened": "Geöffnet {when}",
+  "deskOnbNodeAdvanced": "Erweitert",
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "deskOnbNodeApiPort": "API-Port",
+  "deskOnbNodeP2pPort": "P2P-Port",
+  "deskOnbNodePortsWhy": "Nur nötig, wenn ein anderer Node auf diesem Computer oder im Netzwerk diese Ports nutzt.",
+  "deskOnbNodePortRange": "Eine Zahl von {min} bis {max}.",
+  "deskOnbNodePortsSame": "Die beiden Ports müssen sich unterscheiden.",
+  "deskOnbNodePortTaken": "Port {port} wird von einem anderen Programm genutzt. {next} ist frei.",
+  "deskOnbNodePortUse": "{port} nutzen"
 }

@@ -219,5 +219,14 @@
   "deskOnbWalletNameEdit": "Изменить название кошелька",
   "deskOnbWalletNameField": "Название кошелька",
   "deskOnbWalletNameIs": "Название кошелька: {name}",
-  "deskOnbUnlockOpened": "Открыт {when}"
+  "deskOnbUnlockOpened": "Открыт {when}",
+  "deskOnbNodeAdvanced": "Дополнительно",
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "deskOnbNodeApiPort": "Порт API",
+  "deskOnbNodeP2pPort": "Порт P2P",
+  "deskOnbNodePortsWhy": "Нужно только если другой узел на этом компьютере или в сети использует эти порты.",
+  "deskOnbNodePortRange": "Число от {min} до {max}.",
+  "deskOnbNodePortsSame": "Порты должны различаться.",
+  "deskOnbNodePortTaken": "Порт {port} занят другой программой. {next} свободен.",
+  "deskOnbNodePortUse": "Использовать {port}"
 }

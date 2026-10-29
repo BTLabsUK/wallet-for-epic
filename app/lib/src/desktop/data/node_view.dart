@@ -9,7 +9,7 @@ import '../../builtin_node.dart' show NodeStartException;
 import '../../l10n.dart' show AppLocalizations, localDigits, localInt;
 import '../widgets/status.dart' show EState;
 import 'desk_node.dart';
-import '../../settings_file/host_settings.dart' show appConfig;
+import '../../settings_file/host_settings.dart' show hostSettings;
 import 'models.dart' show ServiceHealth;
 
 /// One node as the rail and the panels show it.
@@ -219,7 +219,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
 
 /// Why the local node failed, as a detail after the word (§19).
 String failureLine(AppLocalizations l, LocalNodeState s) => switch (s.failure) {
-  NodeFailure.portInUse => l.deskNodeFailPort('${appConfig.localNodeApiPort}'),
+  NodeFailure.portInUse => l.deskNodeFailPort('${hostSettings.localNodeApiPort}'),
   NodeFailure.diskLow => l.deskNodeFailDisk,
   NodeFailure.binaryMissing => l.deskNodeFailMissing,
   NodeFailure.exited => switch (_exitCode(s.reason)) { final code? => l.deskNodeFailExitedCode(code), _ => l.deskNodeFailExited },
@@ -229,7 +229,7 @@ String failureLine(AppLocalizations l, LocalNodeState s) => switch (s.failure) {
 /// Why a start of the local node failed, as a detail ([failureLine]'s words; the exception's
 /// message is English, for logs).
 String startFailureLine(AppLocalizations l, NodeStartException e) => switch (e.failure) {
-  NodeFailure.portInUse => l.deskNodeFailPort('${appConfig.localNodeApiPort}'),
+  NodeFailure.portInUse => l.deskNodeFailPort('${e.port ?? hostSettings.localNodeApiPort}'),
   NodeFailure.diskLow => l.deskNodeFailDisk,
   NodeFailure.binaryMissing => l.deskNodeFailMissing,
   NodeFailure.exited => switch (_exitCode(e.message)) { final code? => l.deskNodeFailExitedCode(code), _ => l.deskNodeFailExited },

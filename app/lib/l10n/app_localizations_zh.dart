@@ -17385,4 +17385,60 @@ class AppLocalizationsZh extends AppLocalizations {
   String txDetailsDeviceIn(String device) {
     return '与本钱包关联的 $device 收到了这些币。';
   }
+
+  @override
+  String get deskOnbNodeAdvanced => '高级';
+
+  @override
+  String deskOnbNodePortsSub(String api, String p2p) {
+    return 'API $api · P2P $p2p';
+  }
+
+  @override
+  String get deskOnbNodeApiPort => 'API 端口';
+
+  @override
+  String get deskOnbNodeP2pPort => 'P2P 端口';
+
+  @override
+  String get deskOnbNodePortsWhy => '仅当这台电脑或网络中的另一个节点使用这些端口时才需要更改。';
+
+  @override
+  String deskOnbNodePortRange(String min, String max) {
+    return '$min 到 $max 之间的数字。';
+  }
+
+  @override
+  String get deskOnbNodePortsSame => '两个端口必须不同。';
+
+  @override
+  String deskOnbNodePortTaken(String port, String next) {
+    return '端口 $port 被其他程序占用。$next 可用。';
+  }
+
+  @override
+  String deskOnbNodePortUse(String port) {
+    return '使用 $port';
+  }
+
+  @override
+  String get deskSetLnodePorts => '端口';
+
+  @override
+  String get deskSetLnodePortsTitle => '节点端口';
+
+  @override
+  String get deskSetLnodePortsDesc => '内置节点监听的端口。';
+
+  @override
+  String get deskSetLnodePortsRestart => '节点将使用新端口重新启动。';
+
+  @override
+  String get deskSetLnodePortsSaved => '端口已保存';
+
+  @override
+  String get deskSetLnodePortsRestarting => '节点正在重新启动。';
+
+  @override
+  String get deskSetLnodePortsNotSaved => '端口未保存';
 }

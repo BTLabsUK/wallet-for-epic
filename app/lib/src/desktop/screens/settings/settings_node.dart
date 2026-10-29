@@ -7,7 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../../network.dart' show mainnetPreset;
-import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
+import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings, hostSettings, localNodePortValues;
+import '../../../settings_file/settings_providers.dart' show writeHostSettings;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -302,6 +303,10 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
         // Answered for good only once the node is going to start.
         await ref.read(deskFallbackProvider.notifier).set(FallbackChoice(choice.useFallback ? FallbackConsent.accepted : FallbackConsent.declined, at: DateTime.now()));
         fallbackAskedThisSession = true;
+        // The ports under Advanced: in settings.toml only while they differ from the defaults.
+        final ports = choice.ports;
+        if (ports.valid) await writeHostSettings(localNodePortValues(hostSettings, api: ports.api!, p2p: ports.p2p!));
+        if (!mounted) return;
       }
       if (!mounted) return;
       setState(() {

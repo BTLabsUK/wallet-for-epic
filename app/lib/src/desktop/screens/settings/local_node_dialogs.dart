@@ -13,7 +13,95 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/server_row.dart';
+import '../../../settings_file/host_settings.dart' show hostSettings, localNodePortValues;
+import '../../../settings_file/settings_providers.dart' show writeHostSettings;
+import '../onboarding/local_node_step.dart' show LocalNodePorts, LocalNodePortsFields, findTakenPorts;
 import 'settings_node.dart' show serverRows, nodeListNoteText;
+
+/// The built-in node's ports from the panel's Ports row. Save checks a changed port is free
+/// (a taken one is named with the next free port), writes `[local_node]` to settings.toml
+/// (only while the ports differ from the defaults) and, with the node [running], restarts it
+/// and moves the wallet to its new address.
+Future<void> showLocalNodePortsDialog(BuildContext context, DeskNodeApi api, {required bool running}) =>
+    showEDialog<void>(context, builder: (_) => LocalNodePortsDialog(api: api, running: running));
+
+class LocalNodePortsDialog extends ConsumerStatefulWidget {
+  const LocalNodePortsDialog({super.key, required this.api, required this.running});
+
+  final DeskNodeApi api;
+  final bool running;
+
+  @override
+  ConsumerState<LocalNodePortsDialog> createState() => _LocalNodePortsDialogState();
+}
+
+class _LocalNodePortsDialogState extends ConsumerState<LocalNodePortsDialog> {
+  final _was = LocalNodePorts();
+  late LocalNodePorts _ports = _was;
+  Map<int, int> _taken = const {};
+  bool _busy = false;
+
+  Future<void> _save() async {
+    final l = context.l10n;
+    final p = _ports;
+    setState(() => _busy = true);
+    // The running node answers on its own ports: those are not another program's.
+    final keep = widget.running ? {_was.api!, _was.p2p!} : const <int>{};
+    final taken = await findTakenPorts(widget.api, p, keep: keep);
+    if (!mounted) return;
+    if (taken.isNotEmpty) {
+      setState(() {
+        _busy = false;
+        _taken = taken;
+      });
+      return;
+    }
+    try {
+      await writeHostSettings(localNodePortValues(hostSettings, api: p.api!, p2p: p.p2p!));
+      if (widget.running) {
+        await widget.api.restart();
+        await ref.read(deskProvider.notifier).followBuiltInNode();
+      }
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      showEToast(context, l.deskSetLnodePortsNotSaved, text: '$e', tone: ETone.risk);
+      return;
+    }
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    showEToast(context, l.deskSetLnodePortsSaved, text: widget.running ? l.deskSetLnodePortsRestarting : null, tone: ETone.ok);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final changed = _ports != _was;
+    return EDialog(
+      title: l.deskSetLnodePortsTitle,
+      icon: EIcons.node,
+      description: l.deskSetLnodePortsDesc,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LocalNodePortsFields(
+            ports: _ports,
+            taken: _taken,
+            onChanged: (p) => setState(() {
+              _taken = {for (final e in _taken.entries) if (e.key == p.api || e.key == p.p2p) e.key: e.value};
+              _ports = p;
+            }),
+          ),
+          if (widget.running) ...[SizedBox(height: Sp.x3), Text(l.deskSetLnodePortsRestart, style: context.ts.caption)],
+        ],
+      ),
+      actions: [
+        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton.primary(label: l.commonSave, busy: _busy, onPressed: changed && _ports.valid && !_busy ? _save : null),
+      ],
+    );
+  }
+}
 
 /// The local node's fallback was asked this session (the dialog shows once).
 bool fallbackAskedThisSession = false;

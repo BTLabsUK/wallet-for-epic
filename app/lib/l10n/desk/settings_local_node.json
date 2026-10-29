@@ -888,5 +888,33 @@
   "deskSetPeersFirstSeenHint": "When this app first saw the peer connected, this session.",
   "@deskSetPeersFirstSeenHint": {
     "description": "Peers tab: info hint on the First seen column."
+  },
+  "deskSetLnodePorts": "Ports",
+  "@deskSetLnodePorts": {
+    "description": "Local node panel: row title for the built-in node's API and P2P ports. One word."
+  },
+  "deskSetLnodePortsTitle": "Node ports",
+  "@deskSetLnodePortsTitle": {
+    "description": "Title of the dialog that changes the built-in node's ports."
+  },
+  "deskSetLnodePortsDesc": "The ports the built-in node listens on.",
+  "@deskSetLnodePortsDesc": {
+    "description": "One line under the Node ports dialog title."
+  },
+  "deskSetLnodePortsRestart": "The node restarts with the new ports.",
+  "@deskSetLnodePortsRestart": {
+    "description": "Note in the Node ports dialog while the node runs: saving a change restarts it."
+  },
+  "deskSetLnodePortsSaved": "Ports saved",
+  "@deskSetLnodePortsSaved": {
+    "description": "Toast title after the node ports were saved."
+  },
+  "deskSetLnodePortsRestarting": "The node is restarting.",
+  "@deskSetLnodePortsRestarting": {
+    "description": "Toast line after the node ports were saved while the node ran."
+  },
+  "deskSetLnodePortsNotSaved": "Ports not saved",
+  "@deskSetLnodePortsNotSaved": {
+    "description": "Toast title when the node ports could not be saved or the node could not restart; the error follows."
   }
 }

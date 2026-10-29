@@ -18666,4 +18666,64 @@ class AppLocalizationsDe extends AppLocalizations {
   String txDetailsDeviceIn(String device) {
     return '$device, mit dieser Wallet verknüpft, hat diese Coins empfangen.';
   }
+
+  @override
+  String get deskOnbNodeAdvanced => 'Erweitert';
+
+  @override
+  String deskOnbNodePortsSub(String api, String p2p) {
+    return 'API $api · P2P $p2p';
+  }
+
+  @override
+  String get deskOnbNodeApiPort => 'API-Port';
+
+  @override
+  String get deskOnbNodeP2pPort => 'P2P-Port';
+
+  @override
+  String get deskOnbNodePortsWhy =>
+      'Nur nötig, wenn ein anderer Node auf diesem Computer oder im Netzwerk diese Ports nutzt.';
+
+  @override
+  String deskOnbNodePortRange(String min, String max) {
+    return 'Eine Zahl von $min bis $max.';
+  }
+
+  @override
+  String get deskOnbNodePortsSame =>
+      'Die beiden Ports müssen sich unterscheiden.';
+
+  @override
+  String deskOnbNodePortTaken(String port, String next) {
+    return 'Port $port wird von einem anderen Programm genutzt. $next ist frei.';
+  }
+
+  @override
+  String deskOnbNodePortUse(String port) {
+    return '$port nutzen';
+  }
+
+  @override
+  String get deskSetLnodePorts => 'Ports';
+
+  @override
+  String get deskSetLnodePortsTitle => 'Node-Ports';
+
+  @override
+  String get deskSetLnodePortsDesc =>
+      'Die Ports, auf denen der mitgelieferte Node lauscht.';
+
+  @override
+  String get deskSetLnodePortsRestart =>
+      'Der Node startet mit den neuen Ports neu.';
+
+  @override
+  String get deskSetLnodePortsSaved => 'Ports gespeichert';
+
+  @override
+  String get deskSetLnodePortsRestarting => 'Der Node startet neu.';
+
+  @override
+  String get deskSetLnodePortsNotSaved => 'Ports nicht gespeichert';
 }

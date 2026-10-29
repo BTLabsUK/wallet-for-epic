@@ -65,6 +65,27 @@ List<Map<String, Object?>> _servers(String text) => [
 ];
 
 void main() {
+  group('removeValue', () {
+    test('a key goes with its comment; the last key takes its table along; a missing key is nothing', () {
+      final e = TomlEditor('[node]\nuse = "a"\n\n# the ports\n[local_node]\n# mine\napi_port = 13413\np2p_port = 13414\n');
+      e.removeValue('local_node.api_port');
+      expect(e.text, '[node]\nuse = "a"\n\n# the ports\n[local_node]\np2p_port = 13414\n');
+      e.removeValue('local_node.p2p_port');
+      expect(e.text, '[node]\nuse = "a"\n');
+      e.removeValue('local_node.p2p_port');
+      expect(e.text, '[node]\nuse = "a"\n');
+    });
+
+    test('a table in the middle goes without leaving two blank lines', () {
+      final e = TomlEditor('[local_node]\napi_port = 13413\n\n[node]\nuse = "a"\n');
+      e.removeValue('local_node.api_port');
+      expect(e.text, '[node]\nuse = "a"\n');
+      final m = TomlEditor('[a]\nx = 1\n\n[local_node]\napi_port = 13413\n\n[node]\nuse = "a"\n');
+      m.removeValue('local_node.api_port');
+      expect(m.text, '[a]\nx = 1\n\n[node]\nuse = "a"\n');
+    });
+  });
+
   group('scan', () {
     test('finds keys, tables, blocks and multi-line values', () {
       final scan = TomlScan(_doc);

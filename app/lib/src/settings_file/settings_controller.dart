@@ -314,14 +314,22 @@ class SettingsFileController {
   }
 
   bool _sameValue(String path, Object? raw, Object value) {
-    if (raw == null) return false;
-    final c = checkValue(settingsKeysByPath[path]!.kind, raw);
+    final key = settingsKeysByPath[path]!;
+    // An optional key left out of the file is at its "not set" value.
+    if (raw == null) return key.byDefault != null && deepEquals(value, key.byDefault);
+    final c = checkValue(key.kind, raw);
     return c.ok && deepEquals(c.value, value);
   }
 
-  /// Sets [path] in [editor]'s text to [value] (the model's shape).
+  /// Sets [path] in [editor]'s text to [value] (the model's shape). An optional key at its
+  /// "not set" value is taken out of the file instead: the default applies.
   void _edit(TomlEditor editor, String path, Object value) {
-    final kind = settingsKeysByPath[path]!.kind;
+    final key = settingsKeysByPath[path]!;
+    final kind = key.kind;
+    if (key.byDefault != null && deepEquals(value, key.byDefault)) {
+      editor.removeValue(path);
+      return;
+    }
     if (kind is TablesKind) {
       final raw = rawValue(parseSettingsToml(editor.text), path);
       final current = raw is List ? [for (final e in raw.whereType<Map>()) Map<String, Object?>.from(e)] : null;

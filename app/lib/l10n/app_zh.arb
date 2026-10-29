@@ -4817,5 +4817,21 @@
   "devicesRelayWhy": "在同一个 Epicbox 服务器上，两台设备会回应相同的付款。在不同的服务器上，每台设备只回应发往自己地址的付款。",
   "txReceivedOnDevice": "在 {device} 上收到",
   "txSpokenReceivedOnDevice": "在 {device} 上收到，{amount}",
-  "txDetailsDeviceIn": "与本钱包关联的 {device} 收到了这些币。"
+  "txDetailsDeviceIn": "与本钱包关联的 {device} 收到了这些币。",
+  "deskOnbNodeAdvanced": "高级",
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "deskOnbNodeApiPort": "API 端口",
+  "deskOnbNodeP2pPort": "P2P 端口",
+  "deskOnbNodePortsWhy": "仅当这台电脑或网络中的另一个节点使用这些端口时才需要更改。",
+  "deskOnbNodePortRange": "{min} 到 {max} 之间的数字。",
+  "deskOnbNodePortsSame": "两个端口必须不同。",
+  "deskOnbNodePortTaken": "端口 {port} 被其他程序占用。{next} 可用。",
+  "deskOnbNodePortUse": "使用 {port}",
+  "deskSetLnodePorts": "端口",
+  "deskSetLnodePortsTitle": "节点端口",
+  "deskSetLnodePortsDesc": "内置节点监听的端口。",
+  "deskSetLnodePortsRestart": "节点将使用新端口重新启动。",
+  "deskSetLnodePortsSaved": "端口已保存",
+  "deskSetLnodePortsRestarting": "节点正在重新启动。",
+  "deskSetLnodePortsNotSaved": "端口未保存"
 }

@@ -264,6 +264,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<void> useBuiltInNode(bool on) => _r('useBuiltInNode', () => _m.useBuiltInNode(on));
   @override
+  Future<void> followBuiltInNode() => _r('followBuiltInNode', () => _m.followBuiltInNode());
+  @override
   Future<NodeServer> checkNode(String url) => _r('checkNode', () => _m.checkNode(url));
   @override
   Future<void> addNode(NodeServer node) => _r('addNode', () => _m.addNode(node));

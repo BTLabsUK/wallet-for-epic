@@ -18036,4 +18036,61 @@ class AppLocalizationsTh extends AppLocalizations {
   String txDetailsDeviceIn(String device) {
     return '$device ซึ่งเชื่อมโยงกับกระเป๋าเงินนี้ ได้รับเหรียญเหล่านี้';
   }
+
+  @override
+  String get deskOnbNodeAdvanced => 'ขั้นสูง';
+
+  @override
+  String deskOnbNodePortsSub(String api, String p2p) {
+    return 'API $api · P2P $p2p';
+  }
+
+  @override
+  String get deskOnbNodeApiPort => 'พอร์ต API';
+
+  @override
+  String get deskOnbNodeP2pPort => 'พอร์ต P2P';
+
+  @override
+  String get deskOnbNodePortsWhy =>
+      'จำเป็นเฉพาะเมื่อโหนดอื่นในคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายใช้พอร์ตเหล่านี้';
+
+  @override
+  String deskOnbNodePortRange(String min, String max) {
+    return 'ตัวเลขตั้งแต่ $min ถึง $max';
+  }
+
+  @override
+  String get deskOnbNodePortsSame => 'พอร์ตทั้งสองต้องต่างกัน';
+
+  @override
+  String deskOnbNodePortTaken(String port, String next) {
+    return 'พอร์ต $port ถูกโปรแกรมอื่นใช้อยู่ $next ว่าง';
+  }
+
+  @override
+  String deskOnbNodePortUse(String port) {
+    return 'ใช้ $port';
+  }
+
+  @override
+  String get deskSetLnodePorts => 'พอร์ต';
+
+  @override
+  String get deskSetLnodePortsTitle => 'พอร์ตของโหนด';
+
+  @override
+  String get deskSetLnodePortsDesc => 'พอร์ตที่โหนดในตัวรับการเชื่อมต่อ';
+
+  @override
+  String get deskSetLnodePortsRestart => 'โหนดจะเริ่มใหม่ด้วยพอร์ตใหม่';
+
+  @override
+  String get deskSetLnodePortsSaved => 'บันทึกพอร์ตแล้ว';
+
+  @override
+  String get deskSetLnodePortsRestarting => 'โหนดกำลังเริ่มใหม่';
+
+  @override
+  String get deskSetLnodePortsNotSaved => 'ไม่ได้บันทึกพอร์ต';
 }

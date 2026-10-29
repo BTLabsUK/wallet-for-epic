@@ -3650,6 +3650,15 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
+  /// The built-in node's address changed (its ports were set, and it restarted on them): with
+  /// the built-in node on, the wallet moves to its new address, or stays on the public node
+  /// the last fallback decision named. Off, nothing happens.
+  @override
+  Future<void> followBuiltInNode() {
+    _fallback ??= (usePublic: false, publicUrl: null);
+    return _applyFallback(++_fallbackSeq);
+  }
+
   /// At launch: starts the built-in node again when it was left on. A failure is logged and
   /// shown as a notice; the wallet then reports its node as not responding.
   Future<void> resumeBuiltInNode() async {

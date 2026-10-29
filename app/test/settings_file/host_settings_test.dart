@@ -15,9 +15,13 @@ void main() {
     test('the default copy has every key of settings.toml, all good, and nothing else', () {
       final doc = parseSettingsToml(_defaultText);
       for (final k in settingsKeys) {
-        expect(rawValue(doc, k.path), isNotNull, reason: k.path);
+        // An optional key (the built-in node's ports) is in the file only while set.
+        expect(rawValue(doc, k.path), k.byDefault == null ? isNotNull : isNull, reason: k.path);
       }
       final s = HostSettings.fromText(_defaultText, config: AppConfig.fromText(_configText));
+      expect(s.localNodePortsSet, isFalse);
+      expect(s.localNodeApiPort, s.config.localNodeApiPort, reason: 'the built-in node ports come from app-config.toml');
+      expect(s.localNodeP2pPort, s.config.localNodeP2pPort);
       final read = readSettings(_defaultText, shipped: s);
       expect(read.issues, isEmpty);
       expect(read.unknown, isEmpty);
@@ -90,6 +94,32 @@ void main() {
       ]);
       expect(r.settings.nodeUse, 'https://good.example.invalid');
       expect(r.settings.statusEnabled, shipped.statusEnabled);
+    });
+
+    test('[local_node] sets the built-in node ports; a port under 1024 or equal text is skipped', () {
+      final r = readSettings('[local_node]\napi_port = 13413\np2p_port = 13414\n', shipped: shipped);
+      expect(r.issues, isEmpty);
+      expect(r.unknown, isEmpty);
+      expect(r.settings.localNodePortsSet, isTrue);
+      expect(r.settings.localNodeApiPort, 13413);
+      expect(r.settings.localNodeP2pPort, 13414);
+      expect(r.settings.nodeUrls, shipped.nodeUrls, reason: 'the rest reads as the default copy');
+
+      final bad = readSettings('[local_node]\napi_port = 80\np2p_port = "x"\n', shipped: shipped);
+      expect(bad.issues, [const ValueIssue('local_node.api_port', 2, ValueProblem.notPort), const ValueIssue('local_node.p2p_port', 3, ValueProblem.notPort)]);
+      expect(bad.settings.localNodeApiPort, shipped.config.localNodeApiPort);
+      expect(bad.settings.localNodeP2pPort, shipped.config.localNodeP2pPort);
+
+      final one = readSettings('[local_node]\napi_port = 13413\n', shipped: shipped);
+      expect(one.settings.localNodeApiPort, 13413);
+      expect(one.settings.localNodeP2pPort, shipped.config.localNodeP2pPort, reason: 'a key left out keeps the default');
+    });
+
+    test('localNodePortValues writes a port only while it differs from the default', () {
+      final v = localNodePortValues(shipped, api: shipped.config.localNodeApiPort, p2p: 13414);
+      expect(v, {'local_node.api_port': notSet, 'local_node.p2p_port': 13414});
+      expect(checkAppValue('local_node.api_port', notSet), notSet, reason: 'the "not set" value passes as a removal');
+      expect(() => checkAppValue('local_node.api_port', 80), throwsArgumentError);
     });
 
     test('a bad Epicbox server is not used', () {

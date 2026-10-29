@@ -28819,6 +28819,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{device}, linked to this wallet, received these coins.'**
   String txDetailsDeviceIn(String device);
+
+  /// Local node step/dialog: title of the collapsed fold under the bundled node choice that holds the port fields. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get deskOnbNodeAdvanced;
+
+  /// Beside the Advanced fold title, dim: the ports chosen inside, when they are not the defaults. {api} and {p2p} are port numbers; API and P2P stay as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'API {api} · P2P {p2p}'**
+  String deskOnbNodePortsSub(String api, String p2p);
+
+  /// Label of the field for the built-in node's API port (the port the wallet talks to). 1–3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'API port'**
+  String get deskOnbNodeApiPort;
+
+  /// Label of the field for the built-in node's peer-to-peer port (other nodes connect to it). 1–3 words.
+  ///
+  /// In en, this message translates to:
+  /// **'P2P port'**
+  String get deskOnbNodeP2pPort;
+
+  /// One-line tooltip on the port fields and on the Ports row: why one would change the ports.
+  ///
+  /// In en, this message translates to:
+  /// **'Only needed if another node on this computer or network uses these ports.'**
+  String get deskOnbNodePortsWhy;
+
+  /// Error under a port field: the value is not a number in the allowed range. {min} and {max} are numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'A number from {min} to {max}.'**
+  String deskOnbNodePortRange(String min, String max);
+
+  /// Error under the port fields when the API and P2P ports are the same number.
+  ///
+  /// In en, this message translates to:
+  /// **'The two ports must differ.'**
+  String get deskOnbNodePortsSame;
+
+  /// Error under a port field after Save: something else listens on that port; the next free port is suggested. {port} and {next} are numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Port {port} is used by another program. {next} is free.'**
+  String deskOnbNodePortTaken(String port, String next);
+
+  /// Link beside the taken-port error that puts the suggested free port into the field. {port} is a number.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {port}'**
+  String deskOnbNodePortUse(String port);
+
+  /// Local node panel: row title for the built-in node's API and P2P ports. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Ports'**
+  String get deskSetLnodePorts;
+
+  /// Title of the dialog that changes the built-in node's ports.
+  ///
+  /// In en, this message translates to:
+  /// **'Node ports'**
+  String get deskSetLnodePortsTitle;
+
+  /// One line under the Node ports dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'The ports the built-in node listens on.'**
+  String get deskSetLnodePortsDesc;
+
+  /// Note in the Node ports dialog while the node runs: saving a change restarts it.
+  ///
+  /// In en, this message translates to:
+  /// **'The node restarts with the new ports.'**
+  String get deskSetLnodePortsRestart;
+
+  /// Toast title after the node ports were saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Ports saved'**
+  String get deskSetLnodePortsSaved;
+
+  /// Toast line after the node ports were saved while the node ran.
+  ///
+  /// In en, this message translates to:
+  /// **'The node is restarting.'**
+  String get deskSetLnodePortsRestarting;
+
+  /// Toast title when the node ports could not be saved or the node could not restart; the error follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Ports not saved'**
+  String get deskSetLnodePortsNotSaved;
 }
 
 class _AppLocalizationsDelegate

@@ -217,6 +217,17 @@ String onionIdentity(Map<String, Object?> e) {
 // --- the layout -----------------------------------------------------------------------------
 
 const _port = IntKind(min: 1, max: 65535, problem: ValueProblem.notPort);
+
+/// A port the user may set for the built-in node: above the system ports.
+const _userPort = IntKind(min: userPortMin, max: 65535, problem: ValueProblem.notPort);
+
+/// The lowest port the built-in node may be given (the system ports stay out).
+const int userPortMin = 1024;
+
+/// The value of a user key that is left out of the file: the key is then not set, and the
+/// `app-config.toml` value applies. The app writes such a key only while it differs from
+/// that, and removes it from the file otherwise.
+const int notSet = 0;
 const _url = TextKind(checkWebAddress);
 const _urls = TextListKind(checkWebAddress);
 const _seconds = IntKind(min: 1, max: 86400);
@@ -232,13 +243,18 @@ const torOnionsKind = TablesKind([
 ], onionIdentity);
 
 /// Every key of the user's `settings.toml`, in the default copy's order. The first entry of
-/// each server list is the one in use; an empty list means none is configured.
+/// each server list is the one in use; an empty list means none is configured. A key with a
+/// [SettingsKey.byDefault] ([notSet]) is optional: the default copy leaves it out, it is in
+/// the file only while it differs from `app-config.toml` (the built-in node's ports).
 const List<SettingsKey> settingsKeys = [
   SettingsKey('node.servers', TextListKind(checkNodeAddress)),
   SettingsKey('epicbox.servers', TextListKind(checkEpicboxServer)),
   SettingsKey('online.status_site', BoolKind()),
   SettingsKey('online.update_check', BoolKind()),
   SettingsKey('online.price', BoolKind()),
+  // [local_node]: the built-in node's ports when they are not `[node.local]`'s of app-config.toml.
+  SettingsKey('local_node.api_port', _userPort, byDefault: notSet),
+  SettingsKey('local_node.p2p_port', _userPort, byDefault: notSet),
 ];
 
 /// Every key of `app-config.toml`, in its order. Read-only: the app never writes it.

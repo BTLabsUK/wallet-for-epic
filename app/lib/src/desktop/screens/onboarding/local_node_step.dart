@@ -8,20 +8,22 @@ library;
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
-import '../../../settings_file/host_settings.dart' show appConfig;
+import '../../../settings_file/host_settings.dart' show appConfig, hostSettings;
+import '../../../settings_file/settings_layout.dart' show userPortMin;
 
 enum LocalNodeHow { bundled, existing }
 
 /// What the user chose on the step.
 @immutable
 class LocalNodeChoice {
-  const LocalNodeChoice({required this.how, required this.existingUrl, required this.useFallback, this.probe});
+  const LocalNodeChoice({required this.how, required this.existingUrl, required this.useFallback, this.probe, this.ports = const LocalNodePorts.typed(apiText: '', p2pText: '')});
 
   final LocalNodeHow how;
 
@@ -34,14 +36,179 @@ class LocalNodeChoice {
   /// The last check of [existingUrl].
   final LocalNodeProbe? probe;
 
+  /// The bundled node's ports as typed under Advanced (the settings' values until edited; the
+  /// first run's step, which has no fold, leaves them empty and keeps the settings' ports).
+  final LocalNodePorts ports;
+
   bool get existingFound => probe?.answers == true;
 
-  LocalNodeChoice copyWith({LocalNodeHow? how, String? existingUrl, bool? useFallback, LocalNodeProbe? probe, bool clearProbe = false}) => LocalNodeChoice(
-    how: how ?? this.how,
-    existingUrl: existingUrl ?? this.existingUrl,
-    useFallback: useFallback ?? this.useFallback,
-    probe: clearProbe ? null : (probe ?? this.probe),
-  );
+  LocalNodeChoice copyWith({LocalNodeHow? how, String? existingUrl, bool? useFallback, LocalNodeProbe? probe, bool clearProbe = false, LocalNodePorts? ports}) =>
+      LocalNodeChoice(
+        how: how ?? this.how,
+        existingUrl: existingUrl ?? this.existingUrl,
+        useFallback: useFallback ?? this.useFallback,
+        probe: clearProbe ? null : (probe ?? this.probe),
+        ports: ports ?? this.ports,
+      );
+}
+
+/// The bundled node's two ports as typed: [apiText] and [p2pText] are the fields' text, so a
+/// half-typed value is kept and judged. [api] and [p2p] are the numbers, null while a field
+/// does not hold a port in range. [LocalNodePorts()] is the settings' current pair.
+@immutable
+class LocalNodePorts {
+  const LocalNodePorts._(this.apiText, this.p2pText);
+
+  /// The ports in use now: the user's `[local_node]` keys over `app-config.toml`.
+  factory LocalNodePorts() => LocalNodePorts._('${hostSettings.localNodeApiPort}', '${hostSettings.localNodeP2pPort}');
+
+  const LocalNodePorts.typed({required this.apiText, required this.p2pText});
+
+  final String apiText;
+  final String p2pText;
+
+  int? get api => parsePort(apiText);
+  int? get p2p => parsePort(p2pText);
+
+  /// Both numbers in range and different from each other.
+  bool get valid => api != null && p2p != null && api != p2p;
+
+  /// Why [text] is not a port, as the field says it, or null.
+  static PortProblem? problemOf(String text, {int? other}) {
+    final n = parsePort(text);
+    if (n == null) return PortProblem.range;
+    if (other != null && n == other) return PortProblem.same;
+    return null;
+  }
+
+  /// [text] as a port from [userPortMin] to 65535, or null.
+  static int? parsePort(String text) {
+    final n = int.tryParse(text.trim());
+    return n == null || n < userPortMin || n > 65535 ? null : n;
+  }
+
+  LocalNodePorts copyWith({String? apiText, String? p2pText}) => LocalNodePorts._(apiText ?? this.apiText, p2pText ?? this.p2pText);
+
+  @override
+  bool operator ==(Object other) => other is LocalNodePorts && other.apiText == apiText && other.p2pText == p2pText;
+
+  @override
+  int get hashCode => Object.hash(apiText, p2pText);
+}
+
+/// What is wrong with a typed port.
+enum PortProblem { range, same }
+
+/// The two port fields of the bundled node (API, P2P), with the tooltip on why one would
+/// change them, the errors under them and, after a Save found a port taken, the next free one
+/// as a link that fills it in ([taken]: port → suggested free port).
+class LocalNodePortsFields extends StatefulWidget {
+  const LocalNodePortsFields({super.key, required this.ports, required this.onChanged, this.taken = const {}});
+
+  final LocalNodePorts ports;
+  final ValueChanged<LocalNodePorts> onChanged;
+  final Map<int, int> taken;
+
+  @override
+  State<LocalNodePortsFields> createState() => _LocalNodePortsFieldsState();
+}
+
+class _LocalNodePortsFieldsState extends State<LocalNodePortsFields> {
+  late final _api = TextEditingController(text: widget.ports.apiText);
+  late final _p2p = TextEditingController(text: widget.ports.p2pText);
+
+  @override
+  void didUpdateWidget(LocalNodePortsFields old) {
+    super.didUpdateWidget(old);
+    if (widget.ports.apiText != _api.text) _api.text = widget.ports.apiText;
+    if (widget.ports.p2pText != _p2p.text) _p2p.text = widget.ports.p2pText;
+  }
+
+  @override
+  void dispose() {
+    _api.dispose();
+    _p2p.dispose();
+    super.dispose();
+  }
+
+  String? _error(AppLocalizations l, String text, {required int? other}) {
+    final n = LocalNodePorts.parsePort(text);
+    final next = n == null ? null : widget.taken[n];
+    if (n != null && next != null) return l.deskOnbNodePortTaken('$n', '$next');
+    return switch (LocalNodePorts.problemOf(text, other: other)) {
+      PortProblem.range => l.deskOnbNodePortRange('$userPortMin', '65535'),
+      PortProblem.same => l.deskOnbNodePortsSame,
+      null => null,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final c = context.dc;
+    final p = widget.ports;
+    final apiError = _error(l, p.apiText, other: p.p2p);
+    // The "same" error shows once, under the P2P field.
+    final apiShown = apiError == l.deskOnbNodePortsSame ? null : apiError;
+    final p2pError = _error(l, p.p2pText, other: p.api);
+    final apiNext = p.api == null ? null : widget.taken[p.api];
+    final p2pNext = p.p2p == null ? null : widget.taken[p.p2p];
+    final formatters = [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(5)];
+
+    Widget field({required String label, required TextEditingController ctl, required int byDefault, required String? error, required int? next, required void Function(String) set}) {
+      return Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(label, style: ts.small.copyWith(fontWeight: FontWeight.w600, color: c.text)),
+                SizedBox(width: Sp.x1),
+                EInfoHint(l.deskOnbNodePortsWhy),
+              ],
+            ),
+            SizedBox(height: Sp.x1),
+            EInput(
+              size: EBtnSize.sm,
+              controller: ctl,
+              mono: true,
+              hint: '$byDefault',
+              invalid: error != null,
+              keyboardType: TextInputType.number,
+              inputFormatters: formatters,
+              semanticLabel: label,
+              onChanged: set,
+            ),
+            if (error != null) ...[
+              SizedBox(height: Sp.x1),
+              Semantics(
+                liveRegion: true,
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: Sp.x2,
+                  children: [
+                    Text(error, style: ts.caption.copyWith(color: c.risk)),
+                    if (next != null) ELink(label: l.deskOnbNodePortUse('$next'), onPressed: () => set('$next')),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        field(label: l.deskOnbNodeApiPort, ctl: _api, byDefault: appConfig.localNodeApiPort, error: apiShown, next: apiNext, set: (v) => widget.onChanged(p.copyWith(apiText: v))),
+        SizedBox(width: Sp.x3),
+        field(label: l.deskOnbNodeP2pPort, ctl: _p2p, byDefault: appConfig.localNodeP2pPort, error: p2pError, next: p2pNext, set: (v) => widget.onChanged(p.copyWith(p2pText: v))),
+      ],
+    );
+  }
 }
 
 /// The tour's start states of the step.
@@ -51,13 +218,23 @@ enum LocalNodeDemo { none, found, notFound }
 String _gb(AppLocalizations l, int bytes) => bytesText(bytes, l);
 
 class LocalNodeStep extends ConsumerStatefulWidget {
-  const LocalNodeStep({super.key, required this.onChanged, this.demo = LocalNodeDemo.none, this.compact = false});
+  const LocalNodeStep({super.key, required this.onChanged, this.demo = LocalNodeDemo.none, this.compact = false, this.ports = false, this.portsOpen = false, this.taken = const {}});
 
   final ValueChanged<LocalNodeChoice> onChanged;
   final LocalNodeDemo demo;
 
   /// Tighter spacing for the dialog.
   final bool compact;
+
+  /// The Advanced fold with the bundled node's port fields (the Settings dialog; the first
+  /// run keeps the defaults).
+  final bool ports;
+
+  /// The fold open from the start (the tour).
+  final bool portsOpen;
+
+  /// Ports a Save found taken, each with the next free one (see [LocalNodePortsFields]).
+  final Map<int, int> taken;
 
   @override
   ConsumerState<LocalNodeStep> createState() => _LocalNodeStepState();
@@ -70,7 +247,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
 
   late final _url = TextEditingController(text: _localUrl);
   // No fallback to offer with an empty Node list: the wallet waits for the local node.
-  var _choice = LocalNodeChoice(how: LocalNodeHow.bundled, existingUrl: _localUrl, useFallback: hasFallbackNode);
+  var _choice = LocalNodeChoice(how: LocalNodeHow.bundled, existingUrl: _localUrl, useFallback: hasFallbackNode, ports: LocalNodePorts());
   bool _checking = false;
 
   @override
@@ -232,57 +409,131 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
           selected: !existing,
           onTap: () => _set(_choice.copyWith(how: LocalNodeHow.bundled)),
         ),
+        // The fallback checkbox only with a node to fall back to; the ports fold regardless.
         ExpandFade(
-          open: !existing && hasFallbackNode,
+          open: !existing && (hasFallbackNode || widget.ports),
           child: Padding(
             padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, 0, Sp.x1),
-            child: ECheckbox(
-              value: _choice.useFallback,
-              label: l.deskOnbNodeFallback(nodeHost(defaultFallbackNodeUrl)),
-              onChanged: (v) => _set(_choice.copyWith(useFallback: v)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (hasFallbackNode)
+                  ECheckbox(
+                    value: _choice.useFallback,
+                    label: l.deskOnbNodeFallback(nodeHost(defaultFallbackNodeUrl)),
+                    onChanged: (v) => _set(_choice.copyWith(useFallback: v)),
+                  ),
+                if (widget.ports) ...[
+                  if (hasFallbackNode) SizedBox(height: gap),
+                  EDetails(
+                    key: const ValueKey('local-node-advanced'),
+                    title: l.deskOnbNodeAdvanced,
+                    subtitle: _portsSubtitle(l),
+                    initiallyOpen: widget.portsOpen || widget.taken.isNotEmpty,
+                    child: LocalNodePortsFields(ports: _choice.ports, taken: widget.taken, onChanged: (p) => _set(_choice.copyWith(ports: p))),
+                  ),
+                ],
+              ],
             ),
           ),
         ),
       ],
     );
   }
+
+  /// The ports beside the fold's title while they are not the defaults.
+  String? _portsSubtitle(AppLocalizations l) {
+    final p = _choice.ports;
+    if (p.api == appConfig.localNodeApiPort && p.p2p == appConfig.localNodeP2pPort) return null;
+    return '· ${l.deskOnbNodePortsSub(p.apiText, p.p2pText)}';
+  }
 }
 
 /// The step as a dialog from Settings › Node (picking the Local node row while it is not set
-/// up). Returns the choice, or null on Cancel.
-Future<LocalNodeChoice?> showLocalNodeSetupDialog(BuildContext context, {LocalNodeDemo demo = LocalNodeDemo.none}) =>
-    showEDialog<LocalNodeChoice>(context, builder: (_) => LocalNodeSetupDialog(demo: demo));
+/// up), with the Advanced fold for the bundled node's ports. Returns the choice, or null on
+/// Cancel. The primary action checks the ports are free on this computer first; a taken one
+/// is named with the next free port, and nothing is returned until both are free.
+Future<LocalNodeChoice?> showLocalNodeSetupDialog(BuildContext context, {LocalNodeDemo demo = LocalNodeDemo.none, bool portsOpen = false}) =>
+    showEDialog<LocalNodeChoice>(context, builder: (_) => LocalNodeSetupDialog(demo: demo, portsOpen: portsOpen));
 
-class LocalNodeSetupDialog extends StatefulWidget {
-  const LocalNodeSetupDialog({super.key, this.demo = LocalNodeDemo.none});
+class LocalNodeSetupDialog extends ConsumerStatefulWidget {
+  const LocalNodeSetupDialog({super.key, this.demo = LocalNodeDemo.none, this.portsOpen = false});
 
   final LocalNodeDemo demo;
 
+  /// The Advanced fold open from the start (the tour's shot).
+  final bool portsOpen;
+
   @override
-  State<LocalNodeSetupDialog> createState() => _LocalNodeSetupDialogState();
+  ConsumerState<LocalNodeSetupDialog> createState() => _LocalNodeSetupDialogState();
 }
 
-class _LocalNodeSetupDialogState extends State<LocalNodeSetupDialog> {
+class _LocalNodeSetupDialogState extends ConsumerState<LocalNodeSetupDialog> {
   LocalNodeChoice? _choice;
+  Map<int, int> _taken = const {};
+  bool _checking = false;
+
+  Future<void> _start() async {
+    final c = _choice!;
+    setState(() => _checking = true);
+    final taken = await findTakenPorts(ref.read(deskNodeProvider), c.ports);
+    if (!mounted) return;
+    setState(() {
+      _checking = false;
+      _taken = taken;
+    });
+    if (taken.isEmpty) Navigator.of(context).pop(c);
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = _choice;
     final l = context.l10n;
     final existing = c?.how == LocalNodeHow.existing;
+    final ready = c != null && (existing ? c.existingFound : c.ports.valid);
     return EDialog(
       title: l.deskOnbNodeDialogTitle,
       description: l.deskOnbNodeDialogBody,
       icon: EIcons.monitor,
       width: 640.u,
-      body: LocalNodeStep(compact: true, demo: widget.demo, onChanged: (v) => setState(() => _choice = v)),
+      body: LocalNodeStep(
+        compact: true,
+        demo: widget.demo,
+        ports: true,
+        portsOpen: widget.portsOpen,
+        taken: _taken,
+        onChanged: (v) => setState(() {
+          // A typed port is judged afresh: the taken mark goes with the number.
+          if (_choice?.ports != v.ports) _taken = {for (final e in _taken.entries) if (e.key == v.ports.api || e.key == v.ports.p2p) e.key: e.value};
+          _choice = v;
+        }),
+      ),
       actions: [
         EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(
           label: existing ? l.deskOnbNodeUseThis : l.deskOnbNodeStart,
-          onPressed: c == null || (existing && !c.existingFound) ? null : () => Navigator.of(context).pop(c),
+          busy: _checking,
+          onPressed: !ready || _checking ? null : (existing ? () => Navigator.of(context).pop(c) : _start),
         ),
       ],
     );
   }
+}
+
+/// The ports of [ports] something else answers on, each with the next free port above it (not
+/// the other port of the pair); empty when both are free. [keep] are ports the running
+/// built-in node holds itself, not counted as taken.
+Future<Map<int, int>> findTakenPorts(DeskNodeApi api, LocalNodePorts ports, {Set<int> keep = const {}}) async {
+  final api0 = ports.api, p2p0 = ports.p2p;
+  if (api0 == null || p2p0 == null) return const {};
+  final out = <int, int>{};
+  for (final (port, other) in [(api0, p2p0), (p2p0, api0)]) {
+    if (keep.contains(port) || !await api.portInUse(port)) continue;
+    var next = port + 1;
+    while (next <= 65535 && (next == other || await api.portInUse(next))) {
+      next++;
+    }
+    out[port] = next;
+  }
+  return out;
 }

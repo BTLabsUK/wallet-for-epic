@@ -21,6 +21,10 @@ app/lib/src/demo_server/config.dart	this\.port = 8771
 # wallets: facts about another program, not ours to configure.
 app/lib/src/legacy/gui_rules.dart	(?<![0-9])(3413|13413|23413)(?![0-9])
 
+# The operating systems' privileged range ends at 1023: the lowest port the built-in node may be
+# given is the systems' rule, not a value anyone configures.
+app/lib/src/settings_file/settings_layout.dart	userPortMin = 1024
+
 # Example data in screenshots, the tour and the mock wallets (contacts' Link · HTTP addresses,
 # a home node, peers and node log lines): shown, never connected to.
 app/lib/src/desktop/data/mock_wallet.dart	:(3413|3415)(?![0-9])

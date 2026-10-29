@@ -157,5 +157,12 @@
   "deskSetPeersForget": "移除 {peer}",
   "deskSetPeersNote": "最大传入和传出：{min} 到 {max}（默认 {def}）。",
   "deskSetLndDeleteQuestion": "删除链数据？",
-  "deskSetPeersFirstSeenHint": "本应用在本次运行中首次看到该对等节点连接的时间。"
+  "deskSetPeersFirstSeenHint": "本应用在本次运行中首次看到该对等节点连接的时间。",
+  "deskSetLnodePorts": "端口",
+  "deskSetLnodePortsTitle": "节点端口",
+  "deskSetLnodePortsDesc": "内置节点监听的端口。",
+  "deskSetLnodePortsRestart": "节点将使用新端口重新启动。",
+  "deskSetLnodePortsSaved": "端口已保存",
+  "deskSetLnodePortsRestarting": "节点正在重新启动。",
+  "deskSetLnodePortsNotSaved": "端口未保存"
 }

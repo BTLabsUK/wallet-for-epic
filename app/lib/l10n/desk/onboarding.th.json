@@ -219,5 +219,14 @@
   "deskOnbWalletNameEdit": "แก้ไขชื่อกระเป๋าเงิน",
   "deskOnbWalletNameField": "ชื่อกระเป๋าเงิน",
   "deskOnbWalletNameIs": "ชื่อกระเป๋าเงิน: {name}",
-  "deskOnbUnlockOpened": "เปิดล่าสุด {when}"
+  "deskOnbUnlockOpened": "เปิดล่าสุด {when}",
+  "deskOnbNodeAdvanced": "ขั้นสูง",
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "deskOnbNodeApiPort": "พอร์ต API",
+  "deskOnbNodeP2pPort": "พอร์ต P2P",
+  "deskOnbNodePortsWhy": "จำเป็นเฉพาะเมื่อโหนดอื่นในคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายใช้พอร์ตเหล่านี้",
+  "deskOnbNodePortRange": "ตัวเลขตั้งแต่ {min} ถึง {max}",
+  "deskOnbNodePortsSame": "พอร์ตทั้งสองต้องต่างกัน",
+  "deskOnbNodePortTaken": "พอร์ต {port} ถูกโปรแกรมอื่นใช้อยู่ {next} ว่าง",
+  "deskOnbNodePortUse": "ใช้ {port}"
 }

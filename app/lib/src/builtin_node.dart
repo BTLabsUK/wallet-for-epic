@@ -15,7 +15,7 @@ import 'package:crypto/crypto.dart';
 import 'chain_folders.dart';
 import 'models.dart' show Chain;
 import 'node/node_api_types.dart';
-import 'settings_file/host_settings.dart' show appConfig;
+import 'settings_file/host_settings.dart' show hostSettings;
 
 /// Settings-store key that holds whether the built-in node is on for [chain] ("true"/"false").
 String builtInNodeSettingKey(Chain chain) => 'node.builtin.${chain.name}';
@@ -298,16 +298,17 @@ typedef NodeApi = Future<Map<String, dynamic>?> Function(
   String? secret,
 });
 
-/// The ports a chain's node uses: `[node.local] api_port` and `p2p_port` of the chain's
-/// `app-config.toml` (each dev chain has its own file), the wallet listener and stratum after
-/// them as the Electron GUI 6.1 laid them out.
+/// The ports a chain's node uses: `[local_node] api_port` and `p2p_port` of the user's
+/// `settings.toml` when set, else `[node.local]` of the chain's `app-config.toml` (each dev
+/// chain has its own pair), the wallet listener and stratum after them as the Electron GUI 6.1
+/// laid them out.
 class NodePorts {
   const NodePorts(this.api, this.p2p, this.walletListener, this.stratum);
 
-  /// [chain]'s ports: the configuration in use is that chain's own.
+  /// [chain]'s ports: the settings in use are that chain's own.
   factory NodePorts.of(Chain chain) {
-    final api = appConfig.localNodeApiPort;
-    return NodePorts(api, appConfig.localNodeP2pPort, api + 2, api + 3);
+    final api = hostSettings.localNodeApiPort;
+    return NodePorts(api, hostSettings.localNodeP2pPort, api + 2, api + 3);
   }
 
   final int api;
@@ -449,7 +450,7 @@ class BuiltInNode {
     bool? isWindows,
   }) : _start = startProcess ?? _startRealProcess,
        _clock = clock ?? DateTime.now,
-       _portInUse = portInUse ?? _realPortInUse,
+       _portInUse = portInUse ?? realPortInUse,
        _freeBytes = freeBytes ?? realFreeBytes,
        _api = api ?? _realApi,
        _windows = isWindows ?? Platform.isWindows,
@@ -1554,7 +1555,8 @@ Future<NodeProcess> _startRealProcess(
   return _IoNodeProcess(process, Platform.isWindows);
 }
 
-Future<bool> _realPortInUse(int port) async {
+/// Whether something answers on [port] of this computer (loopback): the port is taken.
+Future<bool> realPortInUse(int port) async {
   try {
     final s = await Socket.connect(
       InternetAddress.loopbackIPv4,

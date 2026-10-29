@@ -123,6 +123,34 @@ class TomlEditor {
     _apply(scan, lines);
   }
 
+  /// Removes the plain key [path] with the comments right above it; a table left with no key
+  /// goes too, with its comments. Nothing happens when the key is not there.
+  void removeValue(String path) {
+    final parts = path.split('.');
+    final scan = TomlScan(_text);
+    final existing = scan.key(parts);
+    if (existing == null) return;
+    final lines = [...scan.lines];
+    final section = existing.section;
+    if (section >= 0 && scan.keysOf(section).length == 1) {
+      final header = scan.stmts[section];
+      final start = scan.attachedStart(header.start);
+      final end = scan.sectionEnd(section);
+      lines.removeRange(start, end + 1);
+      // No blank line left at the top, and no two in a row where the table was.
+      while (start < lines.length && lines[start].trim().isEmpty && (start == 0 || lines[start - 1].trim().isEmpty)) {
+        lines.removeAt(start);
+      }
+      while (lines.isNotEmpty && lines.last.trim().isEmpty) {
+        lines.removeLast();
+      }
+      _apply(scan, lines);
+      return;
+    }
+    lines.removeRange(scan.attachedStart(existing.start), existing.end + 1);
+    _apply(scan, lines);
+  }
+
   List<String> _keyLines(String prefix, Object value, String? comment, bool multiline) {
     var encoded = encodeTomlValue(value, multiline: multiline && value is List && value.isNotEmpty);
     if (!multiline && value is List && value.isNotEmpty && prefix.length + encoded.length > _lineLimit) {

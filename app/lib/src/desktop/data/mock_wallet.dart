@@ -4,7 +4,7 @@
 /// is anything but "wrong"; "wrong" fails the unlock.
 library;
 
-import '../../settings_file/host_settings.dart' show appConfig, hostSettings, shippedHostSettings;
+import '../../settings_file/host_settings.dart' show hostSettings, shippedHostSettings;
 import 'mock_hosts.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -1009,7 +1009,13 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> useBuiltInNode(bool on) async {
     await _wait();
-    _node = on ? 'http://127.0.0.1:${appConfig.localNodeApiPort}' : hostSettings.nodeUse;
+    _node = on ? 'http://127.0.0.1:${hostSettings.localNodeApiPort}' : hostSettings.nodeUse;
+  }
+
+  @override
+  Future<void> followBuiltInNode() async {
+    await _wait();
+    if (_node.startsWith('http://127.0.0.1:')) _node = 'http://127.0.0.1:${hostSettings.localNodeApiPort}';
   }
 
   @override

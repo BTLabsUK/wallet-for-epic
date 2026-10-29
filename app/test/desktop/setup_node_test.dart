@@ -371,6 +371,98 @@ void main() {
     await tester.pumpAndSettle();
     expect(out?.how, LocalNodeHow.bundled);
     expect(out?.useFallback, isTrue);
+    expect(out?.ports.api, hostSettings.localNodeApiPort, reason: 'Advanced untouched: the default ports');
     expect(node.calls.where((c) => c == 'start'), isEmpty, reason: 'the dialog starts nothing');
+  });
+
+  group('the Settings dialog, Advanced: the ports', () {
+    Future<LocalNodeChoice? Function()> openDialog(WidgetTester tester) async {
+      // Tall enough for the open fold and its error lines above the dialog's actions.
+      tester.view.physicalSize = const Size(1280, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      LocalNodeChoice? out;
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: buildDeskTheme(Brightness.dark),
+            home: Scaffold(body: Builder(builder: (c) => EButton(label: 'open', onPressed: () async => out = await showLocalNodeSetupDialog(c, demo: LocalNodeDemo.notFound)))),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text('Start local node'), findsOneWidget, reason: 'nothing found: the bundled node is chosen');
+      return () => out;
+    }
+
+    Finder field(String label) => find.bySemanticsLabel(label);
+
+    /// What the field with [label] holds (its hint shows the default, so the text is not unique).
+    String textOf(WidgetTester tester, String label) =>
+        tester.widget<EditableText>(find.descendant(of: field(label), matching: find.byType(EditableText))).controller.text;
+
+    testWidgets('closed by default, with the defaults in the fields and no subtitle; the choice carries the typed ports', (tester) async {
+      final out = await openDialog(tester);
+      expect(find.text('Advanced'), findsOneWidget);
+      expect(find.text('API port'), findsNothing, reason: 'the fold is closed');
+      expect(find.textContaining('API ${hostSettings.localNodeApiPort}', findRichText: true), findsNothing, reason: 'no subtitle at the defaults');
+      await tester.tap(find.text('Advanced'));
+      await tester.pumpAndSettle();
+      expect(find.text('API port'), findsOneWidget);
+      expect(find.text('P2P port'), findsOneWidget);
+      expect(textOf(tester, 'API port'), '${hostSettings.localNodeApiPort}');
+      expect(textOf(tester, 'P2P port'), '${hostSettings.localNodeP2pPort}');
+      await tester.enterText(field('API port'), '13413');
+      await tester.enterText(field('P2P port'), '13414');
+      await tester.pumpAndSettle();
+      expect(find.textContaining('API 13413 · P2P 13414', findRichText: true), findsOneWidget, reason: 'the subtitle names changed ports');
+      await tester.tap(find.text('Start local node'));
+      await tester.pumpAndSettle();
+      expect(out()?.ports.api, 13413);
+      expect(out()?.ports.p2p, 13414);
+    });
+
+    testWidgets('out of range or equal: an error under the field and the primary action off', (tester) async {
+      await openDialog(tester);
+      await tester.tap(find.text('Advanced'));
+      await tester.pumpAndSettle();
+      await tester.enterText(field('API port'), '80');
+      await tester.pumpAndSettle();
+      expect(find.text('A number from 1024 to 65535.'), findsOneWidget);
+      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Start local node')).onPressed, isNull);
+      await tester.enterText(field('API port'), '13414');
+      await tester.enterText(field('P2P port'), '13414');
+      await tester.pumpAndSettle();
+      expect(find.text('The two ports must differ.'), findsOneWidget);
+      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Start local node')).onPressed, isNull);
+      await tester.enterText(field('P2P port'), '13415');
+      await tester.pumpAndSettle();
+      expect(find.text('The two ports must differ.'), findsNothing);
+      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Start local node')).onPressed, isNotNull);
+    });
+
+    testWidgets('a port another program uses: named with the next free one on Save, a link fills it in, nothing is returned until free', (tester) async {
+      node.busyPorts.addAll({13413, 13414});
+      final out = await openDialog(tester);
+      await tester.tap(find.text('Advanced'));
+      await tester.pumpAndSettle();
+      await tester.enterText(field('API port'), '13413');
+      await tester.enterText(field('P2P port'), '13500');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Start local node'));
+      await tester.pumpAndSettle();
+      expect(out(), isNull, reason: 'the dialog stays open');
+      expect(find.text('Port 13413 is used by another program. 13415 is free.'), findsOneWidget, reason: '13414 is taken too');
+      await tester.tap(find.text('Use 13415'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('is used by another program'), findsNothing);
+      expect(textOf(tester, 'API port'), '13415', reason: 'the link filled the field');
+      await tester.tap(find.text('Start local node'));
+      await tester.pumpAndSettle();
+      expect(out()?.ports.api, 13415);
+      expect(out()?.ports.p2p, 13500);
+    });
   });
 }

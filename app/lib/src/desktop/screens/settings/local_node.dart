@@ -20,7 +20,8 @@ import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import 'local_node_dialogs.dart';
 import 'local_node_peers.dart';
-import '../../../settings_file/host_settings.dart' show appConfig;
+import '../../../settings_file/host_settings.dart' show hostSettings;
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'own_node_panel.dart' show nodePanelWideFrom, nodeChartHeight;
 
 enum LocalTab { status, peers }
@@ -266,6 +267,8 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         Divider(height: 1, thickness: 1, color: c.line),
         _AutostartRow(api: api),
         Divider(height: 1, thickness: 1, color: c.line),
+        _PortsRow(api: api, state: s),
+        Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(
           title: l.deskSetLnodeWhileSyncing,
           // An empty Node list has no public node to offer: the list's own state, nothing to pick.
@@ -383,6 +386,33 @@ class _AutostartRow extends ConsumerWidget {
   }
 }
 
+/// The built-in node's ports (API, P2P) and Change…, which opens [showLocalNodePortsDialog].
+class _PortsRow extends ConsumerWidget {
+  const _PortsRow({required this.api, required this.state});
+
+  final DeskNodeApi api;
+  final LocalNodeState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final s = ref.watch(hostSettingsProvider);
+    return ESetRow(
+      title: l.deskSetLnodePorts,
+      text: l.deskOnbNodePortsSub('${s.localNodeApiPort}', '${s.localNodeP2pPort}'),
+      hint: l.deskOnbNodePortsWhy,
+      control: ERowControl(
+        child: EButton(
+          key: const ValueKey('local-node-ports-change'),
+          label: l.deskSetLnodeChange,
+          size: EBtnSize.sm,
+          onPressed: () => showLocalNodePortsDialog(context, api, running: state.phase != LocalNodePhase.stopped && state.phase != LocalNodePhase.error),
+        ),
+      ),
+    );
+  }
+}
+
 /// What the Status tab says for a state (the table of §19): the detail after the word, and the
 /// notice (tone, title, text, action) if any.
 class StatusWords {
@@ -428,7 +458,7 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
         notice: switch (s.failure) {
           NodeFailure.portInUse => (
             tone: ETone.risk,
-            title: l.deskSetLnodePortInUse('${appConfig.localNodeApiPort}'),
+            title: l.deskSetLnodePortInUse('${hostSettings.localNodeApiPort}'),
             text: l.deskSetLnodePortInUseText,
             action: NodeAct.log,
           ),

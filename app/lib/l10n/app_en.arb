@@ -24743,5 +24743,98 @@
         "example": "Phone"
       }
     }
+  },
+  "deskOnbNodeAdvanced": "Advanced",
+  "@deskOnbNodeAdvanced": {
+    "description": "Local node step/dialog: title of the collapsed fold under the bundled node choice that holds the port fields. One word."
+  },
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "@deskOnbNodePortsSub": {
+    "description": "Beside the Advanced fold title, dim: the ports chosen inside, when they are not the defaults. {api} and {p2p} are port numbers; API and P2P stay as they are.",
+    "placeholders": {
+      "api": {
+        "type": "String"
+      },
+      "p2p": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbNodeApiPort": "API port",
+  "@deskOnbNodeApiPort": {
+    "description": "Label of the field for the built-in node's API port (the port the wallet talks to). 1–3 words."
+  },
+  "deskOnbNodeP2pPort": "P2P port",
+  "@deskOnbNodeP2pPort": {
+    "description": "Label of the field for the built-in node's peer-to-peer port (other nodes connect to it). 1–3 words."
+  },
+  "deskOnbNodePortsWhy": "Only needed if another node on this computer or network uses these ports.",
+  "@deskOnbNodePortsWhy": {
+    "description": "One-line tooltip on the port fields and on the Ports row: why one would change the ports."
+  },
+  "deskOnbNodePortRange": "A number from {min} to {max}.",
+  "@deskOnbNodePortRange": {
+    "description": "Error under a port field: the value is not a number in the allowed range. {min} and {max} are numbers.",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbNodePortsSame": "The two ports must differ.",
+  "@deskOnbNodePortsSame": {
+    "description": "Error under the port fields when the API and P2P ports are the same number."
+  },
+  "deskOnbNodePortTaken": "Port {port} is used by another program. {next} is free.",
+  "@deskOnbNodePortTaken": {
+    "description": "Error under a port field after Save: something else listens on that port; the next free port is suggested. {port} and {next} are numbers.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      },
+      "next": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbNodePortUse": "Use {port}",
+  "@deskOnbNodePortUse": {
+    "description": "Link beside the taken-port error that puts the suggested free port into the field. {port} is a number.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetLnodePorts": "Ports",
+  "@deskSetLnodePorts": {
+    "description": "Local node panel: row title for the built-in node's API and P2P ports. One word."
+  },
+  "deskSetLnodePortsTitle": "Node ports",
+  "@deskSetLnodePortsTitle": {
+    "description": "Title of the dialog that changes the built-in node's ports."
+  },
+  "deskSetLnodePortsDesc": "The ports the built-in node listens on.",
+  "@deskSetLnodePortsDesc": {
+    "description": "One line under the Node ports dialog title."
+  },
+  "deskSetLnodePortsRestart": "The node restarts with the new ports.",
+  "@deskSetLnodePortsRestart": {
+    "description": "Note in the Node ports dialog while the node runs: saving a change restarts it."
+  },
+  "deskSetLnodePortsSaved": "Ports saved",
+  "@deskSetLnodePortsSaved": {
+    "description": "Toast title after the node ports were saved."
+  },
+  "deskSetLnodePortsRestarting": "The node is restarting.",
+  "@deskSetLnodePortsRestarting": {
+    "description": "Toast line after the node ports were saved while the node ran."
+  },
+  "deskSetLnodePortsNotSaved": "Ports not saved",
+  "@deskSetLnodePortsNotSaved": {
+    "description": "Toast title when the node ports could not be saved or the node could not restart; the error follows."
   }
 }

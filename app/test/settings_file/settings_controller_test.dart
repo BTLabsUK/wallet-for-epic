@@ -99,6 +99,50 @@ void main() {
     expect(c.notices, hasLength(1), reason: 'the unknown key is named once');
   });
 
+  test('the built-in node ports: written as [local_node] only while they differ; back at the defaults the section goes', () async {
+    final c = await open();
+    final api = c.settings.config.localNodeApiPort, p2p = c.settings.config.localNodeP2pPort;
+    await c.setAll(localNodePortValues(c.settings, api: api, p2p: p2p));
+    expect(await file.readAsString(), shippedText, reason: 'the defaults write nothing');
+
+    await c.setAll(localNodePortValues(c.settings, api: 13413, p2p: p2p));
+    var text = await file.readAsString();
+    expect(text, startsWith(shippedText));
+    expect(text, endsWith('\n[local_node]\napi_port = 13413\n'));
+    expect(text, isNot(contains('p2p_port')), reason: 'the P2P port is at its default');
+    expect(c.settings.localNodeApiPort, 13413);
+    expect(c.settings.localNodeP2pPort, p2p);
+    expect(c.notices, isEmpty);
+
+    await c.setAll(localNodePortValues(c.settings, api: 13413, p2p: 13414));
+    text = await file.readAsString();
+    expect(text, endsWith('\n[local_node]\napi_port = 13413\np2p_port = 13414\n'));
+
+    await c.setAll(localNodePortValues(c.settings, api: api, p2p: 13414));
+    text = await file.readAsString();
+    expect(text, endsWith('\n[local_node]\np2p_port = 13414\n'));
+
+    await c.setAll(localNodePortValues(c.settings, api: api, p2p: p2p));
+    expect(await file.readAsString(), shippedText, reason: 'the empty section went with its last key');
+    expect(c.settings.localNodePortsSet, isFalse);
+    expect(c.notices, isEmpty);
+  });
+
+  test('a hand-edited [local_node] applies live; a bad port is skipped with a notice and the file is not rewritten', () async {
+    final c = await open();
+    await file.writeAsString('$shippedText\n[local_node]\napi_port = 13413\n');
+    await c.reload();
+    expect(c.settings.localNodeApiPort, 13413);
+    expect(c.notices, isEmpty);
+
+    await file.writeAsString('$shippedText\n[local_node]\napi_port = 80\n');
+    await c.reload();
+    expect(c.settings.localNodeApiPort, 13413, reason: 'the last good value stays');
+    expect(c.notices.single.kind, SettingsNoticeKind.badValue);
+    expect(c.notices.single.key, 'local_node.api_port');
+    expect(await file.readAsString(), '$shippedText\n[local_node]\napi_port = 80\n');
+  });
+
   test('a picked server not in the list joins it at the top', () {
     final v = useServerValues(shipped, node: 'https://new.example.invalid');
     expect((v['node.servers']! as List).first, 'https://new.example.invalid');

@@ -157,5 +157,12 @@
   "deskSetPeersForget": "ลบ {peer}",
   "deskSetPeersNote": "สูงสุดขาเข้าและขาออก: {min} ถึง {max} (ค่าเริ่มต้น {def})",
   "deskSetLndDeleteQuestion": "ลบข้อมูลบล็อกเชนไหม?",
-  "deskSetPeersFirstSeenHint": "เวลาที่แอปนี้เห็น peer เชื่อมต่อครั้งแรกในรอบนี้"
+  "deskSetPeersFirstSeenHint": "เวลาที่แอปนี้เห็น peer เชื่อมต่อครั้งแรกในรอบนี้",
+  "deskSetLnodePorts": "พอร์ต",
+  "deskSetLnodePortsTitle": "พอร์ตของโหนด",
+  "deskSetLnodePortsDesc": "พอร์ตที่โหนดในตัวรับการเชื่อมต่อ",
+  "deskSetLnodePortsRestart": "โหนดจะเริ่มใหม่ด้วยพอร์ตใหม่",
+  "deskSetLnodePortsSaved": "บันทึกพอร์ตแล้ว",
+  "deskSetLnodePortsRestarting": "โหนดกำลังเริ่มใหม่",
+  "deskSetLnodePortsNotSaved": "ไม่ได้บันทึกพอร์ต"
 }

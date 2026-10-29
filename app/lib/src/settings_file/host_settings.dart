@@ -402,6 +402,22 @@ class HostSettings {
   /// The servers linked devices use: the first `epicbox.link_servers` of the list.
   List<String> get deviceLinkServers => [for (final s in epicboxServers.take(config.linkServerCount)) s.label];
 
+  // [local_node]: the built-in node's ports, the user's over `[node.local]` of app-config.toml.
+
+  /// The built-in node's API port: `local_node.api_port` when set, else `node.local.api_port`.
+  int get localNodeApiPort => _portOr('local_node.api_port', config.localNodeApiPort);
+
+  /// The built-in node's P2P port: `local_node.p2p_port` when set, else `node.local.p2p_port`.
+  int get localNodeP2pPort => _portOr('local_node.p2p_port', config.localNodeP2pPort);
+
+  /// Whether the user set a port of the built-in node (the file has a `[local_node]` key).
+  bool get localNodePortsSet => value('local_node.api_port') != notSet || value('local_node.p2p_port') != notSet;
+
+  int _portOr(String path, int byDefault) {
+    final v = value(path) as int;
+    return v == notSet ? byDefault : v;
+  }
+
   // [online]
   bool get statusEnabled => value('online.status_site') as bool;
   bool get updatesCheck => value('online.update_check') as bool;
@@ -489,11 +505,20 @@ class HostSettings {
   int get hashCode => Object.hash(config, Object.hashAll([for (final k in settingsKeys) '${_values[k.path]}']));
 }
 
+/// The `[local_node]` values to write for the built-in node's ports [api] and [p2p]: a port
+/// equal to `app-config.toml`'s is written as [notSet], which takes its key out of the file.
+Map<String, Object> localNodePortValues(HostSettings s, {required int api, required int p2p}) => {
+  'local_node.api_port': api == s.config.localNodeApiPort ? notSet : api,
+  'local_node.p2p_port': p2p == s.config.localNodeP2pPort ? notSet : p2p,
+};
+
 /// Checks a `settings.toml` value the app sets; throws [ArgumentError] when [path] is not a key
 /// of it or refuses [value].
 Object checkAppValue(String path, Object value) {
   final key = settingsKeysByPath[path];
   if (key == null) throw ArgumentError.value(path, 'path', 'not a settings key');
+  // An optional key at its "not set" value: left out of the file, the default applies.
+  if (key.byDefault != null && deepEquals(value, key.byDefault)) return key.byDefault!;
   final c = checkValue(key.kind, toRawValue(value));
   if (!c.ok) throw ArgumentError.value(value, path, c.problem!.name);
   return c.value!;

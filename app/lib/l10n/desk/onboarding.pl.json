@@ -219,5 +219,14 @@
   "deskOnbWalletNameEdit": "Zmień nazwę portfela",
   "deskOnbWalletNameField": "Nazwa portfela",
   "deskOnbWalletNameIs": "Nazwa portfela: {name}",
-  "deskOnbUnlockOpened": "Otwarty {when}"
+  "deskOnbUnlockOpened": "Otwarty {when}",
+  "deskOnbNodeAdvanced": "Zaawansowane",
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "deskOnbNodeApiPort": "Port API",
+  "deskOnbNodeP2pPort": "Port P2P",
+  "deskOnbNodePortsWhy": "Potrzebne tylko wtedy, gdy inny węzeł na tym komputerze lub w sieci używa tych portów.",
+  "deskOnbNodePortRange": "Liczba od {min} do {max}.",
+  "deskOnbNodePortsSame": "Oba porty muszą się różnić.",
+  "deskOnbNodePortTaken": "Port {port} zajmuje inny program. {next} jest wolny.",
+  "deskOnbNodePortUse": "Użyj {port}"
 }

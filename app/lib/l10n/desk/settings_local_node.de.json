@@ -157,5 +157,12 @@
   "deskSetPeersForget": "{peer} vergessen",
   "deskSetPeersNote": "Max. eingehend und ausgehend: {min} bis {max} (Standard {def}).",
   "deskSetLndDeleteQuestion": "Chain-Daten löschen?",
-  "deskSetPeersFirstSeenHint": "Wann diese App den Peer in dieser Sitzung zuerst verbunden sah."
+  "deskSetPeersFirstSeenHint": "Wann diese App den Peer in dieser Sitzung zuerst verbunden sah.",
+  "deskSetLnodePorts": "Ports",
+  "deskSetLnodePortsTitle": "Node-Ports",
+  "deskSetLnodePortsDesc": "Die Ports, auf denen der mitgelieferte Node lauscht.",
+  "deskSetLnodePortsRestart": "Der Node startet mit den neuen Ports neu.",
+  "deskSetLnodePortsSaved": "Ports gespeichert",
+  "deskSetLnodePortsRestarting": "Der Node startet neu.",
+  "deskSetLnodePortsNotSaved": "Ports nicht gespeichert"
 }

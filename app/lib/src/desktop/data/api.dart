@@ -281,6 +281,10 @@ abstract interface class DeskWalletApi {
   /// Turns the built-in node on (starts it and moves the wallet to it) or off (moves the wallet
   /// back to the node used before, then stops it). Only when [DeskFeatures.builtInNode].
   Future<void> useBuiltInNode(bool on);
+
+  /// The built-in node's address changed (its ports were set and it restarted): the wallet
+  /// moves to the new address when it is on the built-in node, else nothing happens.
+  Future<void> followBuiltInNode();
   Future<NodeServer> checkNode(String url);
   Future<void> addNode(NodeServer node);
   Future<void> useEpicbox(String domain);

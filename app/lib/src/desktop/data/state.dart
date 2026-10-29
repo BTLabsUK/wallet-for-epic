@@ -346,6 +346,8 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> useBuiltInNode(bool on) => _reopening(() => api.useBuiltInNode(on));
 
+  Future<void> followBuiltInNode() => _reopening(() => api.followBuiltInNode());
+
   Future<void> useEpicbox(String domain) => _reopening(() => api.useEpicbox(domain));
 
   /// A node or Epicbox change reopens the wallet; when that closed it, the app goes back to

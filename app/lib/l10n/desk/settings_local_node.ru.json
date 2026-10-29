@@ -157,5 +157,12 @@
   "deskSetPeersForget": "Забыть {peer}",
   "deskSetPeersNote": "Макс. входящих и исходящих: от {min} до {max} (по умолчанию {def}).",
   "deskSetLndDeleteQuestion": "Удалить данные блокчейна?",
-  "deskSetPeersFirstSeenHint": "Когда это приложение впервые увидело пир подключённым за этот сеанс."
+  "deskSetPeersFirstSeenHint": "Когда это приложение впервые увидело пир подключённым за этот сеанс.",
+  "deskSetLnodePorts": "Порты",
+  "deskSetLnodePortsTitle": "Порты узла",
+  "deskSetLnodePortsDesc": "Порты, которые слушает встроенный узел.",
+  "deskSetLnodePortsRestart": "Узел перезапустится с новыми портами.",
+  "deskSetLnodePortsSaved": "Порты сохранены",
+  "deskSetLnodePortsRestarting": "Узел перезапускается.",
+  "deskSetLnodePortsNotSaved": "Порты не сохранены"
 }

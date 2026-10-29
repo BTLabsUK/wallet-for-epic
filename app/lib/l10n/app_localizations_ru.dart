@@ -19082,4 +19082,62 @@ class AppLocalizationsRu extends AppLocalizations {
   String txDetailsDeviceIn(String device) {
     return 'Эти монеты получило устройство $device, связанное с этим кошельком.';
   }
+
+  @override
+  String get deskOnbNodeAdvanced => 'Дополнительно';
+
+  @override
+  String deskOnbNodePortsSub(String api, String p2p) {
+    return 'API $api · P2P $p2p';
+  }
+
+  @override
+  String get deskOnbNodeApiPort => 'Порт API';
+
+  @override
+  String get deskOnbNodeP2pPort => 'Порт P2P';
+
+  @override
+  String get deskOnbNodePortsWhy =>
+      'Нужно только если другой узел на этом компьютере или в сети использует эти порты.';
+
+  @override
+  String deskOnbNodePortRange(String min, String max) {
+    return 'Число от $min до $max.';
+  }
+
+  @override
+  String get deskOnbNodePortsSame => 'Порты должны различаться.';
+
+  @override
+  String deskOnbNodePortTaken(String port, String next) {
+    return 'Порт $port занят другой программой. $next свободен.';
+  }
+
+  @override
+  String deskOnbNodePortUse(String port) {
+    return 'Использовать $port';
+  }
+
+  @override
+  String get deskSetLnodePorts => 'Порты';
+
+  @override
+  String get deskSetLnodePortsTitle => 'Порты узла';
+
+  @override
+  String get deskSetLnodePortsDesc => 'Порты, которые слушает встроенный узел.';
+
+  @override
+  String get deskSetLnodePortsRestart =>
+      'Узел перезапустится с новыми портами.';
+
+  @override
+  String get deskSetLnodePortsSaved => 'Порты сохранены';
+
+  @override
+  String get deskSetLnodePortsRestarting => 'Узел перезапускается.';
+
+  @override
+  String get deskSetLnodePortsNotSaved => 'Порты не сохранены';
 }

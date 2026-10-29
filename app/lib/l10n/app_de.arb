@@ -4817,5 +4817,21 @@
   "devicesRelayWhy": "Auf einem Epicbox-Server beantworten beide Geräte dieselben Zahlungen. Auf verschiedenen Servern beantwortet jedes die Zahlungen an seine eigene Adresse.",
   "txReceivedOnDevice": "Empfangen auf {device}",
   "txSpokenReceivedOnDevice": "Empfangen auf {device}, {amount}",
-  "txDetailsDeviceIn": "{device}, mit dieser Wallet verknüpft, hat diese Coins empfangen."
+  "txDetailsDeviceIn": "{device}, mit dieser Wallet verknüpft, hat diese Coins empfangen.",
+  "deskOnbNodeAdvanced": "Erweitert",
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "deskOnbNodeApiPort": "API-Port",
+  "deskOnbNodeP2pPort": "P2P-Port",
+  "deskOnbNodePortsWhy": "Nur nötig, wenn ein anderer Node auf diesem Computer oder im Netzwerk diese Ports nutzt.",
+  "deskOnbNodePortRange": "Eine Zahl von {min} bis {max}.",
+  "deskOnbNodePortsSame": "Die beiden Ports müssen sich unterscheiden.",
+  "deskOnbNodePortTaken": "Port {port} wird von einem anderen Programm genutzt. {next} ist frei.",
+  "deskOnbNodePortUse": "{port} nutzen",
+  "deskSetLnodePorts": "Ports",
+  "deskSetLnodePortsTitle": "Node-Ports",
+  "deskSetLnodePortsDesc": "Die Ports, auf denen der mitgelieferte Node lauscht.",
+  "deskSetLnodePortsRestart": "Der Node startet mit den neuen Ports neu.",
+  "deskSetLnodePortsSaved": "Ports gespeichert",
+  "deskSetLnodePortsRestarting": "Der Node startet neu.",
+  "deskSetLnodePortsNotSaved": "Ports nicht gespeichert"
 }

@@ -19097,4 +19097,63 @@ class AppLocalizationsPl extends AppLocalizations {
   String txDetailsDeviceIn(String device) {
     return '$device, połączone z tym portfelem, odebrało te monety.';
   }
+
+  @override
+  String get deskOnbNodeAdvanced => 'Zaawansowane';
+
+  @override
+  String deskOnbNodePortsSub(String api, String p2p) {
+    return 'API $api · P2P $p2p';
+  }
+
+  @override
+  String get deskOnbNodeApiPort => 'Port API';
+
+  @override
+  String get deskOnbNodeP2pPort => 'Port P2P';
+
+  @override
+  String get deskOnbNodePortsWhy =>
+      'Potrzebne tylko wtedy, gdy inny węzeł na tym komputerze lub w sieci używa tych portów.';
+
+  @override
+  String deskOnbNodePortRange(String min, String max) {
+    return 'Liczba od $min do $max.';
+  }
+
+  @override
+  String get deskOnbNodePortsSame => 'Oba porty muszą się różnić.';
+
+  @override
+  String deskOnbNodePortTaken(String port, String next) {
+    return 'Port $port zajmuje inny program. $next jest wolny.';
+  }
+
+  @override
+  String deskOnbNodePortUse(String port) {
+    return 'Użyj $port';
+  }
+
+  @override
+  String get deskSetLnodePorts => 'Porty';
+
+  @override
+  String get deskSetLnodePortsTitle => 'Porty węzła';
+
+  @override
+  String get deskSetLnodePortsDesc =>
+      'Porty, na których nasłuchuje wbudowany węzeł.';
+
+  @override
+  String get deskSetLnodePortsRestart =>
+      'Węzeł uruchomi się ponownie z nowymi portami.';
+
+  @override
+  String get deskSetLnodePortsSaved => 'Porty zapisane';
+
+  @override
+  String get deskSetLnodePortsRestarting => 'Węzeł uruchamia się ponownie.';
+
+  @override
+  String get deskSetLnodePortsNotSaved => 'Porty nie zostały zapisane';
 }

@@ -4817,5 +4817,21 @@
   "devicesRelayWhy": "Na jednym serwerze Epicbox oba urządzenia odpowiadają na te same płatności. Na różnych serwerach każde odpowiada na płatności na swój adres.",
   "txReceivedOnDevice": "Odebrano na: {device}",
   "txSpokenReceivedOnDevice": "Odebrano na: {device}, {amount}",
-  "txDetailsDeviceIn": "{device}, połączone z tym portfelem, odebrało te monety."
+  "txDetailsDeviceIn": "{device}, połączone z tym portfelem, odebrało te monety.",
+  "deskOnbNodeAdvanced": "Zaawansowane",
+  "deskOnbNodePortsSub": "API {api} · P2P {p2p}",
+  "deskOnbNodeApiPort": "Port API",
+  "deskOnbNodeP2pPort": "Port P2P",
+  "deskOnbNodePortsWhy": "Potrzebne tylko wtedy, gdy inny węzeł na tym komputerze lub w sieci używa tych portów.",
+  "deskOnbNodePortRange": "Liczba od {min} do {max}.",
+  "deskOnbNodePortsSame": "Oba porty muszą się różnić.",
+  "deskOnbNodePortTaken": "Port {port} zajmuje inny program. {next} jest wolny.",
+  "deskOnbNodePortUse": "Użyj {port}",
+  "deskSetLnodePorts": "Porty",
+  "deskSetLnodePortsTitle": "Porty węzła",
+  "deskSetLnodePortsDesc": "Porty, na których nasłuchuje wbudowany węzeł.",
+  "deskSetLnodePortsRestart": "Węzeł uruchomi się ponownie z nowymi portami.",
+  "deskSetLnodePortsSaved": "Porty zapisane",
+  "deskSetLnodePortsRestarting": "Węzeł uruchamia się ponownie.",
+  "deskSetLnodePortsNotSaved": "Porty nie zostały zapisane"
 }
