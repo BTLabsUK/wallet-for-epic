@@ -9,7 +9,9 @@
 # Usage: tools/publish-update-json.sh <signed update.json>
 # Settings (environment, or ~/.config/btlabs/update-publish.env, KEY=VALUE lines):
 #   UPDATE_SSH_HOST   ssh host of the download server (required)
-#   UPDATE_DEST       its path for the file (default /srv/examples/epic-cash-wallets/update.json)
+#   UPDATE_DEST       its path for the file (default /srv/examples/epic-cash-wallets/update.json, the
+#                     release folder: served as https://epiccash.btlabs.uk/api/v1/update.json and, for
+#                     installs that read the old address, https://examples.btlabs.uk/epic-cash-wallets/update.json)
 #   UPDATE_SITE       checkout of the GitHub Pages repository (default ~/code/btlabs-epic.github.io)
 #   UPDATE_KEYRING    keyring to verify against (default ~/code/btlabs-public/keys/btlabs-keyring.json)
 #   UPDATE_SIGN_TOOL  btlabs_sign.py (default ~/code/btlabs-public/tool/btlabs_sign.py)
@@ -74,6 +76,7 @@ check() {
   if [[ "$got" == "$sum" ]]; then echo "  $1: ok"; else echo "  $1: differs (not served yet?)"; return 1; fi
 }
 echo "update.json $version ($sum):"
+check https://epiccash.btlabs.uk/api/v1/update.json
 check https://examples.btlabs.uk/epic-cash-wallets/update.json
 raw="https://gitlab.com/$gitlab/-/raw/main/update.json"
 if out="$(check "$raw")"; then

@@ -6,7 +6,8 @@
 # Usage: tool/desktop_update_entry.sh <version> <folder>
 #   version  the release, e.g. 26.10.9
 #   folder   holds the files exactly as published in
-#            https://examples.btlabs.uk/epic-cash-wallets/downloads/:
+#            https://epiccash.btlabs.uk/releases/downloads/ (the same folder as
+#            https://examples.btlabs.uk/epic-cash-wallets/downloads/):
 #              epic-cash-desktop-<version>-windows-x64-setup.exe
 #              EpicCashDesktop-<version>-x86_64.AppImage
 #              EpicCashDesktop-<version>-macos.dmg          (when the Apple build ships)
@@ -31,6 +32,8 @@ fi
 version="$1"
 dir="${2%/}"
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "$version is not a release version (YY.MM.patch)" >&2; exit 64; }
+# The old name on purpose: clients up to 26.10.23 accept a desktop file only under it and reject
+# the whole manifest otherwise (https://docs.btlabs.uk/developers/releases/, Release addresses). Same files either way.
 base="https://examples.btlabs.uk/epic-cash-wallets/downloads"
 
 entry() {
