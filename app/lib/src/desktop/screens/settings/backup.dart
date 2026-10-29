@@ -113,10 +113,14 @@ enum _Busy { export, import, csv }
 class _BackupGroupState extends ConsumerState<BackupGroup> {
   late _Busy? _busy = widget.demo == BackupDemo.busy ? _Busy.export : null;
 
-  Future<void> _run(_Busy what, Future<void> Function(BuildContext) dialog) async {
+  void _idle() {
+    if (mounted) setState(() => _busy = null);
+  }
+
+  Future<void> _run(_Busy what, Future<void> Function(BuildContext, VoidCallback) dialog) async {
     setState(() => _busy = what);
     try {
-      await dialog(context);
+      await dialog(context, _idle);
     } finally {
       if (mounted) setState(() => _busy = null);
     }
@@ -144,7 +148,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
               icon: EIcons.download,
               size: EBtnSize.sm,
               busy: busy == _Busy.export,
-              onPressed: busy != null ? null : () => _run(_Busy.export, showExportHistoryDialog),
+              onPressed: busy != null ? null : () => _run(_Busy.export, (c, done) => showExportHistoryDialog(c, onSaved: done)),
             ),
           ),
         ),
@@ -156,7 +160,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
               label: l.deskSetBackupImportButton,
               icon: EIcons.upload,
               size: EBtnSize.sm,
-              onPressed: busy != null ? null : () => _run(_Busy.import, showImportHistoryDialog),
+              onPressed: busy != null ? null : () => _run(_Busy.import, (c, _) => showImportHistoryDialog(c)),
             ),
           ),
         ),
@@ -168,7 +172,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
               label: l.deskSetBackupExportButton,
               icon: EIcons.table,
               size: EBtnSize.sm,
-              onPressed: busy != null ? null : () => _run(_Busy.csv, showExportCsvDialog),
+              onPressed: busy != null ? null : () => _run(_Busy.csv, (c, done) => showExportCsvDialog(c, onSaved: done)),
             ),
           ),
         ),
@@ -285,10 +289,13 @@ Future<void> _openFolder(WidgetRef ref, String path) => ref.read(deskOpenFolderP
 
 // ---- Export wallet data.
 
-Future<void> showExportHistoryDialog(BuildContext context) => showEDialog<void>(context, builder: (_) => const ExportHistoryDialog());
+/// [onSaved] runs as soon as the save has finished, while the Saved dialog is still open.
+Future<void> showExportHistoryDialog(BuildContext context, {VoidCallback? onSaved}) => showEDialog<void>(context, builder: (_) => ExportHistoryDialog(onSaved: onSaved));
 
 class ExportHistoryDialog extends ConsumerStatefulWidget {
-  const ExportHistoryDialog({super.key, this.savedDemo});
+  const ExportHistoryDialog({super.key, this.savedDemo, this.onSaved});
+
+  final VoidCallback? onSaved;
 
   /// Opens in the saved state at this path (screenshots).
   final String? savedDemo;
@@ -324,6 +331,7 @@ class _ExportHistoryDialogState extends ConsumerState<ExportHistoryDialog> {
       if (mounted) setState(() => _failed = _notSaved(l, e));
     } finally {
       if (mounted) setState(() => _saving = false);
+      widget.onSaved?.call();
     }
   }
 
@@ -583,7 +591,7 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
 
 // ---- Payments as CSV.
 
-Future<void> showExportCsvDialog(BuildContext context) => showEDialog<void>(context, builder: (_) => const ExportCsvDialog());
+Future<void> showExportCsvDialog(BuildContext context, {VoidCallback? onSaved}) => showEDialog<void>(context, builder: (_) => ExportCsvDialog(onSaved: onSaved));
 
 enum CsvRange { all, thisYear, lastYear, custom }
 
@@ -608,7 +616,9 @@ DateTime? parseDay(String text) {
 }
 
 class ExportCsvDialog extends ConsumerStatefulWidget {
-  const ExportCsvDialog({super.key, this.initial = CsvRange.all});
+  const ExportCsvDialog({super.key, this.initial = CsvRange.all, this.onSaved});
+
+  final VoidCallback? onSaved;
 
   final CsvRange initial;
 
@@ -661,6 +671,7 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
       if (mounted) setState(() => _failed = _notSaved(l, e));
     } finally {
       if (mounted) setState(() => _saving = false);
+      widget.onSaved?.call();
     }
   }
 
