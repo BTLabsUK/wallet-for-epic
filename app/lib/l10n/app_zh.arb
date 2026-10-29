@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "{file} 不见了，已重新写入。",
   "settingsFileWriteFailed": "无法写入 {file}。此更改在关闭应用前有效。",
   "settingsFileReadFailed": "无法读取 {file}。正在使用内置设置。",
-  "deskKitReachTorOff": "此检查需要关闭 Tor。"
+  "deskKitReachTorOff": "此检查需要关闭 Tor。",
+  "deskSetBackupServersTitle": "使用此文件中的服务器？",
+  "deskSetBackupServersBody": "文件中的节点和 Epicbox 服务器列表与这台电脑的不同。这里的所有钱包都使用同一份列表。",
+  "deskSetBackupServersKeep": "保留这台电脑的",
+  "deskSetBackupServersUse": "使用文件的"
 }

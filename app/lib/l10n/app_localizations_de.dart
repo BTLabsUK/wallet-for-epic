@@ -18599,4 +18599,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitReachTorOff => 'Die Prüfung geht nur ohne Tor.';
+
+  @override
+  String get deskSetBackupServersTitle => 'Server aus dieser Datei übernehmen?';
+
+  @override
+  String get deskSetBackupServersBody =>
+      'Ihre Listen der Nodes und Epicbox-Server weichen von denen dieses Computers ab. Alle Wallets hier nutzen dieselben Listen.';
+
+  @override
+  String get deskSetBackupServersKeep => 'Die dieses Computers';
+
+  @override
+  String get deskSetBackupServersUse => 'Die der Datei';
 }

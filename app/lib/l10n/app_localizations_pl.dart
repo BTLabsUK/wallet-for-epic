@@ -19030,4 +19030,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitReachTorOff => 'Sprawdzenie wymaga wyłączenia Tora.';
+
+  @override
+  String get deskSetBackupServersTitle => 'Użyć serwerów z tego pliku?';
+
+  @override
+  String get deskSetBackupServersBody =>
+      'Jego listy węzłów i serwerów Epicbox różnią się od list tego komputera. Wszystkie portfele tutaj używają tych samych list.';
+
+  @override
+  String get deskSetBackupServersKeep => 'Z tego komputera';
+
+  @override
+  String get deskSetBackupServersUse => 'Z pliku';
 }

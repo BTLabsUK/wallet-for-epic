@@ -9,7 +9,6 @@ import 'dart:typed_data';
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost;
 import '../../pairing_api.dart';
-import '../../server_list.dart' show ServerList;
 
 import 'backup_settings_desk.dart' show DeskBackupSettings;
 import 'http_address.dart';
@@ -379,12 +378,10 @@ abstract interface class DeskWalletApi {
   /// in the backup map's form (`backup_settings_desk.dart`); [exportHistory] seals `mine`.
   Future<DeskBackupSettings> backupSettings();
 
-  /// After a history import: the open wallet's own items from the backup. [nodeList] and
-  /// [relayList] merge into this network's lists (nothing in them is dropped); [ownRelay]
-  /// (when given) becomes the wallet's own Epicbox server, null for the app's, saved for its
-  /// next open (`useEpicbox` moves it now); the seed contacts in [seedsDeleted] are recorded
-  /// as deleted, and one still as the app wrote it is deleted again.
-  Future<void> restoreBackupItems({ServerList? nodeList, ServerList? relayList, ({String? relay})? ownRelay, List<String>? seedsDeleted});
+  /// After a history import: the open wallet's own items from the backup. The seed contacts in
+  /// [seedsDeleted] are recorded as deleted, and one still as the app wrote it is deleted again.
+  /// (The servers are `settings.toml`'s, written by the glue.)
+  Future<void> restoreBackupItems({List<String>? seedsDeleted});
 
   /// Records an export saved at [when], with what it held.
   Future<void> markHistoryExported(DateTime when);

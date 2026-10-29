@@ -28711,6 +28711,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The check needs Tor off.'**
   String get deskKitReachTorOff;
+
+  /// Settings > Backup, after importing a wallet data backup on a computer with other wallets: dialog title when the file's server lists differ from this computer's.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the servers from this file?'**
+  String get deskSetBackupServersTitle;
+
+  /// Same dialog: text. 'Its' is the file's. The lists are shared by every wallet on the computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Its node and Epicbox server lists differ from this computer’s. Every wallet here uses the same lists.'**
+  String get deskSetBackupServersBody;
+
+  /// Same dialog: button that keeps this computer's server lists. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this computer’s'**
+  String get deskSetBackupServersKeep;
+
+  /// Same dialog: primary button that takes the file's server lists. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the file’s'**
+  String get deskSetBackupServersUse;
 }
 
 class _AppLocalizationsDelegate

@@ -69,5 +69,9 @@
   "deskSetBackupReminderNever": "{count, plural, one{1 Zahlung ist in Ihren exportierten Wallet-Daten nicht enthalten.} other{{count} Zahlungen sind in Ihren exportierten Wallet-Daten nicht enthalten.}}",
   "deskSetBackupReminderChanged": "{count, plural, one{1 Zahlung ist seit dem letzten Export der Wallet-Daten neu oder geändert.} other{{count} Zahlungen sind seit dem letzten Export der Wallet-Daten neu oder geändert.}}",
   "deskSetBackupReminderBody": "Eine Wiederherstellung mit der Wiederherstellungsphrase bringt das Guthaben zurück, nicht, wer was gezahlt hat.",
-  "deskSetBackupNotNow": "Nicht jetzt"
+  "deskSetBackupNotNow": "Nicht jetzt",
+  "deskSetBackupServersTitle": "Server aus dieser Datei übernehmen?",
+  "deskSetBackupServersBody": "Ihre Listen der Nodes und Epicbox-Server weichen von denen dieses Computers ab. Alle Wallets hier nutzen dieselben Listen.",
+  "deskSetBackupServersKeep": "Die dieses Computers",
+  "deskSetBackupServersUse": "Die der Datei"
 }

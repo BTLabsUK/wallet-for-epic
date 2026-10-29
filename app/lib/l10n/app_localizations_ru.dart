@@ -19014,4 +19014,18 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskKitReachTorOff =>
       'Проверка работает только с выключенным Tor.';
+
+  @override
+  String get deskSetBackupServersTitle =>
+      'Использовать серверы из этого файла?';
+
+  @override
+  String get deskSetBackupServersBody =>
+      'Его списки узлов и серверов Epicbox отличаются от списков этого компьютера. Все кошельки здесь используют одни и те же списки.';
+
+  @override
+  String get deskSetBackupServersKeep => 'Этого компьютера';
+
+  @override
+  String get deskSetBackupServersUse => 'Из файла';
 }

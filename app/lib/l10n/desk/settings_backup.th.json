@@ -69,5 +69,9 @@
   "deskSetBackupReminderNever": "{count, plural, other{{count} รายการยังไม่อยู่ในข้อมูลกระเป๋าเงินที่ส่งออก}}",
   "deskSetBackupReminderChanged": "{count, plural, other{{count} รายการเป็นรายการใหม่หรือเปลี่ยนไปหลังส่งออกข้อมูลกระเป๋าเงินครั้งล่าสุด}}",
   "deskSetBackupReminderBody": "การกู้คืนจากวลีกู้คืนได้คืนยอดคงเหลือ แต่ไม่ได้คืนว่าใครจ่ายอะไร",
-  "deskSetBackupNotNow": "ไว้ทีหลัง"
+  "deskSetBackupNotNow": "ไว้ทีหลัง",
+  "deskSetBackupServersTitle": "ใช้เซิร์ฟเวอร์จากไฟล์นี้?",
+  "deskSetBackupServersBody": "รายการโหนดและเซิร์ฟเวอร์ Epicbox ในไฟล์ต่างจากของคอมพิวเตอร์เครื่องนี้ กระเป๋าเงินทุกใบในเครื่องนี้ใช้รายการเดียวกัน",
+  "deskSetBackupServersKeep": "ใช้ของเครื่องนี้",
+  "deskSetBackupServersUse": "ใช้ของไฟล์"
 }

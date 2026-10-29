@@ -6,13 +6,17 @@
 /// file. After an import, [planDeskBackupSettings] says what the file would change and
 /// [applyDeskBackupSettings] applies it: the app-wide settings through [DeskController] (one
 /// save, so the theme, the language, auto-lock, the network mode and the payment methods
-/// follow at once), the Outputs choices through [deskOutputPrefsProvider], the servers through
-/// [DeskController.useEpicbox] / [DeskController.useNode] (the wallet reopens on them), and the
-/// wallet's own items (the lists, its own Epicbox server, deleted seed contacts) through
+/// follow at once), the Outputs choices through [deskOutputPrefsProvider], the Node and Epicbox
+/// lists and `[online]` switches into `settings.toml` through [hostSettingsProvider] (a new
+/// first server through [DeskController.useEpicbox] / [DeskController.useNode] first, so the
+/// wallet reopens on it), and the wallet's deleted seed contacts through
 /// [DeskWalletApi.restoreBackupItems].
 ///
 /// The app-wide settings are shared by every wallet on this computer: the Backup screen asks
-/// before it takes any the user changed ([BackupSettingsPlan.conflicts]).
+/// before it takes any the user changed ([BackupSettingsPlan.conflicts]). The lists are too, and
+/// the first Epicbox entry is every wallet's address: with another wallet on this network a
+/// file whose lists differ asks once, keep this computer's servers or use the backup's
+/// ([BackupSettingsPlan.servers]). With none, the file's lists and switches are taken.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +25,9 @@ import 'package:flutter_riverpod/misc.dart' show ProviderListenable, ProviderOrF
 import '../../backup_settings.dart';
 import '../../log.dart';
 import '../../payment_prefs.dart';
+import '../../server_list_file.dart' show withFirst;
+import '../../settings_file/host_settings.dart' show HostSettings;
+import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'api.dart';
 import 'features.dart';
 import 'models.dart';
@@ -39,20 +46,15 @@ class DeskBackupSettings {
   final Map<String, Object?> defaults;
 }
 
-/// The desktop's settings as the backup map ([BackupKey]); only [chain]'s servers and lists.
-/// HTTP (reach, port), the built-in node and the interface scale are never in it.
+/// The desktop's settings as the backup map ([BackupKey]); [hosts] gives `settings.toml`'s
+/// lists and switches. HTTP (reach, port), the built-in node's settings and the interface scale
+/// are never in it.
 Map<String, Object?> deskBackupMap(
   DeskSettings s, {
-  required String chain,
+  required HostSettings hosts,
   required OutputPrefs outputs,
-  String? node,
-  String? relay,
-  required ServerList nodeList,
-  required ServerList relayList,
-  required List<NodeServer> ownNodes,
   required Duration invoiceExpiry,
   required Iterable<String> seedsDeleted,
-  String? ownRelay,
 }) => {
   BackupKey.v: backupSettingsVersion,
   BackupKey.from: BackupPlatform.desktop.name,
@@ -60,25 +62,17 @@ Map<String, Object?> deskBackupMap(
   BackupKey.language: s.language,
   BackupKey.helpLanguage: s.helpLanguage,
   BackupKey.hideBalances: s.hideAmounts,
-  BackupKey.statusSite: s.useStatusSite,
   BackupKey.autoLock: s.autoLockOn ? s.autoLockMinutes : BackupKey.never,
   BackupKey.advanced: s.advanced.toJson(),
   BackupKey.payments: s.payments.toJson(),
   BackupKey.sendStrategy: outputs.strategy.name,
   BackupKey.splitChange: outputs.smartOutputs,
-  BackupKey.node: {chain: ?node},
-  BackupKey.relay: {chain: ?relay},
-  BackupKey.nodeList: {chain: serverListJson(nodeList)},
-  BackupKey.relayList: {chain: serverListJson(relayList)},
   BackupKey.tor: s.torAutostart,
   BackupKey.seenAs: s.pairingSeenAs,
+  ...backupHostSettings(hosts),
   BackupKey.desktop: {
-    BackupKey.deskNodes: [
-      for (final n in ownNodes) {'url': n.url, 'label': n.label},
-    ],
     BackupKey.invoiceExpiry: invoiceExpiry.inSeconds,
     BackupKey.seedsDeleted: [...seedsDeleted]..sort(),
-    BackupKey.ownRelay: ownRelay,
     BackupKey.epicboxAutostart: s.epicboxAutostart,
   },
 };
@@ -88,10 +82,10 @@ Map<String, Object?> deskBackupMap(
 Future<BackupSettingsPlan> planDeskBackupSettings(WidgetRef ref, HistoryImport result) =>
     DeskBackupSettingsGlue.of(ref).plan(result);
 
-/// Applies [plan]: what it takes silently, and its conflicts when [takeConflicts]. Returns how
-/// many settings changed.
-Future<int> applyDeskBackupSettings(WidgetRef ref, BackupSettingsPlan plan, {required bool takeConflicts}) =>
-    DeskBackupSettingsGlue.of(ref).apply(plan, takeConflicts: takeConflicts);
+/// Applies [plan]: what it takes silently, its conflicts when [takeConflicts] and its servers
+/// when [takeServers]. Returns how many settings changed.
+Future<int> applyDeskBackupSettings(WidgetRef ref, BackupSettingsPlan plan, {required bool takeConflicts, bool takeServers = false}) =>
+    DeskBackupSettingsGlue.of(ref).apply(plan, takeConflicts: takeConflicts, takeServers: takeServers);
 
 /// The two steps over a provider reader: a widget's ref, or a container in tests.
 class DeskBackupSettingsGlue {
@@ -116,23 +110,34 @@ class DeskBackupSettingsGlue {
     }
   }
 
+  /// Whether another wallet on this network shares `settings.toml`'s lists with the open one.
+  Future<bool> _otherWallets(String chain, String? openId) async {
+    try {
+      return (await _api.wallets()).any((w) => w.network == chain && w.id != openId);
+    } on Object {
+      return true; // Not known: ask rather than move every wallet.
+    }
+  }
+
   Future<BackupSettingsPlan> plan(HistoryImport result) async {
     if (result.settings == null && result.walletName == null) return BackupSettingsPlan.empty;
     final b = await _api.backupSettings();
     final account = await _account();
     return planBackupSettings(
       here: BackupPlatform.desktop,
-      chain: b.chain,
-      mine: b.mine,
+      // The lists and switches as the app holds them now (a hand edit included).
+      mine: {...b.mine, ...backupHostSettings(read(hostSettingsProvider))},
       defaults: b.defaults,
       file: result.settings,
+      sharedServers: await _otherWallets(b.chain, account?.id),
       fileWalletName: result.walletName,
       myWalletName: account?.id == null ? null : account!.name,
     );
   }
 
-  Future<int> apply(BackupSettingsPlan plan, {required bool takeConflicts}) async {
-    final v = plan.values(takeConflicts: takeConflicts);
+  /// [takeServers]: the answer to [BackupSettingsPlan.asksServers], use the backup's.
+  Future<int> apply(BackupSettingsPlan plan, {required bool takeConflicts, bool takeServers = false}) async {
+    final v = plan.values(takeConflicts: takeConflicts, takeServers: takeServers);
     if (v.isEmpty) return 0;
     final desk = read(deskProvider.notifier);
     var changed = 0;
@@ -165,6 +170,11 @@ class DeskBackupSettingsGlue {
       changed += advanced;
     }
     if (!identical(s, was)) await desk.saveSettings(s);
+    for (final key in [BackupItem.updateCheck, BackupItem.price]) {
+      if (!v.containsKey(key)) continue;
+      await read(hostSettingsProvider.notifier).set(key, v[key]! as bool);
+      changed++;
+    }
 
     // The open wallet's Outputs choices.
     if (v.containsKey(BackupItem.sendStrategy) || v.containsKey(BackupItem.splitChange)) {
@@ -198,55 +208,46 @@ class DeskBackupSettingsGlue {
       changed++;
     }
 
-    final nodes = v[BackupItem.deskNodes];
-    if (nodes is List) {
-      final known = await _api.nodes();
-      for (final n in nodes.whereType<Map>()) {
-        final url = n['url'];
-        if (url is! String || known.any((k) => k.own && sameServer(ServerKind.node, k.url, url))) continue;
-        final label = n['label'] is String && (n['label'] as String).isNotEmpty ? n['label'] as String : (Uri.tryParse(url)?.host ?? url);
-        await desk.addNode(NodeServer(url: url, label: label, own: true, health: ServiceHealth.checking));
-      }
+    // The seed contacts deleted.
+    final seeds = v[BackupItem.seedsDeleted];
+    if (seeds is List) {
+      await _api.restoreBackupItems(seedsDeleted: seeds.whereType<String>().toList());
       changed++;
     }
 
-    // The wallet's own items: the lists (merged again with what they hold now), its own
-    // Epicbox server, the seed contacts deleted.
-    final nodeList = serverListFromJson(ServerKind.node, v[BackupItem.nodeList]);
-    final relayList = serverListFromJson(ServerKind.relay, v[BackupItem.relayList]);
-    final seeds = v[BackupItem.seedsDeleted];
-    final ownRelay = v.containsKey(BackupItem.ownRelay);
-    if (nodeList != null || relayList != null || seeds is List || ownRelay) {
-      await _api.restoreBackupItems(
-        nodeList: nodeList,
-        relayList: relayList,
-        seedsDeleted: seeds is List ? seeds.whereType<String>().toList() : null,
-        ownRelay: ownRelay ? (relay: v[BackupItem.ownRelay] as String?) : null,
-      );
-      if (nodeList != null) invalidate(deskServerListProvider(ServerKind.node));
-      if (relayList != null) invalidate(deskServerListProvider(ServerKind.relay));
-      changed += [nodeList, relayList].nonNulls.length + (seeds is List ? 1 : 0) + (ownRelay ? 1 : 0);
-    }
-
-    // The servers: the wallet reopens on each (a wallet with its own Epicbox server keeps the
-    // relay to itself).
-    final relay = (v[BackupItem.relay] ?? v[BackupItem.ownRelay]) as String?;
-    if (relay != null) {
-      try {
-        await desk.useEpicbox(relay);
-        if (v.containsKey(BackupItem.relay)) changed++;
-      } on Object catch (e) {
-        logWarn('backup', 'epicbox server from the backup not used: ${e.runtimeType}');
+    // The lists, as the file has them. A new first server first: the wallet reopens on it
+    // (every wallet's address follows the Epicbox one); when refused, the one in use stays first.
+    final nodes = (v[BackupItem.nodeServers] as List?)?.cast<String>();
+    final boxes = (v[BackupItem.epicboxServers] as List?)?.cast<String>();
+    if (nodes != null || boxes != null) {
+      final h = read(hostSettingsProvider);
+      var keepNode = '';
+      var keepBox = '';
+      final box = boxes?.first;
+      if (box != null && box != h.epicboxUse) {
+        try {
+          await desk.useEpicbox(box);
+        } on Object catch (e) {
+          keepBox = h.epicboxUse;
+          logWarn('backup', 'epicbox server from the backup not used: ${e.runtimeType}');
+        }
       }
-    }
-    final node = v[BackupItem.node];
-    if (node is String) {
-      try {
-        await desk.useNode(node);
-        changed++;
-      } on Object catch (e) {
-        logWarn('backup', 'node from the backup not used: ${e.runtimeType}');
+      final node = nodes?.first;
+      if (node != null && node != h.nodeUse) {
+        try {
+          await desk.useNode(node);
+        } on Object catch (e) {
+          keepNode = h.nodeUse;
+          logWarn('backup', 'node from the backup not used: ${e.runtimeType}');
+        }
       }
+      await read(hostSettingsProvider.notifier).setAll({
+        if (nodes != null) BackupItem.nodeServers: keepNode.isEmpty ? nodes : withFirst(ServerKind.node, nodes, keepNode),
+        if (boxes != null) BackupItem.epicboxServers: keepBox.isEmpty ? boxes : withFirst(ServerKind.relay, boxes, keepBox),
+      });
+      invalidate(deskServerListProvider(ServerKind.node));
+      invalidate(deskServerListProvider(ServerKind.relay));
+      changed += [nodes, boxes].nonNulls.length;
     }
 
     // Tor last, on the servers and in the mode just set.

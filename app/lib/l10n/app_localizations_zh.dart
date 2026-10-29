@@ -17323,4 +17323,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitReachTorOff => '此检查需要关闭 Tor。';
+
+  @override
+  String get deskSetBackupServersTitle => '使用此文件中的服务器？';
+
+  @override
+  String get deskSetBackupServersBody =>
+      '文件中的节点和 Epicbox 服务器列表与这台电脑的不同。这里的所有钱包都使用同一份列表。';
+
+  @override
+  String get deskSetBackupServersKeep => '保留这台电脑的';
+
+  @override
+  String get deskSetBackupServersUse => '使用文件的';
 }

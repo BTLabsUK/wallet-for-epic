@@ -17969,4 +17969,17 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitReachTorOff => 'การตรวจนี้ต้องปิด Tor';
+
+  @override
+  String get deskSetBackupServersTitle => 'ใช้เซิร์ฟเวอร์จากไฟล์นี้?';
+
+  @override
+  String get deskSetBackupServersBody =>
+      'รายการโหนดและเซิร์ฟเวอร์ Epicbox ในไฟล์ต่างจากของคอมพิวเตอร์เครื่องนี้ กระเป๋าเงินทุกใบในเครื่องนี้ใช้รายการเดียวกัน';
+
+  @override
+  String get deskSetBackupServersKeep => 'ใช้ของเครื่องนี้';
+
+  @override
+  String get deskSetBackupServersUse => 'ใช้ของไฟล์';
 }

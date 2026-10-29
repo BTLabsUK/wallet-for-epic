@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "Brakowało pliku {file}, utworzono go na nowo.",
   "settingsFileWriteFailed": "Nie udało się zapisać {file}. Zmiana obowiązuje do zamknięcia aplikacji.",
   "settingsFileReadFailed": "Nie udało się odczytać {file}. Obowiązują wbudowane ustawienia.",
-  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora."
+  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora.",
+  "deskSetBackupServersTitle": "Użyć serwerów z tego pliku?",
+  "deskSetBackupServersBody": "Jego listy węzłów i serwerów Epicbox różnią się od list tego komputera. Wszystkie portfele tutaj używają tych samych list.",
+  "deskSetBackupServersKeep": "Z tego komputera",
+  "deskSetBackupServersUse": "Z pliku"
 }

@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "Файл {file} отсутствовал и записан заново.",
   "settingsFileWriteFailed": "Не удалось записать {file}. Изменение действует до закрытия приложения.",
   "settingsFileReadFailed": "Не удалось прочитать {file}. Действуют встроенные настройки.",
-  "deskKitReachTorOff": "Проверка работает только с выключенным Tor."
+  "deskKitReachTorOff": "Проверка работает только с выключенным Tor.",
+  "deskSetBackupServersTitle": "Использовать серверы из этого файла?",
+  "deskSetBackupServersBody": "Его списки узлов и серверов Epicbox отличаются от списков этого компьютера. Все кошельки здесь используют одни и те же списки.",
+  "deskSetBackupServersKeep": "Этого компьютера",
+  "deskSetBackupServersUse": "Из файла"
 }

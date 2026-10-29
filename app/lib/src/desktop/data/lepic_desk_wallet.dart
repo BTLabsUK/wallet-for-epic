@@ -58,8 +58,7 @@ import '../../tor_routes.dart';
 import '../../relay_block.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
-import '../../backup_settings.dart' show mergeServerLists;
-import '../../server_list.dart' show ServerKind, ServerList;
+import '../../server_list.dart' show ServerKind;
 import '../../server_list_file.dart';
 import '../../server_list_store.dart' show builtInRelaysFor;
 import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
@@ -4488,42 +4487,25 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<DeskBackupSettings> backupSettings() async {
     final entry = _openEntry;
-    final node = await _builtInOn() ? await _secrets.read(_beforeBuiltInKey) : await _nodeUrl();
-    final ownNodes = <NodeServer>[
-      for (final n in hostSettings.nodeServers)
-        if (n.operator == null) NodeServer(url: n.url, label: '', own: true),
-    ];
     final secs = (await _meta())[_invoiceExpiryKey];
     final expiry = secs is int && secs > 0 ? Duration(seconds: secs > maxInvoiceExpiry.inSeconds ? maxInvoiceExpiry.inSeconds : secs) : defaultInvoiceExpiry;
     final autostart = await _store.autostart(entry?.walletId);
-    final shipped = shippedHostSettings;
     return DeskBackupSettings(
       chain: _chain,
       mine: deskBackupMap(
         _settings.copyWith(epicboxAutostart: autostart.epicbox, torAutostart: autostart.tor),
-        chain: _chain,
+        hosts: hostSettings,
         outputs: await _store.outputPrefs(entry?.walletId),
-        node: node,
-        relay: (await _relay()).label,
-        nodeList: serverListOf(hostSettings, ServerKind.node),
-        relayList: serverListOf(hostSettings, ServerKind.relay),
-        ownNodes: ownNodes,
         invoiceExpiry: expiry,
         seedsDeleted: [
           for (final e in (await _seedRecords()).entries)
             if (e.value['deleted'] == true) e.key,
         ],
-        ownRelay: null,
       ),
       defaults: deskBackupMap(
         const DeskSettings(),
-        chain: _chain,
+        hosts: shippedHostSettings,
         outputs: const OutputPrefs(),
-        node: shipped.nodeUse,
-        relay: EpicboxRelay.parse(shipped.epicboxUse)?.label ?? shipped.epicboxUse,
-        nodeList: serverListOf(shipped, ServerKind.node),
-        relayList: serverListOf(shipped, ServerKind.relay),
-        ownNodes: const [],
         invoiceExpiry: defaultInvoiceExpiry,
         seedsDeleted: const [],
       ),
@@ -4531,16 +4513,8 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> restoreBackupItems({ServerList? nodeList, ServerList? relayList, ({String? relay})? ownRelay, List<String>? seedsDeleted}) async {
-    for (final (kind, list) in [(ServerKind.node, nodeList), (ServerKind.relay, relayList)]) {
-      if (list == null) continue;
-      final now = serverListOf(hostSettings, kind);
-      final next = mergeServerLists(kind, now, list);
-      if (next != now) await writeHostSettings(serverListValues(kind, next));
-    }
+  Future<void> restoreBackupItems({List<String>? seedsDeleted}) async {
     final entry = _openEntry;
-    // A wallet's own Epicbox server (older backups) is not taken: every wallet uses `epicbox.use`.
-    if (ownRelay != null) logInfo('desk', "backup: a wallet's own Epicbox server is not used");
     final session = _session;
     if (seedsDeleted == null || seedsDeleted.isEmpty || session == null) return;
     final key = _metaKey(entry?.walletId);

@@ -4799,5 +4799,9 @@
   "settingsFileRecreated": "ไม่พบ {file} จึงเขียนไฟล์ใหม่แล้ว",
   "settingsFileWriteFailed": "เขียน {file} ไม่ได้ การเปลี่ยนแปลงนี้ใช้ได้จนกว่าจะปิดแอป",
   "settingsFileReadFailed": "อ่าน {file} ไม่ได้ จึงใช้การตั้งค่าในตัวแอป",
-  "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor"
+  "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor",
+  "deskSetBackupServersTitle": "ใช้เซิร์ฟเวอร์จากไฟล์นี้?",
+  "deskSetBackupServersBody": "รายการโหนดและเซิร์ฟเวอร์ Epicbox ในไฟล์ต่างจากของคอมพิวเตอร์เครื่องนี้ กระเป๋าเงินทุกใบในเครื่องนี้ใช้รายการเดียวกัน",
+  "deskSetBackupServersKeep": "ใช้ของเครื่องนี้",
+  "deskSetBackupServersUse": "ใช้ของไฟล์"
 }
