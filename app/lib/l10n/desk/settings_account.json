@@ -69,7 +69,7 @@
   },
   "deskSetAcctNetwork": "Network",
   "@deskSetAcctNetwork": {
-    "description": "Settings > This wallet: row title showing which network (e.g. Floonet) the wallet belongs to. Shown only when it is not Mainnet."
+    "description": "Settings > This wallet: row title showing which network the wallet belongs to (development builds only)."
   },
   "deskSetAcctNetworkHint": "Set when the wallet was created.",
   "@deskSetAcctNetworkHint": {

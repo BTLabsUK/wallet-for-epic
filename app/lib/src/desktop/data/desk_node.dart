@@ -651,7 +651,7 @@ class MockDeskNode implements DeskNodeApi {
 
 const int _gb = 1000 * 1000 * 1000;
 
-const String mockDataFolder = '~/.epic_cash_desktop/node/main';
+const String mockDataFolder = '~/.epic_cash_desktop/node';
 
 /// The mock's network tip.
 const int mockTip = 3764975;

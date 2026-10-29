@@ -176,7 +176,7 @@ void main() {
       expect(report, contains('version: 1.1.2 (12)'));
       expect(report, contains('ui: phone'));
       expect(report, contains('platform: android 14'));
-      expect(report, contains('network: Mainnet'));
+      expect(report, isNot(contains('network:')), reason: 'mainnet is never named');
       expect(report, contains('node: node.btlabs.uk'));
       expect(report, contains('epicbox: epicbox.epiccash.com'));
       expect(report, contains('sync: Up to date at height 3600000'));
@@ -284,7 +284,7 @@ void main() {
       await tap(tester, find.text('What is sent'));
       final preview = previewText(tester);
       expect(preview, contains('[recovery phrase removed] does not work'));
-      expect(preview, contains('network: Mainnet'));
+      expect(preview, isNot(contains('network:')));
       expect(preview, contains('node: node.btlabs.uk'));
       expect(preview, contains('epicbox: epicbox.epiccash.com'));
       expect(preview, contains('platform: android 14'));

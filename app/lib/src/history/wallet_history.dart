@@ -487,7 +487,7 @@ class WalletHistory {
   }) async {
     final addressChecks = checks ?? shapeAddressChecks;
     if (payload.chain != chainName(chain)) {
-      throw _invalid(historyOtherChain(payload.chain, chainName(chain)));
+      throw _invalid(historyOtherChain);
     }
     if (payload.walletFp != walletFp) throw _invalid(historyOtherWallet);
     final shown = merged(live);

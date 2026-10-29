@@ -631,7 +631,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           Wrap(
             spacing: Sp.x2,
             children: [
-              if (f.network != 'mainnet') EBadge(networkName(f.network)),
+              if (f.network != 'mainnet' && DeskFeatures.testNetworks) EBadge(networkName(f.network)),
               if (f.sameAs != null) EBadge(f.inApp ? l.deskOnbImportInApp : l.deskOnbImportSameWallet, tone: ETone.warn, icon: EIcons.alert),
             ],
           ),

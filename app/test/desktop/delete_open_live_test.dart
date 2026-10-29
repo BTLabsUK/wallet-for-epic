@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
 final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
@@ -37,7 +38,7 @@ void main() {
     return LepicDeskWallet(
       service: LepicWalletService(secrets: secrets, oneWalletPerChain: true),
       walletDir: (chain) async {
-        final d = Directory('${tmp.path}/$root/wallets/${chain.name}');
+        final d = Directory(WalletRegistry.firstWalletDir('${tmp.path}/$root', chain));
         await d.create(recursive: true);
         return d.path;
       },

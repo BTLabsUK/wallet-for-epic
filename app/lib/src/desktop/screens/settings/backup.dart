@@ -72,11 +72,13 @@ String deskWalletFileLabel(String name) {
   return end > 0 ? cut.substring(0, end) : cut;
 }
 
-/// `epic-wallet-data-<wallet>-<network>-<yyyymmdd>.<extension>`: the phone's name with the open
+/// `epic-wallet-data-<wallet>-<yyyymmdd>.<extension>`: the phone's name with the open
 /// wallet's name ([deskWalletFileLabel]) after `data`, left out when [wallet] cleans to nothing.
 String deskHistoryFileName(String network, DateTime day, String extension, {String wallet = ''}) {
   final label = deskWalletFileLabel(wallet);
-  return 'epic-wallet-data-${label.isEmpty ? '' : '$label-'}$network-${DateFormat('yyyyMMdd').format(day)}.$extension';
+  // Mainnet, the only network a user sees, is never named; a dev chain is.
+  final tag = network.isEmpty || network == 'mainnet' ? '' : '$network-';
+  return 'epic-wallet-data-${label.isEmpty ? '' : '$label-'}$tag${DateFormat('yyyyMMdd').format(day)}.$extension';
 }
 
 /// The open wallet's name as the app shows it (the title bar's rule).
@@ -485,7 +487,6 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final l = context.l10n;
-    final network = ref.watch(historyBackupProvider).value?.network ?? 'mainnet';
     final done = _done;
     final reading = _reading;
     final Widget body;
@@ -542,7 +543,7 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
                 if (_failed != null) _notice(l.deskSetBackupNotImported, _failed!),
                 _List([
                   (label: l.deskSetBackupBringsBack, value: Text(l.deskSetBackupBringsBackValue), sub: null),
-                  (label: l.deskSetBackupNeeds, value: Text(l.deskSetBackupNeedsValue(network == 'mainnet' ? network : toBeginningOfSentenceCase(network))), sub: null),
+                  (label: l.deskSetBackupNeeds, value: Text(l.deskSetBackupNeedsValue), sub: null),
                 ]),
               ],
             );

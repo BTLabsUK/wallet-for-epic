@@ -192,26 +192,26 @@ void main() {
 
   group('toml', () {
     for (final (chain, folder, api, p2p, type, seeding) in [
-      (Chain.mainnet, 'main', 3413, 3414, 'Mainnet', 'DNSSeed'),
-      (Chain.floonet, 'floo', 13413, 13414, 'Floonet', 'DNSSeed'),
-      (Chain.usernet, 'user', 23413, 23414, 'UserTesting', 'None'),
+      (Chain.mainnet, 'node', 3413, 3414, 'Mainnet', 'DNSSeed'),
+      (Chain.floonet, 'dev/floonet/node', 13413, 13414, 'Floonet', 'DNSSeed'),
+      (Chain.usernet, 'dev/usernet/node', 23413, 23414, 'UserTesting', 'None'),
     ]) {
       test('${chain.name} is rendered for its network', () async {
         final node = make(chain: chain);
         await node.prepareFolder();
-        final toml = File('${dir.path}/node/$folder/epic-server.toml')
+        final toml = File('${dir.path}/$folder/epic-server.toml')
             .readAsStringSync();
         expect(toml, contains('chain_type = "$type"'));
         expect(toml, contains('api_http_addr = "127.0.0.1:$api"'));
         expect(toml, contains('port = $p2p'));
         expect(toml, contains('seeding_type = "$seeding"'));
         expect(toml, contains('run_tui = false'));
-        expect(toml, contains('${dir.path}/node/$folder/chain_data'));
-        expect(toml, contains('${dir.path}/node/$folder/.api_secret'));
+        expect(toml, contains('${dir.path}/$folder/chain_data'));
+        expect(toml, contains('${dir.path}/$folder/.api_secret'));
         expect(toml, isNot(contains('{{')));
         expect(node.url, 'http://127.0.0.1:$api');
         expect(
-          File('${dir.path}/node/$folder/.api_secret').readAsStringSync(),
+          File('${dir.path}/$folder/.api_secret').readAsStringSync(),
           hasLength(20),
         );
       });

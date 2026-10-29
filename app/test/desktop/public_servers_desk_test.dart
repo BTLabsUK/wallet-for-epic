@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/public_servers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,7 +65,7 @@ void main() {
 
   LepicDeskWallet make(Object directory, {Set<String>? existing}) => LepicDeskWallet(
     service: core.FakeWalletService(password: _password, existingWallets: existing),
-    walletDir: (chain) async => (await Directory('${support.path}/wallets/${chain.name}').create(recursive: true)).path,
+    walletDir: (chain) async => (await Directory(WalletRegistry.firstWalletDir(support.path, chain)).create(recursive: true)).path,
     secrets: MemorySecretStore(),
     filesDir: () async => support,
     relayDirectory: directory as RelayDirectory,
@@ -89,7 +90,7 @@ void main() {
   });
 
   test('an install with a wallet and no saved server keeps the server 0.1.0 used', () async {
-    final w = make(_Down(), existing: {'${support.path}/wallets/mainnet'});
+    final w = make(_Down(), existing: {'${support.path}/wallet'});
     addTearDown(w.dispose);
     expect((await w.status()).epicbox.domain, 'epicbox.stackwallet.com');
   });

@@ -189,7 +189,7 @@ void main() {
       expect(saved.name, startsWith('epic-cash-contacts-'));
       final j = jsonDecode(utf8.decode(saved.bytes)) as Map<String, dynamic>;
       expect(j['format'], 'epic-cash-contacts');
-      expect(j['network'], 'mainnet');
+      expect(j.containsKey('network'), isFalse, reason: 'mainnet is never named');
       expect(j['contacts'], [
         {'name': 'Alice', 'epicbox': _alice, 'note': 'Coffee'},
         {'name': 'Bob', 'epicbox': _bob},

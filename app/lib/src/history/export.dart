@@ -31,8 +31,7 @@ const String historyDamaged = 'This history file is damaged';
 const String historyOtherWallet =
     'This history file belongs to a different wallet';
 
-String historyOtherChain(String file, String wallet) =>
-    'This history file is from $file, but this wallet is on $wallet';
+const String historyOtherChain = 'This history file is from another network';
 
 WalletError historyError(String message) =>
     WalletError(kind: WalletErrorKind.invalidArgument, message: message);

@@ -38,7 +38,7 @@ import '../../../advanced.dart';
 import '../../../payment_prefs.dart';
 
 /// A wallet that is not open, for the remove dialog's shots.
-const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet');
+const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', network: 'mainnet');
 
 /// Back to the settings the mock starts with (a demo state turned something on).
 Future<void> resetSettingsDemo(ProviderContainer c) async {
@@ -235,7 +235,7 @@ final List<DeskShot> settingsShots = [
     id: '25g-dlg-export-history-saved',
     title: 'Export wallet data, saved',
     route: DeskRoute.settingsAccount,
-    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportHistoryDialog(savedDemo: '~/Documents/epic-wallet-data-savings-mainnet-20261022.wfeh')),
+    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportHistoryDialog(savedDemo: '~/Documents/epic-wallet-data-savings-20261022.wfeh')),
   ),
   DeskShot(id: '25h-dlg-import-history', title: 'Import history backup', route: DeskRoute.settingsAccount, dialog: showImportHistoryDialog),
   DeskShot(
@@ -245,7 +245,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-wallet-data-savings-mainnet-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2), settings: 4, walletName: false),
+        doneDemo: (name: 'epic-wallet-data-savings-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2), settings: 4, walletName: false),
       ),
     ),
   ),
@@ -263,7 +263,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-wallet-data-savings-mainnet-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1), settings: 0, walletName: false),
+        doneDemo: (name: 'epic-wallet-data-savings-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1), settings: 0, walletName: false),
       ),
     ),
   ),

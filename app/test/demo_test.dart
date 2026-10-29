@@ -416,19 +416,19 @@ void main() {
       expect(demoTimeLeft(Duration.zero), isNull);
     });
 
-    testWidgets('a Test coins pill in the title, Floonet and the end in its '
+    testWidgets('a Test coins pill in the title, the end in its '
         'tooltip', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      // The bar names no network; the pill's tooltip says Floonet.
+      // The bar names no network, and neither does the pill's tooltip.
       expect(find.text(chainName(l, Chain.floonet)), findsNothing);
       expect(
         find.text('${l.demoTestCoinsPill} · ${l.demoLeftHours(5)}'),
         findsOneWidget,
       );
       final tooltip = tester.widget<Tooltip>(find.byKey(demoCountdownKey));
-      expect(tooltip.message, contains('Floonet'));
+      expect(tooltip.message, isNot(contains('Floonet')));
       final end = formatDateTime(l, h.now.add(const Duration(hours: 5)));
       expect(
         tooltip.message,

@@ -3,9 +3,11 @@
 /// store keys (D9; phones keep one). Pure Dart over `dart:io`, no Flutter.
 ///
 /// The list is `wallets.json` in the app support directory ([WalletRegistry.root]). It holds
-/// labels, chains and folders only: never a phrase, password or key. Wallet folders are
-/// `<root>/wallets/<id>/<chain>`; the single wallet a 0.1.0 install made sits at
-/// `<root>/wallets/<chain>` and is listed as `legacy-<chain>` ([WalletRegistry.adoptLegacy]).
+/// labels, chains and folders only: never a phrase, password or key. A mainnet wallet's folder
+/// is `<root>/wallets/<id>`; the first wallet, the one the app makes at first run, sits at
+/// `<root>/wallet` and is listed as `legacy-<chain>` ([WalletRegistry.adoptLegacy]). A dev
+/// chain's wallets sit the same way under `<root>/dev/<chain>` ([chainHome]), apart from
+/// mainnet's.
 ///
 /// Wallet 1 has two spellings and they mean the same: the registry hands out the id
 /// `legacy-<chain>`, but its [WalletConfig.walletId] is null ([WalletEntry.walletId]), and
@@ -19,6 +21,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'chain_folders.dart';
 import 'log.dart';
 import 'wallet_service.dart';
 
@@ -60,7 +63,7 @@ class WalletEntry {
     this.walletFingerprint,
   });
 
-  /// Random 16-byte hex, or `legacy-<chain>` for the wallet a 0.1.0 install made.
+  /// Random 16-byte hex, or `legacy-<chain>` for the first wallet ([WalletRegistry.firstWalletDir]).
   final String id;
   final String label;
   final Chain chain;
@@ -157,7 +160,7 @@ class WalletRegistry {
       _now = now ?? DateTime.now,
       _random = random ?? Random.secure();
 
-  /// Id prefix of a wallet made before the registry, at its old path with its old store keys.
+  /// Id prefix of the first wallet, at [firstWalletDir] with the store keys of the chain.
   static const String legacyPrefix = 'legacy-';
   static const String fileName = 'wallets.json';
   static const int maxLabelLength = 32;
@@ -179,7 +182,22 @@ class WalletRegistry {
 
   static final String _sep = Platform.pathSeparator;
 
-  String get _wallets => '$root${_sep}wallets';
+  /// The first wallet's folder of [chain] under the app support directory [root]:
+  /// `<root>/wallet` on mainnet, `<root>/dev/<chain>/wallet` on a dev chain.
+  static String firstWalletDir(String root, Chain chain) => '${chainHome(root, chain)}${_sep}wallet';
+
+  /// The [root] whose [firstWalletDir] of [chain] is [firstDir].
+  static String rootOf(String firstDir, Chain chain) {
+    var dir = Directory(firstDir).parent;
+    if (chain != Chain.mainnet) dir = dir.parent.parent;
+    return dir.path;
+  }
+
+  /// The folder of the added wallet [id] of [chain] under [root]: `<root>/wallets/<id>`, a dev
+  /// chain's under its home.
+  static String walletDirOf(String root, Chain chain, String id) => '${_walletsIn(root, chain)}$_sep$id';
+
+  static String _walletsIn(String root, Chain chain) => '${chainHome(root, chain)}${_sep}wallets';
   File get _file => File('$root$_sep$fileName');
 
   /// Entries in the order they were added.
@@ -216,7 +234,7 @@ class WalletRegistry {
 
   /// Reads `wallets.json`. A missing file is an empty list. A file that does not parse (or is
   /// not UTF-8) is renamed to `wallets.json.damaged-<millis>` (never removed) and the list
-  /// rebuilt from the folders on disk ([rescan]) and the 0.1.0 wallets ([adoptLegacy]), so no
+  /// rebuilt from the folders on disk ([rescan]) and the first wallets ([adoptLegacy]), so no
   /// wallet is lost from view (except a legacy wallet in [skipLegacy], which the user took off
   /// the list). One bad entry does not damage the file: it is skipped, kept as
   /// it was, and written back unchanged. A file with a newer `version` is read as far as
@@ -278,14 +296,14 @@ class WalletRegistry {
     _entries.addAll(entries);
   }
 
-  /// A new wallet folder `<root>/wallets/<id>/<chain>`, created empty, and its entry.
+  /// A new wallet folder ([walletDirOf]), created empty, and its entry.
   /// Without [label] the entry is called "Wallet N", N the lowest free number.
   Future<WalletEntry> add({required Chain chain, String? label}) =>
       _locked(() async {
         _requireWritable();
         final name = label == null ? _nextLabel() : _checkLabel(label);
         final id = _newId();
-        final dir = Directory('$_wallets$_sep$id$_sep${chain.name}')
+        final dir = Directory(walletDirOf(root, chain, id))
           ..createSync(recursive: true);
         final entry = WalletEntry(
           id: id,
@@ -299,8 +317,8 @@ class WalletRegistry {
         return entry;
       });
 
-  /// Lists the wallet a 0.1.0 install made at `<root>/wallets/<chain>` as `legacy-<chain>`,
-  /// at that same path (so its pinned store prefix still applies). Returns the entry, or null
+  /// Lists the first wallet of [chain] ([firstWalletDir]) as `legacy-<chain>`, so its pinned
+  /// store prefix applies. Returns the entry, or null
   /// when it is already listed or no wallet is there. [exists] decides whether one is; the
   /// default looks for LEPIC's `lepic` folder.
   Future<WalletEntry?> adoptLegacy(
@@ -316,7 +334,7 @@ class WalletRegistry {
     return entry;
   });
 
-  String _legacyDir(Chain chain) => '$_wallets$_sep${chain.name}';
+  String _legacyDir(Chain chain) => firstWalletDir(root, chain);
 
   /// The `legacy-<chain>` entry when [found] and not listed yet.
   WalletEntry? _legacyEntry(Chain chain, bool found) {
@@ -411,7 +429,7 @@ class WalletRegistry {
   bool folderMissing(WalletEntry entry) =>
       !Directory(entry.dataDir).existsSync();
 
-  /// Wallet folders `<root>/wallets/<id>/<chain>` that hold a wallet and are not listed.
+  /// Added wallet folders ([walletDirOf]) that hold a wallet and are not listed.
   /// Adds nothing; pass a candidate to [restore].
   Future<List<WalletEntry>> rescan() => _locked(_scan);
 
@@ -428,9 +446,9 @@ class WalletRegistry {
   /// "Delete wallet": has [service] remove the wallet's vault keys and database, then removes
   /// its `lepic` folder and the empty folders around it, then drops the entry.
   ///
-  /// The folder must be exactly `<root>/wallets/<id>/<chain>` (or `<root>/wallets/<chain>` for
-  /// a legacy wallet), spelled exactly so in both the entry and [config], with no link on the
-  /// way down; otherwise [UnsafeWalletPathException] is thrown before anything is touched.
+  /// The folder must be exactly [walletDirOf] (or [firstWalletDir] for the first wallet),
+  /// spelled exactly so in both the entry and [config], with no link on the way down from
+  /// [root]; otherwise [UnsafeWalletPathException] is thrown before anything is touched.
   /// Only that built path is ever removed from. `wallet_data/` (epic-wallet seed files) is
   /// never removed: if one is there the folder stays. The [config] of wallet 1 has a null
   /// walletId.
@@ -444,7 +462,7 @@ class WalletRegistry {
     final entry = _entries[i];
     final expected = entry.isLegacy
         ? _legacyDir(entry.chain)
-        : '$_wallets$_sep${entry.id}$_sep${entry.chain.name}';
+        : walletDirOf(root, entry.chain, entry.id);
     if (config.walletId != entry.walletId || config.chain != entry.chain) {
       throw const UnsafeWalletPathException(
         'the wallet config does not match the listed wallet',
@@ -455,7 +473,7 @@ class WalletRegistry {
         '${entry.label} is not in the folder the registry made for it',
       );
     }
-    final folders = _safeFolders(entry, expected);
+    _checkNoLinks(entry, expected);
     await service.deleteWallet(
       config: WalletConfig(
         dataDir: expected,
@@ -471,12 +489,10 @@ class WalletRegistry {
     if (!_isLink(lepicDir.path) && lepicDir.existsSync()) {
       await lepicDir.delete(recursive: true);
     }
-    for (final dir in folders) {
-      try {
-        await Directory(dir).delete(); // only when empty
-      } on FileSystemException {
-        break; // not empty (wallet_data, other files) or already gone
-      }
+    try {
+      await Directory(expected).delete(); // only when empty
+    } on FileSystemException {
+      // not empty (wallet_data, other files) or already gone
     }
     final last = _lastUsedId == id ? null : _lastUsedId;
     await _save([..._entries]..removeAt(i), last);
@@ -484,22 +500,18 @@ class WalletRegistry {
     _lastUsedId = last;
   });
 
-  /// The folders to remove once empty, innermost first; none of them may be a link.
-  List<String> _safeFolders(WalletEntry entry, String expected) {
-    var path = _wallets;
-    if (_isLink(path)) {
-      throw const UnsafeWalletPathException('the wallets folder is a link');
+  /// Throws when any folder from below [root] down to [expected] is a link.
+  void _checkNoLinks(WalletEntry entry, String expected) {
+    if (!expected.startsWith('$root$_sep')) {
+      throw UnsafeWalletPathException('${entry.label} is not in the folder the registry made for it');
     }
-    final parts = expected.substring('$_wallets$_sep'.length).split(_sep);
-    final chain = <String>[];
-    for (final part in parts) {
+    var path = root;
+    for (final part in expected.substring(root.length + 1).split(_sep)) {
       path = '$path$_sep$part';
       if (_isLink(path)) {
         throw UnsafeWalletPathException('${entry.label} is behind a link');
       }
-      chain.add(path);
     }
-    return chain.reversed.toList();
   }
 
   static bool _isLink(String path) =>
@@ -523,15 +535,15 @@ class WalletRegistry {
 
   Future<List<WalletEntry>> _scan() async {
     final found = <WalletEntry>[];
-    final top = Directory(_wallets);
-    if (!top.existsSync()) return found;
     final idPattern = RegExp(r'^[0-9a-f]{32}$');
-    for (final idDir in top.listSync(followLinks: false)) {
-      if (idDir is! Directory) continue;
-      final id = idDir.uri.pathSegments.lastWhere((s) => s.isNotEmpty);
-      if (!idPattern.hasMatch(id) || byId(id) != null) continue;
-      for (final chain in Chain.values) {
-        final dir = '${idDir.path}$_sep${chain.name}';
+    for (final chain in Chain.values) {
+      final top = Directory(_walletsIn(root, chain));
+      if (!top.existsSync()) continue;
+      for (final idDir in top.listSync(followLinks: false)) {
+        if (idDir is! Directory) continue;
+        final id = idDir.uri.pathSegments.lastWhere((s) => s.isNotEmpty);
+        if (!idPattern.hasMatch(id) || byId(id) != null) continue;
+        final dir = walletDirOf(root, chain, id);
         if (_isLink(dir) || !await _hasLepicFolder(dir)) continue;
         found.add(
           WalletEntry(

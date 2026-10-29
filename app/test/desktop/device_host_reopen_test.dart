@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/pairing_api.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -39,12 +40,12 @@ void main() {
   tearDown(() => dir.delete(recursive: true));
 
   test('while the wallet reopens, the devices keep the last session, never an empty engine', () async {
-    final service = _Opens()..existingWallets.add('${dir.path}/wallets/mainnet');
+    final service = _Opens()..existingWallets.add('${dir.path}/wallet');
     final secrets = MemorySecretStore();
     await secrets.write('app.node.mainnet', 'https://node.example');
     final w = LepicDeskWallet(
       service: service,
-      walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+      walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
       secrets: secrets,
       filesDir: () async => dir,
       nodePoll: const Duration(hours: 1),

@@ -58,12 +58,13 @@
 library;
 
 import '../../tor_build.dart';
+import '../../demo.dart' show devNetworksBuild;
 
 abstract final class DeskFeatures {
   static const bool multiWallet = true;
   static const bool importWizard = true;
   static const bool dataFolder = false;
-  static const bool testNetworks = false;
+  static const bool testNetworks = devNetworksBuild;
   static const bool httpDirect = true;
   /// Off in the build without Tor ([torBuilt]).
   static const bool tor = torBuilt;

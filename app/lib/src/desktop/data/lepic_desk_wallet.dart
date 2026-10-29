@@ -3,8 +3,9 @@
 ///
 /// Desktop wallets are password wallets, as in the Electron wallet: no PIN vault. Several
 /// named wallets of one network (mainnet), listed in the [registry]: the first one at
-/// `<app support>/wallets/<chain>` ([WalletDirResolver]) with a null [core.WalletConfig.walletId],
-/// as 0.1.0 made it, each later one at `<app support>/wallets/<id>/<chain>` with walletId = id.
+/// `<app support>/wallet` ([WalletDirResolver]) with a null [core.WalletConfig.walletId], each
+/// later one at `<app support>/wallets/<id>` with walletId = id (a dev chain's under
+/// `<app support>/dev/<chain>`, [reg.WalletRegistry.firstWalletDir]).
 /// Each wallet's own data (name, scan due, favourites) is saved under its own keys
 /// ([DeskStore.walletMetaKey], [DeskStore.favouritesKeyOf]), the first wallet's unchanged from
 /// 0.1.0. The node and Epicbox server are shared by all wallets of the network, saved under the
@@ -633,7 +634,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<bool> _hadWallet() async {
     final first = await _walletDir(preset.chain);
     if (await _service.walletExists(config: preset.config(dataDir: first, nodeUrl: preset.nodeUrl))) return true;
-    final root = _registryGiven?.root ?? Directory(first).parent.parent.path;
+    final root = _registryGiven?.root ?? reg.WalletRegistry.rootOf(first, preset.chain);
     final file = File('$root${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
     if (!await file.exists()) return false;
     try {
@@ -646,7 +647,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// The config of [entry]; null is the first wallet. The first wallet's folder is exactly
   /// what [WalletDirResolver] answers, as in 0.1.0, and its walletId null.
-  /// An added wallet's folder is always `<support>/wallets/<id>/<chain>`, rebuilt from its id:
+  /// An added wallet's folder is always [reg.WalletRegistry.walletDirOf], rebuilt from its id:
   /// a folder written into wallets.json by hand is never opened.
   Future<core.WalletConfig> _configOf(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async => preset.config(
     dataDir: entry == null || entry.isLegacy ? await _walletDir(preset.chain) : await _addedDir(entry),
@@ -656,9 +657,8 @@ class LepicDeskWallet implements DeskWalletApi {
   );
 
   Future<String> _addedDir(reg.WalletEntry entry) async {
-    final sep = Platform.pathSeparator;
-    final wallets = Directory(await _walletDir(preset.chain)).parent.path;
-    return '$wallets$sep${entry.id}$sep${entry.chain.name}';
+    final root = reg.WalletRegistry.rootOf(await _walletDir(preset.chain), preset.chain);
+    return reg.WalletRegistry.walletDirOf(root, entry.chain, entry.id);
   }
 
   /// The open wallet's config (the first wallet's while locked).
@@ -688,7 +688,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<reg.WalletRegistry> _loadRegistry() async {
     try {
       final legacyDir = await _walletDir(preset.chain);
-      final r = _registryGiven ?? reg.WalletRegistry(Directory(legacyDir).parent.parent.path);
+      final r = _registryGiven ?? reg.WalletRegistry(reg.WalletRegistry.rootOf(legacyDir, preset.chain));
       // Removed from the list only: it stays off until All wallets adds it back.
       final unlisted = await _firstUnlisted();
       await r.load(skipLegacy: unlisted ? {preset.chain} : const {});
@@ -1670,13 +1670,17 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// The app's own folder: never offered as an old wallet.
-  Future<String> _appRoot() async => Directory(await _walletDir(preset.chain)).parent.parent.path;
+  Future<String> _appRoot() async => reg.WalletRegistry.rootOf(await _walletDir(preset.chain), preset.chain);
+
+  /// A test network's old wallet is listed by development builds only: release builds name
+  /// no network, and its folder (`~/.epic/floo`) would.
+  static bool _offered(legacy.LegacyWallet w) => w.network == legacy.LegacyNetwork.main || DeskFeatures.testNetworks;
 
   Future<List<OldWallet>> _describeOld(List<legacy.LegacyWallet> found) async {
     final root = await _appRoot();
     final own = [
       for (final w in found)
-        if (!await legacy.isWithin(w.path, root)) w,
+        if (_offered(w) && !await legacy.isWithin(w.path, root)) w,
     ];
     for (final w in own) {
       _old[w.path] = w;
@@ -1705,7 +1709,9 @@ class LepicDeskWallet implements DeskWalletApi {
     return FolderFind(
       folder: found.picked,
       wallets: wallets,
-      message: found.wallets.isNotEmpty && wallets.isEmpty ? deskStrings.deskErrWalletInApp : found.message,
+      message: found.wallets.isNotEmpty && wallets.isEmpty
+          ? (found.wallets.any(_offered) ? deskStrings.deskErrWalletInApp : deskStrings.deskErrTestNet)
+          : found.message,
     );
   }
 
@@ -2255,7 +2261,7 @@ class LepicDeskWallet implements DeskWalletApi {
       network: _chain,
       folder: folder,
       created: _time(meta['created']) ?? DateTime.now(),
-      appFolder: Directory(await _walletDir(preset.chain)).parent.parent.path,
+      appFolder: reg.WalletRegistry.rootOf(await _walletDir(preset.chain), preset.chain),
     );
   }
 
@@ -5563,8 +5569,8 @@ const int maxDeskHistoryBytes = 32 << 20;
 Object historyFileError(core.WalletError e) {
   if (e.kind != core.WalletErrorKind.invalidArgument) return _deskError(e);
   final m = e.message;
-  final chains = RegExp(r'^This history file is from (\w+), but this wallet is on (\w+)').firstMatch(m);
-  if (chains != null) return HistoryFileError.l10n(HistoryFileProblem.otherChain, (l) => l.deskErrHistChains(chains[1]!, chains[2]!));
+  final chains = RegExp(r'^This history file is from ').firstMatch(m);
+  if (chains != null) return HistoryFileError.l10n(HistoryFileProblem.otherChain, (l) => l.deskErrHistChains);
   return switch (m) {
     historyOtherWallet => HistoryFileError.l10n(HistoryFileProblem.otherWallet, (l) => l.deskErrHistOtherWalletText),
     historyNewer => HistoryFileError.l10n(HistoryFileProblem.newer, (l) => l.deskErrHistNewerText),
@@ -5581,7 +5587,7 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
   final text = [
     'Epic Cash Desktop (BT Labs) wallet folder', // l10n-ok: WALLET.txt is a file in the wallet folder, English
     'Label:     $label', // l10n-ok
-    'Network:   $network', // l10n-ok
+    if (network != 'mainnet') 'Network:   $network', // l10n-ok: mainnet, the only network a user sees, is never named
     'Created:   $day', // l10n-ok
     'App:       $deskAppVersion', // l10n-ok
     '',

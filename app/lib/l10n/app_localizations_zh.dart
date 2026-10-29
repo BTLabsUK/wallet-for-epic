@@ -416,33 +416,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorHistoryOtherWallet => '此文件属于另一个钱包。只有用同一助记词恢复的钱包才能打开它。';
 
   @override
-  String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return '此钱包数据文件来自 $fileNetwork，但当前钱包位于 $walletNetwork。';
-  }
-
-  @override
-  String get networkMainnet => '主网';
-
-  @override
-  String get networkFloonet => 'Floonet';
-
-  @override
-  String get networkUsernet => 'Usernet';
-
-  @override
-  String get networkMainnetDescription => '真实的 Epic Cash 网络。';
-
-  @override
-  String get networkFloonetDescription =>
-      '用于试用本应用的公共测试网络。测试币没有价值，可在 floo-explorer.btlabs.uk 免费领取。';
-
-  @override
-  String get networkUsernetDescription => '在这台电脑上运行的测试网络，供开发者使用。';
-
-  @override
-  String networkTestSuffix(String network) {
-    return '（$network，测试币）';
-  }
+  String get errorHistoryOtherNetwork => '此钱包数据文件来自另一个网络。';
 
   @override
   String get autoLockNever => '从不';
@@ -1356,11 +1330,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get netStatusBlocked => '被拦截';
-
-  @override
-  String statusNodeTestNetwork(String network) {
-    return '$network，测试币';
-  }
 
   @override
   String statusNodeHost(Object host) {
@@ -3611,7 +3580,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get demoTestCoinsPill => '测试币';
 
   @override
-  String get demoTestCoinsPillTip => 'Floonet，Epic 的测试网络。这些币没有价值。';
+  String get demoTestCoinsPillTip => 'Epic 的测试网络。这些币没有价值。';
 
   @override
   String demoLeftHours(int hours) {
@@ -4391,11 +4360,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String netStatusStarting(int percent) {
     return '启动中 $percent%';
-  }
-
-  @override
-  String netStatusTestHost(String network, String host) {
-    return '$network · $host';
   }
 
   @override
@@ -5757,7 +5721,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskErrTestNet => 'Floonet 钱包：只能导入主网钱包。';
+  String get deskErrTestNet => '这是测试钱包，无法导入。';
 
   @override
   String get deskErrWalletInApp => '此钱包已在应用中。';
@@ -5992,9 +5956,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskErrHistTooLarge => '文件太大，不可能是交易记录备份。';
 
   @override
-  String deskErrHistChains(String from, String to) {
-    return '该文件来自 $from；本钱包在 $to 上。';
-  }
+  String get deskErrHistChains => '该文件来自另一个网络。';
 
   @override
   String get deskErrHistOtherWalletText => '该文件是从一个助记词不同的钱包导出的。';
@@ -8600,10 +8562,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbWelcomeNetwork => '网络';
 
   @override
-  String get deskOnbWelcomeNetworkHelp =>
-      'Mainnet 上是真实的 EPIC。Floonet 和 Usernet 是测试网络。';
-
-  @override
   String get deskOnbWelcomeFolder => '应用数据文件夹';
 
   @override
@@ -10320,9 +10278,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetBackupNeeds => '需要';
 
   @override
-  String deskSetBackupNeedsValue(String network) {
-    return '这个钱包（同一助记词）在$network上导出的文件。请先用助记词恢复钱包。';
-  }
+  String get deskSetBackupNeedsValue => '这个钱包（同一助记词）导出的文件。请先用助记词恢复钱包。';
 
   @override
   String get deskSetBackupChooseFile => '选择文件…';

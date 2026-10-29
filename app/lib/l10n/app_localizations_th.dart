@@ -431,34 +431,8 @@ class AppLocalizationsTh extends AppLocalizations {
       'ไฟล์นี้เป็นของกระเป๋าเงินอื่น เปิดได้เฉพาะกระเป๋าเงินที่กู้คืนจากวลีกู้คืนเดียวกัน';
 
   @override
-  String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'ไฟล์ข้อมูลกระเป๋าเงินนี้มาจาก $fileNetwork แต่กระเป๋าเงินนี้อยู่บน $walletNetwork';
-  }
-
-  @override
-  String get networkMainnet => 'Mainnet';
-
-  @override
-  String get networkFloonet => 'Floonet';
-
-  @override
-  String get networkUsernet => 'Usernet';
-
-  @override
-  String get networkMainnetDescription => 'เครือข่าย Epic Cash จริง';
-
-  @override
-  String get networkFloonetDescription =>
-      'เครือข่ายทดสอบสาธารณะสำหรับลองใช้แอป เหรียญไม่มีมูลค่า รับฟรีได้ที่ floo-explorer.btlabs.uk';
-
-  @override
-  String get networkUsernetDescription =>
-      'เครือข่ายทดสอบบนคอมพิวเตอร์เครื่องนี้ สำหรับนักพัฒนา';
-
-  @override
-  String networkTestSuffix(String network) {
-    return ' ($network, เหรียญทดสอบ)';
-  }
+  String get errorHistoryOtherNetwork =>
+      'ไฟล์ข้อมูลกระเป๋าเงินนี้มาจากเครือข่ายอื่น';
 
   @override
   String get autoLockNever => 'ไม่ล็อก';
@@ -1411,11 +1385,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get netStatusBlocked => 'ถูกบล็อก';
-
-  @override
-  String statusNodeTestNetwork(String network) {
-    return '$network, เหรียญทดสอบ';
-  }
 
   @override
   String statusNodeHost(Object host) {
@@ -3761,8 +3730,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get demoTestCoinsPill => 'เหรียญทดสอบ';
 
   @override
-  String get demoTestCoinsPillTip =>
-      'Floonet เครือข่ายทดสอบของ Epic เหรียญไม่มีมูลค่า';
+  String get demoTestCoinsPillTip => 'เครือข่ายทดสอบของ Epic เหรียญไม่มีมูลค่า';
 
   @override
   String demoLeftHours(int hours) {
@@ -4563,11 +4531,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String netStatusStarting(int percent) {
     return 'กำลังเริ่ม $percent %';
-  }
-
-  @override
-  String netStatusTestHost(String network, String host) {
-    return '$network · $host';
   }
 
   @override
@@ -5979,8 +5942,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskErrTestNet =>
-      'กระเป๋าเงิน Floonet: นำเข้าได้เฉพาะกระเป๋าเงินเครือข่ายหลัก';
+  String get deskErrTestNet => 'นี่คือกระเป๋าเงินทดสอบ นำเข้าไม่ได้';
 
   @override
   String get deskErrWalletInApp => 'กระเป๋าเงินนี้อยู่ในแอปแล้ว';
@@ -6227,9 +6189,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskErrHistTooLarge => 'ไฟล์ใหญ่เกินกว่าจะเป็นข้อมูลสำรอง';
 
   @override
-  String deskErrHistChains(String from, String to) {
-    return 'ไฟล์มาจาก $from แต่กระเป๋าเงินนี้อยู่บน $to';
-  }
+  String get deskErrHistChains => 'ไฟล์มาจากเครือข่ายอื่น';
 
   @override
   String get deskErrHistOtherWalletText =>
@@ -8915,10 +8875,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbWelcomeNetwork => 'เครือข่าย';
 
   @override
-  String get deskOnbWelcomeNetworkHelp =>
-      'Mainnet มี EPIC จริง Floonet และ Usernet เป็นเครือข่ายทดสอบ';
-
-  @override
   String get deskOnbWelcomeFolder => 'โฟลเดอร์ข้อมูลแอป';
 
   @override
@@ -10697,9 +10653,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetBackupNeeds => 'ต้องใช้';
 
   @override
-  String deskSetBackupNeedsValue(String network) {
-    return 'ไฟล์จากกระเป๋าเงินนี้ (วลีกู้คืนเดียวกัน) บน $network กู้คืนกระเป๋าเงินจากวลีกู้คืนก่อน';
-  }
+  String get deskSetBackupNeedsValue =>
+      'ไฟล์จากกระเป๋าเงินนี้ (วลีกู้คืนเดียวกัน) กู้คืนกระเป๋าเงินจากวลีของมันก่อน';
 
   @override
   String get deskSetBackupChooseFile => 'เลือกไฟล์…';

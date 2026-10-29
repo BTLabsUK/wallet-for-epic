@@ -128,9 +128,9 @@ _historyFileTranslations = [
   ),
   (
     RegExp(
-      r'^This history file is from (\w+), but this wallet is on (\w+)\.?$',
+      r'^This history file is from (another network|\w+, but this wallet is on \w+)\.?$',
     ),
-    (l, m) => l.errorHistoryOtherNetwork(m.group(1)!, m.group(2)!),
+    (l, m) => l.errorHistoryOtherNetwork,
   ),
 ];
 

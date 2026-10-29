@@ -8,10 +8,13 @@
 /// contact. Pure Dart: the screens pick and save the file and pass the address checks.
 ///
 /// ```json
-/// { "format": "epic-cash-contacts", "version": 1, "network": "mainnet",
+/// { "format": "epic-cash-contacts", "version": 1,
 ///   "exported": "2026-10-25T14:02:11Z",
 ///   "contacts": [ { "name": "Anna", "epicbox": "es…@epicbox.epiccash.com", "note": "Flatmate" } ] }
 /// ```
+///
+/// A mainnet file names no network: an exported file without one is mainnet's. Only a dev
+/// chain's file carries `"network": "<chain>"`.
 ///
 /// A device's own `contacts.json` imports too (no marker, same keys). The file is untrusted:
 /// at most [maxContactsFileBytes], unknown fields ignored, names and notes cleaned and capped,
@@ -51,12 +54,12 @@ List<ContactFields> exportableContacts(Iterable<ContactFields> contacts) => [
 ];
 
 /// The file for [contacts] ([exportableContacts] of them) of a wallet on [network], made at
-/// [now]. No ids: they belong to this device.
+/// [now]. No ids: they belong to this device. Mainnet is not written.
 String encodeContactsFile(Iterable<ContactFields> contacts, {required String network, required DateTime now}) {
   final out = {
     'format': contactsFileFormat,
     'version': contactsExportVersion,
-    'network': network,
+    if (network != 'mainnet') 'network': network,
     'exported': '${now.toUtc().toIso8601String().split('.').first}Z',
     'contacts': [
       for (final c in exportableContacts(contacts))
@@ -108,8 +111,8 @@ class ContactsFileError implements Exception {
   String toString() => 'ContactsFileError(${problem.name})';
 }
 
-/// A contacts file as read: its rows, untrusted, and the network it names (null when it names
-/// none, as a `contacts.json` does).
+/// A contacts file as read: its rows, untrusted, and the network it is for: mainnet for an
+/// exported file that names none, null for a `contacts.json` (the shared book of every network).
 class ContactsFile {
   const ContactsFile({required this.rows, this.network, this.nameOnly = const {}});
 
@@ -172,7 +175,11 @@ ContactsFile readContactsFile(List<int> bytes) {
     if (!row.containsKey('epicbox') && !row.containsKey('http') && !row.containsKey('tor')) nameOnly.add(rows.length - 1);
   }
   final network = j['network'];
-  return ContactsFile(rows: rows, network: network is String && network.isNotEmpty ? network : null, nameOnly: nameOnly);
+  return ContactsFile(
+    rows: rows,
+    network: network is String && network.isNotEmpty ? network : (format == null ? null : 'mainnet'),
+    nameOnly: nameOnly,
+  );
 }
 
 /// What an import does, with the counts the confirm sheet shows.

@@ -10,6 +10,7 @@ import 'data_folder_io.dart' show appDataDirectory;
 import 'lepic_wallet_service.dart';
 import 'secret_store.dart';
 import 'vault.dart' show LegacyFiles, setAsideLegacyWalletFiles;
+import 'wallet_registry.dart' show WalletRegistry;
 import 'wallet_service.dart';
 import 'windows_dpapi.dart';
 import 'windows_secret_store.dart';
@@ -35,11 +36,11 @@ final SecretStore _windowsSecrets = WindowsSecretStore(
   files: const Win32StoreFiles(),
 );
 
-/// `<application support>/wallets/<chain>`. One wallet per chain.
+/// `<application support>/wallet` on mainnet, `<application support>/dev/<chain>/wallet` on a
+/// dev chain ([WalletRegistry.firstWalletDir]). One wallet per chain.
 Future<String> defaultWalletDir(Chain chain) async {
   final support = await appDataDirectory();
-  final sep = Platform.pathSeparator;
-  final dir = Directory('${support.path}${sep}wallets$sep${chain.name}');
+  final dir = Directory(WalletRegistry.firstWalletDir(support.path, chain));
   await dir.create(recursive: true);
   return dir.path;
 }

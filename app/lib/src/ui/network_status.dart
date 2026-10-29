@@ -8,6 +8,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../demo.dart' show devNetworksOf;
+
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../network.dart';
@@ -125,8 +127,11 @@ class NetworkStatusCard extends ConsumerWidget {
         key: netStatusNodeKey,
         glyph: EpicGlyphs.node,
         title: l.netStatusNode,
-        host: chain != null && chain != Chain.mainnet && nodeHost.isNotEmpty
-            ? l.netStatusTestHost(chainName(l, chain), nodeHost)
+        host: chain != null &&
+                chain != Chain.mainnet &&
+                nodeHost.isNotEmpty &&
+                devNetworksOf(context)
+            ? '${chainName(l, chain)} · $nodeHost'
             : nodeHost,
         note: failover == null
             ? null

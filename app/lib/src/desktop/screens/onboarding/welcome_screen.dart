@@ -141,7 +141,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
         if (DeskFeatures.testNetworks) ...[
         EField(
           label: l.deskOnbWelcomeNetwork,
-          help: l.deskOnbWelcomeNetworkHelp,
+          help: 'Mainnet holds real EPIC. Floonet and Usernet are test networks.', // l10n-ok: development builds only
           child: ESelect<String>(
             semanticLabel: l.deskOnbWelcomeNetwork,
             value: flow.network,

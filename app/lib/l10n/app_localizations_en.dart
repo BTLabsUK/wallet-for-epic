@@ -432,34 +432,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.';
 
   @override
-  String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'This wallet data file is from $fileNetwork, but this wallet is on $walletNetwork.';
-  }
-
-  @override
-  String get networkMainnet => 'Mainnet';
-
-  @override
-  String get networkFloonet => 'Floonet';
-
-  @override
-  String get networkUsernet => 'Usernet';
-
-  @override
-  String get networkMainnetDescription => 'The real Epic Cash network.';
-
-  @override
-  String get networkFloonetDescription =>
-      'A public test network for trying the app. Its coins have no value; get free ones from floo-explorer.btlabs.uk.';
-
-  @override
-  String get networkUsernetDescription =>
-      'A test network running on this computer, for developers.';
-
-  @override
-  String networkTestSuffix(String network) {
-    return ' ($network, test coins)';
-  }
+  String get errorHistoryOtherNetwork =>
+      'This wallet data file is from another network.';
 
   @override
   String get autoLockNever => 'Never';
@@ -1427,11 +1401,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netStatusBlocked => 'Blocked';
-
-  @override
-  String statusNodeTestNetwork(String network) {
-    return '$network, test coins';
-  }
 
   @override
   String statusNodeHost(Object host) {
@@ -3825,7 +3794,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoTestCoinsPillTip =>
-      'Floonet, Epic’s test network. The coins have no value.';
+      'Epic’s test network. The coins have no value.';
 
   @override
   String demoLeftHours(int hours) {
@@ -4641,11 +4610,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String netStatusStarting(int percent) {
     return 'Starting $percent %';
-  }
-
-  @override
-  String netStatusTestHost(String network, String host) {
-    return '$network · $host';
   }
 
   @override
@@ -6084,8 +6048,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskErrTestNet =>
-      'Floonet wallet: only mainnet wallets can be imported.';
+  String get deskErrTestNet => 'This is a test wallet and can’t be imported.';
 
   @override
   String get deskErrWalletInApp => 'This wallet is in the app already.';
@@ -6339,9 +6302,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskErrHistTooLarge => 'The file is too large to be one.';
 
   @override
-  String deskErrHistChains(String from, String to) {
-    return 'The file is from $from; this wallet is on $to.';
-  }
+  String get deskErrHistChains => 'The file is from another network.';
 
   @override
   String get deskErrHistOtherWalletText =>
@@ -9180,10 +9141,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbWelcomeNetwork => 'Network';
 
   @override
-  String get deskOnbWelcomeNetworkHelp =>
-      'Mainnet holds real EPIC. Floonet and Usernet are test networks.';
-
-  @override
   String get deskOnbWelcomeFolder => 'App data folder';
 
   @override
@@ -11002,9 +10959,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetBackupNeeds => 'Needs';
 
   @override
-  String deskSetBackupNeedsValue(String network) {
-    return 'A file from this wallet (same recovery phrase) on $network. Restore the wallet from its phrase first.';
-  }
+  String get deskSetBackupNeedsValue =>
+      'A file from this wallet (same recovery phrase). Restore the wallet from its phrase first.';
 
   @override
   String get deskSetBackupChooseFile => 'Choose file…';

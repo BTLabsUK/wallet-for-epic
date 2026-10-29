@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/node/node_settings.dart';
 import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -120,7 +121,7 @@ void main() {
 
   LepicDeskWallet make({bool withNode = true}) => LepicDeskWallet(
     service: service,
-    walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+    walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
     secrets: secrets,
     filesDir: () async => dir,
     nodePoll: const Duration(hours: 1),
@@ -132,7 +133,7 @@ void main() {
     File('${dir.path}/epic').writeAsStringSync('');
     secrets = MemorySecretStore();
     await secrets.write('app.node.mainnet', _remote);
-    service = _Opens()..existingWallets.add('${dir.path}/wallets/mainnet');
+    service = _Opens()..existingWallets.add('${dir.path}/wallet');
     spawned = [];
     portBusy = false;
     gate = null;
@@ -294,7 +295,7 @@ void main() {
     final w = make();
     await w.resumeBuiltInNode();
     expect(spawned, hasLength(1));
-    final toml = File('${dir.path}/node/main/epic-server.toml').readAsStringSync();
+    final toml = File('${dir.path}/node/epic-server.toml').readAsStringSync();
     expect(toml, contains('db_root = "${dir.path}/elsewhere/chain_data"'));
     expect(toml, contains('peers_preferred = ["203.0.113.9:3414"]'));
     await w.dispose();

@@ -979,10 +979,10 @@ void main() {
         isTrue,
       );
       await _tapText(tester, 'Save to device');
-      expect(h.files.saved.single.name, 'epic-wallet-data-mainnet-20260930.wfeh');
+      expect(h.files.saved.single.name, 'epic-wallet-data-20260930.wfeh');
       expect(h.files.saved.single.bytes, isNotEmpty);
       expect(
-        find.text('Saved epic-wallet-data-mainnet-20260930.wfeh'),
+        find.text('Saved epic-wallet-data-20260930.wfeh'),
         findsOneWidget,
       );
 
@@ -991,7 +991,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Export CSV'));
       await tester.pumpAndSettle();
       await _tapText(tester, 'Share');
-      expect(h.files.shared.single.name, 'epic-wallet-data-mainnet-20260930.csv');
+      expect(h.files.shared.single.name, 'epic-wallet-data-20260930.csv');
       expect(h.files.saved, hasLength(1));
 
       h.files.picks.add(h.files.saved.first.bytes);
@@ -1033,7 +1033,7 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Export wallet data');
       expect(find.text('Share'), findsNothing);
-      expect(h.files.saved.single.name, 'epic-wallet-data-mainnet-20260930.wfeh');
+      expect(h.files.saved.single.name, 'epic-wallet-data-20260930.wfeh');
     });
 
     testWidgets('dismissing the choice exports nothing', (tester) async {

@@ -60,7 +60,8 @@ final walletServiceProvider = Provider<WalletService>(
   (ref) => backend.createWalletService(ref.watch(secretStoreProvider)),
 );
 
-/// `<application support>/wallets/<chain>` on a device; a fixed name per chain on the web.
+/// `<application support>/wallet` on a device (a dev chain's under `dev/<chain>`); a fixed name
+/// per chain on the web.
 final walletDirProvider = Provider<WalletDirResolver>(
   (ref) => backend.defaultWalletDir,
 );
@@ -162,7 +163,8 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     await store.write(_relayKey(preset.chain), r.label);
     logInfo(
       'network',
-      '${preset.chain.name}, node ${Uri.tryParse(nodeUrl)?.host ?? '?'}, relay ${r.label}',
+      // Logs reach support reports: mainnet is never named there.
+      '${preset.chain == Chain.mainnet ? '' : '${preset.chain.name}, '}node ${Uri.tryParse(nodeUrl)?.host ?? '?'}, relay ${r.label}',
     );
     state = AsyncData(
       NetworkChoice(preset: preset, nodeUrl: nodeUrl, relay: r),

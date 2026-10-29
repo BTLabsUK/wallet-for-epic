@@ -74,7 +74,7 @@ void main() {
     await _wait(tester);
     expect(find.text('This wallet is already here'), findsOneWidget);
     expect(find.text('Main wallet'), findsOneWidget);
-    expect(find.text('~/.epic/main/wallet_data'), findsOneWidget);
+    expect(find.text('~/.epic_cash_desktop/wallet'), findsOneWidget);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'no password step for a wallet that exists');
     await tester.tap(find.text('Open it'));
     await _wait(tester);

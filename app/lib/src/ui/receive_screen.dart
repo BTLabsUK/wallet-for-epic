@@ -1435,7 +1435,7 @@ Future<Uint8List> renderShareCard(
   final card = ShareCard(
     address: address,
     headline: l.receiveShareCardHeadline,
-    network: chain == null || chain == Chain.mainnet
+    network: chain == null || chain == Chain.mainnet || !devNetworksOf(context)
         ? null
         : chainName(l, chain),
   );

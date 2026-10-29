@@ -66,7 +66,7 @@ final List<DeskShot> onboardingShots = [
     arg: const RestoreSample(MockDeskWallet.samePhrase),
     dialog: (c) => showSameWalletDialog(
       c,
-      const WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic/main/savings', network: 'mainnet'),
+      const WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', network: 'mainnet'),
     ),
   ),
   const DeskShot(id: '03c-restore-password', title: 'Restore: password', route: DeskRoute.restore, arg: RestoreStep.account),

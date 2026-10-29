@@ -833,9 +833,9 @@ class LepicWalletService implements WalletService {
         epicboxPort: config.epicboxPort,
       );
 
-  /// `<anything>/wallets/<32 hex>/<chain>`, the folder of a registry wallet.
+  /// `<anything>/wallets/<32 hex>`, the folder of a registry wallet.
   static final RegExp _registryFolder = RegExp(
-    r'[\\/]wallets[\\/][0-9a-f]{32}[\\/](mainnet|floonet|usernet)[\\/]?$',
+    r'[\\/]wallets[\\/][0-9a-f]{32}[\\/]?$',
   );
 
   /// The prefix of the wallet's LEPIC entries in the app's store.
@@ -887,7 +887,7 @@ class LepicWalletService implements WalletService {
     if (await _secrets.read(pinKey) != prefix) {
       throw StateError('the store did not keep the wallet key prefix');
     }
-    logInfo('lepic', 'pinned the ${chain.name} wallet store keys');
+    logInfo('lepic', 'pinned the ${chain == Chain.mainnet ? '' : '${chain.name} '}wallet store keys');
     return _pinnedPrefixes[chain] = prefix;
   }
 

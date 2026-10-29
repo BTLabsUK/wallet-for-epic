@@ -126,7 +126,9 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final config = ref.watch(walletConfigProvider);
-    final network = config == null ? '' : networkSuffix(l, config.chain);
+    final network = config == null || !ref.watch(devNetworksProvider)
+        ? ''
+        : networkSuffix(l, config.chain);
     final waiting = _answer != null && _error == null;
     // The web demo is on floonet for good, and never takes a phrase or biometrics.
     final demo = ref.watch(demoModeProvider);

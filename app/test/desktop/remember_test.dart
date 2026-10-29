@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -153,7 +154,7 @@ void main() {
       wallet = LepicDeskWallet(
         service: service,
         walletDir: (chain) async {
-          final d = Directory('${support.path}/wallets/${chain.name}');
+          final d = Directory(WalletRegistry.firstWalletDir(support.path, chain));
           await d.create(recursive: true);
           return d.path;
         },

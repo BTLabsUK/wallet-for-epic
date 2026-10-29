@@ -36,7 +36,8 @@ SecretStore createSecretStore() =>
 
 /// The server owns the wallet's directory and ignores this one; it only has to be stable per
 /// chain, because the vault keys its entries by chain.
-Future<String> defaultWalletDir(Chain chain) async => '/demo/${chain.name}';
+Future<String> defaultWalletDir(Chain chain) async =>
+    chain == Chain.mainnet ? '/demo/wallet' : '/demo/dev/${chain.name}/wallet';
 
 /// A browser has no wallet files from an older app.
 Future<bool> _noLegacyFiles(String dataDir) async => false;

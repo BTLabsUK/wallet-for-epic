@@ -98,13 +98,13 @@ class WalletVault {
       logWarn(
         'vault',
         exists
-            ? 'the ${chain.name} wallet has no sealed text'
-            : 'the ${chain.name} sealed text has no wallet',
+            ? 'the ${chain == Chain.mainnet ? '' : '${chain.name} '}wallet has no sealed text'
+            : 'the ${chain == Chain.mainnet ? '' : '${chain.name} '}sealed text has no wallet',
       );
       return VaultStage.stranded;
     }
     if (await _legacyFiles(config.dataDir)) {
-      logInfo('vault', 'left the ${chain.name} wallet of an older app in place');
+      logInfo('vault', 'left the ${chain == Chain.mainnet ? '' : '${chain.name} '}wallet of an older app in place');
     }
     return VaultStage.empty;
   }

@@ -113,11 +113,13 @@ final historyFilesProvider = Provider<HistoryFiles>(
   (ref) => const PlatformHistoryFiles(),
 );
 
-/// `epic-wallet-data-<chain>-<yyyyMMdd>.<extension>`, dated [day] in local time. Older
-/// `epic-history-*` files still import: the import goes by the extension and the content.
+/// `epic-wallet-data-<yyyyMMdd>.<extension>`, dated [day] in local time; a dev chain's file
+/// names its chain after `data-`. Older `epic-history-*` files still import: the import goes by
+/// the extension and the content.
 String historyFileName(Chain chain, DateTime day, String extension) {
   String two(int v) => v.toString().padLeft(2, '0');
-  return 'epic-wallet-data-${chain.name}-${day.year}${two(day.month)}'
+  final tag = chain == Chain.mainnet ? '' : '${chain.name}-';
+  return 'epic-wallet-data-$tag${day.year}${two(day.month)}'
       '${two(day.day)}.$extension';
 }
 

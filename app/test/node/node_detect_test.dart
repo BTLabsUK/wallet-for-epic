@@ -65,7 +65,7 @@ void main() {
       String? asked;
       final f = await localNodeFacts(
         Chain.mainnet,
-        folder: '${tmp.path}/node/main',
+        folder: '${tmp.path}/node',
         freeBytes: (d) async {
           asked = d;
           return 20 * 1024 * 1024 * 1024;

@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
 final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
@@ -38,7 +39,7 @@ void main() {
     preset: preset,
     service: LepicWalletService(secrets: secrets, oneWalletPerChain: true),
     walletDir: (chain) async {
-      final d = Directory('${tmp.path}/support/wallets/${chain.name}');
+      final d = Directory(WalletRegistry.firstWalletDir('${tmp.path}/support', chain));
       await d.create(recursive: true);
       return d.path;
     },
@@ -55,7 +56,7 @@ void main() {
     await wallet.useNetwork('floonet');
     await wallet.createWallet(name: 'Test', password: _password);
     expect((await wallet.wallets()).single.network, 'floonet');
-    expect(Directory('${tmp.path}/support/wallets/floonet').listSync(), isNotEmpty);
+    expect(Directory('${tmp.path}/support/dev/floonet/wallet').listSync(), isNotEmpty);
     expect(await wallet.unlock(_password), isTrue);
     final address = await wallet.epicboxAddress();
     expect(address, endsWith('@${floonetPreset.epicboxDomain}'));

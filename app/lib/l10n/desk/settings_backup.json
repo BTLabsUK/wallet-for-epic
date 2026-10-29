@@ -249,14 +249,9 @@
   "@deskSetBackupNeeds": {
     "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
   },
-  "deskSetBackupNeedsValue": "A file from this wallet (same recovery phrase) on {network}. Restore the wallet from its phrase first.",
+  "deskSetBackupNeedsValue": "A file from this wallet (same recovery phrase). Restore the wallet from its phrase first.",
   "@deskSetBackupNeedsValue": {
-    "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
-    "placeholders": {
-      "network": {
-        "type": "String"
-      }
-    }
+    "description": "Import dialog: what file the import needs."
   },
   "deskSetBackupChooseFile": "Choose file…",
   "@deskSetBackupChooseFile": {

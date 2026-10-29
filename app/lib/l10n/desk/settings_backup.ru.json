@@ -46,7 +46,7 @@
   "deskSetBackupBringsBack": "Вернёт",
   "deskSetBackupBringsBackValue": "Детали и заметки платежей, старые платежи, которых нет в списке, контакты, счета и настройки",
   "deskSetBackupNeeds": "Нужен",
-  "deskSetBackupNeedsValue": "Файл этого кошелька (та же фраза восстановления), сеть {network}. Сначала восстановите кошелёк по его фразе.",
+  "deskSetBackupNeedsValue": "Файл этого кошелька (та же фраза восстановления). Сначала восстановите кошелёк по его фразе.",
   "deskSetBackupChooseFile": "Выбрать файл…",
   "deskSetBackupImportDesc": "Возвращает историю платежей, контакты, счета и настройки этого кошелька; существующие записи остаются.",
   "deskSetBackupSaveCsvDialogTitle": "Сохранить платежи в CSV",

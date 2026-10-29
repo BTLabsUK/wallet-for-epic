@@ -56,10 +56,19 @@ void main() {
     expect(a.label, 'Wallet 1');
     expect(b.label, 'Wallet 2');
     expect(Directory(a.dataDir).existsSync(), isTrue);
-    expect(a.dataDir, '${tmp.path}${sep}wallets$sep${a.id}${sep}floonet');
+    expect(a.dataDir, '${tmp.path}${sep}dev${sep}floonet${sep}wallets$sep${a.id}');
     await registry.forget(a.id);
     final c = await registry.add(chain: Chain.mainnet);
     expect(c.label, 'Wallet 1', reason: 'the lowest free number');
+    expect(c.dataDir, '${tmp.path}${sep}wallets$sep${c.id}', reason: 'mainnet: no network in the path');
+  });
+
+  test('the first wallet folder: plain on mainnet, under dev/<chain> on a dev chain', () {
+    expect(WalletRegistry.firstWalletDir(tmp.path, Chain.mainnet), '${tmp.path}${sep}wallet');
+    expect(WalletRegistry.firstWalletDir(tmp.path, Chain.floonet), '${tmp.path}${sep}dev${sep}floonet${sep}wallet');
+    for (final chain in Chain.values) {
+      expect(WalletRegistry.rootOf(WalletRegistry.firstWalletDir(tmp.path, chain), chain), tmp.path);
+    }
   });
 
   test('the phrase fingerprint is kept, found and survives a reload; a malformed one is ignored', () async {
@@ -157,14 +166,14 @@ void main() {
     final names = tmp.listSync().map(
       (e) => e.uri.pathSegments.lastWhere((s) => s.isNotEmpty),
     );
-    expect(names, containsAll(['wallets.json', 'wallets']));
+    expect(names, containsAll(['wallets.json', 'dev']));
     expect(names.where((n) => n.endsWith('.tmp')), isEmpty);
   });
 
   test(
-    'legacy wallet 1 is adopted at its old path; wallet_data kept',
+    'the first wallet is adopted at its folder; wallet_data kept',
     () async {
-      final old = Directory('${tmp.path}${sep}wallets${sep}floonet')
+      final old = Directory('${tmp.path}${sep}dev${sep}floonet${sep}wallet')
         ..createSync(recursive: true);
       Directory('${old.path}${sep}lepic').createSync();
       Directory('${old.path}${sep}wallet_data').createSync();
@@ -199,7 +208,7 @@ void main() {
     await registry.delete(a.id, service: service, config: _config(a));
     expect(service.deleted.single.walletId, a.id);
     expect(
-      Directory('${tmp.path}${sep}wallets$sep${a.id}').existsSync(),
+      Directory('${tmp.path}${sep}dev${sep}floonet${sep}wallets$sep${a.id}').existsSync(),
       isFalse,
     );
     expect(registry.list(), isEmpty);
@@ -232,13 +241,12 @@ void main() {
   });
 
   test('delete refuses a path through a symlink', () async {
-    final target = Directory('${tmp.path}${sep}target${sep}floonet')
+    final target = Directory('${tmp.path}${sep}target')
       ..createSync(recursive: true);
     Directory('${target.path}${sep}lepic').createSync();
     final a = await registry.add(chain: Chain.floonet);
-    final idDir = Directory('${tmp.path}${sep}wallets$sep${a.id}')
-      ..deleteSync(recursive: true);
-    Link(idDir.path).createSync('${tmp.path}${sep}target');
+    final idDir = Directory(a.dataDir)..deleteSync(recursive: true);
+    Link(idDir.path).createSync(target.path);
     final service = _Service();
     await expectLater(
       registry.delete(a.id, service: service, config: _config(a)),
@@ -256,12 +264,12 @@ void main() {
       final real = Directory('${outside.path}${sep}x')
         ..createSync(recursive: true);
       final victim = Directory(
-        '${outside.path}$sep${a.id}${sep}floonet${sep}lepic',
+        '${outside.path}$sep${a.id}${sep}lepic',
       )..createSync(recursive: true);
       File('${victim.path}${sep}keep').writeAsStringSync('x');
-      Link('${tmp.path}${sep}wallets${sep}L').createSync(real.path);
-      final sneaky =
-          '${tmp.path}${sep}wallets${sep}L$sep..$sep${a.id}${sep}floonet';
+      final wallets = Directory(a.dataDir).parent.path;
+      Link('$wallets${sep}L').createSync(real.path);
+      final sneaky = '$wallets${sep}L$sep..$sep${a.id}';
       final file = File('${tmp.path}${sep}wallets.json');
       file.writeAsStringSync(
         file.readAsStringSync().replaceAll(a.dataDir, sneaky),
@@ -303,7 +311,7 @@ void main() {
   });
 
   test('a wallet 1 config must use a null walletId', () async {
-    Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic')
+    Directory('${tmp.path}${sep}dev${sep}floonet${sep}wallet${sep}lepic')
         .createSync(recursive: true);
     final e = (await registry.adoptLegacy(Chain.floonet))!;
     expect(e.walletId, isNull);
@@ -364,7 +372,7 @@ void main() {
     });
 
     test('invalid UTF-8 is set aside and legacy wallet 1 is adopted', () async {
-      Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic')
+      Directory('${tmp.path}${sep}dev${sep}floonet${sep}wallet${sep}lepic')
           .createSync(recursive: true);
       listFile().writeAsBytesSync([0x7b, 0xff, 0xfe, 0x7d]);
       final again = WalletRegistry(tmp.path);
@@ -380,7 +388,7 @@ void main() {
     });
 
     test('a corrupt file also adopts legacy wallet 1', () async {
-      Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic')
+      Directory('${tmp.path}${sep}dev${sep}floonet${sep}wallet${sep}lepic')
           .createSync(recursive: true);
       listFile().writeAsStringSync('{ nope');
       final again = WalletRegistry(tmp.path);
@@ -417,7 +425,7 @@ void main() {
       final again = WalletRegistry(tmp.path);
       await again.load();
       final service = _Service();
-      final before = Directory('${tmp.path}${sep}wallets').listSync(recursive: true).length;
+      final before = Directory('${tmp.path}${sep}dev').listSync(recursive: true).length;
       final isVersion = throwsA(isA<WalletRegistryVersionException>());
       await expectLater(again.delete(a.id, service: service, config: _config(a)), isVersion);
       expect(service.deleted, isEmpty);
@@ -428,7 +436,7 @@ void main() {
       await expectLater(again.markOpened(a.id), isVersion);
       await expectLater(again.restore(a), isVersion);
       await expectLater(again.adoptLegacy(Chain.floonet, exists: (_) async => true), isVersion);
-      expect(Directory('${tmp.path}${sep}wallets').listSync(recursive: true).length, before, reason: 'no folder made or removed');
+      expect(Directory('${tmp.path}${sep}dev').listSync(recursive: true).length, before, reason: 'no folder made or removed');
       expect(again.list().single.label, a.label);
     });
 
@@ -437,7 +445,7 @@ void main() {
     });
 
     test('a damaged file does not adopt a legacy wallet in skipLegacy', () async {
-      Directory('${tmp.path}${sep}wallets${sep}floonet${sep}lepic').createSync(recursive: true);
+      Directory('${tmp.path}${sep}dev${sep}floonet${sep}wallet${sep}lepic').createSync(recursive: true);
       listFile().writeAsStringSync('not json');
       final again = WalletRegistry(tmp.path);
       await again.load(skipLegacy: {Chain.floonet});
@@ -522,7 +530,7 @@ void main() {
         runtime: () => throw StateError('no runtime needed'),
         oneWalletPerChain: true,
       );
-      final dir = '${tmp.path}${sep}wallets$sep${'b' * 32}${sep}floonet';
+      final dir = '${tmp.path}${sep}dev${sep}floonet${sep}wallets$sep${'b' * 32}';
       await expectLater(
         service.storePrefixFor(cfg(Chain.floonet, dir)),
         throwsStateError,

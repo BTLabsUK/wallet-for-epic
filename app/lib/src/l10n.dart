@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
+import 'network.dart' show chainLabel;
 import 'wallet_service.dart' show Chain;
 
 export '../l10n/app_localizations.dart';
@@ -103,25 +104,23 @@ String localClock(AppLocalizations l, DateTime t) =>
 
 // Names.
 
-/// A chain's name for the screen. `chainLabel` in network.dart is the fixed English name for
-/// logs and reports.
-String chainName(AppLocalizations l, Chain chain) => switch (chain) {
-  Chain.mainnet => l.networkMainnet,
-  Chain.floonet => l.networkFloonet,
-  Chain.usernet => l.networkUsernet,
-};
+/// A chain's name, for the development builds only (`devNetworksBuild`): release builds show
+/// no network name anywhere, so these are English literals and not in the l10n tables.
+/// [l] is kept so the callers need no change.
+String chainName(AppLocalizations l, Chain chain) => chainLabel(chain);
 
-/// One sentence on what a chain is, for the network picker.
+/// One sentence on what a chain is, for the development network picker (English only).
 String chainDescription(AppLocalizations l, Chain chain) => switch (chain) {
-  Chain.mainnet => l.networkMainnetDescription,
-  Chain.floonet => l.networkFloonetDescription,
-  Chain.usernet => l.networkUsernetDescription,
+  Chain.mainnet => 'The real Epic Cash network.',
+  Chain.floonet => 'A public test network. Its coins have no value.',
+  Chain.usernet => 'A test network running on this computer.',
 };
 
-/// ` (Floonet, test coins)` to put after a title on a test network, empty for Mainnet.
+/// ` (Floonet, test coins)` to put after a title on a test network, empty for Mainnet. The
+/// callers show it only when `devNetworksProvider` is on.
 String networkSuffix(AppLocalizations l, Chain chain) => switch (chain) {
   Chain.mainnet => '',
-  Chain.floonet || Chain.usernet => l.networkTestSuffix(chainName(l, chain)),
+  Chain.floonet || Chain.usernet => ' (${chainLabel(chain)}, test coins)',
 };
 
 /// Plain words for an auto-lock choice: `Never`, `Immediately`, `After 5 minutes`.

@@ -179,9 +179,9 @@ void main() {
   late core.FakeWalletService service;
   late LepicDeskWallet wallet;
 
-  /// As `defaultWalletDir`: `<support>/wallets/<chain>`, made when asked for.
+  /// As `defaultWalletDir`: `<support>/wallet` (a dev chain's under `dev/<chain>`), made when asked for.
   Future<String> walletDir(core.Chain chain) async {
-    final dir = Directory('${support.path}${Platform.pathSeparator}wallets${Platform.pathSeparator}${chain.name}');
+    final dir = Directory(reg.WalletRegistry.firstWalletDir(support.path, chain));
     await dir.create(recursive: true);
     return dir.path;
   }
@@ -223,7 +223,7 @@ void main() {
     test('creates a mainnet wallet in its own folder and returns its phrase', () async {
       final phrase = await wallet.createWallet(name: 'Main', password: _password);
       expect(phrase, hasLength(24));
-      expect(service.createdConfig!.dataDir, '${support.path}/wallets/mainnet');
+      expect(service.createdConfig!.dataDir, '${support.path}/wallet');
       expect(service.createdConfig!.chain, core.Chain.mainnet);
       expect(service.createdMnemonic, isNull);
       expect(service.session.disposeCalls, 1, reason: 'the session closes until Unlock');
@@ -237,7 +237,7 @@ void main() {
       expect(wallet.network, 'floonet');
       await wallet.createWallet(name: 'Test', password: _password);
       expect(service.createdConfig!.chain, core.Chain.floonet);
-      expect(service.createdConfig!.dataDir, '${support.path}/wallets/floonet');
+      expect(service.createdConfig!.dataDir, '${support.path}/dev/floonet/wallet');
       expect(service.createdConfig!.nodeUrl, floonetPreset.nodeUrl);
       final ws = await wallet.wallets();
       expect(ws.single.network, 'floonet');
@@ -751,7 +751,7 @@ void main() {
   test('remove wallet with the right password deletes its folder and data', () async {
     await created();
     await wallet.removeWallet('legacy-mainnet', WalletRemoval.delete, password: _password);
-    expect(service.deletedWallets, ['${support.path}/wallets/mainnet']);
+    expect(service.deletedWallets, ['${support.path}/wallet']);
     expect(await wallet.wallets(), isEmpty);
     expect(await secrets.read(DeskStore.walletKey('mainnet')), isNull);
   });
@@ -869,7 +869,7 @@ void main() {
   group('several wallets', () {
     late _Recording rec;
     late LepicDeskWallet w;
-    String first() => '${support.path}/wallets/mainnet';
+    String first() => '${support.path}/wallet';
 
     setUp(() async {
       rec = _Recording();
@@ -916,7 +916,7 @@ void main() {
       await w.createWallet(name: 'Savings', password: _password);
       final id = rec.createdConfig!.walletId!;
       expect(id, matches(RegExp(r'^[0-9a-f]{32}$')));
-      expect(rec.createdConfig!.dataDir, '${support.path}/wallets/$id/mainnet');
+      expect(rec.createdConfig!.dataDir, '${support.path}/wallets/$id');
       expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('name', 'Savings'));
       expect(await secrets.read('desk.wallet.mainnet'), firstMeta, reason: 'the first wallet is not touched');
       final ws = await w.wallets();
@@ -930,12 +930,12 @@ void main() {
       final id = rec.createdConfig!.walletId!;
       final list = File('${support.path}/wallets.json');
       final elsewhere = '${support.path}/elsewhere/.epic/main';
-      list.writeAsStringSync(list.readAsStringSync().replaceAll('${support.path}/wallets/$id/mainnet', elsewhere));
+      list.writeAsStringSync(list.readAsStringSync().replaceAll('${support.path}/wallets/$id', elsewhere));
       final again = make(rec);
       addTearDown(again.dispose);
       await again.selectWallet(id);
       expect(await again.unlock(_password), isTrue);
-      expect(rec.opened.last.dataDir, '${support.path}/wallets/$id/mainnet');
+      expect(rec.opened.last.dataDir, '${support.path}/wallets/$id');
       expect(Directory(elsewhere).existsSync(), isFalse);
     });
 
@@ -949,7 +949,7 @@ void main() {
       expect((await w.account()).name, 'Main');
       await w.selectWallet(id);
       expect(await w.unlock(_password), isTrue);
-      expect((rec.opened.last.dataDir, rec.opened.last.walletId), ('${support.path}/wallets/$id/mainnet', id));
+      expect((rec.opened.last.dataDir, rec.opened.last.walletId), ('${support.path}/wallets/$id', id));
       expect((await w.account()).id, id);
       expect((await w.wallets()).where((e) => e.current).single.id, id);
       await expectLater(w.selectWallet('nope'), throwsA(isA<DeskError>()));
@@ -1007,7 +1007,7 @@ void main() {
       await w.createWallet(name: 'Main', password: _password);
       await w.createWallet(name: 'Savings', password: _password);
       final id = rec.createdConfig!.walletId!;
-      final dir = '${support.path}/wallets/$id/mainnet';
+      final dir = '${support.path}/wallets/$id';
       fill(dir);
       await w.removeWallet(id, WalletRemoval.list);
       expect(rec.deletedWallets, isEmpty);
@@ -1037,7 +1037,7 @@ void main() {
       await w.createWallet(name: 'Main', password: _password);
       await w.createWallet(name: 'Savings', password: _password);
       final id = rec.createdConfig!.walletId!;
-      final dir = '${support.path}/wallets/$id/mainnet';
+      final dir = '${support.path}/wallets/$id';
       fill(first());
       fill(dir);
       final firstMeta = await secrets.read('desk.wallet.mainnet');
@@ -1065,7 +1065,7 @@ void main() {
       expect(await w.epicboxAddress(), rec.session.address, reason: 'still open after a refused delete');
       await w.removeWallet(id, WalletRemoval.delete, password: _password);
       await expectLater(w.balance(), throwsA(isA<DeskError>()));
-      expect(rec.deletedWallets, ['${support.path}/wallets/$id/mainnet']);
+      expect(rec.deletedWallets, ['${support.path}/wallets/$id']);
       expect((await w.wallets()).single.current, isTrue);
     });
 
@@ -1073,7 +1073,7 @@ void main() {
       await w.createWallet(name: 'Main', password: _password);
       await w.createWallet(name: 'Savings', password: _password);
       final id = rec.createdConfig!.walletId!;
-      final dir = '${support.path}/wallets/$id/mainnet';
+      final dir = '${support.path}/wallets/$id';
       fill(first());
       fill(dir);
       await w.selectWallet('legacy-mainnet');
@@ -1090,7 +1090,7 @@ void main() {
       await w.createWallet(name: 'Main', password: _password);
       await w.createWallet(name: 'Savings', password: _password);
       final id = rec.createdConfig!.walletId!;
-      final dir = '${support.path}/wallets/$id/mainnet';
+      final dir = '${support.path}/wallets/$id';
       fill(dir);
       expect(await w.unlock(_password), isTrue); // Savings is selected: it is the open one
       await expectLater(
@@ -1133,9 +1133,9 @@ void main() {
       final id = rec.createdConfig!.walletId!;
       expect(await w.unlock(_password), isTrue);
       await w.useNode('https://node.epicnet.us:3413');
-      expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id/mainnet'));
+      expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id'));
       await w.useEpicbox('epicbox.epicnet.us');
-      expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id/mainnet'));
+      expect((rec.opened.last.walletId, rec.opened.last.dataDir), (id, '${support.path}/wallets/$id'));
       expect((await w.account()).id, id);
     });
 
@@ -1266,7 +1266,8 @@ void main() {
       rec.createError = const core.WalletError(kind: core.WalletErrorKind.io, message: 'disk full');
       await expectLater(w.createWallet(name: 'Savings', password: _password), throwsA(isA<DeskError>()));
       expect((await w.wallets()).map((e) => e.name), ['Main']);
-      expect(Directory('${support.path}/wallets').listSync().map((e) => e.path.split('/').last), ['mainnet']);
+      final wallets = Directory('${support.path}/wallets');
+      expect(wallets.existsSync() ? wallets.listSync() : const [], isEmpty, reason: 'no folder left for the refused wallet');
     });
   });
 

@@ -835,7 +835,7 @@ class _WalletChip extends ConsumerWidget {
             label: w.id == current ? name : w.name,
             trailing: w.id == current
                 ? Icon(EIcons.check, size: 17.u, color: c.ok)
-                : w.network != 'mainnet'
+                : w.network != 'mainnet' && DeskFeatures.testNetworks
                 ? EBadge(networkName(w.network), tone: ETone.warn)
                 : null,
             // The open one only closes the menu.

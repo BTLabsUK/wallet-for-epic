@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:epic_wallet/src/connection_state.dart';
+import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -100,6 +101,7 @@ class _Harness {
       ProviderScope(
         retry: (_, _) => null,
         overrides: [
+          devNetworksProvider.overrideWithValue(true),
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(MemorySecretStore()),
           slateFilesProvider.overrideWithValue(files),

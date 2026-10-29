@@ -285,7 +285,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                 // The header's Test coins pill names the network in the demo.
                 : config == null || ref.watch(demoModeProvider)
                 ? l.unlockTitle
-                : '${l.unlockTitle}${networkSuffix(l, config.chain)}',
+                : ref.watch(devNetworksProvider)
+                ? '${l.unlockTitle}${networkSuffix(l, config.chain)}'
+                : l.unlockTitle,
           ),
           const SizedBox(height: 28),
           if (widget.stranded) ...[

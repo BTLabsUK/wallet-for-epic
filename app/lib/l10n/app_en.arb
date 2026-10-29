@@ -539,44 +539,9 @@
   "errorHistoryNewer": "This wallet data file was made by a newer version of the app.",
   "errorHistoryDamaged": "This wallet data file is damaged.",
   "errorHistoryOtherWallet": "This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.",
-  "errorHistoryOtherNetwork": "This wallet data file is from {fileNetwork}, but this wallet is on {walletNetwork}.",
+  "errorHistoryOtherNetwork": "This wallet data file is from another network.",
   "@errorHistoryOtherNetwork": {
-    "description": "Network names stay as given (Mainnet, Floonet, Usernet).",
-    "placeholders": {
-      "fileNetwork": {
-        "type": "String",
-        "example": "Floonet"
-      },
-      "walletNetwork": {
-        "type": "String",
-        "example": "Mainnet"
-      }
-    }
-  },
-  "networkMainnet": "Mainnet",
-  "@networkMainnet": {
-    "description": "The real Epic Cash network, where coins have value. Short; used as a screen title."
-  },
-  "networkFloonet": "Floonet",
-  "@networkFloonet": {
-    "description": "Name of Epic Cash's public test network. A proper name: do not translate."
-  },
-  "networkUsernet": "Usernet",
-  "@networkUsernet": {
-    "description": "Name of a local developer test network. A proper name: do not translate."
-  },
-  "networkMainnetDescription": "The real Epic Cash network.",
-  "networkFloonetDescription": "A public test network for trying the app. Its coins have no value; get free ones from floo-explorer.btlabs.uk.",
-  "networkUsernetDescription": "A test network running on this computer, for developers.",
-  "networkTestSuffix": " ({network}, test coins)",
-  "@networkTestSuffix": {
-    "description": "Appended to a title on a test network, e.g. 'Unlock wallet (Floonet, test coins)'. Keep the leading space if this language puts one before parentheses.",
-    "placeholders": {
-      "network": {
-        "type": "String",
-        "example": "Floonet"
-      }
-    }
+    "description": "The history file was made on another network than the wallet."
   },
   "autoLockNever": "Never",
   "@autoLockNever": {
@@ -1255,7 +1220,7 @@
     "placeholders": {
       "fileName": {
         "type": "String",
-        "example": "epic-history-mainnet-20260930.wfeh"
+        "example": "epic-wallet-data-savings-20260930.wfeh"
       }
     }
   },
@@ -1307,7 +1272,7 @@
   },
   "demoWelcomeLine": "A real wallet with free test coins, which have no value. It is deleted after 24 hours.",
   "@demoWelcomeLine": {
-    "description": "The welcome screen's one line under its heading. 'Floonet' is a network's name; keep it."
+    "description": "The welcome screen's one line under its heading."
   },
   "demoStart": "Start the demo",
   "@demoStart": {
@@ -1340,7 +1305,7 @@
   },
   "demoTestCoins": "Get test coins",
   "@demoTestCoins": {
-    "description": "Button in the web demo that asks the Floonet faucet to send free test coins to this wallet."
+    "description": "Button in the web demo that asks the faucet to send free test coins to this wallet."
   },
   "demoTestCoinsPaid": "Test coins are on their way. They arrive in a minute or two.",
   "@demoTestCoinsPaid": {
@@ -1752,16 +1717,6 @@
   "netStatusBlocked": "Blocked",
   "@netStatusBlocked": {
     "description": "Network status card, Epicbox row: this network blocks the wallet's Epicbox server. One word."
-  },
-  "statusNodeTestNetwork": "{network}, test coins",
-  "@statusNodeTestNetwork": {
-    "description": "First line of the node status tooltip on a test network only, since the app bar names no network: the network's name (for example Floonet) and that its coins are test coins with no value.",
-    "placeholders": {
-      "network": {
-        "type": "String",
-        "example": "Floonet"
-      }
-    }
   },
   "statusNodeHost": "Node: {host}",
   "@statusNodeHost": {
@@ -2445,7 +2400,7 @@
   },
   "setupNetworkHeading": "Network",
   "@setupNetworkHeading": {
-    "description": "Heading above the choice of Mainnet, Floonet or Usernet."
+    "description": "Heading above the choice of network (development builds only)."
   },
   "setupNodeUrlLabel": "Node URL",
   "@setupNodeUrlLabel": {
@@ -4021,7 +3976,7 @@
   },
   "settingsAboutNetwork": "Network",
   "@settingsAboutNetwork": {
-    "description": "Settings row in About showing which network the wallet is on (Mainnet, Floonet, Usernet)."
+    "description": "Settings row in About showing which network the wallet is on (development builds only)."
   },
   "settingsCheckUpdates": "Check for updates",
   "@settingsCheckUpdates": {
@@ -4892,9 +4847,9 @@
   "@demoTestCoinsPill": {
     "description": "Web demo: a small pill in the app bar saying the wallet holds test coins. Keep it very short."
   },
-  "demoTestCoinsPillTip": "Floonet, Epic’s test network. The coins have no value.",
+  "demoTestCoinsPillTip": "Epic’s test network. The coins have no value.",
   "@demoTestCoinsPillTip": {
-    "description": "Web demo: tooltip and screen-reader text of the Test coins pill. Floonet is a proper name."
+    "description": "Web demo: tooltip and screen-reader text of the Test coins pill."
   },
   "demoLeftHours": "{hours} h left",
   "@demoLeftHours": {
@@ -5980,18 +5935,6 @@
     "placeholders": {
       "percent": {
         "type": "int"
-      }
-    }
-  },
-  "netStatusTestHost": "{network} · {host}",
-  "@netStatusTestHost": {
-    "description": "Status card host line on a test network: the network name, then the host.",
-    "placeholders": {
-      "network": {
-        "type": "String"
-      },
-      "host": {
-        "type": "String"
       }
     }
   },
@@ -7900,7 +7843,7 @@
       }
     }
   },
-  "deskErrTestNet": "Floonet wallet: only mainnet wallets can be imported.",
+  "deskErrTestNet": "This is a test wallet and can’t be imported.",
   "@deskErrTestNet": {
     "description": "Shown in the import wizard for an older wallet on the test network."
   },
@@ -8193,7 +8136,7 @@
   },
   "deskErrHistOtherChain": "Wrong network",
   "@deskErrHistOtherChain": {
-    "description": "Title of the notice when a history backup file is from another network (mainnet or the test network)."
+    "description": "Title of the notice when a history backup file is from another network."
   },
   "deskErrHistNotOurs": "Not a wallet data file",
   "@deskErrHistNotOurs": {
@@ -8223,17 +8166,9 @@
   "@deskErrHistTooLarge": {
     "description": "Why a history backup was refused: the file is far larger than any backup."
   },
-  "deskErrHistChains": "The file is from {from}; this wallet is on {to}.",
+  "deskErrHistChains": "The file is from another network.",
   "@deskErrHistChains": {
-    "description": "Why a history backup was refused: it is from another network. {from} and {to} are network names such as Mainnet.",
-    "placeholders": {
-      "from": {
-        "type": "String"
-      },
-      "to": {
-        "type": "String"
-      }
-    }
+    "description": "Why a history backup was refused: it is from another network."
   },
   "deskErrHistOtherWalletText": "The file was exported from a wallet with a different recovery phrase.",
   "@deskErrHistOtherWalletText": {
@@ -12038,10 +11973,6 @@
   "@deskOnbWelcomeNetwork": {
     "description": "Label of the network selector in the Advanced section of the Welcome page, and its screen-reader name."
   },
-  "deskOnbWelcomeNetworkHelp": "Mainnet holds real EPIC. Floonet and Usernet are test networks.",
-  "@deskOnbWelcomeNetworkHelp": {
-    "description": "Help text under the network selector. Mainnet, Floonet and Usernet are network names and stay as they are."
-  },
   "deskOnbWelcomeFolder": "App data folder",
   "@deskOnbWelcomeFolder": {
     "description": "Label of the data-folder setting in the Advanced section of the Welcome page."
@@ -12121,7 +12052,7 @@
   },
   "deskOnbCreateTestLead": "A wallet on {network}, a test network.",
   "@deskOnbCreateTestLead": {
-    "description": "Line under the progress title when a test network is selected. {network} is the network's name, e.g. Floonet.",
+    "description": "Line under the progress title when a test network is selected (development builds only). {network} is the network's name.",
     "placeholders": {
       "network": {
         "type": "String"
@@ -14130,7 +14061,7 @@
   },
   "deskSetAcctNetwork": "Network",
   "@deskSetAcctNetwork": {
-    "description": "Settings > This wallet: row title showing which network (e.g. Floonet) the wallet belongs to. Shown only when it is not Mainnet."
+    "description": "Settings > This wallet: row title showing which network the wallet belongs to (development builds only)."
   },
   "deskSetAcctNetworkHint": "Set when the wallet was created.",
   "@deskSetAcctNetworkHint": {
@@ -14444,14 +14375,9 @@
   "@deskSetBackupNeeds": {
     "description": "Import dialog: label of the row saying what file is needed. Narrow label column."
   },
-  "deskSetBackupNeedsValue": "A file from this wallet (same recovery phrase) on {network}. Restore the wallet from its phrase first.",
+  "deskSetBackupNeedsValue": "A file from this wallet (same recovery phrase). Restore the wallet from its phrase first.",
   "@deskSetBackupNeedsValue": {
-    "description": "Import dialog: what file the import needs. {network} is the network name, e.g. \"Mainnet\".",
-    "placeholders": {
-      "network": {
-        "type": "String"
-      }
-    }
+    "description": "Import dialog: what file the import needs."
   },
   "deskSetBackupChooseFile": "Choose file…",
   "@deskSetBackupChooseFile": {
@@ -18751,7 +18677,7 @@
   },
   "scanWrongNetworkTitle": "Other network",
   "@scanWrongNetworkTitle": {
-    "description": "Title of the sheet for an address of the other Epic network (mainnet against floonet). Never name the networks."
+    "description": "Title of the sheet for an address of the other Epic network. Never name the networks."
   },
   "scanWrongNetworkBody": "This address is for a different Epic network. This wallet cannot pay it.",
   "@scanWrongNetworkBody": {
@@ -20869,7 +20795,7 @@
   },
   "pairWrongNetworkBody": "It was made by a wallet on the other network. Wallets pair only on the same network.",
   "@pairWrongNetworkBody": {
-    "description": "Outcome body for a pairing link or card made on the other network (mainnet vs the test network); the title is scanWrongNetworkTitle."
+    "description": "Outcome body for a pairing link or card made on the other network; the title is scanWrongNetworkTitle."
   },
   "pairOwnCode": "This is your own code",
   "@pairOwnCode": {
@@ -21475,7 +21401,7 @@
   },
   "contactsImportOtherNet": "{count, plural, =1{1 left out: address for another network} other{{count} left out: addresses for another network}}",
   "@contactsImportOtherNet": {
-    "description": "Import confirm line: contacts in the file left out because their address is for another network (mainnet vs floonet).",
+    "description": "Import confirm line: contacts in the file left out because their address is for another network.",
     "placeholders": {
       "count": {
         "type": "int",
@@ -21537,7 +21463,7 @@
   },
   "contactsImportAllOtherNet": "These contacts are for another network. None can be used here.",
   "@contactsImportAllOtherNet": {
-    "description": "Import error: the contacts file is for another network (e.g. a floonet address book in a mainnet wallet)."
+    "description": "Import error: the contacts file is for another network."
   },
   "expPairing": "Pairing",
   "@expPairing": {

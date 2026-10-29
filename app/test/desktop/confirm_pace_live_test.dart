@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
 final _env = Platform.environment;
@@ -51,7 +52,7 @@ void main() {
     final wallet = LepicDeskWallet(
       preset: floonetPreset,
       service: LepicWalletService(secrets: secrets, oneWalletPerChain: true),
-      walletDir: (chain) async => '$home/wallets/${chain.name}',
+      walletDir: (chain) async => WalletRegistry.firstWalletDir(home, chain),
       secrets: secrets,
       filesDir: () async => files,
       watchPoll: watch ? const Duration(seconds: 4) : const Duration(seconds: 30),

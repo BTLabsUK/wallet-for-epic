@@ -100,7 +100,8 @@ SupportReport buildFeedbackReport({
       'version': details.appVersion,
       'ui': ui,
       'platform': clean(details.platform),
-      'network': details.network,
+      // Mainnet, the only network a user sees, is never named.
+      if (details.network.toLowerCase() != 'mainnet') 'network': details.network,
       'node': cleanHost(details.node, ids),
       'epicbox': cleanHost(details.relay, ids),
       'sync': clean(details.sync),

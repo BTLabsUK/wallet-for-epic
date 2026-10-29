@@ -389,7 +389,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                         subtitle: walletRowLine(l, w),
                         subtitleIsPath: !inWalletsFolder(w.folder) || w.lastOpened == null,
                         tooltip: w.folder,
-                        trailing: w.network == 'mainnet' ? null : EBadge(networkName(w.network), tone: ETone.warn),
+                        trailing: w.network == 'mainnet' || !DeskFeatures.testNetworks ? null : EBadge(networkName(w.network), tone: ETone.warn),
                         action: ECopyButton(text: w.folder, label: l.deskSetAcctCopyPath(w.name)),
                       ),
                   ],
@@ -402,7 +402,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                   Icon(EIcons.wallet, size: Ctl.iconSm, color: context.dc.dim),
                   SizedBox(width: Sp.x2),
                   Flexible(child: Text(selected.name, style: ts.strong, overflow: TextOverflow.ellipsis)),
-                  if (selected.network != 'mainnet') ...[
+                  if (selected.network != 'mainnet' && DeskFeatures.testNetworks) ...[
                     SizedBox(width: Sp.x2),
                     EBadge(networkName(selected.network), tone: ETone.warn),
                   ],
@@ -486,10 +486,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 }
 
 /// Whether [folder] is a wallet the app made in its own folder
-/// (`…/.epic_cash_desktop/wallets/<id>/<chain>`): there the path tells wallets apart by an id only, so the list says when
-/// each was opened instead.
-bool inWalletsFolder(String folder) =>
-    RegExp(r'[/\\]\.epic_cash_desktop[/\\]wallets[/\\][^/\\]+[/\\][^/\\]+[/\\]?$').hasMatch(folder);
+/// (`…/.epic_cash_desktop/wallet` or `…/wallets/<id>`, a dev chain's under `dev/<chain>`): there the path tells wallets
+/// apart by an id only, so the list says when each was opened instead.
+bool inWalletsFolder(String folder) => RegExp(
+  r'[/\\]\.epic_cash_desktop[/\\](dev[/\\][^/\\]+[/\\])?(wallet|wallets[/\\][^/\\]+)[/\\]?$',
+).hasMatch(folder);
 
 /// [folder] with the home folder as `~`, the way the list shows it.
 String shortFolder(String folder, {String? home}) {

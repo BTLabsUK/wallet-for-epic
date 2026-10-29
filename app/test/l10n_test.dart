@@ -307,9 +307,9 @@ void main() {
         say(
           'de',
           WalletErrorKind.invalidArgument,
-          'This history file is from Floonet, but this wallet is on Mainnet',
+          'This history file is from another network',
         ),
-        de.errorHistoryOtherNetwork('Floonet', 'Mainnet'),
+        de.errorHistoryOtherNetwork,
       );
     });
 

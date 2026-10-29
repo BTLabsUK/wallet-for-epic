@@ -381,7 +381,7 @@ void main() {
 
   testWidgets('another network (development builds) still restarts the app flow', (tester) async {
     final w = await _open(tester, open: showNetworkChooser);
-    await tester.tap(find.text(_l.networkFloonet));
+    await tester.tap(find.text(chainLabel(Chain.floonet)));
     await tester.pump();
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 100));

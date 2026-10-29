@@ -46,7 +46,7 @@
   "deskSetBackupBringsBack": "Przywraca",
   "deskSetBackupBringsBackValue": "Szczegóły i notatki płatności, starsze płatności, których brakuje na liście, kontakty, faktury i ustawienia",
   "deskSetBackupNeeds": "Wymaga",
-  "deskSetBackupNeedsValue": "Plik z tego portfela (ta sama fraza odzyskiwania) w sieci {network}. Najpierw przywróć portfel z jego frazy.",
+  "deskSetBackupNeedsValue": "Plik z tego portfela (ta sama fraza odzyskiwania). Najpierw przywróć portfel z jego frazy.",
   "deskSetBackupChooseFile": "Wybierz plik…",
   "deskSetBackupImportDesc": "Przywraca historię płatności, kontakty, faktury i ustawienia tego portfela; istniejące wpisy zostają.",
   "deskSetBackupSaveCsvDialogTitle": "Zapisz płatności jako CSV",

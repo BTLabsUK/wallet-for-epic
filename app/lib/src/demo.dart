@@ -7,6 +7,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
@@ -21,11 +22,9 @@ final demoModeProvider = Provider<bool>((ref) => demoBuild);
 /// in the UI. Off in every release build: the wallet runs on one network and never names it.
 const bool devNetworksBuild = bool.fromEnvironment('WFE_DEV_NETWORKS');
 
-/// Whether the UI offers and names networks: a dev build, or the web demo, which runs on
-/// floonet for good. Tests override it to reach the picker.
-final devNetworksProvider = Provider<bool>(
-  (ref) => devNetworksBuild || ref.watch(demoModeProvider),
-);
+/// Whether the UI offers and names networks: a dev build only. The web demo runs on floonet
+/// but is public, so it names no network. Tests override it to reach the picker.
+final devNetworksProvider = Provider<bool>((ref) => devNetworksBuild);
 
 /// `--dart-define=WFE_WEB_FAKE=true`: the web preview on the fake wallet (`web/preview.dart`).
 const bool _webPreviewBuild = bool.fromEnvironment('WFE_WEB_FAKE');
@@ -281,3 +280,12 @@ class TestCoinsNotifier extends Notifier<bool> {
 
 /// When the countdown warns, once.
 const Duration demoWarningAt = Duration(minutes: 30);
+
+/// [devNetworksProvider] for code that has only a [BuildContext] (a face, an offscreen render).
+bool devNetworksOf(BuildContext context) {
+  try {
+    return ProviderScope.containerOf(context, listen: false).read(devNetworksProvider);
+  } catch (_) {
+    return devNetworksBuild;
+  }
+}

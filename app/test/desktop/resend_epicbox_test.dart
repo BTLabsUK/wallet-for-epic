@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -199,10 +200,10 @@ void main() {
     final service = core.FakeWalletService(
       password: _password,
       session: session,
-    )..existingWallets.add('${dir.path}/wallets/mainnet');
+    )..existingWallets.add('${dir.path}/wallet');
     final wallet = LepicDeskWallet(
       service: service,
-      walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+      walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
       secrets: secrets,
       filesDir: () async => dir,
     );
@@ -242,10 +243,10 @@ void main() {
     final service = core.FakeWalletService(
       password: _password,
       session: session,
-    )..existingWallets.add('${dir.path}/wallets/mainnet');
+    )..existingWallets.add('${dir.path}/wallet');
     final wallet = LepicDeskWallet(
       service: service,
-      walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+      walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
       secrets: MemorySecretStore(),
       filesDir: () async => dir,
     );
@@ -286,10 +287,10 @@ void main() {
           ),
         ],
       );
-      final service = core.FakeWalletService(password: _password, session: session)..existingWallets.add('${dir.path}/wallets/mainnet');
+      final service = core.FakeWalletService(password: _password, session: session)..existingWallets.add('${dir.path}/wallet');
       wallet = LepicDeskWallet(
         service: service,
-        walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+        walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
         secrets: MemorySecretStore(),
         filesDir: () async => dir,
       );

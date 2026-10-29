@@ -444,35 +444,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Этот файл принадлежит другому кошельку. Открыть его может только кошелёк, восстановленный по той же фразе восстановления.';
 
   @override
-  String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork) {
-    return 'Этот файл данных кошелька из сети $fileNetwork, а этот кошелёк работает в сети $walletNetwork.';
-  }
-
-  @override
-  String get networkMainnet => 'Mainnet';
-
-  @override
-  String get networkFloonet => 'Floonet';
-
-  @override
-  String get networkUsernet => 'Usernet';
-
-  @override
-  String get networkMainnetDescription =>
-      'Основная сеть Epic Cash с настоящими монетами.';
-
-  @override
-  String get networkFloonetDescription =>
-      'Публичная тестовая сеть, чтобы попробовать приложение. Её монеты ничего не стоят; бесплатные можно получить на floo-explorer.btlabs.uk.';
-
-  @override
-  String get networkUsernetDescription =>
-      'Тестовая сеть на этом компьютере, для разработчиков.';
-
-  @override
-  String networkTestSuffix(String network) {
-    return ' ($network, тестовые монеты)';
-  }
+  String get errorHistoryOtherNetwork =>
+      'Этот файл данных кошелька из другой сети.';
 
   @override
   String get autoLockNever => 'Никогда';
@@ -1469,11 +1442,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netStatusBlocked => 'Заблокирован';
-
-  @override
-  String statusNodeTestNetwork(String network) {
-    return '$network, тестовые монеты';
-  }
 
   @override
   String statusNodeHost(Object host) {
@@ -3914,7 +3882,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get demoTestCoinsPillTip =>
-      'Floonet, тестовая сеть Epic. Монеты ничего не стоят.';
+      'Тестовая сеть Epic. Монеты ничего не стоят.';
 
   @override
   String demoLeftHours(int hours) {
@@ -4756,11 +4724,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String netStatusStarting(int percent) {
     return 'Запуск $percent %';
-  }
-
-  @override
-  String netStatusTestHost(String network, String host) {
-    return '$network · $host';
   }
 
   @override
@@ -6232,7 +6195,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskErrTestNet =>
-      'Кошелёк Floonet: импортировать можно только кошельки основной сети.';
+      'Это тестовый кошелёк, его нельзя импортировать.';
 
   @override
   String get deskErrWalletInApp => 'Этот кошелёк уже есть в приложении.';
@@ -6494,9 +6457,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskErrHistTooLarge => 'Файл слишком большой для резервной копии.';
 
   @override
-  String deskErrHistChains(String from, String to) {
-    return 'Файл из сети $from; этот кошелёк в сети $to.';
-  }
+  String get deskErrHistChains => 'Файл из другой сети.';
 
   @override
   String get deskErrHistOtherWalletText =>
@@ -9555,10 +9516,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbWelcomeNetwork => 'Сеть';
 
   @override
-  String get deskOnbWelcomeNetworkHelp =>
-      'В Mainnet настоящие EPIC. Floonet и Usernet — тестовые сети.';
-
-  @override
   String get deskOnbWelcomeFolder => 'Папка данных приложения';
 
   @override
@@ -11427,9 +11384,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetBackupNeeds => 'Нужен';
 
   @override
-  String deskSetBackupNeedsValue(String network) {
-    return 'Файл этого кошелька (та же фраза восстановления), сеть $network. Сначала восстановите кошелёк по его фразе.';
-  }
+  String get deskSetBackupNeedsValue =>
+      'Файл этого кошелька (та же фраза восстановления). Сначала восстановите кошелёк по его фразе.';
 
   @override
   String get deskSetBackupChooseFile => 'Выбрать файл…';

@@ -47,10 +47,6 @@
   "@deskOnbWelcomeNetwork": {
     "description": "Label of the network selector in the Advanced section of the Welcome page, and its screen-reader name."
   },
-  "deskOnbWelcomeNetworkHelp": "Mainnet holds real EPIC. Floonet and Usernet are test networks.",
-  "@deskOnbWelcomeNetworkHelp": {
-    "description": "Help text under the network selector. Mainnet, Floonet and Usernet are network names and stay as they are."
-  },
   "deskOnbWelcomeFolder": "App data folder",
   "@deskOnbWelcomeFolder": {
     "description": "Label of the data-folder setting in the Advanced section of the Welcome page."
@@ -130,7 +126,7 @@
   },
   "deskOnbCreateTestLead": "A wallet on {network}, a test network.",
   "@deskOnbCreateTestLead": {
-    "description": "Line under the progress title when a test network is selected. {network} is the network's name, e.g. Floonet.",
+    "description": "Line under the progress title when a test network is selected (development builds only). {network} is the network's name.",
     "placeholders": {
       "network": {
         "type": "String"

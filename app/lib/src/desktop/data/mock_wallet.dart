@@ -26,6 +26,7 @@ import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
 import 'backup_settings_desk.dart';
+import 'features.dart';
 import 'http_address.dart';
 import 'invoices.dart';
 import 'phrase_check.dart';
@@ -169,9 +170,9 @@ class MockDeskWallet implements DeskWalletApi {
   ];
 
   final List<WalletEntry> _wallets = [
-    WalletEntry(id: 'legacy-mainnet', name: 'Main wallet', folder: '~/.epic/main/wallet_data', network: 'mainnet', lastOpened: _ago(minutes: 20)),
-    WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f/mainnet', network: 'mainnet', lastOpened: _ago(days: 3)),
-    WalletEntry(id: '0a1b2c3d4e5f60718293a4b5c6d7e8f9', name: 'Test', folder: '~/.epic/floo/test', network: 'floonet', lastOpened: _ago(days: 60)),
+    WalletEntry(id: 'legacy-mainnet', name: 'Main wallet', folder: '~/.epic_cash_desktop/wallet', network: 'mainnet', lastOpened: _ago(minutes: 20)),
+    WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', network: 'mainnet', lastOpened: _ago(days: 3)),
+    WalletEntry(id: '0a1b2c3d4e5f60718293a4b5c6d7e8f9', name: 'Test', folder: '~/.epic_cash_desktop/dev/floonet/wallets/0a1b2c3d4e5f60718293a4b5c6d7e8f9', network: 'floonet', lastOpened: _ago(days: 60)),
   ];
   String _current = 'legacy-mainnet';
 
@@ -248,12 +249,13 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> addBack(String id) async {}
 
-  // Import: four old wallets; the epic program's is in use until checked again. An old
+  // Import: three old wallets (four in a development build); the epic program's is in use until checked again. An old
   // password starting with "wrong" is wrong.
   static final List<OldWallet> _oldWallets = [
     OldWallet(id: 'sav', name: 'Savings', folder: '~/.epic/main/Savings', group: OldWalletGroup.gui, lastUsed: _ago(days: 39), sizeBytes: 38 << 20),
     OldWallet(id: 'eve', name: 'Everyday', folder: '~/.epic/Everyday/main', group: OldWalletGroup.gui, lastUsed: _ago(days: 19), sizeBytes: 112 << 20),
-    OldWallet(
+    // A test network's old wallet shows in development builds only.
+    if (DeskFeatures.testNetworks) OldWallet(
       id: 'tst',
       name: 'Testing',
       folder: '~/.epic/floo',
@@ -261,7 +263,7 @@ class MockDeskWallet implements DeskWalletApi {
       network: 'floonet',
       lastUsed: _ago(days: 21),
       sizeBytes: 3 << 20,
-      blocked: 'Test network wallet. Only mainnet wallets can be imported.',
+      blocked: 'Test network wallet. It can\'t be imported.',
     ),
     OldWallet(id: 'cli', name: 'Wallet (epic program)', folder: '~/.epic/main', group: OldWalletGroup.cli, lastUsed: _ago(days: 54), sizeBytes: 21 << 20, sameAs: 'Same wallet as Everyday'),
   ];
@@ -298,7 +300,7 @@ class MockDeskWallet implements DeskWalletApi {
       throw const DeskError('The old password is short. Choose a new one of at least $minPasswordLength characters.', newPasswordNeeded: true);
     }
     final name = _oldWallets.where((w) => w.id == id).firstOrNull?.name ?? 'Backup 2024';
-    final entry = WalletEntry(id: 'imp-$id', name: name, folder: '~/.epic_cash_desktop/wallets/imp-$id/mainnet', network: 'mainnet');
+    final entry = WalletEntry(id: 'imp-$id', name: name, folder: '~/.epic_cash_desktop/wallets/imp-$id', network: 'mainnet');
     _wallets.add(entry);
     _current = entry.id;
     _imported.add(entry.id);
@@ -453,14 +455,14 @@ class MockDeskWallet implements DeskWalletApi {
     }
     final label = name.trim().isEmpty ? 'Wallet $n' : name.trim();
     final id = 'new-${_wallets.length}-${DateTime.now().microsecondsSinceEpoch}';
-    _wallets.add(WalletEntry(id: id, name: label, folder: '~/.epic_cash_desktop/wallets/$id/mainnet', network: 'mainnet'));
+    _wallets.add(WalletEntry(id: id, name: label, folder: '~/.epic_cash_desktop/wallets/$id', network: 'mainnet'));
     _current = id;
     return id;
   }
 
   @override
   Future<WalletAccount> account() async =>
-      WalletAccount(id: 'legacy-mainnet', name: _wallets.where((w) => w.id == 'legacy-mainnet').firstOrNull?.name ?? 'Main wallet', network: 'mainnet', folder: '~/.epic/main/wallet_data', created: DateTime(2024, 3, 14));
+      WalletAccount(id: 'legacy-mainnet', name: _wallets.where((w) => w.id == 'legacy-mainnet').firstOrNull?.name ?? 'Main wallet', network: 'mainnet', folder: '~/.epic_cash_desktop/wallet', created: DateTime(2024, 3, 14));
 
   @override
   Future<Balance> balance() async {

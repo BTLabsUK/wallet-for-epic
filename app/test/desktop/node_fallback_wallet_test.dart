@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, ScanStep, SendRequest, SendFailed, TxMethod;
 import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -140,7 +141,7 @@ void main() {
 
   LepicDeskWallet make() => LepicDeskWallet(
     service: service,
-    walletDir: (chain) async => '${dir.path}/wallets/${chain.name}',
+    walletDir: (chain) async => WalletRegistry.firstWalletDir(dir.path, chain),
     secrets: secrets,
     filesDir: () async => dir,
     nodePoll: const Duration(hours: 1),
@@ -162,7 +163,7 @@ void main() {
     secrets = MemorySecretStore();
     await secrets.write('app.node.mainnet', _remote);
     session = _Session();
-    service = _Opens(session)..existingWallets.add('${dir.path}/wallets/mainnet');
+    service = _Opens(session)..existingWallets.add('${dir.path}/wallet');
     spawned = 0;
     startGate = null;
   });

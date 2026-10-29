@@ -158,13 +158,13 @@ void flows() {
   testWidgets('import: find, choose, check, one old password per wallet, done opens Unlock', (tester) async {
     final container = await _pump(tester, const ImportWalletsScreen());
     await _wait(tester, 1500);
-    expect(find.text('4 wallets found'), findsOneWidget);
+    expect(find.text('3 wallets found'), findsOneWidget, reason: 'a test network wallet is not offered');
     await tester.tap(find.text('Continue'));
     await tester.pump();
     expect(find.text('Choose wallets'), findsOneWidget);
-    expect(find.textContaining('Only mainnet wallets can be imported'), findsOneWidget);
+    expect(find.textContaining('Test network wallet'), findsNothing);
     expect(find.text('Same wallet as Everyday. Tick for a second copy.'), findsOneWidget);
-    expect(find.text('2 of 4 selected'), findsOneWidget, reason: 'the floonet wallet and the copy start unticked');
+    expect(find.text('2 of 3 selected'), findsOneWidget, reason: 'the copy starts unticked');
     await tester.tap(find.text('Continue'));
     await _wait(tester, 1500);
     // Nothing in use: Check goes straight on to Import.

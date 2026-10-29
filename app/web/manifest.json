@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#08080A",
     "theme_color": "#08080A",
-    "description": "Try the Epic Cash wallet in your browser, on floonet test coins.",
+    "description": "Try the Epic Cash wallet in your browser, on test coins.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:epic_wallet/src/connection_state.dart';
+import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -121,6 +122,7 @@ Future<void> _pump(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
+        devNetworksProvider.overrideWithValue(true),
         nodeTipProvider.overrideWith(
           (ref) => switch (t) {
             AsyncData(:final value) => Future.value(value),

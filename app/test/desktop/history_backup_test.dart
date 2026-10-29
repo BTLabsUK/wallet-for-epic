@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/history/export.dart' show csvHeader, historyDamaged, historyNewer, historyOtherChain, historyOtherWallet;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/settings.dart' show HistoryExportSnapshot;
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -72,7 +73,7 @@ void main() {
       wallet = LepicDeskWallet(
         service: service,
         walletDir: (chain) async {
-          final dir = Directory('${support.path}/wallets/${chain.name}');
+          final dir = Directory(WalletRegistry.firstWalletDir(support.path, chain));
           await dir.create(recursive: true);
           return dir.path;
         },
@@ -99,7 +100,7 @@ void main() {
       final file = File('$folder/WALLET.txt');
       expect(file.existsSync(), isTrue);
       var text = file.readAsStringSync();
-      expect(text, startsWith('Epic Cash Desktop (BT Labs) wallet folder\nLabel:     Savings\nNetwork:   mainnet\n'));
+      expect(text, startsWith('Epic Cash Desktop (BT Labs) wallet folder\nLabel:     Savings\nCreated:   '));
       expect(text, contains('This folder is not a backup. Restore with the recovery phrase.'));
       expect(text, isNot(contains(_password)));
       for (final w in phrase) {
@@ -150,8 +151,8 @@ void main() {
       expect((await refused(historyOtherWallet)).problem, HistoryFileProblem.otherWallet);
       expect((await refused(historyNewer)).text, 'A newer version of the app made this file. Update the app, then import it.');
       expect((await refused(historyDamaged)).problem.title, 'File damaged');
-      final chain = await refused(historyOtherChain('Floonet', 'Mainnet'));
-      expect((chain.problem.title, chain.text), ('Wrong network', 'The file is from Floonet; this wallet is on Mainnet.'));
+      final chain = await refused(historyOtherChain);
+      expect((chain.problem.title, chain.text), ('Wrong network', 'The file is from another network.'));
       expect((await refused('This is not a history file exported by this app')).problem, HistoryFileProblem.notOurs);
       service.session.importError = null;
       await expectLater(

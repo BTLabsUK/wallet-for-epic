@@ -144,7 +144,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
             rows: [
               _FolderRow(title: l.deskSetAcctWalletFolder, path: a.folder),
               _FolderRow(title: l.deskSetAcctAppFiles, hint: l.deskSetAcctAppFilesHint, path: a.appFolder ?? appFilesDir),
-              if (a.network != 'mainnet')
+              if (a.network != 'mainnet' && DeskFeatures.testNetworks)
                 ESetRow(title: l.deskSetAcctNetwork, hint: l.deskSetAcctNetworkHint, control: EBadge(a.network, tone: ETone.warn)),
               ESetRow(
                 title: l.deskSetAcctSetup,

@@ -229,7 +229,7 @@ void main() {
     test('our bundled folder is not offered', () async {
       final bundled = '${tmp.path}/app/node';
       final own = await fakeChain(
-        '$bundled/main/chain_data',
+        '$bundled/chain_data',
         headerBytes: 64000,
       );
       await Directory('$home/.epic/main').create(recursive: true);
@@ -243,7 +243,7 @@ void main() {
       );
       expect(found, isEmpty);
       final info = await inspectChainData(
-        '$bundled/main/chain_data',
+        '$bundled/chain_data',
         chain: Chain.mainnet,
         source: ChainDataSource.bundled,
       );

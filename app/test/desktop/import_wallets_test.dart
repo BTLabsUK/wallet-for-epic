@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/legacy_wallets.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -40,7 +41,7 @@ void main() {
   String? picked;
 
   Future<String> walletDir(core.Chain chain) async {
-    final dir = Directory('${support.path}/wallets/${chain.name}');
+    final dir = Directory(WalletRegistry.firstWalletDir(support.path, chain));
     await dir.create(recursive: true);
     return dir.path;
   }
@@ -108,7 +109,7 @@ void main() {
     expect(found.any((w) => w.folder.contains('.epic-gui')), isFalse, reason: 'GUI 6.1 folder is not searched');
     final floo = found.firstWhere((w) => w.network == 'floonet');
     expect(floo.importable, isFalse);
-    expect(floo.blocked, contains('only mainnet'));
+    expect(floo.blocked, contains('test wallet'));
     expect(byName(found, 'Savings').importable, isTrue);
     expect(byName(found, 'Savings').group, OldWalletGroup.gui);
     final cli = cliMain(found);
@@ -194,7 +195,7 @@ void main() {
     expect(service.password, _old, reason: 'the old password has 8+ characters: it stays');
     final id = service.createdConfig!.walletId!;
     expect(r.id, id);
-    expect(service.createdConfig!.dataDir, '${support.path}/wallets/$id/mainnet');
+    expect(service.createdConfig!.dataDir, '${support.path}/wallets/$id');
     final meta = jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!) as Map<String, dynamic>;
     expect(meta['scanPending'], isTrue);
     expect(meta['name'], 'Savings');
@@ -216,7 +217,8 @@ void main() {
       throwsA(isA<DeskError>().having((e) => e.wrongPassword, 'wrongPassword', isTrue)),
     );
     expect(await wallet.wallets(), isEmpty);
-    expect(Directory('${support.path}/wallets').listSync().map((e) => e.path.split('/').last), ['mainnet']);
+    final wallets = Directory('${support.path}/wallets');
+    expect(wallets.existsSync() ? wallets.listSync() : const [], isEmpty, reason: 'no wallet folder made');
     expect(secrets.values.keys.where((k) => k.startsWith('desk.wallet.')), isEmpty);
     // The right one then works.
     await wallet.importOldWallet(savings.id, oldPassword: _old);
@@ -269,7 +271,7 @@ void main() {
     expect((await wallet.wallets()).map((e) => e.name), ['Main', 'Savings', 'Everyday']);
     await wallet.cancelImport();
     expect((await wallet.wallets()).map((e) => e.name), ['Main']);
-    expect(service.deletedWallets, unorderedEquals(['${support.path}/wallets/${a.id}/mainnet', '${support.path}/wallets/${b.id}/mainnet']));
+    expect(service.deletedWallets, unorderedEquals(['${support.path}/wallets/${a.id}', '${support.path}/wallets/${b.id}']));
     expect(await secrets.read('desk.wallet.mainnet.${a.id}'), isNull);
     expect(await secrets.read('desk.wallet.mainnet'), mainMeta);
     expect(await folderHash(home), before);
@@ -302,7 +304,7 @@ void main() {
     expect((await wallet.pickFolder())!.message, chainOnlyText);
     picked = await Directory('${tmp.path}/empty').create().then((d) => d.path);
     expect((await wallet.pickFolder())!.message, noWalletText);
-    picked = await oldWallet('${support.path}/wallets/x/mainnet', '{"seed":"own"}');
+    picked = await oldWallet('${support.path}/wallets/x', '{"seed":"own"}');
     final own = (await wallet.pickFolder())!;
     expect(own.wallets, isEmpty);
     expect(own.message, 'This wallet is in the app already.');

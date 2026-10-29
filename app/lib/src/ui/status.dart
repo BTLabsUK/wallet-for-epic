@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../demo.dart' show devNetworksOf;
+
 import '../connection_state.dart';
 import '../l10n.dart';
 import '../network.dart';
@@ -173,9 +175,9 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
   final version = node.tip?.nodeVersion ?? '';
   final chain = config?.chain;
   final detail = [
-    // A test network says so first: the app bar names no network.
-    if (chain != null && chain != Chain.mainnet)
-      l.statusNodeTestNetwork(chainName(l, chain)),
+    // A development build on a test network says so first: the app bar names no network.
+    if (chain != null && chain != Chain.mainnet && devNetworksOf(context))
+      '${chainName(l, chain)}, test coins',
     sentence,
     if (host != null && host.isNotEmpty) l.statusNodeHost(host),
     if (height != null && height > BigInt.zero)

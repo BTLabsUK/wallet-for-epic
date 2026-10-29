@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/net/tor_net.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_location.dart';
+import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -46,7 +47,7 @@ void main() {
   LepicDeskWallet make({bool torSwitch = false}) => LepicDeskWallet(
     service: service,
     walletDir: (chain) async {
-      final dir = Directory('${support.path}/wallets/${chain.name}');
+      final dir = Directory(WalletRegistry.firstWalletDir(support.path, chain));
       await dir.create(recursive: true);
       return dir.path;
     },
@@ -130,7 +131,7 @@ void main() {
     // while tor started again.
     LepicDeskWallet torWallet() => LepicDeskWallet(
       service: service,
-      walletDir: (chain) async => '${support.path}/wallets/${chain.name}',
+      walletDir: (chain) async => WalletRegistry.firstWalletDir(support.path, chain),
       secrets: secrets,
       filesDir: () async => support,
       nodePoll: const Duration(milliseconds: 40),

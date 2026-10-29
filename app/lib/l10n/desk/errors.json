@@ -222,7 +222,7 @@
       }
     }
   },
-  "deskErrTestNet": "Floonet wallet: only mainnet wallets can be imported.",
+  "deskErrTestNet": "This is a test wallet and can’t be imported.",
   "@deskErrTestNet": {
     "description": "Shown in the import wizard for an older wallet on the test network."
   },
@@ -559,7 +559,7 @@
   },
   "deskErrHistOtherChain": "Wrong network",
   "@deskErrHistOtherChain": {
-    "description": "Title of the notice when a history backup file is from another network (mainnet or the test network)."
+    "description": "Title of the notice when a history backup file is from another network."
   },
   "deskErrHistNotOurs": "Not a wallet data file",
   "@deskErrHistNotOurs": {
@@ -589,17 +589,9 @@
   "@deskErrHistTooLarge": {
     "description": "Why a history backup was refused: the file is far larger than any backup."
   },
-  "deskErrHistChains": "The file is from {from}; this wallet is on {to}.",
+  "deskErrHistChains": "The file is from another network.",
   "@deskErrHistChains": {
-    "description": "Why a history backup was refused: it is from another network. {from} and {to} are network names such as Mainnet.",
-    "placeholders": {
-      "from": {
-        "type": "String"
-      },
-      "to": {
-        "type": "String"
-      }
-    }
+    "description": "Why a history backup was refused: it is from another network."
   },
   "deskErrHistOtherWalletText": "The file was exported from a wallet with a different recovery phrase.",
   "@deskErrHistOtherWalletText": {

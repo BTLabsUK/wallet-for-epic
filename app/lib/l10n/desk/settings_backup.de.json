@@ -46,7 +46,7 @@
   "deskSetBackupBringsBack": "Bringt zurück",
   "deskSetBackupBringsBackValue": "Zahlungsdetails und Notizen, ältere Zahlungen, die der Liste fehlen, Kontakte, Rechnungen und Einstellungen",
   "deskSetBackupNeeds": "Benötigt",
-  "deskSetBackupNeedsValue": "Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase) im {network}. Stellen Sie die Wallet zuerst aus ihrer Phrase wieder her.",
+  "deskSetBackupNeedsValue": "Eine Datei dieser Wallet (dieselbe Wiederherstellungsphrase). Stellen Sie die Wallet zuerst aus ihrer Phrase wieder her.",
   "deskSetBackupChooseFile": "Datei wählen…",
   "deskSetBackupImportDesc": "Bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen dieser Wallet zurück; vorhandene Einträge bleiben.",
   "deskSetBackupSaveCsvDialogTitle": "Zahlungen als CSV speichern",

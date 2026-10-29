@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/amount.dart';
@@ -349,6 +350,7 @@ class _Harness {
       ProviderScope(
         retry: (_, _) => null,
         overrides: [
+          if (chain != Chain.mainnet) devNetworksProvider.overrideWithValue(true),
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
@@ -2941,7 +2943,7 @@ void main() {
       await h.pump(tester);
       expect(find.text(reminder), findsOneWidget);
       await _tap(tester, find.text('Export wallet data'));
-      expect(h.files.saved.single.name, 'epic-wallet-data-mainnet-20260930.wfeh');
+      expect(h.files.saved.single.name, 'epic-wallet-data-20260930.wfeh');
       expect(find.text(reminder), findsNothing);
       expect(h.store.values['app.history_exported.mainnet'], '${_at(_now)}');
     });

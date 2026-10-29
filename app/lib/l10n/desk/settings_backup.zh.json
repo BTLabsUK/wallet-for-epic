@@ -46,7 +46,7 @@
   "deskSetBackupBringsBack": "可找回",
   "deskSetBackupBringsBackValue": "付款详情和备注、列表中丢失的较早付款、联系人、账单和设置",
   "deskSetBackupNeeds": "需要",
-  "deskSetBackupNeedsValue": "这个钱包（同一助记词）在{network}上导出的文件。请先用助记词恢复钱包。",
+  "deskSetBackupNeedsValue": "这个钱包（同一助记词）导出的文件。请先用助记词恢复钱包。",
   "deskSetBackupChooseFile": "选择文件…",
   "deskSetBackupImportDesc": "找回这个钱包的交易记录、联系人、账单和设置；已有记录保留。",
   "deskSetBackupSaveCsvDialogTitle": "将付款保存为 CSV",

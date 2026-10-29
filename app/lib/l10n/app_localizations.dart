@@ -796,53 +796,11 @@ abstract class AppLocalizations {
   /// **'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.'**
   String get errorHistoryOtherWallet;
 
-  /// Network names stay as given (Mainnet, Floonet, Usernet).
+  /// The history file was made on another network than the wallet.
   ///
   /// In en, this message translates to:
-  /// **'This wallet data file is from {fileNetwork}, but this wallet is on {walletNetwork}.'**
-  String errorHistoryOtherNetwork(String fileNetwork, String walletNetwork);
-
-  /// The real Epic Cash network, where coins have value. Short; used as a screen title.
-  ///
-  /// In en, this message translates to:
-  /// **'Mainnet'**
-  String get networkMainnet;
-
-  /// Name of Epic Cash's public test network. A proper name: do not translate.
-  ///
-  /// In en, this message translates to:
-  /// **'Floonet'**
-  String get networkFloonet;
-
-  /// Name of a local developer test network. A proper name: do not translate.
-  ///
-  /// In en, this message translates to:
-  /// **'Usernet'**
-  String get networkUsernet;
-
-  /// No description provided for @networkMainnetDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'The real Epic Cash network.'**
-  String get networkMainnetDescription;
-
-  /// No description provided for @networkFloonetDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'A public test network for trying the app. Its coins have no value; get free ones from floo-explorer.btlabs.uk.'**
-  String get networkFloonetDescription;
-
-  /// No description provided for @networkUsernetDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'A test network running on this computer, for developers.'**
-  String get networkUsernetDescription;
-
-  /// Appended to a title on a test network, e.g. 'Unlock wallet (Floonet, test coins)'. Keep the leading space if this language puts one before parentheses.
-  ///
-  /// In en, this message translates to:
-  /// **' ({network}, test coins)'**
-  String networkTestSuffix(String network);
+  /// **'This wallet data file is from another network.'**
+  String get errorHistoryOtherNetwork;
 
   /// Auto-lock choice: the wallet never locks by itself.
   ///
@@ -1843,7 +1801,7 @@ abstract class AppLocalizations {
   /// **'Try Epic Cash'**
   String get demoWelcomeTitle;
 
-  /// The welcome screen's one line under its heading. 'Floonet' is a network's name; keep it.
+  /// The welcome screen's one line under its heading.
   ///
   /// In en, this message translates to:
   /// **'A real wallet with free test coins, which have no value. It is deleted after 24 hours.'**
@@ -1885,7 +1843,7 @@ abstract class AppLocalizations {
   /// **'Your demo ends in 30 minutes. Its wallet and test coins are deleted then.'**
   String get demoEndingSoon;
 
-  /// Button in the web demo that asks the Floonet faucet to send free test coins to this wallet.
+  /// Button in the web demo that asks the faucet to send free test coins to this wallet.
   ///
   /// In en, this message translates to:
   /// **'Get test coins'**
@@ -2352,12 +2310,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Blocked'**
   String get netStatusBlocked;
-
-  /// First line of the node status tooltip on a test network only, since the app bar names no network: the network's name (for example Floonet) and that its coins are test coins with no value.
-  ///
-  /// In en, this message translates to:
-  /// **'{network}, test coins'**
-  String statusNodeTestNetwork(String network);
 
   /// Line in the node status tooltip: the node's host name.
   ///
@@ -3133,7 +3085,7 @@ abstract class AppLocalizations {
   /// **'Node and Epicbox'**
   String get setupNetworkSettingsTooltip;
 
-  /// Heading above the choice of Mainnet, Floonet or Usernet.
+  /// Heading above the choice of network (development builds only).
   ///
   /// In en, this message translates to:
   /// **'Network'**
@@ -5107,7 +5059,7 @@ abstract class AppLocalizations {
   /// **'Version'**
   String get settingsVersion;
 
-  /// Settings row in About showing which network the wallet is on (Mainnet, Floonet, Usernet).
+  /// Settings row in About showing which network the wallet is on (development builds only).
   ///
   /// In en, this message translates to:
   /// **'Network'**
@@ -6217,10 +6169,10 @@ abstract class AppLocalizations {
   /// **'Test coins'**
   String get demoTestCoinsPill;
 
-  /// Web demo: tooltip and screen-reader text of the Test coins pill. Floonet is a proper name.
+  /// Web demo: tooltip and screen-reader text of the Test coins pill.
   ///
   /// In en, this message translates to:
-  /// **'Floonet, Epic’s test network. The coins have no value.'**
+  /// **'Epic’s test network. The coins have no value.'**
   String get demoTestCoinsPillTip;
 
   /// Web demo: in the Test coins pill, hours until the demo wallet is deleted, with the hour abbreviation.
@@ -7475,12 +7427,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starting {percent} %'**
   String netStatusStarting(int percent);
-
-  /// Status card host line on a test network: the network name, then the host.
-  ///
-  /// In en, this message translates to:
-  /// **'{network} · {host}'**
-  String netStatusTestHost(String network, String host);
 
   /// Screen reader name of the status card.
   ///
@@ -9805,7 +9751,7 @@ abstract class AppLocalizations {
   /// Shown in the import wizard for an older wallet on the test network.
   ///
   /// In en, this message translates to:
-  /// **'Floonet wallet: only mainnet wallets can be imported.'**
+  /// **'This is a test wallet and can’t be imported.'**
   String get deskErrTestNet;
 
   /// Shown in the import wizard when every wallet found is already in the app.
@@ -10144,7 +10090,7 @@ abstract class AppLocalizations {
   /// **'Another wallet’s data'**
   String get deskErrHistOtherWallet;
 
-  /// Title of the notice when a history backup file is from another network (mainnet or the test network).
+  /// Title of the notice when a history backup file is from another network.
   ///
   /// In en, this message translates to:
   /// **'Wrong network'**
@@ -10192,11 +10138,11 @@ abstract class AppLocalizations {
   /// **'The file is too large to be one.'**
   String get deskErrHistTooLarge;
 
-  /// Why a history backup was refused: it is from another network. {from} and {to} are network names such as Mainnet.
+  /// Why a history backup was refused: it is from another network.
   ///
   /// In en, this message translates to:
-  /// **'The file is from {from}; this wallet is on {to}.'**
-  String deskErrHistChains(String from, String to);
+  /// **'The file is from another network.'**
+  String get deskErrHistChains;
 
   /// Why a history backup was refused: it belongs to another wallet.
   ///
@@ -14577,12 +14523,6 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get deskOnbWelcomeNetwork;
 
-  /// Help text under the network selector. Mainnet, Floonet and Usernet are network names and stay as they are.
-  ///
-  /// In en, this message translates to:
-  /// **'Mainnet holds real EPIC. Floonet and Usernet are test networks.'**
-  String get deskOnbWelcomeNetworkHelp;
-
   /// Label of the data-folder setting in the Advanced section of the Welcome page.
   ///
   /// In en, this message translates to:
@@ -14691,7 +14631,7 @@ abstract class AppLocalizations {
   /// **'Creating the wallet'**
   String get deskOnbCreateCreating;
 
-  /// Line under the progress title when a test network is selected. {network} is the network's name, e.g. Floonet.
+  /// Line under the progress title when a test network is selected (development builds only). {network} is the network's name.
   ///
   /// In en, this message translates to:
   /// **'A wallet on {network}, a test network.'**
@@ -17031,7 +16971,7 @@ abstract class AppLocalizations {
   /// **'Settings and the log.'**
   String get deskSetAcctAppFilesHint;
 
-  /// Settings > This wallet: row title showing which network (e.g. Floonet) the wallet belongs to. Shown only when it is not Mainnet.
+  /// Settings > This wallet: row title showing which network the wallet belongs to (development builds only).
   ///
   /// In en, this message translates to:
   /// **'Network'**
@@ -17397,11 +17337,11 @@ abstract class AppLocalizations {
   /// **'Needs'**
   String get deskSetBackupNeeds;
 
-  /// Import dialog: what file the import needs. {network} is the network name, e.g. "Mainnet".
+  /// Import dialog: what file the import needs.
   ///
   /// In en, this message translates to:
-  /// **'A file from this wallet (same recovery phrase) on {network}. Restore the wallet from its phrase first.'**
-  String deskSetBackupNeedsValue(String network);
+  /// **'A file from this wallet (same recovery phrase). Restore the wallet from its phrase first.'**
+  String get deskSetBackupNeedsValue;
 
   /// Import dialog: button that opens the system Open dialog.
   ///
@@ -22586,7 +22526,7 @@ abstract class AppLocalizations {
   /// **'The address in this code is not valid.'**
   String get scanBadAddress;
 
-  /// Title of the sheet for an address of the other Epic network (mainnet against floonet). Never name the networks.
+  /// Title of the sheet for an address of the other Epic network. Never name the networks.
   ///
   /// In en, this message translates to:
   /// **'Other network'**
@@ -24794,7 +24734,7 @@ abstract class AppLocalizations {
   /// **'Check that the whole link was copied, or ask for a new one.'**
   String get pairInvalidBody;
 
-  /// Outcome body for a pairing link or card made on the other network (mainnet vs the test network); the title is scanWrongNetworkTitle.
+  /// Outcome body for a pairing link or card made on the other network; the title is scanWrongNetworkTitle.
   ///
   /// In en, this message translates to:
   /// **'It was made by a wallet on the other network. Wallets pair only on the same network.'**
@@ -25490,7 +25430,7 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 left out: no address this wallet can send to} other{{count} left out: no address this wallet can send to}}'**
   String contactsImportLeftOut(int count);
 
-  /// Import confirm line: contacts in the file left out because their address is for another network (mainnet vs floonet).
+  /// Import confirm line: contacts in the file left out because their address is for another network.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 left out: address for another network} other{{count} left out: addresses for another network}}'**
@@ -25550,7 +25490,7 @@ abstract class AppLocalizations {
   /// **'The file holds no contacts.'**
   String get contactsImportEmpty;
 
-  /// Import error: the contacts file is for another network (e.g. a floonet address book in a mainnet wallet).
+  /// Import error: the contacts file is for another network.
   ///
   /// In en, this message translates to:
   /// **'These contacts are for another network. None can be used here.'**

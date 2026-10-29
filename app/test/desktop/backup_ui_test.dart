@@ -87,8 +87,8 @@ void main() {
       'Last export 3 Oct 2026, 14:02 · 12 payments since.',
     );
     expect(backupStateLine(englishStrings, HistoryBackupState(lastExport: DateTime(2026, 10, 22, 14, 2)), now: now), 'Last export today, 14:02 · nothing new since.');
-    expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'wfeh'), 'epic-wallet-data-mainnet-20261022.wfeh');
-    expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'csv', wallet: 'Savings'), 'epic-wallet-data-savings-mainnet-20261022.csv');
+    expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'wfeh'), 'epic-wallet-data-20261022.wfeh');
+    expect(deskHistoryFileName('mainnet', DateTime(2026, 10, 22), 'csv', wallet: 'Savings'), 'epic-wallet-data-savings-20261022.csv');
   });
 
   test('the wallet part of the file name', () {
@@ -132,7 +132,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Save as…'));
     await tester.pumpAndSettle();
     expect(find.text('Saved'), findsOneWidget);
-    expect(find.textContaining(RegExp(r'~/Documents/epic-wallet-data-([a-z0-9-]+-)?mainnet-')), findsOneWidget);
+    expect(find.textContaining(RegExp(r'~/Documents/epic-wallet-data-([a-z0-9-]+-)?\d{8}\.wfeh')), findsOneWidget);
     expect(_api.exports, 1);
     expect(_files.saved.single, endsWith('.wfeh'));
     await tester.tap(find.widgetWithText(EButton, 'Open folder'));
@@ -166,7 +166,7 @@ void main() {
     await _pump(tester, _opener(showImportHistoryDialog));
     await _open(tester);
     expect(
-      find.text('A file from this wallet (same recovery phrase) on mainnet. Restore the wallet from its phrase first.'),
+      find.text('A file from this wallet (same recovery phrase). Restore the wallet from its phrase first.'),
       findsOneWidget,
     );
     await tester.tap(find.widgetWithText(EButton, 'Choose file…'));
@@ -186,12 +186,12 @@ void main() {
 
   testWidgets('import: a refused file shows its title and text above the list', (tester) async {
     await _pump(tester, _opener(showImportHistoryDialog));
-    _api.nextImport = const HistoryFileError(HistoryFileProblem.otherChain, 'The file is from Floonet; this wallet is on Mainnet.');
+    _api.nextImport = const HistoryFileError(HistoryFileProblem.otherChain, 'The file is from another network.');
     await _open(tester);
     await tester.tap(find.widgetWithText(EButton, 'Choose file…'));
     await tester.pumpAndSettle();
     expect(find.text('Wrong network'), findsOneWidget);
-    expect(find.text('The file is from Floonet; this wallet is on Mainnet.'), findsOneWidget);
+    expect(find.text('The file is from another network.'), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Choose file…'), findsOneWidget);
     _files.picks.add(tooLargeHistoryFile);
     await tester.tap(find.widgetWithText(EButton, 'Choose file…'));

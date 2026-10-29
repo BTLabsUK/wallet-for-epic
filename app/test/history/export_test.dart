@@ -358,7 +358,7 @@ void main() {
           const [],
           walletFp: 'fp',
         ),
-        _invalid(historyOtherChain('Mainnet', 'Floonet')),
+        _invalid(historyOtherChain),
       );
     });
 

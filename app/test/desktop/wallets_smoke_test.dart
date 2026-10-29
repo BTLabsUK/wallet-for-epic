@@ -89,7 +89,7 @@ void main() {
     // Each option names its whole folder on hover; the list cuts it.
     // The mock's Savings lives in the app's own folder, under its id.
     expect(
-      find.byWidgetPredicate((w) => w is Tooltip && w.message == '~/.epic_cash_desktop/wallets/${demoOtherWallet.id}/mainnet'),
+      find.byWidgetPredicate((w) => w is Tooltip && w.message == '~/.epic_cash_desktop/wallets/${demoOtherWallet.id}'),
       findsOneWidget,
     );
     // ... and copies it from its own button, which does not pick the wallet.

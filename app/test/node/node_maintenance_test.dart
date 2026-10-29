@@ -73,7 +73,7 @@ void main() {
   late LocalNodeController controller;
   late NodeMaintenance m;
 
-  String own() => '${dir.path}/node/main/chain_data';
+  String own() => '${dir.path}/node/chain_data';
 
   setUp(() async {
     dir = Directory.systemTemp.createTempSync('wfe-maint-');

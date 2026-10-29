@@ -40,11 +40,12 @@ void main() {
   ];
   final exported = utf8.encode(encodeContactsFile(book, network: 'mainnet', now: DateTime.utc(2026, 10, 25, 14, 2, 11)));
 
-  test('export writes the marker, version, network and only name, addresses and note', () {
+  test('export writes the marker, version and only name, addresses and note; mainnet is not named', () {
     final j = jsonDecode(utf8.decode(exported)) as Map<String, dynamic>;
     expect(j['format'], 'epic-cash-contacts');
     expect(j['version'], 1);
-    expect(j['network'], 'mainnet');
+    expect(j.containsKey('network'), isFalse);
+    expect(utf8.decode(exported), isNot(contains('mainnet')));
     expect(j['exported'], '2026-10-25T14:02:11Z');
     expect(j['contacts'], [
       {'name': 'Anna Kowalska', 'epicbox': _anna, 'http': _http, 'note': 'Flatmate'},
@@ -146,6 +147,10 @@ void main() {
       encodeContactsFile([ContactFields(id: 'f', name: 'F', epicbox: _floonet)], network: 'floonet', now: DateTime(2026)),
     );
     expect(() => _plan(floonet, const []), _refused(ContactsFileProblem.otherNetwork));
+    expect(readContactsFile(floonet).network, 'floonet');
+    // An exported file that names no network is mainnet's: refused on a dev chain.
+    expect(readContactsFile(exported).network, 'mainnet');
+    expect(() => _plan(exported, const [], network: 'floonet'), _refused(ContactsFileProblem.otherNetwork));
     // Without a network named, the addresses decide.
     final unnamed = _file({
       'version': 1,
