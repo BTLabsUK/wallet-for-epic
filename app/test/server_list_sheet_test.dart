@@ -71,7 +71,7 @@ class _LostListener extends ListenerNotifier {
   ListenerState build() => const ListenerState(lost: true);
 
   @override
-  Future<void> restart() async => restarts++;
+  Future<void> restart({bool quiet = false}) async => restarts++;
 }
 
 class _OpenSession extends SessionNotifier {

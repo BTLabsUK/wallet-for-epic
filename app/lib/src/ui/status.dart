@@ -108,7 +108,7 @@ WalletStatus walletStatus({
       ? EpicboxState.online
       : listener.blocked
       ? EpicboxState.blocked
-      : listener.lost && !waitingForTor
+      : (listener.lost || listener.retrying) && !waitingForTor
       ? EpicboxState.offline
       : EpicboxState.connecting;
   return (node: node, epicbox: epicbox);

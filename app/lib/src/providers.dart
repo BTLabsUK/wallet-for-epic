@@ -865,6 +865,7 @@ class ListenerState {
     this.last,
     this.offline = false,
     this.blocked = false,
+    this.retrying = false,
   });
 
   /// Subscribed at the relay, so incoming payments and responses arrive.
@@ -872,6 +873,10 @@ class ListenerState {
 
   /// Was connected, lost the connection, and is retrying.
   final bool lost;
+
+  /// Started again by the app after a loss ([ListenerNotifier.restart] quiet), not yet connected:
+  /// it reads as the loss did, not as a new connection.
+  final bool retrying;
 
   /// The core stopped the listener. It does not retry, and the header shows no epicbox row.
   final bool stopped;
@@ -1015,7 +1020,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
         'not connected for ${after.inSeconds} s'
             '${state.status == null ? '' : ' (${state.status})'}; restarting it',
       );
-      unawaited(restart());
+      unawaited(restart(quiet: true));
     });
   }
 
@@ -1030,7 +1035,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
     // Blocked here stays blocked on a resume; another network may not block it.
     if (state.blocked && why != 'network') return;
     logInfo('listener', 'reconnect on $why');
-    await restart();
+    await restart(quiet: true);
   }
 
 
@@ -1084,8 +1089,10 @@ class ListenerNotifier extends Notifier<ListenerState> {
 
   /// Stops the listener and starts it again, for Retry on Receive. The core starts a second
   /// listener only once the first has stopped, so this waits for that, at most
-  /// [listenerStopWait].
-  Future<void> restart() async {
+  /// [listenerStopWait]. A [quiet] restart (no one asked for it) of a lost connection is marked
+  /// [ListenerState.retrying], so the header holds one state while it retries instead of
+  /// flickering to connecting.
+  Future<void> restart({bool quiet = false}) async {
     final session = ref.read(sessionProvider);
     if (session == null || _restarting || state.offline) return;
     _restarting = true;
@@ -1093,7 +1100,7 @@ class ListenerNotifier extends Notifier<ListenerState> {
     final ended = _ended;
     _events = null;
     _block.reset();
-    state = ListenerState(status: _connecting, last: state.last);
+    state = ListenerState(status: _connecting, last: state.last, retrying: quiet && (state.lost || state.retrying));
     logInfo('listener', 'restart');
     try {
       await session.stopListener();
