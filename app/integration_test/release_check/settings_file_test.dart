@@ -5,15 +5,16 @@
 // lands in the file with the user's text kept, a broken file is never rewritten (and saved aside
 // when the app must write), a deleted file comes back, and a hand-edited Epicbox server moves the
 // wallet's address. Never prints the phrase or the password; the wallet stays empty.
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/data_folder.dart' show appDataDirectory;
 import 'package:epic_wallet/src/desktop/app/routes.dart' show DeskRoute, deskNavProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
+import 'package:epic_wallet/src/desktop/data/server_lists.dart' show ServerKind, deskServerListProvider;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -33,7 +34,7 @@ void main() {
     final shipped = (await tester.runAsync(() => rootBundle.loadString('assets/settings/settings.toml')))!;
     record('first start writes settings.toml', file.existsSync(), file.path);
     record('first file is the shipped default, byte for byte', file.existsSync() && file.readAsStringSync() == shipped,
-        '${file.existsSync() ? file.lengthSync() : 0} bytes vs ${shipped.length}');
+        '${file.existsSync() ? file.lengthSync() : 0} bytes vs ${utf8.encode(shipped).length}');
 
     // A wallet, on the servers the run picked (the app writes those picks to the file).
     final password = randomPassword();
@@ -43,6 +44,7 @@ void main() {
     await settle(tester);
     await tapText(tester, 'Create wallet', last: true);
     await waitText(tester, 'Recovery phrase', timeout: const Duration(minutes: 3));
+    await tapText(tester, 'Reveal phrase');
     await tapText(tester, RegExp('[Ww]ritten down'));
     await tapText(tester, 'Continue', last: true);
     await waitText(tester, 'Skip setup', timeout: const Duration(seconds: 60));
@@ -65,10 +67,8 @@ void main() {
     file.writeAsStringSync(file.readAsStringSync() + handBlock);
     await pumpUntil(tester, () => hostSettings.epicboxServers.any((s) => s.host == 'relay.example.invalid'),
         timeout: const Duration(seconds: 20), what: 'hand edit read');
-    containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.settingsNode);
-    await settle(tester, ms: 800);
-    await tapText(tester, RegExp(r'^Receiving$'));
-    await settle(tester, ms: 800);
+    containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving);
+    await settle(tester, ms: 1500);
     await tester.ensureVisible(find.byType(ServerListPanel).first);
     await tester.tap(find.byType(ServerListPanel).first, warnIfMissed: false);
     await settle(tester, ms: 1200);
@@ -77,23 +77,15 @@ void main() {
     await key(tester, LogicalKeyboardKey.escape);
     await settle(tester);
 
-    // App → file: a node added in Settings › Node is written at once, the hand edit kept.
-    Future<void> addNode(String value) async {
-      containerOf(tester).read(deskNavProvider.notifier).go(DeskRoute.settingsNode);
-      await settle(tester, ms: 1200);
-      await tester.ensureVisible(find.byType(ServerListPanel).first);
-      await tester.tap(find.byType(ServerListPanel).first, warnIfMissed: false);
-      await settle(tester, ms: 800);
-      final field = find.descendant(of: find.byKey(const ValueKey('server-list-field')), matching: find.byType(EditableText));
-      await tester.enterText(field, value);
-      await settle(tester, ms: 800);
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await settle(tester, ms: 2000);
-      await key(tester, LogicalKeyboardKey.escape);
-      await settle(tester);
+    // App → file: a node added to the Node list is written at once, the hand edit kept. The
+    // panel adds a node only once it answers (its widget tests cover that); this is the call it
+    // makes then.
+    Future<void> addNode(String url) async {
+      await tester.runAsync(() => containerOf(tester).read(deskServerListProvider(ServerKind.node).notifier).add(url, own: true));
+      await settle(tester, ms: 1500);
     }
 
-    await addNode('node.example.invalid:3413');
+    await addNode('https://node.example.invalid:3413');
     final afterAdd = file.readAsStringSync();
     record('node added in the app is in the file', afterAdd.contains('node.example.invalid:3413'), '');
     record('the hand edit and its comment are kept', afterAdd.contains(handBlock.trim()), '');
@@ -116,7 +108,7 @@ void main() {
     record('the last good settings stay in use', nodeInUse() == otherNode && hostSettings.nodeUse == otherNode, nodeInUse());
 
     // The app must write while the file is broken: the file is saved aside first.
-    await addNode('node2.example.invalid:3413');
+    await addNode('https://node2.example.invalid:3413');
     final backups = dir.listSync().whereType<File>().where((f) => f.path.contains('settings.toml.bad-')).toList();
     record('a write while broken saves settings.toml.bad-<time>', backups.length == 1 && backups.first.readAsStringSync() == broken,
         backups.map((f) => f.uri.pathSegments.last).join(', '));
@@ -129,13 +121,20 @@ void main() {
     await settle(tester, ms: 1500);
     await shot(tester, 'settings-03-recreated');
     record('a deleted file is written again', file.existsSync() && file.readAsStringSync().contains('node2.example.invalid:3413'), '');
+    // Toasts queue: the one about the broken file saved aside may still be up.
+    try {
+      await pumpUntil(tester, () => hasText('settings.toml was missing'), timeout: const Duration(seconds: 30), what: 'recreated notice');
+    } on Object {
+      // Recorded below.
+    }
+    await shot(tester, 'settings-03b-recreated-notice');
     record('and a notice says so', hasText('settings.toml was missing'), shownTexts(8));
 
     // A hand edit of the Epicbox server in use moves the wallet's address to it.
     final api = containerOf(tester).read(deskApiProvider);
     final before = (await tester.runAsync(api.epicboxAddress))!;
-    final target = relay == freshRelay ? 'epicbox.stackwallet.com' : freshRelay;
     final from = hostSettings.epicboxUse;
+    final target = from == relay ? freshRelay : relay;
     file.writeAsStringSync(file.readAsStringSync().replaceFirst('use = "$from"', 'use = "$target"'));
     await pumpUntil(tester, () => relayInUse() == target, timeout: const Duration(minutes: 2), what: 'relay switch');
     await settle(tester, ms: 3000);
