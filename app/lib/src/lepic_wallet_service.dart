@@ -29,7 +29,7 @@ import 'net/lan_node_relay.dart';
 import 'net/local_address.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
-import 'relay_block.dart' show refusedHandshake;
+import 'relay_refused.dart' show refusedHandshake;
 import 'redact.dart';
 import 'secret_store_api.dart';
 import 'settings_file/host_settings.dart';

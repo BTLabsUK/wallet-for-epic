@@ -31,7 +31,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import '../data_folder.dart' show appDataDirectory;
 import 'local_address.dart';
 
 /// The relays, one per node address (`ip|port`), kept for the app's life.
@@ -174,9 +173,10 @@ bool needsPlainHttpConsent(String url) {
   return u != null && u.scheme == 'http' && u.host.isNotEmpty && isCgnatIp(u.host);
 }
 
-/// Where the agreed nodes are kept: `lan_nodes.json` in the app's data folder. Tests replace it.
-Future<File> Function() lanNodesFile = () async =>
-    File('${(await appDataDirectory()).path}${Platform.pathSeparator}lan_nodes.json');
+/// Where the agreed nodes are kept: `lan_nodes.json` in the app's data folder, which
+/// `settleDataFolder` (data_folder_io.dart) sets at start so this file stays free of Flutter, as
+/// the wallet core needs. Tests replace it.
+Future<File> Function() lanNodesFile = () async => throw StateError('the data folder is not settled');
 
 Set<String>? _agreed;
 

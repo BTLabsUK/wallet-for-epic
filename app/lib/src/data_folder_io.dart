@@ -6,6 +6,8 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import 'net/lan_node_relay.dart' show lanNodesFile;
+
 /// The folder Epic Cash Desktop keeps in the user's home folder on every desktop system, as
 /// the old GUI wallet keeps `.epic-gui`.
 const String desktopDataFolderName = '.epic_cash_desktop';
@@ -42,6 +44,7 @@ Future<Directory> appCacheDirectory({Map<String, String>? environment}) async {
 /// Creates the desktop data folder at start, so it exists before anything reads it, and keeps
 /// it to its owner ([ownerOnly]). The phone: nothing, its folder is the app's own.
 Future<void> settleDataFolder({Map<String, String>? environment}) async {
+  lanNodesFile = () async => File('${(await appDataDirectory()).path}${Platform.pathSeparator}lan_nodes.json');
   if (!_isDesktop && dataFolderOverride == null) return;
   try {
     final dir = await appDataDirectory(environment: environment);
