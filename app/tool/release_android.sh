@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # Builds the split-per-ABI release APKs and writes the signed update.json, the manifest the
-# in-app updater reads (lib/src/updater.dart; btlabs-public FORMAT.md section 6). The APKs go
-# to the GitHub release; update.json goes to BT Labs' Pages repo, BTLabs-EPIC/btlabs-epic.github.io,
-# served as https://btlabs-epic.github.io/update.json. Publish the APKs first.
+# in-app updater reads (lib/src/updater.dart; btlabs-public FORMAT.md section 6). One file serves
+# both variants: its top-level release names the builds with Tor, its `notor` section the builds
+# without Tor (-notor files), which read only that section. Publish the release files first, then
+# update.json with tools/publish-update-json.sh.
 # Usage: tool/release_android.sh <download-base-url> [notes]
 #   download-base-url  where the APKs will be served (https), e.g.
 #                      https://github.com/BTLabs-EPIC/wallet-for-epic/releases/download/v1.0.1
@@ -22,6 +23,14 @@
 # the project's GitHub accounts (FORMAT.md section 6): any other page makes every client, phone
 # included, reject the whole file. The desktop's own downloads (since 26.10.9) are per system:
 # tool/desktop_update_entry.sh prints that block from the published setup and AppImage.
+#
+# WFE_APK_DIR=<folder> takes the APKs tool/build_android_release.sh put there under their release
+# names instead of building one: epic-cash-mobile-<version>-arm64-v8a.apk for the top level and
+# epic-cash-mobile-<version>-notor-arm64-v8a.apk for the notor section, both required, as a
+# release builds and ships both variants (https://docs.btlabs.uk/developers/releases/). The manifest names them under
+# download-base-url by those names, e.g. https://examples.btlabs.uk/epic-cash-wallets/downloads.
+# WFE_DESKTOP_DIR=<folder> adds the per-system desktop blocks (tool/desktop_update_entry.sh) from
+# the published setups, AppImages and dmgs in that folder, the -notor ones into the notor section.
 #
 # Set the release's version first (`tools/version.sh set`, https://docs.btlabs.uk/developers/releases/): Android installs
 # an update only when its version code is higher, and only when it is signed with the same key as
@@ -54,21 +63,32 @@ aapt2="$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name aapt2 -type f | sort
 [[ -x "$aapt2" ]] || { echo "aapt2 not found under $ANDROID_HOME/build-tools" >&2; exit 1; }
 
 cd "$app_dir"
-# After `flutter test`, the plugin registrant can still list the dev-only integration_test plugin,
-# and the first release build then fails to compile it. `pub get` regenerates it first.
-flutter pub get
-# package:lepic's build hook bundles prebuilt libraries and fails without them, whichever core
-# the build selects. Up to date, this is a no-op build.
-"$app_dir/../tools/lepic.sh" build android
-flutter build apk --release --target-platform android-arm64 --split-per-abi \
-  ${WFE_UPDATE_URL:+--dart-define=WFE_UPDATE_URL="$WFE_UPDATE_URL"} \
-  ${WFE_CORE:+--dart-define=WFE_CORE="$WFE_CORE"}
-
 out="$app_dir/build/app/outputs/flutter-apk"
-package="" version_name="" entries=()
+if [[ -z "${WFE_APK_DIR:-}" ]]; then
+  # After `flutter test`, the plugin registrant can still list the dev-only integration_test plugin,
+  # and the first release build then fails to compile it. `pub get` regenerates it first.
+  flutter pub get
+  # package:lepic's build hook bundles prebuilt libraries and fails without them, whichever core
+  # the build selects. Up to date, this is a no-op build.
+  "$app_dir/../tools/lepic.sh" build android
+  flutter build apk --release --target-platform android-arm64 --split-per-abi \
+    ${WFE_UPDATE_URL:+--dart-define=WFE_UPDATE_URL="$WFE_UPDATE_URL"} \
+    ${WFE_CORE:+--dart-define=WFE_CORE="$WFE_CORE"}
+else
+  mkdir -p "$out"
+fi
+
+package="" version_name="" entries=() notor_entries=()
 # The phone download is arm64-v8a only; x86_64 builds are for our own emulators, never published.
+# Each APK of a variant: "" (with Tor, the top level) and -notor (the notor section, WFE_APK_DIR).
+variants=("")
+[[ -n "${WFE_APK_DIR:-}" ]] && variants+=(-notor)
+for variant in "${variants[@]}"; do
 for abi in arm64-v8a; do
-  apk="$out/app-$abi-release.apk"
+  apk="$out/app-$abi-release.apk" file="app-$abi-release.apk"
+  if [[ -n "${WFE_APK_DIR:-}" ]]; then
+    file="epic-cash-mobile-$version$variant-$abi.apk" apk="${WFE_APK_DIR%/}/$file"
+  fi
   [[ -f "$apk" ]] || { echo "missing $apk" >&2; exit 1; }
   # Keep only the first line in bash: `| head -1` would SIGPIPE aapt2 under pipefail.
   badging="$("$aapt2" dump badging "$apk")"
@@ -80,9 +100,11 @@ for abi in arm64-v8a; do
     || { echo "$apk is $version_name ($code), not $version ($want_code)" >&2; exit 1; }
   sha="$(sha256sum "$apk" | cut -d' ' -f1)"
   size="$(stat -c %s "$apk")"
-  entries+=("$(jq -n --arg abi "$abi" --argjson code "$code" --arg url "$base_url/app-$abi-release.apk" \
+  entry="$(jq -n --arg abi "$abi" --argjson code "$code" --arg url "$base_url/$file" \
     --arg sha "$sha" --argjson size "$size" \
-    '{abi: $abi, versionCode: $code, url: $url, sha256: $sha, size: $size}')")
+    '{abi: $abi, versionCode: $code, url: $url, sha256: $sha, size: $size}')"
+  if [[ -z "$variant" ]]; then entries+=("$entry"); else notor_entries+=("$entry"); fi
+done
 done
 
 desktop_page=""
@@ -102,9 +124,21 @@ printf '%s\n' "${entries[@]}" | jq -s --arg package "$package" --arg name "$vers
       packageName: $package, versionName: $name, apks: .}
    + (if $n == "" then {} else {notes: $n} end)
    + (if $page == "" then {} else {desktop: {version: $name, page: $page}} end)' >"$payload"
+if [[ ${#notor_entries[@]} -gt 0 ]]; then
+  notor_apks="$(printf '%s\n' "${notor_entries[@]}" | jq -s .)"
+  jq --argjson apks "$notor_apks" '. + {notor: {apks: $apks}}' "$payload" >"$payload.tmp"
+  mv "$payload.tmp" "$payload"
+fi
+if [[ -n "${WFE_DESKTOP_DIR:-}" ]]; then
+  # Deep merge: the top-level desktop block and, for the -notor files, notor.desktop.
+  desktop_block="$("$app_dir/tool/desktop_update_entry.sh" "$version" "$WFE_DESKTOP_DIR")"
+  jq --argjson d "$desktop_block" '. * $d' "$payload" >"$payload.tmp"
+  mv "$payload.tmp" "$payload"
+fi
 
 echo "Wrote $payload for $package $version_name (serial $issued_epoch, expires $expires_at):"
-jq -r '.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes"' "$payload"
+jq -r '(.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes \(.url)"),
+       (.notor.apks[]? | "  notor \(.abi) versionCode \(.versionCode) \(.size) bytes \(.url)")' "$payload"
 
 # 0.1.0 (com.blacktyger.epicwallet, debug-signed) reads an unsigned update.json from
 # https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json, takes it
@@ -138,10 +172,11 @@ if json.loads(app) != json.load(open(sys.argv[2], encoding="utf-8")):
     sys.exit("lib/src/btlabs_keys.dart and %s hold different keys: ship the new keyring first" % sys.argv[2])
 PY
 # The tool refuses a payload that does not validate and an envelope that does not verify; with
-# the published manifest as --prev, also a serial that is not above it (a slow clock here).
+# the published manifest as --prev, also a serial that is not above it (a slow clock here). The
+# published copy is read from BT Labs' own server, the first source the apps read.
 published="$out/update.published.json"
 rm -f "$published"
-status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' https://btlabs-epic.github.io/update.json || true)"
+status="$(curl -sS --max-time 20 -o "$published" -w '%{http_code}' https://examples.btlabs.uk/epic-cash-wallets/update.json || true)"
 case "$status" in
   200) sign+=(--prev "$published") ;;
   404) rm -f "$published"; echo "No update.json published yet: signing without --prev." ;;
@@ -149,8 +184,7 @@ case "$status" in
 esac
 "${sign[@]}"
 python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
-echo "1. Publish app-arm64-v8a-release.apk at $base_url (the GitHub release)."
-echo "2. Then publish $manifest as update.json in BTLabs-EPIC/btlabs-epic.github.io"
-echo "   (the hosting notes, \"Publishing a release manifest\")."
+echo "1. Publish the files it names: $(jq -r '[.apks[].url, .notor.apks[]?.url] | join(" ")' "$payload")"
+echo "2. Then publish $manifest: tools/publish-update-json.sh $manifest"
 echo "3. For 0.1.0 phones, publish $legacy as update.json on the latest GitHub release of"
 echo "   blacktyger/wallet-for-epic (https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json)."

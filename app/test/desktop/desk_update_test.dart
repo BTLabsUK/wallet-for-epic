@@ -736,21 +736,37 @@ Future<void> main(List<String> a) async {
     });
   });
 
-  test('the release helper prints the block clients read', () async {
+  test('the release helper prints the blocks clients read, with Tor and without', () async {
     final dir = await tmp.createTemp('release');
-    File('${dir.path}/$_winName').writeAsBytesSync(_bytes);
-    File('${dir.path}/$_linuxName').writeAsBytesSync(_bytes.sublist(1));
+    File('${dir.path}/epic-cash-desktop-$_next-windows-x64-setup.exe').writeAsBytesSync(_bytes);
+    File('${dir.path}/EpicCashDesktop-$_next-x86_64.AppImage').writeAsBytesSync(_bytes.sublist(1));
+    File('${dir.path}/epic-cash-desktop-$_next-notor-windows-x64-setup.exe').writeAsBytesSync(_bytes.sublist(2));
+    File('${dir.path}/EpicCashDesktop-$_next-notor-x86_64.AppImage').writeAsBytesSync(_bytes.sublist(3));
+    File('${dir.path}/EpicCashDesktop-$_next-notor-macos.dmg').writeAsBytesSync(_bytes.sublist(4));
     final run = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path]);
     expect(run.exitCode, 0, reason: '${run.stderr}');
     final block = jsonDecode(run.stdout as String) as Map<String, dynamic>;
+    final payload = testUpdatePayload(desktop: block['desktop'], notor: false)
+      ..['notor'] = <String, Object?>{'apks': [testApk()], 'desktop': (block['notor'] as Map)['desktop']};
     final r = await verifyWalletUpdate(
-      await signedUpdate(testUpdatePayload(desktop: block['desktop'], notor: false)),
+      await signedUpdate(payload),
       keyring: testUpdateKeyring,
       now: now.toUtc(),
     );
-    final d = (r as Accepted<WalletUpdate>).manifest.desktop!;
+    final m = (r as Accepted<WalletUpdate>).manifest;
+    final d = m.desktop!;
     expect(d.forSystem('windows')!.file!.sha256, _sha);
     expect(d.forSystem('linux')!.file!.size, _bytes.length - 1);
-    expect(d.forSystem('linux')!.file!.url.toString(), '$walletDesktopDownloads$_linuxName');
+    expect(d.forSystem('linux')!.file!.url.toString(), '${walletDesktopDownloads}EpicCashDesktop-$_next-x86_64.AppImage');
+    expect(d.forSystem('macos'), isNull, reason: 'no dmg with Tor in this folder');
+    final n = m.release(tor: false)!.desktop!;
+    expect(n.forSystem('windows')!.file!.size, _bytes.length - 2);
+    expect(n.forSystem('linux')!.file!.url.pathSegments.last, 'EpicCashDesktop-$_next-notor-x86_64.AppImage');
+    expect(n.forSystem('macos')!.file!.url.pathSegments.last, 'EpicCashDesktop-$_next-notor-macos.dmg');
+    // A release ships both variants: without the -notor files the helper stops.
+    File('${dir.path}/EpicCashDesktop-$_next-notor-x86_64.AppImage').deleteSync();
+    final missing = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path]);
+    expect(missing.exitCode, isNot(0));
+    expect('${missing.stderr}', contains('notor-x86_64.AppImage'));
   });
 }
