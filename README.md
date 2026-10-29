@@ -39,6 +39,13 @@ wallets, scans the chain through an Epic node, and sends and receives with the s
 - **Moving in from older wallets:** import the seed and transaction history of the Epic Cash GUI
   wallet and `epic-wallet`, checked against a chain scan.
 - **Six languages:** English, German, Polish, Russian, Chinese and Thai, with help in each.
+- **Your servers in one small file:** the Node and Epicbox lists and a few on/off switches live in
+  `settings.toml` in the wallet's data folder (the first server of each list is the one in use);
+  on desktop it can be edited while the wallet runs. Everything else the app talks to is in the
+  read-only `app/assets/config/app-config.toml`: no address is written in the code
+  ([docs/settings-file.md](docs/settings-file.md)).
+- **Amounts at a glance:** four decimals wherever a balance or amount is shown, all eight where
+  the exact value matters (a payment's review, its file and QR code).
 
 ## Build from source
 
@@ -134,6 +141,7 @@ on a device or desktop. Builds and tests run on our own machines, not on hosted 
 | `app/test/`, `app/integration_test/` | Unit and widget tests; tests on a device or desktop |
 | `app/android/`, `app/linux/`, `app/windows/`, `app/macos/`, `app/ios/`, `app/web/` | Platform runners; `app/windows/installer/` is the Inno Setup installer |
 | `app/assets/` | Fonts, icons, help pictures and password lists, each with its licence |
+| `app/assets/config/` | `settings.default.toml` (the first-start copy of the user's `settings.toml`) and the built-in `app-config.toml` |
 | `app/tool/` | Release builds and helper scripts |
 | `tools/` | LEPIC pins and build (`lepic.sh`), Tor fetch and source build, the toolchain environment, versioning, store-build preparation |
 | `scripts/` | The container build of the Linux AppImage |
