@@ -27,6 +27,7 @@ import '../public_servers.dart';
 import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
 import '../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
+import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../server_list_file.dart' show operatorFor;
 import '../server_list_store.dart';
 import '../server_switch.dart';
@@ -1548,6 +1549,25 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
     final listed = ref.watch(publicNodeStatusProvider(choice.preset)).value;
     final net = ref.watch(networkStatusProvider(choice.preset)).value;
     final nodeUrl = ref.watch(nodeFailoverProvider)?.inUse ?? choice.nodeUrl;
+    // The Node list is empty: nothing is in use, so say so where the node would show.
+    if (ref.watch(hostSettingsProvider.select((h) => h.nodeUrls.isEmpty))) {
+      return Container(
+        key: const ValueKey('no-node-set'),
+        decoration: BoxDecoration(
+          color: t.surface,
+          border: Border.all(color: t.line),
+          borderRadius: BorderRadius.circular(t.radiusSmall),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(Icons.cloud_off, size: 20, color: t.warn),
+            const SizedBox(width: 12),
+            Expanded(child: Text(l.deskSlNoNodeTitle, style: theme.textTheme.bodyMedium?.copyWith(color: t.text, fontWeight: FontWeight.w600))),
+          ],
+        ),
+      );
+    }
     final NodeInfo? own = isLocalNodeUrl(nodeUrl) ? ref.watch(nodeInfoProvider((url: nodeUrl, preset: choice.preset))).value : null;
     if (isLocalNodeUrl(nodeUrl)) return _ownBox(context, nodeUrl, own, nodeNetFace(context, wallet, behind: own?.blocksBehind));
     final dirNode = nodeStatusFor(listed ?? const [], nodeUrl);
