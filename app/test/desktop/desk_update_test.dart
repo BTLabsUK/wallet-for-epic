@@ -804,7 +804,9 @@ Future<void> main(List<String> a) async {
     File('${dir.path}/epic-cash-desktop-$_next-notor-windows-x64-setup.exe').writeAsBytesSync(_bytes.sublist(2));
     File('${dir.path}/EpicCashDesktop-$_next-notor-x86_64.AppImage').writeAsBytesSync(_bytes.sublist(3));
     File('${dir.path}/EpicCashDesktop-$_next-notor-macos.dmg').writeAsBytesSync(_bytes.sublist(4));
-    final run = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path]);
+    // The block the new-format manifest carries: under the app's own download address.
+    final run = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path],
+        environment: {'WFE_DOWNLOADS_BASE': walletDesktopDownloads!});
     expect(run.exitCode, 0, reason: '${run.stderr}');
     final block = jsonDecode(run.stdout as String) as Map<String, dynamic>;
     final payload = testUpdatePayload(desktop: block['desktop'], notor: false)

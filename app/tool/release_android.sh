@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Builds the split-per-ABI release APKs and writes the signed update.json, the manifest the
-# in-app updater reads (lib/src/updater.dart; btlabs-public FORMAT.md section 6). One file serves
+# Builds the split-per-ABI release APKs and writes the two signed manifests of the release
+# (btlabs-public FORMAT.md section 6; https://docs.btlabs.uk/developers/releases/, Release addresses): update.json, the
+# old format installed apps up to 26.10.23 read, with file URLs under download-base-url, and
+# update-v2.json, the new format the current app reads ([updates] manifests of
+# app/assets/config/app-config.toml), the same release and serial with file URLs under
+# [updates] downloads of that file. One file serves
 # both variants: its top-level release names the builds with Tor, its `notor` section the builds
 # without Tor (-notor files), which read only that section. Publish the release files first, then
 # update.json with tools/publish-update-json.sh.
@@ -119,7 +123,9 @@ issued_at="$(date -u -d "@$issued_epoch" +%Y-%m-%dT%H:%M:%SZ)"
 expires_at="$(date -u -d "@$((issued_epoch + 182 * 86400))" +%Y-%m-%dT%H:%M:%SZ)"
 payload="$out/update.payload.json"
 manifest="$out/update.json"
-rm -f "$manifest"
+payload2="$out/update-v2.payload.json"
+manifest2="$out/update-v2.json"
+rm -f "$manifest" "$manifest2"
 printf '%s\n' "${entries[@]}" | jq -s --arg package "$package" --arg name "$version_name" --arg notes "$notes" \
   --arg page "$desktop_page" --argjson serial "$issued_epoch" --arg issued "$issued_at" --arg expires "$expires_at" \
   '($notes | sub("^\\s+"; "") | sub("\\s+$"; "")) as $n
@@ -138,6 +144,14 @@ if [[ -n "${WFE_DESKTOP_DIR:-}" ]]; then
   jq --argjson d "$desktop_block" '. * $d' "$payload" >"$payload.tmp"
   mv "$payload.tmp" "$payload"
 fi
+
+# The new format: the same payload, its file URLs under the app's own download address.
+config="$app_dir/assets/config/app-config.toml"
+base2="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["updates"]["downloads"])' "$config")"
+base2="${base2%/}"
+manifest2_url="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["updates"]["manifests"][0])' "$config")"
+jq --arg old "$base_url/" --arg new "$base2/" \
+  'walk(if type == "string" and startswith($old) then $new + ltrimstr($old) else . end)' "$payload" >"$payload2"
 
 echo "Wrote $payload for $package $version_name (serial $issued_epoch, expires $expires_at):"
 jq -r '(.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes \(.url)"),
@@ -159,10 +173,13 @@ echo "Wrote $legacy for 0.1.0 (\"Update to $legacy_name\")."
 tool="$btlabs_public/tool/btlabs_sign.py"
 keyring="$btlabs_public/keys/btlabs-keyring.json"
 sign=(python3 "$tool" sign --type update --key "$signing_key" --keyring "$keyring" --payload "$payload" --out "$manifest")
+sign2=(python3 "$tool" sign --type update --key "$signing_key" --keyring "$keyring" --payload "$payload2" --out "$manifest2")
 if [[ ! -f "$tool" || ! -f "$keyring" || ! -f "$signing_key" ]]; then
   echo "Not signed: needs $tool, $keyring and the signing key $signing_key." >&2
   echo "On the signing machine run:" >&2
   printf '  %q' "${sign[@]}" >&2
+  echo >&2
+  printf '  %q' "${sign2[@]}" >&2
   echo >&2
   exit 1
 fi
@@ -187,7 +204,17 @@ case "$status" in
 esac
 "${sign[@]}"
 python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
+published2="$out/update-v2.published.json"
+rm -f "$published2"
+status="$(curl -sS --max-time 20 -o "$published2" -w '%{http_code}' "$manifest2_url" || true)"
+case "$status" in
+  200) sign2+=(--prev "$published2") ;;
+  404) rm -f "$published2"; echo "No update-v2.json published yet: signing it without --prev." ;;
+  *) echo "Cannot read the published update-v2.json (HTTP ${status:-none}); not signing it." >&2; exit 1 ;;
+esac
+"${sign2[@]}"
+python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest2"
 echo "1. Publish the files it names: $(jq -r '[.apks[].url, .notor.apks[]?.url] | join(" ")' "$payload")"
-echo "2. Then publish $manifest: tools/publish-update-json.sh $manifest"
+echo "2. Then publish both: tools/publish-update-json.sh $manifest $manifest2"
 echo "3. For 0.1.0 phones, publish $legacy as update.json on the latest GitHub release of"
 echo "   blacktyger/wallet-for-epic (https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json)."
