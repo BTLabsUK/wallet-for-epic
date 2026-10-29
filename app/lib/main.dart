@@ -27,6 +27,7 @@ import 'src/tor_phone.dart';
 import 'src/ui/theme/fonts.dart';
 import 'src/wallet_backend.dart';
 import 'src/web/splash.dart';
+import 'src/settings_file/host_settings.dart' show appConfig;
 
 Future<void> main() async {
   // Errors that escape every other handler land here, in the zone the app runs in.
@@ -71,7 +72,7 @@ Future<void> main() async {
     }
     // The update check, price and status asked before tor connects wait for it, then go
     // through it.
-    if (torBuilt) TorNet.hold = const Duration(minutes: 3);
+    if (torBuilt) TorNet.hold = appConfig.torSendWait;
     // Before anything asks the status site: off (`status.enabled`), nothing is asked.
     statusSite.followSettings();
     registerFontLicences();
@@ -102,7 +103,7 @@ Future<void> main() async {
 Future<void> _openSettings(SecretStore store) async {
   final demo = await demoSettingsText();
   if (demo != null) {
-    await openAppSettings(store: store, devChain: Chain.floonet.name, shippedText: demo);
+    await openAppSettings(store: store, devChain: Chain.floonet.name, shippedText: demo, configText: await demoConfigText());
     return;
   }
   final chain = await NetworkChoiceNotifier.savedChain(store);

@@ -21,7 +21,7 @@
       },
       "old": {
         "type": "String",
-        "example": "node.example.org:3413"
+        "example": "node.example.org:<port>"
       }
     }
   },

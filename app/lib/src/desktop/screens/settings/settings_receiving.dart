@@ -10,7 +10,7 @@ import '../../data/net_mode_view.dart' show netTorState;
 import '../../desk_l10n.dart';
 import '../../../net/probe_not_run.dart';
 import '../../../network.dart' show EpicboxRelay;
-import '../../../settings_file/host_settings.dart' show shippedHostSettings;
+import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
 import '../../../send_preflight.dart' show relayProbeProvider;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -279,7 +279,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final full = MethodIcons.fullName(l, m);
     final hint = switch (m) {
       MethodKind.epicbox => l.deskSetTxEpicboxHint,
-      MethodKind.linkHttp => DeskFeatures.tor ? l.deskSetTxDirectHint : l.deskNoTorSetTxDirectHint,
+      MethodKind.linkHttp => DeskFeatures.tor ? l.deskSetTxDirectHint('${appConfig.httpListenPort}') : l.deskNoTorSetTxDirectHint('${appConfig.httpListenPort}'),
       MethodKind.linkTor => l.deskSetTxTorHint,
       MethodKind.directQr => '',
       MethodKind.directFile => l.deskSetTxFileHint,

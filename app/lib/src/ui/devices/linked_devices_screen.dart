@@ -113,14 +113,8 @@ class LinkedDevicesScreen extends ConsumerWidget {
       key: devicesServersKey,
       leading: const Icon(Icons.dns_outlined),
       title: Text(l.devicesServers),
+      // Read-only: the first servers of the Epicbox list (Settings › Epicbox) are the link's.
       subtitle: Text(waiting.isEmpty ? servers.join(', ') : l.devicesServersWaiting(waiting.join(', '))),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {
-        var chosen = servers;
-        pickLinkServers(context, ref, chosen: servers, onChanged: (next) => chosen = next).then((_) {
-          if (chosen.join(',') != servers.join(',')) ref.read(deviceServiceProvider)?.proposeServers(chosen);
-        });
-      },
     );
   }
 

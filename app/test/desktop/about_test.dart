@@ -96,7 +96,7 @@ void main() {
   testWidgets('About shows the contact address', (tester) async {
     await pump(tester, (_) async => (200, newer));
     expect(find.text('Contact'), findsOneWidget);
-    expect(find.text(hostSettings.supportEmail), findsOneWidget);
+    expect(find.text(hostSettings.supportEmail!), findsOneWidget);
   });
 
   test('versions compare by number', () {
@@ -226,11 +226,11 @@ void main() {
   }, skip: !inAppUpdates);
 
   test('the fallback download page is the public BT Labs page', () {
-    expect(deskReleasesUrl, 'https://examples.lab.invalid/epic-cash-wallets/');
-    expect(isDeskUpdatePage('https://examples.lab.invalid/epic-cash-wallets/#download'), isTrue);
-    expect(isDeskUpdatePage('https://examples.lab.invalid/other/'), isFalse);
-    expect(isDeskUpdatePage('https://examples.lab.invalid.evil.example/epic-cash-wallets/'), isFalse);
-    expect(isDeskUpdatePage(deskReleasesUrl), isTrue);
+    expect(deskReleasesUrl, 'https://releases.lab.invalid/releases/');
+    expect(isDeskUpdatePage('https://releases.lab.invalid/releases/#download'), isTrue);
+    expect(isDeskUpdatePage('https://releases.lab.invalid/other/'), isFalse);
+    expect(isDeskUpdatePage('https://releases.lab.invalid.evil.example/epic-cash-wallets/'), isFalse);
+    expect(isDeskUpdatePage(deskReleasesUrl!), isTrue);
   });
 
   test('download pages: https on the project account only', () {
@@ -258,7 +258,7 @@ void main() {
     expect(await tester.runAsync(() => copyLink('https://t.me/EpicCash')), isTrue);
     expect(copied, ['https://t.me/EpicCash']);
     refusals = 2;
-    expect(await tester.runAsync(() => copyLink(hostSettings.linkWebsite)), isFalse);
+    expect(await tester.runAsync(() => copyLink(hostSettings.linkWebsite!)), isFalse);
   });
 
   test('the desktop keeps the last manifest across restarts: an older one is refused', () async {

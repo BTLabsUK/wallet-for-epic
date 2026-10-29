@@ -34,7 +34,7 @@ import 'network_gate.dart';
 import 'net/http.dart';
 import 'net/socks.dart' show SocksError;
 import 'providers.dart' show secretStoreProvider;
-import 'settings_file/host_settings.dart' show hostSettings;
+import 'settings_file/host_settings.dart' show appConfig, hostSettings;
 import 'tor_build.dart';
 
 /// Where releases publish the signed `update.json`, in order (the settings file's
@@ -643,8 +643,9 @@ class UpdateNotifier extends Notifier<UpdateState> {
     return const UpdateState(UpdatePhase.idle);
   }
 
-  /// Never in a store build ([inAppUpdates]): its store updates it.
-  bool get supported => inAppUpdates && ref.read(updatePlatformProvider) != null;
+  /// Never in a store build ([inAppUpdates]): its store updates it; nor without a manifest in
+  /// app-config.toml (`updates.manifests` empty: no update check at all).
+  bool get supported => inAppUpdates && ref.read(updatePlatformProvider) != null && hostSettings.updateManifests.isNotEmpty;
 
   void _onInstallEvent(({String status, String? message}) event) {
     switch (event.status) {
@@ -739,7 +740,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
         try {
           response = await httpGet(
             url,
-            timeout: const Duration(seconds: 30),
+            timeout: appConfig.updatesTimeout,
             maxBytes: btlabsMaxEnvelopeBytes,
           );
         } on NetTooLarge {

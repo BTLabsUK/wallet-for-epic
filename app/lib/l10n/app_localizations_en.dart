@@ -4741,8 +4741,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverOtherNode => 'Other node, host or host:port';
 
   @override
-  String get serverOtherNodeInvalid =>
-      'Enter a node address such as node.example.com:3413';
+  String serverOtherNodeInvalid(String port) {
+    return 'Enter a node address such as node.example.com:$port';
+  }
 
   @override
   String get serverAdd => 'Add';
@@ -5742,7 +5743,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodLinkPayment => 'Link Payment';
 
   @override
-  String get methodDirectShape => 'http://host:3415 or xxxx….onion';
+  String methodDirectShape(String port) {
+    return 'http://host:$port or xxxx….onion';
+  }
 
   @override
   String get methodSendDirectLine =>
@@ -6485,7 +6488,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskNodeStartIt => 'Start it under Settings › Node.';
 
   @override
-  String get deskNodeFailPort => 'port 3413 is used by another program';
+  String deskNodeFailPort(String port) {
+    return 'port $port is used by another program';
+  }
 
   @override
   String get deskNodeFailDisk => 'not enough disk space';
@@ -9438,8 +9443,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Wrong password. Check Caps Lock and the keyboard layout.';
 
   @override
-  String get deskOnbUnlockPortInUse =>
-      'Port 3415 is in use by another program. Close it, then try again.';
+  String deskOnbUnlockPortInUse(String port) {
+    return 'Port $port is in use by another program. Close it, then try again.';
+  }
 
   @override
   String get deskOnbUnlockStageCheck => 'Checking wallet files';
@@ -11472,7 +11478,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLnodeNoProgressText => 'Restart, or check the node log.';
 
   @override
-  String get deskSetLnodePortInUse => 'Port 3413 is used by another program.';
+  String deskSetLnodePortInUse(String port) {
+    return 'Port $port is used by another program.';
+  }
 
   @override
   String get deskSetLnodePortInUseText =>
@@ -11811,8 +11819,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetPeersUnbannedToast => 'Peer unbanned';
 
   @override
-  String get deskSetPeersNotAddress =>
-      'Not an IP address and port, such as 203.0.113.5:3414.';
+  String deskSetPeersNotAddress(String port) {
+    return 'Not an IP address and port, such as 203.0.113.5:$port.';
+  }
 
   @override
   String get deskSetPeersAlreadyPreferred => 'Already preferred.';
@@ -12007,8 +12016,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Open log folder';
 
   @override
-  String get deskSetNodePortNote =>
-      'Check the address and the port (usually 3413).';
+  String deskSetNodePortNote(String port) {
+    return 'Check the address and the port (usually $port).';
+  }
 
   @override
   String deskSetNodeListNote(String site) {
@@ -13892,8 +13902,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txMethodsHeader => 'Payment methods';
 
   @override
-  String get txLinkHttpHint =>
-      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+  String txLinkHttpHint(String port) {
+    return 'Link · HTTP pays straight to a wallet at a web address (http://host:$port) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+  }
 
   @override
   String get txLinkTorHint =>
@@ -14094,8 +14105,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.';
 
   @override
-  String get deskSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.';
+  String deskSetTxDirectHint(String port) {
+    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.';
+  }
 
   @override
   String get deskSetTxFileHint =>
@@ -17324,8 +17336,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Offline pauses Epicbox and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
 
   @override
-  String get txLinkHttpHintNoTor =>
-      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
+  String txLinkHttpHintNoTor(String port) {
+    return 'Link · HTTP pays straight to a wallet at a web address (http://host:$port) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
+  }
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -17344,8 +17357,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'An http(s) address. Their wallet must be open.';
 
   @override
-  String get deskNoTorSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.';
+  String deskNoTorSetTxDirectHint(String port) {
+    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.';
+  }
 
   @override
   String get deskNoTorAdvNetworkHint =>
@@ -18369,4 +18383,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return '$file could not be read. The built-in settings are in use.';
   }
+
+  @override
+  String get deskKitReachTorOff => 'The check needs Tor off.';
 }

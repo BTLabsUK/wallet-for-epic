@@ -21,6 +21,7 @@ import 'secret_store_api.dart';
 import 'tor_build.dart';
 import 'tor_location.dart';
 import 'wallet_service.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 
 enum PhoneTorPhase {
   /// This build or platform has no tor (iOS, or a build without it).
@@ -220,20 +221,17 @@ bool networkEvent(Object? event) {
   return available;
 }
 
-/// How long [PhoneTor] waits. Tests shorten them.
+/// How long [PhoneTor] waits. Tests shorten them. [backoff] and [sendWait] are `tor.start_backoff_s`
+/// and `tor.send_wait_s` of `app-config.toml` unless given.
 class PhoneTorTiming {
-  const PhoneTorTiming({
-    this.backoff = const [
-      Duration(seconds: 2),
-      Duration(seconds: 10),
-      Duration(seconds: 30),
-      Duration(seconds: 60),
-    ],
-    this.sendWait = const Duration(minutes: 3),
+  PhoneTorTiming({
+    List<Duration>? backoff,
+    Duration? sendWait,
     this.networkSettle = const Duration(milliseconds: 1500),
     this.awayRenew = const Duration(seconds: 30),
     this.startStall = const Duration(minutes: 5),
-  });
+  }) : backoff = backoff ?? appConfig.torStartBackoff,
+       sendWait = sendWait ?? appConfig.torSendWait;
 
   /// Before each restart in a row; the last one repeats. A start that stalls is LEPIC's to
   /// end (its own deadlines, longer on a first start); it ends as failed and comes back here.
@@ -258,7 +256,7 @@ class PhoneTorTiming {
 }
 
 final phoneTorTimingProvider = Provider<PhoneTorTiming>(
-  (ref) => const PhoneTorTiming(),
+  (ref) => PhoneTorTiming(),
 );
 
 /// What other parts of the app do around the Tor switch, which this file must not know about.

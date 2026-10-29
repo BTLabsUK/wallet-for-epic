@@ -529,9 +529,9 @@ class WalletDesktopEntry {
   final WalletDesktopFile? file;
 }
 
-/// Where a desktop release file may be: the download folder of the settings file
-/// (`updates.downloads`), a plain file name after it.
-String get walletDesktopDownloads => hostSettings.updateDownloads;
+/// Where a desktop release file may be: the download folder of `app-config.toml`
+/// (`updates.downloads`), a plain file name after it; null: no in-app download.
+String? get walletDesktopDownloads => hostSettings.updateDownloads;
 
 /// A desktop release file the app may download and install by itself: the Windows setup or
 /// the Linux AppImage. Clients before 26.10.9 ignore it.
@@ -1193,7 +1193,7 @@ bool _pageOk(String page) => hostSettings.updatePages.any(page.startsWith);
 final _fileNameRe = RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]*$');
 bool _desktopFileOk(String url) {
   final base = walletDesktopDownloads;
-  return url.startsWith(base) && _fileNameRe.hasMatch(url.substring(base.length));
+  return base != null && url.startsWith(base) && _fileNameRe.hasMatch(url.substring(base.length));
 }
 const _abis = ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'universal'];
 const _systems = ['windows', 'linux', 'macos'];

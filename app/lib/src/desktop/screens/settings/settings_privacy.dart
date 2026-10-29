@@ -11,7 +11,7 @@ import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show openAdvanced;
-import '../../../settings_file/status_site.dart' show statusSiteHost;
+import '../../../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
 enum PrivacyDemo { torOn, torStarting, torFailed }
@@ -193,6 +193,8 @@ class PrivacyGroup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // No status site in app-config.toml: no group.
+    if (!statusSiteConfigured) return const SizedBox.shrink();
     final s = ref.watch(deskProvider.select((s) => s.settings));
     final l = context.l10n;
     return ESetGroup(

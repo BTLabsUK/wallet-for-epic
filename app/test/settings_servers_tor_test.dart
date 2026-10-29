@@ -25,6 +25,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
 
 class _Tor extends PhoneTor {
   _Tor(this.value);
@@ -119,8 +120,8 @@ void main() {
     });
     const off = PhoneTorState(phase: PhoneTorPhase.off);
 
-    // The servers in use are the settings' (`node.use`, `epicbox.use`).
-    setUp(() => hostSettings = hostSettings.withValues({'node.use': 'https://node.net.invalid:3413', 'epicbox.use': 'box.stack.invalid'}));
+    // The servers in use are the first of each list in the settings.
+    setUp(() => hostSettings = hostSettings.withValues(useServerValues(hostSettings, node: 'https://node.net.invalid:3413', relay: 'box.stack.invalid')));
 
     Future<void> openPage(WidgetTester tester) async {
       await _pump(tester, const SettingsScreen(section: SettingsSection.privacyNetwork), off, store: store);

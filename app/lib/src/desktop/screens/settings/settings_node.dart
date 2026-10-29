@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../../network.dart' show mainnetPreset;
-import '../../../settings_file/host_settings.dart' show shippedHostSettings;
+import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -35,7 +35,7 @@ import '../../../settings_file/status_site.dart' show statusSiteHost;
 enum NodeDemo { comboOpen, typed, badAddress, removed, picked, pickFailed, builtin, peers, behind, old, limited, down, own, ownAccess, ownPeers, ownDialog, ownSyncing, ownDown }
 
 /// The tour's own node.
-const String ownDemoUrl = 'http://10.0.1.24:3413'; // l10n-ok: a node address
+String get ownDemoUrl => 'http://10.0.1.24:${appConfig.localNodeApiPort}'; // l10n-ok: a node address
 
 bool _ownDemo(Object? arg) => arg is NodeDemo && arg.name.startsWith('own');
 
@@ -199,7 +199,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     super.didChangeDependencies();
     if (widget.arg == NodeDemo.pickFailed && _error == null && !_pickFailedShown) {
       _pickFailedShown = true;
-      _error = context.l10n.deskSetNodePortNote;
+      _error = context.l10n.deskSetNodePortNote('${appConfig.localNodeApiPort}');
     }
   }
 
@@ -275,7 +275,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
   /// The tour's panel states.
   ServerPanelDemo? get _panelDemo => switch (widget.arg) {
-    NodeDemo.typed => const ServerPanelDemo(query: 'node.example.org:3413'), // l10n-ok: a node address
+    NodeDemo.typed => ServerPanelDemo(query: 'node.example.org:${appConfig.localNodeApiPort}'), // l10n-ok: a node address
     NodeDemo.badAddress => const ServerPanelDemo(query: 'my home node', submit: true), // l10n-ok: what a user might type
     // The shipped list's last and second nodes.
     NodeDemo.removed => ServerPanelDemo(remove: shippedHostSettings.nodeServers.last.url),
@@ -352,7 +352,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     if (r.health == ServiceHealth.down) {
       setState(() {
         _saving = false;
-        _error = l.deskSetNodePortNote;
+        _error = l.deskSetNodePortNote('${appConfig.localNodeApiPort}');
       });
       return;
     }

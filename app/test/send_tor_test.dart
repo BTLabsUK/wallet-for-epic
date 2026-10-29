@@ -122,7 +122,7 @@ class _Harness {
           // pumpAndSettle moves the fake clock by minutes while a spinner turns: the
           // controller's stall and restart timers must not fire on their own here.
           phoneTorTimingProvider.overrideWithValue(
-            const PhoneTorTiming(
+            PhoneTorTiming(
               backoff: [Duration(hours: 1)],
               sendWait: Duration(hours: 1),
             ),

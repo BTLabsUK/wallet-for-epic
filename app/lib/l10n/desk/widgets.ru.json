@@ -124,5 +124,6 @@
   "deskKitQrShow": "Показать QR",
   "deskKitQrHide": "Скрыть QR",
   "deskKitQrHideCode": "Скрыть QR",
-  "deskKitMethodConnected": "Подключено"
+  "deskKitMethodConnected": "Подключено",
+  "deskKitReachTorOff": "Проверка работает только с выключенным Tor."
 }

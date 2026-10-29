@@ -593,7 +593,7 @@ const resendTransports = {'epicbox', 'http', 'tor'};
 
 /// The wait before the one more try of a Tor send whose onion was not reached: a published
 /// onion is often reached at the second try, once its circuits are built.
-const Duration onionRetryWait = Duration(seconds: 30);
+Duration get onionRetryWait => appConfig.onionRetry;
 
 /// Sends over Tor with [send]. When the onion was not reached and the send stayed stored (the
 /// one waiting sent payment not in the list before), waits [wait] and delivers it again once
@@ -603,8 +603,9 @@ Future<HttpSent> sendTorRetryingOnce({
   required Future<HttpSent> Function() send,
   required Future<HttpSent> Function(int txId) resend,
   required Future<List<TxEntry>> Function() transactions,
-  Duration wait = onionRetryWait,
+  Duration? wait,
 }) async {
+  wait ??= onionRetryWait;
   final before = {for (final t in await transactions()) t.key};
   try {
     return await send();
@@ -838,7 +839,55 @@ class LepicWalletService implements WalletService {
           for (final r in settingsOnionRoutes())
             lepic.OnionRoute(host: r.host, port: r.port, onion: r.onion, onionPort: r.onionPort),
         ],
+        tuning: netTuningOf(appConfig),
       );
+
+  /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
+  /// of `app-config.toml`, under the same names (LEPIC's ADR 0030).
+  static lepic.NetTuning netTuningOf(AppConfig c) => lepic.NetTuning(
+    node: lepic.NodeTuning(
+      connectTimeoutS: c.number('node.connect_timeout_s'),
+      requestTimeoutS: c.number('node.request_timeout_s'),
+      idleTimeoutS: c.number('node.idle_timeout_s'),
+      retryAttempts: c.number('node.retry_attempts'),
+      retryBackoffMinMs: c.number('node.retry_backoff_min_ms'),
+      retryBackoffMaxMs: c.number('node.retry_backoff_max_ms'),
+      outputsPerRequest: c.number('node.outputs_per_request'),
+      concurrentRequests: c.number('node.concurrent_requests'),
+    ),
+    epicbox: lepic.EpicboxTuning(
+      connectTimeoutS: c.number('epicbox.connect_timeout_s'),
+      responseTimeoutS: c.number('epicbox.response_timeout_s'),
+      pingIntervalS: c.number('epicbox.ping_interval_s'),
+      reconnectMinS: c.number('epicbox.reconnect_min_s'),
+      reconnectMaxS: c.number('epicbox.reconnect_max_s'),
+      drainTimeoutS: c.number('epicbox.drain_timeout_s'),
+      torConnectTimeoutS: c.number('epicbox.tor_connect_timeout_s'),
+      onionDiscoveryTimeoutS: c.number('epicbox.onion_discovery_timeout_s'),
+      onionDiscoveryRetryS: c.number('epicbox.onion_discovery_retry_s'),
+    ),
+    http: lepic.HttpTuning(
+      headerTimeoutS: c.number('http.header_timeout_s'),
+      bodyTimeoutS: c.number('http.body_timeout_s'),
+      requestTimeoutS: c.number('http.request_timeout_s'),
+      answerTimeoutS: c.number('http.answer_timeout_s'),
+      maxConnections: c.number('http.max_connections'),
+      maxConnectionsPerAddress: c.number('http.max_connections_per_address'),
+      requestsPerMinute: c.number('http.requests_per_minute'),
+      receivesPerMinute: c.number('http.receives_per_minute'),
+      sendConnectTimeoutS: c.number('http.send_connect_timeout_s'),
+      sendRequestTimeoutS: c.number('http.send_request_timeout_s'),
+    ),
+    tor: lepic.TorTuning(
+      bootstrapTimeoutS: c.number('tor.bootstrap_timeout_s'),
+      coldBootstrapTimeoutS: c.number('tor.cold_bootstrap_timeout_s'),
+      stallTimeoutS: c.number('tor.stall_timeout_s'),
+      coldStallTimeoutS: c.number('tor.cold_stall_timeout_s'),
+      publishTimeoutS: c.number('tor.publish_timeout_s'),
+      connectTimeoutS: c.number('tor.connect_timeout_s'),
+      requestTimeoutS: c.number('tor.request_timeout_s'),
+    ),
+  );
 
   /// The settings file's onion routes LEPIC takes: TLS ones only (the connection still checks
   /// the host's certificate). None before the settings are open (a bare core check).

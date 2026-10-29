@@ -50,7 +50,7 @@ class _FakeRelays implements RelayDirectory {
   Future<List<RelayStatus>> relays(String chain) async => chain == 'mainnet'
       ? const [
           RelayStatus(
-            relay: EpicboxRelay(host: 'epicbox.epicnet.us'),
+            relay: EpicboxRelay(host: 'box.net.invalid'),
             healthy: true,
             verified: true,
             operator: 'epicnet.us',
@@ -463,7 +463,7 @@ void main() {
     });
   });
 
-  testWidgets('network settings pick a mainnet relay from the monitor', (
+  testWidgets('network settings pick another relay of the list (the monitor gives its health)', (
     tester,
   ) async {
     final service = FakeWalletService();
@@ -472,11 +472,11 @@ void main() {
     await _tap(tester, find.bySemanticsLabel('Node and Epicbox'));
     await _tap(tester, find.byKey(networkMenuEpicboxKey));
 
-    final row = find.byKey(serverListRowKey('epicbox.epicnet.us'));
+    final row = find.byKey(serverListRowKey('box.net.invalid'));
     await _reveal(tester, row);
     expect(row, findsOneWidget);
     expect(
-      find.textContaining('epicnet.us', findRichText: true),
+      find.textContaining('net.invalid', findRichText: true),
       findsWidgets,
     );
     // The sheet warns; the confirm says the address will change.
@@ -500,7 +500,7 @@ void main() {
 
     await _tap(tester, row);
     await _tap(tester, find.byKey(serverListSwitchKey));
-    expect(ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first)).read(hostSettingsProvider).epicboxUse, 'epicbox.epicnet.us');
+    expect(ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first)).read(hostSettingsProvider).epicboxUse, 'box.net.invalid');
     await _tapText(tester, 'Create a new wallet');
     await _enter(tester, 'PIN', _pin);
     await _enter(tester, 'Repeat PIN', _pin);
@@ -510,7 +510,7 @@ void main() {
       tester.element(find.byKey(balanceFigureKey)),
     );
     final config = container.read(walletConfigProvider)!;
-    expect(config.epicboxDomain, 'epicbox.epicnet.us');
+    expect(config.epicboxDomain, 'box.net.invalid');
     expect(config.epicboxPort, 443);
   });
 

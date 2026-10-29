@@ -21,10 +21,10 @@ const String demoEndedPushName = 'demoEnded';
 /// The floonet faucet's claim endpoint, from the `faucet` key of the `[demo]` table of the
 /// demo's settings file (`demo/settings.toml`). Its answers must carry
 /// `Access-Control-Allow-Origin: *`. Null when [settingsText] names none.
-Uri? demoFaucetFrom(String? settingsText) {
-  if (settingsText == null) return null;
+Uri? demoFaucetFrom(String? configText) {
+  if (configText == null) return null;
   try {
-    final demo = parseSettingsToml(settingsText)['demo'];
+    final demo = parseSettingsToml(configText, file: 'app-config.toml')['demo'];
     final faucet = demo is Map ? demo['faucet'] : null;
     return faucet is String ? Uri.tryParse(faucet) : null;
   } on SettingsSyntaxError {

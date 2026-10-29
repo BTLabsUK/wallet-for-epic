@@ -198,15 +198,15 @@ class LepicDeskWallet implements DeskWalletApi {
     this._preset = mainnetPreset,
     this._settings = const DeskSettings(),
     BigInt? minimumConfirmations,
-    this.nodePoll = const Duration(seconds: 30),
-    this.nodeRecheck = const Duration(seconds: 60),
-    this.nodeStale = const Duration(minutes: 3),
-    this.watchPoll = watchTipEvery,
-    this.nodeTimeout = const Duration(seconds: 15),
-    this.nodeTorTimeout = const Duration(seconds: 90),
+    Duration? nodePoll,
+    Duration? nodeRecheck,
+    Duration? nodeStale,
+    Duration? watchPoll,
+    Duration? nodeTimeout,
+    Duration? nodeTorTimeout,
     this.torNodeGrace = const Duration(minutes: 2),
     this.torRetryAfter = const Duration(seconds: 60),
-    this.torStartBackoff = const [Duration(seconds: 2), Duration(seconds: 5), Duration(seconds: 10)],
+    List<Duration>? torStartBackoff,
     this.closeWait = const Duration(seconds: 30),
     reg.WalletRegistry? registry,
     this._builtInNode,
@@ -225,7 +225,14 @@ class LepicDeskWallet implements DeskWalletApi {
     this.paymentsEvery = const Duration(seconds: 60),
     this.invoiceFocus = true,
     HttpReachCache? httpReach,
-  }) : _reach = httpReach ?? HttpReachCache(),
+  }) : nodePoll = nodePoll ?? appConfig.nodePoll,
+       nodeRecheck = nodeRecheck ?? appConfig.nodeRecheck,
+       nodeStale = nodeStale ?? appConfig.nodeStaleAfter,
+       watchPoll = watchPoll ?? watchTipEvery,
+       nodeTimeout = nodeTimeout ?? appConfig.nodeCheckTimeout,
+       nodeTorTimeout = nodeTorTimeout ?? appConfig.nodeTorCheckTimeout,
+       torStartBackoff = torStartBackoff ?? appConfig.torStartBackoff,
+       _reach = httpReach ?? HttpReachCache(),
        _keyring = keyring ?? btlabsKeyring,
         onions = onions ?? OnionDirectory(),
         _torFeature = torFeature ?? DeskFeatures.tor,
@@ -1249,10 +1256,10 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// [keep] false: the move is for this session only (node failover); nothing is saved.
   Future<void> _reopenOn({required String nodeUrl, required EpicboxRelay relay, bool keep = true}) async {
-    // Every wallet's: the settings file's `node.use` and `epicbox.use`.
+    // Every wallet's: the first of each list in the settings file.
     Future<void> save() async {
       if (!keep) return;
-      await writeHostSettings({'node.use': nodeUrl, 'epicbox.use': relay.label});
+      await writeHostSettings(useServerValues(hostSettings, node: nodeUrl, relay: relay.label));
     }
 
     final password = _password;
@@ -1798,13 +1805,16 @@ class LepicDeskWallet implements DeskWalletApi {
     final old = _oldRelays[id];
     final entry = (await registry()).byId(id);
     if (old == null || entry == null) return;
-    // The server is every wallet's (`epicbox.use`): keeping the old one moves them all to it.
+    // The server is every wallet's (the first of the Epicbox list): keeping the old one moves
+    // them all to it.
     final back = _appRelays[id];
     final use = keep ? old : back;
-    if (use != null && use != _useRelay().label) await writeHostSettings({'epicbox.use': use});
+    // In use means first of the list: a server not listed joins it, and goes again with Cancel.
+    final wasListed = serverListOf(hostSettings, ServerKind.relay).has(ServerKind.relay, old);
+    if (use != null && use != _useRelay().label) await writeHostSettings(useServerValues(hostSettings, relay: use));
     logInfo('desk', keep ? 'import: keeps the older Epicbox server' : "import: uses the app's Epicbox server");
     if (keep) {
-      if (await _listRelay(old)) _relaysListed.add(old);
+      if (await _listRelay(old) || !wasListed) _relaysListed.add(old);
     } else if (_relaysListed.remove(old)) {
       await _unlistRelay(old);
     }
@@ -1815,14 +1825,14 @@ class LepicDeskWallet implements DeskWalletApi {
     const kind = ServerKind.relay;
     final list = serverListOf(hostSettings, kind);
     if (list.has(kind, label)) return false;
-    await writeHostSettings(serverListValues(hostSettings, kind, list.add(kind, label)));
+    await writeHostSettings(serverListValues(kind, list.add(kind, label)));
     return true;
   }
 
   Future<void> _unlistRelay(String label) async {
     const kind = ServerKind.relay;
     final list = serverListOf(hostSettings, kind);
-    await writeHostSettings(serverListValues(hostSettings, kind, list.remove(kind, label).list));
+    await writeHostSettings(serverListValues(kind, list.remove(kind, label).list));
   }
 
   /// The old wallet's history, or null when the core failed; a failure never fails the import.
@@ -2509,8 +2519,9 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<HttpReach?> httpReach({bool recheck = false}) async {
     final port = _httpPort;
-    // Never over the clearnet while Tor is on; HTTP receiving is off then anyway.
-    if (_settings.tor || _httpExposure != core.HttpExposure.internet || port == null) return null;
+    if (_httpExposure != core.HttpExposure.internet || port == null) return null;
+    // Never asked while Tor is on (a Tor exit would answer for itself): the check needs Tor off.
+    if (_settings.tor) return HttpReach(port: port, needsTorOff: true, checkedAt: DateTime.now());
     if (_httpHealth != ServiceHealth.ok) return null;
     // Offline asks nothing on the internet: the LAN address only.
     if (NetGate.offline) return _reach.readLan(port);
@@ -3304,7 +3315,10 @@ class LepicDeskWallet implements DeskWalletApi {
       if (fresh(j['at'], const Duration(days: 7)) || fresh(j['tried'], const Duration(days: 1))) return;
       // One refresher per app run (_seedFetchStarted), so this read-modify-write cannot race.
       await _store.writeJson(_btlabsCacheKey, {...j, 'tried': DateTime.now().millisecondsSinceEpoch});
-      final body = await _seedFetch!(Uri.parse(btlabsPublicUrl));
+      // No signed file in app-config.toml: nothing to read.
+      final signed = btlabsPublicUrl;
+      if (signed == null) return;
+      final body = await _seedFetch!(Uri.parse(signed));
       if (body == null) return;
       final stored = ManifestState.fromJson(j['state']);
       final r = await verifyBtlabsPublic(body, keyring: _keyring, state: stored, now: DateTime.now().toUtc(), alsoRevoked: await _updateRevoked());
@@ -3344,7 +3358,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _settings = settings.copyWith(tor: old.tor);
     final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
     if (_session != null && (moved || settings.httpAutostart != old.httpAutostart)) {
-      await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPort, autostart: settings.httpAutostart));
+      await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPortChosen, autostart: settings.httpAutostart));
     }
     if (_session != null && (settings.epicboxAutostart != old.epicboxAutostart || settings.torAutostart != old.torAutostart)) {
       await _store.saveAutostart(_openEntry?.walletId, AutostartPrefs(epicbox: settings.epicboxAutostart, tor: settings.torAutostart));
@@ -3710,7 +3724,7 @@ class LepicDeskWallet implements DeskWalletApi {
     const kind = ServerKind.node;
     final list = serverListOf(hostSettings, kind);
     if (!list.has(kind, node.url)) {
-      await writeHostSettings(serverListValues(hostSettings, kind, list.add(kind, node.url, own: true)));
+      await writeHostSettings(serverListValues(kind, list.add(kind, node.url, own: true)));
     }
     _checked[node.url] = node;
     _checkedAt[node.url] = DateTime.now();
@@ -4522,7 +4536,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (list == null) continue;
       final now = serverListOf(hostSettings, kind);
       final next = mergeServerLists(kind, now, list);
-      if (next != now) await writeHostSettings(serverListValues(hostSettings, kind, next));
+      if (next != now) await writeHostSettings(serverListValues(kind, next));
     }
     final entry = _openEntry;
     // A wallet's own Epicbox server (older backups) is not taken: every wallet uses `epicbox.use`.

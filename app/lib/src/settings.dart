@@ -563,7 +563,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   Future<void> setUseStatusSite(bool on) async {
     statusSite.on = on;
     final next = (await _current()).copyWith(useStatusSite: on);
-    await ref.read(hostSettingsProvider.notifier).set('status.enabled', on);
+    await ref.read(hostSettingsProvider.notifier).set('online.status_site', on);
     state = AsyncData(next);
   }
 

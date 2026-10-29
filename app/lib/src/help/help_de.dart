@@ -5,7 +5,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
-import '../settings_file/host_settings.dart' show hostSettings;
+import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 const List<HelpSection> helpSectionsDe = [
   (id: 'start', title: 'Erste Schritte', lede: 'Empfangen, senden und per Datei bezahlen.', art: 'help-start'),
@@ -115,9 +115,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           HelpBlock.ul([
             '**Epicbox**: etwa 52 Zeichen, beginnend mit **es**, dann **@** und der Server, zum Beispiel **esXXXX…XXXX@${hostSettings.epicboxUse}**. Die Standardmethode; der Empfänger darf offline sein.',
             if (tor)
-              '**Link · HTTP** und **Link · Tor**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:3415** läuft über Link · HTTP; eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet, über Link · Tor, also über Tor.'
+              '**Link · HTTP** und **Link · Tor**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:${appConfig.httpListenPort}** läuft über Link · HTTP; eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet, über Link · Tor, also über Tor.'
             else
-              '**Link · HTTP**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:3415** läuft über Link · HTTP.',
+              '**Link · HTTP**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:${appConfig.httpListenPort}** läuft über Link · HTTP.',
           ]),
           HelpBlock.p('Senden wählt die Methode anhand der Adresse, die im Feld „An“ eingefügt wird. Wer eine Adresse vorliest, vergleicht die ersten sechs und die letzten sechs Zeichen.'),
         ],
@@ -327,7 +327,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             '**Nur Tor**: Tor ist immer an, und sein Schalter ist gesperrt. Nichts läuft über das offene Internet. Solange Tor startet oder fehlgeschlagen ist, sagt die Wallet **Wartet auf Tor**, und alles, was das Netzwerk braucht, wartet; den Grund nennt die ausgegraute Aktion.${phone ? '' : ' Der HTTP-Empfang ist aus, weil eine einfache Adresse diesen Computer verraten würde.'}',
           '**Offline**: kein Epicbox, kein Link außer an lokale Adressen, ${!phone && tor ? 'kein Tor, ' : ''}keine Statusprüfungen. Guthaben und Verlauf bleiben, wie zuletzt gesehen. ${phone ? '**Direkt · QR-Zahlung** und **Direkt · Dateiübertragung**' : '**Direkt · Dateiübertragung**'} funktionieren weiterhin: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen, und der Bildschirm sagt es. Für die meiste Privatsphäre nutzen Sie einen Node ${phone ? 'im lokalen Netzwerk' : 'auf diesem Computer oder im lokalen Netzwerk'}: Dann aktualisiert sich das Guthaben${phone ? '' : ', Link · HTTP empfängt über das lokale Netzwerk, wenn der HTTP-Empfang auf **Aus dem Internet** steht,'} und Guthaben neu prüfen läuft ebenfalls.',
         ]),
-        const HelpBlock.p('Geben Sie den Node im Offline-Modus mit seiner IP-Adresse an, zum Beispiel **10.100.10.20:3413**. Namen werden nicht aufgelöst.'),
+        HelpBlock.p('Geben Sie den Node im Offline-Modus mit seiner IP-Adresse an, zum Beispiel **10.100.10.20:${appConfig.localNodeApiPort}**. Namen werden nicht aufgelöst.'),
         if (!phone) const HelpBlock.p('Die Peers des integrierten Nodes sind eine Einstellung des Nodes, nicht des Modus.'),
         HelpBlock.p('${phone ? 'Der Startbildschirm' : 'Die Seitenleiste'} zeigt, wenn die Wallet offline ist${tor ? ' oder auf Tor wartet' : ''}. Mit dem Modus **Standard** ist wieder alles da.'),
       ],
@@ -384,7 +384,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone && tor)
           const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter [[Einstellungen › Datenschutz & Netzwerk|Settings › Privacy & network]] auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
         if (!phone) ...[
-          HelpBlock.p('**„Port 3415 wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Link · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. ${tor ? 'Epicbox, Link · Tor und Direkt · Dateiübertragung funktionieren' : 'Epicbox und Direkt · Dateiübertragung funktionieren'} in der Zwischenzeit weiter.'),
+          HelpBlock.p('**„Port ${appConfig.httpListenPort} wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Link · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. ${tor ? 'Epicbox, Link · Tor und Direkt · Dateiübertragung funktionieren' : 'Epicbox und Direkt · Dateiübertragung funktionieren'} in der Zwischenzeit weiter.'),
           const HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
         ],
         if (phone)
@@ -449,24 +449,26 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'maintenance',
       'Die Einstellungsdatei',
-      'Eine Datei nennt jeden Server, mit dem die Wallet spricht. Ein Fehler darin kostet nie die letzten guten Einstellungen.',
+      'Eine Datei enthält Ihre Node- und Epicbox-Listen. Ein Fehler darin kostet nie die letzten guten Einstellungen.',
       [
         if (phone) ...[
           HelpBlock.p(
-            'Die App führt eine Datei mit jedem Server und jeder Seite, mit denen die Wallet spricht: Nodes, Epicbox-Server, die Statusseite und die Quellen für Updates und Preise. Sie wird in der App geändert, zum Beispiel unter $nodePlace und $epicboxPlace, nicht von Hand.',
+            'Die App führt eine Datei mit Ihren Node- und Epicbox-Listen und drei Schaltern: Statusseite, Update-Prüfung und Preise. Alles andere kommt mit der App. Die Datei wird in der App geändert, zum Beispiel unter $nodePlace und $epicboxPlace, nicht von Hand.',
           ),
           HelpBlock.ul([
-            '**Der verwendete Epicbox-Server bestimmt die Epicbox-Adresse jeder Wallet.** Ändern Sie ihn, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
+            '**Der erste Server jeder Liste ist der verwendete.** Wählen Sie einen Server, rückt er nach oben; eine neue Reihenfolge ändert den verwendeten. Antwortet der erste Node nicht, wird der nächste versucht.',
+            '**Der erste Epicbox-Server steht in der Epicbox-Adresse jeder Wallet.** Rückt ein anderer nach oben, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
             '**Eine Datei, die sich nicht lesen lässt:** Die letzten guten Einstellungen bleiben in Gebrauch. Bevor die App eine neue Datei schreibt, speichert sie die alte als **settings.toml.bad-<time>**.',
             'Eine gelöschte Datei wird neu geschrieben.',
           ]),
         ] else ...[
           HelpBlock.p(
-            'Die Datei **settings.toml** nennt jeden Server und jede Seite, mit denen die Wallet spricht: Nodes, Epicbox-Server, die Statusseite und die Quellen für Updates und Preise. Sie liegt im Datenordner: **~/.epic_cash_desktop/settings.toml** unter Linux und macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** unter Windows (**Ordner öffnen** neben [[Einstellungen › Diese Wallet › App-Dateien|Settings › This wallet › App files]]).',
+            'Die Datei **settings.toml** enthält Ihre Node- und Epicbox-Listen und drei Schalter: Statusseite, Update-Prüfung und Preise. Alles andere kommt mit der App. Sie liegt im Datenordner: **~/.epic_cash_desktop/settings.toml** unter Linux und macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** unter Windows (**Ordner öffnen** neben [[Einstellungen › Diese Wallet › App-Dateien|Settings › This wallet › App files]]).',
           ),
           HelpBlock.ul([
             'Eine Änderung in der App wird sofort in die Datei geschrieben. Eine Änderung, die Sie in der Datei speichern, gilt bei laufender App nach einem Moment.',
-            '**Der verwendete Epicbox-Server bestimmt die Epicbox-Adresse jeder Wallet.** Ändern Sie ihn, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
+            '**Der erste Server jeder Liste ist der verwendete.** Wählen Sie einen Server, rückt er nach oben; eine neue Reihenfolge ändert den verwendeten. Antwortet der erste Node nicht, wird der nächste versucht.',
+            '**Der erste Epicbox-Server steht in der Epicbox-Adresse jeder Wallet.** Rückt ein anderer nach oben, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
             '**Ein Fehler in der Datei:** Die letzten guten Einstellungen bleiben in Gebrauch, ein Hinweis nennt die Zeile, und eine fehlerhafte Datei wird nie überschrieben.',
             'Muss die App schreiben, während die Datei Fehler hat, speichert sie die Datei zuerst als **settings.toml.bad-<time>** und schreibt dann eine gute.',
             'Eine gelöschte Datei wird neu geschrieben.',

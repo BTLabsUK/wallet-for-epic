@@ -188,9 +188,15 @@
   "@deskSetLnodeNoProgressText": {
     "description": "Local node panel: notice text when the sync stalled."
   },
-  "deskSetLnodePortInUse": "Port 3413 is used by another program.",
+  "deskSetLnodePortInUse": "Port {port} is used by another program.",
   "@deskSetLnodePortInUse": {
-    "description": "Local node panel: notice title when the node cannot open its port."
+    "description": "Local node panel: notice title when the node cannot open its port.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskSetLnodePortInUseText": "Close the other program, or choose that node under Node server.",
   "@deskSetLnodePortInUseText": {
@@ -680,9 +686,15 @@
   "@deskSetPeersUnbannedToast": {
     "description": "Toast title after a peer was unbanned. The peer address follows as text."
   },
-  "deskSetPeersNotAddress": "Not an IP address and port, such as 203.0.113.5:3414.",
+  "deskSetPeersNotAddress": "Not an IP address and port, such as 203.0.113.5:{port}.",
   "@deskSetPeersNotAddress": {
-    "description": "Peers tab: error under the preferred peer field."
+    "description": "Peers tab: error under the preferred peer field.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskSetPeersAlreadyPreferred": "Already preferred.",
   "@deskSetPeersAlreadyPreferred": {

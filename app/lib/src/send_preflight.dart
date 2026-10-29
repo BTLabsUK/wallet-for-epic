@@ -21,14 +21,15 @@ import 'providers.dart';
 import 'relay_directory.dart';
 import 'server_list_store.dart' show ServerKind, serverListProvider;
 import 'wallet_service.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 
 /// How long the node may take to give its tip before the check fails.
-const Duration nodeCheckTimeout = Duration(seconds: 8);
+Duration get nodeCheckTimeout => appConfig.nodeCheckTimeout;
 
 /// The same while the Tor switch is on: the tip comes through a circuit, which can take far
 /// longer than a direct answer (LEPIC gives its node 90 s over Tor), and a slow circuit is not
 /// a node that does not answer.
-const Duration nodeTorCheckTimeout = Duration(seconds: 90);
+Duration get nodeTorCheckTimeout => appConfig.nodeTorCheckTimeout;
 
 /// How long the node check waits now.
 Duration nodeCheckTimeoutNow() =>

@@ -1,4 +1,53 @@
-# Exceptions to tools/check-no-hosts.sh, one per line: `<glob><TAB><regex>`. The glob matches
-# `<tree>/<path>` (tree: app, lepic, lepic-flutter); text the regex matches on a line of such a
-# file is ignored. Every exception has a comment above it saying why. There are none: every
-# address lives in a settings file (docs/settings-file.md).
+# Exceptions to tools/check-no-hosts.sh ("All configuration in settings.toml (no hardcoded
+# configuration)"), one per line: `<glob><TAB><regex>`. The glob matches `<tree>/<path>` (tree:
+# app, lepic, lepic-flutter); text the regex matches on a line of such a file is ignored. Every
+# exception has a comment above it saying why. Every address, port, timeout and limit lives in
+# the settings files (docs/settings-file.md); these are protocol, other programs' facts, our own
+# demo server, or example data in screenshots.
+
+# The Epic node's own API paths (its protocol, like https's port): every node answers them.
+app/lib/src/node/node_api.dart	'/v1/(version|status)'|'/v2/\$api'
+app/lib/src/contacts.dart	'/v2/foreign'
+
+# The web demo's own routes: its server and its page are both in this repository.
+app/lib/src/demo_server/server.dart	'/api/[a-z]*/?'
+app/lib/src/demo_web.dart	'/api/demo'
+app/lib/src/remote/web_channel.dart	'/api/ws'
+
+# The demo server's own default listen port; its settings are its own (--port, WFE_DEMO_PORT).
+app/lib/src/demo_server/config.dart	this\.port = 8771
+
+# The old Epic Cash GUI's own defaults (its local node on each network), read to import its
+# wallets: facts about another program, not ours to configure.
+app/lib/src/legacy/gui_rules.dart	(?<![0-9])(3413|13413|23413)(?![0-9])
+
+# Example data in screenshots, the tour and the mock wallets (contacts' Link · HTTP addresses,
+# a home node, peers and node log lines): shown, never connected to.
+app/lib/src/desktop/data/mock_wallet.dart	:(3413|3415)(?![0-9])
+app/lib/src/desktop/data/desk_node.dart	:3414(?![0-9])
+app/lib/src/desktop/screens/transfer/shots.dart	:3415(?![0-9])
+app/lib/src/desktop/screens/invoices/shots_core.dart	:3415(?![0-9])
+app/lib/src/desktop/screens/invoices/shots_req.dart	:3415(?![0-9])
+app/lib/src/web/preview.dart	:3413(?![0-9])
+
+# LEPIC: the Epic node's foreign API path, its protocol (ADR 0030 keeps it in code).
+lepic/crates/lepic-foreign/src/server.rs	"/v2/foreign"
+lepic/crates/lepic-node/src/rpc.rs	"/v2/foreign"
+lepic/crates/lepic-tor/src/transport.rs	"/v2/foreign"
+
+# LEPIC: 3415 is what a peer's http:// address without a port means, in every Epic wallet
+# (protocol, ADR 0030), and its documentation; the generated Dart copies the doc comments.
+lepic/crates/lepic-foreign/src/url.rs	(?<![0-9])3415(?![0-9])
+lepic/crates/lepic-ffi/src/api/http.rs	(?<![0-9])3415(?![0-9])
+lepic/crates/lepic-cli/src/cli.rs	missing port is 3415
+lepic-flutter/lib/src/rust/api/wallet.dart	(?<![0-9])3415(?![0-9])
+lepic-flutter/lib/src/rust/frb_generated.dart	(?<![0-9])3415(?![0-9])
+
+# LEPIC: documentation examples of a node API root (an example.invalid-style name, never dialled).
+lepic/crates/lepic-ffi/src/api/types.rs	node\.example:3413
+lepic/crates/lepic-node/src/http.rs	node\.example:3413
+lepic-flutter/lib/src/rust/api/types.dart	node\.example:3413
+
+# LEPIC CLI tests that check the values of the shipped, embedded config files.
+lepic/crates/lepic-cli/src/app_config.rs	"epicbox\.epiccash\.com"
+lepic/crates/lepic-cli/src/settings_file.rs	"epicbox\.epiccash\.com"

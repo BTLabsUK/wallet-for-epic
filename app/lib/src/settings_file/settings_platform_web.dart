@@ -14,3 +14,9 @@ bool get settingsWatchSupported => false;
 /// Where [backend]'s text is, for a message.
 String settingsWhere(SettingsBackend backend) =>
     backend is StoreSettingsBackend ? 'the app store key ${backend.key}' : backend.fileName;
+
+/// No dev chain folder in a browser: the web demo is given its files by its server.
+Future<String?> readDevChainFile(String devChain, String name) async => null;
+
+/// Where a dev chain's files are, for a message.
+Future<String> devChainWhere(String devChain) async => 'its server (demo/)';

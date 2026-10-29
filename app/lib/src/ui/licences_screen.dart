@@ -56,10 +56,10 @@ class LicencesScreen extends StatelessWidget {
             TorSourceNote(
               style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),
-          if (projectRepoPublic) ...[
+          if (projectRepoPublic && projectRepoUrl != null) ...[
             const SizedBox(height: 8),
             SelectableText(
-              projectRepoUrl,
+              projectRepoUrl!,
               style: TextStyle(fontFamily: t.monoFamily, fontSize: 12, color: t.dim),
             ),
           ],

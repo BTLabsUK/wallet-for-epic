@@ -2,7 +2,7 @@
   "deskSetFrameTransactions": "交易",
   "deskSetTxMethods": "付款方式",
   "deskSetTxEpicboxHint": "通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。其他方式仍可使用。",
-  "deskSetTxDirectHint": "通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。",
+  "deskSetTxDirectHint": "通过网址（http://host:{port}）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。",
   "deskSetTxFileHint": "通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件传输”，并在“接收”中加入文件步骤。",
   "deskSetTxSend": "发送",
   "deskSetTxStart": "默认方式",

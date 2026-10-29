@@ -4491,7 +4491,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverOtherNode => '其他节点，host 或 host:port';
 
   @override
-  String get serverOtherNodeInvalid => '请输入节点地址，例如 node.example.com:3413';
+  String serverOtherNodeInvalid(String port) {
+    return '请输入节点地址，例如 node.example.com:$port';
+  }
 
   @override
   String get serverAdd => '添加';
@@ -5426,7 +5428,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodLinkPayment => '链接付款';
 
   @override
-  String get methodDirectShape => 'http://host:3415 或 xxxx….onion';
+  String methodDirectShape(String port) {
+    return 'http://host:$port 或 xxxx….onion';
+  }
 
   @override
   String get methodSendDirectLine => '对方钱包必须处于打开状态。onion 地址经由 Tor。';
@@ -6135,7 +6139,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNodeStartIt => '可在“设置 › 节点”中启动。';
 
   @override
-  String get deskNodeFailPort => '端口 3413 被其他程序占用';
+  String deskNodeFailPort(String port) {
+    return '端口 $port 被其他程序占用';
+  }
 
   @override
   String get deskNodeFailDisk => '磁盘空间不足';
@@ -8830,7 +8836,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbUnlockWrong => '密码错误。请检查大写锁定键和键盘布局。';
 
   @override
-  String get deskOnbUnlockPortInUse => '端口 3415 被其他程序占用。请关闭该程序，然后重试。';
+  String deskOnbUnlockPortInUse(String port) {
+    return '端口 $port 被其他程序占用。请关闭该程序，然后重试。';
+  }
 
   @override
   String get deskOnbUnlockStageCheck => '正在检查钱包文件';
@@ -10774,7 +10782,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetLnodeNoProgressText => '请重启，或查看节点日志。';
 
   @override
-  String get deskSetLnodePortInUse => '端口 3413 被其他程序占用。';
+  String deskSetLnodePortInUse(String port) {
+    return '端口 $port 被其他程序占用。';
+  }
 
   @override
   String get deskSetLnodePortInUseText => '关闭另一个程序，或在“节点服务器”中选择那个节点。';
@@ -11101,7 +11111,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPeersUnbannedToast => '已解封对等节点';
 
   @override
-  String get deskSetPeersNotAddress => '不是 IP 地址加端口，例如 203.0.113.5:3414。';
+  String deskSetPeersNotAddress(String port) {
+    return '不是 IP 地址加端口，例如 203.0.113.5:$port。';
+  }
 
   @override
   String get deskSetPeersAlreadyPreferred => '已在首选列表中。';
@@ -11292,7 +11304,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetLogsOpenFolder => '打开日志文件夹';
 
   @override
-  String get deskSetNodePortNote => '请检查地址和端口（通常是 3413）。';
+  String deskSetNodePortNote(String port) {
+    return '请检查地址和端口（通常是 $port）。';
+  }
 
   @override
   String deskSetNodeListNote(String site) {
@@ -13072,8 +13086,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txMethodsHeader => '付款方式';
 
   @override
-  String get txLinkHttpHint =>
-      '链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，无法从互联网或移动数据访问，Tor 开启时也会关闭。会在“发送”和“接收”中加入 链接 · HTTP。';
+  String txLinkHttpHint(String port) {
+    return '链接 · HTTP 通过网址（http://host:$port）直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，无法从互联网或移动数据访问，Tor 开启时也会关闭。会在“发送”和“接收”中加入 链接 · HTTP。';
+  }
 
   @override
   String get txLinkTorHint =>
@@ -13260,8 +13275,9 @@ class AppLocalizationsZh extends AppLocalizations {
       '通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。其他方式仍可使用。';
 
   @override
-  String get deskSetTxDirectHint =>
-      '通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  String deskSetTxDirectHint(String port) {
+    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  }
 
   @override
   String get deskSetTxFileHint =>
@@ -16306,8 +16322,9 @@ class AppLocalizationsZh extends AppLocalizations {
       '离线会暂停 Epicbox 和状态检查。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
-  String get txLinkHttpHintNoTor =>
-      '链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，也无法从互联网或移动数据访问。会在“发送”和“接收”中加入 链接 · HTTP。';
+  String txLinkHttpHintNoTor(String port) {
+    return '链接 · HTTP 通过网址（http://host:$port）直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，也无法从互联网或移动数据访问。会在“发送”和“接收”中加入 链接 · HTTP。';
+  }
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -16323,8 +16340,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNoTorSendDirectLine2 => 'http(s) 地址。对方钱包必须处于打开状态。';
 
   @override
-  String get deskNoTorSetTxDirectHint =>
-      '通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  String deskNoTorSetTxDirectHint(String port) {
+    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  }
 
   @override
   String get deskNoTorAdvNetworkHint =>
@@ -17302,4 +17320,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String settingsFileReadFailed(String file) {
     return '无法读取 $file。正在使用内置设置。';
   }
+
+  @override
+  String get deskKitReachTorOff => '此检查需要关闭 Tor。';
 }

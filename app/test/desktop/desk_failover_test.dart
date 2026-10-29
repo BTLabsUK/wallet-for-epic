@@ -75,7 +75,7 @@ class _Harness {
     : wallet = _Wallet(inUse: inUse, dead: dead) {
     // The failover walks the node list of the settings.
     hostSettings = hostSettings.withValues({
-      'node.servers': [for (final u in const [_a, _b, _c, _d]) {'url': u}],
+      'node.servers': const [_a, _b, _c, _d],
     });
     container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)]);
     container.listen(deskFailoverWatchProvider, (_, _) {}, fireImmediately: true);

@@ -6,6 +6,7 @@
 library;
 
 import 'log.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 import 'wallet_service.dart';
 
 /// Waits before each automatic repost of a finished payment the chain has not taken: the first
@@ -13,20 +14,13 @@ import 'wallet_service.dart';
 /// repeats for as long as the wallet stays open. A post the node refused
 /// ([TxEntry.repostable]) goes once more at once, when the app first sees it, and then waits. Posting it again is safe: the same payment
 /// cannot go through twice, and a node that holds it already says so.
-const List<Duration> repostWaits = [
-  Duration(minutes: 1),
-  Duration(minutes: 3),
-  Duration(minutes: 10),
-  Duration(minutes: 30),
-];
+/// `payments.repost_waits_min` of `app-config.toml`.
+List<Duration> get repostWaits => appConfig.repostWaits;
 
 /// Waits before each automatic resend of a paid invoice's answer that the service has not
 /// finished: the first from the payment, each next one from the try before. Then it stops.
-const List<Duration> answerResendWaits = [
-  Duration(minutes: 2),
-  Duration(minutes: 5),
-  Duration(minutes: 10),
-];
+/// `payments.answer_resend_waits_min` of `app-config.toml`.
+List<Duration> get answerResendWaits => appConfig.answerResendWaits;
 
 /// A paid invoice whose payment is still not on the network this long after it was paid reads
 /// "Stalled", with Send again. The automatic resends above have run by then.

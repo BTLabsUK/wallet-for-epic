@@ -2267,7 +2267,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     }
   }
 
-  /// A Direct address's host and port (`203.0.113.4:3415`, `<56 characters>.onion`).
+  /// A Direct address's host and port (`203.0.113.4:<port>`, `<56 characters>.onion`).
   // The same marking as EAddress: the key's first and last six characters, the server dim.
   Widget _address(BuildContext context, String to) {
     final c = context.dc;

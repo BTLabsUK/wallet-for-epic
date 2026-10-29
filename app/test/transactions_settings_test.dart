@@ -23,6 +23,7 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
@@ -241,7 +242,7 @@ void main() {
     // The sheet carries the full name (no family header around it).
     for (final (title, text) in [
       (_l.methodEpicbox, _l.txEpicboxHint),
-      (_l.methodDirectHttp, _l.txLinkHttpHint),
+      (_l.methodDirectHttp, _l.txLinkHttpHint('${appConfig.httpListenPort}')),
       (_l.methodDirectTor, _l.txLinkTorHint),
       (_l.methodDirectFile, _l.txFileHint),
     ]) {

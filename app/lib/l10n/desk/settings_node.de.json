@@ -1,5 +1,5 @@
 {
-  "deskSetNodePortNote": "Prüfen Sie Adresse und Port (meist 3413).",
+  "deskSetNodePortNote": "Prüfen Sie Adresse und Port (meist {port}).",
   "deskSetNodeListNote": "Status von {site}; Latenz von diesem Computer aus gemessen.",
   "deskSetNodeStartTitle": "Lokalen Node starten?",
   "deskSetNodeStartDesc": "Ein eigenes Programm synchronisiert die Epic-Blockchain auf diesem Computer.",

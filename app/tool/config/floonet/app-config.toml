@@ -1,0 +1,168 @@
+# Built-in configuration for floonet, the public test network (a hidden dev chain,
+# WFE_DEV_NETWORKS). app/tool/dev_settings.sh floonet copies it to <data folder>/dev/floonet/,
+# where a WFE_DEV_NETWORKS build reads it; the product never does.
+# Shipped read-only with the app; not user settings. See docs/settings-file.md, ADR 0030 in LEPIC.
+
+# Who runs a server, by its domain, for the server lists (the status site may name others).
+[operators]
+"epiccash.com" = "Epic Cash"
+"btlabs.uk" = "BT Labs"
+"epicnet.us" = "EpicNet"
+"stackwallet.com" = "Cypher Stack"
+
+[node]
+# Talking to a node (the wallet core).
+connect_timeout_s = 15
+request_timeout_s = 90
+idle_timeout_s = 10            # below the node server's keep-alive
+retry_attempts = 3
+retry_backoff_min_ms = 500
+retry_backoff_max_ms = 4000
+outputs_per_request = 500
+concurrent_requests = 4
+# The app's own checks.
+check_timeout_s = 15           # tip and status asks, direct
+tor_check_timeout_s = 90       # the same over Tor
+tip_check_s = 15               # phone: new block check
+poll_s = 30                    # desktop: new block check
+refresh_s = 60                 # full refresh
+recheck_s = 60                 # heights in the Node list
+stale_after_s = 180            # a height older than this is not shown as current
+failover_after_s = 30          # the node in use silent this long: try the next in the list
+failover_probe_s = 15
+own_node_ask_s = 15            # a node of your own is asked directly this often
+
+[node.local]
+# The node the desktop can run itself.
+api_port = 13413
+p2p_port = 13414
+
+[epicbox]
+address_default = "epicbox.btlabs.uk"   # the server of an address written without one
+pairing_servers = 3            # connecting two wallets: the first N of the user's Epicbox list
+link_servers = 2               # linked devices: the first N
+connect_timeout_s = 15
+response_timeout_s = 15
+ping_interval_s = 25
+reconnect_min_s = 1
+reconnect_max_s = 60
+drain_timeout_s = 120
+tor_connect_timeout_s = 90
+onion_discovery_timeout_s = 45
+onion_discovery_retry_s = 600
+listener_heal_after_s = 30     # a listener down this long is restarted, backing off to
+listener_heal_max_s = 300
+
+[http]
+# The Link · HTTP listener and HTTP sends.
+listen_port = 13415
+header_timeout_s = 10
+body_timeout_s = 15
+request_timeout_s = 60
+answer_timeout_s = 10
+max_connections = 16
+max_connections_per_address = 4
+requests_per_minute = 120
+receives_per_minute = 30
+send_connect_timeout_s = 10
+send_request_timeout_s = 60
+
+[tor]
+start_backoff_s = [2, 10, 30, 60]
+send_wait_s = 180              # a send waits this long for Tor to be ready
+onion_retry_s = 30             # an onion not reached is tried once more after this
+bootstrap_timeout_s = 120
+cold_bootstrap_timeout_s = 240
+stall_timeout_s = 60
+cold_stall_timeout_s = 120
+publish_timeout_s = 180
+connect_timeout_s = 75
+request_timeout_s = 120
+# Hosts under these domains are reached over Tor only at an onion; the signed BT Labs file may
+# give them new onions.
+onion_only_domains = ["btlabs.uk"]
+onions = [
+  { host = "node.btlabs.uk", port = 443, onion = "5drwoknehnzducfsxsl45dazaw3cwcmpx3ycamynagmcpv6aalrbrtqd.onion", onion_port = 443, tls = true },
+  { host = "epicbox.btlabs.uk", port = 443, onion = "j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion", onion_port = 443, tls = true },
+  { host = "support.btlabs.uk", port = 443, onion = "lowiz5jnnu5vyyqc5guig3zag3k7azorbjfkcszfqwdxh3yarfei66yd.onion", onion_port = 443, tls = true },
+  { host = "epiccash.btlabs.uk", port = 443, onion = "lnuvd4uk5ks7bsrt4mxddjahup2dfl5dadiywocbhxfdqwimsahijzid.onion", onion_port = 443, tls = true },
+  { host = "status.btlabs.uk", port = 443, onion = "t6furoapbsowxp3hvmjwp223zenmauwldfv2noddih7bfuuavwyvaqad.onion", onion_port = 80, tls = false },
+]
+
+[status]
+timeout_s = 4
+tor_timeout_s = 30
+fresh_s = 60
+directory = "https://status.btlabs.uk/api/v1/status.json"
+icons = "https://status.btlabs.uk/api/v1/icons/"
+price = "https://status.btlabs.uk/api/v1/price.json"
+# Public reach of Link · HTTP (desktop): the address this device is seen at, and whether its
+# port answers from outside (the server checks only the asking address; not over Tor).
+ip = "https://status.btlabs.uk/api/v1/ip"
+reach = "https://status.btlabs.uk/api/v1/reach?port={port}"
+reach_timeout_s = 10
+
+[price]
+refresh_min = 5
+timeout_s = 10
+fallback_timeout_s = 30
+max_age_min = 30
+source = "https://api.coingecko.com/api/v3/simple/price"
+
+[updates]
+first_check_s = 20
+check_every_h = 1
+timeout_s = 30
+download_stall_s = 60
+manifests = [
+  "https://epiccash.btlabs.uk/api/v1/update.json",
+  "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json",
+  "https://btlabs-epic.github.io/update-v2.json",
+]
+downloads = "https://epiccash.btlabs.uk/releases/downloads/"
+releases_page = "https://epiccash.btlabs.uk/releases/"
+pages = ["https://epiccash.btlabs.uk/releases/", "https://github.com/BTLabs-EPIC/"]
+
+[support]
+timeout_s = 20
+report = "https://support.btlabs.uk/v1/report"
+email = "support@btlabs.uk"
+# BT Labs' donation contact. Comment this line out to hide the donation entry everywhere.
+donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com"
+signed_file = "https://btlabs-epic.github.io/btlabs.json"
+
+[links]
+website = "https://epiccash.com"
+community = "https://t.me/EpicCash"
+source = "https://gitlab.com/epic-cash-bt/wallet-for-epic"
+
+
+[import]
+gui_node = "https://node.epiccash.com:3413"
+gui_epicbox = "epicbox.epiccash.com"
+old_epicbox = "epicbox.stackwallet.com"
+renamed_epicbox = { "epicbox.epic.tech" = "epicbox.epiccash.com" }
+dead_fallbacks = ["fastepic.eu", "116.203.211.229"]
+
+[report]
+keep_hosts = ["api.github.com", "objects.githubusercontent.com"]
+keep_domains = ["epiccash.com", "epicnet.us", "stackwallet.com", "btlabs.uk", "github.com", "githubusercontent.com", "coingecko.com"]
+
+[network]
+vpn_suffixes = [".ts.net"]
+
+[payments]
+# After a payment is posted: how often the tip is read, then how long, then how often after.
+watch_fast_every_s = 4
+watch_fast_for_s = 120
+watch_slow_every_s = 10
+watch_for_s = 300              # stays above the 3 min the network holds a new transaction
+repost_waits_min = [1, 3, 10, 30]
+answer_resend_waits_min = [2, 5, 10]
+
+# The web demo (a hidden dev thing): the demo server serves this file to the demo page
+# (wfe_demo_server --settings). Not a wallet setting; the wallet ignores this table.
+[demo]
+faucet = "https://floo-explorer.btlabs.uk/api/faucet/claim"   # the faucet's claim address (answers allow any origin)
+csp_fonts = ["https://fonts.gstatic.com"]                     # where the demo page loads fonts from
+csp_connect = ["https://fonts.gstatic.com", "https://floo-explorer.btlabs.uk", "https://status.btlabs.uk", "https://api.coingecko.com"]

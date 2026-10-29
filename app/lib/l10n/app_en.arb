@@ -3740,7 +3740,7 @@
     "placeholders": {
       "example": {
         "type": "String",
-        "example": "http://203.0.113.5:3415"
+        "example": "http://203.0.113.5:<port>"
       }
     }
   },
@@ -6127,9 +6127,15 @@
   "@serverOtherNode": {
     "description": "Node picker field at the foot of the list for a node not in the lists; https:// is added when left out. Beside the Add button."
   },
-  "serverOtherNodeInvalid": "Enter a node address such as node.example.com:3413",
+  "serverOtherNodeInvalid": "Enter a node address such as node.example.com:{port}",
   "@serverOtherNodeInvalid": {
-    "description": "Error under the Other node field when the text is not a host, host:port or http(s) address."
+    "description": "Error under the Other node field when the text is not a host, host:port or http(s) address.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "serverAdd": "Add",
   "@serverAdd": {
@@ -7451,9 +7457,15 @@
   "@methodLinkPayment": {
     "description": "Retired: the old name of the Link family. No code reads it; see methodDirect (Link) and methodDirectHttp / methodDirectTor."
   },
-  "methodDirectShape": "http://host:3415 or xxxx….onion",
+  "methodDirectShape": "http://host:{port} or xxxx….onion",
   "@methodDirectShape": {
-    "description": "Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are."
+    "description": "Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "methodSendDirectLine": "Their wallet must be open. An onion address goes over Tor.",
   "@methodSendDirectLine": {
@@ -8460,9 +8472,15 @@
   "@deskNodeStartIt": {
     "description": "Local node tooltip line when the node is stopped."
   },
-  "deskNodeFailPort": "port 3413 is used by another program",
+  "deskNodeFailPort": "port {port} is used by another program",
   "@deskNodeFailPort": {
-    "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment."
+    "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskNodeFailDisk": "not enough disk space",
   "@deskNodeFailDisk": {
@@ -11075,7 +11093,7 @@
       },
       "old": {
         "type": "String",
-        "example": "node.example.org:3413"
+        "example": "node.example.org:<port>"
       }
     }
   },
@@ -12345,9 +12363,15 @@
   "@deskOnbUnlockWrong": {
     "description": "Error under the password field after a wrong password."
   },
-  "deskOnbUnlockPortInUse": "Port 3415 is in use by another program. Close it, then try again.",
+  "deskOnbUnlockPortInUse": "Port {port} is in use by another program. Close it, then try again.",
   "@deskOnbUnlockPortInUse": {
-    "description": "Failure text when the wallet service cannot start because its port is taken. Keep the number 3415."
+    "description": "Failure text when the wallet service cannot start because its port is taken. Keep the number <port>.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskOnbUnlockStageCheck": "Checking wallet files",
   "@deskOnbUnlockStageCheck": {
@@ -12538,7 +12562,7 @@
   },
   "deskOnbNodeFoundAt": "Epic {version} at {address}",
   "@deskOnbNodeFoundAt": {
-    "description": "Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:3413'.",
+    "description": "Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:<port>'.",
     "placeholders": {
       "version": {
         "type": "String"
@@ -15080,9 +15104,15 @@
   "@deskSetLnodeNoProgressText": {
     "description": "Local node panel: notice text when the sync stalled."
   },
-  "deskSetLnodePortInUse": "Port 3413 is used by another program.",
+  "deskSetLnodePortInUse": "Port {port} is used by another program.",
   "@deskSetLnodePortInUse": {
-    "description": "Local node panel: notice title when the node cannot open its port."
+    "description": "Local node panel: notice title when the node cannot open its port.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskSetLnodePortInUseText": "Close the other program, or choose that node under Node server.",
   "@deskSetLnodePortInUseText": {
@@ -15572,9 +15602,15 @@
   "@deskSetPeersUnbannedToast": {
     "description": "Toast title after a peer was unbanned. The peer address follows as text."
   },
-  "deskSetPeersNotAddress": "Not an IP address and port, such as 203.0.113.5:3414.",
+  "deskSetPeersNotAddress": "Not an IP address and port, such as 203.0.113.5:{port}.",
   "@deskSetPeersNotAddress": {
-    "description": "Peers tab: error under the preferred peer field."
+    "description": "Peers tab: error under the preferred peer field.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskSetPeersAlreadyPreferred": "Already preferred.",
   "@deskSetPeersAlreadyPreferred": {
@@ -15865,9 +15901,15 @@
   "@deskSetLogsOpenFolder": {
     "description": "Settings > Help > Logs: button that opens the log folder."
   },
-  "deskSetNodePortNote": "Check the address and the port (usually 3413).",
+  "deskSetNodePortNote": "Check the address and the port (usually {port}).",
   "@deskSetNodePortNote": {
-    "description": "Settings > Node: error under the node picker when the typed node does not answer."
+    "description": "Settings > Node: error under the node picker when the typed node does not answer.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskSetNodeListNote": "Status from {site}; latency measured from this computer.",
   "@deskSetNodeListNote": {
@@ -16829,7 +16871,7 @@
     "placeholders": {
       "host": {
         "type": "String",
-        "example": "127.0.0.1:3413"
+        "example": "127.0.0.1:<port>"
       }
     }
   },
@@ -18360,9 +18402,15 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "txLinkHttpHint": "Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.",
+  "txLinkHttpHint": "Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.",
   "@txLinkHttpHint": {
-    "description": "Info sheet behind the Link › HTTP row on Settings › Transactions (phone)."
+    "description": "Info sheet behind the Link › HTTP row on Settings › Transactions (phone).",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "txLinkTorHint": "Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.",
   "@txLinkTorHint": {
@@ -18633,9 +18681,15 @@
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.",
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.",
   "@deskSetTxDirectHint": {
-    "description": "Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions."
+    "description": "Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.",
   "@deskSetTxFileHint": {
@@ -23061,9 +23115,15 @@
   "@advOfflineNoteNoTor": {
     "description": "advOfflineNote in the build without Tor: the same note without Tor."
   },
-  "txLinkHttpHintNoTor": "Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.",
+  "txLinkHttpHintNoTor": "Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.",
   "@txLinkHttpHintNoTor": {
-    "description": "txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'."
+    "description": "txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "tourPhoneWalletTextNoTor": "Your balance, and under it the icons for the node and Epicbox. What is still confirming is in the tiles below.",
   "@tourPhoneWalletTextNoTor": {
@@ -23081,9 +23141,15 @@
   "@deskNoTorSendDirectLine2": {
     "description": "Under Send › Link, the line under the method in the build without Tor (no onion addresses)."
   },
-  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.",
+  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.",
   "@deskNoTorSetTxDirectHint": {
-    "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on')."
+    "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
   "@deskNoTorAdvNetworkHint": {
@@ -24128,7 +24194,7 @@
     "placeholders": {
       "host": {
         "type": "String",
-        "example": "100.64.21.31:3413"
+        "example": "100.64.21.31:<port>"
       }
     }
   },
@@ -24574,5 +24640,9 @@
         "example": "settings.toml"
       }
     }
+  },
+  "deskKitReachTorOff": "The check needs Tor off.",
+  "@deskKitReachTorOff": {
+    "description": "Notice in the Link · HTTP guide when the status server cannot check the port over Tor. Short, impersonal."
   }
 }

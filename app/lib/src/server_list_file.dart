@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The Node and Epicbox lists ([ServerList]) as the settings file holds them
-/// (`docs/settings-file.md`): `[[node.servers]]` and `node.removed`, `[[epicbox.servers]]` and
-/// `epicbox.removed`. The phone's and the desktop's list controllers read and write them here;
-/// nothing else keeps a list.
+/// The Node and Epicbox lists ([ServerList]) as `settings.toml` holds them
+/// (`docs/settings-file.md`): `[node] servers` and `[epicbox] servers`, plain lists whose first
+/// entry is the one in use. The phone's and the desktop's list controllers read and write them
+/// here; nothing else keeps a list. The status site never adds to them.
 ///
-/// A server the user typed in has no `operator` in the file: that is what "Added by you" reads.
+/// Who runs a server is not in the file: `[operators]` of `app-config.toml` by its domain, else
+/// the status site's name for it, else none. A server outside the default copy that no
+/// operator covers reads "Added by you".
 library;
 
 import 'network.dart' show EpicboxRelay;
@@ -14,89 +16,50 @@ import 'settings_file/settings_layout.dart' show hostOf;
 
 /// The file's list of [kind] in [s].
 ServerList serverListOf(HostSettings s, ServerKind kind) {
-  if (kind == ServerKind.node) {
-    final servers = s.nodeServers;
-    return ServerList(
-      entries: [for (final n in servers) n.url],
-      removed: {for (final r in s.nodeRemoved) r.toLowerCase()},
-      added: {
-        for (final n in servers)
-          if (n.operator == null) serverKeyOf(kind, n.url),
-      },
-    );
-  }
-  final servers = s.epicboxServers;
+  final entries = kind == ServerKind.node ? s.nodeUrls : [for (final b in s.epicboxServers) b.label];
+  final builtIn = {for (final v in shippedServers(kind)) serverKeyOf(kind, v)};
   return ServerList(
-    entries: [for (final b in servers) b.label],
-    removed: {for (final r in s.epicboxRemoved) serverKeyOf(kind, r)},
+    entries: entries,
     added: {
-      for (final b in servers)
-        if (b.operator == null) serverKeyOf(kind, b.label),
+      for (final v in entries)
+        if (!builtIn.contains(serverKeyOf(kind, v)) && s.config.operatorOf(_hostOf(kind, v)) == null) serverKeyOf(kind, v),
     },
   );
 }
 
-/// The keys of [kind] and their values for [list], to write with `setAll`. An entry keeps the
-/// operator the file gives it; a new one takes [operators] (by [serverKeyOf]), else the
-/// shipped file's, else its host. One the user typed in ([ServerList.isAddedByUser]) has none.
-Map<String, Object> serverListValues(
-  HostSettings s,
-  ServerKind kind,
-  ServerList list, {
-  Map<String, String> operators = const {},
-}) {
-  String? operatorOf(String value, String? current) {
-    if (list.isAddedByUser(kind, value)) return null;
-    final key = serverKeyOf(kind, value);
-    return current ?? operators[key] ?? shippedOperators(kind)[key] ?? hostOf(value);
-  }
+String _hostOf(ServerKind kind, String value) =>
+    kind == ServerKind.node ? hostOf(value) : (EpicboxRelay.parse(value)?.host ?? value);
 
-  if (kind == ServerKind.node) {
-    final now = {for (final n in s.nodeServers) serverKeyOf(kind, n.url): n};
-    return {
-      'node.servers': [
-        for (final v in list.entries)
-          NodeServer(url: now[serverKeyOf(kind, v)]?.url ?? v, operator: operatorOf(v, now[serverKeyOf(kind, v)]?.operator)),
-      ],
-      'node.removed': [...list.removed],
-    };
-  }
-  final now = {for (final b in s.epicboxServers) serverKeyOf(kind, b.label): b};
-  return {
-    'epicbox.servers': [
-      for (final v in list.entries)
-        if (EpicboxRelay.parse(v) case final r?)
-          EpicboxServer(host: r.host, port: r.port, operator: operatorOf(v, now[serverKeyOf(kind, v)]?.operator)),
-    ],
-    'epicbox.removed': [...list.removed],
-  };
+/// The key of [kind] and its value for [list], to write with `setAll`.
+Map<String, Object> serverListValues(ServerKind kind, ServerList list) => kind == ServerKind.node
+    ? {'node.servers': [...list.entries]}
+    : {
+        'epicbox.servers': [
+          for (final v in list.entries)
+            if (EpicboxRelay.parse(v) case final r?) r.label,
+        ],
+      };
+
+/// [values] with [value] first: the server picked to be in use moves to the top of its list
+/// (it joins the list when it was not in it).
+List<String> withFirst(ServerKind kind, List<String> values, String value) {
+  final k = serverKeyOf(kind, value);
+  return [value, for (final v in values) if (serverKeyOf(kind, v) != k) v];
 }
 
-/// Who runs each server of the shipped file, by [serverKeyOf].
-Map<String, String> shippedOperators(ServerKind kind) {
-  final s = shippedHostSettings;
-  return kind == ServerKind.node
-      ? {for (final n in s.nodeServers) serverKeyOf(kind, n.url): ?n.operator}
-      : {for (final b in s.epicboxServers) serverKeyOf(kind, b.label): ?b.operator};
-}
+/// The keys to write so that [node] and [relay] are in use: each moves to the top of its list.
+Map<String, Object> useServerValues(HostSettings s, {String? node, String? relay}) => {
+  if (node != null) 'node.servers': withFirst(ServerKind.node, s.nodeUrls, node),
+  if (relay != null)
+    'epicbox.servers': withFirst(ServerKind.relay, [for (final b in s.epicboxServers) b.label], EpicboxRelay.parse(relay)?.label ?? relay),
+};
 
-/// The shipped file's servers of [kind], as list values: what "Restore removed servers" and
-/// "Reset to defaults" bring back.
+/// Who runs [value] of [kind]: `[operators]` of `app-config.toml` by its domain, else
+/// [listed] (the status site's name), else null.
+String? operatorFor(ServerKind kind, String value, {String? listed}) =>
+    appConfig.operatorOf(_hostOf(kind, value)) ?? listed;
+
+/// The default copy's servers of [kind], as list values: what "Reset to defaults" brings back.
 List<String> shippedServers(ServerKind kind) => kind == ServerKind.node
-    ? [for (final n in shippedHostSettings.nodeServers) n.url]
+    ? [...shippedHostSettings.nodeUrls]
     : [for (final b in shippedHostSettings.epicboxServers) b.label];
-
-/// "Restore removed servers": every removal the user made is forgotten and [public] servers
-/// come back, but the shipped file's own `removed` stay (servers the wallet no longer offers).
-ServerList restoreRemoved(ServerKind kind, ServerList list, Iterable<String> public) {
-  final shipped = serverListOf(shippedHostSettings, kind).removed;
-  final back = list.restore(kind, [
-    for (final v in public)
-      if (!shipped.contains(serverKeyOf(kind, v))) v,
-  ]);
-  final removed = {
-    for (final k in shipped)
-      if (!back.has(kind, k)) k,
-  };
-  return ServerList(entries: back.entries, removed: removed, added: back.added);
-}

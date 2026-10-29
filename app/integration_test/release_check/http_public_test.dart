@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // Desktop HTTP From the internet on the real LEPIC core: the listener on 0.0.0.0, Receive showing
-// the router's public IP (api.ipify.org) and the port check (portchecker.io) on the real network.
+// the router's public IP and the port check on the real network, both asked of the status server
+// (`[status] ip` and `reach` of app-config.toml).
 // A throwaway empty wallet; nothing is sent. On a network without a forwarded port the warning shows.
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/state.dart' show deskApiProvider, deskProvider;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -53,25 +56,29 @@ void main() {
     await shot(tester, 'http-public-settings');
 
     final ss = Process.runSync('ss', ['-ltnH']).stdout as String;
-    record('listener bound on all interfaces', ss.contains('0.0.0.0:3415'), ss.split('\n').where((l) => l.contains(':3415')).join(' / '));
+    final port = appConfig.httpListenPort;
+    record('listener bound on all interfaces', ss.contains('0.0.0.0:$port'), ss.split('\n').where((l) => l.contains(':$port')).join(' / '));
 
     final reach = await tester.runAsync(() => containerOf(tester).read(deskApiProvider).httpReach());
-    final ipify = (await tester.runAsync(() async {
+    // The status server's answer, asked here directly: the app must show the same address.
+    final seen = (await tester.runAsync(() async {
       final c = HttpClient();
       try {
-        final r = await (await c.getUrl(Uri.parse('https://api.ipify.org'))).close();
-        return await r.transform(const SystemEncoding().decoder).join();
+        final r = await (await c.getUrl(Uri.parse(appConfig.statusIp!))).close();
+        final body = await r.transform(const SystemEncoding().decoder).join();
+        final j = jsonDecode(body);
+        return j is Map ? '${j['ip']}' : '';
       } finally {
         c.close();
       }
     }))!.trim();
-    record('public IP is the router’s', reach?.publicIp == ipify, 'app ${reach?.publicIp} / ipify $ipify / lan ${reach?.lan} / reachable ${reach?.reachable}');
+    record('public IP is the router’s', reach?.publicIp == seen, 'app ${reach?.publicIp} / status $seen / lan ${reach?.lan} / reachable ${reach?.reachable}');
 
     await tapText(tester, 'Receive');
     await settle(tester, ms: 2000);
     await waitText(tester, RegExp('reachable from the internet|Public IP not found|Reachability unknown'), timeout: const Duration(seconds: 60));
     final address = await tester.runAsync(() => containerOf(tester).read(deskApiProvider).httpAddress());
-    record('Receive shows http://<public IP>:3415', address == 'http://$ipify:3415' && find.textContaining(address!, skipOffstage: false).evaluate().isNotEmpty, '$address');
+    record('Receive shows http://<public IP>:<port>', address == 'http://$seen:$port' && find.textContaining(address!, skipOffstage: false).evaluate().isNotEmpty, '$address');
     record('warning shown when the port is not forwarded', reach?.reachable != false || hasText('Not reachable from the internet'), texts().where((t) => t.contains('reachable') || t.contains('Forward')).join(' | '));
     dump('receive');
     await shot(tester, 'http-public-receive');

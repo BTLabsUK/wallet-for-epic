@@ -97,3 +97,8 @@ GEMINI.md
 Thumbs.db
 desktop.ini
 
+
+# A user settings file (and its lock, temporary and broken copies) a dev run may write into the
+# tree; the shipped defaults are app/assets/config/ (docs/settings-file.md).
+settings.toml
+settings.toml.*

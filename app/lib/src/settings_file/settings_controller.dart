@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Keeps the app and `settings.toml` in step, both ways (docs/settings-file.md): writes the
-/// shipped file on the first start, brings an older file up to the shipped version, writes
+/// default copy on the first start (nothing is ever merged into an existing file), writes
 /// every change the app makes at once (a per-key merge with hand edits made meanwhile), and on
 /// the desktop reloads the file live when it is edited. A broken file is never rewritten
 /// unless the app must write, and then it is saved aside first.
@@ -12,7 +12,6 @@ import '../log.dart';
 import 'host_settings.dart';
 import 'settings_backend.dart';
 import 'settings_layout.dart';
-import 'settings_merge.dart';
 import 'settings_notice.dart';
 import 'toml_edit.dart';
 
@@ -20,20 +19,22 @@ class SettingsFileController {
   SettingsFileController._(this.backend, this.shippedText, this.shipped, this._publishGlobal, this._clock)
     : _settings = shipped;
 
-  /// Opens the settings: on the first start writes [shippedText] as it is (a file backend),
-  /// then reads, and brings an older file up to the shipped `version`. With [watch], follows
+  /// Opens the settings: on the first start writes [shippedText] (the default copy) as it is
+  /// (a file backend), then reads; a key the file lacks reads as the default copy's. [config]
+  /// is `app-config.toml`, read-only. With [watch], follows
   /// edits of the file ([debounce] after the last change). With [publishGlobal], keeps the
   /// process-wide [hostSettings] current. Throws [StateError] when [shippedText] itself is not
   /// a complete, good file.
   static Future<SettingsFileController> open({
     required SettingsBackend backend,
     required String shippedText,
+    required AppConfig config,
     bool watch = false,
     bool publishGlobal = false,
     Duration debounce = const Duration(milliseconds: 500),
     DateTime Function() clock = DateTime.now,
   }) async {
-    final shipped = HostSettings.fromText(shippedText);
+    final shipped = HostSettings.fromText(shippedText, config: config);
     final c = SettingsFileController._(backend, shippedText, shipped, publishGlobal, clock);
     if (publishGlobal) {
       hostSettings = shipped;
@@ -52,7 +53,7 @@ class SettingsFileController {
   final SettingsBackend backend;
   final String shippedText;
 
-  /// The shipped file's settings: "Reset to defaults" and "Restore removed" take these.
+  /// The default copy's settings: "Reset to defaults" takes these.
   final HostSettings shipped;
 
   final bool _publishGlobal;
@@ -89,16 +90,16 @@ class SettingsFileController {
   /// Every change of the settings in use, from the app or the file.
   Stream<SettingsChange> get changes => _changeCtl.stream;
 
-  /// Changes of `node.use` (reconnect) and `epicbox.use` (every wallet's address names the new
-  /// server: the relay-change notice, and every open wallet's listener restarts).
+  /// Changes of the node in use (reconnect) and the Epicbox server in use (every wallet's
+  /// address names the new server: the relay-change notice, and every open wallet's listener
+  /// restarts): the first entry of either list, from the app or a hand edit.
   Stream<UseChange> get useChanges => _useCtl.stream;
 
   /// Sets one key; see [setAll].
   Future<void> set(String path, Object value) => setAll({path: value});
 
   /// Writes the app's changes to the file at once. [values] maps keys (`node.servers`) to
-  /// values: text, int, bool, text lists, text maps, and for arrays of tables lists of maps or
-  /// of [NodeServer], [EpicboxServer], [OnionRoute]. Throws [ArgumentError] for an unknown key
+  /// values: bools and text lists. Throws [ArgumentError] for an unknown key
   /// or a bad value. A key the file changed since it was last read keeps the file's value
   /// (a conflict notice says so).
   Future<void> setAll(Map<String, Object> values) {
@@ -137,19 +138,10 @@ class SettingsFileController {
         if (t == null) {
           if (!backend.writesShippedFirst) return null;
           await backend.write(shippedText);
-          logInfo('settings', '${backend.fileName} written from the shipped default');
+          logInfo('settings', '${backend.fileName} written from the default copy');
           return shippedText;
         }
-        String? merged;
-        try {
-          merged = mergeShippedVersion(t, shippedText);
-        } on SettingsSyntaxError {
-          return t;
-        }
-        if (merged == null) return t;
-        await backend.write(merged);
-        logInfo('settings', '${backend.fileName} brought up to the shipped version');
-        return merged;
+        return t;
       });
     } on Object catch (e) {
       logWarn('settings', '${backend.fileName} could not be read: $e');
@@ -244,12 +236,16 @@ class SettingsFileController {
     if (_publishGlobal) hostSettings = next;
     final applied = appKeys.intersection(keys);
     _changeCtl.add(SettingsChange(before, next, keys, appKeys: applied));
-    for (final k in const ['node.use', 'epicbox.use']) {
-      if (keys.contains(k)) {
-        final change = UseChange(k, before.value(k) as String, next.value(k) as String, fromApp: applied.contains(k));
-        logInfo('settings', '$change');
-        _useCtl.add(change);
-      }
+    // The one in use is the first of its list: a pick, a reorder or a removal can change it.
+    final uses = [
+      (UseChange.node, before.nodeUse, next.nodeUse, 'node.servers'),
+      (UseChange.epicbox, before.epicboxUse, next.epicboxUse, 'epicbox.servers'),
+    ];
+    for (final (key, from, to, list) in uses) {
+      if (from == to) continue;
+      final change = UseChange(key, from, to, fromApp: applied.contains(list));
+      logInfo('settings', '$change');
+      _useCtl.add(change);
     }
   }
 

@@ -9,7 +9,6 @@ import 'l10n.dart';
 import 'log.dart';
 import 'network.dart';
 import 'providers.dart';
-import 'server_list_store.dart' show rememberServers;
 import 'wallet_service.dart';
 
 /// Saves [nodeUrl] and [relay] as the servers of the current network and moves the open wallet
@@ -49,11 +48,8 @@ Future<bool> switchServersLive(
       next.epicboxDomain != opened.epicboxDomain ||
       next.epicboxPort != opened.epicboxPort;
   await session.setServers(config: next);
+  // Both servers move to the top of their lists: the first entry is the one in use.
   await notifier.save(choice.preset, nodeUrl, relay: relay);
-  // Connected: both servers are in the pickers' lists, even one the user had removed.
-  if (ref.context.mounted) {
-    await rememberServers(ref, choice.preset, nodeUrl: nodeUrl, relay: relay);
-  }
   logInfo(
     'network',
     'switched live: node ${Uri.tryParse(nodeUrl)?.host ?? '?'}, relay ${relay.label}',

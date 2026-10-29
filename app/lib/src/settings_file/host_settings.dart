@@ -1,8 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The settings file's values as the app reads them: [HostSettings], immutable, one typed
-/// getter per key, every key filled (from the file when its value is good, else the last
-/// good value, else the shipped file's). [readSettings] turns a text into one and says what
-/// it could not use.
+/// The two files' values as the app reads them (docs/settings-file.md):
+///
+/// - [AppConfig]: `app-config.toml`, shipped read-only with the app: every address, timeout,
+///   interval, port and limit that is not the user's. Never written, never in a backup.
+/// - [HostSettings]: the user's `settings.toml` (the Node and Epicbox lists, three switches)
+///   over the [AppConfig] it came with. Immutable, one typed getter per value, every key
+///   filled (from the file when its value is good, else the last good value, else the default
+///   copy's). The first entry of each list is the one in use.
+///
+/// [readSettings] turns a text into one and says what it could not use.
 library;
 
 import 'package:toml/toml.dart';
@@ -15,9 +21,9 @@ import 'toml_scan.dart';
 class NodeServer {
   const NodeServer({required this.url, this.operator});
   final String url;
-  final String? operator;
 
-  Map<String, Object?> toEntry() => {'url': url, 'operator': ?operator};
+  /// Who runs it: `[operators]` of `app-config.toml` by its domain; null when that names none.
+  final String? operator;
 
   @override
   bool operator ==(Object other) => other is NodeServer && other.url == url && other.operator == operator;
@@ -34,10 +40,16 @@ class EpicboxServer {
   final int port;
   final String? operator;
 
-  /// `host` on 443, else `host:port`: how an address names it.
+  /// `host` on 443, else `host:port`: how an address and the file name it.
   String get label => epicboxLabel(host, port);
 
-  Map<String, Object?> toEntry() => {'host': host, 'port': port, 'operator': ?operator};
+  /// [label] (`host` or `host:port`) as a server, or null when it is not one.
+  static EpicboxServer? parse(String label, {String? operator}) {
+    if (checkEpicboxServer(label) != null) return null;
+    final i = label.lastIndexOf(':');
+    if (i < 0) return EpicboxServer(host: label.toLowerCase(), operator: operator);
+    return EpicboxServer(host: label.substring(0, i).toLowerCase(), port: int.parse(label.substring(i + 1)), operator: operator);
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -73,69 +85,136 @@ class OnionRoute {
   int get hashCode => Object.hash(host, port, onion, onionPort, tls);
 }
 
-/// The values of `settings.toml`. Every key of [settingsKeys] has a value.
-class HostSettings {
-  HostSettings._(Map<String, Object> values) : _values = Map.unmodifiable(values);
-
-  /// A complete file (the shipped one, or a test's): every key present and good, or it throws
-  /// [StateError] naming what is wrong. Its own values are its fallback.
-  factory HostSettings.fromText(String text) {
-    final doc = parseSettingsToml(text);
-    final scan = TomlScan(text);
-    final values = <String, Object>{};
-    for (final key in settingsKeys) {
-      final raw = rawValue(doc, key.path);
-      if (raw == null) throw StateError('settings: ${key.path} is missing');
-      final c = checkValue(key.kind, raw);
-      if (!c.ok) {
-        throw StateError('settings, line ${_problemLine(scan, key, c)}: ${key.path} is ${c.problem!.name}');
-      }
-      values[key.path] = c.value!;
+/// Reads every key of [layout] from [doc]: good, or its `byDefault`, or left out (a key only
+/// [SettingsKey.requiredWith] others that are all unset), or [StateError] naming the key and
+/// line ([text] gives the line).
+Map<String, Object> _complete(List<SettingsKey> layout, Map<String, dynamic> doc, String text, String file) {
+  final scan = TomlScan(text);
+  final values = <String, Object>{};
+  for (final key in layout) {
+    final raw = rawValue(doc, key.path);
+    if (raw == null) {
+      if (key.byDefault case final d?) values[key.path] = d;
+      if (key.byDefault == null && key.requiredWith == null) throw StateError('$file: ${key.path} is missing');
+      continue;
     }
-    return HostSettings._(values);
+    final c = checkValue(key.kind, raw);
+    if (!c.ok) throw StateError('$file, line ${_problemLine(scan, key, c)}: ${key.path} is ${c.problem!.name}');
+    values[key.path] = c.value!;
   }
+  for (final key in layout) {
+    final needs = key.requiredWith;
+    if (needs == null || values.containsKey(key.path)) continue;
+    final set = needs.where((p) => switch (values[p]) {
+      final String s => s.isNotEmpty,
+      final List l => l.isNotEmpty,
+      _ => false,
+    });
+    if (set.isNotEmpty) throw StateError('$file: ${key.path} is missing (needed with ${set.first})');
+  }
+  return values;
+}
+
+/// Empty text as null: an entry left out of `app-config.toml` is not configured.
+String? _orNull(String v) => v.isEmpty ? null : v;
+
+// --- app-config.toml ------------------------------------------------------------------------
+
+/// `app-config.toml`: the read-only configuration shipped with the app. Every key of
+/// [configKeys] has a value.
+class AppConfig {
+  AppConfig._(Map<String, Object> values) : _values = Map.unmodifiable(values);
+
+  /// The file's name, as messages name it.
+  static const String fileName = 'app-config.toml';
+
+  /// A complete file: every required key present and good, or [StateError] naming what is
+  /// wrong. A table the layout does not know (a dev chain's `[demo]`) is ignored.
+  factory AppConfig.fromText(String text) =>
+      AppConfig._(_complete(configKeys, parseSettingsToml(text, file: fileName), text, fileName));
 
   final Map<String, Object> _values;
 
   /// The value of [path] in the model's shape (see [checkValue]).
-  Object value(String path) => _values[path] ?? (throw ArgumentError.value(path, 'path', 'not a settings key'));
+  Object value(String path) =>
+      _values[path] ?? (throw ArgumentError.value(path, 'path', 'not an app-config key'));
 
   Map<String, Object> get values => _values;
 
-  /// These settings with [changes] (paths to values in the model's shape, entries as maps).
-  /// Throws [ArgumentError] for an unknown key or a value its key refuses.
-  HostSettings withValues(Map<String, Object> changes) {
+  /// This configuration with [changes] (tests: a short timeout, another port). Throws
+  /// [ArgumentError] for an unknown key or a value its key refuses.
+  AppConfig withValues(Map<String, Object> changes) {
     final next = {..._values};
-    changes.forEach((path, v) => next[path] = checkAppValue(path, v));
-    return HostSettings._(next);
+    changes.forEach((path, v) {
+      final key = configKeysByPath[path];
+      if (key == null) throw ArgumentError.value(path, 'path', 'not an app-config key');
+      final c = checkValue(key.kind, toRawValue(v));
+      if (!c.ok) throw ArgumentError.value(v, path, c.problem!.name);
+      next[path] = c.value!;
+    });
+    return AppConfig._(next);
   }
 
-  int get version => value('version') as int;
+  int _int(String path) => value(path) as int;
+  Duration _s(String path) => Duration(seconds: _int(path));
+  List<String> _texts(String path) => value(path) as List<String>;
+  String _text(String path) => value(path) as String;
+
+  /// Whole seconds (or a count) of an `_s`, `_ms` or number key, for the wallet core's tuning.
+  int number(String path) => _int(path);
+
+  // [operators]
+
+  /// Who runs servers under each domain.
+  Map<String, String> get operators => value('operators') as Map<String, String>;
+
+  /// Who runs [host] (or a server under it): the longest domain of [operators] that is [host]
+  /// or ends it; null when none is.
+  String? operatorOf(String host) {
+    final h = host.toLowerCase();
+    String? best;
+    String? name;
+    for (final e in operators.entries) {
+      final d = e.key.toLowerCase();
+      if ((h == d || h.endsWith('.$d')) && (best == null || d.length > best.length)) {
+        best = d;
+        name = e.value;
+      }
+    }
+    return name;
+  }
 
   // [node]
-  String get nodeUse => value('node.use') as String;
-  String get nodeFallback => value('node.fallback') as String;
-  List<String> get nodeRemoved => _texts('node.removed');
-  List<NodeServer> get nodeServers => [
-    for (final e in _entries('node.servers')) NodeServer(url: e['url'] as String, operator: e['operator'] as String?),
-  ];
+  Duration get nodeCheckTimeout => _s('node.check_timeout_s');
+  Duration get nodeTorCheckTimeout => _s('node.tor_check_timeout_s');
+  Duration get nodeTipCheck => _s('node.tip_check_s');
+  Duration get nodePoll => _s('node.poll_s');
+  Duration get nodeRefresh => _s('node.refresh_s');
+  Duration get nodeRecheck => _s('node.recheck_s');
+  Duration get nodeStaleAfter => _s('node.stale_after_s');
+  Duration get nodeFailoverAfter => _s('node.failover_after_s');
+  Duration get nodeFailoverProbe => _s('node.failover_probe_s');
+  Duration get ownNodeAsk => _s('node.own_node_ask_s');
+  int get localNodeApiPort => _int('node.local.api_port');
+  int get localNodeP2pPort => _int('node.local.p2p_port');
 
   // [epicbox]
-  String get epicboxUse => value('epicbox.use') as String;
-  String get epicboxDefault => value('epicbox.default') as String;
-  List<String> get epicboxRemoved => _texts('epicbox.removed');
-  List<EpicboxServer> get epicboxServers => [
-    for (final e in _entries('epicbox.servers'))
-      EpicboxServer(host: e['host'] as String, port: e['port'] as int, operator: e['operator'] as String?),
-  ];
+  String get epicboxAddressDefault => _text('epicbox.address_default');
+  int get pairingServerCount => _int('epicbox.pairing_servers');
+  int get linkServerCount => _int('epicbox.link_servers');
+  Duration get listenerHealAfter => _s('epicbox.listener_heal_after_s');
+  Duration get listenerHealMax => _s('epicbox.listener_heal_max_s');
 
-  List<String> get pairingServers => _texts('pairing.servers');
-  List<String> get deviceLinkServers => _texts('devices.link_servers');
+  // [http]
+  int get httpListenPort => _int('http.listen_port');
 
   // [tor]
+  List<Duration> get torStartBackoff => [for (final s in value('tor.start_backoff_s') as List<int>) Duration(seconds: s)];
+  Duration get torSendWait => _s('tor.send_wait_s');
+  Duration get onionRetry => _s('tor.onion_retry_s');
   List<String> get torOnionOnlyDomains => _texts('tor.onion_only_domains');
   List<OnionRoute> get torOnions => [
-    for (final e in _entries('tor.onions'))
+    for (final e in value('tor.onions') as List<Map<String, Object?>>)
       OnionRoute(
         host: e['host'] as String,
         port: e['port'] as int,
@@ -145,49 +224,68 @@ class HostSettings {
       ),
   ];
 
-  // [status]
-  bool get statusEnabled => value('status.enabled') as bool;
-  String get statusDirectory => value('status.directory') as String;
-  String get statusIcons => value('status.icons') as String;
-  String get statusPrice => value('status.price') as String;
+  // [status]: each address null when the file leaves it out (that part is not shown).
+  Duration get statusTimeout => _s('status.timeout_s');
+  Duration get statusTorTimeout => _s('status.tor_timeout_s');
+  Duration get statusFresh => _s('status.fresh_s');
+  String? get statusDirectory => _orNull(_text('status.directory'));
+  String? get statusIcons => _orNull(_text('status.icons'));
+  String? get statusPrice => _orNull(_text('status.price'));
 
-  String get priceSource => value('price.source') as String;
+  /// The status server's answer with the address it sees this device at; null: no reach check.
+  String? get statusIp => _orNull(_text('status.ip'));
 
-  // [updates]
-  bool get updatesCheck => value('updates.check') as bool;
+  /// The status server's check that [port] of this device's own address answers from outside;
+  /// null: no reach check.
+  String? statusReach(int port) => _orNull(_text('status.reach'))?.replaceAll('{port}', '$port');
+  Duration get reachTimeout => _s('status.reach_timeout_s');
+
+  // [price]: no source and no status-site price, no fiat value.
+  Duration get priceRefresh => Duration(minutes: _int('price.refresh_min'));
+  Duration get priceTimeout => _s('price.timeout_s');
+  Duration get priceFallbackTimeout => _s('price.fallback_timeout_s');
+  Duration get priceMaxAge => Duration(minutes: _int('price.max_age_min'));
+  String? get priceSource => _orNull(_text('price.source'));
+
+  // [updates]: no manifests, no update check.
+  Duration get updatesFirstCheck => _s('updates.first_check_s');
+  Duration get updatesEvery => Duration(hours: _int('updates.check_every_h'));
+  Duration get updatesTimeout => _s('updates.timeout_s');
+  Duration get updatesDownloadStall => _s('updates.download_stall_s');
   List<String> get updateManifests => _texts('updates.manifests');
-  String get updateDownloads => value('updates.downloads') as String;
-  String get releasesPage => value('updates.releases_page') as String;
+  String? get updateDownloads => _orNull(_text('updates.downloads'));
+  String? get releasesPage => _orNull(_text('updates.releases_page'));
   List<String> get updatePages => _texts('updates.pages');
 
   // [support]
-  String get supportReport => value('support.report') as String;
-  String get supportEmail => value('support.email') as String;
-  String get supportDonation => value('support.donation') as String;
-  String get supportDirectory => value('support.directory') as String;
+  Duration get supportTimeout => _s('support.timeout_s');
 
-  // [links]
-  String get linkWebsite => value('links.website') as String;
-  String get linkCommunity => value('links.community') as String;
-  String get linkSource => value('links.source') as String;
+  /// Where a report is sent; null: no Send report.
+  String? get supportReport => _orNull(_text('support.report'));
 
-  /// The explorer's page of the block at [height].
-  String explorerBlock(int height) => (value('links.explorer_block') as String).replaceAll('{height}', '$height');
+  /// The support e-mail address; null: none shown.
+  String? get supportEmail => _orNull(_text('support.email'));
 
-  /// The explorer's page of [kernel], or null when the file names none.
-  String? explorerKernel(String kernel) {
-    final t = value('links.explorer_kernel') as String;
-    return t.isEmpty ? null : t.replaceAll('{kernel}', Uri.encodeComponent(kernel));
-  }
+  /// BT Labs' donation contact, or null when the file leaves it out: no donation entry anywhere.
+  String? get supportDonation => _orNull(_text('support.donation'));
 
-  // [reach]
-  String get reachIpLookup => value('reach.ip_lookup') as String;
-  String get reachPortCheck => value('reach.port_check') as String;
+  /// BT Labs' signed public file; null: not read.
+  String? get supportSignedFile => _orNull(_text('support.signed_file'));
+
+  // [links]: each null when left out (its link is not shown).
+  String? get linkWebsite => _orNull(_text('links.website'));
+  String? get linkCommunity => _orNull(_text('links.community'));
+  String? get linkSource => _orNull(_text('links.source'));
+
+  // [explorer]
+
+  /// The explorer's page of the block at [height]; null when no explorer is configured.
+  String? explorerBlock(int height) => _orNull(_text('explorer.block'))?.replaceAll('{height}', '$height');
 
   // [import]
-  String get importGuiNode => value('import.gui_node') as String;
-  String get importGuiEpicbox => value('import.gui_epicbox') as String;
-  String get importOldEpicbox => value('import.old_epicbox') as String;
+  String get importGuiNode => _text('import.gui_node');
+  String get importGuiEpicbox => _text('import.gui_epicbox');
+  String get importOldEpicbox => _text('import.old_epicbox');
   Map<String, String> get importRenamedEpicbox => value('import.renamed_epicbox') as Map<String, String>;
   List<String> get importDeadFallbacks => _texts('import.dead_fallbacks');
 
@@ -198,9 +296,148 @@ class HostSettings {
   // [network]
   List<String> get vpnSuffixes => _texts('network.vpn_suffixes');
 
-  /// Every host the file names (servers, sites, onions, the e-mail and donation hosts, the
-  /// kept hosts), lower case: what a report keeps besides [reportKeepDomains]. Domain and
-  /// suffix lists (`onion_only_domains`, `keep_domains`, `vpn_suffixes`) are not hosts.
+  // [payments]
+  Duration get watchFastEvery => _s('payments.watch_fast_every_s');
+  Duration get watchFastFor => _s('payments.watch_fast_for_s');
+  Duration get watchSlowEvery => _s('payments.watch_slow_every_s');
+  Duration get watchFor => _s('payments.watch_for_s');
+  List<Duration> get repostWaits => [for (final m in value('payments.repost_waits_min') as List<int>) Duration(minutes: m)];
+  List<Duration> get answerResendWaits => [
+    for (final m in value('payments.answer_resend_waits_min') as List<int>) Duration(minutes: m),
+  ];
+
+  @override
+  bool operator ==(Object other) =>
+      other is AppConfig && configKeys.every((k) => deepEquals(_values[k.path], other._values[k.path]));
+
+  @override
+  int get hashCode => Object.hashAll([for (final k in configKeys) '${_values[k.path]}']);
+}
+
+// --- settings.toml --------------------------------------------------------------------------
+
+/// The user's `settings.toml` over the [config] it came with. Every key of [settingsKeys] has a
+/// value. The getters that are not the user's ([statusDirectory], …) read [config].
+class HostSettings {
+  HostSettings._(Map<String, Object> values, this.config) : _values = Map.unmodifiable(values);
+
+  /// A complete user file (the default copy, or a test's) over [config]: every key present
+  /// and good, or [StateError] naming what is wrong.
+  factory HostSettings.fromText(String text, {required AppConfig config}) =>
+      HostSettings._(_complete(settingsKeys, parseSettingsToml(text), text, 'settings.toml'), config);
+
+  final Map<String, Object> _values;
+
+  /// `app-config.toml`, read-only.
+  final AppConfig config;
+
+  /// The value of [path] (a `settings.toml` key, else an `app-config.toml` one) in the model's
+  /// shape (see [checkValue]).
+  Object value(String path) => _values[path] ?? config.value(path);
+
+  /// The `settings.toml` values.
+  Map<String, Object> get values => _values;
+
+  /// These settings with [changes] (paths to values in the model's shape). A path of
+  /// `app-config.toml` changes [config] (tests only: the app never writes it). Throws
+  /// [ArgumentError] for an unknown key or a value its key refuses.
+  HostSettings withValues(Map<String, Object> changes) {
+    final next = {..._values};
+    final configChanges = <String, Object>{};
+    changes.forEach((path, v) {
+      if (configKeysByPath.containsKey(path)) {
+        configChanges[path] = v;
+      } else {
+        next[path] = checkAppValue(path, v);
+      }
+    });
+    return HostSettings._(next, configChanges.isEmpty ? config : config.withValues(configChanges));
+  }
+
+  /// These settings over another [config] (a dev chain's).
+  HostSettings withConfig(AppConfig config) => HostSettings._(_values, config);
+
+  // [node]
+
+  /// The Node list's addresses, in order; the first is in use.
+  List<String> get nodeUrls => _texts('node.servers');
+
+  /// The Node list, in order, each with its operator from `[operators]`.
+  List<NodeServer> get nodeServers => [for (final u in nodeUrls) NodeServer(url: u, operator: config.operatorOf(hostOf(u)))];
+
+  /// Whether the Node list has a node (an empty list: none is configured).
+  bool get hasNode => nodeUrls.isNotEmpty;
+
+  /// The node in use: the first of the list; empty text when the list is empty.
+  String get nodeUse => nodeUrls.firstOrNull ?? '';
+
+  /// The node tried when the one in use does not answer: the next of the list (the one in use
+  /// when it is the only one).
+  String get nodeFallback => nodeUrls.length > 1 ? nodeUrls[1] : nodeUse;
+
+  // [epicbox]
+
+  /// The Epicbox list's labels (`host`, or `host:port` off 443), in order; the first is in use.
+  List<String> get epicboxLabels => _texts('epicbox.servers');
+
+  List<EpicboxServer> get epicboxServers => [
+    for (final l in epicboxLabels)
+      if (EpicboxServer.parse(l) case final s?) EpicboxServer(host: s.host, port: s.port, operator: config.operatorOf(s.host)),
+  ];
+
+  /// Whether the Epicbox list has a server (an empty list: none is configured).
+  bool get hasEpicbox => epicboxServers.isNotEmpty;
+
+  /// The server every wallet's Epicbox address names: the first of the list; empty text when
+  /// the list is empty.
+  String get epicboxUse => epicboxServers.firstOrNull?.label ?? '';
+
+  /// The server of an Epicbox address written without one (`app-config.toml`).
+  String get epicboxDefault => config.epicboxAddressDefault;
+
+  /// Where two wallets meet by spoken words: the first `epicbox.pairing_servers` of the list.
+  List<String> get pairingServers => [for (final s in epicboxServers.take(config.pairingServerCount)) s.label];
+
+  /// The servers linked devices use: the first `epicbox.link_servers` of the list.
+  List<String> get deviceLinkServers => [for (final s in epicboxServers.take(config.linkServerCount)) s.label];
+
+  // [online]
+  bool get statusEnabled => value('online.status_site') as bool;
+  bool get updatesCheck => value('online.update_check') as bool;
+  bool get priceEnabled => value('online.price') as bool;
+
+  // app-config.toml, by the names the app has always read them under.
+  List<String> get torOnionOnlyDomains => config.torOnionOnlyDomains;
+  List<OnionRoute> get torOnions => config.torOnions;
+  String? get statusDirectory => config.statusDirectory;
+  String? get statusIcons => config.statusIcons;
+  String? get statusPrice => config.statusPrice;
+  String? get priceSource => config.priceSource;
+  List<String> get updateManifests => config.updateManifests;
+  String? get updateDownloads => config.updateDownloads;
+  String? get releasesPage => config.releasesPage;
+  List<String> get updatePages => config.updatePages;
+  String? get supportReport => config.supportReport;
+  String? get supportEmail => config.supportEmail;
+  String? get supportDonation => config.supportDonation;
+  String? get supportDirectory => config.supportSignedFile;
+  String? get linkWebsite => config.linkWebsite;
+  String? get linkCommunity => config.linkCommunity;
+  String? get linkSource => config.linkSource;
+  String? explorerBlock(int height) => config.explorerBlock(height);
+  String get importGuiNode => config.importGuiNode;
+  String get importGuiEpicbox => config.importGuiEpicbox;
+  String get importOldEpicbox => config.importOldEpicbox;
+  Map<String, String> get importRenamedEpicbox => config.importRenamedEpicbox;
+  List<String> get importDeadFallbacks => config.importDeadFallbacks;
+  List<String> get reportKeepHosts => config.reportKeepHosts;
+  List<String> get reportKeepDomains => config.reportKeepDomains;
+  List<String> get vpnSuffixes => config.vpnSuffixes;
+
+  /// Every host the two files name (servers, sites, onions, the e-mail and donation hosts, the
+  /// kept hosts, the operators' domains), lower case: what a report keeps besides
+  /// [reportKeepDomains]. Domain and suffix lists (`onion_only_domains`, `keep_domains`,
+  /// `vpn_suffixes`) are not hosts.
   Set<String> get allHosts {
     const notHosts = {'tor.onion_only_domains', 'report.keep_domains', 'network.vpn_suffixes'};
     final out = <String>{};
@@ -219,35 +456,39 @@ class HostSettings {
           l.forEach(walk);
         case Map m:
           for (final e in m.entries) {
-            if (m.containsKey('url') || m.containsKey('host')) {
-              if (e.key == 'operator') continue;
-            } else {
-              walk('${e.key}');
-            }
+            if (!m.containsKey('host')) walk('${e.key}');
             walk(e.value);
           }
       }
     }
 
     for (final k in settingsKeys) {
-      if (!notHosts.contains(k.path)) walk(_values[k.path]);
+      walk(_values[k.path]);
+    }
+    for (final k in configKeys) {
+      if (k.path == 'operators') {
+        // Domains, not hosts; their names are not addresses.
+        continue;
+      }
+      if (!notHosts.contains(k.path)) walk(config.values[k.path]);
     }
     return out;
   }
 
   List<String> _texts(String path) => value(path) as List<String>;
-  List<Map<String, Object?>> _entries(String path) => value(path) as List<Map<String, Object?>>;
 
   @override
   bool operator ==(Object other) =>
-      other is HostSettings && settingsKeys.every((k) => deepEquals(_values[k.path], other._values[k.path]));
+      other is HostSettings &&
+      other.config == config &&
+      settingsKeys.every((k) => deepEquals(_values[k.path], other._values[k.path]));
 
   @override
-  int get hashCode => Object.hashAll([for (final k in settingsKeys) '${_values[k.path]}']);
+  int get hashCode => Object.hash(config, Object.hashAll([for (final k in settingsKeys) '${_values[k.path]}']));
 }
 
-/// Checks a value the app sets; throws [ArgumentError] when [path] is not a key or refuses it.
-/// Entries may be maps or [NodeServer], [EpicboxServer] and [OnionRoute].
+/// Checks a `settings.toml` value the app sets; throws [ArgumentError] when [path] is not a key
+/// of it or refuses [value].
 Object checkAppValue(String path, Object value) {
   final key = settingsKeysByPath[path];
   if (key == null) throw ArgumentError.value(path, 'path', 'not a settings key');
@@ -256,10 +497,8 @@ Object checkAppValue(String path, Object value) {
   return c.value!;
 }
 
-/// [NodeServer], [EpicboxServer] and [OnionRoute] (alone or in a list) as entry maps.
+/// [OnionRoute] (alone or in a list) as entry maps.
 Object toRawValue(Object value) => switch (value) {
-  NodeServer s => s.toEntry(),
-  EpicboxServer s => s.toEntry(),
   OnionRoute s => s.toEntry(),
   List l => [for (final v in l) v is Object ? toRawValue(v) : v],
   _ => value,
@@ -270,7 +509,7 @@ Object toRawValue(Object value) => switch (value) {
 HostSettings? _current;
 
 /// The settings in use, for code without a `ref`: set at start, replaced on every change.
-/// Tests get `test/settings/test.toml` (`flutter_test_config.dart`).
+/// Tests get `test/settings/` (`flutter_test_config.dart`).
 HostSettings get hostSettings =>
     _current ?? (throw StateError('settings.toml is not loaded yet: open it at start (openAppSettings)'));
 
@@ -278,10 +517,13 @@ set hostSettings(HostSettings s) => _current = s;
 
 bool get hostSettingsLoaded => _current != null;
 
+/// `app-config.toml` in use: [hostSettings]'s.
+AppConfig get appConfig => hostSettings.config;
+
 HostSettings? _shippedCurrent;
 
-/// The shipped file's settings of the file in use ("Reset to defaults", "Restore removed", the
-/// public servers); [hostSettings] where none was opened (tests).
+/// The default copy (`settings.default.toml`) over the configuration in use: "Reset to
+/// defaults" and the built-in servers; [hostSettings] where none was opened (tests).
 HostSettings get shippedHostSettings => _shippedCurrent ?? hostSettings;
 
 set shippedHostSettings(HostSettings s) => _shippedCurrent = s;
@@ -290,14 +532,17 @@ set shippedHostSettings(HostSettings s) => _shippedCurrent = s;
 
 /// The text is not valid TOML: nothing of it is used.
 class SettingsSyntaxError implements Exception {
-  const SettingsSyntaxError(this.line, this.message);
+  const SettingsSyntaxError(this.line, this.message, {this.file = 'settings.toml'});
 
   /// 1-based.
   final int line;
   final String message;
 
+  /// The file's name.
+  final String file;
+
   @override
-  String toString() => 'settings.toml, line $line: $message';
+  String toString() => '$file, line $line: $message';
 }
 
 /// A key whose value was not used, and why.
@@ -336,13 +581,13 @@ class SettingsRead {
 }
 
 /// Parses [text]; throws [SettingsSyntaxError] with the line when it is not valid TOML.
-Map<String, dynamic> parseSettingsToml(String text) {
+Map<String, dynamic> parseSettingsToml(String text, {String file = 'settings.toml'}) {
   try {
     return TomlDocument.parse(text).toMap();
   } on TomlParserException catch (e) {
-    throw SettingsSyntaxError(_firstBadLine(text) ?? e.line, e.message);
+    throw SettingsSyntaxError(_firstBadLine(text) ?? e.line, e.message, file: file);
   } on TomlException catch (e) {
-    throw SettingsSyntaxError(_firstBadLine(text) ?? TomlScan(text).duplicateLine() ?? 1, e.message);
+    throw SettingsSyntaxError(_firstBadLine(text) ?? TomlScan(text).duplicateLine() ?? 1, e.message, file: file);
   }
 }
 
@@ -397,8 +642,9 @@ Object? rawValue(Map<String, dynamic> doc, String path) {
   return cur;
 }
 
-/// Reads [text] over [shipped]: a good value from the file, else [lastGood]'s, else the
-/// shipped one; missing keys read as shipped. Throws [SettingsSyntaxError].
+/// Reads [text] over [shipped] (the default copy, with the configuration in use): a good value
+/// from the file, else [lastGood]'s, else the default copy's; a missing key reads as the
+/// default copy's. Throws [SettingsSyntaxError].
 SettingsRead readSettings(String text, {required HostSettings shipped, HostSettings? lastGood}) {
   final doc = parseSettingsToml(text);
   final scan = TomlScan(text);
@@ -418,7 +664,7 @@ SettingsRead readSettings(String text, {required HostSettings shipped, HostSetti
       values[key.path] = (lastGood ?? shipped).value(key.path);
     }
   }
-  return SettingsRead(HostSettings._(values), issues, _unknownKeys(doc, scan), doc);
+  return SettingsRead(HostSettings._(values, shipped.config), issues, _unknownKeys(doc, scan), doc);
 }
 
 int? _problemLine(TomlScan scan, SettingsKey key, Checked c) {
@@ -430,8 +676,6 @@ List<UnknownKey> _unknownKeys(Map<String, dynamic> doc, TomlScan scan) {
   final out = <UnknownKey>[];
   for (final e in doc.entries) {
     final top = e.key;
-    // The web demo's own table (faucet, page hosts): its server reads it, the wallet does not.
-    if (top == 'demo') continue;
     if (settingsKeysByPath.containsKey(top)) continue;
     if (!settingsTables.contains(top) || e.value is! Map) {
       out.add(UnknownKey(top, scan.lineOf([top])));

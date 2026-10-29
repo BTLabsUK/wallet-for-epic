@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The public nodes and Epicbox relays of the shipped settings file (`docs/settings-file.md`),
-/// and their merge with the live lists from the status site ([NodeDirectory],
-/// [RelayDirectory]).
-///
-/// The shipped lists keep the pickers complete offline or when the monitor is down. The
-/// monitor can add servers; it cannot remove or reorder the shipped ones. Nothing here picks a
-/// server: the user does.
+/// The public nodes and Epicbox relays of the default copy of `settings.toml`
+/// (`docs/settings-file.md`), and their merge with the live lists from the status site
+/// ([NodeDirectory], [RelayDirectory]): the health, icons and operator names of the servers.
+/// The merge never adds a server to the user's list. Nothing here picks a server: the user does.
 library;
 
 import 'network.dart';
@@ -35,12 +32,13 @@ class PublicRelay {
   final RelayStatus? status;
 }
 
-/// The public nodes of the shipped settings (of the chain the app runs on), in its order.
+/// The public nodes of the default copy (of the chain the app runs on), in its order, each
+/// with its operator from `[operators]` of `app-config.toml`.
 List<PublicNode> get builtInNodes => [
   for (final n in shippedHostSettings.nodeServers) PublicNode(url: n.url, operator: n.operator ?? hostOf(n.url)),
 ];
 
-/// The public Epicbox relays of the shipped settings, in its order.
+/// The public Epicbox relays of the default copy, in its order.
 List<PublicRelay> get builtInRelays => [
   for (final b in shippedHostSettings.epicboxServers)
     PublicRelay(relay: EpicboxRelay(host: b.host, port: b.port), operator: b.operator ?? b.host),
@@ -68,10 +66,8 @@ List<PublicNode> mergePublicNodes(List<NodeStatus>? listed, {List<PublicNode>? b
     if (!seen.add(key)) continue;
     out.add(PublicNode(url: n.url, operator: n.operator, status: byKey[key]));
   }
-  // Servers the shipped file lists as removed stay out, as a user's removal does.
-  final dropped = {for (final r in shippedHostSettings.nodeRemoved) r.toLowerCase()};
   for (final MapEntry(:key, value: s) in byKey.entries) {
-    if (dropped.contains(key) || !seen.add(key)) continue;
+    if (!seen.add(key)) continue;
     out.add(PublicNode(url: s.url, operator: s.operator ?? Uri.parse(s.url).host, status: s));
   }
   return out;
@@ -90,10 +86,8 @@ List<PublicRelay> mergePublicRelays(List<RelayStatus>? listed, {List<PublicRelay
     if (!seen.add(r.relay)) continue;
     out.add(PublicRelay(relay: r.relay, operator: r.operator, status: byRelay[r.relay]));
   }
-  // Servers the shipped file lists as removed stay out, as a user's removal does.
-  final dropped = {for (final r in shippedHostSettings.epicboxRemoved) EpicboxRelay.parse(r)?.label ?? r.toLowerCase()};
   for (final MapEntry(key: relay, value: s) in byRelay.entries) {
-    if (dropped.contains(relay.label) || !seen.add(relay)) continue;
+    if (!seen.add(relay)) continue;
     out.add(PublicRelay(relay: relay, operator: s.operator ?? s.label ?? relay.host, status: s));
   }
   return out;

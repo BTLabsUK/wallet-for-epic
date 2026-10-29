@@ -1,5 +1,5 @@
 {
-  "deskSetNodePortNote": "ตรวจที่อยู่และพอร์ต (ปกติคือ 3413)",
+  "deskSetNodePortNote": "ตรวจที่อยู่และพอร์ต (ปกติคือ {port})",
   "deskSetNodeListNote": "สถานะจาก {site} เวลาตอบสนองวัดจากคอมพิวเตอร์นี้",
   "deskSetNodeStartTitle": "เริ่มโหนดในเครื่องไหม?",
   "deskSetNodeStartDesc": "โปรแกรมแยกต่างหากจะซิงก์บล็อกเชน Epic บนคอมพิวเตอร์นี้",

@@ -47,6 +47,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 import 'package:path_provider/path_provider.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 
 const _pin = '123456';
 const _faucet = 'https://floo-explorer.btlabs.uk/api/faucet/claim';
@@ -402,7 +403,7 @@ Future<HistoryPayload> decodeFile(WidgetTester tester, String phrase, Uint8List 
         nodeUrl: 'http://127.0.0.1:9',
         epicboxDomain: preset.epicboxDomain,
         epicboxPort: preset.epicboxPort,
-        onionRoutes: const [],
+        onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
       ),
       store: lepic.lepicSecretStore(_MemoryLepicStore()),
       mnemonic: phrase,
