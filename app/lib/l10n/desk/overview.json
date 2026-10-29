@@ -11,9 +11,19 @@
   "@deskOvNodeAddrTitle": {
     "description": "Title of a notice on Overview: the saved node address was corrected."
   },
-  "deskOvNodeAddrText": "Now using node.epiccash.com instead of node.epiccash.com:3413.",
+  "deskOvNodeAddrText": "Now using {node} instead of {old}.",
   "@deskOvNodeAddrText": {
-    "description": "Text of the notice about the corrected node address. The addresses stay as written."
+    "description": "Text of the notice about the corrected node address. The addresses stay as written.",
+    "placeholders": {
+      "node": {
+        "type": "String",
+        "example": "node.example.org"
+      },
+      "old": {
+        "type": "String",
+        "example": "node.example.org:3413"
+      }
+    }
   },
   "deskOvNodeIncompatTitle": "Node version not compatible",
   "@deskOvNodeIncompatTitle": {
@@ -25,7 +35,7 @@
     "placeholders": {
       "url": {
         "type": "String",
-        "example": "node.epiccash.com"
+        "example": "node.example.org"
       }
     }
   },
@@ -47,7 +57,7 @@
     "placeholders": {
       "url": {
         "type": "String",
-        "example": "node.epiccash.com"
+        "example": "node.example.org"
       }
     }
   },

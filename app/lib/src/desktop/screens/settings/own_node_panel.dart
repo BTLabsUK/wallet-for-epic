@@ -25,6 +25,7 @@ import '../../widgets/server_row.dart' show digitsText;
 import 'local_node.dart' show LocalTab, NodeTile, NodeSyncBar, StageStrip;
 import 'local_node_peers.dart';
 import 'prefs.dart';
+import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// How often an own node is asked while its panel is open.
 const Duration ownAskEvery = Duration(seconds: 15);
@@ -421,7 +422,7 @@ String poolText(AppLocalizations l, int n) => n == 0 ? l.deskOwnPoolEmpty : l.de
 
 /// "Asked directly every 15 s · tip from the status site" (or "from 4 public nodes").
 String sourceLine(AppLocalizations l, NodeInfo? i) => switch (i?.tipFrom) {
-  TipReference.statusSite => l.deskOwnSourceSite,
+  TipReference.statusSite => l.deskOwnSourceSite(statusSiteHost),
   TipReference.publicNodes => l.deskOwnSourceNodes(i!.tipNodes ?? 0),
   null => l.deskOwnSourceNone,
 };

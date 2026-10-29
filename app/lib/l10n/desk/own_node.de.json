@@ -7,7 +7,7 @@
   "deskOwnFactMempool": "Mempool",
   "deskOwnPoolEmpty": "leer",
   "deskOwnPoolWaiting": "{count, plural, one{1 wartet} other{{count} warten}}",
-  "deskOwnSourceSite": "Alle 15 s direkt gefragt · Spitze von status.btlabs.uk",
+  "deskOwnSourceSite": "Alle 15 s direkt gefragt · Spitze von {site}",
   "deskOwnSourceNodes": "{count, plural, one{Alle 15 s direkt gefragt · Spitze von 1 öffentlichen Node} other{Alle 15 s direkt gefragt · Spitze von {count} öffentlichen Nodes}}",
   "deskOwnSourceNone": "Alle 15 s direkt gefragt · keine Netzwerkspitze zum Vergleich",
   "deskOwnSyncingLine": "Bis er synchronisiert ist, kann die Wallet über ihn weder senden noch empfangen",
@@ -48,7 +48,7 @@
   "deskOwnSyncUsingTitle": "{host} bis zur Synchronisierung dieses Nodes",
   "deskOwnSyncUsingText": "Die Wallet wechselt zurück, sobald dieser Node Transaktionen annimmt.",
   "deskOwnMine": "Das ist mein Node",
-  "deskOwnMineHint": "Fragt den Node selbst statt status.btlabs.uk und bietet Besitzerzugang an. Für einen Node, den Sie selbst betreiben.",
+  "deskOwnMineHint": "Fragt den Node selbst statt {site} und bietet Besitzerzugang an. Für einen Node, den Sie selbst betreiben.",
   "deskOwnSlotSyncing": "Eigener Node synchronisiert",
   "deskOwnAccessOnPlain": "Hinzugefügt · geht unverschlüsselt (http) an den Node, in diesem Netz mitlesbar"
 }

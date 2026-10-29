@@ -14,7 +14,7 @@
   "deskSetRecvEpicboxServerHint": "Welcher Server Zahlungen für diese Adresse hält. Die beiden Wallets können verschiedene Server nutzen.",
   "deskSetRecvEpicboxOwnHint": "Diese Wallet hat einen eigenen Epicbox-Server aus der älteren App. Eine Änderung hier gilt nur für diese Wallet.",
   "deskSetRecvSwitchingServer": "Epicbox-Server wird gewechselt…",
-  "deskSetRecvListNote": "Status von status.btlabs.uk.",
+  "deskSetRecvListNote": "Status von {site}.",
   "deskSetRecvHttpText": "Direkt von einer anderen Wallet an der Web-Adresse dieses Computers, solange diese Wallet geöffnet ist.",
   "deskSetRecvHttpOffTitle": "Aus, solange Tor an ist",
   "deskSetRecvHttpOffText": "Zahlungen direkt von einer anderen Wallet kommen stattdessen an der Link · Tor-Adresse an.",

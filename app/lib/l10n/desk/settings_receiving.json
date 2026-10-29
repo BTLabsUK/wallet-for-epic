@@ -84,9 +84,15 @@
   "@deskSetRecvSwitchingServer": {
     "description": "Settings > Receiving: shown while the Epicbox server is switched."
   },
-  "deskSetRecvListNote": "Status from status.btlabs.uk.",
+  "deskSetRecvListNote": "Status from {site}.",
   "@deskSetRecvListNote": {
-    "description": "Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays."
+    "description": "Epicbox server picker: footer under the list. The status site's host name {site} stays as it is.",
+    "placeholders": {
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
   },
   "deskSetRecvHttpText": "Straight from another wallet at this computer’s web address, while this wallet is open.",
   "@deskSetRecvHttpText": {

@@ -22,6 +22,7 @@ import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
 import 'settings_privacy.dart' show torStateLine;
+import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// Start states of Settings › Transactions (once Receiving), for the tour. [directOn] has the
 /// Direct switch on, [sendOptions] also Advanced › Send options.
@@ -502,7 +503,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               tone: epicboxTone(status.epicboxHealth),
               servers: relayPanelRows([...boxes, if (!boxes.any((b) => relayLabel(b) == relayLabel(box))) box], defaultHost: EpicboxRelay.parse(shippedHostSettings.epicboxUse)?.label ?? shippedHostSettings.epicboxUse),
               source: relaySource(boxes, inUse: relayLabel(box)),
-              listNote: st.settings.useStatusSite ? l.deskSetRecvListNote : null,
+              listNote: st.settings.useStatusSite ? l.deskSetRecvListNote(statusSiteHost) : null,
               busy: _switching,
               busyLabel: l.deskSetRecvSwitchingServer,
               openInitially: widget.arg == ReceivingDemo.comboOpen,

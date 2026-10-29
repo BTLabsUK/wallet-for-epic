@@ -2,7 +2,7 @@
   "deskOvNotUpdated": "Nicht aktualisiert",
   "deskOvNodeNotStarted": "Node nicht gestartet",
   "deskOvNodeAddrTitle": "Node-Adresse aktualisiert",
-  "deskOvNodeAddrText": "Jetzt wird node.epiccash.com statt node.epiccash.com:3413 genutzt.",
+  "deskOvNodeAddrText": "Jetzt wird {node} statt {old} genutzt.",
   "deskOvNodeIncompatTitle": "Node-Version nicht kompatibel",
   "deskOvNodeUrl": "Node: {url}",
   "deskOvUsePublicNode": "Öffentlichen Node nutzen",

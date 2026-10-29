@@ -67,6 +67,7 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 import 'wallet_delete.dart';
+import '../settings_file/status_site.dart' show statusSiteHost;
 
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 
@@ -655,7 +656,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
       HintSwitchTile(
         icon: Icons.travel_explore,
-        title: l.settingsUseStatusSite,
+        title: l.settingsUseStatusSite(statusSiteHost),
         hint: l.settingsUseStatusSiteSubtitle,
         value: s.useStatusSite,
         onChanged: _settings.setUseStatusSite,

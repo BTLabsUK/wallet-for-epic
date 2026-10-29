@@ -301,9 +301,15 @@
       }
     }
   },
-  "deskKitLimitedNetwork": "status.btlabs.uk is not reachable; the facts come from the node only.",
+  "deskKitLimitedNetwork": "{site} is not reachable; the facts come from the node only.",
   "@deskKitLimitedNetwork": {
-    "description": "Line on the node card when the status website cannot be reached and only the node itself answered."
+    "description": "Line on the node card when the status website cannot be reached and only the node itself answered.",
+    "placeholders": {
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
   },
   "deskKitFactHeight": "Height",
   "@deskKitFactHeight": {
@@ -391,18 +397,22 @@
   "@deskKitListedOfficial": {
     "description": "Small note under Operator: the node is on the official list. Lowercase, short."
   },
-  "deskKitSourceChecked": "status.btlabs.uk, checked {time}",
+  "deskKitSourceChecked": "{site}, checked {time}",
   "@deskKitSourceChecked": {
     "description": "Source line of the node card: the status site and when it was last asked. {time} is e.g. 14:05.",
     "placeholders": {
       "time": {
         "type": "String"
+      },
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
       }
     }
   },
   "deskKitLatencyMeasured": "latency measured {where}",
   "@deskKitLatencyMeasured": {
-    "description": "Source line of the node card. {where} is 'from this computer', 'over Tor' or 'from status.btlabs.uk'.",
+    "description": "Source line of the node card. {where} is 'from this computer', 'over Tor' or 'from the status site'.",
     "placeholders": {
       "where": {
         "type": "String"
@@ -460,9 +470,15 @@
   "@deskKitLimitedInfo": {
     "description": "Small warning tag on the node card: only some facts are known."
   },
-  "deskKitFromStatusSite": "from status.btlabs.uk",
+  "deskKitFromStatusSite": "from {site}",
   "@deskKitFromStatusSite": {
-    "description": "Small note under Latency: measured by the status website."
+    "description": "Small note under Latency: measured by the status website.",
+    "placeholders": {
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
   },
   "deskKitOverTor": "over Tor",
   "@deskKitOverTor": {

@@ -1829,10 +1829,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setupRelayDownIconLabel => '不可用';
 
   @override
-  String get setupRelayHealthUnavailable => '无法从 status.btlabs.uk 获取服务器状态。';
+  String setupRelayHealthUnavailable(String site) {
+    return '无法从 $site 获取服务器状态。';
+  }
 
   @override
-  String get setupRelayHealthSource => '状态来自 status.btlabs.uk，由其服务器测得。';
+  String setupRelayHealthSource(String site) {
+    return '状态来自 $site，由其服务器测得。';
+  }
 
   @override
   String get setupRelayNotMonitored => '未监控';
@@ -2785,7 +2789,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get settingsTitle => '设置';
@@ -3181,7 +3185,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get settingsUseStatusSite => '使用 status.btlabs.uk';
+  String settingsUseStatusSite(String site) {
+    return '使用 $site';
+  }
 
   @override
   String get settingsUseStatusSiteSubtitle =>
@@ -4413,7 +4419,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverPublicRelays => '公共服务器';
 
   @override
-  String get serverHealthUnknown => '无法访问 status.btlabs.uk；状态未知';
+  String serverHealthUnknown(String site) {
+    return '无法访问 $site；状态未知';
+  }
 
   @override
   String get serverAtTip => '已是最新';
@@ -4558,8 +4566,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String serverCheckedAt(String time) {
-    return 'status.btlabs.uk，检查于 $time';
+  String serverCheckedAt(String time, String site) {
+    return '$site，检查于 $time';
   }
 
   @override
@@ -7427,7 +7435,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get deskConAddPicture => '添加图片';
@@ -7927,8 +7935,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvNodeAddrTitle => '节点地址已更新';
 
   @override
-  String get deskOvNodeAddrText =>
-      '现在使用 node.epiccash.com，而不是 node.epiccash.com:3413。';
+  String deskOvNodeAddrText(String node, String old) {
+    return '现在使用 $node，而不是 $old。';
+  }
 
   @override
   String get deskOvNodeIncompatTitle => '节点版本不兼容';
@@ -9724,7 +9733,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskKitLimitedNetwork => '无法访问 status.btlabs.uk；信息仅来自节点本身。';
+  String deskKitLimitedNetwork(String site) {
+    return '无法访问 $site；信息仅来自节点本身。';
+  }
 
   @override
   String get deskKitFactHeight => '高度';
@@ -9789,8 +9800,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitListedOfficial => '官方列表';
 
   @override
-  String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk，检查于 $time';
+  String deskKitSourceChecked(String time, String site) {
+    return '$site，检查于 $time';
   }
 
   @override
@@ -9828,7 +9839,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitLimitedInfo => '信息有限';
 
   @override
-  String get deskKitFromStatusSite => '来自 status.btlabs.uk';
+  String deskKitFromStatusSite(String site) {
+    return '来自 $site';
+  }
 
   @override
   String get deskKitOverTor => '经由 Tor';
@@ -11282,7 +11295,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetNodePortNote => '请检查地址和端口（通常是 3413）。';
 
   @override
-  String get deskSetNodeListNote => '状态来自 status.btlabs.uk；延迟从这台电脑测得。';
+  String deskSetNodeListNote(String site) {
+    return '状态来自 $site；延迟从这台电脑测得。';
+  }
 
   @override
   String get deskSetNodeStartTitle => '启动本地节点？';
@@ -11461,7 +11476,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPrivStatusSite => '状态网站';
 
   @override
-  String get deskSetPrivUseStatus => '使用 status.btlabs.uk';
+  String deskSetPrivUseStatus(String site) {
+    return '使用 $site';
+  }
 
   @override
   String get deskSetPrivUseStatusHint =>
@@ -11520,7 +11537,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvSwitchingServer => '正在切换 Epicbox 服务器…';
 
   @override
-  String get deskSetRecvListNote => '状态来自 status.btlabs.uk。';
+  String deskSetRecvListNote(String site) {
+    return '状态来自 $site。';
+  }
 
   @override
   String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包经此电脑的网址接收。';
@@ -13802,7 +13821,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上（默认为 epicbox.epiccash.com、epicbox.stackwallet.com 和 BT Labs 服务器）。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。';
+      '**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。';
 
   @override
   String get helpPairWaysP2 =>
@@ -16015,7 +16034,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSourceSite => '每 15 秒直接询问 · 最新高度来自 status.btlabs.uk';
+  String deskOwnSourceSite(String site) {
+    return '每 15 秒直接询问 · 最新高度来自 $site';
+  }
 
   @override
   String deskOwnSourceNodes(int count) {
@@ -16166,8 +16187,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOwnMine => '这是我的节点';
 
   @override
-  String get deskOwnMineHint =>
-      '直接询问节点本身而不是 status.btlabs.uk，并提供所有者访问。适用于你自己运行的节点。';
+  String deskOwnMineHint(String site) {
+    return '直接询问节点本身而不是 $site，并提供所有者访问。适用于你自己运行的节点。';
+  }
 
   @override
   String get deskOwnSlotSyncing => '自有节点正在同步';
@@ -16267,7 +16289,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）或链接地址（https://…）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）或链接地址（https://…）。';
 
   @override
   String get handshakeLink1NoTor => '你的钱包通过互联网把付款直接发到对方的钱包。这些币被锁定。';

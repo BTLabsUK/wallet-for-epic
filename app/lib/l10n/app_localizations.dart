@@ -3127,17 +3127,17 @@ abstract class AppLocalizations {
   /// **'Down'**
   String get setupRelayDownIconLabel;
 
-  /// Under the epicbox server list when the monitoring site could not be read. Keep status.btlabs.uk as it is.
+  /// Under the epicbox server list when the monitoring site could not be read. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Server health is unavailable from status.btlabs.uk.'**
-  String get setupRelayHealthUnavailable;
+  /// **'Server health is unavailable from {site}.'**
+  String setupRelayHealthUnavailable(String site);
 
-  /// Under the epicbox server list: where the up/down information comes from. Keep status.btlabs.uk as it is.
+  /// Under the epicbox server list: where the up/down information comes from. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Health from status.btlabs.uk, measured from its server.'**
-  String get setupRelayHealthSource;
+  /// **'Health from {site}, measured from its server.'**
+  String setupRelayHealthSource(String site);
 
   /// Subtitle of an epicbox server the monitoring site does not list.
   ///
@@ -3145,7 +3145,7 @@ abstract class AppLocalizations {
   /// **'Not monitored'**
   String get setupRelayNotMonitored;
 
-  /// First item of an epicbox server's subtitle, a list separated by ' · ' such as 'Up · epicnet.us · official · 99.5% up in the last day': the server is working.
+  /// First item of an epicbox server's subtitle, a list separated by ' · ' such as 'Up · node.example.org · official · 99.5% up in the last day': the server is working.
   ///
   /// In en, this message translates to:
   /// **'Up'**
@@ -3157,7 +3157,7 @@ abstract class AppLocalizations {
   /// **'Down'**
   String get setupRelayDown;
 
-  /// Item in an epicbox server's subtitle, a list separated by ' · ' such as 'Up · epicnet.us · official': the server is run by a known operator. Lower case in English because it follows other items.
+  /// Item in an epicbox server's subtitle, a list separated by ' · ' such as 'Up · node.example.org · official': the server is run by a known operator. Lower case in English because it follows other items.
   ///
   /// In en, this message translates to:
   /// **'official'**
@@ -4714,7 +4714,7 @@ abstract class AppLocalizations {
   /// Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
   String get contactsAddressInvalidAny;
 
   /// Title of the settings screen.
@@ -5413,7 +5413,7 @@ abstract class AppLocalizations {
   /// **'Shows the technical side: node and Epicbox server details, block heights, transaction files and logs. Off, the app keeps to what everyday use needs.'**
   String get settingsAdvancedOptionsSubtitle;
 
-  /// Settings section header above the status.btlabs.uk switch.
+  /// Settings section header above the the status site switch.
   ///
   /// In en, this message translates to:
   /// **'Privacy'**
@@ -5455,13 +5455,13 @@ abstract class AppLocalizations {
   /// **'{a} · {b}'**
   String settingsStateJoin(String a, String b);
 
-  /// Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is.
+  /// Settings switch: read server health and node lists from the the status site monitor. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Use status.btlabs.uk'**
-  String get settingsUseStatusSite;
+  /// **'Use {site}'**
+  String settingsUseStatusSite(String site);
 
-  /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name.
+  /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. the status site is a web address and stays; BT Labs is a name.
   ///
   /// In en, this message translates to:
   /// **'Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'**
@@ -7527,8 +7527,8 @@ abstract class AppLocalizations {
   /// Caption under the lists when the monitor did not answer.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk not reachable; health unknown'**
-  String get serverHealthUnknown;
+  /// **'{site} not reachable; health unknown'**
+  String serverHealthUnknown(String site);
 
   /// Node row: the node is at the network tip.
   ///
@@ -7737,8 +7737,8 @@ abstract class AppLocalizations {
   /// Directory source line with the time of the monitor's last check.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk, checked {time}'**
-  String serverCheckedAt(String time);
+  /// **'{site}, checked {time}'**
+  String serverCheckedAt(String time, String site);
 
   /// Screen reader label of a server row: host, then its facts.
   ///
@@ -12660,7 +12660,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
@@ -13464,8 +13464,8 @@ abstract class AppLocalizations {
   /// Text of the notice about the corrected node address. The addresses stay as written.
   ///
   /// In en, this message translates to:
-  /// **'Now using node.epiccash.com instead of node.epiccash.com:3413.'**
-  String get deskOvNodeAddrText;
+  /// **'Now using {node} instead of {old}.'**
+  String deskOvNodeAddrText(String node, String old);
 
   /// Title of a red notice on Overview: the node runs a version the wallet cannot use.
   ///
@@ -16416,8 +16416,8 @@ abstract class AppLocalizations {
   /// Line on the node card when the status website cannot be reached and only the node itself answered.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk is not reachable; the facts come from the node only.'**
-  String get deskKitLimitedNetwork;
+  /// **'{site} is not reachable; the facts come from the node only.'**
+  String deskKitLimitedNetwork(String site);
 
   /// Label of a fact on the node card: the node's block height. One short word.
   ///
@@ -16524,10 +16524,10 @@ abstract class AppLocalizations {
   /// Source line of the node card: the status site and when it was last asked. {time} is e.g. 14:05.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk, checked {time}'**
-  String deskKitSourceChecked(String time);
+  /// **'{site}, checked {time}'**
+  String deskKitSourceChecked(String time, String site);
 
-  /// Source line of the node card. {where} is 'from this computer', 'over Tor' or 'from status.btlabs.uk'.
+  /// Source line of the node card. {where} is 'from this computer', 'over Tor' or 'from the status site'.
   ///
   /// In en, this message translates to:
   /// **'latency measured {where}'**
@@ -16578,8 +16578,8 @@ abstract class AppLocalizations {
   /// Small note under Latency: measured by the status website.
   ///
   /// In en, this message translates to:
-  /// **'from status.btlabs.uk'**
-  String get deskKitFromStatusSite;
+  /// **'from {site}'**
+  String deskKitFromStatusSite(String site);
 
   /// Small note under Latency: measured through Tor.
   ///
@@ -18968,11 +18968,11 @@ abstract class AppLocalizations {
   /// **'Check the address and the port (usually 3413).'**
   String get deskSetNodePortNote;
 
-  /// Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is.
+  /// Settings > Node: footer under the node list. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Status from status.btlabs.uk; latency measured from this computer.'**
-  String get deskSetNodeListNote;
+  /// **'Status from {site}; latency measured from this computer.'**
+  String deskSetNodeListNote(String site);
 
   /// Dialog title before the local node program starts.
   ///
@@ -19292,13 +19292,13 @@ abstract class AppLocalizations {
   /// **'Status site'**
   String get deskSetPrivStatusSite;
 
-  /// Settings > Privacy: switch title and screen reader name. status.btlabs.uk is a web address and stays.
+  /// Settings > Privacy: switch title and screen reader name. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Use status.btlabs.uk'**
-  String get deskSetPrivUseStatus;
+  /// **'Use {site}'**
+  String deskSetPrivUseStatus(String site);
 
-  /// Settings > Privacy: hint under the status site switch. status.btlabs.uk is a web address and stays.
+  /// Settings > Privacy: hint under the status site switch.
   ///
   /// In en, this message translates to:
   /// **'Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'**
@@ -19388,11 +19388,11 @@ abstract class AppLocalizations {
   /// **'Switching the Epicbox server…'**
   String get deskSetRecvSwitchingServer;
 
-  /// Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays.
+  /// Epicbox server picker: footer under the list. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Status from status.btlabs.uk.'**
-  String get deskSetRecvListNote;
+  /// **'Status from {site}.'**
+  String deskSetRecvListNote(String site);
 
   /// Settings > Receiving: text of the HTTP receiving row.
   ///
@@ -20288,7 +20288,7 @@ abstract class AppLocalizations {
   /// **'Node  {version}'**
   String deskSetAboutNode(String version);
 
-  /// Settings › About: group head of the Epic Cash community links (Telegram, epiccash.com).
+  /// Settings › About: group head of the Epic Cash community links (Telegram, the website).
   ///
   /// In en, this message translates to:
   /// **'Community'**
@@ -21872,7 +21872,7 @@ abstract class AppLocalizations {
   /// **'In use'**
   String get deskSlInUse;
 
-  /// A row's health when status.btlabs.uk has nothing on the server.
+  /// A row's health when the status site has nothing on the server.
   ///
   /// In en, this message translates to:
   /// **'Health unknown'**
@@ -23357,7 +23357,7 @@ abstract class AppLocalizations {
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.'**
+  /// **'**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers. The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.'**
   String get helpPairWaysP1;
 
   /// Paragraph
@@ -26801,8 +26801,8 @@ abstract class AppLocalizations {
   /// Source line under the own node's facts: the app asks the node itself every 15 seconds; the network tip it compares with comes from the status site.
   ///
   /// In en, this message translates to:
-  /// **'Asked directly every 15 s · tip from status.btlabs.uk'**
-  String get deskOwnSourceSite;
+  /// **'Asked directly every 15 s · tip from {site}'**
+  String deskOwnSourceSite(String site);
 
   /// Source line under the own node's facts when the status site does not answer: the network tip is the median of this many public nodes.
   ///
@@ -27047,8 +27047,8 @@ abstract class AppLocalizations {
   /// Hint behind the info icon of the 'This is my node' row.
   ///
   /// In en, this message translates to:
-  /// **'Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.'**
-  String get deskOwnMineHint;
+  /// **'Asks the node itself instead of {site} and offers owner access. For a node you run yourself.'**
+  String deskOwnMineHint(String site);
 
   /// Line in the sidebar's now-happening slot while the user's own node syncs; the detail is a percent or 'N behind'.
   ///
@@ -27152,7 +27152,7 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{1 waiting} other{{count} waiting}}'**
   String ownNodePoolWaiting(int count);
 
-  /// Source line under the own node box: the phone asks the node itself every 15 seconds, not status.btlabs.uk.
+  /// Source line under the own node box: the phone asks the node itself every 15 seconds, not the status site.
   ///
   /// In en, this message translates to:
   /// **'Asked directly from this phone every 15 s'**
@@ -27227,7 +27227,7 @@ abstract class AppLocalizations {
   /// contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com) or a Link address (https://…).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).'**
   String get contactsAddressInvalidAnyNoTor;
 
   /// handshakeLink1 in the build without Tor: the same caption without Tor.

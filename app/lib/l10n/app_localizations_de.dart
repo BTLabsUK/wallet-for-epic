@@ -1963,12 +1963,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get setupRelayDownIconLabel => 'Ausgefallen';
 
   @override
-  String get setupRelayHealthUnavailable =>
-      'Der Serverstatus ist bei status.btlabs.uk nicht abrufbar.';
+  String setupRelayHealthUnavailable(String site) {
+    return 'Der Serverstatus ist bei $site nicht abrufbar.';
+  }
 
   @override
-  String get setupRelayHealthSource =>
-      'Status von status.btlabs.uk, gemessen von dessen Server aus.';
+  String setupRelayHealthSource(String site) {
+    return 'Status von $site, gemessen von dessen Server aus.';
+  }
 
   @override
   String get setupRelayNotMonitored => 'Nicht überwacht';
@@ -3004,7 +3006,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
 
   @override
   String get settingsTitle => 'Einstellungen';
@@ -3420,7 +3422,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get settingsUseStatusSite => 'status.btlabs.uk nutzen';
+  String settingsUseStatusSite(String site) {
+    return '$site nutzen';
+  }
 
   @override
   String get settingsUseStatusSiteSubtitle =>
@@ -4727,8 +4731,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverPublicRelays => 'Öffentliche Server';
 
   @override
-  String get serverHealthUnknown =>
-      'status.btlabs.uk nicht erreichbar; Zustand unbekannt';
+  String serverHealthUnknown(String site) {
+    return '$site nicht erreichbar; Zustand unbekannt';
+  }
 
   @override
   String get serverAtTip => 'aktuell';
@@ -4882,8 +4887,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String serverCheckedAt(String time) {
-    return 'status.btlabs.uk, geprüft $time';
+  String serverCheckedAt(String time, String site) {
+    return '$site, geprüft $time';
   }
 
   @override
@@ -8026,7 +8031,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server), eine Link-Adresse (https://…) oder eine Onion-Adresse (….onion).';
 
   @override
   String get deskConAddPicture => 'Bild hinzufügen';
@@ -8592,8 +8597,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOvNodeAddrTitle => 'Node-Adresse aktualisiert';
 
   @override
-  String get deskOvNodeAddrText =>
-      'Jetzt wird node.epiccash.com statt node.epiccash.com:3413 genutzt.';
+  String deskOvNodeAddrText(String node, String old) {
+    return 'Jetzt wird $node statt $old genutzt.';
+  }
 
   @override
   String get deskOvNodeIncompatTitle => 'Node-Version nicht kompatibel';
@@ -10507,8 +10513,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskKitLimitedNetwork =>
-      'status.btlabs.uk ist nicht erreichbar; die Angaben stammen nur vom Node.';
+  String deskKitLimitedNetwork(String site) {
+    return '$site ist nicht erreichbar; die Angaben stammen nur vom Node.';
+  }
 
   @override
   String get deskKitFactHeight => 'Höhe';
@@ -10574,8 +10581,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitListedOfficial => 'als offiziell gelistet';
 
   @override
-  String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk, geprüft $time';
+  String deskKitSourceChecked(String time, String site) {
+    return '$site, geprüft $time';
   }
 
   @override
@@ -10613,7 +10620,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitLimitedInfo => 'Wenige Angaben';
 
   @override
-  String get deskKitFromStatusSite => 'von status.btlabs.uk';
+  String deskKitFromStatusSite(String site) {
+    return 'von $site';
+  }
 
   @override
   String get deskKitOverTor => 'über Tor';
@@ -12135,8 +12144,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetNodePortNote => 'Prüfen Sie Adresse und Port (meist 3413).';
 
   @override
-  String get deskSetNodeListNote =>
-      'Status von status.btlabs.uk; Latenz von diesem Computer aus gemessen.';
+  String deskSetNodeListNote(String site) {
+    return 'Status von $site; Latenz von diesem Computer aus gemessen.';
+  }
 
   @override
   String get deskSetNodeStartTitle => 'Lokalen Node starten?';
@@ -12329,7 +12339,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetPrivStatusSite => 'Status-Website';
 
   @override
-  String get deskSetPrivUseStatus => 'status.btlabs.uk nutzen';
+  String deskSetPrivUseStatus(String site) {
+    return '$site nutzen';
+  }
 
   @override
   String get deskSetPrivUseStatusHint =>
@@ -12390,7 +12402,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'Epicbox-Server wird gewechselt…';
 
   @override
-  String get deskSetRecvListNote => 'Status von status.btlabs.uk.';
+  String deskSetRecvListNote(String site) {
+    return 'Status von $site.';
+  }
 
   @override
   String get deskSetRecvHttpText =>
@@ -14864,7 +14878,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**Gesprochen.** Eine Wallet zeigt fünf Wörter und legt eine versiegelte Einladung auf den Verbindungsservern ab (Standard sind epicbox.epiccash.com, epicbox.stackwallet.com und der BT-Labs-Server). Die andere Wallet tippt die Wörter und findet sie. Beide Wallets müssen online sein und einen dieser Server erreichen.';
+      '**Gesprochen.** Eine Wallet zeigt fünf Wörter und legt eine versiegelte Einladung auf den Verbindungsservern ab. Die andere Wallet tippt die Wörter und findet sie. Beide Wallets müssen online sein und einen dieser Server erreichen.';
 
   @override
   String get helpPairWaysP2 =>
@@ -17225,8 +17239,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSourceSite =>
-      'Alle 15 s direkt gefragt · Spitze von status.btlabs.uk';
+  String deskOwnSourceSite(String site) {
+    return 'Alle 15 s direkt gefragt · Spitze von $site';
+  }
 
   @override
   String deskOwnSourceNodes(int count) {
@@ -17385,8 +17400,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOwnMine => 'Das ist mein Node';
 
   @override
-  String get deskOwnMineHint =>
-      'Fragt den Node selbst statt status.btlabs.uk und bietet Besitzerzugang an. Für einen Node, den Sie selbst betreiben.';
+  String deskOwnMineHint(String site) {
+    return 'Fragt den Node selbst statt $site und bietet Besitzerzugang an. Für einen Node, den Sie selbst betreiben.';
+  }
 
   @override
   String get deskOwnSlotSyncing => 'Eigener Node synchronisiert';
@@ -17492,7 +17508,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@epicbox.epiccash.com) oder eine Link-Adresse (https://…).';
+      'Keine gültige Adresse. Verwenden Sie eine Epicbox-Adresse (es5x…@Server) oder eine Link-Adresse (https://…).';
 
   @override
   String get handshakeLink1NoTor =>

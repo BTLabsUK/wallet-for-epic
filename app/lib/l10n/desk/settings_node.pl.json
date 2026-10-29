@@ -1,6 +1,6 @@
 {
   "deskSetNodePortNote": "Sprawdź adres i port (zwykle 3413).",
-  "deskSetNodeListNote": "Stan ze status.btlabs.uk; opóźnienie mierzone z tego komputera.",
+  "deskSetNodeListNote": "Stan ze {site}; opóźnienie mierzone z tego komputera.",
   "deskSetNodeStartTitle": "Uruchomić węzeł lokalny?",
   "deskSetNodeStartDesc": "Osobny program synchronizuje łańcuch Epic na tym komputerze.",
   "deskSetNodeStartLine1": "Pobiera cały łańcuch: kilka GB miejsca na dysku i transferu.",

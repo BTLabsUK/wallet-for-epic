@@ -1992,12 +1992,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get setupRelayDownIconLabel => 'Не работает';
 
   @override
-  String get setupRelayHealthUnavailable =>
-      'Не удалось получить состояние серверов с status.btlabs.uk.';
+  String setupRelayHealthUnavailable(String site) {
+    return 'Не удалось получить состояние серверов с $site.';
+  }
 
   @override
-  String get setupRelayHealthSource =>
-      'Состояние по данным status.btlabs.uk, проверка ведётся с его сервера.';
+  String setupRelayHealthSource(String site) {
+    return 'Состояние по данным $site, проверка ведётся с его сервера.';
+  }
 
   @override
   String get setupRelayNotMonitored => 'Не отслеживается';
@@ -3043,7 +3045,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get settingsTitle => 'Настройки';
@@ -3457,7 +3459,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get settingsUseStatusSite => 'Использовать status.btlabs.uk';
+  String settingsUseStatusSite(String site) {
+    return 'Использовать $site';
+  }
 
   @override
   String get settingsUseStatusSiteSubtitle =>
@@ -4777,8 +4781,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverPublicRelays => 'Публичные серверы';
 
   @override
-  String get serverHealthUnknown =>
-      'status.btlabs.uk недоступен; состояние неизвестно';
+  String serverHealthUnknown(String site) {
+    return '$site недоступен; состояние неизвестно';
+  }
 
   @override
   String get serverAtTip => 'актуален';
@@ -4937,8 +4942,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String serverCheckedAt(String time) {
-    return 'status.btlabs.uk, проверено $time';
+  String serverCheckedAt(String time, String site) {
+    return '$site, проверено $time';
   }
 
   @override
@@ -8224,7 +8229,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';
@@ -8837,8 +8842,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOvNodeAddrTitle => 'Адрес узла обновлён';
 
   @override
-  String get deskOvNodeAddrText =>
-      'Теперь используется node.epiccash.com вместо node.epiccash.com:3413.';
+  String deskOvNodeAddrText(String node, String old) {
+    return 'Теперь используется $node вместо $old.';
+  }
 
   @override
   String get deskOvNodeIncompatTitle => 'Несовместимая версия узла';
@@ -10804,8 +10810,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskKitLimitedNetwork =>
-      'status.btlabs.uk недоступен; сведения получены только от узла.';
+  String deskKitLimitedNetwork(String site) {
+    return '$site недоступен; сведения получены только от узла.';
+  }
 
   @override
   String get deskKitFactHeight => 'Высота';
@@ -10873,8 +10880,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitListedOfficial => 'в списке официальных';
 
   @override
-  String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk, проверено в $time';
+  String deskKitSourceChecked(String time, String site) {
+    return '$site, проверено в $time';
   }
 
   @override
@@ -10912,7 +10919,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitLimitedInfo => 'Неполные данные';
 
   @override
-  String get deskKitFromStatusSite => 'с status.btlabs.uk';
+  String deskKitFromStatusSite(String site) {
+    return 'с $site';
+  }
 
   @override
   String get deskKitOverTor => 'через Tor';
@@ -12452,8 +12461,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetNodePortNote => 'Проверьте адрес и порт (обычно 3413).';
 
   @override
-  String get deskSetNodeListNote =>
-      'Состояние по данным status.btlabs.uk; задержка измерена с этого компьютера.';
+  String deskSetNodeListNote(String site) {
+    return 'Состояние по данным $site; задержка измерена с этого компьютера.';
+  }
 
   @override
   String get deskSetNodeStartTitle => 'Запустить локальный узел?';
@@ -12646,7 +12656,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPrivStatusSite => 'Сайт статуса';
 
   @override
-  String get deskSetPrivUseStatus => 'Использовать status.btlabs.uk';
+  String deskSetPrivUseStatus(String site) {
+    return 'Использовать $site';
+  }
 
   @override
   String get deskSetPrivUseStatusHint =>
@@ -12707,7 +12719,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'Переключение сервера Epicbox…';
 
   @override
-  String get deskSetRecvListNote => 'Состояние по данным status.btlabs.uk.';
+  String deskSetRecvListNote(String site) {
+    return 'Состояние по данным $site.';
+  }
 
   @override
   String get deskSetRecvHttpText =>
@@ -15196,7 +15210,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**Устно.** Один кошелёк показывает пять слов и оставляет запечатанное приглашение на серверах подключения (по умолчанию это epicbox.epiccash.com, epicbox.stackwallet.com и сервер BT Labs). Второй кошелёк вводит слова и находит его. Оба кошелька должны быть онлайн и иметь доступ к одному из этих серверов.';
+      '**Устно.** Один кошелёк показывает пять слов и оставляет запечатанное приглашение на серверах подключения. Второй кошелёк вводит слова и находит его. Оба кошелька должны быть онлайн и иметь доступ к одному из этих серверов.';
 
   @override
   String get helpPairWaysP2 =>
@@ -17605,8 +17619,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSourceSite =>
-      'Опрашивается напрямую каждые 15 с · вершина от status.btlabs.uk';
+  String deskOwnSourceSite(String site) {
+    return 'Опрашивается напрямую каждые 15 с · вершина от $site';
+  }
 
   @override
   String deskOwnSourceNodes(int count) {
@@ -17770,8 +17785,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOwnMine => 'Это мой узел';
 
   @override
-  String get deskOwnMineHint =>
-      'Опрашивает сам узел вместо status.btlabs.uk и предлагает доступ владельца. Для узла, который вы держите сами.';
+  String deskOwnMineHint(String site) {
+    return 'Опрашивает сам узел вместо $site и предлагает доступ владельца. Для узла, который вы держите сами.';
+  }
 
   @override
   String get deskOwnSlotSyncing => 'Свой узел синхронизируется';
@@ -17880,7 +17896,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com) или адрес ссылки (https://…).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер) или адрес ссылки (https://…).';
 
   @override
   String get handshakeLink1NoTor =>

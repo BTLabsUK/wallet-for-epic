@@ -48,6 +48,7 @@ import 'relay_blocked.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
+import '../settings_file/status_site.dart' show statusSiteHost;
 
 // The sheet.
 
@@ -1564,7 +1565,7 @@ class _HealthCaption extends ConsumerWidget {
       AsyncError() when ref.watch(useStatusSiteProvider) => Padding(
         padding: const EdgeInsets.only(top: 8),
         child: Text(
-          context.l10n.serverHealthUnknown,
+          context.l10n.serverHealthUnknown(statusSiteHost),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim),
         ),
       ),
@@ -1741,7 +1742,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
             Text(network.join(' · '), style: small),
           ],
           if (checked != null)
-            Text(l.serverCheckedAt(localClock(l, checked.toLocal())), style: small),
+            Text(l.serverCheckedAt(statusSiteHost, localClock(l, checked.toLocal())), style: small),
         ],
       ),
     );

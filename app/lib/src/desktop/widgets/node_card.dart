@@ -13,6 +13,7 @@ import '../data/desk_node.dart';
 import '../data/node_view.dart';
 import 'kit.dart';
 import 'server_row.dart' show digitsText;
+import '../../settings_file/status_site.dart' show statusSiteHost;
 
 /// "2 min ago", "40 s ago", "3 h ago".
 String ageText(AppLocalizations l, Duration d) {
@@ -42,7 +43,7 @@ String _unknownReadiness(AppLocalizations l, String? version) {
   return (parts.isEmpty ? '–' : parts.join(' · '), forked);
 }
 
-String limitedNetworkLine(AppLocalizations l) => l.deskKitLimitedNetwork;
+String limitedNetworkLine(AppLocalizations l) => l.deskKitLimitedNetwork(statusSiteHost);
 
 /// The "best" other node for the Switch action: the healthy node with the lowest latency.
 class SwitchTarget {
@@ -135,7 +136,7 @@ class NodeCard extends StatelessWidget {
     final String? sourceLine;
     if (directory) {
       sourceLine = [
-        l.deskKitSourceChecked(hhmm(i.at)),
+        l.deskKitSourceChecked(statusSiteHost, hhmm(i.at)),
         if (where != null && !i.latencyFromMonitor) l.deskKitLatencyMeasured(where),
       ].join(' · ');
     } else if (limited) {
@@ -259,6 +260,6 @@ class NodeFact extends StatelessWidget {
 /// Tor switch is on ([torOn]) it is never "from this computer" for a remote node.
 String? latencyWhere(AppLocalizations l, NodeInfo i, {bool torOn = false}) {
   if (shownLatency(i, torOn: torOn) == null) return null;
-  if (i.latencyFromMonitor) return l.deskKitFromStatusSite;
+  if (i.latencyFromMonitor) return l.deskKitFromStatusSite(statusSiteHost);
   return i.latencyOverTor || (torOn && !isLocalNodeUrl(i.url)) ? l.deskKitOverTor : l.deskKitFromThisComputer;
 }

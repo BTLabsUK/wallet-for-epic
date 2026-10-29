@@ -2,7 +2,7 @@
   "deskOvNotUpdated": "未更新",
   "deskOvNodeNotStarted": "节点未启动",
   "deskOvNodeAddrTitle": "节点地址已更新",
-  "deskOvNodeAddrText": "现在使用 node.epiccash.com，而不是 node.epiccash.com:3413。",
+  "deskOvNodeAddrText": "现在使用 {node}，而不是 {old}。",
   "deskOvNodeIncompatTitle": "节点版本不兼容",
   "deskOvNodeUrl": "节点：{url}",
   "deskOvUsePublicNode": "使用公共节点",

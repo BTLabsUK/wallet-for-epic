@@ -14,6 +14,6 @@
   "deskSetPrivStoppedDetail": "Tor หยุดแล้ว ลองอีกครั้ง หรือปิด Tor",
   "deskSetPrivProblemDetail": "{problem} ลองอีกครั้ง หรือปิด Tor",
   "deskSetPrivStatusSite": "เว็บสถานะ",
-  "deskSetPrivUseStatus": "ใช้ status.btlabs.uk",
+  "deskSetPrivUseStatus": "ใช้ {site}",
   "deskSetPrivUseStatusHint": "แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่ ดาวน์โหลดเพียงรายการสาธารณะ ไม่มีการส่งข้อมูลใดจากกระเป๋าเงิน"
 }

@@ -12,7 +12,7 @@ const List<HelpSection> helpSectionsPl = [
   (id: 'safety', title: 'Bezpieczeństwo portfela', lede: 'Fraza odzyskiwania to kopia zapasowa i klucz.', art: 'help-safety'),
   (id: 'network', title: 'Węzły i Epicbox', lede: 'Z czym łączy się portfel, oraz Tor.', art: 'help-network'),
   (id: 'trouble', title: 'Gdy coś nie działa', lede: 'Typowe przyczyny i co zrobić.', art: 'help-trouble'),
-  (id: 'maintenance', title: 'Konserwacja', lede: 'Stare foldery portfeli na dysku.', art: 'help-maintenance'),
+  (id: 'maintenance', title: 'Konserwacja', lede: 'Stare foldery portfeli na dysku i plik ustawień.', art: 'help-maintenance'),
 ];
 
 List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform, bool tor = true}) {
@@ -40,7 +40,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Odbierz pierwsze EPIC',
       'Otwórz Odbierz, skopiuj adres Epicbox i przekaż go nadawcy. Płatność dotrze sama.',
       [
-        const HelpBlock.p('Adres Epicbox to długi kod, który kończy się znakiem **@** i nazwą serwera Epicbox, na przykład **…@epicbox.epiccash.com**. Można go bezpiecznie udostępniać: inni potrzebują go, aby zapłacić, i nikt nie może nim nic zabrać.'),
+        const HelpBlock.p('Adres Epicbox to długi kod, który kończy się znakiem **@** i nazwą serwera Epicbox, na przykład **…@epicbox.example.org**. Można go bezpiecznie udostępniać: inni potrzebują go, aby zapłacić, i nikt nie może nim nic zabrać.'),
         const HelpBlock.ol(['Otwórz [[Odbierz|Receive]].', 'Skopiuj adres (lub pokaż jego kod QR) i wyślij go osobie, która płaci.', 'Płatność sama pojawi się w Aktywności.']),
         if (phone)
           const HelpBlock.p('Odbieranie działa, gdy aplikacja jest otwarta, a węzeł zsynchronizowany. Płatność wysłana przy zamkniętej aplikacji czeka na serwerze Epicbox jak w skrytce pocztowej i dociera po następnym odblokowaniu.')
@@ -112,7 +112,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         tor ? 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy lub kończy się na .onion.' : 'Adres Epicbox zaczyna się od es i kończy znakiem @ i nazwą serwera. Adres bezpośredni to adres internetowy.',
         [
           HelpBlock.ul([
-            '**Epicbox**: około 52 znaków zaczynających się od **es**, potem **@** i serwer, na przykład **esXXXX…XXXX@epicbox.epiccash.com**. Domyślny sposób; odbiorca może być offline.',
+            '**Epicbox**: około 52 znaków zaczynających się od **es**, potem **@** i serwer, na przykład **esXXXX…XXXX@epicbox.example.org**. Domyślny sposób; odbiorca może być offline.',
             if (tor)
               '**Link · HTTP** i **Link · Tor**: własny portfel odbiorcy, otwarty w tej chwili. Adres internetowy, np. **http://host:3415**, idzie przez Link · HTTP; adres Tor z 56 znaków kończący się na **.onion** — przez Link · Tor, czyli przez Tor.'
             else
@@ -445,6 +445,35 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.cleanup,
       ),
+    HelpTopic(
+      'maintenance',
+      'Plik ustawień',
+      'Jeden plik wymienia każdy serwer, z którym łączy się portfel. Błąd w nim nigdy nie kosztuje ostatnich dobrych ustawień.',
+      [
+        if (phone) ...[
+          HelpBlock.p(
+            'Aplikacja prowadzi plik z każdym serwerem i każdą stroną, z którymi łączy się portfel: węzły, serwery Epicbox, strona stanu oraz źródła aktualizacji i cen. Zmienia się go w aplikacji, na przykład w $nodePlace i $epicboxPlace, nie ręcznie.',
+          ),
+          HelpBlock.ul([
+            '**Używany serwer Epicbox ustala adres Epicbox każdego portfela.** Po jego zmianie każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
+            '**Plik, którego nie da się odczytać:** ostatnie dobre ustawienia pozostają w użyciu. Zanim aplikacja zapisze nowy plik, zachowuje stary jako **settings.toml.bad-<time>**.',
+            'Usunięty plik jest zapisywany ponownie.',
+          ]),
+        ] else ...[
+          HelpBlock.p(
+            'Plik **settings.toml** wymienia każdy serwer i każdą stronę, z którymi łączy się portfel: węzły, serwery Epicbox, stronę stanu oraz źródła aktualizacji i cen. Leży w folderze danych: **~/.epic_cash_desktop/settings.toml** w Linuksie i macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** w Windows (**Otwórz folder** obok [[Ustawienia › Ten portfel › Pliki aplikacji|Settings › This wallet › App files]]).',
+          ),
+          HelpBlock.ul([
+            'Zmiana w aplikacji jest od razu zapisywana do pliku. Zmiana zapisana w pliku działa, gdy aplikacja pracuje, po chwili.',
+            '**Używany serwer Epicbox ustala adres Epicbox każdego portfela.** Po jego zmianie każdy portfel dostaje nowy adres; płatności wysłane na stary adres nie dochodzą.',
+            '**Błąd w pliku:** ostatnie dobre ustawienia pozostają w użyciu, komunikat wskazuje wiersz, a uszkodzony plik nigdy nie jest nadpisywany.',
+            'Gdy aplikacja musi zapisać plik z błędami, najpierw zachowuje go jako **settings.toml.bad-<time>**, a potem zapisuje dobry.',
+            'Usunięty plik jest zapisywany ponownie.',
+          ]),
+        ],
+      ],
+      id: HelpId.settingsFile,
+    ),
     ...deviceHelpTopics('pl', phone: phone),
   ];
 }

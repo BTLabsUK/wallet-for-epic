@@ -12,7 +12,7 @@ const List<HelpSection> helpSectionsDe = [
   (id: 'safety', title: 'Die Wallet schützen', lede: 'Die Wiederherstellungsphrase ist Sicherung und Schlüssel zugleich.', art: 'help-safety'),
   (id: 'network', title: 'Nodes und Epicbox', lede: 'Womit sich die Wallet verbindet, und Tor.', art: 'help-network'),
   (id: 'trouble', title: 'Wenn etwas nicht klappt', lede: 'Die üblichen Ursachen und was zu tun ist.', art: 'help-trouble'),
-  (id: 'maintenance', title: 'Wartung', lede: 'Alte Wallet-Ordner auf der Festplatte.', art: 'help-maintenance'),
+  (id: 'maintenance', title: 'Wartung', lede: 'Alte Wallet-Ordner auf der Festplatte und die Einstellungsdatei.', art: 'help-maintenance'),
 ];
 
 List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform, bool tor = true}) {
@@ -40,7 +40,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Die ersten EPIC empfangen',
       'Öffnen Sie Empfangen, kopieren Sie die Epicbox-Adresse und geben Sie sie dem Absender. Die Zahlung kommt von selbst an.',
       [
-        const HelpBlock.p('Die Epicbox-Adresse ist ein langer Code, der auf **@** und den Namen des Epicbox-Servers endet, zum Beispiel **…@epicbox.epiccash.com**. Sie kann gefahrlos weitergegeben werden: Andere brauchen sie zum Bezahlen, und niemand kann damit etwas wegnehmen.'),
+        const HelpBlock.p('Die Epicbox-Adresse ist ein langer Code, der auf **@** und den Namen des Epicbox-Servers endet, zum Beispiel **…@epicbox.example.org**. Sie kann gefahrlos weitergegeben werden: Andere brauchen sie zum Bezahlen, und niemand kann damit etwas wegnehmen.'),
         const HelpBlock.ol(['Öffnen Sie [[Empfangen|Receive]].', 'Kopieren Sie die Adresse (oder zeigen Sie ihren QR-Code) und senden Sie sie der Person, die bezahlt.', 'Die Zahlung erscheint von selbst unter Aktivität.']),
         if (phone)
           const HelpBlock.p('Empfangen funktioniert, solange die App geöffnet und der Node synchronisiert ist. Eine Zahlung, die bei geschlossener App gesendet wird, wartet auf dem Epicbox-Server, wie in einem Postfach, und kommt beim nächsten Entsperren an.')
@@ -112,7 +112,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         tor ? 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse oder endet auf .onion.' : 'Eine Epicbox-Adresse beginnt mit es und endet auf @ und einen Servernamen. Eine direkte Adresse ist eine Webadresse.',
         [
           HelpBlock.ul([
-            '**Epicbox**: etwa 52 Zeichen, beginnend mit **es**, dann **@** und der Server, zum Beispiel **esXXXX…XXXX@epicbox.epiccash.com**. Die Standardmethode; der Empfänger darf offline sein.',
+            '**Epicbox**: etwa 52 Zeichen, beginnend mit **es**, dann **@** und der Server, zum Beispiel **esXXXX…XXXX@epicbox.example.org**. Die Standardmethode; der Empfänger darf offline sein.',
             if (tor)
               '**Link · HTTP** und **Link · Tor**: die eigene Wallet des Empfängers, gerade geöffnet. Eine Webadresse wie **http://host:3415** läuft über Link · HTTP; eine Tor-Adresse aus 56 Zeichen, die auf **.onion** endet, über Link · Tor, also über Tor.'
             else
@@ -445,6 +445,35 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.cleanup,
       ),
+    HelpTopic(
+      'maintenance',
+      'Die Einstellungsdatei',
+      'Eine Datei nennt jeden Server, mit dem die Wallet spricht. Ein Fehler darin kostet nie die letzten guten Einstellungen.',
+      [
+        if (phone) ...[
+          HelpBlock.p(
+            'Die App führt eine Datei mit jedem Server und jeder Seite, mit denen die Wallet spricht: Nodes, Epicbox-Server, die Statusseite und die Quellen für Updates und Preise. Sie wird in der App geändert, zum Beispiel unter $nodePlace und $epicboxPlace, nicht von Hand.',
+          ),
+          HelpBlock.ul([
+            '**Der verwendete Epicbox-Server bestimmt die Epicbox-Adresse jeder Wallet.** Ändern Sie ihn, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
+            '**Eine Datei, die sich nicht lesen lässt:** Die letzten guten Einstellungen bleiben in Gebrauch. Bevor die App eine neue Datei schreibt, speichert sie die alte als **settings.toml.bad-<time>**.',
+            'Eine gelöschte Datei wird neu geschrieben.',
+          ]),
+        ] else ...[
+          HelpBlock.p(
+            'Die Datei **settings.toml** nennt jeden Server und jede Seite, mit denen die Wallet spricht: Nodes, Epicbox-Server, die Statusseite und die Quellen für Updates und Preise. Sie liegt im Datenordner: **~/.epic_cash_desktop/settings.toml** unter Linux und macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** unter Windows (**Ordner öffnen** neben [[Einstellungen › Diese Wallet › App-Dateien|Settings › This wallet › App files]]).',
+          ),
+          HelpBlock.ul([
+            'Eine Änderung in der App wird sofort in die Datei geschrieben. Eine Änderung, die Sie in der Datei speichern, gilt bei laufender App nach einem Moment.',
+            '**Der verwendete Epicbox-Server bestimmt die Epicbox-Adresse jeder Wallet.** Ändern Sie ihn, bekommt jede Wallet eine neue Adresse; Zahlungen an eine alte Adresse kommen nicht an.',
+            '**Ein Fehler in der Datei:** Die letzten guten Einstellungen bleiben in Gebrauch, ein Hinweis nennt die Zeile, und eine fehlerhafte Datei wird nie überschrieben.',
+            'Muss die App schreiben, während die Datei Fehler hat, speichert sie die Datei zuerst als **settings.toml.bad-<time>** und schreibt dann eine gute.',
+            'Eine gelöschte Datei wird neu geschrieben.',
+          ]),
+        ],
+      ],
+      id: HelpId.settingsFile,
+    ),
     ...deviceHelpTopics('de', phone: phone),
   ];
 }

@@ -1907,12 +1907,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get setupRelayDownIconLabel => 'ล่ม';
 
   @override
-  String get setupRelayHealthUnavailable =>
-      'ไม่มีข้อมูลสถานะเซิร์ฟเวอร์จาก status.btlabs.uk';
+  String setupRelayHealthUnavailable(String site) {
+    return 'ไม่มีข้อมูลสถานะเซิร์ฟเวอร์จาก $site';
+  }
 
   @override
-  String get setupRelayHealthSource =>
-      'สถานะจาก status.btlabs.uk วัดจากเซิร์ฟเวอร์ของเว็บนั้น';
+  String setupRelayHealthSource(String site) {
+    return 'สถานะจาก $site วัดจากเซิร์ฟเวอร์ของเว็บนั้น';
+  }
 
   @override
   String get setupRelayNotMonitored => 'ไม่ได้ตรวจสอบ';
@@ -2907,7 +2909,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
 
   @override
   String get settingsTitle => 'การตั้งค่า';
@@ -3314,7 +3316,9 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get settingsUseStatusSite => 'ใช้ status.btlabs.uk';
+  String settingsUseStatusSite(String site) {
+    return 'ใช้ $site';
+  }
 
   @override
   String get settingsUseStatusSiteSubtitle =>
@@ -4584,8 +4588,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverPublicRelays => 'เซิร์ฟเวอร์สาธารณะ';
 
   @override
-  String get serverHealthUnknown =>
-      'เข้าถึง status.btlabs.uk ไม่ได้ ไม่ทราบสถานะ';
+  String serverHealthUnknown(String site) {
+    return 'เข้าถึง $site ไม่ได้ ไม่ทราบสถานะ';
+  }
 
   @override
   String get serverAtTip => 'ล่าสุด';
@@ -4733,8 +4738,8 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String serverCheckedAt(String time) {
-    return 'status.btlabs.uk ตรวจเมื่อ $time';
+  String serverCheckedAt(String time, String site) {
+    return '$site ตรวจเมื่อ $time';
   }
 
   @override
@@ -7719,7 +7724,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)';
 
   @override
   String get deskConAddPicture => 'เพิ่มรูป';
@@ -8229,8 +8234,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOvNodeAddrTitle => 'อัปเดตที่อยู่โหนดแล้ว';
 
   @override
-  String get deskOvNodeAddrText =>
-      'ตอนนี้ใช้ node.epiccash.com แทน node.epiccash.com:3413';
+  String deskOvNodeAddrText(String node, String old) {
+    return 'ตอนนี้ใช้ $node แทน $old';
+  }
 
   @override
   String get deskOvNodeIncompatTitle => 'เวอร์ชันโหนดใช้ไม่ได้';
@@ -10087,8 +10093,9 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskKitLimitedNetwork =>
-      'เข้าถึง status.btlabs.uk ไม่ได้ ข้อมูลมาจากโหนดเท่านั้น';
+  String deskKitLimitedNetwork(String site) {
+    return 'เข้าถึง $site ไม่ได้ ข้อมูลมาจากโหนดเท่านั้น';
+  }
 
   @override
   String get deskKitFactHeight => 'บล็อก';
@@ -10153,8 +10160,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitListedOfficial => 'อยู่ในรายการทางการ';
 
   @override
-  String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk ตรวจเมื่อ $time';
+  String deskKitSourceChecked(String time, String site) {
+    return '$site ตรวจเมื่อ $time';
   }
 
   @override
@@ -10192,7 +10199,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitLimitedInfo => 'ข้อมูลจำกัด';
 
   @override
-  String get deskKitFromStatusSite => 'จาก status.btlabs.uk';
+  String deskKitFromStatusSite(String site) {
+    return 'จาก $site';
+  }
 
   @override
   String get deskKitOverTor => 'ผ่าน Tor';
@@ -11681,8 +11690,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetNodePortNote => 'ตรวจที่อยู่และพอร์ต (ปกติคือ 3413)';
 
   @override
-  String get deskSetNodeListNote =>
-      'สถานะจาก status.btlabs.uk เวลาตอบสนองวัดจากคอมพิวเตอร์นี้';
+  String deskSetNodeListNote(String site) {
+    return 'สถานะจาก $site เวลาตอบสนองวัดจากคอมพิวเตอร์นี้';
+  }
 
   @override
   String get deskSetNodeStartTitle => 'เริ่มโหนดในเครื่องไหม?';
@@ -11870,7 +11880,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetPrivStatusSite => 'เว็บสถานะ';
 
   @override
-  String get deskSetPrivUseStatus => 'ใช้ status.btlabs.uk';
+  String deskSetPrivUseStatus(String site) {
+    return 'ใช้ $site';
+  }
 
   @override
   String get deskSetPrivUseStatusHint =>
@@ -11931,7 +11943,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'กำลังเปลี่ยนเซิร์ฟเวอร์ Epicbox…';
 
   @override
-  String get deskSetRecvListNote => 'สถานะจาก status.btlabs.uk';
+  String deskSetRecvListNote(String site) {
+    return 'สถานะจาก $site';
+  }
 
   @override
   String get deskSetRecvHttpText =>
@@ -14324,7 +14338,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**ทางวาจา** กระเป๋าเงินหนึ่งแสดงห้าคำและวางคำเชิญที่ปิดผนึกไว้บนเซิร์ฟเวอร์เชื่อมต่อ (ค่าเริ่มต้นคือ epicbox.epiccash.com, epicbox.stackwallet.com และเซิร์ฟเวอร์ของ BT Labs) อีกกระเป๋าเงินพิมพ์คำแล้วหาคำเชิญพบ กระเป๋าเงินทั้งสองต้องออนไลน์และเข้าถึงเซิร์ฟเวอร์เหล่านี้ได้อย่างน้อยหนึ่งแห่ง';
+      '**ทางวาจา** กระเป๋าเงินหนึ่งแสดงห้าคำและวางคำเชิญที่ปิดผนึกไว้บนเซิร์ฟเวอร์เชื่อมต่อ อีกกระเป๋าเงินพิมพ์คำแล้วหาคำเชิญพบ กระเป๋าเงินทั้งสองต้องออนไลน์และเข้าถึงเซิร์ฟเวอร์เหล่านี้ได้อย่างน้อยหนึ่งแห่ง';
 
   @override
   String get helpPairWaysP2 =>
@@ -16633,8 +16647,9 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSourceSite =>
-      'ถามโดยตรงทุก 15 วิ · ความสูงล่าสุดจาก status.btlabs.uk';
+  String deskOwnSourceSite(String site) {
+    return 'ถามโดยตรงทุก 15 วิ · ความสูงล่าสุดจาก $site';
+  }
 
   @override
   String deskOwnSourceNodes(int count) {
@@ -16789,8 +16804,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOwnMine => 'นี่คือโหนดของฉัน';
 
   @override
-  String get deskOwnMineHint =>
-      'ถามโหนดโดยตรงแทน status.btlabs.uk และให้เพิ่มสิทธิ์เจ้าของได้ สำหรับโหนดที่คุณดูแลเอง';
+  String deskOwnMineHint(String site) {
+    return 'ถามโหนดโดยตรงแทน $site และให้เพิ่มสิทธิ์เจ้าของได้ สำหรับโหนดที่คุณดูแลเอง';
+  }
 
   @override
   String get deskOwnSlotSyncing => 'โหนดของตัวเองกำลังซิงค์';
@@ -16891,7 +16907,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) หรือที่อยู่ลิงก์ (https://…)';
+      'ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) หรือที่อยู่ลิงก์ (https://…)';
 
   @override
   String get handshakeLink1NoTor =>

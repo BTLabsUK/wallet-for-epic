@@ -41,9 +41,15 @@
       }
     }
   },
-  "deskOwnSourceSite": "Asked directly every 15 s · tip from status.btlabs.uk",
+  "deskOwnSourceSite": "Asked directly every 15 s · tip from {site}",
   "@deskOwnSourceSite": {
-    "description": "Source line under the own node's facts: the app asks the node itself every 15 seconds; the network tip it compares with comes from the status site."
+    "description": "Source line under the own node's facts: the app asks the node itself every 15 seconds; the network tip it compares with comes from the status site.",
+    "placeholders": {
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
   },
   "deskOwnSourceNodes": "{count, plural, one{Asked directly every 15 s · tip from 1 public node} other{Asked directly every 15 s · tip from {count} public nodes}}",
   "@deskOwnSourceNodes": {
@@ -255,9 +261,15 @@
   "@deskOwnMine": {
     "description": "Switch row in Settings › Node for an https node: the user runs it. Then the app asks it directly and offers owner access."
   },
-  "deskOwnMineHint": "Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.",
+  "deskOwnMineHint": "Asks the node itself instead of {site} and offers owner access. For a node you run yourself.",
   "@deskOwnMineHint": {
-    "description": "Hint behind the info icon of the 'This is my node' row."
+    "description": "Hint behind the info icon of the 'This is my node' row.",
+    "placeholders": {
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
   },
   "deskOwnSlotSyncing": "Own node syncing",
   "@deskOwnSlotSyncing": {

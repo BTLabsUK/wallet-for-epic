@@ -1,6 +1,6 @@
 {
   "deskSetNodePortNote": "请检查地址和端口（通常是 3413）。",
-  "deskSetNodeListNote": "状态来自 status.btlabs.uk；延迟从这台电脑测得。",
+  "deskSetNodeListNote": "状态来自 {site}；延迟从这台电脑测得。",
   "deskSetNodeStartTitle": "启动本地节点？",
   "deskSetNodeStartDesc": "一个独立的程序会在这台电脑上同步 Epic 区块链。",
   "deskSetNodeStartLine1": "下载完整的区块链：需要数 GB 的磁盘空间和流量。",

@@ -14,7 +14,7 @@
   },
   "deskSlHealthUnknown": "Health unknown",
   "@deskSlHealthUnknown": {
-    "description": "A row's health when status.btlabs.uk has nothing on the server."
+    "description": "A row's health when the status site has nothing on the server."
   },
   "deskSlNodeNoAnswer": "No answer from this node. Nothing added.",
   "@deskSlNodeNoAnswer": {

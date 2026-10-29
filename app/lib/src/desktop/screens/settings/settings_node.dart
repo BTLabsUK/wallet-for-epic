@@ -26,6 +26,7 @@ import 'own_node_panel.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
+import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
@@ -72,7 +73,7 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
 };
 
 /// The picker's footer under the node list.
-String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote;
+String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote(statusSiteHost);
 
 /// Before the local node starts: what that means for this computer. True to go on.
 Future<bool> confirmLocalNode(BuildContext context) async {
@@ -508,7 +509,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                 if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
                   ESetRow(
                     title: l.deskOwnMine,
-                    hint: l.deskOwnMineHint,
+                    hint: l.deskOwnMineHint(statusSiteHost),
                     control: ESwitch(
                       value: mine,
                       semanticLabel: l.deskOwnMine,

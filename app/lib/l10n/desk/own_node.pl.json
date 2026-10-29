@@ -7,7 +7,7 @@
   "deskOwnFactMempool": "Mempool",
   "deskOwnPoolEmpty": "pusty",
   "deskOwnPoolWaiting": "{count, plural, one{1 czeka} few{{count} czekają} many{{count} czeka} other{{count} czeka}}",
-  "deskOwnSourceSite": "Pytany bezpośrednio co 15 s · szczyt z status.btlabs.uk",
+  "deskOwnSourceSite": "Pytany bezpośrednio co 15 s · szczyt z {site}",
   "deskOwnSourceNodes": "{count, plural, one{Pytany bezpośrednio co 15 s · szczyt z 1 publicznego węzła} few{Pytany bezpośrednio co 15 s · szczyt z {count} publicznych węzłów} many{Pytany bezpośrednio co 15 s · szczyt z {count} publicznych węzłów} other{Pytany bezpośrednio co 15 s · szczyt z {count} publicznych węzłów}}",
   "deskOwnSourceNone": "Pytany bezpośrednio co 15 s · brak szczytu sieci do porównania",
   "deskOwnSyncingLine": "Dopóki się nie zsynchronizuje, portfel nie wyśle ani nie odbierze przez niego płatności",
@@ -48,7 +48,7 @@
   "deskOwnSyncUsingTitle": "{host} do synchronizacji tego węzła",
   "deskOwnSyncUsingText": "Portfel wróci, gdy ten węzeł zacznie przyjmować transakcje.",
   "deskOwnMine": "To mój węzeł",
-  "deskOwnMineHint": "Pyta sam węzeł zamiast status.btlabs.uk i oferuje dostęp właściciela. Dla węzła, który prowadzisz sam.",
+  "deskOwnMineHint": "Pyta sam węzeł zamiast {site} i oferuje dostęp właściciela. Dla węzła, który prowadzisz sam.",
   "deskOwnSlotSyncing": "Własny węzeł się synchronizuje",
   "deskOwnAccessOnPlain": "Dodano · trafia do węzła bez szyfrowania (http), widoczny w tej sieci"
 }

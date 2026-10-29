@@ -3,9 +3,15 @@
   "@deskSetNodePortNote": {
     "description": "Settings > Node: error under the node picker when the typed node does not answer."
   },
-  "deskSetNodeListNote": "Status from status.btlabs.uk; latency measured from this computer.",
+  "deskSetNodeListNote": "Status from {site}; latency measured from this computer.",
   "@deskSetNodeListNote": {
-    "description": "Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is."
+    "description": "Settings > Node: footer under the node list. The status site's host name {site} stays as it is.",
+    "placeholders": {
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
   },
   "deskSetNodeStartTitle": "Start the local node?",
   "@deskSetNodeStartTitle": {

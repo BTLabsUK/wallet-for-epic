@@ -11,6 +11,7 @@ import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show openAdvanced;
+import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
 enum PrivacyDemo { torOn, torStarting, torFailed }
@@ -198,12 +199,12 @@ class PrivacyGroup extends ConsumerWidget {
       title: l.deskSetPrivStatusSite,
       rows: [
         ESetRow(
-          title: l.deskSetPrivUseStatus,
+          title: l.deskSetPrivUseStatus(statusSiteHost),
           hint: l.deskSetPrivUseStatusHint,
           control: ESwitch(
 
             value: s.useStatusSite,
-            semanticLabel: l.deskSetPrivUseStatus,
+            semanticLabel: l.deskSetPrivUseStatus(statusSiteHost),
             onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(useStatusSite: v)),
           ),
         ),

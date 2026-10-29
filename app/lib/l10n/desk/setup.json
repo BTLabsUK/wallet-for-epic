@@ -206,7 +206,7 @@
     "placeholders": {
       "node": {
         "type": "String",
-        "example": "node.epiccash.com"
+        "example": "node.example.org"
       }
     }
   },

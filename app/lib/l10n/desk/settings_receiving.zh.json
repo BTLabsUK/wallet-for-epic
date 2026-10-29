@@ -14,7 +14,7 @@
   "deskSetRecvEpicboxServerHint": "由哪个服务器为此地址暂存付款。双方钱包可以使用不同的服务器。",
   "deskSetRecvEpicboxOwnHint": "此钱包有自己的 Epicbox 服务器，保留自旧应用。此处的更改只适用于此钱包。",
   "deskSetRecvSwitchingServer": "正在切换 Epicbox 服务器…",
-  "deskSetRecvListNote": "状态来自 status.btlabs.uk。",
+  "deskSetRecvListNote": "状态来自 {site}。",
   "deskSetRecvHttpText": "本钱包打开时，直接从另一个钱包经此电脑的网址接收。",
   "deskSetRecvHttpOffTitle": "Tor 开启时关闭",
   "deskSetRecvHttpOffText": "直接来自另一个钱包的付款会改为发送到 链接 · Tor 地址。",
