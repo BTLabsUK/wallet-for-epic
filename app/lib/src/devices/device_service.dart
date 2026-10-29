@@ -580,8 +580,8 @@ class DeviceService {
     await _put(book.copyWith(clearRelayAsk: true, relayKept: r));
   }
 
-  /// The app moved this device to another relay ([relay]): the question goes and the linked
-  /// device is told now.
+  /// The app moved this device to another Epicbox server: the question goes and the linked
+  /// device is told at once.
   Future<void> relayMoved() async {
     await _put(book.copyWith(clearRelayAsk: true));
     unawaited(sync(DeviceSyncTrigger.refresh));
@@ -869,7 +869,7 @@ class DeviceService {
     for (final r in rows) {
       final slateId = r.slateId;
       if (r.origin != TxOrigin.thisWallet || slateId == null || r.id == null) continue;
-      if (r.kind == TxKind.received) {
+      if (r.kind == TxKind.received && !r.isRequest) {
         // An answer this device made: the other hears it, for a payment both answered.
         final key = 'recv:$slateId';
         if (r.confirmed) {
