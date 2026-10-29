@@ -19,11 +19,11 @@ import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show Settin
 import 'package:flutter_test/flutter_test.dart';
 
 // No saved contact has these.
-const _e = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@epicbox.epiccash.com';
-const _floonet = 'esFw9Rk2Lp4Nx8Vc3Bm7Hj5Gd1Sa6Qz2Wy4Ut8Re3Tn5Ym7K@epicbox.epiccash.com';
+const _e = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@box.epic.invalid';
+const _floonet = 'esFw9Rk2Lp4Nx8Vc3Bm7Hj5Gd1Sa6Qz2Wy4Ut8Re3Tn5Ym7K@box.epic.invalid';
 // A mock contact.
 const _anna = 'Anna Kowalska';
-const _annaAddress = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+const _annaAddress = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@box.epic.invalid';
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);

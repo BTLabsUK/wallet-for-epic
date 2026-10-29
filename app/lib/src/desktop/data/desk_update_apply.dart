@@ -25,6 +25,7 @@ import '../../app_log.dart';
 import '../../btlabs_public.dart' show WalletDesktopFile;
 import '../../data_folder_io.dart' show appCacheDirectory;
 import '../../net/tor_net.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 
 /// Why a download stopped.
 enum DeskDownloadFail {
@@ -140,7 +141,7 @@ Future<void> _fetchInto(
     final out = partial.openWrite(mode: resumes ? FileMode.append : FileMode.write);
     try {
       // A stalled connection counts as a dropped one.
-      await for (final chunk in response.timeout(const Duration(seconds: 60))) {
+      await for (final chunk in response.timeout(appConfig.updatesDownloadStall)) {
         received += chunk.length;
         if (received > f.size) break;
         hasher.add(chunk);

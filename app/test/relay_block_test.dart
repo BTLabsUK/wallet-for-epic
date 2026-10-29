@@ -51,7 +51,7 @@ void main() {
   });
 
   group('relayInstead', () {
-    const blocked = EpicboxRelay(host: 'epicbox.epiccash.com');
+    const blocked = EpicboxRelay(host: 'box.epic.invalid');
     RelayStatus seen(String host, bool healthy) => RelayStatus(
       relay: EpicboxRelay(host: host),
       healthy: healthy,
@@ -60,16 +60,16 @@ void main() {
 
     test('the first other relay the monitor saw up', () {
       final public = mergePublicRelays([
-        seen('epicbox.epiccash.com', true),
-        seen('epicbox.stackwallet.com', false),
-        seen('epicbox.epicnet.us', true),
-        seen('epicbox.iniaku.my.id', true),
+        seen('box.epic.invalid', true),
+        seen('box.stack.invalid', false),
+        seen('box.net.invalid', true),
+        seen('box.pool.invalid', true),
       ]);
-      expect(relayInstead(blocked, public)?.host, 'epicbox.epicnet.us');
+      expect(relayInstead(blocked, public)?.host, 'box.net.invalid');
     });
 
     test('without the monitor, the first other built-in relay', () {
-      expect(relayInstead(blocked, mergePublicRelays(null))?.host, 'epicbox.stackwallet.com');
+      expect(relayInstead(blocked, mergePublicRelays(null))?.host, 'box.stack.invalid');
     });
 
     test('skips relays this network blocked before; none left is null', () {
@@ -78,9 +78,9 @@ void main() {
         relayInstead(
           blocked,
           public,
-          skip: {const EpicboxRelay(host: 'epicbox.stackwallet.com')},
+          skip: {const EpicboxRelay(host: 'box.stack.invalid')},
         )?.host,
-        'epicbox.epicnet.us',
+        'box.net.invalid',
       );
       expect(relayInstead(blocked, public, skip: {for (final r in public) r.relay}), isNull);
     });

@@ -7,7 +7,7 @@
   "deskOwnFactMempool": "Mempool",
   "deskOwnPoolEmpty": "ว่าง",
   "deskOwnPoolWaiting": "{count, plural, other{รอ {count} รายการ}}",
-  "deskOwnSourceSite": "ถามโดยตรงทุก 15 วิ · ความสูงล่าสุดจาก status.btlabs.uk",
+  "deskOwnSourceSite": "ถามโดยตรงทุก 15 วิ · ความสูงล่าสุดจาก {site}",
   "deskOwnSourceNodes": "{count, plural, other{ถามโดยตรงทุก 15 วิ · ความสูงล่าสุดจากโหนดสาธารณะ {count} โหนด}}",
   "deskOwnSourceNone": "ถามโดยตรงทุก 15 วิ · ไม่มีความสูงของเครือข่ายให้เทียบ",
   "deskOwnSyncingLine": "จนกว่าจะซิงค์เสร็จ กระเป๋าส่งหรือรับผ่านโหนดนี้ไม่ได้",
@@ -48,7 +48,7 @@
   "deskOwnSyncUsingTitle": "ใช้ {host} จนกว่าโหนดนี้จะซิงค์เสร็จ",
   "deskOwnSyncUsingText": "กระเป๋าจะกลับมาเมื่อโหนดนี้รับธุรกรรมได้",
   "deskOwnMine": "นี่คือโหนดของฉัน",
-  "deskOwnMineHint": "ถามโหนดโดยตรงแทน status.btlabs.uk และให้เพิ่มสิทธิ์เจ้าของได้ สำหรับโหนดที่คุณดูแลเอง",
+  "deskOwnMineHint": "ถามโหนดโดยตรงแทน {site} และให้เพิ่มสิทธิ์เจ้าของได้ สำหรับโหนดที่คุณดูแลเอง",
   "deskOwnSlotSyncing": "โหนดของตัวเองกำลังซิงค์",
   "deskOwnAccessOnPlain": "เพิ่มแล้ว · ส่งไปยังโหนดโดยไม่เข้ารหัส (http) อ่านได้ในเครือข่ายนั้น"
 }

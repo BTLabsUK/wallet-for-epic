@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../data/mock_hosts.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -105,7 +106,7 @@ final List<DeskShot> invoicePayShots = [
     prepare: (c, ctx) async {
       _proto(c).setNet(ProtoNet.nodeDown);
       // The mock's status reads the chosen node's health; a node that is down stands in for it.
-      await _mock(c).useNode('https://epic-node.iniaku.my.id');
+      await _mock(c).useNode(mockNodeAt(0));
       await _coffee(c);
     },
   ),

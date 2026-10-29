@@ -45,7 +45,7 @@ class LocalNodeController {
 
   final Future<int> Function(String dir) _dirSize;
   final DiskProbe _freeBytes;
-  /// The network tip by the node directory (status.btlabs.uk), when known.
+  /// The network tip by the node directory (the status site), when known.
   final Future<int?> Function()? directoryTip;
   /// The connected peers' typical height (their median; see peers.dart).
   final Future<int?> Function()? peersHeight;
@@ -195,7 +195,7 @@ class LocalNodeController {
     }
   }
 
-  /// Drops the directory's tip (status.btlabs.uk turned off); the peers' height stays.
+  /// Drops the directory's tip (the status site turned off); the peers' height stays.
   void forgetDirectoryTip() {
     if (_directoryHeight == null || _disposed) return;
     _directoryHeight = null;

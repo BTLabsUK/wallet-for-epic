@@ -56,7 +56,7 @@ NetFace torNetFace(BuildContext context, PhoneTorState s) {
   );
 }
 
-/// The node's lag behind the network's tip as status.btlabs.uk sees it, for a node that
+/// The node's lag behind the network's tip as the status site sees it, for a node that
 /// answers and is [NodeState.online]; null when either height is unknown. The status card and
 /// Home's status icons both read "Behind N" from it.
 int? nodeBehind(WidgetRef ref, NodeStatus node, NetworkPreset? preset) {
@@ -191,7 +191,7 @@ class NetworkStatusCard extends ConsumerWidget {
 }
 
 /// One row: bars, the service, its host in mono, the state word and a chevron; one 56 dp
-/// target, read as "Node online, node.btlabs.uk, Synced" ([spoken] first, as the header's
+/// target, read as "Node online, node.example.org, Synced" ([spoken] first, as the header's
 /// icons said it, else the title) with the icon's tooltip [detail] as the hint.
 class _StatusRow extends StatelessWidget {
   const _StatusRow({

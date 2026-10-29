@@ -420,12 +420,31 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
         result = await api.importHistory(file.bytes, useBackup: choices);
       }
       // The settings and the wallet's name: those still as the app came are taken; any the user
-      // changed here that the file has otherwise ask once for all.
+      // changed here that the file has otherwise ask once for all. The server lists, shared by
+      // the other wallets here, ask on their own.
       var settings = 0;
       var named = false;
       if (mounted) {
         final plan = await planDeskBackupSettings(ref, result);
         if (!mounted) return;
+        var takeServers = false;
+        if (plan.asksServers) {
+          final l = context.l10n;
+          takeServers = await showEDialog<bool>(
+                context,
+                builder: (ctx) => EDialog(
+                  title: l.deskSetBackupServersTitle,
+                  description: l.deskSetBackupServersBody,
+                  icon: EIcons.settings,
+                  actions: [
+                    EButton(label: l.deskSetBackupServersKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
+                    EButton.primary(label: l.deskSetBackupServersUse, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+                  ],
+                ),
+              ) ==
+              true;
+          if (!mounted) return;
+        }
         var take = false;
         if (plan.conflicts.isNotEmpty) {
           final l = context.l10n;
@@ -445,7 +464,7 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
           if (!mounted) return;
         }
         named = plan.values(takeConflicts: take).containsKey(BackupItem.walletName);
-        final changed = await applyDeskBackupSettings(ref, plan, takeConflicts: take);
+        final changed = await applyDeskBackupSettings(ref, plan, takeConflicts: take, takeServers: takeServers);
         settings = named ? changed - 1 : changed;
       }
       if (mounted) setState(() => _done = (name: file.name, result: result, settings: settings, walletName: named));

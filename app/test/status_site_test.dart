@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Settings › Privacy › Use status.btlabs.uk: off, no request reaches the site and every reader
+// Settings › Privacy › Use status.lab.invalid: off, no request reaches the site and every reader
 // takes the site-down path at once; requests that do go out say nothing about the wallet.
 import 'dart:async';
 import 'dart:convert';
@@ -16,6 +16,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'package:flutter_test/flutter_test.dart';
 
 final _sample = File('test/fixtures/status_btlabs_2026-10-22.json').readAsStringSync();
@@ -68,7 +69,7 @@ void main() {
       final r = _Recorder();
       final dir = HttpRelayDirectory(get: r.get, site: site);
       expect(await dir.nodes('mainnet'), hasLength(5));
-      expect(r.hosts, ['status.btlabs.uk']);
+      expect(r.hosts, ['status.lab.invalid']);
       site.on = false;
       await expectLater(dir.nodes('mainnet'), throwsA(isA<NetError>()));
       expect(r.hosts, hasLength(1));
@@ -118,7 +119,7 @@ void main() {
     tearDown(() => TorSwitch.on = false);
 
     // The site over Tor is its onion, about 3 s warm and more cold: the direct limit made
-    // "status.btlabs.uk not reachable" show with the site up (26.10.17).
+    // "status.lab.invalid not reachable" show with the site up (26.10.17).
     Future<HttpReply> slow() => Future.delayed(const Duration(milliseconds: 150), () => HttpReply(200, _sample));
 
     test('Tor on: a slow onion answer is read, not timed out', () async {
@@ -172,7 +173,7 @@ void main() {
       final site = StatusSiteSwitch()..on = false;
       final r = _Recorder();
       final dir = HttpRelayDirectory(get: r.get, site: site);
-      final info = await NodeInfoService(nodes: dir, network: dir, clientFor: _node).info('https://node.epiccash.com:3413', chain: 'mainnet');
+      final info = await NodeInfoService(nodes: dir, network: dir, clientFor: _node).info('https://node.epic.invalid:3413', chain: 'mainnet');
       expect(info.source, NodeInfoSource.limited);
       expect(info.height, 3764980);
       expect(info.error, isNull);
@@ -203,7 +204,7 @@ void main() {
       final sub = container.listen(relayStatusProvider(mainnetPreset), (_, _) {});
       addTearDown(sub.close);
       expect(await container.read(relayStatusProvider(mainnetPreset).future), hasLength(4));
-      // Mainnet also asks floonet's list for epicbox.btlabs.uk's health.
+      // Mainnet also asks floonet's list for box.lab.invalid's health.
       final asked = r.hosts.length;
       statusSite.on = false;
       await expectLater(container.read(relayStatusProvider(mainnetPreset).future), throwsA(isA<NetError>()));
@@ -212,16 +213,16 @@ void main() {
   });
 
   group('phone setting', () {
-    test('on by default, saved, and applied to the switch', () async {
+    test('on by default, kept in the settings file, and applied to the switch', () async {
       final store = MemorySecretStore();
       final container = ProviderContainer(overrides: [secretStoreProvider.overrideWithValue(store)]);
       addTearDown(container.dispose);
       expect((await container.read(appSettingsProvider.future)).useStatusSite, isTrue);
-      expect(await readUseStatusSite(store), isTrue);
+      expect(container.read(hostSettingsProvider).statusEnabled, isTrue);
       await container.read(appSettingsProvider.notifier).setUseStatusSite(false);
       expect(statusSite.on, isFalse);
       expect(container.read(appSettingsProvider).value!.useStatusSite, isFalse);
-      expect(await readUseStatusSite(store), isFalse);
+      expect(container.read(hostSettingsProvider).statusEnabled, isFalse, reason: 'written to the settings file');
       statusSite.on = true;
       container.invalidate(appSettingsProvider);
       expect((await container.read(appSettingsProvider.future)).useStatusSite, isFalse);

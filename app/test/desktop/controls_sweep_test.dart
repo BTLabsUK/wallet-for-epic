@@ -11,7 +11,6 @@ import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/backup_settings_desk.dart' show DeskBackupSettings;
-import 'package:epic_wallet/src/server_list.dart' show ServerList;
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
@@ -306,8 +305,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<DeskBackupSettings> backupSettings() => _m.backupSettings();
   @override
-  Future<void> restoreBackupItems({ServerList? nodeList, ServerList? relayList, ({String? relay})? ownRelay, List<String>? seedsDeleted}) =>
-      _r('restoreBackupItems', () => _m.restoreBackupItems(nodeList: nodeList, relayList: relayList, ownRelay: ownRelay, seedsDeleted: seedsDeleted));
+  Future<void> restoreBackupItems({List<String>? seedsDeleted}) =>
+      _r('restoreBackupItems', () => _m.restoreBackupItems(seedsDeleted: seedsDeleted));
   @override
   List<ImportConflict> get oldHistoryConflicts => _m.oldHistoryConflicts;
   @override

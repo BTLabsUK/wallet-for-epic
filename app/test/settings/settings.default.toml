@@ -1,0 +1,26 @@
+# Test settings (test/settings/settings.default.toml): the shipped default copy's layout with
+# example hosts only.
+
+[node]
+# The first node is in use; when it does not answer, the next one is tried.
+servers = [
+  "https://node.lab.invalid",
+  "https://node.epic.invalid:3413",
+  "https://node.net.invalid:3413",
+  "https://node.stack.invalid:3413",
+  "http://192.0.2.10:3413",
+]
+
+[epicbox]
+# The first server is part of every wallet's address: moving another to the top changes them all.
+servers = [
+  "box.epic.invalid",
+  "box.stack.invalid",
+  "box.net.invalid",
+  "box.lab.invalid",
+]
+
+[online]
+status_site = true
+update_check = true
+price = true

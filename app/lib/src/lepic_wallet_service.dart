@@ -32,6 +32,7 @@ import 'network_gate.dart';
 import 'relay_block.dart' show refusedHandshake;
 import 'redact.dart';
 import 'secret_store_api.dart';
+import 'settings_file/host_settings.dart';
 import 'wallet_service.dart';
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS, Linux and
@@ -590,9 +591,21 @@ int lepicTxId(String key) {
 /// The transports whose undelivered sends are sent again: Epicbox, HTTP and Tor.
 const resendTransports = {'epicbox', 'http', 'tor'};
 
+/// What LEPIC is given when the Node list is empty (`[node] servers = []`): it opens a wallet
+/// only with a node address, so it gets one that never answers (an RFC 2606 `.invalid` name
+/// never resolves). The app keeps the empty address, so its screens say no node is set, and
+/// nothing connects until a node is added.
+const noNodeUrl = 'https://no-node.invalid';
+
+/// The same for an empty Epicbox list (`[epicbox] servers = []`): LEPIC gets a server that never
+/// answers rather than none, so the wallet still has its address key (the `.wfeh` files are
+/// matched by it) and a server added later moves the open wallet onto it like any other
+/// change. The app keeps the empty name and shows no address.
+const noEpicboxDomain = 'epicbox.invalid';
+
 /// The wait before the one more try of a Tor send whose onion was not reached: a published
 /// onion is often reached at the second try, once its circuits are built.
-const Duration onionRetryWait = Duration(seconds: 30);
+Duration get onionRetryWait => appConfig.onionRetry;
 
 /// Sends over Tor with [send]. When the onion was not reached and the send stayed stored (the
 /// one waiting sent payment not in the list before), waits [wait] and delivers it again once
@@ -602,8 +615,9 @@ Future<HttpSent> sendTorRetryingOnce({
   required Future<HttpSent> Function() send,
   required Future<HttpSent> Function(int txId) resend,
   required Future<List<TxEntry>> Function() transactions,
-  Duration wait = onionRetryWait,
+  Duration? wait,
 }) async {
+  wait ??= onionRetryWait;
   final before = {for (final t in await transactions()) t.key};
   try {
     return await send();
@@ -822,16 +836,78 @@ class LepicWalletService implements WalletService {
   static Future<lepic.WalletConfig> lepicConfigOf(WalletConfig config) => _lepicConfig(config, config.dataDir);
 
   /// A plain-http node on the local network goes to LEPIC through a loopback relay
-  /// ([lanNodeUrl]): LEPIC refuses plain http to anything but loopback.
+  /// ([lanNodeUrl]): LEPIC refuses plain http to anything but loopback. The onion routes are
+  /// the settings file's TLS ones ([settingsOnionRoutes]) from the first connection; the app
+  /// replaces them later with [WalletSession.setOnionRoutes] (the signed list).
   static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
-        nodeUrl: await lanNodeUrl(config.nodeUrl),
+        nodeUrl: config.nodeUrl.trim().isEmpty ? noNodeUrl : await lanNodeUrl(config.nodeUrl),
         nodeApiSecret: config.nodeApiSecret,
-        epicboxDomain: config.epicboxDomain,
+        epicboxDomain: config.epicboxDomain.trim().isEmpty ? noEpicboxDomain : config.epicboxDomain,
         epicboxPort: config.epicboxPort,
+        onionRoutes: [
+          for (final r in settingsOnionRoutes())
+            lepic.OnionRoute(host: r.host, port: r.port, onion: r.onion, onionPort: r.onionPort),
+        ],
+        tuning: netTuningOf(appConfig),
       );
+
+  /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
+  /// of `app-config.toml`, under the same names (LEPIC's ADR 0030).
+  static lepic.NetTuning netTuningOf(AppConfig c) => lepic.NetTuning(
+    node: lepic.NodeTuning(
+      connectTimeoutS: c.number('node.connect_timeout_s'),
+      requestTimeoutS: c.number('node.request_timeout_s'),
+      idleTimeoutS: c.number('node.idle_timeout_s'),
+      retryAttempts: c.number('node.retry_attempts'),
+      retryBackoffMinMs: c.number('node.retry_backoff_min_ms'),
+      retryBackoffMaxMs: c.number('node.retry_backoff_max_ms'),
+      outputsPerRequest: c.number('node.outputs_per_request'),
+      concurrentRequests: c.number('node.concurrent_requests'),
+    ),
+    epicbox: lepic.EpicboxTuning(
+      connectTimeoutS: c.number('epicbox.connect_timeout_s'),
+      responseTimeoutS: c.number('epicbox.response_timeout_s'),
+      pingIntervalS: c.number('epicbox.ping_interval_s'),
+      reconnectMinS: c.number('epicbox.reconnect_min_s'),
+      reconnectMaxS: c.number('epicbox.reconnect_max_s'),
+      drainTimeoutS: c.number('epicbox.drain_timeout_s'),
+      torConnectTimeoutS: c.number('epicbox.tor_connect_timeout_s'),
+      onionDiscoveryTimeoutS: c.number('epicbox.onion_discovery_timeout_s'),
+      onionDiscoveryRetryS: c.number('epicbox.onion_discovery_retry_s'),
+    ),
+    http: lepic.HttpTuning(
+      headerTimeoutS: c.number('http.header_timeout_s'),
+      bodyTimeoutS: c.number('http.body_timeout_s'),
+      requestTimeoutS: c.number('http.request_timeout_s'),
+      answerTimeoutS: c.number('http.answer_timeout_s'),
+      maxConnections: c.number('http.max_connections'),
+      maxConnectionsPerAddress: c.number('http.max_connections_per_address'),
+      requestsPerMinute: c.number('http.requests_per_minute'),
+      receivesPerMinute: c.number('http.receives_per_minute'),
+      sendConnectTimeoutS: c.number('http.send_connect_timeout_s'),
+      sendRequestTimeoutS: c.number('http.send_request_timeout_s'),
+    ),
+    tor: lepic.TorTuning(
+      bootstrapTimeoutS: c.number('tor.bootstrap_timeout_s'),
+      coldBootstrapTimeoutS: c.number('tor.cold_bootstrap_timeout_s'),
+      stallTimeoutS: c.number('tor.stall_timeout_s'),
+      coldStallTimeoutS: c.number('tor.cold_stall_timeout_s'),
+      publishTimeoutS: c.number('tor.publish_timeout_s'),
+      connectTimeoutS: c.number('tor.connect_timeout_s'),
+      requestTimeoutS: c.number('tor.request_timeout_s'),
+    ),
+  );
+
+  /// The settings file's onion routes LEPIC takes: TLS ones only (the connection still checks
+  /// the host's certificate). None before the settings are open (a bare core check).
+  static List<OnionRoute> settingsOnionRoutes() => [
+    if (hostSettingsLoaded)
+      for (final r in hostSettings.torOnions)
+        if (r.tls) r,
+  ];
 
   /// `<anything>/wallets/<32 hex>`, the folder of a registry wallet.
   static final RegExp _registryFolder = RegExp(
@@ -954,12 +1030,12 @@ class LepicWalletService implements WalletService {
 
   @override
   bool validateEpicboxAddress({required String address}) => lepic
-      .validateEpicboxAddress(address: address, chain: _lepicChain(_chain));
+      .validateEpicboxAddress(address: lepicEpicboxAddress(address), chain: _lepicChain(_chain));
 
   @override
   bool epicboxAddressOtherChain({required String address}) =>
       lepic.validateEpicboxAddress(
-        address: address,
+        address: lepicEpicboxAddress(address),
         chain: _lepicChain(_chain) == lepic.Chain.mainnet
             ? lepic.Chain.floonet
             : lepic.Chain.mainnet,
@@ -1542,7 +1618,7 @@ class LepicWalletSession implements WalletSession {
       tx = await _wallet.sendEpicbox(
         amount: amount,
         minimumConfirmations: minimumConfirmations,
-        address: address,
+        address: lepicEpicboxAddress(address),
         message: _message(message),
         options: await _optionsFor(amount, minimumConfirmations, options),
       );
@@ -1990,7 +2066,7 @@ class LepicWalletSession implements WalletSession {
           // The contact form's checks, as the contacts file import uses.
           checks: AddressChecks(
             epicbox: (a) => lepic.validateEpicboxAddress(
-              address: a,
+              address: lepicEpicboxAddress(a),
               chain: _lepicChain(_history.chain),
             ),
             onion: (a) => lepic.validateOnionAddress(address: a),
@@ -2743,12 +2819,15 @@ class _LepicPairing implements PairingApi {
 
   final StreamController<PairingEvent> _events = StreamController<PairingEvent>.broadcast();
 
-  /// The Connection servers (`host[:port]`) words meet on, or null for LEPIC's built-in list.
-  // ignore: unused_field -- read once LEPIC takes the per-call `meeting_relays` (see makeInvite and openWords)
-  List<String>? _meetingRelays;
+  /// The Connection servers (`host[:port]`) words meet on: the app's, else the settings file's
+  /// `pairing.servers`. LEPIC has none of its own.
+  List<String>? _connectionServers;
+
+  List<String> get _meetingRelays =>
+      _connectionServers ?? (hostSettingsLoaded ? hostSettings.pairingServers : const <String>[]);
 
   @override
-  void setConnectionServers(List<String>? hosts) => _meetingRelays = hosts == null ? null : List.unmodifiable(hosts);
+  void setConnectionServers(List<String>? hosts) => _connectionServers = hosts == null ? null : List.unmodifiable(hosts);
 
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
@@ -2931,8 +3010,8 @@ class _LepicPairing implements PairingApi {
     String? label,
     String? contactId,
   }) => _call(() async {
-    // Words meet on the Connection servers (null: LEPIC's built-in list). In Tor only they
-    // wait for tor: the words go to the meeting relays.
+    // Words meet on the Connection servers (the settings file's). In Tor only they wait for
+    // tor: the words go to the meeting relays.
     if (words) checkTorReady('pairing words');
     final invite = await _w.pairingInvite(
       name: name.trim(),
@@ -3369,6 +3448,8 @@ class _LepicPairing implements PairingApi {
           expiry: lepic.InviteExpiry.oneHour,
           offerWords: false,
           relayMode: lepicRelayMode(),
+          // No words: no meeting relay is asked.
+          meetingRelays: const [],
           homeRelay: homeRelay,
           pairingClass: lepic.PairingClass.private,
         );
@@ -3511,3 +3592,11 @@ class _LepicPairing implements PairingApi {
 
 /// LEPIC's armored sealed text (RFC 3.5): `BEGINEPICSEALED` after optional whitespace.
 bool isSealedLepicText(String text) => text.trimLeft().startsWith('BEGINEPICSEALED');
+
+/// [address] with its Epicbox server: a bare key names the settings' `epicbox.default`. LEPIC
+/// refuses an address without one and has no default of its own.
+String lepicEpicboxAddress(String address) {
+  final a = address.trim();
+  if (a.isEmpty || a.contains('@') || a.contains('://') || !hostSettingsLoaded) return address;
+  return '$a@${hostSettings.epicboxDefault}';
+}

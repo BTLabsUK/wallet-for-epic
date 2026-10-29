@@ -13,13 +13,13 @@ void main() {
     final desk = container.read(deskProvider.notifier);
     await desk.refresh();
     final key = container.read(deskProvider).epicboxAddress!.split('@').first;
-    expect(container.read(deskProvider).epicboxAddress, '$key@epicbox.epiccash.com');
+    expect(container.read(deskProvider).epicboxAddress, '$key@box.epic.invalid');
 
-    await desk.useEpicbox('epicbox.stackwallet.com');
-    expect(container.read(deskProvider).status?.epicbox.domain, 'epicbox.stackwallet.com');
-    expect(container.read(deskProvider).epicboxAddress, '$key@epicbox.stackwallet.com');
+    await desk.useEpicbox('box.stack.invalid');
+    expect(container.read(deskProvider).status?.epicbox.domain, 'box.stack.invalid');
+    expect(container.read(deskProvider).epicboxAddress, '$key@box.stack.invalid');
 
-    await desk.useEpicbox('epicbox.epiccash.com');
-    expect(container.read(deskProvider).epicboxAddress, '$key@epicbox.epiccash.com');
+    await desk.useEpicbox('box.epic.invalid');
+    expect(container.read(deskProvider).epicboxAddress, '$key@box.epic.invalid');
   });
 }

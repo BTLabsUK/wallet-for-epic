@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _node = ServerInfo(value: 'https://node.epiccash.com:3413', host: 'node.epiccash.com', operator: 'Epic Cash', behind: 0, latencyMs: 24, version: '4.1.1');
 const _behind = ServerInfo(value: 'b', host: 'node.btlabs.uk', operator: 'BT Labs', state: EState.warn, behind: 12, latencyMs: 18, version: '4.1.0', versionOld: true);
-const _down = ServerInfo(value: 'c', host: 'epic-node.iniaku.my.id', operator: 'Iniaku pool', state: EState.risk);
+const _down = ServerInfo(value: 'c', host: 'node.pool.example.org', operator: 'Pool op', state: EState.risk);
 const _relay = ServerInfo(value: 'epicbox.epiccash.com', host: 'epicbox.epiccash.com', operator: 'Epic Cash', latencyMs: 40, version: '1', isDefault: true);
 
 Future<void> _pump(WidgetTester tester, double width, Widget row) async {
@@ -101,9 +101,9 @@ void main() {
       const NodeServer(url: 'https://node.epiccash.com:3413', label: 'Epic Cash', operator: 'Epic Cash', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '4.1.1'),
       const NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.ok, latencyMs: 18, height: 2914414, version: '4.1.1'),
       const NodeServer(url: 'https://epic.stackwallet.com:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.0'),
-      const NodeServer(url: 'https://epic-node.iniaku.my.id', label: 'Iniaku pool', operator: 'Iniaku pool', health: ServiceHealth.down, version: '4.1.1'),
+      const NodeServer(url: 'https://node.pool.example.org', label: 'Pool op', operator: 'Pool op', health: ServiceHealth.down, version: '4.1.1'),
     ], released: '4.1.1');
-    expect(rows.map((r) => r.host).toList(), ['node.btlabs.uk', 'epic.stackwallet.com', 'node.epiccash.com', 'epic-node.iniaku.my.id']);
+    expect(rows.map((r) => r.host).toList(), ['node.btlabs.uk', 'epic.stackwallet.com', 'node.epiccash.com', 'node.pool.example.org']);
     expect(rows[1].versionOld, isTrue);
     expect(rows[1].state, EState.warn);
     expect(rows[2].behind, 1);

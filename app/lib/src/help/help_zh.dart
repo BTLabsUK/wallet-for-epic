@@ -5,6 +5,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
+import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 const List<HelpSection> helpSectionsZh = [
   (id: 'start', title: '入门', lede: '接收、发送，以及用文件付款。', art: 'help-start'),
@@ -12,7 +13,7 @@ const List<HelpSection> helpSectionsZh = [
   (id: 'safety', title: '保护钱包安全', lede: '助记词既是备份，也是密钥。', art: 'help-safety'),
   (id: 'network', title: '节点与 Epicbox', lede: '钱包连接到什么，以及 Tor。', art: 'help-network'),
   (id: 'trouble', title: '出现问题时', lede: '常见原因及处理方法。', art: 'help-trouble'),
-  (id: 'maintenance', title: '维护', lede: '磁盘上旧的钱包文件夹。', art: 'help-maintenance'),
+  (id: 'maintenance', title: '维护', lede: '磁盘上旧的钱包文件夹，以及设置文件。', art: 'help-maintenance'),
 ];
 
 List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform, bool tor = true}) {
@@ -38,7 +39,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '接收你的第一笔 EPIC',
       '打开“接收”，复制 Epicbox 地址并发给付款方。付款会自动到账。',
       [
-        const HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@epicbox.epiccash.com**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
+        HelpBlock.p('Epicbox 地址是一串长代码，以 **@** 和 Epicbox 服务器名称结尾，例如 **…@${hostSettings.epicboxUse}**。它可以放心分享：别人需要它来付款，但无法用它拿走任何东西。'),
         const HelpBlock.ol(['打开[[接收|Receive]]。', '复制地址（或显示其二维码），发给付款方。', '付款会自动出现在“活动”中。']),
         if (phone)
           const HelpBlock.p('应用打开且节点已同步时才能接收。应用关闭期间发来的付款会像放在邮政信箱里一样在 Epicbox 服务器上等待，并在下次解锁时到账。')
@@ -110,11 +111,11 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         tor ? 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址，或以 .onion 结尾。' : 'Epicbox 地址以 es 开头，以 @ 和服务器名称结尾。链接地址是网址。',
         [
           HelpBlock.ul([
-            '**Epicbox**：约 52 个字符，以 **es** 开头，然后是 **@** 和服务器，例如 **esXXXX…XXXX@epicbox.epiccash.com**。默认方式；收款方可以不在线。',
+            '**Epicbox**：约 52 个字符，以 **es** 开头，然后是 **@** 和服务器，例如 **esXXXX…XXXX@${hostSettings.epicboxUse}**。默认方式；收款方可以不在线。',
             if (tor)
-              '**链接 · HTTP** 和 **链接 · Tor**：收款方自己的钱包，且此刻处于打开状态。**http://host:3415** 这样的网址走 链接 · HTTP；以 **.onion** 结尾、共 56 个字符的 Tor 地址走 链接 · Tor，即经由 Tor 发送。'
+              '**链接 · HTTP** 和 **链接 · Tor**：收款方自己的钱包，且此刻处于打开状态。**http://host:${appConfig.httpListenPort}** 这样的网址走 链接 · HTTP；以 **.onion** 结尾、共 56 个字符的 Tor 地址走 链接 · Tor，即经由 Tor 发送。'
             else
-              '**链接 · HTTP**：收款方自己的钱包，且此刻处于打开状态。**http://host:3415** 这样的网址走 链接 · HTTP。',
+              '**链接 · HTTP**：收款方自己的钱包，且此刻处于打开状态。**http://host:${appConfig.httpListenPort}** 这样的网址走 链接 · HTTP。',
           ]),
           HelpBlock.p('“发送”会根据粘贴到“收款方”栏中的地址选择方式。口头核对地址时，比较前六个和后六个字符。'),
         ],
@@ -324,7 +325,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
             '**仅 Tor**：Tor 始终开启，开关被锁定。任何内容都不经过开放的互联网。Tor 启动中或失败时，钱包会显示**等待 Tor**，所有需要网络的操作都会等待，不可用的操作上会写明原因。${phone ? '' : 'HTTP 接收会关闭，因为普通地址会暴露这台电脑。'}',
           '**离线**：没有 Epicbox，除本地地址外没有链接，${!phone && tor ? '没有 Tor，' : ''}没有状态检查。余额和记录保持上次看到的样子。${phone ? '**直接 · 二维码付款**和**直接 · 文件传输**' : '**直接 · 文件传输**'}仍然可用：它们使用当前的节点来读取链并广播，公共节点也一样，屏幕上会说明。要获得最大的隐私，请使用${phone ? '本地网络中' : '这台电脑上或本地网络中'}的节点：这样余额会刷新${phone ? '' : '，把 HTTP 接收设为**来自互联网**时，链接 · HTTP 可通过本地网络接收，'}重新核对余额也能运行。',
         ]),
-        const HelpBlock.p('在离线模式下，请用 IP 地址填写节点，例如 **10.100.10.20:3413**。不会解析名称。'),
+        HelpBlock.p('在离线模式下，请用 IP 地址填写节点，例如 **10.100.10.20:${appConfig.localNodeApiPort}**。不会解析名称。'),
         if (!phone) const HelpBlock.p('内置节点自己的对等节点是节点本身的设置，不属于模式。'),
         HelpBlock.p('${phone ? '主页' : '侧边栏'}会显示钱包已离线${tor ? '或正在等待 Tor' : ''}。把模式改回**标准**，一切就恢复了。'),
       ],
@@ -381,7 +382,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone && tor)
           const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在[[设置 › 隐私与网络|Settings › Privacy & network]]中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
         if (!phone) ...[
-          HelpBlock.p('**“端口 3415 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 链接 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 ${tor ? 'Epicbox、链接 · Tor 和 直接 · 文件传输' : 'Epicbox 和 直接 · 文件传输'}照常工作。'),
+          HelpBlock.p('**“端口 ${appConfig.httpListenPort} 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 链接 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 ${tor ? 'Epicbox、链接 · Tor 和 直接 · 文件传输' : 'Epicbox 和 直接 · 文件传输'}照常工作。'),
           const HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
         ],
         if (phone)
@@ -443,6 +444,31 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         ],
         id: HelpId.cleanup,
       ),
+    HelpTopic('maintenance', '设置文件', '一个文件保存你的节点和 Epicbox 服务器列表。文件出错不会丢掉上一次可用的设置。', [
+      if (phone) ...[
+        HelpBlock.p(
+          '应用保存一个文件，其中有你的节点和 Epicbox 服务器列表，以及三个开关：状态网站、更新检查和价格。其余设置随应用提供。该文件在应用中修改，例如在 $nodePlace 和 $epicboxPlace，不用手动编辑。',
+        ),
+        HelpBlock.ul([
+          '**每个列表的第一个服务器就是正在使用的。**选择某个服务器会把它移到最上面；调整顺序会改变正在使用的服务器。第一个节点没有响应时，会尝试下一个。',
+          '**第一个 Epicbox 服务器出现在每个钱包的 Epicbox 地址中。**把另一个移到最上面，每个钱包都会得到新地址；发到旧地址的付款不会到账。',
+          '**无法读取的文件：**继续使用上一次可用的设置。应用写入新文件之前，会把旧文件另存为 **settings.toml.bad-<time>**。',
+          '被删除的文件会重新写出。',
+        ]),
+      ] else ...[
+        HelpBlock.p(
+          '文件 **settings.toml** 保存你的节点和 Epicbox 服务器列表，以及三个开关：状态网站、更新检查和价格。其余设置随应用提供。它位于数据文件夹：Linux 和 macOS 上是 **~/.epic_cash_desktop/settings.toml**，Windows 上是 **%USERPROFILE%\\.epic_cash_desktop\\settings.toml**（**打开文件夹**，在 [[设置 › 此钱包 › 应用文件|Settings › This wallet › App files]] 旁）。',
+        ),
+        HelpBlock.ul([
+          '在应用中所做的更改会立即写入文件。在文件中保存的更改，会在应用运行时片刻后生效。',
+          '**每个列表的第一个服务器就是正在使用的。**选择某个服务器会把它移到最上面；调整顺序会改变正在使用的服务器。第一个节点没有响应时，会尝试下一个。',
+          '**第一个 Epicbox 服务器出现在每个钱包的 Epicbox 地址中。**把另一个移到最上面，每个钱包都会得到新地址；发到旧地址的付款不会到账。',
+          '**文件出错时：**继续使用上一次可用的设置，通知会指出出错的行，出错的文件绝不会被覆盖。',
+          '如果文件有错而应用必须写入，会先把该文件另存为 **settings.toml.bad-<time>**，再写入一个正确的文件。',
+          '被删除的文件会重新写出。',
+        ]),
+      ],
+    ], id: HelpId.settingsFile),
     ...deviceHelpTopics('zh', phone: phone),
   ];
 }

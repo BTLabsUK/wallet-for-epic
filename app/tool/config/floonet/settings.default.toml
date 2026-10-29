@@ -1,0 +1,19 @@
+# Epic Cash wallet settings for floonet (a hidden dev chain). app/tool/dev_settings.sh floonet copies
+# this file to <data folder>/dev/floonet/ as settings.default.toml and, the first time, settings.toml.
+
+[node]
+# The first node is in use; when it does not answer, the next one is tried.
+servers = [
+  "https://floo-node.btlabs.uk",
+]
+
+[epicbox]
+# The first server is part of every wallet's address: moving another to the top changes them all.
+servers = [
+  "epicbox.btlabs.uk",
+]
+
+[online]
+status_site = true   # health of the servers above
+update_check = true
+price = false        # test coins have no price

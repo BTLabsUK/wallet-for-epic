@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/help/help_content.dart';
 import 'package:epic_wallet/src/help/help_i18n.dart';
 import 'package:epic_wallet/src/l10n.dart';
@@ -57,7 +58,7 @@ void main() {
     test('the phone and the desktop share the structure and most of the words', () {
       final phone = helpTopics(3, platform: HelpPlatform.phone);
       final desk = helpTopics(3, platform: HelpPlatform.desktop);
-      expect(desk, hasLength(27));
+      expect(desk, hasLength(28));
       // The phone adds "What an address looks like" and keeps every desktop id but the
       // desktop-only folder cleanup.
       expect(phone.map((t) => t.id), containsAll(desk.map((t) => t.id).where((id) => id != HelpId.cleanup)));
@@ -129,16 +130,15 @@ void main() {
     testWidgets('the index ends with the contact address', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      await tester.scrollUntilVisible(find.text('support@btlabs.uk'), 300, scrollable: _list.last);
+      await tester.scrollUntilVisible(find.text(hostSettings.supportEmail!), 300, scrollable: _list.last);
       expect(find.text('Contact'), findsOneWidget);
     });
 
     testWidgets('the index lists every section with a phone topic, and its topics', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      // Maintenance is desktop-only: the phone's index skips a section none of its topics uses.
+      // The phone's index skips a section none of its topics uses.
       final used = helpTopics(3, platform: HelpPlatform.phone).map((t) => t.section).toSet();
-      expect(used, isNot(contains('maintenance')));
       for (final s in helpSections.where((s) => used.contains(s.id))) {
         await tester.scrollUntilVisible(find.text(s.title), 300, scrollable: _list);
         expect(find.text(s.title), findsOneWidget);

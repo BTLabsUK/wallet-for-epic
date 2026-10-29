@@ -35,6 +35,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:flutter_test/flutter_test.dart';
 
 const _mainnetDir = '/fake/wallets/mainnet';
@@ -48,7 +50,7 @@ class _FakeRelays implements RelayDirectory {
   Future<List<RelayStatus>> relays(String chain) async => chain == 'mainnet'
       ? const [
           RelayStatus(
-            relay: EpicboxRelay(host: 'epicbox.epicnet.us'),
+            relay: EpicboxRelay(host: 'box.net.invalid'),
             healthy: true,
             verified: true,
             operator: 'epicnet.us',
@@ -455,12 +457,13 @@ void main() {
       await _enter(tester, 'Repeat PIN', _pin);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(service.createdConfig?.chain, Chain.usernet);
-      expect(service.createdConfig?.nodeUrl, 'http://127.0.0.1:23413');
-      expect(service.createdConfig?.epicboxPort, 3423);
+      // Its node and Epicbox server come from usernet's own settings file; a test opens none, so
+      // the settings in use stay.
+      expect(service.createdConfig?.nodeUrl, hostSettings.nodeUse);
     });
   });
 
-  testWidgets('network settings pick a mainnet relay from the monitor', (
+  testWidgets('network settings pick another relay of the list (the monitor gives its health)', (
     tester,
   ) async {
     final service = FakeWalletService();
@@ -469,11 +472,11 @@ void main() {
     await _tap(tester, find.bySemanticsLabel('Node and Epicbox'));
     await _tap(tester, find.byKey(networkMenuEpicboxKey));
 
-    final row = find.byKey(serverListRowKey('epicbox.epicnet.us'));
+    final row = find.byKey(serverListRowKey('box.net.invalid'));
     await _reveal(tester, row);
     expect(row, findsOneWidget);
     expect(
-      find.textContaining('epicnet.us', findRichText: true),
+      find.textContaining('net.invalid', findRichText: true),
       findsWidgets,
     );
     // The sheet warns; the confirm says the address will change.
@@ -497,7 +500,7 @@ void main() {
 
     await _tap(tester, row);
     await _tap(tester, find.byKey(serverListSwitchKey));
-    expect(device.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
+    expect(ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first)).read(hostSettingsProvider).epicboxUse, 'box.net.invalid');
     await _tapText(tester, 'Create a new wallet');
     await _enter(tester, 'PIN', _pin);
     await _enter(tester, 'Repeat PIN', _pin);
@@ -507,7 +510,7 @@ void main() {
       tester.element(find.byKey(balanceFigureKey)),
     );
     final config = container.read(walletConfigProvider)!;
-    expect(config.epicboxDomain, 'epicbox.epicnet.us');
+    expect(config.epicboxDomain, 'box.net.invalid');
     expect(config.epicboxPort, 443);
   });
 

@@ -92,7 +92,7 @@
 /// ## Node info
 ///
 /// `NodeInfo.source`:
-/// - `directory`: status.btlabs.uk lists the node. Gives state, reason, height, blocksBehind,
+/// - `directory`: the status site lists the node. Gives state, reason, height, blocksBehind,
 ///   version vs releasedVersion (`updateAvailable`), uptime24h, peers, operator, listing, country
 ///   and `network`.
 /// - `limited`: the monitor is unreachable or does not list the node. Gives height, tipTime,
@@ -125,7 +125,7 @@
 ///
 /// These are not in any epic 4.1.0 API: peer ping, connected-since, bytes per peer, and network
 /// bandwidth per process (the process I/O counters include disk). The chain size is not published
-/// by status.btlabs.uk either. Max peers is two settings (incoming, outgoing), not one.
+/// by the status site either. Max peers is two settings (incoming, outgoing), not one.
 library;
 
 export 'chain_data.dart';

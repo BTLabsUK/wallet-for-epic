@@ -27,7 +27,7 @@ Future<void> _loadFonts() async {
   await loader.load();
 }
 
-const _url = 'https://node.epiccash.com:3413';
+const _url = 'https://node.epic.invalid:3413';
 final _now = DateTime(2026, 10, 22, 14, 3);
 
 Widget _card(NodeInfo? info, {ServiceHealth? health, bool torOn = false, DateTime? downSince, SwitchTarget? switchTo, ValueChanged<SwitchTarget>? onSwitch}) =>
@@ -58,7 +58,7 @@ void main() {
       'down': _card(
         mockNodeInfo(_url, state: NodeHealthState.down),
         downSince: DateTime(2026, 10, 22, 14, 2),
-        switchTo: const SwitchTarget(host: 'node.btlabs.uk', url: 'https://node.btlabs.uk'),
+        switchTo: const SwitchTarget(host: 'node.lab.invalid', url: 'https://node.lab.invalid'),
         onSwitch: (_) {},
       ),
     };
@@ -90,7 +90,7 @@ void main() {
     expect(find.text('99.7%'), findsOneWidget);
     expect(find.text('listed as official'), findsOneWidget);
     expect(find.textContaining('Nodes agree on 3,764,975 · 5 of 6 nodes up · 4 of 4 Epicbox servers up · last block 40 s ago'), findsOneWidget);
-    expect(find.textContaining('status.btlabs.uk, checked 14:02 · latency measured from this computer'), findsOneWidget);
+    expect(find.textContaining('status.lab.invalid, checked 14:02 · latency measured from this computer'), findsOneWidget);
 
     await _pump(tester, _card(mockNodeInfo(_url, behind: 12, state: NodeHealthState.degraded)));
     expect(find.textContaining('Behind', findRichText: true), findsOneWidget);
@@ -116,7 +116,7 @@ void main() {
     }
     expect(find.text('Yes'), findsOneWidget);
     expect(find.text('last block 3 min ago'), findsOneWidget);
-    expect(find.textContaining('status.btlabs.uk is not reachable'), findsOneWidget);
+    expect(find.textContaining('status.lab.invalid is not reachable'), findsOneWidget);
     expect(find.textContaining('Status site last reached'), findsNothing, reason: 'never reached this session');
   });
 
@@ -146,14 +146,14 @@ void main() {
       tester,
       _card(
         mockNodeInfo(_url, state: NodeHealthState.down),
-        switchTo: const SwitchTarget(host: 'node.btlabs.uk', url: 'https://node.btlabs.uk'),
+        switchTo: const SwitchTarget(host: 'node.lab.invalid', url: 'https://node.lab.invalid'),
         onSwitch: (t) => to = t,
       ),
     );
     expect(find.text('Node not answering.'), findsOneWidget);
-    expect(find.text('Switch to node.btlabs.uk, the healthiest other node?'), findsOneWidget);
+    expect(find.text('Switch to node.lab.invalid, the healthiest other node?'), findsOneWidget);
     await tester.tap(find.text('Switch'));
-    expect(to?.url, 'https://node.btlabs.uk');
+    expect(to?.url, 'https://node.lab.invalid');
   });
 
   testWidgets('Settings › Node: a down node offers the lowest-latency healthy node and switches to it', (tester) async {
@@ -203,7 +203,7 @@ void main() {
     final probe = NodeInfo(url: _url, source: NodeInfoSource.none, at: DateTime(2026, 10, 22, 14, 2), state: NodeHealthState.down);
     await _pump(
       tester,
-      _card(probe, health: ServiceHealth.ok, switchTo: const SwitchTarget(host: 'node.epicnet.us', url: 'https://node.epicnet.us'), onSwitch: (_) {}),
+      _card(probe, health: ServiceHealth.ok, switchTo: const SwitchTarget(host: 'node.net.invalid', url: 'https://node.net.invalid'), onSwitch: (_) {}),
     );
     expect(find.textContaining('Not answering', findRichText: true), findsNothing);
     expect(find.textContaining('Switch to'), findsNothing);
@@ -239,6 +239,6 @@ void main() {
     final listed = NodeInfo(url: _url, source: NodeInfoSource.directory, at: DateTime(2026, 10, 22, 14, 2), state: NodeHealthState.healthy, height: 2914414);
     await _pump(tester, _card(listed, torOn: true));
     expect(find.textContaining('measured'), findsNothing);
-    expect(find.textContaining('status.btlabs.uk, checked 14:02'), findsOneWidget);
+    expect(find.textContaining('status.lab.invalid, checked 14:02'), findsOneWidget);
   });
 }

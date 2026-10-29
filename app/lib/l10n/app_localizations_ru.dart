@@ -1992,12 +1992,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get setupRelayDownIconLabel => 'Не работает';
 
   @override
-  String get setupRelayHealthUnavailable =>
-      'Не удалось получить состояние серверов с status.btlabs.uk.';
+  String setupRelayHealthUnavailable(String site) {
+    return 'Не удалось получить состояние серверов с $site.';
+  }
 
   @override
-  String get setupRelayHealthSource =>
-      'Состояние по данным status.btlabs.uk, проверка ведётся с его сервера.';
+  String setupRelayHealthSource(String site) {
+    return 'Состояние по данным $site, проверка ведётся с его сервера.';
+  }
 
   @override
   String get setupRelayNotMonitored => 'Не отслеживается';
@@ -3043,7 +3045,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get settingsTitle => 'Настройки';
@@ -3457,7 +3459,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get settingsUseStatusSite => 'Использовать status.btlabs.uk';
+  String settingsUseStatusSite(String site) {
+    return 'Использовать $site';
+  }
 
   @override
   String get settingsUseStatusSiteSubtitle =>
@@ -4777,8 +4781,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverPublicRelays => 'Публичные серверы';
 
   @override
-  String get serverHealthUnknown =>
-      'status.btlabs.uk недоступен; состояние неизвестно';
+  String serverHealthUnknown(String site) {
+    return '$site недоступен; состояние неизвестно';
+  }
 
   @override
   String get serverAtTip => 'актуален';
@@ -4852,8 +4857,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverOtherNode => 'Другой узел, host или host:port';
 
   @override
-  String get serverOtherNodeInvalid =>
-      'Введите адрес узла, например node.example.com:3413';
+  String serverOtherNodeInvalid(String port) {
+    return 'Введите адрес узла, например node.example.com:$port';
+  }
 
   @override
   String get serverAdd => 'Добавить';
@@ -4937,8 +4943,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String serverCheckedAt(String time) {
-    return 'status.btlabs.uk, проверено $time';
+  String serverCheckedAt(String time, String site) {
+    return '$site, проверено $time';
   }
 
   @override
@@ -5877,7 +5883,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get methodLinkPayment => 'Платёж по ссылке';
 
   @override
-  String get methodDirectShape => 'http://host:3415 или xxxx….onion';
+  String methodDirectShape(String port) {
+    return 'http://host:$port или xxxx….onion';
+  }
 
   @override
   String get methodSendDirectLine =>
@@ -6637,7 +6645,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskNodeStartIt => 'Запустите его в разделе «Настройки › Узел».';
 
   @override
-  String get deskNodeFailPort => 'порт 3413 занят другой программой';
+  String deskNodeFailPort(String port) {
+    return 'порт $port занят другой программой';
+  }
 
   @override
   String get deskNodeFailDisk => 'недостаточно места на диске';
@@ -8224,7 +8234,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com), адрес ссылки (https://…) или onion-адрес (….onion).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер), адрес ссылки (https://…) или onion-адрес (….onion).';
 
   @override
   String get deskConAddPicture => 'Добавить фото';
@@ -8837,8 +8847,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOvNodeAddrTitle => 'Адрес узла обновлён';
 
   @override
-  String get deskOvNodeAddrText =>
-      'Теперь используется node.epiccash.com вместо node.epiccash.com:3413.';
+  String deskOvNodeAddrText(String node, String old) {
+    return 'Теперь используется $node вместо $old.';
+  }
 
   @override
   String get deskOvNodeIncompatTitle => 'Несовместимая версия узла';
@@ -9819,8 +9830,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Неверный пароль. Проверьте Caps Lock и раскладку клавиатуры.';
 
   @override
-  String get deskOnbUnlockPortInUse =>
-      'Порт 3415 занят другой программой. Закройте её и повторите попытку.';
+  String deskOnbUnlockPortInUse(String port) {
+    return 'Порт $port занят другой программой. Закройте её и повторите попытку.';
+  }
 
   @override
   String get deskOnbUnlockStageCheck => 'Проверка файлов кошелька';
@@ -10804,8 +10816,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskKitLimitedNetwork =>
-      'status.btlabs.uk недоступен; сведения получены только от узла.';
+  String deskKitLimitedNetwork(String site) {
+    return '$site недоступен; сведения получены только от узла.';
+  }
 
   @override
   String get deskKitFactHeight => 'Высота';
@@ -10873,8 +10886,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitListedOfficial => 'в списке официальных';
 
   @override
-  String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk, проверено в $time';
+  String deskKitSourceChecked(String time, String site) {
+    return '$site, проверено в $time';
   }
 
   @override
@@ -10912,7 +10925,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitLimitedInfo => 'Неполные данные';
 
   @override
-  String get deskKitFromStatusSite => 'с status.btlabs.uk';
+  String deskKitFromStatusSite(String site) {
+    return 'с $site';
+  }
 
   @override
   String get deskKitOverTor => 'через Tor';
@@ -11905,7 +11920,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Перезапустите или проверьте журнал узла.';
 
   @override
-  String get deskSetLnodePortInUse => 'Порт 3413 занят другой программой.';
+  String deskSetLnodePortInUse(String port) {
+    return 'Порт $port занят другой программой.';
+  }
 
   @override
   String get deskSetLnodePortInUseText =>
@@ -12249,8 +12266,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPeersUnbannedToast => 'Пир разблокирован';
 
   @override
-  String get deskSetPeersNotAddress =>
-      'Это не IP-адрес с портом, например 203.0.113.5:3414.';
+  String deskSetPeersNotAddress(String port) {
+    return 'Это не IP-адрес с портом, например 203.0.113.5:$port.';
+  }
 
   @override
   String get deskSetPeersAlreadyPreferred => 'Уже в предпочтительных.';
@@ -12449,11 +12467,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Открыть папку журналов';
 
   @override
-  String get deskSetNodePortNote => 'Проверьте адрес и порт (обычно 3413).';
+  String deskSetNodePortNote(String port) {
+    return 'Проверьте адрес и порт (обычно $port).';
+  }
 
   @override
-  String get deskSetNodeListNote =>
-      'Состояние по данным status.btlabs.uk; задержка измерена с этого компьютера.';
+  String deskSetNodeListNote(String site) {
+    return 'Состояние по данным $site; задержка измерена с этого компьютера.';
+  }
 
   @override
   String get deskSetNodeStartTitle => 'Запустить локальный узел?';
@@ -12646,7 +12667,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetPrivStatusSite => 'Сайт статуса';
 
   @override
-  String get deskSetPrivUseStatus => 'Использовать status.btlabs.uk';
+  String deskSetPrivUseStatus(String site) {
+    return 'Использовать $site';
+  }
 
   @override
   String get deskSetPrivUseStatusHint =>
@@ -12707,7 +12730,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'Переключение сервера Epicbox…';
 
   @override
-  String get deskSetRecvListNote => 'Состояние по данным status.btlabs.uk.';
+  String deskSetRecvListNote(String site) {
+    return 'Состояние по данным $site.';
+  }
 
   @override
   String get deskSetRecvHttpText =>
@@ -14363,8 +14388,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txMethodsHeader => 'Способы оплаты';
 
   @override
-  String get txLinkHttpHint =>
-      'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется, недоступен из интернета и по мобильным данным и выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  String txLinkHttpHint(String port) {
+    return 'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:$port) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется, недоступен из интернета и по мобильным данным и выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  }
 
   @override
   String get txLinkTorHint =>
@@ -14575,8 +14601,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Платите и получайте платежи через сервер Epicbox. Так идёт большинство платежей. Выключен: кошелёк не подключается ни к одному серверу Epicbox, то есть без платежей Epicbox и счетов. Остальные способы по-прежнему работают.';
 
   @override
-  String get deskSetTxDirectHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:3415), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  String deskSetTxDirectHint(String port) {
+    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  }
 
   @override
   String get deskSetTxFileHint =>
@@ -15196,7 +15223,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**Устно.** Один кошелёк показывает пять слов и оставляет запечатанное приглашение на серверах подключения (по умолчанию это epicbox.epiccash.com, epicbox.stackwallet.com и сервер BT Labs). Второй кошелёк вводит слова и находит его. Оба кошелька должны быть онлайн и иметь доступ к одному из этих серверов.';
+      '**Устно.** Один кошелёк показывает пять слов и оставляет запечатанное приглашение на серверах подключения. Второй кошелёк вводит слова и находит его. Оба кошелька должны быть онлайн и иметь доступ к одному из этих серверов.';
 
   @override
   String get helpPairWaysP2 =>
@@ -17605,8 +17632,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSourceSite =>
-      'Опрашивается напрямую каждые 15 с · вершина от status.btlabs.uk';
+  String deskOwnSourceSite(String site) {
+    return 'Опрашивается напрямую каждые 15 с · вершина от $site';
+  }
 
   @override
   String deskOwnSourceNodes(int count) {
@@ -17770,8 +17798,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOwnMine => 'Это мой узел';
 
   @override
-  String get deskOwnMineHint =>
-      'Опрашивает сам узел вместо status.btlabs.uk и предлагает доступ владельца. Для узла, который вы держите сами.';
+  String deskOwnMineHint(String site) {
+    return 'Опрашивает сам узел вместо $site и предлагает доступ владельца. Для узла, который вы держите сами.';
+  }
 
   @override
   String get deskOwnSlotSyncing => 'Свой узел синхронизируется';
@@ -17880,7 +17909,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Недействительный адрес. Используйте адрес Epicbox (es5x…@epicbox.epiccash.com) или адрес ссылки (https://…).';
+      'Недействительный адрес. Используйте адрес Epicbox (es5x…@сервер) или адрес ссылки (https://…).';
 
   @override
   String get handshakeLink1NoTor =>
@@ -17898,8 +17927,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Офлайн приостанавливает Epicbox и проверки состояния. «Оплата по QR» и «Передача файла» по-прежнему работают: они используют текущий узел для чтения цепочки и отправки, в том числе публичный. С узлом в вашей локальной сети также работают «Сверка баланса» и отправка через «Ссылку» на локальные адреса. Пиры узла — настройка самого узла.';
 
   @override
-  String get txLinkHttpHintNoTor =>
-      'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:3415) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется и недоступен из интернета и по мобильным данным. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  String txLinkHttpHintNoTor(String port) {
+    return 'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:$port) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется и недоступен из интернета и по мобильным данным. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
+  }
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -17918,8 +17948,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Адрес http(s). Кошелёк получателя должен быть открыт.';
 
   @override
-  String get deskNoTorSetTxDirectHint =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:3415), без сервера посередине. Работает, только пока оба кошелька открыты. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  String deskNoTorSetTxDirectHint(String port) {
+    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+  }
 
   @override
   String get deskNoTorAdvNetworkHint =>
@@ -18884,4 +18915,131 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => 'Подключения';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file, строка $line: строку не удаётся прочитать. Действуют последние верные настройки.';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file, строка $line: это не текст в кавычках. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file, строка $line: это не целое число. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file, строка $line: это не true и не false. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file, строка $line: это не список. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file, строка $line: это не адрес узла. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file, строка $line: это не сервер Epicbox. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file, строка $line: это не имя хоста. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file, строка $line: это не веб-адрес. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file, строка $line: это не onion-адрес. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file, строка $line: это не номер порта. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file, строка $line: это не адрес электронной почты. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file, строка $line: это не адрес Epicbox. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file, строка $line: неизвестный ключ $key, пропущен.';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file изменили одновременно с приложением; его значение $key сохранено.';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return 'В $file были ошибки. Файл сохранён как $backup и записан заново.';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return 'Файл $file отсутствовал и записан заново.';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return 'Не удалось записать $file. Изменение действует до закрытия приложения.';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return 'Не удалось прочитать $file. Действуют встроенные настройки.';
+  }
+
+  @override
+  String get deskKitReachTorOff =>
+      'Проверка работает только с выключенным Tor.';
+
+  @override
+  String get deskSetBackupServersTitle =>
+      'Использовать серверы из этого файла?';
+
+  @override
+  String get deskSetBackupServersBody =>
+      'Его списки узлов и серверов Epicbox отличаются от списков этого компьютера. Все кошельки здесь используют одни и те же списки.';
+
+  @override
+  String get deskSetBackupServersKeep => 'Этого компьютера';
+
+  @override
+  String get deskSetBackupServersUse => 'Из файла';
+
+  @override
+  String get deskSlNoNodeTitle => 'Узел не задан';
+
+  @override
+  String get deskSlNoNodeText =>
+      'Список узлов пуст. Добавьте узел, чтобы проверять баланс и отправлять.';
+
+  @override
+  String get deskSlNoEpicboxTitle => 'Сервер Epicbox не задан';
+
+  @override
+  String get deskSlNoEpicboxText =>
+      'Список серверов Epicbox пуст. Добавьте сервер, чтобы получить адрес Epicbox.';
 }

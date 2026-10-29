@@ -27,7 +27,7 @@ import 'theme/tokens.dart';
 import 'devices/device_parts.dart' show LinkDeviceOffer;
 
 /// Mainnet block 1 was mined at 2019-09-03T02:10:08Z (`get_header` at height 1 on
-/// node.btlabs.uk, checked 2026-09-30). The genesis block is dated 2019-08-09T17:04:38Z, 24 days
+/// the built-in node, checked 2026-09-30). The genesis block is dated 2019-08-09T17:04:38Z, 24 days
 /// earlier; counting from genesis at 60 s per block overshoots real heights by up to 20,000
 /// blocks, which would skip outputs, so the estimate counts from block 1.
 const int mainnetBlockOneUnix = 1567476608;

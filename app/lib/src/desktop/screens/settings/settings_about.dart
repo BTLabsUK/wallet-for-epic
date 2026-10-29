@@ -4,8 +4,8 @@ import '../../../app_version.dart';
 import '../../../dist_build.dart' show distStore;
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
-import '../../../tor_licence.dart' show torSourceNote;
-import '../../../ui/settings_screen.dart' show projectRepoPublic, projectRepoUrl, supportEmail;
+import '../../../tor_licence.dart' show TorSourceNote;
+import '../../../ui/settings_screen.dart' show communityUrl, epicCashUrl, projectRepoPublic, projectRepoUrl, supportEmail;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 
 import 'package:flutter/material.dart';
@@ -22,9 +22,10 @@ import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
-/// The Epic Cash community links (the public Telegram group).
-const telegramUrl = 'https://t.me/EpicCash';
-const websiteUrl = 'https://epiccash.com';
+/// The Epic Cash community links, from `app-config.toml` (`links.community`,
+/// `links.website`); null when left out (the row is not shown).
+String? get telegramUrl => communityUrl;
+String? get websiteUrl => epicCashUrl;
 
 /// The Licences group, the same words as the phone's Licences screen (lib/l10n, `licences*`).
 List<String> licenceLines(AppLocalizations l) => [
@@ -105,9 +106,9 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
           ESetGroup(
             title: l.deskSetAboutCommunity,
             rows: [
-              linkRow('Telegram', 't.me/EpicCash', telegramUrl), // l10n-ok: a name
-              linkRow('epiccash.com', 'epiccash.com', websiteUrl),
-              _LinkRow(title: l.contactLabel, shown: supportEmail, url: 'mailto:$supportEmail', copy: supportEmail),
+              if (telegramUrl case final t?) linkRow('Telegram', shownUrl(t), t), // l10n-ok: a name
+              if (websiteUrl case final w?) linkRow(shownUrl(w), shownUrl(w), w),
+              if (supportEmail case final e?) _LinkRow(title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
             ],
           ),
           if (deskUpdatesSupported) const _Updates(),
@@ -124,11 +125,11 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                     Text(l.deskSetAboutLicencesLead, style: ts.small),
                     SizedBox(height: Sp.x3),
                     for (final line in licenceLines(l)) Padding(padding: EdgeInsets.only(bottom: Sp.x2), child: Text(line, style: ts.body)),
-                    if (DeskFeatures.tor) ...[SizedBox(height: Sp.x2), Text(torSourceNote, style: ts.caption)],
+                    if (DeskFeatures.tor) ...[SizedBox(height: Sp.x2), TorSourceNote(style: ts.caption)],
                   ],
                 ),
               ),
-              if (projectRepoPublic) linkRow(l.deskSetAboutSource, 'gitlab.com/epic-cash-bt/wallet-for-epic', projectRepoUrl),
+              if (projectRepoPublic && projectRepoUrl != null) linkRow(l.deskSetAboutSource, shownUrl(projectRepoUrl!), projectRepoUrl!),
               ESetRow(
                 title: l.licencesFull,
                 control: ERowControl(
@@ -248,7 +249,7 @@ class _Updates extends ConsumerWidget {
               ? ERowControl(child: check)
               : Row(mainAxisSize: MainAxisSize.min, children: [if (checks) ...[check, SizedBox(width: Sp.x2)], step]),
         ),
-        _LinkRow(title: l.deskSetAboutDownloadPage, shown: 'examples.btlabs.uk/epic-cash-wallets', url: deskReleasesUrl), // l10n-ok: an address
+        if (deskReleasesUrl case final page?) _LinkRow(title: l.deskSetAboutDownloadPage, shown: shownUrl(page), url: page),
       ],
     );
   }

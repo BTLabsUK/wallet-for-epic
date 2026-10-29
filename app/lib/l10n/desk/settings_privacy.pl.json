@@ -14,6 +14,6 @@
   "deskSetPrivStoppedDetail": "Tor się zatrzymał. Ponów albo wyłącz Tor.",
   "deskSetPrivProblemDetail": "{problem}. Ponów albo wyłącz Tor.",
   "deskSetPrivStatusSite": "Strona stanu",
-  "deskSetPrivUseStatus": "Używaj status.btlabs.uk",
+  "deskSetPrivUseStatus": "Używaj {site}",
   "deskSetPrivUseStatusHint": "Pokazuje, które węzły i serwery Epicbox są online. Pobiera tylko publiczną listę; z portfela nic nie jest wysyłane."
 }

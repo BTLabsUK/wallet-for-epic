@@ -48,7 +48,7 @@
   "deskKitNodesUp": "{up, plural, other{โหนดทำงาน {up} จาก {total}}}",
   "deskKitEpicboxUp": "{up, plural, other{เซิร์ฟเวอร์ Epicbox ทำงาน {up} จาก {total}}}",
   "deskKitLastBlock": "บล็อกล่าสุด {age}",
-  "deskKitLimitedNetwork": "เข้าถึง status.btlabs.uk ไม่ได้ ข้อมูลมาจากโหนดเท่านั้น",
+  "deskKitLimitedNetwork": "เข้าถึง {site} ไม่ได้ ข้อมูลมาจากโหนดเท่านั้น",
   "deskKitFactHeight": "บล็อก",
   "deskKitFactVersion": "เวอร์ชัน",
   "deskKitFactAccepts": "รับธุรกรรม",
@@ -66,7 +66,7 @@
   "deskKitUptimeWindow": "24 ชั่วโมงล่าสุด",
   "deskKitAtTime": "เมื่อ {time}",
   "deskKitListedOfficial": "อยู่ในรายการทางการ",
-  "deskKitSourceChecked": "status.btlabs.uk ตรวจเมื่อ {time}",
+  "deskKitSourceChecked": "{site} ตรวจเมื่อ {time}",
   "deskKitLatencyMeasured": "วัดเวลาตอบสนอง{where}",
   "deskKitSiteLastReached": "เข้าถึงเว็บสถานะครั้งล่าสุดเมื่อ {time}",
   "deskKitSince": "ตั้งแต่ {time}",
@@ -75,7 +75,7 @@
   "deskKitNodeDownText": "เปลี่ยนไปใช้ {host} ซึ่งเป็นโหนดอื่นที่ทำงานดีที่สุดไหม?",
   "deskKitSwitch": "เปลี่ยน",
   "deskKitLimitedInfo": "ข้อมูลจำกัด",
-  "deskKitFromStatusSite": "จาก status.btlabs.uk",
+  "deskKitFromStatusSite": "จาก {site}",
   "deskKitOverTor": "ผ่าน Tor",
   "deskKitFromThisComputer": "จากคอมพิวเตอร์นี้",
   "deskKitNodeUse": "ใช้ {host}",
@@ -124,5 +124,6 @@
   "deskKitQrShow": "แสดง QR",
   "deskKitQrHide": "ซ่อน QR",
   "deskKitQrHideCode": "ซ่อน QR",
-  "deskKitMethodConnected": "เชื่อมต่อแล้ว"
+  "deskKitMethodConnected": "เชื่อมต่อแล้ว",
+  "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor"
 }

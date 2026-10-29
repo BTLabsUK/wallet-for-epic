@@ -14,7 +14,7 @@
   "deskSetRecvEpicboxServerHint": "Który serwer przechowuje płatności na ten adres. Oba portfele mogą używać różnych serwerów.",
   "deskSetRecvEpicboxOwnHint": "Ten portfel ma własny serwer Epicbox, zachowany ze starszej aplikacji. Zmiana tutaj dotyczy tylko tego portfela.",
   "deskSetRecvSwitchingServer": "Przełączanie serwera Epicbox…",
-  "deskSetRecvListNote": "Stan ze status.btlabs.uk.",
+  "deskSetRecvListNote": "Stan ze {site}.",
   "deskSetRecvHttpText": "Prosto z innego portfela na adres internetowy tego komputera, gdy ten portfel jest otwarty.",
   "deskSetRecvHttpOffTitle": "Wyłączone, gdy Tor jest włączony",
   "deskSetRecvHttpOffText": "Płatności prosto z innego portfela docierają wtedy na adres Link · Tor.",

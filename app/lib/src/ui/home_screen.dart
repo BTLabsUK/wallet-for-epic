@@ -49,16 +49,17 @@ import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tour/phone_tour.dart';
 import 'tx_details_screen.dart';
+import '../settings_file/host_settings.dart' show appConfig;
 
 /// How often home refreshes against the node while it is on screen and the app is in front.
-const Duration autoRefreshInterval = Duration(seconds: 60);
+Duration get autoRefreshInterval => appConfig.nodeRefresh;
 
 /// How often home asks the node for its tip between refreshes; a new block refreshes at once,
 /// as the desktop does. Epic's blocks come in bursts (three in a minute is common), so a
 /// refresh each minute alone could go from Confirming 0/3 to completed with nothing between.
 /// While a payment can move with the next block it asks more often (watch mode,
 /// watch_mode.dart).
-const Duration tipCheckInterval = Duration(seconds: 15);
+Duration get tipCheckInterval => appConfig.nodeTipCheck;
 
 /// Transactions shown under "Recent activity".
 const int recentActivityCount = 5;

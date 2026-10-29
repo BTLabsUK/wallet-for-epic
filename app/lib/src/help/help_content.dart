@@ -9,6 +9,7 @@ library;
 import '../../l10n/app_localizations.dart';
 import '../advanced.dart';
 import 'help_devices.dart';
+import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 /// One block of a topic's body. Inline, `**bold**` marks a term and `[[Settings › Node]]` a
 /// place in the app. A translation writes a place as `[[translated label|Settings › Node]]`: what
@@ -104,7 +105,7 @@ const helpSections = <HelpSection>[
   (id: 'safety', title: 'Keeping the wallet safe', lede: 'The recovery phrase is the backup and the key.', art: 'help-safety'),
   (id: 'network', title: 'Nodes and Epicbox', lede: 'What the wallet connects to, and Tor.', art: 'help-network'),
   (id: 'trouble', title: 'When something goes wrong', lede: 'The usual causes, and what to do.', art: 'help-trouble'),
-  (id: 'maintenance', title: 'Maintenance', lede: 'Old wallet folders on disk.', art: 'help-maintenance'),
+  (id: 'maintenance', title: 'Maintenance', lede: 'Old wallet folders on disk, and the settings file.', art: 'help-maintenance'),
 ];
 
 /// Help › Pairing (RFC 0002): shown when the wallet pairs, before "When something goes wrong".
@@ -164,6 +165,7 @@ abstract final class HelpId {
   static const invoices = 'invoices';
   static const pairingRestore = 'pairing-restore';
   static const cleanup = 'cleanup';
+  static const settingsFile = 'settings-file';
   static const importWarning = 'import-warning';
   static const cancel = 'cancel';
   static const otherWallet = 'other-wallet';
@@ -212,7 +214,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Receive your first EPIC',
       'Open Receive, copy the Epicbox address and give it to the sender. The payment arrives by itself.',
       [
-        const HelpBlock.p('The Epicbox address is a long code that ends in **@** and the name of the Epicbox server, for example **…@epicbox.epiccash.com**. It is safe to share: people need it to pay, and nobody can take anything with it.'),
+        HelpBlock.p('The Epicbox address is a long code that ends in **@** and the name of the Epicbox server, for example **…@${hostSettings.epicboxUse}**. It is safe to share: people need it to pay, and nobody can take anything with it.'),
         const HelpBlock.ol(['Open [[Receive]].', 'Copy the address (or show its QR code) and send it to the person who pays.', 'The payment shows up in Activity on its own.']),
         if (phone)
           const HelpBlock.p('Receiving works while the app is open and the node is synced. A payment sent while the app is closed waits on the Epicbox server, like a post-office box, and arrives at the next unlock.')
@@ -286,11 +288,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             : 'An Epicbox address starts with es and ends in @ and a server name. A Link address is a web address.',
         [
           HelpBlock.ul([
-            '**Epicbox**: about 52 characters starting with **es**, then **@** and the server, for example **esXXXX…XXXX@epicbox.epiccash.com**. The default; the recipient can be offline.',
+            '**Epicbox**: about 52 characters starting with **es**, then **@** and the server, for example **esXXXX…XXXX@${hostSettings.epicboxUse}**. The default; the recipient can be offline.',
             if (tor)
-              '**Link · HTTP** and **Link · Tor**: the recipient’s own wallet, open right now. A web address such as **http://host:3415** goes by Link · HTTP; a Tor address of 56 characters ending in **.onion** goes by Link · Tor, over Tor.'
+              '**Link · HTTP** and **Link · Tor**: the recipient’s own wallet, open right now. A web address such as **http://host:${appConfig.httpListenPort}** goes by Link · HTTP; a Tor address of 56 characters ending in **.onion** goes by Link · Tor, over Tor.'
             else
-              '**Link · HTTP**: the recipient’s own wallet, open right now. A web address such as **http://host:3415** goes by Link · HTTP.',
+              '**Link · HTTP**: the recipient’s own wallet, open right now. A web address such as **http://host:${appConfig.httpListenPort}** goes by Link · HTTP.',
           ]),
           HelpBlock.p('Send picks the method from the address pasted into the To field. When reading an address out, compare the first six and the last six characters.'),
         ],
@@ -502,7 +504,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action.${phone ? '' : ' HTTP receiving is off, because a plain address would reveal this computer.'}',
           '**Offline**: no Epicbox, no Link beyond local addresses, ${!phone && tor ? 'no Tor, ' : ''}no status checks. The balance and history stay as last seen. ${phone ? '**Direct · QR Payment** and **Direct · File Transfer**' : '**Direct · File Transfer**'} still work: they use the node in use to read the chain and post, a public one too, and the screen says so. For the most privacy, use a node on ${phone ? 'the local network' : 'this computer or the local network'}: then the balance refreshes${phone ? '' : ', Link · HTTP receives over the local network with HTTP receiving set to **From the internet**,'} and Recheck balance runs as well.',
         ]),
-        const HelpBlock.p('In Offline, give the node by its IP address, for example **10.100.10.20:3413**. Names are not looked up.'),
+        HelpBlock.p('In Offline, give the node by its IP address, for example **10.100.10.20:${appConfig.localNodeApiPort}**. Names are not looked up.'),
         if (!phone) const HelpBlock.p('The built-in node’s own peers are the node’s setting, not the mode’s.'),
         HelpBlock.p('${phone ? 'Home' : 'The sidebar'} says when the wallet is offline${tor ? ' or waiting for Tor' : ''}. Setting the mode back to **Standard** brings everything back.'),
       ],
@@ -559,7 +561,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone && tor)
           const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press Retry under [[Settings › Privacy & network]], or turn Tor off; nothing goes out meanwhile.'),
         if (!phone) ...[
-          HelpBlock.p('**"Port 3415 is used by another program".** Another program, often another Epic wallet, uses the port for Link · HTTP payments. Close it, then press Try again on Receive. ${tor ? 'Epicbox, Link · Tor and Direct · File Transfer keep' : 'Epicbox and Direct · File Transfer keep'} working meanwhile.'),
+          HelpBlock.p('**"Port ${appConfig.httpListenPort} is used by another program".** Another program, often another Epic wallet, uses the port for Link · HTTP payments. Close it, then press Try again on Receive. ${tor ? 'Epicbox, Link · Tor and Direct · File Transfer keep' : 'Epicbox and Direct · File Transfer keep'} working meanwhile.'),
           const HelpBlock.p('**"Another Epic program is using this folder".** Another Epic wallet or node has the same files open. Close it and try again.'),
         ],
         if (phone)
@@ -621,6 +623,37 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         ],
         id: HelpId.cleanup,
       ),
+    HelpTopic(
+      'maintenance',
+      'The settings file',
+      'One file holds your Node and Epicbox lists. A mistake in it never costs the last good settings.',
+      [
+        if (phone) ...[
+          HelpBlock.p(
+            'The app keeps a file of your Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. The file is changed in the app, for example under $nodePlace and $epicboxPlace, not by hand.',
+          ),
+          HelpBlock.ul([
+            '**The first server of each list is the one in use.** Picking a server moves it to the top; reordering the list changes the one in use. When the first node does not answer, the next one is tried.',
+            '**The first Epicbox server is in the Epicbox address of every wallet.** Moving another one to the top gives each wallet a new address; payments sent to an old address do not arrive.',
+            '**A file that cannot be read:** the last good settings stay in use. Before the app writes a new file, it saves the old one as **settings.toml.bad-<time>**.',
+            'A deleted file is written again.',
+          ]),
+        ] else ...[
+          HelpBlock.p(
+            'The file **settings.toml** holds your Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. It sits in the data folder: **~/.epic_cash_desktop/settings.toml** on Linux and macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** on Windows (**Open folder** next to [[Settings › This wallet › App files]]).',
+          ),
+          HelpBlock.ul([
+            'A change in the app is written to the file at once. A change you save in the file applies while the app runs, within a moment.',
+            '**The first server of each list is the one in use.** Picking a server moves it to the top; reordering the list changes the one in use. When the first node does not answer, the next one is tried.',
+            '**The first Epicbox server is in the Epicbox address of every wallet.** Moving another one to the top gives each wallet a new address; payments sent to an old address do not arrive.',
+            '**An error in the file:** the last good settings stay in use, a notice names the line, and a broken file is never overwritten.',
+            'If the app has to write while the file has errors, it first saves the file as **settings.toml.bad-<time>**, then writes a good one.',
+            'A deleted file is written again.',
+          ]),
+        ],
+      ],
+      id: HelpId.settingsFile,
+    ),
     ...deviceHelpTopics('en', phone: phone),
   ];
 }

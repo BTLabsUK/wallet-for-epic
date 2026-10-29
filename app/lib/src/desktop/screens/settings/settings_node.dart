@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../../network.dart' show mainnetPreset;
+import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
 import '../../data/desk_node.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -25,6 +26,7 @@ import 'own_node_panel.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
+import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
@@ -33,7 +35,7 @@ import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 enum NodeDemo { comboOpen, typed, badAddress, removed, picked, pickFailed, builtin, peers, behind, old, limited, down, own, ownAccess, ownPeers, ownDialog, ownSyncing, ownDown }
 
 /// The tour's own node.
-const String ownDemoUrl = 'http://10.0.1.24:3413'; // l10n-ok: a node address
+String get ownDemoUrl => 'http://10.0.1.24:${appConfig.localNodeApiPort}'; // l10n-ok: a node address
 
 bool _ownDemo(Object? arg) => arg is NodeDemo && arg.name.startsWith('own');
 
@@ -71,7 +73,7 @@ ETone nodeTone(ServiceHealth h) => switch (h) {
 };
 
 /// The picker's footer under the node list.
-String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote;
+String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote(statusSiteHost);
 
 /// Before the local node starts: what that means for this computer. True to go on.
 Future<bool> confirmLocalNode(BuildContext context) async {
@@ -197,7 +199,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     super.didChangeDependencies();
     if (widget.arg == NodeDemo.pickFailed && _error == null && !_pickFailedShown) {
       _pickFailedShown = true;
-      _error = context.l10n.deskSetNodePortNote;
+      _error = context.l10n.deskSetNodePortNote('${appConfig.localNodeApiPort}');
     }
   }
 
@@ -273,10 +275,11 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
   /// The tour's panel states.
   ServerPanelDemo? get _panelDemo => switch (widget.arg) {
-    NodeDemo.typed => const ServerPanelDemo(query: 'node.example.org:3413'), // l10n-ok: a node address
+    NodeDemo.typed => ServerPanelDemo(query: 'node.example.org:${appConfig.localNodeApiPort}'), // l10n-ok: a node address
     NodeDemo.badAddress => const ServerPanelDemo(query: 'my home node', submit: true), // l10n-ok: what a user might type
-    NodeDemo.removed => const ServerPanelDemo(remove: 'https://epic-node.iniaku.my.id'), // l10n-ok: a node address
-    NodeDemo.picked => const ServerPanelDemo(pick: 'https://node.epicnet.us:3413'), // l10n-ok: a node address
+    // The shipped list's last and second nodes.
+    NodeDemo.removed => ServerPanelDemo(remove: shippedHostSettings.nodeServers.last.url),
+    NodeDemo.picked => ServerPanelDemo(pick: shippedHostSettings.nodeServers.elementAtOrNull(1)?.url ?? shippedHostSettings.nodeUse),
     _ => null,
   };
 
@@ -349,7 +352,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     if (r.health == ServiceHealth.down) {
       setState(() {
         _saving = false;
-        _error = l.deskSetNodePortNote;
+        _error = l.deskSetNodePortNote('${appConfig.localNodeApiPort}');
       });
       return;
     }
@@ -467,7 +470,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
                       return c.own ? ownLabel(l, c, url) : null;
                     }),
-                    source: nodeSource(nodes, removedNodes: prefs.removedNodes, inUse: prefs.builtin ? null : current.url),
+                    source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
                     // Advanced › Built-in node; the node in use stays listed.
                     local: DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin) ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
                     listNote: nodeListNoteText(l),
@@ -506,7 +509,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                 if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
                   ESetRow(
                     title: l.deskOwnMine,
-                    hint: l.deskOwnMineHint,
+                    hint: l.deskOwnMineHint(statusSiteHost),
                     control: ESwitch(
                       value: mine,
                       semanticLabel: l.deskOwnMine,

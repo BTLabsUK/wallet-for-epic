@@ -11,6 +11,8 @@ import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/dart.dart';
 
+import 'settings_file/host_settings.dart' show hostSettings;
+
 /// The `payloadType` of the BT Labs public file.
 const btlabsPublicType = 'application/vnd.btlabs.public+json';
 
@@ -520,15 +522,16 @@ class WalletDesktopEntry {
   /// `major.minor.patch`.
   final String version;
 
-  /// Release page on a trusted GitHub host, if given.
+  /// Release page under one of the settings file's `updates.pages`, if given.
   final String? page;
 
   /// The system's release file, if given (a per-system entry only).
   final WalletDesktopFile? file;
 }
 
-/// Where a desktop release file may be: BT Labs' download folder, a plain file name after it.
-const String walletDesktopDownloads = 'https://examples.btlabs.uk/epic-cash-wallets/downloads/';
+/// Where a desktop release file may be: the download folder of `app-config.toml`
+/// (`updates.downloads`), a plain file name after it; null: no in-app download.
+String? get walletDesktopDownloads => hostSettings.updateDownloads;
 
 /// A desktop release file the app may download and install by itself: the Windows setup or
 /// the Linux AppImage. Clients before 26.10.9 ignore it.
@@ -1120,11 +1123,11 @@ List<BtlOnion>? _onions(Object? v) {
 
 final _onionRe = RegExp(r'^[a-z2-7]{56}\.onion$');
 
-/// Whether [host] is `btlabs.uk` or a name under it (whole labels: `xbtlabs.uk` and
-/// `btlabs.uk.example.com` are not).
+/// Whether [host] is one of the settings file's `tor.onion_only_domains` or a name under it
+/// (whole labels: `xdomain` and `domain.example.com` are not).
 bool isBtlabsHost(String host) {
   final h = host.toLowerCase();
-  return h == 'btlabs.uk' || h.endsWith('.btlabs.uk');
+  return hostSettings.torOnionOnlyDomains.any((d) => h == d || h.endsWith('.$d'));
 }
 
 Map<String, dynamic> _obj(Object? v) => v is Map<String, dynamic> ? v : throw const _Bad();
@@ -1186,8 +1189,12 @@ DateTime _ts(Object? v) {
 final _packageRe = RegExp(r'^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$');
 final _versionRe = RegExp(r'^[0-9]+\.[0-9]+\.[0-9]+$');
 final _sha256Re = RegExp(r'^[0-9a-f]{64}$');
-final _pageRe = RegExp(r'^https://github\.com/BTLabs-EPIC/');
-final _desktopFileRe = RegExp(r'^https://examples\.btlabs\.uk/epic-cash-wallets/downloads/[A-Za-z0-9][A-Za-z0-9._-]*$');
+bool _pageOk(String page) => hostSettings.updatePages.any(page.startsWith);
+final _fileNameRe = RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]*$');
+bool _desktopFileOk(String url) {
+  final base = walletDesktopDownloads;
+  return base != null && url.startsWith(base) && _fileNameRe.hasMatch(url.substring(base.length));
+}
 const _abis = ['arm64-v8a', 'armeabi-v7a', 'x86_64', 'universal'];
 const _systems = ['windows', 'linux', 'macos'];
 
@@ -1274,7 +1281,7 @@ WalletDesktopEntry _desktopEntry(Object? v, {required bool perSystem}) {
   String? page;
   if (o.containsKey('page')) {
     page = _url(o['page']);
-    if (!_pageRe.hasMatch(page)) throw const _Bad();
+    if (!_pageOk(page)) throw const _Bad();
   }
   // The release file: `url`, `sha256` and `size` together or none, in a per-system entry only
   // (one file cannot fit every system).
@@ -1283,7 +1290,7 @@ WalletDesktopEntry _desktopEntry(Object? v, {required bool perSystem}) {
   if (given != 0) {
     if (given != 3 || !perSystem) throw const _Bad();
     final url = _url(o['url']);
-    if (!_desktopFileRe.hasMatch(url)) throw const _Bad();
+    if (!_desktopFileOk(url)) throw const _Bad();
     final sha = o['sha256'];
     if (sha is! String || !_sha256Re.hasMatch(sha)) throw const _Bad();
     file = WalletDesktopFile(url: Uri.parse(url), sha256: sha, size: _int(o['size'], 1, 4294967296));

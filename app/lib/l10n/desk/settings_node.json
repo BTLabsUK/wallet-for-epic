@@ -1,11 +1,23 @@
 {
-  "deskSetNodePortNote": "Check the address and the port (usually 3413).",
+  "deskSetNodePortNote": "Check the address and the port (usually {port}).",
   "@deskSetNodePortNote": {
-    "description": "Settings > Node: error under the node picker when the typed node does not answer."
+    "description": "Settings > Node: error under the node picker when the typed node does not answer.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
-  "deskSetNodeListNote": "Status from status.btlabs.uk; latency measured from this computer.",
+  "deskSetNodeListNote": "Status from {site}; latency measured from this computer.",
   "@deskSetNodeListNote": {
-    "description": "Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is."
+    "description": "Settings > Node: footer under the node list. The status site's host name {site} stays as it is.",
+    "placeholders": {
+      "site": {
+        "type": "String",
+        "example": "status.example.org"
+      }
+    }
   },
   "deskSetNodeStartTitle": "Start the local node?",
   "@deskSetNodeStartTitle": {

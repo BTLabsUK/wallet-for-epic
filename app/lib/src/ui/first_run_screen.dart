@@ -152,7 +152,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               ? BackButton(onPressed: () => setState(() => _creating = false))
               : null,
           automaticallyImplyLeading: false,
-          // Mainnet on node.btlabs.uk works without a choice, but a new install must be able
+          // Mainnet on the built-in node works without a choice, but a new install must be able
           // to reach floonet or another node before it has a wallet, so this is not Advanced.
           actions: [
             if (!demo && !pinless) NetworkSettingsButton(enabled: !waiting),

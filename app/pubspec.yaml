@@ -84,6 +84,8 @@ dependencies:
   # already brings in.
   code_assets: 1.2.1
   hooks: 2.0.2
+  # The settings file (lib/src/settings_file/): its values; where each key sits is our own scan.
+  toml: 0.18.0
 
 dev_dependencies:
   fake_async: ^1.3.3
@@ -123,12 +125,17 @@ flutter:
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
     - assets/licenses/tor.txt
+    - assets/licenses/tor-source.txt
     - assets/licenses/status-icons.txt
     # Help illustrations (settings design); drawn in the theme colours by HelpArt.
     - assets/help/
     # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see
     # lib/src/ui/theme/fonts.dart).
     - assets/flags/
+    # The two settings files (docs/settings-file.md): the first-start copy of the user's
+    # settings.toml, and the read-only app configuration.
+    - assets/config/settings.default.toml
+    - assets/config/app-config.toml
   fonts:
     # Display only: the balance, screen titles and section heads. Body text is the platform font.
     - family: Montserrat

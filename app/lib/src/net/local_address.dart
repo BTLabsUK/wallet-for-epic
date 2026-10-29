@@ -9,6 +9,8 @@
 /// second lookup can return a public one.
 library;
 
+import '../settings_file/host_settings.dart' show hostSettings;
+
 /// What a host is, without a lookup.
 enum HostKind {
   /// A loopback or private-network address, or `localhost`.
@@ -129,7 +131,7 @@ bool isLocalNetworkName(String host) {
 }
 
 /// Whether the node at [url] is on this computer, the local network or a tailnet, as the app
-/// judges it (never status.btlabs.uk, which cannot reach it): a literal local IP, `localhost`,
+/// judges it (never the status site, which cannot reach it): a literal local IP, `localhost`,
 /// a `.local` / `.lan` name, or a CGNAT address ([isCgnatIp]).
 bool isLocalNodeUrl(String? url) {
   if (isLocalAddressUrl(url)) return true;
@@ -176,7 +178,7 @@ Future<String?> localUrl(String url, HostLookup lookup) async {
 }
 
 /// What a node is to the user, from its address. It decides where its facts
-/// come from (the node itself for every own class, never status.btlabs.uk), the panel's label
+/// come from (the node itself for every own class, never the status site), the panel's label
 /// and whether an owner secret may travel to it.
 enum NodeClass {
   /// `localhost`, 127/8, ::1.
@@ -185,10 +187,10 @@ enum NodeClass {
   /// 10/8, 172.16/12, 192.168/16, 169.254/16, fc00::/7, fe80::/10, or a `.local` / `.lan` name.
   homeNetwork,
 
-  /// 100.64/10 (a Tailscale tailnet) or a `*.ts.net` name. "VPN" in the interface.
+  /// 100.64/10 (a Tailscale tailnet) or a name under `network.vpn_suffixes`. "VPN" in the interface.
   vpn,
 
-  /// An https node status.btlabs.uk does not list, or one the user marked as theirs.
+  /// An https node the status site does not list, or one the user marked as theirs.
   ownServer,
 
   /// Anything else: a listed node, as today.
@@ -201,7 +203,7 @@ enum NodeClass {
   bool get local => this == thisComputer || this == homeNetwork || this == vpn;
 }
 
-/// [url]'s class without a lookup. [unlisted]: status.btlabs.uk answered and does not list
+/// [url]'s class without a lookup. [unlisted]: the status site answered and does not list
 /// it; [mine]: the user marked it as their own. Either makes an https node [NodeClass.ownServer].
 NodeClass nodeClassOf(String? url, {bool unlisted = false, bool mine = false}) {
   final u = url == null ? null : Uri.tryParse(url.trim());
@@ -210,6 +212,6 @@ NodeClass nodeClassOf(String? url, {bool unlisted = false, bool mine = false}) {
   if (host.endsWith('.')) host = host.substring(0, host.length - 1);
   if (host == 'localhost' || isLoopbackIp(host)) return NodeClass.thisComputer;
   if (isLocalIp(host) || isLocalNetworkName(host)) return NodeClass.homeNetwork;
-  if (isCgnatIp(host) || host.endsWith('.ts.net')) return NodeClass.vpn;
+  if (isCgnatIp(host) || hostSettings.vpnSuffixes.any(host.endsWith)) return NodeClass.vpn;
   return unlisted || mine ? NodeClass.ownServer : NodeClass.public;
 }

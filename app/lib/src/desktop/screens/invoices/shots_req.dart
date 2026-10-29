@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../data/mock_hosts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/shots.dart';
@@ -37,7 +38,7 @@ final List<DeskShot> invoiceReqShots = [
     title: 'Issue to an address nothing is known of',
     route: DeskRoute.invoiceIssue,
     prepare: (c, _) async =>
-        c.read(deskNavProvider.notifier).reset(DeskRoute.invoiceIssue, 'esTk7uLfB3hJd9gA4sXeR6pTnC1vK8xHwP2bZr8mQ2pVtW5kNcY@epicbox.epiccash.com'),
+        c.read(deskNavProvider.notifier).reset(DeskRoute.invoiceIssue, 'esTk7uLfB3hJd9gA4sXeR6pTnC1vK8xHwP2bZr8mQ2pVtW5kNcY@$mockBox'),
   ),
   DeskShot(
     id: 'inv-req-04-form-no-invoices',

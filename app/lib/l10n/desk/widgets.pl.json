@@ -48,7 +48,7 @@
   "deskKitNodesUp": "{up, plural, one{{up} z {total} węzłów działa} few{{up} z {total} węzłów działają} many{{up} z {total} węzłów działa} other{{up} z {total} węzłów działa}}",
   "deskKitEpicboxUp": "{up, plural, one{{up} z {total} serwerów Epicbox działa} few{{up} z {total} serwerów Epicbox działają} many{{up} z {total} serwerów Epicbox działa} other{{up} z {total} serwerów Epicbox działa}}",
   "deskKitLastBlock": "ostatni blok {age}",
-  "deskKitLimitedNetwork": "status.btlabs.uk jest nieosiągalny; dane pochodzą tylko z węzła.",
+  "deskKitLimitedNetwork": "{site} jest nieosiągalny; dane pochodzą tylko z węzła.",
   "deskKitFactHeight": "Wysokość",
   "deskKitFactVersion": "Wersja",
   "deskKitFactAccepts": "Przyjmuje transakcje",
@@ -66,7 +66,7 @@
   "deskKitUptimeWindow": "ostatnie 24 h",
   "deskKitAtTime": "o {time}",
   "deskKitListedOfficial": "na liście oficjalnych",
-  "deskKitSourceChecked": "status.btlabs.uk, sprawdzono {time}",
+  "deskKitSourceChecked": "{site}, sprawdzono {time}",
   "deskKitLatencyMeasured": "opóźnienie mierzone {where}",
   "deskKitSiteLastReached": "Strona stanu ostatnio osiągalna o {time}",
   "deskKitSince": "od {time}",
@@ -75,7 +75,7 @@
   "deskKitNodeDownText": "Przełączyć na {host}, najsprawniejszy z pozostałych węzłów?",
   "deskKitSwitch": "Przełącz",
   "deskKitLimitedInfo": "Niepełne dane",
-  "deskKitFromStatusSite": "ze status.btlabs.uk",
+  "deskKitFromStatusSite": "ze {site}",
   "deskKitOverTor": "przez Tor",
   "deskKitFromThisComputer": "z tego komputera",
   "deskKitNodeUse": "Użyj {host}",
@@ -124,5 +124,6 @@
   "deskKitQrShow": "Pokaż QR",
   "deskKitQrHide": "Ukryj QR",
   "deskKitQrHideCode": "Ukryj QR",
-  "deskKitMethodConnected": "Połączono"
+  "deskKitMethodConnected": "Połączono",
+  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora."
 }

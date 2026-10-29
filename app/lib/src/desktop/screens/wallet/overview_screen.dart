@@ -19,6 +19,8 @@ import '../settings/prefs.dart' show settingsPrefsProvider;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
+import '../../../settings_file/host_settings.dart' show hostSettings;
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 
 /// States the tour can start Overview in.
 enum OverviewDemo { loading, empty, nodeDown, starting, syncing, nodeProblem }
@@ -95,7 +97,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
     final txs = empty ? const <Tx>[] : (demo == OverviewDemo.loading ? null : s.txs);
     final nav = ref.read(deskNavProvider.notifier);
-    final nodeUrl = (s.status?.node.url ?? 'https://node.epiccash.com').replaceFirst(RegExp(r'^https?://'), '');
+    final nodeUrl = (s.status?.node.url ?? hostSettings.nodeFallback).replaceFirst(RegExp(r'^https?://'), '');
 
     final recent = _Recent(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;
@@ -119,7 +121,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         ENotice(
           icon: EIcons.info,
           title: l.deskOvNodeAddrTitle,
-          text: l.deskOvNodeAddrText,
+          text: l.deskOvNodeAddrText(Uri.tryParse(hostSettings.nodeUse)?.host ?? hostSettings.nodeUse, Uri.tryParse(hostSettings.nodeUse)?.authority ?? hostSettings.nodeUse),
           actionsBelow: true,
           actions: [EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _addressNoteHidden = true))],
         ),
@@ -135,7 +137,18 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
             EButton(label: l.deskOvHide, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
           ],
         ),
-      if (nodeDown)
+      // The Node list is empty: nothing to reach, so no "Cannot reach the node at …".
+      if (nodeDown && ref.watch(hostSettingsProvider.select((h) => h.nodeUrls.isEmpty)))
+        ENotice(
+          key: const ValueKey('overview-no-node'),
+          tone: ETone.warn,
+          icon: EIcons.server,
+          title: l.deskSlNoNodeTitle,
+          text: l.deskSlNoNodeText,
+          actionsBelow: true,
+          actions: [EButton(label: l.deskOvNodeSettings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode))],
+        )
+      else if (nodeDown)
         ENotice(
           tone: ETone.risk,
           title: l.deskOvCantReachNode(nodeUrl),
@@ -195,7 +208,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               balance: loading ? null : balance,
               empty: empty,
               hidden: hidden,
-              updating: !offline && (starting || syncing || loading || walletSync),
+              // Not beside "Cannot reach the node": a refresh still waiting on a node that does
+              // not answer (packets dropped) only ends at its timeout.
+              updating: !offline && !nodeDown && (starting || syncing || loading || walletSync),
               offline: offline,
               asOfBlock: syncing ? _walletTip : null,
               sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,

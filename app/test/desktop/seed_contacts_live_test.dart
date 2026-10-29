@@ -23,9 +23,9 @@ void main() {
 
   test('the BT Labs address passes the checksum; a changed character does not', () {
     final service = LepicWalletService(secrets: MemorySecretStore());
-    expect(service.validateEpicboxAddress(address: btLabsContact.address), isTrue);
-    expect(btLabsContact.address.split('@').last, defaultEpicboxHost);
-    final broken = btLabsContact.address.replaceFirst('Wxbo', 'Wxbp');
+    expect(service.validateEpicboxAddress(address: btLabsContact!.address), isTrue);
+    expect(btLabsContact!.address.split('@').last, defaultEpicboxHost);
+    final broken = btLabsContact!.address.replaceFirst('Wxbo', 'Wxbp');
     expect(service.validateEpicboxAddress(address: broken), isFalse);
   }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
 }

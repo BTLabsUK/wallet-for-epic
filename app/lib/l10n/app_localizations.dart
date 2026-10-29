@@ -3127,17 +3127,17 @@ abstract class AppLocalizations {
   /// **'Down'**
   String get setupRelayDownIconLabel;
 
-  /// Under the epicbox server list when the monitoring site could not be read. Keep status.btlabs.uk as it is.
+  /// Under the epicbox server list when the monitoring site could not be read. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Server health is unavailable from status.btlabs.uk.'**
-  String get setupRelayHealthUnavailable;
+  /// **'Server health is unavailable from {site}.'**
+  String setupRelayHealthUnavailable(String site);
 
-  /// Under the epicbox server list: where the up/down information comes from. Keep status.btlabs.uk as it is.
+  /// Under the epicbox server list: where the up/down information comes from. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Health from status.btlabs.uk, measured from its server.'**
-  String get setupRelayHealthSource;
+  /// **'Health from {site}, measured from its server.'**
+  String setupRelayHealthSource(String site);
 
   /// Subtitle of an epicbox server the monitoring site does not list.
   ///
@@ -3145,7 +3145,7 @@ abstract class AppLocalizations {
   /// **'Not monitored'**
   String get setupRelayNotMonitored;
 
-  /// First item of an epicbox server's subtitle, a list separated by ' · ' such as 'Up · epicnet.us · official · 99.5% up in the last day': the server is working.
+  /// First item of an epicbox server's subtitle, a list separated by ' · ' such as 'Up · node.example.org · official · 99.5% up in the last day': the server is working.
   ///
   /// In en, this message translates to:
   /// **'Up'**
@@ -3157,7 +3157,7 @@ abstract class AppLocalizations {
   /// **'Down'**
   String get setupRelayDown;
 
-  /// Item in an epicbox server's subtitle, a list separated by ' · ' such as 'Up · epicnet.us · official': the server is run by a known operator. Lower case in English because it follows other items.
+  /// Item in an epicbox server's subtitle, a list separated by ' · ' such as 'Up · node.example.org · official': the server is run by a known operator. Lower case in English because it follows other items.
   ///
   /// In en, this message translates to:
   /// **'official'**
@@ -4714,7 +4714,7 @@ abstract class AppLocalizations {
   /// Error under an address field that takes an Epicbox, a Link (http/https) or an onion address, when the text is none of them.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
   String get contactsAddressInvalidAny;
 
   /// Title of the settings screen.
@@ -5413,7 +5413,7 @@ abstract class AppLocalizations {
   /// **'Shows the technical side: node and Epicbox server details, block heights, transaction files and logs. Off, the app keeps to what everyday use needs.'**
   String get settingsAdvancedOptionsSubtitle;
 
-  /// Settings section header above the status.btlabs.uk switch.
+  /// Settings section header above the the status site switch.
   ///
   /// In en, this message translates to:
   /// **'Privacy'**
@@ -5455,13 +5455,13 @@ abstract class AppLocalizations {
   /// **'{a} · {b}'**
   String settingsStateJoin(String a, String b);
 
-  /// Settings switch: read server health and node lists from the status.btlabs.uk monitor. Keep status.btlabs.uk as it is.
+  /// Settings switch: read server health and node lists from the the status site monitor. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Use status.btlabs.uk'**
-  String get settingsUseStatusSite;
+  /// **'Use {site}'**
+  String settingsUseStatusSite(String site);
 
-  /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. status.btlabs.uk is a web address and stays; BT Labs is a name.
+  /// Info sheet behind the status site switch: what it reads and shows, and what is lost when off. the status site is a web address and stays; BT Labs is a name.
   ///
   /// In en, this message translates to:
   /// **'Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'**
@@ -7527,8 +7527,8 @@ abstract class AppLocalizations {
   /// Caption under the lists when the monitor did not answer.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk not reachable; health unknown'**
-  String get serverHealthUnknown;
+  /// **'{site} not reachable; health unknown'**
+  String serverHealthUnknown(String site);
 
   /// Node row: the node is at the network tip.
   ///
@@ -7641,8 +7641,8 @@ abstract class AppLocalizations {
   /// Error under the Other node field when the text is not a host, host:port or http(s) address.
   ///
   /// In en, this message translates to:
-  /// **'Enter a node address such as node.example.com:3413'**
-  String get serverOtherNodeInvalid;
+  /// **'Enter a node address such as node.example.com:{port}'**
+  String serverOtherNodeInvalid(String port);
 
   /// Button beside the Other node / Other server field: the typed server joins My nodes or My servers and is offered for a switch.
   ///
@@ -7737,8 +7737,8 @@ abstract class AppLocalizations {
   /// Directory source line with the time of the monitor's last check.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk, checked {time}'**
-  String serverCheckedAt(String time);
+  /// **'{site}, checked {time}'**
+  String serverCheckedAt(String time, String site);
 
   /// Screen reader label of a server row: host, then its facts.
   ///
@@ -9223,8 +9223,8 @@ abstract class AppLocalizations {
   /// Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are.
   ///
   /// In en, this message translates to:
-  /// **'http://host:3415 or xxxx….onion'**
-  String get methodDirectShape;
+  /// **'http://host:{port} or xxxx….onion'**
+  String methodDirectShape(String port);
 
   /// Send's strip line for Link.
   ///
@@ -10423,8 +10423,8 @@ abstract class AppLocalizations {
   /// Why the local node failed, as a detail after the word "Failed". Lowercase fragment.
   ///
   /// In en, this message translates to:
-  /// **'port 3413 is used by another program'**
-  String get deskNodeFailPort;
+  /// **'port {port} is used by another program'**
+  String deskNodeFailPort(String port);
 
   /// Why the local node failed. Lowercase fragment.
   ///
@@ -12660,7 +12660,7 @@ abstract class AppLocalizations {
   /// Error under the Address field of the contact form when the text is not an address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'**
   String get deskConErrAddressInvalid;
 
   /// Small button in the contact form: add a picture. Only shown when contact pictures exist.
@@ -13464,8 +13464,8 @@ abstract class AppLocalizations {
   /// Text of the notice about the corrected node address. The addresses stay as written.
   ///
   /// In en, this message translates to:
-  /// **'Now using node.epiccash.com instead of node.epiccash.com:3413.'**
-  String get deskOvNodeAddrText;
+  /// **'Now using {node} instead of {old}.'**
+  String deskOvNodeAddrText(String node, String old);
 
   /// Title of a red notice on Overview: the node runs a version the wallet cannot use.
   ///
@@ -14955,11 +14955,11 @@ abstract class AppLocalizations {
   /// **'Wrong password. Check Caps Lock and the keyboard layout.'**
   String get deskOnbUnlockWrong;
 
-  /// Failure text when the wallet service cannot start because its port is taken. Keep the number 3415.
+  /// Failure text when the wallet service cannot start because its port is taken. Keep the number <port>.
   ///
   /// In en, this message translates to:
-  /// **'Port 3415 is in use by another program. Close it, then try again.'**
-  String get deskOnbUnlockPortInUse;
+  /// **'Port {port} is in use by another program. Close it, then try again.'**
+  String deskOnbUnlockPortInUse(String port);
 
   /// Progress step while unlocking.
   ///
@@ -15189,7 +15189,7 @@ abstract class AppLocalizations {
   /// **'Found'**
   String get deskOnbNodeFound;
 
-  /// Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:3413'.
+  /// Part of the 'Found' line: the node's version and address, e.g. 'Epic 4.1.1 at 127.0.0.1:<port>'.
   ///
   /// In en, this message translates to:
   /// **'Epic {version} at {address}'**
@@ -16416,8 +16416,8 @@ abstract class AppLocalizations {
   /// Line on the node card when the status website cannot be reached and only the node itself answered.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk is not reachable; the facts come from the node only.'**
-  String get deskKitLimitedNetwork;
+  /// **'{site} is not reachable; the facts come from the node only.'**
+  String deskKitLimitedNetwork(String site);
 
   /// Label of a fact on the node card: the node's block height. One short word.
   ///
@@ -16524,10 +16524,10 @@ abstract class AppLocalizations {
   /// Source line of the node card: the status site and when it was last asked. {time} is e.g. 14:05.
   ///
   /// In en, this message translates to:
-  /// **'status.btlabs.uk, checked {time}'**
-  String deskKitSourceChecked(String time);
+  /// **'{site}, checked {time}'**
+  String deskKitSourceChecked(String time, String site);
 
-  /// Source line of the node card. {where} is 'from this computer', 'over Tor' or 'from status.btlabs.uk'.
+  /// Source line of the node card. {where} is 'from this computer', 'over Tor' or 'from the status site'.
   ///
   /// In en, this message translates to:
   /// **'latency measured {where}'**
@@ -16578,8 +16578,8 @@ abstract class AppLocalizations {
   /// Small note under Latency: measured by the status website.
   ///
   /// In en, this message translates to:
-  /// **'from status.btlabs.uk'**
-  String get deskKitFromStatusSite;
+  /// **'from {site}'**
+  String deskKitFromStatusSite(String site);
 
   /// Small note under Latency: measured through Tor.
   ///
@@ -18138,8 +18138,8 @@ abstract class AppLocalizations {
   /// Local node panel: notice title when the node cannot open its port.
   ///
   /// In en, this message translates to:
-  /// **'Port 3413 is used by another program.'**
-  String get deskSetLnodePortInUse;
+  /// **'Port {port} is used by another program.'**
+  String deskSetLnodePortInUse(String port);
 
   /// Local node panel: notice text when the port is in use. "Node server" is a row title in Settings > Node.
   ///
@@ -18666,8 +18666,8 @@ abstract class AppLocalizations {
   /// Peers tab: error under the preferred peer field.
   ///
   /// In en, this message translates to:
-  /// **'Not an IP address and port, such as 203.0.113.5:3414.'**
-  String get deskSetPeersNotAddress;
+  /// **'Not an IP address and port, such as 203.0.113.5:{port}.'**
+  String deskSetPeersNotAddress(String port);
 
   /// Peers tab: error under the preferred peer field when the address is already in the list.
   ///
@@ -18965,14 +18965,14 @@ abstract class AppLocalizations {
   /// Settings > Node: error under the node picker when the typed node does not answer.
   ///
   /// In en, this message translates to:
-  /// **'Check the address and the port (usually 3413).'**
-  String get deskSetNodePortNote;
+  /// **'Check the address and the port (usually {port}).'**
+  String deskSetNodePortNote(String port);
 
-  /// Settings > Node: footer under the node list. status.btlabs.uk is a web address and stays as is.
+  /// Settings > Node: footer under the node list. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Status from status.btlabs.uk; latency measured from this computer.'**
-  String get deskSetNodeListNote;
+  /// **'Status from {site}; latency measured from this computer.'**
+  String deskSetNodeListNote(String site);
 
   /// Dialog title before the local node program starts.
   ///
@@ -19292,13 +19292,13 @@ abstract class AppLocalizations {
   /// **'Status site'**
   String get deskSetPrivStatusSite;
 
-  /// Settings > Privacy: switch title and screen reader name. status.btlabs.uk is a web address and stays.
+  /// Settings > Privacy: switch title and screen reader name. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Use status.btlabs.uk'**
-  String get deskSetPrivUseStatus;
+  /// **'Use {site}'**
+  String deskSetPrivUseStatus(String site);
 
-  /// Settings > Privacy: hint under the status site switch. status.btlabs.uk is a web address and stays.
+  /// Settings > Privacy: hint under the status site switch.
   ///
   /// In en, this message translates to:
   /// **'Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'**
@@ -19388,11 +19388,11 @@ abstract class AppLocalizations {
   /// **'Switching the Epicbox server…'**
   String get deskSetRecvSwitchingServer;
 
-  /// Epicbox server picker: footer under the list. status.btlabs.uk is a web address and stays.
+  /// Epicbox server picker: footer under the list. The status site's host name {site} stays as it is.
   ///
   /// In en, this message translates to:
-  /// **'Status from status.btlabs.uk.'**
-  String get deskSetRecvListNote;
+  /// **'Status from {site}.'**
+  String deskSetRecvListNote(String site);
 
   /// Settings > Receiving: text of the HTTP receiving row.
   ///
@@ -20288,7 +20288,7 @@ abstract class AppLocalizations {
   /// **'Node  {version}'**
   String deskSetAboutNode(String version);
 
-  /// Settings › About: group head of the Epic Cash community links (Telegram, epiccash.com).
+  /// Settings › About: group head of the Epic Cash community links (Telegram, the website).
   ///
   /// In en, this message translates to:
   /// **'Community'**
@@ -21872,7 +21872,7 @@ abstract class AppLocalizations {
   /// **'In use'**
   String get deskSlInUse;
 
-  /// A row's health when status.btlabs.uk has nothing on the server.
+  /// A row's health when the status site has nothing on the server.
   ///
   /// In en, this message translates to:
   /// **'Health unknown'**
@@ -22067,8 +22067,8 @@ abstract class AppLocalizations {
   /// Info sheet behind the Link › HTTP row on Settings › Transactions (phone).
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.'**
-  String get txLinkHttpHint;
+  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.'**
+  String txLinkHttpHint(String port);
 
   /// Info sheet behind the Link › Tor row on Settings › Transactions (phone).
   ///
@@ -22367,8 +22367,8 @@ abstract class AppLocalizations {
   /// Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.'**
-  String get deskSetTxDirectHint;
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.'**
+  String deskSetTxDirectHint(String port);
 
   /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
   ///
@@ -23357,7 +23357,7 @@ abstract class AppLocalizations {
   /// Paragraph
   ///
   /// In en, this message translates to:
-  /// **'**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.'**
+  /// **'**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers. The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.'**
   String get helpPairWaysP1;
 
   /// Paragraph
@@ -26801,8 +26801,8 @@ abstract class AppLocalizations {
   /// Source line under the own node's facts: the app asks the node itself every 15 seconds; the network tip it compares with comes from the status site.
   ///
   /// In en, this message translates to:
-  /// **'Asked directly every 15 s · tip from status.btlabs.uk'**
-  String get deskOwnSourceSite;
+  /// **'Asked directly every 15 s · tip from {site}'**
+  String deskOwnSourceSite(String site);
 
   /// Source line under the own node's facts when the status site does not answer: the network tip is the median of this many public nodes.
   ///
@@ -27047,8 +27047,8 @@ abstract class AppLocalizations {
   /// Hint behind the info icon of the 'This is my node' row.
   ///
   /// In en, this message translates to:
-  /// **'Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.'**
-  String get deskOwnMineHint;
+  /// **'Asks the node itself instead of {site} and offers owner access. For a node you run yourself.'**
+  String deskOwnMineHint(String site);
 
   /// Line in the sidebar's now-happening slot while the user's own node syncs; the detail is a percent or 'N behind'.
   ///
@@ -27152,7 +27152,7 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{1 waiting} other{{count} waiting}}'**
   String ownNodePoolWaiting(int count);
 
-  /// Source line under the own node box: the phone asks the node itself every 15 seconds, not status.btlabs.uk.
+  /// Source line under the own node box: the phone asks the node itself every 15 seconds, not the status site.
   ///
   /// In en, this message translates to:
   /// **'Asked directly from this phone every 15 s'**
@@ -27227,7 +27227,7 @@ abstract class AppLocalizations {
   /// contactsAddressInvalidAny in the build without Tor: the field takes an Epicbox or a Link (http/https) address.
   ///
   /// In en, this message translates to:
-  /// **'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com) or a Link address (https://…).'**
+  /// **'Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).'**
   String get contactsAddressInvalidAnyNoTor;
 
   /// handshakeLink1 in the build without Tor: the same caption without Tor.
@@ -27257,8 +27257,8 @@ abstract class AppLocalizations {
   /// txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.'**
-  String get txLinkHttpHintNoTor;
+  /// **'Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.'**
+  String txLinkHttpHintNoTor(String port);
 
   /// tourPhoneWalletText in the build without Tor: the status icons are the node and Epicbox.
   ///
@@ -27287,8 +27287,8 @@ abstract class AppLocalizations {
   /// Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.'**
-  String get deskNoTorSetTxDirectHint;
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.'**
+  String deskNoTorSetTxDirectHint(String port);
 
   /// Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline.
   ///
@@ -28591,6 +28591,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connections'**
   String get connectionsSheetTitle;
+
+  /// Notice when the settings file (settings.toml, in the data folder) is not valid TOML after a hand edit: nothing in it is used until it is fixed. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: this line cannot be read. The last good settings are in use.'**
+  String settingsFileSyntaxError(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be text in double quotes is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not text in double quotes. The last good value is in use.'**
+  String settingsFileNotText(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a whole number is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a whole number. The last good value is in use.'**
+  String settingsFileNotNumber(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a switch that must be true or false is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not true or false. The last good value is in use.'**
+  String settingsFileNotSwitch(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a list in square brackets is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a list. The last good value is in use.'**
+  String settingsFileNotList(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a node's address is not a valid https:// or http:// address of a node. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a node address. The last good value is in use.'**
+  String settingsFileNotNodeAddress(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must name an Epicbox server (a host name, optionally with :port) is something else. Epicbox stays in Latin script. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an Epicbox server. The last good value is in use.'**
+  String settingsFileNotEpicboxServer(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a host or domain name is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a host name. The last good value is in use.'**
+  String settingsFileNotHostName(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a web address (https://…) is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a web address. The last good value is in use.'**
+  String settingsFileNotWebAddress(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a Tor onion address (56 characters and .onion) is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an onion address. The last good value is in use.'**
+  String settingsFileNotOnion(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a port number (1 to 65535) is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a port number. The last good value is in use.'**
+  String settingsFileNotPort(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be an e-mail address is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an e-mail address. The last good value is in use.'**
+  String settingsFileNotEmail(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be an Epicbox address (es…@server) is something else. Epicbox stays in Latin script. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an Epicbox address. The last good value is in use.'**
+  String settingsFileNotEpicboxAddress(String file, int line);
+
+  /// Notice when the settings file (settings.toml) has a key this version does not know (a newer version's, or a typo). The key stays in the file. {key} is the key as written (for example epicbox.defualt), {file} the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: unknown key {key}, ignored.'**
+  String settingsFileUnknownKey(String file, int line, String key);
+
+  /// Notice when the app changed a setting while the same key was edited by hand in the settings file: the hand edit wins. {key} is the key (for example node.servers), {file} the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} was edited at the same time; its value for {key} is kept.'**
+  String settingsFileConflict(String file, String key);
+
+  /// Notice when the app had to write the settings file while it could not be read: the broken file was kept under a new name and a good one written. {backup} is that name (for example settings.toml.bad-20261029-141500), {file} the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} had errors. It was saved as {backup} and written again.'**
+  String settingsFileBrokenSaved(String file, String backup);
+
+  /// Notice when the settings file was deleted while the app ran: it was written again from the settings in use. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} was missing and has been written again.'**
+  String settingsFileRecreated(String file);
+
+  /// Notice when the settings file could not be saved (no permission, disk full): the change holds only for this run. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} could not be written. The change applies until the app closes.'**
+  String settingsFileWriteFailed(String file);
+
+  /// Notice when the settings file exists but could not be opened (no permission): the settings built into the app are used. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} could not be read. The built-in settings are in use.'**
+  String settingsFileReadFailed(String file);
+
+  /// Notice in the Link · HTTP guide when the status server cannot check the port over Tor. Short, impersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'The check needs Tor off.'**
+  String get deskKitReachTorOff;
+
+  /// Settings > Backup, after importing a wallet data backup on a computer with other wallets: dialog title when the file's server lists differ from this computer's.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the servers from this file?'**
+  String get deskSetBackupServersTitle;
+
+  /// Same dialog: text. 'Its' is the file's. The lists are shared by every wallet on the computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Its node and Epicbox server lists differ from this computer’s. Every wallet here uses the same lists.'**
+  String get deskSetBackupServersBody;
+
+  /// Same dialog: button that keeps this computer's server lists. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this computer’s'**
+  String get deskSetBackupServersKeep;
+
+  /// Same dialog: primary button that takes the file's server lists. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the file’s'**
+  String get deskSetBackupServersUse;
+
+  /// Notice title when settings.toml lists no node (an empty Node list): nothing reads the chain.
+  ///
+  /// In en, this message translates to:
+  /// **'No node set'**
+  String get deskSlNoNodeTitle;
+
+  /// Under deskSlNoNodeTitle; a button to the node settings follows.
+  ///
+  /// In en, this message translates to:
+  /// **'The node list is empty. Add a node to check balances and send.'**
+  String get deskSlNoNodeText;
+
+  /// Notice title when settings.toml lists no Epicbox server (an empty Epicbox list): the wallet has no Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'No Epicbox server set'**
+  String get deskSlNoEpicboxTitle;
+
+  /// Under deskSlNoEpicboxTitle; a button to the Epicbox settings follows.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox server list is empty. Add a server for an Epicbox address.'**
+  String get deskSlNoEpicboxText;
 }
 
 class _AppLocalizationsDelegate

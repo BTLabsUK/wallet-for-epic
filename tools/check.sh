@@ -14,6 +14,9 @@ step "version (https://docs.btlabs.uk/developers/releases/)"
 step "LEPIC at the pin (tools/lepic.rev)"
 "$root/tools/lepic.sh" build linux
 
+step "no hosts in code (docs/settings-file.md)"
+"$root/tools/check-no-hosts.sh"
+
 step "wallet core under plain Dart (no Flutter on its path)"
 (cd "$root/app" && dart run bin/core_check.dart)
 

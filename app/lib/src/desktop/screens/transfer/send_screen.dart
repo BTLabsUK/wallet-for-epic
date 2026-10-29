@@ -21,6 +21,7 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../network_gate.dart' show NetBlock;
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
@@ -443,6 +444,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (s.nodeHealth == ServiceHealth.slow && s.nodeHeight == 0) return -1;
     return s.nodeHealth == ServiceHealth.ok || s.nodeHealth == ServiceHealth.slow ? null : -1;
   }
+
+  /// The node in use does not answer (as opposed to answering while it syncs).
+  bool _nodeDown(DeskState st) => st.status?.nodeHealth == ServiceHealth.down;
+
+  /// The Node list of the settings file is empty.
+  bool get _noNode => ref.read(hostSettingsProvider).nodeUrls.isEmpty;
 
   bool _epicboxBlocked(DeskState st) {
     // LEPIC posts a mailbox payment itself, or keeps it in the outbox until it can.
@@ -1389,6 +1396,26 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       );
     }
     final node = _nodeBlock(st);
+    if (st.status != null && node != null && _nodeDown(st) && _noNode) {
+      return ENotice(
+        key: const ValueKey('send-no-node'),
+        title: l.deskSlNoNodeTitle,
+        text: l.deskSlNoNodeText,
+        tone: ETone.warn,
+        icon: EIcons.server,
+        actions: [EButton(label: l.deskOvNodeSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsNode))],
+      );
+    }
+    if (st.status != null && node != null && _nodeDown(st)) {
+      // Not answering (no network, the node off): "not synced" would say something else.
+      return ENotice(
+        key: const ValueKey('send-node-down'),
+        title: l.deskErrNodeNotAnswering,
+        text: l.deskOvCantReachNodeText,
+        tone: ETone.warn,
+        icon: EIcons.server,
+      );
+    }
     if (st.status != null && node != null) {
       return ENotice(
         title: l.deskSendNodeNotSynced,
@@ -1430,6 +1457,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       );
     }
     final eb = _epicboxHealth(st);
+    if (_method == TxMethod.epicbox && !_viaPairing && ref.read(hostSettingsProvider).epicboxServers.isEmpty) {
+      return ENotice(
+        key: const ValueKey('send-no-epicbox'),
+        title: l.deskSlNoEpicboxTitle,
+        text: l.deskSlNoEpicboxText,
+        tone: ETone.warn,
+        icon: EIcons.epicbox,
+        actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
+      );
+    }
     if (_method == TxMethod.epicbox && eb == ServiceHealth.down) return const EpicboxDownNotice();
     if (_epicboxBlocked(st)) {
       return ENotice(
@@ -1741,6 +1778,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       // so its "not synced" says nothing then (LNX-15).
       _ when _netBlock(st) == NetBlock.offline || _netBlock(st) == NetBlock.waitingForTor => netBlockReason(l, _netBlock(st))!,
       _ when _onionNoTor => l.sendTorNotInVersion,
+      _ when nodeBlocked && _nodeDown(st) && _noNode => l.deskSlNoNodeTitle,
+      _ when nodeBlocked && _nodeDown(st) => l.deskNodeNotAnsweringLine,
       _ when nodeBlocked => l.deskSendHintNode,
       _ when _netBlock(st) == NetBlock.epicboxOff => l.netBlockEpicboxOff,
       _ when _netBlock(st) == NetBlock.methodOff => methodOffReason(l, _kind),
@@ -2267,7 +2306,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     }
   }
 
-  /// A Direct address's host and port (`1.2.3.4:3415`, `<56 characters>.onion`).
+  /// A Direct address's host and port (`203.0.113.4:<port>`, `<56 characters>.onion`).
   // The same marking as EAddress: the key's first and last six characters, the server dim.
   Widget _address(BuildContext context, String to) {
     final c = context.dc;

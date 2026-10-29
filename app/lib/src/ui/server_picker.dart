@@ -17,11 +17,11 @@ import 'launch_screen.dart';
 import 'server_list_sheet.dart' show showEpicboxListSheet, showNodeListSheet;
 
 export '../server_list_store.dart'
-    show ServerKind, builtInNodesFor, builtInRelaysFor, rememberServers, typedNodeUrl;
+    show ServerKind, builtInNodesFor, builtInRelaysFor, typedNodeUrl;
 
 // Providers.
 
-/// The public nodes status.btlabs.uk lists for [NetworkPreset.statusChain], in its order.
+/// The public nodes the status site lists for [NetworkPreset.statusChain], in its order.
 /// Empty for usernet; an error when the site is off or does not answer.
 final publicNodeStatusProvider = FutureProvider.autoDispose.family<List<NodeStatus>, NetworkPreset>(
   (ref, preset) async {
@@ -35,7 +35,7 @@ final publicNodeStatusProvider = FutureProvider.autoDispose.family<List<NodeStat
 );
 
 /// A node on this phone or the local network ([isLocalNodeUrl]), asked from this phone:
-/// status.btlabs.uk cannot reach it, so its row never takes the monitor's word. Healthy when
+/// The status site cannot reach it, so its row never takes the monitor's word. Healthy when
 /// it gives its tip within [localNodeProbeTimeout], else down.
 final localNodeStatusProvider = FutureProvider.autoDispose.family<NodeStatus, ({String url, NetworkPreset preset})>(
   (ref, k) async {
@@ -64,7 +64,7 @@ final localNodeStatusProvider = FutureProvider.autoDispose.family<NodeStatus, ({
 /// How long [localNodeStatusProvider] waits for a local node.
 const localNodeProbeTimeout = Duration(seconds: 10);
 
-/// status.btlabs.uk's view of the chain as a whole (its tip, nodes up, last block).
+/// The status site's view of the chain as a whole (its tip, nodes up, last block).
 final networkStatusProvider = FutureProvider.autoDispose.family<NetworkStatus, NetworkPreset>((
   ref,
   preset,

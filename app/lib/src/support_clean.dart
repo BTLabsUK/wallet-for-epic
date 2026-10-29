@@ -19,22 +19,12 @@ library;
 
 import 'bip39_words.dart';
 import 'redact.dart';
+import 'settings_file/host_settings.dart' show hostSettings;
 
-/// Hosts kept as they are: public nodes, Epicbox servers and services (the GUI's list).
-const List<String> knownPublicHosts = [
-  'node.epiccash.com', 'epicbox.epiccash.com', 'epiccash.com',
-  'epicbox.epic.tech', 'explorer.epic.tech', 'epic.tech',
-  'epicbox.epicnet.us', 'epicnet.us',
-  'epicbox.stackwallet.com', 'stackwallet.com',
-  'epicbox.btlabs.uk', 'status.btlabs.uk', 'btlabs.uk',
-  'github.com', 'api.github.com', 'objects.githubusercontent.com',
-  'api.coingecko.com', 'api.ipify.org',
-];
+/// Hosts kept as they are: every host the settings file names, and its `report.keep_hosts`.
+Set<String> get knownPublicHosts => {...hostSettings.allHosts, ...hostSettings.reportKeepHosts};
 
-const List<String> _keepDomains = [
-  'epiccash.com', 'epic.tech', 'epicnet.us', 'stackwallet.com', 'btlabs.uk', 'github.com',
-  'githubusercontent.com', 'coingecko.com', 'ipify.org',
-];
+List<String> get _keepDomains => hostSettings.reportKeepDomains;
 
 const Set<String> _commonNames = {
   'user', 'users', 'admin', 'administrator', 'test', 'server', 'root', 'home', 'epic', 'wallet',

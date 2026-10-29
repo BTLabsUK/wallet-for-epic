@@ -552,7 +552,8 @@ void main() {
     expect(await wallet.httpReach(recheck: true), isNotNull);
     expect(probe.asked, 1);
     await wallet.setTor(true);
-    expect(await wallet.httpReach(recheck: true), isNull);
+    // The check needs Tor off: said, never asked.
+    expect((await wallet.httpReach(recheck: true))?.needsTorOff, isTrue);
     expect(await wallet.httpAddress(), '');
     expect(probe.asked, 1);
   });

@@ -2,7 +2,7 @@
   "deskOvNotUpdated": "Не обновлено",
   "deskOvNodeNotStarted": "Узел не запущен",
   "deskOvNodeAddrTitle": "Адрес узла обновлён",
-  "deskOvNodeAddrText": "Теперь используется node.epiccash.com вместо node.epiccash.com:3413.",
+  "deskOvNodeAddrText": "Теперь используется {node} вместо {old}.",
   "deskOvNodeIncompatTitle": "Несовместимая версия узла",
   "deskOvNodeUrl": "Узел: {url}",
   "deskOvUsePublicNode": "Публичный узел",

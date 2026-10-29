@@ -9,6 +9,7 @@ import '../../builtin_node.dart' show NodeStartException;
 import '../../l10n.dart' show AppLocalizations, localDigits, localInt;
 import '../widgets/status.dart' show EState;
 import 'desk_node.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 import 'models.dart' show ServiceHealth;
 
 /// One node as the rail and the panels show it.
@@ -66,7 +67,7 @@ String ownLabel(AppLocalizations l, NodeClass c, String url) => l.deskOwnLabel(o
 /// the address's.
 NodeClass shownClass(String url, NodeInfo? info, {bool mine = false}) => info?.nodeClass ?? nodeClassOf(url, mine: mine);
 
-/// "10.0.1.24:3413": an own node's address with its port, no scheme.
+/// `10.0.1.24:<port>`: an own node's address with its port, no scheme.
 String ownAddress(String url) {
   final u = Uri.tryParse(url.contains('://') ? url : 'http://$url');
   if (u == null || u.host.isEmpty) return url;
@@ -79,7 +80,7 @@ String ownAddress(String url) {
 /// check or a sync answered) is never "Not answering" because the info probe failed, as one
 /// over Tor can while the wallet syncs through it.
 NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false}) {
-  // An own node: "Your node" on the rail, "Your node · 10.0.1.24:3413" in the tooltip.
+  // An own node: "Your node" on the rail, "Your node · 10.0.1.24:<port>" in the tooltip.
   final own = shownClass(url, info, mine: mine).own;
   final full = own ? '${l.deskOwnYourNode} · ${ownAddress(url)}' : nodeHost(url);
   final host = own ? l.deskOwnYourNode : railHost('Node', full); // l10n-ok: railHost's kind key
@@ -218,7 +219,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
 
 /// Why the local node failed, as a detail after the word (§19).
 String failureLine(AppLocalizations l, LocalNodeState s) => switch (s.failure) {
-  NodeFailure.portInUse => l.deskNodeFailPort,
+  NodeFailure.portInUse => l.deskNodeFailPort('${appConfig.localNodeApiPort}'),
   NodeFailure.diskLow => l.deskNodeFailDisk,
   NodeFailure.binaryMissing => l.deskNodeFailMissing,
   NodeFailure.exited => switch (_exitCode(s.reason)) { final code? => l.deskNodeFailExitedCode(code), _ => l.deskNodeFailExited },
@@ -228,7 +229,7 @@ String failureLine(AppLocalizations l, LocalNodeState s) => switch (s.failure) {
 /// Why a start of the local node failed, as a detail ([failureLine]'s words; the exception's
 /// message is English, for logs).
 String startFailureLine(AppLocalizations l, NodeStartException e) => switch (e.failure) {
-  NodeFailure.portInUse => l.deskNodeFailPort,
+  NodeFailure.portInUse => l.deskNodeFailPort('${appConfig.localNodeApiPort}'),
   NodeFailure.diskLow => l.deskNodeFailDisk,
   NodeFailure.binaryMissing => l.deskNodeFailMissing,
   NodeFailure.exited => switch (_exitCode(e.message)) { final code? => l.deskNodeFailExitedCode(code), _ => l.deskNodeFailExited },

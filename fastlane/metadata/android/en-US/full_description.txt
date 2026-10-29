@@ -26,7 +26,7 @@
 </ul>
 
 <p><b>Network</b></p>
-<p>The wallet talks to an Epic Cash node (default node.btlabs.uk; the list also has nodes run by EpicNet, Epic Cash, Cypher Stack and Iniaku pool) and, for Epicbox payments, to an Epicbox server (default epicbox.epiccash.com). Both can be changed in Settings. The fiat value of the balance comes from CoinGecko, with a copy kept by BT Labs as a fallback; it can be turned off.</p>
+<p>The wallet talks to an Epic Cash node (default node.epiccash.com; the list also has nodes run by BT Labs, EpicNet and Cypher Stack) and, for Epicbox payments, to an Epicbox server (default epicbox.epiccash.com). Both can be changed in Settings or in the settings file. The fiat value of the balance comes from CoinGecko, with a copy kept by BT Labs as a fallback; it can be turned off.</p>
 
 <p><b>This build</b></p>
 <p>The F-Droid build has no Google services and no push notifications. Updates come from F-Droid; the app has no updater of its own. Tor is built from source, and QR codes are read with a free-software scanner.</p>

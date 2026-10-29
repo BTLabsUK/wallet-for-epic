@@ -29,14 +29,14 @@ const _phrase =
     'abandon ability able about above absent absorb abstract absurd abuse '
     'access accident';
 const _address =
-    'esWn9r2zQj5eKkVh3sT4YpX7cBdF8gHmNaLuRvS6tE1iPo2wZxC9@epicbox.epiccash.com';
+    'esWn9r2zQj5eKkVh3sT4YpX7cBdF8gHmNaLuRvS6tE1iPo2wZxC9@box.epic.invalid';
 
 const _details = FeedbackDetails(
   appVersion: '1.1.2 (12)',
   platform: 'android 14',
   network: 'Mainnet',
-  node: 'node.btlabs.uk',
-  relay: 'epicbox.epiccash.com',
+  node: 'node.lab.invalid',
+  relay: 'box.epic.invalid',
   sync: 'Up to date at height 3600000, epicbox connected',
 );
 
@@ -169,7 +169,7 @@ void main() {
       expect(
         report,
         contains(
-          'Restore failed with [recovery phrase removed] and PIN [redacted], paid <address-1>@epicbox.epiccash.com',
+          'Restore failed with [recovery phrase removed] and PIN [redacted], paid <address-1>@box.epic.invalid',
         ),
       );
       expect(report, contains('Contact: me@example.com'));
@@ -177,12 +177,12 @@ void main() {
       expect(report, contains('ui: phone'));
       expect(report, contains('platform: android 14'));
       expect(report, isNot(contains('network:')), reason: 'mainnet is never named');
-      expect(report, contains('node: node.btlabs.uk'));
-      expect(report, contains('epicbox: epicbox.epiccash.com'));
+      expect(report, contains('node: node.lab.invalid'));
+      expect(report, contains('epicbox: box.epic.invalid'));
       expect(report, contains('sync: Up to date at height 3600000'));
       expect(report, contains('== app/wfe.log =='));
       expect(report, contains('INFO dart.unlock: PIN [redacted]'));
-      expect(report, contains('WARN x: sent to <address-1>@epicbox.epiccash.com'));
+      expect(report, contains('WARN x: sent to <address-1>@box.epic.invalid'));
       for (final secret in ['abandon', '123456', '654321', 'esWn9r']) {
         expect(report, isNot(contains(secret)), reason: secret);
       }
@@ -196,7 +196,7 @@ void main() {
           platform: 'android 14',
           network: 'Mainnet',
           node: '10.0.1.24',
-          relay: 'epicbox.epiccash.com',
+          relay: 'box.epic.invalid',
           sync: 'Syncing',
         ),
         log: 'WARN node: http://10.0.1.24:3413 timed out\n',
@@ -240,7 +240,7 @@ void main() {
       addTearDown(container.dispose);
       expect(
         container.read(feedbackUrlProvider),
-        Uri.parse('https://support.btlabs.uk/v1/report'),
+        Uri.parse('https://support.lab.invalid/v1/report'),
       );
     });
 
@@ -285,11 +285,11 @@ void main() {
       final preview = previewText(tester);
       expect(preview, contains('[recovery phrase removed] does not work'));
       expect(preview, isNot(contains('network:')));
-      expect(preview, contains('node: node.btlabs.uk'));
-      expect(preview, contains('epicbox: epicbox.epiccash.com'));
+      expect(preview, contains('node: node.lab.invalid'));
+      expect(preview, contains('epicbox: box.epic.invalid'));
       expect(preview, contains('platform: android 14'));
       expect(preview, contains('dart.unlock: PIN [redacted] accepted'));
-      expect(preview, contains('to <address-1>@epicbox.epiccash.com'));
+      expect(preview, contains('to <address-1>@box.epic.invalid'));
       for (final secret in ['abandon', '123456', 'esWn9r']) {
         expect(preview, isNot(contains(secret)), reason: secret);
       }
@@ -472,7 +472,7 @@ void previewLargeLog() {
       var bytes = 0;
       var i = 0;
       while (bytes < 300 * 1024) {
-        final body = 'line $i tip height ${2500000 + i} from node.btlabs.uk, '
+        final body = 'line $i tip height ${2500000 + i} from node.lab.invalid, '
             'send to $_address, slate ${'ab' * 32} posted, balance spendable=${i * 7}';
         h.log.write(LogLevel.values[i % 3], 'dart.t${i % 5}', body);
         bytes += body.length + 40;
@@ -501,7 +501,7 @@ void previewLargeLog() {
         if (scroll.position.pixels >= scroll.position.maxScrollExtent - 0.5) break;
       }
       expect(find.textContaining('line ${i - 1} tip height'), findsOneWidget);
-      expect(find.textContaining('<address-1>@epicbox.epiccash.com'), findsWidgets);
+      expect(find.textContaining('<address-1>@box.epic.invalid'), findsWidgets);
       expect(find.textContaining('esWn9r'), findsNothing);
     });
 

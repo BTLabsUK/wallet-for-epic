@@ -8,5 +8,9 @@
   "deskSlDefault": "Standard",
   "deskSlTesting": "{host} wird getestet…",
   "deskSlSetupEpicboxOn": "Über Epicbox empfangen",
-  "deskSlHelpChoose": "Wählen Sie einen aus oder tippen Sie, um die Liste zu filtern oder einen Server hinzuzufügen."
+  "deskSlHelpChoose": "Wählen Sie einen aus oder tippen Sie, um die Liste zu filtern oder einen Server hinzuzufügen.",
+  "deskSlNoNodeTitle": "Kein Node eingerichtet",
+  "deskSlNoNodeText": "Die Node-Liste ist leer. Fügen Sie einen Node hinzu, um Guthaben zu prüfen und zu senden.",
+  "deskSlNoEpicboxTitle": "Kein Epicbox-Server eingerichtet",
+  "deskSlNoEpicboxText": "Die Liste der Epicbox-Server ist leer. Fügen Sie einen Server hinzu, um eine Epicbox-Adresse zu erhalten."
 }

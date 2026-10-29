@@ -5,14 +5,17 @@ library;
 
 import 'network.dart';
 import 'public_servers.dart';
+import 'settings_file/host_settings.dart';
 
-/// [relay] is one the app lists: the public relays built in, each network's default, or one of
-/// [extra] (the monitor's list, the user's servers, the wallet's own relay). Host names compare
-/// without case; the port too.
+/// [relay] is one the app lists: the settings file's relays (the shipped ones too), the one in
+/// use and the default, or one of [extra] (the monitor's list, the user's servers, the
+/// wallet's own relay). Host names compare without case; the port too.
 bool isKnownRelay(EpicboxRelay relay, {Iterable<EpicboxRelay> extra = const []}) {
   bool same(EpicboxRelay r) => r.host.toLowerCase() == relay.host.toLowerCase() && r.port == relay.port;
+  final s = hostSettings;
   return builtInRelays.any((r) => same(r.relay)) ||
-      networkPresets.any((p) => same(p.defaultRelay)) ||
+      s.epicboxServers.any((b) => same(EpicboxRelay(host: b.host, port: b.port))) ||
+      [s.epicboxUse, s.epicboxDefault].map(EpicboxRelay.parse).any((r) => r != null && same(r)) ||
       extra.any(same);
 }
 

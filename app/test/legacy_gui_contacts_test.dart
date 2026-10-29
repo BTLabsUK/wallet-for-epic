@@ -5,6 +5,7 @@
 import 'package:epic_wallet/src/contact_store.dart';
 import 'package:epic_wallet/src/legacy/gui_contacts.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/test_settings.dart';
 
 const _a = 'esWNvLomAJ2SHT6CU1F4ok2URGQnmUmCAp9XNwEP4N8JS4Ve8qcx';
 const _b = 'es7jHnbVkZzE2UGWUkzWrc4y4VoKZbg7FBaPUo2vXhJpe4jgXAA7';
@@ -21,6 +22,9 @@ GuiContactPlan plan(List<GuiContactRow> rows, [List<ContactFields> saved = const
 String ch(int code) => String.fromCharCode(code);
 
 void main() {
+  // These tests read the old GUI's real data against the shipped defaults.
+  useShippedSettings();
+
   group('addresses by what they are', () {
     test('an Epicbox address in the External field, a URL in the Epicbox field, an onion in either field', () {
       final p = plan([

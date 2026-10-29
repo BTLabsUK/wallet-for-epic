@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // The desktop's settings in a history backup (desktop/data/backup_settings_desk.dart): planned
 // and applied over the mock through the desktop's own state (one settings save, the Outputs
-// choices, the servers, Tor, the wallet's name and items), and read and sealed by the LEPIC
-// adapter over the fake core session, with nothing it must never carry.
+// choices, settings.toml's lists and switches, Tor, the wallet's name and items); with other
+// wallets here a file whose lists differ asks once, and each answer is applied; and read and
+// sealed by the LEPIC adapter over the fake core session, with nothing it must never carry.
 import 'dart:convert';
 import 'dart:io';
 
@@ -17,7 +18,8 @@ import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
-import 'package:epic_wallet/src/server_list.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart' show hostSettingsProvider;
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,7 +56,14 @@ void main() {
       })) as Map<String, Object?>;
     }
 
-    test('a fresh desktop takes the file\'s settings and name without a question; the app follows', () async {
+    /// The mock's other mainnet wallet gone: this computer has only the open one.
+    Future<void> alone() => mock.removeWallet('5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', WalletRemoval.list);
+
+    const nodes = ['https://node.net.invalid:3413', 'http://10.0.0.5:3413'];
+    const boxes = ['box.stack.invalid', 'box.epic.invalid'];
+
+    test('a desktop with no other wallet takes the file\'s settings, lists and name without a question; the app follows', () async {
+      await alone();
       final settings = await file(
         {
           BackupKey.theme: 'light',
@@ -64,16 +73,12 @@ void main() {
           BackupKey.payments: PaymentPrefs.defaults.copyWith(linkTor: true).toJson(),
           BackupKey.sendStrategy: 'all',
           BackupKey.splitChange: false,
-          BackupKey.node: {'mainnet': 'https://node.epicnet.us:3413'},
-          BackupKey.relay: {'mainnet': 'epicbox.stackwallet.com'},
-          BackupKey.nodeList: {'mainnet': serverListJson(const ServerList(entries: ['https://node.epicnet.us:3413', 'http://10.0.0.5:3413']))},
+          BackupKey.servers: {BackupKey.node: nodes, BackupKey.epicbox: boxes},
+          BackupKey.online: {BackupKey.statusSite: false, BackupKey.updateCheck: false, BackupKey.price: true},
           BackupKey.tor: true,
           BackupKey.seenAs: 'Alice',
         },
         desk: {
-          BackupKey.deskNodes: [
-            {'url': 'https://mine.example:3413', 'label': 'mine'},
-          ],
           BackupKey.invoiceExpiry: 3600,
           BackupKey.seedsDeleted: ['btlabs'],
           BackupKey.epicboxAutostart: false,
@@ -81,6 +86,7 @@ void main() {
       );
       final plan = await glue.plan(HistoryImport(settings: settings, walletName: 'Savings'));
       expect(plan.conflicts, isEmpty);
+      expect(plan.asksServers, isFalse);
       final changed = await glue.apply(plan, takeConflicts: false);
       expect(changed, plan.take.length);
 
@@ -98,32 +104,68 @@ void main() {
       expect(mock.proto.expiry, const Duration(hours: 1));
       expect(mock.seedsDeleted, {'btlabs'});
       expect((await mock.contacts()).any((x) => x.id == 'btlabs'), isFalse);
-      expect(mock.nodeList.entries, ['https://node.epicnet.us:3413', 'http://10.0.0.5:3413']);
-      expect((await mock.nodes()).any((n) => n.url == 'https://mine.example:3413' && n.label == 'mine' && n.own), isTrue);
+      final h = c.read(hostSettingsProvider);
+      expect(h.nodeUrls, nodes);
+      expect(h.epicboxLabels, boxes);
+      expect((h.statusEnabled, h.updatesCheck, h.priceEnabled), (false, false, true));
+      expect(s.useStatusSite, isFalse);
+      // The wallet reopened on the new first servers.
+      expect(await mock.epicboxAddress(), endsWith('@box.stack.invalid'));
       expect((await mock.wallets()).firstWhere((w) => w.id == 'legacy-mainnet').name, 'Savings');
-      final mine = (await mock.backupSettings()).mine;
-      expect(mine[BackupKey.node], {'mainnet': 'https://node.epicnet.us:3413'});
-      expect(mine[BackupKey.relay], {'mainnet': 'epicbox.stackwallet.com'});
 
       expect((await glue.plan(HistoryImport(settings: settings, walletName: 'Savings'))).isEmpty, isTrue, reason: 'the same file again');
     }, skip: torBuilt ? null : 'no Tor in this build');
 
+    test('another wallet here: lists that differ ask once; keeping this computer\'s changes no server', () async {
+      final settings = await file({
+        BackupKey.servers: {BackupKey.node: nodes, BackupKey.epicbox: boxes},
+      });
+      final before = c.read(hostSettingsProvider);
+      final plan = await glue.plan(HistoryImport(settings: settings));
+      expect(plan.asksServers, isTrue);
+      expect({for (final i in plan.servers) i.key}, {BackupItem.nodeServers, BackupItem.epicboxServers});
+      expect(plan.conflicts, isEmpty);
+      expect(await glue.apply(plan, takeConflicts: false), 0);
+      final h = c.read(hostSettingsProvider);
+      expect(h.nodeUrls, before.nodeUrls);
+      expect(h.epicboxLabels, before.epicboxLabels);
+      expect((await glue.plan(HistoryImport(settings: settings))).asksServers, isTrue, reason: 'still the other lists');
+    });
+
+    test('another wallet here: using the backup\'s servers writes its lists and moves the wallet', () async {
+      final settings = await file({
+        BackupKey.servers: {BackupKey.node: nodes, BackupKey.epicbox: boxes},
+      });
+      final plan = await glue.plan(HistoryImport(settings: settings));
+      expect(await glue.apply(plan, takeConflicts: false, takeServers: true), 2);
+      final h = c.read(hostSettingsProvider);
+      expect(h.nodeUrls, nodes);
+      expect(h.epicboxLabels, boxes);
+      expect(await mock.epicboxAddress(), endsWith('@box.stack.invalid'));
+      expect((await glue.plan(HistoryImport(settings: settings))).isEmpty, isTrue, reason: 'the same lists now: no question');
+    });
+
     test('a desktop the user changed is asked; a local node in the file never becomes the one in use', () async {
+      await alone();
       final desk = c.read(deskProvider.notifier);
       await desk.saveSettings(c.read(deskProvider).settings.copyWith(theme: ThemeChoice.system, hideAmounts: false));
       await desk.renameWallet('legacy-mainnet', 'Daily');
       final settings = await file({
         BackupKey.theme: 'light',
         BackupKey.hideBalances: true,
-        BackupKey.node: {'mainnet': 'http://10.0.1.24:3413'},
+        BackupKey.servers: {
+          BackupKey.node: ['http://10.0.1.24:3413'],
+          BackupKey.epicbox: c.read(hostSettingsProvider).epicboxLabels,
+        },
       });
+      final nodesBefore = c.read(hostSettingsProvider).nodeUrls;
       final plan = await glue.plan(HistoryImport(settings: settings, walletName: 'Savings'));
       expect({for (final i in plan.conflicts) i.key}, {BackupItem.theme, BackupItem.walletName});
-      expect({for (final i in plan.refused) i.key}, {BackupItem.node});
+      expect({for (final i in plan.refused) i.key}, {BackupItem.nodeServers});
       expect(await glue.apply(plan, takeConflicts: false), 1);
       expect(c.read(deskProvider).settings.theme, ThemeChoice.system);
       expect(c.read(deskProvider).settings.hideAmounts, isTrue);
-      expect((await mock.backupSettings()).mine[BackupKey.node], {'mainnet': 'https://node.btlabs.uk'});
+      expect(c.read(hostSettingsProvider).nodeUrls, nodesBefore, reason: 'a list of LAN nodes only is not taken');
 
       expect(await glue.apply(plan, takeConflicts: true), 3);
       expect(c.read(deskProvider).settings.theme, ThemeChoice.light);
@@ -177,7 +219,7 @@ void main() {
       await support.delete(recursive: true);
     });
 
-    test('the export carries the settings and the name, never HTTP, the scale or the built-in node', () async {
+    test('the export carries the settings, settings.toml\'s lists in order and the name; never HTTP, the scale, the built-in node or app-config', () async {
       await wallet.saveSettings((await wallet.settings()).copyWith(theme: ThemeChoice.light, publicMode: true, httpPort: 4000, scale: 125));
       await wallet.addNode(const NodeServer(url: 'https://mine.example:3413', label: 'mine', own: true));
       await wallet.setInvoiceExpiry(const Duration(hours: 2));
@@ -185,35 +227,32 @@ void main() {
       final sealed = jsonDecode(text.substring(text.indexOf('{'))) as Map<String, Object?>;
       expect(sealed['walletName'], 'Savings');
       final settings = sealed['settings']! as Map<String, Object?>;
+      expect(settings[BackupKey.v], 2);
       expect(settings[BackupKey.from], 'desktop');
       expect(settings[BackupKey.theme], 'light');
+      final servers = settings[BackupKey.servers]! as Map<String, Object?>;
+      expect(servers[BackupKey.node], hostSettings.nodeUrls);
+      expect(servers[BackupKey.node], contains('https://mine.example:3413'));
+      expect(servers[BackupKey.epicbox], hostSettings.epicboxLabels);
+      expect(settings[BackupKey.online], {BackupKey.statusSite: true, BackupKey.updateCheck: true, BackupKey.price: true});
       final desk = settings[BackupKey.desktop]! as Map<String, Object?>;
-      expect(desk[BackupKey.deskNodes], [
-        {'url': 'https://mine.example:3413', 'label': 'mine'},
-      ]);
       expect(desk[BackupKey.invoiceExpiry], 7200);
       final all = jsonEncode(settings);
-      for (final never in ['publicMode', 'httpPort', '4000', 'scale', 'builtin', 'chainData', 'push', 'tourSeen', _password]) {
+      final config = hostSettings.config;
+      for (final never in [
+        'publicMode', 'httpPort', '4000', 'scale', 'builtin', 'chainData', 'push', 'tourSeen', _password,
+        // app-config.toml: never in a backup.
+        ?config.statusDirectory, 'operators', 'mainnet',
+      ]) {
         expect(all, isNot(contains(never)), reason: never);
       }
     });
 
-    test('the wallet\'s items: lists merge, its own relay is kept, a deleted seed contact goes again', () async {
+    test('the wallet\'s items: a deleted seed contact goes again', () async {
       expect((await wallet.contacts()).any((x) => x.name == 'BT Labs'), isTrue, reason: 'seeded on open');
-      await wallet.restoreBackupItems(
-        nodeList: const ServerList(entries: ['https://node.epicnet.us:3413']),
-        relayList: ServerList(entries: const ['epicbox.epicnet.us'], removed: {serverKeyOf(ServerKind.relay, 'epicbox.stackwallet.com')}),
-        ownRelay: (relay: 'epicbox.epicnet.us'),
-        seedsDeleted: ['btlabs', 'unknown-seed'],
-      );
-      final mine = (await wallet.backupSettings()).mine;
-      final desk = mine[BackupKey.desktop]! as Map<String, Object?>;
+      await wallet.restoreBackupItems(seedsDeleted: ['btlabs', 'unknown-seed']);
+      final desk = (await wallet.backupSettings()).mine[BackupKey.desktop]! as Map<String, Object?>;
       expect(desk[BackupKey.seedsDeleted], ['btlabs']);
-      expect(desk[BackupKey.ownRelay], 'epicbox.epicnet.us');
-      expect(mine[BackupKey.relay], {'mainnet': 'epicbox.epicnet.us'}, reason: 'the wallet\'s own server is its relay');
-      expect((mine[BackupKey.nodeList]! as Map)['mainnet'], {'entries': ['https://node.epicnet.us:3413'], 'removed': <Object?>[]});
-      final relays = serverListFromJson(ServerKind.relay, (mine[BackupKey.relayList]! as Map)['mainnet'])!;
-      expect(relays.removed, {serverKeyOf(ServerKind.relay, 'epicbox.stackwallet.com')});
       expect((await wallet.contacts()).any((x) => x.name == 'BT Labs'), isFalse);
     });
   });

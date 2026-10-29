@@ -15,7 +15,10 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/server_icons.dart';
+import 'package:epic_wallet/src/server_list_file.dart';
 import 'package:epic_wallet/src/server_list_store.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/server_switch.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart' show showEpicboxPicker, showNodePicker;
@@ -28,6 +31,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/test_settings.dart';
 
 class _Home extends HomeNotifier {
   @override
@@ -50,7 +55,7 @@ class _Home extends HomeNotifier {
 class _Config extends WalletConfigNotifier {
   @override
   WalletConfig? build() =>
-      mainnetPreset.config(dataDir: '/fake', nodeUrl: 'https://node.btlabs.uk');
+      mainnetPreset.config(dataDir: '/fake', nodeUrl: 'https://node.lab.invalid');
 }
 
 class _Listener extends ListenerNotifier {
@@ -81,7 +86,7 @@ class _NotConnected extends WalletStatusNotifier {
       (node: const status.NodeStatus(NodeState.online), epicbox: EpicboxState.offline);
 }
 
-/// status.btlabs.uk: the lists when given, else no answer.
+/// status.lab.invalid: the lists when given, else no answer.
 class _Directory implements RelayDirectory, NodeDirectory, NetworkDirectory {
   _Directory({this.nodeList, this.relayList});
 
@@ -102,28 +107,56 @@ class _Directory implements RelayDirectory, NodeDirectory, NetworkDirectory {
   }
 }
 
-const _btlabs = 'https://node.btlabs.uk';
-const _epicnet = 'https://node.epicnet.us:3413';
-const _epiccash = 'https://node.epiccash.com:3413';
-const _stack = 'epicbox.stackwallet.com';
+const _btlabs = 'https://node.lab.invalid';
+const _epicnet = 'https://node.net.invalid:3413';
+const _epiccash = 'https://node.epic.invalid:3413';
+const _stack = 'box.stack.invalid';
 
-/// The saved choice: mainnet, its default node, a relay that is not the default.
-MemorySecretStore _store([Map<String, String> extra = const {}]) => MemorySecretStore({
-  'app.network': 'mainnet',
-  'app.node.mainnet': _btlabs,
-  'app.relay.mainnet': _stack,
-  ...extra,
-});
+/// The public lists these tests were written against, as the settings file holds them.
+const _nodeServers = [
+  (_btlabs, 'BT Labs'),
+  (_epicnet, 'EpicNet'),
+  (_epiccash, 'Epic Cash'),
+  ('https://node.stack.invalid:3413', 'Cypher Stack'),
+  ('https://epic-node.pool.example.org', 'Pool'),
+];
+const _relayServers = [
+  ('box.epic.invalid', 'Epic Cash'),
+  (_stack, 'Cypher Stack'),
+  ('box.net.invalid', 'EpicNet'),
+  ('epicbox.pool.example.org', 'Pool'),
+  ('box.lab.invalid', 'BT Labs'),
+];
 
-String _listKey(ServerKind kind) => serverListKey(kind, Chain.mainnet);
+/// The settings in use: mainnet, its default node, a relay that is not the default (first of its
+/// list), the lists above (or [lists] by kind). Set as the process-wide (and shipped) settings; the sheet's
+/// writes then change its container's settings ([_settings]).
+MemorySecretStore _store([Map<ServerKind, ServerList> lists = const {}, Map<String, String> extra = const {}]) {
+  final base = testSettings().withValues({
+    'node.servers': [for (final (u, _) in _nodeServers) u],
+    'epicbox.servers': [for (final (h, _) in _relayServers) h],
+    'operators': {...testSettings().config.operators, 'pool.example.org': 'Pool'},
+  });
+  shippedHostSettings = base;
+  // The relay in use is the first of the list.
+  var s = base.withValues(useServerValues(base, relay: _stack));
+  for (final MapEntry(key: kind, value: list) in lists.entries) {
+    s = s.withValues(serverListValues(kind, list));
+  }
+  hostSettings = s;
+  return MemorySecretStore({'app.network': 'mainnet', ...extra});
+}
 
-ServerList _saved(MemorySecretStore store, ServerKind kind) =>
-    ServerList.decode(store.values[_listKey(kind)])!;
+/// The settings the sheet's container holds now.
+HostSettings _settings(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(MaterialApp).first)).read(hostSettingsProvider);
+
+ServerList _saved(WidgetTester tester, ServerKind kind) => serverListOf(_settings(tester), kind);
 
 /// A monitor icon on the monitor's own host.
 ServerIcon _icon(String hash) => ServerIcon(
   hash: hash,
-  urls: {128: Uri.parse('https://status.btlabs.uk/api/v1/icons/$hash-128.png')},
+  urls: {128: Uri.parse('https://status.lab.invalid/api/v1/icons/$hash-128.png')},
 );
 
 Uint8List _png(String hash) => File('test/fixtures/icons/$hash-128.png').readAsBytesSync();
@@ -283,19 +316,18 @@ void main() {
       expect(find.text(_placeholder), findsOneWidget);
       expect(find.text('In use. Edit it to switch, or type to filter the list.'), findsNothing);
       expect(_order(tester, [_btlabs, _epicnet, _epiccash]), [_btlabs, _epicnet, _epiccash]);
-      expect(_row('https://epic.stackwallet.com:3413'), findsOneWidget);
-      expect(_row('https://epic-node.iniaku.my.id'), findsOneWidget);
+      expect(_row('https://node.stack.invalid:3413'), findsOneWidget);
+      expect(_row('https://epic-node.pool.example.org'), findsOneWidget);
       expect(_inRow(_btlabs, 'Current'), findsOneWidget);
       expect(_check(_btlabs), findsOneWidget);
       expect(_check(_epicnet), findsNothing);
       // Nothing typed: no Add, no restore, no match line, a bin on every row.
       expect(find.byKey(serverListAddKey), findsNothing);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
       expect(find.text(_noMatch), findsNothing);
       expect(find.byKey(serverListRemoveKey(_btlabs)), findsOneWidget);
       expect(find.byKey(serverListRemoveKey(_epicnet)), findsOneWidget);
       // The list is saved under its own key.
-      expect(_saved(env.store, ServerKind.node).entries.first, _btlabs);
+      expect(_saved(tester, ServerKind.node).entries.first, _btlabs);
     });
 
     testWidgets('epicbox: the list, the default tagged, the field empty, the one in use checked', (
@@ -310,7 +342,7 @@ void main() {
       expect(_inRow(defaultEpicboxHost, 'Default'), findsOneWidget);
       expect(_inRow(_stack, 'Current'), findsOneWidget);
       expect(_check(_stack), findsOneWidget);
-      expect(_row('epicbox.btlabs.uk'), findsOneWidget, reason: 'the push relay');
+      expect(_row('box.lab.invalid'), findsOneWidget, reason: 'the push relay');
     });
 
     testWidgets('epicbox: the address warning on the sheet; a tap opens the confirm with the '
@@ -322,10 +354,10 @@ void main() {
         findsOneWidget,
       );
       expect(_confirm(), findsNothing);
-      await tester.tap(_row('epicbox.epicnet.us'));
+      await tester.tap(_row('box.net.invalid'));
       await tester.pumpAndSettle();
       expect(_confirm(), findsOneWidget);
-      expect(find.text('Switch to epicbox.epicnet.us?'), findsOneWidget);
+      expect(find.text('Switch to box.net.invalid?'), findsOneWidget);
       expect(
         find.descendant(of: _confirm(), matching: find.text('Your Epicbox address will change. Share the new one.')),
         findsOneWidget,
@@ -338,23 +370,23 @@ void main() {
     testWidgets('epicbox: Cancel keeps the relay; Switch switches', (tester) async {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
-      await tester.tap(_row('epicbox.epicnet.us'));
+      await tester.tap(_row('box.net.invalid'));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(serverListCancelKey));
       await tester.pumpAndSettle();
       expect(_confirm(), findsNothing);
       expect(env.live, isEmpty);
       expect(env.saved, 0);
-      expect(env.store.values['app.relay.mainnet'], _stack);
+      expect(_settings(tester).epicboxUse, _stack);
 
-      await tester.tap(_row('epicbox.epicnet.us'));
+      await tester.tap(_row('box.net.invalid'));
       await tester.pumpAndSettle();
       await tester.tap(_confirmSwitch());
       await tester.pumpAndSettle();
       expect(_confirm(), findsNothing);
       expect(env.saved, 1);
-      expect(env.store.values['app.relay.mainnet'], 'epicbox.epicnet.us');
-      expect(env.store.values['app.node.mainnet'], _btlabs);
+      expect(_settings(tester).epicboxUse, 'box.net.invalid');
+      expect(_settings(tester).nodeUse, _btlabs);
       await _timers(tester);
     });
 
@@ -366,7 +398,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(_confirm(), findsNothing);
       expect(env.live.single, (nodeUrl: _epicnet, relay: _stack));
-      expect(_foot('Switched to node.epicnet.us:3413'), findsOneWidget);
+      expect(_foot('Switched to node.net.invalid:3413'), findsOneWidget);
       expect(_fieldText(tester), '');
       await _timers(tester);
     });
@@ -382,7 +414,7 @@ void main() {
       expect(find.text('1 match.'), findsOneWidget);
       // By operator.
       await _type(tester, 'Cypher');
-      expect(_row('https://epic.stackwallet.com:3413'), findsOneWidget);
+      expect(_row('https://node.stack.invalid:3413'), findsOneWidget);
       expect(_row(_epicnet), findsNothing);
       // The clear button empties the field; the list is whole again.
       await tester.tap(find.byKey(serverListClearKey));
@@ -408,17 +440,17 @@ void main() {
       tester,
     ) async {
       await _pump(tester, ServerKind.node, _Env()..liveAnswer = true);
-      await _type(tester, 'epicnet.us');
+      await _type(tester, 'node.net');
       expect(_row(_epicnet), findsOneWidget);
       expect(find.byKey(serverListAddKey), findsOneWidget);
       expect(find.text('Not in the list.'), findsOneWidget);
       expect(find.text(_noMatch), findsNothing);
       // A listed address has no Add row; Done on the field picks it.
-      await _type(tester, 'node.epicnet.us:3413');
+      await _type(tester, 'node.net.invalid:3413');
       expect(find.byKey(serverListAddKey), findsNothing);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
-      expect(_foot('Switched to node.epicnet.us:3413'), findsOneWidget);
+      expect(_foot('Switched to node.net.invalid:3413'), findsOneWidget);
       await _timers(tester);
     });
 
@@ -434,8 +466,8 @@ void main() {
       await tester.tap(_row(_epicnet));
       await tester.pumpAndSettle();
       expect(env.saved, 1);
-      expect(env.store.values['app.node.mainnet'], _epicnet);
-      expect(env.store.values['app.relay.mainnet'], _stack);
+      expect(_settings(tester).nodeUse, _epicnet);
+      expect(_settings(tester).epicboxUse, _stack);
       await _timers(tester);
     });
 
@@ -444,13 +476,13 @@ void main() {
     ) async {
       final env = _Env()..liveAnswer = true;
       await _pump(tester, ServerKind.relay, env);
-      await tester.tap(_row('epicbox.epicnet.us'));
+      await tester.tap(_row('box.net.invalid'));
       await tester.pumpAndSettle();
       await tester.tap(_confirmSwitch());
       await tester.pumpAndSettle();
-      expect(env.live.single, (nodeUrl: _btlabs, relay: 'epicbox.epicnet.us'));
+      expect(env.live.single, (nodeUrl: _btlabs, relay: 'box.net.invalid'));
       expect(env.saved, 0);
-      expect(_foot('Switched to epicbox.epicnet.us'), findsOneWidget);
+      expect(_foot('Switched to box.net.invalid'), findsOneWidget);
       await _timers(tester);
     });
 
@@ -537,7 +569,7 @@ void main() {
 
       expect(env.service.nodeTipCalls, 1);
       expect(_row('https://node.example.org'), findsOneWidget);
-      expect(_saved(env.store, ServerKind.node).entries.last, 'https://node.example.org');
+      expect(_saved(tester, ServerKind.node).entries.last, 'https://node.example.org');
       expect(_foot('Added node.example.org.'), findsOneWidget);
       expect(_footAction('Switch'), findsOneWidget);
       // The field is empty again; the filter is closed.
@@ -545,11 +577,11 @@ void main() {
       expect(_row(_btlabs), findsOneWidget);
       expect(find.byKey(serverListAddKey), findsNothing);
       // The wallet still uses the old node until Switch.
-      expect(env.store.values['app.node.mainnet'], _btlabs);
+      expect(_settings(tester).nodeUse, _btlabs);
 
       await tester.tap(_footAction('Switch'));
       await tester.pumpAndSettle();
-      expect(env.store.values['app.node.mainnet'], 'https://node.example.org');
+      expect(_settings(tester).nodeUse, 'https://node.example.org');
       expect(env.saved, 1);
       await _timers(tester);
     });
@@ -564,16 +596,16 @@ void main() {
 
       expect(env.probe.probed.single.label, 'relay.example.org:4443');
       expect(_row('relay.example.org:4443'), findsOneWidget);
-      expect(_saved(env.store, ServerKind.relay).entries.last, 'relay.example.org:4443');
+      expect(_saved(tester, ServerKind.relay).entries.last, 'relay.example.org:4443');
       expect(_foot('Added relay.example.org:4443.'), findsOneWidget);
-      expect(env.store.values['app.relay.mainnet'], _stack);
+      expect(_settings(tester).epicboxUse, _stack);
 
       await tester.tap(_footAction('Switch'));
       await tester.pumpAndSettle();
       expect(find.text('Switch to relay.example.org:4443?'), findsOneWidget);
       await tester.tap(_confirmSwitch());
       await tester.pumpAndSettle();
-      expect(env.store.values['app.relay.mainnet'], 'relay.example.org:4443');
+      expect(_settings(tester).epicboxUse, 'relay.example.org:4443');
       await _timers(tester);
     });
 
@@ -582,12 +614,12 @@ void main() {
           'added or tested', (tester) async {
         final env = _Env();
         await _pump(tester, kind, env);
-        final before = _saved(env.store, kind).entries;
+        final before = _saved(tester, kind).entries;
         await _type(tester, 'not a host!');
         await _tapAdd(tester);
 
         expect(find.text(_notAddress), findsOneWidget);
-        expect(_saved(env.store, kind).entries, before);
+        expect(_saved(tester, kind).entries, before);
         expect(env.service.nodeTipCalls, 0);
         expect(env.probe.probed, isEmpty);
         expect(find.byKey(serverListSwitchKey), findsNothing);
@@ -602,14 +634,14 @@ void main() {
       final env = _Env();
       env.service.nodeTipFails = const NetError('timed out');
       await _pump(tester, ServerKind.node, env);
-      final before = _saved(env.store, ServerKind.node).entries;
+      final before = _saved(tester, ServerKind.node).entries;
       await _type(tester, 'node.example.org');
       await _tapAdd(tester);
 
       expect(env.service.nodeTipCalls, 1);
       expect(find.textContaining('No answer.'), findsOneWidget);
       expect(_row('https://node.example.org'), findsNothing);
-      expect(_saved(env.store, ServerKind.node).entries, before);
+      expect(_saved(tester, ServerKind.node).entries, before);
       expect(find.byKey(serverListSwitchKey), findsNothing);
       // The text stays to be edited, with Add still there.
       expect(_fieldText(tester), 'node.example.org');
@@ -621,14 +653,14 @@ void main() {
     ) async {
       final env = _Env(probe: FakeRelayProbe(answer: false));
       await _pump(tester, ServerKind.relay, env);
-      final before = _saved(env.store, ServerKind.relay).entries;
+      final before = _saved(tester, ServerKind.relay).entries;
       await _type(tester, 'relay.example.org');
       await _tapAdd(tester);
 
       expect(env.probe.probed, hasLength(1));
       expect(find.text('No answer from this server. Nothing added.'), findsOneWidget);
       expect(_row('relay.example.org'), findsNothing);
-      expect(_saved(env.store, ServerKind.relay).entries, before);
+      expect(_saved(tester, ServerKind.relay).entries, before);
       expect(find.byKey(serverListSwitchKey), findsNothing);
       expect(_fieldText(tester), 'relay.example.org');
     });
@@ -644,16 +676,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(_row(_epicnet), findsNothing);
-      expect(_foot('Removed node.epicnet.us:3413.'), findsOneWidget);
+      expect(_foot('Removed node.net.invalid:3413.'), findsOneWidget);
       expect(
         find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Undo')),
         findsOneWidget,
       );
-      final list = _saved(env.store, ServerKind.node);
+      final list = _saved(tester, ServerKind.node);
       expect(list.entries, isNot(contains(_epicnet)));
-      expect(list.removed, contains('node.epicnet.us:3413'));
-      // The list was removed from the public one: restore shows.
-      expect(find.byKey(serverListRestoreKey), findsOneWidget);
 
       await tester.tap(
         find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Undo')),
@@ -662,11 +691,9 @@ void main() {
       expect(_row(_epicnet), findsOneWidget);
       expect(_order(tester, [_btlabs, _epicnet, _epiccash]), [_btlabs, _epicnet, _epiccash]);
       expect(
-        _saved(env.store, ServerKind.node).entries,
+        _saved(tester, ServerKind.node).entries,
         list.entries.toList()..insert(1, _epicnet),
       );
-      expect(_saved(env.store, ServerKind.node).removed, isEmpty);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
       await _timers(tester);
       expect(find.byKey(serverListFootKey), findsNothing, reason: 'the line goes away by itself');
     });
@@ -674,20 +701,20 @@ void main() {
     testWidgets('without Undo the row stays out once the line is gone', (tester) async {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
-      await tester.tap(find.byKey(serverListRemoveKey('epicbox.epicnet.us')));
+      await tester.tap(find.byKey(serverListRemoveKey('box.net.invalid')));
       await tester.pumpAndSettle();
-      expect(_foot('Removed epicbox.epicnet.us.'), findsOneWidget);
+      expect(_foot('Removed box.net.invalid.'), findsOneWidget);
       await _timers(tester);
       await tester.pumpAndSettle();
       expect(find.byKey(serverListFootKey), findsNothing);
-      expect(_row('epicbox.epicnet.us'), findsNothing);
-      expect(_saved(env.store, ServerKind.relay).entries, isNot(contains('epicbox.epicnet.us')));
+      expect(_row('box.net.invalid'), findsNothing);
+      expect(_saved(tester, ServerKind.relay).entries, isNot(contains('box.net.invalid')));
     });
 
     testWidgets('the server in use refuses: "In use. Switch first."', (tester) async {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
-      final before = _saved(env.store, ServerKind.node);
+      final before = _saved(tester, ServerKind.node);
       // The row in use has no live Remove: the button is disabled and says why.
       final remove = tester.widget<IconButton>(find.byKey(serverListRemoveKey(_btlabs)));
       expect(remove.onPressed, isNull);
@@ -695,140 +722,19 @@ void main() {
       await tester.tap(find.byKey(serverListRemoveKey(_btlabs)), warnIfMissed: false);
       await tester.pumpAndSettle();
       expect(_row(_btlabs), findsOneWidget);
-      expect(_saved(env.store, ServerKind.node), before);
+      expect(_saved(tester, ServerKind.node), before);
       await _timers(tester);
     });
 
-    testWidgets('Restore removed servers shows only while a public server is removed, and puts '
-        'them back', (tester) async {
-      final env = _Env();
-      await _pump(tester, ServerKind.node, env);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
-      await tester.tap(find.byKey(serverListRemoveKey(_epicnet)));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(serverListRemoveKey(_epiccash)));
-      await tester.pumpAndSettle();
-      expect(find.text('Restore removed servers · 2 removed'), findsOneWidget);
-
-      await tester.tap(find.byKey(serverListRestoreKey));
-      await tester.pumpAndSettle();
-      expect(_foot('Removed servers restored.'), findsOneWidget);
-      expect(_row(_epicnet), findsOneWidget);
-      expect(_row(_epiccash), findsOneWidget);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
-      final list = _saved(env.store, ServerKind.node);
-      expect(list.removed, isEmpty);
-      expect(list.entries, containsAll([_epicnet, _epiccash]));
-      await _timers(tester);
-    });
-
-    testWidgets('removing a server of your own does not offer to restore the public list', (
-      tester,
-    ) async {
-      final env = _Env();
-      await _pump(tester, ServerKind.relay, env);
-      await _type(tester, 'relay.example.org');
-      await _tapAdd(tester);
-      await tester.tap(find.byKey(serverListRemoveKey('relay.example.org')));
-      await tester.pumpAndSettle();
-      expect(_row('relay.example.org'), findsNothing);
-      expect(find.byKey(serverListRestoreKey), findsNothing);
-      await _timers(tester);
-    });
   });
 
   group('the directory', () {
-    const added = 'https://node.new.example:3413';
-    final newNode = [
-      const NodeStatus(
-        url: added,
-        healthy: true,
-        verified: false,
-        operator: 'New Ops',
-        state: NodeHealthState.healthy,
-        tipLag: 0,
-      ),
-    ];
-
-    testWidgets('a new server of the monitor joins the list; once removed it stays out when '
-        'the directory answers again', (tester) async {
-      final env = _Env(directory: _Directory(nodeList: newNode));
-      await _pump(tester, ServerKind.node, env);
-      expect(_row(added), findsOneWidget);
-      expect(_saved(env.store, ServerKind.node).entries.last, added);
-      expect(_inRow(added, 'New Ops'), findsOneWidget);
-
-      await tester.tap(find.byKey(serverListRemoveKey(added)));
-      await tester.pumpAndSettle();
-      await _timers(tester);
-      expect(_row(added), findsNothing);
-
-      // The sheet opens again; the directory lists it still.
-      await _pump(tester, ServerKind.node, env);
-      expect(_row(added), findsNothing);
-      expect(_saved(env.store, ServerKind.node).entries, isNot(contains(added)));
-      expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
-
-      // Restore brings it back.
-      await tester.tap(find.byKey(serverListRestoreKey));
-      await tester.pumpAndSettle();
-      expect(_row(added), findsOneWidget);
-      await _timers(tester);
-    });
-
-    testWidgets('a built-in server the user removed stays out too, with the directory answering '
-        'for it', (tester) async {
-      final env = _Env(
-        directory: _Directory(
-          nodeList: const [
-            NodeStatus(
-              url: _epicnet,
-              healthy: true,
-              verified: true,
-              operator: 'EpicNet',
-              state: NodeHealthState.healthy,
-              tipLag: 0,
-            ),
-          ],
-        ),
-      );
-      await _pump(tester, ServerKind.node, env);
-      expect(_inRow(_epicnet, 'at tip'), findsOneWidget);
-      await tester.tap(find.byKey(serverListRemoveKey(_epicnet)));
-      await tester.pumpAndSettle();
-      await _timers(tester);
-      await _pump(tester, ServerKind.node, env);
-      expect(_row(_epicnet), findsNothing);
-      expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
-      await _timers(tester);
-    });
-
-    testWidgets('epicbox: a monitor relay joins the list as well', (tester) async {
-      final env = _Env(
-        directory: _Directory(
-          relayList: const [
-            RelayStatus(
-              relay: EpicboxRelay(host: 'epicbox.new.example'),
-              healthy: true,
-              verified: false,
-              operator: 'New Ops',
-              latencyMs: 120,
-            ),
-          ],
-        ),
-      );
-      await _pump(tester, ServerKind.relay, env);
-      expect(_row('epicbox.new.example'), findsOneWidget);
-      expect(_saved(env.store, ServerKind.relay).entries, contains('epicbox.new.example'));
-      expect(_inRow('epicbox.new.example', '120 ms'), findsOneWidget);
-    });
-
     testWidgets('no answer from the monitor: the built-in list still shows, health unknown', (
       tester,
     ) async {
       await _pump(tester, ServerKind.node, _Env());
       expect(_row(_epicnet), findsOneWidget);
-      expect(find.text('status.btlabs.uk not reachable; health unknown'), findsOneWidget);
+      expect(find.text('status.lab.invalid not reachable; health unknown'), findsOneWidget);
     });
   });
 
@@ -840,7 +746,7 @@ void main() {
       tester,
     ) async {
       final env = _Env(
-        store: _store({'app.myNodes.mainnet': '["$lan"]'}),
+        store: _store({ServerKind.node: ServerList(entries: [for (final (u, _) in _nodeServers) u, lan], added: const {'10.0.0.138:4413'})}),
         directory: _Directory(
           nodeList: const [
             NodeStatus(url: _epicnet, healthy: false, verified: true, state: NodeHealthState.down),
@@ -861,62 +767,12 @@ void main() {
     });
 
     testWidgets('one that answers its check is not marked down', (tester) async {
-      final env = _Env(store: _store({'app.myNodes.mainnet': '["$lan"]'}));
+      final env = _Env(store: _store({ServerKind.node: ServerList(entries: [for (final (u, _) in _nodeServers) u, lan], added: const {'10.0.0.138:4413'})}));
       await _pump(tester, ServerKind.node, env);
       expect(env.service.nodeTipCalls, 1);
       expect(_inRow(lan, 'Not reachable'), findsNothing);
       expect(_inRow(lan, 'Not responding'), findsNothing);
       await _timers(tester);
-    });
-  });
-
-  group('lists from older versions', () {
-    test('the key names the lists are stored under', () {
-      expect(serverListKey(ServerKind.node, Chain.mainnet), 'app.serverList.node.mainnet');
-      expect(serverListKey(ServerKind.relay, Chain.floonet), 'app.serverList.relay.floonet');
-    });
-
-    testWidgets('My nodes join the built-in nodes, once, in the new key', (tester) async {
-      final env = _Env(store: _store({'app.myNodes.mainnet': '["https://my.node.example:3413"]'}));
-      await _pump(tester, ServerKind.node, env);
-      expect(_row('https://my.node.example:3413'), findsOneWidget);
-      expect(
-        _order(tester, [_btlabs, 'https://epic-node.iniaku.my.id', 'https://my.node.example:3413']),
-        [_btlabs, 'https://epic-node.iniaku.my.id', 'https://my.node.example:3413'],
-      );
-      final list = _saved(env.store, ServerKind.node);
-      expect(list.entries, contains('https://my.node.example:3413'));
-      expect(list.entries.where((e) => e == _btlabs), hasLength(1));
-    });
-
-    testWidgets('My servers join the built-in relays', (tester) async {
-      final env = _Env(store: _store({'app.myRelays.mainnet': '["relay.mine.example"]'}));
-      await _pump(tester, ServerKind.relay, env);
-      expect(_row('relay.mine.example'), findsOneWidget);
-      expect(_row(_stack), findsOneWidget, reason: 'listed once even if both lists name it');
-      expect(_saved(env.store, ServerKind.relay).entries, contains('relay.mine.example'));
-    });
-
-    testWidgets('a saved new list wins: the old one is not read again', (tester) async {
-      final env = _Env(
-        store: _store({
-          'app.myNodes.mainnet': '["https://my.node.example:3413"]',
-          _listKey(ServerKind.node): const ServerList(entries: [_btlabs, _epicnet]).encode(),
-        }),
-      );
-      await _pump(tester, ServerKind.node, env);
-      expect(_row('https://my.node.example:3413'), findsNothing);
-      expect(_row(_btlabs), findsOneWidget);
-      expect(_row(_epicnet), findsOneWidget);
-    });
-
-    testWidgets('a broken old list is ignored, a broken new list seeds again', (tester) async {
-      final env = _Env(
-        store: _store({'app.myNodes.mainnet': 'not json', _listKey(ServerKind.node): '{{'}),
-      );
-      await _pump(tester, ServerKind.node, env);
-      expect(_row(_btlabs), findsOneWidget);
-      expect(_saved(env.store, ServerKind.node).entries.first, _btlabs);
     });
   });
 
@@ -951,7 +807,7 @@ void main() {
       expect(find.descendant(of: _row(_btlabs), matching: find.text('BL')), findsOneWidget);
       // Only the monitor's own host is asked.
       expect(env.fetched, isNotEmpty);
-      expect(env.fetched.every((u) => u.scheme == 'https' && u.host == 'status.btlabs.uk'), isTrue);
+      expect(env.fetched.every((u) => u.scheme == 'https' && u.host == 'status.lab.invalid'), isTrue);
     });
 
     testWidgets('a failed fetch (null bytes) leaves the initials', (tester) async {
@@ -965,7 +821,11 @@ void main() {
     testWidgets('a server with no icon shows its operator initials: "EU" for epicnet.us', (
       tester,
     ) async {
+      // The user's own server, which the monitor knows (the status site never adds it).
       final env = _Env(
+        store: _store({
+          ServerKind.relay: ServerList(entries: [_stack, for (final (h, _) in _relayServers) if (h != _stack) h, 'relay.monitor.example']),
+        }),
         directory: _Directory(
           relayList: const [
             RelayStatus(
@@ -991,7 +851,7 @@ void main() {
         directory: _Directory(
           relayList: [
             RelayStatus(
-              relay: const EpicboxRelay(host: 'epicbox.epicnet.us'),
+              relay: const EpicboxRelay(host: 'box.net.invalid'),
               healthy: true,
               verified: true,
               operator: 'EpicNet',
@@ -1002,7 +862,7 @@ void main() {
         icons: {'73de63f69b0165b85c44': _png('73de63f69b0165b85c44')},
       );
       await _pump(tester, ServerKind.relay, env);
-      expect(image('epicbox.epicnet.us'), findsOneWidget);
+      expect(image('box.net.invalid'), findsOneWidget);
       expect(image(_stack), findsNothing);
     });
   });
@@ -1071,7 +931,7 @@ void main() {
               expect(tester.takeException(), isNull);
 
               // The epicnet row sits below the fold on the small phone.
-              final target = kind == ServerKind.node ? _epicnet : 'epicbox.epicnet.us';
+              final target = kind == ServerKind.node ? _epicnet : 'box.net.invalid';
               await tester.scrollUntilVisible(_row(target), 100, scrollable: list);
               // Built in the list's cache is not yet on the screen.
               await tester.ensureVisible(_row(target));
@@ -1142,12 +1002,12 @@ void main() {
         // Enough servers that the list scrolls on the tall phone too.
         final env = _Env(
           store: _store({
-            _listKey(ServerKind.node): ServerList(
+            ServerKind.node: ServerList(
               entries: [
-                ...builtInValues(ServerKind.node, Chain.mainnet),
+                for (final (u, _) in _nodeServers) u,
                 for (var i = 0; i < 12; i++) 'https://node$i.example.org',
               ],
-            ).encode(),
+            ),
           }),
         );
         tester.view.physicalSize = size * 3;
@@ -1212,10 +1072,10 @@ void main() {
   });
 
   group('selection mode', () {
-    const epiccash = 'epicbox.epiccash.com';
-    const floo = 'epicbox.btlabs.uk';
-    const epicnet = 'epicbox.epicnet.us';
-    const iniaku = 'epicbox.iniaku.my.id';
+    const epiccash = 'box.epic.invalid';
+    const floo = 'box.lab.invalid';
+    const epicnet = 'box.net.invalid';
+    const pool = 'epicbox.pool.example.org';
     const defaults = [epiccash, _stack, floo];
     final calls = <List<String>>[];
 
@@ -1245,7 +1105,7 @@ void main() {
       expect(find.byKey(serverListNoteKey), findsOneWidget);
       expect(find.text('Choose up to 3.'), findsOneWidget);
       expect(find.text('2 of 3'), findsOneWidget);
-      expect(_order(tester, [epiccash, _stack, floo, epicnet, iniaku]), [epiccash, _stack, floo, epicnet, iniaku]);
+      expect(_order(tester, [epiccash, _stack, floo, epicnet, pool]), [epiccash, _stack, floo, epicnet, pool]);
       expect(ticked(tester, epiccash), isTrue);
       expect(ticked(tester, _stack), isTrue);
       expect(ticked(tester, floo), isFalse);
@@ -1265,10 +1125,10 @@ void main() {
       expect(find.text('3 of 3'), findsOneWidget);
       expect(_foot('Chosen. Wallets that also use $epicnet find you there.'), findsOneWidget);
 
-      await tester.tap(_row(iniaku));
+      await tester.tap(_row(pool));
       await tester.pumpAndSettle();
       expect(calls.length, 1, reason: 'a refused tick changes nothing');
-      expect(ticked(tester, iniaku), isFalse);
+      expect(ticked(tester, pool), isFalse);
       expect(_foot('3 of 3 chosen. Untick one to choose another.'), findsOneWidget);
 
       await tester.tap(_row(epicnet));
@@ -1319,7 +1179,7 @@ void main() {
       expect(calls.last, [epiccash, 'relay.example.org']);
       expect(_foot('Added relay.example.org. Wallets that also use it find you there.'), findsOneWidget);
       expect(find.descendant(of: _row('relay.example.org'), matching: find.text('Added by you')), findsOneWidget);
-      expect(_saved(env.store, ServerKind.relay).isAddedByUser(ServerKind.relay, 'relay.example.org'), isTrue);
+      expect(_saved(tester, ServerKind.relay).isAddedByUser(ServerKind.relay, 'relay.example.org'), isTrue);
       await _timers(tester);
     });
 
@@ -1341,13 +1201,13 @@ void main() {
       await _type(tester, 'relay.example.org');
       await _tapAdd(tester);
       expect(find.descendant(of: _row('relay.example.org'), matching: find.text('Added by you')), findsOneWidget);
-      expect(find.descendant(of: _row('epicbox.epicnet.us'), matching: find.text('Added by you')), findsNothing);
+      expect(find.descendant(of: _row('box.net.invalid'), matching: find.text('Added by you')), findsNothing);
       await _timers(tester);
     });
   });
 
   test('serverHost reads the host of a node address', () {
-    expect(serverHost(_epicnet), 'node.epicnet.us:3413');
-    expect(serverHost(_btlabs), 'node.btlabs.uk');
+    expect(serverHost(_epicnet), 'node.net.invalid:3413');
+    expect(serverHost(_btlabs), 'node.lab.invalid');
   });
 }

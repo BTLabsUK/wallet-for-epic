@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'settings_file_watch.dart';
 import '../../app_info.dart';
 import '../../l10n.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class DeskApp extends ConsumerWidget {
           // The window's own title bar above the navigator (title_bar.dart), and the close rule.
           child: KeyedSubtree(
             key: ValueKey(deskScale),
-            child: DeskCloseGuard(child: DeskWindowFrame(child: child!)),
+            child: DeskSettingsFileWatch(child: DeskCloseGuard(child: DeskWindowFrame(child: child!))),
           ),
         );
       },

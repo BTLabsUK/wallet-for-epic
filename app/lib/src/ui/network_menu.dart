@@ -8,6 +8,8 @@ import '../demo.dart' show devNetworksProvider;
 import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
+import '../settings_file/settings_providers.dart' show DevSettingsMissing;
+import 'notices.dart';
 import '../wallet_service.dart' show Chain;
 import 'server_picker.dart';
 
@@ -81,8 +83,8 @@ Key networkChoiceKey(NetworkPreset preset) =>
     ValueKey('network-${preset.chain.name}');
 
 /// Development builds and the web demo only (devNetworksProvider): pick the network. Each
-/// network has its own wallet and node and relay, so another network is saved with its own and
-/// the app starts again on it (an open wallet is locked by that start).
+/// network has its own wallet and settings file (node and relay), so another network opens its
+/// own file and the app starts again on it (an open wallet is locked by that start).
 Future<void> showNetworkChooser(BuildContext context) =>
     showModalBottomSheet<void>(
       context: context,
@@ -109,9 +111,15 @@ class _NetworkChooserState extends ConsumerState<_NetworkChooser> {
     final notifier = ref.read(networkChoiceProvider.notifier);
     final outer = widget.outer;
     setState(() => _busy = true);
-    final url = await notifier.nodeUrlFor(preset);
-    final relay = await notifier.relayFor(preset);
-    await notifier.save(preset, url, relay: relay);
+    try {
+      // The chain's own settings file: its node and Epicbox server.
+      await notifier.switchChain(preset.chain);
+    } on DevSettingsMissing catch (e) {
+      // A dev build only: the message names the file and the script that copies it.
+      ref.read(noticeProvider.notifier).show('$e', level: NoticeLevel.error);
+      if (mounted) setState(() => _busy = false);
+      return;
+    }
     if (!mounted) return;
     Navigator.of(context).pop();
     if (outer.mounted) relaunchAfterSwitch(outer);

@@ -1,26 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'settings_file/host_settings.dart';
 import 'wallet_service.dart';
 
-/// A chain with the node and epicbox relay the wallet uses by default.
+/// A chain with the node and Epicbox server the wallet uses there. The addresses come from the
+/// settings file (`docs/settings-file.md`) of the chain the app runs on: mainnet's
+/// `settings.toml`, a hidden dev chain's own (`<data>/dev/<chain>/settings.toml`). One chain's
+/// settings are open at a time; a chain switch opens the other chain's file first.
 class NetworkPreset {
-  const NetworkPreset({
-    required this.chain,
-    required this.nodeUrl,
-    required this.epicboxDomain,
-    required this.epicboxPort,
-  });
+  const NetworkPreset({required this.chain});
 
   /// Its name and description on screen: `chainName` and `chainDescription` in l10n.dart.
   final Chain chain;
-  final String nodeUrl;
-  final String epicboxDomain;
-  final int epicboxPort;
 
-  /// The default relay of this network.
-  EpicboxRelay get defaultRelay =>
-      EpicboxRelay(host: epicboxDomain, port: epicboxPort);
+  /// The node every wallet uses (`node.use`).
+  String get nodeUrl => hostSettings.nodeUse;
 
-  /// `status.btlabs.uk` lists relays for these chains; usernet is local only.
+  /// The Epicbox server every wallet's address names (`epicbox.use`).
+  EpicboxRelay get defaultRelay => EpicboxRelay.parse(hostSettings.epicboxUse) ?? EpicboxRelay(host: hostSettings.epicboxUse);
+
+  String get epicboxDomain => defaultRelay.host;
+  int get epicboxPort => defaultRelay.port;
+
+  /// The status site lists servers for these chains; usernet is local only.
   String? get statusChain => switch (chain) {
     Chain.mainnet => 'mainnet',
     Chain.floonet => 'floonet',
@@ -73,34 +74,14 @@ class EpicboxRelay {
   int get hashCode => Object.hash(host, port);
 }
 
-/// The Epicbox server a new wallet starts on: the mainnet preset, the first built-in
-/// relay and the "default" tag all use it. Existing wallets keep the server their address names.
-const String defaultEpicboxHost = 'epicbox.epiccash.com';
+/// The server of an Epicbox address written without one (`epicbox.default`).
+String get defaultEpicboxHost => hostSettings.epicboxDefault;
 
-const NetworkPreset mainnetPreset = NetworkPreset(
-  chain: Chain.mainnet,
-  nodeUrl: 'https://node.btlabs.uk',
-  epicboxDomain: defaultEpicboxHost,
-  epicboxPort: 443,
-);
+const NetworkPreset mainnetPreset = NetworkPreset(chain: Chain.mainnet);
 
-/// BT Labs' Epicbox server: one host for both chains, floonet's own relay and a built-in
-/// mainnet relay.
-const String btlabsRelayHost = 'epicbox.btlabs.uk';
+const NetworkPreset floonetPreset = NetworkPreset(chain: Chain.floonet);
 
-const NetworkPreset floonetPreset = NetworkPreset(
-  chain: Chain.floonet,
-  nodeUrl: 'https://floo-node.btlabs.uk',
-  epicboxDomain: btlabsRelayHost,
-  epicboxPort: 443,
-);
-
-const NetworkPreset usernetPreset = NetworkPreset(
-  chain: Chain.usernet,
-  nodeUrl: 'http://127.0.0.1:23413',
-  epicboxDomain: '127.0.0.1',
-  epicboxPort: 3423,
-);
+const NetworkPreset usernetPreset = NetworkPreset(chain: Chain.usernet);
 
 const List<NetworkPreset> networkPresets = [
   mainnetPreset,
@@ -115,3 +96,10 @@ String chainLabel(Chain chain) => switch (chain) {
   Chain.floonet => 'Floonet',
   Chain.usernet => 'Usernet',
 };
+
+/// The preset of [chain].
+NetworkPreset presetOf(Chain chain) => networkPresets.firstWhere((p) => p.chain == chain);
+
+/// The hidden dev chain whose own settings file a run opens: null for mainnet, which every
+/// release build runs on.
+String? devChainOf(Chain chain) => chain == Chain.mainnet ? null : chain.name;

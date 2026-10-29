@@ -14,7 +14,12 @@ import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
 import 'src/relay_directory.dart' show statusSite;
 import 'src/network_gate.dart';
-import 'src/settings.dart' show AppSettingsNotifier, readUseStatusSite;
+import 'src/settings.dart' show AppSettingsNotifier;
+import 'src/network.dart' show devChainOf;
+import 'src/providers.dart' show NetworkChoiceNotifier;
+import 'src/secret_store_api.dart' show SecretStore;
+import 'src/settings_file/settings_providers.dart';
+import 'src/wallet_service.dart' show Chain;
 import 'src/net/tor_net.dart';
 import 'src/tor_build.dart';
 import 'src/tor_licence.dart';
@@ -22,6 +27,7 @@ import 'src/tor_phone.dart';
 import 'src/ui/theme/fonts.dart';
 import 'src/wallet_backend.dart';
 import 'src/web/splash.dart';
+import 'src/settings_file/host_settings.dart' show appConfig;
 
 Future<void> main() async {
   // Errors that escape every other handler land here, in the zone the app runs in.
@@ -43,6 +49,9 @@ Future<void> main() async {
     };
     await initWalletBackend();
     final store = createSecretStore();
+    // Before anything reads an address: the settings file (docs/settings-file.md). A dev build
+    // on a test network reads that network's own file; the web demo its server's.
+    await _openSettings(store);
     // Before any request: with the Tor switch saved on, the app's own requests (update check,
     // price, status) wait for tor from launch, also before the PIN, and never go direct.
     bool torSavedOn;
@@ -63,9 +72,9 @@ Future<void> main() async {
     }
     // The update check, price and status asked before tor connects wait for it, then go
     // through it.
-    if (torBuilt) TorNet.hold = const Duration(minutes: 3);
-    // Before anything asks status.btlabs.uk: opted out, nothing is asked.
-    statusSite.loadFrom(readUseStatusSite(store));
+    if (torBuilt) TorNet.hold = appConfig.torSendWait;
+    // Before anything asks the status site: off (`status.enabled`), nothing is asked.
+    statusSite.followSettings();
     registerFontLicences();
     registerPasswordListLicences();
     registerTorLicence();
@@ -87,4 +96,22 @@ Future<void> main() async {
     // The web page's splash (web/index.html) stays until Flutter has drawn over it.
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
   }, (error, stack) => logError('zone', error, stack));
+}
+
+/// Opens this run's settings. A dev chain without its file (`app/tool/dev_settings.sh`) falls
+/// back to mainnet's, saved as the network, with the reason in the log.
+Future<void> _openSettings(SecretStore store) async {
+  final demo = await demoSettingsText();
+  if (demo != null) {
+    await openAppSettings(store: store, devChain: Chain.floonet.name, shippedText: demo, configText: await demoConfigText());
+    return;
+  }
+  final chain = await NetworkChoiceNotifier.savedChain(store);
+  try {
+    await openAppSettings(store: store, devChain: devChainOf(chain));
+  } on DevSettingsMissing catch (e) {
+    logError('settings', e, StackTrace.current);
+    await store.write(NetworkChoiceNotifier.networkKey, Chain.mainnet.name);
+    await openAppSettings(store: store);
+  }
 }

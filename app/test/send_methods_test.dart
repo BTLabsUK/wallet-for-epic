@@ -44,7 +44,7 @@ import 'support/send_pin.dart';
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// A valid address for [FakeWalletService.validateEpicboxAddress].
-final String _bob = '${'b' * 52}@epicbox.epiccash.com';
+final String _bob = '${'b' * 52}@box.epic.invalid';
 
 const String _name = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid';
 const String _onion = '$_name.onion';
@@ -199,7 +199,7 @@ class _Harness {
           torBundleFinderProvider.overrideWithValue(() async => _bundle),
           networkChangesProvider.overrideWithValue(network.stream),
           phoneTorTimingProvider.overrideWithValue(
-            const PhoneTorTiming(
+            PhoneTorTiming(
               backoff: [Duration(hours: 1)],
               sendWait: Duration(hours: 1),
             ),
@@ -470,7 +470,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('esXXXX…XXXX@epicbox.epiccash.com'), findsOneWidget);
+      expect(find.text('esXXXX…XXXX@box.epic.invalid'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
       expect(find.text('Address or contact'), findsOneWidget);
 

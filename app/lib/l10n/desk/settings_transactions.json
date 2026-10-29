@@ -11,9 +11,15 @@
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.",
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.",
   "@deskSetTxDirectHint": {
-    "description": "Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions."
+    "description": "Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "<port>"
+      }
+    }
   },
   "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.",
   "@deskSetTxFileHint": {

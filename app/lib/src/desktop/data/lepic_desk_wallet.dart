@@ -58,9 +58,11 @@ import '../../tor_routes.dart';
 import '../../relay_block.dart';
 import '../../relay_directory.dart';
 import '../../secret_store_api.dart';
-import '../../backup_settings.dart' show mergeServerLists;
-import '../../server_list.dart' show ServerKind, ServerList;
+import '../../server_list.dart' show ServerKind;
+import '../../server_list_file.dart';
 import '../../server_list_store.dart' show builtInRelaysFor;
+import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
+import '../../settings_file/settings_providers.dart' show DevSettingsMissing, installedSettingsFile, openAppSettings, writeHostSettings;
 import '../../seed_contacts.dart';
 import '../../sender_cancel.dart' show SenderCancelRelease;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
@@ -88,17 +90,15 @@ import 'node_view.dart' show startFailureLine;
 import 'phrase_check.dart' show phraseFingerprint;
 import 'remember.dart';
 
-/// Built-in public nodes offered in Settings › Node, the default first; status.btlabs.uk can add more.
-final List<NodeServer> deskPublicNodes = [
+/// The public nodes of the shipped settings, offered in Settings › Node in its order; the status
+/// site can add more.
+List<NodeServer> get deskPublicNodes => [
   for (final n in builtInNodes) NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking),
 ];
 
-/// Built-in public Epicbox servers, the default first; status.btlabs.uk can add more.
-/// The Epicbox server 0.1.0 used when none was saved (the desktop's first relay then). An
-/// install with a wallet keeps it; see [LepicDeskWallet._settleRelay].
-const String oldDefaultEpicboxHost = 'epicbox.stackwallet.com';
-
-final List<EpicboxServer> deskEpicboxes = [
+/// The public Epicbox servers of the shipped settings, in its order; the status site can add
+/// more.
+List<EpicboxServer> get deskEpicboxes => [
   for (final r in builtInRelays) EpicboxServer(domain: r.relay.host, port: r.relay.port, operator: r.operator, health: ServiceHealth.checking),
 ];
 
@@ -197,15 +197,15 @@ class LepicDeskWallet implements DeskWalletApi {
     this._preset = mainnetPreset,
     this._settings = const DeskSettings(),
     BigInt? minimumConfirmations,
-    this.nodePoll = const Duration(seconds: 30),
-    this.nodeRecheck = const Duration(seconds: 60),
-    this.nodeStale = const Duration(minutes: 3),
-    this.watchPoll = watchTipEvery,
-    this.nodeTimeout = const Duration(seconds: 15),
-    this.nodeTorTimeout = const Duration(seconds: 90),
+    Duration? nodePoll,
+    Duration? nodeRecheck,
+    Duration? nodeStale,
+    Duration? watchPoll,
+    Duration? nodeTimeout,
+    Duration? nodeTorTimeout,
     this.torNodeGrace = const Duration(minutes: 2),
     this.torRetryAfter = const Duration(seconds: 60),
-    this.torStartBackoff = const [Duration(seconds: 2), Duration(seconds: 5), Duration(seconds: 10)],
+    List<Duration>? torStartBackoff,
     this.closeWait = const Duration(seconds: 30),
     reg.WalletRegistry? registry,
     this._builtInNode,
@@ -224,7 +224,14 @@ class LepicDeskWallet implements DeskWalletApi {
     this.paymentsEvery = const Duration(seconds: 60),
     this.invoiceFocus = true,
     HttpReachCache? httpReach,
-  }) : _reach = httpReach ?? HttpReachCache(),
+  }) : nodePoll = nodePoll ?? appConfig.nodePoll,
+       nodeRecheck = nodeRecheck ?? appConfig.nodeRecheck,
+       nodeStale = nodeStale ?? appConfig.nodeStaleAfter,
+       watchPoll = watchPoll ?? watchTipEvery,
+       nodeTimeout = nodeTimeout ?? appConfig.nodeCheckTimeout,
+       nodeTorTimeout = nodeTorTimeout ?? appConfig.nodeTorCheckTimeout,
+       torStartBackoff = torStartBackoff ?? appConfig.torStartBackoff,
+       _reach = httpReach ?? HttpReachCache(),
        _keyring = keyring ?? btlabsKeyring,
         onions = onions ?? OnionDirectory(),
         _torFeature = torFeature ?? DeskFeatures.tor,
@@ -285,11 +292,17 @@ class LepicDeskWallet implements DeskWalletApi {
     final next = networkPresets.where((p) => p.chain.name == network).firstOrNull ?? mainnetPreset;
     if (next.chain == _preset.chain) return;
     if (_session != null) throw DeskError.l10n((l) => l.deskErrWalletLocked);
+    // The network's own settings file: its lists, node and Epicbox server. A dev chain without
+    // one does not start (DevSettingsMissing names the file and the script).
+    try {
+      // Without a settings file open (tests, the mock), the settings in use stay.
+      if (installedSettingsFile != null) await openAppSettings(store: _secrets, devChain: devChainOf(next.chain));
+    } on DevSettingsMissing catch (e) {
+      // A dev build only, in English: the message names the file and the script.
+      throw DeskError('$e');
+    }
     _preset = next;
-    // The list, the node and the Epicbox servers are the network's own.
     _registry = null;
-    _relaySettled = null;
-    _settledHost = null;
     _dirNodes = null;
     _dirNodesAt = null;
     _boxes = null;
@@ -298,7 +311,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _changed();
   }
 
-  /// Epicbox server health from status.btlabs.uk; null leaves it unknown.
+  /// Epicbox server health from the status site; null leaves it unknown.
   final RelayDirectory? relayDirectory;
   List<EpicboxServer>? _boxes;
   DateTime? _boxesAt;
@@ -313,7 +326,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Wallets whose choices the user postponed (Cancel): not asked again until the app restarts.
   final Set<String> _oldHistoryHeld = {};
 
-  /// Public nodes from status.btlabs.uk; null keeps the built-in list.
+  /// Public nodes from the status site; null keeps the built-in list.
   final NodeDirectory? nodeDirectory;
   List<NodeStatus>? _dirNodes;
   DateTime? _dirNodesAt;
@@ -526,8 +539,6 @@ class LepicDeskWallet implements DeskWalletApi {
   final _changes = StreamController<void>.broadcast();
 
   String get _chain => preset.chain.name;
-  String get _nodeKey => 'app.node.$_chain';
-  String get _relayKey => 'app.relay.$_chain';
 
   core.WalletSession get _open => _session ?? (throw DeskError.l10n((l) => l.deskErrWalletLocked));
 
@@ -558,13 +569,13 @@ class LepicDeskWallet implements DeskWalletApi {
     TorNet.follow(state, proxy: _torSocks);
   }
 
-  /// BT Labs' onion for [host]:[port] from the signed list in use, else the built-in table.
+  /// The onion for [host]:[port] from the signed list in use, else the settings file's.
   OnionTarget? _onionOf(String host, int port) {
     final e = onions.onionFor(host, port);
     return e == null ? torBuiltInOnion(host, port) : (onion: e.onion, port: e.onionPort, tls: e.tls);
   }
 
-  /// Settings › Privacy › Use status.btlabs.uk changed: what the site gave is dropped (off) or
+  /// Settings › Privacy › Use the status site changed: what the site gave is dropped (off) or
   /// read again (on); the lists reload.
   void _statusSiteChanged() {
     _dirNodes = null;
@@ -576,73 +587,19 @@ class LepicDeskWallet implements DeskWalletApi {
 
   // ---- Config and saved wallet data.
 
-  Future<String> _nodeUrl() async => await _secrets.read(_nodeKey) ?? preset.nodeUrl;
+  /// The node every wallet uses: `node.use` of the settings file.
+  Future<String> _nodeUrl() async => hostSettings.nodeUse;
 
-  /// The built-in Epicbox servers of the network in use: mainnet's list, or a test network's
-  /// own server ([NetworkPreset.epicboxDomain]).
-  List<EpicboxServer> get _builtInBoxes => preset.chain == core.Chain.mainnet
-      ? deskEpicboxes
-      : [EpicboxServer(domain: preset.epicboxDomain, port: preset.epicboxPort, health: ServiceHealth.checking)];
+  /// The public Epicbox servers of the network in use (its settings file's shipped list).
+  List<EpicboxServer> get _builtInBoxes => deskEpicboxes;
 
-  /// The open wallet's Epicbox server ([_relayOf]); the app's while locked.
-  Future<EpicboxRelay> _relay() => _relayOf(_openEntry);
+  /// The Epicbox server every wallet uses: `epicbox.use` of the settings file. A wallet has no
+  /// server of its own; a change moves every wallet's address ([applyUseChange]).
+  Future<EpicboxRelay> _relay() async => _useRelay();
 
-  /// The Epicbox server of [entry]: its own when it has one ([_ownRelay]), else the app's.
-  Future<EpicboxRelay> _relayOf(reg.WalletEntry? entry) async => await _ownRelay(entry) ?? await _appRelay();
-
-  /// The wallet's own Epicbox server (meta `epicbox`): an imported wallet that kept the older
-  /// app's server, so its address stays the same. Null: it uses the app's.
-  Future<EpicboxRelay?> _ownRelay(reg.WalletEntry? entry) async {
-    if (entry == null) return null;
-    final own = (await _meta(_metaKey(entry.walletId)))['epicbox'];
-    return own is String ? EpicboxRelay.parse(own) : null;
-  }
-
-  /// The app's Epicbox server, for every wallet without its own.
-  Future<EpicboxRelay> _appRelay() async {
-    await (_relaySettled ??= _settleRelay());
-    final saved = await _secrets.read(_relayKey);
-    return (saved == null ? null : EpicboxRelay.parse(saved)) ??
-        EpicboxRelay(host: _settledHost ?? _builtInBoxes.first.domain, port: _builtInBoxes.first.port);
-  }
-
-  Future<void>? _relaySettled;
-
-  /// What [_settleRelay] chose this run, used when saving it failed.
-  String? _settledHost;
-
-  /// Once per run: an install that never saved its Epicbox server keeps the one 0.1.0 used
-  /// ([oldDefaultEpicboxHost]) when it already holds a wallet, since the server is part of the
-  /// wallet's address; only an install without a wallet starts on the new default. The
-  /// choice is saved either way, so a wallet made later keeps it too.
-  Future<void> _settleRelay() async {
-    try {
-      if (await _secrets.read(_relayKey) != null) return;
-      final mainnet = preset.chain == core.Chain.mainnet;
-      final host = mainnet && await _hadWallet() ? oldDefaultEpicboxHost : _builtInBoxes.first.domain;
-      _settledHost = host;
-      await _secrets.write(_relayKey, EpicboxRelay(host: host, port: host == _builtInBoxes.first.domain ? _builtInBoxes.first.port : 443).label);
-      logInfo('desk', 'epicbox server settled: $host');
-    } on Object catch (e) {
-      // Not saved: the next run tries again; this one uses what was chosen, if anything.
-      logWarn('desk', 'epicbox server not settled: ${e.runtimeType}');
-    }
-  }
-
-  /// Whether a wallet was made before this run: the first wallet's folder, or any entry in
-  /// `wallets.json` (read directly: [registry] needs [_relay]). An unreadable list counts as one.
-  Future<bool> _hadWallet() async {
-    final first = await _walletDir(preset.chain);
-    if (await _service.walletExists(config: preset.config(dataDir: first, nodeUrl: preset.nodeUrl))) return true;
-    final root = _registryGiven?.root ?? reg.WalletRegistry.rootOf(first, preset.chain);
-    final file = File('$root${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
-    if (!await file.exists()) return false;
-    try {
-      final json = jsonDecode(await file.readAsString());
-      return json is! Map || json['wallets'] is! List || (json['wallets'] as List).isNotEmpty;
-    } on Object {
-      return true;
-    }
+  EpicboxRelay _useRelay() {
+    final use = hostSettings.epicboxUse;
+    return EpicboxRelay.parse(use) ?? EpicboxRelay(host: use);
   }
 
   /// The config of [entry]; null is the first wallet. The first wallet's folder is exactly
@@ -652,7 +609,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<core.WalletConfig> _configOf(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async => preset.config(
     dataDir: entry == null || entry.isLegacy ? await _walletDir(preset.chain) : await _addedDir(entry),
     nodeUrl: nodeUrl ?? await _nodeUrl(),
-    relay: relay ?? await _relayOf(entry),
+    relay: relay ?? await _relay(),
     walletId: entry?.walletId,
   );
 
@@ -1298,16 +1255,11 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// [keep] false: the move is for this session only (node failover); nothing is saved.
   Future<void> _reopenOn({required String nodeUrl, required EpicboxRelay relay, bool keep = true}) async {
+    // Every wallet's: the first of each list in the settings file.
     Future<void> save() async {
       if (!keep) return;
-      await _secrets.write(_nodeKey, nodeUrl);
-      // A wallet with its own Epicbox server keeps the choice to itself; the app's stays.
-      final open = _openEntry;
-      if (await _ownRelay(open) != null) {
-        await _setMeta({'epicbox': relay.label}, _metaKey(open!.walletId));
-      } else {
-        await _secrets.write(_relayKey, relay.label);
-      }
+      final values = useServerValues(hostSettings, node: nodeUrl, relay: relay.label);
+      if (values.isNotEmpty) await writeHostSettings(values);
     }
 
     final password = _password;
@@ -1801,14 +1753,15 @@ class LepicDeskWallet implements DeskWalletApi {
     final unchanged = await legacy.folderHash(walletData) == before;
     if (!unchanged) logWarn('desk', 'import: the old folder changed during the import');
     logInfo('desk', 'import: wallet made');
-    // The older app's Epicbox server is part of the old address. Kept for this wallet
-    // unless the Done step's choice says otherwise (keepOldRelay).
-    final relay = await _appRelay();
+    // The older app's Epicbox server is part of the old address. Kept (for every wallet: the
+    // server is shared) unless the Done step's choice says otherwise (keepOldRelay).
+    final relay = await _relay();
     final box = profile.epicboxDomain;
     final old = box == null ? null : EpicboxRelay(host: box, port: profile.epicboxPort ?? 443);
     final otherRelay = old != null && old.label != relay.label;
     if (otherRelay) {
       _oldRelays[made.id] = old.label;
+      _appRelays[made.id] = relay.label;
       await keepOldRelay(made.id, keep: true);
     }
     return ImportedWallet(
@@ -1831,6 +1784,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The older app's Epicbox server of each wallet this run imported, by list id.
   final Map<String, String> _oldRelays = {};
 
+  /// The Epicbox server in use before each of those imports: "Use" goes back to it.
+  final Map<String, String> _appRelays = {};
+
   /// Servers the import put in the Epicbox list (taken out again by "Use" or Cancel).
   final Set<String> _relaysListed = {};
 
@@ -1849,10 +1805,16 @@ class LepicDeskWallet implements DeskWalletApi {
     final old = _oldRelays[id];
     final entry = (await registry()).byId(id);
     if (old == null || entry == null) return;
-    await _setMeta({'epicbox': keep ? old : null}, _metaKey(entry.walletId));
+    // The server is every wallet's (the first of the Epicbox list): keeping the old one moves
+    // them all to it.
+    final back = _appRelays[id];
+    final use = keep ? old : back;
+    // In use means first of the list: a server not listed joins it, and goes again with Cancel.
+    final wasListed = serverListOf(hostSettings, ServerKind.relay).has(ServerKind.relay, old);
+    if (use != null && use != _useRelay().label) await writeHostSettings(useServerValues(hostSettings, relay: use));
     logInfo('desk', keep ? 'import: keeps the older Epicbox server' : "import: uses the app's Epicbox server");
     if (keep) {
-      if (await _listRelay(old)) _relaysListed.add(old);
+      if (await _listRelay(old) || !wasListed) _relaysListed.add(old);
     } else if (_relaysListed.remove(old)) {
       await _unlistRelay(old);
     }
@@ -1861,16 +1823,16 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Puts [label] in the Epicbox list; false when it was listed already.
   Future<bool> _listRelay(String label) async {
     const kind = ServerKind.relay;
-    final list = await _store.serverList(kind, _chain) ??
-        const ServerList().absorb(kind, [for (final b in _builtInBoxes) EpicboxRelay(host: b.domain, port: b.port).label]);
+    final list = serverListOf(hostSettings, kind);
     if (list.has(kind, label)) return false;
-    await _store.saveServerList(kind, _chain, list.add(kind, label));
+    await writeHostSettings(serverListValues(kind, list.add(kind, label)));
     return true;
   }
 
   Future<void> _unlistRelay(String label) async {
-    final list = await _store.serverList(ServerKind.relay, _chain);
-    if (list != null) await _store.saveServerList(ServerKind.relay, _chain, list.remove(ServerKind.relay, label).list);
+    const kind = ServerKind.relay;
+    final list = serverListOf(hostSettings, kind);
+    await writeHostSettings(serverListValues(kind, list.remove(kind, label).list));
   }
 
   /// The old wallet's history, or null when the core failed; a failure never fails the import.
@@ -1919,7 +1881,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Adds the old wallet's node and the older app's own nodes to the node list without switching
   /// to them: the node is app-wide here and would move every wallet. Returns those added.
   Future<List<NodeServer>> _importNodes(String? walletNode, List<gui.LegacyNode> myNodes) async {
-    final listed = {for (final n in await _listed()) n.url, preset.nodeUrl};
+    final listed = {for (final n in await _listed()) n.url, await _nodeUrl()};
     final added = <NodeServer>[];
     final wanted = [
       if (walletNode != null) (address: walletNode, label: Uri.tryParse(walletNode)?.host ?? walletNode),
@@ -2400,7 +2362,8 @@ class LepicDeskWallet implements DeskWalletApi {
       nodeHeight: _tip,
       epicbox: box,
       epicboxHealth: _epicboxHealth,
-      epicboxOwn: config != null && await _ownRelay(_openEntry) != null,
+      // No wallet has a server of its own: every wallet uses `epicbox.use`.
+      epicboxOwn: false,
       httpListener: _httpHealth,
       httpProblem: _httpHealth == ServiceHealth.down ? _httpProblem : null,
       httpProblemPort: _httpHealth == ServiceHealth.down && _httpProblem != null ? _httpPort : null,
@@ -2447,10 +2410,12 @@ class LepicDeskWallet implements DeskWalletApi {
     return all;
   }
 
-  /// Public nodes and My nodes, with the last check of each. Only the node list itself
-  /// ([readDirectory]) reads status.btlabs.uk; the status line uses what is known.
+  /// Public nodes and the nodes the user added (the settings file's nodes without an
+  /// operator), with the last check of each. Only the node list itself ([readDirectory]) reads
+  /// the status site; the status line uses what is known.
   Future<List<NodeServer>> _listed({bool readDirectory = false}) async {
-    final own = await _store.readJson(DeskStore.nodesKey);
+    final public = _publicNodes(read: readDirectory);
+    final publicUrls = {for (final n in public) n.url};
     NodeServer withCheck(NodeServer n) {
       final c = _checked[n.url];
       if (c == null) return n;
@@ -2461,23 +2426,19 @@ class LepicDeskWallet implements DeskWalletApi {
     }
 
     return [
-      for (final n in _publicNodes(read: readDirectory)) withCheck(n),
-      if (own is List)
-        for (final o in own.whereType<Map<String, dynamic>>())
-          if (o['url'] is String) withCheck(NodeServer(url: o['url'] as String, label: (o['label'] as String?) ?? '', own: true, health: ServiceHealth.checking)),
+      for (final n in public) withCheck(n),
+      for (final n in hostSettings.nodeServers)
+        if (n.operator == null && !publicUrls.contains(n.url))
+          withCheck(NodeServer(url: n.url, label: Uri.tryParse(n.url)?.host ?? n.url, own: true, health: ServiceHealth.checking)),
     ];
   }
 
-  /// The built-in public nodes, then any only status.btlabs.uk lists. The directory is read in
+  /// The settings' public nodes, then any only the status site lists. The directory is read in
   /// the background; the lists update when it answers.
   List<NodeServer> _publicNodes({bool read = true}) {
     if (read) _readNodeDirectory();
     return [
-      for (final n in mergePublicNodes(
-        _dirNodes,
-        // A test network's own node, not mainnet's list.
-        builtIn: preset.chain == core.Chain.mainnet ? builtInNodes : [PublicNode(url: preset.nodeUrl, operator: Uri.parse(preset.nodeUrl).host)],
-      ))
+      for (final n in mergePublicNodes(_dirNodes))
         NodeServer(url: n.url, label: n.operator, operator: n.operator, health: ServiceHealth.checking, icon: n.status?.icon, listedAs: n.status?.operator),
     ];
   }
@@ -2519,12 +2480,7 @@ class LepicDeskWallet implements DeskWalletApi {
       final listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
       if (!statusSite.on) return _builtInBoxes;
       _boxes = [
-        for (final r in mergePublicRelays(
-          listed,
-          builtIn: preset.chain == core.Chain.mainnet
-              ? builtInRelays
-              : [PublicRelay(relay: EpicboxRelay(host: preset.epicboxDomain, port: preset.epicboxPort), operator: preset.epicboxDomain)],
-        ))
+        for (final r in mergePublicRelays(listed))
           EpicboxServer(
             domain: r.relay.host,
             port: r.relay.port,
@@ -2547,7 +2503,12 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<DeskSettings> settings() async => _settings;
 
   @override
-  Future<String> epicboxAddress() => _open.epicboxAddress();
+  Future<String> epicboxAddress() async {
+    final session = _open;
+    // No Epicbox server in the list: LEPIC's is a placeholder (noEpicboxDomain), no address.
+    if (_config?.epicboxDomain.isEmpty ?? false) return '';
+    return session.epicboxAddress();
+  }
 
   @override
   Future<String> httpAddress() async {
@@ -2563,8 +2524,9 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<HttpReach?> httpReach({bool recheck = false}) async {
     final port = _httpPort;
-    // Never over the clearnet while Tor is on; HTTP receiving is off then anyway.
-    if (_settings.tor || _httpExposure != core.HttpExposure.internet || port == null) return null;
+    if (_httpExposure != core.HttpExposure.internet || port == null) return null;
+    // Never asked while Tor is on (a Tor exit would answer for itself): the check needs Tor off.
+    if (_settings.tor) return HttpReach(port: port, needsTorOff: true, checkedAt: DateTime.now());
     if (_httpHealth != ServiceHealth.ok) return null;
     // Offline asks nothing on the internet: the LAN address only.
     if (NetGate.offline) return _reach.readLan(port);
@@ -2588,8 +2550,9 @@ class LepicDeskWallet implements DeskWalletApi {
     final t = to.trim();
     // `es` on mainnet, `zz` on a test network (LNX-6).
     if (!RegExp(r'^(es|zz)[0-9A-Za-z]{38,58}(@[\w.-]+(:\d+)?)?$').hasMatch(t)) return false;
-    // LEPIC checks the key's checksum; it wants the server, any server will do for that.
-    return _service.validateEpicboxAddress(address: t.contains('@') ? t : '$t@${preset.epicboxDomain}');
+    // LEPIC checks the key's checksum; it wants the server: an address without one names the
+    // settings' `epicbox.default`.
+    return _service.validateEpicboxAddress(address: t.contains('@') ? t : '$t@$defaultEpicboxHost');
   }
 
   @override
@@ -3357,7 +3320,10 @@ class LepicDeskWallet implements DeskWalletApi {
       if (fresh(j['at'], const Duration(days: 7)) || fresh(j['tried'], const Duration(days: 1))) return;
       // One refresher per app run (_seedFetchStarted), so this read-modify-write cannot race.
       await _store.writeJson(_btlabsCacheKey, {...j, 'tried': DateTime.now().millisecondsSinceEpoch});
-      final body = await _seedFetch!(Uri.parse(btlabsPublicUrl));
+      // No signed file in app-config.toml: nothing to read.
+      final signed = btlabsPublicUrl;
+      if (signed == null) return;
+      final body = await _seedFetch!(Uri.parse(signed));
       if (body == null) return;
       final stored = ManifestState.fromJson(j['state']);
       final r = await verifyBtlabsPublic(body, keyring: _keyring, state: stored, now: DateTime.now().toUtc(), alsoRevoked: await _updateRevoked());
@@ -3397,7 +3363,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _settings = settings.copyWith(tor: old.tor);
     final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
     if (_session != null && (moved || settings.httpAutostart != old.httpAutostart)) {
-      await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPort, autostart: settings.httpAutostart));
+      await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPortChosen, autostart: settings.httpAutostart));
     }
     if (_session != null && (settings.epicboxAutostart != old.epicboxAutostart || settings.torAutostart != old.torAutostart)) {
       await _store.saveAutostart(_openEntry?.walletId, AutostartPrefs(epicbox: settings.epicboxAutostart, tor: settings.torAutostart));
@@ -3759,14 +3725,12 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> addNode(NodeServer node) async {
-    final own = await _store.readJson(DeskStore.nodesKey);
-    final list = [
-      if (own is List)
-        for (final o in own.whereType<Map<String, dynamic>>())
-          if (o['url'] != node.url) o,
-      {'url': node.url, 'label': node.label},
-    ];
-    await _store.writeJson(DeskStore.nodesKey, list);
+    // Into the settings file's Node list, as one the user added (no operator).
+    const kind = ServerKind.node;
+    final list = serverListOf(hostSettings, kind);
+    if (!list.has(kind, node.url)) {
+      await writeHostSettings(serverListValues(kind, list.add(kind, node.url, own: true)));
+    }
     _checked[node.url] = node;
     _checkedAt[node.url] = DateTime.now();
     _checkedOverTor[node.url] = _overTorNow(node.url);
@@ -4529,43 +4493,25 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<DeskBackupSettings> backupSettings() async {
     final entry = _openEntry;
-    final node = await _builtInOn() ? await _secrets.read(_beforeBuiltInKey) : await _nodeUrl();
-    final ownNodes = <NodeServer>[
-      if (await _store.readJson(DeskStore.nodesKey) case final List list)
-        for (final o in list.whereType<Map<String, dynamic>>())
-          if (o['url'] is String) NodeServer(url: o['url'] as String, label: o['label'] is String ? o['label'] as String : '', own: true),
-    ];
     final secs = (await _meta())[_invoiceExpiryKey];
     final expiry = secs is int && secs > 0 ? Duration(seconds: secs > maxInvoiceExpiry.inSeconds ? maxInvoiceExpiry.inSeconds : secs) : defaultInvoiceExpiry;
     final autostart = await _store.autostart(entry?.walletId);
-    final first = _builtInBoxes.first;
     return DeskBackupSettings(
       chain: _chain,
       mine: deskBackupMap(
         _settings.copyWith(epicboxAutostart: autostart.epicbox, torAutostart: autostart.tor),
-        chain: _chain,
+        hosts: hostSettings,
         outputs: await _store.outputPrefs(entry?.walletId),
-        node: node,
-        relay: (await _relay()).label,
-        nodeList: await _store.serverList(ServerKind.node, _chain) ?? const ServerList(),
-        relayList: await _store.serverList(ServerKind.relay, _chain) ?? const ServerList(),
-        ownNodes: ownNodes,
         invoiceExpiry: expiry,
         seedsDeleted: [
           for (final e in (await _seedRecords()).entries)
             if (e.value['deleted'] == true) e.key,
         ],
-        ownRelay: (await _ownRelay(entry))?.label,
       ),
       defaults: deskBackupMap(
         const DeskSettings(),
-        chain: _chain,
+        hosts: shippedHostSettings,
         outputs: const OutputPrefs(),
-        node: preset.nodeUrl,
-        relay: EpicboxRelay(host: first.domain, port: first.port).label,
-        nodeList: const ServerList(),
-        relayList: const ServerList(),
-        ownNodes: const [],
         invoiceExpiry: defaultInvoiceExpiry,
         seedsDeleted: const [],
       ),
@@ -4573,18 +4519,8 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> restoreBackupItems({ServerList? nodeList, ServerList? relayList, ({String? relay})? ownRelay, List<String>? seedsDeleted}) async {
-    for (final (kind, list) in [(ServerKind.node, nodeList), (ServerKind.relay, relayList)]) {
-      if (list == null) continue;
-      final now = await _store.serverList(kind, _chain) ?? const ServerList();
-      final next = mergeServerLists(kind, now, list);
-      if (next != now) await _store.saveServerList(kind, _chain, next);
-    }
+  Future<void> restoreBackupItems({List<String>? seedsDeleted}) async {
     final entry = _openEntry;
-    if (ownRelay != null && entry != null) {
-      final relay = ownRelay.relay == null ? null : EpicboxRelay.parse(ownRelay.relay!);
-      await _setMeta({'epicbox': relay?.label}, _metaKey(entry.walletId));
-    }
     final session = _session;
     if (seedsDeleted == null || seedsDeleted.isEmpty || session == null) return;
     final key = _metaKey(entry?.walletId);

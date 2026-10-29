@@ -36,7 +36,7 @@
   "deskConTxSent": "ส่ง",
   "deskConErrName": "ตั้งชื่อผู้ติดต่อ",
   "deskConErrAddressEmpty": "ใส่ที่อยู่",
-  "deskConErrAddressInvalid": "ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@epicbox.epiccash.com) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)",
+  "deskConErrAddressInvalid": "ที่อยู่ไม่ถูกต้อง ใช้ที่อยู่ Epicbox (es5x…@เซิร์ฟเวอร์) ที่อยู่ลิงก์ (https://…) หรือที่อยู่ onion (….onion)",
   "deskConAddPicture": "เพิ่มรูป",
   "deskConChangePicture": "เปลี่ยนรูป",
   "deskConRemovePicture": "ลบ",

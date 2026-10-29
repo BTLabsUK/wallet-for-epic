@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The Node and Epicbox lists the phone and the desktop share: one editable list per kind,
-/// seeded from the built-in servers and status.btlabs.uk, then the user's.
+/// `settings.toml`'s (`server_list_file.dart`). The first entry is the one in use; the status
+/// site never adds to a list.
 ///
-/// A list is its [ServerList.entries] (values in list order: a node URL or a relay label) and
-/// [ServerList.removed] (keys of public servers the user took out, so a directory update does
-/// not bring them back until "Restore removed servers"). Nothing here reads or writes a store
-/// or the network: each app keeps its list where it keeps its settings.
+/// A list is its [ServerList.entries] (values in list order: a node URL or a relay label).
+/// [ServerList.removed] is not stored (a removed server is simply gone); only a settings
+/// backup's merge reads it. Nothing here reads or writes a file or the network.
 library;
 
 import 'dart:convert';
@@ -210,12 +210,6 @@ class ServerList {
     return ServerList(entries: out, removed: removed, added: stillAdded);
   }
 
-  /// [public] values not yet in the list and not removed: what [absorb] would add.
-  List<String> missing(ServerKind kind, Iterable<String> public) => [
-    for (final v in public)
-      if (!has(kind, v) && !removed.contains(serverKeyOf(kind, v))) v,
-  ];
-
   /// Adds [value] at [at] (else last); its key leaves [removed], so it stays. A listed server
   /// leaves the list as it is. [own] marks a server the user typed in ("Added by you").
   ServerList add(ServerKind kind, String value, {int? at, bool own = false}) {
@@ -234,19 +228,6 @@ class ServerList {
     if (i < 0) return (list: this, at: null);
     // [added] keeps the key, so Undo brings the badge back.
     return (list: ServerList(entries: [...entries]..removeAt(i), removed: {...removed, k}, added: added), at: i);
-  }
-
-  /// The [public] servers the user removed: "Restore removed servers" shows while any is.
-  List<String> restorable(ServerKind kind, Iterable<String> public) => [
-    for (final v in public)
-      if (removed.contains(serverKeyOf(kind, v)) && !has(kind, v)) v,
-  ];
-
-  /// Forgets every removal and puts the [public] servers back at the end, in their order.
-  ServerList restore(ServerKind kind, Iterable<String> public) {
-    final back = ServerList(entries: entries, added: added).absorb(kind, public);
-    if (listEquals(back.entries, entries) && setEquals(removed, const {}) && setEquals(back.added, added)) return this;
-    return back;
   }
 
   @override

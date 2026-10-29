@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Operators' icons from status.btlabs.uk for the server tiles: fetched like the monitor's
+/// Operators' icons from the status site for the server tiles: fetched like the monitor's
 /// list (over the onion while Tor is on, nothing while Settings turned the site off), held
 /// in memory for the rest of the run once fetched. A missing or broken icon is null, and the
 /// tile shows initials.

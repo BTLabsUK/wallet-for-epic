@@ -3,6 +3,7 @@
 // then its main button, then wraps, never an icon; Enter moves to the next field and runs the
 // main action from the last one; Esc closes the top-most thing; Back/Forward by mouse buttons,
 // Alt+arrows and Backspace outside a text field, wizard steps first.
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
 
 import 'advanced_on.dart';
 
@@ -30,7 +32,7 @@ class _Floonet extends MockDeskWallet {
   _Floonet() : super(delay: Duration.zero);
 
   @override
-  Future<List<EpicboxServer>> epicboxes() async => [EpicboxServer(domain: 'epicbox.btlabs.uk', port: 443, health: ServiceHealth.ok)];
+  Future<List<EpicboxServer>> epicboxes() async => [EpicboxServer(domain: 'box.lab.invalid', port: 443, health: ServiceHealth.ok)];
 }
 
 Future<ProviderContainer> _open(WidgetTester tester, DeskRoute route, {Object? arg, MockDeskWallet? api}) async {
@@ -175,7 +177,7 @@ void main() {
 
     testWidgets('Send: To, Amount, Message, then Review send before the sidebar', (tester) async {
       await _open(tester, DeskRoute.send);
-      await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com');
+      await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid');
       await _type(tester, 'Amount', '1');
       final tabs = await _tabs(tester, _edit('Recipient'), 8);
       // Contacts and All are the stops right after their fields; paste and clear are not. The
@@ -198,9 +200,11 @@ void main() {
     });
 
     testWidgets('Setup › Epicbox on a test network starts on its own server (LNX-6)', (tester) async {
+      // A test network's settings file names its own server (the first of its Epicbox list).
+      hostSettings = hostSettings.withValues(useServerValues(hostSettings, relay: 'box.lab.invalid'));
       await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox, api: _Floonet());
-      expect(find.text('epicbox.btlabs.uk'), findsWidgets);
-      expect(find.text('epicbox.epiccash.com'), findsNothing);
+      expect(find.text('box.lab.invalid'), findsWidgets);
+      expect(find.text('box.epic.invalid'), findsNothing);
       await _end(tester);
     });
 
@@ -306,7 +310,7 @@ void main() {
 
     testWidgets('Send: Enter in Amount opens the review dialog, never the send itself', (tester) async {
       final container = await _open(tester, DeskRoute.send);
-      await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com');
+      await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid');
       await _type(tester, 'Amount', '1');
       await _focus(tester, _edit('Amount'));
       await _enter(tester);
@@ -494,7 +498,12 @@ void main() {
   });
 
   group('Settings combo', () {
+    // The panel fills its list from the source: the settings' lists start empty, as on a first run.
+    setUp(() => hostSettings = hostSettings.withValues({'node.servers': const <Object>[], 'epicbox.servers': const <Object>[]}));
+
     Future<void> pumpCombo(WidgetTester tester, {bool busy = false, ValueChanged<String>? onPicked}) async {
+      // The panel shows the settings file's list: a.example (in use) and b.example.
+      hostSettings = hostSettings.withValues({'epicbox.servers': ['a.example', 'b.example']});
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -728,6 +737,9 @@ void main() {
   });
 
   group('Hardware Enter, Esc in combo', () {
+    // The panel fills its list from the source: the settings' lists start empty, as on a first run.
+    setUp(() => hostSettings = hostSettings.withValues({'node.servers': const <Object>[], 'epicbox.servers': const <Object>[]}));
+
     // A plain Enter reaches a single-line field as the platform's text action (the tests above);
     // Ctrl+Enter is a key event the form handles itself.
     testWidgets('Setup › Epicbox: the Ctrl+Enter key event continues', (tester) async {
@@ -742,6 +754,7 @@ void main() {
     });
 
     testWidgets('Esc on an open combo in a dialog closes the combo first, then the dialog', (tester) async {
+      hostSettings = hostSettings.withValues({'epicbox.servers': ['a.example', 'b.example']});
       await tester.pumpWidget(ProviderScope(child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SizedBox()))));
       final ctx = tester.element(find.byType(Scaffold));
       showDialog<void>(

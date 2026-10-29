@@ -14,7 +14,7 @@
   "deskSetRecvEpicboxServerHint": "Какой сервер хранит платежи для этого адреса. У двух кошельков могут быть разные серверы.",
   "deskSetRecvEpicboxOwnHint": "У этого кошелька свой сервер Epicbox, сохранённый из старого приложения. Изменение здесь касается только этого кошелька.",
   "deskSetRecvSwitchingServer": "Переключение сервера Epicbox…",
-  "deskSetRecvListNote": "Состояние по данным status.btlabs.uk.",
+  "deskSetRecvListNote": "Состояние по данным {site}.",
   "deskSetRecvHttpText": "Напрямую из другого кошелька на веб-адрес этого компьютера, пока этот кошелёк открыт.",
   "deskSetRecvHttpOffTitle": "Выключен, пока включён Tor",
   "deskSetRecvHttpOffText": "Платежи напрямую из другого кошелька вместо этого приходят на адрес Ссылка · Tor.",

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/legacy_wallets.dart';
@@ -318,7 +319,6 @@ void main() {
   });
   group('the older app\'s Epicbox server', () {
     const box = 'epicbox.example.org';
-    const listKey = 'desk.serverList.relay.mainnet';
 
     /// Savings, picked by hand: a GUI 6.1 folder is not searched.
     Future<OldWallet> savings() async {
@@ -339,8 +339,8 @@ void main() {
       }));
     }
 
-    Map<String, dynamic> meta(String id) => jsonDecode(secrets.values['desk.wallet.mainnet.$id']!) as Map<String, dynamic>;
-    List<String> listed() => [for (final e in (jsonDecode(secrets.values[listKey]!)['entries'] as List)) '$e'];
+    // The Epicbox server is one setting for every wallet (`epicbox.use`) and the list is its own.
+    List<String> listed() => [for (final s in hostSettings.epicboxServers) s.label];
 
     test('kept from the import: the wallet listens there, the list has it, the app\'s server stays', () async {
       await savingsOnBox();
@@ -348,46 +348,48 @@ void main() {
       expect(r.oldRelay, box);
       expect(r.appRelay, isNot(box));
       expect(r.proof.map((p) => p.text), isNot(contains(contains('Epicbox'))), reason: 'the choice replaces the proof line');
-      expect(meta(r.id)['epicbox'], box);
+      expect(hostSettings.epicboxUse, box);
       expect(listed(), contains(box));
       expect(listed(), contains(r.appRelay), reason: 'the defaults stay listed');
       expect(await wallet.unlock(_old), isTrue);
       expect(service.session.openedConfig!.epicboxDomain, box);
       expect((await wallet.status()).epicbox.domain, box);
-      expect((await wallet.status()).epicboxOwn, isTrue);
-      expect(await secrets.read('app.relay.mainnet'), r.appRelay);
     });
 
     test('Use the app\'s server: back on it, the list entry the import added goes again', () async {
       await savingsOnBox();
       final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       await wallet.keepOldRelay(r.id, keep: false);
-      expect(meta(r.id)['epicbox'], isNull);
+      expect(hostSettings.epicboxUse, r.appRelay);
       expect(listed(), isNot(contains(box)));
       expect(await wallet.unlock(_old), isTrue);
       expect(service.session.openedConfig!.epicboxDomain, r.appRelay);
-      expect((await wallet.status()).epicboxOwn, isFalse);
       // And Keep again.
       await wallet.lock();
       await wallet.keepOldRelay(r.id, keep: true);
       expect(listed(), contains(box));
+      expect(hostSettings.epicboxUse, box);
     });
 
     test('a server listed before stays listed when the wallet goes back to the app\'s', () async {
       await savingsOnBox();
-      await secrets.write(listKey, jsonEncode({'entries': ['epicbox.epiccash.com', box]}));
+      hostSettings = hostSettings.withValues({
+        'epicbox.servers': [
+          for (final s in hostSettings.epicboxServers) s.label,
+          box,
+        ],
+      });
       final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       await wallet.keepOldRelay(r.id, keep: false);
       expect(listed(), contains(box));
     });
 
-    test('a Settings pick while the wallet is open is its own; the app\'s server stays', () async {
+    test('a Settings pick while the wallet is open moves the one server for every wallet', () async {
       await savingsOnBox();
-      final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
+      await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       expect(await wallet.unlock(_old), isTrue);
       await wallet.useEpicbox('epicbox.other.example');
-      expect(meta(r.id)['epicbox'], 'epicbox.other.example');
-      expect(await secrets.read('app.relay.mainnet'), r.appRelay);
+      expect(hostSettings.epicboxUse, 'epicbox.other.example');
       expect(service.session.openedConfig!.epicboxDomain, 'epicbox.other.example');
     });
 
@@ -402,7 +404,7 @@ void main() {
       await oldWallet('$home/.epic-gui/wallets/w1', '{"seed":"alpha"}');
       final r = await wallet.importOldWallet((await savings()).id, oldPassword: _old);
       expect(r.oldRelay, isNull);
-      expect(meta(r.id)['epicbox'], isNull);
+      expect(hostSettings.epicboxUse, r.appRelay);
     });
   });
 

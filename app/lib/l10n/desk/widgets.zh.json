@@ -48,7 +48,7 @@
   "deskKitNodesUp": "{up, plural, other{{up}/{total} 个节点在线}}",
   "deskKitEpicboxUp": "{up, plural, other{{up}/{total} 个 Epicbox 服务器在线}}",
   "deskKitLastBlock": "上一个区块 {age}",
-  "deskKitLimitedNetwork": "无法访问 status.btlabs.uk；信息仅来自节点本身。",
+  "deskKitLimitedNetwork": "无法访问 {site}；信息仅来自节点本身。",
   "deskKitFactHeight": "高度",
   "deskKitFactVersion": "版本",
   "deskKitFactAccepts": "接受交易",
@@ -66,7 +66,7 @@
   "deskKitUptimeWindow": "过去 24 小时",
   "deskKitAtTime": "于 {time}",
   "deskKitListedOfficial": "官方列表",
-  "deskKitSourceChecked": "status.btlabs.uk，检查于 {time}",
+  "deskKitSourceChecked": "{site}，检查于 {time}",
   "deskKitLatencyMeasured": "延迟测量：{where}",
   "deskKitSiteLastReached": "上次访问状态网站：{time}",
   "deskKitSince": "自 {time} 起",
@@ -75,7 +75,7 @@
   "deskKitNodeDownText": "切换到 {host}？这是状态最好的其他节点。",
   "deskKitSwitch": "切换",
   "deskKitLimitedInfo": "信息有限",
-  "deskKitFromStatusSite": "来自 status.btlabs.uk",
+  "deskKitFromStatusSite": "来自 {site}",
   "deskKitOverTor": "经由 Tor",
   "deskKitFromThisComputer": "来自这台电脑",
   "deskKitNodeUse": "使用 {host}",
@@ -124,5 +124,6 @@
   "deskKitQrShow": "显示二维码",
   "deskKitQrHide": "隐藏二维码",
   "deskKitQrHideCode": "隐藏二维码",
-  "deskKitMethodConnected": "已连接"
+  "deskKitMethodConnected": "已连接",
+  "deskKitReachTorOff": "此检查需要关闭 Tor。"
 }

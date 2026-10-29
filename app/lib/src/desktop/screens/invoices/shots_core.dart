@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../data/mock_hosts.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -135,9 +136,9 @@ final List<DeskShot> invoiceSetShotsCore = [
         Contact(
           id: '',
           name: 'Floo C',
-          address: 'esFc7Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epicnet.us',
+          address: 'esFc7Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@${mockBoxAt(2)}',
           http: 'https://floo.example.net:3415',
-          tor: 'mbkzvq3uyx7nqk2ahtr4oewl6jx5fdcpsy3givn2rw7bmkhq5ufk7uyd.onion',
+          tor: mockOnion('mbkzvq3uyx7nqk2ahtr4oewl6jx5fdcpsy3givn2rw7bmkhq5ufk7uyd'),
         ),
       );
     },

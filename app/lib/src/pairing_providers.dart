@@ -9,10 +9,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart' show NetworkMode;
-import 'connection_servers.dart';
 import 'contacts.dart';
 import 'providers.dart';
 import 'settings.dart';
+import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'wallet_service.dart';
 
 /// Pairing is on (Settings › Advanced › Experimental; off by default). Off, nothing of
@@ -44,39 +44,10 @@ final pairingApiProvider = Provider<PairingApi>((ref) {
   if (!ref.watch(pairingOnProvider)) return const NoPairing();
   final session = ref.watch(sessionProvider);
   final api = session?.pairing ?? const NoPairing();
-  // The words calls meet on the Connection servers (Settings › Advanced); null the defaults.
-  api.setConnectionServers(ref.watch(pairingRelaysProvider).value);
+  // The words calls meet on the first `epicbox.pairing_servers` of the Epicbox list.
+  api.setConnectionServers(ref.watch(hostSettingsProvider.select((s) => s.pairingServers)));
   return api;
 });
-
-/// The Connection servers the user chose on this network, as Epicbox list values; null while
-/// they are the defaults (nothing stored). Kept in the secret store as
-/// `app.pairingRelays.<chain>`.
-final pairingRelaysProvider = AsyncNotifierProvider<PairingRelaysNotifier, List<String>?>(PairingRelaysNotifier.new);
-
-class PairingRelaysNotifier extends AsyncNotifier<List<String>?> {
-  Chain? _chain;
-
-  @override
-  Future<List<String>?> build() async {
-    final choice = await ref.watch(networkChoiceProvider.future);
-    _chain = choice.preset.chain;
-    return decodeConnectionServers(await ref.watch(secretStoreProvider).read(pairingRelaysKey(_chain!)));
-  }
-
-  /// Stores [chosen] (the defaults store nothing).
-  Future<void> set(List<String> chosen) async {
-    final chain = _chain ?? (await ref.read(networkChoiceProvider.future)).preset.chain;
-    final stored = storableConnectionServers(chain, chosen);
-    state = AsyncData(stored);
-    final store = ref.read(secretStoreProvider);
-    if (stored == null) {
-      await store.delete(pairingRelaysKey(chain));
-    } else {
-      await store.write(pairingRelaysKey(chain), encodeConnectionServers(stored));
-    }
-  }
-}
 
 /// Whether this wallet pairs: the screens show Pair, the Pairing block and the trust badges.
 final pairingSupportedProvider = Provider<bool>((ref) => ref.watch(pairingApiProvider).supported);

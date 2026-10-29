@@ -8,5 +8,9 @@
   "deskSlDefault": "Domyślny",
   "deskSlTesting": "Sprawdzanie {host}…",
   "deskSlSetupEpicboxOn": "Odbieraj przez Epicbox",
-  "deskSlHelpChoose": "Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer."
+  "deskSlHelpChoose": "Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer.",
+  "deskSlNoNodeTitle": "Brak węzła",
+  "deskSlNoNodeText": "Lista węzłów jest pusta. Dodaj węzeł, aby sprawdzać saldo i wysyłać.",
+  "deskSlNoEpicboxTitle": "Brak serwera Epicbox",
+  "deskSlNoEpicboxText": "Lista serwerów Epicbox jest pusta. Dodaj serwer, aby mieć adres Epicbox."
 }

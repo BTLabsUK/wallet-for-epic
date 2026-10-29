@@ -45,7 +45,7 @@ void main() {
 
   tearDown(() => container.dispose());
 
-  Future<void> review(WidgetTester tester, {String recipient = 'esXyz1234567890abcdefghijk@epicbox.epiccash.com'}) async {
+  Future<void> review(WidgetTester tester, {String recipient = 'esXyz1234567890abcdefghijk@box.epic.invalid'}) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

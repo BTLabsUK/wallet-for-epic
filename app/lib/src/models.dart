@@ -1871,7 +1871,7 @@ class WalletConfig {
   final String dataDir;
   final Chain chain;
 
-  /// Node base URL, e.g. `https://node.btlabs.uk` or `http://127.0.0.1:23413`.
+  /// Node base URL, e.g. `https://node.example.org` or `http://127.0.0.1:<port>`.
   final String nodeUrl;
 
   /// Basic-auth secret (user `epic`) sent with every node request. Optional: public nodes need
@@ -1879,7 +1879,7 @@ class WalletConfig {
   /// judges sync from the foreign API tip (see `core/node.rs`).
   final String? nodeApiSecret;
 
-  /// Epicbox relay domain used for the wallet's address, e.g. `epicbox.epiccash.com`.
+  /// Epicbox relay domain used for the wallet's address, e.g. `epicbox.example.org`.
   final String epicboxDomain;
   final int epicboxPort;
 

@@ -8,5 +8,9 @@
   "deskSlDefault": "ค่าเริ่มต้น",
   "deskSlTesting": "กำลังทดสอบ {host}…",
   "deskSlSetupEpicboxOn": "รับผ่าน Epicbox",
-  "deskSlHelpChoose": "เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์"
+  "deskSlHelpChoose": "เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์",
+  "deskSlNoNodeTitle": "ยังไม่ได้ตั้งโหนด",
+  "deskSlNoNodeText": "รายการโหนดว่างอยู่ เพิ่มโหนดเพื่อตรวจยอดเงินและส่ง",
+  "deskSlNoEpicboxTitle": "ยังไม่ได้ตั้งเซิร์ฟเวอร์ Epicbox",
+  "deskSlNoEpicboxText": "รายการเซิร์ฟเวอร์ Epicbox ว่างอยู่ เพิ่มเซิร์ฟเวอร์เพื่อให้มีที่อยู่ Epicbox"
 }

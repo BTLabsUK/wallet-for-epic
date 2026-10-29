@@ -53,7 +53,7 @@ class _Timer implements Timer {
   int get tick => 0;
 }
 
-const _public = defaultFallbackNodeUrl;
+final _public = defaultFallbackNodeUrl;
 const _accepted = FallbackChoice(FallbackConsent.accepted);
 const _declined = FallbackChoice(FallbackConsent.declined);
 

@@ -2,8 +2,11 @@
 /// The phone's side of the settings a history backup carries (`backup_settings.dart`): what it
 /// writes into the file, what it has now and what a fresh install has, in the map's form, and
 /// applying a plan through the app's own setters, so the running app follows at once (the
-/// network mode reaches the gate and Tor, Epicbox off stops the listener, a relay or node
-/// change moves the open wallet as the server pickers do).
+/// network mode reaches the gate and Tor, Epicbox off stops the listener, a new first server
+/// moves the open wallet as the server pickers do).
+///
+/// The phone has one wallet: the file's Node and Epicbox lists and `[online]` switches are
+/// written to `settings.toml` as they are, as on a fresh install.
 library;
 
 import 'package:flutter/material.dart' show ThemeMode;
@@ -18,10 +21,13 @@ import '../pairing_providers.dart' show PairingSeenAs, pairingSeenAsProvider;
 import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
-import '../server_list_store.dart';
+import '../server_list.dart' show ServerKind;
+import '../server_list_file.dart' show withFirst;
 import '../server_switch.dart' show switchServersLive;
 import '../settings.dart';
-import '../wallet_service.dart' show Chain, WalletError;
+import '../settings_file/host_settings.dart' show HostSettings, shippedHostSettings;
+import '../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../wallet_service.dart' show WalletError;
 
 export '../backup_settings.dart' show BackupSettingsPlan, BackupSettingItem, BackupItem;
 
@@ -39,7 +45,7 @@ Future<BackupSettingsPlan> planPhoneBackupSettings(WidgetRef ref, Map<String, Ob
 Future<int> applyPhoneBackupSettings(WidgetRef ref, BackupSettingsPlan plan, {required bool takeConflicts}) =>
     PhoneBackupSettings.of(ref).apply(plan, takeConflicts: takeConflicts);
 
-/// Moves the wallet onto [nodeUrl] and [relay] (saved as the current network's servers).
+/// Moves the wallet onto [nodeUrl] and [relay] (each saved first in its list).
 typedef PhoneServerSwitch = Future<void> Function(String nodeUrl, EpicboxRelay relay);
 
 /// The three steps over a provider reader: a widget's ref, or a container in tests.
@@ -61,55 +67,52 @@ class PhoneBackupSettings {
   final void Function(ProviderOrFamily provider) invalidate;
   final PhoneServerSwitch? switchServers;
 
-  Future<Chain> _chain() async => read(walletConfigProvider)?.chain ?? (await read(networkChoiceProvider.future)).preset.chain;
-
   /// What the phone has now, in the map's form.
   Future<Map<String, Object?>> collect() async {
     final settings = await read(appSettingsProvider.future);
-    final choice = await read(networkChoiceProvider.future);
-    final chain = await _chain();
     final config = read(walletConfigProvider);
     final tor = config != null && await read(secretStoreProvider).read(PhoneTor.receivingKey(config)) == 'true';
     return phoneBackupMap(
       settings,
-      chain: chain,
-      node: choice.preset.chain == chain ? choice.nodeUrl : null,
-      relay: choice.preset.chain == chain ? choice.relay.label : null,
-      nodeList: await read(serverListProvider((ServerKind.node, chain)).future),
-      relayList: await read(serverListProvider((ServerKind.relay, chain)).future),
+      hosts: read(hostSettingsProvider),
       tor: tor,
       // The saved name, as typing keeps it (the provider may still be loading).
       seenAs: (await read(secretStoreProvider).read(PairingSeenAs.key) ?? '').trim(),
     );
   }
 
-  /// A fresh install's values on [chain], in the map's form.
-  Map<String, Object?> defaults(Chain chain) {
-    final preset = networkPresets.firstWhere((p) => p.chain == chain);
-    return phoneBackupMap(
-      AppSettings(payments: read(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults),
-      chain: chain,
-      node: preset.nodeUrl,
-      relay: preset.defaultRelay.label,
-      nodeList: ServerList.seed(ServerKind.node, builtInValues(ServerKind.node, chain)),
-      relayList: ServerList.seed(ServerKind.relay, builtInValues(ServerKind.relay, chain)),
-      tor: false,
-      seenAs: '',
-    );
-  }
+  /// A fresh install's values, in the map's form.
+  Map<String, Object?> defaults() => phoneBackupMap(
+    AppSettings(payments: read(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults),
+    hosts: shippedHostSettings,
+    tor: false,
+    seenAs: '',
+  );
 
   Future<BackupSettingsPlan> plan(Map<String, Object?>? file) async {
     if (file == null) return BackupSettingsPlan.empty;
-    final chain = await _chain();
-    return planBackupSettings(here: BackupPlatform.mobile, chain: chain.name, mine: await collect(), defaults: defaults(chain), file: file);
+    return planBackupSettings(here: BackupPlatform.mobile, mine: await collect(), defaults: defaults(), file: file);
   }
 
   Future<int> apply(BackupSettingsPlan plan, {required bool takeConflicts}) async {
     final v = plan.values(takeConflicts: takeConflicts);
     if (v.isEmpty) return 0;
     final n = read(appSettingsProvider.notifier);
-    final chain = await _chain();
     var changed = 0;
+
+    Future<void> each(String key, Future<void> Function(Object? value) set) async {
+      if (!v.containsKey(key)) return;
+      await set(v[key]);
+      changed++;
+    }
+
+    // settings.toml's switches first: the app settings rebuild on the status-site switch, and
+    // a rebuild still reading would put back what the setters below write.
+    await each(BackupItem.statusSite, (x) => n.setUseStatusSite(x! as bool));
+    for (final key in [BackupItem.updateCheck, BackupItem.price]) {
+      await each(key, (x) => read(hostSettingsProvider.notifier).set(key, x! as bool));
+    }
+    await read(appSettingsProvider.future);
 
     // The network mode first: a stricter one holds before any server is asked.
     final advanced = [BackupItem.features, BackupItem.networkMode, BackupItem.nodeFailover].where(v.containsKey).length;
@@ -124,17 +127,10 @@ class PhoneBackupSettings {
       changed++;
     }
 
-    Future<void> each(String key, Future<void> Function(Object? value) set) async {
-      if (!v.containsKey(key)) return;
-      await set(v[key]);
-      changed++;
-    }
-
     await each(BackupItem.theme, (x) => n.setThemeMode(ThemeMode.values.byName(x! as String)));
     await each(BackupItem.language, (x) => n.setLanguage(x as String?));
     await each(BackupItem.helpLanguage, (x) => n.setHelpLanguage(x as String?));
     await each(BackupItem.hideBalances, (x) => n.setHideBalances(x! as bool));
-    await each(BackupItem.statusSite, (x) => n.setUseStatusSite(x! as bool));
     await each(BackupItem.autoLock, (x) => n.setAutoLockMinutes(autoLockFromBackup(x)));
     await each(BackupItem.sendStrategy, (x) => n.setSendStrategy(SelectionStrategy.values.byName(x! as String)));
     await each(BackupItem.splitChange, (x) => n.setSplitChange(x! as bool));
@@ -146,39 +142,29 @@ class PhoneBackupSettings {
       await read(pairingSeenAsProvider.notifier).set(x! as String);
     });
 
-    // The lists: merged again with what they hold now, so nothing added meanwhile is lost.
-    for (final (item, kind) in [(BackupItem.nodeList, ServerKind.node), (BackupItem.relayList, ServerKind.relay)]) {
-      final from = serverListFromJson(kind, v[item]);
-      if (from == null) continue;
-      final provider = serverListProvider((kind, chain));
-      final now = await read(provider.future);
-      final next = mergeServerLists(kind, now, from);
-      if (next != now) {
-        await read(secretStoreProvider).write(serverListKey(kind, chain), next.encode());
-        invalidate(provider);
-      }
-      changed++;
-    }
-
-    // The servers in use: one move for both.
-    if (v.containsKey(BackupItem.node) || v.containsKey(BackupItem.relay)) {
-      final choice = await read(networkChoiceProvider.future);
-      final node = v[BackupItem.node] as String? ?? choice.nodeUrl;
-      final relay = EpicboxRelay.parse(v[BackupItem.relay] as String? ?? '') ?? choice.relay;
-      try {
+    // The lists, as the file has them. A new first server moves the open wallet live first;
+    // when that is refused the servers in use stay first.
+    final nodes = (v[BackupItem.nodeServers] as List?)?.cast<String>();
+    final boxes = (v[BackupItem.epicboxServers] as List?)?.cast<String>();
+    if (nodes != null || boxes != null) {
+      final h = read(hostSettingsProvider);
+      final node = nodes?.first;
+      final box = boxes?.first;
+      var moved = true;
+      if ((node != null && node != h.nodeUse) || (box != null && box != h.epicboxUse)) {
         final move = switchServers;
         if (move != null) {
-          await move(node, relay);
-        } else {
-          await read(networkChoiceProvider.notifier).save(choice.preset, node, relay: relay);
-          await read(serverListProvider((ServerKind.node, chain)).notifier).add(node);
-          await read(serverListProvider((ServerKind.relay, chain)).notifier).add(relay.label);
+          final choice = await read(networkChoiceProvider.future);
+          try {
+            await move(node ?? choice.nodeUrl, EpicboxRelay.parse(box ?? '') ?? choice.relay);
+          } on WalletError catch (e) {
+            moved = false;
+            logWarn('backup', 'servers from the backup not used: ${e.kind.name}');
+          }
         }
-        changed += [BackupItem.node, BackupItem.relay].where(v.containsKey).length;
-      } on WalletError catch (e) {
-        // Refused: the servers stay as they were, and so does what was saved.
-        logWarn('backup', 'servers from the backup not used: ${e.kind.name}');
       }
+      await read(hostSettingsProvider.notifier).setAll(_listValues(read(hostSettingsProvider), nodes, boxes, keepInUse: !moved));
+      changed += [nodes, boxes].nonNulls.length;
     }
 
     // Tor last: it starts on the servers and in the mode just set.
@@ -197,24 +183,25 @@ class PhoneBackupSettings {
   }
 }
 
-/// The phone's settings as the backup map ([BackupKey]). Only [chain]'s servers and lists.
-Map<String, Object?> phoneBackupMap(
-  AppSettings s, {
-  required Chain chain,
-  String? node,
-  String? relay,
-  required ServerList nodeList,
-  required ServerList relayList,
-  required bool tor,
-  required String seenAs,
-}) => {
+/// The `settings.toml` values for [nodes] and [boxes] (each null: not written). With
+/// [keepInUse] the servers in use in [now] stay first.
+Map<String, Object> _listValues(HostSettings now, List<String>? nodes, List<String>? boxes, {required bool keepInUse}) {
+  List<String> list(ServerKind kind, List<String> l, String inUse) => keepInUse && inUse.isNotEmpty ? withFirst(kind, l, inUse) : l;
+  return {
+    if (nodes != null) BackupItem.nodeServers: list(ServerKind.node, nodes, now.nodeUse),
+    if (boxes != null) BackupItem.epicboxServers: list(ServerKind.relay, boxes, now.epicboxUse),
+  };
+}
+
+/// The phone's settings as the backup map ([BackupKey]); [hosts] gives `settings.toml`'s lists
+/// and switches.
+Map<String, Object?> phoneBackupMap(AppSettings s, {required HostSettings hosts, required bool tor, required String seenAs}) => {
   BackupKey.v: backupSettingsVersion,
   BackupKey.from: BackupPlatform.mobile.name,
   BackupKey.theme: s.themeMode.name,
   BackupKey.language: s.language,
   BackupKey.helpLanguage: s.helpLanguage,
   BackupKey.hideBalances: s.hideBalances,
-  BackupKey.statusSite: s.useStatusSite,
   BackupKey.autoLock: autoLockToBackup(s.autoLockMinutes),
   BackupKey.advanced: s.advanced.toJson(),
   BackupKey.payments: s.payments.toJson(),
@@ -222,10 +209,7 @@ Map<String, Object?> phoneBackupMap(
   BackupKey.splitChange: s.splitChange,
   BackupKey.fiat: s.fiatCurrency,
   BackupKey.showFiat: s.showFiat,
-  BackupKey.node: {chain.name: ?node},
-  BackupKey.relay: {chain.name: ?relay},
-  BackupKey.nodeList: {chain.name: serverListJson(nodeList)},
-  BackupKey.relayList: {chain.name: serverListJson(relayList)},
   BackupKey.tor: tor,
   BackupKey.seenAs: seenAs,
+  ...backupHostSettings(hosts),
 };

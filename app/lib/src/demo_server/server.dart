@@ -11,6 +11,7 @@ import 'dart:io';
 import '../network.dart';
 import '../remote/dispatcher.dart';
 import '../remote/protocol.dart' show ServiceMember;
+import '../settings_file/host_settings.dart' show parseSettingsToml;
 import '../wallet_service.dart';
 import 'config.dart';
 import 'demo_log.dart';
@@ -104,6 +105,9 @@ class DemoServer {
   /// `POST /api/demo` calls between the cap check and [_live].
   int _creating = 0;
   final List<StaticSite> _sites = [];
+  String? _settingsText;
+  String? _configText;
+  DemoCspHosts _csp = const DemoCspHosts();
 
   HttpServer? _http;
   Timer? _sweeper;
@@ -141,6 +145,12 @@ class DemoServer {
       ServerLogLevel.info,
       'start-up: ${loaded.live.length} live demos, ${loaded.removed} removed',
     );
+    if (config.settingsFile case final dir?) {
+      _settingsText = await File('$dir${Platform.pathSeparator}settings.default.toml').readAsString();
+      final text = await File('$dir${Platform.pathSeparator}app-config.toml').readAsString();
+      _configText = text;
+      _csp = _cspHostsOf(text);
+    }
     if (config.webRoot case final web?) {
       _sites.add(StaticSite(root: web, prefix: '/app/', spaFallback: true));
     }
@@ -316,9 +326,15 @@ class DemoServer {
 
   Future<void> _onRequest(HttpRequest request) async {
     final response = request.response;
-    setSecurityHeaders(response.headers);
+    setSecurityHeaders(response.headers, _csp);
     try {
       final path = request.uri.path;
+      if (path == '/demo/settings.toml' && _settingsText != null) {
+        return await _settings(request, _settingsText!);
+      }
+      if (path == '/demo/app-config.toml' && _configText != null) {
+        return await _settings(request, _configText!);
+      }
       if (path == '/api/health') return await _health(request);
       if (path == '/api/demo') return await _demo(request);
       if (path == '/api/ws') return await _socket(request);
@@ -340,6 +356,15 @@ class DemoServer {
         // The response was already under way.
       }
     }
+  }
+
+  Future<void> _settings(HttpRequest request, String text) async {
+    final r = request.response;
+    r.statusCode = HttpStatus.ok;
+    r.headers.contentType = ContentType('text', 'plain', charset: 'utf-8');
+    r.headers.set(HttpHeaders.cacheControlHeader, 'no-store');
+    if (request.method != 'HEAD') r.write(text);
+    await r.close();
   }
 
   Future<void> _plain(HttpRequest request, int status) async {
@@ -488,4 +513,15 @@ class DemoServer {
       headers: {HttpHeaders.retryAfterHeader: '$seconds'},
     );
   }
+}
+
+/// The `[demo]` table's `csp_fonts` and `csp_connect` of an `app-config.toml`.
+DemoCspHosts _cspHostsOf(String text) {
+  final demo = parseSettingsToml(text, file: 'app-config.toml')['demo'];
+  List<String> list(String key) {
+    final v = demo is Map ? demo[key] : null;
+    return v is List ? [for (final e in v) if (e is String) e] : const [];
+  }
+
+  return DemoCspHosts(fonts: list('csp_fonts'), connect: list('csp_connect'));
 }

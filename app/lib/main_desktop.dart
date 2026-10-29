@@ -17,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:path_provider/path_provider.dart';
 
-import 'src/network.dart' show mainnetPreset;
+import 'src/network.dart' show devChainOf, mainnetPreset;
 import 'src/network_gate.dart';
 import 'src/app_log.dart';
 import 'src/btlabs_onions.dart';
@@ -44,6 +44,7 @@ import 'src/password_lists.dart';
 import 'src/tor_licence.dart';
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
+import 'src/settings_file/settings_providers.dart';
 import 'src/tor_location.dart';
 import 'src/wallet_backend.dart';
 import 'src/web/splash.dart';
@@ -60,6 +61,8 @@ DeskWindowKeeper? _windowKeeper;
 Future<void> main() async {
   if (_mock) {
     WidgetsFlutterBinding.ensureInitialized();
+    // The mock wallet shows the shipped servers; it reads and writes no file.
+    await loadShippedSettings();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
     runApp(ProviderScope(overrides: [if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
@@ -118,6 +121,17 @@ Future<List<Override>> deskOverrides() async {
   final store = DeskStore(secrets);
   // Before the wallet core starts: its runtime takes the log level once.
   await applySavedLogLevel(store);
+  // Before anything reads an address: the settings file (docs/settings-file.md), watched for
+  // hand edits. A dev build on a test network reads that network's own file.
+  final preset = DeskFeatures.testNetworks ? await LepicDeskWallet.savedPreset(secrets) : mainnetPreset;
+  try {
+    await openAppSettings(store: secrets, devChain: devChainOf(preset.chain));
+  } on DevSettingsMissing catch (e) {
+    // A dev build only: it does not start on a network without its servers.
+    logError('settings', e, StackTrace.current);
+    stderr.writeln('$e');
+    exit(2);
+  }
   // A store that cannot be read (damaged, held by another program) must not stop the app
   // before its first frame: start with default settings and let Unlock show the error. The
   // store itself never writes over what it could not read.
@@ -130,8 +144,8 @@ Future<List<Override>> deskOverrides() async {
   }
   // Before any request: Offline sends nothing, Tor only nothing direct (network_gate.dart).
   NetGate.set(boot.settings.advanced.networkMode);
-  // Before anything asks status.btlabs.uk: off, nothing is asked.
-  statusSite.on = boot.settings.useStatusSite;
+  // Before anything asks the status site: off (`status.enabled`), nothing is asked.
+  statusSite.followSettings();
   final directory = container.read(relayDirectoryProvider);
   // Saved on: the app's own requests wait for tor from the first one, also before unlock.
   bool torSwitch;
@@ -144,7 +158,7 @@ Future<List<Override>> deskOverrides() async {
   if (!DeskFeatures.tor) logInfo('desk', 'tor: not in this build');
   final wallet = LepicDeskWallet(
     // A dev build with test networks starts on the one chosen last on Welcome.
-    preset: DeskFeatures.testNetworks ? await LepicDeskWallet.savedPreset(secrets) : mainnetPreset,
+    preset: preset,
     service: container.read(walletServiceProvider),
     walletDir: container.read(walletDirProvider),
     secrets: secrets,

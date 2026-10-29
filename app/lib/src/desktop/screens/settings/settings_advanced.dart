@@ -15,7 +15,6 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../transfer/send_advanced.dart' show ERadioRow;
 import '../wallet/outputs_dialogs.dart' show EStepper;
-import 'connection_servers_row.dart';
 import 'prefs.dart' show SettingsJump;
 import 'settings_frame.dart';
 
@@ -57,9 +56,6 @@ String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
   NetworkMode.offline => l.deskSetAdvModeOffline,
 };
 
-/// A state the tour opens Settings › Advanced in.
-enum AdvancedDemo { connectionServersOpen }
-
 class SettingsAdvancedScreen extends ConsumerWidget {
   const SettingsAdvancedScreen({super.key, this.arg});
 
@@ -89,7 +85,7 @@ class SettingsAdvancedScreen extends ConsumerWidget {
         const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
         SizedBox(height: Sp.x6),
         // An "experimental" dialog's Open Advanced lands here (LNX3-1).
-        JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup(openConnectionServers: arg == AdvancedDemo.connectionServersOpen)),
+        const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
       ],
     ),
   );
@@ -153,9 +149,7 @@ class _ShowsGroup extends ConsumerWidget {
 /// Pairing and Invoices, off by default, and Linked devices, on unless turned off: each with an
 /// Experimental tag, the rule between the first two in one line under them.
 class _ExperimentalGroup extends ConsumerWidget {
-  const _ExperimentalGroup({this.openConnectionServers = false});
-
-  final bool openConnectionServers;
+  const _ExperimentalGroup();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -180,8 +174,6 @@ class _ExperimentalGroup extends ConsumerWidget {
       title: l.advExperimental,
       rows: [
         row(AdvancedFeature.pairing, adv.pairingOn, l.expPairingHint),
-        // Where words meet: hidden while Pairing is off and on a network without meeting servers.
-        ConnectionServersRow(openInitially: openConnectionServers),
         row(AdvancedFeature.invoices, adv.invoicesOn, l.expInvoicesHint),
         ESetRow(key: const ValueKey('adv-exp-rule'), text: l.expNeedsPairing),
         // On unless turned off; independent of Pairing (its pairings are private).

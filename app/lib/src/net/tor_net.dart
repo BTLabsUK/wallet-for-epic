@@ -11,6 +11,7 @@ import 'dart:io';
 
 import '../advanced.dart';
 import '../network_gate.dart';
+import '../settings_file/host_settings.dart';
 import '../tor_routes.dart';
 import 'http_types.dart';
 import 'socks.dart';
@@ -48,7 +49,7 @@ abstract final class TorNet {
   /// Completed when the mode leaves [TorNetMode.waiting].
   static Completer<void>? _connected;
 
-  /// The onion of a BT Labs server, from the signed list; null goes back to [torBuiltInOnion].
+  /// The onion of a server, from the signed list in use; null goes back to [torBuiltInOnion].
   static set onions(OnionLookup? lookup) => _onions = lookup;
 
   static void useDirect() {
@@ -133,19 +134,18 @@ abstract final class TorNet {
   }
 }
 
-/// BT Labs' onions as built in (the signed btlabs.json list replaces them, `TorNet.onions`).
-/// Tor exits cannot reach btlabs.uk's own address, so over Tor these hosts are reached only
-/// at their onions ([socksConnectionFactory] refuses a btlabs.uk host without one).
-OnionTarget? torBuiltInOnion(String host, int port) => switch ((host.toLowerCase(), port)) {
-  ('node.btlabs.uk', 443) => (onion: '5drwoknehnzducfsxsl45dazaw3cwcmpx3ycamynagmcpv6aalrbrtqd.onion', port: 443, tls: true),
-  ('support.btlabs.uk', 443) => (onion: 'lowiz5jnnu5vyyqc5guig3zag3k7azorbjfkcszfqwdxh3yarfei66yd.onion', port: 443, tls: true),
-  ('epicbox.btlabs.uk', 443) => (onion: 'j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion', port: 443, tls: true),
-  // The update downloads (only /epic-cash-wallets/downloads/); TLS for the name.
-  ('examples.btlabs.uk', 443) => (onion: 'lnuvd4uk5ks7bsrt4mxddjahup2dfl5dadiywocbhxfdqwimsahijzid.onion', port: 443, tls: true),
-  // The status site's onion is plain HTTP on port 80 (the onion is the encryption).
-  ('status.btlabs.uk', _) => (onion: 't6furoapbsowxp3hvmjwp223zenmauwldfv2noddih7bfuuavwyvaqad.onion', port: 80, tls: false),
-  _ => null,
-};
+/// The onion of [host]:[port] from the settings file (`[tor] onions`; the signed btlabs.json
+/// list replaces those under the onion-only domains, `TorNet.onions`). Hosts under
+/// `[tor] onion_only_domains` refuse Tor exits, so over Tor they are reached only at their
+/// onions ([socksConnectionFactory] refuses one without).
+OnionTarget? torBuiltInOnion(String host, int port) {
+  if (!hostSettingsLoaded) return null;
+  final h = host.toLowerCase();
+  for (final r in hostSettings.torOnions) {
+    if (r.host.toLowerCase() == h && r.port == port) return (onion: r.onion, port: r.onionPort, tls: r.tls);
+  }
+  return null;
+}
 
 /// [url]'s host is this computer.
 bool isLoopbackUrl(Uri url) {

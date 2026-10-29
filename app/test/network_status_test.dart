@@ -83,7 +83,7 @@ class _Tor extends PhoneTor {
   PhoneTorState build() => value;
 }
 
-/// status.btlabs.uk: the network tip when given, else no answer.
+/// status.lab.invalid: the network tip when given, else no answer.
 class _Directory
     implements dir.RelayDirectory, dir.NodeDirectory, dir.NetworkDirectory {
   _Directory({this.tip});
@@ -234,18 +234,18 @@ void main() {
     testWidgets('a port that is not the default stays; the scheme goes', (
       tester,
     ) async {
-      await _pump(tester, nodeUrl: 'https://node.epicnet.us:3413');
-      expect(_in(netStatusNodeKey, 'node.epicnet.us:3413'), findsOneWidget);
+      await _pump(tester, nodeUrl: 'https://node.net.invalid:3413');
+      expect(_in(netStatusNodeKey, 'node.net.invalid:3413'), findsOneWidget);
     });
 
     testWidgets('a test network names itself before the host', (tester) async {
       await _pump(
         tester,
         preset: floonetPreset,
-        nodeUrl: 'https://floo-node.btlabs.uk',
+        nodeUrl: 'https://floo-node.lab.invalid',
       );
       expect(
-        _in(netStatusNodeKey, 'Floonet · floo-node.btlabs.uk'),
+        _in(netStatusNodeKey, 'Floonet · floo-node.lab.invalid'),
         findsOneWidget,
       );
     });
@@ -262,7 +262,7 @@ void main() {
         await _pump(tester, listener: listener);
         expect(_in(netStatusEpicboxKey, word), findsOneWidget);
         expect(
-          _in(netStatusEpicboxKey, 'epicbox.epiccash.com'),
+          _in(netStatusEpicboxKey, 'box.epic.invalid'),
           findsOneWidget,
         );
       });

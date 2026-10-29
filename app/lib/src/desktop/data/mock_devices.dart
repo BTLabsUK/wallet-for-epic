@@ -4,6 +4,7 @@
 /// and the desktop tests link it to the computer, make it pay, and read the computer's side.
 library;
 
+import 'mock_hosts.dart';
 import '../../devices/device_service.dart';
 import '../../devices/device_store.dart';
 import '../../secret_store_api.dart';
@@ -22,7 +23,7 @@ class MockPhone {
   /// of another wallet.
   static Future<MockPhone> create(MockDeskWallet wallet, {String name = 'Phone', String walletKey = mockEpicboxKey}) async {
     final session = FakeWalletSession();
-    session.address = '$walletKey@epicbox.epiccash.com';
+    session.address = '$walletKey@$mockBox';
     session.pairing.privateNet = wallet.pairing.privateNet;
     session.pairing.clock = wallet.pairing.clock;
     session.outputsValue = [
@@ -54,7 +55,8 @@ class MockPhone {
   }
 
   /// A whole link: [desk] shows a code on [servers], the phone scans it, both check the pictures.
-  Future<void> link(DeviceService desk, {List<String> servers = const ['epicbox.epiccash.com']}) async {
+  Future<void> link(DeviceService desk, {List<String>? servers}) async {
+    servers ??= [mockBox];
     await desk.startShowing(servers);
     await scan(desk);
     await desk.answerCheck(true);
@@ -70,10 +72,11 @@ class MockPhone {
     required String commitment,
     String slateId = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d',
     int txId = 41,
-    String to = 'esQ7mPz3xKd9aVw2nT5uYhL8cRb4gF6jXe@epicbox.epiccash.com',
+    String? to,
     String? message,
     int fee = 800000,
   }) async {
+    to ??= 'esQ7mPz3xKd9aVw2nT5uYhL8cRb4gF6jXe@$mockBox';
     final coin = session.outputsValue.firstWhere((o) => o.commitment == commitment);
     session.outputsValue = [
       for (final o in session.outputsValue)

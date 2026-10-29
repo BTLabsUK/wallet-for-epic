@@ -13,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_info.dart';
 import '../app_log.dart';
 import '../app_version.dart';
+import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../demo.dart';
 import '../dist_build.dart';
 import '../errors.dart';
@@ -50,7 +51,6 @@ import 'payment_gate.dart' show pendingEpicboxSends;
 import 'network_status.dart';
 import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
-import 'pairing/connection_servers_tile.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
     show RestoreScreen, ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
@@ -66,20 +66,25 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 import 'wallet_delete.dart';
+import '../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
 
-/// The project's source code.
-const String projectRepoUrl = 'https://gitlab.com/epic-cash-bt/wallet-for-epic';
+/// The project's source code; null when `app-config.toml` leaves it out (no link).
+String? get projectRepoUrl => hostSettings.linkSource;
 
 /// Whether the repositories are public. Until they are, no screen links to them (the phone's
 /// and the desktop's About, the Licences page) and no text says the code is public; set it
 /// to true when they are, and the links come back.
 const bool projectRepoPublic = false;
-const String epicCashUrl = 'https://epiccash.com';
+String? get epicCashUrl => hostSettings.linkWebsite;
 
-/// The public contact address, shown in Help and About. Never translated.
-const String supportEmail = 'support@btlabs.uk';
+/// The Epic Cash community chat; null: no link.
+String? get communityUrl => hostSettings.linkCommunity;
+
+/// The public contact address, shown in Help and About. Never translated. Null: not shown.
+String? get supportEmail => hostSettings.supportEmail;
 
 
 /// The app version and the core's: the installed package's on Android, else the one this
@@ -649,9 +654,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
       if (walletOpen && torAvailable)
         const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
+      // No status site in app-config.toml: no switch.
+      if (statusSiteConfigured)
       HintSwitchTile(
         icon: Icons.travel_explore,
-        title: l.settingsUseStatusSite,
+        title: l.settingsUseStatusSite(statusSiteHost),
         hint: l.settingsUseStatusSiteSubtitle,
         value: s.useStatusSite,
         onChanged: _settings.setUseStatusSite,
@@ -893,7 +900,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     Widget methodTile(MethodKind m) {
       final hint = switch (m) {
         MethodKind.epicbox => l.txEpicboxHint,
-        MethodKind.linkHttp => torBuilt ? l.txLinkHttpHint : l.txLinkHttpHintNoTor,
+        MethodKind.linkHttp => torBuilt ? l.txLinkHttpHint('${appConfig.httpListenPort}') : l.txLinkHttpHintNoTor('${appConfig.httpListenPort}'),
         MethodKind.linkTor => l.txLinkTorHint,
         MethodKind.directQr => l.txQrHint,
         MethodKind.directFile => l.txFileHint,
@@ -1181,7 +1188,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       const SizedBox(height: 8),
       SettingsHeader(l.advExperimental, key: _experimentalKey),
       experimental(AdvancedFeature.pairing, Icons.handshake_outlined, l.expPairing, l.expPairingHint),
-      const ConnectionServersTile(),
       experimental(AdvancedFeature.invoices, Icons.request_quote_outlined, l.expInvoices, l.expInvoicesHint),
       Padding(
         key: const ValueKey('adv-exp-rule'),
@@ -1217,19 +1223,22 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         value: s.hideBalances,
         onChanged: _settings.setHideBalances,
       ),
-      SwitchListTile(
-        secondary: const Icon(Icons.show_chart),
-        title: Text(l.settingsShowPrices),
-        value: s.showFiat,
-        onChanged: _setShowFiat,
-      ),
-      ListTile(
-        leading: const Icon(Icons.attach_money),
-        title: Text(l.settingsCurrency),
-        subtitle: Text(currencyLabel(l, s.fiatCurrency)),
-        enabled: s.showFiat,
-        onTap: () => _pickCurrency(s),
-      ),
+      // No price source in app-config.toml, or `[online] price` off in settings.toml: no rows.
+      if (pricesOffered(ref.watch(hostSettingsProvider))) ...[
+        SwitchListTile(
+          secondary: const Icon(Icons.show_chart),
+          title: Text(l.settingsShowPrices),
+          value: s.showFiat,
+          onChanged: _setShowFiat,
+        ),
+        ListTile(
+          leading: const Icon(Icons.attach_money),
+          title: Text(l.settingsCurrency),
+          subtitle: Text(currencyLabel(l, s.fiatCurrency)),
+          enabled: s.showFiat,
+          onTap: () => _pickCurrency(s),
+        ),
+      ],
     ];
   }
 
@@ -1281,9 +1290,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         onTap: () => _push(LicencesScreen(version: version.value)),
       ),
       // A proper name, the same in every language.
-      const LinkTile(title: 'Epic Cash', url: epicCashUrl),
-      if (projectRepoPublic) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl),
-      LinkTile(title: l.contactLabel, url: supportEmail, email: true),
+      if (epicCashUrl case final site?) LinkTile(title: 'Epic Cash', url: site),
+      if (projectRepoPublic && projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!),
+      if (supportEmail case final email?) LinkTile(title: l.contactLabel, url: email, email: true),
     ];
   }
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider]), seeded
-/// from the built-in servers and status.btlabs.uk, which the user edits in place. One field at
+/// The phone's Node and Epicbox pickers: one list per kind ([serverListProvider], the settings
+/// file's), which the status site's servers join and the user edits in place. One field at
 /// the top starts empty, filters the list while typed in, and offers Add as soon as nothing
 /// matches; the server in use shows only in its row (the check) and the Current card. A tap on
 /// a Node row switches at once and the foot says so; on an Epicbox row it asks first, as the
@@ -26,6 +26,8 @@ import '../providers.dart';
 import '../public_servers.dart';
 import '../relay_directory.dart';
 import '../send_preflight.dart' show relayProbeProvider;
+import '../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
+import '../server_list_file.dart' show operatorFor;
 import '../server_list_store.dart';
 import '../server_switch.dart';
 import '../net/tor_switch.dart' show TorSwitch;
@@ -47,6 +49,7 @@ import 'relay_blocked.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
+import '../settings_file/status_site.dart' show statusSiteHost;
 
 // The sheet.
 
@@ -104,9 +107,6 @@ const Key serverListCancelKey = ValueKey('server-list-cancel');
 /// The key of the line at the foot that answers an action, for tests.
 const Key serverListFootKey = ValueKey('server-list-foot');
 
-/// The key of "Restore removed servers", for tests.
-const Key serverListRestoreKey = ValueKey('server-list-restore');
-
 /// The key of "Reset to defaults", for tests.
 const Key serverListResetKey = ValueKey('server-list-reset');
 
@@ -140,8 +140,8 @@ class _Entry {
   final String host;
   final String? operator;
 
-  /// The name a tile takes its initials from: the monitor's, as status.btlabs.uk shows it
-  /// ("epicnet.us" → EU), else [operator].
+  /// The name a tile takes its initials from: the monitor's, as the status site shows it
+  /// (a host such as "epicnet.example" → EP), else [operator].
   final String? tileName;
   final NodeStatus? node;
   final RelayStatus? relay;
@@ -554,11 +554,6 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     );
   }
 
-  Future<void> _restore(NetworkChoice choice, List<String> public) async {
-    await ref.read(serverListProvider((widget.kind, choice.preset.chain)).notifier).restore(public);
-    if (mounted) _say(context.l10n.slRestored);
-  }
-
   Future<void> _switchTo(String value, NetworkChoice choice) async {
     setState(() => _busy = true);
     try {
@@ -610,7 +605,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                 ? ref.watch(localNodeStatusProvider((url: v, preset: preset))).value
                 : p?.status ?? nodeStatusFor(nodes.value ?? const [], v);
             // The user's own node: "Your node · home network" where a public node names its operator.
-            final operator = local ? ownNodeLabel(context.l10n, nodeClassOf(v)) : p?.operator ?? s?.operator;
+            final operator = local ? ownNodeLabel(context.l10n, nodeClassOf(v)) : operatorFor(ServerKind.node, v, listed: s?.operator);
             return _Entry(
               value: v,
               host: serverHost(v),
@@ -630,8 +625,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         () {
           final relay = EpicboxRelay.parse(v);
           final p = relay == null ? null : public.where((r) => r.relay == relay).firstOrNull;
-          final op = p?.operator ?? '';
-          final operator = op.isEmpty ? p?.status?.operator : op;
+          final operator = operatorFor(ServerKind.relay, v, listed: p?.status?.operator);
           return _Entry(
             value: v,
             host: v,
@@ -642,22 +636,6 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             directoryAnswered: relays is AsyncData,
           );
         }(),
-    ];
-  }
-
-  /// The public servers of the kind, built-in first, then the directory's, as values.
-  List<String> _publicValues(NetworkChoice choice) {
-    final preset = choice.preset;
-    if (_node) {
-      final status = ref.read(publicNodeStatusProvider(preset));
-      return [
-        for (final n in mergePublicNodes(status.value, builtIn: builtInNodesFor(preset))) n.url,
-      ];
-    }
-    final status = ref.read(relayStatusProvider(preset));
-    return [
-      for (final r in mergePublicRelays(status.value, builtIn: builtInRelaysFor(preset)))
-        r.relay.label,
     ];
   }
 
@@ -746,21 +724,6 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     final addHost = typed == null ? q : (_node ? serverHost(typed) : typed);
     if (_node) ref.watch(nodeFailoverProvider);
     final current = _current(choice);
-    final public = _publicValues(choice);
-    if (listState != null) {
-      // Directory servers join the list as they are seen; removed ones stay out. After the
-      // frame, as the store is written and the list rebuilt.
-      final missing = listState.missing(widget.kind, public);
-      if (missing.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
-          ref.read(serverListProvider((widget.kind, chain)).notifier).absorb(missing);
-        });
-      }
-    }
-    final restorable = listState == null
-        ? const <String>[]
-        : listState.restorable(widget.kind, public);
     final dirStatus = _node
         ? ref.watch(publicNodeStatusProvider(choice.preset))
         : ref.watch(relayStatusProvider(choice.preset));
@@ -894,7 +857,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
           entry: e,
           isDefault: _sel != null
               ? _sel!.defaults.any((d) => _same(d, e.value))
-              : !_node && EpicboxRelay.parse(e.value) == choice.preset.defaultRelay,
+              : !_node && EpicboxRelay.parse(e.value) == EpicboxRelay.parse(shippedHostSettings.epicboxUse),
           addedByYou: listState?.isAddedByUser(widget.kind, e.value) ?? false,
           current: _sel == null && _same(e.value, current),
           selected: _sel != null ? _isChosen(e.value) : _same(e.value, current),
@@ -917,8 +880,6 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             onRetry: () => ref.read(listenerProvider.notifier).restart(),
           ),
       ],
-      if (restorable.isNotEmpty && !filtering)
-        _RestoreRow(count: restorable.length, onTap: () => _restore(choice, public)),
       if (_sel != null && !filtering && !sameServerSet(widget.kind, _chosen!, _sel!.defaults))
         _ResetRow(onTap: () => _resetToDefaults(choice)),
       _HealthCaption(status: dirStatus, preset: choice.preset),
@@ -1236,33 +1197,6 @@ class _AddRow extends StatelessWidget {
   }
 }
 
-/// "Restore removed servers" at the end of the list, only while a public server is removed.
-class _RestoreRow extends StatelessWidget {
-  const _RestoreRow({required this.count, required this.onTap});
-
-  final int count;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: TextButton.icon(
-          key: serverListRestoreKey,
-          style: TextButton.styleFrom(foregroundColor: t.dim, minimumSize: const Size(48, 44)),
-          onPressed: onTap,
-          icon: const Icon(Icons.restore, size: 18),
-          label: Text('${l.slRestore} · ${l.slRemovedCount(count)}'),
-        ),
-      ),
-    );
-  }
-}
-
 /// "Reset to defaults" at the end of a selection list, while the set differs from the defaults.
 class _ResetRow extends StatelessWidget {
   const _ResetRow({required this.onTap});
@@ -1531,7 +1465,7 @@ class _FootLine extends StatelessWidget {
   }
 }
 
-/// Under the list: a thin bar while status.btlabs.uk is asked, the "health unknown" line when
+/// Under the list: a thin bar while the status site is asked, the "health unknown" line when
 /// it did not answer, nothing when the user turned it off or the network has no monitor.
 class _HealthCaption extends ConsumerWidget {
   const _HealthCaption({required this.status, required this.preset});
@@ -1547,7 +1481,7 @@ class _HealthCaption extends ConsumerWidget {
       AsyncError() when ref.watch(useStatusSiteProvider) => Padding(
         padding: const EdgeInsets.only(top: 8),
         child: Text(
-          context.l10n.serverHealthUnknown,
+          context.l10n.serverHealthUnknown(statusSiteHost),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim),
         ),
       ),
@@ -1568,7 +1502,7 @@ String ownNodeLabel(AppLocalizations l, NodeClass c) => l.ownNodeLabel(switch (c
 });
 
 /// How often the user's own node is asked while the facts box shows it.
-const Duration ownNodeAskEvery = Duration(seconds: 15);
+Duration get ownNodeAskEvery => appConfig.ownNodeAsk;
 
 /// The node in use, under the field that holds its address: its state word, then Height
 /// (with `at tip`), Version, Peers and Uptime 24 h as a grid, each only when known; then the
@@ -1724,7 +1658,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
             Text(network.join(' · '), style: small),
           ],
           if (checked != null)
-            Text(l.serverCheckedAt(localClock(l, checked.toLocal())), style: small),
+            Text(l.serverCheckedAt(localClock(l, checked.toLocal()), statusSiteHost), style: small),
         ],
       ),
     );

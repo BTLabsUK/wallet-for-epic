@@ -32,7 +32,7 @@
   "deskNodeNoProgress": "Нет прогресса 5 мин. Один перезапуск уже был.",
   "deskNodeUsingMeanwhile": "Пока используется {host}.",
   "deskNodeStartIt": "Запустите его в разделе «Настройки › Узел».",
-  "deskNodeFailPort": "порт 3413 занят другой программой",
+  "deskNodeFailPort": "порт {port} занят другой программой",
   "deskNodeFailDisk": "недостаточно места на диске",
   "deskNodeFailMissing": "программа узла не найдена",
   "deskNodeFailExited": "программа узла остановилась",

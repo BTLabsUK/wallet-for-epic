@@ -65,10 +65,10 @@ void main() {
         expect(nodeClassOf(u), NodeClass.homeNetwork, reason: u);
       }
       expect(nodeClassOf('http://100.101.1.2:3413'), NodeClass.vpn);
-      expect(nodeClassOf('https://box.tail1234.ts.net'), NodeClass.vpn);
-      expect(nodeClassOf('https://node.btlabs.uk'), NodeClass.public);
+      expect(nodeClassOf('https://box.tail1234.vpn.invalid'), NodeClass.vpn);
+      expect(nodeClassOf('https://node.lab.invalid'), NodeClass.public);
       expect(nodeClassOf('https://bt-node.example', unlisted: true), NodeClass.ownServer);
-      expect(nodeClassOf('https://node.btlabs.uk', mine: true), NodeClass.ownServer);
+      expect(nodeClassOf('https://node.lab.invalid', mine: true), NodeClass.ownServer);
       expect(nodeClassOf('http://8.8.8.8:3413'), NodeClass.public);
       expect(NodeClass.vpn.own && NodeClass.vpn.local, isTrue);
       expect(NodeClass.ownServer.own && !NodeClass.ownServer.local, isTrue);
@@ -80,7 +80,7 @@ void main() {
       final dir = _Dir(tip: 3764980);
       final s = NodeInfoService(nodes: dir, network: dir, clientFor: _node(() => 3764975));
       final i = await s.info('http://10.0.1.24:3413', chain: 'mainnet');
-      expect(dir.nodeCalls, 0, reason: 'status.btlabs.uk cannot see a home node');
+      expect(dir.nodeCalls, 0, reason: 'status.lab.invalid cannot see a home node');
       expect(i.nodeClass, NodeClass.homeNetwork);
       expect(i.source, NodeInfoSource.limited);
       expect(i.poolSize, 3);
@@ -164,10 +164,10 @@ void main() {
     });
 
     test('never to a public node; an own https server not while Tor is on; a home node is fine with Tor', () async {
-      expect(ownerSecretMayTravel('https://node.btlabs.uk', mine: false, torOn: false), isFalse);
+      expect(ownerSecretMayTravel('https://node.lab.invalid', mine: false, torOn: false), isFalse);
       expect(ownerSecretMayTravel('http://8.8.8.8:3413', mine: false, torOn: false), isFalse);
-      expect(ownerSecretMayTravel('https://node.btlabs.uk', mine: true, torOn: false), isTrue);
-      expect(ownerSecretMayTravel('https://node.btlabs.uk', mine: true, torOn: true), isFalse);
+      expect(ownerSecretMayTravel('https://node.lab.invalid', mine: true, torOn: false), isTrue);
+      expect(ownerSecretMayTravel('https://node.lab.invalid', mine: true, torOn: true), isFalse);
       expect(ownerSecretMayTravel('http://10.0.1.24:3413', mine: false, torOn: true), isTrue, reason: 'local addresses bypass Tor');
       // https goes straight to its host, which Tor would carry: never while the switch is on.
       expect(ownerSecretMayTravel('https://10.0.1.24:3413', mine: false, torOn: true), isFalse);
@@ -176,9 +176,9 @@ void main() {
       // Plain http only where the relay takes it: a .ts.net name is not one.
       expect(ownerSecretMayTravel('http://box.tail1234.ts.net:3413', mine: false, torOn: false), isFalse);
       final o = owner();
-      final a = OwnNodeAccess(MemorySecretStore({ownerSecretKey('https://node.btlabs.uk'): 's3cret'}), clientFor: o.client, torOn: () => false);
-      expect(await a.add('https://node.btlabs.uk', 's3cret'), OwnerCheck.refused);
-      await expectLater(a.status('https://node.btlabs.uk'), throwsA(isA<OwnerUnavailable>().having((e) => e.why, 'why', OwnerOff.torOn)));
+      final a = OwnNodeAccess(MemorySecretStore({ownerSecretKey('https://node.lab.invalid'): 's3cret'}), clientFor: o.client, torOn: () => false);
+      expect(await a.add('https://node.lab.invalid', 's3cret'), OwnerCheck.refused);
+      await expectLater(a.status('https://node.lab.invalid'), throwsA(isA<OwnerUnavailable>().having((e) => e.why, 'why', OwnerOff.torOn)));
       expect(o.auth, isEmpty, reason: 'nothing was sent');
       expect(ownerSecretPlainOnLan('http://10.0.1.24:3413'), isTrue);
       // 100.64/10 is a VPN only while one runs; otherwise the carrier's network: warned.
@@ -199,7 +199,7 @@ void main() {
     test('redacted in logs; not in the saved prefs', () {
       final header = 'Authorization: Basic ${base64.encode(utf8.encode('epic:s3cretValue123'))}';
       expect(redact(header), isNot(contains(base64.encode(utf8.encode('epic:s3cretValue123')))));
-      final prefs = const SettingsPrefs().copyWith(mineNodes: {'https://node.btlabs.uk'}, plainHttpSeen: {'http://10.0.1.24:3413'});
+      final prefs = const SettingsPrefs().copyWith(mineNodes: {'https://node.lab.invalid'}, plainHttpSeen: {'http://10.0.1.24:3413'});
       expect(jsonEncode(prefs.toJson()), isNot(contains('ownerSecret')));
     });
   });
@@ -241,7 +241,7 @@ void main() {
       expect(find.textContaining('Own node · home network'), findsWidgets);
       expect(find.text('Mempool'), findsOneWidget);
       expect(find.text('3 waiting'), findsOneWidget);
-      expect(find.text('Asked directly every 15 s · tip from status.btlabs.uk'), findsOneWidget);
+      expect(find.text('Asked directly every 15 s · tip from status.lab.invalid'), findsOneWidget);
       expect(find.text('Not set up'), findsOneWidget);
       await tester.tap(find.text('Add…'));
       await tester.pump(const Duration(milliseconds: 400));
@@ -301,7 +301,7 @@ void main() {
       await show(tester, const Size(1280, 1000), NodeDemo.ownDown);
       expect(find.text('Own node not answering'), findsOneWidget);
       expect(find.text('Try now'), findsOneWidget);
-      expect(find.text('Keep node.btlabs.uk'), findsOneWidget);
+      expect(find.text('Keep node.lab.invalid'), findsOneWidget);
       await end(tester);
     });
   });

@@ -69,5 +69,9 @@
   "deskSetBackupReminderNever": "{count, plural, one{{count} płatności nie ma w wyeksportowanych danych portfela.} few{{count} płatności nie ma w wyeksportowanych danych portfela.} many{{count} płatności nie ma w wyeksportowanych danych portfela.} other{{count} płatności nie ma w wyeksportowanych danych portfela.}}",
   "deskSetBackupReminderChanged": "{count, plural, one{{count} płatność jest nowa lub zmieniona od ostatniego eksportu danych portfela.} few{{count} płatności są nowe lub zmienione od ostatniego eksportu danych portfela.} many{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.} other{{count} płatności jest nowych lub zmienionych od ostatniego eksportu danych portfela.}}",
   "deskSetBackupReminderBody": "Przywrócenie z frazy odzyskiwania odtwarza saldo, ale nie to, kto komu zapłacił.",
-  "deskSetBackupNotNow": "Nie teraz"
+  "deskSetBackupNotNow": "Nie teraz",
+  "deskSetBackupServersTitle": "Użyć serwerów z tego pliku?",
+  "deskSetBackupServersBody": "Jego listy węzłów i serwerów Epicbox różnią się od list tego komputera. Wszystkie portfele tutaj używają tych samych list.",
+  "deskSetBackupServersKeep": "Z tego komputera",
+  "deskSetBackupServersUse": "Z pliku"
 }

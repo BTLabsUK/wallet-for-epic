@@ -15,6 +15,7 @@ import 'providers.dart';
 import 'restore_scan.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
 import 'settings.dart';
+import 'ui/settings_file_notices.dart';
 import 'ui/common.dart';
 import 'ui/demo_screens.dart';
 import 'ui/launch_screen.dart';
@@ -221,9 +222,11 @@ class _WalletAppState extends ConsumerState<WalletApp> {
           );
         }
         return PhoneFrame(
-          child: AdvancedOptions(
-            prefs: settings?.advanced ?? AdvancedPrefs.none,
-            child: child!,
+          child: SettingsFileNotices(
+            child: AdvancedOptions(
+              prefs: settings?.advanced ?? AdvancedPrefs.none,
+              child: child!,
+            ),
           ),
         );
       },

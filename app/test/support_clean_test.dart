@@ -13,11 +13,11 @@ void main() {
 INFO restore: words $_phrase
 INFO unlock: password=hunter2hunter2 accepted
 INFO cli: epic-wallet --pass "s3cret pass" listen
-WARN send: to $_address@epicbox.epiccash.com failed
-WARN send: to esWn9r…@epicbox.epiccash.com again
+WARN send: to $_address@box.epic.invalid failed
+WARN send: to esWn9r…@box.epic.invalid again
 INFO tor: listening on http://$_onion.onion/v2/foreign
 INFO node: connected to 203.0.113.7:3413 and http://10.0.1.24:3413, local 127.0.0.1:3415
-INFO node: tried http://mynode.example.org:3413 and https://node.epiccash.com
+INFO node: tried http://mynode.example.org:3413 and https://node.epic.invalid
 INFO files: /home/alice/.local/share/wallet and C:\\Users\\Alice Smith\\AppData
 INFO user alice on alice-laptop: done
 INFO kernel 08a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9a
@@ -34,11 +34,11 @@ INFO mail me@example.com, PIN 123456
       expect(out, isNot(contains(secret)), reason: secret);
     }
     expect(out, contains('[recovery phrase removed]'));
-    expect(out, contains('<address-1>@epicbox.epiccash.com failed'));
+    expect(out, contains('<address-1>@box.epic.invalid failed'));
     expect(out, contains('<onion-1>.onion'));
     expect(out, contains('<ip-1>:3413'));
     expect(out, contains('127.0.0.1:3415'));
-    expect(out, contains('https://node.epiccash.com'));
+    expect(out, contains('https://node.epic.invalid'));
     expect(out, contains('~/.local/share/wallet'));
     expect(out, contains('[slate removed]'));
     expect(out, contains('INFO next line survives'));
@@ -61,7 +61,7 @@ INFO mail me@example.com, PIN 123456
   });
 
   test('cleaning twice changes nothing more', () {
-    const text = 'to $_address@epicbox.epiccash.com from 203.0.113.7, password: x1y2z3';
+    const text = 'to $_address@box.epic.invalid from 203.0.113.7, password: x1y2z3';
     final once = cleanForReport(text);
     expect(cleanForReport(once), once);
   });

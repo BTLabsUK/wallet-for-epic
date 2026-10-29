@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // The settings a history backup carries (backup_settings.dart): the planner's rule (a fresh
-// install's value is taken, a value the user changed is asked about), the safety rules (a local
-// node is never made the node in use, lists only grow, a less strict network mode is asked
-// about), what is skipped, and the mapping between the phone and the desktop.
+// install's value is taken, a value the user changed is asked about), settings.toml's lists and
+// switches (in order; as they are where no other wallet shares them, one question where one
+// does), the safety rules (a local node is never made the node in use, a less strict network
+// mode is asked about), what is skipped, and the mapping between the phone and the desktop.
 import 'dart:convert';
 
 import 'package:epic_wallet/src/advanced.dart';
@@ -11,8 +12,18 @@ import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/server_list.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const _chain = 'mainnet';
-const _defaultNode = 'https://node.epiccash.com:3413';
+const _defaultNode = 'https://node.epic.invalid:3413';
+const _defaultBox = 'box.epic.invalid';
+
+/// The servers part of a map: [nodes] and [boxes] in order.
+Map<String, Object?> _servers({List<String> nodes = const [_defaultNode], List<String> boxes = const [_defaultBox]}) => {
+  BackupKey.servers: {BackupKey.node: nodes, BackupKey.epicbox: boxes},
+};
+
+/// The switches part of a map.
+Map<String, Object?> _online({bool site = true, bool update = true, bool price = true}) => {
+  BackupKey.online: {BackupKey.statusSite: site, BackupKey.updateCheck: update, BackupKey.price: price},
+};
 
 /// A map as either app writes it; [over] replaces keys.
 Map<String, Object?> _map(BackupPlatform from, [Map<String, Object?> over = const {}]) => {
@@ -22,7 +33,6 @@ Map<String, Object?> _map(BackupPlatform from, [Map<String, Object?> over = cons
   BackupKey.language: null,
   BackupKey.helpLanguage: null,
   BackupKey.hideBalances: false,
-  BackupKey.statusSite: true,
   BackupKey.autoLock: 15,
   BackupKey.advanced: AdvancedPrefs.none.toJson(),
   BackupKey.payments: (from == BackupPlatform.mobile ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults).toJson(),
@@ -30,18 +40,14 @@ Map<String, Object?> _map(BackupPlatform from, [Map<String, Object?> over = cons
   BackupKey.splitChange: true,
   if (from == BackupPlatform.mobile) BackupKey.fiat: 'usd',
   if (from == BackupPlatform.mobile) BackupKey.showFiat: true,
-  BackupKey.node: {_chain: _defaultNode},
-  BackupKey.relay: {_chain: 'epicbox.epiccash.com'},
-  BackupKey.nodeList: {_chain: serverListJson(const ServerList(entries: [_defaultNode]))},
-  BackupKey.relayList: {_chain: serverListJson(const ServerList(entries: ['epicbox.epiccash.com']))},
   BackupKey.tor: false,
   BackupKey.seenAs: '',
+  ..._servers(),
+  ..._online(),
   if (from == BackupPlatform.desktop)
     BackupKey.desktop: {
-      BackupKey.deskNodes: <Object?>[],
       BackupKey.invoiceExpiry: 86400,
       BackupKey.seedsDeleted: <Object?>[],
-      BackupKey.ownRelay: null,
       BackupKey.epicboxAutostart: true,
     },
   ...over,
@@ -52,14 +58,15 @@ BackupSettingsPlan _plan(
   Object? file, {
   BackupPlatform here = BackupPlatform.mobile,
   Map<String, Object?> mine = const {},
+  bool shared = false,
   String? fileName,
   String? myName,
 }) => planBackupSettings(
   here: here,
-  chain: _chain,
   mine: _map(here, mine),
   defaults: _map(here),
   file: file is Map ? jsonDecode(jsonEncode(file)) : file,
+  sharedServers: shared,
   fileWalletName: fileName,
   myWalletName: myName,
 );
@@ -132,59 +139,90 @@ void main() {
     });
   });
 
-  group('servers', () {
-    test('a node on this computer, the local network or a tailnet is never made the node in use; its list entry stays', () {
+  group('servers and switches', () {
+    const lab = 'https://node.lab.invalid';
+    const net = 'https://node.net.invalid:3413';
+
+    test('no other wallet here: the file\'s lists and switches are taken as they are', () {
+      final plan = _plan(_map(BackupPlatform.mobile, {
+        ..._servers(nodes: [lab, _defaultNode], boxes: ['box.stack.invalid', _defaultBox]),
+        ..._online(site: false, price: false),
+      }));
+      expect(plan.conflicts, isEmpty);
+      expect(plan.servers, isEmpty);
+      expect(plan.values(takeConflicts: false), {
+        BackupItem.nodeServers: [lab, _defaultNode],
+        BackupItem.epicboxServers: ['box.stack.invalid', _defaultBox],
+        BackupItem.statusSite: false,
+        BackupItem.price: false,
+      });
+      // A switch the user changed here is taken too: the fresh-install rule.
+      final changed = _plan(_map(BackupPlatform.mobile, _online(site: true)), mine: _online(site: false));
+      expect(changed.values(takeConflicts: false), {BackupItem.statusSite: true});
+    });
+
+    test('lists compare in order: the same servers in another order are a change, the same order is none', () {
+      final reordered = _plan(_map(BackupPlatform.mobile, _servers(nodes: [lab, _defaultNode])), mine: _servers(nodes: [_defaultNode, lab]));
+      expect(reordered.values(takeConflicts: false), {BackupItem.nodeServers: [lab, _defaultNode]});
+      expect(_plan(_map(BackupPlatform.mobile, _servers(nodes: [lab, _defaultNode])), mine: _servers(nodes: [lab, _defaultNode])).isEmpty, isTrue);
+    });
+
+    test('other wallets here: lists that differ ask once, the switches follow the rule', () {
+      final file = _map(BackupPlatform.desktop, {
+        ..._servers(nodes: [net, lab], boxes: ['box.net.invalid']),
+        ..._online(update: false),
+      });
+      final plan = _plan(file, here: BackupPlatform.desktop, shared: true);
+      expect(plan.asksServers, isTrue);
+      expect(_keys(plan.servers), {BackupItem.nodeServers, BackupItem.epicboxServers});
+      expect(plan.values(takeConflicts: false), {BackupItem.updateCheck: false}, reason: 'at its default here: taken');
+      expect(plan.values(takeConflicts: false, takeServers: true), {
+        BackupItem.updateCheck: false,
+        BackupItem.nodeServers: [net, lab],
+        BackupItem.epicboxServers: ['box.net.invalid'],
+      });
+      final asked = _plan(_map(BackupPlatform.desktop, _online(price: true)), here: BackupPlatform.desktop, shared: true, mine: _online(price: false));
+      expect(_keys(asked.conflicts), {BackupItem.price});
+      // The same lists: no question.
+      expect(_plan(_map(BackupPlatform.desktop), here: BackupPlatform.desktop, shared: true).isEmpty, isTrue);
+    });
+
+    test('a node on this computer, the local network or a tailnet is never made the node in use; it stays in the list', () {
       for (final url in ['http://127.0.0.1:3413', 'http://10.0.1.24:3413', 'http://100.101.2.3:3413', 'http://node.lan:3413', 'http://localhost:3413']) {
-        final plan = _plan(_map(BackupPlatform.mobile, {
-          BackupKey.node: {_chain: url},
-          BackupKey.nodeList: {_chain: serverListJson(ServerList(entries: [_defaultNode, url]))},
-        }));
-        expect(_keys(plan.refused), {BackupItem.node}, reason: url);
-        expect(plan.values(takeConflicts: true).containsKey(BackupItem.node), isFalse, reason: url);
-        final list = serverListFromJson(ServerKind.node, plan.values(takeConflicts: false)[BackupItem.nodeList])!;
-        expect(list.entries, [_defaultNode, url], reason: url);
+        final plan = _plan(_map(BackupPlatform.mobile, _servers(nodes: [url, lab, _defaultNode])));
+        expect(_keys(plan.refused), {BackupItem.nodeServers}, reason: url);
+        expect(plan.values(takeConflicts: true)[BackupItem.nodeServers], [lab, url, _defaultNode], reason: url);
+        // Only such nodes: the list is not taken.
+        final only = _plan(_map(BackupPlatform.mobile, _servers(nodes: [url])));
+        expect(only.values(takeConflicts: true, takeServers: true), isEmpty, reason: url);
+        expect(_keys(only.refused), {BackupItem.nodeServers}, reason: url);
       }
     });
 
-    test('a public node and relay are taken over the defaults', () {
-      final plan = _plan(_map(BackupPlatform.mobile, {
-        BackupKey.node: {_chain: 'https://node.btlabs.uk'},
-        BackupKey.relay: {_chain: 'epicbox.stackwallet.com'},
-      }));
-      expect(plan.values(takeConflicts: false), {BackupItem.node: 'https://node.btlabs.uk', BackupItem.relay: 'epicbox.stackwallet.com'});
-      expect(plan.refused, isEmpty);
-    });
-
-    test('another chain\'s servers are not read', () {
-      final plan = _plan(_map(BackupPlatform.mobile, {
-        BackupKey.node: {'floonet': 'https://floo-node.btlabs.uk'},
-      }));
+    test('entries that are no server address, repeats and empty lists are dropped', () {
+      expect(serverValuesFromJson(ServerKind.relay, ['box.lab.invalid', 'not a server', 42, 'wss://box.stack.invalid/', 'box.lab.invalid']), [
+        'box.lab.invalid',
+        'box.stack.invalid',
+      ]);
+      expect(serverValuesFromJson(ServerKind.node, 'x'), isNull);
+      final plan = _plan(_map(BackupPlatform.mobile, _servers(nodes: const [], boxes: const ['not a server'])));
       expect(plan.isEmpty, isTrue);
+      expect(plan.skipped, containsAll(['servers.node', 'servers.epicbox']));
     });
 
-    test('lists merge: the file\'s new entries and removals join, nothing here is dropped', () {
-      final mine = ServerList(entries: const ['https://a.example', 'https://b.example'], removed: {serverKeyOf(ServerKind.node, 'https://c.example')});
-      final file = ServerList(
-        entries: const ['https://b.example', 'https://d.example', 'https://c.example'],
-        removed: {serverKeyOf(ServerKind.node, 'https://a.example'), serverKeyOf(ServerKind.node, 'https://e.example')},
-      );
-      final merged = mergeServerLists(ServerKind.node, mine, file);
-      expect(merged.entries, ['https://a.example', 'https://b.example', 'https://d.example']);
-      expect(merged.removed, {serverKeyOf(ServerKind.node, 'https://c.example'), serverKeyOf(ServerKind.node, 'https://e.example')});
-      final plan = _plan(
-        _map(BackupPlatform.mobile, {BackupKey.nodeList: {_chain: serverListJson(file)}}),
-        mine: {BackupKey.nodeList: {_chain: serverListJson(mine)}},
-      );
-      expect(plan.conflicts, isEmpty, reason: 'a list never asks');
-      expect(serverListFromJson(ServerKind.node, plan.take.single.backup), merged);
-    });
-
-    test('list entries that are no server address are dropped', () {
-      final list = serverListFromJson(ServerKind.relay, {
-        'entries': ['epicbox.epicnet.us', 'not a server', 42, 'wss://epicbox.stackwallet.com/'],
-        'removed': ['x'],
+    test('a version 1 file: its per-chain servers and keyed lists are unknown keys, the rest is read', () {
+      final plan = _plan({
+        BackupKey.v: 1,
+        BackupKey.from: 'mobile',
+        BackupKey.theme: 'dark',
+        'node': {'mainnet': lab},
+        'nodeList': {
+          'mainnet': {'entries': [lab], 'removed': <Object?>[]},
+        },
+        'statusSite': false,
       });
-      expect(list!.entries, ['epicbox.epicnet.us', 'epicbox.stackwallet.com']);
+      expect(plan.values(takeConflicts: false), {BackupItem.theme: 'dark'});
+      expect(plan.skipped, containsAll(['node', 'nodeList', 'statusSite']));
     });
   });
 
@@ -198,12 +236,12 @@ void main() {
         BackupKey.autoLock: 'soon',
         BackupKey.hideBalances: 'yes',
         BackupKey.payments: {'epicbox': false, 'linkHttp': false, 'linkTor': false, 'directQr': false, 'directFile': false},
-        BackupKey.node: {_chain: 'ftp://node.example'},
+        BackupKey.online: {BackupKey.statusSite: 'no', 'tor': true},
         BackupKey.seenAs: 'x' * 49,
         BackupKey.advanced: 'torOnly',
       }));
       expect(plan.isEmpty, isTrue);
-      expect(plan.skipped, containsAll(['push', 'httpPort', BackupKey.theme, BackupKey.language, BackupKey.autoLock, BackupKey.hideBalances, BackupKey.payments, BackupKey.node, BackupKey.seenAs, BackupKey.advanced]));
+      expect(plan.skipped, containsAll(['push', 'httpPort', BackupKey.theme, BackupKey.language, BackupKey.autoLock, BackupKey.hideBalances, BackupKey.payments, 'online.status_site', 'online.tor', BackupKey.seenAs, BackupKey.advanced]));
     });
 
     test('a newer version, no version, an unknown app or no map: nothing is planned', () {
@@ -219,7 +257,7 @@ void main() {
         final plan = _plan(file);
         expect(plan.isEmpty, isTrue, reason: '$file');
       }
-      expect(_plan({...changed, BackupKey.v: 2}).skipped, [BackupKey.v]);
+      expect(_plan({...changed, BackupKey.v: backupSettingsVersion + 1}).skipped, [BackupKey.v]);
     });
 
     test('an auto-lock off the choices becomes the nearest', () {
@@ -262,42 +300,28 @@ void main() {
       expect(_plan(_map(BackupPlatform.mobile), here: BackupPlatform.desktop).isEmpty, isTrue, reason: 'a phone at its defaults changes nothing');
     });
 
-    test('the desktop items: own nodes and deleted seeds merge, expiry and the own relay follow the rule', () {
+    test('the desktop items: deleted seeds merge, expiry follows the rule; old own nodes and relay are skipped', () {
       final file = _map(BackupPlatform.desktop, {
         BackupKey.desktop: {
-          BackupKey.deskNodes: [
+          'nodes': [
             {'url': 'https://mine.example:3413', 'label': 'mine'},
-            {'url': 'not a url', 'label': 'bad'},
           ],
           BackupKey.invoiceExpiry: 999999,
           BackupKey.seedsDeleted: ['btlabs'],
-          BackupKey.ownRelay: 'epicbox.epicnet.us',
+          'ownRelay': 'box.lab.invalid',
           BackupKey.epicboxAutostart: false,
           'publicMode': true,
         },
       });
-      final plan = _plan(file, here: BackupPlatform.desktop, mine: {
-        BackupKey.desktop: {
-          BackupKey.deskNodes: [
-            {'url': 'https://home.example', 'label': 'home'},
-          ],
-          BackupKey.invoiceExpiry: 86400,
-          BackupKey.seedsDeleted: <Object?>[],
-          BackupKey.ownRelay: null,
-          BackupKey.epicboxAutostart: true,
-        },
-      });
+      final plan = _plan(file, here: BackupPlatform.desktop);
       expect(plan.conflicts, isEmpty);
       final v = plan.values(takeConflicts: false);
-      expect(v[BackupItem.deskNodes], [
-        {'url': 'https://home.example', 'label': 'home'},
-        {'url': 'https://mine.example:3413', 'label': 'mine'},
-      ]);
-      expect(v[BackupItem.invoiceExpiry], maxBackupInvoiceExpirySecs);
-      expect(v[BackupItem.seedsDeleted], ['btlabs']);
-      expect(v[BackupItem.ownRelay], 'epicbox.epicnet.us');
-      expect(v[BackupItem.epicboxAutostart], isFalse);
-      expect(plan.skipped, contains('desktop.publicMode'));
+      expect(v, {
+        BackupItem.invoiceExpiry: maxBackupInvoiceExpirySecs,
+        BackupItem.seedsDeleted: ['btlabs'],
+        BackupItem.epicboxAutostart: false,
+      });
+      expect(plan.skipped, containsAll(['desktop.publicMode', 'desktop.nodes', 'desktop.ownRelay']));
     });
 
     test('the wallet\'s name: replaces one the app gave, is asked about over the user\'s; a given name in the file is none', () {

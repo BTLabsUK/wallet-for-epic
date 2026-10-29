@@ -2,6 +2,7 @@
 // The import wizard's restore-review fixes on the mock wallet: the Epicbox server choice at
 // Done, the password line, the Windows close-first line and the line for
 // Stack Wallet and Epic Pay users.
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
@@ -60,7 +61,7 @@ void main() {
     await _wait(tester);
     expect(api.relayChoices, isEmpty);
     expect(find.textContaining('payments to the old one do not arrive'), findsOneWidget);
-    await tester.tap(find.text('Use epicbox.epiccash.com'));
+    await tester.tap(find.text('Use ${hostSettings.epicboxUse}'));
     await _wait(tester);
     expect(api.relayChoices.single, endsWith(':false'));
     await tester.tap(find.text('Keep epicbox.example.org'));

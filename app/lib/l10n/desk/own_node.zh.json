@@ -7,7 +7,7 @@
   "deskOwnFactMempool": "内存池",
   "deskOwnPoolEmpty": "空",
   "deskOwnPoolWaiting": "{count, plural, other{{count} 笔等待中}}",
-  "deskOwnSourceSite": "每 15 秒直接询问 · 最新高度来自 status.btlabs.uk",
+  "deskOwnSourceSite": "每 15 秒直接询问 · 最新高度来自 {site}",
   "deskOwnSourceNodes": "{count, plural, other{每 15 秒直接询问 · 最新高度来自 {count} 个公共节点}}",
   "deskOwnSourceNone": "每 15 秒直接询问 · 没有可比较的网络高度",
   "deskOwnSyncingLine": "同步完成前，钱包无法通过它发送或接收",
@@ -48,7 +48,7 @@
   "deskOwnSyncUsingTitle": "同步完成前使用 {host}",
   "deskOwnSyncUsingText": "此节点开始接受交易后，钱包会切换回来。",
   "deskOwnMine": "这是我的节点",
-  "deskOwnMineHint": "直接询问节点本身而不是 status.btlabs.uk，并提供所有者访问。适用于你自己运行的节点。",
+  "deskOwnMineHint": "直接询问节点本身而不是 {site}，并提供所有者访问。适用于你自己运行的节点。",
   "deskOwnSlotSyncing": "自有节点正在同步",
   "deskOwnAccessOnPlain": "已添加 · 以未加密方式（http）发送到节点，该网络上可被读取"
 }

@@ -19,6 +19,8 @@ import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
 import '../settings/settings_advanced.dart' show openAdvanced;
+import '../../../settings_file/host_settings.dart' show appConfig, hostSettings;
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 
 enum RxEpicbox { on, off, down, blocked }
 
@@ -111,11 +113,11 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       epicbox: s.epicbox,
       epicboxHealth: epicbox,
       epicboxBlocked: blocked || s.epicboxBlocked,
-      epicboxInstead: blocked ? const EpicboxRelay(host: 'epicbox.stackwallet.com') : s.epicboxInstead, // l10n-ok: tour demo relay
+      epicboxInstead: blocked ? EpicboxRelay(host: hostSettings.epicboxServers.last.host) : s.epicboxInstead, // l10n-ok: tour demo relay
       httpListener: http,
       tor: tor,
       httpProblem: a.http == RxHttp.failed ? HttpProblem.portInUse : s.httpProblem,
-      httpProblemPort: a.http == RxHttp.failed ? 3415 : s.httpProblemPort,
+      httpProblemPort: a.http == RxHttp.failed ? appConfig.httpListenPort : s.httpProblemPort,
       torProgress: a.tor == RxTor.connecting ? 45 : s.torProgress,
       torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: tour demo state
       torCanSend: a.tor == RxTor.connecting ? false : s.torCanSend,
@@ -421,7 +423,18 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         : health == ServiceHealth.checking
         ? l.deskRecvTagStarting
         : null;
-    final Widget addressBox = addr == null
+    // The Epicbox list of the settings file is empty: no server, so no address and no line.
+    final noServer = ref.read(hostSettingsProvider).epicboxServers.isEmpty;
+    final Widget addressBox = noServer
+        ? ENotice(
+            key: const ValueKey('rx-no-epicbox'),
+            title: l.deskSlNoEpicboxTitle,
+            text: l.deskSlNoEpicboxText,
+            tone: ETone.warn,
+            icon: EIcons.epicbox,
+            actions: [EButton(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
+          )
+        : addr == null
         ? Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
         : addr.isEmpty
         ? Text(l.deskRecvAddressUnreadable, style: ts.small)
@@ -435,11 +448,13 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         Text(l.deskRecvEpicboxIntro, style: ts.bodyDim),
         SizedBox(height: Sp.x4),
         addressBox,
-        SizedBox(height: Sp.x2),
-        Text(l.deskRecvCheckSix, style: ts.caption),
-        SizedBox(height: Sp.x4),
-        if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
-        if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), EpicboxDownNotice(sentence: false, status: status)],
+        if (!noServer) ...[
+          SizedBox(height: Sp.x2),
+          Text(l.deskRecvCheckSix, style: ts.caption),
+          SizedBox(height: Sp.x4),
+          if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
+          if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), EpicboxDownNotice(sentence: false, status: status)],
+        ],
         // Invoices: ask someone to pay; the invoice address never shows here.
         if (ref.watch(deskInvoicesShownProvider) && ref.watch(deskPairsProvider)) ...[
           SizedBox(height: Sp.x5),

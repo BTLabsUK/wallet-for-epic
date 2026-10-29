@@ -48,7 +48,7 @@
   "deskKitNodesUp": "{up, plural, one{{up} von {total} Node erreichbar} other{{up} von {total} Nodes erreichbar}}",
   "deskKitEpicboxUp": "{up, plural, one{{up} von {total} Epicbox-Server erreichbar} other{{up} von {total} Epicbox-Servern erreichbar}}",
   "deskKitLastBlock": "letzter Block {age}",
-  "deskKitLimitedNetwork": "status.btlabs.uk ist nicht erreichbar; die Angaben stammen nur vom Node.",
+  "deskKitLimitedNetwork": "{site} ist nicht erreichbar; die Angaben stammen nur vom Node.",
   "deskKitFactHeight": "Höhe",
   "deskKitFactVersion": "Version",
   "deskKitFactAccepts": "Nimmt Transaktionen an",
@@ -66,7 +66,7 @@
   "deskKitUptimeWindow": "letzte 24 h",
   "deskKitAtTime": "um {time}",
   "deskKitListedOfficial": "als offiziell gelistet",
-  "deskKitSourceChecked": "status.btlabs.uk, geprüft {time}",
+  "deskKitSourceChecked": "{site}, geprüft {time}",
   "deskKitLatencyMeasured": "Latenz gemessen {where}",
   "deskKitSiteLastReached": "Status-Website zuletzt erreicht {time}",
   "deskKitSince": "seit {time}",
@@ -75,7 +75,7 @@
   "deskKitNodeDownText": "Zu {host} wechseln, dem besten anderen Node?",
   "deskKitSwitch": "Wechseln",
   "deskKitLimitedInfo": "Wenige Angaben",
-  "deskKitFromStatusSite": "von status.btlabs.uk",
+  "deskKitFromStatusSite": "von {site}",
   "deskKitOverTor": "über Tor",
   "deskKitFromThisComputer": "von diesem Computer",
   "deskKitNodeUse": "{host} nutzen",
@@ -124,5 +124,6 @@
   "deskKitQrShow": "QR zeigen",
   "deskKitQrHide": "QR ausblenden",
   "deskKitQrHideCode": "QR ausblenden",
-  "deskKitMethodConnected": "Verbunden"
+  "deskKitMethodConnected": "Verbunden",
+  "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor."
 }

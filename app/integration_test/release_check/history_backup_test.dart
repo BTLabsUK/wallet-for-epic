@@ -51,6 +51,7 @@ import 'package:flutter/gestures.dart' show HitTestResult;
 import 'package:flutter/material.dart' show EditableText, RichText, Scrollable, Size, TextField, TextInputAction, ValueKey, WidgetsBinding;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
 
 import 'support.dart';
@@ -138,7 +139,7 @@ class _Store implements lepic.SecretStore {
 /// the same history files, so it reads what an export holds and seals a version 1 file.
 Future<lepic.EpicWallet> twinOf(String phrase, String dir) => lepic.EpicWallet.create(
   runtime: lepic.LepicRuntime(logLevel: lepic.LogLevel.warn),
-  config: lepic.WalletConfig(dataDir: dir, chain: lepic.Chain.floonet, nodeUrl: flooNode, epicboxDomain: flooRelay, epicboxPort: 443),
+  config: lepic.WalletConfig(dataDir: dir, chain: lepic.Chain.floonet, nodeUrl: flooNode, epicboxDomain: flooRelay, epicboxPort: 443, onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig)),
   store: lepic.lepicSecretStore(_Store()),
   mnemonic: phrase,
   password: randomPassword(),

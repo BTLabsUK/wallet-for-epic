@@ -8,6 +8,7 @@ import '../../../known_relays.dart' show recipientRelay;
 import '../../../devices/device_ending.dart' show deviceEndingLabel, deviceEndingLine;
 import '../../../l10n.dart' show acceptedAgoText, messageHint;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
+import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../watch_mode.dart' show BlockWait;
 import '../../data/clock.dart';
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
@@ -128,16 +129,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         };
 
   /// The core's own fields: ids, height, kernel, status and type.
-  /// The phone's block explorer link (GP-015): the kernel on Floonet, the block on mainnet,
-  /// once the payment is confirmed; null before that.
+  /// The phone's block explorer link (GP-015): the block by its height, once the payment is
+  /// confirmed; null before that, or when `app-config.toml` names no explorer.
   String? _explorerUrl(Tx t) {
     if (t.state != TxState.confirmed) return null;
-    final network = ref.watch(deskProvider.select((s) => s.account?.network)) ?? 'mainnet'; // l10n-ok: network id
-    return switch (network) {
-      'floonet' when t.kernel != null => 'https://floo-explorer.btlabs.uk/kernel/${t.kernel}', // l10n-ok: url
-      'mainnet' when t.height != null => 'https://explorer.epicmine.io/block/${t.height}', // l10n-ok: url
-      _ => null,
-    };
+    final settings = ref.watch(hostSettingsProvider);
+    final height = t.height;
+    return height == null ? null : settings.explorerBlock(height);
   }
 
   Widget _techFacts(Tx t, AppLocalizations l, DeskText ts) {

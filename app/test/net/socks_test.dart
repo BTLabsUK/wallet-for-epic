@@ -168,14 +168,14 @@ void main() {
     final socks = await _FakeSocks.start({'abcdefghij.onion': web.port});
     addTearDown(socks.close);
     TorNet.useTor(socks.proxy);
-    TorNet.onions = (host, port) => host == 'status.btlabs.uk' ? (onion: 'abcdefghij.onion', port: 80, tls: false) : null;
-    final reply = await httpGet(Uri.http('status.btlabs.uk', '/api/v1/price.json'));
+    TorNet.onions = (host, port) => host == 'status.lab.invalid' ? (onion: 'abcdefghij.onion', port: 80, tls: false) : null;
+    final reply = await httpGet(Uri.http('status.lab.invalid', '/api/v1/price.json'));
     expect(reply.status, 200);
     expect(reply.body, '{"ok":true}');
     expect(socks.connects.single.atyp, 3, reason: 'a name, never an address looked up here');
     expect(socks.connects.single.host, 'abcdefghij.onion');
     expect(socks.connects.single.port, 80);
-    expect(seen.single.value(HttpHeaders.hostHeader), 'status.btlabs.uk');
+    expect(seen.single.value(HttpHeaders.hostHeader), 'status.lab.invalid');
     expect(seen.single.value(HttpHeaders.userAgentHeader), isNull);
     expect(seen.single.value(HttpHeaders.acceptLanguageHeader), isNull);
   });
@@ -185,8 +185,8 @@ void main() {
     addTearDown(socks.close);
     TorNet.useTor(socks.proxy);
     TorNet.onions = (host, port) => (onion: 'abcdefghij.onion', port: 80, tls: false);
-    await httpGet(Uri.http('status.btlabs.uk', '/a'));
-    await httpGet(Uri.http('status.btlabs.uk', '/b'));
+    await httpGet(Uri.http('status.lab.invalid', '/a'));
+    await httpGet(Uri.http('status.lab.invalid', '/b'));
     expect(socks.connects, hasLength(2));
     expect(socks.connects[0].user, isNot(socks.connects[1].user));
   });
@@ -247,39 +247,39 @@ void main() {
   });
 
   test('BT Labs servers only at their onions: the built-in list, never an exit', () async {
-    expect(torBuiltInOnion('status.btlabs.uk', 443)?.port, 80);
-    expect(torBuiltInOnion('status.btlabs.uk', 443)?.tls, isFalse);
-    expect(torBuiltInOnion('node.btlabs.uk', 443)?.tls, isTrue);
-    expect(torBuiltInOnion('epicbox.epiccash.com', 443), isNull);
+    expect(torBuiltInOnion('status.lab.invalid', 443)?.port, 80);
+    expect(torBuiltInOnion('status.lab.invalid', 443)?.tls, isFalse);
+    expect(torBuiltInOnion('node.lab.invalid', 443)?.tls, isTrue);
+    expect(torBuiltInOnion('box.epic.invalid', 443), isNull);
     final socks = await _FakeSocks.start({});
     addTearDown(socks.close);
     TorNet.useTor(socks.proxy);
-    await expectLater(httpGet(Uri.https('new.btlabs.uk', '/')), throwsA(isA<NetError>()));
+    await expectLater(httpGet(Uri.https('new.lab.invalid', '/')), throwsA(isA<NetError>()));
     expect(socks.connects, isEmpty);
   });
 
   test("https never goes in clear to a plain onion a list names; the app's own status onion still serves it", () async {
-    final status = torBuiltInOnion('status.btlabs.uk', 443)!;
+    final status = torBuiltInOnion('status.lab.invalid', 443)!;
     final socks = await _FakeSocks.start({'abcdefghij.onion': web.port, status.onion: web.port});
     addTearDown(socks.close);
     TorNet.useTor(socks.proxy);
     // A plain onion from a list for an https URL: refused, and nothing goes through an exit.
     TorNet.onions = (host, port) => (onion: 'abcdefghij.onion', port: 80, tls: false);
-    await expectLater(httpGet(Uri.https('status.btlabs.uk', '/api/v1/status.json')), throwsA(isA<NetError>()));
-    await expectLater(httpGet(Uri.https('support.btlabs.uk', '/')), throwsA(isA<NetError>()));
+    await expectLater(httpGet(Uri.https('status.lab.invalid', '/api/v1/status.json')), throwsA(isA<NetError>()));
+    await expectLater(httpGet(Uri.https('support.lab.invalid', '/')), throwsA(isA<NetError>()));
     expect(socks.connects, isEmpty);
     // The same onion serves a plain http URL.
-    expect((await httpGet(Uri.http('status.btlabs.uk', '/a'))).status, 200);
+    expect((await httpGet(Uri.http('status.lab.invalid', '/a'))).status, 200);
     expect(socks.connects.single.host, 'abcdefghij.onion');
     // The status site's own onion, as built in and as the signed list names it: still used.
-    TorNet.onions = (host, port) => host == 'status.btlabs.uk' ? status : null;
-    final reply = await httpGet(Uri.https('status.btlabs.uk', '/api/v1/status.json'));
+    TorNet.onions = (host, port) => host == 'status.lab.invalid' ? status : null;
+    final reply = await httpGet(Uri.https('status.lab.invalid', '/api/v1/status.json'));
     expect(reply.status, 200);
     expect(socks.connects.last.host, status.onion);
     expect(socks.connects.last.port, 80);
     // No list at all: the built-in table.
     TorNet.onions = null;
-    expect((await httpGet(Uri.https('status.btlabs.uk', '/b'))).status, 200);
+    expect((await httpGet(Uri.https('status.lab.invalid', '/b'))).status, 200);
     expect(socks.connects.last.host, status.onion);
   });
 

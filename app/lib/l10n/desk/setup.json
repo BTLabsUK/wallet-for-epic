@@ -180,7 +180,7 @@
     "placeholders": {
       "host": {
         "type": "String",
-        "example": "127.0.0.1:3413"
+        "example": "127.0.0.1:<port>"
       }
     }
   },
@@ -206,7 +206,7 @@
     "placeholders": {
       "node": {
         "type": "String",
-        "example": "node.epiccash.com"
+        "example": "node.example.org"
       }
     }
   },

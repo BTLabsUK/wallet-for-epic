@@ -138,7 +138,7 @@ class _Price implements PriceSource {
   Future<double?> price(String currency) async => 0.5;
 }
 
-/// status.btlabs.uk down: no network tip, so a node that answers reads Synced.
+/// status.lab.invalid down: no network tip, so a node that answers reads Synced.
 class _Directory
     implements dir.RelayDirectory, dir.NodeDirectory, dir.NetworkDirectory {
   @override
@@ -296,7 +296,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), t.ok);
       expect(
         _tip_(tester, epicboxStatusKey),
-        'Connected · epicbox.epiccash.com\nServer: epicbox.epiccash.com:443',
+        'Connected · box.epic.invalid\nServer: box.epic.invalid:443',
       );
       // Tor and Link off: both stay, faint and without a dot, their labels say Off and a
       // tap opens the switch; no Tor words on the two.

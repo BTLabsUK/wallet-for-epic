@@ -14,7 +14,7 @@
   "deskSetRecvEpicboxServerHint": "เซิร์ฟเวอร์ที่เก็บรายการของที่อยู่นี้ สองกระเป๋าเงินใช้เซิร์ฟเวอร์ต่างกันได้",
   "deskSetRecvEpicboxOwnHint": "กระเป๋าเงินนี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋าเงินนี้เท่านั้น",
   "deskSetRecvSwitchingServer": "กำลังเปลี่ยนเซิร์ฟเวอร์ Epicbox…",
-  "deskSetRecvListNote": "สถานะจาก status.btlabs.uk",
+  "deskSetRecvListNote": "สถานะจาก {site}",
   "deskSetRecvHttpText": "ตรงจากกระเป๋าเงินอื่นที่ที่อยู่เว็บของคอมพิวเตอร์เครื่องนี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่",
   "deskSetRecvHttpOffTitle": "ปิดอยู่ขณะเปิด Tor",
   "deskSetRecvHttpOffText": "รายการตรงจากกระเป๋าเงินอื่นจะเข้าที่ที่อยู่ ลิงก์ · Tor แทน",

@@ -322,7 +322,7 @@ Recipient? _recipientOf(String text) {
 
 /// Whether [url] is a whole Direct URL Send takes, with none of what could hide its host: no
 /// query or fragment, no `@` (a user part, even an empty one), no IPv6 literal (Send takes
-/// none; `[::ffff:1.2.3.4]` would pass its name check) and no empty port (`host:`).
+/// none; `[::ffff:203.0.113.4]` would pass its name check) and no empty port (`host:`).
 bool _directUrl(String url) {
   if (!httpAddressComplete(url) || url.contains(RegExp('[?#@]'))) return false;
   if (Uri.parse(url).host.contains(':')) return false;

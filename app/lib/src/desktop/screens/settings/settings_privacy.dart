@@ -11,12 +11,13 @@ import '../../widgets/kit.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show openAdvanced;
+import '../../../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
 enum PrivacyDemo { torOn, torStarting, torFailed }
 
 /// Settings › Privacy: the one Tor switch (what it covers is `tor_routes.dart`'s) and whether
-/// status.btlabs.uk is asked.
+/// the status site is asked.
 class SettingsPrivacyScreen extends ConsumerWidget {
   const SettingsPrivacyScreen({super.key, this.arg});
 
@@ -185,25 +186,27 @@ MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status,
   };
 }
 
-/// Whether status.btlabs.uk is asked ([DeskSettings.useStatusSite]). Off, the node and
+/// Whether the status site is asked ([DeskSettings.useStatusSite]). Off, the node and
 /// Epicbox lists are the built-in ones with health from the servers themselves. Applies at once.
 class PrivacyGroup extends ConsumerWidget {
   const PrivacyGroup({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // No status site in app-config.toml: no group.
+    if (!statusSiteConfigured) return const SizedBox.shrink();
     final s = ref.watch(deskProvider.select((s) => s.settings));
     final l = context.l10n;
     return ESetGroup(
       title: l.deskSetPrivStatusSite,
       rows: [
         ESetRow(
-          title: l.deskSetPrivUseStatus,
+          title: l.deskSetPrivUseStatus(statusSiteHost),
           hint: l.deskSetPrivUseStatusHint,
           control: ESwitch(
 
             value: s.useStatusSite,
-            semanticLabel: l.deskSetPrivUseStatus,
+            semanticLabel: l.deskSetPrivUseStatus(statusSiteHost),
             onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(useStatusSite: v)),
           ),
         ),

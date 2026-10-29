@@ -14,6 +14,6 @@
   "deskSetPrivStoppedDetail": "Tor остановился. Повторите попытку или выключите Tor.",
   "deskSetPrivProblemDetail": "{problem}. Повторите попытку или выключите Tor.",
   "deskSetPrivStatusSite": "Сайт статуса",
-  "deskSetPrivUseStatus": "Использовать status.btlabs.uk",
+  "deskSetPrivUseStatus": "Использовать {site}",
   "deskSetPrivUseStatusHint": "Показывает, какие узлы и серверы Epicbox в сети. Загружает только публичный список; из кошелька ничего не отправляется."
 }

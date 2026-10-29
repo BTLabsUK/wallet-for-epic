@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Live check of pairing by words on a phone (report utc3fhjj, 2026-10-26): the real app on the
 // device with the real LEPIC core and real mainnet relays. The phone's own relay is one outside
-// the words meeting list (epicbox.iniaku.my.id, as a tester had), which LEPIC 26.10.16 refused
+// the words meeting list (WFE_WORDS_RELAY, a relay a tester had), which LEPIC 26.10.16 refused
 // words for outright ("Can't reach the relay").
 //
 //   WFE_WORDS_MODE=filter: run the emulator with `-dns-server 194.168.4.100` (Virgin Media's DNS,
@@ -48,7 +48,8 @@ const _mode = String.fromEnvironment('WFE_WORDS_MODE', defaultValue: 'filter');
 // `desk`: the desktop app is the other side and pastes what the phone copied.
 const _joiner = String.fromEnvironment('WFE_WORDS_JOINER', defaultValue: 'here');
 const _node = 'https://node.btlabs.uk';
-const _ownRelay = EpicboxRelay(host: 'epicbox.iniaku.my.id');
+// A live relay outside the words meeting list: WFE_WORDS_RELAY names it.
+const _ownRelay = EpicboxRelay(host: String.fromEnvironment('WFE_WORDS_RELAY', defaultValue: 'epicbox.other.example'));
 final _l = AppLocalizationsEn();
 
 const _pin = '123456';

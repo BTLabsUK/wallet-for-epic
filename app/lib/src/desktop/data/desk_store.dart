@@ -11,13 +11,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../connection_servers.dart' show decodeConnectionServers, encodeConnectionServers;
 import '../../log.dart';
 import '../../l10n.dart' show appLanguages;
 import '../../secret_store_api.dart';
-import '../../server_list.dart' show ServerKind, ServerList;
 import '../../settings.dart' show autoLockChoice;
 import 'models.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 
 class DeskStore {
   const DeskStore(this._secrets);
@@ -142,7 +141,7 @@ class DeskStore {
     if (walletId != null) {
       return writeJson(httpKeyOf(walletId), {
         'publicMode': p.publicMode,
-        'httpPort': p.port,
+        'httpPort': ?p.portChosen,
         'autostart': p.autostart,
       });
     }
@@ -151,31 +150,13 @@ class DeskStore {
     await writeJson(settingsKey, {
       ...?(settings is Map<String, dynamic> ? settings : null),
       'publicMode': p.publicMode,
-      'httpPort': p.port,
+      'httpPort': ?p.portChosen,
     });
     await writeJson(prefsKey, {
       ...?(prefs is Map<String, dynamic> ? prefs : null),
       'httpAutostart': p.autostart,
     });
   }
-
-  /// The Node or Epicbox list ([ServerList]) of [chain], as `ServerList.encode()` writes it;
-  /// null before its first use (the panel seeds it then).
-  static String serverListKey(ServerKind kind, String chain) => 'desk.serverList.${kind.name}.$chain';
-
-  Future<ServerList?> serverList(ServerKind kind, String chain) async => ServerList.decode(await _secrets.read(serverListKey(kind, chain)));
-
-  Future<void> saveServerList(ServerKind kind, String chain, ServerList list) => _secrets.write(serverListKey(kind, chain), list.encode());
-
-  /// The Connection servers of [chain] (Settings › Advanced): a JSON list of `host[:port]`; null
-  /// while they are the defaults.
-  static String pairingRelaysKey(String chain) => 'desk.pairingRelays.$chain';
-
-  Future<List<String>?> pairingRelays(String chain) async => decodeConnectionServers(await _secrets.read(pairingRelaysKey(chain)));
-
-  /// Stores [hosts]; null (the defaults) removes the record.
-  Future<void> savePairingRelays(String chain, List<String>? hosts) =>
-      hosts == null ? _secrets.delete(pairingRelaysKey(chain)) : _secrets.write(pairingRelaysKey(chain), encodeConnectionServers(hosts));
 
   Future<Object?> readJson(String key) async {
     final text = await _secrets.read(key);
@@ -208,7 +189,7 @@ class DeskStore {
       deskSettingsToJson(
         s.copyWith(
           publicMode: saved.publicMode,
-          httpPort: saved.httpPort,
+          httpPort: saved.httpPortChosen,
           tourSeen: s.tourSeen || saved.tourSeen,
           importWarningSeen: s.importWarningSeen || saved.importWarningSeen,
         ),
@@ -254,10 +235,15 @@ class AutostartPrefs {
 /// A wallet's HTTP listener settings.
 @immutable
 class HttpPrefs {
-  const HttpPrefs({this.publicMode = false, this.port = 3415, this.autostart = false});
+  const HttpPrefs({this.publicMode = false, int? port, this.autostart = false}) : portChosen = port;
 
   final bool publicMode;
-  final int port;
+
+  /// The port the user chose, else `http.listen_port` of `app-config.toml`.
+  int get port => portChosen ?? appConfig.httpListenPort;
+
+  /// The port the user chose; null: the configured one.
+  final int? portChosen;
   final bool autostart;
 
   @override
@@ -273,7 +259,7 @@ HttpPrefs _httpPrefsFromJson(Map<String, dynamic> j, HttpPrefs d) {
   final auto = j['autostart'];
   return HttpPrefs(
     publicMode: public is bool ? public : d.publicMode,
-    port: port is int && port > 0 && port < 65536 ? port : d.port,
+    port: port is int && port > 0 && port < 65536 ? port : d.portChosen,
     autostart: auto is bool ? auto : d.autostart,
   );
 }
@@ -288,11 +274,10 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'internetGuideSeen': s.internetGuideSeen,
   'tourSeen': s.tourSeen,
   'importWarningSeen': s.importWarningSeen,
-  'useStatusSite': s.useStatusSite,
   'autoLock': s.autoLockMinutes,
   'autoLockOn': s.autoLockOn,
   'publicMode': s.publicMode,
-  'httpPort': s.httpPort,
+  'httpPort': ?s.httpPortChosen,
   'advanced': s.advanced.toJson(),
   'payments': s.payments.toJson(),
   if (s.pairingSeenAs.isNotEmpty) 'pairingSeenAs': s.pairingSeenAs,
@@ -311,7 +296,6 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
   final guide = j['internetGuideSeen'];
   final tour = j['tourSeen'];
   final importWarned = j['importWarningSeen'];
-  final site = j['useStatusSite'];
   // The key before 26.10.13 held a value nothing read: it is not taken over.
   final lock = j['autoLock'];
   final lockOn = j['autoLockOn'];
@@ -331,7 +315,6 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
     internetGuideSeen: guide is bool ? guide : d.internetGuideSeen,
     tourSeen: tour is bool ? tour : d.tourSeen,
     importWarningSeen: importWarned is bool ? importWarned : d.importWarningSeen,
-    useStatusSite: site is bool ? site : d.useStatusSite,
     publicMode: public is bool ? public : d.publicMode,
     advanced: AdvancedPrefs.fromJson(j['advanced']),
     // Direct was Advanced's "Direct receiving" switch before 26.10.13.
@@ -342,7 +325,7 @@ DeskSettings deskSettingsFromJson(Map<String, dynamic> j) {
         _ => false,
       },
     ),
-    httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPort,
+    httpPort: port is int && port > 0 && port < 65536 ? port : d.httpPortChosen,
     autoLockMinutes: lock is int ? autoLockChoice(lock) : d.autoLockMinutes,
     autoLockOn: lockOn is bool ? lockOn : d.autoLockOn,
   );

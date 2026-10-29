@@ -9,9 +9,13 @@ import 'dart:io';
 
 import '../../l10n.dart' show AppLocalizations, englishStrings;
 import '../../tor_build.dart' show torBuilt;
+import '../../net/http.dart' show httpGet;
+import '../../net/tor_switch.dart' show TorSwitch;
+import '../../settings_file/host_settings.dart' show appConfig, hostSettings;
 
-/// The port `epic-wallet` and the GUI listen on.
-const int defaultHttpPort = 3415;
+/// The port the Link · HTTP listener takes unless the user picks another
+/// (`http.listen_port` of `app-config.toml`).
+int get defaultHttpPort => appConfig.httpListenPort;
 
 /// [text] as an HTTP(S) address the wallet sends to, trimmed; null when it is not one.
 Uri? parseHttpAddress(String text) {
@@ -120,19 +124,31 @@ abstract interface class PublicReachProbe {
   Future<bool?> reachable(String ip, int port);
 }
 
-/// [PublicReachProbe] on api.ipify.org (the IP, as the GUI 6.1.6 asks it) and portchecker.io
-/// (a connection from its server, so it tells what a sender sees, unlike a connection from this
-/// computer through the router). No user agent, no cookies, no redirects.
+/// The status server cannot check over Tor (it would see the exit, not this computer): it says
+/// so, and the check needs Tor off.
+class ReachNeedsTorOff implements Exception {
+  const ReachNeedsTorOff();
+}
+
+/// [PublicReachProbe] on our status server (`[status] ip` and `reach` of `app-config.toml`):
+/// the address it sees this computer at, and whether a connection from it to that address and
+/// [port] gets through (it checks only the asking address, so it tells what a sender sees).
+/// Answers: `{"ip": "…"}` and `{"ip", "port", "open", "foreign_api", "detail"}`; an error is
+/// `{"error": "…"}` (400; 429 = try later, read as "could not tell"). Never with Tor on: a Tor
+/// exit would answer for the exit's address, and the status onion answers "not available over
+/// Tor" ([ReachNeedsTorOff] either way).
 class WebReachProbe implements PublicReachProbe {
   const WebReachProbe();
 
-  static final Uri _ip = Uri.parse('https://api.ipify.org?format=json');
-  static final Uri _check = Uri.parse('https://portchecker.io/api/v1/query');
-  static const Duration _timeout = Duration(seconds: 10);
+  /// Whether `app-config.toml` names the two addresses; without them there is no check.
+  static bool get configured => hostSettings.config.statusIp != null && hostSettings.config.statusReach(0) != null;
 
   @override
   Future<String?> publicIp() async {
-    final json = await _json(_ip);
+    if (TorSwitch.on) throw const ReachNeedsTorOff();
+    final url = hostSettings.config.statusIp;
+    if (url == null) return null;
+    final json = await _json(Uri.parse(url));
     final ip = json is Map ? json['ip'] : null;
     final a = ip is String ? InternetAddress.tryParse(ip) : null;
     return a != null && a.type == InternetAddressType.IPv4 ? a.address : null;
@@ -140,42 +156,38 @@ class WebReachProbe implements PublicReachProbe {
 
   @override
   Future<bool?> reachable(String ip, int port) async {
-    final json = await _json(_check, body: {'host': ip, 'ports': [port]});
-    if (json is! Map || json['error'] == true) return null;
-    final check = json['check'];
-    if (check is! List) return null;
-    for (final c in check) {
-      if (c is Map && c['port'] == port && c['status'] is bool) return c['status'] as bool;
-    }
-    return null;
+    final url = hostSettings.config.statusReach(port);
+    if (url == null) return null;
+    final json = await _json(Uri.parse(url));
+    final open = json is Map ? json['open'] : null;
+    return open is bool ? open : null;
   }
 
-  Future<Object?> _json(Uri url, {Object? body}) async {
-    final client = HttpClient()
-      ..connectionTimeout = _timeout
-      ..userAgent = null;
+  Future<Object?> _json(Uri url) async {
     try {
-      final request = await (body == null ? client.getUrl(url) : client.postUrl(url)).timeout(_timeout);
-      request.followRedirects = false;
-      request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-      if (body != null) {
-        request.headers.contentType = ContentType.json;
-        request.write(jsonEncode(body));
+      final reply = await httpGet(
+        url,
+        headers: const {'accept': 'application/json'},
+        timeout: hostSettings.config.reachTimeout,
+        maxBytes: 4096,
+      );
+      if (reply.status != 200) {
+        final error = reply.status == 400 ? jsonDecode(reply.body) : null;
+        if (error is Map && '${error['error']}'.contains('Tor')) throw const ReachNeedsTorOff();
+        return null;
       }
-      final response = await request.close().timeout(_timeout);
-      final text = await response.transform(utf8.decoder).join().timeout(_timeout);
-      return response.statusCode == 200 ? jsonDecode(text) : null;
+      return jsonDecode(reply.body);
+    } on ReachNeedsTorOff {
+      rethrow;
     } on Object {
       return null;
-    } finally {
-      client.close(force: true);
     }
   }
 }
 
 /// What the internet sees of the HTTP listener From the internet.
 class HttpReach {
-  const HttpReach({required this.port, this.publicIp, this.lan, this.reachable, required this.checkedAt});
+  const HttpReach({required this.port, this.publicIp, this.lan, this.reachable, this.needsTorOff = false, required this.checkedAt});
 
   final int port;
 
@@ -187,6 +199,9 @@ class HttpReach {
 
   /// Whether the internet reaches `publicIp:port`; null when it could not be checked.
   final bool? reachable;
+
+  /// The status server said it cannot check over Tor.
+  final bool needsTorOff;
 
   final DateTime checkedAt;
 
@@ -244,8 +259,12 @@ class HttpReachCache {
   void clear() => _last = null;
 
   Future<HttpReach> _check(int port, String? lan) async {
-    final ip = await _probe.publicIp();
-    final reachable = ip == null ? null : await _probe.reachable(ip, port);
-    return HttpReach(port: port, publicIp: ip, lan: lan, reachable: reachable, checkedAt: _now());
+    try {
+      final ip = await _probe.publicIp();
+      final reachable = ip == null ? null : await _probe.reachable(ip, port);
+      return HttpReach(port: port, publicIp: ip, lan: lan, reachable: reachable, checkedAt: _now());
+    } on ReachNeedsTorOff {
+      return HttpReach(port: port, lan: lan, needsTorOff: true, checkedAt: _now());
+    }
   }
 }

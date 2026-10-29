@@ -1939,12 +1939,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupRelayDownIconLabel => 'Down';
 
   @override
-  String get setupRelayHealthUnavailable =>
-      'Server health is unavailable from status.btlabs.uk.';
+  String setupRelayHealthUnavailable(String site) {
+    return 'Server health is unavailable from $site.';
+  }
 
   @override
-  String get setupRelayHealthSource =>
-      'Health from status.btlabs.uk, measured from its server.';
+  String setupRelayHealthSource(String site) {
+    return 'Health from $site, measured from its server.';
+  }
 
   @override
   String get setupRelayNotMonitored => 'Not monitored';
@@ -2961,7 +2963,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).';
+      'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).';
 
   @override
   String get settingsTitle => 'Settings';
@@ -3372,7 +3374,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsUseStatusSite => 'Use status.btlabs.uk';
+  String settingsUseStatusSite(String site) {
+    return 'Use $site';
+  }
 
   @override
   String get settingsUseStatusSiteSubtitle =>
@@ -4663,8 +4667,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverPublicRelays => 'Public servers';
 
   @override
-  String get serverHealthUnknown =>
-      'status.btlabs.uk not reachable; health unknown';
+  String serverHealthUnknown(String site) {
+    return '$site not reachable; health unknown';
+  }
 
   @override
   String get serverAtTip => 'at tip';
@@ -4736,8 +4741,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverOtherNode => 'Other node, host or host:port';
 
   @override
-  String get serverOtherNodeInvalid =>
-      'Enter a node address such as node.example.com:3413';
+  String serverOtherNodeInvalid(String port) {
+    return 'Enter a node address such as node.example.com:$port';
+  }
 
   @override
   String get serverAdd => 'Add';
@@ -4815,8 +4821,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String serverCheckedAt(String time) {
-    return 'status.btlabs.uk, checked $time';
+  String serverCheckedAt(String time, String site) {
+    return '$site, checked $time';
   }
 
   @override
@@ -5737,7 +5743,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodLinkPayment => 'Link Payment';
 
   @override
-  String get methodDirectShape => 'http://host:3415 or xxxx….onion';
+  String methodDirectShape(String port) {
+    return 'http://host:$port or xxxx….onion';
+  }
 
   @override
   String get methodSendDirectLine =>
@@ -6480,7 +6488,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskNodeStartIt => 'Start it under Settings › Node.';
 
   @override
-  String get deskNodeFailPort => 'port 3413 is used by another program';
+  String deskNodeFailPort(String port) {
+    return 'port $port is used by another program';
+  }
 
   @override
   String get deskNodeFailDisk => 'not enough disk space';
@@ -7919,7 +7929,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com), a Link address (https://…) or an onion address (….onion).';
+      'Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).';
 
   @override
   String get deskConAddPicture => 'Add picture';
@@ -8482,8 +8492,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOvNodeAddrTitle => 'Node address updated';
 
   @override
-  String get deskOvNodeAddrText =>
-      'Now using node.epiccash.com instead of node.epiccash.com:3413.';
+  String deskOvNodeAddrText(String node, String old) {
+    return 'Now using $node instead of $old.';
+  }
 
   @override
   String get deskOvNodeIncompatTitle => 'Node version not compatible';
@@ -9432,8 +9443,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Wrong password. Check Caps Lock and the keyboard layout.';
 
   @override
-  String get deskOnbUnlockPortInUse =>
-      'Port 3415 is in use by another program. Close it, then try again.';
+  String deskOnbUnlockPortInUse(String port) {
+    return 'Port $port is in use by another program. Close it, then try again.';
+  }
 
   @override
   String get deskOnbUnlockStageCheck => 'Checking wallet files';
@@ -10386,8 +10398,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskKitLimitedNetwork =>
-      'status.btlabs.uk is not reachable; the facts come from the node only.';
+  String deskKitLimitedNetwork(String site) {
+    return '$site is not reachable; the facts come from the node only.';
+  }
 
   @override
   String get deskKitFactHeight => 'Height';
@@ -10453,8 +10466,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKitListedOfficial => 'listed as official';
 
   @override
-  String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk, checked $time';
+  String deskKitSourceChecked(String time, String site) {
+    return '$site, checked $time';
   }
 
   @override
@@ -10492,7 +10505,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKitLimitedInfo => 'Limited info';
 
   @override
-  String get deskKitFromStatusSite => 'from status.btlabs.uk';
+  String deskKitFromStatusSite(String site) {
+    return 'from $site';
+  }
 
   @override
   String get deskKitOverTor => 'over Tor';
@@ -11463,7 +11478,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLnodeNoProgressText => 'Restart, or check the node log.';
 
   @override
-  String get deskSetLnodePortInUse => 'Port 3413 is used by another program.';
+  String deskSetLnodePortInUse(String port) {
+    return 'Port $port is used by another program.';
+  }
 
   @override
   String get deskSetLnodePortInUseText =>
@@ -11802,8 +11819,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetPeersUnbannedToast => 'Peer unbanned';
 
   @override
-  String get deskSetPeersNotAddress =>
-      'Not an IP address and port, such as 203.0.113.5:3414.';
+  String deskSetPeersNotAddress(String port) {
+    return 'Not an IP address and port, such as 203.0.113.5:$port.';
+  }
 
   @override
   String get deskSetPeersAlreadyPreferred => 'Already preferred.';
@@ -11998,12 +12016,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLogsOpenFolder => 'Open log folder';
 
   @override
-  String get deskSetNodePortNote =>
-      'Check the address and the port (usually 3413).';
+  String deskSetNodePortNote(String port) {
+    return 'Check the address and the port (usually $port).';
+  }
 
   @override
-  String get deskSetNodeListNote =>
-      'Status from status.btlabs.uk; latency measured from this computer.';
+  String deskSetNodeListNote(String site) {
+    return 'Status from $site; latency measured from this computer.';
+  }
 
   @override
   String get deskSetNodeStartTitle => 'Start the local node?';
@@ -12193,7 +12213,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetPrivStatusSite => 'Status site';
 
   @override
-  String get deskSetPrivUseStatus => 'Use status.btlabs.uk';
+  String deskSetPrivUseStatus(String site) {
+    return 'Use $site';
+  }
 
   @override
   String get deskSetPrivUseStatusHint =>
@@ -12254,7 +12276,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetRecvSwitchingServer => 'Switching the Epicbox server…';
 
   @override
-  String get deskSetRecvListNote => 'Status from status.btlabs.uk.';
+  String deskSetRecvListNote(String site) {
+    return 'Status from $site.';
+  }
 
   @override
   String get deskSetRecvHttpText =>
@@ -13878,8 +13902,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txMethodsHeader => 'Payment methods';
 
   @override
-  String get txLinkHttpHint =>
-      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+  String txLinkHttpHint(String port) {
+    return 'Link · HTTP pays straight to a wallet at a web address (http://host:$port) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way, cannot be reached from the internet or over mobile data, and is off while Tor is on. Adds Link · HTTP to Send and Receive.';
+  }
 
   @override
   String get txLinkTorHint =>
@@ -14080,8 +14105,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.';
 
   @override
-  String get deskSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.';
+  String deskSetTxDirectHint(String port) {
+    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.';
+  }
 
   @override
   String get deskSetTxFileHint =>
@@ -14689,7 +14715,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers (the defaults are epicbox.epiccash.com, epicbox.stackwallet.com and the BT Labs server). The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.';
+      '**Spoken.** One wallet shows five words and leaves a sealed invite on the connection servers. The other wallet types the words and finds it. Both wallets must be online and reach one of these servers.';
 
   @override
   String get helpPairWaysP2 =>
@@ -17026,8 +17052,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSourceSite =>
-      'Asked directly every 15 s · tip from status.btlabs.uk';
+  String deskOwnSourceSite(String site) {
+    return 'Asked directly every 15 s · tip from $site';
+  }
 
   @override
   String deskOwnSourceNodes(int count) {
@@ -17185,8 +17212,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOwnMine => 'This is my node';
 
   @override
-  String get deskOwnMineHint =>
-      'Asks the node itself instead of status.btlabs.uk and offers owner access. For a node you run yourself.';
+  String deskOwnMineHint(String site) {
+    return 'Asks the node itself instead of $site and offers owner access. For a node you run yourself.';
+  }
 
   @override
   String get deskOwnSlotSyncing => 'Own node syncing';
@@ -17290,7 +17318,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      'Not a valid address. Use an Epicbox address (es5x…@epicbox.epiccash.com) or a Link address (https://…).';
+      'Not a valid address. Use an Epicbox address (es5x…@server) or a Link address (https://…).';
 
   @override
   String get handshakeLink1NoTor =>
@@ -17308,8 +17336,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Offline pauses Epicbox and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
 
   @override
-  String get txLinkHttpHintNoTor =>
-      'Link · HTTP pays straight to a wallet at a web address (http://host:3415) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
+  String txLinkHttpHintNoTor(String port) {
+    return 'Link · HTTP pays straight to a wallet at a web address (http://host:$port) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
+  }
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -17328,8 +17357,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'An http(s) address. Their wallet must be open.';
 
   @override
-  String get deskNoTorSetTxDirectHint =>
-      'Pay and get paid straight from wallet to wallet at a web address (http://host:3415), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.';
+  String deskNoTorSetTxDirectHint(String port) {
+    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.';
+  }
 
   @override
   String get deskNoTorAdvNetworkHint =>
@@ -18258,4 +18288,129 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => 'Connections';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file, line $line: this line cannot be read. The last good settings are in use.';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file, line $line: not text in double quotes. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file, line $line: not a whole number. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file, line $line: not true or false. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file, line $line: not a list. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file, line $line: not a node address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file, line $line: not an Epicbox server. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file, line $line: not a host name. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file, line $line: not a web address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file, line $line: not an onion address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file, line $line: not a port number. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file, line $line: not an e-mail address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file, line $line: not an Epicbox address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file, line $line: unknown key $key, ignored.';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file was edited at the same time; its value for $key is kept.';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return '$file had errors. It was saved as $backup and written again.';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return '$file was missing and has been written again.';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return '$file could not be written. The change applies until the app closes.';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return '$file could not be read. The built-in settings are in use.';
+  }
+
+  @override
+  String get deskKitReachTorOff => 'The check needs Tor off.';
+
+  @override
+  String get deskSetBackupServersTitle => 'Use the servers from this file?';
+
+  @override
+  String get deskSetBackupServersBody =>
+      'Its node and Epicbox server lists differ from this computer’s. Every wallet here uses the same lists.';
+
+  @override
+  String get deskSetBackupServersKeep => 'Keep this computer’s';
+
+  @override
+  String get deskSetBackupServersUse => 'Use the file’s';
+
+  @override
+  String get deskSlNoNodeTitle => 'No node set';
+
+  @override
+  String get deskSlNoNodeText =>
+      'The node list is empty. Add a node to check balances and send.';
+
+  @override
+  String get deskSlNoEpicboxTitle => 'No Epicbox server set';
+
+  @override
+  String get deskSlNoEpicboxText =>
+      'The Epicbox server list is empty. Add a server for an Epicbox address.';
 }

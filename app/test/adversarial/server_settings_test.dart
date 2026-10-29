@@ -4,10 +4,8 @@
 // Tor off; a node address must never hide its host; the local node relay must serve only the
 // wallet.
 
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:epic_wallet/src/connection_servers.dart';
 import 'package:epic_wallet/src/net/lan_node_relay.dart';
 import 'package:epic_wallet/src/server_list.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,11 +45,6 @@ void main() {
         expect(r.next, isNull, reason: 'became ${r.next}');
       });
     }
-
-    test('a_stored_set_drops_a_local_address_in_any_spelling', () {
-      final stored = decodeConnectionServers(jsonEncode([...local, 'epicbox.stackwallet.com']));
-      expect(stored, ['epicbox.stackwallet.com']);
-    });
 
     test('an_onion_server_needs_tor_in_every_spelling', () {
       final onion = '${'a' * 55}d.onion';

@@ -9,6 +9,7 @@ import '../../amount.dart' show cutEpic, displayDecimals, exactDecimals, exactEp
 import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
+import '../../settings_file/host_settings.dart' show appConfig;
 
 import 'package:intl/intl.dart' show NumberFormat;
 
@@ -705,10 +706,10 @@ class NodeServer {
   /// Added by the user (the old "My nodes").
   final bool own;
 
-  /// The operator's icon on status.btlabs.uk, or null: the tile shows initials.
+  /// The operator's icon on the status site, or null: the tile shows initials.
   final ServerIcon? icon;
 
-  /// The operator's name as status.btlabs.uk lists it (the tile's initials), or null.
+  /// The operator's name as the status site lists it (the tile's initials), or null.
   final String? listedAs;
 }
 
@@ -723,10 +724,10 @@ class EpicboxServer {
   final ServiceHealth health;
   final int? latencyMs;
 
-  /// The operator's icon on status.btlabs.uk, or null: the tile shows initials.
+  /// The operator's icon on the status site, or null: the tile shows initials.
   final ServerIcon? icon;
 
-  /// The operator's name as status.btlabs.uk lists it (the tile's initials), or null.
+  /// The operator's name as the status site lists it (the tile's initials), or null.
   final String? listedAs;
 }
 
@@ -855,7 +856,7 @@ class RestoreScan {
 /// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).
 enum HttpProblem { portInUse, portUnavailable, stopped }
 
-/// [ServiceStatus.httpProblem] in a few words: "Port 3415 in use".
+/// [ServiceStatus.httpProblem] in a few words: `Port <port> in use`.
 String httpProblemText(AppLocalizations l, HttpProblem p, int port) => switch (p) {
   HttpProblem.portInUse => l.deskErrPortInUse(port),
   HttpProblem.portUnavailable => l.deskErrPortUnavailable(port),
@@ -1138,7 +1139,7 @@ class DeskSettings {
     this.directHttp = false,
     this.tor = false,
     this.publicMode = false,
-    this.httpPort = 3415,
+    int? httpPort,
     this.httpAutostart = false,
     this.epicboxAutostart = true,
     this.torAutostart = false,
@@ -1154,7 +1155,7 @@ class DeskSettings {
     this.payments = PaymentPrefs.defaults,
     this.pairingSeenAs = '',
     this.pairingClipSeen = '',
-  });
+  }) : httpPortChosen = httpPort;
 
   final ThemeChoice theme;
 
@@ -1187,8 +1188,12 @@ class DeskSettings {
   /// not only this computer. Set only from the guide's explicit choice.
   final bool publicMode;
 
-  /// The HTTP listener's port.
-  final int httpPort;
+  /// The HTTP listener's port: the one the user chose, else `http.listen_port` of
+  /// `app-config.toml`.
+  int get httpPort => httpPortChosen ?? appConfig.httpListenPort;
+
+  /// The port the user chose; null: the configured one.
+  final int? httpPortChosen;
 
   /// The HTTP listener starts at unlock. Like [publicMode] and [httpPort] it is the open
   /// wallet's own, not app-wide.
@@ -1219,8 +1224,9 @@ class DeskSettings {
   /// shows once per install.
   final bool importWarningSeen;
 
-  /// Settings › Privacy: server health and node lists from status.btlabs.uk (`statusSite`).
-  /// Off, only the servers themselves are asked.
+  /// Settings › Privacy: server health and node lists from the status site (`statusSite`), the
+  /// settings file's `status.enabled` (not saved with the rest). Off, only the servers
+  /// themselves are asked.
   final bool useStatusSite;
 
   /// Settings › Transactions: the methods Send and Receive offer and Send's first one.
@@ -1263,7 +1269,7 @@ class DeskSettings {
     directHttp: directHttp ?? this.directHttp,
     tor: tor ?? this.tor,
     publicMode: publicMode ?? this.publicMode,
-    httpPort: httpPort ?? this.httpPort,
+    httpPort: httpPort ?? httpPortChosen,
     httpAutostart: httpAutostart ?? this.httpAutostart,
     epicboxAutostart: epicboxAutostart ?? this.epicboxAutostart,
     torAutostart: torAutostart ?? this.torAutostart,

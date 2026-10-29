@@ -372,5 +372,21 @@
   "deskSetBackupNotNow": "Not now",
   "@deskSetBackupNotNow": {
     "description": "Reminder on Overview: button that dismisses the reminder. Small inline button."
+  },
+  "deskSetBackupServersTitle": "Use the servers from this file?",
+  "@deskSetBackupServersTitle": {
+    "description": "Settings > Backup, after importing a wallet data backup on a computer with other wallets: dialog title when the file's server lists differ from this computer's."
+  },
+  "deskSetBackupServersBody": "Its node and Epicbox server lists differ from this computer’s. Every wallet here uses the same lists.",
+  "@deskSetBackupServersBody": {
+    "description": "Same dialog: text. 'Its' is the file's. The lists are shared by every wallet on the computer."
+  },
+  "deskSetBackupServersKeep": "Keep this computer’s",
+  "@deskSetBackupServersKeep": {
+    "description": "Same dialog: button that keeps this computer's server lists. Short."
+  },
+  "deskSetBackupServersUse": "Use the file’s",
+  "@deskSetBackupServersUse": {
+    "description": "Same dialog: primary button that takes the file's server lists. Short."
   }
 }

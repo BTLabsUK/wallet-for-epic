@@ -19,6 +19,7 @@ import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../pairing_providers.dart' show invoicesOnProvider, invoicesShownProvider, pairingSupportedProvider;
 import '../providers.dart';
+import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../settings.dart';
 import '../slate_files.dart';
 import '../tor_phone.dart';
@@ -39,6 +40,7 @@ import 'qr_scan_screen.dart';
 import 'relay_blocked.dart';
 import 'request_qr_screen.dart' show openQrRequest;
 import 'scan_screen.dart' show offersQrPayment;
+import 'server_picker.dart' show showEpicboxPicker;
 import 'slate_file_screen.dart';
 import 'net_block.dart';
 import 'theme/advanced.dart';
@@ -155,6 +157,9 @@ class ReceiveView extends ConsumerWidget {
     final offline = watchNetBlock(context, ref) == NetBlock.offline;
     final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
     final address = ref.watch(addressProvider);
+    // The Epicbox list of the settings file is empty: no server, so no address to hand out
+    // (LEPIC's is on a placeholder server, lepic_wallet_service.dart's noEpicboxDomain).
+    final noServer = ref.watch(hostSettingsProvider.select((h) => h.epicboxServers.isEmpty));
     final demo = ref.watch(demoModeProvider);
     // Requests go to paired contacts or into a file, both through pairing (RFC 0002).
     final invoices = ref.watch(invoicesShownProvider) && ref.watch(pairingSupportedProvider);
@@ -285,7 +290,7 @@ class ReceiveView extends ConsumerWidget {
             ?.copyWith(color: context.tokens.dim),
       ),
     );
-    final value = address.value;
+    final value = noServer ? null : address.value;
     final Widget above;
     final Widget? code;
     final Widget below;
@@ -400,7 +405,14 @@ class ReceiveView extends ConsumerWidget {
     } else {
       above = column([
         strip,
-        if (value != null) ...[
+        if (noServer)
+          EmptyState(
+            key: const ValueKey('receive-no-epicbox'),
+            icon: Icon(MethodIcons.of(MethodKind.epicbox)),
+            message: '${l.deskSlNoEpicboxTitle}. ${l.deskSlNoEpicboxText}',
+            action: FilledButton.tonal(onPressed: () => showEpicboxPicker(context), child: Text(l.slRelayField)),
+          )
+        else if (value != null) ...[
           PhoneTourTarget(
             id: 'tour-receive-address',
             child: _AddressRow(

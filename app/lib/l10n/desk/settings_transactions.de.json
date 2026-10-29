@@ -2,7 +2,7 @@
   "deskSetFrameTransactions": "Transaktionen",
   "deskSetTxMethods": "Zahlungsmethoden",
   "deskSetTxEpicboxHint": "Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter.",
-  "deskSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:3415), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.",
+  "deskSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:{port}), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.",
   "deskSetTxFileHint": "Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt die Dateiübertragung zu Senden und die Dateischritte zu Empfangen hinzu.",
   "deskSetTxSend": "Senden",
   "deskSetTxStart": "Standardmethode",

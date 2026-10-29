@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The panel of Settings › Node for the user's own node: the
-/// node's facts asked directly every 15 s (never status.btlabs.uk, which cannot see it), the
+/// node's facts asked directly every 15 s (never the status site, which cannot see it), the
 /// failover and syncing notices, and the Owner access row. With owner access the built-in
 /// node's Status and Peers come from the node's owner API: the sync stage and its tiles, the
 /// peers table with Ban / Unban. Where the panel is wide, status and peers sit side by side.
@@ -25,9 +25,11 @@ import '../../widgets/server_row.dart' show digitsText;
 import 'local_node.dart' show LocalTab, NodeTile, NodeSyncBar, StageStrip;
 import 'local_node_peers.dart';
 import 'prefs.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
+import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// How often an own node is asked while its panel is open.
-const Duration ownAskEvery = Duration(seconds: 15);
+Duration get ownAskEvery => appConfig.ownNodeAsk;
 
 /// From this panel width, status and details (or peers) sit side by side.
 double get nodePanelWideFrom => 1040.u;
@@ -419,9 +421,9 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
 /// "3 waiting", "empty".
 String poolText(AppLocalizations l, int n) => n == 0 ? l.deskOwnPoolEmpty : l.deskOwnPoolWaiting(n);
 
-/// "Asked directly every 15 s · tip from status.btlabs.uk" (or "from 4 public nodes").
+/// "Asked directly every 15 s · tip from the status site" (or "from 4 public nodes").
 String sourceLine(AppLocalizations l, NodeInfo? i) => switch (i?.tipFrom) {
-  TipReference.statusSite => l.deskOwnSourceSite,
+  TipReference.statusSite => l.deskOwnSourceSite(statusSiteHost),
   TipReference.publicNodes => l.deskOwnSourceNodes(i!.tipNodes ?? 0),
   null => l.deskOwnSourceNone,
 };

@@ -26,6 +26,7 @@ import 'settings.dart';
 import 'tor_phone.dart';
 import 'tor_routes.dart';
 import 'wallet_service.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 import 'ui/server_picker.dart' show publicNodeStatusProvider;
 import 'ui/status.dart' show NodeState;
 
@@ -35,7 +36,7 @@ Duration get _afterShown => nodeFailoverAfter - statusSettle;
 
 /// How often a move held back (a payment being sent, nothing working) is tried again while the
 /// node still does not answer.
-const Duration nodeFailoverRetry = Duration(seconds: 30);
+Duration get nodeFailoverRetry => appConfig.nodeFailoverAfter;
 
 /// The move node failover made for this session, or null on the chosen node. Screens watch
 /// this; [nodeFailoverWatchProvider] makes the moves.

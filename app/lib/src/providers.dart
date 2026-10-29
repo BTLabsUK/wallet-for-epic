@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'demo.dart';
+import 'server_list_file.dart' show useServerValues;
+import 'settings_file/settings_providers.dart';
 import 'errors.dart';
 import 'l10n.dart' show englishStrings;
 import 'network.dart';
@@ -28,6 +30,7 @@ import 'wallet_service.dart';
 
 export 'models.dart' show defaultMinimumConfirmations;
 import 'phrase_clipboard.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 import 'pairing_providers.dart' show invoiceSessionProvider;
 import 'devices/device_service.dart' show DeviceSyncTrigger;
 import 'devices/phone_devices.dart' show deviceServiceProvider;
@@ -100,55 +103,60 @@ class NetworkChoice {
       preset.config(dataDir: dataDir, nodeUrl: nodeUrl, relay: relay);
 }
 
-/// The saved [NetworkChoice]. Mainnet on its default node and relay until the user picks others.
+/// The network the app runs on (saved, a dev build only), and the node and Epicbox server
+/// every wallet uses there: `node.use` and `epicbox.use` of the chain's settings file, shared
+/// by every wallet, never a wallet's own.
 final networkChoiceProvider =
     AsyncNotifierProvider<NetworkChoiceNotifier, NetworkChoice>(
       NetworkChoiceNotifier.new,
     );
 
 class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
-  static const String _networkKey = 'app.network';
-  static String _nodeKey(Chain chain) => 'app.node.${chain.name}';
-  static String _relayKey(Chain chain) => 'app.relay.${chain.name}';
+  /// The chain a dev build runs on; mainnet when none (every release build).
+  static const String networkKey = 'app.network';
+
+  /// The chain a dev build chose last time ([networkKey]); mainnet in a release build, unless
+  /// [anyBuild] (the saved choice as it is).
+  static Future<Chain> savedChain(SecretStore store, {bool anyBuild = false}) async {
+    if (!devNetworksBuild && !anyBuild) return Chain.mainnet;
+    final saved = await store.read(networkKey);
+    return Chain.values.where((c) => c.name == saved).firstOrNull ?? Chain.mainnet;
+  }
 
   @override
   Future<NetworkChoice> build() async {
-    // The web demo runs on floonet's own node and relay, whatever was saved; its server
-    // forces them too.
+    // Only the two picks: a list edited elsewhere in the file changes no choice.
+    final (node, relay) = ref.watch(hostSettingsProvider.select((s) => (s.nodeUse, s.epicboxUse)));
+    // The web demo runs on floonet, whatever was saved; its settings are its server's.
     if (ref.watch(demoModeProvider)) {
-      return NetworkChoice(
-        preset: floonetPreset,
-        nodeUrl: floonetPreset.nodeUrl,
-        relay: floonetPreset.defaultRelay,
-      );
+      return NetworkChoice(preset: floonetPreset, nodeUrl: node, relay: _relayOf(relay));
     }
-    final store = ref.watch(secretStoreProvider);
-    final saved = await store.read(_networkKey);
-    final preset = networkPresets.firstWhere(
-      (p) => p.chain.name == saved,
-      orElse: () => mainnetPreset,
-    );
-    return NetworkChoice(
-      preset: preset,
-      nodeUrl: await nodeUrlFor(preset),
-      relay: await relayFor(preset),
-    );
+    final chain = await savedChain(ref.watch(secretStoreProvider), anyBuild: true);
+    return NetworkChoice(preset: presetOf(chain), nodeUrl: node, relay: _relayOf(relay));
   }
 
-  /// The saved node URL of [preset], or its default.
-  Future<String> nodeUrlFor(NetworkPreset preset) async =>
-      await ref.read(secretStoreProvider).read(_nodeKey(preset.chain)) ??
-      preset.nodeUrl;
+  static EpicboxRelay _relayOf(String label) => EpicboxRelay.parse(label) ?? EpicboxRelay(host: label);
 
-  /// The saved relay of [preset], or its default.
-  Future<EpicboxRelay> relayFor(NetworkPreset preset) async {
-    final saved = await ref
-        .read(secretStoreProvider)
-        .read(_relayKey(preset.chain));
-    return (saved == null ? null : EpicboxRelay.parse(saved)) ??
-        preset.defaultRelay;
+  /// The node every wallet of [preset]'s chain uses (`node.use`). Another chain's is read once
+  /// its settings are open ([switchChain]).
+  Future<String> nodeUrlFor(NetworkPreset preset) async => ref.read(hostSettingsProvider).nodeUse;
+
+  /// The Epicbox server every wallet uses (`epicbox.use`).
+  Future<EpicboxRelay> relayFor(NetworkPreset preset) async => _relayOf(ref.read(hostSettingsProvider).epicboxUse);
+
+  /// Opens [chain]'s settings (a dev chain's own file) and saves it as the network of the next
+  /// start. Throws [DevSettingsMissing] when a dev chain has no file; nothing changes then.
+  Future<void> switchChain(Chain chain) async {
+    if (ref.read(demoModeProvider)) return;
+    final store = ref.read(secretStoreProvider);
+    // Without a settings file open (tests), the settings in use stay.
+    if (installedSettingsFile != null) await openAppSettings(store: store, devChain: devChainOf(chain));
+    await store.write(networkKey, chain.name);
+    ref.invalidateSelf();
   }
 
+  /// Moves [nodeUrl] and [relay] to the top of their lists in `settings.toml`: every wallet uses
+  /// the first of each.
   Future<void> save(
     NetworkPreset preset,
     String nodeUrl, {
@@ -156,11 +164,9 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
   }) async {
     // The demo's network cannot change.
     if (ref.read(demoModeProvider)) return;
-    final store = ref.read(secretStoreProvider);
     final r = relay ?? await relayFor(preset);
-    await store.write(_networkKey, preset.chain.name);
-    await store.write(_nodeKey(preset.chain), nodeUrl);
-    await store.write(_relayKey(preset.chain), r.label);
+    final values = useServerValues(ref.read(hostSettingsProvider), node: nodeUrl, relay: r.label);
+    if (values.isNotEmpty) await ref.read(hostSettingsProvider.notifier).setAll(values);
     logInfo(
       'network',
       // Logs reach support reports: mainnet is never named there.
@@ -898,10 +904,10 @@ const Duration listenerStopWait = Duration(seconds: 5);
 /// it on its own. LEPIC retries a lost connection itself; this catches a listener that stays
 /// down anyway (a dead socket it never noticed, a stream that ended, a backoff on a clock that
 /// slept). Each restart that does not connect doubles the wait, up to [listenerHealMax].
-const Duration listenerHealAfter = Duration(seconds: 30);
+Duration get listenerHealAfter => appConfig.listenerHealAfter;
 
 /// The longest wait between two self-heal restarts of a listener that does not connect.
-const Duration listenerHealMax = Duration(minutes: 5);
+Duration get listenerHealMax => appConfig.listenerHealMax;
 
 class ListenerNotifier extends Notifier<ListenerState> {
   StreamSubscription<ListenerEvent>? _events;

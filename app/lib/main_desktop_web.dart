@@ -7,9 +7,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/desktop/app/desk_app.dart';
+import 'src/settings_file/settings_providers.dart' show loadShippedSettings;
 import 'src/web/splash.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // The canned data shows the shipped servers; nothing reads or writes a settings file.
+  await loadShippedSettings();
   runApp(const ProviderScope(child: DeskApp()));
   WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
 }

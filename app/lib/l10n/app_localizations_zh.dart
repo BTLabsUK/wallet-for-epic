@@ -1829,10 +1829,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setupRelayDownIconLabel => '不可用';
 
   @override
-  String get setupRelayHealthUnavailable => '无法从 status.btlabs.uk 获取服务器状态。';
+  String setupRelayHealthUnavailable(String site) {
+    return '无法从 $site 获取服务器状态。';
+  }
 
   @override
-  String get setupRelayHealthSource => '状态来自 status.btlabs.uk，由其服务器测得。';
+  String setupRelayHealthSource(String site) {
+    return '状态来自 $site，由其服务器测得。';
+  }
 
   @override
   String get setupRelayNotMonitored => '未监控';
@@ -2785,7 +2789,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAny =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get settingsTitle => '设置';
@@ -3181,7 +3185,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get settingsUseStatusSite => '使用 status.btlabs.uk';
+  String settingsUseStatusSite(String site) {
+    return '使用 $site';
+  }
 
   @override
   String get settingsUseStatusSiteSubtitle =>
@@ -4413,7 +4419,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverPublicRelays => '公共服务器';
 
   @override
-  String get serverHealthUnknown => '无法访问 status.btlabs.uk；状态未知';
+  String serverHealthUnknown(String site) {
+    return '无法访问 $site；状态未知';
+  }
 
   @override
   String get serverAtTip => '已是最新';
@@ -4483,7 +4491,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverOtherNode => '其他节点，host 或 host:port';
 
   @override
-  String get serverOtherNodeInvalid => '请输入节点地址，例如 node.example.com:3413';
+  String serverOtherNodeInvalid(String port) {
+    return '请输入节点地址，例如 node.example.com:$port';
+  }
 
   @override
   String get serverAdd => '添加';
@@ -4558,8 +4568,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String serverCheckedAt(String time) {
-    return 'status.btlabs.uk，检查于 $time';
+  String serverCheckedAt(String time, String site) {
+    return '$site，检查于 $time';
   }
 
   @override
@@ -5418,7 +5428,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodLinkPayment => '链接付款';
 
   @override
-  String get methodDirectShape => 'http://host:3415 或 xxxx….onion';
+  String methodDirectShape(String port) {
+    return 'http://host:$port 或 xxxx….onion';
+  }
 
   @override
   String get methodSendDirectLine => '对方钱包必须处于打开状态。onion 地址经由 Tor。';
@@ -6127,7 +6139,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNodeStartIt => '可在“设置 › 节点”中启动。';
 
   @override
-  String get deskNodeFailPort => '端口 3413 被其他程序占用';
+  String deskNodeFailPort(String port) {
+    return '端口 $port 被其他程序占用';
+  }
 
   @override
   String get deskNodeFailDisk => '磁盘空间不足';
@@ -7427,7 +7441,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskConErrAddressInvalid =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）、链接地址（https://…）或 onion 地址（….onion）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）、链接地址（https://…）或 onion 地址（….onion）。';
 
   @override
   String get deskConAddPicture => '添加图片';
@@ -7927,8 +7941,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvNodeAddrTitle => '节点地址已更新';
 
   @override
-  String get deskOvNodeAddrText =>
-      '现在使用 node.epiccash.com，而不是 node.epiccash.com:3413。';
+  String deskOvNodeAddrText(String node, String old) {
+    return '现在使用 $node，而不是 $old。';
+  }
 
   @override
   String get deskOvNodeIncompatTitle => '节点版本不兼容';
@@ -8821,7 +8836,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbUnlockWrong => '密码错误。请检查大写锁定键和键盘布局。';
 
   @override
-  String get deskOnbUnlockPortInUse => '端口 3415 被其他程序占用。请关闭该程序，然后重试。';
+  String deskOnbUnlockPortInUse(String port) {
+    return '端口 $port 被其他程序占用。请关闭该程序，然后重试。';
+  }
 
   @override
   String get deskOnbUnlockStageCheck => '正在检查钱包文件';
@@ -9724,7 +9741,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskKitLimitedNetwork => '无法访问 status.btlabs.uk；信息仅来自节点本身。';
+  String deskKitLimitedNetwork(String site) {
+    return '无法访问 $site；信息仅来自节点本身。';
+  }
 
   @override
   String get deskKitFactHeight => '高度';
@@ -9789,8 +9808,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitListedOfficial => '官方列表';
 
   @override
-  String deskKitSourceChecked(String time) {
-    return 'status.btlabs.uk，检查于 $time';
+  String deskKitSourceChecked(String time, String site) {
+    return '$site，检查于 $time';
   }
 
   @override
@@ -9828,7 +9847,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitLimitedInfo => '信息有限';
 
   @override
-  String get deskKitFromStatusSite => '来自 status.btlabs.uk';
+  String deskKitFromStatusSite(String site) {
+    return '来自 $site';
+  }
 
   @override
   String get deskKitOverTor => '经由 Tor';
@@ -10761,7 +10782,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetLnodeNoProgressText => '请重启，或查看节点日志。';
 
   @override
-  String get deskSetLnodePortInUse => '端口 3413 被其他程序占用。';
+  String deskSetLnodePortInUse(String port) {
+    return '端口 $port 被其他程序占用。';
+  }
 
   @override
   String get deskSetLnodePortInUseText => '关闭另一个程序，或在“节点服务器”中选择那个节点。';
@@ -11088,7 +11111,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPeersUnbannedToast => '已解封对等节点';
 
   @override
-  String get deskSetPeersNotAddress => '不是 IP 地址加端口，例如 203.0.113.5:3414。';
+  String deskSetPeersNotAddress(String port) {
+    return '不是 IP 地址加端口，例如 203.0.113.5:$port。';
+  }
 
   @override
   String get deskSetPeersAlreadyPreferred => '已在首选列表中。';
@@ -11279,10 +11304,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetLogsOpenFolder => '打开日志文件夹';
 
   @override
-  String get deskSetNodePortNote => '请检查地址和端口（通常是 3413）。';
+  String deskSetNodePortNote(String port) {
+    return '请检查地址和端口（通常是 $port）。';
+  }
 
   @override
-  String get deskSetNodeListNote => '状态来自 status.btlabs.uk；延迟从这台电脑测得。';
+  String deskSetNodeListNote(String site) {
+    return '状态来自 $site；延迟从这台电脑测得。';
+  }
 
   @override
   String get deskSetNodeStartTitle => '启动本地节点？';
@@ -11461,7 +11490,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPrivStatusSite => '状态网站';
 
   @override
-  String get deskSetPrivUseStatus => '使用 status.btlabs.uk';
+  String deskSetPrivUseStatus(String site) {
+    return '使用 $site';
+  }
 
   @override
   String get deskSetPrivUseStatusHint =>
@@ -11520,7 +11551,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRecvSwitchingServer => '正在切换 Epicbox 服务器…';
 
   @override
-  String get deskSetRecvListNote => '状态来自 status.btlabs.uk。';
+  String deskSetRecvListNote(String site) {
+    return '状态来自 $site。';
+  }
 
   @override
   String get deskSetRecvHttpText => '本钱包打开时，直接从另一个钱包经此电脑的网址接收。';
@@ -13053,8 +13086,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txMethodsHeader => '付款方式';
 
   @override
-  String get txLinkHttpHint =>
-      '链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，无法从互联网或移动数据访问，Tor 开启时也会关闭。会在“发送”和“接收”中加入 链接 · HTTP。';
+  String txLinkHttpHint(String port) {
+    return '链接 · HTTP 通过网址（http://host:$port）直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，无法从互联网或移动数据访问，Tor 开启时也会关闭。会在“发送”和“接收”中加入 链接 · HTTP。';
+  }
 
   @override
   String get txLinkTorHint =>
@@ -13241,8 +13275,9 @@ class AppLocalizationsZh extends AppLocalizations {
       '通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。其他方式仍可使用。';
 
   @override
-  String get deskSetTxDirectHint =>
-      '通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  String deskSetTxDirectHint(String port) {
+    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  }
 
   @override
   String get deskSetTxFileHint =>
@@ -13802,7 +13837,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWaysP1 =>
-      '**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上（默认为 epicbox.epiccash.com、epicbox.stackwallet.com 和 BT Labs 服务器）。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。';
+      '**口头。**一个钱包显示五个词，并把密封的邀请留在连接服务器上。另一个钱包输入这些词即可找到它。两个钱包都需在线，并能连上其中一个服务器。';
 
   @override
   String get helpPairWaysP2 =>
@@ -16015,7 +16050,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskOwnSourceSite => '每 15 秒直接询问 · 最新高度来自 status.btlabs.uk';
+  String deskOwnSourceSite(String site) {
+    return '每 15 秒直接询问 · 最新高度来自 $site';
+  }
 
   @override
   String deskOwnSourceNodes(int count) {
@@ -16166,8 +16203,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOwnMine => '这是我的节点';
 
   @override
-  String get deskOwnMineHint =>
-      '直接询问节点本身而不是 status.btlabs.uk，并提供所有者访问。适用于你自己运行的节点。';
+  String deskOwnMineHint(String site) {
+    return '直接询问节点本身而不是 $site，并提供所有者访问。适用于你自己运行的节点。';
+  }
 
   @override
   String get deskOwnSlotSyncing => '自有节点正在同步';
@@ -16267,7 +16305,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsAddressInvalidAnyNoTor =>
-      '地址无效。请使用 Epicbox 地址（es5x…@epicbox.epiccash.com）或链接地址（https://…）。';
+      '地址无效。请使用 Epicbox 地址（es5x…@服务器）或链接地址（https://…）。';
 
   @override
   String get handshakeLink1NoTor => '你的钱包通过互联网把付款直接发到对方的钱包。这些币被锁定。';
@@ -16284,8 +16322,9 @@ class AppLocalizationsZh extends AppLocalizations {
       '离线会暂停 Epicbox 和状态检查。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
-  String get txLinkHttpHintNoTor =>
-      '链接 · HTTP 通过网址直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，也无法从互联网或移动数据访问。会在“发送”和“接收”中加入 链接 · HTTP。';
+  String txLinkHttpHintNoTor(String port) {
+    return '链接 · HTTP 通过网址（http://host:$port）直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，也无法从互联网或移动数据访问。会在“发送”和“接收”中加入 链接 · HTTP。';
+  }
 
   @override
   String get tourPhoneWalletTextNoTor =>
@@ -16301,8 +16340,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNoTorSendDirectLine2 => 'http(s) 地址。对方钱包必须处于打开状态。';
 
   @override
-  String get deskNoTorSetTxDirectHint =>
-      '通过网址（http://host:3415）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  String deskNoTorSetTxDirectHint(String port) {
+    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+  }
 
   @override
   String get deskNoTorAdvNetworkHint =>
@@ -17185,4 +17225,127 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => '连接';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file，第 $line 行：无法读取此行。仍使用上次有效的设置。';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file，第 $line 行：不是带双引号的文本。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file，第 $line 行：不是整数。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file，第 $line 行：不是 true 或 false。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file，第 $line 行：不是列表。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file，第 $line 行：不是节点地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file，第 $line 行：不是 Epicbox 服务器。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file，第 $line 行：不是主机名。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file，第 $line 行：不是网址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file，第 $line 行：不是洋葱地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file，第 $line 行：不是端口号。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file，第 $line 行：不是电子邮件地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file，第 $line 行：不是 Epicbox 地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file，第 $line 行：未知的键 $key，已忽略。';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file 同时被编辑过；保留其中 $key 的值。';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return '$file 有错误。已另存为 $backup 并重新写入。';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return '$file 不见了，已重新写入。';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return '无法写入 $file。此更改在关闭应用前有效。';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return '无法读取 $file。正在使用内置设置。';
+  }
+
+  @override
+  String get deskKitReachTorOff => '此检查需要关闭 Tor。';
+
+  @override
+  String get deskSetBackupServersTitle => '使用此文件中的服务器？';
+
+  @override
+  String get deskSetBackupServersBody =>
+      '文件中的节点和 Epicbox 服务器列表与这台电脑的不同。这里的所有钱包都使用同一份列表。';
+
+  @override
+  String get deskSetBackupServersKeep => '保留这台电脑的';
+
+  @override
+  String get deskSetBackupServersUse => '使用文件的';
+
+  @override
+  String get deskSlNoNodeTitle => '未设置节点';
+
+  @override
+  String get deskSlNoNodeText => '节点列表为空。添加节点后才能核对余额和发送。';
+
+  @override
+  String get deskSlNoEpicboxTitle => '未设置 Epicbox 服务器';
+
+  @override
+  String get deskSlNoEpicboxText => 'Epicbox 服务器列表为空。添加服务器后才有 Epicbox 地址。';
 }

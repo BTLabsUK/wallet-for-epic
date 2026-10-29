@@ -69,6 +69,7 @@ import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
+import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 export '../utf8_limit.dart';
 
@@ -206,14 +207,15 @@ const Key sendTurnOnMethodKey = ValueKey('send-turn-on-method');
 const Key sendStrategyKey = ValueKey('send-strategy');
 const Key sendSwitchedTagKey = ValueKey('send-switched-tag');
 
-/// The shape of an HTTP address, in the sentence about an incomplete one.
-const String sendHttpShape = 'http://host:3415';
+/// The shape of an HTTP address, in the sentence about an incomplete one: the configured
+/// listener port (`http.listen_port`).
+String get sendHttpShape => 'http://host:${appConfig.httpListenPort}';
 
 /// The shape of an address for [method], under the To field while it is empty.
 String? sendAddressShape(AppLocalizations l, TransferMethod method) =>
     switch (method) {
-      TransferMethod.epicbox => 'esXXXX…XXXX@epicbox.epiccash.com',
-      TransferMethod.direct => torBuilt ? l.methodDirectShape : sendHttpShape,
+      TransferMethod.epicbox => 'esXXXX…XXXX@${hostSettings.epicboxUse}',
+      TransferMethod.direct => torBuilt ? l.methodDirectShape('${appConfig.httpListenPort}') : sendHttpShape,
       TransferMethod.qr || TransferMethod.file => null,
     };
 

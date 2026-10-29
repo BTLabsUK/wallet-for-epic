@@ -16,7 +16,10 @@ import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart' as dir;
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/server_list_file.dart';
 import 'package:epic_wallet/src/server_list_store.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
+import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/ui/status.dart';
@@ -25,6 +28,8 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/test_settings.dart';
 
 const _a = 'https://a.example';
 const _b = 'https://b.example';
@@ -130,8 +135,8 @@ void main() {
         expect(h.failover, const NodeFailover(chosen: _a, inUse: _c));
         expect(h.container.read(walletConfigProvider)?.nodeUrl, _c);
         // Saved choice and list as they were.
-        expect(h.store.values['app.node.mainnet'], _a);
-        expect(ServerList.decode(h.store.values[serverListKey(ServerKind.node, Chain.mainnet)])?.entries, [_a, _b, _c, _d]);
+        expect(h.container.read(hostSettingsProvider).nodeUse, _a);
+        expect(serverListOf(h.container.read(hostSettingsProvider), ServerKind.node).entries, [_a, _b, _c, _d]);
         h.dispose();
       });
     });
@@ -247,7 +252,7 @@ void main() {
         h2.container.read(sessionProvider.notifier).unlocked(FakeWalletSession()..openedConfig = h2.config(_a));
         h2.elapse(Duration.zero);
         expect(h2.failover, isNull);
-        expect(h2.store.values['app.node.mainnet'], _a);
+        expect(h2.container.read(hostSettingsProvider).nodeUse, _a);
         h.dispose();
         h2.dispose();
       });
@@ -300,8 +305,10 @@ class _Directory implements dir.RelayDirectory, dir.NodeDirectory {
 /// saying b is down and c, d healthy, and the failover watcher alive.
 class _Harness {
   _Harness(this._async, {Set<String> deadNodes = const {_a}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false}) {
-    store.values['app.node.mainnet'] = _a;
-    store.values[serverListKey(ServerKind.node, Chain.mainnet)] = const ServerList(entries: [_a, _b, _c, _d]).encode();
+    // The node in use and the Node list: the settings file's.
+    hostSettings = testSettings().withValues({
+      'node.servers': [_a, _b, _c, _d],
+    });
     if (prefs != null) store.values['app.advanced_prefs'] = prefs.encode();
     final service = _Service(deadNodes);
     session = service.session;

@@ -22,10 +22,15 @@ import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/server_icons.dart';
+import 'package:epic_wallet/src/server_list_file.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
+import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/ui/server_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/test_settings.dart';
 
 /// The fixture PNG for an icon URL, by its hash.
 Future<Uint8List?> _fixtureIcon(Uri url) async {
@@ -45,9 +50,9 @@ class _LanDown extends MockDeskWallet {
   ];
 }
 
-const _btlabs = 'https://node.btlabs.uk';
-const _epicnet = 'https://node.epicnet.us:3413';
-const _epiccash = 'https://node.epiccash.com:3413';
+const _btlabs = 'https://node.lab.invalid';
+const _epicnet = 'https://node.net.invalid:3413';
+const _epiccash = 'https://node.epic.invalid:3413';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -69,6 +74,9 @@ void main() {
   setUp(() {
     secrets = MemorySecretStore();
     probe = FakeRelayProbe();
+    // The settings file's lists are the mock wallet's servers: the default copy's, and its own
+    // home node (which a user adds by hand; nothing adds it by itself).
+    hostSettings = testSettings().withValues({'node.servers': [...testSettings().nodeUrls, 'http://10.0.1.24:3413']});
     container = make();
   });
 
@@ -116,10 +124,10 @@ void main() {
   }
 
   group('selection mode', () {
-    const epiccash = 'epicbox.epiccash.com';
-    const stack = 'epicbox.stackwallet.com';
-    const floo = 'epicbox.btlabs.uk';
-    const epicnet = 'epicbox.epicnet.us';
+    const epiccash = 'box.epic.invalid';
+    const stack = 'box.stack.invalid';
+    const floo = 'box.lab.invalid';
+    const epicnet = 'box.net.invalid';
     const defaults = [epiccash, stack, floo];
     final calls = <List<String>>[];
 
@@ -218,7 +226,7 @@ void main() {
     }
 
     await type(tester, 'cypher');
-    expect(row('https://epic.stackwallet.com:3413'), findsOneWidget);
+    expect(row('https://node.stack.invalid:3413'), findsOneWidget);
     expect(row(_btlabs), findsNothing);
     expect(helper(tester), '1 match.');
     expect(find.byKey(const ValueKey('server-list-add')), findsNothing, reason: 'something matches and it is no address');
@@ -266,28 +274,24 @@ void main() {
     await settle(tester, 10);
     expect(find.byType(Dialog), findsNothing);
     expect(container.read(deskProvider).status!.node.url, _epicnet);
-    expect(find.text('Switched to node.epicnet.us:3413'), findsOneWidget);
+    expect(find.text('Switched to node.net.invalid:3413'), findsOneWidget);
     expect(tester.widget<EditableText>(field).controller.text, '');
     await end(tester);
   });
 
-  testWidgets('the bin removes with Undo; Restore shows only while a public server is removed', (tester) async {
+  testWidgets('the bin removes with Undo; a removed server is gone, with no Restore', (tester) async {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     final at = nodes().indexOf(_epiccash);
-    expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
     await tap(tester, find.byKey(const ValueKey('server-row-remove-$_epiccash')));
     expect(row(_epiccash), findsNothing);
-    expect(find.text('Removed node.epiccash.com:3413.'), findsOneWidget);
-    expect(find.text('Restore removed servers · 1 removed'), findsOneWidget);
+    expect(find.text('Removed node.epic.invalid:3413.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
     await tap(tester, find.byKey(const ValueKey('server-list-undo')));
     expect(nodes().indexOf(_epiccash), at, reason: 'back where it was');
-    expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
 
     await tap(tester, find.byKey(const ValueKey('server-row-remove-$_epiccash')));
-    await tap(tester, find.byKey(const ValueKey('server-list-restore')));
-    expect(nodes(), contains(_epiccash));
+    expect(container.read(hostSettingsProvider).nodeUrls, isNot(contains(_epiccash)), reason: 'gone from the file');
     expect(find.byKey(const ValueKey('server-list-restore')), findsNothing);
-    expect(find.text('Removed servers restored.'), findsOneWidget);
     await end(tester);
   });
 
@@ -318,8 +322,8 @@ void main() {
     Finder says(String value, String text) => find.descendant(of: row(value), matching: find.textContaining(text, findRichText: true));
     expect(says('http://10.0.1.24:3413', 'Not reachable from this computer'), findsOneWidget);
     expect(says('http://10.0.1.24:3413', 'Not responding'), findsNothing);
-    expect(says('https://epic-node.iniaku.my.id', 'Not responding'), findsOneWidget);
-    expect(says('https://epic-node.iniaku.my.id', 'Not reachable'), findsNothing);
+    expect(says('https://node.stack.invalid:3413', 'Not responding'), findsOneWidget);
+    expect(says('https://node.stack.invalid:3413', 'Not reachable'), findsNothing);
     await end(tester);
   });
 
@@ -329,7 +333,7 @@ void main() {
     await settle(tester);
     expect(find.descendant(of: row(_btlabs), matching: find.byKey(ServerTileView.imageKey)), findsOneWidget);
     expect(find.descendant(of: row(_epicnet), matching: find.byKey(ServerTileView.imageKey)), findsNothing);
-    expect(find.descendant(of: row(_epicnet), matching: find.text('EU')), findsOneWidget, reason: 'status.btlabs.uk names it epicnet.us');
+    expect(find.descendant(of: row(_epicnet), matching: find.text('EN')), findsOneWidget, reason: 'the operator EpicNet gives its initials');
     expect(find.descendant(of: row(_epicnet), matching: find.text('EpicNet', findRichText: true)), findsNothing);
     await end(tester);
   });
@@ -353,9 +357,9 @@ void main() {
     const warning = 'Changing the server changes your Epicbox address. Share the new one.';
     expect(find.text(warning), findsOneWidget);
     final before = container.read(deskProvider).status!.epicbox.domain;
-    await tap(tester, row('epicbox.stackwallet.com'));
+    await tap(tester, row('box.stack.invalid'));
     expect(find.byType(EDialog), findsOneWidget);
-    expect(find.text('Switch to epicbox.stackwallet.com?'), findsOneWidget);
+    expect(find.text('Switch to box.stack.invalid?'), findsOneWidget);
     expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('server-list-cancel')));
     expect(find.byType(EDialog), findsNothing);
@@ -397,7 +401,7 @@ void main() {
             label: 'Node server',
             value: '',
             fieldText: 'Pick a node',
-            servers: const [PanelServer(value: _btlabs, host: 'node.btlabs.uk')],
+            servers: const [PanelServer(value: _btlabs, host: 'node.lab.invalid')],
             source: const DeskServerSource(public: [_btlabs]),
             chooseOnly: true,
             openInitially: true,
@@ -423,47 +427,31 @@ void main() {
     await end(tester);
   });
 
-  group('the stored list', () {
-    test('directory servers join as they are seen; removed ones stay out until restored', () async {
-      final n = container.read(deskServerListProvider(ServerKind.relay).notifier);
-      await n.sync(const DeskServerSource(public: ['a.example', 'b.example'], inUse: 'a.example'));
-      expect(n.state!.entries, ['a.example', 'b.example']);
-      await n.remove('b.example');
-      await n.sync(const DeskServerSource(public: ['a.example', 'b.example', 'c.example'], inUse: 'a.example'));
-      expect(n.state!.entries, ['a.example', 'c.example']);
-      expect(n.state!.restorable(ServerKind.relay, ['a.example', 'b.example', 'c.example']), ['b.example']);
-      await n.restore(['a.example', 'b.example', 'c.example']);
-      expect(n.state!.entries, ['a.example', 'c.example', 'b.example']);
-      expect(await DeskStore(secrets).serverList(ServerKind.relay, 'mainnet'), n.state, reason: 'kept in the desk store');
-    });
-
-    test('a store that cannot be written: the list still shows, sync never throws (WIN-4)', () async {
-      secrets = _RefusingStore();
+  group('the list in the settings file', () {
+    test('the list is the file\'s: an add and a removal are written; nothing joins by itself', () async {
+      hostSettings = hostSettings.withValues({'node.servers': const <String>[], 'epicbox.servers': const <String>[]});
       final c = make();
       addTearDown(c.dispose);
       final n = c.read(deskServerListProvider(ServerKind.relay).notifier);
-      await n.sync(const DeskServerSource(public: ['a.example'], inUse: 'a.example'));
+      await n.add('a.example');
+      await n.add('b.example');
+      expect(n.state!.entries, ['a.example', 'b.example']);
+      await n.remove('b.example');
       expect(n.state!.entries, ['a.example']);
+      expect(serverListOf(c.read(hostSettingsProvider), ServerKind.relay).entries, n.state!.entries, reason: 'written to the settings');
+      expect(c.read(hostSettingsProvider).epicboxUse, 'a.example', reason: 'the first is in use');
     });
 
-    test('the first list carries the old My nodes and removedNodes; later starts read what was kept', () async {
-      final old = [
-        const NodeServer(url: _btlabs, label: 'BT Labs'),
-        const NodeServer(url: _epiccash, label: 'Epic Cash'),
-        const NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', own: true),
-        const NodeServer(url: 'http://10.0.0.9:3413', label: 'Office', own: true),
-      ];
-      final n = container.read(deskServerListProvider(ServerKind.node).notifier);
-      await n.sync(nodeSource(old, removedNodes: {_epiccash, 'http://10.0.0.9:3413'}, inUse: _btlabs));
-      expect(n.state!.entries, [_btlabs, 'http://10.0.1.24:3413'], reason: 'own nodes kept, removed ones out');
-      expect(n.state!.restorable(ServerKind.node, [_btlabs, _epiccash]), [_epiccash]);
-
-      // The next start reads the kept list: nothing seeds again.
-      final again = make();
-      addTearDown(again.dispose);
-      final m = again.read(deskServerListProvider(ServerKind.node).notifier);
-      await m.sync(nodeSource(old, inUse: _btlabs));
-      expect(m.state!.entries, [_btlabs, 'http://10.0.1.24:3413']);
+    test('a server the user typed in has no operator; one under an operator\'s domain has it', () async {
+      hostSettings = hostSettings.withValues({'node.servers': const <String>[], 'epicbox.servers': const <String>[]});
+      final c = make();
+      addTearDown(c.dispose);
+      final n = c.read(deskServerListProvider(ServerKind.node).notifier);
+      await n.add('https://node2.lab.invalid');
+      await n.add('http://10.0.1.24:3413', own: true);
+      final servers = c.read(hostSettingsProvider).nodeServers;
+      expect([for (final s in servers) (s.url, s.operator)], [('https://node2.lab.invalid', 'BT Labs'), ('http://10.0.1.24:3413', null)]);
+      expect(n.state!.isAddedByUser(ServerKind.node, 'http://10.0.1.24:3413'), isTrue);
     });
 
     test('an own node keeps its label as the row\'s operator', () {
@@ -474,8 +462,4 @@ void main() {
   });
 }
 
-/// A secret store whose writes fail, as a read-only store file does on Windows.
-class _RefusingStore extends MemorySecretStore {
-  @override
-  Future<void> write(String key, String value) async => throw const FileSystemException('MoveFileEx failed (5)');
-}
+

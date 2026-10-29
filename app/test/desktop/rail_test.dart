@@ -34,10 +34,10 @@ ServiceStatus _status({
   HttpProblem? httpProblem,
   int? torProgress,
 }) => ServiceStatus(
-  node: const NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs'),
+  node: const NodeServer(url: 'https://node.lab.invalid', label: 'BT Labs'),
   nodeHealth: node,
   nodeHeight: 2914414,
-  epicbox: const EpicboxServer(domain: 'epicbox.stackwallet.com'),
+  epicbox: const EpicboxServer(domain: 'box.stack.invalid'),
   epicboxHealth: epicbox,
   httpListener: http,
   httpProblem: httpProblem,
@@ -143,8 +143,8 @@ void main() {
 
     testWidgets('hosts drop the row name and never show a scheme or port', (tester) async {
       await show(tester, _status());
-      expect(find.text('btlabs.uk'), findsOneWidget);
-      expect(find.text('stackwallet.com'), findsOneWidget);
+      expect(find.text('lab.invalid'), findsOneWidget);
+      expect(find.text('box.stack.invalid'), findsOneWidget);
     });
 
     testWidgets('at 1.5× OS text scale the rows stay 40 u and nothing overflows', (tester) async {
@@ -175,20 +175,20 @@ void main() {
       await tester.pump(const Duration(seconds: 31));
       expect(node().word, 'Not answering');
       expect(node().marker, 'no answer');
-      expect(node().lines.first, 'node.btlabs.uk · since 14:02');
+      expect(node().lines.first, 'node.lab.invalid · since 14:02');
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 1));
     });
   });
 
   group('the local node with the wallet on a public node', () {
-    const public = 'https://node.epiccash.com:3413';
+    const public = 'https://node.epic.invalid:3413';
     test('starting, stopped and failed name the node in use; the local address does not', () {
       for (final phase in [LocalNodePhase.starting, LocalNodePhase.stopped, LocalNodePhase.error]) {
         final v = localNodeView(englishStrings, mockLocalNode(phase, failure: phase == LocalNodePhase.error ? NodeFailure.exited : null), fallbackUrl: public);
-        expect(v.host, 'epiccash.com', reason: phase.name);
+        expect(v.host, 'epic.invalid', reason: phase.name);
         expect(v.marker, isNotNull, reason: phase.name);
-        expect(v.lines.last, anyOf('Using node.epiccash.com until it is synced.', 'Using node.epiccash.com meanwhile.'), reason: phase.name);
+        expect(v.lines.last, anyOf('Using node.epic.invalid until it is synced.', 'Using node.epic.invalid meanwhile.'), reason: phase.name);
         expect(localNodeView(englishStrings, mockLocalNode(phase), fallbackUrl: 'http://127.0.0.1:3413').host, 'Local node', reason: phase.name);
       }
       expect(localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced), fallbackUrl: 'http://127.0.0.1:3413').lines.length, 2);
@@ -201,15 +201,15 @@ void main() {
       // The local node's stream yields its first state a microtask later.
       await tester.pump();
       final node = tester.widget<RailRow>(find.byType(RailRow).first).item;
-      expect(node.second, startsWith('btlabs.uk'), reason: 'the status says the wallet reads node.btlabs.uk');
-      expect(node.lines, contains('Using node.btlabs.uk meanwhile.'));
+      expect(node.second, startsWith('lab.invalid'), reason: 'the status says the wallet reads node.lab.invalid');
+      expect(node.lines, contains('Using node.lab.invalid meanwhile.'));
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 1));
     });
   });
 
   group('the Node row (§16)', () {
-    const url = 'https://node.epiccash.com:3413';
+    const url = 'https://node.epic.invalid:3413';
     final since = DateTime(2026, 10, 22, 14, 2);
     final fixtures = <String, (NodeView, String, EState, String?)>{
       'remote at tip, version current': (remoteNodeView(englishStrings, url, mockNodeInfo(url, latencyMs: 722)), 'Synced', EState.ok, null),
@@ -243,16 +243,16 @@ void main() {
         expect(v.marker, marker, reason: e.key);
         if (marker != null) expect(marker.length, lessThanOrEqualTo(9), reason: e.key);
       }
-      expect(fixtures['remote at tip, version current']!.$1.host, 'epiccash.com');
-      expect(fixtures['remote at tip, version current']!.$1.lines, ['node.epiccash.com · 3,764,975 · at tip', '722 ms · v4.1.1']);
+      expect(fixtures['remote at tip, version current']!.$1.host, 'epic.invalid');
+      expect(fixtures['remote at tip, version current']!.$1.lines, ['node.epic.invalid · 3,764,975 · at tip', '722 ms · v4.1.1']);
       expect(fixtures['remote older version']!.$1.lines.last, '24 ms · v4.1.0 · 4.1.1 is out');
-      expect(fixtures['remote behind']!.$1.lines.first, 'node.epiccash.com · 3,764,963 of 3,764,975');
-      expect(fixtures['remote no answer']!.$1.lines, ['node.epiccash.com · since 14:02', 'The node is not answering.']);
-      expect(fixtures['local syncing, fallback']!.$1.host, 'epiccash.com');
+      expect(fixtures['remote behind']!.$1.lines.first, 'node.epic.invalid · 3,764,963 of 3,764,975');
+      expect(fixtures['remote no answer']!.$1.lines, ['node.epic.invalid · since 14:02', 'The node is not answering.']);
+      expect(fixtures['local syncing, fallback']!.$1.host, 'epic.invalid');
       expect(fixtures['local syncing, fallback']!.$1.lines, [
         'Local node · 12%',
         'Headers · 1,480,200 of 3,764,975 · 14 peers',
-        'Using node.epiccash.com until it is synced.',
+        'Using node.epic.invalid until it is synced.',
       ]);
       expect(fixtures['local syncing, no fallback']!.$1.host, 'Local node');
       expect(fixtures['local syncing, no fallback']!.$1.lines.last, 'Nothing can be sent until it is synced.');

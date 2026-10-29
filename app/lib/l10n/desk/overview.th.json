@@ -2,7 +2,7 @@
   "deskOvNotUpdated": "ไม่ได้อัปเดต",
   "deskOvNodeNotStarted": "โหนดไม่เริ่มทำงาน",
   "deskOvNodeAddrTitle": "อัปเดตที่อยู่โหนดแล้ว",
-  "deskOvNodeAddrText": "ตอนนี้ใช้ node.epiccash.com แทน node.epiccash.com:3413",
+  "deskOvNodeAddrText": "ตอนนี้ใช้ {node} แทน {old}",
   "deskOvNodeIncompatTitle": "เวอร์ชันโหนดใช้ไม่ได้",
   "deskOvNodeUrl": "โหนด: {url}",
   "deskOvUsePublicNode": "ใช้โหนดสาธารณะ",

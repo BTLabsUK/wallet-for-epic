@@ -2,7 +2,7 @@
   "deskOvNotUpdated": "Nie zaktualizowano",
   "deskOvNodeNotStarted": "Nie uruchomiono węzła",
   "deskOvNodeAddrTitle": "Zaktualizowano adres węzła",
-  "deskOvNodeAddrText": "Teraz używany jest node.epiccash.com zamiast node.epiccash.com:3413.",
+  "deskOvNodeAddrText": "Teraz używany jest {node} zamiast {old}.",
   "deskOvNodeIncompatTitle": "Niezgodna wersja węzła",
   "deskOvNodeUrl": "Węzeł: {url}",
   "deskOvUsePublicNode": "Użyj węzła publicznego",

@@ -33,7 +33,11 @@ Uri? parseFeedbackUrl(String text) {
 /// Where "Send" posts reports: the support intake. Null only in a build made with an empty or
 /// bad `WFE_SUPPORT_URL`, which leaves share or save.
 final feedbackUrlProvider = Provider<Uri?>(
-  (ref) => parseFeedbackUrl(supportUrlSetting),
+  (ref) => switch (supportUrlSetting) {
+    final url? => parseFeedbackUrl(url),
+    // No `support.report` in app-config.toml: share or save only.
+    null => null,
+  },
 );
 
 /// How much of the log a report attaches: the newest 256 KB, days of normal use, and small
@@ -162,9 +166,12 @@ abstract interface class FeedbackOutlet {
 }
 
 class PlatformFeedbackOutlet implements FeedbackOutlet {
-  const PlatformFeedbackOutlet({this.timeout = supportTimeout});
+  const PlatformFeedbackOutlet({this._timeout});
 
-  final Duration timeout;
+  final Duration? _timeout;
+
+  /// `support.timeout_s` unless given.
+  Duration get timeout => _timeout ?? supportTimeout;
 
   @override
   bool get canShare => canShareFiles;

@@ -32,9 +32,12 @@ fi
 version="$1"
 dir="${2%/}"
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "$version is not a release version (YY.MM.patch)" >&2; exit 64; }
-# The old name on purpose: clients up to 26.10.23 accept a desktop file only under it and reject
-# the whole manifest otherwise (https://docs.btlabs.uk/developers/releases/, Release addresses). Same files either way.
-base="https://examples.btlabs.uk/epic-cash-wallets/downloads"
+# The old name by default, for the old-format update.json: clients up to 26.10.23 accept a desktop
+# file only under it and reject the whole manifest otherwise (https://docs.btlabs.uk/developers/releases/, Release
+# addresses). tool/release_android.sh moves the URLs to the app's own address for update-v2.json;
+# WFE_DOWNLOADS_BASE prints them under another address directly. Same files either way.
+base="${WFE_DOWNLOADS_BASE:-https://examples.btlabs.uk/epic-cash-wallets/downloads}"
+base="${base%/}"
 
 entry() {
   local file="$dir/$1"

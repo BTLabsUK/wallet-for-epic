@@ -45,6 +45,7 @@ void main() {
       http: http,
       origin: Uri.parse('https://try.example/app/#/home'),
       ended: ended.stream,
+      faucet: () async => Uri.parse('https://faucet.example/api/faucet/claim'),
     );
   });
 
@@ -139,7 +140,7 @@ void main() {
       expect(await api.claimTestCoins(address), isA<TestCoinsPaid>());
       final (method, url) = http.requests.single;
       expect(method, 'SIMPLE POST');
-      expect(url.origin, 'https://floo-explorer.btlabs.uk');
+      expect(url.origin, 'https://faucet.example');
       expect(url.path, '/api/faucet/claim');
       expect(url.queryParameters, {
         'method': 'epicbox',

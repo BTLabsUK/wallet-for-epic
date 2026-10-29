@@ -4,6 +4,8 @@
 /// is anything but "wrong"; "wrong" fails the unlock.
 library;
 
+import '../../settings_file/host_settings.dart' show appConfig, hostSettings, shippedHostSettings;
+import 'mock_hosts.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -20,8 +22,6 @@ import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
-import '../../backup_settings.dart' show mergeServerLists;
-import '../../server_list.dart' show ServerKind, ServerList;
 import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../wallet_service.dart' show onionAddressFormat;
 import 'api.dart';
@@ -56,12 +56,37 @@ DateTime _ago({int days = 0, int hours = 0, int minutes = 0}) =>
 
 int _epic(num v) => (v * nanoPerEpic).round();
 
-/// An operator icon as status.btlabs.uk serves it, by its hash (the tour and the tests hold
+/// An operator icon as the status site serves it, by its hash (the tour and the tests hold
 /// the 128 px PNGs in test/fixtures/icons/).
 ServerIcon mockServerIcon(String hash) => ServerIcon(
   hash: hash,
-  urls: {for (final px in const [128, 256]) px: Uri.parse('https://status.btlabs.uk/api/v1/icons/$hash-$px.png')},
+  urls: {for (final px in const [128, 256]) px: Uri.parse(mockIconUrl(hash, px))},
 );
+
+/// What the demo shows for the first servers of the node list: health, latency, height, version
+/// (the fourth does not answer).
+const _mockNodeLook = [
+  (ServiceHealth.ok, 18, 2914414, '4.1.1'),
+  (ServiceHealth.ok, 132, 2914414, '4.1.1'),
+  (ServiceHealth.slow, 940, 2914413, '4.1.1'),
+  (ServiceHealth.down, null, null, '4.1.0'),
+];
+
+/// The same for the first servers of the Epicbox list.
+const _mockBoxLook = [
+  (ServiceHealth.ok, 96),
+  (ServiceHealth.ok, 141),
+  (ServiceHealth.slow, 1210),
+];
+
+/// The icon the status site serves for an operator, when it has one.
+ServerIcon? _operatorIcon(String operator) {
+  final o = operator.toLowerCase();
+  if (o.contains('bt labs') || o == 'btlabs') return mockServerIcon('7f31acd64c95a28ca70a');
+  if (o.contains('epic cash')) return mockServerIcon('41bec7e038f3b806b2db');
+  if (o.contains('cypher')) return mockServerIcon('9a573fcde155e6753f68');
+  return null;
+}
 
 /// A test double that delegates to a [MockDeskWallet] (a recorder): the tour's prepare steps
 /// reach the mock behind it.
@@ -89,8 +114,8 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> _wait([double factor = 1]) => Future<void>.delayed(delay * factor);
 
   DeskSettings _settings = const DeskSettings();
-  String _node = 'https://node.btlabs.uk';
-  String _epicbox = 'epicbox.epiccash.com';
+  String _node = hostSettings.nodeUse;
+  String _epicbox = mockBox;
   bool _listening = true;
 
   /// The tour and the tests: the network blocks the relay in use, and [epicboxInstead] is the one offered.
@@ -101,16 +126,16 @@ class MockDeskWallet implements DeskWalletApi {
 
   final List<Contact> _contacts = [
     Contact(id: 'c1', name: 'Anna Kowalska', address: _annaAddr, http: 'https://pay.example.net:3415', favourite: true, lastUsed: _ago(days: 1), hasPicture: true),
-    Contact(id: 'c2', name: 'Mining pool payouts', address: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@epicbox.epicnet.us', note: 'Weekly payouts', lastUsed: _ago(days: 3)),
-    Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pP4iU1yT7rE3wQ9eR5tY@epicbox.epiccash.com', lastUsed: _ago(days: 12)),
+    Contact(id: 'c2', name: 'Mining pool payouts', address: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@${mockBoxAt(2)}', note: 'Weekly payouts', lastUsed: _ago(days: 3)),
+    Contact(id: 'c3', name: 'Exchange deposit', address: 'esQa1nB7cVxZ3mL9kJ5hG2fD8sA6pP4iU1yT7rE3wQ9eR5tY@$mockBox', lastUsed: _ago(days: 12)),
     Contact(id: 'c4', name: 'Tom', address: 'http://10.0.1.24:3415', epicbox: _tomAddr, note: 'Home server'),
     Contact(id: 'c5', name: 'Merchant: Coffee', address: _coffeeAddr),
-    Contact(id: 'c6', name: 'Piotr Nowak', address: 'esPn4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@epicbox.epicnet.us', tor: 'mbkzvq3uyx7nqk2ahtr4oewl6jx5fdcpsy3givn2rw7bmkhq5ufk7uyd.onion', note: 'Design work'),
+    Contact(id: 'c6', name: 'Piotr Nowak', address: 'esPn4Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtK2s@${mockBoxAt(2)}', tor: mockOnion('mbkzvq3uyx7nqk2ahtr4oewl6jx5fdcpsy3givn2rw7bmkhq5ufk7uyd'), note: 'Design work'),
     Contact(id: 'c7', name: 'Ola Wiśniewska', note: 'Stock wallet', address: _olaAddr),
     Contact(id: 'c8', name: 'Northwind Exchange', address: _northwindAddr),
-    Contact(id: 'c9', name: 'Marta W.', address: 'esQka2Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@epicbox.epiccash.com'),
+    Contact(id: 'c9', name: 'Marta W.', address: 'esQka2Wq8TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3x@$mockBox'),
     // Seeded into every new wallet.
-    Contact(id: 'btlabs', name: btLabsContact.name, address: btLabsContact.address, note: btLabsContact.note),
+    if (btLabsContact case final b?) Contact(id: 'btlabs', name: b.name, address: b.address, note: b.note),
   ];
 
   late final List<Tx> _txs = [
@@ -126,7 +151,7 @@ class MockDeskWallet implements DeskWalletApi {
     Tx(id: 34, slateId: 'f6071829-3b4c-45d6-e7f8-091a2b3c4d5e', direction: TxDirection.sent, state: TxState.cancelled, method: TxMethod.epicbox, amount: _epic(5), fee: _epic(0.006), created: _ago(days: 3), counterparty: _contacts[2].address, contactName: 'Exchange deposit'),
     Tx(id: 101, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(2), fee: 0, created: _ago(days: 4), confirmations: 620, height: 2913794, coinbase: true, confirmedAt: _ago(days: 4)),
     Tx(id: 102, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(7.5), fee: 0, created: _ago(days: 4, hours: 6), confirmations: 900, height: 2913500, foundByScan: true, foundDuring: FoundDuring.restore, confirmedAt: _ago(days: 4, hours: 6)),
-    Tx(id: 33, slateId: '0718293a-4c5d-46e7-f809-1a2b3c4d5e6f', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.tor, amount: _epic(0.5), fee: 0, created: _ago(days: 5), confirmations: 5700, counterparty: 'http://3fz7k2mq9xr4tbv6.onion', height: 2908700, kernel: '07c3e5a7b9d1f3e5a7c9b1d3f5e7a9c1b3d5e7f9a1c3b5d7e9f1a3c5b7d9e1f3a5'),
+    Tx(id: 33, slateId: '0718293a-4c5d-46e7-f809-1a2b3c4d5e6f', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.tor, amount: _epic(0.5), fee: 0, created: _ago(days: 5), confirmations: 5700, counterparty: 'http://${mockOnion('3fz7k2mq9xr4tbv6')}', height: 2908700, kernel: '07c3e5a7b9d1f3e5a7c9b1d3f5e7a9c1b3d5e7f9a1c3b5d7e9f1a3c5b7d9e1f3a5'),
     Tx(id: 103, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(4.25), fee: 0, created: _ago(days: 6), confirmations: 8600, height: 2905800, foundByScan: true, foundDuring: FoundDuring.rescan, confirmedAt: _ago(days: 6), counterparty: _contacts[1].address, transport: 'epicbox', note: 'Weekly payout from the pool.', label: 'Pool payout, March', manualFields: {ManualField.label, ManualField.counterparty, ManualField.transport, ManualField.note}, manualEditedAt: _ago(days: 1)),
     Tx(id: 104, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(1.1), fee: 0, created: _ago(days: 7), confirmations: 10000, height: 2904400, foundByScan: true, foundDuring: FoundDuring.rescan, datedByBlock: false),
     Tx(id: 105, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(0.8), fee: 0, created: _ago(days: 8), confirmations: 11400, height: 2903000, foundByScan: true, confirmedAt: _ago(days: 8)),
@@ -151,22 +176,34 @@ class MockDeskWallet implements DeskWalletApi {
       ),
   ];
 
+  // The list in the settings' order, each with the health the demo shows; the icons follow the operator.
   final List<NodeServer> _nodes = [
-    NodeServer(url: 'https://node.btlabs.uk', label: 'BT Labs', operator: 'BT Labs', health: ServiceHealth.ok, latencyMs: 18, height: 2914414, version: '4.1.1', icon: mockServerIcon('7f31acd64c95a28ca70a'), listedAs: 'btlabs'),
-    NodeServer(url: 'https://node.epicnet.us:3413', label: 'EpicNet', operator: 'EpicNet', health: ServiceHealth.ok, latencyMs: 132, height: 2914414, version: '4.1.1', listedAs: 'epicnet.us'),
-    NodeServer(url: 'https://node.epiccash.com:3413', label: 'Epic Cash', operator: 'Epic Cash', health: ServiceHealth.slow, latencyMs: 940, height: 2914413, version: '4.1.1', icon: mockServerIcon('41bec7e038f3b806b2db'), listedAs: 'Epic Cash'),
-    NodeServer(url: 'https://epic.stackwallet.com:3413', label: 'Cypher Stack', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 210, height: 2914414, version: '4.1.0', icon: mockServerIcon('9a573fcde155e6753f68'), listedAs: 'Cypher Stack'),
-    NodeServer(url: 'https://epic-node.iniaku.my.id', label: 'Iniaku pool', operator: 'Iniaku pool', health: ServiceHealth.down, version: '4.1.1', icon: mockServerIcon('73de63f69b0165b85c44'), listedAs: 'Iniaku pool'),
+    for (var i = 0; i < _mockNodeLook.length; i++)
+      NodeServer(
+        url: mockNodeAt(i),
+        label: mockNodeOp(i),
+        operator: mockNodeOp(i),
+        health: _mockNodeLook[i].$1,
+        latencyMs: _mockNodeLook[i].$2,
+        height: _mockNodeLook[i].$3,
+        version: _mockNodeLook[i].$4,
+        icon: _operatorIcon(mockNodeOp(i)),
+        listedAs: mockNodeOp(i),
+      ),
     NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: 2914414, version: '4.1.1', own: true),
   ];
 
-  // As status.btlabs.uk lists them: the icons and operator names it serves; Iniaku's relay
-  // with no health yet.
+  // As the status site lists them: the icons and operator names it serves.
   final List<EpicboxServer> _epicboxes = [
-    EpicboxServer(domain: 'epicbox.stackwallet.com', operator: 'Cypher Stack', health: ServiceHealth.ok, latencyMs: 141, icon: mockServerIcon('9a573fcde155e6753f68'), listedAs: 'Cypher Stack'),
-    EpicboxServer(domain: 'epicbox.epicnet.us', operator: 'EpicNet', health: ServiceHealth.slow, latencyMs: 1210, listedAs: 'epicnet.us'),
-    EpicboxServer(domain: 'epicbox.epiccash.com', operator: 'Epic Cash', health: ServiceHealth.ok, latencyMs: 96, icon: mockServerIcon('41bec7e038f3b806b2db'), listedAs: 'Epic Cash'),
-    EpicboxServer(domain: 'epicbox.iniaku.my.id', operator: 'Iniaku pool', health: ServiceHealth.checking, icon: mockServerIcon('73de63f69b0165b85c44'), listedAs: 'Iniaku pool'),
+    for (var i = 0; i < _mockBoxLook.length; i++)
+      EpicboxServer(
+        domain: mockBoxAt(i),
+        operator: mockBoxOp(i),
+        health: _mockBoxLook[i].$1,
+        latencyMs: _mockBoxLook[i].$2,
+        icon: _operatorIcon(mockBoxOp(i)),
+        listedAs: mockBoxOp(i),
+      ),
   ];
 
   final List<WalletEntry> _wallets = [
@@ -775,7 +812,7 @@ class MockDeskWallet implements DeskWalletApi {
       : HttpReach(port: _settings.httpPort, publicIp: '203.0.113.24', lan: '10.0.1.24', reachable: false, checkedAt: DateTime.now());
 
   @override
-  Future<String> torAddress() async => 'http://wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
+  Future<String> torAddress() async => 'http://$fakeWalletOnion';
 
   @override
   bool isOnionAddress(String to) => onionAddressFormat(to);
@@ -972,7 +1009,7 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> useBuiltInNode(bool on) async {
     await _wait();
-    _node = on ? 'http://127.0.0.1:3413' : 'https://node.btlabs.uk';
+    _node = on ? 'http://127.0.0.1:${appConfig.localNodeApiPort}' : hostSettings.nodeUse;
   }
 
   @override
@@ -1254,7 +1291,7 @@ class MockDeskWallet implements DeskWalletApi {
       caps: const PairingCaps(issuesInvoices: true),
       allowInvoices: true,
       paymentsAddress: _coffeeAddr,
-      relay: 'epicbox.stackwallet.com',
+      relay: mockBoxAt(1),
       verifiedAt: DateTime(2026, 9, 2),
     );
     p.seedPaired(id: mockTomPairing, name: 'Tom', contactId: 'c4', state: PairingState.paired, paymentsAddress: _tomAddr, seal: SealMode.degraded, checkSkipped: true);
@@ -1390,48 +1427,25 @@ class MockDeskWallet implements DeskWalletApi {
     return const HistoryImport(merged: 3, added: 2, skipped: 41, contactsAdded: 1);
   }
 
-  /// This wallet's lists, own Epicbox server and deleted seed contacts as a backup restores
-  /// them ([restoreBackupItems]); tests read and set them.
-  ServerList nodeList = const ServerList();
-  ServerList relayList = const ServerList();
-  String? ownRelay;
+  /// This wallet's deleted seed contacts as a backup restores them ([restoreBackupItems]);
+  /// tests read and set them.
   final Set<String> seedsDeleted = {};
 
   @override
   Future<DeskBackupSettings> backupSettings() async => DeskBackupSettings(
     chain: 'mainnet',
-    mine: deskBackupMap(
-      _settings,
-      chain: 'mainnet',
-      outputs: _prefs,
-      node: _node,
-      relay: ownRelay ?? _epicbox,
-      nodeList: nodeList,
-      relayList: relayList,
-      ownNodes: [for (final n in _nodes) if (n.own) n],
-      invoiceExpiry: proto.expiry,
-      seedsDeleted: seedsDeleted,
-      ownRelay: ownRelay,
-    ),
+    mine: deskBackupMap(_settings, hosts: hostSettings, outputs: _prefs, invoiceExpiry: proto.expiry, seedsDeleted: seedsDeleted),
     defaults: deskBackupMap(
       const DeskSettings(),
-      chain: 'mainnet',
+      hosts: shippedHostSettings,
       outputs: const OutputPrefs(),
-      node: 'https://node.btlabs.uk',
-      relay: 'epicbox.epiccash.com',
-      nodeList: const ServerList(),
-      relayList: const ServerList(),
-      ownNodes: const [],
       invoiceExpiry: defaultInvoiceExpiry,
       seedsDeleted: const [],
     ),
   );
 
   @override
-  Future<void> restoreBackupItems({ServerList? nodeList, ServerList? relayList, ({String? relay})? ownRelay, List<String>? seedsDeleted}) async {
-    if (nodeList != null) this.nodeList = mergeServerLists(ServerKind.node, this.nodeList, nodeList);
-    if (relayList != null) this.relayList = mergeServerLists(ServerKind.relay, this.relayList, relayList);
-    if (ownRelay != null) this.ownRelay = ownRelay.relay;
+  Future<void> restoreBackupItems({List<String>? seedsDeleted}) async {
     for (final id in seedsDeleted ?? const <String>[]) {
       if (this.seedsDeleted.add(id) && id == 'btlabs') _contacts.removeWhere((c) => c.id == 'btlabs');
     }

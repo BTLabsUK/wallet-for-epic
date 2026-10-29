@@ -9,7 +9,7 @@ import 'package:epic_wallet/src/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
-const _relay = 'epicbox.iniaku.my.id:443';
+const _relay = 'epicbox.pool.example.org:443';
 
 lepic.ContactView _view(String id, {String? app, int created = 1792900000000, bool removed = false}) => lepic.ContactView(
   contactId: id,

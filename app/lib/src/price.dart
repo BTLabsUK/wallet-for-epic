@@ -17,6 +17,8 @@ import 'amount.dart';
 import 'net/http.dart';
 import 'net/tor_switch.dart';
 import 'providers.dart';
+import 'settings_file/host_settings.dart' show HostSettings, appConfig, hostSettings;
+import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'settings.dart';
 import 'wallet_service.dart' show Chain;
 
@@ -39,8 +41,8 @@ const List<String> fiatCurrencies = [
   'try',
 ];
 
-/// How often [priceProvider] asks for a new price while the app runs.
-const Duration priceRefreshInterval = Duration(minutes: 5);
+/// How often [priceProvider] asks for a new price while the app runs (`price.refresh_min`).
+Duration get priceRefreshInterval => appConfig.priceRefresh;
 
 /// The price of one EPIC in a currency.
 abstract interface class PriceSource {
@@ -48,23 +50,29 @@ abstract interface class PriceSource {
   Future<double?> price(String currency);
 }
 
-/// CoinGecko's `simple/price` for `epic-cash`.
+/// The price source's (`price.source`) `simple/price` for `epic-cash`, in CoinGecko's shape;
+/// no price when `app-config.toml` names no source.
 class CoinGeckoPriceSource implements PriceSource {
-  const CoinGeckoPriceSource({this.timeout = const Duration(seconds: 10)});
+  const CoinGeckoPriceSource({this.timeout});
 
-  final Duration timeout;
+  /// `price.timeout_s` unless given.
+  final Duration? timeout;
 
   @override
   Future<double?> price(String currency) async {
+    final configured = hostSettings.priceSource;
+    if (configured == null) return null;
     try {
-      final uri = Uri.https('api.coingecko.com', '/api/v3/simple/price', {
+      final source = Uri.parse(configured);
+      final uri = source.replace(queryParameters: {
+        ...source.queryParameters,
         'ids': 'epic-cash',
         'vs_currencies': currency,
       });
       final reply = await httpGet(
         uri,
         headers: const {'accept': 'application/json'},
-        timeout: timeout,
+        timeout: timeout ?? appConfig.priceTimeout,
       );
       if (reply.status != 200) return null;
       final decoded = jsonDecode(reply.body);
@@ -80,34 +88,40 @@ class CoinGeckoPriceSource implements PriceSource {
   }
 }
 
-/// BT Labs' copy of CoinGecko's price, refreshed by the status site every few minutes:
-/// `status.btlabs.uk/api/v1/price.json`, which the app's HTTP reaches over the status onion
-/// while Tor is on. A file older than [maxAge], another schema or a missing currency is no
+/// BT Labs' copy of the price, refreshed by the status site every few minutes (`status.price`
+/// in the settings file), which the app's HTTP reaches over the status onion while Tor is on. A file older than [maxAge], another schema or a missing currency is no
 /// price.
 class BtlabsPriceSource implements PriceSource {
   BtlabsPriceSource({
-    this.timeout = const Duration(seconds: 30),
-    this.maxAge = const Duration(minutes: 30),
+    this.timeout,
+    this.maxAge,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
-  static final Uri url = Uri.https('status.btlabs.uk', '/api/v1/price.json');
+  /// `status.price`; null when `app-config.toml` leaves it out (no copy is read).
+  static Uri? get url => switch (hostSettings.statusPrice) {
+    final u? => Uri.parse(u),
+    null => null,
+  };
 
-  final Duration timeout;
-  final Duration maxAge;
+  /// `price.fallback_timeout_s` and `price.max_age_min` unless given.
+  final Duration? timeout;
+  final Duration? maxAge;
   final DateTime Function() _now;
 
   @override
   Future<double?> price(String currency) async {
+    final at = url;
+    if (at == null) return null;
     try {
       final reply = await httpGet(
-        url,
+        at,
         headers: const {'accept': 'application/json'},
-        timeout: timeout,
+        timeout: timeout ?? appConfig.priceFallbackTimeout,
         maxBytes: 16 * 1024,
       );
       if (reply.status != 200) return null;
-      return priceFromBtlabs(reply.body, currency, now: _now(), maxAge: maxAge);
+      return priceFromBtlabs(reply.body, currency, now: _now(), maxAge: maxAge ?? appConfig.priceMaxAge);
     } catch (error) {
       logInfo('price', 'no price: ${error.runtimeType}');
       return null;
@@ -120,7 +134,7 @@ double? priceFromBtlabs(
   String body,
   String currency, {
   required DateTime now,
-  Duration maxAge = const Duration(minutes: 30),
+  required Duration maxAge,
 }) {
   final decoded = jsonDecode(body);
   if (decoded is! Map || decoded['schema'] != 1) return null;
@@ -140,21 +154,23 @@ final priceSourceProvider = Provider<PriceSource>(
 /// CoinGecko, BT Labs' copy: CoinGecko refuses a request without a User-Agent (403) and ours
 /// carry none (`net/http.dart`).
 class TorAwarePriceSource implements PriceSource {
-  const TorAwarePriceSource({PriceSource? coinGecko, PriceSource? btlabs})
-    : _coinGecko = coinGecko,
-      _btlabs = btlabs;
+  const TorAwarePriceSource({this.coinGecko, this.btlabs});
 
-  final PriceSource? _coinGecko;
-  final PriceSource? _btlabs;
+  final PriceSource? coinGecko;
+  final PriceSource? btlabs;
 
-  PriceSource get _copy => _btlabs ?? BtlabsPriceSource();
+  PriceSource get _copy => btlabs ?? BtlabsPriceSource();
 
   @override
   Future<double?> price(String currency) async {
     if (TorSwitch.on) return _copy.price(currency);
-    return await (_coinGecko ?? const CoinGeckoPriceSource()).price(currency) ?? await _copy.price(currency);
+    return await (coinGecko ?? const CoinGeckoPriceSource()).price(currency) ?? await _copy.price(currency);
   }
 }
+
+/// Whether prices are offered at all: `[online] price` on in settings.toml and a price source
+/// (or the status site's copy) in app-config.toml.
+bool pricesOffered(HostSettings s) => s.priceEnabled && (s.priceSource != null || s.statusPrice != null);
 
 /// The price of one EPIC in the chosen currency, or null when prices are off or none has been
 /// fetched. Refreshes every [priceRefreshInterval] while the app runs. A failed refresh keeps the
@@ -172,6 +188,9 @@ class PriceNotifier extends AsyncNotifier<double?> {
     // Test coins on floonet and usernet are worthless: no price, and no request.
     final chain = ref.watch(walletConfigProvider.select((c) => c?.chain));
     if (chain != null && chain != Chain.mainnet) return null;
+    // settings.toml's `[online] price` off, or no source in app-config.toml: no price.
+    final online = ref.watch(hostSettingsProvider.select(pricesOffered));
+    if (!online) return null;
     final settings = await ref.watch(appSettingsProvider.future);
     if (!settings.showFiat) return null;
     final currency = settings.fiatCurrency;

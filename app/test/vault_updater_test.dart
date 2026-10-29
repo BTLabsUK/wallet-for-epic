@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart' show SimpleKeyPair;
 import 'package:epic_wallet/src/btlabs_public.dart';
@@ -881,12 +882,8 @@ void main() {
       expect(all.read(updateProvider).phase, UpdatePhase.upToDate);
     });
 
-    test('the sources live in one list: BT Labs\' own server, the GitLab copy, GitHub Pages', () {
-      expect(updateManifestSources, [
-        'https://examples.btlabs.uk/epic-cash-wallets/update.json',
-        'https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update.json',
-        'https://btlabs-epic.github.io/update.json',
-      ]);
+    test('the sources live in one list, in the settings file', () {
+      expect(updateManifestSources, hostSettings.updateManifests);
       expect(updateManifestUrls.map((u) => '$u'), updateManifestSources);
     });
 
@@ -1207,7 +1204,7 @@ void main() {
 
     test("a key update.json revoked signs no btlabs.json either", () async {
       final keyA = testUpdateKeyring.keys.firstWhere((k) => k.rank == 1).keyid;
-      final d = [donation('btlabs', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.stackwallet.com')];
+      final d = [donation('btlabs', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.stack.invalid')];
       final file = await signedPublicFile(d, serial: 3);
       final at = DateTime.utc(2026, 11);
       expect(await verifyBtlabsPublic(file, keyring: testKeyring(), now: at), isA<Accepted<BtlabsPublic>>());
@@ -1252,10 +1249,10 @@ void main() {
 
   group('relays', () {
     test('parses host and port, and refuses junk', () {
-      final a = EpicboxRelay.parse(' Epicbox.EpicNet.us ')!;
-      expect(a.host, 'epicbox.epicnet.us');
+      final a = EpicboxRelay.parse(' Box.Net.Invalid ')!;
+      expect(a.host, 'box.net.invalid');
       expect(a.port, 443);
-      expect(a.label, 'epicbox.epicnet.us');
+      expect(a.label, 'box.net.invalid');
       final b = EpicboxRelay.parse('127.0.0.1:3423')!;
       expect(b.label, '127.0.0.1:3423');
       expect(EpicboxRelay.parse('wss://x'), isNull);
