@@ -4,17 +4,14 @@
     tools/releases/build.py add <version> <dir> [--date YYYY-MM-DD] [--gitlab]
         Record a release from a folder holding its files and SHA256SUMS (the release lead's
         folder, e.g. /srv/wfe-release/26.10.24). Every file in SHA256SUMS whose name
-        carries <version> is taken; its checksum is recomputed and must agree. Replaces an
-        earlier record of the same version.
+        carries <version> is taken; its checksum is recomputed and must agree. Replaces
+        whatever record was there: the page shows the current release only.
     tools/releases/build.py render [--out DIR]
         Write the page (index.html, style.css, page.js, theme.js, fonts/, img/) into DIR,
         the page repo's site/epic-cash/ by default ($WFE_RELEASES_SITE). Deploy from there
         with the page repo's ./deploy-epic-cash.sh.
-    tools/releases/build.py import-listing <ls -l --time-style=+%Y-%m-%dT%H:%M output> <SHA256SUMS> [changelog.html]
-        One-time import of what the server already holds (dates from the changelog's
-        <time datetime> per version, else the file's time).
 
-The data is releases.json next to this script: one record per version (version, date,
+The data is releases.json next to this script: one record, the current release (version, date,
 files with name, size and sha256). What a file is (platform, label, primary or folded) comes
 from its name, see KINDS: a new kind of build needs one line there and nothing else.
 
@@ -208,41 +205,12 @@ def cmd_add(args):
         files.append({'name': name, 'size': os.path.getsize(path), 'sha256': sha})
     assert files, f'no file for {ver} in {d}/SHA256SUMS'
     data = load()
-    data['releases'] = [r for r in data['releases'] if r['version'] != ver]
     rec = {'version': ver, 'date': date, 'files': files}
     if '--gitlab' in args:
         rec['gitlab'] = True
-    data['releases'].append(rec)
+    data['releases'] = [rec]
     save(data)
     print(f'{ver}: {len(files)} files, {date}')
-
-
-def cmd_import_listing(args):
-    listing, sums_path = args[0], args[1]
-    sums = read_sums(sums_path)
-    dates = {}
-    if len(args) > 2:
-        log = open(args[2]).read()
-        for m in re.finditer(r'id="v([\d.]+(?:-r\d+)?)".*?<time datetime="(\d{4}-\d\d-\d\d)"', log, re.S):
-            dates[m.group(1)] = m.group(2)
-    rel = {}
-    for line in open(listing):
-        parts = line.split()
-        if len(parts) < 7 or not parts[0].startswith('-'):
-            continue
-        size, stamp, name = int(parts[4]), parts[5], parts[6]
-        if name not in sums:
-            continue
-        ver = version_of(name)
-        if not ver:
-            continue
-        r = rel.setdefault(ver, {'version': ver, 'date': dates.get(ver, stamp[:10]), 'files': []})
-        r['files'].append({'name': name, 'size': size, 'sha256': sums[name]})
-    data = load()
-    known = {r['version'] for r in data['releases']}
-    data['releases'] += [r for v, r in rel.items() if v not in known]
-    save(data)
-    print(f'{len(rel)} versions on the server, {len(rel) - len(known & set(rel))} added')
 
 
 # ---------------------------------------------------------------------------- the page
@@ -315,36 +283,16 @@ def mirror(r):
             if r.get('gitlab') else '')
 
 
-def older_release(r):
-    g = group(r)
-    plats = ''.join(f'<span class="ico sm" title="{esc(PLAT[k][1])}">{ICONS[k]}</span>' for k in g if k in PLAT)
-    parts = [f'<details class="rel" id="v{esc(r["version"])}"><summary>'
-             f'<span class="rv" translate="no">{esc(r["version"])}</span>'
-             f'<time datetime="{r["date"]}">{human_date(r["date"])}</time>'
-             f'<span class="rp" aria-hidden="true">{plats}</span>'
-             f'<span class="rn">{len(r["files"])} file{"s" if len(r["files"]) != 1 else ""}</span></summary><div class="rb">'
-             f'<p class="rl"><a href="changelog/#v{esc(r["version"])}">What changed in {esc(r["version"])}</a>{mirror(r)}</p>']
-    for k, gg in g.items():
-        heading = PLAT[k][1] if k in PLAT else 'Other files'
-        parts.append(f'<section class="rg"><h4>{ICONS.get(k, ICONS["other"])}{esc(heading)}</h4><ul class="fl-list">')
-        parts += [file_row(e) for e in gg['files']]
-        parts.append('</ul></section>')
-    parts.append('</div></details>')
-    return '\n'.join(parts)
-
-
 def render(out_dir):
     data = load()
     rels = sorted(data['releases'], key=lambda r: vkey(r['version']), reverse=True)
     assert rels, 'no release recorded: run add first'
-    latest, older = rels[0], rels[1:]
+    latest = rels[0]
     g = group(latest)
     plat_names = [PLAT[k][1] for k in g if k in PLAT and not PLAT[k][4]]
     previews = [PLAT[k][1] for k in g if k in PLAT and PLAT[k][4]]
     cards = '\n'.join(platform_card(k, gg, latest) for k, gg in g.items())
-    old = '\n'.join(older_release(r) for r in older)
     plat_line = ', '.join(plat_names) + ('; ' + ' and '.join(previews) + ' preview' if previews else '')
-    total_files = sum(len(r['files']) for r in rels)
 
     page = f'''<!doctype html>
 <html lang="en">
@@ -353,7 +301,7 @@ def render(out_dir):
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#08080a">
-<meta name="description" content="Download Epic Cash Desktop and Epic Cash Mobile {esc(latest['version'])}: {esc(plat_line)}. Every release with checksums.">
+<meta name="description" content="Download Epic Cash Desktop and Epic Cash Mobile {esc(latest['version'])}: {esc(plat_line)}. With checksums.">
 <title>Epic Cash releases</title>
 <link rel="icon" href="img/favicon.png" type="image/png">
 <link rel="stylesheet" href="style.css">
@@ -382,16 +330,11 @@ def render(out_dir):
 </section>
 
 <section class="latest" id="latest" aria-labelledby="latest-h">
-  <div class="sh"><h2 id="latest-h">Latest <span translate="no">{esc(latest['version'])}</span></h2><p class="sl"><a href="changelog/#v{esc(latest['version'])}">What changed</a>{mirror(latest)}</p></div>
+  <div class="sh"><h2 id="latest-h">Latest <span translate="no">{esc(latest['version'])}</span></h2><p class="sl"><a href="changelog/#v{esc(latest['version'])}">What changed</a>{mirror(latest)} · <a href="changelog/">Earlier versions</a></p></div>
   <div class="cards">
 {cards}
   </div>
   <p class="foot-note"><b>Without Tor</b>: the same app with Tor left out, for places where Tor is unwanted or blocked; it cannot send to Tor addresses and updates itself like the normal app. Installing either over the other keeps the wallets. <a href="downloads/SHA256SUMS" class="mono" translate="no">SHA256SUMS</a> lists every file.</p>
-</section>
-
-<section class="older" id="all" aria-labelledby="all-h">
-  <div class="sh"><h2 id="all-h">Earlier releases</h2><p class="sl">{len(older)} versions · {total_files} files in all · <a href="changelog/">changelog</a></p></div>
-{old}
 </section>
 </main>
 
@@ -411,7 +354,7 @@ def render(out_dir):
         os.makedirs(os.path.join(out_dir, sub), exist_ok=True)
         for name in os.listdir(os.path.join(ASSETS, sub)):
             shutil.copy(os.path.join(ASSETS, sub, name), os.path.join(out_dir, sub, name))
-    print(f'{out_dir}: {latest["version"]} + {len(older)} earlier, {total_files} files')
+    print(f'{out_dir}: {latest["version"]}, {len(latest["files"])} files')
 
 
 def main(argv):
@@ -421,8 +364,6 @@ def main(argv):
     cmd, args = argv[0], argv[1:]
     if cmd == 'add':
         cmd_add(args)
-    elif cmd == 'import-listing':
-        cmd_import_listing(args)
     elif cmd == 'render':
         out = args[args.index('--out') + 1] if '--out' in args else DEFAULT_OUT
         render(out)

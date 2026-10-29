@@ -1,14 +1,14 @@
 # The releases page
 
 `build.py` renders the public releases page for Epic Cash Desktop and Epic Cash Mobile:
-every release, the latest with one primary download per platform and the rest folded,
-checksums, a Before you install fold per platform, one changelog link. Served from the
+the current release only, with one primary download per platform and the rest folded,
+checksums, a Before you install fold per platform, one changelog link (the way to history). Served from the
 release folder on the server, today at https://examples.btlabs.uk/epic-cash-wallets/ and
 at https://epiccash.btlabs.uk/releases/ (same folder, so the page uses relative links only).
 
 ```
-releases.json      the data: one record per version (version, date, files: name, size, sha256)
-build.py           add / render / import-listing (see its docstring)
+releases.json      the data: the current release (version, date, files: name, size, sha256); `add` replaces it
+build.py           add / render (see its docstring)
 assets/            style.css, page.js, theme.js, fonts/ (Montserrat, JetBrains Mono NL, OFL), img/
 ```
 
@@ -22,6 +22,11 @@ assets/            style.css, page.js, theme.js, fonts/ (Montserrat, JetBrains M
 3. In the page repo: commit, then `./deploy-epic-cash.sh`. It leaves downloads/ and
    update.json alone and checks the live URLs.
 4. Commit `releases.json` here.
+5. Prune the server: the page keeps no history, so the previous version's files leave
+   `downloads/` (keep anything an update manifest still names: update.json at examples,
+   /api/v1/update.json, the mirrors' update.json and update-v2.json). Keep a local copy of
+   each removed file with its checksum under `/tmp/epic-build/wfe-release-archive/<version>/`
+   first. Old version URLs answering 404 is intended.
 
 A new kind of build (a portable zip, an MSIX, a .deb, a universal APK) needs one line in
 `KINDS` in build.py: the file-name pattern, its platform, its label and whether it is the
