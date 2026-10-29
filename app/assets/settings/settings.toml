@@ -22,10 +22,10 @@ version = 1
 [node]
 
 # The node every wallet uses, a new wallet too. Settings › Node changes it.
-use = "https://node.btlabs.uk"
+use = "https://node.epiccash.com:3413"
 
-# The node offered when the node in use does not answer.
-fallback = "https://node.epiccash.com:3413"
+# The node offered when the node in use does not answer: another operator's than the default.
+fallback = "https://node.btlabs.uk"
 
 # Public nodes you took out of the list (host:port). They stay out when the status site lists
 # them again. Settings › Node › Restore brings them back.
@@ -34,16 +34,16 @@ removed = []
 # The Node list, in order. `url` is the node's API root (https unless you write http://),
 # `operator` who runs it. Add your own node here or in the app.
 [[node.servers]]
+url = "https://node.epiccash.com:3413"
+operator = "Epic Cash"
+
+[[node.servers]]
 url = "https://node.btlabs.uk"
 operator = "BT Labs"
 
 [[node.servers]]
 url = "https://node.epicnet.us:3413"
 operator = "EpicNet"
-
-[[node.servers]]
-url = "https://node.epiccash.com:3413"
-operator = "Epic Cash"
 
 [[node.servers]]
 url = "https://epic.stackwallet.com:3413"
@@ -63,7 +63,8 @@ operator = "Iniaku pool"
 # address to that server: payments sent to an old address do not arrive there.
 use = "epicbox.epiccash.com"
 
-# The server of an Epicbox address written without one.
+# The server of an Epicbox address written without one: the one older wallets assumed, so
+# their addresses and imports keep reading the same.
 default = "epicbox.epiccash.com"
 
 # Public servers you took out of the list (host, or host:port off 443).
@@ -86,6 +87,10 @@ operator = "EpicNet"
 [[epicbox.servers]]
 host = "epicbox.iniaku.my.id"
 operator = "Iniaku pool"
+
+[[epicbox.servers]]
+host = "epicbox.btlabs.uk"
+operator = "BT Labs"
 
 # ---------------------------------------------------------------------------------------------
 # Connecting two wallets (Settings › Advanced › Experimental, Pairing)
