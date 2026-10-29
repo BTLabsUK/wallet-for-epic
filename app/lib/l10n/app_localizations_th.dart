@@ -17840,4 +17840,99 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => 'การเชื่อมต่อ';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file บรรทัด $line: อ่านบรรทัดนี้ไม่ได้ ยังใช้การตั้งค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ข้อความในเครื่องหมายคำพูด ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่จำนวนเต็ม ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ true หรือ false ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่รายการ ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ที่อยู่โหนด ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่เซิร์ฟเวอร์ Epicbox ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ชื่อโฮสต์ ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ที่อยู่เว็บ ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ที่อยู่ onion ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่หมายเลขพอร์ต ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ที่อยู่อีเมล ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file บรรทัด $line: ไม่ใช่ที่อยู่ Epicbox ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file บรรทัด $line: ไม่รู้จักคีย์ $key จึงข้ามไป';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return 'มีการแก้ไข $file ในเวลาเดียวกัน จึงคงค่า $key ในไฟล์ไว้';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return '$file มีข้อผิดพลาด บันทึกไว้เป็น $backup แล้วเขียนไฟล์ใหม่';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return 'ไม่พบ $file จึงเขียนไฟล์ใหม่แล้ว';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return 'เขียน $file ไม่ได้ การเปลี่ยนแปลงนี้ใช้ได้จนกว่าจะปิดแอป';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return 'อ่าน $file ไม่ได้ จึงใช้การตั้งค่าในตัวแอป';
+  }
 }

@@ -18472,4 +18472,99 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => 'Verbindungen';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file, Zeile $line: Diese Zeile ist nicht lesbar. Die letzten gültigen Einstellungen gelten weiter.';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file, Zeile $line: Kein Text in Anführungszeichen. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file, Zeile $line: Keine ganze Zahl. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file, Zeile $line: Weder true noch false. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file, Zeile $line: Keine Liste. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file, Zeile $line: Keine Node-Adresse. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file, Zeile $line: Kein Epicbox-Server. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file, Zeile $line: Kein Hostname. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file, Zeile $line: Keine Webadresse. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file, Zeile $line: Keine Onion-Adresse. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file, Zeile $line: Keine Portnummer. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file, Zeile $line: Keine E-Mail-Adresse. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file, Zeile $line: Keine Epicbox-Adresse. Der letzte gültige Wert gilt weiter.';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file, Zeile $line: Unbekannter Schlüssel $key, wird ignoriert.';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file wurde gleichzeitig bearbeitet; sein Wert für $key bleibt.';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return '$file hatte Fehler. Die Datei wurde als $backup gesichert und neu geschrieben.';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return '$file fehlte und wurde neu geschrieben.';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return '$file konnte nicht geschrieben werden. Die Änderung gilt, bis die App geschlossen wird.';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return '$file konnte nicht gelesen werden. Die eingebauten Einstellungen gelten.';
+  }
 }

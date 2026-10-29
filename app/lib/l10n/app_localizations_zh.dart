@@ -17185,4 +17185,99 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => '连接';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file，第 $line 行：无法读取此行。仍使用上次有效的设置。';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file，第 $line 行：不是带双引号的文本。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file，第 $line 行：不是整数。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file，第 $line 行：不是 true 或 false。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file，第 $line 行：不是列表。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file，第 $line 行：不是节点地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file，第 $line 行：不是 Epicbox 服务器。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file，第 $line 行：不是主机名。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file，第 $line 行：不是网址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file，第 $line 行：不是洋葱地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file，第 $line 行：不是端口号。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file，第 $line 行：不是电子邮件地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file，第 $line 行：不是 Epicbox 地址。仍使用上次有效的值。';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file，第 $line 行：未知的键 $key，已忽略。';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file 同时被编辑过；保留其中 $key 的值。';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return '$file 有错误。已另存为 $backup 并重新写入。';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return '$file 不见了，已重新写入。';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return '无法写入 $file。此更改在关闭应用前有效。';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return '无法读取 $file。正在使用内置设置。';
+  }
 }

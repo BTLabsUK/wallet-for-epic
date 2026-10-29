@@ -18901,4 +18901,99 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => 'Połączenia';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file, wiersz $line: tego wiersza nie da się odczytać. Obowiązują ostatnie poprawne ustawienia.';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file, wiersz $line: to nie tekst w cudzysłowie. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file, wiersz $line: to nie liczba całkowita. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file, wiersz $line: to nie true ani false. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file, wiersz $line: to nie lista. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file, wiersz $line: to nie adres węzła. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file, wiersz $line: to nie serwer Epicbox. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file, wiersz $line: to nie nazwa hosta. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file, wiersz $line: to nie adres strony. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file, wiersz $line: to nie adres onion. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file, wiersz $line: to nie numer portu. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file, wiersz $line: to nie adres e-mail. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file, wiersz $line: to nie adres Epicbox. Obowiązuje ostatnia poprawna wartość.';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file, wiersz $line: nieznany klucz $key, pominięty.';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file edytowano w tym samym czasie; zostaje jego wartość $key.';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return '$file zawierał błędy. Zapisano go jako $backup i utworzono na nowo.';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return 'Brakowało pliku $file, utworzono go na nowo.';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return 'Nie udało się zapisać $file. Zmiana obowiązuje do zamknięcia aplikacji.';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return 'Nie udało się odczytać $file. Obowiązują wbudowane ustawienia.';
+  }
 }

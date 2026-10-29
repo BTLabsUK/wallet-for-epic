@@ -1,0 +1,293 @@
+# Epic Cash wallet settings
+#
+# Every server and site the wallet talks to is listed here, and nowhere else. The wallet writes
+# this file on its first start and reads it at every start after that. Your values always win;
+# a newer version of the wallet only adds what is missing (see `version`).
+#
+# On a computer you can edit this file while the wallet runs: it reads it again a moment after
+# you save. A line it cannot use is skipped, and the wallet says which line and why. When you
+# change something in the app (a node, an Epicbox server, a list in Settings), the wallet
+# changes only those lines here; your comments, your order and keys it does not know stay.
+#
+# Lines starting with # are comments. Text values go in double quotes.
+
+# The version of the built-in settings this file was last brought up to date with. A newer
+# wallet adds the keys and servers it knows that this file does not have, then raises this
+# number. It never changes or removes what is here. Do not edit it.
+version = 1
+
+# ---------------------------------------------------------------------------------------------
+# Nodes: where the wallet reads the chain and posts payments.
+# ---------------------------------------------------------------------------------------------
+[node]
+
+# The node every wallet uses, a new wallet too. Settings › Node changes it.
+use = "https://node.btlabs.uk"
+
+# The node offered when the node in use does not answer.
+fallback = "https://node.epiccash.com:3413"
+
+# Public nodes you took out of the list (host:port). They stay out when the status site lists
+# them again. Settings › Node › Restore brings them back.
+removed = []
+
+# The Node list, in order. `url` is the node's API root (https unless you write http://),
+# `operator` who runs it. Add your own node here or in the app.
+[[node.servers]]
+url = "https://node.btlabs.uk"
+operator = "BT Labs"
+
+[[node.servers]]
+url = "https://node.epicnet.us:3413"
+operator = "EpicNet"
+
+[[node.servers]]
+url = "https://node.epiccash.com:3413"
+operator = "Epic Cash"
+
+[[node.servers]]
+url = "https://epic.stackwallet.com:3413"
+operator = "Cypher Stack"
+
+[[node.servers]]
+url = "https://epic-node.iniaku.my.id"
+operator = "Iniaku pool"
+
+# ---------------------------------------------------------------------------------------------
+# Epicbox servers: where payments wait until the other wallet picks them up. The server is part
+# of a wallet's Epicbox address (es…@server).
+# ---------------------------------------------------------------------------------------------
+[epicbox]
+
+# The server every wallet's Epicbox address names. Changing it moves every wallet's Epicbox
+# address to that server: payments sent to an old address do not arrive there.
+use = "epicbox.epiccash.com"
+
+# The server of an Epicbox address written without one.
+default = "epicbox.epiccash.com"
+
+# Public servers you took out of the list (host, or host:port off 443).
+removed = []
+
+# The Epicbox list, in order. `host` is the server's name, `port` its TLS port (443 when left
+# out), `operator` who runs it.
+[[epicbox.servers]]
+host = "epicbox.epiccash.com"
+operator = "Epic Cash"
+
+[[epicbox.servers]]
+host = "epicbox.stackwallet.com"
+operator = "Cypher Stack"
+
+[[epicbox.servers]]
+host = "epicbox.epicnet.us"
+operator = "EpicNet"
+
+[[epicbox.servers]]
+host = "epicbox.iniaku.my.id"
+operator = "Iniaku pool"
+
+# ---------------------------------------------------------------------------------------------
+# Connecting two wallets (Settings › Advanced › Experimental, Pairing)
+# ---------------------------------------------------------------------------------------------
+[pairing]
+
+# The Epicbox servers where two wallets meet when they connect with spoken words, up to 3.
+# Both wallets must share at least one. Settings › Connection servers changes this list.
+servers = ["epicbox.epiccash.com", "epicbox.stackwallet.com", "epicbox.btlabs.uk"]
+
+# ---------------------------------------------------------------------------------------------
+# Linked devices
+# ---------------------------------------------------------------------------------------------
+[devices]
+
+# A first link proposes the wallet's own Epicbox server and the first of these that is not it.
+link_servers = ["epicbox.stackwallet.com", "epicbox.epiccash.com"]
+
+# ---------------------------------------------------------------------------------------------
+# Tor
+# ---------------------------------------------------------------------------------------------
+[tor]
+
+# Hosts under these domains are reached over Tor only at their onion address (their own
+# address refuses Tor exits), and the signed BT Labs file may give them new onions.
+onion_only_domains = ["btlabs.uk"]
+
+# Onion addresses of servers that have one. With Tor on, the wallet goes to the onion instead
+# of the host. `port` is the host's port, `onion_port` the onion's, `tls` whether the onion
+# speaks TLS for the host's name.
+[[tor.onions]]
+host = "node.btlabs.uk"
+port = 443
+onion = "5drwoknehnzducfsxsl45dazaw3cwcmpx3ycamynagmcpv6aalrbrtqd.onion"
+onion_port = 443
+tls = true
+
+[[tor.onions]]
+host = "epicbox.btlabs.uk"
+port = 443
+onion = "j2xf5rizkow5jtrdf6edotk5qam4kohavip23dqeuih5bq4yqisbz5ad.onion"
+onion_port = 443
+tls = true
+
+[[tor.onions]]
+host = "support.btlabs.uk"
+port = 443
+onion = "lowiz5jnnu5vyyqc5guig3zag3k7azorbjfkcszfqwdxh3yarfei66yd.onion"
+onion_port = 443
+tls = true
+
+# The update downloads.
+[[tor.onions]]
+host = "examples.btlabs.uk"
+port = 443
+onion = "lnuvd4uk5ks7bsrt4mxddjahup2dfl5dadiywocbhxfdqwimsahijzid.onion"
+onion_port = 443
+tls = true
+
+# The status site's onion is plain HTTP on port 80; the onion itself is the encryption.
+[[tor.onions]]
+host = "status.btlabs.uk"
+port = 443
+onion = "t6furoapbsowxp3hvmjwp223zenmauwldfv2noddih7bfuuavwyvaqad.onion"
+onion_port = 80
+tls = false
+
+# ---------------------------------------------------------------------------------------------
+# Status site: health of the public nodes and Epicbox servers, their icons, and a price when the
+# price source does not answer. Settings › Privacy can turn it off.
+# ---------------------------------------------------------------------------------------------
+[status]
+
+# Whether the wallet reads the status site at all (Settings › Privacy).
+enabled = true
+
+# The status file: the health of the public nodes and Epicbox servers.
+directory = "https://status.btlabs.uk/api/v1/status.json"
+
+# Where the servers' icons are, by name.
+icons = "https://status.btlabs.uk/api/v1/icons/"
+
+# The price when the price source does not answer.
+price = "https://status.btlabs.uk/api/v1/price.json"
+
+# ---------------------------------------------------------------------------------------------
+# Price
+# ---------------------------------------------------------------------------------------------
+[price]
+
+# Where the fiat price is read first.
+source = "https://api.coingecko.com/api/v3/simple/price"
+
+# ---------------------------------------------------------------------------------------------
+# Updates. Every update file must be signed with BT Labs' keys, wherever it comes from.
+# ---------------------------------------------------------------------------------------------
+[updates]
+
+# Whether the wallet looks for updates.
+check = true
+
+# Where the signed update file is read, all of them; the newest valid one is used.
+manifests = [
+  "https://examples.btlabs.uk/epic-cash-wallets/update.json",
+  "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update.json",
+  "https://btlabs-epic.github.io/update.json",
+]
+
+# Desktop update files are downloaded only from under this address.
+downloads = "https://examples.btlabs.uk/epic-cash-wallets/downloads/"
+
+# The download page, when an update names no page of its own.
+releases_page = "https://examples.btlabs.uk/epic-cash-wallets/"
+
+# Where an update's page may be.
+pages = ["https://examples.btlabs.uk/epic-cash-wallets/", "https://github.com/BTLabs-EPIC/"]
+
+# ---------------------------------------------------------------------------------------------
+# Support
+# ---------------------------------------------------------------------------------------------
+[support]
+
+# Where Settings › Support sends a report you choose to send.
+report = "https://support.btlabs.uk/v1/report"
+
+# The support e-mail address.
+email = "support@btlabs.uk"
+
+# BT Labs' donation contact, until BT Labs' signed file names another.
+donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com"
+
+# BT Labs' signed public file (donation address, onion addresses).
+directory = "https://btlabs-epic.github.io/btlabs.json"
+
+# ---------------------------------------------------------------------------------------------
+# Links shown in the app
+# ---------------------------------------------------------------------------------------------
+[links]
+
+# Epic Cash's website.
+website = "https://epiccash.com"
+
+# The Epic Cash community chat.
+community = "https://t.me/EpicCash"
+
+# This wallet's source code.
+source = "https://gitlab.com/epic-cash-bt/wallet-for-epic"
+
+# A block on the explorer; {height} is the block's height.
+explorer_block = "https://explorer.epicmine.io/block/{height}"
+
+# A kernel on the explorer; {kernel} is the kernel. Empty: no link.
+explorer_kernel = ""
+
+# ---------------------------------------------------------------------------------------------
+# Receiving by Link · HTTP from the internet (desktop): finding the public address and checking
+# that the port is open.
+# ---------------------------------------------------------------------------------------------
+[reach]
+
+# Tells the computer's public address.
+ip_lookup = "https://api.ipify.org?format=json"
+
+# Checks from outside that the port is open.
+port_check = "https://portchecker.io/api/v1/query"
+
+# ---------------------------------------------------------------------------------------------
+# Importing from the old Epic Cash GUI and CLI wallets
+# ---------------------------------------------------------------------------------------------
+[import]
+
+# The node the GUI wallet used when its settings name none.
+gui_node = "https://node.epiccash.com:3413"
+
+# The Epicbox server the GUI wallet used when its settings name none.
+gui_epicbox = "epicbox.epiccash.com"
+
+# The Epicbox server older wallets used by default.
+old_epicbox = "epicbox.stackwallet.com"
+
+# Epicbox servers that changed their name: old = new.
+renamed_epicbox = { "epicbox.epic.tech" = "epicbox.epiccash.com" }
+
+# ---------------------------------------------------------------------------------------------
+# Support reports keep these names as they are and hide every other host. Every host in this
+# file is kept too.
+# ---------------------------------------------------------------------------------------------
+[report]
+
+# Host names a report keeps as they are.
+keep_hosts = ["explorer.epic.tech", "api.github.com", "objects.githubusercontent.com"]
+
+# Domains a report keeps, with every name under them.
+keep_domains = [
+  "epiccash.com", "epic.tech", "epicnet.us", "stackwallet.com", "btlabs.uk", "github.com",
+  "githubusercontent.com", "coingecko.com", "ipify.org",
+]
+
+# ---------------------------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------------------------
+[network]
+
+# Names that belong to a VPN on this device (shown as a VPN node).
+vpn_suffixes = [".ts.net"]

@@ -28591,6 +28591,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connections'**
   String get connectionsSheetTitle;
+
+  /// Notice when the settings file (settings.toml, in the data folder) is not valid TOML after a hand edit: nothing in it is used until it is fixed. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: this line cannot be read. The last good settings are in use.'**
+  String settingsFileSyntaxError(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be text in double quotes is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not text in double quotes. The last good value is in use.'**
+  String settingsFileNotText(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a whole number is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a whole number. The last good value is in use.'**
+  String settingsFileNotNumber(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a switch that must be true or false is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not true or false. The last good value is in use.'**
+  String settingsFileNotSwitch(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a list in square brackets is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a list. The last good value is in use.'**
+  String settingsFileNotList(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a node's address is not a valid https:// or http:// address of a node. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a node address. The last good value is in use.'**
+  String settingsFileNotNodeAddress(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must name an Epicbox server (a host name, optionally with :port) is something else. Epicbox stays in Latin script. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an Epicbox server. The last good value is in use.'**
+  String settingsFileNotEpicboxServer(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a host or domain name is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a host name. The last good value is in use.'**
+  String settingsFileNotHostName(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a web address (https://…) is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a web address. The last good value is in use.'**
+  String settingsFileNotWebAddress(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a Tor onion address (56 characters and .onion) is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an onion address. The last good value is in use.'**
+  String settingsFileNotOnion(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a port number (1 to 65535) is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not a port number. The last good value is in use.'**
+  String settingsFileNotPort(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be an e-mail address is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an e-mail address. The last good value is in use.'**
+  String settingsFileNotEmail(String file, int line);
+
+  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be an Epicbox address (es…@server) is something else. Epicbox stays in Latin script. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: not an Epicbox address. The last good value is in use.'**
+  String settingsFileNotEpicboxAddress(String file, int line);
+
+  /// Notice when the settings file (settings.toml) has a key this version does not know (a newer version's, or a typo). The key stays in the file. {key} is the key as written (for example epicbox.defualt), {file} the file name, {line} the line number.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}, line {line}: unknown key {key}, ignored.'**
+  String settingsFileUnknownKey(String file, int line, String key);
+
+  /// Notice when the app changed a setting while the same key was edited by hand in the settings file: the hand edit wins. {key} is the key (for example node.servers), {file} the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} was edited at the same time; its value for {key} is kept.'**
+  String settingsFileConflict(String file, String key);
+
+  /// Notice when the app had to write the settings file while it could not be read: the broken file was kept under a new name and a good one written. {backup} is that name (for example settings.toml.bad-20261029-141500), {file} the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} had errors. It was saved as {backup} and written again.'**
+  String settingsFileBrokenSaved(String file, String backup);
+
+  /// Notice when the settings file was deleted while the app ran: it was written again from the settings in use. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} was missing and has been written again.'**
+  String settingsFileRecreated(String file);
+
+  /// Notice when the settings file could not be saved (no permission, disk full): the change holds only for this run. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} could not be written. The change applies until the app closes.'**
+  String settingsFileWriteFailed(String file);
+
+  /// Notice when the settings file exists but could not be opened (no permission): the settings built into the app are used. {file} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{file} could not be read. The built-in settings are in use.'**
+  String settingsFileReadFailed(String file);
 }
 
 class _AppLocalizationsDelegate

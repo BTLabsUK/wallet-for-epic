@@ -18258,4 +18258,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => 'Connections';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file, line $line: this line cannot be read. The last good settings are in use.';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file, line $line: not text in double quotes. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file, line $line: not a whole number. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file, line $line: not true or false. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file, line $line: not a list. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file, line $line: not a node address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file, line $line: not an Epicbox server. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file, line $line: not a host name. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file, line $line: not a web address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file, line $line: not an onion address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file, line $line: not a port number. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file, line $line: not an e-mail address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file, line $line: not an Epicbox address. The last good value is in use.';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file, line $line: unknown key $key, ignored.';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file was edited at the same time; its value for $key is kept.';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return '$file had errors. It was saved as $backup and written again.';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return '$file was missing and has been written again.';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return '$file could not be written. The change applies until the app closes.';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return '$file could not be read. The built-in settings are in use.';
+  }
 }

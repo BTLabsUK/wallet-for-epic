@@ -18884,4 +18884,99 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get connectionsSheetTitle => 'Подключения';
+
+  @override
+  String settingsFileSyntaxError(String file, int line) {
+    return '$file, строка $line: строку не удаётся прочитать. Действуют последние верные настройки.';
+  }
+
+  @override
+  String settingsFileNotText(String file, int line) {
+    return '$file, строка $line: это не текст в кавычках. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotNumber(String file, int line) {
+    return '$file, строка $line: это не целое число. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotSwitch(String file, int line) {
+    return '$file, строка $line: это не true и не false. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotList(String file, int line) {
+    return '$file, строка $line: это не список. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotNodeAddress(String file, int line) {
+    return '$file, строка $line: это не адрес узла. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotEpicboxServer(String file, int line) {
+    return '$file, строка $line: это не сервер Epicbox. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotHostName(String file, int line) {
+    return '$file, строка $line: это не имя хоста. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotWebAddress(String file, int line) {
+    return '$file, строка $line: это не веб-адрес. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotOnion(String file, int line) {
+    return '$file, строка $line: это не onion-адрес. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotPort(String file, int line) {
+    return '$file, строка $line: это не номер порта. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotEmail(String file, int line) {
+    return '$file, строка $line: это не адрес электронной почты. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileNotEpicboxAddress(String file, int line) {
+    return '$file, строка $line: это не адрес Epicbox. Действует последнее верное значение.';
+  }
+
+  @override
+  String settingsFileUnknownKey(String file, int line, String key) {
+    return '$file, строка $line: неизвестный ключ $key, пропущен.';
+  }
+
+  @override
+  String settingsFileConflict(String file, String key) {
+    return '$file изменили одновременно с приложением; его значение $key сохранено.';
+  }
+
+  @override
+  String settingsFileBrokenSaved(String file, String backup) {
+    return 'В $file были ошибки. Файл сохранён как $backup и записан заново.';
+  }
+
+  @override
+  String settingsFileRecreated(String file) {
+    return 'Файл $file отсутствовал и записан заново.';
+  }
+
+  @override
+  String settingsFileWriteFailed(String file) {
+    return 'Не удалось записать $file. Изменение действует до закрытия приложения.';
+  }
+
+  @override
+  String settingsFileReadFailed(String file) {
+    return 'Не удалось прочитать $file. Действуют встроенные настройки.';
+  }
 }
