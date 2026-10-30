@@ -130,7 +130,9 @@ void main() {
       expect((await wallet.settings()).tor, isTrue);
 
       await wallet.setTor(false);
-      expect(session().torStops, 2);
+      // 3, not 2: a stop with no tor running also ends the session's wait for one (it may
+      // have opened waiting, torWantedAt), so the lock above with tor not started counts too.
+      expect(session().torStops, 3);
       await wallet.saveSettings((await wallet.settings()).copyWith(torAutostart: false));
       await wallet.lock();
       expect(await wallet.unlock(_password), isTrue);
