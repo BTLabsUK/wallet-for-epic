@@ -250,7 +250,8 @@ class EngineTest(Base):
         self.assertLessEqual(len(calls), 8)  # nothing else retried once the relay was found down
 
     def test_publish_phase_only_after_gate_and_skips_recorded(self):
-        run = self.make_run(only="android", sets=["publish.manifests=false"], skips=["publish-source=token renewal"])
+        run = self.make_run(only="android", sets=["publish.manifests=false", "publish.github=false"],
+                             skips=["publish-source=token renewal"])
         os.environ["REL_FAKE_GATE"] = "approved"
         eng = self.engine(run)
         eng.drive(self.build_ids(run))

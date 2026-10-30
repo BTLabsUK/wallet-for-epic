@@ -89,7 +89,7 @@ class ScopeTest(unittest.TestCase):
     def test_scope_file_and_unknown_keys(self):
         import tempfile
         with tempfile.NamedTemporaryFile("w", suffix=".toml", delete=False, dir=os.environ.get("TMPDIR")) as f:
-            f.write('version = "26.10.25"\n[platforms]\nwindows = false\n[skip]\npublish-source = "token"\n')
+            f.write('version = "26.10.25"\n[platforms]\nwindows = false\n[publish]\ngithub = false\n[skip]\npublish-source = "token"\n')
         try:
             s = load_scope(f.name)
             validate_scope(s, PIPE)
@@ -191,8 +191,8 @@ class GraphTest(unittest.TestCase):
         self.assertIn("build-play-tor", ids)
         self.assertIn("store-play-tor", ids)
 
-    def test_github_mirror_only_when_switched_on(self):
-        s, steps = graph()
+    def test_github_mirror_on_by_default_and_switchable_off(self):
+        s, steps = graph(sets=["publish.github=false"])
         by = {x.id: x for x in steps}
         self.assertFalse(s["publish"]["github"])
         self.assertNotIn("publish-github-release", by)
@@ -200,7 +200,8 @@ class GraphTest(unittest.TestCase):
         self.assertEqual(by["publish-manifests"].env["GITHUB_UPDATE_JSON"], "0")
         self.assertEqual(by["publish-page"].env["REL_GITHUB"], "0")
         self.assertNotIn("publish-github-release", by["publish-manifests"].needs)
-        s, steps = graph(sets=["publish.github=true"])
+        s, steps = graph()
+        self.assertTrue(s["publish"]["github"])
         by = {x.id: x for x in steps}
         ids = [x.id for x in steps]
         gh = by["publish-github-release"]
@@ -215,7 +216,7 @@ class GraphTest(unittest.TestCase):
         self.assertIn("GitHub release mirror", scope_summary(s))
         # The tag gets to GitHub through publish-source: skipping it with the mirror on is refused.
         with self.assertRaises(ConfigError) as e:
-            graph(sets=["publish.github=true"], skips=["publish-source=token"])
+            graph(skips=["publish-source=token"])
         self.assertIn("publish.github needs publish-source", str(e.exception))
         with self.assertRaises(ConfigError):
             graph(sets=["publish.github=maybe"])

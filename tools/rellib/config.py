@@ -153,7 +153,7 @@ DEFAULT_SCOPE = {
     "platforms": {p: True for p in PLATFORMS},
     "variants": {v: True for v in VARIANTS},
     "stores": {"play": False},
-    "publish": {"target": "live", "manifests": True, "notes": "", "github": False},
+    "publish": {"target": "live", "manifests": True, "notes": "", "github": True},
     "skip": {},
     "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "waive": {}},
 }
