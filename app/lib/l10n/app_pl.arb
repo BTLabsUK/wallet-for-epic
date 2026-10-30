@@ -4917,7 +4917,7 @@
   "passphraseEnterCurrent": "Wpisz obecne hasło",
   "passphraseCurrentLabel": "Obecne hasło",
   "passphraseChooseTitle": "Wybierz hasło",
-  "passphraseRules": "{count, plural, one{Co najmniej {count} znak, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.} few{Co najmniej {count} znaki, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.} many{Co najmniej {count} znaków, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.} other{Co najmniej {count} znaku, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.}}",
+  "passphraseRules": "{count, plural, one{Co najmniej {count} znak, nie same cyfry.} few{Co najmniej {count} znaki, nie same cyfry.} many{Co najmniej {count} znaków, nie same cyfry.} other{Co najmniej {count} znaku, nie same cyfry.}}",
   "passphraseUsePinInstead": "Użyj zamiast tego PIN-u",
   "passphraseUsePassphraseInstead": "Użyj zamiast tego hasła",
   "biometricsFromNextStart": "Odblokowanie biometryczne zadziała od następnego uruchomienia aplikacji.",

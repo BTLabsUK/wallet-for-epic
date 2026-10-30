@@ -4917,7 +4917,7 @@
   "passphraseEnterCurrent": "Geben Sie Ihre aktuelle Passphrase ein",
   "passphraseCurrentLabel": "Aktuelle Passphrase",
   "passphraseChooseTitle": "Passphrase wählen",
-  "passphraseRules": "{count, plural, other{Mindestens {count} Zeichen und nicht nur Ziffern. Ein paar Wörter mit Leerzeichen dazwischen eignen sich gut. Sie ersetzt die PIN überall dort, wo die Wallet danach fragt.}}",
+  "passphraseRules": "{count, plural, other{Mindestens {count} Zeichen und nicht nur Ziffern.}}",
   "passphraseUsePinInstead": "Stattdessen PIN verwenden",
   "passphraseUsePassphraseInstead": "Stattdessen Passphrase verwenden",
   "biometricsFromNextStart": "Die biometrische Entsperrung funktioniert ab dem nächsten Start der App.",

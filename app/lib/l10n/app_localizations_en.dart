@@ -18840,8 +18840,7 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'At least $count characters and not only digits. A few words with spaces between them work well. It replaces the PIN wherever the wallet asks for it.',
+      other: 'At least $count characters and not only digits.',
     );
     return '$_temp0';
   }

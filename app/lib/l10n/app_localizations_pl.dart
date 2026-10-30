@@ -19495,14 +19495,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'Co najmniej $count znaku, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
-      many:
-          'Co najmniej $count znaków, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
-      few:
-          'Co najmniej $count znaki, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
-      one:
-          'Co najmniej $count znak, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+      other: 'Co najmniej $count znaku, nie same cyfry.',
+      many: 'Co najmniej $count znaków, nie same cyfry.',
+      few: 'Co najmniej $count znaki, nie same cyfry.',
+      one: 'Co najmniej $count znak, nie same cyfry.',
     );
     return '$_temp0';
   }

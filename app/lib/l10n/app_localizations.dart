@@ -29417,7 +29417,7 @@ abstract class AppLocalizations {
   /// The rules under the heading of a new passphrase. count is the fewest characters allowed (10).
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, other{At least {count} characters and not only digits. A few words with spaces between them work well. It replaces the PIN wherever the wallet asks for it.}}'**
+  /// **'{count, plural, other{At least {count} characters and not only digits.}}'**
   String passphraseRules(int count);
 
   /// Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase.
