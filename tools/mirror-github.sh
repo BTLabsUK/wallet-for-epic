@@ -1,27 +1,32 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Mirrors the public GitLab projects (gitlab.com/epic-cash-bt/*) to GitHub (BTLabs-EPIC/*): main
+# Mirrors the public GitLab projects (gitlab.com/epic-cash-bt/*) to GitHub (BTLabsUK/*): main
 # and the tags, nothing else, the same commits GitLab has. GitLab is the source; this never
-# pushes local history. Runs from our own machines (no CI on either host).
+# pushes local history. Runs from our own machines (no CI on either host; GitHub's rules for
+# BT Labs: https://docs.btlabs.uk/developers/releases/ "GitHub mirror").
 #
 #   tools/mirror-github.sh [--dry-run] [--replace] [repo ...]
 #
-# Default repos: wallet-for-epic lepic lepic-flutter btlabs-docs epic-status btlabs-epic.github.io.
+# Repos: $GITHUB_REPOS (default wallet-for-epic lepic lepic-flutter); naming any other is refused.
 # Per repo:
 #   1. fetches GitLab's main and tags into a bare cache ($MIRROR_DIR, default ~/publish/mirror);
 #   2. refuses when any commit on GitLab's main carries an agent path or a CI workflow file;
-#   3. creates a missing GitHub repository with GitLab's visibility and description, Actions off
-#      (the Pages repository keeps Actions on: GitHub Pages builds with them);
-#   4. compares GitHub with GitLab and pushes what differs: main as a fast-forward, missing tags.
+#   3. creates a missing GitHub repository with GitLab's visibility and description, Actions,
+#      wiki, projects and discussions off, and turns Actions (and Pages) off again on every run
+#      if someone switched them on;
+#   4. compares GitHub with GitLab and pushes what differs over SSH: main as a fast-forward,
+#      missing tags.
 #      A main that does not extend GitHub's, a moved tag, an extra tag or any other branch is
 #      refused unless --replace, which force-pushes main and the moved tags (with a lease on what
 #      it saw) and deletes the extra tags and branches;
 #   5. reads GitHub back and checks it equals GitLab.
 #
 # A re-run with nothing new pushes nothing. --dry-run changes nothing and prints the plan.
-# Environment: GITLAB_GROUP (default epic-cash-bt), GITHUB_OWNER (default BTLabs-EPIC),
-# GITLAB_TOKEN_FILE (default ~/.config/btlabs/gitlab-token), MIRROR_DIR. GitHub access is
-# `gh auth` (git-credential); neither token is printed.
+# Environment: GITLAB_GROUP (default epic-cash-bt), GITHUB_OWNER (default BTLabsUK),
+# GITHUB_REPOS, GITLAB_TOKEN_FILE (default ~/.config/btlabs/gitlab-token), MIRROR_DIR.
+# GitHub: git over SSH (the org owner's key; ~/.ssh/config picks it for github.com) and the API
+# through gh with its own config, GH_CONFIG_DIR (default ~/.config/gh-btlabs), logged in as
+# $GITHUB_USER (default btlabs-uk); any other gh login is refused. No token is printed.
 set -euo pipefail
 
 dry=0 replace=0 repos=()
@@ -29,30 +34,34 @@ for arg in "$@"; do
   case $arg in
     --dry-run|-n) dry=1 ;;
     --replace) replace=1 ;;
-    -h|--help) sed -n '3,24p' "$0"; exit 0 ;;
+    -h|--help) sed -n '3,30p' "$0"; exit 0 ;;
     -*) echo "unknown option: $arg" >&2; exit 2 ;;
     *) repos+=("$arg") ;;
   esac
 done
-[ ${#repos[@]} -gt 0 ] || repos=(wallet-for-epic lepic lepic-flutter btlabs-docs epic-status btlabs-epic.github.io)
+read -ra allowed <<<"${GITHUB_REPOS:-wallet-for-epic lepic lepic-flutter}"
+[ ${#repos[@]} -gt 0 ] || repos=("${allowed[@]}")
+for repo in "${repos[@]}"; do
+  [[ " ${allowed[*]} " == *" $repo "* ]] || { echo "refusing $repo: not in GITHUB_REPOS (${allowed[*]})" >&2; exit 2; }
+done
 
 group=${GITLAB_GROUP:-epic-cash-bt}
-owner=${GITHUB_OWNER:-BTLabs-EPIC}
+owner=${GITHUB_OWNER:-BTLabsUK}
 token_file=${GITLAB_TOKEN_FILE:-$HOME/.config/btlabs/gitlab-token}
 cache=${MIRROR_DIR:-$HOME/publish/mirror}
-pages_repo="${owner,,}.github.io"
 # Only BT Labs' own organisation: the Epic Cash project's repositories are never touched.
 case ${owner,,} in epiccash|epic-cash|epiccash-*) echo "refusing owner $owner" >&2; exit 2 ;; esac
 [ -r "$token_file" ] || { echo "no GitLab token at $token_file" >&2; exit 1; }
-gh auth status >/dev/null 2>&1 || { echo "gh is not logged in" >&2; exit 1; }
+export GH_CONFIG_DIR=${GH_CONFIG_DIR:-$HOME/.config/gh-btlabs}
+login=$(gh api user --jq .login 2>/dev/null) || { echo "gh is not logged in (GH_CONFIG_DIR=$GH_CONFIG_DIR)" >&2; exit 1; }
+[ "$login" = "${GITHUB_USER:-btlabs-uk}" ] || { echo "gh is logged in as $login, not ${GITHUB_USER:-btlabs-uk}" >&2; exit 1; }
 
 gitlab_url() { echo "https://gitlab.com/$group/$1.git"; }
-github_url() { echo "https://github.com/$owner/$1.git"; }
-# git with both hosts' credentials from their stores; the helper prints only to git.
+github_url() { echo "git@github.com:$owner/$1.git"; }
+# git with GitLab's token from its file (the helper prints only to git); GitHub goes over SSH.
 g() {
   git -c credential.helper= \
-    -c "credential.https://gitlab.com.helper=!f() { test \"\$1\" = get && echo username=oauth2 && echo \"password=\$(cat '$token_file')\"; }; f" \
-    -c 'credential.https://github.com.helper=!gh auth git-credential' "$@"
+    -c "credential.https://gitlab.com.helper=!f() { test \"\$1\" = get && echo username=oauth2 && echo \"password=\$(cat '$token_file')\"; }; f" "$@"
 }
 gl_api() { curl -sS -f -H @- "https://gitlab.com/api/v4/$1" <<<"PRIVATE-TOKEN: $(cat "$token_file")"; }
 export GIT_TERMINAL_PROMPT=0
@@ -81,9 +90,15 @@ for repo in "${repos[@]}"; do
     echo "   + create github.com/$owner/$repo ($vis)"
     if [ $dry = 0 ]; then
       gh api -X POST "orgs/$owner/repos" -f name="$repo" -f visibility="$vis" -f description="$desc" \
-        -F has_issues=true -F has_wiki=false -F has_projects=false -F auto_init=false --silent
-      [ "$repo" = "$pages_repo" ] || gh api -X PUT "repos/$owner/$repo/actions/permissions" -F enabled=false --silent
+        -F has_wiki=false -F has_projects=false -F has_discussions=false -F auto_init=false --silent
     fi
+  fi
+  # No Actions and no Pages on any mirror, ever: off before the first push, and again if switched on.
+  if [ $dry = 0 ]; then
+    [ "$(gh api "repos/$owner/$repo/actions/permissions" --jq .enabled)" = false ] ||
+      { echo "   actions: turning off"; gh api -X PUT "repos/$owner/$repo/actions/permissions" -F enabled=false --silent; }
+    [ "$(gh api "repos/$owner/$repo" --jq .has_pages)" = false ] ||
+      { echo "   pages: turning off"; gh api -X DELETE "repos/$owner/$repo/pages" --silent; }
   fi
   if [ $dry = 0 ] || gh api "repos/$owner/$repo" --silent 2>/dev/null; then
     while read -r sha ref; do
