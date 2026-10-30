@@ -4,6 +4,7 @@ its files, manifests and run record). Everything older goes: older published run
 test and dry runs of versions that are not newer than the current release, older runs of a
 version still in progress, and the release worktrees tools/rel made for them. Runs on every
 release (step `cleanup`) and on its own (`tools/rel cleanup`, e.g. from a timer)."""
+import fcntl
 import os
 import shutil
 import subprocess
@@ -38,6 +39,21 @@ def mark_published(run):
     run.save_info()
 
 
+def busy(path):
+    """True while a tools/rel holds the run's lock: such a run is never removed."""
+    try:
+        f = open(os.path.join(path, ".lock"))
+    except OSError:
+        return False
+    with f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_SH | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(f, fcntl.LOCK_UN)
+    return False
+
+
 def plan(state_root, keep_run=None):
     """-> {"keep": [paths], "remove": [paths], "kept": [why]}; pure."""
     runs = Run.all(state_root)
@@ -68,6 +84,11 @@ def plan(state_root, keep_run=None):
         keep.add(os.path.abspath(keep_run))
     if not pubs and runs and not keep_run:
         keep.add(runs[-1][2])
+        why.append(f"{runs[-1][0]} (newest run; nothing published yet)")
+    for v, rid, path, created in runs:
+        if path not in keep and busy(path):
+            keep.add(path)
+            why.append(f"{rid} (a tools/rel is working on it)")
     remove = [path for v, rid, path, created in runs if path not in keep]
     return {"keep": sorted(keep), "remove": remove, "kept": why}
 
@@ -78,7 +99,8 @@ def apply(state_root, repo, say=print, keep_run=None, dry=False):
     for path in p["remove"]:
         info = read_json(os.path.join(path, "run.json"), {})
         if dry:
-            say(f"would remove {path}")
+            src = info.get("src") if info.get("src_made") else None
+            say(f"would remove {path}" + (f" and its worktree {src}" if src and os.path.isdir(src) else ""))
             continue
         src = info.get("src")
         kept_srcs = {read_json(os.path.join(k, "run.json"), {}).get("src") for k in p["keep"]}
