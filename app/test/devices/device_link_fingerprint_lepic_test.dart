@@ -57,7 +57,7 @@ void main() {
       nodeUrl: 'https://node.btlabs.uk',
       epicboxDomain: relay,
       epicboxPort: 443,
-      onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
+      onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig), offline: false,
     );
     final store = lepic.lepicSecretStore(_MemoryStore());
     final wallet = pin

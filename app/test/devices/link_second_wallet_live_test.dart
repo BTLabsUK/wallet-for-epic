@@ -57,7 +57,7 @@ Future<LepicWalletSession> _open(String name, {String? mnemonic}) async {
     nodeUrl: 'https://node.btlabs.uk',
     epicboxDomain: 'epicbox.stackwallet.com',
     epicboxPort: 443,
-    onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
+    onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig), offline: false,
   );
   final secrets = File('$_dir/$name.secrets.json');
   final exists = secrets.existsSync();
