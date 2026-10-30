@@ -74,7 +74,6 @@ import '../../wallet_registry.dart' as reg;
 import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, listPace, postingNow, watchTipEvery;
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
-import '../../listener_receives.dart' show isListenerReceive;
 import '../../wallet_service.dart' as core;
 import 'addresses.dart';
 import 'api.dart';
@@ -5503,7 +5502,6 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     detail: e.statusDetail,
     senderPosted: core.senderReportsPosted(e, now: now ?? DateTime.now()),
     senderCancelled: core.senderCancelled(e),
-    fromListener: isListenerReceive(e),
     pairingId: e.pairingId,
     blockWait: wait,
     credited: e.amountCredited.toInt(),

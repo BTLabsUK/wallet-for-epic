@@ -165,9 +165,7 @@ void main() {
         'Waiting for sender',
         reason: 'after the hour it waits again',
       );
-      // An http receive is one the Link listener took in by itself: it reads as such, never
-      // as the sender's report.
-      expect(txStatusLabel(_l, _waiting(transport: 'http'), tip, now: _now), _l.txStatusListenerWaiting);
+      expect(txStatusLabel(_l, _waiting(transport: 'http'), tip, now: _now), 'Waiting for sender');
       // Once in a block it confirms as any payment, with no trace of the report.
       expect(
         txStatusLabel(_l, _waiting(blockHeight: BigInt.from(999)), tip, now: _now, target: 10),

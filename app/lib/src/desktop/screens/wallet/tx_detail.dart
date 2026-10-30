@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../known_relays.dart' show recipientRelay;
 import '../../../devices/device_ending.dart' show deviceEndingLabel, deviceEndingLine;
 import '../../../l10n.dart' show acceptedAgoText, messageHint;
-import '../../../listener_receives.dart' show listenerReceiveTtl;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../watch_mode.dart' show BlockWait;
@@ -113,8 +112,6 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.waitingRecipient || TxState.posted when t.blockWait == BlockWait.noNewBlock => l.txWaitNoNewBlock,
           TxState.waitingRecipient || TxState.posted when t.blockWait == BlockWait.notInBlock => l.txWaitNotInBlock,
           TxState.waitingRecipient when t.incoming && t.senderPosted => l.deskTxNowSenderPosted,
-          // Taken in by a listener, not started here: anyone could have sent it.
-          TxState.waitingRecipient when t.incoming && t.fromListener => l.txDetailsListenerWaiting(listenerReceiveTtl.inHours),
           TxState.waitingRecipient =>
             t.incoming
                 ? l.deskTxNowWaitingSender
@@ -379,9 +376,6 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       SizedBox(height: Sp.x1),
                     ] else if (t.incoming && t.senderPosted && t.state == TxState.waitingRecipient) ...[
                       EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
-                      SizedBox(height: Sp.x1),
-                    ] else if (t.incoming && t.fromListener && t.state == TxState.waitingRecipient) ...[
-                      EBadge(l.txStatusListenerWaiting, key: const ValueKey('tx-came-in-waiting'), icon: EIcons.antenna, tone: ETone.neutral),
                       SizedBox(height: Sp.x1),
                     ],
                     Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
