@@ -215,6 +215,13 @@ def preflight(engine, step, say):
         else:
             warns.append("host.signer.gitlab_token_expires not set: token expiry not checked")
             say("warn", warns[-1])
+        from .resign import live_expiry_warning
+        w = live_expiry_warning(engine.repo, pipe.manifest_warn_days())
+        if w:
+            warns.append(w)
+            say("warn", w)
+        else:
+            ok(f"live update manifests valid for more than {pipe.manifest_warn_days()} days")
     if any(s["platforms"].get(p) and p not in s["proof"]["waive"] for p in PLATFORMS):
         prev = resolve_previous(engine)
         if not prev or not os.path.isdir(prev.get("dir", "")):
