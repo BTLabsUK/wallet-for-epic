@@ -11,6 +11,9 @@ step() { printf '\n== %s\n' "$1"; }
 step "version (https://docs.btlabs.uk/developers/releases/)"
 "$root/tools/version.sh" check
 
+step "install contract (docs/install-contract.md)"
+"$root/tools/check-install-contract.sh"
+
 step "LEPIC at the pin (tools/lepic.rev)"
 "$root/tools/lepic.sh" build linux
 

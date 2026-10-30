@@ -1,0 +1,746 @@
+{
+  "about": "What an existing install of Epic Cash Desktop / Epic Cash Mobile depends on. tools/check-install-contract.sh (in tools/check.sh) fails when the code drops a probe's text or when the items change without a change record. How to change an item: docs/install-contract.md.",
+  "items": [
+    {
+      "id": "desktop.data_folder",
+      "platforms": [
+        "windows",
+        "linux"
+      ],
+      "what": "Desktop data folder: everything (wallets, node, settings, logs, contacts, the Windows secret store) lives in <home>/.epic_cash_desktop (%USERPROFILE% on Windows, $HOME elsewhere).",
+      "value": "<home>/.epic_cash_desktop",
+      "probes": [
+        {
+          "file": "app/lib/src/data_folder_io.dart",
+          "contains": "const String desktopDataFolderName = '.epic_cash_desktop';"
+        },
+        {
+          "file": "app/lib/src/data_folder_io.dart",
+          "contains": "final home = windows ? environment['USERPROFILE'] : environment['HOME'];"
+        }
+      ]
+    },
+    {
+      "id": "android.data_folder",
+      "platforms": [
+        "android"
+      ],
+      "what": "Phone data folder: the app's private application-support folder (/data/user/0/<package>/files), from path_provider.",
+      "value": "getApplicationSupportDirectory()",
+      "probes": [
+        {
+          "file": "app/lib/src/data_folder_io.dart",
+          "contains": "return getApplicationSupportDirectory();"
+        }
+      ]
+    },
+    {
+      "id": "all.first_wallet_folder",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The first wallet's folder (Wallet 1, listed as legacy-<chain>). 26.10.24 renamed it to `wallet` without a migration: the incident this contract exists for.",
+      "value": "<data>/wallets/<chain>  (mainnet: <data>/wallets/mainnet)",
+      "probes": [
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "static String firstWalletDir(String root, Chain chain) => '$root${_sep}wallets$_sep${chain.name}';"
+        },
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "static String rootOf(String firstDir, Chain chain) => Directory(firstDir).parent.parent.path;"
+        }
+      ]
+    },
+    {
+      "id": "all.added_wallet_folder",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "An added wallet's folder (desktop wallets 2..n), id = 32 hex characters.",
+      "value": "<data>/wallets/<id>/<chain>",
+      "probes": [
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "static String walletDirOf(String root, Chain chain, String id) => '${_walletsIn(root, chain)}$_sep$id$_sep${chain.name}';"
+        },
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "static String _walletsIn(String root, Chain chain) => '$root${_sep}wallets';"
+        },
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "r'[\\\\/]wallets[\\\\/][0-9a-f]{32}[\\\\/](mainnet|floonet|usernet)[\\\\/]?$',"
+        }
+      ]
+    },
+    {
+      "id": "all.wallet_db_folder",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "LEPIC's database inside a wallet folder: the app decides a wallet exists by this subfolder.",
+      "value": "<wallet folder>/lepic",
+      "probes": [
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "Directory('$dir${_sep}lepic').existsSync();"
+        }
+      ]
+    },
+    {
+      "id": "all.wallet_meta_file",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The app's own per-wallet file beside LEPIC's database (notes, contacts, imported history, the old core's records).",
+      "value": "<wallet folder>/wfe_meta.json, version 1",
+      "probes": [
+        {
+          "file": "app/lib/src/history/meta_store.dart",
+          "contains": "const String metaFileName = 'wfe_meta.json';"
+        },
+        {
+          "file": "app/lib/src/history/meta_store.dart",
+          "contains": "const int metaVersion = 1;"
+        }
+      ]
+    },
+    {
+      "id": "all.wallet_registry",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The wallet list: file name, format version and the fields an older file holds; the first wallets' ids.",
+      "value": "<data>/wallets.json {version: 1, lastUsedId, wallets: [{id, label, chain, dataDir, createdAt, ...}]}; first wallet id legacy-<chain>",
+      "probes": [
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "static const String fileName = 'wallets.json';"
+        },
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "static const int fileVersion = 1;"
+        },
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "static const String legacyPrefix = 'legacy-';"
+        },
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "'dataDir': dataDir,"
+        },
+        {
+          "file": "app/lib/src/wallet_registry.dart",
+          "contains": "'createdAt': createdAt.toUtc().toIso8601String(),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_platform_io.dart",
+          "contains": "final f = File('${(await appDataDirectory()).path}${Platform.pathSeparator}wallets.json');"
+        }
+      ]
+    },
+    {
+      "id": "desktop.builtin_node_folder",
+      "platforms": [
+        "windows",
+        "linux"
+      ],
+      "what": "The built-in node's folder, its per-chain subfolder and its toml (the chain data below is many GB: a rename means a full resync).",
+      "value": "<data>/node/main/epic-server.toml (+ chain_data)",
+      "probes": [
+        {
+          "file": "app/lib/src/builtin_node_provider.dart",
+          "contains": "return BuiltInNodeLocation(root: '${support.path}${sep}node', binary: binary);"
+        },
+        {
+          "file": "app/lib/src/builtin_node.dart",
+          "contains": "Chain.mainnet => 'main',"
+        },
+        {
+          "file": "app/lib/src/node/chain_data.dart",
+          "contains": "Chain.mainnet => 'main',"
+        },
+        {
+          "file": "app/lib/src/builtin_node.dart",
+          "contains": "const String _tomlName = 'epic-server.toml';"
+        }
+      ]
+    },
+    {
+      "id": "all.settings_toml",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The user's settings file in the data folder and its keys (a renamed key reads as the default: the user's servers and switches are lost).",
+      "value": "<data>/settings.toml: node.servers, epicbox.servers, online.status_site, online.update_check, online.price, local_node.api_port, local_node.p2p_port, network.mode",
+      "probes": [
+        {
+          "file": "app/lib/src/settings_file/settings_backend.dart",
+          "contains": "const String settingsFileName = 'settings.toml';"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('node.servers', TextListKind(checkNodeAddress)),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('epicbox.servers', TextListKind(checkEpicboxServer)),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('online.status_site', BoolKind()),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('online.update_check', BoolKind()),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('online.price', BoolKind()),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('local_node.api_port', _userPort, byDefault: notSet),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('local_node.p2p_port', _userPort, byDefault: notSet),"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('network.mode', TextKind(checkNetworkMode), byDefault: ''),"
+        }
+      ]
+    },
+    {
+      "id": "all.settings_import_26_10_23",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The one-time import of what 26.10.23 and older kept in the store into settings.toml, and its done-mark. Removing it loses the servers of every install that skipped 26.10.24/25.",
+      "value": "importLegacySettings + store key app.settingsImported",
+      "probes": [
+        {
+          "file": "app/lib/src/settings_file/legacy_import.dart",
+          "contains": "const String legacyImportedKey = 'app.settingsImported';"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_providers.dart",
+          "contains": "await importLegacySettings(store, c, walletIds: walletIds);"
+        }
+      ]
+    },
+    {
+      "id": "all.contacts_file",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The shared address book in the data folder.",
+      "value": "<data>/contacts.json",
+      "probes": [
+        {
+          "file": "app/lib/src/contact_store.dart",
+          "contains": "const String contactsFileName = 'contacts.json';"
+        },
+        {
+          "file": "app/lib/src/wallet_backend_io.dart",
+          "contains": "contactsDir: () async => (await appDataDirectory()).path,"
+        }
+      ]
+    },
+    {
+      "id": "desktop.lan_nodes_file",
+      "platforms": [
+        "windows",
+        "linux"
+      ],
+      "what": "LAN/tailnet node consents and the relay token.",
+      "value": "<data>/lan_nodes.json",
+      "probes": [
+        {
+          "file": "app/lib/src/data_folder_io.dart",
+          "contains": "lanNodesFile = () async => File('${(await appDataDirectory()).path}${Platform.pathSeparator}lan_nodes.json');"
+        }
+      ]
+    },
+    {
+      "id": "desktop.setup_done_mark",
+      "platforms": [
+        "windows",
+        "linux"
+      ],
+      "what": "The mark that first-run Setup finished (without it an installed wallet is sent through Setup again).",
+      "value": "SETUP-DONE",
+      "probes": [
+        {
+          "file": "app/lib/src/desktop/data/lepic_desk_wallet.dart",
+          "contains": "static const setupDoneFileName = 'SETUP-DONE';"
+        }
+      ]
+    },
+    {
+      "id": "all.log_file",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The log a user sends with a report.",
+      "value": "<data>/logs/wfe.log",
+      "probes": [
+        {
+          "file": "app/lib/src/app_log_io.dart",
+          "contains": "const String logFileName = 'wfe.log';"
+        },
+        {
+          "file": "app/lib/src/app_log_io.dart",
+          "contains": "Directory('${support.path}${Platform.pathSeparator}logs'),"
+        }
+      ]
+    },
+    {
+      "id": "all.history_backup_wfeh",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "History backups users keep (.wfeh): the extension and the payload version; every newer app opens every older file.",
+      "value": ".wfeh, WFEH container version 1, payload version 2 (1 still opens)",
+      "probes": [
+        {
+          "file": "app/lib/src/history/export.dart",
+          "contains": "const int historyPayloadVersion = 2;"
+        },
+        {
+          "file": "app/lib/src/desktop/data/history_files.dart",
+          "contains": "List<String> extensions = const ['wfeh'], int? maxBytes});"
+        },
+        {
+          "file": "app/lib/src/ui/settings_history.dart",
+          "contains": "'wfeh',"
+        }
+      ]
+    },
+    {
+      "id": "windows.secret_store_file",
+      "platforms": [
+        "windows"
+      ],
+      "what": "Windows secret store: one DPAPI-sealed file in the data folder (the wallet's sealed password, the PIN vault, every app.* and desk.* key).",
+      "value": "<data>/flutter_secure_storage.dat (DPAPI, current user)",
+      "probes": [
+        {
+          "file": "app/lib/src/windows_secret_store.dart",
+          "contains": "const String secretFileName = 'flutter_secure_storage.dat';"
+        },
+        {
+          "file": "app/lib/src/wallet_backend_io.dart",
+          "contains": "directory: () async => (await appDataDirectory()).path,"
+        },
+        {
+          "file": "app/lib/src/wallet_backend_io.dart",
+          "contains": "cipher: const DpapiCipher(),"
+        }
+      ]
+    },
+    {
+      "id": "linux.keyring_entry",
+      "platforms": [
+        "linux"
+      ],
+      "what": "Linux secret store: the libsecret entry flutter_secure_storage_linux names after the application id (label <APPLICATION_ID>/FlutterSecureStorage, account <APPLICATION_ID>.secureStorage). Another application id is an empty store.",
+      "value": "uk.btlabs.epiccash.desktop",
+      "probes": [
+        {
+          "file": "app/linux/CMakeLists.txt",
+          "contains": "set(APPLICATION_ID \"uk.btlabs.epiccash.desktop\")"
+        }
+      ]
+    },
+    {
+      "id": "all.secure_storage_plugin",
+      "platforms": [
+        "linux",
+        "android"
+      ],
+      "what": "flutter_secure_storage pinned to an exact version with its options: plugin majors have migrated or dropped the Android/Linux storage format, and resetOnError must stay off.",
+      "value": "flutter_secure_storage 11.2.0, AndroidOptions(resetOnError: false)",
+      "probes": [
+        {
+          "file": "app/pubspec.yaml",
+          "contains": "flutter_secure_storage: 11.2.0"
+        },
+        {
+          "file": "app/lib/src/secret_store.dart",
+          "contains": "aOptions: AndroidOptions(resetOnError: false),"
+        }
+      ]
+    },
+    {
+      "id": "all.wallet_store_keys",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The store keys of a wallet's sealed secrets: the pinned prefix per chain, the path prefix of a first wallet made before pinning (it contains the wallet folder's path: a folder rename orphans these too), and an added wallet's id prefix.",
+      "value": "lepic:<chain>:storePrefix -> lepic:<chain>:<dataDir>: | lepic:<chain>:id-<hex>:",
+      "probes": [
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "'lepic:${chain.name}:storePrefix';"
+        },
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "final pathPrefix = 'lepic:${chain.name}:${config.dataDir}:';"
+        },
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "return 'lepic:${chain.name}:id-$id:';"
+        }
+      ]
+    },
+    {
+      "id": "desktop.store_keys",
+      "platforms": [
+        "windows",
+        "linux"
+      ],
+      "what": "Desktop saved state in the store: settings, prefs, own nodes, favourites, the window, per-wallet records, remembered passwords.",
+      "value": "desk.settings, desk.prefs, desk.nodes, desk.favourites[.<id>], desk.window, desk.wallet.<chain>[.<id>], desk.http[.<id>], desk.remember.<id>",
+      "probes": [
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "static const settingsKey = 'desk.settings';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "static const prefsKey = 'desk.prefs';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "static const nodesKey = 'desk.nodes';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "static const favouritesKey = 'desk.favourites';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "static const windowKey = 'desk.window';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "static String walletKey(String chain) => 'desk.wallet.$chain';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "walletId == null ? walletKey(chain) : 'desk.wallet.$chain.$walletId';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/desk_store.dart",
+          "contains": "static const httpKey = 'desk.http';"
+        },
+        {
+          "file": "app/lib/src/desktop/data/remember.dart",
+          "contains": "static String _keyName(String id) => 'desk.remember.$id';"
+        }
+      ]
+    },
+    {
+      "id": "all.app_store_keys",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "App preferences in the store (both apps), and the updater's anti-rollback state (losing it lets an older signed manifest through).",
+      "value": "app.theme, app.fiat, app.show_fiat, app.hide_balances, app.auto_lock, app.language, app.helpLanguage, app.advanced, app.advanced_prefs, app.payment_prefs, app.send_strategy, app.split_change, app.update_state",
+      "probes": [
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _themeKey = 'app.theme';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _currencyKey = 'app.fiat';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _showFiatKey = 'app.show_fiat';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _hideKey = 'app.hide_balances';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _autoLockKey = 'app.auto_lock';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _languageKey = 'app.language';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _helpLanguageKey = 'app.helpLanguage';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _advancedKey = 'app.advanced';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _advancedPrefsKey = 'app.advanced_prefs';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _paymentsKey = 'app.payment_prefs';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _strategyKey = 'app.send_strategy';"
+        },
+        {
+          "file": "app/lib/src/settings.dart",
+          "contains": "static const String _splitChangeKey = 'app.split_change';"
+        },
+        {
+          "file": "app/lib/src/updater.dart",
+          "contains": "const String updateStateKey = 'app.update_state';"
+        }
+      ]
+    },
+    {
+      "id": "android.application_id",
+      "platforms": [
+        "android"
+      ],
+      "what": "Android package name: another one installs as a separate app with an empty data folder and store.",
+      "value": "uk.btlabs.epiccash.mobile",
+      "probes": [
+        {
+          "file": "app/android/app/build.gradle.kts",
+          "contains": "applicationId = \"uk.btlabs.epiccash.mobile\""
+        }
+      ]
+    },
+    {
+      "id": "android.signing_certificate",
+      "platforms": [
+        "android"
+      ],
+      "what": "The release signing certificate (SHA-256): Android refuses an update signed with another key. The key itself is outside every repository.",
+      "value": "59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa",
+      "probes": [
+        {
+          "file": "tools/releases/build.py",
+          "contains": "ANDROID_CERT_SHA256 = '59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa'"
+        }
+      ]
+    },
+    {
+      "id": "windows.installer_identity",
+      "platforms": [
+        "windows"
+      ],
+      "what": "Inno Setup identity: AppId (a new GUID installs beside the old version), the per-user install folder, the exe name the uninstaller and updater find, and the single-instance mutexes Setup waits on.",
+      "value": "AppId {8810835E-6EE5-4989-AE20-C0D60E23800E}; %USERPROFILE%\\Apps\\EpicWallet\\epic_wallet.exe; mutex Local\\uk.btlabs.epiccash.desktop.single (+ Local\\com.blacktyger.EpicWallet.single)",
+      "probes": [
+        {
+          "file": "app/windows/installer/epic_wallet.iss",
+          "contains": "AppId={{8810835E-6EE5-4989-AE20-C0D60E23800E}"
+        },
+        {
+          "file": "app/windows/installer/epic_wallet.iss",
+          "contains": "DefaultDirName={%USERPROFILE}\\Apps\\EpicWallet"
+        },
+        {
+          "file": "app/windows/installer/epic_wallet.iss",
+          "contains": "UninstallDisplayIcon={app}\\epic_wallet.exe"
+        },
+        {
+          "file": "app/windows/installer/epic_wallet.iss",
+          "contains": "#define AppMutexName \"Local\\uk.btlabs.epiccash.desktop.single\""
+        },
+        {
+          "file": "app/windows/installer/epic_wallet.iss",
+          "contains": "#define OldAppMutexName \"Local\\com.blacktyger.EpicWallet.single\""
+        },
+        {
+          "file": "app/windows/runner/main.cpp",
+          "contains": "constexpr const wchar_t kSingleInstanceMutex[] = L\"Local\\\\uk.btlabs.epiccash.desktop.single\";"
+        }
+      ]
+    },
+    {
+      "id": "linux.binary_name",
+      "platforms": [
+        "linux"
+      ],
+      "what": "The Linux executable name (AppImage and tarball users start it by name; the desktop updater replaces it).",
+      "value": "epic_wallet",
+      "probes": [
+        {
+          "file": "app/linux/CMakeLists.txt",
+          "contains": "set(BINARY_NAME \"epic_wallet\")"
+        }
+      ]
+    },
+    {
+      "id": "updates.manifest_urls",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "Where 26.10.24+ apps look for the signed update manifest (update-v2.json). Each installed version keeps reading its own list for good, so these must keep serving; a new source is added, never swapped.",
+      "value": "https://epiccash.btlabs.uk/api/v1/update.json, https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json, https://btlabs-epic.github.io/update-v2.json",
+      "probes": [
+        {
+          "file": "app/assets/config/app-config.toml",
+          "contains": "\"https://epiccash.btlabs.uk/api/v1/update.json\","
+        },
+        {
+          "file": "app/assets/config/app-config.toml",
+          "contains": "\"https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json\","
+        },
+        {
+          "file": "app/assets/config/app-config.toml",
+          "contains": "\"https://btlabs-epic.github.io/update-v2.json\","
+        }
+      ]
+    },
+    {
+      "id": "updates.download_allow_list",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The prefix a 26.10.24+ app accepts download URLs under (the manifest's file URLs must start with it).",
+      "value": "https://epiccash.btlabs.uk/releases/downloads/",
+      "probes": [
+        {
+          "file": "app/assets/config/app-config.toml",
+          "contains": "downloads = \"https://epiccash.btlabs.uk/releases/downloads/\""
+        }
+      ]
+    },
+    {
+      "id": "updates.legacy_manifests_26_10_23",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "Installs up to 26.10.23 read the old-format update.json at the old addresses compiled into them, and accept downloads only under the old download folder. The publish tool keeps writing it; dropping it strands every such install on its version.",
+      "value": "https://examples.btlabs.uk/epic-cash-wallets/update.json, update.json in the Pages repository (GitLab raw, GitHub Pages); downloads under https://examples.btlabs.uk/epic-cash-wallets/",
+      "probes": [
+        {
+          "file": "tools/publish-update-json.sh",
+          "contains": "dest=\"${UPDATE_DEST:-/srv/examples/epic-cash-wallets/update.json}\""
+        },
+        {
+          "file": "tools/publish-update-json.sh",
+          "contains": "url=\"${UPDATE_URL:-https://examples.btlabs.uk/epic-cash-wallets/update.json}\""
+        },
+        {
+          "file": "tools/publish-update-json.sh",
+          "contains": "cp \"$file\" \"$site/update.json\""
+        },
+        {
+          "file": "tools/publish-update-json.sh",
+          "contains": "cp \"$file2\" \"$site/update-v2.json\""
+        }
+      ]
+    },
+    {
+      "id": "updates.manifest_format_and_keys",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "The manifest's signed type and the BT Labs signing keys every installed app trusts (rank 1 signs, rank 2 retires it). A manifest typed otherwise or signed by another key is refused by every install.",
+      "value": "application/vnd.btlabs.wallet-for-epic.update+json; keyids 3eb30c1e66220525 (rank 1), f261b50cdc4dae34 (rank 2)",
+      "probes": [
+        {
+          "file": "app/lib/src/btlabs_public.dart",
+          "contains": "const walletUpdateType = 'application/vnd.btlabs.wallet-for-epic.update+json';"
+        },
+        {
+          "file": "app/lib/src/btlabs_keys.dart",
+          "contains": "\"keyid\": \"3eb30c1e66220525\","
+        },
+        {
+          "file": "app/lib/src/btlabs_keys.dart",
+          "contains": "\"public_key\": \"9ut79o6FipDX7zYEcWfDyAXoRNuEKnlvtEHpG4wRW08=\","
+        },
+        {
+          "file": "app/lib/src/btlabs_keys.dart",
+          "contains": "\"keyid\": \"f261b50cdc4dae34\","
+        },
+        {
+          "file": "app/lib/src/btlabs_keys.dart",
+          "contains": "\"public_key\": \"Cs7+MOuq5fpDA3kVBu6IWP4Ba81XuUngh5epKA3ER2o=\","
+        }
+      ]
+    }
+  ],
+  "not_frozen": [
+    {
+      "id": "macos.bundle_id",
+      "platforms": [
+        "macos"
+      ],
+      "value": "see app/macos/Runner/Configs/AppInfo.xcconfig",
+      "note": "Not frozen until the first signed Apple release (apple-signing-prep is setting the bundle ids and signing now). Freeze it then: bundle id, keychain service, data folder (<home>/.epic_cash_desktop, shared with the desktop item), Team ID."
+    },
+    {
+      "id": "ios.bundle_id",
+      "platforms": [
+        "ios"
+      ],
+      "value": "see app/ios/Runner.xcodeproj (PRODUCT_BUNDLE_IDENTIFIER)",
+      "note": "Not frozen until the first signed Apple release. Freeze it then: bundle id, keychain access group, App Store id."
+    },
+    {
+      "id": "ios.macos.keychain",
+      "platforms": [
+        "macos",
+        "ios"
+      ],
+      "value": "flutter_secure_storage, first_unlock_this_device, login keychain on macOS",
+      "note": "Not frozen until the first signed Apple release: the keychain entries follow the bundle id and Team ID."
+    }
+  ],
+  "changes": [
+    {
+      "date": "2026-10-30",
+      "items_sha256": "1ef862497a47e6c150f7a6731e70c91d58ab62f4056d6e3105a681654d1c6f5f",
+      "change": "First contract, from main 2221aa17, checked against 26.10.23 (v26.10.23), the last release before 26.10.24 renamed wallets/<chain> to wallet with no migration, and against b1c52350 (26.10.24-r2), which put the 26.10.23 names back.",
+      "migration": "None needed: every item is what 26.10.23 and 26.10.24-r2 already use. Store-to-settings.toml (26.10.23 kept servers in the store) is the import in all.settings_import_26_10_23. The 26.10.24 stray <data>/wallet folder is left alone and never read.",
+      "migration_test": "app/test/install_upgrade_test.dart",
+      "approved_by": "the owner, 2026-10-30 (install guard approved)"
+    }
+  ]
+}
