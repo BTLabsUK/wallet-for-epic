@@ -74,9 +74,9 @@ PLAT = {p[0]: p for p in PLATFORMS}
 # A release mirrored on GitLab (the gitlab-releases tool, off until switched on) gets a Mirror
 # link when its record says "gitlab": true (build.py add --gitlab).
 GITLAB_RELEASE = 'https://gitlab.com/epic-cash-bt/wallet-for-epic/-/releases/v{version}'
-# The same for GitHub ("github": true, build.py add --github): off while the BTLabs-EPIC account
-# is hidden from logged-out visitors.
-GITHUB_RELEASE = 'https://github.com/BTLabs-EPIC/wallet-for-epic/releases/tag/v{version}'
+# The same for GitHub ("github": true, build.py add --github): the BTLabsUK mirror, which
+# tools/rel adds when release.toml publish.github is on.
+GITHUB_RELEASE = 'https://github.com/BTLabsUK/wallet-for-epic/releases/tag/v{version}'
 
 # BT Labs' release key in minisign's format (tools/gitlab-release.py pubkey): it signs SHA256SUMS
 # into SHA256SUMS.sig and update.json. A release whose record says "sig": true shows the check.
