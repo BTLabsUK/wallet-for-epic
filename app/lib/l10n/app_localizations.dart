@@ -29255,7 +29255,7 @@ abstract class AppLocalizations {
   /// Body of that screen (desktop).
   ///
   /// In en, this message translates to:
-  /// **'{amount} is finished. Kill switch is on, so this computer can’t post it. Save it or show it as a QR code, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
+  /// **'{amount} is finished. Kill switch is on, so this computer can’t post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
   String deskFinNotPostedKillBody(String amount);
 
   /// Row in the connections sheet naming the network mode.

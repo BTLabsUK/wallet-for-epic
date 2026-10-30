@@ -19388,7 +19388,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount gotowe. Wyłącznik awaryjny jest włączony, więc ten komputer nie może tego wysłać. Zapisz płatność lub pokaż ją jako kod QR, a potem wyślij z urządzenia, które jest online: Odbierz › Pliki transakcji › Wyślij gotową płatność.';
+    return '$amount gotowe. Wyłącznik awaryjny jest włączony, więc ten komputer nie może tego wysłać. Zapisz płatność lub skopiuj ją, a potem wyślij z urządzenia, które jest online: Odbierz › Pliki transakcji › Wyślij gotową płatność.';
   }
 
   @override

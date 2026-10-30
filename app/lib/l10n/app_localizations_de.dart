@@ -18955,7 +18955,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount sind abgeschlossen. „Notaus“ ist an, daher kann dieser Computer die Zahlung nicht senden. Speichern Sie sie oder zeigen Sie sie als QR-Code und senden Sie sie dann von einem Gerät, das online ist: Empfangen › Transaktionsdateien › Fertige Zahlung senden.';
+    return '$amount sind abgeschlossen. „Notaus“ ist an, daher kann dieser Computer die Zahlung nicht senden. Speichern oder kopieren Sie sie und senden Sie sie dann von einem Gerät, das online ist: Empfangen › Transaktionsdateien › Fertige Zahlung senden.';
   }
 
   @override

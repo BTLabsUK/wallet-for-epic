@@ -17648,7 +17648,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存它或显示为二维码，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。';
+    return '$amount 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。';
   }
 
   @override
