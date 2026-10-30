@@ -565,6 +565,8 @@ class WalletDispatcher {
       s.spendOutputsToSelf(
         commitments: p.of('commitments', listOf(stringWire)),
         minimumConfirmations: p.of('minimumConfirmations', bigIntWire),
+        // Absent from an older client: one output, as it asked for then.
+        outputs: p.of('outputs', optInt) ?? 1,
       ),
       selfSentTxWire,
     ),

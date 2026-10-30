@@ -1625,6 +1625,7 @@ class LepicWalletSession implements WalletSession {
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
+    int outputs = 1,
   }) => _nodeGuard('spend to self', () async {
     if (commitments.any(heldOutputs.contains)) _noneHeld('spend to self');
     return lepicSelfSentTx(

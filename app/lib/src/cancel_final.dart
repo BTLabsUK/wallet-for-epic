@@ -21,8 +21,33 @@
 /// it final as well.
 library;
 
+import 'dart:math' as math;
+
 import 'log.dart';
+import 'smart_outputs.dart' show SmartOutputsRule;
 import 'wallet_service.dart';
+
+/// LEPIC's base fee per unit of fee weight (0.001 EPIC). Only for choosing [spendBackOutputs];
+/// the fee paid is the one LEPIC computes.
+final BigInt _baseFee = BigInt.from(100000);
+
+/// The fee LEPIC takes for a spend back of [inputs] coins into [outputs]: fee weight
+/// `max(4 × outputs + 1 − inputs, 1)` times the base fee. Each output past the first adds
+/// 0.004 EPIC.
+BigInt spendBackFee(int inputs, int outputs) => BigInt.from(math.max(4 * outputs + 1 - inputs, 1)) * _baseFee;
+
+/// The outputs a spend back of coins worth [values] makes: one per coin, so the wallet keeps
+/// its number of spendable coins (the owner, 2026-10-31), at most 10 (LEPIC's limit); fewer, down
+/// to 1, while an equal split of what is left after the fee would leave an output under
+/// [minChange] (SmartOutputs' smallest change, 1 EPIC).
+int spendBackOutputs(List<BigInt> values, {int minChange = SmartOutputsRule.standardMinChange}) {
+  final total = values.fold(BigInt.zero, (a, b) => a + b);
+  var n = math.min(math.max(values.length, 1), 10);
+  while (n > 1 && (total - spendBackFee(values.length, n)) ~/ BigInt.from(n) < BigInt.from(minChange)) {
+    n--;
+  }
+  return n;
+}
 
 /// Whether cancelling [tx] also spends its coins back to this wallet: an outgoing payment the
 /// other side may complete without this wallet. An invoice this wallet paid, or a send both
@@ -91,7 +116,7 @@ class CancelFinal {
     }
     // The coins it locks, read first: once cancelled they are this wallet's again, and the
     // spend back spends exactly these.
-    var coins = const <String>[];
+    var coins = const <WalletOutput>[];
     try {
       coins = _lockedBy(id, await session.outputs());
     } on WalletError catch (e) {
@@ -111,7 +136,7 @@ class CancelFinal {
       return CancelResult.stoppedWaiting;
     }
     final id = tx.id;
-    var coins = const <String>[];
+    var coins = const <WalletOutput>[];
     if (id != null) {
       try {
         coins = _lockedBy(id, await session.outputs());
@@ -126,7 +151,7 @@ class CancelFinal {
 
   /// After [id] was cancelled or released: spends back [coins], or when none were read before,
   /// the coins the cancel freed (they keep their link to it).
-  Future<CancelResult> _afterCancel(WalletSession session, int id, List<String> coins) async {
+  Future<CancelResult> _afterCancel(WalletSession session, int id, List<WalletOutput> coins) async {
     if (coins.isEmpty) {
       try {
         coins = _freedBy(id, await session.outputs());
@@ -153,7 +178,7 @@ class CancelFinal {
       final outputs = await session.outputs();
       var spent = false;
       for (final MapEntry(key: id, value: coins) in _owed.entries.toList()) {
-        final free = _freedBy(id, outputs).where(coins.contains).toList();
+        final free = _freedBy(id, outputs).where((o) => coins.contains(o.commitment)).toList();
         if (free.isEmpty) {
           _owed.remove(id);
           continue;
@@ -169,11 +194,16 @@ class CancelFinal {
     }
   }
 
-  /// Spends [coins] to this wallet. One confirmation is enough: they were spendable when the
+  /// Spends [coins] to this wallet, into as many outputs as [spendBackOutputs] says. One
+  /// confirmation is enough: they were spendable when the
   /// payment chose them.
-  Future<CancelResult> _spendBack(WalletSession session, int id, List<String> coins) async {
+  Future<CancelResult> _spendBack(WalletSession session, int id, List<WalletOutput> coins) async {
     try {
-      await session.spendOutputsToSelf(commitments: coins, minimumConfirmations: BigInt.one);
+      await session.spendOutputsToSelf(
+        commitments: [for (final c in coins) c.commitment],
+        minimumConfirmations: BigInt.one,
+        outputs: spendBackOutputs([for (final c in coins) c.value]),
+      );
       _owed.remove(id);
       logInfo('cancel', 'cancelled payment made final: its coins spent back');
       return CancelResult.spentBack;
@@ -192,20 +222,20 @@ class CancelFinal {
           // notPosted: LEPIC stored it and reposts it until it is mined or its coins are spent
           // (then it ends it); its coins are locked, no longer free, so a retry finds nothing
           // left to do.
-          _owed[id] = coins;
+          _owed[id] = [for (final c in coins) c.commitment];
           logWarn('cancel', 'spend back failed, tried again later: ${e.kind.name}');
           return CancelResult.spendBackPending;
       }
     }
   }
 
-  static List<String> _lockedBy(int id, Iterable<WalletOutput> outputs) => [
+  static List<WalletOutput> _lockedBy(int id, Iterable<WalletOutput> outputs) => [
     for (final o in outputs)
-      if (o.txId == id && o.status == WalletOutputStatus.locked) o.commitment,
+      if (o.txId == id && o.status == WalletOutputStatus.locked) o,
   ];
 
-  static List<String> _freedBy(int id, Iterable<WalletOutput> outputs) => [
+  static List<WalletOutput> _freedBy(int id, Iterable<WalletOutput> outputs) => [
     for (final o in outputs)
-      if (o.txId == id && o.status == WalletOutputStatus.unspent) o.commitment,
+      if (o.txId == id && o.status == WalletOutputStatus.unspent) o,
   ];
 }

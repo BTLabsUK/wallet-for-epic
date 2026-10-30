@@ -193,6 +193,14 @@ void main() {
       expect(s.spentToSelf.single, [_coinA, _coinB]);
     });
 
+    test('the spend back gives back as many coins as it spends', () async {
+      final tx = _send(flow: TxFlow.invoice);
+      final s = _session(tx);
+      expect(await CancelFinal().cancel(s, tx), CancelResult.spentBack);
+      // Two coins of 2 EPIC each: two back, about 1.996 each.
+      expect(s.spentToSelfOutputs, [2]);
+    });
+
     test('Stop waiting: only cancelled, nothing spent, nothing owed', () async {
       for (final tx in [_send(flow: TxFlow.invoice), _send(finalized: true)]) {
         final s = _session(tx);
@@ -235,6 +243,37 @@ void main() {
       for (final kind in [WalletErrorKind.inputsSpentByOwnPayment, WalletErrorKind.peerInputsSpent]) {
         expect(describeError(_l, WalletError(kind: kind, message: 'internal error')), _l.errorPaymentCancelledCoinsMoved);
       }
+    });
+  });
+
+  group('how many coins a spend back gives back', () {
+    BigInt e(num v) => BigInt.from((v * 100000000).round());
+
+    test('the fee: 0.004 EPIC per output, less 0.001 per coin spent', () {
+      expect(spendBackFee(1, 1), e(0.004));
+      expect(spendBackFee(3, 3), e(0.010));
+      expect(spendBackFee(3, 1), e(0.002));
+      expect(spendBackFee(8, 8), e(0.025));
+      expect(spendBackFee(9, 1), e(0.001), reason: 'never below one unit of weight');
+    });
+
+    test('one coin: one back', () => expect(spendBackOutputs([e(3)]), 1));
+
+    test('three coins: three back', () => expect(spendBackOutputs([e(2), e(1.5), e(5)]), 3));
+
+    test('many coins: one each, up to ten', () {
+      expect(spendBackOutputs(List.filled(8, e(2))), 8);
+      expect(spendBackOutputs(List.filled(14, e(2))), 10);
+    });
+
+    test('small coins: fewer outputs, so none is under 1 EPIC', () {
+      // 3 × 0.9 = 2.7 EPIC: three of 0.9 or less are too small, two of about 1.345 are not.
+      expect(spendBackOutputs([e(0.9), e(0.9), e(0.9)]), 2);
+      // 3 × 0.5: even two would be 0.75 each, so one.
+      expect(spendBackOutputs([e(0.5), e(0.5), e(0.5)]), 1);
+      // Exactly 1 EPIC each after the fee stays split.
+      expect(spendBackOutputs([e(1.005), e(1.005)]), 2);
+      expect(spendBackOutputs([e(1.003), e(1.003)]), 1);
     });
   });
 

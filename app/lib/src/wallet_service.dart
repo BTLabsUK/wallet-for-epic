@@ -549,14 +549,16 @@ abstract interface class WalletSession {
   /// Merges every output with [minimumConfirmations] (up to 500) into one.
   Future<SelfSentTx> consolidateOutputs({required BigInt minimumConfirmations});
 
-  /// Spends exactly the outputs [commitments] names (`WalletOutput.commitment`) into one output
-  /// of this wallet, as a consolidate does, locking nothing else. It makes a cancelled payment
-  /// final: the other wallet may hold a signed copy that spends them until they are spent here.
-  /// [WalletErrorKind.invalidArgument] for an empty list or an output that is unknown, not
-  /// spendable or named twice; [WalletErrorKind.notEnoughFunds] when the fee takes it all.
+  /// Spends exactly the outputs [commitments] names (`WalletOutput.commitment`) into [outputs]
+  /// outputs of this wallet (1 to 10, the amount less the fee in nearly equal parts), locking
+  /// nothing else. It makes a cancelled payment final: the other wallet may hold a signed copy
+  /// that spends them until they are spent here. [WalletErrorKind.invalidArgument] for an empty
+  /// list, an output that is unknown, not spendable or named twice, or a count outside 1–10;
+  /// [WalletErrorKind.notEnoughFunds] when the fee takes it all.
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
+    int outputs = 1,
   });
 
   // Invoices over epicbox. Since RFC 0002 an invoice comes only from a paired contact the user
@@ -2572,6 +2574,9 @@ class FakeWalletSession implements WalletSession {
   /// The commitments of every [spendOutputsToSelf] call.
   final List<List<String>> spentToSelf = [];
 
+  /// The output count of every [spendOutputsToSelf] call.
+  final List<int> spentToSelfOutputs = [];
+
   /// When set, [spendOutputsToSelf] throws it after recording the call.
   WalletError? spendToSelfError;
 
@@ -2579,14 +2584,16 @@ class FakeWalletSession implements WalletSession {
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
+    int outputs = 1,
   }) async {
-    if (commitments.isEmpty || commitments.toSet().length != commitments.length) {
+    if (commitments.isEmpty || commitments.toSet().length != commitments.length || outputs < 1 || outputs > 10) {
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
         message: 'name each output once',
       );
     }
     spentToSelf.add([...commitments]);
+    spentToSelfOutputs.add(outputs);
     if (spendToSelfError case final error?) throw error;
     return _postSelf(_selfSend(1), 1);
   }

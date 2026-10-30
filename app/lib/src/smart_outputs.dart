@@ -14,7 +14,7 @@ const bool smartOutputsDefault = true;
 class SmartOutputsRule {
   const SmartOutputsRule({
     this.minOutputsLeft = 3,
-    this.minChange = nanoEpic,
+    this.minChange = standardMinChange,
     this.outputStep = nanoEpic ~/ 2,
     this.maxOutputs = 4,
     this.targetOutputs = 4,
@@ -41,6 +41,9 @@ class SmartOutputsRule {
   final int minPerOutput;
 
   static const SmartOutputsRule standard = SmartOutputsRule();
+
+  /// [minChange] of [standard] (1 EPIC).
+  static const int standardMinChange = nanoEpic;
 }
 
 /// 1 EPIC in nanoepic.

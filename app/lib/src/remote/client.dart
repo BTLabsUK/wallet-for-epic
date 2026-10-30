@@ -1078,9 +1078,11 @@ class RemoteWalletSession implements WalletSession {
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
+    int outputs = 1,
   }) => _call(SessionMember.spendOutputsToSelf, selfSentTxWire, {
     'commitments': listOf(stringWire).encode(commitments),
     'minimumConfirmations': bigIntWire.encode(minimumConfirmations),
+    'outputs': intWire.encode(outputs),
   });
 
   @override

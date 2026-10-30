@@ -609,9 +609,11 @@ class GatedWalletSession implements WalletSession {
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
     required BigInt minimumConfirmations,
+    int outputs = 1,
   }) => _inner.spendOutputsToSelf(
     commitments: commitments,
     minimumConfirmations: minimumConfirmations,
+    outputs: outputs,
   );
 
   @override

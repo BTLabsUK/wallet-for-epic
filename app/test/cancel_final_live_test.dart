@@ -116,6 +116,9 @@ class _Race extends GatedWalletSession {
   WalletError? failSpendBack;
   int spendBacks = 0;
 
+  /// The output count each spend back asked for.
+  final List<int> spendBackOutputs = [];
+
   @override
   Future<void> cancelTransaction({required int txId}) async {
     await super.cancelTransaction(txId: txId);
@@ -125,12 +128,13 @@ class _Race extends GatedWalletSession {
   }
 
   @override
-  Future<SelfSentTx> spendOutputsToSelf({required List<String> commitments, required BigInt minimumConfirmations}) async {
+  Future<SelfSentTx> spendOutputsToSelf({required List<String> commitments, required BigInt minimumConfirmations, int outputs = 1}) async {
     spendBacks++;
+    spendBackOutputs.add(outputs);
     final e = failSpendBack;
     failSpendBack = null;
     if (e != null) throw e;
-    return super.spendOutputsToSelf(commitments: commitments, minimumConfirmations: minimumConfirmations);
+    return super.spendOutputsToSelf(commitments: commitments, minimumConfirmations: minimumConfirmations, outputs: outputs);
   }
 }
 
