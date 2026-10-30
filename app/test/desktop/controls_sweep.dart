@@ -473,7 +473,10 @@ final Set<String> _pressed = {};
 /// The sweep over [shots]; split over controls_sweep_*_test.dart so no one file sets the
 /// length of a whole test run. Onboarding (Welcome, Create, Restore, Import, Setup, Unlock) is
 /// left to its own tests: its presses run whole wallet flows that end in another app start.
-void sweepControls(List<DeskShot> shots) {
+/// [after] are the shots an earlier file sweeps: their controls count as pressed already (the
+/// first test lists them, pressing none), as when one file swept them all.
+void sweepControls(List<DeskShot> shots, {List<DeskShot> after = const []}) {
+  final earlier = [...after];
   final failures = <String>[];
   // The OS folder picker answers with a folder, as a user would pick one.
   setUpAll(() => deskPickFolder = () async => '/media/data/epic');
@@ -485,6 +488,7 @@ void sweepControls(List<DeskShot> shots) {
 
   for (final shot in shots) {
     testWidgets('controls of ${shot.id} act', (tester) async {
+      final outer = shot;
       tester.view.physicalSize = Size(shot.width, shot.height);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -504,7 +508,8 @@ void sweepControls(List<DeskShot> shots) {
       }
 
       // A fresh app on the shot: its recorder, opened folders and the scope its controls are in.
-      Future<(_Recorder, List<String>, ProviderContainer, Finder, String)> open() async {
+      Future<(_Recorder, List<String>, ProviderContainer, Finder, String)> open([DeskShot? other]) async {
+        final shot = other ?? outer;
         final api = _Recorder();
         final folders = <String>[];
         final container = ProviderContainer(
@@ -554,24 +559,38 @@ void sweepControls(List<DeskShot> shots) {
         return (api, folders, container, scope, name);
       }
 
-      final (_, _, _, pageScope, pageName) = await open();
-      final scopes = [(pageScope, pageName), if (pageName == shot.route.name && !shot.route.bare) (find.byType(DeskShell), 'shell')];
-      final pageIds = <String>{};
-      final todo = <(String, String, String, int)>[]; // scope name, kind, label, nth of that kind+label
-      for (final (scope, name) in scopes) {
-        final seen = <String, int>{};
-        for (final c in _controls(scope)) {
-          final id = '${c.kind}|${c.label}';
-          final n = seen[id] = (seen[id] ?? -1) + 1;
-          // The page sits inside the shell: its controls count once, as the page's.
-          if (name != 'shell') {
-            pageIds.add(id);
-          } else if (pageIds.contains(id)) {
-            continue;
+      // The controls of [shot] not pressed yet, now marked pressed.
+      Future<List<(String, String, String, int)>> unpressed(DeskShot shot) async {
+        final (_, _, _, pageScope, pageName) = await open(shot);
+        final scopes = [(pageScope, pageName), if (pageName == shot.route.name && !shot.route.bare) (find.byType(DeskShell), 'shell')];
+        final pageIds = <String>{};
+        final todo = <(String, String, String, int)>[]; // scope name, kind, label, nth of that kind+label
+        for (final (scope, name) in scopes) {
+          final seen = <String, int>{};
+          for (final c in _controls(scope)) {
+            final id = '${c.kind}|${c.label}';
+            final n = seen[id] = (seen[id] ?? -1) + 1;
+            // The page sits inside the shell: its controls count once, as the page's.
+            if (name != 'shell') {
+              pageIds.add(id);
+            } else if (pageIds.contains(id)) {
+              continue;
+            }
+            if (_pressed.add('$name|$id|$n')) todo.add((name, c.kind, c.label, n));
           }
-          if (_pressed.add('$name|$id|$n')) todo.add((name, c.kind, c.label, n));
         }
+        return todo;
       }
+
+      for (final e in earlier) {
+        tester.view.physicalSize = Size(e.width, e.height);
+        await unpressed(e);
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 40));
+      }
+      earlier.clear();
+      tester.view.physicalSize = Size(shot.width, shot.height);
+      final todo = await unpressed(shot);
 
       final dead = <String>[];
       for (final (name, kind, label, n) in todo) {
