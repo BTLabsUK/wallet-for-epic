@@ -555,13 +555,9 @@ void main() {
     });
 
     testWidgets('no Tor on this phone: nothing of it', (tester) async {
-      await _pump(
-        tester,
-        tor: const PhoneTorState(
-          phase: PhoneTorPhase.unavailable,
-          receiving: true,
-        ),
-      );
+      // As PhoneTor.build gives it in the build without Tor: unavailable, the switch never on.
+      // (Unavailable with the switch on is a missing tor bundle: blocked, Waiting for Tor.)
+      await _pump(tester, tor: const PhoneTorState(phase: PhoneTorPhase.unavailable));
       expect(find.byKey(torIconKey), findsNothing, reason: 'no Tor on this phone: nothing to switch on');
       expect(find.byKey(directIconKey), findsOneWidget);
       expect(_label(tester, nodeStatusKey), 'Node, Synced');
@@ -797,7 +793,7 @@ void main() {
       await _pump(
         tester,
         child: header(),
-        tor: const PhoneTorState(phase: PhoneTorPhase.unavailable, receiving: true),
+        tor: const PhoneTorState(phase: PhoneTorPhase.unavailable),
       );
       expect(find.byKey(barTorIconKey), findsNothing);
       expect(find.bySemanticsLabel(RegExp('Tor')), findsNothing);

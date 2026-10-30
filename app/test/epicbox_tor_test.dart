@@ -120,7 +120,7 @@ void main() {
     expect(log.indexOf('expectTor'), lessThan(log.indexOf('listener')), reason: 'no direct connection first');
   });
 
-  test('with Epicbox over Tor off, Tor receiving off or no tor, nothing waits for tor', () async {
+  test('with Epicbox over Tor off or Tor receiving off nothing waits for tor; no bundle still waits', () async {
     final off = _Harness();
     addTearDown(off.dispose);
     off.container.read(epicboxOverTorProvider.notifier).state = false;
@@ -139,7 +139,10 @@ void main() {
     addTearDown(noBundle.dispose);
     await noBundle.receivingOn();
     await noBundle.open();
-    expect(noBundle.session.routeLog, isNot(contains('expectTor')), reason: 'no tor to wait for');
+    // Fail closed: Tor receiving on with no tor bundle keeps the connection waiting (blocked),
+    // never direct; turning Tor receiving off ends the wait.
+    expect(noBundle.session.routeLog, contains('expectTor'), reason: 'blocked, never direct');
+    expect(noBundle.container.read(phoneTorProvider).phase, PhoneTorPhase.unavailable);
   });
 
   test('Retry announces the new tor before stopping the old one', () async {

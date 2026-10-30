@@ -529,6 +529,10 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// When this tor start began; null once it connected, failed or stopped.
   DateTime? _torStartedAt;
+
+  /// The session was told tor comes ([_expectTor]): a stop with tor never started must end
+  /// that wait. Without it no stray stopTor reaches a wallet that never wanted Tor.
+  bool _torExpected = false;
   Timer? _torSlowTimer;
 
   /// Restarts run by itself since tor last connected ([torStartBackoff]): tor that did not
@@ -4217,6 +4221,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Tor (re)starts next: the Epicbox connection waits for it and a stop before it keeps it
   /// waiting (LEPIC's `expectTor`).
   Future<void> _expectTor(core.WalletSession session) async {
+    _torExpected = true;
     try {
       await session.expectTor();
     } on core.WalletError catch (e) {
@@ -4234,6 +4239,8 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _stopTor() async {
     final sub = _tor;
     _tor = null;
+    final expected = _torExpected;
+    _torExpected = false;
     _torStartedAt = null;
     _torConnectedAt = null;
     _torSlowTimer?.cancel();
@@ -4245,7 +4252,8 @@ class LepicDeskWallet implements DeskWalletApi {
     if (sub == null) {
       if (was == ServiceHealth.off) {
         // Never started, but the session may have opened waiting for it (torWantedAt): the
-        // stop ends that wait.
+        // stop ends that wait. Nothing to end when it was never told tor comes.
+        if (!expected) return;
         try {
           await _session?.stopTor();
         } on core.WalletError catch (e) {
