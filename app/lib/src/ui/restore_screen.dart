@@ -215,7 +215,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final vault = ref.read(vaultProvider);
     final pin = await askPin<String>(
       context,
-      reason: context.l10n.restoreReplacePinReason,
+      reason: usesPassphrase(ref)
+          ? context.l10n.restoreReplacePassphraseReason
+          : context.l10n.restoreReplacePinReason,
       allowBiometrics: false,
       action: (pin) async {
         await vault.checkPin(session, config, pin);
@@ -274,6 +276,11 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               // ran out under it unseen.
               persistent: true,
             );
+      } else if (useBiometrics && mounted) {
+        // Their copy cannot be read back in the process that wrote it (WAL-11).
+        ref
+            .read(noticeProvider.notifier)
+            .show(l.biometricsFromNextStart, level: NoticeLevel.info, persistent: true);
       }
       await ref.read(sessionProvider.notifier).open(session);
       if (!mounted) return;

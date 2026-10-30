@@ -22,7 +22,7 @@ Future<void> sharePairingMessage(BuildContext context, WidgetRef ref, String tex
   final l = context.l10n;
   final files = ref.read(slateFilesProvider);
   if (copy || !files.canShareText) {
-    await copyText(context, text, l.pairMessageCopied);
+    await copySecretText(context, text, l.pairMessageCopied);
   } else {
     await files.shareText(text);
   }

@@ -54,7 +54,7 @@ import 'pairing/send_pairing.dart';
 import 'status_icons.dart';
 import 'net_block.dart';
 import 'payment_gate.dart';
-import 'pin.dart' show askPin;
+import 'pin.dart' show askPin, usesPassphrase;
 import 'qr_scan_screen.dart';
 import 'payment_code_ui.dart';
 import 'qr_show_screen.dart';
@@ -1443,7 +1443,8 @@ class _SendViewState extends ConsumerState<SendView> {
         if (!await _askPlainHttp() || !mounted) return;
         _plainHttpOk = true;
       }
-      if (!await _pinGate(l.sendPinReason(epicExact(l, reviewed.amount)))) {
+      final amountText = epicExact(l, reviewed.amount);
+      if (!await _pinGate(usesPassphrase(ref) ? l.sendPassphraseReason(amountText) : l.sendPinReason(amountText))) {
         return;
       }
     } finally {
@@ -1958,9 +1959,13 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = _parsedAmount;
     if (amount == null) return;
     final l = context.l10n;
-    final reason = _viaQr
-        ? l.sendQrPinReason(epicExact(l, amount))
-        : l.sendFilePinReason(epicExact(l, amount));
+    final amountText = epicExact(l, amount);
+    final reason = switch ((_viaQr, usesPassphrase(ref))) {
+      (true, true) => l.sendQrPassphraseReason(amountText),
+      (true, false) => l.sendQrPinReason(amountText),
+      (false, true) => l.sendFilePassphraseReason(amountText),
+      (false, false) => l.sendFilePinReason(amountText),
+    };
     if (!await _pinGate(reason)) return;
     if (!mounted) return;
     final container = ProviderScope.containerOf(context, listen: false);

@@ -787,7 +787,7 @@ class _PairingByHandScreenState extends ConsumerState<PairingByHandScreen> {
                     style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                     icon: const Icon(Icons.copy, size: 18),
                     label: Text(l.commonCopy),
-                    onPressed: link == null ? null : () => copyText(context, link, l.pairCopied),
+                    onPressed: link == null ? null : () => copySecretText(context, link, l.pairCopied),
                   ),
                 ),
                 if (files.canShareText) ...[

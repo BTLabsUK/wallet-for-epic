@@ -2840,7 +2840,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsBiometrics => '生物识别解锁';
 
   @override
-  String get settingsBiometricsOn => '已开启生物识别解锁';
+  String get settingsBiometricsOn => '已开启生物识别解锁，将在下次启动应用后生效。';
 
   @override
   String get settingsBiometricsOff => '已关闭生物识别解锁';
@@ -17671,4 +17671,106 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorPaymentAlreadyWentThrough => '无法把币移回：这笔付款本身已经完成。它显示为已付款。';
+
+  @override
+  String get errorPinKeyLost =>
+      '这部手机的安全硬件已不再保存您的 PIN 码所需的密钥，因此 PIN 码无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
+
+  @override
+  String get settingsUsePassphrase => '使用密码短语代替 PIN 码';
+
+  @override
+  String get settingsChangePassphrase => '更改密码短语';
+
+  @override
+  String get passphraseLabel => '密码短语';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '请设置至少 $count 个字符且不全是数字的密码短语',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => '再次输入密码短语';
+
+  @override
+  String get passphraseMismatch => '两次输入的密码短语不同';
+
+  @override
+  String get passphraseSet => '密码短语已设置';
+
+  @override
+  String get passphraseSetBiometricsOff => '密码短语已设置。生物识别解锁已关闭；可在下方重新开启。';
+
+  @override
+  String get passphraseForgot => '忘记密码短语？';
+
+  @override
+  String get passphrasePromptTitle => '输入密码短语';
+
+  @override
+  String get passphraseEnterCurrent => '输入当前的密码短语';
+
+  @override
+  String get passphraseCurrentLabel => '当前密码短语';
+
+  @override
+  String get passphraseChooseTitle => '设置密码短语';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '至少 $count 个字符，且不能全是数字。几个用空格隔开的词就很合适。钱包需要 PIN 的地方都改为使用它。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseUsePinInstead => '改用 PIN';
+
+  @override
+  String get passphraseUsePassphraseInstead => '改用密码短语';
+
+  @override
+  String get biometricsFromNextStart => '生物识别解锁将在下次启动应用后生效。';
+
+  @override
+  String get invoicePassphraseReason => '输入密码短语以支付此账单。';
+
+  @override
+  String get restoreReplacePassphraseReason => '输入密码短语以替换此钱包。恢复后的钱包沿用此密码短语。';
+
+  @override
+  String get backupPassphraseReason => '请输入密码短语以显示助记词。';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return '输入密码短语，以生成 $amount 的付款二维码。';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason => '请输入密码短语以开启生物识别解锁。';
+
+  @override
+  String get settingsDeletePassphraseReason => '请输入密码短语以删除此钱包。';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return '输入密码短语以发送 $amount。';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return '输入密码短语以生成 $amount 的交易文件。';
+  }
+
+  @override
+  String get passphraseSetTitle => '设置密码短语';
 }

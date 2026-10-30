@@ -17,9 +17,48 @@ import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart' show AndroidAuthMessages;
 
 import 'app_log.dart';
+import 'pin_wrap.dart';
 import 'secret_store_api.dart';
 
 export 'secret_store_api.dart';
+
+/// [KeyWrap] over `PinKeyWrap.kt`. Android only.
+class PlatformKeyWrap implements KeyWrap {
+  const PlatformKeyWrap();
+
+  static const _channel = MethodChannel('epic_wallet/pin_wrap');
+
+  Future<T?> _call<T>(String method, Map<String, Object> args) async {
+    try {
+      return await _channel.invokeMethod<T>(method, args);
+    } on PlatformException catch (error) {
+      if (error.code == 'lost') throw PinKeyLost(error.message ?? 'lost');
+      throw KeyWrapUnavailable(error.message ?? error.code);
+    }
+  }
+
+  @override
+  Future<Map<String, bool>> create(String alias) async {
+    final got = await _call<Map<Object?, Object?>>('create', {'alias': alias});
+    return {for (final e in (got ?? const {}).entries) '${e.key}': e.value == true};
+  }
+
+  @override
+  Future<String> seal(String alias, String name, String text) async =>
+      (await _call<String>('seal', {'alias': alias, 'name': name, 'text': text}))!;
+
+  @override
+  Future<String> open(String alias, String name, String blob) async =>
+      (await _call<String>('open', {'alias': alias, 'name': name, 'blob': blob}))!;
+
+  @override
+  Future<void> delete(String alias) => _call<void>('delete', {'alias': alias});
+
+  @override
+  Future<List<String>> aliases(String prefix) async =>
+      (await _call<List<Object?>>('aliases', {'prefix': prefix}) ?? const [])
+          .cast<String>();
+}
 
 /// Biometric storage. [read] and [write] show the system prompt and throw
 /// [BiometricCancelled] when the user dismisses it or the check fails.
@@ -32,6 +71,10 @@ abstract interface class BiometricStore {
   Future<void> write(String key, String value);
 
   Future<void> delete(String key);
+
+  /// False once this process wrote a copy: the store can no longer prove a fresh biometric
+  /// check for a read until the app restarts, so no read is offered ([WalletVault]).
+  bool get readable;
 }
 
 class BiometricCancelled implements Exception {
@@ -204,8 +247,13 @@ class PlatformBiometricStore implements BiometricStore {
   // flutter_secure_storage 11.2.0 keeps the key it unlocked for the first write of a new
   // namespace for the rest of the process, so later reads skip the prompt despite
   // requireBiometricsPerOperation (seen on the API 36 emulator; a cold start prompts every time).
-  // Until the process restarts, reads after a write therefore ask local_auth first.
+  // A read would then be gated only by a prompt that answers yes or no, with no key bound to
+  // it, so after a write this process reads nothing: the PIN opens the wallet until the app
+  // restarts, and the Keystore-bound prompt is back from then on.
   bool _wroteThisProcess = false;
+
+  @override
+  bool get readable => !_wroteThisProcess;
 
   /// local_auth's prompt with [prompt]'s words, as the store's own prompt has them (its
   /// defaults are English).
@@ -221,9 +269,7 @@ class PlatformBiometricStore implements BiometricStore {
 
   @override
   Future<String?> read(String key) => _guard(() async {
-    if (_wroteThisProcess && !await _authenticate()) {
-      throw const BiometricCancelled('dismissed');
-    }
+    if (_wroteThisProcess) throw const BiometricCancelled('written in this process');
     return _storage.read(key: key, aOptions: _promptOptions);
   });
 
@@ -255,6 +301,10 @@ class MemoryBiometricStore implements BiometricStore {
   bool available;
   bool succeed = true;
   int prompts = 0;
+
+  /// As [PlatformBiometricStore] after a write in the same process, when set false.
+  @override
+  bool readable = true;
 
   /// How often [delete] was called: the real store can prompt for it.
   int deletes = 0;

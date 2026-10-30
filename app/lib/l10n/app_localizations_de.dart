@@ -3057,7 +3057,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsBiometrics => 'Mit Biometrie entsperren';
 
   @override
-  String get settingsBiometricsOn => 'Biometrische Entsperrung aktiviert';
+  String get settingsBiometricsOn =>
+      'Biometrische Entsperrung aktiviert. Sie funktioniert ab dem nächsten Start der App.';
 
   @override
   String get settingsBiometricsOff => 'Biometrische Entsperrung deaktiviert';
@@ -18977,4 +18978,116 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get errorPaymentAlreadyWentThrough =>
       'Die Coins konnten nicht zurückgeschickt werden: Die Zahlung selbst ist bereits durchgegangen. Sie erscheint als bezahlt.';
+
+  @override
+  String get errorPinKeyLost =>
+      'Die Sicherheitshardware dieses Telefons hat den Schlüssel, den Ihre PIN braucht, nicht mehr, daher öffnet die PIN diese Wallet nicht. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
+
+  @override
+  String get settingsUsePassphrase => 'Passphrase statt PIN verwenden';
+
+  @override
+  String get settingsChangePassphrase => 'Passphrase ändern';
+
+  @override
+  String get passphraseLabel => 'Passphrase';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Wählen Sie eine Passphrase mit mindestens $count Zeichen, nicht nur Ziffern',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'Passphrase wiederholen';
+
+  @override
+  String get passphraseMismatch => 'Die beiden Passphrasen sind verschieden';
+
+  @override
+  String get passphraseSet => 'Passphrase festgelegt';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'Passphrase festgelegt. Biometrisches Entsperren ist aus; schalten Sie es unten wieder ein.';
+
+  @override
+  String get passphraseForgot => 'Passphrase vergessen?';
+
+  @override
+  String get passphrasePromptTitle => 'Passphrase eingeben';
+
+  @override
+  String get passphraseEnterCurrent => 'Geben Sie Ihre aktuelle Passphrase ein';
+
+  @override
+  String get passphraseCurrentLabel => 'Aktuelle Passphrase';
+
+  @override
+  String get passphraseChooseTitle => 'Passphrase wählen';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Mindestens $count Zeichen und nicht nur Ziffern. Ein paar Wörter mit Leerzeichen dazwischen eignen sich gut. Sie ersetzt die PIN überall dort, wo die Wallet danach fragt.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseUsePinInstead => 'Stattdessen PIN verwenden';
+
+  @override
+  String get passphraseUsePassphraseInstead =>
+      'Stattdessen Passphrase verwenden';
+
+  @override
+  String get biometricsFromNextStart =>
+      'Die biometrische Entsperrung funktioniert ab dem nächsten Start der App.';
+
+  @override
+  String get invoicePassphraseReason =>
+      'Geben Sie Ihre Passphrase ein, um diese Rechnung zu bezahlen.';
+
+  @override
+  String get restoreReplacePassphraseReason =>
+      'Geben Sie Ihre Passphrase ein, um diese Wallet zu ersetzen. Die wiederhergestellte Wallet behält diese Passphrase.';
+
+  @override
+  String get backupPassphraseReason =>
+      'Geben Sie Ihre Passphrase ein, um die Wiederherstellungsphrase anzuzeigen.';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return 'Geben Sie die Passphrase ein, um einen Zahlungs-QR über $amount zu erstellen.';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason =>
+      'Geben Sie Ihre Passphrase ein, um die biometrische Entsperrung zu aktivieren.';
+
+  @override
+  String get settingsDeletePassphraseReason =>
+      'Geben Sie Ihre Passphrase ein, um diese Wallet zu löschen.';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return 'Geben Sie die Passphrase ein, um $amount zu senden.';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return 'Geben Sie die Passphrase ein, um eine Transaktionsdatei über $amount zu erstellen.';
+  }
+
+  @override
+  String get passphraseSetTitle => 'Passphrase festlegen';
 }

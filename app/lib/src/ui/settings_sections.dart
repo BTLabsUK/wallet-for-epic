@@ -406,7 +406,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     } else {
       final ok = await askPin(
         context,
-        reason: context.l10n.settingsBiometricsPinReason,
+        reason: usesPassphrase(ref)
+            ? context.l10n.settingsBiometricsPassphraseReason
+            : context.l10n.settingsBiometricsPinReason,
         allowBiometrics: false,
         action: (pin) => vault.enableBiometrics(session, config, pin),
       );
@@ -472,7 +474,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final vault = ref.read(vaultProvider);
     final checked = await askPin(
       context,
-      reason: context.l10n.settingsDeletePinReason,
+      reason: usesPassphrase(ref)
+          ? context.l10n.settingsDeletePassphraseReason
+          : context.l10n.settingsDeletePinReason,
       allowBiometrics: false,
       action: (pin) async {
         await vault.checkPin(session, config, pin);
@@ -589,6 +593,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(Icons.pin),
           title: Text(l.settingsChangePin),
           onTap: () => _push(const ChangePinScreen()),
+        ),
+      // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
+      if (!demo)
+        ListTile(
+          leading: const Icon(Icons.password),
+          title: Text(
+            ref.watch(usesPassphraseProvider).value ?? false
+                ? l.settingsChangePassphrase
+                : l.settingsUsePassphrase,
+          ),
+          onTap: () => _push(const ChangePinScreen(passphrase: true)),
         ),
       if (!demo && (biometrics?.available ?? false))
         SwitchListTile(

@@ -8,6 +8,7 @@ import '../app_log.dart';
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../pin_wrap.dart' show PinKeyLost;
 import '../providers.dart';
 import '../restore_scan.dart' show historyImportOfferProvider;
 import '../vault.dart';
@@ -47,6 +48,11 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
 
   /// When LEPIC checks the PIN being tried, while it waits after repeated failures.
   DateTime? _checkAt;
+
+  /// The user's choice between the PIN and the passphrase field, over the stored mode. Only a
+  /// wallet that ever had a passphrase is offered it: if the app stopped between the new
+  /// sealed text and the recorded mode, the field would otherwise not fit the secret.
+  bool? _passphraseChosen;
 
   /// Web demo only: true while the demo PIN is filled in for the visitor, false for the PIN
   /// field, null until [_prepare] has looked. Outside the demo always false.
@@ -99,10 +105,15 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final autoPrompt = ref.read(lockReasonProvider.notifier).takeAutoPrompt();
     final vault = ref.read(vaultProvider);
     // The count survives a restart; say what the next try costs before it is made.
-    final failures = await ref
-        .read(walletServiceProvider)
-        .pinFailures(config: config);
-    final biometrics = await vault.biometricsEnabled(config.chain);
+    final int failures;
+    try {
+      failures = await ref.read(walletServiceProvider).pinFailures(config: config);
+    } on PinKeyLost catch (error) {
+      // The PIN cannot open this wallet any more: said before a PIN is typed, with Forgot PIN.
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
+      return;
+    }
+    final biometrics = await vault.biometricsReady(config.chain);
     // A demo wallet made with the demo PIN gets it filled in, unless a try already failed; in a
     // build without PINs it opens with a tap instead.
     final demoPinWallet = failures == 0 && await vault.usesDemoPin(config.chain);
@@ -154,7 +165,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     if (!mounted || _busy || ref.read(sessionProvider) != null) return;
     if (pin == null) {
       // Dismissed, or the copy is gone after a new enrollment.
-      final still = await vault.biometricsEnabled(config.chain);
+      final still = await vault.biometricsReady(config.chain);
       if (mounted) setState(() => _biometrics = still);
       return;
     }
@@ -196,7 +207,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       }
       if (session == null) {
         // Dismissed, or the copy is gone after a new enrollment.
-        final still = await vault.biometricsEnabled(config.chain);
+        final still = await vault.biometricsReady(config.chain);
         if (mounted) setState(() => _biometrics = still);
         return;
       }
@@ -210,7 +221,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) goHome(context);
     } on PinRejected catch (rejection) {
       _pin.clear();
-      final still = await vault.biometricsEnabled(config.chain);
+      final still = await vault.biometricsReady(config.chain);
       if (!mounted) return;
       setState(() {
         _biometrics = still;
@@ -260,11 +271,21 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     }
   }
 
+  void _switchMode(bool passphrase) {
+    _pin.clear();
+    setState(() {
+      _passphraseChosen = passphrase;
+      _pinError = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final config = ref.watch(walletConfigProvider);
     final checkAt = _checkAt;
+    final passphrase = _passphraseChosen ?? (ref.watch(usesPassphraseProvider).value ?? false);
+    final canSwitch = ref.watch(passphraseEverUsedProvider).value ?? false;
     return SlotScaffold(
       centered: true,
       glow: heroGlow,
@@ -306,11 +327,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               null => const SizedBox(height: 56),
               true => DemoPinFill(onDone: _unlockWithDemoPin),
               false => PinField(
+                // The field changes with the mode, so its state (the eye, focus) starts over.
+                key: ValueKey(passphrase ? 'unlock-passphrase' : 'unlock-pin'),
                 controller: _pin,
-                label: l.pinLabel,
+                label: passphrase ? l.passphraseLabel : l.pinLabel,
                 enabled: !_busy,
                 errorText: _pinError,
                 onCompleted: _unlockWithPin,
+                passphrase: passphrase,
               ),
             },
           const SizedBox(height: 16),
@@ -343,8 +367,20 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             const SizedBox(height: 24),
             TextButton(
               onPressed: _busy ? null : _forgotPin,
-              child: Text(l.pinForgot),
+              child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
             ),
+            // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
+            if (canSwitch && _autoPin == false)
+              TextButton(
+                style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                onPressed: _busy ? null : () => _switchMode(!passphrase),
+                child: Text(
+                  passphrase ? l.passphraseUsePinInstead : l.passphraseUsePassphraseInstead,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
           ],
         ],
       ),
