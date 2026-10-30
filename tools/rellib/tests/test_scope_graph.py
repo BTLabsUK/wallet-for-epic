@@ -13,7 +13,8 @@ PIPE = Pipeline.load(os.path.join(REPO, "release/pipeline.toml"))
 
 def ctx(scope):
     run = "/r/26.10.25/run-1"
-    host = {"windows": {"ssh": "w", "workdir": "C:/w"}, "web": {"ssh": "s", "downloads_dir": "/d"}}
+    host = {"windows": {"ssh": "w", "workdir": "C:/w"}, "web": {"ssh": "s", "downloads_dir": "/d"},
+            "apple": {"staging": "", "team_id": "TEAM123456"}}
     path = {k: f"/p/{k}" for k in ("node_bin_linux", "node_bin_windows", "page_repo", "main_checkout", "worktrees")}
     return {"version": scope["version"], "commit": "a" * 40, "short": "a" * 7, "run_id": "26.10.25-run1", "run": run,
             "files": f"{run}/files", "extra": f"{run}/extra", "manifests": f"{run}/manifests", "src": "/src", "rel": "/rel",
@@ -136,8 +137,10 @@ class GraphTest(unittest.TestCase):
         s, steps = graph(skip_platform="android", sets=["publish.manifests=false"], no_variant="notor")
         ids = [x.id for x in steps]
         self.assertNotIn("build-linux-notor", ids)
-        sign = next(x for x in steps if x.id == "apple-sign-tor")
-        self.assertEqual(sign.needs, ["apple-check-tor"])
+        check = next(x for x in steps if x.id == "apple-mac-check-tor")
+        self.assertEqual(check.needs, ["apple-mac-tor"])
+        self.assertNotIn("apple-mac-notor", ids)
+        self.assertIn("ios-testflight", ids)  # iOS is only ever the build without Tor
         self.assertNotIn("manifests", ids)
         self.assertNotIn("publish-manifests", ids)
 
@@ -151,6 +154,9 @@ class GraphTest(unittest.TestCase):
         self.assertIn("C:/w/26.10.25-run1", w.run)
         t = next(x for x in steps if x.id == "trust-linux-tor")
         self.assertIn("trust-linux.sh", t.run)
+        m = next(x for x in steps if x.id == "apple-mac-check-notor")
+        self.assertIn("EpicCashDesktop-26.10.25-notor-macos.dmg " + "a" * 40 + ' "TEAM123456"', m.run)
+        self.assertEqual(m.outputs, ["EpicCashDesktop-26.10.25-notor-macos.dmg"])
         t = next(x for x in steps if x.id == "trust-windows-tor")
         self.assertIn("no update-trust driver for windows", t.run)
 

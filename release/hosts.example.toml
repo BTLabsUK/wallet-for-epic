@@ -29,6 +29,8 @@ workdir = "C:/Users/<user>/code/wfe-rel"
 # staging = "<ssh alias>:<dir>" is synced with rsync; empty = {run}/handoff only (move by hand).
 [host.apple]
 staging = ""
+# BT Labs' Apple Team ID: apple-mac-check refuses a dmg whose REPORT names another.
+team_id = ""
 
 # The download server.
 [host.web]
