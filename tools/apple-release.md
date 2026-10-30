@@ -305,6 +305,9 @@ Exit status of `apple-sign.sh`: 0 done, 1 a check or a tool failed, 2 usage, 3 A
 6. Record in the release notes: Team ID, certificate serial numbers and expiry dates, rcodesign
    version, the hand-off's `PROVENANCE.txt`.
 7. Tell preview testers about the one-time keychain prompt.
+8. Freeze the Apple items in the install contract: move `macos.bundle_id`, `ios.bundle_id` and
+   `ios.macos.keychain` from `not_frozen` to the frozen list in `tools/install-contract.json`, with
+   the Team ID (`tools/check.sh` then guards them like the other platforms' ids).
 
 ## What still needs Apple or a Mac
 
