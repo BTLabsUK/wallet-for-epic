@@ -9,7 +9,7 @@
 PRODUCT_NAME = Epic Cash Desktop
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.wallet.desktop
+PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.epiccashwallet.desktop
 
 // Apple silicon only: the built-in node has no Intel build (tools/build-apple.sh also sets
 // FLUTTER_MACOS_ARM64_ONLY for release builds).
