@@ -98,7 +98,7 @@ async def main():
     env = dict(os.environ, REL_RELMSG=str(wrapper))
     env.pop("REL_STATE_ROOT", None)
 
-    def rel(*args):
+    def rel_sync(*args):
         p = subprocess.run([str(REPO / "tools/rel"), "--json", "--state-root", str(state), "--pipeline",
                             str(base / "pipeline.toml"), "--hosts", str(base / "no-hosts.toml"), *args],
                            capture_output=True, text=True, env=env, timeout=300)
@@ -107,6 +107,10 @@ async def main():
         except Exception:
             obj = {"raw": p.stdout[-500:], "err": p.stderr[-500:]}
         return p.returncode, obj
+
+    async def rel(*args):
+        # In a thread: the fake Telegram runs on this event loop and must keep answering the bot.
+        return await asyncio.to_thread(rel_sync, *args)
 
     def msgs():
         return fake.chats.get(ADMIN, {})
@@ -132,15 +136,16 @@ async def main():
         print(("PASS " if cond else "FAIL ") + what, flush=True)
         failed += 0 if cond else 1
 
-    def gate_msg(text_part):
-        for m in msgs().values():
-            mk = json.dumps(m.get("reply_markup") or {})
-            if "rg:" in mk and text_part in m.get("text", ""):
-                return m
-        return None
+    def gate_msgs():
+        return [m for _, m in sorted(msgs().items()) if "rg:" in json.dumps(m.get("reply_markup") or {})]
 
-    def start(run_tag):
-        return rel("start", version, "--test", "--only", "android", "--set", "publish.manifests=false",
+    def gate_msg(text_part):
+        # The newest: a gate message sent again (after a timeout) makes the older one out of date.
+        found = [m for m in gate_msgs() if text_part in m.get("text", "")]
+        return found[-1] if found else None
+
+    async def start(run_tag):
+        return await rel("start", version, "--test", "--only", "android", "--set", "publish.manifests=false",
                    "--src", str(src), "--commit", "HEAD", "--previous", str(prev), "--set", f"publish.notes={run_tag}")
 
     proc = await start_bot()
@@ -148,58 +153,65 @@ async def main():
         check(await until(lambda: not port_free(a.fleet_port), 30), "bot instance up on 127.0.0.1")
         # 1 -------------------------------------------------------------------------------------
         (src / "fail-notor").write_text("")
-        code, obj = start("one")
+        code, obj = await start("one")
         check(code == 20, f"a failing build stops the run: exit {code}")
-        live = [m for m in msgs().values() if "TEST" in m.get("text", "") and version in m.get("text", "")]
-        check(len(live) == 1, "one live message, marked TEST")
+        live = [m for m in msgs().values() if m.get("text", "").startswith("🚀")]
+        check(len(live) == 1 and "TEST" in live[0]["text"] and version in live[0]["text"],
+              f"one live message, marked TEST ({len(live)})")
         check(await until(lambda: any("build-android-notor" in m.get("text", "") and "failed" in m.get("text", "")
                                       and m.get("_disable_notification") is False for m in msgs().values()), 15),
               "the failed step raised a notifying alert")
         (src / "fail-notor").unlink()
-        code, obj = rel("resume")
+        code, obj = await rel("resume")
         check(code == 10, f"after the fix, resume runs to the publish gate and waits: exit {code}")
         check(await until(lambda: gate_msg("publish?") is not None, 15), "the gate message has Approve / Hold buttons")
         g = gate_msg("publish?")
         gid = json.dumps(g["reply_markup"]).split("rg:")[1].split(":")[0]
-        code, obj = rel("publish")
+        code, obj = await rel("publish")
         check(code == 10, f"publish while the gate is pending refuses: exit {code}")
-        p = subprocess.run([str(wrapper), "approve", gid], capture_output=True, text=True)
+        p = await asyncio.to_thread(subprocess.run, [str(wrapper), "approve", gid], capture_output=True, text=True)
         check(p.returncode != 0, "the runner's producer token cannot approve its own gate")
-        code, obj = rel("gate")
+        code, obj = await rel("gate")
         check(code == 10, f"still pending after the runner's own attempt: exit {code}")
         await press(g["message_id"], f"rg:{gid}:a")
         await asyncio.sleep(1)
-        code, obj = rel("gate")
+        code, obj = await rel("gate")
         check(code == 10, "Approve alone is not enough (Confirm asked): exit %d" % code)
         await press(g["message_id"], f"rg:{gid}:c")
-        await asyncio.sleep(1)
-        code, obj = rel("gate")
+        for _ in range(20):
+            code, obj = await rel("gate")
+            if code != 10:
+                break
+            await asyncio.sleep(1)
         check(code == 0, f"Approve + Confirm opens the gate: exit {code} ({obj.get('message', '')[:120]})")
-        code, obj = rel("publish")
+        code, obj = await rel("publish")
         check(code == 0, f"publish after approval (scratch target): exit {code}")
         check(await until(lambda: any("✅" in m.get("text", "") and "publish-downloads" in m.get("text", "")
                                       for m in msgs().values()), 15), "live message shows the publish steps")
         # 2 -------------------------------------------------------------------------------------
-        code, obj = start("two")
+        code, obj = await start("two")
         check(code == 10, f"second run waits at its gate: exit {code}")
-        await until(lambda: len([m for m in msgs().values() if "rg:" in json.dumps(m.get("reply_markup") or {})
-                                 and "Approve" in json.dumps(m.get("reply_markup") or {}, ensure_ascii=False)]) >= 1, 15)
-        g2 = [m for m in msgs().values() if "rg:" in json.dumps(m.get("reply_markup") or {}) and m is not g][-1]
+        check(await until(lambda: any(json.dumps(m["reply_markup"]).split("rg:")[1].split(":")[0] != gid
+                                      for m in gate_msgs()), 15), "the second run's gate message arrived")
+        g2 = [m for m in gate_msgs() if json.dumps(m["reply_markup"]).split("rg:")[1].split(":")[0] != gid][-1]
         gid2 = json.dumps(g2["reply_markup"]).split("rg:")[1].split(":")[0]
         await press(g2["message_id"], f"rg:{gid2}:h")
-        await asyncio.sleep(1)
-        code, obj = rel("gate")
+        for _ in range(20):
+            code, obj = await rel("gate")
+            if code != 10:
+                break
+            await asyncio.sleep(1)
         check(code == 40, f"Hold closes the gate: exit {code}")
-        code, obj = rel("publish")
+        code, obj = await rel("publish")
         check(code == 40, f"publish refuses a held gate: exit {code}")
         # 3 -------------------------------------------------------------------------------------
-        code, obj = start("three")
+        code, obj = await start("three")
         check(code == 10, f"third run waits at its gate: exit {code}")
         proc.terminate()
         await proc.wait()
-        code, obj = rel("gate")
+        code, obj = await rel("gate")
         check(code == 40, f"relay down: the gate counts as closed (fail closed): exit {code}")
-        code, obj = rel("publish")
+        code, obj = await rel("publish")
         check(code in (40, 10), f"publish refuses with the relay down: exit {code}")
     finally:
         if proc.returncode is None:

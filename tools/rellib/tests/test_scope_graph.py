@@ -16,7 +16,7 @@ def ctx(scope):
     host = {"windows": {"ssh": "w", "workdir": "C:/w"}, "web": {"ssh": "s", "downloads_dir": "/d"}}
     path = {k: f"/p/{k}" for k in ("node_bin_linux", "node_bin_windows", "page_repo", "main_checkout", "worktrees")}
     return {"version": scope["version"], "commit": "a" * 40, "short": "a" * 7, "run_id": "26.10.25-run1", "run": run,
-            "files": f"{run}/files", "extra": f"{run}/extra", "manifests": f"{run}/manifests", "src": "/src",
+            "files": f"{run}/files", "extra": f"{run}/extra", "manifests": f"{run}/manifests", "src": "/src", "rel": "/rel",
             "target": scope["publish"]["target"], "scratch": f"{run}/scratch", "notes_file": f"{run}/notes.txt",
             "previous_dir": "/prev", "previous_version": "26.10.24", "previous_ref": "v26.10.24",
             "node": "$REL_NODE", "epicbox": "$REL_EPICBOX", "host": host, "path": path}

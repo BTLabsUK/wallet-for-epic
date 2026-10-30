@@ -164,6 +164,21 @@ class EngineTest(Base):
         self.assertEqual(self.relmsg_calls().count(" gate publish "), 1)  # opened once, polled twice
         self.assertEqual(run.info["gates"]["publish"]["gate_id"], 3)
 
+    def test_relay_rate_limit_is_waited_out_never_an_answer(self):
+        os.environ["REL_FAKE_BUSY"] = "3"
+        run, eng = self.gate("approved")
+        self.assertEqual(run.status("publish-gate")["status"], "done")
+        self.assertTrue(any(e["event"] == "relmsg" and e.get("status") == "retry" or "retry" in json.dumps(e)
+                            for e in run.events()))
+
+    def test_relay_down_is_asked_once_more_then_left_alone(self):
+        os.environ["REL_FAKE_DOWN"] = "1"
+        run, eng = self.gate("approved")
+        self.assertEqual(run.status("publish-gate")["status"], "closed")  # fail closed
+        calls = self.relmsg_calls().splitlines()
+        self.assertEqual(len([c for c in calls if " start " in f" {c} "]), 4)  # start: three waits
+        self.assertLessEqual(len(calls), 8)  # nothing else retried once the relay was found down
+
     def test_publish_phase_only_after_gate_and_skips_recorded(self):
         run = self.make_run(only="android", sets=["publish.manifests=false"], skips=["publish-source=token renewal"])
         os.environ["REL_FAKE_GATE"] = "approved"

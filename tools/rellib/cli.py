@@ -50,8 +50,14 @@ class Lenient(dict):
         return f"<unset {self.prefix}.{k}>"
 
 
+# The checkout tools/rel runs from: its own step scripts ({rel}/tools/rellib/steps/...) come from
+# here, so a release commit older than the runner can still be released.
+RUNNER = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 def context(version, commit, run_path, run_id, src, scope, hosts, previous):
     return {
+        "rel": RUNNER,
         "version": version, "commit": commit, "short": commit[:7], "run_id": run_id, "run": run_path,
         "files": f"{run_path}/files", "extra": f"{run_path}/extra", "manifests": f"{run_path}/manifests",
         "src": src, "target": scope["publish"]["target"], "scratch": f"{run_path}/scratch/target",

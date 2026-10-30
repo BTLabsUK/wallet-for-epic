@@ -8,8 +8,10 @@ cannot approve; approval comes from the owner's button or from the operator on t
 import json
 import os
 import subprocess
+import time
 
 GATE_APPROVED, GATE_HELD, GATE_PENDING = "approved", "held", "pending"
+KEY_CALLS = ("start", "gate", "gate-status", "done")
 
 
 class Relmsg:
@@ -19,6 +21,7 @@ class Relmsg:
         self.title = conf.get("title", "Epic Wallet")
         self.enabled = enabled
         self.log = log or (lambda *a: None)
+        self.down = False
 
     @property
     def release_id(self):
@@ -31,11 +34,25 @@ class Relmsg:
         if self.release_id and args[0] not in ("start",):
             cmd += ["--release", str(self.release_id)]
         cmd += [str(a) for a in args]
-        try:
-            p = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
-        except (OSError, subprocess.TimeoutExpired) as e:
-            self.run.event("relmsg", "error", detail=f"{args[0]}: {e}")
-            return 98, {"error": str(e)}
+        # The bot limits each token per minute (HTTP 429), and a network blip is not an answer:
+        # wait and ask again, a bounded number of times. Never turns anything into an approval.
+        waits = [float(x) for x in os.environ.get("REL_RELMSG_BACKOFF", "10,20,40").split(",") if x.strip()]
+        for wait in waits + [None]:
+            try:
+                p = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            except (OSError, subprocess.TimeoutExpired) as e:
+                self.run.event("relmsg", "error", detail=f"{args[0]}: {e}")
+                return 98, {"error": str(e)}
+            busy = "HTTP 429" in p.stderr
+            # A relay that is down is asked again only for what matters (start, gate, done), and
+            # only until it has been found down once in this process.
+            down = ("network error" in p.stderr or "HTTP 50" in p.stderr) and args[0] in KEY_CALLS and not self.down
+            if p.returncode != 1 or not (busy or down) or wait is None:
+                if p.returncode == 1 and down:
+                    self.down = True
+                break
+            self.run.event("relmsg", "retry", detail=f"{args[0]}: {p.stderr.strip()[-120:]}; again in {wait:g}s")
+            time.sleep(wait)
         out = {}
         if p.stdout.strip():
             try:
@@ -66,6 +83,8 @@ class Relmsg:
     def step(self, sid, status, note=None, label=None, platform=None):
         if not self.release_id:
             return
+        # relmsg's states: pending|running|waiting|ok|failed|skipped.
+        status = {"done": "ok", "held": "waiting", "closed": "waiting"}.get(status, status)
         args = ["step", sid, status]
         if note:
             args += ["--note", note[:200]]

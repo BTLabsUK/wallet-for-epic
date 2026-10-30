@@ -100,6 +100,13 @@ FAKE_RELMSG = r"""#!/usr/bin/env bash
 # A stand-in for relmsg: records every call; the gate's answer comes from $REL_FAKE_GATE
 # (approved | held | pending | error | crash).
 echo "$*" >> "$REL_FAKE_DIR/relmsg.calls"
+# $REL_FAKE_BUSY: answer that many calls with the bot's rate limit first; REL_FAKE_DOWN=1: no relay.
+if [[ -n ${REL_FAKE_DOWN:-} ]]; then echo "relmsg: network error: [Errno 111] Connection refused" >&2; exit 1; fi
+n=$(cat "$REL_FAKE_DIR/busy" 2>/dev/null || echo 0)
+if (( n < ${REL_FAKE_BUSY:-0} )); then
+  echo $((n + 1)) > "$REL_FAKE_DIR/busy"
+  echo "relmsg: HTTP 429: too many release requests, try later" >&2; exit 1
+fi
 args=("$@")
 while [[ ${#args[@]} -gt 0 && ( ${args[0]} == --json || ${args[0]} == --release ) ]]; do
   if [[ ${args[0]} == --release ]]; then args=("${args[@]:2}"); else args=("${args[@]:1}"); fi
@@ -148,13 +155,14 @@ class Base(unittest.TestCase):
         os.environ["REL_FAKE_DIR"] = self.tmp
         os.environ["REL_RELMSG"] = self.fake
         os.environ["REL_FAKE_GATE"] = "pending"
+        os.environ["REL_RELMSG_BACKOFF"] = "0,0,0"
         self.pipeline = Pipeline.loads(FAKE_PIPELINE) if hasattr(Pipeline, "loads") else Pipeline(
             __import__("tomllib").loads(FAKE_PIPELINE))
         self.hosts = {"host": {}, "path": {}, "file": "none", "exists": True}
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
-        for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE"):
+        for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE", "REL_RELMSG_BACKOFF", "REL_FAKE_BUSY", "REL_FAKE_DOWN"):
             os.environ.pop(k, None)
 
     def make_run(self, version="26.10.25", **scope_kw):
