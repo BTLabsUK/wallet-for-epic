@@ -783,7 +783,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsRefusedBody =>
-      'Сеть отклонила этот платёж, и он не попал в блокчейн. Вы можете разблокировать средства, которые он удерживает.';
+      'Этот платёж не прошёл. Монеты, которые он держит, можно освободить.';
 
   @override
   String get txDetailsReleaseFunds => 'Разблокировать средства';
@@ -793,7 +793,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Сеть отклонила этот платёж, но он полностью готов, поэтому его копия ещё может пройти позже. Разблокировка сначала переводит монеты обратно на этот кошелёк, поэтому он больше не пройдёт.';
+      'Этот платёж не прошёл, но ещё может пройти позже.';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Подождать ещё';
@@ -809,11 +809,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelReceiveBody =>
-      'Отправитель, возможно, уже опубликовал платёж. Кошелёк отменяет его, только если сети он неизвестен; более поздняя публикация всё равно поступит.';
+      'Пока ничего не пришло. Если этот платёж придёт позже, он будет показан как полученный.';
 
   @override
   String get txDetailsCancelSendBody =>
-      'Этот платёж ждёт ответа другой стороны и не может пройти без этого кошелька. Отмена разблокирует монеты. Без комиссии.';
+      'Пока ничего не оплачено: отмена бесплатна и надёжна.';
 
   @override
   String get txDetailsCancelKeep => 'Оставить';
@@ -5748,7 +5748,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'У другой стороны уже есть всё, чтобы завершить этот платёж. Отмена сначала переводит монеты обратно на этот кошелёк, поэтому старый платёж больше не сможет пройти.';
+      'Другая сторона ещё может завершить этот платёж.';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5775,8 +5775,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskInvPayerDeclined => 'Счёт отклонён. Ничего не оплачено.';
 
   @override
-  String get deskInvPayerSpentText =>
-      'Монеты возвращаются на этот кошелёк, поэтому платёж больше не может пройти.';
+  String get deskInvPayerSpentText => 'Монеты возвращаются на этот кошелёк.';
 
   @override
   String get deskInvPayerSpendFailedText =>
@@ -9434,7 +9433,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC для $who. Этот платёж ждёт ответа другой стороны и не может пройти без этого кошелька. Отмена разблокирует монеты. Без комиссии.';
+    return '$amount EPIC для $who. Пока ничего не оплачено: отмена бесплатна и надёжна.';
   }
 
   @override
@@ -17427,18 +17426,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'У другой стороны уже есть всё, чтобы завершить этот платёж. Отмена сначала переводит монеты обратно на этот кошелёк, поэтому старый платёж больше не сможет пройти.';
+      'Другая сторона ещё может завершить этот платёж.';
 
   @override
   String get txDetailsCancelNotPostedBody =>
-      'Сеть отклонила этот платёж, но он полностью готов, поэтому его копия ещё может пройти позже. Отмена сначала переводит монеты обратно на этот кошелёк, поэтому он больше не пройдёт.';
+      'Этот платёж ещё может пройти позже.';
 
   @override
-  String get cancelMoreInHelp => 'Подробнее в справке';
+  String get cancelMoreInHelp => 'Как работает отмена';
 
   @override
   String get cancelNoteSendWaiting =>
-      'Ещё не опубликовано в сети: отмена разблокирует монеты. Без комиссии.';
+      'Пока ничего не оплачено: отмена бесплатна и надёжна.';
 
   @override
   String get cancelNoteNotPosted =>
@@ -17450,15 +17449,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'Другая сторона ещё может завершить этот платёж. Отмена сначала переводит монеты обратно на этот кошелёк за обычную сетевую комиссию.';
+      'Другая сторона ещё может завершить этот платёж.';
 
   @override
   String get cancelNoteRequestWithdraw =>
       'Ничего не оплачено: отзыв не перемещает монеты.';
 
   @override
-  String get cancelNoteNotPostedSend =>
-      'Копия ещё может пройти позже. Отмена сначала переводит монеты обратно на этот кошелёк за обычную сетевую комиссию.';
+  String get cancelNoteNotPostedSend => 'Этот платёж ещё может пройти позже.';
 
   @override
   String get txDetailsCancelledFinal =>
@@ -17466,27 +17464,27 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelledMayComplete =>
-      'Отменён, но монеты ещё не переведены обратно. Другая сторона ещё может завершить этот платёж; тогда он будет показан как оплаченный.';
+      'Отменён без возврата монет. Другая сторона ещё может завершить этот платёж; если завершит, он будет показан как оплаченный.';
 
   @override
   String get txDetailsCancelledSpentBack =>
-      'Платёж отменён. Монеты возвращаются на этот кошелёк, поэтому он больше не может пройти.';
+      'Платёж отменён. Монеты возвращаются на этот кошелёк.';
 
   @override
   String get txDetailsReleasedSpentBack =>
-      'Средства разблокированы. Монеты возвращаются на этот кошелёк, поэтому старый платёж больше не может пройти.';
+      'Монеты освобождены. Они возвращаются на этот кошелёк.';
 
   @override
   String get txDetailsReleasedSpendBackPending =>
-      'Средства разблокированы, но монеты пока не удалось перевести обратно. Кошелёк повторяет попытку, пока открыт; до этого старый платёж ещё может пройти.';
+      'Монеты освобождены. Их пока не удалось перевести обратно; кошелёк повторяет попытку, пока открыт. До этого старый платёж ещё может пройти.';
 
   @override
   String get txDetailsCancelledSpendBackPending =>
-      'Платёж отменён, но монеты пока не удалось перевести обратно. Кошелёк повторяет попытку, пока открыт; до этого платёж ещё может пройти.';
+      'Платёж отменён. Монеты пока не удалось перевести обратно; кошелёк повторяет попытку, пока открыт. До этого платёж ещё может пройти.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC для $who. Сеть отклонила этот платёж, но он полностью готов, поэтому его копия ещё может пройти позже. Отмена сначала переводит монеты обратно на этот кошелёк, поэтому он больше не пройдёт.';
+    return '$amount EPIC для $who. Этот платёж ещё может пройти позже.';
   }
 
   @override
@@ -19383,8 +19381,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancelFeeLine => 'Стоит обычную сетевую комиссию.';
 
   @override
-  String get cancelFeeWhy =>
-      'У другой стороны уже есть всё, чтобы завершить этот платёж. Кошелёк сначала переводит монеты самому себе, поэтому старый платёж больше не сможет пройти. Это стоит обычную сетевую комиссию.';
+  String get cancelForSure => 'Отменить наверняка';
+
+  @override
+  String get cancelStopWaiting => 'Перестать ждать';
+
+  @override
+  String get cancelStopWaitingLine => 'Бесплатно. Платёж ещё может пройти.';
+
+  @override
+  String get cancelChoicesTitle => 'Два способа отменить';
+
+  @override
+  String get cancelChoicesWhy =>
+      'Отменить наверняка сначала переводит монеты обратно на этот кошелёк за обычную сетевую комиссию. После этого старый платёж уже никогда не пройдёт; это надёжный способ.\n\nПерестать ждать бесплатно и ничего не переводит. Монеты снова можно тратить, а платёж остаётся как есть. Если другая сторона всё же завершит его позже, он пройдёт и будет показан как оплаченный; если нет, ничего не произойдёт.';
+
+  @override
+  String get cancelStoppedWaitingTitle => 'Ожидание прекращено';
+
+  @override
+  String get cancelStoppedWaitingText =>
+      'Монеты снова можно тратить. Платёж ещё может пройти; если пройдёт, он будет показан как оплаченный.';
+
+  @override
+  String get txDetailsStoppedWaiting =>
+      'Ожидание прекращено. Монеты снова можно тратить. Платёж ещё может пройти; если пройдёт, он будет показан как оплаченный.';
 
   @override
   String get errorPaymentCancelledCoinsMoved =>

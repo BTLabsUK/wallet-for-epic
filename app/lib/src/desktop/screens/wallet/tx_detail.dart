@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../cancel_choice.dart';
 import '../../../cancel_final.dart' show CancelResult;
 import '../../../network_gate.dart' show NetGate;
 import '../transfer/finished_payment.dart' show FinishedPaymentActions;
@@ -213,12 +214,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   }
 
   Future<void> _cancel() async {
-    final ok = await showCancelTxDialog(context, widget.tx);
-    if (ok != true || !mounted) return;
+    final choice = await showCancelTxDialog(context, widget.tx) ?? CancelChoice.keep;
+    if (!choice.cancels || !mounted) return;
     setState(() => _cancelling = true);
     final CancelResult result;
     try {
-      result = await ref.read(deskProvider.notifier).cancelTx(widget.tx.id);
+      result = await ref.read(deskProvider.notifier).cancelTx(widget.tx.id, spendBack: choice.spendBack);
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
@@ -235,12 +236,15 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     if (!mounted) return;
     setState(() => _cancelling = false);
     final l = context.l10n;
-    // A send both wallets signed: Cancel also spent its coins back, or will try again.
+    // A send both wallets signed: Cancel for sure spent its coins back (or will try again),
+    // Stop waiting left them in place. Calm tones only: a retry is information, not alarm.
     switch (result) {
       case CancelResult.spentBack:
         showEToast(context, l.deskTxCancelled, text: l.deskInvPayerSpentText, tone: ETone.ok);
       case CancelResult.spendBackPending:
-        showEToast(context, l.deskTxCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
+        showEToast(context, l.deskTxCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.info);
+      case CancelResult.stoppedWaiting:
+        showEToast(context, l.cancelStoppedWaitingTitle, text: l.cancelStoppedWaitingText, tone: ETone.info);
       case CancelResult.cancelled:
         showEToast(context, l.deskTxCancelled, tone: ETone.ok);
       case CancelResult.alreadyPaid:
@@ -909,26 +913,36 @@ class _Sub extends StatelessWidget {
 }
 
 /// Asks before cancelling an unfinished send, or an incoming payment the node has not seen.
-Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool>(
+/// Null and [CancelChoice.keep] both mean don't cancel. A send both wallets signed that the
+/// network refused offers Keep / Stop waiting / Cancel for sure (cancel_choice.dart); a send
+/// still waiting, and a received payment, one free cancel.
+Future<CancelChoice?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<CancelChoice>(
   context,
   builder: (context) {
     final l = context.l10n;
-    // A send the recipient has not answered is certain to cancel; one the node refused after
-    // both signed, and a received payment, are checked against the network first.
+    final twoWays = !t.incoming && t.notPosted;
+    final anchor = t.incoming ? HelpAnchor.receiving : HelpAnchor.sending;
+    // One calm sentence, the buttons say the rest (the owner, 2026-10-30); a received payment
+    // is checked against the network first.
     return EDialog(
       title: t.incoming ? l.deskTxCancelIncomingTitle : l.deskTxCancelOutgoingTitle,
       icon: EIcons.cancel,
-      tone: ETone.risk,
+      tone: ETone.neutral,
       description: t.incoming
           ? l.txDetailsCancelReceiveBody
-          : t.notPosted
+          : twoWays
           ? l.deskTxCancelNotPostedBody(formatEpicL(l, t.amount), whoOf(l, t))
           : l.deskTxCancelOutgoingBody(formatEpicL(l, t.amount), whoOf(l, t)),
-      // The fee line with its info icon, only when the cancel also moves the coins back.
-      body: DeskCancelNote(anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending, inDialog: true, fee: !t.incoming && t.notPosted),
+      body: twoWays ? DeskCancelChoices(anchor: anchor) : DeskCancelNote(anchor: anchor, inDialog: true),
       actions: [
-        EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-        EButton(label: t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+        EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, CancelChoice.keep)),
+        if (twoWays) EButton(label: l.cancelStopWaiting, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, CancelChoice.stopWaiting)),
+        EButton(
+          label: twoWays ? l.cancelForSure : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
+          kind: EBtnKind.danger,
+          size: EBtnSize.sm,
+          onPressed: () => Navigator.pop(context, CancelChoice.cancelForSure),
+        ),
       ],
     );
   },

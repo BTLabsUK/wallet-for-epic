@@ -237,7 +237,9 @@ Future<void> showCancelPaymentDialog(BuildContext context, IncomingInvoice invoi
     case CancelResult.spentBack:
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpentText, tone: ETone.ok);
     case CancelResult.spendBackPending:
-      showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
+      showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.info);
+    case CancelResult.stoppedWaiting:
+      showEToast(context, l.cancelStoppedWaitingTitle, text: l.cancelStoppedWaitingText, tone: ETone.info);
     case CancelResult.cancelled:
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerCancelledText, tone: ETone.ok);
     case CancelResult.alreadyPaid:
@@ -272,14 +274,15 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
     }
   }
 
-  Future<void> _cancel() async {
+  /// [spendBack] false is Stop waiting: the coins stay in place, nothing is owed.
+  Future<void> _cancel({bool spendBack = true}) async {
     final l = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      final done = await ref.read(deskInvoicesProvider.notifier).cancelPayment(widget.invoice.slateId);
+      final done = await ref.read(deskInvoicesProvider.notifier).cancelPayment(widget.invoice.slateId, spendBack: spendBack);
       if (mounted) Navigator.of(context).pop(done);
     } on InvoiceError catch (e) {
       if (!mounted) return;
@@ -309,16 +312,16 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
       title: l.deskInvPayerCancelTitle,
       description: l.deskInvPayerCancelWho(formatEpicL(l, i.total), i.label),
       icon: EIcons.cancel,
-      tone: ETone.warn,
+      tone: ETone.neutral,
       dismissible: !_busy,
+      // One calm sentence, then the two ways to cancel, named as their buttons are.
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ENotice(tone: ETone.warn, title: l.deskInvPayerCancelText),
-          SizedBox(height: Sp.x2),
-          // The fee line with its info icon: this cancel always moves the coins back.
-          DeskCancelNote(anchor: HelpAnchor.requests, inDialog: true, fee: true),
+          Text(l.deskInvPayerCancelText, style: context.ts.body),
+          SizedBox(height: Sp.x4),
+          const DeskCancelChoices(anchor: HelpAnchor.requests),
           if (_error != null) ...[
             SizedBox(height: Sp.x3),
             ENotice(tone: ETone.risk, title: _error!),
@@ -329,7 +332,9 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
           ? [InvButton(label: l.deskInvPayerClose, onPressed: () => Navigator.of(context).pop())]
           : [
               InvButton(label: l.deskInvPayerKeepPayment, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-              InvButton(label: l.deskInvPayerCancelPayment, width: InvW.md, kind: EBtnKind.danger, busy: _busy, onPressed: _busy ? null : _cancel),
+              InvButton(label: l.cancelStopWaiting, onPressed: _busy ? null : () => _cancel(spendBack: false)),
+              // Three at the least width, so they stay on one row in the 480-wide dialog.
+              InvButton(label: l.cancelForSure, kind: EBtnKind.danger, busy: _busy, onPressed: _busy ? null : _cancel),
             ],
     );
   }

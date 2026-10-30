@@ -177,28 +177,28 @@ void main() {
 
     // Activity › the send: the Cancel button, the quiet line and its link.
     await go(tester, DeskRoute.activity, sentTx.id);
-    await waitText(tester, 'Not posted yet: cancelling unlocks the coins. No fee.', timeout: const Duration(seconds: 30));
-    record('the quiet line beside Cancel states the guarantee', hasText('Not posted yet: cancelling unlocks the coins. No fee.'), textMatching('cancelling unlocks'));
-    record('…with a Help link', find.text('More in Help').evaluate().isNotEmpty, '${find.text('More in Help').evaluate().length} link(s)');
+    await waitText(tester, 'Nothing has been paid yet: cancelling is free and certain.', timeout: const Duration(seconds: 30));
+    record('the quiet line beside Cancel states the guarantee', hasText('Nothing has been paid yet: cancelling is free and certain.'), textMatching('cancelling is free'));
+    record('…with a Help link', find.text('How cancelling works').evaluate().isNotEmpty, '${find.text('How cancelling works').evaluate().length} link(s)');
     // The Cancel row ends the detail panel, below the fold at this height: scroll to it.
-    await tester.ensureVisible(find.text('More in Help').first);
+    await tester.ensureVisible(find.text('How cancelling works').first);
     await settle(tester, ms: 600);
     await shot(tester, 'cancel-01-detail-waiting-send');
 
     // The dialog: the same guarantee, the same link.
     await tester.tap(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 1200);
-    record('the cancel dialog says the payment cannot go through without this wallet', hasText('Cancel this payment?') && hasText('cannot go through without this wallet'), textMatching('cannot go through'));
+    record('the cancel dialog says the payment cannot go through without this wallet', hasText('Cancel this payment?') && hasText('cancelling is free and certain'), textMatching('free and certain'));
     await shot(tester, 'cancel-02-dialog');
     // The dialog's link: closes the dialog, opens Help at Sending.
-    await tester.tap(find.text('More in Help').last);
+    await tester.tap(find.text('How cancelling works').last);
     await settle(tester, ms: 2500);
-    record('More in Help opens Help › Cancelling a payment', hasText('Cancelling a payment') && hasText('Sending') && hasText('Cancel is certain'), screenLine());
+    record('How cancelling works opens Help › Cancelling a payment', hasText('Cancelling a payment') && hasText('Sending') && hasText('Cancel is certain'), screenLine());
     await shot(tester, 'cancel-03-help-topic');
 
     // Back to the send and cancel it for real.
     await go(tester, DeskRoute.activity, sentTx.id);
-    await waitText(tester, 'Not posted yet: cancelling unlocks the coins. No fee.', timeout: const Duration(seconds: 30));
+    await waitText(tester, 'Nothing has been paid yet: cancelling is free and certain.', timeout: const Duration(seconds: 30));
     await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 600);
     await tester.tap(find.widgetWithText(EButton, 'Cancel payment').first);

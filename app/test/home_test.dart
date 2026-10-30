@@ -2045,8 +2045,8 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:in'));
       await _tap(tester, find.byKey(txDetailsCancelReceiveKey));
       expect(find.text('Cancel this payment?'), findsOneWidget);
-      expect(find.textContaining('may already have posted'), findsOneWidget);
-      expect(find.textContaining('a later post still arrives'), findsOneWidget);
+      expect(find.textContaining('Nothing has arrived yet'), findsOneWidget);
+      expect(find.textContaining('shows as received'), findsOneWidget);
       await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').last);
       expect(h.session.cancelledTxIds, [7]);
     });
@@ -2055,7 +2055,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').first);
-      expect(find.textContaining('Cancelling unlocks the coins'), findsOneWidget);
+      expect(find.textContaining('cancelling is free and certain'), findsNWidgets(2), reason: 'the quiet line and the dialog');
       expect(find.textContaining('rescan'), findsNothing);
     });
 
@@ -2361,20 +2361,18 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
       final release = find.widgetWithText(OutlinedButton, 'Release coins');
       await _tap(tester, release);
-      expect(
-        find.text(
-          'The network refused this payment, but it is complete, so a copy could still go through later. '
-          'Releasing moves the coins back to this wallet first, so it no longer can.',
-        ),
-        findsOneWidget,
-      );
+      // One calm sentence; the fee line under Cancel for sure, the free line under Stop waiting.
+      expect(find.text('This payment did not go through, but it still could later.'), findsOneWidget);
       expect(find.text('Costs the normal network fee.'), findsOneWidget);
+      expect(find.text('Free. The payment may still finish.'), findsOneWidget);
+      expect(find.text('Cancel for sure'), findsOneWidget);
+      expect(find.text('Stop waiting'), findsOneWidget);
       await _tap(tester, find.text('Keep waiting'));
       expect(h.session.releasedKeys, isEmpty);
       await _tap(tester, release);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Release coins'));
+      await _tap(tester, find.text('Cancel for sure'));
       expect(h.session.releasedKeys, ['s:refused']);
-      expect(find.text('Coins released'), findsOneWidget);
+      expect(find.textContaining('Coins released'), findsOneWidget);
     });
 
     testWidgets('no release button unless the core allows it', (tester) async {

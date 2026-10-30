@@ -9,7 +9,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
-import 'cancel_note.dart';
+import 'cancel_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
@@ -325,53 +325,33 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
   Future<void> _cancelPayment(TxEntry tx) async {
     final id = tx.id;
     if (!mounted || id == null) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        final theme = Theme.of(context);
-        return AlertDialog(
-          title: Text(l.txDetailsCancelTitle),
-          // The payment of a request: its issuer holds a copy it can finish.
-          content: CancelNote(
-            text: l.txDetailsCancelRequestBody,
-            anchor: HelpAnchor.requests,
-            fee: true,
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          // One destructive look, as on the payment's details.
-          actions: [
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.txDetailsCancelKeep),
-            ),
-            DangerButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.txDetailsCancelPayment),
-            ),
-          ],
-        );
-      },
+    // The payment of an invoice: its issuer holds a copy it can finish, so the user picks
+    // Cancel for sure (the coins spent back, for a fee) or the free Stop waiting (cancel_dialog.dart).
+    final choice = await showCancelChoices(
+      context,
+      title: context.l10n.txDetailsCancelTitle,
+      body: context.l10n.txDetailsCancelRequestBody,
+      anchor: HelpAnchor.requests,
+      keepLabel: context.l10n.txDetailsCancelKeep,
     );
-    if (confirmed != true || !mounted) return;
+    if (!choice.cancels || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
     final l = context.l10n;
     final notices = ref.read(noticeProvider.notifier);
     try {
-      // The issuer holds the signed payment: the cancel also spends its coins back.
-      final result = await ref.read(cancelFinalProvider).cancel(session, tx);
+      final result = await ref.read(cancelFinalProvider).cancel(session, tx, spendBack: choice.spendBack);
       logInfo('invoices', 'payment of a withdrawn invoice cancelled: ${result.name}');
       notices.show(
         switch (result) {
           CancelResult.cancelled => l.txDetailsPaymentCancelled,
           CancelResult.spentBack => l.txDetailsCancelledSpentBack,
           CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+          CancelResult.stoppedWaiting => l.txDetailsStoppedWaiting,
           CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
         level: switch (result) {
-          CancelResult.spendBackPending => NoticeLevel.warning,
-          CancelResult.alreadyPaid => NoticeLevel.info,
+          CancelResult.spendBackPending || CancelResult.stoppedWaiting || CancelResult.alreadyPaid => NoticeLevel.info,
           _ => NoticeLevel.success,
         },
       );

@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/common.dart' show DangerButton;
 import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -252,9 +253,11 @@ void main() {
       expect(say(_send(cancelled: true, reason: CancelReason.user), null), _l.txDetailsCancelledByUser);
     });
 
-    test('a released send keeps its own words', () {
+    test('a released send: the same final / may still finish words, so Stop waiting reads honestly', () {
       final tx = _send(finalized: true, cancelled: true, reason: CancelReason.release);
-      expect(say(tx, false), _l.txDetailsCancelledReleased);
+      expect(say(tx, false), _l.txDetailsCancelledMayComplete);
+      expect(say(tx, true), _l.txDetailsCancelledFinal);
+      expect(say(tx, null), _l.txDetailsCancelledReleased, reason: 'until the coins are known');
     });
   });
 
@@ -303,9 +306,9 @@ void main() {
       final s = await pump(tester, _send(flow: TxFlow.invoice));
       expect(find.text(_l.cancelNoteRequestPaid), findsOneWidget);
       await cancel(tester);
-      expect(find.text(_l.txDetailsCancelRequestBody), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelRequestBody), findsNWidgets(2), reason: 'the quiet line and the dialog say the same');
       expect(find.text(_l.cancelFeeLine), findsOneWidget);
-      await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
+      await tester.tap(find.byKey(cancelForSureKey));
       await tester.pumpAndSettle();
       expect(s.cancelledTxIds, [9]);
       expect(s.spentToSelf.single, [_coinA, _coinB]);
@@ -316,7 +319,7 @@ void main() {
       final s = await pump(tester, _send());
       expect(find.text(_l.cancelNoteSendWaiting), findsOneWidget);
       await cancel(tester);
-      expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelSendBody), findsNWidgets(2), reason: 'the quiet line and the dialog say the same');
       expect(find.text(_l.cancelFeeLine), findsNothing);
       await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
       await tester.pumpAndSettle();
@@ -333,12 +336,13 @@ void main() {
         ..spendToSelfError = const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'down')
         ..outputsValue = [_out(_coinA, WalletOutputStatus.unspent, txId: 9), _out(_coinB, WalletOutputStatus.unspent, txId: 9)];
       await cancel(tester);
-      await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
+      await tester.tap(find.byKey(cancelForSureKey));
       await tester.pumpAndSettle();
       expect(s.cancelledTxIds, [9]);
       expect(notice(tester), _l.txDetailsCancelledSpendBackPending);
       final container = ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
-      expect(container.read(noticeProvider)?.level, NoticeLevel.warning);
+      // Calm (the owner, 2026-10-30): a retry is information, not a warning.
+      expect(container.read(noticeProvider)?.level, NoticeLevel.info);
       expect(container.read(cancelFinalProvider).owed, isTrue);
     });
 

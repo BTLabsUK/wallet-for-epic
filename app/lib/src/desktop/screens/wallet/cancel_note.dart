@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The quiet line beside every Cancel (and Withdraw) button on the desktop: what cancelling does
-/// in this one case, and "More in Help", which opens Settings › Help › "Cancelling a payment" at
-/// the matching heading. In a confirmation whose cancel also moves the coins back to this
-/// wallet, the fee line sits above the link with an info icon that explains it ([EInfoHint],
-/// 2026-10-30). The phone's twin is `ui/cancel_note.dart`.
+/// in this one case, and "How cancelling works", which opens Settings › Help › "Cancelling a
+/// payment" at the matching heading. In a confirmation where the other side could still finish
+/// the payment, [DeskCancelChoices] puts the two ways to cancel above the buttons, each on one
+/// line with its name: the fee line with an info icon for Cancel for sure, "Free. The payment
+/// may still finish." for Stop waiting (2026-10-30). The phone's twin is `ui/cancel_note.dart`
+/// and `ui/cancel_dialog.dart`.
 library;
 
 import 'package:flutter/material.dart';
@@ -18,56 +20,95 @@ import '../settings/help_pairing.dart' show HelpAt;
 const Key deskCancelFeeHintKey = ValueKey('desk-cancel-fee-hint');
 
 /// [text] (none for a link alone) then the Help link for [anchor] ([HelpAnchor]). [inDialog]
-/// closes the dialog first, as the Help page opens under it otherwise. With [fee], the line
-/// "Costs the normal network fee." and its info icon come before the link: only for a cancel
-/// that also moves the coins back to this wallet.
+/// closes the dialog first, as the Help page opens under it otherwise.
 class DeskCancelNote extends ConsumerWidget {
-  const DeskCancelNote({super.key, this.text, required this.anchor, this.style, this.inDialog = false, this.alignment = WrapAlignment.start, this.fee = false});
+  const DeskCancelNote({super.key, this.text, required this.anchor, this.style, this.inDialog = false, this.alignment = WrapAlignment.start});
 
   final String? text;
   final String anchor;
   final TextStyle? style;
   final bool inDialog;
   final WrapAlignment alignment;
-  final bool fee;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
     final base = style ?? context.ts.small.copyWith(color: context.dc.faint);
-    void open() {
-      if (inDialog) Navigator.of(context).pop();
-      ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.cancel, anchor: anchor));
-    }
-    final link = ELink(label: l.cancelMoreInHelp, onPressed: open);
-    if (!fee) {
-      return Wrap(
-        alignment: alignment,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: Sp.x2,
-        children: [
-          if (text case final text?) Text(text, style: base),
-          link,
-        ],
-      );
-    }
-    final end = alignment == WrapAlignment.end;
+    return Wrap(
+      alignment: alignment,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: Sp.x2,
+      children: [
+        if (text case final text?) Text(text, style: base),
+        DeskCancelHelpLink(anchor: anchor, inDialog: inDialog),
+      ],
+    );
+  }
+}
+
+/// "How cancelling works": opens Help › Cancelling a payment at [anchor].
+class DeskCancelHelpLink extends ConsumerWidget {
+  const DeskCancelHelpLink({super.key, required this.anchor, this.inDialog = false});
+
+  final String anchor;
+  final bool inDialog;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ELink(
+      label: context.l10n.cancelMoreInHelp,
+      onPressed: () {
+        if (inDialog) Navigator.of(context).pop();
+        ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.cancel, anchor: anchor));
+      },
+    );
+  }
+}
+
+/// The body of a confirmation with Keep / Stop waiting / Cancel for sure: one line per way to
+/// cancel, named as its button is, then the Help link. The fee belongs to Cancel for sure
+/// alone; the info icon beside it explains both ways in plain words.
+class DeskCancelChoices extends StatelessWidget {
+  const DeskCancelChoices({super.key, required this.anchor});
+
+  final String anchor;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final name = ts.body.copyWith(fontWeight: FontWeight.w600);
+    final line = ts.body.copyWith(color: context.dc.dim);
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: end ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (text case final text?) ...[Text(text, style: base), SizedBox(height: Sp.x1)],
-        // The fee line and, right beside it, why: the icon opens the explanation as a popover.
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        Table(
+          columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
-            Flexible(child: Text(l.cancelFeeLine, style: context.ts.body)),
-            SizedBox(width: Sp.x1),
-            EInfoHint(l.cancelFeeWhy, key: deskCancelFeeHintKey, title: l.sendNetworkFee, icon: EIcons.info),
+            TableRow(
+              children: [
+                Padding(padding: EdgeInsets.only(right: Sp.x3, top: Sp.x1, bottom: Sp.x1), child: Text(l.cancelForSure, style: name)),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(child: Text(l.cancelFeeLine, style: line)),
+                    SizedBox(width: Sp.x1),
+                    EInfoHint(l.cancelChoicesWhy, key: deskCancelFeeHintKey, title: l.cancelChoicesTitle, icon: EIcons.info),
+                  ],
+                ),
+              ],
+            ),
+            TableRow(
+              children: [
+                Padding(padding: EdgeInsets.only(right: Sp.x3, top: Sp.x1, bottom: Sp.x1), child: Text(l.cancelStopWaiting, style: name)),
+                Text(l.cancelStopWaitingLine, style: line),
+              ],
+            ),
           ],
         ),
-        SizedBox(height: Sp.x2),
-        link,
+        SizedBox(height: Sp.x3),
+        DeskCancelHelpLink(anchor: anchor, inDialog: true),
       ],
     );
   }
