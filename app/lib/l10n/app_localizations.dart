@@ -20351,7 +20351,7 @@ abstract class AppLocalizations {
   /// Button: check for updates now.
   ///
   /// In en, this message translates to:
-  /// **'Check now'**
+  /// **'Check'**
   String get deskSetAboutCheckNow;
 
   /// Fills {ago} in deskSetAboutChecked: less than a minute ago. Lower case.

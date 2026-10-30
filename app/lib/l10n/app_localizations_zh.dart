@@ -12070,7 +12070,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetAboutUpdates => '更新';
 
   @override
-  String get deskSetAboutCheckNow => '立即检查';
+  String get deskSetAboutCheckNow => '检查';
 
   @override
   String get deskSetAboutAgoNow => '刚刚';

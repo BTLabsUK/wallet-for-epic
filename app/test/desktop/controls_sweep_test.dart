@@ -37,7 +37,7 @@ final Map<RegExp, String> _allowed = {
       'The place already shown: going there again adds nothing to the history.',
   RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
-  RegExp(r'^settingsAbout\|Check now$'): 'Asks the update server again; in tests it answers as before, so the line stays.',
+  RegExp(r'^settingsAbout\|Check$'): 'Asks the update server again; in tests it answers as before, so the line stays.',
   RegExp(r'^settingsHelp\|Open log folder$'): 'In tests the log is in memory, with no folder: says so. The real log folder opens.',
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',
   RegExp(r'^receive\|[\u{E000}-\u{10FFFF}]*$', unicode: true):

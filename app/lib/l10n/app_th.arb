@@ -3299,7 +3299,7 @@
   "deskSetAboutAvailable": "มีอัปเดต: {version}",
   "deskSetAboutCouldNotCheck": "ตรวจไม่ได้",
   "deskSetAboutUpdates": "อัปเดต",
-  "deskSetAboutCheckNow": "ตรวจตอนนี้",
+  "deskSetAboutCheckNow": "ตรวจสอบ",
   "deskSetAboutAgoNow": "เมื่อสักครู่",
   "deskSetAboutAgoMin": "{count} นาทีที่แล้ว",
   "deskSetAboutAgoHours": "{count} ชั่วโมงที่แล้ว",

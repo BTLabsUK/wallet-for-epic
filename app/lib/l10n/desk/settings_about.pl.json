@@ -14,7 +14,7 @@
   "deskSetAboutAvailable": "Dostępna aktualizacja: {version}",
   "deskSetAboutCouldNotCheck": "Nie udało się sprawdzić",
   "deskSetAboutUpdates": "Aktualizacje",
-  "deskSetAboutCheckNow": "Sprawdź teraz",
+  "deskSetAboutCheckNow": "Sprawdź",
   "deskSetAboutAgoNow": "przed chwilą",
   "deskSetAboutAgoMin": "{count} min temu",
   "deskSetAboutAgoHours": "{count} h temu",

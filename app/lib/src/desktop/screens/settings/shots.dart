@@ -284,14 +284,25 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '27c-settings-phrase-qr', title: 'Recovery phrase, QR code', route: DeskRoute.settingsPhrase, arg: PhraseDemo.qr),
   const DeskShot(id: '28-settings-rescan', title: 'Recheck balance', route: DeskRoute.settingsRescan),
   const DeskShot(id: '28b-settings-rescan-running', title: 'Recheck balance, running', route: DeskRoute.settingsRescan, arg: RescanDemo.running),
-  const DeskShot(id: '29-settings-about', title: 'About', route: DeskRoute.settingsAbout),
-  DeskShot(id: '29b-settings-about-update', title: 'About: an update to download and install, the download page', route: DeskRoute.settingsAbout, height: 960, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
+  // The check's answer is a demo: the tour asks no update server.
+  DeskShot(
+    id: '29-settings-about',
+    title: 'About, up to date',
+    route: DeskRoute.settingsAbout,
+    prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(DeskUpdatePhase.latest, checkedAt: DateTime.now().subtract(const Duration(minutes: 2)))),
+  ),
+  DeskShot(id: '29b-settings-about-update', title: 'About: an update to download and install', route: DeskRoute.settingsAbout, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
   DeskShot(
     id: '29c-settings-about-update-manual',
-    title: "About: an update this copy can't install, the download page",
+    title: "About: an update this copy can't install",
     route: DeskRoute.settingsAbout,
-    height: 960,
     prepare: (c, _) async => _update(c, DeskUpdatePhase.available, inApp: false),
+  ),
+  DeskShot(
+    id: '29f-settings-about-failed',
+    title: 'About: the update check failed',
+    route: DeskRoute.settingsAbout,
+    prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(503), checkedAt: DateTime.now())),
   ),
   DeskShot(id: '29d-slot-update', title: 'Sidebar: Update available', route: DeskRoute.overview, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
   DeskShot(

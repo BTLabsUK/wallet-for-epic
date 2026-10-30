@@ -88,7 +88,7 @@ void main() {
     } else {
       expect(find.text('Updates come from $distStore.'), findsOneWidget);
       expect(find.byKey(const ValueKey('about-update-act')), findsNothing);
-      expect(find.text('Check now'), findsNothing);
+      expect(find.text('Check'), findsNothing);
     }
   });
 
@@ -167,7 +167,7 @@ void main() {
     });
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
     expect(find.text('Could not check'), findsNothing);
-    await tester.tap(find.widgetWithText(EButton, 'Check now'));
+    await tester.tap(find.widgetWithText(EButton, 'Check'));
     await tester.pumpAndSettle();
     expect(calls, 2);
   }, skip: !inAppUpdates);
@@ -187,7 +187,7 @@ void main() {
       updateKeyringProvider.overrideWithValue(testUpdateKeyring),
       deskOpenUrlProvider.overrideWithValue((_) async => true),
     ]);
-    await tester.tap(find.widgetWithText(EButton, 'Check now'));
+    await tester.tap(find.widgetWithText(EButton, 'Check'));
     await tester.pumpAndSettle();
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
   }, skip: !inAppUpdates);
@@ -220,7 +220,7 @@ void main() {
     expect(find.text('Update available: $next'), findsOneWidget);
     for (final reply in [(200, olderLatest), (200, forgedNewer), (deskManifestTooLarge, ''), (404, '')]) {
       body = reply;
-      await tester.tap(find.widgetWithText(EButton, 'Check now'));
+      await tester.tap(find.widgetWithText(EButton, 'Check'));
       await tester.pumpAndSettle();
       expect(find.text('Update available: $next'), findsOneWidget, reason: 'after ${reply.$1}');
     }

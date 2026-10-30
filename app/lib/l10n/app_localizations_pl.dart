@@ -13307,7 +13307,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetAboutUpdates => 'Aktualizacje';
 
   @override
-  String get deskSetAboutCheckNow => 'Sprawdź teraz';
+  String get deskSetAboutCheckNow => 'Sprawdź';
 
   @override
   String get deskSetAboutAgoNow => 'przed chwilą';

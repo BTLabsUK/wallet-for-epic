@@ -89,7 +89,7 @@
   "@deskSetAboutUpdates": {
     "description": "Settings › About: group head of the update check."
   },
-  "deskSetAboutCheckNow": "Check now",
+  "deskSetAboutCheckNow": "Check",
   "@deskSetAboutCheckNow": {
     "description": "Button: check for updates now."
   },

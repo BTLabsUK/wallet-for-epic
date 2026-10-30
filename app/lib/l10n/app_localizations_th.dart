@@ -12497,7 +12497,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetAboutUpdates => 'อัปเดต';
 
   @override
-  String get deskSetAboutCheckNow => 'ตรวจตอนนี้';
+  String get deskSetAboutCheckNow => 'ตรวจสอบ';
 
   @override
   String get deskSetAboutAgoNow => 'เมื่อสักครู่';

@@ -264,17 +264,19 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   }, skip: !inAppUpdates);
 
-  testWidgets('Settings › About: the page address is always there, to open or copy', (tester) async {
+  testWidgets('Settings › About: the download page is a link at the end of the status line', (tester) async {
     await pump(tester, const DeskUpdateState(DeskUpdatePhase.latest), home: about);
-    expect(find.text('Download page'), findsOneWidget);
-    expect(find.text('releases.lab.invalid/releases'), findsOneWidget);
-    final row = find.ancestor(of: find.text('Download page'), matching: find.byType(ESetRow));
-    expect(find.descendant(of: row, matching: find.byType(LinkCopyButton)), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Check now'), findsOneWidget);
+    // One row: the status, the link, the small Check button; no address, no copy button, no Open.
+    expect(find.widgetWithText(ELink, 'Download page'), findsOneWidget);
+    expect(find.text('releases.lab.invalid/releases'), findsNothing);
+    final card = find.widgetWithText(ESetGroup, 'About');
+    expect(find.descendant(of: card, matching: find.byType(LinkCopyButton)), findsNothing);
+    expect(find.descendant(of: card, matching: find.widgetWithText(EButton, 'Open')), findsNothing);
+    expect(find.widgetWithText(EButton, 'Check'), findsOneWidget);
     expect(act(), findsNothing);
-    await tester.ensureVisible(find.descendant(of: row, matching: find.widgetWithText(EButton, 'Open')));
+    await tester.ensureVisible(find.widgetWithText(ELink, 'Download page'));
     await tester.pumpAndSettle();
-    await tester.tap(find.descendant(of: row, matching: find.widgetWithText(EButton, 'Open')));
+    await tester.tap(find.widgetWithText(ELink, 'Download page'));
     await tester.pumpAndSettle();
     expect(opened, [deskReleasesUrl]);
   }, skip: !inAppUpdates);
@@ -292,7 +294,7 @@ void main() {
       await pump(tester, s, home: about, downloadEnds: _state(DeskUpdatePhase.ready));
       expect(find.text(title), findsOneWidget, reason: why);
       expect(tester.widget<EButton>(act()).label, label, reason: why);
-      expect(find.widgetWithText(EButton, 'Check now'), checks ? findsOneWidget : findsNothing, reason: why);
+      expect(find.widgetWithText(EButton, 'Check'), checks ? findsOneWidget : findsNothing, reason: why);
       expect(find.textContaining(_manual), inApp ? findsNothing : findsOneWidget, reason: why);
       await tapAndRun(tester, act());
       switch (label) {

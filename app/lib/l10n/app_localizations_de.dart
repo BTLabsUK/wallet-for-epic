@@ -12964,7 +12964,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetAboutUpdates => 'Updates';
 
   @override
-  String get deskSetAboutCheckNow => 'Jetzt prüfen';
+  String get deskSetAboutCheckNow => 'Prüfen';
 
   @override
   String get deskSetAboutAgoNow => 'gerade eben';

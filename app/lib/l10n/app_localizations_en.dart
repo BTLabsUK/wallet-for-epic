@@ -12822,7 +12822,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetAboutUpdates => 'Updates';
 
   @override
-  String get deskSetAboutCheckNow => 'Check now';
+  String get deskSetAboutCheckNow => 'Check';
 
   @override
   String get deskSetAboutAgoNow => 'just now';

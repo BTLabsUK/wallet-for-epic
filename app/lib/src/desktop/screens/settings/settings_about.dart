@@ -67,9 +67,8 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Updates first: the check is what people come here for (a tester looked for it
-          // under the version and the links); the app's name and version follow.
-          if (deskUpdatesSupported) const _Updates(),
+          // The app first, then its updates as one row of the same card (the owner: "first About,
+          // then Updates", and compact); the links and licences follow.
           ESetGroup(
             title: l.deskSetFrameAbout,
             rows: [
@@ -104,6 +103,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   ],
                 ),
               ),
+              if (deskUpdatesSupported) const _Updates(),
             ],
           ),
           ESetGroup(
@@ -185,11 +185,12 @@ class _LinkRow extends ConsumerWidget {
   }
 }
 
-/// "0.1.0 is the latest · checked 5 min ago", or "Could not check" with the reason, and Check
-/// now; while an update is offered, what it is at and the button for its next step, the same
-/// steps as the sidebar's slot (`app/update_notice.dart`): Download and install, Restart to
-/// update, Try again, or the download page where this copy cannot install it by itself. The
-/// download page's address is always there, to open or copy.
+/// The About card's Updates row: the label, one status line ("26.10.24 is the latest Checked
+/// 5 min ago." / "Could not check" with the reason / "Update available: 26.11.0") with the
+/// download page as a link at its end, and a small Check button. While an update is offered,
+/// the button for its next step joins it, the same steps as the sidebar's slot
+/// (`app/update_notice.dart`): Download and install, Restart to update, Try again, or the
+/// download page where this copy cannot install it by itself.
 class _Updates extends ConsumerWidget {
   const _Updates();
 
@@ -198,13 +199,15 @@ class _Updates extends ConsumerWidget {
     final u = ref.watch(deskUpdateProvider);
     final now = ref.read(deskUpdateClockProvider)();
     final l = context.l10n;
+    final ts = context.ts;
+    final c = context.dc;
     final v = u.version ?? '';
     final checked = u.checkedAt == null ? null : l.deskSetAboutChecked(_ago(l, now.difference(u.checkedAt!)));
     // Where this copy cannot install the update, it says so: every step opens the page.
     final manual = u.file == null ? l.deskUpdManual : null;
     final byHand = ref.read(deskUpdateApplierProvider)?.byHand ?? false;
-    final (title, text) = switch (u.phase) {
-      DeskUpdatePhase.idle || DeskUpdatePhase.checking => (l.updateChecking, checked),
+    final (state, detail) = switch (u.phase) {
+      DeskUpdatePhase.idle || DeskUpdatePhase.checking => (l.updateChecking, null),
       DeskUpdatePhase.latest => (l.deskSetAboutLatest(deskAppVersion), checked),
       DeskUpdatePhase.failed => (l.deskSetAboutCouldNotCheck, [u.reason, checked].nonNulls.join(' ')),
       DeskUpdatePhase.downloading => (l.deskSetAboutAvailable(v), l.deskUpdDownloading(localInt(l, ((u.progress ?? 0) * 100).floor()))),
@@ -216,22 +219,20 @@ class _Updates extends ConsumerWidget {
     };
     final busy = u.phase == DeskUpdatePhase.checking || u.phase == DeskUpdatePhase.idle;
     final block = ref.watch(deskNetBlockProvider);
+    final blocked = block != NetBlock.none && !u.offered ? netBlockReason(l, block) : null;
     final act = deskUpdateActLabel(l, u, byHand: byHand);
     // A check changes nothing while the update downloads, waits for its restart or for Try again.
     final checks = !(u.phase == DeskUpdatePhase.downloading ||
         u.phase == DeskUpdatePhase.unfinished ||
         (u.phase == DeskUpdatePhase.ready && u.problem == null));
-    // The group's one action while nothing is offered; secondary beside an update's own step.
     final check = EButton(
       label: l.deskSetAboutCheckNow,
       icon: EIcons.refresh,
-      kind: u.offered ? EBtnKind.secondary : EBtnKind.primary,
       size: EBtnSize.sm,
       busy: busy,
       onPressed: busy || block != NetBlock.none ? null : () => ref.read(deskUpdateProvider.notifier).check(),
     );
-    // While an update is offered: the button for its step (it waits while the download runs),
-    // after Check now where a check still tells something.
+    // While an update is offered: the button for its step (it waits while the download runs).
     final step = u.offered
         ? EButton(
             key: const ValueKey('about-update-act'),
@@ -243,19 +244,49 @@ class _Updates extends ConsumerWidget {
             onPressed: act == null ? null : () => deskUpdateAct(context, ref),
           )
         : null;
-    return ESetGroup(
-      title: l.deskSetAboutUpdates,
-      rows: [
-        ESetRow(
-          title: title,
-          text: block == NetBlock.none || u.offered ? text : netBlockReason(l, block),
-          wrap: step != null,
-          control: step == null
-              ? ERowControl(child: check)
-              : Row(mainAxisSize: MainAxisSize.min, children: [if (checks) ...[check, SizedBox(width: Sp.x2)], step]),
-        ),
-        if (deskReleasesUrl case final page?) _LinkRow(title: l.deskSetAboutDownloadPage, shown: shownUrl(page), url: page),
-      ],
+    final page = deskReleasesUrl;
+    Future<void> openPage() async {
+      if (page == null) return;
+      if (!await ref.read(deskOpenUrlProvider)(page) && context.mounted) showEToast(context, l.deskSetAboutBrowserNotOpened, text: page, tone: ETone.warn);
+    }
+
+    // The state stands out while something is offered or wrong; the rest stays dim.
+    final stateStyle = u.offered || u.phase == DeskUpdatePhase.failed ? ts.small.copyWith(color: c.text) : ts.small;
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l.deskSetAboutUpdates, style: ts.strong),
+                const SizedBox(height: 2),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 560.u),
+                  child: Wrap(
+                    spacing: Sp.x2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(blocked ?? state, style: stateStyle),
+                      if (blocked == null && detail != null && detail.isNotEmpty) Text(detail, style: ts.small),
+                      if (page != null) ELink(label: l.deskSetAboutDownloadPage, onPressed: openPage),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: Sp.x6),
+          Padding(
+            // Level with the label, as a row's control is.
+            padding: EdgeInsets.only(top: 1.u),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [if (checks || step == null) check, if (step != null) ...[if (checks) SizedBox(width: Sp.x2), step]]),
+          ),
+        ],
+      ),
     );
   }
 }
