@@ -72,6 +72,10 @@ void main() {
   test('the prepared site file verifies against the bundled keyring and yields the bundled list', () async {
     final f = File('${Platform.environment['HOME']}/code/btlabs-public/site/btlabs.json');
     if (!f.existsSync()) return markTestSkipped('btlabs-public is not on this machine');
+    // The real site file names the shipped hosts, not the test ones.
+    final before = hostSettings;
+    addTearDown(() => hostSettings = before);
+    hostSettings = shippedSettings();
     final r = await verifyBtlabsPublic(f.readAsStringSync(), keyring: btlabsKeyring, now: DateTime.now().toUtc());
     expect(r, isA<Accepted<BtlabsPublic>>());
     expect(seedContactsFrom((r as Accepted<BtlabsPublic>).manifest, validAddress: _epicbox), bundledSeedContacts);

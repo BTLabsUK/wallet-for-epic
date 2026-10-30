@@ -211,8 +211,8 @@ void main() {
   testWidgets('Change… under While syncing changes the row text, the detail and the rail line', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.syncing, overall: 0.12));
     expect(find.text('Use node.epic.invalid until the local node is synced'), findsOneWidget);
-    // Two Change… buttons: While syncing comes before Data folder.
-    await tester.tap(find.text('Change…').first);
+    // Three Change… buttons: Ports, While syncing, Data folder.
+    await tester.tap(find.text('Change…').at(1));
     await settle(tester);
     expect(find.text('Node while syncing'), findsOneWidget);
     expect(find.descendant(of: find.byType(EDialog), matching: find.text('Local node')), findsNothing, reason: 'no This computer group in the fallback list');

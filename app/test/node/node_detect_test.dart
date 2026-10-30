@@ -9,6 +9,8 @@ import 'package:epic_wallet/src/node/node_api.dart';
 import 'package:epic_wallet/src/node/node_detect.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/test_settings.dart';
+
 NodeApiClient Function(String) _node({bool down = false, bool? ready = false, int height = 1200}) =>
     (url) => NodeApiClient(
       url,
@@ -53,6 +55,7 @@ void main() {
     expect(p.url, 'http://127.0.0.1:13999');
     expect(p.answers, isFalse);
     expect(p.otherNode, isFalse);
+    useChainConfig(Chain.floonet);
     expect((await detectLocalNode(Chain.floonet, clientFor: _node(down: true))).url, 'http://127.0.0.1:13413');
   });
 

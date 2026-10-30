@@ -25,7 +25,11 @@ void main() {
     await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
     await tester.pump(const Duration(seconds: 1));
 
-    double titleSize() => tester.renderObject<RenderParagraph>(find.text('Interface scale').first).textSize.height;
+    // Selectable text wraps its paragraph in a MouseRegion: measure the paragraph itself.
+    double titleSize() => tester
+        .renderObject<RenderParagraph>(find.descendant(of: find.text('Interface scale').first, matching: find.byType(RichText)))
+        .textSize
+        .height;
     expect(deskScale, deskBase);
     expect(Sp.x4, 17);
     final at100 = titleSize();

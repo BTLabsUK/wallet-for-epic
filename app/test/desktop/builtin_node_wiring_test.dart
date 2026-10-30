@@ -10,10 +10,12 @@ import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, ServiceHealth;
-import 'package:epic_wallet/src/node/node_settings.dart';
 import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/network_gate.dart';
+import 'package:epic_wallet/src/node/node_settings.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
@@ -132,7 +134,8 @@ void main() {
     dir = await Directory.systemTemp.createTemp('desk-node-test-');
     File('${dir.path}/epic').writeAsStringSync('');
     secrets = MemorySecretStore();
-    await secrets.write('app.node.mainnet', _remote);
+    // The node in use is the first of settings.toml's Node list.
+    hostSettings = hostSettings.withValues(useServerValues(hostSettings, node: _remote));
     service = _Opens()..existingWallets.add('${dir.path}/wallets/mainnet');
     spawned = [];
     portBusy = false;
@@ -151,7 +154,7 @@ void main() {
     expect(spawned, hasLength(1));
     expect(service.nodeUrls.last, 'http://127.0.0.1:3413');
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'true');
-    expect(await secrets.read('app.node.mainnet'), 'http://127.0.0.1:3413');
+    expect(hostSettings.nodeUse, 'http://127.0.0.1:3413');
     await wallet.dispose();
   });
 
@@ -205,7 +208,7 @@ void main() {
     await wallet.useBuiltInNode(true);
     await wallet.useBuiltInNode(false);
     expect(service.nodeUrls.last, _remote);
-    expect(await secrets.read('app.node.mainnet'), _remote);
+    expect(hostSettings.nodeUse, _remote);
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'false');
     expect(spawned.single.terminated, 1);
     await wallet.dispose();
@@ -223,7 +226,7 @@ void main() {
     );
     expect(spawned, isEmpty);
     expect(service.nodeUrls.length, opens);
-    expect(await secrets.read('app.node.mainnet'), _remote);
+    expect(hostSettings.nodeUse, _remote);
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), isNull);
     await wallet.dispose();
   });
@@ -342,7 +345,7 @@ void main() {
     await expectLater(wallet.useBuiltInNode(true), throwsA(isA<DeskError>()));
     expect(spawned.single.terminated, 1);
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), isNull);
-    expect(await secrets.read('app.node.mainnet'), _remote);
+    expect(hostSettings.nodeUse, _remote);
     expect(service.nodeUrls.last, _remote);
     await wallet.dispose();
   });
@@ -380,7 +383,7 @@ void main() {
     await expectLater(on, throwsA(isA<DeskError>()));
     await off;
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), isNot('true'));
-    expect(await secrets.read('app.node.mainnet'), _remote);
+    expect(hostSettings.nodeUse, _remote);
     expect(service.nodeUrls.last, _remote);
     await wallet.dispose();
   });
