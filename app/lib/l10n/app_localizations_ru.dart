@@ -558,23 +558,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы приняли этот платёж. Он будет выполнен, когда отправитель завершит его и опубликует в сети.';
 
   @override
-  String txDetailsListenerWaiting(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other:
-          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours часа.',
-      many:
-          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours часов.',
-      few:
-          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours часа.',
-      one:
-          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours час.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get txDetailsSenderPosted =>
       'По словам отправителя, этот платёж отправлен в сеть. Он будет выполнен, когда сеть его подтвердит.';
 
@@ -698,9 +681,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get txDetailsCancelledIncoming =>
       'Отменено. Если отправитель опубликует платёж позже, он всё равно поступит.';
-
-  @override
-  String get txStatusListenerWaiting => 'Пришёл сам · ждёт отправителя';
 
   @override
   String get txStatusSenderCancelled => 'Отменён отправителем';
@@ -6013,7 +5993,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP принимает только в сетях, которые вы отметили как частные. В общем Wi-Fi, в кафе или отеле, любой рядом мог бы добраться до этого кошелька.';
+      'Link · HTTP принимает только в сетях, которые вы отметили как частные. В общем Wi-Fi любой рядом мог бы добраться до этого кошелька.';
 
   @override
   String get receiveHttpMarkPrivate => 'Это моя частная сеть';
@@ -12934,17 +12914,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetReportFullDetails => 'Приложить все подробности';
 
   @override
-  String get deskSetReportFullDetailsHint =>
-      'Адреса идут сокращёнными, суммы диапазонами. Отметьте, чтобы отправить их целиком.';
-
-  @override
-  String get deskSetReportFullDetailsWarn =>
-      'В этот файл попадают полные адреса и суммы.';
-
-  @override
-  String get deskSetReportFullDetailsNever => 'Фразы, ключи и пароли никогда.';
-
-  @override
   String get deskSetReportPartFullDetails => 'Полные детали';
 
   @override
@@ -14393,8 +14362,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Link · HTTP принимает в этих сетях. Сеть узнаётся по диапазону адресов, так что два дома с одним диапазоном считаются одной. Забудьте сеть, и телефон спросит в ней снова.';
 
   @override
-  String get txPrivateNetworksNone =>
-      'Ни одна сеть пока не отмечена. Отметьте её в Получить › Link, пока телефон в ней.';
+  String get txPrivateNetworksNone => 'Ни одна сеть пока не отмечена.';
 
   @override
   String get txPrivateNetworkCurrent => 'Эта сеть';
@@ -19461,4 +19429,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Открыть настройки сети';
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'Адреса идут сокращёнными, суммы диапазонами. С отметкой они идут целиком. Фразы, ключи и пароли никогда.';
 }

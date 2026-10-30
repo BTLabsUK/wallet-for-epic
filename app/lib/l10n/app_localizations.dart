@@ -970,12 +970,6 @@ abstract class AppLocalizations {
   /// **'You accepted this payment. It completes when the sender finishes it and posts it to the network.'**
   String get txDetailsWaitingSender;
 
-  /// Payment details (phone and desktop), status explanation of an incoming payment the wallet's Link listener (HTTP or Tor) took in by itself, still waiting for its sender. hours: after how long the app cancels it.
-  ///
-  /// In en, this message translates to:
-  /// **'{hours, plural, one{A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after {hours} hour if that never happens.} other{A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after {hours} hours if that never happens.}}'**
-  String txDetailsListenerWaiting(int hours);
-
   /// Payment details, status explanation of an incoming payment whose sender reports that it posted it. The sender's word only; the blockchain decides.
   ///
   /// In en, this message translates to:
@@ -1080,12 +1074,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancelled. If the sender posts it later, it still arrives.'**
   String get txDetailsCancelledIncoming;
-
-  /// Transaction status (phone list, desktop Activity) of an incoming payment that the wallet's Link listener (HTTP or Tor) took in without the user starting it, still waiting for the sender to finish it. Anyone who can reach the listener can make one; the app cancels it after a few hours.
-  ///
-  /// In en, this message translates to:
-  /// **'Came in by itself · waiting for the sender'**
-  String get txStatusListenerWaiting;
 
   /// Transaction status (phone list, badge, desktop Activity) of an incoming payment whose sender reported that it cancelled it. Uses the same 'Cancelled' word as the plain cancelled status.
   ///
@@ -9418,10 +9406,10 @@ abstract class AppLocalizations {
   /// **'Off on this network'**
   String get receiveHttpNotPrivateTitle;
 
-  /// Receive › Link · HTTP card: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user.
+  /// Receive › Link · HTTP card: the info sheet behind the Off on this network line: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, a café\'s or a hotel\'s, anyone there could reach this wallet.'**
+  /// **'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.'**
   String get receiveHttpNotPrivate;
 
   /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it.
@@ -19718,24 +19706,6 @@ abstract class AppLocalizations {
   /// **'Include full details'**
   String get deskSetReportFullDetails;
 
-  /// Report a problem dialog: small text under the Include full details checkbox while it is not ticked.
-  ///
-  /// In en, this message translates to:
-  /// **'Addresses go shortened and amounts as ranges. Tick to send them whole.'**
-  String get deskSetReportFullDetailsHint;
-
-  /// Report a problem dialog: one-line warning under the Include full details checkbox.
-  ///
-  /// In en, this message translates to:
-  /// **'Full addresses and amounts go into this file.'**
-  String get deskSetReportFullDetailsWarn;
-
-  /// Report a problem dialog: second line of the Include full details warning: what is never in the report, ticked or not.
-  ///
-  /// In en, this message translates to:
-  /// **'Seeds, keys and passwords never.'**
-  String get deskSetReportFullDetailsNever;
-
   /// Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log.
   ///
   /// In en, this message translates to:
@@ -22028,16 +21998,16 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{None marked yet} one{{count} marked} other{{count} marked}}'**
   String txPrivateNetworksCount(int count);
 
-  /// Private networks sheet (Settings › Transactions): what the list is, above the entries.
+  /// Private networks sheet: the info sheet behind the info icon beside the title: what the list is.
   ///
   /// In en, this message translates to:
   /// **'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.'**
   String get txPrivateNetworksBody;
 
-  /// Private networks sheet: the empty list.
+  /// Private networks sheet: the empty list, one short line.
   ///
   /// In en, this message translates to:
-  /// **'No network marked yet. Mark one on Receive › Link while the phone is on it.'**
+  /// **'No network marked yet.'**
   String get txPrivateNetworksNone;
 
   /// Private networks sheet: tag beside the entry of the network the phone is on now.
@@ -29365,6 +29335,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Network settings'**
   String get deskRailOpenNetwork;
+
+  /// Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and what is never in the report, ticked or not.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.'**
+  String get deskSetReportFullDetailsInfo;
 }
 
 class _AppLocalizationsDelegate

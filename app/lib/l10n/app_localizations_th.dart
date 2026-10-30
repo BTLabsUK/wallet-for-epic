@@ -540,17 +540,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'รับรายการนี้แล้ว รายการจะสำเร็จเมื่อผู้ส่งทำรายการให้เสร็จและเผยแพร่ไปยังเครือข่าย';
 
   @override
-  String txDetailsListenerWaiting(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other:
-          'ตัวรับฟัง Link รับการชำระเงินนี้เข้ามาเอง ไม่มีใครที่นี่เริ่มมัน ใครก็ตามที่เข้าถึงตัวรับฟังได้ก็ส่งมาได้ ดังนั้นมันจะไม่มีค่าอะไรจนกว่าผู้ส่งจะทำให้เสร็จและมีบล็อกบรรจุมัน หากไม่เกิดขึ้น แอปจะทิ้งมันหลังจาก $hours ชั่วโมง',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get txDetailsSenderPosted =>
       'ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อเครือข่ายยืนยัน';
 
@@ -656,9 +645,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get txDetailsCancelledIncoming =>
       'ยกเลิกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
-
-  @override
-  String get txStatusListenerWaiting => 'เข้ามาเอง · รอผู้ส่ง';
 
   @override
   String get txStatusSenderCancelled => 'ผู้ส่งยกเลิกแล้ว';
@@ -5764,7 +5750,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว ใน Wi-Fi ที่ใช้ร่วมกัน เช่น ร้านกาแฟหรือโรงแรม ใครก็ตามที่นั่นอาจเข้าถึงกระเป๋าเงินนี้ได้';
+      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว ใน Wi-Fi ที่ใช้ร่วมกัน ใครก็ตามที่นั่นอาจเข้าถึงกระเป๋าเงินนี้ได้';
 
   @override
   String get receiveHttpMarkPrivate => 'นี่คือเครือข่ายส่วนตัวของฉัน';
@@ -12151,18 +12137,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetReportFullDetails => 'แนบรายละเอียดทั้งหมด';
 
   @override
-  String get deskSetReportFullDetailsHint =>
-      'ที่อยู่จะถูกย่อ และจำนวนเงินแสดงเป็นช่วง ติ๊กเพื่อส่งแบบเต็ม';
-
-  @override
-  String get deskSetReportFullDetailsWarn =>
-      'ที่อยู่และจำนวนเงินแบบเต็มจะอยู่ในไฟล์นี้';
-
-  @override
-  String get deskSetReportFullDetailsNever =>
-      'วลีกู้คืน คีย์ และรหัสผ่านไม่มีวันถูกส่ง';
-
-  @override
   String get deskSetReportPartFullDetails => 'รายละเอียดเต็ม';
 
   @override
@@ -13554,8 +13528,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'Link · HTTP รับฟังในเครือข่ายเหล่านี้ เครือข่ายถูกจดจำด้วยช่วงที่อยู่ ดังนั้นบ้านสองหลังที่ใช้ช่วงเดียวกันจะนับเป็นเครือข่ายเดียว หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
 
   @override
-  String get txPrivateNetworksNone =>
-      'ยังไม่ได้ทำเครื่องหมายเครือข่ายใด ทำเครื่องหมายได้ที่ รับ › Link ขณะที่โทรศัพท์อยู่ในเครือข่ายนั้น';
+  String get txPrivateNetworksNone => 'ยังไม่ได้ทำเครื่องหมายเครือข่ายใด';
 
   @override
   String get txPrivateNetworkCurrent => 'เครือข่ายนี้';
@@ -18396,4 +18369,8 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'เปิดการตั้งค่าเครือข่าย';
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'ที่อยู่จะถูกย่อ และจำนวนเงินแสดงเป็นช่วง เมื่อติ๊กจะส่งแบบเต็ม วลีกู้คืน คีย์ และรหัสผ่านไม่มีวันถูกส่ง';
 }

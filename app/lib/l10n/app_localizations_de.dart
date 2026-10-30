@@ -550,19 +550,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Sie haben diese Zahlung angenommen. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt und im Netzwerk veröffentlicht.';
 
   @override
-  String txDetailsListenerWaiting(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other:
-          'Ein Link-Empfänger hat diese Zahlung von selbst angenommen; niemand hier hat sie begonnen. Jeder, der den Empfänger erreicht, kann eine schicken, darum zählt sie nichts, bis der Absender sie abschließt und ein Block sie enthält. Geschieht das nicht, verwirft die App sie nach $hours Stunden.',
-      one:
-          'Ein Link-Empfänger hat diese Zahlung von selbst angenommen; niemand hier hat sie begonnen. Jeder, der den Empfänger erreicht, kann eine schicken, darum zählt sie nichts, bis der Absender sie abschließt und ein Block sie enthält. Geschieht das nicht, verwirft die App sie nach $hours Stunde.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get txDetailsSenderPosted =>
       'Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald das Netzwerk sie bestätigt.';
 
@@ -675,10 +662,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get txDetailsCancelledIncoming =>
       'Storniert. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
-
-  @override
-  String get txStatusListenerWaiting =>
-      'Von selbst eingegangen · wartet auf den Absender';
 
   @override
   String get txStatusSenderCancelled => 'Vom Absender storniert';
@@ -5947,7 +5930,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP hört nur in Netzen zu, die Sie als privat markieren. In einem geteilten WLAN, etwa im Café oder Hotel, könnte jeder dort diese Wallet erreichen.';
+      'Link · HTTP hört nur in Netzen zu, die Sie als privat markieren. In einem geteilten WLAN könnte jeder dort diese Wallet erreichen.';
 
   @override
   String get receiveHttpMarkPrivate => 'Das ist mein privates Netz';
@@ -12616,18 +12599,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetReportFullDetails => 'Alle Details mitsenden';
 
   @override
-  String get deskSetReportFullDetailsHint =>
-      'Adressen gehen gekürzt, Beträge als Bereiche. Ankreuzen, um sie vollständig zu senden.';
-
-  @override
-  String get deskSetReportFullDetailsWarn =>
-      'Vollständige Adressen und Beträge kommen in diese Datei.';
-
-  @override
-  String get deskSetReportFullDetailsNever =>
-      'Phrasen, Schlüssel und Passwörter nie.';
-
-  @override
   String get deskSetReportPartFullDetails => 'Alle Details';
 
   @override
@@ -14060,8 +14031,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Link · HTTP hört in diesen Netzen zu. Ein Netz wird an seinem Adressbereich erkannt, zwei Zuhause mit demselben Bereich zählen also als eines. Vergessen Sie ein Netz, fragt das Telefon dort erneut.';
 
   @override
-  String get txPrivateNetworksNone =>
-      'Noch kein Netz markiert. Markieren Sie eines unter Empfangen › Link, während das Telefon darin ist.';
+  String get txPrivateNetworksNone => 'Noch kein Netz markiert.';
 
   @override
   String get txPrivateNetworkCurrent => 'Dieses Netz';
@@ -19041,4 +19011,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Netzwerk-Einstellungen öffnen';
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'Adressen gehen gekürzt, Beträge als Bereiche. Angekreuzt gehen sie vollständig. Phrasen, Schlüssel und Passwörter nie.';
 }

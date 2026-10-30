@@ -175,7 +175,13 @@ void main() {
     expect(h.session.httpListenerStarts, isEmpty);
     expect(h.http.phase, PhoneHttpPhase.notPrivate);
     expect(find.text('Off on this network'), findsOneWidget);
+    // The reason sits behind the info icon, not on the card.
+    expect(find.textContaining('networks you mark private'), findsNothing);
+    await tester.tap(find.byKey(receiveHttpNotPrivateInfoKey));
+    await h.settle(tester);
     expect(find.textContaining('networks you mark private'), findsOneWidget);
+    await tester.tapAt(const Offset(10, 10));
+    await h.settle(tester);
     await tester.tap(find.byKey(receiveHttpMarkPrivateKey));
     await h.settle(tester);
     expect(h.session.httpListenerStarts, hasLength(1));

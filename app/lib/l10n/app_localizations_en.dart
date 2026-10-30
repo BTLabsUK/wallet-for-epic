@@ -543,19 +543,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'You accepted this payment. It completes when the sender finishes it and posts it to the network.';
 
   @override
-  String txDetailsListenerWaiting(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other:
-          'A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after $hours hours if that never happens.',
-      one:
-          'A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after $hours hour if that never happens.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get txDetailsSenderPosted =>
       'The sender reports it posted this payment. It completes when the network confirms it.';
 
@@ -668,10 +655,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get txDetailsCancelledIncoming =>
       'Cancelled. If the sender posts it later, it still arrives.';
-
-  @override
-  String get txStatusListenerWaiting =>
-      'Came in by itself · waiting for the sender';
 
   @override
   String get txStatusSenderCancelled => 'Cancelled by the sender';
@@ -5870,7 +5853,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, a café\'s or a hotel\'s, anyone there could reach this wallet.';
+      'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.';
 
   @override
   String get receiveHttpMarkPrivate => 'This is my private network';
@@ -12476,18 +12459,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetReportFullDetails => 'Include full details';
 
   @override
-  String get deskSetReportFullDetailsHint =>
-      'Addresses go shortened and amounts as ranges. Tick to send them whole.';
-
-  @override
-  String get deskSetReportFullDetailsWarn =>
-      'Full addresses and amounts go into this file.';
-
-  @override
-  String get deskSetReportFullDetailsNever =>
-      'Seeds, keys and passwords never.';
-
-  @override
   String get deskSetReportPartFullDetails => 'Full details';
 
   @override
@@ -13903,8 +13874,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.';
 
   @override
-  String get txPrivateNetworksNone =>
-      'No network marked yet. Mark one on Receive › Link while the phone is on it.';
+  String get txPrivateNetworksNone => 'No network marked yet.';
 
   @override
   String get txPrivateNetworkCurrent => 'This network';
@@ -18821,4 +18791,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Open Network settings';
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.';
 }

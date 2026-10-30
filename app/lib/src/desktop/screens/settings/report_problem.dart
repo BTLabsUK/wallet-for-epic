@@ -201,7 +201,6 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
-    final c = context.dc;
     final l = context.l10n;
     final nav = Navigator.of(context);
     if (_sentId case final id?) {
@@ -269,34 +268,24 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             ),
             if (_attachLogs) ...[
               SizedBox(height: Sp.x2),
-              ECheckbox(
-                key: const ValueKey('report-full-details'),
-                value: _fullDetails,
-                label: l.deskSetReportFullDetails,
-                onChanged: (v) {
-                  setState(() => _fullDetails = v);
-                  _refreshPreview();
-                },
-              ),
-              SizedBox(height: Sp.x1),
-              // Off: what the tick would change, as small text like the Attach hint. On: the
-              // one-line warning in the warn colour with its mark, the same height, so the
-              // dialog does not jump and still fits an 800 px window.
-              if (_fullDetails)
-                Semantics(
-                  liveRegion: true,
-                  child: Row(
-                    key: const ValueKey('report-full-details-warn'),
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(padding: const EdgeInsets.only(top: 1), child: Icon(EIcons.alert, size: Fs.sm, color: c.warn)),
-                      SizedBox(width: Sp.x2),
-                      Expanded(child: Text('${l.deskSetReportFullDetailsWarn} ${l.deskSetReportFullDetailsNever}', style: ts.small.copyWith(color: c.warn))),
-                    ],
+              // The tick and, beside it, what it changes and what never goes: behind the info
+              // icon, so the dialog carries no small print under it.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ECheckbox(
+                    key: const ValueKey('report-full-details'),
+                    value: _fullDetails,
+                    label: l.deskSetReportFullDetails,
+                    onChanged: (v) {
+                      setState(() => _fullDetails = v);
+                      _refreshPreview();
+                    },
                   ),
-                )
-              else
-                Text(l.deskSetReportFullDetailsHint, style: ts.small),
+                  SizedBox(width: Sp.x1),
+                  EInfoHint(l.deskSetReportFullDetailsInfo, key: const ValueKey('report-full-details-info'), title: l.deskSetReportFullDetails, icon: EIcons.info),
+                ],
+              ),
             ],
             SizedBox(height: Sp.x3),
             EDetails(
@@ -354,8 +343,8 @@ class ReportPreview extends StatelessWidget {
     final lines = t.split('\n');
     final style = ts.mono(size: Fs.xs, color: c.dim);
     // Short enough that the whole dialog, opened, fits an 800 px window (the Include full
-    // details tick and its line took their share).
-    final height = (MediaQuery.sizeOf(context).height - 720.u).clamp(80.u, 220.u);
+    // details tick took its share).
+    final height = (MediaQuery.sizeOf(context).height - 680.u).clamp(96.u, 220.u);
     return Container(
       height: height,
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),

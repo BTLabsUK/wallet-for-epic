@@ -561,23 +561,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ta płatność została przyjęta. Zakończy się, gdy nadawca ją sfinalizuje i opublikuje w sieci.';
 
   @override
-  String txDetailsListenerWaiting(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other:
-          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godziny.',
-      many:
-          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godzinach.',
-      few:
-          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godzinach.',
-      one:
-          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godzinie.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get txDetailsSenderPosted =>
       'Według nadawcy ta płatność została opublikowana w sieci. Zakończy się, gdy sieć ją potwierdzi.';
 
@@ -702,9 +685,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get txDetailsCancelledIncoming =>
       'Anulowano. Jeśli nadawca opublikuje płatność później, i tak dotrze.';
-
-  @override
-  String get txStatusListenerWaiting => 'Przyszła sama · czeka na nadawcę';
 
   @override
   String get txStatusSenderCancelled => 'Anulowana przez nadawcę';
@@ -6037,7 +6017,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP nasłuchuje tylko w sieciach oznaczonych jako prywatne. We wspólnym Wi-Fi, w kawiarni czy hotelu, każdy tam obecny mógłby dotrzeć do tego portfela.';
+      'Link · HTTP nasłuchuje tylko w sieciach oznaczonych jako prywatne. We wspólnym Wi-Fi każdy tam obecny mógłby dotrzeć do tego portfela.';
 
   @override
   String get receiveHttpMarkPrivate => 'To moja prywatna sieć';
@@ -12963,17 +12943,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetReportFullDetails => 'Dołącz pełne szczegóły';
 
   @override
-  String get deskSetReportFullDetailsHint =>
-      'Adresy idą skrócone, a kwoty jako zakresy. Zaznacz, by wysłać je w całości.';
-
-  @override
-  String get deskSetReportFullDetailsWarn =>
-      'Do tego pliku trafiają pełne adresy i kwoty.';
-
-  @override
-  String get deskSetReportFullDetailsNever => 'Frazy, klucze i hasła nigdy.';
-
-  @override
   String get deskSetReportPartFullDetails => 'Pełne szczegóły';
 
   @override
@@ -14419,8 +14388,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Link · HTTP nasłuchuje w tych sieciach. Sieć rozpoznawana jest po zakresie adresów, więc dwa domy z tym samym zakresem liczą się jako jedna. Zapomnij sieć, a telefon zapyta w niej ponownie.';
 
   @override
-  String get txPrivateNetworksNone =>
-      'Nie oznaczono jeszcze żadnej sieci. Oznacz jedną w Odbierz › Link, gdy telefon jest w niej.';
+  String get txPrivateNetworksNone => 'Nie oznaczono jeszcze żadnej sieci.';
 
   @override
   String get txPrivateNetworkCurrent => 'Ta sieć';
@@ -19477,4 +19445,8 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Otwórz ustawienia sieci';
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'Adresy idą skrócone, a kwoty jako zakresy. Zaznaczone idą w całości. Frazy, klucze i hasła nigdy.';
 }

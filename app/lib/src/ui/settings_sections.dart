@@ -1404,6 +1404,9 @@ const Key txTorNeededKey = ValueKey('tx-tor-needs-tor');
 /// The key of the Private networks row under Link · HTTP, for tests.
 const Key txPrivateNetworksKey = ValueKey('tx-private-networks');
 
+/// The key of the info icon in the Private networks sheet, for tests.
+const Key txPrivateNetworksInfoKey = ValueKey('tx-private-networks-info');
+
 /// The key of a Forget button in the Private networks sheet, for tests.
 Key txForgetNetworkKey(String network) => ValueKey('tx-forget-network-$network');
 
@@ -1485,11 +1488,11 @@ class _PrivateNetworksSheet extends ConsumerWidget {
                 Expanded(
                   child: Semantics(header: true, child: Text(l.txPrivateNetworks, style: theme.textTheme.titleMedium)),
                 ),
+                // What the list is, behind the info icon: the sheet itself stays a list.
+                InfoHint(l.txPrivateNetworksBody, key: txPrivateNetworksInfoKey, title: l.txPrivateNetworks, icon: MethodIcons.of(MethodKind.linkHttp)),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(l.txPrivateNetworksBody, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             if (networks.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),

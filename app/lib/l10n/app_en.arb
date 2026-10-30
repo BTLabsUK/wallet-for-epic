@@ -625,16 +625,6 @@
   "@txDetailsWaitingSender": {
     "description": "Payment details, status explanation of a receive the sender has not finished yet."
   },
-  "txDetailsListenerWaiting": "{hours, plural, one{A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after {hours} hour if that never happens.} other{A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after {hours} hours if that never happens.}}",
-  "@txDetailsListenerWaiting": {
-    "description": "Payment details (phone and desktop), status explanation of an incoming payment the wallet's Link listener (HTTP or Tor) took in by itself, still waiting for its sender. hours: after how long the app cancels it.",
-    "placeholders": {
-      "hours": {
-        "type": "int",
-        "example": "6"
-      }
-    }
-  },
   "txDetailsSenderPosted": "The sender reports it posted this payment. It completes when the network confirms it.",
   "@txDetailsSenderPosted": {
     "description": "Payment details, status explanation of an incoming payment whose sender reports that it posted it. The sender's word only; the blockchain decides."
@@ -745,10 +735,6 @@
   "txDetailsCancelledIncoming": "Cancelled. If the sender posts it later, it still arrives.",
   "@txDetailsCancelledIncoming": {
     "description": "Payment details, status explanation of a cancelled receive. 'Posts' means the sender publishes it to the network; the wallet keeps looking for it with no end date, so it still arrives whenever that happens."
-  },
-  "txStatusListenerWaiting": "Came in by itself · waiting for the sender",
-  "@txStatusListenerWaiting": {
-    "description": "Transaction status (phone list, desktop Activity) of an incoming payment that the wallet's Link listener (HTTP or Tor) took in without the user starting it, still waiting for the sender to finish it. Anyone who can reach the listener can make one; the app cancels it after a few hours."
   },
   "txStatusSenderCancelled": "Cancelled by the sender",
   "@txStatusSenderCancelled": {
@@ -7624,9 +7610,9 @@
   "@receiveHttpNotPrivateTitle": {
     "description": "Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network has not been marked private. Calm: a state, not an alarm."
   },
-  "receiveHttpNotPrivate": "Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, a café's or a hotel's, anyone there could reach this wallet.",
+  "receiveHttpNotPrivate": "Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.",
   "@receiveHttpNotPrivate": {
-    "description": "Receive › Link · HTTP card: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user."
+    "description": "Receive › Link · HTTP card: the info sheet behind the Off on this network line: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user."
   },
   "receiveHttpMarkPrivate": "This is my private network",
   "@receiveHttpMarkPrivate": {
@@ -16520,18 +16506,6 @@
   "@deskSetReportFullDetails": {
     "description": "Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened."
   },
-  "deskSetReportFullDetailsHint": "Addresses go shortened and amounts as ranges. Tick to send them whole.",
-  "@deskSetReportFullDetailsHint": {
-    "description": "Report a problem dialog: small text under the Include full details checkbox while it is not ticked."
-  },
-  "deskSetReportFullDetailsWarn": "Full addresses and amounts go into this file.",
-  "@deskSetReportFullDetailsWarn": {
-    "description": "Report a problem dialog: one-line warning under the Include full details checkbox."
-  },
-  "deskSetReportFullDetailsNever": "Seeds, keys and passwords never.",
-  "@deskSetReportFullDetailsNever": {
-    "description": "Report a problem dialog: second line of the Include full details warning: what is never in the report, ticked or not."
-  },
   "deskSetReportPartFullDetails": "Full details",
   "@deskSetReportPartFullDetails": {
     "description": "Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log."
@@ -18398,11 +18372,11 @@
   },
   "txPrivateNetworksBody": "Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.",
   "@txPrivateNetworksBody": {
-    "description": "Private networks sheet (Settings › Transactions): what the list is, above the entries."
+    "description": "Private networks sheet: the info sheet behind the info icon beside the title: what the list is."
   },
-  "txPrivateNetworksNone": "No network marked yet. Mark one on Receive › Link while the phone is on it.",
+  "txPrivateNetworksNone": "No network marked yet.",
   "@txPrivateNetworksNone": {
-    "description": "Private networks sheet: the empty list."
+    "description": "Private networks sheet: the empty list, one short line."
   },
   "txPrivateNetworkCurrent": "This network",
   "@txPrivateNetworkCurrent": {
@@ -25272,5 +25246,9 @@
   "deskRailOpenNetwork": "Open Network settings",
   "@deskRailOpenNetwork": {
     "description": "Hover card of a status row the network mode turns off: where a click goes."
+  },
+  "deskSetReportFullDetailsInfo": "Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.",
+  "@deskSetReportFullDetailsInfo": {
+    "description": "Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and what is never in the report, ticked or not."
   }
 }
