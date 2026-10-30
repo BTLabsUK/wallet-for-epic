@@ -231,5 +231,5 @@ esac
 python3 "$tool" verify --type update --app-config "$config" --keyring "$keyring" --envelope "$manifest2"
 echo "1. Publish the files it names: $(jq -r '[.apks[].url, .notor.apks[]?.url] | join(" ")' "$payload")"
 echo "2. Then publish both: tools/publish-update-json.sh $manifest $manifest2"
-echo "3. For 0.1.0 phones, publish $legacy as update.json on the latest GitHub release of"
-echo "   blacktyger/wallet-for-epic (https://github.com/blacktyger/wallet-for-epic/releases/latest/download/update.json)."
+echo "3. For 0.1.0 phones, $legacy is their update.json, read only from the latest GitHub release of"
+echo "   blacktyger/wallet-for-epic, which answers 404 since GitHub flagged that account: keep it, publish nothing."
