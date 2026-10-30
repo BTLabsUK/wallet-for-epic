@@ -349,7 +349,7 @@ class GitHubReleaseTest(unittest.TestCase):
                  UPDATE_URL="https://server.invalid/update.json", UPDATE_URL_V2="https://server.invalid/v1/update.json",
                  UPDATE_SITE=site, UPDATE_KEYRING=self.ring, UPDATE_SIGN_TOOL=sign, GITLAB_TOKEN_FILE=token,
                  GITHUB_UPDATE_URL=f"{self.gh.base}/web/{REPO_NAME}/releases/latest/download/update-v2.json",
-                 GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid", GIT_COMMITTER_NAME="t",
+                 GITHUB_MIRROR_SITE="0", GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid", GIT_COMMITTER_NAME="t",
                  GIT_COMMITTER_EMAIL="t@example.invalid", **env)
         p = subprocess.run(["bash", os.path.join(REPO, "tools/publish-update-json.sh"), v1, v1], capture_output=True,
                            text=True, timeout=120, env=e)

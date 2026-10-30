@@ -31,6 +31,9 @@
 #                     github-update-json, gh logged in as btlabs-uk in GH_CONFIG_DIR
 #                     (default ~/.config/gh-btlabs). A GitHub failure is a warning only.
 #   GITHUB_RELEASE_REPO its repository (default BTLabsUK/wallet-for-epic)
+#   GITHUB_MIRROR_SITE 1: also copy the Pages repository's GitLab main to its GitHub mirror
+#                     (tools/mirror-github.sh btlabs-epic.github.io; default GITHUB_UPDATE_JSON).
+#                     A failure is a warning only.
 #   GITHUB_UPDATE_URL  where GitHub serves it (default .../releases/latest/download/update-v2.json)
 # The GitLab copy is the Pages repository's main, cleaned the same way every time (commit
 # addresses to the noreply address by tools/publish/mailmap, co-author and generated-with trailers dropped), so each run
@@ -107,6 +110,10 @@ if [[ "${GITHUB_UPDATE_JSON:-0}" == 1 ]]; then
   github=ok
   python3 "$root/tools/gitlab-release.py" github-update-json "$file2" --github-repo "$gh_repo" \
     || { github=failed; echo "warning: update-v2.json not on the GitHub release: the apps use the other sources" >&2; }
+fi
+if [[ "${GITHUB_MIRROR_SITE:-${GITHUB_UPDATE_JSON:-0}}" == 1 ]]; then
+  GITLAB_TOKEN_FILE="$token_file" "$root/tools/mirror-github.sh" "${gitlab##*/}" \
+    || echo "warning: the GitHub mirror of ${gitlab##*/} is behind GitLab (re-run tools/mirror-github.sh)" >&2
 fi
 
 # 5. Read every copy back. The GitLab copy is read through the API while the project is private

@@ -7,7 +7,8 @@
 #
 #   tools/mirror-github.sh [--dry-run] [--replace] [repo ...]
 #
-# Repos: $GITHUB_REPOS (default wallet-for-epic lepic lepic-flutter); naming any other is refused.
+# Repos: $GITHUB_REPOS (default wallet-for-epic lepic lepic-flutter btlabs-epic.github.io
+# btlabs-docs epic-status); naming any other is refused.
 # Per repo:
 #   1. fetches GitLab's main and tags into a bare cache ($MIRROR_DIR, default ~/publish/mirror);
 #   2. refuses when any commit on GitLab's main carries an agent path or a CI workflow file;
@@ -34,12 +35,12 @@ for arg in "$@"; do
   case $arg in
     --dry-run|-n) dry=1 ;;
     --replace) replace=1 ;;
-    -h|--help) sed -n '3,30p' "$0"; exit 0 ;;
+    -h|--help) sed -n '3,31p' "$0"; exit 0 ;;
     -*) echo "unknown option: $arg" >&2; exit 2 ;;
     *) repos+=("$arg") ;;
   esac
 done
-read -ra allowed <<<"${GITHUB_REPOS:-wallet-for-epic lepic lepic-flutter}"
+read -ra allowed <<<"${GITHUB_REPOS:-wallet-for-epic lepic lepic-flutter btlabs-epic.github.io btlabs-docs epic-status}"
 [ ${#repos[@]} -gt 0 ] || repos=("${allowed[@]}")
 for repo in "${repos[@]}"; do
   [[ " ${allowed[*]} " == *" $repo "* ]] || { echo "refusing $repo: not in GITHUB_REPOS (${allowed[*]})" >&2; exit 2; }
