@@ -18801,29 +18801,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String passphraseCharacters(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count characters',
-      one: '1 character',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get passphraseStrengthWeak => 'Weak';
-
-  @override
-  String get passphraseStrengthFair => 'Fair';
-
-  @override
-  String get passphraseStrengthStrong => 'Strong';
-
-  @override
-  String get passphraseStrengthLabel => 'Passphrase strength';
-
-  @override
   String get passphraseUsePinInstead => 'Use PIN instead';
 
   @override

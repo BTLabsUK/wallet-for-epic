@@ -18379,28 +18379,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String passphraseCharacters(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count ตัวอักษร',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get passphraseStrengthWeak => 'อ่อน';
-
-  @override
-  String get passphraseStrengthFair => 'ปานกลาง';
-
-  @override
-  String get passphraseStrengthStrong => 'แข็งแรง';
-
-  @override
-  String get passphraseStrengthLabel => 'ความแข็งแรงของวลีรหัสผ่าน';
-
-  @override
   String get passphraseUsePinInstead => 'ใช้ PIN แทน';
 
   @override

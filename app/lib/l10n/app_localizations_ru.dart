@@ -19444,31 +19444,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String passphraseCharacters(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count символа',
-      many: '$count символов',
-      few: '$count символа',
-      one: '$count символ',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get passphraseStrengthWeak => 'Слабый';
-
-  @override
-  String get passphraseStrengthFair => 'Средний';
-
-  @override
-  String get passphraseStrengthStrong => 'Надёжный';
-
-  @override
-  String get passphraseStrengthLabel => 'Надёжность пароля';
-
-  @override
   String get passphraseUsePinInstead => 'Ввести PIN вместо пароля';
 
   @override

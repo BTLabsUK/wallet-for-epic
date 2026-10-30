@@ -29342,36 +29342,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, other{At least {count} characters and not only digits. A few words with spaces between them work well. It replaces the PIN wherever the wallet asks for it.}}'**
   String passphraseRules(int count);
 
-  /// First part of the hint under a new passphrase, e.g. '14 characters · Strong'.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, one{1 character} other{{count} characters}}'**
-  String passphraseCharacters(int count);
-
-  /// Strength of a new passphrase an attacker with the stolen store would guess within days.
-  ///
-  /// In en, this message translates to:
-  /// **'Weak'**
-  String get passphraseStrengthWeak;
-
-  /// Strength of a new passphrase that would take years to guess.
-  ///
-  /// In en, this message translates to:
-  /// **'Fair'**
-  String get passphraseStrengthFair;
-
-  /// Strength of a new passphrase that would take centuries to guess.
-  ///
-  /// In en, this message translates to:
-  /// **'Strong'**
-  String get passphraseStrengthStrong;
-
-  /// Screen reader label of the strength hint under a new passphrase.
-  ///
-  /// In en, this message translates to:
-  /// **'Passphrase strength'**
-  String get passphraseStrengthLabel;
-
   /// Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase.
   ///
   /// In en, this message translates to:

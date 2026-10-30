@@ -12,6 +12,7 @@ import '../providers.dart';
 import '../vault.dart';
 import 'centered_body.dart';
 import 'common.dart';
+import 'info_hint.dart';
 import 'pin.dart';
 import 'theme/brand.dart';
 
@@ -239,7 +240,6 @@ class _PassphraseSetupState extends State<_PassphraseSetup> {
           textInputAction: TextInputAction.next,
         ),
         _PassphraseHint(controller: _first),
-        const SizedBox(height: 8),
         PasswordField(
           key: const ValueKey('passphrase-repeat'),
           controller: _second,
@@ -259,107 +259,110 @@ class _PassphraseSetupState extends State<_PassphraseSetup> {
 /// word lists); released after it closes.
 final _estimatorProvider = FutureProvider.autoDispose<PasswordEstimator>((ref) => loadPasswordEstimator());
 
-/// The small print under a new passphrase: "14 characters · Strong". The count follows each
-/// keystroke; the strength, from zxcvbn's guesses against [attackerGuessesPerSecond], comes a
-/// moment after typing stops. It only informs; the rules alone decide what Save accepts. The
-/// passphrase never leaves this widget.
+/// The small print under a new passphrase: "14 characters · about 300 years to crack", the
+/// phone twin of the desktop's `PasswordHint` (same [characterCount] and
+/// [PasswordEstimator.crackTime], so both read the same). The count follows every keystroke;
+/// the time comes [estimateDelay] after typing stops. It only informs: nothing here blocks
+/// Save, the rules alone decide what it accepts, and no colour judges the passphrase. Screen
+/// readers hear the time in a live region, [announceDelay] after typing stops and only when
+/// it changed. The info icon opens an [InfoSheet] with how the time is estimated. The
+/// passphrase and the estimate never leave this widget.
 class _PassphraseHint extends ConsumerStatefulWidget {
   const _PassphraseHint({required this.controller});
 
   final TextEditingController controller;
 
-  static const delay = Duration(milliseconds: 150);
+  static const estimateDelay = Duration(milliseconds: 150);
+  static const announceDelay = Duration(seconds: 1);
 
   @override
   ConsumerState<_PassphraseHint> createState() => _PassphraseHintState();
 }
 
-enum _Strength { weak, fair, strong }
-
 class _PassphraseHintState extends ConsumerState<_PassphraseHint> {
-  Timer? _timer;
+  Timer? _estimateTimer;
+  Timer? _announceTimer;
   int _count = 0;
-  _Strength? _strength;
+  String? _time;
+  String _announced = '';
 
   @override
   void initState() {
     super.initState();
+    _count = widget.controller.text.characters.length;
     widget.controller.addListener(_changed);
   }
 
   @override
   void dispose() {
     widget.controller.removeListener(_changed);
-    _timer?.cancel();
+    _estimateTimer?.cancel();
+    _announceTimer?.cancel();
     super.dispose();
   }
 
   void _changed() {
     final count = widget.controller.text.characters.length;
-    _timer?.cancel();
-    if (count != _count) setState(() => _count = count);
+    _estimateTimer?.cancel();
+    _announceTimer?.cancel();
     if (count == 0) {
-      setState(() => _strength = null);
+      setState(() {
+        _count = 0;
+        _time = null;
+        _announced = '';
+      });
       return;
     }
-    _timer = Timer(_PassphraseHint.delay, _estimate);
+    if (count != _count) setState(() => _count = count);
+    _estimateTimer = Timer(_PassphraseHint.estimateDelay, _estimate);
   }
 
   void _estimate() {
     final estimator = ref.read(_estimatorProvider).value;
     final text = widget.controller.text;
     if (!mounted || estimator == null || text.isEmpty) return;
-    final seconds = estimator.guesses(text) / attackerGuessesPerSecond;
-    const day = 86400.0, year = 365.25 * day;
-    setState(
-      () => _strength = seconds < 30 * day
-          ? _Strength.weak
-          : seconds < 100 * year
-          ? _Strength.fair
-          : _Strength.strong,
-    );
+    setState(() => _time = estimator.crackTime(text));
+    _announceTimer = Timer(_PassphraseHint.announceDelay - _PassphraseHint.estimateDelay, () {
+      if (mounted && _time != null && _time != _announced) setState(() => _announced = _time!);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     // Estimate as soon as the lists are ready, if typing came first.
     ref.listen(_estimatorProvider, (_, next) {
-      if (next.hasValue && _count > 0 && _timer?.isActive != true) _estimate();
+      if (next.hasValue && widget.controller.text.isNotEmpty && _estimateTimer?.isActive != true) _estimate();
     });
     final l = context.l10n;
     final theme = Theme.of(context);
-    final strength = switch (_strength) {
-      null => null,
-      _Strength.weak => (l.passphraseStrengthWeak, theme.colorScheme.error),
-      _Strength.fair => (l.passphraseStrengthFair, theme.colorScheme.onSurfaceVariant),
-      _Strength.strong => (l.passphraseStrengthStrong, theme.colorScheme.primary),
-    };
     final small = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
-    return Semantics(
-      label: l.passphraseStrengthLabel,
-      liveRegion: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
-        child: SizedBox(
-          height: 20,
-          child: _count == 0
-              ? null
-              : Text.rich(
-                  TextSpan(
-                    text: l.passphraseCharacters(_count),
-                    children: [
-                      if (strength != null) ...[
-                        const TextSpan(text: ' · '),
-                        TextSpan(
-                          text: strength.$1,
-                          style: TextStyle(color: strength.$2, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ],
-                  ),
-                  style: small,
-                  key: const ValueKey('passphrase-hint'),
+    final line = _count == 0 ? '' : [characterCount(_count), ?_time].join(' · ');
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 12),
+      child: SizedBox(
+        height: 48,
+        child: Row(
+          children: [
+            Flexible(
+              child: Semantics(
+                liveRegion: true,
+                label: _announced,
+                child: ExcludeSemantics(
+                  child: Text(line, key: const ValueKey('passphrase-hint'), style: small),
                 ),
+              ),
+            ),
+            if (_count > 0) ...[
+              const SizedBox(width: 4),
+              InfoHint(
+                l.deskKitPasswordNote,
+                key: const ValueKey('passphrase-hint-info'),
+                size: 48,
+                title: l.deskKitPasswordNoteLabel,
+                icon: Icons.info_outline,
+              ),
+            ],
+          ],
         ),
       ),
     );

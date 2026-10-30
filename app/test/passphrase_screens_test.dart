@@ -121,7 +121,7 @@ void main() {
       expect(find.widgetWithText(TextField, 'Current PIN'), findsOneWidget);
     });
 
-    testWidgets('sets a passphrase: rules, strength hint, mismatch, then the notice', (tester) async {
+    testWidgets('sets a passphrase: rules, crack-time hint, mismatch, then the notice', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'PIN', _pin);
@@ -136,7 +136,23 @@ void main() {
 
       // Too short: said under the first field, nothing saved.
       await _enter(tester, 'Passphrase', 'short');
-      expect(find.text('5 characters'), findsOneWidget);
+      // The hint informs: the count, the estimated time to crack, and an info icon that opens
+      // the explanation. No meter, no verdict.
+      expect(find.textContaining('5 characters'), findsOneWidget);
+      // The word lists load and rank off the UI thread (real async) before the time shows.
+      for (var i = 0; i < 40 && find.textContaining('to crack').evaluate().isEmpty; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      expect(find.textContaining('to crack'), findsOneWidget);
+      for (final verdict in ['Weak', 'Fair', 'Strong']) {
+        expect(find.text(verdict), findsNothing);
+      }
+      await tester.tap(find.byKey(const ValueKey('passphrase-hint-info')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('A guide, not a guarantee.'), findsOneWidget);
+      await _tapText(tester, 'Close');
+      expect(find.textContaining('A guide, not a guarantee.'), findsNothing);
       await _tapText(tester, 'Save');
       expect(find.textContaining('at least 10 characters'), findsOneWidget);
       expect(find.byType(ChangePinScreen), findsOneWidget);
