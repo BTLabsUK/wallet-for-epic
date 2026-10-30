@@ -19156,4 +19156,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsNotSaved => 'Porty nie zostały zapisane';
+
+  @override
+  String get deskKitInfoLabel => 'Więcej informacji';
 }

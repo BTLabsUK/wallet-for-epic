@@ -696,6 +696,10 @@
   "@deskKitPasswordNoteLabel": {
     "description": "Screen-reader name of the info icon under a new-password field."
   },
+  "deskKitInfoLabel": "More information",
+  "@deskKitInfoLabel": {
+    "description": "Screen-reader name of an info icon that opens an explanation popover and has no title of its own."
+  },
   "deskKitNotCopied": "Not copied",
   "@deskKitNotCopied": {
     "description": "Brief label of a copy button when the clipboard refused the text. Short."

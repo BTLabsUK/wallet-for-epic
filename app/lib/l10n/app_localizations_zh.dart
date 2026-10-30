@@ -17441,4 +17441,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsNotSaved => '端口未保存';
+
+  @override
+  String get deskKitInfoLabel => '更多信息';
 }

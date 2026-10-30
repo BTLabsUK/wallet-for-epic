@@ -2,7 +2,10 @@
 import '../../data/mock_hosts.dart';
 import 'dart:io' show File;
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../desk_l10n.dart';
 
 import '../../app/app_dialogs.dart';
 import '../../app/shots.dart';
@@ -377,7 +380,25 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '43o-advanced-confirmations', title: 'Settings › Advanced › Balance, Confirmations at the default 6', route: DeskRoute.settingsAdvanced, height: 1450),
   DeskShot(id: '43p-advanced-confirmations-3', title: 'Settings › Advanced › Balance, Confirmations set to 3', route: DeskRoute.settingsAdvanced, height: 1450, prepare: (c, _) => _minConfirmations(c, 3)),
   DeskShot(id: '43q-overview-confirmations-3', title: 'Overview counting with 3 confirmations', route: DeskRoute.overview, prepare: (c, _) => _minConfirmations(c, 3)),
+  // The help popover (widgets/popover.dart) open on the Network group's info icon.
+  DeskShot(id: '43r-advanced-network-help', title: 'Settings › Advanced › Network, the help popover open', route: DeskRoute.settingsAdvanced, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
 ];
+
+/// Opens the popover of the [EInfoHint] titled [title] under [root] (the tour's dialog hook).
+Future<void> openInfoHint(BuildContext root, {required String Function(AppLocalizations) title}) async {
+  final want = title(root.l10n);
+  EInfoHintState? found;
+  void visit(Element e) {
+    if (found != null) return;
+    if (e is StatefulElement && e.widget is EInfoHint && (e.widget as EInfoHint).title == want) {
+      found = e.state as EInfoHintState;
+      return;
+    }
+    e.visitChildren(visit);
+  }
+  (root as Element).visitChildren(visit);
+  await found?.open();
+}
 
 /// Sets the open wallet's minimum confirmations for a shot (the mock starts at the default).
 Future<void> _minConfirmations(ProviderContainer c, int count) => c.read(deskMinConfirmationsSettingProvider.notifier).set(count);

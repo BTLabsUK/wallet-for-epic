@@ -4833,5 +4833,6 @@
   "deskSetLnodePortsRestart": "โหนดจะเริ่มใหม่ด้วยพอร์ตใหม่",
   "deskSetLnodePortsSaved": "บันทึกพอร์ตแล้ว",
   "deskSetLnodePortsRestarting": "โหนดกำลังเริ่มใหม่",
-  "deskSetLnodePortsNotSaved": "ไม่ได้บันทึกพอร์ต"
+  "deskSetLnodePortsNotSaved": "ไม่ได้บันทึกพอร์ต",
+  "deskKitInfoLabel": "ข้อมูลเพิ่มเติม"
 }

@@ -24836,5 +24836,9 @@
   "deskSetLnodePortsNotSaved": "Ports not saved",
   "@deskSetLnodePortsNotSaved": {
     "description": "Toast title when the node ports could not be saved or the node could not restart; the error follows."
+  },
+  "deskKitInfoLabel": "More information",
+  "@deskKitInfoLabel": {
+    "description": "Screen-reader name of an info icon that opens an explanation popover and has no title of its own."
   }
 }

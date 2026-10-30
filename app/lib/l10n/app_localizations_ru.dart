@@ -19140,4 +19140,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsNotSaved => 'Порты не сохранены';
+
+  @override
+  String get deskKitInfoLabel => 'Подробнее';
 }

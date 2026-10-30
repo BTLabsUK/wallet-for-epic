@@ -6,7 +6,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -88,8 +87,8 @@ class SendSplitLine extends StatelessWidget {
   }
 }
 
-/// A 28 u help icon whose text shows on hover, on click and on Enter or Space.
-class HelpTip extends StatefulWidget {
+/// A 28 u help icon whose text opens in a popover on a click, Enter or Space ([EInfoHint]).
+class HelpTip extends StatelessWidget {
   const HelpTip({super.key, required this.text, required this.label});
 
   final String text;
@@ -98,47 +97,7 @@ class HelpTip extends StatefulWidget {
   final String label;
 
   @override
-  State<HelpTip> createState() => _HelpTipState();
-}
-
-class _HelpTipState extends State<HelpTip> {
-  final _tip = GlobalKey<TooltipState>();
-  bool _hover = false;
-
-  void _show() => _tip.currentState?.ensureTooltipVisible();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Tooltip(
-      key: _tip,
-      message: widget.text,
-      triggerMode: TooltipTriggerMode.tap,
-      waitDuration: Dur.fast,
-      child: Semantics(
-        button: true,
-        label: widget.label,
-        hint: widget.text,
-        excludeSemantics: true,
-        onTap: _show,
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.help,
-          onShowHoverHighlight: (v) => setState(() => _hover = v),
-          shortcuts: const {SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(), SingleActivator(LogicalKeyboardKey.space): ActivateIntent()},
-          actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => _show())},
-          child: Builder(
-            builder: (context) => FocusRing(
-              focused: Focus.of(context).hasFocus,
-              child: SizedBox.square(
-                dimension: 28.u,
-                child: Icon(EIcons.help, size: 14.u, color: _hover ? c.text : c.dim),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => EInfoHint(text, label: label, glyph: EIcons.help, size: Ctl.inline);
 }
 
 /// The caption under "Spendable until change confirms" and whether it warns (nothing stays

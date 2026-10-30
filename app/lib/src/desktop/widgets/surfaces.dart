@@ -14,6 +14,7 @@ import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
 import 'motion.dart';
+import 'popover.dart';
 
 /// A panel: s1 fill, hairline edge, 8 px radius. [title] (or a custom [head]) and [foot] get
 /// their own bands; the head band is [Ctl.header] tall and starts where the body starts, so
@@ -588,11 +589,11 @@ class ESetRow extends StatelessWidget {
   /// the main view shows labels only.
   final String? text;
 
-  /// The row's explanation, behind an info icon after the title (hover or focus shows it; a
-  /// screen reader reads it with the title).
+  /// The row's explanation, behind an info icon after the title: a click, Enter or Space
+  /// opens it in a popover ([EInfoHint]); a screen reader reads it with the title.
   final String? hint;
 
-  /// With [hintTitle], the hint is a hover card with that title (and [hintIcon]).
+  /// With [hintTitle], the popover shows that title (and [hintIcon]) on its first line.
   final String? hintTitle;
   final IconData? hintIcon;
   final Widget? control;
@@ -803,44 +804,97 @@ class _RenderWrapRow extends RenderBox
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
 }
 
+/// The info (or help) icon that opens the row's explanation in a popover
+/// (`popover.dart`): a click, Enter or Space opens it at once beside the icon; a click outside,
+/// Esc or its ✕ closes it and the focus comes back here. The icon is a Tab stop with the
+/// desktop's focus ring and a button for screen readers, named by [title] (or [label]). With a
+/// [title] the popover shows [icon] and the title on its first line, as the phone's info sheet
+/// does; without one, the text alone.
 class EInfoHint extends StatefulWidget {
-  const EInfoHint(this.text, {super.key, this.title, this.icon});
+  const EInfoHint(this.text, {super.key, this.title, this.icon, this.label, this.glyph = EIcons.info, this.size});
 
   final String text;
 
-  /// With a title the tooltip is a hover card: [icon] and the title on one line, the text at
-  /// a reading width under it (the Tor network row). The phone's info sheet has the same shape.
+  /// The popover's first line (the row's name), with [icon] before it.
   final String? title;
   final IconData? icon;
 
+  /// What a screen reader calls the icon when there is no [title]; "More information" when
+  /// neither is given.
+  final String? label;
+
+  /// The icon itself: info, or help (the Send summary's "why").
+  final IconData glyph;
+
+  /// The icon's square: 20 u by default, inline with a row's title; [Ctl.inline] on a line of
+  /// its own.
+  final double? size;
+
   @override
-  State<EInfoHint> createState() => _EInfoHintState();
+  State<EInfoHint> createState() => EInfoHintState();
 }
 
-class _EInfoHintState extends State<EInfoHint> {
-  final _tip = GlobalKey<TooltipState>();
+class EInfoHintState extends State<EInfoHint> {
+  final _node = FocusNode(debugLabel: 'info hint');
+  bool _hover = false;
+  bool _open = false;
+
+  @override
+  void dispose() {
+    _node.dispose();
+    super.dispose();
+  }
+
+  /// Opens the popover beside the icon (the screenshot tour calls it too). Returns when it
+  /// closes.
+  Future<void> open() async {
+    if (_open || !mounted) return;
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
+    final root = Navigator.of(context, rootNavigator: true).context.findRenderObject();
+    final anchor = box.localToGlobal(Offset.zero, ancestor: root) & box.size;
+    final hadFocus = _node.hasFocus;
+    setState(() => _open = true);
+    await showEInfoPopover(context, anchor: anchor, text: widget.text, title: widget.title, icon: widget.icon);
+    if (!mounted) return;
+    setState(() => _open = false);
+    // Opened from the keyboard: the focus comes back to the icon (the route's scope gives it
+    // back, this makes sure). Opened by a click, it stays where it was.
+    if (hadFocus) _node.requestFocus();
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final title = widget.title;
-    return Tooltip(
-      key: _tip,
-      message: title == null ? widget.text : null,
-      richMessage: title == null ? null : WidgetSpan(child: EInfoCard(title: title, text: widget.text, icon: widget.icon)),
-      child: Focus(
-        onFocusChange: (f) {
-          if (f) _tip.currentState?.ensureTooltipVisible();
-        },
-        child: Semantics(
-          label: widget.text,
-          excludeSemantics: true,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.help,
-            child: SizedBox(
-              width: 20.u,
-              height: 20.u,
-              child: Center(child: Icon(EIcons.info, size: Ctl.iconSm, color: c.dim)),
+    final size = widget.size ?? 20.u;
+    final lit = _hover || _open;
+    return Semantics(
+      button: true,
+      label: widget.title ?? widget.label ?? context.l10n.deskKitInfoLabel,
+      hint: widget.text,
+      expanded: _open,
+      excludeSemantics: true,
+      onTap: open,
+      child: FocusableActionDetector(
+        focusNode: _node,
+        mouseCursor: SystemMouseCursors.help,
+        onShowHoverHighlight: (v) => setState(() => _hover = v),
+        shortcuts: const {SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(), SingleActivator(LogicalKeyboardKey.space): ActivateIntent()},
+        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => open())},
+        child: Builder(
+          builder: (context) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: open,
+            child: FocusRing(
+              focused: Focus.of(context).hasFocus,
+              radius: Rad.xs,
+              child: AnimatedContainer(
+                duration: Dur.fast,
+                width: size,
+                height: size,
+                decoration: BoxDecoration(color: lit ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
+                child: Icon(widget.glyph, size: Ctl.iconSm, color: lit ? c.text : c.dim),
+              ),
             ),
           ),
         ),
@@ -849,43 +903,6 @@ class _EInfoHintState extends State<EInfoHint> {
   }
 }
 
-/// The hover card of an [EInfoHint] with a title, and of the rail's Tor row: the icon and the
-/// title on one line, the explanation under it at a reading width.
-class EInfoCard extends StatelessWidget {
-  const EInfoCard({super.key, required this.title, required this.text, this.icon, this.footer});
-
-  final String title;
-  final String text;
-  final IconData? icon;
-
-  /// A last line in the accent (the rail's "Open Privacy settings").
-  final Widget? footer;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 360.u),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[Icon(icon, size: Ctl.iconSm, color: c.accentText), SizedBox(width: Sp.x2)],
-              Flexible(child: Text(title, style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600))),
-            ],
-          ),
-          SizedBox(height: Sp.x2),
-          Text(text, style: ts.small.copyWith(color: c.dim, height: 1.45)),
-          if (footer != null) ...[SizedBox(height: Sp.x2), footer!],
-        ],
-      ),
-    );
-  }
-}
 
 /// A 4 px progress bar; null [value] runs indeterminate.
 

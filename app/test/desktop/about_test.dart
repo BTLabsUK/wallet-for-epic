@@ -124,8 +124,10 @@ void main() {
 
   testWidgets('Community opens Telegram and epiccash.com in the browser', (tester) async {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
-    await tester.tap(find.widgetWithText(EButton, 'Open').first);
-    await tester.tap(find.widgetWithText(EButton, 'Open').at(1));
+    // The Community group's two Open buttons (the Updates group above has one of its own).
+    final community = find.descendant(of: find.widgetWithText(ESetGroup, 'Community'), matching: find.widgetWithText(EButton, 'Open'));
+    await tester.tap(community.first);
+    await tester.tap(community.at(1));
     await tester.pumpAndSettle();
     expect(opened, [hostSettings.linkCommunity, hostSettings.linkWebsite]);
     expect(find.text('Telegram'), findsOneWidget);

@@ -18093,4 +18093,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetLnodePortsNotSaved => 'ไม่ได้บันทึกพอร์ต';
+
+  @override
+  String get deskKitInfoLabel => 'ข้อมูลเพิ่มเติม';
 }

@@ -71,6 +71,7 @@ String _focused() {
       EInput() => 'field:${w.semanticLabel ?? w.hint}',
       EButton() => 'button:${w.label}',
       EIconButton() => 'icon:${w.label}',
+      EInfoHint() => 'help:${w.title ?? w.label ?? w.text}',
       ELink() => 'link:${w.label}',
       ESelect() => 'select:${w.semanticLabel}',
       ECheckbox() => 'check:${w.label}',

@@ -4833,5 +4833,6 @@
   "deskSetLnodePortsRestart": "Der Node startet mit den neuen Ports neu.",
   "deskSetLnodePortsSaved": "Ports gespeichert",
   "deskSetLnodePortsRestarting": "Der Node startet neu.",
-  "deskSetLnodePortsNotSaved": "Ports nicht gespeichert"
+  "deskSetLnodePortsNotSaved": "Ports nicht gespeichert",
+  "deskKitInfoLabel": "Weitere Informationen"
 }

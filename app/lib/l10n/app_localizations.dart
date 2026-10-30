@@ -28915,6 +28915,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ports not saved'**
   String get deskSetLnodePortsNotSaved;
+
+  /// Screen-reader name of an info icon that opens an explanation popover and has no title of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'More information'**
+  String get deskKitInfoLabel;
 }
 
 class _AppLocalizationsDelegate

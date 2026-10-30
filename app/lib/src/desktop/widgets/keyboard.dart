@@ -3,7 +3,7 @@
 ///
 /// **Tab** visits a form's fields in visual order (text fields, selects, switches, checkboxes,
 /// choice cards, segments), then its main button as the last stop, then wraps; Shift+Tab goes
-/// back. Secondary controls are never stops: eye, info, copy, QR, clear and paste icons, icons
+/// back. Secondary controls are never stops: eye, copy, QR, clear and paste icons, icons
 /// inside a field, a dialog's close icon, Back buttons and the page's back arrow. They stay
 /// reachable by mouse, by screen reader (each keeps its semantics tap) and by a shortcut where
 /// one matters (Alt+F8, Ctrl+Shift+P off Windows, shows or hides a password; Esc closes; Alt+Left goes back). Pages that
@@ -27,6 +27,11 @@
 /// place, until Overview; the mouse Forward button and Alt+Right go forward again. The page's
 /// back arrow uses the same history. With a dialog or the tour open they do nothing (Esc is for
 /// closing).
+///
+/// **Help icons** (ⓘ after a row's title, ❔ beside a line) are stops: Enter or Space opens
+/// their popover ([EInfoHint]), Esc or Tab to its ✕ closes it, and the focus comes back to the
+/// icon. The password field's estimate note keeps its own pinned note, which never takes the
+/// focus from the field.
 library;
 
 import 'package:flutter/services.dart';

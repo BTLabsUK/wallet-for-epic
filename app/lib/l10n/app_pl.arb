@@ -4833,5 +4833,6 @@
   "deskSetLnodePortsRestart": "Węzeł uruchomi się ponownie z nowymi portami.",
   "deskSetLnodePortsSaved": "Porty zapisane",
   "deskSetLnodePortsRestarting": "Węzeł uruchamia się ponownie.",
-  "deskSetLnodePortsNotSaved": "Porty nie zostały zapisane"
+  "deskSetLnodePortsNotSaved": "Porty nie zostały zapisane",
+  "deskKitInfoLabel": "Więcej informacji"
 }

@@ -67,6 +67,9 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Updates first: the check is what people come here for (a tester looked for it
+          // under the version and the links); the app's name and version follow.
+          if (deskUpdatesSupported) const _Updates(),
           ESetGroup(
             title: l.deskSetFrameAbout,
             rows: [
@@ -111,7 +114,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
               if (supportEmail case final e?) _LinkRow(title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
             ],
           ),
-          if (deskUpdatesSupported) const _Updates(),
           // A few sentences, not a catalogue: one line per component with its licence, the
           // bundled tor's source note (its GPL asks for it), and the full texts one click away.
           ESetGroup(
@@ -219,9 +221,11 @@ class _Updates extends ConsumerWidget {
     final checks = !(u.phase == DeskUpdatePhase.downloading ||
         u.phase == DeskUpdatePhase.unfinished ||
         (u.phase == DeskUpdatePhase.ready && u.problem == null));
+    // The group's one action while nothing is offered; secondary beside an update's own step.
     final check = EButton(
       label: l.deskSetAboutCheckNow,
       icon: EIcons.refresh,
+      kind: u.offered ? EBtnKind.secondary : EBtnKind.primary,
       size: EBtnSize.sm,
       busy: busy,
       onPressed: busy || block != NetBlock.none ? null : () => ref.read(deskUpdateProvider.notifier).check(),

@@ -4833,5 +4833,6 @@
   "deskSetLnodePortsRestart": "节点将使用新端口重新启动。",
   "deskSetLnodePortsSaved": "端口已保存",
   "deskSetLnodePortsRestarting": "节点正在重新启动。",
-  "deskSetLnodePortsNotSaved": "端口未保存"
+  "deskSetLnodePortsNotSaved": "端口未保存",
+  "deskKitInfoLabel": "更多信息"
 }

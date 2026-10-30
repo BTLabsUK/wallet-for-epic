@@ -131,8 +131,8 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Status site'), findsOneWidget);
     expect(find.text('Use ${Uri.parse(hostSettings.statusDirectory!).host}'), findsOneWidget);
-    // Label only; the sentence is the info icon's tooltip.
-    expect(find.byTooltip('Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'), findsOneWidget);
+    // Label only; the sentence is behind the info icon (its popover).
+    expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text == 'Shows which nodes and Epicbox servers are online. Only downloads a public list; nothing from the wallet is sent.'), findsOneWidget);
     expect(find.textContaining('Server health'), findsNothing);
 
     final toggle = find.descendant(of: find.byType(PrivacyGroup), matching: find.byType(ESwitch));

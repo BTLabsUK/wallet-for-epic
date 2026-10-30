@@ -4833,5 +4833,6 @@
   "deskSetLnodePortsRestart": "Узел перезапустится с новыми портами.",
   "deskSetLnodePortsSaved": "Порты сохранены",
   "deskSetLnodePortsRestarting": "Узел перезапускается.",
-  "deskSetLnodePortsNotSaved": "Порты не сохранены"
+  "deskSetLnodePortsNotSaved": "Порты не сохранены",
+  "deskKitInfoLabel": "Подробнее"
 }

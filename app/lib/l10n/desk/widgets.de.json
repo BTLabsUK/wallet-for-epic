@@ -116,6 +116,7 @@
   "deskKitChipNotOverTor": "Nicht über Tor",
   "deskKitPasswordNote": "Auf diesem Gerät geschätzt, aus der Länge und aus gängigen Wörtern, Namen und Mustern, für einen Angreifer mit schneller Hardware, der 100.000 Versuche pro Sekunde gegen die Datei dieser Wallet probiert. Ein Richtwert, keine Garantie.",
   "deskKitPasswordNoteLabel": "So wird die Zeit geschätzt",
+  "deskKitInfoLabel": "Weitere Informationen",
   "deskKitNotCopied": "Nicht kopiert",
   "deskKitCopied": "Kopiert",
   "deskKitQrOf": "QR-Code: {title}",

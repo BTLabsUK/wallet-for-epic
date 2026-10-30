@@ -20,6 +20,7 @@ export 'grid.dart';
 export 'hero_art.dart';
 export 'keyboard.dart';
 export 'password_hint.dart';
+export 'popover.dart';
 export 'motion.dart';
 export 'qr_reveal.dart';
 export 'selectable.dart';
