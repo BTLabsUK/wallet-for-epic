@@ -381,7 +381,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
                       SizedBox(height: Sp.x1),
                     ] else if (t.incoming && t.fromListener && t.state == TxState.waitingRecipient) ...[
-                      EBadge(l.txStatusListenerWaiting, key: const ValueKey('tx-listener-waiting'), icon: EIcons.antenna, tone: ETone.neutral),
+                      EBadge(l.txStatusListenerWaiting, key: const ValueKey('tx-came-in-waiting'), icon: EIcons.antenna, tone: ETone.neutral),
                       SizedBox(height: Sp.x1),
                     ],
                     Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
