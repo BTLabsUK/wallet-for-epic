@@ -406,7 +406,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     } else {
       final ok = await askPin(
         context,
-        reason: context.l10n.settingsBiometricsPinReason,
+        reason: usesPassphrase(ref)
+            ? context.l10n.settingsBiometricsPassphraseReason
+            : context.l10n.settingsBiometricsPinReason,
         allowBiometrics: false,
         action: (pin) => vault.enableBiometrics(session, config, pin),
       );
@@ -472,7 +474,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final vault = ref.read(vaultProvider);
     final checked = await askPin(
       context,
-      reason: context.l10n.settingsDeletePinReason,
+      reason: usesPassphrase(ref)
+          ? context.l10n.settingsDeletePassphraseReason
+          : context.l10n.settingsDeletePinReason,
       allowBiometrics: false,
       action: (pin) async {
         await vault.checkPin(session, config, pin);

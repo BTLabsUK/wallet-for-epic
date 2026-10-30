@@ -3096,7 +3096,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsBiometrics => 'Разблокировка биометрией';
 
   @override
-  String get settingsBiometricsOn => 'Биометрическая разблокировка включена';
+  String get settingsBiometricsOn =>
+      'Биометрическая разблокировка включена. Она заработает со следующего запуска приложения.';
 
   @override
   String get settingsBiometricsOff => 'Биометрическая разблокировка выключена';
@@ -19409,4 +19410,109 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get passphraseSetBiometricsOff =>
       'Пароль установлен. Биометрическая разблокировка выключена; включите её снова ниже.';
+
+  @override
+  String get passphraseForgot => 'Забыли пароль?';
+
+  @override
+  String get passphrasePromptTitle => 'Введите пароль';
+
+  @override
+  String get passphraseEnterCurrent => 'Введите текущий пароль';
+
+  @override
+  String get passphraseCurrentLabel => 'Текущий пароль';
+
+  @override
+  String get passphraseChooseTitle => 'Выберите пароль';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Не короче $count символа и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+      many:
+          'Не короче $count символов и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+      few:
+          'Не короче $count символов и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+      one:
+          'Не короче $count символа и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String passphraseCharacters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count символа',
+      many: '$count символов',
+      few: '$count символа',
+      one: '$count символ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseStrengthWeak => 'Слабый';
+
+  @override
+  String get passphraseStrengthFair => 'Средний';
+
+  @override
+  String get passphraseStrengthStrong => 'Надёжный';
+
+  @override
+  String get passphraseStrengthLabel => 'Надёжность пароля';
+
+  @override
+  String get passphraseUsePinInstead => 'Ввести PIN вместо пароля';
+
+  @override
+  String get passphraseUsePassphraseInstead => 'Ввести пароль вместо PIN';
+
+  @override
+  String get biometricsFromNextStart =>
+      'Биометрическая разблокировка заработает со следующего запуска приложения.';
+
+  @override
+  String get invoicePassphraseReason =>
+      'Введите пароль, чтобы оплатить этот счёт.';
+
+  @override
+  String get restoreReplacePassphraseReason =>
+      'Введите пароль, чтобы заменить этот кошелёк. Восстановленный кошелёк сохранит этот пароль.';
+
+  @override
+  String get backupPassphraseReason =>
+      'Введите пароль, чтобы показать фразу восстановления.';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return 'Введите пароль, чтобы создать QR платежа на $amount.';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason =>
+      'Введите пароль, чтобы включить биометрическую разблокировку.';
+
+  @override
+  String get settingsDeletePassphraseReason =>
+      'Введите пароль, чтобы удалить этот кошелёк.';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return 'Введите пароль, чтобы отправить $amount.';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return 'Введите пароль, чтобы создать файл транзакции на $amount.';
+  }
+
+  @override
+  String get passphraseSetTitle => 'Задать пароль';
 }

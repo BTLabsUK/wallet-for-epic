@@ -45,7 +45,7 @@ Future<bool> _invoiceGate(BuildContext context, WidgetRef ref) async {
   final vault = ref.read(vaultProvider);
   final approved = await askPin(
     context,
-    reason: context.l10n.invoicePinReason,
+    reason: usesPassphrase(ref) ? context.l10n.invoicePassphraseReason : context.l10n.invoicePinReason,
     action: (pin) async {
       await vault.checkPin(session, config, pin);
       return true;

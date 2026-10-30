@@ -3119,7 +3119,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsBiometrics => 'Odblokowanie biometryczne';
 
   @override
-  String get settingsBiometricsOn => 'Włączono odblokowanie biometryczne';
+  String get settingsBiometricsOn =>
+      'Włączono odblokowanie biometryczne. Zadziała od następnego uruchomienia aplikacji.';
 
   @override
   String get settingsBiometricsOff => 'Wyłączono odblokowanie biometryczne';
@@ -19427,4 +19428,108 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get passphraseSetBiometricsOff =>
       'Ustawiono hasło. Odblokowanie biometryczne jest wyłączone; włącz je ponownie poniżej.';
+
+  @override
+  String get passphraseForgot => 'Nie pamiętasz hasła?';
+
+  @override
+  String get passphrasePromptTitle => 'Wpisz hasło';
+
+  @override
+  String get passphraseEnterCurrent => 'Wpisz obecne hasło';
+
+  @override
+  String get passphraseCurrentLabel => 'Obecne hasło';
+
+  @override
+  String get passphraseChooseTitle => 'Wybierz hasło';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Co najmniej $count znaku, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+      many:
+          'Co najmniej $count znaków, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+      few:
+          'Co najmniej $count znaki, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+      one:
+          'Co najmniej $count znak, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String passphraseCharacters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count znaku',
+      many: '$count znaków',
+      few: '$count znaki',
+      one: '1 znak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseStrengthWeak => 'Słabe';
+
+  @override
+  String get passphraseStrengthFair => 'Przeciętne';
+
+  @override
+  String get passphraseStrengthStrong => 'Mocne';
+
+  @override
+  String get passphraseStrengthLabel => 'Siła hasła';
+
+  @override
+  String get passphraseUsePinInstead => 'Użyj zamiast tego PIN-u';
+
+  @override
+  String get passphraseUsePassphraseInstead => 'Użyj zamiast tego hasła';
+
+  @override
+  String get biometricsFromNextStart =>
+      'Odblokowanie biometryczne zadziała od następnego uruchomienia aplikacji.';
+
+  @override
+  String get invoicePassphraseReason => 'Wpisz hasło, aby zapłacić tę fakturę.';
+
+  @override
+  String get restoreReplacePassphraseReason =>
+      'Wpisz hasło, aby zastąpić ten portfel. Przywrócony portfel zachowa to hasło.';
+
+  @override
+  String get backupPassphraseReason =>
+      'Wpisz hasło, aby wyświetlić frazę odzyskiwania.';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return 'Wpisz hasło, aby utworzyć kod QR płatności na $amount.';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason =>
+      'Wpisz hasło, aby włączyć odblokowanie biometryczne.';
+
+  @override
+  String get settingsDeletePassphraseReason =>
+      'Wpisz hasło, aby usunąć ten portfel.';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return 'Wpisz hasło, aby wysłać $amount.';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return 'Wpisz hasło, aby utworzyć plik transakcji na $amount.';
+  }
+
+  @override
+  String get passphraseSetTitle => 'Ustaw hasło';
 }

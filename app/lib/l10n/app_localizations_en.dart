@@ -3014,7 +3014,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBiometrics => 'Unlock with biometrics';
 
   @override
-  String get settingsBiometricsOn => 'Biometric unlock turned on';
+  String get settingsBiometricsOn =>
+      'Biometric unlock turned on. It works from the next app start.';
 
   @override
   String get settingsBiometricsOff => 'Biometric unlock turned off';
@@ -18772,4 +18773,101 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get passphraseSetBiometricsOff =>
       'Passphrase set. Biometric unlock is off; turn it on again below.';
+
+  @override
+  String get passphraseForgot => 'Forgot passphrase?';
+
+  @override
+  String get passphrasePromptTitle => 'Enter your passphrase';
+
+  @override
+  String get passphraseEnterCurrent => 'Enter your current passphrase';
+
+  @override
+  String get passphraseCurrentLabel => 'Current passphrase';
+
+  @override
+  String get passphraseChooseTitle => 'Choose a passphrase';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'At least $count characters and not only digits. A few words with spaces between them work well. It replaces the PIN wherever the wallet asks for it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String passphraseCharacters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters',
+      one: '1 character',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseStrengthWeak => 'Weak';
+
+  @override
+  String get passphraseStrengthFair => 'Fair';
+
+  @override
+  String get passphraseStrengthStrong => 'Strong';
+
+  @override
+  String get passphraseStrengthLabel => 'Passphrase strength';
+
+  @override
+  String get passphraseUsePinInstead => 'Use PIN instead';
+
+  @override
+  String get passphraseUsePassphraseInstead => 'Use passphrase instead';
+
+  @override
+  String get biometricsFromNextStart =>
+      'Biometric unlock works from the next app start.';
+
+  @override
+  String get invoicePassphraseReason =>
+      'Enter your passphrase to pay this invoice.';
+
+  @override
+  String get restoreReplacePassphraseReason =>
+      'Enter your passphrase to replace this wallet. The restored wallet keeps this passphrase.';
+
+  @override
+  String get backupPassphraseReason =>
+      'Enter your passphrase to show the recovery phrase.';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return 'Enter the passphrase to make a payment QR for $amount.';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason =>
+      'Enter your passphrase to turn on biometric unlock.';
+
+  @override
+  String get settingsDeletePassphraseReason =>
+      'Enter your passphrase to delete this wallet.';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return 'Enter the passphrase to send $amount.';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return 'Enter the passphrase to make a transaction file for $amount.';
+  }
+
+  @override
+  String get passphraseSetTitle => 'Set a passphrase';
 }

@@ -39,31 +39,13 @@ class PinField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (passphrase) {
-      void submit() {
-        if (controller.text.isNotEmpty) onCompleted(controller.text);
-      }
-
-      return TextField(
+      return _PassphraseEntry(
         controller: controller,
+        label: label,
+        errorText: errorText,
         enabled: enabled,
         autofocus: autofocus,
-        obscureText: true,
-        autocorrect: false,
-        enableSuggestions: false,
-        enableIMEPersonalizedLearning: false,
-        keyboardType: TextInputType.visiblePassword,
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) => submit(),
-        decoration: InputDecoration(
-          labelText: context.l10n.passphraseLabel,
-          errorText: errorText,
-          border: const OutlineInputBorder(),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            tooltip: context.l10n.commonContinue,
-            onPressed: enabled ? submit : null,
-          ),
-        ),
+        onCompleted: onCompleted,
       );
     }
     return TextField(
@@ -88,6 +70,75 @@ class PinField extends StatelessWidget {
         errorText: errorText,
         counterText: '',
         border: const OutlineInputBorder(),
+      ),
+    );
+  }
+}
+
+/// The passphrase field of [PinField]: masked, with the show/hide eye the app's password
+/// fields have, submitted by the keyboard's Done or the arrow.
+class _PassphraseEntry extends StatefulWidget {
+  const _PassphraseEntry({
+    required this.controller,
+    required this.label,
+    required this.onCompleted,
+    required this.errorText,
+    required this.enabled,
+    required this.autofocus,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final ValueChanged<String> onCompleted;
+  final String? errorText;
+  final bool enabled;
+  final bool autofocus;
+
+  @override
+  State<_PassphraseEntry> createState() => _PassphraseEntryState();
+}
+
+class _PassphraseEntryState extends State<_PassphraseEntry> {
+  bool _obscure = true;
+
+  void _submit() {
+    if (widget.controller.text.isNotEmpty) widget.onCompleted(widget.controller.text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return TextField(
+      controller: widget.controller,
+      enabled: widget.enabled,
+      autofocus: widget.autofocus,
+      obscureText: _obscure,
+      autocorrect: false,
+      enableSuggestions: false,
+      enableIMEPersonalizedLearning: false,
+      keyboardType: TextInputType.visiblePassword,
+      textInputAction: TextInputAction.done,
+      onSubmitted: (_) => _submit(),
+      decoration: InputDecoration(
+        labelText: widget.label,
+        errorText: widget.errorText,
+        errorMaxLines: 3,
+        border: const OutlineInputBorder(),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: _obscure ? l.passwordShow : l.passwordHide,
+              icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+              onPressed: () => setState(() => _obscure = !_obscure),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward),
+              tooltip: l.commonContinue,
+              onPressed: widget.enabled ? _submit : null,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -345,6 +396,10 @@ Future<DateTime?> pinCheckTime(WidgetRef ref) async {
   }
 }
 
+/// Whether the open wallet's secret is a passphrase ([usesPassphraseProvider]), for the reason
+/// line of [askPin]: the xPassphraseReason string in place of xPinReason.
+bool usesPassphrase(WidgetRef ref) => ref.read(usesPassphraseProvider).value ?? false;
+
 /// Asks for the PIN of the open wallet (or, with [allowBiometrics], its biometric copy) and
 /// runs [action] with it. Returns what [action] returned, or null if the user cancelled. A
 /// wrong PIN ([PinRejected] from [action]) is shown in the dialog and asked again.
@@ -505,12 +560,13 @@ class _PinPromptDialogState<T extends Object>
   Widget build(BuildContext context) {
     final l = context.l10n;
     final checkAt = _checkAt;
+    final passphrase = ref.watch(usesPassphraseProvider).value ?? false;
     // Closing the dialog would not stop a running action (LEPIC may wait up to an hour before
     // it checks the PIN), so it stays open until the action ends.
     return PopScope(
       canPop: !_busy,
       child: AlertDialog(
-        title: Text(l.pinPromptTitle),
+        title: Text(passphrase ? l.passphrasePromptTitle : l.pinPromptTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -524,11 +580,11 @@ class _PinPromptDialogState<T extends Object>
               true => DemoPinFill(compact: true, onDone: _runDemoPin),
               false => PinField(
                 controller: _pin,
-                label: l.pinLabel,
+                label: passphrase ? l.passphraseLabel : l.pinLabel,
                 enabled: !_busy,
                 errorText: _error,
                 onCompleted: _run,
-                passphrase: ref.watch(usesPassphraseProvider).value ?? false,
+                passphrase: passphrase,
               ),
             },
             if (_busy) ...[

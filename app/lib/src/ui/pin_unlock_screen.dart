@@ -49,6 +49,11 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   /// When LEPIC checks the PIN being tried, while it waits after repeated failures.
   DateTime? _checkAt;
 
+  /// The user's choice between the PIN and the passphrase field, over the stored mode. Only a
+  /// wallet that ever had a passphrase is offered it: if the app stopped between the new
+  /// sealed text and the recorded mode, the field would otherwise not fit the secret.
+  bool? _passphraseChosen;
+
   /// Web demo only: true while the demo PIN is filled in for the visitor, false for the PIN
   /// field, null until [_prepare] has looked. Outside the demo always false.
   bool? _autoPin;
@@ -266,11 +271,21 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     }
   }
 
+  void _switchMode(bool passphrase) {
+    _pin.clear();
+    setState(() {
+      _passphraseChosen = passphrase;
+      _pinError = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final config = ref.watch(walletConfigProvider);
     final checkAt = _checkAt;
+    final passphrase = _passphraseChosen ?? (ref.watch(usesPassphraseProvider).value ?? false);
+    final canSwitch = ref.watch(passphraseEverUsedProvider).value ?? false;
     return SlotScaffold(
       centered: true,
       glow: heroGlow,
@@ -312,12 +327,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               null => const SizedBox(height: 56),
               true => DemoPinFill(onDone: _unlockWithDemoPin),
               false => PinField(
+                // The field changes with the mode, so its state (the eye, focus) starts over.
+                key: ValueKey(passphrase ? 'unlock-passphrase' : 'unlock-pin'),
                 controller: _pin,
-                label: l.pinLabel,
+                label: passphrase ? l.passphraseLabel : l.pinLabel,
                 enabled: !_busy,
                 errorText: _pinError,
                 onCompleted: _unlockWithPin,
-                passphrase: ref.watch(usesPassphraseProvider).value ?? false,
+                passphrase: passphrase,
               ),
             },
           const SizedBox(height: 16),
@@ -350,8 +367,20 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             const SizedBox(height: 24),
             TextButton(
               onPressed: _busy ? null : _forgotPin,
-              child: Text(l.pinForgot),
+              child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
             ),
+            // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
+            if (canSwitch && _autoPin == false)
+              TextButton(
+                style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+                onPressed: _busy ? null : () => _switchMode(!passphrase),
+                child: Text(
+                  passphrase ? l.passphraseUsePinInstead : l.passphraseUsePassphraseInstead,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
           ],
         ],
       ),
