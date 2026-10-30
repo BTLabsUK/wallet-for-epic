@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# Epic Wallet nightly full check of local main (tools/nightly/nightly.py), started by
+# wfe-nightly.timer. Skips when main was already tested or a build-slot slot is held.
+# Installed by tools/nightly/install.sh; runs the installed copy, never the worktree's.
+[Unit]
+Description=Epic Wallet nightly full check of main
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.local/lib/wfe-nightly/nightly.py
+TimeoutStartSec=infinity
+Nice=10
