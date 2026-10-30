@@ -152,11 +152,16 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter) 64px; }
 .btn.hero-dl .b-ico svg { width: 24px; height: 24px; }
 .btn.hero-dl .b-text { display: flex; flex-direction: column; min-width: 0; }
 .btn.hero-dl small { display: block; font-weight: 500; font-size: 13px; opacity: 0.8; margin-top: 2px; }
+.btn.hero-dl small:empty { display: none; } /* without page.js: no platform yet */
+/* The button keeps one height whatever the platform says: one line (cut, never wrapped) where
+ * it is wide, two reserved lines on a phone. A pick never moves the tiles below. */
+.btn.hero-dl small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .btn.secondary { background: var(--surface-hi); color: var(--text); border-color: var(--line); min-height: 54px; justify-content: center; font-size: 16px; }
 .btn.secondary:hover { border-color: var(--line-strong); background: var(--surface); }
 .avail { margin-top: 18px; font-size: 14.5px; color: var(--dim); max-width: 460px; }
 .avail:empty { display: none; }
 .avail .link { font-size: inherit; }
+#avail-back { display: inline-block; } /* keeps its width when hidden: the tiles never move */
 
 /* The app itself: the desktop window, the phone in front of its corner. The light theme shows
  * the light screens; the hidden pair is lazy, so only the shown theme's images load. */
@@ -203,6 +208,22 @@ main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter) 64px; }
 .sl { font-size: 14px; color: var(--dim); }
 .latest { margin-top: 24px; }
 .older { margin-top: 56px; }
+
+/* ---- The section's platform switch --------------------------------------------------- */
+/* The same state as the hero's tiles, where the cards are: one click changes which card is
+ * first and wide without scrolling anywhere. Without page.js each is an anchor to its card. */
+.plat-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: -6px 0 18px; }
+.ps-h { font-size: 13.5px; color: var(--faint); }
+.plat-switch ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.plat-switch a {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px 0 11px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--dim);
+  font-size: 14px; font-weight: 600;
+}
+.plat-switch a:hover { text-decoration: none; border-color: var(--line-strong); color: var(--text); }
+.plat-switch a svg { width: 18px; height: 18px; color: var(--text); }
+.plat-switch a.is-mine { border-color: var(--accent-deep); box-shadow: 0 0 0 1px var(--accent-deep); color: var(--text); }
+.plat-switch a.is-mine svg { color: var(--accent); }
 
 /* ---- Platform cards ------------------------------------------------------------------ */
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
@@ -356,6 +377,9 @@ html[data-plat] .card:not(.is-mine) .req, html[data-plat] .card:not(.is-mine) .f
   .hero-art { padding: 0 8% 10% 0; }
   .phone { width: 30%; }
   .tile { width: 104px; min-height: 94px; }
+  .btn.hero-dl small { white-space: normal; min-height: calc(2 * 1.25em); }
+  .plat-switch { gap: 8px 10px; }
+  .plat-switch a { min-height: 38px; padding: 0 12px 0 10px; font-size: 13.5px; }
   .tiles ul { gap: 10px; }
   .cards, html[data-plat] .cards { grid-template-columns: 1fr; }
   .card { padding: 18px 16px 14px; }

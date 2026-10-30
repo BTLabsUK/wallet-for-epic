@@ -1,5 +1,6 @@
 // Epic Cash releases page: the theme toggle, copy buttons for checksums and commands, and the
-// platform the browser reports (the hero's button and its card first; a tile picks another). All of
+// platform the browser reports (the hero's button and its card first; a tile or the section's switch
+// picks another in place, nothing scrolls). All of
 // it is a nicety: without this file every download is still a link and every fold a <details>.
 // Nothing is fetched, nothing is tracked. The changelog and restore pages share the toggle.
 (function () {
@@ -89,8 +90,9 @@
   var heroBefore = $('hero-before');
   var availMine = $('avail-mine'), availRest = $('avail-rest'), availBack = $('avail-back');
   var cards = document.querySelectorAll('.card[data-plat]');
-  var tiles = document.querySelectorAll('.tile[data-tile]');
-  var detected = platform(), detectedName = '';
+  var tiles = document.querySelectorAll('.tile[data-pick]');
+  var picks = document.querySelectorAll('[data-pick]'); // the hero's tiles and the section's switch
+  var detected = platform(), detectedName = '', current = '';
 
   function nameOf(card) { return card.querySelector('h3').firstChild.textContent.trim(); }
   function join(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
@@ -99,7 +101,7 @@
     var norm = [], prev = [];
     for (var i = 0; i < tiles.length; i++) {
       var t = tiles[i];
-      if (t.getAttribute('data-tile') === key) continue;
+      if (t.getAttribute('data-pick') === key) continue;
       (t.querySelector('.t-note') ? prev : norm).push(t.querySelector('.t-name').textContent);
     }
     var s = join(norm);
@@ -107,18 +109,20 @@
     return s;
   }
 
-  // The hero's button downloads key's primary file, Before you install leads to key's fold (open),
-  // key's card goes first and wide, key's tile is marked.
+  // One state for the whole page: the hero's button downloads key's primary file, Before you
+  // install leads to key's fold (open), key's card goes first and wide, key is marked on the
+  // tiles and on the section's switch. Nothing scrolls: the page stays where the visitor is.
   function pick(key) {
     var card = key && document.getElementById('dl-' + key);
-    if (!card) return;
+    if (!card || key === current) return;
+    current = key;
     for (var i = 0; i < cards.length; i++) cards[i].classList.toggle('is-mine', cards[i] === card);
     var before = document.querySelectorAll('details[data-before]');
     for (var j = 0; j < before.length; j++) before[j].open = before[j].getAttribute('data-before') === key;
-    for (var k = 0; k < tiles.length; k++) {
-      var on = tiles[k].getAttribute('data-tile') === key;
-      tiles[k].classList.toggle('is-mine', on);
-      if (on) tiles[k].setAttribute('aria-current', 'true'); else tiles[k].removeAttribute('aria-current');
+    for (var k = 0; k < picks.length; k++) {
+      var on = picks[k].getAttribute('data-pick') === key;
+      picks[k].classList.toggle('is-mine', on);
+      if (on) picks[k].setAttribute('aria-current', 'true'); else picks[k].removeAttribute('aria-current');
     }
     root.setAttribute('data-plat', key);
     var name = nameOf(card), app = card.querySelector('.app').textContent;
@@ -129,31 +133,47 @@
       heroText.textContent = 'Download for ' + name;
       var parts = btn.querySelector('small').textContent.split(' · ');
       heroSub.textContent = app + ' · ' + parts[0] + ' · ' + parts[1] + (card.querySelector('h3 .pill') ? ' · Preview' : '');
-      heroSub.hidden = false;
       var ico = card.querySelector('.ico svg');
       if (ico && heroIco) { heroIco.textContent = ''; heroIco.appendChild(ico.cloneNode(true)); }
     }
     if (heroBefore) heroBefore.href = '#before-' + key;
-    if (availMine) availMine.textContent = detected ? 'This browser reports ' + detectedName + '.' : '';
-    if (availRest) availRest.textContent = 'Also for ' + rest(key) + '.';
-    if (availBack) {
-      availBack.textContent = '';
-      if (detected && key !== detected) {
-        var b = document.createElement('button');
-        b.type = 'button'; b.className = 'link'; b.textContent = 'Back to ' + detectedName;
-        b.addEventListener('click', function () { pick(detected); heroDl.focus(); });
-        availBack.appendChild(b);
-      }
-    }
+    // the line under the buttons keeps its text and size: the Back link only hides, so the
+    // tiles below never move (no wrap change, with or without scroll anchoring)
+    if (availBack && detected) availBack.style.visibility = key === detected ? 'hidden' : '';
   }
 
-  if (detected && document.getElementById('dl-' + detected)) {
-    detectedName = nameOf(document.getElementById('dl-' + detected));
-    pick(detected);
+  // The hash names the platform (#dl-<key>, #before-<key>) and follows the pick, without a jump.
+  function keyOfHash() {
+    var m = /^#(?:dl|before)-([a-z]+)$/.exec(location.hash || '');
+    return m && document.getElementById('dl-' + m[1]) ? m[1] : '';
   }
-  for (var t = 0; t < tiles.length; t++) {
-    tiles[t].addEventListener('click', function () { pick(this.getAttribute('data-tile')); });
+  function remember(key) {
+    var h = '#dl-' + key;
+    if (location.hash === h) return;
+    try { history.replaceState(null, '', h); } catch (e) { /* file: or a sandbox: the URL stays */ }
   }
+
+  if (detected && !document.getElementById('dl-' + detected)) detected = '';
+  if (detected) detectedName = nameOf(document.getElementById('dl-' + detected));
+  if (availMine) availMine.textContent = detected ? 'This browser reports ' + detectedName + '.' : '';
+  if (availRest) availRest.textContent = (detected ? 'Also for ' : 'For ') + rest(detected) + '.';
+  if (availBack && detected) {
+    var back = document.createElement('button');
+    back.type = 'button'; back.className = 'link'; back.textContent = 'Back to ' + detectedName;
+    back.addEventListener('click', function () { pick(detected); remember(detected); });
+    availBack.appendChild(back);
+  }
+  pick(keyOfHash() || detected);
+  for (var t = 0; t < picks.length; t++) {
+    picks[t].addEventListener('click', function (e) {
+      var key = this.getAttribute('data-pick');
+      if (!document.getElementById('dl-' + key)) return; // let the anchor work
+      e.preventDefault();
+      pick(key);
+      remember(key);
+    });
+  }
+  window.addEventListener('hashchange', function () { var k = keyOfHash(); if (k) pick(k); });
   if (heroBefore) heroBefore.addEventListener('click', function () {
     var d = document.getElementById(heroBefore.getAttribute('href').slice(1));
     if (d && d.tagName === 'DETAILS') d.open = true;

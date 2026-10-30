@@ -19,7 +19,8 @@ from its name, see KINDS: a new kind of build needs one line there and nothing e
 
 The page is plain HTML and CSS: every download is a link, every fold a <details>. page.js adds
 the copy buttons, the platform the browser reports (User-Agent Client Hints, then the user
-agent) and the Other platforms switch; without it the page shows every platform the same way.
+agent) and the platform switch (the hero's tiles and the section's own, one state, no scrolling);
+without it the page shows every platform the same way and every switch is a plain anchor.
 No tracking, nothing loaded from another host.
 """
 import datetime as dt
@@ -316,11 +317,26 @@ def tiles(g):
         if key not in PLAT or not gg['primary']:
             continue
         _, heading, app, req, preview = PLAT[key]
-        out.append(f'<li><a class="tile" href="#dl-{key}" data-tile="{key}" aria-label="{esc(app)} for {esc(heading)}'
+        out.append(f'<li><a class="tile" href="#dl-{key}" data-pick="{key}" aria-label="{esc(app)} for {esc(heading)}'
                    + (', preview' if preview else '') + f'"><span class="t-ico">{ICONS[key]}</span>'
                    f'<span class="t-name">{esc(heading)}</span>'
                    + (f'<span class="t-note">Preview</span>' if preview else '') + '</a></li>')
     return '\n'.join(out)
+
+
+def switcher(g):
+    """The platform switch inside the downloads section: one link per platform to its card. With
+    page.js it picks the platform in place (the same state as the hero's tiles); without it a
+    plain anchor to the card."""
+    out = ['<nav class="plat-switch" aria-label="Platform"><span class="ps-h">Show</span><ul>']
+    for key, gg in g.items():
+        if key not in PLAT or not gg['primary']:
+            continue
+        _, heading, app, req, preview = PLAT[key]
+        out.append(f'<li><a href="#dl-{key}" data-pick="{key}" aria-label="{esc(heading)}'
+                   + (', preview' if preview else '') + f'">{ICONS[key]}<span>{esc(heading)}</span></a></li>')
+    out.append('</ul></nav>')
+    return ''.join(out)
 
 
 def hero(latest, plat_line):
@@ -340,7 +356,7 @@ def hero(latest, plat_line):
     <p class="lede">The wallet for desktop and phone. Keys and coins stay on the device, locked with a password.</p>
     <p class="readout"><span class="bracket" aria-hidden="true">[</span><span translate="no">{esc(latest['version'])}</span><span class="bracket" aria-hidden="true">]</span><time datetime="{latest['date']}">{human_date(latest['date'])}</time><span class="pill solid">Open beta</span></p>
     <div class="cta">
-      <a class="btn primary hero-dl" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose a platform</span><small id="hero-dl-sub" hidden></small></span></a>
+      <a class="btn primary hero-dl" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose a platform</span><small id="hero-dl-sub"></small></span></a>
       <a class="btn secondary" id="hero-before" href="#latest">Before you install</a>
     </div>
     <p class="avail"><span id="avail-mine"></span> <span id="avail-rest">{esc(plat_line)}.</span> <span id="avail-back"></span></p>
@@ -403,6 +419,7 @@ def render(out_dir):
 
 <section class="latest" id="latest" aria-labelledby="latest-h">
   <div class="sh"><h2 id="latest-h">Latest <span translate="no">{esc(latest['version'])}</span></h2><p class="sl"><a href="changelog/#v{esc(latest['version'])}">What changed</a>{mirror(latest)} · <a href="changelog/">Earlier versions</a></p></div>
+{switcher(g)}
   <div class="cards">
 {cards}
   </div>
