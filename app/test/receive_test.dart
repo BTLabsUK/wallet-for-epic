@@ -2,6 +2,7 @@
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/phrase_clipboard.dart' show clearCopiedPhrase;
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -802,6 +803,8 @@ void main() {
       await _tap(tester, find.text('Save to device'));
       expect(h.files.saved.single.name, 'incoming.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
+      // The reply is secret text: its clipboard clear is pending (WAL-04).
+      await clearCopiedPhrase();
     });
   });
 
