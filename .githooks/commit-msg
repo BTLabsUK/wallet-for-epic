@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# Commit message rules of wallet-for-epic (https://docs.btlabs.uk/developers/releases/, "Commit messages"): a short
+# subject, at most 72 characters, saying what the commit does (imperative or "Area: what
+# changed"), no trailing period; line 2 blank; the detail in the body. Like LEPIC's hook, without
+# its Conventional Commits types. Enable once per clone: git config core.hooksPath .githooks
+# Usage: commit-msg <message-file>      (git hook)
+#        commit-msg --subject "<subject>"
+set -euo pipefail
+
+fail() {
+    printf 'commit-msg: %s\n' "$1" >&2
+    printf 'subject was: %s\n' "$subject" >&2
+    printf 'rules: https://docs.btlabs.uk/developers/releases/, "Commit messages" (long detail goes in the body)\n' >&2
+    exit 1
+}
+
+check_subject() {
+    [[ -n "$subject" ]] || fail "empty subject"
+    (( ${#subject} <= 72 )) || fail "subject is ${#subject} characters, the limit is 72"
+    [[ "$subject" != *. ]] || fail "no trailing period in the subject"
+}
+
+if [[ "${1:-}" == "--subject" ]]; then
+    subject="${2:-}"
+    check_subject
+    exit 0
+fi
+
+msg_file="$1"
+subject="$(grep -v '^#' "$msg_file" | head -n 1)"
+case "$subject" in
+    fixup!\ *|squash!\ *|amend!\ *) exit 0 ;;
+esac
+check_subject
+[[ "$(grep -v '^#' "$msg_file" | sed -n '2p')" == "" ]] || fail "line 2 must be blank"
