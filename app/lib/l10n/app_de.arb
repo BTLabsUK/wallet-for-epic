@@ -4886,7 +4886,7 @@
   "txDetailsStoppedWaiting": "Warten beendet. Die Coins sind wieder ausgebbar. Die Zahlung kann noch durchgehen; wenn ja, erscheint sie als bezahlt.",
   "errorPaymentCancelledCoinsMoved": "Diese Zahlung wurde storniert, und ihre Coins wurden bereits verschoben. Sie kann nicht mehr durchgehen.",
   "errorPaymentAlreadyWentThrough": "Die Coins konnten nicht zurückgeschickt werden: Die Zahlung selbst ist bereits durchgegangen. Sie erscheint als bezahlt.",
-  "errorPinKeyLost": "Die Sicherheitshardware dieses Telefons hat den Schlüssel, den Ihre PIN braucht, nicht mehr, daher öffnet die PIN diese Wallet nicht. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.",
+  "errorPinKeyLost": "Die PIN öffnet diese Wallet nicht mehr. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.",
   "settingsUsePassphrase": "Passphrase statt PIN verwenden",
   "settingsChangePassphrase": "Passphrase ändern",
   "passphraseLabel": "Passphrase",

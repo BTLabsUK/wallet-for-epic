@@ -18695,7 +18695,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'This phone\'s secure hardware no longer holds the key your PIN needs, so the PIN cannot open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.';
+      'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.';
 
   @override
   String get settingsUsePassphrase => 'Use a passphrase instead of the PIN';

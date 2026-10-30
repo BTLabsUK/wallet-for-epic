@@ -101,7 +101,7 @@ void main() {
       expect(find.text(_l.cancelFeeLine), findsOneWidget);
       expect(find.text(_l.cancelStopWaitingLine), findsOneWidget);
       expect(find.byKey(deskCancelFeeHintKey), findsOneWidget);
-      expect(find.text(_l.cancelMoreInHelp), findsNWidgets(2), reason: 'the quiet line and the dialog');
+      expect(find.text(_l.cancelMoreInHelp), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       // The main button is the last one: at the end of the bar, after Stop waiting, which comes
       // after Keep (the bar may wrap onto a second row when the labels are long).
       final sure = tester.getRect(_button(_l.cancelForSure));

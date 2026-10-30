@@ -29231,7 +29231,7 @@ abstract class AppLocalizations {
   /// Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text.
   ///
   /// In en, this message translates to:
-  /// **'This phone\'s secure hardware no longer holds the key your PIN needs, so the PIN cannot open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.'**
+  /// **'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.'**
   String get errorPinKeyLost;
 
   /// Settings row: replace the 6-digit PIN with a longer passphrase.

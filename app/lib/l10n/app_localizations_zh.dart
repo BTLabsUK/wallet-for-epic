@@ -17613,7 +17613,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      '这部手机的安全硬件已不再保存您的 PIN 码所需的密钥，因此 PIN 码无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
+      'PIN 码已无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
 
   @override
   String get settingsUsePassphrase => '使用密码短语代替 PIN 码';

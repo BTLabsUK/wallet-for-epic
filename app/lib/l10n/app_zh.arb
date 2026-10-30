@@ -4886,7 +4886,7 @@
   "txDetailsStoppedWaiting": "已不再等待。这些币可以再次使用。这笔付款仍可能完成；如果完成，会显示为已付。",
   "errorPaymentCancelledCoinsMoved": "这笔付款已取消，它的币已被移走。它无法再完成。",
   "errorPaymentAlreadyWentThrough": "无法把币移回：这笔付款本身已经完成。它显示为已付款。",
-  "errorPinKeyLost": "这部手机的安全硬件已不再保存您的 PIN 码所需的密钥，因此 PIN 码无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。",
+  "errorPinKeyLost": "PIN 码已无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。",
   "settingsUsePassphrase": "使用密码短语代替 PIN 码",
   "settingsChangePassphrase": "更改密码短语",
   "passphraseLabel": "密码短语",

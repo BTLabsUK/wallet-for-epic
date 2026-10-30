@@ -19340,7 +19340,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'Bezpieczny sprzęt tego telefonu nie ma już klucza potrzebnego Twojemu PIN-owi, więc PIN nie otworzy tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.';
+      'PIN nie otwiera już tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.';
 
   @override
   String get settingsUsePassphrase => 'Użyj hasła zamiast PIN-u';

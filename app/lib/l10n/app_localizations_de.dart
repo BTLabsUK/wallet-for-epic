@@ -18915,7 +18915,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get errorPinKeyLost =>
-      'Die Sicherheitshardware dieses Telefons hat den Schlüssel, den Ihre PIN braucht, nicht mehr, daher öffnet die PIN diese Wallet nicht. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
+      'Die PIN öffnet diese Wallet nicht mehr. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
 
   @override
   String get settingsUsePassphrase => 'Passphrase statt PIN verwenden';

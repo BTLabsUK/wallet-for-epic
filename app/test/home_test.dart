@@ -2055,7 +2055,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').first);
-      expect(find.textContaining('cancelling is free and certain'), findsNWidgets(2), reason: 'the quiet line and the dialog');
+      expect(find.textContaining('cancelling is free and certain'), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       expect(find.textContaining('rescan'), findsNothing);
     });
 

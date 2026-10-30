@@ -25136,7 +25136,7 @@
   "@errorPaymentAlreadyWentThrough": {
     "description": "Plain reason when the network refuses the move back of a cancelled payment's coins because the payment itself already went through (the other side finished it first). Replaces the node's internal error."
   },
-  "errorPinKeyLost": "This phone's secure hardware no longer holds the key your PIN needs, so the PIN cannot open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.",
+  "errorPinKeyLost": "The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.",
   "@errorPinKeyLost": {
     "description": "Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text."
   },
