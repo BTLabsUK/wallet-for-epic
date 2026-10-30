@@ -7,6 +7,7 @@ host). Re-running changes only what differs; --dry-run changes nothing.
 
   tools/gitlab-release.py publish <version> <folder> [--target gitlab|github|both] [--dry-run]
                           [--project P] [--github-repo O/R] [--notes FILE]
+  tools/gitlab-release.py github-update-json <update-v2.json> [--github-repo O/R] [--dry-run]
   tools/gitlab-release.py verify <SHA256SUMS> [<SHA256SUMS.sig>] [--keyring K]
   tools/gitlab-release.py pubkey [--keyring K]
 
@@ -28,9 +29,18 @@ With --target github (or both) instead of (or after) 2–4: creates or updates t
 of tag v<version> (the tag must already be on GitHub: tools/mirror-github.sh puts it there) with
 the changelog as its notes, and uploads each file as an asset named without "-<version>" and
 labelled with its full name, so github.com/<owner>/<repo>/releases/latest/download/<name> always
-serves the newest one. An asset already there with the same SHA-256 is skipped; other bytes, or
-an asset that is not in the folder, are refused unless --replace. Then it reads SHA256SUMS and
-its signature back from the release and checks them.
+serves the newest one. The release is made the latest one (not a draft; a prerelease only for
+-rcN). An asset already there with the same SHA-256 is skipped; other bytes, or an asset that is
+not in the folder, are refused unless --replace. Then it reads SHA256SUMS and its signature back
+from the release and checks them.
+
+github-update-json: puts the signed update-v2.json (tools/publish-update-json.sh checks it first)
+on the latest GitHub Release as the asset update-v2.json, so
+github.com/<owner>/<repo>/releases/latest/download/update-v2.json is one of the apps' update
+sources: the old asset is deleted, then the file uploaded under the same name. Refused when the
+repository has no latest release. The same bytes already there: nothing is changed.
+
+GitHub writes go one at a time, at least a second apart, and nothing polls GitHub.
 
 SHA256SUMS lists each file under its full name and, when it differs, under the name without the
 version too (the same hash), so `sha256sum --ignore-missing -c SHA256SUMS` checks a download
@@ -41,7 +51,10 @@ update.json (btlabs-public, FORMAT.md): `minisign -Vm SHA256SUMS -x SHA256SUMS.s
 checks it with the key `pubkey` prints, and `verify` checks it against the keyring.
 
 Settings: the GitLab token is read from --token-file (default ~/.config/btlabs/gitlab-token), the
-GitHub token from `gh auth token`; neither is printed. The signing key is --key (default ~/.config/btlabs/signing/btlabs-2026-a.key), the
+GitHub token from `gh auth token` with gh's own config GH_CONFIG_DIR (default ~/.config/gh-btlabs),
+which must be logged in as GITHUB_USER (default btlabs-uk; any other login is refused, as in
+tools/mirror-github.sh); neither token is printed. GITHUB_RELEASE_API and GITHUB_RELEASE_WEB
+replace https://api.github.com and https://github.com (local tests only). The signing key is --key (default ~/.config/btlabs/signing/btlabs-2026-a.key), the
 keyring --keyring (default ~/code/btlabs-public/keys/btlabs-keyring.json).
 """
 from __future__ import annotations
@@ -68,7 +81,9 @@ HOME = Path.home()
 DEFAULTS = {
     "host": "https://gitlab.com",
     "project": "epic-cash-bt/wallet-for-epic",
-    "github_repo": "BTLabs-EPIC/wallet-for-epic",
+    "github_repo": "BTLabsUK/wallet-for-epic",
+    "github_user": "btlabs-uk",
+    "gh_config": HOME / ".config/gh-btlabs",
     "package": "epic-cash",
     "token_file": HOME / ".config/btlabs/gitlab-token",
     "key": HOME / ".config/btlabs/signing/btlabs-2026-a.key",
@@ -367,25 +382,45 @@ def ensure_release(gl: GitLab, tag: str, ref: str | None, name: str, notes: str,
 
 
 class GitHub:
+    PAUSE = 1.0  # seconds between two writes: one at a time, never a burst
+
     def __init__(self, repo: str, dry: bool):
+        # Only BT Labs' own login, from gh's own config: never the default gh config (another
+        # account) and never a token in the environment.
+        env = {k: v for k, v in os.environ.items() if k not in ("GH_TOKEN", "GITHUB_TOKEN")}
+        env["GH_CONFIG_DIR"] = os.environ.get("GH_CONFIG_DIR") or str(DEFAULTS["gh_config"])
+        user = os.environ.get("GITHUB_USER") or DEFAULTS["github_user"]
+        try:
+            login = subprocess.run(["gh", "api", "user", "--jq", ".login"], capture_output=True,
+                                   text=True, check=True, timeout=60, env=env).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            raise Fail(f"gh is not logged in (GH_CONFIG_DIR={env['GH_CONFIG_DIR']})") from None
+        if login != user:
+            raise Fail(f"gh is logged in as {login}, not {user} (GH_CONFIG_DIR={env['GH_CONFIG_DIR']})")
         try:
             token = subprocess.run(["gh", "auth", "token"], capture_output=True, text=True,
-                                   check=True, timeout=30).stdout.strip()
+                                   check=True, timeout=30, env=env).stdout.strip()
         except (OSError, subprocess.SubprocessError):
-            raise Fail("no GitHub token: log in with `gh auth login`") from None
+            raise Fail(f"no GitHub token from gh (GH_CONFIG_DIR={env['GH_CONFIG_DIR']})") from None
         self.s = requests.Session()
         self.s.headers.update({"Authorization": f"Bearer {token}",
                                "Accept": "application/vnd.github+json",
                                "X-GitHub-Api-Version": "2022-11-28"})
         self.repo = repo
-        self.api = f"https://api.github.com/repos/{repo}"
+        self.web = (os.environ.get("GITHUB_RELEASE_WEB") or "https://github.com").rstrip("/")
+        api = (os.environ.get("GITHUB_RELEASE_API") or "https://api.github.com").rstrip("/")
+        self.api = f"{api}/repos/{repo}"
         self.dry = dry
+        self.last_write = 0.0
 
     def call(self, method: str, url: str, write: bool = False, ok404: bool = False, **kw):
         short = url.replace(self.api, "<repo>")
         if write and self.dry:
             say(f"  [dry-run] {method} {short.split('?')[0]}")
             return None
+        if write:
+            time.sleep(max(0.0, self.last_write + self.PAUSE - time.monotonic()))
+            self.last_write = time.monotonic()
         timeout = kw.pop("timeout", 60)
         for attempt in range(6):
             r = self.s.request(method, url if url.startswith("http") else self.api + url,
@@ -445,7 +480,7 @@ def github_plan(gh: GitHub, tag: str, ref: str | None, files: list[Path], sums: 
             raise Fail(f"{n} is already on the GitHub release {tag} with other bytes; "
                        "a published file never changes silently (--replace to swap it)")
     for n, old in have.items():
-        if n not in want:
+        if n not in want and not fnmatch.fnmatchcase(n, "update*.json"):  # github-update-json's
             if not replace:
                 raise Fail(f"the GitHub release {tag} has an asset {n} that is not in the folder "
                            "(--replace removes it)")
@@ -453,21 +488,35 @@ def github_plan(gh: GitHub, tag: str, ref: str | None, files: list[Path], sums: 
     return rel, plan
 
 
+def version_key(tag: str) -> tuple:
+    m = re.match(r"v?([0-9]+)\.([0-9]+)\.([0-9]+)", tag or "")
+    return tuple(int(x) for x in m.groups()) if m else ()
+
+
 def github_release(gh: GitHub, tag: str, ref: str | None, name: str, notes: str,
                    rel: dict | None, plan: list[tuple], sums: dict[str, str]) -> None:
-    """Creates or updates the Release of tag and carries out github_plan's steps."""
+    """Creates or updates the Release of tag and carries out github_plan's steps. The release
+    becomes the latest one unless it is an -rcN or a newer release is already the latest."""
+    latest = gh.call("GET", "/releases/latest", ok404=True)
+    newest = "-rc" not in tag and (latest is None or version_key(latest.get("tag_name")) <= version_key(tag))
     if rel is None:
-        say(f"  + release {tag}")
+        say(f"  + release {tag}" + (" (latest)" if newest else ""))
         body = {"tag_name": tag, "name": name, "body": notes, "draft": False,
-                "prerelease": "-rc" in tag}
+                "prerelease": "-rc" in tag, "make_latest": "true" if newest else "false"}
         if ref:
             body["target_commitish"] = ref
         rel = gh.call("POST", "/releases", write=True, json=body)
-    elif rel.get("name") != name or (rel.get("body") or "") != notes:
-        say(f"  ~ release {tag}: name/notes")
-        gh.call("PATCH", f"/releases/{rel['id']}", write=True, json={"name": name, "body": notes})
     else:
-        say(f"  = release {tag}")
+        want_latest = newest and (latest or {}).get("id") != rel.get("id")
+        if (rel.get("name") != name or (rel.get("body") or "") != notes or rel.get("draft")
+                or bool(rel.get("prerelease")) != ("-rc" in tag) or want_latest):
+            say(f"  ~ release {tag}: name/notes/latest")
+            body = {"name": name, "body": notes, "draft": False, "prerelease": "-rc" in tag}
+            if want_latest:
+                body["make_latest"] = "true"
+            gh.call("PATCH", f"/releases/{rel['id']}", write=True, json=body)
+        else:
+            say(f"  = release {tag}" + (" (latest)" if (latest or {}).get("id") == rel.get("id") else ""))
     for action, n, p, old in plan:
         if action == "=":
             say(f"  = {n} (already uploaded)")
@@ -517,7 +566,7 @@ def check_github(gh: GitHub, tag: str, files: list[Path], sums: dict[str, str], 
     say(f"  SHA256SUMS from the release: signature ok (key {entry['label']})")
     # The public link, as a download would follow it (anonymous: a private repository or a
     # hidden account answers 404 here, which is reported, not an error).
-    url = f"https://github.com/{gh.repo}/releases/download/{tag}/SHA256SUMS"
+    url = f"{gh.web}/{gh.repo}/releases/download/{tag}/SHA256SUMS"
     r = requests.get(url, timeout=60)
     say(f"  anonymous {url}: {r.status_code}"
         + (" (same bytes)" if r.status_code == 200 and r.content == sums_text.encode() else ""))
@@ -648,6 +697,47 @@ def gitlab_publish(a, gl: GitLab, tag: str, notes: str, all_files: list[Path],
         say(f"  {proj}/-/releases/permalink/latest/downloads{l['direct_asset_path']}")
 
 
+def cmd_github_update_json(a) -> int:
+    """The signed update-v2.json as the asset update-v2.json on the latest GitHub Release."""
+    path, name = Path(a.file), "update-v2.json"
+    try:
+        data = path.read_bytes()
+        env = json.loads(data)
+    except (OSError, ValueError) as e:
+        raise Fail(f"cannot read {path}: {e.__class__.__name__}") from None
+    if not isinstance(env, dict) or "payload" not in env or "signatures" not in env:
+        raise Fail(f"{path} is not a signed manifest (payload + signatures)")
+    want = hashlib.sha256(data).hexdigest()
+    gh = GitHub(a.github_repo, a.dry_run)
+    rel = gh.call("GET", "/releases/latest", ok404=True)
+    if rel is None:
+        raise Fail(f"github.com/{a.github_repo} has no latest release: publish one first "
+                   "(publish --target github)")
+    tag = rel["tag_name"]
+    say(f"{name} ({want}) → github.com/{a.github_repo} latest release {tag}")
+    old = next((x for x in rel.get("assets", []) if x["name"] == name), None)
+    if old is not None and asset_sha256(gh, old) == want:
+        say(f"  = {name} (already there)")
+        return 0
+    if old is not None:
+        say(f"  - {name} (old bytes)")
+        gh.call("DELETE", f"/releases/assets/{old['id']}", write=True)
+    say(f"  ↑ {name} ({len(data)} bytes)")
+    if gh.dry:
+        gh.call("POST", "<uploads>", write=True)
+        return 0
+    upload_url = rel["upload_url"].split("{", 1)[0]
+    got = gh.call("POST", f"{upload_url}?{urllib.parse.urlencode({'name': name})}", write=True,
+                  data=data, timeout=300, headers={"Content-Type": "application/json"})
+    if not isinstance(got, dict) or got.get("size") != len(data):
+        raise Fail(f"{name}: GitHub stored {(got or {}).get('size')} bytes, not {len(data)}")
+    if asset_sha256(gh, got) != want:
+        raise Fail(f"{name}: GitHub stored other bytes than {want}")
+    say(f"  {name} on {tag}: ok")
+    say(f"  {gh.web}/{a.github_repo}/releases/latest/download/{name}")
+    return 0
+
+
 def cmd_verify(a) -> int:
     keys = load_keyring(Path(a.keyring))
     sums = Path(a.sums)
@@ -684,6 +774,10 @@ def main(argv=None) -> int:
     p.add_argument("--token-file", default=str(DEFAULTS["token_file"]))
     p.add_argument("--key", default=str(DEFAULTS["key"]))
     p.add_argument("--keyring", default=str(DEFAULTS["keyring"]))
+    u = sub.add_parser("github-update-json", help="update-v2.json onto the latest GitHub Release")
+    u.add_argument("file")
+    u.add_argument("--github-repo", default=DEFAULTS["github_repo"], help="owner/repo on GitHub")
+    u.add_argument("--dry-run", action="store_true", help="change nothing, say what would change")
     v = sub.add_parser("verify", help="check SHA256SUMS.sig against the keyring")
     v.add_argument("sums")
     v.add_argument("sig", nargs="?")
@@ -692,7 +786,8 @@ def main(argv=None) -> int:
     k.add_argument("--keyring", default=str(DEFAULTS["keyring"]))
     a = ap.parse_args(argv)
     try:
-        return {"publish": cmd_publish, "verify": cmd_verify, "pubkey": cmd_pubkey}[a.cmd](a)
+        return {"publish": cmd_publish, "github-update-json": cmd_github_update_json,
+                "verify": cmd_verify, "pubkey": cmd_pubkey}[a.cmd](a)
     except Fail as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
