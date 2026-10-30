@@ -454,6 +454,11 @@ def trust_manifest(engine, step, say):
             sums[fname] = sha
     except OSError:
         problems.append("files/SHA256SUMS missing")
+    # Desktop systems this release leaves out keep their live entry (steps/desktop_keep.py).
+    kept = {}
+    kp = os.path.join(mdir, "desktop-keep.json")
+    if os.path.isfile(kp):
+        kept = {e["url"].rsplit("/", 1)[-1]: e for e in walk_objects(json.load(open(kp))) if isinstance(e.get("url"), str)}
     serial = None
     for name in ("update.json", "update-v2.json"):
         pth = os.path.join(mdir, name)
@@ -466,7 +471,11 @@ def trust_manifest(engine, step, say):
         for entry in [o for o in walk_objects(pl) if isinstance(o.get("url"), str)]:
             fname = entry["url"].rsplit("/", 1)[-1]
             if fname not in sums:
-                problems.append(f"{name}: names {fname}, which is not a file of this run")
+                k = kept.get(fname)
+                if k and (k.get("sha256"), k.get("size"), k.get("version")) == (entry.get("sha256"), entry.get("size"), entry.get("version")):
+                    say(f"{name}: {fname} kept from the live manifest ({k.get('version')})")
+                else:
+                    problems.append(f"{name}: names {fname}, which is not a file of this run")
                 continue
             if entry.get("sha256") and entry["sha256"] != sums[fname]:
                 problems.append(f"{name}: sha256 of {fname} differs from the file")
@@ -497,6 +506,15 @@ def trust_manifest(engine, step, say):
     return {"status": "done", "note": f"both manifests verify; serial {serial}" + (" (test key)" if engine.info.get("test") else "")}
 
 
+def kept_files(run):
+    """{file name: sha256} of the desktop entries this run's manifests keep from the live one."""
+    kp = os.path.join(run.path, "manifests", "desktop-keep.json")
+    if not os.path.isfile(kp):
+        return {}
+    return {e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in walk_objects(json.load(open(kp)))
+            if isinstance(e.get("url"), str)}
+
+
 def walk_objects(o):
     if isinstance(o, dict):
         yield o
@@ -514,10 +532,13 @@ def proof_table(engine):
     for p in PLATFORMS:
         if not s["platforms"].get(p):
             continue
-        if p in s["proof"]["waive"]:
-            out[p] = ("waived", f"NOT PROVEN — waived: {s['proof']['waive'][p]}")
-            continue
         ts = [x for x in run.steps if x.base == f"trust-{p}"]
+        if p in s["proof"]["waive"]:
+            found = "; ".join(f"{x.variant}: {st.get('note') or st['status']}" for x in ts
+                              for st in [run.status(x.id)] if st["status"] != "skipped")
+            out[p] = ("waived", f"NOT PROVEN — waived: {s['proof']['waive'][p]}"
+                      + (f" · driver: {found}" if found else ""))
+            continue
         if not ts:
             out[p] = ("not proven", "no update-trust step in scope")
             continue
@@ -674,6 +695,9 @@ def verify_live(engine, step, say):
             for name, sha in sums.items():
                 if served.get(name) != sha:
                     problems.append(f"{base}{name}: not served with this checksum")
+            for name, sha in kept_files(run).items():
+                if served.get(name) != sha:
+                    problems.append(f"{base}{name}: kept in the manifest but not served with its checksum")
         if info["scope"]["publish"]["manifests"]:
             import hashlib
             for name, url in (("update.json", old["manifest"]), ("update-v2.json", new["manifests"][0])):
@@ -769,7 +793,7 @@ def scratch_prune(engine, step, say):
     v = engine.info["version"]
     moved = []
     for n in sorted(os.listdir(d)) if os.path.isdir(d) else []:
-        if n != "SHA256SUMS" and f"-{v}-" not in n:
+        if n != "SHA256SUMS" and f"-{v}-" not in n and n not in kept_files(engine.run):
             os.makedirs(arch, exist_ok=True)
             shutil.move(os.path.join(d, n), os.path.join(arch, n))
             moved.append(n)

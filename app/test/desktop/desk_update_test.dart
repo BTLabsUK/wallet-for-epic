@@ -831,5 +831,19 @@ Future<void> main(List<String> a) async {
     final missing = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path]);
     expect(missing.exitCode, isNot(0));
     expect('${missing.stderr}', contains('notor-x86_64.AppImage'));
+    // A release that leaves a system out keeps that system's live entry unchanged
+    // (WFE_DESKTOP_KEEP, written by tools/rellib/steps/desktop_keep.py).
+    final kept = _entry('EpicCashDesktop-26.10.1-notor-x86_64.AppImage', version: '26.10.1');
+    final keep = File('${dir.path}/keep.json')
+      ..writeAsStringSync(jsonEncode({
+        'desktop': <String, Object?>{},
+        'notor': {'desktop': {'linux': kept}},
+      }));
+    final carried = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path],
+        environment: {'WFE_DESKTOP_KEEP': keep.path});
+    expect(carried.exitCode, 0, reason: '${carried.stderr}');
+    final cb = jsonDecode(carried.stdout as String) as Map<String, dynamic>;
+    expect((cb['notor'] as Map)['desktop']['linux'], kept);
+    expect((cb['desktop'] as Map)['linux']['version'], _next, reason: "this release's own file wins");
   });
 }

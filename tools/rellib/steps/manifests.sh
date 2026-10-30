@@ -8,7 +8,7 @@
 # A TEST run (REL_TEST=1) never touches the real key: release_android.sh is pointed at a key that
 # does not exist, so it stops after writing the payloads, and the payloads are signed with
 # btlabs-public's test key against a test keyring kept in the run (manifests/test-keyring.json).
-# Env (set by tools/rel): REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST
+# Env (set by tools/rel): REL_VERSION REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST
 #   REL_SIGNER_BTLABS_PUBLIC REL_SIGNER_SIGNING_KEY (release-hosts.toml host.signer)
 set -euo pipefail
 src="${REL_SRC:?}" files="${REL_FILES:?}" m="${REL_MANIFESTS:?}"
@@ -22,6 +22,16 @@ for f in update.json update-v2.json update.payload.json update-v2.payload.json; 
   rm -f -- "${out:?}/$f"
 done
 export WFE_APK_DIR="$files" WFE_DESKTOP_DIR="$files" BTLABS_PUBLIC="$bp"
+# Desktop systems this release has no file for keep their live entry (desktop_keep.py).
+rm -f -- "$m/desktop-keep.json"
+python3 -I "$(dirname "$0")/desktop_keep.py" "$src" "$files" "$REL_VERSION" "$bp" "$m/desktop-keep.json"
+if [[ -f "$m/desktop-keep.json" ]]; then
+  grep -q WFE_DESKTOP_KEEP "$src/app/tool/desktop_update_entry.sh" || {
+    echo "this commit's app/tool/desktop_update_entry.sh cannot keep live desktop entries: a release" >&2
+    echo "without every desktop system needs a commit that has it (or every desktop system in scope)" >&2
+    exit 1; }
+  export WFE_DESKTOP_KEEP="$m/desktop-keep.json"
+fi
 if [[ "${REL_TEST:-0}" == 1 ]]; then
   # Stops before signing ("Not signed": exit 1) with the payloads written.
   BTLABS_SIGNING_KEY="$m/no-such-key" "$src/app/tool/release_android.sh" "$base" "$notes" || true
