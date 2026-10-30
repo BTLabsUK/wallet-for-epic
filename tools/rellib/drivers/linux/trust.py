@@ -514,8 +514,8 @@ class Run:
         rows = []
         for n in self.ui.nodes():
             first = n.name.split("\n")[0]
-            if re.match(r"^(Received|Sent|Receiving|Sending|Cancelled|Confirming|Waiting|Restored|Incoming|Outgoing)\b", first) \
-                    and "EPIC" in n.name:
+            if (re.match(r"^(Received|Sent|Receiving|Sending|Cancelled|Confirming|Waiting|Restored|Incoming|Outgoing|Found)\b", first)
+                    and ("EPIC" in n.name or re.search(r"[+-]\d+\.\d+", n.name))):
                 rows.append(n.name.replace("\n", " | "))
         return rows
 
@@ -789,6 +789,7 @@ class Run:
             # give the candidate a moment to read the chain before reading the balance
             time.sleep(20)
             after = self.digest("candidate")
+            self.settle(before, after)
             self.compare(before, after)
         self.funds_legs(after)
         return 0
@@ -820,16 +821,47 @@ class Run:
             return False, "a different wallet opened: address %s, was %s" % (short(a1), short(a0))
         return True, "unlocked with the same password; same Epicbox address %s" % short(a1)
 
+    def settle(self, b, a, wait_s=150):
+        """A wallet may still be refreshing when first read: the balance and activity are read again for
+        up to [wait_s] until they match. The first reading is kept for the details."""
+        a["first_balance"], a["first_activity"] = a["balance"], a["activity"]
+        t0 = time.time()
+        while time.time() - t0 < wait_s:
+            if (a["balance"] or {}).get("available") == (b["balance"] or {}).get("available") and \
+                    all(any(same_row(r, x) for x in a["activity"]) for r in b["activity"]):
+                break
+            time.sleep(15)
+            a["balance"], a["activity"] = self.balance(), self.activity()
+        a["settled_after_s"] = int(time.time() - t0)
+        if a["balance"] != a["first_balance"] or a["activity"] != a["first_activity"]:
+            self.log("after %d s: balance %s, activity %s (first read: %s, %s)" % (
+                a["settled_after_s"], fmt_bal(a["balance"] or {}), a["activity"], fmt_bal(a["first_balance"] or {}), a["first_activity"]))
+            self.nav("Overview")
+            self.shot("candidate-overview-later")
+        with open(os.path.join(self.out, "digest-candidate.json"), "w") as f:
+            json.dump(a, f, indent=1, default=str)
+
     def compare(self, b, a):
         self.ok("wallet_opens", self.details.get("wallet_opens") or "opened; same address")
 
-        b0, b1 = b["balance"] or {}, a["balance"] or {}
-        if b1.get("available") == b0.get("available") and b1.get("total", b1.get("available")) == b0.get("total", b0.get("available")):
-            self.ok("balance_kept", "available %s, total %s EPIC before and after" % (num(b0.get("available")), num(b0.get("total"))))
+        b0, b1, f1 = b["balance"] or {}, a["balance"] or {}, a.get("first_balance") or {}
+        late = "" if f1 == b1 else "; first shown %s, this after %d s" % (fmt_bal(f1), a.get("settled_after_s", 0))
+        rebuilt = [r for r in a["activity"] if counterparty(r) == "Found by recheck"
+                   and not any(counterparty(x) == "Found by recheck" for x in b["activity"])]
+        same = b1.get("available") == b0.get("available") and b1.get("total", b1.get("available")) == b0.get("total", b0.get("available"))
+        if same and late and rebuilt:
+            self.fail("balance_kept", "the update showed %s; %s EPIC came back only after %d s, found again on the chain by a recheck "
+                      "(the wallet's own records were not carried over)" % (fmt_bal(f1), num(b0.get("available")), a.get("settled_after_s", 0)))
+        elif same:
+            self.ok("balance_kept", "available %s, total %s EPIC before and after%s" % (num(b0.get("available")), num(b0.get("total")), late))
         else:
-            self.fail("balance_kept", "before %s, after %s" % (fmt_bal(b0), fmt_bal(b1)))
+            self.fail("balance_kept", "before %s, after %s (read for %d s)" % (fmt_bal(b0), fmt_bal(b1), a.get("settled_after_s", 0)))
         missing = [r for r in b["activity"] if not any(same_row(r, x) for x in a["activity"])]
-        if not missing and len(a["activity"]) >= len(b["activity"]):
+        changed = ["%s → %s" % (r[:70], next(x for x in a["activity"] if same_row(r, x))[:70]) for r in b["activity"]
+                   if r not in missing and not any(same_row(r, x) and counterparty(r) == counterparty(x) for x in a["activity"])]
+        if changed and not missing:
+            self.fail("history_kept", "rows kept but their details lost (who paid or was paid): %s" % "; ".join(changed))
+        elif not missing and len(a["activity"]) >= len(b["activity"]):
             self.ok("history_kept", "%d activity rows kept (%s)" % (len(b["activity"]), "; ".join(r[:70] for r in b["activity"])))
         else:
             self.fail("history_kept", "%d of %d rows missing after the update: %s; after: %s" % (
@@ -992,6 +1024,12 @@ def same_row(r0, r1):
         m = re.match(r"^(\w+)\D*?([\d.,]+) EPIC", r)
         return (m.group(1), D(m.group(2).replace(",", ""))) if m else r
     return key(r0) == key(r1)
+
+
+def counterparty(r):
+    """The row's second part: the other side's address, or how the wallet learnt of it ("Found by recheck")."""
+    m = re.search(r"EPIC, ([^,|]+),", r)
+    return m.group(1).strip() if m else ""
 
 
 def phrase_words(names):
