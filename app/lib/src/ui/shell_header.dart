@@ -308,12 +308,14 @@ class WalletBalance extends ConsumerWidget {
             // icon coming or going (Tor on, the onion published) moves nothing else.
             SizedBox(
               height: rowHeight,
-              child: Row(
+              child: LayoutBuilder(
+                builder: (context, box) => Row(
                 children: [
                   // The mode mark and four icons are 350 dp wide with a long mode name: on a
-                  // 360 dp phone the strip shrinks a little rather than wrap or overflow.
-                  Flexible(
-                    flex: 100,
+                  // 360 dp phone the strip shrinks a little rather than wrap or overflow. It
+                  // keeps its natural width otherwise.
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: math.max(0, box.maxWidth - (summary != null ? statusTarget : 0))),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: AlignmentDirectional.centerStart,
@@ -343,6 +345,7 @@ class WalletBalance extends ConsumerWidget {
                   ),
                   if (summary != null) eye,
                 ],
+                ),
               ),
             ),
           ],

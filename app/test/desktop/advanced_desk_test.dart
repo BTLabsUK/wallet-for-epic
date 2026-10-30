@@ -327,9 +327,12 @@ void main() {
       expect(_advanced.networkMode, NetworkMode.standard);
     });
 
-    testWidgets('the title bar mark shows off Normal only; its popover says what the mode does and Change opens Advanced', (tester) async {
+    testWidgets('Normal: no mark in the title bar', (tester) async {
       await _open(tester, DeskRoute.overview);
       expect(find.byKey(const ValueKey('bar-net-mode')), findsNothing);
+    });
+
+    testWidgets('the title bar mark shows off Normal; its popover says what the mode does and Change opens Advanced', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _offline);
       expect(find.byKey(const ValueKey('bar-net-mode')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('bar-net-mode')), matching: find.text('Node only')), findsOneWidget);
@@ -350,10 +353,13 @@ void main() {
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Off (Node only)')), findsNothing);
     });
 
-    testWidgets('Kill switch: the Overview marks the balance Last known and shows no fiat value; Activity says the list is the last seen', (tester) async {
+    testWidgets('Kill switch: the Overview marks the balance Last known and shows no fiat value', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _kill);
       expect(find.text('Last known'), findsWidgets);
       expect(find.textContaining('≈'), findsNothing);
+    });
+
+    testWidgets('Kill switch: Activity says the list is the last seen', (tester) async {
       await _open(tester, DeskRoute.activity, advanced: _kill);
       expect(find.byKey(const ValueKey('activity-last-known')), findsOneWidget);
     });

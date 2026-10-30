@@ -162,6 +162,8 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
         TxState.posted when t.notPosted && NetGate.killSwitch => (l.txPostElsewhere, ETone.info),
         TxState.posted when t.notPosted => (l.deskTxStatusNotPosted, ETone.warn),
         TxState.posted => (l.deskTxStatusWaitingBlock, ETone.neutral),
+        // Kill switch asks no node: the count is the one seen last.
+        TxState.confirming when NetGate.killSwitch => (l.lastKnownConfirming(l.deskTxStatusConfirming(t.confirmations, t.confirmationsNeeded)), ETone.info),
         TxState.confirming => (l.deskTxStatusConfirming(t.confirmations, t.confirmationsNeeded), ETone.info),
         TxState.confirmed => (t.incoming ? l.deskTxReceived : l.deskTxSent, ETone.ok),
         TxState.cancelled => (l.deskTxStatusCancelled, ETone.neutral),

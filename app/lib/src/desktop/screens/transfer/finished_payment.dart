@@ -41,7 +41,7 @@ class FinishedPaymentActions extends ConsumerWidget {
       try {
         return await ref.read(deskApiProvider).finishedPayment(tx.id);
       } on Object catch (e) {
-        if (context.mounted) showEToast(context, e is DeskError && e.message.contains('newer LEPIC') ? l.finishedUnavailable : l.finishedFailed, tone: ETone.warn);
+        if (context.mounted) showEToast(context, e is DeskError && e.message.contains('newer LEPIC') ? l.finishedUnavailable : l.finishedFailed, tone: ETone.warn); // l10n-ok: the core's English reason
         return null;
       }
     }
@@ -102,7 +102,7 @@ class _FinishedNotPostedPanelState extends ConsumerState<FinishedNotPostedPanel>
     try {
       return await ref.read(deskApiProvider).finishedPayment(widget.tx.id);
     } on Object catch (e) {
-      if (mounted) setState(() => _error = e is DeskError && e.message.contains('newer LEPIC') ? l.finishedUnavailable : l.finishedFailed);
+      if (mounted) setState(() => _error = e is DeskError && e.message.contains('newer LEPIC') ? l.finishedUnavailable : l.finishedFailed); // l10n-ok: the core's English reason
       return null;
     }
   }
