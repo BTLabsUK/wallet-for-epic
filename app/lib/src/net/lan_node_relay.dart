@@ -31,6 +31,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import '../network_gate.dart' show NetDial, NetGate;
 import 'local_address.dart';
 
 /// The relays, one per node address (`ip|port`), kept for the app's life.
@@ -82,6 +83,8 @@ Future<String> lanNodeUrl(String url) async {
       target = host;
     case HostKind.name:
       if (!isLocalNetworkName(host)) return url;
+      // Node only looks up the node in use's name only; Kill switch none.
+      if (!NetGate.allows(NetDial.lookup, host)) return url;
       final found = await resolveLocal(host, lanNodeLookup);
       if (found == null) return url;
       target = found;
@@ -93,12 +96,13 @@ Future<String> lanNodeUrl(String url) async {
   }
   final port = u.port;
   final key = '$target|$port';
-  final relay = await _relays.putIfAbsent(key, () => _relay(key, target, port));
+  final relay = await _relays.putIfAbsent(key, () => _relay(key, target, port, host));
   final path = u.path.endsWith('/') ? u.path.substring(0, u.path.length - 1) : u.path;
   return u.replace(host: InternetAddress.loopbackIPv4.address, port: relay.server.port, path: '/${relay.token}$path').toString();
 }
 
-Future<_Relay> _relay(String key, String host, int port) async {
+/// [name]: the node's host as the user wrote it, which the network mode's gate knows.
+Future<_Relay> _relay(String key, String host, int port, String name) async {
   final HttpServer server;
   try {
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
@@ -111,7 +115,7 @@ Future<_Relay> _relay(String key, String host, int port) async {
     ..autoUncompress = false
     ..findProxy = ((_) => 'DIRECT');
   final relay = _Relay(server, _newToken(), client);
-  server.listen((request) => unawaited(_forward(relay, request, host, port)));
+  server.listen((request) => unawaited(_forward(relay, request, host, port, name)));
   return relay;
 }
 
@@ -124,10 +128,12 @@ String _newToken() {
 /// One request from LEPIC (or the app's node client) to the node and its answer back, headers
 /// and body as they are. A request without the token is refused; a node that cannot be reached
 /// closes the connection, which LEPIC sees as the node not answering.
-Future<void> _forward(_Relay relay, HttpRequest request, String host, int port) async {
+Future<void> _forward(_Relay relay, HttpRequest request, String host, int port, String name) async {
   final prefix = '/${relay.token}';
   final path = request.uri.path;
-  if (path != prefix && !path.startsWith('$prefix/')) {
+  // The network mode's gate: Node only passes requests on to the node in use only, Kill
+  // switch none.
+  if ((path != prefix && !path.startsWith('$prefix/')) || !NetGate.allows(NetDial.nodeRelay, name)) {
     request.response.statusCode = HttpStatus.forbidden;
     await request.response.close().catchError((_) {});
     return;

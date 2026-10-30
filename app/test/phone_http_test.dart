@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/test_settings.dart' show useNetworkModeFile;
 
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);
@@ -75,7 +76,10 @@ class _Harness {
       return null;
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-    if (advanced != null) store.values['app.advanced_prefs'] = advanced!.encode();
+    if (advanced != null) {
+      store.values['app.advanced_prefs'] = advanced!.encode();
+      useNetworkModeFile(advanced!.networkMode);
+    }
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
@@ -305,12 +309,12 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  testWidgets('Offline on a node that is not local: nothing listens, the Offline line', (tester) async {
-    final h = _Harness(advanced: const AdvancedPrefs(networkMode: NetworkMode.offline));
+  testWidgets('Node only: nothing listens, the Node only line', (tester) async {
+    final h = _Harness(advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly));
     await h.pump(tester);
     expect(h.session.httpListenerStarts, isEmpty);
     expect(h.http.phase, PhoneHttpPhase.offline);
-    expect(find.text('Cannot receive this way while Offline is on.'), findsOneWidget);
+    expect(find.text('Link receiving is off in Node only.'), findsOneWidget);
     NetGate.set(NetworkMode.standard);
   });
 }

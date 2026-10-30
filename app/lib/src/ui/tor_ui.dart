@@ -176,8 +176,8 @@ class TorSwitchTile extends ConsumerWidget {
           },
           value: switch (mode) {
             NetworkMode.torOnly => true,
-            NetworkMode.offline => false,
-            NetworkMode.standard => tor.receiving,
+            NetworkMode.killSwitch => false,
+            NetworkMode.standard || NetworkMode.nodeOnly => tor.receiving,
           },
           onChanged: busy || locked
               ? null
@@ -195,13 +195,15 @@ class TorSwitchTile extends ConsumerWidget {
                 child: Text(
                   mode == NetworkMode.torOnly
                       ? l.netBlockTorOnly
-                      : l.netBlockOffline,
+                      : mode == NetworkMode.killSwitch
+                      ? l.netBlockKillSwitch
+                      : l.netBlockNodeOnly,
                   style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                 ),
               ),
             ),
           ),
-        if (failed && mode != NetworkMode.offline)
+        if (failed && !mode.restricted)
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: Padding(

@@ -43,6 +43,7 @@ Future<bool> switchServersLive(
     epicboxDomain: relay.host,
     epicboxPort: relay.port,
     walletId: opened.walletId,
+    offline: opened.offline,
   );
   final relayChanged =
       next.epicboxDomain != opened.epicboxDomain ||
@@ -117,6 +118,7 @@ Future<bool> switchNodeForSession(Ref ref, String nodeUrl) async {
     epicboxDomain: opened.epicboxDomain,
     epicboxPort: opened.epicboxPort,
     walletId: opened.walletId,
+    offline: opened.offline,
   );
   await session.setServers(config: next);
   if (!ref.mounted || ref.read(sessionProvider) != session) return false;

@@ -6,6 +6,7 @@
 library;
 
 import 'log.dart';
+import 'network_gate.dart' show NetGate;
 import 'settings_file/host_settings.dart' show appConfig;
 import 'wallet_service.dart';
 
@@ -91,7 +92,9 @@ class StallRetry {
     Iterable<TxEntry> txs,
     DateTime now,
   ) async {
-    if (_running) return false;
+    // Kill switch posts nothing (the node included); its finished payments are posted
+    // elsewhere. Leaving it posts them here again.
+    if (_running || NetGate.killSwitch) return false;
     _running = true;
     try {
       final list = txs.toList();
@@ -117,7 +120,7 @@ class StallRetry {
           } on WalletError catch (error) {
             logWarn('stall', 'repost failed: ${error.kind.name}');
           }
-        } else if (invoicePaymentWaiting(tx)) {
+        } else if (invoicePaymentWaiting(tx) && !NetGate.epicboxOff) {
           if (!_due(tx.key, _created(tx), now, answerResendWaits, repeat: false)) {
             continue;
           }

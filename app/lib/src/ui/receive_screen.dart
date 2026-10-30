@@ -35,7 +35,9 @@ import 'method_strip.dart';
 import 'payment_gate.dart';
 import 'receive_http_card.dart';
 import 'settings_screen.dart';
-import 'status.dart' show EpicboxState, relayLabel;
+import 'network_mode_phone.dart' show openNetworkSection;
+import 'network_mode_text.dart';
+import 'status.dart' show EpicboxState, offGlyphColor, relayLabel;
 import 'qr_scan_screen.dart';
 import 'relay_blocked.dart';
 import 'request_qr_screen.dart' show openQrRequest;
@@ -154,8 +156,9 @@ class ReceiveView extends ConsumerWidget {
     final linkHttp = payments.linkHttp;
     // The Link tab keeps its page with both Link methods off: it offers to turn one on.
     // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
-    final offline = watchNetBlock(context, ref) == NetBlock.offline;
-    final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
+    final offlineBlock = watchNetBlock(context, ref);
+    final offline = offlineBlock.byMode;
+    final offlineNote = NetBlockNote(offlineBlock, line: l.receiveLinkOffMode(networkModeName(l, ref.watch(networkModeProvider))));
     final address = ref.watch(addressProvider);
     // The Epicbox list of the settings file is empty: no server, so no address to hand out
     // (LEPIC's is on a placeholder server, lepic_wallet_service.dart's noEpicboxDomain).
@@ -422,7 +425,7 @@ class ReceiveView extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          if (offline) offlineNote else const _EpicboxLine(),
+          if (offline) _EpicboxOffByMode(mode: ref.watch(networkModeProvider)) else const _EpicboxLine(),
           if (demo) const _KeepTabOpenLine(),
           const SizedBox(height: 8),
         ] else if (address.hasError)
@@ -801,6 +804,63 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
     );
   }
 }
+
+/// The Epicbox tab while Node only or Kill switch turns Epicbox off: the status word reads Off
+/// ({mode}), and the address stays shown and copyable above; payments to it wait on the Epicbox
+/// server and arrive when the mode is left.
+class _EpicboxOffByMode extends StatelessWidget {
+  const _EpicboxOffByMode({required this.mode});
+
+  final NetworkMode mode;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final name = networkModeName(l, mode);
+    return Column(
+      key: receiveEpicboxOffModeKey,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          liveRegion: true,
+          container: true,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(EpicGlyphs.epicbox, size: 16, color: offGlyphColor(t)),
+              const SizedBox(width: 6),
+              Flexible(child: Text(statusOffByModeWord(l, mode), style: theme.textTheme.labelMedium?.copyWith(color: t.dim))),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l.receiveEpicboxOffMode(name),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          l.receiveEpicboxOffModeBody(name),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+        ),
+        Center(
+          child: TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
+            onPressed: () => openNetworkSection(context),
+            child: Text(l.netChangeLink),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The key of the Epicbox-off-by-mode notice on Receive, for tests.
+const Key receiveEpicboxOffModeKey = ValueKey('receive-epicbox-off-mode');
 
 /// Where the epicbox listener stands, in one quiet line. Offline or stopped, it says what that
 /// means for receiving and offers Retry, which restarts the listener. Blocked by this network,

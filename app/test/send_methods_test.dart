@@ -1077,7 +1077,7 @@ void main() {
   });
 
   group('network modes', () {
-    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+    const offline = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
     const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
     Finder makeFile() => find.widgetWithText(FilledButton, 'Make transaction file');
 
@@ -1096,12 +1096,12 @@ void main() {
       await h.pump(tester, advanced: offline);
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Node only is on: Epicbox is off. QR Payment and File Transfer work.'), findsOneWidget);
       // File asks the node in use, a public one too: it runs, with the note (a warning).
       await _tap(tester, _segment('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
-      expect(find.text('Offline is on in Advanced.'), findsNothing);
+      expect(find.text('Node only is on: Epicbox is off. QR Payment and File Transfer work.'), findsNothing);
       expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
       expect(find.text('Uses the node'), findsOneWidget);
       await _tap(tester, find.byKey(offlineNodeNoteKey));
@@ -1109,7 +1109,7 @@ void main() {
       expect(h.session.epicboxSends, isEmpty);
     });
 
-    testWidgets('Offline with a LAN node: File and Link run; no peers says the payment waits', (
+    testWidgets('Node only with a LAN node: File runs, Link does not; no peers says the payment waits', (
       tester,
     ) async {
       final h = _Harness();
@@ -1117,10 +1117,9 @@ void main() {
       // Epicbox still waits.
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      // Link to a local address goes on (the adapter refuses a non-local one).
+      // No Link in Node only, a local address included.
       await _enter(tester, 'To', 'http://10.0.1.30:3415');
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
-      expect(find.byKey(netBlockNoteKey), findsNothing);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
       await _tap(tester, _segment('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
@@ -1135,7 +1134,7 @@ void main() {
       await h.pump(tester, advanced: offline, payments: _directOn);
       await _enter(tester, 'To', _onion);
       expect(find.byKey(sendTurnOnTorKey), findsNothing);
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Node only is on: Link is off. QR Payment and File Transfer work.'), findsOneWidget);
     });
 
     testWidgets('Offline with a public node: File runs with the node note; no peers line (that is the local node\'s)', (tester) async {
@@ -1155,7 +1154,7 @@ void main() {
       await h.pump(tester, advanced: torOnly);
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      expect(find.text('Waiting for Tor.'), findsOneWidget);
+      expect(find.text('Waiting for Tor. Nothing connects until it is ready.'), findsOneWidget);
       await _tap(tester, _segment('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);

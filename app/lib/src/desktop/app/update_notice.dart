@@ -8,6 +8,8 @@
 /// updates by itself opens the download page at every step, and says why.
 library;
 
+import '../../ui/network_mode_text.dart' show browserOffNote;
+import '../../network_gate.dart' show NetDial, NetGate;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -94,6 +96,10 @@ Future<void> deskUpdateAct(BuildContext context, WidgetRef ref) async {
 
 /// Opens the download page; a toast when the browser does not open.
 Future<void> openUpdatePage(BuildContext context, WidgetRef ref, String page) async {
+  if (!NetGate.allows(NetDial.browser, '')) {
+    showEToast(context, browserOffNote(context.l10n), text: page, tone: ETone.warn);
+    return;
+  }
   if (!await ref.read(deskOpenUrlProvider)(page) && context.mounted) {
     showEToast(context, context.l10n.deskSetAboutBrowserNotOpened, text: page, tone: ETone.warn);
   }

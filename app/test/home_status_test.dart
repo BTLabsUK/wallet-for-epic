@@ -11,10 +11,12 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart' as dir;
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/ui/home_status.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart'
     show ReceiveTab, receiveTabProvider;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart' show ServerListSheet;
+import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey, networkSectionKey;
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -191,6 +193,7 @@ Future<void> _pump(
           MemorySecretStore({'app.network': 'mainnet'}),
         ),
         phoneTorProvider.overrideWith(() => _Tor(tor)),
+        networkModeProvider.overrideWithValue(advanced.networkMode),
         dir.relayDirectoryProvider.overrideWithValue(_Directory()),
         priceSourceProvider.overrideWithValue(_Price()),
       ],
@@ -254,9 +257,6 @@ Color _dot(WidgetTester tester, Key key) {
   if (dots.evaluate().isEmpty) return t.faint;
   return tester.widget<StateDot>(dots).dot.color(t);
 }
-
-WalletTokens _tokens2(WidgetTester tester) =>
-    tester.element(find.byKey(netModeStatusKey)).tokens;
 
 WalletTokens _tokens(WidgetTester tester) =>
     tester.element(find.byKey(nodeStatusKey)).tokens;
@@ -581,83 +581,94 @@ void main() {
   });
 
   group('network mode', () {
-    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+    const nodeOnly = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
+    const kill = AdvancedPrefs(networkMode: NetworkMode.killSwitch);
     const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
 
-    testWidgets('Standard: the icons, no mode word', (tester) async {
+    testWidgets('Normal: the icons, no mode mark', (tester) async {
       await _pump(tester);
       expect(find.byKey(netModeStatusKey), findsNothing);
       expect(find.byKey(nodeStatusKey), findsOneWidget);
       expect(find.byKey(epicboxStatusKey), findsOneWidget);
     });
 
-    testWidgets('Offline: the word in a neutral colour, still, in place of the icons', (
+    testWidgets('Node only: the mark leads the strip, Epicbox and Link read Off (Node only), the node stays on', (
       tester,
     ) async {
-      await _pump(tester, advanced: offline, tor: _torOff);
-      final t = _tokens2(tester);
-      expect(find.byKey(nodeStatusKey), findsNothing);
-      expect(find.byKey(epicboxStatusKey), findsNothing);
+      await _pump(tester, advanced: nodeOnly, tor: _torOff);
+      expect(find.byKey(netModeStatusKey), findsOneWidget);
       expect(
-        find.descendant(
-          of: find.byKey(netModeStatusKey),
-          matching: find.text('Offline'),
-        ),
+        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text('Node only')),
         findsOneWidget,
       );
-      final word = tester.widget<Text>(
-        find.descendant(
-          of: find.byKey(netModeStatusKey),
-          matching: find.text('Offline'),
-        ),
+      expect(_label(tester, netModeStatusKey), 'Network mode: Node only. Opens the Network section.');
+      // The mark comes before the first icon.
+      expect(
+        tester.getTopLeft(find.byKey(netModeStatusKey)).dx,
+        lessThan(tester.getTopLeft(find.byKey(nodeStatusKey)).dx),
       );
-      expect(word.style?.color, t.dim);
-      // No pulse: nothing animates, so the tree settles.
-      await tester.pumpAndSettle();
-      expect(_label(tester, netModeStatusKey), 'Offline');
-      expect(_hint(tester, netModeStatusKey), contains('Offline is on in Advanced.'));
+      expect(_label(tester, nodeStatusKey), 'Node, Synced');
+      expect(_label(tester, epicboxStatusKey), 'Epicbox, Off (Node only)');
+      expect(_label(tester, directIconKey), 'Link, Off (Node only)');
+      // Calm: faint with a slash, no problem colour.
+      expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
+      expect(_tip_(tester, epicboxStatusKey), 'Turned off by the network mode. Change it in Settings › Advanced › Network.');
     });
 
-    testWidgets('Tor only without Tor: Waiting for Tor in the in-progress colour', (
+    testWidgets('Kill switch: every service reads Off (Kill switch); a tap opens the Network section', (
+      tester,
+    ) async {
+      await _pump(tester, advanced: kill, tor: _torOff);
+      expect(
+        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text('Kill switch')),
+        findsOneWidget,
+      );
+      expect(_label(tester, nodeStatusKey), 'Node, Off (Kill switch)');
+      expect(_label(tester, epicboxStatusKey), 'Epicbox, Off (Kill switch)');
+      expect(_label(tester, directIconKey), 'Link, Off (Kill switch)');
+      await tester.tap(find.byKey(epicboxStatusKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(networkSectionKey), findsOneWidget);
+      expect(find.byKey(networkModeRowKey(NetworkMode.killSwitch)), findsOneWidget);
+    });
+
+    testWidgets('the mark opens the Network section too', (tester) async {
+      await _pump(tester, advanced: nodeOnly, tor: _torOff);
+      await tester.tap(find.byKey(netModeStatusKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(networkSectionKey), findsOneWidget);
+    });
+
+    testWidgets('Tor only without Tor: the mark, and the node and Epicbox wait for Tor', (
       tester,
     ) async {
       await _pump(tester, advanced: torOnly, tor: _torStarting);
-      final t = _tokens2(tester);
-      final word = tester.widget<Text>(
-        find.descendant(
-          of: find.byKey(netModeStatusKey),
-          matching: find.text('Waiting for Tor'),
-        ),
+      expect(
+        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text('Tor only')),
+        findsOneWidget,
       );
-      expect(word.style?.color, t.info);
-      expect(find.byKey(nodeStatusKey), findsNothing);
+      expect(_label(tester, nodeStatusKey), contains('Waiting for Tor'));
+      expect(_label(tester, epicboxStatusKey), contains('Waiting for Tor'));
       // Tor's own icon stays: it is how the user sees Tor start.
       expect(find.byKey(torIconKey), findsOneWidget);
     }, skip: !torBuilt);
 
-    testWidgets('Tor only with Tor connected: the icons are back', (
-      tester,
-    ) async {
-      await _pump(tester, advanced: torOnly, tor: _torReady);
-      expect(find.byKey(netModeStatusKey), findsNothing);
-      expect(find.byKey(nodeStatusKey), findsOneWidget);
-    });
-
-    testWidgets('Offline keeps the last balance and marks the caption', (
+    testWidgets('Kill switch keeps the last balance, marks the caption, and shows no fiat value', (
       tester,
     ) async {
       await _pump(
         tester,
         child: const WalletBalance(),
-        advanced: offline,
+        advanced: kill,
         tor: _torOff,
       );
       await tester.pumpAndSettle();
       expect(find.byKey(balanceFigureKey), findsOneWidget);
       expect(
         tester.widget<Text>(find.byKey(balanceCaptionKey)).data,
-        'Available to spend · Offline',
+        'Available to spend · last known',
       );
+      expect(find.byKey(fiatValueKey), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, child: const WalletBalance(), tor: _torOff);
       await tester.pumpAndSettle();

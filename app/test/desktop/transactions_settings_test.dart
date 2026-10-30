@@ -129,18 +129,18 @@ void main() {
       expect(find.text('Link · Tor receiving'), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('Offline on a public node: Link · HTTP refused stays off; Link · Tor offers no Turn on Tor (LNX-8)', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, advanced: const AdvancedPrefs(networkMode: NetworkMode.offline));
+    testWidgets('Node only on a public node: Link · HTTP refused stays off; Link · Tor offers no Turn on Tor (LNX-8)', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly));
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(_payments.linkHttp, isFalse);
       expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isFalse);
-      expect(find.textContaining('Offline'), findsWidgets);
+      expect(find.textContaining('Node only'), findsWidgets);
       await tester.tap(_offer('linkTor'));
       await _settle(tester);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
       expect(find.text('Turn on Tor'), findsNothing);
-      expect(find.descendant(of: find.byKey(const ValueKey('st-tor-needs-tor')), matching: find.text('Offline is on in Advanced.')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('st-tor-needs-tor')), matching: find.text('Off in Node only.')), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
     }, skip: !torBuilt);
 
@@ -363,7 +363,7 @@ void main() {
       expect(find.byKey(const ValueKey('adv-directReceiving')), findsNothing);
       expect(find.text('Link receiving'), findsNothing);
       expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
-      expect(find.byKey(const ValueKey('adv-mode-offline')), findsOneWidget);
+      expect(find.byKey(const ValueKey('adv-mode-nodeOnly')), findsOneWidget);
     });
 
     test('the old Link receiving switch is taken over as Link · HTTP and Link · Tor on', () {

@@ -1,8 +1,6 @@
 {
   "deskSlotNow": "Teraz",
   "deskSlotHelp": "Pomoc",
-  "deskSlotOffline": "Offline",
-  "deskSlotOfflineDetail": "nic nie jest wysyłane ani odbierane",
   "deskSlotScanning": "Skanowanie łańcucha",
   "deskSlotScanWaits": "Skanowanie czeka na sieć",
   "deskSlotScanStopped": "Skanowanie zatrzymane",
@@ -17,7 +15,6 @@
   "deskSlotRequests": "Nowe faktury",
   "deskSlotNodeStarting": "Uruchamianie węzła lokalnego",
   "deskSlotNodeSyncing": "Synchronizacja węzła lokalnego",
-  "deskSlotOpenAdvanced": "Otwórz ustawienia zaawansowane",
   "deskSlotOpenRecheck": "Otwórz Sprawdź saldo",
   "deskSlotOpenSend": "Otwórz Wyślij",
   "deskSlotOpenActivity": "Otwórz w Aktywności",

@@ -18,6 +18,7 @@ import 'socks.dart';
 import 'tor_switch.dart';
 
 export 'socks.dart' show OnionLookup, OnionTarget, SocksProxy;
+export '../network_gate.dart' show NetDial;
 
 enum TorNetMode {
   /// Straight from this computer, names looked up by its resolver.
@@ -30,8 +31,7 @@ enum TorNetMode {
   waiting,
 }
 
-/// [NetError.message] of a request refused in Offline.
-const String offlineError = 'Offline mode';
+
 
 abstract final class TorNet {
   static TorNetMode _mode = TorNetMode.direct;
@@ -75,7 +75,7 @@ abstract final class TorNet {
   /// turned off), for at most [hold]; [configure] then refuses one still waiting. Nothing is
   /// opened meanwhile.
   static Future<void> untilConnected() async {
-    if (NetGate.offline) return;
+    if (NetGate.killSwitch) return;
     if (mode != TorNetMode.waiting || hold <= Duration.zero) return;
     final connected = _connected ??= Completer<void>();
     try {
@@ -95,11 +95,12 @@ abstract final class TorNet {
   /// [proxy] once it is connected, none while it starts or failed, direct while it is off or
   /// does not cover them. Over Tor without a known [proxy] waits.
   ///
-  /// In Tor only a switch not on yet waits ([torWayIn]); Offline is checked by [configure]
-  /// at every request, so following the switch meanwhile changes nothing that goes out.
+  /// In Tor only a switch not on yet waits ([torWayIn]). Node only and Kill switch follow the
+  /// switch as Normal: what may go at all is `NetGate.dial`'s answer at every request (in
+  /// Node only the node in use, over Tor while the switch is on).
   static void follow(TorState state, {SocksProxy? proxy}) {
     TorSwitch.on = state != TorState.off || NetGate.torOnly;
-    final mode = NetGate.offline ? NetworkMode.standard : NetGate.mode;
+    final mode = NetGate.restricted ? NetworkMode.standard : NetGate.mode;
     switch (torWayIn(TorRoute.appHttp, state, mode)) {
       case TorWay.overTor:
         proxy == null ? waitForTor() : useTor(proxy);
@@ -110,16 +111,11 @@ abstract final class TorNet {
     }
   }
 
-  /// Makes [client] go the current way. Throws [NetError] while Tor is not connected or the
-  /// network mode is Offline, before anything is opened. [loopback] clients (a node on this
-  /// computer) always go direct; [local] ones (a literal LAN address, `local_address.dart`) go
-  /// direct in Offline, which allows them.
-  static void configure(HttpClient client, {bool loopback = false, bool local = false}) {
+  /// Makes [client] go the current way. Throws [NetError] while Tor is not connected, before
+  /// anything is opened. [loopback] clients (a node on this computer) always go direct. The
+  /// network mode's own answer is `NetGate.dial`, asked by the caller first ([dialOrFail]).
+  static void configure(HttpClient client, {bool loopback = false}) {
     if (loopback) return;
-    if (NetGate.offline) {
-      if (local) return;
-      throw const NetError(offlineError);
-    }
     switch (mode) {
       case TorNetMode.direct:
         return;
@@ -145,6 +141,16 @@ OnionTarget? torBuiltInOnion(String host, int port) {
     if (r.host.toLowerCase() == h && r.port == port) return (onion: r.onion, port: r.onionPort, tls: r.tls);
   }
   return null;
+}
+
+/// [NetGate.dial] for a request of the app's own HTTP to [url], as a [NetError]
+/// ([netModeError]) like any other request that cannot go.
+void dialOrFail(NetDial kind, Uri url) {
+  try {
+    NetGate.dial(kind, url.host);
+  } on NetBlocked {
+    throw const NetError(netModeError);
+  }
 }
 
 /// [url]'s host is this computer.

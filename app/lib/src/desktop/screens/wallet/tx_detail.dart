@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../network_gate.dart' show NetGate;
+import '../transfer/finished_payment.dart' show FinishedPaymentActions;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -116,6 +118,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 : t.method == TxMethod.file
                 ? l.deskTxNowWaitingResponseFile
                 : l.deskTxNowWaitingRecipient,
+          TxState.posted when t.notPosted && NetGate.killSwitch => l.txPostElsewhereKill,
           TxState.posted when t.notPosted => l.deskTxNowNotPosted,
           TxState.posted => l.deskTxNowPosted,
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
@@ -584,7 +587,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   busy: _cancelling,
                   onPressed: _sendAgain,
                 ),
-              if (repostable)
+              if (repostable && NetGate.killSwitch) FinishedPaymentActions(tx: t),
+              if (repostable && !NetGate.killSwitch)
                 EButton.primary(
                   label: l.deskTxBroadcastAgain,
                   icon: EIcons.refresh,
@@ -759,9 +763,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       ),
       _Step(
         l.deskTxStepPosted,
-        posted ? _S.done : (waitingSender ? _S.now : _S.todo),
+        posted ? _S.done : (waitingSender || (t.notPosted && NetGate.killSwitch) ? _S.now : _S.todo),
         '',
-        sub: waitingSender ? (t.senderPosted ? l.deskTxStatusSenderPosted : l.deskTxStatusWaitingSender) : null,
+        sub: waitingSender ? (t.senderPosted ? l.deskTxStatusSenderPosted : l.deskTxStatusWaitingSender) : (t.notPosted && NetGate.killSwitch ? l.txPostElsewhere : null),
       ),
       _Step(
         l.deskTxStepConfirming,

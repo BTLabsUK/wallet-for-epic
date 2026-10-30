@@ -11,7 +11,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
+import 'package:epic_wallet/src/settings.dart' show appSettingsProvider, networkModeProvider;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
@@ -99,6 +99,7 @@ class _Harness {
           sessionProvider.overrideWith(() => _OpenSession(session)),
           torBundleFinderProvider.overrideWithValue(() async => bundle),
           networkChangesProvider.overrideWithValue(network.stream),
+          networkModeProvider.overrideWithValue(advanced.networkMode),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -395,8 +396,8 @@ void main() {
     });
   });
 
-  group('Offline', () {
-    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+  group('Node only', () {
+    const offline = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
 
     testWidgets('Epicbox: the address to hand out, and the line that it cannot receive', (
       tester,
@@ -404,10 +405,11 @@ void main() {
       final h = _Harness(advanced: offline, payments: _directOn);
       await h.pump(tester);
       expect(find.byKey(receiveAddressKey), findsOneWidget);
-      expect(
-        find.text('Cannot receive this way while Offline is on.'),
-        findsOneWidget,
-      );
+      // The address stays; Epicbox reads Off (Node only) and says payments wait on the server.
+      expect(find.byKey(receiveEpicboxOffModeKey), findsOneWidget);
+      expect(find.text('Epicbox is off in Node only.'), findsOneWidget);
+      expect(find.text('Off (Node only)'), findsOneWidget);
+      expect(find.text('Payments to this address wait on the Epicbox server and arrive when you leave Node only.'), findsOneWidget);
     });
 
     testWidgets('Link with Tor off: no onion to hand out, the needs-Tor and offline lines, no Turn on Tor', (tester) async {
@@ -417,10 +419,7 @@ void main() {
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       expect(find.byType(MarkedQr), findsNothing);
       expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
-      expect(
-        find.text('Cannot receive this way while Offline is on.'),
-        findsOneWidget,
-      );
+      expect(find.text('Link receiving is off in Node only.'), findsOneWidget);
       expect(find.text('Meanwhile, share the Epicbox address.'), findsNothing);
       expect(find.byKey(receiveTurnOnTorKey), findsNothing);
       expect(h.session.torStarts, isEmpty);
@@ -440,7 +439,7 @@ void main() {
           reason: label,
         );
       }
-      expect(find.text('Offline is on in Advanced.'), findsNothing);
+      expect(find.text('Off in Node only.'), findsNothing);
       expect(find.text('Uses the node'), findsWidgets);
     });
 
@@ -468,10 +467,8 @@ void main() {
     testWidgets('Standard: no offline line', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(
-        find.text('Cannot receive this way while Offline is on.'),
-        findsNothing,
-      );
+      expect(find.text('Link receiving is off in Node only.'), findsNothing);
+      expect(find.byKey(receiveEpicboxOffModeKey), findsNothing);
     });
   });
 

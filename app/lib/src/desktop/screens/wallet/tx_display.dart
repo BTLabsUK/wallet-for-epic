@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../network_gate.dart' show NetGate;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -157,8 +158,12 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
           // Waiting is in progress (blue); amber only for a wait that went wrong.
           ETone.info,
         ),
+        // Finished under Kill switch: a device that is online posts it (in progress, not a fault).
+        TxState.posted when t.notPosted && NetGate.killSwitch => (l.txPostElsewhere, ETone.info),
         TxState.posted when t.notPosted => (l.deskTxStatusNotPosted, ETone.warn),
         TxState.posted => (l.deskTxStatusWaitingBlock, ETone.neutral),
+        // Kill switch asks no node: the count is the one seen last.
+        TxState.confirming when NetGate.killSwitch => (l.lastKnownConfirming(l.deskTxStatusConfirming(t.confirmations, t.confirmationsNeeded)), ETone.info),
         TxState.confirming => (l.deskTxStatusConfirming(t.confirmations, t.confirmationsNeeded), ETone.info),
         TxState.confirmed => (t.incoming ? l.deskTxReceived : l.deskTxSent, ETone.ok),
         TxState.cancelled => (l.deskTxStatusCancelled, ETone.neutral),

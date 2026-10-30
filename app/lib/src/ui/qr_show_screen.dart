@@ -90,6 +90,19 @@ Future<QrShowResult?> showReplyQr(
   ),
 );
 
+/// Opens a finished payment (Kill switch) as an animated QR for a device that is online:
+/// [json] is the finished payment's text. It ends with Done; the other device posts it.
+Future<QrShowResult?> showFinishedQr(
+  BuildContext context, {
+  required String json,
+  required BigInt amount,
+  String? slateId,
+}) => Navigator.of(context).push<QrShowResult>(
+  MaterialPageRoute<QrShowResult>(
+    builder: (_) => QrShowScreen.finished(json: json, amount: amount, slateId: slateId),
+  ),
+);
+
 /// Opens a payment request (I1) as a QR for the payer: [json] is the request's text, [finish]
 /// what the scan of their reply does with it (finish and post).
 Future<QrShowResult?> showRequestQr(
@@ -137,10 +150,13 @@ enum QrShowRole {
   request,
 
   /// The payer's answer to a request (I2), shown back to whoever asked.
-  paid;
+  paid,
 
-  /// The code answers one the other phone showed: the screen ends with Done.
-  bool get answers => this == reply || this == paid;
+  /// A payment finished under Kill switch, shown to a device that is online to post it.
+  finished;
+
+  /// The code answers one the other phone showed (or is shown last): the screen ends with Done.
+  bool get answers => this == reply || this == paid || this == finished;
 }
 
 /// What the QR card shows.
@@ -201,6 +217,7 @@ QrStatus qrShowStatus(
         QrShowRole.reply => l.qrStatusReplyHidden,
         QrShowRole.request => l.qrStatusRequestHidden,
         QrShowRole.paid => l.qrStatusPaidHidden,
+        QrShowRole.finished => l.qrStatusFinishedHidden,
       },
       tone: QrStatusTone.plain,
     ),
@@ -210,6 +227,7 @@ QrStatus qrShowStatus(
         QrShowRole.reply => l.qrStatusReplyShowing,
         QrShowRole.request => l.qrStatusRequestShowing,
         QrShowRole.paid => l.qrStatusPaidShowing,
+        QrShowRole.finished => l.qrStatusFinishedShowing,
       },
       tone: QrStatusTone.info,
     ),
@@ -328,6 +346,16 @@ class QrShowScreen extends ConsumerStatefulWidget {
     this.scanEnabled = true,
     this.finish,
   }) : role = QrShowRole.request;
+
+  /// A payment finished under Kill switch, for a device that is online to post.
+  const QrShowScreen.finished({
+    super.key,
+    required this.json,
+    required this.amount,
+    this.slateId,
+  }) : role = QrShowRole.finished,
+       scanEnabled = true,
+       finish = null;
 
   /// The payer's answer (I2) to a request.
   const QrShowScreen.paid({
@@ -608,6 +636,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           QrShowRole.reply => l.qrShowSubReply(amount),
           QrShowRole.request => l.qrShowSubRequest(amount),
           QrShowRole.paid => l.qrShowSubPaid(amount),
+          QrShowRole.finished => l.qrShowSubFinished(amount),
         },
         textAlign: TextAlign.center,
         style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
@@ -628,6 +657,9 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
               showing ? l.qrStateShowing : l.qrStateHidden,
             ),
             QrShowRole.reply || QrShowRole.paid => l.qrSemanticsReply(
+              showing ? l.qrStateShowing : l.qrStateHidden,
+            ),
+            QrShowRole.finished => l.qrSemanticsFinished(
               showing ? l.qrStateShowing : l.qrStateHidden,
             ),
           },
@@ -745,6 +777,7 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
           QrShowRole.payment => l.qrShowTitlePayment,
           QrShowRole.request => l.qrShowTitleRequest,
           QrShowRole.reply || QrShowRole.paid => l.qrShowTitleReply,
+          QrShowRole.finished => l.finishedQrTitle,
         }),
       ),
       body: SafeArea(
@@ -1094,6 +1127,7 @@ class _Cover extends StatelessWidget {
           QrShowRole.reply => l.qrHiddenBodyReply,
           QrShowRole.request => l.qrHiddenBodyRequest,
           QrShowRole.paid => l.qrHiddenBodyPaid,
+          QrShowRole.finished => l.qrHiddenBodyFinished,
         };
       case QrShowPhase.countdown:
         return Center(

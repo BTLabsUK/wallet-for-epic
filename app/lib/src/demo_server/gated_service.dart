@@ -282,6 +282,15 @@ class GatedWalletSession implements WalletSession {
       _inner.resendEpicbox(key: key);
 
   @override
+  Future<String> finishedPaymentText({required int txId}) => _inner.finishedPaymentText(txId: txId);
+
+  @override
+  Future<FinishedPayment> inspectFinished(String text) => _inner.inspectFinished(text);
+
+  @override
+  Future<void> postFinished(String text) => _inner.postFinished(text);
+
+  @override
   Future<void> releaseStuckSend({required String key}) =>
       _inner.releaseStuckSend(key: key);
 

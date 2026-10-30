@@ -173,17 +173,17 @@ void main() {
       expect(find.byKey(settingsSectionKey(SettingsSection.advanced)), findsOneWidget);
     });
 
-    testWidgets('Offline: the switch is off and disabled, with its line', (
+    testWidgets('Kill switch: the switch is off and disabled, with its line', (
       tester,
     ) async {
       final h = _Harness(
-        advanced: const AdvancedPrefs(networkMode: NetworkMode.offline),
+        advanced: const AdvancedPrefs(networkMode: NetworkMode.killSwitch),
       );
       await h.pump(tester, privacy: true);
       await _reach(tester, find.byKey(torReceivingSwitchKey));
       expect(torSwitch(tester).value, isFalse);
       expect(torSwitch(tester).onChanged, isNull);
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Off in Kill switch: nothing connects.'), findsOneWidget);
       await tester.tap(find.byKey(torReceivingSwitchKey));
       await tester.pumpAndSettle();
       expect(h.session.torStarts, isEmpty);

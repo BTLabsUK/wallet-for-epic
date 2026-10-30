@@ -11,19 +11,20 @@ import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
-import '../network_gate.dart';
+import '../advanced.dart';
 import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import 'network_status.dart' show nodeBehind, nodeTorWay;
-import 'net_block.dart' show watchNetBlock;
+import 'network_mode_phone.dart';
+import 'network_mode_text.dart';
 import 'receive_screen.dart' show ReceiveTab, receiveTabProvider;
 import 'server_picker.dart';
 import '../payment_prefs.dart' show PaymentPrefs;
 import '../phone_http.dart' show PhoneHttpPhase, phoneHttpProvider;
-import '../settings.dart' show appSettingsProvider;
+import '../settings.dart' show appSettingsProvider, networkModeProvider;
 import 'settings_screen.dart' show openPrivacySettings;
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'status.dart';
@@ -43,7 +44,6 @@ const Key barTorIconKey = ValueKey('bar-status-tor');
 
 /// The Link icon in Send's and Receive's app bar, for tests.
 const Key barLinkIconKey = ValueKey('bar-link-icon');
-const Key barNetModeKey = ValueKey('bar-status-net-mode');
 
 /// Whether the Tor icon shows: while the switch is on (Starting…, On, Not connected).
 bool torIconShown(PhoneTorState s) => phoneTorState(s) != TorState.off;
@@ -114,70 +114,8 @@ StatusDot torDot(TorState state) => switch (state) {
   );
 }
 
-/// The key of the Offline / Waiting for Tor word that replaces the Node and Epicbox icons, for
-/// tests.
-const Key netModeStatusKey = ValueKey('status-net-mode');
-
-/// What the network mode says in place of the node and Epicbox icons: "Offline" (neutral) or
-/// "Waiting for Tor" (the in-progress blue). The words, not a pulse; a tap opens Advanced.
-class NetModeStatus extends StatelessWidget {
-  const NetModeStatus(this.block, {super.key});
-
-  final NetBlock block;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final offline = block == NetBlock.offline;
-    final word = offline ? l.advModeOffline : l.torWayWaiting;
-    final detail = offline ? l.homeOfflineDetail : l.homeWaitingTorDetail;
-    final color = offline ? t.dim : t.info;
-    void open() => openSettingsSection(context, SettingsSection.advanced);
-    return Semantics(
-      container: true,
-      button: true,
-      label: word,
-      hint: [detail, l.netStatusOpenHint].join('\n'),
-      liveRegion: true,
-      excludeSemantics: true,
-      onTap: open,
-      child: Tooltip(
-        message: detail,
-        triggerMode: TooltipTriggerMode.longPress,
-        showDuration: const Duration(seconds: 6),
-        child: InkWell(
-          onTap: open,
-          borderRadius: BorderRadius.circular(t.radiusSmall),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: statusTarget),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: statusInset),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    offline ? Icons.cloud_off_outlined : torIcon,
-                    size: statusGlyph,
-                    color: color,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    word,
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: color,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+/// The key of the mode mark in Wallet's status strip, for tests.
+const Key netModeStatusKey = networkModeMarkKey;
 
 /// One status for the icon rows ([StatusIcons]) and the connections sheet
 /// ([ConnectionsSheet]): the service's glyph, whether it is on, its dot, the service and its
@@ -195,10 +133,11 @@ typedef StatusEntry = ({
   VoidCallback onTap,
 });
 
-/// The statuses in their order, Node, Epicbox, Tor, Link, and the network mode that holds
-/// the network back ([block]: Offline, or Tor only without Tor), which stands in for the Node
-/// and Epicbox icons while it lasts. [bar] picks the header row's keys over Wallet's.
-({NetBlock block, List<StatusEntry> entries}) statusEntries(
+/// The statuses in their order, Node, Epicbox, Tor, Link. A service the network mode turns off
+/// (Epicbox and Link in Node only; all of them in Kill switch) stays in its place as Off
+/// ({mode}), faint with a slash, and a tap opens the Network section. Tor only waiting for Tor
+/// shows through the services' own busy dots. [bar] picks the header row's keys over Wallet's.
+({NetworkMode mode, List<StatusEntry> entries}) statusEntries(
   BuildContext context,
   WidgetRef ref, {
   required bool bar,
@@ -240,12 +179,29 @@ typedef StatusEntry = ({
   // On by either Link switch, or while the onion is published anyway (a running Link · Tor).
   final linkOn = payments.linkHttp || payments.linkTor || directIconShown(tor);
   final link = linkFace(l, t, tor, payments, ref.watch(phoneHttpProvider).listener, linkOn: linkOn);
-  final block = watchNetBlock(context, ref);
+  final mode = ref.watch(networkModeProvider);
   final torOn = torIconShown(tor);
+  final killSwitch = mode == NetworkMode.killSwitch;
+  final nodeOnly = mode == NetworkMode.nodeOnly;
+  // A service the mode turns off: faint, slashed, "Off (Node only)", opens the Network section.
+  StatusEntry off(Key key, IconData icon, String service) => (
+    key: key,
+    icon: icon,
+    enabled: false,
+    dot: StatusDot.off,
+    label: '$service, ${statusOffByModeWord(l, mode)}',
+    detail: l.statusOffByModeDetail,
+    actionHint: l.netStatusOpenHint,
+    pulse: false,
+    onTap: () => openNetworkSection(context),
+  );
   return (
-    block: block,
+    mode: mode,
     entries: [
-      if (block == NetBlock.none) ...[
+      if (killSwitch) ...[
+        off(bar ? barNodeIconKey : nodeStatusKey, node.icon, l.netStatusNode),
+        off(bar ? barEpicboxIconKey : epicboxStatusKey, epicbox.icon, l.netStatusEpicbox),
+      ] else ...[
         (
           key: bar ? barNodeIconKey : nodeStatusKey,
           icon: node.icon,
@@ -258,6 +214,9 @@ typedef StatusEntry = ({
           pulse: status.node.state == NodeState.syncing,
           onTap: () => showNodePicker(context),
         ),
+        if (nodeOnly)
+          off(bar ? barEpicboxIconKey : epicboxStatusKey, epicbox.icon, l.netStatusEpicbox)
+        else
         (
           key: bar ? barEpicboxIconKey : epicboxStatusKey,
           icon: epicbox.icon,
@@ -274,7 +233,9 @@ typedef StatusEntry = ({
       ],
       // Tor and Link are always there: off, faint without a dot, a tap opens the switch; on,
       // the dot says how the connection goes.
-      if (block != NetBlock.offline && torShown(tor))
+      if (killSwitch && torShown(tor))
+        off(bar ? barTorIconKey : torIconKey, torIcon, l.netStatusTor)
+      else if (torShown(tor))
         (
           key: bar ? barTorIconKey : torIconKey,
           icon: torIcon,
@@ -286,7 +247,9 @@ typedef StatusEntry = ({
           pulse: torState == TorState.starting,
           onTap: () => openPrivacySettings(context),
         ),
-      if (block == NetBlock.none)
+      if (killSwitch || nodeOnly)
+        off(bar ? barLinkIconKey : directIconKey, EpicGlyphs.link, l.receiveTabDirect)
+      else
         (
           key: bar ? barLinkIconKey : directIconKey,
           icon: EpicGlyphs.link,
@@ -307,9 +270,8 @@ typedef StatusEntry = ({
   );
 }
 
-/// The status icons side by side: Node, Epicbox, Tor, Link, in that order ([statusEntries]).
-/// While the network mode holds the network back (Offline, or Tor only without Tor) one word
-/// stands in for the Node and Epicbox icons. Under Wallet's figure and, with [bar], in Send's
+/// The status icons side by side: Node, Epicbox, Tor, Link, in that order ([statusEntries]),
+/// after the network mode's mark when the mode is not Normal. Under Wallet's figure and, with [bar], in Send's
 /// and Receive's balance header: the same icons, dots, labels, details and taps. A long press
 /// on any icon opens the connections sheet ([showConnectionsSheet]).
 class StatusIcons extends ConsumerWidget {
@@ -320,12 +282,12 @@ class StatusIcons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (:block, :entries) = statusEntries(context, ref, bar: bar);
+    final (:mode, :entries) = statusEntries(context, ref, bar: bar);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (block != NetBlock.none)
-          NetModeStatus(block, key: bar ? barNetModeKey : netModeStatusKey),
+        // The mark belongs to Home's strip; the compact header keeps its room for the figure.
+        if (mode != NetworkMode.standard && !bar) NetworkModeMark(key: netModeStatusKey),
         for (final e in entries)
           StatusIcon(
             key: e.key,
@@ -367,7 +329,7 @@ class ConnectionsSheet extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    final (:block, :entries) = statusEntries(context, ref, bar: false);
+    final (:mode, :entries) = statusEntries(context, ref, bar: false);
     final ring = theme.scaffoldBackgroundColor;
     Widget row({
       required Widget glyph,
@@ -436,17 +398,13 @@ class ConnectionsSheet extends ConsumerWidget {
               child: Text(l.connectionsSheetTitle, style: theme.textTheme.titleMedium),
             ),
           ),
-          if (block != NetBlock.none)
+          if (mode != NetworkMode.standard)
             row(
-              glyph: Icon(
-                block == NetBlock.offline ? Icons.cloud_off_outlined : torIcon,
-                size: statusGlyph,
-                color: block == NetBlock.offline ? t.dim : t.info,
-              ),
-              label: block == NetBlock.offline ? l.advModeOffline : l.torWayWaiting,
-              detail: block == NetBlock.offline ? l.homeOfflineDetail : l.homeWaitingTorDetail,
+              glyph: Icon(networkModeGlyph(mode), size: statusGlyph, color: t.dim),
+              label: l.netMarkRowLabel(networkModeName(l, mode)),
+              detail: networkModeMarkLine(l, mode, waitingForTor: mode == NetworkMode.torOnly && ref.watch(phoneTorProvider.select(phoneTorState)) != TorState.on),
               dot: StatusDot.off,
-              onTap: () => openSettingsSection(context, SettingsSection.advanced),
+              onTap: () => openNetworkSection(context),
             ),
           for (final e in entries)
             row(

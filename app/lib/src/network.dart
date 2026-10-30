@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'network_gate.dart' show NetGate;
 import 'settings_file/host_settings.dart';
 import 'wallet_service.dart';
 
@@ -42,6 +43,8 @@ class NetworkPreset {
       epicboxDomain: r.host,
       epicboxPort: r.port,
       walletId: walletId,
+      // Kill switch: every session opened meanwhile is an offline one.
+      offline: NetGate.killSwitch,
     );
   }
 }

@@ -44,6 +44,8 @@ import 'src/password_lists.dart';
 import 'src/tor_licence.dart';
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
+import 'src/settings_file/host_settings.dart' show hostSettings;
+import 'src/settings_file/network_mode_file.dart' show networkModeIn;
 import 'src/settings_file/settings_providers.dart';
 import 'src/tor_location.dart';
 import 'src/wallet_backend.dart';
@@ -142,7 +144,9 @@ Future<List<Override>> deskOverrides() async {
     logError('desk', 'settings not read: ${e.runtimeType}', stack);
     boot = const DeskBoot();
   }
-  // Before any request: Offline sends nothing, Tor only nothing direct (network_gate.dart).
+  // The network mode is settings.toml's (`network_mode_file.dart`): openAppSettings above
+  // applied it to NetGate before anything could connect; the desktop's settings take it too.
+  boot = boot.withNetworkMode(networkModeIn(hostSettings));
   NetGate.set(boot.settings.advanced.networkMode);
   // Before anything asks the status site: off (`status.enabled`), nothing is asked.
   statusSite.followSettings();

@@ -121,8 +121,18 @@ void main() {
       expect(relax.values(takeConflicts: false), isEmpty);
       final stricter = _plan(_map(BackupPlatform.mobile, mode(NetworkMode.torOnly)));
       expect(stricter.values(takeConflicts: false), {BackupItem.networkMode: 'torOnly'});
-      final other = _plan(_map(BackupPlatform.mobile, mode(NetworkMode.torOnly)), mine: mode(NetworkMode.offline));
+      final other = _plan(_map(BackupPlatform.mobile, mode(NetworkMode.torOnly)), mine: mode(NetworkMode.nodeOnly));
       expect(_keys(other.conflicts), {BackupItem.networkMode});
+    });
+
+    test('an older file\'s Offline is Node only; Kill switch and Node only travel as they are', () {
+      final old = _plan(_map(BackupPlatform.mobile, {BackupKey.advanced: {'features': <String>[], 'networkMode': 'offline'}}));
+      expect(old.values(takeConflicts: false), {BackupItem.networkMode: 'nodeOnly'});
+      expect(advancedFromBackup(AdvancedPrefs.none, old.values(takeConflicts: false)).networkMode, NetworkMode.nodeOnly);
+      for (final m in [NetworkMode.nodeOnly, NetworkMode.killSwitch]) {
+        final plan = _plan(_map(BackupPlatform.desktop, {BackupKey.advanced: AdvancedPrefs.none.withMode(m).toJson()}));
+        expect(advancedFromBackup(AdvancedPrefs.none, plan.values(takeConflicts: false)).networkMode, m);
+      }
     });
 
     test('the Advanced parts are planned apart: a feature conflict does not hold back the mode', () {

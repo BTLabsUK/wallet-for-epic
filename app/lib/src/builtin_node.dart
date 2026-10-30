@@ -13,6 +13,7 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 
 import 'models.dart' show Chain;
+import 'network_gate.dart' show NetBlocked, NetDial, NetGate;
 import 'node/node_api_types.dart';
 import 'settings_file/host_settings.dart' show hostSettings;
 
@@ -790,8 +791,12 @@ class BuiltInNode {
   /// Starts the node. While a start is pending, calls return that same start. Throws
   /// [NodeStartException] when the binary is missing, a port is already answering (another node: it
   /// is left alone) or the disk is under the floor. A [stop] that overtakes the start ends it
-  /// quietly with nothing left running.
+  /// quietly with nothing left running. Refused with [NetBlocked] by the network mode (Kill
+  /// switch; Node only unless it is the node in use).
   Future<void> start() {
+    if (!NetGate.allows(NetDial.builtInNode, '127.0.0.1')) {
+      return Future.error(NetBlocked(NetGate.mode, 'built-in node'));
+    }
     final pending = _launching;
     if (pending != null && _wantRunning) return pending;
     if (_process != null && _wantRunning) return Future.value();
@@ -1562,6 +1567,8 @@ Future<NodeProcess> _startRealProcess(
 
 /// Whether something answers on [port] of this computer (loopback): the port is taken.
 Future<bool> realPortInUse(int port) async {
+  // Kill switch opens nothing, not even on loopback (no node starts then anyway).
+  if (!NetGate.allows(NetDial.builtInNode, '127.0.0.1')) return false;
   try {
     final s = await Socket.connect(
       InternetAddress.loopbackIPv4,
@@ -1612,6 +1619,7 @@ Future<Map<String, dynamic>?> _realApi(
   required bool owner,
   String? secret,
 }) async {
+  if (!NetGate.allows(NetDial.http, '127.0.0.1')) return null;
   final client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 3)
     ..userAgent = null;

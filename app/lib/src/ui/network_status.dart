@@ -13,7 +13,8 @@ import '../demo.dart' show devNetworksOf;
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../network.dart';
-import '../network_gate.dart' show NetBlock;
+import '../advanced.dart' show NetworkMode, NetworkModeRestricted;
+import '../settings.dart' show networkModeProvider;
 import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
@@ -22,7 +23,7 @@ import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart';
 import 'server_picker.dart';
 import 'info_hint.dart';
-import 'net_block.dart' show watchNetBlock;
+import 'network_mode_text.dart' show statusOffByModeWord;
 import 'settings_screen.dart';
 import 'status.dart';
 import 'status_icons.dart';
@@ -109,17 +110,18 @@ class NetworkStatusCard extends ConsumerWidget {
             port: config.epicboxPort,
           ).label
         : choice?.relay.label ?? '';
-    // In Offline both services are paused by choice: neutral, never red or blue.
-    final paused = watchNetBlock(context, ref) == NetBlock.offline;
-    final pausedFace = (level: SignalLevel.none, color: t.dim, word: l.netStatusPausedOffline);
-    final node = paused
+    // A service the mode turns off is "Off (Node only)": neutral, never red or blue. Node only
+    // keeps the node; Kill switch turns both off.
+    final mode = ref.watch(networkModeProvider);
+    final pausedFace = (level: SignalLevel.none, color: t.dim, word: statusOffByModeWord(l, mode));
+    final node = mode == NetworkMode.killSwitch
         ? pausedFace
         : nodeNetFace(
             context,
             status.node,
             behind: nodeBehind(ref, status.node, preset),
           );
-    final epicbox = paused ? pausedFace : epicboxNetFace(context, status.epicbox);
+    final epicbox = mode.restricted ? pausedFace : epicboxNetFace(context, status.epicbox);
     final nodeWords = nodeStatusWords(context, status.node, config);
     final epicboxWords = epicboxStatusWords(context, status.epicbox, config);
     final rows = <Widget>[

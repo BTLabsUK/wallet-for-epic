@@ -278,7 +278,7 @@ Map<String, Object?> deskSettingsToJson(DeskSettings s) => {
   'autoLockOn': s.autoLockOn,
   'publicMode': s.publicMode,
   'httpPort': ?s.httpPortChosen,
-  'advanced': s.advanced.toJson(),
+  'advanced': s.advanced.toJson(mode: false),
   'payments': s.payments.toJson(),
   if (s.pairingSeenAs.isNotEmpty) 'pairingSeenAs': s.pairingSeenAs,
   if (s.pairingClipSeen.isNotEmpty) 'pairingClipSeen': s.pairingClipSeen,
@@ -340,6 +340,10 @@ class DeskBoot {
 
   /// The settings screens' saved choices (`prefs.dart`), as JSON.
   final Map<String, dynamic>? prefs;
+
+  /// These settings with the network mode [mode] (settings.toml's; the store keeps none).
+  DeskBoot withNetworkMode(NetworkMode mode) =>
+      DeskBoot(settings: settings.copyWith(advanced: settings.advanced.withMode(mode)), prefs: prefs);
 
   static Future<DeskBoot> load(DeskStore store) async {
     final prefs = await store.readJson(DeskStore.prefsKey);

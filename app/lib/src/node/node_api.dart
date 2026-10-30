@@ -14,6 +14,7 @@ import 'dart:typed_data';
 import '../net/lan_node_relay.dart';
 import '../net/local_address.dart';
 import '../net/tor_net.dart';
+import '../network_gate.dart' show NetDial, NetGate;
 import 'node_api_types.dart';
 
 /// One HTTP exchange: POST [body] to [url], or GET when [body] is empty. Answers with any
@@ -123,6 +124,11 @@ class NodeApiClient {
     final u = Uri.tryParse(_baseUrl.trim());
     if (u == null || u.host.isEmpty || u.userInfo.isNotEmpty) {
       throw const NodeRpcException(NodeRpcError.invalidArgument, 'node address is not a URL');
+    }
+    // The network mode's gate, on the node's own host (a LAN node's relay is its host too):
+    // Node only lets the node in use through, Kill switch nothing.
+    if (!NetGate.allows(NetDial.http, u.host)) {
+      throw const NodeRpcException(NodeRpcError.unreachable, 'cannot reach the node: network mode');
     }
     var target = u;
     bool isLoopback(Uri x) => x.host.toLowerCase() == 'localhost' || (InternetAddress.tryParse(x.host)?.isLoopback ?? false);
@@ -276,7 +282,7 @@ Future<({int status, String body})> _ioTransport(
     // A remote node through tor while the Tor switch covers it; a node on this computer, the
     // home network or a VPN direct, as the relay reaches its plain-http form (a tor exit
     // cannot reach it, and an own node's facts are asked of the node itself).
-    TorNet.configure(client, loopback: isLoopbackUrl(url) || isLocalNodeUrl(url.toString()), local: isLocalAddressUrl(url.toString()));
+    TorNet.configure(client, loopback: isLoopbackUrl(url) || isLocalNodeUrl(url.toString()));
     return await () async {
       final req = body.isEmpty ? await client.getUrl(url) : await client.postUrl(url);
       req.followRedirects = false; // never carry the secret to another address

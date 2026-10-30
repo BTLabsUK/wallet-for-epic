@@ -17,13 +17,15 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, linkServerOf;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show DeviceEnding, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../models.dart' show DeviceEnding, FinishedPayment, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
-import '../../wallet_service.dart' show onionAddressFormat;
+import '../../finished_payment.dart' show readFinishedPayment;
+import '../../wallet_service.dart' show FakeWalletSession, WalletError, onionAddressFormat;
 import 'api.dart';
 import 'backup_settings_desk.dart';
 import 'features.dart';
@@ -706,6 +708,29 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> resendTx(int id) => _wait();
 
+  @override
+  Future<String> finishedPayment(int id) async {
+    await _wait(0.2);
+    return FakeWalletSession.fakeFinishedText(id);
+  }
+
+  @override
+  Future<FinishedPayment> inspectFinished(String text) async {
+    await _wait(0.2);
+    try {
+      return readFinishedPayment(text).payment;
+    } on WalletError {
+      throw DeskError.l10n((l) => l.deskErrSomethingWrong);
+    }
+  }
+
+  @override
+  Future<void> postFinished(String text) async {
+    // As the adapter: Kill switch posts nothing.
+    if (NetGate.killSwitch) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
+    await inspectFinished(text);
+  }
+
   Future<SendEstimate> _selfEstimate(int outputs) async {
     await _wait(0.4);
     final all = _spendable;
@@ -1061,8 +1086,8 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> setHttpListening(bool on) async {
     await _wait();
-    // As the adapter: Offline on a node that is not local refuses it.
-    if (on && NetGate.offline && !isLocalAddressUrl(_node)) throw DeskError.l10n((l) => l.deskShellOffline);
+    // As the adapter: Node only and Kill switch refuse it.
+    if (on && NetGate.restricted) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     // As the adapter: the clearnet listener stays off while Tor is on.
     _http = on && !_settings.tor;
   }

@@ -13121,7 +13121,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัวและเครือข่าย Tor เท่านั้นไม่เชื่อมต่อตรงเด็ดขาด ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกที่หน้าแรก ออฟไลน์ใช้เฉพาะโทรศัพท์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ ถ้ามีโหนดในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่ได้และยอดจะอัปเดต';
+      'กระเป๋าเงินใช้อินเทอร์เน็ตมากแค่ไหน ตัวเลือกเดียวและจำไว้ให้ Tor เท่านั้น โหนดเท่านั้น และสวิตช์ฉุกเฉินจะปิดบริการบางอย่าง ซึ่งแสดงในไอคอนสถานะเป็น ปิด (โหมด) และจะไม่มีอะไรถูกยกเลิก';
 
   @override
   String get advOutputs => 'เอาต์พุต';
@@ -13159,7 +13159,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ให้ ตรวจยอดใหม่ เริ่มจากความสูงบล็อกหรือวันที่แทนการเริ่มจากบล็อกแรก เร็วกว่า และเป็นวิธีเดียวที่ข้ามประวัติช่วงแรกได้ ตอนกู้คืนมีตัวเลือกนี้เสมอ';
 
   @override
-  String get advModeStandard => 'มาตรฐาน';
+  String get advModeStandard => 'ปกติ';
 
   @override
   String get advModeStandardLine =>
@@ -13170,24 +13170,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advModeTorOnlyLine =>
-      'ทุกการเชื่อมต่อผ่าน Tor ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์';
-
-  @override
-  String get advModeOffline => 'ออฟไลน์';
-
-  @override
-  String get advModeOfflineLine =>
-      'เฉพาะโทรศัพท์เครื่องนี้และเครือข่ายในพื้นที่ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ ส่วนอย่างอื่นรอ';
-
-  @override
-  String get advOfflineNote =>
-      'ออฟไลน์จะหยุด Epicbox, Tor และการตรวจสถานะ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ โดยใช้โหนดที่ใช้อยู่เพื่ออ่านเชนและส่ง รวมถึงโหนดสาธารณะ ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
+      'ทุกการเชื่อมต่อผ่าน Tor จนกว่า Tor จะพร้อม จะไม่มีอะไรเชื่อมต่อ';
 
   @override
   String get advReset => 'ซ่อนทั้งหมดอีกครั้ง';
-
-  @override
-  String get advHomeOffline => 'ออฟไลน์';
 
   @override
   String get advHomeTorOnlyWaiting => 'Tor เท่านั้น · รอ Tor';
@@ -13261,37 +13247,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetAdvNetwork => 'เครือข่าย';
 
   @override
-  String get deskSetAdvNetworkHint =>
-      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว Tor เท่านั้นไม่เชื่อมต่อตรงเด็ดขาด ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์และบอกที่แถบด้านข้าง ออฟไลน์ใช้เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ โอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ ถ้ามีโหนดที่นี่หรือในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่และรับผ่านลิงก์ได้ และยอดจะอัปเดต โหนดในตัวทำงานต่อไป และเพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
-
-  @override
-  String get deskSetAdvModeStandard => 'มาตรฐาน';
-
-  @override
   String get deskSetAdvModeStandardText =>
       'เชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว';
 
   @override
-  String get deskSetAdvModeTorOnly => 'Tor เท่านั้น';
-
-  @override
   String get deskSetAdvModeTorOnlyText =>
-      'ทุกการเชื่อมต่อผ่าน Tor ถ้าไม่มี Tor กระเป๋าเงินจะออฟไลน์';
-
-  @override
-  String get deskSetAdvModeOffline => 'ออฟไลน์';
-
-  @override
-  String get deskSetAdvModeOfflineText =>
-      'เฉพาะคอมพิวเตอร์นี้และเครือข่ายในพื้นที่ โหนดในเครื่องยังใช้เพียร์ของตัวเอง';
-
-  @override
-  String get deskSetAdvTorOnlyNote =>
-      'Tor เท่านั้นจะปิดการรับผ่าน ลิงก์ · HTTP เพราะที่อยู่ธรรมดาจะเปิดเผยคอมพิวเตอร์เครื่องนี้';
-
-  @override
-  String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor และการตรวจสถานะหยุดชั่วคราว โอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ รวมถึงโหนดสาธารณะ ถ้ามีโหนดบนคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย';
+      'ทุกการเชื่อมต่อผ่าน Tor จนกว่า Tor จะพร้อม จะไม่มีอะไรเชื่อมต่อ';
 
   @override
   String get deskSetAdvNotInBuild => 'ไม่มีในรุ่นนี้';
@@ -13320,26 +13281,16 @@ class AppLocalizationsTh extends AppLocalizations {
       'ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น';
 
   @override
-  String get netBlockOffline => 'ออฟไลน์เปิดอยู่ใน ขั้นสูง';
-
-  @override
   String get netBlockTorOnly => 'โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
 
   @override
   String get netBlockWaitingForTor => 'รอ Tor';
 
   @override
-  String get receiveOfflineLine => 'รับด้วยวิธีนี้ไม่ได้ขณะที่ออฟไลน์เปิดอยู่';
-
-  @override
   String get txDetailsMore => 'เพิ่มเติม';
 
   @override
   String get restoreStartFromLink => 'เริ่มจากวันที่หรือความสูงบล็อก';
-
-  @override
-  String get homeOfflineDetail =>
-      'ออฟไลน์เปิดอยู่ใน ขั้นสูง ยอดคงเหลือเป็นยอดที่เห็นล่าสุด';
 
   @override
   String get homeWaitingTorDetail =>
@@ -13501,9 +13452,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbRestoreFromInvalid => 'ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้';
 
   @override
-  String get deskNetOfflineReason => 'ออฟไลน์เปิดอยู่ใน ขั้นสูง';
-
-  @override
   String get deskNetWaitingTorReason =>
       'รอ Tor โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
 
@@ -13517,18 +13465,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskNetSendFileHint => 'โอนไฟล์ยังใช้ได้';
 
   @override
-  String get deskNetRecvOfflineText =>
-      'ที่อยู่ของคุณเหมือนเดิม จะไม่มีอะไรเข้ามาขณะที่ออฟไลน์เปิดอยู่';
-
-  @override
   String get deskNetRecvWaitTorText =>
       'การรับจะเริ่มเมื่อ Tor เชื่อมต่อ โอนไฟล์ยังใช้ได้';
-
-  @override
-  String get deskNetCantReceive => 'หยุดรับชั่วคราว';
-
-  @override
-  String get deskRailOffline => 'ออฟไลน์';
 
   @override
   String get deskTourAdvancedTitle => 'ขั้นสูง';
@@ -13674,9 +13612,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => 'ออฟไลน์: เฉพาะที่อยู่ในพื้นที่';
-
-  @override
   String get netOfflineNoPeers =>
       'โหนดของคุณไม่มีเพียร์ รายการจะรออยู่ในพูลของโหนดจนกว่าจะเชื่อมต่อใหม่';
 
@@ -13734,9 +13669,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get receiveNoMethodsButton => 'เปิดการตั้งค่า';
-
-  @override
-  String get deskErrOfflineOnlyLocal => 'ออฟไลน์: เฉพาะที่อยู่ในพื้นที่';
 
   @override
   String get deskNetOfflineNoPeers =>
@@ -16408,12 +16340,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSlotHelp => 'ช่วยเหลือ';
 
   @override
-  String get deskSlotOffline => 'ออฟไลน์';
-
-  @override
-  String get deskSlotOfflineDetail => 'ไม่มีการส่งหรือรับ';
-
-  @override
   String get deskSlotScanning => 'กำลังสแกนเชน';
 
   @override
@@ -16456,9 +16382,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSlotNodeSyncing => 'โหนดในเครื่องกำลังซิงก์';
-
-  @override
-  String get deskSlotOpenAdvanced => 'เปิดการตั้งค่าขั้นสูง';
 
   @override
   String get deskSlotOpenRecheck => 'เปิดตรวจยอดใหม่';
@@ -16931,14 +16854,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advNetworkHintNoTor =>
-      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง ออฟไลน์ใช้เฉพาะโทรศัพท์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ ถ้ามีโหนดในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่ได้และยอดจะอัปเดต';
+      'กระเป๋าเงินใช้อินเทอร์เน็ตมากแค่ไหน ตัวเลือกเดียวและจำไว้ให้ โหนดเท่านั้น และสวิตช์ฉุกเฉินจะปิดบริการบางอย่าง ซึ่งแสดงในไอคอนสถานะเป็น ปิด (โหมด) และจะไม่มีอะไรถูกยกเลิก';
 
   @override
   String get advModeStandardLineNoTor => 'เชื่อมต่อตรง';
-
-  @override
-  String get advOfflineNoteNoTor =>
-      'ออฟไลน์จะหยุด Epicbox และการตรวจสถานะ ชำระด้วย QR และโอนไฟล์ยังใช้ได้ โดยใช้โหนดที่ใช้อยู่เพื่ออ่านเชนและส่ง รวมถึงโหนดสาธารณะ ถ้ามีโหนดในเครือข่ายในพื้นที่ของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย เพียร์ของโหนดเป็นการตั้งค่าของตัวโหนดเอง';
 
   @override
   String txLinkHttpHintNoTor(String port) {
@@ -16965,14 +16884,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskNoTorSetTxDirectHint(String port) {
     return 'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่เว็บ (http://host:$port) โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง เพิ่ม ลิงก์ · HTTP ใน ส่ง และที่อยู่ของมันใน รับ';
   }
-
-  @override
-  String get deskNoTorAdvNetworkHint =>
-      'วิธีที่กระเป๋าเงินเชื่อมต่อเครือข่าย มาตรฐานเชื่อมต่อตรง ออฟไลน์ใช้เฉพาะคอมพิวเตอร์เครื่องนี้และเครือข่ายในพื้นที่ของคุณ โอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ ถ้ามีโหนดที่นี่หรือในเครือข่ายของคุณ ยังส่งไปที่อยู่ในพื้นที่และรับผ่านลิงก์ได้ และยอดจะอัปเดต โหนดในตัวทำงานต่อไป และเพียร์ของมันเป็นการตั้งค่าของตัวโหนดเอง';
-
-  @override
-  String get deskNoTorAdvOfflineNote =>
-      'Epicbox และการตรวจสถานะหยุดชั่วคราว โอนไฟล์ยังใช้ได้ผ่านโหนดที่ใช้อยู่ รวมถึงโหนดสาธารณะ ถ้ามีโหนดบนคอมพิวเตอร์เครื่องนี้หรือในเครือข่ายของคุณ ตรวจยอดใหม่และการส่งผ่านลิงก์ไปที่อยู่ในพื้นที่ก็ใช้ได้ด้วย';
 
   @override
   String get deskNoTorTxDetailsFromBad => 'ใช้ที่อยู่ Epicbox หรือ http(s)';
@@ -17747,9 +17658,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slSwitchFirst => 'สลับก่อน';
 
   @override
-  String get netStatusPausedOffline => 'หยุดชั่วคราว · ออฟไลน์';
-
-  @override
   String get contactPaymentsNone => 'ยังไม่มีรายการกับผู้ติดต่อนี้';
 
   @override
@@ -18096,4 +18004,355 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitInfoLabel => 'ข้อมูลเพิ่มเติม';
+
+  @override
+  String get advModeNodeOnly => 'โหนดเท่านั้น';
+
+  @override
+  String get advModeKillSwitch => 'สวิตช์ฉุกเฉิน';
+
+  @override
+  String get advModeNodeOnlyLine =>
+      'เฉพาะโหนดที่ใช้อยู่ Epicbox ลิงก์ การอัปเดตและราคายังคงปิดอยู่';
+
+  @override
+  String get advModeKillSwitchLine =>
+      'ไม่เชื่อมต่อเลย ชำระด้วย QR และโอนไฟล์ แล้วส่งเข้าเครือข่ายจากอุปกรณ์อื่น';
+
+  @override
+  String get advModeStandardHint =>
+      'ทุกอย่างที่กระเป๋าเงินตั้งค่าไว้: โหนด Epicbox ลิงก์ เว็บไซต์สถานะ ราคา และการตรวจหาอัปเดต Tor เป็นสวิตช์แยกต่างหากใน ความเป็นส่วนตัวและเครือข่าย';
+
+  @override
+  String get advModeStandardHintNoTor =>
+      'ทุกอย่างที่กระเป๋าเงินตั้งค่าไว้: โหนด Epicbox ลิงก์ เว็บไซต์สถานะ ราคา และการตรวจหาอัปเดต';
+
+  @override
+  String get advModeTorOnlyHint =>
+      'ทุกการเชื่อมต่อผ่าน Tor รวมถึงโหนดและ Epicbox ไม่มีอะไรแตะอินเทอร์เน็ตเปิด จนกว่า Tor จะพร้อมจะไม่มีอะไรเชื่อมต่อ และไอคอนสถานะจะบอกไว้ การรับผ่านลิงก์ · HTTP ยังคงปิด: ที่อยู่ธรรมดาจะเผยอุปกรณ์เครื่องนี้';
+
+  @override
+  String get advModeNodeOnlyHint =>
+      'กระเป๋าเงินคุยกับโหนดที่ใช้อยู่เท่านั้น คือโหนดแรกในรายการของคุณ สิ่งที่ปิด: Epicbox ลิงก์ เว็บไซต์สถานะ ราคา การตรวจหาอัปเดต ลิงก์ตัวสำรวจบล็อก การรายงานปัญหา การจับคู่ และอุปกรณ์ที่เชื่อมโยง ชำระด้วย QR และโอนไฟล์ใช้ได้ ถ้าเปิด Tor จะเชื่อมต่อโหนดผ่าน Tor เหมาะที่สุดกับโหนดของคุณเอง บนอุปกรณ์นี้หรือในเครือข่ายของคุณ โหนดใดก็ใช้ได้';
+
+  @override
+  String get advModeNodeOnlyHintNoTor =>
+      'กระเป๋าเงินคุยกับโหนดที่ใช้อยู่เท่านั้น คือโหนดแรกในรายการของคุณ สิ่งที่ปิด: Epicbox ลิงก์ เว็บไซต์สถานะ ราคา การตรวจหาอัปเดต ลิงก์ตัวสำรวจบล็อก การรายงานปัญหา การจับคู่ และอุปกรณ์ที่เชื่อมโยง ชำระด้วย QR และโอนไฟล์ใช้ได้ เหมาะที่สุดกับโหนดของคุณเอง บนอุปกรณ์นี้หรือในเครือข่ายของคุณ โหนดใดก็ใช้ได้';
+
+  @override
+  String get advModeKillSwitchHint =>
+      'ไม่มีอะไรเชื่อมต่อ แม้แต่โหนด: การเก็บแบบออฟไลน์ กระเป๋าเงินเปิดขึ้นพร้อมยอดคงเหลือและประวัติล่าสุดที่ทราบ คุณสร้าง ลงนาม และทำรายการให้เสร็จด้วยโอนไฟล์และชำระด้วย QR แสดงที่อยู่ สำรองข้อมูล และส่งออกได้ รายการที่เสร็จแล้วส่งเข้าเครือข่ายจากที่นี่ไม่ได้: บันทึกไว้หรือแสดงเป็นคิวอาร์โค้ด แล้วส่งจากอุปกรณ์ที่ออนไลน์ รายการที่รอผู้รับจะหยุดชั่วคราวและดำเนินต่อเมื่อคุณออกจากโหมดนี้';
+
+  @override
+  String get advModeSwitchNoteTorOnly =>
+      'การรับผ่านลิงก์ · HTTP ปิดอยู่ จนกว่า Tor จะพร้อม จะไม่มีอะไรเชื่อมต่อ';
+
+  @override
+  String get advModeSwitchNoteNodeOnly =>
+      'Epicbox ลิงก์ ราคา และการตรวจหาอัปเดตหยุดทันที รายการที่รออยู่ผ่าน Epicbox จะดำเนินต่อเมื่อคุณออกจากโหนดเท่านั้น';
+
+  @override
+  String get advModeSwitchNoteKillSwitch =>
+      'ทุกการเชื่อมต่อหยุดทันที รวมถึงโหนด รายการที่รออยู่จะหยุดชั่วคราวจนกว่าคุณจะออกจากสวิตช์ฉุกเฉิน';
+
+  @override
+  String advModeConfirmTitle(String mode) {
+    return 'สลับไปที่ $mode ไหม';
+  }
+
+  @override
+  String advModeConfirmBody(int count, String mode) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'มี $count รายการรอผู้รับผ่าน Epicbox หรือลิงก์ รายการเหล่านั้นจะหยุดชั่วคราวและดำเนินต่อเมื่อคุณออกจาก $mode ไม่มีอะไรถูกยกเลิก',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advModeConfirmSwitch => 'สลับ';
+
+  @override
+  String netMarkSemantics(String mode) {
+    return 'โหมดเครือข่าย: $mode เปิดส่วนเครือข่าย';
+  }
+
+  @override
+  String netMarkSemanticsDesk(String mode) {
+    return 'โหมดเครือข่าย: $mode แสดงว่ามันทำอะไร';
+  }
+
+  @override
+  String get netMarkLineTorOnly => 'ทุกการเชื่อมต่อผ่าน Tor';
+
+  @override
+  String get netMarkLineTorWaiting =>
+      'รอ Tor จนกว่าจะพร้อมจะไม่มีอะไรเชื่อมต่อ';
+
+  @override
+  String get netMarkLineNodeOnly =>
+      'เฉพาะโหนดที่ใช้อยู่ Epicbox ลิงก์ การอัปเดตและราคาปิดอยู่';
+
+  @override
+  String get netMarkLineKillSwitch =>
+      'ไม่มีอะไรเชื่อมต่อ ยอดคงเหลือและประวัติเป็นข้อมูลล่าสุดที่ทราบ';
+
+  @override
+  String get netMarkChange => 'เปลี่ยน';
+
+  @override
+  String statusOffByMode(String mode) {
+    return 'ปิด ($mode)';
+  }
+
+  @override
+  String get statusOffByModeDetail =>
+      'ปิดโดยโหมดเครือข่าย เปลี่ยนได้ที่ การตั้งค่า › ขั้นสูง › เครือข่าย';
+
+  @override
+  String get netBlockEpicboxNodeOnly =>
+      'โหนดเท่านั้นเปิดอยู่: Epicbox ปิด ชำระด้วย QR และโอนไฟล์ใช้ได้';
+
+  @override
+  String get netBlockLinkNodeOnly =>
+      'โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด ชำระด้วย QR และโอนไฟล์ใช้ได้';
+
+  @override
+  String get netBlockSendKillSwitch =>
+      'สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ ชำระด้วย QR และโอนไฟล์ใช้ได้';
+
+  @override
+  String get netBlockNodeOnly => 'ปิดในโหมดโหนดเท่านั้น';
+
+  @override
+  String get netBlockKillSwitch => 'ปิดในสวิตช์ฉุกเฉิน: ไม่มีอะไรเชื่อมต่อ';
+
+  @override
+  String get netBlockWaitingForTorLong =>
+      'รอ Tor จนกว่าจะพร้อมจะไม่มีอะไรเชื่อมต่อ';
+
+  @override
+  String receiveEpicboxOffMode(String mode) {
+    return 'Epicbox ปิดใน $mode';
+  }
+
+  @override
+  String receiveEpicboxOffModeBody(String mode) {
+    return 'รายการที่ส่งมายังที่อยู่นี้จะรออยู่บนเซิร์ฟเวอร์ Epicbox และมาถึงเมื่อคุณออกจาก $mode';
+  }
+
+  @override
+  String receiveLinkOffMode(String mode) {
+    return 'การรับผ่านลิงก์ปิดใน $mode';
+  }
+
+  @override
+  String updatesOffMode(String mode) {
+    return 'การตรวจหาอัปเดตปิดใน $mode';
+  }
+
+  @override
+  String reportOffMode(String mode) {
+    return 'ปิดใน $mode ให้บันทึกรายงานเป็นไฟล์แทน';
+  }
+
+  @override
+  String get recheckOffKill => 'ตรวจยอดใหม่ต้องใช้โหนด ปิดในสวิตช์ฉุกเฉิน';
+
+  @override
+  String get postFinishedOffKill =>
+      'ปิดในสวิตช์ฉุกเฉิน: ที่นี่ไม่มีอะไรเชื่อมต่อ';
+
+  @override
+  String get postFinishedOffTor => 'รอ Tor การส่งเข้าเครือข่ายต้องใช้โหนด';
+
+  @override
+  String get browserOffTorOnly => 'จะเปิดนอก Tor ให้คัดลอกลิงก์แทน';
+
+  @override
+  String browserOffMode(String mode) {
+    return 'ปิดใน $mode ให้คัดลอกลิงก์แทน';
+  }
+
+  @override
+  String get netChangeLink => 'เปลี่ยน';
+
+  @override
+  String get lastKnownCaption => 'ล่าสุดที่ทราบ';
+
+  @override
+  String get lastKnownList => 'ล่าสุดที่ทราบ · สวิตช์ฉุกเฉิน';
+
+  @override
+  String lastKnownConfirming(String text) {
+    return '$text · ล่าสุดที่ทราบ';
+  }
+
+  @override
+  String get coldNeedsOnlineCheck => 'ต้องตรวจยอดแบบออนไลน์หนึ่งครั้งก่อน';
+
+  @override
+  String get finalizeNotPostedTitle => 'เสร็จแล้ว แต่ยังไม่ได้ส่งเข้าเครือข่าย';
+
+  @override
+  String finalizeNotPostedBody(String amount) {
+    return '$amount เสร็จแล้ว สวิตช์ฉุกเฉินเปิดอยู่ โทรศัพท์เครื่องนี้จึงส่งเข้าเครือข่ายไม่ได้ ให้บันทึกไว้หรือแสดงเป็นคิวอาร์โค้ด แล้วส่งจากอุปกรณ์ที่ออนไลน์: ประวัติ › ส่งรายการที่เสร็จแล้ว';
+  }
+
+  @override
+  String get finishedSaveFile => 'บันทึกไฟล์';
+
+  @override
+  String get finishedShowQr => 'แสดง QR';
+
+  @override
+  String finishedSaved(String name) {
+    return 'บันทึก $name แล้ว';
+  }
+
+  @override
+  String get finishedQrTitle => 'รายการที่เสร็จแล้ว';
+
+  @override
+  String get finishedUnavailable =>
+      'เวอร์ชันนี้ยังบันทึกรายการที่เสร็จแล้วไม่ได้';
+
+  @override
+  String get finishedFailed => 'อ่านรายการที่เสร็จแล้วไม่ได้';
+
+  @override
+  String get txPostElsewhere => 'รอส่งจากอุปกรณ์อื่น';
+
+  @override
+  String get txPostElsewhereKill =>
+      'เสร็จแล้วในสวิตช์ฉุกเฉิน ให้บันทึกไว้หรือแสดงคิวอาร์โค้ด แล้วส่งจากอุปกรณ์ที่ออนไลน์';
+
+  @override
+  String get txPostElsewhereAfter =>
+      'เสร็จแล้วในสวิตช์ฉุกเฉิน ยังไม่เห็นบนเชน ส่งจากที่นี่ หรือรออุปกรณ์ที่ส่งไว้';
+
+  @override
+  String get txPostNow => 'ส่งตอนนี้';
+
+  @override
+  String get txModeFinishedKill => 'เสร็จแล้วในสวิตช์ฉุกเฉิน';
+
+  @override
+  String get txModeRow => 'โหมด';
+
+  @override
+  String get postFinishedTitle => 'ส่งรายการที่เสร็จแล้ว';
+
+  @override
+  String get postFinishedIntro =>
+      'ส่งรายการที่อุปกรณ์อื่นทำให้เสร็จในสวิตช์ฉุกเฉิน';
+
+  @override
+  String get postFinishedOpenFile => 'เปิดไฟล์';
+
+  @override
+  String get postFinishedScanQr => 'สแกน QR';
+
+  @override
+  String get postFinishedPaste => 'วาง';
+
+  @override
+  String get postFinishedChooseFile => 'เลือกไฟล์';
+
+  @override
+  String get postFinishedSummary => 'รายการที่เสร็จแล้ว';
+
+  @override
+  String get postFinishedAmount => 'จำนวน';
+
+  @override
+  String get postFinishedFee => 'ค่าธรรมเนียม';
+
+  @override
+  String get postFinishedKernel => 'Kernel';
+
+  @override
+  String get postFinishedNote =>
+      'การส่งจะนำรายการเข้าสู่เครือข่าย กระเป๋าเงินที่สร้างรายการจะแสดงว่ากำลังยืนยันเมื่อเห็นรายการบนเชน';
+
+  @override
+  String get postFinishedPost => 'ส่ง';
+
+  @override
+  String get postFinishedPosting => 'กำลังส่ง…';
+
+  @override
+  String get postFinishedDone => 'ส่งเข้าเครือข่ายแล้ว';
+
+  @override
+  String get postFinishedDoneBody =>
+      'โหนดรับไว้แล้ว กระเป๋าเงินที่สร้างรายการจะแสดงว่ากำลังยืนยันเมื่อเห็นรายการบนเชน';
+
+  @override
+  String get postFinishedNotFinished =>
+      'นี่ไม่ใช่รายการที่เสร็จแล้ว ให้เปิดไฟล์ที่บันทึกไว้ใน รอส่งจากอุปกรณ์อื่น หรือสแกน QR ของไฟล์นั้น';
+
+  @override
+  String get postFinishedFailed => 'โหนดไม่รับไว้ ลองอีกครั้ง';
+
+  @override
+  String get postFinishedUnreachable => 'โหนดไม่ตอบสนอง';
+
+  @override
+  String get postFinishedDeskRow => 'ส่งรายการที่เสร็จแล้ว';
+
+  @override
+  String get postFinishedDeskRowText =>
+      'ส่งรายการที่อุปกรณ์อื่นทำให้เสร็จในสวิตช์ฉุกเฉิน';
+
+  @override
+  String get postFinishedOpen => 'เปิด';
+
+  @override
+  String get deskSetAdvModeStandardHint =>
+      'ทุกอย่างที่กระเป๋าเงินตั้งค่าไว้: โหนด Epicbox ลิงก์ เว็บไซต์สถานะ ราคา และการตรวจหาอัปเดต Tor เป็นสวิตช์แยกต่างหากใน ความเป็นส่วนตัว';
+
+  @override
+  String deskFinNotPostedKillBody(String amount) {
+    return '$amount เสร็จแล้ว สวิตช์ฉุกเฉินเปิดอยู่ คอมพิวเตอร์เครื่องนี้จึงส่งเข้าเครือข่ายไม่ได้ ให้บันทึกไว้หรือคัดลอก แล้วส่งจากอุปกรณ์ที่ออนไลน์: รับ › ไฟล์ธุรกรรม › ส่งรายการที่เสร็จแล้ว';
+  }
+
+  @override
+  String netMarkRowLabel(String mode) {
+    return 'โหมดเครือข่าย: $mode';
+  }
+
+  @override
+  String get qrStatusFinishedHidden => 'ซ่อนอยู่';
+
+  @override
+  String get qrStatusFinishedShowing => 'รออุปกรณ์ที่ออนไลน์มาสแกน';
+
+  @override
+  String qrShowSubFinished(String amount) {
+    return '$amount เสร็จแล้ว';
+  }
+
+  @override
+  String qrSemanticsFinished(String state) {
+    return 'คิวอาร์โค้ดของรายการที่เสร็จแล้ว, $state';
+  }
+
+  @override
+  String get qrHiddenBodyFinished =>
+      'แสดงให้อุปกรณ์ที่ออนไลน์ดู อุปกรณ์นั้นจะส่งรายการเข้าเครือข่าย ไม่ต้องใช้กุญแจ';
+
+  @override
+  String get qrScanFinished => 'สแกนรายการที่เสร็จแล้ว';
+
+  @override
+  String get qrScanNotFinished => 'โค้ดนี้ไม่ใช่รายการที่เสร็จแล้ว';
+
+  @override
+  String get qrScanAimFinished => 'หันกล้องไปที่โค้ดบนอุปกรณ์อีกเครื่อง';
+
+  @override
+  String get deskRailOpenNetwork => 'เปิดการตั้งค่าเครือข่าย';
 }

@@ -14,6 +14,12 @@
 #                                         OFFLINE_RESTORE=0: stay offline to the end.
 #                                         OFFLINE_EMPTY_LISTS=1: the settings file's Node and
 #                                         Epicbox lists empty from the first start.
+#                                         OFFLINE_ONLINE=1: the network is plugged in before the
+#                                         app starts (the network-mode proofs).
+#                                         OFFLINE_TRACE=1: every connect(), listen() and DNS query of
+#                                         every process in the namespace is recorded (strace, $run/trace)
+#                                         and summed up by tool/net_trace_summary.py; DNS goes
+#                                         over plain UDP from the namespace so each name shows.
 #   tool/offline_check.sh selftest        the same namespace, cut and restore with a curl probe in
 #                                         place of the app: no build, about 20 s.
 #
@@ -38,6 +44,9 @@ root="$(cd "$here/.." && pwd)"
 OUT="${RC_OUT:-${TMPDIR:-$HOME/.cache/release-check}}"
 MODE="${OFFLINE_MODE:-refuse}"
 RESTORE="${OFFLINE_RESTORE:-1}"
+ONLINE="${OFFLINE_ONLINE:-0}"
+TRACE="${OFFLINE_TRACE:-0}"
+[ "$ONLINE" = 1 ] && RESTORE=0
 SELFTEST=0
 [ "${1:-}" = selftest ] && { SELFTEST=1; shift; }
 file="${1:-integration_test/release_check/offline_test.dart}"
@@ -59,7 +68,7 @@ cleanup() {
   sudo ip netns del "$NS" 2>/dev/null
   sudo ip netns del "$SINK" 2>/dev/null
   docker network rm "$NET" >/dev/null 2>&1
-  sudo rm -f "/etc/netns/$NS/resolv.conf"
+  sudo rm -f "/etc/netns/$NS/resolv.conf" "/etc/netns/$NS/nsswitch.conf"
   sudo rmdir "/etc/netns/$NS" 2>/dev/null
 }
 trap cleanup EXIT INT TERM
@@ -74,7 +83,7 @@ for old in $(ip netns list 2>/dev/null | awk '{print $1}' | grep '^wfeoff-[0-9]*
   sudo ip netns del "$old"
   sudo ip netns del "$old-sink" 2>/dev/null
   docker network rm "$old" >/dev/null 2>&1
-  sudo rm -f "/etc/netns/$old/resolv.conf"; sudo rmdir "/etc/netns/$old" 2>/dev/null
+  sudo rm -f "/etc/netns/$old/resolv.conf" "/etc/netns/$old/nsswitch.conf"; sudo rmdir "/etc/netns/$old" 2>/dev/null
 done
 
 sudo ip netns add "$NS" || { echo "cannot make a network namespace" >&2; exit 3; }
@@ -98,8 +107,11 @@ EOF2
 fi
 sudo mkdir -p "/etc/netns/$NS"
 printf 'nameserver 1.1.1.1\nnameserver 9.9.9.9\n' | sudo tee "/etc/netns/$NS/resolv.conf" >/dev/null
+# Traced: names resolve over plain UDP from inside the namespace (no mDNS, no resolver socket
+# outside it), so every lookup is a connect() and a query the trace shows.
+[ "$TRACE" = 1 ] && printf 'passwd: files\ngroup: files\nhosts: files dns\n' | sudo tee "/etc/netns/$NS/nsswitch.conf" >/dev/null
 # Readable by the app's user (this script runs with umask 077).
-sudo chmod 755 "/etc/netns/$NS"; sudo chmod 644 "/etc/netns/$NS/resolv.conf"
+sudo chmod 755 "/etc/netns/$NS"; sudo chmod 644 /etc/netns/"$NS"/*.conf
 echo "namespace $NS, mode $MODE, restore $RESTORE, run $run"
 
 plug_in() {
@@ -123,6 +135,10 @@ plug_in() {
   sudo ip -n "$NS" route replace default via "$sub.1"
 }
 
+if [ "$ONLINE" = 1 ]; then
+  plug_in || exit 3
+  echo "network plugged in before the start"
+fi
 if [ "$RESTORE" = 1 ]; then
   (
     # Ends with the script, even one killed past its trap.
@@ -162,12 +178,18 @@ timeout 2400 sudo ip netns exec "$NS" setpriv --reuid="$uid" --regid="$gid" --in
     PUB_CACHE="${PUB_CACHE:-/home/$USER/.pub-cache}" TMPDIR="$run" TMPDIR="$run" \
     ANDROID_HOME="${ANDROID_HOME:-}" JAVA_HOME="${JAVA_HOME:-}" \
     FLUTTER_SUPPRESS_ANALYTICS=true CI=1 \
-    OFFLINE_EMPTY_LISTS="${OFFLINE_EMPTY_LISTS:-}" RC_SHOTS="$OUT/shots/offline" RC_HOME="$home" OFFLINE_NET_DIR="$([ "$RESTORE" = 1 ] && echo "$run/net")" \
+    OFFLINE_EMPTY_LISTS="${OFFLINE_EMPTY_LISTS:-}" NET_MODE="${NET_MODE:-}" NET_NODE="${NET_NODE:-}" NET_TOR="${NET_TOR:-}" NET_TOR_BUNDLE="${NET_TOR_BUNDLE:-}" OFFLINE_ONLINE="$ONLINE" RC_SHOTS="$OUT/shots/offline" RC_HOME="$home" OFFLINE_NET_DIR="$([ "$RESTORE" = 1 ] && echo "$run/net")" \
   xvfb-run -a -s "-screen 0 1600x1000x24" dbus-run-session -- bash -c '
     printf "%s" "throwaway-$$" | gnome-keyring-daemon --unlock --components=secrets >/dev/null 2>&1
+    if [ -n "$1" ]; then
+      exec strace -f -Y -yy --seccomp-bpf -s 300 -e trace=connect,sendto,sendmsg,sendmmsg,listen -o "$1" flutter test --no-pub -d linux "$0"
+    fi
     exec flutter test --no-pub -d linux "$0"
-  ' "$file" 2>&1 | tee "$OUT/$name.log" | grep --line-buffered -E '^(RC |VISIT )|[0-9]+:[0-9]+ \+|Error|Exception' | tail -200
+  ' "$file" "$([ "$TRACE" = 1 ] && echo "$run/trace")" 2>&1 | tee "$OUT/$name.log" | grep --line-buffered -E '^(RC |VISIT )|[0-9]+:[0-9]+ \+|Error|Exception' | tail -200
 rc="${PIPESTATUS[0]}"
 grep -h '^RC ' "$OUT/$name.log" | sed 's/^RC //' > "$OUT/offline-results.txt"
+if [ "$TRACE" = 1 ]; then
+  python3 -I "$here/tool/net_trace_summary.py" "$run/trace" ${NET_NODE:+--node "$NET_NODE"} | tee "$OUT/$name-trace.txt"
+fi
 echo "results: $(grep -c '^PASS' "$OUT/offline-results.txt") pass, $(grep -c '^FAIL' "$OUT/offline-results.txt") fail ($OUT/offline-results.txt)"
 exit "$rc"

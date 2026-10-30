@@ -1,8 +1,6 @@
 {
   "deskSlotNow": "Сейчас",
   "deskSlotHelp": "Справка",
-  "deskSlotOffline": "Офлайн",
-  "deskSlotOfflineDetail": "ничего не отправляется и не принимается",
   "deskSlotScanning": "Сканирование цепочки",
   "deskSlotScanWaits": "Сканирование ждёт сети",
   "deskSlotScanStopped": "Сканирование остановлено",
@@ -17,7 +15,6 @@
   "deskSlotRequests": "Новые счета",
   "deskSlotNodeStarting": "Запуск локального узла",
   "deskSlotNodeSyncing": "Синхронизация локального узла",
-  "deskSlotOpenAdvanced": "Открыть «Дополнительно»",
   "deskSlotOpenRecheck": "Открыть «Сверка баланса»",
   "deskSlotOpenSend": "Открыть «Отправить»",
   "deskSlotOpenActivity": "Открыть в «Активности»",

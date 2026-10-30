@@ -103,7 +103,7 @@ lepic.WalletConfig _config(String name, {String relay = _relay, bool mainnet = f
   nodeUrl: mainnet ? _mainnetNode : _node,
   epicboxDomain: relay,
   epicboxPort: 443,
-  onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
+  onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig), offline: false,
 );
 
 /// One install: the session, its LEPIC wallet and, for A and B, its linked devices.

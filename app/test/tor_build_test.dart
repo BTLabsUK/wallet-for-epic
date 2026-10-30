@@ -35,7 +35,7 @@ void main() {
     expect(AdvancedPrefs.none.withMode(NetworkMode.torOnly).startsWithTor, torBuilt);
     expect(AdvancedPrefs.decode('outputs|torOnly').networkMode, mode);
     expect(AdvancedPrefs.fromJson({'networkMode': 'torOnly'}).networkMode, mode);
-    expect(AdvancedPrefs.none.withMode(NetworkMode.offline).networkMode, NetworkMode.offline);
+    expect(AdvancedPrefs.none.withMode(NetworkMode.nodeOnly).networkMode, NetworkMode.nodeOnly);
   });
 
   test('no tor is looked for without Tor', () async {

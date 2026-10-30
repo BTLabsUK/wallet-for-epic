@@ -20,6 +20,7 @@ import '../tor_build.dart';
 import '../updater.dart' show updateProvider;
 import '../wallet_service.dart';
 import 'common.dart';
+import 'finished_not_posted.dart' show FinishedNotPosted, isPostElsewhere;
 import 'invoice_request_screen.dart' show requestFilesOn;
 import 'invoice_review_screen.dart' show RequestFileReviewScreen, requestFileRefusal;
 import 'pairing/pairing_parts.dart';
@@ -825,6 +826,8 @@ class NotPostedNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Finalized under Kill switch: not a refusal, a payment for a device that is online.
+    if (isPostElsewhere(tx)) return FinishedNotPosted(tx: tx);
     final l = context.l10n;
     final theme = Theme.of(context);
     return Column(

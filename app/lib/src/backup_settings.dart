@@ -373,7 +373,8 @@ BackupSettingsPlan _plan(
         features = {...features.where((f) => f != AdvancedFeature.linkedDevices), if (m.linkedDevicesOn) AdvancedFeature.linkedDevices};
         decide(BackupItem.features, _names(m.features), _names(d.features), _names(features));
       }
-      if (NetworkMode.values.any((x) => x.name == raw['networkMode'])) {
+      // An older file's `offline` is Node only (networkModeNamed).
+      if (networkModeNamed(raw['networkMode'] is String ? raw['networkMode'] as String : null) != null) {
         decide(BackupItem.networkMode, m.networkMode.name, d.networkMode.name, file.networkMode.name);
       }
       if (raw['nodeFailover'] is bool) {
@@ -602,7 +603,8 @@ AdvancedPrefs advancedFromBackup(AdvancedPrefs current, Map<String, Object?> val
       nodeFailover: next.nodeFailover,
     );
   }
-  final mode = NetworkMode.values.where((m) => m.name == values[BackupItem.networkMode]).firstOrNull;
+  final raw = values[BackupItem.networkMode];
+  final mode = networkModeNamed(raw is String ? raw : null);
   if (mode != null) next = next.withMode(mode);
   final failover = values[BackupItem.nodeFailover];
   if (failover is bool) next = next.withNodeFailover(failover);

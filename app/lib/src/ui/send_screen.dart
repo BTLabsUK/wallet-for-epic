@@ -2206,6 +2206,10 @@ class _SendViewState extends ConsumerState<SendView> {
   /// can be paid only that way. Null for any other [note].
   String? _methodOffLine(NetBlock note) {
     final m = _sendMethod;
+    final lm = context.l10n;
+    // The mode itself holds an Epicbox or Link send: name it and say what still works.
+    if (note == NetBlock.killSwitch) return lm.netBlockSendKillSwitch;
+    if (note == NetBlock.nodeOnly) return m?.family == MethodFamily.link ? lm.netBlockLinkNodeOnly : lm.netBlockEpicboxNodeOnly;
     if (m == null || (note != NetBlock.epicboxOff && note != NetBlock.methodOff)) return null;
     final l = context.l10n;
     final reason = methodOffReason(l, m);
@@ -2225,15 +2229,11 @@ class _SendViewState extends ConsumerState<SendView> {
 
   @override
   Widget build(BuildContext context) {
-    // Offline with a local node: a Direct send (to a local address; LEPIC's adapter refuses
-    // any other) and the File method run.
-    final localNode = ref.watch(localNodeProvider);
-    final direct = _method == TransferMethod.direct && parseRecipient(_recipient.text).kind != RecipientKind.tor;
     // A method off in Settings › Transactions holds the send too: Epicbox, or the Link method
     // the address picks (a pasted onion with Link · Tor off says so, never a silent refusal).
     // A pairing recipient's payment waits in the outbox while Epicbox is off ("Queue
     // payment"); Offline and Tor still hold it.
-    _block = watchNetBlock(context, ref, localNode: localNode && direct, method: _pairingTo != null ? null : _sendMethod);
+    _block = watchNetBlock(context, ref, method: _pairingTo != null ? null : _sendMethod);
     // The pairing went (removed elsewhere): back to the To field.
     if (_pairingTo != null && _toPairing() == null && ref.watch(pairingsProvider).hasValue && !_holdsPayment) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2242,7 +2242,7 @@ class _SendViewState extends ConsumerState<SendView> {
     }
     // A file or QR Payment is made, finalized and posted through the node in use, which
     // Offline allows on any node (the note under the button says so).
-    _postBlock = watchNetBlock(context, ref, localNode: true);
+    _postBlock = watchPaymentBlock(context, ref);
     _offlineNode = watchOfflineUsesNode(context, ref);
     // An estimate made against the old balance is stale: coins that confirmed may cover it
     // now, or a send elsewhere may have spent them (F-06).
@@ -2310,6 +2310,7 @@ class _SendViewState extends ConsumerState<SendView> {
       SendStage.review when !_sendFailed => _block,
       // Making a file needs no connection of its own (Tor only without tor makes it too).
       SendStage.fileMade => _postBlock,
+      SendStage.fileAmount when _postBlock == NetBlock.killSwitch => _postBlock,
       _ => NetBlock.none,
     };
     // Offline on a local node without peers: what is posted waits in its pool.
@@ -2330,7 +2331,12 @@ class _SendViewState extends ConsumerState<SendView> {
                 else if (offlineNode)
                   const OfflineNodeNote()
                 else ...[
-                  NetBlockNote(note, line: _methodOffLine(note)),
+                  NetBlockNote(
+                    note,
+                    line: note == _postBlock && note == NetBlock.killSwitch && _stage != SendStage.recipient && _stage != SendStage.amount && _stage != SendStage.review
+                        ? context.l10n.coldNeedsOnlineCheck
+                        : _methodOffLine(note),
+                  ),
                   // A Link method off: one tap turns it on here (Epicbox keeps its own way).
                   if (_sendMethod case final m? when note == NetBlock.methodOff && m.family == MethodFamily.link) ...[
                     OutlinedButton(
@@ -4207,7 +4213,7 @@ class _TorNotice extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     // Offline: Tor never runs there; the form's Offline line gives the reason (LNX-12).
-    if (watchNetBlock(context, ref) == NetBlock.offline) return const SizedBox.shrink();
+    if (watchNetBlock(context, ref).byMode) return const SizedBox.shrink();
     // Link · Tor switched off: the form's off line comes first, Tor alone would not send it.
     if (onion && watchNetBlock(context, ref, method: MethodKind.linkTor) == NetBlock.methodOff) return const SizedBox.shrink();
     final tor = ref.read(phoneTorProvider.notifier);

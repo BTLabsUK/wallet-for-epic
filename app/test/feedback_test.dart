@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/app_log.dart';
 import 'package:epic_wallet/src/feedback.dart';
@@ -23,6 +24,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/test_settings.dart' show useNetworkModeFile;
 
 const _pin = '123456';
 const _phrase =
@@ -367,15 +369,15 @@ void main() {
       expect(find.text('Thank you. Your feedback was sent.'), findsOneWidget);
     });
 
-    testWidgets('Offline: Send waits with the reason, sharing the report does not', (
+    testWidgets('Node only: Send waits with the reason, sharing the report does not', (
       tester,
     ) async {
       final h = _Harness()..url = Uri.parse('https://feedback.example.com/in');
-      h.store.values['app.advanced_prefs'] = '|offline';
+      useNetworkModeFile(NetworkMode.nodeOnly);
       await h.pump(tester);
       await h.openFeedback(tester);
       await enter(tester, 'What happened', 'Please add dark mode');
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Off in Node only. Save the report as a file instead.'), findsOneWidget);
       final send = find.widgetWithText(FilledButton, 'Send');
       await tester.ensureVisible(send);
       expect(tester.widget<FilledButton>(send).onPressed, isNull);

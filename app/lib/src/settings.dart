@@ -16,6 +16,7 @@ import 'l10n.dart' show appLanguages;
 import 'network_gate.dart';
 import 'providers.dart';
 import 'relay_directory.dart' show statusSite;
+import 'settings_file/network_mode_file.dart' show networkModeIn, saveNetworkMode;
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'models.dart' show SelectionStrategy;
 import 'secret_store.dart';
@@ -272,12 +273,10 @@ class AppSettings {
   );
 }
 
-/// The network mode the phone runs in now (network_gate.dart): Standard, Tor only or Offline.
-/// Before the settings load, the mode read at launch.
+/// The network mode the phone runs in now (network_gate.dart): settings.toml's `[network]
+/// mode` (`network_mode_file.dart`), so also before the app's settings load.
 final networkModeProvider = Provider<NetworkMode>(
-  (ref) => netModeOf(
-    ref.watch(appSettingsProvider.select((s) => s.value?.advanced.networkMode)) ?? NetGate.mode,
-  ),
+  (ref) => ref.watch(hostSettingsProvider.select(networkModeIn)),
 );
 
 final appSettingsProvider =
@@ -322,6 +321,17 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final store = ref.watch(secretStoreProvider);
     final site = ref.watch(hostSettingsProvider.select((s) => s.statusEnabled));
     statusSite.on = site;
+    // The network mode is settings.toml's, a restored backup's and a hand edit's too; the
+    // store keeps none. A change updates these settings in place: a rebuild still reading the
+    // store would put back what a setter wrote meanwhile.
+    final fileMode = ref.read(hostSettingsProvider.select(networkModeIn));
+    ref.listen(hostSettingsProvider.select(networkModeIn), (_, mode) {
+      final now = state.value;
+      if (now != null && now.advanced.networkMode != mode) {
+        NetGate.set(mode);
+        state = AsyncData(now.copyWith(advanced: now.advanced.withMode(mode)));
+      }
+    });
     const defaults = AppSettings();
     final theme = await store.read(_themeKey);
     final currency = await store.read(_currencyKey);
@@ -392,17 +402,18 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
           ? defaults.advancedOptions
           : advanced == 'true',
       // A wallet that had the old Advanced options switch on keeps what it showed.
-      advanced: advancedPrefs != null
-          ? AdvancedPrefs.decode(advancedPrefs)
-          : advanced == 'true'
-          ? const AdvancedPrefs(
-              features: {
-                AdvancedFeature.technicalDetails,
-                AdvancedFeature.serverDetails,
-                AdvancedFeature.recheckFromHeight,
-              },
-            )
-          : defaults.advanced,
+      advanced: (advancedPrefs != null
+              ? AdvancedPrefs.decode(advancedPrefs)
+              : advanced == 'true'
+              ? const AdvancedPrefs(
+                  features: {
+                    AdvancedFeature.technicalDetails,
+                    AdvancedFeature.serverDetails,
+                    AdvancedFeature.recheckFromHeight,
+                  },
+                )
+              : defaults.advanced)
+          .withMode(fileMode),
       // Direct was the Advanced page's "Direct receiving" switch before 26.10.13.
       payments: PaymentPrefs.decode(payments, legacyDirect: legacyDirect, phone: phone),
       useStatusSite: site,
@@ -508,13 +519,16 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   );
 
   /// The Advanced page: one feature switch or the network mode changed.
-  /// A new network mode applies at once ([NetGate], [networkModeProvider]).
+  /// A new network mode applies at once ([NetGate], [networkModeProvider]) and goes to
+  /// settings.toml (`network_mode_file.dart`); the store keeps the features only.
   Future<void> setAdvanced(AdvancedPrefs prefs) async {
-    await _put(
-      _advancedPrefsKey,
-      prefs.encode(),
-      (await _current()).copyWith(advanced: prefs),
-    );
+    // The store first: a new mode rebuilds these settings, and the rebuild reads the store.
+    await ref.read(secretStoreProvider).write(_advancedPrefsKey, prefs.encode(mode: false));
+    if (networkModeIn(ref.read(hostSettingsProvider)) != prefs.networkMode) {
+      NetGate.set(prefs.networkMode);
+      await saveNetworkMode(prefs.networkMode, ref.read(hostSettingsProvider.notifier).setAll);
+    }
+    state = AsyncData((await _current()).copyWith(advanced: prefs));
     NetGate.set(prefs.networkMode);
     NetGate.setExperimental(prefs);
   }
@@ -529,10 +543,6 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     NetGate.setPayments(prefs);
     await _put(_paymentsKey, prefs.encode(), (await _current()).copyWith(payments: prefs));
   }
-
-  /// The saved network mode, read at launch before any request (`main.dart`).
-  static Future<NetworkMode> savedNetworkMode(SecretStore store) async =>
-      netModeOf(AdvancedPrefs.decode(await store.read(_advancedPrefsKey)).networkMode);
 
   Future<void> setFeature(AdvancedFeature f, bool on) async =>
       setAdvanced((await _current()).advanced.withFeature(f, on));

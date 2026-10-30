@@ -20,6 +20,7 @@ import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
 import 'common.dart';
+import 'finished_not_posted.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
 import 'invoice_review_screen.dart' show PaidInvoiceBlock;
@@ -160,6 +161,8 @@ String txExplanation(
     TxPhase.waitingSender => l.txDetailsWaitingSender,
     TxPhase.waitingPayer => l.txDetailsWaitingPayer,
     // Finished, but the node refused it (android-17): it is not on the network.
+    TxPhase.confirming when isPostElsewhere(tx) => l.txPostElsewhereKill,
+    TxPhase.confirming when tx.repostable && finishedUnderKillKeys.contains(tx.key) => l.txPostElsewhereAfter,
     TxPhase.confirming when tx.repostable => l.txDetailsStuckBody,
     // Over HTTP or Tor their wallet took it in the exchange itself: only a block is left.
     TxPhase.confirming when outgoing && height == null && _isDirect(tx) =>
@@ -786,17 +789,26 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     const SizedBox(height: 8),
                     Text(ttl, style: theme.textTheme.bodySmall),
                   ],
+                  // Finished under Kill switch: save it or show the QR for a device that is online.
+                  if (isPostElsewhere(tx)) ...[
+                    const SizedBox(height: 12),
+                    FinishedPaymentButtons(tx: tx),
+                  ],
                   // The explanation above says it is not on the network.
-                  if (stuck) ...[
+                  if (stuck && !isPostElsewhere(tx)) ...[
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
                       child: FilledButton.tonalIcon(
                         icon: const Icon(Icons.cell_tower),
-                        label: Text(l.txDetailsBroadcastAgain),
+                        label: Text(finishedUnderKillKeys.contains(tx.key) ? l.txPostNow : l.txDetailsBroadcastAgain),
                         onPressed: _busy ? null : () => _repost(tx),
                       ),
                     ),
+                    if (finishedUnderKillKeys.contains(tx.key)) ...[
+                      const SizedBox(height: 8),
+                      FinishedPaymentButtons(tx: tx, primarySave: false),
+                    ],
                   ],
                   // HTTP and Tor sends are sent again from the desktop only.
                   if (tx.undelivered && tx.transport == 'epicbox') ...[
@@ -908,6 +920,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             label: l.txDetailsDate,
             value: formatDateTime(l, localTime(blockTime ?? tx.timeUnix)),
           ),
+          if (isPostElsewhere(tx) || (tx.repostable && finishedUnderKillKeys.contains(tx.key)))
+            _DetailRow(label: l.txModeRow, value: l.txModeFinishedKill),
           if (blockTime != null &&
               tx.source == TxSource.wallet &&
               (blockTime - tx.createdAtUnix).abs() > 120)

@@ -207,7 +207,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
           if (offlineNode) ...[
             ENotice(
               key: const ValueKey('file-offline-node'),
-              title: l.advHomeOffline,
+              title: l.advModeNodeOnly,
               text: l.netOfflineNodeHint,
               tone: ETone.info,
               icon: EIcons.info,

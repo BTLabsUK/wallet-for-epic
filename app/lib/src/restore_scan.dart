@@ -161,7 +161,7 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
       _failed(const ScanFailed('the restore is still due after its scan'));
       return;
     }
-    final blocked = NetGate.offline && !ref.read(localNodeProvider);
+    final blocked = NetGate.killSwitch;
     final waiting = state.error != null && !retry;
     state = RestoreScanState(
       required: true,

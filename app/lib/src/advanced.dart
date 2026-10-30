@@ -61,20 +61,38 @@ enum AdvancedFeature {
 /// leaves them and the count of features on does not include them.
 const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices, AdvancedFeature.linkedDevices};
 
-/// How the wallet reaches the network. One choice; the Privacy page's Tor switch is the user's
-/// in [standard], locked on in [torOnly] and off in [offline].
+/// How the wallet reaches the network (Settings › Advanced › Network). One choice, kept in the
+/// settings file's `[network] mode` (`network_mode_file.dart`); the Privacy page's Tor switch is
+/// the user's in [standard] and [nodeOnly], locked on in [torOnly] and off in [killSwitch].
 enum NetworkMode {
-  /// Connects directly. Tor can be turned on in Privacy for this session.
+  /// Normal: connects directly. Tor can be turned on in Privacy.
   standard,
 
   /// Every connection goes through Tor. Without Tor the wallet stays offline and says so; it
   /// never connects directly.
   torOnly,
 
-  /// No network at all: the balance stays as last seen, nothing is sent or received; the
-  /// transaction file method still works for cold use.
-  offline,
+  /// Only the node in use (the first of the node list): no Epicbox, no Link, no status site,
+  /// price, update checks or any other request of the app's own. QR Payment and File Transfer
+  /// work through the node. The node goes over Tor while the Tor switch is on. Stored by
+  /// builds before 26.10.25 as `offline`.
+  nodeOnly,
+
+  /// Kill switch: no connection at all, the node included; Tor and the built-in node never
+  /// start. The balance and history stay as last known; File and QR payments are made, signed
+  /// and finalized without a node and posted elsewhere.
+  killSwitch,
 }
+
+/// The mode stored as [name] (the enum's name, or the settings file's snake case), with the
+/// old `offline` read as [NetworkMode.nodeOnly]; null when unknown.
+NetworkMode? networkModeNamed(String? name) => switch (name) {
+  'standard' || 'normal' => NetworkMode.standard,
+  'torOnly' || 'tor_only' => NetworkMode.torOnly,
+  'nodeOnly' || 'node_only' || 'offline' => NetworkMode.nodeOnly,
+  'killSwitch' || 'kill_switch' => NetworkMode.killSwitch,
+  _ => null,
+};
 
 /// What the Advanced page holds, as stored.
 class AdvancedPrefs {
@@ -143,9 +161,8 @@ class AdvancedPrefs {
   /// Tor is wanted at launch ([NetworkMode.torOnly]).
   bool get startsWithTor => networkMode == NetworkMode.torOnly;
 
-  /// Direct connections are refused ([NetworkMode.torOnly]) or there is no network at all.
-  bool get refusesDirect =>
-      networkMode == NetworkMode.torOnly || networkMode == NetworkMode.offline;
+  /// Direct connections are refused ([NetworkMode.torOnly]) or nothing but the node goes.
+  bool get refusesDirect => networkMode != NetworkMode.standard;
 
   AdvancedPrefs withFeature(AdvancedFeature f, bool on) => AdvancedPrefs(
     features: on ? {...features, f} : features.where((x) => x != f).toSet(),
@@ -161,9 +178,10 @@ class AdvancedPrefs {
 
   /// `outputs,sendOptions|torOnly`, with `|noFailover` when node failover is off and
   /// `|noLinkedDevices` when Linked devices is off (on by default, so never listed): one string
-  /// for a key-value store.
-  String encode() =>
-      '${(features.where((f) => f != AdvancedFeature.linkedDevices).map((f) => f.name).toList()..sort()).join(',')}|${networkMode.name}'
+  /// for a key-value store. Without [mode] the mode is written as Normal: the store keeps no
+  /// mode since 26.10.25 (settings.toml does, `network_mode_file.dart`).
+  String encode({bool mode = true}) =>
+      '${(features.where((f) => f != AdvancedFeature.linkedDevices).map((f) => f.name).toList()..sort()).join(',')}|${(mode ? networkMode : NetworkMode.standard).name}'
       '${nodeFailover ? '' : '|noFailover'}${linkedDevicesOn ? '' : '|noLinkedDevices'}';
 
   /// Unknown names are dropped, so a build without a feature still opens its settings.
@@ -175,10 +193,7 @@ class AdvancedPrefs {
         for (final f in AdvancedFeature.values)
           if (f.name == n) f,
     };
-    final mode = parts.length > 1
-        ? NetworkMode.values.where((m) => m.name == parts[1]).firstOrNull ??
-              NetworkMode.standard
-        : NetworkMode.standard;
+    final mode = parts.length > 1 ? networkModeNamed(parts[1]) ?? NetworkMode.standard : NetworkMode.standard;
     return AdvancedPrefs(
       features: {...features, if (!parts.skip(2).contains('noLinkedDevices')) AdvancedFeature.linkedDevices},
       networkMode: mode,
@@ -186,9 +201,10 @@ class AdvancedPrefs {
     );
   }
 
-  Map<String, Object?> toJson() => {
+  /// Without [mode] no `networkMode` (the desktop's store: settings.toml keeps the mode).
+  Map<String, Object?> toJson({bool mode = true}) => {
     'features': (features.where((f) => f != AdvancedFeature.linkedDevices).map((f) => f.name).toList()..sort()),
-    'networkMode': networkMode.name,
+    if (mode) 'networkMode': networkMode.name,
     'nodeFailover': nodeFailover,
     'linkedDevices': linkedDevicesOn,
   };
@@ -206,9 +222,7 @@ class AdvancedPrefs {
         // On unless the user turned it off.
         if (j['linkedDevices'] != false) AdvancedFeature.linkedDevices,
       },
-      networkMode:
-          NetworkMode.values.where((m) => m.name == mode).firstOrNull ??
-          NetworkMode.standard,
+      networkMode: networkModeNamed(mode is String ? mode : null) ?? NetworkMode.standard,
       nodeFailover: j['nodeFailover'] != false,
     );
   }
@@ -224,4 +238,10 @@ class AdvancedPrefs {
   @override
   int get hashCode =>
       Object.hash(networkMode, nodeFailover, Object.hashAllUnordered(features));
+}
+
+extension NetworkModeRestricted on NetworkMode {
+  /// Nothing but the node in use ([NetworkMode.nodeOnly]) or nothing at all
+  /// ([NetworkMode.killSwitch]) reaches the network.
+  bool get restricted => this == NetworkMode.nodeOnly || this == NetworkMode.killSwitch;
 }

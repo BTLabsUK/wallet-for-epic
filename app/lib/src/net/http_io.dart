@@ -8,7 +8,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'http_types.dart';
-import 'local_address.dart';
 import 'tor_net.dart';
 
 /// With [maxBytes], a body longer than that is not read to its end: the call throws
@@ -70,6 +69,8 @@ Future<({int status, Uint8List bytes})> _sendRaw(
   Duration timeout,
   int? maxBytes,
 ) async {
+  // The network mode first (Node only: the node in use alone; Kill switch: nothing).
+  dialOrFail(NetDial.http, url);
   // With Tor on and not connected yet, held until it is: never direct meanwhile.
   if (!isLoopbackUrl(url)) await TorNet.untilConnected();
   // No User-Agent (Dart's default names Dart and its version) and no cookie jar: a request
@@ -79,7 +80,7 @@ Future<({int status, Uint8List bytes})> _sendRaw(
     ..userAgent = null;
   // Through tor while the Tor switch covers these requests; none while it is not connected.
   try {
-    TorNet.configure(client, loopback: isLoopbackUrl(url), local: isLocalAddressUrl(url.toString()));
+    TorNet.configure(client, loopback: isLoopbackUrl(url));
   } on NetError {
     client.close(force: true);
     rethrow;

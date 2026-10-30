@@ -5,7 +5,7 @@
 /// changes height.
 library;
 
-import '../../advanced.dart' show NetworkMode;
+import '../../advanced.dart' show NetworkMode, NetworkModeRestricted;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -18,6 +18,7 @@ import 'desk_failover.dart';
 import '../data/node_view.dart';
 import '../data/tor_view.dart' as tor_view;
 import '../data/tor_view.dart' hide isLocalNodeUrl;
+import '../../ui/network_mode_text.dart' show statusOffByModeWord;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
@@ -36,6 +37,7 @@ class RailItem {
     this.note,
     required this.open,
     required this.jump,
+    this.byMode = false,
   });
 
   final IconData icon;
@@ -57,17 +59,26 @@ class RailItem {
   final String open;
   final SettingsJump jump;
 
-  /// The row in Offline mode: neutral, one word, nothing is being checked.
-  RailItem offline(AppLocalizations l) => RailItem(
+  /// The mode turned this service off: a click opens the Network section ([opens]).
+  final bool byMode;
+
+  /// The row of a service the network mode turns off: neutral, "Off (Node only)", nothing is
+  /// being checked; a click opens the Network section, not the service's switch.
+  RailItem offByMode(AppLocalizations l, NetworkMode mode) => RailItem(
     icon: icon,
     name: name,
-    word: l.deskRailOffline,
+    word: statusOffByModeWord(l, mode),
     state: EState.off,
-    second: l.deskRailOffline,
-    lines: [l.deskNetOfflineReason],
-    open: open,
+    second: statusOffByModeWord(l, mode),
+    lines: [l.statusOffByModeDetail],
+    open: l.deskRailOpenNetwork,
     jump: jump,
+    byMode: true,
   );
+
+  /// Where a click goes: the service's own switch, or the Network section when the mode turned
+  /// the service off (its own switch would not help).
+  SettingsJump get opens => byMode ? SettingsJump.network : jump;
 }
 
 /// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
@@ -179,7 +190,10 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       ),
     );
   }
-  return settings.advanced.networkMode == NetworkMode.offline ? [for (final i in items) i.offline(l)] : items;
+  // Node only keeps the node and the Tor that carries it; Epicbox and Link are off. Kill
+  // switch turns every service off.
+  final mode = settings.advanced.networkMode;
+  return mode.restricted ? [for (final i in items) mode == NetworkMode.nodeOnly && i.icon == EIcons.tor ? i : i.offByMode(l, mode)] : items;
 }
 
 /// The Node row from a [NodeView].
@@ -308,8 +322,8 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     }
     var nodeItem = nodeRailItem(l, node);
     final netMode = settings.advanced.networkMode;
-    if (netMode == NetworkMode.offline) {
-      nodeItem = nodeItem.offline(l);
+    if (netMode == NetworkMode.killSwitch) {
+      nodeItem = nodeItem.offByMode(l, netMode);
     } else if (netMode == NetworkMode.torOnly && netTorState(settings, status) != TorState.on && !(prefs.builtin || _localNode(prefs, status))) {
       // Tor only, Tor not up yet: the node waits for it and goes nowhere else.
       nodeItem = RailItem(
@@ -325,7 +339,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     }
     final items = [nodeItem, ...receivingRailItems(l, status, settings)];
     if (widget.builder != null) return widget.builder!(context, items);
-    Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));
+    Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.opens));
     if (widget.horizontal) {
       return Row(mainAxisSize: MainAxisSize.min, children: [for (final i in items) SizedBox(width: Ctl.md, child: row(i))]);
     }

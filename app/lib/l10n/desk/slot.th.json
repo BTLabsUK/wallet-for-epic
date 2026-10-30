@@ -1,8 +1,6 @@
 {
   "deskSlotNow": "ตอนนี้",
   "deskSlotHelp": "ช่วยเหลือ",
-  "deskSlotOffline": "ออฟไลน์",
-  "deskSlotOfflineDetail": "ไม่มีการส่งหรือรับ",
   "deskSlotScanning": "กำลังสแกนเชน",
   "deskSlotScanWaits": "การสแกนรอเครือข่าย",
   "deskSlotScanStopped": "การสแกนหยุดแล้ว",
@@ -17,7 +15,6 @@
   "deskSlotRequests": "ใบแจ้งหนี้ใหม่",
   "deskSlotNodeStarting": "โหนดในเครื่องกำลังเริ่ม",
   "deskSlotNodeSyncing": "โหนดในเครื่องกำลังซิงก์",
-  "deskSlotOpenAdvanced": "เปิดการตั้งค่าขั้นสูง",
   "deskSlotOpenRecheck": "เปิดตรวจยอดใหม่",
   "deskSlotOpenSend": "เปิดส่ง",
   "deskSlotOpenActivity": "เปิดในประวัติ",

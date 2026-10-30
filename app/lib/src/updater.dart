@@ -344,6 +344,8 @@ Future<void> _fetchInto(
   final hasher = sha256.startChunkedConversion(digestSink);
   var received = 0;
   try {
+    // The network mode's gate: Node only and Kill switch download nothing.
+    dialOrFail(NetDial.http, apk.url);
     final request = await client.getUrl(apk.url);
     if (kept > 0) request.headers.set(HttpHeaders.rangeHeader, 'bytes=$kept-');
     final response = await request.close();
@@ -675,9 +677,9 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// Checks each time the app is opened: at start, on each unlock, and on a resume that needs
   /// no unlock (`app/README.md` "In-app updates"). Never on a timer. Stays quiet on failure.
   Future<void> checkOnOpening() async {
-    // Offline checks nothing (network_gate.dart).
+    // Node only and Kill switch check nothing (network_gate.dart).
     // The settings file can turn the automatic check off (`updates.check`); Settings still checks by hand.
-    if (!supported || NetGate.offline || !hostSettings.updatesCheck) return;
+    if (!supported || NetGate.restricted || !hostSettings.updatesCheck) return;
     await check(quiet: true);
   }
 

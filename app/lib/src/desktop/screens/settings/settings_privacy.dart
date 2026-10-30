@@ -101,10 +101,11 @@ class _TorGroupState extends ConsumerState<TorGroup> {
     final included = status?.torIncluded ?? true;
     final tor = netTorState(st.settings, status);
     final line = torStateLine(l, tor, status, included: included);
-    // Advanced › Network: Tor only keeps the switch on, Offline leaves it off.
+    // Advanced › Network: Tor only keeps the switch on, Kill switch leaves it off; in Node only
+    // it is the user's and carries the node.
     final mode = st.settings.advanced.networkMode;
     final torOnly = mode == NetworkMode.torOnly;
-    final offline = mode == NetworkMode.offline;
+    final offline = mode == NetworkMode.killSwitch;
     return JumpSection(
       section: SettingsJump.tor,
       child: ESetGroup(
@@ -138,7 +139,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        torOnly ? l.deskNetTorOnlyLine : l.deskNetOfflineReason,
+                        torOnly ? l.deskNetTorOnlyLine : l.netBlockKillSwitch,
                         key: const ValueKey('privacy-mode-line'),
                         style: context.ts.small,
                       ),

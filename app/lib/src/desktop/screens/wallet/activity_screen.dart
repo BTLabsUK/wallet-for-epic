@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../amount.dart' as shared show formatEpic;
 
+import '../../data/net_mode_view.dart' show deskLastKnownProvider;
 import '../../desk_l10n.dart';
 
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
@@ -181,6 +182,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           if (!roomy) ...[
             _search(full: true, hasItems: hasItems),
             SizedBox(height: Sp.x4),
+          ],
+          // Kill switch asks no node: the list is the one seen last.
+          if (ref.watch(deskLastKnownProvider)) ...[
+            Text(l.lastKnownList, key: const ValueKey('activity-last-known'), style: context.ts.small.copyWith(color: context.dc.dim)),
+            SizedBox(height: Sp.x3),
           ],
           Flexible(
             child: split && selectedTx != null

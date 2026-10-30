@@ -11,11 +11,12 @@ import '../l10n.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart' show MethodKind;
 import 'method_icons.dart' show MethodIcons;
-import '../providers.dart' show localNodeProvider;
+import '../providers.dart' show homeProvider, localNodeProvider;
 import '../settings.dart' show appSettingsProvider;
 import '../phone_tor.dart';
 import '../tor_phone.dart';
 import 'info_hint.dart' show showInfoSheet;
+import 'network_mode_phone.dart' show openNetworkSection;
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
@@ -29,10 +30,10 @@ const Key offlineNoPeersKey = ValueKey('offline-no-peers');
 /// The key of an [OfflineNodeNote], for tests.
 const Key offlineNodeNoteKey = ValueKey('offline-node-note');
 
-/// Offline on a node that is not local, for a transaction file or QR Payment action, which
-/// still runs there ([offlineUsesNode]). Rebuilds when the mode or the node changes.
+/// Node only on a node that is not local, for a transaction file or QR Payment action, which
+/// runs there ([nodeOnlyUsesNode]). Rebuilds when the mode or the node changes.
 bool watchOfflineUsesNode(BuildContext context, WidgetRef ref) =>
-    offlineUsesNode(AdvancedOptions.of(context).networkMode, localNode: ref.watch(localNodeProvider));
+    nodeOnlyUsesNode(AdvancedOptions.of(context).networkMode, localNode: ref.watch(localNodeProvider));
 
 /// The line under a transaction file or QR Payment action while Offline on a node that is not
 /// local: "Uses the node" with an info icon; a tap opens the sheet with the whole explanation
@@ -46,7 +47,7 @@ class OfflineNodeNote extends StatelessWidget {
     final t = context.tokens;
     void open() => showInfoSheet(
       context,
-      title: l.advHomeOffline,
+      title: l.advModeNodeOnly,
       text: l.netOfflineNodeHint,
       icon: Icons.info_outline,
     );
@@ -80,14 +81,25 @@ class OfflineNodeNote extends StatelessWidget {
   }
 }
 
-/// What the stored network mode and Tor allow now. Rebuilds when either changes. [localNode]
-/// for an action that reaches only the node in use ([localNodeProvider]), or a Link send.
+/// What the mode allows a payment by File Transfer or QR Payment: making, signing and finishing
+/// it. Kill switch allows them (the finished payment is posted from another device) once the
+/// wallet has refreshed against a node at least once; before, it can't know the chain and says
+/// so. Otherwise as [watchNetBlock] with `node: true`.
+NetBlock watchPaymentBlock(BuildContext context, WidgetRef ref) {
+  final block = watchNetBlock(context, ref, node: true);
+  if (block != NetBlock.killSwitch) return block;
+  final summary = ref.watch(homeProvider.select((h) => h.value?.summary));
+  return summary != null && summary.lastConfirmedHeight == BigInt.zero ? NetBlock.killSwitch : NetBlock.none;
+}
+
+/// What the stored network mode and Tor allow now. Rebuilds when either changes. [node] for
+/// an action that reaches only the node in use, which Node only lets run.
 /// [method] for an action by one payment method: its switch on Settings › Transactions counts
 /// too ([NetBlock.epicboxOff], [NetBlock.methodOff]); [epicbox] is `method: epicbox`.
 NetBlock watchNetBlock(
   BuildContext context,
   WidgetRef ref, {
-  bool localNode = false,
+  bool node = false,
   bool epicbox = false,
   MethodKind? method,
 }) {
@@ -97,7 +109,7 @@ NetBlock watchNetBlock(
   return netBlockFor(
     AdvancedOptions.of(context).networkMode,
     phoneTorState(ref.watch(phoneTorProvider)),
-    localNode: localNode,
+    node: node,
     epicbox: m != MethodKind.epicbox || on,
     offered: m == MethodKind.epicbox || on,
   );
@@ -106,8 +118,9 @@ NetBlock watchNetBlock(
 /// The one-line reason a network action is off, null when nothing stops it.
 String? netBlockReason(AppLocalizations l, NetBlock block) => switch (block) {
   NetBlock.none => null,
-  NetBlock.offline => l.netBlockOffline,
-  NetBlock.waitingForTor => l.netBlockWaitingForTor,
+  NetBlock.nodeOnly => l.netBlockNodeOnly,
+  NetBlock.killSwitch => l.netBlockKillSwitch,
+  NetBlock.waitingForTor => l.netBlockWaitingForTorLong,
   NetBlock.epicboxOff => l.netBlockEpicboxOff,
   // The screen names the method it asked about ([methodOffReason]).
   NetBlock.methodOff => null,
@@ -143,15 +156,27 @@ class NetBlockNote extends StatelessWidget {
       liveRegion: true,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: block == NetBlock.offline || block == NetBlock.epicboxOff || block == NetBlock.methodOff
+        child: block.byMode || block == NetBlock.epicboxOff || block == NetBlock.methodOff
             ? InkWell(
-                onTap: () => openSettingsSection(
-                  context,
-                  block == NetBlock.offline ? SettingsSection.advanced : SettingsSection.transactions,
-                ),
+                onTap: () => block.byMode
+                    ? openNetworkSection(context)
+                    : openSettingsSection(context, SettingsSection.transactions),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(text, textAlign: TextAlign.center, style: style),
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    children: [
+                      Text(text, textAlign: TextAlign.center, style: style),
+                      // The way to the Network section, where the mode is changed.
+                      if (block.byMode)
+                        Text(
+                          context.l10n.netChangeLink,
+                          style: style?.copyWith(color: t.accentText, decoration: TextDecoration.underline),
+                        ),
+                    ],
+                  ),
                 ),
               )
             : Text(text, textAlign: TextAlign.center, style: style),

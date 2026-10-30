@@ -76,7 +76,7 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
     });
   }
 
-  bool get _canPost => watchNetBlock(context, ref, localNode: true) == NetBlock.none;
+  bool get _canPost => watchNetBlock(context, ref, node: true) == NetBlock.none;
 
   Future<void> _show() async {
     final result = await showRequestQr(
@@ -308,7 +308,7 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
           Text(l.qrStatusRequestShowing, style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
           const SizedBox(height: 4),
           Text(l.reqQrOpenNote, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-          if (!canPost) ...[const SizedBox(height: 12), NetBlockNote(watchNetBlock(context, ref, localNode: true))],
+          if (!canPost) ...[const SizedBox(height: 12), NetBlockNote(watchNetBlock(context, ref, node: true))],
           if (error != null) ...[
             const SizedBox(height: 16),
             EdgeCard(

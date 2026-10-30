@@ -14,6 +14,7 @@ import 'mock_wallet.dart';
 import 'models.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../relay_directory.dart' show statusSite;
+import '../../settings_file/network_mode_file.dart' show networkModeIn, saveNetworkMode;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../widgets/kit.dart' show DeskFeatures;
 import '../../phrase_clipboard.dart';
@@ -102,11 +103,20 @@ class DeskController extends Notifier<DeskState> {
   DeskState build() {
     ref.onDispose(_stopLive);
     // The status-site switch is the settings file's `status.enabled`, a hand edit too.
-    final settings = ref.read(deskBootProvider).settings.copyWith(useStatusSite: ref.read(hostSettingsProvider).statusEnabled);
+    final boot = ref.read(deskBootProvider).settings;
+    final host = ref.read(hostSettingsProvider);
+    // The network mode is settings.toml's too (`network_mode_file.dart`): a hand edit or a
+    // restored backup applies at once, as the Advanced page's choice does.
+    final settings = boot.copyWith(useStatusSite: host.statusEnabled, advanced: boot.advanced.withMode(networkModeIn(host)));
     statusSite.on = settings.useStatusSite;
     ref.listen(hostSettingsProvider.select((h) => h.statusEnabled), (_, on) {
       statusSite.on = on;
       if (state.settings.useStatusSite != on) state = state.copyWith(settings: state.settings.copyWith(useStatusSite: on));
+    });
+    ref.listen(hostSettingsProvider.select(networkModeIn), (_, mode) {
+      if (state.settings.advanced.networkMode != mode) {
+        unawaited(saveSettings(state.settings.copyWith(advanced: state.settings.advanced.withMode(mode))));
+      }
     });
     return DeskState(settings: settings);
   }
@@ -316,6 +326,9 @@ class DeskController extends Notifier<DeskState> {
     statusSite.on = s.useStatusSite;
     if (ref.read(hostSettingsProvider).statusEnabled != s.useStatusSite) {
       await ref.read(hostSettingsProvider.notifier).set('online.status_site', s.useStatusSite);
+    }
+    if (networkModeIn(ref.read(hostSettingsProvider)) != s.advanced.networkMode) {
+      await saveNetworkMode(s.advanced.networkMode, ref.read(hostSettingsProvider.notifier).setAll);
     }
     await api.saveSettings(s);
     await ref.read(deskStoreProvider)?.saveSettings(s);

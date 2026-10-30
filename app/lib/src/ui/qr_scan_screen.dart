@@ -52,6 +52,9 @@ enum QrScanKind {
 
   /// The sender reads the receiver's reply.
   reply,
+
+  /// A device that is online reads a payment finished under Kill switch, to post it.
+  finished,
 }
 
 /// How long the not-a-payment warning stays in the dock.
@@ -370,8 +373,9 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     final l = context.l10n;
     const dark = protocolDark;
     final reply = widget.kind == QrScanKind.reply;
+    final finished = widget.kind == QrScanKind.finished;
     final finishesHere = widget.finish != null;
-    final title = reply ? l.qrScanReply : l.qrScanPayment;
+    final title = finished ? l.qrScanFinished : (reply ? l.qrScanReply : l.qrScanPayment);
     final reduced = MediaQuery.disableAnimationsOf(context);
     final top = MediaQuery.paddingOf(context).top;
 
@@ -390,13 +394,13 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
       dockText = l.qrScanOtherPayment;
       tone = _DockTone.risk;
     } else if (_notice == _Notice.notSlate) {
-      dockText = reply ? l.qrScanNotReply : l.qrScanNotPayment;
+      dockText = finished ? l.qrScanNotFinished : (reply ? l.qrScanNotReply : l.qrScanNotPayment);
       tone = _DockTone.warn;
     } else if (_steady) {
       dockText = l.qrScanSteady;
       tone = _DockTone.warn;
     } else if (_received == 0) {
-      dockText = reply ? l.qrScanAimReply : l.qrScanAimPayment;
+      dockText = finished ? l.qrScanAimFinished : (reply ? l.qrScanAimReply : l.qrScanAimPayment);
       tone = _DockTone.plain;
     } else {
       dockText = l.qrScanProgress(_received, _count);

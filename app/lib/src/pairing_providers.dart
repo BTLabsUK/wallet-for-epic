@@ -52,12 +52,13 @@ final pairingApiProvider = Provider<PairingApi>((ref) {
 /// Whether this wallet pairs: the screens show Pair, the Pairing block and the trust badges.
 final pairingSupportedProvider = Provider<bool>((ref) => ref.watch(pairingApiProvider).supported);
 
-/// What reaches the relays now, for pairing (RFC 8.7): online, Offline, or Epicbox off. In
-/// person and by hand work in all three.
+/// What reaches the relays now, for pairing (RFC 8.7): online, off by the network mode (Node
+/// only, Kill switch: [PairNet.offline]), or Epicbox off. In person and by hand work in all
+/// three.
 enum PairNet { online, offline, epicboxOff }
 
 final pairNetProvider = Provider<PairNet>((ref) {
-  if (ref.watch(networkModeProvider) == NetworkMode.offline) return PairNet.offline;
+  if (ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch))) return PairNet.offline;
   final epicbox = ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox)) ?? true;
   return epicbox ? PairNet.online : PairNet.epicboxOff;
 });

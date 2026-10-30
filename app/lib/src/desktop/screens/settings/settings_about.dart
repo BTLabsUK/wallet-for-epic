@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../ui/network_mode_text.dart' show blockMode, browserOffNote, networkModeName;
+import '../../../network_gate.dart' show NetDial, NetGate;
 import '../../../app_info.dart';
 import '../../../app_version.dart';
 import '../../../dist_build.dart' show distStore;
@@ -167,6 +169,11 @@ class _LinkRow extends ConsumerWidget {
     final c = context.dc;
     final l = context.l10n;
     Future<void> open() async {
+      // The mode keeps the browser shut: say so, with the address to copy.
+      if (!NetGate.allows(NetDial.browser, '')) {
+        showEToast(context, browserOffNote(l), text: url, tone: ETone.warn);
+        return;
+      }
       if (!await ref.read(deskOpenUrlProvider)(url) && context.mounted) showEToast(context, l.deskSetAboutBrowserNotOpened, text: url, tone: ETone.warn);
     }
 
@@ -219,7 +226,12 @@ class _Updates extends ConsumerWidget {
     };
     final busy = u.phase == DeskUpdatePhase.checking || u.phase == DeskUpdatePhase.idle;
     final block = ref.watch(deskNetBlockProvider);
-    final blocked = block != NetBlock.none && !u.offered ? netBlockReason(l, block) : null;
+    // Off by the network mode: says which mode, as the other blocked notes do.
+    final blocked = block == NetBlock.none || u.offered
+        ? null
+        : blockMode(block) != null
+        ? l.updatesOffMode(networkModeName(l, blockMode(block)!))
+        : netBlockReason(l, block);
     final act = deskUpdateActLabel(l, u, byHand: byHand);
     // A check changes nothing while the update downloads, waits for its restart or for Try again.
     final checks = !(u.phase == DeskUpdatePhase.downloading ||

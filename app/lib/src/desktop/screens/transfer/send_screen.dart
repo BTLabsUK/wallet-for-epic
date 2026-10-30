@@ -23,7 +23,7 @@ import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
-import '../../../network_gate.dart' show NetBlock;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
@@ -40,7 +40,8 @@ import 'file_panels.dart';
 import 'finalize_screen.dart' show FinalizeArgs;
 import 'import_tx_screen.dart' show ImportArgs;
 import 'send_advanced.dart';
-import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
+import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../data/method_names.dart' show methodKindOf, methodShortLabel;
 import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';
@@ -438,6 +439,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // Offline on a node that is not local: nothing polls it, but a file still runs through it
     // (the Offline rework), with the note that it does (LNX-7).
     if (_method == TxMethod.file && deskOfflineUsesNode(st)) return null;
+    // Kill switch asks no node: the file is made from the last confirmed height (a cold send).
+    if (_method == TxMethod.file && NetGate.killSwitch) return null;
     if (_args.nodeSync != null) return _args.nodeSync;
     final s = st.status;
     if (s == null) return -1;
@@ -461,10 +464,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   TorState _torState(DeskState st) => _args.tor ?? deskNetTor(st);
 
-  /// The network mode holds this send: Epicbox in Offline and in Tor only without Tor; Link
-  /// the same, except Offline with a local node, which lets it go to a local address (the
-  /// adapter refuses any other). A file is never held: Offline lets it use the node in use
-  /// ([deskOfflineUsesNode] says so on the screen). A method whose switch is off (Settings ›
+  /// The network mode holds this send: Epicbox and Link in Node only and Kill switch (a Link
+  /// send to a local address too: Node only turns Link off), and in Tor only without Tor. A
+  /// file is never held: Node only lets it use the node in use ([deskOfflineUsesNode] says so
+  /// on the screen), Kill switch makes it without a node. A method whose switch is off (Settings ›
   /// Transactions) holds it too ([NetBlock.methodOff]): a pasted address of that kind picks
   /// the method and the notice says it is off. Until To holds an address, Link is held only
   /// when both its methods are off: the address decides between Link · HTTP and Link · Tor.
@@ -476,7 +479,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ? deskNetBlock(st)
       : deskNetBlock(
           st,
-          nodeOnly: _method == TxMethod.http,
           epicbox: _method == TxMethod.epicbox,
           // An onion in the build without Tor: no method would send it, its own line says so.
           offered: _onionNoTor ||
@@ -599,6 +601,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Settings › Transactions › Send starts on, among the methods this build has.
   TxMethod _startMethod() => switch (ref.read(deskProvider).settings.payments.startMethod) {
+    // Node only and Kill switch: Epicbox and Link don't go out, so an empty send starts on File
+    // (an address given in To keeps its own method, and the note says why it is held).
+    _ when NetGate.restricted && (_args.recipient ?? '').trim().isEmpty => TxMethod.file,
     MethodKind.linkHttp || MethodKind.linkTor when DeskFeatures.httpDirect || DeskFeatures.tor => TxMethod.http,
     MethodKind.directFile => TxMethod.file,
     _ => TxMethod.epicbox,
@@ -1222,7 +1227,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       child: EPage(
       title: context.l10n.deskSendTitle,
       footer: narrow && form ? _reviewBar(st) : null,
-      titleTrailing: res is SendFileReady || _netBlock(st) == NetBlock.offline || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
+      titleTrailing: res is SendFileReady || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
@@ -1353,6 +1358,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
+  /// The mode's note for this send: Node only names the method that is off, Kill switch says
+  /// nothing connects; both say what still works. Tor only waiting has its own line.
+  String _blockTitle(AppLocalizations l, NetBlock net) => switch (net) {
+    NetBlock.killSwitch => l.netBlockSendKillSwitch,
+    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.netBlockEpicboxNodeOnly : l.netBlockLinkNodeOnly,
+    _ => netBlockReason(l, net)!,
+  };
+
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
     final l = context.l10n;
@@ -1389,11 +1402,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (net != NetBlock.none) {
       return ENotice(
         key: const ValueKey('send-net-blocked'),
-        title: netBlockReason(l, net)!,
+        title: _blockTitle(l, net),
         text: net == NetBlock.waitingForTor ? l.deskNetSendFileHint : null,
-        tone: ETone.warn,
-        icon: net == NetBlock.offline ? EIcons.lanOff : EIcons.tor,
-        actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+        // A mode is the user's choice: calm, not a warning.
+        tone: net.byMode ? ETone.neutral : ETone.warn,
+        icon: net.byMode ? EIcons.lanOff : EIcons.tor,
+        actions: [EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))],
       );
     }
     final node = _nodeBlock(st);
@@ -1429,7 +1443,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       // As Receive and Finalize say it: the file reads and posts through the node in use.
       return ENotice(
         key: const ValueKey('file-offline-node'),
-        title: l.advHomeOffline,
+        title: l.advModeNodeOnly,
         text: l.netOfflineNodeHint,
         tone: ETone.info,
         icon: EIcons.info,
@@ -1559,7 +1573,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               // A pairing recipient has no Link address.
               pairing != null
                   ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
-                  : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
+                  : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st))),
             // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
             // turned off on purpose is no failure, and File Transfer keeps its own switch).
             if (st.settings.payments.directFile || file || (st.settings.payments.epicbox && (_epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)))
@@ -1639,7 +1653,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           // Offline: Tor never runs there; the notice above gives the Offline reason (LNX-12).
           // Link · Tor switched off: that comes first, Tor alone would not send it.
-          if (DeskFeatures.tor && _torWay(st) == TorWay.needsTor && _netBlock(st) != NetBlock.offline && _netBlock(st) != NetBlock.methodOff) ...[
+          if (DeskFeatures.tor && _torWay(st) == TorWay.needsTor && !_netBlock(st).byMode && _netBlock(st) != NetBlock.methodOff) ...[
             SizedBox(height: Sp.x3),
             ENotice(
               key: const ValueKey('send-needs-tor'),
@@ -1777,7 +1791,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
-      _ when _netBlock(st) == NetBlock.offline || _netBlock(st) == NetBlock.waitingForTor => netBlockReason(l, _netBlock(st))!,
+      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => _blockTitle(l, _netBlock(st)),
       _ when _onionNoTor => l.sendTorNotInVersion,
       _ when nodeBlocked && _nodeDown(st) && _noNode => l.deskSlNoNodeTitle,
       _ when nodeBlocked && _nodeDown(st) => l.deskNodeNotAnsweringLine,

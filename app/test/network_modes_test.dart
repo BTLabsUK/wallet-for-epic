@@ -107,22 +107,36 @@ void main() {
       }
     });
 
-    test('Offline blocks always; a file or QR Payment runs on the node in use, Tor only waits for tor', () {
+    test('Node only blocks all but the node; a file or QR Payment runs on the node in use', () {
       for (final t in TorState.values) {
-        expect(netBlockFor(NetworkMode.offline, t), NetBlock.offline);
+        expect(netBlockFor(NetworkMode.nodeOnly, t), NetBlock.nodeOnly);
+        expect(netBlockFor(NetworkMode.nodeOnly, t, node: true), NetBlock.none);
       }
-      expect(paymentBlockFor(NetworkMode.offline, TorState.off), NetBlock.none);
+      expect(paymentBlockFor(NetworkMode.nodeOnly, TorState.off), NetBlock.none);
       expect(paymentBlockFor(NetworkMode.torOnly, TorState.starting), NetBlock.waitingForTor);
       expect(paymentBlockFor(NetworkMode.torOnly, TorState.on), NetBlock.none);
-      expect(offlineUsesNode(NetworkMode.offline, localNode: false), isTrue);
-      expect(offlineUsesNode(NetworkMode.offline, localNode: true), isFalse);
-      expect(offlineUsesNode(NetworkMode.standard, localNode: false), isFalse);
+      expect(nodeOnlyUsesNode(NetworkMode.nodeOnly, localNode: false), isTrue);
+      expect(nodeOnlyUsesNode(NetworkMode.nodeOnly, localNode: true), isFalse);
+      expect(nodeOnlyUsesNode(NetworkMode.standard, localNode: false), isFalse);
     });
 
-    test('the Tor switch: locked in Tor only, disabled in Offline', () {
+    test('Kill switch blocks everything, the node and the posting of a payment included', () {
+      for (final t in TorState.values) {
+        expect(netBlockFor(NetworkMode.killSwitch, t), NetBlock.killSwitch);
+        expect(netBlockFor(NetworkMode.killSwitch, t, node: true), NetBlock.killSwitch);
+        expect(paymentBlockFor(NetworkMode.killSwitch, t), NetBlock.killSwitch);
+      }
+      expect(NetBlock.killSwitch.byMode, isTrue);
+      expect(NetBlock.nodeOnly.byMode, isTrue);
+      expect(NetBlock.waitingForTor.byMode, isFalse);
+    });
+
+    test('the Tor switch: locked in Tor only, the user\'s in Node only, disabled in Kill switch', () {
       expect(torSwitchLocked(NetworkMode.torOnly), isTrue);
       expect(torSwitchLocked(NetworkMode.standard), isFalse);
-      expect(torSwitchDisabled(NetworkMode.offline), isTrue);
+      expect(torSwitchDisabled(NetworkMode.killSwitch), isTrue);
+      expect(torSwitchDisabled(NetworkMode.nodeOnly), isFalse);
+      expect(torSwitchLocked(NetworkMode.nodeOnly), isFalse);
     });
   });
 
@@ -144,10 +158,11 @@ void main() {
       expect(torWayIn(TorRoute.appHttp, TorState.on, NetworkMode.torOnly), TorWay.overTor);
     }, skip: !torBuilt ? 'no Tor in this build' : null);
 
-    test('Offline: nothing goes; Standard is torWay', () {
+    test('Kill switch: nothing goes; Node only: the node as Standard, nothing else; Standard is torWay', () {
       for (final route in TorRoute.values) {
         for (final t in TorState.values) {
-          expect(torWayIn(route, t, NetworkMode.offline), TorWay.off);
+          expect(torWayIn(route, t, NetworkMode.killSwitch), TorWay.off);
+          expect(torWayIn(route, t, NetworkMode.nodeOnly), route == TorRoute.node ? torWay(route, t) : TorWay.off);
           expect(torWayIn(route, t, NetworkMode.standard), torWay(route, t));
         }
       }
@@ -155,18 +170,20 @@ void main() {
   });
 
   group('TorNet and the mode', () {
-    test('Offline refuses the app\'s own requests before opening anything; loopback stays', () {
-      NetGate.set(NetworkMode.offline);
-      final client = HttpClient();
-      addTearDown(() => client.close(force: true));
-      expect(() => TorNet.configure(client), throwsA(isA<NetError>().having((e) => e.message, 'message', offlineError)));
-      TorNet.configure(client, loopback: true);
+    test('Kill switch: httpGet fails before a connection, loopback too', () async {
+      NetGate.set(NetworkMode.killSwitch);
+      // Nothing listens there: a request that went out would fail differently.
+      await expectLater(httpGet(Uri.parse('https://example.invalid/x')), throwsA(isA<NetError>().having((e) => e.message, 'message', netModeError)));
+      await expectLater(httpGet(Uri.parse('http://127.0.0.1:9/x')), throwsA(isA<NetError>().having((e) => e.message, 'message', netModeError)));
     });
 
-    test('Offline: httpGet fails without a connection', () async {
-      NetGate.set(NetworkMode.offline);
-      // Nothing listens on this port: a request that went out would fail differently.
-      await expectLater(httpGet(Uri.parse('https://example.invalid/x')), throwsA(isA<NetError>().having((e) => e.message, 'message', offlineError)));
+    test('Node only: httpGet to another host than the node in use fails before a connection', () async {
+      final was = NetGate.nodeInUse;
+      addTearDown(() => NetGate.nodeInUse = was);
+      NetGate.nodeInUse = () => 'https://node.example.invalid:3413';
+      NetGate.set(NetworkMode.nodeOnly);
+      await expectLater(httpGet(Uri.parse('https://status.example.invalid/x')), throwsA(isA<NetError>().having((e) => e.message, 'message', netModeError)));
+      await expectLater(httpGet(Uri.parse('http://127.0.0.1:9/x')), throwsA(isA<NetError>().having((e) => e.message, 'message', netModeError)));
     });
 
     test('Tor only: never direct, even before the forced switch is followed', () {
@@ -183,12 +200,16 @@ void main() {
       expect(TorNet.mode, TorNetMode.direct);
     });
 
-    test('NetGate: no stored mode is Standard; Offline refuses', () {
+    test('NetGate: no stored mode is Standard; Node only lets the node through, Kill switch nothing', () {
       NetGate.set(null);
       expect(NetGate.mode, NetworkMode.standard);
       expect(() => NetGate.check('x'), returnsNormally);
-      NetGate.set(NetworkMode.offline);
+      NetGate.set(NetworkMode.nodeOnly);
       expect(() => NetGate.check('x'), throwsA(isA<NetBlocked>()));
+      expect(() => NetGate.checkNode('node tip'), returnsNormally);
+      NetGate.set(NetworkMode.killSwitch);
+      expect(() => NetGate.check('x'), throwsA(isA<NetBlocked>()));
+      expect(() => NetGate.checkNode('node tip'), throwsA(isA<NetBlocked>().having((e) => e.mode, 'mode', NetworkMode.killSwitch)));
     });
 
     test('the Epicbox switch is the same gate: off holds Epicbox actions and push, nothing else', () {
@@ -205,28 +226,30 @@ void main() {
         expect(netBlockFor(NetworkMode.standard, t, epicbox: false), NetBlock.epicboxOff);
         expect(netBlockFor(NetworkMode.standard, t), NetBlock.none);
         // The mode's answer comes first.
-        expect(netBlockFor(NetworkMode.offline, t, epicbox: false), NetBlock.offline);
+        expect(netBlockFor(NetworkMode.nodeOnly, t, epicbox: false), NetBlock.nodeOnly);
+        expect(netBlockFor(NetworkMode.killSwitch, t, epicbox: false), NetBlock.killSwitch);
       }
       expect(netBlockFor(NetworkMode.torOnly, TorState.on, epicbox: false), NetBlock.epicboxOff);
       expect(netBlockFor(NetworkMode.torOnly, TorState.starting, epicbox: false), NetBlock.waitingForTor);
       NetGate.setEpicbox(true);
       expect(NetGate.epicboxOff, isFalse);
       expect(() => NetGate.checkEpicbox('send over Epicbox'), returnsNormally);
-      // Offline refuses an Epicbox action as before, without the switch's flag.
-      NetGate.set(NetworkMode.offline);
+      // Node only refuses an Epicbox action, without the switch's flag.
+      NetGate.set(NetworkMode.nodeOnly);
       expect(() => NetGate.checkEpicbox('listener'), throwsA(isA<NetBlocked>().having((e) => e.epicboxOff, 'epicboxOff', isFalse)));
     });
   });
 
-  group('phone, Offline', () {
+  group('phone, Kill switch', () {
     late _Phone p;
     setUp(() => p = _Phone());
     tearDown(() => p.dispose());
 
     test('opens on local data: no listener, no node, no tor, no refresh', () async {
       p.store.values[p.torKey] = 'true';
-      await p.mode(NetworkMode.offline);
-      expect(NetGate.offline, isTrue);
+      await p.mode(NetworkMode.killSwitch);
+      expect(NetGate.killSwitch, isTrue);
+      expect(p.container.read(balanceLastKnownProvider), isTrue);
       await p.unlock();
       expect(p.session.listenerStarts, 0);
       expect(p.session.torStarts, isEmpty);
@@ -244,7 +267,7 @@ void main() {
 
     test('back to Standard resumes without a restart', () async {
       p.store.values[p.torKey] = 'true';
-      await p.mode(NetworkMode.offline);
+      await p.mode(NetworkMode.killSwitch);
       await p.unlock();
       expect(p.session.listenerStarts, 0);
       await p.mode(NetworkMode.standard);
@@ -253,17 +276,42 @@ void main() {
       expect(p.container.read(listenerProvider).offline, isFalse);
     }, skip: !torBuilt ? 'no Tor in this build' : null);
 
-    test('going Offline while open stops tor and the listener', () async {
+    test('Kill switch while open stops tor and the listener', () async {
       p.store.values[p.torKey] = 'true';
       await p.unlock();
       expect(p.session.listenerStarts, 1);
       expect(p.session.torStarts, hasLength(1));
-      await p.mode(NetworkMode.offline);
+      await p.mode(NetworkMode.killSwitch);
       expect(p.session.torStops, greaterThan(0));
       expect(p.session.listenerStops, greaterThan(0));
       expect(p.tor.phase, PhoneTorPhase.off);
       // The switch itself is kept for when the mode changes.
       expect(p.store.values[p.torKey], 'true');
+    }, skip: !torBuilt ? 'no Tor in this build' : null);
+  });
+
+  group('phone, Node only', () {
+    late _Phone p;
+    setUp(() => p = _Phone());
+    tearDown(() => p.dispose());
+
+    test('the node only: no listener, no sends over Tor; the node is asked and refreshes', () async {
+      await p.mode(NetworkMode.nodeOnly);
+      expect(NetGate.nodeOnly, isTrue);
+      await p.unlock();
+      expect(p.session.listenerStarts, 0);
+      expect(p.container.read(listenerProvider).offline, isTrue);
+      expect(p.container.read(balanceLastKnownProvider), isFalse);
+      await p.until(() => p.session.refreshCalls > 0);
+      await expectLater(p.container.read(phoneTorProvider.notifier).ensureForSend(), throwsA(isA<NetBlocked>()));
+    });
+
+    test('the Tor switch stays the user\'s: on, tor starts and carries the node', () async {
+      p.store.values[p.torKey] = 'true';
+      await p.mode(NetworkMode.nodeOnly);
+      await p.unlock();
+      await p.until(() => p.session.torStarts.length == 1);
+      expect(p.session.listenerStarts, 0);
     }, skip: !torBuilt ? 'no Tor in this build' : null);
   });
 

@@ -95,7 +95,7 @@ class SendAdvanced extends StatelessWidget {
 /// A radio choice as a row: an 18 u circle, a title (with an optional tag) and one line of
 /// text; the whole row selects it. Arrow keys move between rows as Tab does.
 class ERadioRow extends StatefulWidget {
-  const ERadioRow({super.key, required this.selected, required this.title, required this.text, this.tag, this.onSelected});
+  const ERadioRow({super.key, required this.selected, required this.title, required this.text, this.tag, this.onSelected, this.hint, this.hintIcon});
 
   final bool selected;
   final String title;
@@ -104,6 +104,11 @@ class ERadioRow extends StatefulWidget {
 
   /// Null: disabled.
   final VoidCallback? onSelected;
+
+  /// The row's ⓘ: an info popover titled [title] (with [hintIcon]) that opens on a click, Enter
+  /// or Space and does not select the row.
+  final String? hint;
+  final IconData? hintIcon;
 
   @override
   State<ERadioRow> createState() => _ERadioRowState();
@@ -173,6 +178,10 @@ class _ERadioRowState extends State<ERadioRow> {
                           ],
                         ),
                       ),
+                      if (widget.hint != null) ...[
+                        SizedBox(width: Sp.x2),
+                        EInfoHint(widget.hint!, title: widget.title, icon: widget.hintIcon),
+                      ],
                     ],
                   ),
                 ),

@@ -12671,7 +12671,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私与网络”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在主页上提示。“离线”只限这部手机和你的本地网络：二维码付款和文件传输仍可通过正在使用的节点进行；如果你的网络中有节点，还可以向本地地址发送，余额也会刷新。';
+      '钱包使用多少互联网。只有一个选择，并会被记住。“仅 Tor”、“仅节点”和“紧急断网”会关闭一些服务；它们在状态图标中显示为“关闭（模式）”，不会取消任何内容。';
 
   @override
   String get advOutputs => '输出';
@@ -12709,7 +12709,7 @@ class AppLocalizationsZh extends AppLocalizations {
       '让“重新核对余额”可以从某个区块高度或日期开始，而不是从第一个区块开始。更快，也是跳过早期记录的唯一办法。恢复钱包时始终可以选择。';
 
   @override
-  String get advModeStandard => '标准';
+  String get advModeStandard => '常规';
 
   @override
   String get advModeStandardLine => '直接连接。可在“隐私与网络”中开启 Tor。';
@@ -12718,23 +12718,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeTorOnly => '仅 Tor';
 
   @override
-  String get advModeTorOnlyLine => '所有连接都经过 Tor。没有 Tor 时，钱包保持离线。';
-
-  @override
-  String get advModeOffline => '离线';
-
-  @override
-  String get advModeOfflineLine => '只限这部手机和本地网络。二维码付款和文件传输仍可使用；其余等待。';
-
-  @override
-  String get advOfflineNote =>
-      '离线会暂停 Epicbox、Tor 和状态检查。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
+  String get advModeTorOnlyLine => '所有连接都经过 Tor。Tor 就绪之前，什么都不会连接。';
 
   @override
   String get advReset => '再次全部隐藏';
-
-  @override
-  String get advHomeOffline => '离线';
 
   @override
   String get advHomeTorOnlyWaiting => '仅 Tor · 等待 Tor';
@@ -12807,33 +12794,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetAdvNetwork => '网络';
 
   @override
-  String get deskSetAdvNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接；Tor 可在“隐私”中开启。“仅 Tor”从不直接连接：没有 Tor 时，钱包保持离线，并在侧边栏中提示。“离线”只限这台电脑和你的本地网络：文件传输仍可通过正在使用的节点进行；如果这里或你的网络中有节点，还可以向本地地址发送并通过“链接”接收，余额也会刷新。内置节点会继续运行，它的对等节点是节点本身的设置。';
-
-  @override
-  String get deskSetAdvModeStandard => '标准';
-
-  @override
   String get deskSetAdvModeStandardText => '直接连接。可在“隐私”中开启 Tor。';
 
   @override
-  String get deskSetAdvModeTorOnly => '仅 Tor';
-
-  @override
-  String get deskSetAdvModeTorOnlyText => '所有连接都经过 Tor。没有 Tor 时，钱包保持离线。';
-
-  @override
-  String get deskSetAdvModeOffline => '离线';
-
-  @override
-  String get deskSetAdvModeOfflineText => '仅限这台电脑和本地网络；本地节点保留它自己的对等节点。';
-
-  @override
-  String get deskSetAdvTorOnlyNote => '“仅 Tor”会关闭 链接 · HTTP 接收：普通地址会暴露这台电脑。';
-
-  @override
-  String get deskSetAdvOfflineNote =>
-      'Epicbox、Tor 和状态检查会暂停。文件传输仍可通过正在使用的节点进行，公共节点也可以。如果这台电脑上或你的网络中有节点，“重新核对余额”以及向本地地址的“链接”发送也可使用。';
+  String get deskSetAdvModeTorOnlyText => '所有连接都经过 Tor。Tor 就绪之前，什么都不会连接。';
 
   @override
   String get deskSetAdvNotInBuild => '此版本不含';
@@ -12862,25 +12826,16 @@ class AppLocalizationsZh extends AppLocalizations {
       '在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。';
 
   @override
-  String get netBlockOffline => '“高级”中已开启离线。';
-
-  @override
   String get netBlockTorOnly => '“高级”中已开启“仅 Tor”。';
 
   @override
   String get netBlockWaitingForTor => '等待 Tor。';
 
   @override
-  String get receiveOfflineLine => '离线开启时，无法用这种方式接收。';
-
-  @override
   String get txDetailsMore => '更多';
 
   @override
   String get restoreStartFromLink => '从某个日期或高度开始';
-
-  @override
-  String get homeOfflineDetail => '“高级”中已开启离线。余额是上次看到的。';
 
   @override
   String get homeWaitingTorDetail => '“高级”中已开启“仅 Tor”。正在等待 Tor 连接。';
@@ -13035,9 +12990,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbRestoreFromInvalid => '只能输入数字，或留空。';
 
   @override
-  String get deskNetOfflineReason => '“高级”中已开启离线。';
-
-  @override
   String get deskNetWaitingTorReason => '等待 Tor。“高级”中已开启“仅 Tor”。';
 
   @override
@@ -13050,16 +13002,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNetSendFileHint => '文件传输仍然可用。';
 
   @override
-  String get deskNetRecvOfflineText => '你的地址保持不变。离线开启时，什么都收不到。';
-
-  @override
   String get deskNetRecvWaitTorText => 'Tor 连接后才开始接收。文件传输仍然可用。';
-
-  @override
-  String get deskNetCantReceive => '接收已暂停';
-
-  @override
-  String get deskRailOffline => '离线';
 
   @override
   String get deskTourAdvancedTitle => '高级';
@@ -13198,9 +13141,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => '离线：只能用本地地址。';
-
-  @override
   String get netOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
@@ -13254,9 +13194,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get receiveNoMethodsButton => '打开设置';
-
-  @override
-  String get deskErrOfflineOnlyLocal => '离线：只能用本地地址。';
 
   @override
   String get deskNetOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
@@ -15804,12 +15741,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSlotHelp => '帮助';
 
   @override
-  String get deskSlotOffline => '离线';
-
-  @override
-  String get deskSlotOfflineDetail => '不收发任何内容';
-
-  @override
   String get deskSlotScanning => '正在扫描区块链';
 
   @override
@@ -15852,9 +15783,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlotNodeSyncing => '本地节点正在同步';
-
-  @override
-  String get deskSlotOpenAdvanced => '打开高级设置';
 
   @override
   String get deskSlotOpenRecheck => '打开重新核对余额';
@@ -16315,14 +16243,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advNetworkHintNoTor =>
-      '钱包如何连接网络。“标准”直接连接。“离线”只限这部手机和你的本地网络：二维码付款和文件传输仍可通过正在使用的节点进行；如果你的网络中有节点，还可以向本地地址发送，余额也会刷新。';
+      '钱包使用多少互联网。只有一个选择，并会被记住。“仅节点”和“紧急断网”会关闭一些服务；它们在状态图标中显示为“关闭（模式）”，不会取消任何内容。';
 
   @override
   String get advModeStandardLineNoTor => '直接连接。';
-
-  @override
-  String get advOfflineNoteNoTor =>
-      '离线会暂停 Epicbox 和状态检查。二维码付款和文件传输仍可使用：它们通过正在使用的节点读取链并广播，公共节点也可以。如果你的本地网络中有节点，“重新核对余额”以及向本地地址的链接发送也可使用。节点自己的对等节点是节点本身的设置。';
 
   @override
   String txLinkHttpHintNoTor(String port) {
@@ -16346,14 +16270,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskNoTorSetTxDirectHint(String port) {
     return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
   }
-
-  @override
-  String get deskNoTorAdvNetworkHint =>
-      '钱包如何连接网络。“标准”直接连接。“离线”只限这台电脑和你的本地网络：文件传输仍可通过正在使用的节点进行；如果这里或你的网络中有节点，还可以向本地地址发送并通过“链接”接收，余额也会刷新。内置节点会继续运行，它的对等节点是节点本身的设置。';
-
-  @override
-  String get deskNoTorAdvOfflineNote =>
-      'Epicbox 和状态检查会暂停。文件传输仍可通过正在使用的节点进行，公共节点也可以。如果这台电脑上或你的网络中有节点，“重新核对余额”以及向本地地址的“链接”发送也可使用。';
 
   @override
   String get deskNoTorTxDetailsFromBad => '请使用 Epicbox 或 http(s) 地址。';
@@ -17101,9 +17017,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slSwitchFirst => '请先切换';
 
   @override
-  String get netStatusPausedOffline => '已暂停 · 离线';
-
-  @override
   String get contactPaymentsNone => '还没有与此联系人的付款。';
 
   @override
@@ -17444,4 +17357,333 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitInfoLabel => '更多信息';
+
+  @override
+  String get advModeNodeOnly => '仅节点';
+
+  @override
+  String get advModeKillSwitch => '紧急断网';
+
+  @override
+  String get advModeNodeOnlyLine => '只连接正在使用的节点。Epicbox、链接、更新和价格保持关闭。';
+
+  @override
+  String get advModeKillSwitchLine => '完全不连接。二维码付款和文件传输，由另一台设备广播。';
+
+  @override
+  String get advModeStandardHint =>
+      '钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私与网络”中的独立开关。';
+
+  @override
+  String get advModeStandardHintNoTor => '钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。';
+
+  @override
+  String get advModeTorOnlyHint =>
+      '所有连接都经过 Tor，包括节点和 Epicbox；任何内容都不会接触公开互联网。Tor 就绪之前，什么都不会连接，状态图标会说明这一点。链接 · HTTP 收款保持关闭：明文地址会暴露这台设备。';
+
+  @override
+  String get advModeNodeOnlyHint =>
+      '钱包只与正在使用的节点通信，即节点列表中的第一个。关闭的有：Epicbox、链接、状态站点、价格、更新检查、浏览器链接、问题报告、配对和已关联设备。二维码付款和文件传输可用。开启 Tor 时，节点通过 Tor 连接。最好使用自己的节点，位于这台设备或你的网络中；任何节点都可以。';
+
+  @override
+  String get advModeNodeOnlyHintNoTor =>
+      '钱包只与正在使用的节点通信，即节点列表中的第一个。关闭的有：Epicbox、链接、状态站点、价格、更新检查、浏览器链接、问题报告、配对和已关联设备。二维码付款和文件传输可用。最好使用自己的节点，位于这台设备或你的网络中；任何节点都可以。';
+
+  @override
+  String get advModeKillSwitchHint =>
+      '什么都不连接，节点也不例外：冷存储。钱包会以上次已知的余额和历史记录打开。你可以通过文件传输和二维码付款创建、签署并完成付款，显示你的地址，备份和导出。已完成的付款无法从这里广播：保存它或显示为二维码，再到联网的设备上广播。等待接收方的付款会暂停，离开后继续。';
+
+  @override
+  String get advModeSwitchNoteTorOnly => '链接 · HTTP 收款已关闭。Tor 就绪之前，什么都不会连接。';
+
+  @override
+  String get advModeSwitchNoteNodeOnly =>
+      'Epicbox、链接、价格和更新检查现在停止。通过 Epicbox 等待的付款会在你离开“仅节点”后继续。';
+
+  @override
+  String get advModeSwitchNoteKillSwitch =>
+      '所有连接现在停止，节点也不例外。等待中的付款会暂停，直到你离开“紧急断网”。';
+
+  @override
+  String advModeConfirmTitle(String mode) {
+    return '切换到“$mode”？';
+  }
+
+  @override
+  String advModeConfirmBody(int count, String mode) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '有 $count 笔付款正通过 Epicbox 或链接等待接收方。离开“$mode”后它们会暂停并继续。不会取消任何内容。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advModeConfirmSwitch => '切换';
+
+  @override
+  String netMarkSemantics(String mode) {
+    return '网络模式：$mode。打开“网络”部分。';
+  }
+
+  @override
+  String netMarkSemanticsDesk(String mode) {
+    return '网络模式：$mode。显示它的作用。';
+  }
+
+  @override
+  String get netMarkLineTorOnly => '所有连接都经过 Tor。';
+
+  @override
+  String get netMarkLineTorWaiting => '正在等待 Tor。就绪之前什么都不会连接。';
+
+  @override
+  String get netMarkLineNodeOnly => '只连接正在使用的节点。Epicbox、链接、更新和价格已关闭。';
+
+  @override
+  String get netMarkLineKillSwitch => '什么都不连接。余额和历史记录是上次已知的。';
+
+  @override
+  String get netMarkChange => '更改';
+
+  @override
+  String statusOffByMode(String mode) {
+    return '关闭（$mode）';
+  }
+
+  @override
+  String get statusOffByModeDetail => '已被网络模式关闭。可在“设置”›“高级”›“网络”中更改。';
+
+  @override
+  String get netBlockEpicboxNodeOnly => '“仅节点”已开启：Epicbox 已关闭。二维码付款和文件传输可用。';
+
+  @override
+  String get netBlockLinkNodeOnly => '“仅节点”已开启：链接已关闭。二维码付款和文件传输可用。';
+
+  @override
+  String get netBlockSendKillSwitch => '“紧急断网”已开启：什么都不连接。二维码付款和文件传输可用。';
+
+  @override
+  String get netBlockNodeOnly => '在“仅节点”下已关闭。';
+
+  @override
+  String get netBlockKillSwitch => '在“紧急断网”下已关闭：什么都不连接。';
+
+  @override
+  String get netBlockWaitingForTorLong => '正在等待 Tor。就绪之前什么都不会连接。';
+
+  @override
+  String receiveEpicboxOffMode(String mode) {
+    return 'Epicbox 在“$mode”下已关闭。';
+  }
+
+  @override
+  String receiveEpicboxOffModeBody(String mode) {
+    return '发往此地址的付款会暂存在 Epicbox 服务器上，离开“$mode”后到达。';
+  }
+
+  @override
+  String receiveLinkOffMode(String mode) {
+    return '链接收款在“$mode”下已关闭。';
+  }
+
+  @override
+  String updatesOffMode(String mode) {
+    return '更新检查在“$mode”下已关闭。';
+  }
+
+  @override
+  String reportOffMode(String mode) {
+    return '在“$mode”下已关闭。请改为将报告保存为文件。';
+  }
+
+  @override
+  String get recheckOffKill => '重新核对余额需要节点。在“紧急断网”下已关闭。';
+
+  @override
+  String get postFinishedOffKill => '在“紧急断网”下已关闭：这里什么都不连接。';
+
+  @override
+  String get postFinishedOffTor => '正在等待 Tor。广播需要节点。';
+
+  @override
+  String get browserOffTorOnly => '会在 Tor 之外打开。请改为复制链接。';
+
+  @override
+  String browserOffMode(String mode) {
+    return '在“$mode”下已关闭。请改为复制链接。';
+  }
+
+  @override
+  String get netChangeLink => '更改';
+
+  @override
+  String get lastKnownCaption => '上次已知';
+
+  @override
+  String get lastKnownList => '上次已知 · 紧急断网';
+
+  @override
+  String lastKnownConfirming(String text) {
+    return '$text · 上次已知';
+  }
+
+  @override
+  String get coldNeedsOnlineCheck => '需要先联网核对一次余额。';
+
+  @override
+  String get finalizeNotPostedTitle => '已完成，未广播';
+
+  @override
+  String finalizeNotPostedBody(String amount) {
+    return '$amount 已完成。“紧急断网”已开启，所以这部手机无法广播它。请保存它或显示为二维码，然后在联网的设备上广播：活动 › 广播已完成的付款。';
+  }
+
+  @override
+  String get finishedSaveFile => '保存文件';
+
+  @override
+  String get finishedShowQr => '显示二维码';
+
+  @override
+  String finishedSaved(String name) {
+    return '已保存 $name';
+  }
+
+  @override
+  String get finishedQrTitle => '已完成的付款';
+
+  @override
+  String get finishedUnavailable => '此版本还不能保存已完成的付款。';
+
+  @override
+  String get finishedFailed => '无法读取已完成的付款。';
+
+  @override
+  String get txPostElsewhere => '待在其他设备广播';
+
+  @override
+  String get txPostElsewhereKill => '在“紧急断网”下完成。请保存它或显示二维码，然后在联网的设备上广播。';
+
+  @override
+  String get txPostElsewhereAfter => '在“紧急断网”下完成，尚未在链上看到。可从这里广播，或等待广播它的设备。';
+
+  @override
+  String get txPostNow => '立即广播';
+
+  @override
+  String get txModeFinishedKill => '在“紧急断网”下完成';
+
+  @override
+  String get txModeRow => '模式';
+
+  @override
+  String get postFinishedTitle => '广播已完成的付款';
+
+  @override
+  String get postFinishedIntro => '广播另一台设备在“紧急断网”下完成的付款。';
+
+  @override
+  String get postFinishedOpenFile => '打开文件';
+
+  @override
+  String get postFinishedScanQr => '扫描二维码';
+
+  @override
+  String get postFinishedPaste => '粘贴';
+
+  @override
+  String get postFinishedChooseFile => '选择文件';
+
+  @override
+  String get postFinishedSummary => '已完成的付款';
+
+  @override
+  String get postFinishedAmount => '金额';
+
+  @override
+  String get postFinishedFee => '手续费';
+
+  @override
+  String get postFinishedKernel => '内核';
+
+  @override
+  String get postFinishedNote => '广播会把它送入网络。创建它的钱包在链上看到后，会显示为确认中。';
+
+  @override
+  String get postFinishedPost => '广播';
+
+  @override
+  String get postFinishedPosting => '正在广播…';
+
+  @override
+  String get postFinishedDone => '已广播到网络';
+
+  @override
+  String get postFinishedDoneBody => '节点已收到。创建它的钱包在链上看到后，会显示为确认中。';
+
+  @override
+  String get postFinishedNotFinished =>
+      '这不是已完成的付款。请打开保存在“待在其他设备广播”下的文件，或扫描它的二维码。';
+
+  @override
+  String get postFinishedFailed => '节点没有接受。请重试。';
+
+  @override
+  String get postFinishedUnreachable => '节点没有响应。';
+
+  @override
+  String get postFinishedDeskRow => '广播已完成的付款';
+
+  @override
+  String get postFinishedDeskRowText => '广播另一台设备在“紧急断网”下完成的付款。';
+
+  @override
+  String get postFinishedOpen => '打开';
+
+  @override
+  String get deskSetAdvModeStandardHint =>
+      '钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私”下的独立开关。';
+
+  @override
+  String deskFinNotPostedKillBody(String amount) {
+    return '$amount 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。';
+  }
+
+  @override
+  String netMarkRowLabel(String mode) {
+    return '网络模式：$mode';
+  }
+
+  @override
+  String get qrStatusFinishedHidden => '已隐藏';
+
+  @override
+  String get qrStatusFinishedShowing => '正在等待联网设备扫描。';
+
+  @override
+  String qrShowSubFinished(String amount) {
+    return '$amount，已完成';
+  }
+
+  @override
+  String qrSemanticsFinished(String state) {
+    return '已完成付款的二维码，$state';
+  }
+
+  @override
+  String get qrHiddenBodyFinished => '把它给联网的设备看。它会广播这笔付款，不需要密钥。';
+
+  @override
+  String get qrScanFinished => '扫描已完成的付款';
+
+  @override
+  String get qrScanNotFinished => '该二维码不是已完成的付款。';
+
+  @override
+  String get qrScanAimFinished => '请将相机对准另一台设备上的二维码。';
+
+  @override
+  String get deskRailOpenNetwork => '打开网络设置';
 }

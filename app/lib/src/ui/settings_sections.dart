@@ -46,6 +46,8 @@ import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'licences_screen.dart';
 import 'network_menu.dart';
+import 'network_mode_phone.dart';
+import 'network_mode_text.dart' show blockMode, networkModeName;
 import 'net_block.dart';
 import 'payment_gate.dart' show pendingEpicboxSends;
 import 'network_status.dart';
@@ -162,13 +164,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
-/// A network mode's name.
-String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
-  NetworkMode.standard => l.advModeStandard,
-  NetworkMode.torOnly => l.advModeTorOnly,
-  NetworkMode.offline => l.advModeOffline,
-};
-
 /// The key of the Privacy header on the Privacy & network page, for tests.
 const Key settingsPrivacyKey = ValueKey('settings-privacy');
 
@@ -188,22 +183,26 @@ Key settingsSectionKey(SettingsSection section) =>
     ValueKey('settings-section-${section.name}');
 
 /// Opens [section]'s page over the current route.
-Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toExperimental = false}) =>
+Future<void> openSettingsSection(BuildContext context, SettingsSection section, {bool toExperimental = false, bool toNetwork = false}) =>
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SettingsSectionScreen(section: section, toExperimental: toExperimental),
+        builder: (_) => SettingsSectionScreen(section: section, toExperimental: toExperimental, toNetwork: toNetwork),
       ),
     );
 
 /// One group's page: its rows under the group's title, with the actions they need.
 class SettingsSectionScreen extends ConsumerStatefulWidget {
-  const SettingsSectionScreen({super.key, required this.section, this.toExperimental = false});
+  const SettingsSectionScreen({super.key, required this.section, this.toExperimental = false, this.toNetwork = false});
 
   final SettingsSection section;
 
   /// Advanced opened from an "experimental" sheet: scrolled to the Pairing and Invoices
   /// switches, not its top (LNX3-1).
   final bool toExperimental;
+
+  /// Advanced opened from the mode mark or an Off (mode) status: scrolled to the Network
+  /// section.
+  final bool toNetwork;
 
   @override
   ConsumerState<SettingsSectionScreen> createState() =>
@@ -214,11 +213,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   bool _busy = false;
   final _scroll = ScrollController();
   final _experimentalKey = GlobalKey();
+  final _networkKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     if (widget.toExperimental) WidgetsBinding.instance.addPostFrameCallback((_) => _showExperimental());
+    if (widget.toNetwork) WidgetsBinding.instance.addPostFrameCallback((_) => _showNetwork());
   }
 
   @override
@@ -236,6 +237,19 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       if (tries > 2) return;
       _scroll.jumpTo(_scroll.position.maxScrollExtent);
       WidgetsBinding.instance.addPostFrameCallback((_) => _showExperimental(tries + 1));
+      return;
+    }
+    Scrollable.ensureVisible(at, alignment: 0);
+  }
+
+  /// The Network section sits in the middle of the list: the list is built that far first.
+  void _showNetwork([int tries = 0]) {
+    if (!mounted || !_scroll.hasClients) return;
+    final at = _networkKey.currentContext;
+    if (at == null) {
+      if (tries > 3) return;
+      _scroll.jumpTo((_scroll.position.maxScrollExtent * (tries + 1) / 4).clamp(0, _scroll.position.maxScrollExtent));
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showNetwork(tries + 1));
       return;
     }
     Scrollable.ensureVisible(at, alignment: 0);
@@ -694,8 +708,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             ),
           );
     final error = Theme.of(context).colorScheme.error;
-    // Recheck balance asks the node only: Offline lets it run on a local one.
-    final block = watchNetBlock(context, ref, localNode: ref.watch(localNodeProvider));
+    // Recheck balance asks the node only: Node only lets it run.
+    final block = watchNetBlock(context, ref, node: true);
     return [
       ListTile(
         leading: const Icon(Icons.contacts_outlined),
@@ -772,9 +786,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ListTile(
           leading: const Icon(Icons.sync),
           title: Text(l.settingsRescan),
-          subtitle: netBlockReason(l, block) == null
+          subtitle: block == NetBlock.none
               ? null
-              : Text(netBlockReason(l, block)!),
+              : Text(block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
           enabled: !scan.running && block == NetBlock.none,
           onTap: block == NetBlock.none ? _rescan : null,
         ),
@@ -1032,7 +1046,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final adv = s.advanced;
     final t = context.tokens;
-    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     Widget feature(
       AdvancedFeature f,
       IconData icon,
@@ -1063,18 +1076,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       },
       onChanged: (on) => _settings.setExperimental(f, on),
     );
-    Widget mode(NetworkMode m, String title, String line, {bool enabled = true}) =>
-        RadioListTile<NetworkMode>(
-          key: ValueKey('adv-mode-${m.name}'),
-          value: m,
-          enabled: enabled,
-          title: Text(title),
-          subtitle: Text(line),
-        );
-    final note = switch (adv.networkMode) {
-      NetworkMode.offline => torBuilt ? l.advOfflineNote : l.advOfflineNoteNoTor,
-      _ => null,
-    };
     return [
       PhoneTourTarget(
         id: 'tour-advanced-top',
@@ -1129,47 +1130,10 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         l.advTransactionFilesHint,
       ),
       const SizedBox(height: 8),
-      Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: Row(
-          children: [
-            Expanded(child: SettingsHeader(l.advNetworkHeader)),
-            InfoHint(torBuilt ? l.advNetworkHint : l.advNetworkHintNoTor, title: l.advNetworkHeader, icon: Icons.hub_outlined),
-          ],
-        ),
+      NetworkModeSection(
+        headerKey: _networkKey,
+        tourId: (rows) => PhoneTourTarget(id: 'tour-advanced-modes', child: rows),
       ),
-      PhoneTourTarget(
-        id: 'tour-advanced-modes',
-        child: RadioGroup<NetworkMode>(
-        groupValue: adv.networkMode,
-        onChanged: (v) {
-          if (v != null) _settings.setNetworkMode(v);
-        },
-        child: Column(
-          children: [
-            mode(NetworkMode.standard, l.advModeStandard, torBuilt ? l.advModeStandardLine : l.advModeStandardLineNoTor),
-            // No Tor only in the build without Tor.
-            if (torBuilt)
-              mode(
-                NetworkMode.torOnly,
-                l.advModeTorOnly,
-                l.advModeTorOnlyLine,
-                enabled: torAvailable,
-              ),
-            mode(NetworkMode.offline, l.advModeOffline, l.advModeOfflineLine),
-          ],
-        ),
-      ),
-      ),
-      if (note != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-          child: Text(
-            note,
-            // Body text, not a warning.
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
-          ),
-        ),
       // On by default: the one switch here that keeps the simple app working.
       HintSwitchTile(
         key: advNodeFailoverKey,
@@ -1268,9 +1232,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ListTile(
           leading: const Icon(Icons.system_update),
           title: Text(l.settingsCheckUpdates),
-          subtitle: netBlockReason(l, block) == null
+          subtitle: block == NetBlock.none
               ? null
-              : Text(netBlockReason(l, block)!),
+              : Text(
+                  blockMode(block) != null ? l.updatesOffMode(networkModeName(l, blockMode(block)!)) : netBlockReason(l, block)!,
+                ),
           enabled: block == NetBlock.none,
           onTap: block != NetBlock.none
               ? null

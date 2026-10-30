@@ -1,8 +1,6 @@
 {
   "deskSlotNow": "当前",
   "deskSlotHelp": "帮助",
-  "deskSlotOffline": "离线",
-  "deskSlotOfflineDetail": "不收发任何内容",
   "deskSlotScanning": "正在扫描区块链",
   "deskSlotScanWaits": "扫描正在等待网络",
   "deskSlotScanStopped": "扫描已停止",
@@ -17,7 +15,6 @@
   "deskSlotRequests": "新账单",
   "deskSlotNodeStarting": "本地节点正在启动",
   "deskSlotNodeSyncing": "本地节点正在同步",
-  "deskSlotOpenAdvanced": "打开高级设置",
   "deskSlotOpenRecheck": "打开重新核对余额",
   "deskSlotOpenSend": "打开发送",
   "deskSlotOpenActivity": "在活动中打开",

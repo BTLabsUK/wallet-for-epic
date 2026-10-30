@@ -24,6 +24,10 @@ import '../../app_info.dart';
 import '../../app_version.dart' show coreVersion;
 import '../data/desk_update.dart' show deskAppVersion;
 import '../../ui/theme/brand.dart' show EpicMark, BrandWordmark;
+import '../../advanced.dart' show NetworkMode;
+import '../../ui/network_mode_text.dart';
+import '../data/net_mode_view.dart' show deskNetTor;
+import '../data/tor_view.dart' show TorState;
 import '../desk_l10n.dart';
 import '../screens/onboarding/onboarding_parts.dart' show networkName;
 import '../screens/onboarding/unlock_screen.dart' show UnlockPick;
@@ -244,6 +248,7 @@ class DeskTitleBar extends ConsumerWidget {
             ],
             const Spacer(),
             if (wallet) ...[
+              _Held(child: _ModeMark(dim: dim)),
               _Held(child: _StatusCluster(dim: dim)),
               SizedBox(width: Sp.x1),
               _Held(child: _LockButton(dim: dim)),
@@ -877,6 +882,94 @@ class _WalletChip extends ConsumerWidget {
   }
 }
 
+/// The network mode's mark, left of the status cluster and shown only off Normal: a small
+/// neutral pill (the mode's glyph and name, no state dot: a mode is a choice, not a service)
+/// and a hairline after it. A click opens a popover with the glyph, the name, one line and a
+/// Change button that opens Settings › Advanced › Network.
+class _ModeMark extends ConsumerWidget {
+  const _ModeMark({required this.dim});
+
+  final bool dim;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(deskProvider.select((s) => s.settings.advanced.networkMode));
+    if (mode == NetworkMode.standard) return const SizedBox.shrink();
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final name = networkModeName(l, mode);
+    final waiting = mode == NetworkMode.torOnly && deskNetTor(ref.watch(deskProvider)) != TorState.on;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _BarMenu(
+          minWidth: 280.u,
+          children: (context, m) => [
+            Padding(
+              padding: EdgeInsets.all(Sp.x3),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 260.u),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(networkModeGlyph(mode), size: 18.u, color: c.dim),
+                        SizedBox(width: Sp.x2),
+                        Flexible(child: Text(name, style: ts.strong)),
+                      ],
+                    ),
+                    SizedBox(height: Sp.x2),
+                    Text(networkModeMarkLine(l, mode, waitingForTor: waiting), style: ts.small.copyWith(color: c.dim)),
+                    SizedBox(height: Sp.x3),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: EButton(
+                        key: const ValueKey('bar-mode-change'),
+                        label: l.netMarkChange,
+                        onPressed: () {
+                          m.close();
+                          deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
+                          ProviderScope.containerOf(context, listen: false).read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          builder: (context, m, open) => _BarButton(
+            key: const ValueKey('bar-net-mode'),
+            label: l.netMarkSemanticsDesk(name),
+            tooltip: networkModeMarkLine(l, mode, waitingForTor: waiting),
+            open: open,
+            padding: EdgeInsets.symmetric(horizontal: 4.u),
+            onPressed: () => _toggle(m),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: Sp.x2),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.lineStrong), borderRadius: BorderRadius.circular(12.u)),
+              height: 24.u,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(networkModeGlyph(mode), size: 14.u, color: dim ? c.faint : c.dim),
+                  SizedBox(width: Sp.x1),
+                  Text(name, maxLines: 1, style: ts.caption.copyWith(color: dim ? c.faint : c.dim)),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Container(width: 1, height: 16.u, margin: EdgeInsets.symmetric(horizontal: Sp.x2), color: c.line),
+      ],
+    );
+  }
+}
+
 /// Node · Epicbox · Tor, each a glyph with a state dot; a click lists the rows of the sidebar's
 /// status, each opening its settings.
 class _StatusCluster extends ConsumerWidget {
@@ -904,7 +997,7 @@ class _StatusCluster extends ConsumerWidget {
                 onTap: () {
                   m.close();
                   deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
-                  p.jumpTo(i.jump);
+                  p.jumpTo(i.opens);
                 },
               ),
           ],

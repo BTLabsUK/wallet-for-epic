@@ -678,6 +678,18 @@ class RemoteWalletSession implements WalletSession {
   Future<void> resendEpicbox({required String key}) =>
       _call(SessionMember.resendEpicbox, voidWire, {'key': key});
 
+  // The cold flow (Kill switch) is the wallet's own device's: not over the remote link.
+  @override
+  Future<String> finishedPaymentText({required int txId}) async => throw _notRemote('finished payment');
+
+  @override
+  Future<FinishedPayment> inspectFinished(String text) async => throw _notRemote('inspect finished');
+
+  @override
+  Future<void> postFinished(String text) async => throw _notRemote('post finished');
+
+  static WalletError _notRemote(String what) => WalletError(kind: WalletErrorKind.other, message: '$what is not offered remotely');
+
   @override
   Future<void> releaseStuckSend({required String key}) =>
       _call(SessionMember.releaseStuckSend, voidWire, {'key': key});

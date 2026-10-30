@@ -10,9 +10,11 @@ import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
+import 'theme/tokens.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'post_finished_screen.dart' show openPostFinished;
 import 'theme/brand.dart';
 import 'tour/tour_target.dart';
 
@@ -148,6 +150,15 @@ List<HistorySection> groupHistory(
 }
 
 /// Every transaction, searchable and filtered, grouped by day.
+/// The key of the Kill switch caption above the list, for tests.
+const Key historyLastKnownKey = ValueKey('history-last-known');
+
+/// The key of the Activity menu, for tests.
+const Key historyMenuKey = ValueKey('history-menu');
+
+/// The key of the menu's Post a finished payment entry, for tests.
+const Key historyPostFinishedKey = ValueKey('history-post-finished');
+
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key, this.filter = HistoryFilter.all, this.query});
 
@@ -316,7 +327,19 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     ];
 
     return SlotScaffold(
-      appBar: AppBar(title: Text(l.historyTitle)),
+      appBar: AppBar(
+        title: Text(l.historyTitle),
+        actions: [
+          PopupMenuButton<String>(
+            key: historyMenuKey,
+            tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+            onSelected: (_) => openPostFinished(context),
+            itemBuilder: (_) => [
+              PopupMenuItem<String>(key: historyPostFinishedKey, value: 'post-finished', child: Text(l.postFinishedTitle)),
+            ],
+          ),
+        ],
+      ),
       idle: home.isLoading
           ? SlotProgress(
               label: all == null ? l.historyLoading : l.historyRefreshing,
@@ -336,6 +359,18 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     sliver: SliverList.list(children: controls),
                   ),
+                  // Kill switch asks no node: the list is the one seen last.
+                  if (ref.watch(balanceLastKnownProvider))
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                        child: Text(
+                          l.lastKnownList,
+                          key: historyLastKnownKey,
+                          style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim),
+                        ),
+                      ),
+                    ),
                   // Only the rows on screen are built, so 2,000 payments scroll like 20.
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

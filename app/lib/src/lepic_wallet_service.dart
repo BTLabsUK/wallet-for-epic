@@ -23,10 +23,10 @@ import 'history/wallet_history.dart';
 import 'seed_contacts.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
+import 'finished_payment.dart';
 import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'log.dart';
 import 'net/lan_node_relay.dart';
-import 'net/local_address.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
 import 'relay_refused.dart' show refusedHandshake;
@@ -49,13 +49,16 @@ import 'wallet_service.dart';
 /// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
 /// those pass [libraryPath], the library file itself, for example
 /// `third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so`.
-Future<void> initLepic({String? libraryPath}) => lepic.RustLib.init(
-  externalLibrary: libraryPath != null
-      ? ExternalLibrary.open(libraryPath)
-      : _releaseBuild || Platform.isIOS || Platform.isMacOS
-      ? ExternalLibrary.open(bundledLepicLibrary())
-      : null,
-);
+Future<void> initLepic({String? libraryPath}) async {
+  await lepic.RustLib.init(
+    externalLibrary: libraryPath != null
+        ? ExternalLibrary.open(libraryPath)
+        : _releaseBuild || Platform.isIOS || Platform.isMacOS
+        ? ExternalLibrary.open(bundledLepicLibrary())
+        : null,
+  );
+}
+
 
 const bool _releaseBuild = bool.fromEnvironment('dart.vm.product');
 
@@ -169,6 +172,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
     lepic.WalletErrorKind.paymentExpired => WalletErrorKind.paymentExpired,
     lepic.WalletErrorKind.inputsSpentElsewhere => WalletErrorKind.inputsSpentElsewhere,
+    // A Kill switch session (WalletConfig.offline) refused its node or relay.
+    lepic.WalletErrorKind.offline => WalletErrorKind.networkOff,
     lepic.WalletErrorKind.notUrCode => WalletErrorKind.notQrSlate,
     lepic.WalletErrorKind.foreignUrCode => WalletErrorKind.foreignQrCode,
     lepic.WalletErrorKind.mixedUrCodes => WalletErrorKind.mixedQrCodes,
@@ -244,19 +249,27 @@ T _guardSync<T>(T Function() call) {
   }
 }
 
-/// [_guard] for a call that reaches the network: refused in Offline ([NetGate]) before LEPIC
-/// is asked, whatever the caller checked.
+/// [_guard] for a call that reaches the network beyond the node: refused in Node only and Kill
+/// switch ([NetGate]) before LEPIC is asked, whatever the caller checked.
 Future<T> _netGuard<T>(String what, Future<T> Function() call) async {
   NetGate.check(what);
   return _guard(call);
 }
 
-/// [_guardStream] for a stream that reaches the network: in Offline only a [NetBlocked] error.
-Stream<T> _netStream<T>(String what, Stream<T> Function() make) => NetGate.offline
-    ? Stream.error(NetBlocked(NetworkMode.offline, what))
+/// [_guard] for a call that reaches only the node in use (no payment): Node only lets it run,
+/// Kill switch refuses it.
+Future<T> _nodeNetGuard<T>(String what, Future<T> Function() call) async {
+  NetGate.checkNode(what);
+  return _guard(call);
+}
+
+/// [_guardStream] for a stream that reaches the network beyond the node: in Node only and Kill
+/// switch only a [NetBlocked] error.
+Stream<T> _netStream<T>(String what, Stream<T> Function() make) => NetGate.restricted
+    ? Stream.error(NetBlocked(NetGate.mode, what))
     : _guardStream(make());
 
-/// [_netGuard] for a call over Epicbox (a send, a resend, an invoice): refused in Offline and
+/// [_netGuard] for a call over Epicbox (a send, a resend, an invoice): refused by the mode and
 /// with the Epicbox switch off ([NetGate.checkEpicbox]).
 Future<T> _epicboxGuard<T>(String what, Future<T> Function() call) async {
   NetGate.checkEpicbox(what);
@@ -852,6 +865,7 @@ class LepicWalletService implements WalletService {
             lepic.OnionRoute(host: r.host, port: r.port, onion: r.onion, onionPort: r.onionPort),
         ],
         tuning: netTuningOf(appConfig),
+        offline: config.offline,
       );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
@@ -1053,7 +1067,9 @@ class LepicWalletService implements WalletService {
 
   @override
   Future<NodeTip> nodeTip({required WalletConfig config}) => _guard(() async {
-    NetGate.check('node tip', local: isLocalAddressUrl(config.nodeUrl));
+    // Node only: the node in use alone, not the others of the list (their checks). No wallet
+    // is open, so no tor carries it: Tor only refuses it unless the node is local.
+    NetGate.dialDirect(NetDial.http, config.nodeUrl);
     // LEPIC asks the node only: no wallet folder is made (the setup screen's test passes an
     // empty one, which made `/lepic` and failed) and the open wallet's chain stays.
     final tip = await lepic.nodeTip(
@@ -1133,7 +1149,9 @@ class LepicWalletService implements WalletService {
         config.dataDir,
         config.chain,
         contacts: await _sharedContacts(),
-      ))..nodeUrl = config.nodeUrl;
+      ))
+        ..nodeUrl = config.nodeUrl
+        ..nodeApiSecret = config.nodeApiSecret;
     } catch (_) {
       wallet.lock();
       wallet.dispose();
@@ -1243,33 +1261,29 @@ class LepicWalletSession implements WalletSession {
   /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
   String? nodeUrl;
 
-  bool get _localNode => isLocalAddressUrl(nodeUrl);
+  /// The node in use's API secret, for the app's own post of a finished payment.
+  String? nodeApiSecret;
+
 
   /// [_guard] for a payment call that reaches only the node (a transaction file or QR Payment
-  /// made, signed, finalized or posted, an estimate): Offline lets it use the node in use,
-  /// local or not (`network_gate.dart`, the screen warns), so nothing is checked here.
+  /// made, signed, finalized or posted, an estimate): Node only lets it use the node in use;
+  /// in Kill switch LEPIC makes, signs and finalizes without a node and refuses the posting
+  /// itself (its own gate), so nothing is checked here.
   Future<T> _nodeGuard<T>(String what, Future<T> Function() call) => _guard(call);
 
-  /// [_netStream] for a stream that reaches only the node and is not a payment (a scan, the
-  /// HTTP listener): Offline lets it run on a local node only.
-  Stream<T> _nodeStream<T>(String what, Stream<T> Function() make) => NetGate.offline && !_localNode
-      ? Stream.error(NetBlocked(NetworkMode.offline, what))
+  /// [_netStream] for a stream that reaches only the node and is not a payment (a scan):
+  /// Node only lets it run, Kill switch refuses it.
+  Stream<T> _nodeStream<T>(String what, Stream<T> Function() make) => NetGate.killSwitch
+      ? Stream.error(NetBlocked(NetGate.mode, what))
       : _guardStream(make());
 
-  /// The address a Direct send goes to: as given, except in Offline, where only a local one is
-  /// allowed (looked up once, and the address found is what LEPIC connects to); the send posts
-  /// to the node in use. Tor only refuses one off this computer.
+  /// The address a Direct send goes to, as given; refused in Node only and Kill switch (no Link
+  /// at all). Tor only refuses one off this computer.
   Future<String> _directUrl(String url) async {
+    NetGate.check('send over HTTP');
     _torOnlyRefusesHttp(url);
-    if (!NetGate.offline) return url;
-    final local = await localUrl(url, directLookup);
-    if (local == null) throw const NetBlocked(NetworkMode.offline, 'send over HTTP', notLocal: true);
-    return local;
+    return url;
   }
-
-  /// Looks a Direct send's host up, once, for [_directUrl]. Tests replace it.
-  @visibleForTesting
-  static HostLookup directLookup = (host) async => [for (final a in await InternetAddress.lookup(host)) a.address];
 
   /// [wallet] with the archive in [dataDir], and LEPIC given the invoice index kept there,
   /// as every open does. Public so tests can drive it with a stand-in wallet.
@@ -1401,9 +1415,29 @@ class LepicWalletSession implements WalletSession {
   Future<void> repostTransaction({required String key}) =>
       _nodeGuard('repost', () async => _wallet.repostTransaction(txId: await _txIdOf(key)));
 
+  // The cold flow (Kill switch). The finished payment's text is LEPIC's (its finishedPayment
+  // getter: the stored S3, or an issued invoice's I3); reading and posting one is
+  // the app's own (finished_payment.dart), through the node in use and the network mode's gate.
+
+  @override
+  Future<String> finishedPaymentText({required int txId}) => _guard(() => _wallet.finishedPayment(txId: txId));
+
+  @override
+  Future<FinishedPayment> inspectFinished(String text) async => readFinishedPayment(text).payment;
+
+  @override
+  Future<void> postFinished(String text) async {
+    final node = nodeUrl;
+    if (node == null || node.trim().isEmpty) {
+      NetGate.checkNode('post finished');
+      throw const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'post finished: no node');
+    }
+    await pushFinishedPayment(text, nodeUrl: node, nodeApiSecret: nodeApiSecret);
+  }
+
   @override
   Future<void> releaseStuckSend({required String key}) =>
-      _netGuard('release', () async => _wallet.releaseTransaction(txId: await _txIdOf(key)));
+      _nodeNetGuard('release', () async => _wallet.releaseTransaction(txId: await _txIdOf(key)));
 
   /// The amount [estimateMax] last returned. A send of exactly the wallet's current maximum is
   /// a send-all and takes every coin into one change output, as the max estimate did, so fee
@@ -1567,12 +1601,14 @@ class LepicWalletSession implements WalletSession {
       ),
     );
     nodeUrl = config.nodeUrl;
+    nodeApiSecret = config.nodeApiSecret;
   });
 
   @override
   Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
       _guard(() async {
-        NetGate.check('node tip', local: isLocalAddressUrl(config.nodeUrl));
+        // Node only: the node in use alone, not the others of the list (their checks).
+        NetGate.dial(NetDial.http, config.nodeUrl);
         final tip = await _wallet.nodeTipFor(
           config: await LepicWalletService._lepicConfig(config, config.dataDir),
         );
@@ -1716,8 +1752,8 @@ class LepicWalletSession implements WalletSession {
   }) => NetGate.torOnly && exposure == HttpExposure.internet
       // Tor only: no clearnet listener; one on 127.0.0.1 behind the onion stays.
       ? Stream.error(const NetBlocked(NetworkMode.torOnly, 'HTTP listener'))
-      // Offline: a slate received is signed with the node's tip, so only with a local node.
-      : _nodeStream(
+      // Node only and Kill switch: no Link listener at all.
+      : _netStream(
           'HTTP listener',
           () => _wallet
               .startHttpListener(exposure: _lepicExposure(exposure), port: port)
@@ -1741,9 +1777,11 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Stream<TorEvent> startTor({required String torBinary, String? libDir}) =>
-      _netStream('tor', () =>
+      // Tor carries the node in Node only (the user's switch) and publishes no onion there, so
+      // no Link listener runs behind it; Kill switch starts none.
+      _nodeStream('tor', () =>
         _wallet
-            .startTor(torBinary: torBinary, libDir: libDir)
+            .startTor(torBinary: torBinary, libDir: libDir, publishOnion: torPublishesOnion)
             .map(lepicTorEvent),
       );
 
@@ -1788,7 +1826,7 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Future<void> refreshTor({required bool networkChanged}) =>
-      _netGuard('tor refresh', () => _wallet.refreshTor(networkChanged: networkChanged));
+      _nodeNetGuard('tor refresh', () => _wallet.refreshTor(networkChanged: networkChanged));
 
   @override
   Future<void> torNetworkLost() => _guard(() => _wallet.torNetworkLost());
@@ -1916,7 +1954,7 @@ class LepicWalletSession implements WalletSession {
     required bool refresh,
     required BigInt minimumConfirmations,
   }) => _guard(() async {
-    if (refresh) NetGate.check('refresh', local: _localNode);
+    if (refresh) NetGate.checkNode('refresh');
     return _summary(await _wallet.summary(refresh: refresh));
   });
 
@@ -1936,7 +1974,7 @@ class LepicWalletSession implements WalletSession {
   Stream<RefreshProgress> refresh({
     required BigInt minimumConfirmations,
   }) async* {
-    NetGate.check('refresh', local: _localNode);
+    NetGate.checkNode('refresh');
     try {
       // `await for`, not `yield*`: only it raises the stream's error here.
       await for (final p in _guardStream(_wallet.refresh())) {
@@ -1973,7 +2011,7 @@ class LepicWalletSession implements WalletSession {
   Future<List<TxEntry>> transactions({required bool refresh}) =>
       _guard(() async {
         if (refresh) {
-          NetGate.check('refresh', local: _localNode);
+          NetGate.checkNode('refresh');
           await _wallet.summary(refresh: true);
         }
         return _history.transactions(await _live());
@@ -2397,7 +2435,7 @@ class LepicWalletSession implements WalletSession {
   /// payment or a decline reaches the contact at once. A failure is logged only; the next
   /// collect posts it again.
   void _deliverOutbox() {
-    if (NetGate.offline || !NetGate.epicbox) return;
+    if (NetGate.epicboxOff) return;
     unawaited(
       Future.sync(() => _wallet.contactsOutboxDeliver(relayMode: lepicRelayMode())).then<void>(
         (_) {},
@@ -2756,8 +2794,9 @@ class LepicWalletSession implements WalletSession {
 // Pending invites, the answer to send by hand, what the user chose before the words check).
 // Relay calls take the mode from the network mode and the Epicbox switch ([NetGate]).
 
-/// The relay mode of a contact call: Offline, Epicbox off, or online.
-lepic.ContactRelayMode lepicRelayMode() => NetGate.offline
+/// The relay mode of a contact call: off by the mode (Node only, Kill switch), Epicbox off, or
+/// online.
+lepic.ContactRelayMode lepicRelayMode() => NetGate.restricted
     ? lepic.ContactRelayMode.offline
     : !NetGate.epicbox
     ? lepic.ContactRelayMode.epicboxOff
@@ -3181,7 +3220,7 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
-    if (!supported || NetGate.offline || !NetGate.epicbox) return 0;
+    if (!supported || NetGate.epicboxOff) return 0;
     try {
       return await collectOrFail(trigger);
     } on lepic.WalletError catch (error) {
@@ -3471,7 +3510,7 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<int> collectPrivate({List<String>? only}) async {
-    if (NetGate.offline || !NetGate.linkedDevices) return 0;
+    if (NetGate.restricted || !NetGate.linkedDevices) return 0;
     _s._watchEvents();
     try {
       final ids = only ?? [for (final c in await _w.privatePairings()) c.contactId];

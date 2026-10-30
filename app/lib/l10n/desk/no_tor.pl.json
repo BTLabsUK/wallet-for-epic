@@ -1,8 +1,6 @@
 {
   "deskNoTorSendDirectLine2": "Adres http(s). Portfel odbiorcy musi być otwarty.",
   "deskNoTorSetTxDirectHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:{port}), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.",
-  "deskNoTorAdvNetworkHint": "Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio. Offline zostaje na tym komputerze i w twojej sieci lokalnej: Przesyłanie pliku nadal działa przez używany węzeł; z węzłem tutaj lub w twojej sieci możesz też wysyłać na adresy lokalne i odbierać przez Link, a saldo się odświeża. Wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.",
-  "deskNoTorAdvOfflineNote": "Epicbox i sprawdzanie stanu są wstrzymane. Przesyłanie pliku nadal działa przez używany węzeł, także publiczny. Z węzłem na tym komputerze lub w twojej sieci działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne.",
   "deskNoTorTxDetailsFromBad": "Użyj adresu Epicbox lub http(s).",
   "deskNoTorTourAdvancedText": "Wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz."
 }

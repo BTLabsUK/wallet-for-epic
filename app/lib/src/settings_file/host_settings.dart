@@ -402,6 +402,11 @@ class HostSettings {
   /// The servers linked devices use: the first `epicbox.link_servers` of the list.
   List<String> get deviceLinkServers => [for (final s in epicboxServers.take(config.linkServerCount)) s.label];
 
+  // [network]: the network mode (`network_mode_file.dart` reads it as a NetworkMode).
+
+  /// `network.mode` as written: `tor_only`, `node_only`, `kill_switch`, or empty for Normal.
+  String get networkModeText => value('network.mode') as String;
+
   // [local_node]: the built-in node's ports, the user's over `[node.local]` of app-config.toml.
 
   /// The built-in node's API port: `local_node.api_port` when set, else `node.local.api_port`.
@@ -688,7 +693,10 @@ SettingsRead readSettings(String text, {required HostSettings shipped, HostSetti
       values[key.path] = c.value!;
     } else {
       issues.add(ValueIssue(key.path, _problemLine(scan, key, c), c.problem!));
-      values[key.path] = (lastGood ?? shipped).value(key.path);
+      // A network mode the app can't read, with no good one before it, fails closed: the user
+      // asked for some mode, so nothing connects until the file names one it can read.
+      values[key.path] = lastGood?.value(key.path) ??
+          (key.path == 'network.mode' ? 'kill_switch' : shipped.value(key.path));
     }
   }
   return SettingsRead(HostSettings._(values, shipped.config), issues, _unknownKeys(doc, scan), doc);

@@ -68,7 +68,7 @@ lepic.WalletConfig _config(String name, {String relay = _relay}) => lepic.Wallet
   nodeUrl: _node,
   epicboxDomain: relay,
   epicboxPort: 443,
-  onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig),
+  onionRoutes: const [], tuning: LepicWalletService.netTuningOf(appConfig), offline: false,
 );
 
 lepic.AppSecretStore _store(String name) => lepic.lepicSecretStore(_FileStore(File('$_dir/$name.secrets.json')));

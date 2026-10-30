@@ -29,6 +29,10 @@ import 'settings_phrase.dart';
 import 'settings_privacy.dart' show PrivacyDemo;
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
+import '../transfer/finalize_screen.dart' show FinalizeArgs;
+import '../transfer/finished_payment.dart' show showPostFinished;
+import '../transfer/send_screen.dart' show SendArgs;
+import '../../../wallet_service.dart' show FakeWalletSession;
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
 import 'settings_help.dart' show HelpDemo;
@@ -371,13 +375,13 @@ final List<DeskShot> settingsShots = [
   // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
   DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
-  DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '43e-overview-waiting-tor', title: 'Overview, Tor only waiting for Tor', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
-  DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '43h-privacy-tor-only', title: 'Privacy, the Tor switch locked by Tor only', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(
     id: '43j-tx-detail-more',
     title: 'Transaction detail, More opened with Technical details off',
@@ -391,6 +395,32 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '43o-advanced-confirmations', title: 'Settings › Advanced › Balance, Confirmations at the default 6', route: DeskRoute.settingsAdvanced, height: 1450),
   DeskShot(id: '43p-advanced-confirmations-3', title: 'Settings › Advanced › Balance, Confirmations set to 3', route: DeskRoute.settingsAdvanced, height: 1450, prepare: (c, _) => _minConfirmations(c, 3)),
   DeskShot(id: '43q-overview-confirmations-3', title: 'Overview counting with 3 confirmations', route: DeskRoute.overview, prepare: (c, _) => _minConfirmations(c, 3)),
+  // Network modes: the section, a mode's info popover, the mark in the title bar, a blocked
+  // note, and the cold-payment screens.
+  const DeskShot(id: '44a-network-section', title: 'Settings › Advanced › Network, the four modes', route: DeskRoute.settingsAdvanced, height: 1450),
+  DeskShot(id: '44b-network-kill-switch-hint', title: 'Settings › Advanced › Network, the Kill switch info popover', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeKillSwitch)),
+  DeskShot(id: '44c-overview-node-only', title: 'Overview in Node only: the mark, Epicbox and Link off', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '44d-overview-kill-switch', title: 'Overview in Kill switch: the mark, every service off, the balance last known', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
+  DeskShot(
+    id: '44e-send-epicbox-node-only',
+    title: 'Send over Epicbox in Node only: the blocked note',
+    route: DeskRoute.send,
+    arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.example.org', amount: '1'),
+    prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly),
+  ),
+  DeskShot(
+    id: '44f-finished-not-posted',
+    title: 'Finalize under Kill switch: Finished, not posted',
+    route: DeskRoute.finalize,
+    arg: FinalizeArgs(finishedTx: _coldTx),
+    prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch),
+  ),
+  DeskShot(
+    id: '44g-post-finished-summary',
+    title: 'Receive › Transaction files › Post a finished payment, the summary',
+    route: DeskRoute.receive,
+    dialog: (ctx) => showPostFinished(ctx, text: FakeWalletSession.fakeFinishedText(5)),
+  ),
   // The help popover (widgets/popover.dart) open on the Network group's info icon.
   DeskShot(id: '43r-advanced-network-help', title: 'Settings › Advanced › Network, the help popover open', route: DeskRoute.settingsAdvanced, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
 ];
@@ -410,6 +440,19 @@ Future<void> openInfoHint(BuildContext root, {required String Function(AppLocali
   (root as Element).visitChildren(visit);
   await found?.open();
 }
+
+/// A send finalized under Kill switch, for the Finished, not posted shot.
+final Tx _coldTx = Tx(
+  id: 7,
+  slateId: 'a1f9e8d7c0b64f21',
+  direction: TxDirection.sent,
+  state: TxState.posted,
+  method: TxMethod.file,
+  amount: 12500000000,
+  fee: 8000000,
+  created: DateTime(2026, 10, 30, 7, 12),
+  notPosted: true,
+);
 
 /// Sets the open wallet's minimum confirmations for a shot (the mock starts at the default).
 Future<void> _minConfirmations(ProviderContainer c, int count) => c.read(deskMinConfirmationsSettingProvider.notifier).set(count);

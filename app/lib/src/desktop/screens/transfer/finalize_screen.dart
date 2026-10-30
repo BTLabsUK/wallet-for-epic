@@ -4,19 +4,24 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../network_gate.dart' show NetGate;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/files.dart';
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'file_panels.dart';
+import 'finished_payment.dart' show FinishedNotPostedPanel;
 
 /// Argument of the Finalize route: [done] opens on the posted transaction, [error] on a
 /// refused file.
 class FinalizeArgs {
-  const FinalizeArgs({this.done = false, this.error, this.text});
+  const FinalizeArgs({this.done = false, this.error, this.text, this.finishedTx});
 
   final bool done;
+
+  /// Opens on "Finished, not posted" for this payment (finalized under Kill switch).
+  final Tx? finishedTx;
   final FinalizeError? error;
 
   /// An answer's text pasted into Send: finalized at once, as a chosen file is.
@@ -73,12 +78,19 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
   /// The posted transaction, when it finished one of this wallet's requests.
   Tx? _request;
 
+  /// The payment finalized under Kill switch: finished, not posted ([FinishedNotPostedPanel]).
+  Tx? _cold;
+
   @override
   void initState() {
     super.initState();
     final a = widget.arg;
     _done = a is FinalizeArgs && a.done;
     if (a is FinalizeArgs) _error = a.error;
+    if (a is FinalizeArgs && a.finishedTx != null) {
+      _done = true;
+      _cold = a.finishedTx;
+    }
     final text = a is FinalizeArgs ? a.text : null;
     if (text != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -100,16 +112,21 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
       _error = null;
       _detail = null;
       _request = null;
+      _cold = null;
     });
     try {
       final tx = await run(ref.read(deskApiProvider));
       if (!mounted) return;
+      // Kill switch finalizes without a node: the payment is finished, a device that is online
+      // posts it.
+      final cold = NetGate.killSwitch && tx.notPosted;
       setState(() {
         _txId = tx.id;
         _done = true;
         _request = tx.isInvoice && tx.direction == TxDirection.received ? tx : null;
+        _cold = cold ? tx : null;
       });
-      showEToast(context, context.l10n.deskFinPosted, tone: ETone.ok);
+      if (!cold) showEToast(context, context.l10n.deskFinPosted, tone: ETone.ok);
     } on DeskError catch (e) {
       if (mounted) {
         _detail = e;
@@ -150,7 +167,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
           if (offlineNode) ...[
             ENotice(
               key: const ValueKey('file-offline-node'),
-              title: l.advHomeOffline,
+              title: l.advModeNodeOnly,
               text: l.netOfflineNodeHint,
               tone: ETone.info,
               icon: EIcons.info,
@@ -168,7 +185,15 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
             ),
             SizedBox(height: Sp.x5),
           ],
-          if (_done)
+          if (_done && _cold != null)
+            FinishedNotPostedPanel(
+              tx: _cold!,
+              actions: [
+                EButton(label: l.deskFinAnother, icon: EIcons.fileUp, onPressed: () => setState(() => _done = false)),
+                EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _txId)),
+              ],
+            )
+          else if (_done)
             ResultPanel(
               title: l.deskFinPosted,
               text: _request == null
