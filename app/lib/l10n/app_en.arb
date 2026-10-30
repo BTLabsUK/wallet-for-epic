@@ -6488,7 +6488,11 @@
   "@sendPlainHttpOffWithTor": {
     "description": "Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent."
   },
-  "sendSaferRoute": "Sending by {method}, which {name} also has. Over plain HTTP, anyone on the network path could receive this payment instead.",
+  "sendSaferRouteTitle": "Safer address available",
+  "@sendSaferRouteTitle": {
+    "description": "Send: title of the dialog offered before a plain http:// send when the contact also has an Epicbox, onion or https address."
+  },
+  "sendSaferRoute": "Over plain HTTP, anyone on the network path could receive this payment instead of {name}. {name} also has {method}, which is safe from that.",
   "@sendSaferRoute": {
     "description": "Send: the plain http:// address belongs to a contact who also has a safer address, which the payment uses instead. {method} is that method's name (Epicbox, Tor, HTTPS), {name} the contact.",
     "placeholders": {
@@ -6518,6 +6522,14 @@
     }
   },
   "txUnsafeSend": "Sent over plain HTTP",
+  "txUnsafeSendHint": "Anyone on the network path could have received it instead.",
+  "@txUnsafeSendHint": {
+    "description": "Transaction details: the line under txUnsafeSend saying what plain HTTP risked."
+  },
+  "txUnsafeSendShort": "Plain HTTP",
+  "@txUnsafeSendShort": {
+    "description": "History list: short marker on the row of a payment sent over plain HTTP to another device; txUnsafeSend is the long form in its details."
+  },
   "@txUnsafeSend": {
     "description": "History: marker on a payment sent over plain HTTP to another device."
   },

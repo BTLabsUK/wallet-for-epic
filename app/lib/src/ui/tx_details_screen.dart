@@ -1010,6 +1010,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               key: txUnsafeSendKey,
               label: l.sendMethodLabel,
               value: l.txUnsafeSend,
+              hint: l.txUnsafeSendHint,
             ),
           if (fee != null && outgoing)
             _DetailRow(

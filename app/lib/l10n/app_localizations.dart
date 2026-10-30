@@ -8094,10 +8094,16 @@ abstract class AppLocalizations {
   /// **'Plain http:// is off while Tor is on: a Tor exit could receive this payment instead of the recipient. Use https://, an onion or Epicbox, or turn Tor off.'**
   String get sendPlainHttpOffWithTor;
 
+  /// Send: title of the dialog offered before a plain http:// send when the contact also has an Epicbox, onion or https address.
+  ///
+  /// In en, this message translates to:
+  /// **'Safer address available'**
+  String get sendSaferRouteTitle;
+
   /// Send: the plain http:// address belongs to a contact who also has a safer address, which the payment uses instead. {method} is that method's name (Epicbox, Tor, HTTPS), {name} the contact.
   ///
   /// In en, this message translates to:
-  /// **'Sending by {method}, which {name} also has. Over plain HTTP, anyone on the network path could receive this payment instead.'**
+  /// **'Over plain HTTP, anyone on the network path could receive this payment instead of {name}. {name} also has {method}, which is safe from that.'**
   String sendSaferRoute(String method, String name);
 
   /// Send: button beside sendSaferRoute that keeps the plain http:// address instead.
@@ -8123,6 +8129,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sent over plain HTTP'**
   String get txUnsafeSend;
+
+  /// Transaction details: the line under txUnsafeSend saying what plain HTTP risked.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone on the network path could have received it instead.'**
+  String get txUnsafeSendHint;
+
+  /// History list: short marker on the row of a payment sent over plain HTTP to another device; txUnsafeSend is the long form in its details.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain HTTP'**
+  String get txUnsafeSendShort;
 
   /// Settings › Network: how Normal with the Tor switch on and Tor only differ.
   ///

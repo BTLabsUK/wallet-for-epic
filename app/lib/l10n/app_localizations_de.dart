@@ -5094,8 +5094,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Reines http:// ist aus, solange Tor an ist: Ein Tor-Ausgangsknoten könnte diese Zahlung anstelle des Empfängers erhalten. Nimm https://, eine Onion- oder Epicbox-Adresse, oder schalte Tor aus.';
 
   @override
+  String get sendSaferRouteTitle => 'Sicherere Adresse vorhanden';
+
+  @override
   String sendSaferRoute(String method, String name) {
-    return 'Gesendet über $method, das $name auch hat. Über reines HTTP könnte jeder auf dem Netzwerkweg diese Zahlung stattdessen erhalten.';
+    return 'Über reines HTTP könnte jeder auf dem Netzwerkweg diese Zahlung statt $name erhalten. $name hat auch $method, das davor sicher ist.';
   }
 
   @override
@@ -5111,6 +5114,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txUnsafeSend => 'Über reines HTTP gesendet';
+
+  @override
+  String get txUnsafeSendHint =>
+      'Jeder auf dem Netzwerkweg hätte sie stattdessen erhalten können.';
+
+  @override
+  String get txUnsafeSendShort => 'Reines HTTP';
 
   @override
   String get torModesSendsSame =>

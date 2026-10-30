@@ -4755,8 +4755,11 @@ class AppLocalizationsZh extends AppLocalizations {
       'Tor 开启时明文 http:// 不可用：Tor 出口节点可能代替收款人收到这笔付款。请使用 https://、onion 或 Epicbox 地址，或关闭 Tor。';
 
   @override
+  String get sendSaferRouteTitle => '有更安全的地址';
+
+  @override
   String sendSaferRoute(String method, String name) {
-    return '通过 $name 也拥有的 $method 发送。若用明文 HTTP，网络路径上的任何人都可能收到这笔付款。';
+    return '若用明文 HTTP，网络路径上的任何人都可能代替 $name 收到这笔付款。$name 也拥有 $method，不会有这个问题。';
   }
 
   @override
@@ -4772,6 +4775,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txUnsafeSend => '通过明文 HTTP 发送';
+
+  @override
+  String get txUnsafeSendHint => '网络路径上的任何人都可能代替收款人收到这笔付款。';
+
+  @override
+  String get txUnsafeSendShort => '明文 HTTP';
 
   @override
   String get torModesSendsSame =>

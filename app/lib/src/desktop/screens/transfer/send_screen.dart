@@ -14,7 +14,7 @@ import '../../../known_relays.dart';
 import '../../../log.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
-import '../../../recipient.dart' show RecipientKind, SaferRoute, saferRouteFor;
+import '../../../recipient.dart' show Recipient, RecipientKind, SaferRoute, proofAddressFor, saferRouteFor;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesOnProvider;
@@ -133,7 +133,12 @@ class _Draft {
     this.pairingId,
     this.queued = false,
     this.confirmations = defaultMinimumConfirmations,
+    this.proofFor,
   });
+
+  /// The contact whose wallet is asked for a payment proof (its onion is known); null when
+  /// none is asked.
+  final String? proofFor;
 
   final TxMethod method;
 
@@ -1110,6 +1115,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         unknownRelay: unknownRelay,
         code: code,
         confirmations: balance?.minConfirmations ?? defaultMinimumConfirmations,
+        proofFor:
+            _method == TxMethod.http &&
+                !viaPairing &&
+                proofAddressFor(Recipient(RecipientKind.http, _to.text.trim()), [for (final c in contacts ?? const <Contact>[]) c.ways]) != null
+            ? _contactOf(contacts)?.name
+            : null,
       );
     }
 
@@ -2448,15 +2459,33 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               ),
             (
               l.deskSendFactVia,
-              // Plain HTTP to another computer from a code: said where the method is.
-              code != null && d.method == TxMethod.http && d.to != null && plainHttpNeedsConsent(d.to!)
-                  ? Wrap(
-                      spacing: Sp.x2,
-                      runSpacing: Sp.x1,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [Text(via, style: ts.body), EBadge(l.sendPlainHttpRow, key: const ValueKey('send-review-plain-http'), tone: ETone.warn)],
-                    )
-                  : Text(via, style: ts.body),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Plain HTTP to another computer from a code: said where the method is.
+                  code != null && d.method == TxMethod.http && d.to != null && plainHttpNeedsConsent(d.to!)
+                      ? Wrap(
+                          spacing: Sp.x2,
+                          runSpacing: Sp.x1,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [Text(via, style: ts.body), EBadge(l.sendPlainHttpRow, key: const ValueKey('send-review-plain-http'), tone: ETone.warn)],
+                        )
+                      : Text(via, style: ts.body),
+                  // The receiver's wallet is asked for a payment proof: only it can complete this.
+                  if (d.proofFor case final name?) ...[
+                    SizedBox(height: Sp.x1),
+                    Row(
+                      key: const ValueKey('send-review-proof'),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(padding: EdgeInsets.only(top: 1.u), child: Icon(EIcons.proof, size: 14.u, color: c.ok)),
+                        SizedBox(width: Sp.x1),
+                        Flexible(child: Text(l.sendProofRow(name), style: ts.small)),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
             (
               l.deskSendNetworkFee,
@@ -2545,6 +2574,17 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   }
 }
 
+/// For the screenshot tour: the review of a plain HTTP send of [amount] to [contactName]'s
+/// wallet URL [to], whose onion is known, so it says a payment proof is asked. Its Send
+/// never completes.
+Future<void> showDeskSendReviewShot(BuildContext context, {required String to, required String contactName, required int amount}) => showEDialog<SendResult>(
+  context,
+  builder: (_) => _ReviewDialog(
+    draft: _Draft(method: TxMethod.http, to: to, contactName: contactName, amount: amount, fee: 800000, message: '', sendAll: false, dandelion: true, proofFor: contactName),
+    onConfirm: (_) => Completer<SendResult>().future,
+  ),
+);
+
 /// Offered before a send over plain `http` when the contact has a safer address.
 /// True to use it, false to keep plain HTTP.
 class SaferRouteDialog extends StatelessWidget {
@@ -2556,9 +2596,9 @@ class SaferRouteDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return EDialog(
-      title: l.sendUseSaferRoute,
+      title: l.sendSaferRouteTitle,
       description: l.sendSaferRoute(recipientMethodWord(l, safer.recipient.kind), safer.name),
-      icon: EIcons.alert,
+      icon: EIcons.shield,
       tone: ETone.warn,
       actions: [
         EButton(key: const ValueKey('send-use-plain-http'), label: l.sendUsePlainHttp, onPressed: () => Navigator.of(context).pop(false)),

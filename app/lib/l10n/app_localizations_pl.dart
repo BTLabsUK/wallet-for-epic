@@ -5169,8 +5169,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zwykłe http:// jest wyłączone, gdy Tor jest włączony: węzeł wyjściowy Tora mógłby odebrać tę płatność zamiast odbiorcy. Użyj https://, adresu onion lub Epicbox albo wyłącz Tor.';
 
   @override
+  String get sendSaferRouteTitle => 'Dostępny bezpieczniejszy adres';
+
+  @override
   String sendSaferRoute(String method, String name) {
-    return 'Wysyłka przez $method, które $name też ma. Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność.';
+    return 'Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność zamiast $name. $name ma też $method, które jest na to odporne.';
   }
 
   @override
@@ -5186,6 +5189,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txUnsafeSend => 'Wysłano przez zwykłe HTTP';
+
+  @override
+  String get txUnsafeSendHint =>
+      'Każdy na trasie sieciowej mógł ją odebrać zamiast odbiorcy.';
+
+  @override
+  String get txUnsafeSendShort => 'Zwykłe HTTP';
 
   @override
   String get torModesSendsSame =>

@@ -842,6 +842,12 @@ class TxStatusLine extends ConsumerWidget {
                       ? base?.copyWith(color: t.info)
                       : base,
                 ),
+                // Over plain HTTP: the one marker in the list, in the warning colour.
+                if (tx.unsafeSend)
+                  TextSpan(
+                    text: ' \u00B7 ${context.l10n.txUnsafeSendShort}',
+                    style: base?.copyWith(color: t.warn),
+                  ),
                 TextSpan(text: ' \u00B7 $date', style: base),
                 if (aside != null)
                   TextSpan(text: ' \u00B7 $aside', style: base),
@@ -1663,15 +1669,18 @@ class TxTile extends ConsumerWidget {
                           ownServer: ownEpicboxServer(ref),
                         )),
               date: date,
-              status: txStatusLabel(
-                l,
-                tx,
-                tip,
-                target: confirmationsTargetOf(ref),
-                now: now,
-                pairedWith: txMailboxName(ref, tx),
+              status:
+                  txStatusLabel(
+                    l,
+                    tx,
+                    tip,
+                    target: confirmationsTargetOf(ref),
+                    now: now,
+                    pairedWith: txMailboxName(ref, tx),
                     paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
-              ),
+                  ) +
+                  // The list's marker, read out with the status.
+                  (tx.unsafeSend ? ' \u00B7 ${l.txUnsafeSend}' : ''),
               hidden: display.hidden,
               label: tx.label,
             ),

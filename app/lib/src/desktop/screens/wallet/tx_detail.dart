@@ -496,7 +496,11 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               t.foundByScan
                   ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
                   : t.unsafeSend
-                  ? Text(l.txUnsafeSend, key: const ValueKey('tx-unsafe-send'))
+                  ? Column(
+                      key: const ValueKey('tx-unsafe-send'),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [Text(l.txUnsafeSend), Text(l.txUnsafeSendHint, style: ts.small)],
+                    )
                   : Text(methodLabel(l, mailboxName != null ? TxMethod.epicbox : t.method)),
             ),
           (l.deskTxFactAmount, EMoney(t.amount)),

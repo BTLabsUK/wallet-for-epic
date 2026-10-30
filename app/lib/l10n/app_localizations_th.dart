@@ -4940,8 +4940,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'http:// ธรรมดาปิดอยู่ขณะเปิด Tor: โหนดทางออกของ Tor อาจรับการชำระเงินนี้แทนผู้รับได้ ใช้ https://, onion หรือ Epicbox หรือปิด Tor';
 
   @override
+  String get sendSaferRouteTitle => 'มีที่อยู่ที่ปลอดภัยกว่า';
+
+  @override
   String sendSaferRoute(String method, String name) {
-    return 'ส่งผ่าน $method ที่ $name มีด้วย หากใช้ HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายอาจรับการชำระเงินนี้ไปแทน';
+    return 'หากใช้ HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายอาจรับการชำระเงินนี้ไปแทน $name แต่ $name ยังมี $method ซึ่งปลอดภัยจากเรื่องนี้';
   }
 
   @override
@@ -4957,6 +4960,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txUnsafeSend => 'ส่งผ่าน HTTP ธรรมดา';
+
+  @override
+  String get txUnsafeSendHint =>
+      'ใครก็ตามบนเส้นทางเครือข่ายอาจรับไปแทนผู้รับได้';
+
+  @override
+  String get txUnsafeSendShort => 'HTTP ธรรมดา';
 
   @override
   String get torModesSendsSame =>

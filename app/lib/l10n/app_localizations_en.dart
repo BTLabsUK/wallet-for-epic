@@ -5025,8 +5025,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Plain http:// is off while Tor is on: a Tor exit could receive this payment instead of the recipient. Use https://, an onion or Epicbox, or turn Tor off.';
 
   @override
+  String get sendSaferRouteTitle => 'Safer address available';
+
+  @override
   String sendSaferRoute(String method, String name) {
-    return 'Sending by $method, which $name also has. Over plain HTTP, anyone on the network path could receive this payment instead.';
+    return 'Over plain HTTP, anyone on the network path could receive this payment instead of $name. $name also has $method, which is safe from that.';
   }
 
   @override
@@ -5042,6 +5045,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txUnsafeSend => 'Sent over plain HTTP';
+
+  @override
+  String get txUnsafeSendHint =>
+      'Anyone on the network path could have received it instead.';
+
+  @override
+  String get txUnsafeSendShort => 'Plain HTTP';
 
   @override
   String get torModesSendsSame =>

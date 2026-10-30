@@ -5149,8 +5149,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Обычный http:// выключен, пока включён Tor: выходной узел Tor может получить этот платёж вместо получателя. Используйте https://, onion или Epicbox либо выключите Tor.';
 
   @override
+  String get sendSaferRouteTitle => 'Есть более безопасный адрес';
+
+  @override
   String sendSaferRoute(String method, String name) {
-    return 'Отправка через $method, который тоже есть у $name. Через обычный HTTP этот платёж мог бы получить любой на сетевом пути.';
+    return 'Через обычный HTTP этот платёж мог бы получить любой на сетевом пути вместо $name. У $name есть и $method, где это невозможно.';
   }
 
   @override
@@ -5166,6 +5169,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txUnsafeSend => 'Отправлено через обычный HTTP';
+
+  @override
+  String get txUnsafeSendHint =>
+      'Его мог получить любой на сетевом пути вместо получателя.';
+
+  @override
+  String get txUnsafeSendShort => 'Обычный HTTP';
 
   @override
   String get torModesSendsSame =>

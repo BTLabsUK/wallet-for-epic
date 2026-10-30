@@ -1594,6 +1594,7 @@ class _SendViewState extends ConsumerState<SendView> {
       context: context,
       builder: (context) => AlertDialog(
         icon: const Icon(Icons.shield_outlined),
+        title: Text(l.sendSaferRouteTitle),
         content: Text(
           l.sendSaferRoute(
             recipientMethodWord(l, safer.recipient.kind),
@@ -3248,7 +3249,7 @@ class _SendViewState extends ConsumerState<SendView> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.verified_outlined, size: 18, color: t.dim),
+              Icon(Icons.verified_outlined, size: 18, color: t.ok),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(l.sendProofRow(_contactName(to.address) ?? '')),

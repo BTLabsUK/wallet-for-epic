@@ -5,6 +5,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,9 @@ class _Wallet extends MockDeskWallet {
     return super.send(request);
   }
 }
+
+/// A valid onion (the ed25519 key 00 01 02 … 1f): a payment proof can be asked of its wallet.
+const _proofOnion = 'aaaqeayeaudaocajbifqydiob4ibceqtcqkrmfyydenbwha5dyp3kead.onion';
 
 void main() {
   late _Wallet wallet;
@@ -80,6 +84,65 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Check and send'), findsNothing);
       expect(wallet.sent, isEmpty);
+    });
+
+    // WAL-02 and WAL-05 on the desktop: Tom (the mock's c4) has an Epicbox address too.
+    testWidgets("a contact's safer address is offered first; Use the safer address moves To there", (tester) async {
+      await sendTo(tester, 'http://10.0.1.24:3415');
+      expect(find.text('Safer address available'), findsOneWidget);
+      expect(find.textContaining('Tom also has Epicbox'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('send-use-plain-http')));
+      await tester.pumpAndSettle();
+      expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.text('Check and send'), findsNothing);
+
+      await tester.tap(find.text('Review'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('send-use-safer-route')));
+      await tester.pumpAndSettle();
+      final tom = container.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c4');
+      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, tom.epicbox);
+      expect(find.text('Check and send'), findsNothing);
+      expect(wallet.sent, isEmpty);
+    });
+
+    testWidgets("the review says a payment proof is asked when the contact's onion is known", (tester) async {
+      await tester.runAsync(() async {
+        final n = container.read(deskProvider.notifier);
+        await n.refresh();
+        final tom = container.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c4');
+        await n.saveContact(Contact(id: tom.id, name: tom.name, epicbox: tom.epicbox, http: tom.http, tor: _proofOnion, note: tom.note));
+      });
+      await sendTo(tester, 'http://10.0.1.24:3415');
+      await tester.tap(find.byKey(const ValueKey('send-use-plain-http')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Send anyway'));
+      await tester.pumpAndSettle();
+      expect(find.text('Check and send'), findsOneWidget);
+      expect(find.byKey(const ValueKey('send-review-proof')), findsOneWidget);
+      expect(find.text("Payment proof asked: only Tom's wallet can complete this payment."), findsOneWidget);
+    });
+
+    testWidgets('the history row marks a send made over plain HTTP', (tester) async {
+      final t = Tx(
+        id: 50,
+        slateId: 'e5f60718-2a3b-44c5-d6e7-f8091a2b3c4e',
+        direction: TxDirection.sent,
+        state: TxState.confirmed,
+        method: TxMethod.http,
+        amount: 40 * nanoPerEpic,
+        fee: 800000,
+        created: DateTime(2026, 10, 2),
+        counterparty: 'http://10.0.1.24:3415',
+        contactName: 'Tom',
+        unsafeSend: true,
+      );
+      await show(tester, TxRow(tx: t, onTap: () {}));
+      expect(find.textContaining('Plain HTTP', findRichText: true), findsOneWidget);
+      await show(tester, TxRow(tx: Tx(id: 51, slateId: '', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.http, amount: nanoPerEpic, fee: 0, created: DateTime(2026, 10, 2)), onTap: () {}));
+      expect(find.textContaining('Plain HTTP', findRichText: true), findsNothing);
     });
 
     testWidgets('https and this computer go straight to the review', (tester) async {
