@@ -22,7 +22,7 @@ import '../theme/tokens.dart';
 import 'pair_check.dart';
 import 'pair_incoming.dart' show PairFinishScreen, PairingByHandScreen, openPairingLink;
 import 'pair_screen.dart';
-import 'pairing_clip_offer.dart' show markPairingLinkSeen, sharePairingMessage;
+import 'pairing_clip_offer.dart' show sharePairingMessage;
 import 'pairing_parts.dart';
 
 /// Keys for tests.
@@ -283,7 +283,7 @@ class _PendingRow extends ConsumerWidget {
   Future<void> _share(BuildContext context, WidgetRef ref) async {
     final link = record.inviteLink;
     if (link == null) return;
-    await sharePairingMessage(context, ref, context.l10n.pairInviteMessage(link), link: link);
+    await sharePairingMessage(context, ref, context.l10n.pairInviteMessage(link));
   }
 
   /// Paste reply, as on the invite's own screen.
@@ -295,8 +295,7 @@ class _PendingRow extends ConsumerWidget {
       ref.read(noticeProvider.notifier).show(l.pairInvalidLink, level: NoticeLevel.warning);
       return;
     }
-    await markPairingLinkSeen(ref, pairingLinkIn(text)!);
-    if (context.mounted) await openPairingLink(context, ref, text);
+    await openPairingLink(context, ref, text);
   }
 
   Future<void> _cancel(BuildContext context, WidgetRef ref, String name) async {

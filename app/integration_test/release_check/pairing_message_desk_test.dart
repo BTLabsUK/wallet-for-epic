@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 // The desktop side of the Pairing UX live check (26.10.18) with a phone
 // (integration_test/pairing_message_phone_test.dart; tool/pairing_message_check.sh drives both):
-// the phone's invite taken from the clipboard offer, the reply copied, the finish link offered
-// in the wait; then this desktop invites, takes the phone's reply from the offer and copies the
-// finish link; then in person, the phone's code link taken from the offer on the In person
-// panel. The real app, LEPIC, node and relays; no funds move.
+// the phone's invite pasted under Got words or a link?, the reply copied, the finish link
+// pasted in the wait; then this desktop invites, takes the phone's reply with Paste reply and
+// copies the finish link; then in person, the phone's code link pasted under Got words or a
+// link?. The clipboard is read on a press only, never when the window comes back. The real
+// app, LEPIC, node and relays; no funds move.
 //
 // Messages go through $RC_CHAT: the phone's arrive as <name> (p-invite, p-finish, p-reply,
 // p-card), this desktop's go out as <name> (d-reply, d-sas1, d-invite, d-finish, d-sas2,
 // d-card, d-sas3). Each one that arrives is put on the clipboard and the window "comes back",
-// as when the user copied it in a chat.
+// as when the user copied it in a chat; nothing opens until Paste is pressed.
 import 'dart:io';
 
 import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature;
@@ -135,16 +136,16 @@ void main() {
     c.read(deskSeenAsProvider.notifier).set('RC Desk');
     await settle(tester, ms: 3000);
 
-    // 1. The phone invites: offered from the clipboard, answered, the reply copied.
+    // 1. The phone invites: on the clipboard, nothing until Paste; Pair answers it, the reply copied.
+    c.read(deskNavProvider.notifier).go(DeskRoute.pair);
+    await settle(tester, ms: 1500);
     await copiedInChat(tester, await receive(tester, 'p-invite'));
-    final offered = await until(tester, find.byType(DeskPairingClipDialog));
-    if (!offered) {
-      // ignore: avoid_print
-      print('RC NOTE | clipboard holds a ${pairingLinkKind(await clipboard(tester))?.name} link; lifecycle ${WidgetsBinding.instance.lifecycleState}');
-    }
-    record('1 the phone\'s invite on the clipboard is offered', offered && hasText('RC Phone'), safe(texts().take(12).join(' | ')));
-    await shot(tester, 'msg-01-offer');
-    await tapKey(tester, deskClipUseKey);
+    await settle(tester, ms: 3000);
+    record('1 the phone\'s invite on the clipboard is not offered by itself (a ${pairingLinkKind(await clipboard(tester))?.name} link)', find.byKey(deskIncomingPairKey).evaluate().isEmpty, safe(texts().take(12).join(' | ')));
+    await tapKey(tester, deskPairPasteKey);
+    await tapKey(tester, deskPairGoKey);
+    record('1 Paste, then Pair opens the invite', await until(tester, find.byKey(deskIncomingPairKey)) && hasText('RC Phone'), safe(texts().take(12).join(' | ')));
+    await shot(tester, 'msg-01-pasted');
     await tapKey(tester, deskIncomingPairKey);
     record('1 Pair opens the reply to copy', await until(tester, find.byKey(deskReplyCopyKey)), safe(texts().take(12).join(' | ')));
     await shot(tester, 'msg-02-reply');
@@ -153,16 +154,16 @@ void main() {
     record('1 the reply copied as one message', reply.startsWith('My reply to your Epic Cash pairing: epiccash://pair-reply/'), reply.split(':').first);
     send('d-reply', reply);
     await copiedInChat(tester, await receive(tester, 'p-finish'));
-    final found = await until(tester, find.byKey(deskWaitFoundKey), timeout: const Duration(seconds: 30));
-    record('1 the finish link is offered in the wait', found, safe(texts().take(12).join(' | ')));
-    await shot(tester, 'msg-03-finish-found');
-    if (found) await tapKey(tester, deskWaitUseKey);
+    await settle(tester, ms: 3000);
+    record('1 the finish link is not taken by itself in the wait', find.byKey(deskPasteFinishKey).evaluate().isNotEmpty, safe(texts().take(12).join(' | ')));
+    await shot(tester, 'msg-03-finish-wait');
+    await tapKey(tester, deskPasteFinishKey);
     final w1 = await words(tester);
     record('1 the desktop shows four words', w1.length == 4, w1.join(' '));
     send('d-sas1', w1.join(' '));
     await closeCheck(tester);
 
-    // 2. This desktop invites; the phone's reply comes back through the offer.
+    // 2. This desktop invites; the phone's reply comes back by Paste reply.
     c.read(deskNavProvider.notifier).go(DeskRoute.pair);
     await settle(tester, ms: 1500);
     await tapKey(tester, deskPairMessageKey);
@@ -172,10 +173,10 @@ void main() {
     await shot(tester, 'msg-04-invite-wait');
     send('d-invite', invite);
     await copiedInChat(tester, await receive(tester, 'p-reply'));
-    final offered2 = await until(tester, find.byType(DeskPairingClipDialog));
-    record('2 the phone\'s reply is offered', offered2, safe(texts().take(12).join(' | ')));
-    if (offered2) await tapKey(tester, deskClipUseKey);
-    record('2 Use it opens the finish link', await until(tester, find.byKey(deskFinishCopyKey)), safe(texts().take(12).join(' | ')));
+    await settle(tester, ms: 3000);
+    record('2 the phone\'s reply is not taken by itself', find.byKey(deskFinishCopyKey).evaluate().isEmpty, safe(texts().take(12).join(' | ')));
+    await tapKey(tester, deskPairPasteReplyKey);
+    record('2 Paste reply opens the finish link', await until(tester, find.byKey(deskFinishCopyKey)), safe(texts().take(12).join(' | ')));
     await shot(tester, 'msg-05-finish');
     await tapKey(tester, deskFinishCopyKey);
     final finish = await clipboard(tester);
@@ -187,7 +188,7 @@ void main() {
     send('d-sas2', w2.join(' '));
     await closeCheck(tester);
 
-    // 3. In person: this desktop's code link out, the phone's code link offered on the panel.
+    // 3. In person: this desktop's code link out, the phone's code link pasted under Got words or a link?.
     c.read(deskNavProvider.notifier).go(DeskRoute.contacts);
     await settle(tester, ms: 800);
     c.read(deskNavProvider.notifier).go(DeskRoute.pair, DeskPairWay.inPerson);
@@ -197,9 +198,10 @@ void main() {
     record('3 the desktop\'s code copies as a link', card.startsWith('epiccash://contact/'), card.isEmpty ? 'nothing' : 'a contact link');
     send('d-card', card);
     await copiedInChat(tester, await receive(tester, 'p-card'));
-    final offered3 = await until(tester, find.byType(DeskPairingClipDialog));
-    record('3 the phone\'s code link is offered on the In person panel', offered3 && hasText('A pairing code is on the clipboard'), safe(texts().take(12).join(' | ')));
-    if (offered3) await tapKey(tester, deskClipUseKey);
+    await settle(tester, ms: 3000);
+    record('3 the phone\'s code link is not taken by itself', find.byKey(deskPairPasteKey).evaluate().isNotEmpty, safe(texts().take(12).join(' | ')));
+    await tapKey(tester, deskPairPasteKey);
+    await tapKey(tester, deskPairGoKey);
     final w3 = await words(tester);
     record('3 in person: the desktop shows four words', w3.length == 4, w3.join(' '));
     await shot(tester, 'msg-06-in-person-words');

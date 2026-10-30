@@ -58,7 +58,9 @@ void main() {
         epic('1234567.12345678'),
         BigInt.two.pow(53) + BigInt.one,
       ]) {
-        final shown = parseEpic(displayEpic(real).replaceAll(',', ''));
+        // 2^53 + 1 is above the 21 million parseEpic takes, so read the display back by hand.
+        final parts = '${displayEpic(real).replaceAll(',', '')}.'.split('.');
+        final shown = BigInt.parse('${parts[0]}${parts[1].padRight(epicDecimals, '0')}');
         expect(shown <= real, isTrue, reason: formatEpic(real));
         expect(real - shown < BigInt.from(10000), isTrue, reason: formatEpic(real));
       }
@@ -162,10 +164,94 @@ void main() {
         atomic(1),
         atomic(99999999),
         atomic(100000001),
-        BigInt.parse('987654321987654321'),
+        BigInt.parse('1234567812345678'),
+        maxEpicAtomic,
       ]) {
         expect(parseEpic(formatEpic(value)), value);
       }
+    });
+
+    Matcher refused(AmountProblem problem) => throwsA(
+      isA<AmountFormatException>().having((e) => e.problem, 'problem', problem),
+    );
+
+    // WAL-08: a 64-bit int parser turned 184467440738 EPIC into 0.90448384 EPIC.
+    test('a huge amount is refused, never wrapped or cut', () {
+      for (final big in [
+        '184467440738',
+        '184467440738.5',
+        '99999999999999999999',
+        '18446744073709551616',
+        '1${'0' * 400}',
+        '21000001',
+        '100000000',
+      ]) {
+        expect(() => parseEpic(big), refused(AmountProblem.tooLarge), reason: big);
+      }
+    });
+
+    test('the 21 million boundary is exact', () {
+      expect(parseEpic('21000000'), maxEpicAtomic);
+      expect(parseEpic('21000000.00000000'), maxEpicAtomic);
+      expect(parseEpic('020999999.99999999'), maxEpicAtomic - BigInt.one);
+      expect(parseEpic('00000000000000000021000000'), maxEpicAtomic);
+      expect(() => parseEpic('21000000.00000001'), refused(AmountProblem.tooLarge));
+      // Far below 2^53, so the desktop's `toInt()` is exact on the web too.
+      expect(maxEpicAtomic < BigInt.two.pow(53), isTrue);
+    });
+
+    test('8 decimals are exact, 9 are refused, not rounded', () {
+      expect(parseEpic('0.12345678'), atomic(12345678));
+      expect(parseEpic('20999999.99999999'), atomic(2099999999999999));
+      expect(parseEpic('1.10000000'), atomic(110000000));
+      expect(() => parseEpic('0.123456789'), refused(AmountProblem.decimals));
+      expect(() => parseEpic('1.000000000'), refused(AmountProblem.decimals));
+      expect(() => parseEpic('0,999999999'), refused(AmountProblem.decimals));
+    });
+
+    test('garbage, negative and odd separators are refused', () {
+      for (final bad in [
+        '',
+        '   ',
+        '.',
+        ',',
+        '-1',
+        '-0.5',
+        '+1',
+        '−1',
+        '1e8',
+        'Infinity',
+        'NaN',
+        '0x10',
+        '1.2.3',
+        '1,2,3',
+        '1.2,3',
+        "1'000",
+        '1_000',
+        '1 000',
+        '1 000',
+        '１',
+        '١',
+        '1;5',
+        '1..5',
+        'EPIC',
+        '1 EPIC',
+      ]) {
+        expect(() => parseEpic(bad), refused(AmountProblem.malformed), reason: bad);
+      }
+    });
+
+    test('the too-large refusal reads as a field error', () {
+      expect(
+        () => parseEpic('184467440738'),
+        throwsA(
+          isA<LocalizedFormatException>().having(
+            (e) => e.text(englishStrings),
+            'text',
+            'That is more EPIC than will ever exist. Check the amount.',
+          ),
+        ),
+      );
     });
   });
 }

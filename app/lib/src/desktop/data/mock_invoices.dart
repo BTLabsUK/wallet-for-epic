@@ -262,14 +262,7 @@ class InvoiceProto {
       throw const InvoiceError(InvoiceProblem.onItsWay, 'Already on its way: it cannot be cancelled.');
     }
     if (net == ProtoNet.nodeDown) throw const InvoiceError(InvoiceProblem.cannotCheck, 'Cannot check the network now.');
-    _setInv(slateId, (x) => x.state.cancellable || x.state == PayState.delivered ? x.copyWith(state: PayState.cancelled, spendToSelf: true) : x);
-  }
-
-  /// Spends a cancelled payment's coins to the wallet itself: the cancel is final.
-  IncomingInvoice spendToSelf(String slateId) {
-    final i = toPay.firstWhere((x) => x.slateId == slateId && x.spendToSelf, orElse: () => throw const DeskError('Nothing to spend'));
-    _setInv(slateId, (x) => x.copyWith(spendToSelf: false));
-    return i;
+    _setInv(slateId, (x) => x.state.cancellable || x.state == PayState.delivered ? x.copyWith(state: PayState.cancelled) : x);
   }
 
   /// Expiries the wallet's sweep applies.

@@ -12,7 +12,6 @@ import '../../widgets/kit.dart';
 import '../../../models.dart' show KeysChoice, PairingRecord, PairingState, SealMode, contactKinds;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../help/help_content.dart' show HelpId;
-import '../../../pairing_clipboard.dart' show PairingClipTrigger;
 import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
 import '../../data/pairing_state.dart';
 import '../pairing/pair_screens.dart';
@@ -59,15 +58,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   late bool _adding = _args.adding;
   final _query = TextEditingController();
   _Sort _sort = _Sort.name;
-
-  @override
-  void initState() {
-    super.initState();
-    // A pairing link copied in a chat is offered here too (Pairing UX plan 5).
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) deskLookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
-    });
-  }
 
   @override
   void dispose() {

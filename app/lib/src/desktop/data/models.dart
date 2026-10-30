@@ -5,7 +5,8 @@
 library;
 
 import '../../advanced.dart';
-import '../../amount.dart' show cutEpic, displayDecimals, exactDecimals, exactEpic;
+import '../../amount.dart' show AmountFormatException, AmountProblem, cutEpic, displayDecimals, exactDecimals, exactEpic;
+import '../../amount.dart' as shared show parseEpic;
 import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
 import 'package:flutter/foundation.dart';
@@ -27,6 +28,7 @@ import '../../watch_mode.dart' show BlockWait;
 export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
 export '../../relay_directory.dart' show ServerIcon;
 export '../../send_summary.dart' show SendEstimate, SendSummary;
+export '../../amount.dart' show AmountFormatException, AmountProblem;
 
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
@@ -45,30 +47,17 @@ String formatEpic(int nano, {int decimals = displayDecimals, bool trim = true, i
 String formatEpicL(AppLocalizations l, int nano, {int decimals = displayDecimals, bool trim = true, int minDecimals = displayDecimals}) =>
     localDigits(l, formatEpic(nano, decimals: decimals, trim: trim, minDecimals: minDecimals));
 
-/// [parseEpic]'s answer for more than 8 decimals.
-const int epicTooLong = -1;
-
-/// Amount text ("12.5", "12,5") to nanoepic: null when it is not a number, [epicTooLong]
-/// for more than 8 decimals.
-int? parseEpic(String raw) {
-  final s = raw.trim().replaceAll(',', '.');
-  if (s.isEmpty) return null;
-  final m = RegExp(r'^(\d*)(?:\.(\d*))?$').firstMatch(s);
-  if (m == null || (m.group(1)!.isEmpty && (m.group(2) ?? '').isEmpty)) return null;
-  final frac = m.group(2) ?? '';
-  if (frac.length > 8) return epicTooLong;
-  return (int.tryParse(m.group(1)!.isEmpty ? '0' : m.group(1)!) ?? 0) * nanoPerEpic + (int.tryParse(frac.padRight(8, '0')) ?? 0);
-}
-
-/// An amount field's text in [l]'s language to nanoepic, as [parseEpic] answers: cleaned by
-/// [normalizeAmountText] first, so "1.000" in German, where the app shows 1000 so, is refused as
-/// unclear instead of read as 1, and "1,5" is 1.5 everywhere.
+/// An amount field's text in [l]'s language to nanoepic, by the one parser of both apps
+/// (`parseEpic` in amount.dart): cleaned by [normalizeAmountText] first, so "1.000" in German,
+/// where the app shows 1000 so, is refused as unclear instead of read as 1, and "1,5" is 1.5
+/// everywhere. Exact, and at most 21 million EPIC, so the `int` never wraps.
 ///
-/// Throws a [LocalizedFormatException] (its `text(l)` is the field error) for an unclear or
-/// negative amount.
-int? parseEpicIn(AppLocalizations l, String raw) => parseEpic(
+/// Throws a [LocalizedFormatException] (its `text(l)` is the field error) for an empty, unclear,
+/// negative, over-precise or too large amount; the parser's own refusals are
+/// [AmountFormatException]s that name the [AmountProblem].
+int parseEpicIn(AppLocalizations l, String raw) => shared.parseEpic(
   normalizeAmountText(raw, unit: 'EPIC', groupSeparator: NumberFormat.decimalPattern(l.localeName).symbols.GROUP_SEP),
-);
+).toInt();
 
 @immutable
 class Balance {
@@ -296,6 +285,7 @@ class Tx {
     this.fromBackup = false,
     this.cancellable = false,
     this.notPosted = false,
+    this.cancelFinal,
     this.undelivered = false,
     this.confirmedAt,
     this.startedAt,
@@ -421,6 +411,11 @@ class Tx {
   /// outputs locked. It can still be cancelled; the core asks the node first.
   final bool notPosted;
 
+  /// For a cancelled payment the other side could have finished without this wallet (an
+  /// invoice it paid, a send both signed): whether the cancel is final, its coins spent again
+  /// (cancel_final.dart). Null for every other row.
+  final bool? cancelFinal;
+
   /// An Epicbox, HTTP or Tor send no attempt has delivered: [DeskWalletApi.resendTx] sends
   /// it again. Never set for the send being made right now.
   final bool undelivered;
@@ -510,6 +505,7 @@ class Tx {
       fromBackup: fromBackup,
       cancellable: cancellable,
       notPosted: notPosted,
+      cancelFinal: cancelFinal,
       undelivered: undelivered,
       confirmedAt: confirmedAt,
       startedAt: startedAt,
@@ -567,6 +563,7 @@ class Tx {
     fromBackup: fromBackup,
     cancellable: cancellable,
     notPosted: notPosted,
+    cancelFinal: cancelFinal,
     undelivered: undelivered,
     confirmedAt: confirmedAt,
     startedAt: startedAt,
@@ -1170,8 +1167,9 @@ class DeskSettings {
   /// keeps it; empty until the user gave one.
   final String pairingSeenAs;
 
-  /// The pairing links offered once from the clipboard, or copied from this wallet, as their
-  /// hashes (`PairingClipSeen.encode`): never offered again. Never the links themselves.
+  /// Hashes of pairing links the clipboard offer of 26.10.18–26.10.24 showed once. The app no
+  /// longer reads the clipboard by itself, so nothing writes or reads this; the key stays in
+  /// the settings file as older versions wrote it.
   final String pairingClipSeen;
 
   /// Interface scale in percent, one of [deskScales]: text and layout together.

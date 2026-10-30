@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../cancel_final.dart' show CancelResult;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
@@ -224,23 +225,20 @@ class _DeclineDialogState extends ConsumerState<_DeclineDialog> {
   }
 }
 
-/// What a Cancel payment dialog ended with.
-enum _Cancelled { no, cancelled, spent, spendFailed }
-
-/// Cancel payment: always the user's choice; LEPIC asks the node first.
-/// "Spend them to myself now" then spends the unlocked coins to this wallet itself, which makes
-/// the cancel final. [demoConfirm] presses Cancel payment at once (the screenshot tour's error
-/// states).
+/// Cancel payment: always the user's choice; LEPIC asks the node first. The service holds the
+/// signed payment, so the cancel also spends its coins back to this wallet, which makes it
+/// final (cancel_final.dart): one action, no extra step. [demoConfirm] presses Cancel payment
+/// at once (the screenshot tour's error states).
 Future<void> showCancelPaymentDialog(BuildContext context, IncomingInvoice invoice, {bool demoConfirm = false}) async {
-  final done = await showEDialog<_Cancelled>(context, builder: (_) => _CancelDialog(invoice: invoice, demoConfirm: demoConfirm));
-  if (done == null || done == _Cancelled.no || !context.mounted) return;
+  final done = await showEDialog<CancelResult>(context, builder: (_) => _CancelDialog(invoice: invoice, demoConfirm: demoConfirm));
+  if (done == null || !context.mounted) return;
   final l = context.l10n;
   switch (done) {
-    case _Cancelled.spent:
+    case CancelResult.spentBack:
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpentText, tone: ETone.ok);
-    case _Cancelled.spendFailed:
+    case CancelResult.spendBackPending:
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
-    case _Cancelled.cancelled || _Cancelled.no:
+    case CancelResult.cancelled:
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerCancelledText, tone: ETone.ok);
   }
 }
@@ -258,10 +256,6 @@ class _CancelDialog extends ConsumerStatefulWidget {
 class _CancelDialogState extends ConsumerState<_CancelDialog> {
   bool _busy = false;
   String? _error;
-
-  /// Spend the unlocked coins to this wallet right after the cancel; off unless chosen,
-  /// as it costs a fee.
-  bool _spend = false;
 
   /// The node said it is on its way: nothing to cancel.
   bool _final = false;
@@ -283,18 +277,7 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
       _error = null;
     });
     try {
-      final invoices = ref.read(deskInvoicesProvider.notifier);
-      await invoices.cancelPayment(widget.invoice.slateId);
-      var done = _Cancelled.cancelled;
-      if (_spend) {
-        try {
-          await invoices.spendToSelf(widget.invoice.slateId);
-          done = _Cancelled.spent;
-        } on Object {
-          // The cancel stands; the toast says the coins did not move.
-          done = _Cancelled.spendFailed;
-        }
-      }
+      final done = await ref.read(deskInvoicesProvider.notifier).cancelPayment(widget.invoice.slateId);
       if (mounted) Navigator.of(context).pop(done);
     } on InvoiceError catch (e) {
       if (!mounted) return;
@@ -333,14 +316,6 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
           ENotice(tone: ETone.warn, title: l.deskInvPayerCancelText),
           SizedBox(height: Sp.x2),
           DeskCancelNote(anchor: HelpAnchor.requests, inDialog: true),
-          if (!_final) ...[
-            SizedBox(height: Sp.x4),
-            ECheckbox(value: _spend, onChanged: _busy ? (_) {} : (v) => setState(() => _spend = v), label: l.deskInvPayerSpendToSelf),
-            Padding(
-              padding: EdgeInsets.only(left: 28.u, top: Sp.x1),
-              child: Text(l.deskInvPayerSpendToSelfHelp, style: context.ts.small.copyWith(color: context.dc.dim)),
-            ),
-          ],
           if (_error != null) ...[
             SizedBox(height: Sp.x3),
             ENotice(tone: ETone.risk, title: _error!),
@@ -348,9 +323,9 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
         ],
       ),
       actions: _final
-          ? [InvButton(label: l.deskInvPayerClose, onPressed: () => Navigator.of(context).pop(_Cancelled.no))]
+          ? [InvButton(label: l.deskInvPayerClose, onPressed: () => Navigator.of(context).pop())]
           : [
-              InvButton(label: l.deskInvPayerKeepPayment, onPressed: _busy ? null : () => Navigator.of(context).pop(_Cancelled.no)),
+              InvButton(label: l.deskInvPayerKeepPayment, onPressed: _busy ? null : () => Navigator.of(context).pop()),
               InvButton(label: l.deskInvPayerCancelPayment, width: InvW.md, kind: EBtnKind.danger, busy: _busy, onPressed: _busy ? null : _cancel),
             ],
     );

@@ -277,9 +277,9 @@
   "@deskInvPayerCancelTitle": {
     "description": "Title of the cancel payment dialog."
   },
-  "deskInvPayerCancelText": "Cancelling frees the coins here. The service still holds your signed payment, so it could still complete until these coins are spent again.",
+  "deskInvPayerCancelText": "The service holds your signed payment and could still finish it. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.",
   "@deskInvPayerCancelText": {
-    "description": "Cancel payment dialog text (decision D-2): cancelling is local; the signed payment can still complete."
+    "description": "Cancel payment dialog text: the service holds the signed payment. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete."
   },
   "deskInvPayerCancelWho": "{amount} EPIC to {service}",
   "@deskInvPayerCancelWho": {
@@ -317,21 +317,13 @@
   "@deskInvPayerDeclined": {
     "description": "Toast after the user declined an invoice; it leaves To pay at once."
   },
-  "deskInvPayerSpendToSelf": "Send them back to this wallet now",
-  "@deskInvPayerSpendToSelf": {
-    "description": "Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself."
-  },
-  "deskInvPayerSpendToSelfHelp": "Makes the cancel final: the service’s signed copy can no longer complete. Costs a network fee.",
-  "@deskInvPayerSpendToSelfHelp": {
-    "description": "Help under the Spend them to myself now checkbox."
-  },
-  "deskInvPayerSpentText": "The coins are unlocked and moved within this wallet. The cancel is final.",
+  "deskInvPayerSpentText": "The coins are going back to this wallet, so the payment can no longer complete.",
   "@deskInvPayerSpentText": {
-    "description": "Toast text after a cancel whose coins were spent to the wallet itself."
+    "description": "Toast text after a cancel whose coins were spent back to the wallet itself."
   },
-  "deskInvPayerSpendFailedText": "The coins are unlocked, but moving them did not work. The cancel is not final yet.",
+  "deskInvPayerSpendFailedText": "The coins are unlocked, but sending them back did not work yet. The wallet tries again; until then the payment could still complete.",
   "@deskInvPayerSpendFailedText": {
-    "description": "Toast text after a cancel whose spend to the wallet itself failed."
+    "description": "Toast text after a cancel whose spend back to the wallet itself failed; the wallet retries while it is open."
   },
   "deskInvPayerLocked": "This invoice cannot be paid: it is locked until a later block. Nothing was paid.",
   "@deskInvPayerLocked": {

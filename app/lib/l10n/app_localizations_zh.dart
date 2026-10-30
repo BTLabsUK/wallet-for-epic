@@ -5304,7 +5304,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      '取消会在此处解锁你的资金。服务仍持有你签名的付款，因此在这些资金再次花出之前，它仍可能完成。';
+      '服务持有你已签名的付款，仍可能完成它。取消会把币发回这个钱包，需支付少量网络手续费，此后它就永远无法完成。';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5330,17 +5330,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerDeclined => '账单已拒绝。未支付任何款项。';
 
   @override
-  String get deskInvPayerSpendToSelf => '立即转回本钱包';
+  String get deskInvPayerSpentText => '币正在发回这个钱包，因此这笔付款无法再完成。';
 
   @override
-  String get deskInvPayerSpendToSelfHelp =>
-      '使取消成为最终结果：服务方持有的已签名副本将无法完成。需支付网络手续费。';
-
-  @override
-  String get deskInvPayerSpentText => '你的资金已解锁并在此钱包内转移。取消已为最终结果。';
-
-  @override
-  String get deskInvPayerSpendFailedText => '你的资金已解锁，但转移未成功。取消尚未成为最终结果。';
+  String get deskInvPayerSpendFailedText => '币已解锁，但暂时没能发回。钱包会重试；在此之前这笔付款仍可能完成。';
 
   @override
   String get deskInvPayerLocked => '此账单无法支付：它被锁定到较晚的区块。未支付任何款项。';
@@ -13718,6 +13711,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairPasteFinish => '粘贴完成链接';
 
   @override
+  String get pairPasteLink => '粘贴链接';
+
+  @override
   String get pairFinishTitle => '发送完成链接';
 
   @override
@@ -13730,26 +13726,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => '然后一起核对词语。';
-
-  @override
-  String get pairClipTitle => '发现配对链接';
-
-  @override
-  String pairClipInvite(String name) {
-    return '剪贴板中有来自“$name”的邀请。要使用吗？';
-  }
-
-  @override
-  String get pairClipReply => '剪贴板中有对你邀请的回复。要使用吗？';
-
-  @override
-  String get pairClipFinish => '剪贴板中有你配对的完成链接。要使用吗？';
-
-  @override
-  String get pairClipCard => '剪贴板中有配对码。要使用吗？';
-
-  @override
-  String get pairClipUse => '使用';
 
   @override
   String pairAlreadyPaired(String name) {
@@ -15888,7 +15864,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      '对方持有你已签名的付款，在这些币被再次花出之前仍可能将其广播。在这里取消会释放你的币。';
+      '对方持有你已签名的付款，仍可能完成它。取消会把币发回这个钱包，需支付少量网络手续费，此后它就永远无法完成。';
+
+  @override
+  String get txDetailsCancelNotPostedBody =>
+      '两个钱包都已签名，所以它仍可能进入网络。取消会把币发回这个钱包，需支付少量网络手续费，此后就不可能了。';
 
   @override
   String get cancelMoreInHelp => '详见帮助';
@@ -15903,14 +15883,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancelNoteDirectFailed => '接收方没有收到任何内容：取消会释放这些币。';
 
   @override
-  String get cancelNoteRequestPaid => '对方持有你已签名的付款，仍可能将其广播。在这里取消会释放你的币。';
+  String get cancelNoteRequestPaid => '对方持有你已签名的付款。取消会把币发回这个钱包，所以它无法完成。';
 
   @override
   String get cancelNoteRequestWithdraw => '尚未支付任何款项：撤回不会移动任何币。';
 
   @override
+  String get cancelNoteNotPostedSend => '两个钱包都已签名。取消会先检查网络，然后把币发回这个钱包，所以它无法完成。';
+
+  @override
+  String get txDetailsCancelledFinal => '已取消。它的币已回到这个钱包，因此无法再完成。';
+
+  @override
+  String get txDetailsCancelledMayComplete => '已取消，币已解锁。对方仍可能完成它；若完成，会显示为已付款。';
+
+  @override
+  String get txDetailsCancelledSpentBack => '付款已取消。它的币正在发回这个钱包，因此无法再完成。';
+
+  @override
+  String get txDetailsCancelledSpendBackPending => '付款已取消，但它的币尚未发回。钱包会重试。';
+
+  @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '发往 $who 的 $amount EPIC。两个钱包都已签名，但网络尚未接受它。钱包会先询问节点，如果网络已有这笔付款则拒绝；否则锁定的金额会退回余额。';
+    return '发往 $who 的 $amount EPIC。两个钱包都已签名，所以它仍可能进入网络。取消会把币发回这个钱包，需支付少量网络手续费，此后就不可能了。';
   }
 
   @override

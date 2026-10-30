@@ -56,8 +56,9 @@ class TxInvoiceBlock extends ConsumerWidget {
         PayState.stalled => l.deskInvPayerStalledText,
         PayState.posted || PayState.confirming || PayState.completed => l.invoiceDetailsPosted(inv.label),
         PayState.withdrawnAfterPay => l.invoiceDetailsWithdrawn(inv.label),
-        // A cancel is final only once these coins are spent again.
-        PayState.cancelled => l.deskInvPayerCancelText,
+        // Cancel spent the coins back (final), or they are still free and the service could
+        // still finish it (its spend back failed, or a cancel from before).
+        PayState.cancelled => inv.cancelNotFinal ? l.txDetailsCancelledMayComplete : l.txDetailsCancelledFinal,
         _ => payStateWord(context, inv, deskMinConfirmations(ref)).$1,
       };
       actions = [
@@ -68,8 +69,6 @@ class TxInvoiceBlock extends ConsumerWidget {
           InvButton(label: l.deskTxSendAgain, kind: EBtnKind.primary, width: InvW.md, onPressed: () => retryInvoicePayment(context, ref, inv)),
         if (inv.state.cancellable)
           InvButton(label: l.deskInvIssuerCancel, kind: EBtnKind.danger, width: InvW.md, onPressed: () => showCancelInvoicePayment(context, ref, inv)),
-        if (inv.spendToSelf)
-          InvButton(label: l.deskInvPayerSpendToSelf, kind: EBtnKind.primary, width: InvW.lg, onPressed: () => spendCancelledPayment(context, ref, inv)),
       ];
     }
     return Container(

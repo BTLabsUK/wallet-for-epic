@@ -9010,10 +9010,10 @@ abstract class AppLocalizations {
   /// **'Cancel this payment?'**
   String get deskInvPayerCancelTitle;
 
-  /// Cancel payment dialog text (decision D-2): cancelling is local; the signed payment can still complete.
+  /// Cancel payment dialog text: the service holds the signed payment. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete.
   ///
   /// In en, this message translates to:
-  /// **'Cancelling frees the coins here. The service still holds your signed payment, so it could still complete until these coins are spent again.'**
+  /// **'The service holds your signed payment and could still finish it. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.'**
   String get deskInvPayerCancelText;
 
   /// Which payment the cancel dialog is about. amount is formatted.
@@ -9058,28 +9058,16 @@ abstract class AppLocalizations {
   /// **'Invoice declined. Nothing was paid.'**
   String get deskInvPayerDeclined;
 
-  /// Checkbox on the Cancel payment confirm (decision D-2): after the cancel, move the unlocked coins to this wallet itself.
+  /// Toast text after a cancel whose coins were spent back to the wallet itself.
   ///
   /// In en, this message translates to:
-  /// **'Send them back to this wallet now'**
-  String get deskInvPayerSpendToSelf;
-
-  /// Help under the Spend them to myself now checkbox.
-  ///
-  /// In en, this message translates to:
-  /// **'Makes the cancel final: the service’s signed copy can no longer complete. Costs a network fee.'**
-  String get deskInvPayerSpendToSelfHelp;
-
-  /// Toast text after a cancel whose coins were spent to the wallet itself.
-  ///
-  /// In en, this message translates to:
-  /// **'The coins are unlocked and moved within this wallet. The cancel is final.'**
+  /// **'The coins are going back to this wallet, so the payment can no longer complete.'**
   String get deskInvPayerSpentText;
 
-  /// Toast text after a cancel whose spend to the wallet itself failed.
+  /// Toast text after a cancel whose spend back to the wallet itself failed; the wallet retries while it is open.
   ///
   /// In en, this message translates to:
-  /// **'The coins are unlocked, but moving them did not work. The cancel is not final yet.'**
+  /// **'The coins are unlocked, but sending them back did not work yet. The wallet tries again; until then the payment could still complete.'**
   String get deskInvPayerSpendFailedText;
 
   /// Review: the invoice's kernel is locked above the chain's tip (LEPIC refuses it and stores nothing).
@@ -23138,6 +23126,12 @@ abstract class AppLocalizations {
   /// **'Paste finish link'**
   String get pairPasteFinish;
 
+  /// Pair screen button: reads the clipboard once, on press, and opens the pairing link found there (an invite, a reply, a finish link or a code). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste link'**
+  String get pairPasteLink;
+
   /// Inviter, step 3 title (opens by itself once the reply is in)
   ///
   /// In en, this message translates to:
@@ -23161,42 +23155,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Then check the words together.'**
   String get pairFinishThenCheck;
-
-  /// Title of the one-time offer (phone bottom sheet, desktop dialog)
-  ///
-  /// In en, this message translates to:
-  /// **'Pairing link found'**
-  String get pairClipTitle;
-
-  /// Body for an invite (name read from the invite, shown as claimed)
-  ///
-  /// In en, this message translates to:
-  /// **'An invite from “{name}” is on the clipboard. Use it?'**
-  String pairClipInvite(String name);
-
-  /// Body for a reply (offered only while this wallet has an open invite)
-  ///
-  /// In en, this message translates to:
-  /// **'A reply to your invite is on the clipboard. Use it?'**
-  String get pairClipReply;
-
-  /// Body for a finish link (offered only while this wallet waits for one)
-  ///
-  /// In en, this message translates to:
-  /// **'The finish link for your pairing is on the clipboard. Use it?'**
-  String get pairClipFinish;
-
-  /// Body for a card link (desktop face to face; offered only on the Pair screen)
-  ///
-  /// In en, this message translates to:
-  /// **'A pairing code is on the clipboard. Use it?'**
-  String get pairClipCard;
-
-  /// Primary button of the offer (secondary: pairNotNow “Not now”)
-  ///
-  /// In en, this message translates to:
-  /// **'Use it'**
-  String get pairClipUse;
 
   /// Notice when a pasted/found reply or finish link belongs to a pairing that already finished (relay was faster)
   ///
@@ -26516,11 +26474,17 @@ abstract class AppLocalizations {
   /// **'Open the app menu'**
   String get deskBarKeyMenu;
 
-  /// Body of the dialog that asks before cancelling the payment of a request this wallet paid (the issuer finalizes it). Not certain: LEPIC asks the node first.
+  /// Body of the dialog that asks before cancelling the payment of an invoice this wallet paid (the issuer finalizes it). Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete. LEPIC asks the node first.
   ///
   /// In en, this message translates to:
-  /// **'The other side holds your signed payment and could still post it until these coins are spent again. Cancelling frees your coins here.'**
+  /// **'The other side holds your signed payment and could still finish it. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.'**
   String get txDetailsCancelRequestBody;
+
+  /// Body of the dialog that asks before cancelling a send both wallets signed that the node did not take. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete. LEPIC asks the node first.
+  ///
+  /// In en, this message translates to:
+  /// **'Both wallets signed it, so it could still reach the network. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.'**
+  String get txDetailsCancelNotPostedBody;
 
   /// Link after the quiet line beside every Cancel button: opens Help › Cancelling a payment at the matching heading. Short.
   ///
@@ -26546,10 +26510,10 @@ abstract class AppLocalizations {
   /// **'Nothing reached the recipient: cancelling frees the coins.'**
   String get cancelNoteDirectFailed;
 
-  /// Quiet line beside Cancel payment on a request this wallet paid. Not certain.
+  /// Quiet line beside Cancel payment on an invoice this wallet paid. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete.
   ///
   /// In en, this message translates to:
-  /// **'The other side holds your signed payment and could still post it. Cancelling frees your coins here.'**
+  /// **'The other side holds your signed payment. Cancel sends the coins back to this wallet, so it cannot complete.'**
   String get cancelNoteRequestPaid;
 
   /// Quiet line beside Withdraw on a request this wallet sent and nobody paid yet. Certain.
@@ -26558,10 +26522,40 @@ abstract class AppLocalizations {
   /// **'Nothing has been paid: withdrawing moves no coins.'**
   String get cancelNoteRequestWithdraw;
 
-  /// Body of the cancel dialog for a send the node refused (finalized, not posted). Not certain.
+  /// Quiet line beside Cancel on a send both wallets signed that the node did not take. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete.
   ///
   /// In en, this message translates to:
-  /// **'{amount} EPIC to {who}. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.'**
+  /// **'Both wallets signed it. Cancel checks the network, then sends the coins back to this wallet, so it cannot complete.'**
+  String get cancelNoteNotPostedSend;
+
+  /// Payment details, a cancelled payment the other side could have finished (an invoice paid, a send both signed): its coins were spent back to this wallet, so it is final.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. Its coins went back to this wallet, so it can no longer complete.'**
+  String get txDetailsCancelledFinal;
+
+  /// Payment details, a cancelled payment the other side could still finish: its coins were not spent again yet. The wallet keeps watching, and a late completion shows as paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled, and the coins are unlocked. The other side may still finish it; if so, it shows as paid.'**
+  String get txDetailsCancelledMayComplete;
+
+  /// Notice after Cancel of a payment the other side could have finished: its coins are being spent back to this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment cancelled. Its coins are going back to this wallet, so it can no longer complete.'**
+  String get txDetailsCancelledSpentBack;
+
+  /// Notice after Cancel when spending the coins back failed: the wallet retries while it is open; until then the other side could still finish it.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment cancelled, but its coins were not sent back yet. The wallet tries again.'**
+  String get txDetailsCancelledSpendBackPending;
+
+  /// Body of the cancel dialog for a send the node refused (finalized, not posted). Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete. The wallet asks the node first and refuses if the network already has it.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC to {who}. Both wallets signed it, so it could still reach the network. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.'**
   String deskTxCancelNotPostedBody(String amount, String who);
 
   /// Tooltip and screen-reader name of the pen beside the wallet's name on the Create and Restore password steps.

@@ -139,31 +139,6 @@ class MainActivity : FlutterFragmentActivity() {
                 intent = Intent(intent).setData(null)
             }
         }
-        // Pairing links on the clipboard: the clip's time and whether it holds text, read from
-        // its description only, so Android 12+ shows no "pasted from your clipboard" toast. Dart
-        // reads the text itself (Clipboard.getData) once per new clip. The timestamp needs
-        // Android 8 (API 26); before that the time is null.
-        MethodChannel(messenger, "epic_wallet/clipboard")
-            .setMethodCallHandler { call, result ->
-                if (call.method == "clipStamp") {
-                    val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                    val description = try {
-                        clipboard.primaryClipDescription
-                    } catch (e: Exception) {
-                        null
-                    }
-                    if (description == null) {
-                        result.success(mapOf("hasText" to false))
-                    } else {
-                        val text = description.hasMimeType(android.content.ClipDescription.MIMETYPE_TEXT_PLAIN) ||
-                            description.hasMimeType(android.content.ClipDescription.MIMETYPE_TEXT_HTML)
-                        val time = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) description.timestamp else null
-                        result.success(mapOf("hasText" to text, "time" to time))
-                    }
-                } else {
-                    result.notImplemented()
-                }
-            }
         // --- tor binary (epic_wallet/tor) ---
         // The Tor Project's tor ships as lib/<abi>/libtor.so and is extracted at install
         // (useLegacyPackaging): the one place Android lets an app execute a file from.

@@ -5509,7 +5509,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'การยกเลิกจะปลดล็อกเงินในกระเป๋านี้ แต่บริการยังมีรายการที่ลงนามแล้ว จึงอาจยังทำรายการสำเร็จได้จนกว่าเงินนี้จะถูกใช้ไปอีกครั้ง';
+      'บริการถือรายการที่คุณลงนามไว้และยังอาจทำให้เสร็จได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเสร็จได้อีก';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5536,19 +5536,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskInvPayerDeclined => 'ปฏิเสธใบแจ้งหนี้แล้ว ไม่มีการชำระ';
 
   @override
-  String get deskInvPayerSpendToSelf => 'โอนกลับเข้ากระเป๋าเงินนี้ทันที';
-
-  @override
-  String get deskInvPayerSpendToSelfHelp =>
-      'ทำให้การยกเลิกเป็นที่สุด สำเนาที่ลงนามของบริการจะทำรายการสำเร็จไม่ได้อีก มีค่าธรรมเนียมเครือข่าย';
-
-  @override
   String get deskInvPayerSpentText =>
-      'ปลดล็อกเงินและย้ายภายในกระเป๋านี้แล้ว การยกเลิกเป็นที่สุด';
+      'เหรียญกำลังกลับมาที่กระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้อีก';
 
   @override
   String get deskInvPayerSpendFailedText =>
-      'ปลดล็อกเงินแล้ว แต่ย้ายเงินไม่สำเร็จ การยกเลิกยังไม่เป็นที่สุด';
+      'ปลดล็อกเหรียญแล้ว แต่ส่งกลับยังไม่สำเร็จ กระเป๋าเงินจะลองใหม่ ระหว่างนั้นรายการอาจยังเสร็จได้';
 
   @override
   String get deskInvPayerLocked =>
@@ -14222,6 +14215,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairPasteFinish => 'วางลิงก์ปิดท้าย';
 
   @override
+  String get pairPasteLink => 'วางลิงก์';
+
+  @override
   String get pairFinishTitle => 'ส่งลิงก์ปิดท้าย';
 
   @override
@@ -14234,28 +14230,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => 'จากนั้นตรวจคำด้วยกัน';
-
-  @override
-  String get pairClipTitle => 'พบลิงก์จับคู่';
-
-  @override
-  String pairClipInvite(String name) {
-    return 'มีคำเชิญจาก “$name” อยู่ในคลิปบอร์ด ใช้เลยไหม';
-  }
-
-  @override
-  String get pairClipReply =>
-      'มีคำตอบสำหรับคำเชิญของคุณอยู่ในคลิปบอร์ด ใช้เลยไหม';
-
-  @override
-  String get pairClipFinish =>
-      'มีลิงก์ปิดท้ายการจับคู่ของคุณอยู่ในคลิปบอร์ด ใช้เลยไหม';
-
-  @override
-  String get pairClipCard => 'มีโค้ดจับคู่อยู่ในคลิปบอร์ด ใช้เลยไหม';
-
-  @override
-  String get pairClipUse => 'ใช้';
 
   @override
   String pairAlreadyPaired(String name) {
@@ -16486,7 +16460,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'อีกฝ่ายถือรายการที่คุณลงนามไว้และยังอาจส่งเข้าเครือข่ายได้จนกว่าเหรียญเหล่านี้จะถูกใช้อีกครั้ง การยกเลิกจะคืนเหรียญของคุณที่นี่';
+      'อีกฝ่ายถือรายการที่คุณลงนามไว้และยังอาจทำให้เสร็จได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเสร็จได้อีก';
+
+  @override
+  String get txDetailsCancelNotPostedBody =>
+      'ทั้งสองกระเป๋าเงินลงนามแล้ว จึงยังอาจเข้าเครือข่ายได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเข้าได้อีก';
 
   @override
   String get cancelMoreInHelp => 'ดูเพิ่มในช่วยเหลือ';
@@ -16505,15 +16483,35 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'อีกฝ่ายถือรายการที่คุณลงนามไว้และยังอาจส่งเข้าเครือข่ายได้ การยกเลิกจะคืนเหรียญของคุณที่นี่';
+      'อีกฝ่ายถือรายการที่คุณลงนามไว้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้';
 
   @override
   String get cancelNoteRequestWithdraw =>
       'ยังไม่มีการชำระ: การถอนคำขอไม่ย้ายเหรียญใด ๆ';
 
   @override
+  String get cancelNoteNotPostedSend =>
+      'ทั้งสองกระเป๋าเงินลงนามแล้ว การยกเลิกจะตรวจเครือข่าย แล้วส่งเหรียญกลับไปยังกระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้';
+
+  @override
+  String get txDetailsCancelledFinal =>
+      'ยกเลิกแล้ว เหรียญกลับมาที่กระเป๋าเงินนี้แล้ว รายการจึงเสร็จไม่ได้อีก';
+
+  @override
+  String get txDetailsCancelledMayComplete =>
+      'ยกเลิกแล้ว และเหรียญปลดล็อกแล้ว อีกฝ่ายอาจยังทำรายการให้เสร็จได้ ถ้าเสร็จ จะแสดงว่าชำระแล้ว';
+
+  @override
+  String get txDetailsCancelledSpentBack =>
+      'ยกเลิกรายการแล้ว เหรียญกำลังกลับมาที่กระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้อีก';
+
+  @override
+  String get txDetailsCancelledSpendBackPending =>
+      'ยกเลิกรายการแล้ว แต่ยังส่งเหรียญกลับไม่ได้ กระเป๋าเงินจะลองใหม่';
+
+  @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC ถึง $who ทั้งสองกระเป๋าเงินลงนามแล้ว แต่เครือข่ายยังไม่รับรายการ กระเป๋าเงินจะถามโหนดก่อนและปฏิเสธถ้าเครือข่ายมีรายการนี้แล้ว ไม่เช่นนั้นยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ';
+    return '$amount EPIC ถึง $who ทั้งสองกระเป๋าเงินลงนามแล้ว จึงยังอาจเข้าเครือข่ายได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเข้าได้อีก';
   }
 
   @override

@@ -100,7 +100,7 @@
   "deskTxCancelOutgoingTitle": "Anulować tę płatność?",
   "deskTxCancelIncomingBody": "{amount} EPIC od {who} zniknie z twojego salda. Portfel najpierw pyta węzeł i odmawia, jeśli płatność jest już w puli węzła albo w bloku. Jeśli nadawca opublikuje ją później, i tak dotrze.",
   "deskTxCancelOutgoingBody": "{amount} EPIC do {who}. Portfel odbiorcy nie może jej dokończyć bez twojego: zablokowana kwota wraca do salda.",
-  "deskTxCancelNotPostedBody": "{amount} EPIC do {who}. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda.",
+  "deskTxCancelNotPostedBody": "{amount} EPIC do {who}. Oba portfele ją podpisały, więc wciąż mogłaby trafić do sieci. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.",
   "deskTxCancelKeep": "Zostaw",
   "deskTxCancelIncomingAction": "Anuluj płatność",
   "deskTxCancelOutgoingAction": "Anuluj płatność",

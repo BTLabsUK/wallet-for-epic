@@ -76,28 +76,62 @@ String _group(String digits) {
 
 final RegExp _amountPattern = RegExp(r'^(\d*)(?:[.,](\d*))?$');
 
-/// Parses a user-entered EPIC amount into atomic units.
+/// The most EPIC that will ever exist, 21 million, in atomic units. A typed amount above it is a
+/// typo. It also keeps every parsed amount far below 2^53, so `toInt()` is exact on every
+/// platform, the web included.
+final BigInt maxEpicAtomic = BigInt.from(21000000) * atomicPerEpic;
+
+/// What [parseEpic] refused, so a screen can word it its own way.
+enum AmountProblem {
+  /// Nothing typed, or not a plain decimal number ("abc", "1e5", "1.2.3", "-1").
+  malformed,
+
+  /// More than [epicDecimals] decimal places.
+  decimals,
+
+  /// More than [maxEpicAtomic].
+  tooLarge,
+}
+
+/// [parseEpic]'s refusal: a [LocalizedFormatException] that also says which [problem].
+class AmountFormatException extends LocalizedFormatException {
+  AmountFormatException(this.problem, super.text, [super.source]);
+
+  final AmountProblem problem;
+}
+
+/// Parses a user-entered EPIC amount into atomic units, exactly: never rounded, never wrapped.
 ///
-/// Accepts `.` or `,` as the decimal separator and at most [epicDecimals] fractional digits.
-/// Throws a [LocalizedFormatException] for empty, negative, malformed or over-precise input.
+/// The one amount parser of both apps. Accepts ASCII digits with `.` or `,` as the decimal
+/// separator, at most [epicDecimals] fractional digits and at most [maxEpicAtomic]. Spaces,
+/// units and thousands separators are the caller's to clean first (`normalizeAmountText`).
+/// Throws an [AmountFormatException] for empty, negative, malformed, over-precise or too large
+/// input.
 BigInt parseEpic(String input) {
   final text = input.trim();
   final match = _amountPattern.firstMatch(text);
   if (text.isEmpty || match == null) {
-    throw LocalizedFormatException((l) => l.amountEnterExample, input);
+    throw AmountFormatException(AmountProblem.malformed, (l) => l.amountEnterExample, input);
   }
   final whole = match.group(1)!;
   final fraction = match.group(2) ?? '';
   if (whole.isEmpty && fraction.isEmpty) {
-    throw LocalizedFormatException((l) => l.amountEnterExample, input);
+    throw AmountFormatException(AmountProblem.malformed, (l) => l.amountEnterExample, input);
   }
   if (fraction.length > epicDecimals) {
-    throw LocalizedFormatException(
+    throw AmountFormatException(
+      AmountProblem.decimals,
       (l) => l.amountTooManyDecimals(epicDecimals),
       input,
     );
   }
-  final wholePart = whole.isEmpty ? BigInt.zero : BigInt.parse(whole);
-  final fractionPart = BigInt.parse(fraction.padRight(epicDecimals, '0'));
-  return wholePart * atomicPerEpic + fractionPart;
+  final tooLarge = AmountFormatException(AmountProblem.tooLarge, (l) => l.sendAmountTooLarge, input);
+  // 21 million has 8 digits: a longer whole part (leading zeros aside) is too large, without
+  // parsing a pasted wall of digits.
+  final digits = whole.replaceFirst(RegExp('^0+'), '');
+  if (digits.length > 8) throw tooLarge;
+  final wholePart = digits.isEmpty ? BigInt.zero : BigInt.parse(digits);
+  final amount = wholePart * atomicPerEpic + BigInt.parse(fraction.padRight(epicDecimals, '0'));
+  if (amount > maxEpicAtomic) throw tooLarge;
+  return amount;
 }

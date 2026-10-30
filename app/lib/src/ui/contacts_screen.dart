@@ -8,7 +8,6 @@ import '../help/help_content.dart' show HelpId;
 import '../errors.dart';
 import '../l10n.dart';
 import '../tor_build.dart';
-import '../pairing_clipboard.dart' show PairingClipTrigger;
 import '../pairing_providers.dart';
 import '../pairing_text.dart' show sameNamedContact;
 import '../providers.dart';
@@ -22,7 +21,6 @@ import 'help_screen.dart' show openHelp;
 import 'method_names.dart';
 import 'pairing/pair_check.dart' show confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
 import 'pairing/pair_screen.dart';
-import 'pairing/pairing_clip_offer.dart' show lookForPairingLink;
 import 'pairing/pairing_parts.dart';
 import 'pairing/pending_invites.dart';
 import 'scan_screen.dart';
@@ -91,17 +89,6 @@ const int _groupAbove = 8;
 
 class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   final _search = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    // A pairing link copied in a chat is offered here too (Pairing UX plan 5).
-    if (!widget.pick) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) lookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
-      });
-    }
-  }
 
   @override
   void dispose() {

@@ -5682,7 +5682,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'Das Stornieren gibt Ihr Guthaben hier frei. Der Dienst hat Ihre signierte Zahlung noch und könnte sie abschließen, bis dieses Guthaben erneut ausgegeben ist.';
+      'Der Dienst hält Ihre signierte Zahlung und könnte sie noch abschließen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5711,19 +5711,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Rechnung abgelehnt. Es wurde nichts bezahlt.';
 
   @override
-  String get deskInvPayerSpendToSelf => 'Jetzt an diese Wallet zurücksenden';
-
-  @override
-  String get deskInvPayerSpendToSelfHelp =>
-      'Macht die Stornierung endgültig: Die signierte Kopie des Dienstes kann nicht mehr abgeschlossen werden. Kostet eine Netzwerkgebühr.';
-
-  @override
   String get deskInvPayerSpentText =>
-      'Ihr Guthaben ist freigegeben und innerhalb dieser Wallet verschoben. Die Stornierung ist endgültig.';
+      'Die Coins gehen an diese Wallet zurück, die Zahlung kann also nicht mehr abgeschlossen werden.';
 
   @override
   String get deskInvPayerSpendFailedText =>
-      'Ihr Guthaben ist freigegeben, aber das Verschieben hat nicht geklappt. Die Stornierung ist noch nicht endgültig.';
+      'Die Coins sind freigegeben, konnten aber noch nicht zurückgeschickt werden. Die Wallet versucht es erneut; bis dahin könnte die Zahlung noch abgeschlossen werden.';
 
   @override
   String get deskInvPayerLocked =>
@@ -14756,6 +14749,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairPasteFinish => 'Abschlusslink einfügen';
 
   @override
+  String get pairPasteLink => 'Link einfügen';
+
+  @override
   String get pairFinishTitle => 'Abschlusslink senden';
 
   @override
@@ -14768,29 +14764,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => 'Prüfen Sie dann gemeinsam die Wörter.';
-
-  @override
-  String get pairClipTitle => 'Kopplungslink gefunden';
-
-  @override
-  String pairClipInvite(String name) {
-    return 'In der Zwischenablage liegt eine Einladung von „$name“. Verwenden?';
-  }
-
-  @override
-  String get pairClipReply =>
-      'In der Zwischenablage liegt eine Antwort auf Ihre Einladung. Verwenden?';
-
-  @override
-  String get pairClipFinish =>
-      'In der Zwischenablage liegt der Abschlusslink Ihrer Kopplung. Verwenden?';
-
-  @override
-  String get pairClipCard =>
-      'In der Zwischenablage liegt ein Kopplungscode. Verwenden?';
-
-  @override
-  String get pairClipUse => 'Verwenden';
 
   @override
   String pairAlreadyPaired(String name) {
@@ -17073,7 +17046,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'Die andere Seite hält Ihre signierte Zahlung und könnte sie noch senden, bis diese Coins wieder ausgegeben sind. Stornieren gibt Ihre Coins hier frei.';
+      'Die andere Seite hält Ihre signierte Zahlung und könnte sie noch abschließen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
+
+  @override
+  String get txDetailsCancelNotPostedBody =>
+      'Beide Wallets haben signiert, die Zahlung könnte also noch ins Netzwerk gelangen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
 
   @override
   String get cancelMoreInHelp => 'Mehr in der Hilfe';
@@ -17092,15 +17069,35 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'Die andere Seite hält Ihre signierte Zahlung und könnte sie noch senden. Stornieren gibt Ihre Coins hier frei.';
+      'Die andere Seite hält Ihre signierte Zahlung. Stornieren schickt die Coins an diese Wallet zurück, damit sie nicht abgeschlossen werden kann.';
 
   @override
   String get cancelNoteRequestWithdraw =>
       'Nichts wurde bezahlt: Zurückziehen bewegt keine Coins.';
 
   @override
+  String get cancelNoteNotPostedSend =>
+      'Beide Wallets haben signiert. Stornieren prüft das Netzwerk und schickt die Coins dann an diese Wallet zurück, damit die Zahlung nicht abgeschlossen werden kann.';
+
+  @override
+  String get txDetailsCancelledFinal =>
+      'Storniert. Die Coins sind an diese Wallet zurückgegangen, die Zahlung kann also nicht mehr abgeschlossen werden.';
+
+  @override
+  String get txDetailsCancelledMayComplete =>
+      'Storniert, die Coins sind freigegeben. Die andere Seite kann sie noch abschließen; dann erscheint sie als bezahlt.';
+
+  @override
+  String get txDetailsCancelledSpentBack =>
+      'Zahlung storniert. Die Coins gehen an diese Wallet zurück, die Zahlung kann also nicht mehr abgeschlossen werden.';
+
+  @override
+  String get txDetailsCancelledSpendBackPending =>
+      'Zahlung storniert, aber die Coins wurden noch nicht zurückgeschickt. Die Wallet versucht es erneut.';
+
+  @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC an $who. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück.';
+    return '$amount EPIC an $who. Beide Wallets haben signiert, die Zahlung könnte also noch ins Netzwerk gelangen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
   }
 
   @override

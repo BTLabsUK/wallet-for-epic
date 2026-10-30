@@ -4,6 +4,7 @@
 // it) is a toast that leaves the row. The send cancel keeps its words.
 import 'dart:io';
 
+import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
 import 'package:epic_wallet/src/desktop/data/clock.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -26,7 +27,7 @@ class _Desk extends MockDeskWallet {
   final List<int> cancelled = [];
 
   @override
-  Future<void> cancelTx(int id) async {
+  Future<CancelResult> cancelTx(int id) async {
     cancelled.add(id);
     if (refuse) throw const DeskError(cancelRefusedText);
     return super.cancelTx(id);

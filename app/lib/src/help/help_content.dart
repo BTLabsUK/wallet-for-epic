@@ -607,9 +607,10 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Cancelling a payment',
       'When Cancel is certain, when it is not, and what happens to the coins.',
       [
+        const HelpBlock.p('Cancel stops a payment that has not finished. What it can promise depends on one thing: whether the other side already holds your wallet’s signature for the payment. Without it, the payment cannot complete, and Cancel is certain. With it, the other side could still finish the payment, so Cancel also sends the coins back to your own wallet, for a small network fee. Once those coins are spent, the old payment can never complete.'),
         const HelpBlock.h('Sending', anchor: HelpAnchor.sending),
         const HelpBlock.p('A payment you send waits for the other wallet to answer. While it waits, Cancel is certain: nothing can reach the network without your wallet, and the coins are yours again at once. The other wallet may still show the payment as waiting, but it cannot finish it.'),
-        const HelpBlock.p('Once the answer is in, your wallet finishes the payment and posts it to the network in one step. A posted payment cannot be cancelled, undone or refunded; only the recipient can pay it back. If the network refused it, the wallet offers to post it again or to cancel. That cancel asks the network first and goes ahead only when the network does not have the payment.'),
+        const HelpBlock.p('Once the answer is in, your wallet finishes the payment and posts it to the network in one step. A posted payment cannot be cancelled, undone or refunded; only the recipient can pay it back. If the network refused it, the wallet offers to post it again or to cancel. Both wallets have signed it by then, so a copy could still reach the network. That cancel asks the network first, refuses when the network already has the payment, and otherwise sends the coins back to your wallet, for a small network fee.'),
         const HelpBlock.p('A payment that stays unanswered cancels by itself after about a day (1,440 blocks), and the coins are free again. This holds for Epicbox, Link and Direct payments alike: Cancel is certain until the other side’s answer is in your wallet.'),
         HelpBlock.p('**A send looks stuck.** Usually the other wallet is offline. Wait, or cancel it in $cancelPlace and send again; a cancelled payment cannot go through later.'),
         const HelpBlock.h('Receiving', anchor: HelpAnchor.receiving),
@@ -617,10 +618,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('After that, Cancel clears a payment the sender never posted. It is not certain: the wallet asks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
         const HelpBlock.h('Invoices (experimental)', anchor: HelpAnchor.requests),
         const HelpBlock.p('A request you sent holds no coins until it is paid. Withdraw it any time before then: the payer can no longer pay it, and nothing moves. A request nobody pays expires after 24 hours. A request shown as a QR code can be paid once; a second scan is refused, so nothing is paid twice.'),
-        if (phone)
-          const HelpBlock.p('A request you paid is the other way round: the other side holds your signed payment and finishes it. Cancel comes once its time runs out, about a day after you paid, or sooner when the other side withdraws it. Cancelling frees the coins here, but the other side could still post the payment until these coins are spent again.')
-        else
-          const HelpBlock.p('A request you paid is the other way round: the other side holds your signed payment and finishes it. Cancel comes once its time runs out, about a day after you paid, or sooner when the other side withdraws it. Cancelling frees the coins here, but the other side could still post the payment until these coins are spent again. Sending them to yourself, offered with the cancel, makes it final.'),
+        const HelpBlock.p('A request you paid is the other way round: the other side holds your signed payment and finishes it. Cancel comes once its time runs out, about a day after you paid, or sooner when the other side withdraws it. Because the other side could still finish it, Cancel also sends the coins back to your wallet, for a small network fee, and then it can never complete. If that does not work at once, the wallet tries again while it is open; until then the payment may still complete, and if it does, it shows as paid.'),
       ],
       id: HelpId.cancel,
     ),

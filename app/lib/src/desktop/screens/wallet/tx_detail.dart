@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../cancel_final.dart' show CancelResult;
 import '../../../network_gate.dart' show NetGate;
 import '../transfer/finished_payment.dart' show FinishedPaymentActions;
 import 'dart:async';
@@ -128,6 +129,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             deviceEndingLine(l, t.deviceEnding!, t.deviceName ?? '', t.deviceWhy) ?? deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''),
           TxState.cancelled when t.incoming && !t.isInvoice && t.senderCancelled => l.txDetailsSenderCancelled,
           TxState.cancelled when t.incoming && !t.isInvoice => l.txDetailsCancelledIncoming,
+          // One the other side could have finished: final once its coins were spent again.
+          TxState.cancelled when t.cancelFinal == true => l.txDetailsCancelledFinal,
+          TxState.cancelled when t.cancelFinal == false => l.txDetailsCancelledMayComplete,
           TxState.cancelled => l.deskTxNowCancelled,
         };
 
@@ -212,8 +216,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ok = await showCancelTxDialog(context, widget.tx);
     if (ok != true || !mounted) return;
     setState(() => _cancelling = true);
+    final CancelResult result;
     try {
-      await ref.read(deskProvider.notifier).cancelTx(widget.tx.id);
+      result = await ref.read(deskProvider.notifier).cancelTx(widget.tx.id);
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
@@ -229,7 +234,16 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     }
     if (!mounted) return;
     setState(() => _cancelling = false);
-    showEToast(context, context.l10n.deskTxCancelled, tone: ETone.ok);
+    final l = context.l10n;
+    // A send both wallets signed: Cancel also spent its coins back, or will try again.
+    switch (result) {
+      case CancelResult.spentBack:
+        showEToast(context, l.deskTxCancelled, text: l.deskInvPayerSpentText, tone: ETone.ok);
+      case CancelResult.spendBackPending:
+        showEToast(context, l.deskTxCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
+      case CancelResult.cancelled:
+        showEToast(context, l.deskTxCancelled, tone: ETone.ok);
+    }
   }
 
   @override
@@ -614,7 +628,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
               text: t.incoming
                   ? l.txDetailsCancelOffered
                   : t.notPosted
-                  ? l.cancelNoteNotPosted
+                  ? l.cancelNoteNotPostedSend
                   : l.cancelNoteSendWaiting,
               anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending,
             ),

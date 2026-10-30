@@ -6,6 +6,7 @@
 // settings), open a dialog or a folder, write the clipboard, or change what the screen shows.
 // A press that does nothing, or only shows a toast, fails unless [_allowed] says why. A press
 // that reaches an API method the real wallet (LepicDeskWallet) only stubs fails too.
+import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/shots.dart' show DeskShot;
@@ -255,7 +256,7 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<Tx> finalizeText(String text) => _r('finalizeText', () => _m.finalizeText(text));
   @override
-  Future<void> cancelTx(int id) => _r('cancelTx', () => _m.cancelTx(id));
+  Future<CancelResult> cancelTx(int id) => _r('cancelTx', () => _m.cancelTx(id));
   @override
   Future<String> exportProof(int id) => _r('exportProof', () => _m.exportProof(id));
   @override
@@ -369,9 +370,7 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<void> declineInvoice(String slateId) => _r('declineInvoice', () => _m.declineInvoice(slateId));
   @override
-  Future<void> cancelInvoicePayment(String slateId) => _r('cancelInvoicePayment', () => _m.cancelInvoicePayment(slateId));
-  @override
-  Future<SelfSend> spendCancelledToSelf(String slateId) => _r('spendCancelledToSelf', () => _m.spendCancelledToSelf(slateId));
+  Future<CancelResult> cancelInvoicePayment(String slateId) => _r('cancelInvoicePayment', () => _m.cancelInvoicePayment(slateId));
   // Pairing calls go to the pairing API, not through the recorder.
   @override
   PairingApi get pairing => _m.pairing;

@@ -53,6 +53,15 @@ void main() {
         }
       });
 
+      // WAL-20: once the other side holds the signed payment, Cancel also sends the coins back
+      // (one network fee); there is no separate step to offer.
+      test('${platform.name}: says when Cancel sends the coins back, and its fee', () {
+        final all = topic.bodyText;
+        expect(all, contains('Cancel also sends the coins back to your own wallet, for a small network fee'));
+        expect(all, contains('if it does, it shows as paid'));
+        expect(all, isNot(contains('offered with the cancel')));
+      });
+
       test('${platform.name}: the words a stuck user types find it; no jargon', () {
         for (final word in ['cancel', 'stuck', 'refund', 'undo']) {
           expect(helpMatches(topic, helpQueryWords(word)), isTrue, reason: word);
@@ -64,7 +73,7 @@ void main() {
         // The rules: a waiting send is certain, a signed receive is not, a paid request is not.
         expect(all, contains('Cancel is certain'));
         expect(all, contains('It is not certain'));
-        expect(all, contains('could still post the payment'));
+        expect(all, contains('could still finish the payment'));
         expect(all, contains('1,440 blocks'));
       });
     }
