@@ -153,7 +153,7 @@ DEFAULT_SCOPE = {
     "platforms": {p: True for p in PLATFORMS},
     "variants": {v: True for v in VARIANTS},
     "stores": {"play": False},
-    "publish": {"target": "live", "manifests": True, "notes": ""},
+    "publish": {"target": "live", "manifests": True, "notes": "", "github": False},
     "skip": {},
     "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "waive": {}},
 }
@@ -299,6 +299,9 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
         elif not all(scope["variants"].values()):
             errs.append("publish.manifests needs both variants (the manifest names the Tor APK at the top level and the "
                         "-notor APK in its notor section): keep both or set publish.manifests = false")
+    if scope["publish"].get("github") and "publish-source" in scope["skip"]:
+        errs.append("publish.github needs publish-source (it puts the tag on GitHub, where the release is made): "
+                    "do not skip it, or set publish.github = false")
     notes = scope["publish"].get("notes", "")
     if "\t" in notes or "\r" in notes:
         errs.append("publish.notes: no tabs or carriage returns")
@@ -347,6 +350,8 @@ def scope_summary(scope):
         parts.append(f"stores: {', '.join(stores)}")
     if not scope["publish"]["manifests"]:
         parts.append("no update manifests")
+    if scope["publish"].get("github"):
+        parts.append("GitHub release mirror")
     if scope["skip"]:
         parts.append("skip: " + "; ".join(f"{k} ({v})" for k, v in scope["skip"].items()))
     if scope["proof"]["waive"]:

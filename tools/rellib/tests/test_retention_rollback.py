@@ -167,6 +167,25 @@ class RollbackTest(Base):
         eng2 = self.engine(run)
         self.assertEqual(eng2.execute(run.step("rollback-gate"))["status"], "held")
 
+    def test_rollback_refreshes_github_when_the_bad_release_had_it(self):
+        from rellib.cli import Lenient
+        from rellib.config import Pipeline, load_scope
+        pipe = Pipeline.load(os.path.join(REPO, "release/pipeline.toml"))
+        ctx = {"host": Lenient({}, "host"), "path": Lenient({}, "path"), "node": "", "epicbox": "", "rel": REPO}
+        for bad_github, want in ((False, "0"), (True, "1")):
+            root = os.path.join(self.tmp, f"gh-{bad_github}")
+            os.makedirs(root)
+            for v, gh in (("26.10.23", False), ("26.10.24", bad_github)):
+                r = fake_run(root, v, published_at=str(int(time.time())), files=[f"epic-cash-mobile-{v}-arm64-v8a.apk"])
+                r.info["scope"] = load_scope(None, v, only="android", sets=[f"publish.github={str(gh).lower()}"])
+                r.save_info()
+            b, g = rollback.choose(root)
+            run = rollback.make_run(root, pipe, self.hosts, REPO, b, g, False, ctx)
+            by = {x.base: x for x in run.steps}
+            self.assertNotIn("publish-github-release", by)  # the good release's GitHub Release stays as it is
+            self.assertEqual(by["publish-manifests"].env["GITHUB_UPDATE_JSON"], want)
+            self.assertEqual(by["publish-page"].env["REL_GITHUB"], "0")  # the good release had no GitHub Release
+
     def test_rollback_needs_a_kept_previous_release(self):
         with self.assertRaises(ValueError):
             rollback.choose(self.root)

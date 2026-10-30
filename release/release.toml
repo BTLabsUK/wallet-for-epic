@@ -45,6 +45,13 @@ target = "live"
 manifests = true
 # The update notes in the manifest (plain text, no tabs).
 notes = ""
+# Mirror the release on GitHub (BTLabsUK/wallet-for-epic): publish-source also pushes the
+# source and the tag there, publish-github-release makes the GitHub Release with every file, and
+# publish-manifests puts update-v2.json on the latest GitHub Release. BT Labs' server stays the
+# primary source: a failed GitHub copy of update-v2.json is a warning, and a failed GitHub
+# Release is skipped with `tools/rel skip publish-github-release`. Needs gh logged in as
+# btlabs-uk in ~/.config/gh-btlabs (docs/RELEASING.md).
+github = false
 
 # Steps to skip, with the reason. Only steps marked skippable in release/pipeline.toml
 # (publish-page, publish-source, prune-downloads, store uploads, cleanup); builds and gates

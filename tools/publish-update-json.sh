@@ -4,10 +4,11 @@
 # after the release files are on the server (https://docs.btlabs.uk/developers/releases/, Release addresses):
 #   update.json     the old format, for installed apps up to 26.10.23 (file URLs under the old
 #                   download address): BT Labs' download server, and update.json in the Pages
-#                   repository (its GitLab copy, read as the raw file on main, and GitHub Pages);
+#                   repository (its GitLab copy, read as the raw file on main);
 #   update-v2.json  the new format, the only one the current app reads ([updates] manifests of
-#                   app/assets/config/app-config.toml): the server's API file, and update-v2.json
-#                   in the same Pages repository.
+#                   app/assets/config/app-config.toml): the server's API file, update-v2.json
+#                   in the same Pages repository, and with GITHUB_UPDATE_JSON=1 the asset
+#                   update-v2.json of the latest GitHub Release (a mirror; never a gate).
 # Both name the same release and serial (tool/release_android.sh writes and signs both), so every
 # old version still updates to the newest. The apps check every copy against the same keys and
 # use the one with the higher serial. The old format can be retired once no install older than
@@ -20,15 +21,20 @@
 #   UPDATE_DEST_V2    its path for update-v2.json (default /srv/epiccash-api/v1/update.json)
 #   UPDATE_URL        where the server serves update.json (default the old download address)
 #   UPDATE_URL_V2     where it serves update-v2.json (default the first [updates] manifest)
-#   UPDATE_SITE       checkout of the GitHub Pages repository (default ~/code/btlabs-epic.github.io)
+#   UPDATE_SITE       checkout of the Pages repository (default ~/code/btlabs-epic.github.io)
 #   UPDATE_KEYRING    keyring to verify against (default ~/code/btlabs-public/keys/btlabs-keyring.json)
 #   UPDATE_SIGN_TOOL  btlabs_sign.py (default ~/code/btlabs-public/tool/btlabs_sign.py)
 #   UPDATE_GITLAB     GitLab project of the copy (default epic-cash-bt/btlabs-epic.github.io)
 #   GITLAB_TOKEN_FILE its write token (default ~/.config/btlabs/gitlab-token; never printed)
+#   GITHUB_UPDATE_JSON 1: also put update-v2.json on the latest GitHub Release (release.toml
+#                     publish.github sets it; default 0). Through tools/gitlab-release.py
+#                     github-update-json, gh logged in as btlabs-uk in GH_CONFIG_DIR
+#                     (default ~/.config/gh-btlabs). A GitHub failure is a warning only.
+#   GITHUB_RELEASE_REPO its repository (default BTLabsUK/wallet-for-epic)
+#   GITHUB_UPDATE_URL  where GitHub serves it (default .../releases/latest/download/update-v2.json)
 # The GitLab copy is the Pages repository's main, cleaned the same way every time (commit
 # addresses to the noreply address by tools/publish/mailmap, co-author and generated-with trailers dropped), so each run
 # reproduces the published commits and pushes the new one as a fast-forward. Needs git-filter-repo.
-# GitHub gets GitLab's copy through tools/mirror-github.sh.
 set -euo pipefail
 file="${1:?usage: $0 <signed update.json> <signed update-v2.json>}"
 file2="${2:?usage: $0 <signed update.json> <signed update-v2.json>}"
@@ -49,6 +55,8 @@ tool="${UPDATE_SIGN_TOOL:-$HOME/code/btlabs-public/tool/btlabs_sign.py}"
 gitlab="${UPDATE_GITLAB:-epic-cash-bt/btlabs-epic.github.io}"
 token_file="${GITLAB_TOKEN_FILE:-$HOME/.config/btlabs/gitlab-token}"
 kit="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/publish"
+gh_repo="${GITHUB_RELEASE_REPO:-BTLabsUK/wallet-for-epic}"
+gh_url="${GITHUB_UPDATE_URL:-https://github.com/$gh_repo/releases/latest/download/update-v2.json}"
 [[ -r "$token_file" ]] || { echo "no GitLab token at $token_file" >&2; exit 1; }
 
 # update-v2.json's file URLs are checked against [updates] of the app's app-config.toml, as the
@@ -65,7 +73,7 @@ for k in versionName serial; do
     || { echo "$file and $file2 name different releases ($k)" >&2; exit 1; }
 done
 
-# 1. The site repository: commit both files (GitHub gets them from the GitLab copy, last).
+# 1. The site repository: commit both files.
 cp "$file" "$site/update.json"
 cp "$file2" "$site/update-v2.json"
 if [[ -n "$(git -C "$site" status --porcelain update.json update-v2.json)" ]]; then
@@ -92,17 +100,20 @@ scp -q "$file2" "$host:update-v2.json.new"
 ssh "$host" "sudo install -m 0644 -o root -g root update.json.new '$dest' && rm -f update.json.new \
   && sudo install -m 0644 -o root -g root -D update-v2.json.new '$dest2' && rm -f update-v2.json.new"
 
-# 4. GitHub Pages, last: GitHub gets GitLab's copy (the account may be flagged; the other sources
-# carry the release then).
-github=ok
-"$root/tools/mirror-github.sh" btlabs-epic.github.io \
-  || { github=failed; echo "GitHub mirror failed: the apps use the other sources" >&2; }
+# 4. GitHub, last and only when switched on: update-v2.json onto the latest GitHub Release (a
+# mirror: when it fails, the apps use the other sources).
+github=off
+if [[ "${GITHUB_UPDATE_JSON:-0}" == 1 ]]; then
+  github=ok
+  python3 "$root/tools/gitlab-release.py" github-update-json "$file2" --github-repo "$gh_repo" \
+    || { github=failed; echo "warning: update-v2.json not on the GitHub release: the apps use the other sources" >&2; }
+fi
 
-# 5. Read every copy back. GitHub Pages can take a few minutes to serve a push; the GitLab copy
-# is read through the API while the project is private (its raw URL then answers a sign-in page).
+# 5. Read every copy back. The GitLab copy is read through the API while the project is private
+# (its raw URL then answers a sign-in page). GitHub's latest/download link redirects to the file.
 check() { # <url> <sha256>
   local got
-  got="$(curl -fsS --max-time 30 "$1" | sha256sum | cut -d' ' -f1)" || { echo "  $1: not reachable"; return 1; }
+  got="$(curl -fsSL --max-time 30 "$1" | sha256sum | cut -d' ' -f1)" || { echo "  $1: not reachable"; return 1; }
   if [[ "$got" == "$2" ]]; then echo "  $1: ok"; else echo "  $1: differs (not served yet?)"; return 1; fi
 }
 check_gitlab() { # <file name> <sha256>
@@ -116,8 +127,8 @@ check_gitlab() { # <file name> <sha256>
 echo "update.json $version ($sum):"
 check "$url" "$sum"
 check_gitlab update.json "$sum"
-if [[ "$github" == ok ]]; then check https://btlabs-epic.github.io/update.json "$sum" || echo "  (GitHub Pages: check again in a few minutes)"; fi
 echo "update-v2.json $version ($sum2):"
 check "$url2" "$sum2"
 check_gitlab update-v2.json "$sum2"
-if [[ "$github" == ok ]]; then check https://btlabs-epic.github.io/update-v2.json "$sum2" || echo "  (GitHub Pages: check again in a few minutes)"; fi
+if [[ "$github" == ok ]]; then check "$gh_url" "$sum2" || echo "  warning: GitHub does not serve it yet (a mirror, not a gate)"; fi
+if [[ "$github" == failed ]]; then echo "  warning: GitHub copy not published (see above)"; fi
