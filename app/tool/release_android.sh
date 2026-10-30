@@ -18,6 +18,8 @@
 # days) and signs it with btlabs-public's tool when the signing key is on this machine:
 #   BTLABS_PUBLIC       the btlabs-public checkout (default ~/code/btlabs-public)
 #   BTLABS_SIGNING_KEY  the rank-1 key (default ~/.config/btlabs/signing/btlabs-2026-a.key)
+#   BTLABS_SIGNER       instead of the key: tools/signer/btsign_client.py, the release signer
+#                       (docs/RELEASING.md, "Signer"); WFE_SIGNER_JOBS adds client jobs
 # Without them it stops after the payload and prints the signing command.
 #
 # WFE_DESKTOP_RELEASE=1 adds the `desktop` entry the desktop update check reads
@@ -189,8 +191,12 @@ keyring="$btlabs_public/keys/btlabs-keyring.json"
 sign=(python3 "$tool" sign --type update --key "$signing_key" --keyring "$keyring" --payload "$payload" --out "$manifest")
 # update-v2.json's links are checked against [updates] of the app's app-config.toml.
 sign2=(python3 "$tool" sign --type update --app-config "$config" --key "$signing_key" --keyring "$keyring" --payload "$payload2" --out "$manifest2")
-if [[ ! -f "$tool" || ! -f "$keyring" || ! -f "$signing_key" ]]; then
-  echo "Not signed: needs $tool, $keyring and the signing key $signing_key." >&2
+# BTLABS_SIGNER=<tools/signer/btsign_client.py>: the release signer signs both instead of the key
+# here (docs/RELEASING.md, "Signer"), in one request the owner approves with one code; the caller's
+# WFE_SIGNER_JOBS (one client job per line) ride in the same request.
+signer="${BTLABS_SIGNER:-}"
+if [[ ! -f "$tool" || ! -f "$keyring" || ( -z "$signer" && ! -f "$signing_key" ) ]]; then
+  echo "Not signed: needs $tool, $keyring and the signing key $signing_key (or BTLABS_SIGNER)." >&2
   echo "On the signing machine run:" >&2
   printf '  %q' "${sign[@]}" >&2
   echo >&2
@@ -217,8 +223,6 @@ case "$status" in
   404) rm -f "$published"; echo "No update.json published yet: signing without --prev." ;;
   *) echo "Cannot read the published update.json (HTTP ${status:-none}); not signing." >&2; exit 1 ;;
 esac
-"${sign[@]}"
-python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
 published2="$out/update-v2.published.json"
 rm -f "$published2"
 status="$(curl -sS --max-time 20 -o "$published2" -w '%{http_code}' "$manifest2_url" || true)"
@@ -227,7 +231,21 @@ case "$status" in
   404) rm -f "$published2"; echo "No update-v2.json published yet: signing it without --prev." ;;
   *) echo "Cannot read the published update-v2.json (HTTP ${status:-none}); not signing it." >&2; exit 1 ;;
 esac
-"${sign2[@]}"
+if [[ -n "$signer" ]]; then
+  # The signer runs the same btlabs_sign.py (vendored, pinned): the same envelopes, --prev too.
+  j1="update-manifest:payload=$payload,out=$(basename "$manifest")"
+  [[ -f "$published" ]] && j1+=",prev=$published"
+  j2="update-manifest:payload=$payload2,out=$(basename "$manifest2"),app_config=$config"
+  [[ -f "$published2" ]] && j2+=",prev=$published2"
+  jobs=("$j1" "$j2")
+  if [[ -n "${WFE_SIGNER_JOBS:-}" ]]; then mapfile -t -O "${#jobs[@]}" jobs <<<"$WFE_SIGNER_JOBS"; fi
+  rm -f "$manifest" "$manifest2"
+  python3 "$signer" sign --version "$version" --out-dir "$out" --label "Update manifests $version" "${jobs[@]}"
+else
+  "${sign[@]}"
+  "${sign2[@]}"
+fi
+python3 "$tool" verify --type update --keyring "$keyring" --envelope "$manifest"
 python3 "$tool" verify --type update --app-config "$config" --keyring "$keyring" --envelope "$manifest2"
 echo "1. Publish the files it names: $(jq -r '[.apks[].url, .notor.apks[]?.url] | join(" ")' "$payload")"
 echo "2. Then publish both: tools/publish-update-json.sh $manifest $manifest2"

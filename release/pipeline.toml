@@ -106,7 +106,8 @@ reuse_nightly = true
 title = "Android APK ({variant})"
 platform = "android"
 for_each = "variant"
-# Android is signed inside the Gradle build, so it runs where the release key is.
+# Without a signer Android is signed inside the Gradle build, so it runs where the release key
+# is; with one it builds unsigned (tool/build_android_release.sh) and sign-android signs it.
 host = "signer"
 needs = ["source-check"]
 run = "app/tool/build_android_release.sh {stage}"
@@ -133,6 +134,18 @@ env = { WFE_TOR = "{tor}", WFE_DIST = "play" }
 heavy = true
 extras = ["epic-cash-mobile-{version}{notor}-play.aab"]
 timeout = "120m"
+
+# With a signer ([host.signer] endpoint, docs/RELEASING.md "Signer") the builds are unsigned and
+# this signs every Android file of the run (APKs, emulator APKs, the Play bundle) in one request
+# The owner approves with one code; G3 then takes the signed bytes (signed.json). Without one the
+# builds signed themselves and this only checks the certificate. Its own lane: it may wait 30 min.
+[step.sign-android]
+title = "Android signing"
+kind = "builtin"
+host = "local"
+platform = "android"
+lane = "sign"
+needs = ["build-android", "build-play"]
 
 [step.build-linux]
 title = "Linux AppImage ({variant})"
@@ -214,7 +227,7 @@ timeout = "48h"
 title = "G3 artefacts"
 kind = "builtin"
 host = "local"
-needs = ["build-android", "build-linux", "build-windows", "apple-mac-check", "ios-testflight"]
+needs = ["build-android", "sign-android", "build-linux", "build-windows", "apple-mac-check", "ios-testflight"]
 
 [step.manifests]
 title = "Update manifests (signed)"
@@ -247,7 +260,7 @@ platform = "android"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-android-{variant}"
-needs = ["build-android", "build-play", "build-linux"]
+needs = ["build-android", "build-play", "sign-android", "build-linux"]
 proof = true
 timeout = "180m"
 
@@ -257,7 +270,7 @@ platform = "linux"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-linux-{variant}"
-needs = ["build-android", "build-play", "build-linux"]
+needs = ["build-android", "build-play", "sign-android", "build-linux"]
 proof = true
 timeout = "180m"
 
@@ -267,7 +280,7 @@ platform = "windows"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-windows"
-needs = ["build-android", "build-play", "build-linux", "build-windows@variant"]
+needs = ["build-android", "build-play", "sign-android", "build-linux", "build-windows@variant"]
 proof = true
 timeout = "180m"
 
@@ -277,7 +290,7 @@ platform = "macos"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-macos"
-needs = ["build-android", "build-play", "build-linux", "apple-mac-check@variant"]
+needs = ["build-android", "build-play", "sign-android", "build-linux", "apple-mac-check@variant"]
 proof = true
 
 [step.trust-ios]
@@ -286,7 +299,7 @@ platform = "ios"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-ios"
-needs = ["build-android", "build-play", "build-linux", "ios-testflight"]
+needs = ["build-android", "build-play", "sign-android", "build-linux", "ios-testflight"]
 proof = true
 
 [step.update-trust]
