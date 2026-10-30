@@ -182,6 +182,10 @@ const Set<String> localSessionMembers = {
   // Linked devices are the app's own; refused by the client.
   'signWithAddressKey',
   'verifyAddressSignature',
+  // The cold flow (Kill switch) is the wallet's own device's; refused by the client.
+  'finishedPaymentText',
+  'inspectFinished',
+  'postFinished',
 };
 
 /// The largest frame the dispatcher reads, in UTF-8 bytes.
