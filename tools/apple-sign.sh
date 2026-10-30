@@ -18,8 +18,10 @@
 #   macos-app <handoff dir>   sign the macOS app (hardened runtime, timestamp), notarise and staple
 #                             it; writes EpicCashDesktop-<v>-macos-signed.tar.gz for the Mac
 #   macos-dmg <handoff dir> <.dmg>   the .dmg the Mac made: its app must be exactly the signed one;
+#                             (<v> in file names is the version with the variant mark of the
+#                             build without Tor, e.g. 26.10.24 or 26.10.24-notor)
 #                             sign, notarise and staple the .dmg -> the file to publish
-#   ios <handoff dir>         sign Runner.app with the App Store profile -> EpicCashMobile-<v>.ipa
+#   ios <handoff dir>         sign Runner.app with the App Store profile -> EpicCashMobile-<v>-ios.ipa
 #   ios-upload <.ipa>         upload the .ipa to App Store Connect (TestFlight), through the App
 #                             Store Connect API (tools/asc_upload.py)
 #   verify <.app|.dmg|file>   the signature of everything in it: team, hardened runtime, timestamp

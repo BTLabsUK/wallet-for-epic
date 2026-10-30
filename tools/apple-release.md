@@ -118,6 +118,9 @@ Apple silicon, the built-in node fetched by its pinned SHA-256), `doctor`, `sour
 (arm64 macOS and iOS), `macos`, `ipa` (adds the wallet library's privacy manifest), and `handoff`.
 The result is `build-apple/handoff/EpicCash-<version>[-notor]-<commit>/` with:
 
+In file names here, `<v>` is the version with the variant mark: `26.10.24` for the build with
+Tor, `26.10.24-notor` for the build without.
+
 | File | What |
 | --- | --- |
 | `EpicCashDesktop-<v>-macos-unsigned.tar.gz` | The macOS app as built (Xcode's ad-hoc signatures only) |
@@ -139,7 +142,7 @@ shasum -a 256 build-apple/handoff/*/SHA256SUMS
 
 ### The `.dmg` of the signed app
 
-When the signed app comes back (`EpicCashDesktop-<v>[-notor]-macos-signed.tar.gz` with its
+When the signed app comes back (`EpicCashDesktop-<v>-macos-signed.tar.gz` with its
 `SHA256SUMS`):
 
 ```
@@ -175,6 +178,10 @@ A drop folder on our own download server, reached over SFTP only. The account ho
 - Nothing in it is secret (unsigned and signed builds become public anyway); what matters is that
   nobody else can put files there. The hash sent over chat, the `SHA256SUMS` and the file lists in
   `PROVENANCE.txt` catch a changed file in any case.
+
+The release builder sends the account holder an SSH public key made for this (never a private
+key); the account holder sends back the server name, user and folder privately, not in any file
+in the repository.
 
 Any other channel (a shared private folder, a private GitLab project with Git LFS) works the same
 way, since every step checks the hashes.
@@ -254,7 +261,7 @@ RELEASE_COMMIT=<commit> tools/apple-sign.sh macos-dmg <hand-off dir> <.dmg from 
 #  -> apple-signed/<hand-off>/EpicCashDesktop-<v>-macos.dmg (+ .sha256): to the Mac for the
 #     gatekeeper step, then to the download page and update.json as on other platforms
 RELEASE_COMMIT=<commit> tools/apple-sign.sh ios <hand-off dir without Tor>
-tools/apple-sign.sh ios-upload apple-signed/<hand-off>/EpicCashMobile-<v>-notor-ios.ipa
+tools/apple-sign.sh ios-upload apple-signed/<hand-off>/EpicCashMobile-<v>-ios.ipa   # <v> = <version>-notor
 ```
 
 What `macos-app` does: checks the hand-off (hashes, file lists, the bundle id), signs every Mach-O
@@ -282,13 +289,13 @@ Exit status of `apple-sign.sh`: 0 done, 1 a check or a tool failed, 2 usage, 3 A
 ## First signed release: the checklist
 
 1. Dry run passes on the hand-off of the release commit.
-2. Export compliance and the privacy label are decided (`docs/apple-app-store.md`), and the
-   `ITSAppUsesNonExemptEncryption` key is set in `app/ios/Runner/Info.plist` if that was the choice,
-   before the release build.
+2. Export compliance and the privacy label are decided (`docs/apple-app-store.md`). If the
+   choice sets `ITSAppUsesNonExemptEncryption`, the dev team commits it to
+   `app/ios/Runner/Info.plist`, and the release build is made from that commit or a later one.
 3. macOS: `macos-app`, `dmg-signed`, `macos-dmg`, `gatekeeper` all pass; the notarisation log has
    no warnings.
 4. **Update test with a funded wallet**, on the release Mac: install the last ad-hoc preview
-   (26.10.x), open a wallet that holds coins, note the balance; quit; install the signed `.dmg`
+   (26.10.x, the macOS `.dmg` on our download page), open a wallet that holds coins, note the balance; quit; install the signed `.dmg`
    over it (through the in-app update if the preview offers it, else by dragging to Applications).
    Expected: the wallets in `~/.epic_cash_desktop` are all there; the first unlock shows **one**
    macOS keychain prompt ("Epic Cash Desktop wants to use ... in your keychain"), because the
@@ -298,7 +305,8 @@ Exit status of `apple-sign.sh`: 0 done, 1 a check or a tool failed, 2 usage, 3 A
    prompt (this is what every later update looks like).
    If the prompt is denied, the app must not lose anything: it asks again on the next unlock
    (check this; the PIN or password still opens the wallet files).
-5. iOS: install from TestFlight on a real iPhone; restore the review wallet; receive, send a small
+5. iOS: install from TestFlight on a real iPhone; restore the review wallet (the account holder
+   sends its phrase privately, never in a file or the repository); receive, send a small
    amount, scan a QR, Face ID unlock, lock and unlock after a restart. iOS keychain items of the
    unsigned/Simulator builds never existed on a phone, so there is nothing to migrate; from here on
    the access group is fixed by the Team ID.

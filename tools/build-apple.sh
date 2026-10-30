@@ -100,7 +100,7 @@ doctor() {
   local ok=1
   sw_vers || ok=0
   echo "arch: $(uname -m)"
-  xcode-select -p || { echo "no Xcode: install Xcode 26+ and run xcode-select -s" >&2; ok=0; }
+  xcode-select -p || { echo "no Xcode: install Xcode 27 (26 or newer) and run xcode-select -s" >&2; ok=0; }
   xcodebuild -version || ok=0
   echo "macOS SDK: $(xcrun --sdk macosx --show-sdk-path 2>/dev/null || echo missing)"
   echo "iOS Simulator SDK: $(xcrun --sdk iphonesimulator --show-sdk-path 2>/dev/null || echo missing)"
