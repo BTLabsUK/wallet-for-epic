@@ -18,6 +18,7 @@ import 'desk_failover.dart';
 import '../data/node_view.dart';
 import '../data/tor_view.dart' as tor_view;
 import '../data/tor_view.dart' hide isLocalNodeUrl;
+import '../../ui/network_mode_text.dart' show statusOffByModeWord;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
@@ -57,16 +58,17 @@ class RailItem {
   final String open;
   final SettingsJump jump;
 
-  /// The row in Offline mode: neutral, one word, nothing is being checked.
-  RailItem offline(AppLocalizations l) => RailItem(
+  /// The row of a service the network mode turns off: neutral, "Off (Node only)", nothing is
+  /// being checked; a click opens the Network section, not the service's switch.
+  RailItem offByMode(AppLocalizations l, NetworkMode mode) => RailItem(
     icon: icon,
     name: name,
-    word: l.deskRailOffline,
+    word: statusOffByModeWord(l, mode),
     state: EState.off,
-    second: l.deskRailOffline,
-    lines: [l.deskNetOfflineReason],
-    open: open,
-    jump: jump,
+    second: statusOffByModeWord(l, mode),
+    lines: [l.statusOffByModeDetail],
+    open: l.deskRailOpenNetwork,
+    jump: SettingsJump.network,
   );
 }
 
@@ -179,7 +181,10 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       ),
     );
   }
-  return settings.advanced.networkMode.restricted ? [for (final i in items) i.offline(l)] : items;
+  // Node only keeps the node and the Tor that carries it; Epicbox and Link are off. Kill
+  // switch turns every service off.
+  final mode = settings.advanced.networkMode;
+  return mode.restricted ? [for (final i in items) mode == NetworkMode.nodeOnly && i.icon == EIcons.tor ? i : i.offByMode(l, mode)] : items;
 }
 
 /// The Node row from a [NodeView].
@@ -308,8 +313,8 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     }
     var nodeItem = nodeRailItem(l, node);
     final netMode = settings.advanced.networkMode;
-    if (netMode.restricted) {
-      nodeItem = nodeItem.offline(l);
+    if (netMode == NetworkMode.killSwitch) {
+      nodeItem = nodeItem.offByMode(l, netMode);
     } else if (netMode == NetworkMode.torOnly && netTorState(settings, status) != TorState.on && !(prefs.builtin || _localNode(prefs, status))) {
       // Tor only, Tor not up yet: the node waits for it and goes nowhere else.
       nodeItem = RailItem(

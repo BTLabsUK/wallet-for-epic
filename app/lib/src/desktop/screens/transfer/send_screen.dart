@@ -40,7 +40,8 @@ import 'file_panels.dart';
 import 'finalize_screen.dart' show FinalizeArgs;
 import 'import_tx_screen.dart' show ImportArgs;
 import 'send_advanced.dart';
-import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
+import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../data/method_names.dart' show methodKindOf, methodShortLabel;
 import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';
@@ -461,10 +462,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   TorState _torState(DeskState st) => _args.tor ?? deskNetTor(st);
 
-  /// The network mode holds this send: Epicbox in Offline and in Tor only without Tor; Link
-  /// the same, except Offline with a local node, which lets it go to a local address (the
-  /// adapter refuses any other). A file is never held: Offline lets it use the node in use
-  /// ([deskOfflineUsesNode] says so on the screen). A method whose switch is off (Settings ›
+  /// The network mode holds this send: Epicbox and Link in Node only and Kill switch (a Link
+  /// send to a local address too: Node only turns Link off), and in Tor only without Tor. A
+  /// file is never held: Node only lets it use the node in use ([deskOfflineUsesNode] says so
+  /// on the screen), Kill switch makes it without a node. A method whose switch is off (Settings ›
   /// Transactions) holds it too ([NetBlock.methodOff]): a pasted address of that kind picks
   /// the method and the notice says it is off. Until To holds an address, Link is held only
   /// when both its methods are off: the address decides between Link · HTTP and Link · Tor.
@@ -476,7 +477,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ? deskNetBlock(st)
       : deskNetBlock(
           st,
-          nodeOnly: _method == TxMethod.http,
           epicbox: _method == TxMethod.epicbox,
           // An onion in the build without Tor: no method would send it, its own line says so.
           offered: _onionNoTor ||
@@ -1389,11 +1389,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (net != NetBlock.none) {
       return ENotice(
         key: const ValueKey('send-net-blocked'),
-        title: netBlockReason(l, net)!,
+        title: net == NetBlock.killSwitch
+            ? l.netBlockSendKillSwitch
+            : net == NetBlock.nodeOnly
+            ? (_method == TxMethod.epicbox ? l.netBlockEpicboxNodeOnly : l.netBlockLinkNodeOnly)
+            : netBlockReason(l, net)!,
         text: net == NetBlock.waitingForTor ? l.deskNetSendFileHint : null,
         tone: ETone.warn,
         icon: net.byMode ? EIcons.lanOff : EIcons.tor,
-        actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+        actions: [EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))],
       );
     }
     final node = _nodeBlock(st);
@@ -1429,7 +1433,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       // As Receive and Finalize say it: the file reads and posts through the node in use.
       return ENotice(
         key: const ValueKey('file-offline-node'),
-        title: l.advHomeOffline,
+        title: l.advModeNodeOnly,
         text: l.netOfflineNodeHint,
         tone: ETone.info,
         icon: EIcons.info,

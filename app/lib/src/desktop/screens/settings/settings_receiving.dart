@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../advanced.dart' show NetworkMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -311,7 +312,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               icon: EIcons.tor,
               title: l.deskSetTxTorNeedsTor,
               // Offline: Tor never runs there, so no way to turn it on here; the reason instead.
-              text: s.advanced.networkMode.restricted ? l.netBlockOffline : null,
+              text: s.advanced.networkMode == NetworkMode.killSwitch ? l.netBlockKillSwitch : (s.advanced.networkMode.restricted ? l.netBlockNodeOnly : null),
               actions: [
                 if (!s.advanced.networkMode.restricted) ...[
                   EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, onPressed: () => _toggle(TxMethod.tor, true)),

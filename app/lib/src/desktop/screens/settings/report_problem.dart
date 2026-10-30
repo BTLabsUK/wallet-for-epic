@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../ui/network_mode_text.dart' show blockMode, networkModeName;
 import 'dart:async';
 import 'dart:isolate';
 
@@ -281,7 +282,10 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             ],
             if (!canSend) ...[
               SizedBox(height: Sp.x3),
-              ENotice(title: netBlockReason(l, block) ?? l.deskSetReportOff, tone: ETone.warn),
+              ENotice(
+                title: blockMode(block) != null ? l.reportOffMode(networkModeName(l, blockMode(block)!)) : (netBlockReason(l, block) ?? l.deskSetReportOff),
+                tone: ETone.warn,
+              ),
             ],
           ],
         ),

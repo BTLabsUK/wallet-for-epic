@@ -12,5 +12,9 @@
         "example": "12.5"
       }
     }
+  },
+  "deskRailOpenNetwork": "Open Network settings",
+  "@deskRailOpenNetwork": {
+    "description": "Hover card of a status row the network mode turns off: where a click goes."
   }
 }

@@ -77,7 +77,7 @@ class SettingsAdvancedScreen extends ConsumerWidget {
           ),
         ),
         SizedBox(height: Sp.x6),
-        const _NetworkGroup(),
+        const JumpSection(section: SettingsJump.network, child: _NetworkGroup()),
         SizedBox(height: Sp.x6),
         const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
         SizedBox(height: Sp.x6),

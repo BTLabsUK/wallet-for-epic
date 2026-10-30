@@ -209,7 +209,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     final percent = _percent;
     // Offline without a local node, or Tor only without Tor: nothing to recheck against.
     final block = ref.watch(deskNodeBlockProvider);
-    final reason = netBlockReason(l, block);
+    final reason = block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block);
     // The scan a restore owes runs: its progress here, and no second scan.
     final restore = ref.watch(deskProvider.select((s) => s.status?.restoreScan));
     final restoreRuns = !_running && restore?.state == RestoreScanState.running;

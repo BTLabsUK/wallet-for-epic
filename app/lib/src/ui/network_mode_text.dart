@@ -87,6 +87,12 @@ String networkModeMarkLine(AppLocalizations l, NetworkMode m, {bool waitingForTo
 /// "Off (Node only)": the state word of a service the mode turns off.
 String statusOffByModeWord(AppLocalizations l, NetworkMode m) => l.statusOffByMode(networkModeName(l, m));
 
+/// Why a link does not open the system browser now (the mode refuses it: Tor only can't carry
+/// the browser, Node only and Kill switch connect to nothing else); the screen shows the
+/// address to copy beside it.
+String browserOffNote(AppLocalizations l) =>
+    NetGate.torOnly ? l.browserOffTorOnly : l.browserOffMode(networkModeName(l, NetGate.mode));
+
 /// Whether a send waiting for its recipient is paused by switching to [target]: an Epicbox or
 /// Link send waits on a listener that Node only and Kill switch stop.
 bool switchPausesSends(NetworkMode target) => target == NetworkMode.nodeOnly || target == NetworkMode.killSwitch;

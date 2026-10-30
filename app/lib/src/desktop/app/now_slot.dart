@@ -13,7 +13,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../advanced.dart' show NetworkModeRestricted;
 import '../../node/local_node_state.dart' show LocalNodePhase;
 import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeInfoProvider, deskOwnerSecretProvider, deskOwnStatusProvider, NodeHead, nodeClassOf;
 import '../data/desk_update.dart' show DeskUpdatePhase, deskUpdateProvider;
@@ -77,10 +76,8 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   // A line whose screen is open now says what goes on, and takes no click.
   VoidCallback? to(DeskRoute r, [Object? arg]) => r == here ? null : () => go(r, arg);
 
-  // 1. Offline mode: nothing goes out or comes in.
-  if (s.settings.advanced.networkMode.restricted) {
-    items.add(NowItem(id: 'offline', icon: EIcons.offline, tone: ETone.neutral, title: l.deskSlotOffline, hint: here == DeskRoute.settingsAdvanced ? l.deskSlotOfflineDetail : '${l.deskSlotOfflineDetail}\n${l.deskSlotOpenAdvanced}', onTap: to(DeskRoute.settingsAdvanced)));
-  }
+  // 1. The network mode is the title bar's mark, not a line here; only Tor only waiting for
+  //    Tor is an event (the Tor row below says it).
   // 2. A scan: the one a restore owes, or a Recheck balance.
   final scan = status?.restoreScan;
   if (scan != null) {

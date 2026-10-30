@@ -18421,7 +18421,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount EPIC. Kill switch is on, so this computer can’t post it. Save it or show it as a QR code, then post it on a device that is online: Receive › Transaction files › Post a finished payment.';
+    return '$amount is finished. Kill switch is on, so this computer can’t post it. Save it or show it as a QR code, then post it on a device that is online: Receive › Transaction files › Post a finished payment.';
   }
 
   @override
@@ -18458,4 +18458,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get qrScanAimFinished => 'Aim at the code on the other device.';
+
+  @override
+  String get deskRailOpenNetwork => 'Open Network settings';
 }

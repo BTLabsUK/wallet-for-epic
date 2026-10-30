@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../ui/network_mode_text.dart' show blockMode, browserOffNote, networkModeName;
+import '../../../network_gate.dart' show NetDial, NetGate;
 import '../../../app_info.dart';
 import '../../../app_version.dart';
 import '../../../dist_build.dart' show distStore;
@@ -167,6 +169,11 @@ class _LinkRow extends ConsumerWidget {
     final c = context.dc;
     final l = context.l10n;
     Future<void> open() async {
+      // The mode keeps the browser shut: say so, with the address to copy.
+      if (!NetGate.allows(NetDial.browser, '')) {
+        showEToast(context, browserOffNote(l), text: url, tone: ETone.warn);
+        return;
+      }
       if (!await ref.read(deskOpenUrlProvider)(url) && context.mounted) showEToast(context, l.deskSetAboutBrowserNotOpened, text: url, tone: ETone.warn);
     }
 
@@ -248,7 +255,11 @@ class _Updates extends ConsumerWidget {
       rows: [
         ESetRow(
           title: title,
-          text: block == NetBlock.none || u.offered ? text : netBlockReason(l, block),
+          text: block == NetBlock.none || u.offered
+              ? text
+              : blockMode(block) != null
+              ? l.updatesOffMode(networkModeName(l, blockMode(block)!))
+              : netBlockReason(l, block),
           wrap: step != null,
           control: step == null
               ? ERowControl(child: check)

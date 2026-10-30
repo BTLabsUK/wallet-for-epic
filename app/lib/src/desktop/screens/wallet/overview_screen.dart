@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
@@ -194,7 +194,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               )
             : EIconButton(
                 icon: EIcons.refresh,
-                label: netBlockReason(l, netBlock) ?? l.deskOvRefresh,
+                label: netBlock == NetBlock.killSwitch ? l.recheckOffKill : (netBlockReason(l, netBlock) ?? l.deskOvRefresh),
                 onPressed: netBlock == NetBlock.none ? _refresh : null,
               ),
       ],
@@ -404,7 +404,7 @@ class _BalancePanel extends ConsumerWidget {
                         Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500)),
                         if (asOfBlock != null) EBadge(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
-                        if (offline) EBadge(l.deskRailOffline, key: const ValueKey('overview-offline')),
+                        if (offline) EBadge(l.lastKnownCaption, key: const ValueKey('overview-offline')),
                       ],
                     ),
                     SizedBox(height: 6.u),
@@ -412,7 +412,8 @@ class _BalancePanel extends ConsumerWidget {
                     SizedBox(height: 6.u),
                     if (empty)
                       Text(l.deskOvEmptyHint, style: ts.bodyDim)
-                    else if (DeskFeatures.fiatPrice && b != null)
+                    // Price is off in Node only and Kill switch: the figure is hidden, never stale.
+                    else if (DeskFeatures.fiatPrice && b != null && !NetGate.restricted)
                       Text.rich(
                         TextSpan(
                           children: [

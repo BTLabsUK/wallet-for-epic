@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/method_names.dart';
 import '../../../network.dart' show EpicboxRelay;
-import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../app/tour.dart';
@@ -18,7 +18,9 @@ import '../../widgets/kit.dart';
 import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
-import '../settings/settings_advanced.dart' show openAdvanced;
+import 'finished_payment.dart' show showPostFinished;
+import '../../../ui/network_mode_text.dart' show networkModeName, statusOffByModeWord;
+import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../../../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 
@@ -294,14 +296,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget _netNotice(NetBlock net) {
     final l = context.l10n;
     final offline = net.byMode;
+    final modeName = networkModeName(l, deskNetMode(ref.read(deskProvider)));
     return ENotice(
       key: const ValueKey('rx-net-blocked'),
-      // Waiting for Tor is in progress (blue ⓘ); Offline is the mode's hold.
+      // Waiting for Tor is in progress (blue ⓘ); Node only and Kill switch are the mode's hold.
       tone: offline ? ETone.warn : ETone.info,
       icon: offline ? EIcons.lanOff : null,
-      title: netBlockReason(l, net)!,
-      text: offline ? l.deskNetRecvOfflineText : l.deskNetRecvWaitTorText,
-      actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+      title: offline ? l.receiveEpicboxOffMode(modeName) : netBlockReason(l, net)!,
+      text: offline ? l.receiveEpicboxOffModeBody(modeName) : l.deskNetRecvWaitTorText,
+      actions: [EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))],
     );
   }
 
@@ -352,7 +355,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         m: status == null
             ? null
             : offline
-            ? MethodLine(l.deskRailOffline, EState.off)
+            ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off)
             : methodStateLine(l, m, status, st.settings),
     };
     String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
@@ -415,7 +418,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final line = status == null
         ? null
         : net.byMode
-        ? MethodLine(l.deskRailOffline, EState.off, detail: l.deskNetCantReceive)
+        ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off, detail: l.statusOffByModeDetail)
         : methodStateLine(context.l10n, m, status, st.settings);
     final health = net.byMode ? null : status?.epicboxHealth;
     final tag = !on
@@ -641,6 +644,19 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             title: l.deskRecvFinalizeTitle,
             text: l.deskRecvFinalizeText,
             control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
+          ),
+          Divider(height: 1, thickness: 1, color: c.line),
+          ESetRow(
+            key: const ValueKey('rx-post-finished'),
+            title: l.postFinishedDeskRow,
+            text: NetGate.killSwitch ? l.postFinishedOffKill : l.postFinishedDeskRowText,
+            control: EButton(
+              key: const ValueKey('rx-post-finished-open'),
+              label: l.postFinishedOpen,
+              icon: EIcons.fileUp,
+              size: EBtnSize.sm,
+              onPressed: NetGate.killSwitch ? null : () => showPostFinished(context),
+            ),
           ),
           if (offlineNode) ...[
             Divider(height: 1, thickness: 1, color: c.line),
