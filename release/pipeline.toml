@@ -141,74 +141,42 @@ env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}" }
 outputs = ["epic-cash-desktop-{version}{notor}-windows-x64-setup.exe"]
 timeout = "150m"
 
-# Apple: the Mac builds unsigned and never holds a key (tools/apple-release.md); the signer
-# signs and notarises on Linux. Hand-off steps write a job for the Mac and wait for its results.
-[step.apple-build]
-title = "Apple unsigned build ({variant})"
+# Apple (tools/apple-release.md): the Mac builds, signs with Developer ID, notarises and staples
+# (Xcode's automatic signing). Hand-off steps write a job for the Mac and wait for its results;
+# Linux then checks the Mac's report before anything can ship. tools/apple-sign.sh (signing on
+# Linux) is the backup route only, not in this graph.
+[step.apple-mac]
+title = "macOS signed + notarised dmg ({variant})"
 kind = "handoff"
-platform = ["macos", "ios"]
+platform = "macos"
 for_each = "variant"
 host = "apple"
 needs = ["source-check"]
-run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} tools/build-apple.sh release"
-results = ["SHA256SUMS", "PROVENANCE.txt"]
+run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/mac-release/EpicCashDesktop-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
+results = ["EpicCashDesktop-{version}{notor}-macos.dmg", "EpicCashDesktop-{version}{notor}-macos.dmg.sha256", "EpicCashDesktop-{version}{notor}-macos.REPORT.txt"]
 timeout = "48h"
 
-[step.apple-check]
-title = "Apple hand-off check ({variant})"
-platform = ["macos", "ios"]
-for_each = "variant"
-host = "signer"
-needs = ["apple-build@variant"]
-run = "tools/apple-sign.sh check {run}/handoff/apple-build-{variant}/results"
-
-[step.apple-sign]
-title = "Apple sign + notarise ({variant})"
-platform = ["macos", "ios"]
-for_each = "variant"
-host = "signer"
-needs = ["apple-check@variant"]
-run = "APPLE_SIGN_OUT={stage} tools/apple-sign.sh macos-app {run}/handoff/apple-build-{variant}/results && APPLE_SIGN_OUT={stage} tools/apple-sign.sh ios {run}/handoff/apple-build-{variant}/results"
-
-[step.apple-dmg]
-title = "Apple dmg of the signed app ({variant})"
-kind = "handoff"
+[step.apple-mac-check]
+title = "macOS dmg check: sha256, commit, Team ID, Gatekeeper ({variant})"
 platform = "macos"
 for_each = "variant"
-host = "apple"
-needs = ["apple-sign@variant"]
-run = "tools/build-apple.sh dmg-signed job/EpicCashDesktop-{version}{notor}-macos-signed.tar.gz"
-send = ["{run}/steps/apple-sign-{variant}/out"]
-results = ["EpicCashDesktop-{version}{notor}-macos.dmg"]
-
-[step.apple-sign-dmg]
-title = "Apple sign + notarise dmg ({variant})"
-platform = "macos"
-for_each = "variant"
-host = "signer"
-needs = ["apple-dmg@variant"]
-run = "APPLE_SIGN_OUT={stage} tools/apple-sign.sh macos-dmg {run}/handoff/apple-build-{variant}/results {run}/handoff/apple-dmg-{variant}/results/EpicCashDesktop-{version}{notor}-macos.dmg"
+host = "local"
+needs = ["apple-mac@variant"]
+run = "{rel}/tools/rellib/steps/apple-mac-check.sh {run}/handoff/apple-mac-{variant}/results EpicCashDesktop-{version}{notor}-macos.dmg {commit} \"{host.apple.team_id}\" {stage}"
 outputs = ["EpicCashDesktop-{version}{notor}-macos.dmg"]
 
-[step.apple-ipa]
-title = "iOS signed ipa ({variant})"
-platform = "ios"
-for_each = "variant"
-host = "signer"
-needs = ["apple-sign@variant"]
-run = "cp {run}/steps/apple-sign-{variant}/out/EpicCashMobile-{version}{notor}-ios.ipa {stage}/"
-outputs = ["EpicCashMobile-{version}{notor}-ios.ipa"]
-
-[step.apple-gatekeeper]
-title = "Gatekeeper on the final dmg ({variant})"
+# iOS goes to TestFlight from Xcode (Archive → Distribute → App Store Connect): nothing is
+# published from here. Only the build without Tor. The builder writes REPORT.txt by hand (the
+# build number and "uploaded").
+[step.ios-testflight]
+title = "iOS to TestFlight"
 kind = "handoff"
-platform = "macos"
-for_each = "variant"
+platform = "ios"
 host = "apple"
-needs = ["apple-sign-dmg@variant"]
-run = "tools/build-apple.sh gatekeeper job/EpicCashDesktop-{version}{notor}-macos.dmg"
-send = ["{run}/steps/apple-sign-dmg-{variant}/out"]
-results = ["results.txt"]
+needs = ["source-check"]
+run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR=0 tools/build-apple.sh ios-prepare  # then Xcode Archive → Distribute → App Store Connect; results/REPORT.txt: build number + uploaded"
+results = ["REPORT.txt"]
+timeout = "48h"
 
 # ---- G3, manifests, G4, G5 -------------------------------------------------------------------
 
@@ -216,7 +184,7 @@ results = ["results.txt"]
 title = "G3 artefacts"
 kind = "builtin"
 host = "local"
-needs = ["build-android", "build-linux", "build-windows", "apple-sign-dmg", "apple-ipa", "apple-gatekeeper"]
+needs = ["build-android", "build-linux", "build-windows", "apple-mac-check", "ios-testflight"]
 
 [step.manifests]
 title = "Update manifests (signed)"
