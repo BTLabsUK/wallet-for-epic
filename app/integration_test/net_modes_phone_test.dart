@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/secret_store.dart' show MemoryBiometricStore;
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/settings_file/settings_platform_io.dart' show settingsFolder;
 import 'package:epic_wallet/src/settings_file/settings_providers.dart' show openAppSettings;
@@ -49,7 +50,7 @@ List<String> texts() => [
 Future<void> pumpUntil(WidgetTester tester, bool Function() done, {Duration timeout = const Duration(seconds: 90), String what = ''}) async {
   final end = DateTime.now().add(timeout);
   while (!done()) {
-    if (DateTime.now().isAfter(end)) throw TestFailure('timeout waiting for $what');
+    if (DateTime.now().isAfter(end)) throw TestFailure('timeout waiting for $what; on screen: ${texts().take(25).join(' | ')}');
     await settle(tester, ms: 250);
   }
 }
@@ -92,7 +93,10 @@ void main() {
     record('the app starts in the saved mode', NetGate.killSwitch, 'gate ${NetGate.mode.name}');
     await tester.pumpWidget(ProviderScope(
       retry: (_, _) => null,
-      overrides: [updatePlatformProvider.overrideWithValue(null)],
+      overrides: [
+        biometricStoreProvider.overrideWithValue(MemoryBiometricStore(available: false)),
+        updatePlatformProvider.overrideWithValue(null),
+      ],
       child: const WalletApp(),
     ));
     await settle(tester, ms: 1500);
