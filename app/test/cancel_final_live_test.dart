@@ -265,10 +265,12 @@ void main() {
       final s = await sum(a);
       final added = (await a.transactions(refresh: true)).where((r) => !keysBefore.contains(r.key)).toList();
       log('$tag e: A ${line(s)}; new rows ${added.map(row).join('; ')}');
-      // LEPIC shows a send to itself as two rows: the sent half with the fee, the received half.
+      // LEPIC shows a send to itself as two rows: the sent half with the fee (and, for several
+      // outputs, all but one of them as its change), the received half with the last output.
       expect(added, hasLength(2), reason: 'the spend back\'s two halves');
       final back = added.singleWhere(_out);
-      expect(added.singleWhere((r) => !_out(r)).amountCredited, back.amountDebited - (back.fee ?? BigInt.zero));
+      final received = added.singleWhere((r) => !_out(r));
+      expect(back.amountCredited + received.amountCredited, back.amountDebited - (back.fee ?? BigInt.zero));
       final fee = back.fee;
       log('$tag e: spend back fee ${fee == null ? '-' : epic(fee)}');
       expect(fee, isNotNull);
