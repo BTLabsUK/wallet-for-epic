@@ -1,5 +1,5 @@
 // Epic Cash releases page: the theme toggle, copy buttons for checksums and commands, and the
-// platform the browser reports (its card first; Other platforms puts every card back). All of
+// platform the browser reports (the hero's button and its card first; a tile picks another). All of
 // it is a nicety: without this file every download is still a link and every fold a <details>.
 // Nothing is fetched, nothing is tracked. The changelog and restore pages share the toggle.
 (function () {
@@ -84,45 +84,78 @@
     return ''; // Chrome OS, unknown: the neutral layout
   }
 
-  var mine = document.getElementById('mine'), mineText = document.getElementById('mine-text');
-  var other = document.getElementById('other');
+  var $ = function (id) { return document.getElementById(id); };
+  var heroDl = $('hero-dl'), heroText = $('hero-dl-text'), heroSub = $('hero-dl-sub'), heroIco = $('hero-dl-ico');
+  var heroBefore = $('hero-before');
+  var availMine = $('avail-mine'), availRest = $('avail-rest'), availBack = $('avail-back');
   var cards = document.querySelectorAll('.card[data-plat]');
+  var tiles = document.querySelectorAll('.tile[data-tile]');
+  var detected = platform(), detectedName = '';
 
+  function nameOf(card) { return card.querySelector('h3').firstChild.textContent.trim(); }
+  function join(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+  // "Windows and Android; macOS and iOS preview": every platform but key
+  function rest(key) {
+    var norm = [], prev = [];
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i];
+      if (t.getAttribute('data-tile') === key) continue;
+      (t.querySelector('.t-note') ? prev : norm).push(t.querySelector('.t-name').textContent);
+    }
+    var s = join(norm);
+    if (prev.length) s += (s ? '; ' : '') + join(prev) + ' preview';
+    return s;
+  }
+
+  // The hero's button downloads key's primary file, Before you install leads to key's fold (open),
+  // key's card goes first and wide, key's tile is marked.
   function pick(key) {
     var card = key && document.getElementById('dl-' + key);
-    if (!card) { neutral(); return; }
+    if (!card) return;
     for (var i = 0; i < cards.length; i++) cards[i].classList.toggle('is-mine', cards[i] === card);
     var before = document.querySelectorAll('details[data-before]');
     for (var j = 0; j < before.length; j++) before[j].open = before[j].getAttribute('data-before') === key;
-    root.setAttribute('data-plat', key);
-    var name = card.querySelector('h3').firstChild.textContent.trim();
-    var app = card.querySelector('.app').textContent;
-    if (mineText) {
-      mineText.textContent = '';
-      var b = document.createElement('b');
-      b.textContent = app + ' for ' + name;
-      mineText.appendChild(document.createTextNode('This browser reports ' + name + ': '));
-      mineText.appendChild(b);
-      mineText.appendChild(document.createTextNode(' is first.'));
+    for (var k = 0; k < tiles.length; k++) {
+      var on = tiles[k].getAttribute('data-tile') === key;
+      tiles[k].classList.toggle('is-mine', on);
+      if (on) tiles[k].setAttribute('aria-current', 'true'); else tiles[k].removeAttribute('aria-current');
     }
-    if (other) other.textContent = 'Other platforms';
-    if (mine) mine.hidden = false;
-  }
-  function neutral() {
-    root.removeAttribute('data-plat');
-    for (var i = 0; i < cards.length; i++) cards[i].classList.remove('is-mine');
-    var before = document.querySelectorAll('details[data-before]');
-    for (var j = 0; j < before.length; j++) before[j].open = false;
-    if (mineText) mineText.textContent = 'Every platform, in one list.';
-    if (other && detected) other.textContent = 'Back to ' + detectedName;
+    root.setAttribute('data-plat', key);
+    var name = nameOf(card), app = card.querySelector('.app').textContent;
+    var btn = card.querySelector('.btn.primary');
+    if (heroDl && btn) {
+      heroDl.href = btn.getAttribute('href');
+      heroDl.setAttribute('download', '');
+      heroText.textContent = 'Download for ' + name;
+      var parts = btn.querySelector('small').textContent.split(' · ');
+      heroSub.textContent = app + ' · ' + parts[0] + ' · ' + parts[1] + (card.querySelector('h3 .pill') ? ' · Preview' : '');
+      heroSub.hidden = false;
+      var ico = card.querySelector('.ico svg');
+      if (ico && heroIco) { heroIco.textContent = ''; heroIco.appendChild(ico.cloneNode(true)); }
+    }
+    if (heroBefore) heroBefore.href = '#before-' + key;
+    if (availMine) availMine.textContent = detected ? 'This browser reports ' + detectedName + '.' : '';
+    if (availRest) availRest.textContent = 'Also for ' + rest(key) + '.';
+    if (availBack) {
+      availBack.textContent = '';
+      if (detected && key !== detected) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'link'; b.textContent = 'Back to ' + detectedName;
+        b.addEventListener('click', function () { pick(detected); heroDl.focus(); });
+        availBack.appendChild(b);
+      }
+    }
   }
 
-  var detected = platform(), detectedName = '';
   if (detected && document.getElementById('dl-' + detected)) {
-    detectedName = document.getElementById('dl-' + detected).querySelector('h3').firstChild.textContent.trim();
+    detectedName = nameOf(document.getElementById('dl-' + detected));
     pick(detected);
-    if (other) other.addEventListener('click', function () {
-      if (root.hasAttribute('data-plat')) neutral(); else pick(detected);
-    });
   }
+  for (var t = 0; t < tiles.length; t++) {
+    tiles[t].addEventListener('click', function () { pick(this.getAttribute('data-tile')); });
+  }
+  if (heroBefore) heroBefore.addEventListener('click', function () {
+    var d = document.getElementById(heroBefore.getAttribute('href').slice(1));
+    if (d && d.tagName === 'DETAILS') d.open = true;
+  });
 })();
