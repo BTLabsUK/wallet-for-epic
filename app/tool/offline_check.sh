@@ -178,7 +178,7 @@ timeout 2400 sudo ip netns exec "$NS" setpriv --reuid="$uid" --regid="$gid" --in
     PUB_CACHE="${PUB_CACHE:-/home/$USER/.pub-cache}" TMPDIR="$run" TMPDIR="$run" \
     ANDROID_HOME="${ANDROID_HOME:-}" JAVA_HOME="${JAVA_HOME:-}" \
     FLUTTER_SUPPRESS_ANALYTICS=true CI=1 \
-    OFFLINE_EMPTY_LISTS="${OFFLINE_EMPTY_LISTS:-}" NET_MODE="${NET_MODE:-}" NET_NODE="${NET_NODE:-}" OFFLINE_ONLINE="$ONLINE" RC_SHOTS="$OUT/shots/offline" RC_HOME="$home" OFFLINE_NET_DIR="$([ "$RESTORE" = 1 ] && echo "$run/net")" \
+    OFFLINE_EMPTY_LISTS="${OFFLINE_EMPTY_LISTS:-}" NET_MODE="${NET_MODE:-}" NET_NODE="${NET_NODE:-}" NET_TOR="${NET_TOR:-}" NET_TOR_BUNDLE="${NET_TOR_BUNDLE:-}" OFFLINE_ONLINE="$ONLINE" RC_SHOTS="$OUT/shots/offline" RC_HOME="$home" OFFLINE_NET_DIR="$([ "$RESTORE" = 1 ] && echo "$run/net")" \
   xvfb-run -a -s "-screen 0 1600x1000x24" dbus-run-session -- bash -c '
     printf "%s" "throwaway-$$" | gnome-keyring-daemon --unlock --components=secrets >/dev/null 2>&1
     if [ -n "$1" ]; then

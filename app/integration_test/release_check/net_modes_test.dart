@@ -10,6 +10,8 @@
 //   NET_MODE=kill_switch|node_only|tor_only   the mode written before the first start
 //   NET_NODE=https://host[:port]              Node only: the one node in the list
 //   NET_IDLE_S=90                             how long Overview runs
+//   NET_TOR_BUNDLE=<dir>                      tools/fetch-tor.sh linux output, copied beside the
+//                                             test build's executable (bin/tor-bundle)
 //   NET_TOR=1                                 the Tor switch turned on once the wallet is open
 //                                             (Node only: tor carries the node and must publish
 //                                             no onion; the trace shows ADD_ONION and listen())
@@ -85,6 +87,14 @@ void main() {
       final nodes = node.isEmpty ? '' : '[node]\nservers = ["$node"]\n\n';
       await f.writeAsString('$nodes[network]\nmode = "$mode"\n');
     });
+    final torSrc = Platform.environment['NET_TOR_BUNDLE'] ?? '';
+    if (torSrc.isNotEmpty) {
+      final dest = '${File(Platform.resolvedExecutable).parent.path}/bin/tor-bundle';
+      await tester.runAsync(() async {
+        await Directory(dest).create(recursive: true);
+        await Process.run('cp', ['-a', '$torSrc/.', dest]);
+      });
+    }
     final password = randomPassword();
     await boot(tester);
     await settle(tester, ms: 3000);
