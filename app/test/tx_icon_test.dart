@@ -698,25 +698,6 @@ void main() {
       );
     });
   });
-
-  group('plain HTTP marker (WAL-02)', () {
-    testWidgets('a send over plain HTTP carries "Plain HTTP" in its status line; others do not', (tester) async {
-      final unsafe = fakeTx(
-        slateId: 'unsafe',
-        kind: TxKind.sent,
-        status: TxStatus.confirmed,
-        amountDebited: BigInt.from(250000000),
-        counterparty: 'http://10.0.1.24:3415',
-        unsafeSend: true,
-      );
-      await _pumpRow(tester, TxTile(tx: unsafe), still: true);
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Plain HTTP', findRichText: true), findsOneWidget);
-      await _pumpRow(tester, TxTile(tx: _payment(TxPhase.waitingRecipient)), still: true);
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Plain HTTP', findRichText: true), findsNothing);
-    });
-  });
 }
 
 /// A canvas that keeps the paths and halos drawn on it.

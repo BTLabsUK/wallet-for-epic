@@ -8085,67 +8085,19 @@ abstract class AppLocalizations {
   /// Dialog text before a send over plain http to another device.
   ///
   /// In en, this message translates to:
-  /// **'Plain HTTP to another device. Anyone on the network path can receive this payment instead of the recipient. An https://, onion or Epicbox address is safe from that.'**
+  /// **'Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.'**
   String get sendPlainHttpBody;
 
   /// Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent.
   ///
   /// In en, this message translates to:
-  /// **'Plain http:// is off while Tor is on: a Tor exit could receive this payment instead of the recipient. Use https://, an onion or Epicbox, or turn Tor off.'**
+  /// **'Plain HTTP is off while Tor is on.'**
   String get sendPlainHttpOffWithTor;
-
-  /// Send: title of the dialog offered before a plain http:// send when the contact also has an Epicbox, onion or https address.
-  ///
-  /// In en, this message translates to:
-  /// **'Safer address available'**
-  String get sendSaferRouteTitle;
-
-  /// Send: the plain http:// address belongs to a contact who also has a safer address, which the payment uses instead. {method} is that method's name (Epicbox, Tor, HTTPS), {name} the contact.
-  ///
-  /// In en, this message translates to:
-  /// **'Over plain HTTP, anyone on the network path could receive this payment instead of {name}. {name} also has {method}, which is safe from that.'**
-  String sendSaferRoute(String method, String name);
-
-  /// Send: button beside sendSaferRoute that keeps the plain http:// address instead.
-  ///
-  /// In en, this message translates to:
-  /// **'Use plain HTTP'**
-  String get sendUsePlainHttp;
-
-  /// Send: button that goes back to the contact's safer address after sendUsePlainHttp.
-  ///
-  /// In en, this message translates to:
-  /// **'Use the safer address'**
-  String get sendUseSaferRoute;
-
-  /// Send review: the payment asks the recipient's wallet for a payment proof, so a wallet holding another key cannot complete it. {name} is the contact.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment proof asked: only {name}\'s wallet can complete this payment.'**
-  String sendProofRow(String name);
-
-  /// History: marker on a payment sent over plain HTTP to another device.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent over plain HTTP'**
-  String get txUnsafeSend;
-
-  /// Transaction details: the line under txUnsafeSend saying what plain HTTP risked.
-  ///
-  /// In en, this message translates to:
-  /// **'Anyone on the network path could have received it instead.'**
-  String get txUnsafeSendHint;
-
-  /// History list: short marker on the row of a payment sent over plain HTTP to another device; txUnsafeSend is the long form in its details.
-  ///
-  /// In en, this message translates to:
-  /// **'Plain HTTP'**
-  String get txUnsafeSendShort;
 
   /// Settings › Network: how Normal with the Tor switch on and Tor only differ.
   ///
   /// In en, this message translates to:
-  /// **'With Tor on, Normal sends like Tor only: Epicbox, the node and https:// go over Tor, onions too, and plain http:// is off. Tor only also keeps Tor on, and nothing goes while it is not connected.'**
+  /// **'With Tor on, Normal sends like Tor only: everything goes over Tor and plain HTTP is off. Tor only also keeps Tor on, and nothing goes while it is not connected.'**
   String get torModesSendsSame;
 
   /// Receive, Epicbox tab: caption under the address.
@@ -11976,7 +11928,7 @@ abstract class AppLocalizations {
   /// Text of that dialog.
   ///
   /// In en, this message translates to:
-  /// **'Plain HTTP to another computer. Anyone on the network path can receive this payment instead of the recipient. An https://, onion or Epicbox address is safe from that.'**
+  /// **'Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.'**
   String get deskSendPlainDesc;
 
   /// Button in that dialog: send over plain http.
@@ -22421,7 +22373,7 @@ abstract class AppLocalizations {
   /// Send review: warning row for a Link · HTTP address over plain http to another device.
   ///
   /// In en, this message translates to:
-  /// **'Unsafe: plain HTTP. Anyone on the network path can receive this payment instead of the recipient.'**
+  /// **'Not encrypted (plain HTTP)'**
   String get sendPlainHttpRow;
 
   /// Title of the sheet after a scan or link that read something other than an Epic address or payment code.

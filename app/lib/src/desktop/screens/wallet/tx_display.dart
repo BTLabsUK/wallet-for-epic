@@ -459,11 +459,6 @@ class _TxRowState extends ConsumerState<TxRow> {
           ),
         TextSpan(text: p),
       ],
-      // Over plain HTTP: the one marker in the list, in the warning colour.
-      if (t.unsafeSend) ...[
-        if (parts.isNotEmpty) TextSpan(text: '  ·  ', style: TextStyle(color: c.lineField)),
-        TextSpan(text: l.txUnsafeSendShort, style: TextStyle(color: c.warn)),
-      ],
     ];
     // The sender, method or note the user typed on a scan find carries the tag.
     final typed = t.manualFields.any((f) => f != ManualField.label);

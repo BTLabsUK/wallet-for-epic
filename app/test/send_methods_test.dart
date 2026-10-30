@@ -945,36 +945,22 @@ void main() {
       expect(h.session.httpSends.single.allowPlainHttp, isTrue);
     });
 
-    // WAL-02 and WAL-05: the review's proof row, and the contact's safer address offered
-    // before plain HTTP, both ways out of it.
-    testWidgets('a contact with a safer address and a known onion: proof row, then the safer address offered first', (tester) async {
+    // The send to a contact whose onion is known asks the receiver's wallet for a payment
+    // proof; the review says nothing about it (the owner: no new small print on payment screens).
+    testWidgets('a contact with a known onion: the proof is asked, nothing is said', (tester) async {
       final h = _Harness();
       await h.session.saveContact(
         contact: Contact(id: '', name: 'Alice', address: _bob, http: _lan, tor: _proofOnion, note: null),
       );
       await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _lan);
-      expect(find.byKey(sendProofRowKey), findsOneWidget);
-      expect(find.text("Payment proof asked: only Alice's wallet can complete this payment."), findsOneWidget);
-      expect(find.textContaining('Unsafe: plain HTTP.'), findsOneWidget);
-
-      // Keep plain HTTP: the usual question follows; Cancel is one tap back to the review.
+      expect(find.textContaining('Payment proof'), findsNothing);
+      expect(find.textContaining('Safer address'), findsNothing);
+      expect(find.text('Not encrypted (plain HTTP)'), findsOneWidget);
       await _tap(tester, find.text('Send 1.00000000 EPIC'));
-      expect(find.text('Safer address available'), findsOneWidget);
-      expect(find.textContaining('Alice also has Epicbox'), findsOneWidget);
-      await _tap(tester, find.byKey(sendUsePlainHttpKey));
       expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
-      await _tap(tester, find.text('Cancel'));
-      expect(find.text('Review'), findsOneWidget);
-      expect(h.session.httpSends, isEmpty);
-
-      // The safer address: back on the recipient step with her Epicbox address in To.
-      await _tap(tester, find.text('Send 1.00000000 EPIC'));
-      await _tap(tester, find.byKey(sendUseSaferRouteKey));
-      expect(find.text('Review'), findsNothing);
-      expect(_toText(tester), _bob);
-      expect(_method(tester), TransferMethod.epicbox);
-      expect(h.session.httpSends, isEmpty);
+      await _tap(tester, find.text('Send anyway'));
+      expect(h.session.httpSends.single.allowPlainHttp, isTrue);
     });
   });
 
@@ -1100,7 +1086,7 @@ void main() {
       await h.torOn(tester);
       await _enter(tester, 'To', 'http://10.0.0.5:3415');
       expect(find.byKey(sendTorNoticeKey), findsOneWidget);
-      expect(find.textContaining('Plain http:// is off while Tor is on'), findsOneWidget);
+      expect(find.textContaining('Plain HTTP is off while Tor is on'), findsOneWidget);
       expect(find.byKey(sendTurnOffTorKey), findsOneWidget);
       // Continue waits: nothing leads on to a send through a Tor exit.
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);

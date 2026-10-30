@@ -112,42 +112,9 @@ String? proofAddressOfOnion(String onion) {
   return hex.toString();
 }
 
-/// A route that does not carry the slate in the clear, for a plain `http` wallet URL whose
-/// contact also has one: Epicbox first, then the onion, then the same wallet over `https`.
-class SaferRoute {
-  const SaferRoute(this.name, this.recipient);
-
-  /// The contact's name.
-  final String name;
-  final Recipient recipient;
-}
-
 /// A contact's name and addresses, as the phone's and the desktop's address books both give
 /// them.
 typedef ContactWays = ({String name, String? epicbox, String? http, String? tor});
-
-/// The [SaferRoute] for sending to [url], or null when [url] is not plain `http` to another
-/// device or no contact with that wallet URL has another way in.
-SaferRoute? saferRouteFor(String url, Iterable<ContactWays> contacts) {
-  if (!plainHttpToOtherDevice(url)) return null;
-  final want = _sameUrl(url);
-  for (final c in contacts) {
-    final http = c.http;
-    if (http == null || _sameUrl(http) != want) continue;
-    final epicbox = c.epicbox;
-    if (epicbox != null) {
-      return SaferRoute(c.name, Recipient(RecipientKind.epicbox, epicbox));
-    }
-    final tor = c.tor;
-    if (tor != null && onionAddressFormat(tor)) {
-      return SaferRoute(c.name, Recipient(RecipientKind.tor, onionHost(tor)));
-    }
-    if (http.trim().toLowerCase().startsWith('https://')) {
-      return SaferRoute(c.name, Recipient(RecipientKind.http, http.trim()));
-    }
-  }
-  return null;
-}
 
 /// The payment proof address for a send to [to]: the onion's own key, or the onion of the
 /// contact a wallet URL belongs to. Null when the receiver's key is not known.

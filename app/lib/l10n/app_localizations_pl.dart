@@ -5162,44 +5162,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'Zwykłe HTTP do innego urządzenia. Każdy na trasie sieciowej może odebrać tę płatność zamiast odbiorcy. Adres https://, onion lub Epicbox chroni przed tym.';
+      'Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność zamiast odbiorcy.';
 
   @override
   String get sendPlainHttpOffWithTor =>
-      'Zwykłe http:// jest wyłączone, gdy Tor jest włączony: węzeł wyjściowy Tora mógłby odebrać tę płatność zamiast odbiorcy. Użyj https://, adresu onion lub Epicbox albo wyłącz Tor.';
-
-  @override
-  String get sendSaferRouteTitle => 'Dostępny bezpieczniejszy adres';
-
-  @override
-  String sendSaferRoute(String method, String name) {
-    return 'Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność zamiast $name. $name ma też $method, które jest na to odporne.';
-  }
-
-  @override
-  String get sendUsePlainHttp => 'Użyj zwykłego HTTP';
-
-  @override
-  String get sendUseSaferRoute => 'Użyj bezpieczniejszego adresu';
-
-  @override
-  String sendProofRow(String name) {
-    return 'Poproszono o dowód płatności: tylko portfel $name może ją dokończyć.';
-  }
-
-  @override
-  String get txUnsafeSend => 'Wysłano przez zwykłe HTTP';
-
-  @override
-  String get txUnsafeSendHint =>
-      'Każdy na trasie sieciowej mógł ją odebrać zamiast odbiorcy.';
-
-  @override
-  String get txUnsafeSendShort => 'Zwykłe HTTP';
+      'Zwykłe HTTP jest wyłączone, gdy Tor jest włączony.';
 
   @override
   String get torModesSendsSame =>
-      'Z włączonym Torem tryb Normalny wysyła jak Tylko Tor: Epicbox, węzeł i https:// idą przez Tor, adresy onion też, a zwykłe http:// jest wyłączone. Tylko Tor dodatkowo trzyma Tor włączony i nic nie wychodzi, dopóki nie jest połączony.';
+      'Z włączonym Torem tryb Normalny wysyła jak Tylko Tor: wszystko idzie przez Tor, a zwykłe HTTP jest wyłączone. Tylko Tor dodatkowo trzyma Tor włączony i nic nie wychodzi, dopóki nie jest połączony.';
 
   @override
   String get receiveEpicboxCaption =>
@@ -7858,7 +7829,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'Zwykłe HTTP do innego komputera. Każdy na trasie sieciowej może odebrać tę płatność zamiast odbiorcy. Adres https://, onion lub Epicbox chroni przed tym.';
+      'Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność zamiast odbiorcy.';
 
   @override
   String get deskSendPlainConfirm => 'Wyślij mimo to';
@@ -14654,8 +14625,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendDirectHost => 'Host';
 
   @override
-  String get sendPlainHttpRow =>
-      'Niebezpieczne: zwykłe HTTP. Każdy na trasie sieciowej może odebrać tę płatność zamiast odbiorcy.';
+  String get sendPlainHttpRow => 'Bez szyfrowania (zwykły HTTP)';
 
   @override
   String get scanNotEpicTitle => 'To nie jest kod Epic';

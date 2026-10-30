@@ -69,18 +69,6 @@ MergedTx byId(List<MergedTx> rows, int? id) =>
     rows.firstWhere((m) => m.id == id);
 
 void main() {
-  test('a send over plain HTTP is marked by its slate id, other rows are not', () {
-    final meta = Meta(unsafeSends: ['s1']);
-    final rows = mergeHistory([
-      live(1, kind: TxKind.sent, slateId: 's1', amountDebited: 10),
-      live(2, kind: TxKind.sent, slateId: 's2', amountDebited: 10),
-      live(3),
-    ], meta);
-    expect(byId(rows, 1).tx.unsafeSend, isTrue);
-    expect(byId(rows, 2).tx.unsafeSend, isFalse);
-    expect(byId(rows, 3).tx.unsafeSend, isFalse);
-  });
-
   test('a restored row is shown at its block time', () {
     final meta = Meta(blockTimes: {'42': 1700000000});
     final m = mergeHistory([

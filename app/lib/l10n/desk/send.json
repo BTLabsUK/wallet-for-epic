@@ -803,7 +803,7 @@
   "@deskSendPlainTitle": {
     "description": "Title of the dialog shown before a send to a plain http address."
   },
-  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the network path can receive this payment instead of the recipient. An https://, onion or Epicbox address is safe from that.",
+  "deskSendPlainDesc": "Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.",
   "@deskSendPlainDesc": {
     "description": "Text of that dialog."
   },

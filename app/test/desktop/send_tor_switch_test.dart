@@ -177,7 +177,7 @@ void main() {
 
   testWidgets('Link plain http to another computer with Tor on: off, and why', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5'));
-    expect(find.textContaining('Plain http:// is off while Tor is on'), findsOneWidget);
+    expect(find.textContaining('Plain HTTP is off while Tor is on'), findsOneWidget);
     expect(review(tester).onPressed, isNull);
     // Pressed anyway: no consent question, nothing sent.
     await tester.tap(find.text('Review'), warnIfMissed: false);
@@ -190,7 +190,7 @@ void main() {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5', step: SendStep.review));
     expect(find.text('Not encrypted. Send anyway?'), findsNothing);
     expect(find.text('Check and send'), findsNothing);
-    expect(find.textContaining('Plain http:// is off while Tor is on'), findsWidgets);
+    expect(find.textContaining('Plain HTTP is off while Tor is on'), findsWidgets);
     expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);
 

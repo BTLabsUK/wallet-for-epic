@@ -279,7 +279,6 @@ class Tx {
     this.coinbase = false,
     this.otherWallet = false,
     this.unverified = false,
-    this.unsafeSend = false,
     this.foundByScan = false,
     this.foundDuring,
     this.datedByBlock = true,
@@ -392,10 +391,6 @@ class Tx {
   /// its blocks yet); LEPIC clears it after the next one.
   final bool unverified;
 
-  /// A send over plain `http` to another device: anyone on the network path could have
-  /// received it.
-  final bool unsafeSend;
-
   /// A received output a scan found with no transaction record (another copy of the seed).
   final bool foundByScan;
 
@@ -504,7 +499,6 @@ class Tx {
       coinbase: coinbase,
       otherWallet: otherWallet,
       unverified: unverified,
-      unsafeSend: unsafeSend,
       foundByScan: foundByScan,
       foundDuring: foundDuring,
       datedByBlock: datedByBlock,
@@ -563,7 +557,6 @@ class Tx {
     coinbase: coinbase,
     otherWallet: otherWallet,
     unverified: unverified,
-    unsafeSend: unsafeSend,
     foundByScan: foundByScan,
     foundDuring: foundDuring,
     datedByBlock: datedByBlock,
@@ -656,7 +649,7 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
-  /// The name and addresses, for [saferRouteFor] and [proofAddressFor].
+  /// The name and addresses, for [proofAddressFor].
   ContactWays get ways => (name: name, epicbox: epicbox, http: http, tor: tor);
 
 

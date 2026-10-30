@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Plain HTTP to another device: the contact's safer address is offered first, and a send to a
-// contact whose onion is known asks the receiver for a payment proof.
+// A send to a contact whose onion is known asks the receiver for a payment proof.
 
 import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/recipient.dart';
@@ -38,30 +37,6 @@ void main() {
     test('none for an unknown wallet URL or Epicbox', () {
       expect(proofAddressFor(const Recipient(RecipientKind.http, 'http://10.0.0.6:3415'), [bob.ways]), isNull);
       expect(proofAddressFor(Recipient(RecipientKind.epicbox, _epicbox), [bob.ways]), isNull);
-    });
-  });
-
-  group('saferRouteFor', () {
-    test('Epicbox first, then the onion, then the same wallet over https', () {
-      final all = Contact(id: '1', name: 'A', http: 'http://10.0.0.5:3415', tor: _onion, epicbox: _epicbox);
-      final onion = Contact(id: '2', name: 'B', http: 'http://10.0.0.6:3415', tor: _onion);
-      final tls = Contact(id: '3', name: 'C', http: 'https://wallet.example:3415');
-      final contacts = [all.ways, onion.ways, tls.ways];
-
-      final a = saferRouteFor('http://10.0.0.5:3415', contacts)!;
-      expect((a.name, a.recipient.kind, a.recipient.address), ('A', RecipientKind.epicbox, _epicbox));
-      final b = saferRouteFor('http://10.0.0.6:3415/', contacts)!;
-      expect((b.name, b.recipient.kind, b.recipient.address), ('B', RecipientKind.tor, _onion));
-      final c = saferRouteFor('http://WALLET.example:3415', contacts)!;
-      expect((c.name, c.recipient.kind, c.recipient.address), ('C', RecipientKind.http, 'https://wallet.example:3415'));
-    });
-
-    test('none for https, this device, an unknown wallet or a contact with plain http only', () {
-      final plain = Contact(id: '1', name: 'A', http: 'http://10.0.0.5:3415');
-      expect(saferRouteFor('http://10.0.0.5:3415', [plain.ways]), isNull);
-      expect(saferRouteFor('http://10.0.0.9:3415', [plain.ways]), isNull);
-      expect(saferRouteFor('https://10.0.0.5:3415', [plain.ways]), isNull);
-      expect(saferRouteFor('http://127.0.0.1:3415', [Contact(id: '2', name: 'L', http: 'http://127.0.0.1:3415', tor: _onion).ways]), isNull);
     });
   });
 }

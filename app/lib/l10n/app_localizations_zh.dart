@@ -4747,44 +4747,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendPlainHttpTitle => '未加密。仍要发送吗？';
 
   @override
-  String get sendPlainHttpBody =>
-      '以明文 HTTP 发送到另一台设备。网络路径上的任何人都可能代替收款人收到这笔付款。https://、onion 或 Epicbox 地址可以避免这种情况。';
+  String get sendPlainHttpBody => '通过明文 HTTP，网络路径上的任何人都可能代替收款人收到这笔付款。';
 
   @override
-  String get sendPlainHttpOffWithTor =>
-      'Tor 开启时明文 http:// 不可用：Tor 出口节点可能代替收款人收到这笔付款。请使用 https://、onion 或 Epicbox 地址，或关闭 Tor。';
-
-  @override
-  String get sendSaferRouteTitle => '有更安全的地址';
-
-  @override
-  String sendSaferRoute(String method, String name) {
-    return '若用明文 HTTP，网络路径上的任何人都可能代替 $name 收到这笔付款。$name 也拥有 $method，不会有这个问题。';
-  }
-
-  @override
-  String get sendUsePlainHttp => '使用明文 HTTP';
-
-  @override
-  String get sendUseSaferRoute => '使用更安全的地址';
-
-  @override
-  String sendProofRow(String name) {
-    return '已请求付款证明：只有 $name 的钱包能完成这笔付款。';
-  }
-
-  @override
-  String get txUnsafeSend => '通过明文 HTTP 发送';
-
-  @override
-  String get txUnsafeSendHint => '网络路径上的任何人都可能代替收款人收到这笔付款。';
-
-  @override
-  String get txUnsafeSendShort => '明文 HTTP';
+  String get sendPlainHttpOffWithTor => 'Tor 开启时，明文 HTTP 不可用。';
 
   @override
   String get torModesSendsSame =>
-      '开启 Tor 时，普通模式的发送方式与仅 Tor 相同：Epicbox、节点和 https:// 都经过 Tor，onion 也是，明文 http:// 不可用。仅 Tor 还会保持 Tor 开启，未连接时什么都不发送。';
+      '开启 Tor 时，普通模式的发送方式与仅 Tor 相同：一切都经过 Tor，明文 HTTP 不可用。仅 Tor 还会保持 Tor 开启，未连接时什么都不发送。';
 
   @override
   String get receiveEpicboxCaption => '念出地址时，核对前六位和后六位字符。';
@@ -7065,8 +7035,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendPlainTitle => '未加密。仍要发送？';
 
   @override
-  String get deskSendPlainDesc =>
-      '以明文 HTTP 发送到另一台电脑。网络路径上的任何人都可能代替收款人收到这笔付款。https://、onion 或 Epicbox 地址可以避免这种情况。';
+  String get deskSendPlainDesc => '通过明文 HTTP，网络路径上的任何人都可能代替收款人收到这笔付款。';
 
   @override
   String get deskSendPlainConfirm => '仍要发送';
@@ -13308,7 +13277,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendDirectHost => '主机';
 
   @override
-  String get sendPlainHttpRow => '不安全：明文 HTTP。网络路径上的任何人都可能代替收款人收到这笔付款。';
+  String get sendPlainHttpRow => '未加密（纯 HTTP）';
 
   @override
   String get scanNotEpicTitle => '不是 Epic 码';

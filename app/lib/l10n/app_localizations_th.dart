@@ -4933,44 +4933,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'HTTP แบบไม่เข้ารหัสไปยังอุปกรณ์อื่น ใครก็ตามบนเส้นทางเครือข่ายสามารถรับการชำระเงินนี้แทนผู้รับได้ ที่อยู่ https://, onion หรือ Epicbox ปลอดภัยจากเรื่องนี้';
+      'ผ่าน HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายอาจรับการชำระเงินนี้แทนผู้รับได้';
 
   @override
-  String get sendPlainHttpOffWithTor =>
-      'http:// ธรรมดาปิดอยู่ขณะเปิด Tor: โหนดทางออกของ Tor อาจรับการชำระเงินนี้แทนผู้รับได้ ใช้ https://, onion หรือ Epicbox หรือปิด Tor';
-
-  @override
-  String get sendSaferRouteTitle => 'มีที่อยู่ที่ปลอดภัยกว่า';
-
-  @override
-  String sendSaferRoute(String method, String name) {
-    return 'หากใช้ HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายอาจรับการชำระเงินนี้ไปแทน $name แต่ $name ยังมี $method ซึ่งปลอดภัยจากเรื่องนี้';
-  }
-
-  @override
-  String get sendUsePlainHttp => 'ใช้ HTTP ธรรมดา';
-
-  @override
-  String get sendUseSaferRoute => 'ใช้ที่อยู่ที่ปลอดภัยกว่า';
-
-  @override
-  String sendProofRow(String name) {
-    return 'ขอหลักฐานการชำระเงินแล้ว: มีเพียงวอลเล็ตของ $name ที่ทำการชำระเงินนี้ให้เสร็จได้';
-  }
-
-  @override
-  String get txUnsafeSend => 'ส่งผ่าน HTTP ธรรมดา';
-
-  @override
-  String get txUnsafeSendHint =>
-      'ใครก็ตามบนเส้นทางเครือข่ายอาจรับไปแทนผู้รับได้';
-
-  @override
-  String get txUnsafeSendShort => 'HTTP ธรรมดา';
+  String get sendPlainHttpOffWithTor => 'HTTP ธรรมดาปิดอยู่ขณะเปิด Tor';
 
   @override
   String get torModesSendsSame =>
-      'เมื่อเปิด Tor โหมดปกติจะส่งแบบเดียวกับ Tor เท่านั้น: Epicbox, โหนด และ https:// ผ่าน Tor รวมถึง onion และ http:// ธรรมดาปิดอยู่ โหมด Tor เท่านั้นยังเปิด Tor ไว้ตลอด และไม่มีอะไรออกไปขณะยังไม่เชื่อมต่อ';
+      'เมื่อเปิด Tor โหมดปกติจะส่งแบบเดียวกับ Tor เท่านั้น: ทุกอย่างผ่าน Tor และ HTTP ธรรมดาปิดอยู่ โหมด Tor เท่านั้นยังเปิด Tor ไว้ตลอด และไม่มีอะไรออกไปขณะยังไม่เชื่อมต่อ';
 
   @override
   String get receiveEpicboxCaption =>
@@ -7337,7 +7307,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'HTTP แบบไม่เข้ารหัสไปยังคอมพิวเตอร์อื่น ใครก็ตามบนเส้นทางเครือข่ายสามารถรับการชำระเงินนี้แทนผู้รับได้ ที่อยู่ https://, onion หรือ Epicbox ปลอดภัยจากเรื่องนี้';
+      'ผ่าน HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายอาจรับการชำระเงินนี้แทนผู้รับได้';
 
   @override
   String get deskSendPlainConfirm => 'ส่งเลย';
@@ -13786,8 +13756,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendDirectHost => 'โฮสต์';
 
   @override
-  String get sendPlainHttpRow =>
-      'ไม่ปลอดภัย: HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายสามารถรับการชำระเงินนี้แทนผู้รับได้';
+  String get sendPlainHttpRow => 'ไม่ได้เข้ารหัส (HTTP ธรรมดา)';
 
   @override
   String get scanNotEpicTitle => 'ไม่ใช่โค้ด Epic';

@@ -367,11 +367,6 @@ class WalletHistory {
   /// Ids of the contacts this wallet starred ([Meta.favourites]).
   Set<String> favourites() => {...meta.favourites};
 
-  /// Marks the send [slateId] as one made over plain `http` to another device
-  /// ([Meta.unsafeSends]).
-  Future<void> markUnsafeSend(String slateId) =>
-      _store.update((m) => m.unsafeSends.add(slateId));
-
   /// Stars or unstars the contact [id] in this wallet only.
   Future<void> setFavourite(String id, bool favourite) => _store.update((m) {
     favourite ? m.favourites.add(id) : m.favourites.remove(id);

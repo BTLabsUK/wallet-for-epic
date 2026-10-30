@@ -2,7 +2,6 @@
 import '../../data/mock_hosts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../recipient.dart' show saferRouteFor;
 import '../../../tor_routes.dart';
 import '../../app/shots.dart';
 import '../../widgets/kit.dart';
@@ -15,10 +14,8 @@ import 'send_screen.dart';
 
 final _onion = 'http://$fakeWalletOnion';
 final _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox';
-/// Tom's wallet on the LAN (the mock's contact c4, with his Epicbox address too).
+/// Tom's wallet on the LAN (the mock's contact c4).
 const _tomLan = 'http://10.0.1.24:3415';
-/// A valid onion (the ed25519 key 00 01 02 … 1f), so a payment proof can be asked of it.
-const _tomOnionAddress = 'aaaqeayeaudaocajbifqydiob4ibceqtcqkrmfyydenbwha5dyp3kead.onion';
 // No saved contact has it.
 final _payee = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@$mockBox';
 final _request = 'epic:$_payee?amount=12.5&message=Table%204%2C%20lunch%20for%20two&label=Corner%20Caf%C3%A9';
@@ -63,32 +60,7 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '16-send-review', title: 'Send, review', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   DeskShot(id: '16b-send-sending', title: 'Send, sending', route: DeskRoute.send, arg: SendArgs(step: SendStep.sending, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   DeskShot(id: '16c-send-done', title: 'Send, done', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5')),
-  // Plain HTTP to a contact (WAL-02, WAL-05): the review says his wallet is asked for a payment
-  // proof (his onion is known), and before the review his safer address is offered.
-  DeskShot(
-    id: '16f-send-review-plain-http',
-    title: 'Send, review of plain HTTP to a contact whose onion is known',
-    route: DeskRoute.send,
-    arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5'),
-    // Before the route opens: the form behind the review shows Link on and Tom's addresses.
-    before: (c) async {
-      await _linkOn(c);
-      await _tomOnion(c);
-    },
-    dialog: (ctx) => showDeskSendReviewShot(ctx, to: _tomLan, contactName: 'Tom', amount: 5 * nanoPerEpic),
-  ),
-  DeskShot(
-    id: '16g-send-safer-address',
-    title: "Send, a contact's safer address offered before plain HTTP",
-    route: DeskRoute.send,
-    arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5'),
-    prepare: (c, _) => _linkOn(c),
-    dialog: (ctx) {
-      final contacts = ProviderScope.containerOf(ctx).read(deskProvider).contacts ?? const <Contact>[];
-      final safer = saferRouteFor(_tomLan, [for (final k in contacts) k.ways])!;
-      return showEDialog<bool>(ctx, builder: (_) => SaferRouteDialog(safer: safer));
-    },
-  ),
+  DeskShot(id: '13w-send-plain-http-ask', title: 'Send, the question before plain HTTP to another computer', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5'), prepare: (c, _) => _linkOn(c), dialog: (ctx) => showEDialog<bool>(ctx, builder: (_) => const PlainHttpDialog())),
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
   // A pasted `epic:` payment request.
   DeskShot(id: '13s-send-code', title: 'Send, pasted payment request', route: DeskRoute.send, arg: SendArgs(code: _request, codeOrigin: CodeOrigin.paste)),
@@ -160,13 +132,6 @@ Future<void> _linkOn(ProviderContainer c) async {
   final n = c.read(deskProvider.notifier);
   final s = c.read(deskProvider).settings;
   await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkHttp: true, linkTor: true)));
-}
-
-/// Tom's contact with his onion known, so the review asks his wallet for a payment proof.
-Future<void> _tomOnion(ProviderContainer c) async {
-  final n = c.read(deskProvider.notifier);
-  final tom = (c.read(deskProvider).contacts ?? const <Contact>[]).firstWhere((k) => k.id == 'c4');
-  await n.saveContact(Contact(id: tom.id, name: tom.name, epicbox: tom.epicbox, http: tom.http, tor: _tomOnionAddress, note: tom.note));
 }
 
 Future<void> _linkOff(ProviderContainer c) async {

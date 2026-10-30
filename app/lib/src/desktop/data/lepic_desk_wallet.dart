@@ -5521,7 +5521,6 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     coinbase: e.kind == core.TxKind.coinbase,
     otherWallet: e.origin == core.TxOrigin.otherWallet,
     unverified: e.unverified,
-    unsafeSend: e.unsafeSend,
     foundByScan: e.source == core.TxSource.restored,
     foundDuring: switch (e.foundDuring) {
       core.TxFoundDuring.restore => FoundDuring.restore,

@@ -190,24 +190,6 @@ void main() {
     expect(store.snapshot.version, metaVersion);
   });
 
-  test('a file from before unsafe sends reads none, and keeps its shape until one is marked', () async {
-    const old =
-        '{"version":1,"notes":{"s:abc":"rent"},"contacts":[],"annotations":{},'
-        '"records":[],"block_times":{},"kernel_heights":{},"favourites":["c1"]}';
-    metaFile().writeAsStringSync(old);
-    final store = await MetaStore.open(dir.path);
-    expect(store.snapshot.unsafeSends, isEmpty);
-    await store.update((m) => m.notes['s:abc'] = 'rent');
-    expect(metaFile().readAsStringSync(), old, reason: 'no unsafe_sends key while there are none');
-
-    await store.update((m) => m.unsafeSends.add('0f6c'));
-    final reopened = await MetaStore.open(dir.path);
-    expect(reopened.snapshot.unsafeSends, {'0f6c'});
-    expect(reopened.snapshot.notes['s:abc'], 'rent');
-    expect(reopened.snapshot.favourites, {'c1'});
-    expect(metaFile().readAsStringSync(), endsWith(',"unsafe_sends":["0f6c"]}'));
-  });
-
   test('every field the old core writes survives a rewrite', () async {
     final text = jsonEncode({
       'version': 1,
