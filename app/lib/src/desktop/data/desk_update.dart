@@ -345,7 +345,10 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
         logInfo('update', 'desktop: update.json not used: ${RejectReason.tooLarge.code} ($url)');
         return (null, null);
       }
-      if (status != 200) return (null, DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(status)));
+      if (status != 200) {
+        logInfo('update', 'desktop check failed at $url: HTTP $status');
+        return (null, DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(status)));
+      }
       final result = await verifyWalletUpdate(
         body,
         keyring: ref.read(updateKeyringProvider),
@@ -356,6 +359,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
       logInfo('update', 'desktop: update.json not used: ${(result as Rejected<WalletUpdate>).reason.code} ($url)');
       return (null, null);
     } on TimeoutException {
+      logInfo('update', 'desktop check failed at $url: timeout');
       return (null, DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdTimeout));
     } on Object catch (e) {
       logInfo('update', 'desktop check failed at $url: ${e.runtimeType}');
