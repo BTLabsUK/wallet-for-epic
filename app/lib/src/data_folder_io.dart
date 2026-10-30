@@ -6,7 +6,9 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import 'log.dart' show logInfo;
 import 'net/lan_node_relay.dart' show lanNodesFile;
+import 'owner_only_windows.dart';
 
 /// The folder Epic Cash Desktop keeps in the user's home folder on every desktop system, as
 /// the old GUI wallet keeps `.epic-gui`.
@@ -58,8 +60,15 @@ Future<void> settleDataFolder({Map<String, String>? environment}) async {
 /// On Linux and macOS, sets [path] to 0700, so the wallets, logs, remembered passwords, contacts
 /// and cache below it are out of other accounts' reach whatever mode the umask gave each file.
 /// Run on every start, so a folder an older version created with the umask's mode is closed
-/// too. Windows: the profile folder's ACL already keeps it to the user.
+/// too. Windows: an access list of the user and `SYSTEM` only, in place of the profile's, which
+/// also lets `Administrators` in (`owner_only_windows.dart`).
 Future<void> ownerOnly(String path) async {
+  if (Platform.isWindows) {
+    final env = Platform.environment;
+    final result = await restrictFolderToOwner(path, profile: env['USERPROFILE'], systemRoot: env['SystemRoot'] ?? r'C:\Windows');
+    if (result == OwnerOnlyResult.restricted || result == OwnerOnlyResult.partial) logInfo('data', 'data folder access list: ${result.name}');
+    return;
+  }
   if (!(Platform.isLinux || Platform.isMacOS)) return;
   try {
     await Process.run('chmod', ['700', path]);
