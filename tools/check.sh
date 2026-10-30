@@ -84,7 +84,8 @@ step "flutter analyze"
 
 if [[ $mode == full ]]; then
   step "flutter test (all)"
-  (cd "$root/app" && flutter test --no-pub)
+  # Slowest files first (tools/flutter-test-all.sh): the same files, a shorter run.
+  (cd "$root/app" && "$root/tools/flutter-test-all.sh")
 
   step "integration tests on LEPIC (Linux, offline)"
   # One run per file: a second app start in one `flutter test` run fails on Linux now and then.
