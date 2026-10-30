@@ -32,7 +32,8 @@
 #              also takes a green nightly full check of such a commit
 #
 # Placeholders: {version} {commit} {short} {run_id} {run} {files} {extra} {stage} {src}
-# {variant} {notor} ("" or "-notor") {tor} ("1" or "0") {previous_dir} {previous_version}
+# {variant} {notor} ("" or "-notor") {tor} ("1" or "0") {github} ("1" when publish.github is on, else "0")
+# {previous_dir} {previous_version}
 # {previous_ref} {node} {epicbox} {target} {scratch} {notes_file} {manifests}
 # {rel} (the checkout tools/rel runs from: its step scripts and drivers)
 # {host.<role>.<key>} {path.<key>} (both from release-hosts.toml).
@@ -318,6 +319,8 @@ host = "web"
 needs = ["publish-downloads"]
 skippable = true
 run = "{rel}/tools/rellib/steps/publish-page.sh {version} {files} {path.page_repo}"
+# publish.github on: the page links the GitHub Release (build.py add --github).
+env = { REL_GITHUB = "{github}" }
 scratch = "scratch_page"
 
 [step.publish-source]
@@ -327,15 +330,34 @@ host = "build"
 needs = ["publish-page"]
 skippable = true
 run = "cd {path.main_checkout} && tools/publish-github.sh --push"
+# publish.github on: then mirrored to GitHub (tools/mirror-github.sh), so the tag is there.
+env = { GITHUB_MIRROR = "{github}" }
 scratch = "scratch_source"
+
+# The GitHub Release of tag v{version}: every published file as an asset, marked latest, so
+# github.com/BTLabsUK/wallet-for-epic/releases/latest/download/<name> serves the newest. A mirror:
+# BT Labs' server stays the primary source. On a failure `tools/rel skip publish-github-release
+# --reason ...` lets the manifests go out without it.
+[step.publish-github-release]
+title = "Publish GitHub release (mirror)"
+kind = "publish"
+host = "signer"
+when = ["publish.github"]
+needs = ["publish-source"]
+skippable = true
+retries = 1
+run = "{rel}/tools/rellib/steps/publish-github-release.sh {version} {files} {stage}"
+scratch = "scratch_noop"
 
 [step.publish-manifests]
 title = "Publish update manifests (the switch)"
 kind = "publish"
 host = "signer"
 when = ["publish.manifests"]
-needs = ["publish-downloads", "publish-page", "publish-source"]
+needs = ["publish-downloads", "publish-page", "publish-source", "publish-github-release"]
 run = "tools/publish-update-json.sh {manifests}/update.json {manifests}/update-v2.json"
+# publish.github on: update-v2.json also onto the latest GitHub Release (never a gate).
+env = { GITHUB_UPDATE_JSON = "{github}" }
 scratch = "scratch_manifests"
 
 [step.verify-live]

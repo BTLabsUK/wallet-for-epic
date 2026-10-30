@@ -8,7 +8,12 @@ manifests through the same steps, behind its own gate ("rollback").
 
 Desktops compare version names only (no build number), so a desktop that already installed the
 bad version is not offered the older one: it needs the next version (as 26.10.24-r2 showed). The
-report says so."""
+report says so.
+
+GitHub (release.toml publish.github): when the bad or the good release had it on, the
+re-signed update-v2.json also replaces the asset on the latest GitHub Release (the bad
+release's, which stays; GitHub only mirrors). The page links the good release's GitHub Release
+only when that release had it on."""
 import datetime as dt
 import json
 import os
@@ -58,6 +63,13 @@ def make_run(state_root, pipeline, hosts, repo, bad, good, test, base_ctx):
     full = build_graph(pipeline, info["scope"], ctx)
     keep = ("publish-downloads", "publish-page", "publish-manifests", "verify-live")
     steps = [s for s in full if s.base in keep]
+    # The bad release may have put its update-v2.json on GitHub: the rollback replaces it there
+    # too, even when the good release was published without the switch.
+    bad_scope = Run(bad["run"]).info.get("scope", {}) if os.path.isdir(bad["run"]) else {}
+    github = any(sc.get("publish", {}).get("github") for sc in (bad_scope, info["scope"]))
+    for s in steps:
+        if s.base == "publish-manifests" and github:
+            s.env = dict(s.env, GITHUB_UPDATE_JSON="1")
     resign = Step(id="rollback-resign", base="rollback-resign", kind="builtin", title="Re-sign the previous release (higher serial)",
                   host="signer", lane="local", platforms=[])
     gate = Step(id="rollback-gate", base="rollback-gate", kind="gate", title="Rollback gate", host="local", lane="local",

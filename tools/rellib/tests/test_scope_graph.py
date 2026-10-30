@@ -191,6 +191,35 @@ class GraphTest(unittest.TestCase):
         self.assertIn("build-play-tor", ids)
         self.assertIn("store-play-tor", ids)
 
+    def test_github_mirror_only_when_switched_on(self):
+        s, steps = graph()
+        by = {x.id: x for x in steps}
+        self.assertFalse(s["publish"]["github"])
+        self.assertNotIn("publish-github-release", by)
+        self.assertEqual(by["publish-source"].env["GITHUB_MIRROR"], "0")
+        self.assertEqual(by["publish-manifests"].env["GITHUB_UPDATE_JSON"], "0")
+        self.assertEqual(by["publish-page"].env["REL_GITHUB"], "0")
+        self.assertNotIn("publish-github-release", by["publish-manifests"].needs)
+        s, steps = graph(sets=["publish.github=true"])
+        by = {x.id: x for x in steps}
+        ids = [x.id for x in steps]
+        gh = by["publish-github-release"]
+        self.assertEqual((gh.kind, gh.host, gh.needs, gh.skippable), ("publish", "signer", ["publish-source"], True))
+        self.assertIn("publish-github-release.sh 26.10.25 /r/26.10.25/run-1/files /r/26.10.25/run-1/steps/publish-github-release/out", gh.run)
+        self.assertLess(ids.index("publish-source"), ids.index("publish-github-release"))
+        self.assertLess(ids.index("publish-github-release"), ids.index("publish-manifests"))
+        self.assertIn("publish-github-release", by["publish-manifests"].needs)
+        self.assertEqual(by["publish-source"].env["GITHUB_MIRROR"], "1")
+        self.assertEqual(by["publish-manifests"].env["GITHUB_UPDATE_JSON"], "1")
+        self.assertEqual(by["publish-page"].env["REL_GITHUB"], "1")
+        self.assertIn("GitHub release mirror", scope_summary(s))
+        # The tag gets to GitHub through publish-source: skipping it with the mirror on is refused.
+        with self.assertRaises(ConfigError) as e:
+            graph(sets=["publish.github=true"], skips=["publish-source=token"])
+        self.assertIn("publish.github needs publish-source", str(e.exception))
+        with self.assertRaises(ConfigError):
+            graph(sets=["publish.github=maybe"])
+
     def test_unknown_placeholder_fails_at_plan_time(self):
         with self.assertRaises(ConfigError):
             render("x {nope}", {"a": 1}, "step t")

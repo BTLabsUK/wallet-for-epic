@@ -100,6 +100,7 @@ def build_graph(pipeline, scope, ctx):
             c["variant"] = var or ""
             c["notor"] = "-notor" if var == "notor" else ""
             c["tor"] = "0" if var == "notor" else "1"
+            c["github"] = "1" if scope["publish"].get("github") else "0"
             c["stage"] = f"{ctx['run']}/steps/{sid}/out"
             where = f"step {sid}"
             needs = []

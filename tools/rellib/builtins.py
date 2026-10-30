@@ -752,7 +752,8 @@ def scratch_page(engine, step, say):
         shutil.rmtree(tool)
     shutil.copytree(os.path.join(engine.info["src"], "tools/releases"), tool)
     out = os.path.join(scratch_dir(engine), "page")
-    rc1, _ = sh(["python3", os.path.join(tool, "build.py"), "add", engine.info["version"], engine.run.files], say)
+    mirror = ["--github"] if engine.info["scope"]["publish"].get("github") else []
+    rc1, _ = sh(["python3", os.path.join(tool, "build.py"), "add", engine.info["version"], engine.run.files] + mirror, say)
     rc2, _ = sh(["python3", os.path.join(tool, "build.py"), "render", "--out", out], say)
     if rc1 or rc2:
         return {"status": "failed", "note": "build.py add/render failed"}
