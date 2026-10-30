@@ -302,9 +302,10 @@ void main() {
 
       Future<List<reg.WalletEntry>> listed() async => (await wallet.registry()).list();
 
-      test('create keeps the fingerprint in the list; restoring that phrase finds the wallet and makes nothing', () async {
+      test('create keeps the wallet fingerprint, never a phrase hash; restoring that phrase finds the wallet and makes nothing', () async {
         await wallet.createWallet(name: 'Main', password: _password);
-        expect((await listed()).single.phraseFingerprint, fp);
+        expect((await listed()).single.phraseFingerprint, isNull);
+        expect((await listed()).single.walletFingerprint, core.fakeWalletFingerprint(words.join(' '), core.Chain.mainnet));
         expect(two.creates, 1);
         final same = await wallet.walletWithPhrase([for (final w in words) ' ${w.toUpperCase()}']);
         expect(same?.name, 'Main');
@@ -312,7 +313,7 @@ void main() {
         final error = await wallet.restoreWallet(password: _password, phrase: words).then<Object?>((_) => null, onError: (Object e) => e);
         expect(error, isA<DeskError>());
         expect((error as DeskError).sameWallet?.name, 'Main');
-        expect(error.message, isNot(contains(fp)), reason: 'the fingerprint is never shown');
+        expect(error.message, isNot(contains((await listed()).single.walletFingerprint!)), reason: 'the fingerprint is never shown');
         expect(two.creates, 1, reason: 'nothing was made');
         expect(await listed(), hasLength(1));
         expect(await wallet.wallets(), hasLength(1));
@@ -320,7 +321,8 @@ void main() {
 
       test('restore keeps the fingerprint; the same phrase again is refused, a different one restores', () async {
         await wallet.restoreWallet(name: 'Old', password: _password, phrase: words);
-        expect((await listed()).single.phraseFingerprint, fp);
+        expect((await listed()).single.phraseFingerprint, isNull);
+        expect((await listed()).single.walletFingerprint, isNotNull);
         await expectLater(
           wallet.restoreWallet(password: _password, phrase: words),
           throwsA(isA<DeskError>().having((e) => e.sameWallet?.name, 'sameWallet', 'Old')),
@@ -330,8 +332,9 @@ void main() {
         expect(two.creates, 2);
         final all = await listed();
         expect(all.map((e) => e.label), ['Old', 'Other']);
-        expect(all.map((e) => e.phraseFingerprint).toSet(), hasLength(2));
-        expect(all.last.phraseFingerprint, phraseFingerprint(_TwoPhrases.other));
+        expect(all.map((e) => e.walletFingerprint).toSet(), hasLength(2));
+        expect(all.last.walletFingerprint, core.fakeWalletFingerprint(_TwoPhrases.other, core.Chain.mainnet));
+        expect(all.map((e) => e.phraseFingerprint), everyElement(isNull));
         expect((await wallet.wallets()).last.current, isTrue, reason: 'the new wallet is the selected one');
       });
 
@@ -340,18 +343,8 @@ void main() {
         expect(await wallet.walletWithPhrase(['abandon', 'h4rbor']), isNull);
       });
 
-      test('a wallet listed before phrase fingerprints were kept is matched by the core\'s wallet fingerprint', () async {
+      test('a wallet listed with only the wallet fingerprint is matched by it', () async {
         await wallet.createWallet(name: 'Main', password: _password);
-        await wallet.dispose();
-        // As the list of a build before phrase fingerprints: the entry without the field.
-        final file = File('${support.path}${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
-        final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-        for (final w in (json['wallets'] as List).cast<Map<String, dynamic>>()) {
-          expect(w.remove('phraseFingerprint'), fp);
-          expect(w['walletFingerprint'], isNotNull);
-        }
-        await file.writeAsString(jsonEncode(json));
-        wallet = make(two);
         expect((await listed()).single.phraseFingerprint, isNull);
         expect((await wallet.walletWithPhrase(words))?.name, 'Main', reason: 'the wallet fingerprint catches it');
         await expectLater(
@@ -367,8 +360,8 @@ void main() {
         final file = File('${support.path}${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
         final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
         for (final w in (json['wallets'] as List).cast<Map<String, dynamic>>()) {
-          expect(w.remove('phraseFingerprint'), fp);
-          w.remove('walletFingerprint');
+          expect(w.containsKey('phraseFingerprint'), isFalse);
+          expect(w.remove('walletFingerprint'), isNotNull);
         }
         await file.writeAsString(jsonEncode(json));
         wallet = make(two);
@@ -376,7 +369,49 @@ void main() {
         expect(await wallet.walletWithPhrase(words), isNull, reason: 'no fingerprint of either kind: not caught');
         await wallet.restoreWallet(name: 'Again', password: _password, phrase: words);
         expect(two.creates, 2, reason: 'the duplicate is made, as before the fix');
-        expect((await listed()).last.phraseFingerprint, fp, reason: 'the restored copy carries one from now on');
+        expect((await listed()).last.walletFingerprint, isNotNull, reason: 'the restored copy carries one from now on');
+      });
+
+      /// Rewrites the list as an earlier build left it: the old phrase hash on every entry, the
+      /// wallet fingerprint taken out when [withWallet] is false.
+      Future<void> asEarlierBuild({required bool withWallet}) async {
+        final file = File('${support.path}${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
+        final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+        for (final w in (json['wallets'] as List).cast<Map<String, dynamic>>()) {
+          w['phraseFingerprint'] = fp;
+          if (!withWallet) w.remove('walletFingerprint');
+        }
+        await file.writeAsString(jsonEncode(json));
+      }
+
+      for (final withWallet in [true, false]) {
+        test('upgrade: the old phrase hash still matches, and the next unlock drops it (wallet fingerprint ${withWallet ? 'kept before' : 'kept at unlock'})', () async {
+          await wallet.createWallet(name: 'Main', password: _password);
+          await wallet.dispose();
+          await asEarlierBuild(withWallet: withWallet);
+          wallet = make(two);
+          expect((await listed()).single.phraseFingerprint, fp);
+          expect((await wallet.walletWithPhrase(words))?.name, 'Main', reason: 'matched before the unlock as well');
+          expect(await wallet.unlock(_password), isTrue);
+          final entry = (await listed()).single;
+          expect(entry.phraseFingerprint, isNull, reason: 'dropped at unlock');
+          expect(entry.walletFingerprint, core.fakeWalletFingerprint(words.join(' '), core.Chain.mainnet));
+          final file = File('${support.path}${Platform.pathSeparator}${reg.WalletRegistry.fileName}');
+          expect(await file.readAsString(), isNot(contains(fp)));
+          expect((await wallet.walletWithPhrase(words))?.name, 'Main', reason: 'still found after the drop');
+        });
+      }
+
+      test('a password reset keeps the wallet fingerprint and drops the old phrase hash', () async {
+        await wallet.createWallet(name: 'Main', password: _password);
+        final id = (await listed()).single.id;
+        await wallet.dispose();
+        await asEarlierBuild(withWallet: false);
+        wallet = make(two);
+        await wallet.resetPassword(id, phrase: words, newPassword: '${_password}2');
+        final entry = (await listed()).single;
+        expect(entry.phraseFingerprint, isNull);
+        expect(entry.walletFingerprint, core.fakeWalletFingerprint(words.join(' '), core.Chain.mainnet));
       });
     });
   });
