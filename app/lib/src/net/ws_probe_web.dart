@@ -5,8 +5,13 @@ library;
 import 'dart:async';
 import 'dart:js_interop';
 
+import '../network_gate.dart' show NetDial, NetGate;
+import 'probe_not_run.dart';
+
 /// Opens a WebSocket to [url] and closes it again; true when it opened within [timeout].
 Future<bool> probeWebSocket(Uri url, {required Duration timeout}) {
+  // The network mode refuses it (Node only, Kill switch): not run, not a false.
+  if (!NetGate.allows(NetDial.webSocket, url.host)) throw const ProbeNotRun();
   final done = Completer<bool>();
   final _Socket socket;
   try {

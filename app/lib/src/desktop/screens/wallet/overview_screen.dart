@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../network_gate.dart' show NetBlock;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
@@ -90,7 +90,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     // Offline (but with a local node) and Tor only: the node is not asked, so its last answer
     // is not news.
     final netBlock = demo == null ? deskNetBlock(s, nodeOnly: true) : NetBlock.none;
-    final offline = netBlock == NetBlock.offline;
+    final offline = netBlock.byMode;
     final nodeDown = demo == OverviewDemo.nodeDown || (demo == null && netBlock == NetBlock.none && s.status?.nodeHealth == ServiceHealth.down);
     // The wallet's own sync (a refresh or a scan), not the node's.
     final walletSync = demo == null && s.status?.syncProgress != null;

@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/relay_directory.dart' show statusSite;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
+import 'package:epic_wallet/src/settings_file/network_mode_file.dart' show networkModeIn;
 import 'package:epic_wallet/src/settings_file/settings_backend_io.dart';
 import 'package:epic_wallet/src/settings_file/settings_controller.dart';
 import 'package:epic_wallet/src/settings_file/settings_layout.dart' show configKeys;
@@ -89,6 +90,7 @@ void main() {
     expect(settings[BackupKey.servers], {BackupKey.node: nodes, BackupKey.epicbox: boxes});
     expect(settings[BackupKey.online], {BackupKey.statusSite: false, BackupKey.updateCheck: true, BackupKey.price: false});
     expect(settings.keys, isNot(contains('push')));
+    expect((settings[BackupKey.advanced] as Map)['networkMode'], 'torOnly', reason: 'the mode travels with the other switches');
 
     // The fresh phone: its own settings.toml, written from the default copy on first start.
     final dir = await Directory.systemTemp.createTemp('backup-phone-');
@@ -122,6 +124,8 @@ void main() {
     expect(statusSite.on, isFalse);
     expect(s.advanced.networkMode, NetworkMode.torOnly);
     expect(NetGate.torOnly, isTrue, reason: 'the mode reaches the gate at once');
+    expect(networkModeIn(file.settings), NetworkMode.torOnly, reason: 'restored into settings.toml');
+    expect(File('${dir.path}/settings.toml').readAsStringSync(), contains('mode = "tor_only"'));
     // Linked devices is this phone's own choice, on by default; a file never sets it.
     expect(s.advanced.features, {AdvancedFeature.outputs, AdvancedFeature.pairing, AdvancedFeature.linkedDevices});
     expect(s.payments, PaymentPrefs.phoneDefaults.copyWith(linkTor: true, defaultMethod: MethodKind.directQr));

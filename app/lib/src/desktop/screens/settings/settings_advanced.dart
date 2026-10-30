@@ -53,7 +53,7 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
 String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
   NetworkMode.standard => l.deskSetAdvModeStandard,
   NetworkMode.torOnly => l.deskSetAdvModeTorOnly,
-  NetworkMode.offline => l.deskSetAdvModeOffline,
+  NetworkMode.nodeOnly || NetworkMode.killSwitch => l.deskSetAdvModeOffline,
 };
 
 class SettingsAdvancedScreen extends ConsumerWidget {
@@ -271,7 +271,7 @@ class _NetworkGroup extends ConsumerWidget {
     );
     final note = switch (adv.networkMode) {
       NetworkMode.torOnly => l.deskSetAdvTorOnlyNote,
-      NetworkMode.offline => DeskFeatures.tor ? l.deskSetAdvOfflineNote : l.deskNoTorAdvOfflineNote,
+      NetworkMode.nodeOnly || NetworkMode.killSwitch => DeskFeatures.tor ? l.deskSetAdvOfflineNote : l.deskNoTorAdvOfflineNote,
       _ => null,
     };
     return ESetGroup(
@@ -285,7 +285,7 @@ class _NetworkGroup extends ConsumerWidget {
             children: [
               mode(NetworkMode.standard, DeskFeatures.tor ? l.deskSetAdvModeStandardText : l.advModeStandardLineNoTor),
               if (DeskFeatures.tor) mode(NetworkMode.torOnly, l.deskSetAdvModeTorOnlyText, tor: true),
-              mode(NetworkMode.offline, l.deskSetAdvModeOfflineText),
+              mode(NetworkMode.nodeOnly, l.deskSetAdvModeOfflineText),
               if (note != null) ...[
                 SizedBox(height: Sp.x3),
                 Padding(

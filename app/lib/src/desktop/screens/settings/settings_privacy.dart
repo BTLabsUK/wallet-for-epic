@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
-import '../../../advanced.dart' show NetworkMode;
+import '../../../advanced.dart' show NetworkMode, NetworkModeRestricted;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
@@ -104,7 +104,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
     // Advanced › Network: Tor only keeps the switch on, Offline leaves it off.
     final mode = st.settings.advanced.networkMode;
     final torOnly = mode == NetworkMode.torOnly;
-    final offline = mode == NetworkMode.offline;
+    final offline = mode.restricted;
     return JumpSection(
       section: SettingsJump.tor,
       child: ESetGroup(

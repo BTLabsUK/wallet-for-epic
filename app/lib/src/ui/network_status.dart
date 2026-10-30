@@ -13,7 +13,7 @@ import '../demo.dart' show devNetworksOf;
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../network.dart';
-import '../network_gate.dart' show NetBlock;
+import '../network_gate.dart' show NetBlockByMode;
 import '../node_failover_phone.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
@@ -110,7 +110,7 @@ class NetworkStatusCard extends ConsumerWidget {
           ).label
         : choice?.relay.label ?? '';
     // In Offline both services are paused by choice: neutral, never red or blue.
-    final paused = watchNetBlock(context, ref) == NetBlock.offline;
+    final paused = watchNetBlock(context, ref).byMode;
     final pausedFace = (level: SignalLevel.none, color: t.dim, word: l.netStatusPausedOffline);
     final node = paused
         ? pausedFace

@@ -8,9 +8,12 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../network_gate.dart' show NetGate;
 import '../secret_store_api.dart';
 import 'host_settings.dart';
 import 'legacy_import.dart';
+import 'network_mode_file.dart';
+import 'settings_backend.dart' show SettingsBackend;
 import 'settings_controller.dart';
 import 'settings_layout.dart' show settingsKeys;
 import 'settings_notice.dart';
@@ -83,6 +86,11 @@ Future<HostSettings> loadShippedSettings({AssetBundle? bundle}) async {
 /// `settings.toml` (`app/tool/dev_settings.sh` copies the first two there); without them this
 /// throws [DevSettingsMissing]. [shippedText] and [configText] replace the two (the web demo's,
 /// from its server).
+///
+/// The network mode (`[network] mode`, `network_mode_file.dart`) reaches [NetGate] here, before
+/// this returns and so before any connection of the app (Tor, the status site, the price, the
+/// updater, the built-in node, a wallet), and again on every change of the file (the app's own
+/// writes, a hand edit, a restored backup). The store's old mode moves into the file first.
 Future<SettingsFileController> openAppSettings({
   required SecretStore store,
   String? devChain,
@@ -91,6 +99,27 @@ Future<SettingsFileController> openAppSettings({
   AssetBundle? bundle,
 }) async {
   final backend = await platformSettingsBackend(store: store, devChain: devChain);
+  return openAppSettingsOn(
+    backend: backend,
+    store: store,
+    devChain: devChain,
+    shippedText: shippedText,
+    configText: configText,
+    bundle: bundle,
+    walletIds: dataFolderWalletIds,
+  );
+}
+
+/// [openAppSettings] on [backend] (tests give a folder of their own).
+Future<SettingsFileController> openAppSettingsOn({
+  required SettingsBackend backend,
+  required SecretStore store,
+  String? devChain,
+  String? shippedText,
+  String? configText,
+  AssetBundle? bundle,
+  Future<List<String>> Function()? walletIds,
+}) async {
   var shipped = shippedText;
   var config = configText;
   if (devChain != null) {
@@ -108,13 +137,20 @@ Future<SettingsFileController> openAppSettings({
     publishGlobal: true,
   );
   // The data folder's own file: what 26.10.23 and older kept in the store joins it once.
-  if (devChain == null && shippedText == null) await importLegacySettings(store, c, walletIds: dataFolderWalletIds);
+  if (devChain == null && shippedText == null) {
+    await importLegacySettings(store, c, walletIds: walletIds);
+    await importNetworkMode(store, c);
+  }
+  NetGate.set(networkModeIn(c.settings));
   final before = _installed;
   _installed = c;
   _installedChain = devChain;
   unawaited(_changesSub?.cancel());
   unawaited(_useSub?.cancel());
-  _changesSub = c.changes.listen(_allChanges.add);
+  _changesSub = c.changes.listen((e) {
+    if (e.keys.contains(networkModeKey)) NetGate.set(networkModeIn(e.after));
+    _allChanges.add(e);
+  });
   _useSub = c.useChanges.listen(_allUseChanges.add);
   if (before != null) {
     unawaited(before.close());

@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
-import '../../../network_gate.dart' show NetBlock;
+import '../../../network_gate.dart' show NetBlockByMode;
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/node_view.dart';
@@ -162,7 +162,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
     }
     final running = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
     // Offline mode: the node would only sit without a network.
-    final offline = ref.watch(deskNetBlockProvider) == NetBlock.offline;
+    final offline = ref.watch(deskNetBlockProvider).byMode;
     final noBinary = s.phase == LocalNodePhase.error && s.failure == NodeFailure.binaryMissing;
     final controls = <Widget>[
       if (!running && !noBinary)

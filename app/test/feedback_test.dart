@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/app_log.dart';
 import 'package:epic_wallet/src/feedback.dart';
@@ -23,6 +24,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/test_settings.dart' show useNetworkModeFile;
 
 const _pin = '123456';
 const _phrase =
@@ -371,7 +373,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness()..url = Uri.parse('https://feedback.example.com/in');
-      h.store.values['app.advanced_prefs'] = '|offline';
+      useNetworkModeFile(NetworkMode.nodeOnly);
       await h.pump(tester);
       await h.openFeedback(tester);
       await enter(tester, 'What happened', 'Please add dark mode');

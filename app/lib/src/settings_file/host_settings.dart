@@ -402,6 +402,11 @@ class HostSettings {
   /// The servers linked devices use: the first `epicbox.link_servers` of the list.
   List<String> get deviceLinkServers => [for (final s in epicboxServers.take(config.linkServerCount)) s.label];
 
+  // [network]: the network mode (`network_mode_file.dart` reads it as a NetworkMode).
+
+  /// `network.mode` as written: `tor_only`, `node_only`, `kill_switch`, or empty for Normal.
+  String get networkModeText => value('network.mode') as String;
+
   // [local_node]: the built-in node's ports, the user's over `[node.local]` of app-config.toml.
 
   /// The built-in node's API port: `local_node.api_port` when set, else `node.local.api_port`.

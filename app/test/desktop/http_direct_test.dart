@@ -182,19 +182,19 @@ void main() {
       expect(session().httpListenerStarts, hasLength(3));
     });
 
-    test('Offline with a LAN node: Receive shows the LAN address, the internet is not asked', () async {
+    test('Node only with a LAN node: the Link listener stops, no address, the internet is not asked', () async {
       await wallet.useNode('http://10.100.10.20:3413');
       await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true), publicMode: true, httpPort: 3420)));
       await wallet.setHttpListening(true);
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
       await pumpEventQueue();
       final s = await wallet.settings();
-      await wallet.saveSettings(s.copyWith(advanced: s.advanced.withMode(NetworkMode.offline)));
+      await wallet.saveSettings(s.copyWith(advanced: s.advanced.withMode(NetworkMode.nodeOnly)));
       await pumpEventQueue();
       addTearDown(() => NetGate.set(NetworkMode.standard));
       final asked = probe.asked;
-      expect((await wallet.status()).httpListener, ServiceHealth.ok, reason: 'kept for local senders');
-      expect(await wallet.httpAddress(), 'http://10.0.1.24:3420');
+      expect((await wallet.status()).httpListener, isNot(ServiceHealth.ok), reason: 'no Link in Node only');
+      expect(await wallet.httpAddress(), '');
       expect((await wallet.httpReach())?.publicAddress, isNull);
       expect(probe.asked, asked);
     });

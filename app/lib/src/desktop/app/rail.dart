@@ -5,7 +5,7 @@
 /// changes height.
 library;
 
-import '../../advanced.dart' show NetworkMode;
+import '../../advanced.dart' show NetworkMode, NetworkModeRestricted;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -179,7 +179,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       ),
     );
   }
-  return settings.advanced.networkMode == NetworkMode.offline ? [for (final i in items) i.offline(l)] : items;
+  return settings.advanced.networkMode.restricted ? [for (final i in items) i.offline(l)] : items;
 }
 
 /// The Node row from a [NodeView].
@@ -308,7 +308,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     }
     var nodeItem = nodeRailItem(l, node);
     final netMode = settings.advanced.networkMode;
-    if (netMode == NetworkMode.offline) {
+    if (netMode.restricted) {
       nodeItem = nodeItem.offline(l);
     } else if (netMode == NetworkMode.torOnly && netTorState(settings, status) != TorState.on && !(prefs.builtin || _localNode(prefs, status))) {
       // Tor only, Tor not up yet: the node waits for it and goes nowhere else.

@@ -29,33 +29,39 @@ TorState netTorState(DeskSettings settings, ServiceStatus? status) {
   return settings.advanced.networkMode == NetworkMode.torOnly && tor == TorState.off ? TorState.starting : tor;
 }
 
-/// The node in use is on this computer or the local network: Offline still asks it.
+/// The node in use is on this computer or the local network: Node only says nothing about a
+/// public node then.
 bool deskLocalNode(DeskState st) => isLocalAddressUrl(st.status?.node.url);
 
 /// Why network actions can't run now ([NetBlock.none]: they can). [nodeOnly]: the action
-/// reaches only the node (Recheck balance, the HTTP listener) or local addresses (a Direct
-/// send), which Offline allows with a local node. [epicbox]: the action goes over Epicbox,
+/// reaches only the node in use (Recheck balance, posting), which Node only allows. [epicbox]: the action goes over Epicbox,
 /// which the Epicbox switch (Settings › Transactions) holds when off. [offered]: false when
 /// the action's method is off there ([NetBlock.methodOff]).
 NetBlock deskNetBlock(DeskState st, {bool nodeOnly = false, bool epicbox = false, bool offered = true}) => netBlockFor(
   deskNetMode(st),
   deskNetTor(st),
-  localNode: nodeOnly && deskLocalNode(st),
+  node: nodeOnly,
   epicbox: !epicbox || st.settings.payments.epicbox,
   offered: offered,
 );
 
-/// The transaction file method uses the node in use while Offline, and the node is not local:
-/// the screen says so (`network_gate.dart`'s [offlineUsesNode]); it is never held.
-bool deskOfflineUsesNode(DeskState st) => offlineUsesNode(deskNetMode(st), localNode: deskLocalNode(st));
+/// The transaction file method uses the node in use while Node only, and the node is not
+/// local: the screen says so (`network_gate.dart`'s [nodeOnlyUsesNode]); it is never held.
+bool deskOfflineUsesNode(DeskState st) => nodeOnlyUsesNode(deskNetMode(st), localNode: deskLocalNode(st));
+
+/// The balance and history show as last known: Kill switch asks no node.
+bool deskLastKnown(DeskState st) => deskNetMode(st) == NetworkMode.killSwitch;
+
+/// [deskLastKnown] for a widget.
+final deskLastKnownProvider = Provider<bool>((ref) => ref.watch(deskProvider.select(deskLastKnown)));
 
 /// [deskNetBlock] for a widget: rebuilds only when the answer changes.
 final deskNetBlockProvider = Provider<NetBlock>((ref) => deskNetBlock(ref.watch(deskProvider)));
 
-/// The local node's peer count while Offline (`nodePeerCount`); null otherwise or when it
+/// The local node's peer count while Node only (`nodePeerCount`); null otherwise or when it
 /// does not say. With 0 a payment waits in the node's pool until it reconnects.
 final deskOfflinePeersProvider = FutureProvider.autoDispose<int?>((ref) async {
-  final url = ref.watch(deskProvider.select((st) => deskNetMode(st) == NetworkMode.offline && deskLocalNode(st) ? st.status?.node.url : null));
+  final url = ref.watch(deskProvider.select((st) => deskNetMode(st) == NetworkMode.nodeOnly && deskLocalNode(st) ? st.status?.node.url : null));
   return url == null ? null : nodePeerCount(url);
 });
 
@@ -68,7 +74,7 @@ final deskOfflineUsesNodeProvider = Provider<bool>((ref) => deskOfflineUsesNode(
 /// The reason for a disabled network action, one short line; null when nothing blocks.
 String? netBlockReason(AppLocalizations l, NetBlock b) => switch (b) {
   NetBlock.none => null,
-  NetBlock.offline => l.deskNetOfflineReason,
+  NetBlock.nodeOnly || NetBlock.killSwitch => l.deskNetOfflineReason,
   NetBlock.waitingForTor => l.deskNetWaitingTorReason,
   NetBlock.epicboxOff => l.netBlockEpicboxOff,
   // The screen names the method it asked about ([methodOffReason]).

@@ -154,8 +154,8 @@ class ReceiveView extends ConsumerWidget {
     final linkHttp = payments.linkHttp;
     // The Link tab keeps its page with both Link methods off: it offers to turn one on.
     // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
-    final offline = watchNetBlock(context, ref) == NetBlock.offline;
-    final offlineNote = NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine);
+    final offline = watchNetBlock(context, ref).byMode;
+    final offlineNote = NetBlockNote(NetBlock.nodeOnly, line: l.receiveOfflineLine);
     final address = ref.watch(addressProvider);
     // The Epicbox list of the settings file is empty: no server, so no address to hand out
     // (LEPIC's is on a placeholder server, lepic_wallet_service.dart's noEpicboxDomain).

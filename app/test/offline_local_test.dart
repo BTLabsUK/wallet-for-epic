@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// Offline = nothing beyond this computer and the local network (net/local_address.dart): the
-// classifier at every range edge, the gate's local-node input, and the LEPIC adapter letting a
-// local node and Link sends to local addresses through while refusing the rest. No native
-// library is loaded and no lookup reaches a resolver: [LepicWalletSession.directLookup] is
-// replaced.
+// Local addresses (net/local_address.dart): the classifier at every range edge, the lookup
+// once, and the LEPIC adapter per network mode (Node only: the node and files; Kill switch:
+// files only). No native library is loaded and no lookup reaches a resolver.
 import 'dart:convert';
 import 'dart:io';
 
@@ -16,6 +14,7 @@ import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/net/local_address.dart';
 import 'package:epic_wallet/src/net/node_peers.dart';
 import 'package:epic_wallet/src/net/tor_net.dart';
+import 'package:epic_wallet/src/models.dart' show HttpExposure;
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -154,49 +153,40 @@ void main() {
   });
 
   group('the gate', () {
-    test('Offline with a local node: node actions and files run; without one, as before', () {
+    test('Node only lets node actions and files run on any node; the rest is held', () {
       for (final t in TorState.values) {
-        expect(netBlockFor(NetworkMode.offline, t, localNode: true), NetBlock.none);
-        expect(netBlockFor(NetworkMode.offline, t), NetBlock.offline);
+        expect(netBlockFor(NetworkMode.nodeOnly, t, node: true), NetBlock.none);
+        expect(netBlockFor(NetworkMode.nodeOnly, t), NetBlock.nodeOnly);
       }
-      expect(offlineUsesNode(NetworkMode.offline, localNode: true), isFalse);
-      expect(offlineUsesNode(NetworkMode.offline, localNode: false), isTrue);
-      expect(netBlockFor(NetworkMode.torOnly, TorState.starting, localNode: true), NetBlock.waitingForTor);
+      expect(nodeOnlyUsesNode(NetworkMode.nodeOnly, localNode: true), isFalse);
+      expect(nodeOnlyUsesNode(NetworkMode.nodeOnly, localNode: false), isTrue);
+      expect(netBlockFor(NetworkMode.torOnly, TorState.starting, node: true), NetBlock.waitingForTor);
     });
 
-    test('NetGate.check and TorNet.configure let a local call through in Offline', () {
-      NetGate.set(NetworkMode.offline);
-      expect(() => NetGate.check('x', local: true), returnsNormally);
+    test('NetGate.checkNode lets the node through in Node only, not in Kill switch', () {
+      NetGate.set(NetworkMode.nodeOnly);
+      expect(() => NetGate.checkNode('x'), returnsNormally);
       expect(() => NetGate.check('x'), throwsA(isA<NetBlocked>()));
-      final client = HttpClient();
-      addTearDown(() => client.close(force: true));
-      TorNet.configure(client, local: true);
-      expect(() => TorNet.configure(client), throwsA(isA<NetError>()));
+      NetGate.set(NetworkMode.killSwitch);
+      expect(() => NetGate.checkNode('x'), throwsA(isA<NetBlocked>()));
     });
 
-    test('the refusal of a non-local Link address says so, phone and desktop', () {
-      const e = NetBlocked(NetworkMode.offline, 'send over HTTP', notLocal: true);
-      expect(describeError(englishStrings, e), 'Offline: only local addresses.');
-      expect(deskErrorText(e), 'Offline: only local addresses.');
+    test('a refusal by the mode reads as the mode, phone and desktop', () {
+      const e = NetBlocked(NetworkMode.killSwitch, 'send over HTTP');
+      expect(describeError(englishStrings, e), englishStrings.advHomeOffline);
+      expect(deskErrorText(e), englishStrings.deskShellOffline);
+      const t = NetBlocked(NetworkMode.torOnly, 'send over HTTP');
+      expect(describeError(englishStrings, t), englishStrings.advModeTorOnlyLine);
     });
   });
 
-  group('the LEPIC adapter in Offline', () {
+  group('the LEPIC adapter by mode', () {
     late _Wallet wallet;
     late LepicWalletSession session;
-    final lookups = <String>[];
-    var answer = <String>[];
 
     setUp(() {
       wallet = _Wallet();
       session = LepicWalletSession(wallet);
-      lookups.clear();
-      answer = [];
-      LepicWalletSession.directLookup = (h) async {
-        lookups.add(h);
-        return answer;
-      };
-      NetGate.set(NetworkMode.offline);
     });
 
     Future<String> send(String url) async {
@@ -204,48 +194,36 @@ void main() {
       return wallet.sentTo.last;
     }
 
-    test('a public node: a file is made and Link goes to a local address (both post through that node); a refresh is refused', () async {
+    test('Node only: a file is made; Link, Epicbox and Tor are refused before LEPIC', () async {
+      NetGate.set(NetworkMode.nodeOnly);
       session.nodeUrl = 'https://node.btlabs.uk';
       await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
       expect(wallet.slates, 1);
-      expect(await send('http://10.0.1.30:3415'), 'http://10.0.1.30:3415');
-      await expectLater(send('https://203.0.113.5:3415'), throwsA(isA<NetBlocked>().having((e) => e.notLocal, 'notLocal', isTrue)));
-      await expectLater(session.summary(refresh: true, minimumConfirmations: BigInt.from(3)), throwsA(isA<NetBlocked>()));
-      await expectLater(session.scan().drain<void>(), throwsA(isA<NetBlocked>()));
-      expect(wallet.sentTo, hasLength(1));
-    });
-
-    for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413']) {
-      test('a local node ($node): a file is made, Link goes to a local address only', () async {
-        session.nodeUrl = node;
-        await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
-        expect(wallet.slates, 1);
-        expect(await send('http://10.0.1.30:3415'), 'http://10.0.1.30:3415');
-        expect(lookups, isEmpty, reason: 'a literal address is not looked up');
-        await expectLater(send('https://203.0.113.5:3415'), throwsA(isA<NetBlocked>().having((e) => e.notLocal, 'notLocal', isTrue)));
-        answer = ['10.0.1.31', '203.0.113.5'];
-        await expectLater(send('http://pc.lan:3415'), throwsA(isA<NetBlocked>().having((e) => e.notLocal, 'notLocal', isTrue)));
-        answer = ['10.0.1.31'];
-        expect(await send('http://pc.lan:3415'), 'http://10.0.1.31:3415', reason: 'LEPIC connects to the address found');
-        expect(lookups, ['pc.lan', 'pc.lan']);
-        expect(wallet.sentTo, hasLength(2));
-      });
-    }
-
-    test('Epicbox and Tor stay refused with a local node', () async {
-      session.nodeUrl = 'http://10.100.10.20:3413';
+      await expectLater(send('http://10.0.1.30:3415'), throwsA(isA<NetBlocked>()));
       await expectLater(
         session.sendEpicbox(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3), address: 'esX@epicbox.epiccash.com'),
         throwsA(isA<NetBlocked>()),
       );
+      await expectLater(session.startListener().drain<void>(), throwsA(isA<NetBlocked>()));
+      await expectLater(session.startHttpListener(exposure: HttpExposure.localOnly, port: 3415).drain<void>(), throwsA(isA<NetBlocked>()));
+      expect(wallet.sentTo, isEmpty);
+    });
+
+    test('Kill switch: a file is made without a node; a refresh, a scan and tor are refused', () async {
+      NetGate.set(NetworkMode.killSwitch);
+      session.nodeUrl = 'http://127.0.0.1:3413';
+      await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
+      expect(wallet.slates, 1);
+      await expectLater(session.summary(refresh: true, minimumConfirmations: BigInt.from(3)), throwsA(isA<NetBlocked>()));
+      await expectLater(session.scan().drain<void>(), throwsA(isA<NetBlocked>()));
       await expectLater(session.startTor(torBinary: '/x').drain<void>(), throwsA(isA<NetBlocked>()));
+      await expectLater(session.postFinished('{}'), throwsA(isA<NetBlocked>()));
     });
 
     test('Standard leaves a Link address as given', () async {
       NetGate.set(NetworkMode.standard);
       session.nodeUrl = 'https://node.btlabs.uk';
       expect(await send('https://wallet.example.org'), 'https://wallet.example.org');
-      expect(lookups, isEmpty);
     });
 
     test('the Epicbox switch off, in Standard: Epicbox sends and the listener are refused before LEPIC; files and Link go on', () async {

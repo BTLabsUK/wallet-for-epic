@@ -84,7 +84,8 @@ void main() {
           failoverHold(on: on, mode: mode, tor: tor, nodeUrl: url, busy: busy);
       expect(hold(), isNull);
       expect(hold(on: false), FailoverHold.off);
-      expect(hold(mode: NetworkMode.offline), FailoverHold.offline);
+      expect(hold(mode: NetworkMode.nodeOnly), FailoverHold.offline);
+      expect(hold(mode: NetworkMode.killSwitch), FailoverHold.offline);
       expect(hold(url: _local), FailoverHold.localNode);
       expect(hold(url: 'http://localhost:3413'), FailoverHold.localNode);
       expect(hold(mode: NetworkMode.torOnly, tor: TorState.starting), FailoverHold.waitingForTor);
@@ -104,7 +105,7 @@ void main() {
       final off = const AdvancedPrefs().withFeature(AdvancedFeature.outputs, true).withNodeFailover(false);
       expect(AdvancedPrefs.decode(off.encode()), off);
       expect(AdvancedPrefs.fromJson(off.toJson()), off);
-      expect(off.withMode(NetworkMode.offline).nodeFailover, isFalse);
+      expect(off.withMode(NetworkMode.nodeOnly).nodeFailover, isFalse);
       expect(off == off.withNodeFailover(true), isFalse);
     });
 
@@ -186,7 +187,7 @@ void main() {
 
     test('Offline: never', () {
       fakeAsync((async) {
-        final h = _Harness(async, prefs: AdvancedPrefs.none.withMode(NetworkMode.offline));
+        final h = _Harness(async, prefs: AdvancedPrefs.none.withMode(NetworkMode.nodeOnly));
         h.nodeDown();
         h.elapse(const Duration(minutes: 2));
         expect(h.session.serverSwitches, isEmpty);
@@ -309,7 +310,10 @@ class _Harness {
     hostSettings = testSettings().withValues({
       'node.servers': [_a, _b, _c, _d],
     });
-    if (prefs != null) store.values['app.advanced_prefs'] = prefs.encode();
+    if (prefs != null) {
+      store.values['app.advanced_prefs'] = prefs.encode();
+      useNetworkModeFile(prefs.networkMode);
+    }
     final service = _Service(deadNodes);
     session = service.session;
     container = ProviderContainer(

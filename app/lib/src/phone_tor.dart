@@ -338,7 +338,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     } on WalletError catch (e) {
       logWarn('tor', 'onion routes not set: ${e.kind.name}');
     }
-    if (!over || NetGate.offline) return;
+    if (!over || NetGate.killSwitch) return;
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final receiving = await ref.read(secretStoreProvider).read(receivingKey(config));
@@ -437,16 +437,21 @@ class PhoneTor extends Notifier<PhoneTorState> {
       onion: onion == null ? null : onionHost(onion),
       receiving: receiving,
     );
-    if (bundle != null && receiving && !NetGate.offline) _start();
+    if (bundle != null && receiving && !NetGate.killSwitch) _start();
   }
 
   /// Applies a new network mode to the open wallet's tor.
   Future<void> _modeChanged(NetworkMode mode) async {
     if (_session == null || !state.settled) return;
     switch (mode) {
-      case NetworkMode.offline:
+      case NetworkMode.killSwitch:
         _forSends = false;
         await _stop();
+      case NetworkMode.nodeOnly:
+        // The switch carries the node; no sends over Tor.
+        _forSends = false;
+        if (_wanted && !_running && state.phase != PhoneTorPhase.unavailable) _start();
+        if (!_wanted) await _stop();
       case NetworkMode.torOnly:
         await ref.read(epicboxOverTorProvider.notifier).set(true);
         if (!ref.mounted) return;
@@ -460,15 +465,15 @@ class PhoneTor extends Notifier<PhoneTorState> {
     }
   }
 
-  /// Offline wants no tor at all; otherwise the switch or a send does.
-  bool get _wanted => !NetGate.offline && (state.receiving || _forSends);
+  /// Kill switch wants no tor at all; otherwise the switch or a send does.
+  bool get _wanted => !NetGate.killSwitch && (state.receiving || _forSends);
 
   bool get _running => _tor != null;
 
   /// Turns the user's "Tor receiving" switch for this wallet on or off, and starts or stops
   /// tor. Off waits for a Tor send that is running, then stops.
   ///
-  /// Tor only refuses off: the switch stays on until the mode changes. Offline saves the
+  /// Tor only refuses off: the switch stays on until the mode changes. Kill switch saves the
   /// switch and starts nothing.
   Future<void> setReceiving(bool on) async {
     if (!torBuilt) return;
@@ -493,7 +498,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     if (on) {
       _stopAfterSends = false;
       _restarts = 0;
-      if (!_running && !NetGate.offline) _start();
+      if (!_running && !NetGate.killSwitch) _start();
       return;
     }
     _forSends = false;
@@ -574,7 +579,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   /// Stops tor if it runs and starts it again now.
   Future<void> retry() async {
     final session = _session;
-    if (session == null || state.phase == PhoneTorPhase.unavailable || NetGate.offline) return;
+    if (session == null || state.phase == PhoneTorPhase.unavailable || NetGate.killSwitch) return;
     _restartTimer?.cancel();
     _restarts = 0;
     // A restart: the Epicbox connection keeps waiting for the new tor.
@@ -586,7 +591,8 @@ class PhoneTor extends Notifier<PhoneTorState> {
   void _start() {
     final session = _session;
     final bundle = _bundle;
-    if (session == null || bundle == null || _running || NetGate.offline) return;
+    if (session == null || bundle == null || _running || NetGate.killSwitch) return;
+    NetGate.dial(NetDial.tor, 'tor');
     _restartTimer?.cancel();
     final generation = _generation;
     state = state.copyWith(

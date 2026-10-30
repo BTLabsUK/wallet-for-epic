@@ -81,8 +81,13 @@ Future<HttpReply> _send(
   List<int>? body,
   Duration timeout,
 ) async {
-  // The Offline mode: nothing leaves the page (the demo server's own calls included).
-  if (NetGate.offline) throw const NetError('Offline mode');
+  // The network mode's gate (network_gate.dart): Kill switch lets nothing leave the page (the
+  // demo server's own calls included), Node only the node in use.
+  try {
+    NetGate.dial(NetDial.http, url.host);
+  } on NetBlocked {
+    throw const NetError(netModeError);
+  }
   final abort = _AbortController();
   var timedOut = false;
   final timer = Timer(timeout, () {

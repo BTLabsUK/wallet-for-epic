@@ -1077,7 +1077,7 @@ void main() {
   });
 
   group('network modes', () {
-    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+    const offline = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
     const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
     Finder makeFile() => find.widgetWithText(FilledButton, 'Make transaction file');
 
@@ -1109,7 +1109,7 @@ void main() {
       expect(h.session.epicboxSends, isEmpty);
     });
 
-    testWidgets('Offline with a LAN node: File and Link run; no peers says the payment waits', (
+    testWidgets('Node only with a LAN node: File runs, Link does not; no peers says the payment waits', (
       tester,
     ) async {
       final h = _Harness();
@@ -1117,10 +1117,9 @@ void main() {
       // Epicbox still waits.
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      // Link to a local address goes on (the adapter refuses a non-local one).
+      // No Link in Node only, a local address included.
       await _enter(tester, 'To', 'http://10.0.1.30:3415');
-      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
-      expect(find.byKey(netBlockNoteKey), findsNothing);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
       await _tap(tester, _segment('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);

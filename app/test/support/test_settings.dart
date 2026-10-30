@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
+import 'package:epic_wallet/src/settings_file/network_mode_file.dart' show networkModeKey, networkModeText;
 import 'package:flutter_test/flutter_test.dart';
 
 /// `test/settings/`: the shipped pair's layout with example hosts only.
@@ -54,4 +56,10 @@ void useShippedSettings() {
     hostSettings = testSettings();
     shippedHostSettings = hostSettings;
   });
+}
+
+/// Makes [mode] the settings file's `[network] mode` for this test (the one place the mode is
+/// kept, `network_mode_file.dart`); the next test starts from the test settings again.
+void useNetworkModeFile(NetworkMode mode) {
+  hostSettings = hostSettings.withValues({networkModeKey: networkModeText(mode)});
 }

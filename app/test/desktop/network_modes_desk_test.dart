@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // The desktop wallet follows the network mode of Settings › Advanced (network_gate.dart):
-// Offline asks no node, starts no listener or tor and keeps the wallet open on its own files,
-// and leaving it starts everything again without a restart; Tor only turns the Tor switch on
-// and refuses it off. LepicDeskWallet over FakeWalletSession; the password is a throwaway
+// Kill switch asks no node, starts no listener or tor and keeps the wallet open on its own
+// files; Node only asks the node in use and nothing else; leaving them starts everything again
+// without a restart; Tor only turns the Tor switch on and refuses it off. LepicDeskWallet over FakeWalletSession; the password is a throwaway
 // test value; no tor runs.
 import 'dart:io';
 
@@ -65,13 +65,13 @@ void main() {
     await support.delete(recursive: true);
   });
 
-  test('Offline while open: everything that reaches the network stops and is refused', () async {
+  test('Kill switch while open: everything that reaches the network stops and is refused', () async {
     await wallet.setEpicboxListening(true);
     await wallet.setTor(true);
     expect(session().listenerStarts, 1);
     expect(session().torStarts, hasLength(1));
-    await mode(NetworkMode.offline);
-    expect(NetGate.offline, isTrue);
+    await mode(NetworkMode.killSwitch);
+    expect(NetGate.killSwitch, isTrue);
     expect(session().listenerStops, greaterThan(0));
     expect(session().torStops, greaterThan(0));
     final tips = session().nodeTipsFor.length;
@@ -92,7 +92,7 @@ void main() {
   test('back to Standard resumes what ran, without a restart', () async {
     await wallet.setEpicboxListening(true);
     await wallet.setTor(true);
-    await mode(NetworkMode.offline);
+    await mode(NetworkMode.killSwitch);
     final tips = session().nodeTipsFor.length;
     await mode(NetworkMode.standard);
     await pumpEventQueue();
@@ -101,9 +101,9 @@ void main() {
     expect(session().nodeTipsFor.length, greaterThan(tips));
   });
 
-  test('unlocked in Offline: local data only; leaving it starts as an unlock would', () async {
+  test('unlocked in Kill switch: local data only; leaving it starts as an unlock would', () async {
     await wallet.lock();
-    await mode(NetworkMode.offline);
+    await mode(NetworkMode.killSwitch);
     session().nodeTipsFor.clear();
     final refreshes = session().refreshCalls;
     expect(await wallet.unlock(_password), isTrue);
@@ -149,36 +149,59 @@ void main() {
     expect(session().routeLog, contains('expectTor'));
   }, skip: torBuilt ? null : 'no Tor in this build');
 
-  group('Offline with a local node', () {
-    for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413']) {
-      test('$node: still synced, rechecked and receiving over HTTP; Epicbox and Tor stay off', () async {
+  test('Kill switch reopens the session as an offline one and leaving it as an online one', () async {
+    core.walletOfflineSessions = true;
+    addTearDown(() => core.walletOfflineSessions = false);
+    expect(session().openedConfig?.offline, isFalse);
+    await mode(NetworkMode.killSwitch);
+    expect(session().openedConfig?.offline, isTrue);
+    await mode(NetworkMode.nodeOnly);
+    expect(session().openedConfig?.offline, isFalse);
+    await mode(NetworkMode.killSwitch);
+    await mode(NetworkMode.standard);
+    expect(session().openedConfig?.offline, isFalse);
+  });
+
+  group('Node only', () {
+    for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413', 'https://node.example']) {
+      test('$node: synced and rechecked; Epicbox and the Link listener stay off', () async {
         await wallet.useNode(node);
         await pumpEventQueue();
-        await mode(NetworkMode.offline);
-        final tips = session().nodeTipsFor.length;
+        await mode(NetworkMode.nodeOnly);
         final refreshes = session().refreshCalls;
         await wallet.syncNow();
         expect(session().refreshCalls, greaterThan(refreshes));
         await wallet.rescan().drain<void>();
         expect(session().scanCalls, greaterThan(0));
         await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true))));
-        await wallet.setHttpListening(true);
-        expect(session().httpListenerStarts, isNotEmpty);
+        await expectLater(wallet.setHttpListening(true), throwsA(isA<DeskError>()));
+        expect(session().httpListenerStarts, isEmpty);
         await expectLater(wallet.setEpicboxListening(true), throwsA(isA<DeskError>()));
-        await expectLater(wallet.setTor(true), throwsA(isA<DeskError>()));
-        expect(session().nodeTipsFor.length, greaterThanOrEqualTo(tips));
       });
     }
 
-    test('a public node: refused as before', () async {
-      await wallet.useNode('https://node.example');
-      await mode(NetworkMode.offline);
+    test('the Tor switch stays the user\'s: it carries the node', () async {
+      await mode(NetworkMode.nodeOnly);
+      await wallet.setTor(true);
+      expect(session().torStarts, hasLength(1));
+      expect(session().listenerStarts, 0);
+    }, skip: torBuilt ? null : 'no Tor in this build');
+
+    test('Node only, then Kill switch, then Node only: the node stops and comes back', () async {
+      await wallet.setEpicboxListening(true);
+      await mode(NetworkMode.nodeOnly);
+      expect(session().listenerStops, greaterThan(0));
+      await mode(NetworkMode.killSwitch);
       final refreshes = session().refreshCalls;
       await wallet.syncNow();
       expect(session().refreshCalls, refreshes);
-      await expectLater(wallet.rescan().drain<void>(), throwsA(isA<DeskError>()));
-      await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true))));
-      await expectLater(wallet.setHttpListening(true), throwsA(isA<DeskError>()));
+      await mode(NetworkMode.nodeOnly);
+      await pumpEventQueue();
+      expect(session().refreshCalls, greaterThan(refreshes));
+      expect(session().listenerStarts, 1, reason: 'Epicbox stays off in Node only');
+      await mode(NetworkMode.standard);
+      await pumpEventQueue();
+      expect(session().listenerStarts, 2, reason: 'what ran before Node only starts again');
     });
   });
 }

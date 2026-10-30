@@ -255,7 +255,20 @@ const List<SettingsKey> settingsKeys = [
   // [local_node]: the built-in node's ports when they are not `[node.local]`'s of app-config.toml.
   SettingsKey('local_node.api_port', _userPort, byDefault: notSet),
   SettingsKey('local_node.p2p_port', _userPort, byDefault: notSet),
+  // [network]: the network mode (Settings › Advanced › Network); left out for Normal.
+  SettingsKey('network.mode', TextKind(checkNetworkMode), byDefault: ''),
 ];
+
+/// The comment above a key the default copy leaves out, written with it when the app adds it.
+const Map<String, List<String>> keyComments = {
+  'network.mode': ['# Network mode: tor_only, node_only or kill_switch (Settings › Advanced › Network). Absent = normal.'],
+};
+
+/// The values `network.mode` takes; empty is Normal (the key left out).
+const Set<String> networkModeValues = {'', 'tor_only', 'node_only', 'kill_switch'};
+
+/// A network mode the file names (`network.mode`).
+ValueProblem? checkNetworkMode(String v) => networkModeValues.contains(v) ? null : ValueProblem.notText;
 
 /// Every key of `app-config.toml`, in its order. Read-only: the app never writes it.
 const List<SettingsKey> configKeys = [

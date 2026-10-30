@@ -207,7 +207,7 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     if (ref.read(appSettingsProvider).value?.payments.linkHttp != true) return PhoneHttpPhase.off;
     final mode = ref.read(networkModeProvider);
     if (mode == NetworkMode.torOnly) return PhoneHttpPhase.offWhileTor;
-    if (mode == NetworkMode.offline && !ref.read(localNodeProvider)) return PhoneHttpPhase.offline;
+    if (mode == NetworkMode.nodeOnly || mode == NetworkMode.killSwitch) return PhoneHttpPhase.offline;
     final tor = ref.read(phoneTorProvider);
     // Until the wallet's Tor switch is read it may be on: never listen in the clearnet first.
     if (!tor.settled) return PhoneHttpPhase.off;

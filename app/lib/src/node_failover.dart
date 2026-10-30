@@ -4,7 +4,7 @@
 /// to the next working node in the user's list for this session only. The chosen node stays
 /// saved; the next start opens on it, and a node the user picks becomes the chosen one.
 ///
-/// Never in Offline, never away from a node on this computer, never while Tor is still
+/// Never in Node only or Kill switch (only the node in use), never away from a node on this computer, never while Tor is still
 /// starting (the node waits for Tor, it is not gone), and in Tor only only to a node reachable
 /// over Tor. Epicbox has no failover: another relay is another address.
 ///
@@ -42,7 +42,7 @@ enum FailoverHold {
   /// The switch on the Advanced page is off.
   off,
 
-  /// Offline mode: no network at all.
+  /// Node only or Kill switch: only the node in use, or none.
   offline,
 
   /// The node is on this computer: the user's own, never left.
@@ -64,7 +64,7 @@ FailoverHold? failoverHold({
   bool busy = false,
 }) {
   if (!on) return FailoverHold.off;
-  if (netModeOf(mode) == NetworkMode.offline) return FailoverHold.offline;
+  if (netModeOf(mode) == NetworkMode.nodeOnly || netModeOf(mode) == NetworkMode.killSwitch) return FailoverHold.offline;
   if (isLocalNodeUrl(nodeUrl)) return FailoverHold.localNode;
   final torWanted = netModeOf(mode) == NetworkMode.torOnly || tor != TorState.off;
   if (torWanted && tor != TorState.on) return FailoverHold.waitingForTor;

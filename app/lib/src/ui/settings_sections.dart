@@ -166,7 +166,7 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
 String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
   NetworkMode.standard => l.advModeStandard,
   NetworkMode.torOnly => l.advModeTorOnly,
-  NetworkMode.offline => l.advModeOffline,
+  NetworkMode.nodeOnly || NetworkMode.killSwitch => l.advModeOffline,
 };
 
 /// The key of the Privacy header on the Privacy & network page, for tests.
@@ -694,8 +694,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             ),
           );
     final error = Theme.of(context).colorScheme.error;
-    // Recheck balance asks the node only: Offline lets it run on a local one.
-    final block = watchNetBlock(context, ref, localNode: ref.watch(localNodeProvider));
+    // Recheck balance asks the node only: Node only lets it run.
+    final block = watchNetBlock(context, ref, node: true);
     return [
       ListTile(
         leading: const Icon(Icons.contacts_outlined),
@@ -1072,7 +1072,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           subtitle: Text(line),
         );
     final note = switch (adv.networkMode) {
-      NetworkMode.offline => torBuilt ? l.advOfflineNote : l.advOfflineNoteNoTor,
+      NetworkMode.nodeOnly || NetworkMode.killSwitch => torBuilt ? l.advOfflineNote : l.advOfflineNoteNoTor,
       _ => null,
     };
     return [
@@ -1156,7 +1156,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                 l.advModeTorOnlyLine,
                 enabled: torAvailable,
               ),
-            mode(NetworkMode.offline, l.advModeOffline, l.advModeOfflineLine),
+            mode(NetworkMode.nodeOnly, l.advModeOffline, l.advModeOfflineLine),
           ],
         ),
       ),

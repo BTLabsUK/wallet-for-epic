@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/method_names.dart';
 import '../../../network.dart' show EpicboxRelay;
-import '../../../network_gate.dart' show NetBlock;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../app/tour.dart';
@@ -293,7 +293,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   /// The network mode holds receiving: the address stays to hand out, the file panel works.
   Widget _netNotice(NetBlock net) {
     final l = context.l10n;
-    final offline = net == NetBlock.offline;
+    final offline = net.byMode;
     return ENotice(
       key: const ValueKey('rx-net-blocked'),
       // Waiting for Tor is in progress (blue ⓘ); Offline is the mode's hold.
@@ -346,7 +346,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final c = context.dc;
     final l = context.l10n;
     final methods = _methodsFor(st.settings);
-    final offline = deskNetBlock(st) == NetBlock.offline;
+    final offline = deskNetBlock(st).byMode;
     final lines = {
       for (final m in methods)
         m: status == null
@@ -414,10 +414,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final net = deskNetBlock(st);
     final line = status == null
         ? null
-        : net == NetBlock.offline
+        : net.byMode
         ? MethodLine(l.deskRailOffline, EState.off, detail: l.deskNetCantReceive)
         : methodStateLine(context.l10n, m, status, st.settings);
-    final health = net == NetBlock.offline ? null : status?.epicboxHealth;
+    final health = net.byMode ? null : status?.epicboxHealth;
     final tag = !on
         ? l.deskRecvTagPaused
         : health == ServiceHealth.checking

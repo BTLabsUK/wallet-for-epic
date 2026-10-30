@@ -360,13 +360,13 @@ final List<DeskShot> settingsShots = [
   // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
   DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
-  DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '43e-overview-waiting-tor', title: 'Overview, Tor only waiting for Tor', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
-  DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '43h-privacy-tor-only', title: 'Privacy, the Tor switch locked by Tor only', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.offline)),
+  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(
     id: '43j-tx-detail-more',
     title: 'Transaction detail, More opened with Technical details off',

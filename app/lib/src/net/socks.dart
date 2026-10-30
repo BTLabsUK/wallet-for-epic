@@ -11,6 +11,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import '../network_gate.dart' show NetDial, NetGate;
 import '../settings_file/host_settings.dart';
 
 /// Where tor's SOCKS port listens: an IP literal on this computer, so connecting to it needs
@@ -37,6 +38,9 @@ class SocksError implements IOException {
 
   /// A BT Labs host without an onion, which tor does not reach (by design).
   static const noBtLabsOnion = 'no onion for this onion-only server';
+
+  /// Refused by the network mode (`NetGate.dial`) before anything was opened.
+  static const netMode = 'refused by the network mode';
 
   final String message;
 
@@ -101,6 +105,8 @@ Future<_Reader> _handshake(SocksProxy proxy, String host, int port, Duration tim
   final name = utf8.encode(host);
   if (name.isEmpty || name.length > 255) throw const SocksError('bad host name');
   if (port < 1 || port > 65535) throw const SocksError('bad port');
+  // Tor's SOCKS port on this computer: Kill switch never connects to it.
+  if (!NetGate.allows(NetDial.tor, proxy.host)) throw const SocksError(SocksError.netMode);
   final socket = await Socket.connect(proxy.host, proxy.port, timeout: timeout);
   final reader = _Reader(socket);
   try {
@@ -322,6 +328,8 @@ Future<ConnectionTask<Socket>> Function(Uri, String?, int?) socksConnectionFacto
     final port = url.hasPort ? url.port : (secure ? 443 : 80);
     final target = onions?.call(url.host, port);
     Future<Socket> open() async {
+      // The network mode's gate on the host asked for (its onion stands in for it).
+      if (!NetGate.allows(NetDial.http, url.host)) throw const SocksError(SocksError.netMode);
       if (target != null) {
         if (secure && !target.tls && pinnedPlain?.call(url.host, port) != target) {
           throw const SocksError('no TLS onion for an https request');

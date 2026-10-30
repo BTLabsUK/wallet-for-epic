@@ -177,7 +177,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness(
-        advanced: const AdvancedPrefs(networkMode: NetworkMode.offline),
+        advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly),
       );
       await h.pump(tester, privacy: true);
       await _reach(tester, find.byKey(torReceivingSwitchKey));

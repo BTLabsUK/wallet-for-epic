@@ -396,7 +396,7 @@ void main() {
   });
 
   group('Offline', () {
-    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+    const offline = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
 
     testWidgets('Epicbox: the address to hand out, and the line that it cannot receive', (
       tester,

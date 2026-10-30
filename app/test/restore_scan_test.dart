@@ -77,10 +77,10 @@ void main() {
     expect(container.read(restoreScanProvider).required, isFalse);
   });
 
-  test('Offline waits with the reason, and the scan starts when it is off', () async {
+  test('Kill switch waits with the reason, and the scan starts when it is off', () async {
     final container = _container();
     addTearDown(container.dispose);
-    NetGate.set(NetworkMode.offline);
+    NetGate.set(NetworkMode.killSwitch);
     final session = FakeWalletSession()..restoreScanPending = true;
     container.read(sessionProvider.notifier).unlocked(session);
     await pumpEventQueue();
@@ -150,7 +150,7 @@ void main() {
   test('a lock clears the state', () async {
     final container = _container();
     addTearDown(container.dispose);
-    NetGate.set(NetworkMode.offline);
+    NetGate.set(NetworkMode.killSwitch);
     container.read(sessionProvider.notifier).unlocked(FakeWalletSession()..restoreScanPending = true);
     await pumpEventQueue();
     expect(container.read(restoreScanProvider).required, isTrue);

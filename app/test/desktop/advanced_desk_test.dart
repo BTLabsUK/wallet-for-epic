@@ -65,7 +65,8 @@ Future<void> _settle(WidgetTester tester) async {
 
 AdvancedPrefs get _advanced => _container.read(deskProvider).settings.advanced;
 
-const _offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+const _offline = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
+const _kill = AdvancedPrefs(networkMode: NetworkMode.killSwitch);
 const _torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
 
 void main() {
@@ -122,7 +123,7 @@ void main() {
 
   group('sidebar and Overview', () {
     testWidgets('Offline: the rows read Offline, Overview marks the balance', (tester) async {
-      await _open(tester, DeskRoute.overview, advanced: _offline);
+      await _open(tester, DeskRoute.overview, advanced: _kill);
       expect(find.text('Offline'), findsWidgets);
       expect(find.byKey(const ValueKey('overview-offline')), findsOneWidget);
       expect(find.text('Available to spend'), findsOneWidget, reason: 'the last known balance stays');
@@ -183,7 +184,7 @@ void main() {
     });
 
     testWidgets('Offline with a public node: Link\'s summary gives the Offline reason the banner gives, not the node sync (LNX-15)', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://203.0.113.5:3415', amount: '1', nodeSync: -1), advanced: _offline);
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://203.0.113.5:3415', amount: '1', nodeSync: -1), advanced: _kill);
       expect(find.text('Waiting for the node to sync.'), findsNothing);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
       // The banner and the summary's line.
@@ -271,7 +272,7 @@ void main() {
 
   group('Recheck balance, updates and reports', () {
     testWidgets('Offline: Recheck balance is disabled with the reason', (tester) async {
-      await _open(tester, DeskRoute.settingsRescan, advanced: _offline);
+      await _open(tester, DeskRoute.settingsRescan, advanced: _kill);
       expect(find.byKey(const ValueKey('rescan-net-blocked')), findsOneWidget);
       final start = tester.widget<EButton>(find.widgetWithText(EButton, 'Recheck'));
       expect(start.onPressed, isNull);

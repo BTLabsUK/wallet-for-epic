@@ -8,7 +8,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../advanced.dart' show NetworkMode;
+import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
 import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf;
 import '../../pairing_api.dart';
@@ -53,7 +53,7 @@ enum DeskPairNet { online, offline, epicboxOff }
 
 final deskPairNetProvider = Provider<DeskPairNet>((ref) {
   final s = ref.watch(deskProvider.select((s) => s.settings));
-  if (s.advanced.networkMode == NetworkMode.offline) return DeskPairNet.offline;
+  if (s.advanced.networkMode.restricted) return DeskPairNet.offline;
   return s.payments.epicbox ? DeskPairNet.online : DeskPairNet.epicboxOff;
 });
 

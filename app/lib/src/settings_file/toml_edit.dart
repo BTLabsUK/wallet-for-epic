@@ -96,7 +96,7 @@ class TomlEditor {
     final table = parts.sublist(0, parts.length - 1);
     final key = parts.last;
     final shippedKey = _shipped?.key(parts);
-    final comments = shippedKey == null ? const <String>[] : _shipped!.attachedComments(shippedKey);
+    final comments = shippedKey == null ? keyComments[path] ?? const <String>[] : _shipped!.attachedComments(shippedKey);
     final prefix = shippedKey?.prefix ?? '${encodeTomlKey(key)} = ';
     final newLines = _keyLines(prefix, value, null, shippedKey != null && shippedKey.end > shippedKey.start);
 

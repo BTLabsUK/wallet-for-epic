@@ -404,7 +404,7 @@ void main() {
   });
 
   testWidgets('Offline: Words is off, Invite by message opens; in person the card shows and copies', (tester) async {
-    await _open(tester, const DeskPairScreen(), mode: NetworkMode.offline);
+    await _open(tester, const DeskPairScreen(), mode: NetworkMode.nodeOnly);
     expect(find.text(_l.pairOfflineHint), findsOneWidget);
     expect(find.text(_l.pairWordsNeedEpicbox), findsOneWidget);
     expect(find.byKey(deskPairMessagePanelKey), findsOneWidget, reason: 'the message way opens first');

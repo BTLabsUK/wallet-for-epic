@@ -13,8 +13,6 @@ import 'src/demo_web_platform.dart';
 import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
 import 'src/relay_directory.dart' show statusSite;
-import 'src/network_gate.dart';
-import 'src/settings.dart' show AppSettingsNotifier;
 import 'src/network.dart' show devChainOf;
 import 'src/providers.dart' show NetworkChoiceNotifier;
 import 'src/secret_store_api.dart' show SecretStore;
@@ -64,12 +62,6 @@ Future<void> main() async {
     }
     // iOS has no tor: nothing waits for one.
     phoneTorAtLaunch(savedOn: torSavedOn && defaultTargetPlatform != TargetPlatform.iOS);
-    // Before any request too: Offline sends nothing and Tor only nothing direct (network_gate.dart).
-    try {
-      NetGate.set(await AppSettingsNotifier.savedNetworkMode(store).timeout(const Duration(seconds: 5)));
-    } on Object catch (e) {
-      logWarn('net', 'network mode not read: ${e.runtimeType}');
-    }
     // The update check, price and status asked before tor connects wait for it, then go
     // through it.
     if (torBuilt) TorNet.hold = appConfig.torSendWait;

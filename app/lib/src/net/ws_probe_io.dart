@@ -13,8 +13,9 @@ import 'tor_net.dart';
 /// [timeout]. While Tor is on and not connected yet it waits for tor like every request
 /// ([TorNet.untilConnected]); one still waiting throws [ProbeNotRun], not a false.
 Future<bool> probeWebSocket(Uri url, {required Duration timeout}) async {
+  // The network mode refuses it (Node only, Kill switch): not run, not a false.
+  if (!NetGate.allows(NetDial.webSocket, url.host)) throw const ProbeNotRun();
   if (!isLoopbackUrl(url)) {
-    if (NetGate.offline) throw const ProbeNotRun();
     await TorNet.untilConnected();
     if (TorNet.mode == TorNetMode.waiting) throw const ProbeNotRun();
   }

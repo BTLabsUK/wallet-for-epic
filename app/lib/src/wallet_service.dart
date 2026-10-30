@@ -14,6 +14,8 @@ import 'package:crypto/crypto.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'history/wallet_history.dart';
 import 'models.dart';
+import 'finished_payment.dart' show readFinishedPayment;
+import 'network_gate.dart' show NetGate;
 import 'pairing_api.dart';
 import 'pairing_fake.dart';
 import 'settings_file/host_settings.dart' show hostSettings, hostSettingsLoaded;
@@ -22,6 +24,11 @@ export 'models.dart';
 export 'pairing_api.dart';
 
 /// Free functions of the native API plus the two ways to obtain an open wallet.
+/// Whether the wallet core takes [WalletConfig.offline] (Kill switch sessions that refuse their
+/// node and relay at once). False until the pinned LEPIC has it: until then Kill switch rests on
+/// the app's gate (`NetGate`) and the adapters alone, and no session is reopened for it.
+bool walletOfflineSessions = false;
+
 abstract interface class WalletService {
   bool validateMnemonic({required String phrase});
 
@@ -201,6 +208,19 @@ abstract interface class WalletSession {
   /// Posts a finalized send that never reached the chain again ([TxEntry.repostable]). Its
   /// inputs stay locked until it confirms.
   Future<void> repostTransaction({required String key});
+
+  /// The finished payment [txId] (a send finalized here and not posted, [toPostElsewhere]) as
+  /// text to post from a device that is online: a file's or a QR's contents.
+  /// `invalidArgument` for a transaction that is not one.
+  Future<String> finishedPaymentText({required int txId});
+
+  /// Reads a finished payment's [text] (from [finishedPaymentText], of any wallet) without
+  /// posting it. `invalidSlate` when it is not one.
+  Future<FinishedPayment> inspectFinished(String text);
+
+  /// Posts the finished payment [text] through the node in use: Node only lets it, Kill switch
+  /// refuses it (`NetBlocked`).
+  Future<void> postFinished(String text);
 
   /// Delivers the slate of the Epicbox send [key] again, to the address it was sent to
   /// ([TxEntry.undelivered]). `invalidArgument` for a send that is not an Epicbox send waiting
@@ -1264,6 +1284,39 @@ class FakeWalletSession implements WalletSession {
 
   /// Keys passed to [repostTransaction].
   final List<String> repostedKeys = [];
+
+  /// Texts passed to [postFinished].
+  final List<String> postedFinished = [];
+
+  /// A finished payment's text as LEPIC writes it (a final slate), for [txId].
+  static String fakeFinishedText(int txId) => jsonEncode({
+    'id': 'fake-finished-$txId',
+    'amount': '1000000000',
+    'fee': '8000000',
+    'tx': {
+      'offset': '00',
+      'body': {
+        'inputs': <Object>[],
+        'outputs': <Object>[],
+        'kernels': [
+          {'features': 'Plain', 'fee': '8000000', 'lock_height': '0', 'excess': '08ab', 'excess_sig': 'cd01'},
+        ],
+      },
+    },
+  });
+
+  @override
+  Future<String> finishedPaymentText({required int txId}) async => fakeFinishedText(txId);
+
+  @override
+  Future<FinishedPayment> inspectFinished(String text) async => readFinishedPayment(text).payment;
+
+  @override
+  Future<void> postFinished(String text) async {
+    NetGate.checkNode('post finished');
+    readFinishedPayment(text);
+    postedFinished.add(text);
+  }
 
   /// When set, [repostTransaction] throws it.
   WalletError? repostError;

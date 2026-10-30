@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'support/test_settings.dart' show useNetworkModeFile;
 
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);
@@ -75,7 +76,10 @@ class _Harness {
       return null;
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-    if (advanced != null) store.values['app.advanced_prefs'] = advanced!.encode();
+    if (advanced != null) {
+      store.values['app.advanced_prefs'] = advanced!.encode();
+      useNetworkModeFile(advanced!.networkMode);
+    }
     await tester.pumpWidget(
       ProviderScope(
         retry: (_, _) => null,
@@ -306,7 +310,7 @@ void main() {
   });
 
   testWidgets('Offline on a node that is not local: nothing listens, the Offline line', (tester) async {
-    final h = _Harness(advanced: const AdvancedPrefs(networkMode: NetworkMode.offline));
+    final h = _Harness(advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly));
     await h.pump(tester);
     expect(h.session.httpListenerStarts, isEmpty);
     expect(h.http.phase, PhoneHttpPhase.offline);

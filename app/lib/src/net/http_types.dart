@@ -40,3 +40,7 @@ class NetTooLarge extends NetError {
 
 /// The time a call gets when the caller names none.
 const Duration defaultHttpTimeout = Duration(seconds: 15);
+
+/// [NetError.message] of a request refused by the network mode (Node only, Kill switch:
+/// `NetGate.dial`).
+const String netModeError = 'Network mode';

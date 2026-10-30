@@ -29,10 +29,10 @@ const Key offlineNoPeersKey = ValueKey('offline-no-peers');
 /// The key of an [OfflineNodeNote], for tests.
 const Key offlineNodeNoteKey = ValueKey('offline-node-note');
 
-/// Offline on a node that is not local, for a transaction file or QR Payment action, which
-/// still runs there ([offlineUsesNode]). Rebuilds when the mode or the node changes.
+/// Node only on a node that is not local, for a transaction file or QR Payment action, which
+/// runs there ([nodeOnlyUsesNode]). Rebuilds when the mode or the node changes.
 bool watchOfflineUsesNode(BuildContext context, WidgetRef ref) =>
-    offlineUsesNode(AdvancedOptions.of(context).networkMode, localNode: ref.watch(localNodeProvider));
+    nodeOnlyUsesNode(AdvancedOptions.of(context).networkMode, localNode: ref.watch(localNodeProvider));
 
 /// The line under a transaction file or QR Payment action while Offline on a node that is not
 /// local: "Uses the node" with an info icon; a tap opens the sheet with the whole explanation
@@ -80,14 +80,14 @@ class OfflineNodeNote extends StatelessWidget {
   }
 }
 
-/// What the stored network mode and Tor allow now. Rebuilds when either changes. [localNode]
-/// for an action that reaches only the node in use ([localNodeProvider]), or a Link send.
+/// What the stored network mode and Tor allow now. Rebuilds when either changes. [node] for
+/// an action that reaches only the node in use, which Node only lets run.
 /// [method] for an action by one payment method: its switch on Settings › Transactions counts
 /// too ([NetBlock.epicboxOff], [NetBlock.methodOff]); [epicbox] is `method: epicbox`.
 NetBlock watchNetBlock(
   BuildContext context,
   WidgetRef ref, {
-  bool localNode = false,
+  bool node = false,
   bool epicbox = false,
   MethodKind? method,
 }) {
@@ -97,7 +97,7 @@ NetBlock watchNetBlock(
   return netBlockFor(
     AdvancedOptions.of(context).networkMode,
     phoneTorState(ref.watch(phoneTorProvider)),
-    localNode: localNode,
+    node: node,
     epicbox: m != MethodKind.epicbox || on,
     offered: m == MethodKind.epicbox || on,
   );
@@ -106,7 +106,7 @@ NetBlock watchNetBlock(
 /// The one-line reason a network action is off, null when nothing stops it.
 String? netBlockReason(AppLocalizations l, NetBlock block) => switch (block) {
   NetBlock.none => null,
-  NetBlock.offline => l.netBlockOffline,
+  NetBlock.nodeOnly || NetBlock.killSwitch => l.netBlockOffline,
   NetBlock.waitingForTor => l.netBlockWaitingForTor,
   NetBlock.epicboxOff => l.netBlockEpicboxOff,
   // The screen names the method it asked about ([methodOffReason]).
@@ -143,11 +143,11 @@ class NetBlockNote extends StatelessWidget {
       liveRegion: true,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: block == NetBlock.offline || block == NetBlock.epicboxOff || block == NetBlock.methodOff
+        child: block.byMode || block == NetBlock.epicboxOff || block == NetBlock.methodOff
             ? InkWell(
                 onTap: () => openSettingsSection(
                   context,
-                  block == NetBlock.offline ? SettingsSection.advanced : SettingsSection.transactions,
+                  block.byMode ? SettingsSection.advanced : SettingsSection.transactions,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),

@@ -130,7 +130,7 @@ void main() {
     }, skip: !torBuilt);
 
     testWidgets('Offline on a public node: Link · HTTP refused stays off; Link · Tor offers no Turn on Tor (LNX-8)', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, advanced: const AdvancedPrefs(networkMode: NetworkMode.offline));
+      await _open(tester, DeskRoute.settingsReceiving, advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly));
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(_payments.linkHttp, isFalse);
@@ -363,7 +363,7 @@ void main() {
       expect(find.byKey(const ValueKey('adv-directReceiving')), findsNothing);
       expect(find.text('Link receiving'), findsNothing);
       expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
-      expect(find.byKey(const ValueKey('adv-mode-offline')), findsOneWidget);
+      expect(find.byKey(const ValueKey('adv-mode-nodeOnly')), findsOneWidget);
     });
 
     test('the old Link receiving switch is taken over as Link · HTTP and Link · Tor on', () {

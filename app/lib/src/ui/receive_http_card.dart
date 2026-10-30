@@ -75,7 +75,7 @@ class ReceiveHttpCard extends ConsumerWidget {
         children: [line(l.receiveHttpFailed, color: t.risk), retry],
       ),
       PhoneHttpPhase.offWhileTor => line(l.receiveHttpOffWhileTor),
-      PhoneHttpPhase.offline => NetBlockNote(NetBlock.offline, line: l.receiveOfflineLine),
+      PhoneHttpPhase.offline => NetBlockNote(NetBlock.nodeOnly, line: l.receiveOfflineLine),
       _ => line(l.receiveHttpNoNetwork),
     };
     return Card(

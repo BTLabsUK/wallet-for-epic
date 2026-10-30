@@ -116,6 +116,8 @@ Future<void> _fetchInto(
   final hasher = sha256.startChunkedConversion(digest);
   var received = 0;
   try {
+    // The network mode's gate: Node only and Kill switch download nothing.
+    dialOrFail(NetDial.http, url);
     final request = await client.getUrl(url);
     if (kept > 0) request.headers.set(HttpHeaders.rangeHeader, 'bytes=$kept-');
     final response = await request.close();

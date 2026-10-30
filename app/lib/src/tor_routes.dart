@@ -64,7 +64,8 @@ enum TorWay {
   needsTor,
 
   /// Not offered while Tor is on (the clearnet HTTP listener, push), in Tor only (also a
-  /// Direct http(s) send) or in Offline (everything).
+  /// Direct http(s) send), in Node only (everything but the node) or in Kill switch
+  /// (everything).
   off,
 }
 
@@ -105,15 +106,18 @@ TorWay torWay(TorRoute route, TorState state) {
 
 /// How [route] goes in the network [mode] while the switch is [state].
 ///
-/// - Offline: nothing goes ([TorWay.off]); a node on this computer is the caller's business.
+/// - Kill switch: nothing goes ([TorWay.off]).
+/// - Node only: the node follows the switch as in Normal; nothing else goes ([TorWay.off]).
 /// - Tor only: never the clearnet. A Direct http(s) send, the HTTP listener and push are
 ///   [TorWay.off]; with the switch not on yet (it is being forced on) covered routes and
 ///   onions [TorWay.wait].
 /// - Any other mode is Standard: [torWay].
 TorWay torWayIn(TorRoute route, TorState state, NetworkMode mode) {
   switch (mode) {
-    case NetworkMode.offline:
+    case NetworkMode.killSwitch:
       return TorWay.off;
+    case NetworkMode.nodeOnly:
+      return route == TorRoute.node ? torWay(route, state) : TorWay.off;
     case NetworkMode.torOnly:
       if (route == TorRoute.httpDirect) return TorWay.off;
       final way = torWay(route, state == TorState.off ? TorState.starting : state);

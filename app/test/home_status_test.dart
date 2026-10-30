@@ -581,7 +581,7 @@ void main() {
   });
 
   group('network mode', () {
-    const offline = AdvancedPrefs(networkMode: NetworkMode.offline);
+    const offline = AdvancedPrefs(networkMode: NetworkMode.nodeOnly);
     const torOnly = AdvancedPrefs(networkMode: NetworkMode.torOnly);
 
     testWidgets('Standard: the icons, no mode word', (tester) async {

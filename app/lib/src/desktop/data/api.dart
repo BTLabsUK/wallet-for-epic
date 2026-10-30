@@ -7,6 +7,7 @@ library;
 import 'dart:typed_data';
 
 import '../../devices/device_model.dart' show DeviceBook;
+import '../../models.dart' show FinishedPayment;
 import '../../devices/device_service.dart' show DeviceHost;
 import '../../pairing_api.dart';
 
@@ -234,6 +235,16 @@ abstract interface class DeskWalletApi {
   /// Posts again a split or consolidate the node did not take ([DeskError.notPostedTx]).
   /// Throws a [DeskError] when the node refuses it again.
   Future<void> repostTx(int id);
+
+  /// The finished payment [id] (finalized, not posted: [Tx.notPosted] in Kill switch) as text
+  /// to post from a device that is online (a file's or a QR's contents).
+  Future<String> finishedPayment(int id);
+
+  /// Reads a finished payment's [text] without posting it. Throws a [DeskError] when it is not one.
+  Future<FinishedPayment> inspectFinished(String text);
+
+  /// Posts the finished payment [text] through the node in use; Kill switch refuses it.
+  Future<void> postFinished(String text);
 
   /// Sends the undelivered send [id] again over its method ([Tx.undelivered]): to the same
   /// Epicbox address, URL or onion. Throws a [DeskError] when it fails again.

@@ -349,7 +349,7 @@ void main() {
         await h.pump(
           tester,
           const ReceiveView(),
-          advanced: const AdvancedPrefs(networkMode: NetworkMode.offline),
+          advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly),
         );
         await tester.tap(
           find.descendant(

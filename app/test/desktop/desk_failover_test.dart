@@ -165,7 +165,7 @@ void main() {
     fakeAsync((async) {
       for (final h in [
         _Harness(async, prefs: AdvancedPrefs.none.withNodeFailover(false)),
-        _Harness(async, prefs: AdvancedPrefs.none.withMode(NetworkMode.offline)),
+        _Harness(async, prefs: AdvancedPrefs.none.withMode(NetworkMode.nodeOnly)),
         _Harness(async, inUse: _local, dead: {_local}),
       ]) {
         h.elapse(const Duration(minutes: 2));

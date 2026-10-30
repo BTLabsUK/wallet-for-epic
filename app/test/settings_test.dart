@@ -43,9 +43,11 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/experimental.dart';
+import 'support/test_settings.dart' show useNetworkModeFile;
 
 const _mainnetDir = '/fake/wallets/mainnet';
 const _pin = '123456';
@@ -1086,11 +1088,12 @@ void main() {
       expect(h.session.scanCalls, 1);
     });
 
-    testWidgets('Offline: Recheck balance waits, with the reason', (
+    testWidgets('Kill switch: Recheck balance waits, with the reason', (
       tester,
     ) async {
       final h = _Harness();
-      h.store.values['app.advanced_prefs'] = 'outputs|offline';
+      h.store.values['app.advanced_prefs'] = 'outputs|standard';
+      useNetworkModeFile(NetworkMode.killSwitch);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
@@ -1925,7 +1928,7 @@ void main() {
               if (section == SettingsSection.advanced) {
                 // No Connection servers row: they are the first of the Epicbox list.
                 expect(pages[section], isNot(contains('key:adv-connection-servers')), reason: '$size');
-                for (final row in ['adv-pairing', 'adv-invoices', 'adv-linkedDevices', 'adv-mode-standard', 'adv-mode-offline']) {
+                for (final row in ['adv-pairing', 'adv-invoices', 'adv-linkedDevices', 'adv-mode-standard', 'adv-mode-nodeOnly']) {
                   expect(pages[section], contains('key:$row'), reason: '$row at $size');
                 }
               }

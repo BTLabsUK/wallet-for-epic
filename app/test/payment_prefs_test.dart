@@ -132,6 +132,6 @@ void main() {
     expect(() => NetGate.checkEpicbox('listen'), throwsA(isA<NetBlocked>().having((e) => e.epicboxOff, 'epicboxOff', isTrue)));
     expect(netBlockFor(NetworkMode.standard, TorState.off, offered: false), NetBlock.methodOff);
     expect(netBlockFor(NetworkMode.standard, TorState.off, epicbox: false, offered: false), NetBlock.epicboxOff, reason: 'Epicbox first');
-    expect(netBlockFor(NetworkMode.offline, TorState.off, offered: false), NetBlock.offline, reason: 'the mode first');
+    expect(netBlockFor(NetworkMode.nodeOnly, TorState.off, offered: false), NetBlock.nodeOnly, reason: 'the mode first');
   });
 }

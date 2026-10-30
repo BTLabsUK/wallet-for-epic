@@ -194,8 +194,9 @@ class PriceNotifier extends AsyncNotifier<double?> {
     final settings = await ref.watch(appSettingsProvider.future);
     if (!settings.showFiat) return null;
     final currency = settings.fiatCurrency;
-    // Offline asks for no price: the last one seen stays; leaving Offline fetches again.
-    if (ref.watch(networkModeProvider) == NetworkMode.offline) return _cache[currency];
+    // Node only and Kill switch ask for no price: the last one seen stays; leaving them
+    // fetches again.
+    if (ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch))) return _cache[currency];
     final timer = Timer.periodic(
       priceRefreshInterval,
       (_) => _refresh(currency),

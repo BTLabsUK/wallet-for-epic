@@ -1765,6 +1765,31 @@ class TxEntry {
           unverified == other.unverified;
 }
 
+/// [tx] is "to be posted elsewhere": a send finalized and not posted ([TxEntry.repostable]:
+/// LEPIC stores it so, as one the node refused, when Kill switch finalizes it without a node)
+/// while [killSwitch] holds every connection, so the finished payment is saved or shown to
+/// post it from a device that is online. Out of Kill switch the wallet posts it itself (the
+/// desktop's `Tx.notPosted` is the same flag).
+bool toPostElsewhere(TxEntry tx, {required bool killSwitch}) => killSwitch && tx.repostable && !tx.confirmed;
+
+/// A finished payment (a send finalized and not posted) read without posting it: what
+/// "Post a finished payment" shows before it posts ([WalletSession.inspectFinished]).
+class FinishedPayment {
+  const FinishedPayment({required this.slateId, required this.amount, required this.fee, this.kernelExcess});
+
+  final String slateId;
+  final BigInt amount;
+  final BigInt fee;
+  final String? kernelExcess;
+
+  @override
+  bool operator ==(Object other) =>
+      other is FinishedPayment && other.slateId == slateId && other.amount == amount && other.fee == fee && other.kernelExcess == kernelExcess;
+
+  @override
+  int get hashCode => Object.hash(slateId, amount, fee, kernelExcess);
+}
+
 /// How long a sender's posted report shows, as LEPIC keeps it.
 const senderReportWindow = Duration(hours: 1);
 
@@ -1944,7 +1969,25 @@ class WalletConfig {
     required this.epicboxDomain,
     required this.epicboxPort,
     this.walletId,
+    this.offline = false,
   });
+
+  /// Kill switch: the session refuses its node and relay at once (LEPIC's `WalletConfig.offline`
+  /// once the pinned LEPIC has it, [walletOfflineSessions]); cold File and QR payments use the
+  /// last confirmed tip and finalizing stores without posting. Entering or leaving Kill switch
+  /// opens the session again.
+  final bool offline;
+
+  WalletConfig withOffline(bool on) => WalletConfig(
+    dataDir: dataDir,
+    chain: chain,
+    nodeUrl: nodeUrl,
+    nodeApiSecret: nodeApiSecret,
+    epicboxDomain: epicboxDomain,
+    epicboxPort: epicboxPort,
+    walletId: walletId,
+    offline: on,
+  );
 
   @override
   int get hashCode =>
@@ -1954,7 +1997,8 @@ class WalletConfig {
       nodeUrl.hashCode ^
       nodeApiSecret.hashCode ^
       epicboxDomain.hashCode ^
-      epicboxPort.hashCode;
+      epicboxPort.hashCode ^
+      offline.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1967,7 +2011,8 @@ class WalletConfig {
           nodeUrl == other.nodeUrl &&
           nodeApiSecret == other.nodeApiSecret &&
           epicboxDomain == other.epicboxDomain &&
-          epicboxPort == other.epicboxPort;
+          epicboxPort == other.epicboxPort &&
+          offline == other.offline;
 }
 
 /// The single error type every API call returns. Dart receives it as a thrown exception.
@@ -2033,6 +2078,9 @@ enum WalletErrorKind {
   /// A call on this wallet is still running, or the wallet is being deleted. `delete_wallet`
   /// returns it after waiting 20 s. Trying again in a moment usually works.
   walletBusy,
+
+  /// The network mode refused the connection (Node only, Kill switch): LEPIC's own gate.
+  networkOff,
 
   /// The recipient answered at or too near the payment's 14-day limit. The payment was
   /// cancelled instead of finished: nothing was sent and the funds are unlocked.

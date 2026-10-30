@@ -301,23 +301,30 @@ void main() {
     await w.dispose();
   });
 
-  test('Offline keeps the built-in node running and still asks it; launching in Offline starts it', () async {
+  test('Node only keeps the built-in node in use running; launching in Node only starts it; Kill switch stops it', () async {
     final wallet = make();
     expect(await wallet.unlock(_password), isTrue);
     await wallet.useBuiltInNode(true);
     final s = await wallet.settings();
-    await wallet.saveSettings(s.copyWith(advanced: s.advanced.withMode(NetworkMode.offline)));
+    await wallet.saveSettings(s.copyWith(advanced: s.advanced.withMode(NetworkMode.nodeOnly)));
     addTearDown(() => NetGate.set(NetworkMode.standard));
-    expect(NetGate.offline, isTrue);
+    expect(NetGate.restricted, isTrue);
     expect(spawned.single.terminated, 0, reason: 'its own peers are the node\'s setting');
     await wallet.syncNow();
     await wallet.dispose();
     await stopAllBuiltInNodes();
     final again = make();
-    NetGate.set(NetworkMode.offline);
+    NetGate.set(NetworkMode.nodeOnly);
     await again.resumeBuiltInNode();
     expect(spawned, hasLength(2));
     await again.dispose();
+    await stopAllBuiltInNodes();
+    // Kill switch: no node starts, not even this computer's own.
+    final killed = make();
+    NetGate.set(NetworkMode.killSwitch);
+    await killed.resumeBuiltInNode();
+    expect(spawned, hasLength(2));
+    await killed.dispose();
   });
 
   test('a build without the node refuses to turn it on', () async {

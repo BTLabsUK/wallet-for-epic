@@ -129,7 +129,7 @@ class NetModeStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final offline = block == NetBlock.offline;
+    final offline = block.byMode;
     final word = offline ? l.advModeOffline : l.torWayWaiting;
     final detail = offline ? l.homeOfflineDetail : l.homeWaitingTorDetail;
     final color = offline ? t.dim : t.info;
@@ -274,7 +274,7 @@ typedef StatusEntry = ({
       ],
       // Tor and Link are always there: off, faint without a dot, a tap opens the switch; on,
       // the dot says how the connection goes.
-      if (block != NetBlock.offline && torShown(tor))
+      if (!block.byMode && torShown(tor))
         (
           key: bar ? barTorIconKey : torIconKey,
           icon: torIcon,
@@ -439,12 +439,12 @@ class ConnectionsSheet extends ConsumerWidget {
           if (block != NetBlock.none)
             row(
               glyph: Icon(
-                block == NetBlock.offline ? Icons.cloud_off_outlined : torIcon,
+                block.byMode ? Icons.cloud_off_outlined : torIcon,
                 size: statusGlyph,
-                color: block == NetBlock.offline ? t.dim : t.info,
+                color: block.byMode ? t.dim : t.info,
               ),
-              label: block == NetBlock.offline ? l.advModeOffline : l.torWayWaiting,
-              detail: block == NetBlock.offline ? l.homeOfflineDetail : l.homeWaitingTorDetail,
+              label: block.byMode ? l.advModeOffline : l.torWayWaiting,
+              detail: block.byMode ? l.homeOfflineDetail : l.homeWaitingTorDetail,
               dot: StatusDot.off,
               onTap: () => openSettingsSection(context, SettingsSection.advanced),
             ),

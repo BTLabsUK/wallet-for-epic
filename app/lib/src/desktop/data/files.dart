@@ -8,6 +8,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../network_gate.dart' show NetDial, NetGate;
+
 abstract interface class DeskFiles {
   /// The path of the file chosen, or null when the dialog was closed.
   Future<String?> pickSlate({required String title});
@@ -40,10 +42,13 @@ Future<bool> openInFileManager(String dir) async {
 /// Link buttons: [openInBrowser]; tests record the address instead.
 final deskOpenUrlProvider = Provider<Future<bool> Function(String url)>((ref) => openInBrowser);
 
-/// Opens the https address [url] in the default browser. False when it is not https or the
-/// browser could not be started.
+/// Opens the https address [url] in the default browser. False when it is not https, the
+/// network mode refuses it (Node only, Kill switch: `NetGate.dial`) or the browser could not
+/// be started.
 Future<bool> openInBrowser(String url) async {
-  if (Uri.tryParse(url)?.scheme != 'https') return false;
+  final u = Uri.tryParse(url);
+  if (u?.scheme != 'https') return false;
+  if (!NetGate.allows(NetDial.browser, u!.host)) return false;
   // Windows: the URL handler, which needs no shell, so nothing in the address is interpreted.
   final (cmd, args) = Platform.isWindows
       ? ('rundll32', ['url.dll,FileProtocolHandler', url])

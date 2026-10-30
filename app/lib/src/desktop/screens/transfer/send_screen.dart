@@ -23,7 +23,7 @@ import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
-import '../../../network_gate.dart' show NetBlock;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
@@ -1222,7 +1222,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       child: EPage(
       title: context.l10n.deskSendTitle,
       footer: narrow && form ? _reviewBar(st) : null,
-      titleTrailing: res is SendFileReady || _netBlock(st) == NetBlock.offline || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
+      titleTrailing: res is SendFileReady || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
@@ -1392,7 +1392,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         title: netBlockReason(l, net)!,
         text: net == NetBlock.waitingForTor ? l.deskNetSendFileHint : null,
         tone: ETone.warn,
-        icon: net == NetBlock.offline ? EIcons.lanOff : EIcons.tor,
+        icon: net.byMode ? EIcons.lanOff : EIcons.tor,
         actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
       );
     }
@@ -1639,7 +1639,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           // Offline: Tor never runs there; the notice above gives the Offline reason (LNX-12).
           // Link · Tor switched off: that comes first, Tor alone would not send it.
-          if (DeskFeatures.tor && _torWay(st) == TorWay.needsTor && _netBlock(st) != NetBlock.offline && _netBlock(st) != NetBlock.methodOff) ...[
+          if (DeskFeatures.tor && _torWay(st) == TorWay.needsTor && !_netBlock(st).byMode && _netBlock(st) != NetBlock.methodOff) ...[
             SizedBox(height: Sp.x3),
             ENotice(
               key: const ValueKey('send-needs-tor'),
@@ -1777,7 +1777,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
-      _ when _netBlock(st) == NetBlock.offline || _netBlock(st) == NetBlock.waitingForTor => netBlockReason(l, _netBlock(st))!,
+      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => netBlockReason(l, _netBlock(st))!,
       _ when _onionNoTor => l.sendTorNotInVersion,
       _ when nodeBlocked && _nodeDown(st) && _noNode => l.deskSlNoNodeTitle,
       _ when nodeBlocked && _nodeDown(st) => l.deskNodeNotAnsweringLine,

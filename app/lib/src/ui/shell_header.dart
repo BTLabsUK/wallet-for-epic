@@ -219,7 +219,7 @@ class WalletBalance extends ConsumerWidget {
     final data = ref.watch(homeProvider).value;
     final summary = data?.summary;
     // Offline keeps the last known balance and marks it so on the caption.
-    final offline = watchNetBlock(context, ref) == NetBlock.offline;
+    final offline = watchNetBlock(context, ref).byMode;
     final display = amountDisplay(ref);
     final hidden = display.hidden;
     final fiat = summary == null

@@ -176,8 +176,8 @@ class TorSwitchTile extends ConsumerWidget {
           },
           value: switch (mode) {
             NetworkMode.torOnly => true,
-            NetworkMode.offline => false,
-            NetworkMode.standard => tor.receiving,
+            NetworkMode.killSwitch => false,
+            NetworkMode.standard || NetworkMode.nodeOnly => tor.receiving,
           },
           onChanged: busy || locked
               ? null
@@ -201,7 +201,7 @@ class TorSwitchTile extends ConsumerWidget {
               ),
             ),
           ),
-        if (failed && mode != NetworkMode.offline)
+        if (failed && !mode.restricted)
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: Padding(
