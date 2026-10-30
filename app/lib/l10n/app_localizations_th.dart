@@ -2282,7 +2282,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pinForgot => 'ลืม PIN?';
 
   @override
-  String get pinResetTitle => 'ลืม PIN';
+  String get pinResetTitle => 'ลืม PIN?';
 
   @override
   String get pinResetBody =>
@@ -2960,7 +2960,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsBiometrics => 'ปลดล็อกด้วยไบโอเมตริก';
 
   @override
-  String get settingsBiometricsOn => 'เปิดการปลดล็อกด้วยไบโอเมตริกแล้ว';
+  String get settingsBiometricsOn =>
+      'เปิดการปลดล็อกด้วยไบโอเมตริกแล้ว จะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป';
 
   @override
   String get settingsBiometricsOff => 'ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว';
@@ -18356,4 +18357,112 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get errorPaymentAlreadyWentThrough =>
       'ย้ายเหรียญกลับมาไม่ได้: รายการเดิมสำเร็จไปแล้ว รายการแสดงว่าชำระแล้ว';
+
+  @override
+  String get errorPinKeyLost =>
+      'ฮาร์ดแวร์ความปลอดภัยของโทรศัพท์เครื่องนี้ไม่มีกุญแจที่ PIN ของคุณต้องใช้แล้ว PIN จึงเปิดกระเป๋าเงินนี้ไม่ได้ เหรียญของคุณยังปลอดภัย: แตะ \"ลืม PIN\" แล้วกู้คืนกระเป๋าเงินจากวลีกู้คืน';
+
+  @override
+  String get settingsUsePassphrase => 'ใช้วลีรหัสผ่านแทน PIN';
+
+  @override
+  String get settingsChangePassphrase => 'เปลี่ยนวลีรหัสผ่าน';
+
+  @override
+  String get passphraseLabel => 'วลีรหัสผ่าน';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เลือกวลีรหัสผ่านอย่างน้อย $count ตัวอักษร ที่ไม่ใช่ตัวเลขล้วน',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'ใส่วลีรหัสผ่านอีกครั้ง';
+
+  @override
+  String get passphraseMismatch => 'วลีรหัสผ่านทั้งสองไม่ตรงกัน';
+
+  @override
+  String get passphraseSet => 'ตั้งวลีรหัสผ่านแล้ว';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'ตั้งวลีรหัสผ่านแล้ว การปลดล็อกด้วยไบโอเมตริกปิดอยู่ เปิดอีกครั้งได้ด้านล่าง';
+
+  @override
+  String get passphraseForgot => 'ลืมวลีรหัสผ่าน?';
+
+  @override
+  String get passphrasePromptTitle => 'ใส่วลีรหัสผ่านของคุณ';
+
+  @override
+  String get passphraseEnterCurrent => 'ใส่วลีรหัสผ่านปัจจุบันของคุณ';
+
+  @override
+  String get passphraseCurrentLabel => 'วลีรหัสผ่านปัจจุบัน';
+
+  @override
+  String get passphraseChooseTitle => 'เลือกวลีรหัสผ่าน';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'อย่างน้อย $count ตัวอักษร และไม่ใช่ตัวเลขล้วน คำสองสามคำที่คั่นด้วยช่องว่างใช้ได้ดี วลีนี้จะใช้แทน PIN ทุกที่ที่กระเป๋าถาม',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseUsePinInstead => 'ใช้ PIN แทน';
+
+  @override
+  String get passphraseUsePassphraseInstead => 'ใช้วลีรหัสผ่านแทน';
+
+  @override
+  String get biometricsFromNextStart =>
+      'การปลดล็อกด้วยไบโอเมตริกจะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป';
+
+  @override
+  String get invoicePassphraseReason => 'ใส่วลีรหัสผ่านเพื่อชำระใบแจ้งหนี้นี้';
+
+  @override
+  String get restoreReplacePassphraseReason =>
+      'ใส่วลีรหัสผ่านเพื่อแทนที่กระเป๋าเงินนี้ กระเป๋าเงินที่กู้คืนจะใช้วลีรหัสผ่านนี้ต่อ';
+
+  @override
+  String get backupPassphraseReason => 'ใส่วลีรหัสผ่านเพื่อแสดงวลีกู้คืน';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return 'ใส่วลีรหัสผ่านเพื่อสร้าง QR ของรายการ $amount';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason =>
+      'ป้อนวลีรหัสผ่านเพื่อเปิดการปลดล็อกด้วยไบโอเมตริก';
+
+  @override
+  String get settingsDeletePassphraseReason =>
+      'ป้อนวลีรหัสผ่านเพื่อลบกระเป๋านี้';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return 'ป้อนวลีรหัสผ่านเพื่อส่ง $amount';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return 'ป้อนวลีรหัสผ่านเพื่อสร้างไฟล์ธุรกรรม $amount';
+  }
+
+  @override
+  String get passphraseSetTitle => 'ตั้งวลีรหัสผ่าน';
 }

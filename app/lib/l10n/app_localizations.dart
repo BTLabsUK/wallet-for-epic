@@ -4807,10 +4807,10 @@ abstract class AppLocalizations {
   /// **'Unlock with biometrics'**
   String get settingsBiometrics;
 
-  /// Short notice.
+  /// Notice after the Settings switch. Biometrics cannot read their copy of the PIN in the process that wrote it, so they start working after a restart.
   ///
   /// In en, this message translates to:
-  /// **'Biometric unlock turned on'**
+  /// **'Biometric unlock turned on. It works from the next app start.'**
   String get settingsBiometricsOn;
 
   /// Short notice.
@@ -29329,6 +29329,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The coins could not be moved back: the payment itself already went through. It shows as paid.'**
   String get errorPaymentAlreadyWentThrough;
+
+  /// Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone\'s secure hardware no longer holds the key your PIN needs, so the PIN cannot open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.'**
+  String get errorPinKeyLost;
+
+  /// Settings row: replace the 6-digit PIN with a longer passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a passphrase instead of the PIN'**
+  String get settingsUsePassphrase;
+
+  /// Settings row when a passphrase is already in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Change passphrase'**
+  String get settingsChangePassphrase;
+
+  /// Label of the passphrase field.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get passphraseLabel;
+
+  /// Heading and error above the new passphrase field.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{Choose a passphrase of at least {count} characters, not only digits}}'**
+  String passphraseChoose(int count);
+
+  /// Label of the field that repeats the new passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat the passphrase'**
+  String get passphraseRepeat;
+
+  /// Error when the two passphrases differ.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passphrases differ'**
+  String get passphraseMismatch;
+
+  /// Short notice after the passphrase was set.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase set'**
+  String get passphraseSet;
+
+  /// Notice after setting a passphrase when the biometric prompt was dismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase set. Biometric unlock is off; turn it on again below.'**
+  String get passphraseSetBiometricsOff;
+
+  /// Link on the unlock screen of a wallet that opens with a passphrase; in place of Forgot PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot passphrase?'**
+  String get passphraseForgot;
+
+  /// Title of the dialog that asks for the passphrase before a sensitive action; in place of Enter your PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase'**
+  String get passphrasePromptTitle;
+
+  /// Heading of the first step of the change screen for a wallet that opens with a passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current passphrase'**
+  String get passphraseEnterCurrent;
+
+  /// Label of the field for the passphrase in use, on the change screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Current passphrase'**
+  String get passphraseCurrentLabel;
+
+  /// Heading above the two fields of a new passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a passphrase'**
+  String get passphraseChooseTitle;
+
+  /// The rules under the heading of a new passphrase. count is the fewest characters allowed (10).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{At least {count} characters and not only digits. A few words with spaces between them work well. It replaces the PIN wherever the wallet asks for it.}}'**
+  String passphraseRules(int count);
+
+  /// Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Use PIN instead'**
+  String get passphraseUsePinInstead;
+
+  /// Small link on the unlock screen that swaps the PIN field for the passphrase field. Shown only to wallets that ever had a passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Use passphrase instead'**
+  String get passphraseUsePassphraseInstead;
+
+  /// Notice after biometric unlock was turned on while creating or restoring a wallet: it cannot be used until the app is started again.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric unlock works from the next app start.'**
+  String get biometricsFromNextStart;
+
+  /// invoicePinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase to pay this invoice.'**
+  String get invoicePassphraseReason;
+
+  /// restoreReplacePinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase to replace this wallet. The restored wallet keeps this passphrase.'**
+  String get restoreReplacePassphraseReason;
+
+  /// backupPinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase to show the recovery phrase.'**
+  String get backupPassphraseReason;
+
+  /// sendQrPinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the passphrase to make a payment QR for {amount}.'**
+  String sendQrPassphraseReason(String amount);
+
+  /// settingsBiometricsPinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase to turn on biometric unlock.'**
+  String get settingsBiometricsPassphraseReason;
+
+  /// settingsDeletePinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your passphrase to delete this wallet.'**
+  String get settingsDeletePassphraseReason;
+
+  /// sendPinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the passphrase to send {amount}.'**
+  String sendPassphraseReason(String amount);
+
+  /// sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the passphrase to make a transaction file for {amount}.'**
+  String sendFilePassphraseReason(String amount);
+
+  /// App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more).
+  ///
+  /// In en, this message translates to:
+  /// **'Set a passphrase'**
+  String get passphraseSetTitle;
 }
 
 class _AppLocalizationsDelegate

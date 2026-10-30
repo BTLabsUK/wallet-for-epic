@@ -3119,7 +3119,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsBiometrics => 'Odblokowanie biometryczne';
 
   @override
-  String get settingsBiometricsOn => 'Włączono odblokowanie biometryczne';
+  String get settingsBiometricsOn =>
+      'Włączono odblokowanie biometryczne. Zadziała od następnego uruchomienia aplikacji.';
 
   @override
   String get settingsBiometricsOff => 'Wyłączono odblokowanie biometryczne';
@@ -19432,4 +19433,124 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get errorPaymentAlreadyWentThrough =>
       'Nie udało się przenieść monet z powrotem: sama płatność już przeszła. Pokazuje się jako zapłacona.';
+
+  @override
+  String get errorPinKeyLost =>
+      'Bezpieczny sprzęt tego telefonu nie ma już klucza potrzebnego Twojemu PIN-owi, więc PIN nie otworzy tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.';
+
+  @override
+  String get settingsUsePassphrase => 'Użyj hasła zamiast PIN-u';
+
+  @override
+  String get settingsChangePassphrase => 'Zmień hasło';
+
+  @override
+  String get passphraseLabel => 'Hasło';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Wybierz hasło o długości co najmniej $count znaku, nie same cyfry',
+      many:
+          'Wybierz hasło o długości co najmniej $count znaków, nie same cyfry',
+      few: 'Wybierz hasło o długości co najmniej $count znaków, nie same cyfry',
+      one: 'Wybierz hasło o długości co najmniej $count znaku, nie same cyfry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'Powtórz hasło';
+
+  @override
+  String get passphraseMismatch => 'Hasła się różnią';
+
+  @override
+  String get passphraseSet => 'Ustawiono hasło';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'Ustawiono hasło. Odblokowanie biometryczne jest wyłączone; włącz je ponownie poniżej.';
+
+  @override
+  String get passphraseForgot => 'Nie pamiętasz hasła?';
+
+  @override
+  String get passphrasePromptTitle => 'Wpisz hasło';
+
+  @override
+  String get passphraseEnterCurrent => 'Wpisz obecne hasło';
+
+  @override
+  String get passphraseCurrentLabel => 'Obecne hasło';
+
+  @override
+  String get passphraseChooseTitle => 'Wybierz hasło';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Co najmniej $count znaku, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+      many:
+          'Co najmniej $count znaków, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+      few:
+          'Co najmniej $count znaki, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+      one:
+          'Co najmniej $count znak, nie same cyfry. Dobrze sprawdza się kilka słów oddzielonych spacjami. Zastępuje PIN wszędzie tam, gdzie portfel o niego prosi.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseUsePinInstead => 'Użyj zamiast tego PIN-u';
+
+  @override
+  String get passphraseUsePassphraseInstead => 'Użyj zamiast tego hasła';
+
+  @override
+  String get biometricsFromNextStart =>
+      'Odblokowanie biometryczne zadziała od następnego uruchomienia aplikacji.';
+
+  @override
+  String get invoicePassphraseReason => 'Wpisz hasło, aby zapłacić tę fakturę.';
+
+  @override
+  String get restoreReplacePassphraseReason =>
+      'Wpisz hasło, aby zastąpić ten portfel. Przywrócony portfel zachowa to hasło.';
+
+  @override
+  String get backupPassphraseReason =>
+      'Wpisz hasło, aby wyświetlić frazę odzyskiwania.';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return 'Wpisz hasło, aby utworzyć kod QR płatności na $amount.';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason =>
+      'Wpisz hasło, aby włączyć odblokowanie biometryczne.';
+
+  @override
+  String get settingsDeletePassphraseReason =>
+      'Wpisz hasło, aby usunąć ten portfel.';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return 'Wpisz hasło, aby wysłać $amount.';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return 'Wpisz hasło, aby utworzyć plik transakcji na $amount.';
+  }
+
+  @override
+  String get passphraseSetTitle => 'Ustaw hasło';
 }

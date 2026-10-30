@@ -14,6 +14,7 @@ import 'info_hint.dart' show InfoHint;
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
 import '../network_gate.dart' show NetGate;
+import '../phrase_clipboard.dart' show copySecretToClipboard;
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
 import '../price.dart';
 import '../providers.dart';
@@ -80,6 +81,19 @@ void lockWallet(
 /// Never use this for the recovery phrase.
 Future<void> copyText(BuildContext context, String text, String notice) async {
   await Clipboard.setData(ClipboardData(text: text));
+  if (!context.mounted) return;
+  ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(noticeProvider.notifier).show(notice, level: NoticeLevel.success);
+}
+
+/// [copyText] for secret text (a payment file, pairing words or a link): marked sensitive on
+/// Android and cleared after [secretClipboardLifetime] ([copySecretToClipboard]).
+Future<void> copySecretText(BuildContext context, String text, String notice) async {
+  if (!await copySecretToClipboard(text)) {
+    await Clipboard.setData(ClipboardData(text: text));
+  }
   if (!context.mounted) return;
   ProviderScope.containerOf(
     context,
@@ -1995,7 +2009,7 @@ class SlateBox extends StatelessWidget {
                   tooltip: context.l10n.slateCopyTooltip,
                   icon: const Icon(Icons.copy),
                   onPressed: () =>
-                      copyText(context, json, context.l10n.slateCopied),
+                      copySecretText(context, json, context.l10n.slateCopied),
                 ),
               ],
             ),

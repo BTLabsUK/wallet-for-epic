@@ -1021,7 +1021,7 @@ class _PairingWordsScreenState extends ConsumerState<PairingWordsScreen> {
                 style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 icon: const Icon(Icons.copy, size: 18),
                 label: Text(l.pairWordsCopy),
-                onPressed: () => copyText(context, pairingWordsText(words), l.pairCopied),
+                onPressed: () => copySecretText(context, pairingWordsText(words), l.pairCopied),
               ),
               const SizedBox(height: 8),
               OutlinedButton(

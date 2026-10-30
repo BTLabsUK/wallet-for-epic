@@ -17,20 +17,40 @@ Future<void> setSecureScreen(bool secure) => _call('setSecure', secure);
 
 /// While [hide] is true the recent-apps preview of the app is blank, while screenshots stay
 /// allowed: Android 13+ (setRecentsScreenshotEnabled); iOS covers the window while the app is
-/// inactive, as for [setSecureScreen]. A no-op elsewhere; failures are ignored.
+/// inactive, as for [setSecureScreen]. Android 7–12 have no such switch: there the whole app is
+/// covered while it is away (MainActivity sets FLAG_SECURE on pause and clears it on resume).
+/// A no-op elsewhere; failures are ignored.
 Future<void> hidePreview(bool hide) => _call('hidePreview', hide);
 
 /// Copies [text] as sensitive clipboard content on Android: Android 13+ hides it from the
-/// clipboard preview, and keyboards that keep a clipboard history (Gboard) leave it out. False
-/// where that is not possible (other systems, an older app build), so the caller copies plainly.
-Future<bool> copySensitiveText(String text) async {
+/// clipboard preview, and keyboards that keep a clipboard history (Gboard) leave it out. With
+/// [clearAfter] Android clears it once that has passed, at the latest when the app next comes
+/// to the front, even if it was killed meanwhile. False where that is not possible (other
+/// systems, an older app build), so the caller copies plainly.
+Future<bool> copySensitiveText(String text, {Duration? clearAfter}) async {
   if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return false;
   try {
-    return await _channel.invokeMethod<bool>('copySensitive', text) ?? false;
+    return await _channel.invokeMethod<bool>('copySensitive', {
+          'text': text,
+          if (clearAfter != null) 'clearAfterMs': clearAfter.inMilliseconds,
+        }) ??
+        false;
   } on MissingPluginException {
     return false;
   } on PlatformException {
     return false;
+  }
+}
+
+/// Clears what [copySensitiveText] copied last, if it is still on the clipboard. Android only.
+Future<void> clearSensitiveText() async {
+  if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+  try {
+    await _channel.invokeMethod<void>('clearSensitive');
+  } on MissingPluginException {
+    // Not running inside MainActivity.
+  } on PlatformException {
+    // Android clears it at the next start.
   }
 }
 

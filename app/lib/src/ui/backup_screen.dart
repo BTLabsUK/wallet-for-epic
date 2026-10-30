@@ -53,7 +53,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final vault = ref.read(vaultProvider);
     final phrase = await askPin(
       context,
-      reason: l.backupPinReason,
+      reason: usesPassphrase(ref) ? l.backupPassphraseReason : l.backupPinReason,
       action: (pin) => vault.mnemonic(session, config, pin),
     );
     if (!mounted) return;

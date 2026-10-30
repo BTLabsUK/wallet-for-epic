@@ -13,7 +13,9 @@ import '../vault.dart';
 import 'common.dart';
 import 'demo_pin.dart';
 
-/// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in.
+/// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in. With
+/// [passphrase] (a wallet whose PIN was replaced by a passphrase, Settings) a masked text
+/// field instead, that calls [onCompleted] when the user submits it.
 class PinField extends StatelessWidget {
   const PinField({
     super.key,
@@ -23,6 +25,7 @@ class PinField extends StatelessWidget {
     this.errorText,
     this.enabled = true,
     this.autofocus = true,
+    this.passphrase = false,
   });
 
   final TextEditingController controller;
@@ -31,9 +34,20 @@ class PinField extends StatelessWidget {
   final String? errorText;
   final bool enabled;
   final bool autofocus;
+  final bool passphrase;
 
   @override
   Widget build(BuildContext context) {
+    if (passphrase) {
+      return _PassphraseEntry(
+        controller: controller,
+        label: label,
+        errorText: errorText,
+        enabled: enabled,
+        autofocus: autofocus,
+        onCompleted: onCompleted,
+      );
+    }
     return TextField(
       controller: controller,
       enabled: enabled,
@@ -56,6 +70,75 @@ class PinField extends StatelessWidget {
         errorText: errorText,
         counterText: '',
         border: const OutlineInputBorder(),
+      ),
+    );
+  }
+}
+
+/// The passphrase field of [PinField]: masked, with the show/hide eye the app's password
+/// fields have, submitted by the keyboard's Done or the arrow.
+class _PassphraseEntry extends StatefulWidget {
+  const _PassphraseEntry({
+    required this.controller,
+    required this.label,
+    required this.onCompleted,
+    required this.errorText,
+    required this.enabled,
+    required this.autofocus,
+  });
+
+  final TextEditingController controller;
+  final String label;
+  final ValueChanged<String> onCompleted;
+  final String? errorText;
+  final bool enabled;
+  final bool autofocus;
+
+  @override
+  State<_PassphraseEntry> createState() => _PassphraseEntryState();
+}
+
+class _PassphraseEntryState extends State<_PassphraseEntry> {
+  bool _obscure = true;
+
+  void _submit() {
+    if (widget.controller.text.isNotEmpty) widget.onCompleted(widget.controller.text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return TextField(
+      controller: widget.controller,
+      enabled: widget.enabled,
+      autofocus: widget.autofocus,
+      obscureText: _obscure,
+      autocorrect: false,
+      enableSuggestions: false,
+      enableIMEPersonalizedLearning: false,
+      keyboardType: TextInputType.visiblePassword,
+      textInputAction: TextInputAction.done,
+      onSubmitted: (_) => _submit(),
+      decoration: InputDecoration(
+        labelText: widget.label,
+        errorText: widget.errorText,
+        errorMaxLines: 3,
+        border: const OutlineInputBorder(),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: _obscure ? l.passwordShow : l.passwordHide,
+              icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+              onPressed: () => setState(() => _obscure = !_obscure),
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward),
+              tooltip: l.commonContinue,
+              onPressed: widget.enabled ? _submit : null,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -303,9 +386,19 @@ class _PinWaitNoteState extends State<PinWaitNote> {
 Future<DateTime?> pinCheckTime(WidgetRef ref) async {
   final config = ref.read(walletConfigProvider);
   if (config == null) return null;
-  final wait = await ref.read(vaultProvider).nextPinWait(config);
-  return wait == Duration.zero ? null : DateTime.now().add(wait);
+  // Only for the note: a count that cannot be read (a lost Keystore key) is reported by the
+  // attempt itself.
+  try {
+    final wait = await ref.read(vaultProvider).nextPinWait(config);
+    return wait == Duration.zero ? null : DateTime.now().add(wait);
+  } catch (_) {
+    return null;
+  }
 }
+
+/// Whether the open wallet's secret is a passphrase ([usesPassphraseProvider]), for the reason
+/// line of [askPin]: the xPassphraseReason string in place of xPinReason.
+bool usesPassphrase(WidgetRef ref) => ref.read(usesPassphraseProvider).value ?? false;
 
 /// Asks for the PIN of the open wallet (or, with [allowBiometrics], its biometric copy) and
 /// runs [action] with it. Returns what [action] returned, or null if the user cancelled. A
@@ -404,7 +497,7 @@ class _PinPromptDialogState<T extends Object>
     if (config == null || !widget.allowBiometrics) return;
     final enabled = await ref
         .read(vaultProvider)
-        .biometricsEnabled(config.chain);
+        .biometricsReady(config.chain);
     if (!mounted) return;
     setState(() => _biometrics = enabled);
     // Biometrics go first, as on the unlock screen; the PIN stays for a dismissed prompt.
@@ -417,7 +510,7 @@ class _PinPromptDialogState<T extends Object>
     final vault = ref.read(vaultProvider);
     final pin = await vault.readBiometricPin(config.chain);
     if (pin == null) {
-      final still = await vault.biometricsEnabled(config.chain);
+      final still = await vault.biometricsReady(config.chain);
       if (mounted) setState(() => _biometrics = still);
       return;
     }
@@ -467,12 +560,13 @@ class _PinPromptDialogState<T extends Object>
   Widget build(BuildContext context) {
     final l = context.l10n;
     final checkAt = _checkAt;
+    final passphrase = ref.watch(usesPassphraseProvider).value ?? false;
     // Closing the dialog would not stop a running action (LEPIC may wait up to an hour before
     // it checks the PIN), so it stays open until the action ends.
     return PopScope(
       canPop: !_busy,
       child: AlertDialog(
-        title: Text(l.pinPromptTitle),
+        title: Text(passphrase ? l.passphrasePromptTitle : l.pinPromptTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -486,10 +580,11 @@ class _PinPromptDialogState<T extends Object>
               true => DemoPinFill(compact: true, onDone: _runDemoPin),
               false => PinField(
                 controller: _pin,
-                label: l.pinLabel,
+                label: passphrase ? l.passphraseLabel : l.pinLabel,
                 enabled: !_busy,
                 errorText: _error,
                 onCompleted: _run,
+                passphrase: passphrase,
               ),
             },
             if (_busy) ...[

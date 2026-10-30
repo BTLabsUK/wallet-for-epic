@@ -3096,7 +3096,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsBiometrics => 'Разблокировка биометрией';
 
   @override
-  String get settingsBiometricsOn => 'Биометрическая разблокировка включена';
+  String get settingsBiometricsOn =>
+      'Биометрическая разблокировка включена. Она заработает со следующего запуска приложения.';
 
   @override
   String get settingsBiometricsOff => 'Биометрическая разблокировка выключена';
@@ -19414,4 +19415,123 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get errorPaymentAlreadyWentThrough =>
       'Монеты не удалось перевести обратно: сам платёж уже прошёл. Он показан как оплаченный.';
+
+  @override
+  String get errorPinKeyLost =>
+      'Защищённое оборудование этого телефона больше не хранит ключ, нужный вашему PIN-коду, поэтому PIN-код не откроет этот кошелёк. Ваши монеты в безопасности: нажмите «Забыли PIN-код?» и восстановите кошелёк по фразе восстановления.';
+
+  @override
+  String get settingsUsePassphrase => 'Использовать пароль вместо PIN-кода';
+
+  @override
+  String get settingsChangePassphrase => 'Сменить пароль';
+
+  @override
+  String get passphraseLabel => 'Пароль';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выберите пароль не короче $count символа, не только из цифр',
+      many: 'Выберите пароль не короче $count символов, не только из цифр',
+      few: 'Выберите пароль не короче $count символов, не только из цифр',
+      one: 'Выберите пароль не короче $count символа, не только из цифр',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'Повторите пароль';
+
+  @override
+  String get passphraseMismatch => 'Пароли не совпадают';
+
+  @override
+  String get passphraseSet => 'Пароль установлен';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'Пароль установлен. Биометрическая разблокировка выключена; включите её снова ниже.';
+
+  @override
+  String get passphraseForgot => 'Забыли пароль?';
+
+  @override
+  String get passphrasePromptTitle => 'Введите пароль';
+
+  @override
+  String get passphraseEnterCurrent => 'Введите текущий пароль';
+
+  @override
+  String get passphraseCurrentLabel => 'Текущий пароль';
+
+  @override
+  String get passphraseChooseTitle => 'Выберите пароль';
+
+  @override
+  String passphraseRules(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Не короче $count символа и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+      many:
+          'Не короче $count символов и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+      few:
+          'Не короче $count символов и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+      one:
+          'Не короче $count символа и не только из цифр. Хорошо подходят несколько слов через пробел. Он заменяет PIN везде, где кошелёк его запрашивает.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseUsePinInstead => 'Ввести PIN вместо пароля';
+
+  @override
+  String get passphraseUsePassphraseInstead => 'Ввести пароль вместо PIN';
+
+  @override
+  String get biometricsFromNextStart =>
+      'Биометрическая разблокировка заработает со следующего запуска приложения.';
+
+  @override
+  String get invoicePassphraseReason =>
+      'Введите пароль, чтобы оплатить этот счёт.';
+
+  @override
+  String get restoreReplacePassphraseReason =>
+      'Введите пароль, чтобы заменить этот кошелёк. Восстановленный кошелёк сохранит этот пароль.';
+
+  @override
+  String get backupPassphraseReason =>
+      'Введите пароль, чтобы показать фразу восстановления.';
+
+  @override
+  String sendQrPassphraseReason(String amount) {
+    return 'Введите пароль, чтобы создать QR платежа на $amount.';
+  }
+
+  @override
+  String get settingsBiometricsPassphraseReason =>
+      'Введите пароль, чтобы включить биометрическую разблокировку.';
+
+  @override
+  String get settingsDeletePassphraseReason =>
+      'Введите пароль, чтобы удалить этот кошелёк.';
+
+  @override
+  String sendPassphraseReason(String amount) {
+    return 'Введите пароль, чтобы отправить $amount.';
+  }
+
+  @override
+  String sendFilePassphraseReason(String amount) {
+    return 'Введите пароль, чтобы создать файл транзакции на $amount.';
+  }
+
+  @override
+  String get passphraseSetTitle => 'Задать пароль';
 }
