@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/tour.dart';
 import '../../../l10n.dart' show appLanguages;
+import '../../../ui/help_screen.dart' show helpWordStart;
 import '../../../ui/language_flag.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
@@ -28,21 +29,24 @@ List<String> queryWords(String q) {
   return words..sort((a, b) => b.length - a.length);
 }
 
+/// Whether [w] starts a word somewhere in [low] ("tor" finds Tor, not restore).
+bool _has(String low, String w) => helpWordStart(low, w) >= 0;
+
 /// Matching topics, best first: a word in the title counts 100, in the answer 10, in the body 1.
-/// Every word must appear somewhere. [inBody]: a word matched the body (the topic opens).
+/// Every word must start a word somewhere. [inBody]: a word matched the body (the topic opens).
 List<({HelpTopic topic, bool inBody})> searchTopics(List<HelpTopic> topics, List<String> words) {
   final hits = <({HelpTopic topic, bool inBody, int score, int order})>[];
   for (var i = 0; i < topics.length; i++) {
     final t = topics[i];
     final title = t.title.toLowerCase(), short = t.short.toLowerCase(), body = t.bodyText.toLowerCase();
-    if (!words.every((w) => title.contains(w) || short.contains(w) || body.contains(w))) continue;
+    if (!words.every((w) => _has(title, w) || _has(short, w) || _has(body, w))) continue;
     var score = 0;
     for (final w in words) {
-      if (title.contains(w)) score += 100;
-      if (short.contains(w)) score += 10;
-      if (body.contains(w)) score += 1;
+      if (_has(title, w)) score += 100;
+      if (_has(short, w)) score += 10;
+      if (_has(body, w)) score += 1;
     }
-    hits.add((topic: t, inBody: words.any(body.contains), score: score, order: i));
+    hits.add((topic: t, inBody: words.any((w) => _has(body, w)), score: score, order: i));
   }
   hits.sort((a, b) => b.score != a.score ? b.score - a.score : a.order - b.order);
   return [for (final h in hits) (topic: h.topic, inBody: h.inBody)];
@@ -54,10 +58,10 @@ TextSpan marked(BuildContext context, String text, List<String> words, TextStyle
   final low = text.toLowerCase();
   final ranges = <(int, int)>[];
   for (final w in words) {
-    var at = low.indexOf(w);
+    var at = helpWordStart(low, w);
     while (at >= 0) {
       ranges.add((at, at + w.length));
-      at = low.indexOf(w, at + w.length);
+      at = helpWordStart(low, w, at + w.length);
     }
   }
   ranges.sort((a, b) => a.$1 - b.$1);

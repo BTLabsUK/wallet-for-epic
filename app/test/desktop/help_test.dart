@@ -53,6 +53,17 @@ void main() {
     expect(topics.where((t) => t.handshake).single.title, 'Why does a transaction need both sides?');
   });
 
+  test('search matches words at their start: tor finds Tor, not restore', () {
+    final noTor = topics.where((t) => !'${t.title} ${t.short} ${t.bodyText}'.toLowerCase().contains(RegExp(r'(^|[^a-z])tor')));
+    final withRestore = noTor.where((t) => '${t.title} ${t.short} ${t.bodyText}'.toLowerCase().contains('restor'));
+    expect(withRestore, isNotEmpty);
+    final hits = searchTopics(topics, queryWords('tor')).map((h) => h.topic);
+    for (final t in withRestore) {
+      expect(hits, isNot(contains(t)), reason: t.title);
+    }
+    expect(searchTopics(topics, queryWords('restor')), isNotEmpty);
+  });
+
   test('the copy rules', () {
     for (final t in topics) {
       final all = '${t.title} ${t.short} ${t.bodyText}';

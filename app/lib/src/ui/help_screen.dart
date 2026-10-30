@@ -86,12 +86,18 @@ List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
 List<String> helpQueryWords(String query) =>
     query.toLowerCase().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
 
+final _letterOrDigit = RegExp(r'[\p{L}\p{N}]', unicode: true);
+
+/// Scripts written without spaces between words (Chinese, Japanese, Thai): any place counts.
+final _unspaced = RegExp(r'[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}]', unicode: true);
+
 /// Where [word] starts a word in [low] (lowercased text), from [from]; -1 when nowhere. A
-/// search for "tor" finds Tor and .torrent, not restore.
+/// search for "tor" finds Tor and .torrent, not restore. Used by the phone and desktop Help.
 int helpWordStart(String low, String word, [int from = 0]) {
   var i = low.indexOf(word, from);
+  if (word.isNotEmpty && _unspaced.hasMatch(word[0])) return i;
   while (i >= 0) {
-    if (i == 0 || !RegExp(r'[\p{L}\p{N}]', unicode: true).hasMatch(low[i - 1])) return i;
+    if (i == 0 || !_letterOrDigit.hasMatch(low[i - 1])) return i;
     i = low.indexOf(word, i + 1);
   }
   return -1;
