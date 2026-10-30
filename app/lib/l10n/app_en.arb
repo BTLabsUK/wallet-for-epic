@@ -6480,13 +6480,17 @@
   "@sendPlainHttpTitle": {
     "description": "Dialog title before a send over plain http to another device."
   },
-  "sendPlainHttpBody": "Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.",
+  "sendPlainHttpBody": "Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.",
   "@sendPlainHttpBody": {
     "description": "Dialog text before a send over plain http to another device."
   },
-  "sendPlainHttpOffWithTor": "Plain HTTP is off while Tor is on.",
+  "sendPlainHttpOffWithTor": "Plain http:// doesn't work with Tor on.",
   "@sendPlainHttpOffWithTor": {
     "description": "Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent."
+  },
+  "sendPlainHttpOffWithTorWhy": "A Tor exit could take the payment. Use https://, an onion or Epicbox.",
+  "@sendPlainHttpOffWithTorWhy": {
+    "description": "Send: the info sheet behind sendPlainHttpOffWithTor, why plain http:// is off while Tor is on."
   },
   "torModesSendsSame": "With Tor on, Normal sends like Tor only: everything goes over Tor and plain HTTP is off. Tor only also keeps Tor on, and nothing goes while it is not connected.",
   "@torModesSendsSame": {
@@ -9784,7 +9788,7 @@
   "@deskSendPlainTitle": {
     "description": "Title of the dialog shown before a send to a plain http address."
   },
-  "deskSendPlainDesc": "Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.",
+  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.",
   "@deskSendPlainDesc": {
     "description": "Text of that dialog."
   },

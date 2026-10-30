@@ -159,7 +159,7 @@
   "deskSendSending": "正在发送",
   "deskSendConfirm": "发送 {amount} EPIC",
   "deskSendPlainTitle": "未加密。仍要发送？",
-  "deskSendPlainDesc": "通过明文 HTTP，网络路径上的任何人都可能代替收款人收到这笔付款。",
+  "deskSendPlainDesc": "以明文 HTTP 发送到另一台电脑。途经的任何人都能读取这笔交易。https:// 是加密的。",
   "deskSendPlainConfirm": "仍要发送",
   "deskSendFeeChangedTitle": "手续费已变化",
   "deskSendFeeChangedText": "自本次核对以来钱包的输出已变化，此次发送的手续费现在是 {fee} EPIC，而不是 {was} EPIC。请核对后再次发送。",

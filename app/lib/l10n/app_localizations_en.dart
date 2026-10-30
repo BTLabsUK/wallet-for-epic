@@ -5018,10 +5018,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.';
+      'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.';
 
   @override
-  String get sendPlainHttpOffWithTor => 'Plain HTTP is off while Tor is on.';
+  String get sendPlainHttpOffWithTor =>
+      'Plain http:// doesn\'t work with Tor on.';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'A Tor exit could take the payment. Use https://, an onion or Epicbox.';
 
   @override
   String get torModesSendsSame =>
@@ -7503,7 +7508,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.';
+      'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.';
 
   @override
   String get deskSendPlainConfirm => 'Send anyway';

@@ -5087,11 +5087,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'Über reines HTTP könnte jeder auf dem Netzwerkweg diese Zahlung anstelle des Empfängers erhalten.';
+      'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Weg kann die Transaktion lesen. Eine https://-Adresse ist verschlüsselt.';
 
   @override
   String get sendPlainHttpOffWithTor =>
-      'Reines HTTP ist aus, solange Tor an ist.';
+      'Reines http:// geht nicht, solange Tor an ist.';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'Ein Tor-Ausgangsknoten könnte die Zahlung abfangen. Nimm https://, eine Onion- oder Epicbox-Adresse.';
 
   @override
   String get torModesSendsSame =>
@@ -7608,7 +7612,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'Über reines HTTP könnte jeder auf dem Netzwerkweg diese Zahlung anstelle des Empfängers erhalten.';
+      'Unverschlüsseltes HTTP zu einem anderen Computer. Jeder auf dem Weg kann die Transaktion lesen. https:// ist verschlüsselt.';
 
   @override
   String get deskSendPlainConfirm => 'Trotzdem senden';

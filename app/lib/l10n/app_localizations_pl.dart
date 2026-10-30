@@ -5162,11 +5162,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność zamiast odbiorcy.';
+      'Zwykłe HTTP do innego urządzenia. Każdy po drodze może odczytać transakcję. Adres https:// jest szyfrowany.';
 
   @override
   String get sendPlainHttpOffWithTor =>
-      'Zwykłe HTTP jest wyłączone, gdy Tor jest włączony.';
+      'Zwykłe http:// nie działa przy włączonym Torze.';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'Węzeł wyjściowy Tora mógłby przejąć płatność. Użyj https://, adresu onion lub Epicbox.';
 
   @override
   String get torModesSendsSame =>
@@ -7829,7 +7833,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność zamiast odbiorcy.';
+      'Zwykłe HTTP do innego komputera. Każdy po drodze może odczytać transakcję. https:// jest szyfrowane.';
 
   @override
   String get deskSendPlainConfirm => 'Wyślij mimo to';

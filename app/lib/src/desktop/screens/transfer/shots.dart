@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../tor_routes.dart';
 import '../../app/shots.dart';
+import '../settings/shots.dart' show openInfoHint;
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'finalize_screen.dart';
@@ -48,6 +49,7 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '13q-send-http-tor-on', title: 'Send, Link · HTTP with Tor on', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'https://pay.example.org:3415', amount: '5', tor: TorState.on), prepare: (c, _) => _linkOn(c)),
   // Plain http to another computer with Tor on: off, with the reason as the summary's hint.
   DeskShot(id: '13v-send-plain-http-tor-on', title: 'Send, plain HTTP off with Tor on', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5', tor: TorState.on), before: _linkOn),
+  DeskShot(id: '13v2-send-plain-http-tor-on-why', title: 'Send, plain HTTP off with Tor on: the why behind the info icon', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5', tor: TorState.on), before: _linkOn, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.sendPlainHttpOffWithTor)),
   DeskShot(id: '13r-send-onion-tor-on', title: 'Send, Link · Tor over Tor', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.on), prepare: (c, _) => _linkOn(c)),
   DeskShot(
     id: '13i-send-switched',

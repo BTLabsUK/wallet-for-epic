@@ -1680,6 +1680,20 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ] else if (_method == TxMethod.http && _torState(st) != TorState.off && _torWay(st) == TorWay.clearnet) ...[
             SizedBox(height: Sp.x2),
             Text(l.deskSendHttpClearnet, key: const ValueKey('send-http-clearnet'), style: ts.small),
+          ] else if (DeskFeatures.tor && _method == TxMethod.http && _torWay(st) == TorWay.off) ...[
+            // Plain http:// to another computer with Tor on: the why is behind the info icon.
+            SizedBox(height: Sp.x2),
+            Wrap(
+              key: const ValueKey('send-plain-http-off'),
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: Sp.x2,
+              runSpacing: Sp.x1,
+              children: [
+                Text(l.sendPlainHttpOffWithTor, style: ts.small.copyWith(color: c.warn)),
+                EInfoHint(l.sendPlainHttpOffWithTorWhy, title: l.sendPlainHttpOffWithTor, icon: EIcons.alert, size: Ctl.inline),
+                EButton(label: l.torTurnOff, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(false)),
+              ],
+            ),
           ],
           if (contact != null) ...[
             SizedBox(height: Sp.x2),

@@ -4933,10 +4933,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'ผ่าน HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายอาจรับการชำระเงินนี้แทนผู้รับได้';
+      'HTTP แบบไม่เข้ารหัสไปยังอุปกรณ์อื่น ใครก็ตามระหว่างทางอ่านธุรกรรมได้ ที่อยู่ https:// จะเข้ารหัส';
 
   @override
-  String get sendPlainHttpOffWithTor => 'HTTP ธรรมดาปิดอยู่ขณะเปิด Tor';
+  String get sendPlainHttpOffWithTor => 'http:// ธรรมดาใช้ไม่ได้ขณะเปิด Tor';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'โหนดทางออกของ Tor อาจดักรับการชำระเงินได้ ใช้ https://, onion หรือ Epicbox';
 
   @override
   String get torModesSendsSame =>
@@ -7307,7 +7311,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'ผ่าน HTTP ธรรมดา ใครก็ตามบนเส้นทางเครือข่ายอาจรับการชำระเงินนี้แทนผู้รับได้';
+      'HTTP ธรรมดาไปยังคอมพิวเตอร์อื่น ใครที่อยู่ระหว่างทางก็อ่านธุรกรรมได้ https:// เข้ารหัส';
 
   @override
   String get deskSendPlainConfirm => 'ส่งเลย';

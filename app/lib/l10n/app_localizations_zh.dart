@@ -4747,10 +4747,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendPlainHttpTitle => '未加密。仍要发送吗？';
 
   @override
-  String get sendPlainHttpBody => '通过明文 HTTP，网络路径上的任何人都可能代替收款人收到这笔付款。';
+  String get sendPlainHttpBody =>
+      '以明文 HTTP 发送到另一台设备。途中任何人都能读取这笔交易。https:// 地址是加密的。';
 
   @override
-  String get sendPlainHttpOffWithTor => 'Tor 开启时，明文 HTTP 不可用。';
+  String get sendPlainHttpOffWithTor => '开启 Tor 时，明文 http:// 无法使用。';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'Tor 出口节点可能截走这笔付款。请使用 https://、onion 或 Epicbox 地址。';
 
   @override
   String get torModesSendsSame =>
@@ -7035,7 +7040,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendPlainTitle => '未加密。仍要发送？';
 
   @override
-  String get deskSendPlainDesc => '通过明文 HTTP，网络路径上的任何人都可能代替收款人收到这笔付款。';
+  String get deskSendPlainDesc =>
+      '以明文 HTTP 发送到另一台电脑。途经的任何人都能读取这笔交易。https:// 是加密的。';
 
   @override
   String get deskSendPlainConfirm => '仍要发送';

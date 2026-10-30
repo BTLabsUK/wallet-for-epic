@@ -5142,11 +5142,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'По обычному HTTP любой на сетевом пути может получить этот платёж вместо получателя.';
+      'Обычный HTTP к другому устройству. Любой на пути может прочитать транзакцию. Адрес https:// зашифрован.';
 
   @override
   String get sendPlainHttpOffWithTor =>
-      'Обычный HTTP выключен, пока включён Tor.';
+      'Обычный http:// не работает при включённом Tor.';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'Выходной узел Tor мог бы перехватить платёж. Используйте https://, onion или Epicbox.';
 
   @override
   String get torModesSendsSame =>
@@ -7800,7 +7804,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'По обычному HTTP любой на сетевом пути может получить этот платёж вместо получателя.';
+      'Обычный HTTP к другому компьютеру. Любой на пути может прочитать транзакцию. https:// зашифрован.';
 
   @override
   String get deskSendPlainConfirm => 'Всё равно отправить';

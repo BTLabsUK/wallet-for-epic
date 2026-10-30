@@ -1086,7 +1086,7 @@ void main() {
       await h.torOn(tester);
       await _enter(tester, 'To', 'http://10.0.0.5:3415');
       expect(find.byKey(sendTorNoticeKey), findsOneWidget);
-      expect(find.textContaining('Plain HTTP is off while Tor is on'), findsOneWidget);
+      expect(find.textContaining("Plain http:// doesn't work with Tor on"), findsOneWidget);
       expect(find.byKey(sendTurnOffTorKey), findsOneWidget);
       // Continue waits: nothing leads on to a send through a Tor exit.
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);

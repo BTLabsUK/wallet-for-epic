@@ -159,7 +159,7 @@
   "deskSendSending": "Wysyłanie",
   "deskSendConfirm": "Wyślij {amount} EPIC",
   "deskSendPlainTitle": "Bez szyfrowania. Wysłać mimo to?",
-  "deskSendPlainDesc": "Przez zwykłe HTTP każdy na trasie sieciowej mógłby odebrać tę płatność zamiast odbiorcy.",
+  "deskSendPlainDesc": "Zwykłe HTTP do innego komputera. Każdy po drodze może odczytać transakcję. https:// jest szyfrowane.",
   "deskSendPlainConfirm": "Wyślij mimo to",
   "deskSendFeeChangedTitle": "Opłata się zmieniła",
   "deskSendFeeChangedText": "Wyjścia portfela zmieniły się od tego przeglądu, więc wysyłka kosztuje teraz {fee} EPIC zamiast {was} EPIC opłaty. Sprawdź ją i wyślij ponownie.",

@@ -8085,14 +8085,20 @@ abstract class AppLocalizations {
   /// Dialog text before a send over plain http to another device.
   ///
   /// In en, this message translates to:
-  /// **'Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.'**
+  /// **'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.'**
   String get sendPlainHttpBody;
 
   /// Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent.
   ///
   /// In en, this message translates to:
-  /// **'Plain HTTP is off while Tor is on.'**
+  /// **'Plain http:// doesn\'t work with Tor on.'**
   String get sendPlainHttpOffWithTor;
+
+  /// Send: the info sheet behind sendPlainHttpOffWithTor, why plain http:// is off while Tor is on.
+  ///
+  /// In en, this message translates to:
+  /// **'A Tor exit could take the payment. Use https://, an onion or Epicbox.'**
+  String get sendPlainHttpOffWithTorWhy;
 
   /// Settings › Network: how Normal with the Tor switch on and Tor only differ.
   ///
@@ -11928,7 +11934,7 @@ abstract class AppLocalizations {
   /// Text of that dialog.
   ///
   /// In en, this message translates to:
-  /// **'Over plain HTTP, anyone on the network path could receive this payment instead of the recipient.'**
+  /// **'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.'**
   String get deskSendPlainDesc;
 
   /// Button in that dialog: send over plain http.

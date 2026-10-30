@@ -46,6 +46,7 @@ import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
+import 'info_hint.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
 import 'pairing/pair_check.dart' show CheckWordsScreen;
@@ -250,6 +251,7 @@ TorRoute sendRoute(Recipient to) => switch (to.kind) {
 const Key sendTorNoticeKey = ValueKey('send-tor-notice');
 const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
 const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
+const Key sendPlainHttpOffInfoKey = ValueKey('send-plain-http-off-info');
 
 /// The tag beside To that says whether the payment goes over Tor, for tests.
 const Key sendTorTagKey = ValueKey('send-tor-tag');
@@ -4227,7 +4229,8 @@ class _TorNotice extends ConsumerWidget {
     // Without Tor in the app the address's own error says so. A build with Tor whose tor
     // files are missing shows Tor as blocked: nothing goes around it.
     final available = torBuilt;
-    // Plain http:// is off while Tor is on: a Tor exit could take the payment.
+    // Plain http:// is off while Tor is on: the why (a Tor exit could take the payment)
+    // sits behind the info icon.
     final plainOff = way == TorWay.off && !onion;
     if (!available || (way != TorWay.needsTor && way != TorWay.blocked && !plainOff)) {
       return const SizedBox.shrink();
@@ -4270,6 +4273,15 @@ class _TorNotice extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
+                  // The why, behind the info icon (the owner: no explanation on the screen).
+                  if (plainOff)
+                    InfoHint(
+                      l.sendPlainHttpOffWithTorWhy,
+                      key: sendPlainHttpOffInfoKey,
+                      size: 32,
+                      title: l.sendPlainHttpOffWithTor,
+                      icon: Icons.error_outline,
+                    ),
                 ],
               ),
             ),
