@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Builds Epic Cash Desktop for macOS and Epic Cash Mobile for the iOS Simulator on a Mac, from a
-# clean checkout of this repository: LEPIC for the four Apple targets, an ad-hoc-signed .app and
-# .dmg, a Simulator .app, and the smoke run. No Apple account is needed for any of it. Prototype
-# (branch proto/apple).
+# Builds Epic Cash Desktop for macOS and Epic Cash Mobile for iOS on a Mac, from a clean checkout
+# of this repository: LEPIC for the Apple targets, an ad-hoc-signed .app and .dmg, a Simulator
+# .app, the smoke run, and the release build that is handed over for signing. No Apple account
+# or certificate is needed on the Mac for any of it: releases are signed, notarised and uploaded
+# on the signer's Linux machine with tools/apple-sign.sh (tools/apple-release.md).
+#
+# macOS builds are Apple silicon (arm64) only: the built-in node has no Intel build.
 #
 # Usage: tools/build-apple.sh [step...]          default: doctor sources lepic macos dmg ios-sim
 #   doctor    print and check the toolchain (Xcode, SDKs, Simulator runtime, Flutter, Rust)
 #   sources   the LEPIC and lepic-flutter clones in app/third_party at tools/lepic.rev and
-#             tools/lepic-flutter.rev (cloned from LEPIC_REPO / LEPIC_FLUTTER_REPO when missing)
-#   lepic     liblepic_ffi.dylib for aarch64/x86_64-apple-darwin and aarch64-apple-ios(-sim)
+#             tools/lepic-flutter.rev (cloned when missing from LEPIC_REPO / LEPIC_FLUTTER_REPO,
+#             default the public GitLab copies, as tools/lepic.sh does)
+#   lepic     liblepic_ffi.dylib for aarch64-apple-darwin and aarch64-apple-ios(-sim)
 #             into app/third_party/lepic-flutter/native/<target>/ beside a SHA256SUMS
-#   macos     flutter build macos --release; the node and tor go into the bundle, then it is
-#             signed ad hoc
+#   macos     flutter build macos --release (arm64); the node and tor go into the bundle, then it
+#             is signed ad hoc
 #   dmg       the .app in a compressed .dmg with an Applications link
 #   ios-sim   flutter build ios --simulator --debug; installed and started on a Simulator, with
 #             a screenshot; the .app zipped
@@ -23,23 +27,34 @@
 #   live      integration_test/apple_live_test.dart on macOS and on the Simulator, on mainnet: a
 #             new wallet on node.btlabs.uk (then node.epicnet.us, node.epiccash.com), its scan to
 #             the tip, a restore from its phrase, the Epicbox listener connected (needs internet)
-#   all       every step above but live
+#   all       every step above but live and the release steps
+# Release steps (tools/apple-release.md), run on the release Mac:
+#   release   the build to sign, from a clean checkout: checks (release-check), then sources,
+#             lepic, macos, ipa and handoff
+#   release-check  the tree is clean and at RELEASE_COMMIT (when set), Flutter is exactly the
+#             pinned version, the built-in node is fetched by its pin
+#   handoff   handoff/<name>/: the unsigned .app and iOS Runner.app as tar files, PROVENANCE.txt
+#             (commit, toolchain, pins, the SHA-256 of every file in both apps) and SHA256SUMS
+#   dmg-signed <signed .app tar>   the .dmg of the app the signer signed and notarised (the
+#             signer's SHA256SUMS beside the tar is checked first); Gatekeeper must accept the
+#             app; the .dmg goes back to the signer, who signs and notarises it
+#   gatekeeper <final .dmg>   Gatekeeper's verdict on the signed, notarised .dmg and on the app in
+#             it, as a user's Mac would give it (spctl, stapler, codesign)
 # A failing step leaves a FAIL line in results.txt before the script exits.
 # Env:
 #   APPLE_OUT=<dir>            results (default build-apple/ at the repo root): the .app, .dmg,
 #                              screenshots, logs and results.txt with one PASS/FAIL line per step
 #   LEPIC_REPO, LEPIC_FLUTTER_REPO   where `sources` clones from (a git URL or path)
-#   WFE_NODE_BIN_MAC_ARM64, WFE_NODE_BIN_MAC_X64
-#                              the built-in node's epic binary per architecture (epic 4.1 or newer:
-#                              the app's epic-server.toml has no foundation_path, which 4.0 needs);
-#                              joined with lipo into Contents/Resources/bin/epic. Without them the
-#                              app has no built-in node.
+#   WFE_NODE_BIN_MAC_ARM64     the built-in node's epic binary (epic 4.1 or newer: the app's
+#                              epic-server.toml has no foundation_path, which 4.0 needs), copied to
+#                              Contents/Resources/bin/epic. Without it the app has no built-in node.
 #   WFE_NODE_FETCH=1           fetch the node release pinned below (by SHA-256) when
-#                              WFE_NODE_BIN_MAC_* are not set
+#                              WFE_NODE_BIN_MAC_ARM64 is not set (the release step sets it)
 #   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target)
 #   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
 #                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
 #   SIM_DEVICE=<name or udid>  the Simulator (default: the first available iPhone)
+#   RELEASE_COMMIT=<sha>       release-check: the commit the signer asked for (full or short)
 #
 # Written for the bash 3.2 macOS ships: no mapfile, no ${x,,}, no associative arrays.
 set -euo pipefail
@@ -55,14 +70,14 @@ flutter_version=3.47.5
 # the libraries never ask for a newer system than the app.
 macos_min=12.0
 ios_min=15.0
-darwin_targets="aarch64-apple-darwin x86_64-apple-darwin"
+darwin_targets=aarch64-apple-darwin
 ios_targets="aarch64-apple-ios aarch64-apple-ios-sim"
 desktop_name="Epic Cash Desktop"
 phone_id=uk.btlabs.epiccash.mobile
 # The built-in node for WFE_NODE_FETCH: the Epic Cash node release the Linux and Windows builds
-# bundle (epic 4.1.1), its macOS zip. arm64 only: there is no x86_64 macOS release of 4.1, so an
-# Intel Mac has no built-in node (the GUI 6.1.6's macOS binaries are epic 4.0.0, which stops at
-# once on the app's toml: "missing field `foundation_path`", exit 101).
+# bundle (epic 4.1.1), its macOS zip. arm64 only: there is no x86_64 macOS release of 4.1, which
+# is why the macOS app is arm64 only (the GUI 6.1.6's macOS binaries are epic 4.0.0, which stops
+# at once on the app's toml: "missing field `foundation_path`", exit 101).
 node_version=4.1.1
 node_zip_url=https://github.com/EpicCash/epic/releases/download/v4.1.1/MacOS-aarch64-v4.1.1.zip
 node_zip_sha=35bacc695c251723ecb4379b4a50270a8118fc140373723bb80fb73c65e36133
@@ -72,8 +87,9 @@ say() { printf '\n== %s\n' "$*"; }
 result() { mkdir -p "$out"; printf '%s %s %s\n' "$1" "$2" "${3:-}" | tee -a "$results"; recorded="$2"; }
 sha256() { shasum -a 256 "$1" | cut -d' ' -f1; }
 build_id() { git -C "$root" rev-parse --short=8 HEAD; }
-# The dart-define of the build without Tor (WFE_TOR=0), else nothing.
-tor_define() { if [ "${WFE_TOR:-1}" = 0 ]; then echo --dart-define=WFE_TOR=false; fi; }
+# The dart-define of the build without Tor (WFE_TOR=0), else empty: pass it as ${tor_def:+"$tor_def"}.
+tor_def=""
+if [ "${WFE_TOR:-1}" = 0 ]; then tor_def=--dart-define=WFE_TOR=false; fi
 # The file name mark of the build without Tor, as the other platforms' packages have it.
 variant() { if [ "${WFE_TOR:-1}" = 0 ]; then echo -notor; fi; }
 app_version() { sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' "$app/pubspec.yaml"; }
@@ -127,10 +143,10 @@ sources() {
   rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
   binding_rev="$(tr -d '[:space:]' < "$root/tools/lepic-flutter.rev")"
   mkdir -p "$app/third_party"
-  clone_at "$binding" "${LEPIC_FLUTTER_REPO:-}" "$binding_rev" LEPIC_FLUTTER_REPO
+  clone_at "$binding" "${LEPIC_FLUTTER_REPO:-https://gitlab.com/epic-cash-bt/lepic-flutter.git}" "$binding_rev" LEPIC_FLUTTER_REPO
   [ "$(tr -d '[:space:]' < "$binding/lepic.rev")" = "$rev" ] \
     || die "tools/lepic.rev differs from lepic-flutter's own lepic.rev"
-  clone_at "$lepic" "${LEPIC_REPO:-}" "$rev" LEPIC_REPO
+  clone_at "$lepic" "${LEPIC_REPO:-https://gitlab.com/epic-cash-bt/lepic.git}" "$rev" LEPIC_REPO
   result PASS sources "lepic $(git -C "$lepic" rev-parse --short=8 HEAD)"
 }
 
@@ -158,6 +174,7 @@ lepic_libs() {
   # rust-toolchain.toml picks LEPIC's Rust; its targets list has the iOS ones, not macOS.
   local t features=""
   [ "${WFE_TOR:-1}" = 0 ] && features=--no-default-features
+  # shellcheck disable=SC2086 # the target lists split into words
   (cd "$lepic" && rustup target add $darwin_targets $ios_targets)
   # A plain cargo build per target: LEPIC's xtask packages iOS but has no macOS targets yet.
   for t in $darwin_targets $ios_targets; do
@@ -168,11 +185,11 @@ lepic_libs() {
   result PASS lepic "$(for t in $darwin_targets $ios_targets; do printf '%s ' "$t"; done)${features:+(without tor)}"
 }
 
-# Joins the per-architecture Mach-O files $2... into $1 (one input is copied as it is).
-join_arches() {
-  local dest="$1"; shift
-  if [ $# -eq 1 ]; then cp "$1" "$dest"; else lipo -create "$@" -output "$dest"; fi
-  chmod 755 "$dest"
+# Copies the Mach-O file $1 to $2 as an executable, after checking it is arm64 only.
+copy_arm64() {
+  [ "$(lipo -archs "$1")" = arm64 ] || die "$1 is $(lipo -archs "$1"), not arm64 only"
+  cp "$1" "$2"
+  chmod 755 "$2"
 }
 
 # Downloads the node release zip, checks it against its pinned SHA-256 and puts its epic at $1.
@@ -192,8 +209,10 @@ macos() {
   say "flutter build macos"
   local bundle="$app/build/macos/Build/Products/Release/$desktop_name.app"
   local res="$bundle/Contents/Resources/bin"
-  (cd "$app" && flutter pub get && flutter build macos --release -t lib/main_desktop.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)" $(tor_define))
+  # FLUTTER_MACOS_ARM64_ONLY: Flutter's switch for an arm64-only release build (ARCHS=arm64);
+  # the project also excludes x86_64 (macos/Runner/Configs/AppInfo.xcconfig).
+  (cd "$app" && flutter pub get && FLUTTER_MACOS_ARM64_ONLY=1 flutter build macos --release \
+    -t lib/main_desktop.dart --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
   [ -d "$bundle" ] || die "no $bundle"
   [ -f "$bundle/Contents/Frameworks/lepic_ffi.framework/lepic_ffi" ] \
     || die "the bundle has no lepic_ffi.framework (app/hook/build.dart)"
@@ -202,35 +221,29 @@ macos() {
   rm -rf "$res"
   mkdir -p "$res"
   # The built-in node: Contents/Resources/bin/epic (lib/src/builtin_node_provider.dart).
-  if [ "${WFE_NODE_FETCH:-0}" = 1 ] && [ -z "${WFE_NODE_BIN_MAC_ARM64:-}${WFE_NODE_BIN_MAC_X64:-}" ]; then
+  if [ "${WFE_NODE_FETCH:-0}" = 1 ] && [ -z "${WFE_NODE_BIN_MAC_ARM64:-}" ]; then
     fetch_node "$out/node/arm64/epic"
     WFE_NODE_BIN_MAC_ARM64="$out/node/arm64/epic"
   fi
-  local nodes=""
-  [ -n "${WFE_NODE_BIN_MAC_ARM64:-}" ] && nodes="$nodes $WFE_NODE_BIN_MAC_ARM64"
-  [ -n "${WFE_NODE_BIN_MAC_X64:-}" ] && nodes="$nodes $WFE_NODE_BIN_MAC_X64"
-  if [ -n "$nodes" ]; then
-    join_arches "$res/epic" $nodes
-    echo "node: $(lipo -archs "$res/epic")"
+  if [ -n "${WFE_NODE_BIN_MAC_ARM64:-}" ]; then
+    copy_arm64 "$WFE_NODE_BIN_MAC_ARM64" "$res/epic"
     # epic 4.0 needs foundation_path, which the app's toml leaves out: it would stop at once.
     local nv
     nv="$("$res/epic" --version 2>/dev/null | sed -n 's/^epic \([0-9.]*\).*/\1/p')"
     echo "node version: ${nv:-unknown (cannot run here)}"
     case "$nv" in 4.0.*|[0-3].*) die "the built-in node is epic $nv; the app needs 4.1 or newer" ;; esac
   else
-    echo "no WFE_NODE_BIN_MAC_*: no built-in node"
+    echo "no WFE_NODE_BIN_MAC_ARM64: no built-in node"
   fi
   # Tor: Contents/Resources/bin/tor-bundle/tor beside its libevent (lib/src/tor_location.dart);
   # tor finds libevent at @executable_path.
   if [ "${WFE_TOR:-1}" = 1 ]; then
     local tmp="$out/tor"
     rm -rf "$tmp"
-    "$root/tools/fetch-tor.sh" mac "$tmp/x86_64"
     "$root/tools/fetch-tor.sh" macsilicon "$tmp/arm64"
     mkdir -p "$res/tor-bundle"
-    join_arches "$res/tor-bundle/tor" "$tmp/arm64/tor" "$tmp/x86_64/tor"
-    join_arches "$res/tor-bundle/libevent-2.1.7.dylib" \
-      "$tmp/arm64/libevent-2.1.7.dylib" "$tmp/x86_64/libevent-2.1.7.dylib"
+    copy_arm64 "$tmp/arm64/tor" "$res/tor-bundle/tor"
+    copy_arm64 "$tmp/arm64/libevent-2.1.7.dylib" "$res/tor-bundle/libevent-2.1.7.dylib"
     cp "$tmp/arm64/LICENSE.tor.txt" "$tmp/arm64/VERSION" "$res/tor-bundle/"
     rm -rf "$tmp"
     echo "tor: $(cat "$res/tor-bundle/VERSION"), $(lipo -archs "$res/tor-bundle/tor")"
@@ -243,6 +256,7 @@ macos() {
   done
   codesign --force --sign - --entitlements "$app/macos/Runner/Release.entitlements" "$bundle"
   codesign --verify --deep --strict --verbose=2 "$bundle"
+  [ "$(lipo -archs "$bundle/Contents/MacOS/$desktop_name")" = arm64 ] || die "the app is not arm64 only"
   mkdir -p "$out"
   rm -rf "$out/$desktop_name.app"
   ditto "$bundle" "$out/$desktop_name.app"
@@ -278,7 +292,7 @@ ios_sim() {
   say "flutter build ios --simulator"
   [ "$(uname -m)" = arm64 ] || die "the Simulator build needs an Apple silicon Mac (LEPIC has no x86_64 Simulator library)"
   (cd "$app" && flutter pub get && flutter build ios --simulator --debug -t lib/main.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)" $(tor_define))
+    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
   local bundle="$app/build/ios/iphonesimulator/Runner.app" udid
   [ -d "$bundle" ] || die "no $bundle"
   udid="$(simulator)"
@@ -299,11 +313,15 @@ ios_sim() {
 ipa() {
   say "flutter build ios --no-codesign"
   (cd "$app" && flutter pub get && flutter build ios --release --no-codesign -t lib/main.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)" $(tor_define))
+    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
   local bundle="$app/build/ios/iphoneos/Runner.app" stage="$out/ipa-stage"
-  local ipa_file="$out/EpicCashMobile-$(app_version)$(variant)-ios-unsigned.ipa"
+  local ipa_file
+  ipa_file="$out/EpicCashMobile-$(app_version)$(variant)-ios-unsigned.ipa"
   [ -d "$bundle" ] || die "no $bundle"
   [ -f "$bundle/Frameworks/lepic_ffi.framework/lepic_ffi" ] || die "the .app has no lepic_ffi.framework"
+  # The framework Flutter makes from LEPIC has no privacy manifest; App Store Connect wants the
+  # reasons for its file-timestamp and disk-space calls (ios/lepic_ffi.PrivacyInfo.xcprivacy).
+  cp "$app/ios/lepic_ffi.PrivacyInfo.xcprivacy" "$bundle/Frameworks/lepic_ffi.framework/PrivacyInfo.xcprivacy"
   rm -rf "$stage" "$ipa_file"
   mkdir -p "$stage/Payload"
   ditto "$bundle" "$stage/Payload/Runner.app"
@@ -424,14 +442,14 @@ live() {
   say live
   mkdir -p "$out"
   local status=0 udid
-  if (cd "$app" && flutter test integration_test/apple_live_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json $(tor_define)) \
+  if (cd "$app" && flutter test integration_test/apple_live_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json ${tor_def:+"$tor_def"}) \
       > "$out/live-macos.log" 2>&1; then
     result PASS live-macos "$(grep 'LIVE-CHECK' "$out/live-macos.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
   else
     result FAIL live-macos "see live-macos.log"; status=1
   fi
   udid="$(simulator)"
-  if [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" --dart-define-from-file=integration_test/live-hosts.json $(tor_define)) \
+  if [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" --dart-define-from-file=integration_test/live-hosts.json ${tor_def:+"$tor_def"}) \
       > "$out/live-ios-sim.log" 2>&1; then
     result PASS live-ios-sim "$(grep 'LIVE-CHECK' "$out/live-ios-sim.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
   else
@@ -440,12 +458,179 @@ live() {
   return "$status"
 }
 
+# One line per file and symlink under $1, sorted by path: "<sha256> <x|-> <path>" (x: executable)
+# or "link <path> -> <target>". tools/apple-sign.sh writes the same lines on Linux, so the
+# signer compares the trees it gets, signs and gets back with these lists.
+manifest() {
+  (cd "$1" && LC_ALL=C find . \( -type f -o -type l \) | LC_ALL=C sort | while IFS= read -r f; do
+    if [ -L "$f" ]; then
+      printf 'link %s -> %s\n' "${f#./}" "$(readlink "$f")"
+    else
+      x=-; if [ -x "$f" ]; then x=x; fi
+      printf '%s %s %s\n' "$(sha256 "$f")" "$x" "${f#./}"
+    fi
+  done)
+}
+
+# A tar.gz at $3 of the folder $2 inside $1: no macOS metadata (no ._ files, no extended
+# attributes such as quarantine or provenance), owner root, so it unpacks the same on Linux.
+pack() {
+  rm -f "$3"
+  COPYFILE_DISABLE=1 tar --no-mac-metadata --no-xattrs --uid 0 --gid 0 --uname root --gname wheel \
+    -czf "$3" -C "$1" "$2"
+}
+
+# The checks before a release build: the commit is the one asked for and has no local changes,
+# the toolchain is the pinned one, and the built-in node comes from its pin.
+release_check() {
+  say release-check
+  local head dirty v
+  head="$(git -C "$root" rev-parse HEAD)"
+  dirty="$(git -C "$root" status --porcelain --untracked-files=normal -- . ':!build-apple')"
+  if [ -n "$dirty" ]; then
+    echo "$dirty" >&2
+    die "the checkout has local changes or untracked files: release builds come from a clean clone"
+  fi
+  if [ -n "${RELEASE_COMMIT:-}" ]; then
+    case "$head" in "$RELEASE_COMMIT"*) ;; *) die "HEAD is $head, not RELEASE_COMMIT $RELEASE_COMMIT" ;; esac
+  fi
+  v="$(flutter --version 2>/dev/null | sed -n 's/^Flutter \([0-9.]*\).*/\1/p')"
+  [ "$v" = "$flutter_version" ] || die "Flutter is $v; release builds use exactly $flutter_version"
+  [ "$(uname -m)" = arm64 ] || die "release builds run on an Apple silicon Mac"
+  if [ -z "${WFE_NODE_BIN_MAC_ARM64:-}" ]; then WFE_NODE_FETCH=1; fi
+  result PASS release-check "$(git -C "$root" rev-parse --short=9 HEAD) $(app_version) flutter $v"
+}
+
+# What the release was built from and with, and the SHA-256 of every file in both apps.
+provenance() {
+  local mac_app="$1" ios_app="$2" tor_pin
+  echo "Epic Cash Apple release build: what it was built from and with"
+  echo "app version:      $(app_version) ($(sed -n 's/^version: *//p' "$app/pubspec.yaml"))"
+  if [ "${WFE_TOR:-1}" = 0 ]; then echo "variant:          without Tor (WFE_TOR=0)"; else echo "variant:          with Tor"; fi
+  echo "commit:           $(git -C "$root" rev-parse HEAD)"
+  echo "commit date:      $(git -C "$root" log -1 --format=%cI)"
+  echo "built at:         $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "lepic:            $(git -C "$lepic" rev-parse HEAD)"
+  echo "lepic-flutter:    $(git -C "$binding" rev-parse HEAD)"
+  echo "macOS:            $(sw_vers -productVersion) ($(sw_vers -buildVersion)) $(uname -m)"
+  echo "Xcode:            $(xcodebuild -version | tr '\n' ' ')"
+  echo "macOS SDK:        $(xcrun --sdk macosx --show-sdk-version)"
+  echo "iOS SDK:          $(xcrun --sdk iphoneos --show-sdk-version)"
+  echo "Flutter:          $(flutter --version 2>/dev/null | head -4 | tr -s ' ' | tr '\n' ' ')"
+  echo "Rust:             $(cd "$lepic" && rustc --version) / $(cd "$lepic" && cargo --version)"
+  echo "pubspec.lock:     $(sha256 "$app/pubspec.lock")"
+  echo "LEPIC Cargo.lock: $(sha256 "$lepic/Cargo.lock")"
+  echo "node:             epic $node_version, $node_zip_url sha256 $node_zip_sha"
+  if [ "${WFE_TOR:-1}" = 1 ]; then
+    tor_pin="$(jq -r '.platforms.macsilicon.tarball + " sha256 " + .platforms.macsilicon.sha256' \
+      "$root/tools/tor-bundle.json" 2>/dev/null || echo "see tools/tor-bundle.json")"
+    echo "tor:              $tor_pin"
+  fi
+  echo
+  echo "== files of $desktop_name.app (unsigned)"
+  manifest "$mac_app"
+  echo
+  echo "== files of Runner.app (iOS, unsigned)"
+  manifest "$ios_app"
+}
+
+# The folder that goes to the signer: both unsigned apps as tar.gz, PROVENANCE.txt and SHA256SUMS.
+handoff() {
+  say handoff
+  local mac_app="$out/$desktop_name.app" ios_app="$app/build/ios/iphoneos/Runner.app"
+  local name dir mac_tar ios_tar
+  [ -d "$mac_app" ] || die "no $mac_app: run the macos step"
+  [ -d "$ios_app" ] || die "no $ios_app: run the ipa step"
+  name="EpicCash-$(app_version)$(variant)-$(git -C "$root" rev-parse --short=9 HEAD)"
+  dir="$out/handoff/$name"
+  rm -rf "$dir"
+  mkdir -p "$dir"
+  mac_tar="EpicCashDesktop-$(app_version)$(variant)-macos-unsigned.tar.gz"
+  ios_tar="EpicCashMobile-$(app_version)$(variant)-ios-unsigned.tar.gz"
+  pack "$(dirname "$mac_app")" "$(basename "$mac_app")" "$dir/$mac_tar"
+  pack "$(dirname "$ios_app")" Runner.app "$dir/$ios_tar"
+  provenance "$mac_app" "$ios_app" > "$dir/PROVENANCE.txt"
+  (cd "$dir" && shasum -a 256 "$mac_tar" "$ios_tar" PROVENANCE.txt > SHA256SUMS)
+  cat "$dir/SHA256SUMS"
+  result PASS handoff "$dir"
+}
+
+# The .dmg of the app the signer signed, notarised and stapled ($1, a tar.gz with the signer's
+# SHA256SUMS beside it). Nothing is signed here: the .dmg goes back to the signer.
+dmg_signed() {
+  say dmg-signed
+  local tar="$1" dir stage app_dir version name
+  [ -f "$tar" ] || die "usage: build-apple.sh dmg-signed <signed .app tar.gz>"
+  dir="$(cd "$(dirname "$tar")" && pwd)"
+  [ -f "$dir/SHA256SUMS" ] || die "no SHA256SUMS beside $tar"
+  (cd "$dir" && grep " $(basename "$tar")\$" SHA256SUMS | shasum -a 256 -c -) \
+    || die "$tar does not match SHA256SUMS"
+  version="$(basename "$tar" | sed -n 's/^EpicCashDesktop-\(.*\)-macos-signed\.tar\.gz$/\1/p')"
+  [ -n "$version" ] || die "$tar is not named EpicCashDesktop-<version>-macos-signed.tar.gz"
+  stage="$out/dmg-signed-stage"
+  rm -rf "$stage"
+  mkdir -p "$stage"
+  tar -xzf "$tar" -C "$stage"
+  app_dir="$stage/$desktop_name.app"
+  [ -d "$app_dir" ] || die "no $desktop_name.app in $tar"
+  # The signer's signature, the notarisation ticket and Gatekeeper, as a downloaded app gets them.
+  codesign --verify --deep --strict --verbose=2 "$app_dir"
+  xcrun stapler validate "$app_dir"
+  spctl --assess --type execute --verbose=4 "$app_dir"
+  ln -s /Applications "$stage/Applications"
+  name="EpicCashDesktop-$version-macos.dmg"
+  mkdir -p "$out/dmg-signed"
+  hdiutil create -quiet -volname "$desktop_name" -srcfolder "$stage" -ov -format UDZO "$out/dmg-signed/$name"
+  rm -rf "$stage"
+  (cd "$out/dmg-signed" && shasum -a 256 "$name" > "$name.sha256")
+  result PASS dmg-signed "$out/dmg-signed/$name (the .dmg of the signed app: back to the signer)"
+}
+
+# Gatekeeper's verdict on the final .dmg ($1) and on the app inside, on this Mac: what a user who
+# downloads it gets. Needs the signed, notarised and stapled .dmg from the signer.
+gatekeeper() {
+  say gatekeeper
+  local dmg_file="$1" mnt log="$out/gatekeeper.log" status=0
+  [ -f "$dmg_file" ] || die "usage: build-apple.sh gatekeeper <final .dmg>"
+  mkdir -p "$out"
+  if ! {
+    echo "== $(basename "$dmg_file") sha256 $(sha256 "$dmg_file")"
+    codesign --verify --verbose=2 "$dmg_file"
+    xcrun stapler validate "$dmg_file"
+    spctl --assess --type open --context context:primary-signature --verbose=4 "$dmg_file"
+  } > "$log" 2>&1; then
+    cat "$log"
+    result FAIL gatekeeper "the .dmg, see gatekeeper.log"
+    return 1
+  fi
+  mnt="$(mktemp -d "${TMPDIR:-/tmp}/epic-dmg.XXXXXX")"
+  hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mnt" "$dmg_file"
+  {
+    codesign --verify --deep --strict --verbose=2 "$mnt/$desktop_name.app" &&
+    codesign -dv --verbose=4 "$mnt/$desktop_name.app" 2>&1 \
+      | grep -E '^(Identifier|Format|Authority|TeamIdentifier|Timestamp|Runtime Version)' &&
+    xcrun stapler validate "$mnt/$desktop_name.app" &&
+    spctl --assess --type execute --verbose=4 "$mnt/$desktop_name.app"
+  } >> "$log" 2>&1 || status=1
+  hdiutil detach -quiet "$mnt" || true
+  rmdir "$mnt" 2>/dev/null || true
+  cat "$log"
+  if [ "$status" = 0 ]; then
+    result PASS gatekeeper "$(basename "$dmg_file"): accepted, notarised, stapled"
+  else
+    result FAIL gatekeeper "the app in $(basename "$dmg_file"), see gatekeeper.log"
+    return 1
+  fi
+}
+
 # A step that dies (or fails a command) gets its FAIL line here unless it wrote one itself.
 recorded="" step=""
 trap 'rc=$?; if [ "$rc" != 0 ] && [ -n "$step" ] && [ "$recorded" != "$step" ]; then result FAIL "$step" "exit $rc"; fi' EXIT
 
 [ $# -gt 0 ] || set -- doctor sources lepic macos dmg ios-sim
-for step in "$@"; do
+while [ $# -gt 0 ]; do
+  step="$1"
+  shift
   recorded=""
   case "$step" in
     doctor) doctor ;;
@@ -458,7 +643,12 @@ for step in "$@"; do
     smoke) smoke ;;
     live) live ;;
     all) doctor; sources; lepic_libs; macos; dmg; ios_sim; ipa; smoke ;;
-    *) step=""; sed -n '2,40p' "$0" >&2; exit 2 ;;
+    release-check) release_check ;;
+    release) release_check; doctor; sources; lepic_libs; macos; ipa; handoff ;;
+    handoff) handoff ;;
+    dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
+    gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
+    *) step=""; sed -n '2,62p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"
