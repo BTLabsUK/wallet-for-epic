@@ -173,12 +173,13 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
     expect(find.text('Node not answering.'), findsOneWidget);
-    // The mock's healthiest node with the lowest latency: the home node (6 ms) is My nodes and comes first.
-    expect(find.text('Switch to 10.0.1.24, the healthiest other node?'), findsOneWidget);
+    // The healthy node of the Node list (settings.toml) with the lowest latency: the mock's
+    // home node is not in the test list, so it is not offered.
+    expect(find.text('Switch to node.epic.invalid, the healthiest other node?'), findsOneWidget);
     await tester.tap(find.text('Switch'));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await tester.pump(const Duration(seconds: 1));
-    expect(container.read(deskProvider).status?.node.url, 'http://10.0.1.24:3413');
+    expect(container.read(deskProvider).status?.node.url, 'https://node.epic.invalid:3413');
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 10));
   });

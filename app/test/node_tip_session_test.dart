@@ -78,10 +78,10 @@ void main() {
   group('the send check waits for a slow node', () {
     tearDown(() => TorSwitch.on = false);
 
-    test('8 s directly, 90 s while the Tor switch is on', () {
+    test('15 s directly (app-config.toml node.check_timeout_s), 90 s while the Tor switch is on', () {
       TorSwitch.on = false;
       expect(nodeCheckTimeoutNow(), nodeCheckTimeout);
-      expect(nodeCheckTimeout, const Duration(seconds: 8));
+      expect(nodeCheckTimeout, const Duration(seconds: 15));
       TorSwitch.on = true;
       expect(nodeCheckTimeoutNow(), nodeTorCheckTimeout);
       expect(nodeTorCheckTimeout, const Duration(seconds: 90));

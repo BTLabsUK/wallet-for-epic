@@ -9,6 +9,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/builtin_node_provider.dart';
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/models.dart' show Chain;
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
+
+import 'support/test_settings.dart';
 
 class FakeInspector implements ProcessInspector {
   final Map<int, ({String exe, List<String> cmd})> procs = {};
@@ -166,7 +169,9 @@ void main() {
     },
   };
 
+  // The nodes here are floonet's unless a test names another chain: its ports are floonet's.
   setUp(() {
+    useChainConfig(Chain.floonet);
     dir = Directory.systemTemp.createTempSync('builtin_node_test');
     binary = '${dir.path}/epic';
     File(binary).writeAsStringSync('#!/bin/sh\n');
@@ -197,6 +202,8 @@ void main() {
       (Chain.usernet, 'user', 23413, 23414, 'UserTesting', 'None'),
     ]) {
       test('${chain.name} is rendered for its network', () async {
+        hostSettings = testSettings();
+        useChainConfig(chain);
         final node = make(chain: chain);
         await node.prepareFolder();
         final toml = File('${dir.path}/node/$folder/epic-server.toml')
