@@ -15,9 +15,18 @@
 #   tools/lepic.sh build android     the three Android ABIs into the binding's native/
 #   tools/lepic.sh build all         both
 #   tools/lepic.sh lib               print the path of the Linux library
+#   tools/lepic.sh prune-shared      remove shared builds (below) unused for LEPIC_SHARED_DAYS (14)
 #
 # WFE_TOR=0 builds the libraries without LEPIC's tor feature (https://docs.btlabs.uk/developers/build/variants/): the
 # binding's tool/lepic.sh reads the same switch.
+#
+# LEPIC_SHARED=1 (tools/check.sh sets it; release builds leave it unset) builds from a shared
+# clone of the pin instead of app/third_party/lepic, so every worktree at the same pin reuses one
+# cargo build: ~/.cache/wfe-lepic/<pin>-<tor|notor>/ (LEPIC_SHARED_DIR), cloned once from this
+# worktree's clone and never moved off its commit. One clone per pin and variant keeps the
+# sources, the features and the paths baked into xtask those of that pin; a lock per clone runs
+# one build at a time and the others wait. The libraries still land in this worktree's
+# lepic-flutter/native/, as without it.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -62,6 +71,25 @@ check_pins_agree() {
   }
 }
 
+shared_dir="${LEPIC_SHARED_DIR:-$HOME/.cache/wfe-lepic}"
+
+# Prints the shared clone of the pin for this variant. The first build makes it from this
+# worktree's clone (a local clone: hard links, no network) in a temporary directory and moves it
+# into place whole.
+shared_clone() {
+  local variant=tor dir tmp
+  case "${WFE_TOR:-1}" in 0|false|off) variant=notor ;; esac
+  dir="$shared_dir/$rev-$variant"
+  if [ ! -d "$dir/.git" ]; then
+    mkdir -p "$shared_dir"
+    tmp="$dir.tmp.$$"
+    git clone --quiet --no-checkout "$clone" "$tmp" >&2
+    git -C "$tmp" checkout --quiet --detach "$rev"
+    mv -T "$tmp" "$dir" 2>/dev/null || rm -rf -- "$tmp"   # another build made it first
+  fi
+  echo "$dir"
+}
+
 case "${1:-}" in
   sync)
     sync_clone "$binding" "$binding_repo" "$binding_rev"
@@ -79,14 +107,38 @@ case "${1:-}" in
       linux|android|all) ;;
       *) sed -n '9,15p' "$0" >&2; exit 2 ;;
     esac
+    src="$clone"
+    if [ "${LEPIC_SHARED:-0}" = 1 ]; then
+      src="$(shared_clone)"
+      check_clone "$src" "$rev"
+      echo "LEPIC $rev ($(basename "$src" | sed "s/.*-//")) builds from the shared clone $src"
+      exec {lock}>>"$src.lock"
+      flock -n "$lock" || { echo "waiting for another build from $src"; flock "$lock"; }
+      touch "$src.used"
+    fi
     if [ "$what" = linux ] || [ "$what" = all ]; then
-      LEPIC_DIR="$clone" "$binding/tool/lepic.sh" build linux
+      LEPIC_DIR="$src" "$binding/tool/lepic.sh" build linux
       echo "linux: $binding/native/x86_64-unknown-linux-gnu/"
     fi
     if [ "$what" = android ] || [ "$what" = all ]; then
-      LEPIC_DIR="$clone" "$binding/tool/lepic.sh" build android
+      LEPIC_DIR="$src" "$binding/tool/lepic.sh" build android
       echo "android: $binding/native/"
     fi
+    ;;
+  prune-shared)
+    days="${LEPIC_SHARED_DAYS:-14}"
+    for used in "$shared_dir"/*.used; do
+      [ -e "$used" ] || continue
+      dir="${used%.used}"
+      [ -n "$(find "$used" -maxdepth 0 -mtime +"$days")" ] || continue
+      exec {lock}>>"$dir.lock"
+      if flock -n "$lock"; then   # else a build is using it
+        echo "removing $dir (unused for $days days)"
+        rm -rf -- "$dir"
+        rm -f -- "$used" "$dir.lock"
+      fi
+      exec {lock}>&-
+    done
     ;;
   lib)
     echo "$binding/native/x86_64-unknown-linux-gnu/liblepic_ffi.so"

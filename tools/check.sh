@@ -69,7 +69,9 @@ step "install contract (docs/install-contract.md)"
 "$root/tools/check-install-contract.sh"
 
 step "LEPIC at the pin (tools/lepic.rev)"
-"$root/tools/lepic.sh" build linux
+# From the shared clone of the pin (tools/lepic.sh, docs/TESTING.md); LEPIC_SHARED=0 builds in
+# app/third_party/lepic instead.
+LEPIC_SHARED="${LEPIC_SHARED:-1}" "$root/tools/lepic.sh" build linux
 
 step "no hosts in code (docs/settings-file.md)"
 "$root/tools/check-no-hosts.sh"
