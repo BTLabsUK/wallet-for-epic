@@ -14,6 +14,8 @@ import '../../../known_relays.dart';
 import '../../../log.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
+import '../../../recipient.dart' show RecipientKind, SaferRoute, saferRouteFor;
+import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../data/api.dart' show DeskWalletApi;
 import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesOnProvider;
 import '../devices/link_flow.dart' show showDeskLinkDevice;
@@ -944,6 +946,24 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     setState(() => _suggestOff = true);
   }
 
+  /// To moves to the contact's safer address and its method; the send is reviewed again.
+  void _useSafer(SaferRoute safer) {
+    final to = safer.recipient.address;
+    final m = switch (safer.recipient.kind) {
+      RecipientKind.epicbox => TxMethod.epicbox,
+      RecipientKind.tor => TxMethod.tor,
+      RecipientKind.http => TxMethod.http,
+    };
+    setState(() {
+      _pairingTo = null;
+      if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
+      _method = m;
+      _to.text = to;
+      _lastTo = to;
+    });
+    _changed(to: true);
+  }
+
   Future<void> _pick() async {
     final c = await showContactPicker(context);
     if (c == null || !mounted) return;
@@ -1097,6 +1117,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // Plain HTTP to another computer: the slate travels unencrypted, so ask first.
     final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
     if (plain) {
+      // A contact with a safer address for the same wallet: offered first.
+      final safer = saferRouteFor(draft.to!, [for (final c in contacts ?? const <Contact>[]) c.ways]);
+      if (safer != null && (safer.recipient.kind != RecipientKind.tor || DeskFeatures.tor)) {
+        final use = await showEDialog<bool>(context, builder: (_) => SaferRouteDialog(safer: safer));
+        if (!mounted || use == null) return;
+        if (use) return _useSafer(safer);
+      }
       final ok = await showEDialog<bool>(context, builder: (_) => const PlainHttpDialog());
       if (!mounted || ok != true) return;
     }
@@ -2513,6 +2540,29 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       actions: [
         EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
         EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : l.deskSendConfirm(formatEpicL(l, d.amount))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+      ],
+    );
+  }
+}
+
+/// Offered before a send over plain `http` when the contact has a safer address.
+/// True to use it, false to keep plain HTTP.
+class SaferRouteDialog extends StatelessWidget {
+  const SaferRouteDialog({super.key, required this.safer});
+
+  final SaferRoute safer;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return EDialog(
+      title: l.sendUseSaferRoute,
+      description: l.sendSaferRoute(recipientMethodWord(l, safer.recipient.kind), safer.name),
+      icon: EIcons.alert,
+      tone: ETone.warn,
+      actions: [
+        EButton(key: const ValueKey('send-use-plain-http'), label: l.sendUsePlainHttp, onPressed: () => Navigator.of(context).pop(false)),
+        EButton.primary(key: const ValueKey('send-use-safer-route'), label: l.sendUseSaferRoute, onPressed: () => Navigator.of(context).pop(true)),
       ],
     );
   }

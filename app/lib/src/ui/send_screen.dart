@@ -250,6 +250,9 @@ TorRoute sendRoute(Recipient to) => switch (to.kind) {
 const Key sendTorNoticeKey = ValueKey('send-tor-notice');
 const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
 const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
+const Key sendUseSaferRouteKey = ValueKey('send-use-safer-route');
+const Key sendUsePlainHttpKey = ValueKey('send-use-plain-http');
+const Key sendProofRowKey = ValueKey('send-proof-row');
 
 /// The tag beside To that says whether the payment goes over Tor, for tests.
 const Key sendTorTagKey = ValueKey('send-tor-tag');
@@ -1437,12 +1440,24 @@ class _SendViewState extends ConsumerState<SendView> {
     final to = parseRecipient(_recipient.text);
     _asking = true;
     try {
-      // Plain HTTP to another device travels unencrypted: asked once per recipient, before
-      // the PIN.
+      // Plain HTTP to another device travels unencrypted: a contact's safer address first,
+      // then asked once per recipient, before the PIN.
       if (to.kind == RecipientKind.http &&
           plainHttpToOtherDevice(to.address) &&
           !_plainHttpOk) {
-        if (!await _askPlainHttp() || !mounted) return;
+        final safer = saferRouteFor(
+          to.address,
+          [for (final c in ref.read(contactsProvider).value ?? const <Contact>[]) c.ways],
+        );
+        if (safer != null) {
+          final useSafer = await _askSaferRoute(safer);
+          if (useSafer == null || !mounted) return;
+          if (useSafer) {
+            _setRecipient(safer.recipient.address);
+            return;
+          }
+        }
+        if (!mounted || !await _askPlainHttp() || !mounted) return;
         _plainHttpOk = true;
       }
       if (!await _pinGate(l.sendPinReason(epicExact(l, reviewed.amount)))) {
@@ -1571,6 +1586,36 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
+  /// The contact's safer address for a plain HTTP send, offered first. True to use it,
+  /// false to keep plain HTTP, null when dismissed.
+  Future<bool?> _askSaferRoute(SaferRoute safer) {
+    final l = context.l10n;
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.shield_outlined),
+        content: Text(
+          l.sendSaferRoute(
+            recipientMethodWord(l, safer.recipient.kind),
+            safer.name,
+          ),
+        ),
+        actions: [
+          TextButton(
+            key: sendUsePlainHttpKey,
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l.sendUsePlainHttp),
+          ),
+          FilledButton(
+            key: sendUseSaferRouteKey,
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l.sendUseSaferRoute),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// "Not encrypted. Send anyway?" before plain HTTP to another device. True to send.
   Future<bool> _askPlainHttp() async {
     final l = context.l10n;
@@ -1606,6 +1651,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final options = _sendOptions;
     final note = _noteText;
+    final proof = _proofAddress(to);
     return _run((session) async {
       final minimum = ref.read(countedConfirmationsProvider);
       final before = {
@@ -1621,6 +1667,7 @@ class _SendViewState extends ConsumerState<SendView> {
             allowPlainHttp: plainHttpToOtherDevice(to.address),
             message: note.isEmpty ? null : note,
             options: options,
+            proofAddress: proof,
           ),
         );
       } on WalletError catch (error) {
@@ -2482,6 +2529,12 @@ class _SendViewState extends ConsumerState<SendView> {
     return contactNameFor(contacts, address);
   }
 
+  /// The receiver's payment proof address for a send to [to], when its key is known.
+  String? _proofAddress(Recipient to) => proofAddressFor(
+    to,
+    [for (final c in ref.read(contactsProvider).value ?? const <Contact>[]) c.ways],
+  );
+
   /// Epicbox, Link, Direct · QR and Direct · File, one segment each, icon over label. Link is
   /// the family: the address picks Link · HTTP or Link · Tor. Tor is not a method: the one Tor
   /// switch (Settings › Privacy) changes how Epicbox and Link connect.
@@ -3185,6 +3238,21 @@ class _SendViewState extends ConsumerState<SendView> {
               Icon(Icons.warning_amber, size: 18, color: t.warn),
               const SizedBox(width: 8),
               Expanded(child: Text(l.sendPlainHttpRow)),
+            ],
+          ),
+        ),
+      if (to.kind == RecipientKind.http && _proofAddress(to) != null)
+        Padding(
+          key: sendProofRowKey,
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.verified_outlined, size: 18, color: t.dim),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(l.sendProofRow(_contactName(to.address) ?? '')),
+              ),
             ],
           ),
         ),

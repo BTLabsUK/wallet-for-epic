@@ -270,6 +270,7 @@ const Key txDetailsCancelNoteKey = ValueKey('tx-details-cancel-note');
 /// The details' Message rows (the other side's, this wallet's) and the Private note row.
 const Key txTheirMessageKey = ValueKey('tx-their-message');
 const Key txOwnMessageKey = ValueKey('tx-own-message');
+const Key txUnsafeSendKey = ValueKey('tx-unsafe-send');
 const Key txPrivateNoteKey = ValueKey('tx-private-note');
 
 /// Everything known about one transaction, with its note, contact and cancel.
@@ -1002,6 +1003,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             _DetailRow(
               label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
               value: l.txDetailsNoAddress,
+            ),
+          // Over plain HTTP, whoever was on the network path could have taken the payment.
+          if (tx.unsafeSend)
+            _DetailRow(
+              key: txUnsafeSendKey,
+              label: l.sendMethodLabel,
+              value: l.txUnsafeSend,
             ),
           if (fee != null && outgoing)
             _DetailRow(

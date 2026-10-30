@@ -46,8 +46,11 @@ IconData networkModeGlyph(NetworkMode m) => switch (m) {
 String networkModeHint(AppLocalizations l, NetworkMode m, {bool desktop = false, bool? tor}) {
   final withTor = tor ?? torBuilt;
   return switch (m) {
-    NetworkMode.standard => !withTor ? l.advModeStandardHintNoTor : (desktop ? l.deskSetAdvModeStandardHint : l.advModeStandardHint),
-    NetworkMode.torOnly => l.advModeTorOnlyHint,
+    // With Tor, both say how they differ: payments go the same way with the switch on.
+    NetworkMode.standard => !withTor
+        ? l.advModeStandardHintNoTor
+        : '${desktop ? l.deskSetAdvModeStandardHint : l.advModeStandardHint}\n\n${l.torModesSendsSame}',
+    NetworkMode.torOnly => '${l.advModeTorOnlyHint}\n\n${l.torModesSendsSame}',
     NetworkMode.nodeOnly => withTor ? l.advModeNodeOnlyHint : l.advModeNodeOnlyHintNoTor,
     NetworkMode.killSwitch => l.advModeKillSwitchHint,
   };
