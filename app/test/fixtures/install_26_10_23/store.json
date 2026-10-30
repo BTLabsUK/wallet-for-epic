@@ -1,0 +1,11 @@
+{
+  "lepic:mainnet:storePrefix": "lepic:mainnet:@DATA@/wallets/mainnet:",
+  "desk.wallet.mainnet": "{\"name\":\"Wallet 1\"}",
+  "desk.wallet.mainnet.0123456789abcdef0123456789abcdef": "{\"name\":\"Savings\",\"epicbox\":\"box.old.invalid\"}",
+  "desk.settings": "{\"useStatusSite\":false,\"theme\":\"dark\"}",
+  "desk.serverList.node.mainnet": "{\"entries\":[\"https://node.own.invalid:3413\",\"https://node.lab.invalid\"],\"removed\":[]}",
+  "app.node.mainnet": "https://node.own.invalid:3413",
+  "app.relay.mainnet": "box.stack.invalid",
+  "app.theme": "dark",
+  "app.update_state": "{\"serial\":1793300000}"
+}
