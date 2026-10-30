@@ -57,8 +57,10 @@ class Run:
         self.cand_dir = e.get("REL_CANDIDATE_DIR", "")
         self.cand_ver = e.get("REL_CANDIDATE_VERSION", "")
         self.cand_src = e.get("REL_CANDIDATE_SRC", "")
-        self.required = [c.strip() for c in e.get("REL_CHECKS", ",".join(CHECKS)).split(",") if c.strip()]
         self.funds = e.get("REL_FUNDS", "1") == "1"
+        # unset: all eight with funds, the six data checks without
+        default = CHECKS if self.funds else [c for c in CHECKS if c not in ("send_ok", "receive_ok")]
+        self.required = [c.strip() for c in (e.get("REL_CHECKS") or ",".join(default)).split(",") if c.strip()]
         self.keep_funds = e.get("REL_KEEP_FUNDS") == "1"
         self.node = e.get("REL_NODE", "")
         self.relay = e.get("REL_EPICBOX", "")
@@ -597,8 +599,8 @@ class Run:
         b0 = self.balance() or {}
         base = b0.get("available", D(0)) + b0.get("confirming", D(0))
         with self.p.exchange(what) as p:
-            p.start_listener()
-            time.sleep(8)
+            if not p.start_listener():
+                return False, "P's listener did not start (3 tries)"
             ok, out = p.send(address, amount)
             self.log("P -> %s %s: %s (%s)" % (short(address), amount, "sent" if ok else "FAILED", out))
             if not ok:
@@ -607,6 +609,8 @@ class Run:
             # from waiting (for the sender) to confirming or available
             end = time.time() + 900
             last = None
+            stuck_since = None
+            reposted = False
             while time.time() < end:
                 b = self.balance() or {}
                 if b != last:
@@ -616,6 +620,16 @@ class Run:
                 waiting = sum((v for k, v in b.items() if "waiting" in k or "finaliz" in k), D(0))
                 if got >= base + D(amount) and waiting == 0:
                     break
+                # answered, but P finalized without posting (its listener can hang there): post P's
+                # saved copy, with the listener stopped
+                stuck_since = (stuck_since or time.time()) if waiting > 0 else None
+                if stuck_since and time.time() - stuck_since > 180 and not reposted:
+                    reposted = True
+                    p.stop_listener()
+                    for tx_id, slate in p.unposted_sends(address.split("@")[0]):
+                        posted, out = p.repost(tx_id)
+                        self.log("P repost of its send %s (slate %s…): %s (%s)" % (tx_id, slate[:8], "ok" if posted else "FAILED", out))
+                    p.start_listener()
                 time.sleep(15)
             else:
                 return False, "not received and posted in 15 min (balance %s)" % fmt_bal(last or {})
@@ -624,13 +638,12 @@ class Run:
         return True, rows[0] if rows else "received"
 
     def send_to_p(self, amount, what):
-        """Send [amount] to P through the Send page, P's listener answering; True when the wallet
-        shows the payment posted."""
-        self.budget(amount)
+        """Send [amount] (None: the page's Max) to P through the Send page, P's listener answering;
+        True when the wallet shows the payment posted."""
         ui = self.ui
         with self.p.exchange(what) as p:
-            p.start_listener()
-            time.sleep(10)
+            if not p.start_listener():
+                return False, "P's listener did not start (3 tries)"
             self.nav("Send")
             if ui.has("re:^Send another$"):
                 ui.click("re:^Send another$")
@@ -638,7 +651,20 @@ class Run:
                 ui.click("re:^Epicbox$", role="button")
                 time.sleep(0.8)
             ui.fill(0, self.p_addr)
-            ui.fill(1, amount)
+            if amount is None:
+                mx = [n for n in ui.find("re:^(Max|All)$", role="button") if n.actions]
+                if not mx:
+                    return False, "no Max button on the Send page"
+                ui.tap(mx[0])
+                time.sleep(2)
+                f = [x for x in ui.fields() if "password" not in x.role]
+                amount = (f[1].value or "").strip() if len(f) > 1 else ""
+                if epic(amount + " EPIC") is None:
+                    return False, "Max filled %r" % amount
+            else:
+                ui.fill(1, amount)
+            self.budget(amount)
+            self.sent_amount = amount
             time.sleep(2)
             self.shot("send-filled")
             self.press_review()
@@ -710,6 +736,9 @@ class Run:
             self.log(line)
         os.makedirs(self.sb, mode=0o700, exist_ok=True)
         self.log("work folder %s" % self.work)
+        self.details["appimages"] = "previous %s (sha256 %s), candidate %s (sha256 %s)" % (
+            os.path.basename(prev), sha256(prev)[:16], os.path.basename(cand), sha256(cand)[:16])
+        self.log(self.details["appimages"])
         prev_root = self.extract(prev, "previous")
         cand_root = self.extract(cand, "candidate")
         self.label = "Trust %s" % datetime.datetime.now().strftime("%m%d %H%M")
@@ -750,6 +779,7 @@ class Run:
         self.log("previous app stopped")
         self.start_app(cand_root, "candidate")
         opened, why = self.open_after_update(before)
+        self.details["wallet_opens"] = why
         if not opened:
             self.fail("wallet_opens", why)
             for c in ("balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"):
@@ -792,9 +822,10 @@ class Run:
 
     def compare(self, b, a):
         self.ok("wallet_opens", self.details.get("wallet_opens") or "opened; same address")
+
         b0, b1 = b["balance"] or {}, a["balance"] or {}
         if b1.get("available") == b0.get("available") and b1.get("total", b1.get("available")) == b0.get("total", b0.get("available")):
-            self.ok("balance_kept", "available %s, total %s EPIC before and after" % (b0.get("available"), b0.get("total")))
+            self.ok("balance_kept", "available %s, total %s EPIC before and after" % (num(b0.get("available")), num(b0.get("total"))))
         else:
             self.fail("balance_kept", "before %s, after %s" % (fmt_bal(b0), fmt_bal(b1)))
         missing = [r for r in b["activity"] if not any(same_row(r, x) for x in a["activity"])]
@@ -874,13 +905,13 @@ class Run:
         try:
             b = self.balance() or {}
             avail = b.get("available", D(0))
-            amount = (avail - D("0.012")).quantize(D("0.0001"), rounding=decimal.ROUND_DOWN)
-            if amount <= 0:
+            if avail <= D("0.01"):
                 if check:
-                    self.fail(check, "nothing spendable to send (available %s)" % avail)
+                    self.fail(check, "nothing worth sending (available %s)" % avail)
                 return
-            amount = min(amount, CAP_SEND)
-            ok, why = self.send_to_p(str(amount), "send back to P")
+            # everything (Max) when it is within the per-send cap, else the cap
+            ok, why = self.send_to_p(None if avail <= CAP_SEND else str(CAP_SEND), "send back to P")
+            amount = getattr(self, "sent_amount", "?")
             if check:
                 (self.ok if ok else self.fail)(check, ("%s EPIC to P via Epicbox: %s" % (amount, why[:120])) if ok else why)
             else:
@@ -937,7 +968,15 @@ def epic(s):
 
 
 def fmt_bal(b):
-    return ", ".join("%s %s" % (k, v) for k, v in b.items()) or "none shown"
+    return ", ".join("%s %s" % (k, num(v)) for k, v in b.items()) or "none shown"
+
+
+def num(v):
+    """A balance figure as text: 0.03000000 -> 0.03, 0E-8 -> 0."""
+    if not isinstance(v, D):
+        return str(v)
+    t = format(v.normalize(), "f")
+    return t if t not in ("-0",) else "0"
 
 
 def short(a):
@@ -964,6 +1003,15 @@ def phrase_words(names):
         return []
     n = 24 if "24" in names else 12
     return [w for w in names[i + 1:] if re.fullmatch(r"[a-z]{3,12}", w)][:n]
+
+
+def sha256(path):
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def free_port():

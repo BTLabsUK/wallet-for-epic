@@ -100,14 +100,49 @@ class P:
         m = re.search(r"Currently Spendable\s*\|\s*([\d.]+)", out)
         return m.group(1) if m else None
 
-    def start_listener(self):
+    def start_listener(self, tries=3):
+        """Start p.py listen and wait for P's 'Starting epicbox listener'. The CLI quits at once when the
+        node says it is syncing (a short blip): then it is started again."""
         if self.listener and self.listener.poll() is None:
-            return
-        log = open(os.path.join(self.log_dir, "p-listener.log"), "a")
-        self.listener = subprocess.Popen(["python3", "-I", self.tool, "listen", "-m", "epicbox"], env=self._env(),
-                                         stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                                         cwd=os.path.dirname(self.tool), start_new_session=True)
-        self.log("P listener started (local pid %d)" % self.listener.pid)
+            return True
+        lp = os.path.join(self.log_dir, "p-listener.log")
+        for attempt in range(tries):
+            start = os.path.getsize(lp) if os.path.exists(lp) else 0
+            log = open(lp, "a")
+            self.listener = subprocess.Popen(["python3", "-I", self.tool, "listen", "-m", "epicbox"], env=self._env(),
+                                             stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                             cwd=os.path.dirname(self.tool), start_new_session=True)
+            end = time.time() + 120
+            while time.time() < end:
+                with open(lp, errors="replace") as f:
+                    f.seek(start)
+                    new = f.read()
+                if "Starting epicbox listener" in new or "Listening" in new:
+                    self.log("P listener up (local pid %d)" % self.listener.pid)
+                    return True
+                if self.listener.poll() is not None:
+                    break
+                time.sleep(2)
+            why = "node syncing" if "syncing" in new else "no listener line"
+            self.log("P listener did not start (%s), try %d of %d" % (why, attempt + 1, tries))
+            self.stop_listener()
+            time.sleep(20)
+        return False
+
+    def unposted_sends(self, key):
+        """P's sends to [key] still 'Sent (Created)': [(tx id, slate id)]."""
+        rc, out = self.run("txs", timeout=180)
+        rows = re.split(r"\n(?=\s*\d+\s{2,}(?:Sent|Received|Coinbase|Confirmed|Cancelled))", out)
+        hits = []
+        for r in rows:
+            m = re.match(r"\s*(\d+)\s+Sent \(Created\)\s+([0-9a-f-]{36})", r)
+            if m and key[:24] in re.sub(r"\s+", "", r):
+                hits.append((m.group(1), m.group(2)))
+        return hits
+
+    def repost(self, tx_id):
+        rc, out = self.run("repost", "-i", tx_id, timeout=180)
+        return rc == 0 and "ERROR" not in out, _last_lines(out)
 
     def _remote_listeners(self):
         q = ("Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'epic-wallet.exe' -and "
