@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "lastUsedId": "legacy-mainnet",
+  "wallets": [
+    {
+      "id": "legacy-mainnet",
+      "label": "Wallet 1",
+      "chain": "mainnet",
+      "dataDir": "@DATA@/wallets/mainnet",
+      "createdAt": "2026-10-20T09:00:00.000Z",
+      "lastOpenedAt": "2026-10-25T10:00:00.000Z"
+    },
+    {
+      "id": "0123456789abcdef0123456789abcdef",
+      "label": "Savings",
+      "chain": "mainnet",
+      "dataDir": "@DATA@/wallets/0123456789abcdef0123456789abcdef/mainnet",
+      "createdAt": "2026-10-21T09:00:00.000Z"
+    }
+  ]
+}

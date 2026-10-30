@@ -8,6 +8,7 @@
 # Env (the runner's contract):
 #   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION [, REL_PREVIOUS_REF]   previous release folder (EpicCashDesktop-<v>[-notor]-x86_64.AppImage)
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION [, REL_CANDIDATE_SRC] the candidate's files
+#   REL_VIA_DIR, REL_VIA_VERSION  optional: a release the user ran in between (opened once, then the candidate)
 #   REL_VARIANT tor|notor        REL_CHECKS comma list (default: all eight; without send_ok,receive_ok when REL_FUNDS=0)
 #   REL_FUNDS 1|0                1: also receive from and send to P with the candidate
 #   REL_NODE, REL_EPICBOX        servers to use; picked here (BT Labs first) when unset
