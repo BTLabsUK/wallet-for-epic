@@ -1,0 +1,27 @@
+# Epic Cash wallet settings. This is the first-start copy of settings.toml, which the wallet
+# writes to its data folder and keeps in step with the app; edits apply while the wallet runs.
+# Delete settings.toml to start again from this copy.
+
+[node]
+# The first node is in use; when it does not answer, the next one is tried.
+servers = [
+  "https://node.lab.invalid",
+  "https://node.epic.invalid:3413",
+  "https://node.net.invalid:3413",
+  "https://node.stack.invalid:3413",
+  "http://192.0.2.10:3413",
+]
+
+[epicbox]
+# The first server is part of every wallet's address: moving another to the top changes them all.
+servers = [
+  "box.epic.invalid",
+  "box.stack.invalid",
+  "box.net.invalid",
+  "box.lab.invalid",
+]
+
+[online]
+status_site = true
+update_check = true
+price = true
