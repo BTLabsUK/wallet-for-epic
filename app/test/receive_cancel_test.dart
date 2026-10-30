@@ -187,15 +187,6 @@ void main() {
       }
     });
 
-    test('the accepted-ago line: minutes below 90, hours below 48, else days', () {
-      expect(acceptedAgoText(_l, Duration.zero), 'Accepted just now.');
-      expect(acceptedAgoText(_l, const Duration(minutes: 1)), 'Accepted 1 minute ago.');
-      expect(acceptedAgoText(_l, const Duration(minutes: 40)), 'Accepted 40 minutes ago.');
-      expect(acceptedAgoText(_l, const Duration(minutes: 89)), 'Accepted 89 minutes ago.');
-      expect(acceptedAgoText(_l, const Duration(minutes: 90)), 'Accepted 2 hours ago.');
-      expect(acceptedAgoText(_l, const Duration(hours: 47)), 'Accepted 47 hours ago.');
-      expect(acceptedAgoText(_l, const Duration(hours: 48)), 'Accepted 2 days ago.');
-    });
   });
 
   group('the details screen', () {
@@ -204,23 +195,20 @@ void main() {
       await h.pump(tester);
       expect(_cancelButton, findsNothing);
       expect(
-        find.text('${_l.txDetailsAcceptedAgoMinutes(5)} ${_l.txDetailsCancelHold(10)}'),
+        find.text(_l.txDetailsCancelHold(10)),
         findsOneWidget,
       );
       expect(find.byKey(txDetailsCancelHoldKey), findsOneWidget);
       expect(find.text(_l.txStatusWaitingSender), findsWidgets, reason: 'the status stays the same');
     });
 
-    testWidgets('after the hold: a quiet Cancel with what it is for', (tester) async {
+    testWidgets('after the hold: a quiet Cancel, no small print', (tester) async {
       final h = _Harness(_waiting(ago: const Duration(minutes: 40)));
       await h.pump(tester);
       expect(find.byKey(txDetailsCancelReceiveKey), findsOneWidget);
       // One destructive look on both sides: the same red Cancel as a send's.
       expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
-      expect(
-        find.text('${_l.txDetailsAcceptedAgoMinutes(40)} ${_l.txDetailsCancelOffered}'),
-        findsOneWidget,
-      );
+      expect(find.textContaining('Accepted'), findsNothing);
       expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
     });
 
@@ -244,7 +232,6 @@ void main() {
       await h.pump(tester);
       expect(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment), findsOneWidget);
       expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
-      expect(find.byKey(txDetailsCancelNoteKey), findsNothing);
       expect(find.textContaining('Accepted'), findsNothing);
       expect(find.text(_l.txStatusSenderCancelled), findsWidgets);
       expect(find.text(_l.txDetailsSenderCancelledWaiting), findsOneWidget);
@@ -289,8 +276,6 @@ void main() {
       final h = _Harness(_waiting(ago: const Duration(minutes: 2), kind: TxKind.sent, status: TxStatus.awaitingRecipient));
       await h.pump(tester);
       expect(find.widgetWithText(OutlinedButton, _l.txDetailsCancelPayment), findsOneWidget);
-      expect(find.text(_l.cancelNoteSendWaiting), findsOneWidget);
-      expect(find.byKey(txDetailsCancelNoteKey), findsOneWidget);
       expect(find.byKey(txDetailsCancelHoldKey), findsNothing);
     });
   });

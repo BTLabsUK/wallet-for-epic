@@ -786,10 +786,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsSentTo => 'ส่งถึง';
 
   @override
-  String get txDetailsNoAddress =>
-      'ไม่ทราบ: รายการนี้มาโดยไม่มีที่อยู่ (คิวอาร์โค้ดหรือไฟล์) เพิ่มป้ายกำกับเพื่อให้จำได้';
-
-  @override
   String get txDetailsReceivedFrom => 'ได้รับจาก';
 
   @override
@@ -15525,37 +15521,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก';
 
   @override
-  String txDetailsAcceptedAgoMinutes(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: 'รับเมื่อ $minutes นาทีที่แล้ว',
-      zero: 'รับเมื่อครู่นี้',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoHours(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: 'รับเมื่อ $hours ชั่วโมงที่แล้ว',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: 'รับเมื่อ $days วันที่แล้ว',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String txDetailsCancelHold(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
@@ -15564,10 +15529,6 @@ class AppLocalizationsTh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get txDetailsCancelOffered =>
-      'ยกเลิกเฉพาะเมื่อรายการไม่เข้าเลย กระเป๋าเงินจะตรวจสอบเครือข่ายก่อน';
 
   @override
   String get txDetailsCancelWhileReported =>
@@ -16466,52 +16427,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cancelMoreInHelp => 'การยกเลิกทำงานอย่างไร';
-
-  @override
-  String get cancelNoteSendWaiting =>
-      'ยังไม่มีการจ่ายใด ๆ การยกเลิกไม่มีค่าธรรมเนียมและแน่นอน';
-
-  @override
-  String get cancelNoteNotPosted =>
-      'ยังไม่อยู่ในเครือข่าย: การยกเลิกจะคืนเหรียญหลังตรวจเครือข่าย';
-
-  @override
-  String get cancelNoteDirectFailed =>
-      'ไม่มีอะไรถึงผู้รับ: การยกเลิกจะคืนเหรียญ';
-
-  @override
-  String get cancelNoteRequestPaid => 'อีกฝ่ายยังทำรายการนี้ให้เสร็จได้';
-
-  @override
-  String get cancelNoteRequestWithdraw =>
-      'ยังไม่มีการชำระ: การถอนคำขอไม่ย้ายเหรียญใด ๆ';
-
-  @override
-  String get cancelNoteNotPostedSend => 'รายการนี้ยังอาจสำเร็จได้ในภายหลัง';
-
-  @override
-  String get txDetailsCancelledFinal =>
-      'ยกเลิกแล้ว เหรียญถูกย้ายกลับมายังกระเป๋าเงินนี้แล้ว รายการนี้จึงสำเร็จไม่ได้อีก';
-
-  @override
-  String get txDetailsCancelledMayComplete =>
-      'ยกเลิกแล้วโดยไม่ย้ายเหรียญกลับ อีกฝ่ายยังอาจทำรายการนี้ให้เสร็จได้ หากสำเร็จจะแสดงว่าจ่ายแล้ว';
-
-  @override
-  String get txDetailsCancelledSpentBack =>
-      'ยกเลิกรายการแล้ว เหรียญกำลังกลับมายังกระเป๋าเงินนี้';
-
-  @override
-  String get txDetailsReleasedSpentBack =>
-      'ปลดยอดเงินแล้ว เหรียญกำลังกลับมายังกระเป๋าเงินนี้';
-
-  @override
-  String get txDetailsReleasedSpendBackPending =>
-      'ปลดยอดเงินแล้ว ยังย้ายเหรียญกลับมาไม่ได้ กระเป๋าเงินจะลองใหม่ขณะที่เปิดอยู่ ระหว่างนั้นรายการเดิมยังอาจสำเร็จได้';
-
-  @override
-  String get txDetailsCancelledSpendBackPending =>
-      'ยกเลิกรายการแล้ว ยังย้ายเหรียญกลับมาไม่ได้ กระเป๋าเงินจะลองใหม่ขณะที่เปิดอยู่ ระหว่างนั้นรายการยังอาจสำเร็จได้';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {

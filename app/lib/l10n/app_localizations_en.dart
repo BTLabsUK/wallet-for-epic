@@ -799,10 +799,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsSentTo => 'Sent to';
 
   @override
-  String get txDetailsNoAddress =>
-      'Not known: this payment came without an address (QR code or file). Add a label to recognise it.';
-
-  @override
   String get txDetailsReceivedFrom => 'Received from';
 
   @override
@@ -15893,40 +15889,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'The pairing is added to the contact you choose.';
 
   @override
-  String txDetailsAcceptedAgoMinutes(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: 'Accepted $minutes minutes ago.',
-      one: 'Accepted 1 minute ago.',
-      zero: 'Accepted just now.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoHours(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: 'Accepted $hours hours ago.',
-      one: 'Accepted 1 hour ago.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: 'Accepted $days days ago.',
-      one: 'Accepted 1 day ago.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String txDetailsCancelHold(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
@@ -15937,10 +15899,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get txDetailsCancelOffered =>
-      'Cancel only if it never arrives: the wallet checks the network first.';
 
   @override
   String get txDetailsCancelWhileReported =>
@@ -16859,54 +16817,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelMoreInHelp => 'How cancelling works';
-
-  @override
-  String get cancelNoteSendWaiting =>
-      'Nothing has been paid yet: cancelling is free and certain.';
-
-  @override
-  String get cancelNoteNotPosted =>
-      'Not on the network yet: Cancel frees the coins after a network check.';
-
-  @override
-  String get cancelNoteDirectFailed =>
-      'Nothing reached the recipient: cancelling frees the coins.';
-
-  @override
-  String get cancelNoteRequestPaid =>
-      'The other side can still finish this payment.';
-
-  @override
-  String get cancelNoteRequestWithdraw =>
-      'Nothing has been paid: withdrawing moves no coins.';
-
-  @override
-  String get cancelNoteNotPostedSend =>
-      'This payment could still go through later.';
-
-  @override
-  String get txDetailsCancelledFinal =>
-      'Cancelled. The coins were moved back to this wallet, so this payment can no longer go through.';
-
-  @override
-  String get txDetailsCancelledMayComplete =>
-      'Cancelled without moving the coins back. The other side could still finish this payment; if it does, it shows as paid.';
-
-  @override
-  String get txDetailsCancelledSpentBack =>
-      'Payment cancelled. The coins are on their way back to this wallet.';
-
-  @override
-  String get txDetailsReleasedSpentBack =>
-      'Coins released. They are on their way back to this wallet.';
-
-  @override
-  String get txDetailsReleasedSpendBackPending =>
-      'Coins released. They could not be moved back yet; the wallet tries again while it is open. Until then the old payment may still finish.';
-
-  @override
-  String get txDetailsCancelledSpendBackPending =>
-      'Payment cancelled. The coins could not be moved back yet; the wallet tries again while it is open. Until then the payment may still finish.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {

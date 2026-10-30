@@ -12,8 +12,6 @@ import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
-import '../../../help/help_content.dart' show HelpAnchor;
-import '../wallet/cancel_note.dart';
 import 'invoice_parts.dart';
 import 'pay_dialogs.dart';
 
@@ -196,8 +194,6 @@ class _NeedsNotice extends ConsumerWidget {
       tone: tone,
       title: title,
       text: text,
-      // The issuer holds a copy it can finish: what Cancel does here (DeskCancelNote).
-      below: i.state.cancellable ? Padding(padding: EdgeInsets.only(top: Sp.x2), child: DeskCancelNote(text: l.cancelNoteRequestPaid, anchor: HelpAnchor.requests)) : null,
       actionsBelow: true,
       actions: [
         if (i.state == PayState.notDelivered)

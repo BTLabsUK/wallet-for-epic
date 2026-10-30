@@ -164,8 +164,8 @@ void main() {
     await _pump(tester, _send(flow: TxFlow.invoice));
     await _openCancel(tester);
     expect(find.text(_l.txDetailsCancelTitle), findsOneWidget);
-    expect(find.text(_l.txDetailsCancelRequestBody), findsNWidgets(2), reason: 'the quiet line and the dialog say the same');
-    expect(find.text(_l.cancelMoreInHelp), findsNWidgets(2), reason: 'the quiet line and the dialog');
+    expect(find.text(_l.txDetailsCancelRequestBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
+    expect(find.text(_l.cancelMoreInHelp), findsOneWidget, reason: 'the dialog only');
     _expectThreeChoices(tester, keep: _l.txDetailsCancelKeep);
     await tester.tap(find.byKey(cancelFeeHintKey));
     await tester.pumpAndSettle();
@@ -202,7 +202,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(s.cancelledTxIds, [9]);
     expect(s.spentToSelf.single, [_coinA]);
-    expect(_notice(tester)?.text, _l.txDetailsCancelledSpentBack);
+    expect(_notice(tester)?.text, _l.txDetailsPaymentCancelled);
   });
 
   testWidgets('Keep: nothing happens', (tester) async {
@@ -217,7 +217,7 @@ void main() {
   testWidgets('a send still waiting: one free cancel, no fee line, no icon, no Stop waiting', (tester) async {
     final s = await _pump(tester, _send());
     await _openCancel(tester);
-    expect(find.text(_l.txDetailsCancelSendBody), findsNWidgets(2), reason: 'the quiet line and the dialog say the same');
+    expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
     expect(find.text(_l.cancelFeeLine), findsNothing);
     expect(find.byKey(cancelFeeHintKey), findsNothing);
     expect(find.byType(InfoHint), findsNothing);
@@ -255,7 +255,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(s.releasedKeys, ['s:pay-1']);
     expect(s.spentToSelf.single, [_coinA]);
-    expect(_notice(tester)?.text, _l.txDetailsReleasedSpentBack);
+    expect(_notice(tester)?.text, _l.txDetailsFundsReleased);
   });
 
   test('the words stay calm and plain (the owner, 2026-10-30)', () {
@@ -269,14 +269,6 @@ void main() {
       _l.cancelStopWaitingLine,
       _l.cancelChoicesWhy,
       _l.txDetailsStoppedWaiting,
-      _l.txDetailsCancelledMayComplete,
-      _l.txDetailsCancelledSpentBack,
-      _l.txDetailsCancelledSpendBackPending,
-      _l.txDetailsReleasedSpentBack,
-      _l.txDetailsReleasedSpendBackPending,
-      _l.cancelNoteRequestPaid,
-      _l.cancelNoteNotPostedSend,
-      _l.cancelNoteSendWaiting,
     ];
     for (final s in surfaces) {
       for (final jargon in ['signature', 'signed', 'half', 'kernel', 'output', 'input', 'finaliz', 'slate', ' we ', 'We ']) {

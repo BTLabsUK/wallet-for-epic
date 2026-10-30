@@ -9,8 +9,6 @@ import '../../../models.dart' show nothingToConsolidate;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../../../help/help_content.dart' show HelpAnchor;
-import 'cancel_note.dart';
 
 /// Where a Split or Consolidate dialog is.
 enum SelfSendPhase { choose, posting, done, notPosted, failed }
@@ -327,9 +325,6 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
             title: l.deskOutNotPostedTitle,
             text: _split ? l.deskOutNotPostedSplit : l.deskOutNotPostedCons,
           ),
-          SizedBox(height: Sp.x3),
-          // Both halves are this wallet's, but the network may still take it: not certain.
-          DeskCancelNote(text: l.cancelNoteNotPosted, anchor: HelpAnchor.sending, inDialog: true),
         ];
         actions = [
           EButton(label: _split ? l.deskOutCancelSplit : l.deskOutCancelCons, size: EBtnSize.sm, onPressed: _busy ? null : _cancelIt),

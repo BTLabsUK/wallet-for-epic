@@ -821,8 +821,6 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
                 onPressed: _busy ? null : () => _withdraw(invoice),
               ),
             ),
-            // A request holds no coins: what Withdraw does (CancelNote).
-            CancelNote(text: l.cancelNoteRequestWithdraw, anchor: HelpAnchor.requests, alignment: WrapAlignment.end),
           ],
         ],
       ),

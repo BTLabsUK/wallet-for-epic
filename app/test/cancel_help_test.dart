@@ -101,9 +101,9 @@ void main() {
     testWidgets('says its case, then More in Help opens the topic at the heading', (tester) async {
       await _pump(
         tester,
-        Scaffold(body: Center(child: CancelNote(text: englishStrings.cancelNoteSendWaiting, anchor: HelpAnchor.receiving))),
+        Scaffold(body: Center(child: CancelNote(text: englishStrings.txDetailsCancelWhileReported, anchor: HelpAnchor.receiving))),
       );
-      expect(find.text('Nothing has been paid yet: cancelling is free and certain.'), findsOneWidget);
+      expect(find.text('Cancel is unavailable while the sender reports it posted.'), findsOneWidget);
       expect(find.text('How cancelling works'), findsOneWidget);
       await tester.tap(find.text('How cancelling works'));
       await tester.pumpAndSettle();

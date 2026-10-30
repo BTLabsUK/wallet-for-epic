@@ -186,12 +186,6 @@ String txExplanation(
     // spent again, by Cancel's spend back or a later payment. [cancelFinal] is null until known.
     // Release coins is such a cancel too: the same words, so a released send whose coins
     // stayed in place reads honestly after Stop waiting.
-    TxPhase.cancelled
-        when outgoing &&
-            cancelFinal != null &&
-            (tx.cancelReason == null || tx.cancelReason == CancelReason.user || tx.cancelReason == CancelReason.release) &&
-            cancelledMayComplete(tx) =>
-      cancelFinal ? l.txDetailsCancelledFinal : l.txDetailsCancelledMayComplete,
     TxPhase.cancelled when outgoing && tx.cancelReason != null =>
       _cancelledBecause(l, tx, tx.cancelReason!),
     // No recorded reason (cancelled before the wallet kept one): infer it.
@@ -255,20 +249,8 @@ String? ttlLine(AppLocalizations l, TxEntry tx, BigInt? tip) {
 const Key txDetailsMoreKey = ValueKey('tx-details-more');
 
 /// The receive's Cancel, once its hold is over, and the line that stands in for it before.
-/// Whether [tx]'s details say that no address came with it: a payment of this wallet with
-/// someone else that has no address, contact or pairing (a QR code or file exchange); not a
-/// mining reward, a payment to itself, a restored row or another device's or wallet's.
-bool txNoAddressShown(TxEntry tx) =>
-    tx.counterparty == null &&
-    tx.pairingId == null &&
-    tx.origin == TxOrigin.thisWallet &&
-    tx.kind != TxKind.coinbase &&
-    tx.transport != 'self' &&
-    tx.source == TxSource.wallet;
-
 const Key txDetailsCancelReceiveKey = ValueKey('tx-details-cancel-receive');
 const Key txDetailsCancelHoldKey = ValueKey('tx-details-cancel-hold');
-const Key txDetailsCancelNoteKey = ValueKey('tx-details-cancel-note');
 
 /// The details' Message rows (the other side's, this wallet's) and the Private note row.
 const Key txTheirMessageKey = ValueKey('tx-their-message');
@@ -508,8 +490,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       _showMessage(
         switch (result) {
           CancelResult.cancelled => l.txDetailsFundsReleased,
-          CancelResult.spentBack => l.txDetailsReleasedSpentBack,
-          CancelResult.spendBackPending => l.txDetailsReleasedSpendBackPending,
+          CancelResult.spentBack || CancelResult.spendBackPending => l.txDetailsFundsReleased,
           CancelResult.stoppedWaiting => l.txDetailsStoppedWaiting,
           CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
@@ -578,8 +559,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       _showMessage(
         switch (result) {
           CancelResult.cancelled => l.txDetailsPaymentCancelled,
-          CancelResult.spentBack => l.txDetailsCancelledSpentBack,
-          CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+          CancelResult.spentBack || CancelResult.spendBackPending => l.txDetailsPaymentCancelled,
           CancelResult.stoppedWaiting => l.txDetailsStoppedWaiting,
           CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
@@ -876,25 +856,6 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                           onPressed: _busy ? null : () => _cancel(tx),
                         ),
                     ),
-                    // Its sender cancelled it: nothing to weigh, the status says it all.
-                    if (!incoming.senderCancelled) ...[
-                      const SizedBox(height: 4),
-                      // What this Cancel does, with the way to the Help topic (CancelNote).
-                      CancelNote(
-                        key: txDetailsCancelNoteKey,
-                        text: outgoing
-                            ? (paidInvoice != null || tx.flow == TxFlow.invoice
-                                ? l.cancelNoteRequestPaid
-                                : cancelSpendsBack(tx)
-                                ? l.cancelNoteNotPostedSend
-                                : l.cancelNoteSendWaiting)
-                            : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelOffered}',
-                        anchor: outgoing
-                            ? (paidInvoice != null ? HelpAnchor.requests : HelpAnchor.sending)
-                            : HelpAnchor.receiving,
-                        alignment: WrapAlignment.end,
-                      ),
-                    ],
                   ],
                   // Inside the hold, or while the sender reports it posted: no button, the
                   // line says when Cancel comes (receiveCancelHold).
@@ -904,7 +865,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       key: txDetailsCancelHoldKey,
                       text: incoming.senderReportsPosted
                           ? l.txDetailsCancelWhileReported
-                          : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelHold(incoming.holdMinutesLeft)}',
+                          : l.txDetailsCancelHold(incoming.holdMinutesLeft),
                       anchor: HelpAnchor.receiving,
                     ),
                   ],
@@ -992,14 +953,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
               value: '$mailboxName\n${l.sendRecipientPairing(mailboxName)}',
             ),
-          ]
-          // A QR code or file exchange carries no address: the row says so rather than
-          // leaving the payment with no other side.
-          else if (txNoAddressShown(tx))
-            _DetailRow(
-              label: outgoing ? l.txDetailsSentTo : l.txDetailsReceivedFrom,
-              value: l.txDetailsNoAddress,
-            ),
+          ],
           if (fee != null && outgoing)
             _DetailRow(
               label: l.txDetailsFee,

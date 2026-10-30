@@ -806,10 +806,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsSentTo => 'Gesendet an';
 
   @override
-  String get txDetailsNoAddress =>
-      'Unbekannt: Diese Zahlung kam ohne Adresse (QR-Code oder Datei). Fügen Sie eine Bezeichnung hinzu, um sie wiederzuerkennen.';
-
-  @override
   String get txDetailsReceivedFrom => 'Empfangen von';
 
   @override
@@ -16079,40 +16075,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Kopplung kommt zu dem Kontakt, den Sie wählen.';
 
   @override
-  String txDetailsAcceptedAgoMinutes(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: 'Vor $minutes Minuten angenommen.',
-      one: 'Vor 1 Minute angenommen.',
-      zero: 'Gerade eben angenommen.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoHours(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: 'Vor $hours Stunden angenommen.',
-      one: 'Vor 1 Stunde angenommen.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: 'Vor $days Tagen angenommen.',
-      one: 'Vor 1 Tag angenommen.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String txDetailsCancelHold(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
@@ -16123,10 +16085,6 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get txDetailsCancelOffered =>
-      'Nur stornieren, wenn sie nie eintrifft: die Wallet prüft zuerst das Netzwerk.';
 
   @override
   String get txDetailsCancelWhileReported =>
@@ -17055,54 +17013,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cancelMoreInHelp => 'So funktioniert Stornieren';
-
-  @override
-  String get cancelNoteSendWaiting =>
-      'Noch wurde nichts bezahlt: Stornieren ist kostenlos und sicher.';
-
-  @override
-  String get cancelNoteNotPosted =>
-      'Noch nicht im Netzwerk: Stornieren gibt die Coins nach einer Netzwerkprüfung frei.';
-
-  @override
-  String get cancelNoteDirectFailed =>
-      'Beim Empfänger ist nichts angekommen: Stornieren gibt die Coins frei.';
-
-  @override
-  String get cancelNoteRequestPaid =>
-      'Die andere Seite kann diese Zahlung noch abschließen.';
-
-  @override
-  String get cancelNoteRequestWithdraw =>
-      'Nichts wurde bezahlt: Zurückziehen bewegt keine Coins.';
-
-  @override
-  String get cancelNoteNotPostedSend =>
-      'Diese Zahlung könnte später noch durchgehen.';
-
-  @override
-  String get txDetailsCancelledFinal =>
-      'Storniert. Die Coins wurden an diese Wallet zurückgeschickt, diese Zahlung kann also nicht mehr durchgehen.';
-
-  @override
-  String get txDetailsCancelledMayComplete =>
-      'Storniert, ohne die Coins zurückzuschicken. Die andere Seite könnte diese Zahlung noch abschließen; wenn ja, erscheint sie als bezahlt.';
-
-  @override
-  String get txDetailsCancelledSpentBack =>
-      'Zahlung storniert. Die Coins sind auf dem Weg zurück zu dieser Wallet.';
-
-  @override
-  String get txDetailsReleasedSpentBack =>
-      'Coins freigegeben. Sie sind auf dem Weg zurück zu dieser Wallet.';
-
-  @override
-  String get txDetailsReleasedSpendBackPending =>
-      'Coins freigegeben. Sie konnten noch nicht zurückgeschickt werden; die Wallet versucht es erneut, solange sie geöffnet ist. Bis dahin kann die alte Zahlung noch durchgehen.';
-
-  @override
-  String get txDetailsCancelledSpendBackPending =>
-      'Zahlung storniert. Die Coins konnten noch nicht zurückgeschickt werden; die Wallet versucht es erneut, solange sie geöffnet ist. Bis dahin kann die Zahlung noch durchgehen.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {

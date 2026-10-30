@@ -906,10 +906,6 @@
   "@txDetailsSentTo": {
     "description": "Label of the row with the recipient's address."
   },
-  "txDetailsNoAddress": "Not known: this payment came without an address (QR code or file). Add a label to recognise it.",
-  "@txDetailsNoAddress": {
-    "description": "Value of the Sent to / Received from row of a payment that carried no address (a QR code or file exchange): who it was is not known; a label helps."
-  },
   "txDetailsReceivedFrom": "Received from",
   "@txDetailsReceivedFrom": {
     "description": "Label of the row with the sender's address."
@@ -21277,33 +21273,6 @@
   "@deskConPickForPairing": {
     "description": "Subtitle of the Choose contact dialog when it picks the contact a pairing is added to (Add to a contact), not a Send recipient."
   },
-  "txDetailsAcceptedAgoMinutes": "{minutes, plural, =0{Accepted just now.} =1{Accepted 1 minute ago.} other{Accepted {minutes} minutes ago.}}",
-  "@txDetailsAcceptedAgoMinutes": {
-    "description": "Line under an incoming payment's status: how long ago this wallet accepted (signed) it, in minutes (below 90). A sentence; the Cancel hold or offer sentence follows it.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "txDetailsAcceptedAgoHours": "{hours, plural, =1{Accepted 1 hour ago.} other{Accepted {hours} hours ago.}}",
-  "@txDetailsAcceptedAgoHours": {
-    "description": "As txDetailsAcceptedAgoMinutes, in hours (below 48).",
-    "placeholders": {
-      "hours": {
-        "type": "int"
-      }
-    }
-  },
-  "txDetailsAcceptedAgoDays": "{days, plural, =1{Accepted 1 day ago.} other{Accepted {days} days ago.}}",
-  "@txDetailsAcceptedAgoDays": {
-    "description": "As txDetailsAcceptedAgoMinutes, in days.",
-    "placeholders": {
-      "days": {
-        "type": "int"
-      }
-    }
-  },
   "txDetailsCancelHold": "{minutes, plural, =1{Cancel becomes possible in 1 minute if the sender has not posted it.} other{Cancel becomes possible in {minutes} minutes if the sender has not posted it.}}",
   "@txDetailsCancelHold": {
     "description": "After txDetailsAcceptedAgo*, while an incoming payment is inside its 15-minute Cancel hold: when Cancel comes. The sender finalizes and posts in that time.",
@@ -21312,10 +21281,6 @@
         "type": "int"
       }
     }
-  },
-  "txDetailsCancelOffered": "Cancel only if it never arrives: the wallet checks the network first.",
-  "@txDetailsCancelOffered": {
-    "description": "After txDetailsAcceptedAgo*, under an incoming payment's Cancel button once the hold is over: what Cancel is for. LEPIC asks the node first and refuses a payment it holds."
   },
   "txDetailsCancelWhileReported": "Cancel is unavailable while the sender reports it posted.",
   "@txDetailsCancelWhileReported": {
@@ -22493,54 +22458,6 @@
   "cancelMoreInHelp": "How cancelling works",
   "@cancelMoreInHelp": {
     "description": "Link after the quiet line beside every Cancel button: opens Help › Cancelling a payment at the matching heading. Short."
-  },
-  "cancelNoteSendWaiting": "Nothing has been paid yet: cancelling is free and certain.",
-  "@cancelNoteSendWaiting": {
-    "description": "Quiet line beside Cancel on a send still waiting for the recipient's answer. Certain."
-  },
-  "cancelNoteNotPosted": "Not on the network yet: Cancel frees the coins after a network check.",
-  "@cancelNoteNotPosted": {
-    "description": "Quiet line beside Cancel on a payment both wallets signed that the node refused (desktop Activity, Outputs split/consolidate). Not certain: LEPIC refuses if the network has it."
-  },
-  "cancelNoteDirectFailed": "Nothing reached the recipient: cancelling frees the coins.",
-  "@cancelNoteDirectFailed": {
-    "description": "Quiet line beside Cancel payment / Cancel and pay with a file on the Send screen after a delivery failed. Certain."
-  },
-  "cancelNoteRequestPaid": "The other side can still finish this payment.",
-  "@cancelNoteRequestPaid": {
-    "description": "Quiet line beside Cancel payment on an invoice this wallet paid. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete."
-  },
-  "cancelNoteRequestWithdraw": "Nothing has been paid: withdrawing moves no coins.",
-  "@cancelNoteRequestWithdraw": {
-    "description": "Quiet line beside Withdraw on a request this wallet sent and nobody paid yet. Certain."
-  },
-  "cancelNoteNotPostedSend": "This payment could still go through later.",
-  "@cancelNoteNotPostedSend": {
-    "description": "Quiet line beside Cancel on a send both wallets signed that the node did not take. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete."
-  },
-  "txDetailsCancelledFinal": "Cancelled. The coins were moved back to this wallet, so this payment can no longer go through.",
-  "@txDetailsCancelledFinal": {
-    "description": "Payment details, a cancelled payment the other side could have finished (an invoice paid, a send both signed): its coins were spent back to this wallet, so it is final."
-  },
-  "txDetailsCancelledMayComplete": "Cancelled without moving the coins back. The other side could still finish this payment; if it does, it shows as paid.",
-  "@txDetailsCancelledMayComplete": {
-    "description": "Payment details, a cancelled payment the other side could still finish: its coins were not spent again yet. The wallet keeps watching, and a late completion shows as paid."
-  },
-  "txDetailsCancelledSpentBack": "Payment cancelled. The coins are on their way back to this wallet.",
-  "@txDetailsCancelledSpentBack": {
-    "description": "Notice after Cancel of a payment the other side could have finished: its coins are being spent back to this wallet."
-  },
-  "txDetailsReleasedSpentBack": "Coins released. They are on their way back to this wallet.",
-  "@txDetailsReleasedSpentBack": {
-    "description": "Notice after Release funds when the coins were spent back to this wallet."
-  },
-  "txDetailsReleasedSpendBackPending": "Coins released. They could not be moved back yet; the wallet tries again while it is open. Until then the old payment may still finish.",
-  "@txDetailsReleasedSpendBackPending": {
-    "description": "Notice after Release funds when spending the coins back failed; retried while open."
-  },
-  "txDetailsCancelledSpendBackPending": "Payment cancelled. The coins could not be moved back yet; the wallet tries again while it is open. Until then the payment may still finish.",
-  "@txDetailsCancelledSpendBackPending": {
-    "description": "Notice after Cancel when spending the coins back failed: the wallet retries while it is open; until then the other side could still finish it."
   },
   "deskTxCancelNotPostedBody": "{amount} EPIC to {who}. This payment could still go through later.",
   "@deskTxCancelNotPostedBody": {

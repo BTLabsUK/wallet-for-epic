@@ -835,10 +835,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsSentTo => 'Wysłano do';
 
   @override
-  String get txDetailsNoAddress =>
-      'Nieznany: ta płatność przyszła bez adresu (kod QR lub plik). Dodaj etykietę, aby ją rozpoznać.';
-
-  @override
   String get txDetailsReceivedFrom => 'Otrzymano od';
 
   @override
@@ -16445,46 +16441,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Parowanie zostanie dodane do wybranego kontaktu.';
 
   @override
-  String txDetailsAcceptedAgoMinutes(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: 'Przyjęto $minutes minuty temu.',
-      many: 'Przyjęto $minutes minut temu.',
-      few: 'Przyjęto $minutes minuty temu.',
-      one: 'Przyjęto $minutes minutę temu.',
-      zero: 'Przyjęto przed chwilą.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoHours(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: 'Przyjęto $hours godziny temu.',
-      many: 'Przyjęto $hours godzin temu.',
-      few: 'Przyjęto $hours godziny temu.',
-      one: 'Przyjęto $hours godzinę temu.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: 'Przyjęto $days dnia temu.',
-      many: 'Przyjęto $days dni temu.',
-      few: 'Przyjęto $days dni temu.',
-      one: 'Przyjęto $days dzień temu.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String txDetailsCancelHold(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
@@ -16500,10 +16456,6 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get txDetailsCancelOffered =>
-      'Anuluj tylko, jeśli płatność nigdy nie dotrze: portfel najpierw sprawdza sieć.';
 
   @override
   String get txDetailsCancelWhileReported =>
@@ -17460,54 +17412,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cancelMoreInHelp => 'Jak działa anulowanie';
-
-  @override
-  String get cancelNoteSendWaiting =>
-      'Nic jeszcze nie zapłacono: anulowanie jest bez opłaty i pewne.';
-
-  @override
-  String get cancelNoteNotPosted =>
-      'Jeszcze nie w sieci: anulowanie uwolni monety po sprawdzeniu sieci.';
-
-  @override
-  String get cancelNoteDirectFailed =>
-      'Nic nie dotarło do odbiorcy: anulowanie uwalnia monety.';
-
-  @override
-  String get cancelNoteRequestPaid =>
-      'Druga strona wciąż może dokończyć tę płatność.';
-
-  @override
-  String get cancelNoteRequestWithdraw =>
-      'Nic nie zapłacono: wycofanie nie przenosi żadnych monet.';
-
-  @override
-  String get cancelNoteNotPostedSend =>
-      'Ta płatność wciąż może przejść później.';
-
-  @override
-  String get txDetailsCancelledFinal =>
-      'Anulowano. Monety przeniesiono z powrotem do tego portfela, więc ta płatność nie może już przejść.';
-
-  @override
-  String get txDetailsCancelledMayComplete =>
-      'Anulowano bez przenoszenia monet z powrotem. Druga strona wciąż może dokończyć tę płatność; jeśli tak, pokaże się jako zapłacona.';
-
-  @override
-  String get txDetailsCancelledSpentBack =>
-      'Płatność anulowana. Monety wracają do tego portfela.';
-
-  @override
-  String get txDetailsReleasedSpentBack =>
-      'Monety zwolnione. Wracają do tego portfela.';
-
-  @override
-  String get txDetailsReleasedSpendBackPending =>
-      'Monety zwolnione. Nie udało się ich jeszcze przenieść z powrotem; portfel ponawia próbę, dopóki jest otwarty. Do tego czasu stara płatność wciąż może przejść.';
-
-  @override
-  String get txDetailsCancelledSpendBackPending =>
-      'Płatność anulowana. Monet nie udało się jeszcze przenieść z powrotem; portfel ponawia próbę, dopóki jest otwarty. Do tego czasu płatność wciąż może przejść.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {

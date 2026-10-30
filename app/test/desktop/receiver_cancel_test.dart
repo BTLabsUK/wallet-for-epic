@@ -136,15 +136,16 @@ void main() {
       await _pump(tester, waiting(ago: const Duration(minutes: 5)), _Desk());
       expect(_cancelButton, findsNothing);
       expect(find.byKey(const ValueKey('tx-cancel-hold')), findsOneWidget);
-      expect(find.text('Accepted 5 minutes ago. Cancel becomes possible in 10 minutes if the sender has not posted it.'), findsOneWidget);
+      expect(find.text('Cancel becomes possible in 10 minutes if the sender has not posted it.'), findsOneWidget);
       await _end(tester);
     });
 
-    testWidgets('after the hold: a quiet Cancel, with what it is for', (tester) async {
+    testWidgets('after the hold: a quiet Cancel, no small print', (tester) async {
       await _pump(tester, waiting(ago: const Duration(minutes: 40)), _Desk());
       expect(_cancelButton, findsOneWidget);
       expect(tester.widget<EButton>(_cancelButton).kind, EBtnKind.ghost);
-      expect(find.text('Accepted 40 minutes ago. Cancel only if it never arrives: the wallet checks the network first.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('tx-cancel-hold')), findsNothing);
+      expect(find.textContaining('Accepted'), findsNothing);
       await _end(tester);
     });
 
@@ -205,9 +206,9 @@ void main() {
         await tester.pump(const Duration(milliseconds: 60));
       }
       expect(find.text('Cancel this payment?'), findsOneWidget);
-      expect(find.textContaining('Nothing has been paid yet: cancelling is free and certain.'), findsNWidgets(2), reason: 'the quiet line and the dialog');
-      // One beside the Cancel button, one in the dialog.
-      expect(find.text('How cancelling works'), findsNWidgets(2));
+      expect(find.textContaining('Nothing has been paid yet: cancelling is free and certain.'), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
+      // In the dialog only: no note beside the Cancel button.
+      expect(find.text('How cancelling works'), findsOneWidget);
       // The pane's button and the dialog's confirm say the same (GP-012).
       expect(find.text('Cancel payment'), findsNWidgets(2));
     });

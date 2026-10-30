@@ -278,25 +278,26 @@ void main() {
     });
   });
 
-  group('the cancelled payment says whether it is final', () {
+  // No new status sentences on the details (the owner, 2026-10-30): a cancelled payment keeps the
+  // words it had, whether its coins were spent back or not.
+  group('the cancelled payment keeps its words', () {
     String say(TxEntry tx, bool? isFinal) => txExplanation(_l, tx, _tip, cancelFinal: isFinal);
 
-    test('an invoice paid: final, or may still finish', () {
+    test('an invoice paid: the same words, final or not', () {
       final tx = _send(flow: TxFlow.invoice, cancelled: true, reason: CancelReason.user);
-      expect(say(tx, true), _l.txDetailsCancelledFinal);
-      expect(say(tx, false), _l.txDetailsCancelledMayComplete);
-      expect(_l.txDetailsCancelledMayComplete, contains('shows as paid'));
+      expect(say(tx, true), _l.txDetailsCancelledByUser);
+      expect(say(tx, false), _l.txDetailsCancelledByUser);
     });
 
     test('a plain send keeps its certain words', () {
       expect(say(_send(cancelled: true, reason: CancelReason.user), null), _l.txDetailsCancelledByUser);
     });
 
-    test('a released send: the same final / may still finish words, so Stop waiting reads honestly', () {
+    test('a released send keeps its released words', () {
       final tx = _send(finalized: true, cancelled: true, reason: CancelReason.release);
-      expect(say(tx, false), _l.txDetailsCancelledMayComplete);
-      expect(say(tx, true), _l.txDetailsCancelledFinal);
-      expect(say(tx, null), _l.txDetailsCancelledReleased, reason: 'until the coins are known');
+      expect(say(tx, false), _l.txDetailsCancelledReleased);
+      expect(say(tx, true), _l.txDetailsCancelledReleased);
+      expect(say(tx, null), _l.txDetailsCancelledReleased);
     });
   });
 
@@ -343,22 +344,20 @@ void main() {
 
     testWidgets('an invoice paid: the note and the dialog say so, the fee in one line; one Cancel does both', (tester) async {
       final s = await pump(tester, _send(flow: TxFlow.invoice));
-      expect(find.text(_l.cancelNoteRequestPaid), findsOneWidget);
       await cancel(tester);
-      expect(find.text(_l.txDetailsCancelRequestBody), findsNWidgets(2), reason: 'the quiet line and the dialog say the same');
+      expect(find.text(_l.txDetailsCancelRequestBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       expect(find.text(_l.cancelFeeLine), findsOneWidget);
       await tester.tap(find.byKey(cancelForSureKey));
       await tester.pumpAndSettle();
       expect(s.cancelledTxIds, [9]);
       expect(s.spentToSelf.single, [_coinA, _coinB]);
-      expect(notice(tester), _l.txDetailsCancelledSpentBack);
+      expect(notice(tester), _l.txDetailsPaymentCancelled);
     });
 
     testWidgets('a send waiting for its answer: certain, no fee, nothing spent', (tester) async {
       final s = await pump(tester, _send());
-      expect(find.text(_l.cancelNoteSendWaiting), findsOneWidget);
       await cancel(tester);
-      expect(find.text(_l.txDetailsCancelSendBody), findsNWidgets(2), reason: 'the quiet line and the dialog say the same');
+      expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       expect(find.text(_l.cancelFeeLine), findsNothing);
       await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
       await tester.pumpAndSettle();
@@ -378,19 +377,19 @@ void main() {
       await tester.tap(find.byKey(cancelForSureKey));
       await tester.pumpAndSettle();
       expect(s.cancelledTxIds, [9]);
-      expect(notice(tester), _l.txDetailsCancelledSpendBackPending);
+      expect(notice(tester), _l.txDetailsPaymentCancelled);
       final container = ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
       // Calm (the owner, 2026-10-30): a retry is information, not a warning.
       expect(container.read(noticeProvider)?.level, NoticeLevel.info);
       expect(container.read(cancelFinalProvider).owed, isTrue);
     });
 
-    testWidgets('a cancelled invoice payment reads final once its coins are spent', (tester) async {
+    testWidgets('a cancelled invoice payment keeps its cancelled words', (tester) async {
       final tx = _send(flow: TxFlow.invoice, cancelled: true, reason: CancelReason.user);
       final s = _session(tx);
       expect(s.outputsValue.where((o) => o.txId == 9 && o.status == WalletOutputStatus.unspent), isEmpty);
       await pump(tester, tx);
-      expect(find.text(_l.txDetailsCancelledFinal), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelledByUser), findsOneWidget);
     });
   });
 
@@ -432,7 +431,6 @@ void main() {
 
     testWidgets('a send both signed: the note and the dialog name the spend back and its fee', (tester) async {
       await pump(tester, tx());
-      expect(find.text(_l.cancelNoteNotPostedSend), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction).first);
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text(_l.cancelFeeLine), findsOneWidget);
@@ -441,11 +439,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 1));
     });
 
-    testWidgets('a cancelled one says final, or may still finish', (tester) async {
+    testWidgets('a cancelled one reads Cancelled, final or not', (tester) async {
       await pump(tester, tx(cancelled: true, isFinal: true));
-      expect(find.text(_l.txDetailsCancelledFinal), findsOneWidget);
+      expect(find.text(_l.deskTxNowCancelled), findsOneWidget);
       await pump(tester, tx(cancelled: true, isFinal: false));
-      expect(find.text(_l.txDetailsCancelledMayComplete), findsOneWidget);
+      expect(find.text(_l.deskTxNowCancelled), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 1));
     });

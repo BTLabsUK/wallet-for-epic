@@ -3348,8 +3348,6 @@ class _SendViewState extends ConsumerState<SendView> {
             onPressed: _busy ? null : _cancelDirectSend,
             child: Text(l.sendCancelPayment),
           ),
-          // Nothing reached the other wallet: this Cancel is certain (CancelNote).
-          CancelNote(text: l.cancelNoteDirectFailed, anchor: HelpAnchor.sending, alignment: WrapAlignment.center),
         ] else if (_sendFailed && _overTor) ...[
           // Tor did not connect, nothing was sent: the same send again.
           BusyButton(
@@ -3365,8 +3363,6 @@ class _SendViewState extends ConsumerState<SendView> {
             child: Text(l.commonDone),
           ),
         ] else if (_sendFailed && _undelivered != null) ...[
-          CancelNote(text: l.cancelNoteDirectFailed, anchor: HelpAnchor.sending, alignment: WrapAlignment.center),
-          const SizedBox(height: 8),
           BusyButton(
             label: l.sendCancelAndFile,
             busy: _busy,

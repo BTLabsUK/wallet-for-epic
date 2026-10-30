@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../known_relays.dart' show recipientRelay;
 import '../../../devices/device_ending.dart' show deviceEndingLabel, deviceEndingLine;
-import '../../../l10n.dart' show acceptedAgoText, messageHint;
+import '../../../l10n.dart' show messageHint;
 import '../../../models.dart' show IncomingCancel, PairingRecord, PairingState, SlatePurpose, incomingCancelAt;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../watch_mode.dart' show BlockWait;
@@ -87,9 +87,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   /// long ago it signed, and when Cancel comes or what it is for (receiveCancelHold).
   String _holdLine(AppLocalizations l, IncomingCancel hold) => hold.senderReportsPosted
       ? l.txDetailsCancelWhileReported
-      : hold.offered
-      ? '${acceptedAgoText(l, hold.signedAgo)} ${l.txDetailsCancelOffered}'
-      : '${acceptedAgoText(l, hold.signedAgo)} ${l.txDetailsCancelHold(hold.holdMinutesLeft)}';
+      : l.txDetailsCancelHold(hold.holdMinutesLeft);
 
   /// The More link is open: the technical rows show for this view only.
   bool _more = false;
@@ -130,9 +128,6 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             deviceEndingLine(l, t.deviceEnding!, t.deviceName ?? '', t.deviceWhy) ?? deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''),
           TxState.cancelled when t.incoming && !t.isInvoice && t.senderCancelled => l.txDetailsSenderCancelled,
           TxState.cancelled when t.incoming && !t.isInvoice => l.txDetailsCancelledIncoming,
-          // One the other side could have finished: final once its coins were spent again.
-          TxState.cancelled when t.cancelFinal == true => l.txDetailsCancelledFinal,
-          TxState.cancelled when t.cancelFinal == false => l.txDetailsCancelledMayComplete,
           TxState.cancelled => l.deskTxNowCancelled,
         };
 
@@ -400,7 +395,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     ],
                     Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
                     // Its sender cancelled it: Cancel is there at once, with no line to weigh.
-                    if (hold != null && !hold.senderCancelled) ...[
+                    if (hold != null && !hold.senderCancelled && !hold.offered) ...[
                       SizedBox(height: Sp.x1),
                       DeskCancelNote(key: const ValueKey('tx-cancel-hold'), text: _holdLine(l, hold), anchor: HelpAnchor.receiving),
                     ],
@@ -491,11 +486,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   ],
                 ),
               ),
-            )
-          // A QR code or file exchange carries no address: the row says so rather than
-          // leaving the payment with no other side.
-          else if (noAddressShown(t))
-            (t.incoming ? l.txDetailsReceivedFrom : l.txDetailsSentTo, Text(l.txDetailsNoAddress, key: const ValueKey('tx-fact-no-address'))),
+            ),
           if (!t.otherWallet)
             (
               l.deskTxFactMethod,
@@ -625,20 +616,6 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 ),
             ],
           ),
-          // What this Cancel does, with the way to the Help topic, on its own line under the
-          // buttons (an incoming payment's line sits in the status box above).
-          if (cancelable && (!t.incoming || hold == null)) ...[
-            SizedBox(height: Sp.x2),
-            DeskCancelNote(
-              key: const ValueKey('tx-cancel-note'),
-              text: t.incoming
-                  ? l.txDetailsCancelOffered
-                  : t.notPosted
-                  ? l.cancelNoteNotPostedSend
-                  : l.cancelNoteSendWaiting,
-              anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending,
-            ),
-          ],
         ],
       ],
     );

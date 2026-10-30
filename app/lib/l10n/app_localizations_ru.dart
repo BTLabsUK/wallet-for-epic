@@ -831,10 +831,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsSentTo => 'Получатель';
 
   @override
-  String get txDetailsNoAddress =>
-      'Неизвестно: этот платёж пришёл без адреса (QR-код или файл). Добавьте метку, чтобы его узнать.';
-
-  @override
   String get txDetailsReceivedFrom => 'Отправитель';
 
   @override
@@ -16417,46 +16413,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сопряжение будет добавлено к выбранному контакту.';
 
   @override
-  String txDetailsAcceptedAgoMinutes(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: 'Принят $minutes минуты назад.',
-      many: 'Принят $minutes минут назад.',
-      few: 'Принят $minutes минуты назад.',
-      one: 'Принят $minutes минуту назад.',
-      zero: 'Принят только что.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoHours(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: 'Принят $hours часа назад.',
-      many: 'Принят $hours часов назад.',
-      few: 'Принят $hours часа назад.',
-      one: 'Принят $hours час назад.',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: 'Принят $days дня назад.',
-      many: 'Принят $days дней назад.',
-      few: 'Принят $days дня назад.',
-      one: 'Принят $days день назад.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String txDetailsCancelHold(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
@@ -16472,10 +16428,6 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get txDetailsCancelOffered =>
-      'Отменяйте, только если платёж так и не поступил: кошелёк сначала проверяет сеть.';
 
   @override
   String get txDetailsCancelWhileReported =>
@@ -17435,53 +17387,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancelMoreInHelp => 'Как работает отмена';
-
-  @override
-  String get cancelNoteSendWaiting =>
-      'Пока ничего не оплачено: отмена бесплатна и надёжна.';
-
-  @override
-  String get cancelNoteNotPosted =>
-      'Ещё не в сети: отмена освободит монеты после проверки сети.';
-
-  @override
-  String get cancelNoteDirectFailed =>
-      'До получателя ничего не дошло: отмена освобождает монеты.';
-
-  @override
-  String get cancelNoteRequestPaid =>
-      'Другая сторона ещё может завершить этот платёж.';
-
-  @override
-  String get cancelNoteRequestWithdraw =>
-      'Ничего не оплачено: отзыв не перемещает монеты.';
-
-  @override
-  String get cancelNoteNotPostedSend => 'Этот платёж ещё может пройти позже.';
-
-  @override
-  String get txDetailsCancelledFinal =>
-      'Отменён. Монеты переведены обратно на этот кошелёк, поэтому этот платёж больше не может пройти.';
-
-  @override
-  String get txDetailsCancelledMayComplete =>
-      'Отменён без возврата монет. Другая сторона ещё может завершить этот платёж; если завершит, он будет показан как оплаченный.';
-
-  @override
-  String get txDetailsCancelledSpentBack =>
-      'Платёж отменён. Монеты возвращаются на этот кошелёк.';
-
-  @override
-  String get txDetailsReleasedSpentBack =>
-      'Монеты освобождены. Они возвращаются на этот кошелёк.';
-
-  @override
-  String get txDetailsReleasedSpendBackPending =>
-      'Монеты освобождены. Их пока не удалось перевести обратно; кошелёк повторяет попытку, пока открыт. До этого старый платёж ещё может пройти.';
-
-  @override
-  String get txDetailsCancelledSpendBackPending =>
-      'Платёж отменён. Монеты пока не удалось перевести обратно; кошелёк повторяет попытку, пока открыт. До этого платёж ещё может пройти.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {

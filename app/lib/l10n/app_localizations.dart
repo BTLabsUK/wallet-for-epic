@@ -1285,12 +1285,6 @@ abstract class AppLocalizations {
   /// **'Sent to'**
   String get txDetailsSentTo;
 
-  /// Value of the Sent to / Received from row of a payment that carried no address (a QR code or file exchange): who it was is not known; a label helps.
-  ///
-  /// In en, this message translates to:
-  /// **'Not known: this payment came without an address (QR code or file). Add a label to recognise it.'**
-  String get txDetailsNoAddress;
-
   /// Label of the row with the sender's address.
   ///
   /// In en, this message translates to:
@@ -25142,35 +25136,11 @@ abstract class AppLocalizations {
   /// **'The pairing is added to the contact you choose.'**
   String get deskConPickForPairing;
 
-  /// Line under an incoming payment's status: how long ago this wallet accepted (signed) it, in minutes (below 90). A sentence; the Cancel hold or offer sentence follows it.
-  ///
-  /// In en, this message translates to:
-  /// **'{minutes, plural, =0{Accepted just now.} =1{Accepted 1 minute ago.} other{Accepted {minutes} minutes ago.}}'**
-  String txDetailsAcceptedAgoMinutes(int minutes);
-
-  /// As txDetailsAcceptedAgoMinutes, in hours (below 48).
-  ///
-  /// In en, this message translates to:
-  /// **'{hours, plural, =1{Accepted 1 hour ago.} other{Accepted {hours} hours ago.}}'**
-  String txDetailsAcceptedAgoHours(int hours);
-
-  /// As txDetailsAcceptedAgoMinutes, in days.
-  ///
-  /// In en, this message translates to:
-  /// **'{days, plural, =1{Accepted 1 day ago.} other{Accepted {days} days ago.}}'**
-  String txDetailsAcceptedAgoDays(int days);
-
   /// After txDetailsAcceptedAgo*, while an incoming payment is inside its 15-minute Cancel hold: when Cancel comes. The sender finalizes and posts in that time.
   ///
   /// In en, this message translates to:
   /// **'{minutes, plural, =1{Cancel becomes possible in 1 minute if the sender has not posted it.} other{Cancel becomes possible in {minutes} minutes if the sender has not posted it.}}'**
   String txDetailsCancelHold(int minutes);
-
-  /// After txDetailsAcceptedAgo*, under an incoming payment's Cancel button once the hold is over: what Cancel is for. LEPIC asks the node first and refuses a payment it holds.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel only if it never arrives: the wallet checks the network first.'**
-  String get txDetailsCancelOffered;
 
   /// In place of the Cancel button while the sender reports it posted (txStatusSenderPosted, under an hour old).
   ///
@@ -26491,78 +26461,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'How cancelling works'**
   String get cancelMoreInHelp;
-
-  /// Quiet line beside Cancel on a send still waiting for the recipient's answer. Certain.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing has been paid yet: cancelling is free and certain.'**
-  String get cancelNoteSendWaiting;
-
-  /// Quiet line beside Cancel on a payment both wallets signed that the node refused (desktop Activity, Outputs split/consolidate). Not certain: LEPIC refuses if the network has it.
-  ///
-  /// In en, this message translates to:
-  /// **'Not on the network yet: Cancel frees the coins after a network check.'**
-  String get cancelNoteNotPosted;
-
-  /// Quiet line beside Cancel payment / Cancel and pay with a file on the Send screen after a delivery failed. Certain.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing reached the recipient: cancelling frees the coins.'**
-  String get cancelNoteDirectFailed;
-
-  /// Quiet line beside Cancel payment on an invoice this wallet paid. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete.
-  ///
-  /// In en, this message translates to:
-  /// **'The other side can still finish this payment.'**
-  String get cancelNoteRequestPaid;
-
-  /// Quiet line beside Withdraw on a request this wallet sent and nobody paid yet. Certain.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing has been paid: withdrawing moves no coins.'**
-  String get cancelNoteRequestWithdraw;
-
-  /// Quiet line beside Cancel on a send both wallets signed that the node did not take. Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete.
-  ///
-  /// In en, this message translates to:
-  /// **'This payment could still go through later.'**
-  String get cancelNoteNotPostedSend;
-
-  /// Payment details, a cancelled payment the other side could have finished (an invoice paid, a send both signed): its coins were spent back to this wallet, so it is final.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancelled. The coins were moved back to this wallet, so this payment can no longer go through.'**
-  String get txDetailsCancelledFinal;
-
-  /// Payment details, a cancelled payment the other side could still finish: its coins were not spent again yet. The wallet keeps watching, and a late completion shows as paid.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancelled without moving the coins back. The other side could still finish this payment; if it does, it shows as paid.'**
-  String get txDetailsCancelledMayComplete;
-
-  /// Notice after Cancel of a payment the other side could have finished: its coins are being spent back to this wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment cancelled. The coins are on their way back to this wallet.'**
-  String get txDetailsCancelledSpentBack;
-
-  /// Notice after Release funds when the coins were spent back to this wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Coins released. They are on their way back to this wallet.'**
-  String get txDetailsReleasedSpentBack;
-
-  /// Notice after Release funds when spending the coins back failed; retried while open.
-  ///
-  /// In en, this message translates to:
-  /// **'Coins released. They could not be moved back yet; the wallet tries again while it is open. Until then the old payment may still finish.'**
-  String get txDetailsReleasedSpendBackPending;
-
-  /// Notice after Cancel when spending the coins back failed: the wallet retries while it is open; until then the other side could still finish it.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment cancelled. The coins could not be moved back yet; the wallet tries again while it is open. Until then the payment may still finish.'**
-  String get txDetailsCancelledSpendBackPending;
 
   /// Body of the cancel dialog for a send the node refused (finalized, not posted). Cancel also spends the coins back to the wallet itself, which makes the old payment impossible to complete; the fee is named on the fee line under it (cancelFeeLine). The wallet asks the node first and refuses if the network already has it.
   ///

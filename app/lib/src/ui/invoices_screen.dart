@@ -345,8 +345,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
       notices.show(
         switch (result) {
           CancelResult.cancelled => l.txDetailsPaymentCancelled,
-          CancelResult.spentBack => l.txDetailsCancelledSpentBack,
-          CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+          CancelResult.spentBack || CancelResult.spendBackPending => l.txDetailsPaymentCancelled,
           CancelResult.stoppedWaiting => l.txDetailsStoppedWaiting,
           CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },

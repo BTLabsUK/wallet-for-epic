@@ -757,9 +757,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsSentTo => '发送至';
 
   @override
-  String get txDetailsNoAddress => '未知：这笔付款没有附带地址（二维码或文件）。添加标签以便识别。';
-
-  @override
   String get txDetailsReceivedFrom => '来自';
 
   @override
@@ -14965,37 +14962,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConPickForPairing => '配对将添加到你选择的联系人。';
 
   @override
-  String txDetailsAcceptedAgoMinutes(int minutes) {
-    String _temp0 = intl.Intl.pluralLogic(
-      minutes,
-      locale: localeName,
-      other: '$minutes 分钟前接受。',
-      zero: '刚刚接受。',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoHours(int hours) {
-    String _temp0 = intl.Intl.pluralLogic(
-      hours,
-      locale: localeName,
-      other: '$hours 小时前接受。',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String txDetailsAcceptedAgoDays(int days) {
-    String _temp0 = intl.Intl.pluralLogic(
-      days,
-      locale: localeName,
-      other: '$days 天前接受。',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String txDetailsCancelHold(int minutes) {
     String _temp0 = intl.Intl.pluralLogic(
       minutes,
@@ -15004,9 +14970,6 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get txDetailsCancelOffered => '仅在付款始终未到账时取消：钱包会先检查网络。';
 
   @override
   String get txDetailsCancelWhileReported => '发送方报告已广播期间，无法取消。';
@@ -15867,45 +15830,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cancelMoreInHelp => '取消是如何进行的';
-
-  @override
-  String get cancelNoteSendWaiting => '尚未支付任何款项：取消免费且一定成功。';
-
-  @override
-  String get cancelNoteNotPosted => '尚未进入网络：取消会在检查网络后释放币。';
-
-  @override
-  String get cancelNoteDirectFailed => '接收方没有收到任何内容：取消会释放这些币。';
-
-  @override
-  String get cancelNoteRequestPaid => '对方仍可以完成这笔付款。';
-
-  @override
-  String get cancelNoteRequestWithdraw => '尚未支付任何款项：撤回不会移动任何币。';
-
-  @override
-  String get cancelNoteNotPostedSend => '这笔付款之后仍可能完成。';
-
-  @override
-  String get txDetailsCancelledFinal => '已取消。币已移回这个钱包，这笔付款无法再完成。';
-
-  @override
-  String get txDetailsCancelledMayComplete =>
-      '已取消，币没有移回。对方仍可能完成这笔付款；如果完成，会显示为已付。';
-
-  @override
-  String get txDetailsCancelledSpentBack => '付款已取消。币正在移回这个钱包。';
-
-  @override
-  String get txDetailsReleasedSpentBack => '资金已释放。币正在移回这个钱包。';
-
-  @override
-  String get txDetailsReleasedSpendBackPending =>
-      '资金已释放。币暂时无法移回；钱包会在打开期间重试。在此之前旧的付款仍可能完成。';
-
-  @override
-  String get txDetailsCancelledSpendBackPending =>
-      '付款已取消。币暂时无法移回；钱包会在打开期间重试。在此之前这笔付款仍可能完成。';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {
