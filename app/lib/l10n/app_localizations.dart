@@ -29264,7 +29264,7 @@ abstract class AppLocalizations {
   /// **'Open Network settings'**
   String get deskRailOpenNetwork;
 
-  /// The fee line of a cancel (or release) confirmation whose cancel also moves the coins back to this wallet: shown only then, with the info icon (cancelFeeWhy) beside it. A plain cancel has no fee and no line.
+  /// The fee line of a cancel (or release) confirmation whose cancel also moves the coins back to this wallet: shown only then, with the info icon (cancelChoicesWhy) beside it, under Cancel for sure. A plain cancel has no fee and no line.
   ///
   /// In en, this message translates to:
   /// **'Costs the normal network fee.'**
