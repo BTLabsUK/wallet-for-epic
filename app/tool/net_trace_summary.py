@@ -33,6 +33,7 @@ INET6 = re.compile(r'sa_family=AF_INET6, sin6_port=htons\((\d+)\).*?inet_pton\(A
 UNIX = re.compile(r'sa_family=AF_UNIX, sun_path=(@?)"([^"]*)"')
 # -yy names a connected UDP socket's peer: 7<UDP:[10.1.2.50:40000->1.1.1.1:53]>
 UDP_PEER = re.compile(r'<UDPv?6?:\[[^\]]*->\[?([0-9a-fA-F:.]+)\]?:53\]>')
+RESUMED = re.compile(r'^(\d+)(?:<([^>]*)>)?\s+<\.\.\. (sendto|sendmsg|sendmmsg) resumed>(.*)$')
 STRING = re.compile(r'"((?:[^"\\]|\\.)*)"')
 RESOLVER_SOCKETS = ('/run/systemd/resolve', '/var/run/nscd', '/run/nscd', '/run/avahi-daemon', '/var/run/avahi-daemon')
 
@@ -102,15 +103,25 @@ def main():
     loopback = collections.Counter()
     listens = collections.defaultdict(collections.Counter)
     onions = collections.Counter()
+    pending = {}  # pid -> comm of a DNS send whose payload strace prints when it resumes
     with open(args.trace, errors='replace') as f:
         for raw in f:
+            # Anywhere a tor control command shows, a resumed line included.
+            if 'ADD_ONION' in raw:
+                who = re.match(r'^(\d+)(?:<([^>]*)>)?', raw)
+                onions[(who.group(2) or who.group(1)) if who else '?'] += 1
+            r = RESUMED.match(raw)
+            if r and r.group(1) in pending:
+                comm = pending.pop(r.group(1))
+                names = [qname(unescape(x.group(1))) for x in STRING.finditer(r.group(4))] or [None]
+                for name in names:
+                    dns[comm][name or '?'] += 1
+                continue
             m = LINE.match(raw)
             if not m:
                 continue
             comm = m.group(2) or m.group(1)
             call, rest = m.group(3), m.group(4)
-            if 'ADD_ONION' in rest:
-                onions[comm] += 1
             if call == 'listen':
                 a = LISTEN_ADDR.search(rest)
                 # Counted at the call: strace may print its result on a later line.
@@ -136,6 +147,9 @@ def main():
             # A datagram: DNS when its socket's peer or its address is port 53.
             to53 = UDP_PEER.search(rest) or re.search(r'sin6?_port=htons\(53\)', rest)
             if not to53:
+                continue
+            if '<unfinished ...>' in rest and not STRING.search(rest):
+                pending[m.group(1)] = comm
                 continue
             # sendmmsg carries several questions (A and AAAA): each string is one.
             names = [qname(unescape(s.group(1))) for s in STRING.finditer(rest)] or [None]
