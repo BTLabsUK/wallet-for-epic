@@ -183,7 +183,9 @@ class GraphTest(unittest.TestCase):
         self.assertIn("EpicCashDesktop-26.10.25-notor-macos.dmg " + "a" * 40 + ' "TEAM123456"', m.run)
         self.assertEqual(m.outputs, ["EpicCashDesktop-26.10.25-notor-macos.dmg"])
         t = next(x for x in steps if x.id == "trust-windows-tor")
-        self.assertIn("no update-trust driver for windows", t.run)
+        self.assertIn("trust-windows.sh", t.run)
+        t = next(x for x in steps if x.id == "trust-macos-tor")
+        self.assertIn("no update-trust driver for macos", t.run)
 
     def test_stores_on(self):
         s, steps = graph(sets=["stores.play=true"])

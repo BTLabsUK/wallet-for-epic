@@ -65,7 +65,8 @@ variants = ["tor", "notor"]
 [proof.drivers]
 android = "{rel}/tools/rellib/drivers/trust-android.sh"
 linux = "{rel}/tools/rellib/drivers/trust-linux.sh"
-# windows, macos, ios: no driver yet; those platforms are not proven until one exists.
+windows = "{rel}/tools/rellib/drivers/trust-windows.sh"
+# macos, ios: no driver yet; those platforms are not proven until one exists.
 
 # ---- G0, G1, source -------------------------------------------------------------------------
 
