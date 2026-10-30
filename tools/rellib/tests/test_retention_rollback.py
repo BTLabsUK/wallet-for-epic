@@ -68,6 +68,18 @@ class RetentionTest(Base):
         b = fake_run(self.root, "26.10.25")
         self.assertEqual(retention.plan(self.root)["keep"], [b.path])
 
+    def test_a_run_in_progress_is_never_removed(self):
+        a = fake_run(self.root, "26.10.24")
+        b = fake_run(self.root, "26.10.25")
+        a.lock()
+        try:
+            p = retention.plan(self.root)
+            self.assertEqual(p["remove"], [])
+            self.assertTrue(any("working on it" in w for w in p["kept"]))
+        finally:
+            a.unlock()
+        self.assertEqual(retention.plan(self.root)["remove"], [a.path])
+
     def test_test_runs_are_never_published(self):
         r = fake_run(self.root, "26.10.25", test=True)
         retention.mark_published(r)

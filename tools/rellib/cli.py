@@ -595,7 +595,7 @@ def report(run):
     tot = sum(r["duration_s"] or 0 for r in rows)
     md = [f"# {'TEST ' if info.get('test') else ''}{'DRY RUN ' if info.get('dry') else ''}Epic Wallet {info['version']} — {info['run_id']}",
           "", f"- commit `{info['commit']}`", f"- scope: {scope_summary(info['scope'])}",
-          f"- target: {info.get('target')}", f"- step time (sum): {tot / 60:.1f} min"]
+          f"- step time (sum): {tot / 60:.1f} min"]
     if info.get("tainted"):
         md.append(f"- **TAINTED** (never publishable): {info['tainted'][-1]['reason']}")
     if info.get("net"):
