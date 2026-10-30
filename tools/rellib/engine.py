@@ -14,6 +14,7 @@ import time
 import queue
 
 from . import failures as known
+from .load import LoadSampler
 from .run import SETTLED, now_iso, read_json, write_json
 
 # Exit codes (stable; agents read them).
@@ -53,6 +54,7 @@ class Engine:
         self.echo = echo or (lambda *a: None)
         self.failures = failures or []
         self._q = queue.Queue()
+        self.load = LoadSampler()
 
     # ---- context ----
 
@@ -122,6 +124,7 @@ class Engine:
         self.run.set_status(step.id, status="running", attempts=attempt, started=now_iso(), ended=None,
                             note=None, hint=None, rc=None)
         self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None)
+        self.load.step_started(step.id)
         if self.relmsg:
             self.relmsg.step(step.id, "running", label=step.title, platform=(step.platforms[0] if len(step.platforms) == 1 else None))
         self.echo(f"▶ {step.id}  [{step.host}]{'  (dry run)' if self.dry else ''}")
@@ -160,7 +163,7 @@ class Engine:
         st = self.run.set_status(step.id, **result)
         self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
                        note=st.get("note"), hint=st.get("hint"))
-        self.metric(step, st, dur)
+        self.metric(step, st, dur, self.load.step_ended(step.id))
         icon = {"done": "✓", "failed": "✗", "waiting": "⏸", "held": "✋", "closed": "✋", "skipped": "⏭"}.get(st["status"], "?")
         self.echo(f"{icon} {step.id}  {st['status']}  {dur:.0f}s" + (f"  {st['note']}" if st.get("note") else ""))
         if st.get("hint"):
@@ -201,14 +204,32 @@ class Engine:
             result.update(reuse.reuse_into(self, step, src))
         return k, result
 
-    def metric(self, step, st, dur):
+    def metric(self, step, st, dur, load=None):
+        """One line per step end in <state_root>/metrics.jsonl: time, when it started and ended, the
+        machine's load meanwhile and the steps beside it (load.py), and the emulator's health when a
+        driver wrote {stage}/emulator.json. These are the data for when trust may start (RELEASING.md)."""
         line = {"ts": now_iso(), "run": self.info["run_id"], "version": self.info["version"], "step": step.id,
-                "base": step.base, "host": step.host, "status": st["status"], "duration_s": dur,
+                "base": step.base, "host": step.host, "lane": step.lane, "status": st["status"], "duration_s": dur,
+                "started": st.get("started"), "ended": st.get("ended"), "reused": bool(st.get("reused_from")) or None,
                 "attempt": st.get("attempts"), "bytes": st.get("bytes"), "dry": self.dry or None,
                 "test": self.info.get("test") or None}
+        line.update(load or {})
+        emu = read_json(os.path.join(self.run.step_dir(step.id), "out", "emulator.json"))
+        if isinstance(emu, dict):
+            line["emulator"] = emu
+        self._metrics_line(line)
+
+    def _metrics_line(self, line):
         root = os.path.dirname(os.path.dirname(self.run.path))
         with open(os.path.join(root, "metrics.jsonl"), "a", encoding="utf-8") as f:
             f.write(json.dumps({k: v for k, v in line.items() if v is not None}) + "\n")
+
+    def overlap_metrics(self):
+        """Steps that ran at the same time (e.g. the Android and Linux builds): one metrics line per
+        set with its peak memory and CPU, kind "overlap" (tools/rel stats skips these)."""
+        for o in self.load.take_overlaps():
+            self._metrics_line({"ts": now_iso(), "kind": "overlap", "run": self.info["run_id"],
+                                "version": self.info["version"], "dry": self.dry or None, **o})
 
     # ---- executors ----
 
@@ -402,6 +423,15 @@ class Engine:
         steps = [s for s in self.run.steps if s.id in selected]
         lanes_busy, running = set(), {}
         stop = False
+        if not self.dry:
+            self.load.start()
+        try:
+            return self._drive(steps, lanes_busy, running, stop, stop_on_fail, selected)
+        finally:
+            self.load.stop()
+            self.overlap_metrics()
+
+    def _drive(self, steps, lanes_busy, running, stop, stop_on_fail, selected):
         while True:
             statuses = {s.id: self.run.status(s.id)["status"] for s in self.run.steps}
             if not stop:

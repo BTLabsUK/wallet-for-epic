@@ -139,6 +139,10 @@ title = "Linux AppImage ({variant})"
 platform = "linux"
 for_each = "variant"
 host = "build"
+# Its own lane, beside the Android builds (the owner 2026-10-30): it builds in its own container from
+# its own copy of the code. Each build still takes a build-slot slot (heavy = true); the two
+# Linux variants one after the other. metrics.jsonl has the pair's peak memory ("overlap" lines).
+lane = "build-linux"
 needs = ["source-check"]
 run = "scripts/build-linux.sh && mv -f build-linux/EpicCashDesktop-{version}{notor}-x86_64.AppImage {stage}/"
 env = { WFE_TOR = "{tor}", WFE_NODE_BIN = "{path.node_bin_linux}" }
@@ -231,15 +235,18 @@ needs = ["manifests"]
 # competes with a build for the CPU; every driver starts together, so one that fails at once
 # stops none of the others), Windows and macOS also after their own build, Android and Linux
 # without waiting for them. The drivers wait on the chain and on P, not on the CPU, and P's legs
-# queue on P's own lock. The two Android variants share one lane (one test wallet,
-# REL_TRUST_STATE); each Linux variant makes its own wallet in its own sandbox, so they run at
-# once. G3 and every platform's trust still come before the publish gate (update-trust).
+# queue on P's own lock. Each Android variant has its own test wallet and emulator (tor: the app
+# wallet in rel-trust-android; notor: wallet Q, see trust-android.sh), so the two run at once; each
+# Linux variant makes its own wallet in its own sandbox, so they run at once too. G3 and every
+# platform's trust still come before the publish gate (update-trust). Whether trust may start
+# right after its own build is decided later from metrics.jsonl (per-step load, overlaps,
+# emulator health; docs/RELEASING.md).
 [step.trust-android]
 title = "G4 update trust Android ({variant})"
 platform = "android"
 for_each = "proof_variant"
 host = "build"
-lane = "trust-android"
+lane = "trust-android-{variant}"
 needs = ["build-android", "build-play", "build-linux"]
 proof = true
 timeout = "180m"
