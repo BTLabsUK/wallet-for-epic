@@ -82,7 +82,7 @@ needs = ["preflight"]
 title = "G2 source gate (tools/check.sh)"
 host = "build"
 needs = ["source"]
-run = "tools/check.sh"
+run = "tools/check.sh --full"
 heavy = true
 timeout = "120m"
 

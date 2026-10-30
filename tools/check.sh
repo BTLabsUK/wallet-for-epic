@@ -1,12 +1,66 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Repository gate: a branch passes it before review, and main passes it after every merge.
-# Usage: tools/check.sh   (from anywhere inside a checkout or worktree)
+# Repository gate. Two modes:
+#   tools/check.sh           fast, the default (a branch before review, main after a merge):
+#                            version, install contract, LEPIC at the pin, no hosts, the plain-Dart
+#                            core, flutter analyze, and only the Flutter tests the change touches
+#                            (rule below); the bot's tests only when bot/ changed.
+#   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
+#                            the web build too. Once per release candidate: tools/rel's source
+#                            gate runs it. Between releases nobody runs --full.
+#   tools/check.sh --list    print the mode, the rule and the tests the fast mode would run; run
+#                            nothing.
+# Which tests the fast mode runs: the change is every file that differs from the merge base with
+# main (committed, staged, unstaged and untracked). Test files in it under app/test/ run, and for
+# each changed app/lib/.../<name>.dart every app/test/**/<name>_test.dart. Nothing else: a change
+# with no matching test runs analyze only. CHECK_BASE=<ref> compares with another ref.
+# Usage: tools/check.sh [--full | --list]   (from anywhere inside the main checkout or a worktree)
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
 . "$(cd "$(dirname "$0")" && pwd)/env.sh"
 
+mode=fast
+case "${1:-}" in
+  "") ;;
+  --full) mode=full ;;
+  --list) mode=list ;;
+  *) echo "usage: tools/check.sh [--full | --list]" >&2; exit 64 ;;
+esac
+
 step() { printf '\n== %s\n' "$1"; }
+
+# The change: files that differ from the merge base with main, untracked ones included.
+base_ref="${CHECK_BASE:-main}"
+base="$(git -C "$root" merge-base HEAD "$base_ref" 2>/dev/null || git -C "$root" rev-parse HEAD)"
+changed="$( (git -C "$root" diff --name-only "$base"; git -C "$root" ls-files --others --exclude-standard) | sort -u)"
+tests=()
+while IFS= read -r f; do
+  [[ -n "$f" ]] || continue
+  case "$f" in
+    app/test/*_test.dart) [[ -f "$root/$f" ]] && tests+=("${f#app/}") ;;
+    app/lib/*.dart)
+      name="$(basename "$f" .dart)"
+      while IFS= read -r t; do tests+=("${t#"$root"/app/}"); done \
+        < <(find "$root/app/test" -name "${name}_test.dart" -type f 2>/dev/null)
+      ;;
+  esac
+done <<<"$changed"
+if [[ ${#tests[@]} -gt 0 ]]; then
+  mapfile -t tests < <(printf '%s\n' "${tests[@]}" | sort -u)
+fi
+bot_changed=0
+grep -q '^bot/' <<<"$changed" && bot_changed=1
+
+rule="affected tests = changed app/test/**/*_test.dart + app/test/**/<name>_test.dart for each changed app/lib/**/<name>.dart (vs merge base with $base_ref, ${base:0:10})"
+if [[ $mode == full ]]; then
+  echo "check mode: FULL (whole flutter test suite, integration tests, bot, web build)"
+else
+  echo "check mode: fast (--full runs everything: once per release candidate, by tools/rel)"
+  echo "rule: $rule"
+  echo "affected tests: ${#tests[@]}$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')"
+  for t in "${tests[@]}"; do echo "  $t"; done
+fi
+[[ $mode == list ]] && exit 0
 
 step "version (https://docs.btlabs.uk/developers/releases/)"
 "$root/tools/version.sh" check
@@ -26,16 +80,32 @@ step "wallet core under plain Dart (no Flutter on its path)"
 step "flutter analyze"
 (cd "$root/app" && flutter pub get >/dev/null && flutter analyze --no-pub)
 
-step "flutter test"
-(cd "$root/app" && flutter test --no-pub)
+if [[ $mode == full ]]; then
+  step "flutter test (all)"
+  (cd "$root/app" && flutter test --no-pub)
 
-step "integration tests on LEPIC (Linux, offline)"
-# One run per file: a second app start in one `flutter test` run fails on Linux now and then.
-for t in simple_test history_test; do
-  (cd "$root/app" && xvfb-run -a flutter test --no-pub -d linux "integration_test/$t.dart")
-done
+  step "integration tests on LEPIC (Linux, offline)"
+  # One run per file: a second app start in one `flutter test` run fails on Linux now and then.
+  for t in simple_test history_test; do
+    (cd "$root/app" && xvfb-run -a flutter test --no-pub -d linux "integration_test/$t.dart")
+  done
+else
+  step "flutter test (affected: ${#tests[@]})"
+  if [[ ${#tests[@]} -gt 0 ]]; then
+    (cd "$root/app" && flutter test --no-pub "${tests[@]}")
+  else
+    echo "no affected tests"
+  fi
+fi
 
-step "web build (the demo's flags, tool/build_web.sh)"
-(cd "$root/app" && tool/build_web.sh >/dev/null)
+if [[ $mode == full || $bot_changed == 1 ]]; then
+  step "bot"
+  (cd "$root/bot" && uv run pytest -q && uvx ruff check .)
+fi
 
-printf '\ncheck passed\n'
+if [[ $mode == full ]]; then
+  step "web build (the demo's flags, tool/build_web.sh)"
+  (cd "$root/app" && tool/build_web.sh >/dev/null)
+fi
+
+printf '\ncheck passed (%s)\n' "$mode"
