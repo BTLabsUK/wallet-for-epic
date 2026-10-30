@@ -336,19 +336,36 @@ def history():
         a = find(S, "Activity", exact=True, ns=ns)
         tap_xy(S, a["center"])
     time.sleep(3)
-    seen, rows = set(), []
+    # One row per payment: a status that moves while the list scrolls ("confirming 1/4" →
+    # "2/4") is the same row, kept at its newest text.
+    rows = {}
     for _ in range(12):
-        new = [r for r in tx_rows(nodes(S)) if r not in seen]
+        new = [r for r in tx_rows(nodes(S)) if rows.get(row_id(r)) != r]
         if not new:
             break
         for r in new:
-            seen.add(r)
-            rows.append(r)
+            rows[row_id(r)] = r
         ph.swipe_up(S)
         time.sleep(1.5)
     shot("activity")
     home()
-    return rows
+    return list(rows.values())
+
+
+def row_id(label):
+    """A payment's identity in the list: tx_key plus the time it was made (the last two fields,
+    "Today, 17:21"), never its status."""
+    parts = label.rsplit(", ", 2)
+    return tx_key(label) + ("|" + ", ".join(parts[1:]) if len(parts) == 3 else "")
+
+
+def row_amount(label):
+    """The row's amount as a number: 26.10.23 writes 0.01 EPIC, 26.10.24 0.0100 EPIC."""
+    m = TX_RE.match(label)
+    try:
+        return Decimal(m.group(2)) if m else None
+    except InvalidOperation:
+        return None
 
 
 def tx_key(label):
@@ -572,7 +589,9 @@ def read_settings():
 
 
 def change_settings():
-    """Theme → THEME, Technical details on, Confirmations → CONFIRMATIONS."""
+    """Theme → THEME, Technical details on, Node failover off, Confirmations → CONFIRMATIONS.
+    Failover off also keeps the node in use the user's own: a session-only move to another node
+    while the test waits for a payment would read as a lost choice."""
     home()
     tap(S, "Settings", exact=True)
     wait(S, "Appearance", 10)
@@ -586,6 +605,11 @@ def change_settings():
     _scroll_to("Technical details")
     sw = _switch_in_row("Technical details")
     if sw and not sw["checked"]:
+        tap_xy(S, sw["center"])
+        time.sleep(1.5)
+    _scroll_to("Node failover")
+    sw = _switch_in_row("Node failover")
+    if sw and sw["checked"]:
         tap_xy(S, sw["center"])
         time.sleep(1.5)
     _scroll_to(" confirmations, ")
@@ -726,8 +750,7 @@ def funds(p, my_addr):
     try:
         before = set(tx_rows(nodes(S)))
         send_epicbox(p_addr, SEND_AMOUNT)
-        amt = str(Decimal(SEND_AMOUNT).normalize())
-        row = wait_tx(lambda r: r.startswith(("Sent", "Sending")) and f" {amt} EPIC" in r
+        row = wait_tx(lambda r: r.startswith(("Sent", "Sending")) and row_amount(r) == Decimal(SEND_AMOUNT)
                       and p_short in r and r not in before
                       and not re.search(r"waiting for|Waiting for|cancel", r, re.I), 420, "send")
         res["send_ok"] = bool(row)
@@ -759,8 +782,7 @@ def receive_from_p(p, my_addr, amount, p_short=None, secs=900):
     ok, out = p.send(my_addr, amount)
     if not ok:
         raise RuntimeError("P's send failed: " + " ".join(re.findall(r"ERROR[^\n]*", out))[:200])
-    amt = str(Decimal(amount).normalize())
-    ours = lambda r: r.startswith(("Received", "Receiving")) and f" {amt} EPIC" in r \
+    ours = lambda r: r.startswith(("Received", "Receiving")) and row_amount(r) == Decimal(amount) \
         and (p_short is None or p_short in r)
     posted = lambda r: ours(r) and not re.search(r"waiting for", r, re.I)
     end, finalized_at, reposts, last = time.time() + secs, None, 0, None
@@ -810,8 +832,8 @@ def compare(a, b):
     res["balance_kept"] = bool(a["balance"]["total"] is not None and a["balance"] == b["balance"]) or (
         a["balance"]["total"] is not None and a["balance"]["total"] == b["balance"]["total"])
     det["balance_kept"] = f"before {a['balance']}, after {b['balance']}"
-    ha = sorted(tx_key(r) for r in a["history"])
-    hb = sorted(tx_key(r) for r in b["history"])
+    ha = sorted(tx_key(r) for r in {row_id(x): x for x in a["history"]}.values())
+    hb = sorted(tx_key(r) for r in {row_id(x): x for x in b["history"]}.values())
     senders = sum(has_sender(r) for r in a["history"])
     res["history_kept"] = bool(ha) and ha == hb and senders > 0
     det["history_kept"] = (f"{len(ha)} rows before ({senders} with a sender), {len(hb)} after"
@@ -825,17 +847,24 @@ def compare(a, b):
         cur_b = next((r["host"] for r in lb["rows"] if r["current"]), None)
         hosts_a = [r["host"] for r in la["rows"]]
         hosts_b = [r["host"] for r in lb["rows"]]
-        typed_there = any(same_host(h, target) for h in added_b)
-        ok = bool(added_a) and added_a == added_b and cur_a == cur_b and typed_there \
-            and set(hosts_a) <= set(hosts_b) | set() and set(hosts_b) - set(hosts_a) <= set() \
+        # A server the user typed in that the candidate ships built in (node.btlabs.uk from
+        # 26.10.24) is kept when it is still listed and in use, without "Added by you". Any other
+        # host gaining "Added by you", a typed-in one gone, or another one in use is a loss.
+        built_in_now = [h for h in added_a if h in hosts_b and h not in added_b]
+        typed_kept = bool(added_a) and all(h in hosts_b for h in added_a) and set(added_b) <= set(added_a)
+        typed_there = any(same_host(h, target) for h in added_a) and any(same_host(h, target) for h in hosts_b)
+        ok = typed_kept and cur_a == cur_b and typed_there \
+            and set(hosts_a) <= set(hosts_b) and set(hosts_b) - set(hosts_a) <= set() \
             and la["removed"] == lb["removed"]
         res[k] = ok
-        det[k] = (f"typed-in {added_a} → {added_b}; in use {cur_a} → {cur_b}; "
-                  f"removed '{la['removed']}' → '{lb['removed']}'"
+        det[k] = (f"typed-in {added_a} → {added_b}"
+                  + (f" ({', '.join(built_in_now)} built in now)" if built_in_now else "")
+                  + f"; in use {cur_a} → {cur_b}; removed '{la['removed']}' → '{lb['removed']}'"
                   + ("" if hosts_a == hosts_b else f"; list {hosts_a} → {hosts_b}"))
     sa, sb = a["settings"], b["settings"]
     diff = {k: (sa.get(k), sb.get(k)) for k in sa if sa.get(k) != sb.get(k)}
-    changed_ok = sa.get("theme") == THEME and sa.get("technical_details") is True and sa.get("confirmations") == CONFIRMATIONS
+    changed_ok = (sa.get("theme") == THEME and sa.get("technical_details") is True
+                  and sa.get("node_failover") is False and sa.get("confirmations") == CONFIRMATIONS)
     res["settings_kept"] = not diff and changed_ok
     det["settings_kept"] = (f"kept {sb}" if not diff and changed_ok else
                             f"changed by the update: {diff}" if diff else
@@ -924,6 +953,13 @@ def run():
         log(f"no payment with a sender in the history: P pays {amount} EPIC")
         with PSession(p_log) as p:
             fund_new_wallet(p, my_addr, amount)
+    # The user's own node and relay in use when the "before" picture is taken (a version without
+    # the failover switch can still have moved during the payment).
+    for kind, target in (("Node", NODE), ("Epicbox", EPICBOX)):
+        rows = server_list(kind)["rows"]
+        if not any(r["current"] and same_host(r["host"], target) for r in rows):
+            log(f"{kind}: {target} not in use before the update: chosen again")
+            use_typed_server(kind, target)
     a = digest()
     a["opened"] = True
     extra["before"] = public_digest(a)
