@@ -249,7 +249,8 @@ def source(engine, step, say):
     pins = {k: open(os.path.join(src, f"tools/{k}.rev")).read().strip() for k in ("lepic", "lepic-flutter")}
     info["pins"] = pins
     engine.run.save_info()
-    return {"status": "done", "note": f"{src} at {commit[:12]}; LEPIC {pins['lepic'][:10]}"}
+    # The worktree path is in run.json; the live message shows only what was checked out.
+    return {"status": "done", "note": f"commit {commit[:12]}; LEPIC {pins['lepic'][:10]}"}
 
 
 # ---- G3 artefacts -------------------------------------------------------------------------------
