@@ -55,7 +55,6 @@ async def main():
     rel, appr, fleet = (secrets.token_urlsafe(32) for _ in range(3))
     (base / "telegram_token").write_text("123456:FAKE-TOKEN\n")
     (base / "fleet_token").write_text(fleet + "\n")
-    (base / "relay_token").write_text(secrets.token_urlsafe(32) + "\n")
     (base / "relmsg_token").write_text(rel + "\n")
     env_file = base / "bot.env"
     env_file.write_text("\n".join([
@@ -63,8 +62,7 @@ async def main():
         f"ADMIN_TELEGRAM_USER_ID={ADMIN}", "FEEDBACK_GROUP_IDS=-1001", f"DATA_DIR={base / 'data'}",
         f"LOG_DIR={base / 'logs'}", "DIGEST_ENABLED=0", "VERTEX_PROJECT=", "ACK_MODE=react",
         "FLEET_API_HOST=127.0.0.1", f"FLEET_API_PORT={a.fleet_port}", f"FLEET_TOKEN_FILE={base / 'fleet_token'}",
-        f"RELEASE_TOKEN={rel}", f"RELEASE_APPROVE_TOKEN={appr}", "RELAY_INBOUND_URL=",
-        f"RELAY_INBOUND_TOKEN_FILE={base / 'relay_token'}"]) + "\n")
+        f"RELEASE_TOKEN={rel}", f"RELEASE_APPROVE_TOKEN={appr}"]) + "\n")
     # The runner's relmsg: the producer token only (no approve token file at all).
     wrapper = base / "relmsg"
     wrapper.write_text(f"#!/bin/sh\nRELMSG_URL=http://127.0.0.1:{a.fleet_port} RELMSG_TOKEN_FILE={base / 'relmsg_token'} "
