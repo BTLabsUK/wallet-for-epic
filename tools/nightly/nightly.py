@@ -432,29 +432,43 @@ def alert_detail(result, limit=3000):
 
 # ---------------------------------------------------------------- running the check
 
-def run_logged(cmd, log, env, cwd, timeout=None, start_new_session=True):
+def run_logged(cmd, log, env, cwd, timeout=None, slot_wait=False):
     """Runs cmd, appending its output to the open log file with a UTC time prefix per line.
+    With slot_wait, the timeout starts once build-slot has a slot (its first other line).
     Returns (exit status or None on timeout, tail lines)."""
     tail = []
+    started_at = [] if slot_wait else [time.monotonic()]
     proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                            start_new_session=start_new_session)
+                            start_new_session=True)
 
     def pump():
         for b in iter(proc.stdout.readline, b""):
             line = b.decode("utf-8", "replace").rstrip("\n")
             log.write(f"{utcnow().strftime('%H:%M:%S')} {line}\n")
             log.flush()
+            if not started_at and not line.startswith(("build-slot:", "  ")):
+                started_at.append(time.monotonic())
             tail.append(line)
             if len(tail) > 60:
                 del tail[:-40]
 
     th = threading.Thread(target=pump, daemon=True)
     th.start()
-    try:
-        rc = proc.wait(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        rc = None
+    rc = None
+    while True:
+        # the limit counts from the first line that is not build-slot's slot wait, so a run
+        # queued for a build slot is not stopped for waiting
+        began = started_at[0] if started_at else time.monotonic()
+        left = None if timeout is None else began + timeout - time.monotonic()
+        if left is not None and left <= 0 and started_at:
+            break
+        try:
+            rc = proc.wait(timeout=30 if left is None else max(1, min(30, left)))
+            break
+        except subprocess.TimeoutExpired:
+            continue
+    if rc is None:
         for sig, wait in ((signal.SIGTERM, 30), (signal.SIGKILL, 10)):
             try:
                 os.killpg(proc.pid, sig)
@@ -594,7 +608,8 @@ def cmd_run(wait_slot):
             argv, command = check_command(run_dir)
             log.write(f"{utcnow().strftime('%H:%M:%S')} $ {' '.join(argv)}\n")
             log.flush()
-            rc, tail = run_logged(argv, log, env, str(WORKTREE), timeout=CHECK_TIMEOUT_S)
+            rc, tail = run_logged(argv, log, env, str(WORKTREE), timeout=CHECK_TIMEOUT_S,
+                                  slot_wait=True)
         except Exception as e:  # a broken run is reported, never raised
             error = str(e)[:300]
     ended = utcnow()
