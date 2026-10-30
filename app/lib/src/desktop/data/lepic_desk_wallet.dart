@@ -46,6 +46,7 @@ import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
+import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_text.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
@@ -123,7 +124,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
   if (error is SecretProtectError) return l.deskErrSecretProtect;
   // The network mode refused it (network_gate.dart).
   if (error is NetBlocked) {
-    return error.mode == NetworkMode.torOnly ? l.deskSetAdvModeTorOnlyText : l.deskShellOffline;
+    return error.mode == NetworkMode.torOnly ? l.deskSetAdvModeTorOnlyText : l.statusOffByMode(networkModeName(l, error.mode));
   }
   if (isMacKeychainRefusal(error)) return l.deskErrMacKeychain;
   if (error is! core.WalletError) return l.deskErrSomethingWrong;
@@ -148,7 +149,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.torNotRunning => l.deskErrTorNotConnected,
     core.WalletErrorKind.onionUnreachable => l.deskErrOnionUnreachable,
     core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => l.deskErrWalletBusy,
-    core.WalletErrorKind.networkOff => l.deskShellOffline,
+    core.WalletErrorKind.networkOff => l.statusOffByMode(networkModeName(l, NetGate.mode)),
     core.WalletErrorKind.damagedDatabase => l.deskErrDbDamaged,
     core.WalletErrorKind.paymentExpired => detail.isEmpty ? l.deskErrPaymentExpired : detail,
     core.WalletErrorKind.invoiceNotFound => l.deskErrInvoiceNotFound,
@@ -2664,7 +2665,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> postFinished(String text) => _running(() async {
-    if (NetGate.killSwitch) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (NetGate.killSwitch) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     await _open.postFinished(text);
   });
 
@@ -3596,7 +3597,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> useBuiltInNode(bool on) async {
     // The built-in node would not be the node in use before it runs: Node only and Kill switch
     // refuse it.
-    if (on && NetGate.restricted) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (on && NetGate.restricted) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     await _stopScanForUser();
     // The setting and the saved node change only once the wallet runs on the new node, so a
     // failed start or move leaves both as they were.
@@ -3814,7 +3815,7 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> setEpicboxListening(bool on) async {
     if (!on) return _stopListener();
     if (_listener != null) return;
-    if (NetGate.restricted) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (NetGate.restricted) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     if (!NetGate.epicbox) throw DeskError.l10n((l) => l.netBlockEpicboxOff);
     final session = _open;
     _epicboxHealth = ServiceHealth.checking;
@@ -3897,7 +3898,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // Tor off starts it again when its switch ([DeskSettings.directHttp]) is on.
     if (_settings.tor || NetGate.torOnly) return;
     // Node only and Kill switch: no Link listener at all.
-    if (NetGate.restricted) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (NetGate.restricted) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     final session = _open;
     final port = _settings.httpPort;
     // From the internet only after the user chose it in the guide (DeskSettings.publicMode).
@@ -4013,7 +4014,7 @@ class LepicDeskWallet implements DeskWalletApi {
       return;
     }
     if (!on && NetGate.torOnly) throw DeskError.l10n((l) => l.deskSetAdvModeTorOnlyText);
-    if (on && NetGate.killSwitch) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (on && NetGate.killSwitch) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     _settings = _settings.copyWith(tor: on);
     _clearBlocked();
     await _store.saveTorOn(_openEntry?.walletId, on);
@@ -4305,7 +4306,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) async* {
     // Recheck balance asks the node: Offline only a local one.
-    if (_nodeOff) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (_nodeOff) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     // Admitted like [_running]: the checks and the count follow each other with no await.
     var waitedForStop = false;
     while (true) {

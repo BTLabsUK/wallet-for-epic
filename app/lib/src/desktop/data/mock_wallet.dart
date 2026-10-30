@@ -18,6 +18,7 @@ import '../../devices/device_service.dart' show DeviceHost, linkServerOf;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show DeviceEnding, FinishedPayment, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -726,7 +727,7 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<void> postFinished(String text) async {
     // As the adapter: Kill switch posts nothing.
-    if (NetGate.killSwitch) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (NetGate.killSwitch) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     await inspectFinished(text);
   }
 
@@ -1086,7 +1087,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<void> setHttpListening(bool on) async {
     await _wait();
     // As the adapter: Node only and Kill switch refuse it.
-    if (on && NetGate.restricted) throw DeskError.l10n((l) => l.deskShellOffline);
+    if (on && NetGate.restricted) throw DeskError.l10n((l) => l.statusOffByMode(networkModeName(l, NetGate.mode)));
     // As the adapter: the clearnet listener stays off while Tor is on.
     _http = on && !_settings.tor;
   }
