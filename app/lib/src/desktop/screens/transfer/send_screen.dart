@@ -439,6 +439,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // Offline on a node that is not local: nothing polls it, but a file still runs through it
     // (the Offline rework), with the note that it does (LNX-7).
     if (_method == TxMethod.file && deskOfflineUsesNode(st)) return null;
+    // Kill switch asks no node: the file is made from the last confirmed height (a cold send).
+    if (_method == TxMethod.file && NetGate.killSwitch) return null;
     if (_args.nodeSync != null) return _args.nodeSync;
     final s = st.status;
     if (s == null) return -1;
