@@ -14,6 +14,7 @@
 //       it is mined first it is alreadyPaid. Either way A ends paid, the spend back ended, nothing
 //       retried.
 //   b   The spend back fails, A closes, B posts and it confirms; A reopens: paid, no spend back.
+//   w   Stop waiting (the free cancel, no spend back): B still posts it, and A shows it paid.
 //   s   A plain send nobody answered: cancelled, nothing spent back, no fee.
 //
 // A is funded by the QA funder (/opt/epic/qa-funder) by slate file: the funder's CLI writes the
@@ -23,7 +24,8 @@
 //   WFE_DEMO_LEPIC_LIB=<path to liblepic_ffi.so> WFE_FLOO_FUND=<path to fund.sh> \
 //   WFE_LIVE_NODE=https://floo-node.btlabs.uk flutter test test/cancel_final_live_test.dart
 //
-// Without the first two it is skipped. A case that fails is logged and the next one still runs
+// WFE_CASES=w,s runs only those cases (after the funding). Without the first two it is
+// skipped. A case that fails is logged and the next one still runs
 // once A's coins settle; the test fails at the end if any did.
 import 'dart:async';
 import 'dart:io';
@@ -44,6 +46,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
 final String? _fund = Platform.environment['WFE_FLOO_FUND'];
+
+/// WFE_CASES=w,s runs only the cases whose names start with one of these (all when unset).
+final List<String>? _cases = Platform.environment['WFE_CASES']?.split(',');
 final String _funderDir = Platform.environment['QA_FUNDER_DIR'] ?? '${Platform.environment['HOME']}/.epic/qa-funder';
 
 const _password = 'cancel-final-live-1';
@@ -331,6 +336,8 @@ void main() {
 
     final results = <String, String>{};
     Future<void> run(String name, Future<void> Function() body) async {
+      final only = _cases;
+      if (only != null && !only.any(name.startsWith)) return;
       log('=== case $name');
       try {
         await body();
@@ -536,6 +543,50 @@ void main() {
       expect(aEnd.total, start.total - _half - p.fee);
       final bEnd = await sum(b);
       log('b B at the end: ${line(bEnd)}');
+      expect(bEnd.total, bStart.total + _half);
+    });
+
+    await run('w Stop waiting, then B finishes the payment: it shows as paid', () async {
+      final start = await settled('w A', a);
+      final bStart = await sum(b);
+      final p = await pay('w', _half);
+      final rowsBefore = await a.transactions(refresh: true);
+      final tried = a.spendBacks;
+      final result = await cf.cancel(a, p.tx, spendBack: false);
+      log('w cancel: ${result.name}; owed ${cf.owed}');
+      expect(result, CancelResult.stoppedWaiting);
+      expect(cf.owed, isFalse);
+      final cancelled = (await rowOf(a, p.slateId))!;
+      final outs = await a.outputs();
+      log('w A row ${row(cancelled)} cancelFinal ${cancelFinal(cancelled, outs)}; A ${line(await sum(a))}');
+      expect(cancelled.kind, TxKind.sentCancelled);
+      expect(cancelFinal(cancelled, outs), isFalse, reason: 'its coins are free again, so it may still finish');
+      expect(await cf.retry(a), isFalse);
+      final posted = await b.finalizeAndPost(slateJson: p.i2);
+      log('w B posted: ${row(posted)}');
+      final paid = await until('A\'s payment to read paid', const Duration(minutes: 20), () async {
+        final s = await sum(a);
+        final r = await rowOf(a, p.slateId);
+        log('w A ${line(s)}; payment ${row(r)}');
+        return r != null && r.confirmed && s.awaitingConfirmation == BigInt.zero && s.locked == BigInt.zero ? r : null;
+      });
+      expect(paid.status, TxStatus.confirmed);
+      expect(paid.kind, TxKind.sent);
+      expect(a.spendBacks, tried, reason: 'Stop waiting spends nothing back');
+      expect(await cf.retry(a), isFalse);
+      final rows = await a.transactions(refresh: true);
+      expect(rows.length, rowsBefore.length, reason: 'no spend back row');
+      await cleanRows(a, 'w A');
+      final aEnd = await sum(a);
+      fees['w payment'] = p.fee;
+      log('w A at the end: ${line(aEnd)}');
+      expect(aEnd.total, start.total - _half - p.fee);
+      await until('B\'s payment to confirm', const Duration(minutes: 10), () async {
+        final r = await rowOf(b, p.slateId);
+        return r != null && r.confirmed ? r : null;
+      });
+      final bEnd = await sum(b);
+      log('w B at the end: ${line(bEnd)}');
       expect(bEnd.total, bStart.total + _half);
     });
 
