@@ -360,17 +360,33 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _submitted = true;
       case SendStep.review || SendStep.sending:
         WidgetsBinding.instance.addPostFrameCallback((_) => _openReview(startBusy: args.step == SendStep.sending));
+      // The demo result reads the amount, which needs the language: built in
+      // didChangeDependencies, before the first frame.
       case SendStep.done:
-        _result = SendDone(_demoTx(TxMethod.epicbox, args.recipient));
+        _demoStep = SendStep.done;
       case SendStep.fileReady:
         _method = TxMethod.file;
-        _result = SendFileReady(_demoTx(TxMethod.file, null), 'f0e1d2c3.tx');
+        _demoStep = SendStep.fileReady;
       case SendStep.failed:
         _failure = (l) => l.deskSendNoAnswer;
         _submitted = true;
       case SendStep.form:
         break;
     }
+  }
+
+  /// A demo step whose result is still to be built ([didChangeDependencies]).
+  SendStep? _demoStep;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final step = _demoStep;
+    if (step == null) return;
+    _demoStep = null;
+    _result = step == SendStep.done
+        ? SendDone(_demoTx(TxMethod.epicbox, _args.recipient))
+        : SendFileReady(_demoTx(TxMethod.file, null), 'f0e1d2c3.tx');
   }
 
   Tx _demoTx(TxMethod m, String? to) => Tx(
