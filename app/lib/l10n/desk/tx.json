@@ -547,9 +547,9 @@
       }
     }
   },
-  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. The recipient’s wallet cannot finish it without yours: the locked amount returns to the balance.",
+  "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. This payment is waiting for the other side’s answer and cannot go through without this wallet. Cancelling unlocks the coins. No fee.",
   "@deskTxCancelOutgoingBody": {
-    "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain.",
+    "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain, no fee.",
     "placeholders": {
       "amount": {
         "type": "String",
@@ -561,9 +561,9 @@
       }
     }
   },
-  "deskTxCancelNotPostedBody": "{amount} EPIC to {who}. Both wallets signed it, so it could still reach the network. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.",
+  "deskTxCancelNotPostedBody": "{amount} EPIC to {who}. The network refused this payment, but it is complete, so a copy could still go through later. Cancelling moves the coins back to this wallet first, so it no longer can.",
   "@deskTxCancelNotPostedBody": {
-    "description": "Body of the cancel dialog for a send the node refused (finalized, not posted). Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete. The wallet asks the node first and refuses if the network already has it.",
+    "description": "Body of the cancel dialog for a send the node refused (finalized, not posted). Cancel also spends the coins back to the wallet itself, which makes the old payment impossible to complete; the fee is named on the fee line under it (cancelFeeLine). The wallet asks the node first and refuses if the network already has it.",
     "placeholders": {
       "amount": {
         "type": "String",

@@ -239,7 +239,7 @@ void main() {
       expect(find.text(_l.cancelNoteRequestPaid), findsOneWidget);
       await cancel(tester);
       expect(find.text(_l.txDetailsCancelRequestBody), findsOneWidget);
-      expect(_l.txDetailsCancelRequestBody, contains('network fee'));
+      expect(find.text(_l.cancelFeeLine), findsOneWidget);
       await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
       await tester.pumpAndSettle();
       expect(s.cancelledTxIds, [9]);
@@ -252,7 +252,7 @@ void main() {
       expect(find.text(_l.cancelNoteSendWaiting), findsOneWidget);
       await cancel(tester);
       expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget);
-      expect(_l.txDetailsCancelSendBody, isNot(contains('fee')));
+      expect(find.text(_l.cancelFeeLine), findsNothing);
       await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
       await tester.pumpAndSettle();
       expect(s.spentToSelf, isEmpty);
@@ -327,7 +327,7 @@ void main() {
       expect(find.text(_l.cancelNoteNotPostedSend), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction).first);
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.textContaining('for a small network fee'), findsOneWidget);
+      expect(find.text(_l.cancelFeeLine), findsOneWidget);
       expect(find.byType(ECheckbox), findsNothing, reason: 'no extra step');
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 1));

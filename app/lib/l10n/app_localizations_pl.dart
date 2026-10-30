@@ -797,7 +797,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Użyj tej opcji tylko wtedy, gdy płatność nigdy nie zostanie potwierdzona. Jeśli jednak zostanie, saldo może być błędne, dopóki go nie sprawdzisz (Sprawdź saldo).';
+      'Sieć odrzuciła tę płatność, ale jest ona kompletna, więc jej kopia wciąż mogłaby przejść później. Zwolnienie najpierw przenosi monety z powrotem do tego portfela, więc już nie przejdzie.';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Czekaj dalej';
@@ -817,7 +817,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'Portfel odbiorcy nie może dokończyć tej płatności bez twojego. Anulowanie uwalnia twoje monety.';
+      'Ta płatność czeka na odpowiedź drugiej strony i nie może przejść bez tego portfela. Anulowanie odblokowuje monety. Bez opłaty.';
 
   @override
   String get txDetailsCancelKeep => 'Zachowaj';
@@ -5770,7 +5770,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'Serwis ma twoją podpisaną płatność i wciąż może ją dokończyć. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
+      'Druga strona ma już wszystko, czego potrzebuje, by dokończyć tę płatność. Anulowanie najpierw przenosi monety z powrotem do tego portfela, więc stara płatność nie może już przejść.';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5798,11 +5798,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvPayerSpentText =>
-      'Monety wracają do tego portfela, więc płatność nie może się już zakończyć.';
+      'Monety wracają do tego portfela, więc płatność nie może już przejść.';
 
   @override
   String get deskInvPayerSpendFailedText =>
-      'Monety są odblokowane, ale odesłanie ich jeszcze się nie udało. Portfel ponawia próbę; do tego czasu płatność wciąż może się zakończyć.';
+      'Monet nie udało się jeszcze przenieść z powrotem. Portfel ponawia próbę, dopóki jest otwarty; do tego czasu płatność wciąż może przejść.';
 
   @override
   String get deskInvPayerLocked =>
@@ -9460,7 +9460,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC do $who. Portfel odbiorcy nie może jej dokończyć bez twojego: zablokowana kwota wraca do salda.';
+    return '$amount EPIC do $who. Ta płatność czeka na odpowiedź drugiej strony i nie może przejść bez tego portfela. Anulowanie odblokowuje monety. Bez opłaty.';
   }
 
   @override
@@ -17452,18 +17452,18 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'Druga strona ma twoją podpisaną płatność i wciąż może ją dokończyć. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
+      'Druga strona ma już wszystko, czego potrzebuje, by dokończyć tę płatność. Anulowanie najpierw przenosi monety z powrotem do tego portfela, więc stara płatność nie może już przejść.';
 
   @override
   String get txDetailsCancelNotPostedBody =>
-      'Oba portfele ją podpisały, więc wciąż mogłaby trafić do sieci. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
+      'Sieć odrzuciła tę płatność, ale jest ona kompletna, więc jej kopia wciąż mogłaby przejść później. Anulowanie najpierw przenosi monety z powrotem do tego portfela, więc już nie przejdzie.';
 
   @override
   String get cancelMoreInHelp => 'Więcej w Pomocy';
 
   @override
   String get cancelNoteSendWaiting =>
-      'Jeszcze nie opublikowano w sieci: anulowanie uwalnia monety.';
+      'Jeszcze nie opublikowano w sieci: anulowanie odblokowuje monety. Bez opłaty.';
 
   @override
   String get cancelNoteNotPosted =>
@@ -17475,7 +17475,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'Druga strona ma twoją podpisaną płatność. Anulowanie odsyła monety do tego portfela, więc płatność nie może się zakończyć.';
+      'Druga strona wciąż może dokończyć tę płatność. Anulowanie najpierw przenosi monety z powrotem do tego portfela, za zwykłą opłatą sieciową.';
 
   @override
   String get cancelNoteRequestWithdraw =>
@@ -17483,35 +17483,35 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cancelNoteNotPostedSend =>
-      'Oba portfele ją podpisały. Anulowanie sprawdza sieć, a potem odsyła monety do tego portfela, więc płatność nie może się zakończyć.';
+      'Kopia wciąż mogłaby przejść później. Anulowanie najpierw przenosi monety z powrotem do tego portfela, za zwykłą opłatą sieciową.';
 
   @override
   String get txDetailsCancelledFinal =>
-      'Anulowano. Jej monety wróciły do tego portfela, więc nie może się już zakończyć.';
+      'Anulowano. Monety przeniesiono z powrotem do tego portfela, więc ta płatność nie może już przejść.';
 
   @override
   String get txDetailsCancelledMayComplete =>
-      'Anulowano, a monety są odblokowane. Druga strona może ją jeszcze dokończyć; wtedy pokaże się jako zapłacona.';
+      'Anulowano, ale monety nie zostały jeszcze przeniesione z powrotem. Druga strona wciąż może dokończyć tę płatność; jeśli to zrobi, pokaże się ona jako zapłacona.';
 
   @override
   String get txDetailsCancelledSpentBack =>
-      'Płatność anulowana. Jej monety wracają do tego portfela, więc nie może się już zakończyć.';
+      'Płatność anulowana. Monety wracają do tego portfela, więc nie może już przejść.';
 
   @override
   String get txDetailsReleasedSpentBack =>
-      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+      'Środki zwolnione. Monety wracają do tego portfela, więc stara płatność nie może już przejść.';
 
   @override
   String get txDetailsReleasedSpendBackPending =>
-      'Funds released, but they were not sent back yet. The wallet tries again.';
+      'Środki zwolnione, ale monet nie udało się jeszcze przenieść z powrotem. Portfel ponawia próbę, dopóki jest otwarty; do tego czasu stara płatność wciąż może przejść.';
 
   @override
   String get txDetailsCancelledSpendBackPending =>
-      'Płatność anulowana, ale jej monety nie zostały jeszcze odesłane. Portfel ponawia próbę.';
+      'Płatność anulowana, ale monet nie udało się jeszcze przenieść z powrotem. Portfel ponawia próbę, dopóki jest otwarty; do tego czasu płatność wciąż może przejść.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC do $who. Oba portfele ją podpisały, więc wciąż mogłaby trafić do sieci. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
+    return '$amount EPIC do $who. Sieć odrzuciła tę płatność, ale jest ona kompletna, więc jej kopia wciąż mogłaby przejść później. Anulowanie najpierw przenosi monety z powrotem do tego portfela, więc już nie przejdzie.';
   }
 
   @override
@@ -19394,4 +19394,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Otwórz ustawienia sieci';
+
+  @override
+  String get cancelFeeLine => 'Kosztuje zwykłą opłatę sieciową.';
+
+  @override
+  String get cancelFeeWhy =>
+      'Druga strona ma już wszystko, czego potrzebuje, by dokończyć tę płatność. Portfel najpierw przenosi monety do siebie, więc stara płatność nie może już przejść. Kosztuje to zwykłą opłatę sieciową.';
+
+  @override
+  String get errorPaymentCancelledCoinsMoved =>
+      'Ta płatność została anulowana, a jej monety już przeniesiono. Nie może już przejść.';
+
+  @override
+  String get errorPaymentAlreadyWentThrough =>
+      'Nie udało się przenieść monet z powrotem: sama płatność już przeszła. Pokazuje się jako zapłacona.';
 }

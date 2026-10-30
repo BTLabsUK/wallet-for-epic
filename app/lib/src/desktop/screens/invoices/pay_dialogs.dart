@@ -315,7 +315,8 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
         children: [
           ENotice(tone: ETone.warn, title: l.deskInvPayerCancelText),
           SizedBox(height: Sp.x2),
-          DeskCancelNote(anchor: HelpAnchor.requests, inDialog: true),
+          // The fee line with its info icon: this cancel always moves the coins back.
+          DeskCancelNote(anchor: HelpAnchor.requests, inDialog: true, fee: true),
           if (_error != null) ...[
             SizedBox(height: Sp.x3),
             ENotice(tone: ETone.risk, title: _error!),

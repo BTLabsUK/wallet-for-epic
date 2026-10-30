@@ -761,13 +761,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Use this only if the payment will never confirm. If it still does, the balance may be wrong until you recheck it (Recheck balance).';
+      'The network refused this payment, but it is complete, so a copy could still go through later. Releasing moves the coins back to this wallet first, so it no longer can.';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Keep waiting';
 
   @override
-  String get txDetailsFundsReleased => 'Funds released';
+  String get txDetailsFundsReleased => 'Coins released';
 
   @override
   String get txDetailsCancelPayment => 'Cancel payment';
@@ -781,7 +781,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'The recipient’s wallet cannot finish this payment without yours. Cancelling frees your coins.';
+      'This payment is waiting for the other side’s answer and cannot go through without this wallet. Cancelling unlocks the coins. No fee.';
 
   @override
   String get txDetailsCancelKeep => 'Keep';
@@ -5610,7 +5610,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'The service holds your signed payment and could still finish it. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.';
+      'The other side already has what it needs to finish this payment. Cancelling moves the coins back to this wallet first, so the old payment can no longer go through.';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5639,11 +5639,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskInvPayerSpentText =>
-      'The coins are going back to this wallet, so the payment can no longer complete.';
+      'The coins are on their way back to this wallet, so the payment can no longer go through.';
 
   @override
   String get deskInvPayerSpendFailedText =>
-      'The coins are unlocked, but sending them back did not work yet. The wallet tries again; until then the payment could still complete.';
+      'The coins could not be moved back yet. The wallet tries again while it is open; until then the payment could still go through.';
 
   @override
   String get deskInvPayerLocked =>
@@ -9060,7 +9060,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC to $who. The recipient’s wallet cannot finish it without yours: the locked amount returns to the balance.';
+    return '$amount EPIC to $who. This payment is waiting for the other side’s answer and cannot go through without this wallet. Cancelling unlocks the coins. No fee.';
   }
 
   @override
@@ -16850,18 +16850,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'The other side holds your signed payment and could still finish it. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.';
+      'The other side already has what it needs to finish this payment. Cancelling moves the coins back to this wallet first, so the old payment can no longer go through.';
 
   @override
   String get txDetailsCancelNotPostedBody =>
-      'Both wallets signed it, so it could still reach the network. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.';
+      'The network refused this payment, but it is complete, so a copy could still go through later. Cancelling moves the coins back to this wallet first, so it no longer can.';
 
   @override
   String get cancelMoreInHelp => 'More in Help';
 
   @override
   String get cancelNoteSendWaiting =>
-      'Not posted yet: cancelling frees the coins.';
+      'Not posted yet: cancelling unlocks the coins. No fee.';
 
   @override
   String get cancelNoteNotPosted =>
@@ -16873,7 +16873,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'The other side holds your signed payment. Cancel sends the coins back to this wallet, so it cannot complete.';
+      'The other side can still finish this payment. Cancel moves the coins back to this wallet first, for the normal network fee.';
 
   @override
   String get cancelNoteRequestWithdraw =>
@@ -16881,35 +16881,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelNoteNotPostedSend =>
-      'Both wallets signed it. Cancel checks the network, then sends the coins back to this wallet, so it cannot complete.';
+      'A copy could still go through later. Cancel moves the coins back to this wallet first, for the normal network fee.';
 
   @override
   String get txDetailsCancelledFinal =>
-      'Cancelled. Its coins went back to this wallet, so it can no longer complete.';
+      'Cancelled. The coins were moved back to this wallet, so this payment can no longer go through.';
 
   @override
   String get txDetailsCancelledMayComplete =>
-      'Cancelled, and the coins are unlocked. The other side may still finish it; if so, it shows as paid.';
+      'Cancelled, but the coins were not moved back yet. The other side could still finish this payment; if it does, it shows as paid.';
 
   @override
   String get txDetailsCancelledSpentBack =>
-      'Payment cancelled. Its coins are going back to this wallet, so it can no longer complete.';
+      'Payment cancelled. The coins are on their way back to this wallet, so it can no longer go through.';
 
   @override
   String get txDetailsReleasedSpentBack =>
-      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+      'Coins released. They are on their way back to this wallet, so the old payment can no longer go through.';
 
   @override
   String get txDetailsReleasedSpendBackPending =>
-      'Funds released, but they were not sent back yet. The wallet tries again.';
+      'Coins released, but they could not be moved back yet. The wallet tries again while it is open; until then the old payment could still go through.';
 
   @override
   String get txDetailsCancelledSpendBackPending =>
-      'Payment cancelled, but its coins were not sent back yet. The wallet tries again.';
+      'Payment cancelled, but the coins could not be moved back yet. The wallet tries again while it is open; until then the payment could still go through.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC to $who. Both wallets signed it, so it could still reach the network. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.';
+    return '$amount EPIC to $who. The network refused this payment, but it is complete, so a copy could still go through later. Cancelling moves the coins back to this wallet first, so it no longer can.';
   }
 
   @override
@@ -18743,4 +18743,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Open Network settings';
+
+  @override
+  String get cancelFeeLine => 'Costs the normal network fee.';
+
+  @override
+  String get cancelFeeWhy =>
+      'The other side already has what it needs to finish this payment. The wallet moves the coins to itself first, so the old payment can no longer go through. This costs the normal network fee.';
+
+  @override
+  String get errorPaymentCancelledCoinsMoved =>
+      'This payment was cancelled, and its coins were already moved. It can no longer go through.';
+
+  @override
+  String get errorPaymentAlreadyWentThrough =>
+      'The coins could not be moved back: the payment itself already went through. It shows as paid.';
 }

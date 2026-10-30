@@ -768,7 +768,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'Nutzen Sie dies nur, wenn die Zahlung niemals bestätigt wird. Wird sie doch bestätigt, kann das Guthaben falsch sein, bis Sie es neu prüfen (Guthaben neu prüfen).';
+      'Das Netzwerk hat diese Zahlung abgelehnt, aber sie ist vollständig, eine Kopie könnte also später noch durchgehen. Freigeben schickt die Coins zuerst an diese Wallet zurück, damit sie das nicht mehr kann.';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'Weiter warten';
@@ -788,7 +788,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'Die Wallet des Empfängers kann diese Zahlung ohne Ihre nicht abschließen. Stornieren gibt Ihre Coins frei.';
+      'Diese Zahlung wartet auf die Antwort der anderen Seite und kann ohne diese Wallet nicht durchgehen. Stornieren gibt die Coins frei. Keine Gebühr.';
 
   @override
   String get txDetailsCancelKeep => 'Behalten';
@@ -5682,7 +5682,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'Der Dienst hält Ihre signierte Zahlung und könnte sie noch abschließen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
+      'Die andere Seite hat bereits alles, um diese Zahlung abzuschließen. Stornieren schickt die Coins zuerst an diese Wallet zurück, damit die alte Zahlung nicht mehr durchgehen kann.';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5712,11 +5712,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskInvPayerSpentText =>
-      'Die Coins gehen an diese Wallet zurück, die Zahlung kann also nicht mehr abgeschlossen werden.';
+      'Die Coins sind auf dem Weg zurück zu dieser Wallet, die Zahlung kann also nicht mehr durchgehen.';
 
   @override
   String get deskInvPayerSpendFailedText =>
-      'Die Coins sind freigegeben, konnten aber noch nicht zurückgeschickt werden. Die Wallet versucht es erneut; bis dahin könnte die Zahlung noch abgeschlossen werden.';
+      'Die Coins konnten noch nicht zurückgeschickt werden. Die Wallet versucht es erneut, solange sie geöffnet ist; bis dahin könnte die Zahlung noch durchgehen.';
 
   @override
   String get deskInvPayerLocked =>
@@ -9174,7 +9174,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC an $who. Die Wallet des Empfängers kann sie ohne Ihre nicht abschließen: Der gesperrte Betrag kehrt ins Guthaben zurück.';
+    return '$amount EPIC an $who. Diese Zahlung wartet auf die Antwort der anderen Seite und kann ohne diese Wallet nicht durchgehen. Stornieren gibt die Coins frei. Keine Gebühr.';
   }
 
   @override
@@ -17046,18 +17046,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'Die andere Seite hält Ihre signierte Zahlung und könnte sie noch abschließen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
+      'Die andere Seite hat bereits alles, um diese Zahlung abzuschließen. Stornieren schickt die Coins zuerst an diese Wallet zurück, damit die alte Zahlung nicht mehr durchgehen kann.';
 
   @override
   String get txDetailsCancelNotPostedBody =>
-      'Beide Wallets haben signiert, die Zahlung könnte also noch ins Netzwerk gelangen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
+      'Das Netzwerk hat diese Zahlung abgelehnt, aber sie ist vollständig, eine Kopie könnte also später noch durchgehen. Stornieren schickt die Coins zuerst an diese Wallet zurück, damit sie das nicht mehr kann.';
 
   @override
   String get cancelMoreInHelp => 'Mehr in der Hilfe';
 
   @override
   String get cancelNoteSendWaiting =>
-      'Noch nicht ins Netzwerk gestellt: Stornieren gibt die Coins frei.';
+      'Noch nicht ins Netzwerk gestellt: Stornieren gibt die Coins frei. Keine Gebühr.';
 
   @override
   String get cancelNoteNotPosted =>
@@ -17069,7 +17069,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'Die andere Seite hält Ihre signierte Zahlung. Stornieren schickt die Coins an diese Wallet zurück, damit sie nicht abgeschlossen werden kann.';
+      'Die andere Seite kann diese Zahlung noch abschließen. Stornieren schickt die Coins zuerst an diese Wallet zurück, gegen die normale Netzwerkgebühr.';
 
   @override
   String get cancelNoteRequestWithdraw =>
@@ -17077,35 +17077,35 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get cancelNoteNotPostedSend =>
-      'Beide Wallets haben signiert. Stornieren prüft das Netzwerk und schickt die Coins dann an diese Wallet zurück, damit die Zahlung nicht abgeschlossen werden kann.';
+      'Eine Kopie könnte später noch durchgehen. Stornieren schickt die Coins zuerst an diese Wallet zurück, gegen die normale Netzwerkgebühr.';
 
   @override
   String get txDetailsCancelledFinal =>
-      'Storniert. Die Coins sind an diese Wallet zurückgegangen, die Zahlung kann also nicht mehr abgeschlossen werden.';
+      'Storniert. Die Coins wurden an diese Wallet zurückgeschickt, diese Zahlung kann also nicht mehr durchgehen.';
 
   @override
   String get txDetailsCancelledMayComplete =>
-      'Storniert, die Coins sind freigegeben. Die andere Seite kann sie noch abschließen; dann erscheint sie als bezahlt.';
+      'Storniert, aber die Coins wurden noch nicht zurückgeschickt. Die andere Seite könnte diese Zahlung noch abschließen; dann erscheint sie als bezahlt.';
 
   @override
   String get txDetailsCancelledSpentBack =>
-      'Zahlung storniert. Die Coins gehen an diese Wallet zurück, die Zahlung kann also nicht mehr abgeschlossen werden.';
+      'Zahlung storniert. Die Coins sind auf dem Weg zurück zu dieser Wallet, die Zahlung kann also nicht mehr durchgehen.';
 
   @override
   String get txDetailsReleasedSpentBack =>
-      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+      'Betrag freigegeben. Die Coins sind auf dem Weg zurück zu dieser Wallet, die alte Zahlung kann also nicht mehr durchgehen.';
 
   @override
   String get txDetailsReleasedSpendBackPending =>
-      'Funds released, but they were not sent back yet. The wallet tries again.';
+      'Betrag freigegeben, aber die Coins konnten noch nicht zurückgeschickt werden. Die Wallet versucht es erneut, solange sie geöffnet ist; bis dahin könnte die alte Zahlung noch durchgehen.';
 
   @override
   String get txDetailsCancelledSpendBackPending =>
-      'Zahlung storniert, aber die Coins wurden noch nicht zurückgeschickt. Die Wallet versucht es erneut.';
+      'Zahlung storniert, aber die Coins konnten noch nicht zurückgeschickt werden. Die Wallet versucht es erneut, solange sie geöffnet ist; bis dahin könnte die Zahlung noch durchgehen.';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC an $who. Beide Wallets haben signiert, die Zahlung könnte also noch ins Netzwerk gelangen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.';
+    return '$amount EPIC an $who. Das Netzwerk hat diese Zahlung abgelehnt, aber sie ist vollständig, eine Kopie könnte also später noch durchgehen. Stornieren schickt die Coins zuerst an diese Wallet zurück, damit sie das nicht mehr kann.';
   }
 
   @override
@@ -18962,4 +18962,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Netzwerk-Einstellungen öffnen';
+
+  @override
+  String get cancelFeeLine => 'Kostet die normale Netzwerkgebühr.';
+
+  @override
+  String get cancelFeeWhy =>
+      'Die andere Seite hat bereits alles, um diese Zahlung abzuschließen. Die Wallet schickt die Coins zuerst an sich selbst, damit die alte Zahlung nicht mehr durchgehen kann. Das kostet die normale Netzwerkgebühr.';
+
+  @override
+  String get errorPaymentCancelledCoinsMoved =>
+      'Diese Zahlung wurde storniert, und ihre Coins wurden bereits verschoben. Sie kann nicht mehr durchgehen.';
+
+  @override
+  String get errorPaymentAlreadyWentThrough =>
+      'Die Coins konnten nicht zurückgeschickt werden: Die Zahlung selbst ist bereits durchgegangen. Sie erscheint als bezahlt.';
 }

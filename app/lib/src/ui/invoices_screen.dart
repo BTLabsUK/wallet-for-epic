@@ -336,6 +336,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
           content: CancelNote(
             text: l.txDetailsCancelRequestBody,
             anchor: HelpAnchor.requests,
+            fee: true,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           // One destructive look, as on the payment's details.

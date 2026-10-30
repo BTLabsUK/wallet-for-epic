@@ -922,7 +922,8 @@ Future<bool?> showCancelTxDialog(BuildContext context, Tx t) => showEDialog<bool
           : t.notPosted
           ? l.deskTxCancelNotPostedBody(formatEpicL(l, t.amount), whoOf(l, t))
           : l.deskTxCancelOutgoingBody(formatEpicL(l, t.amount), whoOf(l, t)),
-      body: DeskCancelNote(anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending, inDialog: true),
+      // The fee line with its info icon, only when the cancel also moves the coins back.
+      body: DeskCancelNote(anchor: t.incoming ? HelpAnchor.receiving : HelpAnchor.sending, inDialog: true, fee: !t.incoming && t.notPosted),
       actions: [
         EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
         EButton(label: t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),

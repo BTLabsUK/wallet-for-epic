@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Desktop release check, Cancel (2026-10-25): a floonet send to a wallet that never
 // answers shows the quiet line beside Cancel and its Help link; the dialog says the same; the
-// link opens Help › Cancelling a payment at Sending; the cancel frees the coins. Real LEPIC,
+// link opens Help › Cancelling a payment at Sending; the cancel unlocks the coins. Real LEPIC,
 // the floonet node, relay and faucet (tool/release_check.sh desktop <this file>). Throwaway
 // wallets only; never prints a phrase or a password.
 import 'dart:convert';
@@ -177,8 +177,8 @@ void main() {
 
     // Activity › the send: the Cancel button, the quiet line and its link.
     await go(tester, DeskRoute.activity, sentTx.id);
-    await waitText(tester, 'Not posted yet: cancelling frees the coins.', timeout: const Duration(seconds: 30));
-    record('the quiet line beside Cancel states the guarantee', hasText('Not posted yet: cancelling frees the coins.'), textMatching('cancelling frees'));
+    await waitText(tester, 'Not posted yet: cancelling unlocks the coins. No fee.', timeout: const Duration(seconds: 30));
+    record('the quiet line beside Cancel states the guarantee', hasText('Not posted yet: cancelling unlocks the coins. No fee.'), textMatching('cancelling unlocks'));
     record('…with a Help link', find.text('More in Help').evaluate().isNotEmpty, '${find.text('More in Help').evaluate().length} link(s)');
     // The Cancel row ends the detail panel, below the fold at this height: scroll to it.
     await tester.ensureVisible(find.text('More in Help').first);
@@ -188,7 +188,7 @@ void main() {
     // The dialog: the same guarantee, the same link.
     await tester.tap(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 1200);
-    record('the cancel dialog says the recipient cannot finish it', hasText('Cancel this payment?') && hasText('cannot finish it without yours'), textMatching('cannot finish'));
+    record('the cancel dialog says the payment cannot go through without this wallet', hasText('Cancel this payment?') && hasText('cannot go through without this wallet'), textMatching('cannot go through'));
     await shot(tester, 'cancel-02-dialog');
     // The dialog's link: closes the dialog, opens Help at Sending.
     await tester.tap(find.text('More in Help').last);
@@ -198,7 +198,7 @@ void main() {
 
     // Back to the send and cancel it for real.
     await go(tester, DeskRoute.activity, sentTx.id);
-    await waitText(tester, 'Not posted yet: cancelling frees the coins.', timeout: const Duration(seconds: 30));
+    await waitText(tester, 'Not posted yet: cancelling unlocks the coins. No fee.', timeout: const Duration(seconds: 30));
     await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel payment').first);
     await settle(tester, ms: 600);
     await tester.tap(find.widgetWithText(EButton, 'Cancel payment').first);

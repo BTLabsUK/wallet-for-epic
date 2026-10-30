@@ -205,7 +205,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 60));
       }
       expect(find.text('Cancel this payment?'), findsOneWidget);
-      expect(find.textContaining('cannot finish it without yours: the locked amount returns to the balance'), findsOneWidget);
+      expect(find.textContaining('cannot go through without this wallet. Cancelling unlocks the coins. No fee.'), findsOneWidget);
       // One beside the Cancel button, one in the dialog.
       expect(find.text('More in Help'), findsNWidgets(2));
       // The pane's button and the dialog's confirm say the same (GP-012).

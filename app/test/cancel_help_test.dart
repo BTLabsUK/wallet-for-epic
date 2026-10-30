@@ -57,7 +57,7 @@ void main() {
       // (one network fee); there is no separate step to offer.
       test('${platform.name}: says when Cancel sends the coins back, and its fee', () {
         final all = topic.bodyText;
-        expect(all, contains('Cancel also sends the coins back to your own wallet, for a small network fee'));
+        expect(all, contains('Cancel also moves the coins back to this wallet, for the normal network fee'));
         expect(all, contains('if it does, it shows as paid'));
         expect(all, isNot(contains('offered with the cancel')));
       });
@@ -95,7 +95,7 @@ void main() {
         tester,
         Scaffold(body: Center(child: CancelNote(text: englishStrings.cancelNoteSendWaiting, anchor: HelpAnchor.receiving))),
       );
-      expect(find.text('Not posted yet: cancelling frees the coins.'), findsOneWidget);
+      expect(find.text('Not posted yet: cancelling unlocks the coins. No fee.'), findsOneWidget);
       expect(find.text('More in Help'), findsOneWidget);
       await tester.tap(find.text('More in Help'));
       await tester.pumpAndSettle();

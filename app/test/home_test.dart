@@ -2055,7 +2055,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').first);
-      expect(find.textContaining('Cancelling frees your coins'), findsOneWidget);
+      expect(find.textContaining('Cancelling unlocks the coins'), findsOneWidget);
       expect(find.textContaining('rescan'), findsNothing);
     });
 
@@ -2363,17 +2363,18 @@ void main() {
       await _tap(tester, release);
       expect(
         find.text(
-          'Use this only if the payment will never confirm. If it still does, '
-          'the balance may be wrong until you recheck it (Recheck balance).',
+          'The network refused this payment, but it is complete, so a copy could still go through later. '
+          'Releasing moves the coins back to this wallet first, so it no longer can.',
         ),
         findsOneWidget,
       );
+      expect(find.text('Costs the normal network fee.'), findsOneWidget);
       await _tap(tester, find.text('Keep waiting'));
       expect(h.session.releasedKeys, isEmpty);
       await _tap(tester, release);
       await _tap(tester, find.widgetWithText(FilledButton, 'Release coins'));
       expect(h.session.releasedKeys, ['s:refused']);
-      expect(find.text('Funds released'), findsOneWidget);
+      expect(find.text('Coins released'), findsOneWidget);
     });
 
     testWidgets('no release button unless the core allows it', (tester) async {

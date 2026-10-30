@@ -748,7 +748,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsReleaseBody =>
-      'ใช้เฉพาะเมื่อรายการจะไม่ได้รับการยืนยันแน่นอน ถ้ายังได้รับการยืนยันภายหลัง ยอดคงเหลืออาจแสดงผิดจนกว่าจะตรวจยอดใหม่';
+      'เครือข่ายปฏิเสธรายการนี้ แต่รายการสมบูรณ์แล้ว สำเนาจึงยังอาจสำเร็จได้ในภายหลัง การปลดยอดเงินจะย้ายเหรียญกลับมายังกระเป๋าเงินนี้ก่อน รายการจึงสำเร็จไม่ได้อีก';
 
   @override
   String get txDetailsReleaseKeepWaiting => 'รอต่อ';
@@ -768,7 +768,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelSendBody =>
-      'กระเป๋าเงินของผู้รับทำรายการนี้ให้เสร็จไม่ได้หากไม่มีกระเป๋าเงินของคุณ การยกเลิกจะคืนเหรียญของคุณ';
+      'รายการนี้กำลังรอคำตอบจากอีกฝ่าย และสำเร็จไม่ได้หากไม่มีกระเป๋าเงินนี้ การยกเลิกจะปลดล็อกเหรียญ ไม่มีค่าธรรมเนียม';
 
   @override
   String get txDetailsCancelKeep => 'เก็บไว้';
@@ -5509,7 +5509,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'บริการถือรายการที่คุณลงนามไว้และยังอาจทำให้เสร็จได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเสร็จได้อีก';
+      'อีกฝ่ายมีทุกอย่างที่ต้องใช้เพื่อทำรายการนี้ให้เสร็จแล้ว การยกเลิกจะย้ายเหรียญกลับมายังกระเป๋าเงินนี้ก่อน รายการเดิมจึงสำเร็จไม่ได้อีก';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5537,11 +5537,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerSpentText =>
-      'เหรียญกำลังกลับมาที่กระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้อีก';
+      'เหรียญกำลังกลับมายังกระเป๋าเงินนี้ รายการจึงสำเร็จไม่ได้อีก';
 
   @override
   String get deskInvPayerSpendFailedText =>
-      'ปลดล็อกเหรียญแล้ว แต่ส่งกลับยังไม่สำเร็จ กระเป๋าเงินจะลองใหม่ ระหว่างนั้นรายการอาจยังเสร็จได้';
+      'ยังย้ายเหรียญกลับมาไม่ได้ กระเป๋าเงินจะลองใหม่ขณะที่เปิดอยู่ ระหว่างนั้นรายการยังอาจสำเร็จได้';
 
   @override
   String get deskInvPayerLocked =>
@@ -8794,7 +8794,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '$amount EPIC ถึง $who กระเป๋าเงินของผู้รับทำรายการให้เสร็จไม่ได้หากไม่มีกระเป๋าเงินของคุณ: ยอดที่ถูกล็อกจะกลับเข้ายอดคงเหลือ';
+    return '$amount EPIC ถึง $who รายการนี้กำลังรอคำตอบจากอีกฝ่าย และสำเร็จไม่ได้หากไม่มีกระเป๋าเงินนี้ การยกเลิกจะปลดล็อกเหรียญ ไม่มีค่าธรรมเนียม';
   }
 
   @override
@@ -16460,18 +16460,18 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'อีกฝ่ายถือรายการที่คุณลงนามไว้และยังอาจทำให้เสร็จได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเสร็จได้อีก';
+      'อีกฝ่ายมีทุกอย่างที่ต้องใช้เพื่อทำรายการนี้ให้เสร็จแล้ว การยกเลิกจะย้ายเหรียญกลับมายังกระเป๋าเงินนี้ก่อน รายการเดิมจึงสำเร็จไม่ได้อีก';
 
   @override
   String get txDetailsCancelNotPostedBody =>
-      'ทั้งสองกระเป๋าเงินลงนามแล้ว จึงยังอาจเข้าเครือข่ายได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเข้าได้อีก';
+      'เครือข่ายปฏิเสธรายการนี้ แต่รายการสมบูรณ์แล้ว สำเนาจึงยังอาจสำเร็จได้ในภายหลัง การยกเลิกจะย้ายเหรียญกลับมายังกระเป๋าเงินนี้ก่อน รายการจึงสำเร็จไม่ได้อีก';
 
   @override
   String get cancelMoreInHelp => 'ดูเพิ่มในช่วยเหลือ';
 
   @override
   String get cancelNoteSendWaiting =>
-      'ยังไม่ได้โพสต์เข้าเครือข่าย: การยกเลิกจะคืนเหรียญ';
+      'ยังไม่ได้โพสต์เข้าเครือข่าย: การยกเลิกจะปลดล็อกเหรียญ ไม่มีค่าธรรมเนียม';
 
   @override
   String get cancelNoteNotPosted =>
@@ -16483,7 +16483,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'อีกฝ่ายถือรายการที่คุณลงนามไว้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้';
+      'อีกฝ่ายยังทำรายการนี้ให้เสร็จได้ การยกเลิกจะย้ายเหรียญกลับมายังกระเป๋าเงินนี้ก่อน โดยมีค่าธรรมเนียมเครือข่ายตามปกติ';
 
   @override
   String get cancelNoteRequestWithdraw =>
@@ -16491,35 +16491,35 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get cancelNoteNotPostedSend =>
-      'ทั้งสองกระเป๋าเงินลงนามแล้ว การยกเลิกจะตรวจเครือข่าย แล้วส่งเหรียญกลับไปยังกระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้';
+      'สำเนายังอาจสำเร็จได้ในภายหลัง การยกเลิกจะย้ายเหรียญกลับมายังกระเป๋าเงินนี้ก่อน โดยมีค่าธรรมเนียมเครือข่ายตามปกติ';
 
   @override
   String get txDetailsCancelledFinal =>
-      'ยกเลิกแล้ว เหรียญกลับมาที่กระเป๋าเงินนี้แล้ว รายการจึงเสร็จไม่ได้อีก';
+      'ยกเลิกแล้ว เหรียญถูกย้ายกลับมายังกระเป๋าเงินนี้แล้ว รายการนี้จึงสำเร็จไม่ได้อีก';
 
   @override
   String get txDetailsCancelledMayComplete =>
-      'ยกเลิกแล้ว และเหรียญปลดล็อกแล้ว อีกฝ่ายอาจยังทำรายการให้เสร็จได้ ถ้าเสร็จ จะแสดงว่าชำระแล้ว';
+      'ยกเลิกแล้ว แต่ยังไม่ได้ย้ายเหรียญกลับมา อีกฝ่ายยังอาจทำรายการนี้ให้เสร็จได้ ถ้าเสร็จ จะแสดงว่าชำระแล้ว';
 
   @override
   String get txDetailsCancelledSpentBack =>
-      'ยกเลิกรายการแล้ว เหรียญกำลังกลับมาที่กระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้อีก';
+      'ยกเลิกรายการแล้ว เหรียญกำลังกลับมายังกระเป๋าเงินนี้ รายการจึงสำเร็จไม่ได้อีก';
 
   @override
   String get txDetailsReleasedSpentBack =>
-      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+      'ปลดยอดเงินแล้ว เหรียญกำลังกลับมายังกระเป๋าเงินนี้ รายการเดิมจึงสำเร็จไม่ได้อีก';
 
   @override
   String get txDetailsReleasedSpendBackPending =>
-      'Funds released, but they were not sent back yet. The wallet tries again.';
+      'ปลดยอดเงินแล้ว แต่ยังย้ายเหรียญกลับมาไม่ได้ กระเป๋าเงินจะลองใหม่ขณะที่เปิดอยู่ ระหว่างนั้นรายการเดิมยังอาจสำเร็จได้';
 
   @override
   String get txDetailsCancelledSpendBackPending =>
-      'ยกเลิกรายการแล้ว แต่ยังส่งเหรียญกลับไม่ได้ กระเป๋าเงินจะลองใหม่';
+      'ยกเลิกรายการแล้ว แต่ยังย้ายเหรียญกลับมาไม่ได้ กระเป๋าเงินจะลองใหม่ขณะที่เปิดอยู่ ระหว่างนั้นรายการยังอาจสำเร็จได้';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC ถึง $who ทั้งสองกระเป๋าเงินลงนามแล้ว จึงยังอาจเข้าเครือข่ายได้ การยกเลิกจะส่งเหรียญกลับไปยังกระเป๋าเงินนี้ โดยมีค่าธรรมเนียมเครือข่ายเล็กน้อย จึงไม่มีวันเข้าได้อีก';
+    return '$amount EPIC ถึง $who เครือข่ายปฏิเสธรายการนี้ แต่รายการสมบูรณ์แล้ว สำเนาจึงยังอาจสำเร็จได้ในภายหลัง การยกเลิกจะย้ายเหรียญกลับมายังกระเป๋าเงินนี้ก่อน รายการจึงสำเร็จไม่ได้อีก';
   }
 
   @override
@@ -18322,4 +18322,19 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'เปิดการตั้งค่าเครือข่าย';
+
+  @override
+  String get cancelFeeLine => 'มีค่าธรรมเนียมเครือข่ายตามปกติ';
+
+  @override
+  String get cancelFeeWhy =>
+      'อีกฝ่ายมีทุกอย่างที่ต้องใช้เพื่อทำรายการนี้ให้เสร็จแล้ว กระเป๋าเงินจะย้ายเหรียญมายังตัวเองก่อน รายการเดิมจึงสำเร็จไม่ได้อีก ขั้นตอนนี้มีค่าธรรมเนียมเครือข่ายตามปกติ';
+
+  @override
+  String get errorPaymentCancelledCoinsMoved =>
+      'รายการนี้ถูกยกเลิกแล้ว และเหรียญถูกย้ายไปแล้ว รายการจึงสำเร็จไม่ได้อีก';
+
+  @override
+  String get errorPaymentAlreadyWentThrough =>
+      'ย้ายเหรียญกลับมาไม่ได้: รายการเดิมสำเร็จไปแล้ว รายการแสดงว่าชำระแล้ว';
 }

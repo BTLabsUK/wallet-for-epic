@@ -488,9 +488,17 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       context: context,
       builder: (context) {
         final l = context.l10n;
+        final theme = Theme.of(context);
         return AlertDialog(
           title: Text(l.txDetailsReleaseTitle),
-          content: Text(l.txDetailsReleaseBody),
+          // Releasing moves the coins back as Cancel does, for the fee the line under the
+          // text names (CancelNote).
+          content: CancelNote(
+            text: l.txDetailsReleaseBody,
+            anchor: HelpAnchor.sending,
+            fee: true,
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -565,6 +573,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 : paidRequest
                 ? HelpAnchor.requests
                 : HelpAnchor.sending,
+            // The fee line with its info icon, only when the cancel moves the coins back.
+            fee: paidRequest || signedSend,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           // One destructive look: the cancelling choice in red, the safe one neutral.
