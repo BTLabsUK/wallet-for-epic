@@ -997,7 +997,7 @@ class _StatusCluster extends ConsumerWidget {
                 onTap: () {
                   m.close();
                   deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
-                  p.jumpTo(i.jump);
+                  p.jumpTo(i.opens);
                 },
               ),
           ],

@@ -168,7 +168,9 @@ class NetworkModeSection extends ConsumerWidget {
           padding: const EdgeInsets.only(right: 8),
           child: Row(
             children: [
-              Expanded(child: SettingsHeader(l.advNetworkHeader, key: headerKey ?? networkSectionKey)),
+              Expanded(
+                child: KeyedSubtree(key: networkSectionKey, child: SettingsHeader(l.advNetworkHeader, key: headerKey)),
+              ),
               InfoHint(networkHeaderHint(l), title: l.advNetworkHeader, icon: Icons.hub_outlined),
             ],
           ),
@@ -193,7 +195,7 @@ Future<void> openNetworkSection(BuildContext context) =>
 /// choice, not a service) at the start of Home's status strip, shown only off Normal. A tap
 /// opens the Network section. 24 dp high inside a 44 dp target.
 class NetworkModeMark extends ConsumerWidget {
-  const NetworkModeMark({super.key});
+  const NetworkModeMark({super.key = networkModeMarkKey});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

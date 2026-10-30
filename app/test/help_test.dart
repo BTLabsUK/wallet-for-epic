@@ -96,15 +96,29 @@ void main() {
       expect(helpTopics(3, platform: HelpPlatform.phone, tor: false).where((t) => t.id == HelpId.tor), isEmpty);
     });
 
-    test('Offline names the node by its IP address, on both platforms, in every language', () {
+    test('Network modes names the four modes, the own-node reason and the cold payment steps, in every language', () {
       for (final platform in HelpPlatform.values) {
         final modes = helpTopics(3, platform: platform).firstWhere((t) => t.id == HelpId.modes);
-        expect(modes.bodyText, contains('In Offline, give the node by its IP address, for example  10.100.10.20:3413 . Names are not looked up.'));
+        expect(modes.title, 'Network modes');
+        for (final mode in ['Normal', 'Tor only', 'Node only', 'Kill switch']) {
+          expect(modes.bodyText, contains(mode), reason: '$mode ${platform.name}');
+        }
+        expect(modes.body.where((b) => b.kind == HelpBlockKind.h).map((b) => b.anchor), [HelpAnchor.ownNode, HelpAnchor.coldStorage]);
+        expect(modes.body.where((b) => b.kind == HelpBlockKind.ol).single.items, hasLength(5));
+        expect(modes.bodyText, contains('Finished, not posted'));
+        expect(modes.bodyText, contains('To be posted elsewhere'));
+        expect(modes.bodyText, isNot(contains('Offline')));
         for (final lang in ['de', 'pl', 'ru', 'zh', 'th']) {
           final local = localizedHelpTopics(lang, 3, platform: platform).firstWhere((t) => t.id == HelpId.modes);
-          expect(local.bodyText, contains('10.100.10.20:3413'), reason: '$lang ${platform.name}');
+          expect(local.body.where((b) => b.kind == HelpBlockKind.ol).single.items, hasLength(5), reason: '$lang ${platform.name}');
+          expect(local.body.where((b) => b.kind == HelpBlockKind.h).map((b) => b.anchor), [HelpAnchor.ownNode, HelpAnchor.coldStorage]);
         }
       }
+      // No Tor: no Tor only line, no Tor sentence.
+      final noTor = helpTopics(3, platform: HelpPlatform.phone, tor: false).firstWhere((t) => t.id == HelpId.modes);
+      expect(noTor.bodyText, isNot(contains('Tor only')));
+      expect(noTor.body.first.kind, HelpBlockKind.p);
+      expect(noTor.body.firstWhere((b) => b.kind == HelpBlockKind.ul).items, hasLength(3));
     });
 
     test('search matches every word, in any field', () {

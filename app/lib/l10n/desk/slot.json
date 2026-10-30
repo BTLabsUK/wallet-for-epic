@@ -7,14 +7,6 @@
   "@deskSlotHelp": {
     "description": "Small link at the bottom of the sidebar: opens Settings › Help."
   },
-  "deskSlotOffline": "Offline",
-  "@deskSlotOffline": {
-    "description": "Sidebar slot line: Offline mode is on (Settings › Advanced). Short."
-  },
-  "deskSlotOfflineDetail": "nothing is sent or received",
-  "@deskSlotOfflineDetail": {
-    "description": "After 'Offline mode' on the same short line: what it means."
-  },
   "deskSlotScanning": "Scanning the chain",
   "@deskSlotScanning": {
     "description": "Sidebar slot line while the wallet scans the chain for its outputs; the percent follows after a dot."
@@ -78,10 +70,6 @@
   "deskSlotNodeSyncing": "Local node syncing",
   "@deskSlotNodeSyncing": {
     "description": "Sidebar slot line: the local node is syncing the chain; its progress follows after a dot."
-  },
-  "deskSlotOpenAdvanced": "Open Advanced settings",
-  "@deskSlotOpenAdvanced": {
-    "description": "Tooltip line of a sidebar slot line: where its click goes."
   },
   "deskSlotOpenRecheck": "Open Recheck balance",
   "@deskSlotOpenRecheck": {

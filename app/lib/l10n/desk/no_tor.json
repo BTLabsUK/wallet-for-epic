@@ -13,14 +13,6 @@
       }
     }
   },
-  "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
-  "@deskNoTorAdvNetworkHint": {
-    "description": "Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline."
-  },
-  "deskNoTorAdvOfflineNote": "Epicbox and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.",
-  "@deskNoTorAdvOfflineNote": {
-    "description": "Settings › Advanced, the note under the modes while Offline is chosen, in the build without Tor."
-  },
   "deskNoTorTxDetailsFromBad": "Use an Epicbox or http(s) address.",
   "@deskNoTorTxDetailsFromBad": {
     "description": "Payment details dialog, the From field's error in the build without Tor."

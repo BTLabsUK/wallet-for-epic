@@ -318,18 +318,31 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
     HelpTopic(
       'network',
       'Netzwerkmodi',
-      tor ? 'Standard verbindet direkt. Nur Tor nie. Offline nutzt nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk.' : 'Standard verbindet direkt. Offline nutzt nichts außer ${phone ? 'diesem Smartphone' : 'diesem Computer'} und dem lokalen Netzwerk.',
+      tor
+          ? 'Normal, Nur Tor, Nur Node oder Notaus: womit sich jeder verbindet und wie man von einer Wallet zahlt, die nie online geht.'
+          : 'Normal, Nur Node oder Notaus: womit sich jeder verbindet und wie man von einer Wallet zahlt, die nie online geht.',
       [
-        const HelpBlock.p('Wie die Wallet das Netzwerk erreicht, ist eine einzige Wahl auf der Seite **Erweitert** in den Einstellungen, unter Netzwerk.'),
+        HelpBlock.p('Wie viel vom Internet die Wallet nutzt, ist eine einzige Wahl auf der Seite **Erweitert** in den Einstellungen, unter Netzwerk, und die Wallet merkt sie sich. Außerhalb von **Normal** nennt eine Markierung ${phone ? 'auf dem Startbildschirm' : 'in der Titelleiste'} den Modus; tippen Sie darauf, um ihn zu ändern.'),
         HelpBlock.ul([
-          tor ? '**Standard**: verbindet direkt. Tor ist der Schalter unter $torPlace.' : '**Standard**: verbindet direkt.',
+          tor
+              ? '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung. Tor ist ein eigener Schalter unter $torPlace.'
+              : '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung.',
           if (tor)
-            '**Nur Tor**: Tor ist immer an, und sein Schalter ist gesperrt. Nichts läuft über das offene Internet. Solange Tor startet oder fehlgeschlagen ist, sagt die Wallet **Wartet auf Tor**, und alles, was das Netzwerk braucht, wartet; den Grund nennt die ausgegraute Aktion.${phone ? '' : ' Der HTTP-Empfang ist aus, weil eine einfache Adresse diesen Computer verraten würde.'}',
-          '**Offline**: kein Epicbox, kein Link außer an lokale Adressen, ${!phone && tor ? 'kein Tor, ' : ''}keine Statusprüfungen. Guthaben und Verlauf bleiben, wie zuletzt gesehen. ${phone ? '**Direkt · QR-Zahlung** und **Direkt · Dateiübertragung**' : '**Direkt · Dateiübertragung**'} funktionieren weiterhin: Sie nutzen den verwendeten Node, um die Chain zu lesen und zu senden, auch einen öffentlichen, und der Bildschirm sagt es. Für die meiste Privatsphäre nutzen Sie einen Node ${phone ? 'im lokalen Netzwerk' : 'auf diesem Computer oder im lokalen Netzwerk'}: Dann aktualisiert sich das Guthaben${phone ? '' : ', Link · HTTP empfängt über das lokale Netzwerk, wenn der HTTP-Empfang auf **Aus dem Internet** steht,'} und Guthaben neu prüfen läuft ebenfalls.',
+            '**Nur Tor**: Jede Verbindung läuft über Tor, auch die zum Node und zu Epicbox; nichts berührt das offene Internet. Bis Tor bereit ist, verbindet sich nichts, und die Statussymbole sagen **Warten auf Tor**. Der Link-·-HTTP-Empfang bleibt aus: Eine einfache Adresse würde dieses Gerät verraten.',
+          '**Nur Node**: Die Wallet spricht nur mit dem verwendeten Node, dem ersten in Ihrer Node-Liste. Aus sind Epicbox, Link, die Statusseite, der Kurs, die Update-Prüfung, Explorer-Links, Problemberichte, Kopplung und verknüpfte Geräte. ${phone ? '**QR-Zahlung** und **Dateiübertragung**' : '**Dateiübertragung**'} funktionieren.${tor ? ' Ist Tor an, wird der Node über Tor erreicht.' : ''}',
+          '**Notaus**: Nichts verbindet sich, auch nicht der Node. Die Wallet öffnet sich mit dem zuletzt bekannten Guthaben und Verlauf. Sie können Zahlungen per ${phone ? '**Dateiübertragung** und **QR-Zahlung**' : '**Dateiübertragung**'} erstellen, signieren und abschließen, Ihre Adresse zeigen, sichern und exportieren. Zahlungen, die auf einen Empfänger warten, pausieren und laufen weiter, wenn Sie den Modus verlassen.',
         ]),
-        HelpBlock.p('Geben Sie den Node im Offline-Modus mit seiner IP-Adresse an, zum Beispiel **10.100.10.20:${appConfig.localNodeApiPort}**. Namen werden nicht aufgelöst.'),
-        if (!phone) const HelpBlock.p('Die Peers des integrierten Nodes sind eine Einstellung des Nodes, nicht des Modus.'),
-        HelpBlock.p('${phone ? 'Der Startbildschirm' : 'Die Seitenleiste'} zeigt, wenn die Wallet offline ist${tor ? ' oder auf Tor wartet' : ''}. Mit dem Modus **Standard** ist wieder alles da.'),
+        const HelpBlock.h('Warum ein eigener Node bei „Nur Node“', anchor: HelpAnchor.ownNode),
+        HelpBlock.p('Der verwendete Node sieht jede Anfrage der Wallet. Ein Node auf $device oder in Ihrem Netzwerk behält das für Sie und antwortet schnell. Jeder Node funktioniert. Wählen Sie ihn unter $nodePlace.'),
+        const HelpBlock.h('Zahlen mit „Notaus“', anchor: HelpAnchor.coldStorage),
+        HelpBlock.ol([
+          'Erstellen Sie die Zahlung wie gewohnt per ${phone ? '**Dateiübertragung** oder **QR-Zahlung**' : '**Dateiübertragung**'} und schließen Sie sie ab, wenn die Antwort zurück ist.',
+          'Die Wallet meldet **Abgeschlossen, nicht gesendet**: Sie ist vollständig, aber nur ein Gerät, das online ist, kann sie senden.',
+          '**Datei speichern** und ${phone ? '**QR zeigen**' : 'den Text **kopieren**'}, dann zu einem Gerät bringen, das online ist.',
+          'Dort ${phone ? 'im Menü von „Aktivität“ **Fertige Zahlung senden** wählen' : 'unter „Empfangen“ bei „Transaktionsdateien“ **Fertige Zahlung senden** wählen'}, die Datei laden${phone ? ' oder den Code scannen' : ' oder den Text einfügen'} und **Senden** drücken. Jede Epic-Cash-Wallet kann das; es ist kein Schlüssel nötig.',
+          'Zurück hier steht bei der Zahlung **Wird anderswo gesendet**, danach **Bestätigung**, sobald die Wallet sie in der Chain sieht, nachdem Sie „Notaus“ verlassen haben.',
+        ]),
+        HelpBlock.p('Dienste, die ein Modus abschaltet, erscheinen grau als **Aus (Nur Node)**: Das ist der Modus, kein Fehler. Beim Wechsel wird nichts abgebrochen; eine Zahlung, die über Epicbox auf den Empfänger wartet, läuft weiter, wenn Sie den Modus verlassen${tor ? ' (oder zu „Nur Tor“ wechseln)' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -354,7 +367,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           if (!phone) '**Integrierter Node**: lässt diesen Computer einen eigenen Node betreiben: Lokaler Node unter $nodePlace.',
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
-        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Im Offline-Modus wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
+        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Bei „Nur Node“ und „Notaus“ wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
         const HelpBlock.p('**Bestätigungen** legt fest, wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind: standardmäßig 6, jeder Wert von 1 bis 30. Weniger Bestätigungen sind schneller, schützen aber weniger vor einer Reorganisation der Blockchain.'),
         const HelpBlock.p('**Experimentell** enthält **Kopplung** und **Rechnungen**, beide zu Beginn aus. Kopplung bringt Koppeln und gekoppelte Kontakte; Rechnungen bringt Zahlungsanforderungen und Rechnungen zwischen gekoppelten Kontakten und braucht Kopplung. Aus sind sie verborgen, und nichts wird für sie abgerufen; bestehende Kopplungen bleiben gespeichert und kommen zurück, sobald der Schalter wieder an ist.'),
         const HelpBlock.p('Dieselbe Seite legt den Netzwerkmodus fest: siehe „Netzwerkmodi“.'),
@@ -393,8 +406,8 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**„Falsches Passwort“.** Prüfen Sie die Feststelltaste und das Tastaturlayout. Passwort vergessen: Stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her und wählen Sie ein neues.'),
         HelpBlock.p('**Das Guthaben sieht falsch aus.** Starten Sie $recheckPlace.'),
         HelpBlock.p(tor
-            ? '**Eine Aktion ist ausgegraut und nennt „Offline-Modus“ oder „Wartet auf Tor“.** Offline oder Nur Tor ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück oder warten Sie, bis Tor verbunden ist.'
-            : '**Eine Aktion ist ausgegraut und nennt „Offline-Modus“.** Offline ist unter Erweitert an. Stellen Sie dort den Modus auf Standard zurück.'),
+            ? '**Eine Aktion ist ausgegraut und nennt einen Modus oder „Wartet auf Tor“.** „Nur Tor“, „Nur Node“ oder „Notaus“ ist unter Erweitert an. Stellen Sie dort den Modus auf Normal zurück oder warten Sie, bis Tor verbunden ist.'
+            : '**Eine Aktion ist ausgegraut und nennt einen Modus.** „Nur Node“ oder „Notaus“ ist unter Erweitert an. Stellen Sie dort den Modus auf Normal zurück.'),
       ],
       id: HelpId.trouble,
     ),

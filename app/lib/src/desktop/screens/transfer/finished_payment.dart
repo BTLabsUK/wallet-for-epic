@@ -152,17 +152,29 @@ class _FinishedNotPostedPanelState extends ConsumerState<FinishedNotPostedPanel>
   }
 }
 
-/// Opens Post a finished payment.
-Future<void> showPostFinished(BuildContext context) => showEDialog<void>(context, builder: (_) => const PostFinishedDialog());
+/// Opens Post a finished payment; with [text] it opens on that text's summary (the screenshot
+/// tour and the tests).
+Future<void> showPostFinished(BuildContext context, {String? text}) =>
+    showEDialog<void>(context, builder: (_) => PostFinishedDialog(text: text));
 
 class PostFinishedDialog extends ConsumerStatefulWidget {
-  const PostFinishedDialog({super.key});
+  const PostFinishedDialog({super.key, this.text});
+
+  /// A finished payment's text to read at once.
+  final String? text;
 
   @override
   ConsumerState<PostFinishedDialog> createState() => _PostFinishedDialogState();
 }
 
 class _PostFinishedDialogState extends ConsumerState<PostFinishedDialog> {
+  @override
+  void initState() {
+    super.initState();
+    final text = widget.text;
+    if (text != null) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? _read(text) : null);
+  }
+
   String? _text;
   FinishedPayment? _payment;
   String? _error;

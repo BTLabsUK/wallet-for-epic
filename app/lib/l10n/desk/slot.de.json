@@ -1,8 +1,6 @@
 {
   "deskSlotNow": "Aktuell",
   "deskSlotHelp": "Hilfe",
-  "deskSlotOffline": "Offline",
-  "deskSlotOfflineDetail": "nichts wird gesendet oder empfangen",
   "deskSlotScanning": "Chain wird durchsucht",
   "deskSlotScanWaits": "Durchsuchen wartet auf das Netzwerk",
   "deskSlotScanStopped": "Durchsuchen angehalten",
@@ -17,7 +15,6 @@
   "deskSlotRequests": "Neue Rechnungen",
   "deskSlotNodeStarting": "Lokaler Node startet",
   "deskSlotNodeSyncing": "Lokaler Node synchronisiert",
-  "deskSlotOpenAdvanced": "Erweiterte Einstellungen öffnen",
   "deskSlotOpenRecheck": "„Guthaben neu prüfen“ öffnen",
   "deskSlotOpenSend": "Senden öffnen",
   "deskSlotOpenActivity": "In Aktivität öffnen",

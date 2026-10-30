@@ -13515,21 +13515,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every connection goes through Tor. Until Tor is ready, nothing connects.';
 
   @override
-  String get advModeOffline => 'Offline';
-
-  @override
-  String get advModeOfflineLine =>
-      'Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.';
-
-  @override
-  String get advOfflineNote =>
-      'Offline pauses Epicbox, Tor and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
-
-  @override
   String get advReset => 'Hide everything again';
-
-  @override
-  String get advHomeOffline => 'Offline';
 
   @override
   String get advHomeTorOnlyWaiting => 'Tor only · waiting for Tor';
@@ -13603,37 +13589,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetAdvNetwork => 'Network';
 
   @override
-  String get deskSetAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.';
-
-  @override
-  String get deskSetAdvModeStandard => 'Standard';
-
-  @override
   String get deskSetAdvModeStandardText =>
       'Connects directly. Tor can be turned on under Privacy.';
 
   @override
-  String get deskSetAdvModeTorOnly => 'Tor only';
-
-  @override
   String get deskSetAdvModeTorOnlyText =>
-      'Every connection goes through Tor. Without Tor, the wallet stays offline.';
-
-  @override
-  String get deskSetAdvModeOffline => 'Offline';
-
-  @override
-  String get deskSetAdvModeOfflineText =>
-      'Only this computer and the local network; a local node keeps its own peers.';
-
-  @override
-  String get deskSetAdvTorOnlyNote =>
-      'Tor only turns Link · HTTP receiving off: a plain address would reveal this computer.';
-
-  @override
-  String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.';
+      'Every connection goes through Tor. Until Tor is ready, nothing connects.';
 
   @override
   String get deskSetAdvNotInBuild => 'Not in this build';
@@ -13663,27 +13624,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.';
 
   @override
-  String get netBlockOffline => 'Offline is on in Advanced.';
-
-  @override
   String get netBlockTorOnly => 'Tor only is on in Advanced.';
 
   @override
   String get netBlockWaitingForTor => 'Waiting for Tor.';
 
   @override
-  String get receiveOfflineLine =>
-      'Cannot receive this way while Offline is on.';
-
-  @override
   String get txDetailsMore => 'More';
 
   @override
   String get restoreStartFromLink => 'Start from a date or height';
-
-  @override
-  String get homeOfflineDetail =>
-      'Offline is on in Advanced. The balance is the last one seen.';
 
   @override
   String get homeWaitingTorDetail =>
@@ -13847,9 +13797,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbRestoreFromInvalid => 'Use digits only, or leave it empty.';
 
   @override
-  String get deskNetOfflineReason => 'Offline is on in Advanced.';
-
-  @override
   String get deskNetWaitingTorReason =>
       'Waiting for Tor. Tor only is on in Advanced.';
 
@@ -13863,18 +13810,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskNetSendFileHint => 'File Transfer still works.';
 
   @override
-  String get deskNetRecvOfflineText =>
-      'Your address stays the same. Nothing can arrive while Offline is on.';
-
-  @override
   String get deskNetRecvWaitTorText =>
       'Receiving starts when Tor is connected. File Transfer still works.';
-
-  @override
-  String get deskNetCantReceive => 'Receiving paused';
-
-  @override
-  String get deskRailOffline => 'Offline';
 
   @override
   String get deskTourAdvancedTitle => 'Advanced';
@@ -14021,9 +13958,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => 'Offline: only local addresses.';
-
-  @override
   String get netOfflineNoPeers =>
       'Your node has no peers: the payment waits in its pool until it reconnects.';
 
@@ -14082,9 +14016,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveNoMethodsButton => 'Open Settings';
-
-  @override
-  String get deskErrOfflineOnlyLocal => 'Offline: only local addresses.';
 
   @override
   String get deskNetOfflineNoPeers =>
@@ -16799,12 +16730,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSlotHelp => 'Help';
 
   @override
-  String get deskSlotOffline => 'Offline';
-
-  @override
-  String get deskSlotOfflineDetail => 'nothing is sent or received';
-
-  @override
   String get deskSlotScanning => 'Scanning the chain';
 
   @override
@@ -16847,9 +16772,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSlotNodeSyncing => 'Local node syncing';
-
-  @override
-  String get deskSlotOpenAdvanced => 'Open Advanced settings';
 
   @override
   String get deskSlotOpenRecheck => 'Open Recheck balance';
@@ -17335,10 +17257,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advModeStandardLineNoTor => 'Connects directly.';
 
   @override
-  String get advOfflineNoteNoTor =>
-      'Offline pauses Epicbox and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.';
-
-  @override
   String txLinkHttpHintNoTor(String port) {
     return 'Link · HTTP pays straight to a wallet at a web address (http://host:$port) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
   }
@@ -17363,14 +17281,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskNoTorSetTxDirectHint(String port) {
     return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.';
   }
-
-  @override
-  String get deskNoTorAdvNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.';
-
-  @override
-  String get deskNoTorAdvOfflineNote =>
-      'Epicbox and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.';
 
   @override
   String get deskNoTorTxDetailsFromBad => 'Use an Epicbox or http(s) address.';
@@ -18160,9 +18070,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slSwitchFirst => 'Switch first';
 
   @override
-  String get netStatusPausedOffline => 'Paused · Offline';
-
-  @override
   String get contactPaymentsNone => 'No payments with this contact yet.';
 
   @override
@@ -18696,9 +18603,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastKnownCaption => 'Last known';
 
   @override
-  String get lastKnownBalanceLine => 'Available to spend · last known';
-
-  @override
   String get lastKnownList => 'Last known · Kill switch';
 
   @override
@@ -18825,13 +18729,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get postFinishedOpen => 'Open';
-
-  @override
-  String get helpNetworkModesTitle => 'Network modes';
-
-  @override
-  String get helpNetworkModesShort =>
-      'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.';
 
   @override
   String get deskSetAdvModeStandardHint =>

@@ -369,7 +369,7 @@ void main() {
       expect(find.text('Thank you. Your feedback was sent.'), findsOneWidget);
     });
 
-    testWidgets('Offline: Send waits with the reason, sharing the report does not', (
+    testWidgets('Node only: Send waits with the reason, sharing the report does not', (
       tester,
     ) async {
       final h = _Harness()..url = Uri.parse('https://feedback.example.com/in');
@@ -377,7 +377,7 @@ void main() {
       await h.pump(tester);
       await h.openFeedback(tester);
       await enter(tester, 'What happened', 'Please add dark mode');
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Off in Node only. Save the report as a file instead.'), findsOneWidget);
       final send = find.widgetWithText(FilledButton, 'Send');
       await tester.ensureVisible(send);
       expect(tester.widget<FilledButton>(send).onPressed, isNull);

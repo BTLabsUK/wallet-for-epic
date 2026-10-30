@@ -309,12 +309,12 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   });
 
-  testWidgets('Offline on a node that is not local: nothing listens, the Offline line', (tester) async {
+  testWidgets('Node only: nothing listens, the Node only line', (tester) async {
     final h = _Harness(advanced: const AdvancedPrefs(networkMode: NetworkMode.nodeOnly));
     await h.pump(tester);
     expect(h.session.httpListenerStarts, isEmpty);
     expect(h.http.phase, PhoneHttpPhase.offline);
-    expect(find.text('Cannot receive this way while Offline is on.'), findsOneWidget);
+    expect(find.text('Link receiving is off in Node only.'), findsOneWidget);
     NetGate.set(NetworkMode.standard);
   });
 }

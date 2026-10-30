@@ -44,7 +44,7 @@ class _RestoreScanPanelState extends ConsumerState<RestoreScanPanel> {
           tone: ETone.warn,
           icon: EIcons.clock,
           title: l.deskOvRestoreTitle,
-          text: scan.offline ? '${l.deskOvRestoreWaiting} ${l.deskNetOfflineReason}' : l.deskOvRestoreWaiting,
+          text: scan.offline ? '${l.deskOvRestoreWaiting} ${l.netBlockKillSwitch}' : l.deskOvRestoreWaiting,
         );
       case RestoreScanState.failed:
         return ENotice(

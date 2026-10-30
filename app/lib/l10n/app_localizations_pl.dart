@@ -13968,7 +13968,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatność i sieć. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na ekranie głównym. Offline zostaje na tym telefonie i w twojej sieci lokalnej: Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; z węzłem w twojej sieci możesz też wysyłać na adresy lokalne, a saldo się odświeża.';
+      'Ile internetu używa portfel. Jeden wybór, zapamiętany. Tylko Tor, Tylko węzeł i Wyłącznik awaryjny wyłączają usługi; w ikonach statusu widać je jako Wyłączone (tryb), a nic nie jest anulowane.';
 
   @override
   String get advOutputs => 'Wyjścia';
@@ -14006,7 +14006,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Pozwala Sprawdź saldo zacząć od wysokości bloku lub daty zamiast od pierwszego bloku. Szybciej, i jedyny sposób, by pominąć wczesną historię. Przywracanie zawsze daje taki wybór.';
 
   @override
-  String get advModeStandard => 'Standardowy';
+  String get advModeStandard => 'Normalny';
 
   @override
   String get advModeStandardLine =>
@@ -14017,24 +14017,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeTorOnlyLine =>
-      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline.';
-
-  @override
-  String get advModeOffline => 'Offline';
-
-  @override
-  String get advModeOfflineLine =>
-      'Tylko ten telefon i sieć lokalna. Płatność QR i Przesyłanie pliku nadal działają; reszta czeka.';
-
-  @override
-  String get advOfflineNote =>
-      'Offline wstrzymuje Epicbox, Tor i sprawdzanie stanu. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
+      'Każde połączenie idzie przez Tor. Dopóki Tor nie jest gotowy, nic się nie łączy.';
 
   @override
   String get advReset => 'Ukryj wszystko ponownie';
-
-  @override
-  String get advHomeOffline => 'Offline';
 
   @override
   String get advHomeTorOnlyWaiting => 'Tylko Tor · czeka na Tor';
@@ -14108,37 +14094,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetAdvNetwork => 'Sieć';
 
   @override
-  String get deskSetAdvNetworkHint =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio; Tora można włączyć w Prywatności. Tylko Tor nigdy nie łączy się bezpośrednio: bez Tora portfel pozostaje offline i mówi o tym na pasku bocznym. Offline zostaje na tym komputerze i w twojej sieci lokalnej: Przesyłanie pliku nadal działa przez używany węzeł; z węzłem tutaj lub w twojej sieci możesz też wysyłać na adresy lokalne i odbierać przez Link, a saldo się odświeża. Wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
-
-  @override
-  String get deskSetAdvModeStandard => 'Standardowy';
-
-  @override
   String get deskSetAdvModeStandardText =>
       'Łączy się bezpośrednio. Tora można włączyć w Prywatności.';
 
   @override
-  String get deskSetAdvModeTorOnly => 'Tylko Tor';
-
-  @override
   String get deskSetAdvModeTorOnlyText =>
-      'Każde połączenie idzie przez Tor. Bez Tora portfel pozostaje offline.';
-
-  @override
-  String get deskSetAdvModeOffline => 'Offline';
-
-  @override
-  String get deskSetAdvModeOfflineText =>
-      'Tylko ten komputer i sieć lokalna; węzeł lokalny zachowuje własne peery.';
-
-  @override
-  String get deskSetAdvTorOnlyNote =>
-      'Tylko Tor wyłącza odbieranie przez Link · HTTP: zwykły adres ujawniłby ten komputer.';
-
-  @override
-  String get deskSetAdvOfflineNote =>
-      'Epicbox, Tor i sprawdzanie stanu są wstrzymane. Przesyłanie pliku nadal działa przez używany węzeł, także publiczny. Z węzłem na tym komputerze lub w twojej sieci działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne.';
+      'Każde połączenie idzie przez Tor. Dopóki Tor nie jest gotowy, nic się nie łączy.';
 
   @override
   String get deskSetAdvNotInBuild => 'Brak w tej wersji';
@@ -14170,27 +14131,16 @@ class AppLocalizationsPl extends AppLocalizations {
       'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”.';
 
   @override
-  String get netBlockOffline => 'Offline jest włączone w Zaawansowanych.';
-
-  @override
   String get netBlockTorOnly => 'Tylko Tor jest włączony w Zaawansowanych.';
 
   @override
   String get netBlockWaitingForTor => 'Czeka na Tor.';
 
   @override
-  String get receiveOfflineLine =>
-      'Gdy Offline jest włączone, nie można odbierać tą metodą.';
-
-  @override
   String get txDetailsMore => 'Więcej';
 
   @override
   String get restoreStartFromLink => 'Zacznij od daty lub wysokości';
-
-  @override
-  String get homeOfflineDetail =>
-      'Offline jest włączone w Zaawansowanych. Saldo jest z ostatniego odczytu.';
 
   @override
   String get homeWaitingTorDetail =>
@@ -14359,9 +14309,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbRestoreFromInvalid => 'Użyj samych cyfr albo zostaw puste.';
 
   @override
-  String get deskNetOfflineReason => 'Offline jest włączone w Zaawansowanych.';
-
-  @override
   String get deskNetWaitingTorReason =>
       'Czeka na Tor. Tylko Tor jest włączony w Zaawansowanych.';
 
@@ -14375,18 +14322,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskNetSendFileHint => 'Przesyłanie pliku nadal działa.';
 
   @override
-  String get deskNetRecvOfflineText =>
-      'Twój adres się nie zmienia. Nic nie dotrze, dopóki Offline jest włączone.';
-
-  @override
   String get deskNetRecvWaitTorText =>
       'Odbieranie zacznie się, gdy Tor się połączy. Przesyłanie pliku nadal działa.';
-
-  @override
-  String get deskNetCantReceive => 'Odbieranie wstrzymane';
-
-  @override
-  String get deskRailOffline => 'Offline';
 
   @override
   String get deskTourAdvancedTitle => 'Zaawansowane';
@@ -14535,9 +14472,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get netOfflineOnlyLocal => 'Offline: tylko adresy lokalne.';
-
-  @override
   String get netOfflineNoPeers =>
       'Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.';
 
@@ -14601,9 +14535,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get receiveNoMethodsButton => 'Otwórz ustawienia';
-
-  @override
-  String get deskErrOfflineOnlyLocal => 'Offline: tylko adresy lokalne.';
 
   @override
   String get deskNetOfflineNoPeers =>
@@ -17402,12 +17333,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSlotHelp => 'Pomoc';
 
   @override
-  String get deskSlotOffline => 'Offline';
-
-  @override
-  String get deskSlotOfflineDetail => 'nic nie jest wysyłane ani odbierane';
-
-  @override
   String get deskSlotScanning => 'Skanowanie łańcucha';
 
   @override
@@ -17450,9 +17375,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSlotNodeSyncing => 'Synchronizacja węzła lokalnego';
-
-  @override
-  String get deskSlotOpenAdvanced => 'Otwórz ustawienia zaawansowane';
 
   @override
   String get deskSlotOpenRecheck => 'Otwórz Sprawdź saldo';
@@ -17938,14 +17860,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advNetworkHintNoTor =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio. Offline zostaje na tym telefonie i w twojej sieci lokalnej: Płatność QR i Przesyłanie pliku nadal działają przez używany węzeł; z węzłem w twojej sieci możesz też wysyłać na adresy lokalne, a saldo się odświeża.';
+      'Ile internetu używa portfel. Jeden wybór, zapamiętany. Tylko węzeł i Wyłącznik awaryjny wyłączają usługi; w ikonach statusu widać je jako Wyłączone (tryb), a nic nie jest anulowane.';
 
   @override
   String get advModeStandardLineNoTor => 'Łączy się bezpośrednio.';
-
-  @override
-  String get advOfflineNoteNoTor =>
-      'Offline wstrzymuje Epicbox i sprawdzanie stanu. Płatność QR i Przesyłanie pliku nadal działają: korzystają z bieżącego węzła do odczytu łańcucha i wysłania, także publicznego. Z węzłem w twojej sieci lokalnej działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne. Peery węzła to ustawienie samego węzła.';
 
   @override
   String txLinkHttpHintNoTor(String port) {
@@ -17972,14 +17890,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskNoTorSetTxDirectHint(String port) {
     return 'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:$port), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
   }
-
-  @override
-  String get deskNoTorAdvNetworkHint =>
-      'Jak portfel łączy się z siecią. Standardowy łączy się bezpośrednio. Offline zostaje na tym komputerze i w twojej sieci lokalnej: Przesyłanie pliku nadal działa przez używany węzeł; z węzłem tutaj lub w twojej sieci możesz też wysyłać na adresy lokalne i odbierać przez Link, a saldo się odświeża. Wbudowany węzeł działa dalej, a jego peery to ustawienie samego węzła.';
-
-  @override
-  String get deskNoTorAdvOfflineNote =>
-      'Epicbox i sprawdzanie stanu są wstrzymane. Przesyłanie pliku nadal działa przez używany węzeł, także publiczny. Z węzłem na tym komputerze lub w twojej sieci działają też Sprawdź saldo i wysyłki przez Link na adresy lokalne.';
 
   @override
   String get deskNoTorTxDetailsFromBad => 'Użyj adresu Epicbox lub http(s).';
@@ -18794,9 +18704,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get slSwitchFirst => 'Najpierw przełącz';
 
   @override
-  String get netStatusPausedOffline => 'Wstrzymano · Offline';
-
-  @override
   String get contactPaymentsNone => 'Brak płatności z tym kontaktem.';
 
   @override
@@ -19161,58 +19068,58 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskKitInfoLabel => 'Więcej informacji';
 
   @override
-  String get advModeNodeOnly => 'Node only';
+  String get advModeNodeOnly => 'Tylko węzeł';
 
   @override
-  String get advModeKillSwitch => 'Kill switch';
+  String get advModeKillSwitch => 'Wyłącznik awaryjny';
 
   @override
   String get advModeNodeOnlyLine =>
-      'Only the node in use. Epicbox, Link, updates and price stay off.';
+      'Tylko używany węzeł. Epicbox, Link, aktualizacje i kurs pozostają wyłączone.';
 
   @override
   String get advModeKillSwitchLine =>
-      'No connections at all. QR Payment and File Transfer, posted from another device.';
+      'Żadnych połączeń. Płatność QR i Przesyłanie pliku, wysyłane z innego urządzenia.';
 
   @override
   String get advModeStandardHint =>
-      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.';
+      'Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w Prywatność i sieć.';
 
   @override
   String get advModeStandardHintNoTor =>
-      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.';
+      'Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji.';
 
   @override
   String get advModeTorOnlyHint =>
-      'Every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready, nothing connects, and the status icons say so. Link · HTTP receiving stays off: a plain address would reveal this device.';
+      'Każde połączenie idzie przez Tor, także z węzłem i Epicbox; nic nie dotyka otwartego internetu. Dopóki Tor nie jest gotowy, nic się nie łączy, o czym mówią ikony statusu. Odbieranie przez Link · HTTP zostaje wyłączone: zwykły adres ujawniłby to urządzenie.';
 
   @override
   String get advModeNodeOnlyHint =>
-      'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. With Tor on, the node is reached over Tor. Best with your own node, on this device or your network; any node works.';
+      'Portfel rozmawia tylko z używanym węzłem, pierwszym na Twojej liście węzłów. Wyłączone: Epicbox, Link, strona statusu, kurs, sprawdzanie aktualizacji, linki do eksploratora, zgłoszenia problemów, parowanie i połączone urządzenia. Płatność QR i Przesyłanie pliku działają. Gdy Tor jest włączony, z węzłem łączy się przez Tor. Najlepiej z własnym węzłem, na tym urządzeniu lub w Twojej sieci; działa każdy węzeł.';
 
   @override
   String get advModeNodeOnlyHintNoTor =>
-      'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. Best with your own node, on this device or your network; any node works.';
+      'Portfel rozmawia tylko z używanym węzłem, pierwszym na Twojej liście węzłów. Wyłączone: Epicbox, Link, strona statusu, kurs, sprawdzanie aktualizacji, linki do eksploratora, zgłoszenia problemów, parowanie i połączone urządzenia. Płatność QR i Przesyłanie pliku działają. Najlepiej z własnym węzłem, na tym urządzeniu lub w Twojej sieci; działa każdy węzeł.';
 
   @override
   String get advModeKillSwitchHint =>
-      'Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.';
+      'Nic się nie łączy, także węzeł: cold storage. Portfel otwiera się z ostatnio znanym saldem i historią. Możesz tworzyć, podpisywać i kończyć płatności przez Przesyłanie pliku i Płatność QR, pokazywać swój adres, robić kopię i eksportować. Gotowej płatności nie da się stąd wysłać: zapisz ją lub pokaż jako kod QR i wyślij z urządzenia, które jest online. Płatności czekające na odbiorcę są wstrzymane i wznawiają się po wyjściu z tego trybu.';
 
   @override
   String get advModeSwitchNoteTorOnly =>
-      'Link · HTTP receiving is off. Until Tor is ready, nothing connects.';
+      'Odbieranie przez Link · HTTP jest wyłączone. Dopóki Tor nie jest gotowy, nic się nie łączy.';
 
   @override
   String get advModeSwitchNoteNodeOnly =>
-      'Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.';
+      'Epicbox, Link, kurs i sprawdzanie aktualizacji zatrzymują się teraz. Płatność czekająca przez Epicbox wznawia się po wyjściu z trybu Tylko węzeł.';
 
   @override
   String get advModeSwitchNoteKillSwitch =>
-      'Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.';
+      'Wszystkie połączenia zatrzymują się teraz, także z węzłem. Czekające płatności są wstrzymane do wyjścia z trybu Wyłącznik awaryjny.';
 
   @override
   String advModeConfirmTitle(String mode) {
-    return 'Switch to $mode?';
+    return 'Przełączyć na „$mode”?';
   }
 
   @override
@@ -19221,307 +19128,304 @@ class AppLocalizationsPl extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          '$count payments are waiting for the recipient over Epicbox or Link. They pause and continue when you leave $mode. Nothing is cancelled.',
+          '$count płatności czeka na odbiorcę przez Epicbox lub Link. Zostają wstrzymane i wznawiają się po wyjściu z trybu „$mode”. Nic nie jest anulowane.',
+      many:
+          '$count płatności czeka na odbiorcę przez Epicbox lub Link. Zostają wstrzymane i wznawiają się po wyjściu z trybu „$mode”. Nic nie jest anulowane.',
+      few:
+          '$count płatności czekają na odbiorcę przez Epicbox lub Link. Zostają wstrzymane i wznawiają się po wyjściu z trybu „$mode”. Nic nie jest anulowane.',
       one:
-          '1 payment is waiting for the recipient over Epicbox or Link. It pauses and continues when you leave $mode. Nothing is cancelled.',
+          '1 płatność czeka na odbiorcę przez Epicbox lub Link. Zostaje wstrzymana i wznawia się po wyjściu z trybu „$mode”. Nic nie jest anulowane.',
     );
     return '$_temp0';
   }
 
   @override
-  String get advModeConfirmSwitch => 'Switch';
+  String get advModeConfirmSwitch => 'Przełącz';
 
   @override
   String netMarkSemantics(String mode) {
-    return 'Network mode: $mode. Opens the Network section.';
+    return 'Tryb sieci: $mode. Otwiera sekcję Sieć.';
   }
 
   @override
   String netMarkSemanticsDesk(String mode) {
-    return 'Network mode: $mode. Shows what it does.';
+    return 'Tryb sieci: $mode. Pokazuje, co robi.';
   }
 
   @override
-  String get netMarkLineTorOnly => 'Every connection goes through Tor.';
+  String get netMarkLineTorOnly => 'Każde połączenie idzie przez Tor.';
 
   @override
   String get netMarkLineTorWaiting =>
-      'Waiting for Tor. Nothing connects until it is ready.';
+      'Oczekiwanie na Tor. Nic się nie łączy, dopóki nie jest gotowy.';
 
   @override
   String get netMarkLineNodeOnly =>
-      'Only the node in use. Epicbox, Link, updates and price are off.';
+      'Tylko używany węzeł. Epicbox, Link, aktualizacje i kurs są wyłączone.';
 
   @override
   String get netMarkLineKillSwitch =>
-      'Nothing connects. Balance and history are as last known.';
+      'Nic się nie łączy. Saldo i historia są takie, jak ostatnio widziane.';
 
   @override
-  String get netMarkChange => 'Change';
+  String get netMarkChange => 'Zmień';
 
   @override
   String statusOffByMode(String mode) {
-    return 'Off ($mode)';
+    return 'Wyłączone ($mode)';
   }
 
   @override
   String get statusOffByModeDetail =>
-      'Turned off by the network mode. Change it in Settings › Advanced › Network.';
+      'Wyłączone przez tryb sieci. Zmienisz to w Ustawienia › Zaawansowane › Sieć.';
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      'Node only is on: Epicbox is off. QR Payment and File Transfer work.';
+      'Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Płatność QR i Przesyłanie pliku działają.';
 
   @override
   String get netBlockLinkNodeOnly =>
-      'Node only is on: Link is off. QR Payment and File Transfer work.';
+      'Tryb Tylko węzeł jest włączony: Link jest wyłączony. Płatność QR i Przesyłanie pliku działają.';
 
   @override
   String get netBlockSendKillSwitch =>
-      'Kill switch is on: nothing connects. QR Payment and File Transfer work.';
+      'Wyłącznik awaryjny jest włączony: nic się nie łączy. Płatność QR i Przesyłanie pliku działają.';
 
   @override
-  String get netBlockNodeOnly => 'Off in Node only.';
+  String get netBlockNodeOnly => 'Wyłączone w trybie Tylko węzeł.';
 
   @override
-  String get netBlockKillSwitch => 'Off in Kill switch: nothing connects.';
+  String get netBlockKillSwitch =>
+      'Wyłączone przy Wyłączniku awaryjnym: nic się nie łączy.';
 
   @override
   String get netBlockWaitingForTorLong =>
-      'Waiting for Tor. Nothing connects until it is ready.';
+      'Oczekiwanie na Tor. Nic się nie łączy, dopóki nie jest gotowy.';
 
   @override
   String receiveEpicboxOffMode(String mode) {
-    return 'Epicbox is off in $mode.';
+    return 'Epicbox jest wyłączony w trybie „$mode”.';
   }
 
   @override
   String receiveEpicboxOffModeBody(String mode) {
-    return 'Payments to this address wait on the Epicbox server and arrive when you leave $mode.';
+    return 'Płatności na ten adres czekają na serwerze Epicbox i dotrą po wyjściu z trybu „$mode”.';
   }
 
   @override
   String receiveLinkOffMode(String mode) {
-    return 'Link receiving is off in $mode.';
+    return 'Odbieranie przez Link jest wyłączone w trybie „$mode”.';
   }
 
   @override
   String updatesOffMode(String mode) {
-    return 'Update checks are off in $mode.';
+    return 'Sprawdzanie aktualizacji jest wyłączone w trybie „$mode”.';
   }
 
   @override
   String reportOffMode(String mode) {
-    return 'Off in $mode. Save the report as a file instead.';
+    return 'Wyłączone w trybie „$mode”. Zapisz raport jako plik.';
   }
 
   @override
   String get recheckOffKill =>
-      'Recheck balance needs the node. Off in Kill switch.';
+      'Sprawdzenie salda potrzebuje węzła. Wyłączone przy Wyłączniku awaryjnym.';
 
   @override
   String get postFinishedOffKill =>
-      'Off in Kill switch: nothing connects here.';
+      'Wyłączone przy Wyłączniku awaryjnym: nic się tu nie łączy.';
 
   @override
-  String get postFinishedOffTor => 'Waiting for Tor. Posting needs the node.';
+  String get postFinishedOffTor => 'Oczekiwanie na Tor. Wysłanie wymaga węzła.';
 
   @override
-  String get browserOffTorOnly => 'Opens outside Tor. Copy the link instead.';
+  String get browserOffTorOnly =>
+      'Otworzyłoby się poza Torem. Skopiuj zamiast tego link.';
 
   @override
   String browserOffMode(String mode) {
-    return 'Off in $mode. Copy the link instead.';
+    return 'Wyłączone w trybie „$mode”. Skopiuj zamiast tego link.';
   }
 
   @override
-  String get netChangeLink => 'Change';
+  String get netChangeLink => 'Zmień';
 
   @override
-  String get lastKnownCaption => 'Last known';
+  String get lastKnownCaption => 'Ostatnio znane';
 
   @override
-  String get lastKnownBalanceLine => 'Available to spend · last known';
-
-  @override
-  String get lastKnownList => 'Last known · Kill switch';
+  String get lastKnownList => 'Ostatnio znane · Wyłącznik awaryjny';
 
   @override
   String lastKnownConfirming(String text) {
-    return '$text · last known';
+    return '$text · ostatnio znane';
   }
 
   @override
-  String get coldNeedsOnlineCheck => 'Needs one balance check online first.';
+  String get coldNeedsOnlineCheck =>
+      'Najpierw trzeba raz sprawdzić saldo online.';
 
   @override
-  String get finalizeNotPostedTitle => 'Finished, not posted';
+  String get finalizeNotPostedTitle => 'Gotowa, niewysłana';
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount is finished. Kill switch is on, so this phone can’t post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.';
+    return '$amount gotowe. Wyłącznik awaryjny jest włączony, więc ten telefon nie może tego wysłać. Zapisz płatność lub pokaż ją jako kod QR, a potem wyślij z urządzenia, które jest online: Aktywność › Wyślij gotową płatność.';
   }
 
   @override
-  String get finishedSaveFile => 'Save file';
+  String get finishedSaveFile => 'Zapisz plik';
 
   @override
-  String get finishedShowQr => 'Show QR';
+  String get finishedShowQr => 'Pokaż QR';
 
   @override
   String finishedSaved(String name) {
-    return 'Saved $name';
+    return 'Zapisano $name';
   }
 
   @override
-  String get finishedQrTitle => 'Finished payment';
+  String get finishedQrTitle => 'Gotowa płatność';
 
   @override
   String get finishedUnavailable =>
-      'This version can’t save a finished payment yet.';
+      'Ta wersja nie potrafi jeszcze zapisać gotowej płatności.';
 
   @override
-  String get finishedFailed => 'The finished payment could not be read.';
+  String get finishedFailed => 'Nie udało się odczytać gotowej płatności.';
 
   @override
-  String get txPostElsewhere => 'To be posted elsewhere';
+  String get txPostElsewhere => 'Do wysłania z innego urządzenia';
 
   @override
   String get txPostElsewhereKill =>
-      'Finished under Kill switch. Save it or show the QR, then post it on a device that is online.';
+      'Gotowa przy Wyłączniku awaryjnym. Zapisz ją lub pokaż kod QR, a potem wyślij z urządzenia, które jest online.';
 
   @override
   String get txPostElsewhereAfter =>
-      'Finished under Kill switch, not seen on chain yet. Post it from here, or wait for the device that posted it.';
+      'Gotowa przy Wyłączniku awaryjnym, jeszcze niewidoczna w łańcuchu. Wyślij ją stąd albo poczekaj na urządzenie, które ją wysyła.';
 
   @override
-  String get txPostNow => 'Post now';
+  String get txPostNow => 'Wyślij teraz';
 
   @override
-  String get txModeFinishedKill => 'Finished under Kill switch';
+  String get txModeFinishedKill => 'Gotowa przy Wyłączniku awaryjnym';
 
   @override
-  String get txModeRow => 'Mode';
+  String get txModeRow => 'Tryb';
 
   @override
-  String get postFinishedTitle => 'Post a finished payment';
+  String get postFinishedTitle => 'Wyślij gotową płatność';
 
   @override
   String get postFinishedIntro =>
-      'Post a payment another device finished under Kill switch.';
+      'Wyślij płatność, którą inne urządzenie przygotowało przy Wyłączniku awaryjnym.';
 
   @override
-  String get postFinishedOpenFile => 'Open file';
+  String get postFinishedOpenFile => 'Otwórz plik';
 
   @override
-  String get postFinishedScanQr => 'Scan QR';
+  String get postFinishedScanQr => 'Skanuj QR';
 
   @override
-  String get postFinishedPaste => 'Paste';
+  String get postFinishedPaste => 'Wklej';
 
   @override
-  String get postFinishedChooseFile => 'Choose file';
+  String get postFinishedChooseFile => 'Wybierz plik';
 
   @override
-  String get postFinishedSummary => 'Finished payment';
+  String get postFinishedSummary => 'Gotowa płatność';
 
   @override
-  String get postFinishedAmount => 'Amount';
+  String get postFinishedAmount => 'Kwota';
 
   @override
-  String get postFinishedFee => 'Fee';
+  String get postFinishedFee => 'Opłata';
 
   @override
   String get postFinishedKernel => 'Kernel';
 
   @override
   String get postFinishedNote =>
-      'Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.';
+      'Wysłanie wprowadza ją do sieci. Portfel, który ją utworzył, pokaże ją jako potwierdzaną, gdy zobaczy ją w łańcuchu.';
 
   @override
-  String get postFinishedPost => 'Post';
+  String get postFinishedPost => 'Wyślij';
 
   @override
-  String get postFinishedPosting => 'Posting…';
+  String get postFinishedPosting => 'Wysyłanie…';
 
   @override
-  String get postFinishedDone => 'Posted';
+  String get postFinishedDone => 'Wysłano do sieci';
 
   @override
   String get postFinishedDoneBody =>
-      'The node has it. The wallet that made it shows it confirming once it sees it on chain.';
+      'Węzeł ją ma. Portfel, który ją utworzył, pokaże ją jako potwierdzaną, gdy zobaczy ją w łańcuchu.';
 
   @override
   String get postFinishedNotFinished =>
-      'Not a finished payment. Open the file saved under To be posted elsewhere, or scan its QR.';
+      'To nie jest gotowa płatność. Otwórz plik zapisany pod „Do wysłania z innego urządzenia” lub zeskanuj jego kod QR.';
 
   @override
-  String get postFinishedFailed => 'The node did not take it. Try again.';
+  String get postFinishedFailed => 'Węzeł jej nie przyjął. Spróbuj ponownie.';
 
   @override
-  String get postFinishedUnreachable => 'The node does not answer.';
+  String get postFinishedUnreachable => 'Węzeł nie odpowiada.';
 
   @override
-  String get postFinishedDeskRow => 'Post a finished payment';
+  String get postFinishedDeskRow => 'Wyślij gotową płatność';
 
   @override
   String get postFinishedDeskRowText =>
-      'Post a payment another device finished under Kill switch.';
+      'Wyślij płatność, którą inne urządzenie przygotowało przy Wyłączniku awaryjnym.';
 
   @override
-  String get postFinishedOpen => 'Open';
-
-  @override
-  String get helpNetworkModesTitle => 'Network modes';
-
-  @override
-  String get helpNetworkModesShort =>
-      'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.';
+  String get postFinishedOpen => 'Otwórz';
 
   @override
   String get deskSetAdvModeStandardHint =>
-      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.';
+      'Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w Prywatność.';
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount is finished. Kill switch is on, so this computer can’t post it. Save it or show it as a QR code, then post it on a device that is online: Receive › Transaction files › Post a finished payment.';
+    return '$amount gotowe. Wyłącznik awaryjny jest włączony, więc ten komputer nie może tego wysłać. Zapisz płatność lub pokaż ją jako kod QR, a potem wyślij z urządzenia, które jest online: Odbierz › Pliki transakcji › Wyślij gotową płatność.';
   }
 
   @override
   String netMarkRowLabel(String mode) {
-    return 'Network mode: $mode';
+    return 'Tryb sieci: $mode';
   }
 
   @override
-  String get qrStatusFinishedHidden => 'Hidden';
+  String get qrStatusFinishedHidden => 'Ukryty';
 
   @override
   String get qrStatusFinishedShowing =>
-      'Waiting for a device that is online to scan.';
+      'Czeka, aż urządzenie online zeskanuje kod.';
 
   @override
   String qrShowSubFinished(String amount) {
-    return '$amount, finished';
+    return '$amount, gotowa';
   }
 
   @override
   String qrSemanticsFinished(String state) {
-    return 'Finished payment QR code, $state';
+    return 'Kod QR gotowej płatności, $state';
   }
 
   @override
   String get qrHiddenBodyFinished =>
-      'Show it to a device that is online. It posts the payment; no key is needed.';
+      'Pokaż go urządzeniu, które jest online. Wyśle płatność; klucz nie jest potrzebny.';
 
   @override
-  String get qrScanFinished => 'Scan finished payment';
+  String get qrScanFinished => 'Skanuj gotową płatność';
 
   @override
-  String get qrScanNotFinished => 'That code is not a finished payment.';
+  String get qrScanNotFinished => 'Ten kod nie jest gotową płatnością.';
 
   @override
-  String get qrScanAimFinished => 'Aim at the code on the other device.';
+  String get qrScanAimFinished => 'Skieruj aparat na kod na drugim urządzeniu.';
 
   @override
-  String get deskRailOpenNetwork => 'Open Network settings';
+  String get deskRailOpenNetwork => 'Otwórz ustawienia sieci';
 }

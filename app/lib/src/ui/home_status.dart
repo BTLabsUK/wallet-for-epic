@@ -44,8 +44,6 @@ const Key barTorIconKey = ValueKey('bar-status-tor');
 
 /// The Link icon in Send's and Receive's app bar, for tests.
 const Key barLinkIconKey = ValueKey('bar-link-icon');
-/// The mode mark in Send's and Receive's app bar.
-const Key barNetModeKey = ValueKey('bar-status-net-mode');
 
 /// Whether the Tor icon shows: while the switch is on (Starting…, On, Not connected).
 bool torIconShown(PhoneTorState s) => phoneTorState(s) != TorState.off;
@@ -200,9 +198,10 @@ typedef StatusEntry = ({
   return (
     mode: mode,
     entries: [
-      if (killSwitch)
-        off(bar ? barNodeIconKey : nodeStatusKey, node.icon, l.netStatusNode)
-      else ...[
+      if (killSwitch) ...[
+        off(bar ? barNodeIconKey : nodeStatusKey, node.icon, l.netStatusNode),
+        off(bar ? barEpicboxIconKey : epicboxStatusKey, epicbox.icon, l.netStatusEpicbox),
+      ] else ...[
         (
           key: bar ? barNodeIconKey : nodeStatusKey,
           icon: node.icon,
@@ -287,7 +286,8 @@ class StatusIcons extends ConsumerWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (mode != NetworkMode.standard) NetworkModeMark(key: bar ? barNetModeKey : netModeStatusKey),
+        // The mark belongs to Home's strip; the compact header keeps its room for the figure.
+        if (mode != NetworkMode.standard && !bar) NetworkModeMark(key: netModeStatusKey),
         for (final e in entries)
           StatusIcon(
             key: e.key,

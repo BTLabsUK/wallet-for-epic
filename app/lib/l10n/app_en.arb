@@ -17928,25 +17928,9 @@
   "@advModeTorOnlyLine": {
     "description": "Settings › Advanced › Network, the line under Tor only."
   },
-  "advModeOffline": "Offline",
-  "@advModeOffline": {
-    "description": "Network mode: no network."
-  },
-  "advModeOfflineLine": "Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.",
-  "@advModeOfflineLine": {
-    "description": "One line under the Offline network mode."
-  },
-  "advOfflineNote": "Offline pauses Epicbox, Tor and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.",
-  "@advOfflineNote": {
-    "description": "Note under the network choice while Offline is selected."
-  },
   "advReset": "Hide everything again",
   "@advReset": {
     "description": "Row at the end of the Advanced page: turns every visibility switch off. The network mode stays."
-  },
-  "advHomeOffline": "Offline",
-  "@advHomeOffline": {
-    "description": "Home status line while the Offline network mode is on."
   },
   "advHomeTorOnlyWaiting": "Tor only · waiting for Tor",
   "@advHomeTorOnlyWaiting": {
@@ -18032,41 +18016,13 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
-  "@deskSetAdvNetworkHint": {
-    "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
-  },
-  "deskSetAdvModeStandard": "Standard",
-  "@deskSetAdvModeStandard": {
-    "description": "Network mode: direct connections."
-  },
   "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
   "@deskSetAdvModeStandardText": {
     "description": "Text under the Standard mode."
   },
-  "deskSetAdvModeTorOnly": "Tor only",
-  "@deskSetAdvModeTorOnly": {
-    "description": "Network mode: Tor or nothing."
-  },
-  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor, the wallet stays offline.",
+  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Until Tor is ready, nothing connects.",
   "@deskSetAdvModeTorOnlyText": {
     "description": "Text under the Tor only mode."
-  },
-  "deskSetAdvModeOffline": "Offline",
-  "@deskSetAdvModeOffline": {
-    "description": "Network mode: no network."
-  },
-  "deskSetAdvModeOfflineText": "Only this computer and the local network; a local node keeps its own peers.",
-  "@deskSetAdvModeOfflineText": {
-    "description": "One-line description of the Offline network mode on the Advanced page."
-  },
-  "deskSetAdvTorOnlyNote": "Tor only turns Link · HTTP receiving off: a plain address would reveal this computer.",
-  "@deskSetAdvTorOnlyNote": {
-    "description": "Note under the network choice while Tor only is selected."
-  },
-  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.",
-  "@deskSetAdvOfflineNote": {
-    "description": "Note under the chosen Offline mode on the Advanced page."
   },
   "deskSetAdvNotInBuild": "Not in this build",
   "@deskSetAdvNotInBuild": {
@@ -18097,10 +18053,6 @@
   "@deskSetAcctAutoLockHint": {
     "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
   },
-  "netBlockOffline": "Offline is on in Advanced.",
-  "@netBlockOffline": {
-    "description": "Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page."
-  },
   "netBlockTorOnly": "Tor only is on in Advanced.",
   "@netBlockTorOnly": {
     "description": "Line under the Tor switch while the Tor only network mode locks it on."
@@ -18109,10 +18061,6 @@
   "@netBlockWaitingForTor": {
     "description": "Why a network action is disabled while Tor only is on and Tor is not connected yet."
   },
-  "receiveOfflineLine": "Cannot receive this way while Offline is on.",
-  "@receiveOfflineLine": {
-    "description": "Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out."
-  },
   "txDetailsMore": "More",
   "@txDetailsMore": {
     "description": "Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced."
@@ -18120,10 +18068,6 @@
   "restoreStartFromLink": "Start from a date or height",
   "@restoreStartFromLink": {
     "description": "Small link on Restore that opens the choice of where to start scanning the chain."
-  },
-  "homeOfflineDetail": "Offline is on in Advanced. The balance is the last one seen.",
-  "@homeOfflineDetail": {
-    "description": "Tooltip and screen reader hint of Home's Offline status."
   },
   "homeWaitingTorDetail": "Tor only is on in Advanced. Waiting for Tor to connect.",
   "@homeWaitingTorDetail": {
@@ -18334,10 +18278,6 @@
   "@deskOnbRestoreFromInvalid": {
     "description": "Error under the start block field on Restore when the text is not a number."
   },
-  "deskNetOfflineReason": "Offline is on in Advanced.",
-  "@deskNetOfflineReason": {
-    "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
-  },
   "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
   "@deskNetWaitingTorReason": {
     "description": "Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line."
@@ -18354,21 +18294,9 @@
   "@deskNetSendFileHint": {
     "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
-  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive while Offline is on.",
-  "@deskNetRecvOfflineText": {
-    "description": "Text of the notice on Receive while Offline mode is on."
-  },
   "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. File Transfer still works.",
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
-  },
-  "deskNetCantReceive": "Receiving paused",
-  "@deskNetCantReceive": {
-    "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
-  },
-  "deskRailOffline": "Offline",
-  "@deskRailOffline": {
-    "description": "Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on."
   },
   "deskTourAdvancedTitle": "Advanced",
   "@deskTourAdvancedTitle": {
@@ -18574,10 +18502,6 @@
       }
     }
   },
-  "netOfflineOnlyLocal": "Offline: only local addresses.",
-  "@netOfflineOnlyLocal": {
-    "description": "Why a Link send was refused in the Offline network mode: the address is not on this device or the local network."
-  },
   "netOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@netOfflineNoPeers": {
     "description": "Line on Send in the Offline mode when the local node in use has no peers."
@@ -18656,10 +18580,6 @@
   "receiveNoMethodsButton": "Open Settings",
   "@receiveNoMethodsButton": {
     "description": "Receive, empty state button that opens Settings › Transactions."
-  },
-  "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
-  "@deskErrOfflineOnlyLocal": {
-    "description": "Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network."
   },
   "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@deskNetOfflineNoPeers": {
@@ -22374,14 +22294,6 @@
   "@deskSlotHelp": {
     "description": "Small link at the bottom of the sidebar: opens Settings › Help."
   },
-  "deskSlotOffline": "Offline",
-  "@deskSlotOffline": {
-    "description": "Sidebar slot line: Offline mode is on (Settings › Advanced). Short."
-  },
-  "deskSlotOfflineDetail": "nothing is sent or received",
-  "@deskSlotOfflineDetail": {
-    "description": "After 'Offline mode' on the same short line: what it means."
-  },
   "deskSlotScanning": "Scanning the chain",
   "@deskSlotScanning": {
     "description": "Sidebar slot line while the wallet scans the chain for its outputs; the percent follows after a dot."
@@ -22445,10 +22357,6 @@
   "deskSlotNodeSyncing": "Local node syncing",
   "@deskSlotNodeSyncing": {
     "description": "Sidebar slot line: the local node is syncing the chain; its progress follows after a dot."
-  },
-  "deskSlotOpenAdvanced": "Open Advanced settings",
-  "@deskSlotOpenAdvanced": {
-    "description": "Tooltip line of a sidebar slot line: where its click goes."
   },
   "deskSlotOpenRecheck": "Open Recheck balance",
   "@deskSlotOpenRecheck": {
@@ -23115,10 +23023,6 @@
   "@advModeStandardLineNoTor": {
     "description": "One line under the Standard network mode, in the build without Tor."
   },
-  "advOfflineNoteNoTor": "Offline pauses Epicbox and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.",
-  "@advOfflineNoteNoTor": {
-    "description": "advOfflineNote in the build without Tor: the same note without Tor."
-  },
   "txLinkHttpHintNoTor": "Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.",
   "@txLinkHttpHintNoTor": {
     "description": "txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.",
@@ -23154,14 +23058,6 @@
         "example": "<port>"
       }
     }
-  },
-  "deskNoTorAdvNetworkHint": "How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
-  "@deskNoTorAdvNetworkHint": {
-    "description": "Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline."
-  },
-  "deskNoTorAdvOfflineNote": "Epicbox and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.",
-  "@deskNoTorAdvOfflineNote": {
-    "description": "Settings › Advanced, the note under the modes while Offline is chosen, in the build without Tor."
   },
   "deskNoTorTxDetailsFromBad": "Use an Epicbox or http(s) address.",
   "@deskNoTorTxDetailsFromBad": {
@@ -24225,10 +24121,6 @@
   "@slSwitchFirst": {
     "description": "Server list: tooltip of the disabled Remove on the server in use."
   },
-  "netStatusPausedOffline": "Paused · Offline",
-  "@netStatusPausedOffline": {
-    "description": "Settings › Privacy & network: the state word of the Node and Epicbox rows while Offline is on in Advanced (both paused by choice)."
-  },
   "contactPaymentsNone": "No payments with this contact yet.",
   "@contactPaymentsNone": {
     "description": "Contact page: shown under the payments heading while there are none with this contact."
@@ -25083,10 +24975,6 @@
   "@lastKnownCaption": {
     "description": "Pill and caption in Kill switch: the balance and history are the ones seen last."
   },
-  "lastKnownBalanceLine": "Available to spend · last known",
-  "@lastKnownBalanceLine": {
-    "description": "Phone Home: caption under the balance in Kill switch."
-  },
   "lastKnownList": "Last known · Kill switch",
   "@lastKnownList": {
     "description": "Caption above the activity list in Kill switch."
@@ -25256,14 +25144,6 @@
   "postFinishedOpen": "Open",
   "@postFinishedOpen": {
     "description": "Desktop row button."
-  },
-  "helpNetworkModesTitle": "Network modes",
-  "@helpNetworkModesTitle": {
-    "description": "Help topic title."
-  },
-  "helpNetworkModesShort": "Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.",
-  "@helpNetworkModesShort": {
-    "description": "Help topic summary."
   },
   "deskSetAdvModeStandardHint": "Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.",
   "@deskSetAdvModeStandardHint": {

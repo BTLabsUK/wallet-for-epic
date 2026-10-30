@@ -71,41 +71,13 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.",
-  "@deskSetAdvNetworkHint": {
-    "description": "Hover card of the Network group on the Advanced page: what the three network modes do."
-  },
-  "deskSetAdvModeStandard": "Standard",
-  "@deskSetAdvModeStandard": {
-    "description": "Network mode: direct connections."
-  },
   "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
   "@deskSetAdvModeStandardText": {
     "description": "Text under the Standard mode."
   },
-  "deskSetAdvModeTorOnly": "Tor only",
-  "@deskSetAdvModeTorOnly": {
-    "description": "Network mode: Tor or nothing."
-  },
-  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Without Tor, the wallet stays offline.",
+  "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Until Tor is ready, nothing connects.",
   "@deskSetAdvModeTorOnlyText": {
     "description": "Text under the Tor only mode."
-  },
-  "deskSetAdvModeOffline": "Offline",
-  "@deskSetAdvModeOffline": {
-    "description": "Network mode: no network."
-  },
-  "deskSetAdvModeOfflineText": "Only this computer and the local network; a local node keeps its own peers.",
-  "@deskSetAdvModeOfflineText": {
-    "description": "One-line description of the Offline network mode on the Advanced page."
-  },
-  "deskSetAdvTorOnlyNote": "Tor only turns Link · HTTP receiving off: a plain address would reveal this computer.",
-  "@deskSetAdvTorOnlyNote": {
-    "description": "Note under the network choice while Tor only is selected."
-  },
-  "deskSetAdvOfflineNote": "Epicbox, Tor and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.",
-  "@deskSetAdvOfflineNote": {
-    "description": "Note under the chosen Offline mode on the Advanced page."
   },
   "deskSetAdvNotInBuild": "Not in this build",
   "@deskSetAdvNotInBuild": {
@@ -132,14 +104,6 @@
   "@deskShellTorOnlyWaiting": {
     "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
   },
-  "deskNetOfflineReason": "Offline is on in Advanced.",
-  "@deskNetOfflineReason": {
-    "description": "Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control."
-  },
-  "deskErrOfflineOnlyLocal": "Offline: only local addresses.",
-  "@deskErrOfflineOnlyLocal": {
-    "description": "Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network."
-  },
   "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
@@ -160,21 +124,9 @@
   "@deskNetSendFileHint": {
     "description": "Second line of the notice on Send when the network mode holds Epicbox and Link sends."
   },
-  "deskNetRecvOfflineText": "Your address stays the same. Nothing can arrive while Offline is on.",
-  "@deskNetRecvOfflineText": {
-    "description": "Text of the notice on Receive while Offline mode is on."
-  },
   "deskNetRecvWaitTorText": "Receiving starts when Tor is connected. File Transfer still works.",
   "@deskNetRecvWaitTorText": {
     "description": "Text of the notice on Receive in Tor only mode while Tor is not connected yet."
-  },
-  "deskNetCantReceive": "Receiving paused",
-  "@deskNetCantReceive": {
-    "description": "Detail of the Epicbox state line on Receive while Offline mode is on."
-  },
-  "deskRailOffline": "Offline",
-  "@deskRailOffline": {
-    "description": "Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on."
   },
   "deskSetAdvNodeFailover": "Node failover",
   "@deskSetAdvNodeFailover": {

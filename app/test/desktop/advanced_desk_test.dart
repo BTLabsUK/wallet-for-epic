@@ -12,7 +12,11 @@ import 'package:epic_wallet/src/desktop/data/net_mode_view.dart' show deskOfflin
 import 'package:epic_wallet/src/desktop/screens/invoices/invoices_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
+import 'package:epic_wallet/src/desktop/data/history_files.dart' show MockDeskHistoryFiles, deskHistoryFilesProvider;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart' show advModeConfirmKey, advModeNoteKey;
+import 'package:epic_wallet/src/desktop/screens/transfer/finalize_screen.dart' show FinalizeArgs;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
+import 'package:epic_wallet/src/wallet_service.dart' show FakeWalletSession;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -113,18 +117,24 @@ void main() {
       expect(_container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
     }, skip: !torBuilt);
 
-    testWidgets('Offline: disabled, with the reason', (tester) async {
-      await _open(tester, DeskRoute.settingsPrivacy, advanced: _offline);
+    testWidgets('Kill switch: disabled, with the reason', (tester) async {
+      await _open(tester, DeskRoute.settingsPrivacy, advanced: _kill);
       expect(torSwitch(tester).onChanged, isNull);
       expect(torSwitch(tester).value, isFalse);
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Off in Kill switch: nothing connects.'), findsOneWidget);
     }, skip: !torBuilt);
   });
 
   group('sidebar and Overview', () {
-    testWidgets('Offline: the rows read Offline, Overview marks the balance', (tester) async {
+    testWidgets('Kill switch: the rows read Off (Kill switch), Overview marks the balance Last known', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _kill);
-      expect(find.text('Offline'), findsWidgets);
+      await tester.tap(find.byKey(const ValueKey('bar-status')));
+      await _settle(tester);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Off (Kill switch)')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Off (Kill switch)')), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _settle(tester);
+      expect(find.text('Last known'), findsWidgets);
       expect(find.byKey(const ValueKey('overview-offline')), findsOneWidget);
       expect(find.text('Available to spend'), findsOneWidget, reason: 'the last known balance stays');
     });
@@ -153,10 +163,10 @@ void main() {
     ESegment<TxMethod> segment(WidgetTester tester, String label) =>
         tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.firstWhere((s) => s.label == label);
 
-    testWidgets('Offline: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
+    testWidgets('Node only: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
-      expect(find.text('Offline is on in Advanced.'), findsWidgets);
+      expect(find.text('Node only is on: Epicbox is off. QR Payment and File Transfer work.'), findsWidgets);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
       expect(segment(tester, 'Direct · File').enabled, isTrue);
       expect(segment(tester, 'Direct · File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
@@ -188,7 +198,7 @@ void main() {
       expect(find.text('Waiting for the node to sync.'), findsNothing);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
       // The banner and the summary's line.
-      expect(find.text('Offline is on in Advanced.'), findsNWidgets(2));
+      expect(find.text('Kill switch is on: nothing connects. QR Payment and File Transfer work.'), findsNWidgets(2));
     });
 
     testWidgets('Offline: an onion in To gives the Offline reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
@@ -198,14 +208,13 @@ void main() {
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
     });
 
-    testWidgets('Offline with a LAN node: Link and File run, Epicbox waits; no peers says the payment waits', (tester) async {
+    testWidgets('Node only with a LAN node: a Link send to a LAN address is held too (Link is off), File runs', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
-      expect(segment(tester, 'Link').enabled, isTrue);
+      expect(segment(tester, 'Link').enabled, isFalse);
       expect(segment(tester, 'Direct · File').enabled, isTrue);
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
-      expect(find.byKey(const ValueKey('send-offline-no-peers')), findsOneWidget);
-      expect(find.text('Your node has no peers: the payment waits in its pool until it reconnects.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
+      expect(find.text('Node only is on: Link is off. QR Payment and File Transfer work.'), findsWidgets);
     });
 
     testWidgets('Tor only without Tor: the same, with the Tor reason', (tester) async {
@@ -239,12 +248,12 @@ void main() {
   });
 
   group('Receive', () {
-    testWidgets('Offline: the address stays, a line says it can’t receive, the Files panel runs and says the node is used', (tester) async {
+    testWidgets('Node only: the address stays, a line says Epicbox is off, the Files panel runs and says the node is used', (tester) async {
       await _open(tester, DeskRoute.receive, advanced: _offline);
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsOneWidget);
-      expect(find.text('Offline is on in Advanced.'), findsWidgets);
+      expect(find.text('Epicbox is off in Node only.'), findsWidgets);
       expect(find.text('Epicbox address'), findsWidgets);
-      expect(find.textContaining('Receiving paused'), findsWidgets);
+      expect(find.textContaining('Turned off by the network mode'), findsWidgets);
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-files-offline-node')), findsOneWidget);
       expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsOneWidget);
@@ -267,6 +276,125 @@ void main() {
     testWidgets('Standard: no notice', (tester) async {
       await _open(tester, DeskRoute.receive);
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsNothing);
+    });
+  });
+
+  group('network modes', () {
+    List<String> rowKeys() => [
+      for (final m in NetworkMode.values)
+        if (find.byKey(ValueKey('adv-mode-${m.name}')).evaluate().isNotEmpty) m.name,
+    ];
+
+    testWidgets('Advanced › Network: a row per mode, each with its info popover; choosing one saves it and shows its line', (tester) async {
+      await _open(tester, DeskRoute.settingsAdvanced);
+      expect(rowKeys(), torBuilt ? ['standard', 'torOnly', 'nodeOnly', 'killSwitch'] : ['standard', 'nodeOnly', 'killSwitch']);
+      expect(find.byKey(advModeNoteKey), findsNothing);
+      // The Kill switch row's ⓘ opens a popover with its text.
+      await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-killSwitch')));
+      await _settle(tester);
+      await tester.tap(find.descendant(of: find.byKey(const ValueKey('adv-mode-killSwitch')), matching: find.byType(EInfoHint)));
+      await _settle(tester);
+      expect(find.textContaining('cold storage'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _settle(tester);
+      await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-nodeOnly')));
+      await tester.tap(find.byKey(const ValueKey('adv-mode-nodeOnly')));
+      await _settle(tester);
+      expect(_advanced.networkMode, NetworkMode.nodeOnly);
+      expect(find.byKey(advModeNoteKey), findsOneWidget);
+      expect(find.textContaining('Epicbox, Link, price and update checks stop now'), findsOneWidget);
+    });
+
+    testWidgets('a send waiting over Epicbox: Kill switch asks first; Cancel keeps the mode', (tester) async {
+      await _open(tester, DeskRoute.settingsAdvanced);
+      final waiting = _container.read(deskProvider).txs!.where((t) => !t.incoming && t.state == TxState.waitingRecipient && t.method != TxMethod.file).length;
+      if (waiting == 0) {
+        // The mock holds none: nothing to ask about.
+        await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-killSwitch')));
+        await tester.tap(find.byKey(const ValueKey('adv-mode-killSwitch')));
+        await _settle(tester);
+        expect(find.byKey(advModeConfirmKey), findsNothing);
+        expect(_advanced.networkMode, NetworkMode.killSwitch);
+        return;
+      }
+      await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-killSwitch')));
+      await tester.tap(find.byKey(const ValueKey('adv-mode-killSwitch')));
+      await _settle(tester);
+      expect(find.byKey(advModeConfirmKey), findsOneWidget);
+      expect(find.text('Switch to Kill switch?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await _settle(tester);
+      expect(_advanced.networkMode, NetworkMode.standard);
+    });
+
+    testWidgets('the title bar mark shows off Normal only; its popover says what the mode does and Change opens Advanced', (tester) async {
+      await _open(tester, DeskRoute.overview);
+      expect(find.byKey(const ValueKey('bar-net-mode')), findsNothing);
+      await _open(tester, DeskRoute.overview, advanced: _offline);
+      expect(find.byKey(const ValueKey('bar-net-mode')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('bar-net-mode')), matching: find.text('Node only')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('bar-net-mode')));
+      await _settle(tester);
+      expect(find.text('Only the node in use. Epicbox, Link, updates and price are off.'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('bar-mode-change')));
+      await _settle(tester);
+      expect(_container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
+      await tester.pump(const Duration(seconds: 5));
+    });
+
+    testWidgets('Node only: Epicbox and Link read Off (Node only) in the status list, the node does not', (tester) async {
+      await _open(tester, DeskRoute.overview, advanced: _offline);
+      await tester.tap(find.byKey(const ValueKey('bar-status')));
+      await _settle(tester);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Off (Node only)')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Off (Node only)')), findsNothing);
+    });
+
+    testWidgets('Kill switch: the Overview marks the balance Last known and shows no fiat value; Activity says the list is the last seen', (tester) async {
+      await _open(tester, DeskRoute.overview, advanced: _kill);
+      expect(find.text('Last known'), findsWidgets);
+      expect(find.textContaining('≈'), findsNothing);
+      await _open(tester, DeskRoute.activity, advanced: _kill);
+      expect(find.byKey(const ValueKey('activity-last-known')), findsOneWidget);
+    });
+
+    testWidgets('Receive › Transaction files: Post a finished payment reads the text, shows the summary, posts', (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.getData') return <String, Object?>{'text': FakeWalletSession.fakeFinishedText(3)};
+        return null;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+      await _open(tester, DeskRoute.receive);
+      await tester.ensureVisible(find.byKey(const ValueKey('rx-post-finished-open')));
+      await tester.tap(find.byKey(const ValueKey('rx-post-finished-open')));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('post-finished-dialog')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('post-finished-paste')));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('post-finished-summary')), findsOneWidget);
+      expect(find.text('Amount'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('post-finished-post')));
+      await _settle(tester);
+      expect(find.text('Posted'), findsWidgets);
+    });
+
+    testWidgets('Receive › Transaction files: the entry is off in Kill switch, with its note', (tester) async {
+      await _open(tester, DeskRoute.receive, advanced: _kill);
+      expect(find.text('Off in Kill switch: nothing connects here.'), findsOneWidget);
+      expect(tester.widget<EButton>(find.byKey(const ValueKey('rx-post-finished-open'))).onPressed, isNull);
+    });
+
+    testWidgets('Finalize under Kill switch ends on Finished, not posted with Save file and Copy', (tester) async {
+      await _open(tester, DeskRoute.send);
+      final tx = _container.read(deskProvider).txs!.firstWhere((t) => !t.incoming);
+      _container.read(deskNavProvider.notifier).go(DeskRoute.finalize, FinalizeArgs(finishedTx: tx));
+      await _settle(tester);
+      expect(find.text('Finished, not posted'), findsOneWidget);
+      expect(find.byKey(const ValueKey('finished-save')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('finished-save')));
+      await _settle(tester);
+      final files = _container.read(deskHistoryFilesProvider) as MockDeskHistoryFiles;
+      expect(files.saved.single, endsWith('.finished.tx'));
     });
   });
 

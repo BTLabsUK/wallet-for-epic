@@ -1353,6 +1353,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
+  /// The mode's note for this send: Node only names the method that is off, Kill switch says
+  /// nothing connects; both say what still works. Tor only waiting has its own line.
+  String _blockTitle(AppLocalizations l, NetBlock net) => switch (net) {
+    NetBlock.killSwitch => l.netBlockSendKillSwitch,
+    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.netBlockEpicboxNodeOnly : l.netBlockLinkNodeOnly,
+    _ => netBlockReason(l, net)!,
+  };
+
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
     final l = context.l10n;
@@ -1389,11 +1397,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (net != NetBlock.none) {
       return ENotice(
         key: const ValueKey('send-net-blocked'),
-        title: net == NetBlock.killSwitch
-            ? l.netBlockSendKillSwitch
-            : net == NetBlock.nodeOnly
-            ? (_method == TxMethod.epicbox ? l.netBlockEpicboxNodeOnly : l.netBlockLinkNodeOnly)
-            : netBlockReason(l, net)!,
+        title: _blockTitle(l, net),
         text: net == NetBlock.waitingForTor ? l.deskNetSendFileHint : null,
         tone: ETone.warn,
         icon: net.byMode ? EIcons.lanOff : EIcons.tor,
@@ -1563,7 +1567,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               // A pairing recipient has no Link address.
               pairing != null
                   ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
-                  : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st, nodeOnly: true) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st, nodeOnly: true))),
+                  : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st))),
             // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
             // turned off on purpose is no failure, and File Transfer keeps its own switch).
             if (st.settings.payments.directFile || file || (st.settings.payments.epicbox && (_epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)))
@@ -1781,7 +1785,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
-      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => netBlockReason(l, _netBlock(st))!,
+      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => _blockTitle(l, _netBlock(st)),
       _ when _onionNoTor => l.sendTorNotInVersion,
       _ when nodeBlocked && _nodeDown(st) && _noNode => l.deskSlNoNodeTitle,
       _ when nodeBlocked && _nodeDown(st) => l.deskNodeNotAnsweringLine,

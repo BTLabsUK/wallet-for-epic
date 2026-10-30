@@ -181,6 +181,10 @@ abstract final class HelpAnchor {
   static const receiving = 'receiving';
   static const requests = 'requests';
 
+  /// The headings of [HelpId.modes] ("Network modes").
+  static const ownNode = 'own-node';
+  static const coldStorage = 'cold-storage';
+
   /// The headings of [HelpId.linkedDevices] ("How linked devices work").
   static const security = 'security';
   static const limits = 'limits';
@@ -494,19 +498,30 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'network',
       'Network modes',
       tor
-          ? 'Standard connects directly. Tor only never does. Offline uses nothing beyond $device and the local network.'
-          : 'Standard connects directly. Offline uses nothing beyond $device and the local network.',
+          ? 'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.'
+          : 'Normal, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.',
       [
-        const HelpBlock.p('How the wallet reaches the network is one choice on the **Advanced** page in Settings, under Network.'),
+        HelpBlock.p('How much of the internet the wallet uses is one choice on the **Advanced** page in Settings, under Network, and the wallet remembers it. Off **Normal**, a mark on ${phone ? 'Home' : 'the title bar'} names the mode; tap it to change it.'),
         HelpBlock.ul([
-          tor ? '**Standard**: connects directly. Tor is the switch under $torPlace.' : '**Standard**: connects directly.',
+          tor
+              ? '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under $torPlace.'
+              : '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.',
           if (tor)
-            '**Tor only**: Tor is always on and its switch is locked. Nothing goes over the open internet. While Tor starts or has failed, the wallet says **Waiting for Tor** and whatever needs the network waits, with the reason on the disabled action.${phone ? '' : ' HTTP receiving is off, because a plain address would reveal this computer.'}',
-          '**Offline**: no Epicbox, no Link beyond local addresses, ${!phone && tor ? 'no Tor, ' : ''}no status checks. The balance and history stay as last seen. ${phone ? '**Direct · QR Payment** and **Direct · File Transfer**' : '**Direct · File Transfer**'} still work: they use the node in use to read the chain and post, a public one too, and the screen says so. For the most privacy, use a node on ${phone ? 'the local network' : 'this computer or the local network'}: then the balance refreshes${phone ? '' : ', Link · HTTP receives over the local network with HTTP receiving set to **From the internet**,'} and Recheck balance runs as well.',
+            '**Tor only**: every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready nothing connects, and the status icons say **Waiting for Tor**. Link · HTTP receiving stays off: a plain address would reveal $device.',
+          '**Node only**: the wallet talks only to the node in use, the first in your node list. Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices are off. ${phone ? '**QR Payment** and **File Transfer**' : '**File Transfer**'} work.${tor ? ' With Tor on, the node is reached over Tor.' : ''}',
+          '**Kill switch**: nothing connects, the node included. The wallet opens with the last known balance and history. You can make, sign and finish payments by ${phone ? '**File Transfer** and **QR Payment**' : '**File Transfer**'}, show your address, back up and export. Sends waiting for a recipient pause and continue when you leave.',
         ]),
-        HelpBlock.p('In Offline, give the node by its IP address, for example **10.100.10.20:${appConfig.localNodeApiPort}**. Names are not looked up.'),
-        if (!phone) const HelpBlock.p('The built-in node’s own peers are the node’s setting, not the mode’s.'),
-        HelpBlock.p('${phone ? 'Home' : 'The sidebar'} says when the wallet is offline${tor ? ' or waiting for Tor' : ''}. Setting the mode back to **Standard** brings everything back.'),
+        const HelpBlock.h('Why your own node for Node only', anchor: HelpAnchor.ownNode),
+        HelpBlock.p('The node in use sees every request the wallet makes. A node on ${phone ? 'this phone or your network' : 'this computer or your network'} keeps that to yourself and answers fast. Any node works. Pick it under $nodePlace.'),
+        const HelpBlock.h('Paying from Kill switch', anchor: HelpAnchor.coldStorage),
+        HelpBlock.ol([
+          'Make the payment by ${phone ? '**File Transfer** or **QR Payment**' : '**File Transfer**'} as usual, and finish it when the reply comes back.',
+          'The wallet says **Finished, not posted**: it is complete, but only a device that is online can post it.',
+          '**Save file** or ${phone ? '**Show QR**' : '**Copy** the text'}, and take it to a device that is online.',
+          'There, ${phone ? 'open the Activity menu and choose **Post a finished payment**' : 'open Receive, then Transaction files, and choose **Post a finished payment**'}, load the file${phone ? ' or scan the code' : ' or paste the text'} and press **Post**. Any Epic Cash wallet can do this; it needs no key.',
+          'Back here the payment shows **To be posted elsewhere**, then **Confirming** once the wallet sees it on chain after you leave Kill switch.',
+        ]),
+        HelpBlock.p('Services a mode turns off show as **Off (Node only)** in grey: that is the mode, not an error. Nothing is cancelled when you switch; a send waiting for its recipient over Epicbox continues when you leave${tor ? ' (or switch to Tor only)' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -531,7 +546,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Built-in node**: lets this computer run its own node: Local node under $nodePlace.',
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
-        HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Offline mode${phone ? '' : ' or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
+        HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
         const HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but give less protection against chain reorganisations.'),
         const HelpBlock.p('**Experimental** holds **Pairing** and **Invoices**, both off to begin with. Pairing adds Pair and paired contacts; Invoices adds requests and invoices between paired contacts and needs Pairing. Off, they are hidden and nothing is checked for them; pairings already made stay saved and come back when the switch is on again.'),
         const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
@@ -569,8 +584,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         else
           const HelpBlock.p('**"Wrong password".** Check Caps Lock and the keyboard layout. A forgotten password: restore the wallet from its recovery phrase and choose a new one.'),
         HelpBlock.p(tor
-            ? '**An action is greyed out and says "Offline mode" or "Waiting for Tor".** Offline or Tor only is on in Advanced. Set the mode back to Standard there, or wait for Tor to connect.'
-            : '**An action is greyed out and says "Offline mode".** Offline is on in Advanced. Set the mode back to Standard there.'),
+            ? '**An action is greyed out and names a mode, or says "Waiting for Tor".** Tor only, Node only or Kill switch is on in Advanced. Set the mode back to Normal there, or wait for Tor to connect.'
+            : '**An action is greyed out and names a mode.** Node only or Kill switch is on in Advanced. Set the mode back to Normal there.'),
         HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,

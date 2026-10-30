@@ -173,7 +173,7 @@ void main() {
 
     test('a refusal by the mode reads as the mode, phone and desktop', () {
       const e = NetBlocked(NetworkMode.killSwitch, 'send over HTTP');
-      expect(describeError(englishStrings, e), englishStrings.advHomeOffline);
+      expect(describeError(englishStrings, e), englishStrings.netBlockKillSwitch);
       expect(deskErrorText(e), englishStrings.deskShellOffline);
       const t = NetBlocked(NetworkMode.torOnly, 'send over HTTP');
       expect(describeError(englishStrings, t), englishStrings.advModeTorOnlyLine);

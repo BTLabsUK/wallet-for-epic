@@ -16,9 +16,12 @@ import 'finished_payment.dart' show FinishedNotPostedPanel;
 /// Argument of the Finalize route: [done] opens on the posted transaction, [error] on a
 /// refused file.
 class FinalizeArgs {
-  const FinalizeArgs({this.done = false, this.error, this.text});
+  const FinalizeArgs({this.done = false, this.error, this.text, this.finishedTx});
 
   final bool done;
+
+  /// Opens on "Finished, not posted" for this payment (finalized under Kill switch).
+  final Tx? finishedTx;
   final FinalizeError? error;
 
   /// An answer's text pasted into Send: finalized at once, as a chosen file is.
@@ -84,6 +87,10 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     final a = widget.arg;
     _done = a is FinalizeArgs && a.done;
     if (a is FinalizeArgs) _error = a.error;
+    if (a is FinalizeArgs && a.finishedTx != null) {
+      _done = true;
+      _cold = a.finishedTx;
+    }
     final text = a is FinalizeArgs ? a.text : null;
     if (text != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

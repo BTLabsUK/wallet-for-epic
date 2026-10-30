@@ -1098,7 +1098,7 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
       await _reveal(tester, find.text('Recheck balance'));
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Recheck balance needs the node. Off in Kill switch.'), findsOneWidget);
       await _tapText(tester, 'Recheck balance');
       expect(find.byType(AlertDialog), findsNothing);
       expect(h.session.scanCalls, 0);

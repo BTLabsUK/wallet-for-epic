@@ -21428,35 +21428,11 @@ abstract class AppLocalizations {
   /// **'Every connection goes through Tor. Until Tor is ready, nothing connects.'**
   String get advModeTorOnlyLine;
 
-  /// Network mode: no network.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline'**
-  String get advModeOffline;
-
-  /// One line under the Offline network mode.
-  ///
-  /// In en, this message translates to:
-  /// **'Only this phone and the local network. QR Payment and File Transfer still work; the rest waits.'**
-  String get advModeOfflineLine;
-
-  /// Note under the network choice while Offline is selected.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline pauses Epicbox, Tor and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.'**
-  String get advOfflineNote;
-
   /// Row at the end of the Advanced page: turns every visibility switch off. The network mode stays.
   ///
   /// In en, this message translates to:
   /// **'Hide everything again'**
   String get advReset;
-
-  /// Home status line while the Offline network mode is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline'**
-  String get advHomeOffline;
 
   /// Home status line while Tor only is on and Tor is not connected yet.
   ///
@@ -21584,59 +21560,17 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get deskSetAdvNetwork;
 
-  /// Hover card of the Network group on the Advanced page: what the three network modes do.
-  ///
-  /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on under Privacy. Tor only never connects directly: without Tor the wallet stays offline and says so in the sidebar. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.'**
-  String get deskSetAdvNetworkHint;
-
-  /// Network mode: direct connections.
-  ///
-  /// In en, this message translates to:
-  /// **'Standard'**
-  String get deskSetAdvModeStandard;
-
   /// Text under the Standard mode.
   ///
   /// In en, this message translates to:
   /// **'Connects directly. Tor can be turned on under Privacy.'**
   String get deskSetAdvModeStandardText;
 
-  /// Network mode: Tor or nothing.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor only'**
-  String get deskSetAdvModeTorOnly;
-
   /// Text under the Tor only mode.
   ///
   /// In en, this message translates to:
-  /// **'Every connection goes through Tor. Without Tor, the wallet stays offline.'**
+  /// **'Every connection goes through Tor. Until Tor is ready, nothing connects.'**
   String get deskSetAdvModeTorOnlyText;
-
-  /// Network mode: no network.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline'**
-  String get deskSetAdvModeOffline;
-
-  /// One-line description of the Offline network mode on the Advanced page.
-  ///
-  /// In en, this message translates to:
-  /// **'Only this computer and the local network; a local node keeps its own peers.'**
-  String get deskSetAdvModeOfflineText;
-
-  /// Note under the network choice while Tor only is selected.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor only turns Link · HTTP receiving off: a plain address would reveal this computer.'**
-  String get deskSetAdvTorOnlyNote;
-
-  /// Note under the chosen Offline mode on the Advanced page.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox, Tor and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.'**
-  String get deskSetAdvOfflineNote;
 
   /// Tag on a Tor mode when the build has no tor.
   ///
@@ -21674,12 +21608,6 @@ abstract class AppLocalizations {
   /// **'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.'**
   String get deskSetAcctAutoLockHint;
 
-  /// Why a network action is disabled while the Offline network mode is on. Tapping it opens the Advanced page.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline is on in Advanced.'**
-  String get netBlockOffline;
-
   /// Line under the Tor switch while the Tor only network mode locks it on.
   ///
   /// In en, this message translates to:
@@ -21692,12 +21620,6 @@ abstract class AppLocalizations {
   /// **'Waiting for Tor.'**
   String get netBlockWaitingForTor;
 
-  /// Line on Receive's Epicbox and Link tabs while the Offline network mode is on; the address is still shown to hand out.
-  ///
-  /// In en, this message translates to:
-  /// **'Cannot receive this way while Offline is on.'**
-  String get receiveOfflineLine;
-
   /// Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced.
   ///
   /// In en, this message translates to:
@@ -21709,12 +21631,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start from a date or height'**
   String get restoreStartFromLink;
-
-  /// Tooltip and screen reader hint of Home's Offline status.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline is on in Advanced. The balance is the last one seen.'**
-  String get homeOfflineDetail;
 
   /// Tooltip and screen reader hint of Home's Waiting for Tor status.
   ///
@@ -21962,12 +21878,6 @@ abstract class AppLocalizations {
   /// **'Use digits only, or leave it empty.'**
   String get deskOnbRestoreFromInvalid;
 
-  /// Why a network action is disabled while the Offline network mode is on (Settings › Advanced). One short line, shown beside or under the disabled control.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline is on in Advanced.'**
-  String get deskNetOfflineReason;
-
   /// Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line.
   ///
   /// In en, this message translates to:
@@ -21992,29 +21902,11 @@ abstract class AppLocalizations {
   /// **'File Transfer still works.'**
   String get deskNetSendFileHint;
 
-  /// Text of the notice on Receive while Offline mode is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Your address stays the same. Nothing can arrive while Offline is on.'**
-  String get deskNetRecvOfflineText;
-
   /// Text of the notice on Receive in Tor only mode while Tor is not connected yet.
   ///
   /// In en, this message translates to:
   /// **'Receiving starts when Tor is connected. File Transfer still works.'**
   String get deskNetRecvWaitTorText;
-
-  /// Detail of the Epicbox state line on Receive while Offline mode is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Receiving paused'**
-  String get deskNetCantReceive;
-
-  /// Word on a sidebar status row (Node, Epicbox, Tor) and the mark on the Overview balance while Offline mode is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline'**
-  String get deskRailOffline;
 
   /// Title of the Settings › Advanced step of the first-run tour.
   ///
@@ -22238,12 +22130,6 @@ abstract class AppLocalizations {
   /// **'Instead of {host}'**
   String deskNodeFailoverInsteadOf(String host);
 
-  /// Why a Link send was refused in the Offline network mode: the address is not on this device or the local network.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline: only local addresses.'**
-  String get netOfflineOnlyLocal;
-
   /// Line on Send in the Offline mode when the local node in use has no peers.
   ///
   /// In en, this message translates to:
@@ -22327,12 +22213,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Settings'**
   String get receiveNoMethodsButton;
-
-  /// Why a Link send was refused in the Offline network mode: the address is not on this computer or the local network.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline: only local addresses.'**
-  String get deskErrOfflineOnlyLocal;
 
   /// Notice on Send in the Offline mode when the local node in use has no peers.
   ///
@@ -26366,18 +26246,6 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get deskSlotHelp;
 
-  /// Sidebar slot line: Offline mode is on (Settings › Advanced). Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline'**
-  String get deskSlotOffline;
-
-  /// After 'Offline mode' on the same short line: what it means.
-  ///
-  /// In en, this message translates to:
-  /// **'nothing is sent or received'**
-  String get deskSlotOfflineDetail;
-
   /// Sidebar slot line while the wallet scans the chain for its outputs; the percent follows after a dot.
   ///
   /// In en, this message translates to:
@@ -26461,12 +26329,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Local node syncing'**
   String get deskSlotNodeSyncing;
-
-  /// Tooltip line of a sidebar slot line: where its click goes.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Advanced settings'**
-  String get deskSlotOpenAdvanced;
 
   /// Tooltip line of the slot's scan line: opens the Recheck balance page.
   ///
@@ -27254,12 +27116,6 @@ abstract class AppLocalizations {
   /// **'Connects directly.'**
   String get advModeStandardLineNoTor;
 
-  /// advOfflineNote in the build without Tor: the same note without Tor.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline pauses Epicbox and status checks. QR Payment and File Transfer still work: they use the node in use to read the chain and post, a public one too. With a node on your local network, Recheck balance and Link sends to local addresses work as well. The node’s own peers are the node’s setting.'**
-  String get advOfflineNoteNoTor;
-
   /// txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.
   ///
   /// In en, this message translates to:
@@ -27295,18 +27151,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.'**
   String deskNoTorSetTxDirectHint(String port);
-
-  /// Settings › Advanced › Network info hint in the build without Tor: two modes, Standard and Offline.
-  ///
-  /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly. Offline stays on this computer and your local network: File Transfer still works over the node in use; with a node here or on your network you can also send to local addresses and receive over Link, and the balance refreshes. The built-in node keeps running, as its own peers are the node’s setting.'**
-  String get deskNoTorAdvNetworkHint;
-
-  /// Settings › Advanced, the note under the modes while Offline is chosen, in the build without Tor.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox and status checks pause. File Transfer still works over the node in use, a public one too. With a node on this computer or your network, Recheck balance and Link sends to local addresses work as well.'**
-  String get deskNoTorAdvOfflineNote;
 
   /// Payment details dialog, the From field's error in the build without Tor.
   ///
@@ -28424,12 +28268,6 @@ abstract class AppLocalizations {
   /// **'Switch first'**
   String get slSwitchFirst;
 
-  /// Settings › Privacy & network: the state word of the Node and Epicbox rows while Offline is on in Advanced (both paused by choice).
-  ///
-  /// In en, this message translates to:
-  /// **'Paused · Offline'**
-  String get netStatusPausedOffline;
-
   /// Contact page: shown under the payments heading while there are none with this contact.
   ///
   /// In en, this message translates to:
@@ -29180,12 +29018,6 @@ abstract class AppLocalizations {
   /// **'Last known'**
   String get lastKnownCaption;
 
-  /// Phone Home: caption under the balance in Kill switch.
-  ///
-  /// In en, this message translates to:
-  /// **'Available to spend · last known'**
-  String get lastKnownBalanceLine;
-
   /// Caption above the activity list in Kill switch.
   ///
   /// In en, this message translates to:
@@ -29413,18 +29245,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get postFinishedOpen;
-
-  /// Help topic title.
-  ///
-  /// In en, this message translates to:
-  /// **'Network modes'**
-  String get helpNetworkModesTitle;
-
-  /// Help topic summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.'**
-  String get helpNetworkModesShort;
 
   /// Info text of the Normal row (desktop).
   ///

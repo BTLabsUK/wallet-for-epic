@@ -1096,12 +1096,12 @@ void main() {
       await h.pump(tester, advanced: offline);
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Node only is on: Epicbox is off. QR Payment and File Transfer work.'), findsOneWidget);
       // File asks the node in use, a public one too: it runs, with the note (a warning).
       await _tap(tester, _segment('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);
-      expect(find.text('Offline is on in Advanced.'), findsNothing);
+      expect(find.text('Node only is on: Epicbox is off. QR Payment and File Transfer work.'), findsNothing);
       expect(find.byKey(offlineNodeNoteKey), findsOneWidget);
       expect(find.text('Uses the node'), findsOneWidget);
       await _tap(tester, find.byKey(offlineNodeNoteKey));
@@ -1134,7 +1134,7 @@ void main() {
       await h.pump(tester, advanced: offline, payments: _directOn);
       await _enter(tester, 'To', _onion);
       expect(find.byKey(sendTurnOnTorKey), findsNothing);
-      expect(find.text('Offline is on in Advanced.'), findsOneWidget);
+      expect(find.text('Node only is on: Link is off. QR Payment and File Transfer work.'), findsOneWidget);
     });
 
     testWidgets('Offline with a public node: File runs with the node note; no peers line (that is the local node\'s)', (tester) async {
@@ -1154,7 +1154,7 @@ void main() {
       await h.pump(tester, advanced: torOnly);
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      expect(find.text('Waiting for Tor.'), findsOneWidget);
+      expect(find.text('Waiting for Tor. Nothing connects until it is ready.'), findsOneWidget);
       await _tap(tester, _segment('Direct · File'));
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(tester.widget<FilledButton>(makeFile()).onPressed, isNotNull);

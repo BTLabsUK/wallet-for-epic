@@ -1,1 +1,5 @@
-{}
+{
+  "deskSetAdvModeStandardHint": "Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w Prywatność.",
+  "deskFinNotPostedKillBody": "{amount} gotowe. Wyłącznik awaryjny jest włączony, więc ten komputer nie może tego wysłać. Zapisz płatność lub pokaż ją jako kod QR, a potem wyślij z urządzenia, które jest online: Odbierz › Pliki transakcji › Wyślij gotową płatność.",
+  "deskRailOpenNetwork": "Otwórz ustawienia sieci"
+}

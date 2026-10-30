@@ -313,7 +313,7 @@ class WalletBalance extends ConsumerWidget {
                   // The mode mark and four icons are 350 dp wide with a long mode name: on a
                   // 360 dp phone the strip shrinks a little rather than wrap or overflow.
                   Flexible(
-                    flex: 0,
+                    flex: 100,
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: AlignmentDirectional.centerStart,

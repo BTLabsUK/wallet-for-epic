@@ -37,6 +37,7 @@ class RailItem {
     this.note,
     required this.open,
     required this.jump,
+    this.byMode = false,
   });
 
   final IconData icon;
@@ -58,6 +59,9 @@ class RailItem {
   final String open;
   final SettingsJump jump;
 
+  /// The mode turned this service off: a click opens the Network section ([opens]).
+  final bool byMode;
+
   /// The row of a service the network mode turns off: neutral, "Off (Node only)", nothing is
   /// being checked; a click opens the Network section, not the service's switch.
   RailItem offByMode(AppLocalizations l, NetworkMode mode) => RailItem(
@@ -68,8 +72,13 @@ class RailItem {
     second: statusOffByModeWord(l, mode),
     lines: [l.statusOffByModeDetail],
     open: l.deskRailOpenNetwork,
-    jump: SettingsJump.network,
+    jump: jump,
+    byMode: true,
   );
+
+  /// Where a click goes: the service's own switch, or the Network section when the mode turned
+  /// the service off (its own switch would not help).
+  SettingsJump get opens => byMode ? SettingsJump.network : jump;
 }
 
 /// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
@@ -330,7 +339,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
     }
     final items = [nodeItem, ...receivingRailItems(l, status, settings)];
     if (widget.builder != null) return widget.builder!(context, items);
-    Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.jump));
+    Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.opens));
     if (widget.horizontal) {
       return Row(mainAxisSize: MainAxisSize.min, children: [for (final i in items) SizedBox(width: Ctl.md, child: row(i))]);
     }
