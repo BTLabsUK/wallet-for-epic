@@ -23,6 +23,9 @@ WalletService createWalletService(SecretStore secrets) =>
       secrets: secrets,
       oneWalletPerChain: true,
       contactsDir: () async => (await appDataDirectory()).path,
+      // Android: the PIN key and failure count under a Keystore key (pin_wrap.dart). iOS has
+      // no channel for it yet; desktop opens with a password, not a PIN.
+      keyWrap: Platform.isAndroid ? const PlatformKeyWrap() : null,
     );
 
 /// The platform keystore; on Windows the crash-safe store over the plugin's file

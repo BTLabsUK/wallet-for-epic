@@ -29,6 +29,7 @@ import 'log.dart';
 import 'net/lan_node_relay.dart';
 import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
+import 'pin_wrap.dart';
 import 'relay_refused.dart' show refusedHandshake;
 import 'redact.dart';
 import 'secret_store_api.dart';
@@ -796,10 +797,15 @@ class LepicWalletService implements WalletService {
     lepic.LepicRuntime Function()? runtime,
     this.oneWalletPerChain = false,
     this.contactsDir,
+    this.keyWrap,
   }) : _makeRuntime = runtime ?? _defaultRuntime;
 
   final SecretStore _secrets;
   final bool oneWalletPerChain;
+
+  /// Seals each wallet's PIN key and failure count with the phone's secure hardware
+  /// ([HardwarePinStore]); null keeps them plain in [_secrets] (desktop, tests, the demo).
+  final KeyWrap? keyWrap;
 
   /// The folder of the address book every wallet shares (`contact_store.dart`); null keeps
   /// each wallet's contacts in its own archive (tests).
@@ -992,8 +998,14 @@ class LepicWalletService implements WalletService {
   Future<_PrefixedStore> _storeKeys(
     WalletConfig config, {
     bool creating = false,
-  }) async =>
-      _PrefixedStore(_secrets, await _storePrefix(config, creating: creating));
+  }) async {
+    final prefix = await _storePrefix(config, creating: creating);
+    final wrap = keyWrap;
+    return _PrefixedStore(
+      wrap == null ? _secrets : HardwarePinStore(_secrets, wrap, prefix),
+      prefix,
+    );
+  }
 
   Future<lepic.AppSecretStore> _store(
     WalletConfig config, {

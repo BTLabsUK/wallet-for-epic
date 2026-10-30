@@ -185,6 +185,14 @@ final walletConfigProvider =
       WalletConfigNotifier.new,
     );
 
+/// Whether the wallet opens with a passphrase instead of the PIN ([WalletVault.usesPassphrase]).
+/// Invalidated after a PIN or passphrase change.
+final usesPassphraseProvider = FutureProvider<bool>((ref) async {
+  final chain = ref.watch(walletConfigProvider.select((c) => c?.chain));
+  if (chain == null) return false;
+  return ref.watch(vaultProvider).usesPassphrase(chain);
+});
+
 /// The node in use is on this phone or the local network (`net/local_address.dart`): Node only
 /// does not say that File and QR payments use a public node.
 final localNodeProvider = Provider<bool>(

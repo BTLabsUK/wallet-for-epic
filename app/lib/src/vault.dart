@@ -13,6 +13,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'app_log.dart';
+import 'pin_wrap.dart' show PinKeyLost;
 import 'secret_store.dart';
 import 'wallet_service.dart';
 
@@ -35,6 +36,17 @@ class PinRejected implements Exception {
 /// `true` when [pin] is exactly [pinLength] ASCII digits.
 bool isValidPin(String pin) =>
     pin.length == pinLength && RegExp(r'^[0-9]+$').hasMatch(pin);
+
+/// The fewest characters of the optional passphrase that replaces the PIN (Settings).
+const int minPassphraseLength = 10;
+
+/// `true` when [passphrase] may replace the PIN: at least [minPassphraseLength] characters,
+/// not only digits (a long number is a PIN by another name), and no space at either end,
+/// which a keyboard adds unseen.
+bool isValidPassphrase(String passphrase) =>
+    passphrase.runes.length >= minPassphraseLength &&
+    passphrase.trim() == passphrase &&
+    !RegExp(r'^[0-9]+$').hasMatch(passphrase);
 
 /// Whether a chain has a wallet the PIN opens.
 enum VaultStage {
@@ -156,11 +168,23 @@ class WalletVault {
     return sealed;
   }
 
-  /// Runs a PIN call, turning LEPIC's wrong-PIN answer into [PinRejected].
+  /// Runs a PIN call, turning LEPIC's wrong-PIN answer into [PinRejected], and a store whose
+  /// Keystore key is gone into [PinKeyLost].
   Future<T> _pinCall<T>(WalletConfig config, Future<T> Function() call) async {
     try {
       return await call();
     } on WalletError catch (error) {
+      // LEPIC says only that the store failed; reading the count here says whether its key is
+      // gone for good (PinKeyLost) or the store failed this once.
+      if (error.kind == WalletErrorKind.io) {
+        try {
+          await service.pinFailures(config: config);
+        } on PinKeyLost {
+          logWarn('unlock', 'the Keystore key of the PIN is gone');
+          rethrow;
+        } catch (_) {}
+        rethrow;
+      }
       if (error.kind != WalletErrorKind.wrongPassword) rethrow;
       final failures = await service.pinFailures(config: config);
       logInfo('unlock', 'wrong PIN, $failures in a row');
@@ -202,7 +226,9 @@ class WalletVault {
     required String currentPin,
     required String newPin,
   }) async {
-    if (!isValidPin(newPin)) throw ArgumentError('PIN must be $pinLength digits');
+    if (!isValidPin(newPin) && !isValidPassphrase(newPin)) {
+      throw ArgumentError('PIN must be $pinLength digits or a passphrase');
+    }
     final sealed = await _sealed(config.chain);
     final next = await _pinCall(
       config,
@@ -213,6 +239,12 @@ class WalletVault {
       ),
     );
     await store.write(_key(config.chain, 'pinSealed'), next);
+    // Right after the text, so the unlock screen asks for what the text was sealed under.
+    if (isValidPin(newPin)) {
+      await store.delete(_key(config.chain, 'pinPassphrase'));
+    } else {
+      await store.write(_key(config.chain, 'pinPassphrase'), '1');
+    }
     await session.confirmPinChange(sealedPassword: next);
   }
 
@@ -224,7 +256,13 @@ class WalletVault {
     String pin,
   ) => _reseal(session, config, currentPin: pin, newPin: pin);
 
-  /// Replaces the PIN; a wrong [currentPin] throws [PinRejected] and changes nothing. The
+  /// Whether [chain]'s wallet opens with a passphrase ([isValidPassphrase]) instead of a PIN.
+  Future<bool> usesPassphrase(Chain chain) async =>
+      await store.read(_key(chain, 'pinPassphrase')) == '1';
+
+  /// Replaces the PIN, or the passphrase, with [newPin]: a PIN of [pinLength] digits or a
+  /// passphrase ([isValidPassphrase]), which the unlock screen then asks for instead. A
+  /// wrong [currentPin] throws [PinRejected] and changes nothing. The
   /// biometric copy is rewritten, which prompts. Returns false when biometric unlock was on
   /// and is now off, because that prompt was dismissed.
   Future<bool> changePin(
@@ -242,6 +280,12 @@ class WalletVault {
 
   Future<bool> biometricsEnabled(Chain chain) async =>
       await store.read(_key(chain, 'pinBiometrics')) == '1';
+
+  /// Whether biometrics can open [chain]'s wallet now: on, and the store can read its copy
+  /// behind a Keystore-bound prompt ([BiometricStore.readable]). After the copy was written in
+  /// this process they stay on but wait for the app's next start; the PIN works meanwhile.
+  Future<bool> biometricsReady(Chain chain) async =>
+      biometrics.readable && await biometricsEnabled(chain);
 
   /// Checks [pin] ([checkPin]), then stores the biometric copy of it. Returns false if the
   /// prompt was dismissed.
@@ -275,7 +319,7 @@ class WalletVault {
   /// The biometric copy of the PIN. Null if biometrics are off, the prompt was dismissed, or
   /// the copy is gone (for example after a new fingerprint was enrolled; that turns them off).
   Future<String?> readBiometricPin(Chain chain) async {
-    if (!await biometricsEnabled(chain)) return null;
+    if (!await biometricsReady(chain)) return null;
     final String? pin;
     try {
       pin = await biometrics.read(_key(chain, 'pin'));
@@ -331,6 +375,7 @@ class WalletVault {
     for (final name in [
       'backedUp',
       'demoPin',
+      'pinPassphrase',
       'backupCardDismissed', // home's recovery phrase card (home_screen.dart)
     ]) {
       await store.delete(_key(chain, name));

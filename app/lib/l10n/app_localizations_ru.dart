@@ -19370,4 +19370,43 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Открыть настройки сети';
+
+  @override
+  String get errorPinKeyLost =>
+      'Защищённое оборудование этого телефона больше не хранит ключ, нужный вашему PIN-коду, поэтому PIN-код не откроет этот кошелёк. Ваши монеты в безопасности: нажмите «Забыли PIN-код?» и восстановите кошелёк по фразе восстановления.';
+
+  @override
+  String get settingsUsePassphrase => 'Использовать пароль вместо PIN-кода';
+
+  @override
+  String get settingsChangePassphrase => 'Сменить пароль';
+
+  @override
+  String get passphraseLabel => 'Пароль';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выберите пароль не короче $count символа, не только из цифр',
+      many: 'Выберите пароль не короче $count символов, не только из цифр',
+      few: 'Выберите пароль не короче $count символов, не только из цифр',
+      one: 'Выберите пароль не короче $count символа, не только из цифр',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'Повторите пароль';
+
+  @override
+  String get passphraseMismatch => 'Пароли не совпадают';
+
+  @override
+  String get passphraseSet => 'Пароль установлен';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'Пароль установлен. Биометрическая разблокировка выключена; включите её снова ниже.';
 }

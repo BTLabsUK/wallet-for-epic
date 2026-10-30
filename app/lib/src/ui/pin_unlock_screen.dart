@@ -8,6 +8,7 @@ import '../app_log.dart';
 import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
+import '../pin_wrap.dart' show PinKeyLost;
 import '../providers.dart';
 import '../restore_scan.dart' show historyImportOfferProvider;
 import '../vault.dart';
@@ -99,10 +100,15 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final autoPrompt = ref.read(lockReasonProvider.notifier).takeAutoPrompt();
     final vault = ref.read(vaultProvider);
     // The count survives a restart; say what the next try costs before it is made.
-    final failures = await ref
-        .read(walletServiceProvider)
-        .pinFailures(config: config);
-    final biometrics = await vault.biometricsEnabled(config.chain);
+    final int failures;
+    try {
+      failures = await ref.read(walletServiceProvider).pinFailures(config: config);
+    } on PinKeyLost catch (error) {
+      // The PIN cannot open this wallet any more: said before a PIN is typed, with Forgot PIN.
+      if (mounted) setState(() => _error = describeError(context.l10n, error));
+      return;
+    }
+    final biometrics = await vault.biometricsReady(config.chain);
     // A demo wallet made with the demo PIN gets it filled in, unless a try already failed; in a
     // build without PINs it opens with a tap instead.
     final demoPinWallet = failures == 0 && await vault.usesDemoPin(config.chain);
@@ -154,7 +160,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     if (!mounted || _busy || ref.read(sessionProvider) != null) return;
     if (pin == null) {
       // Dismissed, or the copy is gone after a new enrollment.
-      final still = await vault.biometricsEnabled(config.chain);
+      final still = await vault.biometricsReady(config.chain);
       if (mounted) setState(() => _biometrics = still);
       return;
     }
@@ -196,7 +202,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       }
       if (session == null) {
         // Dismissed, or the copy is gone after a new enrollment.
-        final still = await vault.biometricsEnabled(config.chain);
+        final still = await vault.biometricsReady(config.chain);
         if (mounted) setState(() => _biometrics = still);
         return;
       }
@@ -210,7 +216,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) goHome(context);
     } on PinRejected catch (rejection) {
       _pin.clear();
-      final still = await vault.biometricsEnabled(config.chain);
+      final still = await vault.biometricsReady(config.chain);
       if (!mounted) return;
       setState(() {
         _biometrics = still;
@@ -311,6 +317,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                 enabled: !_busy,
                 errorText: _pinError,
                 onCompleted: _unlockWithPin,
+                passphrase: ref.watch(usesPassphraseProvider).value ?? false,
               ),
             },
           const SizedBox(height: 16),

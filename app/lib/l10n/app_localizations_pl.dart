@@ -19386,4 +19386,45 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Otwórz ustawienia sieci';
+
+  @override
+  String get errorPinKeyLost =>
+      'Bezpieczny sprzęt tego telefonu nie ma już klucza potrzebnego Twojemu PIN-owi, więc PIN nie otworzy tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.';
+
+  @override
+  String get settingsUsePassphrase => 'Użyj hasła zamiast PIN-u';
+
+  @override
+  String get settingsChangePassphrase => 'Zmień hasło';
+
+  @override
+  String get passphraseLabel => 'Hasło';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Wybierz hasło o długości co najmniej $count znaku, nie same cyfry',
+      many:
+          'Wybierz hasło o długości co najmniej $count znaków, nie same cyfry',
+      few: 'Wybierz hasło o długości co najmniej $count znaków, nie same cyfry',
+      one: 'Wybierz hasło o długości co najmniej $count znaku, nie same cyfry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'Powtórz hasło';
+
+  @override
+  String get passphraseMismatch => 'Hasła się różnią';
+
+  @override
+  String get passphraseSet => 'Ustawiono hasło';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'Ustawiono hasło. Odblokowanie biometryczne jest wyłączone; włącz je ponownie poniżej.';
 }

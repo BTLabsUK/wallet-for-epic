@@ -17647,4 +17647,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => '打开网络设置';
+
+  @override
+  String get errorPinKeyLost =>
+      '这部手机的安全硬件已不再保存您的 PIN 码所需的密钥，因此 PIN 码无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
+
+  @override
+  String get settingsUsePassphrase => '使用密码短语代替 PIN 码';
+
+  @override
+  String get settingsChangePassphrase => '更改密码短语';
+
+  @override
+  String get passphraseLabel => '密码短语';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '请设置至少 $count 个字符且不全是数字的密码短语',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => '再次输入密码短语';
+
+  @override
+  String get passphraseMismatch => '两次输入的密码短语不同';
+
+  @override
+  String get passphraseSet => '密码短语已设置';
+
+  @override
+  String get passphraseSetBiometricsOff => '密码短语已设置。生物识别解锁已关闭；可在下方重新开启。';
 }

@@ -23,6 +23,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var updater: AppUpdater? = null
     private var incomingChannel: MethodChannel? = null
     private var networkWatch: NetworkWatch? = null
+    private var pinKeyWrap: PinKeyWrap? = null
 
     /** A transaction file another app handed us before Dart asked for it. */
     private var pendingFile: Map<String, String>? = null
@@ -156,11 +157,16 @@ class MainActivity : FlutterFragmentActivity() {
         updater = AppUpdater(this, channel).also { channel.setMethodCallHandler(it) }
         networkWatch?.dispose()
         networkWatch = NetworkWatch.register(applicationContext, messenger)
+        // The PIN key and failure count under a Keystore key (PinKeyWrap.kt, pin_wrap.dart).
+        pinKeyWrap?.dispose()
+        pinKeyWrap = PinKeyWrap.register(applicationContext, messenger)
     }
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         networkWatch?.dispose()
         networkWatch = null
+        pinKeyWrap?.dispose()
+        pinKeyWrap = null
         super.cleanUpFlutterEngine(flutterEngine)
     }
 

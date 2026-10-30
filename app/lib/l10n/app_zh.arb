@@ -4889,5 +4889,14 @@
   "qrScanAimFinished": "请将相机对准另一台设备上的二维码。",
   "deskSetAdvModeStandardHint": "钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私”下的独立开关。",
   "deskFinNotPostedKillBody": "{amount} 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。",
-  "deskRailOpenNetwork": "打开网络设置"
+  "deskRailOpenNetwork": "打开网络设置",
+  "errorPinKeyLost": "这部手机的安全硬件已不再保存您的 PIN 码所需的密钥，因此 PIN 码无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。",
+  "settingsUsePassphrase": "使用密码短语代替 PIN 码",
+  "settingsChangePassphrase": "更改密码短语",
+  "passphraseLabel": "密码短语",
+  "passphraseChoose": "{count, plural, other{请设置至少 {count} 个字符且不全是数字的密码短语}}",
+  "passphraseRepeat": "再次输入密码短语",
+  "passphraseMismatch": "两次输入的密码短语不同",
+  "passphraseSet": "密码短语已设置",
+  "passphraseSetBiometricsOff": "密码短语已设置。生物识别解锁已关闭；可在下方重新开启。"
 }

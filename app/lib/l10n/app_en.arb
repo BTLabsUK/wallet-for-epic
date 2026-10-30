@@ -25166,5 +25166,46 @@
   "deskRailOpenNetwork": "Open Network settings",
   "@deskRailOpenNetwork": {
     "description": "Hover card of a status row the network mode turns off: where a click goes."
+  },
+  "errorPinKeyLost": "This phone's secure hardware no longer holds the key your PIN needs, so the PIN cannot open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.",
+  "@errorPinKeyLost": {
+    "description": "Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text."
+  },
+  "settingsUsePassphrase": "Use a passphrase instead of the PIN",
+  "@settingsUsePassphrase": {
+    "description": "Settings row: replace the 6-digit PIN with a longer passphrase."
+  },
+  "settingsChangePassphrase": "Change passphrase",
+  "@settingsChangePassphrase": {
+    "description": "Settings row when a passphrase is already in use."
+  },
+  "passphraseLabel": "Passphrase",
+  "@passphraseLabel": {
+    "description": "Label of the passphrase field."
+  },
+  "passphraseChoose": "{count, plural, other{Choose a passphrase of at least {count} characters, not only digits}}",
+  "@passphraseChoose": {
+    "description": "Heading and error above the new passphrase field.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passphraseRepeat": "Repeat the passphrase",
+  "@passphraseRepeat": {
+    "description": "Label of the field that repeats the new passphrase."
+  },
+  "passphraseMismatch": "The two passphrases differ",
+  "@passphraseMismatch": {
+    "description": "Error when the two passphrases differ."
+  },
+  "passphraseSet": "Passphrase set",
+  "@passphraseSet": {
+    "description": "Short notice after the passphrase was set."
+  },
+  "passphraseSetBiometricsOff": "Passphrase set. Biometric unlock is off; turn it on again below.",
+  "@passphraseSetBiometricsOff": {
+    "description": "Notice after setting a passphrase when the biometric prompt was dismissed."
   }
 }

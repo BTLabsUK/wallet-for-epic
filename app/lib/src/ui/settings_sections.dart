@@ -590,6 +590,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           title: Text(l.settingsChangePin),
           onTap: () => _push(const ChangePinScreen()),
         ),
+      // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
+      if (!demo)
+        ListTile(
+          leading: const Icon(Icons.password),
+          title: Text(
+            ref.watch(usesPassphraseProvider).value ?? false
+                ? l.settingsChangePassphrase
+                : l.settingsUsePassphrase,
+          ),
+          onTap: () => _push(const ChangePinScreen(passphrase: true)),
+        ),
       if (!demo && (biometrics?.available ?? false))
         SwitchListTile(
           secondary: const Icon(Icons.fingerprint),

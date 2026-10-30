@@ -18954,4 +18954,41 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'Netzwerk-Einstellungen öffnen';
+
+  @override
+  String get errorPinKeyLost =>
+      'Die Sicherheitshardware dieses Telefons hat den Schlüssel, den Ihre PIN braucht, nicht mehr, daher öffnet die PIN diese Wallet nicht. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
+
+  @override
+  String get settingsUsePassphrase => 'Passphrase statt PIN verwenden';
+
+  @override
+  String get settingsChangePassphrase => 'Passphrase ändern';
+
+  @override
+  String get passphraseLabel => 'Passphrase';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Wählen Sie eine Passphrase mit mindestens $count Zeichen, nicht nur Ziffern',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'Passphrase wiederholen';
+
+  @override
+  String get passphraseMismatch => 'Die beiden Passphrasen sind verschieden';
+
+  @override
+  String get passphraseSet => 'Passphrase festgelegt';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'Passphrase festgelegt. Biometrisches Entsperren ist aus; schalten Sie es unten wieder ein.';
 }

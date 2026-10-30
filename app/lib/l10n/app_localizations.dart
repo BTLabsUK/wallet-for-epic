@@ -29251,6 +29251,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Network settings'**
   String get deskRailOpenNetwork;
+
+  /// Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone\'s secure hardware no longer holds the key your PIN needs, so the PIN cannot open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.'**
+  String get errorPinKeyLost;
+
+  /// Settings row: replace the 6-digit PIN with a longer passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a passphrase instead of the PIN'**
+  String get settingsUsePassphrase;
+
+  /// Settings row when a passphrase is already in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Change passphrase'**
+  String get settingsChangePassphrase;
+
+  /// Label of the passphrase field.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get passphraseLabel;
+
+  /// Heading and error above the new passphrase field.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{Choose a passphrase of at least {count} characters, not only digits}}'**
+  String passphraseChoose(int count);
+
+  /// Label of the field that repeats the new passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat the passphrase'**
+  String get passphraseRepeat;
+
+  /// Error when the two passphrases differ.
+  ///
+  /// In en, this message translates to:
+  /// **'The two passphrases differ'**
+  String get passphraseMismatch;
+
+  /// Short notice after the passphrase was set.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase set'**
+  String get passphraseSet;
+
+  /// Notice after setting a passphrase when the biometric prompt was dismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase set. Biometric unlock is off; turn it on again below.'**
+  String get passphraseSetBiometricsOff;
 }
 
 class _AppLocalizationsDelegate

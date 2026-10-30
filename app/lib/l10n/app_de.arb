@@ -4889,5 +4889,14 @@
   "qrScanAimFinished": "Richten Sie die Kamera auf den Code des anderen Geräts.",
   "deskSetAdvModeStandardHint": "Alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung. Tor ist ein eigener Schalter unter Datenschutz.",
   "deskFinNotPostedKillBody": "{amount} sind abgeschlossen. „Notaus“ ist an, daher kann dieser Computer die Zahlung nicht senden. Speichern oder kopieren Sie sie und senden Sie sie dann von einem Gerät, das online ist: Empfangen › Transaktionsdateien › Fertige Zahlung senden.",
-  "deskRailOpenNetwork": "Netzwerk-Einstellungen öffnen"
+  "deskRailOpenNetwork": "Netzwerk-Einstellungen öffnen",
+  "errorPinKeyLost": "Die Sicherheitshardware dieses Telefons hat den Schlüssel, den Ihre PIN braucht, nicht mehr, daher öffnet die PIN diese Wallet nicht. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.",
+  "settingsUsePassphrase": "Passphrase statt PIN verwenden",
+  "settingsChangePassphrase": "Passphrase ändern",
+  "passphraseLabel": "Passphrase",
+  "passphraseChoose": "{count, plural, other{Wählen Sie eine Passphrase mit mindestens {count} Zeichen, nicht nur Ziffern}}",
+  "passphraseRepeat": "Passphrase wiederholen",
+  "passphraseMismatch": "Die beiden Passphrasen sind verschieden",
+  "passphraseSet": "Passphrase festgelegt",
+  "passphraseSetBiometricsOff": "Passphrase festgelegt. Biometrisches Entsperren ist aus; schalten Sie es unten wieder ein."
 }

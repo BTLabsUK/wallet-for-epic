@@ -2282,7 +2282,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pinForgot => 'ลืม PIN?';
 
   @override
-  String get pinResetTitle => 'ลืม PIN';
+  String get pinResetTitle => 'ลืม PIN?';
 
   @override
   String get pinResetBody =>
@@ -18314,4 +18314,40 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRailOpenNetwork => 'เปิดการตั้งค่าเครือข่าย';
+
+  @override
+  String get errorPinKeyLost =>
+      'ฮาร์ดแวร์ความปลอดภัยของโทรศัพท์เครื่องนี้ไม่มีกุญแจที่ PIN ของคุณต้องใช้แล้ว PIN จึงเปิดกระเป๋าเงินนี้ไม่ได้ เหรียญของคุณยังปลอดภัย: แตะ \"ลืม PIN\" แล้วกู้คืนกระเป๋าเงินจากวลีกู้คืน';
+
+  @override
+  String get settingsUsePassphrase => 'ใช้วลีรหัสผ่านแทน PIN';
+
+  @override
+  String get settingsChangePassphrase => 'เปลี่ยนวลีรหัสผ่าน';
+
+  @override
+  String get passphraseLabel => 'วลีรหัสผ่าน';
+
+  @override
+  String passphraseChoose(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'เลือกวลีรหัสผ่านอย่างน้อย $count ตัวอักษร ที่ไม่ใช่ตัวเลขล้วน',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get passphraseRepeat => 'ใส่วลีรหัสผ่านอีกครั้ง';
+
+  @override
+  String get passphraseMismatch => 'วลีรหัสผ่านทั้งสองไม่ตรงกัน';
+
+  @override
+  String get passphraseSet => 'ตั้งวลีรหัสผ่านแล้ว';
+
+  @override
+  String get passphraseSetBiometricsOff =>
+      'ตั้งวลีรหัสผ่านแล้ว การปลดล็อกด้วยไบโอเมตริกปิดอยู่ เปิดอีกครั้งได้ด้านล่าง';
 }

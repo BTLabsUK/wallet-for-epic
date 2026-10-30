@@ -13,7 +13,9 @@ import '../vault.dart';
 import 'common.dart';
 import 'demo_pin.dart';
 
-/// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in.
+/// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in. With
+/// [passphrase] (a wallet whose PIN was replaced by a passphrase, Settings) a masked text
+/// field instead, that calls [onCompleted] when the user submits it.
 class PinField extends StatelessWidget {
   const PinField({
     super.key,
@@ -23,6 +25,7 @@ class PinField extends StatelessWidget {
     this.errorText,
     this.enabled = true,
     this.autofocus = true,
+    this.passphrase = false,
   });
 
   final TextEditingController controller;
@@ -31,9 +34,38 @@ class PinField extends StatelessWidget {
   final String? errorText;
   final bool enabled;
   final bool autofocus;
+  final bool passphrase;
 
   @override
   Widget build(BuildContext context) {
+    if (passphrase) {
+      void submit() {
+        if (controller.text.isNotEmpty) onCompleted(controller.text);
+      }
+
+      return TextField(
+        controller: controller,
+        enabled: enabled,
+        autofocus: autofocus,
+        obscureText: true,
+        autocorrect: false,
+        enableSuggestions: false,
+        enableIMEPersonalizedLearning: false,
+        keyboardType: TextInputType.visiblePassword,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => submit(),
+        decoration: InputDecoration(
+          labelText: context.l10n.passphraseLabel,
+          errorText: errorText,
+          border: const OutlineInputBorder(),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.arrow_forward),
+            tooltip: context.l10n.commonContinue,
+            onPressed: enabled ? submit : null,
+          ),
+        ),
+      );
+    }
     return TextField(
       controller: controller,
       enabled: enabled,
@@ -303,8 +335,14 @@ class _PinWaitNoteState extends State<PinWaitNote> {
 Future<DateTime?> pinCheckTime(WidgetRef ref) async {
   final config = ref.read(walletConfigProvider);
   if (config == null) return null;
-  final wait = await ref.read(vaultProvider).nextPinWait(config);
-  return wait == Duration.zero ? null : DateTime.now().add(wait);
+  // Only for the note: a count that cannot be read (a lost Keystore key) is reported by the
+  // attempt itself.
+  try {
+    final wait = await ref.read(vaultProvider).nextPinWait(config);
+    return wait == Duration.zero ? null : DateTime.now().add(wait);
+  } catch (_) {
+    return null;
+  }
 }
 
 /// Asks for the PIN of the open wallet (or, with [allowBiometrics], its biometric copy) and
@@ -404,7 +442,7 @@ class _PinPromptDialogState<T extends Object>
     if (config == null || !widget.allowBiometrics) return;
     final enabled = await ref
         .read(vaultProvider)
-        .biometricsEnabled(config.chain);
+        .biometricsReady(config.chain);
     if (!mounted) return;
     setState(() => _biometrics = enabled);
     // Biometrics go first, as on the unlock screen; the PIN stays for a dismissed prompt.
@@ -417,7 +455,7 @@ class _PinPromptDialogState<T extends Object>
     final vault = ref.read(vaultProvider);
     final pin = await vault.readBiometricPin(config.chain);
     if (pin == null) {
-      final still = await vault.biometricsEnabled(config.chain);
+      final still = await vault.biometricsReady(config.chain);
       if (mounted) setState(() => _biometrics = still);
       return;
     }
@@ -490,6 +528,7 @@ class _PinPromptDialogState<T extends Object>
                 enabled: !_busy,
                 errorText: _error,
                 onCompleted: _run,
+                passphrase: ref.watch(usesPassphraseProvider).value ?? false,
               ),
             },
             if (_busy) ...[
