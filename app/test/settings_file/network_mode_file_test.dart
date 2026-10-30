@@ -77,6 +77,13 @@ void main() {
       expect(networkModeIn(c.settings), NetworkMode.killSwitch, reason: 'the last good value stays');
     });
 
+    test('a first start with a mode it cannot read fails closed: Kill switch, with a notice', () async {
+      file.writeAsStringSync('$shippedText\n[network]\nmode = "kill-switch"\n');
+      final c = await open();
+      expect(c.notices, isNotEmpty);
+      expect(networkModeIn(c.settings), NetworkMode.killSwitch);
+    });
+
     test('a hand edit reaches the gate at once through the opened file', () async {
       final store = MemorySecretStore();
       final c = await openAppSettingsOn(backend: FileSettingsBackend(dir), store: store, shippedText: shippedText, configText: testConfigText());

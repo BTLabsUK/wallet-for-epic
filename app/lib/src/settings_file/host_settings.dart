@@ -693,7 +693,10 @@ SettingsRead readSettings(String text, {required HostSettings shipped, HostSetti
       values[key.path] = c.value!;
     } else {
       issues.add(ValueIssue(key.path, _problemLine(scan, key, c), c.problem!));
-      values[key.path] = (lastGood ?? shipped).value(key.path);
+      // A network mode the app can't read, with no good one before it, fails closed: the user
+      // asked for some mode, so nothing connects until the file names one it can read.
+      values[key.path] = lastGood?.value(key.path) ??
+          (key.path == 'network.mode' ? 'kill_switch' : shipped.value(key.path));
     }
   }
   return SettingsRead(HostSettings._(values, shipped.config), issues, _unknownKeys(doc, scan), doc);

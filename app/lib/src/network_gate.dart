@@ -263,10 +263,13 @@ abstract final class NetGate {
   /// Whether a connection of [kind] to [host] may be opened now (see [dial]).
   static bool allows(NetDial kind, String host) {
     switch (_mode) {
-      case NetworkMode.standard || NetworkMode.torOnly:
-        // Tor only's own rule lives where the connection is made (`TorNet`): through tor, or
-        // waiting for it, never direct.
+      case NetworkMode.standard:
         return true;
+      case NetworkMode.torOnly:
+        // Tor only's own rule lives where the connection is made (`TorNet`): through tor, or
+        // waiting for it, never direct. The system browser can't be put through the app's
+        // tor, so it stays shut.
+        return kind != NetDial.browser;
       case NetworkMode.killSwitch:
         return false;
       case NetworkMode.nodeOnly:

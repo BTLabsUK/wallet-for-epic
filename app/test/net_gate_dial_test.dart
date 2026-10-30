@@ -25,12 +25,12 @@ void main() {
 
   const hosts = ['node.example', 'status.example', '127.0.0.1', 'localhost', '10.100.10.20'];
 
-  test('Normal and Tor only: every kind to every host', () {
+  test('Normal: every kind to every host; Tor only: all but the system browser (tor routes the rest)', () {
     for (final m in [NetworkMode.standard, NetworkMode.torOnly]) {
       NetGate.set(m);
       for (final k in NetDial.values) {
         for (final h in hosts) {
-          dials(k, h, allowed: true);
+          dials(k, h, allowed: m == NetworkMode.standard || k != NetDial.browser);
         }
       }
     }
