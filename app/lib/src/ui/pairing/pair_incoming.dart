@@ -335,7 +335,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     });
   }
 
-  /// Paste finish link: the confirm in the clipboard, opened here.
+  /// Paste finish link: the confirm in the clipboard, read on this press only.
   Future<void> _pasteFinish() async {
     final l = context.l10n;
     final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
@@ -344,8 +344,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
       ref.read(noticeProvider.notifier).show(l.pairInvalidLink, level: NoticeLevel.warning);
       return;
     }
-    await markPairingLinkSeen(ref, pairingLinkIn(text)!);
-    if (mounted) await openPairingLink(context, ref, text);
+    await openPairingLink(context, ref, text);
   }
 
   @override
@@ -564,7 +563,7 @@ class _PairReplyScreenState extends ConsumerState<PairReplyScreen> {
   Future<void> _share({required bool copy}) async {
     final link = _link;
     if (link == null) return;
-    await sharePairingMessage(context, ref, context.l10n.pairReplyMessage(link), link: link, copy: copy);
+    await sharePairingMessage(context, ref, context.l10n.pairReplyMessage(link), copy: copy);
     if (!mounted || _left) return;
     _left = true;
     await Navigator.of(context).pushReplacement(
@@ -667,7 +666,7 @@ class _PairFinishScreenState extends ConsumerState<PairFinishScreen> {
   Future<void> _share({required bool copy}) async {
     final link = _link;
     if (link == null) return;
-    await sharePairingMessage(context, ref, context.l10n.pairFinishMessage(link), link: link, copy: copy);
+    await sharePairingMessage(context, ref, context.l10n.pairFinishMessage(link), copy: copy);
     if (mounted) setState(() => _shared = true);
   }
 

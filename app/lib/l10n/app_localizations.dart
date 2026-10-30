@@ -23138,6 +23138,12 @@ abstract class AppLocalizations {
   /// **'Paste finish link'**
   String get pairPasteFinish;
 
+  /// Pair screen button: reads the clipboard once, on press, and opens the pairing link found there (an invite, a reply, a finish link or a code). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste link'**
+  String get pairPasteLink;
+
   /// Inviter, step 3 title (opens by itself once the reply is in)
   ///
   /// In en, this message translates to:
@@ -23161,42 +23167,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Then check the words together.'**
   String get pairFinishThenCheck;
-
-  /// Title of the one-time offer (phone bottom sheet, desktop dialog)
-  ///
-  /// In en, this message translates to:
-  /// **'Pairing link found'**
-  String get pairClipTitle;
-
-  /// Body for an invite (name read from the invite, shown as claimed)
-  ///
-  /// In en, this message translates to:
-  /// **'An invite from “{name}” is on the clipboard. Use it?'**
-  String pairClipInvite(String name);
-
-  /// Body for a reply (offered only while this wallet has an open invite)
-  ///
-  /// In en, this message translates to:
-  /// **'A reply to your invite is on the clipboard. Use it?'**
-  String get pairClipReply;
-
-  /// Body for a finish link (offered only while this wallet waits for one)
-  ///
-  /// In en, this message translates to:
-  /// **'The finish link for your pairing is on the clipboard. Use it?'**
-  String get pairClipFinish;
-
-  /// Body for a card link (desktop face to face; offered only on the Pair screen)
-  ///
-  /// In en, this message translates to:
-  /// **'A pairing code is on the clipboard. Use it?'**
-  String get pairClipCard;
-
-  /// Primary button of the offer (secondary: pairNotNow “Not now”)
-  ///
-  /// In en, this message translates to:
-  /// **'Use it'**
-  String get pairClipUse;
 
   /// Notice when a pasted/found reply or finish link belongs to a pairing that already finished (relay was faster)
   ///

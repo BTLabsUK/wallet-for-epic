@@ -19299,6 +19299,10 @@
   "@pairPasteFinish": {
     "description": "Joiner, step 3 button"
   },
+  "pairPasteLink": "Paste link",
+  "@pairPasteLink": {
+    "description": "Pair screen button: reads the clipboard once, on press, and opens the pairing link found there (an invite, a reply, a finish link or a code). Short."
+  },
   "pairFinishTitle": "Send the finish link",
   "@pairFinishTitle": {
     "description": "Inviter, step 3 title (opens by itself once the reply is in)"
@@ -19320,36 +19324,6 @@
   "pairFinishThenCheck": "Then check the words together.",
   "@pairFinishThenCheck": {
     "description": "Inviter, step 3, under the button; then Check the words (sasTitle)"
-  },
-  "pairClipTitle": "Pairing link found",
-  "@pairClipTitle": {
-    "description": "Title of the one-time offer (phone bottom sheet, desktop dialog)"
-  },
-  "pairClipInvite": "An invite from “{name}” is on the clipboard. Use it?",
-  "@pairClipInvite": {
-    "description": "Body for an invite (name read from the invite, shown as claimed)",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
-  "pairClipReply": "A reply to your invite is on the clipboard. Use it?",
-  "@pairClipReply": {
-    "description": "Body for a reply (offered only while this wallet has an open invite)"
-  },
-  "pairClipFinish": "The finish link for your pairing is on the clipboard. Use it?",
-  "@pairClipFinish": {
-    "description": "Body for a finish link (offered only while this wallet waits for one)"
-  },
-  "pairClipCard": "A pairing code is on the clipboard. Use it?",
-  "@pairClipCard": {
-    "description": "Body for a card link (desktop face to face; offered only on the Pair screen)"
-  },
-  "pairClipUse": "Use it",
-  "@pairClipUse": {
-    "description": "Primary button of the offer (secondary: pairNotNow “Not now”)"
   },
   "pairAlreadyPaired": "Already paired with {name}.",
   "@pairAlreadyPaired": {

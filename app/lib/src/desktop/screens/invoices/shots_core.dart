@@ -6,12 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/shots.dart';
 import '../../data/invoice_state.dart';
 import '../../../models.dart' show PairingState;
-import '../../../pairing_api.dart' show PairingLinkKind;
 import '../../../pairing_fake.dart' show fakePairingLink;
 import '../../../sas_table.dart';
 import '../../data/mock_wallet.dart';
 import '../../data/pairing_state.dart' show deskPairingsProvider;
-import '../pairing/pair_screens.dart' show DeskFinishDialog, DeskPairWaitingDialog, DeskPairWay, DeskPairedSaveDialog, DeskPairingClipDialog, showDeskCheckWordsFor;
+import '../pairing/pair_screens.dart' show DeskFinishDialog, DeskPairWaitingDialog, DeskPairWay, DeskPairedSaveDialog, showDeskCheckWordsFor;
 import '../../widgets/kit.dart';
 import '../wallet/contacts_screen.dart' show ContactsArgs;
 
@@ -192,12 +191,6 @@ final List<DeskShot> invoiceSetShotsCore = [
       final id = p.records.firstWhere((r) => r.state == PairingState.pendingReply).id;
       await showEDialog<void>(ctx, dismissible: false, builder: (_) => DeskPairWaitingDialog(pairingId: id, byMessage: true));
     },
-  ),
-  DeskShot(
-    id: 'pair-10-clipboard',
-    title: 'A pairing link found on the clipboard',
-    route: DeskRoute.contacts,
-    dialog: (ctx) => showEDialog<bool>(ctx, builder: (_) => const DeskPairingClipDialog(kind: PairingLinkKind.invite, name: 'Anna')),
   ),
   DeskShot(
     id: 'pair-11-contacts-hint',

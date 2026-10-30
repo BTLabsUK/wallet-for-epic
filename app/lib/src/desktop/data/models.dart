@@ -1159,8 +1159,9 @@ class DeskSettings {
   /// keeps it; empty until the user gave one.
   final String pairingSeenAs;
 
-  /// The pairing links offered once from the clipboard, or copied from this wallet, as their
-  /// hashes (`PairingClipSeen.encode`): never offered again. Never the links themselves.
+  /// Hashes of pairing links the clipboard offer of 26.10.18–26.10.24 showed once. The app no
+  /// longer reads the clipboard by itself, so nothing writes or reads this; the key stays in
+  /// the settings file as older versions wrote it.
   final String pairingClipSeen;
 
   /// Interface scale in percent, one of [deskScales]: text and layout together.

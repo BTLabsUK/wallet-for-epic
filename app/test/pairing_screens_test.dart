@@ -19,7 +19,6 @@ import 'package:epic_wallet/src/ui/pairing/pair_check.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_steps.dart';
-import 'package:epic_wallet/src/ui/pairing/pairing_clip_offer.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show PairingNotices, pairingNoticeOf;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart';
 import 'package:epic_wallet/src/ui/pairing/pending_invites.dart';
@@ -146,6 +145,33 @@ void main() {
       expect(find.bySemanticsLabel(_l.pairStepOf(1, _l.pairStepInvite)), findsOneWidget);
     });
 
+    testWidgets('the clipboard is read on Paste link only: nothing on open, the press opens the invite there', (tester) async {
+      final h = _Harness();
+      // The link is made by another fake wallet: this one opens it as theirs.
+      _clipboard(tester, 'Pair with me in Epic Cash: ${h.api.inviteLinkFrom(name: 'Northwind')}');
+      await h.pump(tester, const PairScreen());
+      expect(find.byType(IncomingInviteSheet), findsNothing, reason: 'no clipboard read on open');
+      expect(find.text(_l.pairPasteLink, skipOffstage: false), findsOneWidget);
+      await tester.ensureVisible(find.byKey(pairPasteLinkKey, skipOffstage: false));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(pairPasteLinkKey));
+      await _frames(tester);
+      expect(find.byType(IncomingInviteSheet), findsOneWidget);
+      expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
+    });
+
+    testWidgets('Paste link with no pairing link on the clipboard: a notice, nothing opens', (tester) async {
+      final h = _Harness();
+      _clipboard(tester, 'hello');
+      await h.pump(tester, const PairScreen());
+      await tester.ensureVisible(find.byKey(pairPasteLinkKey, skipOffstage: false));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(pairPasteLinkKey));
+      await _frames(tester);
+      expect(find.byType(IncomingInviteSheet), findsNothing);
+      expect(_notice(tester), _l.pairInvalidLink);
+    });
+
     testWidgets('offline: Words is off with the reason, the message way works', (tester) async {
       final h = _Harness();
       await h.pump(tester, const PairScreen(), net: PairNet.offline);
@@ -187,9 +213,6 @@ void main() {
       expect(find.text(_l.pairAwaitReplyTitle), findsOneWidget);
       expect(find.byKey(pairPasteReplyKey), findsOneWidget);
       expect(find.bySemanticsLabel(_l.pairStepOf(2, _l.pairStepReply)), findsOneWidget);
-      // Its own link is never offered back from the clipboard.
-      final seen = h.container(tester).read(pairingClipSeenProvider).value!;
-      expect(seen.has(invite.inviteLink!), isTrue);
     });
 
     testWidgets('a reply through the relay: the relay sent the finish link too, so the words open', (tester) async {

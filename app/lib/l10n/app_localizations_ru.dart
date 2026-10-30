@@ -15092,6 +15092,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairPasteFinish => 'Вставить завершающую ссылку';
 
   @override
+  String get pairPasteLink => 'Вставить ссылку';
+
+  @override
   String get pairFinishTitle => 'Отправьте завершающую ссылку';
 
   @override
@@ -15104,28 +15107,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => 'Затем вместе проверьте слова.';
-
-  @override
-  String get pairClipTitle => 'Найдена ссылка сопряжения';
-
-  @override
-  String pairClipInvite(String name) {
-    return 'В буфере обмена приглашение от «$name». Использовать?';
-  }
-
-  @override
-  String get pairClipReply =>
-      'В буфере обмена ответ на ваше приглашение. Использовать?';
-
-  @override
-  String get pairClipFinish =>
-      'В буфере обмена завершающая ссылка вашего сопряжения. Использовать?';
-
-  @override
-  String get pairClipCard => 'В буфере обмена код сопряжения. Использовать?';
-
-  @override
-  String get pairClipUse => 'Использовать';
 
   @override
   String pairAlreadyPaired(String name) {

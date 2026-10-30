@@ -12,7 +12,6 @@ import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
 import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf;
 import '../../pairing_api.dart';
-import '../../pairing_clipboard.dart' show PairingClipSeen;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'invoices.dart' show deskFailureKind;
 import 'models.dart' show Contact;
@@ -188,24 +187,6 @@ class DeskSeenAs extends Notifier<String> {
       final desk = ref.read(deskProvider.notifier);
       desk.saveSettings(ref.read(deskProvider).settings.copyWith(pairingSeenAs: shown)).ignore();
     });
-  }
-}
-
-/// The pairing links offered once from the clipboard or copied from here, kept in the
-/// settings as hashes (Pairing UX plan 5).
-final deskPairingClipSeenProvider = Provider<PairingClipSeen>(
-  (ref) => PairingClipSeen.decode(ref.watch(deskProvider.select((s) => s.settings.pairingClipSeen))),
-);
-
-/// [link] is never offered from the clipboard: it was offered once, or this wallet copied it.
-Future<void> deskMarkPairingLinkSeen(WidgetRef ref, String link) async {
-  final desk = ref.read(deskProvider.notifier);
-  final settings = ref.read(deskProvider).settings;
-  final next = PairingClipSeen.decode(settings.pairingClipSeen).add(link).encode();
-  try {
-    await desk.saveSettings(settings.copyWith(pairingClipSeen: next));
-  } on Object {
-    // Not kept: at worst it is offered once more.
   }
 }
 

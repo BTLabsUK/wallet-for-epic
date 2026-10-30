@@ -20,8 +20,7 @@ import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
-import '../../pairing_clipboard.dart' show PairingClipTrigger;
-import '../screens/pairing/pair_screens.dart' show deskLookForPairingLink, showDeskCheckWords;
+import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
 import '../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -101,17 +100,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _maybeTour();
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
-    // A pairing link copied in a chat is offered when the window comes back to the front while
-    // Contacts (Pair lives there) is open; anywhere else the clipboard is not read, as it may
-    // hold what another app put there.
+    // The clipboard is never read here: a pairing link is pasted on the Pair page by a press.
     _focus = AppLifecycleListener(
       onResume: () {
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
-        Timer(const Duration(milliseconds: 300), () {
-          if (!mounted || ref.read(deskNavProvider).route.section != DeskSection.contacts) return;
-          deskLookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
-        });
       },
     );
   }

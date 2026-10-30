@@ -14756,6 +14756,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairPasteFinish => 'Abschlusslink einfügen';
 
   @override
+  String get pairPasteLink => 'Link einfügen';
+
+  @override
   String get pairFinishTitle => 'Abschlusslink senden';
 
   @override
@@ -14768,29 +14771,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => 'Prüfen Sie dann gemeinsam die Wörter.';
-
-  @override
-  String get pairClipTitle => 'Kopplungslink gefunden';
-
-  @override
-  String pairClipInvite(String name) {
-    return 'In der Zwischenablage liegt eine Einladung von „$name“. Verwenden?';
-  }
-
-  @override
-  String get pairClipReply =>
-      'In der Zwischenablage liegt eine Antwort auf Ihre Einladung. Verwenden?';
-
-  @override
-  String get pairClipFinish =>
-      'In der Zwischenablage liegt der Abschlusslink Ihrer Kopplung. Verwenden?';
-
-  @override
-  String get pairClipCard =>
-      'In der Zwischenablage liegt ein Kopplungscode. Verwenden?';
-
-  @override
-  String get pairClipUse => 'Verwenden';
 
   @override
   String pairAlreadyPaired(String name) {

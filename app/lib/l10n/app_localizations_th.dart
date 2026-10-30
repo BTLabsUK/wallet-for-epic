@@ -14222,6 +14222,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairPasteFinish => 'วางลิงก์ปิดท้าย';
 
   @override
+  String get pairPasteLink => 'วางลิงก์';
+
+  @override
   String get pairFinishTitle => 'ส่งลิงก์ปิดท้าย';
 
   @override
@@ -14234,28 +14237,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => 'จากนั้นตรวจคำด้วยกัน';
-
-  @override
-  String get pairClipTitle => 'พบลิงก์จับคู่';
-
-  @override
-  String pairClipInvite(String name) {
-    return 'มีคำเชิญจาก “$name” อยู่ในคลิปบอร์ด ใช้เลยไหม';
-  }
-
-  @override
-  String get pairClipReply =>
-      'มีคำตอบสำหรับคำเชิญของคุณอยู่ในคลิปบอร์ด ใช้เลยไหม';
-
-  @override
-  String get pairClipFinish =>
-      'มีลิงก์ปิดท้ายการจับคู่ของคุณอยู่ในคลิปบอร์ด ใช้เลยไหม';
-
-  @override
-  String get pairClipCard => 'มีโค้ดจับคู่อยู่ในคลิปบอร์ด ใช้เลยไหม';
-
-  @override
-  String get pairClipUse => 'ใช้';
 
   @override
   String pairAlreadyPaired(String name) {

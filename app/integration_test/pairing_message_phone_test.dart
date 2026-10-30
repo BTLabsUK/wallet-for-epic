@@ -3,17 +3,17 @@
 // (integration_test/release_check/pairing_message_desk_test.dart) and tool/pairing_message_check.sh
 // carrying the messages between them, as a chat would:
 //
-//   1. this phone invites by message, the desktop joins; the reply comes back through the
-//      clipboard offer, the finish link goes out, both show the same four words;
-//   2. the desktop invites; Not now on the offer, then not offered again; pasted under Got words
-//      or a link?, Pair, the reply goes out, the finish link comes back through the offer;
+//   1. this phone invites by message, the desktop joins; the reply comes back by Paste reply,
+//      the finish link goes out, both show the same four words;
+//   2. the desktop invites; the clipboard is never read by itself; pasted under Got words or a
+//      link?, Pair, the reply goes out, the finish link comes back by Paste finish link;
 //   3. in person: this phone's code link goes to the desktop, the desktop's code is "scanned"
 //      (the camera is a fake fed the desktop's link; the rest is real).
 //
 // The real app with the real LEPIC core, Epicbox off on this phone, so every step goes by
 // message. What this phone shares is written to files/rc-chat/out/<name>; what it gets, the
-// driver copies in another app of the device (so Android sees another app's clip and shows its
-// toast) and switches back, then writes files/rc-chat/in/<name>. Nothing is printed but
+// driver copies in another app of the device and switches back, then writes
+// files/rc-chat/in/<name>. The app reads the clipboard on a Paste press only. Nothing is printed but
 // pass/fail lines without links: the driver also reads logcat for link text.
 //
 //   flutter test -d <emulator> integration_test/pairing_message_phone_test.dart
@@ -23,8 +23,6 @@ import 'package:epic_wallet/l10n/app_localizations_en.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/models.dart' show Chain;
-import 'package:epic_wallet/src/pairing_clip_probe.dart';
-import 'package:epic_wallet/src/pairing_clipboard.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -33,7 +31,6 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart' show CheckWordsScreen;
 import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
-import 'package:epic_wallet/src/ui/pairing/pairing_clip_offer.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart' show balanceFigureKey;
@@ -52,22 +49,6 @@ const _pin = '123456';
 void record(String step, bool pass, [String evidence = '']) {
   // ignore: avoid_print
   print('RC ${pass ? 'PASS' : 'FAIL'} | $step | ${evidence.replaceAll('\n', ' ⏎ ')}');
-}
-
-/// The phone's real clipboard, counting the reads of the clip's text (each shows Android's
-/// "pasted from your clipboard" toast for another app's clip).
-class _Counting implements ClipboardProbe {
-  int reads = 0;
-  final _real = const PlatformClipboardProbe();
-
-  @override
-  Future<ClipStamp?> stamp() => _real.stamp();
-
-  @override
-  Future<String?> read() {
-    reads++;
-    return _real.read();
-  }
 }
 
 late Directory _chat;
@@ -138,7 +119,6 @@ void main() {
   testWidgets('phone: pairing by message both ways and in person, with the desktop', (tester) async {
     final files = FakeSlateFiles();
     final camera = FakeQrCamera();
-    final probe = _Counting();
     await tester.runAsync(() async {
       await initWalletBackend();
       await const PlatformSecretStore().write('app.network', Chain.mainnet.name);
@@ -154,7 +134,6 @@ void main() {
           updatePlatformProvider.overrideWithValue(null),
           // The share sheet is another app's: what would go to it is taken here.
           slateFilesProvider.overrideWithValue(files),
-          pairingClipProbeProvider.overrideWithValue(probe),
           qrCameraFactoryProvider.overrideWithValue(() => camera),
         ],
         child: const WalletApp(),
@@ -199,15 +178,11 @@ void main() {
     record('1 invite shared as one message', invite.startsWith('Pair with me in Epic Cash: epiccash://pair/'), invite.split(':').first);
     await send(tester, 'p-invite', invite);
     await receive(tester, 'clip-d-reply');
-    final offered = await pumpUntil(tester, () => find.byType(PairingClipSheet).evaluate().isNotEmpty, timeout: const Duration(seconds: 30));
-    record('1 the reply on the clipboard is offered when the app comes back', offered, offered ? _l.pairClipReply : screen());
-    // Each new clip is read once (an older clip on the device was read once when Pair opened).
-    final readsAfterReply = probe.reads;
-    record('1 the clip was read', readsAfterReply >= 1, 'reads $readsAfterReply');
-    if (!offered) return;
-    await tapF(tester, find.byKey(pairClipUseKey));
+    await settle(tester, ms: 3000);
+    record('1 the reply on the clipboard is not offered by itself', find.byType(PairFinishScreen).evaluate().isEmpty, screen());
+    await tapF(tester, find.byKey(pairPasteReplyKey));
     final finishShown = await pumpUntil(tester, () => find.byType(PairFinishScreen).evaluate().isNotEmpty, timeout: const Duration(seconds: 60));
-    record('1 Use it opens the finish link to send', finishShown, screen());
+    record('1 Paste reply opens the finish link to send', finishShown, screen());
     await tapF(tester, find.byKey(finishShareKey));
     final finish = files.sharedTexts.last;
     record('1 the finish link shared as one message', finish.startsWith('Finish our Epic Cash pairing: epiccash://pair-confirm/'), finish.split(':').first);
@@ -219,22 +194,12 @@ void main() {
     home(tester);
     await settle(tester, ms: 1500);
 
-    // The same clip on the next return: not read again, so no second toast.
-    await send(tester, 'p-away1', 'switch away and back');
-    await receive(tester, 'back1');
-    await settle(tester, ms: 5000);
-    record('the unchanged clip is not read again on return', probe.reads == readsAfterReply && find.byType(PairingClipSheet).evaluate().isEmpty, 'reads ${probe.reads}');
-
-    // 2. The desktop invites: offered, Not now, not offered again, then pasted by hand.
+    // 2. The desktop invites: the clip is never read on a return, only by the paste icon.
     await receive(tester, 'clip-d-invite');
-    final offered2 = await pumpUntil(tester, () => find.byType(PairingClipSheet).evaluate().isNotEmpty, timeout: const Duration(seconds: 30));
-    record('2 the desktop\'s invite on the clipboard is offered, with its name', offered2 && hasText(_l.pairClipInvite('RC Desk')), screen());
-    if (offered2) await tapF(tester, find.byKey(pairClipNotNowKey));
-    final readsAfterNotNow = probe.reads;
     await send(tester, 'p-away2', 'switch away and back');
     await receive(tester, 'back2');
     await settle(tester, ms: 5000);
-    record('2 after Not now it is not offered again', find.byType(PairingClipSheet).evaluate().isEmpty && probe.reads == readsAfterNotNow, 'reads ${probe.reads}');
+    record('2 the desktop\'s invite on the clipboard is not offered on return', find.byType(IncomingInviteSheet).evaluate().isEmpty, screen());
     await push(tester, const EnterLinkScreen());
     await tapF(tester, find.byTooltip(_l.pairPaste));
     await tapF(tester, find.byKey(pairEnterGoKey));
@@ -249,9 +214,9 @@ void main() {
     await send(tester, 'p-reply', reply);
     record('2 then the wait for the finish link', find.byKey(waitingPasteFinishKey).evaluate().isNotEmpty, screen());
     await receive(tester, 'clip-d-finish');
-    final offered3 = await pumpUntil(tester, () => find.byType(PairingClipSheet).evaluate().isNotEmpty, timeout: const Duration(seconds: 30));
-    record('2 the finish link is offered over the wait', offered3, screen());
-    if (offered3) await tapF(tester, find.byKey(pairClipUseKey));
+    await settle(tester, ms: 3000);
+    record('2 the finish link is not taken by itself', find.byKey(waitingPasteFinishKey).evaluate().isNotEmpty, screen());
+    await tapF(tester, find.byKey(waitingPasteFinishKey));
     final w2 = await words(tester);
     record('2 the phone shows four words', w2.length == 4, w2.join(' '));
     record('2 the wait made way for the words', find.byType(CheckWordsScreen).evaluate().isNotEmpty && find.byType(PairingWaitingScreen).evaluate().isEmpty, screen());

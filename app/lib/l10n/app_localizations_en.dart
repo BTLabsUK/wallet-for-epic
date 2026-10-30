@@ -14584,6 +14584,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairPasteFinish => 'Paste finish link';
 
   @override
+  String get pairPasteLink => 'Paste link';
+
+  @override
   String get pairFinishTitle => 'Send the finish link';
 
   @override
@@ -14596,28 +14599,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => 'Then check the words together.';
-
-  @override
-  String get pairClipTitle => 'Pairing link found';
-
-  @override
-  String pairClipInvite(String name) {
-    return 'An invite from “$name” is on the clipboard. Use it?';
-  }
-
-  @override
-  String get pairClipReply =>
-      'A reply to your invite is on the clipboard. Use it?';
-
-  @override
-  String get pairClipFinish =>
-      'The finish link for your pairing is on the clipboard. Use it?';
-
-  @override
-  String get pairClipCard => 'A pairing code is on the clipboard. Use it?';
-
-  @override
-  String get pairClipUse => 'Use it';
 
   @override
   String pairAlreadyPaired(String name) {

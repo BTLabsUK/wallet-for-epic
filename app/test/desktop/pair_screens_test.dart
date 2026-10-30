@@ -6,9 +6,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/sas_table.dart';
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingClipSeenProvider, deskPairingsProvider, deskSeenAsProvider;
-import 'package:epic_wallet/src/pairing_clip_probe.dart' show pairingClipProbeProvider;
-import 'package:epic_wallet/src/pairing_clipboard.dart';
+import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskOwnCardProvider, deskPairingsProvider, deskSeenAsProvider;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart' show deskSettingsFromJson, deskSettingsToJson;
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart' show deskInvoicesProvider;
 import 'package:epic_wallet/src/desktop/data/invoices.dart' show IncomingInvoice, PayState;
@@ -47,7 +45,7 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, ClipboardProbe? clip}) async {
+Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode}) async {
   tester.view.physicalSize = const Size(1280, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -59,7 +57,7 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, Clipb
   _clip = null;
   addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
   _mock = MockDeskWallet(delay: Duration.zero);
-  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock), if (clip != null) pairingClipProbeProvider.overrideWithValue(clip)]);
+  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock)]);
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
@@ -76,26 +74,6 @@ Future<void> _open(WidgetTester tester, Widget screen, {NetworkMode? mode, Clipb
     ),
   );
   await _real(tester);
-}
-
-/// A desktop clipboard holding [text]: no stamp.
-class _DeskClip implements ClipboardProbe {
-  _DeskClip(this.text);
-
-  final String text;
-
-  @override
-  Future<ClipStamp?> stamp() async => const ClipStamp(hasText: true);
-
-  @override
-  Future<String?> read() async => text;
-}
-
-/// The Pair page's look at the clipboard, as on the window coming back to Contacts.
-Future<void> _lookNow(WidgetTester tester) async {
-  final element = tester.element(find.byType(DeskPairScreen));
-  final ref = (element as StatefulElement).state as ConsumerState;
-  await deskLookForPairingLink(element, ref.ref, PairingClipTrigger.screen);
 }
 
 Future<void> _seenAs(WidgetTester tester, String name) async {
@@ -133,7 +111,6 @@ void main() {
     final invite = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingInvite).single;
     expect(_clip, _l.pairInviteMessage(invite.inviteLink!));
     expect(find.text(_l.pairAwaitReplyTitle), findsOneWidget);
-    expect(_c.read(deskPairingClipSeenProvider).has(invite.inviteLink!), isTrue, reason: 'its own link is never offered back');
     _clip = _l.pairReplyMessage(fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'}));
     await tester.ensureVisible(find.byKey(deskPairPasteReplyKey));
     await tester.tap(find.byKey(deskPairPasteReplyKey));
@@ -179,17 +156,19 @@ void main() {
     await _real(tester);
   });
 
-  testWidgets('a pairing link on the clipboard: offered once as a dialog, Use it opens it', (tester) async {
-    // The link is made by another fake wallet: this one opens it as theirs.
-    final link = FakePairing().inviteLinkFrom(name: 'Northwind');
-    await _open(tester, const DeskPairScreen(), clip: _DeskClip('Pair with me in Epic Cash: $link'));
-    expect(find.text(_l.pairClipTitle), findsOneWidget);
-    expect(find.text(_l.pairClipInvite('Northwind')), findsOneWidget);
-    await tester.tap(find.byKey(deskClipNotNowKey));
+  testWidgets('the clipboard is read on Paste only: nothing on open, Paste fills Got words or a link?, Pair opens it', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    _clip = 'Pair with me in Epic Cash: ${_pairing.inviteLinkFrom(name: 'Northwind')}';
+    await _seenAs(tester, 'Alex');
     await _real(tester);
-    await tester.runAsync(() => _lookNow(tester));
+    expect(find.text(_l.pairIncomingTitle('Northwind')), findsNothing, reason: 'no clipboard read on open');
+    expect(tester.widget<EditableText>(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText))).controller.text, isEmpty);
+    await tester.tap(find.byKey(deskPairPasteKey));
     await _real(tester);
-    expect(find.text(_l.pairClipTitle), findsNothing, reason: 'once');
+    expect(tester.widget<EditableText>(find.descendant(of: find.byKey(deskPairEnterKey), matching: find.byType(EditableText))).controller.text, _clip);
+    await tester.tap(find.byKey(deskPairGoKey));
+    await _real(tester);
+    expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
   });
 
   testWidgets('a pasted invite opens the incoming dialog; Pair answers it', (tester) async {

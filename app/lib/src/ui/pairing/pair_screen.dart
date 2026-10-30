@@ -16,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../errors.dart';
 import '../../help/help_content.dart' show HelpId;
 import '../../l10n.dart';
-import '../../pairing_clipboard.dart' show PairingClipTrigger;
 import '../../pairing_providers.dart';
 import '../../wallet_service.dart';
 import '../../pairing_text.dart';
@@ -54,6 +53,7 @@ const Key pairEnterGoKey = ValueKey('pair-enter-go');
 const Key pairNewWordsKey = ValueKey('pair-new-words');
 const Key pairCancelInviteKey = ValueKey('pair-cancel-invite');
 const Key pairCopyCardKey = ValueKey('pair-copy-card');
+const Key pairPasteLinkKey = ValueKey('pair-paste-link');
 
 /// The Pair screen: one card with the three ways (Words, Invite by message, In person), the
 /// joiner's door (Got words or a link?) apart under it, and How pairing works. [contact] is
@@ -76,11 +76,24 @@ class _PairScreenState extends ConsumerState<PairScreen> {
       if (ref.read(pairNetProvider) == PairNet.offline) {
         ref.read(noticeProvider.notifier).show(context.l10n.pairOfflineHint, level: NoticeLevel.warning);
       }
-      lookForPairingLink(context, ref, PairingClipTrigger.screen).ignore();
     });
   }
 
   void _push(Widget screen) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => screen));
+
+  /// Paste link: a pairing link copied from a chat (an invite, a reply, a finish link or a
+  /// code), opened as one entered under Got words or a link? is. The clipboard is read on this
+  /// press only.
+  Future<void> _pasteLink() async {
+    final l = context.l10n;
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
+    if (!mounted) return;
+    if (pairingLinkIn(text) == null) {
+      ref.read(noticeProvider.notifier).show(l.pairInvalidLink, level: NoticeLevel.warning);
+      return;
+    }
+    await openPairingLink(context, ref, text, contact: widget.contact);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,15 +147,24 @@ class _PairScreenState extends ConsumerState<PairScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton.icon(
-              key: pairHowKey,
-              style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
-              icon: const Icon(Icons.help_outline, size: 18),
-              label: Text(l.pairHowItWorks),
-              onPressed: () => openHelp(context, HelpId.pairingWays),
-            ),
+          Wrap(
+            spacing: 8,
+            children: [
+              TextButton.icon(
+                key: pairHowKey,
+                style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+                icon: const Icon(Icons.help_outline, size: 18),
+                label: Text(l.pairHowItWorks),
+                onPressed: () => openHelp(context, HelpId.pairingWays),
+              ),
+              TextButton.icon(
+                key: pairPasteLinkKey,
+                style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+                icon: const Icon(Icons.content_paste, size: 18),
+                label: Text(l.pairPasteLink),
+                onPressed: _pasteLink,
+              ),
+            ],
           ),
         ],
       ),
@@ -466,7 +488,7 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
                       style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
                       icon: const Icon(Icons.copy, size: 18),
                       label: FittedBox(fit: BoxFit.scaleDown, child: Text(l.pairCardCopy)),
-                      onPressed: () => sharePairingMessage(context, ref, card.link, link: card.link, copy: true),
+                      onPressed: () => sharePairingMessage(context, ref, card.link, copy: true),
                     ),
                   ],
                 ],
@@ -579,7 +601,7 @@ class _CardScannerState extends ConsumerState<_CardScanner> {
 
 /// Invite by message, the inviter's side (plan 4.6): step 1 the name, the expiry and the
 /// message, shared (or copied); step 2 the wait for the reply, which comes back in the chat
-/// (Paste reply, or the clipboard offer) or through a relay by itself. A reply taken by hand
+/// (Paste reply) or through a relay by itself. A reply taken by hand
 /// opens step 3, the finish link ([PairFinishScreen]); one the relay brought finished the
 /// pairing there too, so the words check opens. Offline and with Epicbox off it is the same,
 /// without the relay.
@@ -652,7 +674,7 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
     final invite = await _make();
     if (invite == null || !mounted) return;
     final link = invite.inviteLink ?? '';
-    await sharePairingMessage(context, ref, l.pairInviteMessage(link), link: link, copy: copy);
+    await sharePairingMessage(context, ref, l.pairInviteMessage(link), copy: copy);
     if (!mounted) return;
     pairingStepsOnScreen[invite.id] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     setState(() => _sent = invite);
@@ -667,7 +689,7 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
     });
   }
 
-  /// Paste reply: the reply in the clipboard, opened as the offer would.
+  /// Paste reply: the reply in the clipboard, read on this press only.
   Future<void> _pasteReply() async {
     final l = context.l10n;
     final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text ?? '';
@@ -676,8 +698,7 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
       ref.read(noticeProvider.notifier).show(l.pairInvalidLink, level: NoticeLevel.warning);
       return;
     }
-    await markPairingLinkSeen(ref, pairingLinkIn(text)!);
-    if (mounted) await openPairingLink(context, ref, text);
+    await openPairingLink(context, ref, text);
   }
 
   Future<void> _cancel() async {
@@ -691,7 +712,7 @@ class _PairMessageScreenState extends ConsumerState<PairMessageScreen> {
     if (mounted) Navigator.pop(context);
   }
 
-  /// The reply is in (pasted, from the clipboard or through a relay): the finish link when
+  /// The reply is in (pasted or through a relay): the finish link when
   /// this wallet holds one to send, else the words, as the relay sent the confirm too.
   Future<void> _replied(String id) async {
     String? finish;

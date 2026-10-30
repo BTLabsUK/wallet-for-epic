@@ -13718,6 +13718,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairPasteFinish => '粘贴完成链接';
 
   @override
+  String get pairPasteLink => '粘贴链接';
+
+  @override
   String get pairFinishTitle => '发送完成链接';
 
   @override
@@ -13730,26 +13733,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => '然后一起核对词语。';
-
-  @override
-  String get pairClipTitle => '发现配对链接';
-
-  @override
-  String pairClipInvite(String name) {
-    return '剪贴板中有来自“$name”的邀请。要使用吗？';
-  }
-
-  @override
-  String get pairClipReply => '剪贴板中有对你邀请的回复。要使用吗？';
-
-  @override
-  String get pairClipFinish => '剪贴板中有你配对的完成链接。要使用吗？';
-
-  @override
-  String get pairClipCard => '剪贴板中有配对码。要使用吗？';
-
-  @override
-  String get pairClipUse => '使用';
 
   @override
   String pairAlreadyPaired(String name) {

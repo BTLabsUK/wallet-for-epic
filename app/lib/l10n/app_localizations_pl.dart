@@ -15115,6 +15115,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairPasteFinish => 'Wklej link kończący';
 
   @override
+  String get pairPasteLink => 'Wklej link';
+
+  @override
   String get pairFinishTitle => 'Wyślij link kończący';
 
   @override
@@ -15127,28 +15130,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairFinishThenCheck => 'Potem sprawdźcie razem słowa.';
-
-  @override
-  String get pairClipTitle => 'Znaleziono link parowania';
-
-  @override
-  String pairClipInvite(String name) {
-    return 'W schowku jest zaproszenie od „$name”. Użyć?';
-  }
-
-  @override
-  String get pairClipReply =>
-      'W schowku jest odpowiedź na twoje zaproszenie. Użyć?';
-
-  @override
-  String get pairClipFinish =>
-      'W schowku jest link kończący twoje parowanie. Użyć?';
-
-  @override
-  String get pairClipCard => 'W schowku jest kod parowania. Użyć?';
-
-  @override
-  String get pairClipUse => 'Użyj';
 
   @override
   String pairAlreadyPaired(String name) {
