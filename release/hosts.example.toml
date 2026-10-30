@@ -1,0 +1,46 @@
+# Machine-local settings of tools/rel: copy to ~/.config/btlabs/release-hosts.toml (or point
+# REL_HOSTS at another file) and fill in. Never commit the real file: it names machines.
+# Steps name roles; this file says what each role is here. Moving the pipeline (or only the
+# signer) to another machine = this file + the secrets folder; `tools/rel doctor` lists what is
+# missing.
+
+# The machine that runs tools/rel and the Linux/Android builds.
+[host.build]
+this_machine = true
+
+# The machine with the keys: update-manifest signing, the Android release keystore (Android is
+# signed in its Gradle build, so Android builds run here), Apple signing. Today the same machine.
+# For another machine: this_machine = false, ssh = "<alias>", repo = "<checkout of this repo>".
+[host.signer]
+this_machine = true
+signing_key = "~/.config/btlabs/signing/btlabs-2026-a.key"
+android_key_properties = "~/.config/btlabs/android/key.properties"
+btlabs_public = "~/code/btlabs-public"
+# The GitLab token's expiry (preflight warns within 7 days, fails when expired).
+gitlab_token = "~/.config/btlabs/gitlab-token"
+gitlab_token_expires = "YYYY-MM-DD"
+
+# The Windows builder: ssh alias (pwsh), and the folder that holds one work dir per run.
+[host.windows]
+ssh = "<alias>"
+workdir = "C:/Users/<user>/code/wfe-rel"
+
+# The Apple builder works from a hand-off folder: jobs go there, results come back there.
+# staging = "<ssh alias>:<dir>" is synced with rsync; empty = {run}/handoff only (move by hand).
+[host.apple]
+staging = ""
+
+# The download server.
+[host.web]
+ssh = "<alias>"
+downloads_dir = "/srv/examples/epic-cash-wallets/downloads"
+
+[paths]
+node_bin_linux = "/tmp/epic-build/node-bin/4.1.1/linux/epic-v4.1.1-linux-amd64/epic"
+node_bin_windows = "/tmp/epic-build/node-bin/4.1.1/win/Windows-v4.1.1/epic.exe"
+# The releases page repository (tools/releases/README.md).
+page_repo = "~/code/epic-gui-wallet-progress"
+# A checkout on main (tools/publish-github.sh must run from one).
+main_checkout = "~/wfe-worktrees/main"
+# Where tools/rel makes the release worktree (rel-<version>).
+worktrees = "~/wfe-worktrees"

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# The release runner (docs/RELEASING.md): tools/rel --help.
+exec python3 -I "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/rellib/main.py" "$@"

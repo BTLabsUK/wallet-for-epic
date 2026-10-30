@@ -1,0 +1,118 @@
+# Known failures: a log pattern (Python regex, searched in the last 200 KB of a failed step's
+# log) and the fix that worked. tools/rel prints the hint with the failure, puts it in --json
+# output and in the Telegram alert. Add one whenever a release teaches something new.
+#
+# [[failure]]
+# id      short name
+# steps   optional: step names (base names, e.g. build-linux) it applies to; all when absent
+# pattern regex
+# hint    what to do
+
+[[failure]]
+id = "disk-guard"
+pattern = "(No space left on device|disk guard|free space below)"
+hint = "Disk is full or under the 30 GB rule. Free regenerable build output (old worktrees' app/build, LEPIC target dirs, `docker builder prune`), then `tools/rel retry <step>`."
+
+[[failure]]
+id = "container-clang"
+steps = ["build-linux"]
+pattern = "(zxing|ZXing).*(requires|need).*(C\\+\\+20|clang)|clang\\+\\+.*version 14"
+hint = "The Ubuntu 22.04 container's clang is too old for zxing-cpp: the image must have clang 18 from apt.llvm.org (scripts/linux/Dockerfile). Rebuild the image (docker build in scripts/linux) and retry."
+
+[[failure]]
+id = "node-bin-missing"
+steps = ["build-linux", "build-windows"]
+pattern = "(WFE_NODE_BIN|node binary).*(missing|not found|No such file)"
+hint = "The built-in node's binary is missing: set paths.node_bin_linux / node_bin_windows in ~/.config/btlabs/release-hosts.toml (epic 4.1.1 from /tmp/epic-build/node-bin)."
+
+[[failure]]
+id = "stale-xtask"
+pattern = "(SOURCE.*(differs|mismatch)|lepic\\.rev.*(differs|mismatch)|built from .*worktree)"
+hint = "LEPIC's xtask was built for another tree (app/third_party moved): `cargo clean -p xtask` in app/third_party/lepic, then retry. Never symlink third_party from another worktree."
+
+[[failure]]
+id = "lepic-pin"
+pattern = "differs from the LEPIC pin of lepic-flutter"
+hint = "tools/lepic.rev must equal lepic-flutter's own lepic.rev: fix the pin on main, not in the release."
+
+[[failure]]
+id = "pub-registrant"
+steps = ["build-android", "build-play"]
+pattern = "integration_test.*(not found|Error)"
+hint = "Stale plugin registrant after `flutter test`: run `flutter pub get` in app/ and retry."
+
+[[failure]]
+id = "android-key"
+steps = ["build-android", "build-play"]
+pattern = "(key\\.properties|keystore).*(not found|missing|No such file)"
+hint = "The Android release key is not on this machine: host.signer.android_key_properties in release-hosts.toml (default ~/.config/btlabs/android/key.properties). Android builds run on the signer."
+
+[[failure]]
+id = "update-url-exec"
+steps = ["manifests"]
+pattern = "check_update_urls\\.sh: Permission denied"
+hint = "app/tool/check_update_urls.sh lost its exec bit: `git update-index --chmod=+x` on main."
+
+[[failure]]
+id = "manifest-v2-config"
+steps = ["manifests", "trust-manifest", "publish-manifests"]
+pattern = "(malformed|does not verify).*update-v2"
+hint = "update-v2.json must be verified with --app-config app/assets/config/app-config.toml (its URLs are checked against [updates])."
+
+[[failure]]
+id = "manifest-size"
+steps = ["manifests", "trust-manifest"]
+pattern = "(damaged|size mismatch)"
+hint = "A size taken through a symlink: sizes must come from `stat -L`; the files in the run folder must be real files."
+
+[[failure]]
+id = "serial-not-above"
+steps = ["manifests", "publish-manifests"]
+pattern = "serial.*(not above|must be greater|<=)"
+hint = "The new serial is not above the live manifest's (clock or another publish): re-run `tools/rel retry manifests` to sign with a fresh serial."
+
+[[failure]]
+id = "windows-stale-workdir"
+steps = ["build-windows"]
+pattern = "(kernel_blob|LepicCache|stale)"
+hint = "A stale Windows work dir: each run uses {workdir}/{run_id}; delete that folder on the Windows machine and retry. Never use -LepicCache for a release."
+
+[[failure]]
+id = "ssh-unreachable"
+pattern = "(ssh: connect to host|Connection timed out|Could not resolve hostname|Permission denied \\(publickey)"
+hint = "The remote host is not reachable over ssh: check it is on (tailnet), then `tools/rel retry <step>`."
+
+[[failure]]
+id = "scanner-hit"
+steps = ["publish-source"]
+pattern = "(scan|check).*(FAIL|private detail|agent path)"
+hint = "The publish scanner found a private detail: add the rule in tools/publish/ (or fix the file on main), then `tools/rel retry publish-source --again`."
+
+[[failure]]
+id = "gitlab-token"
+steps = ["publish-source", "publish-manifests"]
+pattern = "(401 Unauthorized|HTTP Basic: Access denied|token.*expired)"
+hint = "The GitLab token expired or is wrong (~/.config/btlabs/gitlab-token): renew it (owner), update host.signer.gitlab_token_expires, retry."
+
+[[failure]]
+id = "play-notes"
+steps = ["store-play"]
+pattern = "(500 characters|releaseNotes.*too long)"
+hint = "Play release notes must be at most 500 characters per language."
+
+[[failure]]
+id = "play-code-used"
+steps = ["store-play"]
+pattern = "Version code .* already (been )?used"
+hint = "That version code is already on Play: promote the existing bundle (tracks.update with versionCodes) instead of uploading."
+
+[[failure]]
+id = "fdroid-disk"
+pattern = "fdroid.*(disk|space)"
+hint = "F-Droid's build server stops under the disk guard: free space first."
+
+[[failure]]
+id = "check-red"
+steps = ["source-check"]
+pattern = "(Some tests failed|\\d+ tests? failed|check failed)"
+hint = "tools/check.sh is red on this commit. Fix on main (not in the release), merge, and start a new run from the new commit."
