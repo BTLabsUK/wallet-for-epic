@@ -89,6 +89,7 @@ class PhoneHttpState {
     this.listener = PhoneHttpPhase.off,
     this.address,
     int? port,
+    this.privateNetworks = const [],
   }) : port = port ?? phoneHttpPort;
 
   /// What the listener does; [phase] adds [PhoneHttpPhase.noNetwork] on top of it.
@@ -99,6 +100,10 @@ class PhoneHttpState {
 
   final int port;
 
+  /// The networks marked private ([lanNetworkKey]s, oldest first), for Settings to show and
+  /// forget; empty until read from the store.
+  final List<String> privateNetworks;
+
   PhoneHttpPhase get phase =>
       listener == PhoneHttpPhase.listening && address == null ? PhoneHttpPhase.noNetwork : listener;
 
@@ -106,19 +111,25 @@ class PhoneHttpState {
     PhoneHttpPhase? listener,
     String? Function()? address,
     int? port,
+    List<String>? privateNetworks,
   }) => PhoneHttpState(
     listener: listener ?? this.listener,
     address: address == null ? this.address : address(),
     port: port ?? this.port,
+    privateNetworks: privateNetworks ?? this.privateNetworks,
   );
 
   @override
-  int get hashCode => listener.hashCode ^ address.hashCode ^ port.hashCode;
+  int get hashCode => Object.hash(listener, address, port, Object.hashAll(privateNetworks));
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PhoneHttpState && listener == other.listener && address == other.address && port == other.port;
+      other is PhoneHttpState &&
+          listener == other.listener &&
+          address == other.address &&
+          port == other.port &&
+          listEquals(privateNetworks, other.privateNetworks);
 
   @override
   String toString() => 'PhoneHttpState(${phase.name}, $address, $port)';
@@ -225,6 +236,7 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
       final marked = await _readPrivate();
       if (!_current(generation)) return;
       _private = marked;
+      state = state.copyWith(privateNetworks: marked);
       await _readAddress();
       if (_current(generation)) _apply();
     });
@@ -270,18 +282,33 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
   Future<void> markPrivate() async {
     final key = lanNetworkKey(state.address);
     if (key == null) return;
-    final generation = _generation;
     final marked = [...?_private?.where((k) => k != key), key];
     final kept = marked.length > maxPrivateNetworks ? marked.sublist(marked.length - maxPrivateNetworks) : marked;
+    if (await _savePrivate(kept)) logInfo('http', 'network marked private');
+  }
+
+  /// Forgets a network marked private ([PhoneHttpState.privateNetworks]); on it now, the
+  /// listener stops. Nothing for a network not marked.
+  Future<void> forgetPrivate(String key) async {
+    final marked = _private;
+    if (marked == null || !marked.contains(key)) return;
+    if (await _savePrivate([for (final k in marked) if (k != key) k])) logInfo('http', 'network forgotten');
+  }
+
+  /// Writes [kept] to the store and takes it as the marked networks; false when this notifier
+  /// was rebuilt meanwhile.
+  Future<bool> _savePrivate(List<String> kept) async {
+    final generation = _generation;
     try {
       await ref.read(secretStoreProvider).write(privateNetworksKey, kept.join(','));
     } on Object catch (e) {
       logWarn('http', 'private network not saved: ${e.runtimeType}');
     }
-    if (!_current(generation)) return;
+    if (!_current(generation)) return false;
     _private = kept;
-    logInfo('http', 'network marked private');
+    state = state.copyWith(privateNetworks: kept);
     _apply();
+    return true;
   }
 
   /// Starts or stops the listener to match the conditions. A listener that failed waits for

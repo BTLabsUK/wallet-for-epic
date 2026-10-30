@@ -189,6 +189,33 @@ void main() {
     expect(h.session.httpListenerStops, greaterThanOrEqualTo(1));
   });
 
+  testWidgets('the marked networks are in the state; forgetting the one in use stops the listener and the store follows', (tester) async {
+    final h = _Harness(privateNetworks: '10.0.0,192.168.1');
+    await h.pump(tester);
+    expect(h.http.privateNetworks, ['10.0.0', '192.168.1']);
+    expect(h.session.httpListenerStarts, hasLength(1));
+    await h.emit(tester, HttpListenerEventKind.started, port: 3415);
+
+    // A network not marked: nothing changes.
+    await h.container.read(phoneHttpProvider.notifier).forgetPrivate('172.16.0');
+    await h.settle(tester);
+    expect(h.http.privateNetworks, ['10.0.0', '192.168.1']);
+    expect(h.session.httpListenerStops, 0);
+
+    await h.container.read(phoneHttpProvider.notifier).forgetPrivate('192.168.1');
+    await h.settle(tester);
+    expect(h.http.privateNetworks, ['10.0.0']);
+    expect(h.store.values[privateNetworksKey], '10.0.0');
+    expect(h.http.phase, PhoneHttpPhase.notPrivate);
+    expect(h.session.httpListenerStops, 1);
+
+    // The last one: an empty store entry, no network marked.
+    await h.container.read(phoneHttpProvider.notifier).forgetPrivate('10.0.0');
+    await h.settle(tester);
+    expect(h.http.privateNetworks, isEmpty);
+    expect(h.store.values[privateNetworksKey], '');
+  });
+
   testWidgets('starts on every interface at 3415 with the wallet open and the switch on; the card shows the address', (
     tester,
   ) async {
