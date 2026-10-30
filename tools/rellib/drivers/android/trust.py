@@ -359,6 +359,15 @@ def row_id(label):
     return tx_key(label) + ("|" + ", ".join(parts[1:]) if len(parts) == 3 else "")
 
 
+def row_amount(label):
+    """The row's amount as a number: 26.10.23 writes 0.01 EPIC, 26.10.24 0.0100 EPIC."""
+    m = TX_RE.match(label)
+    try:
+        return Decimal(m.group(2)) if m else None
+    except InvalidOperation:
+        return None
+
+
 def tx_key(label):
     """What must survive an update: direction, amount and the other side (not the status or
     the time, which move as confirmations come in)."""
@@ -741,8 +750,7 @@ def funds(p, my_addr):
     try:
         before = set(tx_rows(nodes(S)))
         send_epicbox(p_addr, SEND_AMOUNT)
-        amt = str(Decimal(SEND_AMOUNT).normalize())
-        row = wait_tx(lambda r: r.startswith(("Sent", "Sending")) and f" {amt} EPIC" in r
+        row = wait_tx(lambda r: r.startswith(("Sent", "Sending")) and row_amount(r) == Decimal(SEND_AMOUNT)
                       and p_short in r and r not in before
                       and not re.search(r"waiting for|Waiting for|cancel", r, re.I), 420, "send")
         res["send_ok"] = bool(row)
@@ -774,8 +782,7 @@ def receive_from_p(p, my_addr, amount, p_short=None, secs=900):
     ok, out = p.send(my_addr, amount)
     if not ok:
         raise RuntimeError("P's send failed: " + " ".join(re.findall(r"ERROR[^\n]*", out))[:200])
-    amt = str(Decimal(amount).normalize())
-    ours = lambda r: r.startswith(("Received", "Receiving")) and f" {amt} EPIC" in r \
+    ours = lambda r: r.startswith(("Received", "Receiving")) and row_amount(r) == Decimal(amount) \
         and (p_short is None or p_short in r)
     posted = lambda r: ours(r) and not re.search(r"waiting for", r, re.I)
     end, finalized_at, reposts, last = time.time() + secs, None, 0, None
