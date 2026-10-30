@@ -16506,6 +16506,14 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยกเลิกรายการแล้ว เหรียญกำลังกลับมาที่กระเป๋าเงินนี้ รายการจึงเสร็จไม่ได้อีก';
 
   @override
+  String get txDetailsReleasedSpentBack =>
+      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+
+  @override
+  String get txDetailsReleasedSpendBackPending =>
+      'Funds released, but they were not sent back yet. The wallet tries again.';
+
+  @override
   String get txDetailsCancelledSpendBackPending =>
       'ยกเลิกรายการแล้ว แต่ยังส่งเหรียญกลับไม่ได้ กระเป๋าเงินจะลองใหม่';
 

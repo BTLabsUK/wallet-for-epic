@@ -15901,6 +15901,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelledSpentBack => '付款已取消。它的币正在发回这个钱包，因此无法再完成。';
 
   @override
+  String get txDetailsReleasedSpentBack =>
+      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+
+  @override
+  String get txDetailsReleasedSpendBackPending =>
+      'Funds released, but they were not sent back yet. The wallet tries again.';
+
+  @override
   String get txDetailsCancelledSpendBackPending => '付款已取消，但它的币尚未发回。钱包会重试。';
 
   @override

@@ -17473,6 +17473,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Платёж отменён. Его монеты возвращаются на этот кошелёк, поэтому он больше не может завершиться.';
 
   @override
+  String get txDetailsReleasedSpentBack =>
+      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+
+  @override
+  String get txDetailsReleasedSpendBackPending =>
+      'Funds released, but they were not sent back yet. The wallet tries again.';
+
+  @override
   String get txDetailsCancelledSpendBackPending =>
       'Платёж отменён, но его монеты ещё не отправлены обратно. Кошелёк повторяет попытку.';
 

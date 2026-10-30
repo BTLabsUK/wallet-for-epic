@@ -81,8 +81,31 @@ class CancelFinal {
       logWarn('cancel', 'locked coins not read: ${e.kind.name}');
     }
     await session.cancelTransaction(txId: id);
+    return _afterCancel(session, id, coins);
+  }
+
+  /// Releases the stuck send [tx] ([WalletSession.releaseStuckSend], whose errors it passes on:
+  /// nothing changed then) and spends the coins it had locked back to this wallet, as [cancel]
+  /// does: the network refused the send, but a copy of it could still reach it.
+  Future<CancelResult> release(WalletSession session, TxEntry tx) async {
+    final id = tx.id;
+    var coins = const <String>[];
+    if (id != null) {
+      try {
+        coins = _lockedBy(id, await session.outputs());
+      } on WalletError catch (e) {
+        logWarn('cancel', 'locked coins not read: ${e.kind.name}');
+      }
+    }
+    await session.releaseStuckSend(key: tx.key);
+    if (id == null) return CancelResult.cancelled;
+    return _afterCancel(session, id, coins);
+  }
+
+  /// After [id] was cancelled or released: spends back [coins], or when none were read before,
+  /// the coins the cancel freed (they keep their link to it).
+  Future<CancelResult> _afterCancel(WalletSession session, int id, List<String> coins) async {
     if (coins.isEmpty) {
-      // Read after the cancel instead: the unlocked coins keep their link to it.
       try {
         coins = _freedBy(id, await session.outputs());
       } on WalletError catch (e) {
@@ -97,7 +120,10 @@ class CancelFinal {
   bool get owed => _owed.isNotEmpty;
 
   /// Tries each owed spend back once. True when one went through, so the caller can read the
-  /// list again. Coins no longer unspent (spent by another payment since) are dropped from it.
+  /// list again. It stops for good, per payment, once its coins are no longer free: spent by the
+  /// payment itself after all (the watch then shows it paid), by the spend back, or by another
+  /// payment. A spend back that can never work (the fee takes the coins' whole value) is not
+  /// owed either.
   Future<bool> retry(WalletSession session) async {
     if (_owed.isEmpty || _retrying) return false;
     _retrying = true;
@@ -132,6 +158,11 @@ class CancelFinal {
     } on WalletError catch (e) {
       // notPosted: LEPIC stored it and reposts it; its coins are locked, no longer free, so a
       // retry finds nothing left to do.
+      if (e.kind == WalletErrorKind.notEnoughFunds) {
+        _owed.remove(id);
+        logWarn('cancel', 'spend back not possible: the fee takes the coins');
+        return false;
+      }
       _owed[id] = coins;
       logWarn('cancel', 'spend back failed, tried again later: ${e.kind.name}');
       return false;

@@ -481,7 +481,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     await _reload();
   }
 
-  /// Unlocks the inputs of a send the network never took, after the user confirms the risk.
+  /// Unlocks the inputs of a send the network never took, after the user confirms the risk, and
+  /// spends them back to this wallet.
   Future<void> _release(TxEntry tx) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -508,11 +509,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     if (session == null) return;
     setState(() => _busy = true);
     try {
-      await session.releaseStuckSend(key: tx.key);
+      // The network refused it, but a copy could still reach it: the coins go back to this
+      // wallet as with Cancel (cancel_final.dart).
+      final result = await ref.read(cancelFinalProvider).release(session, tx);
       if (!mounted) return;
+      final l = context.l10n;
       _showMessage(
-        context.l10n.txDetailsFundsReleased,
-        level: NoticeLevel.success,
+        switch (result) {
+          CancelResult.cancelled => l.txDetailsFundsReleased,
+          CancelResult.spentBack => l.txDetailsReleasedSpentBack,
+          CancelResult.spendBackPending => l.txDetailsReleasedSpendBackPending,
+        },
+        level: result == CancelResult.spendBackPending ? NoticeLevel.warning : NoticeLevel.success,
       );
       await _reload();
     } catch (error) {

@@ -17498,6 +17498,14 @@ class AppLocalizationsPl extends AppLocalizations {
       'Płatność anulowana. Jej monety wracają do tego portfela, więc nie może się już zakończyć.';
 
   @override
+  String get txDetailsReleasedSpentBack =>
+      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+
+  @override
+  String get txDetailsReleasedSpendBackPending =>
+      'Funds released, but they were not sent back yet. The wallet tries again.';
+
+  @override
   String get txDetailsCancelledSpendBackPending =>
       'Płatność anulowana, ale jej monety nie zostały jeszcze odesłane. Portfel ponawia próbę.';
 

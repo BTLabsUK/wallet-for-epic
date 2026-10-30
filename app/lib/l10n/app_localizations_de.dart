@@ -17092,6 +17092,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zahlung storniert. Die Coins gehen an diese Wallet zurück, die Zahlung kann also nicht mehr abgeschlossen werden.';
 
   @override
+  String get txDetailsReleasedSpentBack =>
+      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+
+  @override
+  String get txDetailsReleasedSpendBackPending =>
+      'Funds released, but they were not sent back yet. The wallet tries again.';
+
+  @override
   String get txDetailsCancelledSpendBackPending =>
       'Zahlung storniert, aber die Coins wurden noch nicht zurückgeschickt. Die Wallet versucht es erneut.';
 

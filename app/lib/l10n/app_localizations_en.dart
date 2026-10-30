@@ -16896,6 +16896,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Payment cancelled. Its coins are going back to this wallet, so it can no longer complete.';
 
   @override
+  String get txDetailsReleasedSpentBack =>
+      'Funds released. They are going back to this wallet, so the old payment can no longer complete.';
+
+  @override
+  String get txDetailsReleasedSpendBackPending =>
+      'Funds released, but they were not sent back yet. The wallet tries again.';
+
+  @override
   String get txDetailsCancelledSpendBackPending =>
       'Payment cancelled, but its coins were not sent back yet. The wallet tries again.';
 

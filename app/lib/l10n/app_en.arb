@@ -22530,6 +22530,14 @@
   "@txDetailsCancelledSpentBack": {
     "description": "Notice after Cancel of a payment the other side could have finished: its coins are being spent back to this wallet."
   },
+  "txDetailsReleasedSpentBack": "Funds released. They are going back to this wallet, so the old payment can no longer complete.",
+  "@txDetailsReleasedSpentBack": {
+    "description": "Notice after Release funds when the coins were spent back to this wallet."
+  },
+  "txDetailsReleasedSpendBackPending": "Funds released, but they were not sent back yet. The wallet tries again.",
+  "@txDetailsReleasedSpendBackPending": {
+    "description": "Notice after Release funds when spending the coins back failed; retried while open."
+  },
   "txDetailsCancelledSpendBackPending": "Payment cancelled, but its coins were not sent back yet. The wallet tries again.",
   "@txDetailsCancelledSpendBackPending": {
     "description": "Notice after Cancel when spending the coins back failed: the wallet retries while it is open; until then the other side could still finish it."

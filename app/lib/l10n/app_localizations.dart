@@ -26546,6 +26546,18 @@ abstract class AppLocalizations {
   /// **'Payment cancelled. Its coins are going back to this wallet, so it can no longer complete.'**
   String get txDetailsCancelledSpentBack;
 
+  /// Notice after Release funds when the coins were spent back to this wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Funds released. They are going back to this wallet, so the old payment can no longer complete.'**
+  String get txDetailsReleasedSpentBack;
+
+  /// Notice after Release funds when spending the coins back failed; retried while open.
+  ///
+  /// In en, this message translates to:
+  /// **'Funds released, but they were not sent back yet. The wallet tries again.'**
+  String get txDetailsReleasedSpendBackPending;
+
   /// Notice after Cancel when spending the coins back failed: the wallet retries while it is open; until then the other side could still finish it.
   ///
   /// In en, this message translates to:
