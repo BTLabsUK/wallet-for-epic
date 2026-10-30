@@ -1,10 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
-# Unit tests for nightly.py: the check.sh output parser and the skip/retry decisions.
+# Unit tests for nightly.py: the check.sh output parser, the skip/retry/busy decisions and the DM
+# (against a stubbed opener, never the real bot).
 #   python3 -m unittest tools/nightly/test_nightly.py
 import datetime as dt
+import fcntl
+import io
+import json
 import sys
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -120,19 +125,177 @@ class DecisionTest(unittest.TestCase):
         self.assertEqual(len(nightly.busy_slots(st)), 1)
         self.assertEqual(nightly.busy_slots("slot 1: free\nslot 2: free\n"), [])
 
-    def test_green_note_weekly(self):
-        now = dt.datetime(2026, 10, 30, 3, tzinfo=dt.timezone.utc)
-        self.assertTrue(nightly.green_note_due({}, now))
-        self.assertFalse(nightly.green_note_due({"last_green_note": "2026-10-25T03:00:00Z"}, now))
-        self.assertTrue(nightly.green_note_due({"last_green_note": "2026-10-23T03:00:00Z"}, now))
+    def test_daytime_refused_for_the_timer_only(self):
+        no_rel = str(Path(tempfile.gettempdir()) / "no-such-rel" / "*" / ".lock")
+        free = "slot 1: free\nslot 2: free\n"
+        noon = dt.datetime(2026, 10, 30, 12, 0)
+        self.assertEqual(nightly.refusal(False, noon, free, no_rel), "daytime")
+        self.assertEqual(nightly.refusal(False, dt.datetime(2026, 10, 30, 6, 0), free, no_rel),
+                         "daytime")
+        self.assertIsNone(nightly.refusal(False, dt.datetime(2026, 10, 30, 2, 30), free, no_rel))
+        self.assertIsNone(nightly.refusal(True, noon, "slot 1: someone\n", no_rel))
 
-    def test_step_ids(self):
-        taken = set()
-        ids = [nightly.step_id(n, taken) for n in
-               ["flutter test (all)", "version (https://docs.btlabs.uk/developers/releases/)", "flutter test (all)"]]
-        self.assertEqual(ids, ["flutter-test", "version", "flutter-test-2"])
-        for i in ids:
-            self.assertRegex(i, nightly.STEP_ID_RE)
+    def test_active_rel_run_is_busy(self):
+        with tempfile.TemporaryDirectory() as d:
+            lock = Path(d) / "26.10.24" / "run-1" / ".lock"
+            lock.parent.mkdir(parents=True)
+            lock.write_text("")
+            pattern = str(Path(d) / "*" / "run-*" / ".lock")
+            night = dt.datetime(2026, 10, 30, 3, 30)
+            free = "slot 1: free\n"
+            self.assertEqual(nightly.rel_busy(pattern), [])
+            self.assertIsNone(nightly.refusal(False, night, free, pattern))
+            with open(lock) as held:
+                fcntl.flock(held, fcntl.LOCK_EX)
+                self.assertEqual(nightly.rel_busy(pattern), [str(lock)])
+                for by_hand in (False, True):
+                    self.assertTrue(nightly.refusal(by_hand, night, free, pattern)
+                                    .startswith("busy (tools/rel run active"))
+            self.assertEqual(nightly.rel_busy(pattern), [])
+
+    def test_busy_slot_refused_for_the_timer(self):
+        no_rel = str(Path(tempfile.gettempdir()) / "no-such-rel" / "*" / ".lock")
+        night = dt.datetime(2026, 10, 30, 3, 30)
+        self.assertTrue(nightly.refusal(False, night, "slot 1: x since 1: y\n", no_rel)
+                        .startswith("busy (slot 1"))
+
+
+RED = {
+    "status": "red", "sha": "7b2cc6ce7cc5f52c26c1332a45b62b8a2661b0fd", "duration_s": 1500,
+    "failing_step": "flutter test (all)",
+    "tests": {"flutter test (all)": {"passed": 6300, "skipped": 45, "failed": 2}},
+    "failing_tests": [{"file": "app/test/a_test.dart", "name": f"case {i} " + "x" * 200}
+                      for i in range(20)],
+    "commits_since_green": [f"{i:08x} " + "subject " * 30 for i in range(20)],
+    "log": "/tmp/epic-build/nightly/runs/x/check.log",
+}
+
+
+class FakeResponse:
+    def __init__(self, status, body=b"{}"):
+        self.status, self.body = status, body
+
+    def read(self, n=-1):
+        return self.body
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
+class FakeOpener:
+    """Stands in for urllib.request.urlopen: answers from a list, records the requests."""
+
+    def __init__(self, answers):
+        self.answers = list(answers)
+        self.requests = []
+
+    def __call__(self, req, timeout=None):
+        self.requests.append((req, timeout))
+        a = self.answers.pop(0)
+        if isinstance(a, FakeResponse):
+            return a
+        if isinstance(a, Exception):
+            raise a
+        if a >= 400:
+            raise urllib.error.HTTPError(req.full_url, a, "err", {}, io.BytesIO(b"{}"))
+        return FakeResponse(a)
+
+
+class DmTest(unittest.TestCase):
+    def setUp(self):
+        self.conf = tempfile.TemporaryDirectory()
+        Path(self.conf.name, "notify_url").write_text("https://bot.invalid:1\n")
+        Path(self.conf.name, "notify_token").write_text("t0ken-for-tests\n")
+
+    def tearDown(self):
+        self.conf.cleanup()
+
+    def send(self, result, state, answers=(200,), test=False):
+        opener = FakeOpener(answers)
+        out = nightly.report(result, state, test=test, conf_dir=self.conf.name, opener=opener,
+                             sleep=lambda s: None)
+        return out, opener
+
+    def test_body_shape_and_caps(self):
+        body = nightly.dm_body(RED)
+        self.assertLessEqual(set(body), nightly.DM_FIELDS)
+        self.assertEqual(body["kind"], "red")
+        self.assertEqual(body["sha"], RED["sha"])
+        self.assertEqual(body["key"], "nightly-7b2cc6ce-red")
+        self.assertEqual(body["step"], "flutter test (all)")
+        self.assertEqual(body["counts"], "+6300 ~45 -2")
+        self.assertEqual(body["duration"], "25m00s")
+        self.assertNotIn("reason", body)
+        self.assertNotIn("test", body)
+        self.assertEqual(len(body["tests"]), 15)
+        self.assertTrue(all(len(t) <= 160 for t in body["tests"]))
+        self.assertTrue(body["tests"][0].startswith("app/test/a_test.dart: case 0 "))
+        self.assertEqual(len(body["commits"]), 15)
+        self.assertTrue(all(len(c) <= 120 for c in body["commits"]))
+        broken = nightly.dm_body({"status": "error", "sha": RED["sha"], "error": "git failed"})
+        self.assertEqual(broken, {"kind": "broken", "sha": RED["sha"],
+                                  "key": "nightly-7b2cc6ce-broken", "reason": "git failed"})
+        test = nightly.dm_body(RED, test=True)
+        self.assertIs(test["test"], True)
+        self.assertEqual(test["step"], "TEST flutter test (all)")
+
+    def test_request(self):
+        out, opener = self.send(RED, {})
+        self.assertTrue(out["sent"])
+        req, timeout = opener.requests[0]
+        self.assertEqual(timeout, 20)
+        self.assertEqual(req.full_url, "https://bot.invalid:1/nightly/notify")
+        self.assertEqual(req.get_method(), "POST")
+        self.assertEqual(req.get_header("Authorization"), "Bearer t0ken-for-tests")
+        self.assertEqual(json.loads(req.data), nightly.dm_body(RED))
+        self.assertNotIn("t0ken", json.dumps(out))
+
+    def test_one_send_per_key(self):
+        state = {}
+        out, opener = self.send(RED, state)
+        self.assertTrue(out["sent"])
+        self.assertEqual(state["sent_keys"], ["nightly-7b2cc6ce-red"])
+        out, opener = self.send(RED, state)
+        self.assertEqual(out["why"], "already sent")
+        self.assertEqual(opener.requests, [])
+        # a broken run of the same sha is its own key
+        out, opener = self.send({"status": "error", "sha": RED["sha"], "error": "x"}, state)
+        self.assertTrue(out["sent"])
+
+    def test_green_sends_nothing(self):
+        state = {}
+        out, opener = self.send(dict(RED, status="green"), state)
+        self.assertFalse(out["sent"])
+        self.assertEqual(opener.requests, [])
+        self.assertEqual(state, {})
+
+    def test_missing_config_sends_nothing(self):
+        state = {}
+        with tempfile.TemporaryDirectory() as empty:
+            opener = FakeOpener([200])
+            out = nightly.report(RED, state, conf_dir=empty, opener=opener)
+        self.assertEqual((out["sent"], out["why"]), (False, "not configured"))
+        self.assertEqual(opener.requests, [])
+        self.assertEqual(state.get("sent_keys"), [])
+
+    def test_retries_then_gives_up_or_succeeds(self):
+        state = {}
+        net = urllib.error.URLError("refused")
+        out, opener = self.send(RED, state, answers=[net, 502, 429, 200])
+        self.assertTrue(out["sent"])
+        self.assertEqual(out["tries"], [None, 502, 429, 200])
+        state = {}
+        out, opener = self.send(RED, state, answers=[502, 502, 502, 502])
+        self.assertFalse(out["sent"])
+        self.assertEqual(len(opener.requests), 4)
+        self.assertEqual(state["sent_keys"], [])
+        out, opener = self.send(RED, {}, answers=[400])
+        self.assertEqual((out["sent"], len(opener.requests)), (False, 1))
+        out, opener = self.send(RED, {}, answers=[FakeResponse(200, b'{"duplicate": true}')])
+        self.assertEqual((out["sent"], out["duplicate"]), (True, True))
 
 
 if __name__ == "__main__":

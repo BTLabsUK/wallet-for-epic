@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Nightly full check of Epic Wallet's local main, with a Telegram note to the owner when it is red.
+"""Nightly full check of Epic Wallet's local main, with one Telegram DM to the owner when it is red.
 
-What it is: a script started by systemd user units on the build machine (tools/nightly/install.sh puts it in
-~/.local/lib/wfe-nightly/ and the units in ~/.config/systemd/user/). It is not an agent: it runs
+What it is: a script started by a systemd user timer on the build machine (tools/nightly/install.sh puts it
+in ~/.local/lib/wfe-nightly/ and the units in ~/.config/systemd/user/). It is not an agent: it runs
 the full check on main, records the result and reports. It never fixes, pushes, starts agents or
 blocks merges.
 
-  nightly.py                     one attempt, as the timer runs it (wfe-nightly.timer, 02:30,
-                                 03:30, 04:30 and 05:30 local time): skipped when main's sha was
-                                 already tested, or when any build-slot slot is held
-  nightly.py --wait-slot         the same, by hand (wfe-nightly-now.service): no busy check, waits
-                                 for a build slot
-  nightly.py --simulate-red      no check: sends a red report built from a fixture, marked TEST,
-                                 and writes it only under test-runs/ (proves the Telegram route)
+  nightly.py                     one attempt, as wfe-nightly.timer runs it (02:30, 03:30, 04:30 and
+                                 05:30 local time). It refuses outside 01:00-06:00 local time
+                                 (`skipped: daytime`), and skips while any build-slot slot is held
+                                 or any tools/rel run is active (`skipped: busy`)
+  python3 ~/.local/lib/wfe-nightly/nightly.py --by-hand
+                                 the same run started by a person: any time of day, waits for a
+                                 build slot, still refuses while a tools/rel run is active
+  nightly.py --simulate-red      no check: posts a red DM built from a fixture with test: true and
+                                 "TEST" before the step, and writes it only under test-runs/
   nightly.py --parse <log>       print what the parser reads from a log (debugging)
 
 A run:
@@ -23,19 +25,22 @@ A run:
      most twice;
   3. moves the run worktree ~/wfe-worktrees/nightly (detached, used by nothing else) to the sha:
      checkout --force, git clean -ffdx except app/third_party/ (the LEPIC clones), lepic.sh sync;
+     then checks the busy rules again;
   4. runs `tools/rellib/steps/source-check.sh <run>/source-check` when the commit has it, else
      `tools/check.sh --full` (or plain `tools/check.sh` before --full existed) inside
      dbus-run-session with an unlocked throwaway keyring; always under
-     `nice -n 15 ionice -c3 build-slot`, with a 90 min limit (then the run is `error`);
+     `nice -n 15 ionice -c3 build-slot`, with a 90 min limit from the slot (then `error`);
   5. parses the output: `== <step>` lines start steps, `check passed` ends a green run, the step
      check.sh was in when it failed is the failing one, flutter's progress lines give counts and
      `[E]` lines the failing tests;
   6. records /tmp/epic-build/nightly/runs/<UTC stamp>-<sha8>/{check.log,result.json} (last 7 kept),
      latest.json (newest completed run), summary.txt (one line), attempts.log (every attempt,
-     skips too) and state.json (last green sha, error retries, weekly note);
-  7. reports through relmsg to the owner's private chat: red or a broken run = a short release in the
-     relay with one notifying alert; green = silent, except a silent "still green" note once a
-     week. relmsg failures never fail the run; they are recorded in result.json `notified`;
+     skips too) and state.json (last green sha, error retries, keys of the DMs sent);
+  7. green sends nothing. Red, or a run that broke, sends ONE DM: POST <url>/nightly/notify on
+     the feedback bot, URL in ~/.config/wfe-nightly/notify_url, bearer token in
+     ~/.config/wfe-nightly/notify_token (without both nothing is sent: "not configured"). The key
+     nightly-<sha8>-<red|broken> is sent once: state.json remembers it and the bot dedupes on it.
+     A failed send never fails the run; result.json `notified` records it;
   8. runs `tools/lepic.sh prune-shared` when the commit has it, ignoring its result.
 Python 3 standard library only.
 """
@@ -43,6 +48,7 @@ Python 3 standard library only.
 import argparse
 import datetime as dt
 import fcntl
+import glob
 import json
 import os
 import re
@@ -52,28 +58,34 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 HOME = Path.home()
 REPO = Path(os.environ.get("WFE_NIGHTLY_REPO", HOME / "wallet-for-epic"))
 WORKTREE = Path(os.environ.get("WFE_NIGHTLY_WORKTREE", HOME / "wfe-worktrees" / "nightly"))
 BASE = Path(os.environ.get("WFE_NIGHTLY_DIR", HOME / "epic-build" / "nightly"))
-RELMSG = os.environ.get("WFE_NIGHTLY_RELMSG", str(HOME / ".local" / "bin" / "relmsg"))
+REL_LOCKS = str(HOME / "epic-build" / "rel" / "*" / "run-*" / ".lock")
+NOTIFY_CONF = HOME / ".config" / "wfe-nightly"
 
 CHECK_TIMEOUT_S = 90 * 60
 KEEP_RUNS = 7
 MAX_ERROR_RUNS = 3  # the first run of a sha and at most two retries after `error`
 CULPRITS_KEPT = 30
-DETAIL_ITEMS = 15
-GREEN_NOTE_EVERY = dt.timedelta(days=7)
 TIMER_SLOT_WAIT_S = 120
-NOW_SLOT_WAIT_S = 12 * 3600
+BY_HAND_SLOT_WAIT_S = 12 * 3600
+NIGHT_HOURS = (1, 6)  # timer runs only from 01:00 to 06:00 local time
+DM_ITEMS, DM_TEST_CHARS, DM_COMMIT_CHARS = 15, 160, 120
+DM_FIELDS = {"kind", "sha", "key", "step", "counts", "duration", "reason", "tests", "commits",
+             "log", "test"}
+DM_RETRIES = 3
+SENT_KEYS_KEPT = 500
 
 STEP_RE = re.compile(r"^== (.+?)\s*$")
 PROGRESS_RE = re.compile(r"^\d+:\d\d \+(\d+)(?: ~(\d+))?(?: -(\d+))?: (.*)$")
 STAMP_RE = re.compile(r"^(\d\d):(\d\d):(\d\d) ")
 TEST_FILE_RE = re.compile(r"^(?:loading )?(\S+?\.dart)(?:: (.*))?$")
-STEP_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:+-]{0,63}$")
 
 
 # ---------------------------------------------------------------- time and files
@@ -276,24 +288,48 @@ def busy_slots(status_text):
     return held
 
 
-def green_note_due(state, now):
-    last = state.get("last_green_note")
-    if not last:
-        return True
+def rel_busy(pattern=None):
+    """Lock files of tools/rel runs that are active (held). Only tries a shared lock and lets go:
+    nothing changes and nothing waits."""
+    held = []
+    for path in sorted(glob.glob(pattern or REL_LOCKS)):
+        try:
+            fd = os.open(path, os.O_RDONLY)
+        except OSError:
+            continue
+        try:
+            fcntl.flock(fd, fcntl.LOCK_SH | fcntl.LOCK_NB)
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        except OSError:
+            held.append(path)
+        finally:
+            os.close(fd)
+    return held
+
+
+def slot_status():
     try:
-        return now - parse_iso(last) >= GREEN_NOTE_EVERY
-    except ValueError:
-        return True
+        return subprocess.run(["build-slot", "--status"], capture_output=True, text=True,
+                              timeout=60, env=check_env_path()).stdout
+    except (OSError, subprocess.SubprocessError) as e:
+        print(f"build-slot --status failed: {e}", file=sys.stderr)
+        return ""
 
 
-def step_id(name, taken):
-    short = name.split(" (")[0] or name  # labels carry the rest
-    base = re.sub(r"[^A-Za-z0-9_.+-]+", "-", short).strip("-.+_")[:60] or "step"
-    sid, n = base, 2
-    while sid in taken:
-        sid, n = f"{base[:58]}-{n}", n + 1
-    taken.add(sid)
-    return sid
+def refusal(by_hand, now_local=None, status_text=None, rel_pattern=None):
+    """Why this attempt must not run now ('daytime', 'busy (...)'), or None."""
+    if not by_hand:
+        hour = (now_local or dt.datetime.now()).hour
+        if not NIGHT_HOURS[0] <= hour < NIGHT_HOURS[1]:
+            return "daytime"
+    rel = rel_busy(rel_pattern)
+    if rel:
+        return "busy (tools/rel run active: " + ", ".join(rel)[:200] + ")"
+    if not by_hand:
+        held = busy_slots(slot_status() if status_text is None else status_text)
+        if held:
+            return "busy (" + "; ".join(held)[:300] + ")"
+    return None
 
 
 # ---------------------------------------------------------------- git
@@ -317,118 +353,118 @@ def commits_between(old, new, limit=CULPRITS_KEPT):
     return [f"{l[:8]} {l[41:]}" for l in out.splitlines() if l]
 
 
-# ---------------------------------------------------------------- relmsg
+# ---------------------------------------------------------------- the DM (bot route /nightly/notify)
 
-class Notifier:
-    """Calls relmsg; every answer or failure goes to self.log, nothing raises."""
-
-    def __init__(self, test=False):
-        self.test = test
-        self.release = None
-        self.log = []
-
-    def call(self, *args):
-        cmd = [RELMSG, "--json"]
-        if self.release is not None:
-            cmd += ["--release", str(self.release)]
-        cmd += list(args)
-        entry = {"cmd": " ".join(args[:2])}
-        try:
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
-            entry["exit"] = r.returncode
-            out = r.stdout.strip()
-            try:
-                entry["answer"] = json.loads(out) if out else None
-            except ValueError:
-                entry["answer"] = out[-500:]
-            if r.returncode != 0:
-                entry["error"] = (r.stderr or "").strip()[-500:]
-        except (OSError, subprocess.SubprocessError) as e:
-            entry["exit"] = None
-            entry["error"] = str(e)[-500:]
-        self.log.append(entry)
-        return entry
-
-    def ok(self, entry):
-        return entry.get("exit") == 0
-
-    def start(self, version, sha, steps, run_id):
-        args = ["start", version, "--title", "Epic Wallet nightly", "--commit", sha,
-                "--steps", ",".join(steps), "--run-id", run_id]
-        if self.test:
-            args.append("--test")
-        e = self.call(*args)
-        if self.ok(e) and isinstance(e.get("answer"), dict):
-            self.release = e["answer"].get("release_id")
-        return self.release is not None
+def _clip(s, n):
+    return s if len(s) <= n else s[: n - 1] + "…"
 
 
-def notify(result, *, test=False, green_note=False):
-    """Sends the relay messages for a result; returns what was sent (for result.json)."""
-    n = Notifier(test=test)
-    sha8 = result["sha"][:8]
-    day = result["started"][:10].replace("-", "")
-    stamp = result.get("run_stamp") or result["started"].replace("-", "").replace(":", "")[:13]
-    steps = result["steps"] or [{"name": "nightly run", "status": "failed", "duration_s": None}]
-    taken = set()
-    ids = [step_id(s["name"], taken) for s in steps]
-    run_id = f"nightly-{'test-' if test else ''}{stamp}-{sha8}"
-    if not n.start(f"nightly-{day}", result["sha"], ids, run_id):
-        return {"sent": False, "kind": "none", "calls": n.log}
-    for sid, s in zip(ids, steps):
-        status = {"ok": "ok", "failed": "failed"}.get(s["status"], "skipped")
-        args = ["step", sid, status, "--label", s["name"][:80], "--no-alert"]
-        if s.get("duration_s") is not None:
-            args += ["--note", fmt_duration(s["duration_s"])]
-        n.call(*args)
-    if green_note:
-        n.call("done", "ok", "--note", f"still green: {count_line(result['tests'])}")
-        return {"sent": True, "kind": "still green note", "release_id": n.release, "calls": n.log}
-    if result["status"] == "red":
-        title = f"main is red: {result.get('failing_step') or 'unknown step'}"
-    else:
-        title = f"nightly run broke: {result.get('error') or 'unknown reason'}"
+def dm_kind(result):
+    return "red" if result["status"] == "red" else "broken"
+
+
+def dm_key(sha, kind, test=False):
+    return f"nightly-{'test-' if test else ''}{sha[:8]}-{kind}"
+
+
+def dm_body(result, test=False):
+    """The JSON body for POST /nightly/notify: only the route's fields, within its caps."""
+    kind = dm_kind(result)
+    body = {"kind": kind, "sha": result["sha"], "key": dm_key(result["sha"], kind, test)}
+    step = result.get("failing_step")
+    if step:
+        body["step"] = ("TEST " if test else "") + step
+    elif test:
+        body["step"] = "TEST"
+    if result.get("tests"):
+        body["counts"] = count_line(result["tests"])
+    if result.get("duration_s"):
+        body["duration"] = fmt_duration(result["duration_s"])
+    if kind == "broken":
+        body["reason"] = _clip(result.get("error") or "unknown", 300)
+    tests = [_clip(f"{t['file']}: {t['name']}" if t.get("file") else t["name"], DM_TEST_CHARS)
+             for t in (result.get("failing_tests") or [])[:DM_ITEMS]]
+    if tests:
+        body["tests"] = tests
+    commits = [_clip(c, DM_COMMIT_CHARS)
+               for c in (result.get("commits_since_green") or [])[:DM_ITEMS]]
+    if commits:
+        body["commits"] = commits
+    if result.get("log"):
+        body["log"] = result["log"]
     if test:
-        title = "TEST " + title
-    failing_sid = next((sid for sid, s in zip(ids, steps) if s["status"] == "failed"), None)
-    args = ["alert", title[:200], "--detail", alert_detail(result),
-            "--expects", "fix the named failing tests only", "--key",
-            f"nightly-{'test-' if test else ''}{sha8}"]
-    if failing_sid:
-        args += ["--step", failing_sid]
-    a = n.call(*args)
-    n.call("done", "failed")
-    return {"sent": n.ok(a), "kind": "alert", "title": title, "release_id": n.release,
-            "calls": n.log}
+        body["test"] = True
+    return body
 
 
-def alert_detail(result, limit=3000):
-    parts = []
-    ft = result.get("failing_tests") or []
-    if ft:
-        parts.append(f"Failing tests ({len(ft)}):")
-        parts += [f"- {t['file']}: {t['name']}" if t["file"] else f"- {t['name']}"
-                  for t in ft[:DETAIL_ITEMS]]
-        if len(ft) > DETAIL_ITEMS:
-            parts.append(f"  … and {len(ft) - DETAIL_ITEMS} more")
-    elif result.get("log_tail"):
-        parts.append("Log tail:")
-        parts += result["log_tail"][-15:]
-    cs = result.get("commits_since_green") or []
-    green = (result.get("last_green_sha") or "")[:8] or "none recorded"
-    parts.append("")
-    parts.append(f"Commits since the last green run ({green}): {len(cs)}")
-    parts += [f"- {c}" for c in cs[:DETAIL_ITEMS]]
-    if len(cs) > DETAIL_ITEMS:
-        parts.append(f"  … and {len(cs) - DETAIL_ITEMS} more")
-    parts.append("")
-    parts.append(f"Tests: {count_line(result.get('tests') or {})}")
-    parts.append(f"Duration: {fmt_duration(result.get('duration_s'))}")
-    parts.append(f"Log: {result.get('log')}")
-    text = "\n".join(parts)
-    if len(text) > limit:
-        text = text[: limit - 2] + " …"
-    return text
+def notify_config(conf_dir=None):
+    """(url, token) from the two files, or None when either is missing or empty."""
+    d = Path(conf_dir or NOTIFY_CONF)
+    try:
+        url = (d / "notify_url").read_text(encoding="utf-8").strip()
+        token = (d / "notify_token").read_text(encoding="utf-8").strip()
+    except OSError:
+        return None
+    return (url, token) if url and token else None
+
+
+def post_dm(body, url, token, opener=None, sleep=time.sleep):
+    """POSTs the body; retries network errors, 5xx and 429 DM_RETRIES times with back-off.
+    Returns what result.json records (never the token or the URL)."""
+    opener = opener or urllib.request.urlopen
+    data = json.dumps(body).encode("utf-8")
+    tries = []
+    for n in range(DM_RETRIES + 1):
+        req = urllib.request.Request(
+            url.rstrip("/") + "/nightly/notify", data=data, method="POST",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+        wait = 5 * 3 ** n
+        try:
+            with opener(req, timeout=20) as resp:
+                status, text = resp.status, resp.read(2000).decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            status, text = e.code, e.read(2000).decode("utf-8", "replace")
+            if status == 429:
+                try:
+                    wait = min(120, max(wait, int(e.headers.get("Retry-After", "0"))))
+                except (TypeError, ValueError, AttributeError):
+                    pass
+        except (urllib.error.URLError, OSError) as e:
+            status, text = None, f"network: {getattr(e, 'reason', e)}"[:200]
+        tries.append(status)
+        if status == 200:
+            try:
+                answer = json.loads(text) if text.strip() else {}
+            except ValueError:
+                answer = {}
+            dup = isinstance(answer, dict) and answer.get("duplicate") is True
+            return {"sent": True, "duplicate": dup, "status": 200, "tries": tries}
+        retry = status is None or status == 429 or status >= 500
+        if not retry or n == DM_RETRIES:
+            return {"sent": False, "status": status, "why": text[:300], "tries": tries}
+        sleep(wait)
+    return {"sent": False, "tries": tries}
+
+
+def report(result, state, test=False, conf_dir=None, opener=None, sleep=time.sleep):
+    """Sends the one DM a result calls for; green sends nothing. Adds the key to
+    state['sent_keys'] once the bot took it."""
+    if result["status"] == "green":
+        return {"sent": False, "why": "green sends nothing"}
+    body = dm_body(result, test=test)
+    sent_keys = state.setdefault("sent_keys", [])
+    if body["key"] in sent_keys:
+        return {"sent": False, "why": "already sent", "key": body["key"]}
+    conf = notify_config(conf_dir)
+    if conf is None:
+        return {"sent": False, "why": "not configured", "key": body["key"]}
+    out = post_dm(body, *conf, opener=opener, sleep=sleep)
+    out["key"] = body["key"]
+    out["body"] = body
+    if out.get("sent"):
+        sent_keys.append(body["key"])
+        del sent_keys[:-SENT_KEYS_KEPT]
+    return out
 
 
 # ---------------------------------------------------------------- running the check
@@ -487,7 +523,7 @@ def run_logged(cmd, log, env, cwd, timeout=None, slot_wait=False):
     return rc, tail
 
 
-def check_env(run_dir, wait_slot):
+def check_env(run_dir, by_hand):
     env = dict(os.environ)
     for k in ("WAYLAND_DISPLAY", "DISPLAY", "CARGO_TARGET_DIR", "BUILD_SLOT"):
         env.pop(k, None)
@@ -498,7 +534,7 @@ def check_env(run_dir, wait_slot):
                             "/usr/local/bin", "/usr/bin", "/bin"])
     env["TMPDIR"] = str(scratch)
     env["TMPDIR"] = env["TMP"] = env["TEMP"] = str(tmp)
-    env["BUILD_SLOT_WAIT"] = str(NOW_SLOT_WAIT_S if wait_slot else TIMER_SLOT_WAIT_S)
+    env["BUILD_SLOT_WAIT"] = str(BY_HAND_SLOT_WAIT_S if by_hand else TIMER_SLOT_WAIT_S)
     env["XDG_DATA_HOME"] = str(run_dir / "xdg-data")
     return env
 
@@ -557,8 +593,12 @@ def attempt(kind, sha, what):
     print(line, end="")
 
 
-def cmd_run(wait_slot):
-    kind = "now" if wait_slot else "timer"
+class Refused(Exception):
+    """The busy rules said no right before the check."""
+
+
+def cmd_run(by_hand):
+    kind = "hand" if by_hand else "timer"
     BASE.mkdir(parents=True, exist_ok=True)
     lock = open(BASE / ".lock", "w")
     try:
@@ -573,32 +613,26 @@ def cmd_run(wait_slot):
     except (RuntimeError, subprocess.SubprocessError) as e:
         return broken_run(kind, state, None, f"cannot read main: {e}")
 
+    why = refusal(by_hand)
+    if why:
+        attempt(kind, sha, f"skipped: {why}")
+        return 0
     verdict, reason = decide(state, sha)
     if verdict == "skip":
         attempt(kind, sha, f"skipped: {reason}")
         return 0
-    if not wait_slot:
-        try:
-            st = subprocess.run(["build-slot", "--status"], capture_output=True, text=True,
-                                timeout=60, env=check_env_path()).stdout
-        except (OSError, subprocess.SubprocessError) as e:
-            st = ""
-            print(f"build-slot --status failed: {e}", file=sys.stderr)
-        held = busy_slots(st)
-        if held:
-            attempt(kind, sha, "skipped: busy (" + "; ".join(held)[:300] + ")")
-            return 0
 
     started = utcnow()
     stamp = started.strftime("%Y%m%dT%H%M")
     run_dir = BASE / "runs" / f"{stamp}-{sha[:8]}"
     if run_dir.exists():
-        shutil.rmtree(run_dir)  # a busy-skipped attempt in the same minute
+        shutil.rmtree(run_dir)  # a skipped attempt in the same minute
     run_dir.mkdir(parents=True)
     log_path = run_dir / "check.log"
-    env = check_env(run_dir, wait_slot)
+    env = check_env(run_dir, by_hand)
     env["NIGHTLY_XDG"] = env["XDG_DATA_HOME"]
     error = None
+    refused = None
     rc = None
     tail = []
     command = None
@@ -606,23 +640,29 @@ def cmd_run(wait_slot):
         log.write(f"{started.strftime('%H:%M:%S')} nightly {kind} run of main {sha}\n")
         try:
             prepare_worktree(sha, log, env)
+            why = refusal(by_hand)
+            if why:
+                raise Refused(why)
             argv, command = check_command(run_dir)
             log.write(f"{utcnow().strftime('%H:%M:%S')} $ {' '.join(argv)}\n")
             log.flush()
             rc, tail = run_logged(argv, log, env, str(WORKTREE), timeout=CHECK_TIMEOUT_S,
                                   slot_wait=True)
+        except Refused as e:
+            refused = str(e)
         except Exception as e:  # a broken run is reported, never raised
             error = str(e)[:300]
     ended = utcnow()
 
-    if rc == 75 and any("no build slot free" in l for l in tail):
-        if not wait_slot:
-            shutil.rmtree(run_dir, ignore_errors=True)
-            attempt(kind, sha, "skipped: busy (no build slot within "
-                    f"{TIMER_SLOT_WAIT_S}s)")
-            prune_shared()
-            return 0
-        error = "no build slot came while waiting"
+    if refused is None and rc == 75 and any("no build slot free" in l for l in tail):
+        if by_hand:
+            error = "no build slot came while waiting"
+        else:
+            refused = f"busy (no build slot within {TIMER_SLOT_WAIT_S}s)"
+    if refused:
+        shutil.rmtree(run_dir, ignore_errors=True)
+        attempt(kind, sha, f"skipped: {refused}")
+        return 0
 
     with open(log_path, encoding="utf-8") as f:
         parsed = parse_check_log(f, expected_steps_of(WORKTREE / "tools" / "check.sh",
@@ -655,22 +695,11 @@ def cmd_run(wait_slot):
         "last_green_sha": sha if status == "green" else last_green,
         "commits_since_green": [] if status == "green" else commits_between(last_green, sha),
         "log": str(log_path),
-        "run_stamp": stamp,
     }
     if error:
         result["error"] = error
         result["log_tail"] = [l[-200:] for l in tail[-15:]]
-
-    now = utcnow()
-    if status == "green":
-        if green_note_due(state, now):
-            result["notified"] = notify(result, green_note=True)
-            if result["notified"].get("sent"):
-                state["last_green_note"] = iso(now)
-        else:
-            result["notified"] = {"sent": False, "kind": "none (green, silent)"}
-    else:
-        result["notified"] = notify(result)
+    result["notified"] = report(result, state)
 
     write_json(run_dir / "result.json", result)
     write_json(BASE / "latest.json", result)
@@ -705,10 +734,11 @@ def broken_run(kind, state, sha, reason):
               "duration_s": 0, "kind": kind, "command": None, "steps": [], "tests": {},
               "failing_step": None, "failing_tests": [],
               "last_green_sha": state.get("last_green_sha"), "commits_since_green": [],
-              "log": None, "error": reason[:300], "run_stamp": now.strftime("%Y%m%dT%H%M")}
-    result["notified"] = notify(result)
+              "log": None, "error": reason[:300]}
+    result["notified"] = report(result, state)
     write_json(BASE / "latest.json", result)
     write_atomic(BASE / "summary.txt", summary_line(result) + "\n")
+    write_json(BASE / "state.json", state)
     attempt(kind, sha, summary_line(result))
     return 1
 
@@ -736,18 +766,16 @@ def prune_shared():
 
 # ---------------------------------------------------------------- simulate red
 
-def cmd_simulate_red():
-    sha = git("-C", str(REPO), "rev-parse", "refs/heads/main")
-    started = utcnow()
-    stamp = started.strftime("%Y%m%dT%H%M")
-    run_dir = BASE / "test-runs" / f"{stamp}-{sha[:8]}"
+def simulated_red(sha):
     ok = lambda n, d: {"name": n, "status": "ok", "duration_s": d}
     not_run = lambda n: {"name": n, "status": "not_run", "duration_s": None}
-    result = {
-        "status": "red", "sha": sha, "started": iso(started), "ended": iso(started),
-        "duration_s": 1500, "kind": "test", "command": "(simulated: no check ran)",
-        "steps": [ok("version (https://docs.btlabs.uk/developers/releases/)", 1), ok("install contract (docs/install-contract.md)", 1),
-                  ok("LEPIC at the pin (tools/lepic.rev)", 40), ok("no hosts in code (docs/settings-file.md)", 1),
+    return {
+        "status": "red", "sha": sha, "duration_s": 1500, "kind": "test",
+        "command": "(simulated: no check ran)",
+        "steps": [ok("version (https://docs.btlabs.uk/developers/releases/)", 1),
+                  ok("install contract (docs/install-contract.md)", 1),
+                  ok("LEPIC at the pin (tools/lepic.rev)", 40),
+                  ok("no hosts in code (docs/settings-file.md)", 1),
                   ok("wallet core under plain Dart (no Flutter on its path)", 20),
                   ok("flutter analyze", 90),
                   {"name": "flutter test (all)", "status": "failed", "duration_s": 1100},
@@ -760,10 +788,18 @@ def cmd_simulate_red():
             {"file": "app/test/nightly_simulated_test.dart", "name": "TEST a simulated failure two"}],
         "last_green_sha": None,
         "commits_since_green": commits_between(None, sha, limit=3),
-        "log": str(run_dir / "check.log") + " (simulated, no log)",
-        "run_stamp": stamp,
     }
-    result["notified"] = notify(result, test=True)
+
+
+def cmd_simulate_red():
+    """Posts the fixture red DM (test: true, TEST before the step); records only in test-runs/."""
+    sha = git("-C", str(REPO), "rev-parse", "refs/heads/main")
+    started = utcnow()
+    run_dir = BASE / "test-runs" / f"{started.strftime('%Y%m%dT%H%M')}-{sha[:8]}"
+    result = simulated_red(sha)
+    result.update(started=iso(started), ended=iso(started),
+                  log=str(run_dir / "check.log") + " (simulated, no log)")
+    result["notified"] = report(result, {}, test=True)
     write_json(run_dir / "result.json", result)
     prune_dirs(BASE / "test-runs")
     print(json.dumps(result["notified"], indent=2, ensure_ascii=False))
@@ -773,10 +809,10 @@ def cmd_simulate_red():
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Epic Wallet nightly full check (see the header).")
     g = ap.add_mutually_exclusive_group()
-    g.add_argument("--wait-slot", action="store_true",
-                   help="started by hand: no busy check, wait for a build slot")
+    g.add_argument("--by-hand", action="store_true",
+                   help="started by a person: any time of day, waits for a build slot")
     g.add_argument("--simulate-red", action="store_true",
-                   help="send a TEST red report from a fixture; no check runs")
+                   help="post a TEST red DM from a fixture; no check runs")
     g.add_argument("--parse", metavar="LOG", help="print what the parser reads from a check log")
     a = ap.parse_args(argv)
     if a.simulate_red:
@@ -785,7 +821,7 @@ def main(argv=None):
         with open(a.parse, encoding="utf-8", errors="replace") as f:
             print(json.dumps(parse_check_log(f), indent=2, ensure_ascii=False))
         return 0
-    return cmd_run(a.wait_slot)
+    return cmd_run(a.by_hand)
 
 
 if __name__ == "__main__":
