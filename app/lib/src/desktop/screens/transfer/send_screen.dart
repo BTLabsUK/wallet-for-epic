@@ -496,7 +496,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final route = switch (_method) {
       TxMethod.epicbox => TorRoute.epicbox,
       TxMethod.tor => TorRoute.onionDirect,
-      TxMethod.http => TorRoute.httpDirect,
+      TxMethod.http => _to.text.trim().isNotEmpty && plainHttpNeedsConsent(_to.text) ? TorRoute.plainHttpDirect : TorRoute.httpDirect,
       TxMethod.file => null,
     };
     return route == null ? null : torWay(route, _torState(st));
@@ -1669,7 +1669,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                   EButton(label: l.deskSendTurnOnTor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
               ],
             ),
-          ] else if (_method == TxMethod.http && _torState(st) != TorState.off) ...[
+          ] else if (_method == TxMethod.http && _torState(st) != TorState.off && _torWay(st) == TorWay.clearnet) ...[
             SizedBox(height: Sp.x2),
             Text(l.deskSendHttpClearnet, key: const ValueKey('send-http-clearnet'), style: ts.small),
           ],
@@ -1805,6 +1805,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
       _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,
       _ when _torWay(st) == TorWay.needsTor => l.deskSendHintNeedsTor,
+      _ when _method == TxMethod.http && _torWay(st) == TorWay.off => l.sendPlainHttpOffWithTor,
       _ when _submitted && !_toEdited && _toError(st) != null => l.deskSendHintFix,
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
       _ when _messageTooLong => l.deskSendHintFix,

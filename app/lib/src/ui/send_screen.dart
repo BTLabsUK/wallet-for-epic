@@ -237,9 +237,11 @@ TransferMethod methodForRecipient(RecipientKind kind) => switch (kind) {
   RecipientKind.http || RecipientKind.tor => TransferMethod.direct,
 };
 
-/// The connection a payment to [to] takes, for the Tor switch ([torWay]).
+/// The connection a payment to [to] takes, for the Tor switch ([torWay]). Plain `http://` to
+/// another device is a route of its own: it never goes through a Tor exit.
 TorRoute sendRoute(Recipient to) => switch (to.kind) {
   RecipientKind.epicbox => TorRoute.epicbox,
+  RecipientKind.http when plainHttpToOtherDevice(to.address) => TorRoute.plainHttpDirect,
   RecipientKind.http => TorRoute.httpDirect,
   RecipientKind.tor => TorRoute.onionDirect,
 };
@@ -3165,7 +3167,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _Row(
         label: l.sendMethodLabel,
         value: switch (to.kind) {
-          RecipientKind.epicbox when way == TorWay.overTor =>
+          RecipientKind.epicbox || RecipientKind.http when way == TorWay.overTor =>
             '${recipientMethodWord(l, to.kind)} · ${l.sendOverTor}',
           RecipientKind.http
               when way == TorWay.clearnet && torState != TorState.off =>
@@ -4207,11 +4209,12 @@ class _TorNotice extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    // Without Tor in the app the address's own error says so.
-    final available = ref.watch(
-      phoneTorProvider.select((s) => s.phase != PhoneTorPhase.unavailable),
-    );
-    if (!available || (way != TorWay.needsTor && way != TorWay.blocked)) {
+    // Without Tor in the app the address's own error says so. A build with Tor whose tor
+    // files are missing shows Tor as blocked: nothing goes around it.
+    final available = torBuilt;
+    // Plain http:// is off while Tor is on: a Tor exit could take the payment.
+    final plainOff = way == TorWay.off && !onion;
+    if (!available || (way != TorWay.needsTor && way != TorWay.blocked && !plainOff)) {
       return const SizedBox.shrink();
     }
     // Offline: Tor never runs there; the form's Offline line gives the reason (LNX-12).
@@ -4237,14 +4240,18 @@ class _TorNotice extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    blocked ? Icons.error_outline : torIcon,
+                    blocked || plainOff ? Icons.error_outline : torIcon,
                     size: 18,
-                    color: blocked ? t.risk : t.dim,
+                    color: blocked || plainOff ? t.risk : t.dim,
                   ),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      blocked ? l.torNotConnectedNotice : l.torNeeds,
+                      plainOff
+                          ? l.sendPlainHttpOffWithTor
+                          : blocked
+                          ? l.torNotConnectedNotice
+                          : l.torNeeds,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
@@ -4263,7 +4270,14 @@ class _TorNotice extends ConsumerWidget {
                 onPressed: () => tor.setReceiving(false),
                 child: Text(l.torTurnOff),
               ),
-            ] else
+            ] else if (plainOff)
+              TextButton(
+                key: sendTurnOffTorKey,
+                style: quiet,
+                onPressed: () => tor.setReceiving(false),
+                child: Text(l.torTurnOff),
+              )
+            else
               TextButton(
                 key: sendTurnOnTorKey,
                 style: quiet,

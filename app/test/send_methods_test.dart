@@ -1035,7 +1035,7 @@ void main() {
       expect(find.text('Tor is not connected.'), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('Tor on: Epicbox Over Tor, http Not over Tor, onion Over Tor', (
+    testWidgets('Tor on: Epicbox, https and onion Over Tor', (
       tester,
     ) async {
       final h = _Harness();
@@ -1048,7 +1048,7 @@ void main() {
       expect(tag('Over Tor'), findsOneWidget);
       await _enter(tester, 'To', _https);
       expect(_method(tester), TransferMethod.direct);
-      expect(tag('Not over Tor'), findsOneWidget);
+      expect(tag('Over Tor'), findsOneWidget);
       await _enter(tester, 'To', _onion);
       expect(tag('Over Tor'), findsOneWidget);
       expect(find.byKey(sendTorNoticeKey), findsNothing);
@@ -1056,7 +1056,17 @@ void main() {
       // The review says it too.
       await _enter(tester, 'To', _https);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Link · HTTP · Not over Tor'), findsOneWidget);
+      expect(_reviewMethod('Link · HTTP · Over Tor'), findsOneWidget);
+    }, skip: !torBuilt);
+
+    testWidgets('Tor on: plain http to another device is off, and says why', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: _directOn);
+      await h.torOn(tester);
+      await _enter(tester, 'To', 'http://10.0.0.5:3415');
+      expect(find.byKey(sendTorNoticeKey), findsOneWidget);
+      expect(find.textContaining('Plain http:// is off while Tor is on'), findsOneWidget);
+      expect(find.byKey(sendTurnOffTorKey), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {

@@ -5,6 +5,7 @@
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -59,12 +60,17 @@ void main() {
     expect(find.byType(Text), findsNothing);
   });
 
-  testWidgets('no Tor in this build: nothing', (tester) async {
+  testWidgets('the switch on without its tor files: blocked, as failed', (tester) async {
     await _pump(
       tester,
       const PhoneTorState(receiving: true, phase: PhoneTorPhase.unavailable),
     );
-    expect(find.byType(Text), findsNothing);
+    if (torBuilt) {
+      final text = tester.widget<Text>(find.text('Waiting for Tor'));
+      expect(text.style?.color, _tokens(tester).risk);
+    } else {
+      expect(find.byType(Text), findsNothing);
+    }
   });
 
   for (final (name, state, word, color, spoken) in [
@@ -121,7 +127,7 @@ void main() {
     await _pump(
       tester,
       const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready),
-      route: TorRoute.httpDirect,
+      route: TorRoute.httpListener,
     );
     expect(find.byType(Text), findsNothing);
   });

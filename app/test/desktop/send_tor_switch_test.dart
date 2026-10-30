@@ -160,10 +160,10 @@ void main() {
     }, skip: !torBuilt);
   });
 
-  testWidgets('Link http(s) with Tor on: sendable, "Not over Tor", sent over http', (tester) async {
+  testWidgets('Link https with Tor on: sendable, "Over Tor", sent over http through Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _https, amount: '5'));
-    expect(chip('Not over Tor'), findsOneWidget);
-    expect(find.text('Link · HTTP goes directly, without Tor.'), findsOneWidget);
+    expect(chip('Over Tor'), findsOneWidget);
+    expect(find.text('Link · HTTP goes directly, without Tor.'), findsNothing);
     expect(review(tester).label, 'Review');
     await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
@@ -173,6 +173,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.sent.single.method, TxMethod.http);
     expect(wallet.sent.single.to, _https);
+  }, skip: !torBuilt);
+
+  testWidgets('Link plain http to another computer with Tor on: off, and why', (tester) async {
+    await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5'));
+    expect(find.textContaining('Plain http:// is off while Tor is on'), findsOneWidget);
+    expect(review(tester).onPressed, isNull);
+    expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);
 
   testWidgets('Link onion with Tor on: "Over Tor", sent over Tor', (tester) async {
