@@ -601,8 +601,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Settings › Transactions › Send starts on, among the methods this build has.
   TxMethod _startMethod() => switch (ref.read(deskProvider).settings.payments.startMethod) {
-    // Node only and Kill switch: Epicbox and Link don't go out, so a new send starts on File.
-    _ when NetGate.restricted => TxMethod.file,
+    // Node only and Kill switch: Epicbox and Link don't go out, so an empty send starts on File
+    // (an address given in To keeps its own method, and the note says why it is held).
+    _ when NetGate.restricted && (_args.recipient ?? '').trim().isEmpty => TxMethod.file,
     MethodKind.linkHttp || MethodKind.linkTor when DeskFeatures.httpDirect || DeskFeatures.tor => TxMethod.http,
     MethodKind.directFile => TxMethod.file,
     _ => TxMethod.epicbox,
