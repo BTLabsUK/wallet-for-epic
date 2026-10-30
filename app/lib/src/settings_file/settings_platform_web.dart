@@ -20,3 +20,6 @@ Future<String?> readDevChainFile(String devChain, String name) async => null;
 
 /// Where a dev chain's files are, for a message.
 Future<String> devChainWhere(String devChain) async => 'its server (demo/)';
+
+/// No wallet folders in a browser.
+Future<List<String>> dataFolderWalletIds() async => const [];

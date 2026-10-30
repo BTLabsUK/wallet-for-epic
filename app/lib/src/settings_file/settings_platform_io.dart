@@ -2,6 +2,7 @@
 /// `settings_platform.dart` off the web.
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import '../data_folder_io.dart';
@@ -34,6 +35,24 @@ String settingsWhere(SettingsBackend backend) =>
 Future<String?> readDevChainFile(String devChain, String name) async {
   final f = File('${(await settingsFolder(devChain: devChain)).path}${Platform.pathSeparator}$name');
   return await f.exists() ? f.readAsString() : null;
+}
+
+/// The registry ids of the added wallets in the data folder's `wallets.json`, for the one-time
+/// import of their records (`legacy_import.dart`); none when it cannot be read.
+Future<List<String>> dataFolderWalletIds() async {
+  try {
+    final f = File('${(await appDataDirectory()).path}${Platform.pathSeparator}wallets.json');
+    if (!await f.exists()) return const [];
+    final j = jsonDecode(await f.readAsString());
+    final wallets = j is Map ? j['wallets'] : null;
+    return [
+      if (wallets is List)
+        for (final w in wallets)
+          if (w is Map && w['id'] is String && !(w['id'] as String).startsWith('legacy-')) w['id'] as String,
+    ];
+  } on Object {
+    return const [];
+  }
 }
 
 /// Where a dev chain's files are, for a message.

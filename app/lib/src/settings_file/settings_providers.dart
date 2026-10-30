@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../secret_store_api.dart';
 import 'host_settings.dart';
+import 'legacy_import.dart';
 import 'settings_controller.dart';
 import 'settings_layout.dart' show settingsKeys;
 import 'settings_notice.dart';
@@ -106,6 +107,8 @@ Future<SettingsFileController> openAppSettings({
     watch: settingsWatchSupported,
     publishGlobal: true,
   );
+  // The data folder's own file: what 26.10.23 and older kept in the store joins it once.
+  if (devChain == null && shippedText == null) await importLegacySettings(store, c, walletIds: dataFolderWalletIds);
   final before = _installed;
   _installed = c;
   _installedChain = devChain;
