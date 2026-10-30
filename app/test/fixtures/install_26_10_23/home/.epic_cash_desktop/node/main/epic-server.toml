@@ -1,0 +1,3 @@
+# fixture: the built-in node's own toml, as the app writes it
+[server]
+db_root = "chain_data"
