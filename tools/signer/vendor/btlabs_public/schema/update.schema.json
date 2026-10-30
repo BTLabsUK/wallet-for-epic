@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://btlabs-epic.github.io/schema/btlabs-update-1.schema.json",
+  "title": "BT Labs wallet release manifest, payload schema 1",
+  "description": "The signed payload of update.json (FORMAT.md §6). Unknown fields are allowed and ignored by clients.",
+  "type": "object",
+  "required": [
+    "schema",
+    "serial",
+    "issued_at",
+    "expires_at",
+    "packageName",
+    "versionName",
+    "apks"
+  ],
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "serial": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "issued_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "expires_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "packageName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+    },
+    "versionName": {
+      "$ref": "#/$defs/version"
+    },
+    "notes": {
+      "$ref": "#/$defs/notes"
+    },
+    "apks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": [
+          "abi",
+          "versionCode",
+          "url",
+          "sha256",
+          "size"
+        ],
+        "properties": {
+          "abi": {
+            "enum": [
+              "arm64-v8a",
+              "armeabi-v7a",
+              "x86_64",
+              "universal"
+            ]
+          },
+          "versionCode": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "url": {
+            "$ref": "#/$defs/url"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4294967296
+          }
+        }
+      }
+    },
+    "desktop": {
+      "oneOf": [
+        {
+          "description": "One entry for every system: no download (url, sha256, size) here; one file cannot fit every system.",
+          "allOf": [
+            {
+              "$ref": "#/$defs/desktopEntry"
+            },
+            {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "sha256"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "size"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+          "properties": {
+            "windows": {
+              "$ref": "#/$defs/desktopEntry"
+            },
+            "linux": {
+              "$ref": "#/$defs/desktopEntry"
+            },
+            "macos": {
+              "$ref": "#/$defs/desktopEntry"
+            }
+          }
+        }
+      ]
+    },
+    "notor": {
+      "description": "The release of the wallet builds without Tor (FORMAT.md §6): read only by those builds; versionName and notes default to the top-level ones.",
+      "type": "object",
+      "required": [
+        "apks"
+      ],
+      "properties": {
+        "versionName": {
+          "$ref": "#/$defs/version"
+        },
+        "notes": {
+          "$ref": "#/$defs/notes"
+        },
+        "apks": {
+          "$ref": "#/properties/apks"
+        },
+        "desktop": {
+          "$ref": "#/properties/desktop"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+    },
+    "url": {
+      "type": "string",
+      "maxLength": 512,
+      "pattern": "^https://[a-z0-9.-]+(:[0-9]{1,5})?(/[\\x21-\\x7e]*)?$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "notes": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000,
+      "pattern": "^[^\\x00-\\x1f\\x7f-\\x9f\\u200b-\\u200f\\u2028\\u2029\\u202a-\\u202e\\u2066-\\u2069\\ufeff\\s]([^\\x00-\\x09\\x0b-\\x1f\\x7f-\\x9f\\u200b-\\u200f\\u2028\\u2029\\u202a-\\u202e\\u2066-\\u2069\\ufeff]*[^\\x00-\\x1f\\x7f-\\x9f\\u200b-\\u200f\\u2028\\u2029\\u202a-\\u202e\\u2066-\\u2069\\ufeff\\s])?$",
+      "description": "Text rule of FORMAT.md §3, but U+000A is allowed inside (not first or last)."
+    },
+    "desktopEntry": {
+      "type": "object",
+      "required": [
+        "version"
+      ],
+      "properties": {
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "page": {
+          "description": "A release page starting with one of the allowed page prefixes (FORMAT.md section 6; the tool checks it, not this schema).",
+          "$ref": "#/$defs/url"
+        },
+        "url": {
+          "description": "The system's release file (Windows: the setup .exe, Linux: the .AppImage), a plain file name right under the downloads folder (FORMAT.md section 6; the tool checks it, not this schema). Clients before 26.10.9 ignore url, sha256 and size.",
+          "$ref": "#/$defs/url"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967296
+        }
+      },
+      "dependentRequired": {
+        "url": [
+          "sha256",
+          "size"
+        ],
+        "sha256": [
+          "url",
+          "size"
+        ],
+        "size": [
+          "url",
+          "sha256"
+        ]
+      }
+    }
+  }
+}
