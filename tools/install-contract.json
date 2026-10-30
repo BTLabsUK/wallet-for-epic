@@ -613,7 +613,7 @@
         "android"
       ],
       "what": "Where 26.10.24+ apps look for the signed update manifest (update-v2.json). Each installed version keeps reading its own list for good, so these must keep serving; a new source is added, never swapped.",
-      "value": "https://epiccash.btlabs.uk/api/v1/update.json, https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json, https://btlabs-epic.github.io/update-v2.json",
+      "value": "https://epiccash.btlabs.uk/api/v1/update.json, https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json, https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json",
       "probes": [
         {
           "file": "app/assets/config/app-config.toml",
@@ -625,7 +625,7 @@
         },
         {
           "file": "app/assets/config/app-config.toml",
-          "contains": "\"https://btlabs-epic.github.io/update-v2.json\","
+          "contains": "\"https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json\","
         }
       ]
     },
@@ -741,6 +741,14 @@
       "migration": "None needed: every item is what 26.10.23 and 26.10.24-r2 already use. Store-to-settings.toml (26.10.23 kept servers in the store) is the import in all.settings_import_26_10_23. The 26.10.24 stray <data>/wallet folder is left alone and never read.",
       "migration_test": "app/test/install_upgrade_test.dart",
       "approved_by": "the owner, 2026-10-30 (install guard approved)"
+    },
+    {
+      "date": "2026-10-30",
+      "items_sha256": "86c97972dab3fe9306f68221fdd0dc0a9fe343857d026f348d2d3cf63356289d",
+      "change": "updates.manifest_urls: the third source, https://btlabs-epic.github.io/update-v2.json (GitHub Pages of the BTLabs-EPIC organisation, dead since GitHub flagged that account), becomes https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json, the GitHub Release mirror of the new BTLabsUK organisation. The other two sources are unchanged.",
+      "migration": "None needed: app-config.toml ships read-only with each build, so installed apps keep their own list (BT Labs' server first, then the GitLab copy) and update exactly as before; only builds from this commit read the new source. Its answer is checked with the same keys and anti-rollback serial as every source, and a 404 (no GitHub Release yet) counts as no information, like the dead address did.",
+      "migration_test": "app/test/settings_file/host_settings_test.dart",
+      "approved_by": "the owner, 2026-10-30 (this URL change, in the GitHub mirror job)"
     }
   ]
 }

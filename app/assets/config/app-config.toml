@@ -115,11 +115,11 @@ download_stall_s = 60
 manifests = [
   "https://epiccash.btlabs.uk/api/v1/update.json",
   "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json",
-  "https://btlabs-epic.github.io/update-v2.json",
+  "https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json",
 ]
 downloads = "https://epiccash.btlabs.uk/releases/downloads/"
 releases_page = "https://epiccash.btlabs.uk/releases/"
-pages = ["https://epiccash.btlabs.uk/releases/", "https://github.com/BTLabs-EPIC/"]
+pages = ["https://epiccash.btlabs.uk/releases/", "https://github.com/BTLabsUK/"]
 
 [support]
 timeout_s = 20
@@ -127,7 +127,7 @@ report = "https://support.btlabs.uk/v1/report"
 email = "support@btlabs.uk"
 # BT Labs' donation contact. Comment this line out to hide the donation entry everywhere.
 donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com"
-signed_file = "https://btlabs-epic.github.io/btlabs.json"
+signed_file = "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/btlabs.json"
 
 [links]
 website = "https://epiccash.com"
