@@ -17727,7 +17727,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '至少 $count 个字符，且不能全是数字。几个用空格隔开的词就很合适。钱包需要 PIN 的地方都改为使用它。',
+      other: '至少 $count 个字符，且不能全是数字。',
     );
     return '$_temp0';
   }

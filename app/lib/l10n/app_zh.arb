@@ -4910,7 +4910,7 @@
   "passphraseEnterCurrent": "输入当前的密码短语",
   "passphraseCurrentLabel": "当前密码短语",
   "passphraseChooseTitle": "设置密码短语",
-  "passphraseRules": "{count, plural, other{至少 {count} 个字符，且不能全是数字。几个用空格隔开的词就很合适。钱包需要 PIN 的地方都改为使用它。}}",
+  "passphraseRules": "{count, plural, other{至少 {count} 个字符，且不能全是数字。}}",
   "passphraseUsePinInstead": "改用 PIN",
   "passphraseUsePassphraseInstead": "改用密码短语",
   "biometricsFromNextStart": "生物识别解锁将在下次启动应用后生效。",

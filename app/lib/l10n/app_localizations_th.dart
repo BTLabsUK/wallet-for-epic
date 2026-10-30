@@ -18395,8 +18395,7 @@ class AppLocalizationsTh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other:
-          'อย่างน้อย $count ตัวอักษร และไม่ใช่ตัวเลขล้วน คำสองสามคำที่คั่นด้วยช่องว่างใช้ได้ดี วลีนี้จะใช้แทน PIN ทุกที่ที่กระเป๋าถาม',
+      other: 'อย่างน้อย $count ตัวอักษร และไม่ใช่ตัวเลขล้วน',
     );
     return '$_temp0';
   }

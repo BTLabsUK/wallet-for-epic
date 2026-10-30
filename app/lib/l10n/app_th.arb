@@ -4910,7 +4910,7 @@
   "passphraseEnterCurrent": "ใส่วลีรหัสผ่านปัจจุบันของคุณ",
   "passphraseCurrentLabel": "วลีรหัสผ่านปัจจุบัน",
   "passphraseChooseTitle": "เลือกวลีรหัสผ่าน",
-  "passphraseRules": "{count, plural, other{อย่างน้อย {count} ตัวอักษร และไม่ใช่ตัวเลขล้วน คำสองสามคำที่คั่นด้วยช่องว่างใช้ได้ดี วลีนี้จะใช้แทน PIN ทุกที่ที่กระเป๋าถาม}}",
+  "passphraseRules": "{count, plural, other{อย่างน้อย {count} ตัวอักษร และไม่ใช่ตัวเลขล้วน}}",
   "passphraseUsePinInstead": "ใช้ PIN แทน",
   "passphraseUsePassphraseInstead": "ใช้วลีรหัสผ่านแทน",
   "biometricsFromNextStart": "การปลดล็อกด้วยไบโอเมตริกจะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป",

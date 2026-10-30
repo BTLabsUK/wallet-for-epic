@@ -25242,7 +25242,7 @@
   "@passphraseCurrentLabel": {"description": "Label of the field for the passphrase in use, on the change screen."},
   "passphraseChooseTitle": "Choose a passphrase",
   "@passphraseChooseTitle": {"description": "Heading above the two fields of a new passphrase."},
-  "passphraseRules": "{count, plural, other{At least {count} characters and not only digits. A few words with spaces between them work well. It replaces the PIN wherever the wallet asks for it.}}",
+  "passphraseRules": "{count, plural, other{At least {count} characters and not only digits.}}",
   "@passphraseRules": {"description": "The rules under the heading of a new passphrase. count is the fewest characters allowed (10).", "placeholders": {"count": {"type": "int"}}},
   "passphraseUsePinInstead": "Use PIN instead",
   "@passphraseUsePinInstead": {"description": "Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase."},
