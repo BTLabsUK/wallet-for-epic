@@ -4746,6 +4746,17 @@ class AppLocalizationsZh extends AppLocalizations {
       '以明文 HTTP 发送到另一台设备。途中任何人都能读取这笔交易。https:// 地址是加密的。';
 
   @override
+  String get sendPlainHttpOffWithTor => '开启 Tor 时，明文 http:// 无法使用。';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'Tor 出口节点可能截走这笔付款。请使用 https://、onion 或 Epicbox 地址。';
+
+  @override
+  String get torModesSendsSame =>
+      '开启 Tor 时，普通模式的发送方式与仅 Tor 相同：一切都经过 Tor，明文 HTTP 不可用。仅 Tor 还会保持 Tor 开启，未连接时什么都不发送。';
+
+  @override
   String get receiveEpicboxCaption => '念出地址时，核对前六位和后六位字符。';
 
   @override

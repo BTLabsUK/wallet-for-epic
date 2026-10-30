@@ -173,6 +173,7 @@ void main() {
     await h.unlock();
     expect(h.state.phase, PhoneTorPhase.unavailable);
     expect(h.session.torStarts, isEmpty);
+    expect(phoneTorState(h.state), torBuilt ? TorState.failed : TorState.off);
     await expectLater(
       h.tor.ensureForSend(),
       throwsA(
@@ -632,7 +633,8 @@ void main() {
           phase: phoneTorState(PhoneTorState(receiving: true, phase: phase)),
       },
       {
-        PhoneTorPhase.unavailable: TorState.off,
+        // No bundle with the switch on fails closed: Tor failed, never direct.
+        PhoneTorPhase.unavailable: torBuilt ? TorState.failed : TorState.off,
         PhoneTorPhase.off: TorState.starting,
         PhoneTorPhase.starting: TorState.starting,
         PhoneTorPhase.connected: TorState.on,

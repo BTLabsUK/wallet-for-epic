@@ -6480,6 +6480,18 @@
   "@sendPlainHttpBody": {
     "description": "Dialog text before a send over plain http to another device."
   },
+  "sendPlainHttpOffWithTor": "Plain http:// doesn't work with Tor on.",
+  "@sendPlainHttpOffWithTor": {
+    "description": "Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent."
+  },
+  "sendPlainHttpOffWithTorWhy": "A Tor exit could take the payment. Use https://, an onion or Epicbox.",
+  "@sendPlainHttpOffWithTorWhy": {
+    "description": "Send: the info sheet behind sendPlainHttpOffWithTor, why plain http:// is off while Tor is on."
+  },
+  "torModesSendsSame": "With Tor on, Normal sends like Tor only: everything goes over Tor and plain HTTP is off. Tor only also keeps Tor on, and nothing goes while it is not connected.",
+  "@torModesSendsSame": {
+    "description": "Settings › Network: how Normal with the Tor switch on and Tor only differ."
+  },
   "receiveEpicboxCaption": "When reading it out, check the first six and last six characters.",
   "@receiveEpicboxCaption": {
     "description": "Receive, Epicbox tab: caption under the address."

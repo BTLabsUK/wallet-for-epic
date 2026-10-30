@@ -3,6 +3,8 @@
 /// per-wallet `receiving`), and the app's own requests following it.
 library;
 
+import 'package:flutter/foundation.dart';
+
 import 'btlabs_onions.dart';
 import 'net/tor_net.dart';
 import 'net/tor_switch.dart';
@@ -13,7 +15,13 @@ import 'tor_routes.dart';
 /// Off while the switch is off (tor started only for one send stays a send's own) or this
 /// build has no tor; on once tor is connected.
 TorState phoneTorState(PhoneTorState s) {
-  if (!s.receiving || s.phase == PhoneTorPhase.unavailable) return TorState.off;
+  if (!s.receiving) return TorState.off;
+  // The switch on without tor (its bundle missing): blocked, never the clearnet, as the
+  // session waits ([PhoneTor.wantedAtOpen]). The build without Tor never has the switch on,
+  // and iOS has no tor: its session never waits, so nothing names Tor there.
+  if (s.phase == PhoneTorPhase.unavailable) {
+    return torBuilt && defaultTargetPlatform != TargetPlatform.iOS ? TorState.failed : TorState.off;
+  }
   return switch (s.phase) {
     PhoneTorPhase.connected || PhoneTorPhase.ready => TorState.on,
     PhoneTorPhase.failed => TorState.failed,

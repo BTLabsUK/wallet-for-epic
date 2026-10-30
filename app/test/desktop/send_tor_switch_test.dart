@@ -160,10 +160,10 @@ void main() {
     }, skip: !torBuilt);
   });
 
-  testWidgets('Link http(s) with Tor on: sendable, "Not over Tor", sent over http', (tester) async {
+  testWidgets('Link https with Tor on: sendable, "Over Tor", sent over http through Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _https, amount: '5'));
-    expect(chip('Not over Tor'), findsOneWidget);
-    expect(find.text('Link · HTTP goes directly, without Tor.'), findsOneWidget);
+    expect(chip('Over Tor'), findsOneWidget);
+    expect(find.text('Link · HTTP goes directly, without Tor.'), findsNothing);
     expect(review(tester).label, 'Review');
     await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
@@ -173,6 +173,28 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.sent.single.method, TxMethod.http);
     expect(wallet.sent.single.to, _https);
+  }, skip: !torBuilt);
+
+  testWidgets('Link plain http to another computer with Tor on: off, and why', (tester) async {
+    await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5'));
+    // The line under To (with Turn Tor off and the info icon) and the summary's hint.
+    expect(find.byKey(const ValueKey('send-plain-http-off')), findsOneWidget);
+    expect(find.textContaining("Plain http:// doesn't work with Tor on"), findsNWidgets(2));
+    expect(find.text('Turn Tor off'), findsOneWidget);
+    expect(review(tester).onPressed, isNull);
+    // Pressed anyway: no consent question, nothing sent.
+    await tester.tap(find.text('Review'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(find.text('Not encrypted. Send anyway?'), findsNothing);
+    expect(wallet.sent, isEmpty);
+  }, skip: !torBuilt);
+
+  testWidgets('Link plain http opened at the review with Tor on: refused, never asked', (tester) async {
+    await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5', step: SendStep.review));
+    expect(find.text('Not encrypted. Send anyway?'), findsNothing);
+    expect(find.text('Check and send'), findsNothing);
+    expect(find.textContaining("Plain http:// doesn't work with Tor on"), findsWidgets);
+    expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);
 
   testWidgets('Link onion with Tor on: "Over Tor", sent over Tor', (tester) async {

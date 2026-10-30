@@ -87,3 +87,59 @@ bool plainHttpToOtherDevice(String url) {
       (_ipv4.hasMatch(host) && host.startsWith('127.'));
   return !loopback;
 }
+
+const String _base32 = 'abcdefghijklmnopqrstuvwxyz234567';
+
+/// The payment proof address of a v3 onion: its ed25519 public key in 64 hex characters, the
+/// first 32 of the 35 bytes the 56 base32 characters spell. Null for anything else. Proofs are
+/// signed with the key of the receiver's onion, so a send to a contact with a known onion can
+/// ask the receiver for one whatever way it travels.
+String? proofAddressOfOnion(String onion) {
+  if (!onionAddressFormat(onion)) return null;
+  final chars = onionHost(onion).substring(0, 56);
+  final bits = StringBuffer();
+  for (final c in chars.split('')) {
+    final v = _base32.indexOf(c);
+    if (v < 0) return null;
+    bits.write(v.toRadixString(2).padLeft(5, '0'));
+  }
+  final all = bits.toString();
+  final hex = StringBuffer();
+  for (var i = 0; i < 32; i++) {
+    final byte = int.parse(all.substring(i * 8, i * 8 + 8), radix: 2);
+    hex.write(byte.toRadixString(16).padLeft(2, '0'));
+  }
+  return hex.toString();
+}
+
+/// A contact's name and addresses, as the phone's and the desktop's address books both give
+/// them.
+typedef ContactWays = ({String name, String? epicbox, String? http, String? tor});
+
+/// The payment proof address for a send to [to]: the onion's own key, or the onion of the
+/// contact a wallet URL belongs to. Null when the receiver's key is not known.
+String? proofAddressFor(Recipient to, Iterable<ContactWays> contacts) {
+  if (to.kind == RecipientKind.tor) return proofAddressOfOnion(to.address);
+  if (to.kind != RecipientKind.http) return null;
+  final want = _sameUrl(to.address);
+  for (final c in contacts) {
+    final http = c.http;
+    final tor = c.tor;
+    if (http != null && tor != null && _sameUrl(http) == want) {
+      return proofAddressOfOnion(tor);
+    }
+  }
+  return null;
+}
+
+/// A wallet URL compared without its scheme, case, or trailing slash: `http://host:3415/` and
+/// `https://HOST:3415` are the same wallet.
+String _sameUrl(String url) {
+  final uri = Uri.tryParse(url.trim());
+  if (uri == null) return url.trim().toLowerCase();
+  final path = uri.path.endsWith('/')
+      ? uri.path.substring(0, uri.path.length - 1)
+      : uri.path;
+  final port = uri.hasPort ? ':${uri.port}' : '';
+  return '${uri.host.toLowerCase()}$port$path';
+}

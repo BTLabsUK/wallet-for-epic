@@ -4933,6 +4933,17 @@ class AppLocalizationsTh extends AppLocalizations {
       'HTTP แบบไม่เข้ารหัสไปยังอุปกรณ์อื่น ใครก็ตามระหว่างทางอ่านธุรกรรมได้ ที่อยู่ https:// จะเข้ารหัส';
 
   @override
+  String get sendPlainHttpOffWithTor => 'http:// ธรรมดาใช้ไม่ได้ขณะเปิด Tor';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'โหนดทางออกของ Tor อาจดักรับการชำระเงินได้ ใช้ https://, onion หรือ Epicbox';
+
+  @override
+  String get torModesSendsSame =>
+      'เมื่อเปิด Tor โหมดปกติจะส่งแบบเดียวกับ Tor เท่านั้น: ทุกอย่างผ่าน Tor และ HTTP ธรรมดาปิดอยู่ โหมด Tor เท่านั้นยังเปิด Tor ไว้ตลอด และไม่มีอะไรออกไปขณะยังไม่เชื่อมต่อ';
+
+  @override
   String get receiveEpicboxCaption =>
       'เมื่ออ่านที่อยู่ให้ผู้อื่นฟัง ให้ตรวจ 6 ตัวแรกและ 6 ตัวท้าย';
 

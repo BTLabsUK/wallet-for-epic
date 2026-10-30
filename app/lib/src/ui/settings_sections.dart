@@ -628,6 +628,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final walletOpen = ref.watch(sessionProvider) != null;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    // The switch left on without a tor bundle blocks the wallet (fail closed): it stays in
+    // view so it can be turned off.
+    final torBlocking = ref.watch(
+      phoneTorProvider.select((t) => t.phase == PhoneTorPhase.unavailable && phoneTorState(t) == TorState.failed),
+    );
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
     final demo = ref.watch(demoModeProvider);
@@ -680,7 +685,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
       // state; it moves nothing the user chose.
       SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
-      if (walletOpen && torAvailable)
+      if (walletOpen && (torAvailable || torBlocking))
         const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
       // No status site in app-config.toml: no switch.
       if (statusSiteConfigured)

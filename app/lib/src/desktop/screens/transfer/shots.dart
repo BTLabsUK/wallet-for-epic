@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../tor_routes.dart';
 import '../../app/shots.dart';
+import '../settings/shots.dart' show openInfoHint;
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'finalize_screen.dart';
@@ -14,6 +15,8 @@ import 'send_screen.dart';
 
 final _onion = 'http://$fakeWalletOnion';
 final _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox';
+/// Tom's wallet on the LAN (the mock's contact c4).
+const _tomLan = 'http://10.0.1.24:3415';
 // No saved contact has it.
 final _payee = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@$mockBox';
 final _request = 'epic:$_payee?amount=12.5&message=Table%204%2C%20lunch%20for%20two&label=Corner%20Caf%C3%A9';
@@ -44,6 +47,9 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '13o-send-tor-starting', title: 'Send, Tor starting', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', tor: TorState.starting)),
   DeskShot(id: '13p-send-tor-failed', title: 'Send, Tor not connected', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.failed)),
   DeskShot(id: '13q-send-http-tor-on', title: 'Send, Link · HTTP with Tor on', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'https://pay.example.org:3415', amount: '5', tor: TorState.on), prepare: (c, _) => _linkOn(c)),
+  // Plain http to another computer with Tor on: off, with the reason as the summary's hint.
+  DeskShot(id: '13v-send-plain-http-tor-on', title: 'Send, plain HTTP off with Tor on', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5', tor: TorState.on), before: _linkOn),
+  DeskShot(id: '13v2-send-plain-http-tor-on-why', title: 'Send, plain HTTP off with Tor on: the why behind the info icon', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5', tor: TorState.on), before: _linkOn, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.sendPlainHttpOffWithTor)),
   DeskShot(id: '13r-send-onion-tor-on', title: 'Send, Link · Tor over Tor', route: DeskRoute.send, arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '5', tor: TorState.on), prepare: (c, _) => _linkOn(c)),
   DeskShot(
     id: '13i-send-switched',
@@ -56,6 +62,7 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '16-send-review', title: 'Send, review', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   DeskShot(id: '16b-send-sending', title: 'Send, sending', route: DeskRoute.send, arg: SendArgs(step: SendStep.sending, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   DeskShot(id: '16c-send-done', title: 'Send, done', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5')),
+  DeskShot(id: '13w-send-plain-http-ask', title: 'Send, the question before plain HTTP to another computer', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5'), prepare: (c, _) => _linkOn(c), dialog: (ctx) => showEDialog<bool>(ctx, builder: (_) => const PlainHttpDialog())),
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
   // A pasted `epic:` payment request.
   DeskShot(id: '13s-send-code', title: 'Send, pasted payment request', route: DeskRoute.send, arg: SendArgs(code: _request, codeOrigin: CodeOrigin.paste)),

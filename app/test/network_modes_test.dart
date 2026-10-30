@@ -141,16 +141,23 @@ void main() {
   });
 
   group('torWayIn', () {
-    test('Tor only: nothing ever on the clearnet; Link http(s) refused', () {
+    test('Tor only: nothing ever on the clearnet; https over Tor, plain http refused', () {
       for (final route in TorRoute.values) {
         for (final t in TorState.values) {
           expect(torWayIn(route, t, NetworkMode.torOnly), isNot(TorWay.clearnet), reason: '${route.name} ${t.name}');
         }
       }
       for (final t in TorState.values) {
-        expect(torWayIn(TorRoute.httpDirect, t, NetworkMode.torOnly), TorWay.off);
+        expect(torWayIn(TorRoute.plainHttpDirect, t, NetworkMode.torOnly), TorWay.off);
         expect(torWayIn(TorRoute.httpListener, t, NetworkMode.torOnly), TorWay.off);
+        // Normal with Tor on sends the same way.
+        if (t != TorState.off) {
+          expect(torWayIn(TorRoute.httpDirect, t, NetworkMode.torOnly), torWayIn(TorRoute.httpDirect, t, NetworkMode.standard));
+          expect(torWayIn(TorRoute.plainHttpDirect, t, NetworkMode.standard), TorWay.off);
+        }
       }
+      expect(torWayIn(TorRoute.httpDirect, TorState.on, NetworkMode.torOnly), TorWay.overTor);
+      expect(torWayIn(TorRoute.httpDirect, TorState.off, NetworkMode.torOnly), TorWay.wait);
       // A switch not on yet (being forced on): covered routes wait, never go direct.
       expect(torWayIn(TorRoute.epicbox, TorState.off, NetworkMode.torOnly), TorWay.wait);
       expect(torWayIn(TorRoute.onionDirect, TorState.off, NetworkMode.torOnly), TorWay.wait);

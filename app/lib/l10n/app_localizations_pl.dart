@@ -5162,6 +5162,18 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zwykłe HTTP do innego urządzenia. Każdy po drodze może odczytać transakcję. Adres https:// jest szyfrowany.';
 
   @override
+  String get sendPlainHttpOffWithTor =>
+      'Zwykłe http:// nie działa przy włączonym Torze.';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'Węzeł wyjściowy Tora mógłby przejąć płatność. Użyj https://, adresu onion lub Epicbox.';
+
+  @override
+  String get torModesSendsSame =>
+      'Z włączonym Torem tryb Normalny wysyła jak Tylko Tor: wszystko idzie przez Tor, a zwykłe HTTP jest wyłączone. Tylko Tor dodatkowo trzyma Tor włączony i nic nie wychodzi, dopóki nie jest połączony.';
+
+  @override
   String get receiveEpicboxCaption =>
       'Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.';
 

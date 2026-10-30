@@ -85,6 +85,8 @@ String describeError(AppLocalizations l, Object error) {
     };
   }
   if (error is ScanFailed) return _withDetail(l.errorScanFailed, error.detail);
+  // Plain http:// to another device with the Tor switch on: a Tor exit could take it.
+  if (error is PlainHttpOffWithTor) return l.sendPlainHttpOffWithTor;
   // The network mode refused it (network_gate.dart). The Advanced page's own lines say why.
   if (error is NetBlocked) {
     if (error.epicboxOff) return l.netBlockEpicboxOff;

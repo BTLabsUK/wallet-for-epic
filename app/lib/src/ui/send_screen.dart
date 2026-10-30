@@ -46,6 +46,7 @@ import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
+import 'info_hint.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
 import 'pairing/pair_check.dart' show CheckWordsScreen;
@@ -237,9 +238,11 @@ TransferMethod methodForRecipient(RecipientKind kind) => switch (kind) {
   RecipientKind.http || RecipientKind.tor => TransferMethod.direct,
 };
 
-/// The connection a payment to [to] takes, for the Tor switch ([torWay]).
+/// The connection a payment to [to] takes, for the Tor switch ([torWay]). Plain `http://` to
+/// another device is a route of its own: it never goes through a Tor exit.
 TorRoute sendRoute(Recipient to) => switch (to.kind) {
   RecipientKind.epicbox => TorRoute.epicbox,
+  RecipientKind.http when plainHttpToOtherDevice(to.address) => TorRoute.plainHttpDirect,
   RecipientKind.http => TorRoute.httpDirect,
   RecipientKind.tor => TorRoute.onionDirect,
 };
@@ -248,6 +251,7 @@ TorRoute sendRoute(Recipient to) => switch (to.kind) {
 const Key sendTorNoticeKey = ValueKey('send-tor-notice');
 const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
 const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
+const Key sendPlainHttpOffInfoKey = ValueKey('send-plain-http-off-info');
 
 /// The tag beside To that says whether the payment goes over Tor, for tests.
 const Key sendTorTagKey = ValueKey('send-tor-tag');
@@ -1605,6 +1609,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final options = _sendOptions;
     final note = _noteText;
+    final proof = _proofAddress(to);
     return _run((session) async {
       final minimum = ref.read(countedConfirmationsProvider);
       final before = {
@@ -1620,6 +1625,7 @@ class _SendViewState extends ConsumerState<SendView> {
             allowPlainHttp: plainHttpToOtherDevice(to.address),
             message: note.isEmpty ? null : note,
             options: options,
+            proofAddress: proof,
           ),
         );
       } on WalletError catch (error) {
@@ -2485,6 +2491,12 @@ class _SendViewState extends ConsumerState<SendView> {
     return contactNameFor(contacts, address);
   }
 
+  /// The receiver's payment proof address for a send to [to], when its key is known.
+  String? _proofAddress(Recipient to) => proofAddressFor(
+    to,
+    [for (final c in ref.read(contactsProvider).value ?? const <Contact>[]) c.ways],
+  );
+
   /// Epicbox, Link, Direct · QR and Direct · File, one segment each, icon over label. Link is
   /// the family: the address picks Link · HTTP or Link · Tor. Tor is not a method: the one Tor
   /// switch (Settings › Privacy) changes how Epicbox and Link connect.
@@ -2813,9 +2825,16 @@ class _SendViewState extends ConsumerState<SendView> {
       ? _toPairing()?.paysByMailbox ?? false
       : _recipient.text.trim().isNotEmpty;
 
+  /// Plain `http://` to another device with the Tor switch on: the notice under To says so,
+  /// and Continue waits until Tor is off or the address changes.
+  bool get _plainHttpOff =>
+      _pairingTo == null &&
+      _toRoute == TorRoute.plainHttpDirect &&
+      _wayOf(TorRoute.plainHttpDirect) == TorWay.off;
+
   Widget _recipientAction() => BusyButton(
     label: context.l10n.commonContinue,
-    onPressed: !_hasRecipient || _block != NetBlock.none
+    onPressed: !_hasRecipient || _block != NetBlock.none || _plainHttpOff
         ? null
         : _toAmount,
   );
@@ -3170,7 +3189,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _Row(
         label: l.sendMethodLabel,
         value: switch (to.kind) {
-          RecipientKind.epicbox when way == TorWay.overTor =>
+          RecipientKind.epicbox || RecipientKind.http when way == TorWay.overTor =>
             '${recipientMethodWord(l, to.kind)} · ${l.sendOverTor}',
           RecipientKind.http
               when way == TorWay.clearnet && torState != TorState.off =>
@@ -4208,11 +4227,13 @@ class _TorNotice extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    // Without Tor in the app the address's own error says so.
-    final available = ref.watch(
-      phoneTorProvider.select((s) => s.phase != PhoneTorPhase.unavailable),
-    );
-    if (!available || (way != TorWay.needsTor && way != TorWay.blocked)) {
+    // Without Tor in the app the address's own error says so. A build with Tor whose tor
+    // files are missing shows Tor as blocked: nothing goes around it.
+    final available = torBuilt;
+    // Plain http:// is off while Tor is on: the why (a Tor exit could take the payment)
+    // sits behind the info icon.
+    final plainOff = way == TorWay.off && !onion;
+    if (!available || (way != TorWay.needsTor && way != TorWay.blocked && !plainOff)) {
       return const SizedBox.shrink();
     }
     // Offline: Tor never runs there; the form's Offline line gives the reason (LNX-12).
@@ -4238,17 +4259,30 @@ class _TorNotice extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    blocked ? Icons.error_outline : torIcon,
+                    blocked || plainOff ? Icons.error_outline : torIcon,
                     size: 18,
-                    color: blocked ? t.risk : t.dim,
+                    color: blocked || plainOff ? t.risk : t.dim,
                   ),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      blocked ? l.torNotConnectedNotice : l.torNeeds,
+                      plainOff
+                          ? l.sendPlainHttpOffWithTor
+                          : blocked
+                          ? l.torNotConnectedNotice
+                          : l.torNeeds,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
+                  // The why, behind the info icon (the owner: no explanation on the screen).
+                  if (plainOff)
+                    InfoHint(
+                      l.sendPlainHttpOffWithTorWhy,
+                      key: sendPlainHttpOffInfoKey,
+                      size: 32,
+                      title: l.sendPlainHttpOffWithTor,
+                      icon: Icons.error_outline,
+                    ),
                 ],
               ),
             ),
@@ -4264,7 +4298,14 @@ class _TorNotice extends ConsumerWidget {
                 onPressed: () => tor.setReceiving(false),
                 child: Text(l.torTurnOff),
               ),
-            ] else
+            ] else if (plainOff)
+              TextButton(
+                key: sendTurnOffTorKey,
+                style: quiet,
+                onPressed: () => tor.setReceiving(false),
+                child: Text(l.torTurnOff),
+              )
+            else
               TextButton(
                 key: sendTurnOnTorKey,
                 style: quiet,

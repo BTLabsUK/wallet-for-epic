@@ -27,10 +27,11 @@ import 'finished_payment.dart';
 import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'log.dart';
 import 'net/lan_node_relay.dart';
-import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
 import 'pin_wrap.dart';
+import 'tor_build.dart';
 import 'relay_refused.dart' show refusedHandshake;
+import 'recipient.dart' show plainHttpToOtherDevice;
 import 'redact.dart';
 import 'secret_store_api.dart';
 import 'settings_file/host_settings.dart';
@@ -289,11 +290,13 @@ Stream<T> _epicboxStream<T>(String what, Stream<T> Function() make) {
   return _guardStream(make());
 }
 
-/// Tor only refuses a Direct send to an http(s) address that is not this computer: it would go
-/// on the clearnet (tor_routes.dart, [torWayIn]).
-void _torOnlyRefusesHttp(String url) {
-  if (NetGate.torOnly && !isLoopbackUrl(Uri.tryParse(url.trim()) ?? Uri())) {
-    throw NetBlocked(NetworkMode.torOnly, 'send over HTTP');
+/// A Direct send over plain `http` to another device is refused while the Tor switch is on, in
+/// every mode ([plainHttpOffNow]): it would go through a Tor exit, which could take the payment
+/// (tor_routes.dart, [torStops]). `https` and onions go through the wallet's Tor, which LEPIC
+/// waits for.
+void _torRefusesPlainHttp(String url, String what) {
+  if (plainHttpOffNow && plainHttpToOtherDevice(url)) {
+    throw PlainHttpOffWithTor(what);
   }
 }
 
@@ -852,6 +855,12 @@ class LepicWalletService implements WalletService {
     return _lepicConfig(config, dir.path);
   }
 
+  /// Whether the Tor switch is on for [config]'s wallet, asked before its session opens. LEPIC
+  /// then waits for tor from the first connection (`WalletConfig.torWanted`), so a tor that
+  /// never starts (no tor bundle) blocks the node, Epicbox and Direct sends instead of letting
+  /// them go directly. Each app's main sets it; without it (tests, the web) no tor is wanted.
+  static Future<bool> Function(WalletConfig config)? torWantedFor;
+
   /// What LEPIC is given for [config] (tests).
   @visibleForTesting
   static Future<lepic.WalletConfig> lepicConfigOf(WalletConfig config) => _lepicConfig(config, config.dataDir);
@@ -874,6 +883,8 @@ class LepicWalletService implements WalletService {
         ],
         tuning: netTuningOf(appConfig),
         offline: config.offline,
+        // Kill switch runs no tor, and the build without Tor has none.
+        torWanted: torBuilt && !config.offline && await (torWantedFor?.call(config) ?? Future.value(false)),
       );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
@@ -1292,10 +1303,10 @@ class LepicWalletSession implements WalletSession {
       : _guardStream(make());
 
   /// The address a Direct send goes to, as given; refused in Node only and Kill switch (no Link
-  /// at all). Tor only refuses one off this computer.
-  Future<String> _directUrl(String url) async {
-    NetGate.check('send over HTTP');
-    _torOnlyRefusesHttp(url);
+  /// at all). With the Tor switch on, plain `http` off this computer is refused.
+  Future<String> _directUrl(String url, String what) async {
+    NetGate.check(what);
+    _torRefusesPlainHttp(url, what);
     return url;
   }
 
@@ -1728,9 +1739,18 @@ class LepicWalletSession implements WalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
+    String? proofAddress,
   }) => _nodeGuard('send over HTTP', () async {
-    final to = await _directUrl(url);
-    final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
+    final to = await _directUrl(url, 'send over HTTP');
+    final chosen = await _optionsFor(amount, minimumConfirmations, options);
+    final sendOptions = proofAddress == null
+        ? chosen
+        : lepic.SendOptions(
+            strategy: chosen?.strategy ?? lepic.SelectionStrategy.smallest,
+            changeOutputs: chosen?.changeOutputs ?? 1,
+            excludeOutputs: chosen?.excludeOutputs ?? const [],
+            paymentProofRecipient: proofAddress,
+          );
     final tx = await _counted(
       () => _wallet.sendHttp(
         amount: amount,
@@ -1750,7 +1770,7 @@ class LepicWalletSession implements WalletSession {
     required String url,
     required bool allowPlainHttp,
   }) => _nodeGuard('resend over HTTP', () async {
-    final to = await _directUrl(url);
+    final to = await _directUrl(url, 'resend over HTTP');
     final tx = await _counted(
       () => _wallet.resendHttp(
         txId: txId,

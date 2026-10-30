@@ -52,6 +52,9 @@ const String _onion = '$_name.onion';
 const String _https = 'https://wallet.example.com:3415';
 const String _lan = 'http://10.0.1.24:3415';
 
+/// A valid onion (the ed25519 key 00 01 02 … 1f): a payment proof can be asked of its wallet.
+const String _proofOnion = 'aaaqeayeaudaocajbifqydiob4ibceqtcqkrmfyydenbwha5dyp3kead.onion';
+
 const TorBundle _bundle = TorBundle(binary: '/data/app/lib/arm64/libtor.so');
 
 WalletSummary _summary() => WalletSummary(
@@ -126,6 +129,7 @@ class _DirectSession extends FakeWalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
+    String? proofAddress,
   }) async {
     final sent = await super.sendHttp(
       amount: amount,
@@ -940,6 +944,24 @@ void main() {
       await _tap(tester, find.text('Send anyway'));
       expect(h.session.httpSends.single.allowPlainHttp, isTrue);
     });
+
+    // The send to a contact whose onion is known asks the receiver's wallet for a payment
+    // proof; the review says nothing about it (the owner: no new small print on payment screens).
+    testWidgets('a contact with a known onion: the proof is asked, nothing is said', (tester) async {
+      final h = _Harness();
+      await h.session.saveContact(
+        contact: Contact(id: '', name: 'Alice', address: _bob, http: _lan, tor: _proofOnion, note: null),
+      );
+      await h.pump(tester, payments: _directOn);
+      await h.toReview(tester, _lan);
+      expect(find.textContaining('Payment proof'), findsNothing);
+      expect(find.textContaining('Safer address'), findsNothing);
+      expect(find.text('Not encrypted (plain HTTP)'), findsOneWidget);
+      await _tap(tester, find.text('Send 1.00000000 EPIC'));
+      expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
+      await _tap(tester, find.text('Send anyway'));
+      expect(h.session.httpSends.single.allowPlainHttp, isTrue);
+    });
   });
 
   group('review', () {
@@ -1034,7 +1056,7 @@ void main() {
       expect(find.text('Tor is not connected.'), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('Tor on: Epicbox Over Tor, http Not over Tor, onion Over Tor', (
+    testWidgets('Tor on: Epicbox, https and onion Over Tor', (
       tester,
     ) async {
       final h = _Harness();
@@ -1047,7 +1069,7 @@ void main() {
       expect(tag('Over Tor'), findsOneWidget);
       await _enter(tester, 'To', _https);
       expect(_method(tester), TransferMethod.direct);
-      expect(tag('Not over Tor'), findsOneWidget);
+      expect(tag('Over Tor'), findsOneWidget);
       await _enter(tester, 'To', _onion);
       expect(tag('Over Tor'), findsOneWidget);
       expect(find.byKey(sendTorNoticeKey), findsNothing);
@@ -1055,7 +1077,27 @@ void main() {
       // The review says it too.
       await _enter(tester, 'To', _https);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Link · HTTP · Not over Tor'), findsOneWidget);
+      expect(_reviewMethod('Link · HTTP · Over Tor'), findsOneWidget);
+    }, skip: !torBuilt);
+
+    testWidgets('Tor on: plain http to another device is off, and says why', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: _directOn);
+      await h.torOn(tester);
+      await _enter(tester, 'To', 'http://10.0.0.5:3415');
+      expect(find.byKey(sendTorNoticeKey), findsOneWidget);
+      expect(find.textContaining("Plain http:// doesn't work with Tor on"), findsOneWidget);
+      expect(find.byKey(sendTurnOffTorKey), findsOneWidget);
+      // Continue waits: nothing leads on to a send through a Tor exit.
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      await _enter(tester, 'To', _https);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      await _enter(tester, 'To', 'http://10.0.0.5:3415');
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      // Turn Tor off: Continue goes on to the consent for plain http.
+      await _tap(tester, find.byKey(sendTurnOffTorKey));
+      expect(find.byKey(sendTorNoticeKey), findsNothing);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
     }, skip: !torBuilt);
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {

@@ -179,7 +179,8 @@ class TorSwitchTile extends ConsumerWidget {
             NetworkMode.killSwitch => false,
             NetworkMode.standard || NetworkMode.nodeOnly => tor.receiving,
           },
-          onChanged: busy || locked
+          // No tor bundle: the switch can still go off, which ends the blocked wait; never on.
+          onChanged: locked || (busy && !tor.receiving)
               ? null
               : (on) => ref.read(phoneTorProvider.notifier).setReceiving(on),
         ),

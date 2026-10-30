@@ -5087,6 +5087,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Weg kann die Transaktion lesen. Eine https://-Adresse ist verschlüsselt.';
 
   @override
+  String get sendPlainHttpOffWithTor =>
+      'Reines http:// geht nicht, solange Tor an ist.';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'Ein Tor-Ausgangsknoten könnte die Zahlung abfangen. Nimm https://, eine Onion- oder Epicbox-Adresse.';
+
+  @override
+  String get torModesSendsSame =>
+      'Mit Tor an sendet Normal wie Nur Tor: Alles läuft über Tor, reines HTTP ist aus. Nur Tor hält Tor zudem an, und nichts geht, solange es nicht verbunden ist.';
+
+  @override
   String get receiveEpicboxCaption =>
       'Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.';
 

@@ -8082,6 +8082,24 @@ abstract class AppLocalizations {
   /// **'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.'**
   String get sendPlainHttpBody;
 
+  /// Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain http:// doesn\'t work with Tor on.'**
+  String get sendPlainHttpOffWithTor;
+
+  /// Send: the info sheet behind sendPlainHttpOffWithTor, why plain http:// is off while Tor is on.
+  ///
+  /// In en, this message translates to:
+  /// **'A Tor exit could take the payment. Use https://, an onion or Epicbox.'**
+  String get sendPlainHttpOffWithTorWhy;
+
+  /// Settings › Network: how Normal with the Tor switch on and Tor only differ.
+  ///
+  /// In en, this message translates to:
+  /// **'With Tor on, Normal sends like Tor only: everything goes over Tor and plain HTTP is off. Tor only also keeps Tor on, and nothing goes while it is not connected.'**
+  String get torModesSendsSame;
+
   /// Receive, Epicbox tab: caption under the address.
   ///
   /// In en, this message translates to:

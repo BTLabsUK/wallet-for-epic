@@ -5018,6 +5018,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.';
 
   @override
+  String get sendPlainHttpOffWithTor =>
+      'Plain http:// doesn\'t work with Tor on.';
+
+  @override
+  String get sendPlainHttpOffWithTorWhy =>
+      'A Tor exit could take the payment. Use https://, an onion or Epicbox.';
+
+  @override
+  String get torModesSendsSame =>
+      'With Tor on, Normal sends like Tor only: everything goes over Tor and plain HTTP is off. Tor only also keeps Tor on, and nothing goes while it is not connected.';
+
+  @override
   String get receiveEpicboxCaption =>
       'When reading it out, check the first six and last six characters.';
 

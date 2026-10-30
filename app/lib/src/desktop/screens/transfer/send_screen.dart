@@ -512,7 +512,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final route = switch (_method) {
       TxMethod.epicbox => TorRoute.epicbox,
       TxMethod.tor => TorRoute.onionDirect,
-      TxMethod.http => TorRoute.httpDirect,
+      TxMethod.http => _to.text.trim().isNotEmpty && plainHttpNeedsConsent(_to.text) ? TorRoute.plainHttpDirect : TorRoute.httpDirect,
       TxMethod.file => null,
     };
     return route == null ? null : torWay(route, _torState(st));
@@ -1112,6 +1112,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final draft = draftOf(_plan);
     // Plain HTTP to another computer: the slate travels unencrypted, so ask first.
     final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
+    // Tor came on since Send was enabled: plain HTTP never goes through a Tor exit.
+    if (plain && _torWay(ref.read(deskProvider)) == TorWay.off) {
+      setState(() {
+        _failure = (l) => l.sendPlainHttpOffWithTor;
+        _failureInActivity = false;
+      });
+      return;
+    }
     if (plain) {
       final ok = await showEDialog<bool>(context, builder: (_) => const PlainHttpDialog());
       if (!mounted || ok != true) return;
@@ -1685,9 +1693,23 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                   EButton(label: l.deskSendTurnOnTor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
               ],
             ),
-          ] else if (_method == TxMethod.http && _torState(st) != TorState.off) ...[
+          ] else if (_method == TxMethod.http && _torState(st) != TorState.off && _torWay(st) == TorWay.clearnet) ...[
             SizedBox(height: Sp.x2),
             Text(l.deskSendHttpClearnet, key: const ValueKey('send-http-clearnet'), style: ts.small),
+          ] else if (DeskFeatures.tor && _method == TxMethod.http && _torWay(st) == TorWay.off) ...[
+            // Plain http:// to another computer with Tor on: the why is behind the info icon.
+            SizedBox(height: Sp.x2),
+            Wrap(
+              key: const ValueKey('send-plain-http-off'),
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: Sp.x2,
+              runSpacing: Sp.x1,
+              children: [
+                Text(l.sendPlainHttpOffWithTor, style: ts.small.copyWith(color: c.warn)),
+                EInfoHint(l.sendPlainHttpOffWithTorWhy, title: l.sendPlainHttpOffWithTor, icon: EIcons.alert, size: Ctl.inline),
+                EButton(label: l.torTurnOff, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(false)),
+              ],
+            ),
           ],
           if (contact != null) ...[
             SizedBox(height: Sp.x2),
@@ -1821,6 +1843,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
       _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,
       _ when _torWay(st) == TorWay.needsTor => l.deskSendHintNeedsTor,
+      _ when _method == TxMethod.http && _torWay(st) == TorWay.off => l.sendPlainHttpOffWithTor,
       _ when _submitted && !_toEdited && _toError(st) != null => l.deskSendHintFix,
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
       _ when _messageTooLong => l.deskSendHintFix,

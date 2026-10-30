@@ -28,6 +28,9 @@ class _Wallet extends MockDeskWallet {
   }
 }
 
+/// A valid onion (the ed25519 key 00 01 02 … 1f): a payment proof can be asked of its wallet.
+const _proofOnion = 'aaaqeayeaudaocajbifqydiob4ibceqtcqkrmfyydenbwha5dyp3kead.onion';
+
 void main() {
   late _Wallet wallet;
   late ProviderContainer container;
@@ -80,6 +83,22 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Check and send'), findsNothing);
       expect(wallet.sent, isEmpty);
+    });
+
+    testWidgets("a contact's known onion adds nothing to the review", (tester) async {
+      await tester.runAsync(() async {
+        final n = container.read(deskProvider.notifier);
+        await n.refresh();
+        final tom = container.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c4');
+        await n.saveContact(Contact(id: tom.id, name: tom.name, epicbox: tom.epicbox, http: tom.http, tor: _proofOnion, note: tom.note));
+      });
+      await sendTo(tester, 'http://10.0.1.24:3415');
+      expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
+      await tester.tap(find.text('Send anyway'));
+      await tester.pumpAndSettle();
+      expect(find.text('Check and send'), findsOneWidget);
+      expect(find.textContaining('Payment proof'), findsNothing);
+      expect(find.textContaining('Safer address'), findsNothing);
     });
 
     testWidgets('https and this computer go straight to the review', (tester) async {

@@ -295,7 +295,10 @@ abstract interface class WalletSession {
   /// [WalletErrorKind.plainHttpNotAllowed], storing nothing; [WalletErrorKind.transportFailed]
   /// when the other wallet did not answer, with the send stored as waiting and its inputs
   /// locked: [resendHttp] or [cancelTransaction] it. [message] and [options] as for
-  /// [createSendSlate].
+  /// [createSendSlate]. [proofAddress], the recipient's payment proof address (64 hex, the key
+  /// of its onion: [proofAddressOfOnion]), asks its wallet for a payment proof; an answer
+  /// without a proof that verifies for it is never finalized, so a wallet on the way cannot
+  /// take the payment.
   Future<HttpSent> sendHttp({
     required BigInt amount,
     required BigInt minimumConfirmations,
@@ -303,6 +306,7 @@ abstract interface class WalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
+    String? proofAddress,
   });
 
   /// Delivers send [txId] again over HTTP, to [url] (the same or another address), then
@@ -1650,6 +1654,7 @@ class FakeWalletSession implements WalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
+    String? proofAddress,
   }) async {
     _checkHttpUrl(url, allowPlainHttp);
     sentOptions.add(options);

@@ -53,7 +53,7 @@ import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmation
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
-import '../../recipient.dart' show parseRecipient;
+import '../../recipient.dart' show Recipient, RecipientKind, parseRecipient, proofAddressFor;
 import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
 import '../../relay_block.dart';
@@ -123,6 +123,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
   l ??= englishStrings;
   if (error is DeskError) return error.text(l);
   if (error is SecretProtectError) return l.deskErrSecretProtect;
+  if (error is PlainHttpOffWithTor) return l.sendPlainHttpOffWithTor;
   // The network mode refused it (network_gate.dart).
   if (error is NetBlocked) {
     return error.mode == NetworkMode.torOnly ? l.deskSetAdvModeTorOnlyText : l.statusOffByMode(networkModeName(l, error.mode));
@@ -253,6 +254,14 @@ class LepicDeskWallet implements DeskWalletApi {
     NetGate.setExperimental(_settings.advanced);
     _followTor();
   }
+
+  /// Whether the wallet of [config] opens with the Tor switch on: its session then waits for
+  /// tor from the first connection, also when no tor bundle is found (blocked, never direct).
+  /// `main_desktop.dart` hands it to the wallet core (`wantTorAtOpen`).
+  Future<bool> torWantedAt(core.WalletConfig config) async =>
+      _torFeature &&
+      !NetGate.killSwitch &&
+      (NetGate.torOnly || (await _store.torSwitch() ?? (await _store.autostart(config.walletId)).tor));
 
   /// Passwords remembered on this computer, per wallet.
   final RememberedPasswords _remember;
@@ -521,6 +530,10 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// When this tor start began; null once it connected, failed or stopped.
   DateTime? _torStartedAt;
+
+  /// The session was told tor comes ([_expectTor]): a stop with tor never started must end
+  /// that wait. Without it no stray stopTor reaches a wallet that never wanted Tor.
+  bool _torExpected = false;
   Timer? _torSlowTimer;
 
   /// Restarts run by itself since tor last connected ([torStartBackoff]): tor that did not
@@ -1067,9 +1080,9 @@ class LepicDeskWallet implements DeskWalletApi {
     );
     _torSaved = torSwitch;
     // Tor starts with startAutostart, after the first node check and sync: those wait for it
-    // instead of asking the node directly first. In Tor only they wait even when no tor bundle
-    // is found: nothing may go out directly then.
-    if (_settings.torAutostart && (NetGate.torOnly || await _findTor() != null)) await _expectTor(session);
+    // instead of asking the node directly first, also when no tor bundle is found: the Tor
+    // switch on never lets anything go out directly (the session opened waiting, torWanted).
+    if (_settings.torAutostart) await _expectTor(session);
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     await _seedContacts();
     if (entry.walletFingerprint == null) await _keepWalletFingerprint(entry, session);
@@ -1111,9 +1124,9 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       return;
     }
-    // Tor starts below: the first Epicbox connection waits for it, never going directly first;
-    // in Tor only also when no tor bundle is found, so it waits instead of going directly.
-    if (_torFeature && _settings.torAutostart && (NetGate.torOnly || await _findTor() != null)) await _expectTor(session);
+    // Tor starts below: the first Epicbox connection waits for it, never going directly first,
+    // also when no tor bundle is found: it then stays blocked instead of going directly.
+    if (_torFeature && _settings.torAutostart) await _expectTor(session);
     // The Epicbox switch off (Settings › Transactions): no listener, whatever Start with the
     // wallet says.
     if (_settings.epicboxAutostart && _settings.payments.epicbox) {
@@ -2702,6 +2715,8 @@ class LepicDeskWallet implements DeskWalletApi {
       final to = e.counterparty ?? '';
       switch (e.transport) {
         case 'http':
+          // Never through a Tor exit, whatever was allowed when it was sent.
+          if (plainHttpOffNow && plainHttpNeedsConsent(to)) throw DeskError.l10n((l) => l.sendPlainHttpOffWithTor);
           // The user allowed plain HTTP to this address when sending.
           final sent = await session.resendHttp(txId: id, url: to, allowPlainHttp: plainHttpNeedsConsent(to));
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
@@ -2817,9 +2832,14 @@ class LepicDeskWallet implements DeskWalletApi {
         case TxMethod.http:
           final to = (r.to ?? '').trim();
           if (httpAddressProblem(to) != null) return SendFailed.l10n((l) => httpAddressProblem(to, l)!);
+          // Plain HTTP never goes through a Tor exit (tor_routes.dart, torStops).
+          if (plainHttpOffNow && plainHttpNeedsConsent(to)) return SendFailed.l10n((l) => l.sendPlainHttpOffWithTor);
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return SendFailed.l10n((l) => l.deskErrPlainHttp);
           before = {for (final e in await session.transactions(refresh: false)) e.id};
+          // A contact with an onion has a known key: the receiver signs a payment proof for
+          // it, whatever way the payment goes.
+          final proof = proofAddressFor(Recipient(RecipientKind.http, to), [for (final c in await session.contacts()) c.ways]);
           final sent = await session.sendHttp(
             amount: BigInt.from(amount),
             minimumConfirmations: _minConf,
@@ -2827,6 +2847,7 @@ class LepicDeskWallet implements DeskWalletApi {
             allowPlainHttp: r.allowPlainHttp && plainHttpNeedsConsent(to),
             message: message,
             options: r.options,
+            proofAddress: proof,
           );
           return await _directDone(session, sent, method, amount, to);
         case TxMethod.tor:
@@ -4201,6 +4222,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Tor (re)starts next: the Epicbox connection waits for it and a stop before it keeps it
   /// waiting (LEPIC's `expectTor`).
   Future<void> _expectTor(core.WalletSession session) async {
+    _torExpected = true;
     try {
       await session.expectTor();
     } on core.WalletError catch (e) {
@@ -4218,6 +4240,8 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<void> _stopTor() async {
     final sub = _tor;
     _tor = null;
+    final expected = _torExpected;
+    _torExpected = false;
     _torStartedAt = null;
     _torConnectedAt = null;
     _torSlowTimer?.cancel();
@@ -4227,7 +4251,17 @@ class LepicDeskWallet implements DeskWalletApi {
     _torProgress = null;
     _torCanSend = false;
     if (sub == null) {
-      if (was == ServiceHealth.off) return;
+      if (was == ServiceHealth.off) {
+        // Never started, but the session may have opened waiting for it (torWantedAt): the
+        // stop ends that wait. Nothing to end when it was never told tor comes.
+        if (!expected) return;
+        try {
+          await _session?.stopTor();
+        } on core.WalletError catch (e) {
+          logWarn('desk', 'stop tor: ${e.kind.name}');
+        }
+        return;
+      }
       // Tor ended by itself: LEPIC keeps the Epicbox connection waiting for it until stopped.
       try {
         await _session?.stopTor();

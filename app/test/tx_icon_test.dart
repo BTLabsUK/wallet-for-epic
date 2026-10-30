@@ -716,4 +716,5 @@ class _PathRecorder implements Canvas {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => null;
+
 }

@@ -51,7 +51,7 @@ void main() {
 
   /// A mainnet wallet [name] on the Epicbox server [relay], from [mnemonic] (a new one when null).
   Future<LepicWalletSession> install(String name, String relay, {String? mnemonic, bool pin = false}) async {
-    final config = lepic.WalletConfig(
+    final config = lepic.WalletConfig(torWanted: false, 
       dataDir: (Directory('${dir.path}/$name')..createSync()).path,
       chain: lepic.Chain.mainnet,
       nodeUrl: 'https://node.btlabs.uk',

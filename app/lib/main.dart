@@ -62,6 +62,8 @@ Future<void> main() async {
     }
     // iOS has no tor: nothing waits for one.
     phoneTorAtLaunch(savedOn: torSavedOn && defaultTargetPlatform != TargetPlatform.iOS);
+    // A wallet whose switch is on opens waiting for tor, so a missing tor bundle blocks.
+    wantTorAtOpen((config) => PhoneTor.wantedAtOpen(store, config));
     // The update check, price and status asked before tor connects wait for it, then go
     // through it.
     if (torBuilt) TorNet.hold = appConfig.torSendWait;

@@ -32,8 +32,12 @@ enum TorRoute {
   /// A Direct send to an onion address. Needs Tor whatever the switch says.
   onionDirect,
 
-  /// A Direct send to an http(s) address.
+  /// A Direct send to an `https://` address, or to `http://` on this computer.
   httpDirect,
+
+  /// A Direct send to a plain `http://` address on another device. Whoever answers on the way
+  /// can take the payment, so it never goes through a Tor exit: off while the switch is on.
+  plainHttpDirect,
 
   /// The node the wallet reads the chain from and posts to.
   node,
@@ -63,19 +67,21 @@ enum TorWay {
   /// An onion address with the switch off: Tor must be turned on first.
   needsTor,
 
-  /// Not offered while Tor is on (the clearnet HTTP listener, push), in Tor only (also a
-  /// Direct http(s) send), in Node only (everything but the node) or in Kill switch
-  /// (everything).
+  /// Not offered while Tor is on (the clearnet HTTP listener, a plain `http://` send), in
+  /// Node only (everything but the node) or in Kill switch (everything).
   off,
 }
 
-/// The routes the switch carries through Tor: Epicbox and the node in LEPIC, the
-/// app's own requests through tor's SOCKS port with names resolved by tor ([TorNet]). A node
-/// on this computer stays direct ([torSkipsLocalNode]).
-const Set<TorRoute> torCovered = {TorRoute.epicbox, TorRoute.node, TorRoute.appHttp};
+/// The routes the switch carries through Tor: Epicbox, the node and Direct https sends in
+/// LEPIC (tor resolves the names), the app's own requests through tor's SOCKS port with names
+/// resolved by tor ([TorNet]). A node or wallet on this computer stays direct
+/// ([torSkipsLocalNode]). With the switch on none of them ever goes on the clearnet: while tor
+/// starts they wait, when it failed (or its files are missing) they are blocked.
+const Set<TorRoute> torCovered = {TorRoute.epicbox, TorRoute.node, TorRoute.appHttp, TorRoute.httpDirect};
 
-/// Off while Tor is on: they would show this computer's address.
-const Set<TorRoute> torStops = {TorRoute.httpListener};
+/// Off while Tor is on: the clearnet listener would show this computer's address, and a plain
+/// `http://` send through a Tor exit could be answered by the exit instead of the recipient.
+const Set<TorRoute> torStops = {TorRoute.httpListener, TorRoute.plainHttpDirect};
 
 /// A node on this computer (local or built-in) never goes over Tor: there is nothing to hide.
 const bool torSkipsLocalNode = true;
@@ -108,9 +114,10 @@ TorWay torWay(TorRoute route, TorState state) {
 ///
 /// - Kill switch: nothing goes ([TorWay.off]).
 /// - Node only: the node follows the switch as in Normal; nothing else goes ([TorWay.off]).
-/// - Tor only: never the clearnet. A Direct http(s) send, the HTTP listener and push are
-///   [TorWay.off]; with the switch not on yet (it is being forced on) covered routes and
-///   onions [TorWay.wait].
+/// - Tor only: never the clearnet. The HTTP listener and a plain `http://` send are
+///   [TorWay.off]; with the switch not on yet (it is being forced on) covered routes, Direct
+///   https and onions [TorWay.wait]. For sends this is what Normal does with the switch on;
+///   Tor only differs in keeping the switch on and in the app's own requests.
 /// - Any other mode is Standard: [torWay].
 TorWay torWayIn(TorRoute route, TorState state, NetworkMode mode) {
   switch (mode) {
@@ -119,7 +126,6 @@ TorWay torWayIn(TorRoute route, TorState state, NetworkMode mode) {
     case NetworkMode.nodeOnly:
       return route == TorRoute.node ? torWay(route, state) : TorWay.off;
     case NetworkMode.torOnly:
-      if (route == TorRoute.httpDirect) return TorWay.off;
       final way = torWay(route, state == TorState.off ? TorState.starting : state);
       return way == TorWay.clearnet ? TorWay.off : way;
     default:
