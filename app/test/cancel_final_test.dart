@@ -7,6 +7,7 @@
 // wallet is open, and the cancelled payment reads "may still finish" until its coins are spent.
 import 'package:epic_wallet/src/cancel_final.dart';
 import 'package:epic_wallet/src/desktop/data/clock.dart';
+import 'package:epic_wallet/src/errors.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -37,7 +38,7 @@ const _other = 'cc00000000000000000000000000000000000000000000000000000000000000
 
 /// An outgoing payment: an invoice this wallet paid ([TxFlow.invoice]), a send still waiting
 /// for its answer, or with [finalized] one both wallets signed that the node did not take.
-TxEntry _send({TxFlow flow = TxFlow.payment, bool finalized = false, bool cancelled = false, CancelReason? reason}) => fakeTx(
+TxEntry _send({TxFlow flow = TxFlow.payment, bool finalized = false, bool cancelled = false, bool releasable = false, CancelReason? reason}) => fakeTx(
   id: 9,
   slateId: 'pay-1',
   kind: cancelled ? TxKind.sentCancelled : TxKind.sent,
@@ -54,6 +55,7 @@ TxEntry _send({TxFlow flow = TxFlow.payment, bool finalized = false, bool cancel
   transport: 'epicbox',
   cancellable: !cancelled,
   repostable: finalized && !cancelled,
+  releasable: releasable,
   finalizedAtUnix: finalized ? _at(_now.subtract(const Duration(days: 1))) : null,
   cancelReason: reason,
   flow: flow,
@@ -170,6 +172,31 @@ void main() {
       expect(await cancels.retry(s), isFalse);
       expect(cancels.owed, isFalse);
       expect(s.spentToSelf, hasLength(1), reason: 'only the first, failed try');
+    });
+
+    test('the payment won the race: the spend back is refused for good, nothing owed', () async {
+      final tx = _send(flow: TxFlow.invoice);
+      final s = _session(tx)
+        ..spendToSelfError = const WalletError(kind: WalletErrorKind.inputsSpentByOwnPayment, message: 'spent by tx 9');
+      final cancels = CancelFinal();
+      expect(await cancels.cancel(s, tx), CancelResult.alreadyPaid);
+      expect(cancels.owed, isFalse);
+      expect(await cancels.retry(s), isFalse);
+      expect(s.spentToSelf, hasLength(1));
+    });
+
+    test('Release funds follows the rule: released, then its coins spent back', () async {
+      final tx = _send(finalized: true, releasable: true);
+      final s = _session(tx);
+      expect(await CancelFinal().release(s, tx), CancelResult.spentBack);
+      expect(s.releasedKeys, [tx.key]);
+      expect(s.spentToSelf.single, [_coinA, _coinB]);
+    });
+
+    test('a refused late post says why, on either side', () {
+      for (final kind in [WalletErrorKind.inputsSpentByOwnPayment, WalletErrorKind.peerInputsSpent]) {
+        expect(describeError(_l, WalletError(kind: kind, message: 'internal error')), _l.errorPaymentCancelledCoinsMoved);
+      }
     });
   });
 

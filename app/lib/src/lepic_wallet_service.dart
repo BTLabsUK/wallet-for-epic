@@ -172,6 +172,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
     lepic.WalletErrorKind.paymentExpired => WalletErrorKind.paymentExpired,
     lepic.WalletErrorKind.inputsSpentElsewhere => WalletErrorKind.inputsSpentElsewhere,
+    lepic.WalletErrorKind.inputsSpentByOwnTransaction => WalletErrorKind.inputsSpentByOwnPayment,
+    lepic.WalletErrorKind.peerInputsSpent => WalletErrorKind.peerInputsSpent,
     // A Kill switch session (WalletConfig.offline) refused its node or relay.
     lepic.WalletErrorKind.offline => WalletErrorKind.networkOff,
     lepic.WalletErrorKind.notUrCode => WalletErrorKind.notQrSlate,

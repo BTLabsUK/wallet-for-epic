@@ -243,6 +243,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         showEToast(context, l.deskTxCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
       case CancelResult.cancelled:
         showEToast(context, l.deskTxCancelled, tone: ETone.ok);
+      case CancelResult.alreadyPaid:
+        showEToast(context, l.errorPaymentAlreadyWentThrough, tone: ETone.info);
     }
   }
 

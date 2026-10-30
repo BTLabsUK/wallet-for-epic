@@ -527,8 +527,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           CancelResult.cancelled => l.txDetailsFundsReleased,
           CancelResult.spentBack => l.txDetailsReleasedSpentBack,
           CancelResult.spendBackPending => l.txDetailsReleasedSpendBackPending,
+          CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
-        level: result == CancelResult.spendBackPending ? NoticeLevel.warning : NoticeLevel.success,
+        level: switch (result) {
+          CancelResult.spendBackPending => NoticeLevel.warning,
+          CancelResult.alreadyPaid => NoticeLevel.info,
+          _ => NoticeLevel.success,
+        },
       );
       await _reload();
     } catch (error) {
@@ -606,8 +611,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           CancelResult.cancelled => l.txDetailsPaymentCancelled,
           CancelResult.spentBack => l.txDetailsCancelledSpentBack,
           CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+          CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
-        level: result == CancelResult.spendBackPending ? NoticeLevel.warning : NoticeLevel.success,
+        level: switch (result) {
+          CancelResult.spendBackPending => NoticeLevel.warning,
+          CancelResult.alreadyPaid => NoticeLevel.info,
+          _ => NoticeLevel.success,
+        },
       );
       await _reload();
     } catch (error) {

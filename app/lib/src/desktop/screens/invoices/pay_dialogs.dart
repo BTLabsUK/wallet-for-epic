@@ -240,6 +240,8 @@ Future<void> showCancelPaymentDialog(BuildContext context, IncomingInvoice invoi
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerSpendFailedText, tone: ETone.warn);
     case CancelResult.cancelled:
       showEToast(context, l.deskInvPayerCancelled, text: l.deskInvPayerCancelledText, tone: ETone.ok);
+    case CancelResult.alreadyPaid:
+      showEToast(context, l.errorPaymentAlreadyWentThrough, tone: ETone.info);
   }
 }
 

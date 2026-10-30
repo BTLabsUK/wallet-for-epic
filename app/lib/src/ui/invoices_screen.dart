@@ -367,8 +367,13 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
           CancelResult.cancelled => l.txDetailsPaymentCancelled,
           CancelResult.spentBack => l.txDetailsCancelledSpentBack,
           CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+          CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
-        level: result == CancelResult.spendBackPending ? NoticeLevel.warning : NoticeLevel.success,
+        level: switch (result) {
+          CancelResult.spendBackPending => NoticeLevel.warning,
+          CancelResult.alreadyPaid => NoticeLevel.info,
+          _ => NoticeLevel.success,
+        },
       );
     } catch (error) {
       notices.show(describeError(l, error), level: NoticeLevel.error);

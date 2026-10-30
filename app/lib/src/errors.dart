@@ -74,6 +74,10 @@ String describeError(AppLocalizations l, Object error) {
       WalletErrorKind.restoreScanRequired => l.errorRestoreScanRequired,
       // Another wallet with this phrase spent the coins; the send is released and a refresh follows.
       WalletErrorKind.inputsSpentElsewhere => l.errorInputsSpentElsewhere,
+      // A late post of a cancelled payment whose coins were moved: the node only says "internal
+      // error", LEPIC tells which coins were gone (a spend back refused is CancelResult.alreadyPaid).
+      WalletErrorKind.inputsSpentByOwnPayment ||
+      WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
       WalletErrorKind.phraseMismatch ||
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };

@@ -2138,6 +2138,15 @@ enum WalletErrorKind {
   /// Posting a send failed because the chain shows its inputs already spent: another wallet
   /// using the same recovery phrase spent them. The send is released; a refresh follows.
   inputsSpentElsewhere,
+
+  /// Posting failed because another payment of this wallet that is on chain already spent its
+  /// coins: a cancelled payment that went through after all (a spend back refused), or a spend
+  /// back that won (the cancelled payment's late post refused). It is ended; a refresh follows.
+  inputsSpentByOwnPayment,
+
+  /// Posting failed because the other party's coins in it are already spent: on the receiving
+  /// side, a payment its payer cancelled and spent back. It is ended.
+  peerInputsSpent,
   io,
   other,
 }

@@ -51,6 +51,10 @@ enum CancelResult {
 
   /// Cancelled, but spending its coins back failed: tried again with the next list read.
   spendBackPending,
+
+  /// The spend back was refused because the payment itself already went through: its coins
+  /// are spent by it, and the watch shows it paid.
+  alreadyPaid,
 }
 
 /// The cancels of one open wallet, with the spends back still owed. One per open wallet.
@@ -113,7 +117,7 @@ class CancelFinal {
       }
     }
     if (coins.isEmpty) return CancelResult.cancelled;
-    return await _spendBack(session, id, coins) ? CancelResult.spentBack : CancelResult.spendBackPending;
+    return _spendBack(session, id, coins);
   }
 
   /// True while a spend back is owed.
@@ -136,7 +140,7 @@ class CancelFinal {
           _owed.remove(id);
           continue;
         }
-        if (await _spendBack(session, id, free)) spent = true;
+        if (await _spendBack(session, id, free) != CancelResult.spendBackPending) spent = true;
       }
       return spent;
     } on WalletError catch (e) {
@@ -149,23 +153,31 @@ class CancelFinal {
 
   /// Spends [coins] to this wallet. One confirmation is enough: they were spendable when the
   /// payment chose them.
-  Future<bool> _spendBack(WalletSession session, int id, List<String> coins) async {
+  Future<CancelResult> _spendBack(WalletSession session, int id, List<String> coins) async {
     try {
       await session.spendOutputsToSelf(commitments: coins, minimumConfirmations: BigInt.one);
       _owed.remove(id);
       logInfo('cancel', 'cancelled payment made final: its coins spent back');
-      return true;
+      return CancelResult.spentBack;
     } on WalletError catch (e) {
-      // notPosted: LEPIC stored it and reposts it; its coins are locked, no longer free, so a
-      // retry finds nothing left to do.
-      if (e.kind == WalletErrorKind.notEnoughFunds) {
-        _owed.remove(id);
-        logWarn('cancel', 'spend back not possible: the fee takes the coins');
-        return false;
+      switch (e.kind) {
+        // The payment won the race: LEPIC ended the spend back and shows the payment paid.
+        case WalletErrorKind.inputsSpentByOwnPayment:
+          _owed.remove(id);
+          logInfo('cancel', 'spend back refused: the payment went through');
+          return CancelResult.alreadyPaid;
+        case WalletErrorKind.notEnoughFunds:
+          _owed.remove(id);
+          logWarn('cancel', 'spend back not possible: the fee takes the coins');
+          return CancelResult.spendBackPending;
+        default:
+          // notPosted: LEPIC stored it and reposts it until it is mined or its coins are spent
+          // (then it ends it); its coins are locked, no longer free, so a retry finds nothing
+          // left to do.
+          _owed[id] = coins;
+          logWarn('cancel', 'spend back failed, tried again later: ${e.kind.name}');
+          return CancelResult.spendBackPending;
       }
-      _owed[id] = coins;
-      logWarn('cancel', 'spend back failed, tried again later: ${e.kind.name}');
-      return false;
     }
   }
 
