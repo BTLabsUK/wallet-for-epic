@@ -186,7 +186,9 @@ class App:
         for s in run.steps:
             if s.base in scope["skip"]:
                 run.set_status(s.id, status="skipped", reason=f"release.toml [skip]: {scope['skip'][s.base]}")
-            elif s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"]:
+            elif (s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"]
+                  and not self.pipeline.proof.get("drivers", {}).get(s.platforms[0])):
+                # A waived platform with a driver still runs it: the gate shows what it found.
                 run.set_status(s.id, status="skipped", reason=f"waived: {scope['proof']['waive'][s.platforms[0]]}")
         self.echo(f"run {run.info['run_id']} in {run.path}")
         self.echo(f"scope: {scope_summary(scope)}")

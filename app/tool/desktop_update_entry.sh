@@ -47,12 +47,29 @@ entry() {
     '{version: $version, url: $url, sha256: $sha, size: $size}'
 }
 
-# One variant's block: Windows and Linux required, macOS when its dmg is there. $1 is "" or -notor.
+# WFE_DESKTOP_KEEP=<json> (tools/rellib/steps/desktop_keep.py): for a system this release has no
+# file for, its entry from the live manifest, unchanged ({"desktop": {...}, "notor": {"desktop":
+# {...}}}). A release that leaves a desktop system out keeps offering that system what it had.
+kept() { # system variant → the kept entry, or exit non-zero
+  [[ -n "${WFE_DESKTOP_KEEP:-}" ]] || return 1
+  if [[ -z "$2" ]]; then jq -ec --arg s "$1" '.desktop[$s] // empty' "$WFE_DESKTOP_KEEP"
+  else jq -ec --arg s "$1" '.notor.desktop[$s] // empty' "$WFE_DESKTOP_KEEP"; fi
+}
+pick() { # system variant file → this release's file, else the kept entry, else "missing"
+  if [[ -f "$dir/$3" ]]; then entry "$3"; else kept "$1" "$2" || entry "$3"; fi
+}
+
+# One variant's block: Windows and Linux required (this release's or kept), macOS when its dmg
+# is there or kept. $1 is "" or -notor.
 systems() {
   local v="$1" windows linux macos="null"
-  windows="$(entry "epic-cash-desktop-$version$v-windows-x64-setup.exe")"
-  linux="$(entry "EpicCashDesktop-$version$v-x86_64.AppImage")"
-  [[ -f "$dir/EpicCashDesktop-$version$v-macos.dmg" ]] && macos="$(entry "EpicCashDesktop-$version$v-macos.dmg")"
+  windows="$(pick windows "$v" "epic-cash-desktop-$version$v-windows-x64-setup.exe")"
+  linux="$(pick linux "$v" "EpicCashDesktop-$version$v-x86_64.AppImage")"
+  if [[ -f "$dir/EpicCashDesktop-$version$v-macos.dmg" ]]; then
+    macos="$(entry "EpicCashDesktop-$version$v-macos.dmg")"
+  elif kept macos "$v" >/dev/null; then
+    macos="$(kept macos "$v")"
+  fi
   jq -n --argjson windows "$windows" --argjson linux "$linux" --argjson macos "$macos" \
     '{windows: $windows, linux: $linux} + (if $macos == null then {} else {macos: $macos} end)'
 }

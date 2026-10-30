@@ -267,14 +267,25 @@ class Engine:
         required = [c for c in env["REL_CHECKS"].split(",") if c]
         proof = read_json(os.path.join(env["REL_STAGE"], "proof.json"))
         if proof is None:
+            reason = self.info["scope"]["proof"]["waive"].get(step.platforms[0]) if step.platforms else None
+            if reason is not None:
+                return {"status": "done", "waived": True, "rc": rc, "proven": False,
+                        "note": f"NOT PROVEN (waived: {reason}): no proof.json (driver exit {rc})"}
             return {"status": "failed", "rc": rc, "note": f"no proof.json (driver exit {rc})", "proven": False}
         checks = proof.get("checks", {})
         bad = [c for c in required if checks.get(c) is not True]
         res = {"rc": rc, "proof": proof, "proven": not bad and rc == 0}
         if bad or rc != 0:
             det = proof.get("details", {})
-            res.update(status="failed", note="not proven: " + ", ".join(
-                f"{c} ({det.get(c, 'false')})"[:80] for c in bad) if bad else f"driver exit {rc}")
+            note = "not proven: " + ", ".join(
+                f"{c} ({det.get(c, 'false')})"[:80] for c in bad) if bad else f"driver exit {rc}"
+            # A waived platform (release.toml [proof.waive]) still runs its driver so the gate shows
+            # what it found; its result is reported, never counted as proven, and blocks nothing.
+            reason = self.info["scope"]["proof"]["waive"].get(step.platforms[0]) if step.platforms else None
+            if reason is not None:
+                res.update(status="done", waived=True, note=f"NOT PROVEN (waived: {reason}): {note}")
+            else:
+                res.update(status="failed", note=note)
         else:
             res.update(status="done", note=f"proven {proof.get('previous')} → {proof.get('candidate')} "
                                            f"({proof.get('update_method', '?')}; node {proof.get('node')}, epicbox {proof.get('epicbox')})")

@@ -181,7 +181,9 @@ class Base(unittest.TestCase):
         for s in run.steps:
             if s.base in scope["skip"]:
                 run.set_status(s.id, status="skipped", reason=scope["skip"][s.base])
-            if s.proof and s.platforms[0] in scope["proof"]["waive"]:
+            # As tools/rel start: a waived platform without a driver is skipped; with one it runs.
+            if (s.proof and s.platforms[0] in scope["proof"]["waive"]
+                    and not self.pipeline.proof.get("drivers", {}).get(s.platforms[0])):
                 run.set_status(s.id, status="skipped", reason="waived")
         return run
 

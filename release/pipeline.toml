@@ -306,7 +306,7 @@ kind = "publish"
 host = "web"
 skippable = true
 needs = ["verify-live"]
-run = "{rel}/tools/rellib/steps/prune-downloads.sh {version} {host.web.ssh} {host.web.downloads_dir} {previous_dir}"
+run = "{rel}/tools/rellib/steps/prune-downloads.sh {version} {host.web.ssh} {host.web.downloads_dir} {previous_dir} {manifests}"
 scratch = "scratch_prune"
 
 [step.store-play]

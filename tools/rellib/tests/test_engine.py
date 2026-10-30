@@ -108,11 +108,26 @@ class EngineTest(Base):
                 self.assertEqual(run.status("update-trust")["status"], "pending")
                 self.assertEqual(run.status("publish-gate")["status"], "pending")
 
+    def test_waived_platform_runs_its_driver_and_shows_what_it_found(self):
+        with open(os.path.join(self.src, "proof-mode"), "w") as f:
+            f.write("bad")
+        run = self.make_run(only="android", sets=["publish.manifests=false"], waive=["android=bug #143 open"])
+        eng = self.engine(run)
+        eng.drive(self.build_ids(run))
+        st = run.status("trust-android-tor")
+        self.assertEqual(st["status"], "done")          # reported, blocks nothing
+        self.assertFalse(st["proven"])
+        self.assertIn("NOT PROVEN (waived: bug #143 open): not proven: history_kept (0 of 3 txs)", st["note"])
+        self.assertEqual(run.status("update-trust")["status"], "done")
+        summary = builtins.gate_summary(eng)
+        self.assertIn("NOT PROVEN — waived: bug #143 open · driver: tor: NOT PROVEN", summary)
+        self.assertIn("history_kept", summary)
+
     def test_waived_platform_is_shown_not_proven(self):
         run = self.make_run(only="android", sets=["publish.manifests=false"], waive=["android=no emulator today"])
         eng = self.engine(run)
         eng.drive(self.build_ids(run))
-        self.assertEqual(run.status("trust-android-tor")["status"], "skipped")
+        self.assertEqual(run.status("trust-android-tor")["status"], "done")   # the driver still ran
         ut = run.status("update-trust")
         self.assertEqual(ut["status"], "done")
         self.assertIn("NOT PROVEN", ut["note"])

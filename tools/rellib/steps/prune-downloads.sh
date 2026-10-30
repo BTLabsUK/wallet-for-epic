@@ -5,10 +5,16 @@
 # answering 404 is intended), and the server's SHA256SUMS is rewritten. Files the previous
 # release's run folder already holds (tools/rel keeps it as the rollback backup) are not copied;
 # any other file is copied to <previous dir>/../server-archive first.
-# Usage: prune-downloads.sh <version> <ssh host> <server downloads dir> <previous release dir>
+# A file the new manifests still name stays (a desktop system this release left out keeps the
+# previous release's installer: manifests/desktop-keep.json).
+# Usage: prune-downloads.sh <version> <ssh host> <server downloads dir> <previous release dir> [<manifests dir>]
 set -euo pipefail
-v="${1:?usage: $0 <version> <ssh host> <downloads dir> <previous dir>}" host="${2:?}" dest="${3:?}" prev="${4:-}"
-mapfile -t old < <(ssh "$host" "ls $dest" | grep -vx SHA256SUMS | grep -v -- "-$v-" || true)
+v="${1:?usage: $0 <version> <ssh host> <downloads dir> <previous dir> [<manifests dir>]}" host="${2:?}" dest="${3:?}" prev="${4:-}" mdir="${5:-}"
+named=""
+if [[ -n "$mdir" && -f "$mdir/update.payload.json" ]]; then
+  named="$(jq -r '.. | objects | .url? // empty | split("/") | last' "$mdir/update.payload.json" | sort -u)"
+fi
+mapfile -t old < <(ssh "$host" "ls $dest" | grep -vx SHA256SUMS | grep -v -- "-$v-" | grep -vxF -f <(printf '%s\n' "$named") || true)
 (( ${#old[@]} > 0 )) || { echo "nothing to prune"; exit 0; }
 keep="${prev:-.}/../server-archive"
 for f in "${old[@]}"; do
