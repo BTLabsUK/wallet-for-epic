@@ -57,11 +57,14 @@ apk_in() { # dir version
   done
   return 1
 }
+# A dry run comes before the builds: a missing APK is named in the plan, not an error.
 prev_apk="$(apk_in "${REL_PREVIOUS_DIR:-/nonexistent}" "${REL_PREVIOUS_VERSION:-}")" ||
-  cannot "no previous $REL_VARIANT x86_64 APK under ${REL_PREVIOUS_DIR:-<REL_PREVIOUS_DIR unset>}/emulator"
+  if [[ "$dry" == 1 ]]; then prev_apk="<not found: ${REL_PREVIOUS_DIR:-REL_PREVIOUS_DIR unset}/emulator>"; else
+  cannot "no previous $REL_VARIANT x86_64 APK under ${REL_PREVIOUS_DIR:-<REL_PREVIOUS_DIR unset>}/emulator"; fi
 cand_apk="$(apk_in "${REL_CANDIDATE_EXTRA:-/nonexistent}" "${REL_CANDIDATE_VERSION:-}" ||
   apk_in "${REL_CANDIDATE_DIR:-/nonexistent}" "${REL_CANDIDATE_VERSION:-}")" ||
-  cannot "no candidate $REL_VARIANT x86_64 APK under REL_CANDIDATE_EXTRA/emulator or REL_CANDIDATE_DIR/emulator"
+  if [[ "$dry" == 1 ]]; then cand_apk="<not built yet: ${REL_CANDIDATE_EXTRA:-REL_CANDIDATE_EXTRA}/emulator>"; else
+  cannot "no candidate $REL_VARIANT x86_64 APK under REL_CANDIDATE_EXTRA/emulator or REL_CANDIDATE_DIR/emulator"; fi
 export REL_PREVIOUS_APK="$prev_apk" REL_CANDIDATE_APK="$cand_apk"
 
 # Health pick, BT Labs first, when the runner gave none.
@@ -86,7 +89,7 @@ if [[ -z "${REL_EPICBOX:-}" ]]; then
   picked+=" epicbox"
 fi
 export REL_NODE REL_EPICBOX
-[[ -n "$picked" ]] && say "health pick (${picked# }): node $REL_NODE, epicbox $REL_EPICBOX"
+[[ -n "$picked" ]] && say "health pick (${picked# }$([[ "$dry" == 1 ]] && echo ", dry run: first in line, not checked")): node $REL_NODE, epicbox $REL_EPICBOX"
 
 avd="${REL_ANDROID_AVD:-wfe_api36}" port="${REL_ANDROID_PORT:-5580}"
 if [[ "$dry" == 1 ]]; then

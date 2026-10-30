@@ -34,10 +34,13 @@ CONFIRMATIONS = int(E("REL_TRUST_CONFIRMATIONS", "4"))  # the stored setting the
 THEME = E("REL_TRUST_THEME", "Dark")
 RECEIVE_AMOUNT = E("REL_TRUST_RECEIVE", "0.02")   # P → wallet
 SEND_AMOUNT = E("REL_TRUST_SEND", "0.01")         # wallet → P
-FUND_AMOUNT = E("REL_TRUST_FUND", "0.05")         # P → a new wallet with no history
+FUND_AMOUNT = E("REL_TRUST_FUND", "0.05")         # P → a new (or empty) test wallet
+PREP_AMOUNT = E("REL_TRUST_PREP", "0.01")         # P → the restored wallet, for its history
 CHECKS = ("wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept",
           "custom_relays_kept", "settings_kept", "send_ok", "receive_ok")
-TX_RE = re.compile(r"^(Received|Receiving|Sent|Sending|Cancelled|Canceled|Failed|Paid|Payment)\b.*?\b([0-9]+(?:\.[0-9]+)?) EPIC\b")
+# Activity rows: "Received 0.05 EPIC from esa57k…ZwzB4d, …", and after a restore
+# "Found on the chain: 0.02 EPIC, received, …".
+TX_RE = re.compile(r"^(Received|Receiving|Sent|Sending|Cancelled|Canceled|Failed|Paid|Payment|Found on the chain)\b.*?\b([0-9]+(?:\.[0-9]+)?) EPIC\b")
 HOST_ROW = re.compile(r"^([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?), ")
 
 
@@ -158,9 +161,27 @@ def unlock(secs=120):
     return False
 
 
+def start_app(expect, secs=180):
+    """Launch the app and wait for a label; relaunch and answer Android's "isn't responding"
+    dialog (a fresh emulator is slow for its first minutes)."""
+    end = time.time() + secs
+    while time.time() < end:
+        launch(S)
+        t = time.time() + 30
+        while time.time() < t:
+            ns = nodes(S)
+            if find(S, expect, ns=ns):
+                return True
+            w = find(S, "Wait", exact=True, clickable=True, ns=ns)
+            if w:
+                tap_xy(S, w["center"])
+            time.sleep(3)
+    dump_to_log(f"app start: no '{expect}'")
+    return False
+
+
 def create():
-    launch(S)
-    if not wait(S, "Create a new wallet", 90):
+    if not start_app("Create a new wallet"):
         raise RuntimeError("no Welcome screen")
     for _ in range(5):  # the Welcome screen can still be settling: tap again until the PIN shows
         n = find(S, "Create a new wallet")
@@ -209,8 +230,7 @@ def read_phrase():
 def restore(words, secs=1200):
     """Fresh app: Restore from phrase with `words` and the PIN; wait for home."""
     secret_words(words)
-    launch(S)
-    if not wait(S, "Restore from phrase", 90):
+    if not start_app("Restore from phrase"):
         raise RuntimeError("no Welcome screen")
     tap(S, "Restore from phrase")
     wait(S, "All the words", 20)
@@ -294,8 +314,9 @@ def balance():
     ns = nodes(S)
     total = next((n["label"] for n in ns if n["label"].startswith("Total:")), None)
     spend = next((n["label"] for n in ns if n["label"].startswith("Spendable:")), None)
-    return {"total": str(amount_of(total)) if total else None,
-            "spendable": str(amount_of(spend)) if spend else None}
+    norm = lambda v: format(v.normalize(), "f") if v is not None else None
+    return {"total": norm(amount_of(total)) if total else None,
+            "spendable": norm(amount_of(spend)) if spend else None}
 
 
 def tx_rows(ns):
@@ -337,7 +358,8 @@ def tx_key(label):
     kind = m.group(1)
     kind = {"Receiving": "Received", "Sending": "Sent"}.get(kind, kind)
     who = re.search(r"\b(?:from|to) ([A-Za-z0-9]{6}…[A-Za-z0-9]{6}|[^,]+)", label)
-    return f"{kind} {m.group(2)} {who.group(1) if who else ''}".strip()
+    amt = format(Decimal(m.group(2)).normalize(), "f")  # 0.0200 (26.10.24) = 0.02 (26.10.23)
+    return f"{kind} {amt} {who.group(1) if who else ''}".strip()
 
 
 def open_sheet(kind):
@@ -434,7 +456,7 @@ def use_typed_server(kind, target):
     """Make `target` a typed-in ("Added by you") entry and the one in use. A built-in entry of
     the same host is first switched away from and removed, so the typed-in entry is the user's."""
     open_sheet(kind)
-    for attempt in range(3):
+    for attempt in range(6):  # switch away, remove, add, switch to it: up to four rounds
         _filter(bare_host(target))
         ns = nodes(S)
         hit = next((n for n in sheet_rows(ns) if same_host(row_info(n["label"])["host"], target)), None)
@@ -764,8 +786,12 @@ def receive_from_p(p, my_addr, amount, p_short=None, secs=900):
     return None
 
 
-def fund_new_wallet(p, my_addr):
-    row = receive_from_p(p, my_addr, FUND_AMOUNT)
+def has_sender(label):
+    return bool(re.search(r"\b(?:from|to) [A-Za-z0-9]{6}…[A-Za-z0-9]{6}", label))
+
+
+def fund_new_wallet(p, my_addr, amount):
+    row = receive_from_p(p, my_addr, amount)
     if not row:
         raise RuntimeError("the funding payment from P was not posted")
     log("funded:", row)
@@ -786,9 +812,11 @@ def compare(a, b):
     det["balance_kept"] = f"before {a['balance']}, after {b['balance']}"
     ha = sorted(tx_key(r) for r in a["history"])
     hb = sorted(tx_key(r) for r in b["history"])
-    res["history_kept"] = bool(ha) and ha == hb
-    det["history_kept"] = (f"{len(ha)} payments before, {len(hb)} after"
-                           + ("" if ha == hb else f"; missing {sorted(set(ha) - set(hb))[:5]}"))
+    senders = sum(has_sender(r) for r in a["history"])
+    res["history_kept"] = bool(ha) and ha == hb and senders > 0
+    det["history_kept"] = (f"{len(ha)} rows before ({senders} with a sender), {len(hb)} after"
+                           + ("" if ha == hb else f"; missing {sorted(set(ha) - set(hb))[:5]}"
+                              f"; new {sorted(set(hb) - set(ha))[:5]}"))
     for k, name, target in (("custom_nodes_kept", "nodes", NODE), ("custom_relays_kept", "relays", EPICBOX)):
         la, lb = a[name], b[name]
         added_a = [r["host"] for r in la["rows"] if r["added"]]
@@ -840,7 +868,10 @@ RESULT = ({}, {}, {})  # checks, details, extra: kept when the run stops on an e
 def run():
     prev_apk, cand_apk = E("REL_PREVIOUS_APK"), E("REL_CANDIDATE_APK")
     required = [c for c in E("REL_CHECKS", ",".join(CHECKS)).split(",") if c]
+    if not FUNDS:  # data checks only: the payment checks are not asked for
+        required = [c for c in required if c not in ("send_ok", "receive_ok")]
     checks, details, extra = RESULT
+    extra["required"] = required
     from pfund import PSession
 
     def finish(code_if_ok=0):
@@ -884,11 +915,15 @@ def run():
     change_settings()
     my_addr = address()
     log("wallet", short(my_addr))
-    # 3. history with at least one payment
-    if not history():
-        log("no payments yet: P funds the test wallet")
+    # 3. history with a payment the chain cannot give back: a restore (or a rescan of a lost
+    # wallet folder) only finds outputs ("Found on the chain"); a payment by Epicbox carries
+    # its sender, which only the wallet's own data holds.
+    if not any(has_sender(r) for r in history()):
+        bal = Decimal(balance()["total"] or "0")
+        amount = FUND_AMOUNT if bal < Decimal("0.03") else PREP_AMOUNT
+        log(f"no payment with a sender in the history: P pays {amount} EPIC")
         with PSession(p_log) as p:
-            fund_new_wallet(p, my_addr)
+            fund_new_wallet(p, my_addr, amount)
     a = digest()
     a["opened"] = True
     extra["before"] = public_digest(a)
@@ -904,8 +939,7 @@ def run():
     if "Success" not in r or vc1 == vc0:
         details["wallet_opens"] = f"the candidate did not install over the previous one: {r.strip()[-200:]}"
         return finish() or 1
-    launch(S)
-    time.sleep(8)
+    start_app("PIN", 120)
     opened = unlock(180)
     shot("after-update-unlock")
     if not opened:
@@ -925,6 +959,10 @@ def run():
     c, d = compare(a, b)
     checks.update(c)
     details.update(d)
+    for k, ok in (("custom_nodes_kept", ok_n), ("custom_relays_kept", ok_r)):
+        if not ok:  # fail closed: the user's own server was never in use before the update
+            checks[k] = False
+            details[k] = "not set up on the previous version (typed-in server not in use); " + details[k]
     # 5. payments on the candidate
     if FUNDS:
         if not checks.get("wallet_opens"):
@@ -970,6 +1008,14 @@ if __name__ == "__main__":
             print(send_epicbox(sys.argv[2], sys.argv[3]))
     except Exception as e:  # noqa: BLE001
         log("driver error:", e)
+        try:
+            ns = nodes(S)
+            dump_to_log(f"driver error: {e}")
+            if not any(mask(n["label"], n["cls"]).startswith(("***", "Word ***")) and "EditText" not in n["cls"]
+                       for n in ns):  # never a screenshot of a phrase
+                shot("error")
+        except Exception:  # noqa: BLE001
+            pass
         with open(os.path.join(OUT, "driver.log"), "a") as f:
             traceback.print_exc(file=f)
         if cmd == "run":
