@@ -31,10 +31,12 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSFaceIDUsageDescription</key>
-	<string>Face ID unlocks the wallet instead of the PIN.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera scans the QR code of an address you send Epic Cash to.</string>
+	<!-- The file and image pickers link Photos (PHPhotoLibrary): App Store Connect wants a purpose
+	     string for it even though the system picker asks for no permission. -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Epic Cash Mobile reads only a picture you choose, such as one with a QR code to scan.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID unlocks your wallet instead of the PIN.</string>
 	<key>CFBundleExecutable</key>
@@ -44,7 +46,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>epic_wallet</string>
+	<string>Epic Cash Mobile</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -85,13 +87,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
