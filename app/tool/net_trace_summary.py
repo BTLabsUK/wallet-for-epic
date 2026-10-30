@@ -112,7 +112,8 @@ def main():
                 onions[comm] += 1
             if call == 'listen':
                 a = LISTEN_ADDR.search(rest)
-                if raw.rstrip().endswith('= 0'):
+                # Counted at the call: strace may print its result on a later line.
+                if not re.search(r'= -1 ', raw):
                     listens[comm][a.group(1) if a else '?'] += 1
                 continue
             if call == 'connect':
