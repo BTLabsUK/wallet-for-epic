@@ -73,7 +73,8 @@ def variants_for(spec, scope, pipeline):
 
 def lane_of(spec, host):
     """Steps in one lane run one at a time: heavy local builds share the machine; each remote
-    host is its own lane; a hand-off waits on another person's Mac."""
+    host is its own lane; a hand-off waits on another person's Mac. A step's own `lane` ({variant}
+    filled in) puts it in that lane instead."""
     if spec.get("heavy"):
         return "heavy"
     if host in ("local", "build", "signer"):
@@ -120,7 +121,7 @@ def build_graph(pipeline, scope, ctx):
             step = Step(
                 id=sid, base=name, kind=kind,
                 title=render(spec.get("title", name), {"variant": var or ""}, where),
-                host=host, lane=lane_of(spec, host),
+                host=host, lane=render(spec["lane"], c, where) if spec.get("lane") else lane_of(spec, host),
                 platforms=([spec["platform"]] if isinstance(spec.get("platform"), str) else list(spec.get("platform") or [])),
                 variant=var, needs=needs,
                 run=render(run, c, where) if run else None,

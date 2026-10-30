@@ -126,6 +126,26 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(next(x for x in steps if x.id == "verify-live").publish)
         self.assertNotIn("store-play-tor", ids)
 
+    def test_update_trust_runs_per_platform_after_the_local_builds(self):
+        s, steps = graph()
+        by = {x.id: x for x in steps}
+        local = ["build-android-tor", "build-android-notor", "build-linux-tor", "build-linux-notor"]
+        for v in ("tor", "notor"):
+            self.assertEqual(by[f"trust-android-{v}"].needs, local)
+            self.assertEqual(by[f"trust-linux-{v}"].needs, local)
+            self.assertEqual(by[f"trust-windows-{v}"].needs, local + [f"build-windows-{v}"])
+            self.assertEqual(by[f"trust-macos-{v}"].needs, local + [f"apple-mac-check-{v}"])
+        # One test wallet: the Android variants one at a time; a Linux sandbox per variant.
+        self.assertEqual({by["trust-android-tor"].lane, by["trust-android-notor"].lane}, {"trust-android"})
+        self.assertEqual([by[f"trust-linux-{v}"].lane for v in ("tor", "notor")], ["trust-linux-tor", "trust-linux-notor"])
+        lanes = [x.lane for x in steps if x.proof]
+        self.assertNotIn("local", lanes)
+        self.assertNotIn("heavy", lanes)
+        # G3 and every trust step still come before the publish gate.
+        self.assertTrue({"artefacts", *(x.id for x in steps if x.proof)} <= set(by["update-trust"].needs))
+        self.assertEqual([x.lane for x in steps if x.base == "source-check" or x.base.startswith("build-")
+                          and x.host != "windows"], ["heavy"] * 5)
+
     def test_only_android_drops_the_rest_and_their_needs(self):
         s, steps = graph(only="android")
         ids = [x.id for x in steps]
