@@ -126,6 +126,7 @@ class _DirectSession extends FakeWalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
+    String? proofAddress,
   }) async {
     final sent = await super.sendHttp(
       amount: amount,

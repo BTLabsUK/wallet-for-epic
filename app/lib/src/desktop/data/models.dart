@@ -20,7 +20,7 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../settings.dart' show autoLockDefault;
 import '../../smart_outputs.dart' show smartOutputsDefault;
 import '../../ui/send_screen.dart' show normalizeAmountText;
-import '../../recipient.dart' show RecipientKind, parseRecipient;
+import '../../recipient.dart' show ContactWays, RecipientKind, parseRecipient;
 import '../../network.dart' show EpicboxRelay;
 import '../../relay_directory.dart' show ServerIcon;
 import '../../watch_mode.dart' show BlockWait;
@@ -648,6 +648,9 @@ class Contact {
 
   /// `<56 characters>.onion`.
   final String? tor;
+
+  /// The name and addresses, for [saferRouteFor] and [proofAddressFor].
+  ContactWays get ways => (name: name, epicbox: epicbox, http: http, tor: tor);
 
 
   /// The address Send uses when nothing else says: Epicbox, else Tor, else HTTP.

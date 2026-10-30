@@ -1722,9 +1722,18 @@ class LepicWalletSession implements WalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
+    String? proofAddress,
   }) => _nodeGuard('send over HTTP', () async {
     final to = await _directUrl(url);
-    final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
+    final chosen = await _optionsFor(amount, minimumConfirmations, options);
+    final sendOptions = proofAddress == null
+        ? chosen
+        : lepic.SendOptions(
+            strategy: chosen?.strategy ?? lepic.SelectionStrategy.smallest,
+            changeOutputs: chosen?.changeOutputs ?? 1,
+            excludeOutputs: chosen?.excludeOutputs ?? const [],
+            paymentProofRecipient: proofAddress,
+          );
     final tx = await _counted(
       () => _wallet.sendHttp(
         amount: amount,

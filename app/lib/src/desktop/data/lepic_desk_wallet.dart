@@ -53,7 +53,7 @@ import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmation
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
-import '../../recipient.dart' show parseRecipient;
+import '../../recipient.dart' show Recipient, RecipientKind, parseRecipient, proofAddressFor;
 import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
 import '../../relay_block.dart';
@@ -2827,6 +2827,9 @@ class LepicDeskWallet implements DeskWalletApi {
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return SendFailed.l10n((l) => l.deskErrPlainHttp);
           before = {for (final e in await session.transactions(refresh: false)) e.id};
+          // A contact with an onion has a known key: the receiver signs a payment proof for
+          // it, whatever way the payment goes.
+          final proof = proofAddressFor(Recipient(RecipientKind.http, to), [for (final c in await session.contacts()) c.ways]);
           final sent = await session.sendHttp(
             amount: BigInt.from(amount),
             minimumConfirmations: _minConf,
@@ -2834,6 +2837,7 @@ class LepicDeskWallet implements DeskWalletApi {
             allowPlainHttp: r.allowPlainHttp && plainHttpNeedsConsent(to),
             message: message,
             options: r.options,
+            proofAddress: proof,
           );
           return await _directDone(session, sent, method, amount, to);
         case TxMethod.tor:
