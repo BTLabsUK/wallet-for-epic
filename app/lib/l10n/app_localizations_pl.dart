@@ -13967,10 +13967,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get advNetworkHeader => 'Sieć';
 
   @override
-  String get advNetworkHint =>
-      'Ile internetu używa portfel. Jeden wybór, zapamiętany. Tylko Tor, Tylko węzeł i Wyłącznik awaryjny wyłączają usługi; w ikonach statusu widać je jako Wyłączone (tryb), a nic nie jest anulowane.';
-
-  @override
   String get advOutputs => 'Wyjścia';
 
   @override
@@ -14007,10 +14003,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeStandard => 'Normalny';
-
-  @override
-  String get advModeStandardLine =>
-      'Łączy się bezpośrednio. Tora można włączyć w Prywatność i sieć.';
 
   @override
   String get advModeTorOnly => 'Tylko Tor';
@@ -14092,10 +14084,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvNetwork => 'Sieć';
-
-  @override
-  String get deskSetAdvModeStandardText =>
-      'Łączy się bezpośrednio. Tora można włączyć w Prywatności.';
 
   @override
   String get deskSetAdvModeTorOnlyText =>
@@ -17859,13 +17847,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twój portfel wysyła płatność prosto do portfela drugiej strony, przez internet. Monety zostają zablokowane.';
 
   @override
-  String get advNetworkHintNoTor =>
-      'Ile internetu używa portfel. Jeden wybór, zapamiętany. Tylko węzeł i Wyłącznik awaryjny wyłączają usługi; w ikonach statusu widać je jako Wyłączone (tryb), a nic nie jest anulowane.';
-
-  @override
-  String get advModeStandardLineNoTor => 'Łączy się bezpośrednio.';
-
-  @override
   String txLinkHttpHintNoTor(String port) {
     return 'Link · HTTP płaci prosto do portfela pod adresem internetowym (http://host:$port) i daje temu telefonowi adres, na który mogą płacić portfele z tej samej sieci Wi-Fi. Oba portfele muszą być otwarte. Po drodze nie jest szyfrowany i nie jest osiągalny z internetu ani przez dane komórkowe. Dodaje Link · HTTP do Wyślij i Odbierz.';
   }
@@ -19074,14 +19055,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get advModeKillSwitch => 'Wyłącznik awaryjny';
 
   @override
-  String get advModeNodeOnlyLine =>
-      'Tylko używany węzeł. Epicbox, Link, aktualizacje i kurs pozostają wyłączone.';
-
-  @override
-  String get advModeKillSwitchLine =>
-      'Żadnych połączeń. Płatność QR i Przesyłanie pliku, wysyłane z innego urządzenia.';
-
-  @override
   String get advModeStandardHint =>
       'Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w Prywatność i sieć.';
 
@@ -19104,18 +19077,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get advModeKillSwitchHint =>
       'Nic się nie łączy, także węzeł: cold storage. Portfel otwiera się z ostatnio znanym saldem i historią. Możesz tworzyć, podpisywać i kończyć płatności przez Przesyłanie pliku i Płatność QR, pokazywać swój adres, robić kopię i eksportować. Gotowej płatności nie da się stąd wysłać: zapisz ją lub pokaż jako kod QR i wyślij z urządzenia, które jest online. Płatności czekające na odbiorcę są wstrzymane i wznawiają się po wyjściu z tego trybu.';
-
-  @override
-  String get advModeSwitchNoteTorOnly =>
-      'Odbieranie przez Link · HTTP jest wyłączone. Dopóki Tor nie jest gotowy, nic się nie łączy.';
-
-  @override
-  String get advModeSwitchNoteNodeOnly =>
-      'Epicbox, Link, kurs i sprawdzanie aktualizacji zatrzymują się teraz. Płatność czekająca przez Epicbox wznawia się po wyjściu z trybu Tylko węzeł.';
-
-  @override
-  String get advModeSwitchNoteKillSwitch =>
-      'Wszystkie połączenia zatrzymują się teraz, także z węzłem. Czekające płatności są wstrzymane do wyjścia z trybu Wyłącznik awaryjny.';
 
   @override
   String advModeConfirmTitle(String mode) {

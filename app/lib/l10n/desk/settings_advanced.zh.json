@@ -17,7 +17,6 @@
   "deskSetAdvLogs": "日志",
   "deskSetAdvLogsHint": "在“帮助”下显示“日志”分组：打开日志文件夹、清除日志。无论是否开启，“报告问题”都会附上日志。",
   "deskSetAdvNetwork": "网络",
-  "deskSetAdvModeStandardText": "直接连接。可在“隐私”中开启 Tor。",
   "deskSetAdvModeTorOnlyText": "所有连接都经过 Tor。Tor 就绪之前，什么都不会连接。",
   "deskSetAdvNotInBuild": "此版本不含",
   "deskSetAdvReset": "再次全部隐藏",

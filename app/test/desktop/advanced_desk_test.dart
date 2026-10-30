@@ -13,7 +13,7 @@ import 'package:epic_wallet/src/desktop/screens/invoices/invoices_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/data/history_files.dart' show MockDeskHistoryFiles, deskHistoryFilesProvider;
-import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart' show advModeConfirmKey, advModeNoteKey;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart' show advModeConfirmKey;
 import 'package:epic_wallet/src/desktop/screens/transfer/finalize_screen.dart' show FinalizeArgs;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart' show FakeWalletSession;
@@ -285,10 +285,11 @@ void main() {
         if (find.byKey(ValueKey('adv-mode-${m.name}')).evaluate().isNotEmpty) m.name,
     ];
 
-    testWidgets('Advanced › Network: a row per mode, each with its info popover; choosing one saves it and shows its line', (tester) async {
+    testWidgets('Advanced › Network: a row per mode, just its name and its info popover; choosing one saves it', (tester) async {
       await _open(tester, DeskRoute.settingsAdvanced);
       expect(rowKeys(), torBuilt ? ['standard', 'torOnly', 'nodeOnly', 'killSwitch'] : ['standard', 'nodeOnly', 'killSwitch']);
-      expect(find.byKey(advModeNoteKey), findsNothing);
+      // No explanation in the list: no line under a mode, no section ⓘ of its own.
+      expect(find.textContaining('Only the node in use.'), findsNothing);
       // The Kill switch row's ⓘ opens a popover with its text.
       await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-killSwitch')));
       await _settle(tester);
@@ -301,8 +302,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('adv-mode-nodeOnly')));
       await _settle(tester);
       expect(_advanced.networkMode, NetworkMode.nodeOnly);
-      expect(find.byKey(advModeNoteKey), findsOneWidget);
-      expect(find.textContaining('Epicbox, Link, price and update checks stop now'), findsOneWidget);
+      expect(find.textContaining('Epicbox, Link, price and update checks stop now'), findsNothing);
     });
 
     testWidgets('a send waiting over Epicbox: Kill switch asks first; Cancel keeps the mode', (tester) async {

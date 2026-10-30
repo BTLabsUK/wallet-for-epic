@@ -244,8 +244,6 @@ class _BalanceGroup extends ConsumerWidget {
   }
 }
 
-/// The key of the dim line under the picker.
-const Key advModeNoteKey = ValueKey('adv-mode-note');
 
 /// The network modes as radio rows (each with its ⓘ), the line the chosen mode brings under them.
 class _NetworkGroup extends ConsumerWidget {
@@ -254,7 +252,6 @@ class _NetworkGroup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final c = context.dc;
     final st = ref.watch(deskProvider);
     final s = st.settings;
     final adv = s.advanced;
@@ -271,38 +268,22 @@ class _NetworkGroup extends ConsumerWidget {
     Widget mode(NetworkMode m, {bool tor = false}) => ERadioRow(
       key: ValueKey('adv-mode-${m.name}'),
       selected: adv.networkMode == m,
+      // Just the name and its ⓘ: no explanations in the list (the owner).
       title: networkModeName(l, m),
-      text: networkModeLine(l, m, desktop: true, tor: DeskFeatures.tor),
       hint: networkModeHint(l, m, desktop: true, tor: DeskFeatures.tor),
       hintIcon: networkModeGlyph(m),
       tag: tor && !torIncluded ? l.deskSetAdvNotInBuild : null,
       onSelected: tor && !torIncluded ? null : () => choose(m),
     );
-    final note = networkModeSwitchNote(l, adv.networkMode);
     return ESetGroup(
       title: l.deskSetAdvNetwork,
-      trailing: EInfoHint(networkHeaderHint(l, tor: DeskFeatures.tor), title: l.deskSetAdvNetwork, icon: EIcons.antenna),
       rows: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              mode(NetworkMode.standard),
-              if (DeskFeatures.tor) mode(NetworkMode.torOnly, tor: true),
-              mode(NetworkMode.nodeOnly),
-              mode(NetworkMode.killSwitch),
-              if (note != null) ...[
-                SizedBox(height: Sp.x3),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-                  // Body text, not a warning.
-                  child: Text(note, key: advModeNoteKey, style: context.ts.small.copyWith(color: c.dim)),
-                ),
-              ],
-            ],
+        // One row per mode, as tall as a settings row (its padding less the radio row's own).
+        for (final (m, tor) in [(NetworkMode.standard, false), if (DeskFeatures.tor) (NetworkMode.torOnly, true), (NetworkMode.nodeOnly, false), (NetworkMode.killSwitch, false)])
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2),
+            child: mode(m, tor: tor),
           ),
-        ),
         // On by default: the one switch here that keeps the simple app working.
         ESetRow(
           key: const ValueKey('adv-nodeFailover'),

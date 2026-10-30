@@ -29,8 +29,6 @@ Key networkModeHintKey(NetworkMode m) => ValueKey('adv-mode-hint-${m.name}');
 /// The key of the Network section's header, for scrolling to it and for tests.
 const Key networkSectionKey = ValueKey('adv-network');
 
-/// The key of the dim line under the picker.
-const Key networkModeNoteKey = ValueKey('adv-mode-note');
 
 /// The key of the mode mark on Home.
 const Key networkModeMarkKey = ValueKey('net-mode-mark');
@@ -119,9 +117,10 @@ class NetworkModeConfirmSheet extends StatelessWidget {
   }
 }
 
-/// The Network section of Settings › Advanced: header with its ⓘ, one radio row per offered
-/// mode (name, one line, ⓘ) and the dim line for the chosen mode. Tor only is left out of the
-/// build without Tor and disabled while Tor is unavailable on the phone.
+/// The Network section of Settings › Advanced: its header and one radio row per offered mode,
+/// just the name and its ⓘ (the explanation lives in the sheet, none in the list; the owner: "no
+/// explanations in main view"), as tall as the other rows. Tor only is left out of the build
+/// without Tor and disabled while Tor is unavailable on the phone.
 class NetworkModeSection extends ConsumerWidget {
   const NetworkModeSection({super.key, this.headerKey, this.tourId});
 
@@ -131,10 +130,8 @@ class NetworkModeSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final t = context.tokens;
     final mode = ref.watch(networkModeProvider);
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
-    final note = networkModeSwitchNote(l, mode);
     Widget row(NetworkMode m) {
       final enabled = m != NetworkMode.torOnly || torAvailable;
       final name = networkModeName(l, m);
@@ -142,12 +139,10 @@ class NetworkModeSection extends ConsumerWidget {
         key: networkModeRowKey(m),
         enabled: enabled,
         leading: Radio<NetworkMode>(value: m, enabled: enabled),
-        title: Text(name),
-        subtitle: Text(networkModeLine(l, m)),
-        trailing: InfoHint(
-          networkModeHint(l, m),
-          key: networkModeHintKey(m),
-          title: name,
+        title: TitleWithHint(
+          name,
+          hintKey: networkModeHintKey(m),
+          hint: networkModeHint(l, m),
           icon: networkModeGlyph(m),
           labelled: enabled,
         ),
@@ -164,24 +159,8 @@ class NetworkModeSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: KeyedSubtree(key: networkSectionKey, child: SettingsHeader(l.advNetworkHeader, key: headerKey)),
-              ),
-              InfoHint(networkHeaderHint(l), title: l.advNetworkHeader, icon: Icons.hub_outlined),
-            ],
-          ),
-        ),
+        KeyedSubtree(key: networkSectionKey, child: SettingsHeader(l.advNetworkHeader, key: headerKey)),
         tourId == null ? rows : tourId!(rows),
-        if (note != null)
-          Padding(
-            key: networkModeNoteKey,
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: Text(note, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
-          ),
       ],
     );
   }

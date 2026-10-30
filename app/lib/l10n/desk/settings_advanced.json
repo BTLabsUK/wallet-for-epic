@@ -71,10 +71,6 @@
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
   },
-  "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
-  "@deskSetAdvModeStandardText": {
-    "description": "Text under the Standard mode."
-  },
   "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Until Tor is ready, nothing connects.",
   "@deskSetAdvModeTorOnlyText": {
     "description": "Text under the Tor only mode."

@@ -13611,10 +13611,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get advNetworkHeader => 'Netzwerk';
 
   @override
-  String get advNetworkHint =>
-      'Wie viel vom Internet die Wallet nutzt. Eine Wahl, die gespeichert bleibt. „Nur Tor“, „Nur Node“ und „Notaus“ schalten Dienste ab; sie erscheinen in den Statussymbolen als Aus (Modus), und nichts wird abgebrochen.';
-
-  @override
   String get advOutputs => 'Outputs';
 
   @override
@@ -13651,10 +13647,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advModeStandard => 'Normal';
-
-  @override
-  String get advModeStandardLine =>
-      'Verbindet direkt. Tor lässt sich unter Datenschutz & Netzwerk einschalten.';
 
   @override
   String get advModeTorOnly => 'Nur Tor';
@@ -13736,10 +13728,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvNetwork => 'Netzwerk';
-
-  @override
-  String get deskSetAdvModeStandardText =>
-      'Verbindet direkt. Tor lässt sich unter Datenschutz einschalten.';
 
   @override
   String get deskSetAdvModeTorOnlyText =>
@@ -17450,13 +17438,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ihre Wallet sendet die Zahlung direkt an die Wallet der Gegenseite, über das Internet. Die Coins werden gesperrt.';
 
   @override
-  String get advNetworkHintNoTor =>
-      'Wie viel vom Internet die Wallet nutzt. Eine Wahl, die gespeichert bleibt. „Nur Node“ und „Notaus“ schalten Dienste ab; sie erscheinen in den Statussymbolen als Aus (Modus), und nichts wird abgebrochen.';
-
-  @override
-  String get advModeStandardLineNoTor => 'Verbindet direkt.';
-
-  @override
   String txLinkHttpHintNoTor(String port) {
     return 'Link · HTTP zahlt direkt an eine Wallet unter einer Web-Adresse (http://host:$port) und gibt diesem Telefon eine Adresse, an die Wallets im selben WLAN zahlen können. Beide Wallets müssen geöffnet sein. Es ist unterwegs nicht verschlüsselt und aus dem Internet oder über Mobilfunk nicht erreichbar. Fügt Link · HTTP zu Senden und Empfangen hinzu.';
   }
@@ -18643,14 +18624,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get advModeKillSwitch => 'Notaus';
 
   @override
-  String get advModeNodeOnlyLine =>
-      'Nur der verwendete Node. Epicbox, Link, Updates und Kurs bleiben aus.';
-
-  @override
-  String get advModeKillSwitchLine =>
-      'Gar keine Verbindungen. QR-Zahlung und Dateiübertragung, gesendet von einem anderen Gerät.';
-
-  @override
   String get advModeStandardHint =>
       'Alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung. Tor ist ein eigener Schalter unter Datenschutz & Netzwerk.';
 
@@ -18673,18 +18646,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get advModeKillSwitchHint =>
       'Nichts verbindet sich, auch nicht der Node: Cold Storage. Die Wallet öffnet sich mit dem zuletzt bekannten Guthaben und Verlauf. Sie können Zahlungen per Dateiübertragung und QR-Zahlung erstellen, signieren und abschließen, Ihre Adresse zeigen, sichern und exportieren. Eine abgeschlossene Zahlung lässt sich von hier nicht senden: Speichern Sie sie oder zeigen Sie sie als QR-Code und senden Sie sie von einem Gerät, das online ist. Zahlungen, die auf einen Empfänger warten, pausieren und laufen weiter, wenn Sie den Modus verlassen.';
-
-  @override
-  String get advModeSwitchNoteTorOnly =>
-      'Der Link-·-HTTP-Empfang ist aus. Bis Tor bereit ist, verbindet sich nichts.';
-
-  @override
-  String get advModeSwitchNoteNodeOnly =>
-      'Epicbox, Link, Kurs und Update-Prüfung stoppen jetzt. Eine Zahlung, die über Epicbox wartet, läuft weiter, sobald Sie „Nur Node“ verlassen.';
-
-  @override
-  String get advModeSwitchNoteKillSwitch =>
-      'Jede Verbindung stoppt jetzt, auch die zum Node. Wartende Zahlungen pausieren, bis Sie „Notaus“ verlassen.';
 
   @override
   String advModeConfirmTitle(String mode) {
