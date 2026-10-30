@@ -319,4 +319,22 @@ void main() {
     await h.pump(tester, privacy: true);
     expect(find.byKey(torReceivingSwitchKey), findsNothing);
   });
+
+  testWidgets('the switch left on without a tor bundle stays in view and can go off', (tester) async {
+    final h = _Harness(bundle: null);
+    await h.pump(tester, privacy: true);
+    // Saved on before the bundle went missing: the wallet waits for tor, blocked.
+    await h.container.read(phoneTorProvider.notifier).setReceiving(true);
+    await tester.pumpAndSettle();
+    await _reach(tester, find.byKey(torReceivingSwitchKey));
+    final tile = tester.widget<Switch>(
+      find.descendant(of: find.byKey(torReceivingSwitchKey), matching: find.byType(Switch)),
+    );
+    expect(tile.value, isTrue);
+    expect(tile.onChanged, isNotNull, reason: 'off ends the blocked wait');
+    await tester.tap(find.byKey(torReceivingSwitchKey));
+    await tester.pumpAndSettle();
+    expect(h.container.read(phoneTorProvider).receiving, isFalse);
+    expect(find.byKey(torReceivingSwitchKey), findsNothing);
+  });
 }
