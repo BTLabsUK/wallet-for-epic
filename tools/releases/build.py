@@ -19,7 +19,8 @@ from its name, see KINDS: a new kind of build needs one line there and nothing e
 
 The page is plain HTML and CSS: every download is a link, every fold a <details>. page.js adds
 the copy buttons, the platform the browser reports (User-Agent Client Hints, then the user
-agent) and the Other platforms switch; without it the page shows every platform the same way.
+agent) and the platform switch (the hero's tiles and the section's own, one state, no scrolling);
+without it the page shows every platform the same way and every switch is a plain anchor.
 No tracking, nothing loaded from another host.
 """
 import datetime as dt
@@ -283,7 +284,7 @@ def platform_card(key, g, latest):
         out.append('</ul></details>')
     if key in BEFORE and p:
         text, cmd = BEFORE[key]
-        out.append(f'<details class="fold before" data-before="{key}"><summary>Before you install</summary>'
+        out.append(f'<details class="fold before" data-before="{key}" id="before-{key}"><summary>Before you install</summary>'
                    f'<div class="bt">{text.format(file=esc(p["name"]))}'
                    f'<p class="verify"><span>Check the download</span><code data-copy translate="no">'
                    f'{esc(cmd.format(file=p["name"]))}</code></p>{sig_check(latest)}</div></details>')
@@ -307,6 +308,65 @@ def mirror(r):
              (GITHUB_RELEASE, 'Mirror on GitHub', r.get('github'))]
     return ''.join(f' · <a href="{url.format(version=esc(r["version"]))}" rel="noopener">{label}</a>'
                    for url, label, on in links if on)
+
+
+def tiles(g):
+    """One square tile per platform with a primary download, each a link to its card."""
+    out = []
+    for key, gg in g.items():
+        if key not in PLAT or not gg['primary']:
+            continue
+        _, heading, app, req, preview = PLAT[key]
+        out.append(f'<li><a class="tile" href="#dl-{key}" data-pick="{key}" aria-label="{esc(app)} for {esc(heading)}'
+                   + (', preview' if preview else '') + f'"><span class="t-ico">{ICONS[key]}</span>'
+                   f'<span class="t-name">{esc(heading)}</span>'
+                   + (f'<span class="t-note">Preview</span>' if preview else '') + '</a></li>')
+    return '\n'.join(out)
+
+
+def switcher(g):
+    """The platform switch inside the downloads section: one link per platform to its card. With
+    page.js it picks the platform in place (the same state as the hero's tiles); without it a
+    plain anchor to the card."""
+    out = ['<nav class="plat-switch" aria-label="Platform"><span class="ps-h">Show</span><ul>']
+    for key, gg in g.items():
+        if key not in PLAT or not gg['primary']:
+            continue
+        _, heading, app, req, preview = PLAT[key]
+        out.append(f'<li><a href="#dl-{key}" data-pick="{key}" aria-label="{esc(heading)}'
+                   + (', preview' if preview else '') + f'">{ICONS[key]}<span>{esc(heading)}</span></a></li>')
+    out.append('</ul></nav>')
+    return ''.join(out)
+
+
+def hero(latest, plat_line):
+    """Title, one line, the download button for the browser's platform (page.js fills it; without
+    it the button leads to the platform list), the Before you install button, and the app itself:
+    the desktop Overview and the phone's Home from the release screen catalog, dark and light."""
+    shot = ('<img class="on-dark-img" src="img/{d}.webp" width="{w}" height="{h}" alt="{alt}" decoding="async"{eager}>'
+            '<img class="on-light-img" src="img/{d}-light.webp" width="{w}" height="{h}" alt="{alt}" decoding="async" loading="lazy">')
+    desk = shot.format(d='hero-desktop', w=1280, h=800, eager=' fetchpriority="high"',
+                       alt='Epic Cash Desktop: the Overview with the balance, Send and Receive, and recent activity')
+    phone = shot.format(d='hero-phone', w=640, h=1421, eager=' loading="lazy"',
+                        alt='Epic Cash Mobile: the Home screen with the balance and recent activity')
+    return f'''<section class="hero">
+  <div class="hero-text">
+    <p class="eyebrow" translate="no">Desktop and Mobile</p>
+    <h1 translate="no">Epic Cash</h1>
+    <p class="lede">The wallet for desktop and phone. Keys and coins stay on the device, locked with a password.</p>
+    <p class="readout"><span class="bracket" aria-hidden="true">[</span><span translate="no">{esc(latest['version'])}</span><span class="bracket" aria-hidden="true">]</span><time datetime="{latest['date']}">{human_date(latest['date'])}</time><span class="pill solid">Open beta</span></p>
+    <div class="cta">
+      <a class="btn primary hero-dl" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose a platform</span><small id="hero-dl-sub"></small></span></a>
+      <a class="btn secondary" id="hero-before" href="#latest">Before you install</a>
+    </div>
+    <p class="avail"><span id="avail-mine"></span> <span id="avail-rest">{esc(plat_line)}.</span> <span id="avail-back"></span></p>
+  </div>
+  <div class="hero-art">
+    <figure class="window">{desk}</figure>
+    <figure class="phone">{phone}</figure>
+  </div>
+</section>
+'''
 
 
 def render(out_dir):
@@ -347,16 +407,19 @@ def render(out_dir):
 </header>
 
 <main>
-<section class="hero">
-  <p class="wordmark" translate="no"><span class="wm-name">Epic Cash</span><span class="wm-platform">Desktop and Mobile</span></p>
-  <h1>Releases</h1>
-  <p class="readout"><span class="bracket" aria-hidden="true">[</span><span translate="no">{esc(latest['version'])}</span><span class="bracket" aria-hidden="true">]</span><time datetime="{latest['date']}">{human_date(latest['date'])}</time><span class="plat">{esc(plat_line)}</span></p>
-  <p class="beta"><span class="pill solid">Open beta</span><span>Bugs are expected; test with small amounts. Report a problem from the app: Settings › Send feedback on the phone, Settings › Help › Report a problem on the desktop.</span></p>
-  <p class="mine" id="mine" hidden><span id="mine-text"></span> <button type="button" id="other" class="link">Other platforms</button></p>
-</section>
+{hero(latest, plat_line)}
+<nav class="tiles" aria-labelledby="tiles-h">
+  <p class="tiles-h" id="tiles-h">Platforms</p>
+  <ul>
+{tiles(g)}
+  </ul>
+</nav>
+
+<p class="beta"><span>Bugs are expected; test with small amounts. Report a problem from the app: Settings › Send feedback on the phone, Settings › Help › Report a problem on the desktop.</span></p>
 
 <section class="latest" id="latest" aria-labelledby="latest-h">
   <div class="sh"><h2 id="latest-h">Latest <span translate="no">{esc(latest['version'])}</span></h2><p class="sl"><a href="changelog/#v{esc(latest['version'])}">What changed</a>{mirror(latest)} · <a href="changelog/">Earlier versions</a></p></div>
+{switcher(g)}
   <div class="cards">
 {cards}
   </div>

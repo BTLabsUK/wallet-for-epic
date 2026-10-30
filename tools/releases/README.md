@@ -1,7 +1,9 @@
 # The releases page
 
 `build.py` renders the public releases page for Epic Cash Desktop and Epic Cash Mobile:
-the current release only, with one primary download per platform and the rest folded,
+a hero with the download for the browser's platform and the app itself (the desktop Overview
+and the phone's Home, dark and light, from the release screen catalog), one tile per platform,
+then the current release only, with one primary download per platform and the rest folded,
 checksums, a Before you install fold per platform, one changelog link (the way to history). Served from the
 release folder on the server, today at https://examples.btlabs.uk/epic-cash-wallets/ and
 at https://epiccash.btlabs.uk/releases/ (same folder, so the page uses relative links only).
@@ -10,6 +12,8 @@ at https://epiccash.btlabs.uk/releases/ (same folder, so the page uses relative 
 releases.json      the data: the current release (version, date, files: name, size, sha256); `add` replaces it
 build.py           add / render (see its docstring)
 assets/            style.css, page.js, theme.js, fonts/ (Montserrat, JetBrains Mono NL, OFL), img/
+                   (brand, and the hero's hero-desktop*.webp / hero-phone*.webp: the catalog's
+                   desktop/overview/main and phone/home/main, dark and light, phone at 640 px wide)
 ```
 
 ## A new release
@@ -42,8 +46,13 @@ platform's primary download. A file no pattern knows still appears, under Other 
 - No inline script (theme.js is external), no tracking, nothing from another host; fonts are
   self-hosted. Every download is a plain link and every fold a `<details>`: page.js only adds
   the copy buttons and puts the browser's own platform first (User-Agent Client Hints, then
-  the user agent; Other platforms switches back). Without JavaScript every platform is shown
-  the same way.
+  the user agent): the hero's button downloads that platform's primary file, Before you
+  install leads to its fold, its card goes first; a platform tile picks another. Without
+  JavaScript the hero's button leads to the platform list and every platform is shown the
+  same way.
 - The Android certificate fingerprint in `ANDROID_CERT_SHA256` is the release key's
   (`apksigner verify --print-certs`); change it only if the key changes.
 - App names are Epic Cash Desktop and Epic Cash Mobile. No store names, no tester group.
+- The hero shows real screens, never a mock-up: after a release that changes the Overview or
+  the phone's Home, refresh the four hero images from `/tmp/epic-build/screens/latest`
+  (Pillow: WEBP quality 86 desktop as is, 84 phone resized to 640 wide).
