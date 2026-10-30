@@ -8,7 +8,9 @@ process in the test's network namespace. Printed per process name:
 - every connect() to an address that is not loopback (IPv4, IPv6), with how often;
 - every DNS question (a datagram to port 53), by name;
 - connects to Unix sockets that resolve names outside the namespace (systemd-resolved, nscd,
-  avahi), which would hide a lookup.
+  avahi), which would hide a lookup;
+- every TCP listen() (its address from strace's -yy), and every ADD_ONION a process sent to a
+  tor control port (a published onion service).
 
     net_trace_summary.py TRACE [--node HOST]
 
@@ -23,7 +25,8 @@ import re
 import socket
 import sys
 
-LINE = re.compile(r'^(\d+)(?:<([^>]*)>)?\s+(connect|sendto|sendmsg|sendmmsg)\((.*)$')
+LINE = re.compile(r'^(\d+)(?:<([^>]*)>)?\s+(connect|sendto|sendmsg|sendmmsg|listen)\((.*)$')
+LISTEN_ADDR = re.compile(r'<TCPv?6?:\[([^\]]+)\]>')
 INET4 = re.compile(r'sa_family=AF_INET, sin_port=htons\((\d+)\), sin_addr=inet_addr\("([^"]+)"\)')
 INET6 = re.compile(r'sa_family=AF_INET6, sin6_port=htons\((\d+)\).*?inet_pton\(AF_INET6, "([^"]+)"')
 UNIX = re.compile(r'sa_family=AF_UNIX, sun_path=(@?)"([^"]*)"')
@@ -96,6 +99,8 @@ def main():
     dns = collections.defaultdict(collections.Counter)  # comm -> name -> n
     resolver = collections.defaultdict(collections.Counter)
     loopback = collections.Counter()
+    listens = collections.defaultdict(collections.Counter)
+    onions = collections.Counter()
     with open(args.trace, errors='replace') as f:
         for raw in f:
             m = LINE.match(raw)
@@ -103,6 +108,13 @@ def main():
                 continue
             comm = m.group(2) or m.group(1)
             call, rest = m.group(3), m.group(4)
+            if 'ADD_ONION' in rest:
+                onions[comm] += 1
+            if call == 'listen':
+                a = LISTEN_ADDR.search(rest)
+                if raw.rstrip().endswith('= 0'):
+                    listens[comm][a.group(1) if a else '?'] += 1
+                continue
             if call == 'connect':
                 a = INET4.search(rest) or INET6.search(rest)
                 if a:
@@ -128,7 +140,7 @@ def main():
             for name in names:
                 dns[comm][name or '?'] += 1
 
-    comms = sorted(set(connects) | set(dns) | set(resolver) | set(loopback))
+    comms = sorted(set(connects) | set(dns) | set(resolver) | set(loopback) | set(listens) | set(onions))
     print('== network trace ==')
     if not comms:
         print('no connect() and no DNS question at all')
@@ -141,9 +153,14 @@ def main():
             print(f'    dns {name} x{n}')
         for path, n in resolver[c].most_common():
             print(f'    resolver socket {path} x{n}')
+        for addr, n in listens[c].most_common():
+            print(f'    listen {addr} x{n}')
+        if onions[c]:
+            print(f'    ADD_ONION sent x{onions[c]}')
     total_out = sum(sum(v.values()) for v in connects.values())
     total_dns = sum(sum(v.values()) for v in dns.values()) + sum(sum(v.values()) for v in resolver.values())
-    print(f'TOTAL non-loopback connects {total_out}, DNS questions {total_dns}')
+    print(f'TOTAL non-loopback connects {total_out}, DNS questions {total_dns}, '
+          f'listen() {sum(sum(v.values()) for v in listens.values())}, ADD_ONION {sum(onions.values())}')
     if args.node:
         host = args.node.lower().rstrip('.')
         try:

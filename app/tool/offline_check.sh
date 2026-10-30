@@ -16,8 +16,8 @@
 #                                         Epicbox lists empty from the first start.
 #                                         OFFLINE_ONLINE=1: the network is plugged in before the
 #                                         app starts (the network-mode proofs).
-#                                         OFFLINE_TRACE=1: every connect() and DNS query of every
-#                                         process in the namespace is recorded (strace, $run/trace)
+#                                         OFFLINE_TRACE=1: every connect(), listen() and DNS query of
+#                                         every process in the namespace is recorded (strace, $run/trace)
 #                                         and summed up by tool/net_trace_summary.py; DNS goes
 #                                         over plain UDP from the namespace so each name shows.
 #   tool/offline_check.sh selftest        the same namespace, cut and restore with a curl probe in
@@ -182,7 +182,7 @@ timeout 2400 sudo ip netns exec "$NS" setpriv --reuid="$uid" --regid="$gid" --in
   xvfb-run -a -s "-screen 0 1600x1000x24" dbus-run-session -- bash -c '
     printf "%s" "throwaway-$$" | gnome-keyring-daemon --unlock --components=secrets >/dev/null 2>&1
     if [ -n "$1" ]; then
-      exec strace -f -Y -yy --seccomp-bpf -s 300 -e trace=connect,sendto,sendmsg,sendmmsg -o "$1" flutter test --no-pub -d linux "$0"
+      exec strace -f -Y -yy --seccomp-bpf -s 300 -e trace=connect,sendto,sendmsg,sendmmsg,listen -o "$1" flutter test --no-pub -d linux "$0"
     fi
     exec flutter test --no-pub -d linux "$0"
   ' "$file" "$([ "$TRACE" = 1 ] && echo "$run/trace")" 2>&1 | tee "$OUT/$name.log" | grep --line-buffered -E '^(RC |VISIT )|[0-9]+:[0-9]+ \+|Error|Exception' | tail -200
