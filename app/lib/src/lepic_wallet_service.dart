@@ -172,6 +172,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.walletBusy => WalletErrorKind.walletBusy,
     lepic.WalletErrorKind.paymentExpired => WalletErrorKind.paymentExpired,
     lepic.WalletErrorKind.inputsSpentElsewhere => WalletErrorKind.inputsSpentElsewhere,
+    // A Kill switch session (WalletConfig.offline) refused its node or relay.
+    lepic.WalletErrorKind.offline => WalletErrorKind.networkOff,
     lepic.WalletErrorKind.notUrCode => WalletErrorKind.notQrSlate,
     lepic.WalletErrorKind.foreignUrCode => WalletErrorKind.foreignQrCode,
     lepic.WalletErrorKind.mixedUrCodes => WalletErrorKind.mixedQrCodes,
@@ -863,6 +865,7 @@ class LepicWalletService implements WalletService {
             lepic.OnionRoute(host: r.host, port: r.port, onion: r.onion, onionPort: r.onionPort),
         ],
         tuning: netTuningOf(appConfig),
+        offline: config.offline,
       );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
@@ -1411,11 +1414,11 @@ class LepicWalletSession implements WalletSession {
       _nodeGuard('repost', () async => _wallet.repostTransaction(txId: await _txIdOf(key)));
 
   // The cold flow (Kill switch). The finished payment's text is LEPIC's (its finishedPayment
-  // getter, not in the pinned LEPIC yet: until then this says so); reading and posting one is
+  // getter: the stored S3, or an issued invoice's I3); reading and posting one is
   // the app's own (finished_payment.dart), through the node in use and the network mode's gate.
 
   @override
-  Future<String> finishedPaymentText({required int txId}) => _guard(() async => throw _notInLepic('finished payment'));
+  Future<String> finishedPaymentText({required int txId}) => _guard(() => _wallet.finishedPayment(txId: txId));
 
   @override
   Future<FinishedPayment> inspectFinished(String text) async => readFinishedPayment(text).payment;
@@ -1429,9 +1432,6 @@ class LepicWalletSession implements WalletSession {
     }
     await pushFinishedPayment(text, nodeUrl: node, nodeApiSecret: nodeApiSecret);
   }
-
-  static WalletError _notInLepic(String what) =>
-      WalletError(kind: WalletErrorKind.other, message: '$what needs a newer LEPIC');
 
   @override
   Future<void> releaseStuckSend({required String key}) =>
@@ -1774,10 +1774,11 @@ class LepicWalletSession implements WalletSession {
 
   @override
   Stream<TorEvent> startTor({required String torBinary, String? libDir}) =>
-      // Tor carries the node in Node only (the user's switch); Kill switch starts none.
+      // Tor carries the node in Node only (the user's switch) and publishes no onion there, so
+      // no Link listener runs behind it; Kill switch starts none.
       _nodeStream('tor', () =>
         _wallet
-            .startTor(torBinary: torBinary, libDir: libDir)
+            .startTor(torBinary: torBinary, libDir: libDir, publishOnion: torPublishesOnion)
             .map(lepicTorEvent),
       );
 

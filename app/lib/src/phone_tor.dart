@@ -292,6 +292,9 @@ class PhoneTor extends Notifier<PhoneTorState> {
 
   /// Started for a send; runs until lock even with receiving off.
   bool _forSends = false;
+
+  /// Whether the running tor published the wallet's onion ([torPublishesOnion] when it started).
+  bool _onion = true;
   int _sendsInFlight = 0;
 
   /// Receiving was turned off while a send ran: stop once the sends end.
@@ -448,11 +451,21 @@ class PhoneTor extends Notifier<PhoneTorState> {
         _forSends = false;
         await _stop();
       case NetworkMode.nodeOnly:
-        // The switch carries the node; no sends over Tor.
+        // The switch carries the node; no sends over Tor. A tor that published the onion
+        // starts again without it (startTor(publishOnion:)).
         _forSends = false;
+        if (_running && _wanted && _onion) {
+          await _stop();
+          if (!ref.mounted) return;
+        }
         if (_wanted && !_running && state.phase != PhoneTorPhase.unavailable) _start();
         if (!_wanted) await _stop();
       case NetworkMode.torOnly:
+        // Out of Node only: a tor without the onion starts again with it.
+        if (_running && !_onion) {
+          await _stop();
+          if (!ref.mounted) return;
+        }
         await ref.read(epicboxOverTorProvider.notifier).set(true);
         if (!ref.mounted) return;
         if (!state.receiving) {
@@ -461,6 +474,11 @@ class PhoneTor extends Notifier<PhoneTorState> {
           _start();
         }
       default:
+        // Out of Node only: a tor without the onion starts again with it.
+        if (_running && !_onion) {
+          await _stop();
+          if (!ref.mounted) return;
+        }
         if (_wanted && !_running && state.phase != PhoneTorPhase.unavailable) _start();
     }
   }
@@ -593,6 +611,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     final bundle = _bundle;
     if (session == null || bundle == null || _running || NetGate.killSwitch) return;
     NetGate.dial(NetDial.tor, 'tor');
+    _onion = torPublishesOnion;
     _restartTimer?.cancel();
     final generation = _generation;
     state = state.copyWith(

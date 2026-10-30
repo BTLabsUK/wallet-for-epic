@@ -151,6 +151,11 @@ enum NetDial {
   browser,
 }
 
+/// Whether the wallet's tor publishes its onion, with the Link listener behind it (LEPIC's
+/// `startTor(publishOnion:)`): not in Node only, where tor only carries the node, nor in Kill
+/// switch, which starts no tor.
+bool get torPublishesOnion => !NetGate.mode.restricted;
+
 /// The current mode for code without a Riverpod ref (the app's own HTTP, the wallet adapters).
 /// Both apps set it at launch right after the settings file opens, before any request, and on
 /// every change; [changes] lets a long-lived owner (a wallet adapter) resume or stop.

@@ -3478,6 +3478,10 @@ class LepicDeskWallet implements DeskWalletApi {
             _torStartRetries = 0;
             unawaited(_startTor());
           }
+        } else if (_tor != null) {
+          // Into Node only with tor running: it published the onion, so it starts again
+          // without it (startTor(publishOnion:)), carrying the node only.
+          await _restartTorForOnion();
         }
       }
       // Kill switch: no connection at all, so the built-in node stops too (leaving it starts
@@ -3500,6 +3504,9 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     if (wasOff) {
       if (was == NetworkMode.killSwitch) await _reopenForKillSwitch();
+      // Out of Node only with tor running: it started without the onion, so it starts again
+      // with it.
+      if (was == NetworkMode.nodeOnly && _tor != null) await _restartTorForOnion();
       final before = _beforeOffline;
       _beforeOffline = null;
       if (session != null) {
@@ -4180,6 +4187,13 @@ class LepicDeskWallet implements DeskWalletApi {
     } on core.WalletError catch (e) {
       logWarn('desk', 'expect tor: ${e.kind.name}');
     }
+  }
+
+  /// Tor again under the mode's onion rule ([torPublishesOnion]); the switch stays as it is.
+  Future<void> _restartTorForOnion() async {
+    await _stopTor();
+    _torStartRetries = 0;
+    unawaited(_startTor());
   }
 
   Future<void> _stopTor() async {

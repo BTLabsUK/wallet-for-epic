@@ -25,9 +25,9 @@ export 'pairing_api.dart';
 
 /// Free functions of the native API plus the two ways to obtain an open wallet.
 /// Whether the wallet core takes [WalletConfig.offline] (Kill switch sessions that refuse their
-/// node and relay at once). False until the pinned LEPIC has it: until then Kill switch rests on
-/// the app's gate (`NetGate`) and the adapters alone, and no session is reopened for it.
-bool walletOfflineSessions = false;
+/// node and relay at once, LEPIC's ADR 0031): entering or leaving Kill switch opens the session
+/// again. Tests of the app's own gate alone may turn it off.
+bool walletOfflineSessions = true;
 
 abstract interface class WalletService {
   bool validateMnemonic({required String phrase});
