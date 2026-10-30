@@ -454,10 +454,11 @@ void main() {
       expect(session.consolidations, 1);
       // A cancelled payment's coins, spent to the wallet itself by name.
       session.outputsValue = [out('c5', 200000000)];
-      await s.spendOutputsToSelf(commitments: ['c5'], minimumConfirmations: ten);
+      await s.spendOutputsToSelf(commitments: ['c5'], minimumConfirmations: ten, outputs: 3);
       expect(session.spentToSelf, [
         ['c5'],
       ]);
+      expect(session.spentToSelfOutputs, [3], reason: 'the output count crosses the wire');
     });
 
     test('a server switch reaches the open wallet with the new relay', () async {

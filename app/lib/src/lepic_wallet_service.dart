@@ -1631,6 +1631,7 @@ class LepicWalletSession implements WalletSession {
     return lepicSelfSentTx(
       await _wallet.spendOutputsToSelf(
         commitments: commitments,
+        outputs: outputs,
         minimumConfirmations: minimumConfirmations,
       ),
     );
