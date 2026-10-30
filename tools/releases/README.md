@@ -19,7 +19,9 @@ assets/            style.css, page.js, theme.js, fonts/ (Montserrat, JetBrains M
 ## A new release
 
 `tools/rel` does this as its `publish-page` and `prune-downloads` steps (docs/RELEASING.md);
-by hand:
+the page lists only the files of the release folder, so a release that leaves a platform out
+needs the page settled first (the manifests keep that platform's live entry, prune keeps its
+files). By hand:
 
 1. `tools/releases/build.py add 26.10.24 /srv/wfe-release/26.10.24` (the folder with
    the files and SHA256SUMS; `--date` if not today). Checksums are recomputed and must agree.
