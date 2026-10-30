@@ -52,7 +52,8 @@ class MainActivity : FlutterFragmentActivity() {
         MethodChannel(messenger, "epic_wallet/secure_screen")
             .setMethodCallHandler { call, result ->
                 if (call.method == "setSecure") {
-                    if (call.arguments == true) {
+                    secureWanted = call.arguments == true
+                    if (secureWanted) {
                         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     } else {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -66,9 +67,12 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                     result.success(Build.VERSION.SDK_INT >= 33)
                 } else if (call.method == "copySensitive") {
-                    // A recovery phrase: marked sensitive, so Android 13+ hides it from the copy
-                    // preview and keyboards leave it out of their clipboard history.
-                    val text = call.arguments as? String
+                    // A recovery phrase or other secret text: marked sensitive, so Android 13+
+                    // hides it from the copy preview and keyboards leave it out of their
+                    // clipboard history. With clearAfterMs it is cleared once that has passed,
+                    // even if the app was killed meanwhile (clearExpiredClip).
+                    val text = call.argument<String>("text")
+                    val clearAfter = call.argument<Number>("clearAfterMs")?.toLong()
                     if (text == null) {
                         result.success(false)
                     } else {
@@ -79,11 +83,16 @@ class MainActivity : FlutterFragmentActivity() {
                                 putBoolean(EXTRA_IS_SENSITIVE, true)
                             }
                             clipboard.setPrimaryClip(clip)
+                            if (clearAfter != null) stampClip(clipboard, clearAfter)
                             result.success(true)
                         } catch (e: Exception) {
                             result.success(false)
                         }
                     }
+                } else if (call.method == "clearSensitive") {
+                    // The secret copied last, now: still ours, it goes.
+                    clearExpiredClip(force = true)
+                    result.success(null)
                 } else if (call.method == "keepScreenOn") {
                     // A restore's chain scan: the screen stays on, so Android does not cut the
                     // app's network while it runs.
@@ -161,6 +170,106 @@ class MainActivity : FlutterFragmentActivity() {
         pinKeyWrap?.dispose()
         pinKeyWrap = PinKeyWrap.register(applicationContext, messenger)
     }
+
+    /** The payment QR asked for FLAG_SECURE; the privacy cover must not take it away. */
+    private var secureWanted = false
+
+    // --- privacy cover (Android 7–12) ---
+    // Android 13+ hides the Recents preview of the phrase screens without blocking screenshots
+    // (hidePreview, setRecentsScreenshotEnabled). Older versions have no such switch, so the
+    // whole app sets FLAG_SECURE while it is away and clears it on return: the app switcher
+    // shows a blank card, and screenshots in the foreground keep working.
+    private fun coverForRecents(cover: Boolean) {
+        if (Build.VERSION.SDK_INT >= 33 || secureWanted) return
+        if (cover) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+
+    override fun onUserLeaveHint() {
+        // Home or Recents pressed: before onPause, so the snapshot already has the cover.
+        coverForRecents(true)
+        super.onUserLeaveHint()
+    }
+
+    override fun onPause() {
+        coverForRecents(true)
+        clearExpiredClip(force = false)
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        coverForRecents(false)
+        clearExpiredClip(force = false)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        // Android 10+ lets only the focused app see the clipboard: the first moment after a
+        // restart when an expired secret can be checked and cleared.
+        if (hasFocus) clearExpiredClip(force = false)
+    }
+    // --- end privacy cover ---
+
+    // --- secret clipboard expiry ---
+    // When a secret was copied, kept in the app's preferences so a killed app still clears it at
+    // its next start. Only times are kept, never the text.
+    private fun clipPrefs() = getSharedPreferences("wfe_secret_clip", MODE_PRIVATE)
+
+    private fun stampClip(clipboard: android.content.ClipboardManager, clearAfter: Long) {
+        val stamp = if (Build.VERSION.SDK_INT >= 26) {
+            try {
+                clipboard.primaryClipDescription?.timestamp ?: -1L
+            } catch (e: Exception) {
+                -1L
+            }
+        } else {
+            -1L
+        }
+        clipPrefs().edit()
+            .putLong("copiedAt", System.currentTimeMillis())
+            .putLong("clearAfter", clearAfter)
+            .putLong("clipStamp", stamp)
+            .apply()
+    }
+
+    /**
+     * Clears the clipboard when the secret copied last is still on it and its time is up (or
+     * [force]). A clip with another timestamp is someone else's and stays. An empty clipboard,
+     * or Android before 8 with no timestamp, is cleared, as the secret may still be there.
+     */
+    private fun clearExpiredClip(force: Boolean) {
+        val prefs = clipPrefs()
+        val copiedAt = prefs.getLong("copiedAt", -1L)
+        if (copiedAt < 0) return
+        val age = System.currentTimeMillis() - copiedAt
+        // A clock moved backwards also counts as expired.
+        if (!force && age in 0 until prefs.getLong("clearAfter", 0L)) return
+        // Android 10+ shows the clipboard only to the focused app: without focus, whose clip it
+        // is cannot be told, so this waits for the focus to come back.
+        if (Build.VERSION.SDK_INT >= 29 && !hasWindowFocus()) return
+        try {
+            val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+            val stamp = prefs.getLong("clipStamp", -1L)
+            val description = clipboard.primaryClipDescription
+            val other = Build.VERSION.SDK_INT >= 26 && stamp >= 0 && description != null &&
+                description.timestamp != stamp
+            if (!other) {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    clipboard.clearPrimaryClip()
+                } else {
+                    clipboard.setPrimaryClip(android.content.ClipData.newPlainText("", ""))
+                }
+            }
+            prefs.edit().clear().apply()
+        } catch (e: Exception) {
+            // Kept for the next try.
+        }
+    }
+    // --- end secret clipboard expiry ---
 
     override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
         networkWatch?.dispose()

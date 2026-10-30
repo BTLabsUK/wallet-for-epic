@@ -806,7 +806,7 @@ class SlateFileButtons extends ConsumerWidget {
             ),
             icon: const Icon(Icons.copy),
             label: Text(l.slateCopyReply),
-            onPressed: () => copyText(context, json, l.slateCopied),
+            onPressed: () => copySecretText(context, json, l.slateCopied),
           ),
         ],
       ],

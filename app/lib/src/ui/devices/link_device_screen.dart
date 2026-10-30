@@ -196,7 +196,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
           child: OutlinedButton.icon(
             icon: const Icon(Icons.copy),
             label: Text(l.linkCopy),
-            onPressed: () => copyText(context, code, l.linkCopied),
+            onPressed: () => copySecretText(context, code, l.linkCopied),
           ),
         ),
         const SizedBox(height: 12),
