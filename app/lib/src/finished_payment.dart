@@ -19,8 +19,43 @@ class FinishedPaymentText {
 
   final FinishedPayment payment;
 
-  /// The slate's `tx`: offset and body (inputs, outputs, kernels), as `push_transaction` takes it.
+  /// The slate's `tx` as the node's `push_transaction` takes it ([nodeWireTx]).
   final Map<String, Object?> tx;
+}
+
+/// A slate's `tx` (V3: a kernel's `features` a name, `fee` and `lock_height` beside it, numbers
+/// as text) as the node's API takes a transaction: the kernel's features `{"Plain":{"fee":n}}`,
+/// `{"HeightLocked":{"fee":n,"lock_height":n}}` or `"Coinbase"`, plain numbers (as LEPIC's own
+/// `push_transaction` writes it). Inputs, outputs and the offset as they are.
+Map<String, Object?> nodeWireTx(Map tx) {
+  final body = tx['body'];
+  if (body is! Map) throw _notFinished;
+  int n(Object? v) => _amount(v ?? 0).toInt();
+  Object features(Map k) {
+    final f = k['features'];
+    if (f is Map) return f; // already the node's form
+    return switch (f) {
+      'Coinbase' => 'Coinbase',
+      'HeightLocked' => {'HeightLocked': {'fee': n(k['fee']), 'lock_height': n(k['lock_height'])}},
+      'Plain' when n(k['lock_height']) > 0 => {'HeightLocked': {'fee': n(k['fee']), 'lock_height': n(k['lock_height'])}},
+      'Plain' => {'Plain': {'fee': n(k['fee'])}},
+      _ => throw _notFinished,
+    };
+  }
+
+  final kernels = body['kernels'];
+  if (kernels is! List) throw _notFinished;
+  return {
+    'offset': tx['offset'],
+    'body': {
+      'inputs': body['inputs'] ?? const [],
+      'outputs': body['outputs'] ?? const [],
+      'kernels': [
+        for (final k in kernels)
+          if (k is Map) {'features': features(k), 'excess': k['excess'], 'excess_sig': k['excess_sig']} else throw _notFinished,
+      ],
+    },
+  };
 }
 
 const _notFinished = WalletError(kind: WalletErrorKind.invalidSlate, message: 'not a finished payment');
@@ -55,7 +90,7 @@ FinishedPaymentText readFinishedPayment(String text) {
   if (zero(excess) || zero(sig)) throw _notFinished;
   return FinishedPaymentText(
     FinishedPayment(slateId: id, amount: _amount(j['amount']), fee: _amount(j['fee']), kernelExcess: excess as String),
-    Map<String, Object?>.from(tx),
+    nodeWireTx(tx),
   );
 }
 

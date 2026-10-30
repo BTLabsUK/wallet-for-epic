@@ -52,6 +52,20 @@ void main() {
     expect((sent?['params'] as List).last, isTrue);
     expect(headers?['Authorization'], 'Basic ${base64.encode(utf8.encode('epic:s3cret'))}');
     expect(f.slateId, 'fake-finished-7');
+    // The node's form of the kernel (as LEPIC posts it), not the slate's V3 one.
+    final kernel = (((sent?['params'] as List).first as Map)['body'] as Map)['kernels'][0] as Map;
+    expect(kernel['features'], isA<Map>());
+    expect(kernel.containsKey('fee'), isFalse);
+    expect(kernel.containsKey('lock_height'), isFalse);
+  });
+
+  test('the node form of a V3 kernel: Plain with its fee, HeightLocked with a lock height', () {
+    Map k(Map kernel) => (nodeWireTx({'offset': '00', 'body': {'inputs': [], 'outputs': [], 'kernels': [kernel]}})['body'] as Map)['kernels'][0] as Map;
+    expect(k({'features': 'Plain', 'fee': '800000', 'lock_height': '0', 'excess': 'aa', 'excess_sig': 'bb'}),
+        {'features': {'Plain': {'fee': 800000}}, 'excess': 'aa', 'excess_sig': 'bb'});
+    expect(k({'features': 'HeightLocked', 'fee': 7, 'lock_height': 9, 'excess': 'aa', 'excess_sig': 'bb'})['features'],
+        {'HeightLocked': {'fee': 7, 'lock_height': 9}});
+    expect(k({'features': {'Plain': {'fee': 5}}, 'excess': 'aa', 'excess_sig': 'bb'})['features'], {'Plain': {'fee': 5}});
   });
 
   test('already in the pool or on chain is posted; another refusal and no answer are errors', () async {
