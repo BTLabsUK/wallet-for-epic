@@ -28,9 +28,6 @@ const String _fileItem = '\u0001file'; // l10n-ok
 const Key deskRequestSaveFileKey = ValueKey('desk-request-save-file');
 const Key deskRequestFileDoneKey = ValueKey('desk-request-file-done');
 
-/// Epic's supply cap, in nanoepic: no request asks for more.
-const int _supplyCap = 21000000 * nanoPerEpic;
-
 /// The paired contacts a request can go to: verified, and their card says they pay requests.
 List<PairingRecord> deskRequestPayers(Iterable<PairingRecord> all) => [
   for (final r in all)
@@ -92,16 +89,21 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
 
   String? _amountError() {
     final l = context.l10n;
-    final int? p;
+    if (_amount.text.trim().isEmpty) return l.deskInvIssuerAmountMissing;
+    final int p;
     try {
       p = parseEpicIn(l, _amount.text);
+    } on AmountFormatException catch (e) {
+      // Epic's supply cap is the parser's: no request asks for more.
+      return switch (e.problem) {
+        AmountProblem.malformed => l.deskInvIssuerAmountMissing,
+        AmountProblem.decimals => l.deskInvIssuerAmountDecimals,
+        AmountProblem.tooLarge => l.deskInvIssuerAmountCap,
+      };
     } on LocalizedFormatException catch (e) {
       return e.text(l);
     }
-    if (_amount.text.trim().isEmpty || p == null) return l.deskInvIssuerAmountMissing;
-    if (p == epicTooLong) return l.deskInvIssuerAmountDecimals;
     if (p <= 0) return l.deskInvIssuerAmountZero;
-    if (p > _supplyCap) return l.deskInvIssuerAmountCap;
     return null;
   }
 
@@ -124,7 +126,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     try {
       await ref
           .read(deskInvoicesProvider.notifier)
-          .request(PaymentRequestDraft(pairingId: to, payerName: name, amount: parseEpicIn(l, _amount.text)!, message: _msg));
+          .request(PaymentRequestDraft(pairingId: to, payerName: name, amount: parseEpicIn(l, _amount.text), message: _msg));
       if (!mounted) return;
       showEToast(context, l.reqSent(name), tone: ETone.ok);
       ref.read(deskNavProvider.notifier).go(DeskRoute.invoices, InvoicesTab.issue);
@@ -155,7 +157,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
     final l = context.l10n;
     setState(() => _busy = true);
     try {
-      final made = await ref.read(deskInvoicesProvider.notifier).requestFile(parseEpicIn(l, _amount.text)!, _msg);
+      final made = await ref.read(deskInvoicesProvider.notifier).requestFile(parseEpicIn(l, _amount.text), _msg);
       if (!mounted) return;
       setState(() => _made = made);
       await _saveMade(made);

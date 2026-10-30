@@ -11,6 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+Matcher _refused(AmountProblem problem) =>
+    throwsA(isA<AmountFormatException>().having((e) => e.problem, 'problem', problem));
+
 void main() {
   final de = lookupAppLocalizations(const Locale('de'));
   final en = lookupAppLocalizations(const Locale('en'));
@@ -20,16 +23,27 @@ void main() {
     expect(parseEpicIn(de, '1,5'), 150000000);
     expect(parseEpicIn(de, '1.000,5'), 100050000000);
     expect(parseEpicIn(de, '12.5'), 1250000000);
-    expect(parseEpicIn(de, '1,123456789'), epicTooLong);
+    expect(() => parseEpicIn(de, '1,123456789'), _refused(AmountProblem.decimals));
   });
 
   test('English reads amounts as before', () {
     expect(parseEpicIn(en, '1.000'), nanoPerEpic);
     expect(parseEpicIn(en, '12.5'), 1250000000);
     expect(parseEpicIn(en, '1,5'), 150000000);
-    expect(parseEpicIn(en, ''), isNull);
-    expect(parseEpicIn(en, 'abc'), isNull);
-    expect(parseEpicIn(en, '0.123456789'), epicTooLong);
+    expect(() => parseEpicIn(en, ''), _refused(AmountProblem.malformed));
+    expect(() => parseEpicIn(en, 'abc'), _refused(AmountProblem.malformed));
+    expect(() => parseEpicIn(en, '0.123456789'), _refused(AmountProblem.decimals));
+  });
+
+  // WAL-08: the desktop parser multiplied a wrapping 64-bit int, so 184467440738 EPIC became
+  // 0.90448384 EPIC. Desktop now uses the shared parser: exact up to 21 million, refused above.
+  test('a huge amount is refused, never wrapped', () {
+    expect(() => parseEpicIn(en, '184467440738'), _refused(AmountProblem.tooLarge));
+    expect(() => parseEpicIn(en, '99999999999999999999'), _refused(AmountProblem.tooLarge));
+    expect(() => parseEpicIn(de, '184.467.440.738'), _refused(AmountProblem.tooLarge));
+    expect(() => parseEpicIn(en, '21000000.00000001'), _refused(AmountProblem.tooLarge));
+    expect(parseEpicIn(en, '21000000'), 21000000 * nanoPerEpic);
+    expect(parseEpicIn(en, '20,999,999.99999999'), 2099999999999999);
   });
 
   Future<void> pumpSend(WidgetTester tester, String lang, String amount) async {

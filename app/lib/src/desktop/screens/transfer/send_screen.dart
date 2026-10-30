@@ -172,9 +172,7 @@ class _Draft {
   int get total => amount + fee;
 }
 
-/// Amount text in [l]'s language to nanoepic ([parseEpicIn]): null when it is not a number or is
-/// unclear, [_tooLong] for more than 8 decimals.
-const int _tooLong = epicTooLong;
+/// Amount text in [l]'s language to nanoepic ([parseEpicIn]): null when it is refused.
 int? _parseAmount(AppLocalizations l, String raw) {
   try {
     return parseEpicIn(l, raw);
@@ -381,7 +379,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     direction: TxDirection.sent,
     state: m == TxMethod.file || m == TxMethod.epicbox ? TxState.waitingRecipient : TxState.posted,
     method: m,
-    amount: parseEpic(_amount.text) ?? 12 * nanoPerEpic,
+    amount: _parseAmount(context.l10n, _amount.text) ?? 12 * nanoPerEpic,
     fee: 600000,
     created: DateTime.now(),
     counterparty: to,
@@ -707,14 +705,19 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   String? _amountError(int? spendable) {
     final l = context.l10n;
-    final int? p;
+    if (_amount.text.trim().isEmpty) return l.deskSendErrAmountEnter;
+    final int p;
     try {
       p = parseEpicIn(l, _amount.text);
+    } on AmountFormatException catch (e) {
+      return switch (e.problem) {
+        AmountProblem.malformed => l.deskSendErrAmountEnter,
+        AmountProblem.decimals => l.deskSendErrAmountDecimals,
+        AmountProblem.tooLarge => e.text(l),
+      };
     } on LocalizedFormatException catch (e) {
       return e.text(l);
     }
-    if (_amount.text.trim().isEmpty || p == null) return l.deskSendErrAmountEnter;
-    if (p == _tooLong) return l.deskSendErrAmountDecimals;
     if (p <= 0) return l.deskSendErrAmountZero;
     if (spendable != null && p + (_fee ?? 0) > spendable) {
       // The coins a payment of another linked device holds would have covered it: say so.

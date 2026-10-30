@@ -35,7 +35,7 @@ import 'request_qr_screen.dart' show RequestQrScreen;
 import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart' show SlateFileResult;
 import 'send_screen.dart'
-    show Utf8LengthLimiter, maxSendAtomic, normalizeAmountText, utf8Length;
+    show Utf8LengthLimiter, fiatToAtomic, normalizeAmountText, utf8Length;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
@@ -217,18 +217,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
       if (price == null || price <= 0) {
         throw LocalizedFormatException((l) => l.sendAmountNoPrice, text);
       }
-      if (!RegExp(r'^\d*\.?\d*$').hasMatch(clean) || clean == '.') {
-        throw LocalizedFormatException(
-          (l) => l.sendAmountEnterFiatExample,
-          text,
-        );
-      }
-      amount = BigInt.from((double.parse(clean) / price * 100000000).round());
+      amount = fiatToAtomic(clean, price, text);
     } else {
       amount = parseEpic(clean);
-    }
-    if (amount > maxSendAtomic) {
-      throw LocalizedFormatException((l) => l.sendAmountTooLarge, text);
     }
     return amount;
   }

@@ -4460,7 +4460,11 @@ void main() {
       // Epic's supply approaches 21 million; a wallet must still show more.
       '20999999.99999999',
       '99999999.99999999',
-    ].map(parseEpic).toList();
+      // Above the 21 million a typed amount may be, so not through parseEpic.
+    ].map((t) {
+      final parts = '$t.'.split('.');
+      return BigInt.parse('${parts[0]}${parts[1].padRight(8, '0')}');
+    }).toList();
 
     WalletSummary summaryOf(BigInt spendable) => WalletSummary(
       lastConfirmedHeight: _tip,

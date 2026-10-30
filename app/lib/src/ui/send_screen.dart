@@ -78,8 +78,20 @@ export '../utf8_limit.dart';
 // Epicbox, HTTP, Tor or File, and follows the kind of address given. A payment file is also
 // the fallback when their relay does not answer.
 
-/// The most EPIC that will ever exist, 21 million. Anything above is a typo.
-final BigInt maxSendAtomic = BigInt.from(21000000) * atomicPerEpic;
+/// A fiat amount, cleaned by [normalizeAmountText], to atomic EPIC at [price]; [text] is what
+/// was typed. A fiat amount is an estimate, so a double is fine here, but one too large for it
+/// (Infinity) is refused like any amount above [maxEpicAtomic].
+BigInt fiatToAtomic(String clean, double price, String text) {
+  // `normalizeAmountText` leaves only digits and one dot, so no NaN, Infinity or 1e400.
+  if (!RegExp(r'^\d*\.?\d*$').hasMatch(clean) || clean == '.' || clean.isEmpty) {
+    throw LocalizedFormatException((l) => l.sendAmountEnterFiatExample, text);
+  }
+  final atomic = (double.parse(clean) / price * 100000000).roundToDouble();
+  if (!atomic.isFinite || atomic > maxEpicAtomic.toDouble()) {
+    throw LocalizedFormatException((l) => l.sendAmountTooLarge, text);
+  }
+  return BigInt.from(atomic);
+}
 
 /// Cleans a typed or pasted amount for parsing: removes spaces (also no-break and thin ones)
 /// and apostrophes, a trailing unit such as "EPIC" or "USD", and thousands separators, and turns
@@ -1078,19 +1090,9 @@ class _SendViewState extends ConsumerState<SendView> {
       if (price == null || price <= 0) {
         throw LocalizedFormatException((l) => l.sendAmountNoPrice, text);
       }
-      // `normalizeAmountText` leaves only digits and one dot, so no NaN, Infinity or 1e400.
-      if (!RegExp(r'^\d*\.?\d*$').hasMatch(clean) || clean == '.') {
-        throw LocalizedFormatException(
-          (l) => l.sendAmountEnterFiatExample,
-          text,
-        );
-      }
-      amount = BigInt.from((double.parse(clean) / price * 100000000).round());
+      amount = fiatToAtomic(clean, price, text);
     } else {
       amount = parseEpic(clean);
-    }
-    if (amount > maxSendAtomic) {
-      throw LocalizedFormatException((l) => l.sendAmountTooLarge, text);
     }
     return amount;
   }
