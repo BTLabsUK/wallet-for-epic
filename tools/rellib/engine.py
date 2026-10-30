@@ -77,6 +77,7 @@ class Engine:
             "REL_PREVIOUS_REF": prev.get("ref", ""),
             "REL_NODE": net.get("node", ""), "REL_EPICBOX": net.get("epicbox", ""),
             "REL_DRY_RUN": "1" if self.dry else "0",
+            "REL_MANIFEST_DAYS": str(self.pipeline.manifest_days()),
         }
         signer = self.hosts["host"].get("signer", {})
         for k in ("signing_key", "btlabs_public", "android_key_properties"):

@@ -13,7 +13,9 @@
 # (server_sums.py: manifests/SHA256SUMS and SHA256SUMS.sig, installed by publish-downloads), in
 # one request: the owner's second approval of the release (docs/RELEASING.md, "Signer"). The key
 # on this machine is not read.
+# The manifests are valid for REL_MANIFEST_DAYS days (release/pipeline.toml [manifest]).
 # Env (set by tools/rel): REL_VERSION REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST REL_RUN
+#   REL_MANIFEST_DAYS
 #   REL_SIGNER_BTLABS_PUBLIC REL_SIGNER_SIGNING_KEY (release-hosts.toml host.signer)
 set -euo pipefail
 src="${REL_SRC:?}" files="${REL_FILES:?}" m="${REL_MANIFESTS:?}"
@@ -26,7 +28,7 @@ mkdir -p "$m" "$out"
 for f in update.json update-v2.json update.payload.json update-v2.payload.json; do
   rm -f -- "${out:?}/$f"
 done
-export WFE_APK_DIR="$files" WFE_DESKTOP_DIR="$files" BTLABS_PUBLIC="$bp"
+export WFE_APK_DIR="$files" WFE_DESKTOP_DIR="$files" BTLABS_PUBLIC="$bp" WFE_MANIFEST_DAYS="${REL_MANIFEST_DAYS:-182}"
 # Desktop systems this release has no file for keep their live entry (desktop_keep.py).
 rm -f -- "$m/desktop-keep.json"
 python3 -I "$(dirname "$0")/desktop_keep.py" "$src" "$files" "$REL_VERSION" "$bp" "$m/desktop-keep.json"

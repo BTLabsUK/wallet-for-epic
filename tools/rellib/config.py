@@ -13,6 +13,7 @@ PLATFORMS = ("android", "linux", "windows", "macos", "ios")
 VARIANTS = ("tor", "notor")
 KINDS = ("command", "builtin", "gate", "handoff", "publish")
 VERSION_RE = re.compile(r"^\d{2}\.\d{1,2}\.\d+(-rc\d+)?$")
+MANIFEST_DAYS = 182  # [manifest] validity_days when pipeline.toml does not say
 SKIP_NEVER = ("command", "builtin", "gate", "handoff")  # kinds that are skippable only when marked
 
 
@@ -125,6 +126,17 @@ class Pipeline:
     @classmethod
     def load(cls, path):
         return cls(load_toml(path), path)
+
+    def manifest_days(self):
+        """[manifest] validity_days: how long a signed update manifest is valid (1-400 days)."""
+        days = self.data.get("manifest", {}).get("validity_days", MANIFEST_DAYS)
+        if type(days) is not int or not 1 <= days <= 400:
+            raise ConfigError(f"{self.path}: [manifest] validity_days = {days!r}: a whole number of days, 1 to 400 "
+                              "(clients accept at most 400)")
+        return days
+
+    def manifest_warn_days(self):
+        return int(self.data.get("manifest", {}).get("warn_days", 14))
 
     def state_root(self, override=None):
         return expand(override or os.environ.get("REL_STATE_ROOT") or self.defaults.get("state_root", "/tmp/epic-build/rel"))

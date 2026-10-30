@@ -14,8 +14,9 @@
 #                      [old_update] downloads of tool/config/old-update.toml
 #   notes              plain text; line feeds allowed, no tabs or carriage returns
 #
-# It writes update.payload.json (unsigned; serial = issued_at in Unix seconds, expiry in 182
-# days) and signs it with btlabs-public's tool when the signing key is on this machine:
+# It writes update.payload.json (unsigned; serial = issued_at in Unix seconds, expiry in
+# WFE_MANIFEST_DAYS days, default 182; tools/rel passes release/pipeline.toml [manifest]
+# validity_days) and signs it with btlabs-public's tool when the signing key is on this machine:
 #   BTLABS_PUBLIC       the btlabs-public checkout (default ~/code/btlabs-public)
 #   BTLABS_SIGNING_KEY  the rank-1 key (default ~/.config/btlabs/signing/btlabs-2026-a.key)
 #   BTLABS_SIGNER       instead of the key: tools/signer/btsign_client.py, the release signer
@@ -71,6 +72,10 @@ old_base="${old_base%/}"
 old_manifest_url="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["old_update"]["manifest"])' "$old_config")"
 btlabs_public="${BTLABS_PUBLIC:-$HOME/code/btlabs-public}"
 signing_key="${BTLABS_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}"
+# Clients accept a validity of at most 400 days (FORMAT.md section 5).
+manifest_days="${WFE_MANIFEST_DAYS:-182}"
+[[ "$manifest_days" =~ ^[1-9][0-9]{0,2}$ && "$manifest_days" -le 400 ]] \
+  || { echo "WFE_MANIFEST_DAYS=$manifest_days: a whole number of days, 1 to 400" >&2; exit 64; }
 
 "$app_dir/../tools/version.sh" check
 version="$("$app_dir/../tools/version.sh" name)"
@@ -131,7 +136,7 @@ if [[ "${WFE_DESKTOP_RELEASE:-}" == 1 ]]; then
 fi
 issued_epoch="$(date -u +%s)"
 issued_at="$(date -u -d "@$issued_epoch" +%Y-%m-%dT%H:%M:%SZ)"
-expires_at="$(date -u -d "@$((issued_epoch + 182 * 86400))" +%Y-%m-%dT%H:%M:%SZ)"
+expires_at="$(date -u -d "@$((issued_epoch + manifest_days * 86400))" +%Y-%m-%dT%H:%M:%SZ)"
 payload="$out/update.payload.json"
 manifest="$out/update.json"
 payload2="$out/update-v2.payload.json"

@@ -45,6 +45,17 @@ min_free_gb = 30
 nodes = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
 epicboxes = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
 
+# The signed update manifests (update.json, update-v2.json; WAL-01). validity_days is how long a
+# signed manifest is valid (expires_at - issued_at), for a release, a rollback and
+# `tools/rel resign`; clients accept at most 400 (btlabs-public FORMAT.md section 5). 182 today.
+# PROPOSED, PENDING the owner'S CALL: 45, with a monthly `tools/rel resign` (one approval): a frozen
+# or stalled feed then goes stale within weeks instead of half a year (docs/RELEASING.md,
+# "Re-signing the live manifests"). warn_days: G1 and `tools/rel doctor` warn when the live
+# manifest expires sooner than that.
+[manifest]
+validity_days = 182
+warn_days = 14
+
 [relmsg]
 bin = "relmsg"
 title = "Epic Wallet"

@@ -115,7 +115,7 @@ def resign(engine, step, say):
     serial = new_serial(*floors)
     now = dt.datetime.fromtimestamp(serial, dt.timezone.utc)
     issued = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-    expires = (now + dt.timedelta(days=182)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    expires = (now + dt.timedelta(days=engine.pipeline.manifest_days())).strftime("%Y-%m-%dT%H:%M:%SZ")
     if engine.dry:
         say(f"dry run: would re-sign with serial {serial} (floors {floors})")
         return {"status": "done", "note": f"dry run: serial {serial}", "dry": True}
