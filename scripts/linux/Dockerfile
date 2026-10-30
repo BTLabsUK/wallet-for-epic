@@ -1,7 +1,10 @@
 # Linux release build environment. Ubuntu 22.04 on purpose: a binary links against the glibc it is
 # built with, so building on the oldest supported distro gives a build that starts on it and on
 # every newer one. Never build Linux releases on the host. Driven by scripts/build-linux.sh.
-FROM ubuntu:22.04
+# The base is pinned by digest (the ubuntu:22.04 index on 2026-10-30): a new base is a deliberate
+# edit here, never a silent change behind the same tag. Get the current one with
+# `docker buildx imagetools inspect ubuntu:22.04` and say so in the commit.
+FROM ubuntu:22.04@sha256:076e7bf82319619f28dd0aa9c02ab34b055ad37100395b4f49a2ffba04fb5e11
 
 ARG FLUTTER_VERSION=3.47.5
 ARG RUST_VERSION=1.99.0
@@ -9,6 +12,8 @@ ARG APPIMAGETOOL_URL=https://github.com/AppImage/appimagetool/releases/download/
 ARG APPIMAGETOOL_SHA256=ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
 ARG RUNTIME_URL=https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64
 ARG RUNTIME_SHA256=2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d
+ARG RUSTUP_VERSION=1.29.2
+ARG RUSTUP_SHA256=5be191e8c70a5007074254cb74d78dbfdd25cd5a61c27de7b8e5410122ec24f4
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -38,10 +43,13 @@ RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/f
     && /opt/flutter/bin/flutter precache --linux \
     && chmod -R a+rwX /opt/flutter
 
-# Rust: rustup with just the pinned toolchain (RUSTUP_TOOLCHAIN overrides the repo's
+# Rust: rustup-init at a pinned version and checksum (not `curl | sh`), with just the pinned toolchain (RUSTUP_TOOLCHAIN overrides the repo's
 # rust-toolchain.toml so the Android/iOS targets are not downloaded). CARGO_HOME is a named volume.
 ENV RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo
-RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain ${RUST_VERSION} \
+RUN curl -fsSL -o /tmp/rustup-init https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/x86_64-unknown-linux-gnu/rustup-init \
+    && echo "${RUSTUP_SHA256}  /tmp/rustup-init" | sha256sum -c - \
+    && chmod +x /tmp/rustup-init && /tmp/rustup-init -y --profile minimal --default-toolchain ${RUST_VERSION} \
+    && rm /tmp/rustup-init \
     && chmod -R a+rwX /opt/rustup /opt/cargo
 
 # AppImage tooling: extracted, because a container has no FUSE. Pinned and checksummed.
