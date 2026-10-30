@@ -1,0 +1,361 @@
+# The release pipeline: every step a release runs, in the order the graph gives (needs).
+# Read by tools/rel (docs/RELEASING.md). No hosts or addresses here: steps name a host ROLE
+# (build, signer, windows, apple, web), and ~/.config/btlabs/release-hosts.toml says what each
+# role is on this machine (release/hosts.example.toml). The scripts named in `run` do the work;
+# tools/rel decides order, host, gates, logs and state.
+#
+# Step fields:
+#   title      what the live message and the report call it ({variant} is filled in)
+#   kind       command (default) | builtin | gate | handoff | publish
+#   platform   android | linux | windows | macos | ios, or a list: the step is in the graph only
+#              when one of them is in the release's scope (release.toml [platforms])
+#   when       scope switches that must all be on, e.g. ["stores.play"] or ["publish.manifests"]
+#   for_each   "variant" (one step per variant in scope: -tor, -notor) or "proof_variant"
+#              (the variants [proof] update-tests)
+#   needs      step names; a name with for_each means all its instances, name@variant the
+#              instance of the same variant. Steps the scope leaves out are dropped from needs.
+#   host       the role that runs it (default build); the signer role holds the keys
+#   run        a bash command (set -euo pipefail), from {src} unless cwd says otherwise
+#   env        extra environment; {placeholders} below
+#   heavy      true: wrapped in build-slot when it exists, one heavy step at a time
+#   outputs    files the step leaves in {stage} that are published: copied into {files}
+#   extras     files the step leaves in {stage} that are kept but never published ({extra})
+#   proof      true: the step must write {stage}/proof.json with every [proof] check true
+#   skippable  true: release.toml [skip] may skip it with a reason (builds and gates never)
+#   timeout    e.g. "90m"; retries: re-runs on failure before it counts as failed
+#   scratch    publish steps: what runs instead when the target is scratch (a builtin name)
+#
+# Placeholders: {version} {commit} {short} {run_id} {run} {files} {extra} {stage} {src}
+# {variant} {notor} ("" or "-notor") {tor} ("1" or "0") {previous_dir} {previous_version}
+# {previous_ref} {node} {epicbox} {target} {scratch} {notes_file} {manifests}
+# {host.<role>.<key>} {path.<key>} (both from release-hosts.toml).
+
+[defaults]
+state_root = "/tmp/epic-build/rel"
+heavy_wrap = ["build-slot"]
+min_free_gb = 30
+# Pre-flight health pick for test drivers: the first healthy one, BT Labs first.
+nodes = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
+epicboxes = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
+
+[relmsg]
+bin = "relmsg"
+title = "Epic Wallet"
+
+# G4: what "proven" means for a platform. DEFAULT PENDING the owner'S CALL: the previous release
+# with a funded wallet, history, custom nodes and relays and changed settings updates the way
+# users update to the candidate and keeps all of it; then one send and one receive on BT Labs
+# infrastructure. A platform in scope that is not proven stops the release unless release.toml
+# waives it ([proof] waive), and the publish gate then shows it as not proven.
+[proof]
+status = "default pending the owner's call"
+checks = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
+funds_checks = ["send_ok", "receive_ok"]
+funds_variant = "tor"
+variants = ["tor", "notor"]
+
+[proof.drivers]
+android = "tools/rellib/drivers/trust-android.sh"
+linux = "tools/rellib/drivers/trust-linux.sh"
+# windows, macos, ios: no driver yet; those platforms are not proven until one exists.
+
+# ---- G0, G1, source -------------------------------------------------------------------------
+
+[step.scope]
+title = "G0 scope"
+kind = "builtin"
+host = "local"
+
+[step.preflight]
+title = "G1 preflight"
+kind = "builtin"
+host = "local"
+needs = ["scope"]
+
+[step.source]
+title = "Source checkout"
+kind = "builtin"
+host = "build"
+needs = ["preflight"]
+
+[step.source-check]
+title = "G2 source gate (tools/check.sh)"
+host = "build"
+needs = ["source"]
+run = "tools/check.sh"
+heavy = true
+timeout = "120m"
+
+# ---- builds ----------------------------------------------------------------------------------
+
+[step.build-android]
+title = "Android APK ({variant})"
+platform = "android"
+for_each = "variant"
+# Android is signed inside the Gradle build, so it runs where the release key is.
+host = "signer"
+needs = ["source-check"]
+run = "app/tool/build_android_release.sh {stage}"
+env = { WFE_TOR = "{tor}", WFE_EMULATOR_X86_64 = "1" }
+heavy = true
+outputs = ["epic-cash-mobile-{version}{notor}-arm64-v8a.apk"]
+extras = ["emulator/epic-cash-mobile-{version}{notor}-x86_64.apk"]
+timeout = "120m"
+
+[step.build-play]
+title = "Google Play bundle ({variant})"
+platform = "android"
+when = ["stores.play"]
+for_each = "variant"
+host = "signer"
+needs = ["build-android"]
+run = "app/tool/build_android_release.sh {stage}"
+env = { WFE_TOR = "{tor}", WFE_DIST = "play" }
+heavy = true
+extras = ["epic-cash-mobile-{version}{notor}-play.aab"]
+timeout = "120m"
+
+[step.build-linux]
+title = "Linux AppImage ({variant})"
+platform = "linux"
+for_each = "variant"
+host = "build"
+needs = ["source-check"]
+run = "scripts/build-linux.sh && mv -f build-linux/EpicCashDesktop-{version}{notor}-x86_64.AppImage {stage}/"
+env = { WFE_TOR = "{tor}", WFE_NODE_BIN = "{path.node_bin_linux}" }
+heavy = true
+outputs = ["EpicCashDesktop-{version}{notor}-x86_64.AppImage"]
+timeout = "120m"
+
+[step.build-windows]
+title = "Windows installer ({variant})"
+platform = "windows"
+for_each = "variant"
+host = "windows"
+needs = ["source-check"]
+# A fresh work dir per run on the Windows machine (never a stale LEPIC blob from an older run);
+# only this run's installer is taken back.
+run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id} && mv -f build-windows/epic-cash-desktop-{version}{notor}-windows-x64-setup.exe {stage}/"
+env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}" }
+outputs = ["epic-cash-desktop-{version}{notor}-windows-x64-setup.exe"]
+timeout = "150m"
+
+# Apple: the Mac builds unsigned and never holds a key (tools/apple-release.md); the signer
+# signs and notarises on Linux. Hand-off steps write a job for the Mac and wait for its results.
+[step.apple-build]
+title = "Apple unsigned build ({variant})"
+kind = "handoff"
+platform = ["macos", "ios"]
+for_each = "variant"
+host = "apple"
+needs = ["source-check"]
+run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} tools/build-apple.sh release"
+results = ["SHA256SUMS", "PROVENANCE.txt"]
+timeout = "48h"
+
+[step.apple-check]
+title = "Apple hand-off check ({variant})"
+platform = ["macos", "ios"]
+for_each = "variant"
+host = "signer"
+needs = ["apple-build@variant"]
+run = "tools/apple-sign.sh check {run}/handoff/apple-build-{variant}/results"
+
+[step.apple-sign]
+title = "Apple sign + notarise ({variant})"
+platform = ["macos", "ios"]
+for_each = "variant"
+host = "signer"
+needs = ["apple-check@variant"]
+run = "APPLE_SIGN_OUT={stage} tools/apple-sign.sh macos-app {run}/handoff/apple-build-{variant}/results && APPLE_SIGN_OUT={stage} tools/apple-sign.sh ios {run}/handoff/apple-build-{variant}/results"
+
+[step.apple-dmg]
+title = "Apple dmg of the signed app ({variant})"
+kind = "handoff"
+platform = "macos"
+for_each = "variant"
+host = "apple"
+needs = ["apple-sign@variant"]
+run = "tools/build-apple.sh dmg-signed job/EpicCashDesktop-{version}{notor}-macos-signed.tar.gz"
+send = ["{run}/steps/apple-sign-{variant}/out"]
+results = ["EpicCashDesktop-{version}{notor}-macos.dmg"]
+
+[step.apple-sign-dmg]
+title = "Apple sign + notarise dmg ({variant})"
+platform = "macos"
+for_each = "variant"
+host = "signer"
+needs = ["apple-dmg@variant"]
+run = "APPLE_SIGN_OUT={stage} tools/apple-sign.sh macos-dmg {run}/handoff/apple-build-{variant}/results {run}/handoff/apple-dmg-{variant}/results/EpicCashDesktop-{version}{notor}-macos.dmg"
+outputs = ["EpicCashDesktop-{version}{notor}-macos.dmg"]
+
+[step.apple-ipa]
+title = "iOS signed ipa ({variant})"
+platform = "ios"
+for_each = "variant"
+host = "signer"
+needs = ["apple-sign@variant"]
+run = "cp {run}/steps/apple-sign-{variant}/out/EpicCashMobile-{version}{notor}-ios.ipa {stage}/"
+outputs = ["EpicCashMobile-{version}{notor}-ios.ipa"]
+
+[step.apple-gatekeeper]
+title = "Gatekeeper on the final dmg ({variant})"
+kind = "handoff"
+platform = "macos"
+for_each = "variant"
+host = "apple"
+needs = ["apple-sign-dmg@variant"]
+run = "tools/build-apple.sh gatekeeper job/EpicCashDesktop-{version}{notor}-macos.dmg"
+send = ["{run}/steps/apple-sign-dmg-{variant}/out"]
+results = ["results.txt"]
+
+# ---- G3, manifests, G4, G5 -------------------------------------------------------------------
+
+[step.artefacts]
+title = "G3 artefacts"
+kind = "builtin"
+host = "local"
+needs = ["build-android", "build-linux", "build-windows", "apple-sign-dmg", "apple-ipa", "apple-gatekeeper"]
+
+[step.manifests]
+title = "Update manifests (signed)"
+host = "signer"
+when = ["publish.manifests"]
+needs = ["artefacts"]
+run = "tools/rellib/steps/manifests.sh"
+outputs = []
+
+[step.trust-manifest]
+title = "G4 manifest checks"
+kind = "builtin"
+host = "local"
+when = ["publish.manifests"]
+needs = ["manifests"]
+
+[step.trust-android]
+title = "G4 update trust Android ({variant})"
+platform = "android"
+for_each = "proof_variant"
+host = "build"
+needs = ["artefacts"]
+proof = true
+timeout = "180m"
+
+[step.trust-linux]
+title = "G4 update trust Linux ({variant})"
+platform = "linux"
+for_each = "proof_variant"
+host = "build"
+needs = ["artefacts"]
+proof = true
+timeout = "180m"
+
+[step.trust-windows]
+title = "G4 update trust Windows ({variant})"
+platform = "windows"
+for_each = "proof_variant"
+host = "build"
+needs = ["artefacts"]
+proof = true
+timeout = "180m"
+
+[step.trust-macos]
+title = "G4 update trust macOS ({variant})"
+platform = "macos"
+for_each = "proof_variant"
+host = "build"
+needs = ["artefacts"]
+proof = true
+
+[step.trust-ios]
+title = "G4 update trust iOS ({variant})"
+platform = "ios"
+for_each = "proof_variant"
+host = "build"
+needs = ["artefacts"]
+proof = true
+
+[step.update-trust]
+title = "G4 update trust"
+kind = "builtin"
+host = "local"
+needs = ["artefacts", "trust-manifest", "trust-android", "trust-linux", "trust-windows", "trust-macos", "trust-ios"]
+
+[step.publish-gate]
+title = "G5 publish gate"
+kind = "gate"
+host = "local"
+needs = ["update-trust"]
+
+# ---- publish, in fixed order: downloads -> page -> source -> manifests last -----------------
+
+[step.publish-downloads]
+title = "Publish downloads"
+kind = "publish"
+host = "web"
+needs = ["publish-gate"]
+run = "tools/rellib/steps/publish-downloads.sh {files} {host.web.ssh} {host.web.downloads_dir}"
+scratch = "scratch_downloads"
+
+[step.publish-page]
+title = "Publish release page"
+kind = "publish"
+host = "web"
+needs = ["publish-downloads"]
+skippable = true
+run = "tools/rellib/steps/publish-page.sh {version} {files} {path.page_repo}"
+scratch = "scratch_page"
+
+[step.publish-source]
+title = "Publish source (GitLab)"
+kind = "publish"
+host = "build"
+needs = ["publish-page"]
+skippable = true
+run = "cd {path.main_checkout} && tools/publish-github.sh --push"
+scratch = "scratch_source"
+
+[step.publish-manifests]
+title = "Publish update manifests (the switch)"
+kind = "publish"
+host = "signer"
+when = ["publish.manifests"]
+needs = ["publish-downloads", "publish-page", "publish-source"]
+run = "tools/publish-update-json.sh {manifests}/update.json {manifests}/update-v2.json"
+scratch = "scratch_manifests"
+
+[step.verify-live]
+title = "G6 read back"
+kind = "builtin"
+host = "local"
+publish = true
+needs = ["publish-manifests", "publish-downloads", "publish-page"]
+
+[step.prune-downloads]
+title = "Prune older downloads"
+kind = "publish"
+host = "web"
+skippable = true
+needs = ["verify-live"]
+run = "tools/rellib/steps/prune-downloads.sh {version} {host.web.ssh} {host.web.downloads_dir} {previous_dir}"
+scratch = "scratch_prune"
+
+[step.store-play]
+title = "Google Play upload (internal)"
+kind = "publish"
+platform = "android"
+when = ["stores.play"]
+for_each = "variant"
+host = "signer"
+skippable = true
+needs = ["verify-live", "build-play@variant"]
+run = "tools/play-upload.sh {run}/extra/epic-cash-mobile-{version}{notor}-play.aab --track internal --notes-file {notes_file}"
+scratch = "scratch_noop"
+
+[step.cleanup]
+title = "Cleanup (keep the previous release only)"
+kind = "builtin"
+host = "local"
+publish = true
+skippable = true
+needs = ["verify-live", "prune-downloads", "store-play"]
