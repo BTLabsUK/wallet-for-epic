@@ -1067,7 +1067,8 @@ class LepicWalletService implements WalletService {
 
   @override
   Future<NodeTip> nodeTip({required WalletConfig config}) => _guard(() async {
-    NetGate.checkNode('node tip');
+    // Node only: the node in use alone, not the others of the list (their checks).
+    NetGate.dial(NetDial.http, config.nodeUrl);
     // LEPIC asks the node only: no wallet folder is made (the setup screen's test passes an
     // empty one, which made `/lepic` and failed) and the open wallet's chain stays.
     final tip = await lepic.nodeTip(
@@ -1605,7 +1606,8 @@ class LepicWalletSession implements WalletSession {
   @override
   Future<NodeTip> nodeTipFor({required WalletConfig config}) =>
       _guard(() async {
-        NetGate.checkNode('node tip');
+        // Node only: the node in use alone, not the others of the list (their checks).
+        NetGate.dial(NetDial.http, config.nodeUrl);
         final tip = await _wallet.nodeTipFor(
           config: await LepicWalletService._lepicConfig(config, config.dataDir),
         );

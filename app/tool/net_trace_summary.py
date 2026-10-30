@@ -24,6 +24,7 @@ import ipaddress
 import re
 import socket
 import sys
+import urllib.parse
 
 LINE = re.compile(r'^(\d+)(?:<([^>]*)>)?\s+(connect|sendto|sendmsg|sendmmsg|listen)\((.*)$')
 LISTEN_ADDR = re.compile(r'<TCPv?6?:\[([^\]]+)\]>')
@@ -163,7 +164,10 @@ def main():
     print(f'TOTAL non-loopback connects {total_out}, DNS questions {total_dns}, '
           f'listen() {sum(sum(v.values()) for v in listens.values())}, ADD_ONION {sum(onions.values())}')
     if args.node:
-        host = args.node.lower().rstrip('.')
+        host = args.node.lower()
+        if '://' in host:
+            host = urllib.parse.urlsplit(host).hostname or host
+        host = host.split(':')[0].rstrip('.')
         try:
             allowed = {ai[4][0] for ai in socket.getaddrinfo(host, None)}
         except OSError:

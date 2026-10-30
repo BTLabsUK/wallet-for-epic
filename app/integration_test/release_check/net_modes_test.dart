@@ -10,6 +10,9 @@
 //   NET_MODE=kill_switch|node_only|tor_only   the mode written before the first start
 //   NET_NODE=https://host[:port]              Node only: the one node in the list
 //   NET_IDLE_S=90                             how long Overview runs
+//   NET_TOR=1                                 the Tor switch turned on once the wallet is open
+//                                             (Node only: tor carries the node and must publish
+//                                             no onion; the trace shows ADD_ONION and listen())
 //
 //   OFFLINE_ONLINE=1 OFFLINE_TRACE=1 NET_MODE=kill_switch \
 //     build-slot tool/offline_check.sh integration_test/release_check/net_modes_test.dart
@@ -18,10 +21,13 @@ library;
 
 import 'dart:io';
 
+import 'package:epic_wallet/src/desktop/app/desk_app.dart' show DeskApp;
+import 'package:epic_wallet/src/desktop/data/state.dart' show deskProvider;
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/net/ws_probe.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -31,6 +37,7 @@ final home = Platform.environment['RC_HOME'] ?? Directory.systemTemp.path;
 final mode = Platform.environment['NET_MODE'] ?? 'kill_switch';
 final node = Platform.environment['NET_NODE'] ?? '';
 final idle = int.tryParse(Platform.environment['NET_IDLE_S'] ?? '') ?? 90;
+final withTor = Platform.environment['NET_TOR'] == '1';
 
 /// The app's own requests, as their screens make them: each answered or refused by the gate.
 Future<Map<String, String>> callOut() async {
@@ -105,6 +112,11 @@ void main() {
     await settle(tester, ms: 2000);
     if (hasText('Skip tour')) await tapText(tester, 'Skip tour');
     await shot(tester, 'net-$mode-overview');
+    if (withTor) {
+      final desk = ProviderScope.containerOf(tester.element(find.byType(DeskApp))).read(deskProvider.notifier);
+      await tester.runAsync(() => desk.setTor(true));
+      record('the Tor switch turned on', true);
+    }
 
     final calls = await tester.runAsync(callOut) ?? const {};
     for (final e in calls.entries) {

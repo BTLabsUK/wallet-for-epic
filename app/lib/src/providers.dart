@@ -673,8 +673,8 @@ Future<NodeTip> askNodeTip(
   WalletSession? session,
   WalletConfig config,
 ) async {
-  // Kill switch asks no node, also before a wallet is open.
-  NetGate.checkNode('node tip');
+  // Kill switch asks no node, also before a wallet is open; Node only none but the one in use.
+  NetGate.dial(NetDial.http, config.nodeUrl);
   return session != null
       ? session.nodeTipFor(config: config)
       : service.nodeTip(config: config);

@@ -3764,6 +3764,9 @@ class LepicDeskWallet implements DeskWalletApi {
       final tip = await _nodeTip(await _makeConfig(nodeUrl: url));
       if (tip == null) return NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.checking, own: base.own, icon: base.icon, listedAs: base.listedAs);
       r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.ok, latencyMs: watch.elapsedMilliseconds, height: tip.height.toInt(), version: tip.nodeVersion, own: base.own, icon: base.icon, listedAs: base.listedAs);
+    } on NetBlocked {
+      // Node only or Kill switch: not asked, so off, not down.
+      return NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.off, own: base.own, icon: base.icon, listedAs: base.listedAs);
     } on Object {
       r = NodeServer(url: url, label: base.label, operator: base.operator, health: ServiceHealth.down, own: base.own, icon: base.icon, listedAs: base.listedAs);
     }
