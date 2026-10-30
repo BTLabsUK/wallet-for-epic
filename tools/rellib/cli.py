@@ -546,7 +546,7 @@ class App:
                     rows.append(json.loads(line))
                 except json.JSONDecodeError:
                     pass
-        rows = [r for r in rows if not r.get("dry")]
+        rows = [r for r in rows if not r.get("dry") and r.get("base")]  # step lines (not "overlap")
         by = {}
         for r in rows:
             by.setdefault(r["base"], []).append(r)

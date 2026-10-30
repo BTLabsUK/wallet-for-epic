@@ -17,12 +17,15 @@
 #   REL_DRY_RUN=1      print the plan, touch nothing, exit 0
 # Optional:
 #   REL_ANDROID_SERIAL a running emulator to use (else REL_ANDROID_AVD, default wfe_api36, is
-#                      started read-only and headless on port REL_ANDROID_PORT, default 5580, and
-#                      stopped at the end)
+#                      started read-only and headless on port REL_ANDROID_PORT, default 5580 for
+#                      tor and 5582 for notor, and stopped at the end)
 #   REL_TRUST_STATE    where the test wallet's phrase and PIN are kept (mode 600; default
-#                      ~/.config/btlabs/rel-trust-android); empty = a new wallet funded from P
+#                      ~/.config/btlabs/rel-trust-android for tor, ~/.config/btlabs/rel-wallet-q
+#                      for notor: wallet Q, docs/RELEASING.md "Test wallets"); empty = a new
+#                      wallet funded from P. One run per wallet at a time (flock on its .lock).
 #   REL_P_*            P settings, see android/pfund.py
 # Exit: 0 every check in REL_CHECKS true; 1 some false (not proven); 2 could not run.
+# Also writes $REL_OUT/emulator.json (boot time, booted, alive at the end) for the runner's metrics.
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 drv="$here/android"
@@ -44,6 +47,12 @@ cannot() { # reason: write a fail-closed proof (when REL_OUT is known) and exit 
 
 [[ -n "${REL_OUT:-}" ]] || cannot "REL_OUT is not set"
 case "$REL_VARIANT" in tor | notor) ;; *) cannot "REL_VARIANT must be tor or notor, not '$REL_VARIANT'" ;; esac
+# Each variant its own test wallet and emulator, so the two run at the same time.
+if [[ "$REL_VARIANT" == notor ]]; then
+  export REL_TRUST_STATE="${REL_TRUST_STATE:-$HOME/.config/btlabs/rel-wallet-q}"; default_port=5582
+else
+  export REL_TRUST_STATE="${REL_TRUST_STATE:-$HOME/.config/btlabs/rel-trust-android}"; default_port=5580
+fi
 
 # The x86_64 emulator APK of a release folder for the variant.
 apk_in() { # dir version
@@ -91,13 +100,13 @@ fi
 export REL_NODE REL_EPICBOX
 [[ -n "$picked" ]] && say "health pick (${picked# }$([[ "$dry" == 1 ]] && echo ", dry run: first in line, not checked")): node $REL_NODE, epicbox $REL_EPICBOX"
 
-avd="${REL_ANDROID_AVD:-wfe_api36}" port="${REL_ANDROID_PORT:-5580}"
+avd="${REL_ANDROID_AVD:-wfe_api36}" port="${REL_ANDROID_PORT:-$default_port}"
 if [[ "$dry" == 1 ]]; then
   cat <<EOF
 trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   emulator   ${REL_ANDROID_SERIAL:-start AVD $avd read-only, headless, emulator-$port; stopped at the end}
   1 install  adb uninstall uk.btlabs.epiccash.mobile; adb install $prev_apk
-  2 wallet   restore the test wallet from ${REL_TRUST_STATE:-~/.config/btlabs/rel-trust-android}/phrase (none: create one, keep its phrase, P funds it)
+  2 wallet   restore the test wallet from $REL_TRUST_STATE/phrase (none: create one, keep its phrase, P funds it); holds $REL_TRUST_STATE/.lock
   3 user     node $REL_NODE typed in and in use; relay $REL_EPICBOX typed in and in use;
              Theme ${REL_TRUST_THEME:-Dark}, Technical details on, Confirmations ${REL_TRUST_CONFIRMATIONS:-4}
   4 digest   address, Total/Spendable, Activity rows, Node and Epicbox lists, settings
@@ -111,7 +120,17 @@ fi
 
 mkdir -p "$REL_OUT" || exit 2
 [[ -x "$ADB" ]] || cannot "adb not found at $ADB"
-started=""
+# One run per test wallet: two emulators restoring the same wallet would spend the same outputs.
+# Wallet Q's CLI copy takes the same lock (docs/RELEASING.md "Test wallets").
+mkdir -p -m 700 "$REL_TRUST_STATE" && exec 8>>"$REL_TRUST_STATE/.lock" || cannot "cannot open $REL_TRUST_STATE/.lock"
+flock -n 8 || { say "test wallet $REL_TRUST_STATE in use: waiting for its lock"; flock -w 3600 8; } ||
+  cannot "test wallet $REL_TRUST_STATE busy for an hour (its .lock)"
+started="" boot_s="" booted=0
+emu_health() { # alive: 1|0 — the emulator's health for the runner's metrics (metrics.jsonl)
+  printf '{"avd": "%s", "port": %s, "own_emulator": %s, "booted": %s, "boot_s": %s, "alive_at_end": %s}\n' \
+    "$avd" "$port" "$([[ -n "$started" ]] && echo true || echo false)" "$([[ $booted == 1 ]] && echo true || echo false)" \
+    "${boot_s:-null}" "$([[ $1 == 1 ]] && echo true || echo false)" >"$REL_OUT/emulator.json"
+}
 stop_emu() {
   if [[ -n "$started" ]]; then
     "$ADB" -s "emulator-$port" emu kill >/dev/null 2>&1
@@ -128,15 +147,15 @@ else
   "$sdk/emulator/emulator" -list-avds 2>/dev/null | grep -qx "$avd" || cannot "no AVD $avd"
   setsid "$sdk/emulator/emulator" -avd "$avd" -read-only -no-window -no-audio -no-boot-anim \
     -port "$port" -gpu swiftshader_indirect >"$REL_OUT/emulator.log" 2>&1 </dev/null &
-  started=$!
+  started=$! t_boot=$SECONDS
   export REL_ANDROID_SERIAL="emulator-$port"
-  booted=""
   for _ in $(seq 1 90); do
     [[ "$("$ADB" -s "$REL_ANDROID_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == 1 ]] && { booted=1; break; }
     kill -0 "$started" 2>/dev/null || break
     sleep 2
   done
-  [[ -n "$booted" ]] || cannot "emulator $avd did not boot (see $REL_OUT/emulator.log)"
+  boot_s=$((SECONDS - t_boot))
+  [[ $booted == 1 ]] || { emu_health 0; cannot "emulator $avd did not boot in ${boot_s}s (see $REL_OUT/emulator.log)"; }
   "$ADB" -s "$REL_ANDROID_SERIAL" shell settings put global window_animation_scale 0 >/dev/null 2>&1
   "$ADB" -s "$REL_ANDROID_SERIAL" shell settings put global transition_animation_scale 0 >/dev/null 2>&1
 fi
@@ -145,6 +164,8 @@ say "candidate $cand_apk"
 say "serial $REL_ANDROID_SERIAL, node $REL_NODE, epicbox $REL_EPICBOX, out $REL_OUT"
 python3 -I "$drv/trust.py" run
 rc=$?
+[[ -n "$started" ]] || booted=1
+[[ "$("$ADB" -s "$REL_ANDROID_SERIAL" get-state 2>/dev/null)" == device ]] && emu_health 1 || emu_health 0
 case $rc in 0 | 1 | 2) ;; *) rc=2 ;; esac
 say "exit $rc ($( ((rc == 0)) && echo proven || { ((rc == 1)) && echo 'not proven' || echo 'could not run'; }))"
 exit $rc

@@ -4,6 +4,7 @@ closed), skips, the publish phase and exit codes."""
 import json
 import os
 import subprocess
+import time
 import unittest
 
 from support import REPO, Base
@@ -31,7 +32,28 @@ class EngineTest(Base):
         self.assertIn("end", ev)
         metrics = open(os.path.join(self.root, "metrics.jsonl")).read()
         self.assertIn('"base": "build-android"', metrics)
+        line = next(json.loads(x) for x in metrics.splitlines() if '"step": "build-android-tor"' in x)
+        self.assertTrue(line["started"] and line["ended"] and line["lane"])
         self.assertIn("step build-android-tor running", self.relmsg_calls())
+
+    def test_load_sampler_peaks_per_step_and_overlaps(self):
+        from rellib.load import LoadSampler
+        ls = LoadSampler(interval=0.05)
+        ls.start()
+        ls.step_started("a")
+        ls.step_started("b")
+        time.sleep(0.3)
+        b = ls.step_ended("b")
+        a = ls.step_ended("a")
+        ls.stop()
+        for f in (a, b):
+            self.assertGreater(f["mem_peak_gb"], 0)
+            self.assertIn("cpu_avg_pct", f)
+        self.assertEqual(a["beside"], ["b"])
+        ov = ls.take_overlaps()
+        self.assertEqual([o["steps"] for o in ov], [["a", "b"]])
+        self.assertEqual(ls.take_overlaps(), [])
+        self.assertEqual(ls.step_ended("never"), {})
 
     def test_failure_stops_dependents_gives_hint_and_exit_20(self):
         open(os.path.join(self.src, "fail-notor"), "w").close()

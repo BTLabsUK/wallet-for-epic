@@ -135,16 +135,20 @@ class GraphTest(unittest.TestCase):
             self.assertEqual(by[f"trust-linux-{v}"].needs, local)
             self.assertEqual(by[f"trust-windows-{v}"].needs, local + [f"build-windows-{v}"])
             self.assertEqual(by[f"trust-macos-{v}"].needs, local + [f"apple-mac-check-{v}"])
-        # One test wallet: the Android variants one at a time; a Linux sandbox per variant.
-        self.assertEqual({by["trust-android-tor"].lane, by["trust-android-notor"].lane}, {"trust-android"})
+        # A test wallet and emulator per Android variant, a sandbox per Linux variant: all at once.
+        self.assertEqual([by[f"trust-android-{v}"].lane for v in ("tor", "notor")], ["trust-android-tor", "trust-android-notor"])
         self.assertEqual([by[f"trust-linux-{v}"].lane for v in ("tor", "notor")], ["trust-linux-tor", "trust-linux-notor"])
         lanes = [x.lane for x in steps if x.proof]
         self.assertNotIn("local", lanes)
         self.assertNotIn("heavy", lanes)
         # G3 and every trust step still come before the publish gate.
         self.assertTrue({"artefacts", *(x.id for x in steps if x.proof)} <= set(by["update-trust"].needs))
-        self.assertEqual([x.lane for x in steps if x.base == "source-check" or x.base.startswith("build-")
-                          and x.host != "windows"], ["heavy"] * 5)
+        # G2 and the Android builds one at a time; the Linux builds in their own lane beside them,
+        # still heavy (each under build-slot).
+        self.assertEqual([x.id for x in steps if x.lane == "heavy"],
+                         ["source-check", "build-android-tor", "build-android-notor"])
+        self.assertEqual([x.id for x in steps if x.lane == "build-linux"], ["build-linux-tor", "build-linux-notor"])
+        self.assertTrue(all(x.heavy for x in steps if x.lane == "build-linux"))
 
     def test_only_android_drops_the_rest_and_their_needs(self):
         s, steps = graph(only="android")
