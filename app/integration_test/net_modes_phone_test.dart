@@ -17,7 +17,6 @@ import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/settings_file/settings_platform_io.dart' show settingsFolder;
 import 'package:epic_wallet/src/settings_file/settings_providers.dart' show openAppSettings;
