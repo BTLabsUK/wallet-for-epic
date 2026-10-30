@@ -23,7 +23,7 @@ import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
-import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
@@ -599,6 +599,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Settings › Transactions › Send starts on, among the methods this build has.
   TxMethod _startMethod() => switch (ref.read(deskProvider).settings.payments.startMethod) {
+    // Node only and Kill switch: Epicbox and Link don't go out, so a new send starts on File.
+    _ when NetGate.restricted => TxMethod.file,
     MethodKind.linkHttp || MethodKind.linkTor when DeskFeatures.httpDirect || DeskFeatures.tor => TxMethod.http,
     MethodKind.directFile => TxMethod.file,
     _ => TxMethod.epicbox,
@@ -1399,7 +1401,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         key: const ValueKey('send-net-blocked'),
         title: _blockTitle(l, net),
         text: net == NetBlock.waitingForTor ? l.deskNetSendFileHint : null,
-        tone: ETone.warn,
+        // A mode is the user's choice: calm, not a warning.
+        tone: net.byMode ? ETone.neutral : ETone.warn,
         icon: net.byMode ? EIcons.lanOff : EIcons.tor,
         actions: [EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))],
       );
