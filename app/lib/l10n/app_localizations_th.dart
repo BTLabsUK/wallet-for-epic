@@ -647,8 +647,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยกเลิกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 
   @override
-  String get txStatusListenerWaiting =>
-      'Came in by itself · waiting for the sender';
+  String get txStatusListenerWaiting => 'เข้ามาเอง · รอผู้ส่ง';
 
   @override
   String get txStatusSenderCancelled => 'ผู้ส่งยกเลิกแล้ว';
@@ -5751,10 +5750,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+      'ไม่ได้รับฟัง: เครือข่ายนี้ไม่ได้ทำเครื่องหมายว่าเป็นส่วนตัว ในเครือข่ายของร้านกาแฟหรือโรงแรม ใครก็ตามที่อยู่ที่นั่นอาจพบกระเป๋าเงินนี้และส่งขยะมาให้';
 
   @override
-  String get receiveHttpMarkPrivate => 'This is my private network';
+  String get receiveHttpMarkPrivate => 'นี่คือเครือข่ายส่วนตัวของฉัน';
 
   @override
   String get receiveHttpNoNetwork =>
@@ -12135,11 +12134,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'ส่วนล่าสุดของบันทึกแอป ลบวลี รหัสผ่าน ที่อยู่ IP และโฟลเดอร์ส่วนตัวออกแล้ว';
 
   @override
-  String get deskSetReportFullDetails => 'Include full details';
+  String get deskSetReportFullDetails => 'แนบรายละเอียดทั้งหมด';
 
   @override
   String get deskSetReportFullDetailsWarn =>
-      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+      'ส่งที่อยู่และจำนวนเงินเต็มที่อยู่ในบันทึก (การบันทึกแบบละเอียดเก็บไว้) ผู้ที่อ่านรายงานจะเห็นว่าคุณจ่ายให้ใครและเท่าไร';
 
   @override
   String get deskSetReportSentWhat => 'สิ่งที่ส่ง';

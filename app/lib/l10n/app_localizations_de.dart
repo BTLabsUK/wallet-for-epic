@@ -665,7 +665,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txStatusListenerWaiting =>
-      'Came in by itself · waiting for the sender';
+      'Von selbst eingegangen · wartet auf den Absender';
 
   @override
   String get txStatusSenderCancelled => 'Vom Absender storniert';
@@ -5931,10 +5931,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+      'Hört nicht zu: Dieses Netz ist nicht als privat markiert. Im WLAN eines Cafés oder Hotels könnte jeder dort diese Wallet finden und ihr Müll schicken.';
 
   @override
-  String get receiveHttpMarkPrivate => 'This is my private network';
+  String get receiveHttpMarkPrivate => 'Das ist mein privates Netz';
 
   @override
   String get receiveHttpNoNetwork =>
@@ -12597,11 +12597,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der neueste Teil des App-Protokolls, bereinigt um Phrasen, Passwörter, Adressen, IPs und Benutzerordner.';
 
   @override
-  String get deskSetReportFullDetails => 'Include full details';
+  String get deskSetReportFullDetails => 'Alle Details mitsenden';
 
   @override
   String get deskSetReportFullDetailsWarn =>
-      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+      'Sendet die vollen Adressen und Beträge aus dem Protokoll (die ausführliche Protokollierung zeichnet sie auf); wer den Bericht liest, sieht, wen du bezahlt hast und wie viel.';
 
   @override
   String get deskSetReportSentWhat => 'Was gesendet wird';

@@ -4890,5 +4890,10 @@
   "qrScanAimFinished": "请将相机对准另一台设备上的二维码。",
   "deskSetAdvModeStandardHint": "钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私”下的独立开关。",
   "deskFinNotPostedKillBody": "{amount} 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。",
-  "deskRailOpenNetwork": "打开网络设置"
+  "deskRailOpenNetwork": "打开网络设置",
+  "txStatusListenerWaiting": "自动收到 · 等待发送方",
+  "receiveHttpNotPrivate": "未在监听：此网络未标记为私人网络。在咖啡馆或酒店的网络中，那里的任何人都可能找到这个钱包并向它发送垃圾。",
+  "receiveHttpMarkPrivate": "这是我的私人网络",
+  "deskSetReportFullDetails": "包含完整详情",
+  "deskSetReportFullDetailsWarn": "发送日志中的完整地址和金额（详细日志会记录它们）；阅读报告的人会看到你付款给谁以及付了多少。"
 }

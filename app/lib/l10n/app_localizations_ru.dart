@@ -683,8 +683,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отменено. Если отправитель опубликует платёж позже, он всё равно поступит.';
 
   @override
-  String get txStatusListenerWaiting =>
-      'Came in by itself · waiting for the sender';
+  String get txStatusListenerWaiting => 'Пришёл сам · ждёт отправителя';
 
   @override
   String get txStatusSenderCancelled => 'Отменён отправителем';
@@ -5994,10 +5993,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+      'Не принимает: эта сеть не отмечена как частная. В сети кафе или отеля любой рядом мог бы найти этот кошелёк и слать ему мусор.';
 
   @override
-  String get receiveHttpMarkPrivate => 'This is my private network';
+  String get receiveHttpMarkPrivate => 'Это моя частная сеть';
 
   @override
   String get receiveHttpNoNetwork =>
@@ -12912,11 +12911,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Последняя часть журнала приложения, очищенная от фраз, паролей, адресов, IP и домашних папок.';
 
   @override
-  String get deskSetReportFullDetails => 'Include full details';
+  String get deskSetReportFullDetails => 'Приложить все подробности';
 
   @override
   String get deskSetReportFullDetailsWarn =>
-      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+      'Отправляет полные адреса и суммы из журнала (их записывает подробное журналирование); тот, кто читает отчёт, увидит, кому и сколько вы заплатили.';
 
   @override
   String get deskSetReportSentWhat => 'Что отправляется';

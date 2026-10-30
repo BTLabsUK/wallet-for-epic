@@ -626,8 +626,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelledIncoming => '已取消。如果发送方之后广播这笔付款，它仍会到账。';
 
   @override
-  String get txStatusListenerWaiting =>
-      'Came in by itself · waiting for the sender';
+  String get txStatusListenerWaiting => '自动收到 · 等待发送方';
 
   @override
   String get txStatusSenderCancelled => '已被发送方取消';
@@ -5535,10 +5534,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+      '未在监听：此网络未标记为私人网络。在咖啡馆或酒店的网络中，那里的任何人都可能找到这个钱包并向它发送垃圾。';
 
   @override
-  String get receiveHttpMarkPrivate => 'This is my private network';
+  String get receiveHttpMarkPrivate => '这是我的私人网络';
 
   @override
   String get receiveHttpNoNetwork => '未连接 Wi-Fi 网络，没有可提供的地址。';
@@ -11723,11 +11722,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetReportAttachHint => '应用日志的最新部分，已清除助记词、密码、地址、IP 和用户主文件夹。';
 
   @override
-  String get deskSetReportFullDetails => 'Include full details';
+  String get deskSetReportFullDetails => '包含完整详情';
 
   @override
   String get deskSetReportFullDetailsWarn =>
-      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+      '发送日志中的完整地址和金额（详细日志会记录它们）；阅读报告的人会看到你付款给谁以及付了多少。';
 
   @override
   String get deskSetReportSentWhat => '发送的内容';
