@@ -131,7 +131,7 @@ class InfoSheet extends StatelessWidget {
 /// the row at its usual height. The sheet is titled [sheetTitle], or [title] itself, with
 /// [icon] beside it.
 class TitleWithHint extends StatelessWidget {
-  const TitleWithHint(this.title, {super.key, required this.hint, this.sheetTitle, this.icon, this.labelled = true});
+  const TitleWithHint(this.title, {super.key, required this.hint, this.sheetTitle, this.icon, this.labelled = true, this.hintKey});
 
   final String title;
   final String hint;
@@ -141,13 +141,16 @@ class TitleWithHint extends StatelessWidget {
   /// [InfoHint.labelled].
   final bool labelled;
 
+  /// The key of the [InfoHint] itself (a tap on the title is the row's).
+  final Key? hintKey;
+
   @override
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
       Flexible(child: Text(title)),
       const SizedBox(width: 4),
-      InfoHint(hint, size: 32, title: sheetTitle ?? title, icon: icon, labelled: labelled),
+      InfoHint(hint, key: hintKey, size: 32, title: sheetTitle ?? title, icon: icon, labelled: labelled),
     ],
   );
 }

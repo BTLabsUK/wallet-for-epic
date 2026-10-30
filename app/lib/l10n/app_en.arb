@@ -17868,10 +17868,6 @@
   "@advNetworkHeader": {
     "description": "Header over the network mode choice on the Advanced page."
   },
-  "advNetworkHint": "How much of the internet the wallet uses. One choice, remembered. Tor only, Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.",
-  "@advNetworkHint": {
-    "description": "Info text of the Network header in Settings › Advanced."
-  },
   "advOutputs": "Outputs",
   "@advOutputs": {
     "description": "Advanced switch: the Outputs page."
@@ -17915,10 +17911,6 @@
   "advModeStandard": "Normal",
   "@advModeStandard": {
     "description": "Settings › Advanced › Network: the mode that connects directly (the default). Also the mode's name in the mode mark and in notes."
-  },
-  "advModeStandardLine": "Connects directly. Tor can be turned on in Privacy & network.",
-  "@advModeStandardLine": {
-    "description": "One line under the Standard network mode."
   },
   "advModeTorOnly": "Tor only",
   "@advModeTorOnly": {
@@ -18015,10 +18007,6 @@
   "deskSetAdvNetwork": "Network",
   "@deskSetAdvNetwork": {
     "description": "Title of the network mode group on Settings › Advanced."
-  },
-  "deskSetAdvModeStandardText": "Connects directly. Tor can be turned on under Privacy.",
-  "@deskSetAdvModeStandardText": {
-    "description": "Text under the Standard mode."
   },
   "deskSetAdvModeTorOnlyText": "Every connection goes through Tor. Until Tor is ready, nothing connects.",
   "@deskSetAdvModeTorOnlyText": {
@@ -23015,14 +23003,6 @@
   "@handshakeLink1NoTor": {
     "description": "handshakeLink1 in the build without Tor: the same caption without Tor."
   },
-  "advNetworkHintNoTor": "How much of the internet the wallet uses. One choice, remembered. Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.",
-  "@advNetworkHintNoTor": {
-    "description": "advNetworkHint in the build without Tor."
-  },
-  "advModeStandardLineNoTor": "Connects directly.",
-  "@advModeStandardLineNoTor": {
-    "description": "One line under the Standard network mode, in the build without Tor."
-  },
   "txLinkHttpHintNoTor": "Link · HTTP pays straight to a wallet at a web address (http://host:{port}) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.",
   "@txLinkHttpHintNoTor": {
     "description": "txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.",
@@ -24741,14 +24721,6 @@
   "@advModeKillSwitch": {
     "description": "Network mode name: nothing connects, cold storage."
   },
-  "advModeNodeOnlyLine": "Only the node in use. Epicbox, Link, updates and price stay off.",
-  "@advModeNodeOnlyLine": {
-    "description": "Settings › Advanced › Network, the line under Node only."
-  },
-  "advModeKillSwitchLine": "No connections at all. QR Payment and File Transfer, posted from another device.",
-  "@advModeKillSwitchLine": {
-    "description": "Settings › Advanced › Network, the line under Kill switch."
-  },
   "advModeStandardHint": "Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.",
   "@advModeStandardHint": {
     "description": "Info text of the Normal row (phone)."
@@ -24772,18 +24744,6 @@
   "advModeKillSwitchHint": "Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.",
   "@advModeKillSwitchHint": {
     "description": "Info text of the Kill switch row."
-  },
-  "advModeSwitchNoteTorOnly": "Link · HTTP receiving is off. Until Tor is ready, nothing connects.",
-  "@advModeSwitchNoteTorOnly": {
-    "description": "Dim note under the Network picker while Tor only is chosen."
-  },
-  "advModeSwitchNoteNodeOnly": "Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.",
-  "@advModeSwitchNoteNodeOnly": {
-    "description": "Dim note under the Network picker while Node only is chosen."
-  },
-  "advModeSwitchNoteKillSwitch": "Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.",
-  "@advModeSwitchNoteKillSwitch": {
-    "description": "Dim note under the Network picker while Kill switch is chosen."
   },
   "advModeConfirmTitle": "Switch to {mode}?",
   "@advModeConfirmTitle": {

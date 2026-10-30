@@ -127,37 +127,31 @@ void main() {
   });
 
   group('the words', () {
-    testWidgets('every mode has a name, a line, an info text and a glyph; Normal has no note', (tester) async {
+    testWidgets('every mode has a name, an info text and a glyph', (tester) async {
       final l = lookupAppLocalizations(const Locale('en'));
       for (final m in NetworkMode.values) {
         expect(networkModeName(l, m), isNotEmpty);
-        expect(networkModeLine(l, m, tor: true), isNotEmpty);
         expect(networkModeHint(l, m, tor: true), isNotEmpty);
         expect(networkModeGlyph(m), isNotNull);
       }
       expect(networkModeName(l, NetworkMode.nodeOnly), 'Node only');
       expect(networkModeName(l, NetworkMode.killSwitch), 'Kill switch');
-      expect(networkModeSwitchNote(l, NetworkMode.standard), isNull);
-      expect(networkModeSwitchNote(l, NetworkMode.killSwitch), contains('Every connection stops now'));
       expect(statusOffByModeWord(l, NetworkMode.nodeOnly), 'Off (Node only)');
     });
 
-    test('no Tor build: three rows, no Tor sentence in a line or an info text', () {
+    test('no Tor build: three rows, no Tor sentence in an info text', () {
       final l = lookupAppLocalizations(const Locale('en'));
       expect(offeredNetworkModes(tor: false), [NetworkMode.standard, NetworkMode.nodeOnly, NetworkMode.killSwitch]);
       expect(offeredNetworkModes(tor: true), NetworkMode.values);
       for (final m in offeredNetworkModes(tor: false)) {
-        expect(networkModeLine(l, m, tor: false), isNot(contains('Tor')), reason: m.name);
         expect(networkModeHint(l, m, tor: false), isNot(contains('Tor')), reason: m.name);
         expect(networkModeHint(l, m, desktop: true, tor: false), isNot(contains('Tor')), reason: m.name);
       }
-      expect(networkHeaderHint(l, tor: false), isNot(contains('Tor')));
-      expect(networkHeaderHint(l, tor: true), contains('Tor only'));
     });
   });
 
   group('the Network section', () {
-    testWidgets('a row per mode, each with its line and its info sheet', (tester) async {
+    testWidgets('a row per mode: just its name and its info sheet, no explanation in the list', (tester) async {
       await _pump(tester, const NetworkModeSection());
       final modes = offeredNetworkModes();
       expect(modes.length, torBuilt ? 4 : 3);
@@ -172,19 +166,21 @@ void main() {
       expect(find.textContaining('cold storage'), findsOneWidget);
       await tester.tap(find.text('Close'));
       await tester.pumpAndSettle();
-      // Normal is the one chosen; it brings no line under the picker.
       expect(tester.widget<Radio<NetworkMode>>(find.descendant(of: find.byKey(networkModeRowKey(NetworkMode.standard)), matching: find.byType(Radio<NetworkMode>))).value, NetworkMode.standard);
-      expect(find.byKey(networkModeNoteKey), findsNothing);
+      // No explanation in the list: the rows carry no subtitle, the section no ⓘ of its own.
+      for (final m in modes) {
+        expect(tester.widget<ListTile>(find.byKey(networkModeRowKey(m))).subtitle, isNull, reason: m.name);
+      }
+      expect(find.byType(InfoHint), findsNWidgets(modes.length));
     });
 
-    testWidgets('Node only switches at once with no question, and shows its line', (tester) async {
+    testWidgets('Node only switches at once with no question', (tester) async {
       final container = await _pump(tester, const NetworkModeSection());
       await container.read(appSettingsProvider.future);
       await _tapKey(tester, networkModeRowKey(NetworkMode.nodeOnly));
       expect(find.byKey(networkModeConfirmKey), findsNothing);
       expect(NetGate.mode, NetworkMode.nodeOnly);
       expect(container.read(networkModeProvider), NetworkMode.nodeOnly);
-      expect(find.text('Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.'), findsOneWidget);
     });
 
     testWidgets('a send waiting over Epicbox: Kill switch asks first, Cancel keeps the mode, Switch applies it', (tester) async {
@@ -201,7 +197,6 @@ void main() {
       await _tapKey(tester, networkModeRowKey(NetworkMode.killSwitch));
       await _tapKey(tester, const ValueKey('net-mode-confirm-switch'));
       expect(NetGate.mode, NetworkMode.killSwitch);
-      expect(find.text('Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.'), findsOneWidget);
     });
 
     testWidgets('only a file send waits: no question', (tester) async {

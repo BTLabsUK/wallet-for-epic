@@ -17,7 +17,6 @@
   "deskSetAdvLogs": "บันทึก",
   "deskSetAdvLogsHint": "แสดงกลุ่มบันทึกใต้ ช่วยเหลือ ได้แก่เปิดโฟลเดอร์บันทึกและล้างบันทึก รายงานปัญหาจะแนบบันทึกไม่ว่าจะเปิดไว้หรือไม่",
   "deskSetAdvNetwork": "เครือข่าย",
-  "deskSetAdvModeStandardText": "เชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว",
   "deskSetAdvModeTorOnlyText": "ทุกการเชื่อมต่อผ่าน Tor จนกว่า Tor จะพร้อม จะไม่มีอะไรเชื่อมต่อ",
   "deskSetAdvNotInBuild": "ไม่มีในรุ่นนี้",
   "deskSetAdvReset": "ซ่อนทั้งหมดอีกครั้ง",

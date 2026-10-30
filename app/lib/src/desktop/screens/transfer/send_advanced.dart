@@ -95,11 +95,13 @@ class SendAdvanced extends StatelessWidget {
 /// A radio choice as a row: an 18 u circle, a title (with an optional tag) and one line of
 /// text; the whole row selects it. Arrow keys move between rows as Tab does.
 class ERadioRow extends StatefulWidget {
-  const ERadioRow({super.key, required this.selected, required this.title, required this.text, this.tag, this.onSelected, this.hint, this.hintIcon});
+  const ERadioRow({super.key, required this.selected, required this.title, this.text, this.tag, this.onSelected, this.hint, this.hintIcon});
 
   final bool selected;
   final String title;
-  final String text;
+  /// The line under the title; null for a row that is just its name (the [hint] then sits
+  /// right after it).
+  final String? text;
   final String? tag;
 
   /// Null: disabled.
@@ -127,7 +129,7 @@ class _ERadioRowState extends State<ERadioRow> {
       inMutuallyExclusiveGroup: true,
       checked: widget.selected,
       enabled: on,
-      label: '${widget.title}${widget.tag == null ? '' : ', ${widget.tag}'}. ${widget.text}',
+      label: '${widget.title}${widget.tag == null ? '' : ', ${widget.tag}'}${widget.text == null ? '' : '. ${widget.text}'}',
       excludeSemantics: true,
       onTap: widget.onSelected,
       child: FocusableActionDetector(
@@ -151,12 +153,12 @@ class _ERadioRowState extends State<ERadioRow> {
                 child: Opacity(
                   opacity: on ? 1 : 0.5,
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: widget.text == null ? CrossAxisAlignment.center : CrossAxisAlignment.start,
                     children: [
                       Container(
                         width: 18.u,
                         height: 18.u,
-                        margin: EdgeInsets.only(top: 2.u),
+                        margin: EdgeInsets.only(top: widget.text == null ? 0 : 2.u),
                         decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: ring, width: 1.5)),
                         alignment: Alignment.center,
                         child: widget.selected
@@ -172,13 +174,18 @@ class _ERadioRowState extends State<ERadioRow> {
                               children: [
                                 Flexible(child: Text(widget.title, style: ts.strong)),
                                 if (widget.tag != null) ...[SizedBox(width: Sp.x2), EBadge(widget.tag!)],
+                                // Just the name: its ⓘ follows it, as a settings row's does.
+                                if (widget.text == null && widget.hint != null) ...[
+                                  SizedBox(width: Sp.x2),
+                                  EInfoHint(widget.hint!, title: widget.title, icon: widget.hintIcon),
+                                ],
                               ],
                             ),
-                            Text(widget.text, style: ts.small),
+                            if (widget.text != null) Text(widget.text!, style: ts.small),
                           ],
                         ),
                       ),
-                      if (widget.hint != null) ...[
+                      if (widget.hint != null && widget.text != null) ...[
                         SizedBox(width: Sp.x2),
                         EInfoHint(widget.hint!, title: widget.title, icon: widget.hintIcon),
                       ],

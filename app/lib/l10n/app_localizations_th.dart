@@ -13120,10 +13120,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get advNetworkHeader => 'เครือข่าย';
 
   @override
-  String get advNetworkHint =>
-      'กระเป๋าเงินใช้อินเทอร์เน็ตมากแค่ไหน ตัวเลือกเดียวและจำไว้ให้ Tor เท่านั้น โหนดเท่านั้น และสวิตช์ฉุกเฉินจะปิดบริการบางอย่าง ซึ่งแสดงในไอคอนสถานะเป็น ปิด (โหมด) และจะไม่มีอะไรถูกยกเลิก';
-
-  @override
   String get advOutputs => 'เอาต์พุต';
 
   @override
@@ -13160,10 +13156,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advModeStandard => 'ปกติ';
-
-  @override
-  String get advModeStandardLine =>
-      'เชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัวและเครือข่าย';
 
   @override
   String get advModeTorOnly => 'Tor เท่านั้น';
@@ -13245,10 +13237,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetwork => 'เครือข่าย';
-
-  @override
-  String get deskSetAdvModeStandardText =>
-      'เชื่อมต่อตรง เปิด Tor ได้ที่ ความเป็นส่วนตัว';
 
   @override
   String get deskSetAdvModeTorOnlyText =>
@@ -16853,13 +16841,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'กระเป๋าของคุณส่งรายการตรงไปยังกระเป๋าของอีกฝ่ายผ่านอินเทอร์เน็ต เหรียญถูกล็อก';
 
   @override
-  String get advNetworkHintNoTor =>
-      'กระเป๋าเงินใช้อินเทอร์เน็ตมากแค่ไหน ตัวเลือกเดียวและจำไว้ให้ โหนดเท่านั้น และสวิตช์ฉุกเฉินจะปิดบริการบางอย่าง ซึ่งแสดงในไอคอนสถานะเป็น ปิด (โหมด) และจะไม่มีอะไรถูกยกเลิก';
-
-  @override
-  String get advModeStandardLineNoTor => 'เชื่อมต่อตรง';
-
-  @override
   String txLinkHttpHintNoTor(String port) {
     return 'ลิงก์ · HTTP จ่ายตรงถึงกระเป๋าเงินที่ที่อยู่เว็บ (http://host:$port) และให้โทรศัพท์เครื่องนี้มีที่อยู่ที่กระเป๋าเงินในเครือข่าย Wi-Fi เดียวกันจ่ายมาได้ ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง ไม่เข้ารหัสระหว่างทาง และเข้าถึงจากอินเทอร์เน็ตหรือผ่านเน็ตมือถือไม่ได้ เพิ่ม ลิงก์ · HTTP ใน ส่ง และ รับ';
   }
@@ -18012,14 +17993,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get advModeKillSwitch => 'สวิตช์ฉุกเฉิน';
 
   @override
-  String get advModeNodeOnlyLine =>
-      'เฉพาะโหนดที่ใช้อยู่ Epicbox ลิงก์ การอัปเดตและราคายังคงปิดอยู่';
-
-  @override
-  String get advModeKillSwitchLine =>
-      'ไม่เชื่อมต่อเลย ชำระด้วย QR และโอนไฟล์ แล้วส่งเข้าเครือข่ายจากอุปกรณ์อื่น';
-
-  @override
   String get advModeStandardHint =>
       'ทุกอย่างที่กระเป๋าเงินตั้งค่าไว้: โหนด Epicbox ลิงก์ เว็บไซต์สถานะ ราคา และการตรวจหาอัปเดต Tor เป็นสวิตช์แยกต่างหากใน ความเป็นส่วนตัวและเครือข่าย';
 
@@ -18042,18 +18015,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get advModeKillSwitchHint =>
       'ไม่มีอะไรเชื่อมต่อ แม้แต่โหนด: การเก็บแบบออฟไลน์ กระเป๋าเงินเปิดขึ้นพร้อมยอดคงเหลือและประวัติล่าสุดที่ทราบ คุณสร้าง ลงนาม และทำรายการให้เสร็จด้วยโอนไฟล์และชำระด้วย QR แสดงที่อยู่ สำรองข้อมูล และส่งออกได้ รายการที่เสร็จแล้วส่งเข้าเครือข่ายจากที่นี่ไม่ได้: บันทึกไว้หรือแสดงเป็นคิวอาร์โค้ด แล้วส่งจากอุปกรณ์ที่ออนไลน์ รายการที่รอผู้รับจะหยุดชั่วคราวและดำเนินต่อเมื่อคุณออกจากโหมดนี้';
-
-  @override
-  String get advModeSwitchNoteTorOnly =>
-      'การรับผ่านลิงก์ · HTTP ปิดอยู่ จนกว่า Tor จะพร้อม จะไม่มีอะไรเชื่อมต่อ';
-
-  @override
-  String get advModeSwitchNoteNodeOnly =>
-      'Epicbox ลิงก์ ราคา และการตรวจหาอัปเดตหยุดทันที รายการที่รออยู่ผ่าน Epicbox จะดำเนินต่อเมื่อคุณออกจากโหนดเท่านั้น';
-
-  @override
-  String get advModeSwitchNoteKillSwitch =>
-      'ทุกการเชื่อมต่อหยุดทันที รวมถึงโหนด รายการที่รออยู่จะหยุดชั่วคราวจนกว่าคุณจะออกจากสวิตช์ฉุกเฉิน';
 
   @override
   String advModeConfirmTitle(String mode) {

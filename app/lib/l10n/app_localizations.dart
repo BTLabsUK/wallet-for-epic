@@ -21338,12 +21338,6 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get advNetworkHeader;
 
-  /// Info text of the Network header in Settings › Advanced.
-  ///
-  /// In en, this message translates to:
-  /// **'How much of the internet the wallet uses. One choice, remembered. Tor only, Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.'**
-  String get advNetworkHint;
-
   /// Advanced switch: the Outputs page.
   ///
   /// In en, this message translates to:
@@ -21409,12 +21403,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Normal'**
   String get advModeStandard;
-
-  /// One line under the Standard network mode.
-  ///
-  /// In en, this message translates to:
-  /// **'Connects directly. Tor can be turned on in Privacy & network.'**
-  String get advModeStandardLine;
 
   /// Network mode: Tor or nothing.
   ///
@@ -21559,12 +21547,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Network'**
   String get deskSetAdvNetwork;
-
-  /// Text under the Standard mode.
-  ///
-  /// In en, this message translates to:
-  /// **'Connects directly. Tor can be turned on under Privacy.'**
-  String get deskSetAdvModeStandardText;
 
   /// Text under the Tor only mode.
   ///
@@ -27104,18 +27086,6 @@ abstract class AppLocalizations {
   /// **'Your wallet sends the payment straight to their wallet, over the internet. The coins are locked.'**
   String get handshakeLink1NoTor;
 
-  /// advNetworkHint in the build without Tor.
-  ///
-  /// In en, this message translates to:
-  /// **'How much of the internet the wallet uses. One choice, remembered. Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.'**
-  String get advNetworkHintNoTor;
-
-  /// One line under the Standard network mode, in the build without Tor.
-  ///
-  /// In en, this message translates to:
-  /// **'Connects directly.'**
-  String get advModeStandardLineNoTor;
-
   /// txLinkHttpHint in the build without Tor: the same text without 'off while Tor is on'.
   ///
   /// In en, this message translates to:
@@ -28772,18 +28742,6 @@ abstract class AppLocalizations {
   /// **'Kill switch'**
   String get advModeKillSwitch;
 
-  /// Settings › Advanced › Network, the line under Node only.
-  ///
-  /// In en, this message translates to:
-  /// **'Only the node in use. Epicbox, Link, updates and price stay off.'**
-  String get advModeNodeOnlyLine;
-
-  /// Settings › Advanced › Network, the line under Kill switch.
-  ///
-  /// In en, this message translates to:
-  /// **'No connections at all. QR Payment and File Transfer, posted from another device.'**
-  String get advModeKillSwitchLine;
-
   /// Info text of the Normal row (phone).
   ///
   /// In en, this message translates to:
@@ -28819,24 +28777,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.'**
   String get advModeKillSwitchHint;
-
-  /// Dim note under the Network picker while Tor only is chosen.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP receiving is off. Until Tor is ready, nothing connects.'**
-  String get advModeSwitchNoteTorOnly;
-
-  /// Dim note under the Network picker while Node only is chosen.
-  ///
-  /// In en, this message translates to:
-  /// **'Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.'**
-  String get advModeSwitchNoteNodeOnly;
-
-  /// Dim note under the Network picker while Kill switch is chosen.
-  ///
-  /// In en, this message translates to:
-  /// **'Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.'**
-  String get advModeSwitchNoteKillSwitch;
 
   /// Title of the confirmation before switching to Node only or Kill switch while a send waits.
   ///

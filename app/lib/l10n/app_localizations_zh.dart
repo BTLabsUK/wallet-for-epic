@@ -12670,10 +12670,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advNetworkHeader => '网络';
 
   @override
-  String get advNetworkHint =>
-      '钱包使用多少互联网。只有一个选择，并会被记住。“仅 Tor”、“仅节点”和“紧急断网”会关闭一些服务；它们在状态图标中显示为“关闭（模式）”，不会取消任何内容。';
-
-  @override
   String get advOutputs => '输出';
 
   @override
@@ -12710,9 +12706,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advModeStandard => '常规';
-
-  @override
-  String get advModeStandardLine => '直接连接。可在“隐私与网络”中开启 Tor。';
 
   @override
   String get advModeTorOnly => '仅 Tor';
@@ -12792,9 +12785,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvNetwork => '网络';
-
-  @override
-  String get deskSetAdvModeStandardText => '直接连接。可在“隐私”中开启 Tor。';
 
   @override
   String get deskSetAdvModeTorOnlyText => '所有连接都经过 Tor。Tor 就绪之前，什么都不会连接。';
@@ -16242,13 +16232,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get handshakeLink1NoTor => '你的钱包通过互联网把付款直接发到对方的钱包。这些币被锁定。';
 
   @override
-  String get advNetworkHintNoTor =>
-      '钱包使用多少互联网。只有一个选择，并会被记住。“仅节点”和“紧急断网”会关闭一些服务；它们在状态图标中显示为“关闭（模式）”，不会取消任何内容。';
-
-  @override
-  String get advModeStandardLineNoTor => '直接连接。';
-
-  @override
   String txLinkHttpHintNoTor(String port) {
     return '链接 · HTTP 通过网址（http://host:$port）直接向对方钱包付款，并为这部手机提供一个同一 Wi-Fi 网络中的钱包可以付款的地址。双方钱包都必须打开。它在传输途中不加密，也无法从互联网或移动数据访问。会在“发送”和“接收”中加入 链接 · HTTP。';
   }
@@ -17365,12 +17348,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeKillSwitch => '紧急断网';
 
   @override
-  String get advModeNodeOnlyLine => '只连接正在使用的节点。Epicbox、链接、更新和价格保持关闭。';
-
-  @override
-  String get advModeKillSwitchLine => '完全不连接。二维码付款和文件传输，由另一台设备广播。';
-
-  @override
   String get advModeStandardHint =>
       '钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私与网络”中的独立开关。';
 
@@ -17392,17 +17369,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get advModeKillSwitchHint =>
       '什么都不连接，节点也不例外：冷存储。钱包会以上次已知的余额和历史记录打开。你可以通过文件传输和二维码付款创建、签署并完成付款，显示你的地址，备份和导出。已完成的付款无法从这里广播：保存它或显示为二维码，再到联网的设备上广播。等待接收方的付款会暂停，离开后继续。';
-
-  @override
-  String get advModeSwitchNoteTorOnly => '链接 · HTTP 收款已关闭。Tor 就绪之前，什么都不会连接。';
-
-  @override
-  String get advModeSwitchNoteNodeOnly =>
-      'Epicbox、链接、价格和更新检查现在停止。通过 Epicbox 等待的付款会在你离开“仅节点”后继续。';
-
-  @override
-  String get advModeSwitchNoteKillSwitch =>
-      '所有连接现在停止，节点也不例外。等待中的付款会暂停，直到你离开“紧急断网”。';
 
   @override
   String advModeConfirmTitle(String mode) {

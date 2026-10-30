@@ -13938,10 +13938,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get advNetworkHeader => 'Сеть';
 
   @override
-  String get advNetworkHint =>
-      'Сколько интернета использует кошелёк. Один выбор, он запоминается. «Только Tor», «Только узел» и «Аварийное отключение» выключают службы; в значках состояния они выглядят как «Выключено (режим)», и ничто не отменяется.';
-
-  @override
   String get advOutputs => 'Выходы';
 
   @override
@@ -13978,10 +13974,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advModeStandard => 'Обычный';
-
-  @override
-  String get advModeStandardLine =>
-      'Подключается напрямую. Tor можно включить в разделе «Приватность и сеть».';
 
   @override
   String get advModeTorOnly => 'Только Tor';
@@ -14063,10 +14055,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvNetwork => 'Сеть';
-
-  @override
-  String get deskSetAdvModeStandardText =>
-      'Подключается напрямую. Tor можно включить в разделе «Приватность».';
 
   @override
   String get deskSetAdvModeTorOnlyText =>
@@ -17841,13 +17829,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ваш кошелёк отправляет платёж прямо их кошельку, через интернет. Монеты блокируются.';
 
   @override
-  String get advNetworkHintNoTor =>
-      'Сколько интернета использует кошелёк. Один выбор, он запоминается. «Только узел» и «Аварийное отключение» выключают службы; в значках состояния они выглядят как «Выключено (режим)», и ничто не отменяется.';
-
-  @override
-  String get advModeStandardLineNoTor => 'Подключается напрямую.';
-
-  @override
   String txLinkHttpHintNoTor(String port) {
     return 'Ссылка · HTTP платит прямо в кошелёк по веб-адресу (http://host:$port) и даёт этому телефону адрес, на который могут платить кошельки из той же сети Wi-Fi. Оба кошелька должны быть открыты. По дороге он не шифруется и недоступен из интернета и по мобильным данным. Добавляет Ссылка · HTTP в «Отправить» и «Получить».';
   }
@@ -19058,14 +19039,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get advModeKillSwitch => 'Аварийное отключение';
 
   @override
-  String get advModeNodeOnlyLine =>
-      'Только используемый узел. Epicbox, Ссылка, обновления и курс остаются выключенными.';
-
-  @override
-  String get advModeKillSwitchLine =>
-      'Никаких соединений. «Оплата по QR» и «Передача файла», отправка с другого устройства.';
-
-  @override
   String get advModeStandardHint =>
       'Всё, на что настроен кошелёк: узел, Epicbox, Ссылка, страница статуса, курс и проверка обновлений. Tor включается отдельным переключателем в «Приватность и сеть».';
 
@@ -19088,18 +19061,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get advModeKillSwitchHint =>
       'Ничего не подключается, даже узел: холодное хранение. Кошелёк открывается с последними известными балансом и историей. Можно создавать, подписывать и завершать платежи через «Передачу файла» и «Оплату по QR», показывать свой адрес, делать резервную копию и экспортировать. Готовый платёж отсюда не отправить: сохраните его или покажите как QR-код и отправьте с устройства, которое в сети. Отправки, ждущие получателя, приостанавливаются и продолжаются, когда вы выходите из режима.';
-
-  @override
-  String get advModeSwitchNoteTorOnly =>
-      'Приём по «Ссылка · HTTP» выключен. Пока Tor не готов, ничего не подключается.';
-
-  @override
-  String get advModeSwitchNoteNodeOnly =>
-      'Epicbox, Ссылка, курс и проверка обновлений останавливаются сейчас. Платёж, ждущий через Epicbox, продолжится, когда вы выйдете из режима «Только узел».';
-
-  @override
-  String get advModeSwitchNoteKillSwitch =>
-      'Все соединения останавливаются сейчас, включая узел. Ждущие платежи приостановлены, пока вы не выйдете из режима «Аварийное отключение».';
 
   @override
   String advModeConfirmTitle(String mode) {

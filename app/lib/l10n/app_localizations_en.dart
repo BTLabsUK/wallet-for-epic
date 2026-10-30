@@ -13462,10 +13462,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advNetworkHeader => 'Network';
 
   @override
-  String get advNetworkHint =>
-      'How much of the internet the wallet uses. One choice, remembered. Tor only, Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.';
-
-  @override
   String get advOutputs => 'Outputs';
 
   @override
@@ -13502,10 +13498,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advModeStandard => 'Normal';
-
-  @override
-  String get advModeStandardLine =>
-      'Connects directly. Tor can be turned on in Privacy & network.';
 
   @override
   String get advModeTorOnly => 'Tor only';
@@ -13587,10 +13579,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvNetwork => 'Network';
-
-  @override
-  String get deskSetAdvModeStandardText =>
-      'Connects directly. Tor can be turned on under Privacy.';
 
   @override
   String get deskSetAdvModeTorOnlyText =>
@@ -17250,13 +17238,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your wallet sends the payment straight to their wallet, over the internet. The coins are locked.';
 
   @override
-  String get advNetworkHintNoTor =>
-      'How much of the internet the wallet uses. One choice, remembered. Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.';
-
-  @override
-  String get advModeStandardLineNoTor => 'Connects directly.';
-
-  @override
   String txLinkHttpHintNoTor(String port) {
     return 'Link · HTTP pays straight to a wallet at a web address (http://host:$port) and gives this phone an address that wallets on the same Wi-Fi network can pay. Both wallets must be open. It is not encrypted on the way and cannot be reached from the internet or over mobile data. Adds Link · HTTP to Send and Receive.';
   }
@@ -18429,14 +18410,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advModeKillSwitch => 'Kill switch';
 
   @override
-  String get advModeNodeOnlyLine =>
-      'Only the node in use. Epicbox, Link, updates and price stay off.';
-
-  @override
-  String get advModeKillSwitchLine =>
-      'No connections at all. QR Payment and File Transfer, posted from another device.';
-
-  @override
   String get advModeStandardHint =>
       'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.';
 
@@ -18459,18 +18432,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get advModeKillSwitchHint =>
       'Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.';
-
-  @override
-  String get advModeSwitchNoteTorOnly =>
-      'Link · HTTP receiving is off. Until Tor is ready, nothing connects.';
-
-  @override
-  String get advModeSwitchNoteNodeOnly =>
-      'Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.';
-
-  @override
-  String get advModeSwitchNoteKillSwitch =>
-      'Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.';
 
   @override
   String advModeConfirmTitle(String mode) {

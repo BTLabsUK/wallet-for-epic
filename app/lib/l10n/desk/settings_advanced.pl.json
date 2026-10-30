@@ -17,7 +17,6 @@
   "deskSetAdvLogs": "Logi",
   "deskSetAdvLogsHint": "Pokazuje grupę Logi w Pomocy: otwórz folder logów, wyczyść logi. Zgłoszenie problemu i tak dołącza log.",
   "deskSetAdvNetwork": "Sieć",
-  "deskSetAdvModeStandardText": "Łączy się bezpośrednio. Tora można włączyć w Prywatności.",
   "deskSetAdvModeTorOnlyText": "Każde połączenie idzie przez Tor. Dopóki Tor nie jest gotowy, nic się nie łączy.",
   "deskSetAdvNotInBuild": "Brak w tej wersji",
   "deskSetAdvReset": "Ukryj wszystko ponownie",

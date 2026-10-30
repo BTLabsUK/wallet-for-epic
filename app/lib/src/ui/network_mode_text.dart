@@ -42,18 +42,6 @@ IconData networkModeGlyph(NetworkMode m) => switch (m) {
   NetworkMode.killSwitch => EpicGlyphs.unplugged,
 };
 
-/// The one line under a mode's radio row. [desktop]: the Normal line says "under Privacy".
-/// [tor]: false in the build without Tor.
-String networkModeLine(AppLocalizations l, NetworkMode m, {bool desktop = false, bool? tor}) {
-  final withTor = tor ?? torBuilt;
-  return switch (m) {
-    NetworkMode.standard => !withTor ? l.advModeStandardLineNoTor : (desktop ? l.deskSetAdvModeStandardText : l.advModeStandardLine),
-    NetworkMode.torOnly => l.advModeTorOnlyLine,
-    NetworkMode.nodeOnly => l.advModeNodeOnlyLine,
-    NetworkMode.killSwitch => l.advModeKillSwitchLine,
-  };
-}
-
 /// The info text behind a mode's ⓘ.
 String networkModeHint(AppLocalizations l, NetworkMode m, {bool desktop = false, bool? tor}) {
   final withTor = tor ?? torBuilt;
@@ -64,17 +52,6 @@ String networkModeHint(AppLocalizations l, NetworkMode m, {bool desktop = false,
     NetworkMode.killSwitch => l.advModeKillSwitchHint,
   };
 }
-
-/// The info text behind the Network header.
-String networkHeaderHint(AppLocalizations l, {bool? tor}) => (tor ?? torBuilt) ? l.advNetworkHint : l.advNetworkHintNoTor;
-
-/// The dim line under the picker for the chosen mode; null for Normal.
-String? networkModeSwitchNote(AppLocalizations l, NetworkMode m) => switch (m) {
-  NetworkMode.standard => null,
-  NetworkMode.torOnly => l.advModeSwitchNoteTorOnly,
-  NetworkMode.nodeOnly => l.advModeSwitchNoteNodeOnly,
-  NetworkMode.killSwitch => l.advModeSwitchNoteKillSwitch,
-};
 
 /// The mode mark popover's line. [waitingForTor]: Tor only and Tor is not ready.
 String networkModeMarkLine(AppLocalizations l, NetworkMode m, {bool waitingForTor = false}) => switch (m) {
