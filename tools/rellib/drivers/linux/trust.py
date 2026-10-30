@@ -9,6 +9,10 @@ list, a few stored settings changed, funded from P so it has a balance and histo
 read off the screens. Then the AppImage is swapped for the candidate's on the same HOME (what the
 in-app AppImage update does: the file changes, the data folder stays), the same wallet is opened
 and read again. With REL_FUNDS=1 the candidate then receives from P and sends everything back.
+
+REL_VIA_DIR + REL_VIA_VERSION: the user ran a release in between (26.10.23 -> 26.10.24-r2 ->
+candidate, #143). That release only opens the wallet and is read once (digest-via.json); the
+candidate is compared with what the previous release showed.
 """
 import datetime
 import decimal
@@ -57,6 +61,8 @@ class Run:
         self.cand_dir = e.get("REL_CANDIDATE_DIR", "")
         self.cand_ver = e.get("REL_CANDIDATE_VERSION", "")
         self.cand_src = e.get("REL_CANDIDATE_SRC", "")
+        self.via_dir = e.get("REL_VIA_DIR", "")
+        self.via_ver = e.get("REL_VIA_VERSION", "")
         self.funds = e.get("REL_FUNDS", "1") == "1"
         # unset: all eight with funds, the six data checks without
         default = CHECKS if self.funds else [c for c in CHECKS if c not in ("send_ok", "receive_ok")]
@@ -67,7 +73,8 @@ class Run:
         self.picked = []
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         work_root = e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-linux")
-        self.work = os.path.join(work_root, "%s-%s-to-%s-%s" % (self.variant, self.prev_ver, self.cand_ver, stamp))
+        via = "-via-%s" % self.via_ver if self.via_ver else ""
+        self.work = os.path.join(work_root, "%s-%s%s-to-%s-%s" % (self.variant, self.prev_ver, via, self.cand_ver, stamp))
         self.sb = os.path.join(self.work, "sandbox")
         self.p = P(e.get("REL_P_TOOL") or os.path.expanduser("/tmp/epic-build/interop/epicpay/p.py"),
                    e.get("REL_P_PASS_FILE") or os.path.expanduser("~/.config/btlabs/p-pass-candidates"),
@@ -118,6 +125,7 @@ class Run:
         doc = {
             "platform": "linux", "variant": self.variant,
             "previous": self.prev_ver, "candidate": self.cand_ver,
+            **({"in_between": self.via_ver} if self.via_ver else {}),
             "node": self.node, "epicbox": self.relay,
             "update_method": self.update_method,
             "checks": self.checks, "details": self.details,
@@ -170,6 +178,7 @@ class Run:
         return [
             "work folder: %s (sandbox HOME %s/home, its own Xvfb, dbus, keyring)" % (self.work, self.sb),
             "previous: %s" % prev,
+            "in between: %s" % (self.appimage(self.via_dir, self.via_ver) if self.via_ver else "none"),
             "candidate: %s" % cand,
             "node: %s; Epicbox: %s (picked from %s / %s when unset)" % (self.node or "-", self.relay or "-", NODE_PICK, RELAY_PICK),
             "loopback stand-ins: node http://127.0.0.1:<free port> -> REL_NODE, relay 127.0.0.1:<free port> -> REL_EPICBOX",
@@ -728,6 +737,7 @@ class Run:
             pass
         prev = self.appimage(self.prev_dir, self.prev_ver)
         cand = self.appimage(self.cand_dir, self.cand_ver)
+        via = self.appimage(self.via_dir, self.via_ver) if self.via_ver else None
         why = self.p.ready()
         if why:
             raise CannotRun(why)
@@ -738,8 +748,11 @@ class Run:
         self.log("work folder %s" % self.work)
         self.details["appimages"] = "previous %s (sha256 %s), candidate %s (sha256 %s)" % (
             os.path.basename(prev), sha256(prev)[:16], os.path.basename(cand), sha256(cand)[:16])
+        if via:
+            self.details["appimages"] += ", in between %s (sha256 %s)" % (os.path.basename(via), sha256(via)[:16])
         self.log(self.details["appimages"])
         prev_root = self.extract(prev, "previous")
+        self.via_root = self.extract(via, "via") if via else None
         cand_root = self.extract(cand, "candidate")
         self.label = "Trust %s" % datetime.datetime.now().strftime("%m%d %H%M")
         with open(os.path.join(self.sb, "wallet.pw"), "w") as f:
@@ -777,6 +790,8 @@ class Run:
         # the update: the AppImage changes, HOME and the data folder stay
         sandbox.app_stop(self.sb)
         self.log("previous app stopped")
+        if self.via_root:
+            self.via_hop(before)
         self.start_app(cand_root, "candidate")
         opened, why = self.open_after_update(before)
         self.details["wallet_opens"] = why
@@ -793,6 +808,22 @@ class Run:
             self.compare(before, after)
         self.funds_legs(after)
         return 0
+
+    def via_hop(self, before):
+        """The release in between (REL_VIA_*): opened on the same HOME and read once, then stopped."""
+        self.start_app(self.via_root, "in-between %s" % self.via_ver)
+        opened, why = self.open_after_update(before)
+        if not opened:
+            raise CannotRun("the in-between release %s: %s" % (self.via_ver, why))
+        time.sleep(20)
+        mid = self.digest("via")
+        e0 = lambda d, k: [x[0] for x in d[k]]
+        self.details["via"] = "%s opened (%s); node %s, list %s; Epicbox %s, list %s" % (
+            self.via_ver, mid["app"], mid["node_in_use"], ", ".join(e0(mid, "nodes")),
+            mid["relay_in_use"], ", ".join(e0(mid, "relays")))
+        self.log("in between: %s" % self.details["via"])
+        sandbox.app_stop(self.sb)
+        self.log("in-between app stopped")
 
     def open_after_update(self, before):
         ui = self.ui
