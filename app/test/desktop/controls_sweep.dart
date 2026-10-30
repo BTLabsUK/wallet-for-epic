@@ -8,6 +8,7 @@
 // that reaches an API method the real wallet (LepicDeskWallet) only stubs fails too.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
+import 'package:epic_wallet/src/desktop/app/shots.dart' show DeskShot;
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/api.dart';
 import 'package:epic_wallet/src/desktop/data/backup_settings_desk.dart' show DeskBackupSettings;
@@ -22,9 +23,6 @@ import 'package:epic_wallet/src/devices/device_service.dart' show DeviceHost;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/shots.dart';
-import 'package:epic_wallet/src/desktop/screens/transfer/shots.dart';
-import 'package:epic_wallet/src/desktop/screens/wallet/shots.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -472,10 +470,10 @@ String _shown() {
 /// Controls already pressed, by scope, kind and label: a sidebar item is pressed once.
 final Set<String> _pressed = {};
 
-void main() {
-  // Onboarding (Welcome, Create, Restore, Import, Setup, Unlock) is left to its own tests: its
-  // presses run whole wallet flows that end in another app start.
-  final shots = [...walletShots, ...transferShots, ...settingsShots];
+/// The sweep over [shots]; split over controls_sweep_*_test.dart so no one file sets the
+/// length of a whole test run. Onboarding (Welcome, Create, Restore, Import, Setup, Unlock) is
+/// left to its own tests: its presses run whole wallet flows that end in another app start.
+void sweepControls(List<DeskShot> shots) {
   final failures = <String>[];
   // The OS folder picker answers with a folder, as a user would pick one.
   setUpAll(() => deskPickFolder = () async => '/media/data/epic');
