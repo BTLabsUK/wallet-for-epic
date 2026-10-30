@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # Builds Epic Cash Desktop for macOS and Epic Cash Mobile for iOS on a Mac, from a clean checkout
 # of this repository: LEPIC for the Apple targets, an ad-hoc-signed .app and .dmg, a Simulator
-# .app, the smoke run, and the release build that is handed over for signing. No Apple account
-# or certificate is needed on the Mac for any of it: releases are signed, notarised and uploaded
-# on the signer's Linux machine with tools/apple-sign.sh (tools/apple-release.md).
+# .app, the smoke run, and the releases (tools/apple-release.md): `mac-release` makes the
+# notarised .dmg for the download page with the team's Developer ID certificate on this Mac, and
+# `ios-prepare` readies the iOS build that Xcode archives and uploads to TestFlight. Every step
+# but those two works without an Apple account. The backup route (an unsigned hand-off signed on
+# Linux with tools/apple-sign.sh) keeps its steps: release, handoff, dmg-signed.
 #
 # macOS builds are Apple silicon (arm64) only: the built-in node has no Intel build.
 #
@@ -28,7 +30,17 @@
 #             new wallet on node.btlabs.uk (then node.epicnet.us, node.epiccash.com), its scan to
 #             the tip, a restore from its phrase, the Epicbox listener connected (needs internet)
 #   all       every step above but live and the release steps
-# Release steps (tools/apple-release.md), run on the release Mac:
+# Release steps (tools/apple-release.md), run on the release Mac from a clean checkout:
+#   mac-release  release-check, a check of the signing set-up (Team ID in app/Signing.xcconfig,
+#             its Developer ID Application certificate in the keychain, the notarytool profile),
+#             doctor, sources, lepic (macOS), macos; then the app signed with Developer ID
+#             (hardened runtime, timestamp, each Mach-O inside out), notarised, stapled; the .dmg
+#             signed, notarised, stapled; gatekeeper. Out: mac-release/EpicCashDesktop-<v>-macos.dmg,
+#             .dmg.sha256 and .REPORT.txt, which go to the owner
+#   ios-prepare  release-check, doctor, sources, lepic (iOS), flutter build ios --config-only;
+#             then Xcode archives and uploads (Product > Archive). Needs WFE_TOR=0 (the App Store
+#             build is the one without Tor)
+# Backup route steps (signing on Linux, tools/apple-release.md appendix):
 #   release   the build to sign, from a clean checkout: checks (release-check), then sources,
 #             lepic, macos, ipa and handoff
 #   release-check  the tree is clean and at RELEASE_COMMIT (when set), Flutter is exactly the
@@ -54,7 +66,10 @@
 #   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
 #                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
 #   SIM_DEVICE=<name or udid>  the Simulator (default: the first available iPhone)
-#   RELEASE_COMMIT=<sha>       release-check: the commit the signer asked for (full or short)
+#   RELEASE_COMMIT=<sha>       release-check: the commit the owner asked for (full or short)
+#   APPLE_TEAM_ID=<id>         the team for mac-release (default: DEVELOPMENT_TEAM in
+#                              app/Signing.xcconfig)
+#   NOTARY_PROFILE=<name>      the notarytool keychain profile (default epic-notary)
 #
 # Written for the bash 3.2 macOS ships: no mapfile, no ${x,,}, no associative arrays.
 set -euo pipefail
@@ -168,21 +183,23 @@ package_library() {
   echo "packaged $dir/liblepic_ffi.dylib"
 }
 
+# LEPIC for the targets $1 (default: macOS and iOS).
 lepic_libs() {
-  say "LEPIC for $darwin_targets $ios_targets"
+  local targets="${1:-$darwin_targets $ios_targets}"
+  say "LEPIC for $targets"
   [ -f "$lepic/Cargo.toml" ] || die "no LEPIC clone: run the sources step"
   # rust-toolchain.toml picks LEPIC's Rust; its targets list has the iOS ones, not macOS.
   local t features=""
   [ "${WFE_TOR:-1}" = 0 ] && features=--no-default-features
   # shellcheck disable=SC2086 # the target lists split into words
-  (cd "$lepic" && rustup target add $darwin_targets $ios_targets)
+  (cd "$lepic" && rustup target add $targets)
   # A plain cargo build per target: LEPIC's xtask packages iOS but has no macOS targets yet.
-  for t in $darwin_targets $ios_targets; do
+  for t in $targets; do
     (cd "$lepic" && MACOSX_DEPLOYMENT_TARGET=$macos_min IPHONEOS_DEPLOYMENT_TARGET=$ios_min \
       cargo build --package lepic-ffi --lib --locked --release --target "$t" $features)
     package_library "$t"
   done
-  result PASS lepic "$(for t in $darwin_targets $ios_targets; do printf '%s ' "$t"; done)${features:+(without tor)}"
+  result PASS lepic "$(for t in $targets; do printf '%s ' "$t"; done)${features:+(without tor)}"
 }
 
 # Copies the Mach-O file $1 to $2 as an executable, after checking it is arm64 only.
@@ -205,19 +222,12 @@ fetch_node() {
   rm -rf "$tmp"
 }
 
-macos() {
-  say "flutter build macos"
-  local bundle="$app/build/macos/Build/Products/Release/$desktop_name.app"
-  local res="$bundle/Contents/Resources/bin"
-  # FLUTTER_MACOS_ARM64_ONLY: Flutter's switch for an arm64-only release build (ARCHS=arm64);
-  # the project also excludes x86_64 (macos/Runner/Configs/AppInfo.xcconfig).
-  (cd "$app" && flutter pub get && FLUTTER_MACOS_ARM64_ONLY=1 flutter build macos --release \
-    -t lib/main_desktop.dart --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
-  [ -d "$bundle" ] || die "no $bundle"
-  [ -f "$bundle/Contents/Frameworks/lepic_ffi.framework/lepic_ffi" ] \
-    || die "the bundle has no lepic_ffi.framework (app/hook/build.dart)"
-  # Flutter rebuilds the bundle in place and leaves Contents/Resources/bin alone: a tor from an
-  # earlier build with Tor would stay in a build without it.
+# Stages the built-in node and tor in app/build/apple-bin, where the macOS project's build phase
+# "Bundle node and tor" (app/macos/Runner/bundle-bin.sh) copies them to Contents/Resources/bin and
+# signs them before Xcode signs the app: in this script's builds and in an Xcode Archive alike.
+stage_bin() {
+  local res="$app/build/apple-bin"
+  # A tor from an earlier build with Tor must not stay in a build without it.
   rm -rf "$res"
   mkdir -p "$res"
   # The built-in node: Contents/Resources/bin/epic (lib/src/builtin_node_provider.dart).
@@ -248,12 +258,28 @@ macos() {
     rm -rf "$tmp"
     echo "tor: $(cat "$res/tor-bundle/VERSION"), $(lipo -archs "$res/tor-bundle/tor")"
   fi
-  # Ad hoc, inside out: what was added after Xcode signed, then the app with its entitlements.
-  # No hardened runtime: an ad-hoc framework would fail library validation under it.
-  local f
-  for f in "$res/epic" "$res/tor-bundle/libevent-2.1.7.dylib" "$res/tor-bundle/tor"; do
-    if [ -f "$f" ]; then codesign --force --sign - "$f"; fi
-  done
+}
+
+macos() {
+  say "flutter build macos"
+  local bundle="$app/build/macos/Build/Products/Release/$desktop_name.app"
+  local res="$bundle/Contents/Resources/bin"
+  stage_bin
+  # FLUTTER_MACOS_ARM64_ONLY: Flutter's switch for an arm64-only release build (ARCHS=arm64);
+  # the project also excludes x86_64 (macos/Runner/Configs/AppInfo.xcconfig).
+  (cd "$app" && flutter pub get && FLUTTER_MACOS_ARM64_ONLY=1 flutter build macos --release \
+    -t lib/main_desktop.dart --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
+  [ -d "$bundle" ] || die "no $bundle"
+  [ -f "$bundle/Contents/Frameworks/lepic_ffi.framework/lepic_ffi" ] \
+    || die "the bundle has no lepic_ffi.framework (app/hook/build.dart)"
+  # The build phase "Bundle node and tor" copied exactly what stage_bin staged (the files only:
+  # the signatures differ).
+  [ -d "$res" ] || die "no $res (build phase \"Bundle node and tor\", app/macos/Runner/bundle-bin.sh)"
+  [ "$(cd "$app/build/apple-bin" && find . -type f | LC_ALL=C sort)" = "$(cd "$res" && find . -type f | LC_ALL=C sort)" ] \
+    || die "Contents/Resources/bin is not what app/build/apple-bin staged"
+  # Ad hoc for this Mac (mac-release signs everything again with Developer ID); the build phase
+  # signed the node and tor the same way when no team is set. No hardened runtime: an ad-hoc
+  # framework would fail library validation under it.
   codesign --force --sign - --entitlements "$app/macos/Runner/Release.entitlements" "$bundle"
   codesign --verify --deep --strict --verbose=2 "$bundle"
   [ "$(lipo -archs "$bundle/Contents/MacOS/$desktop_name")" = arm64 ] || die "the app is not arm64 only"
@@ -623,6 +649,190 @@ gatekeeper() {
   fi
 }
 
+# ---- The release route (tools/apple-release.md): the release Mac signs with the BT Labs team ----
+
+# The notarytool keychain profile (made once: xcrun notarytool store-credentials).
+notary_profile="${NOTARY_PROFILE:-epic-notary}"
+
+# The Team ID: APPLE_TEAM_ID, else DEVELOPMENT_TEAM of app/Signing.xcconfig.
+team_id() {
+  local t="${APPLE_TEAM_ID:-}"
+  if [ -z "$t" ] && [ -f "$app/Signing.xcconfig" ]; then
+    t="$(sed -n 's/^[[:space:]]*DEVELOPMENT_TEAM[[:space:]]*=[[:space:]]*\([A-Z0-9]*\).*/\1/p' "$app/Signing.xcconfig" | head -1)"
+  fi
+  case "$t" in
+    [A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9][A-Z0-9]) ;;
+    *) die "no Team ID: copy app/Signing.xcconfig.example to app/Signing.xcconfig and set DEVELOPMENT_TEAM" ;;
+  esac
+  [ "$t" != ABCDE12345 ] || die "app/Signing.xcconfig still has the example Team ID"
+  echo "$t"
+}
+
+# The SHA-1 of the Developer ID Application identity of team $1 in the keychain (the first, if
+# there are several: a hash, so codesign never finds the name ambiguous).
+devid_identity() {
+  local ids
+  ids="$(security find-identity -v -p codesigning)"
+  awk -v t="($1)\"" 'index($0, "\"Developer ID Application:") && index($0, t) { print $2; exit }' <<< "$ids"
+}
+
+is_macho() { case "$(file -b "$1")" in Mach-O*) return 0 ;; *) return 1 ;; esac; }
+
+# Signs the app $1 with the identity $2 as Apple's "Creating distribution-signed code for Mac" has
+# it: every code item on its own, inside out, hardened runtime and Apple's timestamp on each; the
+# app last, with its entitlements. No --deep. The plugins' resource bundles hold no code and stay
+# sealed as resources of the app, as Xcode leaves them.
+devid_sign() {
+  local bundle="$1" id="$2" rel fw name
+  local main="Contents/MacOS/$desktop_name"
+  # Loose Mach-O files first (the node, tor, libevent, anything nested in a framework that is not
+  # its own binary), deepest path first.
+  while IFS= read -r rel; do
+    is_macho "$bundle/$rel" || continue
+    [ "$rel" != "$main" ] || continue
+    case "$rel" in
+      Contents/Frameworks/*.framework/Versions/*/*)
+        fw="${rel%%.framework/*}.framework"
+        name="$(basename "$fw" .framework)"
+        case "$rel" in "$fw"/Versions/*/"$name") continue ;; esac
+        ;;
+    esac
+    codesign --force --timestamp --options runtime --sign "$id" "$bundle/$rel"
+  done < <(cd "$bundle" && find Contents -type f -not -path 'Contents/Resources/*.bundle/*' \
+             | awk '{ print length($0) " " $0 }' | LC_ALL=C sort -rn | cut -d' ' -f2-)
+  for fw in "$bundle"/Contents/Frameworks/*.framework; do
+    if [ -d "$fw" ]; then codesign --force --timestamp --options runtime --sign "$id" "$fw"; fi
+  done
+  codesign --force --timestamp --options runtime --sign "$id" \
+    --entitlements "$app/macos/Runner/Release.entitlements" "$bundle"
+}
+
+# Every Mach-O file of the app $1 carries team $2, the hardened runtime and a secure timestamp:
+# what notarisation checks, so a miss shows here and not after an upload.
+devid_check() {
+  local bundle="$1" team="$2" rel info bad=0
+  codesign --verify --deep --strict --verbose=2 "$bundle"
+  while IFS= read -r rel; do
+    is_macho "$bundle/$rel" || continue
+    info="$(codesign -dv --verbose=4 "$bundle/$rel" 2>&1 || true)"
+    if ! grep -q "^TeamIdentifier=$team\$" <<< "$info" || ! grep -q 'runtime' <<< "$info" \
+      || ! grep -q '^Timestamp=' <<< "$info"; then
+      echo "not signed for notarisation: $rel" >&2
+      bad=1
+    fi
+  done < <(cd "$bundle" && find Contents -type f -not -path 'Contents/Resources/*.bundle/*' | LC_ALL=C sort)
+  [ "$bad" = 0 ] || die "some Mach-O files lack the team, the hardened runtime or the timestamp"
+}
+
+# Notarises $1 (a .zip or .dmg) and waits; Apple's log goes to $2. Dies unless Apple accepts it.
+notarise() {
+  local file="$1" log="$2" json id status
+  json="$(xcrun notarytool submit "$file" --keychain-profile "$notary_profile" --wait --output-format json)" || true
+  id="$(jq -r '.id // empty' <<< "$json")"
+  status="$(jq -r '.status // empty' <<< "$json")"
+  if [ -n "$id" ]; then
+    xcrun notarytool log "$id" --keychain-profile "$notary_profile" "$log" || true
+  fi
+  echo "notarisation of $(basename "$file"): ${status:-no answer} ${id:+(id $id)}"
+  [ "$status" = Accepted ] || die "Apple did not accept $(basename "$file"): ${status:-no answer} (log: $log)"
+}
+
+# Before the long build: the team, its Developer ID certificate in the keychain, the notary profile.
+mac_release_ready() {
+  say "mac-release: signing set-up"
+  local team id
+  team="$(team_id)"
+  id="$(devid_identity "$team")"
+  [ -n "$id" ] || die "no \"Developer ID Application: ... ($team)\" identity in the keychain (security find-identity -v -p codesigning)"
+  xcrun notarytool history --keychain-profile "$notary_profile" >/dev/null 2>&1 \
+    || die "no working notarytool profile \"$notary_profile\" (xcrun notarytool store-credentials $notary_profile ...)"
+  result PASS mac-release-ready "team $team, Developer ID $id, notary profile $notary_profile"
+}
+
+# The release .dmg for the download page: the app built by the macos step, signed with Developer
+# ID, notarised and stapled, in a .dmg that is signed, notarised and stapled too; Gatekeeper's
+# verdict on both; then the .sha256 and the REPORT the owner checks before publishing.
+mac_release_sign() {
+  say "mac-release: sign, notarise, staple, dmg"
+  local team id dir v name stage app_dir dmg_file
+  team="$(team_id)"
+  id="$(devid_identity "$team")"
+  [ -n "$id" ] || die "no Developer ID Application identity for team $team"
+  [ -d "$out/$desktop_name.app" ] || die "no $out/$desktop_name.app: run the macos step"
+  v="$(app_version)$(variant)"
+  name="EpicCashDesktop-$v-macos"
+  dir="$out/mac-release"
+  stage="$dir/stage"
+  rm -rf "$stage"
+  rm -f "$dir/$name.dmg" "$dir/$name.dmg.sha256" "$dir/$name.REPORT.txt"
+  mkdir -p "$stage"
+  app_dir="$stage/$desktop_name.app"
+  ditto "$out/$desktop_name.app" "$app_dir"
+  devid_sign "$app_dir" "$id"
+  devid_check "$app_dir" "$team"
+  ditto -c -k --keepParent "$app_dir" "$dir/$name-app.zip"
+  notarise "$dir/$name-app.zip" "$dir/$name-app.notary-log.json"
+  rm -f "$dir/$name-app.zip"
+  xcrun stapler staple "$app_dir"
+  ln -s /Applications "$stage/Applications"
+  dmg_file="$dir/$name.dmg"
+  hdiutil create -quiet -volname "$desktop_name" -srcfolder "$stage" -ov -format UDZO "$dmg_file"
+  rm -rf "$stage"
+  codesign --force --timestamp --sign "$id" "$dmg_file"
+  notarise "$dmg_file" "$dir/$name.notary-log.json"
+  xcrun stapler staple "$dmg_file"
+  (cd "$dir" && shasum -a 256 "$name.dmg" > "$name.dmg.sha256")
+  gatekeeper "$dmg_file"
+  mac_report "$dmg_file" "$team" > "$dir/$name.REPORT.txt"
+  cat "$dir/$name.REPORT.txt"
+  result PASS mac-release "$dmg_file (+ .sha256, .REPORT.txt: send all three to the owner)"
+}
+
+# What the owner checks before publishing the .dmg: the commit, the hash, the team and
+# Gatekeeper's verdict, Apple's notarisation answers.
+mac_report() {
+  local dmg_file="$1" team="$2" mnt
+  echo "Epic Cash Desktop release .dmg: what was built and how it is signed"
+  echo "file:             $(basename "$dmg_file")"
+  echo "sha256:           $(sha256 "$dmg_file")"
+  echo "app version:      $(sed -n 's/^version: *//p' "$app/pubspec.yaml")"
+  if [ "${WFE_TOR:-1}" = 0 ]; then echo "variant:          without Tor (WFE_TOR=0)"; else echo "variant:          with Tor"; fi
+  echo "commit:           $(git -C "$root" rev-parse HEAD)"
+  echo "built at:         $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  echo "lepic:            $(git -C "$lepic" rev-parse HEAD)"
+  echo "lepic-flutter:    $(git -C "$binding" rev-parse HEAD)"
+  echo "macOS:            $(sw_vers -productVersion) ($(sw_vers -buildVersion)) $(uname -m)"
+  echo "Xcode:            $(xcodebuild -version | tr '\n' ' ')"
+  echo "Flutter:          $(flutter --version 2>/dev/null | head -1)"
+  echo "team expected:    $team"
+  echo
+  echo "== the .dmg"
+  codesign -dv --verbose=2 "$dmg_file" 2>&1 | grep -E '^(Authority|TeamIdentifier|Timestamp)=' || true
+  mnt="$(mktemp -d "${TMPDIR:-/tmp}/epic-dmg.XXXXXX")"
+  hdiutil attach -quiet -nobrowse -readonly -mountpoint "$mnt" "$dmg_file"
+  echo
+  echo "== the app in it"
+  codesign -dv --verbose=4 "$mnt/$desktop_name.app" 2>&1 \
+    | grep -E '^(Identifier|Format|Authority|TeamIdentifier|Timestamp|Runtime Version|CodeDirectory)' || true
+  hdiutil detach -quiet "$mnt" || true
+  rmdir "$mnt" 2>/dev/null || true
+  echo
+  echo "== Gatekeeper (build-apple.sh gatekeeper)"
+  cat "$out/gatekeeper.log"
+}
+
+# The iOS build for Xcode's Archive: LEPIC for iOS and Flutter's generated settings for the App
+# Store build (without Tor, this commit's build id). Then Xcode: Product > Archive > Distribute
+# App > App Store Connect, which signs with the team and uploads to TestFlight.
+ios_prepare() {
+  say "ios-prepare"
+  local team
+  team="$(team_id)"
+  (cd "$app" && flutter pub get && flutter build ios --release --config-only -t lib/main.dart \
+    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
+  result PASS ios-prepare "team $team; now open app/ios/Runner.xcworkspace in Xcode, scheme Runner, Product > Archive"
+}
+
 # A step that dies (or fails a command) gets its FAIL line here unless it wrote one itself.
 recorded="" step=""
 trap 'rc=$?; if [ "$rc" != 0 ] && [ -n "$step" ] && [ "$recorded" != "$step" ]; then result FAIL "$step" "exit $rc"; fi' EXIT
@@ -644,11 +854,15 @@ while [ $# -gt 0 ]; do
     live) live ;;
     all) doctor; sources; lepic_libs; macos; dmg; ios_sim; ipa; smoke ;;
     release-check) release_check ;;
+    mac-release) release_check; mac_release_ready; doctor; sources; lepic_libs "$darwin_targets"; macos; mac_release_sign ;;
+    ios-prepare)
+      [ "${WFE_TOR:-1}" = 0 ] || die "the App Store build is the one without Tor: WFE_TOR=0 tools/build-apple.sh ios-prepare"
+      release_check; doctor; sources; lepic_libs "$ios_targets"; ios_prepare ;;
     release) release_check; doctor; sources; lepic_libs; macos; ipa; handoff ;;
     handoff) handoff ;;
     dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
     gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
-    *) step=""; sed -n '2,62p' "$0" >&2; exit 2 ;;
+    *) step=""; sed -n '2,74p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"

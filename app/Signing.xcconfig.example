@@ -1,0 +1,11 @@
+// Copy to app/Signing.xcconfig on the release Mac (git-ignored, never committed) and put the
+// BT Labs Team ID in it (developer.apple.com, Account, Membership details). Both Xcode projects
+// read it: app/ios/Flutter/{Debug,Release}.xcconfig and app/macos/Runner/Configs/AppInfo.xcconfig,
+// and tools/build-apple.sh mac-release takes the team from it.
+// Do not pick the team in Xcode's Signing & Capabilities tab instead: that writes it into
+// project.pbxproj, and release builds refuse a checkout with local changes.
+DEVELOPMENT_TEAM = ABCDE12345
+
+// macOS: sign with the team (Apple Development) instead of "Sign to Run Locally". The Developer
+// ID signature for the download page is made by tools/build-apple.sh mac-release.
+CODE_SIGN_IDENTITY[sdk=macosx*] = Apple Development
