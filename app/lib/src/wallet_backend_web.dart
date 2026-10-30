@@ -18,6 +18,9 @@ import 'web/preview.dart';
 /// Nothing to load: LEPIC runs on the server.
 Future<void> initWalletBackend() async {}
 
+/// The server runs no tor for the browser: nothing to tell it.
+void wantTorAtOpen(Future<bool> Function(WalletConfig config) wanted) {}
+
 /// The server's wallet service. The socket opens at the end of the frame being drawn, the
 /// first one when the launch screen asks for the vault, so nothing touches the network before
 /// the first screen shows. [secrets] stays in the browser; the server keeps its own.

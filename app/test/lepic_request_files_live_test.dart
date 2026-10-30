@@ -69,7 +69,7 @@ void main() {
     made++;
     final w = await lepic.EpicWallet.create(
       runtime: runtime,
-      config: lepic.WalletConfig(
+      config: lepic.WalletConfig(torWanted: false, 
         dataDir: (Directory('${root.path}/w$made')..createSync()).path,
         chain: lepic.Chain.floonet,
         nodeUrl: 'http://127.0.0.1:1',

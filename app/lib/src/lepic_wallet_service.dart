@@ -27,9 +27,10 @@ import 'finished_payment.dart';
 import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'log.dart';
 import 'net/lan_node_relay.dart';
-import 'net/tor_net.dart' show isLoopbackUrl;
 import 'network_gate.dart';
+import 'tor_build.dart';
 import 'relay_refused.dart' show refusedHandshake;
+import 'recipient.dart' show plainHttpToOtherDevice;
 import 'redact.dart';
 import 'secret_store_api.dart';
 import 'settings_file/host_settings.dart';
@@ -286,10 +287,11 @@ Stream<T> _epicboxStream<T>(String what, Stream<T> Function() make) {
   return _guardStream(make());
 }
 
-/// Tor only refuses a Direct send to an http(s) address that is not this computer: it would go
-/// on the clearnet (tor_routes.dart, [torWayIn]).
+/// Tor only refuses a Direct send over plain `http` to another device: whoever is on the path,
+/// a Tor exit too, could take the payment (tor_routes.dart, [torWayIn]). `https` goes through
+/// the wallet's Tor, which LEPIC waits for.
 void _torOnlyRefusesHttp(String url) {
-  if (NetGate.torOnly && !isLoopbackUrl(Uri.tryParse(url.trim()) ?? Uri())) {
+  if (NetGate.torOnly && plainHttpToOtherDevice(url)) {
     throw NetBlocked(NetworkMode.torOnly, 'send over HTTP');
   }
 }
@@ -844,6 +846,12 @@ class LepicWalletService implements WalletService {
     return _lepicConfig(config, dir.path);
   }
 
+  /// Whether the Tor switch is on for [config]'s wallet, asked before its session opens. LEPIC
+  /// then waits for tor from the first connection (`WalletConfig.torWanted`), so a tor that
+  /// never starts (no tor bundle) blocks the node, Epicbox and Direct sends instead of letting
+  /// them go directly. Each app's main sets it; without it (tests, the web) no tor is wanted.
+  static Future<bool> Function(WalletConfig config)? torWantedFor;
+
   /// What LEPIC is given for [config] (tests).
   @visibleForTesting
   static Future<lepic.WalletConfig> lepicConfigOf(WalletConfig config) => _lepicConfig(config, config.dataDir);
@@ -866,6 +874,8 @@ class LepicWalletService implements WalletService {
         ],
         tuning: netTuningOf(appConfig),
         offline: config.offline,
+        // Kill switch runs no tor, and the build without Tor has none.
+        torWanted: torBuilt && !config.offline && await (torWantedFor?.call(config) ?? Future.value(false)),
       );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`

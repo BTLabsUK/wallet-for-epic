@@ -160,7 +160,10 @@ Future<List<Override>> deskOverrides() async {
     torSwitch = false;
   }
   if (!DeskFeatures.tor) logInfo('desk', 'tor: not in this build');
-  final wallet = LepicDeskWallet(
+  late final LepicDeskWallet wallet;
+  // A wallet opened with the Tor switch on waits for tor, so a missing tor bundle blocks.
+  wantTorAtOpen((config) => wallet.torWantedAt(config));
+  wallet = LepicDeskWallet(
     // A dev build with test networks starts on the one chosen last on Welcome.
     preset: preset,
     service: container.read(walletServiceProvider),

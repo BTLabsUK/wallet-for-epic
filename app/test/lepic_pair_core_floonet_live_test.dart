@@ -62,7 +62,7 @@ class _FileStore implements lepic.SecretStore {
 
 late lepic.LepicRuntime _runtime;
 
-lepic.WalletConfig _config(String name, {String relay = _relay}) => lepic.WalletConfig(
+lepic.WalletConfig _config(String name, {String relay = _relay}) => lepic.WalletConfig(torWanted: false, 
   dataDir: (Directory('$_dir/$name')..createSync(recursive: true)).path,
   chain: lepic.Chain.floonet,
   nodeUrl: _node,

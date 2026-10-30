@@ -13,7 +13,10 @@ import 'tor_routes.dart';
 /// Off while the switch is off (tor started only for one send stays a send's own) or this
 /// build has no tor; on once tor is connected.
 TorState phoneTorState(PhoneTorState s) {
-  if (!s.receiving || s.phase == PhoneTorPhase.unavailable) return TorState.off;
+  if (!s.receiving) return TorState.off;
+  // The switch on without tor (its bundle missing): blocked, never the clearnet. The build
+  // without Tor never has the switch on.
+  if (s.phase == PhoneTorPhase.unavailable) return torBuilt ? TorState.failed : TorState.off;
   return switch (s.phase) {
     PhoneTorPhase.connected || PhoneTorPhase.ready => TorState.on,
     PhoneTorPhase.failed => TorState.failed,

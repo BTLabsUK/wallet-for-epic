@@ -18,6 +18,11 @@ import 'windows_secret_store.dart';
 /// Loads LEPIC's native library. Before any [createWalletService] call.
 Future<void> initWalletBackend() => initLepic();
 
+/// How the app tells whether a wallet opens with its Tor switch on, asked before each session
+/// opens ([LepicWalletService.torWantedFor]): the session then waits for tor from its first
+/// connection and never goes directly, also when no tor bundle is found.
+void wantTorAtOpen(Future<bool> Function(WalletConfig config) wanted) => LepicWalletService.torWantedFor = wanted;
+
 WalletService createWalletService(SecretStore secrets) =>
     LepicWalletService(
       secrets: secrets,

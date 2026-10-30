@@ -328,6 +328,15 @@ class PhoneTor extends Notifier<PhoneTorState> {
     return false;
   }
 
+  /// Whether [config]'s wallet opens with its Tor switch on (Tor only turns it on): its session
+  /// then waits for tor from its first connection, also when no tor bundle is found, so that
+  /// case is blocked, never direct. Never on iOS or in the build without Tor.
+  static Future<bool> wantedAtOpen(SecretStore store, WalletConfig config) async {
+    if (!torBuilt || defaultTargetPlatform == TargetPlatform.iOS) return false;
+    if (NetGate.torOnly) return true;
+    return await store.read(receivingKey(config)) == 'true';
+  }
+
   /// Before [session] opens: hands it Epicbox over Tor ([epicboxOverTorProvider]) and the onion
   /// routes ([onionDirectoryProvider]) and, when tor will start for receiving, has its Epicbox
   /// connection wait for that tor (`expectTor`) instead of going directly until tor is up.
@@ -347,9 +356,8 @@ class PhoneTor extends Notifier<PhoneTorState> {
     final receiving = await ref.read(secretStoreProvider).read(receivingKey(config));
     // Tor only turns the switch on when the wallet opens ([PhoneTor._open]).
     if (receiving != 'true' && !NetGate.torOnly) return;
-    // In Tor only the wallet waits for a tor even when no bundle is found: it never goes
-    // directly instead.
-    if (!NetGate.torOnly && await ref.read(torBundleFinderProvider)() == null) return;
+    // The wallet waits for a tor even when no bundle is found: it never goes directly
+    // instead, and Tor shows as blocked ([phoneTorState]).
     await session.expectTor();
   }
 
@@ -512,7 +520,20 @@ class PhoneTor extends Notifier<PhoneTorState> {
     if (!ref.mounted) return;
     state = state.copyWith(receiving: on);
     logInfo('tor', 'receiving ${on ? 'on' : 'off'}');
-    if (_session == null || state.phase == PhoneTorPhase.unavailable) return;
+    final session = _session;
+    if (session == null) return;
+    if (state.phase == PhoneTorPhase.unavailable) {
+      // No tor bundle: the session opened waiting for a tor that never comes ([wantedAtOpen]).
+      // Off ends that wait; on keeps it, blocked.
+      if (!on) {
+        try {
+          await session.stopTor();
+        } on WalletError catch (e) {
+          logWarn('tor', 'stop: ${e.kind.name}');
+        }
+      }
+      return;
+    }
     if (on) {
       _stopAfterSends = false;
       _restarts = 0;

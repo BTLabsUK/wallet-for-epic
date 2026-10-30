@@ -253,6 +253,14 @@ class LepicDeskWallet implements DeskWalletApi {
     _followTor();
   }
 
+  /// Whether the wallet of [config] opens with the Tor switch on: its session then waits for
+  /// tor from the first connection, also when no tor bundle is found (blocked, never direct).
+  /// `main_desktop.dart` hands it to the wallet core (`wantTorAtOpen`).
+  Future<bool> torWantedAt(core.WalletConfig config) async =>
+      _torFeature &&
+      !NetGate.killSwitch &&
+      (NetGate.torOnly || (await _store.torSwitch() ?? (await _store.autostart(config.walletId)).tor));
+
   /// Passwords remembered on this computer, per wallet.
   final RememberedPasswords _remember;
 
@@ -1066,9 +1074,9 @@ class LepicDeskWallet implements DeskWalletApi {
     );
     _torSaved = torSwitch;
     // Tor starts with startAutostart, after the first node check and sync: those wait for it
-    // instead of asking the node directly first. In Tor only they wait even when no tor bundle
-    // is found: nothing may go out directly then.
-    if (_settings.torAutostart && (NetGate.torOnly || await _findTor() != null)) await _expectTor(session);
+    // instead of asking the node directly first, also when no tor bundle is found: the Tor
+    // switch on never lets anything go out directly (the session opened waiting, torWanted).
+    if (_settings.torAutostart) await _expectTor(session);
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     await _seedContacts();
     if (entry.walletFingerprint == null) await _keepWalletFingerprint(entry, session);
@@ -1110,9 +1118,9 @@ class LepicDeskWallet implements DeskWalletApi {
       }
       return;
     }
-    // Tor starts below: the first Epicbox connection waits for it, never going directly first;
-    // in Tor only also when no tor bundle is found, so it waits instead of going directly.
-    if (_torFeature && _settings.torAutostart && (NetGate.torOnly || await _findTor() != null)) await _expectTor(session);
+    // Tor starts below: the first Epicbox connection waits for it, never going directly first,
+    // also when no tor bundle is found: it then stays blocked instead of going directly.
+    if (_torFeature && _settings.torAutostart) await _expectTor(session);
     // The Epicbox switch off (Settings › Transactions): no listener, whatever Start with the
     // wallet says.
     if (_settings.epicboxAutostart && _settings.payments.epicbox) {
@@ -4226,7 +4234,16 @@ class LepicDeskWallet implements DeskWalletApi {
     _torProgress = null;
     _torCanSend = false;
     if (sub == null) {
-      if (was == ServiceHealth.off) return;
+      if (was == ServiceHealth.off) {
+        // Never started, but the session may have opened waiting for it (torWantedAt): the
+        // stop ends that wait.
+        try {
+          await _session?.stopTor();
+        } on core.WalletError catch (e) {
+          logWarn('desk', 'stop tor: ${e.kind.name}');
+        }
+        return;
+      }
       // Tor ended by itself: LEPIC keeps the Epicbox connection waiting for it until stopped.
       try {
         await _session?.stopTor();

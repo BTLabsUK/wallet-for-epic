@@ -30,15 +30,16 @@ void main() {
       expect(torWay(TorRoute.onionDirect, TorState.on), TorWay.overTor);
     }, skip: !torBuilt ? 'no Tor in this build' : null);
 
-    test('Link to http(s) stays on the clearnet in every state', () {
-      for (final s in TorState.values) {
-        expect(torWay(TorRoute.httpDirect, s), TorWay.clearnet, reason: s.name);
-      }
-      expect(torCovered, isNot(contains(TorRoute.httpDirect)));
+    test('Link to https goes over Tor while Tor is on, as Epicbox does', () {
+      expect(torCovered, contains(TorRoute.httpDirect));
+      expect(torWay(TorRoute.httpDirect, TorState.off), TorWay.clearnet);
+      expect(torWay(TorRoute.httpDirect, TorState.starting), TorWay.wait);
+      expect(torWay(TorRoute.httpDirect, TorState.failed), TorWay.blocked);
+      expect(torWay(TorRoute.httpDirect, TorState.on), TorWay.overTor);
     });
 
-    test('the clearnet HTTP listener is off while Tor is on', () {
-      for (final route in [TorRoute.httpListener]) {
+    test('the clearnet HTTP listener and plain http to another device are off while Tor is on', () {
+      for (final route in [TorRoute.httpListener, TorRoute.plainHttpDirect]) {
         expect(torWay(route, TorState.off), TorWay.clearnet);
         for (final s in [TorState.starting, TorState.on, TorState.failed]) {
           expect(torWay(route, s), TorWay.off, reason: '${route.name} ${s.name}');
