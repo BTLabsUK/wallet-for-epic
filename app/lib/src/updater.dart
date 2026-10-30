@@ -2,7 +2,8 @@
 /// In-app updates for Android builds distributed outside an app store.
 ///
 /// A release publishes `update.json` (written and signed by `tool/release_android.sh`) on BT
-/// Labs' Pages site; the split APKs stay on the GitHub release. `update.json` is a signed
+/// Labs' server and its copies (`[updates] manifests` of app-config.toml); the APKs are on BT
+/// Labs' download server, with a copy on the GitHub release. `update.json` is a signed
 /// envelope (btlabs-public FORMAT.md §6): the app verifies it with the bundled keys
 /// ([btlabsKeyring]) before it shows or downloads anything, and an unsigned, forged, expired or
 /// older one means "no update information". The build without Tor reads only the file's `notor`

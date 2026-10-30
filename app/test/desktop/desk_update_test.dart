@@ -346,7 +346,7 @@ Future<void> main(List<String> a) async {
       return c;
     }
 
-    // The three sources (updateManifestSources): BT Labs' own server, the GitLab copy, GitHub Pages.
+    // The three sources (updateManifestSources): BT Labs' own server, the GitLab copy, the GitHub release.
     final ours = updateManifestSources[0], gitlab = updateManifestSources[1], github = updateManifestSources[2];
     Future<String> Function() offering(String version, int serial) =>
         () => signedUpdate(testUpdatePayload(serial: serial, desktop: _desktop(version: version)));
@@ -387,13 +387,13 @@ Future<void> main(List<String> a) async {
       }
     });
 
-    test('GitLab private (a sign-in page) and GitHub Pages hidden: our server\'s manifest is used', () async {
+    test('GitLab private (a sign-in page) and no GitHub release yet: our server\'s manifest is used', () async {
       final c = make(statusAt: {github: 404}, bodyAt: {gitlab: () async => '<!DOCTYPE html><html>Sign in</html>'});
       await c.read(deskUpdateProvider.notifier).check();
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
     });
 
-    test('only GitHub Pages answers: its manifest is used; every source down: the check failed', () async {
+    test('only the GitHub release answers: its manifest is used; every source down: the check failed', () async {
       final c = make(statusAt: {ours: 503, gitlab: 503});
       await c.read(deskUpdateProvider.notifier).check();
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);

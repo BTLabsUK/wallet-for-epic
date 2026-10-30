@@ -29,7 +29,7 @@ void main() {
   final now = DateTime(2026, 10, 22, 12);
 
   // Signed manifests (test key A; the test keyring stands in for the bundled one).
-  const page = 'https://hub.example.invalid/BTLabs-EPIC/epic-wallet/releases/tag/v26.10.1';
+  const page = 'https://hub.example.invalid/BTLabsUK/epic-wallet/releases/tag/v26.10.1';
   late String newer, same, phoneOnly, offAccounts, unsignedNewer, forgedNewer, olderLatest, testBuild;
   // A version newer than any this app will carry, so the tests hold whatever the app's version is.
   const next = '99.1.0';
@@ -39,7 +39,7 @@ void main() {
     phoneOnly = await signedUpdate(testUpdatePayload(versionName: '0.2.0'));
     // The verifier's schema only takes pages on the project's GitHub accounts, so a page
     // elsewhere is a manifest that does not verify, not one that opens a fallback.
-    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': 'https://hub.example.invalid.evil.example/BTLabs-EPIC/'}));
+    offAccounts = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': 'https://hub.example.invalid.evil.example/BTLabsUK/'}));
     unsignedNewer = '{"versionName": "9.0.0", "desktop": {"version": "$next", "page": "$page"}}';
     forgedNewer = await signedUpdate(testUpdatePayload(desktop: {'version': next, 'page': page}), keys: [await testUpdateStrangerKey()]);
     // Older than [newer] (a replay): it says this version is the latest, which must not win.
@@ -235,14 +235,14 @@ void main() {
   });
 
   test('download pages: https on the project account only', () {
-    expect(isDeskUpdatePage('https://hub.example.invalid/BTLabs-EPIC/epic-wallet/releases'), isTrue);
-    expect(isDeskUpdatePage('https://HUB.example.invalid/BTLabs-EPIC/x'), isTrue);
-    expect(isDeskUpdatePage('http://hub.example.invalid/BTLabs-EPIC/x'), isFalse);
+    expect(isDeskUpdatePage('https://hub.example.invalid/BTLabsUK/epic-wallet/releases'), isTrue);
+    expect(isDeskUpdatePage('https://HUB.example.invalid/BTLabsUK/x'), isTrue);
+    expect(isDeskUpdatePage('http://hub.example.invalid/BTLabsUK/x'), isFalse);
     expect(isDeskUpdatePage('https://hub.example.invalid/someone/x'), isFalse);
     // The developer's own account is no download place any more.
     expect(isDeskUpdatePage('https://hub.example.invalid/blacktyger/wallet-for-epic/releases/latest'), isFalse);
-    expect(isDeskUpdatePage('https://hub.example.invalid/BTLabs-EPIC.evil/x'), isFalse);
-    expect(isDeskUpdatePage('https://user@hub.example.invalid/BTLabs-EPIC/x'), isFalse);
+    expect(isDeskUpdatePage('https://hub.example.invalid/BTLabsUK.evil/x'), isFalse);
+    expect(isDeskUpdatePage('https://user@hub.example.invalid/BTLabsUK/x'), isFalse);
     expect(isDeskUpdatePage('https://example.com/get'), isFalse);
   });
 

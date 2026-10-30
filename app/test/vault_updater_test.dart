@@ -833,7 +833,7 @@ void main() {
     );
 
     // Three sources on the local server, in the order of updateManifestSources: BT Labs' own
-    // server, the GitLab copy, GitHub Pages.
+    // server, the GitLab copy, the GitHub release.
     ProviderContainer sources(String first, String second, [String third = 'gone']) {
       final c = ProviderContainer(
         overrides: [

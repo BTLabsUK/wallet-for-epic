@@ -115,7 +115,7 @@ manifests = [
 ]
 downloads = "https://releases.lab.invalid/releases/downloads/"
 releases_page = "https://releases.lab.invalid/releases/"
-pages = ["https://releases.lab.invalid/releases/", "https://hub.example.invalid/BTLabs-EPIC/"]
+pages = ["https://releases.lab.invalid/releases/", "https://hub.example.invalid/BTLabsUK/"]
 [support]
 timeout_s = 20
 report = "https://support.lab.invalid/v1/report"

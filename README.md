@@ -11,7 +11,8 @@
 [![Version 26.10](https://img.shields.io/badge/version-26.10-informational.svg)](app/pubspec.yaml)
 
 [Build](#build-from-source) · [Documentation](https://docs.btlabs.uk) ·
-[LEPIC](https://gitlab.com/epic-cash-bt/lepic) · [Security](SECURITY.md)
+[LEPIC](https://gitlab.com/epic-cash-bt/lepic) · [Security](SECURITY.md) ·
+[GitHub mirror](https://github.com/BTLabsUK/wallet-for-epic)
 
 </div>
 
@@ -164,6 +165,14 @@ engine belong in [LEPIC](https://gitlab.com/epic-cash-bt/lepic).
 - User guide and developer guide: https://docs.btlabs.uk (building from source:
   https://docs.btlabs.uk/developers/build/)
 - Wiki: https://gitlab.com/epic-cash-bt/wallet-for-epic/-/wikis/home
+
+## Source
+
+GitLab is the home of the source, the issues and the merge requests:
+[gitlab.com/epic-cash-bt/wallet-for-epic](https://gitlab.com/epic-cash-bt/wallet-for-epic).
+GitHub holds an exact read-only copy (the same commits and tags):
+[github.com/BTLabsUK/wallet-for-epic](https://github.com/BTLabsUK/wallet-for-epic), with the
+release files on its Releases page as a second download place.
 
 ## License
 
