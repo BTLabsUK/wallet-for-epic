@@ -6,11 +6,12 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_scheduler.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
-import 'package:epic_wallet/src/desktop/data/models.dart' show DeskError, OutputWord, Tx, TxState;
+import 'package:epic_wallet/src/desktop/data/models.dart' show OutputWord, Tx, TxState;
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -637,23 +638,19 @@ void main() {
       await expectLater(wallet.cancelInvoicePayment('inv-1'), throwsA(isA<InvoiceError>()), reason: 'LEPIC asks the node first');
     });
 
-    test('Cancel payment, then Spend them to myself now: exactly the coins the payment locked', () async {
+    test('Cancel payment spends exactly the coins the payment locked back to the wallet, in the same action', () async {
       lepicWallet.park('inv-1', 12000);
       await wallet.invoices();
       final paid = await wallet.payInvoice('inv-1', amount: 12000, password: _password);
       lepicWallet.lockedBy.addAll({'c-in-1': paid.txId!, 'c-other': 77});
-      await wallet.cancelInvoicePayment('inv-1');
+      expect(await wallet.cancelInvoicePayment('inv-1'), CancelResult.spentBack);
       expect(lepicWallet.cancelled, [paid.txId]);
-      final cancelled = (await wallet.invoices()).invoice('inv-1')!;
-      expect(cancelled.state, PayState.cancelled);
-      expect(cancelled.spendToSelf, isTrue, reason: 'the details offer it while the coins are known');
-      final sent = await wallet.spendCancelledToSelf('inv-1');
-      expect((await wallet.invoices()).invoice('inv-1')!.spendToSelf, isFalse);
       expect(lepicWallet.spentToSelf, [
         ['c-in-1'],
-      ]);
-      expect(sent.fee, 1000);
-      await expectLater(wallet.spendCancelledToSelf('inv-1'), throwsA(isA<DeskError>()), reason: 'once only');
+      ], reason: 'no other coin, no extra step');
+      final cancelled = (await wallet.invoices()).invoice('inv-1')!;
+      expect(cancelled.state, PayState.cancelled);
+      expect(cancelled.cancelNotFinal, isFalse, reason: 'its coin is spent again');
     });
 
     test('a failed check keeps the lists and says the relay', () async {

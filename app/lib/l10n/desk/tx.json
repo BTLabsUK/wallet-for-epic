@@ -561,9 +561,9 @@
       }
     }
   },
-  "deskTxCancelNotPostedBody": "{amount} EPIC to {who}. Both wallets signed it, but the network has not taken it. The wallet asks the node first and refuses if the network has it; otherwise the locked amount returns to the balance.",
+  "deskTxCancelNotPostedBody": "{amount} EPIC to {who}. Both wallets signed it, so it could still reach the network. Cancelling sends the coins back to this wallet, for a small network fee, so it never can.",
   "@deskTxCancelNotPostedBody": {
-    "description": "Body of the cancel dialog for a send the node refused (finalized, not posted). Not certain.",
+    "description": "Body of the cancel dialog for a send the node refused (finalized, not posted). Cancel also spends the coins back to the wallet itself (one network fee), which makes the old payment impossible to complete. The wallet asks the node first and refuses if the network already has it.",
     "placeholders": {
       "amount": {
         "type": "String",

@@ -15,7 +15,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../log.dart';
 import 'api.dart';
 import 'invoices.dart';
-import 'models.dart' show ReceivedFile, SelfSend;
+import '../../cancel_final.dart' show CancelResult;
+import 'models.dart' show ReceivedFile;
 import 'state.dart';
 import 'pairing_state.dart' show deskInvoicesOnProvider, deskInvoicesShownProvider;
 
@@ -112,8 +113,7 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
       _then('pay', () => ref.read(deskSendingProvider.notifier).during(() => _api.payInvoice(slateId, amount: amount, password: password)));
   Future<IncomingInvoice> retry(String slateId) => _then('retry', () => _api.retryInvoiceReply(slateId));
   Future<void> decline(String slateId) => _then('decline', () => _api.declineInvoice(slateId));
-  Future<void> cancelPayment(String slateId) => _then('cancelPayment', () => _api.cancelInvoicePayment(slateId));
-  Future<SelfSend> spendToSelf(String slateId) => _then('spendToSelf', () => _api.spendCancelledToSelf(slateId));
+  Future<CancelResult> cancelPayment(String slateId) => _then('cancelPayment', () => _api.cancelInvoicePayment(slateId));
   Future<void> setExpiry(Duration expiry) => _then('setExpiry', () => _api.setInvoiceExpiry(expiry));
 
   /// Runs [call], then reads the book again (and the wallet, for balance and Activity) whether

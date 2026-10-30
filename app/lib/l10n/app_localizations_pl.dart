@@ -5770,7 +5770,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskInvPayerCancelText =>
-      'Anulowanie odblokowuje tutaj twoje środki. Serwis nadal ma twoją podpisaną płatność, więc może ją jeszcze sfinalizować, dopóki te środki nie zostaną ponownie wydane.';
+      'Serwis ma twoją podpisaną płatność i wciąż może ją dokończyć. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5797,20 +5797,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvPayerDeclined => 'Faktura odrzucona. Nic nie zapłacono.';
 
   @override
-  String get deskInvPayerSpendToSelf =>
-      'Wyślij je teraz z powrotem do tego portfela';
-
-  @override
-  String get deskInvPayerSpendToSelfHelp =>
-      'Czyni anulowanie ostatecznym: podpisanej kopii w serwisie nie da się już zrealizować. Kosztuje opłatę sieciową.';
-
-  @override
   String get deskInvPayerSpentText =>
-      'Twoje środki są odblokowane i przeniesione w obrębie tego portfela. Anulowanie jest ostateczne.';
+      'Monety wracają do tego portfela, więc płatność nie może się już zakończyć.';
 
   @override
   String get deskInvPayerSpendFailedText =>
-      'Twoje środki są odblokowane, ale przeniesienie się nie udało. Anulowanie nie jest jeszcze ostateczne.';
+      'Monety są odblokowane, ale odesłanie ich jeszcze się nie udało. Portfel ponawia próbę; do tego czasu płatność wciąż może się zakończyć.';
 
   @override
   String get deskInvPayerLocked =>
@@ -17460,7 +17452,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelRequestBody =>
-      'Druga strona ma twoją podpisaną płatność i wciąż może ją wysłać, dopóki te monety nie zostaną ponownie wydane. Anulowanie uwalnia twoje monety tutaj.';
+      'Druga strona ma twoją podpisaną płatność i wciąż może ją dokończyć. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
+
+  @override
+  String get txDetailsCancelNotPostedBody =>
+      'Oba portfele ją podpisały, więc wciąż mogłaby trafić do sieci. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
 
   @override
   String get cancelMoreInHelp => 'Więcej w Pomocy';
@@ -17479,15 +17475,35 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get cancelNoteRequestPaid =>
-      'Druga strona ma twoją podpisaną płatność i wciąż może ją wysłać. Anulowanie uwalnia twoje monety tutaj.';
+      'Druga strona ma twoją podpisaną płatność. Anulowanie odsyła monety do tego portfela, więc płatność nie może się zakończyć.';
 
   @override
   String get cancelNoteRequestWithdraw =>
       'Nic nie zapłacono: wycofanie nie przenosi żadnych monet.';
 
   @override
+  String get cancelNoteNotPostedSend =>
+      'Oba portfele ją podpisały. Anulowanie sprawdza sieć, a potem odsyła monety do tego portfela, więc płatność nie może się zakończyć.';
+
+  @override
+  String get txDetailsCancelledFinal =>
+      'Anulowano. Jej monety wróciły do tego portfela, więc nie może się już zakończyć.';
+
+  @override
+  String get txDetailsCancelledMayComplete =>
+      'Anulowano, a monety są odblokowane. Druga strona może ją jeszcze dokończyć; wtedy pokaże się jako zapłacona.';
+
+  @override
+  String get txDetailsCancelledSpentBack =>
+      'Płatność anulowana. Jej monety wracają do tego portfela, więc nie może się już zakończyć.';
+
+  @override
+  String get txDetailsCancelledSpendBackPending =>
+      'Płatność anulowana, ale jej monety nie zostały jeszcze odesłane. Portfel ponawia próbę.';
+
+  @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '$amount EPIC do $who. Oba portfele ją podpisały, ale sieć jej nie przyjęła. Portfel najpierw pyta węzeł i odmawia, jeśli sieć ją ma; inaczej zablokowana kwota wraca do salda.';
+    return '$amount EPIC do $who. Oba portfele ją podpisały, więc wciąż mogłaby trafić do sieci. Anulowanie odsyła monety do tego portfela, za niewielką opłatą sieciową, więc nigdy już tego nie zrobi.';
   }
 
   @override

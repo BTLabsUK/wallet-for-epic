@@ -266,7 +266,7 @@ class IncomingInvoice {
     this.txId,
     this.answeredAt,
     this.kernel,
-    this.spendToSelf = false,
+    this.cancelNotFinal = false,
   });
 
   final String slateId;
@@ -307,9 +307,9 @@ class IncomingInvoice {
   /// From the service's `posted` notice.
   final String? kernel;
 
-  /// A [PayState.cancelled] payment whose coins this wallet can still spend to itself, which
-  /// makes the cancel final.
-  final bool spendToSelf;
+  /// A [PayState.cancelled] payment whose coins are still unspent, so the service could still
+  /// finish it (its spend back failed, or it was cancelled before Cancel spent them back).
+  final bool cancelNotFinal;
 
   int get total => amount + fee;
 
@@ -318,7 +318,7 @@ class IncomingInvoice {
     return left.isNegative ? Duration.zero : left;
   }
 
-  IncomingInvoice copyWith({PayState? state, int? confirmations, int? txId, DateTime? answeredAt, String? kernel, bool? spendToSelf}) => IncomingInvoice(
+  IncomingInvoice copyWith({PayState? state, int? confirmations, int? txId, DateTime? answeredAt, String? kernel, bool? cancelNotFinal}) => IncomingInvoice(
     slateId: slateId,
     senderAddress: senderAddress,
     label: label,
@@ -335,7 +335,7 @@ class IncomingInvoice {
     txId: txId ?? this.txId,
     answeredAt: answeredAt ?? this.answeredAt,
     kernel: kernel ?? this.kernel,
-    spendToSelf: spendToSelf ?? this.spendToSelf,
+    cancelNotFinal: cancelNotFinal ?? this.cancelNotFinal,
   );
 }
 

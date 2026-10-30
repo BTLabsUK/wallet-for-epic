@@ -8,6 +8,7 @@ import '../help/help_content.dart' show HelpAnchor;
 import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../cancel_final.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -122,6 +123,7 @@ String txExplanation(
   int? target,
   bool mailbox = false,
   BlockWait wait = BlockWait.none,
+  bool? cancelFinal,
 }) {
   final n = txConfirmations(tx, tip);
   final height = tx.blockHeight;
@@ -179,6 +181,14 @@ String txExplanation(
       height == null
           ? l.txDetailsCompleted
           : l.txDetailsCompletedInBlock(groupDigits(l, height)),
+    // One the other side could have finished (cancel_final.dart): final once its coins were
+    // spent again, by Cancel's spend back or a later payment. [cancelFinal] is null until known.
+    TxPhase.cancelled
+        when outgoing &&
+            cancelFinal != null &&
+            (tx.cancelReason == null || tx.cancelReason == CancelReason.user) &&
+            cancelledMayComplete(tx) =>
+      cancelFinal ? l.txDetailsCancelledFinal : l.txDetailsCancelledMayComplete,
     TxPhase.cancelled when outgoing && tx.cancelReason != null =>
       _cancelledBecause(l, tx, tx.cancelReason!),
     // No recorded reason (cancelled before the wallet kept one): infer it.
@@ -522,7 +532,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     if (id == null) return;
     final receive = !txAmount(tx).outgoing;
     // A request this wallet paid: the issuer holds a copy it can finish, so the words differ.
-    final paidRequest = !receive && tx.slateId != null && ref.read(paidInvoiceProvider(tx.slateId!)).value != null;
+    final paidRequest = !receive &&
+        (tx.flow == TxFlow.invoice || (tx.slateId != null && ref.read(paidInvoiceProvider(tx.slateId!)).value != null));
+    // A send both wallets signed: a copy could still reach the network. Either way the cancel
+    // spends the coins back (cancel_final.dart), for a fee the dialog names.
+    final signedSend = !receive && !paidRequest && cancelSpendsBack(tx);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -535,6 +549,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                 ? l.txDetailsCancelReceiveBody
                 : paidRequest
                 ? l.txDetailsCancelRequestBody
+                : signedSend
+                ? l.txDetailsCancelNotPostedBody
                 : l.txDetailsCancelSendBody,
             anchor: receive
                 ? HelpAnchor.receiving
@@ -562,13 +578,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     if (session == null) return;
     setState(() => _busy = true);
     try {
-      await session.cancelTransaction(txId: id);
+      final result = await ref.read(cancelFinalProvider).cancel(session, tx);
       // The linked devices free its coins at once, not at the next tick.
       unawaited(ref.read(deviceServiceProvider)?.announceNow());
       if (!mounted) return;
+      final l = context.l10n;
       _showMessage(
-        context.l10n.txDetailsPaymentCancelled,
-        level: NoticeLevel.success,
+        switch (result) {
+          CancelResult.cancelled => l.txDetailsPaymentCancelled,
+          CancelResult.spentBack => l.txDetailsCancelledSpentBack,
+          CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+        },
+        level: result == CancelResult.spendBackPending ? NoticeLevel.warning : NoticeLevel.success,
       );
       await _reload();
     } catch (error) {
@@ -685,6 +706,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final incoming = incomingCancelOf(tx, now: now);
     final cancel = cancellable && incoming.offered && !_onNetwork;
     final cancelHeld = cancellable && !incoming.offered;
+    // A cancelled payment the other side could have finished: whether its coins were spent
+    // again, from the outputs (null while they load).
+    final cancelFinalNow = cancelledMayComplete(tx)
+        ? switch (ref.watch(walletOutputsProvider).value) {
+            final outputs? => cancelFinal(tx, outputs),
+            null => null,
+          }
+        : null;
     _tickWhile(cancelHeld && !incoming.senderReportsPosted);
     // What the status card offers beside the status.
     final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || cancel || cancelHeld;
@@ -741,7 +770,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   if (!ownSteps) ...[
                     TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
-                    Text(txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait)),
+                    Text(txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait, cancelFinal: cancelFinalNow)),
                     // Waiting for a paired contact's answer: its relay silent, or its keys
                     // changed meanwhile.
                     if (mailboxWaiting && mailboxPairing != null && mailboxPairing.state == PairingState.keysChanged) ...[
@@ -857,7 +886,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       CancelNote(
                         key: txDetailsCancelNoteKey,
                         text: outgoing
-                            ? (paidInvoice != null ? l.cancelNoteRequestPaid : l.cancelNoteSendWaiting)
+                            ? (paidInvoice != null || tx.flow == TxFlow.invoice
+                                ? l.cancelNoteRequestPaid
+                                : cancelSpendsBack(tx)
+                                ? l.cancelNoteNotPostedSend
+                                : l.cancelNoteSendWaiting)
                             : '${acceptedAgoText(l, incoming.signedAgo)} ${l.txDetailsCancelOffered}',
                         anchor: outgoing
                             ? (paidInvoice != null ? HelpAnchor.requests : HelpAnchor.sending)

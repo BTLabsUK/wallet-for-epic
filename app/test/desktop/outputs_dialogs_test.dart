@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // The Outputs page's cards and its Split and Consolidate dialogs.
+import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/models.dart' show nothingToConsolidate;
 import 'package:epic_wallet/src/desktop/screens/wallet/outputs_dialogs.dart';
@@ -67,7 +68,10 @@ class _Wallet extends MockDeskWallet {
   Future<void> repostTx(int id) async => reposts.add(id);
 
   @override
-  Future<void> cancelTx(int id) async => cancels.add(id);
+  Future<CancelResult> cancelTx(int id) async {
+    cancels.add(id);
+    return CancelResult.cancelled;
+  }
 
   @override
   Future<void> saveOutputPrefs(OutputPrefs prefs) async {

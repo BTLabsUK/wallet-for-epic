@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
 import '../contacts.dart';
+import '../cancel_final.dart';
 import '../errors.dart';
 import '../pairing_providers.dart';
 import '../l10n.dart';
@@ -357,9 +358,17 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     final l = context.l10n;
     final notices = ref.read(noticeProvider.notifier);
     try {
-      await session.cancelTransaction(txId: id);
-      logInfo('invoices', 'payment of a withdrawn invoice cancelled');
-      notices.show(l.txDetailsPaymentCancelled, level: NoticeLevel.success);
+      // The issuer holds the signed payment: the cancel also spends its coins back.
+      final result = await ref.read(cancelFinalProvider).cancel(session, tx);
+      logInfo('invoices', 'payment of a withdrawn invoice cancelled: ${result.name}');
+      notices.show(
+        switch (result) {
+          CancelResult.cancelled => l.txDetailsPaymentCancelled,
+          CancelResult.spentBack => l.txDetailsCancelledSpentBack,
+          CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+        },
+        level: result == CancelResult.spendBackPending ? NoticeLevel.warning : NoticeLevel.success,
+      );
     } catch (error) {
       notices.show(describeError(l, error), level: NoticeLevel.error);
     }

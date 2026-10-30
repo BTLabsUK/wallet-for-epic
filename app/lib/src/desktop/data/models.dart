@@ -285,6 +285,7 @@ class Tx {
     this.fromBackup = false,
     this.cancellable = false,
     this.notPosted = false,
+    this.cancelFinal,
     this.undelivered = false,
     this.confirmedAt,
     this.startedAt,
@@ -410,6 +411,11 @@ class Tx {
   /// outputs locked. It can still be cancelled; the core asks the node first.
   final bool notPosted;
 
+  /// For a cancelled payment the other side could have finished without this wallet (an
+  /// invoice it paid, a send both signed): whether the cancel is final, its coins spent again
+  /// (cancel_final.dart). Null for every other row.
+  final bool? cancelFinal;
+
   /// An Epicbox, HTTP or Tor send no attempt has delivered: [DeskWalletApi.resendTx] sends
   /// it again. Never set for the send being made right now.
   final bool undelivered;
@@ -499,6 +505,7 @@ class Tx {
       fromBackup: fromBackup,
       cancellable: cancellable,
       notPosted: notPosted,
+      cancelFinal: cancelFinal,
       undelivered: undelivered,
       confirmedAt: confirmedAt,
       startedAt: startedAt,
@@ -556,6 +563,7 @@ class Tx {
     fromBackup: fromBackup,
     cancellable: cancellable,
     notPosted: notPosted,
+    cancelFinal: cancelFinal,
     undelivered: undelivered,
     confirmedAt: confirmedAt,
     startedAt: startedAt,

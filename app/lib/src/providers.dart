@@ -21,6 +21,7 @@ import 'net/node_peers.dart';
 import 'network_gate.dart';
 import 'relay_block.dart';
 import 'settings.dart' show appSettingsProvider, clockProvider, networkModeProvider;
+import 'cancel_final.dart';
 import 'sender_cancel.dart';
 import 'stall_retry.dart';
 import 'watch_mode.dart' show BlockWatch;
@@ -341,6 +342,13 @@ final senderCancelReleaseProvider = Provider<SenderCancelRelease>((ref) {
   return SenderCancelRelease();
 });
 
+/// The open wallet's cancels, with the spends back still owed ([CancelFinal]), kept across
+/// reloads.
+final cancelFinalProvider = Provider<CancelFinal>((ref) {
+  ref.watch(sessionProvider);
+  return CancelFinal();
+});
+
 class HomeNotifier extends AsyncNotifier<HomeData> {
   bool _enriching = false;
 
@@ -450,6 +458,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     Future<void>.delayed(Duration.zero, () => _enrich(session));
     unawaited(_retryStalled(session, transactions));
     unawaited(_releaseSenderCancelled(session, transactions));
+    unawaited(_retrySpendBack(session));
     return HomeData(
       summary: summary,
       transactions: transactions,
@@ -506,6 +515,18 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       if (released && ref.mounted) await relist();
     } catch (error) {
       logWarn('home', 'release of a cancelled payment failed: ${error.runtimeType}');
+    }
+  }
+
+  /// Spends back the coins of a payment cancelled while the wallet is open whose spend back
+  /// failed (cancel_final.dart), then reads the list again when one went.
+  Future<void> _retrySpendBack(WalletSession session) async {
+    final cancels = ref.read(cancelFinalProvider);
+    if (!cancels.owed) return;
+    try {
+      if (await cancels.retry(session) && ref.mounted) await relist();
+    } catch (error) {
+      logWarn('home', 'spend back of a cancelled payment failed: ${error.runtimeType}');
     }
   }
 

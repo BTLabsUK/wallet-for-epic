@@ -46,6 +46,17 @@ Future<void> _receiveOffered(ProviderContainer c, BuildContext _) async {
   await c.read(deskProvider.notifier).refresh();
 }
 
+/// A send both wallets signed that the node did not take, or the same send cancelled final.
+Future<void> _signedCancel(ProviderContainer c, BuildContext _) async {
+  mockBehind(c.read(deskApiProvider))?.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
+  await c.read(deskProvider.notifier).refresh();
+}
+
+Future<void> _cancelFinal(ProviderContainer c, BuildContext _) async {
+  mockBehind(c.read(deskApiProvider))?.addSignedCancelDemo(id: MockDeskWallet.cancelFinalDemoId);
+  await c.read(deskProvider.notifier).refresh();
+}
+
 /// Anna's or the pool's contact deleted: their payments show Add to contacts.
 Future<void> _forgetAnna(ProviderContainer c, BuildContext _) => c.read(deskProvider.notifier).deleteContact('c1');
 Future<void> _forgetPool(ProviderContainer c, BuildContext _) => c.read(deskProvider.notifier).deleteContact('c2');
@@ -146,6 +157,30 @@ final List<DeskShot> walletShots = [
     arg: MockDeskWallet.receiveOfferedDemoId,
     prepare: _receiveOffered,
     dialog: (c) => showCancelTxDialog(c, _tx(c, MockDeskWallet.receiveOfferedDemoId)),
+  ),
+  // WAL-20: a send both wallets signed; Cancel also spends its coins back, for a fee.
+  DeskShot(
+    id: '12o-tx-detail-signed-cancel',
+    title: 'Transaction detail, a send both signed that the node refused: Cancel spends the coins back',
+    route: DeskRoute.activity,
+    arg: MockDeskWallet.signedCancelDemoId,
+    prepare: _signedCancel,
+    height: 1150,
+  ),
+  DeskShot(
+    id: '35f-dlg-cancel-signed',
+    title: 'Cancel a send both signed: the spend back and its fee',
+    route: DeskRoute.activity,
+    arg: MockDeskWallet.signedCancelDemoId,
+    prepare: _signedCancel,
+    dialog: (c) => showCancelTxDialog(c, _tx(c, MockDeskWallet.signedCancelDemoId)),
+  ),
+  DeskShot(
+    id: '12p-tx-detail-cancel-final',
+    title: 'Transaction detail, a cancelled send whose coins went back: final',
+    route: DeskRoute.activity,
+    arg: MockDeskWallet.cancelFinalDemoId,
+    prepare: _cancelFinal,
   ),
   DeskShot(id: '35d-dlg-tx-details-add', title: 'Add details to a restored payment', route: DeskRoute.activity, arg: 102, dialog: (c) => showTxDetailsDialog(c, _tx(c, 102))),
   DeskShot(id: '35e-dlg-tx-details-edit', title: 'Edit details of a restored payment', route: DeskRoute.activity, arg: 103, dialog: (c) => showTxDetailsDialog(c, _tx(c, 103))),

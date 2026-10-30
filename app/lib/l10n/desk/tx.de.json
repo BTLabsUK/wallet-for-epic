@@ -100,7 +100,7 @@
   "deskTxCancelOutgoingTitle": "Diese Zahlung stornieren?",
   "deskTxCancelIncomingBody": "{amount} EPIC von {who} verlassen Ihr Guthaben. Die Wallet fragt zuerst den Node und lehnt ab, wenn die Zahlung schon in seinem Pool oder in einem Block ist. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
   "deskTxCancelOutgoingBody": "{amount} EPIC an {who}. Die Wallet des Empfängers kann sie ohne Ihre nicht abschließen: Der gesperrte Betrag kehrt ins Guthaben zurück.",
-  "deskTxCancelNotPostedBody": "{amount} EPIC an {who}. Beide Wallets haben signiert, aber das Netzwerk hat die Zahlung nicht angenommen. Die Wallet fragt zuerst den Node und lehnt ab, wenn das Netzwerk sie hat; sonst kehrt der gesperrte Betrag ins Guthaben zurück.",
+  "deskTxCancelNotPostedBody": "{amount} EPIC an {who}. Beide Wallets haben signiert, die Zahlung könnte also noch ins Netzwerk gelangen. Stornieren schickt die Coins gegen eine kleine Netzwerkgebühr an diese Wallet zurück, damit das nie mehr möglich ist.",
   "deskTxCancelKeep": "Behalten",
   "deskTxCancelIncomingAction": "Zahlung stornieren",
   "deskTxCancelOutgoingAction": "Zahlung stornieren",

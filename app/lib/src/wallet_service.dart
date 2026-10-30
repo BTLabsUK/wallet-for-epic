@@ -2572,6 +2572,9 @@ class FakeWalletSession implements WalletSession {
   /// The commitments of every [spendOutputsToSelf] call.
   final List<List<String>> spentToSelf = [];
 
+  /// When set, [spendOutputsToSelf] throws it after recording the call.
+  WalletError? spendToSelfError;
+
   @override
   Future<SelfSentTx> spendOutputsToSelf({
     required List<String> commitments,
@@ -2584,6 +2587,7 @@ class FakeWalletSession implements WalletSession {
       );
     }
     spentToSelf.add([...commitments]);
+    if (spendToSelfError case final error?) throw error;
     return _postSelf(_selfSend(1), 1);
   }
 

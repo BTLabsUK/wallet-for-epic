@@ -6,6 +6,7 @@ library;
 
 import '../../settings_file/host_settings.dart' show hostSettings, shippedHostSettings;
 import 'mock_hosts.dart';
+import '../../cancel_final.dart' show CancelResult;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -928,12 +929,15 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> cancelTx(int id) async {
+  Future<CancelResult> cancelTx(int id) async {
     await _wait();
     final i = _txs.indexWhere((t) => t.id == id);
-    if (i < 0) return;
+    if (i < 0) return CancelResult.cancelled;
     final t = _txs[i];
-    _txs[i] = Tx(id: t.id, slateId: t.slateId, direction: t.direction, state: TxState.cancelled, method: t.method, amount: t.amount, fee: t.fee, created: t.created, counterparty: t.counterparty, contactName: t.contactName, message: t.message);
+    // A send both wallets signed (the node refused it): its coins are spent back, so it is final.
+    final spendsBack = !t.incoming && t.notPosted;
+    _txs[i] = Tx(id: t.id, slateId: t.slateId, direction: t.direction, state: TxState.cancelled, method: t.method, amount: t.amount, fee: t.fee, created: t.created, counterparty: t.counterparty, contactName: t.contactName, message: t.message, cancelFinal: spendsBack ? true : null);
+    return spendsBack ? CancelResult.spentBack : CancelResult.cancelled;
   }
 
   /// Replaces row [key] with the user's entries; null when no row has that key.
@@ -1280,18 +1284,12 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> cancelInvoicePayment(String slateId) async {
+  Future<CancelResult> cancelInvoicePayment(String slateId) async {
     await _wait(1.5);
     proto.cancelPayment(slateId);
     proto._changed();
-  }
-
-  @override
-  Future<SelfSend> spendCancelledToSelf(String slateId) async {
-    await _wait(2);
-    final i = proto.spendToSelf(slateId);
-    proto._changed();
-    return SelfSend(txId: _nextId++, receivedTxId: _nextId++, amount: i.total - 700000, fee: 700000, inputCount: 1, outputCount: 1);
+    // The issuer holds the signed payment: the cancel spends its coins back, as LEPIC's does.
+    return CancelResult.spentBack;
   }
 
   /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'
@@ -1359,6 +1357,8 @@ class MockDeskWallet implements DeskWalletApi {
 
   static const receiveHoldDemoId = 9141;
   static const receiveOfferedDemoId = 9142;
+  static const signedCancelDemoId = 9143;
+  static const cancelFinalDemoId = 9144;
 
   /// For the tour: Anna's Epicbox payment, answered here [ago] (5 minutes: inside the Cancel
   /// hold; 40: Cancel offered), waiting for its sender. Only its own shots add it.
@@ -1367,6 +1367,18 @@ class MockDeskWallet implements DeskWalletApi {
     _txs.insert(
       0,
       Tx(id: id, slateId: 'd2e3f4a5-b6c7-4d8e-9f0a-1b2c3d4e5f6a', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: _epic(7.25), fee: 0, created: DateTime.now().subtract(ago), counterparty: _contacts[0].address, contactName: 'Anna Kowalska', cancellable: true, transport: 'epicbox'),
+    );
+  }
+
+  /// For the tour: a send to Anna both wallets signed that the node did not take ([id]
+  /// [signedCancelDemoId]: Cancel offered, which spends its coins back), or the same send
+  /// cancelled with its coins spent back ([cancelFinalDemoId]). Only its own shots add it.
+  void addSignedCancelDemo({required int id}) {
+    if (_txs.any((t) => t.id == id)) return;
+    final cancelled = id == cancelFinalDemoId;
+    _txs.insert(
+      0,
+      Tx(id: id, slateId: 'e3f4a5b6-c7d8-4e9f-8a1b-2c3d4e5f6a7b', direction: TxDirection.sent, state: cancelled ? TxState.cancelled : TxState.posted, method: TxMethod.epicbox, amount: _epic(12.5), fee: 800000, created: DateTime.now().subtract(const Duration(hours: 3)), counterparty: _contacts[0].address, contactName: 'Anna Kowalska', cancellable: !cancelled, notPosted: !cancelled, cancelFinal: cancelled ? true : null, transport: 'epicbox'),
     );
   }
 

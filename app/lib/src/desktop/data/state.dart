@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
+import '../../cancel_final.dart' show CancelResult;
 import 'api.dart';
 import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
@@ -491,13 +492,14 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(txs: txs);
   }
 
-  Future<void> cancelTx(int id) async {
-    await api.cancelTx(id);
+  Future<CancelResult> cancelTx(int id) async {
+    final result = await api.cancelTx(id);
     // The other devices free its coins at once, not at the next tick.
     final devices = ref.read(deskDeviceHandleProvider).service;
     if (devices != null) unawaited(devices.announceNow());
     final txs = await api.transactions();
     state = state.copyWith(txs: txs);
+    return result;
   }
 
   /// Names a payment, or removes its name (null or blank); the list shows it at once.

@@ -66,6 +66,7 @@ import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import '../../settings_file/settings_providers.dart' show DevSettingsMissing, installedSettingsFile, openAppSettings, writeHostSettings;
 import '../../seed_contacts.dart';
 import '../../sender_cancel.dart' show SenderCancelRelease;
+import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSpendsBack, cancelledMayComplete;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, replyFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
@@ -1222,6 +1223,8 @@ class LepicDeskWallet implements DeskWalletApi {
     _entries = null;
     _stall = StallRetry();
     _senderCancel = SenderCancelRelease();
+    _cancels = CancelFinal();
+    _cancelFinal = const {};
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
     _clearBlocked();
@@ -2270,7 +2273,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final paired = entries.any((e) => e.pairingId != null) ? await _pairingNames(contacts) : const <String, String>{};
     return [
       for (final (i, e) in entries.indexed)
-        deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[parseRecipient(e.counterparty ?? '').address] ?? paired[e.pairingId]),
+        deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, contactName: names[parseRecipient(e.counterparty ?? '').address] ?? paired[e.pairingId], cancelFinal: _cancelFinal[e.id]),
     ];
   }
 
@@ -3093,16 +3096,25 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> cancelTx(int id) => _running(() async {
+  Future<CancelResult> cancelTx(int id) => _running(() async {
     if (id < 0) throw DeskError.l10n((l) => l.deskErrCannotCancel);
+    final CancelResult result;
     try {
-      await _open.cancelTransaction(txId: id);
+      // Read fresh: whether the cancel also spends the coins back follows its state now.
+      final entry = (await _open.transactions(refresh: false)).where((e) => e.id == id).firstOrNull;
+      if (entry == null) {
+        await _open.cancelTransaction(txId: id);
+        result = CancelResult.cancelled;
+      } else {
+        result = await _cancels.cancel(_open, entry);
+      }
     } on core.WalletError catch (e) {
       // The core asks the node first and refuses a payment it already has (in its pool or a block).
       if (e.kind == core.WalletErrorKind.invalidArgument) throw DeskError.l10n((l) => l.deskErrCancelRefused);
       throw _deskError(e);
     }
     await _reload();
+    return result;
   });
 
   @override
@@ -4743,7 +4755,6 @@ class LepicDeskWallet implements DeskWalletApi {
     _invoiceProblem = null;
     _waitingSeen.clear();
     _endedUnpaid.clear();
-    _cancelledInputs.clear();
     _invoiceFees.clear();
   }
 
@@ -4968,7 +4979,7 @@ class LepicDeskWallet implements DeskWalletApi {
           txId: e.id,
           answeredAt: tx.created,
           kernel: record.kernelExcess,
-          spendToSelf: e.status == core.TxStatus.cancelled && (_cancelledInputs[slateId]?.isNotEmpty ?? false),
+          cancelNotFinal: _cancelFinal[e.id] == false,
         ),
       );
     }
@@ -5185,45 +5196,23 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   /// The user's cancel of an invoice payment: LEPIC asks the node first and refuses one
-  /// in the pool or on chain. Never automatic.
+  /// in the pool or on chain. The issuer holds the signed payment, so the cancel also spends
+  /// its coins back to this wallet ([CancelFinal]). Never automatic.
   @override
-  Future<void> cancelInvoicePayment(String slateId) async {
-    final entries = _entries ?? await _open.transactions(refresh: false);
-    final txId = entries
+  Future<CancelResult> cancelInvoicePayment(String slateId) async {
+    final entries = await _open.transactions(refresh: false);
+    final entry = entries
         .where((e) => e.slateId == slateId && e.flow == core.TxFlow.invoice && (e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled))
-        .firstOrNull
-        ?.id;
-    if (txId == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such payment'); // l10n-ok
-    // The coins it locks, read first: after the cancel they are this wallet's again, and
-    // "Spend them to myself now" spends exactly these.
-    var inputs = const <String>[];
+        .firstOrNull;
+    if (entry?.id == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such payment'); // l10n-ok
+    final CancelResult result;
     try {
-      inputs = [
-        for (final o in await _open.outputs())
-          if (o.txId == txId && o.status == core.WalletOutputStatus.locked) o.commitment,
-      ];
-    } on core.WalletError catch (e) {
-      logWarn('invoices', 'locked outputs not read: ${e.kind.name}');
-    }
-    try {
-      await _running(() => _open.cancelTransaction(txId: txId));
+      result = await _running(() => _cancels.cancel(_open, entry!));
     } on core.WalletError catch (e) {
       throw _cancelError(e);
     }
-    _cancelledInputs[slateId] = inputs;
     await _reload();
-  }
-
-  /// The coins of each invoice payment cancelled in this session, by slate id.
-  final Map<String, List<String>> _cancelledInputs = {};
-
-  @override
-  Future<SelfSend> spendCancelledToSelf(String slateId) async {
-    final commitments = _cancelledInputs[slateId];
-    if (commitments == null || commitments.isEmpty) throw DeskError.l10n((l) => l.deskErrNothingToSpend);
-    final sent = await _selfSend(() => _open.spendOutputsToSelf(commitments: commitments, minimumConfirmations: _minConf));
-    _cancelledInputs.remove(slateId);
-    return sent;
+    return result;
   }
 
   // The open wallet's pairing; nothing while locked.
@@ -5299,6 +5288,14 @@ class LepicDeskWallet implements DeskWalletApi {
   /// The open wallet's release of incoming payments their senders cancelled; a new one per unlock.
   SenderCancelRelease _senderCancel = SenderCancelRelease();
 
+  /// The open wallet's cancels, with the spends back still owed (cancel_final.dart); a new one
+  /// per unlock.
+  CancelFinal _cancels = CancelFinal();
+
+  /// For each cancelled payment the other side may have been able to finish ([cancelSpendsBack]
+  /// of its kind), whether the cancel is final ([cancelFinal]), by local id; read with the list.
+  Map<int, bool> _cancelFinal = const {};
+
   /// Clears each incoming payment its sender cancelled that still waits (sender_cancel.dart),
   /// then reads the list again. Runs on the sender's notice and with each node check, so one
   /// that failed (no node, locked) goes again.
@@ -5310,6 +5307,25 @@ class LepicDeskWallet implements DeskWalletApi {
       if (await _senderCancel.run(session, entries) && _session == session) await _reload();
     } on Object catch (e) {
       logWarn('desk', 'release of a cancelled payment: ${e.runtimeType}');
+    }
+    // A cancel whose spend back failed goes again with the node.
+    try {
+      if (await _cancels.retry(session) && _session == session) await _reload();
+    } on Object catch (e) {
+      logWarn('desk', 'spend back of a cancelled payment: ${e.runtimeType}');
+    }
+  }
+
+  /// [_cancelFinal] for [entries]: the outputs are read only when one needs them.
+  static Future<Map<int, bool>> _cancelFinalOf(core.WalletSession session, List<core.TxEntry> entries) async {
+    final cancelled = entries.where((e) => e.id != null && cancelledMayComplete(e)).toList();
+    if (cancelled.isEmpty) return const {};
+    try {
+      final outputs = await session.outputs();
+      return {for (final e in cancelled) e.id!: cancelFinal(e, outputs)};
+    } on core.WalletError catch (e) {
+      logWarn('desk', 'cancel final: ${e.kind.name}');
+      return const {};
     }
   }
 
@@ -5323,10 +5339,12 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       final summary = await session.summary(refresh: false, minimumConfirmations: _minConf);
       final entries = await session.transactions(refresh: false);
+      final finals = await _cancelFinalOf(session, entries);
       // A later read is under way or done: it saw the newer state (a posted payment, LNX3-4).
       if (run != _reloads) return;
       _summary = summary;
       _entries = entries;
+      _cancelFinal = finals;
     } on core.WalletError catch (e) {
       logWarn('desk', 'reload: ${e.kind.name}');
     }
@@ -5342,12 +5360,12 @@ class LepicDeskWallet implements DeskWalletApi {
     final entries = _withDevices(_entries ?? const <core.TxEntry>[]);
     _blockWaits.saw(entries, BigInt.from(_tip));
     return [
-      for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, wait: _waitOf(e)),
+      for (final (i, e) in entries.indexed) deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1 - i, wait: _waitOf(e), cancelFinal: _cancelFinal[e.id]),
     ];
   }
 
   Tx _txFor(core.TxEntry e) =>
-      _txs().where((t) => t.id == e.id && e.id != null).firstOrNull ?? deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1, wait: _waitOf(e));
+      _txs().where((t) => t.id == e.id && e.id != null).firstOrNull ?? deskTx(e, tip: _tip, minConf: _minConf.toInt(), fallbackId: -1, wait: _waitOf(e), cancelFinal: _cancelFinal[e.id]);
 
   /// Stops background work for good (the app is closing).
   Future<void> dispose() async {
@@ -5410,7 +5428,7 @@ Output deskOutput(core.WalletOutput o, {required int minConf, String? heldBy}) {
 
 /// One history row as the desktop UI shows it. [tip] is the node's height, for confirmations.
 /// Rows without a local id (imported, restored) get [fallbackId], below 0.
-Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName, DateTime? now, BlockWait wait = BlockWait.none}) {
+Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int fallbackId, String? contactName, DateTime? now, BlockWait wait = BlockWait.none, bool? cancelFinal}) {
   final sent = e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled;
   final fee = e.fee?.toInt() ?? 0;
   final height = e.blockHeight?.toInt();
@@ -5479,6 +5497,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     fromBackup: e.source == core.TxSource.imported,
     cancellable: e.cancellable && !e.isRequest,
     notPosted: e.repostable,
+    cancelFinal: cancelFinal,
     undelivered: e.undelivered,
     flow: e.flow == core.TxFlow.invoice ? TxFlow.invoice : TxFlow.payment,
     key: e.key,

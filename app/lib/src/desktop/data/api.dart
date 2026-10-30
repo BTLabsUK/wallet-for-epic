@@ -7,6 +7,7 @@ library;
 import 'dart:typed_data';
 
 import '../../devices/device_model.dart' show DeviceBook;
+import '../../cancel_final.dart' show CancelResult;
 import '../../models.dart' show FinishedPayment;
 import '../../devices/device_service.dart' show DeviceHost;
 import '../../pairing_api.dart';
@@ -276,7 +277,9 @@ abstract interface class DeskWalletApi {
 
   /// Finalizes and posts the answer [text] pasted into Send, as [finalizeFile] does a file.
   Future<Tx> finalizeText(String text);
-  Future<void> cancelTx(int id);
+  /// Cancels a payment; one the other side could still finish also has its coins spent back
+  /// to this wallet (cancel_final.dart), which the result tells.
+  Future<CancelResult> cancelTx(int id);
   Future<String> exportProof(int id);
   /// Adds (empty id) or replaces [contact] and returns its id. Only stores: an address is never checked over the network.
   Future<String> saveContact(Contact contact);
@@ -465,13 +468,10 @@ abstract interface class DeskWalletApi {
   Future<void> declineInvoice(String slateId);
 
   /// Cancels an invoice's payment once the node says it is neither in the pool nor on the
-  /// chain; throws a [DeskError] when it is, or when the node cannot be asked.
-  Future<void> cancelInvoicePayment(String slateId);
-
-  /// After [cancelInvoicePayment]: spends the coins that payment had locked to this wallet
-  /// itself, so the service's signed copy can never complete. Costs a fee; asks no
-  /// password, as a consolidate does. Throws a [DeskError] when it did not go out.
-  Future<SelfSend> spendCancelledToSelf(String slateId);
+  /// chain, and spends the coins it had locked back to this wallet, so the service's signed
+  /// copy can never complete (a network fee; cancel_final.dart). Throws a [DeskError] when the
+  /// network has it, or when the node cannot be asked.
+  Future<CancelResult> cancelInvoicePayment(String slateId);
 
   Future<void> setInvoiceExpiry(Duration expiry);
 
