@@ -12901,6 +12901,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Последняя часть журнала приложения, очищенная от фраз, паролей, адресов, IP и домашних папок.';
 
   @override
+  String get deskSetReportFullDetails => 'Include full details';
+
+  @override
+  String get deskSetReportFullDetailsWarn =>
+      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+
+  @override
   String get deskSetReportSentWhat => 'Что отправляется';
 
   @override

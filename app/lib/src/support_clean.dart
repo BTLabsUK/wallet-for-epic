@@ -14,7 +14,13 @@
 ///   `<host-n>`. The same value is the same name in one report, and nothing of it is kept.
 /// - long hex → `<hex-n>`, long base64 → `<blob>`
 ///
-/// Kept on purpose, as in the GUI: amounts, heights, times, ports, versions and error texts.
+/// - amounts, as buckets (`[<10 EPIC]`, [redact]'s rule 6)
+///
+/// With `fullDetails` (the user's "Include full details"), wallet addresses (Epicbox and onion)
+/// and amounts stay as the log holds them: whole only where Detailed logging wrote them. Every
+/// other rule still applies.
+///
+/// Kept on purpose, as in the GUI: heights, times, ports, versions and error texts.
 library;
 
 import 'bip39_words.dart';
@@ -79,12 +85,15 @@ final _unixHome = RegExp(r'''(?<![\w.~-])/(?:home|Users|var/home)/(?!<user>)[^/\
 final _unc = RegExp(r'\\\\(?!<host>)([A-Za-z0-9][A-Za-z0-9._$-]{0,62})(?=\\)');
 final _onion = RegExp(r'\b[a-z2-7]{56}(\.onion)?\b');
 final _base58 = RegExp(r'(?<![\w…<-])[1-9A-HJ-NP-Za-km-z]{46,}(?![\w…])(@[A-Za-z0-9.-]+(?::\d+)?)?');
-// What [redact] leaves of an address: its first 6 characters and an ellipsis.
-final _base58Kept = RegExp(r'(?<![\w…<-])[1-9A-HJ-NP-Za-km-z]{6}…(@[A-Za-z0-9.-]+(?::\d+)?)?');
+// What [redact] leaves of an address: its first 6 characters, an ellipsis and, from this
+// build on, its last 4.
+final _base58Kept = RegExp(r'(?<![\w…<-])[1-9A-HJ-NP-Za-km-z]{6}…(?:[1-9A-HJ-NP-Za-km-z]{4}(?![\w…]))?(@[A-Za-z0-9.-]+(?::\d+)?)?');
+final _onionKept = RegExp(r'(?<![\w…<-])[a-z2-7]{6}…[a-z2-7]{4}(\.onion)?(?![\w…])');
 final _hex = RegExp(r'(?<![\w…<-])[0-9a-fA-F]{32,}(?![\w…])');
 final _base64 = RegExp(r'(?<![\w+/…<])[A-Za-z0-9+/]{48,}={0,2}(?![\w+/=…])');
 final _email = RegExp(
-  r'(?<![\w.%+-])[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]{1,63}(?:\.[A-Za-z0-9-]{1,63})*\.[A-Za-z]{2,24}\b',
+  // Not after an ellipsis: the tail of an address fingerprint (esWn9r…ZxC9@relay) is no mailbox.
+  r'(?<![\w.%+…-])[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]{1,63}(?:\.[A-Za-z0-9-]{1,63})*\.[A-Za-z]{2,24}\b',
 );
 final _hostPort = RegExp(r'(?<![\w.@/<-])((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,24})(?=:\d{2,5}\b)');
 final _localHost = RegExp(r'(?<![\w.@/<-])[A-Za-z0-9-]{1,63}\.(?:lan|local|home|internal|localdomain)\b', caseSensitive: false);
@@ -106,8 +115,8 @@ String cleanHost(String host, CleanIds ids) {
 }
 
 /// [text] cleaned for a report. Pass one [ids] for every text of one report, so the same
-/// address has the same name in all of them.
-String cleanForReport(String text, {CleanContext context = const CleanContext(), CleanIds? ids}) {
+/// address has the same name in all of them. [fullDetails] keeps wallet addresses and amounts.
+String cleanForReport(String text, {CleanContext context = const CleanContext(), CleanIds? ids, bool fullDetails = false}) {
   final names = ids ?? CleanIds();
   var t = text;
   String sub(RegExp re, String Function(Match m) fn) => t = t.replaceAllMapped(re, fn);
@@ -162,7 +171,9 @@ String cleanForReport(String text, {CleanContext context = const CleanContext(),
   }
 
   // Addresses: onion, Epicbox and base58 keys with their domain, emails, then hosts and IPs.
-  String host(String h) => _isKnownHost(h) ? h : names.of('host', h);
+  // Full details keep onions, which are addresses, wherever they appear.
+  bool kept(String h) => _isKnownHost(h) || (fullDetails && h.endsWith('.onion'));
+  String host(String h) => kept(h) ? h : names.of('host', h);
   String address(Match m) {
     final at = m[1];
     final key = at == null ? m[0]! : m[0]!.substring(0, m[0]!.length - at.length);
@@ -176,13 +187,24 @@ String cleanForReport(String text, {CleanContext context = const CleanContext(),
     return '${names.of('address', key)}$domain';
   }
 
-  sub(_onion, (m) => '${names.of('onion', m[0]!.replaceFirst(RegExp(r'\.onion$'), ''))}${m[1] ?? ''}');
-  sub(_base58, address);
-  sub(_email, (m) => names.of('email', m[0]!));
+  if (!fullDetails) {
+    sub(_onion, (m) => '${names.of('onion', m[0]!.replaceFirst(RegExp(r'\.onion$'), ''))}${m[1] ?? ''}');
+    sub(_base58, address);
+  } else {
+    // Full details keep the key; a relay that is not a known host is still named by a pseudonym.
+    sub(_base58, (m) {
+      final at = m[1];
+      if (at == null) return m[0]!;
+      final parts = at.substring(1).split(':');
+      return '${m[0]!.substring(0, m[0]!.length - at.length)}@${host(parts[0])}${parts.length > 1 ? ':${parts[1]}' : ''}';
+    });
+  }
+  // An Epicbox address (key@relay) has the shape of an email; full details keep it.
+  sub(_email, (m) => _base58.matchAsPrefix(m[0]!) != null ? m[0]! : names.of('email', m[0]!));
   sub(_urlHost, (m) {
     final h = m[2]!;
     final bare = h.replaceAll(RegExp(r'^\[|\]$'), '');
-    if (_isKnownHost(bare) || RegExp(r'^<[a-z]+(-\d+)?>$').hasMatch(h) || RegExp(r'^[\d.]+$|^\[').hasMatch(h)) {
+    if (kept(bare) || RegExp(r'^<[a-z]+(-\d+)?>$').hasMatch(h) || RegExp(r'^[\d.]+$|^\[').hasMatch(h)) {
       return m[0]!;
     }
     return '${m[1]}${names.of('host', h)}';
@@ -202,12 +224,21 @@ String cleanForReport(String text, {CleanContext context = const CleanContext(),
 
   // Long hex (commitments and kernels are on the chain) and blobs.
   sub(_hex, (m) => names.of('hex', m[0]!));
-  sub(_base64, (m) => RegExp('[0-9]').hasMatch(m[0]!) && RegExp('[A-Za-z]').hasMatch(m[0]!) ? '<blob>' : m[0]!);
+  sub(_base64, (m) {
+    final s = m[0]!;
+    // With full details an address key or an onion address stays whole.
+    // (The run may start with the slashes of a URL: http://<onion>.)
+    if (fullDetails && RegExp(r'^/*(?:[1-9A-HJ-NP-Za-km-z]{40,}|[a-z2-7]{56})$').hasMatch(s)) return s;
+    return RegExp('[0-9]').hasMatch(s) && RegExp('[A-Za-z]').hasMatch(s) ? '<blob>' : s;
+  });
 
   // The app's own rules, line by line (its slate rule would take the rest of the text), then
   // what they keep of an address.
-  t = t.split('\n').map(redact).join('\n');
-  sub(_base58Kept, address);
+  t = t.split('\n').map((line) => redact(line, details: fullDetails)).join('\n');
+  if (!fullDetails) {
+    sub(_onionKept, (m) => '${names.of('onion', m[0]!.replaceFirst(RegExp(r'\.onion$'), ''))}${m[1] ?? ''}');
+    sub(_base58Kept, address);
+  }
   return t;
 }
 

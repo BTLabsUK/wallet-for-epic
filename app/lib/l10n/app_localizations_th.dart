@@ -12124,6 +12124,13 @@ class AppLocalizationsTh extends AppLocalizations {
       'ส่วนล่าสุดของบันทึกแอป ลบวลี รหัสผ่าน ที่อยู่ IP และโฟลเดอร์ส่วนตัวออกแล้ว';
 
   @override
+  String get deskSetReportFullDetails => 'Include full details';
+
+  @override
+  String get deskSetReportFullDetailsWarn =>
+      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+
+  @override
   String get deskSetReportSentWhat => 'สิ่งที่ส่ง';
 
   @override

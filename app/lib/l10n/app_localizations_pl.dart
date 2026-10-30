@@ -12930,6 +12930,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Najnowsza część logu aplikacji, bez fraz, haseł, adresów, IP i folderów domowych.';
 
   @override
+  String get deskSetReportFullDetails => 'Include full details';
+
+  @override
+  String get deskSetReportFullDetailsWarn =>
+      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+
+  @override
   String get deskSetReportSentWhat => 'Co zostanie wysłane';
 
   @override

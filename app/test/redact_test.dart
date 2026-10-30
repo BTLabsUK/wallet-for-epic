@@ -64,7 +64,7 @@ void main() {
     test('keeps only the start and relay of an epicbox address', () {
       expect(
         redact('sent to $_address.'),
-        'sent to esWn9r…@epicbox.epiccash.com.',
+        'sent to esWn9r…ZxC9@epicbox.epiccash.com.',
       );
     });
 
@@ -123,7 +123,7 @@ void main() {
         expect(early.entries, isEmpty);
         final text = await later.tail(1 << 20);
         expect(text, contains('INFO  dart.unlock: PIN [redacted] entered'));
-        expect(text, contains('ERROR dart.send: Bad state: to esWn9r…@'));
+        expect(text, contains('ERROR dart.send: Bad state: to esWn9r…ZxC9@'));
         expect(text, isNot(contains('123456')));
       },
     );

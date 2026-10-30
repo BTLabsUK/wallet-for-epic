@@ -6,13 +6,28 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/app_log.dart';
+import 'package:epic_wallet/src/feedback.dart';
 import 'package:epic_wallet/src/redact.dart';
+import 'package:epic_wallet/src/support_clean.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _words = [
   'abandon', 'ability', 'able', 'about', 'above', 'absent', //
   'absorb', 'abstract', 'absurd', 'abuse', 'access', 'accident',
 ];
+
+const _address = 'esWWbPq4mFMqGXZ2nN1P9P2uGFZnTtM4axHwHrrcmVdTbixBK3oa';
+const _onion = 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd';
+const _slateId = '0f3b2a1c-9d8e-4f7a-b6c5-d4e3f2a1b0c9';
+const _slate = '{"ver":"4:3","id":"$_slateId","sta":"S2","amt":"1500000000","sigs":[{"xs":"02ab","nonce":"03cd"}]}';
+
+/// Names a log call must not interpolate: what says who was paid, how much, or a secret.
+/// Log the fact and an id (`slateId`, `tx_id`), never the value.
+const _banned = {
+  'address', 'addr', 'recipient', 'amount', 'amt', 'fee', 'balance', 'slate', 'slatejson',
+  'json', 'mnemonic', 'phrase', 'password', 'passphrase', 'seed', 'secret', 'privatekey', 'pin',
+  'token', 'words',
+};
 
 /// How many of the phrase's words are still readable in [out].
 int _leaked(String out) {
@@ -105,6 +120,89 @@ void main() {
     test('scrubs_a_slate_whatever_comes_before_it', () {
       final out = redact('received: {"ver":"4:3","sta":"S1","participant_data":[{"part_sig":"aa"}]}');
       expect(out, isNot(contains('part_sig')));
+    });
+  });
+
+  group('redacted by default', () {
+    test('an_address_is_a_fingerprint_an_amount_a_bucket_a_slate_its_id_and_state', () {
+      final out = redact('sent 12.5 EPIC to $_address@epicbox.example via $_onion.onion, fee=700000 slate $_slate');
+      expect(out, contains('esWWbP…K3oa@epicbox.example'));
+      expect(out, contains('pg6mmj…cryd.onion'));
+      expect(out, contains('[<100 EPIC] to'));
+      expect(out, contains('fee=[<0.01 EPIC]'));
+      expect(out, contains('[slate 0f3b2a1c… S2]'));
+      for (final leak in [_address, _onion, '12.5', '700000', '1500000000', 'sigs', '"02ab"']) {
+        expect(out, isNot(contains(leak)), reason: out);
+      }
+      expect(redact(out), out, reason: 'a second pass, at the sink, changes nothing');
+    });
+
+    test('detailed_keeps_addresses_and_amounts_but_never_a_secret_or_a_slate', () {
+      final out = redact('sent 12.5 EPIC to $_address pin=482913 ${_words.join(' ')} slate $_slate', details: true);
+      expect(out, contains(_address));
+      expect(out, contains('12.5 EPIC'));
+      expect(out, isNot(contains('482913')));
+      expect(_leaked(out), 0);
+      expect(out, contains('[slate 0f3b2a1c… S2]'));
+    });
+
+    test('the_log_file_holds_full_details_only_while_detailed_is_on', () {
+      final dir = Directory.systemTemp.createTempSync('wfe-log-');
+      final sink = FileLogSink.open(dir, mirror: (_, _, _) {});
+      final before = AppLog.sink;
+      AppLog.use(sink);
+      addTearDown(() {
+        AppLog.detailedUntil = null;
+        AppLog.use(before);
+        dir.deleteSync(recursive: true);
+      });
+      logWarn('send', 'to $_address failed for 3 EPIC');
+      expect(sink.file.readAsStringSync(), isNot(contains(_address)));
+      expect(sink.file.readAsStringSync(), isNot(contains('3 EPIC')));
+      AppLog.detailedUntil = DateTime.now().add(const Duration(hours: 1));
+      logWarn('send', 'to $_address failed for 3 EPIC, password=hunter2hunter2');
+      final text = sink.file.readAsStringSync();
+      expect(text, contains(_address));
+      expect(text, contains('3 EPIC'));
+      expect(text, isNot(contains('hunter2hunter2')));
+    });
+
+    test('a_report_drops_full_details_unless_the_user_includes_them', () async {
+      final log = 'WARN dart.send: to $_address@epicbox.example failed for 3 EPIC, slate ${_slateId.substring(0, 8)}…\n';
+      const facts = FeedbackDetails(appVersion: '1', platform: 'linux', network: 'mainnet', node: 'n', relay: 'r', sync: 's');
+      String report({required bool full}) =>
+          buildFeedbackReport(message: 'm', details: facts, log: log, at: DateTime(2026), fullDetails: full).text;
+      final redacted = report(full: false);
+      expect(redacted, isNot(contains(_address)));
+      expect(redacted, isNot(contains('esWWbP')));
+      expect(redacted, isNot(contains('3 EPIC')));
+      expect(redacted, contains('[<10 EPIC]'));
+      final full = report(full: true);
+      expect(full, contains(_address));
+      expect(full, contains('3 EPIC'));
+      expect(full, contains('log details'));
+      expect(cleanForReport('pin=482913 ${_words.join(' ')}', fullDetails: true), isNot(contains('482913')));
+    });
+
+    test('no_log_call_interpolates_an_address_an_amount_a_slate_or_a_secret', () {
+      final call = RegExp(r'\blog(?:Info|Warn|Error|Debug)\(([^;]*?)\);', dotAll: true);
+      final interpolation = RegExp(r'\$\{([^}]*)\}|\$([A-Za-z_]\w*)');
+      final identifier = RegExp(r'[A-Za-z_]\w*');
+      final offenders = <String>[];
+      for (final file in Directory('lib').listSync(recursive: true).whereType<File>()) {
+        if (!file.path.endsWith('.dart') || file.path.contains('${Platform.pathSeparator}l10n${Platform.pathSeparator}')) continue;
+        final text = file.readAsStringSync();
+        for (final m in call.allMatches(text)) {
+          for (final i in interpolation.allMatches(m[1]!)) {
+            final names = identifier.allMatches(i[1] ?? i[2]!).map((n) => n[0]!.toLowerCase());
+            if (names.any(_banned.contains)) {
+              final line = '\n'.allMatches(text.substring(0, m.start)).length + 1;
+              offenders.add('${file.path}:$line ${i[0]}');
+            }
+          }
+        }
+      }
+      expect(offenders, isEmpty, reason: 'log the fact and an id instead');
     });
   });
 

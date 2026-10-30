@@ -11712,6 +11712,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetReportAttachHint => '应用日志的最新部分，已清除助记词、密码、地址、IP 和用户主文件夹。';
 
   @override
+  String get deskSetReportFullDetails => 'Include full details';
+
+  @override
+  String get deskSetReportFullDetailsWarn =>
+      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+
+  @override
   String get deskSetReportSentWhat => '发送的内容';
 
   @override

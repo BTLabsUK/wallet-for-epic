@@ -37,6 +37,9 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   final _description = TextEditingController();
   final _contact = TextEditingController();
   bool _attachLogs = true;
+
+  /// "Include full details": the log's wallet addresses and amounts as they are.
+  bool _fullDetails = false;
   bool _tried = false;
   bool _busy = false;
   String? _error;
@@ -122,6 +125,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     final email = _contact.text;
     final details = _details();
     final log = _attachLogs ? (_log ?? '') : null;
+    final fullDetails = _attachLogs && _fullDetails;
     final at = _at;
     final context = ref.read(feedbackCleanContextProvider);
     // The cleaning keeps the hosts the shipped files name: the other isolate gets a copy of the
@@ -131,7 +135,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     return Isolate.run(() {
       hostSettings = settings;
       shippedHostSettings = shipped;
-      return buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context);
+      return buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails);
     });
   }
 
@@ -260,6 +264,19 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
               l.deskSetReportAttachHint,
               style: ts.small,
             ),
+            if (_attachLogs) ...[
+              SizedBox(height: Sp.x2),
+              ECheckbox(
+                value: _fullDetails,
+                label: l.deskSetReportFullDetails,
+                onChanged: (v) {
+                  setState(() => _fullDetails = v);
+                  _refreshPreview();
+                },
+              ),
+              SizedBox(height: Sp.x1),
+              Text(l.deskSetReportFullDetailsWarn, style: ts.small),
+            ],
             SizedBox(height: Sp.x3),
             EDetails(
               title: l.deskSetReportSentWhat,

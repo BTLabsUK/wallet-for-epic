@@ -96,7 +96,7 @@ class FileLogSink extends LogSink {
   @override
   void record(LogLevel level, String target, String message) {
     if (!logPasses(level, target)) return;
-    final clean = redact(message);
+    final clean = redact(message, details: AppLog.detailed);
     _mirror(level, target, shortenLogMessage(clean).replaceAll('\n', '\n    '));
     final line = utf8.encode(
       formatLogLine(DateTime.now(), level, target, clean),
@@ -146,8 +146,10 @@ class FileLogSink extends LogSink {
       final older = _readLast(previous, maxBytes - bytes.length + 1);
       bytes = Uint8List.fromList([...older, ...bytes]);
     }
+    // What Detailed logging kept stays for the report to drop or keep ([cleanForReport]).
     return redact(
       utf8.decode(_lastBytes(bytes, maxBytes), allowMalformed: true),
+      details: true,
     );
   }
 

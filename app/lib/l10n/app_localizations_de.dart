@@ -12586,6 +12586,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der neueste Teil des App-Protokolls, bereinigt um Phrasen, Passwörter, Adressen, IPs und Benutzerordner.';
 
   @override
+  String get deskSetReportFullDetails => 'Include full details';
+
+  @override
+  String get deskSetReportFullDetailsWarn =>
+      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+
+  @override
   String get deskSetReportSentWhat => 'Was gesendet wird';
 
   @override

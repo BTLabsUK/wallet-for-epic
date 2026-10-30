@@ -7,7 +7,8 @@
 /// The file sink, logcat and `path_provider` are in `app_log.dart`, which re-exports this file.
 ///
 /// Log one fact per line, and never a secret: no PIN, password, phrase, seed, slate, token or
-/// full address. Redaction is the safety net, not the plan.
+/// full address. Redaction is the safety net, not the plan: by default it also cuts addresses to
+/// fingerprints and amounts to buckets; only Detailed logging ([AppLog.detailed]) keeps them.
 library;
 
 import 'dart:convert';
@@ -167,10 +168,10 @@ abstract final class AppLog {
   }
 
   static void write(LogLevel level, String tag, String message) =>
-      _guard(() => _sink.write(level, tag, redact(message)));
+      _guard(() => _sink.write(level, tag, redact(message, details: detailed)));
 
   static void record(LogLevel level, String target, String message) =>
-      _guard(() => _sink.record(level, target, redact(message)));
+      _guard(() => _sink.record(level, target, redact(message, details: detailed)));
 
   static void _guard(void Function() write) {
     try {

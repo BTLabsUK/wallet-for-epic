@@ -19682,6 +19682,18 @@ abstract class AppLocalizations {
   /// **'The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.'**
   String get deskSetReportAttachHint;
 
+  /// Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened.
+  ///
+  /// In en, this message translates to:
+  /// **'Include full details'**
+  String get deskSetReportFullDetails;
+
+  /// Report a problem dialog: one-line warning under the Include full details checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.'**
+  String get deskSetReportFullDetailsWarn;
+
   /// Report a problem dialog: title of the collapsible list of what the report holds.
   ///
   /// In en, this message translates to:
