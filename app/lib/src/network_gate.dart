@@ -129,6 +129,23 @@ class NetBlocked implements Exception {
   String toString() => methodOff != null ? 'NetBlocked(${methodOff!.name} off): $what' : 'NetBlocked(${mode.name}): $what';
 }
 
+/// Plain `http://` to another device is off while the Tor switch is on, in Tor only too
+/// ([TorRoute.plainHttpDirect] is in [torStops]): the wallet's connections go through Tor then,
+/// and a Tor exit could answer the slate and take the payment. https and onions still go.
+bool get plainHttpOffNow => TorSwitch.on || NetGate.torOnly;
+
+/// A send or resend over plain `http://` to another device refused while [plainHttpOffNow].
+/// Nothing reached the wallet; the user reads `sendPlainHttpOffWithTor`.
+class PlainHttpOffWithTor implements Exception {
+  const PlainHttpOffWithTor(this.what);
+
+  /// For the log: a send or a resend.
+  final String what;
+
+  @override
+  String toString() => 'PlainHttpOffWithTor: $what';
+}
+
 /// The kinds of outbound connection the app's own code makes, for [NetGate.dial].
 enum NetDial {
   /// An HTTP(S) request: `http_io.dart`, `http_web.dart`, the node client, update downloads.

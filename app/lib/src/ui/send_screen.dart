@@ -2864,9 +2864,16 @@ class _SendViewState extends ConsumerState<SendView> {
       ? _toPairing()?.paysByMailbox ?? false
       : _recipient.text.trim().isNotEmpty;
 
+  /// Plain `http://` to another device with the Tor switch on: the notice under To says so,
+  /// and Continue waits until Tor is off or the address changes.
+  bool get _plainHttpOff =>
+      _pairingTo == null &&
+      _toRoute == TorRoute.plainHttpDirect &&
+      _wayOf(TorRoute.plainHttpDirect) == TorWay.off;
+
   Widget _recipientAction() => BusyButton(
     label: context.l10n.commonContinue,
-    onPressed: !_hasRecipient || _block != NetBlock.none
+    onPressed: !_hasRecipient || _block != NetBlock.none || _plainHttpOff
         ? null
         : _toAmount,
   );

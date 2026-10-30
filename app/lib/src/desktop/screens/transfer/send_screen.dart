@@ -1127,6 +1127,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final draft = draftOf(_plan);
     // Plain HTTP to another computer: the slate travels unencrypted, so ask first.
     final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
+    // Tor came on since Send was enabled: plain HTTP never goes through a Tor exit.
+    if (plain && _torWay(ref.read(deskProvider)) == TorWay.off) {
+      setState(() {
+        _failure = (l) => l.sendPlainHttpOffWithTor;
+        _failureInActivity = false;
+      });
+      return;
+    }
     if (plain) {
       // A contact with a safer address for the same wallet: offered first.
       final safer = saferRouteFor(draft.to!, [for (final c in contacts ?? const <Contact>[]) c.ways]);

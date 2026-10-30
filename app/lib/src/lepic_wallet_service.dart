@@ -287,12 +287,13 @@ Stream<T> _epicboxStream<T>(String what, Stream<T> Function() make) {
   return _guardStream(make());
 }
 
-/// Tor only refuses a Direct send over plain `http` to another device: whoever is on the path,
-/// a Tor exit too, could take the payment (tor_routes.dart, [torWayIn]). `https` goes through
-/// the wallet's Tor, which LEPIC waits for.
-void _torOnlyRefusesHttp(String url) {
-  if (NetGate.torOnly && plainHttpToOtherDevice(url)) {
-    throw NetBlocked(NetworkMode.torOnly, 'send over HTTP');
+/// A Direct send over plain `http` to another device is refused while the Tor switch is on, in
+/// every mode ([plainHttpOffNow]): it would go through a Tor exit, which could take the payment
+/// (tor_routes.dart, [torStops]). `https` and onions go through the wallet's Tor, which LEPIC
+/// waits for.
+void _torRefusesPlainHttp(String url, String what) {
+  if (plainHttpOffNow && plainHttpToOtherDevice(url)) {
+    throw PlainHttpOffWithTor(what);
   }
 }
 
@@ -1288,10 +1289,10 @@ class LepicWalletSession implements WalletSession {
       : _guardStream(make());
 
   /// The address a Direct send goes to, as given; refused in Node only and Kill switch (no Link
-  /// at all). Tor only refuses one off this computer.
-  Future<String> _directUrl(String url) async {
-    NetGate.check('send over HTTP');
-    _torOnlyRefusesHttp(url);
+  /// at all). With the Tor switch on, plain `http` off this computer is refused.
+  Future<String> _directUrl(String url, String what) async {
+    NetGate.check(what);
+    _torRefusesPlainHttp(url, what);
     return url;
   }
 
@@ -1724,7 +1725,7 @@ class LepicWalletSession implements WalletSession {
     SendOptions? options,
     String? proofAddress,
   }) => _nodeGuard('send over HTTP', () async {
-    final to = await _directUrl(url);
+    final to = await _directUrl(url, 'send over HTTP');
     final chosen = await _optionsFor(amount, minimumConfirmations, options);
     final sendOptions = proofAddress == null
         ? chosen
@@ -1759,7 +1760,7 @@ class LepicWalletSession implements WalletSession {
     required String url,
     required bool allowPlainHttp,
   }) => _nodeGuard('resend over HTTP', () async {
-    final to = await _directUrl(url);
+    final to = await _directUrl(url, 'resend over HTTP');
     final tx = await _counted(
       () => _wallet.resendHttp(
         txId: txId,

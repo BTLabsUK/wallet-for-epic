@@ -1102,6 +1102,16 @@ void main() {
       expect(find.byKey(sendTorNoticeKey), findsOneWidget);
       expect(find.textContaining('Plain http:// is off while Tor is on'), findsOneWidget);
       expect(find.byKey(sendTurnOffTorKey), findsOneWidget);
+      // Continue waits: nothing leads on to a send through a Tor exit.
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      await _enter(tester, 'To', _https);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
+      await _enter(tester, 'To', 'http://10.0.0.5:3415');
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      // Turn Tor off: Continue goes on to the consent for plain http.
+      await _tap(tester, find.byKey(sendTurnOffTorKey));
+      expect(find.byKey(sendTorNoticeKey), findsNothing);
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
     }, skip: !torBuilt);
 
     testWidgets('Tor on: an Epicbox review says Over Tor', (tester) async {

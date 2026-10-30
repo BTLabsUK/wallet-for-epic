@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/net/local_address.dart';
 import 'package:epic_wallet/src/net/node_peers.dart';
 import 'package:epic_wallet/src/net/tor_net.dart';
+import 'package:epic_wallet/src/net/tor_switch.dart';
 import 'package:epic_wallet/src/models.dart' show HttpExposure;
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
@@ -239,6 +240,55 @@ void main() {
       await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
       expect(wallet.slates, 1);
       expect(await send('https://wallet.example.org'), 'https://wallet.example.org');
+    });
+  });
+
+  // WAL-05: plain http:// to another device never goes through a Tor exit, in any mode.
+  group('the LEPIC adapter with the Tor switch on', () {
+    late _Wallet wallet;
+    late LepicWalletSession session;
+
+    setUp(() {
+      wallet = _Wallet();
+      session = LepicWalletSession(wallet);
+      session.nodeUrl = 'https://node.btlabs.uk';
+    });
+
+    tearDown(() => TorSwitch.on = false);
+
+    Future<String> send(String url) async {
+      await session.sendHttp(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3), url: url, allowPlainHttp: true);
+      return wallet.sentTo.last;
+    }
+
+    for (final mode in [NetworkMode.standard, NetworkMode.torOnly]) {
+      test('${mode.name}: a send and a resend over plain http are refused before LEPIC', () async {
+        NetGate.set(mode);
+        TorSwitch.on = true;
+        final off = throwsA(isA<PlainHttpOffWithTor>());
+        await expectLater(send('http://10.0.1.30:3415'), off);
+        await expectLater(session.resendHttp(txId: 5, url: 'HTTP://203.0.113.5:3415', allowPlainHttp: true), off);
+        expect(wallet.sentTo, isEmpty);
+      });
+    }
+
+    test('https and this device still go; onions take sendTor, untouched', () async {
+      TorSwitch.on = true;
+      expect(await send('https://wallet.example.org'), 'https://wallet.example.org');
+      expect(await send('http://127.0.0.1:3415'), 'http://127.0.0.1:3415');
+      NetGate.set(NetworkMode.torOnly);
+      expect(await send('https://wallet.example.org'), 'https://wallet.example.org');
+    });
+
+    test('with the switch off plain http goes, with the consent it was given', () async {
+      NetGate.set(NetworkMode.standard);
+      expect(await send('http://10.0.1.30:3415'), 'http://10.0.1.30:3415');
+    });
+
+    test('the refusal reads as plain http off with Tor, phone and desktop', () {
+      const e = PlainHttpOffWithTor('send over HTTP');
+      expect(describeError(englishStrings, e), englishStrings.sendPlainHttpOffWithTor);
+      expect(deskErrorText(e), englishStrings.sendPlainHttpOffWithTor);
     });
   });
 

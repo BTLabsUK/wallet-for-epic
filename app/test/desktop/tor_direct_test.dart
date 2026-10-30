@@ -8,7 +8,10 @@ import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/data/http_address.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/net/tor_net.dart';
+import 'package:epic_wallet/src/net/tor_switch.dart';
+import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
@@ -533,6 +536,60 @@ void main() {
       final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
       expect((r as SendFailed).inActivity, isFalse);
       expect(r.message, 'Tor is not connected');
+    });
+  });
+
+  // WAL-05: plain http:// to another computer never goes through a Tor exit, in any mode.
+  group('plain HTTP with the Tor switch on', () {
+    const lan = 'http://10.0.1.30:3415';
+    final offText = englishStrings.sendPlainHttpOffWithTor;
+
+    tearDown(() {
+      NetGate.set(NetworkMode.standard);
+      TorSwitch.on = false;
+    });
+
+    test('Normal: a send with consent is refused before LEPIC', () async {
+      await wallet.setTor(true);
+      await connected();
+      expect(TorSwitch.on, isTrue);
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: lan, allowPlainHttp: true));
+      expect((r as SendFailed).message, offText);
+      expect(r.inActivity, isFalse);
+      expect(session().httpSends, isEmpty);
+    });
+
+    test('Tor only: refused the same way', () async {
+      NetGate.set(NetworkMode.torOnly);
+      TorSwitch.on = true;
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: lan, allowPlainHttp: true));
+      expect((r as SendFailed).message, offText);
+      expect(session().httpSends, isEmpty);
+    });
+
+    test('https and an onion still go', () async {
+      await wallet.setTor(true);
+      await connected();
+      expect(await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: 'https://wallet.example.org')), isA<SendDone>());
+      expect(await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion)), isA<SendDone>());
+      expect(session().httpSends.single.url, 'https://wallet.example.org');
+      expect(session().torSends.single.onion, _onion);
+    });
+
+    test('switch off: plain HTTP goes with consent, and only with it', () async {
+      final asked = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: lan));
+      expect((asked as SendFailed).message, englishStrings.deskErrPlainHttp);
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: lan, allowPlainHttp: true));
+      expect(r, isA<SendDone>(), reason: r is SendFailed ? r.message : '');
+      expect(session().httpSends.single.allowPlainHttp, isTrue);
+    });
+
+    test('a resend of an earlier plain HTTP send is refused once Tor is on', () async {
+      session().transactionsValue.add(core.fakeTx(id: 77, slateId: 'plain-1', kind: core.TxKind.sent, amountDebited: BigInt.from(1000), counterparty: lan, transport: 'http', undelivered: true));
+      await wallet.setTor(true);
+      await connected();
+      await expectLater(wallet.resendTx(77), throwsA(isA<Exception>().having((e) => deskErrorText(e), 'text', offText)));
+      expect(session().httpSends, isEmpty);
     });
   });
 

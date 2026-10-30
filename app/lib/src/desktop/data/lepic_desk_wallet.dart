@@ -123,6 +123,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
   l ??= englishStrings;
   if (error is DeskError) return error.text(l);
   if (error is SecretProtectError) return l.deskErrSecretProtect;
+  if (error is PlainHttpOffWithTor) return l.sendPlainHttpOffWithTor;
   // The network mode refused it (network_gate.dart).
   if (error is NetBlocked) {
     return error.mode == NetworkMode.torOnly ? l.deskSetAdvModeTorOnlyText : l.statusOffByMode(networkModeName(l, error.mode));
@@ -2709,6 +2710,8 @@ class LepicDeskWallet implements DeskWalletApi {
       final to = e.counterparty ?? '';
       switch (e.transport) {
         case 'http':
+          // Never through a Tor exit, whatever was allowed when it was sent.
+          if (plainHttpOffNow && plainHttpNeedsConsent(to)) throw DeskError.l10n((l) => l.sendPlainHttpOffWithTor);
           // The user allowed plain HTTP to this address when sending.
           final sent = await session.resendHttp(txId: id, url: to, allowPlainHttp: plainHttpNeedsConsent(to));
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
@@ -2824,6 +2827,8 @@ class LepicDeskWallet implements DeskWalletApi {
         case TxMethod.http:
           final to = (r.to ?? '').trim();
           if (httpAddressProblem(to) != null) return SendFailed.l10n((l) => httpAddressProblem(to, l)!);
+          // Plain HTTP never goes through a Tor exit (tor_routes.dart, torStops).
+          if (plainHttpOffNow && plainHttpNeedsConsent(to)) return SendFailed.l10n((l) => l.sendPlainHttpOffWithTor);
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return SendFailed.l10n((l) => l.deskErrPlainHttp);
           before = {for (final e in await session.transactions(refresh: false)) e.id};
