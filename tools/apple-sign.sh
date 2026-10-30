@@ -42,8 +42,8 @@ settings="${APPLE_SIGNING_ENV:-$HOME/.config/epic-apple-signing/signing.env}"
 desktop_name="Epic Cash Desktop"
 # The bundle ids are fixed: they must never change after the first signed release
 # (tools/apple-release.md, "What freezes").
-desktop_id=uk.btlabs.epiccashwallet.desktop
-phone_id=uk.btlabs.epiccashwallet.mobile
+desktop_id=uk.btlabs.epiccashwallet.macos
+phone_id=uk.btlabs.epiccashwallet.ios
 rcodesign_min=0.29.0
 
 die() { echo "apple-sign.sh: $*" >&2; exit 1; }

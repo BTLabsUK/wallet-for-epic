@@ -59,8 +59,8 @@ keychain, or both:
 
 | Frozen | Why |
 | --- | --- |
-| Bundle ids `uk.btlabs.epiccashwallet.desktop` and `uk.btlabs.epiccashwallet.mobile` | The App Store record, the keychain items and the macOS data are tied to them. (`com.btlabs.epiccashwallet.macos/.ios` was suggested and is **not** used (final ids set 2026-10-30, not frozen until the first signed release): btlabs.uk is the domain, so `uk.btlabs` is the right reverse DNS.) |
-| The Team ID | macOS keychain items trust "signed by this team with this id" (the designated requirement); iOS keychain items live in the access group `<Team ID>.uk.btlabs.epiccashwallet.mobile`. A new team = every user's stored secrets unreachable. |
+| Bundle ids `uk.btlabs.epiccashwallet.macos` and `uk.btlabs.epiccashwallet.ios` | The App Store record, the keychain items and the macOS data are tied to them. (`com.btlabs.epiccashwallet.macos/.ios` was suggested and is **not** used (final ids set 2026-10-30, not frozen until the first signed release): btlabs.uk is the domain, so `uk.btlabs` is the right reverse DNS.) |
+| The Team ID | macOS keychain items trust "signed by this team with this id" (the designated requirement); iOS keychain items live in the access group `<Team ID>.uk.btlabs.epiccashwallet.ios`. A new team = every user's stored secrets unreachable. |
 | The certificate **type**: Developer ID Application (macOS), Apple Distribution (iOS) | Renewing a certificate of the same type and team keeps everything working; switching type does not. |
 | The data folder `~/.epic_cash_desktop` and the app's file names and formats | As on every other platform. |
 | No `keychain-access-groups` entitlement on iOS, the login keychain on macOS (`usesDataProtectionKeychain: false`) | Changing either moves where secrets are looked up. |
@@ -225,14 +225,14 @@ Then `tools/apple-sign.sh doctor`.
    `tools/apple-sign.sh p12 devid <downloaded .cer>`.
 3. **Apple Distribution** certificate: `tools/apple-sign.sh csr dist`, Certificates, +, Apple
    Distribution, upload `keys/dist.csr`, download, `tools/apple-sign.sh p12 dist <.cer>`.
-4. Identifiers, +, App IDs, App: explicit bundle id `uk.btlabs.epiccashwallet.mobile`, description
-   "Epic Cash Mobile", no capabilities (no push yet). Also register `uk.btlabs.epiccashwallet.desktop`
+4. Identifiers, +, App IDs, App: explicit bundle id `uk.btlabs.epiccashwallet.ios`, description
+   "Epic Cash Mobile", no capabilities (no push yet). Also register `uk.btlabs.epiccashwallet.macos`
    (macOS) to hold the id.
 5. Profiles, +, Distribution, **App Store Connect**, the App ID above, the Apple Distribution
    certificate; download the `.mobileprovision` into `keys/`, set `IOS_PROFILE`. It lasts a year;
    renewing it changes nothing for users.
 6. App Store Connect, Apps, +, New App: iOS, name, primary language English (U.K.) or English
-   (U.S.), bundle id `uk.btlabs.epiccashwallet.mobile`, SKU (see `docs/apple-app-store.md`).
+   (U.S.), bundle id `uk.btlabs.epiccashwallet.ios`, SKU (see `docs/apple-app-store.md`).
 7. App Store Connect, Users and Access, Integrations, App Store Connect API: request access (only
    the account holder can), then a **Team** key (an individual key cannot notarise) with the
    **Developer** role (enough to notarise and upload; App Manager if an upload is refused). Note

@@ -73,7 +73,7 @@ ios_min=15.0
 darwin_targets=aarch64-apple-darwin
 ios_targets="aarch64-apple-ios aarch64-apple-ios-sim"
 desktop_name="Epic Cash Desktop"
-phone_id=uk.btlabs.epiccashwallet.mobile
+phone_id=uk.btlabs.epiccashwallet.ios
 # The built-in node for WFE_NODE_FETCH: the Epic Cash node release the Linux and Windows builds
 # bundle (epic 4.1.1), its macOS zip. arm64 only: there is no x86_64 macOS release of 4.1, which
 # is why the macOS app is arm64 only (the GUI 6.1.6's macOS binaries are epic 4.0.0, which stops
