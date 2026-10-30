@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
@@ -871,7 +872,7 @@ void main() {
       await tester.pumpAndSettle();
       // The dialog's cancelling choice is the red one.
       await tester.tap(
-        find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last,
+        find.byKey(cancelForSureKey),
       );
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [h.session.transactionsValue.single.id]);
@@ -924,7 +925,7 @@ void main() {
       await tester.pumpAndSettle();
       // The dialog's cancelling choice is the red one.
       await tester.tap(
-        find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last,
+        find.byKey(cancelForSureKey),
       );
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [h.session.transactionsValue.single.id]);

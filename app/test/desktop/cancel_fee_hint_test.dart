@@ -89,8 +89,8 @@ void main() {
     await tester.tap(find.byKey(deskCancelFeeHintKey));
     await _frames(tester);
     expect(_popover, findsOneWidget);
-    expect(find.text(_l.sendNetworkFee), findsOneWidget);
-    expect(find.text(_l.cancelFeeWhy), findsOneWidget);
+    expect(find.text(_l.cancelChoicesTitle), findsOneWidget);
+    expect(find.text(_l.cancelChoicesWhy), findsOneWidget);
     await _end(tester);
   });
 
@@ -128,7 +128,7 @@ void main() {
     expect(find.byKey(deskCancelFeeHintKey), findsOneWidget);
     await tester.tap(find.byKey(deskCancelFeeHintKey));
     await _frames(tester);
-    expect(find.text(_l.cancelFeeWhy), findsOneWidget);
+    expect(find.text(_l.cancelChoicesWhy), findsOneWidget);
     await _end(tester);
   });
 }

@@ -277,7 +277,7 @@
   "@deskInvPayerCancelTitle": {
     "description": "Title of the cancel payment dialog."
   },
-  "deskInvPayerCancelText": "The other side already has what it needs to finish this payment. Cancelling moves the coins back to this wallet first, so the old payment can no longer go through.",
+  "deskInvPayerCancelText": "The other side can still finish this payment.",
   "@deskInvPayerCancelText": {
     "description": "Cancel payment dialog text: the service holds the signed payment. Cancel also spends the coins back to the wallet itself, which makes the old payment impossible to complete; the fee is named on the fee line under it (cancelFeeLine)."
   },
@@ -317,11 +317,11 @@
   "@deskInvPayerDeclined": {
     "description": "Toast after the user declined an invoice; it leaves To pay at once."
   },
-  "deskInvPayerSpentText": "The coins are on their way back to this wallet, so the payment can no longer go through.",
+  "deskInvPayerSpentText": "The coins are on their way back to this wallet.",
   "@deskInvPayerSpentText": {
     "description": "Toast text after a cancel whose coins were spent back to the wallet itself."
   },
-  "deskInvPayerSpendFailedText": "The coins could not be moved back yet. The wallet tries again while it is open; until then the payment could still go through.",
+  "deskInvPayerSpendFailedText": "The coins could not be moved back yet. The wallet tries again while it is open; until then the payment may still finish.",
   "@deskInvPayerSpendFailedText": {
     "description": "Toast text after a cancel whose spend back to the wallet itself failed; the wallet retries while it is open."
   },

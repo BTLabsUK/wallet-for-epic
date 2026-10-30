@@ -186,9 +186,9 @@ void main() {
       expect(find.text('Cancel this payment?'), findsOneWidget);
       // The phone's words: never spendable, so nothing "leaves your balance" (LNX2-1).
       expect(find.textContaining('leaves your balance'), findsNothing);
-      expect(find.textContaining('may already have posted'), findsOneWidget);
-      expect(find.textContaining('cancels only if the network'), findsOneWidget);
-      expect(find.textContaining('a later post still arrives'), findsOneWidget);
+      expect(find.textContaining('Nothing has arrived yet'), findsOneWidget);
+      expect(find.textContaining('If this payment still arrives later'), findsOneWidget);
+      expect(find.textContaining('shows as received'), findsOneWidget);
       expect(find.textContaining('week'), findsNothing);
       expect(find.textContaining('locked amount'), findsNothing);
       await tester.tap(find.text('Keep'));
@@ -205,9 +205,9 @@ void main() {
         await tester.pump(const Duration(milliseconds: 60));
       }
       expect(find.text('Cancel this payment?'), findsOneWidget);
-      expect(find.textContaining('cannot go through without this wallet. Cancelling unlocks the coins. No fee.'), findsOneWidget);
+      expect(find.textContaining('Nothing has been paid yet: cancelling is free and certain.'), findsNWidgets(2), reason: 'the quiet line and the dialog');
       // One beside the Cancel button, one in the dialog.
-      expect(find.text('More in Help'), findsNWidgets(2));
+      expect(find.text('How cancelling works'), findsNWidgets(2));
       // The pane's button and the dialog's confirm say the same (GP-012).
       expect(find.text('Cancel payment'), findsNWidgets(2));
     });

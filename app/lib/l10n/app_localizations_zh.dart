@@ -712,7 +712,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsBroadcastAgainDone => '已重新广播。';
 
   @override
-  String get txDetailsRefusedBody => '网络拒绝了这笔付款，它从未上链。你可以释放它锁定的资金。';
+  String get txDetailsRefusedBody => '这笔付款没有完成。它占用的币可以释放。';
 
   @override
   String get txDetailsReleaseFunds => '释放资金';
@@ -721,8 +721,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsReleaseTitle => '释放资金？';
 
   @override
-  String get txDetailsReleaseBody =>
-      '网络拒绝了这笔付款，但它已经完整，它的副本之后仍可能进入网络。释放会先把币移回这个钱包，它就无法再完成。';
+  String get txDetailsReleaseBody => '这笔付款没有完成，但之后仍有可能完成。';
 
   @override
   String get txDetailsReleaseKeepWaiting => '继续等待';
@@ -737,12 +736,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelTitle => '取消这笔付款？';
 
   @override
-  String get txDetailsCancelReceiveBody =>
-      '发送方可能已经广播了这笔付款。仅当网络中没有它时钱包才会取消；之后广播的付款仍会到账。';
+  String get txDetailsCancelReceiveBody => '尚未收到任何款项。如果这笔付款之后到达，会显示为已收到。';
 
   @override
-  String get txDetailsCancelSendBody =>
-      '这笔付款正在等待对方回复，没有这个钱包就无法完成。取消会解锁这些币。不收手续费。';
+  String get txDetailsCancelSendBody => '尚未支付任何款项：取消免费且一定成功。';
 
   @override
   String get txDetailsCancelKeep => '保留';
@@ -5304,8 +5301,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerCancelTitle => '取消此付款？';
 
   @override
-  String get deskInvPayerCancelText =>
-      '对方已经拥有完成这笔付款所需的一切。取消会先把币移回这个钱包，旧的付款就无法再完成。';
+  String get deskInvPayerCancelText => '对方仍可以完成这笔付款。';
 
   @override
   String deskInvPayerCancelWho(String amount, String service) {
@@ -5331,7 +5327,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskInvPayerDeclined => '账单已拒绝。未支付任何款项。';
 
   @override
-  String get deskInvPayerSpentText => '币正在移回这个钱包，这笔付款无法再完成。';
+  String get deskInvPayerSpentText => '币正在移回这个钱包。';
 
   @override
   String get deskInvPayerSpendFailedText => '币暂时无法移回。钱包会在打开期间重试；在此之前这笔付款仍可能完成。';
@@ -8488,7 +8484,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskTxCancelOutgoingBody(String amount, String who) {
-    return '发往 $who 的 $amount EPIC。这笔付款正在等待对方回复，没有这个钱包就无法完成。取消会解锁这些币。不收手续费。';
+    return '发往 $who 的 $amount EPIC。尚未支付任何款项：取消免费且一定成功。';
   }
 
   @override
@@ -15864,18 +15860,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskBarKeyMenu => '打开应用菜单';
 
   @override
-  String get txDetailsCancelRequestBody =>
-      '对方已经拥有完成这笔付款所需的一切。取消会先把币移回这个钱包，旧的付款就无法再完成。';
+  String get txDetailsCancelRequestBody => '对方仍可以完成这笔付款。';
 
   @override
-  String get txDetailsCancelNotPostedBody =>
-      '网络拒绝了这笔付款，但它已经完整，它的副本之后仍可能进入网络。取消会先把币移回这个钱包，它就无法再完成。';
+  String get txDetailsCancelNotPostedBody => '这笔付款之后仍可能完成。';
 
   @override
-  String get cancelMoreInHelp => '详见帮助';
+  String get cancelMoreInHelp => '取消是如何进行的';
 
   @override
-  String get cancelNoteSendWaiting => '尚未广播到网络：取消会解锁这些币。不收手续费。';
+  String get cancelNoteSendWaiting => '尚未支付任何款项：取消免费且一定成功。';
 
   @override
   String get cancelNoteNotPosted => '尚未进入网络：取消会在检查网络后释放币。';
@@ -15884,39 +15878,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancelNoteDirectFailed => '接收方没有收到任何内容：取消会释放这些币。';
 
   @override
-  String get cancelNoteRequestPaid => '对方仍能完成这笔付款。取消会先把币移回这个钱包，需支付正常的网络手续费。';
+  String get cancelNoteRequestPaid => '对方仍可以完成这笔付款。';
 
   @override
   String get cancelNoteRequestWithdraw => '尚未支付任何款项：撤回不会移动任何币。';
 
   @override
-  String get cancelNoteNotPostedSend =>
-      '它的副本之后仍可能进入网络。取消会先把币移回这个钱包，需支付正常的网络手续费。';
+  String get cancelNoteNotPostedSend => '这笔付款之后仍可能完成。';
 
   @override
   String get txDetailsCancelledFinal => '已取消。币已移回这个钱包，这笔付款无法再完成。';
 
   @override
   String get txDetailsCancelledMayComplete =>
-      '已取消，但币尚未移回。对方仍可能完成这笔付款；若完成，会显示为已付款。';
+      '已取消，币没有移回。对方仍可能完成这笔付款；如果完成，会显示为已付。';
 
   @override
-  String get txDetailsCancelledSpentBack => '付款已取消。币正在移回这个钱包，这笔付款无法再完成。';
+  String get txDetailsCancelledSpentBack => '付款已取消。币正在移回这个钱包。';
 
   @override
-  String get txDetailsReleasedSpentBack => '资金已释放。币正在移回这个钱包，旧的付款无法再完成。';
+  String get txDetailsReleasedSpentBack => '资金已释放。币正在移回这个钱包。';
 
   @override
   String get txDetailsReleasedSpendBackPending =>
-      '资金已释放，但币暂时无法移回。钱包会在打开期间重试；在此之前旧的付款仍可能完成。';
+      '资金已释放。币暂时无法移回；钱包会在打开期间重试。在此之前旧的付款仍可能完成。';
 
   @override
   String get txDetailsCancelledSpendBackPending =>
-      '付款已取消，但币暂时无法移回。钱包会在打开期间重试；在此之前这笔付款仍可能完成。';
+      '付款已取消。币暂时无法移回；钱包会在打开期间重试。在此之前这笔付款仍可能完成。';
 
   @override
   String deskTxCancelNotPostedBody(String amount, String who) {
-    return '发往 $who 的 $amount EPIC。网络拒绝了这笔付款，但它已经完整，它的副本之后仍可能进入网络。取消会先把币移回这个钱包，它就无法再完成。';
+    return '发往 $who 的 $amount EPIC。这笔付款之后仍可能完成。';
   }
 
   @override
@@ -17663,8 +17656,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancelFeeLine => '需支付正常的网络手续费。';
 
   @override
-  String get cancelFeeWhy =>
-      '对方已经拥有完成这笔付款所需的一切。钱包会先把币移给自己，旧的付款就无法再完成。这需要支付正常的网络手续费。';
+  String get cancelForSure => '彻底取消';
+
+  @override
+  String get cancelStopWaiting => '不再等待';
+
+  @override
+  String get cancelStopWaitingLine => '免费。这笔付款仍可能完成。';
+
+  @override
+  String get cancelChoicesTitle => '两种取消方式';
+
+  @override
+  String get cancelChoicesWhy =>
+      '彻底取消会先把币移回这个钱包，需支付正常的网络手续费。之后旧的付款再也无法完成，所以这是稳妥的方式。\n\n不再等待免费，也不移动任何币。这些币可以再次使用，付款则保持原样。如果对方之后仍完成了它，付款会完成并显示为已付；如果没有，就什么也不会发生。';
+
+  @override
+  String get cancelStoppedWaitingTitle => '已不再等待';
+
+  @override
+  String get cancelStoppedWaitingText => '这些币可以再次使用。这笔付款仍可能完成；如果完成，会显示为已付。';
+
+  @override
+  String get txDetailsStoppedWaiting =>
+      '已不再等待。这些币可以再次使用。这笔付款仍可能完成；如果完成，会显示为已付。';
 
   @override
   String get errorPaymentCancelledCoinsMoved => '这笔付款已取消，它的币已被移走。它无法再完成。';

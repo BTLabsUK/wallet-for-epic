@@ -53,13 +53,21 @@ void main() {
         }
       });
 
-      // WAL-20: once the other side holds the signed payment, Cancel also sends the coins back
-      // (one network fee); there is no separate step to offer.
-      test('${platform.name}: says when Cancel sends the coins back, and its fee', () {
+      // WAL-20: once the other side holds what it needs to finish the payment, Cancel offers two
+      // ways: Cancel for sure (the coins back, one network fee) and the free Stop waiting.
+      test('${platform.name}: names the two ways to cancel, the fee, and what may still finish means', () {
         final all = topic.bodyText;
-        expect(all, contains('Cancel also moves the coins back to this wallet, for the normal network fee'));
+        // The bold names render with their own spacing: check the name and its sentence apart.
+        expect(all, contains('Cancel for sure'));
+        expect(all, contains('moves the coins back to this wallet first, for the normal network fee'));
+        expect(all, contains('Stop waiting'));
+        expect(all, contains('is free and moves nothing'));
         expect(all, contains('if it does, it shows as paid'));
         expect(all, isNot(contains('offered with the cancel')));
+        // Plain words (the owner, 2026-10-30): no signatures, halves or kernels anywhere.
+        for (final jargon in ['signature', 'signed', 'half', 'output', 'input']) {
+          expect(all, isNot(contains(jargon)), reason: jargon);
+        }
       });
 
       test('${platform.name}: the words a stuck user types find it; no jargon', () {
@@ -95,9 +103,9 @@ void main() {
         tester,
         Scaffold(body: Center(child: CancelNote(text: englishStrings.cancelNoteSendWaiting, anchor: HelpAnchor.receiving))),
       );
-      expect(find.text('Not posted yet: cancelling unlocks the coins. No fee.'), findsOneWidget);
-      expect(find.text('More in Help'), findsOneWidget);
-      await tester.tap(find.text('More in Help'));
+      expect(find.text('Nothing has been paid yet: cancelling is free and certain.'), findsOneWidget);
+      expect(find.text('How cancelling works'), findsOneWidget);
+      await tester.tap(find.text('How cancelling works'));
       await tester.pumpAndSettle();
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(tester.widget<HelpTopicScreen>(find.byType(HelpTopicScreen)).topic.id, HelpId.cancel);

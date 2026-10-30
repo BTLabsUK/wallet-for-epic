@@ -5,6 +5,7 @@ import '../devices/phone_devices.dart' show deviceServiceProvider, watchHistory;
 import 'devices/device_tx_details.dart';
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
+import 'cancel_dialog.dart';
 import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -183,10 +184,12 @@ String txExplanation(
           : l.txDetailsCompletedInBlock(groupDigits(l, height)),
     // One the other side could have finished (cancel_final.dart): final once its coins were
     // spent again, by Cancel's spend back or a later payment. [cancelFinal] is null until known.
+    // Release coins is such a cancel too: the same words, so a released send whose coins
+    // stayed in place reads honestly after Stop waiting.
     TxPhase.cancelled
         when outgoing &&
             cancelFinal != null &&
-            (tx.cancelReason == null || tx.cancelReason == CancelReason.user) &&
+            (tx.cancelReason == null || tx.cancelReason == CancelReason.user || tx.cancelReason == CancelReason.release) &&
             cancelledMayComplete(tx) =>
       cancelFinal ? l.txDetailsCancelledFinal : l.txDetailsCancelledMayComplete,
     TxPhase.cancelled when outgoing && tx.cancelReason != null =>
@@ -481,45 +484,25 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     await _reload();
   }
 
-  /// Unlocks the inputs of a send the network never took, after the user confirms the risk, and
-  /// spends them back to this wallet.
+  /// Unlocks the coins of a send the network never took, once the user chose how: Cancel for
+  /// sure also spends them back to this wallet, Stop waiting only unlocks them (cancel_dialog.dart).
   Future<void> _release(TxEntry tx) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        final theme = Theme.of(context);
-        return AlertDialog(
-          title: Text(l.txDetailsReleaseTitle),
-          // Releasing moves the coins back as Cancel does, for the fee the line under the
-          // text names (CancelNote).
-          content: CancelNote(
-            text: l.txDetailsReleaseBody,
-            anchor: HelpAnchor.sending,
-            fee: true,
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.txDetailsReleaseKeepWaiting),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.txDetailsReleaseFunds),
-            ),
-          ],
-        );
-      },
+    final l0 = context.l10n;
+    final choice = await showCancelChoices(
+      context,
+      title: l0.txDetailsReleaseTitle,
+      body: l0.txDetailsReleaseBody,
+      anchor: HelpAnchor.sending,
+      keepLabel: l0.txDetailsReleaseKeepWaiting,
     );
-    if (confirmed != true || !mounted) return;
+    if (!choice.cancels || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
     setState(() => _busy = true);
     try {
       // The network refused it, but a copy could still reach it: the coins go back to this
       // wallet as with Cancel (cancel_final.dart).
-      final result = await ref.read(cancelFinalProvider).release(session, tx);
+      final result = await ref.read(cancelFinalProvider).release(session, tx, spendBack: choice.spendBack);
       if (!mounted) return;
       final l = context.l10n;
       _showMessage(
@@ -527,11 +510,13 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           CancelResult.cancelled => l.txDetailsFundsReleased,
           CancelResult.spentBack => l.txDetailsReleasedSpentBack,
           CancelResult.spendBackPending => l.txDetailsReleasedSpendBackPending,
+          CancelResult.stoppedWaiting => l.txDetailsStoppedWaiting,
           CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
+        // Calm, never a warning (the owner, 2026-10-30): a retry or a payment left open is
+        // information, not alarm.
         level: switch (result) {
-          CancelResult.spendBackPending => NoticeLevel.warning,
-          CancelResult.alreadyPaid => NoticeLevel.info,
+          CancelResult.spendBackPending || CancelResult.stoppedWaiting || CancelResult.alreadyPaid => NoticeLevel.info,
           _ => NoticeLevel.success,
         },
       );
@@ -555,53 +540,37 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     // A request this wallet paid: the issuer holds a copy it can finish, so the words differ.
     final paidRequest = !receive &&
         (tx.flow == TxFlow.invoice || (tx.slateId != null && ref.read(paidInvoiceProvider(tx.slateId!)).value != null));
-    // A send both wallets signed: a copy could still reach the network. Either way the cancel
-    // spends the coins back (cancel_final.dart), for a fee the dialog names.
+    // A send both wallets signed: a copy could still reach the network. Either way the user
+    // picks Cancel for sure (the coins spent back, for a fee) or the free Stop waiting
+    // (cancel_dialog.dart); a plain cancel has one free choice.
     final signedSend = !receive && !paidRequest && cancelSpendsBack(tx);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        final theme = Theme.of(context);
-        return AlertDialog(
-          title: Text(l.txDetailsCancelTitle),
-          content: CancelNote(
-            text: receive
-                ? l.txDetailsCancelReceiveBody
-                : paidRequest
-                ? l.txDetailsCancelRequestBody
-                : signedSend
-                ? l.txDetailsCancelNotPostedBody
-                : l.txDetailsCancelSendBody,
-            anchor: receive
-                ? HelpAnchor.receiving
-                : paidRequest
-                ? HelpAnchor.requests
-                : HelpAnchor.sending,
-            // The fee line with its info icon, only when the cancel moves the coins back.
-            fee: paidRequest || signedSend,
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          // One destructive look: the cancelling choice in red, the safe one neutral.
-          actions: [
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.txDetailsCancelKeep),
-            ),
-            DangerButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.txDetailsCancelPayment),
-            ),
-          ],
-        );
-      },
-    );
-    if (confirmed != true || !mounted) return;
+    final l0 = context.l10n;
+    final CancelChoice choice;
+    if (paidRequest || signedSend) {
+      choice = await showCancelChoices(
+        context,
+        title: l0.txDetailsCancelTitle,
+        body: paidRequest ? l0.txDetailsCancelRequestBody : l0.txDetailsCancelNotPostedBody,
+        anchor: paidRequest ? HelpAnchor.requests : HelpAnchor.sending,
+        keepLabel: l0.txDetailsCancelKeep,
+      );
+    } else {
+      final confirmed = await showPlainCancel(
+        context,
+        title: l0.txDetailsCancelTitle,
+        body: receive ? l0.txDetailsCancelReceiveBody : l0.txDetailsCancelSendBody,
+        anchor: receive ? HelpAnchor.receiving : HelpAnchor.sending,
+        keepLabel: l0.txDetailsCancelKeep,
+        cancelLabel: l0.txDetailsCancelPayment,
+      );
+      choice = confirmed ? CancelChoice.cancelForSure : CancelChoice.keep;
+    }
+    if (!choice.cancels || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
     setState(() => _busy = true);
     try {
-      final result = await ref.read(cancelFinalProvider).cancel(session, tx);
+      final result = await ref.read(cancelFinalProvider).cancel(session, tx, spendBack: choice.spendBack);
       // The linked devices free its coins at once, not at the next tick.
       unawaited(ref.read(deviceServiceProvider)?.announceNow());
       if (!mounted) return;
@@ -611,11 +580,11 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           CancelResult.cancelled => l.txDetailsPaymentCancelled,
           CancelResult.spentBack => l.txDetailsCancelledSpentBack,
           CancelResult.spendBackPending => l.txDetailsCancelledSpendBackPending,
+          CancelResult.stoppedWaiting => l.txDetailsStoppedWaiting,
           CancelResult.alreadyPaid => l.errorPaymentAlreadyWentThrough,
         },
         level: switch (result) {
-          CancelResult.spendBackPending => NoticeLevel.warning,
-          CancelResult.alreadyPaid => NoticeLevel.info,
+          CancelResult.spendBackPending || CancelResult.stoppedWaiting || CancelResult.alreadyPaid => NoticeLevel.info,
           _ => NoticeLevel.success,
         },
       );
