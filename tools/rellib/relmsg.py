@@ -4,7 +4,7 @@ edited in place; an alert when a step needs a reaction; the publish gate.
 
 Status calls are best effort: if relmsg is down, steps still run and log. The gate is the
 opposite: anything but an explicit approval is "no" (fail closed). The runner's producer token
-cannot approve; approval comes from the owner's button or from the operator on the owner's word."""
+cannot approve; approval comes from the owner's button, or from the operator on his word."""
 import json
 import os
 import subprocess
