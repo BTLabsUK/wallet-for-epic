@@ -299,8 +299,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final modeName = networkModeName(l, deskNetMode(ref.read(deskProvider)));
     return ENotice(
       key: const ValueKey('rx-net-blocked'),
-      // Waiting for Tor is in progress (blue ⓘ); Node only and Kill switch are the mode's hold.
-      tone: offline ? ETone.warn : ETone.info,
+      // Waiting for Tor is in progress (blue ⓘ); Node only and Kill switch are the user's choice (calm).
+      tone: offline ? ETone.neutral : ETone.info,
       icon: offline ? EIcons.lanOff : null,
       title: offline ? l.receiveEpicboxOffMode(modeName) : netBlockReason(l, net)!,
       text: offline ? l.receiveEpicboxOffModeBody(modeName) : l.deskNetRecvWaitTorText,
