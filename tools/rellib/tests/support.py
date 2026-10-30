@@ -59,6 +59,7 @@ for_each = "variant"
 needs = ["scope"]
 run = "echo linux {variant} >> {src}/calls; head -c 2000000 /dev/zero > {stage}/EpicCashDesktop-{version}{notor}-x86_64.AppImage"
 outputs = ["EpicCashDesktop-{version}{notor}-x86_64.AppImage"]
+reuse = ["app", "!app/test", "tools/lepic.rev"]
 
 [step.trust-android]
 platform = "android"
