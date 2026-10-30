@@ -193,6 +193,44 @@ void main() {
       expect(s.spentToSelf.single, [_coinA, _coinB]);
     });
 
+    test('Stop waiting: only cancelled, nothing spent, nothing owed', () async {
+      for (final tx in [_send(flow: TxFlow.invoice), _send(finalized: true)]) {
+        final s = _session(tx);
+        final cancels = CancelFinal();
+        expect(await cancels.cancel(s, tx, spendBack: false), CancelResult.stoppedWaiting);
+        expect(s.cancelledTxIds, [9]);
+        expect(s.spentToSelf, isEmpty);
+        expect(cancels.owed, isFalse);
+        // Unlocked by the cancel, as LEPIC does: a later retry still spends nothing.
+        s.outputsValue = [_out(_coinA, WalletOutputStatus.unspent, txId: 9)];
+        expect(await cancels.retry(s), isFalse);
+        expect(s.spentToSelf, isEmpty);
+      }
+    });
+
+    test('Stop waiting on a plain send is the plain cancel', () async {
+      final tx = _send();
+      final s = _session(tx);
+      expect(await CancelFinal().cancel(s, tx, spendBack: false), CancelResult.cancelled);
+      expect(s.spentToSelf, isEmpty);
+    });
+
+    test('Release coins can only stop waiting too: released, nothing spent', () async {
+      final tx = _send(finalized: true, releasable: true);
+      final s = _session(tx);
+      expect(await CancelFinal().release(s, tx, spendBack: false), CancelResult.stoppedWaiting);
+      expect(s.releasedKeys, [tx.key]);
+      expect(s.spentToSelf, isEmpty);
+    });
+
+    test('the desktop demo wallet: Stop waiting leaves the cancel not final', () async {
+      final m = MockDeskWallet(delay: Duration.zero);
+      m.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
+      expect(await m.cancelTx(MockDeskWallet.signedCancelDemoId, spendBack: false), CancelResult.stoppedWaiting);
+      final t = (await m.transactions()).singleWhere((t) => t.id == MockDeskWallet.signedCancelDemoId);
+      expect(t.cancelFinal, isFalse);
+    });
+
     test('a refused late post says why, on either side', () {
       for (final kind in [WalletErrorKind.inputsSpentByOwnPayment, WalletErrorKind.peerInputsSpent]) {
         expect(describeError(_l, WalletError(kind: kind, message: 'internal error')), _l.errorPaymentCancelledCoinsMoved);

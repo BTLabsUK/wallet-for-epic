@@ -929,15 +929,16 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<CancelResult> cancelTx(int id) async {
+  Future<CancelResult> cancelTx(int id, {bool spendBack = true}) async {
     await _wait();
     final i = _txs.indexWhere((t) => t.id == id);
     if (i < 0) return CancelResult.cancelled;
     final t = _txs[i];
     // A send both wallets signed (the node refused it): its coins are spent back, so it is final.
-    final spendsBack = !t.incoming && t.notPosted;
-    _txs[i] = Tx(id: t.id, slateId: t.slateId, direction: t.direction, state: TxState.cancelled, method: t.method, amount: t.amount, fee: t.fee, created: t.created, counterparty: t.counterparty, contactName: t.contactName, message: t.message, cancelFinal: spendsBack ? true : null);
-    return spendsBack ? CancelResult.spentBack : CancelResult.cancelled;
+    final mayFinish = !t.incoming && t.notPosted;
+    final spendsBack = mayFinish && spendBack;
+    _txs[i] = Tx(id: t.id, slateId: t.slateId, direction: t.direction, state: TxState.cancelled, method: t.method, amount: t.amount, fee: t.fee, created: t.created, counterparty: t.counterparty, contactName: t.contactName, message: t.message, cancelFinal: mayFinish ? spendsBack : null);
+    return spendsBack ? CancelResult.spentBack : mayFinish ? CancelResult.stoppedWaiting : CancelResult.cancelled;
   }
 
   /// Replaces row [key] with the user's entries; null when no row has that key.
@@ -1284,12 +1285,13 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<CancelResult> cancelInvoicePayment(String slateId) async {
+  Future<CancelResult> cancelInvoicePayment(String slateId, {bool spendBack = true}) async {
     await _wait(1.5);
     proto.cancelPayment(slateId);
     proto._changed();
-    // The issuer holds the signed payment: the cancel spends its coins back, as LEPIC's does.
-    return CancelResult.spentBack;
+    // The issuer holds the signed payment: the cancel spends its coins back, as LEPIC's does,
+    // unless the user chose to only stop waiting.
+    return spendBack ? CancelResult.spentBack : CancelResult.stoppedWaiting;
   }
 
   /// The prototype's pairing engine: the fake that plays both sides, seeded with the contacts'

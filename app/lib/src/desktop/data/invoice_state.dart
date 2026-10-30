@@ -113,7 +113,8 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
       _then('pay', () => ref.read(deskSendingProvider.notifier).during(() => _api.payInvoice(slateId, amount: amount, password: password)));
   Future<IncomingInvoice> retry(String slateId) => _then('retry', () => _api.retryInvoiceReply(slateId));
   Future<void> decline(String slateId) => _then('decline', () => _api.declineInvoice(slateId));
-  Future<CancelResult> cancelPayment(String slateId) => _then('cancelPayment', () => _api.cancelInvoicePayment(slateId));
+  Future<CancelResult> cancelPayment(String slateId, {bool spendBack = true}) =>
+      _then('cancelPayment', () => _api.cancelInvoicePayment(slateId, spendBack: spendBack));
   Future<void> setExpiry(Duration expiry) => _then('setExpiry', () => _api.setInvoiceExpiry(expiry));
 
   /// Runs [call], then reads the book again (and the wallet, for balance and Activity) whether

@@ -68,7 +68,7 @@ class _Wallet extends MockDeskWallet {
   Future<void> repostTx(int id) async => reposts.add(id);
 
   @override
-  Future<CancelResult> cancelTx(int id) async {
+  Future<CancelResult> cancelTx(int id, {bool spendBack = true}) async {
     cancels.add(id);
     return CancelResult.cancelled;
   }

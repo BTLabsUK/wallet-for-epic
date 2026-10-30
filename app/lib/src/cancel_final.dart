@@ -10,6 +10,11 @@
 /// cancel then spends those same coins back to this wallet ([WalletSession.spendOutputsToSelf]),
 /// for a network fee, so the old payment can never complete. No extra step: Cancel does both.
 ///
+/// Where the other side may finish it, the user also has a free choice ([CancelFinal.cancel]
+/// with `spendBack: false`, "Stop waiting"): the coins are unlocked here and nothing is spent;
+/// if the other side still finishes the payment, LEPIC's watch shows it paid. Nothing is owed
+/// then, so nothing is retried.
+///
 /// A spend back that fails is tried again with each later list read while the wallet stays
 /// open. Nothing is stored for it: after a restart a cancelled payment whose coins were not
 /// moved reads "may still complete" ([cancelFinal]), and any later spend of those coins makes
@@ -52,6 +57,10 @@ enum CancelResult {
   /// Cancelled, but spending its coins back failed: tried again with the next list read.
   spendBackPending,
 
+  /// Stopped waiting, as the user chose: cancelled with no spend back, so the other side may
+  /// still finish it (it then shows as paid).
+  stoppedWaiting,
+
   /// The spend back was refused because the payment itself already went through: its coins
   /// are spent by it, and the watch shows it paid.
   alreadyPaid,
@@ -66,8 +75,8 @@ class CancelFinal {
 
   /// Cancels [tx] ([WalletSession.cancelTransaction], whose errors it passes on: nothing changed
   /// then), and when [cancelSpendsBack] says so, spends the coins it had locked back to this
-  /// wallet.
-  Future<CancelResult> cancel(WalletSession session, TxEntry tx) async {
+  /// wallet; with [spendBack] false (the free "Stop waiting") it only cancels.
+  Future<CancelResult> cancel(WalletSession session, TxEntry tx, {bool spendBack = true}) async {
     final id = tx.id;
     if (id == null) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'no local id');
@@ -75,6 +84,10 @@ class CancelFinal {
     if (!cancelSpendsBack(tx)) {
       await session.cancelTransaction(txId: id);
       return CancelResult.cancelled;
+    }
+    if (!spendBack) {
+      await session.cancelTransaction(txId: id);
+      return CancelResult.stoppedWaiting;
     }
     // The coins it locks, read first: once cancelled they are this wallet's again, and the
     // spend back spends exactly these.
@@ -90,8 +103,13 @@ class CancelFinal {
 
   /// Releases the stuck send [tx] ([WalletSession.releaseStuckSend], whose errors it passes on:
   /// nothing changed then) and spends the coins it had locked back to this wallet, as [cancel]
-  /// does: the network refused the send, but a copy of it could still reach it.
-  Future<CancelResult> release(WalletSession session, TxEntry tx) async {
+  /// does: the network refused the send, but a copy of it could still reach it. With [spendBack]
+  /// false it only releases ([CancelResult.stoppedWaiting]).
+  Future<CancelResult> release(WalletSession session, TxEntry tx, {bool spendBack = true}) async {
+    if (!spendBack) {
+      await session.releaseStuckSend(key: tx.key);
+      return CancelResult.stoppedWaiting;
+    }
     final id = tx.id;
     var coins = const <String>[];
     if (id != null) {

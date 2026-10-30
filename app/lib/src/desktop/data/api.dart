@@ -278,8 +278,9 @@ abstract interface class DeskWalletApi {
   /// Finalizes and posts the answer [text] pasted into Send, as [finalizeFile] does a file.
   Future<Tx> finalizeText(String text);
   /// Cancels a payment; one the other side could still finish also has its coins spent back
-  /// to this wallet (cancel_final.dart), which the result tells.
-  Future<CancelResult> cancelTx(int id);
+  /// to this wallet (cancel_final.dart), which the result tells; with [spendBack] false (the
+  /// free "Stop waiting") only cancelled.
+  Future<CancelResult> cancelTx(int id, {bool spendBack = true});
   Future<String> exportProof(int id);
   /// Adds (empty id) or replaces [contact] and returns its id. Only stores: an address is never checked over the network.
   Future<String> saveContact(Contact contact);
@@ -470,8 +471,8 @@ abstract interface class DeskWalletApi {
   /// Cancels an invoice's payment once the node says it is neither in the pool nor on the
   /// chain, and spends the coins it had locked back to this wallet, so the service's signed
   /// copy can never complete (a network fee; cancel_final.dart). Throws a [DeskError] when the
-  /// network has it, or when the node cannot be asked.
-  Future<CancelResult> cancelInvoicePayment(String slateId);
+  /// network has it, or when the node cannot be asked. With [spendBack] false only cancelled.
+  Future<CancelResult> cancelInvoicePayment(String slateId, {bool spendBack = true});
 
   Future<void> setInvoiceExpiry(Duration expiry);
 

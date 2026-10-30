@@ -3097,7 +3097,7 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<CancelResult> cancelTx(int id) => _running(() async {
+  Future<CancelResult> cancelTx(int id, {bool spendBack = true}) => _running(() async {
     if (id < 0) throw DeskError.l10n((l) => l.deskErrCannotCancel);
     final CancelResult result;
     try {
@@ -3107,7 +3107,7 @@ class LepicDeskWallet implements DeskWalletApi {
         await _open.cancelTransaction(txId: id);
         result = CancelResult.cancelled;
       } else {
-        result = await _cancels.cancel(_open, entry);
+        result = await _cancels.cancel(_open, entry, spendBack: spendBack);
       }
     } on core.WalletError catch (e) {
       // The core asks the node first and refuses a payment it already has (in its pool or a block).
@@ -5200,7 +5200,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// in the pool or on chain. The issuer holds the signed payment, so the cancel also spends
   /// its coins back to this wallet ([CancelFinal]). Never automatic.
   @override
-  Future<CancelResult> cancelInvoicePayment(String slateId) async {
+  Future<CancelResult> cancelInvoicePayment(String slateId, {bool spendBack = true}) async {
     final entries = await _open.transactions(refresh: false);
     final entry = entries
         .where((e) => e.slateId == slateId && e.flow == core.TxFlow.invoice && (e.kind == core.TxKind.sent || e.kind == core.TxKind.sentCancelled))
@@ -5208,7 +5208,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (entry?.id == null) throw const InvoiceError(InvoiceProblem.invalid, 'No such payment'); // l10n-ok
     final CancelResult result;
     try {
-      result = await _running(() => _cancels.cancel(_open, entry!));
+      result = await _running(() => _cancels.cancel(_open, entry!, spendBack: spendBack));
     } on core.WalletError catch (e) {
       throw _cancelError(e);
     }

@@ -256,7 +256,7 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<Tx> finalizeText(String text) => _r('finalizeText', () => _m.finalizeText(text));
   @override
-  Future<CancelResult> cancelTx(int id) => _r('cancelTx', () => _m.cancelTx(id));
+  Future<CancelResult> cancelTx(int id, {bool spendBack = true}) => _r('cancelTx', () => _m.cancelTx(id, spendBack: spendBack));
   @override
   Future<String> exportProof(int id) => _r('exportProof', () => _m.exportProof(id));
   @override
@@ -370,7 +370,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<void> declineInvoice(String slateId) => _r('declineInvoice', () => _m.declineInvoice(slateId));
   @override
-  Future<CancelResult> cancelInvoicePayment(String slateId) => _r('cancelInvoicePayment', () => _m.cancelInvoicePayment(slateId));
+  Future<CancelResult> cancelInvoicePayment(String slateId, {bool spendBack = true}) =>
+      _r('cancelInvoicePayment', () => _m.cancelInvoicePayment(slateId, spendBack: spendBack));
   // Pairing calls go to the pairing API, not through the recorder.
   @override
   PairingApi get pairing => _m.pairing;

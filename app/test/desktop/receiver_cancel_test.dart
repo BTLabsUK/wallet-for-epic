@@ -27,7 +27,7 @@ class _Desk extends MockDeskWallet {
   final List<int> cancelled = [];
 
   @override
-  Future<CancelResult> cancelTx(int id) async {
+  Future<CancelResult> cancelTx(int id, {bool spendBack = true}) async {
     cancelled.add(id);
     if (refuse) throw const DeskError(cancelRefusedText);
     return super.cancelTx(id);
