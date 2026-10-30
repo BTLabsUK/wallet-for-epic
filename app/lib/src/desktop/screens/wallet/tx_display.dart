@@ -325,6 +325,8 @@ class TxStateMark extends StatelessWidget {
     if (tx.fromBackup) return Icon(EIcons.archive, size: size * 0.75, color: c.dim);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
+      // Taken in by a listener, not started here: the antenna, dim, not the in-progress blue.
+      TxState.waitingRecipient when tx.incoming && tx.fromListener => Icon(EIcons.antenna, size: size * 0.75, color: c.dim),
       TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: tx.undelivered ? c.warn : c.info),
       TxState.posted => ERing(confirmations: 0, size: size),
       _ => ERing(confirmations: tx.confirmations, needed: tx.confirmationsNeeded, size: size),

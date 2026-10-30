@@ -543,6 +543,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'You accepted this payment. It completes when the sender finishes it and posts it to the network.';
 
   @override
+  String txDetailsListenerWaiting(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other:
+          'A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after $hours hours if that never happens.',
+      one:
+          'A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after $hours hour if that never happens.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txDetailsSenderPosted =>
       'The sender reports it posted this payment. It completes when the network confirms it.';
 
@@ -5853,8 +5866,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'For wallets on this Wi-Fi network, while this wallet is open.';
 
   @override
+  String get receiveHttpNotPrivateTitle => 'Off on this network';
+
+  @override
   String get receiveHttpNotPrivate =>
-      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+      'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, a café\'s or a hotel\'s, anyone there could reach this wallet.';
 
   @override
   String get receiveHttpMarkPrivate => 'This is my private network';
@@ -12460,8 +12476,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetReportFullDetails => 'Include full details';
 
   @override
+  String get deskSetReportFullDetailsHint =>
+      'Addresses go shortened and amounts as ranges. Tick to send them whole.';
+
+  @override
   String get deskSetReportFullDetailsWarn =>
-      'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.';
+      'Full addresses and amounts go into this file.';
+
+  @override
+  String get deskSetReportFullDetailsNever =>
+      'Seeds, keys and passwords never.';
+
+  @override
+  String get deskSetReportPartFullDetails => 'Full details';
 
   @override
   String get deskSetReportSentWhat => 'What is sent';
@@ -13855,6 +13882,45 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get txLinkTorHint =>
       'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
+
+  @override
+  String get txPrivateNetworks => 'Private networks';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count marked',
+      one: '$count marked',
+      zero: 'None marked yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.';
+
+  @override
+  String get txPrivateNetworksNone =>
+      'No network marked yet. Mark one on Receive › Link while the phone is on it.';
+
+  @override
+  String get txPrivateNetworkCurrent => 'This network';
+
+  @override
+  String get txPrivateNetworkForget => 'Forget';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return 'Forget $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
 
   @override
   String get txLinkTorNeedsTor =>

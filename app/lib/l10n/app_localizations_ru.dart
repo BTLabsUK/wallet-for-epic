@@ -558,6 +558,23 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы приняли этот платёж. Он будет выполнен, когда отправитель завершит его и опубликует в сети.';
 
   @override
+  String txDetailsListenerWaiting(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other:
+          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours часа.',
+      many:
+          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours часов.',
+      few:
+          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours часа.',
+      one:
+          'Приёмник Link принял этот платёж сам; здесь его никто не начинал. Отправить такой может любой, кто дотянется до приёмника, поэтому он ничего не значит, пока отправитель его не завершит и он не попадёт в блок. Если этого не случится, приложение отбросит его через $hours час.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txDetailsSenderPosted =>
       'По словам отправителя, этот платёж отправлен в сеть. Он будет выполнен, когда сеть его подтвердит.';
 
@@ -5992,8 +6009,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Для кошельков в этой сети Wi-Fi, пока этот кошелёк открыт.';
 
   @override
+  String get receiveHttpNotPrivateTitle => 'Выключено в этой сети';
+
+  @override
   String get receiveHttpNotPrivate =>
-      'Не принимает: эта сеть не отмечена как частная. В сети кафе или отеля любой рядом мог бы найти этот кошелёк и слать ему мусор.';
+      'Link · HTTP принимает только в сетях, которые вы отметили как частные. В общем Wi-Fi, в кафе или отеле, любой рядом мог бы добраться до этого кошелька.';
 
   @override
   String get receiveHttpMarkPrivate => 'Это моя частная сеть';
@@ -12914,8 +12934,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetReportFullDetails => 'Приложить все подробности';
 
   @override
+  String get deskSetReportFullDetailsHint =>
+      'Адреса идут сокращёнными, суммы диапазонами. Отметьте, чтобы отправить их целиком.';
+
+  @override
   String get deskSetReportFullDetailsWarn =>
-      'Отправляет полные адреса и суммы из журнала (их записывает подробное журналирование); тот, кто читает отчёт, увидит, кому и сколько вы заплатили.';
+      'В этот файл попадают полные адреса и суммы.';
+
+  @override
+  String get deskSetReportFullDetailsNever => 'Фразы, ключи и пароли никогда.';
+
+  @override
+  String get deskSetReportPartFullDetails => 'Полные детали';
 
   @override
   String get deskSetReportSentWhat => 'Что отправляется';
@@ -14340,6 +14370,47 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get txLinkTorHint =>
       'Ссылка · Tor платит прямо в кошелёк по адресу onion и даёт этому телефону адрес Tor, на который ему можно платить. Оба кошелька должны быть открыты. Нужен Tor: переключатель Tor в «Приватность и сеть» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Ссылка · Tor в «Отправить» и «Получить».';
+
+  @override
+  String get txPrivateNetworks => 'Частные сети';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count отмечено',
+      many: '$count отмечено',
+      few: '$count отмечены',
+      one: '$count отмечена',
+      zero: 'Пока ни одной',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP принимает в этих сетях. Сеть узнаётся по диапазону адресов, так что два дома с одним диапазоном считаются одной. Забудьте сеть, и телефон спросит в ней снова.';
+
+  @override
+  String get txPrivateNetworksNone =>
+      'Ни одна сеть пока не отмечена. Отметьте её в Получить › Link, пока телефон в ней.';
+
+  @override
+  String get txPrivateNetworkCurrent => 'Эта сеть';
+
+  @override
+  String get txPrivateNetworkForget => 'Забыть';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return 'Забыть $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
 
   @override
   String get txLinkTorNeedsTor =>

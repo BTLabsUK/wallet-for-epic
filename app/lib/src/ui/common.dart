@@ -771,9 +771,12 @@ String txStatusLabel(
 };
 
 /// The mark before a status word: a check for a completed payment, the timelapse glyph while
-/// confirming, an hourglass while waiting for the other side, an empty ring otherwise.
-(IconData, Color) txStatusMark(BuildContext context, TxPhase phase) {
+/// confirming, an hourglass while waiting for the other side, an empty ring otherwise. A
+/// payment a listener took in by itself ([listener]) gets the antenna, dim: not something the
+/// user set going, so not the in-progress blue.
+(IconData, Color) txStatusMark(BuildContext context, TxPhase phase, {bool listener = false}) {
   final t = context.tokens;
+  if (listener && phase == TxPhase.waitingSender) return (Icons.cell_tower, t.dim);
   return switch (phase) {
     TxPhase.completed => (Icons.check_circle_outline, t.ok),
     TxPhase.confirming => (Icons.timelapse, t.info),
@@ -813,7 +816,7 @@ class TxStatusLine extends ConsumerWidget {
     final now = ref.watch(clockProvider)();
     // The sender reports it posted: still waiting, but under way, so in the info colour.
     final reported = phase == TxPhase.waitingSender && senderReportsPosted(tx, now: now);
-    final (markIcon, mark) = txStatusMark(context, phase);
+    final (markIcon, mark) = txStatusMark(context, phase, listener: isListenerReceive(tx));
     // Finished under Kill switch waits for another device: the hourglass, as for any wait.
     final icon = isPostElsewhere(tx) ? Icons.hourglass_empty : markIcon;
     final color = reported ? t.info : mark;
@@ -1063,6 +1066,8 @@ class TxStatusChip extends ConsumerWidget {
       // Its sender cancelled it: over, as a cancelled payment, though not cleared yet.
       TxPhase.waitingSender when senderCancelled(tx) => BadgeTone.neutral,
       TxPhase.waitingSender when senderReportsPosted(tx, now: now) => BadgeTone.info,
+      // Taken in by a listener, not started here: nothing under way, so neutral.
+      TxPhase.waitingSender when isListenerReceive(tx) => BadgeTone.neutral,
       // Waiting for the other side is work under way, not a warning.
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||

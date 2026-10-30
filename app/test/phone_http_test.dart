@@ -174,8 +174,9 @@ void main() {
     await h.pump(tester);
     expect(h.session.httpListenerStarts, isEmpty);
     expect(h.http.phase, PhoneHttpPhase.notPrivate);
-    expect(find.textContaining('not marked private'), findsOneWidget);
-    await tester.tap(find.text('This is my private network'));
+    expect(find.text('Off on this network'), findsOneWidget);
+    expect(find.textContaining('networks you mark private'), findsOneWidget);
+    await tester.tap(find.byKey(receiveHttpMarkPrivateKey));
     await h.settle(tester);
     expect(h.session.httpListenerStarts, hasLength(1));
     expect(h.store.values[privateNetworksKey], '192.168.1');

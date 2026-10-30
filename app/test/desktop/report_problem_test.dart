@@ -136,6 +136,35 @@ void main() {
     expect(h.outlet.posted.single.report.text.trimRight(), preview.trimRight());
   });
 
+  testWidgets('Include full details is off by default; ticked, it warns and the report keeps the addresses', (tester) async {
+    final h = _Harness();
+    h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid via 203.0.113.7:3413');
+    await h.pump(tester);
+    expect(find.text('Include full details'), findsOneWidget);
+    expect(find.byKey(const ValueKey('report-full-details-warn')), findsNothing);
+    expect(find.text('Addresses go shortened and amounts as ranges. Tick to send them whole.'), findsOneWidget);
+    await tester.tap(find.text('What is sent'));
+    await settle(tester);
+    expect(previewText(tester), isNot(contains(_address)));
+    expect(find.textContaining('· Full details'), findsNothing);
+
+    await tester.tap(find.text('Include full details'));
+    await settle(tester);
+    expect(find.byKey(const ValueKey('report-full-details-warn')), findsOneWidget);
+    expect(find.text('Full addresses and amounts go into this file. Seeds, keys and passwords never.'), findsOneWidget);
+    expect(find.textContaining('· Full details'), findsOneWidget);
+    final preview = previewText(tester);
+    expect(preview, contains('log details: full'));
+    expect(preview, contains('to $_address@box.epic.invalid'));
+    expect(preview, isNot(contains('203.0.113.7')));
+
+    // Attach logs off takes the tick and its warning with it.
+    await tester.tap(find.text('Attach logs (recommended)'));
+    await settle(tester);
+    expect(find.text('Include full details'), findsNothing);
+    expect(find.byKey(const ValueKey('report-full-details-warn')), findsNothing);
+  });
+
   testWidgets('What is sent names each log file and how much of it goes', (tester) async {
     final h = _Harness();
     h.log = _FilesLog([const LogFileInfo('wfe.log', 100 * 1024), const LogFileInfo('wfe.log.1', 1024 * 1024)]);

@@ -561,6 +561,23 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ta płatność została przyjęta. Zakończy się, gdy nadawca ją sfinalizuje i opublikuje w sieci.';
 
   @override
+  String txDetailsListenerWaiting(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other:
+          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godziny.',
+      many:
+          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godzinach.',
+      few:
+          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godzinach.',
+      one:
+          'Odbiornik Link przyjął tę płatność sam; nikt tutaj jej nie zaczął. Może ją wysłać każdy, kto dotrze do odbiornika, więc nic nie znaczy, dopóki nadawca jej nie dokończy i nie znajdzie się w bloku. Jeśli to nie nastąpi, aplikacja odrzuca ją po $hours godzinie.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txDetailsSenderPosted =>
       'Według nadawcy ta płatność została opublikowana w sieci. Zakończy się, gdy sieć ją potwierdzi.';
 
@@ -6016,8 +6033,11 @@ class AppLocalizationsPl extends AppLocalizations {
       'Dla portfeli w tej sieci Wi-Fi, gdy ten portfel jest otwarty.';
 
   @override
+  String get receiveHttpNotPrivateTitle => 'Wyłączone w tej sieci';
+
+  @override
   String get receiveHttpNotPrivate =>
-      'Nie nasłuchuje: ta sieć nie jest oznaczona jako prywatna. W sieci kawiarni czy hotelu każdy tam obecny mógłby znaleźć ten portfel i wysyłać do niego śmieci.';
+      'Link · HTTP nasłuchuje tylko w sieciach oznaczonych jako prywatne. We wspólnym Wi-Fi, w kawiarni czy hotelu, każdy tam obecny mógłby dotrzeć do tego portfela.';
 
   @override
   String get receiveHttpMarkPrivate => 'To moja prywatna sieć';
@@ -12943,8 +12963,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetReportFullDetails => 'Dołącz pełne szczegóły';
 
   @override
+  String get deskSetReportFullDetailsHint =>
+      'Adresy idą skrócone, a kwoty jako zakresy. Zaznacz, by wysłać je w całości.';
+
+  @override
   String get deskSetReportFullDetailsWarn =>
-      'Wysyła pełne adresy i kwoty zapisane w dzienniku (zapisuje je szczegółowe logowanie); kto przeczyta zgłoszenie, zobaczy, komu i ile zapłaciłeś.';
+      'Do tego pliku trafiają pełne adresy i kwoty.';
+
+  @override
+  String get deskSetReportFullDetailsNever => 'Frazy, klucze i hasła nigdy.';
+
+  @override
+  String get deskSetReportPartFullDetails => 'Pełne szczegóły';
 
   @override
   String get deskSetReportSentWhat => 'Co zostanie wysłane';
@@ -14366,6 +14396,47 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get txLinkTorHint =>
       'Link · Tor płaci prosto do portfela pod adresem onion i daje temu telefonowi adres Tor, na który można mu płacić. Oba portfele muszą być otwarte. Wymaga Tora: przełącznik Tor w Prywatność i sieć kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij i Odbierz.';
+
+  @override
+  String get txPrivateNetworks => 'Sieci prywatne';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count oznaczonej',
+      many: '$count oznaczonych',
+      few: '$count oznaczone',
+      one: '$count oznaczona',
+      zero: 'Żadnej jeszcze nie oznaczono',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP nasłuchuje w tych sieciach. Sieć rozpoznawana jest po zakresie adresów, więc dwa domy z tym samym zakresem liczą się jako jedna. Zapomnij sieć, a telefon zapyta w niej ponownie.';
+
+  @override
+  String get txPrivateNetworksNone =>
+      'Nie oznaczono jeszcze żadnej sieci. Oznacz jedną w Odbierz › Link, gdy telefon jest w niej.';
+
+  @override
+  String get txPrivateNetworkCurrent => 'Ta sieć';
+
+  @override
+  String get txPrivateNetworkForget => 'Zapomnij';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return 'Zapomnij $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
 
   @override
   String get txLinkTorNeedsTor => 'Wymaga Tora. Włącz go w Prywatność i sieć.';

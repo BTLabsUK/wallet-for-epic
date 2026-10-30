@@ -192,13 +192,16 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   /// "What is sent": the report text and each log file with how much of it goes along.
   List<String> _parts(AppLocalizations l) => [
     l.deskSetReportText,
-    if (_attachLogs)
+    if (_attachLogs) ...[
       if (_files.isEmpty) l.deskSetReportAppLog(logSize((_log ?? '').length, l)) else ...describeLogFiles(_files, feedbackLogBytes, l),
+      if (_fullDetails) l.deskSetReportPartFullDetails,
+    ],
   ];
 
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
+    final c = context.dc;
     final l = context.l10n;
     final nav = Navigator.of(context);
     if (_sentId case final id?) {
@@ -267,6 +270,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             if (_attachLogs) ...[
               SizedBox(height: Sp.x2),
               ECheckbox(
+                key: const ValueKey('report-full-details'),
                 value: _fullDetails,
                 label: l.deskSetReportFullDetails,
                 onChanged: (v) {
@@ -275,7 +279,24 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
                 },
               ),
               SizedBox(height: Sp.x1),
-              Text(l.deskSetReportFullDetailsWarn, style: ts.small),
+              // Off: what the tick would change, as small text like the Attach hint. On: the
+              // one-line warning in the warn colour with its mark, the same height, so the
+              // dialog does not jump and still fits an 800 px window.
+              if (_fullDetails)
+                Semantics(
+                  liveRegion: true,
+                  child: Row(
+                    key: const ValueKey('report-full-details-warn'),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(padding: const EdgeInsets.only(top: 1), child: Icon(EIcons.alert, size: Fs.sm, color: c.warn)),
+                      SizedBox(width: Sp.x2),
+                      Expanded(child: Text('${l.deskSetReportFullDetailsWarn} ${l.deskSetReportFullDetailsNever}', style: ts.small.copyWith(color: c.warn))),
+                    ],
+                  ),
+                )
+              else
+                Text(l.deskSetReportFullDetailsHint, style: ts.small),
             ],
             SizedBox(height: Sp.x3),
             EDetails(
@@ -332,8 +353,9 @@ class ReportPreview extends StatelessWidget {
     if (t == null) return Padding(padding: EdgeInsets.all(Sp.x3), child: const ESpinner());
     final lines = t.split('\n');
     final style = ts.mono(size: Fs.xs, color: c.dim);
-    // Short enough that the whole dialog, opened, fits an 800 px window.
-    final height = (MediaQuery.sizeOf(context).height - 640.u).clamp(96.u, 220.u);
+    // Short enough that the whole dialog, opened, fits an 800 px window (the Include full
+    // details tick and its line took their share).
+    final height = (MediaQuery.sizeOf(context).height - 720.u).clamp(80.u, 220.u);
     return Container(
       height: height,
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),

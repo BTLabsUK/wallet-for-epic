@@ -540,6 +540,17 @@ class AppLocalizationsTh extends AppLocalizations {
       'รับรายการนี้แล้ว รายการจะสำเร็จเมื่อผู้ส่งทำรายการให้เสร็จและเผยแพร่ไปยังเครือข่าย';
 
   @override
+  String txDetailsListenerWaiting(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other:
+          'ตัวรับฟัง Link รับการชำระเงินนี้เข้ามาเอง ไม่มีใครที่นี่เริ่มมัน ใครก็ตามที่เข้าถึงตัวรับฟังได้ก็ส่งมาได้ ดังนั้นมันจะไม่มีค่าอะไรจนกว่าผู้ส่งจะทำให้เสร็จและมีบล็อกบรรจุมัน หากไม่เกิดขึ้น แอปจะทิ้งมันหลังจาก $hours ชั่วโมง',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txDetailsSenderPosted =>
       'ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อเครือข่ายยืนยัน';
 
@@ -5749,8 +5760,11 @@ class AppLocalizationsTh extends AppLocalizations {
       'สำหรับกระเป๋าเงินในเครือข่าย Wi-Fi นี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่';
 
   @override
+  String get receiveHttpNotPrivateTitle => 'ปิดอยู่ในเครือข่ายนี้';
+
+  @override
   String get receiveHttpNotPrivate =>
-      'ไม่ได้รับฟัง: เครือข่ายนี้ไม่ได้ทำเครื่องหมายว่าเป็นส่วนตัว ในเครือข่ายของร้านกาแฟหรือโรงแรม ใครก็ตามที่อยู่ที่นั่นอาจพบกระเป๋าเงินนี้และส่งขยะมาให้';
+      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว ใน Wi-Fi ที่ใช้ร่วมกัน เช่น ร้านกาแฟหรือโรงแรม ใครก็ตามที่นั่นอาจเข้าถึงกระเป๋าเงินนี้ได้';
 
   @override
   String get receiveHttpMarkPrivate => 'นี่คือเครือข่ายส่วนตัวของฉัน';
@@ -12137,8 +12151,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetReportFullDetails => 'แนบรายละเอียดทั้งหมด';
 
   @override
+  String get deskSetReportFullDetailsHint =>
+      'ที่อยู่จะถูกย่อ และจำนวนเงินแสดงเป็นช่วง ติ๊กเพื่อส่งแบบเต็ม';
+
+  @override
   String get deskSetReportFullDetailsWarn =>
-      'ส่งที่อยู่และจำนวนเงินเต็มที่อยู่ในบันทึก (การบันทึกแบบละเอียดเก็บไว้) ผู้ที่อ่านรายงานจะเห็นว่าคุณจ่ายให้ใครและเท่าไร';
+      'ที่อยู่และจำนวนเงินแบบเต็มจะอยู่ในไฟล์นี้';
+
+  @override
+  String get deskSetReportFullDetailsNever =>
+      'วลีกู้คืน คีย์ และรหัสผ่านไม่มีวันถูกส่ง';
+
+  @override
+  String get deskSetReportPartFullDetails => 'รายละเอียดเต็ม';
 
   @override
   String get deskSetReportSentWhat => 'สิ่งที่ส่ง';
@@ -13509,6 +13534,44 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get txLinkTorHint =>
       'ลิงก์ · Tor จ่ายตรงถึงกระเป๋าเงินที่ที่อยู่ onion และให้โทรศัพท์เครื่องนี้มีที่อยู่ Tor สำหรับรับเงิน ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง ต้องใช้ Tor: สวิตช์ Tor ใน ความเป็นส่วนตัวและเครือข่ายส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor สวิตช์นี้เพียงเปิดที่อยู่ เพิ่ม ลิงก์ · Tor ใน ส่ง และ รับ';
+
+  @override
+  String get txPrivateNetworks => 'เครือข่ายส่วนตัว';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ทำเครื่องหมายแล้ว $count เครือข่าย',
+      zero: 'ยังไม่ได้ทำเครื่องหมาย',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP รับฟังในเครือข่ายเหล่านี้ เครือข่ายถูกจดจำด้วยช่วงที่อยู่ ดังนั้นบ้านสองหลังที่ใช้ช่วงเดียวกันจะนับเป็นเครือข่ายเดียว หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
+
+  @override
+  String get txPrivateNetworksNone =>
+      'ยังไม่ได้ทำเครื่องหมายเครือข่ายใด ทำเครื่องหมายได้ที่ รับ › Link ขณะที่โทรศัพท์อยู่ในเครือข่ายนั้น';
+
+  @override
+  String get txPrivateNetworkCurrent => 'เครือข่ายนี้';
+
+  @override
+  String get txPrivateNetworkForget => 'ลืม';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return 'ลืม $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
 
   @override
   String get txLinkTorNeedsTor =>

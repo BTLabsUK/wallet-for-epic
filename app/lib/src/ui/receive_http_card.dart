@@ -27,6 +27,9 @@ const Key receiveHttpQrButtonKey = ValueKey('receive-http-qr-button');
 /// The key of the card's QR code once shown, for tests.
 const Key receiveHttpQrKey = ValueKey('receive-http-qr');
 
+/// The key of the card's "This is my private network" button, for tests.
+const Key receiveHttpMarkPrivateKey = ValueKey('receive-http-mark-private');
+
 /// The Link · HTTP address card on the phone's Receive › Link tab: the address wallets on
 /// this Wi-Fi network can pay (`phone_http.dart` runs the listener), its state (starting,
 /// listening, port in use, off while Tor is on, no network) and Retry. Shown only while
@@ -76,16 +79,36 @@ class ReceiveHttpCard extends ConsumerWidget {
         children: [line(l.receiveHttpFailed, color: t.risk), retry],
       ),
       PhoneHttpPhase.offWhileTor => line(l.receiveHttpOffWhileTor),
-      PhoneHttpPhase.notPrivate => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          line(l.receiveHttpNotPrivate),
-          TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-            onPressed: () => ref.read(phoneHttpProvider.notifier).markPrivate(),
-            child: Text(l.receiveHttpMarkPrivate),
-          ),
-        ],
+      // Paused, not broken: a state line in the text colour, why in dim, and the one action
+      // as a tonal button so it reads as the way on, not as a warning to dismiss.
+      PhoneHttpPhase.notPrivate => Semantics(
+        liveRegion: true,
+        container: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                ExcludeSemantics(child: Icon(Icons.pause_circle_outline, size: 18, color: t.dim)),
+                const SizedBox(width: 6),
+                Expanded(child: Text(l.receiveHttpNotPrivateTitle, style: theme.textTheme.bodyMedium)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(l.receiveHttpNotPrivate, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+            const SizedBox(height: 8),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: FilledButton.tonalIcon(
+                key: receiveHttpMarkPrivateKey,
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
+                icon: const Icon(Icons.home_outlined, size: 18),
+                onPressed: () => ref.read(phoneHttpProvider.notifier).markPrivate(),
+                label: Text(l.receiveHttpMarkPrivate),
+              ),
+            ),
+          ],
+        ),
       ),
       PhoneHttpPhase.offline => NetBlockNote(
         NetGate.killSwitch ? NetBlock.killSwitch : NetBlock.nodeOnly,

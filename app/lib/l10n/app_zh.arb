@@ -4892,8 +4892,21 @@
   "deskFinNotPostedKillBody": "{amount} 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。",
   "deskRailOpenNetwork": "打开网络设置",
   "txStatusListenerWaiting": "自动收到 · 等待发送方",
-  "receiveHttpNotPrivate": "未在监听：此网络未标记为私人网络。在咖啡馆或酒店的网络中，那里的任何人都可能找到这个钱包并向它发送垃圾。",
+  "receiveHttpNotPrivate": "Link · HTTP 只在你标记为私人的网络上监听。在咖啡馆或酒店等共用 Wi-Fi 中，那里的任何人都可能连到这个钱包。",
   "receiveHttpMarkPrivate": "这是我的私人网络",
   "deskSetReportFullDetails": "包含完整详情",
-  "deskSetReportFullDetailsWarn": "发送日志中的完整地址和金额（详细日志会记录它们）；阅读报告的人会看到你付款给谁以及付了多少。"
+  "deskSetReportFullDetailsWarn": "完整的地址和金额会写入此文件。",
+  "receiveHttpNotPrivateTitle": "在此网络上已关闭",
+  "txPrivateNetworks": "私人网络",
+  "txPrivateNetworksCount": "{count, plural, =0{尚未标记} other{已标记 {count} 个}}",
+  "txPrivateNetworksBody": "Link · HTTP 在这些网络上监听。网络以其地址段识别，因此两个地址段相同的住所算作同一个。忘记某个网络后，手机在该网络上会再次询问。",
+  "txPrivateNetworksNone": "尚未标记任何网络。手机连上网络时，在“接收 › Link”中标记它。",
+  "txPrivateNetworkCurrent": "当前网络",
+  "txPrivateNetworkForget": "忘记",
+  "txPrivateNetworkForgetLabel": "忘记 {range}",
+  "txPrivateNetworkRange": "{range}.x",
+  "deskSetReportFullDetailsHint": "地址会缩短，金额以区间表示。勾选后完整发送。",
+  "deskSetReportFullDetailsNever": "助记词、密钥和密码绝不会。",
+  "deskSetReportPartFullDetails": "完整详情",
+  "txDetailsListenerWaiting": "{hours, plural, other{Link 监听器自行接收了这笔付款；这里没有人发起它。任何能连到监听器的人都可以发送一笔，所以在发送方完成它并被区块收录之前，它不算数。若一直没有完成，应用会在 {hours} 小时后丢弃它。}}"
 }

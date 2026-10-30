@@ -970,6 +970,12 @@ abstract class AppLocalizations {
   /// **'You accepted this payment. It completes when the sender finishes it and posts it to the network.'**
   String get txDetailsWaitingSender;
 
+  /// Payment details (phone and desktop), status explanation of an incoming payment the wallet's Link listener (HTTP or Tor) took in by itself, still waiting for its sender. hours: after how long the app cancels it.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, one{A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after {hours} hour if that never happens.} other{A Link listener took this payment in on its own; nobody here started it. Anyone who can reach the listener can send one, so it counts for nothing until the sender finishes it and a block holds it. The app drops it after {hours} hours if that never happens.}}'**
+  String txDetailsListenerWaiting(int hours);
+
   /// Payment details, status explanation of an incoming payment whose sender reports that it posted it. The sender's word only; the blockchain decides.
   ///
   /// In en, this message translates to:
@@ -9406,10 +9412,16 @@ abstract class AppLocalizations {
   /// **'For wallets on this Wi-Fi network, while this wallet is open.'**
   String get receiveHttpLanLine;
 
+  /// Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network has not been marked private. Calm: a state, not an alarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Off on this network'**
+  String get receiveHttpNotPrivateTitle;
+
   /// Receive › Link · HTTP card: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user.
   ///
   /// In en, this message translates to:
-  /// **'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.'**
+  /// **'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, a café\'s or a hotel\'s, anyone there could reach this wallet.'**
   String get receiveHttpNotPrivate;
 
   /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it.
@@ -19706,11 +19718,29 @@ abstract class AppLocalizations {
   /// **'Include full details'**
   String get deskSetReportFullDetails;
 
+  /// Report a problem dialog: small text under the Include full details checkbox while it is not ticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses go shortened and amounts as ranges. Tick to send them whole.'**
+  String get deskSetReportFullDetailsHint;
+
   /// Report a problem dialog: one-line warning under the Include full details checkbox.
   ///
   /// In en, this message translates to:
-  /// **'Sends the full addresses and amounts the log holds (Detailed logging records them); whoever reads the report sees who you paid and how much.'**
+  /// **'Full addresses and amounts go into this file.'**
   String get deskSetReportFullDetailsWarn;
+
+  /// Report a problem dialog: second line of the Include full details warning: what is never in the report, ticked or not.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeds, keys and passwords never.'**
+  String get deskSetReportFullDetailsNever;
+
+  /// Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log.
+  ///
+  /// In en, this message translates to:
+  /// **'Full details'**
+  String get deskSetReportPartFullDetails;
 
   /// Report a problem dialog: title of the collapsible list of what the report holds.
   ///
@@ -21985,6 +22015,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.'**
   String get txLinkTorHint;
+
+  /// Settings › Transactions, row under the Link › HTTP switch: opens the list of Wi-Fi networks marked private (where the phone's HTTP listener runs).
+  ///
+  /// In en, this message translates to:
+  /// **'Private networks'**
+  String get txPrivateNetworks;
+
+  /// Settings › Transactions, line under the Private networks row: how many networks are marked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None marked yet} one{{count} marked} other{{count} marked}}'**
+  String txPrivateNetworksCount(int count);
+
+  /// Private networks sheet (Settings › Transactions): what the list is, above the entries.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.'**
+  String get txPrivateNetworksBody;
+
+  /// Private networks sheet: the empty list.
+  ///
+  /// In en, this message translates to:
+  /// **'No network marked yet. Mark one on Receive › Link while the phone is on it.'**
+  String get txPrivateNetworksNone;
+
+  /// Private networks sheet: tag beside the entry of the network the phone is on now.
+  ///
+  /// In en, this message translates to:
+  /// **'This network'**
+  String get txPrivateNetworkCurrent;
+
+  /// Private networks sheet: button beside each entry that removes it; the listener then stops on that network until it is marked again.
+  ///
+  /// In en, this message translates to:
+  /// **'Forget'**
+  String get txPrivateNetworkForget;
+
+  /// Private networks sheet: screen reader label of the Forget button, with the entry's address range (txPrivateNetworkRange).
+  ///
+  /// In en, this message translates to:
+  /// **'Forget {range}'**
+  String txPrivateNetworkForgetLabel(String range);
+
+  /// Private networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.
+  ///
+  /// In en, this message translates to:
+  /// **'{range}.x'**
+  String txPrivateNetworkRange(String range);
 
   /// Line under the Link › Tor row on Settings › Transactions while that switch is on and Tor (Privacy & network) is off. A tap opens Privacy & network.
   ///

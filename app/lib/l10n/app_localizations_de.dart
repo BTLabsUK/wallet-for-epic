@@ -550,6 +550,19 @@ class AppLocalizationsDe extends AppLocalizations {
       'Sie haben diese Zahlung angenommen. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt und im Netzwerk veröffentlicht.';
 
   @override
+  String txDetailsListenerWaiting(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other:
+          'Ein Link-Empfänger hat diese Zahlung von selbst angenommen; niemand hier hat sie begonnen. Jeder, der den Empfänger erreicht, kann eine schicken, darum zählt sie nichts, bis der Absender sie abschließt und ein Block sie enthält. Geschieht das nicht, verwirft die App sie nach $hours Stunden.',
+      one:
+          'Ein Link-Empfänger hat diese Zahlung von selbst angenommen; niemand hier hat sie begonnen. Jeder, der den Empfänger erreicht, kann eine schicken, darum zählt sie nichts, bis der Absender sie abschließt und ein Block sie enthält. Geschieht das nicht, verwirft die App sie nach $hours Stunde.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txDetailsSenderPosted =>
       'Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald das Netzwerk sie bestätigt.';
 
@@ -5930,8 +5943,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Für Wallets in diesem WLAN, solange diese Wallet geöffnet ist.';
 
   @override
+  String get receiveHttpNotPrivateTitle => 'In diesem Netz aus';
+
+  @override
   String get receiveHttpNotPrivate =>
-      'Hört nicht zu: Dieses Netz ist nicht als privat markiert. Im WLAN eines Cafés oder Hotels könnte jeder dort diese Wallet finden und ihr Müll schicken.';
+      'Link · HTTP hört nur in Netzen zu, die Sie als privat markieren. In einem geteilten WLAN, etwa im Café oder Hotel, könnte jeder dort diese Wallet erreichen.';
 
   @override
   String get receiveHttpMarkPrivate => 'Das ist mein privates Netz';
@@ -12600,8 +12616,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetReportFullDetails => 'Alle Details mitsenden';
 
   @override
+  String get deskSetReportFullDetailsHint =>
+      'Adressen gehen gekürzt, Beträge als Bereiche. Ankreuzen, um sie vollständig zu senden.';
+
+  @override
   String get deskSetReportFullDetailsWarn =>
-      'Sendet die vollen Adressen und Beträge aus dem Protokoll (die ausführliche Protokollierung zeichnet sie auf); wer den Bericht liest, sieht, wen du bezahlt hast und wie viel.';
+      'Vollständige Adressen und Beträge kommen in diese Datei.';
+
+  @override
+  String get deskSetReportFullDetailsNever =>
+      'Phrasen, Schlüssel und Passwörter nie.';
+
+  @override
+  String get deskSetReportPartFullDetails => 'Alle Details';
 
   @override
   String get deskSetReportSentWhat => 'Was gesendet wird';
@@ -14012,6 +14039,45 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get txLinkTorHint =>
       'Link · Tor zahlt direkt an eine Wallet unter einer Onion-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Beide Wallets müssen geöffnet sein. Braucht Tor: Der Tor-Schalter unter Datenschutz & Netzwerk leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und Empfangen hinzu.';
+
+  @override
+  String get txPrivateNetworks => 'Private Netze';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count markiert',
+      one: '$count markiert',
+      zero: 'Noch keines markiert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP hört in diesen Netzen zu. Ein Netz wird an seinem Adressbereich erkannt, zwei Zuhause mit demselben Bereich zählen also als eines. Vergessen Sie ein Netz, fragt das Telefon dort erneut.';
+
+  @override
+  String get txPrivateNetworksNone =>
+      'Noch kein Netz markiert. Markieren Sie eines unter Empfangen › Link, während das Telefon darin ist.';
+
+  @override
+  String get txPrivateNetworkCurrent => 'Dieses Netz';
+
+  @override
+  String get txPrivateNetworkForget => 'Vergessen';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return '$range vergessen';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
 
   @override
   String get txLinkTorNeedsTor =>

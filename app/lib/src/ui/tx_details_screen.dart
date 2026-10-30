@@ -19,6 +19,7 @@ import '../settings_file/host_settings.dart' show hostSettings;
 import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
+import '../listener_receives.dart' show isListenerReceive, listenerReceiveTtl;
 import 'common.dart';
 import 'finished_not_posted.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
@@ -158,6 +159,8 @@ String txExplanation(
       l.txWaitNotInBlock,
     TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) =>
       l.txDetailsSenderPosted,
+    // Taken in by a listener, not started here: anyone could have sent it.
+    TxPhase.waitingSender when isListenerReceive(tx) => l.txDetailsListenerWaiting(listenerReceiveTtl.inHours),
     TxPhase.waitingSender => l.txDetailsWaitingSender,
     TxPhase.waitingPayer => l.txDetailsWaitingPayer,
     // Finished, but the node refused it (android-17): it is not on the network.

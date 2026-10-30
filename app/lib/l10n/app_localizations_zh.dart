@@ -522,6 +522,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsWaitingSender => '你已接受这笔付款。发送方完成并将其广播到网络后，付款即完成。';
 
   @override
+  String txDetailsListenerWaiting(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other:
+          'Link 监听器自行接收了这笔付款；这里没有人发起它。任何能连到监听器的人都可以发送一笔，所以在发送方完成它并被区块收录之前，它不算数。若一直没有完成，应用会在 $hours 小时后丢弃它。',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get txDetailsSenderPosted => '发送方称已广播这笔付款。网络确认后，付款即完成。';
 
   @override
@@ -5533,8 +5544,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveHttpLanLine => '供此 Wi-Fi 网络中的钱包使用，本钱包保持打开时有效。';
 
   @override
+  String get receiveHttpNotPrivateTitle => '在此网络上已关闭';
+
+  @override
   String get receiveHttpNotPrivate =>
-      '未在监听：此网络未标记为私人网络。在咖啡馆或酒店的网络中，那里的任何人都可能找到这个钱包并向它发送垃圾。';
+      'Link · HTTP 只在你标记为私人的网络上监听。在咖啡馆或酒店等共用 Wi-Fi 中，那里的任何人都可能连到这个钱包。';
 
   @override
   String get receiveHttpMarkPrivate => '这是我的私人网络';
@@ -11725,8 +11739,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetReportFullDetails => '包含完整详情';
 
   @override
-  String get deskSetReportFullDetailsWarn =>
-      '发送日志中的完整地址和金额（详细日志会记录它们）；阅读报告的人会看到你付款给谁以及付了多少。';
+  String get deskSetReportFullDetailsHint => '地址会缩短，金额以区间表示。勾选后完整发送。';
+
+  @override
+  String get deskSetReportFullDetailsWarn => '完整的地址和金额会写入此文件。';
+
+  @override
+  String get deskSetReportFullDetailsNever => '助记词、密钥和密码绝不会。';
+
+  @override
+  String get deskSetReportPartFullDetails => '完整详情';
 
   @override
   String get deskSetReportSentWhat => '发送的内容';
@@ -13046,6 +13068,43 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get txLinkTorHint =>
       '链接 · Tor 通过 onion 地址直接向对方钱包付款，并为这部手机提供一个可收款的 Tor 地址。双方钱包都必须打开。需要 Tor：“隐私与网络”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”和“接收”中加入 链接 · Tor。';
+
+  @override
+  String get txPrivateNetworks => '私人网络';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已标记 $count 个',
+      zero: '尚未标记',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP 在这些网络上监听。网络以其地址段识别，因此两个地址段相同的住所算作同一个。忘记某个网络后，手机在该网络上会再次询问。';
+
+  @override
+  String get txPrivateNetworksNone => '尚未标记任何网络。手机连上网络时，在“接收 › Link”中标记它。';
+
+  @override
+  String get txPrivateNetworkCurrent => '当前网络';
+
+  @override
+  String get txPrivateNetworkForget => '忘记';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return '忘记 $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
 
   @override
   String get txLinkTorNeedsTor => '需要 Tor。请在“隐私与网络”中开启。';
