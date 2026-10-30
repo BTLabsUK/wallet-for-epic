@@ -1744,8 +1744,14 @@ class LepicWalletSession implements WalletSession {
         options: sendOptions,
       ),
     );
+    await _markUnsafe(allowPlainHttp, tx.slateId);
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
+
+  /// A send LEPIC let out over plain `http` to another device stays marked in the history.
+  Future<void> _markUnsafe(bool plainHttp, String slateId) async {
+    if (plainHttp) await _history.markUnsafeSend(slateId);
+  }
 
   @override
   Future<HttpSent> resendHttp({
@@ -1761,6 +1767,7 @@ class LepicWalletSession implements WalletSession {
         allowPlainHttp: allowPlainHttp,
       ),
     );
+    await _markUnsafe(allowPlainHttp, tx.slateId);
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
 

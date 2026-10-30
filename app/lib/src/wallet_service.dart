@@ -3380,4 +3380,5 @@ TxEntry copyTx(
   origin: tx.origin,
   spentCommits: tx.spentCommits,
   unverified: tx.unverified,
+  unsafeSend: tx.unsafeSend,
 );

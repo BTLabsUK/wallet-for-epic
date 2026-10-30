@@ -663,9 +663,11 @@ class Meta {
     Map<String, ManualRec>? manual,
     Iterable<String>? favourites,
     Iterable<String>? seededContacts,
+    Iterable<String>? unsafeSends,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
        seededContacts = SplayTreeSet.of(seededContacts ?? const []),
+       unsafeSends = SplayTreeSet.of(unsafeSends ?? const []),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -720,6 +722,7 @@ class Meta {
       manual: map('manual').map((k, v) => MapEntry(k, ManualRec.fromJson(v))),
       favourites: [for (final v in list('favourites')) _str(v, 'favourite')],
       seededContacts: [for (final v in list('seeded_contacts')) _str(v, 'seeded contact')],
+      unsafeSends: [for (final v in list('unsafe_sends')) _str(v, 'unsafe send')],
     );
   }
 
@@ -768,6 +771,12 @@ class Meta {
   /// not empty, and not part of a history file.
   final SplayTreeSet<String> seededContacts;
 
+  /// Slate ids of the sends this wallet made over plain `http` to another device, which anyone
+  /// on the network path could have received: the history marks them. Written only when not
+  /// empty, so a file without them stays as an older app wrote it, and one an older app reads
+  /// keeps the rest. Not part of a history file: it describes this install's sends.
+  final SplayTreeSet<String> unsafeSends;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -809,6 +818,7 @@ class Meta {
     }
     if (favourites.isNotEmpty) out['favourites'] = [...favourites];
     if (seededContacts.isNotEmpty) out['seeded_contacts'] = [...seededContacts];
+    if (unsafeSends.isNotEmpty) out['unsafe_sends'] = [...unsafeSends];
     return out;
   }
 

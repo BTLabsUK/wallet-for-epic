@@ -133,7 +133,8 @@ class MergedTx {
       pairingId = e.pairingId,
       origin = e.origin,
       spentCommits = e.spentCommits,
-      unverified = e.unverified;
+      unverified = e.unverified,
+      unsafeSend = e.unsafeSend;
 
   String key;
   int? id;
@@ -184,6 +185,7 @@ class MergedTx {
   TxOrigin origin;
   List<String> spentCommits;
   bool unverified;
+  bool unsafeSend;
 
   /// LEPIC's link to a pairing, from the live row, else the record's: exported, so a restored
   /// wallet still knows which paired contact a payment was with.
@@ -238,6 +240,7 @@ class MergedTx {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    unsafeSend: unsafeSend,
   );
 }
 
@@ -245,6 +248,7 @@ class MergedTx {
 MergedTx _fromLive(TxEntry e, Meta meta) {
   final m = MergedTx._from(e);
   final ann = e.slateId == null ? null : meta.annotations[e.slateId];
+  m.unsafeSend = e.slateId != null && meta.unsafeSends.contains(e.slateId);
   if (ann != null) {
     m.counterparty = _someStr(m.counterparty) ?? _someStr(ann.counterparty);
     if (ann.finalized) {

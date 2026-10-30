@@ -1556,6 +1556,10 @@ class TxEntry {
   /// has covered its blocks yet (LEPIC clears it after the next one). False for every other row.
   final bool unverified;
 
+  /// A send this wallet made over plain `http` to another device ([Meta.unsafeSends]): whoever
+  /// was on the network path could have received it. False for every other row.
+  final bool unsafeSend;
+
   const TxEntry({
     required this.key,
     this.id,
@@ -1602,6 +1606,7 @@ class TxEntry {
     this.origin = TxOrigin.thisWallet,
     this.spentCommits = const [],
     this.unverified = false,
+    this.unsafeSend = false,
   });
 
   /// This row as one the linked device [name] received (Linked devices).
@@ -1651,6 +1656,7 @@ class TxEntry {
     origin: origin,
     spentCommits: spentCommits,
     unverified: unverified,
+    unsafeSend: unsafeSend,
   );
 
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
@@ -1713,7 +1719,8 @@ class TxEntry {
       pairingId.hashCode ^
       origin.hashCode ^
       Object.hashAll(spentCommits) ^
-      unverified.hashCode;
+      unverified.hashCode ^
+      unsafeSend.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1765,7 +1772,8 @@ class TxEntry {
           pairingId == other.pairingId &&
           origin == other.origin &&
           _listEquals(spentCommits, other.spentCommits) &&
-          unverified == other.unverified;
+          unverified == other.unverified &&
+          unsafeSend == other.unsafeSend;
 }
 
 /// [tx] is "to be posted elsewhere": a send finalized and not posted ([TxEntry.repostable]:
