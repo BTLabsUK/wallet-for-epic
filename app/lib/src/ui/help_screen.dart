@@ -86,11 +86,23 @@ List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
 List<String> helpQueryWords(String query) =>
     query.toLowerCase().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
 
-/// Whether [topic] matches every word of [words] in its title, short line or body.
+/// Where [word] starts a word in [low] (lowercased text), from [from]; -1 when nowhere. A
+/// search for "tor" finds Tor and .torrent, not restore.
+int helpWordStart(String low, String word, [int from = 0]) {
+  var i = low.indexOf(word, from);
+  while (i >= 0) {
+    if (i == 0 || !RegExp(r'[\p{L}\p{N}]', unicode: true).hasMatch(low[i - 1])) return i;
+    i = low.indexOf(word, i + 1);
+  }
+  return -1;
+}
+
+/// Whether [topic] matches every word of [words] at a word start in its title, short line or
+/// body.
 bool helpMatches(HelpTopic topic, List<String> words) {
   if (words.isEmpty) return true;
   final hay = '${topic.title}\n${topic.short}\n${topic.bodyText}'.toLowerCase();
-  return words.every(hay.contains);
+  return words.every((w) => helpWordStart(hay, w) >= 0);
 }
 
 /// Opens Help: the index, or [topic]'s page straight away ([HelpId]), scrolled to [anchor]
@@ -434,10 +446,10 @@ TextSpan markedSpan(String text, List<String> words, TextStyle style, WalletToke
   final low = text.toLowerCase();
   final hits = <(int, int)>[];
   for (final w in words) {
-    var i = low.indexOf(w);
+    var i = helpWordStart(low, w);
     while (i >= 0) {
       hits.add((i, i + w.length));
-      i = low.indexOf(w, i + w.length);
+      i = helpWordStart(low, w, i + w.length);
     }
   }
   hits.sort((a, b) => a.$1.compareTo(b.$1));

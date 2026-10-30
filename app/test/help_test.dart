@@ -127,6 +127,10 @@ void main() {
       final hits = topics.where((t) => helpMatches(t, helpQueryWords('split change'))).map((t) => t.id);
       expect(hits, contains(HelpId.split));
       expect(topics.where((t) => helpMatches(t, helpQueryWords('zzzz'))), isEmpty);
+      // Word starts only: "tor" finds Tor, not restore.
+      final tor = topics.where((t) => helpMatches(t, helpQueryWords('tor'))).map((t) => t.id);
+      expect(tor, contains(HelpId.tor));
+      expect(tor, isNot(contains(HelpId.backup)));
       expect(topics.where((t) => helpMatches(t, const [])), hasLength(topics.length));
     });
 
