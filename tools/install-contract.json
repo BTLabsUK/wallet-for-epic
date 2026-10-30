@@ -713,7 +713,7 @@
         "macos"
       ],
       "value": "see app/macos/Runner/Configs/AppInfo.xcconfig",
-      "note": "Not frozen until the first signed Apple release (apple-signing-prep is setting the bundle ids and signing now). Freeze it then: bundle id, keychain service, data folder (<home>/.epic_cash_desktop, shared with the desktop item), Team ID."
+      "note": "Not frozen until the first signed Apple release (bundle ids are now uk.btlabs.wallet.desktop / uk.btlabs.wallet.mobile, changed 2026-10-30). Freeze it then: bundle id, keychain service, data folder (<home>/.epic_cash_desktop, shared with the desktop item), Team ID."
     },
     {
       "id": "ios.bundle_id",
