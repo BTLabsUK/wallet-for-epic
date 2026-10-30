@@ -12,6 +12,7 @@ import '../amount.dart';
 import '../devices/device_ending.dart';
 import 'info_hint.dart' show InfoHint;
 import '../contacts.dart' show contactNameFor, contactsProvider;
+import '../listener_receives.dart' show isListenerReceive;
 import '../l10n.dart';
 import '../network_gate.dart' show NetGate;
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
@@ -744,6 +745,8 @@ String txStatusLabel(
     l.txStatusSenderPosted,
   // Through the sender's pairing: its wallet finalizes by itself, so it is the one awaited.
   TxPhase.waitingSender when pairedWith != null => l.txStatusWaitingFor(pairedWith),
+  // Taken in by a listener, not started here: anyone could have sent it (listener_receives.dart).
+  TxPhase.waitingSender when isListenerReceive(tx) => l.txStatusListenerWaiting,
   TxPhase.waitingSender => l.txStatusWaitingSender,
   TxPhase.waitingPayer => l.txStatusWaitingPayer,
   // Finished under Kill switch: a device that is online posts it.

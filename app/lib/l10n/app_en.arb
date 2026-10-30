@@ -736,6 +736,10 @@
   "@txDetailsCancelledIncoming": {
     "description": "Payment details, status explanation of a cancelled receive. 'Posts' means the sender publishes it to the network; the wallet keeps looking for it with no end date, so it still arrives whenever that happens."
   },
+  "txStatusListenerWaiting": "Came in by itself · waiting for the sender",
+  "@txStatusListenerWaiting": {
+    "description": "Transaction status (phone list, desktop Activity) of an incoming payment that the wallet's Link listener (HTTP or Tor) took in without the user starting it, still waiting for the sender to finish it. Anyone who can reach the listener can make one; the app cancels it after a few hours."
+  },
   "txStatusSenderCancelled": "Cancelled by the sender",
   "@txStatusSenderCancelled": {
     "description": "Transaction status (phone list, badge, desktop Activity) of an incoming payment whose sender reported that it cancelled it. Uses the same 'Cancelled' word as the plain cancelled status."
@@ -7605,6 +7609,14 @@
   "receiveHttpLanLine": "For wallets on this Wi-Fi network, while this wallet is open.",
   "@receiveHttpLanLine": {
     "description": "Line under the HTTP address on the phone’s Receive › Link tab: who can reach it."
+  },
+  "receiveHttpNotPrivate": "Not listening: this network is not marked private. On a café's or a hotel's Wi-Fi anyone there could find this wallet and send it junk.",
+  "@receiveHttpNotPrivate": {
+    "description": "Receive › Link · HTTP card: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user."
+  },
+  "receiveHttpMarkPrivate": "This is my private network",
+  "@receiveHttpMarkPrivate": {
+    "description": "Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it."
   },
   "receiveHttpNoNetwork": "Not on a Wi-Fi network. No address to hand out.",
   "@receiveHttpNoNetwork": {

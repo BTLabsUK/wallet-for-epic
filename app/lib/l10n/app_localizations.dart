@@ -1075,6 +1075,12 @@ abstract class AppLocalizations {
   /// **'Cancelled. If the sender posts it later, it still arrives.'**
   String get txDetailsCancelledIncoming;
 
+  /// Transaction status (phone list, desktop Activity) of an incoming payment that the wallet's Link listener (HTTP or Tor) took in without the user starting it, still waiting for the sender to finish it. Anyone who can reach the listener can make one; the app cancels it after a few hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Came in by itself · waiting for the sender'**
+  String get txStatusListenerWaiting;
+
   /// Transaction status (phone list, badge, desktop Activity) of an incoming payment whose sender reported that it cancelled it. Uses the same 'Cancelled' word as the plain cancelled status.
   ///
   /// In en, this message translates to:
@@ -9399,6 +9405,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For wallets on this Wi-Fi network, while this wallet is open.'**
   String get receiveHttpLanLine;
+
+  /// Receive › Link · HTTP card: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.'**
+  String get receiveHttpNotPrivate;
+
+  /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it.
+  ///
+  /// In en, this message translates to:
+  /// **'This is my private network'**
+  String get receiveHttpMarkPrivate;
 
   /// The HTTP address card on the phone’s Receive › Link tab when the phone has no Wi-Fi (or other local network) address.
   ///

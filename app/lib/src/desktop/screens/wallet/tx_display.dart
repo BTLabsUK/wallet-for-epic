@@ -153,6 +153,8 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
         TxState.waitingRecipient || TxState.cancelled when t.incoming && t.senderCancelled => (l.txStatusSenderCancelled, ETone.neutral),
         // The sender's word, not the chain's: in progress, never Received before a block.
         TxState.waitingRecipient when t.incoming && t.senderPosted => (l.deskTxStatusSenderPosted, ETone.info),
+        // Taken in by a listener, not started here: anyone could have sent it (listener_receives.dart).
+        TxState.waitingRecipient when t.incoming && t.fromListener => (l.txStatusListenerWaiting, ETone.neutral),
         TxState.waitingRecipient => (
           t.incoming ? l.deskTxStatusWaitingSender : (t.method == TxMethod.file ? l.deskTxStatusWaitingResponseFile : l.deskTxStatusWaitingRecipient),
           // Waiting is in progress (blue); amber only for a wait that went wrong.

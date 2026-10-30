@@ -657,6 +657,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cancelled. If the sender posts it later, it still arrives.';
 
   @override
+  String get txStatusListenerWaiting =>
+      'Came in by itself · waiting for the sender';
+
+  @override
   String get txStatusSenderCancelled => 'Cancelled by the sender';
 
   @override
@@ -5847,6 +5851,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get receiveHttpLanLine =>
       'For wallets on this Wi-Fi network, while this wallet is open.';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'This is my private network';
 
   @override
   String get receiveHttpNoNetwork =>

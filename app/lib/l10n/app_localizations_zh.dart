@@ -626,6 +626,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsCancelledIncoming => '已取消。如果发送方之后广播这笔付款，它仍会到账。';
 
   @override
+  String get txStatusListenerWaiting =>
+      'Came in by itself · waiting for the sender';
+
+  @override
   String get txStatusSenderCancelled => '已被发送方取消';
 
   @override
@@ -5528,6 +5532,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get receiveHttpLanLine => '供此 Wi-Fi 网络中的钱包使用，本钱包保持打开时有效。';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'This is my private network';
 
   @override
   String get receiveHttpNoNetwork => '未连接 Wi-Fi 网络，没有可提供的地址。';

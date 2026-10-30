@@ -647,6 +647,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยกเลิกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า';
 
   @override
+  String get txStatusListenerWaiting =>
+      'Came in by itself · waiting for the sender';
+
+  @override
   String get txStatusSenderCancelled => 'ผู้ส่งยกเลิกแล้ว';
 
   @override
@@ -5744,6 +5748,13 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get receiveHttpLanLine =>
       'สำหรับกระเป๋าเงินในเครือข่าย Wi-Fi นี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'This is my private network';
 
   @override
   String get receiveHttpNoNetwork =>

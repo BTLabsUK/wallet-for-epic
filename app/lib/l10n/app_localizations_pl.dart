@@ -687,6 +687,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Anulowano. Jeśli nadawca opublikuje płatność później, i tak dotrze.';
 
   @override
+  String get txStatusListenerWaiting =>
+      'Came in by itself · waiting for the sender';
+
+  @override
   String get txStatusSenderCancelled => 'Anulowana przez nadawcę';
 
   @override
@@ -6011,6 +6015,13 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get receiveHttpLanLine =>
       'Dla portfeli w tej sieci Wi-Fi, gdy ten portfel jest otwarty.';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'This is my private network';
 
   @override
   String get receiveHttpNoNetwork =>

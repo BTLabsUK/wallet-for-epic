@@ -76,6 +76,17 @@ class ReceiveHttpCard extends ConsumerWidget {
         children: [line(l.receiveHttpFailed, color: t.risk), retry],
       ),
       PhoneHttpPhase.offWhileTor => line(l.receiveHttpOffWhileTor),
+      PhoneHttpPhase.notPrivate => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          line(l.receiveHttpNotPrivate),
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+            onPressed: () => ref.read(phoneHttpProvider.notifier).markPrivate(),
+            child: Text(l.receiveHttpMarkPrivate),
+          ),
+        ],
+      ),
       PhoneHttpPhase.offline => NetBlockNote(
         NetGate.killSwitch ? NetBlock.killSwitch : NetBlock.nodeOnly,
         line: l.receiveLinkOffMode(networkModeName(l, NetGate.mode)),

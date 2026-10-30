@@ -664,6 +664,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Storniert. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.';
 
   @override
+  String get txStatusListenerWaiting =>
+      'Came in by itself · waiting for the sender';
+
+  @override
   String get txStatusSenderCancelled => 'Vom Absender storniert';
 
   @override
@@ -5924,6 +5928,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get receiveHttpLanLine =>
       'Für Wallets in diesem WLAN, solange diese Wallet geöffnet ist.';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'This is my private network';
 
   @override
   String get receiveHttpNoNetwork =>

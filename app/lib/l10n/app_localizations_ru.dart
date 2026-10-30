@@ -683,6 +683,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отменено. Если отправитель опубликует платёж позже, он всё равно поступит.';
 
   @override
+  String get txStatusListenerWaiting =>
+      'Came in by itself · waiting for the sender';
+
+  @override
   String get txStatusSenderCancelled => 'Отменён отправителем';
 
   @override
@@ -5987,6 +5991,13 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get receiveHttpLanLine =>
       'Для кошельков в этой сети Wi-Fi, пока этот кошелёк открыт.';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Not listening: this network is not marked private. On a café\'s or a hotel\'s Wi-Fi anyone there could find this wallet and send it junk.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'This is my private network';
 
   @override
   String get receiveHttpNoNetwork =>

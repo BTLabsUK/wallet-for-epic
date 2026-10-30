@@ -49,7 +49,10 @@ const _torOff = PhoneTorState(phase: PhoneTorPhase.off);
 const _torOn = PhoneTorState(phase: PhoneTorPhase.ready, receiving: true);
 
 class _Harness {
-  _Harness({this.payments = const PaymentPrefs(linkHttp: true), this.tor = _torOff, this.advanced});
+  _Harness({this.payments = const PaymentPrefs(linkHttp: true), this.tor = _torOff, this.advanced, this.privateNetworks = '192.168.1'});
+
+  /// What the store holds under [privateNetworksKey]: the test network is marked by default.
+  final String? privateNetworks;
 
   final AdvancedPrefs? advanced;
 
@@ -76,6 +79,7 @@ class _Harness {
       return null;
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    if (privateNetworks != null) store.values[privateNetworksKey] = privateNetworks!;
     if (advanced != null) {
       store.values['app.advanced_prefs'] = advanced!.encode();
       useNetworkModeFile(advanced!.networkMode);
@@ -154,6 +158,35 @@ void main() {
       expect(pickLanIpv4([(name: 'rmnet_data0', address: '100.63.3.9')]), isNull);
       expect(pickLanIpv4(const []), isNull);
     });
+  });
+
+  test('lanNetworkKey: the /24 of an IPv4 LAN address, nothing else', () {
+    expect(lanNetworkKey('http://10.100.10.20:3415'), '192.168.1');
+    expect(lanNetworkKey('10.0.0.5'), '10.0.0');
+    expect(lanNetworkKey('192.168.1'), isNull);
+    expect(lanNetworkKey('http://[fe80::1]:3415'), isNull);
+    expect(lanNetworkKey('junk'), isNull);
+    expect(lanNetworkKey(null), isNull);
+  });
+
+  testWidgets('a network not marked private: nothing listens, the card says why; marking it starts it and is kept', (tester) async {
+    final h = _Harness(privateNetworks: null);
+    await h.pump(tester);
+    expect(h.session.httpListenerStarts, isEmpty);
+    expect(h.http.phase, PhoneHttpPhase.notPrivate);
+    expect(find.textContaining('not marked private'), findsOneWidget);
+    await tester.tap(find.text('This is my private network'));
+    await h.settle(tester);
+    expect(h.session.httpListenerStarts, hasLength(1));
+    expect(h.store.values[privateNetworksKey], '192.168.1');
+
+    // Another network: it stops until that one is marked too.
+    await h.emit(tester, HttpListenerEventKind.started, port: 3415);
+    h.ip = '10.20.30.40';
+    h.network.add(true);
+    await h.settle(tester);
+    expect(h.http.phase, PhoneHttpPhase.notPrivate);
+    expect(h.session.httpListenerStops, greaterThanOrEqualTo(1));
   });
 
   testWidgets('starts on every interface at 3415 with the wallet open and the switch on; the card shows the address', (

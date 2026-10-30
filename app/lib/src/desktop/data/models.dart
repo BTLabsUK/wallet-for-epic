@@ -299,6 +299,7 @@ class Tx {
     this.manualEditedAt,
     this.senderPosted = false,
     this.senderCancelled = false,
+    this.fromListener = false,
     this.pairingId,
     this.blockWait = BlockWait.none,
     this.credited = 0,
@@ -424,6 +425,11 @@ class Tx {
   /// or already cleared. Reads "Cancelled by the sender".
   final bool senderCancelled;
 
+  /// A payment one of the wallet's listeners took in by itself and is still waiting for its
+  /// sender (the core's `isListenerReceive`, listener_receives.dart): anyone who can reach a
+  /// listener can make one, so it is shown apart from the receives the user started.
+  final bool fromListener;
+
   /// Why a payment past its watch window is still not in a block (watch_mode.dart), for the
   /// note in its details.
   final BlockWait blockWait;
@@ -513,6 +519,7 @@ class Tx {
       manualEditedAt: manual.isEmpty ? null : (editedAtUnix == null ? manualEditedAt : DateTime.fromMillisecondsSinceEpoch(editedAtUnix * 1000)),
       senderPosted: senderPosted,
       senderCancelled: senderCancelled,
+      fromListener: fromListener,
       pairingId: pairingId,
       blockWait: blockWait,
       credited: credited,
@@ -570,6 +577,7 @@ class Tx {
     manualEditedAt: manualEditedAt,
     senderPosted: senderPosted,
       senderCancelled: senderCancelled,
+    fromListener: fromListener,
     pairingId: pairingId,
     blockWait: blockWait,
     credited: credited,
