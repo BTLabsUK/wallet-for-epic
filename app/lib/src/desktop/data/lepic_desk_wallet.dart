@@ -3747,7 +3747,9 @@ class LepicDeskWallet implements DeskWalletApi {
       final wait = _nodeOverTor(config.nodeUrl) && nodeTorTimeout > nodeTimeout ? nodeTorTimeout : nodeTimeout;
       return session.nodeTipFor(config: config).timeout(wait);
     }
-    if (_torFeature && (await _store.torSwitch() ?? _settings.torAutostart) && !isLoopbackUrl(Uri.tryParse(config.nodeUrl) ?? Uri())) {
+    // No wallet open, so no tor: with the Tor switch on (or Tor only, before it is saved) a
+    // node not on this computer is not asked directly.
+    if (_torFeature && (NetGate.torOnly || (await _store.torSwitch() ?? _settings.torAutostart)) && !isLoopbackUrl(Uri.tryParse(config.nodeUrl) ?? Uri())) {
       return null;
     }
     return _service.nodeTip(config: config).timeout(nodeTimeout);

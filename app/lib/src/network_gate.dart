@@ -36,6 +36,8 @@ import 'net/tor_switch.dart';
 import 'settings_file/host_settings.dart' show hostSettings, hostSettingsLoaded;
 import 'tor_routes.dart';
 
+import 'net/local_address.dart' show isLocalAddressUrl;
+
 export 'net/local_address.dart' show isLocalAddressUrl;
 
 /// Why network actions (Send over Epicbox/Direct, Recheck balance, starting a listener, checking a node) can't run now.
@@ -295,6 +297,14 @@ abstract final class NetGate {
   /// on); Kill switch nothing, loopback included.
   static void dial(NetDial kind, String host) {
     if (!allows(kind, host)) throw NetBlocked(_mode, '${kind.name} ${_normHost(host)}');
+  }
+
+  /// [dial] for a connection that can only go direct, never through tor (LEPIC's node tip
+  /// asked with no wallet open, which has no tor): Tor only refuses it unless [url] is on this
+  /// computer or the local network ([isLocalAddressUrl]).
+  static void dialDirect(NetDial kind, String url) {
+    dial(kind, url);
+    if (torOnly && !isLocalAddressUrl(url)) throw NetBlocked(_mode, 'direct ${kind.name} ${_hostOf(url)}');
   }
 }
 

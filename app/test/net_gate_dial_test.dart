@@ -36,6 +36,15 @@ void main() {
     }
   });
 
+  test('a direct-only dial: Tor only refuses it unless the address is local; Normal lets it', () {
+    NetGate.set(NetworkMode.torOnly);
+    expect(() => NetGate.dialDirect(NetDial.http, 'https://node.example:3413'), throwsA(isA<NetBlocked>()));
+    NetGate.dialDirect(NetDial.http, 'http://127.0.0.1:3413');
+    NetGate.dialDirect(NetDial.http, 'http://10.100.10.20:3413');
+    NetGate.set(NetworkMode.standard);
+    NetGate.dialDirect(NetDial.http, 'https://node.example:3413');
+  });
+
   test('Kill switch: nothing, loopback and tor included', () {
     NetGate.nodeInUse = () => 'http://127.0.0.1:3413';
     NetGate.set(NetworkMode.killSwitch);
