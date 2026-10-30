@@ -127,7 +127,8 @@ class Engine:
         self.echo(f"▶ {step.id}  [{step.host}]{'  (dry run)' if self.dry else ''}")
         tries = 1 + (0 if self.dry else step.retries)
         result = None
-        for t in range(tries):
+        rkey, result = self.try_reuse(step, log)
+        for t in range(0 if result else tries):
             try:
                 if step.kind in ("builtin", "gate") or (step.kind == "publish" and self.info.get("target") == "scratch"):
                     result = builtins.run(self, step, log)
@@ -154,6 +155,8 @@ class Engine:
             result["duration_s"] = dur
         if result["status"] == "done":
             result["input_hash"] = self.input_hash(step)
+            if rkey:
+                result["reuse_key"] = rkey
         st = self.run.set_status(step.id, **result)
         self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
                        note=st.get("note"), hint=st.get("hint"))
@@ -170,6 +173,33 @@ class Engine:
                                   expects=st.get("hint") or "retry, skip or abort? (tools/rel retry|skip|debug)",
                                   key=f"{self.info['run_id']}/{step.id}/{attempt}")
         return st
+
+    def try_reuse(self, step, log):
+        """-> (key or None, a done result when an earlier passing result has the same key).
+        Steps with `reuse` in pipeline.toml only (tools/rellib/reuse.py)."""
+        spec = self.pipeline.steps.get(step.base) or {}
+        if not spec.get("reuse") or self.dry:
+            return None, None
+        from . import reuse
+        nightly = spec.get("reuse_nightly")
+        nightly = os.path.expanduser("/tmp/epic-build/nightly") if nightly is True else nightly
+        try:
+            k, parts, src = reuse.find(self, step, spec["reuse"], nightly)
+        except Exception as e:  # the check never fails a step: it runs instead
+            with open(log, "a", encoding="utf-8") as f:
+                f.write(f"tools/rel: reuse check failed ({type(e).__name__}: {e}); the step runs\n")
+            return None, None
+        with open(log, "a", encoding="utf-8") as f:
+            f.write(f"reuse key {k}\n{json.dumps(parts, indent=1, sort_keys=True)}\n")
+            f.write((f"same key as {src['label']} ({src['commit'][:12]}): not run, its result is reused\n" if src
+                     else "no earlier passing result with this key: the step runs\n"))
+        if not src:
+            return k, None
+        result = {"status": "done", "rc": 0, "reused_from": {k2: src[k2] for k2 in ("kind", "label", "commit")},
+                  "note": f"reused from {src['label']} ({src['commit'][:12]}): nothing it depends on changed"}
+        if src["kind"] == "run":
+            result.update(reuse.reuse_into(self, step, src))
+        return k, result
 
     def metric(self, step, st, dur):
         line = {"ts": now_iso(), "run": self.info["run_id"], "version": self.info["version"], "step": step.id,

@@ -3,9 +3,10 @@
 closed), skips, the publish phase and exit codes."""
 import json
 import os
+import subprocess
 import unittest
 
-from support import Base
+from support import REPO, Base
 from rellib import builtins
 from rellib.engine import EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_WAITING, Engine
 
@@ -107,6 +108,38 @@ class EngineTest(Base):
                 self.assertEqual(run.status("trust-android-tor")["status"], "failed", mode)
                 self.assertEqual(run.status("update-trust")["status"], "pending")
                 self.assertEqual(run.status("publish-gate")["status"], "pending")
+
+    def test_same_inputs_reuse_an_earlier_passing_build(self):
+        a = self.make_run(only="linux", sets=["publish.manifests=false"])
+        self.engine(a).drive(self.build_ids(a))
+        self.assertEqual(self.calls().count("linux tor"), 1)
+        key = a.status("build-linux-tor")["reuse_key"]
+        b = self.make_run(only="linux", sets=["publish.manifests=false"])
+        self.engine(b).drive(self.build_ids(b))
+        st = b.status("build-linux-tor")
+        self.assertEqual(self.calls().count("linux tor"), 1, "not built again")
+        self.assertEqual((st["status"], st["reuse_key"]), ("done", key))
+        self.assertIn("reused from", st["note"])
+        self.assertTrue(os.path.isfile(os.path.join(b.files, "EpicCashDesktop-26.10.25-x86_64.AppImage")))
+        # Its files gone or changed: no reuse, it builds.
+        os.remove(os.path.join(a.files, "EpicCashDesktop-26.10.25-x86_64.AppImage"))
+        os.remove(os.path.join(b.files, "EpicCashDesktop-26.10.25-x86_64.AppImage"))
+        c = self.make_run(only="linux", sets=["publish.manifests=false"])
+        self.engine(c).drive(self.build_ids(c))
+        self.assertEqual(self.calls().count("linux tor"), 2)
+        # Another version is another key.
+        d = self.make_run(version="26.10.26", only="linux", sets=["publish.manifests=false"])
+        self.engine(d).drive(self.build_ids(d))
+        self.assertEqual(self.calls().count("linux tor"), 3)
+
+    def test_reuse_key_follows_the_content_of_the_paths(self):
+        from rellib import reuse
+        head = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        app = reuse.path_id(REPO, head, "app")
+        no_tests = reuse.path_id(REPO, head, "app", ["app/test"])
+        self.assertNotEqual(app, no_tests)
+        self.assertEqual(no_tests, reuse.path_id(REPO, head, "app", ["app/test"]))
+        self.assertEqual(reuse.path_id(REPO, head, "no/such/path"), "missing")
 
     def test_waived_platform_runs_its_driver_and_shows_what_it_found(self):
         with open(os.path.join(self.src, "proof-mode"), "w") as f:
