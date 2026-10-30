@@ -157,11 +157,13 @@ class App:
             print(f"warning: {w}")
         if prev:
             print(f"previous release (G4): {prev['version']} at {prev['dir']}")
+        drivers = self.pipeline.proof.get("drivers", {})
         for s in steps:
+            waived = s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"]
             skip = scope["skip"].get(s.base) or (f"waived: {scope['proof']['waive'][s.platforms[0]]}"
-                                                  if s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"] else None)
+                                                  if waived and not drivers.get(s.platforms[0]) else None)
             print(f"  {'P' if s.publish else ' '} {s.id:28} {s.host:8} {s.kind:8} needs {', '.join(s.needs) or '-'}"
-                  + (f"   SKIP ({skip})" if skip else ""))
+                  + (f"   SKIP ({skip})" if skip else "   (waived: runs, shown, blocks nothing)" if waived else ""))
             if a.verbose and s.run:
                 print(f"      {s.run}")
         print("P = publish phase (tools/rel publish, after the publish gate)")
