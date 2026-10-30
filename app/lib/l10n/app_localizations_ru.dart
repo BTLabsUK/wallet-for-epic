@@ -5142,7 +5142,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'Обычный HTTP к другому устройству. Любой на пути может прочитать транзакцию. Адрес https:// зашифрован.';
+      'Обычный HTTP к другому устройству. Любой на сетевом пути может получить этот платёж вместо получателя. Адрес https://, onion или Epicbox защищает от этого.';
+
+  @override
+  String get sendPlainHttpOffWithTor =>
+      'Обычный http:// выключен, пока включён Tor: выходной узел Tor может получить этот платёж вместо получателя. Используйте https://, onion или Epicbox либо выключите Tor.';
+
+  @override
+  String sendSaferRoute(String method, String name) {
+    return 'Отправка через $method, который тоже есть у $name. Через обычный HTTP этот платёж мог бы получить любой на сетевом пути.';
+  }
+
+  @override
+  String get sendUsePlainHttp => 'Использовать обычный HTTP';
+
+  @override
+  String get sendUseSaferRoute => 'Использовать более безопасный адрес';
+
+  @override
+  String sendProofRow(String name) {
+    return 'Запрошено подтверждение платежа: завершить его может только кошелёк $name.';
+  }
+
+  @override
+  String get txUnsafeSend => 'Отправлено через обычный HTTP';
+
+  @override
+  String get torModesSendsSame =>
+      'С включённым Tor режим «Обычный» отправляет как «Только Tor»: Epicbox, узел и https:// идут через Tor, onion тоже, а обычный http:// выключен. «Только Tor» ещё и держит Tor включённым, и ничего не уходит, пока он не подключён.';
 
   @override
   String get receiveEpicboxCaption =>
@@ -7792,7 +7819,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'Обычный HTTP к другому компьютеру. Любой на пути может прочитать транзакцию. https:// зашифрован.';
+      'Обычный HTTP к другому компьютеру. Любой на сетевом пути может получить этот платёж вместо получателя. Адрес https://, onion или Epicbox защищает от этого.';
 
   @override
   String get deskSendPlainConfirm => 'Всё равно отправить';
@@ -14594,7 +14621,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendDirectHost => 'Хост';
 
   @override
-  String get sendPlainHttpRow => 'Без шифрования (обычный HTTP)';
+  String get sendPlainHttpRow =>
+      'Небезопасно: обычный HTTP. Любой на сетевом пути может получить этот платёж вместо получателя.';
 
   @override
   String get scanNotEpicTitle => 'Это не код Epic';

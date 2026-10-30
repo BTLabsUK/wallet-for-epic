@@ -5087,7 +5087,34 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendPlainHttpBody =>
-      'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Weg kann die Transaktion lesen. Eine https://-Adresse ist verschlüsselt.';
+      'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Netzwerkweg kann diese Zahlung anstelle des Empfängers erhalten. Eine https://-, Onion- oder Epicbox-Adresse schützt davor.';
+
+  @override
+  String get sendPlainHttpOffWithTor =>
+      'Reines http:// ist aus, solange Tor an ist: Ein Tor-Ausgangsknoten könnte diese Zahlung anstelle des Empfängers erhalten. Nimm https://, eine Onion- oder Epicbox-Adresse, oder schalte Tor aus.';
+
+  @override
+  String sendSaferRoute(String method, String name) {
+    return 'Gesendet über $method, das $name auch hat. Über reines HTTP könnte jeder auf dem Netzwerkweg diese Zahlung stattdessen erhalten.';
+  }
+
+  @override
+  String get sendUsePlainHttp => 'Reines HTTP nehmen';
+
+  @override
+  String get sendUseSaferRoute => 'Sicherere Adresse nehmen';
+
+  @override
+  String sendProofRow(String name) {
+    return 'Zahlungsnachweis angefordert: Nur die Wallet von $name kann diese Zahlung abschließen.';
+  }
+
+  @override
+  String get txUnsafeSend => 'Über reines HTTP gesendet';
+
+  @override
+  String get torModesSendsSame =>
+      'Mit Tor an sendet Normal wie Nur Tor: Epicbox, der Node und https:// laufen über Tor, Onions auch, und reines http:// ist aus. Nur Tor hält Tor zudem an, und nichts geht, solange es nicht verbunden ist.';
 
   @override
   String get receiveEpicboxCaption =>
@@ -7600,7 +7627,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendPlainDesc =>
-      'Unverschlüsseltes HTTP zu einem anderen Computer. Jeder auf dem Weg kann die Transaktion lesen. https:// ist verschlüsselt.';
+      'Unverschlüsseltes HTTP zu einem anderen Computer. Jeder auf dem Netzwerkweg kann diese Zahlung anstelle des Empfängers erhalten. Eine https://-, Onion- oder Epicbox-Adresse schützt davor.';
 
   @override
   String get deskSendPlainConfirm => 'Trotzdem senden';
@@ -14261,7 +14288,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendDirectHost => 'Host';
 
   @override
-  String get sendPlainHttpRow => 'Nicht verschlüsselt (reines HTTP)';
+  String get sendPlainHttpRow =>
+      'Unsicher: reines HTTP. Jeder auf dem Netzwerkweg kann diese Zahlung anstelle des Empfängers erhalten.';
 
   @override
   String get scanNotEpicTitle => 'Kein Epic-Code';

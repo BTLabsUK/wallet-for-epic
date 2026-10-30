@@ -6480,9 +6480,50 @@
   "@sendPlainHttpTitle": {
     "description": "Dialog title before a send over plain http to another device."
   },
-  "sendPlainHttpBody": "Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.",
+  "sendPlainHttpBody": "Plain HTTP to another device. Anyone on the network path can receive this payment instead of the recipient. An https://, onion or Epicbox address is safe from that.",
   "@sendPlainHttpBody": {
     "description": "Dialog text before a send over plain http to another device."
+  },
+  "sendPlainHttpOffWithTor": "Plain http:// is off while Tor is on: a Tor exit could receive this payment instead of the recipient. Use https://, an onion or Epicbox, or turn Tor off.",
+  "@sendPlainHttpOffWithTor": {
+    "description": "Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent."
+  },
+  "sendSaferRoute": "Sending by {method}, which {name} also has. Over plain HTTP, anyone on the network path could receive this payment instead.",
+  "@sendSaferRoute": {
+    "description": "Send: the plain http:// address belongs to a contact who also has a safer address, which the payment uses instead. {method} is that method's name (Epicbox, Tor, HTTPS), {name} the contact.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendUsePlainHttp": "Use plain HTTP",
+  "@sendUsePlainHttp": {
+    "description": "Send: button beside sendSaferRoute that keeps the plain http:// address instead."
+  },
+  "sendUseSaferRoute": "Use the safer address",
+  "@sendUseSaferRoute": {
+    "description": "Send: button that goes back to the contact's safer address after sendUsePlainHttp."
+  },
+  "sendProofRow": "Payment proof asked: only {name}'s wallet can complete this payment.",
+  "@sendProofRow": {
+    "description": "Send review: the payment asks the recipient's wallet for a payment proof, so a wallet holding another key cannot complete it. {name} is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "txUnsafeSend": "Sent over plain HTTP",
+  "@txUnsafeSend": {
+    "description": "History: marker on a payment sent over plain HTTP to another device."
+  },
+  "torModesSendsSame": "With Tor on, Normal sends like Tor only: Epicbox, the node and https:// go over Tor, onions too, and plain http:// is off. Tor only also keeps Tor on, and nothing goes while it is not connected.",
+  "@torModesSendsSame": {
+    "description": "Settings › Network: how Normal with the Tor switch on and Tor only differ."
   },
   "receiveEpicboxCaption": "When reading it out, check the first six and last six characters.",
   "@receiveEpicboxCaption": {
@@ -9776,7 +9817,7 @@
   "@deskSendPlainTitle": {
     "description": "Title of the dialog shown before a send to a plain http address."
   },
-  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.",
+  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the network path can receive this payment instead of the recipient. An https://, onion or Epicbox address is safe from that.",
   "@deskSendPlainDesc": {
     "description": "Text of that dialog."
   },
@@ -18689,7 +18730,7 @@
   "@sendDirectHost": {
     "description": "Send review: caption over the host of a Link address that came from a code."
   },
-  "sendPlainHttpRow": "Not encrypted (plain HTTP)",
+  "sendPlainHttpRow": "Unsafe: plain HTTP. Anyone on the network path can receive this payment instead of the recipient.",
   "@sendPlainHttpRow": {
     "description": "Send review: warning row for a Link · HTTP address over plain http to another device."
   },

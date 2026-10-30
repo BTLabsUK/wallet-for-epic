@@ -159,7 +159,7 @@
   "deskSendSending": "กำลังส่ง",
   "deskSendConfirm": "ส่ง {amount} EPIC",
   "deskSendPlainTitle": "ไม่ได้เข้ารหัส ส่งเลยไหม?",
-  "deskSendPlainDesc": "HTTP ธรรมดาไปยังคอมพิวเตอร์อื่น ใครที่อยู่ระหว่างทางก็อ่านธุรกรรมได้ https:// เข้ารหัส",
+  "deskSendPlainDesc": "HTTP แบบไม่เข้ารหัสไปยังคอมพิวเตอร์อื่น ใครก็ตามบนเส้นทางเครือข่ายสามารถรับการชำระเงินนี้แทนผู้รับได้ ที่อยู่ https://, onion หรือ Epicbox ปลอดภัยจากเรื่องนี้",
   "deskSendPlainConfirm": "ส่งเลย",
   "deskSendFeeChangedTitle": "ค่าธรรมเนียมเปลี่ยนไป",
   "deskSendFeeChangedText": "เอาต์พุตของกระเป๋าเงินเปลี่ยนไปหลังการตรวจสอบนี้ การส่งครั้งนี้จึงเสียค่าธรรมเนียม {fee} EPIC แทน {was} EPIC โปรดตรวจสอบแล้วส่งอีกครั้ง",
