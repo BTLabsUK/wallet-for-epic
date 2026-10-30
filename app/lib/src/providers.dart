@@ -193,6 +193,14 @@ final usesPassphraseProvider = FutureProvider<bool>((ref) async {
   return ref.watch(vaultProvider).usesPassphrase(chain);
 });
 
+/// Whether the wallet ever had a passphrase ([WalletVault.passphraseEverUsed]): only then does
+/// the unlock screen offer to switch between PIN and passphrase entry.
+final passphraseEverUsedProvider = FutureProvider<bool>((ref) async {
+  final chain = ref.watch(walletConfigProvider.select((c) => c?.chain));
+  if (chain == null) return false;
+  return ref.watch(vaultProvider).passphraseEverUsed(chain);
+});
+
 /// The node in use is on this phone or the local network (`net/local_address.dart`): Node only
 /// does not say that File and QR payments use a public node.
 final localNodeProvider = Provider<bool>(

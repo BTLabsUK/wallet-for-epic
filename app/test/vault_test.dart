@@ -278,9 +278,13 @@ void main() {
     test('a passphrase replaces the PIN, and a PIN replaces it again', () async {
       final v = vault();
       final created = (await v.create(config, pin: '123456')).session;
+      // No flag at all, as on an older install: never.
+      expect(secrets.values.keys.where((k) => k.contains('pinPassphrase')), isEmpty);
       expect(await v.usesPassphrase(config.chain), isFalse);
+      expect(await v.passphraseEverUsed(config.chain), isFalse);
       await v.changePin(created, config, currentPin: '123456', newPin: 'correct horse battery');
       expect(await v.usesPassphrase(config.chain), isTrue);
+      expect(await v.passphraseEverUsed(config.chain), isTrue);
       await expectLater(
         v.changePin(created, config, currentPin: 'correct horse battery', newPin: 'short'),
         throwsArgumentError,
@@ -290,9 +294,14 @@ void main() {
       final session = await keep(v.unlock(config, 'correct horse battery'));
       await v.changePin(session, config, currentPin: 'correct horse battery', newPin: '654321');
       expect(await v.usesPassphrase(config.chain), isFalse);
+      // Back on a PIN the switch stays offered: the flag outlives the passphrase.
+      expect(await v.passphraseEverUsed(config.chain), isTrue);
       session.dispose();
       sessions.remove(session);
       await keep(v.unlock(config, '654321'));
+      // Removing the wallet removes the flag with it.
+      await v.forget(config.chain);
+      expect(await v.passphraseEverUsed(config.chain), isFalse);
     }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 3)));
 
     test('after a biometric write in this process, biometrics wait for a restart', () async {

@@ -230,6 +230,11 @@ class WalletVault {
       throw ArgumentError('PIN must be $pinLength digits or a passphrase');
     }
     final sealed = await _sealed(config.chain);
+    // Before the change, so a passphrase whose mode was never recorded (the app stopped between
+    // the two writes below) still finds the unlock screen's "Use passphrase instead".
+    if (!isValidPin(newPin)) {
+      await store.write(_key(config.chain, 'pinPassphraseEver'), '1');
+    }
     final next = await _pinCall(
       config,
       () => session.changePin(
@@ -259,6 +264,12 @@ class WalletVault {
   /// Whether [chain]'s wallet opens with a passphrase ([isValidPassphrase]) instead of a PIN.
   Future<bool> usesPassphrase(Chain chain) async =>
       await store.read(_key(chain, 'pinPassphrase')) == '1';
+
+  /// Whether [chain]'s wallet ever had a passphrase set, even if a PIN replaced it since. The
+  /// unlock screen offers a switch between the two only then; an older install, without the
+  /// flag, reads as never. Cleared with the wallet.
+  Future<bool> passphraseEverUsed(Chain chain) async =>
+      await store.read(_key(chain, 'pinPassphraseEver')) == '1';
 
   /// Replaces the PIN, or the passphrase, with [newPin]: a PIN of [pinLength] digits or a
   /// passphrase ([isValidPassphrase]), which the unlock screen then asks for instead. A
@@ -376,6 +387,7 @@ class WalletVault {
       'backedUp',
       'demoPin',
       'pinPassphrase',
+      'pinPassphraseEver',
       'backupCardDismissed', // home's recovery phrase card (home_screen.dart)
     ]) {
       await store.delete(_key(chain, name));
