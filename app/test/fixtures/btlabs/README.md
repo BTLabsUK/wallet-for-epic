@@ -10,3 +10,7 @@ Used by the tests of signed files (`keyring.json`, `update.json`).
 
 They are **not** BT Labs' release keys. They protect nothing; anyone may use them. The real
 signing keys are never in this repository.
+
+Secret scanners flag the two keys. The publish scan's allowlist,
+`tools/publish/secrets-allowed.txt`, lists them (gitleaks `private-key`, by the hash of each
+key) with this folder's path; any other finding here needs a look.
