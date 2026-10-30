@@ -968,8 +968,19 @@ def run():
         if not checks.get("wallet_opens"):
             details["send_ok"] = details["receive_ok"] = "not run: the wallet did not open"
         else:
+            # The payments go through REL_NODE / REL_EPICBOX: if the update dropped them, put
+            # them back first (the lost lists are already reported above).
+            note = []
+            for kind, target, name in (("Node", NODE, "nodes"), ("Epicbox", EPICBOX, "relays")):
+                cur = next((r["host"] for r in b[name]["rows"] if r["current"]), None)
+                if not (cur and same_host(cur, target)):
+                    note.append(f"{kind} {target} put back in use for the payments")
+                    use_typed_server(kind, target)
+            my_addr = address() if note else b["address"]
             with PSession(p_log) as p:
-                fr, fd = funds(p, b["address"])
+                fr, fd = funds(p, my_addr)
+            if note:
+                fd = {k: v + " (" + "; ".join(note) + ")" for k, v in fd.items()}
             checks.update(fr)
             details.update(fd)
     return finish()
