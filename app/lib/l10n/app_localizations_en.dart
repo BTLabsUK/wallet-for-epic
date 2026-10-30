@@ -13463,7 +13463,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advNetworkHint =>
-      'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.';
+      'How much of the internet the wallet uses. One choice, remembered. Tor only, Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.';
 
   @override
   String get advOutputs => 'Outputs';
@@ -13501,7 +13501,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.';
 
   @override
-  String get advModeStandard => 'Standard';
+  String get advModeStandard => 'Normal';
 
   @override
   String get advModeStandardLine =>
@@ -13512,7 +13512,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advModeTorOnlyLine =>
-      'Every connection goes through Tor. Without Tor, the wallet stays offline.';
+      'Every connection goes through Tor. Until Tor is ready, nothing connects.';
 
   @override
   String get advModeOffline => 'Offline';
@@ -17329,7 +17329,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advNetworkHintNoTor =>
-      'How the wallet reaches the network. Standard connects directly. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.';
+      'How much of the internet the wallet uses. One choice, remembered. Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.';
 
   @override
   String get advModeStandardLineNoTor => 'Connects directly.';
@@ -18514,4 +18514,366 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitInfoLabel => 'More information';
+
+  @override
+  String get advModeNodeOnly => 'Node only';
+
+  @override
+  String get advModeKillSwitch => 'Kill switch';
+
+  @override
+  String get advModeNodeOnlyLine =>
+      'Only the node in use. Epicbox, Link, updates and price stay off.';
+
+  @override
+  String get advModeKillSwitchLine =>
+      'No connections at all. QR Payment and File Transfer, posted from another device.';
+
+  @override
+  String get advModeStandardHint =>
+      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.';
+
+  @override
+  String get advModeStandardHintNoTor =>
+      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.';
+
+  @override
+  String get advModeTorOnlyHint =>
+      'Every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready, nothing connects, and the status icons say so. Link · HTTP receiving stays off: a plain address would reveal this device.';
+
+  @override
+  String get advModeNodeOnlyHint =>
+      'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. With Tor on, the node is reached over Tor. Best with your own node, on this device or your network; any node works.';
+
+  @override
+  String get advModeNodeOnlyHintNoTor =>
+      'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. Best with your own node, on this device or your network; any node works.';
+
+  @override
+  String get advModeKillSwitchHint =>
+      'Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.';
+
+  @override
+  String get advModeSwitchNoteTorOnly =>
+      'Link · HTTP receiving is off. Until Tor is ready, nothing connects.';
+
+  @override
+  String get advModeSwitchNoteNodeOnly =>
+      'Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.';
+
+  @override
+  String get advModeSwitchNoteKillSwitch =>
+      'Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.';
+
+  @override
+  String advModeConfirmTitle(String mode) {
+    return 'Switch to $mode?';
+  }
+
+  @override
+  String advModeConfirmBody(int count, String mode) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count payments are waiting for the recipient over Epicbox or Link. They pause and continue when you leave $mode. Nothing is cancelled.',
+      one:
+          '1 payment is waiting for the recipient over Epicbox or Link. It pauses and continues when you leave $mode. Nothing is cancelled.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advModeConfirmSwitch => 'Switch';
+
+  @override
+  String netMarkSemantics(String mode) {
+    return 'Network mode: $mode. Opens the Network section.';
+  }
+
+  @override
+  String netMarkSemanticsDesk(String mode) {
+    return 'Network mode: $mode. Shows what it does.';
+  }
+
+  @override
+  String get netMarkLineTorOnly => 'Every connection goes through Tor.';
+
+  @override
+  String get netMarkLineTorWaiting =>
+      'Waiting for Tor. Nothing connects until it is ready.';
+
+  @override
+  String get netMarkLineNodeOnly =>
+      'Only the node in use. Epicbox, Link, updates and price are off.';
+
+  @override
+  String get netMarkLineKillSwitch =>
+      'Nothing connects. Balance and history are as last known.';
+
+  @override
+  String get netMarkChange => 'Change';
+
+  @override
+  String statusOffByMode(String mode) {
+    return 'Off ($mode)';
+  }
+
+  @override
+  String get statusOffByModeDetail =>
+      'Turned off by the network mode. Change it in Settings › Advanced › Network.';
+
+  @override
+  String get netBlockEpicboxNodeOnly =>
+      'Node only is on: Epicbox is off. QR Payment and File Transfer work.';
+
+  @override
+  String get netBlockLinkNodeOnly =>
+      'Node only is on: Link is off. QR Payment and File Transfer work.';
+
+  @override
+  String get netBlockSendKillSwitch =>
+      'Kill switch is on: nothing connects. QR Payment and File Transfer work.';
+
+  @override
+  String get netBlockNodeOnly => 'Off in Node only.';
+
+  @override
+  String get netBlockKillSwitch => 'Off in Kill switch: nothing connects.';
+
+  @override
+  String get netBlockWaitingForTorLong =>
+      'Waiting for Tor. Nothing connects until it is ready.';
+
+  @override
+  String receiveEpicboxOffMode(String mode) {
+    return 'Epicbox is off in $mode.';
+  }
+
+  @override
+  String receiveEpicboxOffModeBody(String mode) {
+    return 'Payments to this address wait on the Epicbox server and arrive when you leave $mode.';
+  }
+
+  @override
+  String receiveLinkOffMode(String mode) {
+    return 'Link receiving is off in $mode.';
+  }
+
+  @override
+  String updatesOffMode(String mode) {
+    return 'Update checks are off in $mode.';
+  }
+
+  @override
+  String reportOffMode(String mode) {
+    return 'Off in $mode. Save the report as a file instead.';
+  }
+
+  @override
+  String get recheckOffKill =>
+      'Recheck balance needs the node. Off in Kill switch.';
+
+  @override
+  String get postFinishedOffKill =>
+      'Off in Kill switch: nothing connects here.';
+
+  @override
+  String get postFinishedOffTor => 'Waiting for Tor. Posting needs the node.';
+
+  @override
+  String get browserOffTorOnly => 'Opens outside Tor. Copy the link instead.';
+
+  @override
+  String browserOffMode(String mode) {
+    return 'Off in $mode. Copy the link instead.';
+  }
+
+  @override
+  String get netChangeLink => 'Change';
+
+  @override
+  String get lastKnownCaption => 'Last known';
+
+  @override
+  String get lastKnownBalanceLine => 'Available to spend · last known';
+
+  @override
+  String get lastKnownList => 'Last known · Kill switch';
+
+  @override
+  String lastKnownConfirming(String text) {
+    return '$text · last known';
+  }
+
+  @override
+  String get coldNeedsOnlineCheck => 'Needs one balance check online first.';
+
+  @override
+  String get finalizeNotPostedTitle => 'Finished, not posted';
+
+  @override
+  String finalizeNotPostedBody(String amount) {
+    return '$amount is finished. Kill switch is on, so this phone can’t post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.';
+  }
+
+  @override
+  String get finishedSaveFile => 'Save file';
+
+  @override
+  String get finishedShowQr => 'Show QR';
+
+  @override
+  String finishedSaved(String name) {
+    return 'Saved $name';
+  }
+
+  @override
+  String get finishedQrTitle => 'Finished payment';
+
+  @override
+  String get finishedUnavailable =>
+      'This version can’t save a finished payment yet.';
+
+  @override
+  String get finishedFailed => 'The finished payment could not be read.';
+
+  @override
+  String get txPostElsewhere => 'To be posted elsewhere';
+
+  @override
+  String get txPostElsewhereKill =>
+      'Finished under Kill switch. Save it or show the QR, then post it on a device that is online.';
+
+  @override
+  String get txPostElsewhereAfter =>
+      'Finished under Kill switch, not seen on chain yet. Post it from here, or wait for the device that posted it.';
+
+  @override
+  String get txPostNow => 'Post now';
+
+  @override
+  String get txModeFinishedKill => 'Finished under Kill switch';
+
+  @override
+  String get txModeRow => 'Mode';
+
+  @override
+  String get postFinishedTitle => 'Post a finished payment';
+
+  @override
+  String get postFinishedIntro =>
+      'Post a payment another device finished under Kill switch.';
+
+  @override
+  String get postFinishedOpenFile => 'Open file';
+
+  @override
+  String get postFinishedScanQr => 'Scan QR';
+
+  @override
+  String get postFinishedPaste => 'Paste';
+
+  @override
+  String get postFinishedChooseFile => 'Choose file';
+
+  @override
+  String get postFinishedSummary => 'Finished payment';
+
+  @override
+  String get postFinishedAmount => 'Amount';
+
+  @override
+  String get postFinishedFee => 'Fee';
+
+  @override
+  String get postFinishedKernel => 'Kernel';
+
+  @override
+  String get postFinishedNote =>
+      'Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.';
+
+  @override
+  String get postFinishedPost => 'Post';
+
+  @override
+  String get postFinishedPosting => 'Posting…';
+
+  @override
+  String get postFinishedDone => 'Posted';
+
+  @override
+  String get postFinishedDoneBody =>
+      'The node has it. The wallet that made it shows it confirming once it sees it on chain.';
+
+  @override
+  String get postFinishedNotFinished =>
+      'Not a finished payment. Open the file saved under To be posted elsewhere, or scan its QR.';
+
+  @override
+  String get postFinishedFailed => 'The node did not take it. Try again.';
+
+  @override
+  String get postFinishedUnreachable => 'The node does not answer.';
+
+  @override
+  String get postFinishedDeskRow => 'Post a finished payment';
+
+  @override
+  String get postFinishedDeskRowText =>
+      'Post a payment another device finished under Kill switch.';
+
+  @override
+  String get postFinishedOpen => 'Open';
+
+  @override
+  String get helpNetworkModesTitle => 'Network modes';
+
+  @override
+  String get helpNetworkModesShort =>
+      'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.';
+
+  @override
+  String get deskSetAdvModeStandardHint =>
+      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.';
+
+  @override
+  String deskFinNotPostedKillBody(String amount) {
+    return '$amount EPIC. Kill switch is on, so this computer can’t post it. Save it or show it as a QR code, then post it on a device that is online: Receive › Transaction files › Post a finished payment.';
+  }
+
+  @override
+  String netMarkRowLabel(String mode) {
+    return 'Network mode: $mode';
+  }
+
+  @override
+  String get qrStatusFinishedHidden => 'Hidden';
+
+  @override
+  String get qrStatusFinishedShowing =>
+      'Waiting for a device that is online to scan.';
+
+  @override
+  String qrShowSubFinished(String amount) {
+    return '$amount, finished';
+  }
+
+  @override
+  String qrSemanticsFinished(String state) {
+    return 'Finished payment QR code, $state';
+  }
+
+  @override
+  String get qrHiddenBodyFinished =>
+      'Show it to a device that is online. It posts the payment; no key is needed.';
+
+  @override
+  String get qrScanFinished => 'Scan finished payment';
+
+  @override
+  String get qrScanNotFinished => 'That code is not a finished payment.';
+
+  @override
+  String get qrScanAimFinished => 'Aim at the code on the other device.';
 }

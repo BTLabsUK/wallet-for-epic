@@ -7,11 +7,13 @@ import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../advanced.dart' show NetworkModeRestricted;
 import '../amount.dart';
 import '../devices/device_ending.dart';
 import 'info_hint.dart' show InfoHint;
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
+import '../network_gate.dart' show NetGate;
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
 import '../price.dart';
 import '../providers.dart';
@@ -22,6 +24,7 @@ import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'notices.dart';
 import 'badge.dart';
+import 'finished_not_posted.dart' show isPostElsewhere;
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
@@ -466,7 +469,8 @@ String groupDigits(AppLocalizations l, Object number) => localInt(l, number);
   final settings = ref.watch(appSettingsProvider).value ?? const AppSettings();
   return (
     hidden: settings.hideBalances,
-    price: settings.showFiat ? ref.watch(priceProvider).value : null,
+    // Price is off in Node only and Kill switch: the figure is hidden, never a stale one.
+    price: settings.showFiat && !ref.watch(networkModeProvider).restricted ? ref.watch(priceProvider).value : null,
     currency: settings.fiatCurrency,
   );
 }
@@ -742,8 +746,13 @@ String txStatusLabel(
   TxPhase.waitingSender when pairedWith != null => l.txStatusWaitingFor(pairedWith),
   TxPhase.waitingSender => l.txStatusWaitingSender,
   TxPhase.waitingPayer => l.txStatusWaitingPayer,
+  // Finished under Kill switch: a device that is online posts it.
+  TxPhase.confirming when isPostElsewhere(tx) => l.txPostElsewhere,
   // Finished, but the node refused it: not on the network until it is posted again.
   TxPhase.confirming when tx.repostable => l.txStatusNotPosted,
+  TxPhase.confirming when NetGate.killSwitch => l.lastKnownConfirming(
+    l.txStatusConfirming(txConfirmations(tx, tip) ?? 0, target ?? confirmationsTarget),
+  ),
   TxPhase.confirming => l.txStatusConfirming(
     txConfirmations(tx, tip) ?? 0,
     target ?? confirmationsTarget,
@@ -801,7 +810,9 @@ class TxStatusLine extends ConsumerWidget {
     final now = ref.watch(clockProvider)();
     // The sender reports it posted: still waiting, but under way, so in the info colour.
     final reported = phase == TxPhase.waitingSender && senderReportsPosted(tx, now: now);
-    final (icon, mark) = txStatusMark(context, phase);
+    final (markIcon, mark) = txStatusMark(context, phase);
+    // Finished under Kill switch waits for another device: the hourglass, as for any wait.
+    final icon = isPostElsewhere(tx) ? Icons.hourglass_empty : markIcon;
     final color = reported ? t.info : mark;
     final base = theme.textTheme.bodySmall?.copyWith(
       color: t.dim,
@@ -879,7 +890,7 @@ List<TimelineStep>? txTimeline(
     steps = [
       (l.txStepStarted, l.txStepStarted, l.txStepStarted),
       (l.txStepAccepted, l.txStatusWaitingRecipient, l.txStepAccepted),
-      (l.txStepPosted, l.txStatusNotPosted, l.txStepPosted),
+      (l.txStepPosted, isPostElsewhere(tx) ? l.txPostElsewhere : l.txStatusNotPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];

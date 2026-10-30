@@ -2206,6 +2206,10 @@ class _SendViewState extends ConsumerState<SendView> {
   /// can be paid only that way. Null for any other [note].
   String? _methodOffLine(NetBlock note) {
     final m = _sendMethod;
+    final lm = context.l10n;
+    // The mode itself holds an Epicbox or Link send: name it and say what still works.
+    if (note == NetBlock.killSwitch) return lm.netBlockSendKillSwitch;
+    if (note == NetBlock.nodeOnly) return m?.family == MethodFamily.link ? lm.netBlockLinkNodeOnly : lm.netBlockEpicboxNodeOnly;
     if (m == null || (note != NetBlock.epicboxOff && note != NetBlock.methodOff)) return null;
     final l = context.l10n;
     final reason = methodOffReason(l, m);
@@ -2238,7 +2242,7 @@ class _SendViewState extends ConsumerState<SendView> {
     }
     // A file or QR Payment is made, finalized and posted through the node in use, which
     // Offline allows on any node (the note under the button says so).
-    _postBlock = watchNetBlock(context, ref, node: true);
+    _postBlock = watchPaymentBlock(context, ref);
     _offlineNode = watchOfflineUsesNode(context, ref);
     // An estimate made against the old balance is stale: coins that confirmed may cover it
     // now, or a send elsewhere may have spent them (F-06).
@@ -2306,6 +2310,7 @@ class _SendViewState extends ConsumerState<SendView> {
       SendStage.review when !_sendFailed => _block,
       // Making a file needs no connection of its own (Tor only without tor makes it too).
       SendStage.fileMade => _postBlock,
+      SendStage.fileAmount when _postBlock == NetBlock.killSwitch => _postBlock,
       _ => NetBlock.none,
     };
     // Offline on a local node without peers: what is posted waits in its pool.
@@ -2326,7 +2331,12 @@ class _SendViewState extends ConsumerState<SendView> {
                 else if (offlineNode)
                   const OfflineNodeNote()
                 else ...[
-                  NetBlockNote(note, line: _methodOffLine(note)),
+                  NetBlockNote(
+                    note,
+                    line: note == _postBlock && note == NetBlock.killSwitch && _stage != SendStage.recipient && _stage != SendStage.amount && _stage != SendStage.review
+                        ? context.l10n.coldNeedsOnlineCheck
+                        : _methodOffLine(note),
+                  ),
                   // A Link method off: one tap turns it on here (Epicbox keeps its own way).
                   if (_sendMethod case final m? when note == NetBlock.methodOff && m.family == MethodFamily.link) ...[
                     OutlinedButton(

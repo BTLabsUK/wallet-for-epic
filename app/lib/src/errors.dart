@@ -40,7 +40,7 @@ String describeError(AppLocalizations l, Object error) {
       ),
       WalletErrorKind.chainBusy => l.errorChainBusy,
       WalletErrorKind.walletBusy => l.errorWalletBusy,
-      WalletErrorKind.networkOff => l.advHomeOffline,
+      WalletErrorKind.networkOff => l.netBlockKillSwitch,
       // The core's sentence says whether the funds are unlocked now or at the next refresh;
       // the fallback claims neither.
       WalletErrorKind.paymentExpired =>
@@ -82,7 +82,11 @@ String describeError(AppLocalizations l, Object error) {
   // The network mode refused it (network_gate.dart). The Advanced page's own lines say why.
   if (error is NetBlocked) {
     if (error.epicboxOff) return l.netBlockEpicboxOff;
-    return error.mode == NetworkMode.torOnly ? l.advModeTorOnlyLine : l.advHomeOffline;
+    return switch (error.mode) {
+      NetworkMode.torOnly => l.advModeTorOnlyLine,
+      NetworkMode.killSwitch => l.netBlockKillSwitch,
+      _ => l.netBlockNodeOnly,
+    };
   }
   if (error is LocalizedFormatException) return error.text(l);
   if (error is FormatException) return error.message;

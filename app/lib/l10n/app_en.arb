@@ -17868,9 +17868,9 @@
   "@advNetworkHeader": {
     "description": "Header over the network mode choice on the Advanced page."
   },
-  "advNetworkHint": "How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.",
+  "advNetworkHint": "How much of the internet the wallet uses. One choice, remembered. Tor only, Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.",
   "@advNetworkHint": {
-    "description": "Info sheet behind the Network header on the Advanced page."
+    "description": "Info text of the Network header in Settings › Advanced."
   },
   "advOutputs": "Outputs",
   "@advOutputs": {
@@ -17912,9 +17912,9 @@
   "@advRecheckHeightHint": {
     "description": "Info sheet of the Recheck from a height switch."
   },
-  "advModeStandard": "Standard",
+  "advModeStandard": "Normal",
   "@advModeStandard": {
-    "description": "Network mode: direct connections."
+    "description": "Settings › Advanced › Network: the mode that connects directly (the default). Also the mode's name in the mode mark and in notes."
   },
   "advModeStandardLine": "Connects directly. Tor can be turned on in Privacy & network.",
   "@advModeStandardLine": {
@@ -17924,9 +17924,9 @@
   "@advModeTorOnly": {
     "description": "Network mode: Tor or nothing."
   },
-  "advModeTorOnlyLine": "Every connection goes through Tor. Without Tor, the wallet stays offline.",
+  "advModeTorOnlyLine": "Every connection goes through Tor. Until Tor is ready, nothing connects.",
   "@advModeTorOnlyLine": {
-    "description": "One line under the Tor only network mode."
+    "description": "Settings › Advanced › Network, the line under Tor only."
   },
   "advModeOffline": "Offline",
   "@advModeOffline": {
@@ -23107,9 +23107,9 @@
   "@handshakeLink1NoTor": {
     "description": "handshakeLink1 in the build without Tor: the same caption without Tor."
   },
-  "advNetworkHintNoTor": "How the wallet reaches the network. Standard connects directly. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.",
+  "advNetworkHintNoTor": "How much of the internet the wallet uses. One choice, remembered. Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.",
   "@advNetworkHintNoTor": {
-    "description": "advNetworkHint in the build without Tor: no Tor and no Tor only."
+    "description": "advNetworkHint in the build without Tor."
   },
   "advModeStandardLineNoTor": "Connects directly.",
   "@advModeStandardLineNoTor": {
@@ -24840,5 +24840,497 @@
   "deskKitInfoLabel": "More information",
   "@deskKitInfoLabel": {
     "description": "Screen-reader name of an info icon that opens an explanation popover and has no title of its own."
+  },
+  "advModeNodeOnly": "Node only",
+  "@advModeNodeOnly": {
+    "description": "Network mode name: only the node in use stays connected."
+  },
+  "advModeKillSwitch": "Kill switch",
+  "@advModeKillSwitch": {
+    "description": "Network mode name: nothing connects, cold storage."
+  },
+  "advModeNodeOnlyLine": "Only the node in use. Epicbox, Link, updates and price stay off.",
+  "@advModeNodeOnlyLine": {
+    "description": "Settings › Advanced › Network, the line under Node only."
+  },
+  "advModeKillSwitchLine": "No connections at all. QR Payment and File Transfer, posted from another device.",
+  "@advModeKillSwitchLine": {
+    "description": "Settings › Advanced › Network, the line under Kill switch."
+  },
+  "advModeStandardHint": "Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.",
+  "@advModeStandardHint": {
+    "description": "Info text of the Normal row (phone)."
+  },
+  "advModeStandardHintNoTor": "Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.",
+  "@advModeStandardHintNoTor": {
+    "description": "Info text of the Normal row in the build without Tor."
+  },
+  "advModeTorOnlyHint": "Every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready, nothing connects, and the status icons say so. Link · HTTP receiving stays off: a plain address would reveal this device.",
+  "@advModeTorOnlyHint": {
+    "description": "Info text of the Tor only row."
+  },
+  "advModeNodeOnlyHint": "The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. With Tor on, the node is reached over Tor. Best with your own node, on this device or your network; any node works.",
+  "@advModeNodeOnlyHint": {
+    "description": "Info text of the Node only row."
+  },
+  "advModeNodeOnlyHintNoTor": "The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. Best with your own node, on this device or your network; any node works.",
+  "@advModeNodeOnlyHintNoTor": {
+    "description": "Info text of the Node only row in the build without Tor."
+  },
+  "advModeKillSwitchHint": "Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.",
+  "@advModeKillSwitchHint": {
+    "description": "Info text of the Kill switch row."
+  },
+  "advModeSwitchNoteTorOnly": "Link · HTTP receiving is off. Until Tor is ready, nothing connects.",
+  "@advModeSwitchNoteTorOnly": {
+    "description": "Dim note under the Network picker while Tor only is chosen."
+  },
+  "advModeSwitchNoteNodeOnly": "Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.",
+  "@advModeSwitchNoteNodeOnly": {
+    "description": "Dim note under the Network picker while Node only is chosen."
+  },
+  "advModeSwitchNoteKillSwitch": "Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.",
+  "@advModeSwitchNoteKillSwitch": {
+    "description": "Dim note under the Network picker while Kill switch is chosen."
+  },
+  "advModeConfirmTitle": "Switch to {mode}?",
+  "@advModeConfirmTitle": {
+    "description": "Title of the confirmation before switching to Node only or Kill switch while a send waits.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "advModeConfirmBody": "{count, plural, one{1 payment is waiting for the recipient over Epicbox or Link. It pauses and continues when you leave {mode}. Nothing is cancelled.} other{{count} payments are waiting for the recipient over Epicbox or Link. They pause and continue when you leave {mode}. Nothing is cancelled.}}",
+  "@advModeConfirmBody": {
+    "description": "Body of that confirmation.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "mode": {
+        "type": "String",
+        "example": "Kill switch"
+      }
+    }
+  },
+  "advModeConfirmSwitch": "Switch",
+  "@advModeConfirmSwitch": {
+    "description": "Confirm button of that confirmation."
+  },
+  "netMarkSemantics": "Network mode: {mode}. Opens the Network section.",
+  "@netMarkSemantics": {
+    "description": "Screen reader label of the mode mark on Home (phone).",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "netMarkSemanticsDesk": "Network mode: {mode}. Shows what it does.",
+  "@netMarkSemanticsDesk": {
+    "description": "Screen reader label of the mode mark in the title bar (desktop).",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "netMarkLineTorOnly": "Every connection goes through Tor.",
+  "@netMarkLineTorOnly": {
+    "description": "Mode mark popover line for Tor only."
+  },
+  "netMarkLineTorWaiting": "Waiting for Tor. Nothing connects until it is ready.",
+  "@netMarkLineTorWaiting": {
+    "description": "Mode mark popover line for Tor only while Tor is not ready."
+  },
+  "netMarkLineNodeOnly": "Only the node in use. Epicbox, Link, updates and price are off.",
+  "@netMarkLineNodeOnly": {
+    "description": "Mode mark popover line for Node only."
+  },
+  "netMarkLineKillSwitch": "Nothing connects. Balance and history are as last known.",
+  "@netMarkLineKillSwitch": {
+    "description": "Mode mark popover line for Kill switch."
+  },
+  "netMarkChange": "Change",
+  "@netMarkChange": {
+    "description": "Button in the mode mark popover that opens Settings › Advanced › Network."
+  },
+  "statusOffByMode": "Off ({mode})",
+  "@statusOffByMode": {
+    "description": "A service switched off by the network mode: its state word, e.g. Off (Node only).",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "statusOffByModeDetail": "Turned off by the network mode. Change it in Settings › Advanced › Network.",
+  "@statusOffByModeDetail": {
+    "description": "Detail of a status icon that is off because of the network mode."
+  },
+  "netBlockEpicboxNodeOnly": "Node only is on: Epicbox is off. QR Payment and File Transfer work.",
+  "@netBlockEpicboxNodeOnly": {
+    "description": "Send over Epicbox while Node only is chosen."
+  },
+  "netBlockLinkNodeOnly": "Node only is on: Link is off. QR Payment and File Transfer work.",
+  "@netBlockLinkNodeOnly": {
+    "description": "Send over Link while Node only is chosen."
+  },
+  "netBlockSendKillSwitch": "Kill switch is on: nothing connects. QR Payment and File Transfer work.",
+  "@netBlockSendKillSwitch": {
+    "description": "Send over Epicbox or Link while Kill switch is chosen."
+  },
+  "netBlockNodeOnly": "Off in Node only.",
+  "@netBlockNodeOnly": {
+    "description": "Generic reason an action is unavailable in Node only."
+  },
+  "netBlockKillSwitch": "Off in Kill switch: nothing connects.",
+  "@netBlockKillSwitch": {
+    "description": "Generic reason an action is unavailable in Kill switch."
+  },
+  "netBlockWaitingForTorLong": "Waiting for Tor. Nothing connects until it is ready.",
+  "@netBlockWaitingForTorLong": {
+    "description": "Send or a similar action while Tor only waits for Tor."
+  },
+  "receiveEpicboxOffMode": "Epicbox is off in {mode}.",
+  "@receiveEpicboxOffMode": {
+    "description": "Receive › Epicbox: title of the notice while the mode turns Epicbox off.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "receiveEpicboxOffModeBody": "Payments to this address wait on the Epicbox server and arrive when you leave {mode}.",
+  "@receiveEpicboxOffModeBody": {
+    "description": "Receive › Epicbox: body of that notice.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "receiveLinkOffMode": "Link receiving is off in {mode}.",
+  "@receiveLinkOffMode": {
+    "description": "Receive › Link: notice while the mode turns Link off.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "updatesOffMode": "Update checks are off in {mode}.",
+  "@updatesOffMode": {
+    "description": "About › Updates while Node only, Tor only waiting excluded, or Kill switch.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "reportOffMode": "Off in {mode}. Save the report as a file instead.",
+  "@reportOffMode": {
+    "description": "Report a problem: sending is off; the file is the way.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "recheckOffKill": "Recheck balance needs the node. Off in Kill switch.",
+  "@recheckOffKill": {
+    "description": "Recheck balance row/button while Kill switch is chosen."
+  },
+  "postFinishedOffKill": "Off in Kill switch: nothing connects here.",
+  "@postFinishedOffKill": {
+    "description": "Post a finished payment while Kill switch is chosen."
+  },
+  "postFinishedOffTor": "Waiting for Tor. Posting needs the node.",
+  "@postFinishedOffTor": {
+    "description": "Post a finished payment while Tor only waits."
+  },
+  "browserOffTorOnly": "Opens outside Tor. Copy the link instead.",
+  "@browserOffTorOnly": {
+    "description": "Note where a link would open the system browser while Tor only is chosen."
+  },
+  "browserOffMode": "Off in {mode}. Copy the link instead.",
+  "@browserOffMode": {
+    "description": "Note where a link would open the system browser while Node only or Kill switch is chosen.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "netChangeLink": "Change",
+  "@netChangeLink": {
+    "description": "Link in a blocked-action note that opens Settings › Advanced › Network."
+  },
+  "lastKnownCaption": "Last known",
+  "@lastKnownCaption": {
+    "description": "Pill and caption in Kill switch: the balance and history are the ones seen last."
+  },
+  "lastKnownBalanceLine": "Available to spend · last known",
+  "@lastKnownBalanceLine": {
+    "description": "Phone Home: caption under the balance in Kill switch."
+  },
+  "lastKnownList": "Last known · Kill switch",
+  "@lastKnownList": {
+    "description": "Caption above the activity list in Kill switch."
+  },
+  "lastKnownConfirming": "{text} · last known",
+  "@lastKnownConfirming": {
+    "description": "A confirming row's text in Kill switch, e.g. Confirming 4/6 · last known.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "Confirming 4/6"
+      }
+    }
+  },
+  "coldNeedsOnlineCheck": "Needs one balance check online first.",
+  "@coldNeedsOnlineCheck": {
+    "description": "Note on File Transfer and QR Payment in Kill switch for a wallet that has never refreshed."
+  },
+  "finalizeNotPostedTitle": "Finished, not posted",
+  "@finalizeNotPostedTitle": {
+    "description": "Title after finalizing a payment in Kill switch: it is complete, but only a device that is online can post it."
+  },
+  "finalizeNotPostedBody": "{amount} is finished. Kill switch is on, so this phone can’t post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.",
+  "@finalizeNotPostedBody": {
+    "description": "Body of that screen (phone).",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "finishedSaveFile": "Save file",
+  "@finishedSaveFile": {
+    "description": "Button: save the finished payment as a file."
+  },
+  "finishedShowQr": "Show QR",
+  "@finishedShowQr": {
+    "description": "Button: show the finished payment as an animated QR code."
+  },
+  "finishedSaved": "Saved {name}",
+  "@finishedSaved": {
+    "description": "Confirmation after saving the finished payment file.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "a1f9e8d7.finished.tx"
+      }
+    }
+  },
+  "finishedQrTitle": "Finished payment",
+  "@finishedQrTitle": {
+    "description": "Title of the animated QR screen of a finished payment."
+  },
+  "finishedUnavailable": "This version can’t save a finished payment yet.",
+  "@finishedUnavailable": {
+    "description": "Shown when the wallet core can’t produce the finished payment text yet."
+  },
+  "finishedFailed": "The finished payment could not be read.",
+  "@finishedFailed": {
+    "description": "Shown when making the finished payment text failed."
+  },
+  "txPostElsewhere": "To be posted elsewhere",
+  "@txPostElsewhere": {
+    "description": "Transaction state: finished under Kill switch, to be posted by a device that is online."
+  },
+  "txPostElsewhereKill": "Finished under Kill switch. Save it or show the QR, then post it on a device that is online.",
+  "@txPostElsewhereKill": {
+    "description": "Transaction detail notice while Kill switch is chosen."
+  },
+  "txPostElsewhereAfter": "Finished under Kill switch, not seen on chain yet. Post it from here, or wait for the device that posted it.",
+  "@txPostElsewhereAfter": {
+    "description": "Transaction detail notice after leaving Kill switch."
+  },
+  "txPostNow": "Post now",
+  "@txPostNow": {
+    "description": "Button: post the finished payment from this device."
+  },
+  "txModeFinishedKill": "Finished under Kill switch",
+  "@txModeFinishedKill": {
+    "description": "Details row value for the mode a payment was finished in."
+  },
+  "txModeRow": "Mode",
+  "@txModeRow": {
+    "description": "Details row label for the mode a payment was finished in."
+  },
+  "postFinishedTitle": "Post a finished payment",
+  "@postFinishedTitle": {
+    "description": "Title of the screen and menu entry that posts a payment another device finished under Kill switch."
+  },
+  "postFinishedIntro": "Post a payment another device finished under Kill switch.",
+  "@postFinishedIntro": {
+    "description": "Intro line of that screen."
+  },
+  "postFinishedOpenFile": "Open file",
+  "@postFinishedOpenFile": {
+    "description": "Button: choose the finished payment file."
+  },
+  "postFinishedScanQr": "Scan QR",
+  "@postFinishedScanQr": {
+    "description": "Button: scan the animated QR code of a finished payment."
+  },
+  "postFinishedPaste": "Paste",
+  "@postFinishedPaste": {
+    "description": "Button: paste the finished payment text."
+  },
+  "postFinishedChooseFile": "Choose file",
+  "@postFinishedChooseFile": {
+    "description": "Desktop button: choose the finished payment file."
+  },
+  "postFinishedSummary": "Finished payment",
+  "@postFinishedSummary": {
+    "description": "Heading of the summary card."
+  },
+  "postFinishedAmount": "Amount",
+  "@postFinishedAmount": {
+    "description": "Summary row."
+  },
+  "postFinishedFee": "Fee",
+  "@postFinishedFee": {
+    "description": "Summary row."
+  },
+  "postFinishedKernel": "Kernel",
+  "@postFinishedKernel": {
+    "description": "Summary row."
+  },
+  "postFinishedNote": "Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.",
+  "@postFinishedNote": {
+    "description": "Line under the summary."
+  },
+  "postFinishedPost": "Post",
+  "@postFinishedPost": {
+    "description": "Button: post the finished payment."
+  },
+  "postFinishedPosting": "Posting…",
+  "@postFinishedPosting": {
+    "description": "Busy state of that button."
+  },
+  "postFinishedDone": "Posted",
+  "@postFinishedDone": {
+    "description": "Result title: the node took the payment."
+  },
+  "postFinishedDoneBody": "The node has it. The wallet that made it shows it confirming once it sees it on chain.",
+  "@postFinishedDoneBody": {
+    "description": "Result body."
+  },
+  "postFinishedNotFinished": "Not a finished payment. Open the file saved under To be posted elsewhere, or scan its QR.",
+  "@postFinishedNotFinished": {
+    "description": "Error when the text is not a finished payment."
+  },
+  "postFinishedFailed": "The node did not take it. Try again.",
+  "@postFinishedFailed": {
+    "description": "Error when the node refused or did not answer."
+  },
+  "postFinishedUnreachable": "The node does not answer.",
+  "@postFinishedUnreachable": {
+    "description": "Error when the node did not answer."
+  },
+  "postFinishedDeskRow": "Post a finished payment",
+  "@postFinishedDeskRow": {
+    "description": "Desktop Receive › Transaction files row title."
+  },
+  "postFinishedDeskRowText": "Post a payment another device finished under Kill switch.",
+  "@postFinishedDeskRowText": {
+    "description": "Desktop row text."
+  },
+  "postFinishedOpen": "Open",
+  "@postFinishedOpen": {
+    "description": "Desktop row button."
+  },
+  "helpNetworkModesTitle": "Network modes",
+  "@helpNetworkModesTitle": {
+    "description": "Help topic title."
+  },
+  "helpNetworkModesShort": "Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.",
+  "@helpNetworkModesShort": {
+    "description": "Help topic summary."
+  },
+  "deskSetAdvModeStandardHint": "Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.",
+  "@deskSetAdvModeStandardHint": {
+    "description": "Info text of the Normal row (desktop)."
+  },
+  "deskFinNotPostedKillBody": "{amount} EPIC. Kill switch is on, so this computer can’t post it. Save it or show it as a QR code, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
+  "@deskFinNotPostedKillBody": {
+    "description": "Body of that screen (desktop).",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
+  "netMarkRowLabel": "Network mode: {mode}",
+  "@netMarkRowLabel": {
+    "description": "Row in the connections sheet naming the network mode.",
+    "placeholders": {
+      "mode": {
+        "type": "String",
+        "example": "Node only"
+      }
+    }
+  },
+  "qrStatusFinishedHidden": "Hidden",
+  "@qrStatusFinishedHidden": {
+    "description": "QR screen of a finished payment (Kill switch): state line while the code is hidden."
+  },
+  "qrStatusFinishedShowing": "Waiting for a device that is online to scan.",
+  "@qrStatusFinishedShowing": {
+    "description": "State line while the finished payment's code shows."
+  },
+  "qrShowSubFinished": "{amount}, finished",
+  "@qrShowSubFinished": {
+    "description": "Subtitle of the finished payment's QR screen.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5 EPIC"
+      }
+    }
+  },
+  "qrSemanticsFinished": "Finished payment QR code, {state}",
+  "@qrSemanticsFinished": {
+    "description": "Screen reader label of the finished payment's code.",
+    "placeholders": {
+      "state": {
+        "type": "String",
+        "example": "hidden"
+      }
+    }
+  },
+  "qrHiddenBodyFinished": "Show it to a device that is online. It posts the payment; no key is needed.",
+  "@qrHiddenBodyFinished": {
+    "description": "Body under the hidden code of a finished payment."
+  },
+  "qrScanFinished": "Scan finished payment",
+  "@qrScanFinished": {
+    "description": "Title of the camera screen that reads a payment finished under Kill switch."
+  },
+  "qrScanNotFinished": "That code is not a finished payment.",
+  "@qrScanNotFinished": {
+    "description": "Camera screen hint for a code that is not a finished payment."
+  },
+  "qrScanAimFinished": "Aim at the code on the other device.",
+  "@qrScanAimFinished": {
+    "description": "Camera screen hint before any part of the finished payment is read."
   }
 }

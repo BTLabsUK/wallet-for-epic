@@ -49,6 +49,12 @@ NetBlock deskNetBlock(DeskState st, {bool nodeOnly = false, bool epicbox = false
 /// local: the screen says so (`network_gate.dart`'s [nodeOnlyUsesNode]); it is never held.
 bool deskOfflineUsesNode(DeskState st) => nodeOnlyUsesNode(deskNetMode(st), localNode: deskLocalNode(st));
 
+/// Sends that wait for their recipient over Epicbox or Link: Node only and Kill switch stop the
+/// listeners they wait on, so the switch asks first.
+int deskPendingNetworkSends(DeskState st) => (st.txs ?? const <Tx>[])
+    .where((t) => !t.incoming && t.state == TxState.waitingRecipient && t.method != TxMethod.file)
+    .length;
+
 /// The balance and history show as last known: Kill switch asks no node.
 bool deskLastKnown(DeskState st) => deskNetMode(st) == NetworkMode.killSwitch;
 
@@ -74,7 +80,8 @@ final deskOfflineUsesNodeProvider = Provider<bool>((ref) => deskOfflineUsesNode(
 /// The reason for a disabled network action, one short line; null when nothing blocks.
 String? netBlockReason(AppLocalizations l, NetBlock b) => switch (b) {
   NetBlock.none => null,
-  NetBlock.nodeOnly || NetBlock.killSwitch => l.deskNetOfflineReason,
+  NetBlock.nodeOnly => l.netBlockNodeOnly,
+  NetBlock.killSwitch => l.netBlockKillSwitch,
   NetBlock.waitingForTor => l.deskNetWaitingTorReason,
   NetBlock.epicboxOff => l.netBlockEpicboxOff,
   // The screen names the method it asked about ([methodOffReason]).

@@ -20,7 +20,8 @@ from fontTools.svgLib.path import parse_path
 import pathops
 
 ICONS = ['tor', 'epicbox', 'http', 'node', 'link',  # code points 0xE000 + index
-         'trust-verified', 'trust-paired', 'trust-keys-changed', 'sealed']
+         'trust-verified', 'trust-paired', 'trust-keys-changed', 'sealed',
+         'node-only', 'unplugged']
 UPM = 1024
 S = UPM / 24.0
 

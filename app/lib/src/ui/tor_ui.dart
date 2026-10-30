@@ -195,7 +195,9 @@ class TorSwitchTile extends ConsumerWidget {
                 child: Text(
                   mode == NetworkMode.torOnly
                       ? l.netBlockTorOnly
-                      : l.netBlockOffline,
+                      : mode == NetworkMode.killSwitch
+                      ? l.netBlockKillSwitch
+                      : l.netBlockNodeOnly,
                   style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                 ),
               ),

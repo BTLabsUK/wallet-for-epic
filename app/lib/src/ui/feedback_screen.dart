@@ -18,6 +18,7 @@ import '../support_report.dart';
 import 'common.dart';
 import 'contacts_screen.dart' show LiveFieldError;
 import 'net_block.dart';
+import 'network_mode_text.dart' show blockMode, networkModeName;
 import 'settings_screen.dart' show appVersionProvider;
 
 /// `android 14 (…)`: the OS and its version, as Dart reports them. Tests pin it.
@@ -393,7 +394,12 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           ),
           const SizedBox(height: 8),
           if (_error != null) ErrorText(_error!),
-          if (url != null) NetBlockNote(block) else Text(l.feedbackFileExplanation, style: theme.textTheme.bodyMedium),
+          if (url != null)
+            NetBlockNote(
+              block,
+              line: blockMode(block) != null ? l.reportOffMode(networkModeName(l, blockMode(block)!)) : null,
+            )
+          else Text(l.feedbackFileExplanation, style: theme.textTheme.bodyMedium),
         ],
       ),
     );

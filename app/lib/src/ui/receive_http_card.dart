@@ -10,6 +10,7 @@ import '../providers.dart';
 import '../slate_files.dart';
 import 'common.dart';
 import 'net_block.dart';
+import 'network_mode_text.dart' show networkModeName;
 import 'receive_screen.dart' show shareAddress;
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
@@ -75,7 +76,10 @@ class ReceiveHttpCard extends ConsumerWidget {
         children: [line(l.receiveHttpFailed, color: t.risk), retry],
       ),
       PhoneHttpPhase.offWhileTor => line(l.receiveHttpOffWhileTor),
-      PhoneHttpPhase.offline => NetBlockNote(NetBlock.nodeOnly, line: l.receiveOfflineLine),
+      PhoneHttpPhase.offline => NetBlockNote(
+        NetGate.killSwitch ? NetBlock.killSwitch : NetBlock.nodeOnly,
+        line: l.receiveLinkOffMode(networkModeName(l, NetGate.mode)),
+      ),
       _ => line(l.receiveHttpNoNetwork),
     };
     return Card(

@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../advanced.dart';
+import '../../../ui/network_mode_text.dart';
 import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../app/tour.dart' show TourTarget;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/net_mode_view.dart' show deskPendingNetworkSends;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../transfer/send_advanced.dart' show ERadioRow;
@@ -19,6 +21,7 @@ import 'prefs.dart' show SettingsJump;
 import 'settings_frame.dart';
 
 export '../../../advanced.dart';
+export '../../../ui/network_mode_text.dart' show networkModeName;
 
 /// The desktop's Advanced choices, from the settings.
 AdvancedPrefs advancedOf(WidgetRef ref) =>
@@ -49,12 +52,6 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
-/// A network mode's name.
-String networkModeName(AppLocalizations l, NetworkMode m) => switch (m) {
-  NetworkMode.standard => l.deskSetAdvModeStandard,
-  NetworkMode.torOnly => l.deskSetAdvModeTorOnly,
-  NetworkMode.nodeOnly || NetworkMode.killSwitch => l.deskSetAdvModeOffline,
-};
 
 class SettingsAdvancedScreen extends ConsumerWidget {
   const SettingsAdvancedScreen({super.key, this.arg});
@@ -247,7 +244,10 @@ class _BalanceGroup extends ConsumerWidget {
   }
 }
 
-/// The three network modes as radio rows, the note a mode brings with it under them.
+/// The key of the dim line under the picker.
+const Key advModeNoteKey = ValueKey('adv-mode-note');
+
+/// The network modes as radio rows (each with its ⓘ), the line the chosen mode brings under them.
 class _NetworkGroup extends ConsumerWidget {
   const _NetworkGroup();
 
@@ -259,45 +259,45 @@ class _NetworkGroup extends ConsumerWidget {
     final s = st.settings;
     final adv = s.advanced;
     final torIncluded = (st.status?.torIncluded ?? true) && DeskFeatures.tor;
-    void choose(NetworkMode m) =>
-        ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withMode(m)));
-    Widget mode(NetworkMode m, String text, {bool tor = false}) => ERadioRow(
+    Future<void> choose(NetworkMode m) async {
+      if (m == adv.networkMode) return;
+      final waiting = switchPausesSends(m) && !switchPausesSends(adv.networkMode) ? deskPendingNetworkSends(st) : 0;
+      if (waiting > 0) {
+        final ok = await confirmNetworkModeSwitch(context, mode: m, waiting: waiting);
+        if (ok != true) return;
+      }
+      await ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withMode(m)));
+    }
+    Widget mode(NetworkMode m, {bool tor = false}) => ERadioRow(
       key: ValueKey('adv-mode-${m.name}'),
       selected: adv.networkMode == m,
       title: networkModeName(l, m),
-      text: text,
+      text: networkModeLine(l, m, desktop: true, tor: DeskFeatures.tor),
+      hint: networkModeHint(l, m, desktop: true, tor: DeskFeatures.tor),
+      hintIcon: networkModeGlyph(m),
       tag: tor && !torIncluded ? l.deskSetAdvNotInBuild : null,
       onSelected: tor && !torIncluded ? null : () => choose(m),
     );
-    final note = switch (adv.networkMode) {
-      NetworkMode.torOnly => l.deskSetAdvTorOnlyNote,
-      NetworkMode.nodeOnly || NetworkMode.killSwitch => DeskFeatures.tor ? l.deskSetAdvOfflineNote : l.deskNoTorAdvOfflineNote,
-      _ => null,
-    };
+    final note = networkModeSwitchNote(l, adv.networkMode);
     return ESetGroup(
       title: l.deskSetAdvNetwork,
-      trailing: EInfoHint(DeskFeatures.tor ? l.deskSetAdvNetworkHint : l.deskNoTorAdvNetworkHint, title: l.deskSetAdvNetwork, icon: EIcons.antenna),
+      trailing: EInfoHint(networkHeaderHint(l, tor: DeskFeatures.tor), title: l.deskSetAdvNetwork, icon: EIcons.antenna),
       rows: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              mode(NetworkMode.standard, DeskFeatures.tor ? l.deskSetAdvModeStandardText : l.advModeStandardLineNoTor),
-              if (DeskFeatures.tor) mode(NetworkMode.torOnly, l.deskSetAdvModeTorOnlyText, tor: true),
-              mode(NetworkMode.nodeOnly, l.deskSetAdvModeOfflineText),
+              mode(NetworkMode.standard),
+              if (DeskFeatures.tor) mode(NetworkMode.torOnly, tor: true),
+              mode(NetworkMode.nodeOnly),
+              mode(NetworkMode.killSwitch),
               if (note != null) ...[
                 SizedBox(height: Sp.x3),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(EIcons.alert, size: Ctl.iconSm, color: c.warn),
-                      SizedBox(width: Sp.x2),
-                      Expanded(child: Text(note, style: context.ts.small.copyWith(color: c.warn))),
-                    ],
-                  ),
+                  // Body text, not a warning.
+                  child: Text(note, key: advModeNoteKey, style: context.ts.small.copyWith(color: c.dim)),
                 ),
               ],
             ],
@@ -318,4 +318,32 @@ class _NetworkGroup extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// The key of the switch confirmation dialog.
+const Key advModeConfirmKey = ValueKey('adv-mode-confirm');
+
+/// "Switch to {mode}?": only when a send waits for its recipient over Epicbox or Link and the
+/// target is Node only or Kill switch. True to switch; nothing is cancelled either way.
+Future<bool?> confirmNetworkModeSwitch(BuildContext context, {required NetworkMode mode, required int waiting}) {
+  final l = context.l10n;
+  final name = networkModeName(l, mode);
+  return showEDialog<bool>(
+    context,
+    builder: (context) => EDialog(
+      key: advModeConfirmKey,
+      title: l.advModeConfirmTitle(name),
+      description: l.advModeConfirmBody(waiting, name),
+      icon: networkModeGlyph(mode),
+      actions: [
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
+        EButton.primary(
+          key: const ValueKey('adv-mode-confirm-switch'),
+          label: l.advModeConfirmSwitch,
+          autofocus: true,
+          onPressed: () => Navigator.pop(context, true),
+        ),
+      ],
+    ),
+  );
 }

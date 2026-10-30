@@ -21,6 +21,7 @@ import 'backup_screen.dart';
 import 'common.dart';
 import 'help_screen.dart';
 import 'restore_screen.dart' show ScanSlotLine;
+import 'network_mode_text.dart' show networkModeName;
 import 'settings_sections.dart';
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';

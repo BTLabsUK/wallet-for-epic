@@ -6,13 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart';
 import '../l10n.dart';
-import '../network_gate.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
 import 'home_status.dart' show StatusIcons;
-import 'net_block.dart' show watchNetBlock;
 import 'status.dart';
 import 'theme/protocol.dart';
 import 'theme/brand.dart' show BrandVariant, BrandWordmark;
@@ -218,8 +216,8 @@ class WalletBalance extends ConsumerWidget {
     final scaler = MediaQuery.textScalerOf(context);
     final data = ref.watch(homeProvider).value;
     final summary = data?.summary;
-    // Offline keeps the last known balance and marks it so on the caption.
-    final offline = watchNetBlock(context, ref).byMode;
+    // Kill switch keeps the last known balance and marks it so on the caption.
+    final lastKnown = ref.watch(balanceLastKnownProvider);
     final display = amountDisplay(ref);
     final hidden = display.hidden;
     final fiat = summary == null
@@ -276,10 +274,10 @@ class WalletBalance extends ConsumerWidget {
               child: SizedBox(
                 height: _lineHeight(captionStyle, scaler, context),
                 child: Text(
-                  offline
+                  lastKnown
                       ? l.settingsStateJoin(
                           l.homeAvailableToSpend,
-                          l.advModeOffline,
+                          l.lastKnownCaption.toLowerCase(),
                         )
                       : l.homeAvailableToSpend,
                   key: balanceCaptionKey,
@@ -312,7 +310,16 @@ class WalletBalance extends ConsumerWidget {
               height: rowHeight,
               child: Row(
                 children: [
-                  const StatusIcons(key: walletStatusesKey),
+                  // The mode mark and four icons are 350 dp wide with a long mode name: on a
+                  // 360 dp phone the strip shrinks a little rather than wrap or overflow.
+                  Flexible(
+                    flex: 0,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: const StatusIcons(key: walletStatusesKey),
+                    ),
+                  ),
                   Expanded(
                     child: fiat == null
                         ? const SizedBox.shrink()

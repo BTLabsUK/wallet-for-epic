@@ -21338,10 +21338,10 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get advNetworkHeader;
 
-  /// Info sheet behind the Network header on the Advanced page.
+  /// Info text of the Network header in Settings › Advanced.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly; Tor can be turned on in Privacy & network. Tor only never connects directly: without Tor the wallet stays offline and says so on Home. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.'**
+  /// **'How much of the internet the wallet uses. One choice, remembered. Tor only, Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.'**
   String get advNetworkHint;
 
   /// Advanced switch: the Outputs page.
@@ -21404,10 +21404,10 @@ abstract class AppLocalizations {
   /// **'Lets Recheck balance start from a block height or a date instead of the first block. Faster, and the only way to skip early history. Restore always offers the choice.'**
   String get advRecheckHeightHint;
 
-  /// Network mode: direct connections.
+  /// Settings › Advanced › Network: the mode that connects directly (the default). Also the mode's name in the mode mark and in notes.
   ///
   /// In en, this message translates to:
-  /// **'Standard'**
+  /// **'Normal'**
   String get advModeStandard;
 
   /// One line under the Standard network mode.
@@ -21422,10 +21422,10 @@ abstract class AppLocalizations {
   /// **'Tor only'**
   String get advModeTorOnly;
 
-  /// One line under the Tor only network mode.
+  /// Settings › Advanced › Network, the line under Tor only.
   ///
   /// In en, this message translates to:
-  /// **'Every connection goes through Tor. Without Tor, the wallet stays offline.'**
+  /// **'Every connection goes through Tor. Until Tor is ready, nothing connects.'**
   String get advModeTorOnlyLine;
 
   /// Network mode: no network.
@@ -27242,10 +27242,10 @@ abstract class AppLocalizations {
   /// **'Your wallet sends the payment straight to their wallet, over the internet. The coins are locked.'**
   String get handshakeLink1NoTor;
 
-  /// advNetworkHint in the build without Tor: no Tor and no Tor only.
+  /// advNetworkHint in the build without Tor.
   ///
   /// In en, this message translates to:
-  /// **'How the wallet reaches the network. Standard connects directly. Offline stays on this phone and your local network: QR Payment and File Transfer still work over the node in use; with a node on your network you can also send to local addresses and the balance refreshes.'**
+  /// **'How much of the internet the wallet uses. One choice, remembered. Node only and Kill switch turn services off; they show as Off (mode) in the status icons, and nothing is cancelled.'**
   String get advNetworkHintNoTor;
 
   /// One line under the Standard network mode, in the build without Tor.
@@ -28921,6 +28921,576 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More information'**
   String get deskKitInfoLabel;
+
+  /// Network mode name: only the node in use stays connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only'**
+  String get advModeNodeOnly;
+
+  /// Network mode name: nothing connects, cold storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill switch'**
+  String get advModeKillSwitch;
+
+  /// Settings › Advanced › Network, the line under Node only.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the node in use. Epicbox, Link, updates and price stay off.'**
+  String get advModeNodeOnlyLine;
+
+  /// Settings › Advanced › Network, the line under Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'No connections at all. QR Payment and File Transfer, posted from another device.'**
+  String get advModeKillSwitchLine;
+
+  /// Info text of the Normal row (phone).
+  ///
+  /// In en, this message translates to:
+  /// **'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.'**
+  String get advModeStandardHint;
+
+  /// Info text of the Normal row in the build without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.'**
+  String get advModeStandardHintNoTor;
+
+  /// Info text of the Tor only row.
+  ///
+  /// In en, this message translates to:
+  /// **'Every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready, nothing connects, and the status icons say so. Link · HTTP receiving stays off: a plain address would reveal this device.'**
+  String get advModeTorOnlyHint;
+
+  /// Info text of the Node only row.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. With Tor on, the node is reached over Tor. Best with your own node, on this device or your network; any node works.'**
+  String get advModeNodeOnlyHint;
+
+  /// Info text of the Node only row in the build without Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. Best with your own node, on this device or your network; any node works.'**
+  String get advModeNodeOnlyHintNoTor;
+
+  /// Info text of the Kill switch row.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.'**
+  String get advModeKillSwitchHint;
+
+  /// Dim note under the Network picker while Tor only is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP receiving is off. Until Tor is ready, nothing connects.'**
+  String get advModeSwitchNoteTorOnly;
+
+  /// Dim note under the Network picker while Node only is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox, Link, price and update checks stop now. A payment waiting over Epicbox continues when you leave Node only.'**
+  String get advModeSwitchNoteNodeOnly;
+
+  /// Dim note under the Network picker while Kill switch is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Every connection stops now, the node included. Waiting payments pause until you leave Kill switch.'**
+  String get advModeSwitchNoteKillSwitch;
+
+  /// Title of the confirmation before switching to Node only or Kill switch while a send waits.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {mode}?'**
+  String advModeConfirmTitle(String mode);
+
+  /// Body of that confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 payment is waiting for the recipient over Epicbox or Link. It pauses and continues when you leave {mode}. Nothing is cancelled.} other{{count} payments are waiting for the recipient over Epicbox or Link. They pause and continue when you leave {mode}. Nothing is cancelled.}}'**
+  String advModeConfirmBody(int count, String mode);
+
+  /// Confirm button of that confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get advModeConfirmSwitch;
+
+  /// Screen reader label of the mode mark on Home (phone).
+  ///
+  /// In en, this message translates to:
+  /// **'Network mode: {mode}. Opens the Network section.'**
+  String netMarkSemantics(String mode);
+
+  /// Screen reader label of the mode mark in the title bar (desktop).
+  ///
+  /// In en, this message translates to:
+  /// **'Network mode: {mode}. Shows what it does.'**
+  String netMarkSemanticsDesk(String mode);
+
+  /// Mode mark popover line for Tor only.
+  ///
+  /// In en, this message translates to:
+  /// **'Every connection goes through Tor.'**
+  String get netMarkLineTorOnly;
+
+  /// Mode mark popover line for Tor only while Tor is not ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor. Nothing connects until it is ready.'**
+  String get netMarkLineTorWaiting;
+
+  /// Mode mark popover line for Node only.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the node in use. Epicbox, Link, updates and price are off.'**
+  String get netMarkLineNodeOnly;
+
+  /// Mode mark popover line for Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing connects. Balance and history are as last known.'**
+  String get netMarkLineKillSwitch;
+
+  /// Button in the mode mark popover that opens Settings › Advanced › Network.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get netMarkChange;
+
+  /// A service switched off by the network mode: its state word, e.g. Off (Node only).
+  ///
+  /// In en, this message translates to:
+  /// **'Off ({mode})'**
+  String statusOffByMode(String mode);
+
+  /// Detail of a status icon that is off because of the network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned off by the network mode. Change it in Settings › Advanced › Network.'**
+  String get statusOffByModeDetail;
+
+  /// Send over Epicbox while Node only is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only is on: Epicbox is off. QR Payment and File Transfer work.'**
+  String get netBlockEpicboxNodeOnly;
+
+  /// Send over Link while Node only is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only is on: Link is off. QR Payment and File Transfer work.'**
+  String get netBlockLinkNodeOnly;
+
+  /// Send over Epicbox or Link while Kill switch is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill switch is on: nothing connects. QR Payment and File Transfer work.'**
+  String get netBlockSendKillSwitch;
+
+  /// Generic reason an action is unavailable in Node only.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in Node only.'**
+  String get netBlockNodeOnly;
+
+  /// Generic reason an action is unavailable in Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in Kill switch: nothing connects.'**
+  String get netBlockKillSwitch;
+
+  /// Send or a similar action while Tor only waits for Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor. Nothing connects until it is ready.'**
+  String get netBlockWaitingForTorLong;
+
+  /// Receive › Epicbox: title of the notice while the mode turns Epicbox off.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox is off in {mode}.'**
+  String receiveEpicboxOffMode(String mode);
+
+  /// Receive › Epicbox: body of that notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to this address wait on the Epicbox server and arrive when you leave {mode}.'**
+  String receiveEpicboxOffModeBody(String mode);
+
+  /// Receive › Link: notice while the mode turns Link off.
+  ///
+  /// In en, this message translates to:
+  /// **'Link receiving is off in {mode}.'**
+  String receiveLinkOffMode(String mode);
+
+  /// About › Updates while Node only, Tor only waiting excluded, or Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Update checks are off in {mode}.'**
+  String updatesOffMode(String mode);
+
+  /// Report a problem: sending is off; the file is the way.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in {mode}. Save the report as a file instead.'**
+  String reportOffMode(String mode);
+
+  /// Recheck balance row/button while Kill switch is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Recheck balance needs the node. Off in Kill switch.'**
+  String get recheckOffKill;
+
+  /// Post a finished payment while Kill switch is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in Kill switch: nothing connects here.'**
+  String get postFinishedOffKill;
+
+  /// Post a finished payment while Tor only waits.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Tor. Posting needs the node.'**
+  String get postFinishedOffTor;
+
+  /// Note where a link would open the system browser while Tor only is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens outside Tor. Copy the link instead.'**
+  String get browserOffTorOnly;
+
+  /// Note where a link would open the system browser while Node only or Kill switch is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in {mode}. Copy the link instead.'**
+  String browserOffMode(String mode);
+
+  /// Link in a blocked-action note that opens Settings › Advanced › Network.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get netChangeLink;
+
+  /// Pill and caption in Kill switch: the balance and history are the ones seen last.
+  ///
+  /// In en, this message translates to:
+  /// **'Last known'**
+  String get lastKnownCaption;
+
+  /// Phone Home: caption under the balance in Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to spend · last known'**
+  String get lastKnownBalanceLine;
+
+  /// Caption above the activity list in Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Last known · Kill switch'**
+  String get lastKnownList;
+
+  /// A confirming row's text in Kill switch, e.g. Confirming 4/6 · last known.
+  ///
+  /// In en, this message translates to:
+  /// **'{text} · last known'**
+  String lastKnownConfirming(String text);
+
+  /// Note on File Transfer and QR Payment in Kill switch for a wallet that has never refreshed.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs one balance check online first.'**
+  String get coldNeedsOnlineCheck;
+
+  /// Title after finalizing a payment in Kill switch: it is complete, but only a device that is online can post it.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished, not posted'**
+  String get finalizeNotPostedTitle;
+
+  /// Body of that screen (phone).
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} is finished. Kill switch is on, so this phone can’t post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.'**
+  String finalizeNotPostedBody(String amount);
+
+  /// Button: save the finished payment as a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Save file'**
+  String get finishedSaveFile;
+
+  /// Button: show the finished payment as an animated QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR'**
+  String get finishedShowQr;
+
+  /// Confirmation after saving the finished payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {name}'**
+  String finishedSaved(String name);
+
+  /// Title of the animated QR screen of a finished payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished payment'**
+  String get finishedQrTitle;
+
+  /// Shown when the wallet core can’t produce the finished payment text yet.
+  ///
+  /// In en, this message translates to:
+  /// **'This version can’t save a finished payment yet.'**
+  String get finishedUnavailable;
+
+  /// Shown when making the finished payment text failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The finished payment could not be read.'**
+  String get finishedFailed;
+
+  /// Transaction state: finished under Kill switch, to be posted by a device that is online.
+  ///
+  /// In en, this message translates to:
+  /// **'To be posted elsewhere'**
+  String get txPostElsewhere;
+
+  /// Transaction detail notice while Kill switch is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished under Kill switch. Save it or show the QR, then post it on a device that is online.'**
+  String get txPostElsewhereKill;
+
+  /// Transaction detail notice after leaving Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished under Kill switch, not seen on chain yet. Post it from here, or wait for the device that posted it.'**
+  String get txPostElsewhereAfter;
+
+  /// Button: post the finished payment from this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Post now'**
+  String get txPostNow;
+
+  /// Details row value for the mode a payment was finished in.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished under Kill switch'**
+  String get txModeFinishedKill;
+
+  /// Details row label for the mode a payment was finished in.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get txModeRow;
+
+  /// Title of the screen and menu entry that posts a payment another device finished under Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a finished payment'**
+  String get postFinishedTitle;
+
+  /// Intro line of that screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a payment another device finished under Kill switch.'**
+  String get postFinishedIntro;
+
+  /// Button: choose the finished payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Open file'**
+  String get postFinishedOpenFile;
+
+  /// Button: scan the animated QR code of a finished payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR'**
+  String get postFinishedScanQr;
+
+  /// Button: paste the finished payment text.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get postFinishedPaste;
+
+  /// Desktop button: choose the finished payment file.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get postFinishedChooseFile;
+
+  /// Heading of the summary card.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished payment'**
+  String get postFinishedSummary;
+
+  /// Summary row.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get postFinishedAmount;
+
+  /// Summary row.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get postFinishedFee;
+
+  /// Summary row.
+  ///
+  /// In en, this message translates to:
+  /// **'Kernel'**
+  String get postFinishedKernel;
+
+  /// Line under the summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.'**
+  String get postFinishedNote;
+
+  /// Button: post the finished payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postFinishedPost;
+
+  /// Busy state of that button.
+  ///
+  /// In en, this message translates to:
+  /// **'Posting…'**
+  String get postFinishedPosting;
+
+  /// Result title: the node took the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted'**
+  String get postFinishedDone;
+
+  /// Result body.
+  ///
+  /// In en, this message translates to:
+  /// **'The node has it. The wallet that made it shows it confirming once it sees it on chain.'**
+  String get postFinishedDoneBody;
+
+  /// Error when the text is not a finished payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a finished payment. Open the file saved under To be posted elsewhere, or scan its QR.'**
+  String get postFinishedNotFinished;
+
+  /// Error when the node refused or did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The node did not take it. Try again.'**
+  String get postFinishedFailed;
+
+  /// Error when the node did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The node does not answer.'**
+  String get postFinishedUnreachable;
+
+  /// Desktop Receive › Transaction files row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a finished payment'**
+  String get postFinishedDeskRow;
+
+  /// Desktop row text.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a payment another device finished under Kill switch.'**
+  String get postFinishedDeskRowText;
+
+  /// Desktop row button.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get postFinishedOpen;
+
+  /// Help topic title.
+  ///
+  /// In en, this message translates to:
+  /// **'Network modes'**
+  String get helpNetworkModesTitle;
+
+  /// Help topic summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.'**
+  String get helpNetworkModesShort;
+
+  /// Info text of the Normal row (desktop).
+  ///
+  /// In en, this message translates to:
+  /// **'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.'**
+  String get deskSetAdvModeStandardHint;
+
+  /// Body of that screen (desktop).
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC. Kill switch is on, so this computer can’t post it. Save it or show it as a QR code, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
+  String deskFinNotPostedKillBody(String amount);
+
+  /// Row in the connections sheet naming the network mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Network mode: {mode}'**
+  String netMarkRowLabel(String mode);
+
+  /// QR screen of a finished payment (Kill switch): state line while the code is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get qrStatusFinishedHidden;
+
+  /// State line while the finished payment's code shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a device that is online to scan.'**
+  String get qrStatusFinishedShowing;
+
+  /// Subtitle of the finished payment's QR screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount}, finished'**
+  String qrShowSubFinished(String amount);
+
+  /// Screen reader label of the finished payment's code.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished payment QR code, {state}'**
+  String qrSemanticsFinished(String state);
+
+  /// Body under the hidden code of a finished payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Show it to a device that is online. It posts the payment; no key is needed.'**
+  String get qrHiddenBodyFinished;
+
+  /// Title of the camera screen that reads a payment finished under Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan finished payment'**
+  String get qrScanFinished;
+
+  /// Camera screen hint for a code that is not a finished payment.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not a finished payment.'**
+  String get qrScanNotFinished;
+
+  /// Camera screen hint before any part of the finished payment is read.
+  ///
+  /// In en, this message translates to:
+  /// **'Aim at the code on the other device.'**
+  String get qrScanAimFinished;
 }
 
 class _AppLocalizationsDelegate
