@@ -130,8 +130,7 @@ class DecisionTest(unittest.TestCase):
         taken = set()
         ids = [nightly.step_id(n, taken) for n in
                ["flutter test (all)", "version (https://docs.btlabs.uk/developers/releases/)", "flutter test (all)"]]
-        self.assertEqual(ids, ["flutter-test-all", "version-docs-VERSIONING.md",
-                               "flutter-test-all-2"])
+        self.assertEqual(ids, ["flutter-test", "version", "flutter-test-2"])
         for i in ids:
             self.assertRegex(i, nightly.STEP_ID_RE)
 

@@ -287,7 +287,8 @@ def green_note_due(state, now):
 
 
 def step_id(name, taken):
-    base = re.sub(r"[^A-Za-z0-9_.+-]+", "-", name).strip("-.+_")[:60] or "step"
+    short = name.split(" (")[0] or name  # labels carry the rest
+    base = re.sub(r"[^A-Za-z0-9_.+-]+", "-", short).strip("-.+_")[:60] or "step"
     sid, n = base, 2
     while sid in taken:
         sid, n = f"{base[:58]}-{n}", n + 1
