@@ -14,6 +14,7 @@
 //       it is mined first it is alreadyPaid. Either way A ends paid, the spend back ended, nothing
 //       retried.
 //   b   The spend back fails, A closes, B posts and it confirms; A reopens: paid, no spend back.
+//   k   A payment that spent three coins, cancelled: three coins come back (WFE_FUND_EPIC=7).
 //   w   Stop waiting (the free cancel, no spend back): B still posts it, and A shows it paid.
 //   s   A plain send nobody answered: cancelled, nothing spent back, no fee.
 //
@@ -49,6 +50,10 @@ final String? _fund = Platform.environment['WFE_FLOO_FUND'];
 
 /// WFE_CASES=w,s runs only the cases whose names start with one of these (all when unset).
 final List<String>? _cases = Platform.environment['WFE_CASES']?.split(',');
+
+/// The funding, in EPIC (WFE_FUND_EPIC, 3 when unset). Case k needs about 7: three coins of
+/// over 1 EPIC each after its payment is cancelled.
+final String _fundEpic = Platform.environment['WFE_FUND_EPIC'] ?? '3';
 final String _funderDir = Platform.environment['QA_FUNDER_DIR'] ?? '${Platform.environment['HOME']}/.epic/qa-funder';
 
 const _password = 'cancel-final-live-1';
@@ -357,7 +362,7 @@ void main() {
     final sendFile = '${tmp.path}/fund.slate';
     final answerFile = '${tmp.path}/fund.answer';
     await until('the funder to have coins to send', const Duration(minutes: 30), () async {
-      final r = await funder(['send', '-m', 'file', '-d', sendFile, '3']);
+      final r = await funder(['send', '-m', 'file', '-d', sendFile, _fundEpic]);
       log('funder send: exit ${r.exitCode} ${r.exitCode == 0 ? '' : tail(r)}');
       return r.exitCode == 0 ? true : null;
     }, every: const Duration(seconds: 60));
@@ -548,6 +553,37 @@ void main() {
       final bEnd = await sum(b);
       log('b B at the end: ${line(bEnd)}');
       expect(bEnd.total, bStart.total + _half);
+    });
+
+    await run('k a payment of three coins, cancelled: three coins come back', () async {
+      await settled('k A', a);
+      final split = await a.splitOutputs(outputs: 3, minimumConfirmations: _one);
+      fees['k split'] = split.fee;
+      log('k A split into three, fee ${epic(split.fee)}');
+      final start = await settled('k A', a);
+      final coins = (await a.outputs()).where((o) => o.status == WalletOutputStatus.unspent).toList();
+      log('k A coins ${coins.map((o) => epic(o.value)).join(', ')}');
+      expect(coins, hasLength(3));
+      // More than any two coins hold, so the payment spends all three.
+      final values = [for (final o in coins) o.value]..sort();
+      final p = await pay('k', values[0] + values[1] + _nano ~/ BigInt.from(10));
+      expect(p.coins, hasLength(3), reason: 'the payment spends all three coins');
+      final keysBefore = (await a.transactions(refresh: true)).map((r) => r.key).toSet();
+      final result = await cf.cancel(a, p.tx);
+      log('k cancel: ${result.name}; outputs asked ${a.spendBackOutputs.last}');
+      expect(result, CancelResult.spentBack);
+      expect(a.spendBackOutputs.last, 3);
+      await spendBackShape('k', start, p.coins, keysBefore);
+      final (_, fee) = await spendBackConfirms('k', start, p.tx);
+      fees['k spend back'] = fee;
+      expect(fee, spendBackFee(3, 3), reason: 'three in, three out: 0.010 EPIC');
+      final back = (await a.outputs()).where((o) => o.status == WalletOutputStatus.unspent).toList();
+      log('k A coins after: ${back.map((o) => epic(o.value)).join(', ')}');
+      expect(back, hasLength(3), reason: 'as many coins back as the payment spent');
+      for (final o in back) {
+        expect(o.value >= _nano, isTrue, reason: 'no coin under 1 EPIC');
+      }
+      await cleanRows(a, 'k A');
     });
 
     await run('w Stop waiting, then B finishes the payment: it shows as paid', () async {
