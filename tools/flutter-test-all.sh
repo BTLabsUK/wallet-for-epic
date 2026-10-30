@@ -8,8 +8,10 @@
 # files with no time yet first of all. The files are the ones a plain `flutter test` finds (every
 # test/**/*_test.dart); only their order changes, each still runs in its own test process, and
 # the output is a plain run's. This run's times are kept for the next one, pass or fail.
-# FLUTTER_TEST_JOBS=<n> passes --concurrency=<n>; FLUTTER_TEST_JSON=<file> keeps flutter's json
-# report of the run there.
+# The files run three quarters of the logical CPUs at a time (12 on a 16-thread machine) instead of
+# flutter's half: measured on the build machine (8 cores, 16 threads), the same 22 files took 84.7 s at 8
+# and 73.8 s at 12, a quarter of the threads left for everything else. FLUTTER_TEST_JOBS=<n>
+# passes --concurrency=<n> instead; FLUTTER_TEST_JSON=<file> keeps flutter's json report there.
 # Usage: tools/flutter-test-all.sh   (from app/, after `flutter pub get`)
 set -euo pipefail
 
@@ -28,8 +30,10 @@ if [[ ${#files[@]} -ne ${#found[@]} ]]; then
   echo "flutter-test-all: could not order the files; they run in the order found" >&2
   files=("${found[@]}")
 fi
-jobs=()
-[[ -n "${FLUTTER_TEST_JOBS:-}" ]] && jobs=(--concurrency="$FLUTTER_TEST_JOBS")
+cpus="$(nproc 2>/dev/null || echo 4)"
+default_jobs=$(( cpus * 3 / 4 ))
+(( default_jobs >= 1 )) || default_jobs=1
+jobs=(--concurrency="${FLUTTER_TEST_JOBS:-$default_jobs}")
 
 rc=0
 flutter test --no-pub "${jobs[@]}" --file-reporter "json:$run_json" "${files[@]}" || rc=$?

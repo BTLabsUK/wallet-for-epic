@@ -15,6 +15,8 @@
 #   needs      step names; a name with for_each means all its instances, name@variant the
 #              instance of the same variant. Steps the scope leaves out are dropped from needs.
 #   host       the role that runs it (default build); the signer role holds the keys
+#   lane       steps in one lane run one at a time, lanes side by side ({variant} is filled in).
+#              Default: every heavy step one lane, every remote host its own, the rest "local"
 #   run        a bash command (set -euo pipefail), from {src} unless cwd says otherwise
 #   env        extra environment; {placeholders} below
 #   heavy      true: wrapped in build-slot when it exists, one heavy step at a time
@@ -159,6 +161,11 @@ run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows
 env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}" }
 outputs = ["epic-cash-desktop-{version}{notor}-windows-x64-setup.exe"]
 timeout = "150m"
+# The app without its tests and side tools, the two build scripts, the tools and pins they read
+# (the Windows toolchain lives on that machine), as for the other builds.
+reuse = ["app", "!app/test", "!app/integration_test", "!app/tool", "app/tool/build_windows_release.ps1",
+         "app/tool/build_windows_release_remote.sh", "tools/lepic.rev", "tools/lepic-flutter.rev",
+         "tools/fetch-tor.sh", "tools/tor-bundle.json"]
 
 # Apple (tools/apple-release.md): the Mac builds, signs with Developer ID, notarises and staples
 # (Xcode's automatic signing). Hand-off steps write a job for the Mac and wait for its results;
@@ -220,12 +227,20 @@ host = "local"
 when = ["publish.manifests"]
 needs = ["manifests"]
 
+# Update trust runs per platform side by side, from when this machine's builds are done (no driver
+# competes with a build for the CPU; every driver starts together, so one that fails at once
+# stops none of the others), Windows and macOS also after their own build, Android and Linux
+# without waiting for them. The drivers wait on the chain and on P, not on the CPU, and P's legs
+# queue on P's own lock. The two Android variants share one lane (one test wallet,
+# REL_TRUST_STATE); each Linux variant makes its own wallet in its own sandbox, so they run at
+# once. G3 and every platform's trust still come before the publish gate (update-trust).
 [step.trust-android]
 title = "G4 update trust Android ({variant})"
 platform = "android"
 for_each = "proof_variant"
 host = "build"
-needs = ["artefacts"]
+lane = "trust-android"
+needs = ["build-android", "build-play", "build-linux"]
 proof = true
 timeout = "180m"
 
@@ -234,7 +249,8 @@ title = "G4 update trust Linux ({variant})"
 platform = "linux"
 for_each = "proof_variant"
 host = "build"
-needs = ["artefacts"]
+lane = "trust-linux-{variant}"
+needs = ["build-android", "build-play", "build-linux"]
 proof = true
 timeout = "180m"
 
@@ -243,7 +259,8 @@ title = "G4 update trust Windows ({variant})"
 platform = "windows"
 for_each = "proof_variant"
 host = "build"
-needs = ["artefacts"]
+lane = "trust-windows"
+needs = ["build-android", "build-play", "build-linux", "build-windows@variant"]
 proof = true
 timeout = "180m"
 
@@ -252,7 +269,8 @@ title = "G4 update trust macOS ({variant})"
 platform = "macos"
 for_each = "proof_variant"
 host = "build"
-needs = ["artefacts"]
+lane = "trust-macos"
+needs = ["build-android", "build-play", "build-linux", "apple-mac-check@variant"]
 proof = true
 
 [step.trust-ios]
@@ -260,7 +278,8 @@ title = "G4 update trust iOS ({variant})"
 platform = "ios"
 for_each = "proof_variant"
 host = "build"
-needs = ["artefacts"]
+lane = "trust-ios"
+needs = ["build-android", "build-play", "build-linux", "ios-testflight"]
 proof = true
 
 [step.update-trust]
