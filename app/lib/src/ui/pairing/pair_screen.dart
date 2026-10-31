@@ -29,6 +29,7 @@ import '../qr_camera.dart';
 import '../qr_scan_screen.dart' show QrFinderOverlay;
 import '../scan_screen.dart' show qrScanSupported;
 import '../theme/brand.dart';
+import '../theme/fonts.dart' show sasEmojiFallback;
 import '../theme/tokens.dart';
 import 'pair_check.dart';
 import 'pair_incoming.dart';
@@ -1232,7 +1233,7 @@ class _EnterLinkScreenState extends ConsumerState<EnterLinkScreen> {
                 children: [
                   for (final w in suggestions)
                     ActionChip(
-                      avatar: Text(w.emoji),
+                      avatar: Text(w.emoji, style: TextStyle(fontFamilyFallback: sasEmojiFallback)),
                       label: Text(w.name),
                       onPressed: () => _complete(w),
                     ),

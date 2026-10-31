@@ -8,11 +8,25 @@ import 'package:flutter/services.dart';
 /// platform's own Thai font differs per system (or is missing on some Linux installs).
 const List<String> thaiFallback = ['NotoSansThai'];
 
-/// [thaiFallback] where the phone theme needs it: never on Android, which has Thai in its own
+/// The pairing pictures' font: the sas_table emoji only, so a Linux install without an emoji
+/// font still draws pictures. Subset by tool/fonts_subset.py.
+const String sasEmojiFamily = 'NotoEmojiSas';
+
+/// The Chinese UI's characters (and the language names), for installs without a CJK font.
+const String cjkFamily = 'NotoSansSCSubset';
+
+/// Every bundled fallback, in order: Thai, Chinese, then the pictures.
+const List<String> bundledFallback = ['NotoSansThai', cjkFamily, sasEmojiFamily];
+
+/// The family list for the pairing pictures: the bundled emoji font on every system but Android,
+/// which draws them itself.
+List<String>? get sasEmojiFallback => !kIsWeb && Platform.isAndroid ? null : const [sasEmojiFamily];
+
+/// [bundledFallback] where the phone theme needs it: never on Android, which has Thai in its own
 /// fonts, and where any fallback list moved body text off Roboto on Android 11 to a font that
 /// draws Polish ś, ć, ń, ź and ż as a letter with a loose accent. The real system is
 /// asked, not the target platform, so tests and tours on a desktop host keep the bundled font.
-List<String>? get phoneFontFallback => !kIsWeb && Platform.isAndroid ? null : thaiFallback;
+List<String>? get phoneFontFallback => !kIsWeb && Platform.isAndroid ? null : bundledFallback;
 
 /// The bundled fonts' OFL texts and the language flags' MIT text, keyed by the package name the
 /// licences page shows.
@@ -20,6 +34,8 @@ const Map<String, String> fontLicenceAssets = {
   'Montserrat': 'assets/fonts/OFL-Montserrat.txt',
   'JetBrains Mono': 'assets/fonts/OFL-JetBrainsMono.txt',
   'Noto Sans Thai': 'assets/fonts/OFL-NotoSansThai.txt',
+  'Noto Sans SC (subset)': 'assets/fonts/OFL-NotoSansSC.txt',
+  'Noto Color Emoji (subset)': 'assets/fonts/OFL-NotoEmojiSas.txt',
   'flag-icons': 'assets/flags/LICENSE-flag-icons.txt',
   'Status icons (Bootstrap Icons, Carbon, Material Symbols)': 'assets/licenses/status-icons.txt',
 };
