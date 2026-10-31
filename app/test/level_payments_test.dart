@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
-import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/levels/payment_steps.dart';
