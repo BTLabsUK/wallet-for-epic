@@ -576,9 +576,25 @@ class LepicDeskWallet implements DeskWalletApi {
     return j is Map<String, dynamic> ? j : <String, dynamic>{};
   }
 
-  Future<void> _setMeta(Map<String, Object?> changes, [String? key]) async {
-    key ??= _metaKey(_openEntry?.walletId);
-    await _store.writeJson(key, {...await _meta(key), ...changes});
+  /// Merges [changes] into the saved data under [key] (the open wallet's by default), after
+  /// every write to that key before it: a read, merge and write never overlap another.
+  Future<void> _setMeta(Map<String, Object?> changes, [String? key]) {
+    final k = key ?? _metaKey(_openEntry?.walletId);
+    return _metaTurn(k, () async => _store.writeJson(k, {...await _meta(k), ...changes}));
+  }
+
+  /// The last write to each meta key, so the next one waits for it ([_metaTurn]).
+  final Map<String, Future<void>> _metaWrites = {};
+
+  /// Runs [write] to the meta [key] once the writes to it before have ended, failed or not.
+  Future<void> _metaTurn(String key, Future<void> Function() write) {
+    final run = (_metaWrites[key] ?? Future<void>.value()).then((_) => write());
+    final tail = run.then<void>((_) {}, onError: (Object _) {});
+    _metaWrites[key] = tail;
+    unawaited(tail.then((_) {
+      if (identical(_metaWrites[key], tail)) _metaWrites.remove(key);
+    }));
+    return run;
   }
 
   String get _favouritesKey => DeskStore.favouritesKeyOf(_openEntry?.walletId);
@@ -801,7 +817,8 @@ class LepicDeskWallet implements DeskWalletApi {
           if (open) await lock();
           await _deleteWhenFree(r, id, config);
           await _remember.forget(id);
-          await _store.delete(_metaKey(entry.walletId));
+          final metaKey = _metaKey(entry.walletId);
+          await _metaTurn(metaKey, () => _store.delete(metaKey));
           await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
           if (entry.walletId != null) {
             await _store.delete(DeskStore.httpKeyOf(entry.walletId));
@@ -1314,7 +1331,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final metaKey = _metaKey(entry?.walletId);
     // Written before the core makes the wallet: an app closed halfway still finds the scan
     // due at the next unlock.
-    await _store.writeJson(metaKey, {'name': label, 'created': DateTime.now().millisecondsSinceEpoch ~/ 1000, ...meta});
+    await _metaTurn(metaKey, () => _store.writeJson(metaKey, {'name': label, 'created': DateTime.now().millisecondsSinceEpoch ~/ 1000, ...meta}));
     final T result;
     try {
       result = await create(config);
@@ -1874,7 +1891,8 @@ class LepicDeskWallet implements DeskWalletApi {
       if (_openEntry?.id == id) await lock();
       try {
         await r.delete(id, service: _service, config: await _configOf(entry));
-        await _store.delete(_metaKey(entry.walletId));
+        final metaKey = _metaKey(entry.walletId);
+        await _metaTurn(metaKey, () => _store.delete(metaKey));
         await _store.delete(DeskStore.favouritesKeyOf(entry.walletId));
         if (entry.walletId != null) {
           await _store.delete(DeskStore.httpKeyOf(entry.walletId));
