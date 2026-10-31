@@ -47,7 +47,11 @@ ThemeData buildDeskTheme(Brightness brightness) {
       selectionHandleColor: c.accent,
     ),
     scrollbarTheme: ScrollbarThemeData(
-      thumbColor: WidgetStatePropertyAll(c.lineStrong),
+      // Always drawn while the content overflows (the framework hides it when it does not),
+      // so a page that runs on below the window edge says so; hover and drag brighten it.
+      thumbVisibility: const WidgetStatePropertyAll(true),
+      thumbColor: WidgetStateProperty.resolveWith((s) =>
+          s.contains(WidgetState.hovered) || s.contains(WidgetState.dragged) ? c.faint : c.lineField),
       thickness: const WidgetStatePropertyAll(6),
       radius: Radius.circular(6.u),
     ),
