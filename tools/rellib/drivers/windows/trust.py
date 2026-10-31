@@ -108,6 +108,7 @@ class Run:
         self.rig = None
         self.snap_n = 0
         self.log_mark = 0
+        self.setup_address = None
         self.update_method = (
             "the in-app update's own path: with the previous release open and unlocked, the candidate's published "
             "Setup is started with the arguments the app gives it (/SILENT /NORESTART /UPDATEFROMAPP=1, plus /LOG), "
@@ -344,10 +345,10 @@ class Run:
 
     def address(self):
         """The Epicbox address the Receive page copies."""
-        self.click(RAIL["receive"], 2.5)
-        self.call("clear_clipboard")
-        for _ in range(3):
-            self.click(COPY_ADDRESS, 1.5)
+        for i in range(4):  # a busy box can miss a click: open the page again before each copy
+            self.click(RAIL["receive"], 2.5 + i)
+            self.call("clear_clipboard")
+            self.click(COPY_ADDRESS, 1.5 + i)
             t = (self.call("clipboard").get("text") or "").strip()
             if re.fullmatch(r"[1-9A-HJ-NP-Za-km-z]{40,60}@[\w.:-]+", t):
                 return t
@@ -677,6 +678,7 @@ class Run:
         addr = self.address()
         if not addr:
             raise CannotRun("no Epicbox address copied from the Receive page")
+        self.setup_address = addr
         self.log("wallet address %s" % lt.short(addr))
         ok, why = self.fund(addr, FUND_IN, "funding before the update")
         if not ok:
@@ -745,9 +747,12 @@ class Run:
         if e1.get(key) != e0.get(key) or e1.get("dataDir") != e0.get("dataDir"):
             return False, "the wallet entry changed: %s or folder differ" % key
         addr = self.address()
-        a0, a1 = (before["address"] or "").split("@")[0], (addr or "").split("@")[0]
+        # The address the digest read, else the one read when the wallet was made: never an empty one.
+        a0, a1 = (before["address"] or self.setup_address or "").split("@")[0], (addr or "").split("@")[0]
         if not a1:
             return False, "unlocked (wfe.log), but no Epicbox address could be copied"
+        if not a0:
+            return False, "the previous release's address could not be copied, so the wallet cannot be compared"
         if a0 != a1:
             return False, "a different wallet opened: address %s, was %s" % (lt.short(a1), lt.short(a0))
         return True, ("unlocked with the same password (wfe.log: wallet opened); same wallet entry %s, same folder, "
