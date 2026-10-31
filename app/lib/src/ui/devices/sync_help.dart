@@ -25,9 +25,6 @@ import '../theme/tokens.dart';
 /// How long each of the four steps stays on screen.
 const Duration syncHelpStepDuration = Duration(milliseconds: 2400);
 
-/// How long a thing takes to appear (the lock, the hold, the tick): the motion rule's expand.
-const Duration syncHelpAppear = Duration(milliseconds: 240);
-
 const int _steps = 4;
 
 /// The visible caption, so tests can read it among the hidden ones that hold the height.
