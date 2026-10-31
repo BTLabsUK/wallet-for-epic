@@ -93,17 +93,6 @@ class PSession:
         return any(self.client.call("status", slate=s).get("state") in ("posted", "confirmed")
                    for s in self.slates[mark:])
 
-    def repost_to(self, addr):
-        """Posts P's signed copies of its sends to `addr` that are not posted yet (the service does
-        this by itself as soon as P's listener finalizes; this is the driver's nudge)."""
-        r = self.client.call("unposted", key=addr.split("@")[0][:24])
-        ids = []
-        for tx_id, _slate in r.get("sends", []):
-            o = self.client.call("repost", tx_id=tx_id)
-            self._log(f"repost {tx_id}: {o}")
-            ids.append(tx_id)
-        return ids
-
     def info(self):
         r = self.client.call("info")
         return r.get("spendable") if r.get("ok") else None

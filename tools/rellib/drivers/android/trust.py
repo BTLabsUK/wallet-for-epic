@@ -923,8 +923,8 @@ def funds(p, my_addr):
 
 def receive_from_p(p, my_addr, amount, p_short=None, secs=900):
     """P pays `amount` to the wallet; returns the wallet's row once the payment is posted
-    (Received …, confirming or received), else None. P's listener finalizes the payment but at
-    times never posts it: 45 s after a finalize with nothing posted, P posts its copy again."""
+    (Received …, confirming or received), else None. P's listener finalizes the payment and the
+    shared P service posts it once with fluff."""
     mark = p.listener_mark()
     ok, out = p.send(my_addr, amount)
     if not ok:
@@ -932,7 +932,7 @@ def receive_from_p(p, my_addr, amount, p_short=None, secs=900):
     ours = lambda r: r.startswith(("Received", "Receiving")) and row_amount(r) == Decimal(amount) \
         and (p_short is None or p_short in r)
     posted = lambda r: ours(r) and not re.search(r"waiting for", r, re.I)
-    end, finalized_at, reposts, last = time.time() + secs, None, 0, None
+    end, finalized_at, last = time.time() + secs, None, None
     while time.time() < end:
         home()
         rows = [r for r in tx_rows(nodes(S)) if ours(r)]
@@ -945,12 +945,6 @@ def receive_from_p(p, my_addr, amount, p_short=None, secs=900):
         if finalized_at is None and p.finalized_since(mark):
             finalized_at = time.time()
             log("receive: P finalized")
-        if finalized_at and time.time() - finalized_at > 45 and reposts < 3:
-            log("receive: not posted 45 s after P's finalize: P posts it again")
-            p.repost_to(my_addr)
-            reposts += 1
-            finalized_at = time.time()
-            mark = p.listener_mark()
         time.sleep(6)
     return None
 

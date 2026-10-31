@@ -41,8 +41,6 @@ CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "
 NODE_PICK = facts.NODE_PICK      # release/pipeline.toml [defaults], BT Labs first
 RELAY_PICK = facts.RELAY_PICK
 TEST_CONFIRMATIONS = facts.TEST_CONFIRMATIONS  # the setting the test moves to: test payments spend after one block
-P_STALL_S = 120  # answered, not posted this long: ask the shared P service to post P's signed copy again (it posts
-#                 each finalized send with fluff within seconds; a repost of an unsigned copy is refused, harmless)
 FUND_IN = "0.03"     # P -> wallet before the update
 FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")
@@ -646,8 +644,6 @@ class Run:
             # from waiting (for the sender) to confirming or available
             end = time.time() + 900
             last = None
-            stuck_since = None
-            reposted = False
             while time.time() < end:
                 b = self.balance() or {}
                 if b != last:
@@ -657,16 +653,6 @@ class Run:
                 waiting = sum((v for k, v in b.items() if "waiting" in k or "finaliz" in k), D(0))
                 if got >= base + D(amount) and waiting == 0:
                     break
-                # answered, but P finalized without posting (its listener can hang there): post P's
-                # saved copy, with the listener stopped
-                stuck_since = (stuck_since or time.time()) if waiting > 0 else None
-                if stuck_since and time.time() - stuck_since > P_STALL_S and not reposted:
-                    reposted = True
-                    p.stop_listener()
-                    for tx_id, slate in p.unposted_sends(address.split("@")[0]):
-                        posted, out = p.repost(tx_id)
-                        self.log("P repost of its send %s (slate %s…): %s (%s)" % (tx_id, slate[:8], "ok" if posted else "FAILED", out))
-                    p.start_listener()
                 time.sleep(15)
             else:
                 return False, "not received and posted in 15 min (balance %s)" % fmt_bal(last or {})

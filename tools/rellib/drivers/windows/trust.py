@@ -53,8 +53,6 @@ _spec.loader.exec_module(lt)  # helpers only: node_up, relay_up, short, sha256, 
 CHECKS = lt.CHECKS
 NODE_PICK = facts.NODE_PICK
 RELAY_PICK = facts.RELAY_PICK
-P_STALL_S = 120  # answered, not posted this long: ask the shared P service to post P's signed copy again (it posts
-#                 each finalized send with fluff within seconds; a repost of an unsigned copy is refused, harmless)
 FUND_IN = "0.03"
 FUND_AFTER = "0.01"
 CAP_SEND = decimal.Decimal("0.05")
@@ -573,7 +571,7 @@ class Run:
             if not ok:
                 return False, "P send failed: %s" % out
             end = time.time() + 900
-            stuck_since, reposted, last, posted = None, False, None, False
+            last, posted = None, False
             while time.time() < end:
                 d = self.db()
                 inc = [t for t in (d["txs"] if d else []) if t["direction"] == "incoming"]
@@ -588,15 +586,6 @@ class Run:
                 if new and p.finalized():
                     posted = True  # the confirmation is waited for below
                     break
-                # answered but P has not posted (its listener can hang there): post P's saved copy
-                stuck_since = (stuck_since or time.time()) if new else None
-                if stuck_since and time.time() - stuck_since > P_STALL_S and not reposted:
-                    reposted = True
-                    p.stop_listener()
-                    for tx_id, slate in p.unposted_sends(address.split("@")[0]):
-                        posted, o = p.repost(tx_id)
-                        self.log("P repost of its send %s (slate %s…): %s (%s)" % (tx_id, slate[:8], "ok" if posted else "FAILED", o))
-                    p.start_listener()
                 time.sleep(15)
             if not posted:
                 return False, "not received and confirmed in 15 min (wallet records %s)" % last

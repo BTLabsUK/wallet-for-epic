@@ -14,9 +14,14 @@ This service runs, for as long as checks use it:
     so two sends never pick the same output (the calls are made one at a time; each takes seconds);
   - ONE `listen -m epicbox` process of P, which answers payments to P and finalizes P's payments;
   - a poster: as soon as the listener has finalized one of the service's sends (P's saved copy of the
-    tx is signed), it posts that copy again with fluff, so the node takes it into its mempool at once
-    and the listener's mempool wait ends within a second or two. The node's own Dandelion settings are
-    not touched; a fluff post is the sender's choice per transaction.
+    tx is signed), it posts that copy once with fluff: no Dandelion stem, so no embargo, and the node
+    takes it into its txpool and broadcasts it at once (a fluff post goes to the txpool even when the
+    listener's stem post put the tx in the stempool), and the listener's mempool wait ends within a
+    second or two. This is P's one fluff post: epic-wallet 4.1.0 has no way to make P post with fluff
+    by itself. Its Epicbox listener finalizes and posts with fluff=false hard-coded (no config key, no
+    flag) and then polls the mempool for up to 240 s; init_send_tx with Epicbox send_args returns
+    right after publishing the slate, so its finalize/post_tx/fluff fields are never used. The
+    node's own Dandelion settings are not touched; a fluff post is the sender's choice per tx.
 Nothing waits on the mempool or a confirmation under any lock. The old flock (REL_P_LOCK) is held by
 the service for its whole life, only so a driver of an older release checkout (its own P listener on
 the same Epicbox address) waits until the service has stopped, never runs beside it.
@@ -327,8 +332,8 @@ class Service:
         args = {"src_acct_name": None, "amount": str(atomic), "minimum_confirmations": MIN_CONF,
                 "max_outputs": 500, "num_change_outputs": 1, "selection_strategy_is_use_all": False,
                 "message": None, "target_slate_version": None, "payment_proof_recipient_address": None,
-                "ttl_blocks": None, "send_args": {"method": "epicbox", "dest": address, "finalize": True,
-                                                  "post_tx": True, "fluff": True}}
+                "ttl_blocks": None, "send_args": {"method": "epicbox", "dest": address, "finalize": False,
+                                                  "post_tx": False, "fluff": False}}  # Epicbox: unused
         t0 = time.time()
         with self.send_mu:  # selection and the output lock in one call, never two at once
             waited = time.time() - t0
@@ -346,7 +351,7 @@ class Service:
         return dict(rec)
 
     def poster(self):
-        """Posts each send with fluff once the listener has finalized it; keeps states current."""
+        """Posts each send once, with fluff, as soon as the listener has finalized it; keeps states current."""
         last_refresh = 0
         while not self.stopping.wait(2):
             with self.state_mu:
@@ -372,14 +377,7 @@ class Service:
                             ok, note = self.post(tx)
                             self.log("send %s finalized by the listener: %s" % (r["slate"], note))
                             if ok:
-                                r["state"], r["posted_at"] = "posted", time.time()
-                    elif time.time() - r.get("posted_at", 0) > 240:
-                        # posted but still not in a block after four: post it again (a node that lost it)
-                        tx = self.finalized_copy(e)
-                        if tx:
-                            ok, note = self.post(tx)
-                            r["posted_at"] = time.time()
-                            self.log("send %s not confirmed in 4 min, posted again: %s" % (r["slate"], note))
+                                r["state"] = "posted"
             except Exception as e:  # noqa: BLE001 - the next round tries again
                 self.log("poster: %s" % e)
 
@@ -394,18 +392,6 @@ class Service:
             with self.state_mu:
                 r = self.sends.get(req["slate"])
             return {"ok": bool(r), **(r or {})}
-        if op == "unposted":
-            key = req["key"]
-            with self.state_mu:
-                rs = [r for r in self.sends.values() if r["address"].startswith(key) and r["state"] in ("sent", "posted")]
-            return {"ok": True, "sends": [[str(r["tx_id"]), r["slate"]] for r in rs]}
-        if op == "repost":
-            e = self.tx_entry(tx_id=int(req["tx_id"]))
-            tx = e and self.finalized_copy(e)
-            if not tx:
-                return {"ok": False, "note": "no signed copy of tx %s (the reply has not come back)" % req["tx_id"]}
-            ok, note = self.post(tx)
-            return {"ok": ok, "note": note}
         if op == "info":
             res = self.rpc("retrieve_summary_info", [True, MIN_CONF], timeout=300)
             s = res[1] if isinstance(res, list) else res

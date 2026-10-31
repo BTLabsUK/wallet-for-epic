@@ -4,8 +4,8 @@
 
 There is no P lock any more: sends go to the service at the same time from every driver, each picks
 outputs of its own, and P's listener answers and finalizes them all; the service posts each
-finalized payment with fluff, so nothing waits on the mempool. The methods keep the names of the
-lock era (exchange, start_listener, stop_listener, finalized, unposted_sends, repost), so the
+finalized payment once with fluff, so nothing waits on the mempool. The methods keep the names of
+the lock era (exchange, start_listener, stop_listener, finalized), so the
 drivers' flow reads the same; start and stop are the service's business now.
 """
 import contextlib
@@ -76,13 +76,3 @@ class P:
     def info(self):
         r = self.client.call("info")
         return r.get("spendable") if r.get("ok") else None
-
-    def unposted_sends(self, key):
-        """The service's sends to [key] not yet posted or confirmed: [(tx id, slate id)]."""
-        r = self.client.call("unposted", key=key[:24])
-        return [tuple(x) for x in r.get("sends", [])]
-
-    def repost(self, tx_id):
-        r = self.client.call("repost", tx_id=tx_id)
-        self._note("repost %s: %s" % (tx_id, r))
-        return bool(r.get("ok")), r.get("note", "")
