@@ -66,7 +66,7 @@ import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import '../../settings_file/settings_providers.dart' show DevSettingsMissing, installedSettingsFile, openAppSettings, writeHostSettings;
 import '../../seed_contacts.dart';
 import '../../sender_cancel.dart' show SenderCancelRelease;
-import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSpendsBack, cancelledMayComplete;
+import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSettled, cancelSpendsBack, cancelledMayComplete;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, replyFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
@@ -1240,6 +1240,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _senderCancel = SenderCancelRelease();
     _cancels = CancelFinal();
     _cancelFinal = const {};
+    _cancelSettled.clear();
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
     _clearBlocked();
@@ -5343,6 +5344,10 @@ class LepicDeskWallet implements DeskWalletApi {
   /// of its kind), whether the cancel is final ([cancelFinal]), by local id; read with the list.
   Map<int, bool> _cancelFinal = const {};
 
+  /// Local ids of the cancels [cancelSettled] found final on the chain this session: their
+  /// outputs are not read again.
+  final Set<int> _cancelSettled = {};
+
   /// Clears each incoming payment its sender cancelled that still waits (sender_cancel.dart),
   /// then reads the list again. Runs on the sender's notice and with each node check, so one
   /// that failed (no node, locked) goes again.
@@ -5363,16 +5368,22 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  /// [_cancelFinal] for [entries]: the outputs are read only when one needs them.
-  static Future<Map<int, bool>> _cancelFinalOf(core.WalletSession session, List<core.TxEntry> entries) async {
+  /// [_cancelFinal] for [entries]: the outputs are read only when one not yet settled on the
+  /// chain needs them.
+  Future<Map<int, bool>> _cancelFinalOf(core.WalletSession session, List<core.TxEntry> entries) async {
     final cancelled = entries.where((e) => e.id != null && cancelledMayComplete(e)).toList();
-    if (cancelled.isEmpty) return const {};
+    final settled = {for (final e in cancelled) if (_cancelSettled.contains(e.id)) e.id!: true};
+    final open = cancelled.where((e) => !_cancelSettled.contains(e.id)).toList();
+    if (open.isEmpty) return settled;
     try {
       final outputs = await session.outputs();
-      return {for (final e in cancelled) e.id!: cancelFinal(e, outputs)};
+      for (final e in open) {
+        if (cancelSettled(e, outputs)) _cancelSettled.add(e.id!);
+      }
+      return {...settled, for (final e in open) e.id!: cancelFinal(e, outputs)};
     } on core.WalletError catch (e) {
       logWarn('desk', 'cancel final: ${e.kind.name}');
-      return const {};
+      return settled;
     }
   }
 
