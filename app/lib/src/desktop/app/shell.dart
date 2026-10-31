@@ -408,9 +408,6 @@ Future<void> lockWallet(WidgetRef ref, {Object? then}) async {
 /// Quit (Ctrl+Q, the app menu): the one close rule of close_guard.dart.
 Future<void> quitWallet(WidgetRef ref) => deskClose(ref);
 
-/// Switch wallet: locks, then the unlock screen offers the other wallets.
-Future<void> switchWallet(WidgetRef ref) => lockWallet(ref);
-
 class _Sidebar extends ConsumerWidget {
   const _Sidebar({required this.section, required this.compact});
 
