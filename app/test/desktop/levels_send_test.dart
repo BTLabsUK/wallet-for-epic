@@ -100,6 +100,10 @@ void main() {
     expect(find.textContaining('files'), findsNothing);
     expect(find.text('Other ways to receive'), findsNothing);
     expect(find.textContaining('closed'), findsNothing);
+    final card = find.byKey(const ValueKey('rx-shallow-address'));
+    final address = tester.widget<EAddress>(find.descendant(of: card, matching: find.byType(EAddress)));
+    expect(address.address, contains('@'), reason: 'the whole address, with the server');
+    expect(find.descendant(of: card, matching: find.byType(ECopyButton)), findsOneWidget);
   });
 
   testWidgets('Deeper Receive: the switch and the payment files in casual words', (tester) async {

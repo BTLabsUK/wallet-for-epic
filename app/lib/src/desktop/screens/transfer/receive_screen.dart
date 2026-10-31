@@ -588,12 +588,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         : ready
         ? MethodLine(l.deskLvSendReady, EState.ok)
         : methodStateLine(l, TxMethod.epicbox, status, st.settings);
-    // The part before the server, to read out and check; Copy takes the whole address.
-    String key(String a) {
-      final at = a.indexOf('@');
-      return at > 0 ? a.substring(0, at) : a;
-    }
-
     final Widget addressBox = noServer
         ? ENotice(
             key: const ValueKey('rx-no-epicbox'),
@@ -607,7 +601,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         ? Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
         : addr.isEmpty
         ? Text(l.deskRecvAddressUnreadable, style: ts.small)
-        : EAddress(key(addr), large: true, copy: false, extra: ECopyButton(text: addr, label: l.deskRecvCopyEpicbox));
+        : EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox);
     final info = Column(
       key: const ValueKey('rx-shallow-address'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
