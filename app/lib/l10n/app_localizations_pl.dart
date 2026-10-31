@@ -5155,13 +5155,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Adres HTTP zaczyna się od http:// lub https://.';
 
   @override
-  String get sendPlainHttpTitle => 'Bez szyfrowania. Wysłać mimo to?';
-
-  @override
-  String get sendPlainHttpBody =>
-      'Zwykłe HTTP do innego urządzenia. Każdy po drodze może odczytać transakcję. Adres https:// jest szyfrowany.';
-
-  @override
   String get sendPlainHttpOffWithTor =>
       'Zwykłe http:// nie działa przy włączonym Torze.';
 
@@ -7819,16 +7812,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendConfirm(String amount) {
     return 'Wyślij $amount EPIC';
   }
-
-  @override
-  String get deskSendPlainTitle => 'Bez szyfrowania. Wysłać mimo to?';
-
-  @override
-  String get deskSendPlainDesc =>
-      'Zwykłe HTTP do innego komputera. Każdy po drodze może odczytać transakcję. https:// jest szyfrowane.';
-
-  @override
-  String get deskSendPlainConfirm => 'Wyślij mimo to';
 
   @override
   String deskSendEpicboxSwitched(String domain) {

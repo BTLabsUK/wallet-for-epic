@@ -1110,7 +1110,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
 
     final draft = draftOf(_plan);
-    // Plain HTTP to another computer: the slate travels unencrypted, so ask first.
+    // Plain HTTP to another computer goes through without asking; the wallet needs the flag.
     final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
     // Tor came on since Send was enabled: plain HTTP never goes through a Tor exit.
     if (plain && _torWay(ref.read(deskProvider)) == TorWay.off) {
@@ -1119,10 +1119,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _failureInActivity = false;
       });
       return;
-    }
-    if (plain) {
-      final ok = await showEDialog<bool>(context, builder: (_) => const PlainHttpDialog());
-      if (!mounted || ok != true) return;
     }
     final notifier = ref.read(deskProvider.notifier);
     // Every send asks the wallet's password, also when it was opened with the remembered one.
@@ -2556,19 +2552,3 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   }
 }
 
-/// Asked before a send over plain `http` to another computer.
-class PlainHttpDialog extends StatelessWidget {
-  const PlainHttpDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) => EDialog(
-    title: context.l10n.deskSendPlainTitle,
-    description: context.l10n.deskSendPlainDesc,
-    icon: EIcons.alert,
-    tone: ETone.warn,
-    actions: [
-      EButton(label: context.l10n.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
-      EButton.primary(label: context.l10n.deskSendPlainConfirm, onPressed: () => Navigator.of(context).pop(true)),
-    ],
-  );
-}

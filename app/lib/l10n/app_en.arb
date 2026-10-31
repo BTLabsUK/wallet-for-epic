@@ -6472,14 +6472,6 @@
   "@sendHttpAddressShape": {
     "description": "Send: the text under the HTTP method is not a web address."
   },
-  "sendPlainHttpTitle": "Not encrypted. Send anyway?",
-  "@sendPlainHttpTitle": {
-    "description": "Dialog title before a send over plain http to another device."
-  },
-  "sendPlainHttpBody": "Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.",
-  "@sendPlainHttpBody": {
-    "description": "Dialog text before a send over plain http to another device."
-  },
   "sendPlainHttpOffWithTor": "Plain http:// doesn't work with Tor on.",
   "@sendPlainHttpOffWithTor": {
     "description": "Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent."
@@ -9775,18 +9767,6 @@
         "example": "12.5"
       }
     }
-  },
-  "deskSendPlainTitle": "Not encrypted. Send anyway?",
-  "@deskSendPlainTitle": {
-    "description": "Title of the dialog shown before a send to a plain http address."
-  },
-  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.",
-  "@deskSendPlainDesc": {
-    "description": "Text of that dialog."
-  },
-  "deskSendPlainConfirm": "Send anyway",
-  "@deskSendPlainConfirm": {
-    "description": "Button in that dialog: send over plain http."
   },
   "deskSendEpicboxSwitched": "Switched to {domain}",
   "@deskSendEpicboxSwitched": {

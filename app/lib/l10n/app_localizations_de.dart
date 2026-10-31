@@ -5080,13 +5080,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Eine HTTP-Adresse beginnt mit http:// oder https://.';
 
   @override
-  String get sendPlainHttpTitle => 'Nicht verschlüsselt. Trotzdem senden?';
-
-  @override
-  String get sendPlainHttpBody =>
-      'Unverschlüsseltes HTTP zu einem anderen Gerät. Jeder auf dem Weg kann die Transaktion lesen. Eine https://-Adresse ist verschlüsselt.';
-
-  @override
   String get sendPlainHttpOffWithTor =>
       'Reines http:// geht nicht, solange Tor an ist.';
 
@@ -7599,16 +7592,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSendConfirm(String amount) {
     return '$amount EPIC senden';
   }
-
-  @override
-  String get deskSendPlainTitle => 'Nicht verschlüsselt. Trotzdem senden?';
-
-  @override
-  String get deskSendPlainDesc =>
-      'Unverschlüsseltes HTTP zu einem anderen Computer. Jeder auf dem Weg kann die Transaktion lesen. https:// ist verschlüsselt.';
-
-  @override
-  String get deskSendPlainConfirm => 'Trotzdem senden';
 
   @override
   String deskSendEpicboxSwitched(String domain) {

@@ -4739,13 +4739,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendHttpAddressShape => 'HTTP 地址以 http:// 或 https:// 开头。';
 
   @override
-  String get sendPlainHttpTitle => '未加密。仍要发送吗？';
-
-  @override
-  String get sendPlainHttpBody =>
-      '以明文 HTTP 发送到另一台设备。途中任何人都能读取这笔交易。https:// 地址是加密的。';
-
-  @override
   String get sendPlainHttpOffWithTor => '开启 Tor 时，明文 http:// 无法使用。';
 
   @override
@@ -7024,16 +7017,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendConfirm(String amount) {
     return '发送 $amount EPIC';
   }
-
-  @override
-  String get deskSendPlainTitle => '未加密。仍要发送？';
-
-  @override
-  String get deskSendPlainDesc =>
-      '以明文 HTTP 发送到另一台电脑。途经的任何人都能读取这笔交易。https:// 是加密的。';
-
-  @override
-  String get deskSendPlainConfirm => '仍要发送';
 
   @override
   String deskSendEpicboxSwitched(String domain) {

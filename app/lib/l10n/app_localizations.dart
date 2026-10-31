@@ -8070,18 +8070,6 @@ abstract class AppLocalizations {
   /// **'An HTTP address starts with http:// or https://.'**
   String get sendHttpAddressShape;
 
-  /// Dialog title before a send over plain http to another device.
-  ///
-  /// In en, this message translates to:
-  /// **'Not encrypted. Send anyway?'**
-  String get sendPlainHttpTitle;
-
-  /// Dialog text before a send over plain http to another device.
-  ///
-  /// In en, this message translates to:
-  /// **'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.'**
-  String get sendPlainHttpBody;
-
   /// Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent.
   ///
   /// In en, this message translates to:
@@ -11912,24 +11900,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send {amount} EPIC'**
   String deskSendConfirm(String amount);
-
-  /// Title of the dialog shown before a send to a plain http address.
-  ///
-  /// In en, this message translates to:
-  /// **'Not encrypted. Send anyway?'**
-  String get deskSendPlainTitle;
-
-  /// Text of that dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.'**
-  String get deskSendPlainDesc;
-
-  /// Button in that dialog: send over plain http.
-  ///
-  /// In en, this message translates to:
-  /// **'Send anyway'**
-  String get deskSendPlainConfirm;
 
   /// Toast after the user switched the Epicbox server from the "server not answering" notice. {domain} is the new server's host name.
   ///
