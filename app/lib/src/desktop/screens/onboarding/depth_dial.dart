@@ -126,7 +126,9 @@ class DeskDepthPicker extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, box) {
-          final beside = box.maxWidth >= Lay.xl;
+          // Beside while the picture keeps 340 u next to the capped dial (a 1280 px window's
+          // Settings page); stacked below that.
+          final beside = box.maxWidth >= Max.dial + Sp.x10 + 340.u;
           final gap = compact ? Sp.x3 : Sp.x4;
           Widget head() => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -196,7 +198,8 @@ class DeskDepthPicker extends StatelessWidget {
                 ),
               ),
               SizedBox(width: compact ? Sp.x8 : Sp.x10),
-              SizedBox(width: (box.maxWidth * 0.5).clamp(340.u, Max.preview), child: preview),
+              // The dial keeps its full width; the picture takes the rest, up to its cap.
+              SizedBox(width: (box.maxWidth - Max.dial - (compact ? Sp.x8 : Sp.x10)).clamp(340.u, Max.preview), child: preview),
             ],
           );
         },

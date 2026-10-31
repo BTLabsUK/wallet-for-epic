@@ -2692,24 +2692,6 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               text: l.deskSendFeeChangedText(formatEpicL(l, d.fee), formatEpicL(l, _feeWas!)),
             ),
           ],
-          if (_asks && !_busy) ...[
-            SizedBox(height: Sp.x4),
-            // Enter in the password sends once it is filled.
-            EForm(
-              onSubmit: _ready ? _go : null,
-              child: EField(
-                label: l.deskSendPassword,
-                help: l.deskSendPasswordHelp,
-                error: _wrong,
-                child: EPasswordInput(
-                  controller: _password,
-                  autofocus: true,
-                  invalid: _wrong != null,
-                  onChanged: (_) => setState(() => _wrong = null),
-                ),
-              ),
-            ),
-          ],
           // The Send button turns while it runs; the line beside it stays still (one spinner).
           if (_busy) ...[
             SizedBox(height: Sp.x4),
@@ -2732,6 +2714,24 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           ],
         ],
       ),
+      // Pinned under the facts: its focus never scrolls the amount and the recipient away.
+      // Enter in the password sends once it is filled.
+      foot: _asks && !_busy
+          ? EForm(
+              onSubmit: _ready ? _go : null,
+              child: EField(
+                label: l.deskSendPassword,
+                help: l.deskSendPasswordHelp,
+                error: _wrong,
+                child: EPasswordInput(
+                  controller: _password,
+                  autofocus: true,
+                  invalid: _wrong != null,
+                  onChanged: (_) => setState(() => _wrong = null),
+                ),
+              ),
+            )
+          : null,
       actions: [
         EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
         EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : l.deskSendConfirm(formatEpicL(l, d.amount)))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),

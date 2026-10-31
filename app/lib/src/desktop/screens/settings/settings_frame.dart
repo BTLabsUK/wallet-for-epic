@@ -109,8 +109,7 @@ class SettingsFrame extends ConsumerWidget {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                EHScroll(
                   child: Row(
                     children: [
                       for (final i in items.whereType<(DeskRoute, String, IconData)>())

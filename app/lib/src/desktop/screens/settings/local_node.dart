@@ -241,22 +241,19 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                children: [
-                  ESegmented<LocalTab>(
+              // The buttons at the card's right edge beside the tabs; on their own row under
+              // them, side by side from the left, when the card is narrow.
+              EBesideOrUnder(
+                minWords: 200.u,
+                words: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: ESegmented<LocalTab>(
                     segments: [ESegment(LocalTab.status, l.deskSetLnodeTabStatus), ESegment(LocalTab.peers, l.deskSetLnodeTabPeers)],
                     value: _tab,
                     onChanged: (t) => setState(() => _tab = t),
                   ),
-                  SizedBox(width: Sp.x3),
-                  // Row buttons at the card's right edge; under each other when the card is narrow.
-                  Expanded(
-                    child: Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: buttons,
-                    ),
-                  ),
-                ],
+                ),
+                control: Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: controls),
               ),
               SizedBox(height: Sp.x4),
               AnimatedSwitcher(

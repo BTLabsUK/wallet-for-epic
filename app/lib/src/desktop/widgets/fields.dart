@@ -544,7 +544,7 @@ class ESegmented<T> extends StatelessWidget {
         ];
         if (_natural(context, counts: false) <= box.maxWidth) return control(bare, stretch);
         // Still too wide: the labels stay whole and the strip scrolls sideways, its end faded.
-        return _FadeEnd(on: true, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: control(bare, false)));
+        return EHScroll(child: control(bare, false));
       },
     );
   }
@@ -786,8 +786,67 @@ class ECheckbox extends StatelessWidget {
   }
 }
 
+/// A row that scrolls sideways when it is wider than its room (a segmented strip, Settings'
+/// section chips): the side with more to see fades out over 24 u, so the cut reads as "more
+/// this way", never as a chopped label. No fade when everything fits.
+class EHScroll extends StatefulWidget {
+  const EHScroll({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<EHScroll> createState() => _EHScrollState();
+}
+
+class _EHScrollState extends State<EHScroll> {
+  bool _start = false, _end = false;
+
+  bool _onMetrics(ScrollMetrics m) {
+    final start = m.pixels > m.minScrollExtent + 0.5, end = m.pixels < m.maxScrollExtent - 0.5;
+    if (start != _start || end != _end) {
+      // Metrics arrive during layout: the fades follow in the next frame.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _start = start;
+            _end = end;
+          });
+        }
+      });
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final scroll = NotificationListener<ScrollMetricsNotification>(
+      onNotification: (n) => _onMetrics(n.metrics),
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (n) => _onMetrics(n.metrics),
+        child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: widget.child),
+      ),
+    );
+    if (!_start && !_end) return scroll;
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (rect) {
+        final fade = (24.u / rect.width).clamp(0.0, 0.5);
+        const on = Color(0xFFFFFFFF), off = Color(0x00FFFFFF);
+        return LinearGradient(
+          begin: rtl ? Alignment.centerRight : Alignment.centerLeft,
+          end: rtl ? Alignment.centerLeft : Alignment.centerRight,
+          colors: [_start ? off : on, on, on, _end ? off : on],
+          stops: [0, fade, 1 - fade, 1],
+        ).createShader(rect);
+      },
+      child: scroll,
+    );
+  }
+}
+
 /// Fades [child]'s last 24 u to transparent when [on] (a one-line field whose text runs under
-/// its trailing buttons, a segmented strip that scrolls).
+/// its trailing buttons).
 class _FadeEnd extends StatelessWidget {
   const _FadeEnd({required this.on, required this.child});
 

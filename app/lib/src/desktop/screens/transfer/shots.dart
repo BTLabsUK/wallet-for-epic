@@ -68,6 +68,7 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '15-send-file', title: 'Send, file', route: DeskRoute.send, arg: SendArgs(method: TxMethod.file, amount: '12.5')),
   const DeskShot(id: '15b-send-errors', title: 'Send, validation errors', route: DeskRoute.send, arg: SendArgs(step: SendStep.errors, recipient: 'not an address', amount: '0.123456789')),
   DeskShot(id: '16-send-review', title: 'Send, review', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
+  DeskShot(id: '16-send-review-narrow', title: 'Send, review at 800x700', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042'), width: 800, height: 700),
   DeskShot(id: '16b-send-sending', title: 'Send, sending', route: DeskRoute.send, arg: SendArgs(step: SendStep.sending, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   DeskShot(id: '16c-send-done', title: 'Send, done', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5')),
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
@@ -103,6 +104,7 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '16g-receive-epicbox-off', title: 'Receive, Epicbox off', route: DeskRoute.receive, prepare: (c, _) => _epicboxOff(c)),
   DeskShot(id: '16h-transactions-epicbox-off', title: 'Settings › Transactions, Epicbox off', route: DeskRoute.settingsReceiving, prepare: (c, _) => _epicboxOff(c)),
   const DeskShot(id: '17-receive', title: 'Receive', route: DeskRoute.receive, arg: ReceiveArgs()),
+  const DeskShot(id: '17-receive-narrow', title: 'Receive at 800x700, QR under', route: DeskRoute.receive, arg: ReceiveArgs(), width: 800, height: 700),
   // Wallet levels: Receive at Shallow and Deeper.
   DeskShot(id: '17-receive-l1', title: 'Receive, Shallow', route: DeskRoute.receive, arg: const ReceiveArgs(), before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '17-receive-l2', title: 'Receive, Deeper', route: DeskRoute.receive, arg: const ReceiveArgs(), before: _level(WalletLevel.casual)),

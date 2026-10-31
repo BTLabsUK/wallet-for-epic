@@ -46,6 +46,7 @@ class EDialog extends StatelessWidget {
     this.actions = const [],
     this._width,
     this.dismissible = true,
+    this.foot,
   });
 
   final String title;
@@ -53,6 +54,10 @@ class EDialog extends StatelessWidget {
   final IconData? icon;
   final ETone tone;
   final Widget? body;
+
+  /// Pinned under the scrolling body, above the buttons: a field the dialog focuses (a
+  /// password), so its focus never scrolls the body's first lines out of a short window.
+  final Widget? foot;
   final List<Widget> actions;
   final double? _width;
   double get width => _width ?? 480.u;
@@ -131,6 +136,7 @@ class EDialog extends StatelessWidget {
                     child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0), child: body),
                   ),
                 ),
+              if (foot != null) Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x4, Sp.x6, 0), child: foot),
               Padding(
                 padding: EdgeInsets.all(Sp.x6),
                 child: actions.isEmpty ? const SizedBox.shrink() : Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, runSpacing: Sp.x2, children: actions),

@@ -76,6 +76,7 @@ final List<DeskShot> walletShots = [
   DeskShot(id: '12-tx-detail-l1', title: 'Payment detail, Shallow', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '12-tx-detail-l2', title: 'Payment detail, Deeper', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.casual)),
   const DeskShot(id: '10-overview', title: 'Overview', route: DeskRoute.overview),
+  const DeskShot(id: '10-overview-800', title: 'Overview at 800x700, the smallest window', route: DeskRoute.overview, width: 800, height: 700),
   DeskShot(id: '10-overview-narrow', title: 'Overview at 1000x700', route: DeskRoute.overview, width: 1000, height: 700),
   const DeskShot(id: '10b-overview-empty', title: 'Overview, new wallet', route: DeskRoute.overview, arg: OverviewDemo.empty),
   const DeskShot(id: '10c-overview-node-down', title: 'Overview, node down', route: DeskRoute.overview, arg: OverviewDemo.nodeDown),
@@ -94,6 +95,7 @@ final List<DeskShot> walletShots = [
     },
   ),
   const DeskShot(id: '11-activity', title: 'Activity', route: DeskRoute.activity),
+  const DeskShot(id: '11-activity-narrow', title: 'Activity at 1000x750, one column', route: DeskRoute.activity, width: 1000, height: 750),
   const DeskShot(id: '11b-activity-empty', title: 'Activity, empty', route: DeskRoute.activity, arg: ActivityArgs(empty: true)),
   const DeskShot(id: '11d-activity-waiting', title: 'Activity, waiting for the node', route: DeskRoute.activity, arg: ActivityArgs(waitingNode: true)),
   const DeskShot(
@@ -236,6 +238,7 @@ final List<DeskShot> walletShots = [
   ),
   DeskShot(id: '19o-dlg-consolidate-one', title: 'Consolidate, one output', route: DeskRoute.outputs, arg: _outputsSix, dialog: (c) => showConsolidateDialog(c, spendableCount: 1)),
   const DeskShot(id: '21-contacts', title: 'Contacts', route: DeskRoute.contacts),
+  const DeskShot(id: '21-contacts-narrow', title: 'Contacts at 1000x750, one column', route: DeskRoute.contacts, width: 1000, height: 750),
   const DeskShot(id: '21b-contacts-empty', title: 'Contacts, empty', route: DeskRoute.contacts, arg: ContactsArgs(empty: true)),
   const DeskShot(id: '21d-contacts-empty-add', title: 'Contacts, empty, adding the first', route: DeskRoute.contacts, arg: ContactsArgs(empty: true, adding: true)),
   const DeskShot(
