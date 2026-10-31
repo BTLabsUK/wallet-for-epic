@@ -52,7 +52,7 @@ class _PastedWallet extends MockDeskWallet {
   @override
   Future<ReceivedFile> receiveText(String text) {
     texts.add(text);
-    if (notSlate) throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+    if (notSlate) throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
     return super.receiveText(text);
   }
 }
