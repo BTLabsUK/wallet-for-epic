@@ -26,14 +26,16 @@ import '../receive_screen.dart' show ReceiveTab, receiveTabProvider;
 const String relayOfferNoticeTag = 'relay-offer';
 const String relayMovedNoticeTag = 'relay-moved';
 
-/// Moves the wallet to the offered relay. A refused move is an error notice; the move done is
-/// a success notice with Show new address. Returns whether the wallet moved.
-Future<bool> acceptRelaySwitch(BuildContext context, WidgetRef ref) async {
+/// Moves the wallet to the offered relay, or to [to] when the user picked one
+/// ([RelaySwitchNotifier.moveTo]). A refused move is an error notice; the move done is a success
+/// notice with Show new address. Returns whether the wallet moved.
+Future<bool> acceptRelaySwitch(BuildContext context, WidgetRef ref, {RelayCandidate? to}) async {
   final l = context.l10n;
   final notices = ref.read(noticeProvider.notifier);
   notices.dismissTag(relayOfferNoticeTag);
   try {
-    final result = await ref.read(relaySwitchProvider.notifier).accept(ref);
+    final relays = ref.read(relaySwitchProvider.notifier);
+    final result = await (to == null ? relays.accept(ref) : relays.moveTo(ref, to));
     if (result == null) return false;
     notices.show(
       l.lvShellSwitchedNotice(result.name),

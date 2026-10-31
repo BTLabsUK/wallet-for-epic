@@ -155,8 +155,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(find.byKey(epicboxSheetKey), findsOneWidget);
-    expect(find.text('For support'), findsOneWidget);
-    expect(find.byKey(sheetCopyDetailsKey), findsOneWidget);
+    expect(find.text('For support'), findsNothing);
+    expect(find.text('Switch server'), findsOneWidget);
   });
 
   testWidgets('level 1: the relay offer is a notice; Switch calls through', (tester) async {

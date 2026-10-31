@@ -4774,8 +4774,6 @@
   "lvShellShowNewAddress": "Показать новый адрес",
   "lvShellServer": "Сервер",
   "lvShellAddress": "Адрес",
-  "lvShellHost": "Хост",
-  "lvShellOldServer": "Прежний сервер",
   "lvShellPairNotice": "{name} хочет связаться с этим кошельком.",
   "lvShellSeeRequest": "Посмотреть запрос",
   "lvShellQuietArriving": "+{amount} поступает",
@@ -4854,5 +4852,7 @@
   "deskLvShellOn": "Вкл.",
   "deskLvShellHeight": "Высота",
   "deskLvShellVersion": "Версия",
-  "deskLvShellRecheckHint": "Если сумма выглядит неверно, кошелёк заново читает цепочку."
+  "deskLvShellRecheckHint": "Если сумма выглядит неверно, кошелёк заново читает цепочку.",
+  "lvShellSwitchServer": "Сменить сервер",
+  "lvShellNoOtherServer": "Других серверов в списке нет."
 }

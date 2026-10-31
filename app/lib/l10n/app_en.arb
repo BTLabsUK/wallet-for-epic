@@ -24681,14 +24681,6 @@
   "@lvShellAddress": {
     "description": "Epicbox sheet support fact: this wallet's Epicbox address."
   },
-  "lvShellHost": "Host",
-  "@lvShellHost": {
-    "description": "Epicbox sheet support fact: the Epicbox server's host name."
-  },
-  "lvShellOldServer": "Previous server",
-  "@lvShellOldServer": {
-    "description": "Epicbox sheet support fact after a switch: the server the wallet left."
-  },
   "lvShellPairNotice": "{name} wants to pair with this wallet.",
   "@lvShellPairNotice": {
     "description": "Level 1 notice: someone sent a pairing request.",
@@ -25172,5 +25164,13 @@
   "deskLvShellRecheckHint": "If an amount looks wrong, the wallet reads the chain again.",
   "@deskLvShellRecheckHint": {
     "description": "Desktop Settings › This wallet at the Shallow level: info text of the Recheck balance row, whose Open button opens the Recheck balance page."
+  },
+  "lvShellSwitchServer": "Switch server",
+  "@lvShellSwitchServer": {
+    "description": "Level-1 Network and Epicbox status sheets: button that opens the other servers of the list; one tap moves to the picked one."
+  },
+  "lvShellNoOtherServer": "No other server in the list.",
+  "@lvShellNoOtherServer": {
+    "description": "Level-1 status sheet, Switch server list: shown when the list holds no server besides the one in use."
   }
 }

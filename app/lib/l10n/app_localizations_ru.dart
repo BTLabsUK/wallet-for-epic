@@ -18933,12 +18933,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lvShellAddress => 'Адрес';
 
   @override
-  String get lvShellHost => 'Хост';
-
-  @override
-  String get lvShellOldServer => 'Прежний сервер';
-
-  @override
   String lvShellPairNotice(String name) {
     return '$name хочет связаться с этим кошельком.';
   }
@@ -19239,4 +19233,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'Если сумма выглядит неверно, кошелёк заново читает цепочку.';
+
+  @override
+  String get lvShellSwitchServer => 'Сменить сервер';
+
+  @override
+  String get lvShellNoOtherServer => 'Других серверов в списке нет.';
 }

@@ -18524,12 +18524,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get lvShellAddress => 'Adresse';
 
   @override
-  String get lvShellHost => 'Host';
-
-  @override
-  String get lvShellOldServer => 'Vorheriger Server';
-
-  @override
   String lvShellPairNotice(String name) {
     return '$name möchte sich mit dieser Wallet koppeln.';
   }
@@ -18832,4 +18826,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'Wirkt der Betrag falsch, liest die Wallet die Chain erneut.';
+
+  @override
+  String get lvShellSwitchServer => 'Server wechseln';
+
+  @override
+  String get lvShellNoOtherServer => 'Kein anderer Server in der Liste.';
 }

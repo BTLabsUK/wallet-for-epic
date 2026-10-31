@@ -17898,12 +17898,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get lvShellAddress => 'ที่อยู่';
 
   @override
-  String get lvShellHost => 'โฮสต์';
-
-  @override
-  String get lvShellOldServer => 'เซิร์ฟเวอร์ก่อนหน้า';
-
-  @override
   String lvShellPairNotice(String name) {
     return '$name ต้องการจับคู่กับกระเป๋าเงินนี้';
   }
@@ -18202,4 +18196,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'ถ้าจำนวนเงินดูไม่ถูกต้อง กระเป๋าเงินจะอ่านเชนใหม่อีกครั้ง';
+
+  @override
+  String get lvShellSwitchServer => 'เปลี่ยนเซิร์ฟเวอร์';
+
+  @override
+  String get lvShellNoOtherServer => 'ไม่มีเซิร์ฟเวอร์อื่นในรายการ';
 }

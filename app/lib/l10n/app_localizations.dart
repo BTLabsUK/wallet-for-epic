@@ -28592,18 +28592,6 @@ abstract class AppLocalizations {
   /// **'Address'**
   String get lvShellAddress;
 
-  /// Epicbox sheet support fact: the Epicbox server's host name.
-  ///
-  /// In en, this message translates to:
-  /// **'Host'**
-  String get lvShellHost;
-
-  /// Epicbox sheet support fact after a switch: the server the wallet left.
-  ///
-  /// In en, this message translates to:
-  /// **'Previous server'**
-  String get lvShellOldServer;
-
   /// Level 1 notice: someone sent a pairing request.
   ///
   /// In en, this message translates to:
@@ -29077,6 +29065,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If an amount looks wrong, the wallet reads the chain again.'**
   String get deskLvShellRecheckHint;
+
+  /// Level-1 Network and Epicbox status sheets: button that opens the other servers of the list; one tap moves to the picked one.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch server'**
+  String get lvShellSwitchServer;
+
+  /// Level-1 status sheet, Switch server list: shown when the list holds no server besides the one in use.
+  ///
+  /// In en, this message translates to:
+  /// **'No other server in the list.'**
+  String get lvShellNoOtherServer;
 }
 
 class _AppLocalizationsDelegate
