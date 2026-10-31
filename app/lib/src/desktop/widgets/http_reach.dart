@@ -12,6 +12,16 @@ import '../desk_l10n.dart';
 import '../data/http_address.dart' show HttpReach, WebReachProbe;
 import 'kit.dart';
 
+/// The cached reach check (the API keeps it 2 minutes), for the rail's HTTP row.
+final deskHttpReachProvider = FutureProvider.autoDispose<HttpReach?>((ref) async {
+  if (!WebReachProbe.configured) return null;
+  try {
+    return await ref.read(deskApiProvider).httpReach();
+  } on Object {
+    return null;
+  }
+});
+
 /// The check's notice: checking, reachable, not reachable (forward the port), or could not
 /// tell. Asked on open, every minute (a network change shows within one; the answer is kept 2
 /// minutes) and on Check. [onChanged] gets each answer, for the address above it.

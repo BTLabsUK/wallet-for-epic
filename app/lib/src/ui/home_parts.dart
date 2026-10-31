@@ -211,7 +211,7 @@ class BalanceTiles extends ConsumerWidget {
         icon: tile.icon,
         label: tile.label,
         value: text,
-        accent: tile.kind == BalanceKind.confirming,
+        inProgress: tile.kind == BalanceKind.confirming,
         onTap: value == null || !outputs ? null : () => onTap(tile.kind),
         semanticsLabel: text == null
             ? tile.label
@@ -258,7 +258,7 @@ class _BalanceTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
-    required this.accent,
+    required this.inProgress,
     required this.onTap,
     required this.semanticsLabel,
   });
@@ -266,7 +266,7 @@ class _BalanceTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String? value;
-  final bool accent;
+  final bool inProgress;
   final VoidCallback? onTap;
   final String semanticsLabel;
 
@@ -282,7 +282,7 @@ class _BalanceTile extends StatelessWidget {
       fontFamily: t.monoFamily,
       fontSize: 15,
       height: 1.2,
-      color: accent ? t.accentText : t.text,
+      color: inProgress ? t.info : t.text,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
     return Semantics(
@@ -320,8 +320,8 @@ class _BalanceTile extends StatelessWidget {
                         size: 15,
                         color: calm
                             ? t.faint
-                            : accent
-                            ? t.accentText
+                            : inProgress
+                            ? t.info
                             : t.dim,
                       ),
                       const SizedBox(width: 6),

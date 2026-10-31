@@ -63,7 +63,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final Color line;
   final Color lineStrong;
 
-  /// Text: [text] for content, [dim] for secondary, [faint] for readouts only (below 4.5:1).
+  /// Text: [text] for content, [dim] for secondary, [faint] for hints and readouts (at least 4.5:1).
   final Color text;
   final Color dim;
   final Color faint;
@@ -258,7 +258,7 @@ const WalletTokens protocolDark = WalletTokens(
   lineStrong: Color(0xFF33333D),
   text: Color(0xFFFFF9F9),
   dim: Color(0xFFA4A4AD),
-  faint: Color(0xFF70707A),
+  faint: Color(0xFF8A8A94),
   accent: Color(0xFFF6D471),
   accentInk: Color(0xFF08080A),
   accentText: Color(0xFFF6D471),
@@ -295,7 +295,7 @@ const WalletTokens protocolLight = WalletTokens(
   lineStrong: Color(0xFFC9C9D0),
   text: Color(0xFF1C1E21),
   dim: Color(0xFF55555F),
-  faint: Color(0xFF767680),
+  faint: Color(0xFF6B6B75),
   accent: Color(0xFF8F5E1F),
   accentInk: Color(0xFFFFFFFF),
   accentText: Color(0xFF8F5E1F),
@@ -303,8 +303,8 @@ const WalletTokens protocolLight = WalletTokens(
   tick: Color(0xFF1C1E21),
   ok: Color(0xFF1F7A3A),
   okSoft: Color(0x1A1F7A3A),
-  warn: Color(0xFF9C4A00),
-  warnSoft: Color(0x1A9C4A00),
+  warn: Color(0xFFAA5500),
+  warnSoft: Color(0x1AAA5500),
   risk: Color(0xFFB3261E),
   riskSoft: Color(0x1AB3261E),
   info: Color(0xFF2F5F9E),
@@ -385,6 +385,9 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         borderSide: BorderSide(color: color, width: width),
       );
 
+  // Light fields sit on near-white: lineStrong is only 1.4:1 there, a field edge needs 3:1.
+  final edge = t.field.computeLuminance() > 0.5 ? const Color(0xFF868690) : t.lineStrong;
+
   return base.copyWith(
     extensions: [t],
     textTheme: text.copyWith(
@@ -446,8 +449,8 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: t.field,
-      border: border(t.line),
-      enabledBorder: border(t.line),
+      border: border(edge),
+      enabledBorder: border(edge),
       focusedBorder: border(t.accent, 1.5),
       errorBorder: border(t.risk),
       focusedErrorBorder: border(t.risk, 1.5),
@@ -487,6 +490,12 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       ),
       trackOutlineColor: WidgetStateProperty.resolveWith(
         (s) => s.contains(WidgetState.selected) ? t.accent : t.lineStrong,
+      ),
+    ),
+    // A selected radio is neutral: gold is the brand and the primary action only.
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.selected) ? t.text : t.dim,
       ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(

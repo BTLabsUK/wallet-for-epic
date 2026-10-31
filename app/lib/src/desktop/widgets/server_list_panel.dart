@@ -1015,11 +1015,15 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           groupId: _group,
           child: CallbackShortcuts(
             bindings: {const SingleActivator(LogicalKeyboardKey.escape): collapse},
-            child: Material(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(Rad.sm),
+                boxShadow: [BoxShadow(color: c.scrim, blurRadius: 16.u, offset: Offset(0, 4.u))],
+              ),
+              child: Material(
               color: c.s4,
-              elevation: 8,
-              shadowColor: c.scrim,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.line)),
               clipBehavior: Clip.antiAlias,
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: _width, maxWidth: _width, maxHeight: maxHeight),
@@ -1055,6 +1059,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
               ),
             ),
           ),
+            ),
         ),
       ),
     );

@@ -21,6 +21,7 @@ import '../data/tor_view.dart' hide isLocalNodeUrl;
 import '../../ui/network_mode_text.dart' show statusOffByModeWord;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
+import '../widgets/http_reach.dart' show deskHttpReachProvider;
 import '../widgets/kit.dart';
 
 /// One row's content, whatever the service.
@@ -81,7 +82,7 @@ class RailItem {
 }
 
 /// The Epicbox, HTTP and Tor rows of a status (null: nothing known yet).
-List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings) {
+List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings, {bool reachClosed = false}) {
   final eb = st?.epicboxHealth ?? ServiceHealth.checking;
   final ebHost = st?.epicbox.domain;
   final tor = netTorState(settings, st);
@@ -138,7 +139,8 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         HttpRun.off => l.deskRailOff,
       },
       state: switch (run) {
-        HttpRun.on => EState.ok,
+        // Listening, but the internet does not reach the port: not a green On.
+        HttpRun.on => reachClosed ? EState.warn : EState.ok,
         HttpRun.busy => EState.active,
         HttpRun.failed => EState.risk,
         HttpRun.off => EState.off,
@@ -342,7 +344,8 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
         jump: nodeItem.jump,
       );
     }
-    final items = [nodeItem, ...receivingRailItems(l, status, settings)];
+    final reach = settings.publicMode && httpRun(status) == HttpRun.on ? ref.watch(deskHttpReachProvider).value : null;
+    final items = [nodeItem, ...receivingRailItems(l, status, settings, reachClosed: reach?.reachable == false)];
     if (widget.builder != null) return widget.builder!(context, items);
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.opens));
     if (widget.horizontal) {

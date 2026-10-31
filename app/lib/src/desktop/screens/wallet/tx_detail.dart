@@ -409,6 +409,53 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           SizedBox(height: Sp.x3),
           ENotice(title: l.reqReceivedWaiting(contactName), text: l.reqReceivedWaitingBody, tone: ETone.info),
         ],
+        // The actions come first: Cancel, Send again and Finalize are seen without scrolling.
+        if (cancelable || finalizable || t.undelivered || repostable) ...[
+          SizedBox(height: Sp.x4),
+          Wrap(
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (cancelable)
+                EButton(
+                  label: _cancelling ? l.deskTxCancelling : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
+                  icon: EIcons.cancel,
+                  // A receive's Cancel is a tidy-up for a payment the sender never posted, so
+                  // it stays quiet; a send's unlocks funds.
+                  kind: t.incoming && !t.senderCancelled ? EBtnKind.ghost : EBtnKind.danger,
+                  size: EBtnSize.sm,
+                  busy: _cancelling,
+                  onPressed: _cancel,
+                ),
+              if (t.undelivered)
+                EButton.primary(
+                  label: context.l10n.deskTxSendAgain,
+                  icon: EIcons.refresh,
+                  size: EBtnSize.sm,
+                  busy: _cancelling,
+                  onPressed: _sendAgain,
+                ),
+              if (repostable && NetGate.killSwitch) FinishedPaymentActions(tx: t),
+              if (repostable && !NetGate.killSwitch)
+                EButton.primary(
+                  label: l.deskTxBroadcastAgain,
+                  icon: EIcons.refresh,
+                  size: EBtnSize.sm,
+                  busy: _cancelling,
+                  onPressed: _broadcastAgain,
+                ),
+              if (finalizable)
+                EButton.primary(
+                  label: l.deskTxFinalize,
+                  icon: EIcons.fileDown,
+                  size: EBtnSize.sm,
+                  onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize),
+                ),
+            ],
+          ),
+          SizedBox(height: Sp.x2),
+        ],
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
         if (paidTo != null && t.isInvoice && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
@@ -563,53 +610,6 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // The end of the details of a row another wallet made: the quiet "link this device" offer
         // goes here (Linked devices).
         if (t.otherWallet && t.receivedOn == null) DeskSentFromOtherWalletOffer(incoming: t.incoming),
-        if (cancelable || finalizable || t.undelivered || repostable) ...[
-          SizedBox(height: Sp.x5),
-          Divider(height: 1, color: c.line),
-          SizedBox(height: Sp.x4),
-          Wrap(
-            spacing: Sp.x2,
-            runSpacing: Sp.x2,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              if (cancelable)
-                EButton(
-                  label: _cancelling ? l.deskTxCancelling : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
-                  icon: EIcons.cancel,
-                  // A receive's Cancel is a tidy-up for a payment the sender never posted, so
-                  // it stays quiet; a send's unlocks funds.
-                  kind: t.incoming && !t.senderCancelled ? EBtnKind.ghost : EBtnKind.danger,
-                  size: EBtnSize.sm,
-                  busy: _cancelling,
-                  onPressed: _cancel,
-                ),
-              if (t.undelivered)
-                EButton.primary(
-                  label: context.l10n.deskTxSendAgain,
-                  icon: EIcons.refresh,
-                  size: EBtnSize.sm,
-                  busy: _cancelling,
-                  onPressed: _sendAgain,
-                ),
-              if (repostable && NetGate.killSwitch) FinishedPaymentActions(tx: t),
-              if (repostable && !NetGate.killSwitch)
-                EButton.primary(
-                  label: l.deskTxBroadcastAgain,
-                  icon: EIcons.refresh,
-                  size: EBtnSize.sm,
-                  busy: _cancelling,
-                  onPressed: _broadcastAgain,
-                ),
-              if (finalizable)
-                EButton.primary(
-                  label: l.deskTxFinalize,
-                  icon: EIcons.fileDown,
-                  size: EBtnSize.sm,
-                  onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize),
-                ),
-            ],
-          ),
-        ],
       ],
     );
   }

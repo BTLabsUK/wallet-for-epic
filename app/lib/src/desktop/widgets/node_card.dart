@@ -193,11 +193,13 @@ class NodeCard extends StatelessWidget {
                 var cols = facts.length <= fit ? facts.length : (fit >= 3 ? 3 : fit);
                 if (facts.length % cols == 1 && cols > 2) cols--;
                 final w = (box.maxWidth - 14.u * (cols - 1)) / cols;
-                return Wrap(
+                final grid = Wrap(
                   spacing: 14.u,
                   runSpacing: 20.u,
                   children: [for (final f in facts) SizedBox(width: w, child: f)],
                 );
+                // The figures of a node that is not answering are the last ones heard: dimmed.
+                return down ? Opacity(opacity: 0.55, child: grid) : grid;
               },
             ),
           if (down && switchTo != null) ...[
