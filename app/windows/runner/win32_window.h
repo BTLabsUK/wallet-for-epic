@@ -69,6 +69,10 @@ class Win32Window {
                                   WPARAM const wparam,
                                   LPARAM const lparam) noexcept;
 
+  // Keeps |normal_frame_| and saves the placement. Called from WndProc before MessageHandler:
+  // window_manager answers WM_EXITSIZEMOVE itself, so MessageHandler never sees it.
+  void TrackPlacement(HWND window, UINT const message, WPARAM const wparam) noexcept;
+
   // Retrieves a class instance pointer for |window|
   static Win32Window* GetThisFromHandle(HWND const window) noexcept;
 
