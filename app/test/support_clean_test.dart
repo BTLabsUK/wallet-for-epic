@@ -42,8 +42,23 @@ INFO mail me@example.com, PIN 123456
     expect(out, contains('~/.local/share/wallet'));
     expect(out, contains('[slate removed]'));
     expect(out, contains('INFO next line survives'));
-    // Kept on purpose: amounts, heights, ports.
-    expect(out, contains('amount 1.5 at height 2500000'));
+    // Kept on purpose: heights and ports; an amount as its bucket.
+    expect(out, contains('amount [<10 EPIC] at height 2500000'));
+    expect(out, isNot(contains('1.5')));
+
+    // "Include full details": the addresses and the amount stay, nothing else does.
+    final full = cleanForReport(log, context: const CleanContext(home: '/home/alice', username: 'alice', hostname: 'alice-laptop'), fullDetails: true);
+    expect(full, contains('to $_address@box.epic.invalid failed'));
+    expect(full, contains('$_onion.onion'));
+    expect(full, contains('amount 1.5 at height 2500000'));
+    for (final secret in ['abandon', 'hunter2', 's3cret', '203.0.113.7', 'alice', 'part_sig', 'me@example.com', '123456']) {
+      expect(full, isNot(contains(secret)), reason: secret);
+    }
+  });
+
+  test('an address fingerprint from the log becomes a name in a report', () {
+    final out = cleanForReport('to esWn9r…ZxC9@box.epic.invalid, via pg6mmj…cryd.onion');
+    expect(out, 'to <address-1>@box.epic.invalid, via <onion-1>.onion');
   });
 
   test('the same value gets the same name across the texts of one report', () {

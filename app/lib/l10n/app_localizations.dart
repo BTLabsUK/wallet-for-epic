@@ -29407,6 +29407,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set a passphrase'**
   String get passphraseSetTitle;
+
+  /// Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network has not been marked private. Calm: a state, not an alarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Off on this network'**
+  String get receiveHttpNotPrivateTitle;
+
+  /// Receive › Link · HTTP card: the info sheet behind the Off on this network line: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.'**
+  String get receiveHttpNotPrivate;
+
+  /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it.
+  ///
+  /// In en, this message translates to:
+  /// **'This is my private network'**
+  String get receiveHttpMarkPrivate;
+
+  /// Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened.
+  ///
+  /// In en, this message translates to:
+  /// **'Include full details'**
+  String get deskSetReportFullDetails;
+
+  /// Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log.
+  ///
+  /// In en, this message translates to:
+  /// **'Full details'**
+  String get deskSetReportPartFullDetails;
+
+  /// Settings › Transactions, row under the Link › HTTP switch: opens the list of Wi-Fi networks marked private (where the phone's HTTP listener runs).
+  ///
+  /// In en, this message translates to:
+  /// **'Private networks'**
+  String get txPrivateNetworks;
+
+  /// Settings › Transactions, line under the Private networks row: how many networks are marked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None marked yet} one{{count} marked} other{{count} marked}}'**
+  String txPrivateNetworksCount(int count);
+
+  /// Private networks sheet: the info sheet behind the info icon beside the title: what the list is.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.'**
+  String get txPrivateNetworksBody;
+
+  /// Private networks sheet: the empty list, one short line.
+  ///
+  /// In en, this message translates to:
+  /// **'No network marked yet.'**
+  String get txPrivateNetworksNone;
+
+  /// Private networks sheet: tag beside the entry of the network the phone is on now.
+  ///
+  /// In en, this message translates to:
+  /// **'This network'**
+  String get txPrivateNetworkCurrent;
+
+  /// Private networks sheet: button beside each entry that removes it; the listener then stops on that network until it is marked again.
+  ///
+  /// In en, this message translates to:
+  /// **'Forget'**
+  String get txPrivateNetworkForget;
+
+  /// Private networks sheet: screen reader label of the Forget button, with the entry's address range (txPrivateNetworkRange).
+  ///
+  /// In en, this message translates to:
+  /// **'Forget {range}'**
+  String txPrivateNetworkForgetLabel(String range);
+
+  /// Private networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.
+  ///
+  /// In en, this message translates to:
+  /// **'{range}.x'**
+  String txPrivateNetworkRange(String range);
+
+  /// Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and what is never in the report, ticked or not.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.'**
+  String get deskSetReportFullDetailsInfo;
 }
 
 class _AppLocalizationsDelegate

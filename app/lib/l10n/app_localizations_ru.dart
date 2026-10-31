@@ -19447,4 +19447,64 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get passphraseSetTitle => 'Задать пароль';
+
+  @override
+  String get receiveHttpNotPrivateTitle => 'Выключено в этой сети';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Link · HTTP принимает только в сетях, которые вы отметили как частные. В общем Wi-Fi любой рядом мог бы добраться до этого кошелька.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'Это моя частная сеть';
+
+  @override
+  String get deskSetReportFullDetails => 'Приложить все подробности';
+
+  @override
+  String get deskSetReportPartFullDetails => 'Полные детали';
+
+  @override
+  String get txPrivateNetworks => 'Частные сети';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count отмечено',
+      many: '$count отмечено',
+      few: '$count отмечены',
+      one: '$count отмечена',
+      zero: 'Пока ни одной',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP принимает в этих сетях. Сеть узнаётся по диапазону адресов, так что два дома с одним диапазоном считаются одной. Забудьте сеть, и телефон спросит в ней снова.';
+
+  @override
+  String get txPrivateNetworksNone => 'Ни одна сеть пока не отмечена.';
+
+  @override
+  String get txPrivateNetworkCurrent => 'Эта сеть';
+
+  @override
+  String get txPrivateNetworkForget => 'Забыть';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return 'Забыть $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'Адреса идут сокращёнными, суммы диапазонами. С отметкой они идут целиком. Фразы, ключи и пароли никогда.';
 }

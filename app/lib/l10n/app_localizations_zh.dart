@@ -17723,4 +17723,61 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get passphraseSetTitle => '设置密码短语';
+
+  @override
+  String get receiveHttpNotPrivateTitle => '在此网络上已关闭';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Link · HTTP 只在你标记为私人的网络上监听。在共用 Wi-Fi 中，那里的任何人都可能连到这个钱包。';
+
+  @override
+  String get receiveHttpMarkPrivate => '这是我的私人网络';
+
+  @override
+  String get deskSetReportFullDetails => '包含完整详情';
+
+  @override
+  String get deskSetReportPartFullDetails => '完整详情';
+
+  @override
+  String get txPrivateNetworks => '私人网络';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '已标记 $count 个',
+      zero: '尚未标记',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP 在这些网络上监听。网络以其地址段识别，因此两个地址段相同的住所算作同一个。忘记某个网络后，手机在该网络上会再次询问。';
+
+  @override
+  String get txPrivateNetworksNone => '尚未标记任何网络。';
+
+  @override
+  String get txPrivateNetworkCurrent => '当前网络';
+
+  @override
+  String get txPrivateNetworkForget => '忘记';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return '忘记 $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      '地址会缩短，金额以区间表示。勾选后完整发送。助记词、密钥和密码绝不会。';
 }

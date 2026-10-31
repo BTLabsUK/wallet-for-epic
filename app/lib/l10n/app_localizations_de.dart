@@ -19035,4 +19035,62 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get passphraseSetTitle => 'Passphrase festlegen';
+
+  @override
+  String get receiveHttpNotPrivateTitle => 'In diesem Netz aus';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Link · HTTP hört nur in Netzen zu, die Sie als privat markieren. In einem geteilten WLAN könnte jeder dort diese Wallet erreichen.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'Das ist mein privates Netz';
+
+  @override
+  String get deskSetReportFullDetails => 'Alle Details mitsenden';
+
+  @override
+  String get deskSetReportPartFullDetails => 'Alle Details';
+
+  @override
+  String get txPrivateNetworks => 'Private Netze';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count markiert',
+      one: '$count markiert',
+      zero: 'Noch keines markiert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP hört in diesen Netzen zu. Ein Netz wird an seinem Adressbereich erkannt, zwei Zuhause mit demselben Bereich zählen also als eines. Vergessen Sie ein Netz, fragt das Telefon dort erneut.';
+
+  @override
+  String get txPrivateNetworksNone => 'Noch kein Netz markiert.';
+
+  @override
+  String get txPrivateNetworkCurrent => 'Dieses Netz';
+
+  @override
+  String get txPrivateNetworkForget => 'Vergessen';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return '$range vergessen';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'Adressen gehen gekürzt, Beträge als Bereiche. Angekreuzt gehen sie vollständig. Phrasen, Schlüssel und Passwörter nie.';
 }

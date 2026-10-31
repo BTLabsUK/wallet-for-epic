@@ -2,8 +2,15 @@
 /// The phone's one owner of the Link · HTTP listener for the open wallet: wallets on the same
 /// Wi-Fi network pay this one at `http://<this phone's LAN address>:<port>` (`http.listen_port`). It runs only while a
 /// wallet is open, Link · HTTP is on (Settings › Transactions), the network mode allows it,
-/// Tor is off and the phone has a Wi-Fi or wired address; it stops on lock, and after the app
-/// comes back it starts again if it should run.
+/// Tor is off and the phone has a Wi-Fi or wired address on a network the user has marked
+/// private; it stops on lock, and after the app comes back it starts again if it should run.
+///
+/// It answers anyone on the same network at a published port, so on a café's or a hotel's
+/// Wi-Fi every guest can find a wallet there and send it junk. Android names no network to an
+/// app without the location permission, so a network is told apart by its LAN address's /24
+/// ([lanNetworkKey]): the user marks the network they are on as private
+/// ([PhoneHttp.markPrivate]), and the listener starts only on marked ones. Two networks with the
+/// same range (many home routers use 192.168.1.x) count as one.
 library;
 
 import 'dart:async';
@@ -27,6 +34,22 @@ import 'settings_file/host_settings.dart' show appConfig;
 /// so every wallet on the network can guess it.
 int get phoneHttpPort => appConfig.httpListenPort;
 
+/// The secret store key of the networks marked private: their [lanNetworkKey]s, comma-separated.
+const String privateNetworksKey = 'app.http.private_networks';
+
+/// At most this many marked networks are kept, the newest.
+const int maxPrivateNetworks = 16;
+
+/// The network of a LAN address (`http://10.100.10.20:3415` or `10.100.10.20`): its /24,
+/// `192.168.1`; null for anything else.
+String? lanNetworkKey(String? address) {
+  if (address == null) return null;
+  final host = Uri.tryParse(address.contains('://') ? address : 'http://$address')?.host;
+  final ip = host == null ? null : InternetAddress.tryParse(host);
+  if (ip == null || ip.type != InternetAddressType.IPv4) return null;
+  return host!.split('.').take(3).join('.');
+}
+
 enum PhoneHttpPhase {
   /// Not running: locked, or Link · HTTP is off.
   off,
@@ -47,6 +70,10 @@ enum PhoneHttpPhase {
   /// address ([TorRoute.httpListener]).
   offWhileTor,
 
+  /// Not listening: the network the phone is on is not marked private ([PhoneHttp.markPrivate]).
+  /// On a public Wi-Fi anyone there could reach the listener.
+  notPrivate,
+
   /// Not listening: the phone is on no Wi-Fi or wired network, so there is no address to hand
   /// out, and on mobile data alone a carrier's public address would put it on the internet.
   /// It starts once an address appears.
@@ -62,6 +89,7 @@ class PhoneHttpState {
     this.listener = PhoneHttpPhase.off,
     this.address,
     int? port,
+    this.privateNetworks = const [],
   }) : port = port ?? phoneHttpPort;
 
   /// What the listener does; [phase] adds [PhoneHttpPhase.noNetwork] on top of it.
@@ -72,6 +100,10 @@ class PhoneHttpState {
 
   final int port;
 
+  /// The networks marked private ([lanNetworkKey]s, oldest first), for Settings to show and
+  /// forget; empty until read from the store.
+  final List<String> privateNetworks;
+
   PhoneHttpPhase get phase =>
       listener == PhoneHttpPhase.listening && address == null ? PhoneHttpPhase.noNetwork : listener;
 
@@ -79,19 +111,25 @@ class PhoneHttpState {
     PhoneHttpPhase? listener,
     String? Function()? address,
     int? port,
+    List<String>? privateNetworks,
   }) => PhoneHttpState(
     listener: listener ?? this.listener,
     address: address == null ? this.address : address(),
     port: port ?? this.port,
+    privateNetworks: privateNetworks ?? this.privateNetworks,
   );
 
   @override
-  int get hashCode => listener.hashCode ^ address.hashCode ^ port.hashCode;
+  int get hashCode => Object.hash(listener, address, port, Object.hashAll(privateNetworks));
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PhoneHttpState && listener == other.listener && address == other.address && port == other.port;
+      other is PhoneHttpState &&
+          listener == other.listener &&
+          address == other.address &&
+          port == other.port &&
+          listEquals(privateNetworks, other.privateNetworks);
 
   @override
   String toString() => 'PhoneHttpState(${phase.name}, $address, $port)';
@@ -147,6 +185,9 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
   /// at once.
   Future<void>? _stopping;
 
+  /// The [lanNetworkKey]s marked private; null until read from the store.
+  List<String>? _private;
+
   @override
   PhoneHttpState build() {
     final session = ref.watch(sessionProvider);
@@ -154,6 +195,7 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     _session = session;
     _http = null;
     _stopping = null;
+    _private = null;
     // A plain observer, as in PhoneTor: a lock on `paused` rebuilds this during dispatch.
     final lifecycle = _LifecycleObserver((s) {
       if (s == AppLifecycleState.resumed && _current(generation)) unawaited(_resumed());
@@ -191,6 +233,10 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     // The address first: without one it must not start.
     Future.microtask(() async {
       if (!_current(generation)) return;
+      final marked = await _readPrivate();
+      if (!_current(generation)) return;
+      _private = marked;
+      state = state.copyWith(privateNetworks: marked);
       await _readAddress();
       if (_current(generation)) _apply();
     });
@@ -214,7 +260,55 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
     if (torWay(TorRoute.httpListener, phoneTorState(tor)) != TorWay.clearnet) return PhoneHttpPhase.offWhileTor;
     // It listens on every interface: with no LAN address that is mobile data alone.
     if (state.address == null) return PhoneHttpPhase.noNetwork;
+    final marked = _private;
+    if (marked == null) return PhoneHttpPhase.off;
+    if (!marked.contains(lanNetworkKey(state.address))) return PhoneHttpPhase.notPrivate;
     return null;
+  }
+
+  Future<List<String>> _readPrivate() async {
+    try {
+      final text = await ref.read(secretStoreProvider).read(privateNetworksKey) ?? '';
+      // Each entry is a /24 key; one that is not (a hand-edited store) is dropped.
+      return [for (final k in text.split(',')) if (lanNetworkKey('${k.trim()}.1') == k.trim()) k.trim()];
+    } on Object catch (e) {
+      logWarn('http', 'private networks not read: ${e.runtimeType}');
+      return const [];
+    }
+  }
+
+  /// Marks the network the phone is on now as private, and starts the listener if it should
+  /// run. Nothing without a LAN address.
+  Future<void> markPrivate() async {
+    final key = lanNetworkKey(state.address);
+    if (key == null) return;
+    final marked = [...?_private?.where((k) => k != key), key];
+    final kept = marked.length > maxPrivateNetworks ? marked.sublist(marked.length - maxPrivateNetworks) : marked;
+    if (await _savePrivate(kept)) logInfo('http', 'network marked private');
+  }
+
+  /// Forgets a network marked private ([PhoneHttpState.privateNetworks]); on it now, the
+  /// listener stops. Nothing for a network not marked.
+  Future<void> forgetPrivate(String key) async {
+    final marked = _private;
+    if (marked == null || !marked.contains(key)) return;
+    if (await _savePrivate([for (final k in marked) if (k != key) k])) logInfo('http', 'network forgotten');
+  }
+
+  /// Writes [kept] to the store and takes it as the marked networks; false when this notifier
+  /// was rebuilt meanwhile.
+  Future<bool> _savePrivate(List<String> kept) async {
+    final generation = _generation;
+    try {
+      await ref.read(secretStoreProvider).write(privateNetworksKey, kept.join(','));
+    } on Object catch (e) {
+      logWarn('http', 'private network not saved: ${e.runtimeType}');
+    }
+    if (!_current(generation)) return false;
+    _private = kept;
+    state = state.copyWith(privateNetworks: kept);
+    _apply();
+    return true;
   }
 
   /// Starts or stops the listener to match the conditions. A listener that failed waits for
@@ -294,8 +388,10 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
       state = state.copyWith(listener: phase);
     }
 
-    // Every interface: on a phone 127.0.0.1 reaches nobody. Behind the router's NAT the
-    // internet cannot reach it; the LAN can. Never without a LAN address ([_blocked]).
+    // Every interface: on a phone 127.0.0.1 reaches nobody. Everyone on the same network can
+    // reach it, a café's or a hotel's guests too, hence only on networks marked private; NAT
+    // keeps the internet out only behind a router that forwards nothing, and a carrier's or an
+    // IPv6 address may not be behind one. Never without a LAN address ([_blocked]).
     sub = session
         .startHttpListener(exposure: HttpExposure.internet, port: phoneHttpPort)
         .listen(

@@ -31,11 +31,10 @@ bool bip39PhraseValid(List<String> words) {
   return all.substring(ent) == check;
 }
 
-/// A one-way fingerprint of a recovery phrase: SHA-256 over a fixed tag and the phrase as the
-/// wallet core takes it (lowercase, single spaces), as 64 hex characters. The wallet list keeps
-/// it ([WalletEntry.phraseFingerprint]) so a restore can tell that the phrase is already there.
-/// A phrase of 128 bits of entropy or more cannot be found from it by trying phrases. The
-/// phrase itself is never kept or logged.
+/// The fingerprint earlier builds kept in the wallet list ([WalletEntry.phraseFingerprint]):
+/// SHA-256 over a fixed tag and the phrase as the wallet core takes it (lowercase, single
+/// spaces), as 64 hex characters. Only compared now, against entries not unlocked since, and
+/// never written: the list keeps the core's 32-bit [WalletEntry.walletFingerprint] instead.
 String phraseFingerprint(String mnemonic) {
   final normal = mnemonic.trim().toLowerCase().split(RegExp(r'\s+')).join(' ');
   return sha256.convert(utf8.encode('epic-wallet phrase fingerprint v1\n$normal')).toString(); // l10n-ok: hash input

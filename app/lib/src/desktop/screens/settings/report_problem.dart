@@ -37,6 +37,9 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   final _description = TextEditingController();
   final _contact = TextEditingController();
   bool _attachLogs = true;
+
+  /// "Include full details": the log's wallet addresses and amounts as they are.
+  bool _fullDetails = false;
   bool _tried = false;
   bool _busy = false;
   String? _error;
@@ -122,6 +125,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     final email = _contact.text;
     final details = _details();
     final log = _attachLogs ? (_log ?? '') : null;
+    final fullDetails = _attachLogs && _fullDetails;
     final at = _at;
     final context = ref.read(feedbackCleanContextProvider);
     // The cleaning keeps the hosts the shipped files name: the other isolate gets a copy of the
@@ -131,7 +135,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     return Isolate.run(() {
       hostSettings = settings;
       shippedHostSettings = shipped;
-      return buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context);
+      return buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails);
     });
   }
 
@@ -188,8 +192,10 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   /// "What is sent": the report text and each log file with how much of it goes along.
   List<String> _parts(AppLocalizations l) => [
     l.deskSetReportText,
-    if (_attachLogs)
+    if (_attachLogs) ...[
       if (_files.isEmpty) l.deskSetReportAppLog(logSize((_log ?? '').length, l)) else ...describeLogFiles(_files, feedbackLogBytes, l),
+      if (_fullDetails) l.deskSetReportPartFullDetails,
+    ],
   ];
 
   @override
@@ -260,6 +266,27 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
               l.deskSetReportAttachHint,
               style: ts.small,
             ),
+            if (_attachLogs) ...[
+              SizedBox(height: Sp.x2),
+              // The tick and, beside it, what it changes and what never goes: behind the info
+              // icon, so the dialog carries no small print under it.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ECheckbox(
+                    key: const ValueKey('report-full-details'),
+                    value: _fullDetails,
+                    label: l.deskSetReportFullDetails,
+                    onChanged: (v) {
+                      setState(() => _fullDetails = v);
+                      _refreshPreview();
+                    },
+                  ),
+                  SizedBox(width: Sp.x1),
+                  EInfoHint(l.deskSetReportFullDetailsInfo, key: const ValueKey('report-full-details-info'), title: l.deskSetReportFullDetails, icon: EIcons.info),
+                ],
+              ),
+            ],
             SizedBox(height: Sp.x3),
             EDetails(
               title: l.deskSetReportSentWhat,
@@ -315,8 +342,9 @@ class ReportPreview extends StatelessWidget {
     if (t == null) return Padding(padding: EdgeInsets.all(Sp.x3), child: const ESpinner());
     final lines = t.split('\n');
     final style = ts.mono(size: Fs.xs, color: c.dim);
-    // Short enough that the whole dialog, opened, fits an 800 px window.
-    final height = (MediaQuery.sizeOf(context).height - 640.u).clamp(96.u, 220.u);
+    // Short enough that the whole dialog, opened, fits an 800 px window (the Include full
+    // details tick took its share).
+    final height = (MediaQuery.sizeOf(context).height - 680.u).clamp(96.u, 220.u);
     return Container(
       height: height,
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),

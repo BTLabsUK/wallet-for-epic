@@ -21,6 +21,7 @@ import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
+import '../phone_http.dart' show lanNetworkKey, phoneHttpProvider;
 import '../phone_tor.dart';
 import '../tor_build.dart';
 import '../price.dart';
@@ -957,6 +958,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         for (final m in MethodKind.values)
           if (m.family == f && shown(m)) ...[
             methodTile(m),
+            // Where the phone's listener may run: the networks marked private, and Forget.
+            if (m == MethodKind.linkHttp && payments.linkHttp && phone) const _PrivateNetworksRow(),
             if (m == MethodKind.linkTor && payments.linkTor && torOff)
               _TorNeededLine(onTap: () => openPrivacySettings(context)),
           ],
@@ -1417,6 +1420,139 @@ String _txKeyName(MethodKind m) => switch (m) {
 
 /// The key of the line under Link · Tor that Tor is off, for tests.
 const Key txTorNeededKey = ValueKey('tx-tor-needs-tor');
+
+/// The key of the Private networks row under Link · HTTP, for tests.
+const Key txPrivateNetworksKey = ValueKey('tx-private-networks');
+
+/// The key of the info icon in the Private networks sheet, for tests.
+const Key txPrivateNetworksInfoKey = ValueKey('tx-private-networks-info');
+
+/// The key of a Forget button in the Private networks sheet, for tests.
+Key txForgetNetworkKey(String network) => ValueKey('tx-forget-network-$network');
+
+/// Under the Link · HTTP switch while it is on: "Private networks · 2 marked". A tap opens the
+/// sheet that lists them ([_PrivateNetworksSheet]), each with Forget. The phone's listener runs
+/// only on a marked network (phone_http.dart); the card on Receive › Link marks the one in use.
+class _PrivateNetworksRow extends ConsumerWidget {
+  const _PrivateNetworksRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final count = ref.watch(phoneHttpProvider.select((s) => s.privateNetworks.length));
+    final text = '${l.txPrivateNetworks} \u00B7 ${l.txPrivateNetworksCount(count)}';
+    return Semantics(
+      key: txPrivateNetworksKey,
+      button: true,
+      label: text,
+      excludeSemantics: true,
+      onTap: () => _PrivateNetworksSheet.show(context),
+      child: InkWell(
+        onTap: () => _PrivateNetworksSheet.show(context),
+        child: Padding(
+          // Lined up with the switch's title, past its icon; 48 dp tall for the finger.
+          padding: const EdgeInsets.fromLTRB(56, 0, 16, 6),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
+            child: Row(
+              children: [
+                Icon(Icons.home_outlined, size: 16, color: t.dim),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
+                ),
+                Icon(Icons.chevron_right, size: 18, color: t.dim),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The networks marked private, one row each ("192.168.1.x", "This network" on the one in
+/// use), with Forget. Live: a Forget removes its row and, on the network in use, stops the
+/// listener until the card on Receive › Link marks it again.
+class _PrivateNetworksSheet extends ConsumerWidget {
+  const _PrivateNetworksSheet();
+
+  static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (_) => const _PrivateNetworksSheet(),
+  );
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final http = ref.watch(phoneHttpProvider);
+    final current = lanNetworkKey(http.address);
+    // Newest first: the one marked last is the one the user has in mind.
+    final networks = http.privateNetworks.reversed.toList();
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(MethodIcons.of(MethodKind.linkHttp), size: 20, color: t.accentText),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Semantics(header: true, child: Text(l.txPrivateNetworks, style: theme.textTheme.titleMedium)),
+                ),
+                // What the list is, behind the info icon: the sheet itself stays a list.
+                InfoHint(l.txPrivateNetworksBody, key: txPrivateNetworksInfoKey, title: l.txPrivateNetworks, icon: MethodIcons.of(MethodKind.linkHttp)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            if (networks.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(l.txPrivateNetworksNone, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+              )
+            else
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: networks.length,
+                  separatorBuilder: (_, _) => Divider(height: 1, color: t.line),
+                  itemBuilder: (context, i) {
+                    final network = networks[i];
+                    final range = l.txPrivateNetworkRange(network);
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      minVerticalPadding: 8,
+                      title: Text(range, style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily)),
+                      subtitle: network == current ? Text(l.txPrivateNetworkCurrent, style: theme.textTheme.bodySmall?.copyWith(color: t.ok)) : null,
+                      trailing: Semantics(
+                        label: l.txPrivateNetworkForgetLabel(range),
+                        excludeSemantics: true,
+                        button: true,
+                        child: TextButton(
+                          key: txForgetNetworkKey(network),
+                          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                          onPressed: () => ref.read(phoneHttpProvider.notifier).forgetPrivate(network),
+                          child: Text(l.txPrivateNetworkForget),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Under the Link · Tor switch while it is on and Tor is off: "Needs Tor. Turn it on under
 /// Privacy & network." A tap opens Privacy & network, where the one Tor switch is.

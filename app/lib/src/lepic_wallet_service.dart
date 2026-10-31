@@ -25,6 +25,7 @@ import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
 import 'finished_payment.dart';
 import 'legacy/gui_contacts.dart' show AddressChecks;
+import 'listener_receives.dart';
 import 'log.dart';
 import 'net/lan_node_relay.dart';
 import 'network_gate.dart';
@@ -2050,7 +2051,22 @@ class LepicWalletSession implements WalletSession {
           NetGate.checkNode('refresh');
           await _wallet.summary(refresh: true);
         }
-        return _history.transactions(await _live());
+        final txs = _history.transactions(await _live());
+        if (!refresh) return txs;
+        // Listener payments waiting too long, or too many (listener_receives.dart).
+        final expired = listenerReceivesToCancel(txs, DateTime.now());
+        if (expired.isEmpty) return txs;
+        var cancelled = 0;
+        for (final id in expired) {
+          try {
+            await _wallet.cancelTransaction(txId: id);
+            cancelled++;
+          } on Object catch (e) {
+            logWarn('history', 'listener payment not cancelled: ${e.runtimeType}');
+          }
+        }
+        logInfo('history', 'listener payments cancelled: $cancelled');
+        return cancelled == 0 ? txs : _history.transactions(await _live());
       });
 
   /// LEPIC stores heights and times as it confirms, so nothing is left to fill in.

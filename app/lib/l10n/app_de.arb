@@ -4915,5 +4915,19 @@
   "settingsDeletePassphraseReason": "Geben Sie Ihre Passphrase ein, um diese Wallet zu löschen.",
   "sendPassphraseReason": "Geben Sie die Passphrase ein, um {amount} zu senden.",
   "sendFilePassphraseReason": "Geben Sie die Passphrase ein, um eine Transaktionsdatei über {amount} zu erstellen.",
-  "passphraseSetTitle": "Passphrase festlegen"
+  "passphraseSetTitle": "Passphrase festlegen",
+  "receiveHttpNotPrivate": "Link · HTTP hört nur in Netzen zu, die Sie als privat markieren. In einem geteilten WLAN könnte jeder dort diese Wallet erreichen.",
+  "receiveHttpMarkPrivate": "Das ist mein privates Netz",
+  "deskSetReportFullDetails": "Alle Details mitsenden",
+  "receiveHttpNotPrivateTitle": "In diesem Netz aus",
+  "txPrivateNetworks": "Private Netze",
+  "txPrivateNetworksCount": "{count, plural, =0{Noch keines markiert} one{{count} markiert} other{{count} markiert}}",
+  "txPrivateNetworksBody": "Link · HTTP hört in diesen Netzen zu. Ein Netz wird an seinem Adressbereich erkannt, zwei Zuhause mit demselben Bereich zählen also als eines. Vergessen Sie ein Netz, fragt das Telefon dort erneut.",
+  "txPrivateNetworksNone": "Noch kein Netz markiert.",
+  "txPrivateNetworkCurrent": "Dieses Netz",
+  "txPrivateNetworkForget": "Vergessen",
+  "txPrivateNetworkForgetLabel": "{range} vergessen",
+  "txPrivateNetworkRange": "{range}.x",
+  "deskSetReportPartFullDetails": "Alle Details",
+  "deskSetReportFullDetailsInfo": "Adressen gehen gekürzt, Beträge als Bereiche. Angekreuzt gehen sie vollständig. Phrasen, Schlüssel und Passwörter nie."
 }

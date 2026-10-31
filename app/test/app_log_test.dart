@@ -203,7 +203,7 @@ void main() {
     final written = sink.file.readAsStringSync();
     expect(
       written,
-      contains('INFO  lepic_wallet::receive: slate received [slate]'),
+      contains('INFO  lepic_wallet::receive: slate received [slate 0436430c…]'),
     );
     expect(
       written,
@@ -216,7 +216,7 @@ void main() {
       written,
       contains('WARN  lepic_ffi::vault: unlock with pin [redacted] refused'),
     );
-    expect(written, contains('esWn9r…@epicbox.epiccash.com'));
+    expect(written, contains('esWn9r…ZxC9@epicbox.epiccash.com'));
     expect(
       written,
       contains(
@@ -276,7 +276,7 @@ void main() {
       final written = sink.file.readAsStringSync();
       expect(
         written,
-        contains('INFO  lepic_wallet::x: pin [redacted] [slate]\n'),
+        contains('INFO  lepic_wallet::x: pin [redacted] [slate 0436430c…]\n'),
       );
       expect(written, contains('WARN  dart.restore: words [words]\n'));
       // A line an older build, or anything else, wrote without redaction.
@@ -285,14 +285,16 @@ void main() {
         mode: FileMode.append,
       );
       final tail = await sink.tail(1 << 20);
-      expect(tail, contains('dart.old: pin [redacted] esWn9r…@'));
+      // The tail feeds the report, whose cleanForReport keeps or drops addresses (Include full
+      // details); secrets are gone already.
+      expect(tail, contains('dart.old: pin [redacted] $_address'));
       for (final text in [written, tail, ...mirrored]) {
         for (final secret in [
           '123456',
           '654321',
           'participant_data',
           'abandon',
-          'esWn9r2zQj5',
+          if (!identical(text, tail)) 'esWn9r2zQj5',
         ]) {
           expect(text, isNot(contains(secret)), reason: secret);
         }

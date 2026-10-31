@@ -18814,4 +18814,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passphraseSetTitle => 'Set a passphrase';
+
+  @override
+  String get receiveHttpNotPrivateTitle => 'Off on this network';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.';
+
+  @override
+  String get receiveHttpMarkPrivate => 'This is my private network';
+
+  @override
+  String get deskSetReportFullDetails => 'Include full details';
+
+  @override
+  String get deskSetReportPartFullDetails => 'Full details';
+
+  @override
+  String get txPrivateNetworks => 'Private networks';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count marked',
+      one: '$count marked',
+      zero: 'None marked yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.';
+
+  @override
+  String get txPrivateNetworksNone => 'No network marked yet.';
+
+  @override
+  String get txPrivateNetworkCurrent => 'This network';
+
+  @override
+  String get txPrivateNetworkForget => 'Forget';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return 'Forget $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.';
 }

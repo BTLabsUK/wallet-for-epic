@@ -90,28 +90,41 @@ void main() {
     expect(Directory('$root${sep}wallet').existsSync(), isTrue, reason: 'left where it is');
   });
 
-  test('the phrase fingerprint is kept, found and survives a reload; a malformed one is ignored', () async {
+  test('an old phrase fingerprint is read, and dropped only once the wallet fingerprint is kept', () async {
     final fp = 'ab' * 32;
     final a = await registry.add(chain: Chain.mainnet);
     final b = await registry.add(chain: Chain.mainnet);
-    expect(a.phraseFingerprint, isNull, reason: 'none until the app writes one');
-    expect(registry.byPhraseFingerprint(fp), isNull);
-    await registry.setPhraseFingerprint(a.id, fp);
-    expect(registry.byPhraseFingerprint(fp)!.id, a.id);
-    expect(registry.list().firstWhere((e) => e.id == b.id).phraseFingerprint, isNull);
-    await expectLater(registry.setPhraseFingerprint(b.id, 'AB' * 32), throwsA(isA<WalletRegistryException>()));
-    await expectLater(registry.setPhraseFingerprint('0' * 32, fp), throwsA(isA<WalletNotListedException>()));
+    expect(a.phraseFingerprint, isNull, reason: 'never written by this build');
+    // As a list an earlier build wrote: the phrase hash on both entries, a wallet fingerprint
+    // only on a.
+    final file = File('${tmp.path}$sep${WalletRegistry.fileName}');
+    Future<void> rewrite(void Function(Map<String, dynamic> a, Map<String, dynamic> b) edit) async {
+      final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+      final ws = (json['wallets'] as List).cast<Map<String, dynamic>>();
+      edit(ws.firstWhere((w) => w['id'] == a.id), ws.firstWhere((w) => w['id'] == b.id));
+      file.writeAsStringSync(jsonEncode(json));
+    }
+
+    await rewrite((wa, wb) {
+      wa['phraseFingerprint'] = fp;
+      wa['walletFingerprint'] = '0123abcd';
+      wb['phraseFingerprint'] = 'cd' * 32;
+    });
     final again = WalletRegistry(tmp.path);
     await again.load();
-    expect(again.byPhraseFingerprint(fp)!.id, a.id);
-    // A fingerprint the file holds in a shape this code never writes is left out, not matched.
-    final file = File('${tmp.path}$sep${WalletRegistry.fileName}');
-    final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
-    (json['wallets'] as List).cast<Map<String, dynamic>>().firstWhere((w) => w['id'] == a.id)['phraseFingerprint'] = 'short';
-    file.writeAsStringSync(jsonEncode(json));
+    expect(again.byPhraseFingerprint(fp)!.id, a.id, reason: 'still matched until dropped');
+    await again.dropPhraseFingerprint(a.id);
+    await again.dropPhraseFingerprint(b.id);
+    expect(again.byId(a.id)!.phraseFingerprint, isNull);
+    expect(again.byId(a.id)!.walletFingerprint, '0123abcd');
+    expect(again.byId(b.id)!.phraseFingerprint, 'cd' * 32, reason: 'no wallet fingerprint yet: kept for restore');
+    expect(file.readAsStringSync(), isNot(contains(fp)), reason: 'gone from the file');
+    await expectLater(again.dropPhraseFingerprint('0' * 32), throwsA(isA<WalletNotListedException>()));
+    // A fingerprint the file holds in a shape no build wrote is left out, not matched.
+    await rewrite((wa, wb) => wb['phraseFingerprint'] = 'short');
     final third = WalletRegistry(tmp.path);
     await third.load();
-    expect(third.list().firstWhere((e) => e.id == a.id).phraseFingerprint, isNull);
+    expect(third.byId(b.id)!.phraseFingerprint, isNull);
   });
 
   test('the list survives a reload', () async {

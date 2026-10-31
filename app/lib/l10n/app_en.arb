@@ -25190,39 +25190,172 @@
     "description": "Notice after setting a passphrase when the biometric prompt was dismissed."
   },
   "passphraseForgot": "Forgot passphrase?",
-  "@passphraseForgot": {"description": "Link on the unlock screen of a wallet that opens with a passphrase; in place of Forgot PIN."},
+  "@passphraseForgot": {
+    "description": "Link on the unlock screen of a wallet that opens with a passphrase; in place of Forgot PIN."
+  },
   "passphrasePromptTitle": "Enter your passphrase",
-  "@passphrasePromptTitle": {"description": "Title of the dialog that asks for the passphrase before a sensitive action; in place of Enter your PIN."},
+  "@passphrasePromptTitle": {
+    "description": "Title of the dialog that asks for the passphrase before a sensitive action; in place of Enter your PIN."
+  },
   "passphraseEnterCurrent": "Enter your current passphrase",
-  "@passphraseEnterCurrent": {"description": "Heading of the first step of the change screen for a wallet that opens with a passphrase."},
+  "@passphraseEnterCurrent": {
+    "description": "Heading of the first step of the change screen for a wallet that opens with a passphrase."
+  },
   "passphraseCurrentLabel": "Current passphrase",
-  "@passphraseCurrentLabel": {"description": "Label of the field for the passphrase in use, on the change screen."},
+  "@passphraseCurrentLabel": {
+    "description": "Label of the field for the passphrase in use, on the change screen."
+  },
   "passphraseChooseTitle": "Choose a passphrase",
-  "@passphraseChooseTitle": {"description": "Heading above the two fields of a new passphrase."},
+  "@passphraseChooseTitle": {
+    "description": "Heading above the two fields of a new passphrase."
+  },
   "passphraseRules": "{count, plural, other{At least {count} characters and not only digits.}}",
-  "@passphraseRules": {"description": "The rules under the heading of a new passphrase. count is the fewest characters allowed (10).", "placeholders": {"count": {"type": "int"}}},
+  "@passphraseRules": {
+    "description": "The rules under the heading of a new passphrase. count is the fewest characters allowed (10).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "passphraseUsePinInstead": "Use PIN instead",
-  "@passphraseUsePinInstead": {"description": "Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase."},
+  "@passphraseUsePinInstead": {
+    "description": "Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase."
+  },
   "passphraseUsePassphraseInstead": "Use passphrase instead",
-  "@passphraseUsePassphraseInstead": {"description": "Small link on the unlock screen that swaps the PIN field for the passphrase field. Shown only to wallets that ever had a passphrase."},
+  "@passphraseUsePassphraseInstead": {
+    "description": "Small link on the unlock screen that swaps the PIN field for the passphrase field. Shown only to wallets that ever had a passphrase."
+  },
   "biometricsFromNextStart": "Biometric unlock works from the next app start.",
-  "@biometricsFromNextStart": {"description": "Notice after biometric unlock was turned on while creating or restoring a wallet: it cannot be used until the app is started again."},
+  "@biometricsFromNextStart": {
+    "description": "Notice after biometric unlock was turned on while creating or restoring a wallet: it cannot be used until the app is started again."
+  },
   "invoicePassphraseReason": "Enter your passphrase to pay this invoice.",
-  "@invoicePassphraseReason": {"description": "invoicePinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@invoicePassphraseReason": {
+    "description": "invoicePinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "restoreReplacePassphraseReason": "Enter your passphrase to replace this wallet. The restored wallet keeps this passphrase.",
-  "@restoreReplacePassphraseReason": {"description": "restoreReplacePinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@restoreReplacePassphraseReason": {
+    "description": "restoreReplacePinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "backupPassphraseReason": "Enter your passphrase to show the recovery phrase.",
-  "@backupPassphraseReason": {"description": "backupPinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@backupPassphraseReason": {
+    "description": "backupPinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "sendQrPassphraseReason": "Enter the passphrase to make a payment QR for {amount}.",
-  "@sendQrPassphraseReason": {"description": "sendQrPinReason for a wallet that opens with a passphrase instead of the PIN.", "placeholders": {"amount": {"type": "String", "example": "12.5"}}},
+  "@sendQrPassphraseReason": {
+    "description": "sendQrPinReason for a wallet that opens with a passphrase instead of the PIN.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
   "settingsBiometricsPassphraseReason": "Enter your passphrase to turn on biometric unlock.",
-  "@settingsBiometricsPassphraseReason": {"description": "settingsBiometricsPinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@settingsBiometricsPassphraseReason": {
+    "description": "settingsBiometricsPinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "settingsDeletePassphraseReason": "Enter your passphrase to delete this wallet.",
-  "@settingsDeletePassphraseReason": {"description": "settingsDeletePinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@settingsDeletePassphraseReason": {
+    "description": "settingsDeletePinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "sendPassphraseReason": "Enter the passphrase to send {amount}.",
-  "@sendPassphraseReason": {"description": "sendPinReason for a wallet that opens with a passphrase instead of the PIN.", "placeholders": {"amount": {"type": "String", "example": "12.5"}}},
+  "@sendPassphraseReason": {
+    "description": "sendPinReason for a wallet that opens with a passphrase instead of the PIN.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
   "sendFilePassphraseReason": "Enter the passphrase to make a transaction file for {amount}.",
-  "@sendFilePassphraseReason": {"description": "sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.", "placeholders": {"amount": {"type": "String", "example": "12.5"}}},
+  "@sendFilePassphraseReason": {
+    "description": "sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
   "passphraseSetTitle": "Set a passphrase",
-  "@passphraseSetTitle": {"description": "App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more)."}
+  "@passphraseSetTitle": {
+    "description": "App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more)."
+  },
+  "receiveHttpNotPrivateTitle": "Off on this network",
+  "@receiveHttpNotPrivateTitle": {
+    "description": "Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network has not been marked private. Calm: a state, not an alarm."
+  },
+  "receiveHttpNotPrivate": "Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.",
+  "@receiveHttpNotPrivate": {
+    "description": "Receive › Link · HTTP card: the info sheet behind the Off on this network line: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user."
+  },
+  "receiveHttpMarkPrivate": "This is my private network",
+  "@receiveHttpMarkPrivate": {
+    "description": "Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it."
+  },
+  "deskSetReportFullDetails": "Include full details",
+  "@deskSetReportFullDetails": {
+    "description": "Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened."
+  },
+  "deskSetReportPartFullDetails": "Full details",
+  "@deskSetReportPartFullDetails": {
+    "description": "Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log."
+  },
+  "txPrivateNetworks": "Private networks",
+  "@txPrivateNetworks": {
+    "description": "Settings › Transactions, row under the Link › HTTP switch: opens the list of Wi-Fi networks marked private (where the phone's HTTP listener runs)."
+  },
+  "txPrivateNetworksCount": "{count, plural, =0{None marked yet} one{{count} marked} other{{count} marked}}",
+  "@txPrivateNetworksCount": {
+    "description": "Settings › Transactions, line under the Private networks row: how many networks are marked.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "txPrivateNetworksBody": "Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.",
+  "@txPrivateNetworksBody": {
+    "description": "Private networks sheet: the info sheet behind the info icon beside the title: what the list is."
+  },
+  "txPrivateNetworksNone": "No network marked yet.",
+  "@txPrivateNetworksNone": {
+    "description": "Private networks sheet: the empty list, one short line."
+  },
+  "txPrivateNetworkCurrent": "This network",
+  "@txPrivateNetworkCurrent": {
+    "description": "Private networks sheet: tag beside the entry of the network the phone is on now."
+  },
+  "txPrivateNetworkForget": "Forget",
+  "@txPrivateNetworkForget": {
+    "description": "Private networks sheet: button beside each entry that removes it; the listener then stops on that network until it is marked again."
+  },
+  "txPrivateNetworkForgetLabel": "Forget {range}",
+  "@txPrivateNetworkForgetLabel": {
+    "description": "Private networks sheet: screen reader label of the Forget button, with the entry's address range (txPrivateNetworkRange).",
+    "placeholders": {
+      "range": {
+        "type": "String",
+        "example": "192.168.1.x"
+      }
+    }
+  },
+  "txPrivateNetworkRange": "{range}.x",
+  "@txPrivateNetworkRange": {
+    "description": "Private networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.",
+    "placeholders": {
+      "range": {
+        "type": "String",
+        "example": "192.168.1"
+      }
+    }
+  },
+  "deskSetReportFullDetailsInfo": "Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.",
+  "@deskSetReportFullDetailsInfo": {
+    "description": "Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and what is never in the report, ticked or not."
+  }
 }

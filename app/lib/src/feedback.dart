@@ -82,7 +82,8 @@ bool isValidFeedbackEmail(String email) =>
 
 /// The report. [log] is the attached log tail, or null when the user turned it off. The
 /// message, the facts and the log are cleaned here, whatever the caller did; the email is the
-/// user's own, for a reply, and stays as written.
+/// user's own, for a reply, and stays as written. [fullDetails] ("Include full details") keeps
+/// the wallet addresses and amounts the log holds ([cleanForReport]), and the report says so.
 SupportReport buildFeedbackReport({
   required String message,
   String? email,
@@ -91,6 +92,7 @@ SupportReport buildFeedbackReport({
   required DateTime at,
   String ui = 'phone',
   CleanContext context = const CleanContext(),
+  bool fullDetails = false,
 }) {
   // One set of names for the facts and the log, so the node is the same <host-n> in both; the
   // message gets its own, as in the GUI.
@@ -110,10 +112,11 @@ SupportReport buildFeedbackReport({
       'epicbox': cleanHost(details.relay, ids),
       'sync': clean(details.sync),
       'log level': ?details.logLevel,
+      if (fullDetails && log != null) 'log details': 'full',
     },
     files: [
       if (log != null)
-        tailFile('app/wfe.log', clean(log), max: feedbackLogBytes),
+        tailFile('app/wfe.log', cleanForReport(log, context: context, ids: ids, fullDetails: fullDetails), max: feedbackLogBytes),
     ],
   );
 }

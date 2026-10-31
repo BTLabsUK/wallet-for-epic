@@ -81,6 +81,18 @@
   "@deskSetReportAttachHint": {
     "description": "Report a problem dialog: small text under the Attach logs checkbox."
   },
+  "deskSetReportFullDetails": "Include full details",
+  "@deskSetReportFullDetails": {
+    "description": "Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened."
+  },
+  "deskSetReportFullDetailsInfo": "Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.",
+  "@deskSetReportFullDetailsInfo": {
+    "description": "Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and what is never in the report, ticked or not."
+  },
+  "deskSetReportPartFullDetails": "Full details",
+  "@deskSetReportPartFullDetails": {
+    "description": "Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log."
+  },
   "deskSetReportSentWhat": "What is sent",
   "@deskSetReportSentWhat": {
     "description": "Report a problem dialog: title of the collapsible list of what the report holds."

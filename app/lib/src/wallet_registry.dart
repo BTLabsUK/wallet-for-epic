@@ -72,16 +72,18 @@ class WalletEntry {
   final DateTime createdAt;
   final DateTime? lastOpenedAt;
 
-  /// A one-way fingerprint of the recovery phrase (64 lowercase hex), written when the app
-  /// creates or restores the wallet; null for wallets made before the app kept one. Restore
-  /// compares it to find a wallet that is already listed. The phrase cannot be recovered from
-  /// it (see `phraseFingerprint` in the desktop data layer).
+  /// The old fingerprint of the recovery phrase (64 lowercase hex) that earlier builds wrote.
+  /// Read only, so a restore still finds a wallet not unlocked since; the app drops it at the
+  /// wallet's next unlock once [walletFingerprint] is kept ([WalletRegistry.dropPhraseFingerprint]).
+  /// Never written again: a fast hash of the phrase in a plain file lets whoever holds the file
+  /// test guesses at a damaged phrase.
   final String? phraseFingerprint;
 
   /// The wallet core's fingerprint of the wallet (8 lowercase hex,
   /// [WalletService.walletFingerprint]): the same for a wallet created, restored or imported
   /// from a wallet.seed, kept when the app makes the wallet or first opens one made before.
-  /// Restore compares it, and [phraseFingerprint] for entries that have only that.
+  /// Restore compares it, and [phraseFingerprint] for entries that have only that. Its 32 bits
+  /// tell wallets apart without being a useful check of a guessed phrase.
   final String? walletFingerprint;
 
   bool get isLegacy => id.startsWith(WalletRegistry.legacyPrefix);
@@ -369,14 +371,23 @@ class WalletRegistry {
     return entry;
   });
 
-  /// Keeps the recovery phrase fingerprint of [id] ([WalletEntry.phraseFingerprint]).
-  Future<WalletEntry> setPhraseFingerprint(String id, String fingerprint) => _locked(() async {
+  /// Drops the old phrase fingerprint of [id] ([WalletEntry.phraseFingerprint]) once the core's
+  /// [WalletEntry.walletFingerprint] is kept, which a restore compares instead. An entry without
+  /// one is left as it is, so a restore of its phrase still finds it.
+  Future<WalletEntry> dropPhraseFingerprint(String id) => _locked(() async {
     _requireWritable();
-    if (!WalletEntry._fingerprintPattern.hasMatch(fingerprint)) {
-      throw const WalletRegistryException('fingerprint is not 64 lowercase hex characters');
-    }
     final i = _indexOf(id);
-    final entry = _entries[i].copyWith(phraseFingerprint: fingerprint);
+    final old = _entries[i];
+    if (old.phraseFingerprint == null || old.walletFingerprint == null) return old;
+    final entry = WalletEntry(
+      id: old.id,
+      label: old.label,
+      chain: old.chain,
+      dataDir: old.dataDir,
+      createdAt: old.createdAt,
+      lastOpenedAt: old.lastOpenedAt,
+      walletFingerprint: old.walletFingerprint,
+    );
     await _save([..._entries]..[i] = entry, _lastUsedId);
     _entries[i] = entry;
     return entry;

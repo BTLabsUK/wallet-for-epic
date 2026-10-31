@@ -7,6 +7,7 @@
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/phone_http.dart' show lanAddressReaderProvider, privateNetworksKey;
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -78,6 +79,7 @@ Future<ProviderContainer> _pump(
   bool phone = false,
   List<TxEntry> transactions = const [],
   PhoneTorState tor = _torOff,
+  String? lanAddress,
 }) async {
   tester.view.physicalSize = const Size(1080, 4800);
   tester.view.devicePixelRatio = 3;
@@ -94,6 +96,7 @@ Future<ProviderContainer> _pump(
         sessionProvider.overrideWith(() => _OpenSession(transactions)),
         phoneTorProvider.overrideWith(() => _Tor(tor)),
         backedUpProvider.overrideWith((ref) async => true),
+        if (lanAddress != null) lanAddressReaderProvider.overrideWithValue(() async => lanAddress),
       ],
       child: Consumer(
         builder: (context, ref, _) {
@@ -188,6 +191,42 @@ void main() {
     expect(_payments(c).linkTor, isFalse);
     expect(_row('tx-tor'), findsOneWidget, reason: 'a row shown stays while the page is open');
   }, skip: !torBuilt);
+
+  testWidgets('Link · HTTP on: the Private networks row lists the marked networks, Forget drops one', (tester) async {
+    final store = _store({
+      'app.payment_prefs': const PaymentPrefs(linkHttp: true).encode(),
+      privateNetworksKey: '10.0.0,192.168.1',
+    });
+    await _pump(tester, store, phone: true, lanAddress: '10.100.10.20');
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle();
+    expect(find.text('Private networks · 2 marked'), findsOneWidget);
+    await tester.tap(_row('tx-private-networks'));
+    await tester.pumpAndSettle();
+    // Newest first, the one in use tagged.
+    expect(find.text('192.168.1.x'), findsOneWidget);
+    expect(find.text('10.0.0.x'), findsOneWidget);
+    expect(find.text('This network'), findsOneWidget);
+
+    await tester.tap(_row('tx-forget-network-10.0.0'));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle();
+    expect(find.text('10.0.0.x'), findsNothing);
+    expect(store.values[privateNetworksKey], '192.168.1');
+    expect(find.text('Private networks · 1 marked'), findsOneWidget);
+
+    // The last one: the sheet says none is marked.
+    await tester.tap(_row('tx-forget-network-192.168.1'));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('No network marked yet'), findsOneWidget);
+    expect(find.text('Private networks · None marked yet'), findsOneWidget);
+  });
+
+  testWidgets('Link · HTTP off: no Private networks row', (tester) async {
+    await _pump(tester, _store({privateNetworksKey: '192.168.1'}), phone: true);
+    expect(_row('tx-private-networks'), findsNothing);
+  });
 
   testWidgets('Link · Tor on with Tor off: the line under it opens Privacy & network', (tester) async {
     final c = await _pump(tester, _store());

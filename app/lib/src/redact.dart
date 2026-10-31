@@ -15,8 +15,21 @@
 ///    `[redacted]`, and so does a 4 to 8 digit number right after `pin`.
 /// 4. A UUID keeps its first 8 characters and gets `…`. 32 or more hex digits become `[hex]`.
 ///    Any other run of 64 or more token characters that is not a URL path becomes `[redacted]`
-///    (FCM tokens, JWTs, base64). 40 or more base58 characters, an epicbox address key, keep the
-///    first 6 and get `…`, so `es…@relay` stays readable.
+///    (FCM tokens, JWTs, base64).
+///
+/// The slate rule keeps the slate's id (8 characters) and state: `[slate 0f3b2a1c… S2]`.
+///
+/// Unless `details` is set, which only Detailed logging does ([AppLog.detailed]), it also takes
+/// out what says who was paid and how much, so the default log has neither:
+///
+/// 5. An address is cut to a fingerprint, its first 6 and last 4 characters: an epicbox
+///    address key (40 or more base58 characters) `esWn9r…K3oa@relay`, an onion address
+///    `abcdef…wxyz.onion`. With `details` an address is kept whole.
+/// 6. An amount becomes a bucket, `[<10 EPIC]`: a number before `EPIC`, and the number after
+///    `amount`, `amt`, `fee`, `balance` or `spendable` (a whole number there counts in the
+///    core's units, 10^-8 EPIC).
+///
+/// Seeds, keys, passwords and slates are taken out in every mode.
 library;
 
 import 'bip39_words.dart';
@@ -47,11 +60,16 @@ const List<String> _slateMarkers = [
   '"participant_data"',
   '"public_blind_excess"',
   '"part_sig"',
+  // V4 compact slates.
+  '"sigs"',
+  '"coms"',
 ];
 
-/// [text] with every secret the rules above recognise replaced.
-String redact(String text) {
+/// [text] with every secret the rules above recognise replaced, and unless [details] the
+/// addresses and amounts as well (rules 5 and 6).
+String redact(String text, {bool details = false}) {
   var out = _redactSlate(text);
+  out = _redactSlatepack(out);
   out = _redactPhrases(out);
   out = _redactKeyed(out);
   out = out.replaceAllMapped(
@@ -66,12 +84,50 @@ String redact(String text) {
     RegExp(r'[A-Za-z0-9_\-+/=:.~]+'),
     (m) => m[0]!.length >= 64 && !m[0]!.contains('//') ? redacted : m[0]!,
   );
-  return out.replaceAllMapped(
+  if (details) return out;
+  out = out.replaceAllMapped(
     RegExp(r'[A-Za-z0-9]+'),
-    (m) => m[0]!.length >= 40 && _base58.hasMatch(m[0]!)
-        ? '${m[0]!.substring(0, 6)}…'
-        : m[0]!,
+    (m) => m[0]!.length >= 40 && _base58.hasMatch(m[0]!) ? addressFingerprint(m[0]!) : m[0]!,
   );
+  out = out.replaceAllMapped(_onion, (m) => '${addressFingerprint(m[1]!)}${m[2] ?? ''}');
+  return _redactAmounts(out);
+}
+
+/// The fingerprint an address is logged as: its first 6 and last 4 characters.
+String addressFingerprint(String address) =>
+    address.length <= 12 ? address : '${address.substring(0, 6)}…${address.substring(address.length - 4)}';
+
+final RegExp _onion = RegExp(r'(?<![A-Za-z0-9])(?=[a-z]*[2-7])([a-z2-7]{56})(\.onion)?(?![A-Za-z0-9])');
+
+/// The bucket [epic] falls in, as logged: `[<10 EPIC]`.
+String amountBucket(double epic) {
+  if (epic == 0) return '[0 EPIC]';
+  const limits = [(0.01, '0.01'), (1.0, '1'), (10.0, '10'), (100.0, '100'), (1000.0, '1k'), (10000.0, '10k'), (100000.0, '100k')];
+  for (final (limit, label) in limits) {
+    if (epic < limit) return '[<$label EPIC]';
+  }
+  return '[≥100k EPIC]';
+}
+
+/// The core's units in one EPIC.
+const double _unitsPerEpic = 100000000;
+
+final RegExp _epicAmount = RegExp(r'(?<![\w.,<\[])(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?(\s?)EPIC\b');
+final RegExp _keyedAmount = RegExp(
+  r'''\b(amount|amt|fee|balance|spendable)("?\s*[:=]\s*"?|\s+)(\d+)(\.\d+)?(?![\d.])''',
+  caseSensitive: false,
+);
+
+String _redactAmounts(String text) {
+  var out = text.replaceAllMapped(_epicAmount, (m) {
+    final whole = m[1]!.replaceAll(',', '');
+    return amountBucket(double.parse('$whole${m[2] ?? ''}'));
+  });
+  out = out.replaceAllMapped(_keyedAmount, (m) {
+    final value = double.parse('${m[3]}${m[4] ?? ''}');
+    return '${m[1]}${m[2]}${amountBucket(m[4] == null ? value / _unitsPerEpic : value)}';
+  });
+  return out;
 }
 
 final RegExp _uuid = RegExp(
@@ -80,11 +136,25 @@ final RegExp _uuid = RegExp(
 final RegExp _hex = RegExp(r'^[0-9a-fA-F]+$');
 final RegExp _base58 = RegExp(r'^[1-9A-HJ-NP-Za-km-z]+$');
 
+final RegExp _slateId = RegExp(r'"id"\s*:\s*"([0-9a-fA-F]{8})-[0-9a-fA-F-]{27}"');
+final RegExp _slateState = RegExp(r'"sta"\s*:\s*"([A-Za-z0-9]{1,4})"');
+
+/// A slate: its id and state, nothing else of it.
 String _redactSlate(String text) {
   if (!_slateMarkers.any(text.contains)) return text;
   final brace = text.indexOf('{');
-  return brace < 0 ? '[slate]' : '${text.substring(0, brace)}[slate]';
+  final id = _slateId.firstMatch(text)?[1];
+  final state = _slateState.firstMatch(text)?[1];
+  final kept = [if (id != null) '$id…', ?state].join(' ');
+  final slate = kept.isEmpty ? '[slate]' : '[slate $kept]';
+  return brace < 0 ? slate : '${text.substring(0, brace)}$slate';
 }
+
+/// A slatepack, armoured or cut: `[slatepack]`.
+String _redactSlatepack(String text) => text.replaceAll(
+  RegExp(r'BEGINSLATEPACK\.[\s\S]*?(ENDSLATEPACK\.|$)'),
+  '[slatepack]',
+);
 
 final RegExp _word = RegExp(r'[A-Za-z]+');
 

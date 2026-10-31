@@ -1086,6 +1086,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await _setMeta({'opened': DateTime.now().millisecondsSinceEpoch ~/ 1000});
     await _seedContacts();
     if (entry.walletFingerprint == null) await _keepWalletFingerprint(entry, session);
+    await _dropPhraseFingerprint(entry.id);
     try {
       if (_registry != null) _openEntry = await (await _registry!).markOpened(entry.id);
     } on Object catch (e) {
@@ -1363,15 +1364,13 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Makes the wallet in [create] at [_newWallet]'s place, lists it and selects it. A wallet
   /// that was not made leaves no entry.
   /// [ownEntry]: always a new entry, never the first wallet's folder (imports).
-  /// [fingerprintOf]: the phrase fingerprint of the made wallet, kept in its list entry
-  /// ([reg.WalletEntry.phraseFingerprint]) so a later restore of the same phrase finds it.
-  /// [walletFingerprintOf]: the core's fingerprint ([reg.WalletEntry.walletFingerprint]).
+  /// [walletFingerprintOf]: the core's fingerprint of the made wallet, kept in its list entry
+  /// ([reg.WalletEntry.walletFingerprint]) so a later restore of the same phrase finds it.
   Future<T> _make<T>(
     String name,
     Map<String, Object?> meta,
     Future<T> Function(core.WalletConfig config) create, {
     bool ownEntry = false,
-    String Function(T result)? fingerprintOf,
     String? Function(T result)? walletFingerprintOf,
   }) async {
     final entry = await _newWallet(name, ownEntry: ownEntry);
@@ -1407,7 +1406,6 @@ class LepicDeskWallet implements DeskWalletApi {
     if (listed != null) {
       try {
         final r = await registry();
-        if (fingerprintOf != null) await r.setPhraseFingerprint(listed.id, fingerprintOf(result));
         final wallet = walletFingerprintOf?.call(result);
         if (wallet != null) await r.setWalletFingerprint(listed.id, wallet);
         await r.setLastUsed(listed.id);
@@ -1463,7 +1461,7 @@ class LepicDeskWallet implements DeskWalletApi {
         } finally {
           session.dispose();
         }
-      }, fingerprintOf: (words) => phraseFingerprint(words.join(' ')), walletFingerprintOf: (words) => _walletFingerprint(words.join(' ')));
+      }, walletFingerprintOf: (words) => _walletFingerprint(words.join(' ')));
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }
@@ -1477,6 +1475,17 @@ class LepicDeskWallet implements DeskWalletApi {
       await (await registry()).setWalletFingerprint(entry.id, fp);
     } on Object catch (e) {
       logWarn('desk', 'wallet fingerprint not kept: ${e.runtimeType}');
+    }
+  }
+
+  /// Drops the old phrase hash that earlier builds kept in the wallet list, once the core's
+  /// fingerprint is there to match a restore instead ([reg.WalletRegistry.dropPhraseFingerprint]).
+  /// A failure is logged only; the next unlock tries again.
+  Future<void> _dropPhraseFingerprint(String id) async {
+    try {
+      await (await registry()).dropPhraseFingerprint(id);
+    } on Object catch (e) {
+      logWarn('desk', 'old phrase fingerprint not dropped: ${e.runtimeType}');
     }
   }
 
@@ -1566,13 +1575,15 @@ class LepicDeskWallet implements DeskWalletApi {
     _selectedId = id;
     // The core checked the phrase against this wallet: a wallet made before the app kept
     // fingerprints gets one now, so a restore of the same phrase finds it.
-    if (entry.phraseFingerprint == null) {
+    final fp = entry.walletFingerprint == null ? _walletFingerprint(mnemonic) : null;
+    if (fp != null) {
       try {
-        await (await registry()).setPhraseFingerprint(id, phraseFingerprint(mnemonic));
+        await (await registry()).setWalletFingerprint(id, fp);
       } on Object catch (e) {
         logWarn('desk', 'wallet list not saved: ${e.runtimeType}');
       }
     }
+    await _dropPhraseFingerprint(id);
   }
 
   @override
@@ -1587,7 +1598,7 @@ class LepicDeskWallet implements DeskWalletApi {
       await _make(name, {'scanPending': true, 'historyOffer': true, if (startHeight != null) 'scanFrom': startHeight.toInt()}, (config) async {
         final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
         session.dispose();
-      }, fingerprintOf: (_) => phraseFingerprint(mnemonic), walletFingerprintOf: (_) => _walletFingerprint(mnemonic));
+      }, walletFingerprintOf: (_) => _walletFingerprint(mnemonic));
     } on core.WalletError catch (e) {
       throw _deskError(e);
     }

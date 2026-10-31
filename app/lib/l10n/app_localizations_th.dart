@@ -18390,4 +18390,61 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get passphraseSetTitle => 'ตั้งวลีรหัสผ่าน';
+
+  @override
+  String get receiveHttpNotPrivateTitle => 'ปิดอยู่ในเครือข่ายนี้';
+
+  @override
+  String get receiveHttpNotPrivate =>
+      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว ใน Wi-Fi ที่ใช้ร่วมกัน ใครก็ตามที่นั่นอาจเข้าถึงกระเป๋าเงินนี้ได้';
+
+  @override
+  String get receiveHttpMarkPrivate => 'นี่คือเครือข่ายส่วนตัวของฉัน';
+
+  @override
+  String get deskSetReportFullDetails => 'แนบรายละเอียดทั้งหมด';
+
+  @override
+  String get deskSetReportPartFullDetails => 'รายละเอียดเต็ม';
+
+  @override
+  String get txPrivateNetworks => 'เครือข่ายส่วนตัว';
+
+  @override
+  String txPrivateNetworksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ทำเครื่องหมายแล้ว $count เครือข่าย',
+      zero: 'ยังไม่ได้ทำเครื่องหมาย',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get txPrivateNetworksBody =>
+      'Link · HTTP รับฟังในเครือข่ายเหล่านี้ เครือข่ายถูกจดจำด้วยช่วงที่อยู่ ดังนั้นบ้านสองหลังที่ใช้ช่วงเดียวกันจะนับเป็นเครือข่ายเดียว หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
+
+  @override
+  String get txPrivateNetworksNone => 'ยังไม่ได้ทำเครื่องหมายเครือข่ายใด';
+
+  @override
+  String get txPrivateNetworkCurrent => 'เครือข่ายนี้';
+
+  @override
+  String get txPrivateNetworkForget => 'ลืม';
+
+  @override
+  String txPrivateNetworkForgetLabel(String range) {
+    return 'ลืม $range';
+  }
+
+  @override
+  String txPrivateNetworkRange(String range) {
+    return '$range.x';
+  }
+
+  @override
+  String get deskSetReportFullDetailsInfo =>
+      'ที่อยู่จะถูกย่อ และจำนวนเงินแสดงเป็นช่วง เมื่อติ๊กจะส่งแบบเต็ม วลีกู้คืน คีย์ และรหัสผ่านไม่มีวันถูกส่ง';
 }
