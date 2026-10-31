@@ -97,19 +97,39 @@ class Rig:
         except ValueError:
             return {"ok": False, "error": "bad answer: %s" % out[-300:]}
 
-    # ---- reading the app's files (as BT over SSH; epicrig's files under the run folder are readable)
+    # ---- reading the app's files: by the agent, as epicrig. From 26.10.25 the app keeps its data
+    # folder to its own user and SYSTEM (WAL-12), so BT is refused there; before the agent is up
+    # (or after it quit) the read falls back to BT over SSH, which an older release still allows.
+
+    def as_owner(self, script, timeout=120):
+        """A PowerShell snippet run by the agent (epicrig); its output, or None when no agent answers."""
+        r = self.call("ps", timeout=timeout, code=script)
+        return (r.get("out") or "") if r.get("ok") else None
 
     def text(self, path):
         """A text file's content, None when it does not exist."""
+        out = self.as_owner("$p = '%s'; if (Test-Path -LiteralPath $p) { 'OK'; $t = Get-Content -Raw -Encoding utf8 "
+                            "-LiteralPath $p; if ($null -eq $t) { $t = '' }; "
+                            "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($t)) -split '(.{1,200})' | "
+                            "Where-Object { $_ } } else { 'NONE' }" % path)
+        if out is not None:
+            lines = [x.strip() for x in out.replace("\r", "").split("\n") if x.strip()]
+            if lines and lines[0] == "OK":
+                return base64.b64decode("".join(lines[1:])).decode("utf-8", "replace")
+            if lines and lines[0] == "NONE":
+                return None
         out = self.pwsh("$p = '%s'; if (Test-Path -LiteralPath $p) { 'OK'; Get-Content -Raw -Encoding utf8 -LiteralPath $p } "
                         "else { 'NONE' }" % path, check=False)
-        out = out.lstrip("﻿")
+        out = out.lstrip("\ufeff")
         return out[2:].lstrip("\r\n") if out.startswith("OK") else None
 
     def files(self, root, skip=("logs", "tor", "cache")):
         """Files under [root], relative, without the given top folders, lock and log files."""
-        out = self.pwsh("$r = '%s'; if (Test-Path -LiteralPath $r) { Get-ChildItem -LiteralPath $r -Recurse -File -Force | "
-                        "ForEach-Object { $_.FullName.Substring($r.Length + 1) } }" % root, check=False)
+        script = ("$r = '%s'; if (Test-Path -LiteralPath $r) { Get-ChildItem -LiteralPath $r -Recurse -File -Force | "
+                  "ForEach-Object { $_.FullName.Substring($r.Length + 1) } }" % root)
+        out = self.as_owner(script)
+        if out is None:
+            out = self.pwsh(script, check=False)
         keep = []
         for f in out.replace("\r", "").splitlines():
             f = f.strip()
@@ -119,11 +139,14 @@ class Rig:
         return sorted(keep)
 
     def fetch_db(self, db, local_dir, tag):
-        """Copies the wallet's SQLite files (with -wal and -shm) on the box, then here; the local path."""
+        """Copies the wallet's SQLite files (with -wal and -shm) on the box, then here; the local path. The
+        copies land under the run folder, which BT can read."""
         snap = self.run + "\\snap\\" + tag
-        self.pwsh("New-Item -ItemType Directory -Force '%s' | Out-Null; foreach ($x in '', '-wal', '-shm') { "
+        script = ("New-Item -ItemType Directory -Force '%s' | Out-Null; foreach ($x in '', '-wal', '-shm') { "
                   "if (Test-Path -LiteralPath ('%s' + $x)) { Copy-Item -LiteralPath ('%s' + $x) -Destination '%s' -Force } }"
                   % (snap, db, db, snap))
+        if self.as_owner(script) is None:
+            self.pwsh(script)
         local = os.path.join(local_dir, tag)
         os.makedirs(local, exist_ok=True)
         name = db.rsplit("\\", 1)[-1]
