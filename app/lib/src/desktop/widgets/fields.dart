@@ -7,6 +7,7 @@ import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'data.dart' show ESelect, ESelectItem;
 import 'keyboard.dart';
 import 'selectable.dart';
 import 'tip.dart';
@@ -482,7 +483,7 @@ class ESegmented<T> extends StatelessWidget {
   final bool stretch;
 
   /// Short of room, the control shrinks before it clips (UD-025): first the counts go (into
-  /// each segment's tooltip), then the strip scrolls sideways with its end faded; a label is
+  /// each segment's tooltip), then the segments wrap onto a second row, or become a dropdown past two; a label is
   /// never cut.
   final bool shrink;
 
@@ -501,26 +502,63 @@ class ESegmented<T> extends StatelessWidget {
     final count = context.ts.mono(size: 11);
     var w = 2 * 3.u + 2 + 2.0 * (segments.length - 1);
     for (final s in segments) {
-      w += 2 * Sp.x3 + text(s.label, label);
-      if (s.icon != null) w += Ctl.iconSm + 6.u;
-      if (counts && s.count != null) w += 6.u + text('${s.count}', count);
-      if (s.badge != null) w += 6.u + 40.u;
+      w += _segWidth(s, label, count, text, counts: counts);
     }
     return w.ceilToDouble() + 2;
+  }
+
+  double _segWidth(ESegment<T> s, TextStyle label, TextStyle count, double Function(String, TextStyle) text, {required bool counts}) {
+    var w = 2 * Sp.x3 + text(s.label, label);
+    if (s.icon != null) w += Ctl.iconSm + 6.u;
+    if (counts && s.count != null) w += 6.u + text('${s.count}', count);
+    if (s.badge != null) w += 6.u + 40.u;
+    return w;
+  }
+
+  /// Rows the segments need when they wrap inside [room] (greedy, as [Wrap] lays them out).
+  int _rowsIn(BuildContext context, double room) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final dir = Directionality.of(context);
+    double text(String s, TextStyle st) {
+      final tp = TextPainter(text: TextSpan(text: s, style: st), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+      final w = tp.width;
+      tp.dispose();
+      return w;
+    }
+    final label = DefaultTextStyle.of(context).style.merge(TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500));
+    final count = context.ts.mono(size: 11);
+    final inner = room - 2 * 3.u - 4;
+    var rows = 1;
+    var used = 0.0;
+    for (final s in segments) {
+      final w = _segWidth(s, label, count, text, counts: false) + 2;
+      if (used > 0 && used + w > inner) {
+        rows++;
+        used = 0;
+      }
+      used += w;
+    }
+    return rows;
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final md = size == EBtnSize.md;
-    Widget control(List<ESegment<T>> segs, bool stretch) => Container(
+    Widget control(List<ESegment<T>> segs, bool stretch, {bool wrap = false}) => Container(
       padding: EdgeInsets.all(3.u),
       decoration: BoxDecoration(
         color: c.s2,
         borderRadius: BorderRadius.circular(Rad.sm),
         border: Border.all(color: c.line),
       ),
-      child: Row(
+      child: wrap
+          ? Wrap(
+              spacing: 2,
+              runSpacing: 2,
+              children: [for (final s in segs) _Seg(seg: s, selected: s.value == value, md: md, stretch: false, onTap: s.enabled ? () => onChanged(s.value) : null)],
+            )
+          : Row(
         mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
         children: [
           for (final s in segs) ...[
@@ -543,8 +581,15 @@ class ESegmented<T> extends StatelessWidget {
             ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, badge: s.badge, tooltip: s.tooltip ?? (s.count == null ? null : '${s.label} · ${s.count}')),
         ];
         if (_natural(context, counts: false) <= box.maxWidth) return control(bare, stretch);
-        // Still too wide: the labels stay whole and the strip scrolls sideways, its end faded.
-        return EHScroll(child: control(bare, false));
+        // Still too wide: the labels stay whole and the segments wrap onto a second row; past two
+        // rows the control is a dropdown, so every choice stays visible and clickable.
+        if (_rowsIn(context, box.maxWidth) <= 2) return control(bare, false, wrap: true);
+        return ESelect<T>(
+          size: size,
+          items: [for (final s in segments) ESelectItem<T>(s.value, s.count == null ? s.label : '${s.label} · ${s.count}', tooltip: s.tooltip)],
+          value: value,
+          onChanged: onChanged,
+        );
       },
     );
   }
@@ -782,65 +827,6 @@ class ECheckbox extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// A row that scrolls sideways when it is wider than its room (a segmented strip, Settings'
-/// section chips): the side with more to see fades out over 24 u, so the cut reads as "more
-/// this way", never as a chopped label. No fade when everything fits.
-class EHScroll extends StatefulWidget {
-  const EHScroll({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  State<EHScroll> createState() => _EHScrollState();
-}
-
-class _EHScrollState extends State<EHScroll> {
-  bool _start = false, _end = false;
-
-  bool _onMetrics(ScrollMetrics m) {
-    final start = m.pixels > m.minScrollExtent + 0.5, end = m.pixels < m.maxScrollExtent - 0.5;
-    if (start != _start || end != _end) {
-      // Metrics arrive during layout: the fades follow in the next frame.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _start = start;
-            _end = end;
-          });
-        }
-      });
-    }
-    return false;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final rtl = Directionality.of(context) == TextDirection.rtl;
-    final scroll = NotificationListener<ScrollMetricsNotification>(
-      onNotification: (n) => _onMetrics(n.metrics),
-      child: NotificationListener<ScrollNotification>(
-        onNotification: (n) => _onMetrics(n.metrics),
-        child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: widget.child),
-      ),
-    );
-    if (!_start && !_end) return scroll;
-    return ShaderMask(
-      blendMode: BlendMode.dstIn,
-      shaderCallback: (rect) {
-        final fade = (24.u / rect.width).clamp(0.0, 0.5);
-        const on = Color(0xFFFFFFFF), off = Color(0x00FFFFFF);
-        return LinearGradient(
-          begin: rtl ? Alignment.centerRight : Alignment.centerLeft,
-          end: rtl ? Alignment.centerLeft : Alignment.centerRight,
-          colors: [_start ? off : on, on, on, _end ? off : on],
-          stops: [0, fade, 1 - fade, 1],
-        ).createShader(rect);
-      },
-      child: scroll,
     );
   }
 }

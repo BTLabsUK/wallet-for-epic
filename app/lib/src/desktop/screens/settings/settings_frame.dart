@@ -109,16 +109,10 @@ class SettingsFrame extends ConsumerWidget {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                EHScroll(
-                  child: Row(
-                    children: [
-                      for (final i in items.whereType<(DeskRoute, String, IconData)>())
-                        Padding(
-                          padding: EdgeInsets.only(right: Sp.x2),
-                          child: _Chip(icon: i.$3, label: i.$2, selected: i.$1 == current, onTap: () => nav.go(i.$1)),
-                        ),
-                    ],
-                  ),
+                _SectionStrip(
+                  items: [for (final i in items.whereType<(DeskRoute, String, IconData)>()) i],
+                  current: current,
+                  onTap: nav.go,
                 ),
                 SizedBox(height: Sp.x6),
                 content,
@@ -279,5 +273,55 @@ class _Chip extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// The narrow window's section chips: they wrap onto a second row; where two rows are not
+/// enough, a dropdown lists every section, so none hides behind an edge.
+class _SectionStrip extends StatelessWidget {
+  const _SectionStrip({required this.items, required this.current, required this.onTap});
+
+  final List<(DeskRoute, String, IconData)> items;
+  final DeskRoute current;
+  final void Function(DeskRoute) onTap;
+
+  int _rows(BuildContext context, double room) {
+    final style = context.ts.body;
+    var rows = 1;
+    var used = 0.0;
+    for (final i in items) {
+      final tp = TextPainter(
+        text: TextSpan(text: i.$2, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      final w = 2 * Sp.x3 + Ctl.iconSm + Sp.x2 + tp.width + 2 + Sp.x2;
+      tp.dispose();
+      if (used > 0 && used + w - Sp.x2 > room) {
+        rows++;
+        used = 0;
+      }
+      used += w;
+    }
+    return rows;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, box) {
+      if (box.maxWidth.isFinite && _rows(context, box.maxWidth) > 2) {
+        return ESelect<DeskRoute>(
+          items: [for (final i in items) ESelectItem<DeskRoute>(i.$1, i.$2, leading: Icon(i.$3, size: Ctl.iconSm))],
+          value: items.any((i) => i.$1 == current) ? current : items.first.$1,
+          onChanged: onTap,
+        );
+      }
+      return Wrap(
+        spacing: Sp.x2,
+        runSpacing: Sp.x2,
+        children: [for (final i in items) _Chip(icon: i.$3, label: i.$2, selected: i.$1 == current, onTap: () => onTap(i.$1))],
+      );
+    });
   }
 }

@@ -96,18 +96,16 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
             label: l.deskTxFactMethod,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: ESegmented<String>(
-                  segments: [
-                    ESegment('', l.deskKitUnknown),
-                    // The build without Tor lists Link · Tor only for a payment that already says it.
-                    for (final m in TxMethod.values)
-                      if (DeskFeatures.tor || m != TxMethod.tor || widget.tx.transport == m.name) ESegment(m.name, methodLabel(l, m)),
-                  ],
-                  value: _via,
-                  onChanged: _busy ? (_) {} : (v) => setState(() => _via = v),
-                ),
+              child: ESegmented<String>(
+                shrink: true,
+                segments: [
+                  ESegment('', l.deskKitUnknown),
+                  // The build without Tor lists Link · Tor only for a payment that already says it.
+                  for (final m in TxMethod.values)
+                    if (DeskFeatures.tor || m != TxMethod.tor || widget.tx.transport == m.name) ESegment(m.name, methodLabel(l, m)),
+                ],
+                value: _via,
+                onChanged: _busy ? (_) {} : (v) => setState(() => _via = v),
               ),
             ),
           ),
