@@ -262,6 +262,49 @@ class EngineTest(Base):
         self.assertEqual(run.status("publish-source")["status"], "skipped")
         self.assertEqual(run.status("publish-source")["reason"], "token renewal")
 
+    def test_warn_only_failure_warns_and_holds_nothing(self):
+        import tomllib
+        from rellib.config import Pipeline
+        from support import FAKE_PIPELINE
+        self.pipeline = Pipeline(tomllib.loads(FAKE_PIPELINE + """
+[step.after]
+publish = true
+warn_only = true
+needs = ["publish-source"]
+run = "echo after >> {src}/calls; mkdir -p {stage}; echo '[{\\"label\\": \\"L\\", \\"url\\": \\"https://x.example/\\"}]' > {stage}/links.json; exit 3"
+
+[step.last]
+kind = "publish"
+needs = ["after"]
+run = "echo last >> {src}/calls"
+scratch = "scratch_noop"
+"""))
+        run = self.make_run(only="android", sets=["publish.manifests=false", "publish.github=false"])
+        os.environ["REL_FAKE_GATE"] = "approved"
+        eng = self.engine(run)
+        eng.drive(self.build_ids(run))
+        code = eng.drive([s.id for s in run.steps])
+        self.assertEqual(code, EXIT_OK)
+        st = run.status("after")
+        self.assertEqual((st["status"], st.get("warned")), ("done", True))
+        self.assertIn("WARNING, not blocking", st["note"])
+        self.assertEqual(run.status("last")["status"], "done")
+        self.assertIn("last", self.calls())
+        self.assertEqual(next(r for r in run.summary_rows() if r["id"] == "after")["status"], "warned")
+        relmsg = open(os.path.join(self.tmp, "relmsg.calls")).read()
+        self.assertIn("step after failed", relmsg)       # shown as failed in the live message …
+        self.assertNotIn("alert after failed", relmsg)   # … with no alert,
+        self.assertNotIn("link L", relmsg)                # and a failed step's links are not shown
+
+    def test_warn_only_is_refused_on_a_gate_or_build(self):
+        import tomllib
+        from rellib.config import ConfigError, Pipeline
+        from support import FAKE_PIPELINE
+        for extra in ('[step.g]\nkind = "gate"\nwarn_only = true\n',
+                      '[step.b]\nrun = "true"\noutputs = ["x"]\nwarn_only = true\n'):
+            with self.assertRaises(ConfigError):
+                Pipeline(tomllib.loads(FAKE_PIPELINE + extra))
+
     def test_preflight_failure_is_exit_30(self):
         run = self.make_run(only="android", sets=["publish.manifests=false"])
         from rellib.graph import Step

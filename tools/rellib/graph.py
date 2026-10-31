@@ -31,6 +31,7 @@ class Step:
     timeout: float = None
     retries: int = 0
     scratch: str = None
+    warn_only: bool = False
 
     @property
     def phase(self):
@@ -63,11 +64,13 @@ def variants_for(spec, scope, pipeline):
     fe = spec.get("for_each")
     if not fe:
         return [None]
+    # `variants` narrows for_each to some variants (e.g. Play takes one bundle per version code).
+    only = spec.get("variants", list(VARIANTS))
     if fe == "variant":
-        return [v for v in VARIANTS if scope["variants"].get(v)]
+        return [v for v in VARIANTS if scope["variants"].get(v) and v in only]
     if fe == "proof_variant":
         allowed = pipeline.proof.get("variants", list(VARIANTS))
-        return [v for v in VARIANTS if scope["variants"].get(v) and v in allowed]
+        return [v for v in VARIANTS if scope["variants"].get(v) and v in allowed and v in only]
     raise ConfigError(f"for_each {fe!r}: variant or proof_variant")
 
 
@@ -101,6 +104,7 @@ def build_graph(pipeline, scope, ctx):
             c["notor"] = "-notor" if var == "notor" else ""
             c["tor"] = "0" if var == "notor" else "1"
             c["github"] = "1" if scope["publish"].get("github") else "0"
+            c["play_promote"] = str(scope.get("stores", {}).get("play_promote") or "")
             c["stage"] = f"{ctx['run']}/steps/{sid}/out"
             where = f"step {sid}"
             needs = []
@@ -139,6 +143,7 @@ def build_graph(pipeline, scope, ctx):
                 timeout=parse_duration(spec.get("timeout")),
                 retries=int(spec.get("retries", 0)),
                 scratch=spec.get("scratch"),
+                warn_only=bool(spec.get("warn_only")),
             )
             steps.append(step)
     return topo(steps)

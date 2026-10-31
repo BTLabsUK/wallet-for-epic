@@ -35,6 +35,9 @@ notor = true
 # Store uploads, after the release is live. Off unless asked for.
 [stores]
 play = false
+# After the internal upload, the same bundle onto this testing track too (e.g. "beta", the open
+# testing track 26.10.24 went to). Empty: internal only. Production stays a click in Play Console.
+play_promote = ""
 
 [publish]
 # "live" = the real download server, page, GitLab and manifests; "scratch" = a folder in the run
@@ -54,8 +57,8 @@ notes = ""
 github = true
 
 # Steps to skip, with the reason. Only steps marked skippable in release/pipeline.toml
-# (publish-page, publish-source, prune-downloads, store uploads, cleanup); builds and gates
-# never: to drop a platform or a variant, switch it off above.
+# (publish-page, publish-source, prune-downloads, store uploads, screens, announce,
+# cleanup); builds and gates never: to drop a platform or a variant, switch it off above.
 [skip]
 # publish-source = "GitLab token renewal pending; owner ok"
 

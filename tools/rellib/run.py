@@ -200,7 +200,7 @@ class Run:
         for s in self.steps:
             st = self.status(s.id)
             rows.append({"id": s.id, "title": s.title, "phase": s.phase, "kind": s.kind, "host": s.host,
-                         "status": st.get("status"), "attempts": st.get("attempts", 0),
+                         "status": "warned" if st.get("warned") else st.get("status"), "attempts": st.get("attempts", 0),
                          "duration_s": st.get("duration_s"), "note": st.get("note"), "reason": st.get("reason"),
                          "hint": st.get("hint"), "bytes": st.get("bytes")})
         return rows
