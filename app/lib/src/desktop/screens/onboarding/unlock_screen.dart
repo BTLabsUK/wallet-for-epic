@@ -51,6 +51,9 @@ String rememberWho(AppLocalizations l) => !kIsWeb && Platform.isWindows ? l.desk
 class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   final _password = TextEditingController();
   final _passwordFocus = FocusNode();
+
+  /// The wallet list opens no further down than this button (UD-006).
+  final _unlockKey = GlobalKey();
   List<WalletEntry>? _wallets;
   String? _id;
   String? _error;
@@ -364,7 +367,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                   value: _id ?? wallets.first.id,
                   onChanged: _select,
                   openInitially: widget.arg == UnlockShow.listOpen,
-                  keepBelow: Ctl.md + Sp.x10,
+                  keepClear: _unlockKey,
                   items: [
                     for (final w in wallets)
                       ESelectItem(
@@ -461,7 +464,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               ),
             ],
             SizedBox(height: Sp.x6),
-            EButton.primary(label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _missing ? null : _unlock),
+            EButton.primary(key: _unlockKey, label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _missing ? null : _unlock),
           ],
         ),
       ),

@@ -158,6 +158,8 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
             ? l.deskSlotPaymentOut
             : l.deskSlotPaymentIn,
         detail: refused ? l.deskTxBroadcastAgain : (t.state == TxState.posted ? l.deskSlotWaitingBlock : count),
+        // Subject on line one, state on line two: nothing cut (UD-009).
+        stacked: true,
         progress: done / needed,
         hint: DeskRoute.activity == here ? null : l.deskSlotOpenActivity, onTap: to(DeskRoute.activity, t.id),
       ),
@@ -166,7 +168,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
   // 6. Requests to pay (Invoices on).
   final requests = ref.watch(deskInvoiceBadgeProvider);
   if (requests > 0) {
-    items.add(NowItem(id: 'requests', icon: EIcons.invoice, tone: ETone.warn, title: l.deskSlotRequests, detail: localInt(l, requests), hint: DeskRoute.invoices == here ? null : l.deskSlotOpenInvoices, onTap: to(DeskRoute.invoices)));
+    items.add(NowItem(id: 'requests', icon: EIcons.invoice, tone: ETone.warn, title: l.deskSlotRequests, detail: localInt(l, requests), stacked: true, hint: DeskRoute.invoices == here ? null : l.deskSlotOpenInvoices, onTap: to(DeskRoute.invoices)));
   }
   // 7. The local node starting or syncing.
   if (ref.watch(settingsPrefsProvider.select((p) => p.builtin))) {
@@ -180,6 +182,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
           tone: ETone.info,
           title: node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing,
           detail: node.phase == LocalNodePhase.starting ? null : v.marker,
+          stacked: true,
           // The share its percent says, else a bar without a known end.
           progress: node.phase == LocalNodePhase.syncing ? node.progress?.overall ?? -1 : -1,
           hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
@@ -204,6 +207,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
             tone: ETone.info,
             title: l.deskOwnSlotSyncing,
             detail: owner?.progress?.overall != null ? percent(owner!.progress!.overall!) : (behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null),
+            stacked: true,
             progress: owner?.progress?.overall ?? -1,
             hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
           ),

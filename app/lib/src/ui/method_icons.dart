@@ -23,7 +23,8 @@ export '../payment_method.dart';
 /// family is the link glyph, the Direct family two arrows.
 abstract final class MethodIcons {
   static const epicbox = EpicGlyphs.epicbox;
-  static const http = EpicGlyphs.http;
+  // The chain link, as the Send segment (UD-012): the "HTTP" lettering reads as noise at 16 px.
+  static const http = EpicGlyphs.link;
   static const tor = EpicGlyphs.tor;
   static const qr = Icons.qr_code_2;
   static const file = Icons.description_outlined;
