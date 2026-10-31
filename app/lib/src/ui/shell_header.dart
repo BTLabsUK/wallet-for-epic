@@ -496,7 +496,8 @@ class BalanceHeader extends ConsumerWidget {
               final text = hidden ? hiddenAmount : localDigits(l, displayEpic(summary.spendable));
               final full = box.maxWidth;
               final beside = full - 4 - iconsWidth;
-              double figureWidth(double size) => _spanWidth(_figureSpan(text, t, size), scaler, direction);
+              double figureWidth(double size, {bool unit = true}) =>
+                  _spanWidth(_figureSpan(text, t, size, unit: unit), scaler, direction);
               final detailWidth = _tokensWidth(context, tokens, scaler, direction);
               final figureBeside = figureWidth(titleFigureSize) <= beside;
               final detailBeside = tokens.isEmpty || detailWidth <= beside;
@@ -504,11 +505,11 @@ class BalanceHeader extends ConsumerWidget {
                 _spendableLabel(l, summary.spendable, hidden),
                 for (final item in tokens) item.label,
               ].join('\n');
-              Widget figure(double size) => BalanceTap(
+              Widget figure(double size, {bool unit = true}) => BalanceTap(
                 summary: summary,
                 hidden: hidden,
                 label: label,
-                child: _FigureText(text: text, size: size),
+                child: _FigureText(text: text, size: size, unit: unit),
               );
               Widget detail() => ExcludeSemantics(
                 child: BalanceTap(
@@ -553,23 +554,31 @@ class BalanceHeader extends ConsumerWidget {
                 );
               }
               // (2) The figure takes the whole width, the icons a second row; (3) only then it
-              // shrinks, never under the floor.
+              // shrinks, never under the floor: past that the unit goes (the semantics still
+              // say EPIC), as Wallet's figure does, and only an extreme width scales it down.
               var size = titleFigureSize;
               while (size > titleFigureFloor && figureWidth(size) > full) {
                 size -= 1;
               }
+              final unit = figureWidth(size) <= full;
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  figure(size),
-                  Row(
-                    children: [
-                      Expanded(child: tokens.isEmpty ? const SizedBox.shrink() : detail()),
-                      const SizedBox(width: 4),
-                      icons,
-                    ],
-                  ),
+                  figure(size, unit: unit),
+                  // The detail line beside the icons where it fits, else under them.
+                  if (tokens.isEmpty || detailBeside)
+                    Row(
+                      children: [
+                        Expanded(child: tokens.isEmpty ? const SizedBox.shrink() : detail()),
+                        const SizedBox(width: 4),
+                        icons,
+                      ],
+                    )
+                  else ...[
+                    Row(children: [const Spacer(), icons]),
+                    detail(),
+                  ],
                 ],
               );
             },
@@ -585,7 +594,7 @@ const double titleFigureFloor = 14;
 
 /// The header's figure as one span: the amount at [size] in the heading face with tabular
 /// figures, then a small gold EPIC.
-TextSpan _figureSpan(String text, WalletTokens t, double size) => TextSpan(
+TextSpan _figureSpan(String text, WalletTokens t, double size, {bool unit = true}) => TextSpan(
   style: TextStyle(
     fontFamily: t.headFamily,
     fontWeight: FontWeight.w600,
@@ -648,18 +657,22 @@ double _tokensWidth(BuildContext context, List<PendingToken> tokens, TextScaler 
 
 /// The spendable figure ([displayEpic]) in the balance header at [size], never wrapped.
 class _FigureText extends StatelessWidget {
-  const _FigureText({required this.text, required this.size});
+  const _FigureText({required this.text, required this.size, this.unit = true});
 
   final String text;
   final double size;
+  final bool unit;
 
   @override
-  Widget build(BuildContext context) => Text.rich(
-    _figureSpan(text, context.tokens, size),
-    key: titleFigureKey,
-    maxLines: 1,
-    softWrap: false,
-    overflow: TextOverflow.clip,
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: AlignmentDirectional.centerStart,
+    child: Text.rich(
+      _figureSpan(text, context.tokens, size, unit: unit),
+      key: titleFigureKey,
+      maxLines: 1,
+      softWrap: false,
+    ),
   );
 }
 
