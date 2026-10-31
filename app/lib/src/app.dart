@@ -78,7 +78,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // Alive for the app's life: the Link · HTTP listener runs while a wallet is open and its
     // switch is on, stops on lock and while Tor is on, and starts again on resume.
     ref.listenManual(phoneHttpProvider, (_, _) {});
-    // Alive for the app's life: at level 1 an Epicbox relay down for a while is offered a
+    // Alive for the app's life: at every level an Epicbox relay down for a while is offered a
     // one-tap move (never made by itself), and an address left behind is read for 30 days.
     ref.listenManual(relaySwitchProvider, (_, _) {});
     ref.listenManual(relayDrainWatchProvider, (_, _) {});

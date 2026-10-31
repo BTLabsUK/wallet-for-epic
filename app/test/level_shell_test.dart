@@ -176,14 +176,18 @@ void main() {
   });
 
   for (final level in ['1', '3']) {
-    testWidgets('level $level: a relay down moves by itself; the new address is said after', (tester) async {
+    testWidgets('level $level: the relay offer is a notice; Switch calls through', (tester) async {
       final offer = _Offer();
       await _pump(tester, level: level, offer: offer);
+      expect(find.byKey(noticeKey), findsOneWidget);
+      expect(find.textContaining('Relay B is ready to take over'), findsOneWidget);
+      expect(find.text('Not now'), findsOneWidget);
+      expect(offer.accepts, 0, reason: 'nothing moves without a tap');
+      await tester.tap(find.text('Switch to Relay B'));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
-      expect(offer.accepts, 1, reason: 'moved without a tap');
-      expect(find.textContaining('Relay B is ready to take over'), findsNothing, reason: 'nothing asked');
+      expect(offer.accepts, 1, reason: 'only the tap moves');
       expect(find.text('Now on Relay B. Your new address is ready.'), findsOneWidget);
       expect(find.text('Show new address'), findsOneWidget);
     });

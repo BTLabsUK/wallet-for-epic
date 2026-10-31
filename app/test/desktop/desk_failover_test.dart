@@ -76,8 +76,10 @@ class _Wallet extends MockDeskWallet {
 }
 
 class _Harness {
-  _Harness(this._async, {String inUse = _a, Set<String> dead = const {_a}, AdvancedPrefs? prefs, bool tor = false})
-    : wallet = _Wallet(inUse: inUse, dead: dead) {
+  /// [answered]: the node in use answered once before it went down (the 30 s rule); without, it
+  /// never answered since the wallet opened and is left at once.
+  _Harness(this._async, {String inUse = _a, Set<String> dead = const {_a}, AdvancedPrefs? prefs, bool tor = false, bool answered = true})
+    : wallet = _Wallet(inUse: inUse, dead: answered ? const {} : dead) {
     // The failover walks the node list of the settings.
     hostSettings = hostSettings.withValues({
       'node.servers': const [_a, _b, _c, _d],
@@ -91,6 +93,10 @@ class _Harness {
     final s = container.read(deskProvider).settings;
     unawaited(n.saveSettings(s.copyWith(advanced: prefs ?? s.advanced, tor: tor)));
     elapse(Duration.zero);
+    if (answered && dead.isNotEmpty) {
+      wallet.dead.addAll(dead);
+      poll();
+    }
   }
 
   final FakeAsync _async;
@@ -122,6 +128,15 @@ void main() {
 
   test('DeskSettings has no failover field of its own: the Advanced pref is on by default', () {
     expect(const DeskSettings().advanced.nodeFailover, isTrue);
+  });
+
+  test('a node that never answered since the wallet opened: left as soon as it reads down', () {
+    fakeAsync((async) {
+      final h = _Harness(async, answered: false);
+      h.elapse(const Duration(seconds: 1));
+      expect(h.wallet.sessionNodes, [_c]);
+      h.dispose();
+    });
   });
 
   test('moves after 30 s down, not before, to the next healthy node, for this session only', () {
