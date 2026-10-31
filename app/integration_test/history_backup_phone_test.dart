@@ -282,7 +282,7 @@ Future<void> restoreWallet(WidgetTester tester, String phrase, {String? startHei
   // A tap during the page transition is lost: tap until the phrase field shows.
   for (var i = 0; i < 6 && fieldF('Recovery phrase').evaluate().isEmpty; i++) {
     await settle(tester, ms: 1000);
-    if (hasText('Restore from a phrase')) await tapText(tester, 'Restore from a phrase');
+    if (hasText('Restore from phrase')) await tapText(tester, 'Restore from phrase');
     await settle(tester, ms: 1500);
   }
   await typeInto(tester, fieldF('Recovery phrase'), phrase);
@@ -344,15 +344,15 @@ Future<ImportSeen> answerImport(WidgetTester tester, String prefix, {bool useBac
   while (DateTime.now().isBefore(end)) {
     await settle(tester, ms: 400);
     await passImportWarning(tester);
-    if (hasText('Use the settings from this backup?')) {
+    if (hasText('Use the settings from this file?')) {
       settingsAsked = true;
       await shot(tester, '$prefix-settings-question');
       note('$prefix settings question: ${textMatching(RegExp('differ'))}');
-      await tapText(tester, useBackupSettings ? "Use the backup's" : 'Keep mine');
+      await tapText(tester, useBackupSettings ? 'Use the file’s' : 'Keep mine');
       continue;
     }
     if (hasText('Wallet data imported')) {
-      summary = textMatching(RegExp(r'^(Imported:|The backup held nothing new)'));
+      summary = textMatching(RegExp(r'^(Imported:|The file held nothing new)'));
       await shot(tester, '$prefix-summary');
       await tapF(tester, find.descendant(of: find.byType(AlertDialog), matching: find.text('OK')));
       continue;
@@ -363,8 +363,8 @@ Future<ImportSeen> answerImport(WidgetTester tester, String prefix, {bool useBac
       await tapText(tester, 'Use them here');
       continue;
     }
-    if (hasText('Could not import the history backup')) {
-      error = textMatching('Could not import the history backup');
+    if (hasText('Could not import the wallet data')) {
+      error = textMatching('Could not import the wallet data');
       break;
     }
     // Done once nothing asks any more and the summary was seen.
@@ -748,7 +748,7 @@ void main() {
     var paidNotice = false;
     for (var i = 0; i < 10 && !paidNotice; i++) {
       await settle(tester, ms: 1000);
-      paidNotice = hasText('A request you sent was paid');
+      paidNotice = hasText('An invoice you sent was paid');
     }
     record('no "request was paid" notice for a request the backup brought back', !paidNotice);
     a = sessionOf(c);
@@ -799,7 +799,7 @@ void main() {
     await push(tester, const InvoicesScreen(segment: InvoicesSegment.sent));
     await settle(tester, ms: 1500);
     await shot(tester, 'a-06-invoices-sent');
-    record('…nor in Invoices', !hasText('A request you sent was paid'));
+    record('…nor in Invoices', !hasText('An invoice you sent was paid'));
     final sentList = texts().join(' | ');
     record('Invoices › Sent lists the withdrawn request and the paid request by file',
         hasText('Withdrawn') && hasText(RegExp(r'^0[.,]2 EPIC')) && hasText(RegExp(r'^0[.,]3 EPIC')), sentList.substring(0, sentList.length.clamp(0, 400)));
