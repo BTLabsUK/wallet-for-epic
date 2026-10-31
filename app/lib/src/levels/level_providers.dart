@@ -14,7 +14,12 @@ import 'level_features.dart';
 import 'wallet_level.dart';
 
 /// The stored level choice, settled once at launch ([settleLevelChoice]).
-final walletLevelProvider = AsyncNotifierProvider<WalletLevelNotifier, LevelChoice>(WalletLevelNotifier.new);
+/// Never retried: a store that can't be read shows Deep end ([currentLevelProvider]) rather than
+/// asking again on a timer.
+final walletLevelProvider = AsyncNotifierProvider<WalletLevelNotifier, LevelChoice>(
+  WalletLevelNotifier.new,
+  retry: (_, _) => null,
+);
 
 class WalletLevelNotifier extends AsyncNotifier<LevelChoice> {
   @override
