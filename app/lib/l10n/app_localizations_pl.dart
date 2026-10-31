@@ -3303,9 +3303,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Jeszcze nie zapisano';
 
   @override
-  String get settingsHubBackup => 'Kopia zapasowa';
-
-  @override
   String settingsStateJoin(String a, String b) {
     return '$a · $b';
   }
@@ -13207,9 +13204,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get advTitle => 'Zaawansowane';
 
   @override
-  String get advStateOff => 'Wyłączone';
-
-  @override
   String get advIntro =>
       'Każdy przełącznik pokazuje kolejną część portfela w miejscu, do którego należy.';
 
@@ -13542,15 +13536,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsSectionTransactions => 'Transakcje';
-
-  @override
-  String get settingsHubMethods => 'Metody';
-
-  @override
-  String get settingsHubDefault => 'Domyślna metoda';
-
-  @override
-  String get settingsHubSendDefaults => 'Zasady wysyłki';
 
   @override
   String get txMethodsHeader => 'Metody płatności';

@@ -13,19 +13,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../demo.dart';
 import '../l10n.dart';
-import '../tor_build.dart';
 import '../errors.dart';
 import '../providers.dart';
-import '../settings.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'help_screen.dart';
 import 'restore_screen.dart' show ScanSlotLine;
-import 'network_mode_text.dart' show networkModeName;
 import 'settings_sections.dart';
-import 'theme/advanced.dart';
 import 'theme/tokens.dart';
-import '../levels/level_features.dart' show AdvancedPageKind;
 import '../levels/level_providers.dart';
 import 'level_step_screen.dart' show levelTitle;
 
@@ -81,15 +76,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final scan = ref.watch(scanProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
     final demo = ref.watch(demoModeProvider);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final t = context.tokens;
-    // Level 1 hides Privacy & network and Transactions; Advanced holds only the level.
+    // Level 1 hides Privacy & network and Transactions.
     final features = ref.watch(levelFeaturesProvider);
-    final levelOnly = features.advancedPage == AdvancedPageKind.changeLevelOnly;
 
     return SlotScaffold(
       idle: scan.running ? ScanSlotLine(scan: scan) : null,
@@ -111,20 +104,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.security),
                     section: SettingsSection.security,
-                    // The hub's second lines name what is inside, never live values
-                    // (26.10.11); Security warns instead while the recovery phrase
-                    // is not backed up.
-                    state: demo
-                        // The demo's Security page holds none of these.
-                        ? null
-                        : backedUp
-                        ? [
-                            l.settingsHubBackup,
-                            l.pinLabel,
-                            l.pinBiometricsIconLabel,
-                          ].reduce(l.settingsStateJoin)
-                        : l.settingsStateBackUp,
-                    stateColor: demo || backedUp ? null : t.warn,
+                    // Only the warning while the recovery phrase is not backed up.
+                    state: !demo && !backedUp ? l.settingsStateBackUp : null,
+                    stateColor: t.warn,
                   ),
                 // The shared sections in the desktop's order (GP2-021): Transactions ·
                 // Privacy · Appearance · This wallet; Security keeps its place first.
@@ -132,46 +114,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.transactions),
                     section: SettingsSection.transactions,
-                    // What is inside, never live values; the send defaults only while
-                    // Advanced › Send options shows them.
-                    state: [
-                      l.settingsHubMethods,
-                      l.settingsHubDefault,
-                      if (s.advanced.has(AdvancedFeature.sendOptions))
-                        l.settingsHubSendDefaults,
-                    ].reduce(l.settingsStateJoin),
                   ),
                 if (features.serverSettings)
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.privacyNetwork),
                   section: SettingsSection.privacyNetwork,
-                  state: [
-                    l.serverNodeTitle,
-                    l.serverEpicboxTitle,
-                    if (torBuilt) l.netStatusTor,
-                  ].reduce(l.settingsStateJoin),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.display),
                   section: SettingsSection.display,
-                  state: [
-                    l.settingsTheme,
-                    l.languageSetting,
-                    l.settingsCurrency,
-                    // The eye left the hero at level 1: say where it went.
-                    if (!features.hideBalancesInHero) l.settingsHideBalances,
-                  ].reduce(l.settingsStateJoin),
                 ),
                 if (walletOpen)
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.wallet),
                     section: SettingsSection.wallet,
-                    // Outputs is named only while Advanced shows it.
-                    state: [
-                      l.settingsContacts,
-                      if (s.advanced.has(AdvancedFeature.outputs)) l.outputsTitle,
-                      l.settingsSectionHistory,
-                    ].reduce(l.settingsStateJoin),
                   ),
                 _GroupRow(
                   key: settingsHelpKey,
@@ -182,7 +138,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.advanced),
                   section: SettingsSection.advanced,
-                  state: levelOnly ? levelTitle(l, features.level) : advancedStateLine(l, s.advanced),
+                  state: levelTitle(l, features.level),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.about),
@@ -196,17 +152,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
   }
-}
-
-/// The Advanced row's state line: "Off", or what is on ("Outputs · Tor only").
-String advancedStateLine(AppLocalizations l, AdvancedPrefs adv) {
-  final parts = <String>[
-    for (final f in AdvancedFeature.values)
-      if (adv.has(f)) advancedFeatureName(l, f),
-    if (adv.networkMode != NetworkMode.standard)
-      networkModeName(l, adv.networkMode),
-  ];
-  return parts.isEmpty ? l.advStateOff : parts.reduce(l.settingsStateJoin);
 }
 
 /// A group's glyph in a small hairline tile, so the hub reads as a short list of places

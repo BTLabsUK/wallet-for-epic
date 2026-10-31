@@ -12,10 +12,8 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/backup_screen.dart' show backedUpProvider;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
-import 'package:epic_wallet/src/ui/tor_ui.dart' show TorSwitchTile;
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -89,103 +87,22 @@ Finder _line(SettingsSection section, String text) => find.descendant(
   matching: find.text(text),
 );
 
-String _join(List<String> items) => items.reduce(_l.settingsStateJoin);
-
 void main() {
-  // What each line names, and the row on the page each item stands for.
-  final pages = <SettingsSection, List<(String, Finder Function())>>{
-    SettingsSection.security: [
-      (_l.settingsHubBackup, () => find.text(_l.settingsBackupPhrase)),
-      (_l.pinLabel, () => find.text(_l.settingsChangePin)),
-      (_l.pinBiometricsIconLabel, () => find.text(_l.settingsBiometrics)),
-    ],
-    SettingsSection.privacyNetwork: [
-      (_l.serverNodeTitle, () => find.text(_l.serverNodeTitle)),
-      (_l.serverEpicboxTitle, () => find.text(_l.serverEpicboxTitle)),
-      // No Tor switch, nor its name, in the build without Tor.
-      if (torBuilt) (_l.netStatusTor, () => find.byType(TorSwitchTile)),
-    ],
-    // Outputs is named (and shown) only with Advanced > Outputs: see the test below.
-    SettingsSection.wallet: [
-      (_l.settingsContacts, () => find.text(_l.settingsContacts)),
-      (_l.settingsSectionHistory, () => find.text(_l.settingsSectionHistory)),
-    ],
-    // Send defaults are named (and shown) only with Advanced > Send options: see below.
-    SettingsSection.transactions: [
-      (_l.settingsHubMethods, () => find.text(_l.txMethodsHeader)),
-      (_l.settingsHubDefault, () => find.text(_l.txStartHeader)),
-    ],
-    SettingsSection.display: [
-      (_l.settingsTheme, () => find.text(_l.settingsTheme)),
-      (_l.languageSetting, () => find.text(_l.languageSetting)),
-      (_l.settingsCurrency, () => find.text(_l.settingsCurrency)),
-    ],
-  };
-
-  for (final MapEntry(key: section, value: items) in pages.entries) {
-    testWidgets('${section.name}: the line names its things, each on its page', (
-      tester,
-    ) async {
-      await _pump(tester);
+  testWidgets('section rows show the title only, no list of what is inside', (tester) async {
+    await _pump(tester);
+    for (final section in [
+      SettingsSection.privacyNetwork,
+      SettingsSection.wallet,
+      SettingsSection.transactions,
+      SettingsSection.display,
+    ]) {
       expect(
-        items,
-        hasLength(
-          section == SettingsSection.wallet ||
-                  section == SettingsSection.transactions ||
-                  (section == SettingsSection.privacyNetwork && !torBuilt)
-              ? 2
-              : 3,
-        ),
+        find.descendant(of: find.byKey(settingsGroupKey(section)), matching: find.byType(Text)),
+        findsOneWidget,
+        reason: '${section.name}: the title only',
       );
-      expect(_line(section, _join([for (final (name, _) in items) name])), findsOneWidget);
-      await tester.tap(find.byKey(settingsGroupKey(section)));
-      await tester.pumpAndSettle();
-      for (final (name, row) in items) {
-        expect(row(), findsWidgets, reason: '"$name" is on the ${section.name} page');
-      }
-    });
-  }
-
-  testWidgets('wallet: Outputs joins the line and the page when Advanced shows it', (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      advanced: const AdvancedPrefs(features: {AdvancedFeature.outputs}),
-    );
-    expect(
-      _line(
-        SettingsSection.wallet,
-        _join([
-          _l.settingsContacts,
-          _l.outputsTitle,
-          _l.settingsSectionHistory,
-        ]),
-      ),
-      findsOneWidget,
-    );
-    await tester.tap(find.byKey(settingsGroupKey(SettingsSection.wallet)));
-    await tester.pumpAndSettle();
-    expect(find.text(_l.outputsTitle), findsWidgets);
-  });
-
-  testWidgets('transactions: Send defaults join the line and the page with Send options', (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      advanced: const AdvancedPrefs(features: {AdvancedFeature.sendOptions}),
-    );
-    expect(
-      _line(
-        SettingsSection.transactions,
-        _join([_l.settingsHubMethods, _l.settingsHubDefault, _l.settingsHubSendDefaults]),
-      ),
-      findsOneWidget,
-    );
-    await tester.tap(find.byKey(settingsGroupKey(SettingsSection.transactions)));
-    await tester.pumpAndSettle();
-    expect(find.text(_l.txDefaultsHeader), findsOneWidget);
+    }
+    expect(find.text(_l.settingsContacts), findsNothing);
   });
 
   testWidgets('the Transactions row comes right after Security (the desktop\'s order)', (tester) async {
@@ -214,10 +131,13 @@ void main() {
       tester.getTopLeft(about).dy - tester.getTopLeft(advanced).dy,
       moreOrLessEquals(tester.getSize(advanced).height, epsilon: 1),
     );
-    // Its state line names what is on: Linked devices, on by default, until turned off.
+    // Its line is the current level, one choice.
     expect(
-      _line(SettingsSection.advanced, advancedFeatureName(_l, AdvancedFeature.linkedDevices)),
-      findsOneWidget,
+      find.descendant(
+        of: find.byKey(settingsGroupKey(SettingsSection.advanced)),
+        matching: find.byType(Text),
+      ),
+      findsNWidgets(2),
     );
   });
 
@@ -236,6 +156,5 @@ void main() {
   testWidgets('not backed up: Security warns instead', (tester) async {
     await _pump(tester, backedUp: false);
     expect(_line(SettingsSection.security, _l.settingsStateBackUp), findsOneWidget);
-    expect(find.textContaining(_l.settingsHubBackup), findsNothing);
   });
 }

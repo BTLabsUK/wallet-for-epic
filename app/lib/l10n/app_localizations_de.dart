@@ -3250,9 +3250,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Noch nicht gesichert';
 
   @override
-  String get settingsHubBackup => 'Sicherung';
-
-  @override
   String settingsStateJoin(String a, String b) {
     return '$a · $b';
   }
@@ -12855,9 +12852,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get advTitle => 'Erweitert';
 
   @override
-  String get advStateOff => 'Aus';
-
-  @override
   String get advIntro =>
       'Jeder Schalter blendet einen weiteren Teil der Wallet an der passenden Stelle ein.';
 
@@ -13194,15 +13188,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsSectionTransactions => 'Transaktionen';
-
-  @override
-  String get settingsHubMethods => 'Methoden';
-
-  @override
-  String get settingsHubDefault => 'Standardmethode';
-
-  @override
-  String get settingsHubSendDefaults => 'Zahlungsvorgaben';
 
   @override
   String get txMethodsHeader => 'Zahlungsmethoden';

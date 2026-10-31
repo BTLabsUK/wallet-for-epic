@@ -845,7 +845,6 @@
   "settingsSectionHelpFeedback": "帮助",
   "settingsStateBackUp": "备份助记词",
   "settingsStateNotBackedUp": "尚未备份",
-  "settingsHubBackup": "备份",
   "settingsStateJoin": "{a} · {b}",
   "settingsUseStatusSite": "使用 {site}",
   "settingsUseStatusSiteSubtitle": "显示哪些节点和 Epicbox 服务器在线，数据来自 status.btlabs.uk 上的公开列表。",
@@ -3304,7 +3303,6 @@
   "deskUpdUnfinished": "更新未完成。请重试。",
   "advExperimental": "实验性",
   "advTitle": "高级",
-  "advStateOff": "关闭",
   "advIntro": "每个开关会在相应位置显示钱包的另一部分。",
   "advShowsHeader": "显示更多",
   "advNetworkHeader": "网络",
@@ -3398,18 +3396,6 @@
   "settingsSectionTransactions": "交易",
   "@settingsSectionTransactions": {
     "description": "Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults)."
-  },
-  "settingsHubMethods": "方式",
-  "@settingsHubMethods": {
-    "description": "Settings hub, state line of the Transactions row: the payment methods."
-  },
-  "settingsHubDefault": "默认方式",
-  "@settingsHubDefault": {
-    "description": "Settings hub, state line of the Transactions row: the method Send starts on."
-  },
-  "settingsHubSendDefaults": "发送默认设置",
-  "@settingsHubSendDefaults": {
-    "description": "Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on."
   },
   "txMethodsHeader": "付款方式",
   "@txMethodsHeader": {

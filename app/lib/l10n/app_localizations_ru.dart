@@ -3283,9 +3283,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsStateNotBackedUp => 'Ещё не сохранена';
 
   @override
-  String get settingsHubBackup => 'Резервная копия';
-
-  @override
   String settingsStateJoin(String a, String b) {
     return '$a · $b';
   }
@@ -13177,9 +13174,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get advTitle => 'Дополнительно';
 
   @override
-  String get advStateOff => 'Выкл.';
-
-  @override
   String get advIntro =>
       'Каждый переключатель показывает ещё одну часть кошелька там, где ей место.';
 
@@ -13517,15 +13511,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsSectionTransactions => 'Транзакции';
-
-  @override
-  String get settingsHubMethods => 'Способы';
-
-  @override
-  String get settingsHubDefault => 'Способ по умолчанию';
-
-  @override
-  String get settingsHubSendDefaults => 'Настройки отправки';
 
   @override
   String get txMethodsHeader => 'Способы оплаты';
