@@ -482,8 +482,8 @@ class ESegmented<T> extends StatelessWidget {
   final bool stretch;
 
   /// Short of room, the control shrinks before it clips (UD-025): first the counts go (into
-  /// each segment's tooltip), then the segments share the width and their labels end in an
-  /// ellipsis, the whole label in the tooltip.
+  /// each segment's tooltip), then the strip scrolls sideways with its end faded; a label is
+  /// never cut.
   final bool shrink;
 
   /// The width the segments take with their words whole.
@@ -543,8 +543,8 @@ class ESegmented<T> extends StatelessWidget {
             ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, badge: s.badge, tooltip: s.tooltip ?? (s.count == null ? null : '${s.label} · ${s.count}')),
         ];
         if (_natural(context, counts: false) <= box.maxWidth) return control(bare, stretch);
-        // Shared width, labels cut with an ellipsis: the tooltip holds the whole label.
-        return control([for (final s in bare) ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, badge: s.badge, tooltip: s.tooltip ?? s.label)], true);
+        // Still too wide: the labels stay whole and the strip scrolls sideways, its end faded.
+        return _FadeEnd(on: true, child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: control(bare, false)));
       },
     );
   }
@@ -787,7 +787,7 @@ class ECheckbox extends StatelessWidget {
 }
 
 /// Fades [child]'s last 24 u to transparent when [on] (a one-line field whose text runs under
-/// its trailing buttons).
+/// its trailing buttons, a segmented strip that scrolls).
 class _FadeEnd extends StatelessWidget {
   const _FadeEnd({required this.on, required this.child});
 

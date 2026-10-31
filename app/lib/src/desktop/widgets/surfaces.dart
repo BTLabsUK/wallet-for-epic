@@ -297,7 +297,10 @@ class ENotice extends StatelessWidget {
   }
 }
 
-/// Key/value facts in two columns.
+/// The least an [EFacts] value gets beside its label.
+double get factsMinValue => 200.u;
+
+/// Key/value facts in two columns, or label above value where the value would be squeezed.
 class EFacts extends StatelessWidget {
   const EFacts(this.rows, {super.key, this._labelWidth});
 
@@ -308,23 +311,35 @@ class EFacts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
-    return Column(
+    Widget facts(bool beside) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (k, v) in rows)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 5.u),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: labelWidth, child: Text(k, style: ts.bodyDim)),
-                SizedBox(width: Sp.x6),
-                Expanded(child: DefaultTextStyle.merge(style: ts.body, child: v)),
-              ],
-            ),
+            child: beside
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(width: labelWidth, child: Text(k, style: ts.bodyDim)),
+                      SizedBox(width: Sp.x6),
+                      Expanded(child: DefaultTextStyle.merge(style: ts.body, child: v)),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(k, style: ts.small),
+                      SizedBox(height: 2.u),
+                      DefaultTextStyle.merge(style: ts.body, child: v),
+                    ],
+                  ),
           ),
       ],
     );
+    // The label beside its value while the value keeps [factsMinValue]; else above it, so an
+    // address or a sentence gets the whole width.
+    return LayoutBuilder(builder: (context, box) => facts(!box.maxWidth.isFinite || box.maxWidth - labelWidth - Sp.x6 >= factsMinValue));
   }
 }
 
@@ -661,8 +676,14 @@ class ESetGroup extends StatelessWidget {
   }
 }
 
-/// A settings row: title and one line on the left, the control on the right; [stacked] puts
-/// the control under the text (wide controls such as a combobox).
+/// The least a Settings row's words get beside its control; with less, the control goes under
+/// them (rules: no row squeezed under this).
+double get setRowMinWords => 240.u;
+
+/// A settings row: title and one line on the left, the control on the right while the words
+/// keep [setRowMinWords], else the control under the words at its own width (a narrow window
+/// or a large interface scale); [stacked] always puts the control under the text (wide
+/// controls such as a combobox).
 class ESetRow extends StatelessWidget {
   const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.hintHelp, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge});
 
@@ -686,8 +707,8 @@ class ESetRow extends StatelessWidget {
   final Widget? control;
   final bool stacked;
 
-  /// For a control sized to its words (it is no [ERowControl]): beside the words while both
-  /// fit on one line, under them when a narrow window, big text or long words leave no room.
+  /// For a control sized to its words (it is no [ERowControl]): beside the words while they
+  /// keep 160 u (not [setRowMinWords]).
   final bool wrap;
 
   /// Extra content under the row (status line, expanded options).
@@ -753,16 +774,9 @@ class ESetRow extends StatelessWidget {
           if (stacked || control == null) ...[
             words,
             if (control != null) ...[SizedBox(height: Sp.x3), control!],
-          ] else if (wrap)
-            _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: 160.u, children: [words, control!])
-          else
-            Row(
-              children: [
-                Expanded(child: words),
-                SizedBox(width: Sp.x6),
-                control!,
-              ],
-            ),
+          ] else
+            // The control beside the words while they keep their room, else under them.
+            _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: wrap ? 160.u : setRowMinWords, children: [words, control!]),
           if (below != null) ...[SizedBox(height: Sp.x3), below!],
         ],
       ),
@@ -772,7 +786,7 @@ class ESetRow extends StatelessWidget {
 
 /// The info icon that carries an explanation: a tooltip on hover and on keyboard focus, and
 /// the text itself for a screen reader. Settings rows use it so the main view shows labels only.
-/// [ESetRow.wrap]'s layout: the control at its own width at the right with the words in the
+/// [ESetRow]'s layout: the control at its own width at the right with the words in the
 /// rest, while that leaves the words [minWords]; otherwise the control under the words.
 class _WrapRow extends MultiChildRenderObjectWidget {
   const _WrapRow({required this.gap, required this.runGap, required this.minWords, required super.children});
