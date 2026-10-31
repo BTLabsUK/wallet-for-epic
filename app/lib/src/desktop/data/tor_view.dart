@@ -6,13 +6,10 @@ library;
 import '../../l10n.dart' show AppLocalizations;
 import '../../tor_routes.dart';
 import 'models.dart';
-import 'state.dart';
 
 export '../../tor_routes.dart';
 
 /// The switch's state now. On with tor not started yet reads as starting.
-TorState deskTorState(DeskState st) => torStateOf(st.settings, st.status);
-
 TorState torStateOf(DeskSettings settings, ServiceStatus? status) {
   if (!settings.tor) return TorState.off;
   if (status == null) return TorState.starting;
