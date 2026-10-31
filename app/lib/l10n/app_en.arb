@@ -7012,7 +7012,7 @@
   },
   "methodReceiveEpicboxShort": "Share the address to get paid.",
   "@methodReceiveEpicboxShort": {
-    "description": "Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No \"app\": the web demo shows it too."
+    "description": "Receive's Epicbox strip line: share the address to get paid. No \"app\": the web demo shows it too."
   },
   "methodReceiveDirectTitle": "Straight to this wallet.",
   "@methodReceiveDirectTitle": {
