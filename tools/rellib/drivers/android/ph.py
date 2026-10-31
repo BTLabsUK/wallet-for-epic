@@ -3,7 +3,8 @@
 content-desc, so uiautomator sees them).
 
 ph.py <serial> dump                 masked list of labelled / clickable nodes
-ph.py <serial> tap TEXT [N]         tap the Nth node whose label contains TEXT
+ph.py <serial> tap TEXT [N]         tap the Nth node whose label contains TEXT (in Python, TEXT
+                                    can also be a tuple of texts: any one matches)
 ph.py <serial> wait TEXT [SECS]     wait until a label contains TEXT
 ph.py <serial> type TEXT            type in 10-character chunks (adb drops long strings)
 ph.py <serial> key CODE | xy X Y | shot PATH | launch | ver
@@ -74,9 +75,16 @@ def show(ns, out=sys.stdout):
         print(n["bounds"], flags, mask(n["label"], n["cls"])[:160], file=out)
 
 
+def matches(label, text, exact=False):
+    """[text] is one text or a tuple of them (a label's words in the previous release and the
+    candidate): any one matches."""
+    texts = (text,) if isinstance(text, str) else tuple(text)
+    return any(label == t if exact else t in label for t in texts)
+
+
 def find(serial, text, nth=1, exact=False, clickable=None, ns=None):
     ns = nodes(serial) if ns is None else ns
-    hits = [n for n in ns if (n["label"] == text if exact else text in n["label"])
+    hits = [n for n in ns if matches(n["label"], text, exact)
             and (clickable is None or n["clickable"] == clickable)]
     return hits[nth - 1] if len(hits) >= nth else None
 
