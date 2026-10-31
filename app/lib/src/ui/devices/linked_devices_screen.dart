@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_model.dart';
 import '../../devices/device_providers.dart';
-import '../../devices/device_service.dart';
 import '../../devices/phone_devices.dart';
 import '../../help/help_content.dart' show HelpId;
 import '../../l10n.dart';
@@ -267,6 +266,3 @@ class _HeldRow extends ConsumerWidget {
     );
   }
 }
-
-/// [DeviceSyncTrigger] kept reachable for callers that import only this screen.
-typedef PhoneDeviceTrigger = DeviceSyncTrigger;
