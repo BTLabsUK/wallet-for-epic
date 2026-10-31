@@ -342,10 +342,8 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         ),
         Divider(height: 1, thickness: 1, color: c.line),
         // Two row buttons: under the text when the card leaves the words too little room.
-        LayoutBuilder(
-          builder: (context, box) => ESetRow(
+        ESetRow(
           title: l.deskSetLnodeChainData,
-          stacked: box.maxWidth < 720.u,
           text: s.chainDataOrigin == ChainDataOrigin.pointed ? l.deskSetLnodeChainPointed : l.deskSetLnodeChainText,
           control: Wrap(
             spacing: Sp.x2,
@@ -361,7 +359,6 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                 ),
               ),
             ],
-          ),
         ),
         ),
       ],
