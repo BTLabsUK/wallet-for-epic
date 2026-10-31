@@ -92,7 +92,7 @@ hint = "The publish scanner found a private detail: add the rule in tools/publis
 id = "gitlab-token"
 steps = ["publish-source", "publish-manifests"]
 pattern = "(401 Unauthorized|HTTP Basic: Access denied|token.*expired)"
-hint = "The GitLab token expired or is wrong (~/.config/btlabs/gitlab-token): renew it (owner), update host.signer.gitlab_token_expires, retry."
+hint = "The GitLab token expired or is wrong (GITLAB_TOKEN_FILE, default ~/.config/btlabs/gitlab-token): renew it (owner), update host.signer.gitlab_token_expires, retry."
 
 [[failure]]
 id = "play-notes"

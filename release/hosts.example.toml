@@ -23,8 +23,9 @@ btlabs_public = "~/code/btlabs-public"
 # key_ids = ["3eb30c1e66220525"]            # the Ed25519 keys it must hold (else from the keyring)
 # android_cert_sha256 = "59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa"
 # client_token = "~/.config/btlabs/signer-client.token"   # chmod 600
-# The GitLab token's expiry (preflight warns within 7 days, fails when expired).
-gitlab_token = "~/.config/btlabs/gitlab-token"
+# The GitLab token's expiry (preflight warns within 7 days, fails when expired). The token itself
+# is the file GITLAB_TOKEN_FILE names (default ~/.config/btlabs/gitlab-token, mode 600), read by
+# tools/publish-github.sh, tools/mirror-github.sh and tools/publish-update-json.sh, not by this file.
 gitlab_token_expires = "YYYY-MM-DD"
 
 # The Windows builder: ssh alias (pwsh), and the folder that holds one work dir per run.
