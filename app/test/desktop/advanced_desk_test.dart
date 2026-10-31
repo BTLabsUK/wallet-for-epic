@@ -168,8 +168,8 @@ void main() {
   });
 
   group('Send', () {
-    ESegment<TxMethod> segment(WidgetTester tester, String label) =>
-        tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.firstWhere((s) => s.label == label);
+    ESegment<TxMethod?> segment(WidgetTester tester, String label) =>
+        tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).segments.firstWhere((s) => s.label == label);
 
     testWidgets('Node only: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), advanced: _offline);
@@ -245,12 +245,12 @@ void main() {
 
     testWidgets('Link receiving off: Link is listed, and a pasted onion picks it for this send', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(), tor: true);
-      List<String> labels() => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.map((s) => s.label).toList();
+      List<String> labels() => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).segments.map((s) => s.label).toList();
       expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
       expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
-      expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
+      expect(tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value, TxMethod.http);
       expect(_container.read(deskProvider).settings.payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
     }, skip: !torBuilt);
   });
