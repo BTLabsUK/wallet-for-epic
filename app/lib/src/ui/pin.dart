@@ -228,13 +228,27 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l = context.l10n;
-    // The step's content, then its actions: at the foot of the screen when asked.
+    // The step's content, then its actions: at the foot of the screen when asked. The choose
+    // step holds the room of the confirm step's button, so the PIN field stays in one place
+    // between the two steps.
     final (List<Widget> content, List<Widget> actions) = switch (_step) {
-      _PinStep.choose => (_chooseStep(theme, l), const <Widget>[]),
-      _PinStep.confirm => (_confirmStep(theme, l), [_chooseDifferent(l)]),
+      _PinStep.choose => (
+        _chooseStep(theme, l),
+        [
+          const SizedBox(height: 8),
+          Visibility(
+            visible: false,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: _chooseDifferent(l),
+          ),
+        ],
+      ),
+      _PinStep.confirm => (_confirmStep(theme, l), [const SizedBox(height: 8), _chooseDifferent(l)]),
       _PinStep.biometrics => (_biometricsStep(theme, l), _biometricsActions(l)),
     };
-    if (!widget.actionsAtFoot || actions.isEmpty) {
+    if (!widget.actionsAtFoot) {
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [...content, ...actions]);
     }
     return Column(
@@ -282,7 +296,6 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
             label: l.pinRepeatLabel,
             onCompleted: _confirmed,
           ),
-          const SizedBox(height: 8),
         ];
 
   Widget _chooseDifferent(AppLocalizations l) => TextButton(
