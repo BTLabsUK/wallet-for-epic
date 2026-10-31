@@ -18160,11 +18160,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskTxNowConfirmedBlock(int confirmations, String block) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'Bestätigt, $confirmations Bestätigungen · Block $block.',
-      one: 'Bestätigt, $confirmations Bestätigung · Block $block.',
+      other: 'Bestätigt, $confirmationsString Bestätigungen · Block $block.',
+      one: 'Bestätigt, $confirmationsString Bestätigung · Block $block.',
     );
     return '$_temp0';
   }

@@ -17538,10 +17538,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskTxNowConfirmedBlock(int confirmations, String block) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'ยืนยันแล้ว $confirmations ครั้ง · บล็อก $block',
+      other: 'ยืนยันแล้ว $confirmationsString ครั้ง · บล็อก $block',
     );
     return '$_temp0';
   }

@@ -18586,13 +18586,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskTxNowConfirmedBlock(int confirmations, String block) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'Potwierdzona, $confirmations potwierdzenia · blok $block.',
-      many: 'Potwierdzona, $confirmations potwierdzeń · blok $block.',
-      few: 'Potwierdzona, $confirmations potwierdzenia · blok $block.',
-      one: 'Potwierdzona, $confirmations potwierdzenie · blok $block.',
+      other: 'Potwierdzona, $confirmationsString potwierdzenia · blok $block.',
+      many: 'Potwierdzona, $confirmationsString potwierdzeń · blok $block.',
+      few: 'Potwierdzona, $confirmationsString potwierdzenia · blok $block.',
+      one: 'Potwierdzona, $confirmationsString potwierdzenie · blok $block.',
     );
     return '$_temp0';
   }

@@ -24176,7 +24176,8 @@
     "description": "Detail notice of a confirmed payment with its block known: confirmations and block, as the phone says both (UD-028). {block} is the grouped height.",
     "placeholders": {
       "confirmations": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "block": {
         "type": "String"
