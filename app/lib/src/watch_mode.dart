@@ -35,7 +35,7 @@ Duration get watchSlowEvery => appConfig.watchSlowEvery;
 /// still waiting.
 Duration get watchWindow => appConfig.watchFor;
 
-/// How often the tip is asked in watch mode at its fastest; the pacing step.
+/// How often the tip is asked in watch mode at its fastest.
 Duration get watchTipEvery => watchFastEvery;
 
 /// How closely a payment is watched now.
