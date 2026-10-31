@@ -328,6 +328,11 @@ class Run:
             time.sleep(1)
 
     def nav(self, name):
+        # A long wait (P busy with another check) can pass the auto-lock: unlock as the user would.
+        if self.ui.has("re:^Unlock wallet$"):
+            self.log("the wallet locked itself while waiting (auto-lock): unlocking again")
+            self.unlock()
+            self.after_unlock()
         self.ui.click("re:^%s$" % re.escape(name), role="button")
         time.sleep(1.2)
 
