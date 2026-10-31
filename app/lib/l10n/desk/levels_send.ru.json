@@ -17,6 +17,5 @@
   "deskLvSendSignFileText": "Откройте файл от отправителя и сохраните свой ответ.",
   "deskLvSendFinishFile": "Завершить файл ответа",
   "deskLvSendFinishFileText": "Откройте полученный ответ, чтобы опубликовать платёж.",
-  "deskLvSendPrevAddress": "Прежний адрес",
-  "deskLvSendPrevText": "Платежи на старый адрес ещё приходят {days} дн., пока отвечает {server}."
+  "deskLvSendPrevAddress": "Прежний адрес"
 }

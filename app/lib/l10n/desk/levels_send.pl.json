@@ -17,6 +17,5 @@
   "deskLvSendSignFileText": "Otwórz plik od nadawcy i zapisz swoją odpowiedź.",
   "deskLvSendFinishFile": "Dokończ plik odpowiedzi",
   "deskLvSendFinishFileText": "Otwórz otrzymaną odpowiedź, aby opublikować płatność.",
-  "deskLvSendPrevAddress": "Poprzedni adres",
-  "deskLvSendPrevText": "Płatności wysłane na stary adres docierają jeszcze przez {days} dni, dopóki {server} odpowiada."
+  "deskLvSendPrevAddress": "Poprzedni adres"
 }

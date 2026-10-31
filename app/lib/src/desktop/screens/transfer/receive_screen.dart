@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/relay_offer.dart' show deskRelayMovedProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
-import '../../../levels/relay_switch.dart' show relayDrainWindow;
 import '../../../levels/relay_switch_providers.dart' show RelaySwitchResult;
 import '../../data/method_names.dart';
 import '../../../network.dart' show EpicboxRelay;
@@ -645,7 +644,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               title: l.deskLvSendPrevAddress,
               child: Padding(
                 padding: EdgeInsets.only(top: Sp.x1),
-                child: Text(l.deskLvSendPrevText('${relayDrainWindow.inDays}', moved.from.label), style: ts.small.copyWith(color: c.dim)),
+                child: Text(l.deskLvSendPrevText(moved.from.label), style: ts.small.copyWith(color: c.dim)),
               ),
             ),
           ],

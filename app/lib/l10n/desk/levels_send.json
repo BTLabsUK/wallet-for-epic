@@ -113,14 +113,10 @@
   "@deskLvSendPrevAddress": {
     "description": "Title of the collapsed row on Receive after the Epicbox server moved, holding what is left of the old address."
   },
-  "deskLvSendPrevText": "Payments sent to the old address still arrive for {days} days while {server} answers.",
+  "deskLvSendPrevText": "The old address was on {server}. Anyone who has it needs the new one.",
   "@deskLvSendPrevText": {
-    "description": "Text inside the Previous address row on Receive. {days} is a number, {server} the old Epicbox server's address.",
+    "description": "Text inside the Previous address row on Receive after the Epicbox server moved. {server} is the old Epicbox server's address (a domain). Says that people with the old address need the new one; it does not promise old-address payments still arrive.",
     "placeholders": {
-      "days": {
-        "type": "String",
-        "example": "30"
-      },
       "server": {
         "type": "String",
         "example": "epicbox.example.com"
