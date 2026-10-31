@@ -405,14 +405,23 @@ class DeskController extends Notifier<DeskState> {
     }
   }
 
-  /// The settings writes, one at a time ([_serially]).
-  Future<void> _saving = Future.value();
+  /// The settings write running now, if any ([_serially]); completes when it ends.
+  Completer<void>? _saving;
 
-  /// Runs [write] after the settings writes before it have ended, failed or not.
-  Future<T> _serially<T>(Future<T> Function() write) {
-    final run = _saving.then((_) => write());
-    _saving = run.then((_) {}, onError: (Object _) {});
-    return run;
+  /// Runs [write] after the settings writes before it have ended, failed or not; at once when
+  /// none runs. The lock is released inside the write's own frame, never by a callback left
+  /// queued behind it.
+  Future<T> _serially<T>(Future<T> Function() write) async {
+    for (var running = _saving; running != null; running = _saving) {
+      await running.future;
+    }
+    final mine = _saving = Completer<void>();
+    try {
+      return await write();
+    } finally {
+      _saving = null;
+      mine.complete();
+    }
   }
 
   /// The tour was seen ([DeskTourController.markSeen], which saves it): the settings held here
