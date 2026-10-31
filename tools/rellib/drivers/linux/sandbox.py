@@ -57,6 +57,16 @@ def _alive(pid):
         return False
 
 
+def _runtime(sb):
+    """The sandbox's XDG_RUNTIME_DIR: a short folder of its own outside the sandbox, because the
+    sockets in it (dbus, at-spi, the app's atk-bridge server) must fit the 108-byte unix socket
+    path; under a long work folder the app's atk-bridge said "Socket name too long" and showed
+    nothing to AT-SPI (26.10.26-run3 trust-linux-notor). sandbox/runtime links to it."""
+    import hashlib
+    tag = hashlib.sha1(os.path.abspath(sb).encode()).hexdigest()[:10]
+    return os.path.join(REAL_HOME, ".cache", "rts", tag)
+
+
 def _pid(sb, name):
     try:
         return int(open(_p(sb, "pids", name)).read().strip())
@@ -117,7 +127,7 @@ def base_env(sb):
         "XDG_DATA_HOME": _p(sb, "home", ".local", "share"),
         "XDG_CONFIG_HOME": _p(sb, "home", ".config"),
         "XDG_CACHE_HOME": _p(sb, "home", ".cache"),
-        "XDG_RUNTIME_DIR": _p(sb, "runtime"),
+        "XDG_RUNTIME_DIR": _runtime(sb),
         "XDG_SESSION_TYPE": "x11",
         "GDK_BACKEND": "x11",
         "NO_AT_BRIDGE": "0",
@@ -134,9 +144,12 @@ def start(sb, size="1400x950x24"):
     if _alive(_pid(sb, "xvfb")):
         return read_env(sb)
     os.umask(0o077)
-    for d in ("pids", "logs", "runtime", "tmp", "home/.local/share/keyrings", "home/.config", "home/.cache"):
+    for d in ("pids", "logs", "tmp", "home/.local/share/keyrings", "home/.config", "home/.cache"):
         os.makedirs(_p(sb, d), exist_ok=True)
-    os.chmod(_p(sb, "runtime"), 0o700)
+    os.makedirs(_runtime(sb), mode=0o700, exist_ok=True)
+    os.chmod(_runtime(sb), 0o700)
+    if not os.path.lexists(_p(sb, "runtime")):
+        os.symlink(_runtime(sb), _p(sb, "runtime"))
     env = base_env(sb)
     n, x = _own_xvfb(sb, size)
     _save_pid(sb, "xvfb", x.pid)
@@ -190,9 +203,11 @@ def guard(sb, env):
     home = env.get("HOME", "")
     if not home.startswith(sb + os.sep) or os.path.realpath(home) == REAL_HOME:
         raise SystemExit("refusing: HOME %r is not inside the sandbox" % home)
-    for k in ("XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_RUNTIME_DIR"):
+    for k in ("XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME"):
         if not env.get(k, "").startswith(sb + os.sep):
             raise SystemExit("refusing: %s is not inside the sandbox" % k)
+    if env.get("XDG_RUNTIME_DIR") != _runtime(sb):
+        raise SystemExit("refusing: XDG_RUNTIME_DIR is not this sandbox's")
     disp = env.get("DISPLAY", "")
     m = re.fullmatch(r":(\d+)", disp)
     if not m or int(m.group(1)) < 100:
@@ -258,7 +273,7 @@ def app_stop(sb, timeout=20):
 
 
 def _kill_by_runtime(sb, keep=(), apps_only=False):
-    rt = _p(os.path.abspath(sb), "runtime")
+    rt = _runtime(sb)
     keep = {int(k) for k in keep if k}
     for p in os.listdir("/proc"):
         if not p.isdigit() or int(p) in keep or int(p) == os.getpid():

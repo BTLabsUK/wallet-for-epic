@@ -152,3 +152,9 @@ id = "windows-copy-address"
 steps = ["trust-windows"]
 pattern = "no Epicbox address could be read after the update"
 hint = "Usually the Windows click map, not the app: check wfe.log in the step's out/ for 'wallet opened' and 'epicbox subscribed' after the candidate's start, then render Receive at 800x700 (DESK_SHOTS_SIZE=800x700 flutter test tool/desktop_tour_test.dart --plain-name 17-receive) and compare the copy button with COPY_ADDRESS in drivers/windows/trust.py. No 'wallet opened' = the app: stop and report."
+
+[[failure]]
+id = "linux-atspi-socket-long"
+steps = ["trust-linux"]
+pattern = "never showed 're:\\^Create a new wallet'|previous app shows \\?"
+hint = "Check sandbox/logs/app-*.log for 'atk-bridge: Couldn't listen on dbus server: Socket name too long': the sandbox's XDG_RUNTIME_DIR path was too long for a unix socket (fixed: sandbox.py keeps it at ~/.cache/rts/<tag>). Otherwise the app did not start: see the same log."
