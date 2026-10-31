@@ -157,7 +157,7 @@ class DeskController extends Notifier<DeskState> {
       tor: own.tor,
     );
     state = state.copyWith(settings: s);
-    await api.saveSettings(s);
+    await _serially(() => api.saveSettings(state.settings));
     try {
       await api.startAutostart();
     } on Object {
@@ -361,18 +361,34 @@ class DeskController extends Notifier<DeskState> {
     s = _keepTourSeen(s);
     state = state.copyWith(settings: s);
     statusSite.on = s.useStatusSite;
-    if (ref.read(hostSettingsProvider).statusEnabled != s.useStatusSite) {
-      await ref.read(hostSettingsProvider.notifier).set('online.status_site', s.useStatusSite);
-    }
-    if (networkModeIn(ref.read(hostSettingsProvider)) != s.advanced.networkMode) {
-      await saveNetworkMode(s.advanced.networkMode, ref.read(hostSettingsProvider.notifier).setAll);
-    }
-    await api.saveSettings(s);
-    await ref.read(deskStoreProvider)?.saveSettings(s);
+    // Each write takes the settings as they are when its turn comes, never the copy it was
+    // given: two saves close together cannot leave the older one stored.
+    await _serially(() async {
+      final status = state.settings.useStatusSite;
+      if (ref.read(hostSettingsProvider).statusEnabled != status) {
+        await ref.read(hostSettingsProvider.notifier).set('online.status_site', status);
+      }
+      final mode = state.settings.advanced.networkMode;
+      if (networkModeIn(ref.read(hostSettingsProvider)) != mode) {
+        await saveNetworkMode(mode, ref.read(hostSettingsProvider.notifier).setAll);
+      }
+      await api.saveSettings(state.settings);
+      await ref.read(deskStoreProvider)?.saveSettings(state.settings);
+    });
     if (state.account != null) {
       final status = await api.status();
       state = state.copyWith(status: status);
     }
+  }
+
+  /// The settings writes, one at a time ([_serially]).
+  Future<void> _saving = Future.value();
+
+  /// Runs [write] after the settings writes before it have ended, failed or not.
+  Future<T> _serially<T>(Future<T> Function() write) {
+    final run = _saving.then((_) => write());
+    _saving = run.then((_) {}, onError: (Object _) {});
+    return run;
   }
 
   /// The tour was seen ([DeskTourController.markSeen], which saves it): the settings held here
@@ -451,13 +467,21 @@ class DeskController extends Notifier<DeskState> {
       httpAutostart: on,
     );
     state = state.copyWith(settings: s);
-    await api.saveSettings(s);
+    await _serially(() => api.saveSettings(state.settings));
     try {
       await api.setHttpListening(on);
     } on Object {
       // Refused (Offline on a node that is not local): the switch shows it stayed off (LNX-8).
-      state = state.copyWith(settings: was);
-      await api.saveSettings(was);
+      // Only the HTTP fields go back; a setting saved meanwhile stays.
+      final now = state.settings;
+      state = state.copyWith(
+        settings: now.copyWith(
+          payments: now.payments.copyWith(linkHttp: was.payments.linkHttp),
+          directHttp: was.directHttp,
+          httpAutostart: was.httpAutostart,
+        ),
+      );
+      await _serially(() => api.saveSettings(state.settings));
       rethrow;
     }
     final status = await api.status();
@@ -469,9 +493,8 @@ class DeskController extends Notifier<DeskState> {
   /// ([DeskSettings.torAutostart]), tor started or stopped with it. What it covers is
   /// `tor_routes.dart`'s.
   Future<void> setTor(bool on) async {
-    final s = state.settings.copyWith(tor: on, torAutostart: on);
-    state = state.copyWith(settings: s);
-    if (s.torAutostart != (await api.settings()).torAutostart) await api.saveSettings(s);
+    state = state.copyWith(settings: state.settings.copyWith(tor: on, torAutostart: on));
+    if (on != (await api.settings()).torAutostart) await _serially(() => api.saveSettings(state.settings));
     await api.setTor(on);
     final status = await api.status();
     state = state.copyWith(status: status);
