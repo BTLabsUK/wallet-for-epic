@@ -28111,6 +28111,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change level'**
   String get levelChangeTitle;
+
+  /// First-start level picker: the heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your depth'**
+  String get lvPickTitle;
+
+  /// First-start level picker: the line under the heading.
+  ///
+  /// In en, this message translates to:
+  /// **'How much of the wallet do you want to see?'**
+  String get lvPickLead;
+
+  /// Level picker dial: the first stop (level 1).
+  ///
+  /// In en, this message translates to:
+  /// **'Shallow'**
+  String get lvPickStopOne;
+
+  /// Level picker dial: the second stop (level 2).
+  ///
+  /// In en, this message translates to:
+  /// **'Deeper'**
+  String get lvPickStopTwo;
+
+  /// Level picker dial: the third stop (level 3).
+  ///
+  /// In en, this message translates to:
+  /// **'Deep end'**
+  String get lvPickStopThree;
+
+  /// Level picker: one-liner of level 1, under its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Send, receive, done. The wallet minds the rest.'**
+  String get lvPickLineOne;
+
+  /// Level picker: one-liner of level 2, under its name.
+  ///
+  /// In en, this message translates to:
+  /// **'See what it’s doing, in plain words.'**
+  String get lvPickLineTwo;
+
+  /// Level picker: one-liner of level 3, under its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Every switch, every number. All yours.'**
+  String get lvPickLineThree;
+
+  /// Level picker before a stop is picked: in place of the level name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a stop'**
+  String get lvPickNone;
+
+  /// Level picker before a stop is picked: in place of the one-liner.
+  ///
+  /// In en, this message translates to:
+  /// **'The preview follows the dial.'**
+  String get lvPickNoneLine;
+
+  /// Screen reader name of the level picker's group of three stops.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth'**
+  String get lvPickDepth;
+
+  /// Screen reader description of the small home-screen preview on the level picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview of the home screen. It shows more as the dial goes deeper.'**
+  String get lvPickPreview;
+
+  /// Level picker ⓘ sheet: title.
+  ///
+  /// In en, this message translates to:
+  /// **'What this decides'**
+  String get lvPickHelpTitle;
+
+  /// Level picker ⓘ sheet: text.
+  ///
+  /// In en, this message translates to:
+  /// **'Only how much the app shows. Every level sends and receives the same way, with the same keys and the same coins.'**
+  String get lvPickHelpText;
+
+  /// ⓘ sheet of 'Undercover from the start' on the first-start picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.'**
+  String get lvPickUndercoverHelp;
+
+  /// Change level screen: the Undercover (Tor only) switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Undercover'**
+  String get lvPickUndercover;
+
+  /// ⓘ sheet of the Undercover switch on the Change level screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only. Every connection goes through Tor; starting takes longer. Where Tor is blocked, the wallet cannot connect until this is off.'**
+  String get lvPickUndercoverLaterHelp;
+
+  /// Change level screen: foot line; the level and Undercover apply on Save.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes effect right away.'**
+  String get lvPickTakesEffect;
+
+  /// Notice after saving the level on the Change level screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Level saved'**
+  String get lvPickSaved;
+
+  /// Waiting for Tor after the PIN, with Undercover on: heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting through Tor'**
+  String get lvPickTorTitle;
+
+  /// Waiting for Tor: line under the heading.
+  ///
+  /// In en, this message translates to:
+  /// **'The first connection can take a minute. Nothing goes around Tor.'**
+  String get lvPickTorLead;
+
+  /// Waiting for Tor: the busy line.
+  ///
+  /// In en, this message translates to:
+  /// **'Building the circuit…'**
+  String get lvPickTorBusy;
+
+  /// Waiting for Tor: text above the Turn Undercover off button.
+  ///
+  /// In en, this message translates to:
+  /// **'If Tor is blocked where you are, the wallet cannot connect until Undercover is turned off.'**
+  String get lvPickTorBlocked;
+
+  /// Waiting for Tor: button that sets the network mode back to standard.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Undercover off'**
+  String get lvPickTorOff;
+
+  /// Notice after Turn Undercover off on the Tor wait screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Undercover is off. Connecting directly.'**
+  String get lvPickTorOffDone;
+
+  /// Decorative words in the level picker's home preview: the network is fine.
+  ///
+  /// In en, this message translates to:
+  /// **'Network OK'**
+  String get lvPickNetworkOk;
+
+  /// Decorative words in the level picker's home preview: Epicbox is fine.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox OK'**
+  String get lvPickEpicboxOk;
 }
 
 class _AppLocalizationsDelegate

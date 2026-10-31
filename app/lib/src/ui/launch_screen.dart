@@ -12,12 +12,19 @@ import 'common.dart';
 import 'first_run_screen.dart';
 import 'level_step_screen.dart';
 import 'pin_unlock_screen.dart';
+import 'restore_screen.dart';
 import 'theme/brand.dart';
+
+/// Where the first-start picker sends a fresh install: the PIN of a new wallet, or the phrase.
+enum FirstRunStart { create, restore }
 
 /// Decides where the app starts: PIN unlock, or first run when no wallet opens with a PIN
 /// (also over an install of 1.2.x or older, which stays in place, [WalletVault.prepare]).
 class LaunchScreen extends ConsumerStatefulWidget {
-  const LaunchScreen({super.key});
+  const LaunchScreen({super.key, this.start});
+
+  /// The picker's Create or Restore: with no wallet yet, straight to that step.
+  final FirstRunStart? start;
 
   @override
   ConsumerState<LaunchScreen> createState() => _LaunchScreenState();
@@ -58,7 +65,13 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
 
     return switch (await ref.read(vaultProvider).prepare(config)) {
       VaultStage.ready => const PinUnlockScreen(),
-      VaultStage.empty => const FirstRunScreen(),
+      VaultStage.empty => switch (widget.start) {
+        FirstRunStart.create => const FirstRunScreen(startCreating: true),
+        FirstRunStart.restore => const RestoreScreen(),
+        // Back from those steps in the run that answered the picker: the picker again.
+        null when ref.read(levelStepAnswerProvider) != null => const LevelStepScreen(),
+        null => const FirstRunScreen(),
+      },
       VaultStage.stranded => const PinUnlockScreen(stranded: true),
     };
   }

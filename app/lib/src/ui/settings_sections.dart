@@ -48,6 +48,7 @@ import 'info_hint.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'level_step_screen.dart';
+import 'levels/change_level_screen.dart';
 import '../levels/level_providers.dart' show currentLevelProvider;
 import 'licences_screen.dart';
 import 'network_menu.dart';
@@ -1106,7 +1107,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         title: Text(l.levelRowTitle),
         subtitle: Text(levelTitle(l, ref.watch(currentLevelProvider))),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => showChangeLevelDialog(context, ref),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ChangeLevelScreen())),
       ),
       PhoneTourTarget(
         id: 'tour-advanced-top',

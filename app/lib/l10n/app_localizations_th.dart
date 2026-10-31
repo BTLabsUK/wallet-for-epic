@@ -17615,4 +17615,90 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'เปลี่ยนระดับ';
+
+  @override
+  String get lvPickTitle => 'เลือกความลึก';
+
+  @override
+  String get lvPickLead => 'อยากเห็นกระเป๋าเงินมากแค่ไหน';
+
+  @override
+  String get lvPickStopOne => 'น้ำตื้น';
+
+  @override
+  String get lvPickStopTwo => 'ลึกขึ้น';
+
+  @override
+  String get lvPickStopThree => 'น้ำลึก';
+
+  @override
+  String get lvPickLineOne => 'ส่ง รับ จบ ที่เหลือกระเป๋าเงินจัดการเอง';
+
+  @override
+  String get lvPickLineTwo => 'เห็นว่ากำลังทำอะไร ด้วยคำง่าย ๆ';
+
+  @override
+  String get lvPickLineThree => 'ทุกสวิตช์ ทุกตัวเลข เป็นของคุณทั้งหมด';
+
+  @override
+  String get lvPickNone => 'เลือกระดับ';
+
+  @override
+  String get lvPickNoneLine => 'ภาพตัวอย่างจะเปลี่ยนตามตัวเลือก';
+
+  @override
+  String get lvPickDepth => 'ความลึก';
+
+  @override
+  String get lvPickPreview => 'ภาพตัวอย่างหน้าหลัก ยิ่งเลือกลึก ยิ่งแสดงมาก';
+
+  @override
+  String get lvPickHelpTitle => 'ตัวเลือกนี้กำหนดอะไร';
+
+  @override
+  String get lvPickHelpText =>
+      'กำหนดแค่ว่าแอปแสดงมากแค่ไหน ทุกระดับส่งและรับเหมือนกัน ด้วยคีย์เดียวกันและเหรียญเดียวกัน';
+
+  @override
+  String get lvPickUndercoverHelp =>
+      'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดเครือข่าย › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › ขั้นสูง';
+
+  @override
+  String get lvPickUndercover => 'ปกปิดตัวตน';
+
+  @override
+  String get lvPickUndercoverLaterHelp =>
+      'Tor เท่านั้น ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น ในที่ที่ Tor ถูกบล็อก กระเป๋าเงินจะเชื่อมต่อไม่ได้จนกว่าจะปิดตัวเลือกนี้';
+
+  @override
+  String get lvPickTakesEffect => 'มีผลทันที';
+
+  @override
+  String get lvPickSaved => 'บันทึกระดับแล้ว';
+
+  @override
+  String get lvPickTorTitle => 'กำลังเชื่อมต่อผ่าน Tor';
+
+  @override
+  String get lvPickTorLead =>
+      'การเชื่อมต่อครั้งแรกอาจใช้เวลาราวหนึ่งนาที ไม่มีอะไรเลี่ยง Tor';
+
+  @override
+  String get lvPickTorBusy => 'กำลังสร้างเส้นทาง…';
+
+  @override
+  String get lvPickTorBlocked =>
+      'ถ้า Tor ถูกบล็อกในที่ที่คุณอยู่ กระเป๋าเงินจะเชื่อมต่อไม่ได้จนกว่าจะปิดการปกปิดตัวตน';
+
+  @override
+  String get lvPickTorOff => 'ปิดการปกปิดตัวตน';
+
+  @override
+  String get lvPickTorOffDone => 'ปิดการปกปิดตัวตนแล้ว กำลังเชื่อมต่อโดยตรง';
+
+  @override
+  String get lvPickNetworkOk => 'เครือข่าย ปกติ';
+
+  @override
+  String get lvPickEpicboxOk => 'Epicbox ปกติ';
 }

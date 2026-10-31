@@ -18668,4 +18668,93 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Zmień poziom';
+
+  @override
+  String get lvPickTitle => 'Wybierz głębokość';
+
+  @override
+  String get lvPickLead => 'Ile portfela chcesz widzieć?';
+
+  @override
+  String get lvPickStopOne => 'Płytko';
+
+  @override
+  String get lvPickStopTwo => 'Głębiej';
+
+  @override
+  String get lvPickStopThree => 'Na głęboką wodę';
+
+  @override
+  String get lvPickLineOne =>
+      'Wysyłasz, odbierasz, gotowe. Resztą zajmie się portfel.';
+
+  @override
+  String get lvPickLineTwo => 'Widzisz, co robi, prostymi słowami.';
+
+  @override
+  String get lvPickLineThree =>
+      'Każdy przełącznik, każda liczba. Wszystko twoje.';
+
+  @override
+  String get lvPickNone => 'Wybierz poziom';
+
+  @override
+  String get lvPickNoneLine => 'Podgląd podąża za pokrętłem.';
+
+  @override
+  String get lvPickDepth => 'Głębokość';
+
+  @override
+  String get lvPickPreview =>
+      'Podgląd ekranu głównego. Pokazuje więcej, im głębiej ustawisz pokrętło.';
+
+  @override
+  String get lvPickHelpTitle => 'Co to zmienia';
+
+  @override
+  String get lvPickHelpText =>
+      'Tylko to, ile pokazuje aplikacja. Każdy poziom wysyła i odbiera tak samo, tymi samymi kluczami i tymi samymi monetami.';
+
+  @override
+  String get lvPickUndercoverHelp =>
+      'Tylko Tor, od pierwszego połączenia. Każde połączenie idzie przez Tor; start trwa dłużej.\n\nNic jeszcze się nie połączyło. To samo co Tryb sieci › Tylko Tor; można to później wyłączyć w Ustawienia › Zaawansowane.';
+
+  @override
+  String get lvPickUndercover => 'Incognito';
+
+  @override
+  String get lvPickUndercoverLaterHelp =>
+      'Tylko Tor. Każde połączenie idzie przez Tor; start trwa dłużej. Tam, gdzie Tor jest zablokowany, portfel nie połączy się, dopóki tego nie wyłączysz.';
+
+  @override
+  String get lvPickTakesEffect => 'Działa od razu.';
+
+  @override
+  String get lvPickSaved => 'Poziom zapisany';
+
+  @override
+  String get lvPickTorTitle => 'Łączenie przez Tor';
+
+  @override
+  String get lvPickTorLead =>
+      'Pierwsze połączenie może potrwać minutę. Nic nie omija Tora.';
+
+  @override
+  String get lvPickTorBusy => 'Budowanie obwodu…';
+
+  @override
+  String get lvPickTorBlocked =>
+      'Jeśli Tor jest u ciebie zablokowany, portfel nie połączy się, dopóki nie wyłączysz Incognito.';
+
+  @override
+  String get lvPickTorOff => 'Wyłącz Incognito';
+
+  @override
+  String get lvPickTorOffDone => 'Incognito wyłączone. Łączenie bezpośrednio.';
+
+  @override
+  String get lvPickNetworkOk => 'Sieć OK';
+
+  @override
+  String get lvPickEpicboxOk => 'Epicbox OK';
 }
