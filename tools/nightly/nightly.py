@@ -41,6 +41,18 @@ A run:
      ~/.config/wfe-nightly/notify_token (without both nothing is sent: "not configured"). The key
      nightly-<sha8>-<red|broken> is sent once: state.json remembers it and the bot dedupes on it.
      A failed send never fails the run; result.json `notified` records it;
+  7b. after a green source check, one fast G4 update-trust pass per platform (linux, android,
+     windows) on the LAST TWO PUBLISHED releases (no builds): previous = the one before the last in
+     /tmp/epic-build/rel/published.json, candidate = the last, tor variant, REL_FUNDS=1, BT Labs node
+     and Epicbox first, the commit's own drivers (tools/rellib/drivers/trust-<platform>.sh). The
+     three run side by side, each under a time limit, output in <run>/trust-<platform>/ (proof.json
+     there). Each is a step in latest.json (`group: trust`, `proof`, `failing_checks`) with
+     status ok / fail / skipped (missing binaries, fewer than two published releases, a release run
+     active, a driver that could not run: exit 2). The source status stays green (the G2 reuse and
+     last_green_sha stay about the source); a failed trust step is `trust: {status: red, ...}` and
+     sends ONE DM (key nightly-<sha8>-trust) naming the failing checks. NIGHTLY_TRUST=0 turns the
+     pass off, NIGHTLY_TRUST_PLATFORMS=linux,android limits it, NIGHTLY_TRUST_CHECKS overrides
+     REL_CHECKS (default: the driver's eight);
   8. runs `tools/lepic.sh prune-shared` when the commit has it, ignoring its result.
 Python 3 standard library only.
 """
@@ -80,6 +92,11 @@ DM_ITEMS, DM_TEST_CHARS, DM_COMMIT_CHARS = 15, 160, 120
 DM_FIELDS = {"kind", "sha", "key", "step", "counts", "duration", "reason", "tests", "commits",
              "log", "test"}
 DM_RETRIES = 3
+REL_ROOT = Path(os.environ.get("WFE_NIGHTLY_REL_ROOT", HOME / "epic-build" / "rel"))
+TRUST_PLATFORMS = ("linux", "android", "windows")
+TRUST_TIMEOUT_S = {"linux": 50 * 60, "android": 60 * 60, "windows": 60 * 60}
+TRUST_NODE = "https://node.btlabs.uk"
+TRUST_EPICBOX = "epicbox.stackwallet.com"
 SENT_KEYS_KEPT = 500
 
 STEP_RE = re.compile(r"^== (.+?)\s*$")
@@ -359,19 +376,24 @@ def _clip(s, n):
     return s if len(s) <= n else s[: n - 1] + "…"
 
 
+def trust_red(result):
+    return result["status"] == "green" and (result.get("trust") or {}).get("status") == "red"
+
+
 def dm_kind(result):
-    return "red" if result["status"] == "red" else "broken"
+    return "red" if result["status"] == "red" or trust_red(result) else "broken"
 
 
-def dm_key(sha, kind, test=False):
-    return f"nightly-{'test-' if test else ''}{sha[:8]}-{kind}"
+def dm_key(sha, kind, test=False, trust=False):
+    return f"nightly-{'test-' if test else ''}{sha[:8]}-{'trust' if trust else kind}"
 
 
 def dm_body(result, test=False):
     """The JSON body for POST /nightly/notify: only the route's fields, within its caps."""
     kind = dm_kind(result)
-    body = {"kind": kind, "sha": result["sha"], "key": dm_key(result["sha"], kind, test)}
-    step = result.get("failing_step")
+    trust = trust_red(result)
+    body = {"kind": kind, "sha": result["sha"], "key": dm_key(result["sha"], kind, test, trust)}
+    step = result["trust"]["step"] if trust else result.get("failing_step")
     if step:
         body["step"] = ("TEST " if test else "") + step
     elif test:
@@ -382,12 +404,15 @@ def dm_body(result, test=False):
         body["duration"] = fmt_duration(result["duration_s"])
     if kind == "broken":
         body["reason"] = _clip(result.get("error") or "unknown", 300)
-    tests = [_clip(f"{t['file']}: {t['name']}" if t.get("file") else t["name"], DM_TEST_CHARS)
-             for t in (result.get("failing_tests") or [])[:DM_ITEMS]]
+    if trust:  # source green: the failing checks, no commit list (driver drift or a real regression)
+        tests = [_clip(f, DM_TEST_CHARS) for f in result["trust"]["failed"][:DM_ITEMS]]
+    else:
+        tests = [_clip(f"{t['file']}: {t['name']}" if t.get("file") else t["name"], DM_TEST_CHARS)
+                 for t in (result.get("failing_tests") or [])[:DM_ITEMS]]
     if tests:
         body["tests"] = tests
     commits = [_clip(c, DM_COMMIT_CHARS)
-               for c in (result.get("commits_since_green") or [])[:DM_ITEMS]]
+               for c in (result.get("commits_since_green") or [])[:DM_ITEMS]] if not trust else []
     if commits:
         body["commits"] = commits
     if result.get("log"):
@@ -449,7 +474,7 @@ def post_dm(body, url, token, opener=None, sleep=time.sleep):
 def report(result, state, test=False, conf_dir=None, opener=None, sleep=time.sleep):
     """Sends the one DM a result calls for; green sends nothing. Adds the key to
     state['sent_keys'] once the bot took it."""
-    if result["status"] == "green":
+    if result["status"] == "green" and not trust_red(result):
         return {"sent": False, "why": "green sends nothing"}
     body = dm_body(result, test=test)
     sent_keys = state.setdefault("sent_keys", [])
@@ -465,6 +490,189 @@ def report(result, state, test=False, conf_dir=None, opener=None, sleep=time.sle
         sent_keys.append(body["key"])
         del sent_keys[:-SENT_KEYS_KEPT]
     return out
+
+
+# ---------------------------------------------------------------- G4 trust pass
+
+def published_pair(rel_root=None):
+    """(previous, candidate) as {version, run} dicts: the last two published releases (newest
+    entry per version), or (None, reason) when /tmp/epic-build/rel/published.json has fewer."""
+    root = Path(rel_root or REL_ROOT)
+    pubs = read_json(root / "published.json", [])
+    by_version = {}
+    for p in pubs if isinstance(pubs, list) else []:
+        if isinstance(p, dict) and p.get("version") and p.get("run") \
+                and p.get("kind", "release") == "release":
+            by_version[p["version"]] = p  # later entries replace earlier (a rebuild)
+    versions = sorted(by_version, key=version_key)
+    if len(versions) < 2:
+        return None, f"fewer than two published releases in {root / 'published.json'}"
+    return by_version[versions[-2]], by_version[versions[-1]]
+
+
+def version_key(v):
+    return tuple(int(x) if x.isdigit() else 0 for x in re.split(r"[.\-]", v))
+
+
+def trust_inputs(platform, prev, cand):
+    """(env for the driver, None) or (None, why it is skipped): the pair's binaries must be on
+    disk. The layout is the release runner's: <run>/files (published), <run>/extra/emulator."""
+    pv, cv = prev["version"], cand["version"]
+    pf, cf = Path(prev["run"]) / "files", Path(cand["run"]) / "files"
+    pe, ce = Path(prev["run"]) / "extra", Path(cand["run"]) / "extra"
+    if platform == "linux":
+        names = [(pf, f"EpicCashDesktop-{pv}-x86_64.AppImage"), (cf, f"EpicCashDesktop-{cv}-x86_64.AppImage")]
+        env = {"REL_PREVIOUS_DIR": str(pf), "REL_CANDIDATE_DIR": str(cf)}
+    elif platform == "windows":
+        names = [(pf, f"epic-cash-desktop-{pv}-windows-x64-setup.exe"),
+                 (cf, f"epic-cash-desktop-{cv}-windows-x64-setup.exe")]
+        env = {"REL_PREVIOUS_DIR": str(pf), "REL_CANDIDATE_DIR": str(cf)}
+    else:
+        names = [(pe / "emulator", f"epic-cash-mobile-{pv}-x86_64.apk"),
+                 (ce / "emulator", f"epic-cash-mobile-{cv}-x86_64.apk")]
+        env = {"REL_PREVIOUS_DIR": str(pe), "REL_CANDIDATE_DIR": str(cf), "REL_CANDIDATE_EXTRA": str(ce)}
+    for d, n in names:
+        if not (d / n).is_file():
+            return None, f"binary missing: {d / n}"
+    env.update(REL_PREVIOUS_VERSION=pv, REL_CANDIDATE_VERSION=cv)
+    return env, None
+
+
+def failing_checks(proof):
+    checks = (proof or {}).get("checks") or {}
+    return sorted(k for k, v in checks.items() if v is not True)
+
+
+def run_trust_one(platform, prev, cand, run_dir, driver, env_base, runner=None, now=time.monotonic):
+    """One platform's step dict. `runner(argv, env, log_path, timeout)` -> rc or None (timeout);
+    injectable for tests."""
+    title = f"G4 trust {platform} ({prev['version']} \u2192 {cand['version']})"
+    step = {"name": title, "group": "trust", "platform": platform, "status": "skipped",
+            "duration_s": 0}
+    out = Path(run_dir) / f"trust-{platform}"
+    env_extra, why = trust_inputs(platform, prev, cand)
+    if env_extra is None:
+        step["reason"] = why
+        return step
+    if not Path(driver).is_file():
+        step["reason"] = f"no driver {driver}"
+        return step
+    out.mkdir(parents=True, exist_ok=True)
+    env = dict(env_base)
+    env.update(env_extra)
+    env.update(REL_VARIANT="tor", REL_FUNDS="1", REL_NODE=TRUST_NODE, REL_EPICBOX=TRUST_EPICBOX,
+               REL_OUT=str(out))
+    if os.environ.get("NIGHTLY_TRUST_CHECKS"):
+        env["REL_CHECKS"] = os.environ["NIGHTLY_TRUST_CHECKS"]
+    log = out / "driver.log"
+    t0 = now()
+    rc = (runner or run_driver)([str(driver)], env, log, TRUST_TIMEOUT_S[platform])
+    step["duration_s"] = int(now() - t0)
+    proof_path = out / "proof.json"
+    proof = read_json(proof_path, None)
+    if proof_path.is_file():
+        step["proof"] = str(proof_path)
+    step["log"] = str(log)
+    if rc is None:
+        step["status"] = "fail"
+        step["reason"] = f"timed out after {TRUST_TIMEOUT_S[platform] // 60} min"
+    elif rc == 0 and not failing_checks(proof) and proof is not None:
+        step["status"] = "ok"
+    elif rc == 2:
+        step["status"] = "skipped"  # the driver could not run (rig / emulator / tool missing)
+        step["reason"] = "driver could not run: " + _clip(
+            str((proof or {}).get("reason") or (proof or {}).get("error") or _last_line(log)), 200)
+    else:
+        step["status"] = "fail"
+        step["failing_checks"] = failing_checks(proof)
+        step["reason"] = f"driver exit {rc}" + ("" if proof is not None else ", no proof.json")
+    return step
+
+
+def _last_line(path):
+    try:
+        lines = [l for l in Path(path).read_text(encoding="utf-8", errors="replace").splitlines() if l.strip()]
+    except OSError:
+        return "no log"
+    return lines[-1] if lines else "no output"
+
+
+def run_driver(argv, env, log_path, timeout):
+    """Runs a driver with its output in log_path; rc, or None after killing it on the timeout."""
+    with open(log_path, "w", encoding="utf-8") as log:
+        proc = subprocess.Popen(argv, env=env, stdout=log, stderr=subprocess.STDOUT,
+                                stdin=subprocess.DEVNULL, start_new_session=True)
+        try:
+            return proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            for sig, wait in ((signal.SIGTERM, 30), (signal.SIGKILL, 10)):
+                try:
+                    os.killpg(proc.pid, sig)
+                except ProcessLookupError:
+                    break
+                try:
+                    proc.wait(timeout=wait)
+                    break
+                except subprocess.TimeoutExpired:
+                    pass
+            return None
+
+
+def trust_enabled(environ=None):
+    e = os.environ if environ is None else environ
+    return str(e.get("NIGHTLY_TRUST", "1")).strip().lower() not in ("0", "false", "no", "off")
+
+
+def trust_platforms(environ=None):
+    e = os.environ if environ is None else environ
+    want = [p.strip() for p in str(e.get("NIGHTLY_TRUST_PLATFORMS", "")).split(",") if p.strip()]
+    return [p for p in TRUST_PLATFORMS if not want or p in want]
+
+
+def run_trust(run_dir, env_base, worktree=None, rel_root=None, runner=None, busy=None):
+    """The whole pass: a list of step dicts, one per platform (parallel); [] when switched off."""
+    if not trust_enabled():
+        return []
+    platforms = trust_platforms()
+    prev, cand = published_pair(rel_root)
+    if prev is None:
+        return [{"name": f"G4 trust {p}", "group": "trust", "platform": p, "status": "skipped",
+                 "duration_s": 0, "reason": cand} for p in platforms]
+    held = (busy or rel_busy)()
+    if held:
+        return [{"name": f"G4 trust {p} ({prev['version']} \u2192 {cand['version']})", "group": "trust",
+                 "platform": p, "status": "skipped", "duration_s": 0,
+                 "reason": "a release run is active"} for p in platforms]
+    drivers = Path(worktree or WORKTREE) / "tools" / "rellib" / "drivers"
+    results = {}
+
+    def one(p):
+        try:
+            results[p] = run_trust_one(p, prev, cand, run_dir, drivers / f"trust-{p}.sh", env_base,
+                                       runner=runner)
+        except Exception as e:  # one platform's trouble never stops the others
+            results[p] = {"name": f"G4 trust {p} ({prev['version']} \u2192 {cand['version']})",
+                          "group": "trust", "platform": p, "status": "fail", "duration_s": 0,
+                          "reason": f"nightly error: {str(e)[:150]}"}
+
+    threads = [threading.Thread(target=one, args=(p,)) for p in platforms]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    return [results[p] for p in platforms]
+
+
+def trust_summary(steps):
+    """{status: red|green|skipped, failed: [str]} for the result; None without trust steps."""
+    if not steps:
+        return None
+    failed = [s for s in steps if s["status"] == "fail"]
+    if failed:
+        return {"status": "red", "failed": [f"{s['platform']}: " + (", ".join(s.get("failing_checks") or [])
+                                                                     or s.get("reason", "failed")) for s in failed],
+                "step": failed[0]["name"]}
+    return {"status": "green" if any(s["status"] == "ok" for s in steps) else "skipped", "failed": []}
 
 
 # ---------------------------------------------------------------- running the check
@@ -677,6 +885,10 @@ def cmd_run(by_hand):
         elif rc == 0:
             error = "the check exited 0 without `check passed`"
     status = "error" if error else ("green" if rc == 0 else "red")
+    trust_steps = []
+    if status == "green":
+        trust_steps = run_trust(run_dir, {k: v for k, v in env.items()
+                                          if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")})
 
     last_green = state.get("last_green_sha")
     result = {
@@ -688,7 +900,8 @@ def cmd_run(by_hand):
         "kind": kind,
         "command": command,
         "exit": rc,
-        "steps": parsed["steps"],
+        "steps": parsed["steps"] + trust_steps,
+        "trust": trust_summary(trust_steps),
         "failing_step": parsed["failing_step"],
         "tests": parsed["tests"],
         "failing_tests": parsed["failing_tests"],
@@ -751,6 +964,12 @@ def summary_line(r):
         line += f" failing: {r.get('failing_step')}"
     elif r["status"] == "error":
         line += f" error: {r.get('error')}"
+    t = r.get("trust")
+    if t:
+        line += f" | G4 trust {t['status']}" + (": " + "; ".join(t["failed"]) if t["failed"] else "")
+        skipped = [s["platform"] for s in r["steps"] if s.get("group") == "trust" and s["status"] == "skipped"]
+        if skipped:
+            line += f" (skipped: {', '.join(skipped)})"
     return line
 
 

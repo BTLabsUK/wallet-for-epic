@@ -171,6 +171,150 @@ RED = {
 }
 
 
+def make_release(root, version, platforms=("linux", "android", "windows")):
+    run = Path(root) / version / "run-1"
+    (run / "files").mkdir(parents=True)
+    (run / "extra" / "emulator").mkdir(parents=True)
+    if "linux" in platforms:
+        (run / "files" / f"EpicCashDesktop-{version}-x86_64.AppImage").write_text("x")
+    if "windows" in platforms:
+        (run / "files" / f"epic-cash-desktop-{version}-windows-x64-setup.exe").write_text("x")
+    if "android" in platforms:
+        (run / "extra" / "emulator" / f"epic-cash-mobile-{version}-x86_64.apk").write_text("x")
+    return {"version": version, "run_id": "run-1", "run": str(run), "kind": "release"}
+
+
+class TrustTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.prev = make_release(self.root / "rel", "26.10.24")
+        self.cand = make_release(self.root / "rel", "26.10.25")
+        self.drivers = self.root / "wt" / "tools" / "rellib" / "drivers"
+        self.drivers.mkdir(parents=True)
+        for p in nightly.TRUST_PLATFORMS:
+            (self.drivers / f"trust-{p}.sh").write_text("#!/bin/sh\n")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def publish(self, *pubs):
+        (self.root / "rel" / "published.json").write_text(json.dumps(list(pubs)))
+
+    def runner(self, rc, checks=None, seen=None):
+        def run(argv, env, log, timeout):
+            if seen is not None:
+                seen.append(env)
+            if checks is not None:
+                Path(env["REL_OUT"], "proof.json").write_text(json.dumps({"checks": checks}))
+            return rc
+        return run
+
+    def trust(self, runner, **kw):
+        return nightly.run_trust(self.root / "run", {}, worktree=self.root / "wt",
+                                 rel_root=self.root / "rel", runner=runner,
+                                 busy=lambda: [], **kw)
+
+    def test_pair_is_the_last_two_published(self):
+        old = make_release(self.root / "rel", "26.10.23")
+        rebuilt = dict(self.cand, run="/elsewhere", run_id="run-2")
+        self.publish(old, self.prev, self.cand, rebuilt)
+        prev, cand = nightly.published_pair(self.root / "rel")
+        self.assertEqual((prev["version"], cand["version"], cand["run"]),
+                         ("26.10.24", "26.10.25", "/elsewhere"))
+        self.publish(self.cand)
+        prev, why = nightly.published_pair(self.root / "rel")
+        self.assertIsNone(prev)
+        self.assertIn("fewer than two", why)
+
+    def test_no_published_json_skips_every_platform(self):
+        steps = self.trust(self.runner(0))
+        self.assertEqual([s["status"] for s in steps], ["skipped"] * 3)
+        self.assertEqual(nightly.trust_summary(steps)["status"], "skipped")
+
+    def test_green_pass_env_and_step_shape(self):
+        self.publish(self.prev, self.cand)
+        seen = []
+        ok = {"wallet_opens": True, "send_ok": True}
+        steps = self.trust(self.runner(0, ok, seen))
+        self.assertEqual([s["status"] for s in steps], ["ok"] * 3)
+        s = steps[0]
+        self.assertEqual(s["name"], "G4 trust linux (26.10.24 \u2192 26.10.25)")
+        self.assertEqual(set(s) - {"log"}, {"name", "group", "platform", "status", "duration_s", "proof"})
+        self.assertTrue(s["proof"].endswith("trust-linux/proof.json"))
+        env = [e for e in seen if e["REL_OUT"].endswith("trust-android")][0]
+        self.assertEqual((env["REL_VARIANT"], env["REL_FUNDS"], env["REL_NODE"], env["REL_EPICBOX"]),
+                         ("tor", "1", "https://node.btlabs.uk", "epicbox.stackwallet.com"))
+        self.assertTrue(env["REL_PREVIOUS_DIR"].endswith("26.10.24/run-1/extra"))
+        self.assertTrue(env["REL_CANDIDATE_DIR"].endswith("26.10.25/run-1/files"))
+        self.assertTrue(env["REL_CANDIDATE_EXTRA"].endswith("26.10.25/run-1/extra"))
+        self.assertEqual(nightly.trust_summary(steps)["status"], "green")
+
+    def test_missing_binaries_skip_and_driver_exit_2_skips(self):
+        self.publish(self.prev, self.cand)
+        (Path(self.cand["run"]) / "files" / "epic-cash-desktop-26.10.25-windows-x64-setup.exe").unlink()
+        steps = self.trust(self.runner(2))
+        by = {s["platform"]: s for s in steps}
+        self.assertEqual(by["windows"]["status"], "skipped")
+        self.assertIn("binary missing", by["windows"]["reason"])
+        self.assertEqual(by["linux"]["status"], "skipped")
+        self.assertIn("could not run", by["linux"]["reason"])
+        self.assertEqual(nightly.trust_summary(steps)["status"], "skipped")
+
+    def test_failed_checks_are_named_and_make_the_dm(self):
+        self.publish(self.prev, self.cand)
+        bad = {"wallet_opens": True, "balance_kept": False, "send_ok": False}
+        steps = self.trust(self.runner(1, bad))
+        self.assertEqual([s["status"] for s in steps], ["fail"] * 3)
+        self.assertEqual(steps[0]["failing_checks"], ["balance_kept", "send_ok"])
+        summary = nightly.trust_summary(steps)
+        self.assertEqual(summary["status"], "red")
+        self.assertEqual(summary["failed"][0], "linux: balance_kept, send_ok")
+        result = {"status": "green", "sha": RED["sha"], "duration_s": 60, "trust": summary,
+                  "steps": steps, "commits_since_green": ["abc subject"]}
+        self.assertTrue(nightly.trust_red(result))
+        body = nightly.dm_body(result)
+        self.assertEqual(body["kind"], "red")
+        self.assertEqual(body["key"], "nightly-7b2cc6ce-trust")
+        self.assertEqual(body["step"], steps[0]["name"])
+        self.assertEqual(body["tests"][0], "linux: balance_kept, send_ok")
+        self.assertNotIn("commits", body)
+        self.assertLessEqual(set(body), nightly.DM_FIELDS)
+        line = nightly.summary_line(dict(result, ended="2026-10-31T03:00:00Z"))
+        self.assertIn("G4 trust red: linux: balance_kept, send_ok", line)
+
+    def test_timeout_and_no_proof_fail(self):
+        self.publish(self.prev, self.cand)
+        steps = self.trust(self.runner(None), )
+        self.assertTrue(all(s["status"] == "fail" and "timed out" in s["reason"] for s in steps))
+        steps = self.trust(self.runner(0))  # exit 0 without a proof.json is not proof
+        self.assertEqual({s["status"] for s in steps}, {"fail"})
+
+    def test_switches_and_busy(self):
+        self.publish(self.prev, self.cand)
+        import os
+        old = dict(os.environ)
+        try:
+            os.environ["NIGHTLY_TRUST"] = "0"
+            self.assertEqual(self.trust(self.runner(0)), [])
+            os.environ["NIGHTLY_TRUST"] = "1"
+            os.environ["NIGHTLY_TRUST_PLATFORMS"] = "linux,android"
+            self.assertEqual([s["platform"] for s in self.trust(self.runner(0, {"a": True}))],
+                             ["linux", "android"])
+        finally:
+            os.environ.clear()
+            os.environ.update(old)
+        steps = nightly.run_trust(self.root / "run", {}, worktree=self.root / "wt",
+                                  rel_root=self.root / "rel", runner=self.runner(0),
+                                  busy=lambda: ["lock"])
+        self.assertEqual({s["reason"] for s in steps}, {"a release run is active"})
+
+    def test_green_source_with_trust_green_sends_nothing(self):
+        result = {"status": "green", "sha": RED["sha"], "trust": {"status": "green", "failed": []}}
+        self.assertFalse(nightly.trust_red(result))
+        self.assertEqual(nightly.report(result, {})["why"], "green sends nothing")
+
+
 class FakeResponse:
     def __init__(self, status, body=b"{}"):
         self.status, self.body = status, body
