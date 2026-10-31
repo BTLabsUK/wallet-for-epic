@@ -311,36 +311,155 @@ class EFacts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
-    Widget facts(bool beside) => Column(
+    // The label beside its value while the value keeps [factsMinValue]; else above it, so an
+    // address or a sentence gets the whole width. A render object, not a LayoutBuilder: facts
+    // sit in rows that measure their children's intrinsic heights.
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (k, v) in rows)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 5.u),
-            child: beside
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(width: labelWidth, child: Text(k, style: ts.bodyDim)),
-                      SizedBox(width: Sp.x6),
-                      Expanded(child: DefaultTextStyle.merge(style: ts.body, child: v)),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(k, style: ts.small),
-                      SizedBox(height: 2.u),
-                      DefaultTextStyle.merge(style: ts.body, child: v),
-                    ],
-                  ),
+            child: _FactRow(
+              labelWidth: labelWidth,
+              gap: Sp.x6,
+              runGap: 2.u,
+              minValue: factsMinValue,
+              children: [
+                Text(k, style: ts.bodyDim),
+                DefaultTextStyle.merge(style: ts.body, child: v),
+              ],
+            ),
           ),
       ],
     );
-    // The label beside its value while the value keeps [factsMinValue]; else above it, so an
-    // address or a sentence gets the whole width.
-    return LayoutBuilder(builder: (context, box) => facts(!box.maxWidth.isFinite || box.maxWidth - labelWidth - Sp.x6 >= factsMinValue));
   }
+}
+
+/// One [EFacts] row: the label at [labelWidth] beside the value while the value keeps
+/// [minValue], else the label above the value at the full width.
+class _FactRow extends MultiChildRenderObjectWidget {
+  const _FactRow({required this.labelWidth, required this.gap, required this.runGap, required this.minValue, required super.children});
+
+  final double labelWidth;
+  final double gap;
+  final double runGap;
+  final double minValue;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderFactRow(labelWidth, gap, runGap, minValue);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderFactRow r) => r
+    ..labelWidth = labelWidth
+    ..gap = gap
+    ..runGap = runGap
+    ..minValue = minValue;
+}
+
+class _FactRowData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderFactRow extends RenderBox with ContainerRenderObjectMixin<RenderBox, _FactRowData>, RenderBoxContainerDefaultsMixin<RenderBox, _FactRowData> {
+  _RenderFactRow(this._labelWidth, this._gap, this._runGap, this._minValue);
+
+  double _labelWidth;
+  set labelWidth(double v) {
+    if (v == _labelWidth) return;
+    _labelWidth = v;
+    markNeedsLayout();
+  }
+
+  double _gap;
+  set gap(double v) {
+    if (v == _gap) return;
+    _gap = v;
+    markNeedsLayout();
+  }
+
+  double _runGap;
+  set runGap(double v) {
+    if (v == _runGap) return;
+    _runGap = v;
+    markNeedsLayout();
+  }
+
+  double _minValue;
+  set minValue(double v) {
+    if (v == _minValue) return;
+    _minValue = v;
+    markNeedsLayout();
+  }
+
+  RenderBox get _label => firstChild!;
+  RenderBox get _value => lastChild!;
+
+  bool _besideAt(double width) => !width.isFinite || width - _labelWidth - _gap >= _minValue;
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _FactRowData) child.parentData = _FactRowData();
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) => _labelWidth + _gap + _value.getMinIntrinsicWidth(height);
+
+  @override
+  double computeMaxIntrinsicWidth(double height) => _labelWidth + _gap + _value.getMaxIntrinsicWidth(height);
+
+  @override
+  double computeMinIntrinsicHeight(double width) => _height(width, (b, w) => b.getMinIntrinsicHeight(w));
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => _height(width, (b, w) => b.getMaxIntrinsicHeight(w));
+
+  double _height(double width, double Function(RenderBox, double) h) {
+    if (_besideAt(width)) {
+      final a = h(_label, _labelWidth), b = h(_value, width - _labelWidth - _gap);
+      return a > b ? a : b;
+    }
+    return h(_label, width) + _runGap + h(_value, width);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final width = constraints.maxWidth;
+    if (_besideAt(width)) {
+      final a = _label.getDryLayout(BoxConstraints.tightFor(width: _labelWidth)).height;
+      final b = _value.getDryLayout(BoxConstraints.tightFor(width: width - _labelWidth - _gap)).height;
+      return constraints.constrain(Size(width, a > b ? a : b));
+    }
+    final a = _label.getDryLayout(BoxConstraints(maxWidth: width)).height;
+    final b = _value.getDryLayout(BoxConstraints.tightFor(width: width)).height;
+    return constraints.constrain(Size(width, a + _runGap + b));
+  }
+
+  @override
+  void performLayout() {
+    final width = constraints.maxWidth;
+    final beside = _besideAt(width);
+    final ld = _label.parentData! as _FactRowData;
+    final vd = _value.parentData! as _FactRowData;
+    if (beside) {
+      _label.layout(BoxConstraints.tightFor(width: _labelWidth), parentUsesSize: true);
+      _value.layout(width.isFinite ? BoxConstraints.tightFor(width: width - _labelWidth - _gap) : const BoxConstraints(), parentUsesSize: true);
+      ld.offset = Offset.zero;
+      vd.offset = Offset(_labelWidth + _gap, 0);
+      final h = _label.size.height > _value.size.height ? _label.size.height : _value.size.height;
+      size = constraints.constrain(Size(width.isFinite ? width : _labelWidth + _gap + _value.size.width, h));
+    } else {
+      _label.layout(BoxConstraints(maxWidth: width), parentUsesSize: true);
+      _value.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);
+      ld.offset = Offset.zero;
+      vd.offset = Offset(0, _label.size.height + _runGap);
+      size = constraints.constrain(Size(width, _label.size.height + _runGap + _value.size.height));
+    }
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
 }
 
 /// Monospace data that may be copied: an id, a host, a commitment.
