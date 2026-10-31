@@ -199,10 +199,13 @@ title = "Windows installer ({variant})"
 platform = "windows"
 for_each = "variant"
 host = "windows"
+# The variants build side by side, each in its own work dir (the owner 2026-10-31: the Windows
+# machine takes 4-6 jobs).
+lane = "build-windows-{variant}"
 needs = ["source-check"]
-# A fresh work dir per run on the Windows machine (never a stale LEPIC blob from an older run);
-# only this run's installer is taken back.
-run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id} && mv -f build-windows/epic-cash-desktop-{version}{notor}-windows-x64-setup.exe {stage}/"
+# A fresh work dir per run and variant on the Windows machine (never a stale LEPIC blob from an
+# older run); only this run's installer is taken back.
+run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id}-{variant} && mv -f build-windows/epic-cash-desktop-{version}{notor}-windows-x64-setup.exe {stage}/"
 env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}" }
 outputs = ["epic-cash-desktop-{version}{notor}-windows-x64-setup.exe"]
 timeout = "150m"
@@ -307,6 +310,9 @@ title = "G4 update trust Windows ({variant})"
 platform = "windows"
 for_each = "proof_variant"
 host = "build"
+# One lane: the rig runs one job at a time, and the app's single-instance mutex
+# (Local\uk.btlabs.epiccash.desktop.single, the same in both variants) is shared by every rig job
+# in session 0, so a second variant's app would quit at start and its Setup would wait on the first.
 lane = "trust-windows"
 needs = ["build-android", "build-play", "sign-android", "build-linux", "build-windows@variant"]
 proof = true
