@@ -68,18 +68,6 @@ const String _qrRow = '\u0000qr';
 String payerName(Iterable<Contact> contacts, String address, {String? paired}) =>
     paired != null && paired.isNotEmpty ? paired : contactNameFor(contacts, address) ?? shortAddress(address);
 
-/// The one-word state of a request that is no longer waiting; null while it waits, where
-/// the time left is shown instead.
-String? issuedStateWord(AppLocalizations l, IssuedInvoiceState state) =>
-    switch (state) {
-      IssuedInvoiceState.waiting => null,
-      IssuedInvoiceState.paid => l.issuedPaid,
-      IssuedInvoiceState.declined => l.issuedDeclined,
-      IssuedInvoiceState.withdrawn => l.issuedWithdrawn,
-      IssuedInvoiceState.expired => l.issuedExpired,
-      IssuedInvoiceState.bounced => l.issuedBounced,
-    };
-
 /// Asks before [invoice] is withdrawn, then withdraws it. The `withdrawn` event brings the
 /// notice; a failure shows as an error notice. True once it was withdrawn.
 Future<bool> confirmWithdraw(
