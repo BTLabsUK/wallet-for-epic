@@ -73,11 +73,11 @@
   "@deskSetReportContactHint": {
     "description": "Report a problem dialog: placeholder of the contact field."
   },
-  "deskSetReportAttach": "Attach logs (recommended)",
+  "deskSetReportAttach": "Attach logs",
   "@deskSetReportAttach": {
     "description": "Report a problem dialog: checkbox label."
   },
-  "deskSetReportAttachHint": "The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.",
+  "deskSetReportAttachHint": "The newest part of the app log, without the recovery phrase, password and other secrets.",
   "@deskSetReportAttachHint": {
     "description": "Report a problem dialog: small text under the Attach logs checkbox."
   },

@@ -7,7 +7,7 @@
   "deskRecvSettings": "Настройки",
   "deskRecvTorNotConnected": "Tor не подключён.",
   "deskRecvTorStarting": "Tor запускается.",
-  "deskRecvTorDownText": "Все соединения ждут Tor. Повторите попытку или выключите Tor.",
+  "deskRecvTorDownText": "Tor не удалось подключить. Повторите попытку или выключите Tor.",
   "deskRecvTorStartingText": "Адреса станут доступны, когда Tor подключится.",
   "deskRecvTurnTorOff": "Выключить Tor",
   "deskRecvTryAgain": "Повторить",

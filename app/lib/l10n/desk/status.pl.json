@@ -21,7 +21,7 @@
   "deskNodeNewerOut": "Dostępna wersja {version}",
   "deskNodeBehindLine": "Opóźniony względem sieci; nadrabia.",
   "deskNodeHeightOf": "{height} z {total}",
-  "deskNodeAtTip": "na bieżąco",
+  "deskNodeAtTip": "zsynchronizowany",
   "deskNodeLocal": "Węzeł lokalny",
   "deskNodeConnectingPeers": "Łączenie z peerami",
   "deskNodeUsingUntilSynced": "Do czasu synchronizacji używany jest {host}.",

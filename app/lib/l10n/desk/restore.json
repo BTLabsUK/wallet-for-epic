@@ -111,11 +111,11 @@
       }
     }
   },
-  "deskOvRestoredImportTitle": "Bring back history and settings?",
+  "deskOvRestoredImportTitle": "Your wallet is restored",
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },
-  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
+  "deskOvRestoredImportBody": "The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.",
   "@deskOvRestoredImportBody": {
     "description": "Body of the offer."
   },

@@ -131,7 +131,7 @@
       }
     }
   },
-  "deskNodeAtTip": "at tip",
+  "deskNodeAtTip": "synced",
   "@deskNodeAtTip": {
     "description": "Tooltip line part: the node is at the chain tip. Short, lowercase."
   },
@@ -204,7 +204,7 @@
   "@deskNodeStartIt": {
     "description": "Local node tooltip line when the node is stopped."
   },
-  "deskNodeFailPort": "port {port} is used by another program",
+  "deskNodeFailPort": "port {port} is in use by another program",
   "@deskNodeFailPort": {
     "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment.",
     "placeholders": {

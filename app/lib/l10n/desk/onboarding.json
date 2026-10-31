@@ -11,10 +11,6 @@
   "@deskOnbWelcomeCreate": {
     "description": "Title of a choice card on the Welcome page: make a brand new wallet."
   },
-  "deskOnbWelcomeCreateSub": "New recovery phrase",
-  "@deskOnbWelcomeCreateSub": {
-    "description": "One-line description under 'Create a new wallet': a new wallet gets new recovery words."
-  },
   "deskOnbWelcomeImport": "Import wallets",
   "@deskOnbWelcomeImport": {
     "description": "Title of a choice card on the Welcome page: bring in wallets from an older Epic Wallet or from a folder."
@@ -26,10 +22,6 @@
   "deskOnbWelcomeRestore": "Restore from phrase",
   "@deskOnbWelcomeRestore": {
     "description": "Title of a choice card on the Welcome page: restore a wallet from its recovery words."
-  },
-  "deskOnbWelcomeRestoreSub": "From the recovery phrase",
-  "@deskOnbWelcomeRestoreSub": {
-    "description": "One-line description under 'Restore from a phrase'."
   },
   "deskOnbWelcomeTestNote": "New wallets are made on this test network.",
   "@deskOnbWelcomeTestNote": {
@@ -161,7 +153,7 @@
   "@deskOnbCreateTestNote": {
     "description": "Note on the password page when a test network is selected; the network's name is shown beside it."
   },
-  "deskOnbCreatePhraseLead": "Write these words on paper, in order: they are the only way to restore the coins.",
+  "deskOnbCreatePhraseLead": "Write these words on paper, in order. They are the only way to restore this wallet.",
   "@deskOnbCreatePhraseLead": {
     "description": "Text under the title of the recovery phrase page."
   },
@@ -246,7 +238,7 @@
   "@deskOnbRestoreNothingToPaste": {
     "description": "Status line under the phrase grid when Paste found no words on the clipboard."
   },
-  "deskOnbRestoreBadWord": "Word {position}, \"{word}\", is not in the word list.",
+  "deskOnbRestoreBadWord": "Word {position}, “{word}”, is not in the word list.",
   "@deskOnbRestoreBadWord": {
     "description": "Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase.",
     "placeholders": {

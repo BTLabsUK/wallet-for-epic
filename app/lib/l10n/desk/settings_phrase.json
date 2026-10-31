@@ -23,7 +23,7 @@
   "@deskSetPhraseWrongPassword": {
     "description": "Settings > Recovery phrase: error under the password field."
   },
-  "deskSetPhraseIntro": "Write the words on paper, in this order. Never type them into a website or a chat.",
+  "deskSetPhraseIntro": "Write these words on paper, in order. They are the only way to restore this wallet.",
   "@deskSetPhraseIntro": {
     "description": "Settings > Recovery phrase: text under the page heading."
   },

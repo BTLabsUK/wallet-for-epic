@@ -512,11 +512,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '已通过 Epicbox 发送。对方钱包上线后完成；在此之前或取消之前，金额保持锁定。';
 
   @override
-  String get txDetailsWaitingRecipient =>
-      '正在等待接收方回复其交易文件。在此之前，或在你取消之前，你的资金将保持锁定。';
+  String get txDetailsWaitingRecipient => '正在等待接收方的回复文件。在此之前或取消之前，该金额保持锁定。';
 
   @override
-  String get txDetailsWaitingSender => '你已接受这笔付款。发送方完成并将其广播到网络后，付款即完成。';
+  String get txDetailsWaitingSender => '等待发送方将其广播到网络。';
 
   @override
   String get txDetailsSenderPosted => '发送方称已广播这笔付款。网络确认后，付款即完成。';
@@ -697,7 +696,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txWaitNotInBlock => '尚未进入区块，可能仍在发往网络的途中。';
 
   @override
-  String get txDetailsStuckBody => '网络尚未接受这笔付款。重新广播是安全的，同一笔付款不会被执行两次。';
+  String get txDetailsStuckBody => '网络未接受这笔付款。请重新广播；同一笔付款不会被执行两次。';
 
   @override
   String get txDetailsBroadcastAgain => '重新广播';
@@ -796,7 +795,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsMessageHintToSender => '已发送给付款人';
 
   @override
-  String get txDetailsNoNote => '暂无备注。添加备注，记下这笔付款的用途。';
+  String get txDetailsNoNote => '暂无备注';
 
   @override
   String get txDetailsAddNote => '添加备注';
@@ -1853,7 +1852,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreFinishOnHome =>
-      '已找到所选起点之后的资金。现在从区块 0 开始的扫描会在主页完成恢复，结束后即可接收和发送。';
+      '已找到所选起点之后的币。现在从区块 0 开始的扫描会在主页完成恢复，结束后即可接收和发送。';
 
   @override
   String get unlockDatabaseRebuilt =>
@@ -1967,7 +1966,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '请将这 $count 个单词按顺序抄写在纸上，并妥善保管，切勿泄露。它们是恢复此钱包的唯一方式。',
+      other: '请将这 $count 个单词按顺序抄写在纸上。它们是恢复此钱包的唯一方式。',
     );
     return '$_temp0';
   }
@@ -2024,7 +2023,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pinBiometricsIconLabel => '生物识别';
 
   @override
-  String get pinBiometricsQuestion => '使用指纹或面容解锁？';
+  String get pinBiometricsQuestion => '使用生物识别解锁？';
 
   @override
   String get pinBiometricsPinStillWorks => 'PIN 码仍然可用。';
@@ -2471,7 +2470,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qrScanCountLabel => '已读取的段数';
 
   @override
-  String get qrScanNotPayment => '这不是付款二维码。请让对方在手机上显示付款二维码。';
+  String get qrScanNotPayment => '这不是付款二维码。请让对方显示付款二维码。';
 
   @override
   String get qrScanNotReply => '这不是回复二维码。请让对方在手机上显示回复。';
@@ -2539,7 +2538,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveQrTitle => '就在对方手机旁边？';
 
   @override
-  String get receiveQrBody => '扫描对方屏幕上的付款并显示你的回复，或者请求一个金额，显示成二维码让对方扫描。';
+  String get receiveQrBody => '或者请求一个金额：显示二维码让对方扫描。';
 
   @override
   String get txQrHint =>
@@ -2811,7 +2810,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      '这将从此设备中删除钱包、交易记录和 PIN 码。只有助记词能找回资金。没有助记词，资金将永久丢失。';
+      '这将从此手机中删除钱包、交易记录和 PIN 码。只有助记词能找回资金。没有助记词，资金将永久丢失。';
 
   @override
   String get settingsDeleteHavePhrase => '我已抄写好助记词';
@@ -2975,7 +2974,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackAttachLogs => '附加日志';
 
   @override
-  String get feedbackAttachLogsHint => '日志有助于找到问题。助记词、PIN 码和其他机密信息会先被移除。';
+  String get feedbackAttachLogsHint => '应用日志的最新部分，不含助记词、PIN 码和其他机密信息。';
 
   @override
   String get feedbackPreviewButton => '发送的内容';
@@ -3195,7 +3194,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendNoteHelper => '收款人能看到。';
 
   @override
-  String get sendReviewMessageKept => '收款人能看到。副本也会作为你的私人备注保存，你可以编辑它。';
+  String get sendReviewMessageKept => '收款人能看到。副本会作为你的私人备注保存。';
 
   @override
   String get sendNetworkFee => '网络手续费';
@@ -3520,7 +3519,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torFailureStart => 'Tor 未能启动。';
 
   @override
-  String get torFailureNetwork => '无法连接 Tor 网络。请检查网络。';
+  String get torFailureNetwork => 'Tor 无法连接。请重试，或关闭 Tor。';
 
   @override
   String get torFailureClock => '手机时钟不准。Tor 需要正确的时间。';
@@ -3666,7 +3665,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tourPhoneHelpTitle => '帮助';
 
   @override
-  String get tourPhoneHelpText => '搜索主题或发送反馈。“再次查看导览”在列表底部。';
+  String get tourPhoneHelpText => '帮助主题、“报告问题”和“再次查看导览”。';
 
   @override
   String get tourPhoneShowAgain => '再次查看导览';
@@ -3734,7 +3733,7 @@ class AppLocalizationsZh extends AppLocalizations {
       locale: localeName,
       other: '$blocks 次确认',
     );
-    return '请等待进行中的发送确认（$_temp0）。';
+    return '请等待进行中的付款获得 $_temp0。';
   }
 
   @override
@@ -3868,7 +3867,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outputsEmpty => '暂无输出';
 
   @override
-  String get outputsEmptyHint => '收到第一笔付款后会产生一个。地址在“接收”中。';
+  String get outputsEmptyHint => '收到第一笔付款后会产生一个。';
 
   @override
   String get outputsNoMatch => '此视图没有输出';
@@ -4221,11 +4220,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get serverAtTip => '已是最新';
+  String get serverAtTip => '已同步';
 
   @override
   String serverBehindShort(String count) {
-    return '−$count';
+    return '落后 $count';
   }
 
   @override
@@ -4251,13 +4250,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get serverHealthy => '正常';
 
   @override
-  String get serverDegraded => '性能下降';
+  String get serverDegraded => '落后';
 
   @override
   String get serverHealthNone => '状态未知';
 
   @override
-  String get serverCurrent => '当前';
+  String get serverCurrent => '使用中';
 
   @override
   String get serverDefault => '默认';
@@ -4292,7 +4291,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String serverHeightAtTip(String height) {
-    return '$height · 已是最新';
+    return '$height · 已同步';
   }
 
   @override
@@ -4414,7 +4413,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodSendFileTitle => '无需连接。';
 
   @override
-  String get methodSendFileLine => '交出文件，收回对方的回复文件，然后在这里完成。';
+  String get methodSendFileLine => '交出文件，收回对方的回复文件，然后在这里打开。';
 
   @override
   String get methodReceiveEpicboxTitle => '分享它即可收款。';
@@ -4450,7 +4449,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendCancelRuleDirect => '对方钱包接受后无法取消。';
 
   @override
-  String get sendCancelRuleFile => '在回复文件完成之前可以取消。';
+  String get sendCancelRuleFile => '在你打开回复文件之前可以取消。';
 
   @override
   String get sendHttpReaching => '正在联系对方钱包… 请保持应用打开。';
@@ -4666,7 +4665,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerMessageCount(int used, int max) {
-    return '$used/$max 字节';
+    return '$used / $max 字节';
   }
 
   @override
@@ -5761,7 +5760,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskNodeAtTip => '已是最新';
+  String get deskNodeAtTip => '已同步';
 
   @override
   String get deskNodeLocal => '本地节点';
@@ -5985,7 +5984,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvTorStarting => 'Tor 正在启动。';
 
   @override
-  String get deskRecvTorDownText => '所有连接都在等待 Tor。请重试，或关闭 Tor。';
+  String get deskRecvTorDownText => 'Tor 无法连接。请重试，或关闭 Tor。';
 
   @override
   String get deskRecvTorStartingText => 'Tor 连接后地址即可访问。';
@@ -6498,7 +6497,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendMessage => '留言';
 
   @override
-  String get deskSendMessageHelp => '接收方会看到这条留言。';
+  String get deskSendMessageHelp => '收款人能看到。';
 
   @override
   String get deskSendPrivacyOn => '隐私 · Dandelion++ 已开启';
@@ -6570,7 +6569,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendDirectLine1 => '直达对方钱包。';
 
   @override
-  String get deskSendDirectLine2 => 'http(s) 或 .onion 地址；对方钱包必须处于打开状态。';
+  String get deskSendDirectLine2 => '对方钱包必须处于打开状态。onion 地址经由 Tor。';
 
   @override
   String get deskSendFileLine1 => '无需联网。';
@@ -6862,7 +6861,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskActDetailReceived => '收到的付款';
 
   @override
-  String get deskActDetailSent => '已发送的付款';
+  String get deskActDetailSent => '发出的付款';
 
   @override
   String get deskActLoading => '正在加载付款';
@@ -7001,7 +7000,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConSortRecent => '最近';
 
   @override
-  String get deskConNone => '暂无联系人。';
+  String get deskConNone => '暂无联系人';
 
   @override
   String get deskConNoMatchList => '没有匹配的联系人';
@@ -7016,10 +7015,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskConEmptyTitle => '暂无联系人';
 
   @override
-  String get deskConEmptyText => '保存经常付款的人和商家，在“发送”页按名称选择。';
-
-  @override
-  String get deskConEmptyLocal => '联系人保存在这台电脑上；导出即可保留一份副本。';
+  String get deskConEmptyText => '联系人就是一个地址的名称。';
 
   @override
   String get deskConSendToAddress => '发送到地址';
@@ -8181,9 +8177,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbWelcomeCreate => '创建新钱包';
 
   @override
-  String get deskOnbWelcomeCreateSub => '新的助记词';
-
-  @override
   String get deskOnbWelcomeImport => '导入钱包';
 
   @override
@@ -8191,9 +8184,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbWelcomeRestore => '用助记词恢复';
-
-  @override
-  String get deskOnbWelcomeRestoreSub => '使用助记词';
 
   @override
   String get deskOnbWelcomeTestNote => '新钱包将创建在此测试网络上。';
@@ -8291,7 +8281,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbCreateTestNote => '测试网络上的钱包，不用于真实的 EPIC';
 
   @override
-  String get deskOnbCreatePhraseLead => '请按顺序把这些单词抄写在纸上：它们是恢复币的唯一方法。';
+  String get deskOnbCreatePhraseLead => '请将这些单词按顺序抄写在纸上。它们是恢复此钱包的唯一方式。';
 
   @override
   String get deskOnbCreateRevealFirst => '请先显示助记词';
@@ -9336,7 +9326,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitFactOperator => '运营方';
 
   @override
-  String get deskKitAtTip => '已是最新';
+  String get deskKitAtTip => '已同步';
 
   @override
   String deskKitBehind(int count, String blocks) {
@@ -9492,7 +9482,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskKitMethodPortInUse(String port) {
-    return '端口 $port 被其他程序占用。请关闭该程序，或在设置中选择其他端口。';
+    return '端口 $port 被其他程序占用。请关闭该程序，或在下方更改端口。';
   }
 
   @override
@@ -9786,7 +9776,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetBackupExportDesc =>
-      '包含这个钱包的交易记录、联系人、账单和设置的文件。它无法单独恢复钱包：先用助记词恢复，再导入此文件。';
+      '包含此钱包截至目前的交易记录、联系人、账单和设置。 恢复时：先输入助记词，再导入此文件。';
 
   @override
   String get deskSetBackupSaved => '已保存';
@@ -9912,7 +9902,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      '任何拿到此文件的人都能看到金额、日期、地址和备注。它不能导入；导入请使用“导出钱包数据”。';
+      '任何拿到文件的人都能看到金额、日期、地址和备注。它无法导入；如需备份，请使用“导出钱包数据”。';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -10497,7 +10487,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskSetLndTypeToConfirm(String word) {
-    return '输入 $word 以确认。';
+    return '输入“$word”以确认';
   }
 
   @override
@@ -10907,7 +10897,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetPhraseWrongPassword => '密码错误。';
 
   @override
-  String get deskSetPhraseIntro => '请按此顺序把这些单词抄写在纸上。切勿把它们输入任何网站或聊天中。';
+  String get deskSetPhraseIntro => '请将这些单词按顺序抄写在纸上。它们是恢复此钱包的唯一方式。';
 
   @override
   String get deskSetPhrasePanel => '输入密码以显示这些单词';
@@ -11213,10 +11203,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetReportContactHint => '电子邮件地址或其他账号，用于回复';
 
   @override
-  String get deskSetReportAttach => '附上日志（建议）';
+  String get deskSetReportAttach => '附上日志';
 
   @override
-  String get deskSetReportAttachHint => '应用日志的最新部分，已清除助记词、密码、地址、IP 和用户主文件夹。';
+  String get deskSetReportAttachHint => '应用日志的最新部分，不含助记词、密码和其他机密信息。';
 
   @override
   String get deskSetReportSentWhat => '发送的内容';
@@ -11243,7 +11233,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRescanLog => '核对日志';
 
   @override
-  String get deskSetRescanText => '重新读取区块链并重建余额。在余额看起来不对或输出一直锁定时使用。';
+  String get deskSetRescanText => '重新核对链上属于此钱包的资金。在余额看起来不对时使用。';
 
   @override
   String get deskSetRescanDeleteUnconfirmed => '删除未确认的交易';
@@ -11872,7 +11862,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txStatusStalled => '已停滞';
 
   @override
-  String get txDetailsStalledBody => '已停滞，未送达。你的付款还没有进入网络。请重新发送。';
+  String get txDetailsStalledBody => '对方尚未广播这笔付款。';
 
   @override
   String get txDetailsNotDeliveredDirectBody =>
@@ -12005,7 +11995,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '文件中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
+      other: '文件中有 $n 笔付款带有不同的详情。除非你选择文件中的，否则保留你的。',
     );
     return '$_temp0';
   }
@@ -12082,7 +12072,7 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       n,
       locale: localeName,
-      other: '旧钱包的历史中有 $n 笔你描述过的付款带有不同的详情。除非你另行选择，否则保留你的内容。',
+      other: '旧钱包的历史中有 $n 笔付款带有不同的详情。除非你选择旧钱包中的，否则保留你的。',
     );
     return '$_temp0';
   }
@@ -12859,7 +12849,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxStatusSenderPosted => '发送方称已广播';
 
   @override
-  String get deskTxNowSenderPosted => '已签名并发回。发送方称已广播；确认后即完成。';
+  String get deskTxNowSenderPosted => '发送方称已广播这笔付款。网络确认后，付款即完成。';
 
   @override
   String get deskImpWrongTypePasted => '粘贴的文本不是交易。请粘贴发送方提供的完整文本，或选择其文件。';
@@ -13635,9 +13625,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String addrDesktopThird(String type) {
     return '粘贴 $type 地址，或留空';
   }
-
-  @override
-  String get addrDesktopRule => '每种类型一个地址。';
 
   @override
   String get pendingTitle => '待处理邀请';
@@ -14772,11 +14759,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => '找回记录和设置？';
+  String get deskOvRestoredImportTitle => '钱包已恢复';
 
   @override
   String get deskOvRestoredImportBody =>
-      '助记词已找回余额。从这个钱包导出的钱包数据文件可找回交易记录、联系人、账单和设置：即保存在旧电脑以外的那个文件。';
+      '助记词已找回余额。要找回记录、联系人、账单和设置，请导入你导出的钱包数据文件。';
 
   @override
   String get deskOvRestoredImportButton => '导入钱包数据';
@@ -16751,7 +16738,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txPostElsewhereKill => '在“紧急断网”下完成。请保存它或显示二维码，然后在联网的设备上广播。';
 
   @override
-  String get txPostElsewhereAfter => '在“紧急断网”下完成，尚未在链上看到。可从这里广播，或等待广播它的设备。';
+  String get txPostElsewhereAfter => '在“紧急断网”下完成，尚未上链。可从这里广播，或等待已广播它的设备。';
 
   @override
   String get txPostNow => '立即广播';
@@ -16910,7 +16897,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'PIN 码已无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
 
   @override
-  String get settingsUsePassphrase => '使用密码短语代替 PIN 码';
+  String get settingsUsePassphrase => '使用密码短语';
 
   @override
   String get settingsChangePassphrase => '更改密码短语';
@@ -17038,7 +17025,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txTrustedNetworksBody =>
-      'Link · HTTP 在你信任的网络上监听。忘记某个网络后，手机下次连上它时会再次询问。';
+      'Link · HTTP 仅在受信任的网络上接收。已忘记的网络会在手机下次加入时再次询问。';
 
   @override
   String get txTrustedNetworksNone => '尚未信任任何网络。';

@@ -123,7 +123,7 @@
   "@deskHistConflictTitle": {
     "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
   },
-  "deskHistConflictLead": "{n, plural, one{The file has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLead": "{n, plural, =1{The file has different details for 1 payment. Yours are kept unless you pick the file’s.} other{The file has different details for {n} payments. Yours are kept unless you pick the file’s.}}",
   "@deskHistConflictLead": {
     "description": "Description of the Details differ dialog; n payments.",
     "placeholders": {
@@ -141,7 +141,7 @@
   "@deskHistConflictBackup": {
     "description": "Choice card in the Details differ dialog: the value in the backup file."
   },
-  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet’s history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has different details for {n} payment. Yours are kept unless you pick the old wallet’s.} other{The old wallet’s history has different details for {n} payments. Yours are kept unless you pick the old wallet’s.}}",
   "@deskHistConflictLeadOldWallet": {
     "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
     "placeholders": {

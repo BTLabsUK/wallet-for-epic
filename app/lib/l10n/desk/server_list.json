@@ -12,7 +12,7 @@
   "@deskSlInUse": {
     "description": "First fact of the row of the server in use, in the Node or Epicbox list."
   },
-  "deskSlHealthUnknown": "Health unknown",
+  "deskSlHealthUnknown": "Status unknown",
   "@deskSlHealthUnknown": {
     "description": "A row's health when the status site has nothing on the server."
   },

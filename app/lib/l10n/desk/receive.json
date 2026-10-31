@@ -43,7 +43,7 @@
   "@deskRecvTorStarting": {
     "description": "Title of the notice on Receive while Tor connects."
   },
-  "deskRecvTorDownText": "Every connection waits for Tor. Retry, or turn Tor off.",
+  "deskRecvTorDownText": "Tor could not connect. Retry, or turn Tor off.",
   "@deskRecvTorDownText": {
     "description": "Text of the notice on Receive when Tor failed."
   },

@@ -31,11 +31,11 @@
   "@deskActTitle": {
     "description": "Title of the Activity page: the list of all transactions."
   },
-  "deskActDetailReceived": "Received payment",
+  "deskActDetailReceived": "Incoming payment",
   "@deskActDetailReceived": {
     "description": "Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page."
   },
-  "deskActDetailSent": "Sent payment",
+  "deskActDetailSent": "Outgoing payment",
   "@deskActDetailSent": {
     "description": "Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page."
   },
@@ -59,7 +59,7 @@
   "@deskActFilterSent": {
     "description": "Filter tab on Activity: outgoing payments. Narrow tab; a count follows it."
   },
-  "deskActNoMatchTitle": "Nothing matches \"{query}\".",
+  "deskActNoMatchTitle": "Nothing matches “{query}”.",
   "@deskActNoMatchTitle": {
     "description": "Activity: title of the empty state when the search or filter matches nothing; query is the typed text.",
     "placeholders": {

@@ -7,7 +7,7 @@
   "deskRecvSettings": "การตั้งค่า",
   "deskRecvTorNotConnected": "Tor ไม่ได้เชื่อมต่อ",
   "deskRecvTorStarting": "Tor กำลังเริ่ม",
-  "deskRecvTorDownText": "ทุกการเชื่อมต่อรอ Tor ลองอีกครั้ง หรือปิด Tor",
+  "deskRecvTorDownText": "Tor เชื่อมต่อไม่ได้ ลองอีกครั้ง หรือปิด Tor",
   "deskRecvTorStartingText": "ที่อยู่จะเข้าถึงได้เมื่อ Tor เชื่อมต่อ",
   "deskRecvTurnTorOff": "ปิด Tor",
   "deskRecvTryAgain": "ลองอีกครั้ง",

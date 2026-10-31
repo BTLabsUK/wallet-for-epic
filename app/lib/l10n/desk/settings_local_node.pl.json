@@ -86,7 +86,7 @@
   "deskSetLndDeleteTitle": "Usuń dane łańcucha",
   "deskSetLndDeleteDesc": "Usuwa {size} z {path}; łańcuch pobierze się od nowa przy następnym uruchomieniu. Klucze i historia zostają.",
   "deskSetLndDeleteDescNoSize": "Usuwa dane łańcucha z {path}. Węzeł się zatrzyma, a przy następnym uruchomieniu cały łańcuch pobierze się od nowa (godziny). Klucze i historia portfela pozostają nietknięte.",
-  "deskSetLndTypeToConfirm": "Wpisz {word}, aby potwierdzić.",
+  "deskSetLndTypeToConfirm": "Wpisz „{word}”, aby potwierdzić",
   "deskSetLndTypeToConfirmLabel": "Wpisz {word}, aby potwierdzić",
   "deskSetLndSourceCli": "epic (węzeł wiersza poleceń)",
   "deskSetLndSourceGui": "Epic GUI",

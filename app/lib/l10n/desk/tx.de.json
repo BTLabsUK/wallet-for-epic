@@ -44,7 +44,7 @@
   "deskTxNowBackup": "Aus einer Wallet-Datendatei importiert. Status nicht auf der Chain geprüft.",
   "deskTxNowImmature": "{count, plural, one{Bestätigt, aber eine Mining-Belohnung ist erst nach {count} Bestätigung verfügbar.} other{Bestätigt, aber eine Mining-Belohnung ist erst nach {count} Bestätigungen verfügbar.}}",
   "deskTxNowWaitingSender": "Wartet darauf, dass der Absender sie an das Netzwerk sendet.",
-  "deskTxNowSenderPosted": "Signiert und zurückgeschickt. Laut Absender im Netzwerk; abgeschlossen nach der Bestätigung.",
+  "deskTxNowSenderPosted": "Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald das Netzwerk sie bestätigt.",
   "deskTxNowWaitingResponseFile": "Wartet auf die Antwortdatei. Schließen Sie ab, sobald sie da ist.",
   "deskTxNowWaitingRecipient": "Wartet auf die Signatur des Empfängers. Bis zum Abschluss verlässt nichts die Wallet.",
   "deskTxNowPosted": "An das Netzwerk gesendet, wartet auf einen Block.",

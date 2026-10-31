@@ -86,7 +86,7 @@
   "deskSetLndDeleteTitle": "删除链数据",
   "deskSetLndDeleteDesc": "从 {path} 删除 {size}；下次启动时会重新下载区块链。密钥和交易记录保留。",
   "deskSetLndDeleteDescNoSize": "从 {path} 删除链数据。节点会停止，下次启动时会重新下载整个区块链（需要数小时）。钱包密钥和交易记录不受影响。",
-  "deskSetLndTypeToConfirm": "输入 {word} 以确认。",
+  "deskSetLndTypeToConfirm": "输入“{word}”以确认",
   "deskSetLndTypeToConfirmLabel": "输入 {word} 以确认",
   "deskSetLndSourceCli": "epic（命令行节点）",
   "deskSetLndSourceGui": "Epic GUI",

@@ -7,7 +7,7 @@
   "deskInvIssuerAmountCap": "Więcej niż wszystkie EPIC, jakie kiedykolwiek powstaną.",
   "deskInvIssuerAmountHelp": "Nic nie opuszcza twojego portfela: płacący płaci tę kwotę plus własną opłatę.",
   "deskInvIssuerMessage": "Wiadomość dla płacącego",
-  "deskInvIssuerMessageCount": "{used} z {max} bajtów",
+  "deskInvIssuerMessageCount": "{used} / {max} bajtów",
   "deskInvIssuerMessageLong": "Wiadomość jest za długa.",
   "deskInvIssuerExpiry": "Płacący ma {hours} godz. na zapłatę.",
   "deskInvIssuerRelayDown": "Serwer Epicbox nie odpowiada, więc teraz nie można wysłać faktury.",

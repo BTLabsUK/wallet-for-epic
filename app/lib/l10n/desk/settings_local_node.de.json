@@ -86,7 +86,7 @@
   "deskSetLndDeleteTitle": "Chain-Daten löschen",
   "deskSetLndDeleteDesc": "Entfernt {size} aus {path}; die Blockchain wird beim nächsten Start neu heruntergeladen. Schlüssel und Verlauf bleiben.",
   "deskSetLndDeleteDescNoSize": "Entfernt die Chain-Daten aus {path}. Der Node stoppt, und beim nächsten Start wird die ganze Blockchain neu heruntergeladen (Stunden). Wallet-Schlüssel und Verlauf bleiben unberührt.",
-  "deskSetLndTypeToConfirm": "Geben Sie zur Bestätigung {word} ein.",
+  "deskSetLndTypeToConfirm": "Zur Bestätigung „{word}“ eingeben",
   "deskSetLndTypeToConfirmLabel": "Zur Bestätigung {word} eingeben",
   "deskSetLndSourceCli": "epic (der Befehlszeilen-Node)",
   "deskSetLndSourceGui": "Epic GUI",

@@ -21,7 +21,7 @@
   "deskNodeNewerOut": "{version} 已发布",
   "deskNodeBehindLine": "落后于网络，正在追赶。",
   "deskNodeHeightOf": "{height}/{total}",
-  "deskNodeAtTip": "已是最新",
+  "deskNodeAtTip": "已同步",
   "deskNodeLocal": "本地节点",
   "deskNodeConnectingPeers": "正在连接对等节点",
   "deskNodeUsingUntilSynced": "同步完成前使用 {host}。",

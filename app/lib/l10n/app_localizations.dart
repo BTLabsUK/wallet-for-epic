@@ -955,13 +955,13 @@ abstract class AppLocalizations {
   /// Payment details, status explanation of a send passed by file or copy and paste. The transaction file holds the slate, the JSON a payment passes between sender and recipient.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for the recipient to answer with their transaction file. Your funds stay locked until then, or until you cancel.'**
+  /// **'Waiting for the recipient’s response file. The amount stays locked until then or until cancelled.'**
   String get txDetailsWaitingRecipient;
 
   /// Payment details, status explanation of a receive the sender has not finished yet.
   ///
   /// In en, this message translates to:
-  /// **'You accepted this payment. It completes when the sender finishes it and posts it to the network.'**
+  /// **'Waiting for the sender to post it.'**
   String get txDetailsWaitingSender;
 
   /// Payment details, status explanation of an incoming payment whose sender reports that it posted it. The sender's word only; the blockchain decides.
@@ -1168,7 +1168,7 @@ abstract class AppLocalizations {
   /// No description provided for @txDetailsStuckBody.
   ///
   /// In en, this message translates to:
-  /// **'The network has not taken this payment yet. Posting it again is safe: the same payment cannot go through twice.'**
+  /// **'The network has not taken this payment. Post it again; it cannot go through twice.'**
   String get txDetailsStuckBody;
 
   /// Button: send the finished payment to the network again.
@@ -1366,7 +1366,7 @@ abstract class AppLocalizations {
   /// No description provided for @txDetailsNoNote.
   ///
   /// In en, this message translates to:
-  /// **'No note. Add one to remember what this was for.'**
+  /// **'No note'**
   String get txDetailsNoNote;
 
   /// Tooltip of the button that adds a note to the payment.
@@ -1636,7 +1636,7 @@ abstract class AppLocalizations {
   /// History screen when the search finds nothing; query is what the user typed. Use this language's quotation marks.
   ///
   /// In en, this message translates to:
-  /// **'Nothing matches \"{query}\".'**
+  /// **'Nothing matches “{query}”.'**
   String historyNoMatch(String query);
 
   /// Title of the system save dialog for a payment-history file (desktop only).
@@ -3184,7 +3184,7 @@ abstract class AppLocalizations {
   /// Restore done screen, only after a restore from a date or height: why Home shows a running scan.
   ///
   /// In en, this message translates to:
-  /// **'Funds after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.'**
+  /// **'Coins after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.'**
   String get restoreFinishOnHome;
 
   /// Persistent warning notice after an unlock found the wallet database damaged; the core rebuilt it and the app scans from block 0.
@@ -3376,7 +3376,7 @@ abstract class AppLocalizations {
   /// Warning above the recovery phrase. count is 12 or 24.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, other{Write these {count} words on paper, in order, and keep them private. They are the only way to restore this wallet.}}'**
+  /// **'{count, plural, other{Write these {count} words on paper, in order. They are the only way to restore this wallet.}}'**
   String backupWriteDown(int count);
 
   /// Screen-reader label of one word of the recovery phrase. The word is always English; number is its position.
@@ -3466,7 +3466,7 @@ abstract class AppLocalizations {
   /// Asked after a new PIN, on devices with fingerprint or face recognition.
   ///
   /// In en, this message translates to:
-  /// **'Unlock with fingerprint or face?'**
+  /// **'Unlock with biometrics?'**
   String get pinBiometricsQuestion;
 
   /// No description provided for @pinBiometricsPinStillWorks.
@@ -4144,7 +4144,7 @@ abstract class AppLocalizations {
   /// Camera screen warning: the code seen is not a payment QR.
   ///
   /// In en, this message translates to:
-  /// **'That is not a payment QR. Ask them to show the payment code on their phone.'**
+  /// **'That is not a payment QR. Ask them to show the payment QR.'**
   String get qrScanNotPayment;
 
   /// Camera screen warning: the code seen is not a reply QR.
@@ -4276,7 +4276,7 @@ abstract class AppLocalizations {
   /// Text of the QR card on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.'**
+  /// **'Or ask for an amount: show a QR for them to scan.'**
   String get receiveQrBody;
 
   /// Settings › Transactions: the explanation behind the info icon of the QR switch.
@@ -4786,7 +4786,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDeleteBody.
   ///
   /// In en, this message translates to:
-  /// **'This removes the wallet, its history and its PIN from this device. Only the recovery phrase can bring the coins back. Without it, they are lost for good.'**
+  /// **'This removes the wallet, its history and its PIN from this phone. Only the recovery phrase can bring the coins back. Without it, they are lost for good.'**
   String get settingsDeleteBody;
 
   /// Checkbox in the delete dialog.
@@ -4804,7 +4804,7 @@ abstract class AppLocalizations {
   /// Label of the field in the delete dialog.
   ///
   /// In en, this message translates to:
-  /// **'Type \"{word}\" to confirm'**
+  /// **'Type “{word}” to confirm'**
   String settingsDeleteTypeToConfirm(String word);
 
   /// Button that closes the delete dialog without deleting.
@@ -5086,7 +5086,7 @@ abstract class AppLocalizations {
   /// Under the Attach diagnostic logs switch.
   ///
   /// In en, this message translates to:
-  /// **'Logs help find the problem. The recovery phrase, PIN and other secrets are removed first.'**
+  /// **'The newest part of the app log, without the recovery phrase, PIN and other secrets.'**
   String get feedbackAttachLogsHint;
 
   /// Button that shows the report's full text. The report itself stays in English.
@@ -5488,7 +5488,7 @@ abstract class AppLocalizations {
   /// Send, review: under the message row. The recipient sees the message, and the sender's history keeps it with the payment (as the private note).
   ///
   /// In en, this message translates to:
-  /// **'The recipient sees it. A copy is also kept as your private note, which you can edit.'**
+  /// **'The recipient sees it. A copy is kept as your private note.'**
   String get sendReviewMessageKept;
 
   /// Send, review: label of the row with the network fee.
@@ -6052,7 +6052,7 @@ abstract class AppLocalizations {
   /// Why Tor is not working: no progress connecting (offline, or Tor blocked). The line under the switch already says Tor is blocked in some countries, so this does not repeat it.
   ///
   /// In en, this message translates to:
-  /// **'Could not reach the Tor network. Check the connection.'**
+  /// **'Tor could not connect. Retry, or turn Tor off.'**
   String get torFailureNetwork;
 
   /// Why Tor is not working: the device's clock is off, which Tor refuses.
@@ -6310,7 +6310,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Help screen; names the row that restarts the tour.
   ///
   /// In en, this message translates to:
-  /// **'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.'**
+  /// **'Help topics, Report a problem and Show the tour again.'**
   String get tourPhoneHelpText;
 
   /// Row at the bottom of Help: starts the first-unlock tour again.
@@ -6412,7 +6412,7 @@ abstract class AppLocalizations {
   /// Caption under the buttons: a send is in progress. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).
   ///
   /// In en, this message translates to:
-  /// **'Wait until the send in progress confirms ({blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}).'**
+  /// **'Wait until the payment in progress has {blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}.'**
   String outputsWaitLocked(int blocks);
 
   /// Row: which outputs a send spends.
@@ -6646,7 +6646,7 @@ abstract class AppLocalizations {
   /// Empty state hint.
   ///
   /// In en, this message translates to:
-  /// **'The first payment received makes one. Receive shows the address.'**
+  /// **'The first payment received makes one.'**
   String get outputsEmptyHint;
 
   /// Empty list under a filter.
@@ -7167,13 +7167,13 @@ abstract class AppLocalizations {
   /// Node row: the node is at the network tip.
   ///
   /// In en, this message translates to:
-  /// **'at tip'**
+  /// **'synced'**
   String get serverAtTip;
 
   /// Node row: blocks behind the tip, as a short number with a minus sign.
   ///
   /// In en, this message translates to:
-  /// **'−{count}'**
+  /// **'{count} behind'**
   String serverBehindShort(String count);
 
   /// Screen reader: the node is behind the tip.
@@ -7185,7 +7185,7 @@ abstract class AppLocalizations {
   /// Row: the server does not answer the monitor.
   ///
   /// In en, this message translates to:
-  /// **'Not responding'**
+  /// **'Not answering'**
   String get serverNotResponding;
 
   /// Node list row: a node on this computer or the local network (a 192.168.x, 10.x or .local address) did not answer the app's own check. Says that this device cannot reach it (often the node only listens on its own 127.0.0.1), not that the node is down.
@@ -7209,19 +7209,19 @@ abstract class AppLocalizations {
   /// Screen reader: the monitor saw the server answer but lag or misbehave.
   ///
   /// In en, this message translates to:
-  /// **'Degraded'**
+  /// **'Behind'**
   String get serverDegraded;
 
   /// Screen reader: no health known for the server.
   ///
   /// In en, this message translates to:
-  /// **'Health unknown'**
+  /// **'Status unknown'**
   String get serverHealthNone;
 
   /// Row trailing word: the server in use.
   ///
   /// In en, this message translates to:
-  /// **'Current'**
+  /// **'In use'**
   String get serverCurrent;
 
   /// Tag on the default Epicbox relay.
@@ -7239,7 +7239,7 @@ abstract class AppLocalizations {
   /// Relay uptime over the last day.
   ///
   /// In en, this message translates to:
-  /// **'{percent} % up'**
+  /// **'{percent}% up'**
   String serverUptime(String percent);
 
   /// Button beside the Other node / Other server field: the typed server joins My nodes or My servers and is offered for a switch.
@@ -7281,7 +7281,7 @@ abstract class AppLocalizations {
   /// Current node card: height and at tip.
   ///
   /// In en, this message translates to:
-  /// **'{height} · at tip'**
+  /// **'{height} · synced'**
   String serverHeightAtTip(String height);
 
   /// Directory line: the height the nodes agree on.
@@ -7467,7 +7467,7 @@ abstract class AppLocalizations {
   /// Send strip line for File.
   ///
   /// In en, this message translates to:
-  /// **'Hand the file over, get their response file back, then finalize it here.'**
+  /// **'Hand the file over, get their response file back, then open it here.'**
   String get methodSendFileLine;
 
   /// Receive strip title for Epicbox.
@@ -7539,7 +7539,7 @@ abstract class AppLocalizations {
   /// Caption on the payment file step: when a file payment can be cancelled.
   ///
   /// In en, this message translates to:
-  /// **'Can be cancelled until the response file is finalized.'**
+  /// **'Can be cancelled until you open the response file.'**
   String get sendCancelRuleFile;
 
   /// Send, review: an HTTP send is under way.
@@ -7557,7 +7557,7 @@ abstract class AppLocalizations {
   /// Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent.
   ///
   /// In en, this message translates to:
-  /// **'Plain http:// doesn\'t work with Tor on.'**
+  /// **'Plain http:// does not work with Tor on.'**
   String get sendPlainHttpOffWithTor;
 
   /// Send: the info sheet behind sendPlainHttpOffWithTor, what to use instead of plain http:// while Tor is on.
@@ -7893,7 +7893,7 @@ abstract class AppLocalizations {
   /// Counter under the message field.
   ///
   /// In en, this message translates to:
-  /// **'{used} of {max} bytes'**
+  /// **'{used} / {max} bytes'**
   String deskInvIssuerMessageCount(int used, int max);
 
   /// Error: the message is over 256 bytes.
@@ -8019,7 +8019,7 @@ abstract class AppLocalizations {
   /// Button: send the finished payment to the node again.
   ///
   /// In en, this message translates to:
-  /// **'Repost'**
+  /// **'Post again'**
   String get deskInvIssuerRepost;
 
   /// Notice after Repost worked.
@@ -8827,7 +8827,7 @@ abstract class AppLocalizations {
   /// The HTTP address card when the listener could not start because the port is taken. {port} is the port number.
   ///
   /// In en, this message translates to:
-  /// **'Port {port} is used by another program.'**
+  /// **'Port {port} is in use by another program.'**
   String receiveHttpPortInUse(String port);
 
   /// The HTTP address card when the listener could not start for another reason; Retry is next to it.
@@ -9169,7 +9169,7 @@ abstract class AppLocalizations {
   /// Shown in the import wizard for an older wallet on the test network.
   ///
   /// In en, this message translates to:
-  /// **'This is a test wallet and can’t be imported.'**
+  /// **'This is a test wallet and cannot be imported.'**
   String get deskErrTestNet;
 
   /// Shown in the import wizard when every wallet found is already in the app.
@@ -9763,7 +9763,7 @@ abstract class AppLocalizations {
   /// Tooltip line part: the node is at the chain tip. Short, lowercase.
   ///
   /// In en, this message translates to:
-  /// **'at tip'**
+  /// **'synced'**
   String get deskNodeAtTip;
 
   /// Name of the node program that runs on this computer, in the rail and node panels.
@@ -9829,7 +9829,7 @@ abstract class AppLocalizations {
   /// Why the local node failed, as a detail after the word "Failed". Lowercase fragment.
   ///
   /// In en, this message translates to:
-  /// **'port {port} is used by another program'**
+  /// **'port {port} is in use by another program'**
   String deskNodeFailPort(String port);
 
   /// Why the local node failed. Lowercase fragment.
@@ -10135,7 +10135,7 @@ abstract class AppLocalizations {
   /// Text of the notice on Receive when Tor failed.
   ///
   /// In en, this message translates to:
-  /// **'Every connection waits for Tor. Retry, or turn Tor off.'**
+  /// **'Tor could not connect. Retry, or turn Tor off.'**
   String get deskRecvTorDownText;
 
   /// Text of the notice on Receive while Tor connects. "it" is Tor.
@@ -10950,7 +10950,7 @@ abstract class AppLocalizations {
   /// Help text under the message field.
   ///
   /// In en, this message translates to:
-  /// **'The recipient sees this message.'**
+  /// **'The recipient sees it.'**
   String get deskSendMessageHelp;
 
   /// Title of the collapsed privacy disclosure on Send when Dandelion++ is on. Dandelion++ is a protocol name.
@@ -11094,7 +11094,7 @@ abstract class AppLocalizations {
   /// Second line under the method selector for the Link method.
   ///
   /// In en, this message translates to:
-  /// **'An http(s) or .onion address; their wallet must be open.'**
+  /// **'Their wallet must be open. An onion address goes over Tor.'**
   String get deskSendDirectLine2;
 
   /// Bold first line under the method selector for the File method.
@@ -11628,13 +11628,13 @@ abstract class AppLocalizations {
   /// Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page.
   ///
   /// In en, this message translates to:
-  /// **'Received payment'**
+  /// **'Incoming payment'**
   String get deskActDetailReceived;
 
   /// Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page.
   ///
   /// In en, this message translates to:
-  /// **'Sent payment'**
+  /// **'Outgoing payment'**
   String get deskActDetailSent;
 
   /// Line with a spinner on Activity while the transactions are being read.
@@ -11670,7 +11670,7 @@ abstract class AppLocalizations {
   /// Activity: title of the empty state when the search or filter matches nothing; query is the typed text.
   ///
   /// In en, this message translates to:
-  /// **'Nothing matches \"{query}\".'**
+  /// **'Nothing matches “{query}”.'**
   String deskActNoMatchTitle(String query);
 
   /// Pager caption under the Activity list: the current page of all pages.
@@ -11862,7 +11862,7 @@ abstract class AppLocalizations {
   /// Line in the contact list when there are no contacts.
   ///
   /// In en, this message translates to:
-  /// **'No contacts yet.'**
+  /// **'No contacts yet'**
   String get deskConNone;
 
   /// Line in the contact list when the search finds nobody.
@@ -11892,14 +11892,8 @@ abstract class AppLocalizations {
   /// Text of the empty state of Contacts.
   ///
   /// In en, this message translates to:
-  /// **'Save the people and shops paid often, then pick them by name on Send.'**
+  /// **'A contact is a name for an address.'**
   String get deskConEmptyText;
-
-  /// Small text of the empty state of Contacts.
-  ///
-  /// In en, this message translates to:
-  /// **'Contacts stay on this computer; export them to keep a copy.'**
-  String get deskConEmptyLocal;
 
   /// Ghost button in the empty state of Contacts: opens Send without a contact.
   ///
@@ -13803,12 +13797,6 @@ abstract class AppLocalizations {
   /// **'Create a new wallet'**
   String get deskOnbWelcomeCreate;
 
-  /// One-line description under 'Create a new wallet': a new wallet gets new recovery words.
-  ///
-  /// In en, this message translates to:
-  /// **'New recovery phrase'**
-  String get deskOnbWelcomeCreateSub;
-
   /// Title of a choice card on the Welcome page: bring in wallets from an older Epic Wallet or from a folder.
   ///
   /// In en, this message translates to:
@@ -13826,12 +13814,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore from phrase'**
   String get deskOnbWelcomeRestore;
-
-  /// One-line description under 'Restore from a phrase'.
-  ///
-  /// In en, this message translates to:
-  /// **'From the recovery phrase'**
-  String get deskOnbWelcomeRestoreSub;
 
   /// Note on the Welcome page when a test network is selected; the network's name is shown beside it.
   ///
@@ -14016,7 +13998,7 @@ abstract class AppLocalizations {
   /// Text under the title of the recovery phrase page.
   ///
   /// In en, this message translates to:
-  /// **'Write these words on paper, in order: they are the only way to restore the coins.'**
+  /// **'Write these words on paper, in order. They are the only way to restore this wallet.'**
   String get deskOnbCreatePhraseLead;
 
   /// Small hint beside the disabled Continue button until the phrase is revealed.
@@ -14136,7 +14118,7 @@ abstract class AppLocalizations {
   /// Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase.
   ///
   /// In en, this message translates to:
-  /// **'Word {position}, \"{word}\", is not in the word list.'**
+  /// **'Word {position}, “{word}”, is not in the word list.'**
   String deskOnbRestoreBadWord(int position, String word);
 
   /// Status line under the phrase grid when the whole phrase is valid. {count} is 12 or 24.
@@ -15696,7 +15678,7 @@ abstract class AppLocalizations {
   /// Small note under Height: the node is on the latest block. Lowercase, short.
   ///
   /// In en, this message translates to:
-  /// **'at tip'**
+  /// **'synced'**
   String get deskKitAtTip;
 
   /// Small note under Height: the node is this many blocks behind. {blocks} is the number with thousands separators; {count} is the same number for grammar.
@@ -15924,7 +15906,7 @@ abstract class AppLocalizations {
   /// Detail of the HTTP status line when the port is taken.
   ///
   /// In en, this message translates to:
-  /// **'Port {port} is used by another program. Close it or pick another port in Settings.'**
+  /// **'Port {port} is in use by another program. Close it, or change the port below.'**
   String deskKitMethodPortInUse(String port);
 
   /// Bold status word of the Tor status line when this build has no Tor.
@@ -16416,7 +16398,7 @@ abstract class AppLocalizations {
   /// Export history dialog: description under the title.
   ///
   /// In en, this message translates to:
-  /// **'A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.'**
+  /// **'Holds this wallet’s payment history, contacts, invoices and settings, up to now. To restore: enter the recovery phrase first, then import this file.'**
   String get deskSetBackupExportDesc;
 
   /// Export dialogs: title of the success block once the file is saved.
@@ -16626,7 +16608,7 @@ abstract class AppLocalizations {
   /// Export CSV dialog: text of the warning notice.
   ///
   /// In en, this message translates to:
-  /// **'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.'**
+  /// **'Anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.'**
   String get deskSetBackupNotEncryptedBody;
 
   /// Reminder on Overview when the history was never backed up. Count is the number of payments.
@@ -17292,7 +17274,7 @@ abstract class AppLocalizations {
   /// Local node panel: notice title when the node cannot open its port.
   ///
   /// In en, this message translates to:
-  /// **'Port {port} is used by another program.'**
+  /// **'Port {port} is in use by another program.'**
   String deskSetLnodePortInUse(String port);
 
   /// Local node panel: notice text when the port is in use. "Node server" is a row title in Settings > Node.
@@ -17580,7 +17562,7 @@ abstract class AppLocalizations {
   /// Delete chain data dialog: asks to type a word, which is shown in monospace in place of {word}. The word itself is always the English "delete" and is not translated.
   ///
   /// In en, this message translates to:
-  /// **'Type {word} to confirm.'**
+  /// **'Type “{word}” to confirm'**
   String deskSetLndTypeToConfirm(String word);
 
   /// Screen reader label of the confirmation field in the Delete chain data dialog. {word} is the English word "delete".
@@ -18257,7 +18239,7 @@ abstract class AppLocalizations {
   /// Settings > Recovery phrase: text under the page heading.
   ///
   /// In en, this message translates to:
-  /// **'Write the words on paper, in this order. Never type them into a website or a chat.'**
+  /// **'Write these words on paper, in order. They are the only way to restore this wallet.'**
   String get deskSetPhraseIntro;
 
   /// Settings > Recovery phrase: title of the panel with the hidden words and the password field.
@@ -18785,13 +18767,13 @@ abstract class AppLocalizations {
   /// Report a problem dialog: checkbox label.
   ///
   /// In en, this message translates to:
-  /// **'Attach logs (recommended)'**
+  /// **'Attach logs'**
   String get deskSetReportAttach;
 
   /// Report a problem dialog: small text under the Attach logs checkbox.
   ///
   /// In en, this message translates to:
-  /// **'The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.'**
+  /// **'The newest part of the app log, without the recovery phrase, password and other secrets.'**
   String get deskSetReportAttachHint;
 
   /// Report a problem dialog: title of the collapsible list of what the report holds.
@@ -18845,7 +18827,7 @@ abstract class AppLocalizations {
   /// Settings > Recheck balance: text of the first row.
   ///
   /// In en, this message translates to:
-  /// **'Reads the chain again and rebuilds the balance. Use it when the balance looks wrong or outputs stay locked.'**
+  /// **'Checks the chain again for this wallet’s coins. Use it when the balance looks wrong.'**
   String get deskSetRescanText;
 
   /// Settings > Recheck balance: checkbox label.
@@ -19952,10 +19934,10 @@ abstract class AppLocalizations {
   /// **'Stalled'**
   String get txStatusStalled;
 
-  /// Explanation under the status of a stalled invoice payment; Send again is a button below.
+  /// Explanation under the status of a stalled invoice payment: the other side has not posted it. There is no button below.
   ///
   /// In en, this message translates to:
-  /// **'Stalled, not delivered. Your payment has not reached the network yet. Send it again.'**
+  /// **'The other side has not posted this payment yet.'**
   String get txDetailsStalledBody;
 
   /// Explanation under the status of an HTTP or Tor payment that was not delivered (the recipient's wallet did not answer).
@@ -20189,7 +20171,7 @@ abstract class AppLocalizations {
   /// Description of the Details differ dialog; n payments.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{The file has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  /// **'{n, plural, =1{The file has different details for 1 payment. Yours are kept unless you pick the file’s.} other{The file has different details for {n} payments. Yours are kept unless you pick the file’s.}}'**
   String deskHistConflictLead(int n);
 
   /// Choice card in the Details differ dialog: the value typed here.
@@ -20285,7 +20267,7 @@ abstract class AppLocalizations {
   /// Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.
   ///
   /// In en, this message translates to:
-  /// **'{n, plural, one{The old wallet’s history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet’s history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}'**
+  /// **'{n, plural, one{The old wallet’s history has different details for {n} payment. Yours are kept unless you pick the old wallet’s.} other{The old wallet’s history has different details for {n} payments. Yours are kept unless you pick the old wallet’s.}}'**
   String deskHistConflictLeadOldWallet(int n);
 
   /// Choice card in the Details differ dialog: the value in the old wallet's history.
@@ -20825,7 +20807,7 @@ abstract class AppLocalizations {
   /// A row's health when the status site has nothing on the server.
   ///
   /// In en, this message translates to:
-  /// **'Health unknown'**
+  /// **'Status unknown'**
   String get deskSlHealthUnknown;
 
   /// Under the Node list's field: the typed node did not answer its test, so it was not added.
@@ -21587,7 +21569,7 @@ abstract class AppLocalizations {
   /// Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides.
   ///
   /// In en, this message translates to:
-  /// **'Signed and returned. The sender reports it posted; it completes when confirmed.'**
+  /// **'The sender reports it posted this payment. It completes when the network confirms it.'**
   String get deskTxNowSenderPosted;
 
   /// Text of that notice when the text pasted into Send (not a file) is not a transaction.
@@ -22903,12 +22885,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paste a {type} address, or leave empty'**
   String addrDesktopThird(String type);
-
-  /// Desktop small print.
-  ///
-  /// In en, this message translates to:
-  /// **'One address per type.'**
-  String get addrDesktopRule;
 
   /// Screen title and the Contacts row.
   ///
@@ -24671,13 +24647,13 @@ abstract class AppLocalizations {
   /// Title of the history-backup offer after the first unlock of a restored wallet.
   ///
   /// In en, this message translates to:
-  /// **'Bring back history and settings?'**
+  /// **'Your wallet is restored'**
   String get deskOvRestoredImportTitle;
 
   /// Body of the offer.
   ///
   /// In en, this message translates to:
-  /// **'The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.'**
+  /// **'The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.'**
   String get deskOvRestoredImportBody;
 
   /// Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton.
@@ -27665,7 +27641,7 @@ abstract class AppLocalizations {
   /// Body of that screen (phone).
   ///
   /// In en, this message translates to:
-  /// **'{amount} is finished. Kill switch is on, so this phone can’t post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.'**
+  /// **'{amount} is finished. Kill switch is on, so this phone cannot post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.'**
   String finalizeNotPostedBody(String amount);
 
   /// Button: save the finished payment as a file.
@@ -27695,7 +27671,7 @@ abstract class AppLocalizations {
   /// Shown when the wallet core can’t produce the finished payment text yet.
   ///
   /// In en, this message translates to:
-  /// **'This version can’t save a finished payment yet.'**
+  /// **'This version cannot save a finished payment yet.'**
   String get finishedUnavailable;
 
   /// Shown when making the finished payment text failed.
@@ -27719,7 +27695,7 @@ abstract class AppLocalizations {
   /// Transaction detail notice after leaving Kill switch.
   ///
   /// In en, this message translates to:
-  /// **'Finished under Kill switch, not seen on chain yet. Post it from here, or wait for the device that posted it.'**
+  /// **'Finished under Kill switch, not on the chain yet. Post it from here, or wait for the device that posted it.'**
   String get txPostElsewhereAfter;
 
   /// Button: post the finished payment from this device.
@@ -27803,7 +27779,7 @@ abstract class AppLocalizations {
   /// Line under the summary.
   ///
   /// In en, this message translates to:
-  /// **'Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.'**
+  /// **'Posting puts it on the network. The wallet that made it shows it confirming once it sees it on the chain.'**
   String get postFinishedNote;
 
   /// Button: post the finished payment.
@@ -27827,7 +27803,7 @@ abstract class AppLocalizations {
   /// Result body.
   ///
   /// In en, this message translates to:
-  /// **'The node has it. The wallet that made it shows it confirming once it sees it on chain.'**
+  /// **'The node has it. The wallet that made it shows it confirming once it sees it on the chain.'**
   String get postFinishedDoneBody;
 
   /// Error when the text is not a finished payment.
@@ -27875,7 +27851,7 @@ abstract class AppLocalizations {
   /// Body of that screen (desktop).
   ///
   /// In en, this message translates to:
-  /// **'{amount} is finished. Kill switch is on, so this computer can’t post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
+  /// **'{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
   String deskFinNotPostedKillBody(String amount);
 
   /// Row in the connections sheet naming the network mode.
@@ -28013,7 +27989,7 @@ abstract class AppLocalizations {
   /// Settings row: replace the 6-digit PIN with a longer passphrase.
   ///
   /// In en, this message translates to:
-  /// **'Use a passphrase instead of the PIN'**
+  /// **'Use a passphrase'**
   String get settingsUsePassphrase;
 
   /// Settings row when a passphrase is already in use.
@@ -28211,7 +28187,7 @@ abstract class AppLocalizations {
   /// Trusted networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP listens on networks you trust. Forget one and the phone asks again next time it is on it.'**
+  /// **'Link · HTTP receives only on trusted networks. A forgotten network is asked about again the next time the phone joins it.'**
   String get txTrustedNetworksBody;
 
   /// Trusted networks sheet: the empty list, one short line.

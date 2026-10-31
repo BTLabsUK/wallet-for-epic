@@ -222,7 +222,7 @@
       }
     }
   },
-  "deskErrTestNet": "This is a test wallet and can’t be imported.",
+  "deskErrTestNet": "This is a test wallet and cannot be imported.",
   "@deskErrTestNet": {
     "description": "Shown in the import wizard for an older wallet on the test network."
   },

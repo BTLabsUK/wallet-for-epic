@@ -8,7 +8,7 @@
   "deskActRefresh": "刷新",
   "deskActTitle": "活动",
   "deskActDetailReceived": "收到的付款",
-  "deskActDetailSent": "已发送的付款",
+  "deskActDetailSent": "发出的付款",
   "deskActLoading": "正在加载付款",
   "deskActWaitingNode": "等待节点同步。",
   "deskActFilterAll": "全部",

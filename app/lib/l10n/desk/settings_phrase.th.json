@@ -5,7 +5,7 @@
   "deskSetPhraseCleared": "คลิปบอร์ดจะถูกล้างใน 60 วินาที",
   "deskSetPhraseEnterPassword": "ใส่รหัสผ่าน",
   "deskSetPhraseWrongPassword": "รหัสผ่านไม่ถูกต้อง",
-  "deskSetPhraseIntro": "จดคำลงกระดาษตามลำดับนี้ ห้ามพิมพ์ลงในเว็บไซต์หรือแชต",
+  "deskSetPhraseIntro": "จดคำเหล่านี้ลงกระดาษตามลำดับ เป็นทางเดียวที่จะกู้คืนกระเป๋าเงินนี้",
   "deskSetPhrasePanel": "ใส่รหัสผ่านเพื่อแสดงคำ",
   "deskSetPhraseShowWords": "แสดงวลีกู้คืน",
   "deskSetPhraseWordsLabel": "{count, plural, other{วลีกู้คืน {count} คำ}}",

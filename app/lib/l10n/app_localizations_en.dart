@@ -533,11 +533,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsWaitingRecipient =>
-      'Waiting for the recipient to answer with their transaction file. Your funds stay locked until then, or until you cancel.';
+      'Waiting for the recipient’s response file. The amount stays locked until then or until cancelled.';
 
   @override
-  String get txDetailsWaitingSender =>
-      'You accepted this payment. It completes when the sender finishes it and posts it to the network.';
+  String get txDetailsWaitingSender => 'Waiting for the sender to post it.';
 
   @override
   String get txDetailsSenderPosted =>
@@ -735,7 +734,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsStuckBody =>
-      'The network has not taken this payment yet. Posting it again is safe: the same payment cannot go through twice.';
+      'The network has not taken this payment. Post it again; it cannot go through twice.';
 
   @override
   String get txDetailsBroadcastAgain => 'Post again';
@@ -838,8 +837,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsMessageHintToSender => 'Sent to the sender';
 
   @override
-  String get txDetailsNoNote =>
-      'No note. Add one to remember what this was for.';
+  String get txDetailsNoNote => 'No note';
 
   @override
   String get txDetailsAddNote => 'Add note';
@@ -985,7 +983,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String historyNoMatch(String query) {
-    return 'Nothing matches \"$query\".';
+    return 'Nothing matches “$query”.';
   }
 
   @override
@@ -1966,7 +1964,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreFinishOnHome =>
-      'Funds after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.';
+      'Coins after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.';
 
   @override
   String get unlockDatabaseRebuilt =>
@@ -2091,7 +2089,7 @@ class AppLocalizationsEn extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Write these $count words on paper, in order, and keep them private. They are the only way to restore this wallet.',
+          'Write these $count words on paper, in order. They are the only way to restore this wallet.',
     );
     return '$_temp0';
   }
@@ -2149,7 +2147,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pinBiometricsIconLabel => 'Biometrics';
 
   @override
-  String get pinBiometricsQuestion => 'Unlock with fingerprint or face?';
+  String get pinBiometricsQuestion => 'Unlock with biometrics?';
 
   @override
   String get pinBiometricsPinStillWorks => 'The PIN still works.';
@@ -2620,7 +2618,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrScanNotPayment =>
-      'That is not a payment QR. Ask them to show the payment code on their phone.';
+      'That is not a payment QR. Ask them to show the payment QR.';
 
   @override
   String get qrScanNotReply =>
@@ -2698,7 +2696,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveQrBody =>
-      'Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.';
+      'Or ask for an amount: show a QR for them to scan.';
 
   @override
   String get txQrHint =>
@@ -2981,7 +2979,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      'This removes the wallet, its history and its PIN from this device. Only the recovery phrase can bring the coins back. Without it, they are lost for good.';
+      'This removes the wallet, its history and its PIN from this phone. Only the recovery phrase can bring the coins back. Without it, they are lost for good.';
 
   @override
   String get settingsDeleteHavePhrase =>
@@ -2992,7 +2990,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsDeleteTypeToConfirm(String word) {
-    return 'Type \"$word\" to confirm';
+    return 'Type “$word” to confirm';
   }
 
   @override
@@ -3153,7 +3151,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Logs help find the problem. The recovery phrase, PIN and other secrets are removed first.';
+      'The newest part of the app log, without the recovery phrase, PIN and other secrets.';
 
   @override
   String get feedbackPreviewButton => 'What is sent';
@@ -3383,7 +3381,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'The recipient sees it. A copy is also kept as your private note, which you can edit.';
+      'The recipient sees it. A copy is kept as your private note.';
 
   @override
   String get sendNetworkFee => 'Network fee';
@@ -3727,7 +3725,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torFailureNetwork =>
-      'Could not reach the Tor network. Check the connection.';
+      'Tor could not connect. Retry, or turn Tor off.';
 
   @override
   String get torFailureClock =>
@@ -3885,7 +3883,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPhoneHelpText =>
-      'Search the topics or send feedback. “Show the tour again” is at the bottom of the list.';
+      'Help topics, Report a problem and Show the tour again.';
 
   @override
   String get tourPhoneShowAgain => 'Show the tour again';
@@ -3956,7 +3954,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$blocks confirmations',
       one: '$blocks confirmation',
     );
-    return 'Wait until the send in progress confirms ($_temp0).';
+    return 'Wait until the payment in progress has $_temp0.';
   }
 
   @override
@@ -4094,8 +4092,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outputsEmpty => 'No outputs yet';
 
   @override
-  String get outputsEmptyHint =>
-      'The first payment received makes one. Receive shows the address.';
+  String get outputsEmptyHint => 'The first payment received makes one.';
 
   @override
   String get outputsNoMatch => 'No outputs in this view';
@@ -4459,11 +4456,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get serverAtTip => 'at tip';
+  String get serverAtTip => 'synced';
 
   @override
   String serverBehindShort(String count) {
-    return '−$count';
+    return '$count behind';
   }
 
   @override
@@ -4478,7 +4475,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get serverNotResponding => 'Not responding';
+  String get serverNotResponding => 'Not answering';
 
   @override
   String get serverLocalNotReachable => 'Not reachable from this computer';
@@ -4490,13 +4487,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serverHealthy => 'Healthy';
 
   @override
-  String get serverDegraded => 'Degraded';
+  String get serverDegraded => 'Behind';
 
   @override
-  String get serverHealthNone => 'Health unknown';
+  String get serverHealthNone => 'Status unknown';
 
   @override
-  String get serverCurrent => 'Current';
+  String get serverCurrent => 'In use';
 
   @override
   String get serverDefault => 'Default';
@@ -4508,7 +4505,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent % up';
+    return '$percent% up';
   }
 
   @override
@@ -4531,7 +4528,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String serverHeightAtTip(String height) {
-    return '$height · at tip';
+    return '$height · synced';
   }
 
   @override
@@ -4658,7 +4655,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get methodSendFileLine =>
-      'Hand the file over, get their response file back, then finalize it here.';
+      'Hand the file over, get their response file back, then open it here.';
 
   @override
   String get methodReceiveEpicboxTitle => 'Share it to get paid.';
@@ -4699,7 +4696,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendCancelRuleFile =>
-      'Can be cancelled until the response file is finalized.';
+      'Can be cancelled until you open the response file.';
 
   @override
   String get sendHttpReaching => 'Reaching their wallet… Keep the app open.';
@@ -4709,7 +4706,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendPlainHttpOffWithTor =>
-      'Plain http:// doesn\'t work with Tor on.';
+      'Plain http:// does not work with Tor on.';
 
   @override
   String get sendPlainHttpOffWithTorWhy =>
@@ -4926,7 +4923,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskInvIssuerMessageCount(int used, int max) {
-    return '$used of $max bytes';
+    return '$used / $max bytes';
   }
 
   @override
@@ -5002,7 +4999,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskInvIssuerWithdrawn => 'Invoice withdrawn.';
 
   @override
-  String get deskInvIssuerRepost => 'Repost';
+  String get deskInvIssuerRepost => 'Post again';
 
   @override
   String get deskInvIssuerReposted => 'Payment posted again.';
@@ -5512,7 +5509,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String receiveHttpPortInUse(String port) {
-    return 'Port $port is used by another program.';
+    return 'Port $port is in use by another program.';
   }
 
   @override
@@ -5714,7 +5711,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskErrTestNet => 'This is a test wallet and can’t be imported.';
+  String get deskErrTestNet => 'This is a test wallet and cannot be imported.';
 
   @override
   String get deskErrWalletInApp => 'This wallet is in the app already.';
@@ -6087,7 +6084,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskNodeAtTip => 'at tip';
+  String get deskNodeAtTip => 'synced';
 
   @override
   String get deskNodeLocal => 'Local node';
@@ -6139,7 +6136,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskNodeFailPort(String port) {
-    return 'port $port is used by another program';
+    return 'port $port is in use by another program';
   }
 
   @override
@@ -6316,7 +6313,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvTorDownText =>
-      'Every connection waits for Tor. Retry, or turn Tor off.';
+      'Tor could not connect. Retry, or turn Tor off.';
 
   @override
   String get deskRecvTorStartingText =>
@@ -6931,7 +6928,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendMessage => 'Message';
 
   @override
-  String get deskSendMessageHelp => 'The recipient sees this message.';
+  String get deskSendMessageHelp => 'The recipient sees it.';
 
   @override
   String get deskSendPrivacyOn => 'Privacy · Dandelion++ on';
@@ -7007,7 +7004,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendDirectLine2 =>
-      'An http(s) or .onion address; their wallet must be open.';
+      'Their wallet must be open. An onion address goes over Tor.';
 
   @override
   String get deskSendFileLine1 => 'No connection needed.';
@@ -7319,10 +7316,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActTitle => 'Activity';
 
   @override
-  String get deskActDetailReceived => 'Received payment';
+  String get deskActDetailReceived => 'Incoming payment';
 
   @override
-  String get deskActDetailSent => 'Sent payment';
+  String get deskActDetailSent => 'Outgoing payment';
 
   @override
   String get deskActLoading => 'Loading payments';
@@ -7341,7 +7338,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskActNoMatchTitle(String query) {
-    return 'Nothing matches \"$query\".';
+    return 'Nothing matches “$query”.';
   }
 
   @override
@@ -7466,7 +7463,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskConSortRecent => 'Recent';
 
   @override
-  String get deskConNone => 'No contacts yet.';
+  String get deskConNone => 'No contacts yet';
 
   @override
   String get deskConNoMatchList => 'No contacts match';
@@ -7481,12 +7478,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskConEmptyTitle => 'No contacts yet';
 
   @override
-  String get deskConEmptyText =>
-      'Save the people and shops paid often, then pick them by name on Send.';
-
-  @override
-  String get deskConEmptyLocal =>
-      'Contacts stay on this computer; export them to keep a copy.';
+  String get deskConEmptyText => 'A contact is a name for an address.';
 
   @override
   String get deskConSendToAddress => 'Send to address';
@@ -8735,9 +8727,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskOnbWelcomeCreate => 'Create a new wallet';
 
   @override
-  String get deskOnbWelcomeCreateSub => 'New recovery phrase';
-
-  @override
   String get deskOnbWelcomeImport => 'Import wallets';
 
   @override
@@ -8745,9 +8734,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbWelcomeRestore => 'Restore from phrase';
-
-  @override
-  String get deskOnbWelcomeRestoreSub => 'From the recovery phrase';
 
   @override
   String get deskOnbWelcomeTestNote =>
@@ -8855,7 +8841,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'Write these words on paper, in order: they are the only way to restore the coins.';
+      'Write these words on paper, in order. They are the only way to restore this wallet.';
 
   @override
   String get deskOnbCreateRevealFirst => 'Reveal the phrase first';
@@ -8931,7 +8917,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskOnbRestoreBadWord(int position, String word) {
-    return 'Word $position, \"$word\", is not in the word list.';
+    return 'Word $position, “$word”, is not in the word list.';
   }
 
   @override
@@ -9968,7 +9954,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKitFactOperator => 'Operator';
 
   @override
-  String get deskKitAtTip => 'at tip';
+  String get deskKitAtTip => 'synced';
 
   @override
   String deskKitBehind(int count, String blocks) {
@@ -10127,7 +10113,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskKitMethodPortInUse(String port) {
-    return 'Port $port is used by another program. Close it or pick another port in Settings.';
+    return 'Port $port is in use by another program. Close it, or change the port below.';
   }
 
   @override
@@ -10432,7 +10418,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupExportDesc =>
-      'A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.';
+      'Holds this wallet’s payment history, contacts, invoices and settings, up to now. To restore: enter the recovery phrase first, then import this file.';
 
   @override
   String get deskSetBackupSaved => 'Saved';
@@ -10565,7 +10551,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.';
+      'Anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -10980,7 +10966,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetLnodePortInUse(String port) {
-    return 'Port $port is used by another program.';
+    return 'Port $port is in use by another program.';
   }
 
   @override
@@ -11174,7 +11160,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetLndTypeToConfirm(String word) {
-    return 'Type $word to confirm.';
+    return 'Type “$word” to confirm';
   }
 
   @override
@@ -11596,7 +11582,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetPhraseIntro =>
-      'Write the words on paper, in this order. Never type them into a website or a chat.';
+      'Write these words on paper, in order. They are the only way to restore this wallet.';
 
   @override
   String get deskSetPhrasePanel => 'Enter the password to show the words';
@@ -11915,11 +11901,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'An email address or other handle, for a reply';
 
   @override
-  String get deskSetReportAttach => 'Attach logs (recommended)';
+  String get deskSetReportAttach => 'Attach logs';
 
   @override
   String get deskSetReportAttachHint =>
-      'The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.';
+      'The newest part of the app log, without the recovery phrase, password and other secrets.';
 
   @override
   String get deskSetReportSentWhat => 'What is sent';
@@ -11947,7 +11933,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetRescanText =>
-      'Reads the chain again and rebuilds the balance. Use it when the balance looks wrong or outputs stay locked.';
+      'Checks the chain again for this wallet’s coins. Use it when the balance looks wrong.';
 
   @override
   String get deskSetRescanDeleteUnconfirmed => 'Delete unconfirmed';
@@ -12618,7 +12604,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsStalledBody =>
-      'Stalled, not delivered. Your payment has not reached the network yet. Send it again.';
+      'The other side has not posted this payment yet.';
 
   @override
   String get txDetailsNotDeliveredDirectBody =>
@@ -12756,9 +12742,8 @@ class AppLocalizationsEn extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'The file has other details for $n payments you described. Yours are kept unless you choose otherwise.',
-      one:
-          'The file has other details for $n payment you described. Yours are kept unless you choose otherwise.',
+          'The file has different details for $n payments. Yours are kept unless you pick the file’s.',
+      one: 'The file has different details for 1 payment. Yours are kept unless you pick the file’s.',
     );
     return '$_temp0';
   }
@@ -12837,9 +12822,9 @@ class AppLocalizationsEn extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'The old wallet’s history has other details for $n payments you described. Yours are kept unless you choose otherwise.',
+          'The old wallet’s history has different details for $n payments. Yours are kept unless you pick the old wallet’s.',
       one:
-          'The old wallet’s history has other details for $n payment you described. Yours are kept unless you choose otherwise.',
+          'The old wallet’s history has different details for $n payment. Yours are kept unless you pick the old wallet’s.',
     );
     return '$_temp0';
   }
@@ -13168,7 +13153,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSlInUse => 'In use';
 
   @override
-  String get deskSlHealthUnknown => 'Health unknown';
+  String get deskSlHealthUnknown => 'Status unknown';
 
   @override
   String get deskSlNodeNoAnswer => 'No answer from this node. Nothing added.';
@@ -13665,7 +13650,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted =>
-      'Signed and returned. The sender reports it posted; it completes when confirmed.';
+      'The sender reports it posted this payment. It completes when the network confirms it.';
 
   @override
   String get deskImpWrongTypePasted =>
@@ -14478,9 +14463,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String addrDesktopThird(String type) {
     return 'Paste a $type address, or leave empty';
   }
-
-  @override
-  String get addrDesktopRule => 'One address per type.';
 
   @override
   String get pendingTitle => 'Pending invites';
@@ -15689,11 +15671,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => 'Bring back history and settings?';
+  String get deskOvRestoredImportTitle => 'Your wallet is restored';
 
   @override
   String get deskOvRestoredImportBody =>
-      'The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.';
+      'The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.';
 
   @override
   String get deskOvRestoredImportButton => 'Import wallet data';
@@ -17743,7 +17725,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount is finished. Kill switch is on, so this phone can’t post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.';
+    return '$amount is finished. Kill switch is on, so this phone cannot post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.';
   }
 
   @override
@@ -17762,7 +17744,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get finishedUnavailable =>
-      'This version can’t save a finished payment yet.';
+      'This version cannot save a finished payment yet.';
 
   @override
   String get finishedFailed => 'The finished payment could not be read.';
@@ -17776,7 +17758,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txPostElsewhereAfter =>
-      'Finished under Kill switch, not seen on chain yet. Post it from here, or wait for the device that posted it.';
+      'Finished under Kill switch, not on the chain yet. Post it from here, or wait for the device that posted it.';
 
   @override
   String get txPostNow => 'Post now';
@@ -17820,7 +17802,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get postFinishedNote =>
-      'Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.';
+      'Posting puts it on the network. The wallet that made it shows it confirming once it sees it on the chain.';
 
   @override
   String get postFinishedPost => 'Post';
@@ -17833,7 +17815,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get postFinishedDoneBody =>
-      'The node has it. The wallet that made it shows it confirming once it sees it on chain.';
+      'The node has it. The wallet that made it shows it confirming once it sees it on the chain.';
 
   @override
   String get postFinishedNotFinished =>
@@ -17861,7 +17843,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount is finished. Kill switch is on, so this computer can’t post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.';
+    return '$amount is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.';
   }
 
   @override
@@ -17945,7 +17927,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.';
 
   @override
-  String get settingsUsePassphrase => 'Use a passphrase instead of the PIN';
+  String get settingsUsePassphrase => 'Use a passphrase';
 
   @override
   String get settingsChangePassphrase => 'Change passphrase';
@@ -18083,7 +18065,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txTrustedNetworksBody =>
-      'Link · HTTP listens on networks you trust. Forget one and the phone asks again next time it is on it.';
+      'Link · HTTP receives only on trusted networks. A forgotten network is asked about again the next time the phone joins it.';
 
   @override
   String get txTrustedNetworksNone => 'No trusted network yet.';

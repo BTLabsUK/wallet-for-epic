@@ -613,11 +613,11 @@
   "@txDetailsWaitingEpicbox": {
     "description": "Payment details, status explanation of a send waiting for its recipient. epicbox is the relay service that carries payments (a proper name)."
   },
-  "txDetailsWaitingRecipient": "Waiting for the recipient to answer with their transaction file. Your funds stay locked until then, or until you cancel.",
+  "txDetailsWaitingRecipient": "Waiting for the recipient’s response file. The amount stays locked until then or until cancelled.",
   "@txDetailsWaitingRecipient": {
     "description": "Payment details, status explanation of a send passed by file or copy and paste. The transaction file holds the slate, the JSON a payment passes between sender and recipient."
   },
-  "txDetailsWaitingSender": "You accepted this payment. It completes when the sender finishes it and posts it to the network.",
+  "txDetailsWaitingSender": "Waiting for the sender to post it.",
   "@txDetailsWaitingSender": {
     "description": "Payment details, status explanation of a receive the sender has not finished yet."
   },
@@ -832,7 +832,7 @@
   "@txWaitNotInBlock": {
     "description": "A payment's details, minutes after it should have reached a block: blocks were mined, but the payment is in none of them yet (it may still be reaching the network, or the sender has not posted it)."
   },
-  "txDetailsStuckBody": "The network has not taken this payment yet. Posting it again is safe: the same payment cannot go through twice.",
+  "txDetailsStuckBody": "The network has not taken this payment. Post it again; it cannot go through twice.",
   "txDetailsBroadcastAgain": "Post again",
   "@txDetailsBroadcastAgain": {
     "description": "Button: send the finished payment to the network again."
@@ -958,7 +958,7 @@
   "@txDetailsMessageHintToSender": {
     "description": "Small line under a payment's Message in its details: this wallet, the recipient, wrote it (an invoice) and the sender sees it."
   },
-  "txDetailsNoNote": "No note. Add one to remember what this was for.",
+  "txDetailsNoNote": "No note",
   "txDetailsAddNote": "Add note",
   "@txDetailsAddNote": {
     "description": "Tooltip of the button that adds a note to the payment."
@@ -1140,7 +1140,7 @@
   "@historyNoCancelled": {
     "description": "History screen when the Cancelled filter matches nothing."
   },
-  "historyNoMatch": "Nothing matches \"{query}\".",
+  "historyNoMatch": "Nothing matches “{query}”.",
   "@historyNoMatch": {
     "description": "History screen when the search finds nothing; query is what the user typed. Use this language's quotation marks.",
     "placeholders": {
@@ -2453,7 +2453,7 @@
   "@restoreScanUnfinished": {
     "description": "Restore scan step after a failure; the described error, then Try again and Open wallet."
   },
-  "restoreFinishOnHome": "Funds after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.",
+  "restoreFinishOnHome": "Coins after the chosen start are found. A scan from block 0 now finishes the restore on Home; receiving and sending open when it ends.",
   "@restoreFinishOnHome": {
     "description": "Restore done screen, only after a restore from a date or height: why Home shows a running scan."
   },
@@ -2594,7 +2594,7 @@
   "@backupWarningIconLabel": {
     "description": "Screen-reader label of the warning icon above the recovery phrase."
   },
-  "backupWriteDown": "{count, plural, other{Write these {count} words on paper, in order, and keep them private. They are the only way to restore this wallet.}}",
+  "backupWriteDown": "{count, plural, other{Write these {count} words on paper, in order. They are the only way to restore this wallet.}}",
   "@backupWriteDown": {
     "description": "Warning above the recovery phrase. count is 12 or 24.",
     "placeholders": {
@@ -2670,7 +2670,7 @@
   "@pinBiometricsIconLabel": {
     "description": "Screen-reader label of the fingerprint icon above the question about fingerprint or face unlock."
   },
-  "pinBiometricsQuestion": "Unlock with fingerprint or face?",
+  "pinBiometricsQuestion": "Unlock with biometrics?",
   "@pinBiometricsQuestion": {
     "description": "Asked after a new PIN, on devices with fingerprint or face recognition."
   },
@@ -3296,7 +3296,7 @@
   "@qrScanCountLabel": {
     "description": "Spoken label of the parts-read count on the camera screen."
   },
-  "qrScanNotPayment": "That is not a payment QR. Ask them to show the payment code on their phone.",
+  "qrScanNotPayment": "That is not a payment QR. Ask them to show the payment QR.",
   "@qrScanNotPayment": {
     "description": "Camera screen warning: the code seen is not a payment QR."
   },
@@ -3390,7 +3390,7 @@
   "@receiveQrTitle": {
     "description": "Title of the QR card on Receive."
   },
-  "receiveQrBody": "Scan a payment from their screen and show your reply, or ask for an amount and show it as a code for them to scan.",
+  "receiveQrBody": "Or ask for an amount: show a QR for them to scan.",
   "@receiveQrBody": {
     "description": "Text of the QR card on Receive."
   },
@@ -3773,7 +3773,7 @@
   "@settingsDeleteTitle": {
     "description": "Title of the delete dialog."
   },
-  "settingsDeleteBody": "This removes the wallet, its history and its PIN from this device. Only the recovery phrase can bring the coins back. Without it, they are lost for good.",
+  "settingsDeleteBody": "This removes the wallet, its history and its PIN from this phone. Only the recovery phrase can bring the coins back. Without it, they are lost for good.",
   "settingsDeleteHavePhrase": "I have written down my recovery phrase",
   "@settingsDeleteHavePhrase": {
     "description": "Checkbox in the delete dialog."
@@ -3782,7 +3782,7 @@
   "@settingsDeleteConfirmWord": {
     "description": "The word the user must type to confirm deleting the wallet. One word, easy to type on a phone keyboard; case does not matter."
   },
-  "settingsDeleteTypeToConfirm": "Type \"{word}\" to confirm",
+  "settingsDeleteTypeToConfirm": "Type “{word}” to confirm",
   "@settingsDeleteTypeToConfirm": {
     "description": "Label of the field in the delete dialog.",
     "placeholders": {
@@ -3987,7 +3987,7 @@
   "@feedbackAttachLogs": {
     "description": "Switch: add the app's log to the report."
   },
-  "feedbackAttachLogsHint": "Logs help find the problem. The recovery phrase, PIN and other secrets are removed first.",
+  "feedbackAttachLogsHint": "The newest part of the app log, without the recovery phrase, PIN and other secrets.",
   "@feedbackAttachLogsHint": {
     "description": "Under the Attach diagnostic logs switch."
   },
@@ -4313,7 +4313,7 @@
   "@sendNoteHelper": {
     "description": "Send, step 2: under the note field; the recipient sees the note as well."
   },
-  "sendReviewMessageKept": "The recipient sees it. A copy is also kept as your private note, which you can edit.",
+  "sendReviewMessageKept": "The recipient sees it. A copy is kept as your private note.",
   "@sendReviewMessageKept": {
     "description": "Send, review: under the message row. The recipient sees the message, and the sender's history keeps it with the payment (as the private note)."
   },
@@ -4791,7 +4791,7 @@
   "@torFailureStart": {
     "description": "Why Tor is not working: the tor program did not start."
   },
-  "torFailureNetwork": "Could not reach the Tor network. Check the connection.",
+  "torFailureNetwork": "Tor could not connect. Retry, or turn Tor off.",
   "@torFailureNetwork": {
     "description": "Why Tor is not working: no progress connecting (offline, or Tor blocked). The line under the switch already says Tor is blocked in some countries, so this does not repeat it."
   },
@@ -4989,7 +4989,7 @@
   "@tourPhoneHelpTitle": {
     "description": "Title of the tour card for the Help screen (first-unlock tour). Short."
   },
-  "tourPhoneHelpText": "Search the topics or send feedback. “Show the tour again” is at the bottom of the list.",
+  "tourPhoneHelpText": "Help topics, Report a problem and Show the tour again.",
   "@tourPhoneHelpText": {
     "description": "Text of the tour card for the Help screen; names the row that restarts the tour."
   },
@@ -5074,7 +5074,7 @@
   "@outputsConsolidateNeeds": {
     "description": "Caption under the buttons: why Consolidate is disabled."
   },
-  "outputsWaitLocked": "Wait until the send in progress confirms ({blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}).",
+  "outputsWaitLocked": "Wait until the payment in progress has {blocks, plural, one{{blocks} confirmation} other{{blocks} confirmations}}.",
   "@outputsWaitLocked": {
     "description": "Caption under the buttons: a send is in progress. {blocks} is the confirmations the wallet waits for (its Minimum confirmations setting).",
     "placeholders": {
@@ -5271,7 +5271,7 @@
   "@outputsEmpty": {
     "description": "Empty state title."
   },
-  "outputsEmptyHint": "The first payment received makes one. Receive shows the address.",
+  "outputsEmptyHint": "The first payment received makes one.",
   "@outputsEmptyHint": {
     "description": "Empty state hint."
   },
@@ -5760,11 +5760,11 @@
       }
     }
   },
-  "serverAtTip": "at tip",
+  "serverAtTip": "synced",
   "@serverAtTip": {
     "description": "Node row: the node is at the network tip."
   },
-  "serverBehindShort": "−{count}",
+  "serverBehindShort": "{count} behind",
   "@serverBehindShort": {
     "description": "Node row: blocks behind the tip, as a short number with a minus sign.",
     "placeholders": {
@@ -5782,7 +5782,7 @@
       }
     }
   },
-  "serverNotResponding": "Not responding",
+  "serverNotResponding": "Not answering",
   "@serverNotResponding": {
     "description": "Row: the server does not answer the monitor."
   },
@@ -5798,15 +5798,15 @@
   "@serverHealthy": {
     "description": "Screen reader: the monitor saw the server healthy."
   },
-  "serverDegraded": "Degraded",
+  "serverDegraded": "Behind",
   "@serverDegraded": {
     "description": "Screen reader: the monitor saw the server answer but lag or misbehave."
   },
-  "serverHealthNone": "Health unknown",
+  "serverHealthNone": "Status unknown",
   "@serverHealthNone": {
     "description": "Screen reader: no health known for the server."
   },
-  "serverCurrent": "Current",
+  "serverCurrent": "In use",
   "@serverCurrent": {
     "description": "Row trailing word: the server in use."
   },
@@ -5823,7 +5823,7 @@
       }
     }
   },
-  "serverUptime": "{percent} % up",
+  "serverUptime": "{percent}% up",
   "@serverUptime": {
     "description": "Relay uptime over the last day.",
     "placeholders": {
@@ -5856,7 +5856,7 @@
   "@serverFactUptime": {
     "description": "Current node card label: uptime over the last 24 hours."
   },
-  "serverHeightAtTip": "{height} · at tip",
+  "serverHeightAtTip": "{height} · synced",
   "@serverHeightAtTip": {
     "description": "Current node card: height and at tip.",
     "placeholders": {
@@ -6025,7 +6025,7 @@
   "@methodSendFileTitle": {
     "description": "Send strip title for File."
   },
-  "methodSendFileLine": "Hand the file over, get their response file back, then finalize it here.",
+  "methodSendFileLine": "Hand the file over, get their response file back, then open it here.",
   "@methodSendFileLine": {
     "description": "Send strip line for File."
   },
@@ -6073,7 +6073,7 @@
   "@sendCancelRuleDirect": {
     "description": "Review caption: an HTTP or Tor send cannot be cancelled once the other wallet accepted it."
   },
-  "sendCancelRuleFile": "Can be cancelled until the response file is finalized.",
+  "sendCancelRuleFile": "Can be cancelled until you open the response file.",
   "@sendCancelRuleFile": {
     "description": "Caption on the payment file step: when a file payment can be cancelled."
   },
@@ -6085,7 +6085,7 @@
   "@sendDeliveredWaitingBlock": {
     "description": "Send tracker and payment details: an HTTP or Tor send the other wallet accepted, not in a block yet."
   },
-  "sendPlainHttpOffWithTor": "Plain http:// doesn't work with Tor on.",
+  "sendPlainHttpOffWithTor": "Plain http:// does not work with Tor on.",
   "@sendPlainHttpOffWithTor": {
     "description": "Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent."
   },
@@ -6352,7 +6352,7 @@
   "@deskInvIssuerMessage": {
     "description": "Field label: optional text the payer sees with the request."
   },
-  "deskInvIssuerMessageCount": "{used} of {max} bytes",
+  "deskInvIssuerMessageCount": "{used} / {max} bytes",
   "@deskInvIssuerMessageCount": {
     "description": "Counter under the message field.",
     "placeholders": {
@@ -6464,7 +6464,7 @@
   "@deskInvIssuerWithdrawn": {
     "description": "Notice after Withdraw."
   },
-  "deskInvIssuerRepost": "Repost",
+  "deskInvIssuerRepost": "Post again",
   "@deskInvIssuerRepost": {
     "description": "Button: send the finished payment to the node again."
   },
@@ -7165,7 +7165,7 @@
   "@receiveHttpOffWhileTor": {
     "description": "The HTTP address card on the phone’s Receive › Link tab while Tor runs: the listener does not start (it would show the phone’s own address)."
   },
-  "receiveHttpPortInUse": "Port {port} is used by another program.",
+  "receiveHttpPortInUse": "Port {port} is in use by another program.",
   "@receiveHttpPortInUse": {
     "description": "The HTTP address card when the listener could not start because the port is taken. {port} is the port number.",
     "placeholders": {
@@ -7438,7 +7438,7 @@
       }
     }
   },
-  "deskErrTestNet": "This is a test wallet and can’t be imported.",
+  "deskErrTestNet": "This is a test wallet and cannot be imported.",
   "@deskErrTestNet": {
     "description": "Shown in the import wizard for an older wallet on the test network."
   },
@@ -7938,7 +7938,7 @@
       }
     }
   },
-  "deskNodeAtTip": "at tip",
+  "deskNodeAtTip": "synced",
   "@deskNodeAtTip": {
     "description": "Tooltip line part: the node is at the chain tip. Short, lowercase."
   },
@@ -8011,7 +8011,7 @@
   "@deskNodeStartIt": {
     "description": "Local node tooltip line when the node is stopped."
   },
-  "deskNodeFailPort": "port {port} is used by another program",
+  "deskNodeFailPort": "port {port} is in use by another program",
   "@deskNodeFailPort": {
     "description": "Why the local node failed, as a detail after the word \"Failed\". Lowercase fragment.",
     "placeholders": {
@@ -8302,7 +8302,7 @@
   "@deskRecvTorStarting": {
     "description": "Title of the notice on Receive while Tor connects."
   },
-  "deskRecvTorDownText": "Every connection waits for Tor. Retry, or turn Tor off.",
+  "deskRecvTorDownText": "Tor could not connect. Retry, or turn Tor off.",
   "@deskRecvTorDownText": {
     "description": "Text of the notice on Receive when Tor failed."
   },
@@ -9051,7 +9051,7 @@
   "@deskSendMessage": {
     "description": "Label and screen reader label of the message field on Send."
   },
-  "deskSendMessageHelp": "The recipient sees this message.",
+  "deskSendMessageHelp": "The recipient sees it.",
   "@deskSendMessageHelp": {
     "description": "Help text under the message field."
   },
@@ -9147,7 +9147,7 @@
   "@deskSendDirectLine1": {
     "description": "Bold first line under the method selector for the Link method."
   },
-  "deskSendDirectLine2": "An http(s) or .onion address; their wallet must be open.",
+  "deskSendDirectLine2": "Their wallet must be open. An onion address goes over Tor.",
   "@deskSendDirectLine2": {
     "description": "Second line under the method selector for the Link method."
   },
@@ -9536,11 +9536,11 @@
   "@deskActTitle": {
     "description": "Title of the Activity page: the list of all transactions."
   },
-  "deskActDetailReceived": "Received payment",
+  "deskActDetailReceived": "Incoming payment",
   "@deskActDetailReceived": {
     "description": "Title of the transaction detail for an incoming payment, in the pane beside the list or on its own page."
   },
-  "deskActDetailSent": "Sent payment",
+  "deskActDetailSent": "Outgoing payment",
   "@deskActDetailSent": {
     "description": "Title of the transaction detail for an outgoing payment, in the pane beside the list or on its own page."
   },
@@ -9564,7 +9564,7 @@
   "@deskActFilterSent": {
     "description": "Filter tab on Activity: outgoing payments. Narrow tab; a count follows it."
   },
-  "deskActNoMatchTitle": "Nothing matches \"{query}\".",
+  "deskActNoMatchTitle": "Nothing matches “{query}”.",
   "@deskActNoMatchTitle": {
     "description": "Activity: title of the empty state when the search or filter matches nothing; query is the typed text.",
     "placeholders": {
@@ -9726,7 +9726,7 @@
   "@deskConSortRecent": {
     "description": "Option of the sort switch above the contact list: most recently used first. Narrow segment."
   },
-  "deskConNone": "No contacts yet.",
+  "deskConNone": "No contacts yet",
   "@deskConNone": {
     "description": "Line in the contact list when there are no contacts."
   },
@@ -9746,13 +9746,9 @@
   "@deskConEmptyTitle": {
     "description": "Title of the empty state of Contacts."
   },
-  "deskConEmptyText": "Save the people and shops paid often, then pick them by name on Send.",
+  "deskConEmptyText": "A contact is a name for an address.",
   "@deskConEmptyText": {
     "description": "Text of the empty state of Contacts."
-  },
-  "deskConEmptyLocal": "Contacts stay on this computer; export them to keep a copy.",
-  "@deskConEmptyLocal": {
-    "description": "Small text of the empty state of Contacts."
   },
   "deskConSendToAddress": "Send to address",
   "@deskConSendToAddress": {
@@ -11474,10 +11470,6 @@
   "@deskOnbWelcomeCreate": {
     "description": "Title of a choice card on the Welcome page: make a brand new wallet."
   },
-  "deskOnbWelcomeCreateSub": "New recovery phrase",
-  "@deskOnbWelcomeCreateSub": {
-    "description": "One-line description under 'Create a new wallet': a new wallet gets new recovery words."
-  },
   "deskOnbWelcomeImport": "Import wallets",
   "@deskOnbWelcomeImport": {
     "description": "Title of a choice card on the Welcome page: bring in wallets from an older Epic Wallet or from a folder."
@@ -11489,10 +11481,6 @@
   "deskOnbWelcomeRestore": "Restore from phrase",
   "@deskOnbWelcomeRestore": {
     "description": "Title of a choice card on the Welcome page: restore a wallet from its recovery words."
-  },
-  "deskOnbWelcomeRestoreSub": "From the recovery phrase",
-  "@deskOnbWelcomeRestoreSub": {
-    "description": "One-line description under 'Restore from a phrase'."
   },
   "deskOnbWelcomeTestNote": "New wallets are made on this test network.",
   "@deskOnbWelcomeTestNote": {
@@ -11624,7 +11612,7 @@
   "@deskOnbCreateTestNote": {
     "description": "Note on the password page when a test network is selected; the network's name is shown beside it."
   },
-  "deskOnbCreatePhraseLead": "Write these words on paper, in order: they are the only way to restore the coins.",
+  "deskOnbCreatePhraseLead": "Write these words on paper, in order. They are the only way to restore this wallet.",
   "@deskOnbCreatePhraseLead": {
     "description": "Text under the title of the recovery phrase page."
   },
@@ -11709,7 +11697,7 @@
   "@deskOnbRestoreNothingToPaste": {
     "description": "Status line under the phrase grid when Paste found no words on the clipboard."
   },
-  "deskOnbRestoreBadWord": "Word {position}, \"{word}\", is not in the word list.",
+  "deskOnbRestoreBadWord": "Word {position}, “{word}”, is not in the word list.",
   "@deskOnbRestoreBadWord": {
     "description": "Status line under the phrase grid: a typed word is not a valid recovery word. {position} is its number in the phrase.",
     "placeholders": {
@@ -13060,7 +13048,7 @@
   "@deskKitFactOperator": {
     "description": "Label of a fact on the node card: who runs the node. One short word."
   },
-  "deskKitAtTip": "at tip",
+  "deskKitAtTip": "synced",
   "@deskKitAtTip": {
     "description": "Small note under Height: the node is on the latest block. Lowercase, short."
   },
@@ -13319,7 +13307,7 @@
   "@deskKitMethodNotReceiving": {
     "description": "Bold status word of the HTTP status line: the listener failed."
   },
-  "deskKitMethodPortInUse": "Port {port} is used by another program. Close it or pick another port in Settings.",
+  "deskKitMethodPortInUse": "Port {port} is in use by another program. Close it, or change the port below.",
   "@deskKitMethodPortInUse": {
     "description": "Detail of the HTTP status line when the port is taken.",
     "placeholders": {
@@ -13737,7 +13725,7 @@
   "@deskSetBackupFileNote": {
     "description": "Export history dialog: note under the list."
   },
-  "deskSetBackupExportDesc": "A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.",
+  "deskSetBackupExportDesc": "Holds this wallet’s payment history, contacts, invoices and settings, up to now. To restore: enter the recovery phrase first, then import this file.",
   "@deskSetBackupExportDesc": {
     "description": "Export history dialog: description under the title."
   },
@@ -13905,7 +13893,7 @@
   "@deskSetBackupNotEncrypted": {
     "description": "Export CSV dialog: title of the warning notice."
   },
-  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.",
+  "deskSetBackupNotEncryptedBody": "Anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.",
   "@deskSetBackupNotEncryptedBody": {
     "description": "Export CSV dialog: text of the warning notice."
   },
@@ -14442,7 +14430,7 @@
   "@deskSetLnodeNoProgressText": {
     "description": "Local node panel: notice text when the sync stalled."
   },
-  "deskSetLnodePortInUse": "Port {port} is used by another program.",
+  "deskSetLnodePortInUse": "Port {port} is in use by another program.",
   "@deskSetLnodePortInUse": {
     "description": "Local node panel: notice title when the node cannot open its port.",
     "placeholders": {
@@ -14734,7 +14722,7 @@
       }
     }
   },
-  "deskSetLndTypeToConfirm": "Type {word} to confirm.",
+  "deskSetLndTypeToConfirm": "Type “{word}” to confirm",
   "@deskSetLndTypeToConfirm": {
     "description": "Delete chain data dialog: asks to type a word, which is shown in monospace in place of {word}. The word itself is always the English \"delete\" and is not translated.",
     "placeholders": {
@@ -15348,7 +15336,7 @@
   "@deskSetPhraseWrongPassword": {
     "description": "Settings > Recovery phrase: error under the password field."
   },
-  "deskSetPhraseIntro": "Write the words on paper, in this order. Never type them into a website or a chat.",
+  "deskSetPhraseIntro": "Write these words on paper, in order. They are the only way to restore this wallet.",
   "@deskSetPhraseIntro": {
     "description": "Settings > Recovery phrase: text under the page heading."
   },
@@ -15792,11 +15780,11 @@
   "@deskSetReportContactHint": {
     "description": "Report a problem dialog: placeholder of the contact field."
   },
-  "deskSetReportAttach": "Attach logs (recommended)",
+  "deskSetReportAttach": "Attach logs",
   "@deskSetReportAttach": {
     "description": "Report a problem dialog: checkbox label."
   },
-  "deskSetReportAttachHint": "The newest part of the app log, cleaned of phrases, passwords, addresses, IPs and home folders.",
+  "deskSetReportAttachHint": "The newest part of the app log, without the recovery phrase, password and other secrets.",
   "@deskSetReportAttachHint": {
     "description": "Report a problem dialog: small text under the Attach logs checkbox."
   },
@@ -15832,7 +15820,7 @@
   "@deskSetRescanLog": {
     "description": "Settings > Recheck balance: title of the collapsible scan log and its screen reader label."
   },
-  "deskSetRescanText": "Reads the chain again and rebuilds the balance. Use it when the balance looks wrong or outputs stay locked.",
+  "deskSetRescanText": "Checks the chain again for this wallet’s coins. Use it when the balance looks wrong.",
   "@deskSetRescanText": {
     "description": "Settings > Recheck balance: text of the first row."
   },
@@ -16742,9 +16730,9 @@
   "@txStatusStalled": {
     "description": "Status of a paid invoice whose payment has not reached the network a while after paying, though the wallet sent it again by itself."
   },
-  "txDetailsStalledBody": "Stalled, not delivered. Your payment has not reached the network yet. Send it again.",
+  "txDetailsStalledBody": "The other side has not posted this payment yet.",
   "@txDetailsStalledBody": {
-    "description": "Explanation under the status of a stalled invoice payment; Send again is a button below."
+    "description": "Explanation under the status of a stalled invoice payment: the other side has not posted it. There is no button below."
   },
   "txDetailsNotDeliveredDirectBody": "This payment did not reach the recipient’s wallet, so they have not received it. The coins stay locked until it is sent again or cancelled.",
   "@txDetailsNotDeliveredDirectBody": {
@@ -16925,7 +16913,7 @@
   "@deskHistConflictTitle": {
     "description": "Title of the dialog shown when a history backup disagrees with what the user typed."
   },
-  "deskHistConflictLead": "{n, plural, one{The file has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The file has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLead": "{n, plural, =1{The file has different details for 1 payment. Yours are kept unless you pick the file’s.} other{The file has different details for {n} payments. Yours are kept unless you pick the file’s.}}",
   "@deskHistConflictLead": {
     "description": "Description of the Details differ dialog; n payments.",
     "placeholders": {
@@ -17036,7 +17024,7 @@
   "@deskInvNoticeReceiveSuperseded": {
     "description": "Notice (desktop and phone): another install on the same recovery phrase answered the same incoming payment and the sender completed that one, so this install's copy of the receive ended. 'Recheck balance' is the name of the rescan action in Settings."
   },
-  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has other details for {n} payment you described. Yours are kept unless you choose otherwise.} other{The old wallet’s history has other details for {n} payments you described. Yours are kept unless you choose otherwise.}}",
+  "deskHistConflictLeadOldWallet": "{n, plural, one{The old wallet’s history has different details for {n} payment. Yours are kept unless you pick the old wallet’s.} other{The old wallet’s history has different details for {n} payments. Yours are kept unless you pick the old wallet’s.}}",
   "@deskHistConflictLeadOldWallet": {
     "description": "Description of the Details differ dialog when the old wallet's history (epic-wallet) has other values than ones the user typed; n payments.",
     "placeholders": {
@@ -17455,7 +17443,7 @@
   "@deskSlInUse": {
     "description": "First fact of the row of the server in use, in the Node or Epicbox list."
   },
-  "deskSlHealthUnknown": "Health unknown",
+  "deskSlHealthUnknown": "Status unknown",
   "@deskSlHealthUnknown": {
     "description": "A row's health when the status site has nothing on the server."
   },
@@ -18090,7 +18078,7 @@
   "@deskTxStatusSenderPosted": {
     "description": "Status of an incoming Epicbox payment whose sender reports that it posted the transaction. The sender's word only: never say received or paid before the blockchain confirms it. Narrow status column."
   },
-  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted; it completes when confirmed.",
+  "deskTxNowSenderPosted": "The sender reports it posted this payment. It completes when the network confirms it.",
   "@deskTxNowSenderPosted": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides."
   },
@@ -19313,10 +19301,6 @@
         "example": "Epicbox"
       }
     }
-  },
-  "addrDesktopRule": "One address per type.",
-  "@addrDesktopRule": {
-    "description": "Desktop small print."
   },
   "pendingTitle": "Pending invites",
   "@pendingTitle": {
@@ -20986,11 +20970,11 @@
       }
     }
   },
-  "deskOvRestoredImportTitle": "Bring back history and settings?",
+  "deskOvRestoredImportTitle": "Your wallet is restored",
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },
-  "deskOvRestoredImportBody": "The recovery phrase brought back the balance. A wallet data file exported from this wallet brings back its payment history, contacts, invoices and settings: the file saved outside the old computer.",
+  "deskOvRestoredImportBody": "The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.",
   "@deskOvRestoredImportBody": {
     "description": "Body of the offer."
   },
@@ -23895,7 +23879,7 @@
   "@finalizeNotPostedTitle": {
     "description": "Title after finalizing a payment in Kill switch: it is complete, but only a device that is online can post it."
   },
-  "finalizeNotPostedBody": "{amount} is finished. Kill switch is on, so this phone can’t post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.",
+  "finalizeNotPostedBody": "{amount} is finished. Kill switch is on, so this phone cannot post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.",
   "@finalizeNotPostedBody": {
     "description": "Body of that screen (phone).",
     "placeholders": {
@@ -23927,7 +23911,7 @@
   "@finishedQrTitle": {
     "description": "Title of the animated QR screen of a finished payment."
   },
-  "finishedUnavailable": "This version can’t save a finished payment yet.",
+  "finishedUnavailable": "This version cannot save a finished payment yet.",
   "@finishedUnavailable": {
     "description": "Shown when the wallet core can’t produce the finished payment text yet."
   },
@@ -23943,7 +23927,7 @@
   "@txPostElsewhereKill": {
     "description": "Transaction detail notice while Kill switch is chosen."
   },
-  "txPostElsewhereAfter": "Finished under Kill switch, not seen on chain yet. Post it from here, or wait for the device that posted it.",
+  "txPostElsewhereAfter": "Finished under Kill switch, not on the chain yet. Post it from here, or wait for the device that posted it.",
   "@txPostElsewhereAfter": {
     "description": "Transaction detail notice after leaving Kill switch."
   },
@@ -23999,7 +23983,7 @@
   "@postFinishedKernel": {
     "description": "Summary row."
   },
-  "postFinishedNote": "Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.",
+  "postFinishedNote": "Posting puts it on the network. The wallet that made it shows it confirming once it sees it on the chain.",
   "@postFinishedNote": {
     "description": "Line under the summary."
   },
@@ -24015,7 +23999,7 @@
   "@postFinishedDone": {
     "description": "Result title: the node took the payment."
   },
-  "postFinishedDoneBody": "The node has it. The wallet that made it shows it confirming once it sees it on chain.",
+  "postFinishedDoneBody": "The node has it. The wallet that made it shows it confirming once it sees it on the chain.",
   "@postFinishedDoneBody": {
     "description": "Result body."
   },
@@ -24047,7 +24031,7 @@
   "@deskSetAdvModeStandardHint": {
     "description": "Info text of the Normal row (desktop)."
   },
-  "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer can’t post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
+  "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
   "@deskFinNotPostedKillBody": {
     "description": "Body of that screen (desktop).",
     "placeholders": {
@@ -24163,7 +24147,7 @@
   "@errorPinKeyLost": {
     "description": "Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text."
   },
-  "settingsUsePassphrase": "Use a passphrase instead of the PIN",
+  "settingsUsePassphrase": "Use a passphrase",
   "@settingsUsePassphrase": {
     "description": "Settings row: replace the 6-digit PIN with a longer passphrase."
   },
@@ -24329,7 +24313,7 @@
       }
     }
   },
-  "txTrustedNetworksBody": "Link · HTTP listens on networks you trust. Forget one and the phone asks again next time it is on it.",
+  "txTrustedNetworksBody": "Link · HTTP receives only on trusted networks. A forgotten network is asked about again the next time the phone joins it.",
   "@txTrustedNetworksBody": {
     "description": "Trusted networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences."
   },

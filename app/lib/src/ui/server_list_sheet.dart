@@ -976,7 +976,6 @@ class _ServerRow extends StatelessWidget {
     final facts = [
       if (current) l.serverCurrent,
       if (tip != null) tip.text,
-      if (state == NodeHealthState.degraded) l.serverDegraded,
       if (down) e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
       if (unknown) l.serverHealthNone,
       if (e.operator != null && e.operator!.isNotEmpty) e.operator!,

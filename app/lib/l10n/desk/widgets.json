@@ -331,7 +331,7 @@
   "@deskKitFactOperator": {
     "description": "Label of a fact on the node card: who runs the node. One short word."
   },
-  "deskKitAtTip": "at tip",
+  "deskKitAtTip": "synced",
   "@deskKitAtTip": {
     "description": "Small note under Height: the node is on the latest block. Lowercase, short."
   },
@@ -590,7 +590,7 @@
   "@deskKitMethodNotReceiving": {
     "description": "Bold status word of the HTTP status line: the listener failed."
   },
-  "deskKitMethodPortInUse": "Port {port} is used by another program. Close it or pick another port in Settings.",
+  "deskKitMethodPortInUse": "Port {port} is in use by another program. Close it, or change the port below.",
   "@deskKitMethodPortInUse": {
     "description": "Detail of the HTTP status line when the port is taken.",
     "placeholders": {

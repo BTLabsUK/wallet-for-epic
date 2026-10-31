@@ -2,7 +2,7 @@
   "deskSetRescanComplete": "Skanowanie zakończone",
   "deskSetRescanStoppedLine": "Skanowanie zatrzymane",
   "deskSetRescanLog": "Log sprawdzania salda",
-  "deskSetRescanText": "Ponownie czyta łańcuch i odbudowuje saldo. Użyj tego, gdy saldo wygląda na błędne albo wyjścia zostają zablokowane.",
+  "deskSetRescanText": "Ponownie sprawdza łańcuch pod kątem środków tego portfela. Użyj tego, gdy saldo wygląda na błędne.",
   "deskSetRescanRecheck": "Sprawdź",
   "deskSetRescanRecheckAgain": "Sprawdź ponownie",
   "deskSetRescanFromDate": "Od daty",

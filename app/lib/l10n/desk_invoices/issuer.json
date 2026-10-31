@@ -31,7 +31,7 @@
   "@deskInvIssuerMessage": {
     "description": "Field label: optional text the payer sees with the request."
   },
-  "deskInvIssuerMessageCount": "{used} of {max} bytes",
+  "deskInvIssuerMessageCount": "{used} / {max} bytes",
   "@deskInvIssuerMessageCount": {
     "description": "Counter under the message field.",
     "placeholders": {
@@ -147,7 +147,7 @@
   "@deskInvIssuerWithdrawn": {
     "description": "Notice after Withdraw."
   },
-  "deskInvIssuerRepost": "Repost",
+  "deskInvIssuerRepost": "Post again",
   "@deskInvIssuerRepost": {
     "description": "Button: send the finished payment to the node again."
   },

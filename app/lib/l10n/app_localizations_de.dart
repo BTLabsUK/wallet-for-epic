@@ -540,11 +540,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsWaitingRecipient =>
-      'Wartet darauf, dass der Empfänger mit seiner Transaktionsdatei antwortet. Bis dahin bleibt der Betrag gesperrt, es sei denn, Sie stornieren.';
+      'Wartet auf die Antwortdatei des Empfängers. Der Betrag bleibt bis dahin oder bis zur Stornierung gesperrt.';
 
   @override
   String get txDetailsWaitingSender =>
-      'Sie haben diese Zahlung angenommen. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt und im Netzwerk veröffentlicht.';
+      'Wartet darauf, dass der Absender sie an das Netzwerk sendet.';
 
   @override
   String get txDetailsSenderPosted =>
@@ -742,7 +742,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsStuckBody =>
-      'Das Netzwerk hat diese Zahlung noch nicht aufgenommen. Sie können sie gefahrlos erneut übertragen. Dieselbe Zahlung kann nicht zweimal ausgeführt werden.';
+      'Das Netzwerk hat diese Zahlung nicht aufgenommen. Übertragen Sie sie erneut; sie kann nicht zweimal ausgeführt werden.';
 
   @override
   String get txDetailsBroadcastAgain => 'Erneut übertragen';
@@ -845,8 +845,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsMessageHintToSender => 'An den Absender gesendet';
 
   @override
-  String get txDetailsNoNote =>
-      'Keine Notiz. Fügen Sie eine hinzu, um sich zu merken, wofür diese Zahlung war.';
+  String get txDetailsNoNote => 'Keine Notiz';
 
   @override
   String get txDetailsAddNote => 'Notiz hinzufügen';
@@ -1990,7 +1989,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreFinishOnHome =>
-      'Das Guthaben ab dem gewählten Start wurde gefunden. Ein Scan ab Block 0 schließt die Wiederherstellung jetzt auf der Startseite ab; Empfangen und Senden sind möglich, sobald er beendet ist.';
+      'Coins ab dem gewählten Start wurden gefunden. Ein Scan ab Block 0 schließt die Wiederherstellung jetzt auf der Startseite ab; Empfangen und Senden sind möglich, sobald er beendet ist.';
 
   @override
   String get unlockDatabaseRebuilt =>
@@ -2117,7 +2116,7 @@ class AppLocalizationsDe extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Schreiben Sie diese $count Wörter der Reihe nach auf Papier und halten Sie sie geheim. Nur mit ihnen lässt sich diese Wallet wiederherstellen.',
+          'Schreiben Sie diese $count Wörter der Reihe nach auf Papier. Nur mit ihnen lässt sich diese Wallet wiederherstellen.',
     );
     return '$_temp0';
   }
@@ -2178,8 +2177,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pinBiometricsIconLabel => 'Biometrie';
 
   @override
-  String get pinBiometricsQuestion =>
-      'Mit Fingerabdruck oder Gesicht entsperren?';
+  String get pinBiometricsQuestion => 'Mit Biometrie entsperren?';
 
   @override
   String get pinBiometricsPinStillWorks => 'Die PIN funktioniert weiterhin.';
@@ -2661,7 +2659,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get qrScanNotPayment =>
-      'Das ist kein Zahlungs-QR. Bitten Sie die Gegenseite, den Zahlungscode auf ihrem Smartphone anzuzeigen.';
+      'Das ist kein Zahlungs-QR. Bitten Sie die Gegenseite, den Zahlungs-QR anzuzeigen.';
 
   @override
   String get qrScanNotReply =>
@@ -2739,7 +2737,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveQrBody =>
-      'Scannen Sie eine Zahlung von deren Bildschirm und zeigen Sie Ihre Antwort, oder fordern Sie einen Betrag an und zeigen Sie ihn als Code zum Scannen.';
+      'Oder fordern Sie einen Betrag an: Zeigen Sie einen QR zum Scannen.';
 
   @override
   String get txQrHint =>
@@ -3025,7 +3023,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      'Dadurch werden die Wallet, ihr Verlauf und ihre PIN von diesem Gerät entfernt. Nur die Wiederherstellungsphrase kann das Guthaben zurückbringen. Ohne sie ist es endgültig verloren.';
+      'Dadurch werden die Wallet, ihr Verlauf und ihre PIN von diesem Smartphone entfernt. Nur die Wiederherstellungsphrase kann das Guthaben zurückbringen. Ohne sie ist es endgültig verloren.';
 
   @override
   String get settingsDeleteHavePhrase =>
@@ -3199,7 +3197,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Protokolle helfen, das Problem zu finden. Wiederherstellungsphrase, PIN und andere Geheimnisse werden vorher entfernt.';
+      'Der neueste Teil des App-Protokolls, ohne Wiederherstellungsphrase, PIN und andere Geheimnisse.';
 
   @override
   String get feedbackPreviewButton => 'Was gesendet wird';
@@ -3430,7 +3428,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'Der Empfänger sieht sie. Eine Kopie bleibt auch als Ihre private Notiz gespeichert, die Sie bearbeiten können.';
+      'Der Empfänger sieht sie. Eine Kopie bleibt als Ihre private Notiz gespeichert.';
 
   @override
   String get sendNetworkFee => 'Netzwerkgebühr';
@@ -3779,7 +3777,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torFailureNetwork =>
-      'Das Tor-Netzwerk ist nicht erreichbar. Prüfen Sie die Verbindung.';
+      'Tor konnte keine Verbindung herstellen. Versuchen Sie es erneut oder schalten Sie Tor aus.';
 
   @override
   String get torFailureClock =>
@@ -3940,7 +3938,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get tourPhoneHelpText =>
-      'Durchsuchen Sie die Themen oder senden Sie Feedback. „Tour erneut zeigen“ steht unten in der Liste.';
+      'Hilfethemen, Problem melden und Tour erneut zeigen.';
 
   @override
   String get tourPhoneShowAgain => 'Tour erneut zeigen';
@@ -4012,7 +4010,7 @@ class AppLocalizationsDe extends AppLocalizations {
       other: '$blocks Bestätigungen',
       one: '$blocks Bestätigung',
     );
-    return 'Warten, bis die laufende Zahlung bestätigt ist ($_temp0).';
+    return 'Warten, bis die laufende Zahlung $_temp0 hat.';
   }
 
   @override
@@ -4152,8 +4150,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outputsEmpty => 'Noch keine Outputs';
 
   @override
-  String get outputsEmptyHint =>
-      'Die erste empfangene Zahlung erzeugt einen. Unter Empfangen steht die Adresse.';
+  String get outputsEmptyHint => 'Die erste empfangene Zahlung erzeugt einen.';
 
   @override
   String get outputsNoMatch => 'Keine Outputs in dieser Ansicht';
@@ -4522,11 +4519,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get serverAtTip => 'aktuell';
+  String get serverAtTip => 'synchronisiert';
 
   @override
   String serverBehindShort(String count) {
-    return '−$count';
+    return '$count zurück';
   }
 
   @override
@@ -4555,13 +4552,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get serverHealthy => 'Funktioniert';
 
   @override
-  String get serverDegraded => 'Eingeschränkt';
+  String get serverDegraded => 'Im Rückstand';
 
   @override
-  String get serverHealthNone => 'Zustand unbekannt';
+  String get serverHealthNone => 'Status unbekannt';
 
   @override
-  String get serverCurrent => 'Aktuell';
+  String get serverCurrent => 'In Verwendung';
 
   @override
   String get serverDefault => 'Standard';
@@ -4573,7 +4570,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent % erreichbar';
+    return '$percent% erreichbar';
   }
 
   @override
@@ -4596,7 +4593,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String serverHeightAtTip(String height) {
-    return '$height · aktuell';
+    return '$height · synchronisiert';
   }
 
   @override
@@ -4723,7 +4720,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodSendFileLine =>
-      'Datei übergeben, Antwortdatei zurückbekommen, dann hier abschließen.';
+      'Datei übergeben, Antwortdatei zurückbekommen, dann hier öffnen.';
 
   @override
   String get methodReceiveEpicboxTitle => 'Teilen, um bezahlt zu werden.';
@@ -4764,7 +4761,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendCancelRuleFile =>
-      'Kann storniert werden, bis die Antwortdatei abgeschlossen ist.';
+      'Kann storniert werden, bis Sie die Antwortdatei öffnen.';
 
   @override
   String get sendHttpReaching =>
@@ -4994,7 +4991,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskInvIssuerMessageCount(int used, int max) {
-    return '$used von $max Byte';
+    return '$used / $max Byte';
   }
 
   @override
@@ -6171,7 +6168,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskNodeAtTip => 'aktuell';
+  String get deskNodeAtTip => 'synchronisiert';
 
   @override
   String get deskNodeLocal => 'Lokaler Node';
@@ -6400,7 +6397,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRecvTorDownText =>
-      'Jede Verbindung wartet auf Tor. Versuchen Sie es erneut oder schalten Sie Tor aus.';
+      'Tor konnte keine Verbindung herstellen. Versuchen Sie es erneut oder schalten Sie Tor aus.';
 
   @override
   String get deskRecvTorStartingText =>
@@ -7023,7 +7020,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSendMessage => 'Nachricht';
 
   @override
-  String get deskSendMessageHelp => 'Der Empfänger sieht diese Nachricht.';
+  String get deskSendMessageHelp => 'Der Empfänger sieht sie.';
 
   @override
   String get deskSendPrivacyOn => 'Privatsphäre · Dandelion++ an';
@@ -7103,7 +7100,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSendDirectLine2 =>
-      'Eine http(s)- oder .onion-Adresse; die Wallet des Empfängers muss geöffnet sein.';
+      'Ihre Wallet muss geöffnet sein. Eine Onion-Adresse läuft über Tor.';
 
   @override
   String get deskSendFileLine1 => 'Keine Verbindung nötig.';
@@ -7421,10 +7418,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskActTitle => 'Aktivität';
 
   @override
-  String get deskActDetailReceived => 'Empfangene Zahlung';
+  String get deskActDetailReceived => 'Eingehende Zahlung';
 
   @override
-  String get deskActDetailSent => 'Gesendete Zahlung';
+  String get deskActDetailSent => 'Ausgehende Zahlung';
 
   @override
   String get deskActLoading => 'Zahlungen werden geladen';
@@ -7569,7 +7566,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskConSortRecent => 'Zuletzt';
 
   @override
-  String get deskConNone => 'Noch keine Kontakte.';
+  String get deskConNone => 'Noch keine Kontakte';
 
   @override
   String get deskConNoMatchList => 'Keine passenden Kontakte';
@@ -7584,12 +7581,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskConEmptyTitle => 'Noch keine Kontakte';
 
   @override
-  String get deskConEmptyText =>
-      'Speichern Sie Personen und Shops, die Sie oft bezahlen, und wählen Sie sie unter Senden per Name.';
-
-  @override
-  String get deskConEmptyLocal =>
-      'Kontakte bleiben auf diesem Computer; exportieren Sie sie für eine Kopie.';
+  String get deskConEmptyText => 'Ein Kontakt ist ein Name für eine Adresse.';
 
   @override
   String get deskConSendToAddress => 'An Adresse senden';
@@ -8846,9 +8838,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskOnbWelcomeCreate => 'Neue Wallet erstellen';
 
   @override
-  String get deskOnbWelcomeCreateSub => 'Neue Wiederherstellungsphrase';
-
-  @override
   String get deskOnbWelcomeImport => 'Wallets importieren';
 
   @override
@@ -8857,9 +8846,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbWelcomeRestore => 'Mit Phrase wiederherstellen';
-
-  @override
-  String get deskOnbWelcomeRestoreSub => 'Aus der Wiederherstellungsphrase';
 
   @override
   String get deskOnbWelcomeTestNote =>
@@ -8968,7 +8954,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'Schreiben Sie diese Wörter der Reihe nach auf Papier: Nur mit ihnen lassen sich die Coins wiederherstellen.';
+      'Schreiben Sie diese Wörter der Reihe nach auf Papier. Nur mit ihnen lässt sich diese Wallet wiederherstellen.';
 
   @override
   String get deskOnbCreateRevealFirst => 'Zuerst die Phrase aufdecken';
@@ -10084,7 +10070,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitFactOperator => 'Betreiber';
 
   @override
-  String get deskKitAtTip => 'aktuell';
+  String get deskKitAtTip => 'synchronisiert';
 
   @override
   String deskKitBehind(int count, String blocks) {
@@ -10243,7 +10229,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskKitMethodPortInUse(String port) {
-    return 'Port $port wird von einem anderen Programm genutzt. Schließen Sie es oder wählen Sie in den Einstellungen einen anderen Port.';
+    return 'Port $port wird von einem anderen Programm genutzt. Schließen Sie es oder ändern Sie unten den Port.';
   }
 
   @override
@@ -10550,7 +10536,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupExportDesc =>
-      'Eine Datei mit Zahlungsverlauf, Kontakten, Rechnungen und Einstellungen dieser Wallet. Allein kann sie die Wallet nicht wiederherstellen: zuerst aus der Wiederherstellungsphrase wiederherstellen, dann diese Datei importieren.';
+      'Enthält Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen dieser Wallet, Stand jetzt. Zum Wiederherstellen: zuerst die Wiederherstellungsphrase eingeben, dann diese Datei importieren.';
 
   @override
   String get deskSetBackupSaved => 'Gespeichert';
@@ -10683,7 +10669,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Wer die Datei hat, kann Beträge, Datumsangaben, Adressen und Notizen lesen. Sie lässt sich nicht importieren; dafür ist „Wallet-Daten exportieren“ da.';
+      'Jeder mit der Datei kann Beträge, Datumsangaben, Adressen und Notizen lesen. Sie lässt sich nicht importieren; für eine Sicherung „Wallet-Daten exportieren“ nutzen.';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -11300,7 +11286,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSetLndTypeToConfirm(String word) {
-    return 'Geben Sie zur Bestätigung $word ein.';
+    return 'Zur Bestätigung „$word“ eingeben';
   }
 
   @override
@@ -11725,7 +11711,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetPhraseIntro =>
-      'Schreiben Sie die Wörter in dieser Reihenfolge auf Papier. Geben Sie sie nie auf einer Website oder in einem Chat ein.';
+      'Schreiben Sie diese Wörter der Reihe nach auf Papier. Nur mit ihnen lässt sich diese Wallet wiederherstellen.';
 
   @override
   String get deskSetPhrasePanel =>
@@ -12051,11 +12037,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Eine E-Mail-Adresse oder ein anderer Name, für eine Antwort';
 
   @override
-  String get deskSetReportAttach => 'Protokolle anhängen (empfohlen)';
+  String get deskSetReportAttach => 'Protokolle anhängen';
 
   @override
   String get deskSetReportAttachHint =>
-      'Der neueste Teil des App-Protokolls, bereinigt um Phrasen, Passwörter, Adressen, IPs und Benutzerordner.';
+      'Der neueste Teil des App-Protokolls, ohne Wiederherstellungsphrase, Passwort und andere Geheimnisse.';
 
   @override
   String get deskSetReportSentWhat => 'Was gesendet wird';
@@ -12083,7 +12069,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetRescanText =>
-      'Liest die Blockchain erneut und baut das Guthaben neu auf. Nutzen Sie das, wenn das Guthaben falsch aussieht oder Outputs gesperrt bleiben.';
+      'Prüft die Blockchain erneut auf das Guthaben dieser Wallet. Nutzen Sie das, wenn das Guthaben falsch aussieht.';
 
   @override
   String get deskSetRescanDeleteUnconfirmed => 'Unbestätigte löschen';
@@ -12758,7 +12744,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsStalledBody =>
-      'Hängt fest, nicht zugestellt. Deine Zahlung hat das Netzwerk noch nicht erreicht. Sende sie erneut.';
+      'Die Gegenseite hat diese Zahlung noch nicht übertragen.';
 
   @override
   String get txDetailsNotDeliveredDirectBody =>
@@ -12898,9 +12884,8 @@ class AppLocalizationsDe extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Die Datei enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
-      one:
-          'Die Datei enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+          'Die Datei hat andere Details für $n Zahlungen. Ihre bleiben erhalten, wenn Sie nicht die der Datei wählen.',
+      one: 'Die Datei hat andere Details für 1 Zahlung. Ihre bleiben erhalten, wenn Sie nicht die der Datei wählen.',
     );
     return '$_temp0';
   }
@@ -12979,9 +12964,9 @@ class AppLocalizationsDe extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'Der Verlauf des alten Wallets enthält andere Details für $n Zahlungen, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+          'Der Verlauf des alten Wallets hat andere Details für $n Zahlungen. Ihre bleiben erhalten, wenn Sie nicht die des alten Wallets wählen.',
       one:
-          'Der Verlauf des alten Wallets enthält andere Details für $n Zahlung, die Sie beschrieben haben. Ihre bleiben erhalten, außer Sie wählen anders.',
+          'Der Verlauf des alten Wallets hat andere Details für $n Zahlung. Ihre bleiben erhalten, wenn Sie nicht die des alten Wallets wählen.',
     );
     return '$_temp0';
   }
@@ -13317,7 +13302,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSlInUse => 'In Verwendung';
 
   @override
-  String get deskSlHealthUnknown => 'Zustand unbekannt';
+  String get deskSlHealthUnknown => 'Status unbekannt';
 
   @override
   String get deskSlNodeNoAnswer =>
@@ -13827,7 +13812,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted =>
-      'Signiert und zurückgeschickt. Laut Absender im Netzwerk; abgeschlossen nach der Bestätigung.';
+      'Laut Absender ist diese Zahlung gesendet. Sie wird abgeschlossen, sobald das Netzwerk sie bestätigt.';
 
   @override
   String get deskImpWrongTypePasted =>
@@ -14651,9 +14636,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String addrDesktopThird(String type) {
     return 'Eine Adresse ($type) einfügen oder leer lassen';
   }
-
-  @override
-  String get addrDesktopRule => 'Eine Adresse je Typ.';
 
   @override
   String get pendingTitle => 'Offene Einladungen';
@@ -15876,12 +15858,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle =>
-      'Verlauf und Einstellungen zurückholen?';
+  String get deskOvRestoredImportTitle => 'Ihre Wallet ist wiederhergestellt';
 
   @override
   String get deskOvRestoredImportBody =>
-      'Die Wiederherstellungsphrase hat das Guthaben zurückgeholt. Eine aus dieser Wallet exportierte Wallet-Datendatei bringt Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen zurück: die Datei, die außerhalb des alten Computers gespeichert wurde.';
+      'Die Wiederherstellungsphrase hat das Guthaben wiederhergestellt. Um Verlauf, Kontakte, Rechnungen und Einstellungen zurückzuholen, importieren Sie die exportierte Wallet-Datendatei.';
 
   @override
   String get deskOvRestoredImportButton => 'Wallet-Daten importieren';
@@ -17987,7 +17968,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txPostElsewhereAfter =>
-      'Unter „Notaus“ abgeschlossen, noch nicht in der Chain gesehen. Senden Sie sie von hier, oder warten Sie auf das Gerät, das sie sendet.';
+      'Unter „Notaus“ abgeschlossen, noch nicht in der Chain. Senden Sie sie von hier, oder warten Sie auf das Gerät, das sie gesendet hat.';
 
   @override
   String get txPostNow => 'Jetzt senden';
@@ -18159,7 +18140,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die PIN öffnet diese Wallet nicht mehr. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
 
   @override
-  String get settingsUsePassphrase => 'Passphrase statt PIN verwenden';
+  String get settingsUsePassphrase => 'Passphrase verwenden';
 
   @override
   String get settingsChangePassphrase => 'Passphrase ändern';
@@ -18298,7 +18279,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txTrustedNetworksBody =>
-      'Link · HTTP hört in Netzen zu, denen Sie vertrauen. Vergessen Sie ein Netz, fragt das Telefon dort beim nächsten Mal erneut.';
+      'Link · HTTP empfängt nur in vertrauten Netzen. Nach einem vergessenen Netz fragt das Telefon beim nächsten Beitritt erneut.';
 
   @override
   String get txTrustedNetworksNone => 'Noch kein vertrautes Netz.';

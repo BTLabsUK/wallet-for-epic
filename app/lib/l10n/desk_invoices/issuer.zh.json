@@ -7,7 +7,7 @@
   "deskInvIssuerAmountCap": "超过 EPIC 的总供应量。",
   "deskInvIssuerAmountHelp": "你的钱包不会支出任何资金：付款方支付此金额外加其自己的手续费。",
   "deskInvIssuerMessage": "给付款方的留言",
-  "deskInvIssuerMessageCount": "{used}/{max} 字节",
+  "deskInvIssuerMessageCount": "{used} / {max} 字节",
   "deskInvIssuerMessageLong": "留言过长。",
   "deskInvIssuerExpiry": "付款方有 {hours} 小时付款。",
   "deskInvIssuerRelayDown": "Epicbox 服务器无响应，暂时无法发出账单。",
