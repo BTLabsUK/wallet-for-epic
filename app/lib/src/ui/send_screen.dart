@@ -3526,7 +3526,8 @@ class _SendViewState extends ConsumerState<SendView> {
         null => sendSteps(
           l,
           at,
-          waiting: l.sendFileWaitingReply,
+          // The QR way has no file: its reply is a code.
+          waiting: _viaQr ? l.pairAwaitReplyTitle : l.sendFileWaitingReply,
           held: l.sendFileOnHold(epicText(l, amount)),
         ),
       },
