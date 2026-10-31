@@ -739,8 +739,11 @@ class Run:
         e1 = next((x for x in (w1 or {}).get("wallets", []) if x.get("id") == e0["id"]), None)
         if not e1:
             return False, "wallets.json no longer lists the wallet %s" % e0["id"]
-        if e1.get("phraseFingerprint") != e0.get("phraseFingerprint") or e1.get("dataDir") != e0.get("dataDir"):
-            return False, "the wallet entry changed: fingerprint or folder differ"
+        # The wallet's identity: LEPIC's walletFingerprint when both entries have it (from 26.10.25 an unlock
+        # drops the old phraseFingerprint once that is there, WAL-09), else the phrase fingerprint.
+        key = "walletFingerprint" if e0.get("walletFingerprint") and e1.get("walletFingerprint") else "phraseFingerprint"
+        if e1.get(key) != e0.get(key) or e1.get("dataDir") != e0.get("dataDir"):
+            return False, "the wallet entry changed: %s or folder differ" % key
         addr = self.address()
         a0, a1 = (before["address"] or "").split("@")[0], (addr or "").split("@")[0]
         if not a1:
