@@ -12,8 +12,9 @@
 /// - `POST` to the settings file's `support.report` with
 ///   `{"v": 2, "bundle": "<base64>", "app": "<version>"}`; the intake answers `{"ok": true, "id": "<8 chars>"}`.
 ///
-/// What goes in is cleaned first (`support_clean.dart`), and [SupportReport.text] shows all of
-/// it, so the preview is exactly what is sealed.
+/// What goes in is cleaned first (`support_clean.dart`), or was redacted at the source (LEPIC's
+/// log ring), and [SupportReport.text] shows all of it, so the preview is exactly what is
+/// sealed.
 library;
 
 import 'dart:async';
@@ -53,7 +54,8 @@ final Uint8List _info = ascii.encode('epic-gui-support v1');
 const int _header = 8 + 8 + 32 + 12;
 const int _tag = 16;
 
-/// One attached text: `app/wfe.log`, or the facts about the app.
+/// One attached text: a file of LEPIC's log ring (`app/lepic.0.log`), `app/wfe.log`, or the
+/// facts about the app.
 class SupportFile {
   const SupportFile({required this.name, required this.text, this.cut = false});
 

@@ -62,6 +62,9 @@ class _Harness {
   );
   final outlet = FakeFeedbackOutlet();
   MemoryLogSink log = MemoryLogSink();
+
+  /// LEPIC's log ring; null is none, as in a test run, and the log's tail goes instead.
+  List<LogRingFile>? ring;
   Uri? url;
   late ProviderContainer container;
 
@@ -89,6 +92,7 @@ class _Harness {
           clockProvider.overrideWithValue(() => DateTime(2026, 10, 1, 9, 5)),
           feedbackOutletProvider.overrideWithValue(outlet),
           feedbackLogProvider.overrideWithValue(log),
+          feedbackRingProvider.overrideWithValue(() async => ring),
           feedbackUrlProvider.overrideWithValue(url),
           feedbackPlatformProvider.overrideWithValue('android 14'),
           feedbackCleanContextProvider.overrideWithValue(const CleanContext()),
@@ -216,6 +220,31 @@ void main() {
       ).text;
       expect(report, contains('Contact: none'));
       expect(report, contains('Logs: none attached'));
+    });
+
+    test('attaches the log ring as it is, oldest file first, in place of the log', () {
+      // The ring was redacted at the source: nothing of it is cleaned again or left out.
+      const older = '2026-10-01T08:00:00.000Z INFO dart: unlock tag=unlock\n';
+      const newer = '2026-10-01T08:05:00.000Z WARN lepic_wallet::send: slate posted relay=box.epic.invalid\n';
+      final report = buildFeedbackReport(
+        message: 'm',
+        details: _details,
+        ring: [(name: 'lepic.1.log', text: older), (name: 'lepic.0.log', text: newer)],
+        log: 'INFO dart.unlock: from wfe.log\n',
+        at: DateTime.utc(2026),
+        fullDetails: true,
+      );
+      expect([for (final f in report.files) f.name], ['app/lepic.1.log', 'app/lepic.0.log']);
+      expect([for (final f in report.files) f.text], [older, newer]);
+      expect(report.files.every((f) => !f.cut), isTrue);
+      expect(report.text, isNot(contains('from wfe.log')));
+      expect(report.app, isNot(contains('log details')), reason: 'the ring never holds full details');
+    });
+
+    test('attaches no log when the ring holds no file', () {
+      final report = buildFeedbackReport(message: 'm', details: _details, ring: const [], at: DateTime.utc(2026));
+      expect(report.files, isEmpty);
+      expect(report.text, contains('Logs: none attached'));
     });
 
     test('caps the log at 256 KB, keeping the newest whole lines', () {
@@ -367,6 +396,21 @@ void main() {
       expect(post.report.description, 'Please add dark mode');
       expect(post.report.app['sync'], isNotEmpty);
       expect(find.text('Thank you. Your feedback was sent.'), findsOneWidget);
+    });
+
+    testWidgets('sends the log ring rather than the log where there is one', (tester) async {
+      const line = '2026-10-01T08:05:00.000Z INFO dart: unlock tag=unlock\n';
+      final h = _Harness()
+        ..url = Uri.parse('https://feedback.example.com/in')
+        ..ring = [(name: 'lepic.0.log', text: line)];
+      await h.pump(tester);
+      h.log.write(LogLevel.info, 'app', 'only in wfe.log');
+      await h.openFeedback(tester);
+      await enter(tester, 'What happened', 'Sync stuck');
+      await tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      final files = h.outlet.posted.single.report.files;
+      expect([for (final f in files) f.name], ['app/lepic.0.log']);
+      expect(files.single.text, line);
     });
 
     testWidgets('Node only: Send waits with the reason, sharing the report does not', (

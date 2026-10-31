@@ -6,6 +6,9 @@
 ///
 /// The file sink, logcat and `path_provider` are in `app_log.dart`, which re-exports this file.
 ///
+/// The app's lines also go to LEPIC's log ring ([AppLog.ring]), which redacts them at the source
+/// and is what a problem report attaches (`feedback.dart`).
+///
 /// Log one fact per line, and never a secret: no PIN, password, phrase, seed, slate, token or
 /// full address. Redaction is the safety net, not the plan: by default it also cuts addresses to
 /// fingerprints and amounts to buckets; only Detailed logging ([AppLog.detailed]) keeps them.
@@ -43,6 +46,14 @@ String _cleanTag(String tag) {
   final kept = tag.replaceAll(RegExp(r'[^A-Za-z0-9_]'), '');
   return kept.length > 32 ? kept.substring(0, 32) : kept;
 }
+
+/// Size of LEPIC's log ring (`LepicRuntime.openLogRing`), across its four files: the 256 KB a
+/// report has always attached (`feedbackLogBytes`), so a report of the whole ring is no bigger.
+const int logRingBytes = 256 * 1024;
+
+/// One file of LEPIC's log ring as a report attaches it: its name (`lepic.0.log`) and its
+/// whole lines, as the ring wrote them.
+typedef LogRingFile = ({String name, String text});
 
 /// One file of the log: `wfe.log` or `wfe.log.1`, and its size.
 class LogFileInfo {
@@ -155,6 +166,16 @@ abstract final class AppLog {
 
   static LogSink get sink => _sink;
 
+  /// LEPIC's log ring folder, `<application support>/logs/ring`, once `startLogging` has named
+  /// it; null on the web, in the demo server and in tests. LEPIC's runtime opens the ring there
+  /// when it starts (`lepic_wallet_service.dart`), and a report attaches its files.
+  static String? ringDir;
+
+  /// Takes the app's own lines as well, once LEPIC's runtime has opened its ring
+  /// (`LepicRuntime.logMessage`), so the ring holds them with its own redaction. Null before.
+  /// LEPIC's own records reach the ring at the source and never come through here.
+  static void Function(LogLevel level, String tag, String message)? ring;
+
   /// Switches to [sink], handing over what the memory sink held.
   static void use(LogSink sink) {
     final previous = _sink;
@@ -167,8 +188,20 @@ abstract final class AppLog {
     }
   }
 
-  static void write(LogLevel level, String tag, String message) =>
-      _guard(() => _sink.write(level, tag, redact(message, details: detailed)));
+  static void write(LogLevel level, String tag, String message) {
+    final details = detailed;
+    // What wfe.log takes of the app's lines, never more.
+    final toRing = logPasses(level, dartTarget) ? ring : null;
+    _guard(() {
+      final clean = redact(message, details: details);
+      try {
+        _sink.write(level, tag, clean);
+      } finally {
+        // The ring never keeps what Detailed logging keeps in the file.
+        toRing?.call(level, tag, details ? redact(message) : clean);
+      }
+    });
+  }
 
   static void record(LogLevel level, String target, String message) =>
       _guard(() => _sink.record(level, target, redact(message, details: detailed)));

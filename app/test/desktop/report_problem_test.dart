@@ -20,6 +20,9 @@ const _address = 'esWn9r2zQj5eKkVh3sT4YpX7cBdF8gHmNaLuRvS6tE1iPo2wZxC9';
 class _Harness {
   final outlet = FakeFeedbackOutlet();
   MemoryLogSink log = MemoryLogSink();
+
+  /// LEPIC's log ring; null is none, as in a test run, and the log's tail goes instead.
+  List<LogRingFile>? ring;
   late ProviderContainer container;
 
   Future<void> pump(WidgetTester tester, {Widget? home, double height = 900}) async {
@@ -29,6 +32,7 @@ class _Harness {
     container = ProviderContainer(overrides: [
       feedbackOutletProvider.overrideWithValue(outlet),
       feedbackLogProvider.overrideWithValue(log),
+      feedbackRingProvider.overrideWithValue(() async => ring),
       feedbackUrlProvider.overrideWithValue(Uri.parse('https://support.example.com/v1/report')),
       feedbackPlatformProvider.overrideWithValue('linux test'),
       feedbackCleanContextProvider.overrideWithValue(const CleanContext()),
@@ -163,6 +167,41 @@ void main() {
     await settle(tester);
     expect(find.text('Include full details'), findsNothing);
     expect(find.byKey(const ValueKey('report-full-details-info')), findsNothing);
+  });
+
+  testWidgets('sends the log ring as it is, oldest file first', (tester) async {
+    const older = '2026-10-01T08:00:00.000Z INFO dart: unlock tag=unlock\n';
+    const newer = '2026-10-01T08:05:00.000Z WARN lepic_wallet::send: slate posted relay=box.epic.invalid\n';
+    final h = _Harness()..ring = [(name: 'lepic.1.log', text: older), (name: 'lepic.0.log', text: newer)];
+    h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid');
+    await h.pump(tester);
+    await tester.tap(find.text('What is sent'));
+    await settle(tester);
+    expect(find.text('Report text · lepic.0.log (all, 1 KB) · lepic.1.log (all, 1 KB)'), findsOneWidget);
+    var preview = previewText(tester);
+    expect(preview, contains('== app/lepic.1.log ==\n$older\n== app/lepic.0.log ==\n$newer'));
+    expect(preview, isNot(contains('app/wfe.log')));
+
+    await describe(tester, 'Sync stuck');
+    await send(tester);
+    final files = h.outlet.posted.single.report.files;
+    expect([for (final f in files) f.name], ['app/lepic.1.log', 'app/lepic.0.log']);
+    expect([for (final f in files) f.text], [older, newer]);
+  });
+
+  testWidgets('Include full details sends the log rather than the ring', (tester) async {
+    final h = _Harness()..ring = [(name: 'lepic.0.log', text: '2026-10-01T08:00:00.000Z INFO dart: unlock tag=unlock\n')];
+    h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid');
+    await h.pump(tester);
+    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text('Include full details'));
+    await settle(tester);
+    expect(find.textContaining('lepic.0.log'), findsNothing);
+    final preview = previewText(tester);
+    expect(preview, contains('== app/wfe.log =='));
+    expect(preview, contains('log details: full'));
+    expect(preview, contains('to $_address@box.epic.invalid'));
+    expect(preview, isNot(contains('lepic.0.log')));
   });
 
   testWidgets('What is sent names each log file and how much of it goes', (tester) async {

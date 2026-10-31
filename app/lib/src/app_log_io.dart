@@ -11,6 +11,9 @@
 /// replacing the one before, so the log never takes more than 2 MB, and the 256 KB a feedback
 /// report attaches always fits, even right after a rotation.
 ///
+/// LEPIC's log ring, which redacts at the source and is what a problem report attaches, is in
+/// its own folder beside it, `logs/ring/` ([logRingFolder], [readLogRing], [clearLogRing]).
+///
 /// `app_log.dart` picks this file off the web. It re-exports `log.dart`.
 library;
 
@@ -245,17 +248,75 @@ final class _Logcat {
   }
 }
 
-/// Starts the log file under `<application support>/logs`, with the lines logged so far. A
-/// failure keeps lines in memory, and is itself logged.
+/// LEPIC's log ring's folder inside `logs/`. It holds the ring's files and nothing else.
+const String logRingFolder = 'ring';
+
+/// The ring's files, oldest first (LEPIC's `lepic.0.log` is the newest).
+const List<String> logRingFiles = [
+  'lepic.3.log',
+  'lepic.2.log',
+  'lepic.1.log',
+  'lepic.0.log',
+];
+
+/// Starts the log file under `<application support>/logs`, with the lines logged so far, and
+/// names `logs/ring/` for LEPIC's log ring ([AppLog.ringDir]). A failure keeps lines in memory,
+/// and is itself logged.
 Future<void> startLogging() async {
   try {
     final support = await appDataDirectory();
-    AppLog.use(
-      FileLogSink.open(
-        Directory('${support.path}${Platform.pathSeparator}logs'),
-      ),
-    );
+    final logs = '${support.path}${Platform.pathSeparator}logs';
+    AppLog.ringDir = '$logs${Platform.pathSeparator}$logRingFolder';
+    AppLog.use(FileLogSink.open(Directory(logs)));
   } catch (error) {
     logWarn('log', 'no log file: $error');
+  }
+}
+
+File _ringFile(String dir, String name) =>
+    File('$dir${Platform.pathSeparator}$name');
+
+/// LEPIC's log ring as a report attaches it: its files that hold lines, oldest first, at most
+/// [logRingBytes] together, each from and to a whole line (LEPIC may be writing the newest).
+/// Null where there is no ring ([AppLog.ringDir], the web, tests) or it holds no line yet.
+Future<List<LogRingFile>?> readLogRing() async {
+  final dir = AppLog.ringDir;
+  if (dir == null) return null;
+  final out = <LogRingFile>[];
+  var left = logRingBytes;
+  for (final name in logRingFiles.reversed) {
+    if (left <= 0) break;
+    // One byte more than asked, so a cut inside a line is seen and dropped by _lastBytes.
+    final read = _readLast(_ringFile(dir, name), left + 1);
+    var bytes = _lastBytes(read, left);
+    final end = bytes.lastIndexOf(0x0a);
+    bytes = Uint8List.sublistView(bytes, 0, end + 1);
+    if (bytes.isNotEmpty) {
+      out.insert(0, (name: name, text: utf8.decode(bytes, allowMalformed: true)));
+    }
+    // A file that did not fit whole is the oldest that goes: no gap before the newest lines.
+    left = read.length > left ? 0 : left - bytes.length;
+  }
+  return out.isEmpty ? null : out;
+}
+
+/// Empties LEPIC's log ring with the log ("Clear logs"): the newest file, which LEPIC holds
+/// open and appends to, is emptied in place; the older ones are deleted. Nothing else in the
+/// folder is touched.
+void clearLogRing() {
+  final dir = AppLog.ringDir;
+  if (dir == null) return;
+  for (final name in logRingFiles) {
+    final file = _ringFile(dir, name);
+    try {
+      if (!file.existsSync()) continue;
+      if (name == logRingFiles.last) {
+        file.writeAsBytesSync(const [], flush: true);
+      } else {
+        file.deleteSync();
+      }
+    } on FileSystemException catch (_) {
+      // Held by another program (Windows); LEPIC's next rotation drops it.
+    }
   }
 }

@@ -95,8 +95,10 @@ const Set<(String, String)> lepicRoutineLines = {
 /// Logs one entry of `LepicRuntime.logs()` under its own target:
 /// `lepic_wallet::send: slate received in send slate_id=… height=…`. Trace entries are
 /// dropped; debug ones, and [lepicRoutineLines], reach the log only while [AppLog.detailed]
-/// is on.
+/// is on. The app's own lines, which also go to LEPIC's log ring ([AppLog.ring]) and come back
+/// on this stream under `dart`, are in the log already and are dropped.
 void logLepicEntry(lepic.LogEntry entry) {
+  if (entry.target == dartTarget || entry.target.startsWith('$dartTarget.')) return;
   final level = switch (entry.level) {
     lepic.LogLevel.error => LogLevel.error,
     lepic.LogLevel.warn => LogLevel.warn,
@@ -842,7 +844,29 @@ class LepicWalletService implements WalletService {
       logLepicEntry,
       onError: (Object error) => logWarn('lepic', 'log stream ended: $error'),
     );
+    if (AppLog.ringDir case final dir?) unawaited(_openLogRing(runtime, dir));
     return runtime;
+  }
+
+  /// Opens LEPIC's log ring in [dir], the folder `startLogging` named, and from then on sends
+  /// the app's own lines there too ([AppLog.ring]), so the ring a report attaches holds both,
+  /// redacted at the source. The demo server and tests name none.
+  static Future<void> _openLogRing(lepic.LepicRuntime runtime, String dir) async {
+    try {
+      await runtime.openLogRing(dir: dir, maxBytes: BigInt.from(logRingBytes));
+      AppLog.ring = (level, tag, message) => runtime.logMessage(
+        level: switch (level) {
+          LogLevel.error => lepic.LogLevel.error,
+          LogLevel.warn => lepic.LogLevel.warn,
+          LogLevel.info => lepic.LogLevel.info,
+          LogLevel.debug => lepic.LogLevel.debug,
+        },
+        tag: tag,
+        message: message,
+      );
+    } on Object catch (error) {
+      logWarn('log', 'no log ring: ${error is lepic.WalletError ? error.kind.name : error.runtimeType}');
+    }
   }
 
   lepic.LepicRuntime get _runtime => _runtimeValue ??= _makeRuntime();

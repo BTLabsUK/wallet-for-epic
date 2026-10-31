@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Feedback reports: what the user wrote, a few facts about the app, and optionally the
-/// newest part of the log, cleaned of secrets and addresses (`support_clean.dart`). The preview
-/// shows exactly what is shared, saved or sent.
+/// Feedback reports: what the user wrote, a few facts about the app, and optionally the log:
+/// the files of LEPIC's log ring as they are, redacted at the source ([readLogRing]). The text
+/// and facts are cleaned of secrets and addresses (`support_clean.dart`), as is the newest part
+/// of `wfe.log`, which goes instead where there is no ring (the web) and with the desktop's
+/// "Include full details". The preview shows exactly what is shared, saved or sent.
 ///
 /// "Send" seals the report to the developer and posts it to the support intake, the same format
 /// as the Electron GUI's "Report a problem" (`support_report.dart`). Share or save hands over the
@@ -40,15 +42,23 @@ final feedbackUrlProvider = Provider<Uri?>(
   },
 );
 
-/// How much of the log a report attaches: the newest 256 KB, days of normal use, and small
-/// enough for any mail app to attach.
+/// How much of `wfe.log` a report attaches where it does: the newest 256 KB, days of normal
+/// use, and small enough for any mail app to attach. LEPIC's ring is no bigger
+/// ([logRingBytes]).
 const int feedbackLogBytes = 256 * 1024;
 
 /// Longest message the form takes.
 const int maxFeedbackMessageChars = 5000;
 
-/// The log a report attaches. Tests hand in a [MemoryLogSink].
+/// The log whose tail a report attaches where it attaches no ring. Tests hand in a
+/// [MemoryLogSink].
 final feedbackLogProvider = Provider<LogSink>((ref) => AppLog.sink);
+
+/// Reads LEPIC's log ring for a report ([readLogRing]): null where there is none, and the
+/// report attaches the tail of [feedbackLogProvider] instead. Tests hand in their own files.
+final feedbackRingProvider = Provider<Future<List<LogRingFile>?> Function()>(
+  (ref) => readLogRing,
+);
 
 /// Facts about the app a report states. Balances, transactions and addresses are never among
 /// them.
@@ -80,14 +90,17 @@ class FeedbackDetails {
 bool isValidFeedbackEmail(String email) =>
     RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email.trim());
 
-/// The report. [log] is the attached log tail, or null when the user turned it off. The
-/// message, the facts and the log are cleaned here, whatever the caller did; the email is the
-/// user's own, for a reply, and stays as written. [fullDetails] ("Include full details") keeps
-/// the wallet addresses and amounts the log holds ([cleanForReport]), and the report says so.
+/// The report. [ring] is LEPIC's log ring, oldest file first, attached as it is: it was
+/// redacted at the source. Without it, [log] is the attached log tail; both are null when the
+/// user turned logs off. The message, the facts and [log] are cleaned here, whatever the caller
+/// did; the email is the user's own, for a reply, and stays as written. [fullDetails] ("Include
+/// full details") keeps the wallet addresses and amounts [log] holds ([cleanForReport]), and
+/// the report says so; the ring never holds them, so a caller passes [log] for it.
 SupportReport buildFeedbackReport({
   required String message,
   String? email,
   required FeedbackDetails details,
+  List<LogRingFile>? ring,
   String? log,
   required DateTime at,
   String ui = 'phone',
@@ -112,10 +125,12 @@ SupportReport buildFeedbackReport({
       'epicbox': cleanHost(details.relay, ids),
       'sync': clean(details.sync),
       'log level': ?details.logLevel,
-      if (fullDetails && log != null) 'log details': 'full',
+      if (fullDetails && ring == null && log != null) 'log details': 'full',
     },
     files: [
-      if (log != null)
+      if (ring != null)
+        ...[for (final f in ring) tailFile('app/${f.name}', f.text, max: logRingBytes)]
+      else if (log != null)
         tailFile('app/wfe.log', cleanForReport(log, context: context, ids: ids, fullDetails: fullDetails), max: feedbackLogBytes),
     ],
   );

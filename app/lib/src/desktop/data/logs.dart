@@ -118,7 +118,7 @@ abstract interface class LogFiles {
   /// The folder that holds them; null when the log is in memory only.
   String? get folder;
 
-  /// Empties the log.
+  /// Empties the log, and LEPIC's log ring with it.
   Future<void> clear();
 }
 
@@ -142,6 +142,7 @@ class AppLogFiles implements LogFiles {
     } else if (sink is MemoryLogSink) {
       sink.entries.clear();
     }
+    clearLogRing();
     logInfo('log', 'logs cleared');
   }
 }

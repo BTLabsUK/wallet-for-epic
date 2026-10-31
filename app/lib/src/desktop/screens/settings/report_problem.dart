@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../../ui/network_mode_text.dart' show blockMode, networkModeName;
 import 'dart:async';
+import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:flutter/material.dart';
@@ -19,8 +20,9 @@ import '../../../network_gate.dart' show NetBlock;
 import '../../widgets/kit.dart';
 import '../../../settings_file/host_settings.dart' show hostSettings, shippedHostSettings;
 
-/// Settings › Help › Report a problem: what happened, an optional contact and the app log,
-/// cleaned, previewed, sealed to the developer and sent to the support intake. The same report
+/// Settings › Help › Report a problem: what happened, an optional contact and the app log
+/// (LEPIC's log ring, redacted at the source; `wfe.log`, cleaned, with Include full details),
+/// previewed, sealed to the developer and sent to the support intake. The same report
 /// as the phone's Send feedback and the Electron GUI's Report a problem (`support_report.dart`).
 /// Save to file writes the same cleaned text, not sealed, where the user picks.
 Future<void> showReportProblemDialog(BuildContext context) =>
@@ -38,7 +40,8 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   final _contact = TextEditingController();
   bool _attachLogs = true;
 
-  /// "Include full details": the log's wallet addresses and amounts as they are.
+  /// "Include full details": the log's wallet addresses and amounts as they are, so `wfe.log`
+  /// goes rather than LEPIC's ring, which never holds them.
   bool _fullDetails = false;
   bool _tried = false;
   bool _busy = false;
@@ -50,7 +53,10 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   /// The log's files as they were when the log was read, for "What is sent".
   List<LogFileInfo> _files = const [];
 
-  // Read once, so the preview and the report sent are the same text.
+  // Read once, so the preview and the report sent are the same text: LEPIC's ring (null where
+  // there is none), its files newest first for "What is sent", and the tail of `wfe.log`.
+  List<LogRingFile>? _ring;
+  List<LogFileInfo> _ringFiles = const [];
   String? _log;
   late final Future<void> _logRead = _readLog();
   late final DateTime _at = DateTime.now();
@@ -88,6 +94,11 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
 
   Future<void> _readLog() async {
     try {
+      final ring = await ref.read(feedbackRingProvider)();
+      _ring = ring;
+      if (ring != null) {
+        _ringFiles = [for (final f in ring.reversed) LogFileInfo(f.name, utf8.encode(f.text).length)];
+      }
       final sink = ref.read(feedbackLogProvider);
       _files = await sink.files();
       _log = await sink.tail(feedbackLogBytes);
@@ -124,8 +135,10 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     final message = _description.text;
     final email = _contact.text;
     final details = _details();
-    final log = _attachLogs ? (_log ?? '') : null;
     final fullDetails = _attachLogs && _fullDetails;
+    // The ring unless Include full details asks for what only `wfe.log` holds.
+    final ring = _attachLogs && !fullDetails ? _ring : null;
+    final log = _attachLogs && ring == null ? (_log ?? '') : null;
     final at = _at;
     final context = ref.read(feedbackCleanContextProvider);
     // The cleaning keeps the hosts the shipped files name: the other isolate gets a copy of the
@@ -135,7 +148,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     return Isolate.run(() {
       hostSettings = settings;
       shippedHostSettings = shipped;
-      return buildFeedbackReport(message: message, email: email, details: details, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails);
+      return buildFeedbackReport(message: message, email: email, details: details, ring: ring, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails);
     });
   }
 
@@ -193,7 +206,12 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   List<String> _parts(AppLocalizations l) => [
     l.deskSetReportText,
     if (_attachLogs) ...[
-      if (_files.isEmpty) l.deskSetReportAppLog(logSize((_log ?? '').length, l)) else ...describeLogFiles(_files, feedbackLogBytes, l),
+      if (_ring != null && !_fullDetails)
+        ...describeLogFiles(_ringFiles, logRingBytes, l)
+      else if (_files.isEmpty)
+        l.deskSetReportAppLog(logSize((_log ?? '').length, l))
+      else
+        ...describeLogFiles(_files, feedbackLogBytes, l),
       if (_fullDetails) l.deskSetReportPartFullDetails,
     ],
   ];

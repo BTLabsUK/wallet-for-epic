@@ -31,6 +31,9 @@ void main() {
   });
   tearDown(() {
     AppLog.use(MemoryLogSink());
+    AppLog.ring = null;
+    AppLog.ringDir = null;
+    AppLog.detailedUntil = null;
     dir.deleteSync(recursive: true);
   });
 
@@ -316,6 +319,55 @@ void main() {
     expect(written, contains('line 19 '));
     expect(written, contains('line 0 '), reason: 'nothing was lost');
     sink.close();
+  });
+
+  test('the app\'s lines go to the ring too, redacted as without Detailed logging', () {
+    final sink = open();
+    AppLog.use(sink);
+    final ring = <String>[];
+    AppLog.ring = (level, tag, message) => ring.add('${level.name} $tag: $message');
+    AppLog.detailedUntil = DateTime.now().add(const Duration(hours: 1));
+    logInfo('send', 'to $_address, pin 123456');
+    AppLog.detailedUntil = null;
+    logDebug('send', 'not without Detailed logging');
+    AppLog.record(LogLevel.warn, 'lepic_wallet::send', 'LEPIC writes its own');
+    expect(ring, ['info send: to esWn9r…ZxC9@epicbox.epiccash.com, pin [redacted]']);
+    expect(sink.file.readAsStringSync(), contains('dart.send: to $_address'), reason: 'Detailed keeps it in the file');
+    sink.close();
+  });
+
+  test('the app\'s lines coming back from LEPIC are not written twice', () {
+    final sink = open();
+    AppLog.use(sink);
+    for (final target in ['dart', 'dart.send']) {
+      logLepicEntry(
+        lepic.LogEntry(level: lepic.LogLevel.info, target: target, message: 'from the ring', spans: const [], fields: const []),
+      );
+    }
+    expect(sink.file.readAsStringSync(), isNot(contains('from the ring')));
+    sink.close();
+  });
+
+  test('a report reads the ring oldest first, whole lines only; clearing empties it', () async {
+    expect(await readLogRing(), isNull, reason: 'no ring named');
+    final ring = Directory('${dir.path}/ring')..createSync();
+    AppLog.ringDir = ring.path;
+    expect(await readLogRing(), isNull, reason: 'no line yet');
+    final other = File('${ring.path}/notes.txt')..writeAsStringSync('kept');
+    File('${ring.path}/lepic.2.log').writeAsStringSync('a\n');
+    File('${ring.path}/lepic.0.log').writeAsStringSync('c\nhalf');
+    expect(await readLogRing(), [(name: 'lepic.2.log', text: 'a\n'), (name: 'lepic.0.log', text: 'c\n')]);
+
+    File('${ring.path}/lepic.1.log').writeAsStringSync('${'b' * logRingBytes}\n');
+    final capped = await readLogRing();
+    expect([for (final f in capped!) f.name], ['lepic.0.log'], reason: 'the newest ${logRingBytes ~/ 1024} KB');
+
+    clearLogRing();
+    expect(File('${ring.path}/lepic.0.log').readAsStringSync(), isEmpty);
+    expect(File('${ring.path}/lepic.1.log').existsSync(), isFalse);
+    expect(File('${ring.path}/lepic.2.log').existsSync(), isFalse);
+    expect(other.readAsStringSync(), 'kept');
+    expect(await readLogRing(), isNull);
   });
 
   test('quoted text in an error is redacted, escapes and all', () {

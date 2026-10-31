@@ -147,10 +147,13 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   /// The report as it would leave now.
   Future<SupportReport> _report() async {
     final details = await _details();
+    // LEPIC's log ring, redacted at the source; the log's tail where there is none (the web).
+    List<LogRingFile>? ring;
     String? log;
     if (_attachLogs) {
       try {
-        log = await ref.read(feedbackLogProvider).tail(feedbackLogBytes);
+        ring = await ref.read(feedbackRingProvider)();
+        if (ring == null) log = await ref.read(feedbackLogProvider).tail(feedbackLogBytes);
       } catch (error) {
         log = 'The log could not be read: $error\n';
       }
@@ -159,6 +162,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       message: _message.text,
       email: _email.text,
       details: details,
+      ring: ring,
       log: log,
       at: ref.read(clockProvider)(),
       context: ref.read(feedbackCleanContextProvider),

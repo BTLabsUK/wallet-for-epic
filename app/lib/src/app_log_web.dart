@@ -17,6 +17,12 @@ Future<void> startLogging() async {
   AppLog.use(MemoryLogSink(capacity: webLogLines));
 }
 
+/// A page has no LEPIC log ring: a report attaches the log's tail.
+Future<List<LogRingFile>?> readLogRing() async => null;
+
+/// A page has no LEPIC log ring to clear.
+void clearLogRing() {}
+
 /// The size at which the desktop log file rolls over; a page has no file, so only the
 /// desktop Logs screen reads it.
 const int maxLogFileBytes = 1024 * 1024;
