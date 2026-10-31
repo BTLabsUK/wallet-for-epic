@@ -254,6 +254,7 @@ class TipPacer {
   Duration _armed = Duration.zero;
   DateTime? _armedAt;
   WatchPace? _armedPace;
+  Duration? _armedEvery;
 
   /// Asks that failed in a row.
   int get failures => _failures;
@@ -280,12 +281,13 @@ class TipPacer {
 
   /// Sets the timer for [pace] at [now], with [change] from [nextWatchChange]; [fire] runs when
   /// it is up. Set already, it stays as it is unless the pace differs or [change] comes before
-  /// it; otherwise the time already waited counts.
+  /// it, or an answer or failure since changed the wait ([every]); otherwise the time already
+  /// waited counts.
   void arm(WatchPace pace, {Duration? change, required DateTime now, required void Function() fire}) {
     final armedAt = _armedAt;
     if (_timer != null && armedAt != null) {
       final waited = now.difference(armedAt);
-      final keep = pace == _armedPace && (change == null || waited + change >= _armed);
+      final keep = pace == _armedPace && every(pace) == _armedEvery && (change == null || waited + change >= _armed);
       if (keep) return;
       _since += waited < Duration.zero ? Duration.zero : (waited > _armed ? _armed : waited);
       _timer!.cancel();
@@ -294,6 +296,7 @@ class TipPacer {
     _armed = wait;
     _armedAt = now;
     _armedPace = pace;
+    _armedEvery = every(pace);
     _timer = Timer(wait, () {
       _timer = null;
       _armedAt = null;

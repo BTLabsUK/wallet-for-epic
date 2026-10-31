@@ -202,7 +202,15 @@ class DeskFailoverWatch extends Notifier<void> {
     _moving = true;
     try {
       final chosen = ref.read(deskFailoverProvider)?.chosen ?? current;
-      final nodes = st.nodes ?? const <NodeServer>[];
+      // Off the Node page the list keeps its last read, so the health that orders the
+      // candidates is read again here, as each reload did before.
+      var nodes = st.nodes ?? const <NodeServer>[];
+      try {
+        nodes = await ref.read(deskApiProvider).nodes();
+      } on Object {
+        // Locked meanwhile, or no answer: the last read orders them.
+      }
+      if (!ref.mounted) return false;
       final entries = ref.read(deskServerListProvider(ServerKind.node))?.entries ?? [for (final n in nodes) n.url];
       final candidates = failoverCandidates(
         entries: entries,

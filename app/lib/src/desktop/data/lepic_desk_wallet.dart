@@ -2193,6 +2193,8 @@ class LepicDeskWallet implements DeskWalletApi {
       _nodeReachedAt = DateTime.now();
       // Back after failing: the payments it refused meanwhile are posted again at once.
       if (_tipPace.answered()) _stall.nodeBack();
+      // A node back after failing is asked at the watch pace again, not the backed-off one.
+      _armTip();
       final h = tip.height.toInt();
       final grew = h > _tip;
       _tip = h;
@@ -2219,6 +2221,7 @@ class LepicDeskWallet implements DeskWalletApi {
       unawaited(_releaseSenderCancelled());
     } on Object catch (e) {
       _tipPace.failed();
+      _armTip();
       final why = e is core.WalletError ? e.kind.name : e.runtimeType;
       if (overTor && _torGrace()) {
         logInfo('desk', 'node check over Tor failed: $why; not counted while tor settles or the node syncs');

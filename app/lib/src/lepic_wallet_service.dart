@@ -1356,8 +1356,8 @@ class LepicWalletSession implements WalletSession {
   /// can make: a mailbox payment or a sealed file either way, which have no counterparty
   /// (LEPIC keeps them as file exchanges, and a mailbox send as `epicbox` once its answer is
   /// in), and a request. A row with none is asked again while it is open, as LEPIC links a
-  /// receive to its pairing just after storing it: after [_noContactFor], or at LEPIC's next
-  /// event.
+  /// receive to its pairing just after storing it: at every read in its first [_noContactFor],
+  /// then after [_noContactFor] or at LEPIC's next event.
   Future<String?> _pairingOfTx(lepic.TransactionDetails d) async {
     if (d.origin != lepic.TxOrigin.wallet) return null;
     if (d.counterparty != null && d.flow != lepic.TxFlow.invoice) return null;
@@ -1372,6 +1372,10 @@ class LepicWalletSession implements WalletSession {
         d.status == lepic.TxStatus.cancelled ||
         d.status == lepic.TxStatus.expired;
     if (contact != null || ended) {
+      _noContactAt.remove(d.txId);
+    } else if (DateTime.now().millisecondsSinceEpoch - d.createdAtMs.toInt() < _noContactFor.inMilliseconds) {
+      // Stored under a minute ago: LEPIC may link it any moment, so every read asks, as before.
+      _txContacts.remove(d.txId);
       _noContactAt.remove(d.txId);
     } else if (fresh) {
       _noContactAt[d.txId] = DateTime.now();

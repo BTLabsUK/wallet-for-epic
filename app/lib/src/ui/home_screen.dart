@@ -270,7 +270,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (data == null || !mounted) return;
       ref.read(blockWatchProvider).saw(data.transactions, data.summary.lastConfirmedHeight, now: ref.read(clockProvider)());
       _armTip();
-    });
+    }, fireImmediately: true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
       // unlock checks from `WalletApp`.
@@ -380,6 +380,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final tip = await ref.refresh(nodeTipProvider.future);
       if (!mounted) return;
       final back = _tipPace.answered();
+      // A node back after failing is asked at the watch pace again, not the backed-off one.
+      _armTip();
       if (back) ref.read(stallRetryProvider).nodeBack();
       if (tip.height > shown || back) {
         _autoRefresh();
@@ -390,6 +392,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     } catch (_) {
       // The status line shows a node that does not answer; the minute's refresh still runs.
       _tipPace.failed();
+      _armTip();
     } finally {
       _tipBusy = false;
     }
