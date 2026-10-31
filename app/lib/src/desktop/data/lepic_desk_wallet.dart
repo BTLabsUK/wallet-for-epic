@@ -78,6 +78,7 @@ import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../wallet_service.dart' as core;
 import '../../wallet/stored_send.dart';
+import '../../wallet/upkeep.dart';
 import 'addresses.dart';
 import 'api.dart';
 import 'backup_reminder.dart';
@@ -2689,16 +2690,8 @@ class LepicDeskWallet implements DeskWalletApi {
   /// first attempt, or the relay refused it). A failure leaves it for the user's Send again.
   Future<void> _resendUndelivered(core.WalletSession session) async {
     try {
-      var sent = false;
-      for (final e in (await session.transactions(refresh: false)).where((t) => t.undelivered && t.transport == 'epicbox')) {
-        if (_session != session) return;
-        try {
-          await session.resendEpicbox(key: e.key);
-          sent = true;
-        } on core.WalletError catch (err) {
-          logWarn('desk', 'resend at unlock: ${err.kind.name}');
-        }
-      }
+      final txs = await session.transactions(refresh: false);
+      final sent = await resendUndelivered(session, txs, tag: 'desk', stillOpen: () => _session == session);
       if (sent && _session == session) await _reload();
     } on Object catch (err) {
       logWarn('desk', 'resend at unlock: ${err is core.WalletError ? err.kind.name : err.runtimeType}');

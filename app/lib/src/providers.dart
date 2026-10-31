@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'wallet/upkeep.dart' show resendUndelivered;
 import 'demo.dart';
 import 'server_list_file.dart' show useServerValues;
 import 'settings_file/settings_providers.dart';
@@ -492,16 +493,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     WalletSession session,
     List<TxEntry> transactions,
   ) async {
-    var retried = false;
-    // An HTTP or Tor send waits for the user's Send again: its recipient may be offline.
-    for (final tx in transactions.where((t) => t.undelivered && t.transport == 'epicbox')) {
-      try {
-        await session.resendEpicbox(key: tx.key);
-        retried = true;
-      } catch (error) {
-        logWarn('home', 'resend at start failed: ${error.runtimeType}');
-      }
-    }
+    final retried = await resendUndelivered(session, transactions, tag: 'home');
     if (retried && ref.mounted) unawaited(reload());
   }
 
