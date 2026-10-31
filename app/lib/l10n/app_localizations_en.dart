@@ -5011,13 +5011,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'An HTTP address starts with http:// or https://.';
 
   @override
-  String get sendPlainHttpTitle => 'Not encrypted. Send anyway?';
-
-  @override
-  String get sendPlainHttpBody =>
-      'Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.';
-
-  @override
   String get receiveEpicboxCaption =>
       'When reading it out, check the first six and last six characters.';
 
@@ -7487,16 +7480,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendConfirm(String amount) {
     return 'Send $amount EPIC';
   }
-
-  @override
-  String get deskSendPlainTitle => 'Not encrypted. Send anyway?';
-
-  @override
-  String get deskSendPlainDesc =>
-      'Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.';
-
-  @override
-  String get deskSendPlainConfirm => 'Send anyway';
 
   @override
   String deskSendEpicboxSwitched(String domain) {

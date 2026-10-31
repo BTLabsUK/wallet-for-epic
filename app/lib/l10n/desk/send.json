@@ -799,18 +799,6 @@
       }
     }
   },
-  "deskSendPlainTitle": "Not encrypted. Send anyway?",
-  "@deskSendPlainTitle": {
-    "description": "Title of the dialog shown before a send to a plain http address."
-  },
-  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.",
-  "@deskSendPlainDesc": {
-    "description": "Text of that dialog."
-  },
-  "deskSendPlainConfirm": "Send anyway",
-  "@deskSendPlainConfirm": {
-    "description": "Button in that dialog: send over plain http."
-  },
   "deskSendFeeChangedTitle": "The fee changed",
   "@deskSendFeeChangedTitle": {
     "description": "Title of the notice in the Check and send dialog when the fee moved after the review was opened (an output finished confirming or was locked)."

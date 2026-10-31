@@ -5135,13 +5135,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'HTTP-адрес начинается с http:// или https://.';
 
   @override
-  String get sendPlainHttpTitle => 'Без шифрования. Всё равно отправить?';
-
-  @override
-  String get sendPlainHttpBody =>
-      'Обычный HTTP к другому устройству. Любой на пути может прочитать транзакцию. Адрес https:// зашифрован.';
-
-  @override
   String get receiveEpicboxCaption =>
       'Читая его вслух, сверьте первые шесть и последние шесть символов.';
 
@@ -7782,16 +7775,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSendConfirm(String amount) {
     return 'Отправить $amount EPIC';
   }
-
-  @override
-  String get deskSendPlainTitle => 'Без шифрования. Всё равно отправить?';
-
-  @override
-  String get deskSendPlainDesc =>
-      'Обычный HTTP к другому компьютеру. Любой на пути может прочитать транзакцию. https:// зашифрован.';
-
-  @override
-  String get deskSendPlainConfirm => 'Всё равно отправить';
 
   @override
   String deskSendEpicboxSwitched(String domain) {

@@ -6472,14 +6472,6 @@
   "@sendHttpAddressShape": {
     "description": "Send: the text under the HTTP method is not a web address."
   },
-  "sendPlainHttpTitle": "Not encrypted. Send anyway?",
-  "@sendPlainHttpTitle": {
-    "description": "Dialog title before a send over plain http to another device."
-  },
-  "sendPlainHttpBody": "Plain HTTP to another device. Anyone on the way can read the transaction. An https:// address is encrypted.",
-  "@sendPlainHttpBody": {
-    "description": "Dialog text before a send over plain http to another device."
-  },
   "receiveEpicboxCaption": "When reading it out, check the first six and last six characters.",
   "@receiveEpicboxCaption": {
     "description": "Receive, Epicbox tab: caption under the address."
@@ -9767,18 +9759,6 @@
         "example": "12.5"
       }
     }
-  },
-  "deskSendPlainTitle": "Not encrypted. Send anyway?",
-  "@deskSendPlainTitle": {
-    "description": "Title of the dialog shown before a send to a plain http address."
-  },
-  "deskSendPlainDesc": "Plain HTTP to another computer. Anyone on the way can read the transaction. https:// is encrypted.",
-  "@deskSendPlainDesc": {
-    "description": "Text of that dialog."
-  },
-  "deskSendPlainConfirm": "Send anyway",
-  "@deskSendPlainConfirm": {
-    "description": "Button in that dialog: send over plain http."
   },
   "deskSendEpicboxSwitched": "Switched to {domain}",
   "@deskSendEpicboxSwitched": {
@@ -25178,39 +25158,98 @@
     "description": "Notice after setting a passphrase when the biometric prompt was dismissed."
   },
   "passphraseForgot": "Forgot passphrase?",
-  "@passphraseForgot": {"description": "Link on the unlock screen of a wallet that opens with a passphrase; in place of Forgot PIN."},
+  "@passphraseForgot": {
+    "description": "Link on the unlock screen of a wallet that opens with a passphrase; in place of Forgot PIN."
+  },
   "passphrasePromptTitle": "Enter your passphrase",
-  "@passphrasePromptTitle": {"description": "Title of the dialog that asks for the passphrase before a sensitive action; in place of Enter your PIN."},
+  "@passphrasePromptTitle": {
+    "description": "Title of the dialog that asks for the passphrase before a sensitive action; in place of Enter your PIN."
+  },
   "passphraseEnterCurrent": "Enter your current passphrase",
-  "@passphraseEnterCurrent": {"description": "Heading of the first step of the change screen for a wallet that opens with a passphrase."},
+  "@passphraseEnterCurrent": {
+    "description": "Heading of the first step of the change screen for a wallet that opens with a passphrase."
+  },
   "passphraseCurrentLabel": "Current passphrase",
-  "@passphraseCurrentLabel": {"description": "Label of the field for the passphrase in use, on the change screen."},
+  "@passphraseCurrentLabel": {
+    "description": "Label of the field for the passphrase in use, on the change screen."
+  },
   "passphraseChooseTitle": "Choose a passphrase",
-  "@passphraseChooseTitle": {"description": "Heading above the two fields of a new passphrase."},
+  "@passphraseChooseTitle": {
+    "description": "Heading above the two fields of a new passphrase."
+  },
   "passphraseRules": "{count, plural, other{At least {count} characters and not only digits.}}",
-  "@passphraseRules": {"description": "The rules under the heading of a new passphrase. count is the fewest characters allowed (10).", "placeholders": {"count": {"type": "int"}}},
+  "@passphraseRules": {
+    "description": "The rules under the heading of a new passphrase. count is the fewest characters allowed (10).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "passphraseUsePinInstead": "Use PIN instead",
-  "@passphraseUsePinInstead": {"description": "Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase."},
+  "@passphraseUsePinInstead": {
+    "description": "Small link on the unlock screen that swaps the passphrase field for the 6-digit PIN field. Shown only to wallets that ever had a passphrase."
+  },
   "passphraseUsePassphraseInstead": "Use passphrase instead",
-  "@passphraseUsePassphraseInstead": {"description": "Small link on the unlock screen that swaps the PIN field for the passphrase field. Shown only to wallets that ever had a passphrase."},
+  "@passphraseUsePassphraseInstead": {
+    "description": "Small link on the unlock screen that swaps the PIN field for the passphrase field. Shown only to wallets that ever had a passphrase."
+  },
   "biometricsFromNextStart": "Biometric unlock works from the next app start.",
-  "@biometricsFromNextStart": {"description": "Notice after biometric unlock was turned on while creating or restoring a wallet: it cannot be used until the app is started again."},
+  "@biometricsFromNextStart": {
+    "description": "Notice after biometric unlock was turned on while creating or restoring a wallet: it cannot be used until the app is started again."
+  },
   "invoicePassphraseReason": "Enter your passphrase to pay this invoice.",
-  "@invoicePassphraseReason": {"description": "invoicePinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@invoicePassphraseReason": {
+    "description": "invoicePinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "restoreReplacePassphraseReason": "Enter your passphrase to replace this wallet. The restored wallet keeps this passphrase.",
-  "@restoreReplacePassphraseReason": {"description": "restoreReplacePinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@restoreReplacePassphraseReason": {
+    "description": "restoreReplacePinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "backupPassphraseReason": "Enter your passphrase to show the recovery phrase.",
-  "@backupPassphraseReason": {"description": "backupPinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@backupPassphraseReason": {
+    "description": "backupPinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "sendQrPassphraseReason": "Enter your passphrase to make a payment QR for {amount}.",
-  "@sendQrPassphraseReason": {"description": "sendQrPinReason for a wallet that opens with a passphrase instead of the PIN.", "placeholders": {"amount": {"type": "String", "example": "12.5"}}},
+  "@sendQrPassphraseReason": {
+    "description": "sendQrPinReason for a wallet that opens with a passphrase instead of the PIN.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
   "settingsBiometricsPassphraseReason": "Enter your passphrase to turn on biometric unlock.",
-  "@settingsBiometricsPassphraseReason": {"description": "settingsBiometricsPinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@settingsBiometricsPassphraseReason": {
+    "description": "settingsBiometricsPinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "settingsDeletePassphraseReason": "Enter your passphrase to delete this wallet.",
-  "@settingsDeletePassphraseReason": {"description": "settingsDeletePinReason for a wallet that opens with a passphrase instead of the PIN."},
+  "@settingsDeletePassphraseReason": {
+    "description": "settingsDeletePinReason for a wallet that opens with a passphrase instead of the PIN."
+  },
   "sendPassphraseReason": "Enter your passphrase to send {amount}.",
-  "@sendPassphraseReason": {"description": "sendPinReason for a wallet that opens with a passphrase instead of the PIN.", "placeholders": {"amount": {"type": "String", "example": "12.5"}}},
+  "@sendPassphraseReason": {
+    "description": "sendPinReason for a wallet that opens with a passphrase instead of the PIN.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
   "sendFilePassphraseReason": "Enter your passphrase to make a transaction file for {amount}.",
-  "@sendFilePassphraseReason": {"description": "sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.", "placeholders": {"amount": {"type": "String", "example": "12.5"}}},
+  "@sendFilePassphraseReason": {
+    "description": "sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5"
+      }
+    }
+  },
   "passphraseSetTitle": "Set a passphrase",
-  "@passphraseSetTitle": {"description": "App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more)."}
+  "@passphraseSetTitle": {
+    "description": "App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more)."
+  }
 }

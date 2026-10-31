@@ -61,25 +61,15 @@ void main() {
   }
 
   group('Send › Link HTTP', () {
-    testWidgets('plain http to another computer asks first, then sends with consent', (tester) async {
+    testWidgets('plain http to another computer goes straight to the review and sends', (tester) async {
       await sendTo(tester, 'http://203.0.113.5:3415');
-      expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
-      await tester.tap(find.text('Send anyway'));
-      await tester.pumpAndSettle();
+      expect(find.text('Not encrypted. Send anyway?'), findsNothing);
       expect(find.text('Check and send'), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.http);
       expect(wallet.sent.single.allowPlainHttp, isTrue);
-    });
-
-    testWidgets('Cancel on the question sends nothing', (tester) async {
-      await sendTo(tester, 'HTTP://203.0.113.5:3415');
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(find.text('Check and send'), findsNothing);
-      expect(wallet.sent, isEmpty);
     });
 
     testWidgets('https and this computer go straight to the review', (tester) async {

@@ -4926,13 +4926,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ที่อยู่ HTTP ขึ้นต้นด้วย http:// หรือ https://';
 
   @override
-  String get sendPlainHttpTitle => 'ไม่ได้เข้ารหัส ส่งเลยไหม?';
-
-  @override
-  String get sendPlainHttpBody =>
-      'HTTP แบบไม่เข้ารหัสไปยังอุปกรณ์อื่น ใครก็ตามระหว่างทางอ่านธุรกรรมได้ ที่อยู่ https:// จะเข้ารหัส';
-
-  @override
   String get receiveEpicboxCaption =>
       'เมื่ออ่านที่อยู่ให้ผู้อื่นฟัง ให้ตรวจ 6 ตัวแรกและ 6 ตัวท้าย';
 
@@ -7289,16 +7282,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSendConfirm(String amount) {
     return 'ส่ง $amount EPIC';
   }
-
-  @override
-  String get deskSendPlainTitle => 'ไม่ได้เข้ารหัส ส่งเลยไหม?';
-
-  @override
-  String get deskSendPlainDesc =>
-      'HTTP ธรรมดาไปยังคอมพิวเตอร์อื่น ใครที่อยู่ระหว่างทางก็อ่านธุรกรรมได้ https:// เข้ารหัส';
-
-  @override
-  String get deskSendPlainConfirm => 'ส่งเลย';
 
   @override
   String deskSendEpicboxSwitched(String domain) {

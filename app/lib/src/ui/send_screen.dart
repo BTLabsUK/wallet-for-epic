@@ -444,7 +444,6 @@ class _SendViewState extends ConsumerState<SendView> {
   Timer? _tagTimer;
 
   /// The user agreed to send over plain HTTP to another device, for this recipient.
-  bool _plainHttpOk = false;
 
   /// Send's consent or PIN dialog is open.
   bool _asking = false;
@@ -963,7 +962,6 @@ class _SendViewState extends ConsumerState<SendView> {
       _leaveRequest();
       _pairingTo = id;
       _viaMailbox = false;
-      _plainHttpOk = false;
       _method = TransferMethod.epicbox;
       _viaQr = false;
       _switchedTo = null;
@@ -989,7 +987,6 @@ class _SendViewState extends ConsumerState<SendView> {
       _leaveRequest();
       _pairingTo = null;
       _viaMailbox = false;
-      _plainHttpOk = false;
       _switchedTo = null;
       _tagOn = false;
       _recipientError = null;
@@ -1014,7 +1011,6 @@ class _SendViewState extends ConsumerState<SendView> {
     }
     _pairingTo = null;
     _recipient.text = parseRecipient(text).address;
-    _plainHttpOk = false;
     if (_stage == SendStage.amount || _stage == SendStage.review) {
       _closeChecks();
       _stage = SendStage.recipient;
@@ -1435,14 +1431,6 @@ class _SendViewState extends ConsumerState<SendView> {
     final to = parseRecipient(_recipient.text);
     _asking = true;
     try {
-      // Plain HTTP to another device travels unencrypted: asked once per recipient, before
-      // the PIN.
-      if (to.kind == RecipientKind.http &&
-          plainHttpToOtherDevice(to.address) &&
-          !_plainHttpOk) {
-        if (!await _askPlainHttp() || !mounted) return;
-        _plainHttpOk = true;
-      }
       final amountText = epicExact(l, reviewed.amount);
       if (!await _pinGate(usesPassphrase(ref) ? l.sendPassphraseReason(amountText) : l.sendPinReason(amountText))) {
         return;
@@ -1568,30 +1556,6 @@ class _SendViewState extends ConsumerState<SendView> {
         });
       }
     });
-  }
-
-  /// "Not encrypted. Send anyway?" before plain HTTP to another device. True to send.
-  Future<bool> _askPlainHttp() async {
-    final l = context.l10n;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.warning_amber),
-        title: Text(l.sendPlainHttpTitle),
-        content: Text(l.sendPlainHttpBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.sendAnyway),
-          ),
-        ],
-      ),
-    );
-    return ok == true;
   }
 
   /// A payment straight to a wallet URL over HTTP. Reaching it is the whole exchange, as over
@@ -2647,7 +2611,6 @@ class _SendViewState extends ConsumerState<SendView> {
             _followAddress(text);
             _recipientError = null;
             _error = null;
-            _plainHttpOk = false;
             _leaveRequest();
           });
         },

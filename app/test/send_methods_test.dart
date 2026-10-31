@@ -926,18 +926,12 @@ void main() {
       expect(find.text('2 of 3'), findsOneWidget);
     });
 
-    testWidgets('plain HTTP to another device asks first', (tester) async {
+    testWidgets('plain HTTP to another device sends without asking', (tester) async {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _lan);
       await _tap(tester, find.text('Send 1.00000000 EPIC'));
-      expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
-      await _tap(tester, find.text('Cancel'));
-      expect(h.session.httpSends, isEmpty);
-      expect(find.text('Review'), findsOneWidget);
-
-      await _tap(tester, find.text('Send 1.00000000 EPIC'));
-      await _tap(tester, find.text('Send anyway'));
+      expect(find.text('Not encrypted. Send anyway?'), findsNothing);
       expect(h.session.httpSends.single.allowPlainHttp, isTrue);
     });
   });
