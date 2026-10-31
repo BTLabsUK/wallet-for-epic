@@ -389,6 +389,11 @@ class Run:
         self.start_app("previous")
         self.wait_log(r"dart\.app: desktop start", 60, "previous start")
         time.sleep(6)
+        # A previous release with wallet levels shows the depth dial on Welcome first; these key presses
+        # know only Welcome without it, so stop rather than press into the dial.
+        if any(re.search(r"levels.*first start", l) for l in self.applog()[self.log_mark:]):
+            raise CannotRun("the previous release asks for the wallet level first; the Windows key path has no "
+                            "step for the depth dial yet (add one: Deep end, then Create)")
         # Welcome: Create a new wallet
         self.keys(TAB, ENTER)
         time.sleep(2.5)
@@ -548,6 +553,7 @@ class Run:
               "outputs": d and d["outputs"], "txs": d and d["txs"], "db_settings": d and d["settings"],
               "balance": self.balance(d, self.tip()), "settings": self.settings_now(),
               "store_servers": servers_23(s), "servers": servers_of(s, toml), "settings_toml": toml, "relay_subscribed": subs,
+              "level": s.get(facts.LEVEL_KEY),
               "files": self.rig.files(self.data)}
         with open(os.path.join(self.out, "digest-%s.json" % tag), "w") as f:
             json.dump(dg, f, indent=1, default=str)
@@ -853,6 +859,10 @@ class Run:
         else:
             self.ok("settings_kept", "theme %s, label %r, %s confirmations, Technical details %s%s" % (
                 s0["theme"], s0["label"], s0["confirmations"], "on" if s0["technical_details"] else "off", src))
+        lv, why = facts.level_after_update(a.get("level"))
+        self.details["level"] = why + " (desk store %s)" % facts.LEVEL_KEY
+        if lv is False:
+            self.fail("settings_kept", "%s; %s" % (why, self.details.get("settings_kept", "")))
         gone = [f for f in b["files"] if f not in a["files"]]
         self.details["data_folder"] = ("all %d files of the previous data folder still there; %d new" % (
             len(b["files"]), len(set(a["files"]) - set(b["files"])))) if not gone else ("files gone after the update: %s" % ", ".join(gone[:10]))

@@ -193,10 +193,10 @@ class Run:
             "candidate: %s" % cand,
             "node: %s; Epicbox: %s (picked from %s / %s when unset)" % (self.node or "-", self.relay or "-", NODE_PICK, RELAY_PICK),
             "loopback stand-ins: node http://127.0.0.1:<free port> -> REL_NODE, relay 127.0.0.1:<free port> -> REL_EPICBOX",
-            "previous app: create wallet, Settings: node + stand-in node, Epicbox + stand-in relay, Light theme, label, %d confirmation(s), Technical details" % TEST_CONFIRMATIONS,
+            "previous app: create wallet (the depth dial, where shown: Deep end), Settings: node + stand-in node, Epicbox + stand-in relay, Light theme, label, %d confirmation(s), Technical details" % TEST_CONFIRMATIONS,
             "fund: P -> wallet %s EPIC via Epicbox (shared P service %s, no lock), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: address, balance, activity, node and Epicbox lists, settings, data folder files",
-            "swap: stop the previous app, start the candidate on the same HOME, unlock, same digest",
+            "swap: stop the previous app, start the candidate on the same HOME, unlock, same digest; a candidate with levels must name Deep end (level 3) in Settings › About",
             ("funds: P -> wallet %s, then everything back to P" % FUND_AFTER) if self.funds else
             ("funds: none checked; %s" % ("balance left in the sandbox (REL_KEEP_FUNDS=1)" if self.keep_funds else "balance sent back to P")),
             "checks required: %s; proof: %s/proof.json" % (",".join(self.required), self.out),
@@ -257,6 +257,7 @@ class Run:
         ui.wait("re:^Create a new wallet", 60)
         self.log("first screen: %s" % self.app_version())
         self.shot("prev-welcome")
+        self.pass_depth_dial()
         ui.click("re:^Create a new wallet")
         ui.wait("re:^Create wallet$", 30)
         pw = open(os.path.join(self.sb, "wallet.pw")).read()
@@ -291,6 +292,28 @@ class Run:
             self.screens.miss("before-wallets", "the previous release opened the new wallet without its Unlock screen; "
                                                 "not navigated to (locking costs a password retype)")
         self.after_unlock()
+
+    def pass_depth_dial(self):
+        """Welcome of a fresh install on a build with wallet levels: the depth dial (Shallow / Deeper /
+        Deep end) is answered before the doors open. Deep end = level 3, the app a release before levels
+        shows. Nothing on a build without the dial."""
+        ui = self.ui
+        stop = "re:^%s$" % re.escape(facts.LEVEL_DEEP_END)
+        found = ui.find(stop)
+        if not found:
+            return
+        if "checked" not in found[0].states:
+            ui.click(stop)
+            time.sleep(1.2)
+        self.log("depth dial: %s (level 3)" % facts.LEVEL_DEEP_END)
+
+    def level_shown(self):
+        """The depth Settings › About names ("Depth: Deep end"); None on a build without levels."""
+        self.settings_page("About")
+        rx = re.compile(r"^%s: (.+)$" % re.escape(facts.DESK_DEPTH))
+        for n in self.ui.find(rx):
+            return rx.match(n.name).group(1).strip()
+        return None
 
     def tick_written_down(self):
         ui = self.ui
@@ -596,6 +619,8 @@ class Run:
              "activity": self.activity(phase)}
         d.update(self.lists(phase))
         d["settings"] = self.settings()
+        if tag == "candidate":
+            d["level"] = self.level_shown()
         d["files"] = self.files()
         self.nav("Overview")
         self.shot("%s-overview" % tag)
@@ -924,6 +949,10 @@ class Run:
                 s0["theme"], s0["label"], s0["confirmations"], "on" if s0["technical_details"] else "off"))
         else:
             self.fail("settings_kept", "changed (before, after): %s" % (diff or {k: v for k, v in s0.items() if v is None}))
+        lv, why = facts.level_after_update(a.get("level"))
+        self.details["level"] = why
+        if lv is False:
+            self.fail("settings_kept", "%s; %s" % (why, self.details.get("settings_kept", "")))
         gone = [f for f in b["files"] if f not in a["files"]]
         self.details["data_folder"] = ("all %d files of the previous data folder still there; %d new" % (
             len(b["files"]), len(set(a["files"]) - set(b["files"])))) if not gone else ("files gone after the update: %s" % ", ".join(gone[:10]))

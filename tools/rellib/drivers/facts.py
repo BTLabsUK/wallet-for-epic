@@ -144,6 +144,22 @@ LEVEL_UNDERCOVER = label("levelUndercoverTitle", "Undercover from the start")
 LEVEL_ROW = label("levelRowTitle", "Wallet level")                   # Settings › Advanced, first row
 LEVEL_THREE = label("levelThreeTitle", "Let me explore everything")  # that row's value at level 3
 LEVELS_BUILT = "levelRowTitle" in _ARB                               # the candidate has levels
+DESK_DEPTH = label("lvPickDepth", "Depth")  # desktop: the dial's group, Settings › Advanced and About
+LEVEL_KEY = "app.level"  # the stored level (app/lib/src/levels/wallet_level.dart levelKey): 1, 2, 3 or ask
+
+
+def level_after_update(value):
+    """An install from before wallet levels, updated to a build with them, is level 3 and never asked.
+    [value] is the stored level or the level the screen names; (True | False | None, why), None when
+    the build has no levels (nothing stored or shown)."""
+    v = str(value).strip() if value is not None else ""
+    if not v:
+        return None, "no wallet level stored or shown (a build without levels)"
+    if v in ("3", LEVEL_DEEP_END, LEVEL_THREE):
+        return True, "level 3 (%s), as an existing install must be" % LEVEL_DEEP_END
+    if v == "ask":
+        return False, "the update took the install for a new one: its level is still to be asked, and nothing connects until it is"
+    return False, "level %s after the update; an existing install must be level 3 (%s)" % (v, LEVEL_DEEP_END)
 # The confirmations setting's row: "1 confirmation, …" / "6 confirmations, …" (singular at one).
 CONF_ROW = re.compile(r"(\d+) confirmations?, ")
 
