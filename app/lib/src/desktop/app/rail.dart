@@ -127,39 +127,37 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
   // Settings › Transactions › Direct; a listener that is on, starting or failed keeps its row.
   // Always listed: off, its row and the bar's glyph say so and open the switch.
   final run = httpRun(st);
-  if (DeskFeatures.httpDirect) {
-    final public = settings.publicMode;
-    items.add(
-      RailItem(
-        icon: EIcons.http,
-        name: l.methodDirectHttp,
-        word: switch (run) {
-          HttpRun.on => l.deskRailOn,
-          HttpRun.busy => l.deskRailStarting,
-          HttpRun.failed => l.deskRailNotReceiving,
-          HttpRun.off => l.deskRailOff,
-        },
-        state: switch (run) {
-          HttpRun.on => EState.ok,
-          HttpRun.busy => EState.active,
-          HttpRun.failed => EState.risk,
-          HttpRun.off => EState.off,
-        },
-        second: switch (run) {
-          HttpRun.on => public ? l.deskRailOnInternet : l.deskRailOnLocal,
-          HttpRun.busy => l.deskRailStarting,
-          HttpRun.failed => st?.httpProblem == HttpProblem.portInUse || st?.httpProblem == HttpProblem.portUnavailable ? l.deskRailPortInUse : l.deskRailStopped,
-          HttpRun.off => '–',
-        },
-        lines: [
-          if (run != HttpRun.off) public ? l.deskRailPortInternet('${settings.httpPort}') : l.deskRailPortLocal('${settings.httpPort}'),
-          if (run == HttpRun.failed && st?.httpProblem != null) httpProblemText(l, st!.httpProblem!, st.httpProblemPort ?? settings.httpPort),
-        ],
-        open: l.deskRailOpenHttp,
-        jump: SettingsJump.http,
-      ),
-    );
-  }
+  final public = settings.publicMode;
+  items.add(
+    RailItem(
+      icon: EIcons.http,
+      name: l.methodDirectHttp,
+      word: switch (run) {
+        HttpRun.on => l.deskRailOn,
+        HttpRun.busy => l.deskRailStarting,
+        HttpRun.failed => l.deskRailNotReceiving,
+        HttpRun.off => l.deskRailOff,
+      },
+      state: switch (run) {
+        HttpRun.on => EState.ok,
+        HttpRun.busy => EState.active,
+        HttpRun.failed => EState.risk,
+        HttpRun.off => EState.off,
+      },
+      second: switch (run) {
+        HttpRun.on => public ? l.deskRailOnInternet : l.deskRailOnLocal,
+        HttpRun.busy => l.deskRailStarting,
+        HttpRun.failed => st?.httpProblem == HttpProblem.portInUse || st?.httpProblem == HttpProblem.portUnavailable ? l.deskRailPortInUse : l.deskRailStopped,
+        HttpRun.off => '–',
+      },
+      lines: [
+        if (run != HttpRun.off) public ? l.deskRailPortInternet('${settings.httpPort}') : l.deskRailPortLocal('${settings.httpPort}'),
+        if (run == HttpRun.failed && st?.httpProblem != null) httpProblemText(l, st!.httpProblem!, st.httpProblemPort ?? settings.httpPort),
+      ],
+      open: l.deskRailOpenHttp,
+      jump: SettingsJump.http,
+    ),
+  );
   if (DeskFeatures.tor) {
     // The one Tor switch, always shown: Off, Starting…, On, Not connected. A click opens
     // Settings › Privacy, where the switch is.

@@ -163,12 +163,11 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                   hint: l.deskSetAcctRememberedHint(rememberWho(l)),
                   control: ERowControl(child: EButton(label: l.deskSetAcctForget, icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
                 ),
-              if (DeskFeatures.changePassword)
-                ESetRow(
-                  title: l.deskSetDlgPassword,
-                  hint: l.deskSetAcctPasswordHint,
-                  control: ERowControl(child: EButton(label: l.deskSetAcctChangePassword, size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
-                ),
+              ESetRow(
+                title: l.deskSetDlgPassword,
+                hint: l.deskSetAcctPasswordHint,
+                control: ERowControl(child: EButton(label: l.deskSetAcctChangePassword, size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
+              ),
               ESetRow(
                   title: l.deskSetDlgDeleteWallet,
                   hint: l.deskSetAcctDeleteHint,

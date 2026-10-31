@@ -487,7 +487,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     }),
                     source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
                     // Advanced › Built-in node; the node in use stays listed.
-                    local: DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin) ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
+                    local: advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin) ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
                     listNote: nodeListNoteText(l),
                     busy: _saving,
                     busyLabel: l.deskSetNodeChecking,

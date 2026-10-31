@@ -618,7 +618,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // Node only and Kill switch: Epicbox and Link don't go out, so an empty send starts on File
     // (an address given in To keeps its own method, and the note says why it is held).
     _ when NetGate.restricted && (_args.recipient ?? '').trim().isEmpty => TxMethod.file,
-    MethodKind.linkHttp || MethodKind.linkTor when DeskFeatures.httpDirect || DeskFeatures.tor => TxMethod.http,
+    MethodKind.linkHttp || MethodKind.linkTor => TxMethod.http,
     MethodKind.directFile => TxMethod.file,
     _ => TxMethod.epicbox,
   };
@@ -626,14 +626,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// Where an empty form goes when its method was switched off: the start method, or
   /// for one the desktop does not send by (QR Payment) the first it does that is on.
   TxMethod _nextMethod(PaymentPrefs p) {
-    final link = (DeskFeatures.httpDirect || DeskFeatures.tor) && p.offersFamily(MethodFamily.link);
+    final link = p.offersFamily(MethodFamily.link);
     final start = _startMethod();
     if (start != TxMethod.epicbox || p.epicbox) return start;
     return link ? TxMethod.http : (p.directFile ? TxMethod.file : TxMethod.epicbox);
   }
 
   static bool _offered(TxMethod m) => switch (m) {
-    TxMethod.http => DeskFeatures.httpDirect,
     TxMethod.tor => DeskFeatures.tor,
     _ => true,
   };
@@ -860,7 +859,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final payments = st.settings.payments;
     final to = r.recipientFor(
       (m) => payments.offers(m) && switch (m) {
-        MethodKind.linkHttp => DeskFeatures.httpDirect,
         MethodKind.linkTor => DeskFeatures.tor,
         _ => true,
       },
@@ -1592,11 +1590,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // file fallback of a failed Epicbox keeps File Transfer).
             // Listed from the start, its switches on or not: sending by Link needs no
             // listener, and with both off the notice above turns one on.
-            if (DeskFeatures.httpDirect || DeskFeatures.tor)
-              // A pairing recipient has no Link address.
-              pairing != null
-                  ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
-                  : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st))),
+            // A pairing recipient has no Link address.
+            pairing != null
+                ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
+                : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st))),
             // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
             // turned off on purpose is no failure, and File Transfer keeps its own switch).
             if (st.settings.payments.directFile || file || (st.settings.payments.epicbox && (_epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)))

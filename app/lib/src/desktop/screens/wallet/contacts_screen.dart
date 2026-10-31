@@ -843,7 +843,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final p = parseAddress(a, ref.read(deskApiProvider));
     final allowed = switch (p.kind) {
       AddressKind.tor => DeskFeatures.tor,
-      AddressKind.http => DeskFeatures.httpDirect || DeskFeatures.tor,
+      AddressKind.http => true,
       AddressKind.epicbox => true,
       AddressKind.none => false,
     };

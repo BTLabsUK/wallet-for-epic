@@ -131,12 +131,12 @@ class _ShowsGroup extends ConsumerWidget {
         ],
       ),
       rows: [
-        if (DeskFeatures.coins) row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint),
+        row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint),
         row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint),
         row(AdvancedFeature.sendOptions, l.deskSetAdvSendOptionsHint),
         row(AdvancedFeature.serverDetails, l.deskSetAdvServerDetailsHint),
         row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint),
-        if (DeskFeatures.builtInNode) row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint),
+        row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint),
         row(AdvancedFeature.logs, l.deskSetAdvLogsHint),
       ],
     );

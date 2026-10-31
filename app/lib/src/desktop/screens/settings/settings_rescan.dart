@@ -122,7 +122,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
 
   Future<void> _start() async {
     final l = context.l10n;
-    final delete = DeskFeatures.rescanRepair && advancedHas(ref, AdvancedFeature.recheckFromHeight) && _deleteUnconfirmed;
+    final delete = advancedHas(ref, AdvancedFeature.recheckFromHeight) && _deleteUnconfirmed;
     final from = _startHeight(l);
     if (!from.ok) return;
     setState(() {
@@ -301,7 +301,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                               ],
                               SizedBox(height: Sp.x2),
                             ],
-                            if (DeskFeatures.rescanRepair && choice) ...[
+                            if (choice) ...[
                             ECheckbox(value: _deleteUnconfirmed, onChanged: (v) => setState(() => _deleteUnconfirmed = v), label: l.deskSetRescanDeleteUnconfirmed),
                             Padding(
                               padding: EdgeInsets.only(left: Sp.x8),
@@ -335,8 +335,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                               ),
                             ),
                           ),
-                          if (DeskFeatures.stopScan)
-                            ERowControl(child: EButton(label: l.deskSetLnodeStop, icon: EIcons.stop, size: EBtnSize.sm, busy: _stopping, onPressed: _stopping || !_live ? null : _stop)),
+                          ERowControl(child: EButton(label: l.deskSetLnodeStop, icon: EIcons.stop, size: EBtnSize.sm, busy: _stopping, onPressed: _stopping || !_live ? null : _stop)),
                         ],
                       ),
                       SizedBox(height: Sp.x3),

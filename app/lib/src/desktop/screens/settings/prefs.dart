@@ -105,7 +105,7 @@ class SettingsPrefs {
     return SettingsPrefs(
       epicboxOnStart: flag('epicboxOnStart', d.epicboxOnStart),
       nodeBackground: flag('nodeBackground', d.nodeBackground),
-      builtin: DeskFeatures.builtInNode && flag('builtin', d.builtin),
+      builtin: flag('builtin', d.builtin),
       nodeLabels: labels is Map ? {for (final e in labels.entries) '${e.key}': '${e.value}'} : const {},
       removedNodes: names('removedNodes'),
       walletLabel: j['walletLabel'] is String ? j['walletLabel'] as String : null,

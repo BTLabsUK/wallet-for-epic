@@ -1494,7 +1494,7 @@ enum WalletRemoval {
   delete,
 }
 
-// ---- The import wizard (DeskFeatures.importWizard).
+// ---- The import wizard.
 
 /// Where the import wizard found an old wallet: the groups of its Find step.
 enum OldWalletGroup {

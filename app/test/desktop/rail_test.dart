@@ -97,7 +97,7 @@ void main() {
         first ??= size;
         expect(size, first, reason: '${e.key}: the rail changed height');
         final rows = find.byType(RailRow);
-        expect(rows, findsNWidgets(2 + (DeskFeatures.httpDirect ? 1 : 0) + (DeskFeatures.tor ? 1 : 0)), reason: e.key);
+        expect(rows, findsNWidgets(3 + (DeskFeatures.tor ? 1 : 0)), reason: e.key);
         for (final r in rows.evaluate()) {
           expect(tester.getSize(find.byWidget(r.widget)).height, 40.u, reason: e.key);
         }

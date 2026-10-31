@@ -19,7 +19,7 @@ String contactAddress(Contact c, PaymentPrefs payments) {
     final address = c.addressOf(kind);
     final built = switch (kind) {
       RecipientKind.tor => DeskFeatures.tor,
-      RecipientKind.http => DeskFeatures.httpDirect,
+      RecipientKind.http => true,
       RecipientKind.epicbox => true,
     };
     if (address != null && built && payments.offers(MethodKind.ofRecipient(kind))) return address;
@@ -30,14 +30,13 @@ String contactAddress(Contact c, PaymentPrefs payments) {
 /// The way a contact's [address] ([Contact.address] when null) is sent to (by its kind).
 TxMethod contactMethod(Contact c, [String? address]) => switch (addressKindOf(address ?? c.address)) {
   AddressKind.tor when DeskFeatures.tor => TxMethod.tor,
-  AddressKind.http when DeskFeatures.httpDirect => TxMethod.http,
+  AddressKind.http => TxMethod.http,
   _ => TxMethod.epicbox,
 };
 
 /// Whether Send can reach the contact: HTTP and Tor addresses need their feature on.
 bool contactSendable(Contact c) => switch (addressKindOf(c.address)) {
   AddressKind.tor => DeskFeatures.tor,
-  AddressKind.http => DeskFeatures.httpDirect,
   _ => true,
 };
 

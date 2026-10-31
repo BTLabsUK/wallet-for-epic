@@ -81,7 +81,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       final c = ProviderScope.containerOf(context, listen: false);
       Future.microtask(() async {
         await n.setEpicboxListening(args.epicbox != RxEpicbox.off);
-        if (DeskFeatures.httpDirect) await n.setHttp(args.http != RxHttp.off);
+        await n.setHttp(args.http != RxHttp.off);
         if (DeskFeatures.tor && args.tor != RxTor.off) {
           // The Tor address shows while Link · Tor is on (Settings › Transactions) and Tor runs.
           final s = c.read(deskProvider).settings;
@@ -168,7 +168,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   /// then Tor or HTTP.
   List<TxMethod> _methodsFor(DeskSettings s) => [
     if (s.payments.epicbox) TxMethod.epicbox,
-    if (DeskFeatures.tor && s.payments.linkTor && s.tor) TxMethod.tor else if (DeskFeatures.httpDirect && s.payments.linkHttp) TxMethod.http,
+    if (DeskFeatures.tor && s.payments.linkTor && s.tor) TxMethod.tor else if (s.payments.linkHttp) TxMethod.http,
   ];
 
   bool _switchOn(TxMethod m, ServiceStatus? s, DeskSettings settings) => switch (m) {
@@ -187,7 +187,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   Widget build(BuildContext context) {
     final st = ref.watch(deskProvider);
     final status = _status(st.status);
-    if (DeskFeatures.httpDirect && status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
+    if (status?.httpListener == ServiceHealth.ok) unawaited(_readHttp());
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     // The Epicbox switch off (Settings › Transactions): no address to hand out; a notice says
@@ -198,7 +198,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     // is on and Tor is not (Tor stops the clearnet listener), or while its listener still runs.
     final p = st.settings.payments;
     final torPanel = DeskFeatures.tor && p.linkTor && st.settings.tor;
-    final httpPanel = DeskFeatures.httpDirect && ((p.linkHttp && !st.settings.tor) || status?.httpListener == ServiceHealth.ok);
+    final httpPanel = (p.linkHttp && !st.settings.tor) || status?.httpListener == ServiceHealth.ok;
     final others = [
       if (torPanel) _torPanel(st, status),
       if (httpPanel) _httpPanel(st, status),

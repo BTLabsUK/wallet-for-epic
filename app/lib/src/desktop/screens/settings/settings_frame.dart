@@ -22,7 +22,7 @@ List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required boo
   (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),
   null,
   (DeskRoute.settingsAccount, l.deskSetFrameThisWallet, EIcons.wallet),
-  if (DeskFeatures.multiWallet) (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
+  (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
   (DeskRoute.settingsPhrase, l.deskSetFramePhrase, EIcons.key),
   (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
   null,

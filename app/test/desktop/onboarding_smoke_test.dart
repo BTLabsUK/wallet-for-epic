@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:epic_wallet/src/desktop/data/features.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
@@ -70,20 +69,6 @@ void flows() {
     expect(find.text('Unlock wallet'), findsOneWidget);
     await _end(tester);
   });
-
-  testWidgets('unlock: busy opens the kill-process dialog, closing adds a stage', (tester) async {
-    await _pump(tester, const UnlockScreen());
-    await tester.enterText(_field(0), 'busy');
-    await tester.tap(find.text('Unlock').last);
-    await _wait(tester, 1000);
-    expect(find.text('Epic is already running'), findsOneWidget);
-    await tester.tap(find.text('Close and unlock'));
-    await _wait(tester, 1200);
-    expect(find.text('Epic is already running'), findsNothing);
-    expect(find.textContaining('Closing the old wallet processes'), findsOneWidget);
-    await _wait(tester, 5000);
-    await _end(tester);
-  }, skip: !DeskFeatures.walletProcesses);
 
   testWidgets('unlock: wrong password returns to the form with the message', (tester) async {
     await _pump(tester, const UnlockScreen());

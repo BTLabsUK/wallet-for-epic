@@ -647,7 +647,7 @@ class _Brand extends ConsumerWidget {
     final l = context.l10n;
     final locking = ref.watch(deskLockingProvider);
     final wallets = ref.watch(deskProvider.select((s) => s.wallets));
-    final canSwitch = DeskFeatures.multiWallet && (wallets ?? const []).length > 1;
+    final canSwitch = (wallets ?? const []).length > 1;
     return _BarMenu(
       f10: true,
       children: (context, m) => [
@@ -847,7 +847,7 @@ class _WalletChip extends ConsumerWidget {
             onPressed: w.id == current ? () {} : locking ? null : () => lockWallet(ref, then: UnlockPick(w.id, switched: true)),
           ),
         _menuDivider(c),
-        if (DeskFeatures.multiWallet) _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
+        _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
         _menuItem(context, icon: EIcons.settings, label: l.deskBarWalletSettings, onPressed: () => _go(ref, DeskRoute.settingsAccount)),
       ],
       builder: (context, m, open) => _BarButton(

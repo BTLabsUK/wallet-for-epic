@@ -82,7 +82,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   late String _relay = _startRelay;
   bool _epicboxOn = true;
   SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : _demo?.first;
-  late final List<SetupStep> _steps = [if (DeskFeatures.languages && _first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
+  late final List<SetupStep> _steps = [if (_first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
 
   SetupDemo? get _demo => widget.arg is SetupDemo ? widget.arg! as SetupDemo : null;
   SetupStep get _startStep => _demo?.step ?? (widget.arg is SetupStep ? widget.arg! as SetupStep : _steps.first);
@@ -429,16 +429,14 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
             padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, 0, 0),
             child: Text(l.deskOnbNodeNoAnswer, style: context.ts.small.copyWith(color: context.dc.risk, fontWeight: FontWeight.w600)),
           ),
-        if (DeskFeatures.builtInNode) ...[
-          SizedBox(height: Sp.x3),
-          EChoiceCard(
-            title: l.deskSetupLocalTitle,
-            description: l.deskSetupLocalNodeText,
-            icon: EIcons.monitor,
-            selected: _local,
-            onTap: () => setState(() => _local = true),
-          ),
-        ],
+        SizedBox(height: Sp.x3),
+        EChoiceCard(
+          title: l.deskSetupLocalTitle,
+          description: l.deskSetupLocalNodeText,
+          icon: EIcons.monitor,
+          selected: _local,
+          onTap: () => setState(() => _local = true),
+        ),
       ],
     );
   }

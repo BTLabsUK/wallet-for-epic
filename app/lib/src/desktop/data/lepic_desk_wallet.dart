@@ -1142,7 +1142,7 @@ class LepicDeskWallet implements DeskWalletApi {
     }
     // Link · HTTP on (Settings › Transactions) starts the listener at unlock; it stays off
     // while Tor is on (tor_routes.dart, torStops).
-    if (DeskFeatures.httpDirect && _settings.payments.linkHttp && !(_torFeature && _settings.torAutostart)) {
+    if (_settings.payments.linkHttp && !(_torFeature && _settings.torAutostart)) {
       try {
         await setHttpListening(true);
       } on Object catch (e) {
@@ -3471,7 +3471,7 @@ class LepicDeskWallet implements DeskWalletApi {
     logInfo('desk', 'link http switch ${on ? 'on' : 'off'}');
     if (_session == null) return;
     if (!on) return _stopHttp();
-    if (!DeskFeatures.httpDirect || NetGate.restricted) return;
+    if (NetGate.restricted) return;
     try {
       await setHttpListening(true);
     } on Object catch (e) {
@@ -4089,7 +4089,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!on) {
       // A stop the user asked for: Epicbox may go direct again.
       await _stopTor();
-      if (DeskFeatures.httpDirect && _settings.directHttp && _session != null) await setHttpListening(true);
+      if (_settings.directHttp && _session != null) await setHttpListening(true);
       return;
     }
     // The clearnet HTTP listener stays off while Tor is on (tor_routes.dart, torStops).

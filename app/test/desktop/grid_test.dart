@@ -250,8 +250,7 @@ void main() {
     }
   }
 
-  // The desktop interface is English only (DeskFeatures.languages is off); a German or Russian
-  // system locale must still leave every page above whole.
+  // A German or Russian system locale must still leave every page above whole.
   for (final locale in const [Locale('de'), Locale('ru')]) {
     testWidgets('no overflow with the system locale ${locale.languageCode}', (tester) async {
       tester.platformDispatcher.localesTestValue = [locale];

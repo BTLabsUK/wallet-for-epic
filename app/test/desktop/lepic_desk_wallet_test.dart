@@ -1430,7 +1430,7 @@ void main() {
       expect(find.text('Transactions'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsAccount);
-      expect(find.text('Change password…'), DeskFeatures.changePassword ? findsOneWidget : findsNothing);
+      expect(find.text('Change password…'), findsOneWidget);
       expect(find.text('Delete…'), findsOneWidget);
       await done(tester);
     });

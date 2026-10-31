@@ -157,14 +157,13 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                         selected: false,
                         onTap: () => nav.go(DeskRoute.create),
                       ),
-                      if (DeskFeatures.importWizard)
-                        EChoiceCard(
-                          title: l.deskSetWalletsImport,
-                          description: l.deskSetWalletsImportText,
-                          icon: EIcons.folderOpen,
-                          selected: false,
-                          onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
-                        ),
+                      EChoiceCard(
+                        title: l.deskSetWalletsImport,
+                        description: l.deskSetWalletsImportText,
+                        icon: EIcons.folderOpen,
+                        selected: false,
+                        onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
+                      ),
                       EChoiceCard(
                         title: l.deskSetWalletsRestore,
                         description: l.deskSetWalletsRestoreText,

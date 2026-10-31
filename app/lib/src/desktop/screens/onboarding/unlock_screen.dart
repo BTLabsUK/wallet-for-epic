@@ -12,7 +12,6 @@ import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
-import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
 import '../../../settings_file/host_settings.dart' show appConfig;
 import 'reset_password_screen.dart' show ResetPasswordArg;
@@ -36,8 +35,7 @@ class UnlockPick {
 
 /// Opens the app. [arg] is an [UnlockShow], an [UnlockAdded] or an [UnlockPick].
 ///
-/// Mock passwords: `wrong` is refused, `busy` finds old processes (the kill-process dialog),
-/// `fail` stops at the wallet service.
+/// Mock passwords: `wrong` is refused, `fail` stops at the wallet service.
 class UnlockScreen extends ConsumerStatefulWidget {
   const UnlockScreen({super.key, this.arg});
 
@@ -67,7 +65,6 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   /// The stage running now; null while the form shows.
   String? _stage;
-  bool _closingStage = false;
 
   /// The message of a failure before the password step.
   String? _failure;
@@ -212,8 +209,6 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   List<Stage> _stages(AppLocalizations l) => [
     Stage('check', l.deskOnbUnlockStageCheck),
-    if (DeskFeatures.walletProcesses) Stage('processes', l.deskOnbUnlockStageProcesses),
-    if (_closingStage) Stage('closing', l.deskOnbUnlockStageClosing),
     Stage('wallet', l.deskOnbUnlockStageWallet),
     Stage('unlock', l.deskOnbUnlockStageUnlock),
   ];
@@ -249,20 +244,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     setState(() {
       _error = null;
       _failure = null;
-      _closingStage = false;
     });
-    if (!await _run('check') || (DeskFeatures.walletProcesses && !await _run('processes'))) return;
+    if (!await _run('check')) return;
     final mock = ref.read(deskApiProvider) is MockDeskWallet;
-    if (DeskFeatures.walletProcesses && mock && !remembered && password == 'busy' && mounted) {
-      final closed = await showKillProcessDialog(context);
-      if (!mounted) return;
-      if (!closed) {
-        _backToForm(error: context.l10n.deskOnbUnlockCloseOthers);
-        return;
-      }
-      setState(() => _closingStage = true);
-      if (!await _run('closing')) return;
-    }
     if (!await _run('wallet')) return;
     if (mock && !remembered && password == 'fail') {
       setState(() {
@@ -361,7 +345,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
           // The wallet's phrase sets a new password.
           if (selected != null && !selected.missing)
             ELink(key: const ValueKey('unlock-forgot'), label: l.deskOnbForgotLink, dim: true, onPressed: () => nav.go(DeskRoute.resetPassword, ResetPasswordArg(selected.id))),
-          if (DeskFeatures.multiWallet) ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
+          ELink(label: l.deskOnbWelcomeAdd, dim: true, onPressed: () => nav.go(DeskRoute.welcome, 'add')),
         ],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -373,7 +357,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               ),
               SizedBox(height: Sp.x5),
             ],
-            if (DeskFeatures.multiWallet && wallets != null && wallets.length > 1) ...[
+            if (wallets != null && wallets.length > 1) ...[
               EField(
                 label: l.deskOnbSameWallet,
                 child: ESelect<String>(
@@ -446,7 +430,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 child: Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption),
               ),
             ],
-            if (DeskFeatures.multiWallet && _missing) ...[
+            if (_missing) ...[
               SizedBox(height: Sp.x5),
               ENotice(
                 title: l.deskOnbUnlockMissingTitle,
@@ -478,7 +462,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               ),
             ],
             SizedBox(height: Sp.x6),
-            EButton.primary(label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: DeskFeatures.multiWallet && _missing ? null : _unlock),
+            EButton.primary(label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _missing ? null : _unlock),
           ],
         ),
       ),

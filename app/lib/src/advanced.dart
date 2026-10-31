@@ -17,7 +17,7 @@ enum AdvancedFeature {
   outputs,
 
   /// Technical rows on transactions and outputs: kernel, slate id, commitments, block height,
-  /// the fee breakdown, payment proofs.
+  /// the fee breakdown.
   technicalDetails,
 
   /// Send › strategy (Smallest / All) and Split change for one send.

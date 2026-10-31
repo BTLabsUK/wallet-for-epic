@@ -83,16 +83,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               selected: false,
               onTap: () => nav.go(DeskRoute.create),
             ),
-            if (DeskFeatures.importWizard) ...[
-              SizedBox(height: Sp.x3),
-              EChoiceCard(
-                title: l.deskOnbWelcomeImport,
-                description: l.deskOnbWelcomeImportSub,
-                icon: EIcons.folderOpen,
-                selected: false,
-                onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
-              ),
-            ],
+            SizedBox(height: Sp.x3),
+            EChoiceCard(
+              title: l.deskOnbWelcomeImport,
+              description: l.deskOnbWelcomeImportSub,
+              icon: EIcons.folderOpen,
+              selected: false,
+              onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
+            ),
             SizedBox(height: Sp.x3),
             // The other apps' line belongs to Restore (their wallets come back by phrase), inside
             // its card, so the cards keep one rhythm.
@@ -101,7 +99,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               description: l.deskOnbWelcomeRestoreSub,
               icon: EIcons.key,
               selected: false,
-              tag: DeskFeatures.importWizard ? Text(l.deskOnbWelcomeOtherApps, style: ts.small.copyWith(color: context.dc.faint)) : null,
+              tag: Text(l.deskOnbWelcomeOtherApps, style: ts.small.copyWith(color: context.dc.faint)),
               onTap: () => nav.go(DeskRoute.restore),
             ),
             if (flow.testNet) ...[

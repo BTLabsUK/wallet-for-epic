@@ -58,7 +58,6 @@ class SettingsAppearanceScreen extends ConsumerWidget {
               ),
             ),
           ),
-          if (DeskFeatures.languages)
           ESetRow(
             title: l.deskSetAppearLanguage,
             hint: l.deskSetAppearLanguageHint,

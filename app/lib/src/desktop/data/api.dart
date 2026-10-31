@@ -127,7 +127,7 @@ abstract interface class DeskWalletApi {
   /// with [DeskError.sameWallet] set and makes nothing.
   Future<void> restoreWallet({String name = '', required String password, required List<String> phrase, BigInt? startHeight});
 
-  // Import (only when [DeskFeatures.importWizard]). Old folders are only read.
+  // Import. Old folders are only read.
   /// Looks where older Epic Wallets and the epic program kept wallets, and starts a new import
   /// run (see [cancelImport]). Wallets the app holds already have [OldWallet.sameAs] set.
   Future<List<OldWallet>> findOldWallets();
@@ -168,8 +168,7 @@ abstract interface class DeskWalletApi {
   Future<String> epicboxAddress();
   /// The address senders use for the running HTTP listener: `http://127.0.0.1:<port>` when
   /// Local only, `http://<the router's public IP>:<port>` when From the internet ([httpReach];
-  /// the LAN address when the public IP cannot be found); empty while it is off. Only when
-  /// [DeskFeatures.httpDirect].
+  /// the LAN address when the public IP cannot be found); empty while it is off.
   Future<String> httpAddress();
   /// From the internet with the listener on: the public IP, the LAN address and whether the
   /// internet reaches the port, asked over HTTPS and kept 2 minutes, or asked again on
@@ -294,7 +293,7 @@ abstract interface class DeskWalletApi {
   Future<void> useNodeForSession(String url);
 
   /// Turns the built-in node on (starts it and moves the wallet to it) or off (moves the wallet
-  /// back to the node used before, then stops it). Only when [DeskFeatures.builtInNode].
+  /// back to the node used before, then stops it).
   Future<void> useBuiltInNode(bool on);
 
   /// The built-in node's address changed (its ports were set and it restarted): the wallet
@@ -320,7 +319,6 @@ abstract interface class DeskWalletApi {
 
   /// Starts or stops the HTTP listener alone, on [DeskSettings.httpPort], reachable as
   /// [DeskSettings.publicMode] says. A start that fails shows in [ServiceStatus.httpProblem].
-  /// Only when [DeskFeatures.httpDirect].
   Future<void> setHttpListening(bool on);
 
   /// Turns Tor on or off for the open wallet now, saved per wallet ([DeskSettings.tor]); whether
@@ -338,7 +336,7 @@ abstract interface class DeskWalletApi {
 
   /// Scans the chain again, with progress; the stream ends when the scan does, after the
   /// balance is brought up to date. [deleteUnconfirmed] also cancels unconfirmed
-  /// transactions and unlocks their coins (only when [DeskFeatures.rescanRepair]).
+  /// transactions and unlocks their coins.
   /// [startHeight]: from that block (0: the whole chain); null from a little before the last
   /// scan's end, or from block 0 while a restore's scan is owed ([ServiceStatus.restoreScan]).
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight});
@@ -352,7 +350,7 @@ abstract interface class DeskWalletApi {
   Stream<void> changes();
   Future<List<String>> revealPhrase(String password);
   /// Re-encrypts the open wallet under [next] and forgets its remembered password. A wrong
-  /// [current] throws a [DeskError] with `wrongPassword`. Only when [DeskFeatures.changePassword].
+  /// [current] throws a [DeskError] with `wrongPassword`.
   Future<void> changePassword(String current, String next);
 
   // History backup and its reminder.

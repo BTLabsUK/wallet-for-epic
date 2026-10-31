@@ -6,27 +6,8 @@
 ///
 /// The hidden spots, by flag:
 ///
-/// multiWallet (on): several wallets of one network, one open at a time, desktop
-///   only (phones keep one). The adapter lists them in `WalletRegistry`.
-///   - Unlock: the Wallet select, "Add a wallet", the missing-folder notice and its Remove.
-///   - Welcome: "Add a wallet" heading and "Back to unlock" for a later visit.
-///   - Settings: the "All wallets" section (settingsWallets route), with Add back.
-///   - Sidebar: "Switch wallet".
-///   - Remove wallet dialog: "Remove from list" and "Delete wallet".
-/// importWizard (as LEPIC takes them, on): wallets of older Epic
-///   Wallets and the epic program, found or from a chosen folder. Old folders are only read:
-///   each wallet.seed opens once with its old password and becomes a new wallet whose
-///   history a scan rebuilds. Mainnet only; no settings carried over, no old-folder
-///   delete and no blockchain data copy.
-///   - Welcome: "Import wallets". Route importWallets.
-///   - All wallets: the "Import" card.
 /// dataFolder: Welcome › Advanced › App data folder.
 /// testNetworks ("any network each"): Welcome › Advanced › Network. Mainnet only.
-/// httpDirect (on): Send › HTTP, with a question before plain HTTP
-///   to another computer; Receive's HTTP address; Settings › Transactions › Direct (HTTP receiving) (off by
-///   default), Reachable (Local only / From the internet, through its guide), Port and Start with
-///   the wallet; the status card's HTTP line; HTTP addresses in contacts. No resend over HTTP
-///   yet: a send nobody answered waits in Activity to be cancelled.
 /// tor: Send › Tor (an onion pasted anywhere switches there; Turn on Tor receiving
 ///   while off), Receive's Tor address with Copy and QR,
 ///   Settings › Transactions › Tor receiving (per wallet, off by default, its state and Retry),
@@ -34,25 +15,11 @@
 ///   Needs the bundled tor (bin/tor-bundle beside the app, tools/fetch-tor.sh); without it
 ///   the row says "Not in this build" and its switch is disabled. The build without Tor
 ///   (`WFE_TOR=false`, [torBuilt]) turns the flag off.
-/// builtInNode (on): Setup › Node's "Built-in node" card (off by default),
-///   Settings › Node's "This computer" option, Overview's "Start node". Needs the bundled `epic`
-///   (bin/epic beside the app); without it turning the node on says so. The blockchain data
-///   offer and the head start are not built.
 /// nodeBackground: Settings › Node's "Sync in background" for the built-in node.
-/// coins (on): the Outputs page (sidebar), Split and Consolidate.
 /// dandelion: Send's Dandelion++ switch and the review's Privacy line.
-/// rescanRepair (on): Rescan's "Delete unconfirmed" (LEPIC's scan delete_unconfirmed)
-///   and the result's counts.
-/// stopScan (on): Rescan's Stop, which ends the LEPIC scan at its next page (cancel_scan).
-/// nodeBlockTime: "last block … ago" on the node status line.
 /// paymentProofs: Transaction details › Export proof.
-/// changePassword (on): Settings › This wallet › Change password (LEPIC's change_password);
-///   forgets the wallet's remembered password.
-/// walletProcesses (dropped): Unlock's "Looking for wallet processes" stage and the
-///   kill-process dialog (LEPIC runs in-process).
 ///
 /// App-side, not in 0.1.0 (no core change needed):
-/// languages: Setup › Preferences › Language, Settings › Appearance › Language.
 /// contactPictures: the contact form's picture and the list's photos (initials stay).
 library;
 
@@ -60,23 +27,12 @@ import '../../tor_build.dart';
 import '../../demo.dart' show devNetworksBuild;
 
 abstract final class DeskFeatures {
-  static const bool multiWallet = true;
-  static const bool importWizard = true;
   static const bool dataFolder = false;
   static const bool testNetworks = devNetworksBuild;
-  static const bool httpDirect = true;
   /// Off in the build without Tor ([torBuilt]).
   static const bool tor = torBuilt;
-  static const bool builtInNode = true;
   static const bool nodeBackground = false;
-  static const bool coins = true;
   static const bool dandelion = false;
-  static const bool rescanRepair = true;
-  static const bool stopScan = true;
-  static const bool nodeBlockTime = false;
   static const bool paymentProofs = false;
-  static const bool changePassword = true;
-  static const bool walletProcesses = false;
-  static const bool languages = true;
   static const bool contactPictures = false;
 }

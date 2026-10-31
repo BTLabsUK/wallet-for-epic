@@ -5,7 +5,6 @@ import '../../widgets/kit.dart';
 import 'create_screen.dart';
 import 'import_warning.dart';
 import 'import_wallets_screen.dart';
-import 'kill_process_dialog.dart';
 import 'onboarding_parts.dart';
 import 'restore_screen.dart';
 import 'same_wallet_dialog.dart';
@@ -92,12 +91,6 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '05e-unlock-missing', title: 'Unlock: folder missing', route: DeskRoute.unlock, arg: UnlockShow.missing),
   const DeskShot(id: '05h-unlock-list', title: 'Unlock: the wallet list open', route: DeskRoute.unlock, arg: UnlockShow.listOpen),
   const DeskShot(id: '05f-unlock-added', title: 'Unlock: wallet added', route: DeskRoute.unlock, arg: UnlockAdded('Savings', id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f')),
-  DeskShot(
-    id: '05g-dlg-kill-process',
-    title: 'Epic is already running',
-    route: DeskRoute.unlock,
-    dialog: (context) => showKillProcessDialog(context),
-  ),
   DeskShot(id: '09-dlg-import-warning', title: 'Before you import', route: DeskRoute.welcome, dialog: (context) => showImportWarningDialog(context)),
   const DeskShot(id: '09a-import-finding', title: 'Import: finding', route: DeskRoute.importWallets, arg: ImportStep.find),
   const DeskShot(id: '09b-import-found', title: 'Import: found', route: DeskRoute.importWallets, arg: ImportStep.found),

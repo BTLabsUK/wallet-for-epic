@@ -131,7 +131,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           actionsBelow: true,
           actions: [
             EButton(label: l.deskOvUsePublicNode, icon: EIcons.web, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode)),
-            if (DeskFeatures.builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) EButton(label: l.deskOvUseLocalNode, icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
+            if (advancedHas(ref, AdvancedFeature.builtInNode)) EButton(label: l.deskOvUseLocalNode, icon: EIcons.server, size: EBtnSize.inline, busy: _restarting, onPressed: _restartNode),
             EButton(label: l.deskOvHide, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _problemHidden = true)),
           ],
         ),
@@ -153,7 +153,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           text: l.deskOvCantReachNodeText,
           actionsBelow: true,
           actions: [
-            if (DeskFeatures.builtInNode && ref.watch(settingsPrefsProvider).builtin)
+            if (ref.watch(settingsPrefsProvider).builtin)
             EButton(
               label: _restarting ? l.deskOvStarting : l.deskOvStartNode,
               icon: EIcons.refresh,

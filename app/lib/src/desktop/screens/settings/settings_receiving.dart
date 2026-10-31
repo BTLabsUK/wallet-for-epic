@@ -346,7 +346,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// (QR Payment is the phone's).
   static List<MethodKind> _familyMethods(MethodFamily f) => [
     for (final m in MethodKind.values)
-      if (m.family == f && m != MethodKind.directQr && (m != MethodKind.linkHttp || DeskFeatures.httpDirect) && (m != MethodKind.linkTor || DeskFeatures.tor)) m,
+      if (m.family == f && m != MethodKind.directQr && (m != MethodKind.linkTor || DeskFeatures.tor)) m,
   ];
 
   /// Send starts on names Link once for the family (the address picks HTTP or Tor), the
@@ -398,7 +398,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     // Link once, whichever of its methods is on (the address decides the route).
     final offered = [
       if (p.epicbox) MethodKind.epicbox,
-      if ((DeskFeatures.httpDirect || DeskFeatures.tor) && p.offersFamily(MethodFamily.link)) MethodKind.linkHttp,
+      if (p.offersFamily(MethodFamily.link)) MethodKind.linkHttp,
       if (p.directFile) MethodKind.directFile,
     ];
     final start = p.startMethod.family == MethodFamily.link ? MethodKind.linkHttp : p.startMethod;
@@ -518,7 +518,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       // Link · HTTP on; a listener that is on keeps its rows. The switch is the method's: these
       // rows hold its state and options.
       MethodKind.linkHttp: (SettingsJump.http, [
-        if (DeskFeatures.httpDirect && (s.payments.linkHttp || status.httpListener != ServiceHealth.off)) ...[
+        if (s.payments.linkHttp || status.httpListener != ServiceHealth.off) ...[
           _receivingRow(
             TxMethod.http,
             l.deskSetRecvHttpText,

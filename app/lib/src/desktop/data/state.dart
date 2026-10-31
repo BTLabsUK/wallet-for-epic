@@ -143,7 +143,7 @@ class DeskController extends Notifier<DeskState> {
     _statusPoll = Timer.periodic(const Duration(seconds: 5), (_) => unawaited(_loadStatus()));
     // The reach, port, autostart and Tor are the opened wallet's own: read them from it.
     final own = await api.settings();
-    final http = DeskFeatures.httpDirect && own.payments.linkHttp;
+    final http = own.payments.linkHttp;
     // The method switches are the wallet's view too (app-wide, read at its unlock), so a
     // container that has not loaded settings yet does not write defaults over them.
     final s = state.settings.copyWith(
