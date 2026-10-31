@@ -120,5 +120,7 @@
   "deskKitQrHide": "QR ausblenden",
   "deskKitQrHideCode": "QR ausblenden",
   "deskKitMethodConnected": "Verbunden",
-  "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor."
+  "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor.",
+  "deskKitNoAnswerSince": "Keine Antwort seit {time}",
+  "deskKitMoreInHelp": "Mehr in der Hilfe"
 }

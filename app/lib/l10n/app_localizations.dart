@@ -10809,10 +10809,10 @@ abstract class AppLocalizations {
   /// **'Handed to Epicbox. Completes when the recipient answers.'**
   String get deskSendDoneViaEpicbox;
 
-  /// Button in the Sent notice: opens the payment in Activity.
+  /// Result card button: opens the payment in Activity (the one label on every result card, UD-007).
   ///
   /// In en, this message translates to:
-  /// **'View payment'**
+  /// **'View in Activity'**
   String get deskSendViewTx;
 
   /// Title of the error notice on Send after a send failed; the reason is the text.
@@ -11583,10 +11583,10 @@ abstract class AppLocalizations {
   /// **'Not updated'**
   String get deskActNotUpdated;
 
-  /// Placeholder of the search field on Activity. Narrow field.
+  /// Activity search placeholder in a window under 1280 px, where the field is 200 px wide (UD-002).
   ///
   /// In en, this message translates to:
-  /// **'Note, contact, address or amount'**
+  /// **'Search payments'**
   String get deskActSearchHint;
 
   /// Screen reader label of the search field on Activity.
@@ -17037,10 +17037,10 @@ abstract class AppLocalizations {
   /// **'The node makes no progress.'**
   String get deskSetLnodeNoProgress;
 
-  /// Local node panel: notice text when the sync stalled.
+  /// Stalled local node notice: one verb with the header's Start button (UD-019).
   ///
   /// In en, this message translates to:
-  /// **'Restart, or check the node log.'**
+  /// **'Start the node again, or check the node log.'**
   String get deskSetLnodeNoProgressText;
 
   /// Local node panel: notice title when the node cannot open its port.
@@ -17396,12 +17396,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Looking…'**
   String get deskSetLndLooking;
-
-  /// Reuse chain data dialog: choice title for using a found folder.
-  ///
-  /// In en, this message translates to:
-  /// **'Use it'**
-  String get deskSetLndUseIt;
 
   /// Reuse chain data dialog: when the folder last changed, e.g. "last written 2026-10-03". Lowercase.
   ///
@@ -19142,16 +19136,16 @@ abstract class AppLocalizations {
   /// **'Open'**
   String get deskSetAboutOpen;
 
-  /// Settings › About: the app's version, e.g. 'Version  26.10.2 · core 0.1.0'. Two spaces before the value, as in the English.
+  /// About: the app version row as one sentence for a screen reader (LD-004); the label and value are laid out as two columns.
   ///
   /// In en, this message translates to:
-  /// **'Version  {version}'**
+  /// **'Version {version}'**
   String deskSetAboutVersion(String version);
 
-  /// Settings › About: the version of the Epic node the wallet uses, or '-'. Two spaces before the value, as in the English.
+  /// About: the node version row as one sentence for a screen reader (LD-004).
   ///
   /// In en, this message translates to:
-  /// **'Node  {version}'**
+  /// **'Node {version}'**
   String deskSetAboutNode(String version);
 
   /// Settings › About: group head of the open-source licences.
@@ -28009,6 +28003,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paying from Kill switch'**
   String get finalizeNotPostedHelp;
+
+  /// Activity search placeholder at 1280 px and wider, where the field is 320 px wide (UD-002).
+  ///
+  /// In en, this message translates to:
+  /// **'Note, contact, address or amount'**
+  String get deskActSearchHintFull;
+
+  /// Outputs filter: outputs awaiting finalization, which are in no balance figure and not in All (UD-008).
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get deskOutFilterWaiting;
+
+  /// Tooltip of the Receive header's method glyphs: the methods receiving now, joined with ' · ' (UD-015).
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving: {methods}'**
+  String deskRecvHeaderTip(String methods);
+
+  /// Line under the disabled Review button when a method is off or blocked by a mode: names the block only; the banner above explains (UD-014). {method} is Epicbox, Link, Link · Tor…
+  ///
+  /// In en, this message translates to:
+  /// **'Review needs {method}'**
+  String deskSendHintNeedsMethod(String method);
+
+  /// About: label column of the app version row (LD-004).
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get deskSetAboutVersionLabel;
+
+  /// About: label column of the node version row (LD-004).
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get deskSetAboutNodeLabel;
+
+  /// Detail notice of a confirmed payment with its block known: confirmations and block, as the phone says both (UD-028). {block} is the grouped height.
+  ///
+  /// In en, this message translates to:
+  /// **'{confirmations, plural, one{Confirmed, {confirmations} confirmation · block {block}.} other{Confirmed, {confirmations} confirmations · block {block}.}}'**
+  String deskTxNowConfirmedBlock(int confirmations, String block);
+
+  /// Node card: the one line in place of the facts grid while the node does not answer (UD-033). {time} is HH:MM.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer since {time}'**
+  String deskKitNoAnswerSince(String time);
+
+  /// Link at the end of an info popover that opens the Help topic saying more (WD2-063).
+  ///
+  /// In en, this message translates to:
+  /// **'More in Help'**
+  String get deskKitMoreInHelp;
 }
 
 class _AppLocalizationsDelegate

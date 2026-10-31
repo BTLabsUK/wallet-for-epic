@@ -86,13 +86,11 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                           BrandWordmark(variant: BrandVariant.desktop, size: Fs.h2.u),
                           SizedBox(height: Sp.x2),
                           // The version and the node; no network line (a release runs on one).
-                          Wrap(
-                            spacing: Sp.x4,
-                            children: [
-                              Text(l.deskSetAboutVersion(withBuildId(withCoreVersion(deskAppVersion))), style: ts.small),
-                              Text(l.deskSetAboutNode(node ?? '-'), style: ts.small),
-                            ],
-                          ),
+                          // Two columns, as the other Settings pages lay out label and value (LD-004).
+                          _Facts(rows: [
+                            (l.deskSetAboutVersionLabel, withBuildId(withCoreVersion(deskAppVersion)), l.deskSetAboutVersion(withBuildId(withCoreVersion(deskAppVersion)))),
+                            (l.deskSetAboutNodeLabel, node ?? '-', l.deskSetAboutNode(node ?? '-')),
+                          ]),
                           // A store build: the store updates it, there is no Updates group.
                           if (distStore != null) ...[
                             SizedBox(height: Sp.x2),
@@ -340,5 +338,38 @@ class _LinkCopyButtonState extends State<LinkCopyButton> {
       false => (EIcons.alert, l.deskSetAboutNotCopied, c.risk),
     };
     return Semantics(liveRegion: true, child: EIconButton(icon: icon, label: label, color: color, onPressed: _copy));
+  }
+}
+
+/// Label / value rows: a muted label column as wide as its longest word, the values beside
+/// it; each row reads as one sentence to a screen reader.
+class _Facts extends StatelessWidget {
+  const _Facts({required this.rows});
+
+  /// (label, value, spoken).
+  final List<(String, String, String)> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final ts = context.ts;
+    final c = context.dc;
+    return Table(
+      columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+      defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        for (final (label, value, spoken) in rows)
+          TableRow(
+            children: [
+              Semantics(
+                label: spoken,
+                excludeSemantics: true,
+                child: Padding(padding: EdgeInsetsDirectional.only(end: Sp.x4, bottom: 2.u), child: Text(label, style: ts.small.copyWith(color: c.faint))),
+              ),
+              ExcludeSemantics(child: Text(value, style: ts.small.copyWith(color: c.text))),
+            ],
+          ),
+      ],
+    );
   }
 }

@@ -382,7 +382,8 @@ class EStatusGlyph extends StatelessWidget {
     // The glyph is neutral; only the dot, on an enabled service, carries colour: green
     // connected, blue (pulsing) in progress, red down, amber a warning. Off is faint with a
     // slash. The label says the state in words.
-    final ink = off ? c.faint.withValues(alpha: 0.55) : c.dim;
+    // Off keeps the slash and stays readable (>= 3:1 on the bar, UD-012).
+    final ink = off ? c.lineField : c.dim;
     return Semantics(
       label: label,
       excludeSemantics: true,

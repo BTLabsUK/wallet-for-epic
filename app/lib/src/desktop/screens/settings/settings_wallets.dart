@@ -149,8 +149,11 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                 ESectionHead(l.deskSetWalletsAdd, top: 0),
                 LayoutBuilder(
                   builder: (context, box) {
+                    // In a row the title block is two lines tall, so the subtitles align (UD-021).
+                    final row = box.maxWidth >= 600.u;
                     final cards = [
                       EChoiceCard(
+                        titleLines: row ? 2 : null,
                         title: l.deskSetWalletsCreate,
                         description: l.deskSetWalletsCreateText,
                         icon: EIcons.plus,
@@ -158,6 +161,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                         onTap: () => nav.go(DeskRoute.create),
                       ),
                       EChoiceCard(
+                        titleLines: row ? 2 : null,
                         title: l.deskSetWalletsImport,
                         description: l.deskSetWalletsImportText,
                         icon: EIcons.folderOpen,
@@ -165,6 +169,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                         onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
                       ),
                       EChoiceCard(
+                        titleLines: row ? 2 : null,
                         title: l.deskSetWalletsRestore,
                         description: l.deskSetWalletsRestoreText,
                         icon: EIcons.backup,
@@ -172,7 +177,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                         onTap: () => nav.go(DeskRoute.restore),
                       ),
                     ];
-                    if (box.maxWidth < 600.u) {
+                    if (!row) {
                       return Column(children: [for (final w in cards) Padding(padding: EdgeInsets.only(bottom: Sp.x3), child: w)]);
                     }
                     return IntrinsicHeight(

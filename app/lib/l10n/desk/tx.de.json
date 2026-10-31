@@ -103,5 +103,6 @@
   "deskTxNowUndeliveredDirect": "Nicht zugestellt. Die Wallet des Empfängers hat die Zahlung ({method}) nicht angenommen, er hat sie also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
   "deskTxNowUndeliveredRelay": "Nicht zugestellt. {relay} hat nicht geantwortet, der Empfänger hat die Zahlung also nicht erhalten. Senden Sie sie erneut oder stornieren Sie sie, um das Guthaben freizugeben.",
   "deskTxMore": "Mehr",
-  "deskTxLess": "Weniger"
+  "deskTxLess": "Weniger",
+  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Bestätigt, {confirmations} Bestätigung · Block {block}.} other{Bestätigt, {confirmations} Bestätigungen · Block {block}.}}"
 }

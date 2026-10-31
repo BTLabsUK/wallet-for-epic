@@ -839,7 +839,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final shown = _shown(all);
     final typedValue = filtering ? _typedValue() : null;
     final listed = typedValue != null && all.any((s) => _same(s.value, typedValue));
-    final addable = filtering && (shown.isEmpty || (typedValue != null && !listed));
+    // Only a text that parses as host or host:port can be added (UD-004): with an error shown,
+    // the list keeps the error line and the match count alone.
+    final addable = filtering && typedValue != null && !listed;
     final local = widget.local;
     final showLocal = local != null && (!filtering || serverMatches(_typed, host: l.deskSetNodeLocalNode, operator: local.stateText));
     final selected = sel != null ? '' : widget.value;
@@ -852,7 +854,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
         _LocalRow(local: local, selected: widget.value == local.value, onTap: () => _pickLocal(local)),
       if (addable)
         _AddRow(
-          host: typedValue == null ? _typed : panelHost(widget.kind, typedValue),
+          host: panelHost(widget.kind, typedValue),
           note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
           busy: _adding != null,
           onTap: _add,

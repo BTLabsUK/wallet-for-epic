@@ -355,30 +355,50 @@ class EOnbFrame extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(narrow ? Sp.x5 : Sp.x12, narrow ? Sp.x6 : Sp.x12, narrow ? Sp.x5 : Sp.x12, Sp.x8),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 600.u),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (narrow && current >= 0) ...[
-                      Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
-                      SizedBox(height: Sp.x2),
-                    ],
-                    heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
-                    if (lead != null) ...[
-                      SizedBox(height: Sp.x2),
-                      Text(lead!, style: ts.lead),
-                    ],
-                    SizedBox(height: Sp.x8),
-                    child,
-                  ],
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(narrow ? Sp.x5 : Sp.x12, narrow ? Sp.x6 : Sp.x12, narrow ? Sp.x5 : Sp.x12, Sp.x8),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 600.u),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (narrow && current >= 0) ...[
+                          Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
+                          SizedBox(height: Sp.x2),
+                        ],
+                        heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
+                        if (lead != null) ...[
+                          SizedBox(height: Sp.x2),
+                          Text(lead!, style: ts.lead),
+                        ],
+                        SizedBox(height: Sp.x8),
+                        child,
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+              // Content cut by the footer line fades out over 24 u first, so it reads as
+              // scrollable rather than chopped (UD-024).
+              if (actions.isNotEmpty)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: Sp.x6,
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [c.bg.withValues(alpha: 0), c.bg]),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         if (actions.isNotEmpty)

@@ -733,5 +733,18 @@
   "deskKitReachTorOff": "The check needs Tor off.",
   "@deskKitReachTorOff": {
     "description": "Notice in the Link · HTTP guide when the status server cannot check the port over Tor. Short, impersonal."
+  },
+  "deskKitNoAnswerSince": "No answer since {time}",
+  "@deskKitNoAnswerSince": {
+    "description": "Node card: the one line in place of the facts grid while the node does not answer (UD-033). {time} is HH:MM.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deskKitMoreInHelp": "More in Help",
+  "@deskKitMoreInHelp": {
+    "description": "Link at the end of an info popover that opens the Help topic saying more (WD2-063)."
   }
 }

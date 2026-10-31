@@ -121,5 +121,6 @@
   "deskOutWhatOne": "เอาต์พุตที่ใช้ได้เพียงก้อนเดียว",
   "deskOutDefaultsMoved": "วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม",
   "deskOutDefaultsOpen": "เปิดธุรกรรม",
-  "deskOutNoteWaitingRecipient": "รอผู้รับ"
+  "deskOutNoteWaitingRecipient": "รอผู้รับ",
+  "deskOutFilterWaiting": "รอ"
 }

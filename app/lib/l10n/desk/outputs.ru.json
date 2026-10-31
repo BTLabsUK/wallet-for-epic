@@ -121,5 +121,6 @@
   "deskOutWhatOne": "один доступный выход",
   "deskOutDefaultsMoved": "«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».",
   "deskOutDefaultsOpen": "Открыть «Транзакции»",
-  "deskOutNoteWaitingRecipient": "ждёт получателя"
+  "deskOutNoteWaitingRecipient": "ждёт получателя",
+  "deskOutFilterWaiting": "Ожидают"
 }

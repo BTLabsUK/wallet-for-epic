@@ -20,6 +20,8 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
+import '../../../help/help_content.dart' show HelpId;
+import 'help_pairing.dart' show HelpAt;
 import 'local_node_dialogs.dart';
 import 'local_node_peers.dart';
 import '../../../settings_file/host_settings.dart' show hostSettings;
@@ -197,6 +199,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         peerHistory: api.peerHistory(),
         moving: _moving,
         onUseFallback: () => ref.read(deskFallbackProvider.notifier).answer(true),
+        onStart: _busy == null ? () => _run('start', api.start) : null,
         onRestart: _busy == null ? () => _run('restart', api.restart) : null,
         onLog: () => showNodeLogDialog(context, api),
         onChangeFolder: () => _changeFolder(s),
@@ -366,6 +369,10 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
   }
 }
 
+/// Opens Help › Running the local node: the "More in Help" link of the local-node rows'
+/// popovers (WD2-063).
+VoidCallback localNodeHelp(WidgetRef ref) => () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.localNode));
+
 class _AutostartRow extends ConsumerWidget {
   const _AutostartRow({required this.api});
 
@@ -378,6 +385,7 @@ class _AutostartRow extends ConsumerWidget {
     return ESetRow(
       title: l.deskSetLnodeAutostart,
       hint: l.deskSetLnodeAutostartHint,
+      hintHelp: localNodeHelp(ref),
       control: ESwitch(
         value: on,
         semanticLabel: l.deskSetLnodeAutostart,
@@ -405,6 +413,7 @@ class _PortsRow extends ConsumerWidget {
       title: l.deskSetLnodePorts,
       text: l.deskOnbNodePortsSub('${s.localNodeApiPort}', '${s.localNodeP2pPort}'),
       hint: l.deskOnbNodePortsWhy,
+      hintHelp: localNodeHelp(ref),
       control: ERowControl(
         child: EButton(
           key: const ValueKey('local-node-ports-change'),
@@ -427,10 +436,11 @@ class StatusWords {
 }
 
 /// What a Status notice's button does.
-enum NodeAct { restart, log, folder, fallback }
+enum NodeAct { start, restart, log, folder, fallback }
 
 /// The label of a notice's button; [fallback] is the host the fallback act names.
 String nodeActLabel(AppLocalizations l, NodeAct a, String fallback) => switch (a) {
+  NodeAct.start => l.deskSetLnodeStart,
   NodeAct.restart => l.deskSetLnodeRestart,
   NodeAct.log => l.deskSetLnodeViewLog,
   NodeAct.folder => l.deskSetLnodeChangeFolder,
@@ -454,7 +464,8 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
       if (s.stalled) {
         return StatusWords(
           detail: l.deskSetLnodeStalledDetail,
-          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: NodeAct.restart),
+          // The node has stopped: the header says Start, so does the notice (UD-019).
+          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: NodeAct.start),
         );
       }
       return StatusWords(
@@ -489,6 +500,7 @@ class _StatusTab extends StatelessWidget {
     required this.peerHistory,
     required this.moving,
     required this.onUseFallback,
+    required this.onStart,
     required this.onRestart,
     required this.onLog,
     required this.onChangeFolder,
@@ -506,6 +518,7 @@ class _StatusTab extends StatelessWidget {
   final List<PeerCountSample> peerHistory;
   final (int, int)? moving;
   final VoidCallback onUseFallback;
+  final VoidCallback? onStart;
   final VoidCallback? onRestart;
   final VoidCallback onLog;
   final VoidCallback onChangeFolder;
@@ -527,6 +540,7 @@ class _StatusTab extends StatelessWidget {
     final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
 
     VoidCallback? actionOf(NodeAct? act) => switch (act) {
+      NodeAct.start => onStart,
       NodeAct.restart => onRestart,
       NodeAct.log => onLog,
       NodeAct.folder => onChangeFolder,

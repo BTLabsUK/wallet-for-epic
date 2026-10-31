@@ -47,5 +47,6 @@
   "deskRecvSwitchLabel": "{title}, Empfang",
   "deskRecvTorOffTitle": "Link · Tor braucht Tor.",
   "deskRecvTorOffText": "Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Datenschutz; er leitet die Verbindungen der Wallet über Tor.",
-  "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist."
+  "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist.",
+  "deskRecvHeaderTip": "Empfang: {methods}"
 }

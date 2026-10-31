@@ -103,5 +103,6 @@
   "deskTxNowUndeliveredDirect": "Nie dostarczono. Portfel odbiorcy nie przyjął płatności ({method}), więc jej nie otrzymał. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
   "deskTxNowUndeliveredRelay": "Nie dostarczono. {relay} nie odpowiedział, więc odbiorca nie otrzymał płatności. Wyślij ją ponownie albo anuluj, żeby odblokować środki.",
   "deskTxMore": "Więcej",
-  "deskTxLess": "Mniej"
+  "deskTxLess": "Mniej",
+  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Potwierdzona, {confirmations} potwierdzenie · blok {block}.} few{Potwierdzona, {confirmations} potwierdzenia · blok {block}.} many{Potwierdzona, {confirmations} potwierdzeń · blok {block}.} other{Potwierdzona, {confirmations} potwierdzenia · blok {block}.}}"
 }

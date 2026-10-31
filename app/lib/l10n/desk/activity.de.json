@@ -1,6 +1,6 @@
 {
   "deskActNotUpdated": "Nicht aktualisiert",
-  "deskActSearchHint": "Notiz, Kontakt, Adresse oder Betrag",
+  "deskActSearchHint": "Zahlungen suchen",
   "deskActSearchLabel": "Zahlungen durchsuchen",
   "deskActClearSearch": "Suche löschen",
   "deskActShowAmounts": "Beträge anzeigen",
@@ -28,5 +28,6 @@
   "deskActShowAddress": "Adresse anzeigen",
   "deskActReceiveFile": "Datei empfangen",
   "deskTxStatusWaitingFor": "Wartet auf Signatur von {name}",
-  "deskActNoneUnderFilter": "Nichts unter diesem Filter"
+  "deskActNoneUnderFilter": "Nichts unter diesem Filter",
+  "deskActSearchHintFull": "Notiz, Kontakt, Adresse oder Betrag"
 }

@@ -431,9 +431,9 @@
   "@deskSendDoneViaEpicbox": {
     "description": "Text of the Sent notice after an Epicbox send."
   },
-  "deskSendViewTx": "View payment",
+  "deskSendViewTx": "View in Activity",
   "@deskSendViewTx": {
-    "description": "Button in the Sent notice: opens the payment in Activity."
+    "description": "Result card button: opens the payment in Activity (the one label on every result card, UD-007)."
   },
   "deskSendFailedTitle": "Send failed",
   "@deskSendFailedTitle": {
@@ -838,6 +838,15 @@
       "name": {
         "type": "String",
         "example": "Anna"
+      }
+    }
+  },
+  "deskSendHintNeedsMethod": "Review needs {method}",
+  "@deskSendHintNeedsMethod": {
+    "description": "Line under the disabled Review button when a method is off or blocked by a mode: names the block only; the banner above explains (UD-014). {method} is Epicbox, Link, Link · Tor…",
+    "placeholders": {
+      "method": {
+        "type": "String"
       }
     }
   }

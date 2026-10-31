@@ -690,5 +690,9 @@
   "deskOutNoteWaitingRecipient": "waiting for the recipient",
   "@deskOutNoteWaitingRecipient": {
     "description": "Small grey note after the status 'Waiting for the response' on an output of a send. Lower case."
+  },
+  "deskOutFilterWaiting": "Waiting",
+  "@deskOutFilterWaiting": {
+    "description": "Outputs filter: outputs awaiting finalization, which are in no balance figure and not in All (UD-008)."
   }
 }

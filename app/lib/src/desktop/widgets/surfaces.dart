@@ -580,7 +580,7 @@ class ESetGroup extends StatelessWidget {
 /// A settings row: title and one line on the left, the control on the right; [stacked] puts
 /// the control under the text (wide controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.hintHelp, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge});
 
   /// Null when the group's title already names the row: the text is then the row's head.
   final String? title;
@@ -592,6 +592,9 @@ class ESetRow extends StatelessWidget {
   /// The row's explanation, behind an info icon after the title: a click, Enter or Space
   /// opens it in a popover ([EInfoHint]); a screen reader reads it with the title.
   final String? hint;
+
+  /// Opens the Help topic that says more than [hint]: a "More in Help" link in the popover.
+  final VoidCallback? hintHelp;
 
   /// With [hintTitle], the popover shows that title (and [hintIcon]) on its first line.
   final String? hintTitle;
@@ -627,7 +630,7 @@ class ESetRow extends StatelessWidget {
             children: [
               Flexible(child: Text(title!, style: ts.strong)),
               SizedBox(width: Sp.x1),
-              EInfoHint(hint!, title: hintTitle, icon: hintIcon),
+              EInfoHint(hint!, title: hintTitle, icon: hintIcon, onHelp: hintHelp),
             ],
           ),
         if (this.text != null) ...[
@@ -811,9 +814,12 @@ class _RenderWrapRow extends RenderBox
 /// [title] the popover shows [icon] and the title on its first line, as the phone's info sheet
 /// does; without one, the text alone.
 class EInfoHint extends StatefulWidget {
-  const EInfoHint(this.text, {super.key, this.title, this.icon, this.label, this.glyph = EIcons.info, this.size});
+  const EInfoHint(this.text, {super.key, this.title, this.icon, this.label, this.glyph = EIcons.info, this.size, this.onHelp});
 
   final String text;
+
+  /// Opens the Help topic that says more; the popover then ends in a "More in Help" link.
+  final VoidCallback? onHelp;
 
   /// The popover's first line (the row's name), with [icon] before it.
   final String? title;
@@ -855,7 +861,7 @@ class EInfoHintState extends State<EInfoHint> {
     final anchor = box.localToGlobal(Offset.zero, ancestor: root) & box.size;
     final hadFocus = _node.hasFocus;
     setState(() => _open = true);
-    await showEInfoPopover(context, anchor: anchor, text: widget.text, title: widget.title, icon: widget.icon);
+    await showEInfoPopover(context, anchor: anchor, text: widget.text, title: widget.title, icon: widget.icon, help: widget.onHelp);
     if (!mounted) return;
     setState(() => _open = false);
     // Opened from the keyboard: the focus comes back to the icon (the route's scope gives it

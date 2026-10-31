@@ -7136,7 +7136,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Передано в Epicbox. Завершится, когда получатель ответит.';
 
   @override
-  String get deskSendViewTx => 'Открыть платёж';
+  String get deskSendViewTx => 'Открыть в «Активности»';
 
   @override
   String get deskSendFailedTitle => 'Отправка не удалась';
@@ -7587,7 +7587,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActNotUpdated => 'Не обновлено';
 
   @override
-  String get deskActSearchHint => 'Заметка, контакт, адрес или сумма';
+  String get deskActSearchHint => 'Поиск платежей';
 
   @override
   String get deskActSearchLabel => 'Поиск платежей';
@@ -11260,7 +11260,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetLnodeNoProgressText =>
-      'Перезапустите или проверьте журнал узла.';
+      'Запустите узел снова или проверьте журнал узла.';
 
   @override
   String deskSetLnodePortInUse(String port) {
@@ -11496,9 +11496,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetLndLooking => 'Поиск…';
-
-  @override
-  String get deskSetLndUseIt => 'Использовать';
 
   @override
   String deskSetLndLastWritten(String date) {
@@ -12549,12 +12546,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetAboutVersion(String version) {
-    return 'Версия  $version';
+    return 'Версия $version';
   }
 
   @override
   String deskSetAboutNode(String version) {
-    return 'Узел  $version';
+    return 'Узел $version';
   }
 
   @override
@@ -18581,4 +18578,47 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get finalizeNotPostedHelp => 'Оплата при «Аварийном отключении»';
+
+  @override
+  String get deskActSearchHintFull => 'Заметка, контакт, адрес или сумма';
+
+  @override
+  String get deskOutFilterWaiting => 'Ожидают';
+
+  @override
+  String deskRecvHeaderTip(String methods) {
+    return 'Приём: $methods';
+  }
+
+  @override
+  String deskSendHintNeedsMethod(String method) {
+    return 'Для проверки нужен $method';
+  }
+
+  @override
+  String get deskSetAboutVersionLabel => 'Версия';
+
+  @override
+  String get deskSetAboutNodeLabel => 'Узел';
+
+  @override
+  String deskTxNowConfirmedBlock(int confirmations, String block) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'Подтверждено, $confirmations подтверждения · блок $block.',
+      many: 'Подтверждено, $confirmations подтверждений · блок $block.',
+      few: 'Подтверждено, $confirmations подтверждения · блок $block.',
+      one: 'Подтверждено, $confirmations подтверждение · блок $block.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitNoAnswerSince(String time) {
+    return 'Нет ответа с $time';
+  }
+
+  @override
+  String get deskKitMoreInHelp => 'Подробнее в справке';
 }

@@ -15,7 +15,7 @@ import 'outputs_dialogs.dart';
 import 'tx_display.dart' show iconOf, shortDayMonth;
 
 /// The list's filter on the Outputs page.
-enum OutputsFilter { all, spendable, confirming, locked }
+enum OutputsFilter { all, spendable, confirming, locked, waiting }
 
 /// Starts the Outputs page on given data (the screenshot tour) or a state.
 class OutputsArgs {
@@ -160,11 +160,14 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   bool _matches(Output o, String q) {
     final w = o.word;
     if (w == OutputWord.spent && !_showSpent) return false;
+    // All counts what Total counts (UD-008): an output awaiting finalization is in no balance
+    // figure, so it has its own filter, Waiting.
     final kept = switch (_filter) {
-      OutputsFilter.all => true,
+      OutputsFilter.all => w != OutputWord.finalizing,
       OutputsFilter.spendable => w == OutputWord.spendable,
-      OutputsFilter.confirming => w == OutputWord.confirming || w == OutputWord.finalizing,
+      OutputsFilter.confirming => w == OutputWord.confirming,
       OutputsFilter.locked => w == OutputWord.locked,
+      OutputsFilter.waiting => w == OutputWord.finalizing,
     };
     return kept && (q.isEmpty || o.commitment.contains(q));
   }
@@ -329,10 +332,12 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       children: [
         ESegmented<OutputsFilter>(
           segments: [
-            ESegment(OutputsFilter.all, l.deskOutFilterAll, count: all.where((o) => _showSpent || o.word != OutputWord.spent).length),
+            ESegment(OutputsFilter.all, l.deskOutFilterAll, count: all.where((o) => (_showSpent || o.word != OutputWord.spent) && o.word != OutputWord.finalizing).length),
             ESegment(OutputsFilter.spendable, l.deskOutFilterSpendable, count: counts.spendable),
-            ESegment(OutputsFilter.confirming, l.deskOutFilterConfirming, count: all.where((o) => o.word == OutputWord.confirming || o.word == OutputWord.finalizing).length),
+            ESegment(OutputsFilter.confirming, l.deskOutFilterConfirming, count: all.where((o) => o.word == OutputWord.confirming).length),
             ESegment(OutputsFilter.locked, l.deskOutFilterLocked, count: counts.locked),
+            if (all.any((o) => o.word == OutputWord.finalizing))
+              ESegment(OutputsFilter.waiting, l.deskOutFilterWaiting, count: all.where((o) => o.word == OutputWord.finalizing).length),
           ],
           value: _filter,
           onChanged: (v) => setState(() {

@@ -3,9 +3,9 @@
   "@deskActNotUpdated": {
     "description": "Title of the toast on Activity when the refresh could not ask the node; the reason follows as its text."
   },
-  "deskActSearchHint": "Note, contact, address or amount",
+  "deskActSearchHint": "Search payments",
   "@deskActSearchHint": {
-    "description": "Placeholder of the search field on Activity. Narrow field."
+    "description": "Activity search placeholder in a window under 1280 px, where the field is 200 px wide (UD-002)."
   },
   "deskActSearchLabel": "Search payments",
   "@deskActSearchLabel": {
@@ -140,5 +140,9 @@
   "deskActNoneUnderFilter": "Nothing under this filter",
   "@deskActNoneUnderFilter": {
     "description": "Activity: title of the empty state when the chosen filter (Sent, Pending…) has no payment and nothing was typed in the search."
+  },
+  "deskActSearchHintFull": "Note, contact, address or amount",
+  "@deskActSearchHintFull": {
+    "description": "Activity search placeholder at 1280 px and wider, where the field is 320 px wide (UD-002)."
   }
 }

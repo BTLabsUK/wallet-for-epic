@@ -111,24 +111,58 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     }
 
     if (all == null) {
-      return EPage(
-        title: l.deskConTitle,
-        child: Container(
-          decoration: panel,
-          padding: EdgeInsets.all(Sp.x8),
-          child: Semantics(
-            liveRegion: true,
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: Sp.x3,
-              children: [
-                const ESpinner(),
-                Text(l.deskConLoading, style: ts.bodyDim),
-              ],
+      // Loading keeps the page's shape (UD-020): the header button, the search (disabled),
+      // three skeleton rows, and Details dimmed, so nothing jumps when the book arrives.
+      Widget bone(double w, double h) => Container(width: w, height: h, decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(Rad.sm)));
+      final loadingList = EPanel(
+        padding: EdgeInsets.zero,
+        head: Padding(
+          padding: EdgeInsetsDirectional.only(end: Sp.x3),
+          child: EInput(size: EBtnSize.sm, enabled: false, hint: l.deskConSearchHint, leading: EIcons.search, semanticLabel: l.deskConSearchLabel),
+        ),
+        child: Semantics(
+          liveRegion: true,
+          label: l.deskConLoading,
+          child: ExcludeSemantics(
+            child: Padding(
+              padding: EdgeInsets.all(Sp.x2),
+              child: Column(
+                children: [
+                  for (var i = 0; i < 3; i++)
+                    Container(
+                      constraints: BoxConstraints(minHeight: 64.u),
+                      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x3),
+                      child: Row(
+                        children: [
+                          bone(40.u, 40.u),
+                          SizedBox(width: 14.u),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [bone(120.u, 10.u), SizedBox(height: Sp.x2), bone(200.u, 10.u)],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
+      );
+      return EPage(
+        title: l.deskConTitle,
+        width: EPageWidth.full,
+        actions: [EButton(label: l.deskConAdd, icon: EIcons.userPlus, size: EBtnSize.sm, onPressed: null), const ContactsMoreButton()],
+        child: split
+            ? PanelRow(
+                sideFirst: true,
+                sideWidth: Ctl.sideList,
+                side: loadingList,
+                main: EPanel(title: l.deskConDetailsTitle, padding: EdgeInsets.all(Sp.x6), child: const Opacity(opacity: 0.5, child: _Idle())),
+              )
+            : loadingList,
       );
     }
     final orphans = ref.watch(deskPairsProvider) ? ref.watch(deskOrphanPairingsProvider) : const <PairingRecord>[];
@@ -494,6 +528,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                 SizedBox(width: 14.u),
                 Expanded(
                   child: EAddressLines(
+                    full: true,
                     name: x.name,
                     address: x.address,
                     addresses: x.addresses,

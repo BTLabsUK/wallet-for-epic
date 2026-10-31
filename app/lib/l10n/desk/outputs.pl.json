@@ -121,5 +121,6 @@
   "deskOutWhatOne": "jedno wyjście do wydania",
   "deskOutDefaultsMoved": "Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.",
   "deskOutDefaultsOpen": "Otwórz Transakcje",
-  "deskOutNoteWaitingRecipient": "czeka na odbiorcę"
+  "deskOutNoteWaitingRecipient": "czeka na odbiorcę",
+  "deskOutFilterWaiting": "Oczekujące"
 }

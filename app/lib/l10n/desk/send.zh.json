@@ -73,7 +73,7 @@
   "deskSendEpicboxTurnOn": "开启 Epicbox 接收",
   "deskSendDoneViaDirect": "已完成并广播到网络。",
   "deskSendDoneViaEpicbox": "已交给 Epicbox。接收方响应后即完成。",
-  "deskSendViewTx": "查看付款",
+  "deskSendViewTx": "在“活动”中查看",
   "deskSendFailedTitle": "发送失败",
   "deskSendReviewAgain": "重新确认",
   "deskSendMethodHeader": "付款方式",
@@ -159,5 +159,6 @@
   "deskSendMessageTooLong": "消息超过 {max} 字节，请缩短。",
   "deskSendRelayUnknownTitle": "未知的 Epicbox 服务器",
   "deskSendRelayUnknownText": "此应用不认识服务器 {relay}。发送前请检查地址。你仍然可以发送。",
-  "deskSendContactNoLink": "{name} 没有 Link 地址。"
+  "deskSendContactNoLink": "{name} 没有 Link 地址。",
+  "deskSendHintNeedsMethod": "确认需要 {method}"
 }

@@ -73,7 +73,7 @@
   "deskSendEpicboxTurnOn": "เปิดการรับผ่าน Epicbox",
   "deskSendDoneViaDirect": "ทำรายการเสร็จและส่งเข้าเครือข่ายแล้ว",
   "deskSendDoneViaEpicbox": "ส่งให้ Epicbox แล้ว จะสำเร็จเมื่อผู้รับตอบกลับ",
-  "deskSendViewTx": "ดูรายการ",
+  "deskSendViewTx": "ดูในประวัติ",
   "deskSendFailedTitle": "ส่งไม่สำเร็จ",
   "deskSendReviewAgain": "ตรวจสอบอีกครั้ง",
   "deskSendMethodHeader": "วิธีชำระเงิน",
@@ -159,5 +159,6 @@
   "deskSendMessageTooLong": "ข้อความยาวเกิน {max} ไบต์ โปรดทำให้สั้นลง",
   "deskSendRelayUnknownTitle": "ไม่รู้จักเซิร์ฟเวอร์ Epicbox",
   "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้",
-  "deskSendContactNoLink": "{name} ไม่มีที่อยู่ Link"
+  "deskSendContactNoLink": "{name} ไม่มีที่อยู่ Link",
+  "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}"
 }

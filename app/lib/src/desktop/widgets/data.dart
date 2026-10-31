@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desk_l10n.dart';
+import '../../ui/pairing/pairing_parts.dart' show PairAvatar;
 import '../../ui/theme/brand.dart' show MarkedQr;
 import '../../initials.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
@@ -16,7 +17,8 @@ import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
 
-/// Initials on a hairline square: wallets and contacts.
+/// A contact's or wallet's initials in the phone's avatar tile ([PairAvatar]: the gold corner
+/// brackets, the grid, gold initials), the one standard on both apps (UP-011).
 class EAvatar extends StatelessWidget {
   const EAvatar(this.name, {super.key, this._size});
 
@@ -31,24 +33,7 @@ class EAvatar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return ExcludeSemantics(
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Rad.sm),
-          border: Border.all(color: c.lineStrong),
-        ),
-        child: Text(
-          initials(name),
-          style: context.ts.h3.copyWith(fontSize: size * 0.4 / deskScale, color: c.accentText, letterSpacing: 0),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ExcludeSemantics(child: PairAvatar(name: name, size: size));
 }
 
 /// Confirmation ring: an arc for the count out of [needed], a check when done, a dashed
@@ -351,10 +336,15 @@ class ESelect<T> extends StatefulWidget {
     this.size = EBtnSize.md,
     this.openInitially = false,
     this.keepBelow = 0,
+    this.keepClear,
   });
 
   /// Room the open list leaves free under it, so the form's main button stays in view.
   final double keepBelow;
+
+  /// A widget the open list never covers (the form's primary button): its top less 8 u is
+  /// the list's bottom, whatever sits between (UD-006).
+  final GlobalKey? keepClear;
 
   /// `md` (44, a form's field) or `sm` ([Ctl.sm], a Settings row's dropdown).
   final EBtnSize size;
@@ -383,7 +373,10 @@ class _ESelectState<T> extends State<ESelect<T>> {
   void _measure() {
     final anchor = context.findRenderObject() as RenderBox?;
     if (anchor == null || !anchor.attached || !anchor.hasSize) return;
-    final below = MediaQuery.sizeOf(context).height - anchor.localToGlobal(Offset(0, anchor.size.height)).dy - widget.keepBelow - 8.u;
+    final bottom = anchor.localToGlobal(Offset(0, anchor.size.height)).dy;
+    var below = MediaQuery.sizeOf(context).height - bottom - widget.keepBelow - 8.u;
+    final clear = widget.keepClear?.currentContext?.findRenderObject() as RenderBox?;
+    if (clear != null && clear.attached && clear.hasSize) below = clear.localToGlobal(Offset.zero).dy - bottom - 8.u;
     final h = below.clamp(120.u, 420.u);
     if (h != _maxHeight) setState(() => _maxHeight = h);
   }

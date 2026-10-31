@@ -181,11 +181,25 @@ class NodeCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: Sp.x4),
-          Wrap(
-            spacing: 14.u,
-            runSpacing: 20.u,
-            children: [for (final f in facts) ConstrainedBox(constraints: BoxConstraints(minWidth: 150.u), child: f)],
-          ),
+          if (down && !limited)
+            // No answer: one line instead of a row of dashes (UD-033).
+            Text(downSince == null ? l.deskKitNodeNoAnswer : l.deskKitNoAnswerSince(hhmm(downSince!)), style: ts.small.copyWith(color: c.dim))
+          else
+            LayoutBuilder(
+              builder: (context, box) {
+                // Columns that leave no lone cell: all four facts in one row where they fit
+                // (>= 1100 px), else rows of three (or two) of at least 150 u each.
+                final fit = ((box.maxWidth + 14.u) / (150.u + 14.u)).floor().clamp(1, 6);
+                var cols = facts.length <= fit ? facts.length : (fit >= 3 ? 3 : fit);
+                if (facts.length % cols == 1 && cols > 2) cols--;
+                final w = (box.maxWidth - 14.u * (cols - 1)) / cols;
+                return Wrap(
+                  spacing: 14.u,
+                  runSpacing: 20.u,
+                  children: [for (final f in facts) SizedBox(width: w, child: f)],
+                );
+              },
+            ),
           if (down && switchTo != null) ...[
             SizedBox(height: Sp.x4),
             ENotice(

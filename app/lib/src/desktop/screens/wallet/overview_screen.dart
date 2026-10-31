@@ -296,31 +296,28 @@ class _SyncNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final l = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ENotice(
-          tone: ETone.info,
-          title: l.deskOvSyncTitle((part * 100).round()),
-          text: l.deskOvSyncText,
-        ),
-        SizedBox(height: Sp.x2),
-        Semantics(
-          label: l.deskOvSyncProgress,
-          value: '${(part * 100).round()}%',
-          child: EProgress(value: part),
-        ),
-        SizedBox(height: Sp.x1),
-        Text(l.deskOvSyncOfChain((part * 100).round()), style: ts.caption),
-      ],
+    // The bar and its caption inside the notice, under the text (UD-017).
+    return ENotice(
+      tone: ETone.info,
+      title: l.deskOvSyncTitle((part * 100).round()),
+      text: l.deskOvSyncText,
+      below: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            label: l.deskOvSyncProgress,
+            value: '${(part * 100).round()}%',
+            child: EProgress(value: part),
+          ),
+          SizedBox(height: Sp.x1),
+          Text(l.deskOvSyncOfChain((part * 100).round()), style: ts.caption, textAlign: TextAlign.end),
+        ],
+      ),
     );
   }
 }
 
 String _group(AppLocalizations l, int n) => localInt(l, n);
-
-/// The decimals [nano] needs, trailing zeros dropped.
-int _decimalsOf(int nano) => (nano.abs() % nanoPerEpic).toString().padLeft(8, '0').replaceFirst(RegExp(r'0+$'), '').length;
 
 class _BalancePanel extends ConsumerWidget {
   const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false});
@@ -466,8 +463,8 @@ class _BalancePanel extends ConsumerWidget {
                 (l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
               ];
-              // One precision for every tile: the most any of them needs, never under 4.
-              final decimals = [for (final it in items) if (it.$2 != null) _decimalsOf(it.$2!)].fold(4, (a, d) => d > a ? d : a);
+              // Four decimals as the phone's tiles (UP-016); the exact value is each tile's tooltip.
+              const decimals = 4;
               // One row when it fits; else rows of three (two for four tiles), the last row's
               // tiles stretching, so no tile is left alone beside an empty cell.
               final perRow = box.maxWidth >= items.length * 180.u ? items.length : (items.length == 4 ? 2 : 3);
@@ -489,6 +486,7 @@ class _BalancePanel extends ConsumerWidget {
                                 decimals: decimals,
                                 width: box.maxWidth / row.length,
                                 dim: updating,
+                                hidden: hidden,
                                 first: i == 0,
                                 right: i < row.length - 1,
                                 bottom: r < rows.length - 1,
@@ -637,10 +635,14 @@ class _Break extends StatelessWidget {
     this.bottom = false,
     this.dim = false,
     this.decimals = 4,
+    this.hidden = false,
   });
 
   /// Decimals shown: the same in every tile of the row.
   final int decimals;
+
+  /// Amounts hidden: no exact value in the tooltip.
+  final bool hidden;
 
   /// The cell's width, for fitting the amount.
   final double width;
@@ -681,12 +683,17 @@ class _Break extends StatelessWidget {
             padding: EdgeInsets.only(top: Sp.x1),
             child: nano == null
               ? _Skeleton(width: 90.u, height: 16.u)
-              : FitMoney(
-                  nano!,
-                  decimals: decimals,
-                  sizes: const [Fs.lg, Fs.md, Fs.sm, Fs.xs],
-                  width: width - (first ? Sp.x8 : Sp.x5) - Sp.x5,
-                  color: zero || dim ? c.faint : c.text,
+              : exactAmountTip(
+                  context,
+                  BigInt.from(nano!),
+                  hidden: hidden,
+                  child: FitMoney(
+                    nano!,
+                    decimals: decimals,
+                    sizes: const [Fs.lg, Fs.md, Fs.sm, Fs.xs],
+                    width: width - (first ? Sp.x8 : Sp.x5) - Sp.x5,
+                    color: zero || dim ? c.faint : c.text,
+                  ),
                 ),
           ),
         ],

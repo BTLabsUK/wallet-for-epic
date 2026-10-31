@@ -319,7 +319,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     final nav = ref.read(deskNavProvider.notifier);
-    final ts = context.ts;
     final l = context.l10n;
     final railIndex = _step == SetupStep.local ? _steps.indexOf(SetupStep.node) : _steps.indexOf(_step);
     final rail = railOf([if (_steps.contains(SetupStep.prefs)) l.deskSetupStepPrefs, l.deskSetupStepNode, l.deskSetupStepEpicbox, l.deskSetupStepReview], railIndex);
@@ -350,10 +349,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 alignment: Alignment.centerLeft,
                 child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
-            : (_first != null && _saveFailed == null && !(_demo?.saveFailed ?? false) ? Text(l.deskSetupSkipKeeps, style: ts.caption) : null),
+            : null,
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
-          if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
+          // What Skip keeps is the button's tooltip and accessible description (UD-016).
+          if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tooltip: l.deskSetupSkipKeeps, tabStop: false, onPressed: _busy || _checking ? null : _skip),
           if (!first) backButton(() => _to(_back)),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
@@ -420,13 +420,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         ),
         ExpandFade(
           open: !_local,
-          child: Padding(padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, 0, Sp.x1), child: picker),
+          child: Padding(padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x3, Sp.x4, Sp.x1), child: picker),
         ),
         // Every node checked and none answered (no network): say so, not an empty pick.
         if (!_local && _nodeUrl == null && nodes != null && nodes.isNotEmpty && nodes.every((n) => n.health == ServiceHealth.down))
           Padding(
             key: const ValueKey('setup-no-node-answers'),
-            padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, 0, 0),
+            padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, Sp.x4, 0),
             child: Text(l.deskOnbNodeNoAnswer, style: context.ts.small.copyWith(color: context.dc.risk, fontWeight: FontWeight.w600)),
           ),
         SizedBox(height: Sp.x3),

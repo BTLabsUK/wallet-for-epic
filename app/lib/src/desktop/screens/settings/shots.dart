@@ -129,6 +129,15 @@ final List<DeskShot> settingsShots = [
   ])
     DeskShot(id: id, title: title, route: DeskRoute.settingsNode, arg: NodeDemo.builtin, prepare: (c, _) => showLocalNode(c, state, consent)),
   DeskShot(id: '21-local-synced-2474', title: 'Local node, synced, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.builtin, width: 2474, height: 1338, prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted)),
+  // The Ports row's info popover with its "More in Help" link (WD2-063).
+  DeskShot(
+    id: '21-local-ports-hint',
+    title: 'Local node, the Ports info popover with its Help link',
+    route: DeskRoute.settingsNode,
+    arg: NodeDemo.builtin,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
+    dialog: (c) => openInfoHint(c, title: (l) => l.deskOnbNodePortsWhy),
+  ),
   DeskShot(
     id: '21-local-peers',
     title: 'Local node, Peers tab',
@@ -448,7 +457,8 @@ Future<void> openInfoHint(BuildContext root, {required String Function(AppLocali
   EInfoHintState? found;
   void visit(Element e) {
     if (found != null) return;
-    if (e is StatefulElement && e.widget is EInfoHint && (e.widget as EInfoHint).title == want) {
+    // By the popover's title, or by its text for a hint without one (a plain row's).
+    if (e is StatefulElement && e.widget is EInfoHint && ((e.widget as EInfoHint).title == want || (e.widget as EInfoHint).text == want)) {
       found = e.state as EInfoHintState;
       return;
     }

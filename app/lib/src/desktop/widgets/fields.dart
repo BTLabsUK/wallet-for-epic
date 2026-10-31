@@ -89,8 +89,8 @@ class EField extends StatelessWidget {
           SizedBox(height: 6.u),
           Text(help!, style: ts.small),
         ] else if (reserveError) ...[
-          SizedBox(height: 6.u),
-          Text('', style: ts.small),
+          // One fixed line the error or hint fills, no more (UD-010).
+          SizedBox(height: 6.u + 20.u),
         ],
       ],
     );
@@ -133,7 +133,12 @@ class EInput extends StatefulWidget {
     this.semanticLabel,
     this.textInputAction,
     this.size = EBtnSize.md,
+    this.fadeEnd = false,
   });
+
+  /// A long one-line value fades out over its last 24 u before [trailing] instead of being cut
+  /// through a glyph (an address under the field's buttons, UD-013).
+  final bool fadeEnd;
 
   final TextEditingController? controller;
   final String? hint;
@@ -249,7 +254,9 @@ class _EInputState extends State<EInput> {
                   child: Icon(widget.leading, size: Ctl.icon, color: c.faint),
                 ),
               Expanded(
-                child: Semantics(
+                child: _FadeEnd(
+                  on: widget.fadeEnd && !multi && widget.trailing != null,
+                  child: Semantics(
                   label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
                   child: TextField(
                     controller: widget.controller,
@@ -281,6 +288,7 @@ class _EInputState extends State<EInput> {
                         vertical: multi ? Sp.x3 : (sm ? 0 : 12),
                       ),
                     ),
+                  ),
                   ),
                 ),
               ),
@@ -456,6 +464,7 @@ class ESegmented<T> extends StatelessWidget {
     required this.onChanged,
     this.size = EBtnSize.sm,
     this.stretch = false,
+    this.shrink = false,
   });
 
   final List<ESegment<T>> segments;
@@ -464,11 +473,37 @@ class ESegmented<T> extends StatelessWidget {
   final EBtnSize size;
   final bool stretch;
 
+  /// Short of room, the control shrinks before it clips (UD-025): first the counts go (into
+  /// each segment's tooltip), then the segments share the width and their labels end in an
+  /// ellipsis, the whole label in the tooltip.
+  final bool shrink;
+
+  /// The width the segments take with their words whole.
+  double _natural(BuildContext context, {required bool counts}) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final dir = Directionality.of(context);
+    double text(String s, TextStyle st) {
+      final tp = TextPainter(text: TextSpan(text: s, style: st), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+      final w = tp.width;
+      tp.dispose();
+      return w;
+    }
+    final label = TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500);
+    final count = context.ts.mono(size: 11);
+    var w = 2 * 3.u + 2 + 2.0 * (segments.length - 1);
+    for (final s in segments) {
+      w += 2 * Sp.x3 + text(s.label, label);
+      if (s.icon != null) w += Ctl.iconSm + 6.u;
+      if (counts && s.count != null) w += 6.u + text('${s.count}', count);
+    }
+    return w.ceilToDouble() + 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final md = size == EBtnSize.md;
-    return Container(
+    Widget control(List<ESegment<T>> segs, bool stretch) => Container(
       padding: EdgeInsets.all(3.u),
       decoration: BoxDecoration(
         color: c.s2,
@@ -478,8 +513,8 @@ class ESegmented<T> extends StatelessWidget {
       child: Row(
         mainAxisSize: stretch ? MainAxisSize.max : MainAxisSize.min,
         children: [
-          for (final s in segments) ...[
-            if (s != segments.first) const SizedBox(width: 2),
+          for (final s in segs) ...[
+            if (s != segs.first) const SizedBox(width: 2),
             if (stretch)
               Expanded(child: _Seg(seg: s, selected: s.value == value, md: md, stretch: true, onTap: s.enabled ? () => onChanged(s.value) : null))
             else
@@ -487,6 +522,20 @@ class ESegmented<T> extends StatelessWidget {
           ],
         ],
       ),
+    );
+    if (!shrink) return control(segments, stretch);
+    return LayoutBuilder(
+      builder: (context, box) {
+        if (!box.maxWidth.isFinite || _natural(context, counts: true) <= box.maxWidth) return control(segments, stretch);
+        // Counts into the tooltips.
+        final bare = [
+          for (final s in segments)
+            ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, tooltip: s.tooltip ?? (s.count == null ? null : '${s.label} · ${s.count}')),
+        ];
+        if (_natural(context, counts: false) <= box.maxWidth) return control(bare, stretch);
+        // Shared width, labels cut with an ellipsis: the tooltip holds the whole label.
+        return control([for (final s in bare) ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, tooltip: s.tooltip ?? s.label)], true);
+      },
     );
   }
 }
@@ -585,6 +634,7 @@ class EChoiceCard extends StatefulWidget {
     this.description,
     this.icon,
     this.tag,
+    this.titleLines,
   });
 
   final String title;
@@ -593,6 +643,10 @@ class EChoiceCard extends StatefulWidget {
   final bool selected;
   final VoidCallback onTap;
   final Widget? tag;
+
+  /// Reserve this many title lines, so the subtitles of cards in one row share a baseline
+  /// whether a title wraps or not (UD-021).
+  final int? titleLines;
 
   @override
   State<EChoiceCard> createState() => _EChoiceCardState();
@@ -638,7 +692,10 @@ class _EChoiceCardState extends State<EChoiceCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(widget.title, style: ts.strong),
+                          if (widget.titleLines case final n?)
+                            SizedBox(height: n * (ts.strong.fontSize ?? Fs.md) * (ts.strong.height ?? 1.4), child: Text(widget.title, style: ts.strong, maxLines: n, overflow: TextOverflow.ellipsis))
+                          else
+                            Text(widget.title, style: ts.strong),
                           if (widget.description != null) ...[
                             SizedBox(height: Sp.x1),
                             Text(widget.description!, style: ts.small),
@@ -711,6 +768,35 @@ class ECheckbox extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Fades [child]'s last 24 u to transparent when [on] (a one-line field whose text runs under
+/// its trailing buttons).
+class _FadeEnd extends StatelessWidget {
+  const _FadeEnd({required this.on, required this.child});
+
+  final bool on;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!on) return child;
+    // The shader paints outside the widget tree: the reading direction is resolved here.
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (rect) {
+        final fade = (24.u / rect.width).clamp(0.0, 1.0);
+        return LinearGradient(
+          begin: rtl ? Alignment.centerRight : Alignment.centerLeft,
+          end: rtl ? Alignment.centerLeft : Alignment.centerRight,
+          colors: const [Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0x00FFFFFF)],
+          stops: [0, 1 - fade, 1],
+        ).createShader(rect);
+      },
+      child: child,
     );
   }
 }

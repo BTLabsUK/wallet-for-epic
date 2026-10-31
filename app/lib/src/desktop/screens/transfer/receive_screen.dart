@@ -345,8 +345,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
 
   /// "Receiving" and one icon per method in its state colour; a click scrolls to its panel.
   Widget _indicator(DeskState st, ServiceStatus? status) {
-    final ts = context.ts;
-    final c = context.dc;
     final l = context.l10n;
     final methods = _methodsFor(st.settings);
     final offline = deskNetBlock(st).byMode;
@@ -359,14 +357,19 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             : methodStateLine(l, m, status, st.settings),
     };
     String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
+    final receiving = lines.values.any((m) => m != null && m.state != EState.off);
+    // The glyphs alone; "Receiving" stays on the card switch and in this tooltip (UD-015). With
+    // every method off the header shows nothing, as it would claim receiving.
+    if (!receiving) return const SizedBox.shrink();
     return Semantics(
       liveRegion: true,
       label: [for (final m in methods) l.deskRecvSemList(_name(l, m), word(m))].join(', '),
+      child: Tooltip(
+        message: l.deskRecvHeaderTip([for (final m in methods) if (lines[m] != null && lines[m]!.state != EState.off) _name(l, m)].join(' · ')),
+        waitDuration: const Duration(milliseconds: 400),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // The word only while something receives; with every method off it would claim it.
-          if (lines.values.any((m) => m != null && m.state != EState.off)) ExcludeSemantics(child: Text(l.deskRecvReceiving, style: ts.small.copyWith(color: c.dim))),
           for (final m in methods) ...[
             SizedBox(width: Sp.x2),
             Tooltip(
@@ -392,6 +395,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ),
           ],
         ],
+      ),
       ),
     );
   }

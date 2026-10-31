@@ -117,17 +117,19 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   Widget _search({required bool full, required bool hasItems}) {
     final width = MediaQuery.sizeOf(context).width;
     final l = context.l10n;
+    // Wide enough for the long placeholder at >= 1280 (UD-002); the short one below that.
+    final wide = width >= 1280.u;
     final input = EInput(
       controller: _query,
       enabled: hasItems,
-      hint: l.deskActSearchHint,
+      hint: full || wide ? l.deskActSearchHintFull : l.deskActSearchHint,
       leading: EIcons.search,
       semanticLabel: l.deskActSearchLabel,
       onChanged: (_) => setState(() => _page = 0),
       trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: l.deskActClearSearch, size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
     );
     if (full) return input;
-    return SizedBox(width: width >= 1280.u ? 280.u : 200.u, child: input);
+    return SizedBox(width: wide ? 320.u : 200.u, child: input);
   }
 
   @override
@@ -268,9 +270,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       );
     }
     // The filter sits in the list's header band, level with the detail pane's title.
-    final tabs = SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ESegmented<_Filter>(
+    final tabs = ESegmented<_Filter>(
+        shrink: true,
         segments: [
           ESegment(_Filter.all, l.deskActFilterAll, count: count(_Filter.all)),
           ESegment(_Filter.sent, l.deskActFilterSent, count: count(_Filter.sent)),
@@ -285,7 +286,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           _filter = v;
           _page = 0;
         }),
-      ),
     );
     return _panel(
       head: tabs,

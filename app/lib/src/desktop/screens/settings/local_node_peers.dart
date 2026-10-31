@@ -15,7 +15,7 @@ import '../../data/desk_node.dart';
 import '../../data/node_view.dart' show hhmm, digits;
 import '../../widgets/kit.dart';
 import '../../../settings_file/host_settings.dart' show appConfig;
-import 'local_node.dart' show localNodeOptionsProvider;
+import 'local_node.dart' show localNodeOptionsProvider, localNodeHelp;
 import 'own_node_panel.dart' show ownAskEvery;
 
 /// `MW/Epic 4.1.1` → `4.1.1`; an unknown agent stays whole.
@@ -187,7 +187,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
               children: [
                 Flexible(child: Text(text, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: c.faint, fontWeight: FontWeight.w600))),
                 SizedBox(width: Sp.x1),
-                EInfoHint(hint),
+                EInfoHint(hint, onHelp: localNodeHelp(ref)),
               ],
             ),
     );

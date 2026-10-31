@@ -47,5 +47,6 @@
   "deskRecvSwitchLabel": "{title}，接收",
   "deskRecvTorOffTitle": "Link · Tor 需要 Tor。",
   "deskRecvTorOffText": "Tor 开启时，Tor 地址才可用。Tor 是设置 › 隐私中的开关，它让钱包的连接走 Tor。",
-  "deskRecvHttpIntroInternet": "供互联网上的钱包使用，仅在此钱包打开时。"
+  "deskRecvHttpIntroInternet": "供互联网上的钱包使用，仅在此钱包打开时。",
+  "deskRecvHeaderTip": "接收：{methods}"
 }

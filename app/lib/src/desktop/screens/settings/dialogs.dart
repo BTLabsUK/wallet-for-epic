@@ -320,23 +320,27 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
           child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Semantics(
-              label: l.deskSetDlgRemoveWhat,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  choice(WalletRemoval.list, l.deskSetDlgRemoveFromList, l.deskSetDlgRemoveFromListHint(w.folder)),
-                  if (_isOpen)
+            // Two real options only for the open wallet; otherwise the one sentence about the
+            // files, no selection card for a single choice (UD-022).
+            if (_isOpen)
+              Semantics(
+                label: l.deskSetDlgRemoveWhat,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    choice(WalletRemoval.list, l.deskSetDlgRemoveFromList, l.deskSetDlgRemoveFromListHint(w.folder)),
                     choice(
                       WalletRemoval.delete,
                       l.deskSetDlgDeleteWallet,
                       l.deskSetDlgRemoveDeleteHint(w.folder),
                     ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              )
+            else
+              Text(l.deskSetDlgRemoveFromListHint(w.folder), style: ts.body),
             if (!_isOpen) ...[
-              SizedBox(height: Sp.x1),
+              SizedBox(height: Sp.x3),
               Text(
                 l.deskSetDlgRemoveUnlockHint,
                 style: ts.small,
