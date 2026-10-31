@@ -347,16 +347,30 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
 
 /// The report's full text, one line per row so a long log scrolls smoothly. Null while the log
 /// is read.
-class ReportPreview extends StatelessWidget {
+class ReportPreview extends StatefulWidget {
   const ReportPreview({super.key, required this.text});
 
   final String? text;
 
   @override
+  State<ReportPreview> createState() => _ReportPreviewState();
+}
+
+class _ReportPreviewState extends State<ReportPreview> {
+  // Its own: the always-shown thumb (theme.dart) needs a controller, and a dialog has no primary one.
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final t = text;
+    final t = widget.text;
     if (t == null) return Padding(padding: EdgeInsets.all(Sp.x3), child: const ESpinner());
     final lines = t.split('\n');
     final style = ts.mono(size: Fs.xs, color: c.dim);
@@ -368,7 +382,9 @@ class ReportPreview extends StatelessWidget {
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
       // Selectable through the dialog's own selection area (selectable.dart).
       child: Scrollbar(
+        controller: _scroll,
         child: ListView.builder(
+          controller: _scroll,
           padding: EdgeInsets.all(Sp.x3),
           itemCount: lines.length,
           itemBuilder: (context, i) => Text(lines[i], style: style),
