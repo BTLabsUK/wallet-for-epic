@@ -37,6 +37,7 @@ CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "
           "settings_kept", "send_ok", "receive_ok"]
 NODE_PICK = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
 RELAY_PICK = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
+TEST_CONFIRMATIONS = 1  # the setting the test moves to: test payments spend after one block
 FUND_IN = "0.03"     # P -> wallet before the update
 FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")
@@ -182,7 +183,7 @@ class Run:
             "candidate: %s" % cand,
             "node: %s; Epicbox: %s (picked from %s / %s when unset)" % (self.node or "-", self.relay or "-", NODE_PICK, RELAY_PICK),
             "loopback stand-ins: node http://127.0.0.1:<free port> -> REL_NODE, relay 127.0.0.1:<free port> -> REL_EPICBOX",
-            "previous app: create wallet, Settings: node + stand-in node, Epicbox + stand-in relay, Light theme, label, 4 confirmations, Technical details",
+            "previous app: create wallet, Settings: node + stand-in node, Epicbox + stand-in relay, Light theme, label, %d confirmation(s), Technical details" % TEST_CONFIRMATIONS,
             "fund: P -> wallet %s EPIC via Epicbox (flock %s), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: address, balance, activity, node and Epicbox lists, settings, data folder files",
             "swap: stop the previous app, start the candidate on the same HOME, unlock, same digest",
@@ -458,9 +459,9 @@ class Run:
         ui.click("re:^Save label$")
         time.sleep(1)
         self.settings_page("Advanced")
-        for _ in range(10):
+        for _ in range(30):
             v = self.confirmations()
-            if v is None or v <= 4:
+            if v is None or v <= TEST_CONFIRMATIONS:
                 break
             ui.click("re:^Fewer confirmations$")
             time.sleep(0.5)

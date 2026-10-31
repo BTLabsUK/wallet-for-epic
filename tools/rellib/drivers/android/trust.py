@@ -30,7 +30,7 @@ STATE = os.path.expanduser(E("REL_TRUST_STATE", "~/.config/btlabs/rel-trust-andr
 NODE = E("REL_NODE", "")              # https://host[:port]
 EPICBOX = E("REL_EPICBOX", "")        # host[:port]
 FUNDS = E("REL_FUNDS", "1") == "1"
-CONFIRMATIONS = int(E("REL_TRUST_CONFIRMATIONS", "4"))  # the stored setting the test moves to
+CONFIRMATIONS = int(E("REL_TRUST_CONFIRMATIONS", "1"))  # the stored setting the test moves to; 1: test payments spend after one block
 THEME = E("REL_TRUST_THEME", "Dark")
 RECEIVE_AMOUNT = E("REL_TRUST_RECEIVE", "0.02")   # P → wallet
 SEND_AMOUNT = E("REL_TRUST_SEND", "0.01")         # wallet → P
@@ -736,6 +736,17 @@ def send_epicbox(to_addr, amount):
     return True
 
 
+def wait_send_funds():
+    """Until the wallet can pay SEND_AMOUNT: a confirmation wait, so outside the P lock."""
+    need = Decimal(SEND_AMOUNT) + Decimal("0.01")
+    end = time.time() + 1200
+    while time.time() < end:
+        sp = balance()["spendable"]
+        if sp and Decimal(sp) >= need:
+            return
+        time.sleep(15)
+
+
 def funds(p, my_addr):
     """send_ok, receive_ok and their details. P's listener runs for the whole of it."""
     res = {"send_ok": False, "receive_ok": False}
@@ -746,14 +757,8 @@ def funds(p, my_addr):
         return res, det
     pk = p_addr.split("@")[0]
     p_short = f"{pk[:6]}…{pk[-6:]}"
-    # Send first: the funds already in the wallet are spendable; P's listener answers.
-    need = Decimal(SEND_AMOUNT) + Decimal("0.01")
-    end = time.time() + 1200
-    while time.time() < end:
-        sp = balance()["spendable"]
-        if sp and Decimal(sp) >= need:
-            break
-        time.sleep(15)
+    # Send first: the funds already in the wallet are spendable (wait_send_funds, before the
+    # lock); P's listener answers.
     try:
         before = set(tx_rows(nodes(S)))
         send_epicbox(p_addr, SEND_AMOUNT)
@@ -1020,6 +1025,7 @@ def run():
                     note.append(f"{kind} {target} put back in use for the payments")
                     use_typed_server(kind, target)
             my_addr = address() if note else b["address"]
+            wait_send_funds()
             with PSession(p_log) as p:
                 fr, fd = funds(p, my_addr)
             if note:

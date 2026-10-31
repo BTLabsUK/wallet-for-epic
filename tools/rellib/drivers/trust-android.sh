@@ -108,7 +108,7 @@ trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   1 install  adb uninstall uk.btlabs.epiccash.mobile; adb install $prev_apk
   2 wallet   restore the test wallet from $REL_TRUST_STATE/phrase (none: create one, keep its phrase, P funds it); holds $REL_TRUST_STATE/.lock
   3 user     node $REL_NODE typed in and in use; relay $REL_EPICBOX typed in and in use;
-             Theme ${REL_TRUST_THEME:-Dark}, Technical details on, Confirmations ${REL_TRUST_CONFIRMATIONS:-4}
+             Theme ${REL_TRUST_THEME:-Dark}, Technical details on, Confirmations ${REL_TRUST_CONFIRMATIONS:-1}
   4 digest   address, Total/Spendable, Activity rows, Node and Epicbox lists, settings
   5 update   adb install -r $cand_apk  (same signature, as the in-app updater's PackageInstaller)
   6 open     launch, unlock with the PIN, digest again, compare

@@ -190,7 +190,7 @@ class Run:
             "loopback stand-ins on the rig (agent.ps1): node http://127.0.0.1:<port> -> REL_NODE, relay 127.0.0.1:<port> -> REL_EPICBOX",
             "previous app (Setup /VERYSILENT): create a wallet; Setup assistant: stand-in node added then REL_NODE in use, "
             "stand-in relay added then REL_EPICBOX in use; then, closed, Light theme, Technical details, a label and "
-            "4 confirmations seeded into its own files (seed.py) and read back after it reopens",
+            "%d confirmation(s) seeded into its own files (seed.py) and read back after it reopens" % seed.SEED["confirmations"],
             "fund: P -> wallet %s EPIC via Epicbox (flock %s), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: wallet DB (outputs, transactions), wallets.json, desk store settings keys, settings.toml, wfe.log, data folder files",
             "update: candidate Setup /SILENT /NORESTART /UPDATEFROMAPP=1 while the app runs, app closed, Setup reopens it; "
@@ -436,7 +436,7 @@ class Run:
             raise CannotRun("server setup on the previous release: %s" % "; ".join(bad))
 
     def seed_settings(self):
-        """Light theme, Technical details, a wallet label and 4 confirmations, written into the previous
+        """Light theme, Technical details, a wallet label and 1 confirmation (seed.SEED), written into the previous
         release's own files while it is closed (seed.py), then read back from the reopened app."""
         self.call("close", wait_s=60, timeout=90)
         w = self.wallets()
