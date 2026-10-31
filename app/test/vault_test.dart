@@ -34,6 +34,7 @@ void main() {
     late HardwarePinStore store;
 
     setUp(() {
+      HardwarePinStore.forgetKept();
       inner = MemorySecretStore();
       wrap = MemoryKeyWrap();
       store = HardwarePinStore(inner, wrap, _id);
@@ -142,6 +143,90 @@ void main() {
       expect(await wrap.aliases(store.aliasPrefix), ['${store.aliasPrefix}10']);
       expect(aliases, isNot(contains('${store.aliasPrefix}10')));
       expect(await store.read(_pending), 'p');
+    });
+
+    // An unlock as LEPIC makes it: count read, counted (0 to 1, a rotation), PIN key read,
+    // count cleared.
+    Future<void> attempt() async {
+      final count = int.parse((await store.read(_failures))!);
+      await store.write(_failures, '${count + 1}');
+      await store.read(_key);
+      await store.read(_pending);
+      await store.delete(_failures);
+    }
+
+    Future<void> sealedWallet() async {
+      await store.write(_key, 'k');
+      await store.write(_failures, '1');
+      await store.delete(_failures);
+    }
+
+    test('a key made ahead is the next rotation\'s: no key is made during the attempt', () async {
+      await sealedWallet();
+      final copy = Map.of(inner.values);
+      await HardwarePinStore(inner, wrap, _id).prepareNextKey();
+      await store.prepareNextKey(); // once only
+      final made = wrap.created;
+      expect(await wrap.aliases(store.aliasPrefix), hasLength(2));
+
+      await attempt();
+      expect(wrap.created, made, reason: 'the key made ahead was taken');
+      expect(await wrap.aliases(store.aliasPrefix), hasLength(1), reason: 'older keys deleted');
+      expect(await store.read(_key), 'k');
+      expect(await store.read(_failures), '0');
+      // As before: the store as it was before the attempt no longer opens.
+      inner.values
+        ..clear()
+        ..addAll(copy);
+      await expectLater(store.read(_key), throwsA(isA<PinKeyLost>()));
+    });
+
+    test('a key made ahead that no longer seals is replaced by a new one', () async {
+      await sealedWallet();
+      await store.prepareNextKey();
+      wrap.lose((await wrap.aliases(store.aliasPrefix)).last);
+      final made = wrap.created;
+      await attempt();
+      expect(wrap.created, made + 1);
+      expect(await store.read(_key), 'k');
+      expect(await store.read(_failures), '0');
+      expect(await wrap.aliases(store.aliasPrefix), hasLength(1));
+    });
+
+    test('a key left in the Keystore by a cut-short rotation is never taken', () async {
+      await store.write(_key, 'k');
+      // It may have sealed text an older copy still holds.
+      final left = '${store.aliasPrefix}7';
+      await wrap.create(left);
+      inner.values[_failures] = 'wfe-hw1:7:${await wrap.seal(left, _failures, '3')}';
+      await store.prepareNextKey();
+      expect(await wrap.aliases(store.aliasPrefix), contains('${store.aliasPrefix}8'));
+      await store.write(_failures, '4');
+      expect(await wrap.aliases(store.aliasPrefix), ['${store.aliasPrefix}8']);
+      expect(await store.read(_failures), '4');
+    });
+
+    test('the count is opened once, the PIN key every time', () async {
+      await sealedWallet();
+      HardwarePinStore.forgetKept(); // the app started again
+      await store.prepareNextKey();
+      wrap.opened = 0;
+      expect(await store.read(_failures), '0'); // the unlock screen
+      expect(await store.read(_failures), '0'); // and again just before the attempt
+      await attempt();
+      // The screen opened the count and the later reads reused it; the PIN key was opened to
+      // seal it again, and by LEPIC's read.
+      expect(wrap.opened, 3);
+      // Text changed behind the store's back is opened, not taken from what was kept.
+      final kept = inner.values[_failures]!;
+      inner.values[_failures] = kept.replaceFirst(RegExp(r':[^:]*$'), ':bogus');
+      await expectLater(store.read(_failures), throwsA(isA<PinKeyLost>()));
+      inner.values[_failures] = kept;
+      expect(await store.read(_failures), '0');
+      // A lost key is said by the next count read, as before.
+      wrap.loseAll();
+      await expectLater(store.read(_key), throwsA(isA<PinKeyLost>()));
+      await expectLater(store.read(_failures), throwsA(isA<PinKeyLost>()));
     });
 
     test('forgetting the PIN key deletes the Keystore keys', () async {

@@ -1263,9 +1263,17 @@ class LepicWalletService implements WalletService {
   /// LEPIC keeps the count in the wallet's store as `lepic.pin-failures` (documented on
   /// `EpicWallet.openWithPin`). A count that does not parse costs LEPIC the longest wait, so it
   /// reads as a large one here too.
+  ///
+  /// The count is read before a PIN is tried (the unlock screen, the PIN prompt): with
+  /// [keyWrap], the Keystore key that attempt rotates to is made meanwhile, while the user
+  /// types ([HardwarePinStore.prepareNextKey]).
   @override
   Future<int> pinFailures({required WalletConfig config}) async {
     final text = await (await _storeKeys(config)).read('lepic.pin-failures');
+    final wrap = keyWrap;
+    if (wrap != null) {
+      unawaited(HardwarePinStore(_secrets, wrap, await _storePrefix(config)).prepareNextKey());
+    }
     if (text == null) return 0;
     return int.tryParse(text.trim()) ?? 0x7fffffff;
   }

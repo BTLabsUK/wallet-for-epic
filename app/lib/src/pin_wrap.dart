@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'log.dart';
 import 'secret_store_api.dart';
@@ -67,7 +68,12 @@ class MemoryKeyWrap implements KeyWrap {
   final Map<String, Map<String, ({String name, String text})>> keys = {};
   bool failCreate = false;
   int created = 0;
-  int _next = 0;
+
+  /// How often [open] was asked: each one is a Keystore call on the phone.
+  int opened = 0;
+
+  // Across instances, so text sealed by one never equals another's.
+  static int _next = 0;
 
   void lose(String alias) => keys.remove(alias);
 
@@ -92,6 +98,7 @@ class MemoryKeyWrap implements KeyWrap {
 
   @override
   Future<String> open(String alias, String name, String blob) async {
+    opened++;
     final sealed = keys[alias]?[blob];
     if (sealed == null || sealed.name != name) throw const PinKeyLost('does not open');
     return sealed.text;
@@ -129,6 +136,23 @@ class HardwarePinStore implements SecretStore {
   /// across instances, since the service builds a new one per call.
   static final Map<String, Future<void>> _queues = {};
 
+  /// The key the next rotation takes, per wallet, made ahead by [prepareNextKey] in this
+  /// process and never used to seal an entry yet. Only such a key is taken: a key merely found
+  /// in the Keystore may have sealed an entry that an older copy of the store still holds.
+  static final Map<String, ({int gen, Map<String, bool> got})> _spares = {};
+
+  /// The failure count last opened or sealed, per wallet, with the stored text it came from,
+  /// so the same text is not opened again (the unlock screen, then LEPIC, read it in turn).
+  /// Text that changed is opened again. The count is no secret; the PIN key is never kept.
+  static final Map<String, ({String raw, String text})> _counts = {};
+
+  /// Forgets every key made ahead and every text kept (tests: each starts from none).
+  @visibleForTesting
+  static void forgetKept() {
+    _spares.clear();
+    _counts.clear();
+  }
+
   String get _key => '$walletId$_keyName';
   String get _pending => '$walletId$_pendingName';
   String get _failures => '$walletId$_failuresName';
@@ -143,7 +167,15 @@ class HardwarePinStore implements SecretStore {
 
   Future<T> _serial<T>(Future<T> Function() action) {
     final previous = _queues[walletId] ?? Future<void>.value();
-    final result = previous.then((_) => action());
+    final result = previous.then((_) async {
+      try {
+        return await action();
+      } on PinKeyLost {
+        // The count kept would hide it from the next read, which must say it again.
+        _counts.remove(walletId);
+        rethrow;
+      }
+    });
     _queues[walletId] = result.then<void>((_) {}, onError: (Object _) {});
     return result;
   }
@@ -163,6 +195,21 @@ class HardwarePinStore implements SecretStore {
   /// Whether the PIN key is sealed by the Keystore: the migration happened.
   Future<bool> isSealed() => _serial(() async => _parse(await _inner.read(_key)) != null);
 
+  /// Makes the key the next PIN attempt rotates to, while the user is still typing: on a phone
+  /// with StrongBox, making a key is the slowest Keystore step of an attempt. Nothing is sealed
+  /// under it until that attempt, so an older copy of the store opens with it no more than
+  /// before. A wallet without a PIN key gets none; a Keystore that cannot make one now leaves
+  /// it to the attempt, as before.
+  Future<void> prepareNextKey() => _serial(() async {
+    if (_spares.containsKey(walletId) || await _inner.read(_key) == null) return;
+    try {
+      final gen = await _lastGen(await _aliasesOrEmpty()) + 1;
+      _spares[walletId] = (gen: gen, got: await _wrap.create(_alias(gen)));
+    } on Object catch (error) {
+      logInfo('vault', 'next PIN key not made ahead (${error.runtimeType})');
+    }
+  });
+
   static ({int gen, String blob})? _parse(String? raw) {
     if (raw == null || !raw.startsWith(_tag)) return null;
     final rest = raw.substring(_tag.length);
@@ -178,7 +225,13 @@ class HardwarePinStore implements SecretStore {
   Future<String?> _read(String key) async {
     final raw = await _inner.read(key);
     final sealed = _parse(raw);
-    if (sealed != null) return _wrap.open(_alias(sealed.gen), key, sealed.blob);
+    if (sealed != null) {
+      final known = key == _failures ? _counts[walletId] : null;
+      if (known != null && known.raw == raw) return known.text;
+      final text = await _wrap.open(_alias(sealed.gen), key, sealed.blob);
+      if (key == _failures) _counts[walletId] = (raw: raw!, text: text);
+      return text;
+    }
     // A count gone, or plain text beside a sealed PIN key, was put there by hand.
     if (key != _key && await _sealedWallet()) {
       return key == _failures ? '$tamperedPinFailures' : null;
@@ -206,12 +259,26 @@ class HardwarePinStore implements SecretStore {
     if (count != null && count > 0) return _rotate(key, value);
     final gen = await _currentGen();
     if (gen == null) return _rotate(key, value);
-    await _inner.write(key, '$_tag$gen:${await _wrap.seal(_alias(gen), key, value)}');
+    await _writeSealed(key, '$_tag$gen:${await _wrap.seal(_alias(gen), key, value)}', value);
+  }
+
+  /// Writes [raw], the sealed text of [text], to [key], and keeps what the reads may skip.
+  Future<void> _writeSealed(String key, String raw, String text) async {
+    _forget(key);
+    await _inner.write(key, raw);
+    if (key == _failures) _counts[walletId] = (raw: raw, text: text);
+  }
+
+  /// Drops what is kept of [key]'s text before it changes.
+  void _forget(String key) {
+    if (key == _failures) _counts.remove(walletId);
   }
 
   Future<void> _delete(String key) async {
+    _forget(key);
     if (key == _key) {
       // The wallet's PIN is forgotten: its Keystore keys go with it.
+      _spares.remove(walletId);
       await _inner.delete(key);
       for (final alias in await _wrap.aliases(aliasPrefix)) {
         await _wrap.delete(alias);
@@ -232,30 +299,44 @@ class HardwarePinStore implements SecretStore {
       for (final k in [_failures, _pending, _key]) k: k == key ? value : await _read(k),
     };
     values[_failures] ??= '0';
-    var gen = 0;
-    for (final k in values.keys) {
-      final sealed = _parse(await _inner.read(k));
-      if (sealed != null && sealed.gen > gen) gen = sealed.gen;
-    }
+    final spare = _spares.remove(walletId);
     final existing = await _aliasesOrEmpty();
-    for (final alias in existing) {
-      final n = int.tryParse(alias.substring(aliasPrefix.length)) ?? 0;
-      if (n > gen) gen = n;
+    final next = await _lastGen(existing, except: spare?.gen) + 1;
+
+    // Every entry sealed under [gen], before any is written.
+    Future<Map<String, String>> sealAll(int gen) async => {
+      for (final MapEntry(key: k, value: v) in values.entries)
+        if (v != null) k: '$_tag$gen:${await _wrap.seal(_alias(gen), k, v)}',
+    };
+
+    Map<String, bool>? got;
+    Map<String, String>? sealed;
+    if (spare != null && spare.gen == next) {
+      // The key made ahead; one that no longer seals is replaced as if there were none.
+      try {
+        sealed = await sealAll(next);
+        got = spare.got;
+      } on Object catch (error) {
+        logInfo('vault', 'key made ahead does not seal (${error.runtimeType}); making another');
+        await _wrap.delete(_alias(next));
+      }
     }
-    final next = gen + 1;
-    final Map<String, bool> got;
-    try {
-      got = await _wrap.create(_alias(next));
-    } on KeyWrapUnavailable catch (error) {
-      if (wasSealed) rethrow;
-      // A Keystore that makes no key at all: the entries stay as an older app kept them
-      // rather than the wallet not opening.
-      logWarn('vault', 'Keystore made no key (${error.code}); PIN key stays in the store');
-      return _inner.write(key, value);
+    if (sealed == null) {
+      try {
+        got = await _wrap.create(_alias(next));
+      } on KeyWrapUnavailable catch (error) {
+        if (wasSealed) rethrow;
+        // A Keystore that makes no key at all: the entries stay as an older app kept them
+        // rather than the wallet not opening.
+        logWarn('vault', 'Keystore made no key (${error.code}); PIN key stays in the store');
+        _forget(key);
+        return _inner.write(key, value);
+      }
+      sealed = await sealAll(next);
     }
-    for (final MapEntry(key: k, value: v) in values.entries) {
-      if (v == null) continue;
-      await _inner.write(k, '$_tag$next:${await _wrap.seal(_alias(next), k, v)}');
+    // The count first and the PIN key last, in the order of [values].
+    for (final MapEntry(key: k, value: raw) in sealed.entries) {
+      await _writeSealed(k, raw, values[k]!);
     }
     for (final alias in existing) {
       if (alias != _alias(next)) await _wrap.delete(alias);
@@ -264,10 +345,25 @@ class HardwarePinStore implements SecretStore {
       logInfo(
         'vault',
         'PIN key now held by the Keystore'
-            '${got['strongBox'] == true ? ' (StrongBox)' : ''}'
-            '${got['unlockedRequired'] == true ? ', unlocked device only' : ''}',
+            '${got?['strongBox'] == true ? ' (StrongBox)' : ''}'
+            '${got?['unlockedRequired'] == true ? ', unlocked device only' : ''}',
       );
     }
+  }
+
+  /// The highest key generation an entry is sealed under or a Keystore alias in [aliases]
+  /// names, leaving out [except] (a key made ahead), or 0.
+  Future<int> _lastGen(List<String> aliases, {int? except}) async {
+    var gen = 0;
+    for (final k in [_failures, _pending, _key]) {
+      final sealed = _parse(await _inner.read(k));
+      if (sealed != null && sealed.gen > gen) gen = sealed.gen;
+    }
+    for (final alias in aliases) {
+      final n = int.tryParse(alias.substring(aliasPrefix.length)) ?? 0;
+      if (n != except && n > gen) gen = n;
+    }
+    return gen;
   }
 
   Future<List<String>> _aliasesOrEmpty() async {
