@@ -23559,7 +23559,7 @@
   "@statusOffByModeDetail": {
     "description": "Detail of a status icon that is off because of the network mode."
   },
-  "netBlockEpicboxNodeOnly": "Node only is on: Epicbox is off. Direct · QR and Direct · File work.",
+  "netBlockEpicboxNodeOnly": "Node only is on: Epicbox is off. Direct · QR Payment and Direct · File Transfer work.",
   "@netBlockEpicboxNodeOnly": {
     "description": "Send over Epicbox while Node only is chosen."
   },
@@ -24259,5 +24259,13 @@
         "type": "String"
       }
     }
+  },
+  "deskSendEpicboxNodeOnly": "Node only is on: Epicbox is off. Direct · File Transfer works.",
+  "@deskSendEpicboxNodeOnly": {
+    "description": "Send notice and hint while Node only is on and Epicbox is chosen: the desktop has no QR Payment, so only File Transfer works."
+  },
+  "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
+  "@deskSendLinkNodeOnly": {
+    "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
   }
 }

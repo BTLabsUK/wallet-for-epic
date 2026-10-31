@@ -4551,7 +4551,7 @@
   "netMarkChange": "Ändern",
   "statusOffByMode": "Aus ({mode})",
   "statusOffByModeDetail": "Vom Netzwerkmodus ausgeschaltet. Ändern unter Einstellungen › Erweitert › Netzwerk.",
-  "netBlockEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · QR und Direkt · Datei funktionieren.",
+  "netBlockEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · QR-Zahlung und Direkt · Dateiübertragung funktionieren.",
   "netBlockLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · QR und Direkt · Datei funktionieren.",
   "netBlockSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · QR und Direkt · Datei funktionieren.",
   "netBlockNodeOnly": "Aus bei „Nur Node“.",
@@ -4686,5 +4686,7 @@
   "deskKitMoreInHelp": "Mehr in der Hilfe",
   "homeReceiveEpicButton": "EPIC empfangen",
   "txDeviceStatusMadeOn": "Erstellt auf {device}.",
-  "txDeviceStatusHeld": "Erstellt auf {device}. Das Geld bleibt hier gehalten, bis die Chain die Zahlung zeigt."
+  "txDeviceStatusHeld": "Erstellt auf {device}. Das Geld bleibt hier gehalten, bis die Chain die Zahlung zeigt.",
+  "deskSendEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · Dateiübertragung funktioniert.",
+  "deskSendLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert."
 }

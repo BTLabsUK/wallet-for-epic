@@ -16,9 +16,24 @@ String strategyWord(AppLocalizations l, SelectionStrategy s) => switch (s) {
   SelectionStrategy.all => l.deskSendStrategyAll,
 };
 
-/// One summary line: the label, and the amount on the right ("—" while unknown).
+/// The value of a summary line while the estimate is on its way: a small blue spinner.
+class SummaryPending extends StatelessWidget {
+  const SummaryPending({super.key});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: context.l10n.txDetailsLoading,
+    child: Padding(
+      padding: EdgeInsets.symmetric(vertical: Sp.x1),
+      child: ESpinner(size: 12.u, color: context.dc.info),
+    ),
+  );
+}
+
+/// One summary line: the label, and the amount on the right ("—" while unknown, a spinner
+/// while [loading]).
 class SummaryLine extends StatelessWidget {
-  const SummaryLine({super.key, required this.label, required this.value, this.strong = false, this.dim = false, this.warn = false, this.top = false});
+  const SummaryLine({super.key, required this.label, required this.value, this.strong = false, this.dim = false, this.warn = false, this.top = false, this.loading = false});
 
   final String label;
   final int? value;
@@ -28,6 +43,9 @@ class SummaryLine extends StatelessWidget {
 
   /// The value sits at the top of a label that wraps.
   final bool top;
+
+  /// The estimate is on its way.
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +59,9 @@ class SummaryLine extends StatelessWidget {
         children: [
           Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
           SizedBox(width: Sp.x3),
-          if (v == null)
+          if (loading)
+            const SummaryPending()
+          else if (v == null)
             Text('—', style: ts.mono(size: Fs.md, color: c.faint))
           else
             EMoney(v, size: strong ? Fs.lg : Fs.md, color: warn ? c.warn : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
@@ -113,9 +133,12 @@ class HelpTip extends StatelessWidget {
 /// the strategy when this send does not use the default. [summary] null: "—" and no caption,
 /// as before an amount is typed.
 class SendLockRows extends StatelessWidget {
-  const SendLockRows({super.key, required this.summary, required this.strategy, required this.defaultStrategy, required this.blocks});
+  const SendLockRows({super.key, required this.summary, required this.strategy, required this.defaultStrategy, required this.blocks, this.loading = false});
 
   final SendSummary? summary;
+
+  /// The estimate is on its way: spinners instead of "—".
+  final bool loading;
   final SelectionStrategy strategy;
   final SelectionStrategy defaultStrategy;
 
@@ -134,8 +157,8 @@ class SendLockRows extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        SummaryLine(label: l.deskSendBalanceAfter, value: s?.balanceAfter, dim: true),
-        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true),
+        SummaryLine(label: l.deskSendBalanceAfter, value: s?.balanceAfter, dim: true, loading: loading && s == null),
+        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true, loading: loading && s == null),
         ExpandFade(
           open: caption != null,
           child: Semantics(

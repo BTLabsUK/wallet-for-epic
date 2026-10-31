@@ -17693,7 +17693,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      '„Nur Node“ ist an: Epicbox ist aus. Direkt · QR und Direkt · Datei funktionieren.';
+      '„Nur Node“ ist an: Epicbox ist aus. Direkt · QR-Zahlung und Direkt · Dateiübertragung funktionieren.';
 
   @override
   String get netBlockLinkNodeOnly =>
@@ -18217,4 +18217,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String txDeviceStatusHeld(String device) {
     return 'Erstellt auf $device. Das Geld bleibt hier gehalten, bis die Chain die Zahlung zeigt.';
   }
+
+  @override
+  String get deskSendEpicboxNodeOnly =>
+      '„Nur Node“ ist an: Epicbox ist aus. Direkt · Dateiübertragung funktioniert.';
+
+  @override
+  String get deskSendLinkNodeOnly =>
+      '„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert.';
 }
