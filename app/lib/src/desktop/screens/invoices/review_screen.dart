@@ -269,16 +269,14 @@ class _Review extends ConsumerWidget {
         LayoutBuilder(
           builder: (context, box) => box.maxWidth < Lay.lg
               ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [amountPanel, SizedBox(height: Sp.x4), facts])
-              // Side by side on one grid: both panels share their top and bottom edges.
-              : IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(child: amountPanel),
-                      SizedBox(width: Sp.x4),
-                      Expanded(child: facts),
-                    ],
-                  ),
+              // Side by side, tops aligned (EFacts measures its width, so no IntrinsicHeight row).
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: amountPanel),
+                    SizedBox(width: Sp.x4),
+                    Expanded(child: facts),
+                  ],
                 ),
         ),
         SizedBox(height: Sp.x5),
