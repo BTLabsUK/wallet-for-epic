@@ -90,9 +90,6 @@ class SettingsChange {
   /// The keys the app set in this change; the rest came from the file.
   final Set<String> appKeys;
 
-  /// The node in use (the first of the Node list) changed.
-  bool get nodeUseChanged => before.nodeUse != after.nodeUse;
-
   /// The Epicbox server in use (the first of the Epicbox list) changed.
   bool get epicboxUseChanged => before.epicboxUse != after.epicboxUse;
 }
@@ -114,7 +111,6 @@ class UseChange {
   final bool fromApp;
 
   bool get isNode => key == node;
-  bool get isEpicbox => key == epicbox;
 
   @override
   String toString() => 'UseChange($key: $from -> $to, ${fromApp ? 'app' : 'file'})';

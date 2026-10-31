@@ -161,9 +161,6 @@ class AdvancedPrefs {
   /// Tor is wanted at launch ([NetworkMode.torOnly]).
   bool get startsWithTor => networkMode == NetworkMode.torOnly;
 
-  /// Direct connections are refused ([NetworkMode.torOnly]) or nothing but the node goes.
-  bool get refusesDirect => networkMode != NetworkMode.standard;
-
   AdvancedPrefs withFeature(AdvancedFeature f, bool on) => AdvancedPrefs(
     features: on ? {...features, f} : features.where((x) => x != f).toSet(),
     networkMode: networkMode,

@@ -201,8 +201,6 @@ class BackupSettingsPlan {
   /// map, `v`, when it is newer or not one).
   final List<String> skipped;
 
-  bool get hasConflicts => conflicts.isNotEmpty;
-
   /// The servers question: keep this computer's, or use the backup's.
   bool get asksServers => servers.isNotEmpty;
 
