@@ -71,7 +71,7 @@ case "$cmd" in
     echo "app        $name  (core $(dart_const coreVersion))"
     echo "android    versionName $name, versionCode $code (every ABI)"
     echo "windows    file and installer version $(numbers "$name").0, product $name"
-    echo "linux      EpicWallet-$name-x86_64.AppImage"
+    echo "linux      EpicCashDesktop-$name-x86_64.AppImage (EpicCashDesktop-$name-notor-x86_64.AppImage)"
     echo "ios        CFBundleShortVersionString $(numbers "$name")"
     ;;
   check)
