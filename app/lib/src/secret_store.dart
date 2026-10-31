@@ -14,7 +14,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:local_auth_android/local_auth_android.dart' show AndroidAuthMessages;
 
 import 'app_log.dart';
 import 'pin_wrap.dart';
@@ -210,8 +209,7 @@ class PlatformBiometricStore implements BiometricStore {
 
   /// [call], or [BiometricCancelled] once the app was covered by a prompt, came back to the
   /// front and [answerGrace] passed with no answer: the prompt was dismissed and the store will
-  /// not say so. Covered again meanwhile (the store's own prompt after local_auth's),
-  /// the wait starts over. With [mustPrompt], an answer that came while no prompt ever covered
+  /// not say so. Covered again meanwhile, the wait starts over. With [mustPrompt], an answer that came while no prompt ever covered
   /// the app is [BiometricCancelled]: no fresh biometric check unlocked it.
   Future<T> _promptAnswer<T>(Future<T> call, {bool mustPrompt = false}) {
     final done = Completer<T>();
@@ -256,18 +254,6 @@ class PlatformBiometricStore implements BiometricStore {
   // prompt ([_promptAnswer]'s mustPrompt), or it is not used and the PIN opens the wallet.
   bool _wroteThisProcess = false;
 
-  /// local_auth's prompt with [prompt]'s words, as the store's own prompt has them (its
-  /// defaults are English).
-  Future<bool> _authenticate() => _auth.authenticate(
-    localizedReason: prompt.subtitle,
-    authMessages: [
-      // No hint line: the reason above already says it, and the prompt hides an empty one.
-      AndroidAuthMessages(signInTitle: prompt.title, signInHint: '', cancelButton: prompt.usePin),
-    ],
-    biometricOnly: true,
-    sensitiveTransaction: false,
-  );
-
   @override
   Future<String?> read(String key) => _guard(
     () => _storage.read(key: key, aOptions: _promptOptions),
@@ -276,11 +262,9 @@ class PlatformBiometricStore implements BiometricStore {
 
   @override
   Future<void> write(String key, String value) => _guard(() async {
-    // local_auth first: it answers a dismissed prompt, which the store's own prompt does not
-    //. The store then asks once more, for its key.
-    if (!await _authenticate()) {
-      throw const BiometricCancelled('dismissed');
-    }
+    // One prompt, the store's own for its key: a "Use PIN" it never answers is told by
+    // [_promptAnswer], as for a read. A local_auth prompt before it made turning biometrics on
+    // (and creating a wallet with them) ask twice.
     await _storage.write(key: key, value: value, aOptions: _promptOptions);
     _wroteThisProcess = true;
   });
