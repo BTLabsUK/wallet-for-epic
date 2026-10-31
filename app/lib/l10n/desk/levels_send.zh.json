@@ -17,5 +17,6 @@
   "deskLvSendSignFileText": "打开发送方给你的文件，并保存你的回复。",
   "deskLvSendFinishFile": "完成回复文件",
   "deskLvSendFinishFileText": "打开收到的回复，以发布这笔付款。",
-  "deskLvSendPrevAddress": "旧地址"
+  "deskLvSendPrevAddress": "旧地址",
+  "deskLvSendPrevText": "旧地址在 {server} 上。拥有旧地址的人需要新地址。"
 }

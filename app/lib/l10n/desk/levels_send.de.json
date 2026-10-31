@@ -17,5 +17,6 @@
   "deskLvSendSignFileText": "Öffnen Sie die Datei des Absenders und speichern Sie Ihre Antwort.",
   "deskLvSendFinishFile": "Antwortdatei abschließen",
   "deskLvSendFinishFileText": "Öffnen Sie die erhaltene Antwort, um die Zahlung zu senden.",
-  "deskLvSendPrevAddress": "Frühere Adresse"
+  "deskLvSendPrevAddress": "Frühere Adresse",
+  "deskLvSendPrevText": "Die alte Adresse lag auf {server}. Wer sie hat, braucht die neue."
 }
