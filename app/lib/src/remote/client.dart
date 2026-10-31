@@ -630,6 +630,11 @@ class RemoteWalletSession implements WalletSession {
   Future<String> mnemonic({required String password}) =>
       _call(SessionMember.mnemonic, stringWire, {'password': password});
 
+  /// Remote wallets are PIN wallets: they never ask the password again.
+  @override
+  Future<bool> checkPassword({required String password}) async =>
+      throw _notRemote('check password');
+
   @override
   Future<void> changePassword({
     required String currentPassword,

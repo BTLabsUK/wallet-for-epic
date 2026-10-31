@@ -796,11 +796,13 @@ class LepicDeskWallet implements DeskWalletApi {
     if (open) {
       if (mode == WalletRemoval.delete) {
         if (password == null || password.isEmpty) throw DeskError.l10n((l) => l.deskErrEnterPassword);
+        final bool right;
         try {
-          await _open.mnemonic(password: password);
+          right = await _open.checkPassword(password: password);
         } on core.WalletError catch (e) {
           throw _deskError(e);
         }
+        if (!right) throw DeskError.l10n((l) => l.deskErrWrongPassword, wrongPassword: true);
       }
     }
     final config = await _configOf(entry);
@@ -946,8 +948,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<bool> checkPassword(String password) async {
     try {
-      await _open.mnemonic(password: password);
-      return true;
+      return await _open.checkPassword(password: password);
     } on core.WalletError catch (e) {
       if (e.kind == core.WalletErrorKind.wrongPassword) return false;
       throw _deskError(e);

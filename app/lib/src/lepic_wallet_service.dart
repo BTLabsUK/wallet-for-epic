@@ -1494,6 +1494,10 @@ class LepicWalletSession implements WalletSession {
   }) => _guard(() => _wallet.checkPin(pin: pin, sealedPassword: sealedPassword));
 
   @override
+  Future<bool> checkPassword({required String password}) =>
+      _guard(() => _wallet.checkPassword(password: password));
+
+  @override
   Future<String> changePin({
     required String sealedPassword,
     required String oldPin,

@@ -234,6 +234,10 @@ class GatedWalletSession implements WalletSession {
       _gate.run(() => _inner.mnemonic(password: password));
 
   @override
+  Future<bool> checkPassword({required String password}) =>
+      _gate.run(() => _inner.checkPassword(password: password));
+
+  @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,

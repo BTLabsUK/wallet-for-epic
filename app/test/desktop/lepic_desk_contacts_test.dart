@@ -75,6 +75,9 @@ class _Wallet implements lepic.EpicWallet {
   }
 
   @override
+  Future<bool> checkPassword({required String password}) async => password == _password;
+
+  @override
   Future<String> epicboxAddress() async => _payments;
   @override
   Future<List<lepic.ContactView>> contacts() async => const [];

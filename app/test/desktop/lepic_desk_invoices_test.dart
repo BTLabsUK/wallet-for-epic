@@ -177,6 +177,9 @@ class _Wallet implements lepic.EpicWallet {
   }
 
   @override
+  Future<bool> checkPassword({required String password}) async => password == _password;
+
+  @override
   Future<lepic.ContactCollectReport> contactsCollect({
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,

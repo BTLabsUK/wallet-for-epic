@@ -51,6 +51,9 @@ class _StrictSession extends core.FakeWalletSession {
     if (password != _password) throw const core.WalletError(kind: core.WalletErrorKind.wrongPassword, message: 'wrong');
     return phrase;
   }
+
+  @override
+  Future<bool> checkPassword({required String password}) async => password == _password;
 }
 
 /// A session whose refresh waits at [gate] before its last step, and that fails any call once

@@ -169,6 +169,10 @@ abstract interface class WalletSession {
 
   Future<String> mnemonic({required String password});
 
+  /// Whether [password] opens this wallet, for an action that asks for it again. The attempt
+  /// counts as an unlock's does; the recovery phrase is not read.
+  Future<bool> checkPassword({required String password});
+
   /// Re-encrypts the wallet under [newPassword]; then only it opens the wallet. A wrong
   /// [currentPassword] throws [WalletErrorKind.wrongPassword], counted and delayed like a wrong
   /// unlock; a [newPassword] under eight characters [WalletErrorKind.invalidArgument]. A wallet
@@ -1158,6 +1162,10 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<String> mnemonic({required String password}) async => phrase;
+
+  /// Any password, as [mnemonic] takes any.
+  @override
+  Future<bool> checkPassword({required String password}) async => true;
 
   /// The [changePassword] calls, in order.
   final List<({String current, String next})> passwordChanges = [];
