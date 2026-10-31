@@ -22,7 +22,6 @@ import '../../ui/network_mode_text.dart' show statusOffByModeWord;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
 import '../widgets/kit.dart';
-import '../../settings_file/host_settings.dart' show appConfig;
 
 /// One row's content, whatever the service.
 class RailItem {
@@ -207,8 +206,10 @@ RailItem nodeRailItem(AppLocalizations l, NodeView v) => RailItem(
   jump: SettingsJump.node,
 );
 
-/// How often the rail asks about a remote node again.
-Duration get railNodeRefresh => appConfig.nodeRefresh;
+/// How often the rail asks about a remote node again: the network's tip (the "behind" check),
+/// the version and the latency. The node's own height and whether it answers come with every
+/// wallet status; the info is also asked again when the node changes or answers again.
+const Duration railNodeRefresh = Duration(minutes: 5);
 
 /// The rail: Node, Epicbox, HTTP, Tor, a divider between every two. [horizontal] lays the
 /// compact rows side by side (the phone's top bar).
@@ -284,6 +285,11 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    // The node answers the wallet again: what it says of itself is asked again too.
+    ref.listen(deskProvider.select((s) => s.status?.nodeHealth), (was, now) {
+      final u = _url;
+      if (u != null && was != null && was != ServiceHealth.ok && now == ServiceHealth.ok) ref.invalidate(deskNodeInfoProvider(u));
+    });
     final status = ref.watch(deskProvider.select((s) => s.status));
     final settings = ref.watch(deskProvider.select((s) => s.settings));
     final prefs = ref.watch(settingsPrefsProvider);
@@ -302,10 +308,11 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       _url = url;
       final health = _settledHealth(status.nodeHealth);
       final torState = netTorState(settings, status);
+      final info = ref.watch(deskNodeInfoProvider(url)).value;
       final v = remoteNodeView(
         context.l10n,
         url,
-        ref.watch(deskNodeInfoProvider(url)).value,
+        info?.withNodeHeight(status.nodeHeight),
         health: health,
         downSince: health == ServiceHealth.down ? _downSince : null,
         torOn: torState != TorState.off,

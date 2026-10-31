@@ -305,4 +305,20 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  test('the rail takes the node height the wallet read; the behind check keeps the network tip', () {
+    // P14: node info is asked every 5 min, not every poll; the wallet's own height stands in.
+    const url = 'https://node.lab.invalid';
+    final behind = mockNodeInfo(url, behind: 12);
+    final tip = behind.networkHeight!;
+    // The node caught up since: at tip by the wallet's height.
+    expect(remoteNodeView(englishStrings, url, behind.withNodeHeight(tip)).word, 'Synced');
+    // Partly caught up: still behind by what is left.
+    final part = behind.withNodeHeight(tip - 11);
+    expect(part.blocksBehind, 11);
+    expect(remoteNodeView(englishStrings, url, part).word, 'Behind');
+    // An older wallet height changes nothing, and a node past the last known tip is at it.
+    expect(identical(behind.withNodeHeight(tip - 20), behind), isTrue);
+    expect(behind.withNodeHeight(tip + 3).blocksBehind, 0);
+  });
 }

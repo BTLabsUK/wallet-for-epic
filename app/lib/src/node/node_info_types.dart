@@ -143,6 +143,46 @@ class NodeInfo {
 
   bool get atTip => blocksBehind != null && blocksBehind! <= 0;
 
+  /// This info with the node at [walletHeight], the height the wallet read from it since, when
+  /// that is newer than [height]: the gap to the network's tip as last asked shrinks with it,
+  /// never below 0. Unchanged when [height] is not known.
+  NodeInfo withNodeHeight(int walletHeight) {
+    final h = height;
+    if (h == null || walletHeight <= h) return this;
+    final tip = networkHeight ?? (blocksBehind == null ? null : h + blocksBehind!);
+    return NodeInfo(
+      url: url,
+      source: source,
+      at: at,
+      state: state,
+      reason: reason,
+      height: walletHeight,
+      networkHeight: networkHeight,
+      blocksBehind: tip == null ? null : (tip - walletHeight).clamp(0, tip),
+      version: version,
+      releasedVersion: releasedVersion,
+      latencyMs: latencyMs,
+      latencyFromMonitor: latencyFromMonitor,
+      latencyOverTor: latencyOverTor,
+      monitorLatencyMs: monitorLatencyMs,
+      directoryReachedAt: directoryReachedAt,
+      uptime24h: uptime24h,
+      peers: peers,
+      operator: operator,
+      listing: listing,
+      country: country,
+      readyForTxs: readyForTxs,
+      tipTime: tipTime,
+      network: network,
+      error: error,
+      nodeClass: nodeClass,
+      poolSize: poolSize,
+      head: head,
+      tipFrom: tipFrom,
+      tipNodes: tipNodes,
+    );
+  }
+
   /// The node runs an older version than the released one.
   bool? get updateAvailable {
     final v = version, r = releasedVersion;
