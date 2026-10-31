@@ -398,7 +398,7 @@ final List<DeskShot> settingsShots = [
   // Network modes: the section, a mode's info popover, the mark in the title bar, a blocked
   // note, and the cold-payment screens.
   const DeskShot(id: '44a-network-section', title: 'Settings › Advanced › Network, the four modes', route: DeskRoute.settingsAdvanced, height: 1450),
-  DeskShot(id: '44b2-network-normal-hint', title: 'Settings › Advanced › Network, the Normal info popover (how it differs from the onion-only mode while the switch is on)', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeStandard)),
+  DeskShot(id: '44b2-network-normal-hint', title: 'Settings › Advanced › Network, the Normal info popover', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeStandard)),
   DeskShot(id: '44b-network-kill-switch-hint', title: 'Settings › Advanced › Network, the Kill switch info popover', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeKillSwitch)),
   DeskShot(id: '44c-overview-node-only', title: 'Overview in Node only: the mark, Epicbox and Link off', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '44d-overview-kill-switch', title: 'Overview in Kill switch: the mark, every service off, the balance last known', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),

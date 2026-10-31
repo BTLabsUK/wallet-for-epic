@@ -163,7 +163,7 @@ void main() {
       }
       await _tapKey(tester, networkModeHintKey(NetworkMode.killSwitch));
       expect(find.byType(InfoSheet), findsOneWidget);
-      expect(find.textContaining('cold storage'), findsOneWidget);
+      expect(find.text(l.advModeKillSwitchHint), findsOneWidget);
       await tester.tap(find.text('Close'));
       await tester.pumpAndSettle();
       expect(tester.widget<Radio<NetworkMode>>(find.descendant(of: find.byKey(networkModeRowKey(NetworkMode.standard)), matching: find.byType(Radio<NetworkMode>))).value, NetworkMode.standard);
