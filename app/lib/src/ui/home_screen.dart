@@ -23,6 +23,7 @@ import '../wallet_service.dart';
 import '../watch_mode.dart';
 import 'backup_screen.dart';
 import 'common.dart';
+import 'last_session_offer.dart';
 import 'contacts_screen.dart';
 import 'demo_guide.dart';
 import 'demo_screens.dart' show DemoCountdown, TestCoinsButton;
@@ -286,6 +287,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
       _openIncoming();
       _openLink();
+      // After unlock, once: the last session froze or crashed, its log can be sent.
+      unawaited(offerLastSessionReport(context, ref));
     });
   }
 

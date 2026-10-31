@@ -18183,4 +18183,26 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvShellNoOtherServer => 'ไม่มีเซิร์ฟเวอร์อื่นในรายการ';
+
+  @override
+  String get deskLastSessionFroze => 'ครั้งที่แล้วแอปไม่ตอบสนอง ส่งบันทึกไหม';
+
+  @override
+  String get deskLastSessionClosed =>
+      'ครั้งที่แล้วแอปปิดลงโดยไม่คาดคิด ส่งบันทึกไหม';
+
+  @override
+  String get deskLastSessionSend => 'ส่ง';
+
+  @override
+  String get deskLastSessionNotNow => 'ไว้ทีหลัง';
+
+  @override
+  String get deskLastSessionReportFroze => 'แอปไม่ตอบสนอง';
+
+  @override
+  String get deskLastSessionReportClosed => 'แอปปิดลงโดยไม่คาดคิด';
+
+  @override
+  String get deskLastSessionAttached => 'พร้อมบันทึกของการใช้งานครั้งล่าสุด';
 }

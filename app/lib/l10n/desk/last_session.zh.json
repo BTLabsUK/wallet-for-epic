@@ -1,0 +1,9 @@
+{
+  "deskLastSessionFroze": "上次应用停止了响应。要发送日志吗？",
+  "deskLastSessionClosed": "上次应用意外关闭。要发送日志吗？",
+  "deskLastSessionSend": "发送",
+  "deskLastSessionNotNow": "以后再说",
+  "deskLastSessionReportFroze": "应用停止了响应。",
+  "deskLastSessionReportClosed": "应用意外关闭。",
+  "deskLastSessionAttached": "附带上次运行的日志。"
+}

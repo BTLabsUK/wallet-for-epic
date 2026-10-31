@@ -4849,5 +4849,12 @@
   "lvShellSwitchServer": "Server wechseln",
   "lvShellNoOtherServer": "Kein anderer Server in der Liste.",
   "deskLvShellSwitchServer": "Server wechseln",
-  "deskLvShellNoOtherServer": "Keine anderen Server in der Liste."
+  "deskLvShellNoOtherServer": "Keine anderen Server in der Liste.",
+  "deskLastSessionFroze": "Die App hat beim letzten Mal nicht mehr reagiert. Protokoll senden?",
+  "deskLastSessionClosed": "Die App wurde beim letzten Mal unerwartet beendet. Protokoll senden?",
+  "deskLastSessionSend": "Senden",
+  "deskLastSessionNotNow": "Nicht jetzt",
+  "deskLastSessionReportFroze": "Die App hat nicht mehr reagiert.",
+  "deskLastSessionReportClosed": "Die App wurde unerwartet beendet.",
+  "deskLastSessionAttached": "Mit dem Protokoll der letzten Sitzung."
 }

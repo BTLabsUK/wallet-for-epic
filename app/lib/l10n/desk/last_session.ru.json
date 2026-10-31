@@ -1,0 +1,9 @@
+{
+  "deskLastSessionFroze": "В прошлый раз приложение перестало отвечать. Отправить журнал?",
+  "deskLastSessionClosed": "В прошлый раз приложение неожиданно закрылось. Отправить журнал?",
+  "deskLastSessionSend": "Отправить",
+  "deskLastSessionNotNow": "Не сейчас",
+  "deskLastSessionReportFroze": "Приложение перестало отвечать.",
+  "deskLastSessionReportClosed": "Приложение неожиданно закрылось.",
+  "deskLastSessionAttached": "С журналом последнего сеанса."
+}

@@ -32,6 +32,7 @@ import 'desk_failover.dart';
 import 'rail.dart';
 import 'screens.dart';
 import 'close_guard.dart';
+import 'last_session_offer.dart';
 import 'now_slot.dart';
 import 'title_bar.dart' show showDeskShortcuts;
 import 'tour.dart';
@@ -97,6 +98,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _collect(PairingCollectTrigger.open);
+      // After unlock, once: the last session froze or crashed, its log can be sent.
+      if (mounted) unawaited(offerDeskLastSessionReport(context, ref));
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();

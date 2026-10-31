@@ -4849,5 +4849,12 @@
   "lvShellSwitchServer": "Zmień serwer",
   "lvShellNoOtherServer": "Brak innego serwera na liście.",
   "deskLvShellSwitchServer": "Zmień serwer",
-  "deskLvShellNoOtherServer": "Na liście nie ma innego serwera."
+  "deskLvShellNoOtherServer": "Na liście nie ma innego serwera.",
+  "deskLastSessionFroze": "Aplikacja nie odpowiadała ostatnim razem. Wysłać log?",
+  "deskLastSessionClosed": "Aplikacja zamknęła się nieoczekiwanie ostatnim razem. Wysłać log?",
+  "deskLastSessionSend": "Wyślij",
+  "deskLastSessionNotNow": "Nie teraz",
+  "deskLastSessionReportFroze": "Aplikacja nie odpowiadała.",
+  "deskLastSessionReportClosed": "Aplikacja zamknęła się nieoczekiwanie.",
+  "deskLastSessionAttached": "Z logiem z ostatniej sesji."
 }

@@ -17540,4 +17540,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLvShellNoOtherServer => '列表里没有其他服务器。';
+
+  @override
+  String get deskLastSessionFroze => '上次应用停止了响应。要发送日志吗？';
+
+  @override
+  String get deskLastSessionClosed => '上次应用意外关闭。要发送日志吗？';
+
+  @override
+  String get deskLastSessionSend => '发送';
+
+  @override
+  String get deskLastSessionNotNow => '以后再说';
+
+  @override
+  String get deskLastSessionReportFroze => '应用停止了响应。';
+
+  @override
+  String get deskLastSessionReportClosed => '应用意外关闭。';
+
+  @override
+  String get deskLastSessionAttached => '附带上次运行的日志。';
 }

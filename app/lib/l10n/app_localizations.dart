@@ -29047,6 +29047,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No other server in the list.'**
   String get deskLvShellNoOtherServer;
+
+  /// Notice at start (phone and desktop), after unlock, once: the previous session froze (Android ANR). Offers to send that session's log in a problem report.
+  ///
+  /// In en, this message translates to:
+  /// **'The app stopped responding last time. Send the log?'**
+  String get deskLastSessionFroze;
+
+  /// Notice at start (phone and desktop), after unlock, once: the previous session crashed or was ended without closing. Offers to send that session's log in a problem report.
+  ///
+  /// In en, this message translates to:
+  /// **'The app closed unexpectedly last time. Send the log?'**
+  String get deskLastSessionClosed;
+
+  /// Button on the last-session notice: opens Report a problem with the previous session's log attached. Nothing is sent until the user sends the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskLastSessionSend;
+
+  /// Button on the last-session notice: closes it; it does not come back for this incident.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get deskLastSessionNotNow;
+
+  /// Pre-filled text of the problem report opened from the last-session notice (froze case). The user can edit it.
+  ///
+  /// In en, this message translates to:
+  /// **'The app stopped responding.'**
+  String get deskLastSessionReportFroze;
+
+  /// Pre-filled text of the problem report opened from the last-session notice (crash case). The user can edit it.
+  ///
+  /// In en, this message translates to:
+  /// **'The app closed unexpectedly.'**
+  String get deskLastSessionReportClosed;
+
+  /// Problem report form: line under the log switch when the report carries the previous session's log instead of the current one.
+  ///
+  /// In en, this message translates to:
+  /// **'With the log of the last session.'**
+  String get deskLastSessionAttached;
 }
 
 class _AppLocalizationsDelegate

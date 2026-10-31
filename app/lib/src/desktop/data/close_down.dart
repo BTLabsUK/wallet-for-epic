@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
+import '../../last_session.dart';
 import '../../log.dart';
 
 /// Closing the app (the window's close button, Quit): the wallet locks, then the built-in node
@@ -28,4 +29,6 @@ Future<void> deskCloseDown({
   await step('wallet', disposeWallet, walletLimit); // l10n-ok: log text
   await step('local node', stopNodes, nodeLimit); // l10n-ok: log text
   logInfo('desk', 'closed after ${watch.elapsedMilliseconds} ms'); // l10n-ok: log text
+  // A clean end: the next start offers no report of this session.
+  lastSession?.clean();
 }

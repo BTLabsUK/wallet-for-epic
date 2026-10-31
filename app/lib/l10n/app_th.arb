@@ -4849,5 +4849,12 @@
   "lvShellSwitchServer": "เปลี่ยนเซิร์ฟเวอร์",
   "lvShellNoOtherServer": "ไม่มีเซิร์ฟเวอร์อื่นในรายการ",
   "deskLvShellSwitchServer": "เปลี่ยนเซิร์ฟเวอร์",
-  "deskLvShellNoOtherServer": "ไม่มีเซิร์ฟเวอร์อื่นในรายการ"
+  "deskLvShellNoOtherServer": "ไม่มีเซิร์ฟเวอร์อื่นในรายการ",
+  "deskLastSessionFroze": "ครั้งที่แล้วแอปไม่ตอบสนอง ส่งบันทึกไหม",
+  "deskLastSessionClosed": "ครั้งที่แล้วแอปปิดลงโดยไม่คาดคิด ส่งบันทึกไหม",
+  "deskLastSessionSend": "ส่ง",
+  "deskLastSessionNotNow": "ไว้ทีหลัง",
+  "deskLastSessionReportFroze": "แอปไม่ตอบสนอง",
+  "deskLastSessionReportClosed": "แอปปิดลงโดยไม่คาดคิด",
+  "deskLastSessionAttached": "พร้อมบันทึกของการใช้งานครั้งล่าสุด"
 }

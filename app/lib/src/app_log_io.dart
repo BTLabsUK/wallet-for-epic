@@ -23,6 +23,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'data_folder_io.dart' show appDataDirectory;
+import 'last_session_io.dart';
 
 import 'log.dart';
 import 'redact.dart';
@@ -259,19 +260,28 @@ const List<String> logRingFiles = [
   'lepic.0.log',
 ];
 
+const String _buildName = String.fromEnvironment('FLUTTER_BUILD_NAME');
+
 /// Starts the log file under `<application support>/logs`, with the lines logged so far, and
-/// names `logs/ring/` for LEPIC's log ring ([AppLog.ringDir]). A failure keeps lines in memory,
-/// and is itself logged.
+/// names `logs/ring/` for LEPIC's log ring ([AppLog.ringDir]). First it checks how the last
+/// session ended and keeps its log if it froze or crashed ([lastSession]). A failure keeps lines
+/// in memory, and is itself logged.
 Future<void> startLogging() async {
   try {
     final support = await appDataDirectory();
     final sep = Platform.pathSeparator;
     AppLog.ringDir = '${support.path}${sep}logs$sep$logRingFolder';
-    AppLog.use(
-      FileLogSink.open(
-        Directory('${support.path}${Platform.pathSeparator}logs'),
-      ),
+    final logs = Directory('${support.path}${sep}logs');
+    final sink = FileLogSink.open(logs);
+    // Before this session writes a line: the last one's end is still the file's end.
+    final session = lastSession = LastSession(logs);
+    await session.begin(
+      log: () => sink.tail(lastSessionLogBytes),
+      ring: readLogRing,
+      version: _buildName.isEmpty ? 'dev' : _buildName,
+      watchLifecycle: Platform.isAndroid || Platform.isIOS,
     );
+    AppLog.use(sink);
   } catch (error) {
     logWarn('log', 'no log file: $error');
   }

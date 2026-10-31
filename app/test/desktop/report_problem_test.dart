@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:io';
 
+import 'package:epic_wallet/src/desktop/app/last_session_offer.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/report_problem.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/feedback.dart';
+import 'package:epic_wallet/src/last_session.dart';
 import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/support_clean.dart';
 import 'package:epic_wallet/src/ui/feedback_screen.dart';
@@ -23,6 +25,7 @@ class _Harness {
 
   /// LEPIC's log ring; null is none, as in a test run, and the log's tail goes instead.
   List<LogRingFile>? ring;
+  LastSessionSource? lastSession;
   late ProviderContainer container;
 
   Future<void> pump(WidgetTester tester, {Widget? home, double height = 900}) async {
@@ -33,6 +36,7 @@ class _Harness {
       feedbackOutletProvider.overrideWithValue(outlet),
       feedbackLogProvider.overrideWithValue(log),
       feedbackRingProvider.overrideWithValue(() async => ring),
+      lastSessionProvider.overrideWithValue(lastSession),
       feedbackUrlProvider.overrideWithValue(Uri.parse('https://support.example.com/v1/report')),
       feedbackPlatformProvider.overrideWithValue('linux test'),
       feedbackCleanContextProvider.overrideWithValue(const CleanContext()),
@@ -73,7 +77,59 @@ Future<void> settle(WidgetTester tester) async {
 /// The text the preview shows, all of it (the list builds only the rows on screen).
 String previewText(WidgetTester tester) => tester.widget<ReportPreview>(find.byType(ReportPreview)).text!;
 
+class _KeptSession implements LastSessionSource {
+  _KeptSession(this.kept);
+
+  final LastSessionLog kept;
+  int offers = 0;
+
+  @override
+  bool get due => offers == 0;
+
+  @override
+  void offered() => offers++;
+
+  @override
+  Future<LastSessionLog?> read() async => kept;
+
+  @override
+  void clean() {}
+}
+
 void main() {
+  testWidgets('a crashed last session: the toast once, its Send opens the report with that log', (tester) async {
+    final kept = _KeptSession(const LastSessionLog(end: LastSessionEnd.closed, cause: 'not closed', version: '26.10.26', log: 'INFO dart.send: to $_address\n'));
+    final h = _Harness()
+      ..lastSession = kept
+      ..log = (MemoryLogSink()..write(LogLevel.info, 'app', 'this session only'));
+    await h.pump(
+      tester,
+      home: Consumer(builder: (c, ref, _) => TextButton(onPressed: () => offerDeskLastSessionReport(c, ref), child: const Text('offer'))),
+    );
+    await tester.tap(find.text('offer'));
+    await tester.pumpAndSettle();
+    expect(find.text('The app closed unexpectedly last time. Send the log?'), findsOneWidget);
+    expect(kept.offers, 1);
+    // Asked again (the next unlock): nothing more.
+    await tester.tap(find.text('offer'));
+    await tester.pumpAndSettle();
+    expect(kept.offers, 1);
+    await tester.tap(find.descendant(of: find.byType(SnackBar), matching: find.text('Send')));
+    await settle(tester);
+    expect(find.byType(ReportProblemDialog), findsOneWidget);
+    expect(find.text('The app closed unexpectedly.'), findsOneWidget);
+    expect(find.textContaining('With the log of the last session.'), findsOneWidget);
+    await send(tester);
+    final report = h.outlet.posted.single.report;
+    expect(report.description, 'The app closed unexpectedly.');
+    expect(report.app['last session'], 'not closed');
+    final log = report.files.single;
+    expect(log.name, 'app/last-session/wfe.log');
+    expect(log.text, contains('dart.send: to '));
+    expect(log.text, isNot(contains(_address)));
+    expect(log.text, isNot(contains('this session only')));
+  });
+
   testWidgets('Help opens Report a problem', (tester) async {
     final h = _Harness();
     await h.pump(tester, home: const SettingsHelpScreen());

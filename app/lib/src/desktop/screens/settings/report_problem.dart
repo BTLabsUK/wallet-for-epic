@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../../feedback.dart';
+import '../../../last_session.dart';
 import '../../../log.dart';
 import '../../../support_report.dart';
 import '../../../ui/feedback_screen.dart' show feedbackCleanContextProvider, feedbackPlatformProvider;
@@ -25,11 +26,16 @@ import '../../../settings_file/host_settings.dart' show hostSettings, shippedHos
 /// previewed, sealed to the developer and sent to the support intake. The same report
 /// as the phone's Send feedback and the Electron GUI's Report a problem (`support_report.dart`).
 /// Save to file writes the same cleaned text, not sealed, where the user picks.
-Future<void> showReportProblemDialog(BuildContext context) =>
-    showEDialog(context, dismissible: false, builder: (_) => const ReportProblemDialog());
+///
+/// With [lastSession] (the "closed unexpectedly last time" toast's Send) the kept log of that
+/// session goes instead of this one's, and the description starts with what happened.
+Future<void> showReportProblemDialog(BuildContext context, {LastSessionLog? lastSession}) =>
+    showEDialog(context, dismissible: false, builder: (_) => ReportProblemDialog(lastSession: lastSession));
 
 class ReportProblemDialog extends ConsumerStatefulWidget {
-  const ReportProblemDialog({super.key});
+  const ReportProblemDialog({super.key, this.lastSession});
+
+  final LastSessionLog? lastSession;
 
   @override
   ConsumerState<ReportProblemDialog> createState() => _ReportProblemDialogState();
@@ -37,6 +43,7 @@ class ReportProblemDialog extends ConsumerStatefulWidget {
 
 class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   final _description = TextEditingController();
+  bool _prefilled = false;
   final _contact = TextEditingController();
   bool _attachLogs = true;
 
@@ -76,6 +83,20 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Opened from the last-session notice: the description starts with what happened.
+    if (_prefilled) return;
+    _prefilled = true;
+    final l = context.l10n;
+    _description.text = switch (widget.lastSession?.end) {
+      null => '',
+      LastSessionEnd.froze => l.deskLastSessionReportFroze,
+      LastSessionEnd.closed => l.deskLastSessionReportClosed,
+    };
+  }
+
+  @override
   void dispose() {
     _previewTimer?.cancel();
     _description.dispose();
@@ -93,6 +114,18 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   }
 
   Future<void> _readLog() async {
+    if (widget.lastSession case final last?) {
+      // The kept files as they are: nothing of this session goes.
+      _ring = last.ring;
+      if (_ring case final ring?) {
+        _ringFiles = [for (final f in ring.reversed) LogFileInfo(f.name, utf8.encode(f.text).length)];
+      }
+      _log = last.log ?? '';
+      _files = [LogFileInfo('wfe.log', utf8.encode(_log!).length)];
+      if (mounted) setState(() {});
+      _refreshPreview();
+      return;
+    }
     try {
       final ring = await ref.read(feedbackRingProvider)();
       _ring = ring;
@@ -141,6 +174,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     final log = _attachLogs && ring == null ? (_log ?? '') : null;
     final at = _at;
     final context = ref.read(feedbackCleanContextProvider);
+    final lastSession = widget.lastSession;
     // The cleaning keeps the hosts the shipped files name: the other isolate gets a copy of the
     // settings in use and of the default copy (its own would fall back to the user's).
     final settings = hostSettings;
@@ -148,7 +182,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     return Isolate.run(() {
       hostSettings = settings;
       shippedHostSettings = shipped;
-      return buildFeedbackReport(message: message, email: email, details: details, ring: ring, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails);
+      return buildFeedbackReport(message: message, email: email, details: details, ring: ring, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails, lastSession: lastSession);
     });
   }
 
@@ -281,7 +315,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
             ),
             SizedBox(height: Sp.x1),
             Text(
-              l.deskSetReportAttachHint,
+              widget.lastSession == null ? l.deskSetReportAttachHint : '${l.deskSetReportAttachHint} ${l.deskLastSessionAttached}',
               style: ts.small,
             ),
             if (_attachLogs) ...[

@@ -10,6 +10,7 @@ import '../app_log.dart';
 import '../errors.dart';
 import '../feedback.dart';
 import '../l10n.dart';
+import '../last_session.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -96,7 +97,11 @@ String describeSyncState(WidgetRef ref) {
 
 /// "Send feedback": a message, an optional email, and the diagnostic log unless turned off.
 class FeedbackScreen extends ConsumerStatefulWidget {
-  const FeedbackScreen({super.key});
+  const FeedbackScreen({super.key, this.lastSession});
+
+  /// The last session that froze or crashed (the notice's Send): its kept log goes instead of
+  /// this session's, and the message starts with what happened.
+  final LastSessionLog? lastSession;
 
   @override
   ConsumerState<FeedbackScreen> createState() => _FeedbackScreenState();
@@ -106,12 +111,27 @@ enum _Destination { device, share }
 
 class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   final _message = TextEditingController();
+  bool _prefilled = false;
   final _email = TextEditingController();
   bool _attachLogs = true;
   bool _busy = false;
   String? _messageError;
   String? _emailError;
   String? _error;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Opened from the last-session notice: the description starts with what happened.
+    if (_prefilled) return;
+    _prefilled = true;
+    final l = context.l10n;
+    _message.text = switch (widget.lastSession?.end) {
+      null => '',
+      LastSessionEnd.froze => l.deskLastSessionReportFroze,
+      LastSessionEnd.closed => l.deskLastSessionReportClosed,
+    };
+  }
 
   @override
   void dispose() {
@@ -151,7 +171,11 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     // LEPIC's log ring, redacted at the source; the log's tail where there is none (the web).
     List<LogRingFile>? ring;
     String? log;
-    if (_attachLogs) {
+    final last = widget.lastSession;
+    if (_attachLogs && last != null) {
+      ring = last.ring;
+      if (ring == null) log = last.log ?? '';
+    } else if (_attachLogs) {
       try {
         ring = await ref.read(feedbackRingProvider)();
         if (ring == null) log = await ref.read(feedbackLogProvider).tail(feedbackLogBytes);
@@ -167,6 +191,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       log: log,
       at: ref.read(clockProvider)(),
       context: ref.read(feedbackCleanContextProvider),
+      lastSession: widget.lastSession,
     );
   }
 
@@ -385,7 +410,11 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(l.feedbackAttachLogs),
-            subtitle: Text(l.feedbackAttachLogsHint),
+            subtitle: Text(
+              widget.lastSession == null
+                  ? l.feedbackAttachLogsHint
+                  : '${l.feedbackAttachLogsHint} ${l.deskLastSessionAttached}',
+            ),
             value: _attachLogs,
             onChanged: (on) => setState(() => _attachLogs = on),
           ),
@@ -460,7 +489,11 @@ class _FeedbackPreviewScreenState extends State<FeedbackPreviewScreen> {
 const Key feedbackPreviewListKey = ValueKey('feedback-preview-list');
 
 
-/// Opens [FeedbackScreen].
-Future<void> openFeedback(BuildContext context) =>
-    Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (_) => const FeedbackScreen()));
+/// Opens [FeedbackScreen]; with [lastSession], for the kept log of a session that froze or
+/// crashed.
+Future<void> openFeedback(BuildContext context, {LastSessionLog? lastSession}) =>
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FeedbackScreen(lastSession: lastSession),
+      ),
+    );

@@ -162,6 +162,8 @@ class MainActivity : FlutterFragmentActivity() {
                 }
             }
         // --- end tor binary ---
+        // How the last process ended, for the "stopped responding last time" offer.
+        ExitReasons.register(applicationContext, messenger)
         val channel = MethodChannel(messenger, "epic_wallet/updater")
         updater = AppUpdater(this, channel).also { channel.setMethodCallHandler(it) }
         networkWatch?.dispose()

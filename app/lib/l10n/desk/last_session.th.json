@@ -1,0 +1,9 @@
+{
+  "deskLastSessionFroze": "ครั้งที่แล้วแอปไม่ตอบสนอง ส่งบันทึกไหม",
+  "deskLastSessionClosed": "ครั้งที่แล้วแอปปิดลงโดยไม่คาดคิด ส่งบันทึกไหม",
+  "deskLastSessionSend": "ส่ง",
+  "deskLastSessionNotNow": "ไว้ทีหลัง",
+  "deskLastSessionReportFroze": "แอปไม่ตอบสนอง",
+  "deskLastSessionReportClosed": "แอปปิดลงโดยไม่คาดคิด",
+  "deskLastSessionAttached": "พร้อมบันทึกของการใช้งานครั้งล่าสุด"
+}
