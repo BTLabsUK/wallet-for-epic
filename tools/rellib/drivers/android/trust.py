@@ -16,10 +16,11 @@ receive from P through Epicbox on the candidate.
 Secrets (the phrase, the PIN) live in mode-600 files in REL_TRUST_STATE (default
 ~/.config/btlabs/rel-trust-android); they are never printed, logged or screenshotted.
 """
-import json, os, re, secrets, sys, time, traceback
+import json, os, re, secrets, socket, subprocess, sys, time, traceback, urllib.request
 from decimal import Decimal, InvalidOperation
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
 import ph  # noqa: E402
 from ph import PKG, adb, find, key, launch, mask, nodes, secret_words, tap, tap_xy, type_text, wait  # noqa: E402
 
@@ -42,6 +43,11 @@ CHECKS = ("wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept",
 # "Found on the chain: 0.02 EPIC, received, …".
 TX_RE = re.compile(r"^(Received|Receiving|Sent|Sending|Cancelled|Canceled|Failed|Paid|Payment|Found on the chain)\b.*?\b([0-9]+(?:\.[0-9]+)?) EPIC\b")
 HOST_ROW = re.compile(r"^([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?), ")
+# The user's own node and Epicbox server: loopback stand-ins (../linux/standin.py) on this machine,
+# reached from the emulator's 127.0.0.1 through `adb reverse`. They are in no built-in list, so they
+# keep "Added by you" in every release; NODE and EPICBOX (built in from 26.10.24) carry the payments.
+CUSTOM = {}
+STANDINS = []
 
 
 def log(*a):
@@ -531,6 +537,81 @@ def use_typed_server(kind, target):
     return ok
 
 
+def start_standins():
+    """CUSTOM["Node"] / CUSTOM["Epicbox"]: loopback stand-ins forwarding to NODE / EPICBOX."""
+    standin = os.path.join(os.path.dirname(HERE), "linux", "standin.py")
+    for kind, mode, up in (("Node", "node", NODE), ("Epicbox", "relay", bare_host(EPICBOX))):
+        sk = socket.socket()
+        sk.bind(("127.0.0.1", 0))
+        port = sk.getsockname()[1]
+        sk.close()
+        logf = open(os.path.join(OUT, f"standin-{mode}.log"), "w")
+        STANDINS.append(subprocess.Popen([sys.executable, "-I", standin, mode, str(port), up], stdout=logf,
+                                         stderr=subprocess.STDOUT, start_new_session=True))
+        adb(S, "reverse", f"tcp:{port}", f"tcp:{port}")
+        CUSTOM[kind] = ("http://" if mode == "node" else "") + f"127.0.0.1:{port}"
+    time.sleep(1)
+    try:
+        with urllib.request.urlopen(CUSTOM["Node"] + "/v1/status", timeout=15) as resp:
+            up = resp.status == 200
+    except Exception:  # noqa: BLE001
+        up = False
+    if not up:
+        raise RuntimeError("the loopback node stand-in does not answer")
+    log(f"stand-ins (adb reverse): node {CUSTOM['Node']} -> {NODE}, relay {CUSTOM['Epicbox']} -> {EPICBOX}")
+
+
+def stop_standins():
+    for p in STANDINS:
+        p.terminate()
+    if S:
+        adb(S, "reverse", "--remove-all")
+
+
+def use_server(kind, target):
+    """Put `target` in use from its row, as listed (built in or typed in): nothing removed or added."""
+    open_sheet(kind)
+    _filter(bare_host(target))
+    hit = next((n for n in sheet_rows(nodes(S)) if same_host(row_info(n["label"])["host"], target)), None)
+    if hit and not row_info(hit["label"])["current"]:
+        tap_xy(S, hit["center"])
+        _confirm_switch()
+    _filter("")
+    time.sleep(1)
+    ns = nodes(S)
+    cur = next((row_info(n["label"]) for n in sheet_rows(ns) if row_info(n["label"])["current"]), None)
+    if not cur:  # the node sheet shows the one in use in a card above the list
+        c = next((n["label"] for n in ns if n["label"].startswith("Current, ")), "")
+        cur = {"host": c.split(",")[1].strip() if c else None}
+    close_sheet()
+    home()
+    ok = bool(cur and cur["host"] and same_host(cur["host"], target))
+    log(f"{kind}: in use {cur and cur['host']} (wanted {target}): {ok}")
+    return ok
+
+
+def add_custom(kind, value):
+    """Type `value` into the sheet and Add it ("Added by you"); which one is in use is set after."""
+    open_sheet(kind)
+    _filter(bare_host(value) if kind == "Epicbox" else value)
+    add = wait(S, "Add ", 10, clickable=True)
+    if not add:
+        dump_to_log(f"{kind}: no Add for {value}")
+        raise RuntimeError(f"{kind}: the sheet offers no Add for {value}")
+    tap_xy(S, add["center"])
+    end, hit = time.time() + 40, None
+    while time.time() < end and not hit:
+        hit = next((row_info(n["label"]) for n in sheet_rows(nodes(S))
+                    if same_host(row_info(n["label"])["host"], value)), None)
+        time.sleep(2)
+    _filter("")
+    close_sheet()
+    home()
+    ok = bool(hit and hit["added"])
+    log(f"{kind}: added {value}: {hit}")
+    return ok
+
+
 def advanced_page():
     home()
     tap(S, "Settings", exact=True)
@@ -859,8 +940,10 @@ def compare(a, b):
     det["history_kept"] = (f"{len(ha)} rows before ({senders} with a sender), {len(hb)} after"
                            + ("" if ha == hb else f"; missing {sorted(set(ha) - set(hb))[:5]}"
                               f"; new {sorted(set(hb) - set(ha))[:5]}"))
-    for k, name, target in (("custom_nodes_kept", "nodes", NODE), ("custom_relays_kept", "relays", EPICBOX)):
+    for k, name, kind, target in (("custom_nodes_kept", "nodes", "Node", NODE),
+                                  ("custom_relays_kept", "relays", "Epicbox", EPICBOX)):
         la, lb = a[name], b[name]
+        custom = CUSTOM.get(kind) or target
         added_a = [r["host"] for r in la["rows"] if r["added"]]
         added_b = [r["host"] for r in lb["rows"] if r["added"]]
         cur_a = next((r["host"] for r in la["rows"] if r["current"]), None)
@@ -872,7 +955,7 @@ def compare(a, b):
         # host gaining "Added by you", a typed-in one gone, or another one in use is a loss.
         built_in_now = [h for h in added_a if h in hosts_b and h not in added_b]
         typed_kept = bool(added_a) and all(h in hosts_b for h in added_a) and set(added_b) <= set(added_a)
-        typed_there = any(same_host(h, target) for h in added_a) and any(same_host(h, target) for h in hosts_b)
+        typed_there = any(same_host(h, custom) for h in added_a) and any(same_host(h, custom) for h in added_b)
         ok = typed_kept and cur_a == cur_b and typed_there \
             and set(hosts_a) <= set(hosts_b) and set(hosts_b) - set(hosts_a) <= set() \
             and la["removed"] == lb["removed"]
@@ -958,9 +1041,11 @@ def run():
             raise RuntimeError("could not read the new wallet's phrase")
         write_secret("phrase", " ".join(words))
         log(f"kept the new wallet's phrase ({len(words)} words) in {STATE} (mode 600)")
-    # 2. the user's own servers and settings
-    ok_n = use_typed_server("Node", NODE)
-    ok_r = use_typed_server("Epicbox", EPICBOX)
+    # 2. the user's own servers (a stand-in added, the payments' server in use) and settings
+    start_standins()
+    added = [add_custom(kind, CUSTOM[kind]) for kind in ("Node", "Epicbox")]
+    ok_n = use_server("Node", NODE) and added[0]
+    ok_r = use_server("Epicbox", EPICBOX) and added[1]
     change_settings()
     my_addr = address()
     log("wallet", short(my_addr))
@@ -979,7 +1064,7 @@ def run():
         rows = server_list(kind)["rows"]
         if not any(r["current"] and same_host(r["host"], target) for r in rows):
             log(f"{kind}: {target} not in use before the update: chosen again")
-            use_typed_server(kind, target)
+            use_server(kind, target)
     a = digest()
     a["opened"] = True
     extra["before"] = public_digest(a)
@@ -1018,7 +1103,8 @@ def run():
     for k, ok in (("custom_nodes_kept", ok_n), ("custom_relays_kept", ok_r)):
         if not ok:  # fail closed: the user's own server was never in use before the update
             checks[k] = False
-            details[k] = "not set up on the previous version (typed-in server not in use); " + details[k]
+            details[k] = ("not set up on the previous version (stand-in not added, or the payments' server "
+                          "not in use); " + details[k])
     # 5. payments on the candidate
     if FUNDS:
         if not checks.get("wallet_opens"):
@@ -1031,7 +1117,8 @@ def run():
                 cur = next((r["host"] for r in b[name]["rows"] if r["current"]), None)
                 if not (cur and same_host(cur, target)):
                     note.append(f"{kind} {target} put back in use for the payments")
-                    use_typed_server(kind, target)
+                    if not use_server(kind, target):
+                        use_typed_server(kind, target)
             my_addr = address() if note else b["address"]
             wait_send_funds()
             with PSession(p_log) as p:
@@ -1051,7 +1138,11 @@ if __name__ == "__main__":
         secret_words(words)
     try:
         if cmd == "run":
-            sys.exit(run())
+            try:
+                code = run()
+            finally:
+                stop_standins()
+            sys.exit(code)
         elif cmd == "fail":  # trust-android.sh could not start: a fail-closed proof
             write_proof({}, {k: f"not performed: {sys.argv[2]}" for k in CHECKS}, {"error": sys.argv[2]})
         elif cmd == "digest":
@@ -1059,7 +1150,13 @@ if __name__ == "__main__":
         elif cmd == "unlock":
             print(unlock())
         elif cmd == "servers":
-            print(use_typed_server("Node", NODE), use_typed_server("Epicbox", EPICBOX))
+            start_standins()
+            try:
+                print([add_custom(k, CUSTOM[k]) for k in ("Node", "Epicbox")],
+                      use_server("Node", NODE), use_server("Epicbox", EPICBOX))
+                print(json.dumps({k: server_list(k) for k in ("Node", "Epicbox")}, indent=1))
+            finally:
+                stop_standins()
         elif cmd == "settings":
             change_settings()
             print(read_settings())
