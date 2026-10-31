@@ -33,7 +33,7 @@ class EShortAddress extends StatelessWidget {
         var shown = shortAddress(address, compact: link);
         if (!link && box.maxWidth.isFinite) {
           final tp = TextPainter(text: TextSpan(text: shown, style: st), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
-          if (tp.width + _drawSlack > box.maxWidth) shown = shortAddress(address, compact: true);
+          if (tp.width + addressDrawSlack > box.maxWidth) shown = shortAddress(address, compact: true);
           tp.dispose();
         }
         return Text(shown, style: st, maxLines: 1, softWrap: false, overflow: TextOverflow.clip);
@@ -84,7 +84,7 @@ class EFullAddress extends StatelessWidget {
         final tp = TextPainter(text: TextSpan(text: '0', style: base), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
         final glyph = tp.width;
         tp.dispose();
-        final n = chunkFor(key.length, box.maxWidth - _drawSlack, glyph, chunk);
+        final n = chunkFor(key.length, box.maxWidth - addressDrawSlack, glyph, chunk);
         final spans = <TextSpan>[];
         var i = 0;
         while (i < key.length) {
@@ -129,11 +129,9 @@ double shortAddressWidth(BuildContext context, String address, TextStyle style) 
   tp.dispose();
   // A few pixels over the measure: Windows draws monospace a little wider than measured, which
   // clipped the last letter of the domain.
-  return w.ceilToDouble() + _drawSlack;
+  return w.ceilToDouble() + addressDrawSlack;
 }
 
-/// Room left over a measured address for the way Windows draws it.
-const double _drawSlack = 6;
 
 /// The kind badge of an address row: Epicbox, Link · HTTP or Link · Tor, each
 /// with its glyph.

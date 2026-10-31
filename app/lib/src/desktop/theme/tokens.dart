@@ -111,6 +111,57 @@ abstract final class Bp {
   static double get desktop => _sc(1000);
 }
 
+/// Content-width breakpoints: compared with the width a component itself gets (a
+/// LayoutBuilder's maxWidth), never the window's. Every layout switch in the desktop screens
+/// uses one of these; a wider layout that needs more room takes the next one up, never a new
+/// number. They come from the columns' minimums: a list 480, a detail pane 376, a Settings
+/// row's words 240, a tile 180, a choice card 220, a step 120.
+abstract final class Lay {
+  /// Below: one column of everything; labels above their values.
+  static double get xs => _px(360);
+
+  /// Steppers go down, the phrase grid 2 columns, tile rows 2 across.
+  static double get sm => _px(480);
+
+  /// Three tiles or cards across, the phrase grid 4 columns; a header row keeps its action
+  /// beside its words.
+  static double get md => _px(600);
+
+  /// The QR beside the address, three choice cards in a row.
+  static double get lg => _px(720);
+
+  /// Any two columns side by side: list and detail, form and Summary, Settings' section list
+  /// beside the page, the onboarding step rail.
+  static double get xl => _px(880);
+
+  /// Receive's two columns, the node panel's status beside its peers.
+  static double get wide => _px(1040);
+}
+
+/// The widest a component gets that must not stretch with the window.
+abstract final class Max {
+  /// The depth dial with its caption.
+  static double get dial => _px(440);
+
+  /// The Overview picture beside or under the depth dial.
+  static double get preview => _px(520);
+
+  /// Payment steps laid across.
+  static double get steps => _px(880);
+
+  /// Send's method selector strip, Receive's method head.
+  static double get selector => _px(720);
+
+  /// A form's fields (Send, Add contact, an invoice).
+  static double get form => Ctl.narrow;
+
+  /// A dialog (EDialog's default width).
+  static double get dialog => _px(560);
+
+  /// One tile in a tile row (a balance breakdown, node facts).
+  static double get tile => _px(320);
+}
+
 /// Durations. Motion is short and only ever confirms a change.
 abstract final class Dur {
   static const fast = Duration(milliseconds: 120);

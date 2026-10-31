@@ -15,6 +15,7 @@ import 'buttons.dart';
 import 'selectable.dart';
 import 'motion.dart';
 import 'popover.dart';
+import 'tip.dart';
 
 /// A panel: s1 fill, hairline edge, 8 px radius. [title] (or a custom [head]) and [foot] get
 /// their own bands; the head band is [Ctl.header] tall and starts where the body starts, so
@@ -340,6 +341,38 @@ class EMonoText extends StatelessWidget {
       SelectableText(text, style: context.ts.mono(size: size, color: color));
 }
 
+/// Room left over a measured address for the way Windows draws it (a bold glyph a little wider).
+const double addressDrawSlack = 6;
+
+/// How small an [EAddress] gets, as a share of its size, before it gives way in the middle.
+const double _addressMinScale = 0.82;
+
+/// [a] in [st], its first and last six in the accent when [marked].
+TextSpan _marked(String a, TextStyle st, DeskColors c, bool marked) {
+  if (!marked) return TextSpan(text: a, style: st);
+  final h = st.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
+  return TextSpan(
+    style: st,
+    children: [TextSpan(text: a.substring(0, 6), style: h), TextSpan(text: a.substring(6, a.length - 6)), TextSpan(text: a.substring(a.length - 6), style: h)],
+  );
+}
+
+/// [a]'s first [head] and last [tail] characters around "…", the first and last six marked.
+TextSpan _cut(String a, int head, int tail, TextStyle st, DeskColors c, bool marked) {
+  if (head + tail >= a.length) return _marked(a, st, c, marked);
+  final h = st.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
+  final start = a.substring(0, head), end = a.substring(a.length - tail);
+  if (!marked || head < 6 || tail < 6) return TextSpan(text: '$start…$end', style: st);
+  return TextSpan(
+    style: st,
+    children: [
+      TextSpan(text: start.substring(0, 6), style: h),
+      TextSpan(text: '${start.substring(6)}…${end.substring(0, end.length - 6)}'),
+      TextSpan(text: end.substring(end.length - 6), style: h),
+    ],
+  );
+}
+
 /// An address to read and copy: the first and last six characters in the accent.
 class EAddress extends StatelessWidget {
   const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel, this.copy = true, this.extra});
@@ -380,22 +413,73 @@ class EAddress extends StatelessWidget {
           ]
         : [TextSpan(text: a)];
     final restStyle = base.copyWith(color: c.dim);
-    // When the address needs two lines it breaks only before "@": the server stays whole on
-    // the last line, never a server cut in the middle of its name.
+    // Never more than two lines: the whole address on one when it fits, else the address on
+    // the first line and the server ("@epicbox.example.org") whole on the second. An address
+    // too long for its line gets smaller, down to [_addressMinScale] of its size, then gives
+    // way in the middle, its first and last six still marked; the whole of it is then in the
+    // tooltip and on Copy, and the cut line cannot be selected (it would copy the "…").
     final text = LayoutBuilder(
       builder: (context, box) {
+        final dir = Directionality.of(context);
+        final scaler = MediaQuery.textScalerOf(context);
+        double widthOf(InlineSpan span) {
+          final tp = TextPainter(text: span, textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+          final w = tp.width;
+          tp.dispose();
+          return w;
+        }
+
+        final room = box.maxWidth - addressDrawSlack;
         final whole = TextSpan(style: base, children: [...keySpans, TextSpan(text: rest, style: restStyle)]);
-        if (!rest.startsWith('@') || !box.maxWidth.isFinite) return SelectableText.rich(whole);
-        final tp = TextPainter(text: whole, textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
-        final fits = tp.width <= box.maxWidth;
-        tp.dispose();
-        if (fits) return SelectableText.rich(whole);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SelectableText.rich(TextSpan(style: base, children: keySpans)),
-            Text(rest, style: restStyle, softWrap: false, overflow: TextOverflow.fade),
-          ],
+        if (!box.maxWidth.isFinite || widthOf(whole) <= room) return SelectableText.rich(whole, maxLines: 1);
+        final split = rest.startsWith('@');
+        final second = split ? Text(rest, style: restStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.fade) : null;
+        // The key whole, smaller where needed.
+        final size = base.fontSize!;
+        for (var s = size; s >= size * _addressMinScale - 0.01; s -= 0.5) {
+          final st = base.copyWith(fontSize: s);
+          final span = split ? _marked(a, st, c, marked) : TextSpan(style: st, children: [_marked(a, st, c, marked), TextSpan(text: rest, style: restStyle.copyWith(fontSize: s))]);
+          if (widthOf(span) <= room) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [SelectableText.rich(span, maxLines: 1), ?second],
+            );
+          }
+        }
+        // Cut in the middle at the smallest size: the most characters that fit, half each side.
+        final st = base.copyWith(fontSize: size * _addressMinScale);
+        final tailSpan = split ? null : TextSpan(text: rest, style: restStyle.copyWith(fontSize: st.fontSize));
+        InlineSpan cutTo(int n) {
+          final h = (n + 1) ~/ 2;
+          final cut = _cut(a, h, n - h, st, c, marked);
+          return tailSpan == null ? cut : TextSpan(children: [cut, tailSpan]);
+        }
+
+        var lo = 12, hi = a.length;
+        while (hi - lo > 1) {
+          final mid = (lo + hi) ~/ 2;
+          final span = cutTo(mid);
+          if (widthOf(span) <= room) {
+            lo = mid;
+          } else {
+            hi = mid;
+          }
+        }
+        return ETip.value(
+          address,
+          mono: true,
+          child: Semantics(
+            label: address,
+            excludeSemantics: true,
+            child: NoSelect(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [Text.rich(cutTo(lo), maxLines: 1, softWrap: false), ?second],
+              ),
+            ),
+          ),
         );
       },
     );
