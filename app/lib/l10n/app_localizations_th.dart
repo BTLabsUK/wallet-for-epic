@@ -17641,4 +17641,71 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get lvPayCloseNote =>
       'ปิดหน้านี้ได้ รายการจะอยู่ในกิจกรรมจนกว่าจะเสร็จ';
+
+  @override
+  String lvPayArrivalFrom(String amount, String name) {
+    return '$amount จาก $name';
+  }
+
+  @override
+  String get lvPayOpen => 'เปิด';
+
+  @override
+  String get lvPayNewToday => 'ใหม่วันนี้';
+
+  @override
+  String get lvPayNewAddress => 'ที่อยู่ใหม่ของคุณ';
+
+  @override
+  String lvPayServerLine(String name) {
+    return 'เซิร์ฟเวอร์ Epicbox: $name.';
+  }
+
+  @override
+  String get lvPayOldAddressLine => 'ผู้ที่มีที่อยู่เดิมต้องใช้ที่อยู่ใหม่';
+
+  @override
+  String get lvPayReceiveBack => 'กลับไปที่อยู่ของฉัน';
+
+  @override
+  String lvPayDoneSent(String when) {
+    return 'ส่งแล้ว เสร็จเมื่อ $when';
+  }
+
+  @override
+  String lvPayDoneReceived(String when) {
+    return 'ได้รับแล้ว เสร็จเมื่อ $when';
+  }
+
+  @override
+  String get lvPayShowSteps => 'แสดงขั้นตอน';
+
+  @override
+  String get lvPayHideSteps => 'ซ่อนขั้นตอน';
+
+  @override
+  String get lvPayDetails => 'รายละเอียด';
+
+  @override
+  String get lvPayStarted => 'เริ่มเมื่อ';
+
+  @override
+  String get lvPayPosted => 'ส่งเข้าเครือข่ายแล้ว';
+
+  @override
+  String get lvPayPaymentId => 'รหัสการชำระเงิน';
+
+  @override
+  String get lvPayConfirmations => 'การยืนยัน';
+
+  @override
+  String lvPayOf(int count, int target) {
+    return '$count จาก $target';
+  }
+
+  @override
+  String get lvPayCopyDetails => 'คัดลอกรายละเอียด';
+
+  @override
+  String get lvPayDetailsCopied => 'คัดลอกรายละเอียดแล้ว';
 }

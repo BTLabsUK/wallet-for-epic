@@ -28153,6 +28153,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can close this. It shows under Activity until it is done.'**
   String get lvPayCloseNote;
+
+  /// Level 1 Receive: arrival card title, a payment coming in.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} from {name}'**
+  String lvPayArrivalFrom(String amount, String name);
+
+  /// Level 1 Receive: opens the arriving payment's details.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get lvPayOpen;
+
+  /// Level 1 Receive: badge on the address after the Epicbox server moved.
+  ///
+  /// In en, this message translates to:
+  /// **'New today'**
+  String get lvPayNewToday;
+
+  /// Level 1 Receive: address label after the Epicbox server moved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your new address'**
+  String get lvPayNewAddress;
+
+  /// Level 1 Receive: the server now in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox server: {name}.'**
+  String lvPayServerLine(String name);
+
+  /// Level 1 Receive: after the server moved; does not promise the old address still works.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with the old address needs the new one.'**
+  String get lvPayOldAddressLine;
+
+  /// Level 1 Receive, inside QR Payment: link back to the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to my address'**
+  String get lvPayReceiveBack;
+
+  /// Level 1 payment details: sentence of a finished send.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent. Done on {when}.'**
+  String lvPayDoneSent(String when);
+
+  /// Level 1 payment details: sentence of a finished receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Received. Done on {when}.'**
+  String lvPayDoneReceived(String when);
+
+  /// Level 1 payment details: expands the steps of a done payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the steps'**
+  String get lvPayShowSteps;
+
+  /// Level 1 payment details: collapses the steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the steps'**
+  String get lvPayHideSteps;
+
+  /// Level 1 payment details: menu and sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get lvPayDetails;
+
+  /// Level 1 payment details: when the payment started.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get lvPayStarted;
+
+  /// Details sheet: when the payment was posted.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted to the network'**
+  String get lvPayPosted;
+
+  /// Details sheet: the slate id.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment ID'**
+  String get lvPayPaymentId;
+
+  /// Details sheet row.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations'**
+  String get lvPayConfirmations;
+
+  /// Details sheet: confirmations so far of the target.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {target}'**
+  String lvPayOf(int count, int target);
+
+  /// Details sheet button.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy details'**
+  String get lvPayCopyDetails;
+
+  /// Notice after Copy details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details copied'**
+  String get lvPayDetailsCopied;
 }
 
 class _AppLocalizationsDelegate

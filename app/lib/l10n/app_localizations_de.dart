@@ -18265,4 +18265,72 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get lvPayCloseNote =>
       'Sie können das schließen. Die Zahlung steht unter Aktivität, bis sie fertig ist.';
+
+  @override
+  String lvPayArrivalFrom(String amount, String name) {
+    return '$amount von $name';
+  }
+
+  @override
+  String get lvPayOpen => 'Öffnen';
+
+  @override
+  String get lvPayNewToday => 'Neu heute';
+
+  @override
+  String get lvPayNewAddress => 'Ihre neue Adresse';
+
+  @override
+  String lvPayServerLine(String name) {
+    return 'Epicbox-Server: $name.';
+  }
+
+  @override
+  String get lvPayOldAddressLine =>
+      'Wer die alte Adresse hat, braucht die neue.';
+
+  @override
+  String get lvPayReceiveBack => 'Zurück zu meiner Adresse';
+
+  @override
+  String lvPayDoneSent(String when) {
+    return 'Gesendet. Fertig am $when.';
+  }
+
+  @override
+  String lvPayDoneReceived(String when) {
+    return 'Empfangen. Fertig am $when.';
+  }
+
+  @override
+  String get lvPayShowSteps => 'Schritte anzeigen';
+
+  @override
+  String get lvPayHideSteps => 'Schritte ausblenden';
+
+  @override
+  String get lvPayDetails => 'Details';
+
+  @override
+  String get lvPayStarted => 'Gestartet';
+
+  @override
+  String get lvPayPosted => 'An das Netzwerk gesendet';
+
+  @override
+  String get lvPayPaymentId => 'Zahlungs-ID';
+
+  @override
+  String get lvPayConfirmations => 'Bestätigungen';
+
+  @override
+  String lvPayOf(int count, int target) {
+    return '$count von $target';
+  }
+
+  @override
+  String get lvPayCopyDetails => 'Details kopieren';
+
+  @override
+  String get lvPayDetailsCopied => 'Details kopiert';
 }

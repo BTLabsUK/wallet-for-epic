@@ -31,6 +31,9 @@ import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
 import 'invoice_request_screen.dart' show InvoiceRequestScreen;
+import 'levels/pay_arrival.dart';
+import '../levels/level_providers.dart' show levelFeaturesProvider;
+import '../levels/relay_switch_providers.dart' show relaySwitchResultProvider;
 import 'method_strip.dart';
 import 'payment_gate.dart';
 import 'receive_http_card.dart';
@@ -133,6 +136,9 @@ const double _tabPad = 4;
   return (texts: texts, size: (style.fontSize ?? 12) * scale);
 }
 
+/// Level 1's quiet link between QR Payment and the address.
+const Key receiveQuietQrKey = ValueKey('receive-quiet-qr');
+
 class ReceiveView extends ConsumerWidget {
   const ReceiveView({super.key});
 
@@ -150,6 +156,10 @@ class ReceiveView extends ConsumerWidget {
       ref.watch(homeProvider.select((h) => h.value?.transactions)),
     );
     final torState = phoneTorState(ref.watch(phoneTorProvider));
+    // Level 1: no method tabs or strip; QR Payment is a quiet link.
+    final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
+    final relayMove = quiet ? ref.watch(relaySwitchResultProvider) : null;
+    final arriving = quiet ? arrivingPayment(ref.watch(homeProvider.select((h) => h.value?.transactions)) ?? const []) : null;
     // Link: the Tor part where the app has Tor and Link · Tor is on (the tab in use keeps it,
     // as Tor's own state did before the split); the HTTP card while Link · HTTP is on.
     final linkTor = torAvailable && (payments.linkTor || (tab == ReceiveTab.direct && !payments.linkHttp));
@@ -182,12 +192,13 @@ class ReceiveView extends ConsumerWidget {
           segment(ReceiveTab.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
         // Link stays whatever Settings › Transactions says, so the strip never jumps:
         // with both Link methods off its page offers to turn one on.
-        segment(ReceiveTab.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
+        if (!quiet)
+          segment(ReceiveTab.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
         // QR is the phone next to this one: offered where the camera works.
-        if (tab == ReceiveTab.qr || (payments.directQr && offersQrPayment(ref)))
+        if (tab == ReceiveTab.qr || ((payments.directQr || quiet) && offersQrPayment(ref)))
           segment(ReceiveTab.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
         // The tab in use and a file send waiting for its reply keep File.
-        if (tab == ReceiveTab.file || payments.directFile || filePending)
+        if (!quiet && (tab == ReceiveTab.file || payments.directFile || filePending))
           segment(ReceiveTab.file, MethodIcons.of(MethodKind.directFile), MethodIcons.shortName(l, MethodKind.directFile)),
     ];
     // Every method off: nothing to show but the way to Settings.
@@ -206,7 +217,7 @@ class ReceiveView extends ConsumerWidget {
     }
     // The tab in use went off: the first that is on.
     if (!tabSegments.any((s) => s.value == tab)) tab = tabSegments.first.value;
-    final Widget tabs = tabSegments.length == 1
+    final Widget tabs = tabSegments.length == 1 || quiet
         ? const SizedBox.shrink()
         : LayoutBuilder(
             builder: (context, box) {
@@ -271,7 +282,7 @@ class ReceiveView extends ConsumerWidget {
       children: children,
     );
     // What the tab means, so the sender's side is plain: picture, title, one line.
-    final strip = Padding(
+    final strip = quiet ? const SizedBox.shrink() : Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: DismissibleTip(
         id: receiveMethodTipId,
@@ -298,6 +309,19 @@ class ReceiveView extends ConsumerWidget {
       ),
     );
     final value = noServer ? null : address.value;
+    // Level 1's quiet link: into QR Payment from the address, back out of it.
+    Widget quietLink() {
+      final toQr = tab != ReceiveTab.qr;
+      if (toQr && !tabSegments.any((s) => s.value == ReceiveTab.qr)) return const SizedBox.shrink();
+      return Center(
+        child: TextButton(
+          key: receiveQuietQrKey,
+          style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
+          onPressed: () => ref.read(receiveTabProvider.notifier).choose(toQr ? ReceiveTab.qr : ReceiveTab.epicbox),
+          child: Text(toQr ? l.lvPaySendQrLink : l.lvPayReceiveBack),
+        ),
+      );
+    }
     final Widget above;
     final Widget? code;
     final Widget below;
@@ -306,6 +330,7 @@ class ReceiveView extends ConsumerWidget {
         strip,
         const _QrCard(),
         const SizedBox(height: 8),
+        if (quiet) quietLink(),
         help,
       ]);
       code = null;
@@ -420,15 +445,17 @@ class ReceiveView extends ConsumerWidget {
             action: FilledButton.tonal(onPressed: () => showEpicboxPicker(context), child: Text(l.slRelayField)),
           )
         else if (value != null) ...[
+          if (relayMove != null) ...[const NewAddressBadge(), const SizedBox(height: 4)],
           PhoneTourTarget(
             id: 'tour-receive-address',
             child: _AddressRow(
               address: value,
-              label: l.receiveAddressLabel,
+              label: relayMove != null ? l.lvPayNewAddress : l.receiveAddressLabel,
               cardKey: receiveAddressKey,
             ),
           ),
           const SizedBox(height: 8),
+          if (relayMove != null) ...[NewAddressLines(result: relayMove), const SizedBox(height: 8)],
           if (offline) _EpicboxOffByMode(mode: ref.watch(networkModeProvider)) else const _EpicboxLine(),
           if (demo) const _KeepTabOpenLine(),
           const SizedBox(height: 8),
@@ -453,6 +480,8 @@ class ReceiveView extends ConsumerWidget {
               ),
             );
       below = column([
+        if (arriving != null) ...[const SizedBox(height: 8), ArrivalCard(tx: arriving)],
+        if (quiet) quietLink(),
         if (demo || invoices) ...[
           const SizedBox(height: 8),
           Wrap(

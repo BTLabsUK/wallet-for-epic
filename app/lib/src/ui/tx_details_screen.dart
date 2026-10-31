@@ -37,6 +37,9 @@ import 'theme/advanced.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'method_names.dart';
+import '../levels/level_features.dart' show TimelineStyle;
+import '../levels/level_providers.dart' show levelFeaturesProvider;
+import 'levels/pay_details.dart';
 import 'tx_edit_sheet.dart';
 import 'tx_label.dart';
 
@@ -702,6 +705,43 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
           }
         : null;
     _tickWhile(cancelHeld && !incoming.senderReportsPosted);
+    // Level 1: one sentence or the live timeline, Cancel only. Another wallet's, a device's,
+    // an invoice's and a withdrawal's payment keep the full screen.
+    if (ref.watch(levelFeaturesProvider.select((f) => f.timeline == TimelineStyle.liveSentence)) &&
+        !device &&
+        tx.origin != TxOrigin.otherWallet &&
+        withdrawal == null &&
+        paidInvoice == null &&
+        !issued) {
+      return SlotScaffold(
+        appBar: AppBar(title: Text(txHeading(l, tx, contactName: name)), actions: [PlainDetailsMenu(tx: tx)]),
+        idle: _busy || home.isLoading ? SlotProgress(label: l.txDetailsWorking) : null,
+        body: ScreenBody(
+          children: [
+            Semantics(
+              label: hidden ? l.txDetailsAmountHidden : null,
+              excludeSemantics: hidden,
+              child: Text(signedEpic(l, tx, hidden: hidden, exact: true), style: theme.textTheme.headlineMedium),
+            ),
+            if (fiat != null)
+              Text(fiat, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 16),
+            PlainTxDetails(
+              tx: tx,
+              name: name ?? (counterparty == null ? null : shortAddress(counterparty)),
+              busy: _busy,
+              onNote: () => _editNote(tx),
+              onCancel: cancel ? () => _cancel(tx) : null,
+              cancelNote: cancelHeld
+                  ? (incoming.senderReportsPosted
+                      ? l.txDetailsCancelWhileReported
+                      : l.txDetailsCancelHold(incoming.holdMinutesLeft))
+                  : null,
+            ),
+          ],
+        ),
+      );
+    }
     // What the status card offers beside the status.
     final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || cancel || cancelHeld || hold != null;
     return SlotScaffold(

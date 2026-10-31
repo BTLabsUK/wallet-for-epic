@@ -17013,4 +17013,71 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lvPayCloseNote => '可以关闭此页。完成前会显示在“活动”中。';
+
+  @override
+  String lvPayArrivalFrom(String amount, String name) {
+    return '$amount 来自 $name';
+  }
+
+  @override
+  String get lvPayOpen => '打开';
+
+  @override
+  String get lvPayNewToday => '今日新增';
+
+  @override
+  String get lvPayNewAddress => '您的新地址';
+
+  @override
+  String lvPayServerLine(String name) {
+    return 'Epicbox 服务器：$name。';
+  }
+
+  @override
+  String get lvPayOldAddressLine => '持有旧地址的人需要使用新地址。';
+
+  @override
+  String get lvPayReceiveBack => '返回我的地址';
+
+  @override
+  String lvPayDoneSent(String when) {
+    return '已发送。完成于 $when。';
+  }
+
+  @override
+  String lvPayDoneReceived(String when) {
+    return '已收到。完成于 $when。';
+  }
+
+  @override
+  String get lvPayShowSteps => '显示步骤';
+
+  @override
+  String get lvPayHideSteps => '隐藏步骤';
+
+  @override
+  String get lvPayDetails => '详情';
+
+  @override
+  String get lvPayStarted => '开始于';
+
+  @override
+  String get lvPayPosted => '已发布到网络';
+
+  @override
+  String get lvPayPaymentId => '付款编号';
+
+  @override
+  String get lvPayConfirmations => '确认数';
+
+  @override
+  String lvPayOf(int count, int target) {
+    return '$count/$target';
+  }
+
+  @override
+  String get lvPayCopyDetails => '复制详情';
+
+  @override
+  String get lvPayDetailsCopied => '详情已复制';
 }
