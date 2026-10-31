@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
+import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,7 +37,8 @@ Future<AppLocalizations> _pump(
           disableAnimations: reducedMotion,
           textScaler: TextScaler.linear(textScale),
         ),
-        child: child!,
+        // The Invoice chip shows only with the Invoices switch on.
+        child: AdvancedOptions(prefs: AdvancedPrefs.all, child: child!),
       ),
       home: Scaffold(body: HandshakeSheet(flow: flow)),
     ),

@@ -518,7 +518,7 @@ String _titleText(WidgetTester tester) {
   return [
     for (final part in (span as TextSpan).children!)
       if (part is TextSpan) part.text,
-  ].join(' ');
+  ].join('').replaceAll('\u2002', ' ');
 }
 
 /// The status words of the card row with [key], as its label opens: "Node online" of
@@ -799,7 +799,7 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'zzz');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.text('Nothing matches "zzz".'), findsOneWidget);
+      expect(find.text('Nothing matches “zzz”.'), findsOneWidget);
 
       await _tap(tester, find.byTooltip('Clear search'));
       await _tap(tester, find.widgetWithText(ChoiceChip, 'Sent'));
@@ -1515,7 +1515,7 @@ void main() {
           bob,
           ownServer: own,
         ),
-        'Payment to esBobA…567890 finished. Waiting for confirmations.',
+        'Payment to esBobA…567890 finished. Confirming.',
       );
     });
 
@@ -1546,7 +1546,7 @@ void main() {
       // The listener only accepted it: the sender still has to finish.
       expect(
         paymentNotice(englishStrings, received, tx),
-        '1.5000 EPIC on the way. It completes when the sender finishes.',
+        '1.5000 EPIC on the way.',
       );
       expect(
         paymentNotice(
@@ -1559,27 +1559,27 @@ void main() {
           null,
           contactName: 'Alice',
         ),
-        '2.0000 EPIC from Alice on the way. It completes when the sender finishes.',
+        '2.0000 EPIC from Alice on the way.',
       );
       expect(
         paymentNotice(englishStrings, received, null),
-        'A payment is on the way. It completes when the sender finishes.',
+        'A payment is on the way.',
       );
       expect(
         paymentNotice(englishStrings, received, tx, hidden: true),
-        'A payment is on the way. It completes when the sender finishes.',
+        'A payment is on the way.',
       );
       expect(
         paymentNotice(englishStrings, finalized, tx),
-        'Payment to esBobA…567890@box.epic.invalid finished. Waiting for confirmations.',
+        'Payment to esBobA…567890@box.epic.invalid finished. Confirming.',
       );
       expect(
         paymentNotice(englishStrings, finalized, tx, contactName: 'Bob'),
-        'Payment to Bob finished. Waiting for confirmations.',
+        'Payment to Bob finished. Confirming.',
       );
       expect(
         paymentNotice(englishStrings, finalized, null),
-        'Payment finished. Waiting for confirmations.',
+        'Payment finished. Confirming.',
       );
       expect(
         paymentNotice(
@@ -1609,7 +1609,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(
-        find.text('5.0000 EPIC on the way. It completes when the sender finishes.'),
+        find.text('5.0000 EPIC on the way.'),
         findsOneWidget,
       );
       expect(find.textContaining('esAlice'), findsNothing);
@@ -1628,13 +1628,11 @@ void main() {
       final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
       expect(
         paymentNotice(englishStrings, repeated, tx),
-        'This payment was already accepted. The sender got the same answer '
-        'again; no second payment is on the way.',
+        'Already accepted. No second payment.',
       );
       expect(
         paymentNotice(englishStrings, repeated, tx, contactName: 'Alice'),
-        'The payment from Alice was already accepted. They got the same '
-        'answer again; no second payment is on the way.',
+        'Alice’s payment was already accepted.',
       );
     });
 
@@ -1653,7 +1651,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('This payment was already accepted.'),
+        find.textContaining('Already accepted.'),
         findsOneWidget,
       );
       expect(find.textContaining('on the way. It completes'), findsNothing);
@@ -1680,7 +1678,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(
-        find.text('Payment to Bob finished. Waiting for confirmations.'),
+        find.text('Payment to Bob finished. Confirming.'),
         findsOneWidget,
       );
     });
@@ -2617,7 +2615,7 @@ void main() {
             ),
             cancelledSend(cutoff: _tip),
           ),
-          'A payment failed. Open Activity to see it.',
+          'A payment failed.',
         );
       },
     );
@@ -2736,7 +2734,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('A payment failed. Open Activity to see it.'), findsNothing);
+      expect(find.text('A payment failed.'), findsNothing);
       // Let the notice go, then the core retries the same payment: nothing new.
       await tester.pump(noticeDuration(NoticeLevel.warning, action: true));
       await tester.pumpAndSettle();

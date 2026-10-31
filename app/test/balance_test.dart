@@ -325,6 +325,7 @@ void main() {
         final tiles = balanceTiles(l, session.summaryValue, empty: false);
         expect(tiles.map((t) => (t.kind, t.label, t.value)), [
           (BalanceKind.confirming, l.homeBalanceConfirming, _epic(2)),
+          (BalanceKind.immature, l.homeBalanceImmature, _epic(16)),
           (BalanceKind.waitingSender, l.homeTileWaitingSender, _epic(0.5)),
           (BalanceKind.locked, l.homeTileLocked, _epic(5)),
           (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
