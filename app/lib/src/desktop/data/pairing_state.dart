@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
-import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf;
+import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, contactPairingOf;
 import '../../pairing_api.dart';
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'invoices.dart' show deskFailureKind;
@@ -206,6 +206,3 @@ Future<T> deskPairingCall<T>(WidgetRef ref, Future<T> Function(PairingApi api) c
     unawaited(ref.read(deskPairingsProvider.notifier).reload());
   }
 }
-
-/// Whether [r] waits for the words: a pairing nobody checked yet.
-bool deskAwaitsCheck(PairingRecord r) => r.state == PairingState.paired && !r.checkSkipped;
