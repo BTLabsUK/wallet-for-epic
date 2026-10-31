@@ -415,13 +415,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         action: (pin) => vault.enableBiometrics(session, config, pin),
       );
       if (ok == null) return;
-      if (mounted) {
-        final l = context.l10n;
-        if (ok) {
-          _say(l.settingsBiometricsOn, level: NoticeLevel.success);
-        } else {
-          _say(l.settingsBiometricsFailed, level: NoticeLevel.error);
-        }
+      // On: the switch says so, and the next unlock offers biometrics.
+      if (!ok && mounted) {
+        _say(context.l10n.settingsBiometricsFailed, level: NoticeLevel.error);
       }
     }
     ref.invalidate(biometricsProvider);

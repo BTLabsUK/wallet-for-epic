@@ -555,7 +555,7 @@ class _PinPromptDialogState<T extends Object>
     if (config == null || !widget.allowBiometrics) return;
     final enabled = await ref
         .read(vaultProvider)
-        .biometricsReady(config.chain);
+        .biometricsEnabled(config.chain);
     if (!mounted) return;
     setState(() => _biometrics = enabled);
     // Biometrics go first, as on the unlock screen; the PIN stays for a dismissed prompt.
@@ -568,7 +568,7 @@ class _PinPromptDialogState<T extends Object>
     final vault = ref.read(vaultProvider);
     final pin = await vault.readBiometricPin(config.chain);
     if (pin == null) {
-      final still = await vault.biometricsReady(config.chain);
+      final still = await vault.biometricsEnabled(config.chain);
       if (mounted) setState(() => _biometrics = still);
       return;
     }

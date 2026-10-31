@@ -3626,10 +3626,6 @@
   "@settingsBiometrics": {
     "description": "Settings switch: unlock with fingerprint or face instead of the PIN."
   },
-  "settingsBiometricsOn": "Biometric unlock is on from the next app start.",
-  "@settingsBiometricsOn": {
-    "description": "Notice after the Settings switch. Biometrics cannot read their copy of the PIN in the process that wrote it, so they start working after a restart."
-  },
   "settingsBiometricsOff": "Biometric unlock turned off",
   "@settingsBiometricsOff": {
     "description": "Short notice."
@@ -23984,10 +23980,6 @@
   "passphraseUsePassphraseInstead": "Use passphrase instead",
   "@passphraseUsePassphraseInstead": {
     "description": "Small link on the unlock screen that swaps the PIN field for the passphrase field. Shown only to wallets that ever had a passphrase."
-  },
-  "biometricsFromNextStart": "Biometric unlock works from the next app start.",
-  "@biometricsFromNextStart": {
-    "description": "Notice after biometric unlock was turned on while creating or restoring a wallet: it cannot be used until the app is started again."
   },
   "invoicePassphraseReason": "Enter your passphrase to pay this invoice.",
   "@invoicePassphraseReason": {

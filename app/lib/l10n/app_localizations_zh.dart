@@ -2702,9 +2702,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsBiometrics => '生物识别解锁';
 
   @override
-  String get settingsBiometricsOn => '生物识别解锁将在下次启动应用后生效。';
-
-  @override
   String get settingsBiometricsOff => '已关闭生物识别解锁';
 
   @override
@@ -16784,9 +16781,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get passphraseUsePassphraseInstead => '改用密码短语';
-
-  @override
-  String get biometricsFromNextStart => '生物识别解锁将在下次启动应用后生效。';
 
   @override
   String get invoicePassphraseReason => '输入密码短语以支付此账单。';

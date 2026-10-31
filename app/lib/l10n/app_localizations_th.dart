@@ -2812,10 +2812,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsBiometrics => 'ปลดล็อกด้วยไบโอเมตริก';
 
   @override
-  String get settingsBiometricsOn =>
-      'การปลดล็อกด้วยไบโอเมตริกจะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป';
-
-  @override
   String get settingsBiometricsOff => 'ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว';
 
   @override
@@ -17398,10 +17394,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get passphraseUsePassphraseInstead => 'ใช้วลีรหัสผ่านแทน';
-
-  @override
-  String get biometricsFromNextStart =>
-      'การปลดล็อกด้วยไบโอเมตริกจะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป';
 
   @override
   String get invoicePassphraseReason => 'ใส่วลีรหัสผ่านเพื่อชำระใบแจ้งหนี้นี้';

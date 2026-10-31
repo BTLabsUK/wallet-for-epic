@@ -389,20 +389,15 @@ void main() {
       expect(await v.passphraseEverUsed(config.chain), isFalse);
     }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 3)));
 
-    test('after a biometric write in this process, biometrics wait for a restart', () async {
+    test('biometrics open the wallet in the same run that turned them on', () async {
       final v = vault();
       final created = await v.create(config, pin: '123456', useBiometrics: true);
       sessions.add(created.session);
       expect(created.biometrics, isTrue);
-      bio.readable = false; // as PlatformBiometricStore after its write
       final prompts = bio.prompts;
       expect(await v.biometricsEnabled(config.chain), isTrue);
-      expect(await v.biometricsReady(config.chain), isFalse);
-      expect(await v.readBiometricPin(config.chain), isNull);
-      expect(bio.prompts, prompts, reason: 'no prompt, and nothing read');
-      expect(await v.biometricsEnabled(config.chain), isTrue, reason: 'still on after a restart');
-      bio.readable = true;
       expect(await v.readBiometricPin(config.chain), '123456');
+      expect(bio.prompts, prompts + 1, reason: 'read behind its own prompt');
     }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 2)));
   });
 }

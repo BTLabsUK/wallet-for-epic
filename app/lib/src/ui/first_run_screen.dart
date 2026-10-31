@@ -100,11 +100,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               // ran out under it unseen.
               persistent: true,
             );
-      } else if (useBiometrics) {
-        // Their copy cannot be read back in the process that wrote it (WAL-11).
-        ref
-            .read(noticeProvider.notifier)
-            .show(l.biometricsFromNextStart, level: NoticeLevel.info, persistent: true);
       }
       // Undercover from the start: Home once Tor carries the wallet's requests.
       if (shouldWaitForTor(ref)) {
