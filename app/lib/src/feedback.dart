@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'l10n.dart';
+import 'last_session.dart';
 import 'slate_files.dart';
 import 'support_clean.dart';
 import 'support_report.dart';
@@ -96,6 +97,10 @@ bool isValidFeedbackEmail(String email) =>
 /// did; the email is the user's own, for a reply, and stays as written. [fullDetails] ("Include
 /// full details") keeps the wallet addresses and amounts [log] holds ([cleanForReport]), and
 /// the report says so; the ring never holds them, so a caller passes [log] for it.
+///
+/// With [lastSession] (the report the "stopped responding last time" notice opens), [ring] and
+/// [log] are the last session's, kept at this start, and go as `app/last-session/...`, with
+/// Android's trace of the end, cleaned like the log, and the end among the facts.
 SupportReport buildFeedbackReport({
   required String message,
   String? email,
@@ -106,11 +111,14 @@ SupportReport buildFeedbackReport({
   String ui = 'phone',
   CleanContext context = const CleanContext(),
   bool fullDetails = false,
+  LastSessionLog? lastSession,
 }) {
   // One set of names for the facts and the log, so the node is the same <host-n> in both; the
   // message gets its own, as in the GUI.
   final ids = CleanIds();
   String clean(String text) => cleanForReport(text, context: context, ids: ids);
+  final dir = lastSession == null ? 'app' : 'app/last-session';
+  final trace = ring != null || log != null ? lastSession?.trace : null;
   return SupportReport(
     created: at,
     description: cleanForReport(message.trim(), context: context),
@@ -126,15 +134,37 @@ SupportReport buildFeedbackReport({
       'sync': clean(details.sync),
       'log level': ?details.logLevel,
       if (fullDetails && ring == null && log != null) 'log details': 'full',
+      if (lastSession != null) ...{
+        'last session': lastSession.cause,
+        if (lastSession.version case final v? when v.isNotEmpty) 'last session version': v,
+        if (lastSession.endedAt case final at?) 'last session ended': at.toUtc().toIso8601String(),
+      },
     },
     files: [
       if (ring != null)
-        ...[for (final f in ring) tailFile('app/${f.name}', f.text, max: logRingBytes)]
+        ...[for (final f in ring) tailFile('$dir/${f.name}', f.text, max: logRingBytes)]
       else if (log != null)
-        tailFile('app/wfe.log', cleanForReport(log, context: context, ids: ids, fullDetails: fullDetails), max: feedbackLogBytes),
+        tailFile('$dir/wfe.log', cleanForReport(log, context: context, ids: ids, fullDetails: fullDetails), max: feedbackLogBytes),
+      if (trace != null)
+        // The freeze's threads: the main thread is at the start, so the start is what stays.
+        _headFile('$dir/trace.txt', clean(trace), feedbackLogBytes),
     ],
   );
 }
+
+/// The first [max] bytes of [text], to a whole line, with a note when the rest was left out.
+SupportFile _headFile(String name, String text, int max) {
+  final bytes = utf8.encode(text);
+  if (bytes.length <= max) return SupportFile(name: name, text: text);
+  var head = utf8.decode(bytes.sublist(0, max), allowMalformed: true);
+  final nl = head.lastIndexOf('\n');
+  if (nl > 0) head = head.substring(0, nl + 1);
+  return SupportFile(name: name, text: '$head[… later lines left out …]\n', cut: true);
+}
+
+/// The kept last session ([LastSessionSource]), for the notice and its report. Tests hand in
+/// their own.
+final lastSessionProvider = Provider<LastSessionSource?>((ref) => lastSession);
 
 /// `epic-wallet-feedback-<yyyyMMdd-HHmm>.txt`, in local time.
 String feedbackFileName(DateTime at) {

@@ -1,0 +1,9 @@
+{
+  "deskLastSessionFroze": "Aplikacja nie odpowiadała ostatnim razem. Wysłać log?",
+  "deskLastSessionClosed": "Aplikacja zamknęła się nieoczekiwanie ostatnim razem. Wysłać log?",
+  "deskLastSessionSend": "Wyślij",
+  "deskLastSessionNotNow": "Nie teraz",
+  "deskLastSessionReportFroze": "Aplikacja nie odpowiadała.",
+  "deskLastSessionReportClosed": "Aplikacja zamknęła się nieoczekiwanie.",
+  "deskLastSessionAttached": "Z logiem z ostatniej sesji."
+}

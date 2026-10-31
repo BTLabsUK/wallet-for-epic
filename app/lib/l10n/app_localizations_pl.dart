@@ -19242,4 +19242,28 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLvShellNoOtherServer => 'Na liście nie ma innego serwera.';
+
+  @override
+  String get deskLastSessionFroze =>
+      'Aplikacja nie odpowiadała ostatnim razem. Wysłać log?';
+
+  @override
+  String get deskLastSessionClosed =>
+      'Aplikacja zamknęła się nieoczekiwanie ostatnim razem. Wysłać log?';
+
+  @override
+  String get deskLastSessionSend => 'Wyślij';
+
+  @override
+  String get deskLastSessionNotNow => 'Nie teraz';
+
+  @override
+  String get deskLastSessionReportFroze => 'Aplikacja nie odpowiadała.';
+
+  @override
+  String get deskLastSessionReportClosed =>
+      'Aplikacja zamknęła się nieoczekiwanie.';
+
+  @override
+  String get deskLastSessionAttached => 'Z logiem z ostatniej sesji.';
 }

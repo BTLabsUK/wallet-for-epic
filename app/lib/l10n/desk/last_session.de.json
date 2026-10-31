@@ -1,0 +1,9 @@
+{
+  "deskLastSessionFroze": "Die App hat beim letzten Mal nicht mehr reagiert. Protokoll senden?",
+  "deskLastSessionClosed": "Die App wurde beim letzten Mal unerwartet beendet. Protokoll senden?",
+  "deskLastSessionSend": "Senden",
+  "deskLastSessionNotNow": "Nicht jetzt",
+  "deskLastSessionReportFroze": "Die App hat nicht mehr reagiert.",
+  "deskLastSessionReportClosed": "Die App wurde unerwartet beendet.",
+  "deskLastSessionAttached": "Mit dem Protokoll der letzten Sitzung."
+}

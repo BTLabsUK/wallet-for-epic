@@ -1,0 +1,30 @@
+{
+  "deskLastSessionFroze": "The app stopped responding last time. Send the log?",
+  "@deskLastSessionFroze": {
+    "description": "Notice at start (phone and desktop), after unlock, once: the previous session froze (Android ANR). Offers to send that session's log in a problem report."
+  },
+  "deskLastSessionClosed": "The app closed unexpectedly last time. Send the log?",
+  "@deskLastSessionClosed": {
+    "description": "Notice at start (phone and desktop), after unlock, once: the previous session crashed or was ended without closing. Offers to send that session's log in a problem report."
+  },
+  "deskLastSessionSend": "Send",
+  "@deskLastSessionSend": {
+    "description": "Button on the last-session notice: opens Report a problem with the previous session's log attached. Nothing is sent until the user sends the report."
+  },
+  "deskLastSessionNotNow": "Not now",
+  "@deskLastSessionNotNow": {
+    "description": "Button on the last-session notice: closes it; it does not come back for this incident."
+  },
+  "deskLastSessionReportFroze": "The app stopped responding.",
+  "@deskLastSessionReportFroze": {
+    "description": "Pre-filled text of the problem report opened from the last-session notice (froze case). The user can edit it."
+  },
+  "deskLastSessionReportClosed": "The app closed unexpectedly.",
+  "@deskLastSessionReportClosed": {
+    "description": "Pre-filled text of the problem report opened from the last-session notice (crash case). The user can edit it."
+  },
+  "deskLastSessionAttached": "With the log of the last session.",
+  "@deskLastSessionAttached": {
+    "description": "Problem report form: line under the log switch when the report carries the previous session's log instead of the current one."
+  }
+}

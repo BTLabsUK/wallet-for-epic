@@ -4849,5 +4849,12 @@
   "lvShellSwitchServer": "Сменить сервер",
   "lvShellNoOtherServer": "Других серверов в списке нет.",
   "deskLvShellSwitchServer": "Сменить сервер",
-  "deskLvShellNoOtherServer": "В списке нет другого сервера."
+  "deskLvShellNoOtherServer": "В списке нет другого сервера.",
+  "deskLastSessionFroze": "В прошлый раз приложение перестало отвечать. Отправить журнал?",
+  "deskLastSessionClosed": "В прошлый раз приложение неожиданно закрылось. Отправить журнал?",
+  "deskLastSessionSend": "Отправить",
+  "deskLastSessionNotNow": "Не сейчас",
+  "deskLastSessionReportFroze": "Приложение перестало отвечать.",
+  "deskLastSessionReportClosed": "Приложение неожиданно закрылось.",
+  "deskLastSessionAttached": "С журналом последнего сеанса."
 }

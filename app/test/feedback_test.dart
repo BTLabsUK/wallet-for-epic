@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/app_log.dart';
 import 'package:epic_wallet/src/feedback.dart';
+import 'package:epic_wallet/src/last_session.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -17,6 +18,7 @@ import 'package:epic_wallet/src/support_clean.dart';
 import 'package:epic_wallet/src/support_report.dart';
 import 'package:epic_wallet/src/ui/feedback_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
+import 'package:epic_wallet/src/ui/notices.dart' show noticeKey;
 import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -42,6 +44,25 @@ const _details = FeedbackDetails(
   sync: 'Up to date at height 3600000, epicbox connected',
 );
 
+class _KeptSession implements LastSessionSource {
+  _KeptSession(this.kept);
+
+  final LastSessionLog kept;
+  int offers = 0;
+
+  @override
+  bool get due => offers == 0;
+
+  @override
+  void offered() => offers++;
+
+  @override
+  Future<LastSessionLog?> read() async => kept;
+
+  @override
+  void clean() {}
+}
+
 class _NoRelays implements RelayDirectory {
   @override
   Future<List<RelayStatus>> relays(String chain) async => const [];
@@ -66,6 +87,9 @@ class _Harness {
   /// LEPIC's log ring; null is none, as in a test run, and the log's tail goes instead.
   List<LogRingFile>? ring;
   Uri? url;
+
+  /// The kept last session, when the test has one.
+  LastSessionSource? lastSession;
   late ProviderContainer container;
 
   Future<void> pump(WidgetTester tester) async {
@@ -93,6 +117,7 @@ class _Harness {
           feedbackOutletProvider.overrideWithValue(outlet),
           feedbackLogProvider.overrideWithValue(log),
           feedbackRingProvider.overrideWithValue(() async => ring),
+          lastSessionProvider.overrideWithValue(lastSession),
           feedbackUrlProvider.overrideWithValue(url),
           feedbackPlatformProvider.overrideWithValue('android 14'),
           feedbackCleanContextProvider.overrideWithValue(const CleanContext()),
@@ -411,6 +436,43 @@ void main() {
       final files = h.outlet.posted.single.report.files;
       expect([for (final f in files) f.name], ['app/lepic.0.log']);
       expect(files.single.text, line);
+    });
+
+    testWidgets('a frozen last session: one notice after unlock, its Send sends that log and trace', (tester) async {
+      const ringLine = '2026-10-31T21:00:00.000Z INFO dart: unlock tag=unlock\n';
+      final kept = _KeptSession(
+        const LastSessionLog(
+          end: LastSessionEnd.froze,
+          cause: 'anr',
+          version: '26.10.26',
+          ring: [(name: 'lepic.0.log', text: ringLine)],
+          trace: 'Input dispatching timed out\nto $_address\n"main" prio=5 tid=1 Blocked\n',
+        ),
+      );
+      final h = _Harness()
+        ..url = Uri.parse('https://feedback.example.com/in')
+        ..lastSession = kept;
+      await h.pump(tester);
+      expect(kept.offers, 1);
+      final notice = find.byKey(noticeKey);
+      expect(find.descendant(of: notice, matching: find.text('The app stopped responding last time. Send the log?')), findsOneWidget);
+      await tap(tester, find.descendant(of: notice, matching: find.text('Send')));
+      // The report form, its message started, the last session's log said.
+      expect(find.text('The app stopped responding.'), findsOneWidget);
+      expect(find.textContaining('With the log of the last session.'), findsOneWidget);
+      await tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      final report = h.outlet.posted.single.report;
+      expect(report.description, 'The app stopped responding.');
+      expect(report.app['last session'], 'anr');
+      expect(report.app['last session version'], '26.10.26');
+      expect([for (final f in report.files) f.name], ['app/last-session/lepic.0.log', 'app/last-session/trace.txt']);
+      expect(report.files.first.text, ringLine);
+      final trace = report.files.last.text;
+      expect(trace, contains('"main" prio=5'));
+      // Cleaned like the log: no address.
+      expect(trace, isNot(contains(_address)));
+      // Once: no second notice for the same end.
+      expect(kept.offers, 1);
     });
 
     testWidgets('Node only: Send waits with the reason, sharing the report does not', (

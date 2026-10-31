@@ -19224,4 +19224,27 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvShellNoOtherServer => 'В списке нет другого сервера.';
+
+  @override
+  String get deskLastSessionFroze =>
+      'В прошлый раз приложение перестало отвечать. Отправить журнал?';
+
+  @override
+  String get deskLastSessionClosed =>
+      'В прошлый раз приложение неожиданно закрылось. Отправить журнал?';
+
+  @override
+  String get deskLastSessionSend => 'Отправить';
+
+  @override
+  String get deskLastSessionNotNow => 'Не сейчас';
+
+  @override
+  String get deskLastSessionReportFroze => 'Приложение перестало отвечать.';
+
+  @override
+  String get deskLastSessionReportClosed => 'Приложение неожиданно закрылось.';
+
+  @override
+  String get deskLastSessionAttached => 'С журналом последнего сеанса.';
 }
