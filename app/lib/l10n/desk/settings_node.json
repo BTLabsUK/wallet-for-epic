@@ -19,30 +19,6 @@
       }
     }
   },
-  "deskSetNodeStartTitle": "Start the local node?",
-  "@deskSetNodeStartTitle": {
-    "description": "Dialog title before the local node program starts."
-  },
-  "deskSetNodeStartDesc": "A separate program syncs the Epic chain on this computer.",
-  "@deskSetNodeStartDesc": {
-    "description": "Start the local node dialog: description under the title."
-  },
-  "deskSetNodeStartLine1": "Downloads the whole chain: several GB of disk space and bandwidth.",
-  "@deskSetNodeStartLine1": {
-    "description": "Start the local node dialog: first bullet."
-  },
-  "deskSetNodeStartLine2": "The first sync takes hours. Until it is done the node shows Syncing.",
-  "@deskSetNodeStartLine2": {
-    "description": "Start the local node dialog: second bullet. \"Syncing\" is the node status word."
-  },
-  "deskSetNodeStartLine3": "The firewall may ask to allow the node program.",
-  "@deskSetNodeStartLine3": {
-    "description": "Start the local node dialog: third bullet."
-  },
-  "deskSetNodeStartButton": "Start local node",
-  "@deskSetNodeStartButton": {
-    "description": "Start the local node dialog: primary button."
-  },
   "deskSetNodeRowNotSetUp": "Not set up",
   "@deskSetNodeRowNotSetUp": {
     "description": "Status of the local node in the node picker: not installed or never started."
