@@ -1,0 +1,130 @@
+{
+  "deskLvSendHowTo": "How to send it",
+  "@deskLvSendHowTo": {
+    "description": "Heading of the method card on Send at the Deeper level, above the Epicbox, Link and File Transfer choice."
+  },
+  "deskLvSendButton": "Send",
+  "@deskLvSendButton": {
+    "description": "Label of the Summary column's button on Send at the Shallow level while no amount is entered yet."
+  },
+  "deskLvSendButtonAmount": "Send {amount} EPIC",
+  "@deskLvSendButtonAmount": {
+    "description": "Label of the Summary column's button on Send at the Shallow level when the recipient has no name. {amount} is the amount with decimals.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      }
+    }
+  },
+  "deskLvSendButtonTo": "Send {amount} EPIC to {name}",
+  "@deskLvSendButtonTo": {
+    "description": "Label of the Summary column's button on Send at the Shallow level. {amount} is the amount with decimals, {name} the contact's name.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      },
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvSendNothingLeaves": "Nothing leaves until you press Send. After that it cannot be taken back.",
+  "@deskLvSendNothingLeaves": {
+    "description": "Line under the Send button on Send at the Shallow level, and under the title of the password dialog that follows."
+  },
+  "deskLvSendPasswordTitle": "Your password",
+  "@deskLvSendPasswordTitle": {
+    "description": "Title of the dialog that asks for the wallet's password after Send at the Shallow level."
+  },
+  "deskLvSendConfirm": "Send",
+  "@deskLvSendConfirm": {
+    "description": "Button of the password dialog at the Shallow level; pressing it sends the payment."
+  },
+  "deskLvSendLiveTo": "On its way to {name}",
+  "@deskLvSendLiveTo": {
+    "description": "Heading of Send after a payment went out, at every level. {name} is the contact's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvSendLiveAmountTo": "{amount} EPIC to {name}",
+  "@deskLvSendLiveAmountTo": {
+    "description": "Line under the heading of Send after a payment went out. {amount} is the amount, {name} the contact's name.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      },
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvSendLiveAmount": "{amount} EPIC",
+  "@deskLvSendLiveAmount": {
+    "description": "Line under the heading of Send after a payment went out, when the recipient has no name. {amount} is the amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      }
+    }
+  },
+  "deskLvSendYourAddress": "Your address",
+  "@deskLvSendYourAddress": {
+    "description": "Heading of the address card on Receive at the Shallow level."
+  },
+  "deskLvSendReady": "Ready to receive",
+  "@deskLvSendReady": {
+    "description": "State line on Receive at the Shallow level when the Epicbox server answers."
+  },
+  "deskLvSendClosedInfo": "Payments sent while the wallet is closed arrive when it opens.",
+  "@deskLvSendClosedInfo": {
+    "description": "Text of the info icon next to the address on Receive: what happens to a payment sent while this wallet is closed."
+  },
+  "deskLvSendPayFiles": "Payment files",
+  "@deskLvSendPayFiles": {
+    "description": "Heading of the file card on Receive at the Deeper level."
+  },
+  "deskLvSendSignFile": "Sign a payment file",
+  "@deskLvSendSignFile": {
+    "description": "Title of the row on Receive at the Deeper level that opens the sender's payment file to sign."
+  },
+  "deskLvSendSignFileText": "Open the file the sender gave you and save your reply.",
+  "@deskLvSendSignFileText": {
+    "description": "Text of the Sign a payment file row on Receive at the Deeper level."
+  },
+  "deskLvSendFinishFile": "Finish a reply file",
+  "@deskLvSendFinishFile": {
+    "description": "Title of the row on Receive at the Deeper level that opens the reply file of a recipient to post the payment."
+  },
+  "deskLvSendFinishFileText": "Open the reply you got back to post the payment.",
+  "@deskLvSendFinishFileText": {
+    "description": "Text of the Finish a reply file row on Receive at the Deeper level."
+  },
+  "deskLvSendPrevAddress": "Previous address",
+  "@deskLvSendPrevAddress": {
+    "description": "Title of the collapsed row on Receive after the Epicbox server moved, holding what is left of the old address."
+  },
+  "deskLvSendPrevText": "Payments sent to the old address still arrive for {days} days while {server} answers.",
+  "@deskLvSendPrevText": {
+    "description": "Text inside the Previous address row on Receive. {days} is a number, {server} the old Epicbox server's address.",
+    "placeholders": {
+      "days": {
+        "type": "String",
+        "example": "30"
+      },
+      "server": {
+        "type": "String",
+        "example": "epicbox.example.com"
+      }
+    }
+  }
+}

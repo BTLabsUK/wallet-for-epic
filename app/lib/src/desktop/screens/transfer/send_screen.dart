@@ -19,6 +19,7 @@ import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesO
 import '../devices/link_flow.dart' show showDeskLinkDevice;
 import '../../data/http_address.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
@@ -31,6 +32,7 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskContactPairingProvider, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingOnProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
+import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
 import '../pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords;
 import '../../widgets/tor_chip.dart';
 import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
@@ -291,6 +293,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   // The failed payment's message, worded when shown.
   String Function(AppLocalizations l)? _failure;
 
+  /// Wallet levels: Shallow sends from the page itself (no Review step) and by Epicbox alone,
+  /// unnamed (no method strip); Deeper and Deep end keep the method strip and Review.
+  bool get _reviewStep => ref.read(deskLevelUiProvider).sendReviewStep;
+  bool get _strip => ref.read(deskLevelFeaturesProvider).methodStrip;
+
   /// The failed payment may exist (waiting in Activity): no Review again.
   bool _failureInActivity = false;
 
@@ -358,6 +365,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final kept = _keeper.kept;
     _keeper.kept = null;
     if (a == null && kept != null && kept.wallet == _wallet) _restore(kept);
+    if (!_strip) _method = TxMethod.epicbox;
     switch (args.step) {
       case SendStep.errors:
         _submitted = true;
@@ -615,7 +623,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final text = _to.text;
     final added = text.length - _lastTo.length;
     _lastTo = text;
-    if (_method == TxMethod.file) return;
+    // Shallow sends by Epicbox alone: the address never moves the method.
+    if (!_strip || _method == TxMethod.file) return;
     final p = parseAddress(text, ref.read(deskApiProvider));
     // Under Direct the address decides the route: an onion over Tor, anything else http(s).
     if (_segmentOf(_method) == TxMethod.http) _method = _directRoute(p.kind);
@@ -630,6 +639,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// Settings › Transactions › Send starts on, among the methods this build has.
   TxMethod _startMethod() => switch (ref.read(deskProvider).settings.payments.startMethod) {
+    _ when !_strip => TxMethod.epicbox,
     // Node only and Kill switch: Epicbox and Link don't go out, so an empty send starts on File
     // (an address given in To keeps its own method, and the note says why it is held).
     _ when NetGate.restricted && (_args.recipient ?? '').trim().isEmpty => TxMethod.file,
@@ -684,7 +694,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// to the first that can, after this frame. Only this screen's choice moves; Settings ›
   /// Transactions › Send starts on stays as it is.
   void _keepMethodOn(DeskState st) {
-    if (_moving || _result != null || _segmentOn(st, _method)) return;
+    if (!_strip || _moving || _result != null || _segmentOn(st, _method)) return;
     final next = _firstOn(st);
     if (next == null) return;
     _moving = true;
@@ -965,7 +975,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _to.text = to;
       _lastTo = to;
       fields();
-      if (m != null && _offered(m)) {
+      if (_strip && m != null && _offered(m)) {
         if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
         _method = m;
       }
@@ -1019,7 +1029,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _pairingTo = null;
       // The address whose method is on, when the contact has one.
       final to = contactAddress(c, ref.read(deskProvider).settings.payments);
-      final m = contactMethod(c, to);
+      final m = _strip ? contactMethod(c, to) : TxMethod.epicbox;
       if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
       _method = m;
       _to.text = to;
@@ -1197,6 +1207,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       dismissible: false,
       builder: (_) => _ReviewDialog(
         draft: draft,
+        compact: !_reviewStep,
         startBusy: startBusy,
         checkPassword: api.checkPassword,
         // The core chooses the inputs again when it sends: an output that finished confirming
@@ -1241,6 +1252,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           _result = res;
           if (res is SendDone) {
             _queuedFor = draft.queued ? draft.contactName : null;
+            _sentTo = draft.contactName;
             _to.clear();
             _amount.clear();
             _message.clear();
@@ -1291,6 +1303,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final st = ref.watch(deskProvider);
     final nav = ref.read(deskNavProvider.notifier);
     final res = _result;
+    // A level change redraws the page.
+    ref.watch(deskLevelUiProvider);
+    ref.watch(deskLevelFeaturesProvider);
     // The Outputs defaults and the balance feed the estimate: a change estimates again.
     ref.watch(deskOutputPrefsProvider);
     ref.listen(deskOutputPrefsProvider, (_, _) => _replan());
@@ -1324,7 +1339,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       child: EPage(
       title: context.l10n.deskSendTitle,
       footer: narrow && form ? _reviewBar(st) : null,
-      titleTrailing: res is SendFileReady || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
+      titleTrailing: res is SendFileReady || !_strip || _netBlock(st).byMode || !DeskFeatures.tor ? null : TorChip(_torWay(st)),
       width: EPageWidth.mid,
       child: res is SendFileReady
           ? _fileReady(res, nav)
@@ -1400,29 +1415,54 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     );
   }
 
-  /// Sent (or queued for a paired contact): the same result card as a file send's.
+  /// After a send: the payment's live steps ([DeskPaymentSteps], in the level's words), the way
+  /// to a new send and to Activity. A mailbox payment queued while Epicbox is off keeps the
+  /// plain result card: nothing has gone out yet.
   Widget _done(SendDone r, DeskNav nav) {
     final l = context.l10n;
     final queued = _queuedFor != null;
+    final actions = [
+      EButton.primary(label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
+      EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
+    ];
+    if (queued) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Ctl.narrow),
+        child: ResultPanel(
+          key: const ValueKey('send-queued'),
+          title: l.sendQueuedHeadline,
+          text: l.sendQueuedBody(_queuedFor!),
+          body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
+          // The one result card (UD-007): gold = this screen's next action, outlined = Activity.
+          actions: actions,
+        ),
+      );
+    }
+    // The payment as the wallet lists it now, so the steps move on their own.
+    final live = ref.watch(deskProvider.select((s) => s.txs))?.where((t) => r.tx.slateId.isNotEmpty ? t.slateId == r.tx.slateId : t.id == r.tx.id).firstOrNull ?? r.tx;
+    final name = _sentTo ?? live.contactName;
+    final amount = formatEpicL(l, r.tx.amount);
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: Ctl.narrow),
       child: ResultPanel(
-        key: queued ? const ValueKey('send-queued') : const ValueKey('send-done'),
-        title: queued ? l.sendQueuedHeadline : l.deskSendSent,
-        text: switch (r.tx.method) {
-          _ when queued => l.sendQueuedBody(_queuedFor!),
-          TxMethod.tor || TxMethod.http => l.deskSendDoneViaDirect,
-          _ => l.deskSendDoneViaEpicbox,
-        },
-        body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
-        // The one result card (UD-007): gold = this screen's next action, outlined = Activity.
-        actions: [
-          EButton.primary(label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
-          EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
-        ],
+        key: const ValueKey('send-done'),
+        title: name == null ? l.lvPayOnItsWay : l.deskLvSendLiveTo(name),
+        text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DeskPaymentSteps(tx: live),
+            SizedBox(height: Sp.x4),
+            Text(l.lvPayCloseNote, style: context.ts.small),
+          ],
+        ),
+        actions: actions,
       ),
     );
   }
+
+  /// The name of whom the last send went to, for the page after it; null for an address.
+  String? _sentTo;
 
   Widget _fileReady(SendFileReady r, DeskNav nav) {
     final l = context.l10n;
@@ -1657,15 +1697,20 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _keepMethodOn(st);
     // Nothing can be chosen (Node only with File Transfer off): no segment is selected and the
     // fields wait, the notice above says why.
-    final noMethod = !_segmentOn(st, _method);
+    final noMethod = _strip && !_segmentOn(st, _method);
     final epicboxOn = _segmentOn(st, TxMethod.epicbox);
     final off = EBadge.state(l.deskKitMethodOff, on: false);
+    // Shallow: no method strip, Epicbox alone and unnamed. Deeper words the strip's heading
+    // casually; Deep end keeps "Payment method".
+    final strip = _strip;
+    final shallow = ref.read(deskLevelUiProvider).shallow;
     return EPanel(
       padding: EdgeInsets.zero,
-      title: l.deskSendMethodHeader,
+      title: !strip ? null : (ref.read(deskLevelUiProvider).casualWords ? l.deskLvSendHowTo : l.deskSendMethodHeader),
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (strip) ...[
         Padding(
           padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, Sp.x3),
           child: TourTarget(
@@ -1701,6 +1746,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         ),
         if (!noMethod) Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 0, Sp.panel, Sp.panel), child: _MethodStrip(_segmentOf(_method))),
         Divider(height: 1, thickness: 1, color: c.line),
+        ],
         // No method can be chosen: the fields wait (dimmed, out of reach) until one can.
         ExcludeFocus(
           excluding: noMethod,
@@ -1875,7 +1921,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
         ),
         // Advanced › Send options; open when a link brought the user here for it.
-        if (advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
+        if (!shallow && advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
         SizedBox(height: Sp.x5),
         SendAdvanced(
           strategy: _strategy,
@@ -1894,7 +1940,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           onOutputs: outputsShown(ref) ? () => ref.read(deskNavProvider.notifier).go(DeskRoute.outputs) : null,
         ),
         ],
-        if (DeskFeatures.dandelion && !file) ...[
+        if (!shallow && DeskFeatures.dandelion && !file) ...[
           SizedBox(height: Sp.x5),
           EDetails(
             title: _dandelion ? l.deskSendPrivacyOn : l.deskSendPrivacyOff,
@@ -1946,6 +1992,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
       _ when _messageTooLong => l.deskSendHintFix,
       _ when _reviewing => l.deskSendHintChecking,
+      _ when !_reviewStep => l.deskLvSendNothingLeaves,
       _ => l.deskSendHintDefault,
     };
     final plan = _plan?.estimate.amount == n && n > 0 ? _plan : null;
@@ -1966,11 +2013,19 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _ when _viaPairing && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff => l.sendQueue,
         TorWay.wait => l.deskSendReviewWaitTor,
         TorWay.blocked => l.deskSendReviewTorOff,
+        // Shallow: the button is the Send itself, naming the amount and whom it goes to.
+        _ when !_reviewStep => n <= 0
+            ? l.deskLvSendButton
+            : switch (_viaPairing ? ref.watch(deskPairingNameProvider(_pairingTo!)) : _contactOf(st.contacts)?.name) {
+                final who? => l.deskLvSendButtonTo(formatEpicL(l, n), who),
+                null => l.deskLvSendButtonAmount(formatEpicL(l, n)),
+              },
         _ => l.deskSendReview,
       },
       reviewing: _reviewing,
       onReview: _canSend(st) && !_reviewing ? _review : null,
       review: review,
+      lockRows: _reviewStep,
     );
   }
 }
@@ -1994,7 +2049,12 @@ class _SendSummary extends StatelessWidget {
     this.defaultStrategy = SelectionStrategy.smallest,
     this.confirmations = defaultMinimumConfirmations,
     this.review = true,
+    this.lockRows = true,
   });
+
+  /// Balance after, the lock rows and the split line: Deeper and Deep end. Shallow keeps
+  /// Amount, Network fee and Total.
+  final bool lockRows;
 
   /// The Review button sits in the panel; false when the narrow page pins it to the bottom.
   final bool review;
@@ -2061,7 +2121,7 @@ class _SendSummary extends StatelessWidget {
           line(l.deskSendAmount, n > 0 ? n : null, risk: bad),
           line(l.deskSendNetworkFee, fee, loading: pending && fee == null),
           ExpandFade(
-            open: ready && (summary?.changeOutputs ?? 0) > 1,
+            open: lockRows && ready && (summary?.changeOutputs ?? 0) > 1,
             child: summary == null || summary!.changeOutputs < 2
                 ? const SizedBox.shrink()
                 : SendSplitLine(outputs: summary!.changeOutputs, extraFee: extraFee, change: summary!.change),
@@ -2069,7 +2129,7 @@ class _SendSummary extends StatelessWidget {
           Divider(height: Sp.x4, color: c.line),
           // Never Amount alone as Total: it waits for the fee, "—" when the estimate failed.
           line(l.deskSendTotal, ready && fee != null ? n + fee! : null, strong: true, loading: pending && fee == null),
-          SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations, loading: pending),
+          if (lockRows) SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations, loading: pending),
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           if (review) ...[
@@ -2361,7 +2421,11 @@ class _Suggestions extends StatelessWidget {
 }
 
 class _ReviewDialog extends StatefulWidget {
-  const _ReviewDialog({required this.draft, required this.onConfirm, this.startBusy = false, this.checkPassword, this.recheck});
+  const _ReviewDialog({required this.draft, required this.onConfirm, this.compact = false, this.startBusy = false, this.checkPassword, this.recheck});
+
+  /// Shallow: the page was the review, so the dialog only asks the password (and still says a
+  /// fee that moved or a server the app does not know).
+  final bool compact;
 
   final _Draft draft;
   final Future<SendResult> Function(_Draft draft) onConfirm;
@@ -2517,8 +2581,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     final sum = d.summary;
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, blocks: d.confirmations, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
-      title: l.deskSendReviewTitle,
-      description: l.deskSendReviewDesc,
+      title: widget.compact ? l.deskLvSendPasswordTitle : l.deskSendReviewTitle,
+      description: widget.compact ? l.deskLvSendNothingLeaves : l.deskSendReviewDesc,
       dismissible: !_busy,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2528,6 +2592,20 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             Row(children: [EBadge(originText(l, code.origin), key: const ValueKey('send-review-origin'), icon: codeOriginIcon(code.origin))]),
             SizedBox(height: Sp.x3),
           ],
+          if (widget.compact) ...[
+            Text(
+              d.contactName == null ? l.deskLvSendButtonAmount(formatEpicL(l, d.amount, decimals: exactDecimals)) : l.deskLvSendButtonTo(formatEpicL(l, d.amount, decimals: exactDecimals), d.contactName!),
+              key: const ValueKey('send-compact-line'),
+              style: ts.strong,
+            ),
+            // An address with no name behind it: the characters to check stay in view.
+            if (d.contactName == null && d.to != null) ...[
+              SizedBox(height: Sp.x2),
+              _address(context, d.to!),
+              SizedBox(height: Sp.x1),
+              Text(l.deskSendCheckChars, style: ts.caption),
+            ],
+          ] else ...[
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -2585,6 +2663,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
           ], labelWidth: 100.u),
+          ],
           if (code != null && (code.note != null || codeLabel != null)) ...[
             SizedBox(height: Sp.x4),
             EPayeeClaims(label: codeLabel, note: code.note),
@@ -2651,7 +2730,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       ),
       actions: [
         EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : l.deskSendConfirm(formatEpicL(l, d.amount))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : l.deskSendConfirm(formatEpicL(l, d.amount)))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }
