@@ -77,6 +77,7 @@ import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, 
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../wallet_service.dart' as core;
+import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
 import '../../wallet/upkeep.dart';
 import 'addresses.dart';
@@ -2257,9 +2258,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final held = _heldBy();
     if (held.isEmpty) return 0;
     try {
-      return (await _open.outputs())
-          .where((o) => o.status == core.WalletOutputStatus.unspent && o.category == core.OutputCategory.spendable && held.containsKey(o.commitment))
-          .fold<int>(0, (sum, o) => sum + o.value.toInt());
+      return (await heldSpendable(_open, held.keys.toSet())).toInt();
     } on core.WalletError {
       return 0;
     }

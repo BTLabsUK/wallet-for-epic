@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'wallet/held_coins.dart' show heldSpendable;
 import 'wallet/upkeep.dart' show releaseSenderCancelled, resendUndelivered, retrySpendBack, retryStalled;
 import 'demo.dart';
 import 'server_list_file.dart' show useServerValues;
@@ -430,9 +431,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     if (held.isEmpty) return summary;
     BigInt value;
     try {
-      value = (await session.outputs())
-          .where((o) => o.status == WalletOutputStatus.unspent && o.category == OutputCategory.spendable && held.contains(o.commitment))
-          .fold(BigInt.zero, (sum, o) => sum + o.value);
+      value = await heldSpendable(session, held);
     } catch (error) {
       logWarn('home', 'held coins not read: ${error.runtimeType}');
       return summary;
