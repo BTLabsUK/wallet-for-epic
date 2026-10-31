@@ -2300,7 +2300,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
         fresh = await recheck(_draft);
       } on Object catch (e) {
         // Nothing left: the send cannot be built as reviewed any more.
-        _close(SendFailed(deskErrorText(e)));
+        _close(SendFailed.l10n((l) => deskErrorText(e, l)));
         return;
       }
       if (!mounted) return;
