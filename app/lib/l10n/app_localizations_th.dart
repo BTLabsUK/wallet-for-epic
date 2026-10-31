@@ -17628,4 +17628,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String lvPaySigned(String name) {
     return '$name เซ็นแล้ว';
   }
+
+  @override
+  String get lvPaySendQrLink => 'มีสองเครื่องอยู่ด้วยกัน? QR Payment';
+
+  @override
+  String get lvPaySendAddressLink => 'ส่งไปยังที่อยู่แทน';
+
+  @override
+  String get lvPayOnItsWay => 'กำลังไป';
+
+  @override
+  String get lvPayCloseNote =>
+      'ปิดหน้านี้ได้ รายการจะอยู่ในกิจกรรมจนกว่าจะเสร็จ';
 }

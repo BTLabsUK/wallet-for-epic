@@ -4696,5 +4696,9 @@
   "levelChangeTitle": "Stufe ändern",
   "lvPayArriving": "Unterwegs",
   "lvPayConfirming": "Bestätigung {count} von {target}",
-  "lvPaySigned": "{name} hat signiert"
+  "lvPaySigned": "{name} hat signiert",
+  "lvPaySendQrLink": "Beide Handys da? QR-Zahlung",
+  "lvPaySendAddressLink": "Stattdessen an eine Adresse senden",
+  "lvPayOnItsWay": "Unterwegs",
+  "lvPayCloseNote": "Sie können das schließen. Die Zahlung steht unter Aktivität, bis sie fertig ist."
 }

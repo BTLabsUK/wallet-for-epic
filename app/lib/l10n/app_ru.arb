@@ -4696,5 +4696,9 @@
   "levelChangeTitle": "Сменить уровень",
   "lvPayArriving": "Поступает",
   "lvPayConfirming": "Подтверждение {count} из {target}",
-  "lvPaySigned": "{name} подписал(а)"
+  "lvPaySigned": "{name} подписал(а)",
+  "lvPaySendQrLink": "Оба телефона рядом? QR-платёж",
+  "lvPaySendAddressLink": "Отправить на адрес",
+  "lvPayOnItsWay": "В пути",
+  "lvPayCloseNote": "Можно закрыть. Платёж виден в «Активности», пока не завершится."
 }

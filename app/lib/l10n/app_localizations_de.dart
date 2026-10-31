@@ -18252,4 +18252,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String lvPaySigned(String name) {
     return '$name hat signiert';
   }
+
+  @override
+  String get lvPaySendQrLink => 'Beide Handys da? QR-Zahlung';
+
+  @override
+  String get lvPaySendAddressLink => 'Stattdessen an eine Adresse senden';
+
+  @override
+  String get lvPayOnItsWay => 'Unterwegs';
+
+  @override
+  String get lvPayCloseNote =>
+      'Sie können das schließen. Die Zahlung steht unter Aktivität, bis sie fertig ist.';
 }

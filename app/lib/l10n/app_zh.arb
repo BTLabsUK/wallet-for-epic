@@ -4696,5 +4696,9 @@
   "levelChangeTitle": "更改级别",
   "lvPayArriving": "即将到账",
   "lvPayConfirming": "确认中 {count}/{target}",
-  "lvPaySigned": "{name} 已签名"
+  "lvPaySigned": "{name} 已签名",
+  "lvPaySendQrLink": "两部手机在一起？二维码付款",
+  "lvPaySendAddressLink": "改为发送到地址",
+  "lvPayOnItsWay": "已发出",
+  "lvPayCloseNote": "可以关闭此页。完成前会显示在“活动”中。"
 }

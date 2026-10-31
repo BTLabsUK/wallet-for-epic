@@ -28129,6 +28129,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} signed'**
   String lvPaySigned(String name);
+
+  /// Level 1 Send: quiet link into QR Payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Both phones here? QR Payment'**
+  String get lvPaySendQrLink;
+
+  /// Level 1 Send, inside QR Payment: link back to sending to an address.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to an address instead'**
+  String get lvPaySendAddressLink;
+
+  /// Level 1 Send: heading of the screen shown once a payment is out.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way'**
+  String get lvPayOnItsWay;
+
+  /// Level 1 Send: under On its way.
+  ///
+  /// In en, this message translates to:
+  /// **'You can close this. It shows under Activity until it is done.'**
+  String get lvPayCloseNote;
 }
 
 class _AppLocalizationsDelegate

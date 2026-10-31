@@ -18661,4 +18661,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String lvPaySigned(String name) {
     return '$name подписал(а)';
   }
+
+  @override
+  String get lvPaySendQrLink => 'Оба телефона рядом? QR-платёж';
+
+  @override
+  String get lvPaySendAddressLink => 'Отправить на адрес';
+
+  @override
+  String get lvPayOnItsWay => 'В пути';
+
+  @override
+  String get lvPayCloseNote =>
+      'Можно закрыть. Платёж виден в «Активности», пока не завершится.';
 }

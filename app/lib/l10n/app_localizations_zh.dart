@@ -17001,4 +17001,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String lvPaySigned(String name) {
     return '$name 已签名';
   }
+
+  @override
+  String get lvPaySendQrLink => '两部手机在一起？二维码付款';
+
+  @override
+  String get lvPaySendAddressLink => '改为发送到地址';
+
+  @override
+  String get lvPayOnItsWay => '已发出';
+
+  @override
+  String get lvPayCloseNote => '可以关闭此页。完成前会显示在“活动”中。';
 }

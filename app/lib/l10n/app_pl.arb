@@ -4696,5 +4696,9 @@
   "levelChangeTitle": "Zmień poziom",
   "lvPayArriving": "W drodze",
   "lvPayConfirming": "Potwierdzanie {count} z {target}",
-  "lvPaySigned": "{name} podpisał(a)"
+  "lvPaySigned": "{name} podpisał(a)",
+  "lvPaySendQrLink": "Oba telefony obok? Płatność QR",
+  "lvPaySendAddressLink": "Wyślij raczej na adres",
+  "lvPayOnItsWay": "W drodze",
+  "lvPayCloseNote": "Możesz to zamknąć. Płatność jest w Aktywności, aż się zakończy."
 }

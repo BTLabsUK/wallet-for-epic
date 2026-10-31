@@ -18039,4 +18039,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String lvPaySigned(String name) {
     return '$name signed';
   }
+
+  @override
+  String get lvPaySendQrLink => 'Both phones here? QR Payment';
+
+  @override
+  String get lvPaySendAddressLink => 'Send to an address instead';
+
+  @override
+  String get lvPayOnItsWay => 'On its way';
+
+  @override
+  String get lvPayCloseNote =>
+      'You can close this. It shows under Activity until it is done.';
 }

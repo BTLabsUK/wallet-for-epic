@@ -4696,5 +4696,9 @@
   "levelChangeTitle": "เปลี่ยนระดับ",
   "lvPayArriving": "กำลังมาถึง",
   "lvPayConfirming": "กำลังยืนยัน {count} จาก {target}",
-  "lvPaySigned": "{name} เซ็นแล้ว"
+  "lvPaySigned": "{name} เซ็นแล้ว",
+  "lvPaySendQrLink": "มีสองเครื่องอยู่ด้วยกัน? QR Payment",
+  "lvPaySendAddressLink": "ส่งไปยังที่อยู่แทน",
+  "lvPayOnItsWay": "กำลังไป",
+  "lvPayCloseNote": "ปิดหน้านี้ได้ รายการจะอยู่ในกิจกรรมจนกว่าจะเสร็จ"
 }

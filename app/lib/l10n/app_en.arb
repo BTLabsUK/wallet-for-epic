@@ -24302,5 +24302,21 @@
         "type": "String"
       }
     }
+  },
+  "lvPaySendQrLink": "Both phones here? QR Payment",
+  "@lvPaySendQrLink": {
+    "description": "Level 1 Send: quiet link into QR Payment."
+  },
+  "lvPaySendAddressLink": "Send to an address instead",
+  "@lvPaySendAddressLink": {
+    "description": "Level 1 Send, inside QR Payment: link back to sending to an address."
+  },
+  "lvPayOnItsWay": "On its way",
+  "@lvPayOnItsWay": {
+    "description": "Level 1 Send: heading of the screen shown once a payment is out."
+  },
+  "lvPayCloseNote": "You can close this. It shows under Activity until it is done.",
+  "@lvPayCloseNote": {
+    "description": "Level 1 Send: under On its way."
   }
 }
