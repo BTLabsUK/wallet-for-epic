@@ -20,7 +20,7 @@ import 'payment_steps.dart';
 const Key payShowStepsKey = ValueKey('pay-show-steps');
 const Key payDetailsMenuKey = ValueKey('pay-details-menu');
 
-/// The one sentence of a finished payment: "Sent. Done on 27 Oct." Null while it is open.
+/// The one sentence of a finished payment: "Sent. Done: 27 Oct." (or Today, Yesterday) Null while it is open.
 String? plainSentence(AppLocalizations l, TxEntry tx, BigInt? tip, {required int target, required DateTime now}) {
   final phase = txPhase(tx, tip, target: target);
   final when = dayLabel(l, localTime(tx.blockTimeUnix ?? tx.timeUnix), now);

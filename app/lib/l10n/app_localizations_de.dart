@@ -18382,12 +18382,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String lvPayDoneSent(String when) {
-    return 'Gesendet. Fertig am $when.';
+    return 'Gesendet. Fertig: $when.';
   }
 
   @override
   String lvPayDoneReceived(String when) {
-    return 'Empfangen. Fertig am $when.';
+    return 'Empfangen. Fertig: $when.';
   }
 
   @override

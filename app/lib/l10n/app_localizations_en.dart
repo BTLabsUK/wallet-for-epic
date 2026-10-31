@@ -18168,12 +18168,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lvPayDoneSent(String when) {
-    return 'Sent. Done on $when.';
+    return 'Sent. Done: $when.';
   }
 
   @override
   String lvPayDoneReceived(String when) {
-    return 'Received. Done on $when.';
+    return 'Received. Done: $when.';
   }
 
   @override

@@ -28361,13 +28361,13 @@ abstract class AppLocalizations {
   /// Level 1 payment details: sentence of a finished send.
   ///
   /// In en, this message translates to:
-  /// **'Sent. Done on {when}.'**
+  /// **'Sent. Done: {when}.'**
   String lvPayDoneSent(String when);
 
   /// Level 1 payment details: sentence of a finished receive.
   ///
   /// In en, this message translates to:
-  /// **'Received. Done on {when}.'**
+  /// **'Received. Done: {when}.'**
   String lvPayDoneReceived(String when);
 
   /// Level 1 payment details: expands the steps of a done payment.
