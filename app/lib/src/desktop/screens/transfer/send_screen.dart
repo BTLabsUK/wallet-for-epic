@@ -1332,9 +1332,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // A half-filled form holds Back (mouse, Alt+Left).
     return LayoutBuilder(
       builder: (context, outer) {
-        // Two columns need 720 u inside the page's padding; below that the summary falls under
+        // Two columns need Lay.xl inside the page's padding; below that the summary falls under
         // the form, so Total and Review stay in a bar pinned to the bottom.
-        final narrow = outer.maxWidth - 2 * Sp.x8 < 720.u;
+        final narrow = outer.maxWidth - 2 * Sp.x8 < Lay.xl;
         final form = res is! SendFileReady && res is! SendDone;
         return DeskStepBack(
       onBack: res is! SendFileReady && (_to.text.isNotEmpty || _amount.text.isNotEmpty || _message.text.isNotEmpty) ? () {} : null,
@@ -1349,7 +1349,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ? _done(res, nav)
           : LayoutBuilder(
               builder: (context, box) {
-                final wide = box.maxWidth >= 720.u;
+                final wide = box.maxWidth >= Lay.xl;
                 // Tab: the notices' actions, the form's fields, then Review send; Enter in Amount reviews.
                 final notices = _notices(st);
                 final form = FocusTraversalOrder(order: const NumericFocusOrder(1), child: FocusTraversalGroup(child: _form(st)));
@@ -1429,7 +1429,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     ];
     if (queued) {
       return ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: Ctl.narrow),
+        constraints: BoxConstraints(maxWidth: Max.form),
         child: ResultPanel(
           key: const ValueKey('send-queued'),
           title: l.sendQueuedHeadline,
@@ -1445,7 +1445,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final name = _sentTo ?? live.contactName;
     final amount = formatEpicL(l, r.tx.amount);
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: Ctl.narrow),
+      constraints: BoxConstraints(maxWidth: Max.form),
       child: ResultPanel(
         key: const ValueKey('send-done'),
         title: name == null ? l.lvPayOnItsWay : l.deskLvSendLiveTo(name),
@@ -1469,7 +1469,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Widget _fileReady(SendFileReady r, DeskNav nav) {
     final l = context.l10n;
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: Ctl.narrow),
+      constraints: BoxConstraints(maxWidth: Max.form),
       child: ResultPanel(
         title: l.deskSendFileReadyTitle,
         text: l.deskSendFileReadyText,
@@ -2181,7 +2181,7 @@ class _MethodStrip extends StatelessWidget {
                 Text(line, style: ts.small),
               ],
             );
-            if (box.maxWidth < 440.u) {
+            if (box.maxWidth < Lay.sm) {
               return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [HeroArt(method), SizedBox(height: Sp.x2), text]);
             }
             return Row(children: [HeroArt(method), SizedBox(width: 20.u), Expanded(child: text)]);
@@ -2370,7 +2370,7 @@ class _Suggestions extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Container(
-        constraints: BoxConstraints(maxWidth: 560.u),
+        constraints: BoxConstraints(maxWidth: Max.dialog),
         decoration: BoxDecoration(
           color: c.s2,
           borderRadius: BorderRadius.circular(Rad.sm),
@@ -2541,6 +2541,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
   /// A Direct address's host and port (`203.0.113.4:<port>`, `<56 characters>.onion`).
   // The same marking as EAddress: the key's first and last six characters, the server dim.
   Widget _address(BuildContext context, String to) {
+    if (to.contains('@') && !to.startsWith('http')) return EAddress(to, copy: false);
     final c = context.dc;
     final base = context.ts.mono(size: Fs.sm, color: c.dim);
     final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
@@ -2583,6 +2584,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     final sum = d.summary;
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, blocks: d.confirmations, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
+      width: Max.dialog,
       title: widget.compact ? l.deskLvSendPasswordTitle : l.deskSendReviewTitle,
       description: widget.compact ? l.deskLvSendNothingLeaves : l.deskSendReviewDesc,
       dismissible: !_busy,

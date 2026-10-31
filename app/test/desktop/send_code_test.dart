@@ -174,7 +174,7 @@ void main() {
     expect(wallet.sends, 0);
     expect(inDialog(find.byKey(const ValueKey('send-review-origin'))), findsOneWidget);
     expect(inDialog(find.text('Pasted')), findsOneWidget);
-    expect(inDialog(selectable(_e)), findsOneWidget, reason: 'the whole address, not shortened');
+    expect(inDialog(find.byWidgetPredicate((w) => w is EAddress && w.address == _e)), findsOneWidget, reason: 'the whole address, not shortened');
     expect(inDialog(find.byKey(const ValueKey('send-code-claims'))), findsOneWidget);
 
     final send = find.widgetWithText(EButton, 'Send 1.5000 EPIC');
