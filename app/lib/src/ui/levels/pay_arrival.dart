@@ -22,6 +22,8 @@ TxEntry? arrivingPayment(Iterable<TxEntry> txs) {
   TxEntry? best;
   for (final tx in txs) {
     if (txAmount(tx).outgoing || tx.status == TxStatus.cancelled || tx.kind == TxKind.coinbase) continue;
+    // A request this wallet sent that nobody has paid: nothing is arriving yet.
+    if (tx.awaitingPayer) continue;
     if (!isPending(tx) || tx.source != TxSource.wallet) continue;
     if (best == null || tx.timeUnix > best.timeUnix) best = tx;
   }

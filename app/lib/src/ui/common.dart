@@ -1756,14 +1756,17 @@ class TxTile extends ConsumerWidget {
                           relay: relay,
                         )),
               date: date,
-              status: txStatusLabel(
+              // Said as the row shows it: the level's step word (today's label at level 3).
+              status: paymentStepWord(
                 l,
                 tx,
                 tip,
+                style: ref.watch(levelFeaturesProvider.select((f) => f.timeline)),
                 target: confirmationsTargetOf(ref),
                 now: now,
+                who: name,
                 pairedWith: txMailboxName(ref, tx),
-                    paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
+                paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
               ),
               hidden: display.hidden,
               label: tx.label,
