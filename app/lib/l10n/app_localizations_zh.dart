@@ -159,7 +159,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txEditFromHint => '地址';
 
   @override
-  String get txEditFromHelper => '未验证。绝不用于付款证明。';
+  String get txEditFromHelper => '未验证。仅供你记录。';
 
   @override
   String get txMethodUnknown => '未知';
@@ -7889,9 +7889,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskTxPaymentProof => '付款证明';
-
-  @override
   String get deskTxFinalize => '完成交易';
 
   @override
@@ -8035,40 +8032,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxSignedByRecipient => '接收方已签名';
 
   @override
-  String get deskTxProofView => '查看';
-
-  @override
   String get deskTxTechTitle => '技术详情';
-
-  @override
-  String get deskTxTechId => 'ID';
-
-  @override
-  String get deskTxTechSlate => 'Slate ID';
-
-  @override
-  String get deskTxCopySlate => '复制 Slate ID';
-
-  @override
-  String get deskTxTechHeight => '高度';
-
-  @override
-  String get deskTxTechKernel => '内核';
-
-  @override
-  String get deskTxTechConfirmed => '已确认';
-
-  @override
-  String get deskTxTechCredited => '转入';
-
-  @override
-  String get deskTxTechDebited => '转出';
-
-  @override
-  String get deskTxTechStatus => '状态';
-
-  @override
-  String get deskTxTechType => '类型';
 
   @override
   String get deskTxStepMined => '已挖出区块';
@@ -8131,43 +8095,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskTxCancelOutgoingAction => '取消付款';
-
-  @override
-  String deskTxProofIncoming(String amount) {
-    return '证明本钱包在此内核中收到了 $amount EPIC。';
-  }
-
-  @override
-  String deskTxProofOutgoing(String amount) {
-    return '证明接收方在此内核中收到了 $amount EPIC。';
-  }
-
-  @override
-  String get deskTxProofSenderAddress => '发送方地址';
-
-  @override
-  String get deskTxProofRecipientAddress => '接收方地址';
-
-  @override
-  String get deskTxProofRecipientSignature => '接收方签名';
-
-  @override
-  String get deskTxProofCopyKernel => '复制内核';
-
-  @override
-  String get deskTxProofCopySender => '复制发送方地址';
-
-  @override
-  String get deskTxProofCopyRecipient => '复制接收方地址';
-
-  @override
-  String get deskTxProofCopySignature => '复制接收方签名';
-
-  @override
-  String get deskTxProofExport => '导出';
-
-  @override
-  String get deskTxProofSaved => '证明已保存';
 
   @override
   String get deskOnbWelcomeAdd => '添加钱包';
@@ -11936,7 +11863,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTxDetailsFrom => '来自';
 
   @override
-  String get deskTxDetailsFromTip => '付款人，仅供你记录。未验证，也不会用于付款证明。';
+  String get deskTxDetailsFromTip => '付款人，仅供你记录。未验证。';
 
   @override
   String get deskTxDetailsFromHint => '发送方地址';
@@ -12073,9 +12000,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => '应用';
-
-  @override
-  String get deskTxProofNone => '这笔付款没有付款证明。';
 
   @override
   String get deskUpdAvailable => '有可用更新';
@@ -12220,7 +12144,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvTechnicalHint =>
-      '在每笔交易上显示“技术详情”折叠区：slate ID、内核、区块高度、核心的状态和类型，以及付款证明。不开启时，交易上的“更多”链接可以一次性显示它们。在“账单”中显示高级折叠区。';
+      '在每笔交易上显示“技术详情”折叠区：内核、slate ID、承诺和区块高度。不开启时，交易上的“更多”链接可以一次性显示它们。在“账单”中显示高级折叠区。';
 
   @override
   String get deskSetAdvSendOptions => '发送选项';

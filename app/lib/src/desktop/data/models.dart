@@ -272,6 +272,8 @@ class Tx {
     this.messageBySender = true,
     this.height,
     this.kernel,
+    this.outputCommits = const [],
+    this.expiryHeight,
     this.hasProof = false,
     this.proofSender,
     this.proofSignature,
@@ -372,6 +374,12 @@ class Tx {
   final bool messageBySender;
   final int? height;
   final String? kernel;
+
+  /// The commitments of the outputs this payment made in this wallet (the phone's rows).
+  final List<String> outputCommits;
+
+  /// The block height after which the payment can no longer be posted; null when it has none.
+  final int? expiryHeight;
   final bool hasProof;
 
   /// The payment proof's sender address and the recipient's signature over it, as the core
@@ -492,6 +500,8 @@ class Tx {
       messageBySender: messageBySender,
       height: height,
       kernel: kernel,
+      outputCommits: outputCommits,
+      expiryHeight: expiryHeight,
       hasProof: hasProof,
       proofSender: proofSender,
       proofSignature: proofSignature,
@@ -550,6 +560,8 @@ class Tx {
     messageBySender: messageBySender,
     height: height,
     kernel: kernel,
+    outputCommits: outputCommits,
+    expiryHeight: expiryHeight,
     hasProof: hasProof,
     proofSender: proofSender,
     proofSignature: proofSignature,

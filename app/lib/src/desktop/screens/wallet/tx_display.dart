@@ -437,7 +437,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     final restoredMethod = restoredMethodOf(l, t, short: true);
     // Through a pairing's mailbox: Epicbox, though LEPIC keeps it as an export.
     final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodShortLabel(l, TxMethod.epicbox) : methodOf(l, t)));
-    final extra = t.message ?? (DeskFeatures.paymentProofs && t.hasProof ? l.deskTxPaymentProof : null);
+    final extra = t.message;
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
     final file = fileNameOf(t);
     final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? file ?? shortAddress(t.counterparty!, compact: true)) : null;

@@ -385,7 +385,7 @@ abstract class AppLocalizations {
   /// Helper under the From field. Short.
   ///
   /// In en, this message translates to:
-  /// **'Not verified. Never used for payment proofs.'**
+  /// **'Not verified. For your records only.'**
   String get txEditFromHelper;
 
   /// Method choice in the details sheet: how the payment came is not known.
@@ -13329,12 +13329,6 @@ abstract class AppLocalizations {
   /// **'Fee {amount}'**
   String deskTxFee(String amount);
 
-  /// Small line under a payment that has a payment proof.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment proof'**
-  String get deskTxPaymentProof;
-
   /// Button in an Activity row of an outgoing file payment: finalize it with the response file. Short.
   ///
   /// In en, this message translates to:
@@ -13539,77 +13533,11 @@ abstract class AppLocalizations {
   /// **'Recipient signed'**
   String get deskTxSignedByRecipient;
 
-  /// Button on the transaction detail that opens the payment proof. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'View'**
-  String get deskTxProofView;
-
   /// Collapsible section on the transaction detail with technical identifiers.
   ///
   /// In en, this message translates to:
   /// **'Technical details'**
   String get deskTxTechTitle;
-
-  /// Technical details label: the wallet's internal number of the transaction. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Id'**
-  String get deskTxTechId;
-
-  /// Technical details label: the slate id, a unique id of the payment. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Slate id'**
-  String get deskTxTechSlate;
-
-  /// Tooltip of the copy button next to the slate id.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy slate id'**
-  String get deskTxCopySlate;
-
-  /// Technical details label: the block height. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Height'**
-  String get deskTxTechHeight;
-
-  /// Technical details label: the transaction kernel. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Kernel'**
-  String get deskTxTechKernel;
-
-  /// Technical details label: when the payment was confirmed. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirmed'**
-  String get deskTxTechConfirmed;
-
-  /// Technical details label: the amount added to the balance. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Credited'**
-  String get deskTxTechCredited;
-
-  /// Technical details label: the amount taken from the balance. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Debited'**
-  String get deskTxTechDebited;
-
-  /// Technical details label: the internal state name. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Status'**
-  String get deskTxTechStatus;
-
-  /// Technical details label: the core's transaction type name. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Type'**
-  String get deskTxTechType;
 
   /// Timeline step of a mining reward.
   ///
@@ -13712,72 +13640,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel payment'**
   String get deskTxCancelOutgoingAction;
-
-  /// Description in the payment proof dialog for an incoming payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Proves that this wallet received {amount} EPIC in this kernel.'**
-  String deskTxProofIncoming(String amount);
-
-  /// Description in the payment proof dialog for an outgoing payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Proves that the recipient received {amount} EPIC in this kernel.'**
-  String deskTxProofOutgoing(String amount);
-
-  /// Field label in the payment proof dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Sender address'**
-  String get deskTxProofSenderAddress;
-
-  /// Field label in the payment proof dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Recipient address'**
-  String get deskTxProofRecipientAddress;
-
-  /// Field label in the payment proof dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Recipient signature'**
-  String get deskTxProofRecipientSignature;
-
-  /// Tooltip of the copy button next to the kernel in the payment proof dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy kernel'**
-  String get deskTxProofCopyKernel;
-
-  /// Tooltip of the copy button next to the sender address in the payment proof dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy sender address'**
-  String get deskTxProofCopySender;
-
-  /// Tooltip of the copy button next to the recipient address in the payment proof dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy recipient address'**
-  String get deskTxProofCopyRecipient;
-
-  /// Tooltip of the copy button next to the recipient signature in the payment proof dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy recipient signature'**
-  String get deskTxProofCopySignature;
-
-  /// Primary button in the payment proof dialog: save the proof as a file. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Export'**
-  String get deskTxProofExport;
-
-  /// Toast title after the payment proof was saved to a file; the path follows as its text.
-  ///
-  /// In en, this message translates to:
-  /// **'Proof saved'**
-  String get deskTxProofSaved;
 
   /// Title of the Welcome page when the app already has wallets and the user adds another.
   ///
@@ -20069,7 +19931,7 @@ abstract class AppLocalizations {
   /// Tooltip on the From field of the details dialog.
   ///
   /// In en, this message translates to:
-  /// **'Who paid, for your records. Not verified and never used for payment proofs.'**
+  /// **'Who paid, for your records. Not verified.'**
   String get deskTxDetailsFromTip;
 
   /// Placeholder of the From field in the details dialog.
@@ -20263,12 +20125,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Apply'**
   String get deskHistConflictApply;
-
-  /// Body of the payment proof dialog when the payment has no proof to show.
-  ///
-  /// In en, this message translates to:
-  /// **'No payment proof for this payment.'**
-  String get deskTxProofNone;
 
   /// Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it).
   ///
@@ -20531,7 +20387,7 @@ abstract class AppLocalizations {
   /// Hover card of the Technical details switch on the Advanced page.
   ///
   /// In en, this message translates to:
-  /// **'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core’s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.'**
+  /// **'Shows the Technical details fold on every transaction: kernel, slate ID, commitments and block height. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.'**
   String get deskSetAdvTechnicalHint;
 
   /// Advanced switch: the Advanced fold on Send.

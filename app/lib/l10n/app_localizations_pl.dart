@@ -162,8 +162,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txEditFromHint => 'Adres';
 
   @override
-  String get txEditFromHelper =>
-      'Niezweryfikowane. Nigdy nie służy do dowodów płatności.';
+  String get txEditFromHelper => 'Niezweryfikowane. Tylko do Twoich zapisów.';
 
   @override
   String get txMethodUnknown => 'Nieznana';
@@ -8811,9 +8810,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskTxPaymentProof => 'Dowód płatności';
-
-  @override
   String get deskTxFinalize => 'Sfinalizuj';
 
   @override
@@ -8974,40 +8970,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxSignedByRecipient => 'Odbiorca podpisał';
 
   @override
-  String get deskTxProofView => 'Pokaż';
-
-  @override
   String get deskTxTechTitle => 'Szczegóły techniczne';
-
-  @override
-  String get deskTxTechId => 'ID';
-
-  @override
-  String get deskTxTechSlate => 'ID slate';
-
-  @override
-  String get deskTxCopySlate => 'Kopiuj ID slate';
-
-  @override
-  String get deskTxTechHeight => 'Wysokość';
-
-  @override
-  String get deskTxTechKernel => 'Kernel';
-
-  @override
-  String get deskTxTechConfirmed => 'Potwierdzona';
-
-  @override
-  String get deskTxTechCredited => 'Uznano';
-
-  @override
-  String get deskTxTechDebited => 'Obciążono';
-
-  @override
-  String get deskTxTechStatus => 'Stan';
-
-  @override
-  String get deskTxTechType => 'Typ';
 
   @override
   String get deskTxStepMined => 'Wykopana w bloku';
@@ -9073,43 +9036,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxCancelOutgoingAction => 'Anuluj płatność';
-
-  @override
-  String deskTxProofIncoming(String amount) {
-    return 'Dowodzi, że ten portfel odebrał $amount EPIC w tym kernelu.';
-  }
-
-  @override
-  String deskTxProofOutgoing(String amount) {
-    return 'Dowodzi, że odbiorca odebrał $amount EPIC w tym kernelu.';
-  }
-
-  @override
-  String get deskTxProofSenderAddress => 'Adres nadawcy';
-
-  @override
-  String get deskTxProofRecipientAddress => 'Adres odbiorcy';
-
-  @override
-  String get deskTxProofRecipientSignature => 'Podpis odbiorcy';
-
-  @override
-  String get deskTxProofCopyKernel => 'Kopiuj kernel';
-
-  @override
-  String get deskTxProofCopySender => 'Kopiuj adres nadawcy';
-
-  @override
-  String get deskTxProofCopyRecipient => 'Kopiuj adres odbiorcy';
-
-  @override
-  String get deskTxProofCopySignature => 'Kopiuj podpis odbiorcy';
-
-  @override
-  String get deskTxProofExport => 'Eksportuj';
-
-  @override
-  String get deskTxProofSaved => 'Zapisano dowód';
 
   @override
   String get deskOnbWelcomeAdd => 'Dodaj portfel';
@@ -13166,7 +13092,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTxDetailsFromTip =>
-      'Kto zapłacił, do Twoich zapisów. Niezweryfikowane i nigdy nie używane w potwierdzeniach płatności.';
+      'Kto zapłacił, do Twoich zapisów. Niezweryfikowane.';
 
   @override
   String get deskTxDetailsFromHint => 'Adres nadawcy';
@@ -13323,9 +13249,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskHistConflictApply => 'Zastosuj';
 
   @override
-  String get deskTxProofNone => 'Brak dowodu płatności dla tej płatności.';
-
-  @override
   String get deskUpdAvailable => 'Dostępna aktualizacja';
 
   @override
@@ -13475,7 +13398,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Pokazuje sekcję Szczegóły techniczne przy każdej transakcji: ID slate, kernel, wysokość bloku, stan i typ rdzenia oraz dowód płatności. Bez tego link Więcej przy transakcji pokazuje je jednorazowo. W Fakturach pokazuje sekcje zaawansowane.';
+      'Pokazuje sekcję Szczegóły techniczne przy każdej transakcji: kernel, ID slate, commitmenty i wysokość bloku. Bez tego link Więcej przy transakcji pokazuje je jednorazowo. W Fakturach pokazuje sekcje zaawansowane.';
 
   @override
   String get deskSetAdvSendOptions => 'Opcje wysyłki';

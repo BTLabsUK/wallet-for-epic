@@ -161,8 +161,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txEditFromHint => 'Adresse';
 
   @override
-  String get txEditFromHelper =>
-      'Nicht geprüft. Wird nie für Zahlungsnachweise verwendet.';
+  String get txEditFromHelper => 'Nicht geprüft. Nur für Ihre Unterlagen.';
 
   @override
   String get txMethodUnknown => 'Unbekannt';
@@ -8535,9 +8534,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskTxPaymentProof => 'Zahlungsnachweis';
-
-  @override
   String get deskTxFinalize => 'Abschließen';
 
   @override
@@ -8691,40 +8687,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskTxSignedByRecipient => 'Empfänger hat signiert';
 
   @override
-  String get deskTxProofView => 'Anzeigen';
-
-  @override
   String get deskTxTechTitle => 'Technische Details';
-
-  @override
-  String get deskTxTechId => 'ID';
-
-  @override
-  String get deskTxTechSlate => 'Slate-ID';
-
-  @override
-  String get deskTxCopySlate => 'Slate-ID kopieren';
-
-  @override
-  String get deskTxTechHeight => 'Höhe';
-
-  @override
-  String get deskTxTechKernel => 'Kernel';
-
-  @override
-  String get deskTxTechConfirmed => 'Bestätigt';
-
-  @override
-  String get deskTxTechCredited => 'Gutgeschrieben';
-
-  @override
-  String get deskTxTechDebited => 'Abgebucht';
-
-  @override
-  String get deskTxTechStatus => 'Status';
-
-  @override
-  String get deskTxTechType => 'Typ';
 
   @override
   String get deskTxStepMined => 'In einem Block gemint';
@@ -8788,43 +8751,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTxCancelOutgoingAction => 'Zahlung stornieren';
-
-  @override
-  String deskTxProofIncoming(String amount) {
-    return 'Belegt, dass diese Wallet $amount EPIC in diesem Kernel empfangen hat.';
-  }
-
-  @override
-  String deskTxProofOutgoing(String amount) {
-    return 'Belegt, dass der Empfänger $amount EPIC in diesem Kernel empfangen hat.';
-  }
-
-  @override
-  String get deskTxProofSenderAddress => 'Absenderadresse';
-
-  @override
-  String get deskTxProofRecipientAddress => 'Empfängeradresse';
-
-  @override
-  String get deskTxProofRecipientSignature => 'Signatur des Empfängers';
-
-  @override
-  String get deskTxProofCopyKernel => 'Kernel kopieren';
-
-  @override
-  String get deskTxProofCopySender => 'Absenderadresse kopieren';
-
-  @override
-  String get deskTxProofCopyRecipient => 'Empfängeradresse kopieren';
-
-  @override
-  String get deskTxProofCopySignature => 'Signatur des Empfängers kopieren';
-
-  @override
-  String get deskTxProofExport => 'Exportieren';
-
-  @override
-  String get deskTxProofSaved => 'Nachweis gespeichert';
 
   @override
   String get deskOnbWelcomeAdd => 'Wallet hinzufügen';
@@ -12820,7 +12746,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTxDetailsFromTip =>
-      'Wer bezahlt hat, für Ihre Unterlagen. Nicht geprüft und nie für Zahlungsnachweise verwendet.';
+      'Wer bezahlt hat, für Ihre Unterlagen. Nicht geprüft.';
 
   @override
   String get deskTxDetailsFromHint => 'Adresse des Absenders';
@@ -12966,10 +12892,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'Übernehmen';
-
-  @override
-  String get deskTxProofNone =>
-      'Für diese Zahlung gibt es keinen Zahlungsnachweis.';
 
   @override
   String get deskUpdAvailable => 'Update verfügbar';
@@ -13121,7 +13043,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Zeigt den Bereich Technische Details bei jeder Transaktion: Slate-ID, Kernel, Blockhöhe, Status und Typ des Kerns und den Zahlungsnachweis. Ohne den Schalter zeigt ein Link „Mehr“ an einer Transaktion sie einmalig. Bei Rechnungen werden die erweiterten Bereiche gezeigt.';
+      'Zeigt den Bereich Technische Details bei jeder Transaktion: Kernel, Slate-ID, Commitments und Blockhöhe. Ohne den Schalter zeigt ein Link „Mehr“ an einer Transaktion sie einmalig. Bei Rechnungen werden die erweiterten Bereiche gezeigt.';
 
   @override
   String get deskSetAdvSendOptions => 'Zahlungsoptionen';

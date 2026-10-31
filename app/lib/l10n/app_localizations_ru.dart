@@ -163,8 +163,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txEditFromHint => 'Адрес';
 
   @override
-  String get txEditFromHelper =>
-      'Не проверено. Не используется для подтверждений платежа.';
+  String get txEditFromHelper => 'Не проверено. Только для ваших записей.';
 
   @override
   String get txMethodUnknown => 'Неизвестно';
@@ -8784,9 +8783,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskTxPaymentProof => 'Подтверждение платежа';
-
-  @override
   String get deskTxFinalize => 'Завершить';
 
   @override
@@ -8947,40 +8943,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTxSignedByRecipient => 'Получатель подписал';
 
   @override
-  String get deskTxProofView => 'Открыть';
-
-  @override
   String get deskTxTechTitle => 'Технические сведения';
-
-  @override
-  String get deskTxTechId => 'ID';
-
-  @override
-  String get deskTxTechSlate => 'ID слейта';
-
-  @override
-  String get deskTxCopySlate => 'Копировать ID слейта';
-
-  @override
-  String get deskTxTechHeight => 'Высота';
-
-  @override
-  String get deskTxTechKernel => 'Ядро';
-
-  @override
-  String get deskTxTechConfirmed => 'Подтверждено';
-
-  @override
-  String get deskTxTechCredited => 'Зачислено';
-
-  @override
-  String get deskTxTechDebited => 'Списано';
-
-  @override
-  String get deskTxTechStatus => 'Статус';
-
-  @override
-  String get deskTxTechType => 'Тип';
 
   @override
   String get deskTxStepMined => 'Добыто в блоке';
@@ -9046,43 +9009,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxCancelOutgoingAction => 'Отменить платёж';
-
-  @override
-  String deskTxProofIncoming(String amount) {
-    return 'Подтверждает, что этот кошелёк получил $amount EPIC в этом ядре.';
-  }
-
-  @override
-  String deskTxProofOutgoing(String amount) {
-    return 'Подтверждает, что получатель получил $amount EPIC в этом ядре.';
-  }
-
-  @override
-  String get deskTxProofSenderAddress => 'Адрес отправителя';
-
-  @override
-  String get deskTxProofRecipientAddress => 'Адрес получателя';
-
-  @override
-  String get deskTxProofRecipientSignature => 'Подпись получателя';
-
-  @override
-  String get deskTxProofCopyKernel => 'Копировать ядро';
-
-  @override
-  String get deskTxProofCopySender => 'Копировать адрес отправителя';
-
-  @override
-  String get deskTxProofCopyRecipient => 'Копировать адрес получателя';
-
-  @override
-  String get deskTxProofCopySignature => 'Копировать подпись получателя';
-
-  @override
-  String get deskTxProofExport => 'Экспорт';
-
-  @override
-  String get deskTxProofSaved => 'Подтверждение сохранено';
 
   @override
   String get deskOnbWelcomeAdd => 'Добавить кошелёк';
@@ -13134,7 +13060,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxDetailsFromTip =>
-      'Кто заплатил, для ваших записей. Не проверяется и не используется в подтверждениях платежа.';
+      'Кто заплатил, для ваших записей. Не проверяется.';
 
   @override
   String get deskTxDetailsFromHint => 'Адрес отправителя';
@@ -13292,9 +13218,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskHistConflictApply => 'Применить';
 
   @override
-  String get deskTxProofNone => 'Для этого платежа нет подтверждения платежа.';
-
-  @override
   String get deskUpdAvailable => 'Доступно обновление';
 
   @override
@@ -13444,7 +13367,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Показывает раздел «Технические сведения» у каждой транзакции: ID слейта, ядро, высоту блока, состояние и тип ядра и подтверждение платежа. Без этого ссылка «Ещё» у транзакции показывает их один раз. В «Счетах» показывает дополнительные разделы.';
+      'Показывает раздел «Технические сведения» у каждой транзакции: ядро, ID слейта, коммитменты и высоту блока. Без этого ссылка «Ещё» у транзакции показывает их один раз. В «Счетах» показывает дополнительные разделы.';
 
   @override
   String get deskSetAdvSendOptions => 'Параметры отправки';

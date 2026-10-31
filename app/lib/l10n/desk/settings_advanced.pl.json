@@ -5,7 +5,7 @@
   "deskSetAdvOutputs": "Wyjścia",
   "deskSetAdvOutputsHint": "Pokazuje stronę Wyjścia na pasku bocznym. Wymienia monety, z których składa się saldo, pozwala je dzielić lub scalać i ustawia domyślne zasady wysyłki. Trwający podział lub scalanie utrzymuje stronę widoczną.",
   "deskSetAdvTechnical": "Szczegóły techniczne",
-  "deskSetAdvTechnicalHint": "Pokazuje sekcję Szczegóły techniczne przy każdej transakcji: ID slate, kernel, wysokość bloku, stan i typ rdzenia oraz dowód płatności. Bez tego link Więcej przy transakcji pokazuje je jednorazowo. W Fakturach pokazuje sekcje zaawansowane.",
+  "deskSetAdvTechnicalHint": "Pokazuje sekcję Szczegóły techniczne przy każdej transakcji: kernel, ID slate, commitmenty i wysokość bloku. Bez tego link Więcej przy transakcji pokazuje je jednorazowo. W Fakturach pokazuje sekcje zaawansowane.",
   "deskSetAdvSendOptions": "Opcje wysyłki",
   "deskSetAdvSendOptionsHint": "Dodaje do Wyślij sekcję, w której jedna wysyłka może wybrać, które wyjścia wydaje, Najmniejsze lub Wszystkie, i czy dzielić resztę. Wartości domyślne zostają w Wyjściach.",
   "deskSetAdvServerDetails": "Szczegóły serwerów",

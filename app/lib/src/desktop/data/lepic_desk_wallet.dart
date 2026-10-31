@@ -5495,6 +5495,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     messageBySender: core.messageBy(e.messages, core.SlateRole.sender) != null || core.messageBy(e.messages, core.SlateRole.receiver) == null,
     height: height,
     kernel: e.kernelExcess,
+    outputCommits: e.outputCommits,
+    expiryHeight: e.ttlCutoffHeight?.toInt(),
     coinbase: e.kind == core.TxKind.coinbase,
     otherWallet: e.origin == core.TxOrigin.otherWallet,
     unverified: e.unverified,

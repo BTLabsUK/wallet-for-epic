@@ -183,10 +183,6 @@
       }
     }
   },
-  "deskTxPaymentProof": "Payment proof",
-  "@deskTxPaymentProof": {
-    "description": "Small line under a payment that has a payment proof."
-  },
   "deskTxFinalize": "Finalize",
   "@deskTxFinalize": {
     "description": "Button in an Activity row of an outgoing file payment: finalize it with the response file. Short."
@@ -409,57 +405,9 @@
   "@deskTxSignedByRecipient": {
     "description": "Payment proof line on the transaction detail, and a step of the timeline."
   },
-  "deskTxProofView": "View",
-  "@deskTxProofView": {
-    "description": "Button on the transaction detail that opens the payment proof. Short."
-  },
-  "deskTxProofNone": "No payment proof for this payment.",
-  "@deskTxProofNone": {
-    "description": "Body of the payment proof dialog when the payment has no proof to show."
-  },
   "deskTxTechTitle": "Technical details",
   "@deskTxTechTitle": {
     "description": "Collapsible section on the transaction detail with technical identifiers."
-  },
-  "deskTxTechId": "Id",
-  "@deskTxTechId": {
-    "description": "Technical details label: the wallet's internal number of the transaction. Narrow label column."
-  },
-  "deskTxTechSlate": "Slate id",
-  "@deskTxTechSlate": {
-    "description": "Technical details label: the slate id, a unique id of the payment. Narrow label column."
-  },
-  "deskTxCopySlate": "Copy slate id",
-  "@deskTxCopySlate": {
-    "description": "Tooltip of the copy button next to the slate id."
-  },
-  "deskTxTechHeight": "Height",
-  "@deskTxTechHeight": {
-    "description": "Technical details label: the block height. Narrow label column."
-  },
-  "deskTxTechKernel": "Kernel",
-  "@deskTxTechKernel": {
-    "description": "Technical details label: the transaction kernel. Narrow label column."
-  },
-  "deskTxTechConfirmed": "Confirmed",
-  "@deskTxTechConfirmed": {
-    "description": "Technical details label: when the payment was confirmed. Narrow label column."
-  },
-  "deskTxTechCredited": "Credited",
-  "@deskTxTechCredited": {
-    "description": "Technical details label: the amount added to the balance. Narrow label column."
-  },
-  "deskTxTechDebited": "Debited",
-  "@deskTxTechDebited": {
-    "description": "Technical details label: the amount taken from the balance. Narrow label column."
-  },
-  "deskTxTechStatus": "Status",
-  "@deskTxTechStatus": {
-    "description": "Technical details label: the internal state name. Narrow label column."
-  },
-  "deskTxTechType": "Type",
-  "@deskTxTechType": {
-    "description": "Technical details label: the core's transaction type name. Narrow label column."
   },
   "deskTxStepMined": "Mined in a block",
   "@deskTxStepMined": {
@@ -568,62 +516,6 @@
   "deskTxCancelOutgoingAction": "Cancel payment",
   "@deskTxCancelOutgoingAction": {
     "description": "Danger button in the cancel dialog for an outgoing payment. Short."
-  },
-  "deskTxProofIncoming": "Proves that this wallet received {amount} EPIC in this kernel.",
-  "@deskTxProofIncoming": {
-    "description": "Description in the payment proof dialog for an incoming payment.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5"
-      }
-    }
-  },
-  "deskTxProofOutgoing": "Proves that the recipient received {amount} EPIC in this kernel.",
-  "@deskTxProofOutgoing": {
-    "description": "Description in the payment proof dialog for an outgoing payment.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5"
-      }
-    }
-  },
-  "deskTxProofSenderAddress": "Sender address",
-  "@deskTxProofSenderAddress": {
-    "description": "Field label in the payment proof dialog."
-  },
-  "deskTxProofRecipientAddress": "Recipient address",
-  "@deskTxProofRecipientAddress": {
-    "description": "Field label in the payment proof dialog."
-  },
-  "deskTxProofRecipientSignature": "Recipient signature",
-  "@deskTxProofRecipientSignature": {
-    "description": "Field label in the payment proof dialog."
-  },
-  "deskTxProofCopyKernel": "Copy kernel",
-  "@deskTxProofCopyKernel": {
-    "description": "Tooltip of the copy button next to the kernel in the payment proof dialog."
-  },
-  "deskTxProofCopySender": "Copy sender address",
-  "@deskTxProofCopySender": {
-    "description": "Tooltip of the copy button next to the sender address in the payment proof dialog."
-  },
-  "deskTxProofCopyRecipient": "Copy recipient address",
-  "@deskTxProofCopyRecipient": {
-    "description": "Tooltip of the copy button next to the recipient address in the payment proof dialog."
-  },
-  "deskTxProofCopySignature": "Copy recipient signature",
-  "@deskTxProofCopySignature": {
-    "description": "Tooltip of the copy button next to the recipient signature in the payment proof dialog."
-  },
-  "deskTxProofExport": "Export",
-  "@deskTxProofExport": {
-    "description": "Primary button in the payment proof dialog: save the proof as a file. Short."
-  },
-  "deskTxProofSaved": "Proof saved",
-  "@deskTxProofSaved": {
-    "description": "Toast title after the payment proof was saved to a file; the path follows as its text."
   },
   "deskTxThisWallet": "This wallet",
   "@deskTxThisWallet": {

@@ -160,7 +160,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txEditFromHint => 'Address';
 
   @override
-  String get txEditFromHelper => 'Not verified. Never used for payment proofs.';
+  String get txEditFromHelper => 'Not verified. For your records only.';
 
   @override
   String get txMethodUnknown => 'Unknown';
@@ -8428,9 +8428,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskTxPaymentProof => 'Payment proof';
-
-  @override
   String get deskTxFinalize => 'Finalize';
 
   @override
@@ -8582,40 +8579,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskTxSignedByRecipient => 'Recipient signed';
 
   @override
-  String get deskTxProofView => 'View';
-
-  @override
   String get deskTxTechTitle => 'Technical details';
-
-  @override
-  String get deskTxTechId => 'Id';
-
-  @override
-  String get deskTxTechSlate => 'Slate id';
-
-  @override
-  String get deskTxCopySlate => 'Copy slate id';
-
-  @override
-  String get deskTxTechHeight => 'Height';
-
-  @override
-  String get deskTxTechKernel => 'Kernel';
-
-  @override
-  String get deskTxTechConfirmed => 'Confirmed';
-
-  @override
-  String get deskTxTechCredited => 'Credited';
-
-  @override
-  String get deskTxTechDebited => 'Debited';
-
-  @override
-  String get deskTxTechStatus => 'Status';
-
-  @override
-  String get deskTxTechType => 'Type';
 
   @override
   String get deskTxStepMined => 'Mined in a block';
@@ -8679,43 +8643,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTxCancelOutgoingAction => 'Cancel payment';
-
-  @override
-  String deskTxProofIncoming(String amount) {
-    return 'Proves that this wallet received $amount EPIC in this kernel.';
-  }
-
-  @override
-  String deskTxProofOutgoing(String amount) {
-    return 'Proves that the recipient received $amount EPIC in this kernel.';
-  }
-
-  @override
-  String get deskTxProofSenderAddress => 'Sender address';
-
-  @override
-  String get deskTxProofRecipientAddress => 'Recipient address';
-
-  @override
-  String get deskTxProofRecipientSignature => 'Recipient signature';
-
-  @override
-  String get deskTxProofCopyKernel => 'Copy kernel';
-
-  @override
-  String get deskTxProofCopySender => 'Copy sender address';
-
-  @override
-  String get deskTxProofCopyRecipient => 'Copy recipient address';
-
-  @override
-  String get deskTxProofCopySignature => 'Copy recipient signature';
-
-  @override
-  String get deskTxProofExport => 'Export';
-
-  @override
-  String get deskTxProofSaved => 'Proof saved';
 
   @override
   String get deskOnbWelcomeAdd => 'Add a wallet';
@@ -12680,7 +12607,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTxDetailsFromTip =>
-      'Who paid, for your records. Not verified and never used for payment proofs.';
+      'Who paid, for your records. Not verified.';
 
   @override
   String get deskTxDetailsFromHint => 'Address of the sender';
@@ -12825,9 +12752,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'Apply';
-
-  @override
-  String get deskTxProofNone => 'No payment proof for this payment.';
 
   @override
   String get deskUpdAvailable => 'Update available';
@@ -12977,7 +12901,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core’s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.';
+      'Shows the Technical details fold on every transaction: kernel, slate ID, commitments and block height. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.';
 
   @override
   String get deskSetAdvSendOptions => 'Send options';

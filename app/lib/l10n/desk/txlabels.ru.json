@@ -13,7 +13,7 @@
   "deskTxDetailsTitleEdit": "Изменить подробности",
   "deskTxDetailsTip": "Только для платежей, найденных при сверке баланса.",
   "deskTxDetailsFrom": "От",
-  "deskTxDetailsFromTip": "Кто заплатил, для ваших записей. Не проверяется и не используется в подтверждениях платежа.",
+  "deskTxDetailsFromTip": "Кто заплатил, для ваших записей. Не проверяется.",
   "deskTxDetailsFromHint": "Адрес отправителя",
   "deskTxDetailsFromBad": "Укажите адрес Epicbox, http(s) или .onion.",
   "deskTxDetailsNote": "Личная заметка",
