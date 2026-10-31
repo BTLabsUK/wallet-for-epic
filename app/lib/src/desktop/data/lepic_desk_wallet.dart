@@ -34,6 +34,7 @@ import '../../btlabs_keys.dart' show btlabsKeyring;
 import '../../devices/device_history.dart' show mergeDeviceHistory;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost, SessionDeviceHost;
+import '../../devices/device_store.dart' show DeviceStore;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
 import '../../builtin_node.dart';
@@ -826,6 +827,8 @@ class LepicDeskWallet implements DeskWalletApi {
           await _store.delete(DeskStore.torKeyOf(entry.walletId));
           await _store.delete(DeskStore.outputsKeyOf(entry.walletId));
           await _store.delete(DeskStore.autostartKeyOf(entry.walletId));
+          // Its linked devices, keyed as devices_state.dart keys them: by the list's id.
+          await DeviceStore(_secrets, chain: _preset.chain == core.Chain.floonet ? core.Chain.floonet : core.Chain.mainnet, walletId: id).clear();
           await _removeWalletTxt(config.dataDir, legacy: entry.isLegacy);
       }
     } on reg.WalletRegistryException catch (e) {

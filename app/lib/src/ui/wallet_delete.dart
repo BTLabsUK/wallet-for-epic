@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../devices/device_store.dart' show DeviceStore;
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -62,6 +63,12 @@ Future<void> _delete(WidgetRef ref, WalletConfig config) async {
   await ref.read(walletServiceProvider).deleteWallet(config: config);
   await ref.read(vaultProvider).forget(config.chain);
   await ref.read(appSettingsProvider.notifier).forgetHistoryBackup(config.chain);
+  try {
+    // Its linked devices, keyed as phone_devices.dart keys them.
+    await DeviceStore(ref.read(secretStoreProvider), chain: config.chain, walletId: config.walletId).clear();
+  } catch (error) {
+    logWarn('delete', 'forgetting linked devices failed: ${error.runtimeType}');
+  }
   try {
     await ref.read(sharedFilesCleanupProvider)();
   } catch (error) {
