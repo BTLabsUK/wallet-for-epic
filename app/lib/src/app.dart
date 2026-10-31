@@ -18,6 +18,7 @@ import 'secret_store.dart' show PlatformBiometricStore;
 import 'settings.dart';
 import 'ui/settings_file_notices.dart';
 import 'ui/common.dart';
+import 'ui/more_below.dart';
 import 'ui/demo_screens.dart';
 import 'ui/launch_screen.dart';
 import 'ui/phone_frame.dart';
@@ -207,6 +208,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     final settings = ref.watch(appSettingsProvider).value;
     final themeMode = settings?.themeMode ?? ThemeMode.system;
     return MaterialApp(
+      scrollBehavior: const MoreBelowScrollBehavior(),
       onGenerateTitle: (context) => context.l10n.appTitle,
       navigatorKey: _navigator,
       debugShowCheckedModeBanner: false,

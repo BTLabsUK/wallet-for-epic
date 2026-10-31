@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desk_l10n.dart' show deskStrings;
 import '../theme/theme.dart';
+import '../../ui/more_below.dart';
 import '../widgets/kit.dart';
 import 'screens.dart';
 import 'auto_lock.dart';
@@ -32,6 +33,7 @@ class DeskApp extends ConsumerWidget {
     // Theme's 100 % is a 17 px root (6.1.6's MODERN_BASE), the tokens are written for 16.
     deskScale = (deskScales.contains(scale) ? scale : 100) / 100 * deskBase;
     return MaterialApp(
+      scrollBehavior: const MoreBelowScrollBehavior(),
       navigatorKey: deskNavigatorKey,
       navigatorObservers: [ref.watch(deskModalWatchProvider)],
       title: appName,

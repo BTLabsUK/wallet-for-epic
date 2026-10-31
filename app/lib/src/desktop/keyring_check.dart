@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../log.dart';
 import 'theme/theme.dart';
+import '../ui/more_below.dart';
 
 enum KeyringProblem {
   /// No Secret Service on the session bus, no default keyring, or no answer in time.
@@ -151,6 +152,7 @@ class KeyringApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
+    scrollBehavior: const MoreBelowScrollBehavior(),
     debugShowCheckedModeBanner: false,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
