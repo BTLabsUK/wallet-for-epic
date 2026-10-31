@@ -134,6 +134,7 @@ class DeskController extends Notifier<DeskState> {
   /// it over on first read) and goes when the screens stop passing it.
   Future<void> startLive({bool? listen}) async {
     _stopLive();
+    final closes = _closes;
     _changes = api.changes().listen((_) {
       // Bursts of events (sync progress) reload the lists once, the status at once.
       unawaited(_loadStatus());
@@ -143,6 +144,8 @@ class DeskController extends Notifier<DeskState> {
     _statusPoll = Timer.periodic(const Duration(seconds: 5), (_) => unawaited(_loadStatus()));
     // The reach, port, autostart and Tor are the opened wallet's own: read them from it.
     final own = await api.settings();
+    // Locked meanwhile: nothing of that wallet is written or started.
+    if (_closes != closes) return;
     final http = own.payments.linkHttp;
     // The method switches are the wallet's view too (app-wide, read at its unlock), so a
     // container that has not loaded settings yet does not write defaults over them.
@@ -165,6 +168,7 @@ class DeskController extends Notifier<DeskState> {
     }
     // Tor's now-state may have changed with its autostart.
     final tor = (await api.settings()).tor;
+    if (_closes != closes) return;
     state = state.copyWith(settings: state.settings.copyWith(tor: tor));
   }
 
@@ -177,8 +181,13 @@ class DeskController extends Notifier<DeskState> {
     _reload = null;
   }
 
+  /// Moves on every lock (and a reopen that closed the wallet): a load that began before it
+  /// writes nothing after it ([refresh], [startLive]).
+  int _closes = 0;
+
   /// Ctrl+L and Lock: the session closed, the open wallet's data dropped.
   Future<void> lock() async {
+    _closes++;
     _stopLive();
     // A recovery phrase copied in this session leaves the clipboard with it.
     unawaited(clearCopiedPhrase());
@@ -242,6 +251,7 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> _refreshQuietly() async {
     if (_changes == null) return;
+    final closes = _closes;
     try {
       final a = api;
       final balance = await a.balance();
@@ -251,7 +261,7 @@ class DeskController extends Notifier<DeskState> {
       final nodes = _nodesShown > 0 ? await a.nodes() : null;
       final boxes = await a.epicboxes();
       final status = await a.status();
-      if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status, oldHistory: a.oldHistoryConflicts);
+      if (_changes != null && _closes == closes) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status, oldHistory: a.oldHistoryConflicts);
     } on Object {
       // Locked meanwhile.
     }
@@ -289,18 +299,33 @@ class DeskController extends Notifier<DeskState> {
   /// they show (a payment of the other device, coins it holds).
   Future<void> reloadWallet() async {
     if (_changes == null) return;
+    final closes = _closes;
     try {
       final balance = await api.balance();
       final txs = await api.transactions();
-      if (_changes != null) state = state.copyWith(balance: balance, txs: txs);
+      if (_changes != null && _closes == closes) state = state.copyWith(balance: balance, txs: txs);
     } on Object {
       // Locked meanwhile.
     }
   }
 
-  /// Loads everything; called after unlock and by Refresh.
+  /// Loads everything; called after unlock and by Refresh. A lock meanwhile drops what was
+  /// read; a reopen of the wallet meanwhile (a node or Epicbox change) reads it again.
   Future<void> refresh() async {
     final a = api;
+    for (var tries = 0; ; tries++) {
+      final closes = _closes;
+      final revision = a.sessionRevision;
+      final read = await _readAll(a);
+      if (_closes != closes) return;
+      if (a.sessionRevision != revision && tries < 2) continue;
+      state = read;
+      return;
+    }
+  }
+
+  /// Everything [refresh] shows, read from [a].
+  Future<DeskState> _readAll(DeskWalletApi a) async {
     final results = await Future.wait<Object>([
       a.account(),
       a.balance(),
@@ -314,7 +339,7 @@ class DeskController extends Notifier<DeskState> {
     ]);
     // Read last: a save made while the lists loaded (the tour's seen flag) is in it.
     final settings = await a.settings();
-    state = DeskState(
+    return DeskState(
       account: results[0] as WalletAccount,
       balance: results[1] as Balance,
       txs: results[2] as List<Tx>,
@@ -423,6 +448,7 @@ class DeskController extends Notifier<DeskState> {
       await change();
     } on DeskError catch (e) {
       if (e.locked) {
+        _closes++;
         _stopLive();
         state = DeskState(settings: state.settings, nodes: state.nodes, epicboxes: state.epicboxes);
         ref.read(deskClosedProvider.notifier).set(e.message);
