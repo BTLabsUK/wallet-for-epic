@@ -7239,9 +7239,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendUpdating => 'Баланс обновляется, пока кошелёк сканирует.';
 
   @override
-  String get deskSendEpicboxLine1 => 'Кошелёк получателя может быть закрыт.';
-
-  @override
   String get deskSendEpicboxLine2 =>
       'Сервер Epicbox хранит платёж, пока получатель не откроет кошелёк.';
 

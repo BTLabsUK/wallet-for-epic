@@ -2148,7 +2148,6 @@
   "deskSendNetworkFee": "Opłata sieciowa",
   "deskSendTotal": "Razem",
   "deskSendUpdating": "Saldo aktualizuje się podczas skanowania portfela.",
-  "deskSendEpicboxLine1": "Portfel odbiorcy może być zamknięty.",
   "deskSendEpicboxLine2": "Serwer Epicbox trzyma płatność, aż odbiorca otworzy portfel.",
   "deskSendDirectLine1": "Prosto do portfela odbiorcy.",
   "deskSendDirectLine2": "Portfel odbiorcy musi być otwarty. Adres onion działa przez Tor.",

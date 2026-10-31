@@ -118,7 +118,6 @@
   "deskSendNetworkFee": "Gebühr",
   "deskSendTotal": "Gesamt",
   "deskSendUpdating": "Das Guthaben wird aktualisiert, während die Wallet scannt.",
-  "deskSendEpicboxLine1": "Die Wallet des Empfängers kann geschlossen sein.",
   "deskSendEpicboxLine2": "Der Epicbox-Server hält die Zahlung, bis der Empfänger seine Wallet öffnet.",
   "deskSendDirectLine1": "Direkt an die Wallet des Empfängers.",
   "deskSendDirectLine2": "Ihre Wallet muss geöffnet sein. Eine Onion-Adresse läuft über Tor.",

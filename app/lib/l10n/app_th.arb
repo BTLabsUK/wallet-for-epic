@@ -2148,7 +2148,6 @@
   "deskSendNetworkFee": "ค่าธรรมเนียม",
   "deskSendTotal": "รวม",
   "deskSendUpdating": "ยอดกำลังอัปเดตระหว่างกระเป๋าเงินสแกน",
-  "deskSendEpicboxLine1": "กระเป๋าเงินของผู้รับปิดอยู่ก็ได้",
   "deskSendEpicboxLine2": "เซิร์ฟเวอร์ Epicbox จะเก็บรายการไว้จนกว่าผู้รับจะเปิดกระเป๋าเงิน",
   "deskSendDirectLine1": "ตรงถึงกระเป๋าเงินผู้รับ",
   "deskSendDirectLine2": "กระเป๋าของผู้รับต้องเปิดอยู่ ที่อยู่ onion จะส่งผ่าน Tor",

@@ -9085,10 +9085,6 @@
   "@deskSendUpdating": {
     "description": "Caption in the Send summary while the wallet rechecks the balance."
   },
-  "deskSendEpicboxLine1": "The recipient’s wallet can be closed.",
-  "@deskSendEpicboxLine1": {
-    "description": "Bold first line under the method selector on Send for the Epicbox method."
-  },
   "deskSendEpicboxLine2": "The Epicbox server holds the payment until they open their wallet.",
   "@deskSendEpicboxLine2": {
     "description": "Second line under the method selector for the Epicbox method."

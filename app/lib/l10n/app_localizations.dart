@@ -11019,12 +11019,6 @@ abstract class AppLocalizations {
   /// **'Balance updating while the wallet scans.'**
   String get deskSendUpdating;
 
-  /// Bold first line under the method selector on Send for the Epicbox method.
-  ///
-  /// In en, this message translates to:
-  /// **'The recipient’s wallet can be closed.'**
-  String get deskSendEpicboxLine1;
-
   /// Second line under the method selector for the Epicbox method.
   ///
   /// In en, this message translates to:

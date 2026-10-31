@@ -7051,10 +7051,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Guthaben wird aktualisiert, während die Wallet scannt.';
 
   @override
-  String get deskSendEpicboxLine1 =>
-      'Die Wallet des Empfängers kann geschlossen sein.';
-
-  @override
   String get deskSendEpicboxLine2 =>
       'Der Epicbox-Server hält die Zahlung, bis der Empfänger seine Wallet öffnet.';
 

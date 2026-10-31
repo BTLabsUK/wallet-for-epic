@@ -6529,9 +6529,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendUpdating => '钱包扫描期间余额正在更新。';
 
   @override
-  String get deskSendEpicboxLine1 => '接收方的钱包可以是关闭的。';
-
-  @override
   String get deskSendEpicboxLine2 => 'Epicbox 服务器会暂存付款，直到对方打开钱包。';
 
   @override

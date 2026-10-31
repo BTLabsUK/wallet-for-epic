@@ -504,7 +504,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ? deskNetBlock(st)
       : deskNetBlock(
           st,
-          epicbox: _method == TxMethod.epicbox,
+          // An Epicbox address goes by Epicbox whatever the selector moved to (D-06 moves off a
+          // method that is off): its switch holds the send and the notice names it, as on the phone.
+          epicbox: _method == TxMethod.epicbox || addressKindOf(_to.text) == AddressKind.epicbox,
           // An onion in the build without Tor: no method would send it, its own line says so.
           offered: _onionNoTor ||
               (_method != TxMethod.epicbox && _to.text.trim().isEmpty
@@ -2143,15 +2145,16 @@ class _SendSummary extends StatelessWidget {
   }
 }
 
-/// Under the selector: the method's picture, what it does in bold and what it needs.
+/// Under the selector: the method's picture, what it does in bold (Epicbox has no bold line)
+/// and what it needs.
 /// The art goes above the text in a narrow column; a method change crossfades.
 class _MethodStrip extends StatelessWidget {
   const _MethodStrip(this.method);
 
   final TxMethod method;
 
-  static (String, String) words(AppLocalizations l, TxMethod m) => switch (m) {
-    TxMethod.epicbox => (l.deskSendEpicboxLine1, l.deskSendEpicboxLine2),
+  static (String?, String) words(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => (null, l.deskSendEpicboxLine2),
     TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, DeskFeatures.tor ? l.deskSendDirectLine2 : l.deskNoTorSendDirectLine2),
     TxMethod.file => (l.deskSendFileLine1, l.deskSendFileLine2),
   };
@@ -2174,8 +2177,7 @@ class _MethodStrip extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: ts.strong),
-                SizedBox(height: 2.u),
+                if (title != null) ...[Text(title, style: ts.strong), SizedBox(height: 2.u)],
                 Text(line, style: ts.small),
               ],
             );

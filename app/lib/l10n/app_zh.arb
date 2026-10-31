@@ -2148,7 +2148,6 @@
   "deskSendNetworkFee": "网络手续费",
   "deskSendTotal": "总计",
   "deskSendUpdating": "钱包扫描期间余额正在更新。",
-  "deskSendEpicboxLine1": "接收方的钱包可以是关闭的。",
   "deskSendEpicboxLine2": "Epicbox 服务器会暂存付款，直到对方打开钱包。",
   "deskSendDirectLine1": "直达对方钱包。",
   "deskSendDirectLine2": "对方钱包必须处于打开状态。onion 地址经由 Tor。",

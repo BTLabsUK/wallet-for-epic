@@ -6955,9 +6955,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendUpdating => 'Balance updating while the wallet scans.';
 
   @override
-  String get deskSendEpicboxLine1 => 'The recipient’s wallet can be closed.';
-
-  @override
   String get deskSendEpicboxLine2 =>
       'The Epicbox server holds the payment until they open their wallet.';
 

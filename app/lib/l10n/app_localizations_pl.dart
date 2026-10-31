@@ -7270,9 +7270,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Saldo aktualizuje się podczas skanowania portfela.';
 
   @override
-  String get deskSendEpicboxLine1 => 'Portfel odbiorcy może być zamknięty.';
-
-  @override
   String get deskSendEpicboxLine2 =>
       'Serwer Epicbox trzyma płatność, aż odbiorca otworzy portfel.';
 

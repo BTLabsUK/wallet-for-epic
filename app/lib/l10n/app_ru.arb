@@ -2148,7 +2148,6 @@
   "deskSendNetworkFee": "Комиссия сети",
   "deskSendTotal": "Итого",
   "deskSendUpdating": "Баланс обновляется, пока кошелёк сканирует.",
-  "deskSendEpicboxLine1": "Кошелёк получателя может быть закрыт.",
   "deskSendEpicboxLine2": "Сервер Epicbox хранит платёж, пока получатель не откроет кошелёк.",
   "deskSendDirectLine1": "Прямо в кошелёк получателя.",
   "deskSendDirectLine2": "Кошелёк получателя должен быть открыт. Платёж на адрес .onion идёт через Tor.",

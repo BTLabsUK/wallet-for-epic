@@ -6762,9 +6762,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendUpdating => 'ยอดกำลังอัปเดตระหว่างกระเป๋าเงินสแกน';
 
   @override
-  String get deskSendEpicboxLine1 => 'กระเป๋าเงินของผู้รับปิดอยู่ก็ได้';
-
-  @override
   String get deskSendEpicboxLine2 =>
       'เซิร์ฟเวอร์ Epicbox จะเก็บรายการไว้จนกว่าผู้รับจะเปิดกระเป๋าเงิน';
 
