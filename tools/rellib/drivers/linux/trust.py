@@ -309,7 +309,11 @@ class Run:
 
     def level_shown(self):
         """The depth Settings › About names ("Depth: Deep end"); None on a build without levels."""
-        self.settings_page("About")
+        try:
+            self.settings_page("About")
+        except Exception as e:  # never sinks the run: the level then reads as not shown, and the log says why
+            self.log("Settings › About not opened for the level: %s" % e)
+            return None
         rx = re.compile(r"^%s: (.+)$" % re.escape(facts.DESK_DEPTH))
         for n in self.ui.find(rx):
             return rx.match(n.name).group(1).strip()
