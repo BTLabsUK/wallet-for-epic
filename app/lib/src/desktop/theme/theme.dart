@@ -34,7 +34,9 @@ ThemeData buildDeskTheme(Brightness brightness) {
     highlightColor: c.press,
     focusColor: c.accentSoft,
     visualDensity: VisualDensity.standard,
-    iconTheme: IconThemeData(size: Ctl.iconLg),
+    // An icon given no colour (a select's leading icon) takes the normal icon colour, not
+    // Material's black, which vanishes on the dark fields.
+    iconTheme: IconThemeData(size: Ctl.iconLg, color: c.dim),
     materialTapTargetSize: MaterialTapTargetSize.padded,
     fontFamilyFallback: bundledFallback,
     extensions: [c],
