@@ -119,6 +119,9 @@ Future<void> openScannedCode(
         primary: _primaryLabel(context, scanAgain),
       );
       if (again && scanAgain != null) await scanAgain();
+    // Never shown: one line that it is a recovery phrase.
+    case RecoveryPhraseCode():
+      await showRecoveryPhraseFound(context, pasted: origin == CodeOrigin.paste);
     case UnknownCode(:final text) when isDeviceLinkText(text):
       await openDeviceLinkText(context, ref, text);
     case UnknownCode():

@@ -787,7 +787,7 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   Future<void> _scan() async {
-    final text = await ref.read(qrScannerProvider).scan(context);
+    final text = await ref.read(qrScannerProvider).scanCode(context);
     if (text != null && mounted) _openText(text, CodeOrigin.qr);
   }
 

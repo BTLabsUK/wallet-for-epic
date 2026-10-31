@@ -38,7 +38,7 @@ import 'restore_card.dart';
 import 'restore_screen.dart' show ScanProgressView;
 import 'scan_route.dart';
 import '../devices/phone_devices.dart' show DeviceLifecycle, watchHistory;
-import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
+import 'scan_screen.dart' show ScanCode, offersQrScan, qrScannerProvider;
 import 'send_screen.dart' show SendBack, SendView, trackedSendProvider;
 import 'shell_header.dart';
 import 'settings_history.dart' show exportHistoryBackup;
@@ -432,7 +432,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// Scans a QR code and opens what it is: Send for a payment code or an address, the QR
   /// Payment reader for a QR Payment code, and a sheet for anything else.
   Future<void> _scan() async {
-    final text = await ref.read(qrScannerProvider).scan(context);
+    final text = await ref.read(qrScannerProvider).scanCode(context);
     if (text == null || !mounted) return;
     await openScannedText(
       context,

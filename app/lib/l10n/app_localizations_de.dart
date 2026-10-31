@@ -2502,6 +2502,22 @@ class AppLocalizationsDe extends AppLocalizations {
       'Richten Sie die Kamera auf den QR-Code des Empfängers.';
 
   @override
+  String get scanPhraseFoundQr =>
+      'Dieser QR-Code enthält eine Wiederherstellungsphrase. Halten Sie sie geheim.';
+
+  @override
+  String get scanPhraseFoundPasted =>
+      'Das ist eine Wiederherstellungsphrase, sie wurde nicht eingefügt. Halten Sie sie geheim.';
+
+  @override
+  String get scanQrPhraseHint =>
+      'Richten Sie die Kamera auf den QR-Code der Wiederherstellungsphrase.';
+
+  @override
+  String get restoreScanNoPhrase =>
+      'Dieser QR-Code enthält keine Wiederherstellungsphrase.';
+
+  @override
   String get scanQrCameraDenied =>
       'Kamerazugriff ist aus. Erlauben Sie ihn in den Einstellungen des Smartphones oder fügen Sie die Adresse ein.';
 

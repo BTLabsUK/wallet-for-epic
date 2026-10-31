@@ -10,6 +10,7 @@ library;
 import 'dart:convert';
 
 import '../amount.dart' show atomicPerEpic, epicDecimals, formatEpic;
+import '../bip39_words.dart';
 import '../payment_method.dart' show MethodKind;
 import '../recipient.dart';
 
@@ -174,6 +175,21 @@ final class WrongNetwork extends ScannedCode {
   final Recipient recipient;
 }
 
+/// A recovery phrase (the backup screen's QR shows one). It keeps no words: nothing may show,
+/// copy or log them.
+final class RecoveryPhraseCode extends ScannedCode {
+  const RecoveryPhraseCode();
+}
+
+/// Whether [text] is a recovery phrase: 12, 15, 18, 21 or 24 words apart by spaces or commas,
+/// all but two at most in the word list (a typo still counts, so it is never shown).
+bool looksLikeRecoveryPhrase(String text) {
+  final words = text.trim().toLowerCase().split(RegExp(r'[\s,]+'));
+  if (!const {12, 15, 18, 21, 24}.contains(words.length)) return false;
+  if (!words.every(RegExp(r'^[a-z]+$').hasMatch)) return false;
+  return words.where(bip39Words.contains).length >= words.length - 2;
+}
+
 /// Not an Epic code.
 final class UnknownCode extends ScannedCode {
   const UnknownCode(this.text, {this.reason = UnknownReason.notEpic});
@@ -184,14 +200,16 @@ final class UnknownCode extends ScannedCode {
 }
 
 /// Whether [text] starts like a code the router reads by its scheme (`epic:`, `epiccash:`,
-/// `ur:`) or is a transaction file's text, as opposed to plain text typed or pasted into a
+/// `ur:`), is a transaction file's text or a recovery phrase, as opposed to plain text typed or pasted into a
 /// field.
 bool looksLikeCode(String text) =>
+    looksLikeRecoveryPhrase(text) ||
     RegExp(r'^\s*(epic|epiccash|ur):', caseSensitive: false).hasMatch(text) ||
     classifyScan(text, check: (_) => AddressVerdict.invalid) is SlateText;
 
 /// What [raw] is. Never throws; never reads more than [maxScanLength] characters of a line.
 ScannedCode classifyScan(String raw, {required AddressCheck check}) {
+  if (looksLikeRecoveryPhrase(raw)) return const RecoveryPhraseCode();
   try {
     return _classify(raw, check);
   } on Object {

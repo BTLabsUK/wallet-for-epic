@@ -3913,6 +3913,30 @@ abstract class AppLocalizations {
   /// **'Point the camera at the recipient’s QR code.'**
   String get scanQrHint;
 
+  /// Sheet text after a scan that read a recovery phrase QR; the words are never shown.
+  ///
+  /// In en, this message translates to:
+  /// **'This QR code holds a recovery phrase. Keep it private.'**
+  String get scanPhraseFoundQr;
+
+  /// Note under a To field when a recovery phrase was pasted into it; the field stays empty.
+  ///
+  /// In en, this message translates to:
+  /// **'That is a recovery phrase, so it was not pasted. Keep it private.'**
+  String get scanPhraseFoundPasted;
+
+  /// Shown over the camera picture when scanning a recovery phrase QR on Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the recovery phrase QR code.'**
+  String get scanQrPhraseHint;
+
+  /// Error under the recovery phrase field when the scanned QR code holds no recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'This QR code holds no recovery phrase.'**
+  String get restoreScanNoPhrase;
+
   /// No description provided for @scanQrCameraDenied.
   ///
   /// In en, this message translates to:

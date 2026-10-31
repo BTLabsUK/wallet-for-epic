@@ -3080,6 +3080,22 @@
   "@scanQrHint": {
     "description": "Shown over the camera picture."
   },
+  "scanPhraseFoundQr": "This QR code holds a recovery phrase. Keep it private.",
+  "@scanPhraseFoundQr": {
+    "description": "Sheet text after a scan that read a recovery phrase QR; the words are never shown."
+  },
+  "scanPhraseFoundPasted": "That is a recovery phrase, so it was not pasted. Keep it private.",
+  "@scanPhraseFoundPasted": {
+    "description": "Note under a To field when a recovery phrase was pasted into it; the field stays empty."
+  },
+  "scanQrPhraseHint": "Point the camera at the recovery phrase QR code.",
+  "@scanQrPhraseHint": {
+    "description": "Shown over the camera picture when scanning a recovery phrase QR on Restore."
+  },
+  "restoreScanNoPhrase": "This QR code holds no recovery phrase.",
+  "@restoreScanNoPhrase": {
+    "description": "Error under the recovery phrase field when the scanned QR code holds no recovery phrase."
+  },
   "scanQrCameraDenied": "Camera access is off. Allow it in the phone’s settings, or paste the address instead.",
   "scanQrCameraFailed": "The camera could not start. Paste the address instead, or try again.",
   "scanQrTryAgain": "Try again",

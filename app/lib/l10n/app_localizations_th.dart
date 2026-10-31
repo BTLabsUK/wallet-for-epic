@@ -2423,6 +2423,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get scanQrHint => 'หันกล้องไปที่ QR Code ของผู้รับ';
 
   @override
+  String get scanPhraseFoundQr => 'QR Code นี้มีวลีกู้คืน เก็บไว้เป็นความลับ';
+
+  @override
+  String get scanPhraseFoundPasted =>
+      'นี่คือวลีกู้คืน จึงไม่ได้วางลงไป เก็บไว้เป็นความลับ';
+
+  @override
+  String get scanQrPhraseHint => 'หันกล้องไปที่ QR Code ของวลีกู้คืน';
+
+  @override
+  String get restoreScanNoPhrase => 'QR Code นี้ไม่มีวลีกู้คืน';
+
+  @override
   String get scanQrCameraDenied =>
       'ปิดการเข้าถึงกล้องอยู่ อนุญาตในการตั้งค่าโทรศัพท์ หรือวางที่อยู่แทน';
 

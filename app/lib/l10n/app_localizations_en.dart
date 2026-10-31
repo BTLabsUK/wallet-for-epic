@@ -2465,6 +2465,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanQrHint => 'Point the camera at the recipient’s QR code.';
 
   @override
+  String get scanPhraseFoundQr =>
+      'This QR code holds a recovery phrase. Keep it private.';
+
+  @override
+  String get scanPhraseFoundPasted =>
+      'That is a recovery phrase, so it was not pasted. Keep it private.';
+
+  @override
+  String get scanQrPhraseHint =>
+      'Point the camera at the recovery phrase QR code.';
+
+  @override
+  String get restoreScanNoPhrase => 'This QR code holds no recovery phrase.';
+
+  @override
   String get scanQrCameraDenied =>
       'Camera access is off. Allow it in the phone’s settings, or paste the address instead.';
 

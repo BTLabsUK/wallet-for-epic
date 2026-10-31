@@ -22,6 +22,7 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'pin.dart';
+import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
 import 'settings_history.dart';
 import 'settings_sections.dart' show DeleteWalletDialog;
 import 'wallet_delete.dart';
@@ -57,6 +58,9 @@ final DateTime mainnetFirstDay = DateTime(2019, 9, 3);
 /// Lowercases the phrase and collapses whitespace, so pasted phrases validate.
 String normalizePhrase(String input) =>
     input.trim().toLowerCase().split(RegExp(r'\s+')).join(' ');
+
+/// The Scan QR button in the phrase field.
+const Key restoreScanKey = ValueKey('restore-scan-qr');
 
 /// Restores a wallet from its recovery phrase, protects it with a PIN, then scans the chain.
 class RestoreScreen extends ConsumerStatefulWidget {
@@ -430,6 +434,23 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     );
   }
 
+  /// Fills the field from a QR code of the phrase: its words, checked as typed ones are. A code
+  /// that holds anything but words is refused without showing what it holds.
+  Future<void> _scanPhrase() async {
+    final l = context.l10n;
+    final text = await ref.read(qrScannerProvider).scan(context, hint: l.scanQrPhraseHint);
+    if (text == null || !mounted) return;
+    final words = normalizePhrase(text.replaceAll(',', ' '));
+    setState(() {
+      if (RegExp(r'^[a-z]+( [a-z]+)*$').hasMatch(words)) {
+        _phrase.text = words;
+        _error = null;
+      } else {
+        _error = l.restoreScanNoPhrase;
+      }
+    });
+  }
+
   List<Widget> _form(BuildContext context) {
     final l = context.l10n;
     final advanced = _startOpen;
@@ -455,6 +476,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           helperText: l.restorePhraseHelper,
           alignLabelWithHint: true,
           border: const OutlineInputBorder(),
+          // The phrase as a QR code (Show QR on the backup screen).
+          suffixIcon: offersQrScan(ref)
+              ? IconButton(
+                  key: restoreScanKey,
+                  tooltip: l.scanQrTooltip,
+                  icon: const Icon(Icons.qr_code_scanner),
+                  onPressed: _scanPhrase,
+                )
+              : null,
         ),
       ),
       RestoreWordCheck(text: _phrase.text),

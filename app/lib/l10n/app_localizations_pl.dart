@@ -2561,6 +2561,21 @@ class AppLocalizationsPl extends AppLocalizations {
   String get scanQrHint => 'Skieruj aparat na kod QR odbiorcy.';
 
   @override
+  String get scanPhraseFoundQr =>
+      'Ten kod QR zawiera frazę odzyskiwania. Zachowaj ją w tajemnicy.';
+
+  @override
+  String get scanPhraseFoundPasted =>
+      'To jest fraza odzyskiwania, więc nie została wklejona. Zachowaj ją w tajemnicy.';
+
+  @override
+  String get scanQrPhraseHint => 'Skieruj aparat na kod QR frazy odzyskiwania.';
+
+  @override
+  String get restoreScanNoPhrase =>
+      'Ten kod QR nie zawiera frazy odzyskiwania.';
+
+  @override
   String get scanQrCameraDenied =>
       'Dostęp do aparatu jest wyłączony. Zezwól na niego w ustawieniach telefonu lub wklej adres.';
 

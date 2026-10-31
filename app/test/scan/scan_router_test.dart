@@ -367,6 +367,22 @@ void main() {
     });
   });
 
+  group('recovery phrase', () {
+    const phrase = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art';
+    test('a phrase is read as one, with no words kept', () {
+      expect(looksLikeRecoveryPhrase(phrase), isTrue);
+      expect(looksLikeRecoveryPhrase(phrase.replaceAll(' ', ', ').toUpperCase()), isTrue);
+      expect(looksLikeRecoveryPhrase(phrase.replaceFirst('abandon', 'abandonn')), isTrue, reason: 'a typo still hides it');
+      expect(classifyScan(phrase, check: _check), isA<RecoveryPhraseCode>());
+      expect(looksLikeCode(phrase), isTrue);
+    });
+    test('fewer words, other text or an address is no phrase', () {
+      expect(looksLikeRecoveryPhrase(phrase.split(' ').skip(1).join(' ')), isFalse);
+      expect(looksLikeRecoveryPhrase('send me some epic tomorrow please'), isFalse);
+      expect(looksLikeRecoveryPhrase(_e), isFalse);
+    });
+  });
+
   group('build', () {
     test('the plain Receive code is just the address', () {
       expect(EpicUri.build(_e), 'epic:$_e');

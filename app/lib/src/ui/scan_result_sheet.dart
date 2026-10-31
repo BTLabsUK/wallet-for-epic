@@ -193,3 +193,16 @@ class ScanResultSheet extends StatelessWidget {
     );
   }
 }
+
+/// A scanned or pasted recovery phrase: one line that it is one and stays private, and OK.
+/// The words are never shown, copied or kept.
+Future<void> showRecoveryPhraseFound(BuildContext context, {required bool pasted}) async {
+  final l = context.l10n;
+  await showScanResultSheet(
+    context,
+    icon: Icons.key_outlined,
+    title: l.restorePhraseLabel,
+    text: pasted ? l.scanPhraseFoundPasted : l.scanPhraseFoundQr,
+    primary: l.commonOk,
+  );
+}

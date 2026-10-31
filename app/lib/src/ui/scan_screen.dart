@@ -9,7 +9,9 @@ import '../demo.dart';
 import '../l10n.dart';
 import '../settings.dart';
 import '../wallet_backend.dart' show hostIsPhone;
+import '../scan/scan_router.dart' show looksLikeRecoveryPhrase;
 import 'common.dart';
+import 'scan_result_sheet.dart';
 import 'scanner_backend.dart';
 
 /// QR scanning needs a camera plugin that exists on Android and iOS only.
@@ -17,11 +19,11 @@ bool get qrScanSupported => !kIsWeb && hostIsPhone;
 
 /// Opens the camera and returns the text of the first QR code it reads, or null when the user
 /// backs out or scanning is not supported here.
-Future<String?> scanQr(BuildContext context) async {
+Future<String?> scanQr(BuildContext context, {String? hint}) async {
   if (!qrScanSupported) return null;
   final text = await Navigator.of(
     context,
-  ).push<String>(MaterialPageRoute<String>(builder: (_) => const ScanScreen()));
+  ).push<String>(MaterialPageRoute<String>(builder: (_) => ScanScreen(hint: hint)));
   return text;
 }
 
@@ -29,7 +31,19 @@ Future<String?> scanQr(BuildContext context) async {
 abstract interface class QrScanner {
   bool get supported;
 
-  Future<String?> scan(BuildContext context);
+  /// [hint] replaces the line over the camera picture.
+  Future<String?> scan(BuildContext context, {String? hint});
+}
+
+extension ScanCode on QrScanner {
+  /// A scan for a code (an address, a payment, a link). A recovery phrase never comes back:
+  /// a sheet says what it was, without the words, and the scan returns null.
+  Future<String?> scanCode(BuildContext context) async {
+    final text = await scan(context);
+    if (text == null || !looksLikeRecoveryPhrase(text)) return text;
+    if (context.mounted) await showRecoveryPhraseFound(context, pasted: false);
+    return null;
+  }
 }
 
 class PlatformQrScanner implements QrScanner {
@@ -39,7 +53,7 @@ class PlatformQrScanner implements QrScanner {
   bool get supported => qrScanSupported;
 
   @override
-  Future<String?> scan(BuildContext context) => scanQr(context);
+  Future<String?> scan(BuildContext context, {String? hint}) => scanQr(context, hint: hint);
 }
 
 /// Returns queued codes, for tests.
@@ -52,7 +66,7 @@ class FakeQrScanner implements QrScanner {
   final List<String?> codes = [];
 
   @override
-  Future<String?> scan(BuildContext context) async =>
+  Future<String?> scan(BuildContext context, {String? hint}) async =>
       codes.isEmpty ? null : codes.removeAt(0);
 }
 
@@ -70,7 +84,10 @@ bool offersQrPayment(WidgetRef ref) => qrPreviewSimulation || offersQrScan(ref);
 
 /// Full-screen camera view that pops with the first QR code's text.
 class ScanScreen extends ConsumerStatefulWidget {
-  const ScanScreen({super.key});
+  const ScanScreen({super.key, this.hint});
+
+  /// The line over the camera picture; the recipient's code when null.
+  final String? hint;
 
   @override
   ConsumerState<ScanScreen> createState() => _ScanScreenState();
@@ -141,7 +158,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  l.scanQrHint,
+                  widget.hint ?? l.scanQrHint,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
