@@ -1,7 +1,7 @@
 {
   "deskSlRemoveHost": "{host} entfernen",
   "deskSlInUse": "In Verwendung",
-  "deskSlHealthUnknown": "Zustand unbekannt",
+  "deskSlHealthUnknown": "Status unbekannt",
   "deskSlNodeNoAnswer": "Keine Antwort von diesem Node. Nichts hinzugefügt.",
   "deskSlTorWait": "Tor ist noch nicht verbunden. Nichts hinzugefügt.",
   "deskSlLatency": "{ms} ms",

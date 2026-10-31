@@ -11,7 +11,7 @@
   "@deskSetRescanLog": {
     "description": "Settings > Recheck balance: title of the collapsible scan log and its screen reader label."
   },
-  "deskSetRescanText": "Reads the chain again and rebuilds the balance. Use it when the balance looks wrong or outputs stay locked.",
+  "deskSetRescanText": "Checks the chain again for this wallet’s coins. Use it when the balance looks wrong.",
   "@deskSetRescanText": {
     "description": "Settings > Recheck balance: text of the first row."
   },

@@ -272,7 +272,7 @@
   "@deskTxNowWaitingSender": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back."
   },
-  "deskTxNowSenderPosted": "Signed and returned. The sender reports it posted; it completes when confirmed.",
+  "deskTxNowSenderPosted": "The sender reports it posted this payment. It completes when the network confirms it.",
   "@deskTxNowSenderPosted": {
     "description": "Status line on the transaction detail: an incoming payment this wallet signed and sent back, whose sender reports that it posted it. The blockchain decides."
   },

@@ -530,11 +530,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsWaitingRecipient =>
-      'รอผู้รับตอบกลับด้วยไฟล์ธุรกรรม ยอดเงินจะถูกล็อกจนถึงตอนนั้น หรือจนกว่าจะยกเลิก';
+      'รอไฟล์ตอบกลับของผู้รับ จำนวนเงินจะถูกล็อกจนถึงตอนนั้นหรือจนกว่าจะยกเลิก';
 
   @override
-  String get txDetailsWaitingSender =>
-      'รับรายการนี้แล้ว รายการจะสำเร็จเมื่อผู้ส่งทำรายการให้เสร็จและเผยแพร่ไปยังเครือข่าย';
+  String get txDetailsWaitingSender => 'รอให้ผู้ส่งส่งรายการเข้าเครือข่าย';
 
   @override
   String get txDetailsSenderPosted =>
@@ -722,7 +721,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsStuckBody =>
-      'เครือข่ายยังไม่รับรายการนี้ ส่งซ้ำได้อย่างปลอดภัย รายการเดียวกันผ่านสองครั้งไม่ได้';
+      'เครือข่ายไม่รับรายการนี้ ส่งซ้ำได้ รายการเดียวกันผ่านสองครั้งไม่ได้';
 
   @override
   String get txDetailsBroadcastAgain => 'ส่งเข้าเครือข่ายอีกครั้ง';
@@ -825,8 +824,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsMessageHintToSender => 'ส่งถึงผู้ส่งแล้ว';
 
   @override
-  String get txDetailsNoNote =>
-      'ไม่มีบันทึก เพิ่มไว้เพื่อจำว่ารายการนี้เป็นค่าอะไร';
+  String get txDetailsNoNote => 'ไม่มีบันทึก';
 
   @override
   String get txDetailsAddNote => 'เพิ่มบันทึก';
@@ -1937,7 +1935,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreFinishOnHome =>
-      'พบยอดเงินหลังจุดเริ่มที่เลือกแล้ว ตอนนี้การสแกนตั้งแต่บล็อก 0 จะกู้คืนให้เสร็จบนหน้าหลัก เมื่อเสร็จจึงรับและส่งได้';
+      'พบเหรียญหลังจุดเริ่มที่เลือกแล้ว ตอนนี้การสแกนตั้งแต่บล็อก 0 จะกู้คืนให้เสร็จบนหน้าหลัก เมื่อเสร็จจึงรับและส่งได้';
 
   @override
   String get unlockDatabaseRebuilt =>
@@ -2058,7 +2056,7 @@ class AppLocalizationsTh extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'จด $count คำนี้ลงกระดาษตามลำดับ และเก็บเป็นความลับ เป็นทางเดียวที่จะกู้คืนกระเป๋าเงินนี้',
+          'จด $count คำนี้ลงกระดาษตามลำดับ เป็นทางเดียวที่จะกู้คืนกระเป๋าเงินนี้',
     );
     return '$_temp0';
   }
@@ -2116,7 +2114,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pinBiometricsIconLabel => 'ไบโอเมตริก';
 
   @override
-  String get pinBiometricsQuestion => 'ปลดล็อกด้วยลายนิ้วมือหรือใบหน้าไหม?';
+  String get pinBiometricsQuestion => 'ปลดล็อกด้วยไบโอเมตริกไหม?';
 
   @override
   String get pinBiometricsPinStillWorks => 'ยังใช้ PIN ได้';
@@ -2575,7 +2573,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get qrScanNotPayment =>
-      'นี่ไม่ใช่ QR ของรายการ ให้เขาแสดงโค้ดรายการบนโทรศัพท์ของเขา';
+      'นี่ไม่ใช่ QR ของรายการ ให้เขาแสดง QR ของรายการ';
 
   @override
   String get qrScanNotReply =>
@@ -2650,8 +2648,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveQrTitle => 'อยู่ข้างโทรศัพท์อีกเครื่องไหม?';
 
   @override
-  String get receiveQrBody =>
-      'สแกนรายการจากหน้าจอของเขาแล้วแสดงคำตอบของคุณ หรือขอจำนวนเงินแล้วแสดงเป็นโค้ดให้เขาสแกน';
+  String get receiveQrBody => 'หรือขอจำนวนเงิน: แสดง QR ให้เขาสแกน';
 
   @override
   String get txQrHint =>
@@ -2931,7 +2928,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      'กระเป๋า ประวัติ และ PIN จะถูกลบออกจากอุปกรณ์นี้ มีเพียงวลีกู้คืนที่นำเงินกลับมาได้ หากไม่มีวลีกู้คืน เงินจะสูญหายถาวร';
+      'กระเป๋า ประวัติ และ PIN จะถูกลบออกจากโทรศัพท์นี้ มีเพียงวลีกู้คืนที่นำเงินกลับมาได้ หากไม่มีวลีกู้คืน เงินจะสูญหายถาวร';
 
   @override
   String get settingsDeleteHavePhrase => 'จดวลีกู้คืนไว้แล้ว';
@@ -2941,7 +2938,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String settingsDeleteTypeToConfirm(String word) {
-    return 'พิมพ์ \"$word\" เพื่อยืนยัน';
+    return 'พิมพ์ “$word” เพื่อยืนยัน';
   }
 
   @override
@@ -3100,7 +3097,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'ล็อกช่วยหาสาเหตุของปัญหา วลีกู้คืน PIN และข้อมูลลับอื่นๆ จะถูกลบออกก่อน';
+      'ส่วนล่าสุดของบันทึกแอป ไม่รวมวลีกู้คืน PIN และข้อมูลลับอื่นๆ';
 
   @override
   String get feedbackPreviewButton => 'สิ่งที่ส่ง';
@@ -3327,7 +3324,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'ผู้รับเห็นข้อความนี้ และจะเก็บสำเนาไว้เป็นบันทึกส่วนตัวของคุณซึ่งแก้ไขได้';
+      'ผู้รับเห็นข้อความนี้ และจะเก็บสำเนาไว้เป็นบันทึกส่วนตัวของคุณ';
 
   @override
   String get sendNetworkFee => 'ค่าธรรมเนียม';
@@ -3666,8 +3663,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get torFailureStart => 'Tor ไม่เริ่มทำงาน';
 
   @override
-  String get torFailureNetwork =>
-      'เชื่อมต่อเครือข่าย Tor ไม่ได้ ตรวจสอบการเชื่อมต่อ';
+  String get torFailureNetwork => 'Tor เชื่อมต่อไม่ได้ ลองอีกครั้ง หรือปิด Tor';
 
   @override
   String get torFailureClock =>
@@ -3824,7 +3820,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneHelpText =>
-      'ค้นหาหัวข้อหรือส่งความคิดเห็น “แสดงทัวร์แนะนำอีกครั้ง” อยู่ท้ายรายการ';
+      'หัวข้อช่วยเหลือ รายงานปัญหา และแสดงทัวร์อีกครั้ง';
 
   @override
   String get tourPhoneShowAgain => 'แสดงทัวร์แนะนำอีกครั้ง';
@@ -3893,7 +3889,7 @@ class AppLocalizationsTh extends AppLocalizations {
       locale: localeName,
       other: '$blocks การยืนยัน',
     );
-    return 'รอให้การส่งที่กำลังดำเนินการได้รับการยืนยัน ($_temp0)';
+    return 'รอจนกว่าการชำระเงินที่กำลังดำเนินการจะมี $_temp0';
   }
 
   @override
@@ -4029,8 +4025,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get outputsEmpty => 'ยังไม่มีเอาต์พุต';
 
   @override
-  String get outputsEmptyHint =>
-      'การรับเงินครั้งแรกจะสร้างเอาต์พุต ดูที่อยู่ได้ที่หน้า รับ';
+  String get outputsEmptyHint => 'การรับเงินครั้งแรกจะสร้างเอาต์พุต';
 
   @override
   String get outputsNoMatch => 'ไม่มีเอาต์พุตในมุมมองนี้';
@@ -4385,11 +4380,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get serverAtTip => 'ล่าสุด';
+  String get serverAtTip => 'ซิงก์แล้ว';
 
   @override
   String serverBehindShort(String count) {
-    return '−$count';
+    return 'ตามหลัง $count';
   }
 
   @override
@@ -4416,7 +4411,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get serverHealthy => 'ปกติ';
 
   @override
-  String get serverDegraded => 'ไม่เสถียร';
+  String get serverDegraded => 'ตามหลัง';
 
   @override
   String get serverHealthNone => 'ไม่ทราบสถานะ';
@@ -4434,7 +4429,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return 'ออนไลน์ $percent %';
+    return 'ออนไลน์ $percent%';
   }
 
   @override
@@ -4457,7 +4452,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String serverHeightAtTip(String height) {
-    return '$height · ล่าสุด';
+    return '$height · ซิงก์แล้ว';
   }
 
   @override
@@ -4581,7 +4576,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get methodSendFileLine =>
-      'ส่งไฟล์ให้ผู้รับ รับไฟล์ตอบกลับ แล้วทำรายการให้เสร็จที่นี่';
+      'ส่งไฟล์ให้ผู้รับ รับไฟล์ตอบกลับ แล้วเปิดที่นี่';
 
   @override
   String get methodReceiveEpicboxTitle => 'แชร์ที่อยู่เพื่อรับเงิน';
@@ -4618,8 +4613,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendCancelRuleDirect => 'ยกเลิกไม่ได้เมื่อกระเป๋าผู้รับยอมรับแล้ว';
 
   @override
-  String get sendCancelRuleFile =>
-      'ยกเลิกได้จนกว่าจะทำรายการจากไฟล์ตอบกลับให้เสร็จ';
+  String get sendCancelRuleFile => 'ยกเลิกได้จนกว่าคุณจะเปิดไฟล์ตอบกลับ';
 
   @override
   String get sendHttpReaching => 'กำลังติดต่อกระเป๋าของผู้รับ… เปิดแอปไว้';
@@ -4840,7 +4834,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskInvIssuerMessageCount(int used, int max) {
-    return '$used จาก $max ไบต์';
+    return '$used / $max ไบต์';
   }
 
   @override
@@ -5974,7 +5968,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskNodeAtTip => 'ล่าสุด';
+  String get deskNodeAtTip => 'ซิงก์แล้ว';
 
   @override
   String get deskNodeLocal => 'โหนดในเครื่อง';
@@ -6201,7 +6195,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvTorDownText =>
-      'ทุกการเชื่อมต่อรอ Tor ลองอีกครั้ง หรือปิด Tor';
+      'Tor เชื่อมต่อไม่ได้ ลองอีกครั้ง หรือปิด Tor';
 
   @override
   String get deskRecvTorStartingText =>
@@ -6739,7 +6733,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendMessage => 'ข้อความ';
 
   @override
-  String get deskSendMessageHelp => 'ผู้รับจะเห็นข้อความนี้';
+  String get deskSendMessageHelp => 'ผู้รับเห็นข้อความนี้';
 
   @override
   String get deskSendPrivacyOn => 'ความเป็นส่วนตัว · เปิด Dandelion++';
@@ -6815,7 +6809,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendDirectLine2 =>
-      'ที่อยู่ http(s) หรือ .onion กระเป๋าเงินของผู้รับต้องเปิดอยู่';
+      'กระเป๋าของผู้รับต้องเปิดอยู่ ที่อยู่ onion จะส่งผ่าน Tor';
 
   @override
   String get deskSendFileLine1 => 'ไม่ต้องเชื่อมต่อ';
@@ -7124,10 +7118,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskActTitle => 'ประวัติ';
 
   @override
-  String get deskActDetailReceived => 'การชำระเงินที่ได้รับ';
+  String get deskActDetailReceived => 'รายการรับเข้า';
 
   @override
-  String get deskActDetailSent => 'การชำระเงินที่ส่ง';
+  String get deskActDetailSent => 'รายการส่งออก';
 
   @override
   String get deskActLoading => 'กำลังโหลดรายการ';
@@ -7283,12 +7277,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskConEmptyTitle => 'ยังไม่มีผู้ติดต่อ';
 
   @override
-  String get deskConEmptyText =>
-      'บันทึกคนและร้านค้าที่จ่ายบ่อย แล้วเลือกตามชื่อที่หน้า ส่ง';
-
-  @override
-  String get deskConEmptyLocal =>
-      'ผู้ติดต่ออยู่บนคอมพิวเตอร์นี้ ส่งออกเพื่อเก็บสำเนา';
+  String get deskConEmptyText => 'ผู้ติดต่อคือชื่อที่ตั้งให้ที่อยู่';
 
   @override
   String get deskConSendToAddress => 'ส่งไปยังที่อยู่';
@@ -8471,9 +8460,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbWelcomeCreate => 'สร้างกระเป๋าเงินใหม่';
 
   @override
-  String get deskOnbWelcomeCreateSub => 'วลีกู้คืนใหม่';
-
-  @override
   String get deskOnbWelcomeImport => 'นำเข้ากระเป๋าเงิน';
 
   @override
@@ -8481,9 +8467,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbWelcomeRestore => 'กู้คืนจากวลีกู้คืน';
-
-  @override
-  String get deskOnbWelcomeRestoreSub => 'จากวลีกู้คืน';
 
   @override
   String get deskOnbWelcomeTestNote =>
@@ -8588,7 +8571,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'จดคำเหล่านี้ลงกระดาษตามลำดับ: เป็นทางเดียวที่จะกู้เหรียญคืน';
+      'จดคำเหล่านี้ลงกระดาษตามลำดับ เป็นทางเดียวที่จะกู้คืนกระเป๋าเงินนี้';
 
   @override
   String get deskOnbCreateRevealFirst => 'แสดงวลีก่อน';
@@ -9673,7 +9656,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitFactOperator => 'ผู้ดูแล';
 
   @override
-  String get deskKitAtTip => 'ล่าสุด';
+  String get deskKitAtTip => 'ซิงก์แล้ว';
 
   @override
   String deskKitBehind(int count, String blocks) {
@@ -9831,7 +9814,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskKitMethodPortInUse(String port) {
-    return 'พอร์ต $port ถูกโปรแกรมอื่นใช้อยู่ ปิดโปรแกรมนั้น หรือเลือกพอร์ตอื่นในการตั้งค่า';
+    return 'พอร์ต $port ถูกโปรแกรมอื่นใช้อยู่ ปิดโปรแกรมนั้น หรือเปลี่ยนพอร์ตด้านล่าง';
   }
 
   @override
@@ -10130,7 +10113,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupExportDesc =>
-      'ไฟล์ที่มีประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้ ไฟล์กู้คืนกระเป๋าเงินด้วยตัวเองไม่ได้: กู้คืนจากวลีกู้คืนก่อน แล้วจึงนำเข้าไฟล์นี้';
+      'เก็บประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่าของกระเป๋าเงินนี้ ถึงปัจจุบัน การกู้คืน: ใส่วลีกู้คืนก่อน แล้วจึงนำเข้าไฟล์นี้';
 
   @override
   String get deskSetBackupSaved => 'บันทึกแล้ว';
@@ -10261,7 +10244,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'ใครมีไฟล์ก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้ และนำเข้ากลับไม่ได้ ถ้าจะนำเข้าให้ใช้ ส่งออกข้อมูลกระเป๋าเงิน';
+      'ใครมีไฟล์ก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้ นำเข้าไม่ได้ หากต้องการสำรองข้อมูลให้ใช้ ส่งออกข้อมูลกระเป๋าเงิน';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -10861,7 +10844,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetLndTypeToConfirm(String word) {
-    return 'พิมพ์ $word เพื่อยืนยัน';
+    return 'พิมพ์ “$word” เพื่อยืนยัน';
   }
 
   @override
@@ -11279,7 +11262,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetPhraseIntro =>
-      'จดคำลงกระดาษตามลำดับนี้ ห้ามพิมพ์ลงในเว็บไซต์หรือแชต';
+      'จดคำเหล่านี้ลงกระดาษตามลำดับ เป็นทางเดียวที่จะกู้คืนกระเป๋าเงินนี้';
 
   @override
   String get deskSetPhrasePanel => 'ใส่รหัสผ่านเพื่อแสดงคำ';
@@ -11597,11 +11580,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetReportContactHint => 'อีเมลหรือชื่อบัญชีอื่น สำหรับตอบกลับ';
 
   @override
-  String get deskSetReportAttach => 'แนบบันทึก (แนะนำ)';
+  String get deskSetReportAttach => 'แนบบันทึก';
 
   @override
   String get deskSetReportAttachHint =>
-      'ส่วนล่าสุดของบันทึกแอป ลบวลี รหัสผ่าน ที่อยู่ IP และโฟลเดอร์ส่วนตัวออกแล้ว';
+      'ส่วนล่าสุดของบันทึกแอป ไม่รวมวลีกู้คืน รหัสผ่าน และข้อมูลลับอื่นๆ';
 
   @override
   String get deskSetReportSentWhat => 'สิ่งที่ส่ง';
@@ -11629,7 +11612,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRescanText =>
-      'อ่านบล็อกเชนอีกครั้งและคำนวณยอดคงเหลือใหม่ ใช้เมื่อยอดดูไม่ถูกต้องหรือเอาต์พุตยังถูกล็อก';
+      'ตรวจสอบบล็อกเชนอีกครั้งเพื่อหาเงินของกระเป๋านี้ ใช้เมื่อยอดดูไม่ถูกต้อง';
 
   @override
   String get deskSetRescanDeleteUnconfirmed => 'ลบรายการที่ยังไม่ยืนยัน';
@@ -12287,8 +12270,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txStatusStalled => 'ค้างอยู่';
 
   @override
-  String get txDetailsStalledBody =>
-      'ค้างอยู่ ส่งไม่ถึง รายการชำระของคุณยังไม่เข้าสู่เครือข่าย ส่งอีกครั้ง';
+  String get txDetailsStalledBody => 'อีกฝั่งยังไม่ส่งรายการนี้เข้าเครือข่าย';
 
   @override
   String get txDetailsNotDeliveredDirectBody =>
@@ -12425,7 +12407,7 @@ class AppLocalizationsTh extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'ไฟล์มีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ จะใช้ของคุณต่อไป เว้นแต่คุณเลือกอย่างอื่น',
+          'ไฟล์มีรายละเอียดต่างออกไปใน $n รายการ ระบบจะใช้ของคุณ เว้นแต่คุณเลือกของไฟล์',
     );
     return '$_temp0';
   }
@@ -12503,7 +12485,7 @@ class AppLocalizationsTh extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'ประวัติของกระเป๋าเงินเก่ามีรายละเอียดต่างจากที่คุณใส่ไว้ใน $n รายการ ระบบจะเก็บของคุณไว้ เว้นแต่คุณเลือกอย่างอื่น',
+          'ประวัติของกระเป๋าเงินเก่ามีรายละเอียดต่างออกไปใน $n รายการ ระบบจะใช้ของคุณ เว้นแต่คุณเลือกของกระเป๋าเงินเก่า',
     );
     return '$_temp0';
   }
@@ -13314,7 +13296,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted =>
-      'ลงนามและส่งคืนแล้ว ผู้ส่งแจ้งว่าส่งเข้าเครือข่ายแล้ว จะสำเร็จเมื่อได้รับการยืนยัน';
+      'ผู้ส่งแจ้งว่าส่งรายการนี้แล้ว รายการจะสำเร็จเมื่อเครือข่ายยืนยัน';
 
   @override
   String get deskImpWrongTypePasted =>
@@ -14122,9 +14104,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String addrDesktopThird(String type) {
     return 'วางที่อยู่ $type หรือเว้นว่างไว้';
   }
-
-  @override
-  String get addrDesktopRule => 'หนึ่งที่อยู่ต่อหนึ่งประเภท';
 
   @override
   String get pendingTitle => 'คำเชิญที่รออยู่';
@@ -15316,11 +15295,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => 'นำประวัติและการตั้งค่ากลับมา?';
+  String get deskOvRestoredImportTitle => 'กู้คืนกระเป๋าเงินแล้ว';
 
   @override
   String get deskOvRestoredImportBody =>
-      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว ไฟล์ข้อมูลกระเป๋าเงินที่ส่งออกจากกระเป๋าเงินนี้จะนำประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา: คือไฟล์ที่บันทึกไว้นอกคอมพิวเตอร์เครื่องเก่า';
+      'วลีกู้คืนนำยอดคงเหลือกลับมาแล้ว หากต้องการนำประวัติ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา ให้นำเข้าไฟล์ข้อมูลกระเป๋าเงินที่ส่งออกไว้';
 
   @override
   String get deskOvRestoredImportButton => 'นำเข้าข้อมูลกระเป๋าเงิน';
@@ -17366,7 +17345,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txPostElsewhereAfter =>
-      'เสร็จแล้วในสวิตช์ฉุกเฉิน ยังไม่เห็นบนเชน ส่งจากที่นี่ หรือรออุปกรณ์ที่ส่งไว้';
+      'เสร็จแล้วในสวิตช์ฉุกเฉิน ยังไม่อยู่บนเชน ส่งจากที่นี่ หรือรออุปกรณ์ที่ส่งไว้';
 
   @override
   String get txPostNow => 'ส่งตอนนี้';
@@ -17535,7 +17514,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'PIN เปิดกระเป๋าเงินนี้ไม่ได้แล้ว เหรียญของคุณยังปลอดภัย: แตะ \"ลืม PIN\" แล้วกู้คืนกระเป๋าเงินจากวลีกู้คืน';
 
   @override
-  String get settingsUsePassphrase => 'ใช้วลีรหัสผ่านแทน PIN';
+  String get settingsUsePassphrase => 'ใช้วลีรหัสผ่าน';
 
   @override
   String get settingsChangePassphrase => 'เปลี่ยนวลีรหัสผ่าน';
@@ -17669,7 +17648,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txTrustedNetworksBody =>
-      'Link · HTTP รับฟังในเครือข่ายที่คุณไว้วางใจ หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
+      'Link · HTTP รับเฉพาะในเครือข่ายที่เชื่อถือ เครือข่ายที่ลืมไปจะถูกถามอีกครั้งเมื่อโทรศัพท์เข้าร่วมครั้งถัดไป';
 
   @override
   String get txTrustedNetworksNone => 'ยังไม่มีเครือข่ายที่ไว้วางใจ';

@@ -548,11 +548,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsWaitingRecipient =>
-      'Ожидается ответ получателя с файлом транзакции. До этого или до отмены ваши средства остаются заблокированными.';
+      'Ожидается файл ответа получателя. Сумма остаётся заблокированной до этого или до отмены.';
 
   @override
   String get txDetailsWaitingSender =>
-      'Вы приняли этот платёж. Он будет выполнен, когда отправитель завершит его и опубликует в сети.';
+      'Ждёт, пока отправитель отправит её в сеть.';
 
   @override
   String get txDetailsSenderPosted =>
@@ -767,7 +767,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsStuckBody =>
-      'Сеть ещё не приняла этот платёж. Повторная отправка безопасна: один и тот же платёж не может пройти дважды.';
+      'Сеть не приняла этот платёж. Отправьте его снова; он не может пройти дважды.';
 
   @override
   String get txDetailsBroadcastAgain => 'Отправить повторно';
@@ -870,8 +870,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsMessageHintToSender => 'Отправлено отправителю';
 
   @override
-  String get txDetailsNoNote =>
-      'Заметки нет. Добавьте её, чтобы помнить, за что этот платёж.';
+  String get txDetailsNoNote => 'Заметки нет';
 
   @override
   String get txDetailsAddNote => 'Добавить заметку';
@@ -2014,7 +2013,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreFinishOnHome =>
-      'Средства после выбранного начала найдены. Сканирование с блока 0 завершает восстановление на главном экране; получение и отправка станут доступны после его окончания.';
+      'Монеты после выбранного начала найдены. Сканирование с блока 0 завершает восстановление на главном экране; получение и отправка станут доступны после его окончания.';
 
   @override
   String get unlockDatabaseRebuilt =>
@@ -2144,13 +2143,13 @@ class AppLocalizationsRu extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'Запишите эти $count слова на бумаге по порядку и никому их не показывайте. Только с их помощью можно восстановить этот кошелёк.',
+          'Запишите эти $count слова на бумаге по порядку. Только с их помощью можно восстановить этот кошелёк.',
       many:
-          'Запишите эти $count слов на бумаге по порядку и никому их не показывайте. Только с их помощью можно восстановить этот кошелёк.',
+          'Запишите эти $count слов на бумаге по порядку. Только с их помощью можно восстановить этот кошелёк.',
       few:
-          'Запишите эти $count слова на бумаге по порядку и никому их не показывайте. Только с их помощью можно восстановить этот кошелёк.',
+          'Запишите эти $count слова на бумаге по порядку. Только с их помощью можно восстановить этот кошелёк.',
       one:
-          'Запишите это $count слово на бумаге по порядку и никому их не показывайте. Только с его помощью можно восстановить этот кошелёк.',
+          'Запишите это $count слово на бумаге по порядку. Только с его помощью можно восстановить этот кошелёк.',
     );
     return '$_temp0';
   }
@@ -2211,8 +2210,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pinBiometricsIconLabel => 'Биометрия';
 
   @override
-  String get pinBiometricsQuestion =>
-      'Разблокировать отпечатком пальца или лицом?';
+  String get pinBiometricsQuestion => 'Разблокировать по биометрии?';
 
   @override
   String get pinBiometricsPinStillWorks => 'PIN-код по-прежнему работает.';
@@ -2697,7 +2695,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get qrScanNotPayment =>
-      'Это не QR платежа. Попросите их показать код платежа на своём телефоне.';
+      'Это не QR платежа. Попросите их показать QR платежа.';
 
   @override
   String get qrScanNotReply =>
@@ -2774,7 +2772,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveQrBody =>
-      'Отсканируйте платёж с их экрана и покажите свой ответ, или запросите сумму и покажите её кодом для сканирования.';
+      'Или запросите сумму: покажите QR для сканирования.';
 
   @override
   String get txQrHint =>
@@ -3059,7 +3057,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsDeleteBody =>
-      'Кошелёк, его история и PIN-код будут удалены с этого устройства. Вернуть средства можно только с помощью фразы восстановления. Без неё они будут потеряны навсегда.';
+      'Кошелёк, его история и PIN-код будут удалены с этого телефона. Вернуть средства можно только с помощью фразы восстановления. Без неё они будут потеряны навсегда.';
 
   @override
   String get settingsDeleteHavePhrase => 'Фраза восстановления у меня записана';
@@ -3233,7 +3231,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get feedbackAttachLogsHint =>
-      'Журналы помогают найти проблему. Фраза восстановления, PIN-код и другие секретные данные удаляются заранее.';
+      'Последняя часть журнала приложения, без фразы восстановления, PIN-кода и других секретных данных.';
 
   @override
   String get feedbackPreviewButton => 'Что отправляется';
@@ -3462,7 +3460,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendReviewMessageKept =>
-      'Получатель его увидит. Копия также сохранится как ваша личная заметка, её можно изменить.';
+      'Получатель его увидит. Копия сохранится как ваша личная заметка.';
 
   @override
   String get sendNetworkFee => 'Комиссия сети';
@@ -3810,7 +3808,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torFailureNetwork =>
-      'Не удалось подключиться к сети Tor. Проверьте соединение.';
+      'Tor не удалось подключить. Повторите попытку или выключите Tor.';
 
   @override
   String get torFailureClock =>
@@ -3973,7 +3971,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneHelpText =>
-      'Ищите по темам или отправьте отзыв. «Показать тур снова» — внизу списка.';
+      'Темы справки, «Сообщить о проблеме» и «Показать тур снова».';
 
   @override
   String get tourPhoneShowAgain => 'Показать тур снова';
@@ -4049,7 +4047,7 @@ class AppLocalizationsRu extends AppLocalizations {
       few: '$blocks подтверждения',
       one: '$blocks подтверждение',
     );
-    return 'Дождитесь подтверждения текущей отправки ($_temp0).';
+    return 'Дождитесь, пока у текущего платежа будет $_temp0.';
   }
 
   @override
@@ -4186,8 +4184,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get outputsEmpty => 'Выходов пока нет';
 
   @override
-  String get outputsEmptyHint =>
-      'Первый полученный платёж создаст его. Адрес — на вкладке «Получить».';
+  String get outputsEmptyHint => 'Первый полученный платёж создаст его.';
 
   @override
   String get outputsNoMatch => 'В этом виде выходов нет';
@@ -4568,11 +4565,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get serverAtTip => 'актуален';
+  String get serverAtTip => 'синхронизирован';
 
   @override
   String serverBehindShort(String count) {
-    return '−$count';
+    return 'отстаёт на $count';
   }
 
   @override
@@ -4601,13 +4598,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get serverHealthy => 'Исправен';
 
   @override
-  String get serverDegraded => 'Работает с перебоями';
+  String get serverDegraded => 'Отстаёт';
 
   @override
   String get serverHealthNone => 'Состояние неизвестно';
 
   @override
-  String get serverCurrent => 'Текущий';
+  String get serverCurrent => 'Используется';
 
   @override
   String get serverDefault => 'По умолчанию';
@@ -4619,7 +4616,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent % в сети';
+    return '$percent% в сети';
   }
 
   @override
@@ -4642,7 +4639,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String serverHeightAtTip(String height) {
-    return '$height · актуален';
+    return '$height · синхронизирован';
   }
 
   @override
@@ -4775,7 +4772,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodSendFileLine =>
-      'Передайте файл, получите файл ответа и завершите платёж здесь.';
+      'Передайте файл, получите файл ответа и откройте его здесь.';
 
   @override
   String get methodReceiveEpicboxTitle =>
@@ -4817,7 +4814,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendCancelRuleFile =>
-      'Можно отменить, пока файл ответа не завершён.';
+      'Можно отменить, пока вы не откроете файл ответа.';
 
   @override
   String get sendHttpReaching =>
@@ -5058,7 +5055,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvIssuerMessageCount(int used, int max) {
-    return '$used из $max байт';
+    return '$used / $max байт';
   }
 
   @override
@@ -6235,7 +6232,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskNodeAtTip => 'актуален';
+  String get deskNodeAtTip => 'синхронизирован';
 
   @override
   String get deskNodeLocal => 'Локальный узел';
@@ -6466,7 +6463,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvTorDownText =>
-      'Все соединения ждут Tor. Повторите попытку или выключите Tor.';
+      'Tor не удалось подключить. Повторите попытку или выключите Tor.';
 
   @override
   String get deskRecvTorStartingText =>
@@ -7212,7 +7209,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendMessage => 'Сообщение';
 
   @override
-  String get deskSendMessageHelp => 'Получатель увидит это сообщение.';
+  String get deskSendMessageHelp => 'Получатель его увидит.';
 
   @override
   String get deskSendPrivacyOn => 'Приватность · Dandelion++ вкл.';
@@ -7290,7 +7287,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendDirectLine2 =>
-      'Адрес http(s) или .onion; кошелёк получателя должен быть открыт.';
+      'Кошелёк получателя должен быть открыт. Платёж на адрес .onion идёт через Tor.';
 
   @override
   String get deskSendFileLine1 => 'Соединение не нужно.';
@@ -7610,10 +7607,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActTitle => 'Активность';
 
   @override
-  String get deskActDetailReceived => 'Полученный платёж';
+  String get deskActDetailReceived => 'Входящий платёж';
 
   @override
-  String get deskActDetailSent => 'Отправленный платёж';
+  String get deskActDetailSent => 'Исходящий платёж';
 
   @override
   String get deskActLoading => 'Загрузка платежей';
@@ -7764,7 +7761,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConSortRecent => 'Недавние';
 
   @override
-  String get deskConNone => 'Контактов пока нет.';
+  String get deskConNone => 'Контактов пока нет';
 
   @override
   String get deskConNoMatchList => 'Контакты не найдены';
@@ -7779,12 +7776,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskConEmptyTitle => 'Контактов пока нет';
 
   @override
-  String get deskConEmptyText =>
-      'Сохраните людей и магазины, которым часто платите, и выбирайте их по имени на странице «Отправить».';
-
-  @override
-  String get deskConEmptyLocal =>
-      'Контакты хранятся на этом компьютере; экспортируйте их, чтобы сохранить копию.';
+  String get deskConEmptyText => 'Контакт — это имя для адреса.';
 
   @override
   String get deskConSendToAddress => 'Отправить на адрес';
@@ -9103,9 +9095,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbWelcomeCreate => 'Создать новый кошелёк';
 
   @override
-  String get deskOnbWelcomeCreateSub => 'Новая фраза восстановления';
-
-  @override
   String get deskOnbWelcomeImport => 'Импортировать кошельки';
 
   @override
@@ -9113,9 +9102,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbWelcomeRestore => 'Восстановить по фразе';
-
-  @override
-  String get deskOnbWelcomeRestoreSub => 'По фразе восстановления';
 
   @override
   String get deskOnbWelcomeTestNote =>
@@ -9223,7 +9209,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbCreatePhraseLead =>
-      'Запишите эти слова на бумаге по порядку: только по ним можно вернуть монеты.';
+      'Запишите эти слова на бумаге по порядку. Только с их помощью можно восстановить этот кошелёк.';
 
   @override
   String get deskOnbCreateRevealFirst => 'Сначала откройте фразу';
@@ -10377,7 +10363,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitFactOperator => 'Оператор';
 
   @override
-  String get deskKitAtTip => 'актуален';
+  String get deskKitAtTip => 'синхронизирован';
 
   @override
   String deskKitBehind(int count, String blocks) {
@@ -10538,7 +10524,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskKitMethodPortInUse(String port) {
-    return 'Порт $port занят другой программой. Закройте её или выберите другой порт в настройках.';
+    return 'Порт $port занят другой программой. Закройте её или измените порт ниже.';
   }
 
   @override
@@ -10848,7 +10834,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupExportDesc =>
-      'Файл с историей платежей, контактами, счетами и настройками этого кошелька. Сам по себе он кошелёк не восстановит: сначала восстановите по фразе восстановления, затем импортируйте этот файл.';
+      'Содержит историю платежей, контакты, счета и настройки этого кошелька на текущий момент. Чтобы восстановить: сначала введите фразу восстановления, затем импортируйте этот файл.';
 
   @override
   String get deskSetBackupSaved => 'Сохранено';
@@ -10985,7 +10971,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Любой, у кого есть файл, увидит суммы, даты, адреса и заметки. Импортировать его нельзя; для этого есть «Экспорт данных кошелька».';
+      'Любой, у кого есть файл, увидит суммы, даты, адреса и заметки. Импортировать его нельзя; для резервной копии используйте «Экспорт данных кошелька».';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -11610,7 +11596,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetLndTypeToConfirm(String word) {
-    return 'Введите $word для подтверждения.';
+    return 'Введите «$word» для подтверждения';
   }
 
   @override
@@ -12038,7 +12024,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetPhraseIntro =>
-      'Запишите слова на бумаге в этом порядке. Никогда не вводите их на сайтах и в чатах.';
+      'Запишите эти слова на бумаге по порядку. Только с их помощью можно восстановить этот кошелёк.';
 
   @override
   String get deskSetPhrasePanel => 'Введите пароль, чтобы показать слова';
@@ -12361,11 +12347,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Эл. почта или другой контакт для ответа';
 
   @override
-  String get deskSetReportAttach => 'Приложить журналы (рекомендуется)';
+  String get deskSetReportAttach => 'Приложить журналы';
 
   @override
   String get deskSetReportAttachHint =>
-      'Последняя часть журнала приложения, очищенная от фраз, паролей, адресов, IP и домашних папок.';
+      'Последняя часть журнала приложения, без фразы восстановления, пароля и других секретных данных.';
 
   @override
   String get deskSetReportSentWhat => 'Что отправляется';
@@ -12393,7 +12379,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRescanText =>
-      'Заново читает блокчейн и пересобирает баланс. Используйте, если баланс выглядит неверным или выходы остаются заблокированными.';
+      'Заново проверяет блокчейн на наличие средств этого кошелька. Используйте, если баланс выглядит неверным.';
 
   @override
   String get deskSetRescanDeleteUnconfirmed => 'Удалить неподтверждённые';
@@ -13072,7 +13058,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsStalledBody =>
-      'Застряло, не доставлено. Ваш платёж ещё не попал в сеть. Отправьте его снова.';
+      'Другая сторона ещё не отправила этот платёж в сеть.';
 
   @override
   String get txDetailsNotDeliveredDirectBody =>
@@ -13211,13 +13197,13 @@ class AppLocalizationsRu extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'В файле другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
       many:
-          'В файле другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
       few:
-          'В файле другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
       one:
-          'В файле другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В файле другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из файла.',
     );
     return '$_temp0';
   }
@@ -13298,13 +13284,13 @@ class AppLocalizationsRu extends AppLocalizations {
       n,
       locale: localeName,
       other:
-          'В истории старого кошелька другие подробности для $n платежа, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В истории старого кошелька другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из старого кошелька.',
       many:
-          'В истории старого кошелька другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В истории старого кошелька другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из старого кошелька.',
       few:
-          'В истории старого кошелька другие подробности для $n платежей, которые вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В истории старого кошелька другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из старого кошелька.',
       one:
-          'В истории старого кошелька другие подробности для $n платежа, который вы описали. Ваши сохраняются, если вы не выберете иначе.',
+          'В истории старого кошелька другие сведения для платежей: $n. Ваши сохраняются, если не выберете сведения из старого кошелька.',
     );
     return '$_temp0';
   }
@@ -14157,7 +14143,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTxNowSenderPosted =>
-      'Подписано и возвращено. По словам отправителя, отправлено в сеть; платёж завершится после подтверждения.';
+      'По словам отправителя, этот платёж отправлен в сеть. Он будет выполнен, когда сеть его подтвердит.';
 
   @override
   String get deskImpWrongTypePasted =>
@@ -14978,9 +14964,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String addrDesktopThird(String type) {
     return 'Вставьте адрес ($type) или оставьте пустым';
   }
-
-  @override
-  String get addrDesktopRule => 'По одному адресу каждого типа.';
 
   @override
   String get pendingTitle => 'Ожидающие приглашения';
@@ -16230,11 +16213,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskOvRestoredImportTitle => 'Вернуть историю и настройки?';
+  String get deskOvRestoredImportTitle => 'Кошелёк восстановлен';
 
   @override
   String get deskOvRestoredImportBody =>
-      'Фраза восстановления вернула баланс. Файл данных кошелька, экспортированный из этого кошелька, возвращает историю платежей, контакты, счета и настройки: это файл, сохранённый вне старого компьютера.';
+      'Фраза восстановления вернула баланс. Чтобы вернуть историю, контакты, счета и настройки, импортируйте экспортированный файл данных кошелька.';
 
   @override
   String get deskOvRestoredImportButton => 'Импорт данных кошелька';
@@ -18389,7 +18372,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txPostElsewhereAfter =>
-      'Завершён при «Аварийном отключении», в блокчейне пока не виден. Отправьте его отсюда или дождитесь устройства, которое его отправляет.';
+      'Завершён при «Аварийном отключении», в блокчейне пока нет. Отправьте его отсюда или дождитесь устройства, которое его отправило.';
 
   @override
   String get txPostNow => 'Отправить сейчас';
@@ -18559,7 +18542,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'PIN-код больше не открывает этот кошелёк. Ваши монеты в безопасности: нажмите «Забыли PIN-код?» и восстановите кошелёк по фразе восстановления.';
 
   @override
-  String get settingsUsePassphrase => 'Использовать пароль вместо PIN-кода';
+  String get settingsUsePassphrase => 'Использовать пароль';
 
   @override
   String get settingsChangePassphrase => 'Сменить пароль';
@@ -18704,7 +18687,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txTrustedNetworksBody =>
-      'Link · HTTP принимает в сетях, которым вы доверяете. Забудьте сеть, и телефон спросит снова, когда окажется в ней.';
+      'Link · HTTP принимает только в доверенных сетях. О забытой сети телефон спросит снова при следующем подключении к ней.';
 
   @override
   String get txTrustedNetworksNone => 'Пока нет доверенных сетей.';

@@ -21,7 +21,7 @@
   "deskNodeNewerOut": "вышла версия {version}",
   "deskNodeBehindLine": "Отстаёт от сети; догоняет.",
   "deskNodeHeightOf": "{height} из {total}",
-  "deskNodeAtTip": "актуален",
+  "deskNodeAtTip": "синхронизирован",
   "deskNodeLocal": "Локальный узел",
   "deskNodeConnectingPeers": "Подключение к пирам",
   "deskNodeUsingUntilSynced": "Пока он не синхронизирован, используется {host}.",

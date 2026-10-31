@@ -78,7 +78,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             SizedBox(height: Sp.x8),
             EChoiceCard(
               title: l.deskOnbWelcomeCreate,
-              description: l.deskOnbWelcomeCreateSub,
               icon: EIcons.plus,
               selected: false,
               onTap: () => nav.go(DeskRoute.create),
@@ -96,7 +95,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             // its card, so the cards keep one rhythm.
             EChoiceCard(
               title: l.deskOnbWelcomeRestore,
-              description: l.deskOnbWelcomeRestoreSub,
               icon: EIcons.key,
               selected: false,
               tag: Text(l.deskOnbWelcomeOtherApps, style: ts.small.copyWith(color: context.dc.faint)),

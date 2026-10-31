@@ -5,7 +5,7 @@
   "deskSetPhraseCleared": "Schowek zostanie wyczyszczony za 60 s.",
   "deskSetPhraseEnterPassword": "Wpisz hasło.",
   "deskSetPhraseWrongPassword": "Nieprawidłowe hasło.",
-  "deskSetPhraseIntro": "Zapisz słowa na papierze w tej kolejności. Nigdy nie wpisuj ich na stronie internetowej ani na czacie.",
+  "deskSetPhraseIntro": "Zapisz te słowa na papierze w podanej kolejności. Tylko za ich pomocą można przywrócić ten portfel.",
   "deskSetPhrasePanel": "Wpisz hasło, aby pokazać słowa",
   "deskSetPhraseShowWords": "Pokaż frazę odzyskiwania",
   "deskSetPhraseWordsLabel": "{count, plural, one{Fraza odzyskiwania, {count} słowo} few{Fraza odzyskiwania, {count} słowa} many{Fraza odzyskiwania, {count} słów} other{Fraza odzyskiwania, {count} słowa}}",

@@ -5,7 +5,7 @@
   "deskSetPhraseCleared": "Буфер обмена очистится через 60 с.",
   "deskSetPhraseEnterPassword": "Введите пароль.",
   "deskSetPhraseWrongPassword": "Неверный пароль.",
-  "deskSetPhraseIntro": "Запишите слова на бумаге в этом порядке. Никогда не вводите их на сайтах и в чатах.",
+  "deskSetPhraseIntro": "Запишите эти слова на бумаге по порядку. Только с их помощью можно восстановить этот кошелёк.",
   "deskSetPhrasePanel": "Введите пароль, чтобы показать слова",
   "deskSetPhraseShowWords": "Показать фразу восстановления",
   "deskSetPhraseWordsLabel": "{count, plural, one{Фраза восстановления, {count} слово} few{Фраза восстановления, {count} слова} many{Фраза восстановления, {count} слов} other{Фраза восстановления, {count} слова}}",

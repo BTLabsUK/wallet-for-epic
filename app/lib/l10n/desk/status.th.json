@@ -21,7 +21,7 @@
   "deskNodeNewerOut": "มี {version} แล้ว",
   "deskNodeBehindLine": "ตามหลังเครือข่าย กำลังตามให้ทัน",
   "deskNodeHeightOf": "{height} จาก {total}",
-  "deskNodeAtTip": "ล่าสุด",
+  "deskNodeAtTip": "ซิงก์แล้ว",
   "deskNodeLocal": "โหนดในเครื่อง",
   "deskNodeConnectingPeers": "กำลังเชื่อมต่อ peer",
   "deskNodeUsingUntilSynced": "ใช้ {host} จนกว่าจะซิงก์เสร็จ",

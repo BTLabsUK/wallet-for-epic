@@ -7,7 +7,7 @@
   "deskRecvSettings": "设置",
   "deskRecvTorNotConnected": "Tor 未连接。",
   "deskRecvTorStarting": "Tor 正在启动。",
-  "deskRecvTorDownText": "所有连接都在等待 Tor。请重试，或关闭 Tor。",
+  "deskRecvTorDownText": "Tor 无法连接。请重试，或关闭 Tor。",
   "deskRecvTorStartingText": "Tor 连接后地址即可访问。",
   "deskRecvTurnTorOff": "关闭 Tor",
   "deskRecvTryAgain": "重试",

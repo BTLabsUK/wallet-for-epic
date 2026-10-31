@@ -63,7 +63,7 @@
   "@deskConSortRecent": {
     "description": "Option of the sort switch above the contact list: most recently used first. Narrow segment."
   },
-  "deskConNone": "No contacts yet.",
+  "deskConNone": "No contacts yet",
   "@deskConNone": {
     "description": "Line in the contact list when there are no contacts."
   },
@@ -83,13 +83,9 @@
   "@deskConEmptyTitle": {
     "description": "Title of the empty state of Contacts."
   },
-  "deskConEmptyText": "Save the people and shops paid often, then pick them by name on Send.",
+  "deskConEmptyText": "A contact is a name for an address.",
   "@deskConEmptyText": {
     "description": "Text of the empty state of Contacts."
-  },
-  "deskConEmptyLocal": "Contacts stay on this computer; export them to keep a copy.",
-  "@deskConEmptyLocal": {
-    "description": "Small text of the empty state of Contacts."
   },
   "deskConSendToAddress": "Send to address",
   "@deskConSendToAddress": {

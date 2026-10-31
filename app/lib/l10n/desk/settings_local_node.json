@@ -188,7 +188,7 @@
   "@deskSetLnodeNoProgressText": {
     "description": "Local node panel: notice text when the sync stalled."
   },
-  "deskSetLnodePortInUse": "Port {port} is used by another program.",
+  "deskSetLnodePortInUse": "Port {port} is in use by another program.",
   "@deskSetLnodePortInUse": {
     "description": "Local node panel: notice title when the node cannot open its port.",
     "placeholders": {
@@ -480,7 +480,7 @@
       }
     }
   },
-  "deskSetLndTypeToConfirm": "Type {word} to confirm.",
+  "deskSetLndTypeToConfirm": "Type “{word}” to confirm",
   "@deskSetLndTypeToConfirm": {
     "description": "Delete chain data dialog: asks to type a word, which is shown in monospace in place of {word}. The word itself is always the English \"delete\" and is not translated.",
     "placeholders": {

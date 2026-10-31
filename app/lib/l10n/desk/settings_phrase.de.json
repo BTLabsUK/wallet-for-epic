@@ -5,7 +5,7 @@
   "deskSetPhraseCleared": "Die Zwischenablage wird in 60 s geleert.",
   "deskSetPhraseEnterPassword": "Geben Sie das Passwort ein.",
   "deskSetPhraseWrongPassword": "Falsches Passwort.",
-  "deskSetPhraseIntro": "Schreiben Sie die Wörter in dieser Reihenfolge auf Papier. Geben Sie sie nie auf einer Website oder in einem Chat ein.",
+  "deskSetPhraseIntro": "Schreiben Sie diese Wörter der Reihe nach auf Papier. Nur mit ihnen lässt sich diese Wallet wiederherstellen.",
   "deskSetPhrasePanel": "Geben Sie das Passwort ein, um die Wörter anzuzeigen",
   "deskSetPhraseShowWords": "Wiederherstellungsphrase anzeigen",
   "deskSetPhraseWordsLabel": "{count, plural, one{Wiederherstellungsphrase, {count} Wort} other{Wiederherstellungsphrase, {count} Wörter}}",

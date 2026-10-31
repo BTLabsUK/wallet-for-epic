@@ -2,7 +2,7 @@
   "deskSetRescanComplete": "Сканирование завершено",
   "deskSetRescanStoppedLine": "Сканирование остановлено",
   "deskSetRescanLog": "Журнал сверки",
-  "deskSetRescanText": "Заново читает блокчейн и пересобирает баланс. Используйте, если баланс выглядит неверным или выходы остаются заблокированными.",
+  "deskSetRescanText": "Заново проверяет блокчейн на наличие средств этого кошелька. Используйте, если баланс выглядит неверным.",
   "deskSetRescanRecheck": "Сверить",
   "deskSetRescanRecheckAgain": "Сверить снова",
   "deskSetRescanFromDate": "С даты",

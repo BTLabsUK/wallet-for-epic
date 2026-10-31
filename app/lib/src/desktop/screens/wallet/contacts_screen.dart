@@ -352,12 +352,6 @@ class _Empty extends ConsumerWidget {
           ),
           SizedBox(height: Sp.x2),
           Text(l.deskConEmptyText, style: ts.bodyDim, textAlign: TextAlign.center),
-          SizedBox(height: Sp.x2),
-          Text(
-            l.deskConEmptyLocal,
-            style: ts.small.copyWith(color: c.faint),
-            textAlign: TextAlign.center,
-          ),
           SizedBox(height: Sp.x5),
           Wrap(
             alignment: WrapAlignment.center,
@@ -1021,7 +1015,6 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               child: _addressField(l, c, f, free, noAddress && f == _fields.first),
             ),
         ],
-        Text(l.addrDesktopRule, style: ts.small),
         SizedBox(height: Sp.x5),
         EField(
           label: l.deskConNote,

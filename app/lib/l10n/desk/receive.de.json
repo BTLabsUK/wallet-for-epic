@@ -7,7 +7,7 @@
   "deskRecvSettings": "Einstellungen",
   "deskRecvTorNotConnected": "Tor ist nicht verbunden.",
   "deskRecvTorStarting": "Tor startet.",
-  "deskRecvTorDownText": "Jede Verbindung wartet auf Tor. Versuchen Sie es erneut oder schalten Sie Tor aus.",
+  "deskRecvTorDownText": "Tor konnte keine Verbindung herstellen. Versuchen Sie es erneut oder schalten Sie Tor aus.",
   "deskRecvTorStartingText": "Die Adressen werden erreichbar, sobald Tor verbunden ist.",
   "deskRecvTurnTorOff": "Tor ausschalten",
   "deskRecvTryAgain": "Erneut versuchen",

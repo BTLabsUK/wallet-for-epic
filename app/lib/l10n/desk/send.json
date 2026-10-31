@@ -539,7 +539,7 @@
   "@deskSendMessage": {
     "description": "Label and screen reader label of the message field on Send."
   },
-  "deskSendMessageHelp": "The recipient sees this message.",
+  "deskSendMessageHelp": "The recipient sees it.",
   "@deskSendMessageHelp": {
     "description": "Help text under the message field."
   },
@@ -635,7 +635,7 @@
   "@deskSendDirectLine1": {
     "description": "Bold first line under the method selector for the Link method."
   },
-  "deskSendDirectLine2": "An http(s) or .onion address; their wallet must be open.",
+  "deskSendDirectLine2": "Their wallet must be open. An onion address goes over Tor.",
   "@deskSendDirectLine2": {
     "description": "Second line under the method selector for the Link method."
   },

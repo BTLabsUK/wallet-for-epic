@@ -21,7 +21,7 @@
   "deskNodeNewerOut": "{version} ist erschienen",
   "deskNodeBehindLine": "Im Rückstand zum Netzwerk; holt auf.",
   "deskNodeHeightOf": "{height} von {total}",
-  "deskNodeAtTip": "aktuell",
+  "deskNodeAtTip": "synchronisiert",
   "deskNodeLocal": "Lokaler Node",
   "deskNodeConnectingPeers": "Verbindung zu Peers",
   "deskNodeUsingUntilSynced": "{host} wird genutzt, bis der lokale Node synchronisiert ist.",

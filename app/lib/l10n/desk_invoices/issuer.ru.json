@@ -7,7 +7,7 @@
   "deskInvIssuerAmountCap": "Больше, чем всех EPIC, которые когда-либо будут.",
   "deskInvIssuerAmountHelp": "Из вашего кошелька ничего не уходит: плательщик платит эту сумму плюс свою комиссию.",
   "deskInvIssuerMessage": "Сообщение плательщику",
-  "deskInvIssuerMessageCount": "{used} из {max} байт",
+  "deskInvIssuerMessageCount": "{used} / {max} байт",
   "deskInvIssuerMessageLong": "Сообщение слишком длинное.",
   "deskInvIssuerExpiry": "У плательщика есть {hours} ч на оплату.",
   "deskInvIssuerRelayDown": "Сервер Epicbox не отвечает, поэтому счёт сейчас не отправить.",

@@ -44,7 +44,7 @@
   "deskTxNowBackup": "Zaimportowano z pliku danych portfela. Status nie został sprawdzony w łańcuchu.",
   "deskTxNowImmature": "{count, plural, one{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniu.} few{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniach.} many{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzeniach.} other{Potwierdzona, ale nagrodę za kopanie można wydać dopiero po {count} potwierdzenia.}}",
   "deskTxNowWaitingSender": "Czeka, aż nadawca opublikuje ją w sieci.",
-  "deskTxNowSenderPosted": "Podpisana i odesłana. Według nadawcy opublikowana; zakończy się po potwierdzeniu.",
+  "deskTxNowSenderPosted": "Według nadawcy ta płatność została opublikowana w sieci. Zakończy się, gdy sieć ją potwierdzi.",
   "deskTxNowWaitingResponseFile": "Czeka na plik odpowiedzi. Sfinalizuj, gdy dotrze.",
   "deskTxNowWaitingRecipient": "Czeka na podpis odbiorcy. Nic nie opuści portfela przed finalizacją.",
   "deskTxNowPosted": "Opublikowana w sieci, czeka na blok.",

@@ -86,7 +86,7 @@
   "deskSetLndDeleteTitle": "ลบข้อมูลบล็อกเชน",
   "deskSetLndDeleteDesc": "ลบ {size} ออกจาก {path} บล็อกเชนจะดาวน์โหลดใหม่เมื่อเริ่มครั้งถัดไป คีย์และประวัติยังอยู่",
   "deskSetLndDeleteDescNoSize": "ลบข้อมูลบล็อกเชนออกจาก {path} โหนดจะหยุด และบล็อกเชนทั้งหมดจะดาวน์โหลดใหม่เมื่อเริ่มครั้งถัดไป (หลายชั่วโมง) คีย์และประวัติของกระเป๋าเงินไม่ได้รับผลกระทบ",
-  "deskSetLndTypeToConfirm": "พิมพ์ {word} เพื่อยืนยัน",
+  "deskSetLndTypeToConfirm": "พิมพ์ “{word}” เพื่อยืนยัน",
   "deskSetLndTypeToConfirmLabel": "พิมพ์ {word} เพื่อยืนยัน",
   "deskSetLndSourceCli": "epic (โหนดแบบ command line)",
   "deskSetLndSourceGui": "Epic GUI",

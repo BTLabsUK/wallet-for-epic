@@ -7,7 +7,7 @@
   "deskInvIssuerAmountCap": "มากกว่า EPIC ทั้งหมดที่จะมีอยู่",
   "deskInvIssuerAmountHelp": "ไม่มีเงินออกจากกระเป๋าของคุณ ผู้ชำระจ่ายจำนวนนี้บวกค่าธรรมเนียมของตนเอง",
   "deskInvIssuerMessage": "ข้อความถึงผู้ชำระ",
-  "deskInvIssuerMessageCount": "{used} จาก {max} ไบต์",
+  "deskInvIssuerMessageCount": "{used} / {max} ไบต์",
   "deskInvIssuerMessageLong": "ข้อความยาวเกินไป",
   "deskInvIssuerExpiry": "ผู้ชำระมีเวลาชำระ {hours} ชั่วโมง",
   "deskInvIssuerRelayDown": "เซิร์ฟเวอร์ Epicbox ไม่ตอบสนอง จึงส่งใบแจ้งหนี้ไม่ได้ในขณะนี้",

@@ -2,7 +2,7 @@
   "deskSetRescanComplete": "สแกนเสร็จแล้ว",
   "deskSetRescanStoppedLine": "หยุดสแกนแล้ว",
   "deskSetRescanLog": "บันทึกการตรวจยอดใหม่",
-  "deskSetRescanText": "อ่านบล็อกเชนอีกครั้งและคำนวณยอดคงเหลือใหม่ ใช้เมื่อยอดดูไม่ถูกต้องหรือเอาต์พุตยังถูกล็อก",
+  "deskSetRescanText": "ตรวจสอบบล็อกเชนอีกครั้งเพื่อหาเงินของกระเป๋านี้ ใช้เมื่อยอดดูไม่ถูกต้อง",
   "deskSetRescanRecheck": "ตรวจใหม่",
   "deskSetRescanRecheckAgain": "ตรวจอีกครั้ง",
   "deskSetRescanFromDate": "ตั้งแต่วันที่",

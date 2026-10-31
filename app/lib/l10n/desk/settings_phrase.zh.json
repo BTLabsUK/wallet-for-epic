@@ -5,7 +5,7 @@
   "deskSetPhraseCleared": "剪贴板将在 60 秒后清空。",
   "deskSetPhraseEnterPassword": "请输入密码。",
   "deskSetPhraseWrongPassword": "密码错误。",
-  "deskSetPhraseIntro": "请按此顺序把这些单词抄写在纸上。切勿把它们输入任何网站或聊天中。",
+  "deskSetPhraseIntro": "请将这些单词按顺序抄写在纸上。它们是恢复此钱包的唯一方式。",
   "deskSetPhrasePanel": "输入密码以显示这些单词",
   "deskSetPhraseShowWords": "显示助记词",
   "deskSetPhraseWordsLabel": "{count, plural, other{助记词，{count} 个单词}}",

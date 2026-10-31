@@ -167,7 +167,7 @@
   "@deskSetBackupFileNote": {
     "description": "Export history dialog: note under the list."
   },
-  "deskSetBackupExportDesc": "A file with this wallet’s payment history, contacts, invoices and settings. It cannot restore the wallet on its own: restore from the recovery phrase first, then import this file.",
+  "deskSetBackupExportDesc": "Holds this wallet’s payment history, contacts, invoices and settings, up to now. To restore: enter the recovery phrase first, then import this file.",
   "@deskSetBackupExportDesc": {
     "description": "Export history dialog: description under the title."
   },
@@ -335,7 +335,7 @@
   "@deskSetBackupNotEncrypted": {
     "description": "Export CSV dialog: title of the warning notice."
   },
-  "deskSetBackupNotEncryptedBody": "Anyone with the file reads amounts, dates, addresses and notes. It cannot be imported; Export wallet data is for that.",
+  "deskSetBackupNotEncryptedBody": "Anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.",
   "@deskSetBackupNotEncryptedBody": {
     "description": "Export CSV dialog: text of the warning notice."
   },

@@ -7,7 +7,7 @@
   "deskInvIssuerAmountCap": "Mehr als alle EPIC, die es je geben wird.",
   "deskInvIssuerAmountHelp": "Nichts verlässt Ihre Wallet: Der Zahler zahlt diesen Betrag plus seine eigene Gebühr.",
   "deskInvIssuerMessage": "Nachricht an den Zahler",
-  "deskInvIssuerMessageCount": "{used} von {max} Byte",
+  "deskInvIssuerMessageCount": "{used} / {max} Byte",
   "deskInvIssuerMessageLong": "Die Nachricht ist zu lang.",
   "deskInvIssuerExpiry": "Der Zahler hat {hours} Stunden Zeit zum Zahlen.",
   "deskInvIssuerRelayDown": "Der Epicbox-Server antwortet nicht, daher kann jetzt keine Rechnung gesendet werden.",

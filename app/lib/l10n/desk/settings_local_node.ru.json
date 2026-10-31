@@ -86,7 +86,7 @@
   "deskSetLndDeleteTitle": "Удалить данные блокчейна",
   "deskSetLndDeleteDesc": "Удаляет {size} из {path}; при следующем запуске блокчейн загрузится заново. Ключи и история остаются.",
   "deskSetLndDeleteDescNoSize": "Удаляет данные блокчейна из {path}. Узел остановится, и при следующем запуске весь блокчейн загрузится заново (часы). Ключи и история кошелька не затрагиваются.",
-  "deskSetLndTypeToConfirm": "Введите {word} для подтверждения.",
+  "deskSetLndTypeToConfirm": "Введите «{word}» для подтверждения",
   "deskSetLndTypeToConfirmLabel": "Введите {word} для подтверждения",
   "deskSetLndSourceCli": "epic (узел для командной строки)",
   "deskSetLndSourceGui": "Epic GUI",
