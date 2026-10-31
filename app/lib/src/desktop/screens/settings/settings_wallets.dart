@@ -113,8 +113,9 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                                       if (w.missing) EBadge(l.deskSetWalletsFolderMissing, tone: ETone.risk),
                                     ],
                                   ),
-                                  Tooltip(
-                                    message: w.folder,
+                                  ETip.value(
+                                    w.folder,
+                                    mono: true,
                                     child: Text(shortPath(w.folder), style: ts.mono(size: Fs.xs, color: c.faint), overflow: TextOverflow.ellipsis),
                                   ),
                                 ],

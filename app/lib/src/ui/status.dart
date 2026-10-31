@@ -10,6 +10,7 @@ import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
+import 'tip.dart';
 import 'common.dart' show groupDigits;
 import 'theme/tokens.dart';
 
@@ -409,12 +410,7 @@ class StatusIcon extends StatelessWidget {
       onLongPress: onLongPress,
       child: onLongPress != null
           ? target
-          : Tooltip(
-              message: detail,
-              triggerMode: TooltipTriggerMode.longPress,
-              showDuration: const Duration(seconds: 6),
-              child: target,
-            ),
+          : Tip(detail, child: target),
     );
   }
 }

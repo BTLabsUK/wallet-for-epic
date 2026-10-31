@@ -151,8 +151,8 @@ class InvCountdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final left = expiresAt.difference(now);
     final text = left.isNegative ? context.l10n.deskInvExpired : invTimeLeft(context, left);
-    return Tooltip(
-      message: context.l10n.deskInvExpiresAt(invWhen(context, expiresAt)),
+    return ETip.value(
+      context.l10n.deskInvExpiresAt(invWhen(context, expiresAt)),
       child: Text(text, style: style ?? context.ts.small.copyWith(color: left.inHours < 1 ? context.dc.warn : context.dc.dim)),
     );
   }

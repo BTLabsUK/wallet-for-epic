@@ -1652,7 +1652,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final net = deskNetBlock(st);
     final netIdle = net == NetBlock.none;
     final netWhy = netBlockReason(l, net);
-    final fileTip = deskOfflineUsesNode(st) ? l.netOfflineNodeHint : null;
     final pairing = _pairingTo == null ? null : ref.watch(deskPairingByIdProvider(_pairingTo!));
     final pairingName = _pairingTo == null ? '' : ref.watch(deskPairingNameProvider(_pairingTo!));
     _keepMethodOn(st);
@@ -1689,7 +1688,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
             // turned off on purpose is no failure, and File Transfer keeps its own switch).
             if (_fileShown(st))
-              ESegment(TxMethod.file, MethodIcons.shortName(l, MethodKind.directFile), icon: MethodIcons.of(MethodKind.directFile), tooltip: fileTip),
+              ESegment(TxMethod.file, MethodIcons.shortName(l, MethodKind.directFile), icon: MethodIcons.of(MethodKind.directFile)),
           ],
           value: noMethod ? null : _segmentOf(_method),
           onChanged: (m) => setState(() {

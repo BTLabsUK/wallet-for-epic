@@ -475,7 +475,7 @@ class _TxRowState extends ConsumerState<TxRow> {
             children: [
               Flexible(
                 child: ExcludeSemantics(
-                  child: _Tip(message: widget.title == null && !labelled && (t.foundByScan || t.fromBackup) ? whoTip(l, t) : null, child: name),
+                  child: ETip(widget.title == null && !labelled && (t.foundByScan || t.fromBackup) ? whoTip(l, t) : null, child: name),
                 ),
               ),
               if (labelEditable) ...[
@@ -642,16 +642,6 @@ extension on _TxRowState {
   }
 }
 
-/// A tooltip when there is something to say, else the child alone.
-class _Tip extends StatelessWidget {
-  const _Tip({required this.message, required this.child});
-
-  final String? message;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => message == null ? child : Tooltip(message: message, child: child);
-}
 
 
 /// An invoice transaction's state in the words of Requests (the request or the invoice behind

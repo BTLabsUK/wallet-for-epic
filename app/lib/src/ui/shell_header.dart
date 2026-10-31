@@ -9,6 +9,7 @@ import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
+import 'tip.dart';
 import 'common.dart';
 import 'home_status.dart' show StatusIcons, statusEntries;
 import 'status.dart';
@@ -189,9 +190,9 @@ class WalletBalance extends ConsumerWidget {
       _lineHeight(fiatStyle, scaler, context),
     );
     // The tooltip opens above the eye, over the figure's own row, not over the tiles below.
-    final eye = Tooltip(
-      message: hidden ? l.homeShowBalances : l.homeHideBalances,
-      preferBelow: false,
+    final eye = Tip(
+      hidden ? l.homeShowBalances : l.homeHideBalances,
+      above: true,
       child: IconButton(
         iconSize: statusGlyph,
         color: t.dim,
@@ -988,6 +989,7 @@ class _BalanceHelpState extends State<BalanceHelp> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return IconButton(
+      tooltip: l.balanceHelpLabel,
       icon: Icon(
         Icons.help_outline,
         size: 20,

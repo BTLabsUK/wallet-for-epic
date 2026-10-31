@@ -26,6 +26,7 @@ import '../recipient.dart' show RecipientKind;
 import '../tor_routes.dart' show TorWay;
 import 'method_icons.dart';
 import 'status_icons.dart';
+import 'tip.dart';
 import 'theme/tokens.dart' show WalletTokens, WalletTokensOf;
 
 export 'method_icons.dart';
@@ -278,7 +279,7 @@ class EBadge extends StatelessWidget {
       );
     }
     if (tooltip != null) {
-      badge = Tooltip(message: tooltip, triggerMode: TooltipTriggerMode.tap, child: badge);
+      badge = Tip.value(tooltip, child: badge);
     }
     return Semantics(
       container: true,

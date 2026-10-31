@@ -32,6 +32,7 @@ import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'tx_label.dart';
+import 'tip.dart';
 
 export '../models.dart' show txAmount;
 
@@ -423,11 +424,7 @@ Widget exactAmountTip(
   if (hidden) return child;
   // The desktop's screens may sit outside the phone's localizations (its tests do): English then.
   final l = Localizations.of<AppLocalizations>(context, AppLocalizations) ?? englishStrings;
-  return Tooltip(
-    message: l.balanceExactTip(epicExact(l, atomic)),
-    triggerMode: TooltipTriggerMode.tap,
-    child: child,
-  );
+  return Tip.value(l.balanceExactTip(epicExact(l, atomic)), child: child);
 }
 
 /// [epicText], or [epicExact] with [exact], or [hiddenAmount] when [hidden].

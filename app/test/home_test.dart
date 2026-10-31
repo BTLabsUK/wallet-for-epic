@@ -4611,7 +4611,7 @@ void main() {
       expect(canContinue(tester), isTrue);
       await clear(tester);
 
-      await _tap(tester, find.byTooltip('Choose a contact'));
+      await _tap(tester, find.text('Contacts'));
       await _tap(tester, find.text('Carol'));
       expect(_toField(tester), carol);
       await leaveAndBack(tester);

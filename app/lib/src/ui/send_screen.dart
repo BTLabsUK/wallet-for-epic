@@ -49,6 +49,7 @@ import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
+import 'tip.dart';
 import 'info_hint.dart';
 import 'method_names.dart';
 import 'method_strip.dart';
@@ -2731,30 +2732,21 @@ class _SendViewState extends ConsumerState<SendView> {
     return Wrap(
       spacing: 8,
       children: [
-        Tooltip(
-          message: l.commonPaste,
-          child: TextButton.icon(
-            icon: const Icon(Icons.content_paste),
-            label: Text(l.commonPaste),
-            onPressed: _paste,
-          ),
+        TextButton.icon(
+          icon: const Icon(Icons.content_paste),
+          label: Text(l.commonPaste),
+          onPressed: _paste,
         ),
         if (scan)
-          Tooltip(
-            message: l.scanQrTooltip,
-            child: TextButton.icon(
-              icon: const Icon(Icons.qr_code_scanner),
-              label: Text(l.sendScanButton),
-              onPressed: _scan,
-            ),
+          TextButton.icon(
+            icon: const Icon(Icons.qr_code_scanner),
+            label: Text(l.sendScanButton),
+            onPressed: _scan,
           ),
-        Tooltip(
-          message: l.sendChooseContactTooltip,
-          child: TextButton.icon(
-            icon: const Icon(Icons.contacts),
-            label: Text(l.sendContactsButton),
-            onPressed: _pickContact,
-          ),
+        TextButton.icon(
+          icon: const Icon(Icons.contacts),
+          label: Text(l.sendContactsButton),
+          onPressed: _pickContact,
         ),
       ],
     );
@@ -2850,8 +2842,8 @@ class _SendViewState extends ConsumerState<SendView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (price != null || _fiatEntry)
-                Tooltip(
-                  message: l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+                Tip(
+                  l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
                   child: TextButton(
                     style: TextButton.styleFrom(
                       minimumSize: const Size(44, 44),

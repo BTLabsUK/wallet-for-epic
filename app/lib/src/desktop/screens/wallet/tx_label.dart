@@ -187,8 +187,8 @@ class _TxPenState extends State<TxPen> {
       opacity: widget.visible || _focused || _hover ? 1 : 0,
       // Hidden is only a look: a screen reader and the Tab key still find the pen.
       alwaysIncludeSemantics: true,
-      child: Tooltip(
-        message: label,
+      child: ETip(
+        label,
         child: Semantics(
           container: true,
           button: true,
@@ -237,8 +237,8 @@ class ManualTag extends StatelessWidget {
     final tip = at == null
         ? (from ? l.deskTxManualTipFromNoDate : l.deskTxManualTipNoDate)
         : (from ? l.deskTxManualTipFrom(shortDay(l, at)) : l.deskTxManualTip(shortDay(l, at)));
-    return Tooltip(
-      message: tip,
+    return ETip(
+      tip,
       child: Semantics(label: '${l.deskTxManualTag}. $tip', excludeSemantics: true, child: EBadge(l.deskTxManualTag, icon: EIcons.pencil)),
     );
   }
@@ -285,8 +285,8 @@ class _TxPanelTitleState extends ConsumerState<TxPanelTitle> {
     return Row(
       children: [
         Flexible(
-          child: Tooltip(
-            message: title,
+          child: ETip.value(
+            title,
             child: Semantics(header: true, child: Text(title, style: style, maxLines: 2, overflow: TextOverflow.ellipsis)),
           ),
         ),

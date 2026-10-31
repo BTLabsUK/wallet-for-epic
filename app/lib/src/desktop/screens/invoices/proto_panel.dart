@@ -22,8 +22,8 @@ class ProtoButton extends ConsumerWidget {
     return Positioned(
       right: Sp.x5,
       bottom: Sp.x5,
-      child: Tooltip(
-        message: 'Play the other side: payer, service, Epicbox, node, chain, clock',
+      child: ETip(
+        'Play the other side: payer, service, Epicbox, node, chain, clock',
         child: InvButton(
           label: 'Prototype',
           icon: EIcons.prototype,

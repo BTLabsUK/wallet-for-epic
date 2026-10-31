@@ -9,6 +9,7 @@ import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'keyboard.dart';
 import 'selectable.dart';
+import 'tip.dart';
 
 /// Label, control, then help or error. [aside] sits at the label's right (e.g. "Available …").
 class EField extends StatelessWidget {
@@ -627,7 +628,7 @@ class _SegState<T> extends State<_Seg<T>> {
         ),
       ),
     );
-    return tip == null ? seg : Tooltip(message: tip, child: seg);
+    return ETip(tip, child: seg);
   }
 }
 

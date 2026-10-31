@@ -143,9 +143,9 @@ class ServerRow extends StatelessWidget {
             ESignalBars(i.state),
             SizedBox(width: 10.u),
             Expanded(
-              child: Tooltip(
-                message: i.full ?? i.host,
-                waitDuration: const Duration(milliseconds: 600),
+              child: ETip.value(
+                i.full ?? i.host,
+                mono: true,
                 child: Text(i.host, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: Fs.sm, color: words)),
               ),
             ),

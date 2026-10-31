@@ -212,7 +212,7 @@ class _Row extends StatelessWidget {
                             child: Builder(
                               builder: (context) {
                                 final name = Text(r.byFile ? l.reqByFile : payerOf(r), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.body.copyWith(fontWeight: FontWeight.w600));
-                                return r.payerName == null && r.payerAddress.isNotEmpty ? Tooltip(message: r.payerAddress, child: name) : name;
+                                return r.payerName == null && r.payerAddress.isNotEmpty ? ETip.value(r.payerAddress, mono: true, child: name) : name;
                               },
                             ),
                           ),

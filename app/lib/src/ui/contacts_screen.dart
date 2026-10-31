@@ -152,24 +152,20 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           // Pair in one place, labelled, beside Add contact; never a gold button (Pairing UX
           // plan 4.1).
           if (pairs)
-            Tooltip(
-              message: l.contactsPairTooltip,
-              excludeFromSemantics: true,
-              child: Semantics(
-                label: l.contactsPairTooltip,
-                button: true,
-                excludeSemantics: true,
-                child: OutlinedButton.icon(
-                  key: contactsPairKey,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 36),
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    tapTargetSize: MaterialTapTargetSize.padded,
-                  ),
-                  icon: const Icon(EpicGlyphs.verified, size: 18),
-                  label: Text(l.pairTitle),
-                  onPressed: _pair,
+            Semantics(
+              label: l.contactsPairTooltip,
+              button: true,
+              excludeSemantics: true,
+              child: OutlinedButton.icon(
+                key: contactsPairKey,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 36),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  tapTargetSize: MaterialTapTargetSize.padded,
                 ),
+                icon: const Icon(EpicGlyphs.verified, size: 18),
+                label: Text(l.pairTitle),
+                onPressed: _pair,
               ),
             ),
           IconButton(

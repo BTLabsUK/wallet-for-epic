@@ -172,8 +172,9 @@ class _Review extends ConsumerWidget {
                     Flexible(
                       // Plain text, not EShortAddress: its LayoutBuilder has no intrinsic size, and
                       // the panel sits in an IntrinsicHeight row.
-                      child: Tooltip(
-                        message: i.senderAddress,
+                      child: ETip.value(
+                        i.senderAddress,
+                        mono: true,
                         child: Semantics(
                           label: i.senderAddress,
                           excludeSemantics: true,

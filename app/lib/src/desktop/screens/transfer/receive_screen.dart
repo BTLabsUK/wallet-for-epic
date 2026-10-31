@@ -365,16 +365,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     return Semantics(
       liveRegion: true,
       label: [for (final m in methods) l.deskRecvSemList(_name(l, m), word(m))].join(', '),
-      child: Tooltip(
-        message: l.deskRecvHeaderTip([for (final m in methods) if (lines[m] != null && lines[m]!.state != EState.off) _name(l, m)].join(' · ')),
-        waitDuration: const Duration(milliseconds: 400),
+      child: ETip(
+        l.deskRecvHeaderTip([for (final m in methods) if (lines[m] != null && lines[m]!.state != EState.off) _name(l, m)].join(' · ')),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final m in methods) ...[
             SizedBox(width: Sp.x2),
-            Tooltip(
-              message: lines[m] == null
+            ETip(
+              lines[m] == null
                   ? l.deskRecvTipChecking(_name(l, m))
                   : lines[m]!.detail == null
                   ? l.deskRecvTip(_name(l, m), lines[m]!.word)

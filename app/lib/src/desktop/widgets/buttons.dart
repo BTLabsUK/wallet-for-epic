@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'selectable.dart';
 
 import '../theme/tokens.dart';
+import 'tip.dart';
 
 /// [primarySoft] is the primary of a row of peers (a detail header's Send): the accent as a soft
 /// tint with gold ink and a gold hairline, where a filled block would shout.
@@ -196,7 +197,7 @@ class _EButtonState extends State<EButton> {
         ),
       ),
     );
-    if (widget.tooltip != null) body = Tooltip(message: widget.tooltip!, child: body);
+    if (widget.tooltip != null) body = ETip(widget.tooltip, child: body);
     return ExcludeFocusTraversal(excluding: !widget.tabStop, child: body);
   }
 }
@@ -263,8 +264,8 @@ class _EIconButtonState extends State<EIconButton> {
         : (widget.color ?? (_hover ? c.text : c.dim));
     return ExcludeFocusTraversal(
       excluding: !widget.tabStop,
-      child: Tooltip(
-      message: widget.label,
+      child: ETip(
+      widget.label,
       child: Semantics(
         button: true,
         label: widget.label,

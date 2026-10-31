@@ -671,7 +671,6 @@ class _ContactDetail extends ConsumerWidget {
                         key: deskContactPairKey,
                         label: l.pairBadgePending,
                         busy: true,
-                        tooltip: l.pairBadgePendingTip,
                         size: EBtnSize.sm,
                         onPressed: () => nav.go(DeskRoute.pairPending),
                       )
@@ -1402,7 +1401,7 @@ class DeskContactsPairButton extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final pending = ref.watch(deskPendingPairingsProvider).length;
     if (!foldPending || pending == 0) {
-      return EButton(key: deskContactsPairKey, label: l.pairTitle, icon: EIcons.trusted, tooltip: l.contactsPairTooltip, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair));
+      return EButton(key: deskContactsPairKey, label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair));
     }
     Widget item(IconData icon, String label, VoidCallback run) => MenuItemButton(
       onPressed: run,
@@ -1432,7 +1431,6 @@ class DeskContactsPairButton extends ConsumerWidget {
           key: deskContactsPairKey,
           label: '${l.pairTitle} · $pending',
           icon: EIcons.trusted,
-          tooltip: l.contactsPairTooltip,
           size: EBtnSize.sm,
           onPressed: () => controller.isOpen ? controller.close() : controller.open(),
         ),

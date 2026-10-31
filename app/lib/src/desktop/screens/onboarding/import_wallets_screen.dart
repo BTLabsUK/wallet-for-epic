@@ -488,8 +488,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(extra == null ? f.name : '${f.name} · $extra', style: ts.label),
-              Tooltip(
-                message: f.folder,
+              ETip.value(
+                f.folder,
+                mono: true,
                 child: Text(f.folder, style: ts.mono(size: Fs.xs, color: c.dim), overflow: TextOverflow.ellipsis),
               ),
             ],
@@ -619,8 +620,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (!selectable || !f.importable) Text(f.name, style: ts.label),
-                Tooltip(
-                  message: f.folder,
+                ETip.value(
+                  f.folder,
+                  mono: true,
                   child: Text(f.folder, style: ts.mono(size: Fs.xs, color: c.dim), overflow: TextOverflow.ellipsis),
                 ),
                 if (selectable) Text(meta, style: ts.caption),

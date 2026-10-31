@@ -11,6 +11,7 @@ import 'buttons.dart';
 import 'data.dart';
 import 'motion.dart';
 import 'surfaces.dart';
+import 'tip.dart';
 
 /// The two forms of [EQrReveal]: [covered] keeps the 184 u box laid out under a blur (the
 /// Epicbox hero); [compact] is a QR button in the address box and an expand under it.
@@ -195,10 +196,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
                               onTap: () => _set(true),
                               child: ExcludeFocus(
                                 excluding: _shown,
-                                child: Tooltip(
-                                  message: context.l10n.deskKitQrShow,
-                                  child: EButton(label: context.l10n.deskKitQrShow, icon: EIcons.qr, size: EBtnSize.sm, onPressed: () => _set(true)),
-                                ),
+                                child: EButton(label: context.l10n.deskKitQrShow, icon: EIcons.qr, size: EBtnSize.sm, onPressed: () => _set(true)),
                               ),
                             ),
                           ),
@@ -221,10 +219,7 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
                       label: context.l10n.deskKitQrHideCode,
                       excludeSemantics: true,
                       onTap: () => _set(false),
-                      child: Tooltip(
-                        message: context.l10n.deskKitQrHide,
-                        child: EButton.ghost(label: context.l10n.deskKitQrHide, icon: Icons.expand_less, size: EBtnSize.inline, onPressed: () => _set(false)),
-                      ),
+                      child: EButton.ghost(label: context.l10n.deskKitQrHide, icon: Icons.expand_less, size: EBtnSize.inline, onPressed: () => _set(false)),
                     )
                   : Text(context.l10n.deskKitQrOf(widget.title), style: ts.caption, maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
             ),
@@ -285,8 +280,8 @@ class _QrToggleState extends State<_QrToggle> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final fg = widget.shown ? c.accentText : (_hover ? c.text : c.dim);
-    return Tooltip(
-      message: widget.shown ? context.l10n.deskKitQrHide : context.l10n.deskKitQrShow,
+    return ETip(
+      widget.shown ? context.l10n.deskKitQrHide : context.l10n.deskKitQrShow,
       child: Semantics(
         button: true,
         toggled: widget.shown,

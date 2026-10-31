@@ -28,6 +28,7 @@ import 'scan_route.dart' show sendPayments;
 import 'status_icons.dart' show EpicGlyphs;
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
+import 'tip.dart';
 
 /// Keys of the contact page, for tests.
 const Key contactPageSendKey = ValueKey('contact-page-send');
@@ -445,8 +446,8 @@ class _Header extends ConsumerWidget {
               onPressed: contact.addresses.isEmpty && !(p?.paysByMailbox ?? false) ? null : onSend,
             ),
             if (onPair != null) ...[
-              Tooltip(
-                message: l.pairWithName(contact.name),
+              Tip(
+                l.pairWithName(contact.name),
                 excludeFromSemantics: true,
                 child: Semantics(
                   label: l.pairWithName(contact.name),
@@ -462,15 +463,12 @@ class _Header extends ConsumerWidget {
                 ),
               ),
             ] else if (onPending != null) ...[
-              Tooltip(
-                message: l.pairBadgePendingTip,
-                child: OutlinedButton.icon(
-                  key: contactPageHeaderPairKey,
-                  style: _headerStyle(context),
-                  icon: const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
-                  label: Text(l.pairBadgePending),
-                  onPressed: onPending,
-                ),
+              OutlinedButton.icon(
+                key: contactPageHeaderPairKey,
+                style: _headerStyle(context),
+                icon: const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                label: Text(l.pairBadgePending),
+                onPressed: onPending,
               ),
             ],
             OutlinedButton.icon(

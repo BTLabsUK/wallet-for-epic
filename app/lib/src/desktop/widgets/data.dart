@@ -16,6 +16,7 @@ import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
+import 'tip.dart';
 
 /// A contact's or wallet's initials in the phone's avatar tile ([PairAvatar]: the gold corner
 /// brackets, the grid, gold initials), the one standard on both apps (UP-011).
@@ -391,9 +392,6 @@ class _ESelectState<T> extends State<ESelect<T>> {
     }
   }
 
-  static Widget _withTooltip(String? message, Widget child) =>
-      message == null ? child : Tooltip(message: message, child: child);
-
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
@@ -451,9 +449,9 @@ class _ESelectState<T> extends State<ESelect<T>> {
                           if (item.action != null) item.action!,
                         ],
                       ),
-                child: _withTooltip(
+                child: ETip(
                   item.tooltip,
-                  SizedBox(
+                  child: SizedBox(
                     width: width,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -640,7 +638,7 @@ class _ENavItemState extends State<ENavItem> {
         ],
       ),
     );
-    if (widget.compact) item = Tooltip(message: widget.label, child: item);
+    if (widget.compact) item = ETip(widget.label, child: item);
     return Semantics(
       button: true,
       selected: sel,
@@ -709,6 +707,6 @@ class EMiddleEllipsis extends StatelessWidget {
       }
     }
     final line = Text(shown, maxLines: 1, softWrap: false, style: style, semanticsLabel: text);
-    return tooltip ? Tooltip(message: text, waitDuration: const Duration(milliseconds: 600), child: line) : line;
+    return tooltip ? ETip.value(text, child: line) : line;
   }
 }

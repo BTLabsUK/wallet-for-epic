@@ -415,14 +415,6 @@ class _RailRowState extends State<RailRow> {
             padding: const EdgeInsets.symmetric(vertical: 1),
             child: Text(l, style: ts.mono(size: Fs.xs, color: c.dim)),
           ),
-        if (i.note != null)
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 360.u),
-            child: Padding(
-              padding: EdgeInsets.only(top: Sp.x1),
-              child: Text(i.note!, style: ts.small.copyWith(color: c.dim, height: 1.45)),
-            ),
-          ),
         SizedBox(height: Sp.x2),
         Text(i.open, style: ts.caption.copyWith(color: c.accentText)),
       ],
@@ -459,10 +451,8 @@ class _RailRowState extends State<RailRow> {
         ],
       );
     }
-    return Tooltip(
-      richMessage: WidgetSpan(child: card),
-      preferBelow: false,
-      verticalOffset: 18.u,
+    return ETip.card(
+      card,
       child: Semantics(
         button: true,
         label: '${i.open}: ${i.word}',

@@ -397,7 +397,6 @@ void unlockScreenTests() {
     await run(tester);
     final box = tester.widget<ECheckbox>(find.widgetWithText(ECheckbox, 'Remember on this computer'));
     expect(box.value, isFalse);
-    expect(find.byTooltip(rememberWho(englishStrings)), findsOneWidget);
     expect(rememberWho(englishStrings), contains('can open this wallet'));
     await tester.enterText(find.byType(TextField), 'secret-pass');
     await tester.tap(find.text('Remember on this computer'));

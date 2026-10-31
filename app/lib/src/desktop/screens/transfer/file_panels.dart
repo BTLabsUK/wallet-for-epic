@@ -70,8 +70,9 @@ class FileChip extends ConsumerWidget {
           // The folder gives way, the file name stays whole (never overflow): the full path on
           // hover and in Copy (WIN2-2).
           Expanded(
-            child: Tooltip(
-              message: name,
+            child: ETip.value(
+              name,
+              mono: true,
               child: LayoutBuilder(
                 builder: (context, box) => Row(
                   children: [

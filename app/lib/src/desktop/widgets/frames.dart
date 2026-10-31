@@ -7,6 +7,7 @@ import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'keyboard.dart';
+import 'tip.dart';
 
 /// Content widths for [EPage].
 enum EPageWidth { narrow, mid, full }
@@ -103,8 +104,8 @@ class _BackButton extends StatelessWidget {
   @override
   // Not a Tab stop: Alt+Left and the mouse Back button do the same.
   Widget build(BuildContext context) => ExcludeFocusTraversal(
-    child: Tooltip(
-    message: context.l10n.deskKitBackAlt,
+    child: ETip(
+    context.l10n.deskKitBackAlt,
     child: IconButton(
       onPressed: onBack,
       icon: Icon(EIcons.arrowLeft, size: Ctl.icon, color: context.dc.dim),

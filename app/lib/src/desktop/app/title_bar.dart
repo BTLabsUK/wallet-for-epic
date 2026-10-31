@@ -431,7 +431,7 @@ class _BarButtonState extends State<_BarButton> {
         ),
       ),
     );
-    if (widget.tooltip != null && !widget.open) button = Tooltip(message: widget.tooltip, child: button);
+    if (widget.tooltip != null && !widget.open) button = ETip(widget.tooltip, child: button);
     return Center(widthFactor: 1, child: button);
   }
 }
@@ -781,8 +781,8 @@ class _BuildLabelState extends State<_BuildLabel> {
         : appBuildTag.isEmpty
         ? l.deskBarBuildTip(deskAppVersion, appBuildId)
         : l.deskBarBuildTipRebuild(deskAppVersion, appBuildTag.replaceFirst('r', ''), appBuildId);
-    return Tooltip(
-      message: tip,
+    return ETip(
+      tip,
       child: Semantics(
         button: true,
         label: tip,
@@ -1246,8 +1246,8 @@ class _WinButtonState extends State<_WinButton> {
         ? (_down ? _WinButton.closePress : _hover ? _WinButton.closeHover : Colors.transparent)
         : (_down ? c.press : _hover ? c.hover : Colors.transparent);
     final fg = red ? (_down ? Colors.white70 : Colors.white) : (widget.dim ? c.faint : c.text);
-    return Tooltip(
-      message: widget.label,
+    return ETip(
+      widget.label,
       child: Semantics(
         button: true,
         label: widget.label,
@@ -1311,8 +1311,8 @@ class _RoundButtonState extends State<_RoundButton> {
   Widget build(BuildContext context) {
     final c = context.dc;
     return Center(
-      child: Tooltip(
-        message: widget.label,
+      child: ETip(
+        widget.label,
         child: Semantics(
           button: true,
           label: widget.label,

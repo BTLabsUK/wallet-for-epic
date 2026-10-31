@@ -310,7 +310,7 @@ class _SeenAsFieldState extends ConsumerState<SeenAsField> {
         border: const OutlineInputBorder(),
         errorText: widget.error,
         suffixIcon: IconButton(
-          tooltip: l.pairSeenAsEdit,
+          tooltip: l.contactEdit,
           icon: const Icon(Icons.edit_outlined),
           onPressed: () => _focus.requestFocus(),
         ),

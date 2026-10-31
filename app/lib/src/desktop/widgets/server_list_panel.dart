@@ -1231,9 +1231,9 @@ class _Row extends StatelessWidget {
                           Row(
                             children: [
                               Flexible(
-                                child: Tooltip(
-                                  message: s.value,
-                                  waitDuration: const Duration(milliseconds: 600),
+                                child: ETip.value(
+                                  s.value,
+                                  mono: true,
                                   child: Text(s.host, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: Fs.sm, color: down ? c.faint : c.text)),
                                 ),
                               ),

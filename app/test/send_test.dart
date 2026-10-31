@@ -1315,7 +1315,7 @@ void main() {
       );
       await h.pump(tester, _sendTab());
       h.scanner.codes.add(' epicbox://$_bob ');
-      await _tap(tester, find.byTooltip('Scan QR code'));
+      await _tap(tester, find.text('Scan'));
       expect(_fieldText(tester, _address), _bob);
       expect(find.text('Bob'), findsOneWidget);
       expect(find.text('New recipient'), findsNothing);
@@ -1324,8 +1324,8 @@ void main() {
     testWidgets('scan is hidden where unsupported', (tester) async {
       final h = _Harness(scanSupported: false);
       await h.pump(tester, _sendTab());
-      expect(find.byTooltip('Scan QR code'), findsNothing);
-      expect(find.byTooltip('Paste'), findsOneWidget);
+      expect(find.text('Scan'), findsNothing);
+      expect(find.text('Paste'), findsOneWidget);
     });
 
     testWidgets('pick a contact as the recipient', (tester) async {
@@ -1337,7 +1337,7 @@ void main() {
         contact: Contact(id: '', name: 'Bob', address: _bob, note: null),
       );
       await h.pump(tester, _sendTab());
-      await _tap(tester, find.byTooltip('Choose a contact'));
+      await _tap(tester, find.text('Contacts'));
       expect(find.text('Choose a contact'), findsWidgets);
       await _tap(tester, find.text('Carol'));
       expect(find.text('Carol'), findsOneWidget);

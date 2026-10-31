@@ -427,7 +427,7 @@ void main() {
         find.text('${l.demoTestCoinsPill} · ${l.demoLeftHours(5)}'),
         findsOneWidget,
       );
-      final tooltip = tester.widget<Tooltip>(find.byKey(demoCountdownKey));
+      final tooltip = tester.widget<Tooltip>(find.descendant(of: find.byKey(demoCountdownKey), matching: find.byType(Tooltip)));
       expect(tooltip.message, isNot(contains('Floonet')));
       final end = formatDateTime(l, h.now.add(const Duration(hours: 5)));
       expect(
@@ -716,7 +716,7 @@ void main() {
         await h.pump(tester);
         await h.unlock(tester);
         expect(find.text(l.homeBackupCardText), present);
-        expect(find.byTooltip(l.homeScanTooltip), present);
+        expect(find.byTooltip(l.scanQrTooltip), present);
         expect(h.updateChecks, demo ? isEmpty : isNotEmpty);
       });
 

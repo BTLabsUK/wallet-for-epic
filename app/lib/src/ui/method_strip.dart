@@ -76,6 +76,7 @@ class DismissibleTip extends ConsumerWidget {
                   onTap: hide,
                   child: IconButton(
                     key: tipHideKey(id),
+                    tooltip: context.l10n.tipHide,
                     iconSize: 18,
                     color: t.dim,
                     constraints: const BoxConstraints.tightFor(

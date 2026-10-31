@@ -19,6 +19,7 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'theme/brand.dart';
+import 'tip.dart';
 
 /// The demo's first route, in place of [LaunchScreen]: welcome without a demo, the ended
 /// screen after one ran out, and the usual start (PIN unlock or first run) during one.
@@ -240,13 +241,10 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
     final time = left.hours > 0
         ? l.demoLeftHours(left.hours)
         : l.demoLeftMinutes(left.minutes);
-    return Tooltip(
+    return Tip.value(
+      '${l.demoTestCoinsPillTip}\n'
+      '${l.demoEndsAt(formatDateTime(l, status.expiresAt.toLocal()))}',
       key: demoCountdownKey,
-      message:
-          '${l.demoTestCoinsPillTip}\n'
-          '${l.demoEndsAt(formatDateTime(l, status.expiresAt.toLocal()))}',
-      triggerMode: TooltipTriggerMode.tap,
-      showDuration: const Duration(seconds: 6),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 48),
         child: Align(

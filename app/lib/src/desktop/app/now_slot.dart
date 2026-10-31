@@ -491,7 +491,7 @@ class _Line extends StatelessWidget {
               child: InkWell(onTap: i.onTap, borderRadius: BorderRadius.circular(Rad.sm), hoverColor: c.hover, child: content),
             ),
     );
-    return Tooltip(message: tip, waitDuration: const Duration(milliseconds: 400), child: line);
+    return ETip(tip, child: line);
   }
 }
 

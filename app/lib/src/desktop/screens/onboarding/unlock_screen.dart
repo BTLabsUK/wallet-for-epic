@@ -417,13 +417,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               ),
             ),
             SizedBox(height: Sp.x4),
-            Tooltip(
-              message: rememberWho(l),
-              child: ECheckbox(
-                value: _remember,
-                label: l.deskOnbUnlockRemember,
-                onChanged: (v) => setState(() => _remember = _rememberChosen = v),
-              ),
+            ECheckbox(
+              value: _remember,
+              label: l.deskOnbUnlockRemember,
+              onChanged: (v) => setState(() => _remember = _rememberChosen = v),
             ),
             if (_remember) ...[
               SizedBox(height: Sp.x1),

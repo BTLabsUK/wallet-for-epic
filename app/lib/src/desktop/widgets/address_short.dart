@@ -8,6 +8,7 @@ import '../../address_format.dart';
 import '../data/addresses.dart';
 import '../theme/tokens.dart';
 import 'surfaces.dart';
+import 'tip.dart';
 
 /// An address in a list row: the first and last six of the checked part (`shortAddress`), the
 /// compact form when the full short form does not fit. Never a tail ellipsis, which would eat
@@ -40,11 +41,7 @@ class EShortAddress extends StatelessWidget {
     );
     text = Semantics(label: address, excludeSemantics: true, child: text);
     if (!tooltip) return text;
-    return Tooltip(
-      richMessage: TextSpan(text: address, style: context.ts.mono(size: Fs.xs, color: context.dc.text)),
-      waitDuration: const Duration(milliseconds: 400),
-      child: text,
-    );
+    return ETip.value(address, mono: true, child: text);
   }
 }
 

@@ -264,7 +264,7 @@ class PairPendingBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = _l10n(context);
-    return EBadge(l.pairBadgePending, tone: BadgeTone.info, busy: true, tooltip: l.pairBadgePendingTip);
+    return EBadge(l.pairBadgePending, tone: BadgeTone.info, busy: true);
   }
 }
 

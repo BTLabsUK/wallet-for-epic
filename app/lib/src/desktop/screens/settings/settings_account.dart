@@ -249,7 +249,7 @@ class _FolderRow extends ConsumerWidget {
       below: Row(
         children: [
           Flexible(
-            child: Tooltip(message: path, child: Text(path, style: ts.mono(size: Fs.sm, color: c.dim), overflow: TextOverflow.ellipsis)),
+            child: ETip.value(path, mono: true, child: Text(path, style: ts.mono(size: Fs.sm, color: c.dim), overflow: TextOverflow.ellipsis)),
           ),
           SizedBox(width: Sp.x1),
           ECopyButton(text: path, label: l.deskSetAcctCopyPath(title)),

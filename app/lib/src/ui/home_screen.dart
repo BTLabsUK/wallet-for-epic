@@ -676,7 +676,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const DeviceLifecycle(child: SizedBox.shrink()),
             if (scan)
               IconButton(
-                tooltip: l.homeScanTooltip,
+                tooltip: l.scanQrTooltip,
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: _scan,
               ),
