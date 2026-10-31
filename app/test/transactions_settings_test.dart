@@ -7,7 +7,7 @@
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/payment_prefs.dart';
-import 'package:epic_wallet/src/phone_http.dart' show lanAddressReaderProvider, privateNetworksKey;
+import 'package:epic_wallet/src/phone_http.dart' show lanAddressReaderProvider, trustedNetworksKey;
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -192,16 +192,16 @@ void main() {
     expect(_row('tx-tor'), findsOneWidget, reason: 'a row shown stays while the page is open');
   }, skip: !torBuilt);
 
-  testWidgets('Link · HTTP on: the Private networks row lists the marked networks, Forget drops one', (tester) async {
+  testWidgets('Link · HTTP on: the Trusted networks row lists the trusted networks, Forget drops one', (tester) async {
     final store = _store({
       'app.payment_prefs': const PaymentPrefs(linkHttp: true).encode(),
-      privateNetworksKey: '10.0.0,192.168.1',
+      trustedNetworksKey: '10.0.0,192.168.1',
     });
     await _pump(tester, store, phone: true, lanAddress: '10.100.10.20');
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pumpAndSettle();
-    expect(find.text('Private networks · 2 marked'), findsOneWidget);
-    await tester.tap(_row('tx-private-networks'));
+    expect(find.text('Trusted networks · 2 trusted'), findsOneWidget);
+    await tester.tap(_row('tx-trusted-networks'));
     await tester.pumpAndSettle();
     // Newest first, the one in use tagged.
     expect(find.text('192.168.1.x'), findsOneWidget);
@@ -212,20 +212,20 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pumpAndSettle();
     expect(find.text('10.0.0.x'), findsNothing);
-    expect(store.values[privateNetworksKey], '192.168.1');
-    expect(find.text('Private networks · 1 marked'), findsOneWidget);
+    expect(store.values[trustedNetworksKey], '192.168.1');
+    expect(find.text('Trusted networks · 1 trusted'), findsOneWidget);
 
-    // The last one: the sheet says none is marked.
+    // The last one: the sheet says none is trusted.
     await tester.tap(_row('tx-forget-network-192.168.1'));
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pumpAndSettle();
-    expect(find.textContaining('No network marked yet'), findsOneWidget);
-    expect(find.text('Private networks · None marked yet'), findsOneWidget);
+    expect(find.textContaining('No trusted network yet'), findsOneWidget);
+    expect(find.text('Trusted networks · None yet'), findsOneWidget);
   });
 
-  testWidgets('Link · HTTP off: no Private networks row', (tester) async {
-    await _pump(tester, _store({privateNetworksKey: '192.168.1'}), phone: true);
-    expect(_row('tx-private-networks'), findsNothing);
+  testWidgets('Link · HTTP off: no Trusted networks row', (tester) async {
+    await _pump(tester, _store({trustedNetworksKey: '192.168.1'}), phone: true);
+    expect(_row('tx-trusted-networks'), findsNothing);
   });
 
   testWidgets('Link · Tor on with Tor off: the line under it opens Privacy & network', (tester) async {

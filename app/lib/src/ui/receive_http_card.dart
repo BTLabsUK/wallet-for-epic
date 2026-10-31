@@ -28,11 +28,11 @@ const Key receiveHttpQrButtonKey = ValueKey('receive-http-qr-button');
 /// The key of the card's QR code once shown, for tests.
 const Key receiveHttpQrKey = ValueKey('receive-http-qr');
 
-/// The key of the card's "This is my private network" button, for tests.
-const Key receiveHttpMarkPrivateKey = ValueKey('receive-http-mark-private');
+/// The key of the card's "Trust this network" button, for tests.
+const Key receiveHttpTrustKey = ValueKey('receive-http-trust');
 
 /// The key of the info icon beside "Off on this network", for tests.
-const Key receiveHttpNotPrivateInfoKey = ValueKey('receive-http-not-private-info');
+const Key receiveHttpNotTrustedInfoKey = ValueKey('receive-http-not-trusted-info');
 
 /// The Link · HTTP address card on the phone's Receive › Link tab: the address wallets on
 /// this Wi-Fi network can pay (`phone_http.dart` runs the listener), its state (starting,
@@ -85,7 +85,7 @@ class ReceiveHttpCard extends ConsumerWidget {
       PhoneHttpPhase.offWhileTor => line(l.receiveHttpOffWhileTor),
       // Paused, not broken: the state in one line, why behind the info icon, and the one
       // action as a tonal button so it reads as the way on, not as a warning to dismiss.
-      PhoneHttpPhase.notPrivate => Column(
+      PhoneHttpPhase.notTrusted => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -96,21 +96,21 @@ class ReceiveHttpCard extends ConsumerWidget {
                 child: Semantics(
                   liveRegion: true,
                   container: true,
-                  child: Text(l.receiveHttpNotPrivateTitle, style: theme.textTheme.bodyMedium),
+                  child: Text(l.receiveHttpNotTrustedTitle, style: theme.textTheme.bodyMedium),
                 ),
               ),
-              InfoHint(l.receiveHttpNotPrivate, key: receiveHttpNotPrivateInfoKey, size: 32, title: l.receiveHttpNotPrivateTitle, icon: Icons.pause_circle_outline),
+              InfoHint(l.receiveHttpNotTrusted, key: receiveHttpNotTrustedInfoKey, size: 32, title: l.receiveHttpNotTrustedTitle, icon: Icons.pause_circle_outline),
             ],
           ),
           const SizedBox(height: 4),
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: FilledButton.tonalIcon(
-              key: receiveHttpMarkPrivateKey,
+              key: receiveHttpTrustKey,
               style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
               icon: const Icon(Icons.home_outlined, size: 18),
-              onPressed: () => ref.read(phoneHttpProvider.notifier).markPrivate(),
-              label: Text(l.receiveHttpMarkPrivate),
+              onPressed: () => ref.read(phoneHttpProvider.notifier).trust(),
+              label: Text(l.receiveHttpTrust),
             ),
           ),
         ],

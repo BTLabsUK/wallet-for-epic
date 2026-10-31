@@ -958,8 +958,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         for (final m in MethodKind.values)
           if (m.family == f && shown(m)) ...[
             methodTile(m),
-            // Where the phone's listener may run: the networks marked private, and Forget.
-            if (m == MethodKind.linkHttp && payments.linkHttp && phone) const _PrivateNetworksRow(),
+            // Where the phone's listener may run: the trusted networks, and Forget.
+            if (m == MethodKind.linkHttp && payments.linkHttp && phone) const _TrustedNetworksRow(),
             if (m == MethodKind.linkTor && payments.linkTor && torOff)
               _TorNeededLine(onTap: () => openPrivacySettings(context)),
           ],
@@ -1421,35 +1421,35 @@ String _txKeyName(MethodKind m) => switch (m) {
 /// The key of the line under Link · Tor that Tor is off, for tests.
 const Key txTorNeededKey = ValueKey('tx-tor-needs-tor');
 
-/// The key of the Private networks row under Link · HTTP, for tests.
-const Key txPrivateNetworksKey = ValueKey('tx-private-networks');
+/// The key of the Trusted networks row under Link · HTTP, for tests.
+const Key txTrustedNetworksKey = ValueKey('tx-trusted-networks');
 
-/// The key of the info icon in the Private networks sheet, for tests.
-const Key txPrivateNetworksInfoKey = ValueKey('tx-private-networks-info');
+/// The key of the info icon in the Trusted networks sheet, for tests.
+const Key txTrustedNetworksInfoKey = ValueKey('tx-trusted-networks-info');
 
-/// The key of a Forget button in the Private networks sheet, for tests.
+/// The key of a Forget button in the Trusted networks sheet, for tests.
 Key txForgetNetworkKey(String network) => ValueKey('tx-forget-network-$network');
 
-/// Under the Link · HTTP switch while it is on: "Private networks · 2 marked". A tap opens the
-/// sheet that lists them ([_PrivateNetworksSheet]), each with Forget. The phone's listener runs
-/// only on a marked network (phone_http.dart); the card on Receive › Link marks the one in use.
-class _PrivateNetworksRow extends ConsumerWidget {
-  const _PrivateNetworksRow();
+/// Under the Link · HTTP switch while it is on: "Trusted networks · 2 trusted". A tap opens the
+/// sheet that lists them ([_TrustedNetworksSheet]), each with Forget. The phone's listener runs
+/// only on a trusted network (phone_http.dart); the card on Receive › Link trusts the one in use.
+class _TrustedNetworksRow extends ConsumerWidget {
+  const _TrustedNetworksRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final count = ref.watch(phoneHttpProvider.select((s) => s.privateNetworks.length));
-    final text = '${l.txPrivateNetworks} \u00B7 ${l.txPrivateNetworksCount(count)}';
+    final count = ref.watch(phoneHttpProvider.select((s) => s.trustedNetworks.length));
+    final text = '${l.txTrustedNetworks} \u00B7 ${l.txTrustedNetworksCount(count)}';
     return Semantics(
-      key: txPrivateNetworksKey,
+      key: txTrustedNetworksKey,
       button: true,
       label: text,
       excludeSemantics: true,
-      onTap: () => _PrivateNetworksSheet.show(context),
+      onTap: () => _TrustedNetworksSheet.show(context),
       child: InkWell(
-        onTap: () => _PrivateNetworksSheet.show(context),
+        onTap: () => _TrustedNetworksSheet.show(context),
         child: Padding(
           // Lined up with the switch's title, past its icon; 48 dp tall for the finger.
           padding: const EdgeInsets.fromLTRB(56, 0, 16, 6),
@@ -1472,17 +1472,17 @@ class _PrivateNetworksRow extends ConsumerWidget {
   }
 }
 
-/// The networks marked private, one row each ("192.168.1.x", "This network" on the one in
+/// The trusted networks, one row each ("192.168.1.x", "This network" on the one in
 /// use), with Forget. Live: a Forget removes its row and, on the network in use, stops the
-/// listener until the card on Receive › Link marks it again.
-class _PrivateNetworksSheet extends ConsumerWidget {
-  const _PrivateNetworksSheet();
+/// listener until the card on Receive › Link trusts it again.
+class _TrustedNetworksSheet extends ConsumerWidget {
+  const _TrustedNetworksSheet();
 
   static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
-    builder: (_) => const _PrivateNetworksSheet(),
+    builder: (_) => const _TrustedNetworksSheet(),
   );
 
   @override
@@ -1492,8 +1492,8 @@ class _PrivateNetworksSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final http = ref.watch(phoneHttpProvider);
     final current = lanNetworkKey(http.address);
-    // Newest first: the one marked last is the one the user has in mind.
-    final networks = http.privateNetworks.reversed.toList();
+    // Newest first: the one trusted last is the one the user has in mind.
+    final networks = http.trustedNetworks.reversed.toList();
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -1506,17 +1506,17 @@ class _PrivateNetworksSheet extends ConsumerWidget {
                 Icon(MethodIcons.of(MethodKind.linkHttp), size: 20, color: t.accentText),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Semantics(header: true, child: Text(l.txPrivateNetworks, style: theme.textTheme.titleMedium)),
+                  child: Semantics(header: true, child: Text(l.txTrustedNetworks, style: theme.textTheme.titleMedium)),
                 ),
                 // What the list is, behind the info icon: the sheet itself stays a list.
-                InfoHint(l.txPrivateNetworksBody, key: txPrivateNetworksInfoKey, title: l.txPrivateNetworks, icon: MethodIcons.of(MethodKind.linkHttp)),
+                InfoHint(l.txTrustedNetworksBody, key: txTrustedNetworksInfoKey, title: l.txTrustedNetworks, icon: MethodIcons.of(MethodKind.linkHttp)),
               ],
             ),
             const SizedBox(height: 4),
             if (networks.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(l.txPrivateNetworksNone, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
+                child: Text(l.txTrustedNetworksNone, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
               )
             else
               Flexible(
@@ -1526,21 +1526,21 @@ class _PrivateNetworksSheet extends ConsumerWidget {
                   separatorBuilder: (_, _) => Divider(height: 1, color: t.line),
                   itemBuilder: (context, i) {
                     final network = networks[i];
-                    final range = l.txPrivateNetworkRange(network);
+                    final range = l.txTrustedNetworkRange(network);
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       minVerticalPadding: 8,
                       title: Text(range, style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily)),
-                      subtitle: network == current ? Text(l.txPrivateNetworkCurrent, style: theme.textTheme.bodySmall?.copyWith(color: t.ok)) : null,
+                      subtitle: network == current ? Text(l.txTrustedNetworkCurrent, style: theme.textTheme.bodySmall?.copyWith(color: t.ok)) : null,
                       trailing: Semantics(
-                        label: l.txPrivateNetworkForgetLabel(range),
+                        label: l.txTrustedNetworkForgetLabel(range),
                         excludeSemantics: true,
                         button: true,
                         child: TextButton(
                           key: txForgetNetworkKey(network),
                           style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                          onPressed: () => ref.read(phoneHttpProvider.notifier).forgetPrivate(network),
-                          child: Text(l.txPrivateNetworkForget),
+                          onPressed: () => ref.read(phoneHttpProvider.notifier).forgetTrusted(network),
+                          child: Text(l.txTrustedNetworkForget),
                         ),
                       ),
                     );
