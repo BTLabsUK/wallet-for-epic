@@ -521,7 +521,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // The phone's explorer row (GP-015): above the fold, once the payment is confirmed.
         if (_explorerUrl(t) case final url?) ...[
           SizedBox(height: Sp.x3),
-          ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true),
+          ),
         ],
         // Advanced › Technical details: the fold, or a small More link that shows the same rows
         // for this view only (the switch stays off). Report a problem carries the slate id either way.
