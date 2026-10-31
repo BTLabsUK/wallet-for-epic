@@ -6,7 +6,6 @@ import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
@@ -235,28 +234,6 @@ void main() {
     await tester.tap(find.text('Save contact'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Add an address.'), findsOneWidget);
-  });
-
-  testWidgets('the local node asks before it starts', (tester) async {
-    bool? answer;
-    await _pump(
-      tester,
-      Builder(builder: (c) => EButton(label: 'node', onPressed: () async => answer = await confirmLocalNode(c))),
-      refresh: false,
-    );
-    await tester.tap(find.text('node'));
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('Start the local node?'), findsOneWidget);
-    expect(find.textContaining('disk space'), findsOneWidget);
-    expect(find.textContaining('firewall'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(answer, isFalse);
-    await tester.tap(find.text('node'));
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.tap(find.text('Start local node'));
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(answer, isTrue);
   });
 
   testWidgets('a toast closes when the screen changes', (tester) async {

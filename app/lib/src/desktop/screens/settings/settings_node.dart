@@ -68,46 +68,6 @@ bool versionOld(String? v) {
 /// The picker's footer under the node list.
 String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote(statusSiteHost);
 
-/// Before the local node starts: what that means for this computer. True to go on.
-Future<bool> confirmLocalNode(BuildContext context) async {
-  final yes = await showEDialog<bool>(
-    context,
-    builder: (context) {
-      final ts = context.ts;
-      final l = context.l10n;
-      Widget line(String text) => Padding(
-        padding: EdgeInsets.only(bottom: Sp.x2),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('•', style: ts.small),
-            SizedBox(width: Sp.x2),
-            Expanded(child: Text(text, style: ts.small)),
-          ],
-        ),
-      );
-      return EDialog(
-        title: l.deskSetNodeStartTitle,
-        description: l.deskSetNodeStartDesc,
-        icon: EIcons.server,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            line(l.deskSetNodeStartLine1),
-            line(l.deskSetNodeStartLine2),
-            line(l.deskSetNodeStartLine3),
-          ],
-        ),
-        actions: [
-          EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
-          EButton.primary(label: l.deskSetNodeStartButton, onPressed: () => Navigator.of(context).pop(true)),
-        ],
-      );
-    },
-  );
-  return yes ?? false;
-}
-
 /// The local node's state as the picker's This computer row says it.
 String localNodeRowText(AppLocalizations l, LocalNodeState? s) {
   if (s == null) return l.deskSetNodeRowNotSetUp;
