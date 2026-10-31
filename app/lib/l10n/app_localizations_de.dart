@@ -18201,4 +18201,42 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSendKillSwitch =>
       '„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert.';
+
+  @override
+  String get levelStepTitle => 'Wie viel Wallet möchtest du?';
+
+  @override
+  String get levelOneTitle => 'Nur senden und empfangen';
+
+  @override
+  String get levelOneLine => 'Geld rein, Geld raus. Nichts zu lernen.';
+
+  @override
+  String get levelTwoTitle => 'Nicht zu technisch, aber sag mir, was passiert';
+
+  @override
+  String get levelTwoLine => 'Klare Worte dazu, was die Wallet gerade tut.';
+
+  @override
+  String get levelThreeTitle => 'Ich will alles erkunden';
+
+  @override
+  String get levelThreeLine =>
+      'Jeder Schalter, jede Zahl. Vorsicht bei den Reglern.';
+
+  @override
+  String get levelUndercoverTitle => 'Von Anfang an inkognito';
+
+  @override
+  String get levelUndercoverLine => 'Nur Tor, ab der ersten Verbindung.';
+
+  @override
+  String get levelFooter =>
+      'Jederzeit änderbar unter Einstellungen › Erweitert.';
+
+  @override
+  String get levelRowTitle => 'Wallet-Stufe';
+
+  @override
+  String get levelChangeTitle => 'Stufe ändern';
 }

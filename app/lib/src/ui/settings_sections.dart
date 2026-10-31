@@ -47,6 +47,8 @@ import 'demo_screens.dart' show endDemo;
 import 'info_hint.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
+import 'level_step_screen.dart';
+import '../levels/level_providers.dart' show currentLevelProvider;
 import 'licences_screen.dart';
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
@@ -1098,6 +1100,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       onChanged: (on) => _settings.setExperimental(f, on),
     );
     return [
+      ListTile(
+        key: const ValueKey('adv-level'),
+        leading: const Icon(Icons.tune),
+        title: Text(l.levelRowTitle),
+        subtitle: Text(levelTitle(l, ref.watch(currentLevelProvider))),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => showChangeLevelDialog(context, ref),
+      ),
       PhoneTourTarget(
         id: 'tour-advanced-top',
         child: Padding(

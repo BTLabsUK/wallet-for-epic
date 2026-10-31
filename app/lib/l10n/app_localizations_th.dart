@@ -17578,4 +17578,41 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSendKillSwitch =>
       'สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · โอนไฟล์ ใช้ได้';
+
+  @override
+  String get levelStepTitle => 'คุณต้องการกระเป๋าเงินแค่ไหน?';
+
+  @override
+  String get levelOneTitle => 'ส่งและรับเท่านั้น';
+
+  @override
+  String get levelOneLine => 'เงินเข้า เงินออก ไม่มีอะไรต้องเรียนรู้';
+
+  @override
+  String get levelTwoTitle => 'ไม่เทคนิคเกินไป แต่บอกฉันว่าเกิดอะไรขึ้น';
+
+  @override
+  String get levelTwoLine => 'อธิบายด้วยคำง่ายๆ ว่ากระเป๋าเงินกำลังทำอะไร';
+
+  @override
+  String get levelThreeTitle => 'ขอสำรวจทุกอย่าง';
+
+  @override
+  String get levelThreeLine => 'ทุกสวิตช์ ทุกตัวเลข ระวังตัวปรับค่าด้วย';
+
+  @override
+  String get levelUndercoverTitle => 'ปกปิดตัวตนตั้งแต่เริ่มต้น';
+
+  @override
+  String get levelUndercoverLine =>
+      'ใช้ Tor เท่านั้น ตั้งแต่การเชื่อมต่อครั้งแรก';
+
+  @override
+  String get levelFooter => 'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
+
+  @override
+  String get levelRowTitle => 'ระดับกระเป๋าเงิน';
+
+  @override
+  String get levelChangeTitle => 'เปลี่ยนระดับ';
 }

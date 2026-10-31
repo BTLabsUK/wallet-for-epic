@@ -180,16 +180,38 @@ bool get torPublishesOnion => !NetGate.mode.restricted;
 /// every change; [changes] lets a long-lived owner (a wallet adapter) resume or stop.
 abstract final class NetGate {
   static NetworkMode _mode = NetworkMode.standard;
+  static bool _firstStartHold = false;
   static PaymentPrefs _payments = PaymentPrefs.defaults;
   static final StreamController<NetworkMode> _changes = StreamController.broadcast(sync: true);
 
-  static NetworkMode get mode => _mode;
+  /// The mode the gate enforces: the stored one, or Kill switch while [firstStartHold].
+  static NetworkMode get mode => _firstStartHold ? NetworkMode.killSwitch : _mode;
+
+  /// A fresh install has not answered the first-start step (`levels/first_start.dart`): no
+  /// connection of any kind, as Kill switch, whatever mode is stored. The stored mode (Tor only
+  /// when the user picks Undercover) is set underneath and takes over at [releaseFirstStart],
+  /// so the first connection is already made in it.
+  static bool get firstStartHold => _firstStartHold;
+
+  /// Holds every connection until [releaseFirstStart]. Set at launch before any request.
+  static void holdFirstStart() {
+    if (_firstStartHold) return;
+    _firstStartHold = true;
+    _changes.add(mode);
+  }
+
+  /// Ends [holdFirstStart]: the stored mode applies from now on.
+  static void releaseFirstStart() {
+    if (!_firstStartHold) return;
+    _firstStartHold = false;
+    _changes.add(mode);
+  }
 
   /// Node only.
-  static bool get nodeOnly => _mode == NetworkMode.nodeOnly;
+  static bool get nodeOnly => mode == NetworkMode.nodeOnly;
 
   /// Kill switch: nothing connects, the node included.
-  static bool get killSwitch => _mode == NetworkMode.killSwitch;
+  static bool get killSwitch => mode == NetworkMode.killSwitch;
 
   /// Nothing but the node in use reaches the network (Node only), or nothing at all (Kill
   /// switch): no Epicbox, Link, pairing, status site, price, updates or reach checks.
@@ -225,7 +247,7 @@ abstract final class NetGate {
   /// Nothing over Epicbox now: the mode refuses it, or the Epicbox switch is off.
   static bool get epicboxOff => restricted || !epicbox;
 
-  static bool get torOnly => _mode == NetworkMode.torOnly;
+  static bool get torOnly => mode == NetworkMode.torOnly;
 
   /// The experimental switches (Settings › Advanced › Experimental), for the wallet adapters:
   /// off, nothing collects the pairing or contact mailboxes ([pairing]) or drains invoices
@@ -256,14 +278,15 @@ abstract final class NetGate {
     final next = netModeOf(mode);
     if (next == _mode) return;
     _mode = next;
-    _changes.add(next);
+    // Held, the gate stays shut: the new mode applies at [releaseFirstStart].
+    if (!_firstStartHold) _changes.add(next);
   }
 
   /// Throws [NetBlocked] in Node only and Kill switch: for every call that would reach the
   /// network beyond the node. [node]: the call reaches only the node in use, which Node only
   /// allows (Kill switch refuses it too).
   static void check(String what, {bool node = false}) {
-    if (killSwitch || (nodeOnly && !node)) throw NetBlocked(_mode, what);
+    if (killSwitch || (nodeOnly && !node)) throw NetBlocked(mode, what);
   }
 
   /// [check] for a call to the node in use only.
@@ -273,7 +296,7 @@ abstract final class NetGate {
   /// refused by the mode as [check], and with the Epicbox switch off with `epicboxOff`.
   static void checkEpicbox(String what) {
     check(what);
-    if (!epicbox) throw NetBlocked(_mode, what, epicboxOff: true, methodOff: MethodKind.epicbox);
+    if (!epicbox) throw NetBlocked(mode, what, epicboxOff: true, methodOff: MethodKind.epicbox);
   }
 
   /// Throws [NetBlocked] for an action by method [m] (a listener, a send, an address handed
@@ -281,12 +304,12 @@ abstract final class NetGate {
   /// so Node only lets them through), and with the method's switch off with `methodOff`.
   static void checkMethod(MethodKind m, String what) {
     check(what, node: m == MethodKind.directFile || m == MethodKind.directQr);
-    if (!offers(m)) throw NetBlocked(_mode, what, epicboxOff: m == MethodKind.epicbox, methodOff: m);
+    if (!offers(m)) throw NetBlocked(mode, what, epicboxOff: m == MethodKind.epicbox, methodOff: m);
   }
 
   /// Whether a connection of [kind] to [host] may be opened now (see [dial]).
   static bool allows(NetDial kind, String host) {
-    switch (_mode) {
+    switch (mode) {
       case NetworkMode.standard:
         return true;
       case NetworkMode.torOnly:
@@ -313,7 +336,7 @@ abstract final class NetGate {
   /// `TorNet`); Node only only the node in use's host (and starting tor while the Tor switch is
   /// on); Kill switch nothing, loopback included.
   static void dial(NetDial kind, String host) {
-    if (!allows(kind, host)) throw NetBlocked(_mode, '${kind.name} ${_normHost(host)}');
+    if (!allows(kind, host)) throw NetBlocked(mode, '${kind.name} ${_normHost(host)}');
   }
 
   /// [dial] for a connection that can only go direct, never through tor (LEPIC's node tip
@@ -321,7 +344,7 @@ abstract final class NetGate {
   /// computer or the local network ([isLocalAddressUrl]).
   static void dialDirect(NetDial kind, String url) {
     dial(kind, url);
-    if (torOnly && !isLocalAddressUrl(url)) throw NetBlocked(_mode, 'direct ${kind.name} ${_hostOf(url)}');
+    if (torOnly && !isLocalAddressUrl(url)) throw NetBlocked(mode, 'direct ${kind.name} ${_hostOf(url)}');
   }
 }
 

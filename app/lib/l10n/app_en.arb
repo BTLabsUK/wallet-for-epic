@@ -24229,5 +24229,53 @@
   "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
   "@deskSendKillSwitch": {
     "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
+  },
+  "levelStepTitle": "How much wallet do you want?",
+  "@levelStepTitle": {
+    "description": "First-start screen (before Welcome and the PIN): heading above the three wallet levels."
+  },
+  "levelOneTitle": "Just send and receive",
+  "@levelOneTitle": {
+    "description": "First-start step and Change level dialog: level 1, how much of the wallet to show."
+  },
+  "levelOneLine": "Money in, money out. Nothing to learn.",
+  "@levelOneLine": {
+    "description": "One line under the level 1 choice."
+  },
+  "levelTwoTitle": "Not too techy, but tell me what’s happening",
+  "@levelTwoTitle": {
+    "description": "First-start step and Change level dialog: level 2."
+  },
+  "levelTwoLine": "Plain words about what the wallet is doing.",
+  "@levelTwoLine": {
+    "description": "One line under the level 2 choice."
+  },
+  "levelThreeTitle": "Let me explore everything",
+  "@levelThreeTitle": {
+    "description": "First-start step and Change level dialog: level 3."
+  },
+  "levelThreeLine": "Every switch, every number. Mind the knobs.",
+  "@levelThreeLine": {
+    "description": "One line under the level 3 choice."
+  },
+  "levelUndercoverTitle": "Undercover from the start",
+  "@levelUndercoverTitle": {
+    "description": "Switch on the first-start step and in Change level (Tor builds only): the Tor only network mode from the first connection."
+  },
+  "levelUndercoverLine": "Tor only, from the first connection.",
+  "@levelUndercoverLine": {
+    "description": "Line under the Undercover from the start switch."
+  },
+  "levelFooter": "Change it any time in Settings › Advanced.",
+  "@levelFooter": {
+    "description": "Footer of the first-start step: where to change the level later."
+  },
+  "levelRowTitle": "Wallet level",
+  "@levelRowTitle": {
+    "description": "Row at the top of Settings \u203a Advanced; its second line is the current level's title."
+  },
+  "levelChangeTitle": "Change level",
+  "@levelChangeTitle": {
+    "description": "Title of the dialog opened by the Wallet level row."
   }
 }

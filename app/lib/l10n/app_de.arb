@@ -4681,5 +4681,17 @@
   "txDeviceStatusHeld": "Erstellt auf {device}. Das Geld bleibt hier gehalten, bis die Chain die Zahlung zeigt.",
   "deskSendEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · Dateiübertragung funktioniert.",
   "deskSendLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert.",
-  "deskSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert."
+  "deskSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert.",
+  "levelStepTitle": "Wie viel Wallet möchtest du?",
+  "levelOneTitle": "Nur senden und empfangen",
+  "levelOneLine": "Geld rein, Geld raus. Nichts zu lernen.",
+  "levelTwoTitle": "Nicht zu technisch, aber sag mir, was passiert",
+  "levelTwoLine": "Klare Worte dazu, was die Wallet gerade tut.",
+  "levelThreeTitle": "Ich will alles erkunden",
+  "levelThreeLine": "Jeder Schalter, jede Zahl. Vorsicht bei den Reglern.",
+  "levelUndercoverTitle": "Von Anfang an inkognito",
+  "levelUndercoverLine": "Nur Tor, ab der ersten Verbindung.",
+  "levelFooter": "Jederzeit änderbar unter Einstellungen › Erweitert.",
+  "levelRowTitle": "Wallet-Stufe",
+  "levelChangeTitle": "Stufe ändern"
 }

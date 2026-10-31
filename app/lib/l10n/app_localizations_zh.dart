@@ -16952,4 +16952,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendKillSwitch => '“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。';
+
+  @override
+  String get levelStepTitle => '你想要多少钱包功能？';
+
+  @override
+  String get levelOneTitle => '只管收付款';
+
+  @override
+  String get levelOneLine => '钱进钱出，无需学习。';
+
+  @override
+  String get levelTwoTitle => '别太技术化，但告诉我发生了什么';
+
+  @override
+  String get levelTwoLine => '用平实的话说明钱包在做什么。';
+
+  @override
+  String get levelThreeTitle => '让我探索全部';
+
+  @override
+  String get levelThreeLine => '每个开关，每个数字。小心调节。';
+
+  @override
+  String get levelUndercoverTitle => '一开始就隐身';
+
+  @override
+  String get levelUndercoverLine => '仅 Tor，从第一次连接起。';
+
+  @override
+  String get levelFooter => '随时可在 设置 › 高级 中更改。';
+
+  @override
+  String get levelRowTitle => '钱包级别';
+
+  @override
+  String get levelChangeTitle => '更改级别';
 }

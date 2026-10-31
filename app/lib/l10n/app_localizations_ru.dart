@@ -18609,4 +18609,43 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSendKillSwitch =>
       'Включено «Аварийное отключение»: ничего не подключается. «Напрямую · Передача файла» работает.';
+
+  @override
+  String get levelStepTitle => 'Сколько кошелька вам нужно?';
+
+  @override
+  String get levelOneTitle => 'Только отправка и получение';
+
+  @override
+  String get levelOneLine => 'Деньги пришли, деньги ушли. Учиться нечему.';
+
+  @override
+  String get levelTwoTitle =>
+      'Не слишком технично, но говорите, что происходит';
+
+  @override
+  String get levelTwoLine => 'Простыми словами о том, что делает кошелёк.';
+
+  @override
+  String get levelThreeTitle => 'Хочу изучить всё';
+
+  @override
+  String get levelThreeLine =>
+      'Каждый переключатель, каждое число. Осторожно с настройками.';
+
+  @override
+  String get levelUndercoverTitle => 'Инкогнито с самого начала';
+
+  @override
+  String get levelUndercoverLine => 'Только Tor, с первого соединения.';
+
+  @override
+  String get levelFooter =>
+      'Изменить можно в любой момент: Настройки › Дополнительно.';
+
+  @override
+  String get levelRowTitle => 'Уровень кошелька';
+
+  @override
+  String get levelChangeTitle => 'Сменить уровень';
 }

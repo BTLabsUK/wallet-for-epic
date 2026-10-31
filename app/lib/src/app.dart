@@ -12,6 +12,7 @@ import 'l10n.dart';
 import 'node_failover_phone.dart';
 import 'phone_http.dart';
 import 'price.dart' show priceProvider;
+import 'levels/level_providers.dart' show effectiveAdvancedProvider;
 import 'providers.dart';
 import 'restore_scan.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
@@ -231,7 +232,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         return PhoneFrame(
           child: SettingsFileNotices(
             child: AdvancedOptions(
-              prefs: settings?.advanced ?? AdvancedPrefs.none,
+              prefs: ref.watch(effectiveAdvancedProvider),
               child: child!,
             ),
           ),

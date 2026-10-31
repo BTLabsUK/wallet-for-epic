@@ -4681,5 +4681,17 @@
   "txDeviceStatusHeld": "在 {device} 上发起。资金在此保留，直到链上出现该付款。",
   "deskSendEpicboxNodeOnly": "“仅节点”已开启：Epicbox 已关闭。直接 · 文件传输可用。",
   "deskSendLinkNodeOnly": "“仅节点”已开启：链接已关闭。直接 · 文件传输可用。",
-  "deskSendKillSwitch": "“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。"
+  "deskSendKillSwitch": "“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。",
+  "levelStepTitle": "你想要多少钱包功能？",
+  "levelOneTitle": "只管收付款",
+  "levelOneLine": "钱进钱出，无需学习。",
+  "levelTwoTitle": "别太技术化，但告诉我发生了什么",
+  "levelTwoLine": "用平实的话说明钱包在做什么。",
+  "levelThreeTitle": "让我探索全部",
+  "levelThreeLine": "每个开关，每个数字。小心调节。",
+  "levelUndercoverTitle": "一开始就隐身",
+  "levelUndercoverLine": "仅 Tor，从第一次连接起。",
+  "levelFooter": "随时可在 设置 › 高级 中更改。",
+  "levelRowTitle": "钱包级别",
+  "levelChangeTitle": "更改级别"
 }

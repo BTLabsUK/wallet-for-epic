@@ -12,6 +12,7 @@ import 'advanced.dart' show NetworkMode;
 import 'contacts.dart';
 import 'pairing_text.dart' show pairingName;
 import 'providers.dart';
+import 'levels/level_providers.dart' show effectiveAdvancedProvider;
 import 'settings.dart';
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'wallet_service.dart';
@@ -21,13 +22,13 @@ export 'pairing_text.dart' show pairingName;
 /// Pairing is on (Settings › Advanced › Experimental; off by default). Off, nothing of
 /// pairing shows and nothing collects; the stored pairings come back when it is on again.
 final pairingOnProvider = Provider<bool>(
-  (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.pairingOn)) ?? false,
+  (ref) => ref.watch(effectiveAdvancedProvider).pairingOn,
 );
 
 /// Invoices are on (Settings › Advanced › Experimental; off by default, never without
 /// Pairing): the invoice screens, requests, notices and Settings › Invoices.
 final invoicesOnProvider = Provider<bool>(
-  (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.invoicesOn)) ?? false,
+  (ref) => ref.watch(effectiveAdvancedProvider).invoicesOn,
 );
 
 /// The open wallet when it handles invoices and Invoices is on, else null: every invoice

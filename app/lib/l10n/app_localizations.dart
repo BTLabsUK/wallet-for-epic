@@ -28039,6 +28039,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Kill switch is on: nothing connects. Direct · File Transfer works.'**
   String get deskSendKillSwitch;
+
+  /// First-start screen (before Welcome and the PIN): heading above the three wallet levels.
+  ///
+  /// In en, this message translates to:
+  /// **'How much wallet do you want?'**
+  String get levelStepTitle;
+
+  /// First-start step and Change level dialog: level 1, how much of the wallet to show.
+  ///
+  /// In en, this message translates to:
+  /// **'Just send and receive'**
+  String get levelOneTitle;
+
+  /// One line under the level 1 choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in, money out. Nothing to learn.'**
+  String get levelOneLine;
+
+  /// First-start step and Change level dialog: level 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Not too techy, but tell me what’s happening'**
+  String get levelTwoTitle;
+
+  /// One line under the level 2 choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain words about what the wallet is doing.'**
+  String get levelTwoLine;
+
+  /// First-start step and Change level dialog: level 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Let me explore everything'**
+  String get levelThreeTitle;
+
+  /// One line under the level 3 choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Every switch, every number. Mind the knobs.'**
+  String get levelThreeLine;
+
+  /// Switch on the first-start step and in Change level (Tor builds only): the Tor only network mode from the first connection.
+  ///
+  /// In en, this message translates to:
+  /// **'Undercover from the start'**
+  String get levelUndercoverTitle;
+
+  /// Line under the Undercover from the start switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only, from the first connection.'**
+  String get levelUndercoverLine;
+
+  /// Footer of the first-start step: where to change the level later.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it any time in Settings › Advanced.'**
+  String get levelFooter;
+
+  /// Row at the top of Settings › Advanced; its second line is the current level's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet level'**
+  String get levelRowTitle;
+
+  /// Title of the dialog opened by the Wallet level row.
+  ///
+  /// In en, this message translates to:
+  /// **'Change level'**
+  String get levelChangeTitle;
 }
 
 class _AppLocalizationsDelegate

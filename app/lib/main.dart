@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,6 +19,7 @@ import 'src/btlabs_public_phone.dart' show refreshBtlabsPublicAtStart;
 import 'src/secret_store_api.dart' show SecretStore;
 import 'src/settings_file/settings_providers.dart';
 import 'src/wallet_service.dart' show Chain;
+import 'src/levels/first_start.dart';
 import 'src/net/tor_net.dart';
 import 'src/tor_build.dart';
 import 'src/tor_licence.dart';
@@ -48,6 +49,10 @@ Future<void> main() async {
     };
     await initWalletBackend();
     final store = createSecretStore();
+    // Before the settings open and before any request: a fresh install opens no connection
+    // until its first-start step (the level, Undercover) is answered (levels/first_start.dart).
+    // The web builds have no first-start step.
+    if (!kIsWeb) await holdUntilFirstStart(store);
     // Before anything reads an address: the settings file (docs/settings-file.md). A dev build
     // on a test network reads that network's own file; the web demo its server's.
     await _openSettings(store);
@@ -70,7 +75,8 @@ Future<void> main() async {
     if (torBuilt) TorNet.hold = appConfig.torSendWait;
     // BT Labs' signed btlabs.json, in the background after the network mode and Tor are set:
     // the donation address from the kept copy at once, then from a fresh read if one verifies.
-    unawaited(refreshBtlabsPublicAtStart(store));
+    // Held for the first-start step: once it is answered.
+    afterFirstStart(() => unawaited(refreshBtlabsPublicAtStart(store)));
     // Before anything asks the status site: off (`status.enabled`), nothing is asked.
     statusSite.followSettings();
     registerFontLicences();

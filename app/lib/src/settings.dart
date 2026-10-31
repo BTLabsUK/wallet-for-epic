@@ -20,6 +20,8 @@ import 'settings_file/network_mode_file.dart' show networkModeIn, saveNetworkMod
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'models.dart' show SelectionStrategy;
 import 'secret_store.dart';
+import 'levels/level_features.dart' show effectiveAdvanced;
+import 'levels/level_providers.dart' show currentLevelProvider;
 import 'wallet_backend.dart' show hostIsPhone;
 import 'wallet_service.dart' show Chain, TxEntry, TxSource, TxStatus;
 
@@ -414,7 +416,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     // main.dart set the mode at launch.
     NetGate.set(settings.advanced.networkMode);
     NetGate.setPayments(settings.payments);
-    NetGate.setExperimental(settings.advanced);
+    NetGate.setExperimental(effectiveAdvanced(ref.read(currentLevelProvider), settings.advanced));
     return settings;
   }
 
@@ -506,7 +508,7 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     }
     state = AsyncData((await _current()).copyWith(advanced: prefs));
     NetGate.set(prefs.networkMode);
-    NetGate.setExperimental(prefs);
+    NetGate.setExperimental(effectiveAdvanced(ref.read(currentLevelProvider), prefs));
   }
 
   /// One experimental switch, with the rule between them ([AdvancedPrefs.withExperimental]).

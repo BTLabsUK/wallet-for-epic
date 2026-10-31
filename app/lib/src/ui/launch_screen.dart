@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../errors.dart';
 import '../l10n.dart';
+import '../levels/first_start.dart';
 import '../providers.dart';
 import '../vault.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'first_run_screen.dart';
+import 'level_step_screen.dart';
 import 'pin_unlock_screen.dart';
 import 'theme/brand.dart';
 
@@ -44,6 +46,8 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
   }
 
   Future<Widget> _destination() async {
+    // A fresh install answers the level step before anything else.
+    if (ref.read(firstStartProvider)) return const LevelStepScreen();
     // A wallet left open would pin its chain for the one about to open.
     ref.read(sessionProvider.notifier).lock();
     final choice = await ref.read(networkChoiceProvider.future);

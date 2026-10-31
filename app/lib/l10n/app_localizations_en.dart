@@ -17990,4 +17990,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSendKillSwitch =>
       'Kill switch is on: nothing connects. Direct · File Transfer works.';
+
+  @override
+  String get levelStepTitle => 'How much wallet do you want?';
+
+  @override
+  String get levelOneTitle => 'Just send and receive';
+
+  @override
+  String get levelOneLine => 'Money in, money out. Nothing to learn.';
+
+  @override
+  String get levelTwoTitle => 'Not too techy, but tell me what’s happening';
+
+  @override
+  String get levelTwoLine => 'Plain words about what the wallet is doing.';
+
+  @override
+  String get levelThreeTitle => 'Let me explore everything';
+
+  @override
+  String get levelThreeLine => 'Every switch, every number. Mind the knobs.';
+
+  @override
+  String get levelUndercoverTitle => 'Undercover from the start';
+
+  @override
+  String get levelUndercoverLine => 'Tor only, from the first connection.';
+
+  @override
+  String get levelFooter => 'Change it any time in Settings › Advanced.';
+
+  @override
+  String get levelRowTitle => 'Wallet level';
+
+  @override
+  String get levelChangeTitle => 'Change level';
 }

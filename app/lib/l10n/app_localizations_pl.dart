@@ -18629,4 +18629,43 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSendKillSwitch =>
       'Wyłącznik awaryjny jest włączony: nic się nie łączy. Bezpośrednio · Przesyłanie pliku działa.';
+
+  @override
+  String get levelStepTitle => 'Ile portfela chcesz widzieć?';
+
+  @override
+  String get levelOneTitle => 'Tylko wysyłanie i odbieranie';
+
+  @override
+  String get levelOneLine =>
+      'Pieniądze wpływają, pieniądze wychodzą. Nic do nauki.';
+
+  @override
+  String get levelTwoTitle => 'Nie za technicznie, ale mów, co się dzieje';
+
+  @override
+  String get levelTwoLine => 'Prostymi słowami o tym, co robi portfel.';
+
+  @override
+  String get levelThreeTitle => 'Chcę zobaczyć wszystko';
+
+  @override
+  String get levelThreeLine =>
+      'Każdy przełącznik, każda liczba. Uważaj na pokrętła.';
+
+  @override
+  String get levelUndercoverTitle => 'Incognito od początku';
+
+  @override
+  String get levelUndercoverLine => 'Tylko Tor, od pierwszego połączenia.';
+
+  @override
+  String get levelFooter =>
+      'Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.';
+
+  @override
+  String get levelRowTitle => 'Poziom portfela';
+
+  @override
+  String get levelChangeTitle => 'Zmień poziom';
 }
