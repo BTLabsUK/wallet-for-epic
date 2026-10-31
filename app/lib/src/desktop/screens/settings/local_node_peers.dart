@@ -293,7 +293,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
         ),
         SizedBox(height: Sp.x3),
         LayoutBuilder(
-          builder: (context, box) => box.maxWidth < 600.u
+          builder: (context, box) => box.maxWidth < Lay.md
               ? SingleChildScrollView(scrollDirection: Axis.horizontal, child: SizedBox(width: 600.u, child: table))
               : table,
         ),

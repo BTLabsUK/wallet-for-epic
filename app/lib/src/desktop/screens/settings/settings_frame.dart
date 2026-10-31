@@ -46,7 +46,7 @@ enum SettingsWidth { form, wide }
 /// The widest a [SettingsWidth.wide] page gets (a 4K window still reads as one panel).
 double get settingsWideMax => 1760.u;
 
-/// The Settings page: title, sub-navigation on the left (a scrolling strip below 1000 px)
+/// The Settings page: title, sub-navigation on the left (a scrolling strip while the page is narrower than Lay.xl)
 /// and the page on the right.
 class SettingsFrame extends ConsumerWidget {
   const SettingsFrame({super.key, required this.route, required this.child, this.width = SettingsWidth.form});
@@ -58,7 +58,6 @@ class SettingsFrame extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.read(deskNavProvider.notifier);
-    final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
     final ui = ref.watch(deskLevelUiProvider);
     final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
@@ -74,6 +73,10 @@ class SettingsFrame extends ConsumerWidget {
       alignment: Alignment.topCenter,
       child: ConstrainedBox(constraints: BoxConstraints(maxWidth: width == SettingsWidth.wide ? settingsWideMax : Ctl.mid), child: child),
     );
+    // The section list goes beside the page only when the page itself (the room EPage leaves
+    // inside its gutters) is Lay.xl wide; a 1000 px window with the sidebar gets the strip.
+    return LayoutBuilder(builder: (context, box) {
+    final wide = box.maxWidth - 2 * Sp.x8 >= Lay.xl;
     return EPage(
       title: l.deskSetFrameTitle,
       width: EPageWidth.full,
@@ -123,6 +126,7 @@ class SettingsFrame extends ConsumerWidget {
               ],
             ),
     );
+    });
   }
 }
 

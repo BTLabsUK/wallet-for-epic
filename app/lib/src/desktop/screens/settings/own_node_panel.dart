@@ -32,7 +32,7 @@ import '../../../settings_file/status_site.dart' show statusSiteHost;
 Duration get ownAskEvery => appConfig.ownNodeAsk;
 
 /// From this panel width, status and details (or peers) sit side by side.
-double get nodePanelWideFrom => 1040.u;
+double get nodePanelWideFrom => Lay.wide;
 
 /// A tile's chart: taller where the panel is wide.
 double nodeChartHeight({required bool wide}) => wide ? 72.u : 32.u;
@@ -258,7 +258,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
           LayoutBuilder(
             builder: (context, box) {
               final gap = Sp.x3;
-              final n = box.maxWidth >= 480.u ? tiles.length : 2;
+              final n = box.maxWidth >= Lay.sm ? tiles.length : 2;
               final w = ((box.maxWidth - gap * (n - 1)) / n).floorToDouble();
               return Wrap(spacing: gap, runSpacing: gap, children: [for (final t in tiles) SizedBox(width: w, child: t)]);
             },
