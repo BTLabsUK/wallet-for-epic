@@ -92,7 +92,7 @@ class _DeskRelayNoticeState extends ConsumerState<DeskRelayNotice> {
         tone: ETone.warn,
         icon: EIcons.epicbox,
         title: l.deskErrEpicboxUnreachable,
-        text: l.deskLvRelayDownText(offer.name),
+        text: l.lvShellOfferBody(offer.name),
         actionsBelow: true,
         actions: [
           EButton(
