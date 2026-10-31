@@ -1243,7 +1243,6 @@ class DeskSettings {
     this.torAutostart = false,
     this.autoLockMinutes = autoLockDefault,
     this.autoLockOn = true,
-    this.newLookSeen = false,
     this.internetGuideSeen = false,
     this.tourSeen = false,
     this.importWarningSeen = false,
@@ -1308,9 +1307,6 @@ class DeskSettings {
   /// Auto-lock is on; off, the wallet locks only by Lock wallet or quitting.
   final bool autoLockOn;
 
-  /// The one-time "new look" notice on Overview was closed.
-  final bool newLookSeen;
-
   /// The Receive from the internet guide was shown once: From the internet then switches
   /// straight away; the guide stays behind the (?) next to it. App-wide.
   final bool internetGuideSeen;
@@ -1347,7 +1343,6 @@ class DeskSettings {
     bool? torAutostart,
     int? autoLockMinutes,
     bool? autoLockOn,
-    bool? newLookSeen,
     bool? internetGuideSeen,
     bool? tourSeen,
     bool? importWarningSeen,
@@ -1371,7 +1366,6 @@ class DeskSettings {
     torAutostart: torAutostart ?? this.torAutostart,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     autoLockOn: autoLockOn ?? this.autoLockOn,
-    newLookSeen: newLookSeen ?? this.newLookSeen,
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,
     importWarningSeen: importWarningSeen ?? this.importWarningSeen,

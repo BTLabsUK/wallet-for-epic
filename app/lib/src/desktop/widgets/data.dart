@@ -670,41 +670,6 @@ class _ENavItemState extends State<ENavItem> {
   }
 }
 
-/// A key cap: "Ctrl+L".
-class EKbd extends StatelessWidget {
-  const EKbd(this.keys, {super.key});
-
-  final String keys;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 2),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.xs), border: Border.all(color: c.lineStrong)),
-      child: Text(keys, style: context.ts.mono(size: 11, color: c.dim, weight: FontWeight.w500)),
-    );
-  }
-}
-
-/// Words for a health state, used by status rows, comboboxes and the status card.
-String healthWord(AppLocalizations l, ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => l.deskKitHealthOn,
-  ServiceHealth.slow => l.deskKitHealthSlow,
-  ServiceHealth.down => l.deskKitHealthOffline,
-  ServiceHealth.off => l.deskKitHealthOff,
-  ServiceHealth.checking => l.deskKitHealthChecking,
-};
-
-/// Tone for a health state: ok filled, slow ring, down cross, off neutral.
-ETone healthTone(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => ETone.ok,
-  ServiceHealth.slow => ETone.warn,
-  ServiceHealth.down => ETone.risk,
-  ServiceHealth.off => ETone.neutral,
-  ServiceHealth.checking => ETone.info,
-};
-
 /// A path on one line: when it does not fit, the middle gives way (its end matters more).
 class EMiddleEllipsis extends StatelessWidget {
   const EMiddleEllipsis(this.text, {super.key, required this.style, this.tooltip = true, this.width});

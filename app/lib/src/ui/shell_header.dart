@@ -31,9 +31,6 @@ const Key fiatValueKey = ValueKey('balance-fiat');
 /// The key of the "Available to spend" caption above the figure, for tests.
 const Key balanceCaptionKey = ValueKey('balance-caption');
 
-/// The key of the pending line under the fiat row, for tests.
-const Key pendingLineKey = ValueKey('pending-line');
-
 /// The key of the balance header under Send's and Receive's app bar, for tests.
 const Key balanceHeaderKey = ValueKey('balance-header');
 
@@ -98,56 +95,11 @@ bool paymentLanded(WalletSummary? before, WalletSummary? after) {
       incoming(after) < incoming(before);
 }
 
-/// The two kinds of balance the pending line names: coins a send holds until it completes,
-/// and coins on their way in (in a block and confirming, mining rewards maturing).
-enum PendingKind { onHold, comingIn }
-
-/// One item of the pending line: what it is, its glyph and its words. [kind] is null for the
-/// calm line ("All confirmed", "Nothing here yet").
-typedef PendingItem = ({PendingKind? kind, IconData icon, String text});
-
 /// The money on its way in: in a block and confirming, and mining rewards. Outputs not on
 /// chain yet ([WalletSummary.awaitingFinalization]) are left out: anyone can offer a payment
 /// and never finish it, so it is not money until it is in a block. The ? lists them apart.
 BigInt comingIn(WalletSummary summary) =>
     summary.awaitingConfirmation + summary.immature;
-
-/// The pending line's items for [summary], at most two: what a send holds ("10 on hold") and
-/// what is on its way in ("+7.49 coming in"). With neither, "All confirmed", or "Nothing here
-/// yet" when the wallet has had no payments ([empty]). The ? beside the balance still splits
-/// each one up.
-List<PendingItem> pendingItems(
-  AppLocalizations l,
-  WalletSummary summary, {
-  required bool hidden,
-  required bool empty,
-}) {
-  String amount(BigInt v) =>
-      hidden ? hiddenAmount : localDigits(l, displayEpic(v));
-  final incoming = comingIn(summary);
-  final items = <PendingItem>[
-    if (summary.locked > BigInt.zero)
-      (
-        kind: PendingKind.onHold,
-        icon: Icons.lock_outline,
-        text: l.balanceLineOnHold(amount(summary.locked)),
-      ),
-    if (incoming > BigInt.zero)
-      (
-        kind: PendingKind.comingIn,
-        icon: Icons.south_west,
-        text: l.balanceLineComingIn(amount(incoming)),
-      ),
-  ];
-  if (items.isNotEmpty) return items;
-  return [
-    (
-      kind: null,
-      icon: Icons.check,
-      text: empty ? l.balanceLineNothingYet : l.balanceLineAllConfirmed,
-    ),
-  ];
-}
 
 /// One token of the balance header's detail line: a small glyph and an amount, and what a
 /// screen reader says for it.
@@ -498,67 +450,6 @@ class _Figure extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-/// The pending line under Wallet's figure: [items] (at most two) on one centred line of fixed
-/// height, each a small glyph and its words in the body face at 13, dim; the calm item ("All
-/// confirmed") fainter. It never scrolls: when the items are wider than the line, as at large
-/// text on a small phone, they shrink to fit. Screen readers hear them once, in order.
-class PendingLine extends StatelessWidget {
-  const PendingLine({super.key, required this.items});
-
-  final List<PendingItem> items;
-
-  /// Glyph (at the text scale, like its words), the gap after it, and the space between two
-  /// items.
-  static const double _glyph = 13, _gap = 5, _between = 16;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final scaler = MediaQuery.textScalerOf(context);
-    final style = TextStyle(
-      fontSize: 13,
-      color: t.dim,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    final calm = style.copyWith(color: t.faint);
-    final height = math.max(20.0, _lineHeight(style, scaler, context) + 4);
-    return Semantics(
-      container: true,
-      label: items.map((i) => i.text).join('\n'),
-      excludeSemantics: true,
-      child: SizedBox(
-        key: pendingLineKey,
-        height: height,
-        child: Center(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final (n, i) in items.indexed) ...[
-                  if (n > 0) const SizedBox(width: _between),
-                  Icon(
-                    i.icon,
-                    size: scaler.scale(_glyph),
-                    color: i.kind == null ? t.faint : t.dim,
-                  ),
-                  const SizedBox(width: _gap),
-                  Text(
-                    i.text,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: i.kind == null ? calm : style,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

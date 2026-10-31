@@ -12,8 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../models.dart' show TxEntry;
 import '../network_gate.dart';
-import '../pairing_api.dart';
-import '../pairing_providers.dart';
 import '../providers.dart';
 import '../settings.dart';
 import 'device_providers.dart';
@@ -24,13 +22,6 @@ import 'device_store.dart';
 final linkedDevicesOnProvider = Provider<bool>(
   (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.linkedDevicesOn)) ?? false,
 );
-
-/// The open wallet's pairing engine for its devices: on while Pairing or Linked devices is on.
-/// Device pairings are private: they never show in Contacts, Pending invites or a backup.
-final devicePairingApiProvider = Provider<PairingApi>((ref) {
-  if (!ref.watch(pairingOnProvider) && !ref.watch(linkedDevicesOnProvider)) return const NoPairing();
-  return ref.watch(sessionProvider)?.pairing ?? const NoPairing();
-});
 
 /// This device's name until the user renames it, in the phone's language.
 String phoneDeviceName() {

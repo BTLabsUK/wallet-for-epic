@@ -60,12 +60,7 @@ Future<void> showNodeListSheet(BuildContext context) => _show(context, ServerKin
 /// Opens the Epicbox list over the current screen.
 Future<void> showEpicboxListSheet(BuildContext context) => _show(context, ServerKind.relay);
 
-/// Opens the Epicbox list over the current screen as a set to choose from ([RelaySelection]):
-/// Connection servers, the linked devices' Servers.
-Future<void> showRelaySelectionSheet(BuildContext context, {required RelaySelection selection}) =>
-    _show(context, ServerKind.relay, selection: selection);
-
-Future<void> _show(BuildContext context, ServerKind kind, {RelaySelection? selection}) => showModalBottomSheet<void>(
+Future<void> _show(BuildContext context, ServerKind kind) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
@@ -79,7 +74,7 @@ Future<void> _show(BuildContext context, ServerKind kind, {RelaySelection? selec
       minChildSize: 0.5,
       maxChildSize: 1,
       builder: (context, scroll) =>
-          ServerListSheet(kind: kind, scrollController: scroll, sheetController: sheet, selection: selection),
+          ServerListSheet(kind: kind, scrollController: scroll, sheetController: sheet),
     );
   },
 );

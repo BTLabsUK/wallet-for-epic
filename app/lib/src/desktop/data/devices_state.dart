@@ -24,10 +24,6 @@ import 'state.dart';
 /// Linked devices is on (Settings › Advanced › Experimental).
 final deskLinkedDevicesOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.linkedDevicesOn)));
 
-/// The pairing engine runs: for contacts (Pairing) or for linked devices. The device pairings
-/// are private: they never show in Contacts, Pending invites, a picker or an export.
-final deskPairingEngineOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.pairingEngineOn)));
-
 /// The clock the devices' times are read against; the screenshot tour and the tests give the
 /// mock's pairing clock, which the fake engine stamps its invites with.
 final deskDeviceClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);

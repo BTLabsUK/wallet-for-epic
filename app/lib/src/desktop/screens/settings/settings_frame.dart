@@ -117,14 +117,6 @@ class SettingsFrame extends ConsumerWidget {
   }
 }
 
-String healthWord(AppLocalizations l, ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => l.deskSetFrameHealthOn,
-  ServiceHealth.slow => l.deskSetFrameHealthSlow,
-  ServiceHealth.down => l.deskSetFrameNotResponding,
-  ServiceHealth.off => l.deskSetFrameOff,
-  ServiceHealth.checking => l.deskSetFrameChecking,
-};
-
 /// The node's state word (a synced node says Synced, never Online).
 String nodeWord(AppLocalizations l, ServiceHealth h) => switch (h) {
   ServiceHealth.ok => l.deskSetFrameNodeSynced,
@@ -211,28 +203,6 @@ class _JumpSectionState extends ConsumerState<JumpSection> with SingleTickerProv
         ),
         child: widget.child,
       ),
-    );
-  }
-}
-
-/// Health dot, word and latency: "On · 84 ms".
-class HealthLine extends StatelessWidget {
-  const HealthLine(this.health, {super.key, this.latencyMs});
-
-  final ServiceHealth health;
-  final int? latencyMs;
-
-  @override
-  Widget build(BuildContext context) {
-    final ts = context.ts;
-    final l = context.l10n;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        EStatusDot(healthTone(health)),
-        SizedBox(width: 6.u),
-        Text(latencyMs == null ? healthWord(l, health) : l.deskSetFrameHealthLatency(healthWord(l, health), latencyMs!), style: ts.small),
-      ],
     );
   }
 }

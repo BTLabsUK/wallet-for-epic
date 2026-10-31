@@ -3520,8 +3520,7 @@ void main() {
       final eye = tester.getRect(find.byTooltip('Hide amounts'));
       expect(eye.left, greaterThanOrEqualTo(fiat.right));
       expect(eye.center.dy, closeTo(fiat.center.dy, 1));
-      // The locked 2 EPIC is a tile under that row, not a line.
-      expect(find.byKey(pendingLineKey), findsNothing);
+      // The locked 2 EPIC is a tile under that row.
       final tile = find.byKey(balanceTileKey(BalanceKind.locked));
       expect(tile, findsOneWidget);
       expect(tester.getRect(tile).top, greaterThanOrEqualTo(eye.bottom));

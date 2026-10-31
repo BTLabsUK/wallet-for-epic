@@ -12,7 +12,6 @@ import 'data_folder_io.dart' show appDataDirectory;
 
 import 'builtin_node.dart';
 import 'models.dart' show Chain;
-import 'providers.dart';
 
 /// Whether the platform can have a built-in node at all: desktop only, never phones.
 bool get builtInNodeSupported =>
@@ -45,36 +44,6 @@ final builtInNodeLocationProvider = FutureProvider<BuiltInNodeLocation>((
       : '$exeDir${sep}bin$sep$name';
   return BuiltInNodeLocation(root: '${support.path}${sep}node', binary: binary);
 });
-
-/// Whether the user turned the built-in node on for a chain (`node.builtin.<chain>`). False
-/// unless set, and always false where it is not supported.
-final builtInNodeEnabledProvider =
-    AsyncNotifierProvider.family<BuiltInNodeEnabledNotifier, bool, Chain>(
-      BuiltInNodeEnabledNotifier.new,
-    );
-
-class BuiltInNodeEnabledNotifier extends AsyncNotifier<bool> {
-  BuiltInNodeEnabledNotifier(this.chain);
-
-  final Chain chain;
-
-  @override
-  Future<bool> build() async {
-    if (!builtInNodeSupported) return false;
-    final raw = await ref
-        .watch(secretStoreProvider)
-        .read(builtInNodeSettingKey(chain));
-    return raw == 'true';
-  }
-
-  Future<void> set(bool on) async {
-    if (!builtInNodeSupported) return;
-    await ref
-        .read(secretStoreProvider)
-        .write(builtInNodeSettingKey(chain), '$on');
-    state = AsyncData(on);
-  }
-}
 
 final Map<(String, Chain), BuiltInNode> _nodes = {};
 
@@ -111,12 +80,3 @@ final builtInNodeProvider = FutureProvider.family<BuiltInNode, Chain>((
   final where = await ref.watch(builtInNodeLocationProvider.future);
   return builtInNodeFor(where, chain);
 });
-
-/// The node's state as it changes.
-final builtInNodeStateProvider = StreamProvider.family<BuiltInNodeState, Chain>(
-  (ref, chain) async* {
-    final node = await ref.watch(builtInNodeProvider(chain).future);
-    yield node.state;
-    yield* node.states;
-  },
-);

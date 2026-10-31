@@ -31,14 +31,6 @@ const int qrLowSeconds = 10;
 /// Seconds without a new part, while reading, before the scanner says to hold steady.
 const int qrHoldSteadySeconds = 4;
 
-/// Whether a reply code skips the hidden › 3 · 2 · 1 steps. The built answer is no:
-/// the payment and its reply behave alike.
-const bool qrReplySkipsCountdown = false;
-
-/// Whether the reply code screen opens itself after Accept. The built answer is no:
-/// the accepted screen has "Show reply as QR".
-const bool qrReplyOpensItself = false;
-
 /// The quiet zone around the modules, as the QR standard asks.
 const int qrQuietModules = 4;
 

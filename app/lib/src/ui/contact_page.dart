@@ -55,30 +55,6 @@ String contactInitials(String name) {
 /// Tor` for an onion address.
 String contactTag(AppLocalizations l, String address) => recipientMethodWord(l, parseRecipient(address).kind);
 
-/// [contactInitials] in a [GlyphTile] of [size], in the display face.
-class ContactTile extends StatelessWidget {
-  const ContactTile({super.key, required this.name, this.size = 40});
-
-  final String name;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    // A neutral circle, as the desktop's rows: the gold brackets are brand art.
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: t.surfaceHi, border: Border.all(color: t.line)),
-      child: Text(
-        contactInitials(name),
-        style: TextStyle(fontFamily: t.headFamily, fontSize: size * 0.35, fontWeight: FontWeight.w600, color: t.text),
-      ),
-    );
-  }
-}
-
 /// The payments with [contact] (GP-043): the newest five rows whose other side is one of
 /// its addresses, then the way to all of them in Activity, searched by its name. Says so
 /// when there are none yet.

@@ -832,7 +832,7 @@ void main() {
   group('settings persistence', () {
     test('DeskSettings and SettingsPrefs survive a restart', () async {
       final store = DeskStore(secrets);
-      await store.saveSettings(const DeskSettings(theme: ThemeChoice.light, scale: 125, hideAmounts: true, newLookSeen: true));
+      await store.saveSettings(const DeskSettings(theme: ThemeChoice.light, scale: 125, hideAmounts: true));
       final container = ProviderContainer(overrides: [deskStoreProvider.overrideWithValue(store)]);
       container.read(settingsPrefsProvider.notifier).set(const SettingsPrefs(epicboxOnStart: false, walletLabel: 'Savings', nodeLabels: {'http://a': 'A'}));
       await pumpEventQueue();
@@ -840,7 +840,7 @@ void main() {
       expect(jsonDecode((await secrets.read(DeskStore.prefsKey))!), containsPair('walletLabel', 'Savings'));
 
       final boot = await DeskBoot.load(store);
-      expect((boot.settings.theme, boot.settings.scale, boot.settings.hideAmounts, boot.settings.newLookSeen), (ThemeChoice.light, 125, true, true));
+      expect((boot.settings.theme, boot.settings.scale, boot.settings.hideAmounts), (ThemeChoice.light, 125, true));
       final again = ProviderContainer(overrides: [deskStoreProvider.overrideWithValue(store), deskBootProvider.overrideWithValue(boot)]);
       addTearDown(again.dispose);
       final prefs = again.read(settingsPrefsProvider);
@@ -866,7 +866,7 @@ void main() {
       await secrets.write(DeskStore.settingsKey, jsonEncode({'theme': 'light', 'scale': '125', 'hideAmounts': 1, 'newLookSeen': 'yes', 'autoLockMinutes': '5'}));
       final s = await DeskStore(secrets).settings();
       const d = DeskSettings();
-      expect((s.theme, s.scale, s.hideAmounts, s.newLookSeen, s.autoLockMinutes), (ThemeChoice.light, d.scale, d.hideAmounts, d.newLookSeen, d.autoLockMinutes));
+      expect((s.theme, s.scale, s.hideAmounts, s.autoLockMinutes), (ThemeChoice.light, d.scale, d.hideAmounts, d.autoLockMinutes));
       // Auto-lock: 15 minutes and on by default; 1 to 60; the pre-26.10.13 key is not read.
       expect((d.autoLockMinutes, d.autoLockOn), (15, true));
       expect(deskSettingsFromJson({'autoLockMinutes': 30}).autoLockMinutes, 15);
