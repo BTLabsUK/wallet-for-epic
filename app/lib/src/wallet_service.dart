@@ -191,6 +191,14 @@ abstract interface class WalletSession {
     required String sealedPassword,
   });
 
+  /// Checks [pin] against [sealedPassword] of a wallet from [WalletService.createWithPin],
+  /// before an action that asks for it again. The attempt counts as in
+  /// [WalletService.openWithPin]; nothing else changes.
+  Future<void> checkPin({
+    required String pin,
+    required String sealedPassword,
+  });
+
   /// Seals the wallet password under [newPin] and returns the new sealed text. [oldPin] must
   /// open [sealedPassword]; the attempt counts as in [WalletService.openWithPin]. Both texts
   /// open until [confirmPinChange], so store the new one first.
@@ -1201,6 +1209,12 @@ class FakeWalletSession implements WalletSession {
     _owner._checkPin(pin, sealedPassword);
     return phrase;
   }
+
+  @override
+  Future<void> checkPin({
+    required String pin,
+    required String sealedPassword,
+  }) async => _owner._checkPin(pin, sealedPassword);
 
   @override
   Future<String> changePin({

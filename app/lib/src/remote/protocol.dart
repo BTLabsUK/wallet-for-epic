@@ -25,6 +25,7 @@ enum SessionMember {
   mnemonic,
   changePassword,
   mnemonicWithPin,
+  checkPin,
   changePin,
   confirmPinChange,
   cancelTransaction,

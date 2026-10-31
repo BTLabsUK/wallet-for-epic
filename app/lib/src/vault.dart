@@ -253,13 +253,19 @@ class WalletVault {
     await session.confirmPinChange(sealedPassword: next);
   }
 
-  /// Checks [pin] without showing anything. LEPIC has no plain PIN check, so this seals the
-  /// password again under the same PIN, which also renews the PIN key. Throws [PinRejected].
+  /// Checks [pin] without showing anything: one counted attempt, with the sealed text and the
+  /// PIN key left as they are. Throws [PinRejected].
   Future<void> checkPin(
     WalletSession session,
     WalletConfig config,
     String pin,
-  ) => _reseal(session, config, currentPin: pin, newPin: pin);
+  ) async {
+    final sealed = await _sealed(config.chain);
+    await _pinCall(
+      config,
+      () => session.checkPin(pin: pin, sealedPassword: sealed),
+    );
+  }
 
   /// Whether [chain]'s wallet opens with a passphrase ([isValidPassphrase]) instead of a PIN.
   Future<bool> usesPassphrase(Chain chain) async =>

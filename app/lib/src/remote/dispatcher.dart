@@ -383,6 +383,13 @@ class WalletDispatcher {
       ),
       stringWire,
     ),
+    SessionMember.checkPin => _once(
+      s.checkPin(
+        pin: p.of('pin', stringWire),
+        sealedPassword: p.of('sealedPassword', stringWire),
+      ),
+      voidWire,
+    ),
     SessionMember.changePin => _once(
       s.changePin(
         sealedPassword: p.of('sealedPassword', stringWire),

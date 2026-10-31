@@ -281,10 +281,10 @@ void main() {
       },
     );
 
-    test('checks a PIN by sealing again under it', () async {
+    test('checks a PIN without sealing again', () async {
       final session = (await vault.create(config, pin: '123456')).session;
       await vault.checkPin(session, config, '123456');
-      expect(service.confirmedPinChanges, [fakeSealedPassword('123456')]);
+      expect(service.confirmedPinChanges, isEmpty);
       await expectLater(
         vault.checkPin(session, config, '000000'),
         throwsA(isA<PinRejected>()),

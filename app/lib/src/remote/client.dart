@@ -649,6 +649,15 @@ class RemoteWalletSession implements WalletSession {
   });
 
   @override
+  Future<void> checkPin({
+    required String pin,
+    required String sealedPassword,
+  }) => _call(SessionMember.checkPin, voidWire, {
+    'pin': pin,
+    'sealedPassword': sealedPassword,
+  });
+
+  @override
   Future<String> changePin({
     required String sealedPassword,
     required String oldPin,

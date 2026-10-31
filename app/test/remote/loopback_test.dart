@@ -333,6 +333,11 @@ void main() {
         s.mnemonicWithPin(pin: '1', sealedPassword: sealed),
         throwsKind(WalletErrorKind.wrongPassword),
       );
+      await s.checkPin(pin: '123456', sealedPassword: sealed);
+      await expectLater(
+        s.checkPin(pin: '1', sealedPassword: sealed),
+        throwsKind(WalletErrorKind.wrongPassword),
+      );
       expect(
         await s.changePin(
           sealedPassword: sealed,
