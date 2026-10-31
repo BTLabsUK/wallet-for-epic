@@ -53,8 +53,9 @@ typedef WalletStatus = ({NodeStatus node, EpicboxState? epicbox});
 /// The node and epicbox statuses from what the app knows: the node's tip, whether a refresh
 /// runs ([syncing]) and its [percent], the balances shown ([summary]) and the listener.
 ///
-/// Node: a running refresh is syncing; a failed tip request, or balances the refresh could not
-/// check, is offline; a tip is online; no answer yet is connecting. Epicbox: connected is
+/// Node: a failed tip request not answered since is offline, even while a refresh runs; else a
+/// running refresh is syncing; balances the refresh could not check are offline; a tip is
+/// online; no answer yet is connecting. Epicbox: connected is
 /// online, a lost connection is offline, anything else connecting; a stopped listener has no
 /// status. While the relay's connection [waitingForTor] (the user turned Tor on and it is still
 /// starting) a lost connection is connecting: the user closed it on purpose (android-09).
@@ -81,16 +82,20 @@ WalletStatus walletStatus({
       summary != null &&
       summary.lastConfirmedHeight > BigInt.zero &&
       answer.height - summary.lastConfirmedHeight <= BigInt.from(syncLagBlocks);
+  // A node whose tip request failed, and that has not answered since, is offline even while a
+  // refresh runs against it: that refresh only retries a node it can't reach, and as "syncing
+  // 0 %" it hid the outage from node failover for good (26.10.26, a network filtering the node).
+  final unreachable = tip.hasError && (!tip.isLoading || answer == null);
   final NodeStatus node;
-  if (syncing && !(atTip && (percent ?? 0) == 0)) {
+  if (unreachable) {
+    node = NodeStatus(NodeState.offline, height: checked);
+  } else if (syncing && !(atTip && (percent ?? 0) == 0)) {
     node = NodeStatus(
       NodeState.syncing,
       percent: percent,
       tip: answer,
       height: checked,
     );
-  } else if (tip.hasError && !tip.isLoading) {
-    node = NodeStatus(NodeState.offline, height: checked);
   } else if (summary != null && !summary.validatedWithNode) {
     node = NodeStatus(
       NodeState.offline,

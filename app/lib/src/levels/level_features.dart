@@ -295,10 +295,11 @@ class LevelFeatures {
   /// The node is never shown and failover is forced on.
   final bool nodeAutomatic;
 
-  /// A relay down for a while is offered a one-tap switch to the next healthy one, never
-  /// switched silently (`relay_switch_providers.dart`). Level 1 only: levels 2 and 3 keep
-  /// today's server picker.
-  bool get relaySwitchPrompt => level == WalletLevel.justSendReceive;
+  /// A relay down for [relaySwitchAfter] moves the wallet to the next healthy one of the list
+  /// by itself, at every level (the owner, 26.10.26: never sit on a dead relay); the new address
+  /// is said after the move (`relay_switch_providers.dart`, desktop `desk_relay_switch.dart`).
+  /// The offer to tap stays only for a move that failed.
+  bool get relaySwitchPrompt => true;
 
   /// The Tor-only row on the first-start step and Change level.
   final bool undercoverOffered;
