@@ -9,6 +9,7 @@
 /// nothing moves and the step buttons remain.
 library;
 
+import 'phone_sheet.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -253,7 +254,7 @@ const Key handshakeCaptionKey = ValueKey('handshake-caption');
 Future<void> showHandshakeSheet(
   BuildContext context, {
   HandshakeFlow flow = HandshakeFlow.payment,
-}) => showModalBottomSheet<void>(
+}) => showPhoneSheet<void>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,

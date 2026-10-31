@@ -2,6 +2,7 @@
 /// The details a user may add to a payment a scan found: who paid, how it came, a note.
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,7 +27,7 @@ typedef TxDetailsInput = ({
 
 /// Opens the sheet for [tx] and returns the details the user saved, or null when they cancelled.
 Future<TxDetailsInput?> showTxDetailsSheet(BuildContext context, TxEntry tx) =>
-    showModalBottomSheet<TxDetailsInput>(
+    showPhoneSheet<TxDetailsInput>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

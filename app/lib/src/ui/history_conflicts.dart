@@ -3,6 +3,7 @@
 /// says something else. Per value two cards, Mine (chosen at first) and Backup.
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
@@ -16,7 +17,7 @@ import 'method_names.dart' show txMethodWord;
 Future<Map<String, bool>?> showImportConflicts(
   BuildContext context,
   List<ImportConflict> conflicts,
-) => showModalBottomSheet<Map<String, bool>>(
+) => showPhoneSheet<Map<String, bool>>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,

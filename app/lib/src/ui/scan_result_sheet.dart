@@ -3,6 +3,7 @@
 /// the other network, a transaction file's text, a pairing link. Shaped like [InfoSheet].
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +32,7 @@ Future<bool> showScanResultSheet(
 }) async {
   final container = ProviderScope.containerOf(context, listen: false);
   final l = context.l10n;
-  final result = await showModalBottomSheet<_SheetResult>(
+  final result = await showPhoneSheet<_SheetResult>(
     context: context,
     showDragHandle: true,
     builder: (_) => ScanResultSheet(

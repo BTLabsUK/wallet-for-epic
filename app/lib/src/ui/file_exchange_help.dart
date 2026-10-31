@@ -7,6 +7,7 @@
 /// sheet shows the four steps as a still list.
 library;
 
+import 'phone_sheet.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ enum FileExchangeRole {
 Future<void> showFileExchangeHelp(
   BuildContext context, {
   required FileExchangeRole role,
-}) => showModalBottomSheet<void>(
+}) => showPhoneSheet<void>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,

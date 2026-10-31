@@ -6,6 +6,7 @@
 /// through [watchWalletStatus] and [phoneTorProvider]; nothing here debounces or decides a route.
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -319,7 +320,7 @@ const Key connectionsSheetKey = ValueKey('connections-sheet');
 /// service and its state word, the detail under them, and a tap that closes the sheet and
 /// opens the service as its icon does. The network mode, when one holds the network back, is
 /// the first row.
-Future<void> showConnectionsSheet(BuildContext context) => showModalBottomSheet<void>(
+Future<void> showConnectionsSheet(BuildContext context) => showPhoneSheet<void>(
   context: context,
   showDragHandle: true,
   useSafeArea: true,

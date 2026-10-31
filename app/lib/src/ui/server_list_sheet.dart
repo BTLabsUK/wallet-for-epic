@@ -9,6 +9,7 @@
 /// operator's icon from the monitor, else initials, and the health as a dot.
 library;
 
+import 'phone_sheet.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -59,7 +60,7 @@ Future<void> showNodeListSheet(BuildContext context) => _show(context, ServerKin
 /// Opens the Epicbox list over the current screen.
 Future<void> showEpicboxListSheet(BuildContext context) => _show(context, ServerKind.relay);
 
-Future<void> _show(BuildContext context, ServerKind kind) => showModalBottomSheet<void>(
+Future<void> _show(BuildContext context, ServerKind kind) => showPhoneSheet<void>(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
