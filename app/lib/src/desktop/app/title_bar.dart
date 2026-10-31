@@ -245,13 +245,17 @@ class DeskTitleBar extends ConsumerWidget {
                 ),
               ),
             ),
+            // The wallet's name takes all the room the bar has left (beside a Spacer it got
+            // half, and lost its name in a narrow window).
             if (wallet) ...[
               SizedBox(width: Sp.x4),
-              Flexible(child: Align(alignment: AlignmentDirectional.centerStart, child: _Held(child: _WalletChip(dim: dim)))),
-            ],
-            const Spacer(),
+              Expanded(child: Align(alignment: AlignmentDirectional.centerStart, child: _Held(child: _WalletChip(dim: dim)))),
+            ] else
+              const Spacer(),
             if (wallet) ...[
-              _Held(child: _ModeMark(dim: dim)),
+              // A bar narrower than Lay.lg shows the mode by its glyph alone (its name in the
+              // tooltip and the screen-reader label), so the wallet's name keeps its room.
+              _Held(child: _ModeMark(dim: dim, glyphOnly: width < Lay.lg)),
               _Held(child: _StatusIcons(dim: dim)),
               SizedBox(width: Sp.x1),
               _Held(child: _LockButton(dim: dim)),
@@ -901,9 +905,10 @@ class _WalletChip extends ConsumerWidget {
 /// and a hairline after it. A click opens a popover with the glyph, the name, one line and a
 /// Change button that opens Settings › Advanced › Network.
 class _ModeMark extends ConsumerWidget {
-  const _ModeMark({required this.dim});
+  const _ModeMark({required this.dim, this.glyphOnly = false});
 
   final bool dim;
+  final bool glyphOnly;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -958,12 +963,12 @@ class _ModeMark extends ConsumerWidget {
           builder: (context, m, open) => _BarButton(
             key: const ValueKey('bar-net-mode'),
             label: l.netMarkSemanticsDesk(name),
-            tooltip: networkModeMarkLine(l, mode, waitingForTor: waiting),
+            tooltip: glyphOnly ? '$name · ${networkModeMarkLine(l, mode, waitingForTor: waiting)}' : networkModeMarkLine(l, mode, waitingForTor: waiting),
             open: open,
             padding: EdgeInsets.symmetric(horizontal: 4.u),
             onPressed: () => _toggle(m),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: Sp.x2),
+              padding: EdgeInsets.symmetric(horizontal: glyphOnly ? Sp.x1 + 2.u : Sp.x2),
               alignment: Alignment.center,
               decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.lineStrong), borderRadius: BorderRadius.circular(12.u)),
               height: 24.u,
@@ -971,8 +976,10 @@ class _ModeMark extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(networkModeGlyph(mode), size: 14.u, color: dim ? c.faint : c.dim),
-                  SizedBox(width: Sp.x1),
-                  Text(name, maxLines: 1, style: ts.caption.copyWith(color: dim ? c.faint : c.dim)),
+                  if (!glyphOnly) ...[
+                    SizedBox(width: Sp.x1),
+                    Text(name, maxLines: 1, style: ts.caption.copyWith(color: dim ? c.faint : c.dim)),
+                  ],
                 ],
               ),
             ),

@@ -44,8 +44,12 @@ class EPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final compact = MediaQuery.sizeOf(context).width < Bp.phone;
-    final pad = compact ? Sp.x4 : Sp.x8;
+    // The gutter follows the page's own width: a page beside the sidebar at a 1000 px window
+    // is as narrow as an 800 px one with the rail.
+    return LayoutBuilder(builder: (context, box) => _page(context, MediaQuery.sizeOf(context).width < Bp.phone ? Sp.x4 : (box.maxWidth < Lay.xl ? Sp.x6 : Sp.x8)));
+  }
+
+  Widget _page(BuildContext context, double pad) {
     final maxW = switch (width) {
       EPageWidth.narrow => Ctl.narrow,
       EPageWidth.mid => Ctl.mid,
@@ -350,7 +354,8 @@ class EOnbFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final narrow = MediaQuery.sizeOf(context).width < 760.u;
+    // The step rail beside the form from a window of Lay.xl; below, "Step 2 of 4" above it.
+    final narrow = MediaQuery.sizeOf(context).width < Lay.xl;
     final current = steps.indexWhere((s) => s.current);
     final main = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
