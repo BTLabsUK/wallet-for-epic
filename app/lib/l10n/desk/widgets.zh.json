@@ -121,5 +121,6 @@
   "deskKitQrHideCode": "隐藏二维码",
   "deskKitMethodConnected": "已连接",
   "deskKitReachTorOff": "此检查需要关闭 Tor。",
-  "deskKitNoAnswerSince": "自 {time} 起无响应"
+  "deskKitNoAnswerSince": "自 {time} 起无响应",
+  "deskKitMoreInHelp": "更多见帮助"
 }

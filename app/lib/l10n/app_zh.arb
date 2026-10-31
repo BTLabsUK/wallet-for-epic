@@ -4683,5 +4683,6 @@
   "deskSetAboutVersionLabel": "版本",
   "deskSetAboutNodeLabel": "节点",
   "deskTxNowConfirmedBlock": "{confirmations, plural, other{已确认，{confirmations} 个确认 · 区块 {block}。}}",
-  "deskKitNoAnswerSince": "自 {time} 起无响应"
+  "deskKitNoAnswerSince": "自 {time} 起无响应",
+  "deskKitMoreInHelp": "更多见帮助"
 }

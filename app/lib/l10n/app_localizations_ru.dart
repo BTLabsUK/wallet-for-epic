@@ -18618,4 +18618,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskKitNoAnswerSince(String time) {
     return 'Нет ответа с $time';
   }
+
+  @override
+  String get deskKitMoreInHelp => 'Подробнее в справке';
 }

@@ -28051,6 +28051,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No answer since {time}'**
   String deskKitNoAnswerSince(String time);
+
+  /// Link at the end of an info popover that opens the Help topic saying more (WD2-063).
+  ///
+  /// In en, this message translates to:
+  /// **'More in Help'**
+  String get deskKitMoreInHelp;
 }
 
 class _AppLocalizationsDelegate

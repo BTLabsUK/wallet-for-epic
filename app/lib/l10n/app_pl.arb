@@ -4683,5 +4683,6 @@
   "deskSetAboutVersionLabel": "Wersja",
   "deskSetAboutNodeLabel": "Węzeł",
   "deskTxNowConfirmedBlock": "{confirmations, plural, one{Potwierdzona, {confirmations} potwierdzenie · blok {block}.} few{Potwierdzona, {confirmations} potwierdzenia · blok {block}.} many{Potwierdzona, {confirmations} potwierdzeń · blok {block}.} other{Potwierdzona, {confirmations} potwierdzenia · blok {block}.}}",
-  "deskKitNoAnswerSince": "Brak odpowiedzi od {time}"
+  "deskKitNoAnswerSince": "Brak odpowiedzi od {time}",
+  "deskKitMoreInHelp": "Więcej w Pomocy"
 }

@@ -20,6 +20,8 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
+import '../../../help/help_content.dart' show HelpId;
+import 'help_pairing.dart' show HelpAt;
 import 'local_node_dialogs.dart';
 import 'local_node_peers.dart';
 import '../../../settings_file/host_settings.dart' show hostSettings;
@@ -367,6 +369,10 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
   }
 }
 
+/// Opens Help › Running the local node: the "More in Help" link of the local-node rows'
+/// popovers (WD2-063).
+VoidCallback localNodeHelp(WidgetRef ref) => () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.localNode));
+
 class _AutostartRow extends ConsumerWidget {
   const _AutostartRow({required this.api});
 
@@ -379,6 +385,7 @@ class _AutostartRow extends ConsumerWidget {
     return ESetRow(
       title: l.deskSetLnodeAutostart,
       hint: l.deskSetLnodeAutostartHint,
+      hintHelp: localNodeHelp(ref),
       control: ESwitch(
         value: on,
         semanticLabel: l.deskSetLnodeAutostart,
@@ -406,6 +413,7 @@ class _PortsRow extends ConsumerWidget {
       title: l.deskSetLnodePorts,
       text: l.deskOnbNodePortsSub('${s.localNodeApiPort}', '${s.localNodeP2pPort}'),
       hint: l.deskOnbNodePortsWhy,
+      hintHelp: localNodeHelp(ref),
       control: ERowControl(
         child: EButton(
           key: const ValueKey('local-node-ports-change'),

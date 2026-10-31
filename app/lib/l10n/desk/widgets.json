@@ -742,5 +742,9 @@
         "type": "String"
       }
     }
+  },
+  "deskKitMoreInHelp": "More in Help",
+  "@deskKitMoreInHelp": {
+    "description": "Link at the end of an info popover that opens the Help topic saying more (WD2-063)."
   }
 }

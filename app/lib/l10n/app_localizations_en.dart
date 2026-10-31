@@ -18000,4 +18000,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskKitNoAnswerSince(String time) {
     return 'No answer since $time';
   }
+
+  @override
+  String get deskKitMoreInHelp => 'More in Help';
 }

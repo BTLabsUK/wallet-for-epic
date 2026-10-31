@@ -16959,4 +16959,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskKitNoAnswerSince(String time) {
     return '自 $time 起无响应';
   }
+
+  @override
+  String get deskKitMoreInHelp => '更多见帮助';
 }

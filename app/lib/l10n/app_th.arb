@@ -4683,5 +4683,6 @@
   "deskSetAboutVersionLabel": "เวอร์ชัน",
   "deskSetAboutNodeLabel": "โหนด",
   "deskTxNowConfirmedBlock": "{confirmations, plural, other{ยืนยันแล้ว {confirmations} ครั้ง · บล็อก {block}}}",
-  "deskKitNoAnswerSince": "ไม่ตอบตั้งแต่ {time}"
+  "deskKitNoAnswerSince": "ไม่ตอบตั้งแต่ {time}",
+  "deskKitMoreInHelp": "ดูเพิ่มเติมในความช่วยเหลือ"
 }

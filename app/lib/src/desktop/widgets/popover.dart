@@ -29,7 +29,7 @@ double get infoPopoverMaxHeight => 420.u;
 
 /// Opens the popover for [text] (with [title] and [icon] on its first line) next to [anchor],
 /// the icon's rectangle in the root navigator's coordinates. Returns when it closes.
-Future<void> showEInfoPopover(BuildContext context, {required Rect anchor, required String text, String? title, IconData? icon}) =>
+Future<void> showEInfoPopover(BuildContext context, {required Rect anchor, required String text, String? title, IconData? icon, VoidCallback? help}) =>
     showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -38,7 +38,7 @@ Future<void> showEInfoPopover(BuildContext context, {required Rect anchor, requi
       transitionDuration: Dur.fast,
       pageBuilder: (context, _, _) => CustomSingleChildLayout(
         delegate: InfoPopoverLayout(anchor: anchor, margin: Sp.x2, gap: Sp.x1, maxWidth: infoPopoverMaxWidth, maxHeight: infoPopoverMaxHeight),
-        child: EInfoPopover(title: title, text: text, icon: icon),
+        child: EInfoPopover(title: title, text: text, icon: icon, help: help),
       ),
       transitionBuilder: (context, anim, _, child) =>
           MediaQuery.disableAnimationsOf(context) ? child : FadeTransition(opacity: anim, child: child),
@@ -83,11 +83,15 @@ class InfoPopoverLayout extends SingleChildLayoutDelegate {
 /// [text] under it, or [text] alone beside the ✕. The text scrolls when the card is at its
 /// tallest and is selectable. Esc closes it from anywhere inside.
 class EInfoPopover extends StatefulWidget {
-  const EInfoPopover({super.key, required this.text, this.title, this.icon});
+  const EInfoPopover({super.key, required this.text, this.title, this.icon, this.help});
 
   final String text;
   final String? title;
   final IconData? icon;
+
+  /// A Help topic that says more: a "More in Help" link under the text closes the popover
+  /// and opens it (WD2-063).
+  final VoidCallback? help;
 
   @override
   State<EInfoPopover> createState() => _EInfoPopoverState();
@@ -115,12 +119,30 @@ class _EInfoPopoverState extends State<EInfoPopover> {
       size: EBtnSize.inline,
       onPressed: () => Navigator.of(context).pop(),
     );
+    final help = widget.help;
     Widget body(EdgeInsets padding) => Scrollbar(
       controller: _scroll,
       child: SingleChildScrollView(
         controller: _scroll,
         padding: padding,
-        child: Text(widget.text, key: const ValueKey('info-popover-text'), style: ts.body),
+        child: help == null
+            ? Text(widget.text, key: const ValueKey('info-popover-text'), style: ts.body)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(widget.text, key: const ValueKey('info-popover-text'), style: ts.body),
+                  SizedBox(height: Sp.x2),
+                  ELink(
+                    key: const ValueKey('info-popover-help'),
+                    label: l.deskKitMoreInHelp,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      help();
+                    },
+                  ),
+                ],
+              ),
       ),
     );
     final Widget content;

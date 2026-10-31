@@ -4683,5 +4683,6 @@
   "deskSetAboutVersionLabel": "Version",
   "deskSetAboutNodeLabel": "Node",
   "deskTxNowConfirmedBlock": "{confirmations, plural, one{Bestätigt, {confirmations} Bestätigung · Block {block}.} other{Bestätigt, {confirmations} Bestätigungen · Block {block}.}}",
-  "deskKitNoAnswerSince": "Keine Antwort seit {time}"
+  "deskKitNoAnswerSince": "Keine Antwort seit {time}",
+  "deskKitMoreInHelp": "Mehr in der Hilfe"
 }

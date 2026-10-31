@@ -22,7 +22,7 @@ import '../../../net/tor_switch.dart' show TorSwitch;
 import '../../widgets/kit.dart';
 import '../../widgets/node_card.dart' show NodeFact, ageText;
 import '../../widgets/server_row.dart' show digitsText;
-import 'local_node.dart' show LocalTab, NodeTile, NodeSyncBar, StageStrip;
+import 'local_node.dart' show LocalTab, NodeTile, NodeSyncBar, StageStrip, localNodeHelp;
 import 'local_node_peers.dart';
 import 'prefs.dart';
 import '../../../settings_file/host_settings.dart' show appConfig;
@@ -359,6 +359,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
     return ESetRow(
         title: l.deskOwnAccess,
         hint: l.deskOwnAccessHint,
+        hintHelp: localNodeHelp(ref),
         text: text,
         badge: refused ? EBadge(l.deskOwnAccessRefusedBadge, tone: BadgeTone.warn) : null,
         wrap: true,

@@ -478,6 +478,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   ESetRow(
                     title: l.deskOwnMine,
                     hint: l.deskOwnMineHint(statusSiteHost),
+                    hintHelp: localNodeHelp(ref),
                     control: ESwitch(
                       value: mine,
                       semanticLabel: l.deskOwnMine,
@@ -489,6 +490,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   ESetRow(
                     title: l.deskSetNodeBackground,
                     hint: l.deskSetNodeBackgroundHint,
+                    hintHelp: localNodeHelp(ref),
                     control: ESwitch(
                       value: prefs.nodeBackground,
                       semanticLabel: l.deskSetNodeBackground,

@@ -17586,4 +17586,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskKitNoAnswerSince(String time) {
     return 'ไม่ตอบตั้งแต่ $time';
   }
+
+  @override
+  String get deskKitMoreInHelp => 'ดูเพิ่มเติมในความช่วยเหลือ';
 }

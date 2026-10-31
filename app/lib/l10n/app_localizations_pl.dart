@@ -18639,4 +18639,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskKitNoAnswerSince(String time) {
     return 'Brak odpowiedzi od $time';
   }
+
+  @override
+  String get deskKitMoreInHelp => 'Więcej w Pomocy';
 }

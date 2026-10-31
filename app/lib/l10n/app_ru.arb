@@ -4683,5 +4683,6 @@
   "deskSetAboutVersionLabel": "Версия",
   "deskSetAboutNodeLabel": "Узел",
   "deskTxNowConfirmedBlock": "{confirmations, plural, one{Подтверждено, {confirmations} подтверждение · блок {block}.} few{Подтверждено, {confirmations} подтверждения · блок {block}.} many{Подтверждено, {confirmations} подтверждений · блок {block}.} other{Подтверждено, {confirmations} подтверждения · блок {block}.}}",
-  "deskKitNoAnswerSince": "Нет ответа с {time}"
+  "deskKitNoAnswerSince": "Нет ответа с {time}",
+  "deskKitMoreInHelp": "Подробнее в справке"
 }
