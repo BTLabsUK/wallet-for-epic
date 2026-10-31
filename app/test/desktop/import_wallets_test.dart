@@ -183,7 +183,7 @@ void main() {
     final r = await wallet.importOldWallet(savings.id, oldPassword: _old);
     expect(r.name, 'Savings');
     expect(r.proof.map((p) => (p.text, p.ok)), [
-      ('Seed read', true),
+      ('Recovery phrase read', true),
       ('Wallet created', true),
       ('No history in the old folder; the scan restores the balance', true),
       ('Old folder unchanged', true),

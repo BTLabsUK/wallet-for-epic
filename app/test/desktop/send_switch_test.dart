@@ -43,15 +43,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  TxMethod method(WidgetTester tester) => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value;
+  TxMethod? method(WidgetTester tester) => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value;
   Finder to() => find.byType(EditableText).first;
   // The tag names the method the address chose (Link · HTTP or Link · Tor, never the family alone).
   Finder tag([String family = 'Link']) =>
       find.descendant(of: find.byKey(const ValueKey('send-switch-tag')), matching: find.textContaining(family));
 
   /// Types [text] one character at a time; the method after each.
-  Future<List<TxMethod>> type(WidgetTester tester, String text) async {
-    final seen = <TxMethod>[];
+  Future<List<TxMethod?>> type(WidgetTester tester, String text) async {
+    final seen = <TxMethod?>[];
     for (var i = 1; i <= text.length; i++) {
       await tester.enterText(to(), text.substring(0, i));
       await tester.pump();

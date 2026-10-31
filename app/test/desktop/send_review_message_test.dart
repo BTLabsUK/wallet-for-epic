@@ -169,7 +169,7 @@ void main() {
     final note = find.byKey(const ValueKey('tx-private-note'));
     expect(find.text('Private note'), findsOneWidget);
     expect(find.descendant(of: note, matching: find.text('Flat, March')), findsOneWidget);
-    expect(find.descendant(of: note, matching: find.text('Only on this device and in your exported wallet data.')), findsOneWidget);
+    expect(find.descendant(of: note, matching: find.text('Only in this app and in the exported wallet data.')), findsOneWidget);
     expect(find.text('Your message'), findsNothing);
 
     await details(tx(incoming: true));

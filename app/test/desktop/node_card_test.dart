@@ -85,7 +85,7 @@ void main() {
   testWidgets('the words match the rail: Synced, Behind, Synced (old), Not answering', (tester) async {
     await _pump(tester, _card(mockNodeInfo(_url)));
     expect(find.textContaining('Synced', findRichText: true), findsOneWidget);
-    expect(find.text('at tip'), findsOneWidget);
+    expect(find.text('synced'), findsOneWidget);
     expect(find.text('latest'), findsOneWidget);
     expect(find.text('99.7%'), findsOneWidget);
     expect(find.text('listed as official'), findsOneWidget);
@@ -101,8 +101,10 @@ void main() {
 
     await _pump(tester, _card(mockNodeInfo(_url, state: NodeHealthState.down), downSince: DateTime(2026, 10, 22, 14, 2)));
     expect(find.textContaining('Not answering', findRichText: true), findsOneWidget);
-    expect(find.textContaining('since 14:02', findRichText: true), findsOneWidget);
-    expect(find.text('no answer'), findsOneWidget);
+    // The header and one line instead of a row of dashes (UD-033).
+    expect(find.textContaining('since 14:02', findRichText: true), findsNWidgets(2));
+    expect(find.text('No answer since 14:02'), findsOneWidget);
+    expect(find.text('Height'), findsNothing);
   });
 
   testWidgets('limited info: exactly four facts and the tag; the source line names the last reach', (tester) async {

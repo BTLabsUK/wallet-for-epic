@@ -233,7 +233,7 @@ void main() {
 
     await type(tester, 'zzz');
     expect(find.text('No match.'), findsOneWidget, reason: 'one No match line, never two');
-    expect(find.byKey(const ValueKey('server-list-add')), findsOneWidget, reason: 'Add shows as soon as nothing matches');
+    expect(find.byKey(const ValueKey('server-list-add')), findsNothing, reason: 'Add shows only for an address (UD-004)');
     await end(tester);
   });
 
@@ -255,7 +255,9 @@ void main() {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     final before = [...nodes()];
     await type(tester, 'my home node');
-    await tap(tester, find.byKey(const ValueKey('server-list-add')));
+    expect(find.byKey(const ValueKey('server-list-add')), findsNothing, reason: 'no Add for text that is no address');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
     expect(helper(tester), 'Not a server address. Use host or host:port.');
     expect(nodes(), before);
 
@@ -354,13 +356,13 @@ void main() {
     // Transactions has the payment methods and Send above the Epicbox panel now: a taller
     // window keeps the panel's foot (Added …, Switch) on screen.
     await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen), size: const Size(1280, 1500));
-    const warning = 'Changing the server changes your Epicbox address. Share the new one.';
+    const warning = 'Your Epicbox address changes. Share the new one.';
     expect(find.text(warning), findsOneWidget);
     final before = container.read(deskProvider).status!.epicbox.domain;
     await tap(tester, row('box.stack.invalid'));
     expect(find.byType(EDialog), findsOneWidget);
     expect(find.text('Switch to box.stack.invalid?'), findsOneWidget);
-    expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
+    expect(find.descendant(of: find.byType(EDialog), matching: find.text(warning)), findsOneWidget);
     await tap(tester, find.byKey(const ValueKey('server-list-cancel')));
     expect(find.byType(EDialog), findsNothing);
     expect(container.read(deskProvider).status!.epicbox.domain, before, reason: 'Cancel keeps the relay');

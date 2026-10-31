@@ -78,7 +78,7 @@ void main() {
     await _pumpShell(tester);
     await _oldWalletDiffers(tester);
     expect(find.text('Details differ'), findsOneWidget);
-    expect(find.textContaining("The old wallet’s history has other details for 1 payment you described"), findsOneWidget);
+    expect(find.textContaining("The old wallet’s history has different details for 1 payment."), findsOneWidget);
     final cards = tester.widgetList<EChoiceCard>(find.byType(EChoiceCard)).map((c) => '${c.title}:${c.selected}').toList();
     expect(cards, ['Mine:true', 'Old wallet:false', 'Mine:true', 'Old wallet:false']);
     expect(find.text('File'), findsNothing);

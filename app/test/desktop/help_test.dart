@@ -20,6 +20,9 @@ Future<ProviderContainer> _pump(WidgetTester tester, {Object? arg}) async {
   final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet(delay: Duration.zero))]);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+  // A fresh tree: the tour's targets are global keys, which would carry the previous
+  // screen's search field over to this one.
+  await tester.pumpWidget(const SizedBox());
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
@@ -42,7 +45,7 @@ void main() {
       'When something goes wrong',
       'Maintenance',
     ]);
-    expect(topics, hasLength(DeskFeatures.tor ? 28 : 27));
+    expect(topics, hasLength(DeskFeatures.tor ? 29 : 28));
     expect(topics.map((t) => t.title), contains('What an address looks like'));
     for (final t in topics) {
       expect(helpSections.map((s) => s.id), contains(t.section));

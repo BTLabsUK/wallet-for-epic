@@ -638,7 +638,7 @@ void main() {
     final name = _c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c5').name;
     expect(find.text(_l.reqTlPaid), findsOneWidget);
     expect(find.text(_l.reqTlDelivered(name)), findsOneWidget);
-    expect(find.text(_l.reqTlPosted(name)), findsOneWidget);
+    expect(find.text(_l.reqTlPosted(name)), findsWidgets, reason: 'the step, and the status badge naming the current step');
     expect(tester.takeException(), isNull);
   });
 

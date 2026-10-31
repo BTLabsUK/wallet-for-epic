@@ -173,7 +173,7 @@ void main() {
     await pumpEventQueue(times: 50);
     final after = (await bt(web)).single;
     expect(after.name, 'BT Labs donations');
-    expect(after.address, btLabsContact!.address, reason: 'an edited contact is left alone');
+    expect(after.address, c.address, reason: 'an edited contact is left alone');
   });
 
   test('the website file adds no contact the app does not ship', () async {

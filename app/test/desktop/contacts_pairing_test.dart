@@ -103,7 +103,7 @@ void main() {
     final pair = tester.widget<EButton>(find.byKey(deskContactsPairKey));
     expect(pair.label, startsWith(_l.pairTitle));
     expect(pair.kind, EBtnKind.secondary);
-    expect(pair.tooltip, _l.contactsPairTooltip);
+    expect(pair.tooltip, isNull, reason: 'a labelled button needs no tooltip (938660d3d)');
     expect(find.byKey(deskPairHintKey), findsNothing, reason: 'the mock has paired contacts');
   });
 

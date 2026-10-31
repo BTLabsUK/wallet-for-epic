@@ -138,11 +138,10 @@ void main() {
 
   testWidgets('a full scan shows the balance before and after and the counts', (tester) async {
     await pump(tester);
-    expect(find.textContaining('Reads the chain again and rebuilds the balance'), findsOneWidget);
+    expect(find.textContaining('Checks the chain again for this wallet’s coins'), findsOneWidget);
     // One name (Recheck balance), and the row does not repeat the group's title.
     expect(find.text('Recheck balance'), findsNWidgets(2)); // the section chip and the group head
     expect(find.textContaining('Rescan'), findsNothing);
-    expect(find.textContaining('coins'), findsNothing);
     await tester.tap(find.text('Delete unconfirmed'));
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Recheck'));

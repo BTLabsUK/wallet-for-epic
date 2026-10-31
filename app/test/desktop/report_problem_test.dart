@@ -130,10 +130,10 @@ void main() {
     }
 
     // Without logs, the preview says so.
-    await tester.tap(find.text('Attach logs (recommended)'));
+    await tester.tap(find.text('Attach logs'));
     await settle(tester);
     expect(previewText(tester), contains('Logs: none attached'));
-    await tester.tap(find.text('Attach logs (recommended)'));
+    await tester.tap(find.text('Attach logs'));
     await settle(tester);
 
     await send(tester);
@@ -163,7 +163,7 @@ void main() {
     expect(preview, isNot(contains('203.0.113.7')));
 
     // Attach logs off takes the tick with it.
-    await tester.tap(find.text('Attach logs (recommended)'));
+    await tester.tap(find.text('Attach logs'));
     await settle(tester);
     expect(find.text('Include full details'), findsNothing);
     expect(find.byKey(const ValueKey('report-full-details-info')), findsNothing);

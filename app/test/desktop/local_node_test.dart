@@ -121,7 +121,7 @@ void main() {
     final steps = <(LocalNodeState, String, int, String, String)>[
       (mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)), 'Headers · 1,480,200 of 3,764,975', 0, '12%', 'epic.invalid · 12%'),
       (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), 'Chain state · 1.9 of 4.1 GB', 1, '46%', 'epic.invalid · 46%'),
-      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), 'Checking kernels · 2.1 of 3.4 million', 1, '70%', 'epic.invalid · 70%'),
+      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), 'Checking the chain · 2.1 of 3.4 million', 1, '70%', 'epic.invalid · 70%'),
       (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: 3764975, eta: const Duration(minutes: 12)), 'Blocks · 3,702,100 of 3,764,975', 2, '96%', 'epic.invalid · 96%'),
     ];
     for (final (s, line, strip, right, rail) in steps) {
@@ -157,7 +157,7 @@ void main() {
     expect(headText(tester), 'risk');
 
     final failures = <NodeFailure, String>{
-      NodeFailure.portInUse: 'Port 3413 is used by another program.',
+      NodeFailure.portInUse: 'Port 3413 is in use by another program.',
       NodeFailure.diskLow: 'Less than 2 GB free on this volume.',
       NodeFailure.binaryMissing: 'The node program is missing from this installation.',
       NodeFailure.exited: 'The node stopped by itself.',

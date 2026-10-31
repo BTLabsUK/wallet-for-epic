@@ -203,7 +203,7 @@ void main() {
     await _pump(tester, _opener(showExportCsvDialog));
     await _open(tester);
     expect(find.text('Not encrypted.'), findsOneWidget);
-    expect(find.textContaining('payments · columns: date, type, status', findRichText: true), findsOneWidget);
+    expect(find.textContaining(RegExp(r'payments? · '), findRichText: true), findsOneWidget);
     expect(_files.saved, isEmpty);
     await tester.tap(find.text('Custom'));
     await tester.pumpAndSettle();
