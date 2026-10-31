@@ -126,7 +126,7 @@ timeout_s = 20
 report = "https://support.btlabs.uk/v1/report"
 email = "support@btlabs.uk"
 # BT Labs' donation contact. Comment this line out to hide the donation entry everywhere.
-donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com"
+donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.btlabs.uk"
 signed_file = "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/btlabs.json"
 
 [links]
