@@ -4,6 +4,7 @@
 // controls of a card end on one right edge; the balance trace is as wide as the balance row.
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show NodeDemo;
@@ -13,6 +14,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'advanced_on.dart';
 
 /// The mock with a balance the test can change.
 class _Wallet extends MockDeskWallet {
@@ -65,6 +68,8 @@ Future<ProviderContainer> _pump(WidgetTester tester, Size size, int scale, DeskR
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
   final s = container.read(deskProvider).settings;
   await tester.runAsync(() => container.read(deskProvider.notifier).saveSettings(s.copyWith(theme: ThemeChoice.dark, scale: scale)));
+  // Outputs is a page of its own only with Advanced › Outputs on (desk_levels.dart outputsPage).
+  if (route == DeskRoute.outputs) await tester.runAsync(() => advancedOn(container, only: {AdvancedFeature.outputs}));
   container.read(deskNavProvider.notifier).reset(route, arg);
   await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
   await _settle(tester);

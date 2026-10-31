@@ -122,15 +122,15 @@ void main() {
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
   }, skip: !inAppUpdates);
 
-  testWidgets('Community opens Telegram and epiccash.com in the browser', (tester) async {
+  testWidgets('the links open epiccash.com and the source code in the browser; no Telegram row', (tester) async {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
-    // The Community group's two Open buttons (the Updates group above has one of its own).
-    final community = find.descendant(of: find.widgetWithText(ESetGroup, 'Community'), matching: find.widgetWithText(EButton, 'Open'));
-    await tester.tap(community.first);
-    await tester.tap(community.at(1));
+    // The phone's rows (GP2-020): each link row has its own Open.
+    Finder openOf(String title) => find.descendant(of: find.widgetWithText(ESetRow, title), matching: find.widgetWithText(EButton, 'Open'));
+    await tester.tap(openOf(shownUrl(hostSettings.linkWebsite!)));
+    await tester.tap(openOf('Source code'));
     await tester.pumpAndSettle();
-    expect(opened, [hostSettings.linkCommunity, hostSettings.linkWebsite]);
-    expect(find.text('Telegram'), findsOneWidget);
+    expect(opened, [hostSettings.linkWebsite, projectRepoUrl]);
+    expect(find.text('Telegram'), findsNothing);
   });
 
   testWidgets('Licences: one line per component, the tor source note, and View opens the full texts', (tester) async {

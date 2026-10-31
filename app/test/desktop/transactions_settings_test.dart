@@ -253,16 +253,16 @@ void main() {
     testWidgets('lists the methods that are on, Link once for its family, and the choice saves', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<MethodKind>));
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File Transfer']);
-      await tester.tap(find.descendant(of: start, matching: find.text('Direct · File Transfer')));
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File']);
+      await tester.tap(find.descendant(of: start, matching: find.text('Direct · File')));
       await _settle(tester);
       expect(_payments.defaultMethod, MethodKind.directFile);
       await tester.tap(_offer('linkTor'));
       await _settle(tester);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File Transfer']);
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File']);
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File Transfer'], reason: 'Link once');
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File'], reason: 'Link once');
     }, skip: !torBuilt);
 
     testWidgets('a default that is switched off falls back to Epicbox and is not offered', (tester) async {
@@ -272,7 +272,7 @@ void main() {
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(_payments.startMethod, MethodKind.epicbox);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File Transfer']);
+      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File']);
       expect(tester.widget<ESegmented<MethodKind>>(start).value, MethodKind.epicbox);
     });
 

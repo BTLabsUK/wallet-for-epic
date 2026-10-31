@@ -79,6 +79,7 @@ void main() {
       await _open(tester, DeskRoute.activity, arg: 36);
       expect(find.text('Kernel'), findsNothing);
       expect(find.byKey(const ValueKey('tx-more')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('tx-more')));
       await tester.tap(find.byKey(const ValueKey('tx-more')));
       await _settle(tester);
       expect(find.text('Kernel'), findsOneWidget);
@@ -86,6 +87,7 @@ void main() {
       expect(find.text('Status'), findsWidgets);
       expect(find.text('Less'), findsOneWidget);
       expect(_advanced.has(AdvancedFeature.technicalDetails), isFalse, reason: 'the switch stays off');
+      await tester.ensureVisible(find.byKey(const ValueKey('tx-more')));
       await tester.tap(find.byKey(const ValueKey('tx-more')));
       await _settle(tester);
       expect(find.text('Kernel'), findsNothing);
@@ -173,9 +175,11 @@ void main() {
 
     testWidgets('Node only: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), advanced: _offline);
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
-      expect(find.text('Node only is on: Epicbox is off. QR Payment and File Transfer work.'), findsWidgets);
+      // D-06 (772eae3ad): Epicbox reads Off with the mode's reason and Send moves to File.
+      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
       expect(segment(tester, 'Epicbox').enabled, isFalse);
+      expect(segment(tester, 'Epicbox').tooltip, 'Off in Node only.');
+      expect(_selected(tester), TxMethod.file);
       expect(segment(tester, 'Direct · File').enabled, isTrue);
       expect(segment(tester, 'Direct · File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
     });
@@ -204,16 +208,20 @@ void main() {
     testWidgets('Offline with a public node: Link\'s summary gives the Offline reason the banner gives, not the node sync (LNX-15)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://203.0.113.5:3415', amount: '1', nodeSync: -1), advanced: _kill);
       expect(find.text('Waiting for the node to sync.'), findsNothing);
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
-      // The banner and the summary's line.
-      expect(find.text('Kill switch is on: nothing connects. QR Payment and File Transfer work.'), findsNWidgets(2));
+      // D-06: Link reads Off with the Kill switch reason, never the node sync, and Send moves to File.
+      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
+      expect(segment(tester, 'Link').enabled, isFalse);
+      expect(segment(tester, 'Link').tooltip, 'Off in Kill switch: nothing connects.');
+      expect(_selected(tester), TxMethod.file);
     });
 
     testWidgets('Offline: an onion in To gives the Offline reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion', amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-needs-tor')), findsNothing);
       expect(find.text('Turn on Tor'), findsNothing);
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
+      // D-06: Link reads Off with the mode's reason; Send moves to File.
+      expect(segment(tester, 'Link').tooltip, 'Off in Node only.');
+      expect(_selected(tester), TxMethod.file);
     });
 
     testWidgets('Node only with a LAN node: a Link send to a LAN address is held too (Link is off), File runs', (tester) async {
@@ -221,15 +229,17 @@ void main() {
       expect(segment(tester, 'Epicbox').enabled, isFalse);
       expect(segment(tester, 'Link').enabled, isFalse);
       expect(segment(tester, 'Direct · File').enabled, isTrue);
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
-      expect(find.text('Node only is on: Link is off. QR Payment and File Transfer work.'), findsWidgets);
+      // D-06: Link reads Off with the mode's reason; Send moves to File.
+      expect(segment(tester, 'Link').tooltip, 'Off in Node only.');
+      expect(_selected(tester), TxMethod.file);
     });
 
     testWidgets('Tor only without Tor: the same, with the Tor reason', (tester) async {
       await _open(tester, DeskRoute.send, advanced: _torOnly);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
       expect(find.text('Waiting for Tor. Tor only is on in Advanced.'), findsWidgets);
-      expect(segment(tester, 'Epicbox').enabled, isFalse);
+      // Tor still starting keeps the chosen method (7acea2920): Epicbox waits for Tor.
+      expect(segment(tester, 'Epicbox').enabled, isTrue);
       // A file needs no connection of its own: it goes on while Tor connects.
       expect(segment(tester, 'Direct · File').enabled, isTrue);
       await tester.tap(find.text('Direct · File'));
@@ -523,3 +533,6 @@ void main() {
     });
   });
 }
+
+/// The method Send's selector holds now.
+TxMethod? _selected(WidgetTester tester) => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>).first).value;
