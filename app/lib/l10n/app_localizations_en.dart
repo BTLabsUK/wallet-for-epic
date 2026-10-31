@@ -5023,11 +5023,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendPlainHttpOffWithTorWhy =>
-      'A Tor exit could take the payment. Use https://, an onion or Epicbox.';
-
-  @override
-  String get torModesSendsSame =>
-      'With Tor on, Normal sends like Tor only: everything goes over Tor and plain HTTP is off. Tor only also keeps Tor on, and nothing goes while it is not connected.';
+      'Use an https:// or onion address, or Epicbox.';
 
   @override
   String get receiveEpicboxCaption =>
@@ -18340,27 +18336,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advModeStandardHint =>
-      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.';
+      'Connects directly. Turn on Tor in Privacy & network to hide your IP.';
 
   @override
   String get advModeStandardHintNoTor =>
-      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.';
+      'Connects directly to the node and the services you use.';
 
   @override
   String get advModeTorOnlyHint =>
-      'Every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready, nothing connects, and the status icons say so. Link · HTTP receiving stays off: a plain address would reveal this device.';
+      'Everything goes through Tor. Nothing connects until Tor is ready.';
 
   @override
   String get advModeNodeOnlyHint =>
-      'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. With Tor on, the node is reached over Tor. Best with your own node, on this device or your network; any node works.';
-
-  @override
-  String get advModeNodeOnlyHintNoTor =>
-      'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. Best with your own node, on this device or your network; any node works.';
+      'The wallet talks only to the node in use, nothing else. QR Payment and File Transfer still work.';
 
   @override
   String get advModeKillSwitchHint =>
-      'Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.';
+      'Nothing connects. The wallet works offline with the last known balance, and payments go by file or QR code.';
 
   @override
   String advModeConfirmTitle(String mode) {
@@ -18622,7 +18614,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvModeStandardHint =>
-      'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.';
+      'Connects directly. Turn on Tor under Privacy to hide your IP.';
 
   @override
   String deskFinNotPostedKillBody(String amount) {

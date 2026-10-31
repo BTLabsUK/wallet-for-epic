@@ -4749,12 +4749,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendPlainHttpOffWithTor => '开启 Tor 时，明文 http:// 无法使用。';
 
   @override
-  String get sendPlainHttpOffWithTorWhy =>
-      'Tor 出口节点可能截走这笔付款。请使用 https://、onion 或 Epicbox 地址。';
-
-  @override
-  String get torModesSendsSame =>
-      '开启 Tor 时，普通模式的发送方式与仅 Tor 相同：一切都经过 Tor，明文 HTTP 不可用。仅 Tor 还会保持 Tor 开启，未连接时什么都不发送。';
+  String get sendPlainHttpOffWithTorWhy => '请使用 https:// 或 onion 地址，或 Epicbox。';
 
   @override
   String get receiveEpicboxCaption => '念出地址时，核对前六位和后六位字符。';
@@ -17282,27 +17277,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeKillSwitch => '紧急断网';
 
   @override
-  String get advModeStandardHint =>
-      '钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私与网络”中的独立开关。';
+  String get advModeStandardHint => '直接连接。在“隐私与网络”中开启 Tor 可隐藏你的 IP。';
 
   @override
-  String get advModeStandardHintNoTor => '钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。';
+  String get advModeStandardHintNoTor => '直接连接到节点和你使用的服务。';
 
   @override
-  String get advModeTorOnlyHint =>
-      '所有连接都经过 Tor，包括节点和 Epicbox；任何内容都不会接触公开互联网。Tor 就绪之前，什么都不会连接，状态图标会说明这一点。链接 · HTTP 收款保持关闭：明文地址会暴露这台设备。';
+  String get advModeTorOnlyHint => '一切都经过 Tor。Tor 就绪前不会建立任何连接。';
 
   @override
-  String get advModeNodeOnlyHint =>
-      '钱包只与正在使用的节点通信，即节点列表中的第一个。关闭的有：Epicbox、链接、状态站点、价格、更新检查、浏览器链接、问题报告、配对和已关联设备。二维码付款和文件传输可用。开启 Tor 时，节点通过 Tor 连接。最好使用自己的节点，位于这台设备或你的网络中；任何节点都可以。';
+  String get advModeNodeOnlyHint => '钱包只与当前使用的节点通信，不连接其他任何东西。二维码付款和文件传输仍可使用。';
 
   @override
-  String get advModeNodeOnlyHintNoTor =>
-      '钱包只与正在使用的节点通信，即节点列表中的第一个。关闭的有：Epicbox、链接、状态站点、价格、更新检查、浏览器链接、问题报告、配对和已关联设备。二维码付款和文件传输可用。最好使用自己的节点，位于这台设备或你的网络中；任何节点都可以。';
-
-  @override
-  String get advModeKillSwitchHint =>
-      '什么都不连接，节点也不例外：冷存储。钱包会以上次已知的余额和历史记录打开。你可以通过文件传输和二维码付款创建、签署并完成付款，显示你的地址，备份和导出。已完成的付款无法从这里广播：保存它或显示为二维码，再到联网的设备上广播。等待接收方的付款会暂停，离开后继续。';
+  String get advModeKillSwitchHint => '不建立任何连接。钱包以最后已知的余额离线工作，付款通过文件或二维码进行。';
 
   @override
   String advModeConfirmTitle(String mode) {
@@ -17543,8 +17530,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get postFinishedOpen => '打开';
 
   @override
-  String get deskSetAdvModeStandardHint =>
-      '钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私”下的独立开关。';
+  String get deskSetAdvModeStandardHint => '直接连接。在“隐私”中开启 Tor 可隐藏你的 IP。';
 
   @override
   String deskFinNotPostedKillBody(String amount) {

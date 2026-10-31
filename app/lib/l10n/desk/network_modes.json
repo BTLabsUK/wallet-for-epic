@@ -1,5 +1,5 @@
 {
-  "deskSetAdvModeStandardHint": "Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.",
+  "deskSetAdvModeStandardHint": "Connects directly. Turn on Tor under Privacy to hide your IP.",
   "@deskSetAdvModeStandardHint": {
     "description": "Info text of the Normal row (desktop)."
   },

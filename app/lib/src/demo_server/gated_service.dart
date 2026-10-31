@@ -364,7 +364,6 @@ class GatedWalletSession implements WalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
-    String? proofAddress,
   }) async => throw _noHttp;
 
   @override

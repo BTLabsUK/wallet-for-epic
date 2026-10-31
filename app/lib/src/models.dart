@@ -54,9 +54,6 @@ class Contact {
   /// `<56 characters>.onion`.
   final String? tor;
 
-  /// The name and addresses, for [proofAddressFor].
-  ContactWays get ways => (name: name, epicbox: epicbox, http: http, tor: tor);
-
   // No pairing here: the address book is shared by every wallet on the device, a pairing is
   // one wallet's. The wallet's pairing record names its contact ([PairingRecord.contactId]).
 

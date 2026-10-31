@@ -8088,17 +8088,11 @@ abstract class AppLocalizations {
   /// **'Plain http:// doesn\'t work with Tor on.'**
   String get sendPlainHttpOffWithTor;
 
-  /// Send: the info sheet behind sendPlainHttpOffWithTor, why plain http:// is off while Tor is on.
+  /// Send: the info sheet behind sendPlainHttpOffWithTor, what to use instead of plain http:// while Tor is on.
   ///
   /// In en, this message translates to:
-  /// **'A Tor exit could take the payment. Use https://, an onion or Epicbox.'**
+  /// **'Use an https:// or onion address, or Epicbox.'**
   String get sendPlainHttpOffWithTorWhy;
-
-  /// Settings › Network: how Normal with the Tor switch on and Tor only differ.
-  ///
-  /// In en, this message translates to:
-  /// **'With Tor on, Normal sends like Tor only: everything goes over Tor and plain HTTP is off. Tor only also keeps Tor on, and nothing goes while it is not connected.'**
-  String get torModesSendsSame;
 
   /// Receive, Epicbox tab: caption under the address.
   ///
@@ -28667,37 +28661,31 @@ abstract class AppLocalizations {
   /// Info text of the Normal row (phone).
   ///
   /// In en, this message translates to:
-  /// **'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch in Privacy & network.'**
+  /// **'Connects directly. Turn on Tor in Privacy & network to hide your IP.'**
   String get advModeStandardHint;
 
   /// Info text of the Normal row in the build without Tor.
   ///
   /// In en, this message translates to:
-  /// **'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.'**
+  /// **'Connects directly to the node and the services you use.'**
   String get advModeStandardHintNoTor;
 
   /// Info text of the Tor only row.
   ///
   /// In en, this message translates to:
-  /// **'Every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready, nothing connects, and the status icons say so. Link · HTTP receiving stays off: a plain address would reveal this device.'**
+  /// **'Everything goes through Tor. Nothing connects until Tor is ready.'**
   String get advModeTorOnlyHint;
 
-  /// Info text of the Node only row.
+  /// Info text of the Node only row (with and without Tor in the build).
   ///
   /// In en, this message translates to:
-  /// **'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. With Tor on, the node is reached over Tor. Best with your own node, on this device or your network; any node works.'**
+  /// **'The wallet talks only to the node in use, nothing else. QR Payment and File Transfer still work.'**
   String get advModeNodeOnlyHint;
-
-  /// Info text of the Node only row in the build without Tor.
-  ///
-  /// In en, this message translates to:
-  /// **'The wallet talks only to the node in use, the first in your node list. Off: Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices. QR Payment and File Transfer work. Best with your own node, on this device or your network; any node works.'**
-  String get advModeNodeOnlyHintNoTor;
 
   /// Info text of the Kill switch row.
   ///
   /// In en, this message translates to:
-  /// **'Nothing connects, the node included: cold storage. The wallet opens with the last known balance and history. You can make, sign and finish payments by File Transfer and QR Payment, show your address, back up and export. A finished payment can’t be posted from here: save it or show it as a QR code and post it on a device that is online. Sends waiting for a recipient pause and continue when you leave.'**
+  /// **'Nothing connects. The wallet works offline with the last known balance, and payments go by file or QR code.'**
   String get advModeKillSwitchHint;
 
   /// Title of the confirmation before switching to Node only or Kill switch while a send waits.
@@ -29111,7 +29099,7 @@ abstract class AppLocalizations {
   /// Info text of the Normal row (desktop).
   ///
   /// In en, this message translates to:
-  /// **'Everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under Privacy.'**
+  /// **'Connects directly. Turn on Tor under Privacy to hide your IP.'**
   String get deskSetAdvModeStandardHint;
 
   /// Body of that screen (desktop).

@@ -1609,7 +1609,6 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final options = _sendOptions;
     final note = _noteText;
-    final proof = _proofAddress(to);
     return _run((session) async {
       final minimum = ref.read(countedConfirmationsProvider);
       final before = {
@@ -1625,7 +1624,6 @@ class _SendViewState extends ConsumerState<SendView> {
             allowPlainHttp: plainHttpToOtherDevice(to.address),
             message: note.isEmpty ? null : note,
             options: options,
-            proofAddress: proof,
           ),
         );
       } on WalletError catch (error) {
@@ -2490,12 +2488,6 @@ class _SendViewState extends ConsumerState<SendView> {
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     return contactNameFor(contacts, address);
   }
-
-  /// The receiver's payment proof address for a send to [to], when its key is known.
-  String? _proofAddress(Recipient to) => proofAddressFor(
-    to,
-    [for (final c in ref.read(contactsProvider).value ?? const <Contact>[]) c.ways],
-  );
 
   /// Epicbox, Link, Direct · QR and Direct · File, one segment each, icon over label. Link is
   /// the family: the address picks Link · HTTP or Link · Tor. Tor is not a method: the one Tor

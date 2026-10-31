@@ -5092,11 +5092,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendPlainHttpOffWithTorWhy =>
-      'Ein Tor-Ausgangsknoten könnte die Zahlung abfangen. Nimm https://, eine Onion- oder Epicbox-Adresse.';
-
-  @override
-  String get torModesSendsSame =>
-      'Mit Tor an sendet Normal wie Nur Tor: Alles läuft über Tor, reines HTTP ist aus. Nur Tor hält Tor zudem an, und nichts geht, solange es nicht verbunden ist.';
+      'Nehmen Sie eine https://- oder Onion-Adresse oder Epicbox.';
 
   @override
   String get receiveEpicboxCaption =>
@@ -18553,27 +18549,23 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advModeStandardHint =>
-      'Alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung. Tor ist ein eigener Schalter unter Datenschutz & Netzwerk.';
+      'Verbindet sich direkt. Schalten Sie Tor unter Datenschutz & Netzwerk ein, um Ihre IP zu verbergen.';
 
   @override
   String get advModeStandardHintNoTor =>
-      'Alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung.';
+      'Verbindet sich direkt mit dem Node und den Diensten, die Sie nutzen.';
 
   @override
   String get advModeTorOnlyHint =>
-      'Jede Verbindung läuft über Tor, auch die zum Node und zu Epicbox; nichts berührt das offene Internet. Bis Tor bereit ist, verbindet sich nichts, und die Statussymbole sagen es. Der Link-·-HTTP-Empfang bleibt aus: Eine einfache Adresse würde dieses Gerät verraten.';
+      'Alles läuft über Tor. Nichts verbindet sich, bis Tor bereit ist.';
 
   @override
   String get advModeNodeOnlyHint =>
-      'Die Wallet spricht nur mit dem verwendeten Node, dem ersten in Ihrer Node-Liste. Aus sind: Epicbox, Link, die Statusseite, der Kurs, die Update-Prüfung, Explorer-Links, Problemberichte, Kopplung und verknüpfte Geräte. QR-Zahlung und Dateiübertragung funktionieren. Ist Tor an, wird der Node über Tor erreicht. Am besten mit einem eigenen Node, auf diesem Gerät oder in Ihrem Netzwerk; jeder Node funktioniert.';
-
-  @override
-  String get advModeNodeOnlyHintNoTor =>
-      'Die Wallet spricht nur mit dem verwendeten Node, dem ersten in Ihrer Node-Liste. Aus sind: Epicbox, Link, die Statusseite, der Kurs, die Update-Prüfung, Explorer-Links, Problemberichte, Kopplung und verknüpfte Geräte. QR-Zahlung und Dateiübertragung funktionieren. Am besten mit einem eigenen Node, auf diesem Gerät oder in Ihrem Netzwerk; jeder Node funktioniert.';
+      'Die Wallet spricht nur mit dem verwendeten Node, mit sonst nichts. QR-Zahlung und Dateiübertragung funktionieren weiter.';
 
   @override
   String get advModeKillSwitchHint =>
-      'Nichts verbindet sich, auch nicht der Node: Cold Storage. Die Wallet öffnet sich mit dem zuletzt bekannten Guthaben und Verlauf. Sie können Zahlungen per Dateiübertragung und QR-Zahlung erstellen, signieren und abschließen, Ihre Adresse zeigen, sichern und exportieren. Eine abgeschlossene Zahlung lässt sich von hier nicht senden: Speichern Sie sie oder zeigen Sie sie als QR-Code und senden Sie sie von einem Gerät, das online ist. Zahlungen, die auf einen Empfänger warten, pausieren und laufen weiter, wenn Sie den Modus verlassen.';
+      'Nichts verbindet sich. Die Wallet arbeitet offline mit dem zuletzt bekannten Guthaben, Zahlungen laufen per Datei oder QR-Code.';
 
   @override
   String advModeConfirmTitle(String mode) {
@@ -18840,7 +18832,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvModeStandardHint =>
-      'Alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung. Tor ist ein eigener Schalter unter Datenschutz.';
+      'Verbindet sich direkt. Schalten Sie Tor unter Datenschutz ein, um Ihre IP zu verbergen.';
 
   @override
   String deskFinNotPostedKillBody(String amount) {

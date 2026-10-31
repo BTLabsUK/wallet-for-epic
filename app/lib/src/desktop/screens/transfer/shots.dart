@@ -62,7 +62,6 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '16-send-review', title: 'Send, review', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   DeskShot(id: '16b-send-sending', title: 'Send, sending', route: DeskRoute.send, arg: SendArgs(step: SendStep.sending, recipient: _anna, amount: '12.5', message: 'Invoice 0042')),
   DeskShot(id: '16c-send-done', title: 'Send, done', route: DeskRoute.send, arg: SendArgs(step: SendStep.done, recipient: _anna, amount: '12.5')),
-  DeskShot(id: '13w-send-plain-http-ask', title: 'Send, the question before plain HTTP to another computer', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: _tomLan, amount: '5'), prepare: (c, _) => _linkOn(c), dialog: (ctx) => showEDialog<bool>(ctx, builder: (_) => const PlainHttpDialog())),
   const DeskShot(id: '16d-send-file-ready', title: 'Send, file ready', route: DeskRoute.send, arg: SendArgs(step: SendStep.fileReady, amount: '12.5')),
   // A pasted `epic:` payment request.
   DeskShot(id: '13s-send-code', title: 'Send, pasted payment request', route: DeskRoute.send, arg: SendArgs(code: _request, codeOrigin: CodeOrigin.paste)),

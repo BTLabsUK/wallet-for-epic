@@ -5167,11 +5167,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sendPlainHttpOffWithTorWhy =>
-      'Węzeł wyjściowy Tora mógłby przejąć płatność. Użyj https://, adresu onion lub Epicbox.';
-
-  @override
-  String get torModesSendsSame =>
-      'Z włączonym Torem tryb Normalny wysyła jak Tylko Tor: wszystko idzie przez Tor, a zwykłe HTTP jest wyłączone. Tylko Tor dodatkowo trzyma Tor włączony i nic nie wychodzi, dopóki nie jest połączony.';
+      'Użyj adresu https:// lub onion albo Epicbox.';
 
   @override
   String get receiveEpicboxCaption =>
@@ -18977,27 +18973,23 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeStandardHint =>
-      'Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w Prywatność i sieć.';
+      'Łączy się bezpośrednio. Włącz Tor w Prywatność i sieć, aby ukryć swój adres IP.';
 
   @override
   String get advModeStandardHintNoTor =>
-      'Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji.';
+      'Łączy się bezpośrednio z węzłem i usługami, których używasz.';
 
   @override
   String get advModeTorOnlyHint =>
-      'Każde połączenie idzie przez Tor, także z węzłem i Epicbox; nic nie dotyka otwartego internetu. Dopóki Tor nie jest gotowy, nic się nie łączy, o czym mówią ikony statusu. Odbieranie przez Link · HTTP zostaje wyłączone: zwykły adres ujawniłby to urządzenie.';
+      'Wszystko idzie przez Tor. Nic się nie łączy, dopóki Tor nie będzie gotowy.';
 
   @override
   String get advModeNodeOnlyHint =>
-      'Portfel rozmawia tylko z używanym węzłem, pierwszym na Twojej liście węzłów. Wyłączone: Epicbox, Link, strona statusu, kurs, sprawdzanie aktualizacji, linki do eksploratora, zgłoszenia problemów, parowanie i połączone urządzenia. Płatność QR i Przesyłanie pliku działają. Gdy Tor jest włączony, z węzłem łączy się przez Tor. Najlepiej z własnym węzłem, na tym urządzeniu lub w Twojej sieci; działa każdy węzeł.';
-
-  @override
-  String get advModeNodeOnlyHintNoTor =>
-      'Portfel rozmawia tylko z używanym węzłem, pierwszym na Twojej liście węzłów. Wyłączone: Epicbox, Link, strona statusu, kurs, sprawdzanie aktualizacji, linki do eksploratora, zgłoszenia problemów, parowanie i połączone urządzenia. Płatność QR i Przesyłanie pliku działają. Najlepiej z własnym węzłem, na tym urządzeniu lub w Twojej sieci; działa każdy węzeł.';
+      'Portfel rozmawia tylko z używanym węzłem, z niczym innym. Płatność QR i Przesyłanie pliku nadal działają.';
 
   @override
   String get advModeKillSwitchHint =>
-      'Nic się nie łączy, także węzeł: cold storage. Portfel otwiera się z ostatnio znanym saldem i historią. Możesz tworzyć, podpisywać i kończyć płatności przez Przesyłanie pliku i Płatność QR, pokazywać swój adres, robić kopię i eksportować. Gotowej płatności nie da się stąd wysłać: zapisz ją lub pokaż jako kod QR i wyślij z urządzenia, które jest online. Płatności czekające na odbiorcę są wstrzymane i wznawiają się po wyjściu z tego trybu.';
+      'Nic się nie łączy. Portfel działa offline z ostatnio znanym saldem, a płatności idą plikiem lub kodem QR.';
 
   @override
   String advModeConfirmTitle(String mode) {
@@ -19266,7 +19258,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvModeStandardHint =>
-      'Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w Prywatność.';
+      'Łączy się bezpośrednio. Włącz Tor w Prywatność, aby ukryć swój adres IP.';
 
   @override
   String deskFinNotPostedKillBody(String amount) {
