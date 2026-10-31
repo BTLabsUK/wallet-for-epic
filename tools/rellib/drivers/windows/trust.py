@@ -249,6 +249,22 @@ class Run:
             time.sleep(3)
         raise CannotRun("%s: no %r in wfe.log in %d s" % (what, pattern, timeout))
 
+    def ensure_unlocked(self, what):
+        """Unlock again when the app auto-locked (15 min by default) while the check waited, for P
+        or a confirmation: a locked wallet does not listen on Epicbox, so P's payment would wait
+        for nothing. The unlock screen has the password field focused."""
+        lines = self.applog()
+        opened = max((i for i, l in enumerate(lines) if "wallet opened" in l), default=-1)
+        locked = max((i for i, l in enumerate(lines) if "wallet locked in lock" in l), default=-1)
+        if locked <= opened:
+            return
+        self.log("%s: the wallet locked itself while the check waited; unlocking again" % what)
+        self.mark()
+        self.type_password()
+        self.keys(ENTER)
+        self.wait_log(r"wallet opened", 180, "%s: unlock again" % what)
+        time.sleep(5)
+
     def wallets(self):
         t = self.rig.text(self.data + "\\wallets.json")
         return json.loads(t) if t else None
@@ -534,6 +550,7 @@ class Run:
         d0 = self.db()
         n0 = len([t for t in d0["txs"] if t["direction"] == "incoming"]) if d0 else 0
         with self.p.exchange(what) as p:
+            self.ensure_unlocked(what)
             if not p.start_listener():
                 return False, "P's listener did not start (3 tries)"
             ok, out = p.send(address, amount)
@@ -575,6 +592,7 @@ class Run:
             return False, "available %s over the per-send cap %s" % (avail, CAP_SEND)
         self.budget(avail)
         with self.p.exchange(what) as p:
+            self.ensure_unlocked(what)
             if not p.start_listener():
                 return False, "P's listener did not start (3 tries)"
             self.mark()

@@ -541,13 +541,15 @@ def advanced_page():
 
 
 def _scroll_to(text, tries=6):
+    """The node labelled `text` (or the one `text()` finds), scrolled into view."""
+    look = text if callable(text) else (lambda: find(S, text))
     for _ in range(tries):
-        n = find(S, text)
+        n = look()
         if n and 400 < n["center"][1] < 2050:
             return n
         ph.swipe_up(S)
         time.sleep(1.2)
-    return find(S, text)
+    return look()
 
 
 def _switch_in_row(label):
@@ -560,10 +562,16 @@ def _switch_in_row(label):
     return sw[0] if sw else None
 
 
+CONF_ROW = re.compile(r"(\d+) confirmations?, ")  # "1 confirmation, …" / "6 confirmations, …"
+
+
+def conf_row():
+    return next((n for n in nodes(S) if CONF_ROW.match(n["label"])), None)
+
+
 def confirmations_now():
-    n = find(S, " confirmations, ")
-    m = re.match(r"(\d+) confirmations", n["label"]) if n else None
-    return int(m.group(1)) if m else None
+    n = conf_row()
+    return int(CONF_ROW.match(n["label"]).group(1)) if n else None
 
 
 def read_settings():
@@ -588,7 +596,7 @@ def read_settings():
         _scroll_to(name)
         sw = _switch_in_row(name)
         out[k] = sw["checked"] if sw else None
-    _scroll_to(" confirmations, ")
+    _scroll_to(conf_row)
     out["confirmations"] = confirmations_now()
     shot("advanced")
     home()
@@ -619,7 +627,7 @@ def change_settings():
     if sw and sw["checked"]:
         tap_xy(S, sw["center"])
         time.sleep(1.5)
-    _scroll_to(" confirmations, ")
+    _scroll_to(conf_row)
     for _ in range(30):
         c = confirmations_now()
         if c is None or c == CONFIRMATIONS:
