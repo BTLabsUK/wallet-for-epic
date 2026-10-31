@@ -38,6 +38,7 @@ CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "
 NODE_PICK = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
 RELAY_PICK = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
 TEST_CONFIRMATIONS = 1  # the setting the test moves to: test payments spend after one block
+P_STALL_S = 120  # answered but not finalized this long: P's listener hangs; restart it (a good one takes ~80 s)
 FUND_IN = "0.03"     # P -> wallet before the update
 FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")
@@ -638,7 +639,7 @@ class Run:
                 # answered, but P finalized without posting (its listener can hang there): post P's
                 # saved copy, with the listener stopped
                 stuck_since = (stuck_since or time.time()) if waiting > 0 else None
-                if stuck_since and time.time() - stuck_since > 180 and not reposted:
+                if stuck_since and time.time() - stuck_since > P_STALL_S and not reposted:
                     reposted = True
                     p.stop_listener()
                     for tx_id, slate in p.unposted_sends(address.split("@")[0]):

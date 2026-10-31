@@ -51,6 +51,7 @@ _spec.loader.exec_module(lt)  # helpers only: node_up, relay_up, short, sha256, 
 CHECKS = lt.CHECKS
 NODE_PICK = lt.NODE_PICK
 RELAY_PICK = lt.RELAY_PICK
+P_STALL_S = 120  # answered but not finalized this long: P's listener hangs; restart it (a good one takes ~80 s)
 FUND_IN = "0.03"
 FUND_AFTER = "0.01"
 CAP_SEND = decimal.Decimal("0.05")
@@ -553,7 +554,7 @@ class Run:
                         num(D(new[-1]["credited"]) / NANO), lt.short(new[-1]["counterparty"]), new[-1]["height"])
                 # answered but P has not posted (its listener can hang there): post P's saved copy
                 stuck_since = (stuck_since or time.time()) if new else None
-                if stuck_since and time.time() - stuck_since > 300 and not reposted:
+                if stuck_since and time.time() - stuck_since > P_STALL_S and not reposted:
                     reposted = True
                     p.stop_listener()
                     for tx_id, slate in p.unposted_sends(address.split("@")[0]):
