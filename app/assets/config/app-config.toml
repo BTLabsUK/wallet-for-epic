@@ -12,7 +12,7 @@
 # Talking to a node (the wallet core).
 connect_timeout_s = 15
 request_timeout_s = 90
-idle_timeout_s = 10            # below the node server's keep-alive
+idle_timeout_s = 40            # above the new-block checks (15 s, 30 s), so they reuse one connection
 retry_attempts = 3
 retry_backoff_min_ms = 500
 retry_backoff_max_ms = 4000
