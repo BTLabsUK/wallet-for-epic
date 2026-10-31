@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # Step `screens` of tools/rel, after G6 (verify-live): the release's screen catalogue, as the
-# release lead did by hand up to 26.10.23 (https://docs.btlabs.uk/developers/releases/, Cutting a release, step 4):
+# release lead did by hand up to 26.10.23 (docs/RELEASING.md, the `screens` row):
 #   1. tools/screens.sh <version> --src <release checkout>  renders both screenshot tours of this
 #      release's own source into /tmp/epic-build/screens/<version>/ (its lock, its .stage-* folder,
 #      `latest`, the two newest versions kept);
