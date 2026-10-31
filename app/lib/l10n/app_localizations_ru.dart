@@ -8582,7 +8582,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Поделитесь адресом Epicbox, чтобы получить первые EPIC.';
 
   @override
-  String get deskOvFiatNote => '  весь баланс, CoinGecko';
+  String get deskOvFiatNote => '  весь баланс';
 
   @override
   String get deskOvBreakTotal => 'Всего';

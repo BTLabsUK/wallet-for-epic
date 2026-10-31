@@ -1804,7 +1804,7 @@
   "deskOvAvailable": "Verfügbar",
   "deskOvAsOfBlock": "Stand Block {block}",
   "deskOvEmptyHint": "Teilen Sie die Epicbox-Adresse, um die ersten EPIC zu empfangen.",
-  "deskOvFiatNote": "  gesamtes Guthaben, CoinGecko",
+  "deskOvFiatNote": "  gesamtes Guthaben",
   "deskOvBreakTotal": "Gesamt",
   "deskOvBreakConfirming": "Wird bestätigt",
   "deskOvBreakImmature": "Unreif",

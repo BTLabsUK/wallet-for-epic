@@ -8340,7 +8340,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Teilen Sie die Epicbox-Adresse, um die ersten EPIC zu empfangen.';
 
   @override
-  String get deskOvFiatNote => '  gesamtes Guthaben, CoinGecko';
+  String get deskOvFiatNote => '  gesamtes Guthaben';
 
   @override
   String get deskOvBreakTotal => 'Gesamt';

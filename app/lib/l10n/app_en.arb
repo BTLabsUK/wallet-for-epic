@@ -10772,7 +10772,7 @@
   "@deskOvEmptyHint": {
     "description": "Text under the balance of an empty wallet."
   },
-  "deskOvFiatNote": "  whole balance, CoinGecko",
+  "deskOvFiatNote": "  whole balance",
   "@deskOvFiatNote": {
     "description": "Small grey text after the dollar value of the whole balance on Overview. Starts with two spaces."
   },

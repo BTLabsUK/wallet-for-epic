@@ -7699,7 +7699,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvEmptyHint => '分享 Epicbox 地址，接收你的第一笔 EPIC。';
 
   @override
-  String get deskOvFiatNote => '  全部余额，CoinGecko';
+  String get deskOvFiatNote => '  全部余额';
 
   @override
   String get deskOvBreakTotal => '总额';

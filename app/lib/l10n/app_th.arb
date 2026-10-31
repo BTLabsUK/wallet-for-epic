@@ -1993,7 +1993,7 @@
   "deskOvAvailable": "ยอดที่ใช้ได้",
   "deskOvAsOfBlock": "ณ บล็อก {block}",
   "deskOvEmptyHint": "แชร์ที่อยู่ Epicbox เพื่อรับ EPIC ครั้งแรก",
-  "deskOvFiatNote": "  ยอดทั้งหมด, CoinGecko",
+  "deskOvFiatNote": "  ยอดทั้งหมด",
   "deskOvBreakTotal": "รวม",
   "deskOvBreakConfirming": "กำลังยืนยัน",
   "deskOvBreakImmature": "รอครบกำหนด",

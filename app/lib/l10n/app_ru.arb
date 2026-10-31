@@ -1993,7 +1993,7 @@
   "deskOvAvailable": "Доступно",
   "deskOvAsOfBlock": "На блоке {block}",
   "deskOvEmptyHint": "Поделитесь адресом Epicbox, чтобы получить первые EPIC.",
-  "deskOvFiatNote": "  весь баланс, CoinGecko",
+  "deskOvFiatNote": "  весь баланс",
   "deskOvBreakTotal": "Всего",
   "deskOvBreakConfirming": "Подтверждается",
   "deskOvBreakImmature": "Не созрело",

@@ -7981,7 +7981,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOvEmptyHint => 'แชร์ที่อยู่ Epicbox เพื่อรับ EPIC ครั้งแรก';
 
   @override
-  String get deskOvFiatNote => '  ยอดทั้งหมด, CoinGecko';
+  String get deskOvFiatNote => '  ยอดทั้งหมด';
 
   @override
   String get deskOvBreakTotal => 'รวม';

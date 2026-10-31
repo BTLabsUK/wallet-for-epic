@@ -8233,7 +8233,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Share the Epicbox address to receive the first EPIC.';
 
   @override
-  String get deskOvFiatNote => '  whole balance, CoinGecko';
+  String get deskOvFiatNote => '  whole balance';
 
   @override
   String get deskOvBreakTotal => 'Total';

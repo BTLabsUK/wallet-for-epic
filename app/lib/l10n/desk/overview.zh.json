@@ -38,7 +38,7 @@
   "deskOvAvailable": "可用余额",
   "deskOvAsOfBlock": "截至区块 {block}",
   "deskOvEmptyHint": "分享 Epicbox 地址，接收你的第一笔 EPIC。",
-  "deskOvFiatNote": "  全部余额，CoinGecko",
+  "deskOvFiatNote": "  全部余额",
   "deskOvBreakTotal": "总额",
   "deskOvBreakConfirming": "确认中",
   "deskOvBreakImmature": "未成熟",

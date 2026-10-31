@@ -13020,7 +13020,7 @@ abstract class AppLocalizations {
   /// Small grey text after the dollar value of the whole balance on Overview. Starts with two spaces.
   ///
   /// In en, this message translates to:
-  /// **'  whole balance, CoinGecko'**
+  /// **'  whole balance'**
   String get deskOvFiatNote;
 
   /// Label of a balance cell under the big amount on Overview: the whole balance. Narrow cell, may wrap to two lines.

@@ -8609,7 +8609,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Udostępnij adres Epicbox, aby odebrać pierwsze EPIC.';
 
   @override
-  String get deskOvFiatNote => '  całe saldo, CoinGecko';
+  String get deskOvFiatNote => '  całe saldo';
 
   @override
   String get deskOvBreakTotal => 'Razem';
