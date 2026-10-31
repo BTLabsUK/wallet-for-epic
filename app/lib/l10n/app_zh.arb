@@ -4850,9 +4850,10 @@
   "deskLvShellNewsText": "此安装显示全部内容，与以往相同。浅水和再深些显示得更少。",
   "deskLvShellNewsLook": "去看看",
   "deskLvShellFailover": "故障切换",
-  "deskLvShellFailoverAuto": "开 · 自动",
   "deskLvShellOn": "开",
   "deskLvShellHeight": "高度",
   "deskLvShellVersion": "版本",
-  "deskLvShellRecheckHint": "如果金额看起来不对，钱包会重新读取区块链。"
+  "deskLvShellRecheckHint": "如果金额看起来不对，钱包会重新读取区块链。",
+  "deskLvShellSwitchServer": "切换服务器",
+  "deskLvShellNoOtherServer": "列表里没有其他服务器。"
 }

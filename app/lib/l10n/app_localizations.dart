@@ -29048,12 +29048,6 @@ abstract class AppLocalizations {
   /// **'Failover'**
   String get deskLvShellFailover;
 
-  /// Desktop status popover at the Shallow level, For support group: value of the Failover row; failover is always on and needs no setting.
-  ///
-  /// In en, this message translates to:
-  /// **'On · automatic'**
-  String get deskLvShellFailoverAuto;
-
   /// Desktop status popover: value of the Failover row when the node failover setting is on.
   ///
   /// In en, this message translates to:
@@ -29077,6 +29071,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If an amount looks wrong, the wallet reads the chain again.'**
   String get deskLvShellRecheckHint;
+
+  /// Desktop title-bar status popover (Network or Epicbox) at the Shallow level: button that opens a short list of the other servers of the user's list, each named by its address; one click moves the wallet to that server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch server'**
+  String get deskLvShellSwitchServer;
+
+  /// Desktop status popover at the Shallow level: shown under Switch server when the user's server list has no server other than the one in use.
+  ///
+  /// In en, this message translates to:
+  /// **'No other server in the list.'**
+  String get deskLvShellNoOtherServer;
 }
 
 class _AppLocalizationsDelegate

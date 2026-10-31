@@ -18818,9 +18818,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskLvShellFailover => 'Node-Wechsel';
 
   @override
-  String get deskLvShellFailoverAuto => 'Ein · automatisch';
-
-  @override
   String get deskLvShellOn => 'Ein';
 
   @override
@@ -18832,4 +18829,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'Wirkt der Betrag falsch, liest die Wallet die Chain erneut.';
+
+  @override
+  String get deskLvShellSwitchServer => 'Server wechseln';
+
+  @override
+  String get deskLvShellNoOtherServer => 'Keine anderen Server in der Liste.';
 }

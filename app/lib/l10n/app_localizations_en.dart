@@ -18600,9 +18600,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskLvShellFailover => 'Failover';
 
   @override
-  String get deskLvShellFailoverAuto => 'On · automatic';
-
-  @override
   String get deskLvShellOn => 'On';
 
   @override
@@ -18614,4 +18611,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'If an amount looks wrong, the wallet reads the chain again.';
+
+  @override
+  String get deskLvShellSwitchServer => 'Switch server';
+
+  @override
+  String get deskLvShellNoOtherServer => 'No other server in the list.';
 }

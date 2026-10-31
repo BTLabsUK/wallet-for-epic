@@ -3,9 +3,10 @@
   "deskLvShellNewsText": "Ta instalacja pokazuje wszystko, jak dotąd. Płytko i Głębiej pokazują mniej.",
   "deskLvShellNewsLook": "Zobacz",
   "deskLvShellFailover": "Przełączanie węzła",
-  "deskLvShellFailoverAuto": "Włączone · automatycznie",
   "deskLvShellOn": "Włączone",
   "deskLvShellHeight": "Wysokość",
   "deskLvShellVersion": "Wersja",
-  "deskLvShellRecheckHint": "Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie."
+  "deskLvShellRecheckHint": "Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie.",
+  "deskLvShellSwitchServer": "Zmień serwer",
+  "deskLvShellNoOtherServer": "Na liście nie ma innego serwera."
 }

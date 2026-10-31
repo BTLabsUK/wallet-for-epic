@@ -17542,9 +17542,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvShellFailover => '故障切换';
 
   @override
-  String get deskLvShellFailoverAuto => '开 · 自动';
-
-  @override
   String get deskLvShellOn => '开';
 
   @override
@@ -17555,4 +17552,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLvShellRecheckHint => '如果金额看起来不对，钱包会重新读取区块链。';
+
+  @override
+  String get deskLvShellSwitchServer => '切换服务器';
+
+  @override
+  String get deskLvShellNoOtherServer => '列表里没有其他服务器。';
 }

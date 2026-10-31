@@ -19246,9 +19246,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskLvShellFailover => 'Przełączanie węzła';
 
   @override
-  String get deskLvShellFailoverAuto => 'Włączone · automatycznie';
-
-  @override
   String get deskLvShellOn => 'Włączone';
 
   @override
@@ -19260,4 +19257,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie.';
+
+  @override
+  String get deskLvShellSwitchServer => 'Zmień serwer';
+
+  @override
+  String get deskLvShellNoOtherServer => 'Na liście nie ma innego serwera.';
 }

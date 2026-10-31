@@ -19225,9 +19225,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvShellFailover => 'Переключение узла';
 
   @override
-  String get deskLvShellFailoverAuto => 'Вкл. · автоматически';
-
-  @override
   String get deskLvShellOn => 'Вкл.';
 
   @override
@@ -19239,4 +19236,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'Если сумма выглядит неверно, кошелёк заново читает цепочку.';
+
+  @override
+  String get deskLvShellSwitchServer => 'Сменить сервер';
+
+  @override
+  String get deskLvShellNoOtherServer => 'В списке нет другого сервера.';
 }

@@ -15,10 +15,6 @@
   "@deskLvShellFailover": {
     "description": "Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering."
   },
-  "deskLvShellFailoverAuto": "On · automatic",
-  "@deskLvShellFailoverAuto": {
-    "description": "Desktop status popover at the Shallow level, For support group: value of the Failover row; failover is always on and needs no setting."
-  },
   "deskLvShellOn": "On",
   "@deskLvShellOn": {
     "description": "Desktop status popover: value of the Failover row when the node failover setting is on."
@@ -34,5 +30,13 @@
   "deskLvShellRecheckHint": "If an amount looks wrong, the wallet reads the chain again.",
   "@deskLvShellRecheckHint": {
     "description": "Desktop Settings › This wallet at the Shallow level: info text of the Recheck balance row, whose Open button opens the Recheck balance page."
+  },
+  "deskLvShellSwitchServer": "Switch server",
+  "@deskLvShellSwitchServer": {
+    "description": "Desktop title-bar status popover (Network or Epicbox) at the Shallow level: button that opens a short list of the other servers of the user's list, each named by its address; one click moves the wallet to that server."
+  },
+  "deskLvShellNoOtherServer": "No other server in the list.",
+  "@deskLvShellNoOtherServer": {
+    "description": "Desktop status popover at the Shallow level: shown under Switch server when the user's server list has no server other than the one in use."
   }
 }

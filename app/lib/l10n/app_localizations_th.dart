@@ -18188,9 +18188,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskLvShellFailover => 'สลับโหนดอัตโนมัติ';
 
   @override
-  String get deskLvShellFailoverAuto => 'เปิด · อัตโนมัติ';
-
-  @override
   String get deskLvShellOn => 'เปิด';
 
   @override
@@ -18202,4 +18199,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'ถ้าจำนวนเงินดูไม่ถูกต้อง กระเป๋าเงินจะอ่านเชนใหม่อีกครั้ง';
+
+  @override
+  String get deskLvShellSwitchServer => 'เปลี่ยนเซิร์ฟเวอร์';
+
+  @override
+  String get deskLvShellNoOtherServer => 'ไม่มีเซิร์ฟเวอร์อื่นในรายการ';
 }
