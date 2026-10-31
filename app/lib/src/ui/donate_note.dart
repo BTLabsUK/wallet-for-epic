@@ -13,13 +13,22 @@ import '../seed_contacts.dart';
 const Key helpDonateCopyKey = ValueKey('help-donate-copy');
 
 /// Support development: heading, line and a Copy address button.
-class DonateNote extends StatelessWidget {
+class DonateNote extends StatefulWidget {
   const DonateNote({super.key});
+
+  @override
+  State<DonateNote> createState() => _DonateNoteState();
+}
+
+class _DonateNoteState extends State<DonateNote> {
+  /// Read once when the note opens: a signed btlabs.json verified meanwhile never changes
+  /// what this note copies.
+  final String? _address = btLabsContact?.address;
 
   @override
   Widget build(BuildContext context) {
     // No donation contact in app-config.toml: no note.
-    final address = btLabsContact?.address;
+    final address = _address;
     if (address == null) return const SizedBox.shrink();
     final l = context.l10n;
     final text = Theme.of(context).textTheme;

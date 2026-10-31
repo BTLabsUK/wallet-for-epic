@@ -360,13 +360,22 @@ class _SupportBar extends StatelessWidget {
 }
 
 /// Support development: one line and a Copy address button, under the report bar.
-class _DonateBar extends StatelessWidget {
+class _DonateBar extends StatefulWidget {
   const _DonateBar();
+
+  @override
+  State<_DonateBar> createState() => _DonateBarState();
+}
+
+class _DonateBarState extends State<_DonateBar> {
+  /// Read once when the bar opens: a signed btlabs.json verified meanwhile never changes what
+  /// this bar copies.
+  final String? _address = btLabsContact?.address;
 
   @override
   Widget build(BuildContext context) {
     // No donation contact in app-config.toml: no bar.
-    final address = btLabsContact?.address;
+    final address = _address;
     if (address == null) return const SizedBox.shrink();
     final c = context.dc;
     final ts = context.ts;

@@ -6,9 +6,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/btlabs_onions.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
+import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/seed_contacts.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
@@ -29,6 +31,7 @@ void main() {
   final opened = <LepicDeskWallet>[];
 
   setUp(() async {
+    resetSignedDonation();
     files = await Directory.systemTemp.createTemp('desk-seed-test-');
     support = await Directory.systemTemp.createTemp('desk-seed-support-');
     secrets = MemorySecretStore();
@@ -313,7 +316,7 @@ void main() {
       expect(c.note, btLabsContact!.note);
     });
 
-    test('a rejected file is not fetched again within a day', () async {
+    test('every app run reads the file again, after a rejected or a good read', () async {
       await makeWallet();
       var calls = 0;
       await openWith((_) async {
@@ -321,24 +324,7 @@ void main() {
         return 'garbage';
       });
       expect(calls, 1);
-      final tried = (await cache())['tried'];
-      expect(tried, isA<int>());
-      await openWith((_) async {
-        calls++;
-        return 'garbage';
-      });
-      expect(calls, 1, reason: 'tried less than a day ago');
-      setCache({'tried': DateTime.now().subtract(const Duration(days: 2)).millisecondsSinceEpoch});
-      await openWith((_) async {
-        calls++;
-        return 'garbage';
-      });
-      expect(calls, 2);
-    });
-
-    test('a good read is not repeated within 7 days', () async {
-      await makeWallet();
-      var calls = 0;
+      expect((await cache())['tried'], isA<int>());
       Future<String?> serve(Uri _) {
         calls++;
         return webFile(moved);
@@ -346,7 +332,26 @@ void main() {
 
       await openWith(serve);
       await openWith(serve);
-      expect(calls, 1);
+      expect(calls, 3);
+    });
+
+    test('Node only and Kill switch read nothing', () async {
+      await makeWallet();
+      var calls = 0;
+      for (final mode in [NetworkMode.nodeOnly, NetworkMode.killSwitch]) {
+        final w = app(web: (_) async {
+          calls++;
+          return null;
+        });
+        NetGate.set(mode);
+        try {
+          expect(await w.unlock(_password), isTrue);
+          await pumpEventQueue(times: 50);
+        } finally {
+          NetGate.set(NetworkMode.standard);
+        }
+      }
+      expect(calls, 0);
     });
 
     test('at and tried in the future (a clock set back) do not block a fetch', () async {

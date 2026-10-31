@@ -3174,7 +3174,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// BT Labs' onion mapping: built in, replaced by a verified btlabs.json that lists onions.
   final OnionDirectory onions;
 
-  /// The website's list, read once per app start (or from the 7-day cache); null until then.
+  /// The website's list, read once per app start (or the last good copy); null until then.
   List<SeedContact>? _webSeeds;
   bool _seedFetchStarted = false;
 
@@ -3318,27 +3318,23 @@ class LepicDeskWallet implements DeskWalletApi {
     final state = ManifestState.fromJson(j['state']);
     if (state == null) return null;
     final file = await loadCachedBtlabsPublic(j['envelope'] as String, keyring: _keyring, state: state, alsoRevoked: await _updateRevoked());
-    if (file != null) {
-      onions.adopt(file);
-      await _applyOnions(_session);
-    }
-    return file == null ? null : seedContactsFrom(file, validAddress: isEpicboxAddress);
+    if (file == null) return null;
+    onions.adopt(file);
+    await _applyOnions(_session);
+    final list = seedContactsFrom(file, validAddress: isEpicboxAddress);
+    useSignedDonation(list);
+    return list;
   }
 
-  /// Reads btlabs.json unless the last good read is under 7 days old (or the last try under a
-  /// day); applies it to the open wallet when it verifies and is newer than what the app has.
-  /// Anything else changes nothing.
+  /// Reads btlabs.json once per app run, in the background; applies it to the open wallet when
+  /// it verifies and is not older than what the app has. Node only and Kill switch read
+  /// nothing; with Tor on it goes through tor or not at all (`httpGet`). Anything else changes
+  /// nothing: the last good copy stays in use.
   Future<void> _refreshWebSeeds() async {
     try {
       final raw = await _store.readJson(_btlabsCacheKey);
       final j = raw is Map ? Map<String, Object?>.from(raw) : <String, Object?>{};
-      bool fresh(Object? ms, Duration d) {
-        if (ms is! int) return false;
-        final age = DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(ms));
-        return !age.isNegative && age < d; // a clock set back counts as stale
-      }
-
-      if (fresh(j['at'], const Duration(days: 7)) || fresh(j['tried'], const Duration(days: 1))) return;
+      if (NetGate.restricted) return;
       // One refresher per app run (_seedFetchStarted), so this read-modify-write cannot race.
       await _store.writeJson(_btlabsCacheKey, {...j, 'tried': DateTime.now().millisecondsSinceEpoch});
       // No signed file in app-config.toml: nothing to read.
@@ -3360,6 +3356,7 @@ class LepicDeskWallet implements DeskWalletApi {
           onions.adopt(manifest);
           await _applyOnions(_session);
           final list = seedContactsFrom(manifest, validAddress: isEpicboxAddress);
+          useSignedDonation(list);
           _webSeeds = list;
           await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
       }

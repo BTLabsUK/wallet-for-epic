@@ -29,19 +29,36 @@ class SeedContact {
   String toString() => 'SeedContact($id, $name, $address)';
 }
 
-/// BT Labs' donation address (`[support] donation` of `app-config.toml`), or null when that
-/// line is left out: then no donation entry shows anywhere, and the signed file cannot add one.
+/// BT Labs' donation address: the signed btlabs.json's when one was verified this run
+/// ([useSignedDonation]), else `[support] donation` of `app-config.toml`. Null when that line
+/// is left out: then no donation entry shows anywhere, and the signed file cannot add one.
 SeedContact? get btLabsContact {
-  final address = hostSettings.supportDonation;
-  if (address == null) return null;
-  return SeedContact(id: 'btlabs', name: 'BT Labs', address: address, note: 'Donations support development of this wallet.');
+  final bundled = hostSettings.supportDonation;
+  if (bundled == null) return null;
+  return SeedContact(id: 'btlabs', name: 'BT Labs', address: _signedDonation ?? bundled, note: 'Donations support development of this wallet.');
 }
+
+/// The donation address of the signed file in use (the copy read at start, or the last good
+/// one kept); null until one verified.
+String? _signedDonation;
+
+/// Takes BT Labs' donation address from the seed contacts of a verified file
+/// ([seedContactsFrom]) for [btLabsContact]; a file without one changes nothing. A screen
+/// that shows the address reads it once when it opens, so what it copies is what it showed.
+void useSignedDonation(List<SeedContact> fromFile) {
+  for (final c in fromFile) {
+    if (c.id == 'btlabs') _signedDonation = c.address;
+  }
+}
+
+/// Forgets the signed donation address (tests).
+void resetSignedDonation() => _signedDonation = null;
 
 /// What the app ships with; used whenever the website cannot be read.
 List<SeedContact> get bundledSeedContacts => [?btLabsContact];
 
 /// BT Labs' signed public file (btlabs-public FORMAT.md): the donation address may change
-/// there; nothing else is read from it yet. The keys that may sign it are in `btlabs_keys.dart`.
+/// there. The desktop also takes its onions; the phone reads only the address. The keys that may sign it are in `btlabs_keys.dart`.
 /// Null when `app-config.toml` names none: it is not read.
 String? get btlabsPublicUrl => hostSettings.supportDirectory;
 

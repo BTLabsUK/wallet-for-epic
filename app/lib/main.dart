@@ -15,6 +15,7 @@ import 'src/phone_tor.dart';
 import 'src/relay_directory.dart' show statusSite;
 import 'src/network.dart' show devChainOf;
 import 'src/providers.dart' show NetworkChoiceNotifier;
+import 'src/btlabs_public_phone.dart' show refreshBtlabsPublicAtStart;
 import 'src/secret_store_api.dart' show SecretStore;
 import 'src/settings_file/settings_providers.dart';
 import 'src/wallet_service.dart' show Chain;
@@ -67,6 +68,9 @@ Future<void> main() async {
     // The update check, price and status asked before tor connects wait for it, then go
     // through it.
     if (torBuilt) TorNet.hold = appConfig.torSendWait;
+    // BT Labs' signed btlabs.json, in the background after the network mode and Tor are set:
+    // the donation address from the kept copy at once, then from a fresh read if one verifies.
+    unawaited(refreshBtlabsPublicAtStart(store));
     // Before anything asks the status site: off (`status.enabled`), nothing is asked.
     statusSite.followSettings();
     registerFontLicences();
