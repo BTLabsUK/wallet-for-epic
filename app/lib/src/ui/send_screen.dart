@@ -2043,7 +2043,9 @@ class _SendViewState extends ConsumerState<SendView> {
     final kind = parseRecipient(_recipient.text).kind;
     // No Tor in this build: an onion has no method to turn on, its own error says so.
     if (kind == RecipientKind.tor && !torBuilt) return null;
-    return kind == RecipientKind.epicbox ? null : MethodKind.ofRecipient(kind);
+    // An Epicbox address goes over Epicbox whatever the selector says (Send may have moved off
+    // it while Epicbox is off): its switch holds the send.
+    return kind == RecipientKind.epicbox ? MethodKind.epicbox : MethodKind.ofRecipient(kind);
   }
 
   /// Settings › Transactions, watched: the build follows a switch (the defaults until it loads).

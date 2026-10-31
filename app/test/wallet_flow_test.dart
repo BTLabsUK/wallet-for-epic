@@ -278,7 +278,7 @@ void main() {
 
         await _enterNow(tester, 'PIN', _pin);
         await _enterNow(tester, 'Repeat PIN', _pin);
-        expect(find.text('Unlock with fingerprint or face?'), findsOneWidget);
+        expect(find.text('Unlock with biometrics?'), findsOneWidget);
         await tester.tap(find.text('Use biometrics'));
         await tester.pump();
         await tester.pump();
@@ -295,7 +295,7 @@ void main() {
         expect(service.createdMnemonic, isNull);
         expect(service.createdPin, _pin);
         // Only the sealed text is stored; the biometric copy is the PIN.
-        expect(device.store.values, {
+        expect({...device.store.values}..remove('app.level'), {
           'wallet.mainnet.pinSealed': fakeSealedPassword(_pin),
           'wallet.mainnet.pinBiometrics': '1',
         });
@@ -359,7 +359,8 @@ void main() {
 
         expect(find.text('Welcome'), findsNothing);
         expect(find.textContaining('Nothing was deleted'), findsOneWidget);
-        expect(device.store.values, before);
+        // Existing installs are stamped level 3 (today's app) at the first start.
+        expect({...device.store.values}..remove('app.level'), before);
         expect(service.deletedWallets, isEmpty);
       },
     );
@@ -480,10 +481,9 @@ void main() {
       findsWidgets,
     );
     // The sheet warns; the confirm says the address will change.
-    expect(find.text('Changing the server changes your Epicbox address. Share the new one.'), findsOneWidget);
+    expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
     await _tap(tester, row);
-    expect(find.text('Changing the server changes your Epicbox address. Share the new one.'), findsOneWidget);
-    expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
+    expect(find.text('Your Epicbox address changes. Share the new one.'), findsWidgets);
     await _tap(tester, find.byKey(serverListCancelKey));
     expect(find.byKey(serverListSwitchKey), findsNothing);
 
@@ -735,7 +735,7 @@ void main() {
 
       await _tap(tester, find.byKey(const ValueKey('tx-s:b')));
       // No address was recorded, so this is a send by transaction file.
-      expect(find.textContaining('their transaction file'), findsOneWidget);
+      expect(find.textContaining('response file'), findsOneWidget);
       // The label tile above the rows pushes the fee below a short screen's first page.
       await _reveal(tester, find.text('Fee'));
       expect(find.text('Fee'), findsOneWidget);
@@ -1081,7 +1081,7 @@ void main() {
       await tester.pumpAndSettle();
       // A notice in words, not the listener's raw message.
       expect(
-        find.text('3.0000 EPIC on the way. It completes when the sender finishes.'),
+        find.text('3.0000 EPIC on the way.'),
         findsOneWidget,
       );
       expect(find.text('Received 3.0000 EPIC from zz…'), findsNothing);

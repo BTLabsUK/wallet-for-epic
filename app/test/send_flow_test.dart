@@ -182,7 +182,7 @@ Future<void> _send(WidgetTester tester) async {
   await _tap(tester, _continue);
   await _enter(tester, 'Amount (EPIC)', '1');
   await _tap(tester, _continue);
-  await _tap(tester, find.text('Send 1.00000000 EPIC'));
+  await _tap(tester, find.text('Send 1.0000 EPIC'));
 }
 
 /// The labels of the tracker's steps in [state].
@@ -277,18 +277,19 @@ void main() {
       await _tap(tester, find.byTooltip('Back'));
       expect(find.text('2 of 3'), findsOneWidget);
       await _tap(tester, _continue);
-      await _tap(tester, find.text('Send 1.00000000 EPIC'));
+      await _tap(tester, find.text('Send 1.0000 EPIC'));
 
       // The tracker: no step count, no way back to a form that could send twice.
       expect(find.text('3 of 3'), findsNothing);
       expect(find.byTooltip('Back'), findsNothing);
-      expect(_steps(tester, TimelineState.done), ['Sent']);
+      expect(_steps(tester, TimelineState.done), ['Payment started']);
       expect(_steps(tester, TimelineState.current), [
-        'Waiting for their wallet',
+        'Recipient signed',
       ]);
       expect(_steps(tester, TimelineState.todo), [
         'Posted to the network',
-        'Confirmed',
+        'Confirming',
+        'Completed',
       ]);
       await _tap(tester, find.text('Done'));
       expect(h.done, 1);
@@ -315,7 +316,7 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
       expect(info, findsOneWidget);
-      await _tap(tester, find.text('Send 1.00000000 EPIC'));
+      await _tap(tester, find.text('Send 1.0000 EPIC'));
       expect(info, findsOneWidget);
     });
   });
@@ -327,14 +328,14 @@ void main() {
       await _send(tester);
       await h.payment(tester, TxStatus.awaitingRecipient);
       expect(_steps(tester, TimelineState.current), [
-        'Waiting for their wallet',
+        'Recipient signed',
       ]);
 
       // Their wallet signed; ours finished it and handed it to the network.
       await h.payment(tester, TxStatus.awaitingConfirmation);
       expect(_steps(tester, TimelineState.done), [
-        'Sent',
-        'Their wallet signed',
+        'Payment started',
+        'Recipient signed',
         'Posted to the network',
       ]);
       expect(
@@ -346,10 +347,11 @@ void main() {
 
       await h.payment(tester, TxStatus.confirmed, height: BigInt.one);
       expect(_steps(tester, TimelineState.done), [
-        'Sent',
-        'Their wallet signed',
+        'Payment started',
+        'Recipient signed',
         'Posted to the network',
         'Confirmed',
+        'Completed',
       ]);
       expect(_steps(tester, TimelineState.current), isEmpty);
     });
@@ -364,7 +366,7 @@ void main() {
         await tester.pump(const Duration(minutes: 1));
         await h.payment(tester, TxStatus.awaitingRecipient);
         expect(_steps(tester, TimelineState.current), [
-          'Waiting for their wallet',
+          'Recipient signed',
         ]);
       }
       expect(
@@ -393,7 +395,7 @@ void main() {
       await h.pump(tester);
       await _send(tester);
       final live = find.ancestor(
-        of: find.text('Waiting for their wallet'),
+        of: find.text('Recipient signed'),
         matching: find.byWidgetPredicate(
           (w) => w is Semantics && (w.properties.liveRegion ?? false),
         ),
@@ -409,13 +411,13 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _send(tester);
-      expect(find.bySemanticsLabel('Sent, done'), findsOneWidget);
+      expect(find.bySemanticsLabel('Payment started, done'), findsOneWidget);
       expect(
-        find.bySemanticsLabel('Waiting for their wallet, now'),
+        find.bySemanticsLabel(RegExp(r'^Recipient signed, now')),
         findsOneWidget,
       );
       expect(find.bySemanticsLabel('Posted to the network, later'), findsOne);
-      expect(find.bySemanticsLabel('Confirmed, later'), findsOneWidget);
+      expect(find.bySemanticsLabel('Confirming, later'), findsOneWidget);
       handle.dispose();
     });
 
@@ -451,7 +453,7 @@ void main() {
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
-      await tester.tap(find.text('Send 1.00000000 EPIC'));
+      await tester.tap(find.text('Send 1.0000 EPIC'));
       await tester.pumpAndSettle();
       await answerPin(tester, settle: false);
       for (var i = 0; i < 10; i++) {

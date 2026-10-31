@@ -220,7 +220,7 @@ void main() {
       expect(find.text(_l.sendRecipientPairing('Anna')), findsOneWidget);
       expect(find.textContaining('@'), findsNothing);
       expect(find.byKey(sendQueuedCardKey), findsNothing);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.50000000 EPIC'));
+      await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.5000 EPIC'));
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
       expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
