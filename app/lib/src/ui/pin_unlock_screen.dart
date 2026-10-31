@@ -113,7 +113,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) setState(() => _error = describeError(context.l10n, error));
       return;
     }
-    final biometrics = await vault.biometricsReady(config.chain);
+    final biometrics = await vault.biometricsEnabled(config.chain);
     // A demo wallet made with the demo PIN gets it filled in, unless a try already failed; in a
     // build without PINs it opens with a tap instead.
     final demoPinWallet = failures == 0 && await vault.usesDemoPin(config.chain);
@@ -165,7 +165,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     if (!mounted || _busy || ref.read(sessionProvider) != null) return;
     if (pin == null) {
       // Dismissed, or the copy is gone after a new enrollment.
-      final still = await vault.biometricsReady(config.chain);
+      final still = await vault.biometricsEnabled(config.chain);
       if (mounted) setState(() => _biometrics = still);
       return;
     }
@@ -207,7 +207,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       }
       if (session == null) {
         // Dismissed, or the copy is gone after a new enrollment.
-        final still = await vault.biometricsReady(config.chain);
+        final still = await vault.biometricsEnabled(config.chain);
         if (mounted) setState(() => _biometrics = still);
         return;
       }
@@ -221,7 +221,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) goHome(context);
     } on PinRejected catch (rejection) {
       _pin.clear();
-      final still = await vault.biometricsReady(config.chain);
+      final still = await vault.biometricsEnabled(config.chain);
       if (!mounted) return;
       setState(() {
         _biometrics = still;

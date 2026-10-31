@@ -2903,10 +2903,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsBiometrics => 'Mit Biometrie entsperren';
 
   @override
-  String get settingsBiometricsOn =>
-      'Biometrisches Entsperren ist ab dem nächsten Start der App an.';
-
-  @override
   String get settingsBiometricsOff => 'Biometrische Entsperrung deaktiviert';
 
   @override
@@ -18018,10 +18014,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get passphraseUsePassphraseInstead =>
       'Stattdessen Passphrase verwenden';
-
-  @override
-  String get biometricsFromNextStart =>
-      'Die biometrische Entsperrung funktioniert ab dem nächsten Start der App.';
 
   @override
   String get invoicePassphraseReason =>

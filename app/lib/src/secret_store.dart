@@ -71,10 +71,6 @@ abstract interface class BiometricStore {
   Future<void> write(String key, String value);
 
   Future<void> delete(String key);
-
-  /// False once this process wrote a copy: the store can no longer prove a fresh biometric
-  /// check for a read until the app restarts, so no read is offered ([WalletVault]).
-  bool get readable;
 }
 
 class BiometricCancelled implements Exception {
@@ -197,9 +193,9 @@ class PlatformBiometricStore implements BiometricStore {
   /// confirmed prompt answers within moments; one dismissed with "Use PIN" never does.
   static const Duration answerGrace = Duration(seconds: 3);
 
-  Future<T> _guard<T>(Future<T> Function() action) async {
+  Future<T> _guard<T>(Future<T> Function() action, {bool mustPrompt = false}) async {
     try {
-      return await _promptAnswer(action()).timeout(promptLimit);
+      return await _promptAnswer(action(), mustPrompt: mustPrompt).timeout(promptLimit);
     } on TimeoutException {
       logInfo('biometrics', 'not unlocked: no answer');
       throw const BiometricCancelled('no answer');
@@ -215,8 +211,9 @@ class PlatformBiometricStore implements BiometricStore {
   /// [call], or [BiometricCancelled] once the app was covered by a prompt, came back to the
   /// front and [answerGrace] passed with no answer: the prompt was dismissed and the store will
   /// not say so. Covered again meanwhile (the store's own prompt after local_auth's),
-  /// the wait starts over.
-  Future<T> _promptAnswer<T>(Future<T> call) {
+  /// the wait starts over. With [mustPrompt], an answer that came while no prompt ever covered
+  /// the app is [BiometricCancelled]: no fresh biometric check unlocked it.
+  Future<T> _promptAnswer<T>(Future<T> call, {bool mustPrompt = false}) {
     final done = Completer<T>();
     Timer? grace;
     var covered = false;
@@ -234,7 +231,13 @@ class PlatformBiometricStore implements BiometricStore {
     });
     WidgetsBinding.instance.addObserver(watch);
     call.then((v) {
-      if (!done.isCompleted) done.complete(v);
+      if (done.isCompleted) return;
+      if (mustPrompt && !covered) {
+        logWarn('biometrics', 'read answered without a prompt; not used');
+        done.completeError(const BiometricCancelled('no prompt'));
+      } else {
+        done.complete(v);
+      }
     }, onError: (Object e, StackTrace st) {
       if (!done.isCompleted) done.completeError(e, st);
     });
@@ -244,16 +247,14 @@ class PlatformBiometricStore implements BiometricStore {
     });
   }
 
-  // flutter_secure_storage 11.2.0 keeps the key it unlocked for the first write of a new
-  // namespace for the rest of the process, so later reads skip the prompt despite
-  // requireBiometricsPerOperation (seen on the API 36 emulator; a cold start prompts every time).
-  // A read would then be gated only by a prompt that answers yes or no, with no key bound to
-  // it, so after a write this process reads nothing: the PIN opens the wallet until the app
-  // restarts, and the Keystore-bound prompt is back from then on.
+  // flutter_secure_storage 11.2.0 kept the key it unlocked for the first write of a new
+  // namespace for the rest of the process, so later reads skipped the prompt despite
+  // requireBiometricsPerOperation: its algorithm migration cached that cipher (seen on the API 36
+  // emulator). Since migrateOnAlgorithmChange is off (above), a new namespace is set up without
+  // a migration and every read and write unlocks the Keystore key behind its own prompt. Should a
+  // later version cache again, a read after a write in this process must still have shown a
+  // prompt ([_promptAnswer]'s mustPrompt), or it is not used and the PIN opens the wallet.
   bool _wroteThisProcess = false;
-
-  @override
-  bool get readable => !_wroteThisProcess;
 
   /// local_auth's prompt with [prompt]'s words, as the store's own prompt has them (its
   /// defaults are English).
@@ -268,10 +269,10 @@ class PlatformBiometricStore implements BiometricStore {
   );
 
   @override
-  Future<String?> read(String key) => _guard(() async {
-    if (_wroteThisProcess) throw const BiometricCancelled('written in this process');
-    return _storage.read(key: key, aOptions: _promptOptions);
-  });
+  Future<String?> read(String key) => _guard(
+    () => _storage.read(key: key, aOptions: _promptOptions),
+    mustPrompt: _wroteThisProcess,
+  );
 
   @override
   Future<void> write(String key, String value) => _guard(() async {
@@ -301,10 +302,6 @@ class MemoryBiometricStore implements BiometricStore {
   bool available;
   bool succeed = true;
   int prompts = 0;
-
-  /// As [PlatformBiometricStore] after a write in the same process, when set false.
-  @override
-  bool readable = true;
 
   /// How often [delete] was called: the real store can prompt for it.
   int deletes = 0;

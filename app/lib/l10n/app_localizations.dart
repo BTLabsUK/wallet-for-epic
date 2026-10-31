@@ -4573,12 +4573,6 @@ abstract class AppLocalizations {
   /// **'Unlock with biometrics'**
   String get settingsBiometrics;
 
-  /// Notice after the Settings switch. Biometrics cannot read their copy of the PIN in the process that wrote it, so they start working after a restart.
-  ///
-  /// In en, this message translates to:
-  /// **'Biometric unlock is on from the next app start.'**
-  String get settingsBiometricsOn;
-
   /// Short notice.
   ///
   /// In en, this message translates to:
@@ -27775,12 +27769,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use passphrase instead'**
   String get passphraseUsePassphraseInstead;
-
-  /// Notice after biometric unlock was turned on while creating or restoring a wallet: it cannot be used until the app is started again.
-  ///
-  /// In en, this message translates to:
-  /// **'Biometric unlock works from the next app start.'**
-  String get biometricsFromNextStart;
 
   /// invoicePinReason for a wallet that opens with a passphrase instead of the PIN.
   ///

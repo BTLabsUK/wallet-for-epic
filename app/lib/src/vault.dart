@@ -298,12 +298,6 @@ class WalletVault {
   Future<bool> biometricsEnabled(Chain chain) async =>
       await store.read(_key(chain, 'pinBiometrics')) == '1';
 
-  /// Whether biometrics can open [chain]'s wallet now: on, and the store can read its copy
-  /// behind a Keystore-bound prompt ([BiometricStore.readable]). After the copy was written in
-  /// this process they stay on but wait for the app's next start; the PIN works meanwhile.
-  Future<bool> biometricsReady(Chain chain) async =>
-      biometrics.readable && await biometricsEnabled(chain);
-
   /// Checks [pin] ([checkPin]), then stores the biometric copy of it. Returns false if the
   /// prompt was dismissed.
   Future<bool> enableBiometrics(
@@ -336,7 +330,7 @@ class WalletVault {
   /// The biometric copy of the PIN. Null if biometrics are off, the prompt was dismissed, or
   /// the copy is gone (for example after a new fingerprint was enrolled; that turns them off).
   Future<String?> readBiometricPin(Chain chain) async {
-    if (!await biometricsReady(chain)) return null;
+    if (!await biometricsEnabled(chain)) return null;
     final String? pin;
     try {
       pin = await biometrics.read(_key(chain, 'pin'));
