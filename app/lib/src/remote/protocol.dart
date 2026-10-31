@@ -161,7 +161,6 @@ const Set<String> localSessionMembers = {
   'resendHttp',
   'startHttpListener',
   'stopHttpListener',
-  'httpListenerStatus',
   // Run a tor process and reach other computers from the server; refused by the client.
   'onionAddress',
   'startTor',

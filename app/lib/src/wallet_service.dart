@@ -332,9 +332,6 @@ abstract interface class WalletSession {
 
   Future<void> stopHttpListener();
 
-  /// The running HTTP listener, or null.
-  Future<HttpListenerInfo?> httpListenerStatus();
-
   /// This wallet's onion, `<56 characters>.onion`, known before tor runs.
   Future<String> onionAddress();
 
@@ -1630,9 +1627,6 @@ class FakeWalletSession implements WalletSession {
   final List<({HttpExposure exposure, int port})> httpListenerStarts = [];
   int httpListenerStops = 0;
 
-  /// What [httpListenerStatus] answers; [startHttpListener] sets it, [stopHttpListener] clears it.
-  HttpListenerInfo? httpListenerInfo;
-
   /// LEPIC's URL rule: `http(s)://host[:port][/path]`, no `.onion`, and plain `http` only to
   /// this computer unless [allowPlainHttp].
   void _checkHttpUrl(String url, bool allowPlainHttp) {
@@ -1732,21 +1726,16 @@ class FakeWalletSession implements WalletSession {
     required int port,
   }) {
     httpListenerStarts.add((exposure: exposure, port: port));
-    httpListenerInfo = HttpListenerInfo(port: port, exposure: exposure);
     return httpListenerEvents.stream;
   }
 
   @override
   Future<void> stopHttpListener() async {
     httpListenerStops++;
-    httpListenerInfo = null;
     httpListenerEvents.add(
       const HttpListenerEvent(kind: HttpListenerEventKind.stopped),
     );
   }
-
-  @override
-  Future<HttpListenerInfo?> httpListenerStatus() async => httpListenerInfo;
 
   /// What [onionAddress] answers.
   String onion = fakeWalletOnion;

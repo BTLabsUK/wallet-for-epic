@@ -841,24 +841,6 @@ class HttpListenerEvent {
           refusal == other.refusal;
 }
 
-/// The running HTTP listener.
-class HttpListenerInfo {
-  final int port;
-  final HttpExposure exposure;
-
-  const HttpListenerInfo({required this.port, required this.exposure});
-
-  @override
-  int get hashCode => port.hashCode ^ exposure.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HttpListenerInfo &&
-          port == other.port &&
-          exposure == other.exposure;
-}
-
 /// A send over HTTP the other wallet answered and this wallet finalized.
 class HttpSent {
   final int txId;

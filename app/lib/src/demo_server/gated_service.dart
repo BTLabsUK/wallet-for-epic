@@ -390,9 +390,6 @@ class GatedWalletSession implements WalletSession {
   @override
   Future<void> stopHttpListener() async {}
 
-  @override
-  Future<HttpListenerInfo?> httpListenerStatus() async => null;
-
   // Tor runs a process and reaches other computers from the server: not offered here.
   static const WalletError _noTor = WalletError(
     kind: WalletErrorKind.other,

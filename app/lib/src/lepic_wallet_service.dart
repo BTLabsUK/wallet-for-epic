@@ -1982,21 +1982,6 @@ class LepicWalletSession implements WalletSession {
       });
 
   @override
-  Future<HttpListenerInfo?> httpListenerStatus() async {
-    if (_wallet.isDisposed) return null;
-    final info = _guardSync(_wallet.httpListenerStatus);
-    return info == null
-        ? null
-        : HttpListenerInfo(
-            port: info.port,
-            exposure: switch (info.exposure) {
-              lepic.HttpExposure.localOnly => HttpExposure.localOnly,
-              lepic.HttpExposure.internet => HttpExposure.internet,
-            },
-          );
-  }
-
-  @override
   Future<ReceivedSlate> receiveSlate({required String slateJson}) => _nodeGuard('receive file', 
     () async =>
         lepicReceivedSlate(await _wallet.receiveSlate(slateJson: slateJson)),
