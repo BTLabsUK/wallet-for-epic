@@ -5,16 +5,20 @@
 // back and the app shows it by itself (the 5 s status poll), with no offline line left.
 import 'dart:async';
 
+import 'package:epic_wallet/src/advanced.dart' show AdvancedFeature;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelProvider;
 import 'package:epic_wallet/src/desktop/data/models.dart';
-import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskInvoicesOnProvider;
 import 'package:epic_wallet/src/desktop/data/state.dart';
+import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../desktop/advanced_on.dart';
 
 enum _Down { node, epicbox, tor, everything }
 
@@ -146,13 +150,15 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final api = _DownWallet(down);
-      // Invoices on (Advanced › Experimental), so their pages are visited too.
+      // Deep end with Invoices on (Advanced › Experimental) and Outputs on, so every page is
+      // there to visit: a lower level shows Overview in place of the pages it hides.
       final container = ProviderContainer(
-        overrides: [deskApiProvider.overrideWithValue(api), deskInvoicesOnProvider.overrideWithValue(true)],
+        overrides: [deskApiProvider.overrideWithValue(api), deskLevelProvider.overrideWithValue(WalletLevel.everything)],
         retry: (_, _) => null,
       );
       addTearDown(container.dispose);
       await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+      await tester.runAsync(() => advancedOn(container, only: {AdvancedFeature.outputs, AdvancedFeature.invoices}));
       // What an unlock starts: the 5 s status poll and the change stream.
       unawaited(container.read(deskProvider.notifier).startLive());
       container.read(deskNavProvider.notifier).reset(DeskRoute.overview);

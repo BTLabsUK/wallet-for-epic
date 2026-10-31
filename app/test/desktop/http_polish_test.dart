@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart' show whoOf;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/desktop/widgets/pay_steps.dart' show DeskPaymentSteps;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,15 +85,18 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('an HTTP send says it is finalized and posted', (tester) async {
+    // The result is the payment's live steps (wallet levels), not a line per method.
+    TxState stepsState(WidgetTester tester) => tester.widget<DeskPaymentSteps>(find.byType(DeskPaymentSteps)).tx.state;
+
+    testWidgets('an HTTP send shows its steps at posted', (tester) async {
       await send(tester, const SendArgs(method: TxMethod.http, recipient: 'https://wallet.example.org', amount: '1'));
-      expect(find.text('Finalized and posted to the network.'), findsOneWidget);
+      expect(stepsState(tester), TxState.posted);
       expect(find.textContaining('Handed to Epicbox'), findsNothing);
     });
 
-    testWidgets('an Epicbox send keeps the hand-off text', (tester) async {
+    testWidgets('an Epicbox send shows its steps waiting for the recipient', (tester) async {
       await send(tester, const SendArgs(recipient: 'esTestAddressTestAddressTestAddressTestAddressTestAddress@epicbox.example', amount: '1'));
-      expect(find.textContaining('Handed to Epicbox'), findsOneWidget);
+      expect(stepsState(tester), TxState.waitingRecipient);
     });
   });
 
