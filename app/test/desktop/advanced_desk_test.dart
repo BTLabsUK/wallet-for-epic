@@ -83,7 +83,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('tx-more')));
       await _settle(tester);
       expect(find.text('Kernel'), findsOneWidget);
-      expect(find.text('Slate id'), findsOneWidget);
+      expect(find.text('Slate ID'), findsOneWidget);
       expect(find.text('Status'), findsWidgets);
       expect(find.text('Less'), findsOneWidget);
       expect(_advanced.has(AdvancedFeature.technicalDetails), isFalse, reason: 'the switch stays off');
@@ -181,7 +181,8 @@ void main() {
       expect(segment(tester, 'Epicbox').tooltip, 'Off in Node only.');
       expect(_selected(tester), TxMethod.file);
       expect(segment(tester, 'Direct · File').enabled, isTrue);
-      expect(segment(tester, 'Direct · File').tooltip, 'Uses the node to read the chain and post. For the most privacy, use a local node.');
+      // The note sits under the selector now, not in the segment's tooltip.
+      expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
     });
 
     testWidgets('Offline with a public node: Direct · File is not held by the node sync, and says it uses the node (LNX-7)', (tester) async {

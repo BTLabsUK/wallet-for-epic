@@ -126,8 +126,11 @@ void main() {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
     // The phone's rows (GP2-020): each link row has its own Open.
     Finder openOf(String title) => find.descendant(of: find.widgetWithText(ESetRow, title), matching: find.widgetWithText(EButton, 'Open'));
-    await tester.tap(openOf(shownUrl(hostSettings.linkWebsite!)));
-    await tester.tap(openOf('Source code'));
+    for (final row in [shownUrl(hostSettings.linkWebsite!), 'Source code']) {
+      await tester.ensureVisible(openOf(row));
+      await tester.pumpAndSettle();
+      await tester.tap(openOf(row));
+    }
     await tester.pumpAndSettle();
     expect(opened, [hostSettings.linkWebsite, projectRepoUrl]);
     expect(find.text('Telegram'), findsNothing);
