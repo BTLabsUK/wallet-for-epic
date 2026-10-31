@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
 /// `showModalBottomSheet` for the phone screens: the sheet's content stays clear of the bottom
