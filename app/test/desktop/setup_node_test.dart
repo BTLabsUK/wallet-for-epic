@@ -193,7 +193,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
-    expect(find.text('Receive when offline'), findsOneWidget);
+    expect(find.text('The Epicbox server holds payments until the wallet opens.'), findsOneWidget);
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('Review settings'), findsOneWidget);

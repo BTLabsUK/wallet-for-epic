@@ -135,7 +135,7 @@ void flows() {
     // Thirteen words are not a phrase: the line says so.
     await tester.enterText(_field(0), List.filled(13, 'abandon').join(' '));
     await _wait(tester, 500);
-    expect(find.text('13 words pasted; a phrase has 12, 15, 18, 21 or 24'), findsOneWidget);
+    expect(find.text('13 words pasted; a phrase has 12, 15, 18, 21 or 24.'), findsOneWidget);
     expect(find.text('13 of 24 words'), findsOneWidget);
     await _end(tester);
   });

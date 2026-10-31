@@ -175,7 +175,7 @@ void main() {
     expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, node);
     await tester.tap(find.text('Continue'));
     await wait(tester, 1000);
-    expect(find.text('Receive when offline'), findsOneWidget);
+    expect(find.text('The Epicbox server holds payments until the wallet opens.'), findsOneWidget);
     await tester.tap(find.text('Continue'));
     await wait(tester, 300);
     expect(find.text('Review settings'), findsOneWidget);
