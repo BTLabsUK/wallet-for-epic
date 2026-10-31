@@ -18,7 +18,6 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../relay_directory.dart' show statusSite;
 import '../../settings_file/network_mode_file.dart' show networkModeIn, saveNetworkMode;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
-import '../widgets/kit.dart' show DeskFeatures;
 import '../../phrase_clipboard.dart';
 
 /// The wallet behind the desktop UI. Override with a LEPIC adapter to go live.

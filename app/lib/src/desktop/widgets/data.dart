@@ -15,7 +15,6 @@ import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
-import 'surfaces.dart';
 
 /// Initials on a hairline square: wallets and contacts.
 class EAvatar extends StatelessWidget {
