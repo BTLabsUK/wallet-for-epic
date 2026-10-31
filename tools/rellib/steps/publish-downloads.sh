@@ -5,24 +5,69 @@
 # SHA256SUMS over every file there, and reads each new file back over HTTPS from both download
 # addresses (the old one in app/tool/config/old-update.toml and [updates] downloads of
 # app/assets/config/app-config.toml). Touches neither the page nor the manifests. Idempotent.
+# SHA256SUMS is signed (SHA256SUMS.sig beside it, minisign, the update key) when the run has a
+# signer (<run>/signer.json): the listing the manifests step had signed (manifests/SHA256SUMS,
+# the folder as it stands once pruned) is installed when every line of it matches the folder;
+# without one (a run without manifests) the folder's listing is signed here, one more approval.
+# Without a signer the listing is written unsigned and a stale SHA256SUMS.sig is removed.
 # Usage: publish-downloads.sh <files dir> <ssh host> <server downloads dir>
 set -euo pipefail
 dir="${1:?usage: $0 <files dir> <ssh host> <server downloads dir>}"; dir="${dir%/}"
 host="${2:?}" dest="${3:?}"
 src="${REL_SRC:?}"
 stage=".rel-dl-stage-${REL_RUN_ID:-run}"
+here="$(cd "$(dirname "$0")" && pwd)"
+sj="${REL_RUN:-/nonexistent}/signer.json" m="${REL_MANIFESTS:-/nonexistent}"
+keyring="${REL_SIGNER_BTLABS_PUBLIC:-$HOME/code/btlabs-public}/keys/btlabs-keyring.json"
 mapfile -t files < <(cut -d' ' -f3- "$dir/SHA256SUMS")
 (( ${#files[@]} > 0 )) || { echo "no files in $dir/SHA256SUMS" >&2; exit 1; }
 (cd "$dir" && sha256sum -c --quiet SHA256SUMS)
+signed=()
+if [[ -f "$sj" && -f "$m/SHA256SUMS.sig" ]]; then
+  python3 "$here/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$keyring" "$src/tools/gitlab-release.py"
+  signed=("$m/SHA256SUMS" "$m/SHA256SUMS.sig")
+fi
 ssh "$host" "mkdir -p ~/$stage"
-rsync -t "${files[@]/#/$dir/}" "$host:$stage/"
+rsync -t "${files[@]/#/$dir/}" "${signed[@]}" "$host:$stage/"
 # shellcheck disable=SC2029
 ssh "$host" "set -e; cd ~/$stage
   sudo install -o root -g root -m 0644 ${files[*]} $dest/
   cd $dest
-  ls | grep -vx SHA256SUMS | LC_ALL=C sort | xargs sha256sum | sudo tee SHA256SUMS.new >/dev/null
-  sudo chmod 0644 SHA256SUMS.new && sudo mv SHA256SUMS.new SHA256SUMS
-  cd ~/$stage && rm -f ${files[*]} && cd && rmdir ~/$stage"
+  ls | grep -vx -e SHA256SUMS -e SHA256SUMS.sig | LC_ALL=C sort | xargs sha256sum | sudo tee SHA256SUMS.new >/dev/null
+  sudo chmod 0644 SHA256SUMS.new"
+if (( ${#signed[@]} > 0 )); then
+  # Every line signed must be the folder's (files of older versions still there until the prune
+  # are not in it); then the signed pair replaces the listing.
+  # shellcheck disable=SC2029
+  ssh "$host" "set -e; cd $dest
+    grep -Fxvf SHA256SUMS.new ~/$stage/SHA256SUMS && { echo 'those lines of the signed SHA256SUMS do not match the folder' >&2; exit 1; }
+    sudo install -o root -g root -m 0644 ~/$stage/SHA256SUMS.sig SHA256SUMS.sig.new
+    sudo install -o root -g root -m 0644 ~/$stage/SHA256SUMS SHA256SUMS.new
+    sudo mv SHA256SUMS.new SHA256SUMS && sudo mv SHA256SUMS.sig.new SHA256SUMS.sig
+    rm -f ~/$stage/SHA256SUMS ~/$stage/SHA256SUMS.sig"
+  echo "SHA256SUMS: the listing signed in the manifests step"
+elif [[ -f "$sj" ]]; then
+  work="${REL_RUN:?}/publish-sums"
+  mkdir -p "$work"
+  rm -f -- "$work/SHA256SUMS" "$work/SHA256SUMS.sig"
+  # shellcheck disable=SC2029
+  ssh "$host" "cat $dest/SHA256SUMS.new" >"$work/SHA256SUMS"
+  python3 "$here/server_sums.py" sign "$work/SHA256SUMS" "$sj" "${REL_VERSION:?}" "$keyring"
+  python3 "$here/server_sums.py" verify "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$keyring" "$src/tools/gitlab-release.py"
+  rsync -t "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$host:$stage/"
+  # shellcheck disable=SC2029
+  ssh "$host" "set -e; cd $dest
+    cmp -s SHA256SUMS.new ~/$stage/SHA256SUMS || { echo 'the folder changed while SHA256SUMS was signed' >&2; exit 1; }
+    sudo install -o root -g root -m 0644 ~/$stage/SHA256SUMS.sig SHA256SUMS.sig.new
+    sudo mv SHA256SUMS.new SHA256SUMS && sudo mv SHA256SUMS.sig.new SHA256SUMS.sig
+    rm -f ~/$stage/SHA256SUMS ~/$stage/SHA256SUMS.sig"
+  echo "SHA256SUMS: the folder's listing, signed now"
+else
+  # shellcheck disable=SC2029
+  ssh "$host" "set -e; cd $dest; sudo mv SHA256SUMS.new SHA256SUMS; sudo rm -f SHA256SUMS.sig"
+fi
+# shellcheck disable=SC2029
+ssh "$host" "cd ~/$stage && rm -f ${files[*]} && cd && rmdir ~/$stage"
 old="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["old_update"]["downloads"])' \
   "$src/app/tool/config/old-update.toml")"
 new="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["updates"]["downloads"])' \
@@ -36,5 +81,9 @@ for base in "${old%/}" "${new%/}"; do
     code="$(curl -sS -o /dev/null -w '%{http_code}' -I --max-time 30 "$base/$f")"
     [[ "$code" == 200 ]] || { echo "$base/$f: HTTP $code" >&2; exit 1; }
   done
+  if [[ -f "$sj" ]]; then
+    code="$(curl -sS -o /dev/null -w '%{http_code}' -I --max-time 30 "$base/SHA256SUMS.sig")"
+    [[ "$code" == 200 ]] || { echo "$base/SHA256SUMS.sig: HTTP $code" >&2; exit 1; }
+  fi
   echo "$base: ${#files[@]} files served with their checksums"
 done

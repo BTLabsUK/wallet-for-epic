@@ -532,6 +532,21 @@ class App:
         self.echo(f"rollback {bad['version']} → {good['version']}: run {run.info['run_id']}")
         return self.drive(run, eng, phase="build")
 
+    def cmd_resign(self, a):
+        from .resign import Resign, ResignError
+        if a.live_dir and not a.test:
+            return self.out(EXIT_USAGE, "--live-dir is for --test only: a real re-sign reads and publishes the live files")
+        if a.test and not a.live_dir:
+            return self.out(EXIT_USAGE, "--test needs --live-dir (a folder with update.json and update-v2.json)")
+        r = Resign(self.repo, self.state_root, self.pipeline, self.hosts, say=self.echo, test=a.test, live_dir=a.live_dir)
+        try:
+            res = r.run(dry=a.dry_run)
+        except ResignError as e:
+            return self.out(EXIT_FAILED, f"resign refused: {e}")
+        verb = "would re-sign" if a.dry_run else "re-signed and published"
+        return self.out(EXIT_OK, f"{verb} {res['version']}: serial {res['serial']}, expires {res['expires']} "
+                                 f"(record {res['work']})", **res)
+
     def cmd_cleanup(self, a):
         lines = []
         res = retention.apply(self.state_root, self.repo, lambda x: (lines.append(x), self.echo(x)), dry=a.dry_run)
@@ -712,6 +727,10 @@ def parser():
     sp.add_argument("--to", help="the kept release to go back to (default: the previous one)")
     sp.add_argument("--test", action="store_true")
     sp.add_argument("--dry-run", action="store_true")
+    sp = sub.add_parser("resign", help="sign the live manifests again: new serial and expiry only (one approval)")
+    sp.add_argument("--dry-run", action="store_true", help="check the live files and print the new dates; sign nothing")
+    sp.add_argument("--test", action="store_true", help="the test key, and --live-dir instead of the server")
+    sp.add_argument("--live-dir", help="--test: the folder standing in for the live manifests")
     sp = sub.add_parser("cleanup", help="keep the current and the previous release; remove the rest")
     sp.add_argument("--dry-run", action="store_true")
     sub.add_parser("stats", help="per-step times and failures across runs")

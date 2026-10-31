@@ -166,6 +166,32 @@ def minisign_sign(key: Ed25519PrivateKey, keyid: str, data: bytes, trusted: str)
     )
 
 
+def signer_client():
+    """tools/signer/btsign_client.py: the release signer named by [host.signer] endpoint."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("btsign_client", REPO / "tools/signer/btsign_client.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    if not mod.endpoint():
+        raise Fail(f"--signer: no [host.signer] endpoint in {mod.hosts_file()}")
+    return mod
+
+
+def signer_minisign(mod, version: str, sums_text: str, trusted: str, dry_run: bool) -> str:
+    """SHA256SUMS signed by the release signer (one approval in Telegram); a dry run asks nothing."""
+    if dry_run:
+        return "untrusted comment: dry run\nRUQAAAAAAAAAAA==\ntrusted comment: dry run\n\n"
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        Path(d, "SHA256SUMS").write_text(sums_text, encoding="utf-8")
+        try:
+            mod.Client().sign(version, [{"op": "minisign", "file": str(Path(d, "SHA256SUMS")), "out": "SHA256SUMS.sig",
+                                         "trusted_comment": trusted}], d, label=f"Release SHA256SUMS {version}")
+        except mod.SignerError as e:
+            raise Fail(str(e)) from None
+        return Path(d, "SHA256SUMS.sig").read_text(encoding="utf-8")
+
+
 def minisign_verify(text: str, data: bytes, keys: dict[str, dict]) -> dict:
     """Checks a minisign signature against the keyring; returns the signing key's entry."""
     lines = text.splitlines()
@@ -581,9 +607,17 @@ def cmd_publish(a) -> int:
     folder = Path(a.folder).resolve()
     tag = a.tag or f"v{a.version}"
     keys = load_keyring(Path(a.keyring))
-    key = load_private_key(Path(a.key))
-    raw = raw_public(key)
-    keyid = keyid_of(raw)
+    if a.signer:
+        # The release signer holds the key (docs/RELEASING.md, "Signer"): its held key must be the
+        # keyring's; SHA256SUMS.sig is made there after the owner's code.
+        signer = signer_client()
+        held = [k["keyid"] for k in signer.Client().info().get("keys", []) if k.get("held")]
+        if len(held) != 1:
+            raise Fail(f"the signer holds {len(held)} keys, not one")
+        keyid, key = held[0], None
+    else:
+        key = load_private_key(Path(a.key))
+        keyid = keyid_of(raw_public(key))
     if keyid not in keys:
         raise Fail(f"signing key {keyid} is not in the keyring {a.keyring}")
     label = keys[keyid].get("label", keyid)
@@ -600,9 +634,13 @@ def cmd_publish(a) -> int:
         raise Fail("two files have the same name without the version")
     lines = {**sums, **{s: sums[n] for s, n in stables.items()}}  # both names, one hash
     sums_text = "".join(f"{lines[n]}  {n}\n" for n in sorted(lines))
-    sig_text = minisign_sign(key, keyid, sums_text.encode(),
-                             f"Epic Cash {a.version} SHA256SUMS, BT Labs key {label}")
-    minisign_verify(sig_text, sums_text.encode(), keys)
+    trusted = f"Epic Cash {a.version} SHA256SUMS, BT Labs key {label}"
+    if a.signer:
+        sig_text = signer_minisign(signer, a.version, sums_text, trusted, a.dry_run)
+    else:
+        sig_text = minisign_sign(key, keyid, sums_text.encode(), trusted)
+    if not (a.signer and a.dry_run):
+        minisign_verify(sig_text, sums_text.encode(), keys)
     gl = GitLab(a.host, a.project, Path(a.token_file), a.dry_run) if to_gitlab else None
     gh = GitHub(a.github_repo, a.dry_run) if to_github else None
     all_files = files + [folder / "SHA256SUMS", folder / "SHA256SUMS.sig"]
@@ -773,6 +811,8 @@ def main(argv=None) -> int:
     p.add_argument("--replace", action="store_true", help="swap a file uploaded with other bytes")
     p.add_argument("--token-file", default=str(DEFAULTS["token_file"]))
     p.add_argument("--key", default=str(DEFAULTS["key"]))
+    p.add_argument("--signer", action="store_true",
+                   help="sign SHA256SUMS with the release signer ([host.signer] endpoint) instead of --key")
     p.add_argument("--keyring", default=str(DEFAULTS["keyring"]))
     u = sub.add_parser("github-update-json", help="update-v2.json onto the latest GitHub Release")
     u.add_argument("file")

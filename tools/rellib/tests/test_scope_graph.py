@@ -129,7 +129,8 @@ class GraphTest(unittest.TestCase):
     def test_update_trust_runs_per_platform_after_the_local_builds(self):
         s, steps = graph()
         by = {x.id: x for x in steps}
-        local = ["build-android-tor", "build-android-notor", "build-linux-tor", "build-linux-notor"]
+        # sign-android: every Android file the trust drivers install is the signed one.
+        local = ["build-android-tor", "build-android-notor", "sign-android", "build-linux-tor", "build-linux-notor"]
         for v in ("tor", "notor"):
             self.assertEqual(by[f"trust-android-{v}"].needs, local)
             self.assertEqual(by[f"trust-linux-{v}"].needs, local)
@@ -156,7 +157,9 @@ class GraphTest(unittest.TestCase):
         self.assertIn("build-android-notor", ids)
         self.assertFalse([x for x in ids if "linux" in x or "windows" in x or "apple" in x or "macos" in x])
         art = next(x for x in steps if x.id == "artefacts")
-        self.assertEqual(art.needs, ["build-android-tor", "build-android-notor"])
+        self.assertEqual(art.needs, ["build-android-tor", "build-android-notor", "sign-android"])
+        sign = next(x for x in steps if x.id == "sign-android")
+        self.assertEqual((sign.needs, sign.lane, sign.kind), (["build-android-tor", "build-android-notor"], "sign", "builtin"))
 
     def test_variants_and_same_variant_needs(self):
         s, steps = graph(skip_platform="android", sets=["publish.manifests=false"], no_variant="notor")

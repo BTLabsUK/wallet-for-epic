@@ -58,9 +58,12 @@ if (dist !in setOf("web", "play", "fdroid")) {
 }
 val distUpdates = dist == "web"
 // F-Droid builds the release APK unsigned and signs it itself: WFE_ANDROID_UNSIGNED=1 (the recipe
-// sets it) leaves the fdroid release unsigned and skips the release key check. Every other build
-// is still signed with the release key or stops.
-val unsignedRelease = dist == "fdroid" && System.getenv("WFE_ANDROID_UNSIGNED") == "1"
+// sets it) leaves the fdroid release unsigned and skips the release key check. -PwfeUnsigned=true
+// (or ORG_GRADLE_PROJECT_wfeUnsigned=true, which tool/build_android_release.sh sets for the release
+// signer, docs/RELEASING.md "Signer") leaves any release unsigned, for the signer to sign. Every
+// other build is still signed with the release key or stops.
+val unsignedRelease = (dist == "fdroid" && System.getenv("WFE_ANDROID_UNSIGNED") == "1") ||
+    findProperty("wfeUnsigned") == "true"
 // Every build reads QR codes with the free scanner (camera + flutter_zxing): Google ML Kit
 // (mobile_scanner) must never come back through pubspec.yaml.
 if (rootProject.findProject(":mobile_scanner") != null) { // dist-prep: names only

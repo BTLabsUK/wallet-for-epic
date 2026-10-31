@@ -6,6 +6,8 @@
 # Leaves tools/releases/releases.json changed in the release worktree, with a copy in the step's
 # folder (the worktree goes at cleanup): commit it on main (docs/RELEASING.md, After the release).
 # REL_GITHUB=1 (release.toml publish.github) adds the GitHub Release as a Mirror link.
+# When publish-downloads served a signed SHA256SUMS (the run's signer), build.py sees a
+# SHA256SUMS.sig beside the files and the page shows the signature check.
 # Usage: publish-page.sh <version> <files dir> <page repo>
 set -euo pipefail
 v="${1:?usage: $0 <version> <files dir> <page repo>}" dir="${2:?}" site="${3:?}"
@@ -14,6 +16,18 @@ log="$site/site/epic-cash/changelog/index.html"
 grep -q "id=\"v$v\"" "$log" || { echo "the changelog has no entry id=\"v$v\" ($log): write it first" >&2; exit 1; }
 mirror=()
 [[ "${REL_GITHUB:-0}" == 1 ]] && mirror=(--github)
+sig=""
+for c in "${REL_MANIFESTS:-/nonexistent}/SHA256SUMS.sig" "${REL_RUN:-/nonexistent}/publish-sums/SHA256SUMS.sig"; do
+  if [[ -z "$sig" && -f "$c" && -f "${REL_RUN:-/nonexistent}/signer.json" ]]; then sig="$c"; fi
+done
+if [[ -n "$sig" ]]; then
+  # The run's files as links (build.py hashes them), with the signature beside them.
+  view="${REL_RUN:?}/page-files"
+  mkdir -p "$view"
+  for f in "$dir"/*; do ln -sfn "$f" "$view/$(basename "$f")"; done
+  cp -f "$sig" "$view/SHA256SUMS.sig"
+  dir="$view"
+fi
 python3 "$src/tools/releases/build.py" add "$v" "$dir" "${mirror[@]}"
 WFE_RELEASES_SITE="$site/site/epic-cash" python3 "$src/tools/releases/build.py" render
 cd "$site"

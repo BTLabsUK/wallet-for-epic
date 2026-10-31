@@ -7,6 +7,11 @@
 # WFE_ANDROID_KEY_PROPERTIES (default ~/.config/btlabs/android/key.properties, never in a
 # repository); without it the build stops (android/app/build.gradle.kts, README "Release signing").
 #
+# WFE_UNSIGNED=1 builds every file unsigned (Gradle -PwfeUnsigned=true) for the release signer
+# (docs/RELEASING.md, "Signer"), which signs them later with the same key; tools/rel does so on
+# its own when its run has a signer (<run>/signer.json). The key is then not needed here, and the
+# checks below say "not signed" instead of naming the certificate.
+#
 # Usage: tool/build_android_release.sh [output-dir]      default: app/build/release-<version>/
 #
 # WFE_EMULATOR_X86_64=1 also builds an x86_64 APK for our own emulator tests, into
@@ -70,6 +75,13 @@ if [[ "${WFE_TOR:-1}" == 0 ]]; then tor=0 variant=-notor; fi
 
 emulator=()
 [[ "${WFE_EMULATOR_X86_64:-}" == 1 ]] && emulator=(x86_64)
+
+unsigned=0
+if [[ "${WFE_UNSIGNED:-}" == 1 || -f "${REL_RUN:-/nonexistent}/signer.json" ]]; then
+  unsigned=1
+  export ORG_GRADLE_PROJECT_wfeUnsigned=true
+  echo "Building unsigned: the release signer signs these files (docs/RELEASING.md, \"Signer\")."
+fi
 
 cd "$app_dir"
 if [[ $dist == fdroid ]]; then
@@ -136,11 +148,16 @@ for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-c
   name="$(basename "$apk")"
   abi="${name#epic-cash-mobile-$version$variant-}"; abi="${abi%.apk}"
   echo "$name"
-  certs="$("$apksigner" verify --print-certs "$apk")"
-  grep -q "certificate SHA-256 digest: $want_cert" <<<"$certs" && r=0 || r=1
-  check "signed by $want_cert" $r
-  grep -q "certificate SHA-256 digest: $debug_cert" <<<"$certs" && r=1 || r=0
-  check "not signed by the debug key" $r
+  if [[ $unsigned == 1 ]]; then
+    "$apksigner" verify "$apk" >/dev/null 2>&1 && r=1 || r=0
+    check "not signed (the release signer signs it)" $r
+  else
+    certs="$("$apksigner" verify --print-certs "$apk")"
+    grep -q "certificate SHA-256 digest: $want_cert" <<<"$certs" && r=0 || r=1
+    check "signed by $want_cert" $r
+    grep -q "certificate SHA-256 digest: $debug_cert" <<<"$certs" && r=1 || r=0
+    check "not signed by the debug key" $r
+  fi
   badging="$("$aapt2" dump badging "$apk")"
   head1="${badging%%$'\n'*}"
   grep -q "name='$want_package'" <<<"$head1" && r=0 || r=1; check "package $want_package" $r
@@ -219,8 +236,12 @@ if [[ $dist == play ]]; then
   # only, and the distribution's rules.
   aab="$out_dir/epic-cash-mobile-$version$variant.aab"
   basename "$aab"
-  cert="$(keytool -printcert -jarfile "$aab" | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr 'A-F' 'a-f')"
-  [[ "$cert" == "$want_cert" ]] && r=0 || r=1; check "signed by $want_cert" $r
+  cert="$({ keytool -printcert -jarfile "$aab" 2>/dev/null || true; } | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr 'A-F' 'a-f')"
+  if [[ $unsigned == 1 ]]; then
+    [[ -z "$cert" ]] && r=0 || r=1; check "not signed (the release signer signs it)" $r
+  else
+    [[ "$cert" == "$want_cert" ]] && r=0 || r=1; check "signed by $want_cert" $r
+  fi
   files="$(unzip -Z1 "$aab")"
   grep -q '^base/lib/arm64-v8a/liblepic_ffi.so$' <<<"$files" && r=0 || r=1; check "base/lib/arm64-v8a/liblepic_ffi.so" $r
   if [[ $tor == 1 ]]; then

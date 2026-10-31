@@ -16,6 +16,13 @@ this_machine = true
 signing_key = "~/.config/btlabs/signing/btlabs-2026-a.key"
 android_key_properties = "~/.config/btlabs/android/key.properties"
 btlabs_public = "~/code/btlabs-public"
+# The release signer (tools/signer, docs/RELEASING.md "Signer"). Set, it signs everything and the
+# two keys above are never read; unset, they are (the old path). Moving the signer: export,
+# copy the bundle, import, change this line.
+# endpoint = "http://<signer tailnet address>:8797"
+# key_ids = ["3eb30c1e66220525"]            # the Ed25519 keys it must hold (else from the keyring)
+# android_cert_sha256 = "59e4c290f3922d8e7d3b189eb98e7002dc50754c52d612ea91e82386390ec0aa"
+# client_token = "~/.config/btlabs/signer-client.token"   # chmod 600
 # The GitLab token's expiry (preflight warns within 7 days, fails when expired).
 gitlab_token = "~/.config/btlabs/gitlab-token"
 gitlab_token_expires = "YYYY-MM-DD"

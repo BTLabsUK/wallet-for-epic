@@ -98,7 +98,9 @@ def new_serial(*floors):
 
 def resign(engine, step, say):
     """Builtin rollback-resign: the kept payloads, with a fresh serial above every serial an app
-    may hold (the live manifests' and the bad release's), signed and verified."""
+    may hold (the live manifests' and the bad release's), signed and verified. With a signer
+    ([host.signer] endpoint) both are signed there in one request the owner approves; the key here
+    is then never read, and the run's signer.json makes publish-downloads sign SHA256SUMS too."""
     from .builtins import keyring_for, payload_of, fetch, sh
     import base64
     import tomllib
@@ -125,30 +127,49 @@ def resign(engine, step, say):
     serial = new_serial(*floors)
     now = dt.datetime.fromtimestamp(serial, dt.timezone.utc)
     issued = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-    expires = (now + dt.timedelta(days=182)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    expires = (now + dt.timedelta(days=engine.pipeline.manifest_days())).strftime("%Y-%m-%dT%H:%M:%SZ")
     if engine.dry:
         say(f"dry run: would re-sign with serial {serial} (floors {floors})")
         return {"status": "done", "note": f"dry run: serial {serial}", "dry": True}
     keyring, bp = keyring_for(engine)
     tool = os.path.join(bp, "tool/btlabs_sign.py")
-    if info.get("test"):
+    from . import signer as btsign
+    use_signer = bool(btsign.endpoint(engine.hosts)) and not info.get("test")
+    if use_signer:
+        btsign.write_run_file(engine)
+        key = None
+    elif info.get("test"):
         key = os.path.join(bp, "testdata/keys/test-a.key")
         sh(["python3", tool, "keyring", "--out", keyring, os.path.join(bp, "testdata/keys/test-a.pub.json")], say)
     else:
         key = engine.hosts["host"].get("signer", {}).get("signing_key",
                                                            os.path.expanduser("~/.config/btlabs/signing/btlabs-2026-a.key"))
-    for pname, ename, extra in (("update.payload.json", "update.json", []),
-                                ("update-v2.payload.json", "update-v2.json", ["--app-config", cfg])):
+    pairs = (("update.payload.json", "update.json", []),
+             ("update-v2.payload.json", "update-v2.json", ["--app-config", cfg]))
+    jobs = []
+    for pname, ename, extra in pairs:
         pp = os.path.join(m, pname)
         if not os.path.isfile(pp):
             return {"status": "failed", "note": f"the kept release has no {pname}: cannot re-sign"}
         pl = read_json(pp)
         pl.update(serial=serial, issued_at=issued, expires_at=expires)
         write_json(pp, pl)
+        if use_signer:
+            jobs.append({"op": "update-manifest", "payload": pp, "out": ename, **({"app_config": cfg} if extra else {})})
+            continue
         rc, _ = sh(["python3", tool, "sign", "--type", "update", "--key", key, "--keyring", keyring,
                     "--payload", pp, "--out", os.path.join(m, ename)] + extra, say)
         if rc != 0:
             return {"status": "failed", "note": f"signing {ename} failed"}
+    if use_signer:
+        for _, ename, _ in pairs:
+            if os.path.exists(os.path.join(m, ename)):
+                os.remove(os.path.join(m, ename))
+        try:
+            btsign.client(engine, say).sign(info["version"], jobs, m, label=f"ROLLBACK to {info['version']}")
+        except Exception as e:
+            return {"status": "failed", "note": f"signer: {e}"}
+    for _, ename, extra in pairs:
         rc, _ = sh(["python3", tool, "verify", "--type", "update", "--keyring", keyring,
                     "--envelope", os.path.join(m, ename)] + extra, say)
         if rc != 0:

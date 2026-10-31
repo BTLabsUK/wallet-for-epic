@@ -27,7 +27,7 @@ def run(engine, step, log):
         "verify-live": verify_live, "cleanup": cleanup_step,
         "scratch_downloads": scratch_downloads, "scratch_page": scratch_page, "scratch_source": scratch_source,
         "scratch_manifests": scratch_manifests, "scratch_prune": scratch_prune, "scratch_noop": scratch_noop,
-        "rollback-gate": publish_gate, "rollback-resign": _resign,
+        "rollback-gate": publish_gate, "rollback-resign": _resign, "sign-android": _sign_android,
     }.get(name)
     if fn is None:
         return {"status": "failed", "note": f"no builtin {name!r}"}
@@ -41,6 +41,11 @@ def run(engine, step, log):
 def _resign(engine, step, say):
     from .rollback import resign
     return resign(engine, step, say)
+
+
+def _sign_android(engine, step, say):
+    from .signer import sign_android
+    return sign_android(engine, step, say)
 
 
 def sh(cmd, say, cwd=None, env=None, timeout=600, check=False):
@@ -163,7 +168,13 @@ def preflight(engine, step, say):
         if not os.environ.get("ANDROID_HOME") and not os.path.isdir(os.path.expanduser("~/Android/Sdk")):
             bad("ANDROID_HOME / ~/Android/Sdk")
     signer = hosts["host"].get("signer", {})
-    if signer.get("this_machine", True):
+    from . import signer as btsign
+    if btsign.endpoint(hosts):
+        # The release signer holds the keys (docs/RELEASING.md, "Signer"): none is read here.
+        bp = signer.get("btlabs_public", os.path.expanduser("~/code/btlabs-public"))
+        (ok if os.path.isfile(os.path.join(bp, "tool/btlabs_sign.py")) else bad)(f"btlabs_sign.py in {bp}")
+        btsign.preflight_checks(engine, ok, bad, os.path.join(bp, "keys/btlabs-keyring.json"))
+    elif signer.get("this_machine", True):
         if "android" in plats:
             kp = signer.get("android_key_properties", os.path.expanduser("~/.config/btlabs/android/key.properties"))
             (ok if os.path.isfile(kp) else bad)(f"Android release key ({kp})")
@@ -204,6 +215,13 @@ def preflight(engine, step, say):
         else:
             warns.append("host.signer.gitlab_token_expires not set: token expiry not checked")
             say("warn", warns[-1])
+        from .resign import live_expiry_warning
+        w = live_expiry_warning(engine.repo, pipe.manifest_warn_days())
+        if w:
+            warns.append(w)
+            say("warn", w)
+        else:
+            ok(f"live update manifests valid for more than {pipe.manifest_warn_days()} days")
     ids = {x.base for x in engine.run.steps}
     if live and "tag" in ids:
         # The tag step refuses a commit that is not on main: say so now, not after the gate.
@@ -245,6 +263,7 @@ def preflight(engine, step, say):
     (ok if box else bad)(f"Epicbox for tests: {box or 'none healthy'} (tried {', '.join(tried)})")
     info["net"] = {"node": node, "epicbox": box}
     engine.run.save_info()
+    btsign.write_run_file(engine)
     if problems:
         return {"status": "failed", "note": f"{len(problems)} problem(s): " + "; ".join(problems)[:300], "problems": problems}
     return {"status": "done", "note": f"ok; node {node}, epicbox {box}" + (f"; {len(warns)} warning(s)" if warns else ""),
@@ -318,7 +337,7 @@ def artefacts(engine, step, say):
             say(f"would check {name} (from {s.id})")
         return {"status": "done", "note": f"dry run: {len(expected)} files expected", "dry": True}
     problems = []
-    present = sorted(f for f in os.listdir(run.files) if f not in ("SHA256SUMS", "provenance.json"))
+    present = sorted(f for f in os.listdir(run.files) if f not in ("SHA256SUMS", "provenance.json", SBOM))
     for name, (s, stt) in expected.items():
         if stt != "done":
             problems.append(f"{name}: its step {s.id} is {stt}")
@@ -385,20 +404,37 @@ def artefacts(engine, step, say):
                     if not os.path.isfile(os.path.join(run.extra, e)):
                         problems.append(f"extra/{e}: missing (G4 needs it)")
     from .engine import sha256_file
+    from .signer import accepted_change, read_signed
+    signed = read_signed(run)
     for name in present:
         actual = sha256_file(os.path.join(run.files, name))
         if meta[name]["sha256"] and meta[name]["sha256"] != actual:
-            problems.append(f"{name}: changed since its step recorded it")
+            if accepted_change(run, name, meta[name]["sha256"], actual):
+                meta[name]["unsigned_sha256"] = meta[name]["sha256"]
+                meta[name]["signed_by"] = "signer"
+            else:
+                problems.append(f"{name}: changed since its step recorded it")
+        elif name in signed and signed[name].get("sha256") != actual:
+            problems.append(f"{name}: signed.json says the signer signed it, but it is the unsigned build")
         meta[name]["sha256"] = actual
-    with open(os.path.join(run.files, "SHA256SUMS"), "w", encoding="utf-8") as f:
-        for name in present:
-            f.write(f"{meta[name]['sha256']}  {name}\n")
+    # The SBOM and provenance.json first, then SHA256SUMS over the release files and both, so the
+    # signed SHA256SUMS covers them too.
+    sbom_err = write_sbom(engine, repo, version, os.path.join(run.files, SBOM), say)
+    if sbom_err:
+        problems.append(sbom_err)
     prov = {
         "version": version, "version_code": want_code, "commit": info["commit"], "run_id": info["run_id"],
         "created": now_iso(), "pins": info.get("pins", {}), "scope": scope_summary(info["scope"]),
         "toolchain": toolchain(engine.repo), "files": meta, "test": bool(info.get("test")),
     }
     write_json(os.path.join(run.files, "provenance.json"), prov)
+    listed = {name: meta[name]["sha256"] for name in present}
+    for extra in ("provenance.json", SBOM):
+        if os.path.isfile(os.path.join(run.files, extra)):
+            listed[extra] = sha256_file(os.path.join(run.files, extra))
+    with open(os.path.join(run.files, "SHA256SUMS"), "w", encoding="utf-8") as f:
+        for name in sorted(listed):
+            f.write(f"{listed[name]}  {name}\n")
     for name in present:
         say(f"{meta[name]['sha256']}  {meta[name]['bytes']:>12}  {name}")
     if problems:
@@ -406,7 +442,25 @@ def artefacts(engine, step, say):
             say("FAIL", p)
         return {"status": "failed", "note": f"{len(problems)} problem(s): " + "; ".join(problems)[:300]}
     total = sum(m["bytes"] for m in meta.values())
-    return {"status": "done", "note": f"{len(present)} files, {total / 1e6:.0f} MB, SHA256SUMS + provenance.json", "bytes": total}
+    return {"status": "done", "note": f"{len(present)} files, {total / 1e6:.0f} MB, SHA256SUMS + provenance.json + {SBOM}",
+            "bytes": total}
+
+
+SBOM = "sbom.cdx.json"
+
+
+def write_sbom(engine, repo, version, out, say):
+    """tools/sbom.py (CycloneDX, deterministic) over the release checkout's lockfiles: the
+    checkout's own tool when it has one, else this checkout's. -> a problem, or None."""
+    tool = next((t for t in (os.path.join(repo, "tools/sbom.py"), os.path.join(engine.repo, "tools/sbom.py"))
+                 if os.path.isfile(t)), None)
+    if not tool:
+        return f"{SBOM}: no tools/sbom.py in {repo} or {engine.repo}"
+    rc, _ = sh(["python3", "-I", tool, "--version", version, "--pubspec-lock", os.path.join(repo, "app/pubspec.lock"),
+                "--cargo-lock", os.path.join(repo, "app/third_party/lepic/Cargo.lock"), "--out", out], say)
+    if rc != 0 or not os.path.isfile(out):
+        return f"{SBOM}: tools/sbom.py failed (exit {rc})"
+    return None
 
 
 def toolchain(repo):
@@ -824,7 +878,8 @@ def scratch_prune(engine, step, say):
     v = engine.info["version"]
     moved = []
     for n in sorted(os.listdir(d)) if os.path.isdir(d) else []:
-        if n != "SHA256SUMS" and f"-{v}-" not in n and n not in kept_files(engine.run):
+        if (n not in ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", SBOM) and f"-{v}-" not in n
+                and n not in kept_files(engine.run)):
             os.makedirs(arch, exist_ok=True)
             shutil.move(os.path.join(d, n), os.path.join(arch, n))
             moved.append(n)

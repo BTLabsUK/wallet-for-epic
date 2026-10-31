@@ -8,7 +8,14 @@
 # A TEST run (REL_TEST=1) never touches the real key: release_android.sh is pointed at a key that
 # does not exist, so it stops after writing the payloads, and the payloads are signed with
 # btlabs-public's test key against a test keyring kept in the run (manifests/test-keyring.json).
-# Env (set by tools/rel): REL_VERSION REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST
+# With a signer (<run>/signer.json, written by G1 when [host.signer] endpoint is set) the release
+# signer signs both manifests and the downloads folder's SHA256SUMS as it will stand once live
+# (server_sums.py: manifests/SHA256SUMS and SHA256SUMS.sig, installed by publish-downloads), in
+# one request: the owner's second approval of the release (docs/RELEASING.md, "Signer"). The key
+# on this machine is not read.
+# The manifests are valid for REL_MANIFEST_DAYS days (release/pipeline.toml [manifest]).
+# Env (set by tools/rel): REL_VERSION REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST REL_RUN
+#   REL_MANIFEST_DAYS
 #   REL_SIGNER_BTLABS_PUBLIC REL_SIGNER_SIGNING_KEY (release-hosts.toml host.signer)
 set -euo pipefail
 src="${REL_SRC:?}" files="${REL_FILES:?}" m="${REL_MANIFESTS:?}"
@@ -21,7 +28,7 @@ mkdir -p "$m" "$out"
 for f in update.json update-v2.json update.payload.json update-v2.payload.json; do
   rm -f -- "${out:?}/$f"
 done
-export WFE_APK_DIR="$files" WFE_DESKTOP_DIR="$files" BTLABS_PUBLIC="$bp"
+export WFE_APK_DIR="$files" WFE_DESKTOP_DIR="$files" BTLABS_PUBLIC="$bp" WFE_MANIFEST_DAYS="${REL_MANIFEST_DAYS:-182}"
 # Desktop systems this release has no file for keep their live entry (desktop_keep.py).
 rm -f -- "$m/desktop-keep.json"
 python3 -I "$(dirname "$0")/desktop_keep.py" "$src" "$files" "$REL_VERSION" "$bp" "$m/desktop-keep.json"
@@ -45,6 +52,19 @@ if [[ "${REL_TEST:-0}" == 1 ]]; then
     --key "$bp/testdata/keys/test-a.key" --keyring "$m/test-keyring.json" \
     --payload "$out/update-v2.payload.json" --out "$out/update-v2.json"
   echo "TEST run: signed with btlabs-public's test key (never accepted by an installed app)"
+elif [[ -f "${REL_RUN:-/nonexistent}/signer.json" ]]; then
+  sj="$REL_RUN/signer.json"
+  client="$(jq -r .client "$sj")"
+  REL_HOSTS="$(jq -r .hosts "$sj")"; export REL_HOSTS
+  rm -f -- "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$out/SHA256SUMS.sig"
+  python3 -I "$(dirname "$0")/server_sums.py" write "$files" "$m" "$m/SHA256SUMS"
+  label="$(jq -r '.keys | min_by(.rank) | .label' "$bp/keys/btlabs-keyring.json")"
+  BTLABS_SIGNER="$client" \
+    WFE_SIGNER_JOBS="minisign:file=$m/SHA256SUMS,out=SHA256SUMS.sig,trusted_comment=Epic Cash $REL_VERSION SHA256SUMS, BT Labs key $label" \
+    "$src/app/tool/release_android.sh" "$base" "$notes"
+  mv -f -- "$out/SHA256SUMS.sig" "$m/SHA256SUMS.sig"
+  python3 "$(dirname "$0")/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" \
+    "$bp/keys/btlabs-keyring.json" "$src/tools/gitlab-release.py"
 else
   BTLABS_SIGNING_KEY="${REL_SIGNER_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}" \
     "$src/app/tool/release_android.sh" "$base" "$notes"
