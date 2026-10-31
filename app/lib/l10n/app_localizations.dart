@@ -4303,12 +4303,6 @@ abstract class AppLocalizations {
   /// **'Enter the PIN to make a payment QR for {amount}.'**
   String sendQrPinReason(String amount);
 
-  /// First step of the QR send, done.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment QR ready'**
-  String get sendQrMade;
-
   /// Hint on Send once the payment QR is made.
   ///
   /// In en, this message translates to:
@@ -5533,18 +5527,6 @@ abstract class AppLocalizations {
   /// **'Send anyway'**
   String get sendAnyway;
 
-  /// Send tracker, step 1 done: the payment went to the contact {name}.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent to {name}'**
-  String sendTrackSentTo(String name);
-
-  /// Send tracker, step 1 done, for a recipient without a contact name.
-  ///
-  /// In en, this message translates to:
-  /// **'Sent'**
-  String get sendTrackSent;
-
   /// Send tracker, step 2 current: the contact's wallet has not signed yet.
   ///
   /// In en, this message translates to:
@@ -5556,30 +5538,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for their wallet'**
   String get sendTrackWaiting;
-
-  /// Send tracker, step 2 done: the contact's wallet signed the payment.
-  ///
-  /// In en, this message translates to:
-  /// **'{name}’s wallet signed'**
-  String sendTrackSignedBy(String name);
-
-  /// Send tracker, step 2 done, for a recipient without a contact name; also the file route's reply step once done.
-  ///
-  /// In en, this message translates to:
-  /// **'Their wallet signed'**
-  String get sendTrackSigned;
-
-  /// Send tracker: the finished payment was handed to the network.
-  ///
-  /// In en, this message translates to:
-  /// **'Posted to the network'**
-  String get sendTrackOnNetwork;
-
-  /// Send tracker, last step: the network confirmed the payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirmed'**
-  String get sendTrackConfirmed;
 
   /// Send tracker, while waiting for the recipient's wallet. {amount} is the amount plus fee, like '2.508 EPIC'.
   ///
@@ -5616,12 +5574,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Make transaction file'**
   String get sendMakeFile;
-
-  /// Send, file route tracker: the payment file exists.
-  ///
-  /// In en, this message translates to:
-  /// **'File made'**
-  String get sendFileMade;
 
   /// Send, file route tracker: detail under 'File made'; the amount is held until the payment finishes.
   ///

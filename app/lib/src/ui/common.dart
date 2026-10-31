@@ -904,6 +904,10 @@ class TxStatusLine extends ConsumerWidget {
 /// A payment through a paired contact's [mailbox] names it (DESIGN 1.2): "Sent through Anna's
 /// mailbox" with its relay (or, paused while Epicbox is off, still current: it waits in the
 /// outbox), then "Answer from Anna", "Checking Anna's mailbox" while it is awaited.
+///
+/// The Send trackers show the same steps ([sendSteps]); [waiting] is their sub-line under the
+/// current "Recipient signed" step ("Waiting for Anna's wallet"), [held] under the done first
+/// step while the coins wait locked.
 List<TimelineStep>? txTimeline(
   AppLocalizations l,
   TxEntry tx,
@@ -911,6 +915,8 @@ List<TimelineStep>? txTimeline(
   int? target,
   DateTime? now,
   ({String name, String relay, bool paused})? mailbox,
+  String? waiting,
+  String? held,
 }) {
   // Another wallet made it: this wallet saw only the coins move, so there are no steps.
   if (tx.source != TxSource.wallet || tx.kind == TxKind.coinbase || tx.origin == TxOrigin.otherWallet) return null;
@@ -925,13 +931,7 @@ List<TimelineStep>? txTimeline(
   final List<(String, String, String)> steps;
   final int? at;
   if (_outgoingKind(tx)) {
-    steps = [
-      (l.txStepStarted, l.txStepStarted, l.txStepStarted),
-      (l.txStepAccepted, l.txStepAccepted, l.txStepAccepted),
-      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
-      (l.txStepConfirmed, confirming, l.txStepConfirming),
-      (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
-    ];
+    steps = _sendLabels(l, confirming);
     at = switch (phase) {
       TxPhase.waitingRecipient => 1,
       TxPhase.confirming when tx.repostable => 2,
@@ -989,23 +989,50 @@ List<TimelineStep>? txTimeline(
         TimelineStep(answer, TimelineState.current, detail: l.txStepCollecting(name))
       else
         TimelineStep(answer, TimelineState.done),
-      for (final (i, (done, now, todo)) in steps.indexed.skip(2))
-        i < at
-            ? TimelineStep(done, TimelineState.done)
-            : i == at
-            ? TimelineStep(now, TimelineState.current)
-            : TimelineStep(todo, TimelineState.todo),
+      ..._stepsAt(steps, at).skip(2),
     ];
   }
-  return [
-    for (final (i, (done, now, todo)) in steps.indexed)
-      i < at
-          ? TimelineStep(done, TimelineState.done)
-          : i == at
-          ? TimelineStep(now, TimelineState.current)
-          : TimelineStep(todo, TimelineState.todo),
-  ];
+  if (_outgoingKind(tx)) return sendSteps(l, at, confirming: confirming, waiting: waiting, held: held);
+  return _stepsAt(steps, at);
 }
+
+/// An outgoing payment's five steps, the same for every method and screen (A-03): Payment
+/// started, Recipient signed, Posted to the network, Confirming, Completed. [at] is the current
+/// step (5 when all are done); [confirming] the Confirming step's words while current ("2 of 6
+/// confirmations"). [waiting] is the sub-line of a current "Recipient signed", [held] that of
+/// the first step until the payment is posted.
+List<TimelineStep> sendSteps(
+  AppLocalizations l,
+  int at, {
+  String? confirming,
+  String? waiting,
+  String? held,
+}) => [
+  for (final (i, step) in _stepsAt(_sendLabels(l, confirming ?? l.txStepConfirming), at).indexed)
+    switch (i) {
+      0 when held != null && at < 3 => TimelineStep(step.label, step.state, detail: held),
+      1 when waiting != null && at == 1 => TimelineStep(step.label, step.state, detail: waiting),
+      _ => step,
+    },
+];
+
+/// The outgoing steps' labels once done, while current, before reached.
+List<(String, String, String)> _sendLabels(AppLocalizations l, String confirming) => [
+  (l.txStepStarted, l.txStepStarted, l.txStepStarted),
+  (l.txStepAccepted, l.txStepAccepted, l.txStepAccepted),
+  (l.txStepPosted, l.txStepPosted, l.txStepPosted),
+  (l.txStepConfirmed, confirming, l.txStepConfirming),
+  (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
+];
+
+List<TimelineStep> _stepsAt(List<(String, String, String)> steps, int at) => [
+  for (final (i, (done, now, todo)) in steps.indexed)
+    i < at
+        ? TimelineStep(done, TimelineState.done)
+        : i == at
+        ? TimelineStep(now, TimelineState.current)
+        : TimelineStep(todo, TimelineState.todo),
+];
 
 /// Pending transactions first, then the rest, each newest first.
 List<TxEntry> pendingFirst(Iterable<TxEntry> txs) {

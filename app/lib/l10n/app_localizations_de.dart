@@ -2749,9 +2749,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => 'Zahlungs-QR bereit';
-
-  @override
   String get sendQrHint =>
       'Zeigen Sie den Code dem Smartphone des Empfängers und scannen Sie dann dessen Antwort.';
 
@@ -3448,34 +3445,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendAnyway => 'Trotzdem senden';
 
   @override
-  String sendTrackSentTo(String name) {
-    return 'An $name gesendet';
-  }
-
-  @override
-  String get sendTrackSent => 'Gesendet';
-
-  @override
   String sendTrackWaitingFor(String name) {
     return 'Warten auf die Wallet von $name';
   }
 
   @override
   String get sendTrackWaiting => 'Warten auf die Wallet der Gegenseite';
-
-  @override
-  String sendTrackSignedBy(String name) {
-    return 'Wallet von $name hat signiert';
-  }
-
-  @override
-  String get sendTrackSigned => 'Die Wallet der Gegenseite hat signiert';
-
-  @override
-  String get sendTrackOnNetwork => 'An das Netzwerk gesendet';
-
-  @override
-  String get sendTrackConfirmed => 'Bestätigt';
 
   @override
   String sendTrackOffline(String amount) {
@@ -3496,9 +3471,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sendMakeFile => 'Transaktionsdatei erstellen';
-
-  @override
-  String get sendFileMade => 'Datei erstellt';
 
   @override
   String sendFileOnHold(String amount) {

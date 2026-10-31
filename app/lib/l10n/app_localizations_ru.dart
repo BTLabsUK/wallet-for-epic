@@ -2784,9 +2784,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => 'QR платежа готов';
-
-  @override
   String get sendQrHint =>
       'Покажите код телефону получателя, затем отсканируйте его ответ.';
 
@@ -3479,34 +3476,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendAnyway => 'Всё равно отправить';
 
   @override
-  String sendTrackSentTo(String name) {
-    return 'Отправлено: $name';
-  }
-
-  @override
-  String get sendTrackSent => 'Отправлено';
-
-  @override
   String sendTrackWaitingFor(String name) {
     return 'Ждём кошелёк: $name';
   }
 
   @override
   String get sendTrackWaiting => 'Ждём кошелёк получателя';
-
-  @override
-  String sendTrackSignedBy(String name) {
-    return 'Кошелёк $name подписал';
-  }
-
-  @override
-  String get sendTrackSigned => 'Кошелёк получателя подписал';
-
-  @override
-  String get sendTrackOnNetwork => 'Отправлено в сеть';
-
-  @override
-  String get sendTrackConfirmed => 'Подтверждено';
 
   @override
   String sendTrackOffline(String amount) {
@@ -3527,9 +3502,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendMakeFile => 'Создать файл транзакции';
-
-  @override
-  String get sendFileMade => 'Файл создан';
 
   @override
   String sendFileOnHold(String amount) {

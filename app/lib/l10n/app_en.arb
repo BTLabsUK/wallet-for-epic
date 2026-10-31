@@ -3406,10 +3406,6 @@
       }
     }
   },
-  "sendQrMade": "Payment QR ready",
-  "@sendQrMade": {
-    "description": "First step of the QR send, done."
-  },
   "sendQrHint": "Show the code to the recipient’s phone, then scan their reply.",
   "@sendQrHint": {
     "description": "Hint on Send once the payment QR is made."
@@ -4340,19 +4336,6 @@
   "@sendAnyway": {
     "description": "Send, review: sends although the recipient's relay did not answer."
   },
-  "sendTrackSentTo": "Sent to {name}",
-  "@sendTrackSentTo": {
-    "description": "Send tracker, step 1 done: the payment went to the contact {name}.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "sendTrackSent": "Sent",
-  "@sendTrackSent": {
-    "description": "Send tracker, step 1 done, for a recipient without a contact name."
-  },
   "sendTrackWaitingFor": "Waiting for {name}’s wallet",
   "@sendTrackWaitingFor": {
     "description": "Send tracker, step 2 current: the contact's wallet has not signed yet.",
@@ -4365,27 +4348,6 @@
   "sendTrackWaiting": "Waiting for their wallet",
   "@sendTrackWaiting": {
     "description": "Send tracker, step 2 current, for a recipient without a contact name."
-  },
-  "sendTrackSignedBy": "{name}’s wallet signed",
-  "@sendTrackSignedBy": {
-    "description": "Send tracker, step 2 done: the contact's wallet signed the payment.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "sendTrackSigned": "Their wallet signed",
-  "@sendTrackSigned": {
-    "description": "Send tracker, step 2 done, for a recipient without a contact name; also the file route's reply step once done."
-  },
-  "sendTrackOnNetwork": "Posted to the network",
-  "@sendTrackOnNetwork": {
-    "description": "Send tracker: the finished payment was handed to the network."
-  },
-  "sendTrackConfirmed": "Confirmed",
-  "@sendTrackConfirmed": {
-    "description": "Send tracker, last step: the network confirmed the payment."
   },
   "sendTrackOffline": "Their wallet signs it when it opens. {amount} stays locked until then.",
   "@sendTrackOffline": {
@@ -4415,10 +4377,6 @@
   "sendMakeFile": "Make transaction file",
   "@sendMakeFile": {
     "description": "Send, file route: button that makes the payment file for the amount."
-  },
-  "sendFileMade": "File made",
-  "@sendFileMade": {
-    "description": "Send, file route tracker: the payment file exists."
   },
   "sendFileOnHold": "{amount} locked",
   "@sendFileOnHold": {

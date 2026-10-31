@@ -2661,9 +2661,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => 'QR ของรายการพร้อมแล้ว';
-
-  @override
   String get sendQrHint => 'แสดงโค้ดให้โทรศัพท์ของผู้รับ แล้วสแกนคำตอบของเขา';
 
   @override
@@ -3344,34 +3341,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendAnyway => 'ส่งเลย';
 
   @override
-  String sendTrackSentTo(String name) {
-    return 'ส่งถึง $name แล้ว';
-  }
-
-  @override
-  String get sendTrackSent => 'ส่งแล้ว';
-
-  @override
   String sendTrackWaitingFor(String name) {
     return 'รอกระเป๋าของ $name';
   }
 
   @override
   String get sendTrackWaiting => 'รอกระเป๋าของผู้รับ';
-
-  @override
-  String sendTrackSignedBy(String name) {
-    return 'กระเป๋าของ $name ลงนามแล้ว';
-  }
-
-  @override
-  String get sendTrackSigned => 'กระเป๋าของผู้รับลงนามแล้ว';
-
-  @override
-  String get sendTrackOnNetwork => 'ส่งไปยังเครือข่ายแล้ว';
-
-  @override
-  String get sendTrackConfirmed => 'ยืนยันแล้ว';
 
   @override
   String sendTrackOffline(String amount) {
@@ -3392,9 +3367,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sendMakeFile => 'สร้างไฟล์ธุรกรรม';
-
-  @override
-  String get sendFileMade => 'สร้างไฟล์แล้ว';
 
   @override
   String sendFileOnHold(String amount) {
