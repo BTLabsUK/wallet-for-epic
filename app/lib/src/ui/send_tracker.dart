@@ -54,6 +54,11 @@ int sendTrackerStep(SendTrack track) => switch (track) {
   SendTrack.completed || SendTrack.notPosted || SendTrack.cancelled => 4,
 };
 
+/// Breaths the current marker's ring takes before it holds still, plain: five, 16 s. A send
+/// can wait on its recipient for hours, and a ring that pulses all that time redraws the screen.
+@visibleForTesting
+const int sendPulseBreaths = 5;
+
 /// Whether the current marker's ring pulses. Widget tests turn it off in
 /// `test/flutter_test_config.dart`, since a loop never lets `pumpAndSettle` settle; reduced
 /// motion stops it too.
@@ -170,7 +175,18 @@ class _RoundMarkState extends State<_RoundMark>
   late final AnimationController _pulse = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1600),
-  );
+  )
+    // The breaths end on the plain ring: a frame that lands past the last one could leave
+    // the value part way.
+    ..addStatusListener((status) {
+      if (!_pulse.isAnimating &&
+          (status == AnimationStatus.completed || status == AnimationStatus.dismissed)) {
+        _pulse.value = 0;
+      }
+    });
+
+  /// The breaths ran while this mark is the current one.
+  bool _played = false;
 
   @override
   void didChangeDependencies() {
@@ -181,6 +197,7 @@ class _RoundMarkState extends State<_RoundMark>
   @override
   void didUpdateWidget(_RoundMark old) {
     super.didUpdateWidget(old);
+    if (widget.state != TimelineState.current) _played = false;
     _sync();
   }
 
@@ -189,8 +206,12 @@ class _RoundMarkState extends State<_RoundMark>
         widget.state == TimelineState.current &&
         sendPulseMoves &&
         !MediaQuery.disableAnimationsOf(context);
-    if (moves && !_pulse.isAnimating) {
-      _pulse.repeat(reverse: true);
+    if (moves && !_played) {
+      _played = true;
+      // Out and back is one breath: an even count ends on the plain ring.
+      _pulse
+        ..value = 0
+        ..repeat(reverse: true, count: sendPulseBreaths * 2);
     } else if (!moves && _pulse.isAnimating) {
       _pulse.stop();
       _pulse.value = 0;

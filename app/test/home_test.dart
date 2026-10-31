@@ -497,7 +497,7 @@ double _sweep(WidgetTester tester) {
 double _glow(WidgetTester tester) =>
     (tester.widget<CustomPaint>(find.byKey(backdropPaintKey)).painter!
             as ProtocolBackdropPainter)
-        .glow
+        .glowNow
         .a;
 
 /// How much of Wallet's balance area shows.

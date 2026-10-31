@@ -249,8 +249,11 @@ const Key nodeStatusKey = ValueKey('status-node');
 /// The key of the epicbox status, for tests.
 const Key epicboxStatusKey = ValueKey('status-epicbox');
 
-/// [child] fading between 45 % and full opacity every 1.6 s while [active], as the mockup's
-/// pulse. Still at full opacity with reduced motion, or when not [active].
+/// [child] fading between 45 % and full opacity every 1.6 s for a few breaths once [active]
+/// begins, as the mockup's pulse, then still at full opacity: the blue dot keeps saying "in
+/// progress". A pulse that never ends redraws the screen for as long as Tor starts or the node
+/// syncs (the desktop's dot stops the same way). Still at full opacity with reduced motion, or
+/// when not [active]; a new [active] stretch plays its breaths again.
 class Pulse extends StatefulWidget {
   const Pulse({super.key, required this.active, required this.child});
 
@@ -261,14 +264,29 @@ class Pulse extends StatefulWidget {
   State<Pulse> createState() => _PulseState();
 }
 
+/// Breaths a pulse plays before it holds still: five, about 8 s, as the desktop's dot.
+@visibleForTesting
+const int pulseBreaths = 5;
+
 class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 800),
-  );
+  )
+    // The breaths end at full opacity: a frame that lands past the last one could leave the
+    // value part way down.
+    ..addStatusListener((status) {
+      if (!_controller.isAnimating &&
+          (status == AnimationStatus.completed || status == AnimationStatus.dismissed)) {
+        _controller.value = 0;
+      }
+    });
   late final Animation<double> _opacity = Tween<double>(begin: 1, end: 0.45)
       .chain(CurveTween(curve: const Cubic(0.22, 0.61, 0.36, 1)))
       .animate(_controller);
+
+  /// The breaths ran for this active stretch.
+  bool _played = false;
 
   @override
   void didChangeDependencies() {
@@ -279,13 +297,18 @@ class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
   @override
   void didUpdateWidget(Pulse old) {
     super.didUpdateWidget(old);
+    if (!widget.active) _played = false;
     _sync();
   }
 
   void _sync() {
     final run = widget.active && !MediaQuery.disableAnimationsOf(context);
-    if (run && !_controller.isAnimating) {
-      _controller.repeat(reverse: true);
+    if (run && !_played) {
+      _played = true;
+      // Down and up is one breath: an even count ends where it began, at full opacity.
+      _controller
+        ..value = 0
+        ..repeat(reverse: true, count: pulseBreaths * 2);
     } else if (!run && _controller.isAnimating) {
       _controller
         ..stop()

@@ -1192,6 +1192,11 @@ Duration txEdgeLap(TxPhase phase) => phase == TxPhase.waitingRecipient
     ? const Duration(milliseconds: 4800)
     : const Duration(milliseconds: 2400);
 
+/// Laps the waiting run travels before it rests at the top centre, where each lap starts: a
+/// payment can wait for hours, and a run that never stops redraws the list all that time. A
+/// new phase or payment in the tile laps again.
+const int txEdgeRunLaps = 5;
+
 /// Whether a waiting tile's run travels. Widget tests turn it off in
 /// `test/flutter_test_config.dart`, since a loop never lets `pumpAndSettle` settle; the tile
 /// then shows the full current mark, as with reduced motion. The loader's own tests turn it on.
@@ -1288,7 +1293,15 @@ class _TxProgressSquareState extends State<TxProgressSquare>
     duration: txEdgeFillDuration,
     value: 1,
   );
-  late final AnimationController _run = AnimationController(vsync: this);
+  late final AnimationController _run = AnimationController(vsync: this)
+    // The laps end where they start: a frame that lands past the last one could leave the run
+    // part way round.
+    ..addStatusListener((status) {
+      if (!_run.isAnimating && status == AnimationStatus.completed) _run.value = 0;
+    });
+
+  /// The payment and phase the run lapped for (or is lapping for).
+  (String, TxPhase)? _lapped;
   late final AnimationController _land = AnimationController(
     vsync: this,
     duration: txEdgeLandDuration,
@@ -1393,14 +1406,16 @@ class _TxProgressSquareState extends State<TxProgressSquare>
     final run = txEdgeKind(widget.phase) == TxEdgeKind.run && _runMoves;
     if (!run) {
       if (_run.isAnimating) _run.stop();
+      _lapped = null;
       return;
     }
-    final lap = txEdgeLap(widget.phase);
-    if (_run.duration != lap) {
-      _run.duration = lap;
-      if (_run.isAnimating) _run.repeat();
-    }
-    if (!_run.isAnimating) _run.repeat();
+    final lapping = (widget.payment, widget.phase);
+    if (_lapped == lapping) return;
+    _lapped = lapping;
+    _run
+      ..duration = txEdgeLap(widget.phase)
+      ..value = 0
+      ..repeat(count: txEdgeRunLaps);
   }
 
   @override
@@ -1452,13 +1467,16 @@ class _TxProgressSquareState extends State<TxProgressSquare>
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return SizedBox.square(
-      dimension: txTileSize,
-      child: AnimatedBuilder(
-        animation: _motion,
-        builder: (context, child) =>
-            CustomPaint(painter: _painter(t), child: child),
-        child: Center(child: widget.child),
+    // Its own layer: a moving edge repaints the tile, not the list.
+    return RepaintBoundary(
+      child: SizedBox.square(
+        dimension: txTileSize,
+        child: AnimatedBuilder(
+          animation: _motion,
+          builder: (context, child) =>
+              CustomPaint(painter: _painter(t), child: child),
+          child: Center(child: widget.child),
+        ),
       ),
     );
   }
