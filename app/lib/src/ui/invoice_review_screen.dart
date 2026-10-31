@@ -257,18 +257,19 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
             busy: _busy,
             onPressed: block == NetBlock.none ? _retry : null,
           )
-        : Row(
+        // Stacked, the primary over Decline, as every other foot (UP-021).
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: BusyButton(
-                  label: l.invoiceApprove,
-                  busy: _busy,
-                  onPressed: canAnswer && short == null ? _approve : null,
-                ),
+              BusyButton(
+                label: l.invoiceApprove,
+                busy: _busy,
+                onPressed: canAnswer && short == null ? _approve : null,
               ),
-              const SizedBox(width: 8),
-              TextButton(
-                style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 onPressed: canAnswer ? _decline : null,
                 child: Text(l.invoiceDecline),
               ),

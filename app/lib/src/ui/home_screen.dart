@@ -542,7 +542,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ownServer: ref.read(walletConfigProvider)?.epicboxDomain,
     );
     final key = tx?.key;
-    _showNotice(text, level: paymentNoticeLevel(event.kind), txKey: key);
+    _showNotice(
+      text,
+      level: paymentNoticeLevel(event.kind),
+      txKey: key,
+      // A failed payment the list does not name yet still has a way in: Activity (UP-030).
+      activity: event.kind == ListenerEventKind.error && event.slateId != null && key == null,
+    );
   }
 
   /// The sender of an incoming payment reports it posted; the row says so already
@@ -565,23 +571,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// A notice with a way to the payment when it is known. It leaves on its own; the payment is
-  /// always one tap away in the list too.
-  void _showNotice(String text, {required NoticeLevel level, String? txKey}) {
+  /// A notice with a way to the payment when it is known, or to Activity when [activity]. It
+  /// leaves on its own; the payment is always one tap away in the list too.
+  void _showNotice(
+    String text, {
+    required NoticeLevel level,
+    String? txKey,
+    bool activity = false,
+  }) {
+    final Widget? target = txKey != null
+        ? TxDetailsScreen(txKey: txKey)
+        : activity
+        ? const HistoryScreen()
+        : null;
     ref
         .read(noticeProvider.notifier)
         .show(
           text,
           level: level,
-          action: txKey == null
+          action: target == null
               ? null
               : NoticeAction(context.l10n.homeNoticeView, () {
                   // The notice outlives home: a lock replaces it with the unlock screen.
                   if (!mounted) return;
                   Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => TxDetailsScreen(txKey: txKey),
-                    ),
+                    MaterialPageRoute<void>(builder: (_) => target),
                   );
                 }),
         );
@@ -724,6 +738,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     OutputsScreen(
       filter: switch (kind) {
         BalanceKind.confirming => OutputsFilter.confirming,
+        BalanceKind.immature => OutputsFilter.immature,
         BalanceKind.waitingSender || BalanceKind.senderPosted => OutputsFilter.confirming,
         BalanceKind.locked => OutputsFilter.locked,
         BalanceKind.total || BalanceKind.calm => null,
@@ -872,9 +887,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ? const TestCoinsButton()
                             : demo
                             ? null
-                            : FilledButton.tonal(
+                            // The one primary on an empty Home, as the desktop's (UP-034).
+                            : FilledButton(
                                 onPressed: () => _goTab(ShellTab.receive),
-                                child: Text(l.homeReceiveButton),
+                                child: Text(l.homeReceiveEpicButton),
                               ),
                       ),
                     for (final tx in pendingFirst(

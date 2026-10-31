@@ -5,6 +5,7 @@
 library;
 
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -674,6 +675,46 @@ class _CheckTile extends StatelessWidget {
         child: Transform.scale(scale: 0.6 + 0.4 * t, child: child),
       ),
       child: tile,
+    );
+  }
+}
+
+/// The payment scanner's viewfinder for any camera view (UP-018): the picture dimmed around
+/// the [finder], its rounded corner brackets in white and the ring's track; with [count] parts
+/// the ring fills a segment per part [received]. Sized by its parent; the finder is the largest
+/// square that leaves [margin] around it.
+class QrFinderOverlay extends StatelessWidget {
+  const QrFinderOverlay({super.key, this.received = 0, this.count = 0, this.complete = false, this.margin = 36});
+
+  final int received;
+  final int count;
+  final bool complete;
+  final double margin;
+
+  @override
+  Widget build(BuildContext context) {
+    const dark = protocolDark;
+    return IgnorePointer(
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final size = box.biggest;
+          final side = (math.min(size.width, size.height) - 2 * margin).clamp(0.0, double.infinity);
+          final finder = Rect.fromCenter(center: size.center(Offset.zero), width: side, height: side);
+          return CustomPaint(
+            painter: _ScrimPainter(finder: finder),
+            foregroundPainter: _FramePainter(
+              finder: finder,
+              ring: finder.inflate(14),
+              received: received,
+              count: count,
+              complete: complete,
+              corners: complete ? dark.ok : Colors.white,
+              info: dark.info,
+              ok: dark.ok,
+            ),
+          );
+        },
+      ),
     );
   }
 }

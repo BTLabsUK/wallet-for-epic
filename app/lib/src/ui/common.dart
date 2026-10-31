@@ -23,6 +23,7 @@ import '../stall_retry.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
+import 'method_names.dart' show methodKindOfTransport;
 import 'notices.dart';
 import 'badge.dart';
 import 'finished_not_posted.dart' show isPostElsewhere;
@@ -548,12 +549,12 @@ String dayLabel(AppLocalizations l, DateTime t, DateTime now) =>
       _ => localDay(l, t),
     };
 
-/// A short time for a list row: `Today, 14:05`, `Yesterday, 14:05`, `21 Sep, 14:05`, and the
-/// year added for other years.
+/// A short time for a list row: `14:05` for today (the day word adds nothing and the row is
+/// narrow), `Yesterday, 14:05`, `21 Sep, 14:05`, and the year added for other years.
 String shortDate(AppLocalizations l, DateTime t, DateTime now) {
   final time = localClock(l, t);
   return switch (daysAgo(t, now)) {
-    0 => l.dateWithTime(l.dateToday, time),
+    0 => time,
     1 => l.dateWithTime(l.dateYesterday, time),
     _ when t.year == now.year => l.dateWithTime(localDayMonth(l, t), time),
     _ => localDay(l, t),
@@ -783,8 +784,24 @@ String txStatusLabel(
   };
 }
 
-/// The second line of a payment row: the status word with its mark (the word in [WalletTokens.info]
-/// while confirming, dim otherwise), then the time, dim. Replaces the chip in lists.
+/// The short method name a finished row shows after its status (UP-032), as the desktop's
+/// Activity rows do: Epicbox, Link · HTTP, Link · Tor, Direct · File; a payment through a
+/// paired contact's [mailbox] went by Epicbox. Null for a reward, another wallet's or a
+/// restored payment, and for a transport the app does not name.
+String? txRowMethod(AppLocalizations l, TxEntry tx, {String? mailbox}) {
+  if (tx.kind == TxKind.coinbase ||
+      tx.origin == TxOrigin.otherWallet ||
+      tx.source == TxSource.restored) {
+    return null;
+  }
+  if (mailbox != null) return MethodIcons.shortName(l, MethodKind.epicbox);
+  final kind = methodKindOfTransport(tx.transport);
+  return kind == null ? null : MethodIcons.shortName(l, kind);
+}
+
+/// The second line of a payment row: the status word with its mark (the word in
+/// [WalletTokens.info] while under way, dim otherwise), the short method name on a finished
+/// row, then the time, dim; two lines when one is not enough. Replaces the chip in lists.
 class TxStatusLine extends ConsumerWidget {
   const TxStatusLine({
     super.key,
@@ -814,15 +831,34 @@ class TxStatusLine extends ConsumerWidget {
     // Finished under Kill switch waits for another device: the hourglass, as for any wait.
     final icon = isPostElsewhere(tx) ? Icons.hourglass_empty : markIcon;
     final color = reported ? t.info : mark;
+    // Under way (confirming, or waiting for the other side) is the in-progress blue on the
+    // words too, as the detail's dot (UP-039).
+    final inProgress = reported ||
+        switch (phase) {
+          TxPhase.confirming ||
+          TxPhase.waitingRecipient ||
+          TxPhase.waitingSender ||
+          TxPhase.waitingPayer => true,
+          TxPhase.completed || TxPhase.cancelled || TxPhase.fromBackup => false,
+        };
     final base = theme.textTheme.bodySmall?.copyWith(
       color: t.dim,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
+    final mailbox = txMailboxName(ref, tx);
+    final method = isPending(tx) ? null : txRowMethod(context.l10n, tx, mailbox: mailbox);
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 14, color: color),
+        Padding(
+          // On the first line's middle.
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(icon, size: 14, color: color),
+        ),
         const SizedBox(width: 5),
-        // One text, so the status and the time share the line and shorten as one.
+        // One text, so the status, method and time share the line; when they do not fit it
+        // wraps to a second line (status first, then the time) rather than cutting the time
+        // off (UP-001).
         Flexible(
           flex: 3,
           child: Text.rich(
@@ -835,19 +871,19 @@ class TxStatusLine extends ConsumerWidget {
                     tip,
                     target: target,
                     now: now,
-                    pairedWith: txMailboxName(ref, tx),
+                    pairedWith: mailbox,
                     paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
                   ),
-                  style: phase == TxPhase.confirming || reported
-                      ? base?.copyWith(color: t.info)
-                      : base,
+                  style: inProgress ? base?.copyWith(color: t.info) : base,
                 ),
+                if (method != null)
+                  TextSpan(text: ' \u00B7 $method', style: base),
                 TextSpan(text: ' \u00B7 $date', style: base),
                 if (aside != null)
                   TextSpan(text: ' \u00B7 $aside', style: base),
               ],
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: base,
           ),
@@ -883,14 +919,16 @@ List<TimelineStep>? txTimeline(
     txConfirmations(tx, tip) ?? 0,
     target ?? confirmationsTarget,
   );
-  // Each step: label once done, label while current, label before it is reached.
+  // Each step: label once done, label while current, label before it is reached. The same
+  // five names in every state, as the desktop lists them (GP2-001): the status card above
+  // says what the wallet waits for; the current Confirming step carries its count.
   final List<(String, String, String)> steps;
   final int? at;
   if (_outgoingKind(tx)) {
     steps = [
       (l.txStepStarted, l.txStepStarted, l.txStepStarted),
-      (l.txStepAccepted, l.txStatusWaitingRecipient, l.txStepAccepted),
-      (l.txStepPosted, isPostElsewhere(tx) ? l.txPostElsewhere : l.txStatusNotPosted, l.txStepPosted),
+      (l.txStepAccepted, l.txStepAccepted, l.txStepAccepted),
+      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
@@ -905,7 +943,7 @@ List<TimelineStep>? txTimeline(
     // Nothing arrives before the payer pays.
     steps = [
       (l.txStepRequested, l.txStepRequested, l.txStepRequested),
-      (l.txStepPaid, l.txStatusWaitingPayer, l.txStepPaid),
+      (l.txStepPaid, l.txStepPaid, l.txStepPaid),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
@@ -919,9 +957,9 @@ List<TimelineStep>? txTimeline(
     final reported = now != null && senderReportsPosted(tx, now: now);
     steps = [
       (l.txStepArrived, l.txStepArrived, l.txStepArrived),
-      (l.txStepSenderFinished, l.txStatusWaitingSender, l.txStepSenderFinished),
+      (l.txStepSenderFinished, l.txStepSenderFinished, l.txStepSenderFinished),
       // The sender's wallet posts it; this wallet only hears so from the sender.
-      (l.txStepPosted, reported ? l.txStatusSenderPosted : l.txStepPosted, l.txStepPosted),
+      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
@@ -1154,10 +1192,12 @@ enum TxEdgeKind {
 }
 
 TxEdgeKind txEdgeKind(TxPhase phase) => switch (phase) {
+  TxPhase.confirming => TxEdgeKind.fill,
+  // Waiting shows in the status line (the hourglass), not on the tile: a moving fragment on
+  // a static square read as a glitch (UP-022). The run stays for a determinate use.
   TxPhase.waitingRecipient ||
   TxPhase.waitingSender ||
-  TxPhase.waitingPayer => TxEdgeKind.run,
-  TxPhase.confirming => TxEdgeKind.fill,
+  TxPhase.waitingPayer ||
   TxPhase.completed ||
   TxPhase.cancelled ||
   TxPhase.fromBackup => TxEdgeKind.hairline,
@@ -1874,10 +1914,13 @@ class BusyButton extends StatelessWidget {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+                // Under reduced motion a still glyph: a spinner that does not turn is a dot.
+                MediaQuery.disableAnimationsOf(context)
+                    ? const Icon(Icons.hourglass_empty, size: 18)
+                    : const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                 const SizedBox(width: 10),
                 Text(busyLabel ?? label),
               ],

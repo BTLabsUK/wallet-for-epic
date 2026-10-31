@@ -256,14 +256,13 @@ class _ChoiceCard extends StatelessWidget {
       label: '$title: $text',
       excludeSemantics: true,
       onTap: onTap,
+      // Selection is neutral (UP-006): the selected fill and the strong hairline, a check in
+      // the text colour; gold stays on the Import primary.
       child: Material(
-        color: selected ? t.accentSoft : Colors.transparent,
+        color: selected ? t.selected : Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: selected ? t.accent : t.line,
-            width: selected ? 1.5 : 1,
-          ),
+          side: BorderSide(color: selected ? t.lineStrong : t.line),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
@@ -279,10 +278,10 @@ class _ChoiceCard extends StatelessWidget {
                     children: [
                       Icon(
                         selected
-                            ? Icons.radio_button_checked
+                            ? Icons.check_circle
                             : Icons.radio_button_unchecked,
                         size: 18,
-                        color: selected ? t.accent : t.dim,
+                        color: selected ? t.text : t.dim,
                       ),
                       const SizedBox(width: 6),
                       Flexible(

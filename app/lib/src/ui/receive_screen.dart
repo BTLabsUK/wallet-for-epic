@@ -214,6 +214,9 @@ class ReceiveView extends ConsumerWidget {
               // colour (the button's own, accent when selected) and weight, never size. Measured
               // at the heavier weight. Room per tab: its share, less the padding and dividers.
               final style = Theme.of(context).textTheme.labelMedium!.copyWith(fontWeight: FontWeight.w600);
+              // On a narrow phone the icons alone; the label stays in the tooltip and for
+              // screen readers (UP-002).
+              final iconOnly = box.maxWidth < 360;
               final fit = fitTabLabels(
                 context,
                 [for (final s in tabSegments) s.label],
@@ -230,8 +233,9 @@ class ReceiveView extends ConsumerWidget {
                       label: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(s.icon, size: 18),
-                          const SizedBox(height: 2),
+                          Icon(s.icon, size: 18, semanticLabel: iconOnly ? s.label : null),
+                          if (!iconOnly) const SizedBox(height: 2),
+                          if (!iconOnly)
                           Text(
                             fit.texts[i],
                             maxLines: 2,
@@ -645,7 +649,8 @@ const Key receiveEpicboxKey = ValueKey('receive-epicbox');
 /// [address] for the Receive card: an Epicbox address breaks only before its "@",
 /// so the server name is never split, and the key's first and last six characters (the ones
 /// read out) are in [mark]; the server part is [dim]. Other addresses come back as they are.
-TextSpan addressSpans(String address, {required TextStyle base, required Color mark, required Color dim}) {
+/// With [keyOnly] the server part is left out (it is drawn on its own line, [addressServer]).
+TextSpan addressSpans(String address, {required TextStyle base, required Color mark, required Color dim, bool keyOnly = false}) {
   final at = address.indexOf('@');
   if (at < 14) return TextSpan(text: address, style: base);
   final key = address.substring(0, at);
@@ -657,9 +662,15 @@ TextSpan addressSpans(String address, {required TextStyle base, required Color m
       TextSpan(text: key.substring(0, 6), style: marked),
       TextSpan(text: key.substring(6, key.length - 6)),
       TextSpan(text: key.substring(key.length - 6), style: marked),
-      TextSpan(text: '\n$server', style: base.copyWith(color: dim)),
+      if (!keyOnly) TextSpan(text: '\n$server', style: base.copyWith(color: dim)),
     ],
   );
+}
+
+/// The "@server" part of an Epicbox [address], or null for any other address.
+String? addressServer(String address) {
+  final at = address.indexOf('@');
+  return at < 14 ? null : address.substring(at);
 }
 
 class _AddressRow extends ConsumerStatefulWidget {
@@ -764,9 +775,26 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
                                   base: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily) ?? const TextStyle(),
                                   mark: t.accentText,
                                   dim: t.dim,
+                                  keyOnly: true,
                                 ),
                                 onTap: _copy,
                               ),
+                              // The server on its own line, shrunk rather than broken inside
+                              // its name on a narrow phone at a large text size (UP-033).
+                              if (addressServer(address) case final server?)
+                                Align(
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: AlignmentDirectional.centerStart,
+                                    child: Text(
+                                      server,
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily, color: t.dim),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),

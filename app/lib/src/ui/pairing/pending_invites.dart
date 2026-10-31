@@ -175,14 +175,19 @@ class _PendingRow extends ConsumerWidget {
               ],
             ),
           ),
-          // The list's end gutter: the button ends where the other rows' menus do.
-          trailing: Padding(
-            padding: const EdgeInsetsDirectional.only(end: 8),
-            child: OutlinedButton(
-              key: pendingInviteAgainKey,
-              onPressed: () => _again(context, ref),
-              child: Text(l.pendingInviteAgain),
-            ),
+          // One row pattern (UP-017): the actions in the menu, as on every other row.
+          trailing: PopupMenuButton<String>(
+            key: pendingInviteMenuKey(r.id),
+            tooltip: l.contactMore,
+            onSelected: (v) => switch (v) {
+              'again' => _again(context, ref),
+              'cancel' => _cancel(context, ref, name),
+              _ => null,
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(key: pendingInviteAgainKey, value: 'again', child: Text(l.pendingInviteAgain)),
+              PopupMenuItem(value: 'cancel', child: Text(l.pairCancelInvite, style: TextStyle(color: t.risk))),
+            ],
           ),
         );
       case PairingState.pendingInvite:
@@ -223,24 +228,20 @@ class _PendingRow extends ConsumerWidget {
           avatar: avatar,
           title: name,
           subtitle: Text('${l.pendingWaitingConfirm} · ${invitedLine(l, r.createdAt, now)}'),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // An answer the relay did not take, while this run still has its link.
-              if (r.relayDown)
-                IconButton(
-                  key: pendingByHandKey,
-                  tooltip: l.pairSendByHand,
-                  icon: const Icon(Icons.ios_share),
-                  onPressed: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairingByHandScreen(pairingId: r.id))),
-                ),
+          // One row pattern (UP-017): the actions in the menu.
+          trailing: PopupMenuButton<String>(
+            key: pendingInviteMenuKey(r.id),
+            tooltip: l.contactMore,
+            onSelected: (v) => switch (v) {
+              'byhand' => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairingByHandScreen(pairingId: r.id))),
               // The other side may never confirm (They don't match there): the answer can go.
-              TextButton(
-                key: pendingRemoveReplyKey,
-                style: TextButton.styleFrom(foregroundColor: t.risk),
-                onPressed: () => pairingCall(ref, (api) => api.cancelInvite(r.id)),
-                child: Text(l.contactRemove),
-              ),
+              'remove' => pairingCall(ref, (api) => api.cancelInvite(r.id)),
+              _ => null,
+            },
+            itemBuilder: (context) => [
+              // An answer the relay did not take, while this run still has its link.
+              if (r.relayDown) PopupMenuItem(key: pendingByHandKey, value: 'byhand', child: Text(l.pairSendByHand)),
+              PopupMenuItem(key: pendingRemoveReplyKey, value: 'remove', child: Text(l.contactRemove, style: TextStyle(color: t.risk))),
             ],
           ),
         );

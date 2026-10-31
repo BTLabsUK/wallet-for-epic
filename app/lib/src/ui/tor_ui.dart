@@ -304,15 +304,16 @@ class TorStateLine extends ConsumerWidget {
 }
 
 /// What a connection that goes [way] says about Tor, as desktop's status rows: "Over Tor" (ok),
-/// "Waiting for Tor" (warn) while Tor starts, "Waiting for Tor" in the risk colour with
-/// [detail] "Tor is not connected." when it failed. null on the clearnet or with Tor off.
+/// "Waiting for Tor" (in progress, the info colour) while Tor starts, "Waiting for Tor" in the
+/// risk colour with [detail] "Tor is not connected." when it failed. null on the clearnet or
+/// with Tor off.
 ({String word, Color color, String? detail})? torWayWords(
   AppLocalizations l,
   WalletTokens t,
   TorWay way,
 ) => switch (way) {
   TorWay.overTor => (word: l.torWayOver, color: t.ok, detail: null),
-  TorWay.wait => (word: l.torWayWaiting, color: t.warn, detail: null),
+  TorWay.wait => (word: l.torWayWaiting, color: t.info, detail: null),
   TorWay.blocked => (
     word: l.torWayWaiting,
     color: t.risk,
@@ -321,7 +322,7 @@ class TorStateLine extends ConsumerWidget {
   TorWay.clearnet || TorWay.needsTor || TorWay.off => null,
 };
 
-/// What [route] does under the Tor switch right now: "Over Tor", "Waiting for Tor" (warn) or
+/// What [route] does under the Tor switch right now: "Over Tor", "Waiting for Tor" (info) or
 /// "Waiting for Tor" in the risk colour when Tor is not connected; nothing (SizedBox.shrink) on
 /// the clearnet or with Tor off. Reads phoneTorProvider.
 class TorWayLine extends ConsumerWidget {

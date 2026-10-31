@@ -474,8 +474,9 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (summary != null) ...[
+              // A summary informs: the info edge, not the brand's (UP-035).
               EdgeCard(
-                edge: t.accent,
+                edge: t.info,
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(summary, key: requestSummaryKey),

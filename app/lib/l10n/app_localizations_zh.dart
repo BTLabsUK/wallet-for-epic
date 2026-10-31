@@ -1107,21 +1107,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticeView => '查看';
 
   @override
-  String get homeNoticeReceived => '有一笔付款正在途中。待发送方完成操作后即可到账。';
+  String get homeNoticeReceived => '有一笔付款正在途中。';
 
   @override
   String homeNoticeReceivedFrom(String who) {
-    return '来自 $who 的付款正在途中。待发送方完成操作后即可到账。';
+    return '来自 $who 的付款正在途中。';
   }
 
   @override
   String homeNoticeReceivedAmount(String amount) {
-    return '$amount 正在途中。待发送方完成操作后即可到账。';
+    return '$amount 正在途中。';
   }
 
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
-    return '来自 $who 的 $amount 正在途中。待发送方完成操作后即可到账。';
+    return '来自 $who 的 $amount 正在途中。';
   }
 
   @override
@@ -1133,29 +1133,29 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeFinished => '付款已完成，正在等待确认。';
+  String get homeNoticeFinished => '付款已完成，正在确认。';
 
   @override
   String homeNoticeFinishedTo(String who) {
-    return '发给 $who 的付款已完成，正在等待确认。';
+    return '发给 $who 的付款已完成，正在确认。';
   }
 
   @override
-  String get homeNoticeRepeated => '这笔付款已被接受。发送方再次收到了相同的回复；不会有第二笔付款。';
+  String get homeNoticeRepeated => '已接受过。不会有第二笔付款。';
 
   @override
   String homeNoticeRepeatedFrom(String who) {
-    return '来自 $who 的付款已被接受。对方再次收到了相同的回复；不会有第二笔付款。';
+    return '来自 $who 的付款已接受过。';
   }
 
   @override
-  String get homeNoticeDelayed => '无法连接节点。连接恢复后，付款将自动完成。';
+  String get homeNoticeDelayed => '无法连接节点。付款等待中。';
 
   @override
   String get homeNoticeRelayProblem => 'Epicbox 服务器报告了问题，正在重试。';
 
   @override
-  String get homeNoticePaymentFailed => '有一笔付款失败。请在“活动”中查看。';
+  String get homeNoticePaymentFailed => '有一笔付款失败。';
 
   @override
   String get homeBackupCardText => '请备份你的助记词。';
@@ -2215,11 +2215,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendReviewTotal => '总计';
 
   @override
-  String sendReviewTotalWithFiat(String amount, String fiat) {
-    return '$amount（≈ $fiat）';
-  }
-
-  @override
   String sendReviewSendButton(String amount) {
     return '发送 $amount';
   }
@@ -2459,7 +2454,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qrScanSteady => '请拿稳，或靠近一点。';
 
   @override
-  String get qrScanGot => '已读取';
+  String get qrScanGot => '已读取二维码';
 
   @override
   String qrScanCount(int got, int count) {
@@ -13195,7 +13190,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticeUnpaired(String name) {
-    return '$name 已移除配对。通过它的付款将不再送达。';
+    return '$name 已移除配对。';
   }
 
   @override
@@ -13228,7 +13223,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return '还有其他人回应了 $name 的邀请。请查看待处理邀请。';
+    return '还有其他人回应了 $name 的邀请。';
   }
 
   @override
@@ -13816,7 +13811,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticePairingReplied(String name) {
-    return '$name 回复了你的邀请。请一起验证。';
+    return '$name 已回复。请一起验证。';
   }
 
   @override
@@ -13826,17 +13821,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name 请求 $amount EPIC。请在“账单”中查看。';
+    return '$name 请求 $amount EPIC。';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return '已收到来自 $name 的 $amount EPIC。等待发布。';
+    return '已收到来自 $name 的 $amount EPIC。';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return '$name 的密钥已更改。付款前请再次验证。';
+    return '$name 的密钥已更改。请再次验证。';
   }
 
   @override
@@ -13846,12 +13841,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return '$name 的 Epicbox 服务器没有响应。正在重试。';
+    return '$name 的 Epicbox 服务器没有响应。';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name 撤回了账单。你的资金已解锁。';
+    return '$name 撤回了账单。资金已解锁。';
   }
 
   @override
@@ -14011,7 +14006,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name 发送的账单过多。多余的已被丢弃。如果持续发生，请关闭其账单。';
+    return '$name 发送的账单过多。';
   }
 
   @override
@@ -16962,4 +16957,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitMoreInHelp => '更多见帮助';
+
+  @override
+  String get homeReceiveEpicButton => '接收 EPIC';
+
+  @override
+  String txDeviceStatusMadeOn(String device) {
+    return '在 $device 上发起。';
+  }
+
+  @override
+  String txDeviceStatusHeld(String device) {
+    return '在 $device 上发起。资金在此保留，直到链上出现该付款。';
+  }
 }

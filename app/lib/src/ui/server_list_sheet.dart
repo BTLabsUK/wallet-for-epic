@@ -1084,13 +1084,13 @@ class _ServerRow extends StatelessWidget {
                               )
                             : null,
                       ),
-                    // The server in use cannot go: switch first.
+                    // The server in use cannot go: switch first. Its icon shows so (UP-019).
                     IconButton(
                       key: serverListRemoveKey(e.value),
                       tooltip: current ? l.slSwitchFirst : l.slRemove,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                      icon: Icon(Icons.delete_outline, color: t.dim),
+                      icon: Icon(Icons.delete_outline, color: current ? t.dim.withValues(alpha: 0.4) : t.dim),
                       onPressed: current ? null : onRemove,
                     ),
                   ],

@@ -257,28 +257,21 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
           const SizedBox(height: 14),
           PairCountdown(until: p.expiresAt, label: l.pairExpiresIn),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  key: incomingNotNowKey,
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  onPressed: _busy ? null : () => Navigator.pop(context),
-                  child: Text(l.pairNotNow),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: FilledButton(
-                  key: incomingPairKey,
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  onPressed: _busy ? null : _pair,
-                  child: _busy
-                      ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : Text(l.pairTitle),
-                ),
-              ),
-            ],
+          // The primary over the secondary, as every foot on the phone (UP-029).
+          FilledButton(
+            key: incomingPairKey,
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: _busy ? null : _pair,
+            child: _busy
+                ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                : Text(l.pairTitle),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            key: incomingNotNowKey,
+            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: _busy ? null : () => Navigator.pop(context),
+            child: Text(l.pairNotNow),
           ),
         ],
       ),
@@ -780,28 +773,21 @@ class _PairingByHandScreenState extends ConsumerState<PairingByHandScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    icon: const Icon(Icons.copy, size: 18),
-                    label: Text(l.commonCopy),
-                    onPressed: link == null ? null : () => copySecretText(context, link, l.pairCopied),
-                  ),
-                ),
-                if (files.canShareText) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                      icon: const Icon(Icons.ios_share, size: 18),
-                      label: Text(l.commonShare),
-                      onPressed: link == null ? null : () => files.shareText(link),
-                    ),
-                  ),
-                ],
-              ],
+            // Stacked, the primary first (UP-029).
+            if (files.canShareText) ...[
+              FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                icon: const Icon(Icons.ios_share, size: 18),
+                label: Text(l.commonShare),
+                onPressed: link == null ? null : () => files.shareText(link),
+              ),
+              const SizedBox(height: 8),
+            ],
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              icon: const Icon(Icons.copy, size: 18),
+              label: Text(l.commonCopy),
+              onPressed: link == null ? null : () => copySecretText(context, link, l.pairCopied),
             ),
             // The confirm sent, the words are next on both sides.
             if (widget.confirm)
@@ -854,39 +840,38 @@ class PairingOutcomeScreen extends ConsumerWidget {
       child: Text(l.pairClosed),
     );
     final Widget bottom = switch (failure) {
-      PairingFailure.noAnswer => Row(
+      // Stacked, the primary first (UP-029).
+      PairingFailure.noAnswer => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const InPersonScreen())),
-              child: Text(l.pairInPersonTitle),
-            ),
+          close,
+          const SizedBox(height: 8),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const InPersonScreen())),
+            child: Text(l.pairInPersonTitle),
           ),
-          const SizedBox(width: 8),
-          Expanded(child: close),
         ],
       ),
       // No in-app updates in the build without Tor: Close alone.
-      PairingFailure.newerVersion when inAppUpdates => Row(
+      PairingFailure.newerVersion when inAppUpdates => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () => Navigator.pop(context),
-              child: Text(l.pairClosed),
-            ),
+          FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: () {
+              ref.read(updateProvider.notifier).check();
+              ref.read(noticeProvider.notifier).show(l.updateChecking, level: NoticeLevel.info);
+            },
+            child: Text(l.pairCheckForUpdates),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () {
-                ref.read(updateProvider.notifier).check();
-                ref.read(noticeProvider.notifier).show(l.updateChecking, level: NoticeLevel.info);
-              },
-              child: Text(l.pairCheckForUpdates),
-            ),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: () => Navigator.pop(context),
+            child: Text(l.pairClosed),
           ),
         ],
       ),

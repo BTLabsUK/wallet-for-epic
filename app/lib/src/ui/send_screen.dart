@@ -24,6 +24,8 @@ import '../payment_prefs.dart';
 import '../phone_tor.dart';
 import '../price.dart';
 import '../providers.dart';
+import '../connection_state.dart' show walletStatusProvider;
+import 'status.dart' show EpicboxState;
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
@@ -82,6 +84,9 @@ export '../utf8_limit.dart';
 
 /// The key of the row under the amount with "Use USD" and "Max", for tests.
 const Key amountSuffixKey = ValueKey('send-amount-suffix');
+
+/// The key of the Epicbox-not-connected card on the method step, for tests.
+const Key sendEpicboxDownKey = ValueKey('send-epicbox-down');
 
 /// Each step's fields have their own key, so a step never takes over another's text field:
 /// on the web, Flutter keeps one DOM element per field and cannot turn the address's
@@ -284,6 +289,9 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// The amount came from Max, so Continue asks for the maximum again rather than a fee.
   bool _maxUsed = false;
+
+  /// The payment file was saved or shared: Open response file is the primary now (UP-008).
+  bool _fileHandedOver = false;
 
   /// The options a send goes out with: those reviewed, or LEPIC's send-all after Max.
   SendOptions? get _sendOptions => _maxUsed ? null : _options;
@@ -1345,7 +1353,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final to = parseRecipient(_recipient.text);
     _asking = true;
     try {
-      final amountText = epicExact(l, reviewed.amount);
+      final amountText = epicText(l, reviewed.amount);
       if (!await _pinGate(usesPassphrase(ref) ? l.sendPassphraseReason(amountText) : l.sendPinReason(amountText))) {
         return;
       }
@@ -1791,7 +1799,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = _parsedAmount;
     if (amount == null) return;
     final l = context.l10n;
-    final amountText = epicExact(l, amount);
+    final amountText = epicText(l, amount);
     final reason = switch ((_viaQr, usesPassphrase(ref))) {
       (true, true) => l.sendQrPassphraseReason(amountText),
       (true, false) => l.sendQrPinReason(amountText),
@@ -2390,15 +2398,44 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   /// The selector and, 12 dp under it, the strip that says what [method] means.
-  List<Widget> _methodHead(BuildContext context, TransferMethod method) => [
-    _methodSelector(context, method),
-    const SizedBox(height: 12),
-    DismissibleTip(
-      id: sendMethodTipId,
-      child: MethodStrip(method: method),
-    ),
-    const SizedBox(height: 16),
-  ];
+  List<Widget> _methodHead(BuildContext context, TransferMethod method) {
+    // Epicbox chosen while its listener is down: say so and offer Retry (UP-038); the other
+    // methods go on as before.
+    final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
+    final down = method == TransferMethod.epicbox && (epicbox == null || epicbox == EpicboxState.offline);
+    return [
+      _methodSelector(context, method),
+      const SizedBox(height: 12),
+      DismissibleTip(
+        id: sendMethodTipId,
+        child: MethodStrip(method: method),
+      ),
+      if (down) ...[
+        const SizedBox(height: 12),
+        EdgeCard(
+          key: sendEpicboxDownKey,
+          edge: context.tokens.warn,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off, size: 18, color: context.tokens.warn),
+                const SizedBox(width: 10),
+                Expanded(child: Text(context.l10n.statusEpicboxOffline)),
+                TextButton.icon(
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
+                  icon: const Icon(Icons.refresh),
+                  label: Text(context.l10n.commonRetry),
+                  onPressed: () => ref.read(listenerProvider.notifier).restart(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+      const SizedBox(height: 16),
+    ];
+  }
 
   /// Saved contacts whose name holds [text], for "Address or contact": at most three.
   List<Contact> _nameMatches(String text) {
@@ -2672,7 +2709,7 @@ class _SendViewState extends ConsumerState<SendView> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicExact(l, amount)}'
+          ? '≈ ${epicText(l, amount)}'
           : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
     }
     // A code's amount: "Requested by the code" while the field holds it, what it asked for
@@ -2682,7 +2719,7 @@ class _SendViewState extends ConsumerState<SendView> {
     if (asked != null) {
       final marker = fromCode
           ? l.sendAmountFromCode
-          : l.sendAmountCodeAsked(epicExact(l, asked));
+          : l.sendAmountCodeAsked(epicText(l, asked));
       amountHelper = amountHelper == null ? marker : '$marker · $amountHelper';
     }
     // Why nothing is available yet, in the header's words.
@@ -2721,6 +2758,41 @@ class _SendViewState extends ConsumerState<SendView> {
           floatingLabelBehavior: FloatingLabelBehavior.always,
           floatingLabelAlignment: FloatingLabelAlignment.center,
           hintText: '0',
+          // Max and the unit live in the field's trailing slot, as the desktop's (UP-020):
+          // the unit is a tap to the other one.
+          suffixIcon: Row(
+            key: amountSuffixKey,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (price != null || _fiatEntry)
+                Tooltip(
+                  message: l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(44, 44),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      foregroundColor: t.dim,
+                    ),
+                    onPressed: _toggleUnit,
+                    child: Semantics(
+                      label: l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+                      excludeSemantics: true,
+                      child: Text(_fiatEntry ? currency.toUpperCase() : 'EPIC'),
+                    ),
+                  ),
+                ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(44, 44),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                onPressed: _busy ? null : _max,
+                child: Text(l.sendMax),
+              ),
+              const SizedBox(width: 4),
+            ],
+          ),
+          suffixIconConstraints: const BoxConstraints(minHeight: 48),
           helperText: amountHelper,
           helperStyle: fromCode
               ? theme.textTheme.bodySmall?.copyWith(color: t.info)
@@ -2732,7 +2804,7 @@ class _SendViewState extends ConsumerState<SendView> {
       const SizedBox(height: 12),
       if (summary != null)
         Text(
-          l.sendAvailable(epicExact(l, summary.spendable)),
+          l.sendAvailable(epicText(l, summary.spendable)),
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
         ),
@@ -2745,35 +2817,13 @@ class _SendViewState extends ConsumerState<SendView> {
             style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
           ),
         ),
-      const SizedBox(height: 12),
-      Wrap(
-        key: amountSuffixKey,
-        alignment: WrapAlignment.center,
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          if (price != null || _fiatEntry)
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
-              onPressed: _toggleUnit,
-              child: Text(
-                l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
-              ),
-            ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
-            onPressed: _busy ? null : _max,
-            child: Text(l.sendMax),
-          ),
-        ],
-      ),
       if (estimate != null && _estimateError == null)
         Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Semantics(
             liveRegion: true,
             child: Text(
-              l.sendFeeQuiet(epicExact(l, estimate.fee)),
+              l.sendFeeQuiet(epicText(l, estimate.fee)),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),
@@ -2997,11 +3047,17 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
-      Text(
-        epicExact(l, estimate.amount),
-        style: theme.textTheme.headlineMedium?.copyWith(
-          fontFamily: t.monoFamily,
-          color: t.text,
+      // Four decimals, as every shown amount (UD-027); the exact value on a tap.
+      exactAmountTip(
+        context,
+        estimate.amount,
+        hidden: false,
+        child: Text(
+          epicText(l, estimate.amount),
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontFamily: t.monoFamily,
+            color: t.text,
+          ),
         ),
       ),
       const SizedBox(height: 12),
@@ -3042,7 +3098,7 @@ class _SendViewState extends ConsumerState<SendView> {
             ],
           ),
         ),
-      _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
+      _Row(label: l.sendNetworkFee, value: epicText(l, estimate.fee)),
       // Strategy All is a consolidating send: its change is one output, never split.
       if (_sendOptions?.strategy == SelectionStrategy.all &&
           estimate.change > BigInt.zero)
@@ -3051,27 +3107,26 @@ class _SendViewState extends ConsumerState<SendView> {
           key: sendUsesAllOutputsKey,
           style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
         ),
+      // The amount, then the fiat estimate dim under it, as the amount step and the list rows
+      // show them (UP-005); the exact value on a tap (UD-027).
       _Row(
         label: l.sendReviewTotal,
-        value: price == null
-            ? epicExact(l, total)
-            : l.sendReviewTotalWithFiat(
-                epicExact(l, total),
-                localDigits(l, fiatText(total, price, currency)),
-              ),
+        value: epicText(l, total),
+        sub: price == null ? null : '≈ ${localDigits(l, fiatText(total, price, currency))}',
+        exact: total,
         strong: true,
       ),
       // What stays after this send: the balance once it is out, and,
       // while the change confirms, only the outputs the send does not lock.
       if (spendable != null && spendable >= total) ...[
-        _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
+        _Row(label: l.sendBalanceAfter, value: epicText(l, spendable - total)),
         // The change locks outputs: only said where Outputs shows (Advanced).
         if (outputsShown(context, ref) &&
             estimate.locked > total &&
             estimate.locked <= spendable) ...[
           _Row(
             label: l.sendSpendableUntilChange,
-            value: epicExact(l, spendable - estimate.locked),
+            value: epicText(l, spendable - estimate.locked),
           ),
           Text(
             l.sendSpendableUntilChangeHint,
@@ -3148,7 +3203,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final pairs = _pairingTo == null || (_toPairing()?.paysByMailbox ?? false);
     final canSend =
         checks.ready && !_busy && torGoes(way) && _block == NetBlock.none && pairs;
-    final amount = epicExact(l, _estimate!.amount);
+    final amount = epicText(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -3168,9 +3223,9 @@ class _SendViewState extends ConsumerState<SendView> {
             onPressed: _resendDirect,
           ),
           const SizedBox(height: 4),
-          TextButton(
+          // The one destructive look (UP-012): gold says go, not stop.
+          DangerButton(
             key: sendCancelPaymentKey,
-            style: quiet,
             onPressed: _busy ? null : _cancelDirectSend,
             child: Text(l.sendCancelPayment),
           ),
@@ -3329,7 +3384,7 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
       Center(
         child: Text(
-          epicExact(l, sent.amount),
+          epicText(l, sent.amount),
           style: theme.textTheme.headlineMedium?.copyWith(
             fontFamily: t.monoFamily,
             color: t.text,
@@ -3388,8 +3443,8 @@ class _SendViewState extends ConsumerState<SendView> {
         const SizedBox(height: 8),
         Text(
           l.sendResultFeeChanged(
-            epicExact(l, fee),
-            epicExact(l, sent.reviewedFee!),
+            epicText(l, fee),
+            epicText(l, sent.reviewedFee!),
           ),
           style: theme.textTheme.bodyMedium,
         ),
@@ -3508,7 +3563,7 @@ class _SendViewState extends ConsumerState<SendView> {
                 ? TimelineState.current
                 : TimelineState.todo,
             detail: i == 0 && at < 3
-                ? l.sendFileOnHold(epicExact(l, amount))
+                ? l.sendFileOnHold(epicText(l, amount))
                 : null,
           ),
       ],
@@ -3556,14 +3611,27 @@ class _SendViewState extends ConsumerState<SendView> {
       return _sealedFileStep(context, slate, sealed, sealedFor);
     }
     return [
-      _header(context, l.sendFileTitle),
+      // Done is in the header; one primary at a time (UP-008): Save to device until the file
+      // is handed over, then Open response file at the foot.
+      _header(
+        context,
+        l.sendFileTitle,
+        extra: TextButton(onPressed: _busy ? null : _done, child: Text(l.commonDone)),
+      ),
       _fileSteps(context, 1, _parsedAmount ?? BigInt.zero),
       Text(
         l.sendFileShareHint,
         style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
       ),
       const SizedBox(height: 12),
-      SlateFileButtons(name: name, json: _plainCopy ?? slate.json),
+      SlateFileButtons(
+        name: name,
+        json: _plainCopy ?? slate.json,
+        primary: !_fileHandedOver,
+        onHandedOver: () {
+          if (!_fileHandedOver) setState(() => _fileHandedOver = true);
+        },
+      ),
       const SizedBox(height: 8),
       // The text itself is a detail for those who copy it by hand.
       ExpansionTile(
@@ -3586,11 +3654,6 @@ class _SendViewState extends ConsumerState<SendView> {
           ),
           const SizedBox(height: 8),
         ],
-      ),
-      TextButton(
-        style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: _done,
-        child: Text(l.commonDone),
       ),
     ];
   }
@@ -3693,7 +3756,7 @@ class _SendViewState extends ConsumerState<SendView> {
       PairCard(
         children: [
           ListTile(title: Text(file, style: TextStyle(fontFamily: t.monoFamily)), leading: const Icon(Icons.description_outlined)),
-          ListTile(title: Text(epicExact(l, _parsedAmount ?? BigInt.zero)), leading: const Icon(Icons.north_east)),
+          ListTile(title: Text(epicText(l, _parsedAmount ?? BigInt.zero)), leading: const Icon(Icons.north_east)),
         ],
       ),
       const SizedBox(height: 12),
@@ -3751,6 +3814,15 @@ class _SendViewState extends ConsumerState<SendView> {
         icon: const Icon(Icons.qr_code_scanner),
         label: Text(l.qrScanReply),
         onPressed: off || !offersQrPayment(ref) ? null : _scanReply,
+      );
+    }
+    // Outlined until the file is saved or shared, then the primary (UP-008).
+    if (!_fileHandedOver) {
+      return OutlinedButton(
+        key: sendOpenReplyKey,
+        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: off ? null : _openReply,
+        child: Text(l.sendOpenReply),
       );
     }
     return BusyButton(
@@ -4402,12 +4474,21 @@ class _Row extends StatelessWidget {
   const _Row({
     required this.label,
     required this.value,
+    this.sub,
+    this.exact,
     this.strong = false,
     this.mono = true,
   });
 
   final String label;
   final String value;
+
+  /// A dim second line under the value (the fiat estimate).
+  final String? sub;
+
+  /// The exact amount behind [value], shown on a tap.
+  final BigInt? exact;
+
   final bool strong;
 
   /// The value is a figure, in the mono face; false for words.
@@ -4421,6 +4502,14 @@ class _Row extends StatelessWidget {
       color: strong ? t.text : t.dim,
       fontWeight: strong ? FontWeight.w600 : null,
     );
+    Widget figure = Text(
+      value,
+      textAlign: TextAlign.end,
+      style: mono ? style?.copyWith(fontFamily: t.monoFamily) : style,
+    );
+    if (exact case final exact?) {
+      figure = exactAmountTip(context, exact, hidden: false, child: figure);
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -4430,10 +4519,17 @@ class _Row extends StatelessWidget {
           const SizedBox(width: 12),
           Flexible(
             flex: 2,
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: mono ? style?.copyWith(fontFamily: t.monoFamily) : style,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                figure,
+                if (sub case final sub?)
+                  Text(
+                    sub,
+                    textAlign: TextAlign.end,
+                    style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                  ),
+              ],
             ),
           ),
         ],

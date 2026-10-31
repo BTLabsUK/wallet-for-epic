@@ -407,6 +407,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
                     : PaymentPrefs.defaults))
             .directFile;
     final List<Widget> body;
+    Widget? foot;
     if (_posted case final posted? when posted.repostable) {
       body = [
         NotPostedNotice(tx: posted),
@@ -597,14 +598,15 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
           const SizedBox(height: 4),
           SelectableText(message, style: theme.textTheme.bodyLarge),
         ],
-        const SizedBox(height: 24),
-        if (_error == null)
-          BusyButton(
-            label: receiving ? l.slateAcceptPayment : l.slateFinishPayment,
-            busy: _busy,
-            onPressed: receiving ? _sign : _finalize,
-          ),
       ];
+      // The primary at the foot, as on every other step (UP-013).
+      if (_error == null) {
+        foot = BusyButton(
+          label: receiving ? l.slateAcceptPayment : l.slateFinishPayment,
+          busy: _busy,
+          onPressed: receiving ? _sign : _finalize,
+        );
+      }
     }
     final error = _error;
     return SlotScaffold(
@@ -612,6 +614,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
         title: Text(widget.scanned ? MethodIcons.fullName(l, MethodKind.directQr) : l.slateFileTitle),
       ),
       body: ScreenBody(
+        bottom: foot,
         children: [
           ...body,
           if (error != null && !_answerUnknown) ...[
@@ -722,6 +725,7 @@ class SlateFileButtons extends ConsumerWidget {
     required this.json,
     this.copyable = false,
     this.primary = true,
+    this.onHandedOver,
   });
 
   final String name;
@@ -730,6 +734,9 @@ class SlateFileButtons extends ConsumerWidget {
 
   /// Whether "Save to device" is the filled button. False when another button above it is.
   final bool primary;
+
+  /// Called once the file was saved or shared, so the screen can move its primary on.
+  final VoidCallback? onHandedOver;
 
   Future<void> _out(
     BuildContext context,
@@ -746,6 +753,7 @@ class SlateFileButtons extends ConsumerWidget {
           .read(autoLockHoldProvider.notifier)
           .during(() => action(files));
       if (ok && done != null) notice.show(done, level: NoticeLevel.success);
+      if (ok) onHandedOver?.call();
     } catch (error) {
       logWarn('files', 'handing over a transaction file failed: $error');
       notice.show(failed, level: NoticeLevel.error);
