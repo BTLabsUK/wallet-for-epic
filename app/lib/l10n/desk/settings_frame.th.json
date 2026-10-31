@@ -19,7 +19,6 @@
   "deskSetFrameNodeSyncing": "กำลังซิงก์",
   "deskSetFrameConnecting": "กำลังเชื่อมต่อ…",
   "deskSetFrameListening": "รอรับอยู่",
-  "deskSetFrameHealthLatency": "{word} · {ms} ms",
   "deskSetFrameNever": "ไม่เคย",
   "deskSetFrameJustNow": "เมื่อสักครู่",
   "deskSetFrameMinAgo": "{count, plural, other{{count} นาทีที่แล้ว}}",

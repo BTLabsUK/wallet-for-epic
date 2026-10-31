@@ -292,15 +292,6 @@
   "@deskOnbRestoreClear": {
     "description": "Button on the restore phrase step: empty the phrase grid. One word."
   },
-  "deskOnbRestoreUseWords": "{count, plural, one{Use {count} word} other{Use {count} words}}",
-  "@deskOnbRestoreUseWords": {
-    "description": "Primary button of the restore phrase step once the phrase is complete. Narrow: short. {count} is 12 or 24.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "deskOnbRestoreWords": "Words",
   "@deskOnbRestoreWords": {
     "description": "Label above the phrase grid."
@@ -316,38 +307,6 @@
         "type": "int"
       }
     }
-  },
-  "deskOnbKillTitle": "Epic is already running",
-  "@deskOnbKillTitle": {
-    "description": "Title of the dialog shown on unlock when an older wallet or node process is still running."
-  },
-  "deskOnbKillBody": "Another wallet or node process is using the wallet files and ports. Close it to unlock here, or cancel and close it yourself.",
-  "@deskOnbKillBody": {
-    "description": "Body of the 'Epic is already running' dialog."
-  },
-  "deskOnbKillProcesses": "Running processes",
-  "@deskOnbKillProcesses": {
-    "description": "Screen-reader name of the list of running processes in that dialog."
-  },
-  "deskOnbKillRoleWallet": "wallet service",
-  "@deskOnbKillRoleWallet": {
-    "description": "Small grey note beside a process in the list: it is the wallet service. Lowercase."
-  },
-  "deskOnbKillRoleNode": "node",
-  "@deskOnbKillRoleNode": {
-    "description": "Small grey note beside a process in the list: it is a node. Lowercase."
-  },
-  "deskOnbKillNote": "Closing them stops a node sync or receiving; this app starts them again after unlock.",
-  "@deskOnbKillNote": {
-    "description": "Note under the process list."
-  },
-  "deskOnbKillClosing": "Closing…",
-  "@deskOnbKillClosing": {
-    "description": "Danger button of the 'Epic is already running' dialog while the processes are being closed."
-  },
-  "deskOnbKillClose": "Close and unlock",
-  "@deskOnbKillClose": {
-    "description": "Danger button of the 'Epic is already running' dialog: close the processes and unlock the wallet."
   },
   "deskOnbSameTitle": "This wallet is already here",
   "@deskOnbSameTitle": {
@@ -395,14 +354,6 @@
   "@deskOnbUnlockStageCheck": {
     "description": "Progress step while unlocking."
   },
-  "deskOnbUnlockStageProcesses": "Looking for wallet processes still running",
-  "@deskOnbUnlockStageProcesses": {
-    "description": "Progress step while unlocking: looking for older wallet processes."
-  },
-  "deskOnbUnlockStageClosing": "Closing the old wallet processes",
-  "@deskOnbUnlockStageClosing": {
-    "description": "Progress step while unlocking: closing older wallet processes."
-  },
   "deskOnbUnlockStageWallet": "Starting the wallet service",
   "@deskOnbUnlockStageWallet": {
     "description": "Progress step while unlocking."
@@ -414,10 +365,6 @@
   "deskOnbUnlockEnter": "Enter the password",
   "@deskOnbUnlockEnter": {
     "description": "Error under the password field when it is empty."
-  },
-  "deskOnbUnlockCloseOthers": "Close the other Epic processes, then unlock.",
-  "@deskOnbUnlockCloseOthers": {
-    "description": "Error under the password field when the user cancelled the 'Epic is already running' dialog."
   },
   "deskOnbUnlockRememberedUnavailable": "Remembered password unavailable. Enter the password.",
   "@deskOnbUnlockRememberedUnavailable": {
@@ -1048,10 +995,6 @@
   "deskOnbImportStop": "Stop import",
   "@deskOnbImportStop": {
     "description": "Danger button of that dialog."
-  },
-  "deskOnbRestoreFromLink": "Start from a block height",
-  "@deskOnbRestoreFromLink": {
-    "description": "Small link on the Restore password step that opens an optional field for the block the check starts from."
   },
   "deskOnbRestoreFromHide": "Check the whole chain",
   "@deskOnbRestoreFromHide": {

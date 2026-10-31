@@ -19,7 +19,6 @@
   "deskSetFrameNodeSyncing": "Synchronisierung",
   "deskSetFrameConnecting": "Verbindung…",
   "deskSetFrameListening": "Empfangsbereit",
-  "deskSetFrameHealthLatency": "{word} · {ms} ms",
   "deskSetFrameNever": "nie",
   "deskSetFrameJustNow": "gerade eben",
   "deskSetFrameMinAgo": "{count, plural, one{vor {count} Min.} other{vor {count} Min.}}",

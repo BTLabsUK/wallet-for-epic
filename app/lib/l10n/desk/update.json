@@ -3,16 +3,6 @@
   "@deskUpdAvailable": {
     "description": "Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it)."
   },
-  "deskUpdNotice": "Update available · {version}",
-  "@deskUpdNotice": {
-    "description": "Narrow sidebar: tooltip and screen-reader name of the update icon.",
-    "placeholders": {
-      "version": {
-        "type": "String",
-        "example": "26.10.9"
-      }
-    }
-  },
   "deskUpdDownload": "Download {version}",
   "@deskUpdDownload": {
     "description": "Button and tooltip: download the newer version inside the app (it is installed after a restart).",

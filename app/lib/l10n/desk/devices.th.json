@@ -1,5 +1,4 @@
 {
-  "deskDevServersNote": "เลือกได้สูงสุด 2",
   "deskDevServersCancel": "ยกเลิกการเปลี่ยน",
   "deskDevServersDown": "{down} จาก {n} ไม่ตอบสนอง ข้อความจะส่งผ่านเซิร์ฟเวอร์อีกตัว",
   "deskDevServersAllDown": "ไม่มีเซิร์ฟเวอร์ตอบสนอง ข้อความจะรอและส่งเมื่อมีเซิร์ฟเวอร์กลับมา",

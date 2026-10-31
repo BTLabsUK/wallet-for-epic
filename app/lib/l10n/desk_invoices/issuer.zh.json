@@ -17,7 +17,6 @@
   "deskInvIssuerToAnyone": "开给持有此文件的任何人的账单",
   "deskInvIssuerIssued": "{time} 开具",
   "deskInvIssuerPayerFact": "付款方",
-  "deskInvIssuerAmountFact": "金额",
   "deskInvIssuerMessageFact": "留言",
   "deskInvIssuerSentFact": "开具时间",
   "deskInvIssuerExpiresFact": "过期时间",

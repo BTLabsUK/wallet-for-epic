@@ -21,8 +21,6 @@
   "deskSetAdvNotInBuild": "Brak w tej wersji",
   "deskSetAdvReset": "Ukryj wszystko ponownie",
   "deskSetAdvOn": "{n, plural, one{1 przełącznik włączony} few{{n} przełączniki włączone} many{{n} przełączników włączonych} other{{n} przełącznika włączonego}}",
-  "deskShellOffline": "Offline",
-  "deskShellTorOnlyWaiting": "Tylko Tor · czeka na Tor",
   "deskNetOfflineNoPeers": "Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.",
   "deskNetWaitingTorReason": "Czeka na Tor. Tylko Tor jest włączony w Zaawansowanych.",
   "deskNetTorOnlyLine": "Tylko Tor jest włączony w Zaawansowanych.",

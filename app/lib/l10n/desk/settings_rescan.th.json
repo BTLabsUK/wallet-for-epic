@@ -3,7 +3,6 @@
   "deskSetRescanStoppedLine": "หยุดสแกนแล้ว",
   "deskSetRescanLog": "บันทึกการตรวจยอดใหม่",
   "deskSetRescanText": "อ่านบล็อกเชนอีกครั้งและคำนวณยอดคงเหลือใหม่ ใช้เมื่อยอดดูไม่ถูกต้องหรือเอาต์พุตยังถูกล็อก",
-  "deskSetRescanStartAgain": "เริ่มใหม่",
   "deskSetRescanRecheck": "ตรวจใหม่",
   "deskSetRescanRecheckAgain": "ตรวจอีกครั้ง",
   "deskSetRescanFromDate": "ตั้งแต่วันที่",

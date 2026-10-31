@@ -94,10 +94,6 @@
   "@deskInvIssuerPayerFact": {
     "description": "Detail label: who was asked to pay."
   },
-  "deskInvIssuerAmountFact": "Amount",
-  "@deskInvIssuerAmountFact": {
-    "description": "Detail label: the amount asked for."
-  },
   "deskInvIssuerMessageFact": "Message",
   "@deskInvIssuerMessageFact": {
     "description": "Detail label: the message sent with the request."

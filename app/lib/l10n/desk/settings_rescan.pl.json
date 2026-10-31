@@ -3,7 +3,6 @@
   "deskSetRescanStoppedLine": "Skanowanie zatrzymane",
   "deskSetRescanLog": "Log sprawdzania salda",
   "deskSetRescanText": "Ponownie czyta łańcuch i odbudowuje saldo. Użyj tego, gdy saldo wygląda na błędne albo wyjścia zostają zablokowane.",
-  "deskSetRescanStartAgain": "Zacznij od nowa",
   "deskSetRescanRecheck": "Sprawdź",
   "deskSetRescanRecheckAgain": "Sprawdź ponownie",
   "deskSetRescanFromDate": "Od daty",

@@ -17,7 +17,6 @@
   "deskInvIssuerToAnyone": "Счёт для любого, у кого есть файл",
   "deskInvIssuerIssued": "Выставлен {time}",
   "deskInvIssuerPayerFact": "Плательщик",
-  "deskInvIssuerAmountFact": "Сумма",
   "deskInvIssuerMessageFact": "Сообщение",
   "deskInvIssuerSentFact": "Выставлен",
   "deskInvIssuerExpiresFact": "Истекает",

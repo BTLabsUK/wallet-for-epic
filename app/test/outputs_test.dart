@@ -232,7 +232,7 @@ void main() {
     expect(find.text('20.0000 EPIC'), findsOneWidget);
     expect(find.text(_l.outputsLockedTile), findsOneWidget);
     expect(find.text(_l.homeTileTotal), findsOneWidget);
-    expect(find.text(_l.outputsImmature), findsNothing);
+    expect(find.text('Immature'), findsNothing);
     // The label is the eyebrow, the count the main line, the value the last.
     final label = tester.getTopLeft(find.text(_l.outputsSpendable).first).dy;
     final count = tester.getTopLeft(find.text('3 outputs')).dy;

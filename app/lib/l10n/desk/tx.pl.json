@@ -1,5 +1,4 @@
 {
-  "deskTxMethodFile": "Bezpośrednio · Plik",
   "deskTxMiningReward": "Nagroda za kopanie",
   "deskTxReceived": "Odebrana",
   "deskTxSent": "Wysłana",
@@ -98,7 +97,6 @@
   "deskTxStepProgress": "{confirmations} z {needed}",
   "deskTxCancelIncomingTitle": "Anulować tę płatność?",
   "deskTxCancelOutgoingTitle": "Anulować tę płatność?",
-  "deskTxCancelIncomingBody": "{amount} EPIC od {who} zniknie z twojego salda. Portfel najpierw pyta węzeł i odmawia, jeśli płatność jest już w puli węzła albo w bloku. Jeśli nadawca opublikuje ją później, i tak dotrze.",
   "deskTxCancelOutgoingBody": "{amount} EPIC do {who}. Nic jeszcze nie zapłacono: anulowanie jest bez opłaty i pewne.",
   "deskTxCancelNotPostedBody": "{amount} EPIC do {who}. Ta płatność wciąż może przejść później.",
   "deskTxCancelKeep": "Zostaw",

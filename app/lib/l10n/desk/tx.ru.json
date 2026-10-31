@@ -1,5 +1,4 @@
 {
-  "deskTxMethodFile": "Напрямую · Файл",
   "deskTxMiningReward": "Награда за майнинг",
   "deskTxReceived": "Получено",
   "deskTxSent": "Отправлено",
@@ -98,7 +97,6 @@
   "deskTxStepProgress": "{confirmations} из {needed}",
   "deskTxCancelIncomingTitle": "Отменить этот платёж?",
   "deskTxCancelOutgoingTitle": "Отменить этот платёж?",
-  "deskTxCancelIncomingBody": "{amount} EPIC от {who} уйдут из баланса. Кошелёк сначала спросит узел и откажет, если платёж уже в пуле узла или в блоке. Если отправитель опубликует его позже, он всё равно поступит.",
   "deskTxCancelOutgoingBody": "{amount} EPIC для {who}. Пока ничего не оплачено: отмена бесплатна и надёжна.",
   "deskTxCancelNotPostedBody": "{amount} EPIC для {who}. Этот платёж ещё может пройти позже.",
   "deskTxCancelKeep": "Оставить",

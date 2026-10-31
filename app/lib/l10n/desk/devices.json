@@ -1,8 +1,4 @@
 {
-  "deskDevServersNote": "Choose up to 2.",
-  "@deskDevServersNote": {
-    "description": "Under the Servers picker of Settings > Linked devices: how many may be chosen."
-  },
   "deskDevServersCancel": "Cancel change",
   "@deskDevServersCancel": {
     "description": "Button on the waiting row of a server change this computer proposed: withdraws it."

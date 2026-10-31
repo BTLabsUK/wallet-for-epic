@@ -1,5 +1,4 @@
 {
-  "deskDevServersNote": "最多选择 2 个。",
   "deskDevServersCancel": "取消更改",
   "deskDevServersDown": "{n} 个中有 {down} 个无响应。消息经由另一个发送。",
   "deskDevServersAllDown": "没有服务器响应。消息会等待，待有服务器恢复后发送。",

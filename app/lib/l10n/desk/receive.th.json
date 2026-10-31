@@ -1,7 +1,6 @@
 {
   "deskRecvTitle": "รับ",
   "deskRecvReceiving": "การรับเงิน",
-  "deskRecvNameFile": "โดยตรง · โอนไฟล์",
   "deskRecvTurnOnFailed": "ไม่ได้เปิด {method}",
   "deskRecvTurnOffFailed": "ไม่ได้ปิด {method}",
   "deskRecvOtherWays": "วิธีรับเงินอื่น",

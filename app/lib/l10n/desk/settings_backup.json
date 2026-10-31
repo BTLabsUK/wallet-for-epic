@@ -111,17 +111,9 @@
   "@deskSetBackupImportButton": {
     "description": "Settings > Backup: button that opens the import dialog. Short."
   },
-  "deskSetBackupCsvTitle": "Payments as CSV",
-  "@deskSetBackupCsvTitle": {
-    "description": "Settings > Backup: row title for exporting payments as a spreadsheet file."
-  },
   "deskSetBackupCsvHint": "A plain table for spreadsheets. Not encrypted, not importable.",
   "@deskSetBackupCsvHint": {
     "description": "Settings > Backup: hint under the Payments as CSV row."
-  },
-  "deskSetBackupCsvButton": "Export CSV…",
-  "@deskSetBackupCsvButton": {
-    "description": "Settings > Backup: button that opens the CSV export dialog. Short."
   },
   "deskSetBackupSaveDialogTitle": "Save wallet data",
   "@deskSetBackupSaveDialogTitle": {

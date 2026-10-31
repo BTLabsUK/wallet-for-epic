@@ -1,7 +1,6 @@
 {
   "deskRecvTitle": "Odbierz",
   "deskRecvReceiving": "Odbieranie",
-  "deskRecvNameFile": "Bezpośrednio · Przesyłanie pliku",
   "deskRecvTurnOnFailed": "Nie włączono: {method}",
   "deskRecvTurnOffFailed": "Nie wyłączono: {method}",
   "deskRecvOtherWays": "Inne sposoby odbierania",

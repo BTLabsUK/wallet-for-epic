@@ -15,10 +15,6 @@
   "@deskTxLabelField": {
     "description": "Screen-reader name of the inline label field, and the name of the field in the Details differ dialog."
   },
-  "deskTxLabelTip": "A name for this payment, for you. Shown in Activity and exports.",
-  "@deskTxLabelTip": {
-    "description": "Tooltip on the label pen: what a label is."
-  },
   "deskTxLabelAdded": "Label added",
   "@deskTxLabelAdded": {
     "description": "Toast title after a label was added."

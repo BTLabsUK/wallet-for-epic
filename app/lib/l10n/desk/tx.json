@@ -1,8 +1,4 @@
 {
-  "deskTxMethodFile": "Direct · File",
-  "@deskTxMethodFile": {
-    "description": "Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word."
-  },
   "deskTxMiningReward": "Mining reward",
   "@deskTxMiningReward": {
     "description": "Who the other side of a transaction is when it is a mining reward. Activity table name column; short."
@@ -532,20 +528,6 @@
   "deskTxCancelOutgoingTitle": "Cancel this payment?",
   "@deskTxCancelOutgoingTitle": {
     "description": "Title of the dialog that asks before cancelling an outgoing payment."
-  },
-  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it still arrives.",
-  "@deskTxCancelIncomingBody": {
-    "description": "Body of the dialog that asks before cancelling an incoming payment.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5"
-      },
-      "who": {
-        "type": "String",
-        "example": "Piotr"
-      }
-    }
   },
   "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. Nothing has been paid yet: cancelling is free and certain.",
   "@deskTxCancelOutgoingBody": {

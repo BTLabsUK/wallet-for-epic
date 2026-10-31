@@ -1,7 +1,6 @@
 {
   "deskRecvTitle": "接收",
   "deskRecvReceiving": "接收",
-  "deskRecvNameFile": "直接 · 文件传输",
   "deskRecvTurnOnFailed": "{method} 未开启",
   "deskRecvTurnOffFailed": "{method} 未关闭",
   "deskRecvOtherWays": "其他接收方式",

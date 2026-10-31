@@ -1,6 +1,5 @@
 {
   "deskUpdAvailable": "Dostępna aktualizacja",
-  "deskUpdNotice": "Dostępna aktualizacja · {version}",
   "deskUpdDownload": "Pobierz {version}",
   "deskUpdOpensPage": "Otwiera stronę pobierania",
   "deskUpdDownloading": "Pobieranie: {percent} %",

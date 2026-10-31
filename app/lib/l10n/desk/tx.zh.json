@@ -1,5 +1,4 @@
 {
-  "deskTxMethodFile": "直接 · 文件",
   "deskTxMiningReward": "挖矿奖励",
   "deskTxReceived": "已收到",
   "deskTxSent": "已发送",
@@ -98,7 +97,6 @@
   "deskTxStepProgress": "{confirmations}/{needed}",
   "deskTxCancelIncomingTitle": "取消这笔付款？",
   "deskTxCancelOutgoingTitle": "取消这笔付款？",
-  "deskTxCancelIncomingBody": "来自 {who} 的 {amount} EPIC 将从你的余额中移除。钱包会先询问节点；如果这笔付款已在节点的交易池或区块中，则拒绝取消。如果发送方之后广播，付款仍会到账。",
   "deskTxCancelOutgoingBody": "发往 {who} 的 {amount} EPIC。尚未支付任何款项：取消免费且一定成功。",
   "deskTxCancelNotPostedBody": "发往 {who} 的 {amount} EPIC。这笔付款之后仍可能完成。",
   "deskTxCancelKeep": "保留",

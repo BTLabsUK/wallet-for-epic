@@ -223,19 +223,6 @@
   "@deskShellMainNav": {
     "description": "Screen-reader label of the sidebar that holds the main places."
   },
-  "deskShellVersion": "Version {version}",
-  "@deskShellVersion": {
-    "description": "Tooltip of the logo and screen-reader label of the version under the compact sidebar. {version} is the app version.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "deskShellOpenWalletSettings": "Open wallet settings",
-  "@deskShellOpenWalletSettings": {
-    "description": "Tooltip of the account row at the bottom of the sidebar: a click opens the wallet's settings."
-  },
   "deskShellOpenWalletSettingsNamed": "Open wallet settings: {name}",
   "@deskShellOpenWalletSettingsNamed": {
     "description": "Screen-reader label of the account row at the bottom of the sidebar. {name} is the wallet's name.",
@@ -248,15 +235,6 @@
   "deskShellSwitchWallet": "Switch wallet",
   "@deskShellSwitchWallet": {
     "description": "Tooltip of the button next to the account row that locks the wallet so another wallet can be picked."
-  },
-  "deskShellWalletBy": "Wallet by {maker}",
-  "@deskShellWalletBy": {
-    "description": "Small credit line at the bottom of the sidebar. {maker} is the company's name (BT Labs); the app draws it dimmer.",
-    "placeholders": {
-      "maker": {
-        "type": "String"
-      }
-    }
   },
   "deskTourOverviewTitle": "Overview",
   "@deskTourOverviewTitle": {

@@ -21,8 +21,6 @@
   "deskSetAdvNotInBuild": "此版本不含",
   "deskSetAdvReset": "再次全部隐藏",
   "deskSetAdvOn": "{n, plural, other{已开启 {n} 个开关}}",
-  "deskShellOffline": "离线",
-  "deskShellTorOnlyWaiting": "仅 Tor · 等待 Tor",
   "deskNetOfflineNoPeers": "你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。",
   "deskNetWaitingTorReason": "等待 Tor。“高级”中已开启“仅 Tor”。",
   "deskNetTorOnlyLine": "“高级”中已开启“仅 Tor”。",

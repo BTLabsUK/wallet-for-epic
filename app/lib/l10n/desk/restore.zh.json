@@ -8,8 +8,6 @@
   "deskErrRestoreScanRequired": "恢复尚未完成。区块链扫描结束后即可接收和发送。",
   "deskSetRescanRestoreRunning": "恢复扫描正在进行：从第一个区块开始读取链。扫描完成后才能重新核对余额。",
   "deskSetRescanStartHeading": "从哪里开始",
-  "deskSetRescanRecent": "最近的区块",
-  "deskSetRescanRecentHint": "从最后扫描的区块往前 100 个区块开始。发送失败或余额看起来不对时足够。",
   "deskSetRescanFromHeight": "从某个区块高度开始",
   "deskSetRescanHeightInvalid": "请输入 1 或更大的区块高度。",
   "deskSetRescanWholeChain": "整条链",

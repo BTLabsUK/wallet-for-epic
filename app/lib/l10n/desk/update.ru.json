@@ -1,6 +1,5 @@
 {
   "deskUpdAvailable": "Доступно обновление",
-  "deskUpdNotice": "Доступно обновление · {version}",
   "deskUpdDownload": "Скачать {version}",
   "deskUpdOpensPage": "Открывает страницу загрузки",
   "deskUpdDownloading": "Загрузка: {percent} %",

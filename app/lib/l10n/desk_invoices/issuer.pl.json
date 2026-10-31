@@ -17,7 +17,6 @@
   "deskInvIssuerToAnyone": "Faktura dla każdego, kto ma plik",
   "deskInvIssuerIssued": "Wystawiono {time}",
   "deskInvIssuerPayerFact": "Płacący",
-  "deskInvIssuerAmountFact": "Kwota",
   "deskInvIssuerMessageFact": "Wiadomość",
   "deskInvIssuerSentFact": "Wystawiono",
   "deskInvIssuerExpiresFact": "Wygasa",

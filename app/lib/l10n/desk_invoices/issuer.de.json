@@ -17,7 +17,6 @@
   "deskInvIssuerToAnyone": "Rechnung an jede Person mit der Datei",
   "deskInvIssuerIssued": "Ausgestellt {time}",
   "deskInvIssuerPayerFact": "Zahler",
-  "deskInvIssuerAmountFact": "Betrag",
   "deskInvIssuerMessageFact": "Nachricht",
   "deskInvIssuerSentFact": "Ausgestellt",
   "deskInvIssuerExpiresFact": "Läuft ab",

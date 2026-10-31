@@ -15,18 +15,6 @@
   "@deskInvTabIssue": {
     "description": "Tab on the Invoices page: invoices this wallet issued to others. A short verb."
   },
-  "deskInvTabCount": "{label} ({count})",
-  "@deskInvTabCount": {
-    "description": "A tab label with how many items in it need you, e.g. 'To pay (2)'.",
-    "placeholders": {
-      "label": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "deskInvIssueAction": "Issue an invoice",
   "@deskInvIssueAction": {
     "description": "Button: start a new invoice to someone who should pay this wallet."
@@ -103,10 +91,6 @@
   "deskInvPayWaiting": "To pay",
   "@deskInvPayWaiting": {
     "description": "State of an invoice you received: waiting for your answer."
-  },
-  "deskInvPayPaying": "Paying",
-  "@deskInvPayPaying": {
-    "description": "State of an invoice you approved: signing and sending the payment."
   },
   "deskInvPayNotDelivered": "Not delivered",
   "@deskInvPayNotDelivered": {

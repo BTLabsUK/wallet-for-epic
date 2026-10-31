@@ -1,7 +1,6 @@
 {
   "deskRecvTitle": "Получить",
   "deskRecvReceiving": "Приём",
-  "deskRecvNameFile": "Напрямую · Передача файла",
   "deskRecvTurnOnFailed": "{method}: не удалось включить",
   "deskRecvTurnOffFailed": "{method}: не удалось выключить",
   "deskRecvOtherWays": "Другие способы приёма",

@@ -3,7 +3,6 @@
   "deskSetRescanStoppedLine": "Scan gestoppt",
   "deskSetRescanLog": "Protokoll der Neuprüfung",
   "deskSetRescanText": "Liest die Blockchain erneut und baut das Guthaben neu auf. Nutzen Sie das, wenn das Guthaben falsch aussieht oder Outputs gesperrt bleiben.",
-  "deskSetRescanStartAgain": "Erneut starten",
   "deskSetRescanRecheck": "Neu prüfen",
   "deskSetRescanRecheckAgain": "Noch einmal prüfen",
   "deskSetRescanFromDate": "Ab einem Datum",

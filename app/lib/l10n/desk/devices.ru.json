@@ -1,5 +1,4 @@
 {
-  "deskDevServersNote": "Выберите до 2.",
   "deskDevServersCancel": "Отменить изменение",
   "deskDevServersDown": "{down} из {n} не отвечает. Сообщения идут через другой.",
   "deskDevServersAllDown": "Ни один сервер не отвечает. Сообщения ждут и уйдут, когда один вернётся.",

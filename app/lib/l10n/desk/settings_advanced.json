@@ -92,14 +92,6 @@
       }
     }
   },
-  "deskShellOffline": "Offline",
-  "@deskShellOffline": {
-    "description": "Sidebar status row while the Offline network mode is on."
-  },
-  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
-  "@deskShellTorOnlyWaiting": {
-    "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
-  },
   "deskNetOfflineNoPeers": "Your node has no peers: the payment waits in its pool until it reconnects.",
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."

@@ -17,7 +17,6 @@
   "deskInvIssuerToAnyone": "ใบแจ้งหนี้ถึงใครก็ได้ที่มีไฟล์",
   "deskInvIssuerIssued": "ออกเมื่อ {time}",
   "deskInvIssuerPayerFact": "ผู้ชำระ",
-  "deskInvIssuerAmountFact": "จำนวน",
   "deskInvIssuerMessageFact": "ข้อความ",
   "deskInvIssuerSentFact": "ออกเมื่อ",
   "deskInvIssuerExpiresFact": "หมดอายุ",

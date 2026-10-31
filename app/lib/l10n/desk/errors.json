@@ -342,18 +342,6 @@
       }
     }
   },
-  "deskErrProofEpicbox": "The older app used the Epicbox server {old}; this app uses {current}",
-  "@deskErrProofEpicbox": {
-    "description": "A line of the import wizard's result: the old app used another Epicbox server than this app. Both are host names.",
-    "placeholders": {
-      "old": {
-        "type": "String"
-      },
-      "current": {
-        "type": "String"
-      }
-    }
-  },
   "deskErrProofFolderUnchanged": "Old folder unchanged",
   "@deskErrProofFolderUnchanged": {
     "description": "A line of the import wizard's result: the old wallet's folder was only read."
@@ -518,10 +506,6 @@
   "deskErrPasswordNotChanged": "Password not changed. The current password still opens the wallet.",
   "@deskErrPasswordNotChanged": {
     "description": "An error message the user reads when changing the password failed."
-  },
-  "deskErrNothingToSpend": "Nothing to spend",
-  "@deskErrNothingToSpend": {
-    "description": "An error message the user reads when there are no coins to spend."
   },
   "deskTorLineOff": "Off",
   "@deskTorLineOff": {

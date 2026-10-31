@@ -8,8 +8,6 @@
   "deskErrRestoreScanRequired": "การกู้คืนยังไม่เสร็จ เมื่อสแกนบล็อกเชนเสร็จจึงรับและส่งได้",
   "deskSetRescanRestoreRunning": "กำลังสแกนหลังกู้คืน: อ่านบล็อกเชนตั้งแต่บล็อกแรก ตรวจยอดใหม่ได้เมื่อสแกนเสร็จ",
   "deskSetRescanStartHeading": "เริ่มจากตรงไหน",
-  "deskSetRescanRecent": "บล็อกล่าสุด",
-  "deskSetRescanRecentHint": "จาก 100 บล็อกก่อนบล็อกล่าสุดที่สแกน เพียงพอหลังส่งไม่สำเร็จหรือยอดดูไม่ถูก",
   "deskSetRescanFromHeight": "จากความสูงบล็อก",
   "deskSetRescanHeightInvalid": "ใส่ความสูงบล็อกตั้งแต่ 1 ขึ้นไป",
   "deskSetRescanWholeChain": "ทั้งบล็อกเชน",

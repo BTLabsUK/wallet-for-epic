@@ -8,8 +8,6 @@
   "deskErrRestoreScanRequired": "Wiederherstellung nicht abgeschlossen. Empfangen und Senden sind möglich, sobald der Scan der Blockchain beendet ist.",
   "deskSetRescanRestoreRunning": "Der Scan der Wiederherstellung läuft: Die Blockchain wird ab dem ersten Block gelesen. Guthaben neu prüfen ist verfügbar, sobald er abgeschlossen ist.",
   "deskSetRescanStartHeading": "Wo beginnen",
-  "deskSetRescanRecent": "Letzte Blöcke",
-  "deskSetRescanRecentHint": "Ab 100 Blöcken vor dem letzten gescannten. Reicht nach einer fehlgeschlagenen Zahlung oder einem Guthaben, das falsch aussieht.",
   "deskSetRescanFromHeight": "Ab einer Blockhöhe",
   "deskSetRescanHeightInvalid": "Geben Sie eine Blockhöhe von 1 oder mehr ein.",
   "deskSetRescanWholeChain": "Gesamte Blockchain",

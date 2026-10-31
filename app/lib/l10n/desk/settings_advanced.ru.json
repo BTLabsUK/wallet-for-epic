@@ -21,8 +21,6 @@
   "deskSetAdvNotInBuild": "Нет в этой сборке",
   "deskSetAdvReset": "Скрыть всё снова",
   "deskSetAdvOn": "{n, plural, one{{n} переключатель включён} few{{n} переключателя включены} many{{n} переключателей включено} other{{n} переключателя включено}}",
-  "deskShellOffline": "Офлайн",
-  "deskShellTorOnlyWaiting": "Только Tor · ждёт Tor",
   "deskNetOfflineNoPeers": "У вашего узла нет пиров: платёж ждёт в его пуле, пока он не подключится снова.",
   "deskNetWaitingTorReason": "Ждёт Tor. Режим «Только Tor» включён в «Дополнительно».",
   "deskNetTorOnlyLine": "Режим «Только Tor» включён в «Дополнительно».",

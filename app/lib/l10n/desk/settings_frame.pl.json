@@ -19,7 +19,6 @@
   "deskSetFrameNodeSyncing": "Synchronizacja",
   "deskSetFrameConnecting": "Łączenie…",
   "deskSetFrameListening": "Nasłuchuje",
-  "deskSetFrameHealthLatency": "{word} · {ms} ms",
   "deskSetFrameNever": "nigdy",
   "deskSetFrameJustNow": "przed chwilą",
   "deskSetFrameMinAgo": "{count, plural, one{{count} min temu} few{{count} min temu} many{{count} min temu} other{{count} min temu}}",

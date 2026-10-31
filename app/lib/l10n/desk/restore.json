@@ -40,14 +40,6 @@
   "@deskSetRescanStartHeading": {
     "description": "Heading of the start-choice radio group on the Recheck page."
   },
-  "deskSetRescanRecent": "Recent blocks",
-  "@deskSetRescanRecent": {
-    "description": "Recheck start choice: from 100 blocks before the last scanned one (default)."
-  },
-  "deskSetRescanRecentHint": "From 100 blocks before the last one scanned. Enough after a failed send or a balance that looks wrong.",
-  "@deskSetRescanRecentHint": {
-    "description": "Hint under Recent blocks."
-  },
   "deskSetRescanFromHeight": "From a block height",
   "@deskSetRescanFromHeight": {
     "description": "Recheck start choice; same text as the phone's settingsRescanFromHeight."

@@ -1,5 +1,4 @@
 {
-  "deskDevServersNote": "Wählen Sie bis zu 2.",
   "deskDevServersCancel": "Änderung abbrechen",
   "deskDevServersDown": "{down} von {n} antwortet nicht. Meldungen laufen über den anderen.",
   "deskDevServersAllDown": "Kein Server antwortet. Meldungen warten und gehen weiter, sobald einer wieder erreichbar ist.",

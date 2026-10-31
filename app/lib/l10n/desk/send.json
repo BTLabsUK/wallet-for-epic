@@ -447,14 +447,6 @@
   "@deskSendMethodHeader": {
     "description": "Title of the first panel on Send: the method selector comes first, then the recipient field."
   },
-  "deskSendMethodDirect": "Link",
-  "@deskSendMethodDirect": {
-    "description": "Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short."
-  },
-  "deskSendMethodFile": "Direct · File",
-  "@deskSendMethodFile": {
-    "description": "Name of the File send method (a transaction file), in the method selector. Short."
-  },
   "deskSendTo": "To",
   "@deskSendTo": {
     "description": "Label of the recipient field on Send."
@@ -654,18 +646,6 @@
   "deskSendFileLine2": "Hand the file over, get their response file back, then finalize it here.",
   "@deskSendFileLine2": {
     "description": "Second line under the method selector for the File method."
-  },
-  "deskSendTagDirect": "Link",
-  "@deskSendTagDirect": {
-    "description": "Small tag next to the To label after the method switched to Link by itself. Short."
-  },
-  "deskSendTagFile": "Direct · File",
-  "@deskSendTagFile": {
-    "description": "Small tag next to the To label after the method switched to File. Short."
-  },
-  "deskSendTagEpicbox": "Via Epicbox",
-  "@deskSendTagEpicbox": {
-    "description": "Small tag next to the To label after the method switched to Epicbox. Short."
   },
   "deskSendSwitchedDirect": "Link address. Method set to Link.",
   "@deskSendSwitchedDirect": {

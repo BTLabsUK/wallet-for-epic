@@ -4,10 +4,6 @@
   "@appTitle": {
     "description": "The phone app's product name, in the task switcher and window title. A brand name; do not translate."
   },
-  "appTitleDesktop": "Epic Cash Desktop",
-  "@appTitleDesktop": {
-    "description": "The desktop app's product name (Windows, Linux). A brand name; do not translate."
-  },
   "commonCancel": "Cancel",
   "commonClose": "Close",
   "noticeLevelInfo": "Information",
@@ -828,10 +824,6 @@
   "@txDetailsAmountHidden": {
     "description": "Screen-reader label of the amount while balances are hidden."
   },
-  "txDetailsNotConfirmedYet": "Not confirmed yet",
-  "@txDetailsNotConfirmedYet": {
-    "description": "Small heading above txDetailsStuckBody, for a send the network has not included for a while."
-  },
   "txWaitNoNewBlock": "Waiting for the next block to be mined.",
   "@txWaitNoNewBlock": {
     "description": "A payment's details, minutes after it should have reached a block: no new block was mined since. The network is slow, nothing is wrong with the payment."
@@ -1386,10 +1378,6 @@
   "@homeRecentActivity": {
     "description": "Heading above the latest payments on home."
   },
-  "homeSeeAll": "See all",
-  "@homeSeeAll": {
-    "description": "Button beside the Recent activity heading that opens the full payment history."
-  },
   "homeBackedUpNotice": "Recovery phrase backed up",
   "@homeBackedUpNotice": {
     "description": "Short notice after the user wrote down the recovery phrase (the 12 or 24 words)."
@@ -1616,10 +1604,6 @@
   "@balanceLineAllConfirmed": {
     "description": "That line when nothing is pending: the whole balance is spendable. No full stop."
   },
-  "balanceLineNothingYet": "Nothing here yet",
-  "@balanceLineNothingYet": {
-    "description": "That line in a wallet that has had no payments yet. No full stop."
-  },
   "homeSyncSyncing": "Syncing…",
   "@homeSyncSyncing": {
     "description": "Status line under the balance while the wallet syncs with the node."
@@ -1753,19 +1737,6 @@
       }
     }
   },
-  "homePendingBody": "{count, plural, =1{{amount} is waiting for the recipient’s wallet to answer. Until then the coins stay locked. If it never answers, open the payment and tap Cancel payment.} other{{amount} is waiting for the recipients’ wallets to answer. Until then the coins stay locked. If one never answers, open the payment and tap Cancel payment.}}",
-  "@homePendingBody": {
-    "description": "Text of the card about sent payments the recipient has not answered yet. amount is the total of those payments. 'Cancel payment' is the button on a payment's details screen: use the same words as that button.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "amount": {
-        "type": "String",
-        "example": "2 EPIC"
-      }
-    }
-  },
   "homePendingWhy": "Why is it waiting?",
   "@homePendingWhy": {
     "description": "Button on the waiting-payments card that opens help. Short: it shares a row with the View button."
@@ -1860,10 +1831,6 @@
         "example": "Northwind"
       }
     }
-  },
-  "invoiceReviewNote": "Your wallet adds the network fee. Nothing is paid until you approve it.",
-  "@invoiceReviewNote": {
-    "description": "Under the invoice on the review screen."
   },
   "invoiceApprove": "Approve and pay",
   "@invoiceApprove": {
@@ -2031,17 +1998,9 @@
   "@requestMessageHelper": {
     "description": "Helper text under the request's message field."
   },
-  "requestButton": "Request",
-  "@requestButton": {
-    "description": "Main button of the request screen: sends the request to the payer."
-  },
   "invoicesToPaySection": "To pay",
   "@invoicesToPaySection": {
     "description": "Heading on the Invoices screen above invoices that services sent the user."
-  },
-  "invoicesNoneToPay": "Nothing to pay.",
-  "@invoicesNoneToPay": {
-    "description": "Shown under invoicesToPaySection when no invoice waits but the user has sent requests."
   },
   "issuedPaid": "Paid",
   "@issuedPaid": {
@@ -2338,21 +2297,9 @@
   "@updateNeedsReinstall": {
     "description": "The update is signed with another key than the installed app, so Android cannot install it over it. The user must write down the recovery phrase, uninstall and install the new version; uninstalling deletes the wallet from the device."
   },
-  "updateManifestNotJson": "The update information is not valid JSON.",
-  "@updateManifestNotJson": {
-    "description": "The file that describes the new version could not be read."
-  },
-  "updateManifestWrongShape": "The update information has the wrong shape.",
-  "@updateManifestWrongShape": {
-    "description": "The file that describes the new version is not laid out as expected."
-  },
   "updateManifestOtherApp": "The update information is for another app.",
   "@updateManifestOtherApp": {
     "description": "The file that describes the new version names a different app."
-  },
-  "updateManifestNoApks": "The update information lists no APKs.",
-  "@updateManifestNoApks": {
-    "description": "The file that describes the new version lists no install files (APK is Android's app file format)."
   },
   "updateDownloadHttpFailed": "The download failed (HTTP {status}).",
   "@updateDownloadHttpFailed": {
@@ -2364,7 +2311,6 @@
     }
   },
   "updateDownloadTooLarge": "The download is larger than announced.",
-  "updateDownloadIncomplete": "The download is incomplete.",
   "updateDownloadDamaged": "The download is damaged (checksum mismatch).",
   "@updateDownloadDamaged": {
     "description": "The downloaded file's SHA-256 checksum does not match the one announced, so it is not installed."
@@ -2398,73 +2344,7 @@
   "@setupNetworkHeading": {
     "description": "Heading above the choice of network (development builds only)."
   },
-  "setupNodeUrlLabel": "Node URL",
-  "@setupNodeUrlLabel": {
-    "description": "Field label: the web address of the node, the Epic Cash server the wallet reads the chain from."
-  },
-  "setupCustomRelayLabel": "Other Epicbox server (host or host:port)",
-  "@setupCustomRelayLabel": {
-    "description": "Field label for typing an epicbox server that is not in the list. Keep host:port as it is."
-  },
-  "setupCustomRelayInvalid": "Enter a host such as epicbox.example.com",
-  "@setupCustomRelayInvalid": {
-    "description": "Error under the epicbox server field. Keep the example host as it is."
-  },
   "setupWalletPerNetwork": "Each network has its own wallet. A network without one gets a new wallet.",
-  "setupRelayHealthyIconLabel": "Healthy",
-  "@setupRelayHealthyIconLabel": {
-    "description": "Screen-reader label of the icon of an epicbox server that is working."
-  },
-  "setupRelayDownIconLabel": "Down",
-  "@setupRelayDownIconLabel": {
-    "description": "Screen-reader label of the icon of an epicbox server that is not working."
-  },
-  "setupRelayHealthUnavailable": "Server health is unavailable from {site}.",
-  "@setupRelayHealthUnavailable": {
-    "description": "Under the epicbox server list when the monitoring site could not be read. The status site's host name {site} stays as it is.",
-    "placeholders": {
-      "site": {
-        "type": "String",
-        "example": "status.example.org"
-      }
-    }
-  },
-  "setupRelayHealthSource": "Health from {site}, measured from its server.",
-  "@setupRelayHealthSource": {
-    "description": "Under the epicbox server list: where the up/down information comes from. The status site's host name {site} stays as it is.",
-    "placeholders": {
-      "site": {
-        "type": "String",
-        "example": "status.example.org"
-      }
-    }
-  },
-  "setupRelayNotMonitored": "Not monitored",
-  "@setupRelayNotMonitored": {
-    "description": "Subtitle of an epicbox server the monitoring site does not list."
-  },
-  "setupRelayUp": "Up",
-  "@setupRelayUp": {
-    "description": "First item of an epicbox server's subtitle, a list separated by ' · ' such as 'Up · node.example.org · official · 99.5% up in the last day': the server is working."
-  },
-  "setupRelayDown": "Down",
-  "@setupRelayDown": {
-    "description": "First item of an epicbox server's subtitle, a list separated by ' · ': the server is not working."
-  },
-  "setupRelayOfficial": "official",
-  "@setupRelayOfficial": {
-    "description": "Item in an epicbox server's subtitle, a list separated by ' · ' such as 'Up · node.example.org · official': the server is run by a known operator. Lower case in English because it follows other items."
-  },
-  "setupRelayUptime": "{percent}% up in the last day",
-  "@setupRelayUptime": {
-    "description": "Last item in an epicbox server's subtitle, a list separated by ' · ': how much of the last 24 hours the server was working.",
-    "placeholders": {
-      "percent": {
-        "type": "String",
-        "example": "99.5"
-      }
-    }
-  },
   "restoreTitle": "Restore wallet",
   "@restoreTitle": {
     "description": "Title of the screen that restores a wallet from its recovery phrase (the 12 or 24 words)."
@@ -2927,10 +2807,6 @@
   "@sendAmountZero": {
     "description": "Amount field error."
   },
-  "sendUrlUnsupported": "Payments to a wallet URL are not supported. Ask the recipient for their Epicbox address.",
-  "@sendUrlUnsupported": {
-    "description": "Error under the recipient field when the user entered a wallet URL (http:// or https://). The wallet sends over epicbox and by transaction file only. epicbox is a proper name."
-  },
   "scanQrTooltip": "Scan QR code",
   "@scanQrTooltip": {
     "description": "Tooltip of a button that opens the camera to read an address from a QR code."
@@ -2946,14 +2822,6 @@
   "sendContactsButton": "Contacts",
   "@sendContactsButton": {
     "description": "Short button label under the recipient field; opens the address book."
-  },
-  "sendMethodEpicbox": "Epicbox address",
-  "@sendMethodEpicbox": {
-    "description": "Send form, first choice of how to send: to the recipient's epicbox address. Also Receive's first tab, which shows this wallet's epicbox address. epicbox is the relay service that carries payments (a proper name)."
-  },
-  "sendMethodFile": "Transaction file",
-  "@sendMethodFile": {
-    "description": "Send form, second choice of how to send: a payment file the user passes on any way they like, and the recipient's signed reply. Also Receive's second tab, for accepting a payment file."
   },
   "sendFileHelpTooltip": "How paying by file works",
   "@sendFileHelpTooltip": {
@@ -3352,15 +3220,6 @@
   "@qrTimedOutBody": {
     "description": "Body on the card after the code hid itself."
   },
-  "qrTimedOutAnnounce": "Hidden after {seconds} seconds",
-  "@qrTimedOutAnnounce": {
-    "description": "Spoken when the QR code hides itself after its time.",
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
   "qrAwayTitle": "Hidden while the app was away",
   "@qrAwayTitle": {
     "description": "Title on the covered QR card after the app left the screen."
@@ -3507,21 +3366,9 @@
   "@methodQr": {
     "description": "Method name under a Direct header, and the QR screens' title: two phones next to each other, a code on a screen. The full form is methodDirectQr, the short one methodShortQr."
   },
-  "methodQrChip": "QR Code",
-  "@methodQrChip": {
-    "description": "Short name of the QR payment method on the Send method selector (chip). The full name is methodQr; keep it short."
-  },
-  "receiveTabQr": "QR Code",
-  "@receiveTabQr": {
-    "description": "Receive tab that scans a payment QR from the phone next to this one. Keep it short."
-  },
   "methodArtCaptionQr": "In person",
   "@methodArtCaptionQr": {
     "description": "Caption under the QR method picture; two or three words."
-  },
-  "methodArtLabelQr": "Direct · QR Payment: a code passes from one phone to the phone next to it",
-  "@methodArtLabelQr": {
-    "description": "Spoken description of the QR method picture."
   },
   "methodSendQrTitle": "For a phone next to you.",
   "@methodSendQrTitle": {
@@ -3558,10 +3405,6 @@
   "advTransactionFilesHint": "Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.",
   "@advTransactionFilesHint": {
     "description": "Advanced page: what the Transaction files switch shows."
-  },
-  "sendQrTitle": "QR Payment",
-  "@sendQrTitle": {
-    "description": "Title of Send's QR way."
   },
   "sendMakeQr": "Make payment QR",
   "@sendMakeQr": {
@@ -3665,15 +3508,6 @@
   "@contactsAdd": {
     "description": "Floating button on the address book."
   },
-  "contactsEmpty": "No contacts yet. Add the people you pay often, so you do not have to paste their address each time.",
-  "contactsSearchLabel": "Search contacts",
-  "@contactsSearchLabel": {
-    "description": "Label of the search field on the address book."
-  },
-  "contactsNoMatch": "No contact matches.",
-  "@contactsNoMatch": {
-    "description": "The address book search found nothing."
-  },
   "contactsNameMissing": "Enter a name.",
   "@contactsNameMissing": {
     "description": "Error under the contact's name field."
@@ -3747,10 +3581,6 @@
   "settingsTitle": "Settings",
   "@settingsTitle": {
     "description": "Title of the settings screen."
-  },
-  "settingsSectionNetwork": "Servers",
-  "@settingsSectionNetwork": {
-    "description": "Settings section header above the Node and Epicbox row."
   },
   "settingsSectionDisplay": "Appearance",
   "@settingsSectionDisplay": {
@@ -3869,10 +3699,6 @@
   "settingsContacts": "Contacts",
   "@settingsContacts": {
     "description": "Settings row that opens the address book."
-  },
-  "settingsSectionInvoices": "Invoices",
-  "@settingsSectionInvoices": {
-    "description": "Settings section header for invoices from paired contacts."
   },
   "settingsInvoices": "Invoices",
   "@settingsInvoices": {
@@ -4236,14 +4062,6 @@
   "@feedbackPreviewTitle": {
     "description": "Title of the screen that shows the report's full text, which stays in English."
   },
-  "settingsAdvancedOptions": "Advanced options",
-  "@settingsAdvancedOptions": {
-    "description": "Settings switch that shows the technical controls (network, node, epicbox server, transaction files, logs) across the app. Off by default."
-  },
-  "settingsAdvancedOptionsSubtitle": "Shows the technical side: node and Epicbox server details, block heights, transaction files and logs. Off, the app keeps to what everyday use needs.",
-  "@settingsAdvancedOptionsSubtitle": {
-    "description": "Info sheet behind the Advanced options switch: what it shows."
-  },
   "settingsSectionPrivacy": "Privacy",
   "@settingsSectionPrivacy": {
     "description": "Settings section header above the the status site switch."
@@ -4432,17 +4250,9 @@
   "@sendHowItWorks": {
     "description": "Send: tooltip and label of the info button that opens the animated explanation of how an Epic payment works; also the heading of that sheet."
   },
-  "sendAddressLabel": "Epic address",
-  "@sendAddressLabel": {
-    "description": "Send, step 1: label of the field for the recipient's address."
-  },
   "sendAddressMissing": "Enter their address.",
   "@sendAddressMissing": {
     "description": "Send, step 1: shown when Continue is tapped with an empty address field."
-  },
-  "sendAddressWebLink": "This is a web link, not an Epic address.",
-  "@sendAddressWebLink": {
-    "description": "Send, step 1: the pasted text is a web URL; the wallet only pays Epic addresses or by file."
   },
   "sendAddressIncomplete": "This address looks incomplete.",
   "@sendAddressIncomplete": {
@@ -4463,10 +4273,6 @@
   "sendRecent": "Recent",
   "@sendRecent": {
     "description": "Send, step 1: heading of the short list of people the user paid recently."
-  },
-  "sendUseFile": "No address? Use a transaction file",
-  "@sendUseFile": {
-    "description": "Send, step 1: quiet row that opens paying with a payment file instead of an address."
   },
   "sendTo": "To {who}",
   "@sendTo": {
@@ -4648,10 +4454,6 @@
   "sendOpenReply": "Open response file",
   "@sendOpenReply": {
     "description": "Send, file route: button that opens the file the other person sent back."
-  },
-  "handshakePayment": "Payment",
-  "@handshakePayment": {
-    "description": "How it works sheet: toggle segment for the flow where you pay someone."
   },
   "handshakeRequest": "Invoice",
   "@handshakeRequest": {
@@ -4943,18 +4745,6 @@
       }
     }
   },
-  "receiveTabEpicbox": "Epicbox",
-  "@receiveTabEpicbox": {
-    "description": "Receive, first tab: this wallet's epicbox address. epicbox is a proper name. Short: three tabs share one row on a phone."
-  },
-  "receiveTabTor": "Tor",
-  "@receiveTabTor": {
-    "description": "Receive, second tab (only when the app has Tor): this wallet's Tor address, an onion address. Tor is a proper name."
-  },
-  "receiveTabFile": "File",
-  "@receiveTabFile": {
-    "description": "Receive, last tab: accepting a payment file. Short: three tabs share one row on a phone."
-  },
   "receiveTorAddressLabel": "Link · Tor address",
   "@receiveTorAddressLabel": {
     "description": "Caption above the wallet's full Tor address (the onion address) on the Receive tab, named like the Link · HTTP card (receiveHttpTitle); a tap on the card copies it."
@@ -4962,14 +4752,6 @@
   "receiveTorQrLabel": "QR code of your Tor address",
   "@receiveTorQrLabel": {
     "description": "Screen reader label of the QR code of the wallet's Tor address."
-  },
-  "torReceivingTitle": "Tor receiving",
-  "@torReceivingTitle": {
-    "description": "Title of the on/off switch for receiving payments over Tor, on the Receive tab and in Settings. Same words in both places."
-  },
-  "torHonestLine": "Tor receiving works while the app is open or briefly in the background.",
-  "@torHonestLine": {
-    "description": "The lines that describe Tor receiving, under the switch: only what is true. No time promises. The last sentence: the phone cuts the app's network when it leaves the screen, so a payment over Tor reaches the wallet only while the app is open; nothing waits for it elsewhere."
   },
   "torStateOff": "Tor receiving is off",
   "@torStateOff": {
@@ -5045,10 +4827,6 @@
   "@sendOverTor": {
     "description": "Small label on the recipient card and the review when the payment goes over Tor (the address is an onion address)."
   },
-  "sendTorConnectsOnSend": "Tor connects when you send.",
-  "@sendTorConnectsOnSend": {
-    "description": "Send, review: the recipient is a Tor address and tor is not running yet; it starts when Send is tapped."
-  },
   "sendTorReady": "Ready to send over Tor",
   "@sendTorReady": {
     "description": "Send, review: tor is connected; the payment can go."
@@ -5087,10 +4865,6 @@
   "@sendCancelPayment": {
     "description": "Button: cancel the waiting payment, freeing its coins."
   },
-  "settingsSectionReceiving": "Receiving",
-  "@settingsSectionReceiving": {
-    "description": "Settings section header: how payments reach this wallet (Tor receiving)."
-  },
   "homeAvailableToSpend": "Available to spend",
   "@homeAvailableToSpend": {
     "description": "Caption above Wallet's big figure: the spendable balance."
@@ -5102,10 +4876,6 @@
   "homeTileLocked": "Locked in sends",
   "@homeTileLocked": {
     "description": "Balance tile label: coins a send in progress holds until it confirms. 1 to 3 words."
-  },
-  "homeTileMaturing": "Immature",
-  "@homeTileMaturing": {
-    "description": "Balance tile label: mining rewards not spendable yet. 1 to 3 words."
   },
   "homeTileTotal": "Total",
   "@homeTileTotal": {
@@ -5278,10 +5048,6 @@
   "outputsLockedTile": "Locked in sends",
   "@outputsLockedTile": {
     "description": "Outputs tile: outputs a send in progress spends."
-  },
-  "outputsImmature": "Immature",
-  "@outputsImmature": {
-    "description": "Outputs tile: mining rewards not yet spendable."
   },
   "outputsCount": "{count, plural, =1{1 output} other{{count} outputs}}",
   "@outputsCount": {
@@ -5919,10 +5685,6 @@
   "@netStatusOffline": {
     "description": "Status card: the service does not answer."
   },
-  "netStatusOnline": "Online",
-  "@netStatusOnline": {
-    "description": "Status card: the Epicbox relay is connected."
-  },
   "netStatusOff": "Off",
   "@netStatusOff": {
     "description": "Status card: the service is turned off."
@@ -5943,30 +5705,9 @@
   "@netStatusOn": {
     "description": "Status card: Tor is connected."
   },
-  "netStatusFailed": "Failed",
-  "@netStatusFailed": {
-    "description": "Status card: Tor stopped with an error."
-  },
-  "netStatusStarting": "Starting {percent} %",
-  "@netStatusStarting": {
-    "description": "Status card: Tor is starting, percent done.",
-    "placeholders": {
-      "percent": {
-        "type": "int"
-      }
-    }
-  },
   "netStatusTitle": "Network status",
   "@netStatusTitle": {
     "description": "Screen reader name of the status card."
-  },
-  "serverMyRelays": "My servers",
-  "@serverMyRelays": {
-    "description": "Epicbox picker section head: the relay in use and the relays the user typed in. Beside the 'Public servers' head."
-  },
-  "serverMenuDelete": "Delete",
-  "@serverMenuDelete": {
-    "description": "Tooltip of the bin on a typed-in server in the My nodes or My servers list that is not in use, and the one item of the popup it opens: the server is deleted."
   },
   "netStatusReachable": "Reachable",
   "@netStatusReachable": {
@@ -6000,10 +5741,6 @@
   "@serverEpicboxTitle": {
     "description": "Epicbox picker sheet title."
   },
-  "serverSearchHint": "Find a node",
-  "@serverSearchHint": {
-    "description": "Hint of the node picker's search field: filters both lists by host or operator. A node not listed is added in the Other node field at the foot."
-  },
   "serverTestFailed": "No answer. {error}",
   "@serverTestFailed": {
     "description": "The typed node did not answer; {error} says why.",
@@ -6012,18 +5749,6 @@
         "type": "String"
       }
     }
-  },
-  "serverMyNodes": "My nodes",
-  "@serverMyNodes": {
-    "description": "Node picker section head: the node in use and the nodes the user typed in. Beside the 'Public nodes' head."
-  },
-  "serverPublicNodes": "Public nodes",
-  "@serverPublicNodes": {
-    "description": "Node picker section head: public nodes."
-  },
-  "serverPublicRelays": "Public servers",
-  "@serverPublicRelays": {
-    "description": "Epicbox picker section head: public relays."
   },
   "serverHealthUnknown": "{site} not reachable; health unknown",
   "@serverHealthUnknown": {
@@ -6107,65 +5832,13 @@
       }
     }
   },
-  "serverRelayWarning": "Your address includes this server. Switching changes your address; senders need the new one.",
-  "@serverRelayWarning": {
-    "description": "Epicbox picker warning above the list."
-  },
-  "serverOtherRelay": "Other server, host or host:port",
-  "@serverOtherRelay": {
-    "description": "Epicbox picker field at the foot of the list for a relay not in the lists. Beside the Add button."
-  },
-  "serverMyListNote": "The one in use and the ones you added.",
-  "@serverMyListNote": {
-    "description": "One line under the My nodes / My servers head: what the group holds. The public server in use is listed there and leaves it by itself on a switch to another public one."
-  },
-  "serverPublicNote": "Tap one to switch to it.",
-  "@serverPublicNote": {
-    "description": "One line under the Public nodes / Public servers head: what a tap does (it selects the row; the Switch button at the foot confirms)."
-  },
-  "serverOtherNode": "Other node, host or host:port",
-  "@serverOtherNode": {
-    "description": "Node picker field at the foot of the list for a node not in the lists; https:// is added when left out. Beside the Add button."
-  },
-  "serverOtherNodeInvalid": "Enter a node address such as node.example.com:{port}",
-  "@serverOtherNodeInvalid": {
-    "description": "Error under the Other node field when the text is not a host, host:port or http(s) address.",
-    "placeholders": {
-      "port": {
-        "type": "String",
-        "example": "<port>"
-      }
-    }
-  },
   "serverAdd": "Add",
   "@serverAdd": {
     "description": "Button beside the Other node / Other server field: the typed server joins My nodes or My servers and is offered for a switch."
   },
-  "serverAddedNode": "Added to My nodes.",
-  "@serverAddedNode": {
-    "description": "Line at the node sheet's foot for a few seconds after Add. 'My nodes' is the section head serverMyNodes."
-  },
-  "serverAddedRelay": "Added to My servers.",
-  "@serverAddedRelay": {
-    "description": "Line at the Epicbox sheet's foot for a few seconds after Add. 'My servers' is the section head serverMyRelays."
-  },
-  "serverDeleted": "Deleted {host}.",
-  "@serverDeleted": {
-    "description": "Line at the sheet's foot for a few seconds after the bin's Delete on a typed-in server.",
-    "placeholders": {
-      "host": {
-        "type": "String",
-        "example": "relay.example.org"
-      }
-    }
-  },
   "serverAlreadyInUse": "Already in use.",
   "@serverAlreadyInUse": {
     "description": "Line at the sheet's foot after a tap on the row of the server the wallet uses now: there is nothing to switch to."
-  },
-  "serverNoMatch": "No match.",
-  "@serverNoMatch": {
-    "description": "Under the node picker's search field when no node's host or operator contains the text."
   },
   "serverFactHeight": "Height",
   "@serverFactHeight": {
@@ -6316,10 +5989,6 @@
   "@methodArtCaptionHttp": {
     "description": "Caption under the HTTP picture, a few words, shown in capitals."
   },
-  "methodArtCaptionTor": "Straight, through Tor",
-  "@methodArtCaptionTor": {
-    "description": "Caption under the Tor picture, a few words, shown in capitals."
-  },
   "methodArtCaptionFile": "File out, response back",
   "@methodArtCaptionFile": {
     "description": "Caption under the File picture, a few words, shown in capitals."
@@ -6327,18 +5996,6 @@
   "methodArtLabelEpicbox": "Epicbox: the payment goes to the Epicbox server, which holds it until the recipient’s wallet is back",
   "@methodArtLabelEpicbox": {
     "description": "Screen reader label of the Epicbox picture."
-  },
-  "methodArtLabelHttp": "Link · HTTP: the payment goes straight to the recipient’s wallet, which must be open",
-  "@methodArtLabelHttp": {
-    "description": "Screen reader label of the HTTP picture."
-  },
-  "methodArtLabelTor": "Link · Tor: the payment goes straight to the recipient’s wallet, routed through the Tor network",
-  "@methodArtLabelTor": {
-    "description": "Screen reader label of the Tor picture."
-  },
-  "methodArtLabelFile": "Direct · File Transfer: a transaction file is handed over, a response file comes back, then the sender finalizes",
-  "@methodArtLabelFile": {
-    "description": "Screen reader label of the File picture."
   },
   "methodSendEpicboxTitle": "The recipient can be offline.",
   "@methodSendEpicboxTitle": {
@@ -6364,18 +6021,6 @@
   "@methodSendHttpTitle": {
     "description": "Send strip title for HTTP."
   },
-  "methodSendHttpLine": "It must be open and reachable at its HTTP address.",
-  "@methodSendHttpLine": {
-    "description": "Send strip line for HTTP."
-  },
-  "methodSendTorTitle": "Straight to their wallet, over Tor.",
-  "@methodSendTorTitle": {
-    "description": "Send strip title for Tor."
-  },
-  "methodSendTorLine": "Slower and more private. Their wallet must be open.",
-  "@methodSendTorLine": {
-    "description": "Send strip line for Tor."
-  },
   "methodSendFileTitle": "No connection needed.",
   "@methodSendFileTitle": {
     "description": "Send strip title for File."
@@ -6387,18 +6032,6 @@
   "methodReceiveEpicboxTitle": "Share it to get paid.",
   "@methodReceiveEpicboxTitle": {
     "description": "Receive strip title for Epicbox."
-  },
-  "methodReceiveEpicboxLine": "Works while the wallet is closed: the Epicbox server holds payments until it is back.",
-  "@methodReceiveEpicboxLine": {
-    "description": "Receive strip line for Epicbox."
-  },
-  "methodReceiveTorTitle": "Slower and more private.",
-  "@methodReceiveTorTitle": {
-    "description": "Receive strip title for Tor."
-  },
-  "methodReceiveTorLine": "Works only while the app is open or briefly in the background.",
-  "@methodReceiveTorLine": {
-    "description": "Receive strip line for Tor."
   },
   "methodReceiveFileTitle": "Hand a file back and forth.",
   "@methodReceiveFileTitle": {
@@ -6424,29 +6057,13 @@
   "@sendToHint": {
     "description": "Placeholder of Send's recipient field."
   },
-  "sendSwitchedHttp": "Link · HTTP",
-  "@sendSwitchedHttp": {
-    "description": "Tag beside the To label for 3 s after the method moved to HTTP because of the address."
-  },
   "sendSwitchedEpicbox": "Via Epicbox",
   "@sendSwitchedEpicbox": {
     "description": "Tag beside the To label for 3 s after the method moved to Epicbox because of the address."
   },
-  "sendSwitchedTorAnnounce": "Tor address. Method set to Link · Tor.",
-  "@sendSwitchedTorAnnounce": {
-    "description": "Read out when a Tor address moved the method to Tor."
-  },
-  "sendSwitchedHttpAnnounce": "HTTP address. Method set to Link · HTTP.",
-  "@sendSwitchedHttpAnnounce": {
-    "description": "Read out when an HTTP address moved the method to HTTP."
-  },
   "sendSwitchedEpicboxAnnounce": "Epicbox address. Method set to Epicbox.",
   "@sendSwitchedEpicboxAnnounce": {
     "description": "Read out when an Epicbox address moved the method to Epicbox."
-  },
-  "sendReviewMethodHttp": "Link · HTTP, straight to their wallet",
-  "@sendReviewMethodHttp": {
-    "description": "Review, Method row for an HTTP send."
   },
   "sendCancelRuleEpicbox": "Can be cancelled while it waits for the recipient.",
   "@sendCancelRuleEpicbox": {
@@ -6468,10 +6085,6 @@
   "@sendDeliveredWaitingBlock": {
     "description": "Send tracker and payment details: an HTTP or Tor send the other wallet accepted, not in a block yet."
   },
-  "sendHttpAddressShape": "An HTTP address starts with http:// or https://.",
-  "@sendHttpAddressShape": {
-    "description": "Send: the text under the HTTP method is not a web address."
-  },
   "sendPlainHttpOffWithTor": "Plain http:// doesn't work with Tor on.",
   "@sendPlainHttpOffWithTor": {
     "description": "Send: under To, a plain http:// address to another device while the Tor switch is on. Plain http through a Tor exit is not sent."
@@ -6479,10 +6092,6 @@
   "sendPlainHttpOffWithTorWhy": "Use an https:// or onion address, or Epicbox.",
   "@sendPlainHttpOffWithTorWhy": {
     "description": "Send: the info sheet behind sendPlainHttpOffWithTor, what to use instead of plain http:// while Tor is on."
-  },
-  "receiveEpicboxCaption": "When reading it out, check the first six and last six characters.",
-  "@receiveEpicboxCaption": {
-    "description": "Receive, Epicbox tab: caption under the address."
   },
   "receiveTorCaption": "Some wallets show the address without .onion; both are the same address.",
   "@receiveTorCaption": {
@@ -6577,18 +6186,6 @@
   "@deskInvTabIssue": {
     "description": "Tab on the Invoices page: invoices this wallet issued to others. A short verb."
   },
-  "deskInvTabCount": "{label} ({count})",
-  "@deskInvTabCount": {
-    "description": "A tab label with how many items in it need you, e.g. 'To pay (2)'.",
-    "placeholders": {
-      "label": {
-        "type": "String"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "deskInvIssueAction": "Issue an invoice",
   "@deskInvIssueAction": {
     "description": "Button: start a new invoice to someone who should pay this wallet."
@@ -6665,10 +6262,6 @@
   "deskInvPayWaiting": "To pay",
   "@deskInvPayWaiting": {
     "description": "State of an invoice you received: waiting for your answer."
-  },
-  "deskInvPayPaying": "Paying",
-  "@deskInvPayPaying": {
-    "description": "State of an invoice you approved: signing and sending the payment."
   },
   "deskInvPayNotDelivered": "Not delivered",
   "@deskInvPayNotDelivered": {
@@ -6817,10 +6410,6 @@
   "deskInvIssuerPayerFact": "Payer",
   "@deskInvIssuerPayerFact": {
     "description": "Detail label: who was asked to pay."
-  },
-  "deskInvIssuerAmountFact": "Amount",
-  "@deskInvIssuerAmountFact": {
-    "description": "Detail label: the amount asked for."
   },
   "deskInvIssuerMessageFact": "Message",
   "@deskInvIssuerMessageFact": {
@@ -7360,24 +6949,6 @@
   "@deskInvSetReceiveHint": {
     "description": "Text beside Request a payment on Receive."
   },
-  "serverSwitchRelayTitle": "Switch Epicbox server?",
-  "@serverSwitchRelayTitle": {
-    "description": "Title of the confirm before the epicbox server of the open wallet changes."
-  },
-  "serverSwitchRelayBody": "The Epicbox address changes to …@{relay}. Senders need the new address. Payments sent to the old address stay on the old server.",
-  "@serverSwitchRelayBody": {
-    "description": "Body of that confirm: the address keeps its key and takes the new server.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "epicbox.example.org"
-      }
-    }
-  },
-  "serverSwitchRelayConfirm": "Switch",
-  "@serverSwitchRelayConfirm": {
-    "description": "Button of that confirm that switches the server."
-  },
   "helpButton": "Help",
   "@helpButton": {
     "description": "Tooltip of the small ? button that opens one help topic."
@@ -7445,10 +7016,6 @@
   "@methodDirect": {
     "description": "Name of the Link family of methods (Link · HTTP and Link · Tor): straight to the other wallet, at an http(s) or onion address. A header, a segment or a tab."
   },
-  "methodLinkPayment": "Link Payment",
-  "@methodLinkPayment": {
-    "description": "Retired: the old name of the Link family. No code reads it; see methodDirect (Link) and methodDirectHttp / methodDirectTor."
-  },
   "methodDirectShape": "http://host:{port} or xxxx….onion",
   "@methodDirectShape": {
     "description": "Under Send's empty To field on Link: the two shapes a Link address takes. Keep the addresses as they are.",
@@ -7462,10 +7029,6 @@
   "methodSendDirectLine": "Their wallet must be open. An onion address goes over Tor.",
   "@methodSendDirectLine": {
     "description": "Send's strip line for Link."
-  },
-  "methodArtLabelDirect": "Link: the payment goes straight to the recipient’s wallet, which must be open",
-  "@methodArtLabelDirect": {
-    "description": "Screen reader label of the Link picture."
   },
   "methodArtSpokenLink": "{method}: the payment goes straight to the recipient’s wallet, which must be open",
   "@methodArtSpokenLink": {
@@ -7951,18 +7514,6 @@
       }
     }
   },
-  "deskErrProofEpicbox": "The older app used the Epicbox server {old}; this app uses {current}",
-  "@deskErrProofEpicbox": {
-    "description": "A line of the import wizard's result: the old app used another Epicbox server than this app. Both are host names.",
-    "placeholders": {
-      "old": {
-        "type": "String"
-      },
-      "current": {
-        "type": "String"
-      }
-    }
-  },
   "deskErrProofFolderUnchanged": "Old folder unchanged",
   "@deskErrProofFolderUnchanged": {
     "description": "A line of the import wizard's result: the old wallet's folder was only read."
@@ -8127,10 +7678,6 @@
   "deskErrPasswordNotChanged": "Password not changed. The current password still opens the wallet.",
   "@deskErrPasswordNotChanged": {
     "description": "An error message the user reads when changing the password failed."
-  },
-  "deskErrNothingToSpend": "Nothing to spend",
-  "@deskErrNothingToSpend": {
-    "description": "An error message the user reads when there are no coins to spend."
   },
   "deskTorLineOff": "Off",
   "@deskTorLineOff": {
@@ -8718,10 +8265,6 @@
   "deskRecvReceiving": "Receiving",
   "@deskRecvReceiving": {
     "description": "Label before the method icons in the Receive page header, and before the on/off switch of each receiving method."
-  },
-  "deskRecvNameFile": "Direct · File Transfer",
-  "@deskRecvNameFile": {
-    "description": "Name of the file method (transaction files) when read out in a screen reader line such as \"File off\"."
   },
   "deskRecvTurnOnFailed": "{method} not turned on",
   "@deskRecvTurnOnFailed": {
@@ -9416,14 +8959,6 @@
   "@deskSendReviewAgain": {
     "description": "Button in the Send failed notice: opens the review again."
   },
-  "deskSendMethodDirect": "Link",
-  "@deskSendMethodDirect": {
-    "description": "Name of the Link send method (an http(s) or onion address), in the method selector and in tags. Short."
-  },
-  "deskSendMethodFile": "Direct · File",
-  "@deskSendMethodFile": {
-    "description": "Name of the File send method (a transaction file), in the method selector. Short."
-  },
   "deskSendTo": "To",
   "@deskSendTo": {
     "description": "Label of the recipient field on Send."
@@ -9623,18 +9158,6 @@
   "deskSendFileLine2": "Hand the file over, get their response file back, then finalize it here.",
   "@deskSendFileLine2": {
     "description": "Second line under the method selector for the File method."
-  },
-  "deskSendTagDirect": "Link",
-  "@deskSendTagDirect": {
-    "description": "Small tag next to the To label after the method switched to Link by itself. Short."
-  },
-  "deskSendTagFile": "Direct · File",
-  "@deskSendTagFile": {
-    "description": "Small tag next to the To label after the method switched to File. Short."
-  },
-  "deskSendTagEpicbox": "Via Epicbox",
-  "@deskSendTagEpicbox": {
-    "description": "Small tag next to the To label after the method switched to Epicbox. Short."
   },
   "deskSendSwitchedDirect": "Link address. Method set to Link.",
   "@deskSendSwitchedDirect": {
@@ -9988,10 +9511,6 @@
   "deskActSearchHint": "Note, contact, address or amount",
   "@deskActSearchHint": {
     "description": "Placeholder of the search field on Activity. Narrow field."
-  },
-  "deskActSearchHintEmpty": "Nothing to search yet",
-  "@deskActSearchHintEmpty": {
-    "description": "Placeholder of the search field on Activity when there are no transactions yet. Narrow field."
   },
   "deskActSearchLabel": "Search payments",
   "@deskActSearchLabel": {
@@ -11343,10 +10862,6 @@
   "@deskOvFinalize": {
     "description": "Ghost button in the open-file-sends notice: opens the Finalize page. Short."
   },
-  "deskTxMethodFile": "Direct · File",
-  "@deskTxMethodFile": {
-    "description": "Transaction method name for a payment made with a file (not Epicbox, HTTP or Tor). Table cell and detail value; one short word."
-  },
   "deskTxMiningReward": "Mining reward",
   "@deskTxMiningReward": {
     "description": "Who the other side of a transaction is when it is a mining reward. Activity table name column; short."
@@ -11865,20 +11380,6 @@
   "@deskTxCancelOutgoingTitle": {
     "description": "Title of the dialog that asks before cancelling an outgoing payment."
   },
-  "deskTxCancelIncomingBody": "{amount} EPIC from {who} leaves your balance. The wallet asks the node first and refuses if the payment is already in the node’s pool or a block. If the sender posts it later, it still arrives.",
-  "@deskTxCancelIncomingBody": {
-    "description": "Body of the dialog that asks before cancelling an incoming payment.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5"
-      },
-      "who": {
-        "type": "String",
-        "example": "Piotr"
-      }
-    }
-  },
   "deskTxCancelOutgoingBody": "{amount} EPIC to {who}. Nothing has been paid yet: cancelling is free and certain.",
   "@deskTxCancelOutgoingBody": {
     "description": "Body of the dialog that asks before cancelling a send still waiting for the recipient's answer. Certain, no fee.",
@@ -12254,15 +11755,6 @@
   "@deskOnbRestoreClear": {
     "description": "Button on the restore phrase step: empty the phrase grid. One word."
   },
-  "deskOnbRestoreUseWords": "{count, plural, one{Use {count} word} other{Use {count} words}}",
-  "@deskOnbRestoreUseWords": {
-    "description": "Primary button of the restore phrase step once the phrase is complete. Narrow: short. {count} is 12 or 24.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "deskOnbRestoreWords": "Words",
   "@deskOnbRestoreWords": {
     "description": "Label above the phrase grid."
@@ -12278,38 +11770,6 @@
         "type": "int"
       }
     }
-  },
-  "deskOnbKillTitle": "Epic is already running",
-  "@deskOnbKillTitle": {
-    "description": "Title of the dialog shown on unlock when an older wallet or node process is still running."
-  },
-  "deskOnbKillBody": "Another wallet or node process is using the wallet files and ports. Close it to unlock here, or cancel and close it yourself.",
-  "@deskOnbKillBody": {
-    "description": "Body of the 'Epic is already running' dialog."
-  },
-  "deskOnbKillProcesses": "Running processes",
-  "@deskOnbKillProcesses": {
-    "description": "Screen-reader name of the list of running processes in that dialog."
-  },
-  "deskOnbKillRoleWallet": "wallet service",
-  "@deskOnbKillRoleWallet": {
-    "description": "Small grey note beside a process in the list: it is the wallet service. Lowercase."
-  },
-  "deskOnbKillRoleNode": "node",
-  "@deskOnbKillRoleNode": {
-    "description": "Small grey note beside a process in the list: it is a node. Lowercase."
-  },
-  "deskOnbKillNote": "Closing them stops a node sync or receiving; this app starts them again after unlock.",
-  "@deskOnbKillNote": {
-    "description": "Note under the process list."
-  },
-  "deskOnbKillClosing": "Closing…",
-  "@deskOnbKillClosing": {
-    "description": "Danger button of the 'Epic is already running' dialog while the processes are being closed."
-  },
-  "deskOnbKillClose": "Close and unlock",
-  "@deskOnbKillClose": {
-    "description": "Danger button of the 'Epic is already running' dialog: close the processes and unlock the wallet."
   },
   "deskOnbSameTitle": "This wallet is already here",
   "@deskOnbSameTitle": {
@@ -12357,14 +11817,6 @@
   "@deskOnbUnlockStageCheck": {
     "description": "Progress step while unlocking."
   },
-  "deskOnbUnlockStageProcesses": "Looking for wallet processes still running",
-  "@deskOnbUnlockStageProcesses": {
-    "description": "Progress step while unlocking: looking for older wallet processes."
-  },
-  "deskOnbUnlockStageClosing": "Closing the old wallet processes",
-  "@deskOnbUnlockStageClosing": {
-    "description": "Progress step while unlocking: closing older wallet processes."
-  },
   "deskOnbUnlockStageWallet": "Starting the wallet service",
   "@deskOnbUnlockStageWallet": {
     "description": "Progress step while unlocking."
@@ -12376,10 +11828,6 @@
   "deskOnbUnlockEnter": "Enter the password",
   "@deskOnbUnlockEnter": {
     "description": "Error under the password field when it is empty."
-  },
-  "deskOnbUnlockCloseOthers": "Close the other Epic processes, then unlock.",
-  "@deskOnbUnlockCloseOthers": {
-    "description": "Error under the password field when the user cancelled the 'Epic is already running' dialog."
   },
   "deskOnbUnlockRememberedUnavailable": "Remembered password unavailable. Enter the password.",
   "@deskOnbUnlockRememberedUnavailable": {
@@ -13175,19 +12623,6 @@
   "@deskShellMainNav": {
     "description": "Screen-reader label of the sidebar that holds the main places."
   },
-  "deskShellVersion": "Version {version}",
-  "@deskShellVersion": {
-    "description": "Tooltip of the logo and screen-reader label of the version under the compact sidebar. {version} is the app version.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "deskShellOpenWalletSettings": "Open wallet settings",
-  "@deskShellOpenWalletSettings": {
-    "description": "Tooltip of the account row at the bottom of the sidebar: a click opens the wallet's settings."
-  },
   "deskShellOpenWalletSettingsNamed": "Open wallet settings: {name}",
   "@deskShellOpenWalletSettingsNamed": {
     "description": "Screen-reader label of the account row at the bottom of the sidebar. {name} is the wallet's name.",
@@ -13200,15 +12635,6 @@
   "deskShellSwitchWallet": "Switch wallet",
   "@deskShellSwitchWallet": {
     "description": "Tooltip of the button next to the account row that locks the wallet so another wallet can be picked."
-  },
-  "deskShellWalletBy": "Wallet by {maker}",
-  "@deskShellWalletBy": {
-    "description": "Small credit line at the bottom of the sidebar. {maker} is the company's name (BT Labs); the app draws it dimmer.",
-    "placeholders": {
-      "maker": {
-        "type": "String"
-      }
-    }
   },
   "deskTourOverviewTitle": "Overview",
   "@deskTourOverviewTitle": {
@@ -13345,26 +12771,6 @@
         "type": "int"
       }
     }
-  },
-  "deskKitHealthOn": "On",
-  "@deskKitHealthOn": {
-    "description": "Status word of a service row (On / Slow / Offline / Off / Checking). One short word."
-  },
-  "deskKitHealthSlow": "Slow",
-  "@deskKitHealthSlow": {
-    "description": "Status word of a service that answers slowly. One short word."
-  },
-  "deskKitHealthOffline": "Offline",
-  "@deskKitHealthOffline": {
-    "description": "Status word of a service that does not answer. One short word."
-  },
-  "deskKitHealthOff": "Off",
-  "@deskKitHealthOff": {
-    "description": "Status word of a service that is turned off. One short word."
-  },
-  "deskKitHealthChecking": "Checking",
-  "@deskKitHealthChecking": {
-    "description": "Status word of a service whose state is being checked. One short word."
   },
   "deskKitCloseEsc": "Close (Esc)",
   "@deskKitCloseEsc": {
@@ -13842,10 +13248,6 @@
       }
     }
   },
-  "deskKitLocalNode": "Local node",
-  "@deskKitLocalNode": {
-    "description": "Name of the row in the node list that stands for the node running on this computer."
-  },
   "deskKitMethodWaitingTor": "Waiting for Tor",
   "@deskKitMethodWaitingTor": {
     "description": "Bold status word of the Epicbox line (Receive, Settings › Receiving): waits until Tor is connected."
@@ -14085,22 +13487,6 @@
   "@deskSetAcctSaveLabel": {
     "description": "Tooltip and screen reader label of the check button in the label field."
   },
-  "deskSetAcctPhraseHint": "The words that restore this wallet. Keep them private.",
-  "@deskSetAcctPhraseHint": {
-    "description": "Settings > This wallet: hint under the Recovery phrase row."
-  },
-  "deskSetAcctShowPhrase": "Show recovery phrase…",
-  "@deskSetAcctShowPhrase": {
-    "description": "Settings > This wallet: button that opens the recovery phrase page."
-  },
-  "deskSetAcctRescanHint": "Reads the chain again when the balance looks wrong.",
-  "@deskSetAcctRescanHint": {
-    "description": "Settings > This wallet: hint under the Recheck balance row."
-  },
-  "deskSetAcctRecheck": "Recheck…",
-  "@deskSetAcctRecheck": {
-    "description": "Settings > This wallet: button that opens the Recheck balance page."
-  },
   "deskSetAcctFiles": "Files",
   "@deskSetAcctFiles": {
     "description": "Settings > This wallet: title of the group of folder rows."
@@ -14295,17 +13681,9 @@
   "@deskSetBackupImportButton": {
     "description": "Settings > Backup: button that opens the import dialog. Short."
   },
-  "deskSetBackupCsvTitle": "Payments as CSV",
-  "@deskSetBackupCsvTitle": {
-    "description": "Settings > Backup: row title for exporting payments as a spreadsheet file."
-  },
   "deskSetBackupCsvHint": "A plain table for spreadsheets. Not encrypted, not importable.",
   "@deskSetBackupCsvHint": {
     "description": "Settings > Backup: hint under the Payments as CSV row."
-  },
-  "deskSetBackupCsvButton": "Export CSV…",
-  "@deskSetBackupCsvButton": {
-    "description": "Settings > Backup: button that opens the CSV export dialog. Short."
   },
   "deskSetBackupSaveDialogTitle": "Save wallet data",
   "@deskSetBackupSaveDialogTitle": {
@@ -14830,18 +14208,6 @@
   "deskSetFrameListening": "Listening",
   "@deskSetFrameListening": {
     "description": "Status word of the Epicbox listener that waits for incoming payments."
-  },
-  "deskSetFrameHealthLatency": "{word} · {ms} ms",
-  "@deskSetFrameHealthLatency": {
-    "description": "Status word with its response time, e.g. \"On · 84 ms\". {word} is a status word, {ms} milliseconds.",
-    "placeholders": {
-      "word": {
-        "type": "String"
-      },
-      "ms": {
-        "type": "int"
-      }
-    }
   },
   "deskSetFrameNever": "never",
   "@deskSetFrameNever": {
@@ -16502,10 +15868,6 @@
   "@deskSetRescanText": {
     "description": "Settings > Recheck balance: text of the first row."
   },
-  "deskSetRescanStartAgain": "Start again",
-  "@deskSetRescanStartAgain": {
-    "description": "Settings > Recheck balance: button after a scan ended or failed."
-  },
   "deskSetRescanDeleteUnconfirmed": "Delete unconfirmed",
   "@deskSetRescanDeleteUnconfirmed": {
     "description": "Settings > Recheck balance: checkbox label."
@@ -17487,10 +16849,6 @@
   "@deskTxLabelField": {
     "description": "Screen-reader name of the inline label field, and the name of the field in the Details differ dialog."
   },
-  "deskTxLabelTip": "A name for this payment, for you. Shown in Activity and exports.",
-  "@deskTxLabelTip": {
-    "description": "Tooltip on the label pen: what a label is."
-  },
   "deskTxLabelAdded": "Label added",
   "@deskTxLabelAdded": {
     "description": "Toast title after a label was added."
@@ -17736,16 +17094,6 @@
   "@deskUpdAvailable": {
     "description": "Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it)."
   },
-  "deskUpdNotice": "Update available · {version}",
-  "@deskUpdNotice": {
-    "description": "Narrow sidebar: tooltip and screen-reader name of the update icon.",
-    "placeholders": {
-      "version": {
-        "type": "String",
-        "example": "26.10.9"
-      }
-    }
-  },
   "deskUpdDownload": "Download {version}",
   "@deskUpdDownload": {
     "description": "Button and tooltip: download the newer version inside the app (it is installed after a restart).",
@@ -17900,10 +17248,6 @@
   "@advReset": {
     "description": "Row at the end of the Advanced page: turns every visibility switch off. The network mode stays."
   },
-  "advHomeTorOnlyWaiting": "Tor only · waiting for Tor",
-  "@advHomeTorOnlyWaiting": {
-    "description": "Home status line while Tor only is on and Tor is not connected yet."
-  },
   "advBuiltInNode": "Built-in node",
   "@advBuiltInNode": {
     "description": "Advanced switch (desktop): run a node on this computer."
@@ -18005,14 +17349,6 @@
       }
     }
   },
-  "deskShellOffline": "Offline",
-  "@deskShellOffline": {
-    "description": "Sidebar status row while the Offline network mode is on."
-  },
-  "deskShellTorOnlyWaiting": "Tor only · waiting for Tor",
-  "@deskShellTorOnlyWaiting": {
-    "description": "Sidebar status row while Tor only is on and Tor is not connected yet."
-  },
   "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.",
   "@deskSetAcctAutoLockHint": {
     "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
@@ -18021,10 +17357,6 @@
   "@netBlockTorOnly": {
     "description": "Line under the Tor switch while the Tor only network mode locks it on."
   },
-  "netBlockWaitingForTor": "Waiting for Tor.",
-  "@netBlockWaitingForTor": {
-    "description": "Why a network action is disabled while Tor only is on and Tor is not connected yet."
-  },
   "txDetailsMore": "More",
   "@txDetailsMore": {
     "description": "Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced."
@@ -18032,10 +17364,6 @@
   "restoreStartFromLink": "Start from a date or height",
   "@restoreStartFromLink": {
     "description": "Small link on Restore that opens the choice of where to start scanning the chain."
-  },
-  "homeWaitingTorDetail": "Tor only is on in Advanced. Waiting for Tor to connect.",
-  "@homeWaitingTorDetail": {
-    "description": "Tooltip and screen reader hint of Home's Waiting for Tor status."
   },
   "settingsRescanBodyPlain": "The wallet looks for its coins again, from the first block.",
   "@settingsRescanBodyPlain": {
@@ -18134,23 +17462,6 @@
   "@slInUseSwitchFirst": {
     "description": "Foot line when the remove button of the server in use is tapped."
   },
-  "slRestore": "Restore removed servers",
-  "@slRestore": {
-    "description": "Button at the end of the list while a public server is removed."
-  },
-  "slRemovedCount": "{count, plural, one{{count} removed} other{{count} removed}}",
-  "@slRemovedCount": {
-    "description": "Beside Restore removed servers: how many public servers are removed.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "slRestored": "Removed servers restored.",
-  "@slRestored": {
-    "description": "Foot line after Restore removed servers."
-  },
   "slRelayWarning": "Changing the server changes your Epicbox address. Share the new one.",
   "@slRelayWarning": {
     "description": "Warning card always shown under the Epicbox field: a general rule (changing the server changes the address), not something happening now."
@@ -18217,10 +17528,6 @@
   "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
   "@deskSlHelpChoose": {
     "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
-  },
-  "deskOnbRestoreFromLink": "Start from a block height",
-  "@deskOnbRestoreFromLink": {
-    "description": "Small link on the Restore password step that opens an optional field for the block the check starts from."
   },
   "deskOnbRestoreFromHide": "Check the whole chain",
   "@deskOnbRestoreFromHide": {
@@ -18323,14 +17630,6 @@
   "txEpicboxHint": "Epicbox pays through a server, so the other wallet does not have to be open. Off, the wallet connects to no server: no Epicbox payments or invoices. The other methods still work.",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."
-  },
-  "txDirectLine": "Pay web and onion addresses; get paid straight from other wallets.",
-  "@txDirectLine": {
-    "description": "One line under the Link switch on Settings › Transactions."
-  },
-  "txDirectHint": "Link pays straight to the other wallet at a web or onion address, and lets this phone be paid the same way. Both wallets must be open. HTTP works on this Wi-Fi network; Tor needs Tor. Adds Link to Send and Receive.",
-  "@txDirectHint": {
-    "description": "Info sheet text of the Link switch on Settings › Transactions."
   },
   "txFileHint": "File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.",
   "@txFileHint": {
@@ -18845,10 +18144,6 @@
       }
     }
   },
-  "pairLead": "Pair once with someone. Transaction files and invoices between the two wallets are then sealed: only those two can read them.",
-  "@pairLead": {
-    "description": "Lead text on the Pair screen, phone and desktop. The only explanation on the screen."
-  },
   "pairInPerson": "In person",
   "@pairInPerson": {
     "description": "Pair screen: first way in."
@@ -18857,21 +18152,9 @@
   "@pairInPersonHint": {
     "description": "Subtitle of In person."
   },
-  "pairOnline": "Online",
-  "@pairOnline": {
-    "description": "Pair screen: second way in."
-  },
-  "pairOnlineHint": "Send an invite link, or read out pairing words",
-  "@pairOnlineHint": {
-    "description": "Subtitle of Online."
-  },
   "pairOfflineHint": "Offline. The invite and the answer travel by hand.",
   "@pairOfflineHint": {
     "description": "Subtitle of Online while the wallet is Offline (the invite goes by hand, as with Epicbox off). Also the docked notice on the Pair page and on Pair online."
-  },
-  "pairEnter": "Enter link or words",
-  "@pairEnter": {
-    "description": "Pair screen: third way in; also the title of that screen."
   },
   "pairEnterHint": "Paste an invite link or type the words you were given",
   "@pairEnterHint": {
@@ -18995,10 +18278,6 @@
   "@pairEnterTryAgain": {
     "description": "Primary button after the not-found error."
   },
-  "pairEnterDesktopHint": "A pasted link or typed words do what a scan does on the phone.",
-  "@pairEnterDesktopHint": {
-    "description": "Small print under the desktop field."
-  },
   "pairCardCopy": "Copy my pairing link",
   "@pairCardCopy": {
     "description": "Desktop Pair screen button: copies this wallet's in-person pairing link (its contact card inside, not a word the UI uses), for pairing face to face without a camera."
@@ -19030,18 +18309,6 @@
   "pairEnterDesktopPlaceholder": "Paste the invite link, or type the five words",
   "@pairEnterDesktopPlaceholder": {
     "description": "Placeholder of the desktop field."
-  },
-  "pairOnlineTitle": "Pair online",
-  "@pairOnlineTitle": {
-    "description": "App bar of the online-invite screen."
-  },
-  "pairOnlineLead": "Send the invite over any channel you already use with them. Pairing finishes when their wallet opens it.",
-  "@pairOnlineLead": {
-    "description": "Lead on Pair online."
-  },
-  "pairOnlineLeadByHand": "Send the invite over any channel you already use with them. Their answer comes back the same way: paste it under Enter link or words.",
-  "@pairOnlineLeadByHand": {
-    "description": "Lead on Pair online while Epicbox is off."
   },
   "pairExpiresIn": "Invite expires in",
   "@pairExpiresIn": {
@@ -19351,24 +18618,6 @@
   "@pairCopyInvite": {
     "description": "Desktop: copies the share text."
   },
-  "pairUseWordsShort": "Use words",
-  "@pairUseWordsShort": {
-    "description": "Secondary button on Pair online."
-  },
-  "pairInviteSentTitle": "Invite sent",
-  "@pairInviteSentTitle": {
-    "description": "After sharing."
-  },
-  "pairInviteSentBody": "Pairing finishes when {name}’s wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.",
-  "@pairInviteSentBody": {
-    "description": "After sharing.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
   "pairCancelInvite": "Cancel invite",
   "@pairCancelInvite": {
     "description": "Button and menu item."
@@ -19452,16 +18701,6 @@
   "pairNotNow": "Not now",
   "@pairNotNow": {
     "description": "Secondary button of the incoming sheet."
-  },
-  "pairWaitingTitle": "Waiting for {name}’s wallet…",
-  "@pairWaitingTitle": {
-    "description": "Waiting screen title.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
   },
   "pairWaitingBody": "Their wallet answers when it opens. You can close this screen; the verification appears when pairing is done.",
   "@pairWaitingBody": {
@@ -20172,10 +19411,6 @@
   "@pendingShowWords": {
     "description": "Row menu and desktop button."
   },
-  "pendingCopyLink": "Copy link",
-  "@pendingCopyLink": {
-    "description": "Desktop row button."
-  },
   "invSetTitle": "Invoices",
   "@invSetTitle": {
     "description": "Screen title."
@@ -20348,16 +19583,6 @@
   "@reqTlConfirmed": {
     "description": "Timeline step."
   },
-  "reqTlWaiting": "Waiting {time}",
-  "@reqTlWaiting": {
-    "description": "Timeline detail for a step that is late.",
-    "placeholders": {
-      "time": {
-        "type": "String",
-        "example": "9:32"
-      }
-    }
-  },
   "reqNotPostedTitle": "{name} has not posted yet",
   "@reqNotPostedTitle": {
     "description": "After 2 hours delivered but not posted.",
@@ -20407,16 +19632,6 @@
   "reqWithdrewBody": "The coins are unlocked. Nothing was paid.",
   "@reqWithdrewBody": {
     "description": "Body when the payment was cancelled."
-  },
-  "reqWithdrewUnpaid": "{name} withdrew this invoice",
-  "@reqWithdrewUnpaid": {
-    "description": "For an unpaid request; the row is removed.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
   },
   "reqTwoSame": "{count, plural, =1{{name} sent 1 invoice for {amount} EPIC within 10 minutes. Pay it?} other{{name} sent {count} invoices for {amount} EPIC within 10 minutes. Pay all of them?}}",
   "@reqTwoSame": {
@@ -20486,10 +19701,6 @@
   "reqNewToHint": "Paired contacts whose wallet pays invoices. Anyone else: save the invoice as a file.",
   "@reqNewToHint": {
     "description": "Under the To field."
-  },
-  "reqNewSaveFile": "Save as file",
-  "@reqNewSaveFile": {
-    "description": "Secondary button."
   },
   "reqNewSend": "Send invoice",
   "@reqNewSend": {
@@ -20756,19 +19967,6 @@
   "@restoreUseHere": {
     "description": "Dialog primary."
   },
-  "restorePairingsOnOtherDevice": "{count} · on another device",
-  "@restorePairingsOnOtherDevice": {
-    "description": "Import summary row readout.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "pairInviteSentBodyAnyone": "Pairing finishes when their wallet opens it. You can leave this screen; the invite stays under Contacts › Pending invites.",
-  "@pairInviteSentBodyAnyone": {
-    "description": "After sharing an invite made for nobody in particular."
-  },
   "pairInvalidLink": "This is not a pairing link",
   "@pairInvalidLink": {
     "description": "Outcome title for text that holds no pairing invite, answer or code (also a partial scan, cases C-28)."
@@ -21002,22 +20200,6 @@
   "@noticeView": {
     "description": "Action of a request notice."
   },
-  "restorePairings": "Pairings",
-  "@restorePairings": {
-    "description": "Import summary row label."
-  },
-  "pairingDesktopShowCodeLead": "Let them scan this with their phone, or read them the pairing words.",
-  "@pairingDesktopShowCodeLead": {
-    "description": "Desktop Show my code panel lead."
-  },
-  "pairingDesktopInviteLead": "Send an invite over any channel you already use with them. Pairing finishes when their wallet opens it.",
-  "@pairingDesktopInviteLead": {
-    "description": "Desktop Invite online panel lead."
-  },
-  "pairingInviteOnline": "Invite online",
-  "@pairingInviteOnline": {
-    "description": "Desktop panel title."
-  },
   "pairSaveContactTitle": "Save {name} in your contacts?",
   "@pairSaveContactTitle": {
     "description": "Result screens of the words check when the pairing has no address-book contact yet. The user chooses; nothing is matched on its own.",
@@ -21100,10 +20282,6 @@
   "pairNotInContacts": "Not in contacts",
   "@pairNotInContacts": {
     "description": "Subtitle of a pairing whose address-book contact was deleted (the address book is shared by every wallet on the device)."
-  },
-  "pairAddToContacts": "Add to contacts",
-  "@pairAddToContacts": {
-    "description": "Action on a pairing whose contact was deleted: saves a new contact with its address."
   },
   "helpPairingSection": "Pairing",
   "@helpPairingSection": {
@@ -21248,10 +20426,6 @@
   "pairNameForCode": "Enter the name they will see, and your code appears here.",
   "@pairNameForCode": {
     "description": "In person, Show my code: the placeholder of the code until the user gave the name the other side sees."
-  },
-  "pairYourNamePlaceholder": "Your name",
-  "@pairYourNamePlaceholder": {
-    "description": "Stands for the name in the preview of the invite text until the user types the name they will see."
   },
   "deskConPickForPairing": "The pairing is added to the contact you choose.",
   "@deskConPickForPairing": {
@@ -21777,14 +20951,6 @@
   "@deskSetRescanStartHeading": {
     "description": "Heading of the start-choice radio group on the Recheck page."
   },
-  "deskSetRescanRecent": "Recent blocks",
-  "@deskSetRescanRecent": {
-    "description": "Recheck start choice: from 100 blocks before the last scanned one (default)."
-  },
-  "deskSetRescanRecentHint": "From 100 blocks before the last one scanned. Enough after a failed send or a balance that looks wrong.",
-  "@deskSetRescanRecentHint": {
-    "description": "Hint under Recent blocks."
-  },
   "deskSetRescanFromHeight": "From a block height",
   "@deskSetRescanFromHeight": {
     "description": "Recheck start choice; same text as the phone's settingsRescanFromHeight."
@@ -22160,10 +21326,6 @@
   "backupSettingsKeepMine": "Keep mine",
   "@backupSettingsKeepMine": {
     "description": "Button of the settings question: keep the settings of this wallet. Short."
-  },
-  "backupFromOtherWallet": "This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.",
-  "@backupFromOtherWallet": {
-    "description": "Import error: the file was exported by a different wallet (another recovery phrase). Same text as errorHistoryOtherWallet."
   },
   "deskEpicboxBlockedWord": "Blocked",
   "@deskEpicboxBlockedWord": {
@@ -23040,89 +22202,6 @@
       }
     }
   },
-  "connServers": "Connection servers",
-  "@connServers": {
-    "description": "Name of the setting that chooses where two wallets find each other when they connect (Settings > Advanced > Experimental, under Pairing), and the title of its server picker."
-  },
-  "connServersHint": "Where two wallets find each other when they connect. The other wallet must use at least one of them too.",
-  "@connServersHint": {
-    "description": "The one line of consequence on the Connection servers setting (desktop row text)."
-  },
-  "connServersNote": "Choose up to 3.",
-  "@connServersNote": {
-    "description": "Note under the field of the Connection servers picker."
-  },
-  "connServersDefaults": "{n, plural, one{{n} server} other{{n} servers}} · Defaults",
-  "@connServersDefaults": {
-    "description": "State line of Connection servers when the chosen set is exactly the defaults. {n} is how many are chosen.",
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "connServersChanged": "{n, plural, one{{n} server} other{{n} servers}} · Changed",
-  "@connServersChanged": {
-    "description": "State line of Connection servers when the chosen set differs from the defaults. {n} is how many are chosen.",
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "connServersDown": "{down} of {n} not responding. Connecting still works through the others.",
-  "@connServersDown": {
-    "description": "State line of Connection servers while some, not all, chosen servers do not answer. {down} of {n}.",
-    "placeholders": {
-      "down": {
-        "type": "int"
-      },
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "connServersAllDown": "No connection server answers. Use Invite by message or In person.",
-  "@connServersAllDown": {
-    "description": "State line of Connection servers while none of the chosen servers answers. Invite by message and In person are the pairing ways that need no meeting server."
-  },
-  "connServersEpicboxOff": "Paused while Epicbox is off. Invite by message and In person still work.",
-  "@connServersEpicboxOff": {
-    "description": "State line of Connection servers while Epicbox is off."
-  },
-  "connServersOffline": "Paused while Offline is on.",
-  "@connServersOffline": {
-    "description": "State line of Connection servers in Offline mode."
-  },
-  "connServersNonDefault": "{host} is not a default. Wallets that also use it find you there.",
-  "@connServersNonDefault": {
-    "description": "State line of Connection servers while a chosen server is not one of the defaults. {host} is its host.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
-  "connServersInfo1": "When two wallets connect for the first time, each looks for the other on the servers it has chosen here. The two must have at least one in common, or they never meet.",
-  "@connServersInfo1": {
-    "description": "Info sheet of Connection servers, paragraph 1: what the setting does and the one condition."
-  },
-  "connServersInfo2": "The defaults are the servers every Epic Cash wallet knows. Keep them unless one is blocked on this network.",
-  "@connServersInfo2": {
-    "description": "Info sheet of Connection servers, paragraph 2: the defaults."
-  },
-  "connServersInfo3": "Invite by message and In person do not need them, and neither does anything after the connection: those use this wallet’s own Epicbox server.",
-  "@connServersInfo3": {
-    "description": "Info sheet of Connection servers, paragraph 3: what it does not affect."
-  },
-  "connServersInfo4": "Each chosen server sees that a connection was started, never with whom.",
-  "@connServersInfo4": {
-    "description": "Info sheet of Connection servers, paragraph 4: what a server sees."
-  },
-  "connServersInfoTor": "With Tor on, the servers are reached through Tor.",
-  "@connServersInfoTor": {
-    "description": "Info sheet of Connection servers, last paragraph; only in the build with Tor."
-  },
   "txSentFromOtherWallet": "Sent from another wallet",
   "@txSentFromOtherWallet": {
     "description": "Title of a history row for coins of this wallet that another wallet using the same recovery phrase spent: this wallet has no record of the payment, only that the coins left."
@@ -23598,10 +22677,6 @@
         "type": "String"
       }
     }
-  },
-  "deskDevServersNote": "Choose up to 2.",
-  "@deskDevServersNote": {
-    "description": "Under the Servers picker of Settings > Linked devices: how many may be chosen."
   },
   "deskDevServersCancel": "Cancel change",
   "@deskDevServersCancel": {

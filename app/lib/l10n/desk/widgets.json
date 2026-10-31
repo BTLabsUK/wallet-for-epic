@@ -43,26 +43,6 @@
       }
     }
   },
-  "deskKitHealthOn": "On",
-  "@deskKitHealthOn": {
-    "description": "Status word of a service row (On / Slow / Offline / Off / Checking). One short word."
-  },
-  "deskKitHealthSlow": "Slow",
-  "@deskKitHealthSlow": {
-    "description": "Status word of a service that answers slowly. One short word."
-  },
-  "deskKitHealthOffline": "Offline",
-  "@deskKitHealthOffline": {
-    "description": "Status word of a service that does not answer. One short word."
-  },
-  "deskKitHealthOff": "Off",
-  "@deskKitHealthOff": {
-    "description": "Status word of a service that is turned off. One short word."
-  },
-  "deskKitHealthChecking": "Checking",
-  "@deskKitHealthChecking": {
-    "description": "Status word of a service whose state is being checked. One short word."
-  },
   "deskKitCloseEsc": "Close (Esc)",
   "@deskKitCloseEsc": {
     "description": "Tooltip and screen-reader label of the close (X) button of a dialog or drawer; Esc is the keyboard key that does the same."
@@ -538,10 +518,6 @@
         "type": "String"
       }
     }
-  },
-  "deskKitLocalNode": "Local node",
-  "@deskKitLocalNode": {
-    "description": "Name of the row in the node list that stands for the node running on this computer."
   },
   "deskKitMethodWaitingTor": "Waiting for Tor",
   "@deskKitMethodWaitingTor": {

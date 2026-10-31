@@ -7,10 +7,6 @@
   "@deskRecvReceiving": {
     "description": "Label before the method icons in the Receive page header, and before the on/off switch of each receiving method."
   },
-  "deskRecvNameFile": "Direct · File Transfer",
-  "@deskRecvNameFile": {
-    "description": "Name of the file method (transaction files) when read out in a screen reader line such as \"File off\"."
-  },
   "deskRecvTurnOnFailed": "{method} not turned on",
   "@deskRecvTurnOnFailed": {
     "description": "Toast title when turning a receiving method on failed; the reason follows as text. {method} is Epicbox, HTTP, Tor or File.",

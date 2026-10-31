@@ -1,5 +1,4 @@
 {
-  "deskTxMethodFile": "โดยตรง · ไฟล์",
   "deskTxMiningReward": "รางวัลการขุด",
   "deskTxReceived": "รับ",
   "deskTxSent": "ส่ง",
@@ -98,7 +97,6 @@
   "deskTxStepProgress": "{confirmations} จาก {needed}",
   "deskTxCancelIncomingTitle": "ยกเลิกรายการนี้ไหม?",
   "deskTxCancelOutgoingTitle": "ยกเลิกรายการนี้ไหม?",
-  "deskTxCancelIncomingBody": "{amount} EPIC จาก {who} จะออกจากยอดคงเหลือ กระเป๋าเงินจะถามโหนดก่อน และไม่ยกเลิกถ้ารายการอยู่ใน pool ของโหนดหรืออยู่ในบล็อกแล้ว ถ้าผู้ส่งเผยแพร่ภายหลัง รายการจะยังเข้า",
   "deskTxCancelOutgoingBody": "{amount} EPIC ถึง {who} ยังไม่มีการจ่ายใด ๆ การยกเลิกไม่มีค่าธรรมเนียมและแน่นอน",
   "deskTxCancelNotPostedBody": "{amount} EPIC ถึง {who} รายการนี้ยังอาจสำเร็จได้ในภายหลัง",
   "deskTxCancelKeep": "เก็บไว้",

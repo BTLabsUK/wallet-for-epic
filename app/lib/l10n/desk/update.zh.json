@@ -1,6 +1,5 @@
 {
   "deskUpdAvailable": "有可用更新",
-  "deskUpdNotice": "有可用更新 · {version}",
   "deskUpdDownload": "下载 {version}",
   "deskUpdOpensPage": "打开下载页面",
   "deskUpdDownloading": "正在下载 {percent} %",

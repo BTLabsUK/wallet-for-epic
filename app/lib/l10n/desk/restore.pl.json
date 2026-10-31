@@ -8,8 +8,6 @@
   "deskErrRestoreScanRequired": "Przywracanie nieukończone. Odbieranie i wysyłanie będą dostępne, gdy skanowanie łańcucha się zakończy.",
   "deskSetRescanRestoreRunning": "Trwa skanowanie po przywróceniu: łańcuch jest odczytywany od pierwszego bloku. Sprawdź saldo będzie dostępne, gdy się zakończy.",
   "deskSetRescanStartHeading": "Od czego zacząć",
-  "deskSetRescanRecent": "Ostatnie bloki",
-  "deskSetRescanRecentHint": "Od 100 bloków przed ostatnim przeskanowanym. Wystarcza po nieudanej płatności lub gdy saldo wygląda źle.",
   "deskSetRescanFromHeight": "Od wysokości bloku",
   "deskSetRescanHeightInvalid": "Wpisz wysokość bloku 1 lub większą.",
   "deskSetRescanWholeChain": "Cały łańcuch",

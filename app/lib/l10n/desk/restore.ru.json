@@ -8,8 +8,6 @@
   "deskErrRestoreScanRequired": "Восстановление не завершено. Получение и отправка станут доступны, когда закончится сканирование блокчейна.",
   "deskSetRescanRestoreRunning": "Идёт сканирование после восстановления: блокчейн читается с первого блока. Сверка баланса станет доступна после его завершения.",
   "deskSetRescanStartHeading": "Откуда начать",
-  "deskSetRescanRecent": "Последние блоки",
-  "deskSetRescanRecentHint": "С 100 блоков до последнего просканированного. Достаточно после неудачной отправки или когда баланс выглядит неверно.",
   "deskSetRescanFromHeight": "С высоты блока",
   "deskSetRescanHeightInvalid": "Введите высоту блока от 1.",
   "deskSetRescanWholeChain": "Весь блокчейн",

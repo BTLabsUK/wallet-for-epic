@@ -1,7 +1,6 @@
 {
   "deskRecvTitle": "Empfangen",
   "deskRecvReceiving": "Empfang",
-  "deskRecvNameFile": "Direkt · Dateiübertragung",
   "deskRecvTurnOnFailed": "{method} nicht eingeschaltet",
   "deskRecvTurnOffFailed": "{method} nicht ausgeschaltet",
   "deskRecvOtherWays": "Weitere Empfangswege",

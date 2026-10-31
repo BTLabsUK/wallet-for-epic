@@ -21,8 +21,6 @@
   "deskSetAdvNotInBuild": "Nicht in dieser Version",
   "deskSetAdvReset": "Alles wieder ausblenden",
   "deskSetAdvOn": "{n, plural, =1{1 Schalter an} other{{n} Schalter an}}",
-  "deskShellOffline": "Offline",
-  "deskShellTorOnlyWaiting": "Nur Tor · wartet auf Tor",
   "deskNetOfflineNoPeers": "Ihr Node hat keine Peers: Die Zahlung wartet in seinem Pool, bis er sich wieder verbindet.",
   "deskNetWaitingTorReason": "Wartet auf Tor. Nur Tor ist unter Erweitert eingeschaltet.",
   "deskNetTorOnlyLine": "Nur Tor ist unter Erweitert eingeschaltet.",

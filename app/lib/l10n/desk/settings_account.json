@@ -35,22 +35,6 @@
   "@deskSetAcctSaveLabel": {
     "description": "Tooltip and screen reader label of the check button in the label field."
   },
-  "deskSetAcctPhraseHint": "The words that restore this wallet. Keep them private.",
-  "@deskSetAcctPhraseHint": {
-    "description": "Settings > This wallet: hint under the Recovery phrase row."
-  },
-  "deskSetAcctShowPhrase": "Show recovery phrase…",
-  "@deskSetAcctShowPhrase": {
-    "description": "Settings > This wallet: button that opens the recovery phrase page."
-  },
-  "deskSetAcctRescanHint": "Reads the chain again when the balance looks wrong.",
-  "@deskSetAcctRescanHint": {
-    "description": "Settings > This wallet: hint under the Recheck balance row."
-  },
-  "deskSetAcctRecheck": "Recheck…",
-  "@deskSetAcctRecheck": {
-    "description": "Settings > This wallet: button that opens the Recheck balance page."
-  },
   "deskSetAcctFiles": "Files",
   "@deskSetAcctFiles": {
     "description": "Settings > This wallet: title of the group of folder rows."

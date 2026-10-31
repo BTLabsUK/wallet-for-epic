@@ -1,6 +1,5 @@
 {
   "deskUpdAvailable": "มีอัปเดต",
-  "deskUpdNotice": "มีอัปเดต · {version}",
   "deskUpdDownload": "ดาวน์โหลด {version}",
   "deskUpdOpensPage": "เปิดหน้าดาวน์โหลด",
   "deskUpdDownloading": "กำลังดาวน์โหลด {percent} %",

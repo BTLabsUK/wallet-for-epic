@@ -79,18 +79,6 @@
   "@deskSetFrameListening": {
     "description": "Status word of the Epicbox listener that waits for incoming payments."
   },
-  "deskSetFrameHealthLatency": "{word} · {ms} ms",
-  "@deskSetFrameHealthLatency": {
-    "description": "Status word with its response time, e.g. \"On · 84 ms\". {word} is a status word, {ms} milliseconds.",
-    "placeholders": {
-      "word": {
-        "type": "String"
-      },
-      "ms": {
-        "type": "int"
-      }
-    }
-  },
   "deskSetFrameNever": "never",
   "@deskSetFrameNever": {
     "description": "Time since an event that never happened. Lowercase, part of a line."

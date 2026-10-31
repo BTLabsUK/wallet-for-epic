@@ -1,5 +1,4 @@
 {
-  "deskDevServersNote": "Wybierz do 2.",
   "deskDevServersCancel": "Anuluj zmianę",
   "deskDevServersDown": "{down} z {n} nie odpowiada. Komunikaty idą przez drugi.",
   "deskDevServersAllDown": "Żaden serwer nie odpowiada. Komunikaty czekają i idą dalej, gdy któryś wróci.",

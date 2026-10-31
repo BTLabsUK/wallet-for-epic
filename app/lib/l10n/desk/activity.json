@@ -7,10 +7,6 @@
   "@deskActSearchHint": {
     "description": "Placeholder of the search field on Activity. Narrow field."
   },
-  "deskActSearchHintEmpty": "Nothing to search yet",
-  "@deskActSearchHintEmpty": {
-    "description": "Placeholder of the search field on Activity when there are no transactions yet. Narrow field."
-  },
   "deskActSearchLabel": "Search payments",
   "@deskActSearchLabel": {
     "description": "Screen reader label of the search field on Activity."

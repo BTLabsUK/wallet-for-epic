@@ -15,10 +15,6 @@
   "@deskSetRescanText": {
     "description": "Settings > Recheck balance: text of the first row."
   },
-  "deskSetRescanStartAgain": "Start again",
-  "@deskSetRescanStartAgain": {
-    "description": "Settings > Recheck balance: button after a scan ended or failed."
-  },
   "deskSetRescanRecheck": "Recheck",
   "@deskSetRescanRecheck": {
     "description": "Button on Settings › Recheck balance that starts the recheck (the phone's Recheck)."
