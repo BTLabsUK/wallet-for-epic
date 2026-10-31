@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'phone_sheet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
@@ -23,7 +24,7 @@ const Key networkMenuNetworkKey = ValueKey('network-menu-network');
 /// development builds add Network. With no wallet open the sheets save the choice and start
 /// the app again on it.
 Future<void> showNetworkMenu(BuildContext context) async {
-  final choice = await showModalBottomSheet<_Entry>(
+  final choice = await showPhoneSheet<_Entry>(
     context: context,
     showDragHandle: true,
     useSafeArea: true,
@@ -86,7 +87,7 @@ Key networkChoiceKey(NetworkPreset preset) =>
 /// network has its own wallet and settings file (node and relay), so another network opens its
 /// own file and the app starts again on it (an open wallet is locked by that start).
 Future<void> showNetworkChooser(BuildContext context) =>
-    showModalBottomSheet<void>(
+    showPhoneSheet<void>(
       context: context,
       showDragHandle: true,
       useSafeArea: true,

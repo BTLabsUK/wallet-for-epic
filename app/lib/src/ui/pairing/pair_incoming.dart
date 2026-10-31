@@ -5,6 +5,7 @@
 /// paste, a tapped `epiccash://pair/…`.
 library;
 
+import '../phone_sheet.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -128,7 +129,7 @@ Future<void> showIncomingInvite(
   bool replace = false,
   bool viaLink = true,
 }) async {
-  final answered = await showModalBottomSheet<PairingRecord>(
+  final answered = await showPhoneSheet<PairingRecord>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,

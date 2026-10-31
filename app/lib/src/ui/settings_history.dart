@@ -7,6 +7,7 @@
 /// on Android) first, and "Share" as a second choice where the platform has a share sheet.
 library;
 
+import 'phone_sheet.dart';
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
@@ -172,7 +173,7 @@ Future<bool> handOverFile(
   final files = ref.read(historyFilesProvider);
   var destination = _Destination.device;
   if (files.canShare) {
-    final chosen = await showModalBottomSheet<_Destination>(
+    final chosen = await showPhoneSheet<_Destination>(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(

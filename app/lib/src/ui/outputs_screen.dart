@@ -3,6 +3,7 @@
 /// send uses and the list of every output.
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -131,7 +132,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   }
 
   void _openSheet(WalletOutput o, TxEntry? tx) {
-    showModalBottomSheet<void>(
+    showPhoneSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -140,7 +141,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   }
 
   Future<void> _openAction(Widget sheet) async {
-    await showModalBottomSheet<void>(
+    await showPhoneSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

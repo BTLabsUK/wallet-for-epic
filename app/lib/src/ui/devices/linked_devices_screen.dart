@@ -4,6 +4,7 @@
 /// with Release. Removing a device stops sync; it does not protect the money.
 library;
 
+import '../phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -165,7 +166,7 @@ class _DeviceRow extends ConsumerWidget {
 
   Future<void> _menu(BuildContext context, WidgetRef ref) async {
     final l = context.l10n;
-    final choice = await showModalBottomSheet<String>(
+    final choice = await showPhoneSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(

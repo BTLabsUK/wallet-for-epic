@@ -5,6 +5,7 @@
 /// rules: `network_gate.dart`.
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -59,7 +60,7 @@ Future<bool> chooseNetworkMode(BuildContext context, WidgetRef ref, NetworkMode 
       ? pendingNetworkSends(ref.read(homeProvider).value?.transactions)
       : 0;
   if (waiting > 0) {
-    final ok = await showModalBottomSheet<bool>(
+    final ok = await showPhoneSheet<bool>(
       context: context,
       showDragHandle: true,
       useSafeArea: true,
