@@ -160,12 +160,6 @@ Duration pinDelay(int failures) {
   return wait > maxPinDelay ? maxPinDelay : wait;
 }
 
-/// The error of a PIN call the old core does not have.
-WalletError pinUnsupported(String call) => WalletError(
-  kind: WalletErrorKind.other,
-  message: '$call needs the LEPIC core',
-);
-
 /// An open wallet. Mirrors the methods of the native `EpicWallet`.
 ///
 /// Call [dispose] when done. The core allows one chain per process, so every session must be
