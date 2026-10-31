@@ -152,6 +152,8 @@ const Set<String> localServiceMembers = {
 };
 const Set<String> localSessionMembers = {
   'supportsInvoices',
+  // Remote wallets are PIN wallets: the password is never asked again; refused by the client.
+  'checkPassword',
   // Linked devices are not offered through the remote protocol: no coins are held here;
   // answered by the client.
   'heldOutputs',
