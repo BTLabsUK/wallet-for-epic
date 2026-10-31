@@ -103,7 +103,7 @@
   "deskOnbNodeSeparate": "เป็นโปรแกรมแยก",
   "deskOnbNodeSeparateText": "เริ่มและหยุดพร้อมกับแอป",
   "deskOnbNodeFirewall": "Windows จะถามครั้งเดียว",
-  "deskOnbNodeFirewallText": "ว่าจะอนุญาตผ่านไฟร์วอลล์ไหม อนุญาตสำหรับเครือข่ายส่วนตัว",
+  "deskOnbNodeFirewallText": "ว่าจะอนุญาตผ่านไฟร์วอลล์ไหม อนุญาตสำหรับเครือข่ายที่ไว้วางใจ",
   "deskOnbNodeGrowing": "และเพิ่มขึ้นช้า ๆ · {free}",
   "deskOnbNodeHours": "การซิงก์ครั้งแรก",
   "deskOnbNodeHoursText": "แสดงความคืบหน้า ระหว่างนั้นใช้โหนดสาธารณะแทน",
