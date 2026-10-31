@@ -1002,7 +1002,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     // chosen set of hosts can wrap), so the list's foot (Reset, Undo) stays in the window.
     final box = context.findRenderObject() as RenderBox?;
     final anchor = (_link.leaderSize?.height ?? Ctl.sm) + Sp.x1;
-    final below = box == null || !box.hasSize ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - anchor - Sp.x4 - widget.keepBelow;
+    final below = box == null || !_laidOut(box) ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - anchor - Sp.x4 - widget.keepBelow;
     final maxHeight = below.clamp(widget.keepBelow > 0 ? 160.u : 260.u, 520.u);
 
     return CompositedTransformFollower(
@@ -1428,4 +1428,13 @@ class _AddRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Whether [r] and every box above it has a size: [RenderBox.localToGlobal] needs them all, and
+/// an ancestor that first lays out in this frame (a transform that just appeared) has none yet.
+bool _laidOut(RenderObject r) {
+  for (RenderObject? p = r; p != null; p = p.parent) {
+    if (p is RenderBox && !p.hasSize) return false;
+  }
+  return true;
 }
