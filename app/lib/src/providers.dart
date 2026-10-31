@@ -364,8 +364,15 @@ final cancelFinalProvider = Provider<CancelFinal>((ref) {
 class HomeNotifier extends AsyncNotifier<HomeData> {
   bool _enriching = false;
 
+  /// Counts the builds. The notifier lives on across rebuilds, so `ref.mounted` stays true
+  /// after a reload replaced a build; [_current] tells whether one is still the newest.
+  int _build = 0;
+
+  bool _current(int gen) => gen == _build && ref.mounted;
+
   @override
   Future<HomeData> build() async {
+    final gen = ++_build;
     final session = _requireSession(ref);
     // Kill switch reads the wallet's own files only (the last known balance and history);
     // leaving it refreshes against the node again. Node only refreshes against the node in use.
@@ -374,7 +381,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     await _followKillSwitch(session, offline);
     final shown = state.value;
     if (!offline && shown != null && identical(shown.session, session)) {
-      return _refreshed(session);
+      return _refreshed(session, gen);
     }
     final summary = await _withHeld(
       session,
@@ -384,10 +391,11 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
       ),
     );
     final transactions = await session.transactions(refresh: false);
-    if (offline) {
+    if (offline || !_current(gen)) {
+      // A newer build replaced this one before it was shown: that one refreshes.
       return HomeData(summary: summary, transactions: transactions, session: session);
     }
-    Future<void>.delayed(Duration.zero, () => _syncInBackground(session));
+    Future<void>.delayed(Duration.zero, () => _syncInBackground(session, gen));
     // Epicbox resends wait for Node only to end.
     if (mode != NetworkMode.nodeOnly) unawaited(_retryUndelivered(session, transactions));
     return HomeData(
@@ -443,8 +451,8 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
   }
 
   /// Refreshes against the node, publishing its progress in [syncProgressProvider], and reads
-  /// the list.
-  Future<HomeData> _refreshed(WalletSession session) async {
+  /// the list. Build [gen]'s refresh stops once a newer build replaced it.
+  Future<HomeData> _refreshed(WalletSession session, int gen) async {
     final progress = ref.read(syncProgressProvider.notifier);
     WalletSummary? summary;
     try {
@@ -452,7 +460,7 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
         minimumConfirmations: ref.read(minimumConfirmationsProvider),
       )) {
         // A reload replaced this one; it shows its own progress.
-        if (!ref.mounted) throw StateError('Refresh replaced');
+        if (!_current(gen)) throw StateError('Refresh replaced');
         progress.report(step.percent);
         summary = step.summary ?? summary;
       }
@@ -554,17 +562,17 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
 
   /// The refresh after a local first load. A failure keeps the local figures and shows the
   /// error; a reload that started meanwhile replaces this one.
-  Future<void> _syncInBackground(WalletSession session) async {
-    if (!ref.mounted) return;
+  Future<void> _syncInBackground(WalletSession session, int gen) async {
+    if (!_current(gen)) return;
     try {
-      final data = await _refreshed(session);
-      if (ref.mounted) state = AsyncData(data);
+      final data = await _refreshed(session, gen);
+      if (_current(gen)) state = AsyncData(data);
     } catch (error, stack) {
+      if (!_current(gen)) return;
       logWarn(
         'sync',
         'refresh failed: ${describeError(englishStrings, error)}',
       );
-      if (!ref.mounted) return;
       // The local figures stay, no longer marked as syncing, under the error.
       final shown = state.value;
       if (shown != null) {
