@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../contact_store.dart' show ContactFields;
 import '../../../contacts_file.dart' show encodeContactsFile;
 import '../../app/shots.dart';
+import '../../../levels/wallet_level.dart';
+import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/history_files.dart';
 import '../../data/mock_wallet.dart';
 import '../../widgets/kit.dart';
@@ -22,6 +24,9 @@ import 'overview_screen.dart';
 import 'tx_detail.dart';
 import 'tx_details_dialog.dart';
 import 'tx_label.dart';
+
+/// Shows the screen at [level] (the tour's wallet stands on its own, so the pick is its own).
+Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) => c.read(deskLevelControlProvider).setLevel(level);
 
 Tx _tx(BuildContext context, int id) {
   final container = ProviderScope.containerOf(context);
@@ -64,6 +69,12 @@ Future<void> _forgetPool(ProviderContainer c, BuildContext _) => c.read(deskProv
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
 final List<DeskShot> walletShots = [
+  // Wallet levels: Overview, Activity and the payment detail at Shallow and Deeper.
+  DeskShot(id: '10-overview-l1', title: 'Overview, Shallow', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(id: '10-overview-l2', title: 'Overview, Deeper', route: DeskRoute.overview, before: _level(WalletLevel.casual)),
+  DeskShot(id: '11-activity-l1', title: 'Activity, Shallow', route: DeskRoute.activity, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(id: '12-tx-detail-l1', title: 'Payment detail, Shallow', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(id: '12-tx-detail-l2', title: 'Payment detail, Deeper', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.casual)),
   const DeskShot(id: '10-overview', title: 'Overview', route: DeskRoute.overview),
   DeskShot(id: '10-overview-narrow', title: 'Overview at 1000x700', route: DeskRoute.overview, width: 1000, height: 700),
   const DeskShot(id: '10b-overview-empty', title: 'Overview, new wallet', route: DeskRoute.overview, arg: OverviewDemo.empty),

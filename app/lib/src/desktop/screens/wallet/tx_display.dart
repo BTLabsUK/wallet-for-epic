@@ -6,7 +6,9 @@ import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../devices/device_ending.dart' show deviceEndingLabel;
 import '../../../l10n.dart' show localClock, localDay, localDayMonth;
+import '../../../levels/level_features.dart' show LevelWording;
 import '../../../models.dart' show DeviceEnding;
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
@@ -90,6 +92,42 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
     mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered && !t.senderPosted && !t.senderCancelled
     ? (t.incoming ? l.txStatusWaitingFor(mailbox) : (paused ? l.contactPausedEpicboxOff : l.deskTxStatusWaitingFor(mailbox)), paused ? ETone.warn : ETone.info)
     : statusOf(l, t);
+
+/// [statusWithMailbox] in the words of [wording]: Shallow and Deeper read an ordinary payment
+/// in plain words (Waiting for Alice, Arriving, Confirming, 2 of 3); the Deep end and every
+/// case with a word of its own (not delivered, not posted, a backup, an invoice, another
+/// device, the sender's cancel) keep today's.
+(String, ETone) levelStatusWithMailbox(AppLocalizations l, Tx t, LevelWording wording, String? mailbox, {bool paused = false}) {
+  final today = statusWithMailbox(l, t, mailbox, paused: paused);
+  final own = t.deviceEnding != null ||
+      t.fromBackup ||
+      t.isInvoice ||
+      t.undelivered ||
+      t.notPosted ||
+      t.deviceName != null ||
+      paused ||
+      (t.incoming && t.senderCancelled) ||
+      (t.method == TxMethod.file && t.state == TxState.waitingRecipient);
+  if (wording == LevelWording.technical || own) return today;
+  final plain = wording == LevelWording.plain;
+  final name = mailbox ?? t.contactName;
+  if (t.immature) return (plain ? l.lvPayArriving : l.deskLvPayImmatureCasual, ETone.info);
+  switch (t.state) {
+    case TxState.waitingRecipient:
+      if (t.incoming) return plain ? (l.lvPayArriving, ETone.info) : today;
+      if (name == null) return today;
+      return (plain ? l.txStatusWaitingFor(name) : l.deskTxStatusWaitingFor(name), ETone.info);
+    case TxState.posted:
+      return (l.lvPolPosted, ETone.info);
+    case TxState.confirming:
+      if (NetGate.killSwitch) return today;
+      if (plain) return (t.incoming ? l.lvPayArriving : l.lvPayConfirming(t.confirmations, t.confirmationsNeeded), ETone.info);
+      return (l.deskLvPayConfirmingComma(t.confirmations, t.confirmationsNeeded), ETone.info);
+    case TxState.confirmed:
+    case TxState.cancelled:
+      return today;
+  }
+}
 
 /// A file payment's file name, without its folder; null for any other payment.
 String? fileNameOf(Tx t) => t.method == TxMethod.file && t.counterparty != null ? t.counterparty!.split(RegExp(r'[\\/]')).last : null;
@@ -417,9 +455,11 @@ class _TxRowState extends ConsumerState<TxRow> {
     final ts = context.ts;
     final t = widget.tx;
     final mailbox = deskTxMailboxName(ref, t);
+    final wording = ref.watch(deskLevelFeaturesProvider.select((f) => f.wording));
+    final shallow = ref.watch(deskLevelUiProvider.select((f) => f.shallow));
     final (word, tone) =
         invoiceStatusOf(context, ref, t) ??
-        statusWithMailbox(context.l10n, t, mailbox, paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff);
+        levelStatusWithMailbox(context.l10n, t, wording, mailbox, paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff);
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,
@@ -434,14 +474,20 @@ class _TxRowState extends ConsumerState<TxRow> {
     final labelEditable = widget.labelEditable && t.deviceName == null;
     final editing = labelEditable && ref.watch(txLabelEditingProvider) == _site;
     final labelled = t.labelText != null && widget.title == null;
-    final restoredMethod = restoredMethodOf(l, t, short: true);
+    final restoredMethod = shallow ? null : restoredMethodOf(l, t, short: true);
     // Through a pairing's mailbox: Epicbox, though LEPIC keeps it as an export.
-    final method = t.foundByScan ? foundTexts(l, t).line : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodShortLabel(l, TxMethod.epicbox) : methodOf(l, t)));
+    // Shallow names no method: the row says who and how far, nothing else.
+    final method = shallow
+        ? null
+        : t.foundByScan
+        ? foundTexts(l, t).line
+        : (t.fromBackup ? l.deskTxFromBackup : (mailbox != null ? methodShortLabel(l, TxMethod.epicbox) : methodOf(l, t)));
     final extra = t.message;
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
     final file = fileNameOf(t);
     final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? file ?? shortAddress(t.counterparty!, compact: true)) : null;
     final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
+    if (shallow && parts.isEmpty && !t.isInvoice) parts.add(l.deskLvPayKind);
     final meta = <InlineSpan>[
       for (final (i, p) in parts.indexed) ...[
         if (i > 0)
@@ -600,7 +646,7 @@ class _TxRowState extends ConsumerState<TxRow> {
               ? TxAmount(t, sub: compactTime(l, t))
               : SizedBox(
                   width: txAmountWidth,
-                  child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t))),
+                  child: Align(alignment: Alignment.centerRight, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: TxAmount(t, showFee: !shallow))),
                 ),
         ),
       ],

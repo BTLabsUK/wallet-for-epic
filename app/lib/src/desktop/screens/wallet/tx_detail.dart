@@ -20,7 +20,10 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
 import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInContacts, deskSuggestedContact;
 import '../../desk_l10n.dart';
+import '../../../levels/level_features.dart' show TimelineStyle, TxActionSet;
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../widgets/kit.dart';
+import '../../widgets/pay_steps.dart';
 import '../../widgets/server_row.dart' show digitsText;
 import '../invoices/tx_invoice_block.dart';
 import 'cancel_note.dart';
@@ -138,7 +141,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   /// The block explorer link: the block by its height, once the payment is confirmed; null
   /// before that, or when `app-config.toml` names no explorer.
   String? _explorerUrl(Tx t) {
-    if (t.state != TxState.confirmed) return null;
+    if (t.state != TxState.confirmed || !ref.watch(deskLevelFeaturesProvider.select((f) => f.explorerLink))) return null;
     final settings = ref.watch(hostSettingsProvider);
     final height = t.height;
     return height == null ? null : settings.explorerBlock(height);
@@ -245,6 +248,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       if (open && !_more) setState(() => _more = true);
     });
     final total = t.amount + (t.incoming ? 0 : t.fee);
+    // The level: Shallow and Deeper read the steps in plain words and Shallow keeps Cancel as
+    // the one action, no method, fee or technical rows; the Deep end is today's detail.
+    final features = ref.watch(deskLevelFeaturesProvider);
+    final shallow = ref.watch(deskLevelUiProvider.select((f) => f.shallow));
+    final fullActions = features.txActions == TxActionSet.full;
+    final plainSteps = features.timeline != TimelineStyle.technicalSteps;
     // A send can be cancelled while it waits for the recipient, or when the node refused its
     // post (its outputs stay locked otherwise). Once posted (a Direct HTTP or Tor send is
     // finalized and posted in one step) it has gone out and shows as sent, never cancellable.
@@ -275,9 +284,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             final id? => ref.watch(deskPairingByIdProvider(id)),
             null => null,
           };
-    final finalizable = !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient && mailboxName == null;
+    final finalizable = fullActions && !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient && mailboxName == null;
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
-    final repostable = !t.fromBackup && !t.isInvoice && t.notPosted;
+    final repostable = fullActions && !t.fromBackup && !t.isInvoice && t.notPosted;
+    final sendAgain = fullActions && t.undelivered;
     // A payment to a paired contact's request, or a withdrawal from a paired exchange: the
     // contact's own steps.
     final paid = !t.incoming ? ref.watch(deskInvoicesProvider)?.invoiceOfTx(t.id) : null;
@@ -410,7 +420,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           ENotice(title: l.reqReceivedWaiting(contactName), text: l.reqReceivedWaitingBody, tone: ETone.info),
         ],
         // The actions come first: Cancel, Send again and Finalize are seen without scrolling.
-        if (cancelable || finalizable || t.undelivered || repostable) ...[
+        if (cancelable || finalizable || sendAgain || repostable) ...[
           SizedBox(height: Sp.x4),
           Wrap(
             spacing: Sp.x2,
@@ -428,7 +438,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   busy: _cancelling,
                   onPressed: _cancel,
                 ),
-              if (t.undelivered)
+              if (sendAgain)
                 EButton.primary(
                   label: context.l10n.deskTxSendAgain,
                   icon: EIcons.refresh,
@@ -459,10 +469,24 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
         if (t.isInvoice) TxInvoiceBlock(tx: t),
         if (paidTo != null && t.isInvoice && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
-        if (t.state != TxState.cancelled && !t.senderCancelled && !t.fromBackup && !t.isInvoice && !t.otherWallet) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
+        if (t.state != TxState.cancelled && !t.senderCancelled && !t.fromBackup && !t.isInvoice && !t.otherWallet) ...[
+          _Sub(l.deskTxSubProgress),
+          if (plainSteps && payHasSteps(t) && paidTo == null && withdrawal == null)
+            DeskPaymentSteps(tx: t, vertical: true)
+          else
+            for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1),
+        ],
         _SubBar(
           l.deskTxSubDetails,
           [
+            // Shallow and Deeper: the payment's facts as text (the phone's Copy details).
+            if (plainSteps && t.slateId.isNotEmpty)
+              ECopyButton(
+                key: const ValueKey('tx-copy-details'),
+                text: _detailsText(l, t),
+                label: l.lvPayCopyDetails,
+                withLabel: true,
+              ),
             if (t.restored)
               EButton(
                 label: _typed(t) ? l.deskTxDetailsEdit : l.deskTxDetailsAdd,
@@ -530,7 +554,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 ),
               ),
             ),
-          if (!t.otherWallet)
+          if (!t.otherWallet && !shallow)
             (
               l.deskTxFactMethod,
               t.foundByScan
@@ -539,7 +563,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ),
           (l.deskTxFactAmount, EMoney(t.amount)),
           // The other wallet paid the fee: this wallet only saw the coins leave.
-          if (!t.incoming && t.otherWallet) (l.deskTxFactFee, Text(l.txDetailsNotKnown))
+          if (shallow) ...const <(String, Widget)>[]
+          else if (!t.incoming && t.otherWallet) (l.deskTxFactFee, Text(l.txDetailsNotKnown))
           else if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
           // The same word as Send's field and its review; the line under it says which way it went.
           if (t.message != null)
@@ -586,7 +611,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ],
         // Advanced › Technical details: the fold, or a small More link that shows the same rows
         // for this view only (the switch stays off). Report a problem carries the slate id either way.
-        if (advancedHas(ref, AdvancedFeature.technicalDetails)) ...[
+        if (shallow) ...const <Widget>[]
+        else if (advancedHas(ref, AdvancedFeature.technicalDetails)) ...[
           SizedBox(height: Sp.x5),
           EDetails(title: l.deskTxTechTitle, child: _techFacts(t, l, ts)),
         ] else ...[
@@ -612,6 +638,18 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         if (t.otherWallet && t.receivedOn == null) DeskSentFromOtherWalletOffer(incoming: t.incoming),
       ],
     );
+  }
+
+  /// What Copy details puts on the clipboard: who, how much, where it stands, when, its id.
+  String _detailsText(AppLocalizations l, Tx t) {
+    final (word, _) = levelStatusWithMailbox(l, t, ref.read(deskLevelFeaturesProvider).wording, t.contactName);
+    return [
+      titleOf(l, t),
+      '${t.incoming ? '+' : '−'}${formatEpicL(l, t.amount)} EPIC',
+      word,
+      '${l.lvPayStarted}: ${dateTimeOf(l, t, at: t.startedAt)}',
+      '${l.lvPayPaymentId}: ${t.slateId}',
+    ].join('\n');
   }
 
   /// An address no contact holds yet, of a payment that names one (not a file, a mining
@@ -734,13 +772,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           _Step(l.deskTxStepSpendable, _S.done, ''),
       ];
     }
-    // An incoming payment is on record only once this wallet signed it; it then waits for the
-    // sender to post it.
-    final signed = t.incoming || t.state != TxState.waitingRecipient;
-    final waitingSender = t.incoming && t.state == TxState.waitingRecipient;
-    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted);
-    final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
-    final done = t.state == TxState.confirmed;
+    final f = PayFacts.of(t);
+    final signed = f.signed;
+    final waitingSender = f.waitingSender;
+    final posted = f.posted;
+    final inBlock = f.inBlock;
+    final done = f.done;
     return [
       _Step(t.incoming ? l.deskTxStepReceivedSlate : l.deskTxStepCreated, _S.done, hm(Duration.zero)),
       _Step(
@@ -768,16 +805,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   }
 }
 
-enum _S { done, now, todo }
-
-class _Step {
-  const _Step(this.title, this.state, this.time, {this.sub});
-
-  final String title;
-  final _S state;
-  final String time;
-  final String? sub;
-}
+/// The step list's types are the shared ones ([PayStep]): the payment steps on Overview and
+/// Send read the same record the same way.
+typedef _S = PayStepState;
+typedef _Step = PayStep;
 
 class _TimelineStep extends StatelessWidget {
   const _TimelineStep({required this.step, required this.last});
