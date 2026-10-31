@@ -158,7 +158,7 @@ void main() {
     expect(find.text('Invoice'), findsOneWidget);
     expect(find.text('Check the amount, then continue.'), findsOneWidget);
     expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, 'Lunch with Anna');
-    expect(find.text('Note from the payee (not verified)'), findsOneWidget);
+    expect(find.text('Message from the recipient (not verified)'), findsOneWidget);
     expect(find.text('Requested by the code'), findsOneWidget);
     expect(find.text('From the code. They see it too.'), findsOneWidget);
     expect(wallet.sends, 0);

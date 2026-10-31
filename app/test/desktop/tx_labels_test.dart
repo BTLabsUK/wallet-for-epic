@@ -320,7 +320,7 @@ void main() {
     testWidgets('Details differ: every field starts as Mine; Cancel writes nothing', (tester) async {
       await openImport(tester);
       expect(find.text('Details differ'), findsOneWidget);
-      expect(find.textContaining('2 payments you described'), findsOneWidget);
+      expect(find.textContaining('different details for 2 payments'), findsOneWidget);
       // Both Mine cards are selected, the Backup ones are not.
       final selected = tester.widgetList<EChoiceCard>(find.byType(EChoiceCard)).map((c) => '${c.title}:${c.selected}').toList();
       expect(selected, ['Mine:true', 'File:false', 'Mine:true', 'File:false']);

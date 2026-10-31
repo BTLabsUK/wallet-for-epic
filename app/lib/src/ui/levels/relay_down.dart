@@ -73,7 +73,9 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
   @override
   void initState() {
     super.initState();
-    ref.listenManual<RelaySwitchOffer?>(relaySwitchProvider, (_, offer) => _follow(offer), fireImmediately: true);
+    ref.listenManual<RelaySwitchOffer?>(relaySwitchProvider, (_, offer) => _follow(offer));
+    // An offer already standing: after the first frame, as the notice's words need the context.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _follow(ref.read(relaySwitchProvider)));
     // The level loads after the first frame: an offer already there shows once it is level 1.
     ref.listenManual<bool>(
       levelFeaturesProvider.select((f) => f.relaySwitchPrompt),

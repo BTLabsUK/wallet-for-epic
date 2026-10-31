@@ -78,10 +78,10 @@ void main() {
   testWidgets('a relay row shows the default tag; a node row never does', (tester) async {
     await _pump(tester, 640, ServerRow(kind: ServerKind.relay, info: _relay, onTap: () {}));
     expect(find.text('Default'), findsOneWidget);
-    expect(find.text('at tip'), findsNothing, reason: 'no tip column on a relay');
+    expect(find.text('synced'), findsNothing, reason: 'no tip column on a relay');
     await _pump(tester, 640, ServerRow(kind: ServerKind.node, info: ServerInfo(value: _node.value, host: _node.host, behind: 0, isDefault: true), onTap: () {}));
     expect(find.text('Default'), findsNothing);
-    expect(find.text('at tip'), findsOneWidget);
+    expect(find.text('synced'), findsOneWidget);
   });
 
   test('neutral order: state, then latency, then the source order', () {

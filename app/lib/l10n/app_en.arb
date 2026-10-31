@@ -24176,7 +24176,8 @@
     "description": "Detail notice of a confirmed payment with its block known: confirmations and block, as the phone says both (UD-028). {block} is the grouped height.",
     "placeholders": {
       "confirmations": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       },
       "block": {
         "type": "String"
@@ -24468,7 +24469,7 @@
   "@lvPayReceiveBack": {
     "description": "Level 1 Receive, inside QR Payment: link back to the address."
   },
-  "lvPayDoneSent": "Sent. Done on {when}.",
+  "lvPayDoneSent": "Sent. Done: {when}.",
   "@lvPayDoneSent": {
     "description": "Level 1 payment details: sentence of a finished send.",
     "placeholders": {
@@ -24477,7 +24478,7 @@
       }
     }
   },
-  "lvPayDoneReceived": "Received. Done on {when}.",
+  "lvPayDoneReceived": "Received. Done: {when}.",
   "@lvPayDoneReceived": {
     "description": "Level 1 payment details: sentence of a finished receive.",
     "placeholders": {

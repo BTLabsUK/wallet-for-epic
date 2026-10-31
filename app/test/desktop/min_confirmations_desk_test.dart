@@ -79,7 +79,7 @@ void main() {
     }
     expect(_shown(tester), '3');
     expect(find.byKey(const ValueKey('adv-minConfirmations-note')), findsOneWidget);
-    expect(find.text('Fewer confirmations are faster but give less protection against chain reorganisations.'), findsOneWidget);
+    expect(find.text('Fewer confirmations are faster but less safe.'), findsOneWidget);
     final after = _container.read(deskProvider).balance!;
     expect(after.minConfirmations, 3);
     expect(before.awaitingConfirmation, greaterThan(0));

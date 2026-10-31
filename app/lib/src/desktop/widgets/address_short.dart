@@ -192,10 +192,18 @@ class EAddressLines extends StatelessWidget {
       children: [
         Row(
           children: [
-            Flexible(child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            // The full tag gives way with the name, each in proportion to its own width, so a
+            // narrow list cuts both instead of running over.
+            Flexible(
+              flex: full ? _width(context, name, ts.strong).ceil().clamp(1, 1 << 16) : 1,
+              child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
             ?nameTrailing,
             // A contact with no address (paired only) has no kind to tag.
-            if (address.trim().isNotEmpty && !several) ...[SizedBox(width: Sp.x2), EKindTag(addressKindOf(address), compact: !full)],
+            if (address.trim().isNotEmpty && !several) ...[
+              SizedBox(width: Sp.x2),
+              if (full) Flexible(flex: _fullTagFlex, child: EKindTag(addressKindOf(address))) else EKindTag(addressKindOf(address), compact: true),
+            ],
           ],
         ),
         const SizedBox(height: 2),
@@ -208,7 +216,7 @@ class EAddressLines extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (several)
-                    Row(children: [for (final a in addresses!) ...[EKindTag(addressKindOf(a), compact: false), SizedBox(width: Sp.x1)]])
+                    Row(children: [for (final a in addresses!) ...[Flexible(child: EKindTag(addressKindOf(a))), SizedBox(width: Sp.x1)]])
                   else if (address.trim().isNotEmpty)
                     EShortAddress(address, style: aStyle),
                   if (n.isNotEmpty) ...[const SizedBox(height: 2), Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)],
@@ -246,6 +254,9 @@ class EAddressLines extends StatelessWidget {
       ],
     );
   }
+
+  /// About the width of a full kind tag (glyph and short name), as its share of a narrow row.
+  static const int _fullTagFlex = 72;
 
   static double _width(BuildContext context, String text, TextStyle style) {
     final tp = TextPainter(

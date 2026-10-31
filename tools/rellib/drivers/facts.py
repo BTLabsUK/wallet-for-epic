@@ -15,6 +15,7 @@ whatever the timeout) and which servers a release ships built in (the drivers re
 import json
 import os
 import re
+import subprocess
 import tomllib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,8 +53,113 @@ def label(key, fallback):
     return v if isinstance(v, str) and v and "{" not in v else fallback
 
 
+def _previous_arb():
+    """The previous release's English strings (git tag v<REL_PREVIOUS_VERSION> of this checkout),
+    {} when the version is unset or the tag is not here."""
+    v = (os.environ.get("REL_PREVIOUS_VERSION") or "").strip()
+    if not v:
+        return {}
+    tag = v if v.startswith("v") else "v" + v
+    try:
+        r = subprocess.run(["git", "-C", ROOT, "show", f"{tag}:app/lib/l10n/app_en.arb"],
+                           capture_output=True, text=True, timeout=30)
+        return json.loads(r.stdout) if r.returncode == 0 else {}
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return {}
+
+
+_PREV = []
+
+
+def labels(key, *fallbacks):
+    """Every text the label [key] has in the candidate and in the previous release, then
+    [fallbacks] (older releases' words): for a step that runs before and after the update."""
+    if not _PREV:
+        _PREV.append(_previous_arb())
+    out = []
+    for v in (_ARB.get(key), _PREV[0].get(key), *fallbacks):
+        if isinstance(v, str) and v and "{" not in v and v not in out:
+            out.append(v)
+    return tuple(out)
+
+
 ADDED_BY_YOU = label("slAddedByYou", "Added by you")  # a server the user typed in
 CURRENT = label("serverCurrent", "Current")            # the server in use
+# The server in use, in every release's words: "Current" to 26.10.24, "In use" after.
+CURRENTS = labels("serverCurrent", "Current", "In use")
+# A server's row before its health is read: "Health unknown" to 26.10.24, "Status unknown" after.
+HEALTH_UNKNOWN = labels("serverHealthNone", "Health unknown", "Status unknown")
+
+# The phone app's words the Android trust driver taps, waits for or reads: from the ARB, so a
+# copy change lands here instead of as a silent miss on an emulator. The same in the candidate
+# and 26.10.24-r2 unless a labels() tuple says otherwise.
+RECENT_ACTIVITY = label("homeRecentActivity", "Recent activity")
+NO_PAYMENTS = label("homeNoPayments", "No payments yet")
+LOCK_WALLET = label("homeLockTooltip", "Lock wallet")
+SETTINGS = label("homeSettingsTooltip", "Settings")
+ACTIVITY = label("historyTitle", "Activity")
+SKIP_TOUR = label("tourPhoneSkip", "Skip tour")
+NOT_NOW = label("restoreImportNotNow", "Not now")
+CREATE_WALLET = label("firstRunCreate", "Create a new wallet")
+RESTORE_WALLET = label("firstRunRestore", "Restore from phrase")
+PIN_CHOOSE = "Choose a 6-digit PIN"  # pinChooseTitle is a plural ({digits}): its 6-digit reading
+PIN_AGAIN = label("pinConfirmTitle", "Enter the PIN again")
+PIN_PROMPT = label("pinPromptTitle", "Enter your PIN")
+PHRASE_HELPER = "All the words"      # the start of restorePhraseHelper
+BACK_UP = label("homeBackupCardButton", "Back up")
+SECURITY = label("settingsSectionSecurity", "Security")
+PHRASE_AGREE = label("backupCopyAgree", "I will keep the phrase private")
+SHOW_PHRASE = label("backupShowPhrase", "Show recovery phrase")
+DONE = label("commonDone", "Done")
+CLOSE = label("commonClose", "Close")
+CONTINUE = label("commonContinue", "Continue")
+RECEIVE_ADDRESS = label("receiveAddressLabel", "Epicbox address")
+NODE = label("netStatusNode", "Node")
+SYNCED = label("netStatusSynced", "Synced")
+TOTAL = label("homeTileTotal", "Total")
+SPENDABLE = label("homeBalanceSpendable", "Spendable")
+REMOVE = label("slRemove", "Remove")
+SWITCH = label("slSwitch", "Switch")
+CLEAR = label("slClear", "Clear")
+APPEARANCE = label("settingsSectionDisplay", "Appearance")
+THEME = label("settingsTheme", "Theme")
+CURRENCY = label("settingsCurrency", "Currency")
+LANGUAGE = label("languageSetting", "Language")
+SHOW_PRICES = label("settingsShowPrices", "Show prices")
+ADVANCED = label("advTitle", "Advanced")
+SHOWS_MORE = label("advShowsHeader", "Shows more")
+TECHNICAL_DETAILS = label("advTechnical", "Technical details")
+NODE_FAILOVER = label("advNodeFailover", "Node failover")
+CONF_FEWER = label("advConfirmationsFewer", "Fewer confirmations")
+CONF_MORE = label("advConfirmationsMore", "More confirmations")
+EPICBOX_METHOD = label("methodEpicbox", "Epicbox")
+CLEAR_RECIPIENT = label("sendClearRecipient", "Clear recipient")
+AMOUNT_STEP = label("sendStepAmount", "Amount")
+
+# Wallet levels (main after 26.10.24): a fresh install answers "Pick your depth" before Welcome;
+# an existing install updated to a build with levels is settled to level 3 and never asked.
+LEVEL_PICK_TITLE = label("lvPickTitle", "Pick your depth")
+LEVEL_DEEP_END = label("lvPickStopThree", "Deep end")                # the dial's level-3 stop
+LEVEL_UNDERCOVER = label("levelUndercoverTitle", "Undercover from the start")
+LEVEL_ROW = label("levelRowTitle", "Wallet level")                   # Settings › Advanced, first row
+LEVEL_THREE = label("levelThreeTitle", "Let me explore everything")  # that row's value at level 3
+LEVELS_BUILT = "levelRowTitle" in _ARB                               # the candidate has levels
+DESK_DEPTH = label("lvPickDepth", "Depth")  # desktop: the dial's group, Settings › Advanced and About
+LEVEL_KEY = "app.level"  # the stored level (app/lib/src/levels/wallet_level.dart levelKey): 1, 2, 3 or ask
+
+
+def level_after_update(value):
+    """An install from before wallet levels, updated to a build with them, is level 3 and never asked.
+    [value] is the stored level or the level the screen names; (True | False | None, why), None when
+    the build has no levels (nothing stored or shown)."""
+    v = str(value).strip() if value is not None else ""
+    if not v:
+        return None, "no wallet level stored or shown (a build without levels)"
+    if v in ("3", LEVEL_DEEP_END, LEVEL_THREE):
+        return True, "level 3 (%s), as an existing install must be" % LEVEL_DEEP_END
+    if v == "ask":
+        return False, "the update took the install for a new one: its level is still to be asked, and nothing connects until it is"
+    return False, "level %s after the update; an existing install must be level 3 (%s)" % (v, LEVEL_DEEP_END)
 # The confirmations setting's row: "1 confirmation, …" / "6 confirmations, …" (singular at one).
 CONF_ROW = re.compile(r"(\d+) confirmations?, ")
 

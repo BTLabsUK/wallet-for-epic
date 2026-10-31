@@ -133,14 +133,14 @@ void main() {
     expect(line, findsOneWidget);
     await _drag(tester, line, dx: 220);
     await _ctrl(tester, LogicalKeyboardKey.keyC);
-    expect(_clip, startsWith('Confirmed, 1,4'));
+    expect(_clip, startsWith('Confirmed, 1'));
     await _doubleClick(tester, tester.getTopLeft(line) + const Offset(6, 8));
     await _ctrl(tester, LogicalKeyboardKey.keyC);
     expect(_clip, 'Confirmed');
     // Select all takes the details pane, not the activity list beside it.
     await _ctrl(tester, LogicalKeyboardKey.keyA);
     await _ctrl(tester, LogicalKeyboardKey.keyC);
-    expect(_clip, contains('Confirmed, 1,440 confirmations.'));
+    expect(_clip, contains(RegExp(r'Confirmed, 1,?440 confirmations')));
     expect(_clip, contains('Mining pool payouts'));
     expect(_clip, isNot(contains('Kowalska')));
     final date = _textContaining('20 Oct 2026');

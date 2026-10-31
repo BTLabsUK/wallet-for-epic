@@ -107,11 +107,13 @@ trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   emulator   ${REL_ANDROID_SERIAL:-start AVD $avd read-only, headless, emulator-$port; stopped at the end}
   1 install  adb uninstall uk.btlabs.epiccash.mobile; adb install $prev_apk
   2 wallet   restore the test wallet from $REL_TRUST_STATE/phrase (none: create one, keep its phrase, P funds it); holds $REL_TRUST_STATE/.lock
+             a first-start level picker ("Pick your depth", builds with wallet levels): Deep end (level 3), Undercover off
   3 user     node $REL_NODE typed in and in use; relay $REL_EPICBOX typed in and in use;
              Theme ${REL_TRUST_THEME:-Dark}, Technical details on, Confirmations ${REL_TRUST_CONFIRMATIONS:-1}
   4 digest   address, Total/Spendable, Activity rows, Node and Epicbox lists, settings
   5 update   adb install -r $cand_apk  (same signature, as the in-app updater's PackageInstaller)
-  6 open     launch, unlock with the PIN, digest again, compare
+  6 open     launch, unlock with the PIN, digest again, compare; the level picker showing = wallet_opens false;
+             a candidate with levels must read level 3 in Settings › Advanced (settings_kept; proof "levels")
   7 funds    $( [[ "$REL_FUNDS" == 1 ]] && echo "through the shared P service (no lock): send ${REL_TRUST_SEND:-0.01} to P, receive ${REL_TRUST_RECEIVE:-0.02} from P, by Epicbox" || echo "skipped (REL_FUNDS=0)")
   out        $REL_OUT/proof.json, driver.log, screens.log, p.log, shots/
 EOF

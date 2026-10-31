@@ -29,16 +29,16 @@ void main() {
   test('the four kinds', () {
     final restored = foundTexts(englishStrings, _found(during: FoundDuring.restore));
     expect(restored.label, 'Restored');
-    expect(restored.line, 'Found while restoring');
-    expect(restored.step, 'Found while restoring this wallet');
-    expect(restored.note, 'Block time. The sender is not recorded.');
+    expect(restored.line, 'Found on the chain');
+    expect(restored.step, 'Found on the chain');
+    expect(restored.note, 'Time of the block. The sender is unknown.');
     expect(restored.tip, 'Found on the chain while restoring this wallet. The sender is not recorded.');
 
     final rescan = foundTexts(englishStrings, _found(during: FoundDuring.rescan));
     expect(rescan.label, 'Found by recheck');
     expect(rescan.line, 'Found by recheck');
     expect(rescan.tip, 'Found on the chain by a balance recheck. The sender is not recorded.');
-    expect(rescan.note, 'Block time. The sender is not recorded.');
+    expect(rescan.note, 'Time of the block. The sender is unknown.');
 
     final scanTime = foundTexts(englishStrings, _found(during: FoundDuring.rescan, byBlock: false));
     expect(scanTime.note, 'Time of the scan; the block’s time could not be read. The sender is not recorded.');
@@ -70,7 +70,7 @@ void main() {
   testWidgets('a row: the label, the origin line, the tooltip', (tester) async {
     await pump(tester, TxRow(tx: _found(during: FoundDuring.restore), onTap: () {}));
     expect(find.text('Restored'), findsOneWidget);
-    expect(find.textContaining('Found while restoring'), findsOneWidget);
+    expect(find.textContaining('Found on the chain'), findsOneWidget);
     expect(find.byTooltip('Found on the chain while restoring this wallet. The sender is not recorded.'), findsOneWidget);
   });
 
@@ -78,15 +78,15 @@ void main() {
     await pump(tester, TxDetail(tx: _found(during: FoundDuring.restore)));
     expect(find.text('restored'), findsOneWidget);
     expect(find.textContaining('from '), findsNothing);
-    expect(find.text('Found while restoring this wallet'), findsOneWidget);
-    expect(find.text('Block time. The sender is not recorded.'), findsOneWidget);
+    expect(find.text('Found on the chain'), findsOneWidget);
+    expect(find.text('Time of the block. The sender is unknown.'), findsOneWidget);
     expect(find.text('–'), findsOneWidget);
     expect(find.text('From'), findsNothing);
   });
 
   testWidgets('the detail of a rescan find with the scan time', (tester) async {
     await pump(tester, TxDetail(tx: _found(during: FoundDuring.rescan, byBlock: false)));
-    expect(find.text('found on the chain'), findsOneWidget);
+    expect(find.text('Found on the chain'), findsOneWidget);
     expect(find.text('Found by recheck'), findsOneWidget);
     expect(find.text('Time of the scan; the block’s time could not be read. The sender is not recorded.'), findsOneWidget);
   });

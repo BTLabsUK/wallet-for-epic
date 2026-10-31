@@ -56,7 +56,7 @@ void main() {
     await pump(tester, const SendScreen());
   }
 
-  TxMethod method(WidgetTester tester) => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value;
+  TxMethod? method(WidgetTester tester) => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value;
   String toText(WidgetTester tester) => tester.widget<EditableText>(find.byType(EditableText).first).controller.text;
   Finder clear() => find.byKey(const ValueKey('send-to-clear'));
 

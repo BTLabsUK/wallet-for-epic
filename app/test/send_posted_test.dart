@@ -174,7 +174,7 @@ void main() {
       final steps = txTimeline(_l, _waiting(), tip, now: _now)!;
       expect(steps[1].label, 'Signed and returned');
       expect(steps[1].state, TimelineState.done);
-      expect(steps[2].label, 'Sender reports posted');
+      expect(steps[2].label, 'Posted to the network');
       expect(steps[2].state, TimelineState.current);
       expect(txExplanation(_l, _waiting(), tip, now: _now), _l.txDetailsSenderPosted);
     });

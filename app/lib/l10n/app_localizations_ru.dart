@@ -18565,13 +18565,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTxNowConfirmedBlock(int confirmations, String block) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: 'Подтверждено, $confirmations подтверждения · блок $block.',
-      many: 'Подтверждено, $confirmations подтверждений · блок $block.',
-      few: 'Подтверждено, $confirmations подтверждения · блок $block.',
-      one: 'Подтверждено, $confirmations подтверждение · блок $block.',
+      other: 'Подтверждено, $confirmationsString подтверждения · блок $block.',
+      many: 'Подтверждено, $confirmationsString подтверждений · блок $block.',
+      few: 'Подтверждено, $confirmationsString подтверждения · блок $block.',
+      one: 'Подтверждено, $confirmationsString подтверждение · блок $block.',
     );
     return '$_temp0';
   }

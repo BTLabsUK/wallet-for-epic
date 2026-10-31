@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 /// The app's scroll behaviour, for every MaterialApp: the stock one plus a soft fade on the edge a
 /// vertical scroller still runs on past, gone again at the end. Done once here, so no screen,
@@ -33,9 +34,20 @@ class _MoreBelowState extends State<_MoreBelow> {
     // Only this scroller's own (depth 0); a nested one has its own wrapper.
     if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
       final more = n.metrics.extentAfter > 1;
-      if (more != _more) setState(() => _more = more);
+      if (more != _more) _set(more);
     }
     return false;
+  }
+
+  // Metrics arrive during layout, where a rebuild may not be asked for: then after the frame.
+  void _set(bool more) {
+    if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.persistentCallbacks) {
+      setState(() => _more = more);
+      return;
+    }
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted && more != _more) setState(() => _more = more);
+    });
   }
 
   bool _onMetrics(ScrollMetricsNotification n) => _onNotification(ScrollUpdateNotification(metrics: n.metrics, context: n.context, depth: n.depth));

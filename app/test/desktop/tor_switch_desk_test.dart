@@ -185,13 +185,13 @@ void main() {
       expect(find.text('Over Tor'), findsOneWidget, reason: 'the chip beside the title');
     }, skip: _skip);
 
-    testWidgets('Receive: Tor not connected shows Retry and Turn Tor off', (tester) async {
+    testWidgets('Receive: Tor not connected shows the notice, no Turn Tor off (that is in Settings)', (tester) async {
       wallet.torHealth = ServiceHealth.down;
       await tester.runAsync(() => _linkTorOn(container));
       await tester.runAsync(() => container.read(deskProvider.notifier).setTor(true));
       await show(tester, const ReceiveScreen());
       expect(find.byKey(const ValueKey('rx-tor-notice')), findsOneWidget);
-      expect(find.text('Turn Tor off'), findsOneWidget);
+      expect(find.text('Turn Tor off'), findsNothing);
     }, skip: _skip);
   });
 }

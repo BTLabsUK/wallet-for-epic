@@ -73,7 +73,7 @@ class EField extends StatelessWidget {
         _EFieldLabel(label: label, child: child),
         if (error != null) ...[
           SizedBox(height: 6.u),
-          Row(
+          _line(Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
@@ -85,10 +85,10 @@ class EField extends StatelessWidget {
                 child: Text(error!, style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w500)),
               ),
             ],
-          ),
+          )),
         ] else if (help != null) ...[
           SizedBox(height: 6.u),
-          Text(help!, style: ts.small),
+          _line(Text(help!, style: ts.small)),
         ] else if (reserveError) ...[
           // One fixed line the error or hint fills, no more (UD-010).
           SizedBox(height: 6.u + 20.u),
@@ -96,6 +96,10 @@ class EField extends StatelessWidget {
       ],
     );
   }
+
+  /// With [reserveError], an error or hint line takes at least the reserved line, so the field
+  /// below stays put when one comes or goes.
+  Widget _line(Widget child) => reserveError ? ConstrainedBox(constraints: BoxConstraints(minHeight: 20.u), child: child) : child;
 }
 
 /// Hands an [EField]'s label to the [EInput] inside it, as the field's accessible name.
@@ -492,7 +496,8 @@ class ESegmented<T> extends StatelessWidget {
       tp.dispose();
       return w;
     }
-    final label = TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500);
+    // As the segment draws it: the inherited style (family, spacing) under its own.
+    final label = DefaultTextStyle.of(context).style.merge(TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500));
     final count = context.ts.mono(size: 11);
     var w = 2 * 3.u + 2 + 2.0 * (segments.length - 1);
     for (final s in segments) {

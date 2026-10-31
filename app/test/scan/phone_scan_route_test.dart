@@ -236,7 +236,7 @@ class _Harness {
   /// Home's scan button, with [text] as what the camera reads.
   Future<void> scan(WidgetTester tester, String text) async {
     scanner.codes.add(text);
-    await _tap(tester, find.byTooltip('Scan a QR code to send'));
+    await _tap(tester, find.byTooltip('Scan QR code'));
   }
 }
 
@@ -311,7 +311,7 @@ void main() {
       expect(_inPayee('Anna'), findsOneWidget);
       expect(_inPayee('Lunch with Anna'), findsOneWidget);
       expect(
-        _inPayee('Name given by the payee (not verified)'),
+        _inPayee('Name from the recipient (not verified)'),
         findsOneWidget,
       );
       expect(h.session.epicboxSends, isEmpty);
@@ -479,7 +479,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(_inPayee('Name given by the payee (not verified)'), findsNothing);
+      expect(_inPayee('Name from the recipient (not verified)'), findsNothing);
       expect(_inPayee('Hi'), findsOneWidget);
       expect(_field(tester, sendRecipientFieldKey), _e);
     });
@@ -561,7 +561,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       h.scanner.codes.add(part);
-      await tester.tap(find.byTooltip('Scan a QR code to send'));
+      await tester.tap(find.byTooltip('Scan QR code'));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 200));
       }
@@ -594,7 +594,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       h.scanner.codes.addAll(['hello there', _e]);
-      await _tap(tester, find.byTooltip('Scan a QR code to send'));
+      await _tap(tester, find.byTooltip('Scan QR code'));
       expect(find.byKey(scanResultSheetKey), findsOneWidget);
       await _tap(tester, find.byKey(scanResultPrimaryKey));
       expect(h.scanner.codes, isEmpty);

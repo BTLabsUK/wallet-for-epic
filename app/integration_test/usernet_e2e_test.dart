@@ -125,8 +125,8 @@ Future<void> _enter(WidgetTester tester, String label, String text) async {
 }
 
 /// Taps the first match of [label], scrolling a lazy list until it is built if need be.
-Future<void> _tapText(WidgetTester tester, String label) async {
-  final finder = find.text(label);
+Future<void> _tapText(WidgetTester tester, Pattern label) async {
+  final finder = label is RegExp ? find.textContaining(label) : find.text(label as String);
   final end = DateTime.now().add(const Duration(seconds: 5));
   while (finder.evaluate().isEmpty && DateTime.now().isBefore(end)) {
     await tester.pump(const Duration(milliseconds: 200));
@@ -293,7 +293,7 @@ void main() {
         timeout: const Duration(minutes: 6),
         poke: () => _refreshHome(tester),
       );
-      await _tapText(tester, 'See all');
+      await _tapText(tester, RegExp(r'^View all \d+$'));
       await _pumpUntil(tester, find.text('Completed'));
       await _backHome(tester);
       final received = await _waitFor(
@@ -353,7 +353,7 @@ void main() {
       expect(sent.counterparty, _cliAddress);
       expect(sent.fee, isNotNull);
       await _untilCompleted(tester, 2);
-      await _tapText(tester, 'See all');
+      await _tapText(tester, RegExp(r'^View all \d+$'));
       await _openPaymentWithNote(tester);
       await _backHome(tester);
       debugPrint(
@@ -432,7 +432,7 @@ void main() {
         back.amountDebited - back.amountCredited,
         sent.amountDebited - sent.amountCredited,
       );
-      await _tapText(tester, 'See all');
+      await _tapText(tester, RegExp(r'^View all \d+$'));
       await _openPaymentWithNote(tester);
       debugPrint(
         'WFE_E2E step=done after ${DateTime.now().difference(started)}',

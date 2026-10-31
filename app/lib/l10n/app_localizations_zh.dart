@@ -16915,10 +16915,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskTxNowConfirmedBlock(int confirmations, String block) {
+    final intl.NumberFormat confirmationsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String confirmationsString = confirmationsNumberFormat.format(
+      confirmations,
+    );
+
     String _temp0 = intl.Intl.pluralLogic(
       confirmations,
       locale: localeName,
-      other: '已确认，$confirmations 个确认 · 区块 $block。',
+      other: '已确认，$confirmationsString 个确认 · 区块 $block。',
     );
     return '$_temp0';
   }

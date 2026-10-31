@@ -435,7 +435,8 @@ class _Line extends StatelessWidget {
     } else {
       final under = i.stacked && i.detail != null;
       content = Container(
-        height: under ? 40.u : (bar == null ? Ctl.inline : 36.u),
+        // Stacked with a bar: the title, the detail under it, then the bar (5.u gap, 2 px).
+        height: under ? (bar == null ? 40.u : 46.u) : (bar == null ? Ctl.inline : 36.u),
         padding: EdgeInsets.symmetric(horizontal: Sp.x2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

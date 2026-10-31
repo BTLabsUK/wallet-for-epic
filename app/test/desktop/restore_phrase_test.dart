@@ -187,7 +187,7 @@ void main() {
     await _key(tester, LogicalKeyboardKey.tab);
     expect(_focusedOn(tester, 1), isTrue);
     expect(_entry(tester).invalid, {0});
-    expect(find.text('Word 1, "abandn", is not in the word list.'), findsOneWidget);
+    expect(find.text('Word 1, “abandn”, is not in the word list.'), findsOneWidget);
     await _type(tester, 0, 'abandon');
     expect(_entry(tester).invalid, isEmpty);
     expect(find.textContaining('not in the word list'), findsNothing);
@@ -327,7 +327,7 @@ void main() {
   testWidgets('pasting 13 words says what a phrase has', (tester) async {
     await _pump(tester);
     await _type(tester, 0, List.filled(13, 'abandon').join(' '));
-    expect(find.text('13 words pasted; a phrase has 12, 15, 18, 21 or 24'), findsOneWidget);
+    expect(find.text('13 words pasted; a phrase has 12, 15, 18, 21 or 24.'), findsOneWidget);
     expect(find.text('13 of 24 words'), findsOneWidget);
     expect(_continueEnabled(tester), isFalse);
   });
@@ -344,7 +344,7 @@ void main() {
   testWidgets('a pasted word off the list is marked at once, by number', (tester) async {
     await _pump(tester);
     await _type(tester, 0, [..._v24.take(23), 'h4rbor'].join(' '));
-    expect(find.text('Word 24, "h4rbor", is not in the word list.'), findsOneWidget);
+    expect(find.text('Word 24, “h4rbor”, is not in the word list.'), findsOneWidget);
     expect(_focusedOn(tester, 23), isTrue, reason: 'focus lands on the bad word');
     expect(_continueEnabled(tester), isFalse);
   });

@@ -151,12 +151,12 @@ def home():
         ph.hide_keyboard(S)
         ns = nodes(S)
         w = find(S, "Tab 2 of 3", ns=ns)
-        if w and find(S, "Lock wallet", ns=ns):
-            if find(S, "Recent activity", ns=ns) or find(S, "No payments yet", ns=ns):
+        if w and find(S, facts.LOCK_WALLET, ns=ns):
+            if find(S, (facts.RECENT_ACTIVITY, facts.NO_PAYMENTS), ns=ns):
                 return True
             tap_xy(S, w["center"])
             time.sleep(2)
-            if find(S, "Recent activity") or find(S, "No payments yet"):
+            if find(S, (facts.RECENT_ACTIVITY, facts.NO_PAYMENTS)):
                 return True
         key(S, 4)
         time.sleep(1.5)
@@ -189,10 +189,10 @@ def unlock(secs=120):
     end = time.time() + secs
     while time.time() < end:
         ns = nodes(S)
-        if find(S, "Lock wallet", ns=ns):
+        if find(S, facts.LOCK_WALLET, ns=ns):
             return True
-        if find(S, "Skip tour", ns=ns):
-            tap(S, "Skip tour")
+        if find(S, facts.SKIP_TOUR, ns=ns):
+            tap(S, facts.SKIP_TOUR)
             continue
         if any("EditText" in n["cls"] for n in ns) and any("PIN" in n["label"] for n in ns):
             f = [n for n in ns if "EditText" in n["cls"]][0]
@@ -225,22 +225,58 @@ def start_app(expect, secs=180):
     return False
 
 
+def level_picker_shown(ns=None):
+    """The first-start level picker ("Pick your depth") is on screen: a fresh install of a build
+    with wallet levels."""
+    return bool(find(S, facts.LEVEL_PICK_TITLE, ns=ns))
+
+
+def pass_level_picker():
+    """On the first-start level picker: the Deep end stop (level 3, every switch and number, as
+    a release before levels shows), Undercover left off. Nothing on a build without the picker
+    (Welcome shows instead). The picker's Create / Restore buttons carry Welcome's words."""
+    ns = nodes(S)
+    if not level_picker_shown(ns):
+        return False
+    for _ in range(5):  # Create and Restore stay off until a stop is picked
+        n = find(S, facts.LEVEL_DEEP_END, exact=True, clickable=True, ns=ns) or \
+            find(S, facts.LEVEL_DEEP_END, exact=True, ns=ns)
+        if not n:
+            dump_to_log("level picker: no Deep end stop")
+            raise RuntimeError(f"level picker: no '{facts.LEVEL_DEEP_END}' stop")
+        tap_xy(S, n["center"])
+        time.sleep(1.5)
+        ns = nodes(S)
+        if find(S, facts.LEVEL_THREE, ns=ns):  # the caption under the dial names the level
+            break
+    else:
+        dump_to_log("level picker: level 3 not picked")
+        raise RuntimeError("level picker: Deep end did not take")
+    u = find(S, facts.LEVEL_UNDERCOVER, ns=ns)  # Tor builds only
+    if u and u["checked"]:
+        tap_xy(S, u["center"])
+        time.sleep(1)
+    log("level picker: Deep end (level 3), Undercover off")
+    return True
+
+
 def create():
-    if not start_app("Create a new wallet"):
-        raise RuntimeError("no Welcome screen")
+    if not start_app((facts.CREATE_WALLET, facts.LEVEL_PICK_TITLE)):
+        raise RuntimeError("no Welcome screen or level picker")
+    pass_level_picker()
     for _ in range(5):  # the Welcome screen can still be settling: tap again until the PIN shows
-        n = find(S, "Create a new wallet")
+        n = find(S, facts.CREATE_WALLET)
         if n:
             tap_xy(S, n["center"])
-        if wait(S, "Choose a 6-digit PIN", 6):
+        if wait(S, facts.PIN_CHOOSE, 6):
             break
-    if not pin_step("Choose a 6-digit PIN", ("Enter the PIN again",)):
+    if not pin_step(facts.PIN_CHOOSE, (facts.PIN_AGAIN,)):
         raise RuntimeError("PIN not taken")
-    if not pin_step("Enter the PIN again", ("Skip tour", "Lock wallet", "of 8")):
+    if not pin_step(facts.PIN_AGAIN, (facts.SKIP_TOUR, facts.LOCK_WALLET, "of 8")):
         raise RuntimeError("repeat PIN not taken")
-    if wait(S, "Skip tour", 120):
-        tap(S, "Skip tour")
-    if not wait(S, "Lock wallet", 60):
+    if wait(S, facts.SKIP_TOUR, 120):
+        tap(S, facts.SKIP_TOUR)
+    if not wait(S, facts.LOCK_WALLET, 60):
         raise RuntimeError("no home after create")
     log("created a new test wallet")
 
@@ -249,23 +285,23 @@ def read_phrase():
     """Home › Back up (or Settings › Security › Recovery phrase) › reveal with the PIN.
     Returns the words; never printed."""
     home()
-    if find(S, "Back up", exact=True):
-        tap(S, "Back up", exact=True)
+    if find(S, facts.BACK_UP, exact=True):
+        tap(S, facts.BACK_UP, exact=True)
     else:
-        tap(S, "Settings", exact=True)
-        wait(S, "Security", 10)
-        tap(S, "Security")
+        tap(S, facts.SETTINGS, exact=True)
+        wait(S, facts.SECURITY, 10)
+        tap(S, facts.SECURITY)
         time.sleep(2)
-        tap(S, "ecovery phrase")
-    if wait(S, "I will keep", 15):
-        tap(S, "I will keep")
+        tap(S, "ecovery phrase")  # "Back up recovery phrase" / "Recovery phrase"
+    if wait(S, facts.PHRASE_AGREE, 15):
+        tap(S, facts.PHRASE_AGREE)
         time.sleep(1)
-    tap(S, "Show recovery phrase")
-    pin_step("Enter your PIN", ("Word 1",))
-    n = wait(S, "Word 1", 20)
+    tap(S, facts.SHOW_PHRASE)
+    pin_step(facts.PIN_PROMPT, ("Word 1",))
+    n = wait(S, "Word 1", 20)  # backupWordSpoken "Word {number}: {word}"
     words = [w for _, w in re.findall(r"Word (\d+): ?([a-z]+)", n["label"])] if n else []
     secret_words(words)
-    d = find(S, "Done", exact=True)
+    d = find(S, facts.DONE, exact=True)
     if d:
         tap_xy(S, d["center"])
     home()
@@ -275,10 +311,11 @@ def read_phrase():
 def restore(words, secs=1200):
     """Fresh app: Restore from phrase with `words` and the PIN; wait for home."""
     secret_words(words)
-    if not start_app("Restore from phrase"):
-        raise RuntimeError("no Welcome screen")
-    tap(S, "Restore from phrase")
-    wait(S, "All the words", 20)
+    if not start_app((facts.RESTORE_WALLET, facts.LEVEL_PICK_TITLE)):
+        raise RuntimeError("no Welcome screen or level picker")
+    pass_level_picker()
+    tap(S, facts.RESTORE_WALLET)
+    wait(S, facts.PHRASE_HELPER, 20)
     f = [n for n in nodes(S) if "EditText" in n["cls"]]
     tap_xy(S, f[0]["center"])
     time.sleep(1)
@@ -286,21 +323,21 @@ def restore(words, secs=1200):
     time.sleep(1)
     ph.hide_keyboard(S)  # so Continue is on screen
     time.sleep(1)
-    tap(S, "Continue", exact=True)
-    if not pin_step("Choose a 6-digit PIN", ("Enter the PIN again",)):
+    tap(S, facts.CONTINUE, exact=True)
+    if not pin_step(facts.PIN_CHOOSE, (facts.PIN_AGAIN,)):
         raise RuntimeError("PIN not taken")
-    pin_step("Enter the PIN again", ("Scan", "Lock wallet", "Skip tour", "of 8", "Checking"))
+    pin_step(facts.PIN_AGAIN, ("Scan", facts.LOCK_WALLET, facts.SKIP_TOUR, "of 8", "Checking"))
     end = time.time() + secs
     last = None
     while time.time() < end:
         ns = nodes(S)
-        if any(n["label"] == "Not now" for n in ns):
-            tap(S, "Not now", exact=True)
+        if any(n["label"] == facts.NOT_NOW for n in ns):
+            tap(S, facts.NOT_NOW, exact=True)
             time.sleep(3)
             continue
-        if any(n["label"] == "Skip tour" for n in ns):
-            tap(S, "Skip tour")
-        if find(S, "Lock wallet", ns=ns) and not any(
+        if any(n["label"] == facts.SKIP_TOUR for n in ns):
+            tap(S, facts.SKIP_TOUR)
+        if find(S, facts.LOCK_WALLET, ns=ns) and not any(
                 re.search(r"Scanning|Checking|Recheck.*%", n["label"]) for n in ns):
             log("restored: home shown")
             return True
@@ -317,7 +354,7 @@ def restore(words, secs=1200):
 def address():
     home()
     tap(S, "Tab 3 of 3")
-    n = wait(S, ", Epicbox address", 30)
+    n = wait(S, ", " + facts.RECEIVE_ADDRESS, 30)
     if not n:
         dump_to_log("no Epicbox address on Receive")
     addr = n["label"].split(",")[0].strip() if n else None
@@ -339,8 +376,8 @@ def wait_synced(secs=180):
     end = time.time() + secs
     while time.time() < end:
         home()
-        n = find(S, "Node, ")
-        if n and "Synced" in n["label"]:
+        n = find(S, facts.NODE + ", ")
+        if n and facts.SYNCED in n["label"]:
             return True
         time.sleep(5)
     return False
@@ -358,8 +395,8 @@ def balance(phase=None):
     home()
     ns = nodes(S)
     screen(phase, "home", ns, "Wallet tab: balance and recent activity")
-    total = next((n["label"] for n in ns if n["label"].startswith("Total:")), None)
-    spend = next((n["label"] for n in ns if n["label"].startswith("Spendable:")), None)
+    total = next((n["label"] for n in ns if n["label"].startswith(facts.TOTAL + ":")), None)
+    spend = next((n["label"] for n in ns if n["label"].startswith(facts.SPENDABLE + ":")), None)
     norm = lambda v: format(v.normalize(), "f") if v is not None else None
     return {"total": norm(amount_of(total)) if total else None,
             "spendable": norm(amount_of(spend)) if spend else None}
@@ -373,13 +410,13 @@ def history(phase=None):
     """Every row of Activity: (label) list, top to bottom."""
     home()
     ns = nodes(S)
-    if find(S, "No payments yet", ns=ns) and not tx_rows(ns):
+    if find(S, facts.NO_PAYMENTS, ns=ns) and not tx_rows(ns):
         return []
-    va = find(S, "View all", ns=ns)
+    va = find(S, "View all", ns=ns)  # homeViewAll "View all {count}"
     if va:
         tap_xy(S, va["center"])
     else:
-        a = find(S, "Activity", exact=True, ns=ns)
+        a = find(S, facts.ACTIVITY, exact=True, ns=ns)
         tap_xy(S, a["center"])
     time.sleep(3)
     # One row per payment: a status that moves while the list scrolls ("confirming 1/4" →
@@ -440,7 +477,7 @@ def open_sheet(kind):
 
 
 def close_sheet():
-    c = find(S, "Close", exact=True, clickable=True)
+    c = find(S, facts.CLOSE, exact=True, clickable=True)
     if c:
         tap_xy(S, c["center"])
         time.sleep(1.5)
@@ -453,7 +490,14 @@ def sheet_rows(ns):
 def row_info(label):
     host = HOST_ROW.match(label).group(1)
     parts = [p.strip() for p in label.split(",")]
-    return {"host": host, "current": facts.CURRENT in parts, "added": facts.ADDED_BY_YOU in parts}
+    return {"host": host, "current": any(c in parts for c in facts.CURRENTS), "added": facts.ADDED_BY_YOU in parts}
+
+
+def current_card(ns):
+    """The host of the node sheet's card above the list, "<In use|Current>, host, state", or
+    None."""
+    c = next((n["label"] for n in ns if n["label"].startswith(tuple(w + ", " for w in facts.CURRENTS))), "")
+    return c.split(",")[1].strip() if c else None
 
 
 def server_list(kind, phase=None):
@@ -500,7 +544,7 @@ def _field():
 
 def _filter(text):
     f = _field()
-    clear = find(S, "Clear", exact=True, clickable=True)
+    clear = find(S, facts.CLEAR, exact=True, clickable=True)
     if clear:
         tap_xy(S, clear["center"])
         time.sleep(0.8)
@@ -514,9 +558,9 @@ def _filter(text):
 def _confirm_switch():
     """The Epicbox sheet asks before a switch (the address changes); the node sheet does not."""
     time.sleep(1.5)
-    d = find(S, "Switch to ")
+    d = find(S, "Switch to ")  # slSwitchTitle "Switch to {host}?"
     if d:
-        b = find(S, "Switch", exact=True, clickable=True)
+        b = find(S, facts.SWITCH, exact=True, clickable=True)
         tap_xy(S, b["center"])
         time.sleep(3)
 
@@ -544,21 +588,21 @@ def use_typed_server(kind, target):
             ph.hide_keyboard(S)
             time.sleep(1)
             other = next((n for n in sheet_rows(nodes(S)) if not row_info(n["label"])["current"]
-                          and "Health unknown" not in n["label"]), None)
+                          and not any(h in n["label"] for h in facts.HEALTH_UNKNOWN)), None)
             if not other:
                 raise RuntimeError(f"{kind}: nothing to switch to before removing {target}")
             tap_xy(S, other["center"])
             _confirm_switch()
             continue
         if hit:
-            rm = [n for n in ns if n["label"] == "Remove" and n["clickable"]
+            rm = [n for n in ns if n["label"] == facts.REMOVE and n["clickable"]
                   and hit["bounds"][1] <= n["center"][1] <= hit["bounds"][3]]
             if not rm:
                 raise RuntimeError(f"{kind}: no Remove on {target}")
             tap_xy(S, rm[0]["center"])
             time.sleep(3)
             continue
-        add = wait(S, "Add ", 10, clickable=True)
+        add = wait(S, "Add ", 10, clickable=True)  # slAddRow "Add {host}"
         if not add:
             dump_to_log(f"{kind}: no Add for {target}")
             raise RuntimeError(f"{kind}: the sheet offers no Add for {target}")
@@ -574,8 +618,7 @@ def use_typed_server(kind, target):
     ns = nodes(S)
     cur = next((row_info(n["label"]) for n in sheet_rows(ns) if row_info(n["label"])["current"]), None)
     if not cur:  # the node sheet shows the one in use in a card above the list
-        c = next((n["label"] for n in ns if n["label"].startswith("Current, ")), "")
-        cur = {"host": c.split(",")[1].strip() if c else None, "added": True}
+        cur = {"host": current_card(ns), "added": True}
     close_sheet()
     home()
     ok = bool(cur and cur["host"] and same_host(cur["host"], target))
@@ -627,8 +670,7 @@ def use_server(kind, target):
     ns = nodes(S)
     cur = next((row_info(n["label"]) for n in sheet_rows(ns) if row_info(n["label"])["current"]), None)
     if not cur:  # the node sheet shows the one in use in a card above the list
-        c = next((n["label"] for n in ns if n["label"].startswith("Current, ")), "")
-        cur = {"host": c.split(",")[1].strip() if c else None}
+        cur = {"host": current_card(ns)}
     close_sheet()
     home()
     ok = bool(cur and cur["host"] and same_host(cur["host"], target))
@@ -640,7 +682,7 @@ def add_custom(kind, value):
     """Type `value` into the sheet and Add it ("Added by you"); which one is in use is set after."""
     open_sheet(kind)
     _filter(bare_host(value) if kind == "Epicbox" else value)
-    add = wait(S, "Add ", 10, clickable=True)
+    add = wait(S, "Add ", 10, clickable=True)  # slAddRow "Add {host}"
     if not add:
         dump_to_log(f"{kind}: no Add for {value}")
         raise RuntimeError(f"{kind}: the sheet offers no Add for {value}")
@@ -660,10 +702,10 @@ def add_custom(kind, value):
 
 def advanced_page():
     home()
-    tap(S, "Settings", exact=True)
-    wait(S, "Advanced", 10)
-    tap(S, "Advanced")
-    wait(S, "Shows more", 10)
+    tap(S, facts.SETTINGS, exact=True)
+    wait(S, facts.ADVANCED, 10)
+    tap(S, facts.ADVANCED)
+    wait(S, (facts.SHOWS_MORE, facts.LEVEL_ROW), 10)
     time.sleep(1)
 
 
@@ -701,25 +743,38 @@ def confirmations_now():
     return int(CONF_ROW.match(n["label"]).group(1)) if n else None
 
 
+def wallet_level(ns=None):
+    """Settings › Advanced's "Wallet level" row value ("Let me explore everything" at level 3),
+    read off the page on screen; None on a build without levels (no such row)."""
+    ns = nodes(S) if ns is None else ns
+    n = next((x for x in ns if x["label"].startswith(facts.LEVEL_ROW + " | ")), None)
+    return n["label"].split(" | ", 1)[1].split(" | ")[0].strip() if n else None
+
+
 def read_settings():
     """The stored settings the test watches: Theme, Show prices, Currency (Appearance);
-    Technical details, Node failover, Confirmations (Advanced)."""
+    Wallet level (a build with levels), Technical details, Node failover, Confirmations
+    (Advanced)."""
     out = {}
     home()
-    tap(S, "Settings", exact=True)
-    wait(S, "Appearance", 10)
-    tap(S, "Appearance")
-    wait(S, "Theme", 10)
+    tap(S, facts.SETTINGS, exact=True)
+    wait(S, facts.APPEARANCE, 10)
+    tap(S, facts.APPEARANCE)
+    wait(S, facts.THEME, 10)
     time.sleep(1)
     ns = nodes(S)
-    for name in ("Theme", "Currency", "Language"):
+    for name, k in ((facts.THEME, "theme"), (facts.CURRENCY, "currency"), (facts.LANGUAGE, "language")):
         n = next((x for x in ns if x["label"].startswith(name + " | ")), None)
-        out[name.lower()] = n["label"].split(" | ", 1)[1] if n else None
-    sp = next((x for x in ns if x["label"] == "Show prices"), None)
+        out[k] = n["label"].split(" | ", 1)[1] if n else None
+    sp = next((x for x in ns if x["label"] == facts.SHOW_PRICES), None)
     out["show_prices"] = bool(sp and sp["checked"]) if sp else None
     shot("appearance")
     advanced_page()
-    for name, k in (("Technical details", "technical_details"), ("Node failover", "node_failover")):
+    time.sleep(1)
+    level = wallet_level()
+    if level is not None:  # only a build with levels has the row; the update check reads it
+        out["level"] = level
+    for name, k in ((facts.TECHNICAL_DETAILS, "technical_details"), (facts.NODE_FAILOVER, "node_failover")):
         _scroll_to(name)
         sw = _switch_in_row(name)
         out[k] = sw["checked"] if sw else None
@@ -735,22 +790,22 @@ def change_settings():
     Failover off also keeps the node in use the user's own: a session-only move to another node
     while the test waits for a payment would read as a lost choice."""
     home()
-    tap(S, "Settings", exact=True)
-    wait(S, "Appearance", 10)
-    tap(S, "Appearance")
-    wait(S, "Theme", 10)
-    tap(S, "Theme | ")
+    tap(S, facts.SETTINGS, exact=True)
+    wait(S, facts.APPEARANCE, 10)
+    tap(S, facts.APPEARANCE)
+    wait(S, facts.THEME, 10)
+    tap(S, facts.THEME + " | ")
     time.sleep(1.5)
     tap(S, THEME, exact=True, clickable=True)
     time.sleep(1.5)
     advanced_page()
-    _scroll_to("Technical details")
-    sw = _switch_in_row("Technical details")
+    _scroll_to(facts.TECHNICAL_DETAILS)
+    sw = _switch_in_row(facts.TECHNICAL_DETAILS)
     if sw and not sw["checked"]:
         tap_xy(S, sw["center"])
         time.sleep(1.5)
-    _scroll_to("Node failover")
-    sw = _switch_in_row("Node failover")
+    _scroll_to(facts.NODE_FAILOVER)
+    sw = _switch_in_row(facts.NODE_FAILOVER)
     if sw and sw["checked"]:
         tap_xy(S, sw["center"])
         time.sleep(1.5)
@@ -759,7 +814,7 @@ def change_settings():
         c = confirmations_now()
         if c is None or c == CONFIRMATIONS:
             break
-        tap(S, "Fewer confirmations" if c > CONFIRMATIONS else "More confirmations", exact=True)
+        tap(S, facts.CONF_FEWER if c > CONFIRMATIONS else facts.CONF_MORE, exact=True)
         time.sleep(0.8)
     time.sleep(1.5)  # the setting is written after a short debounce
     home()
@@ -830,22 +885,22 @@ def send_epicbox(to_addr, amount):
             break
         tap_xy(S, b["center"])
         time.sleep(1.5)
-    m = find(S, "Epicbox", exact=True, clickable=True)
+    m = find(S, facts.EPICBOX_METHOD, exact=True, clickable=True)
     if m:
         tap_xy(S, m["center"])
         time.sleep(1)
-    clr = find(S, "Clear recipient", clickable=True)
+    clr = find(S, facts.CLEAR_RECIPIENT, clickable=True)
     if clr:
         tap_xy(S, clr["center"])
         time.sleep(1)
     clear_field_and_type(to_addr)
     ph.hide_keyboard(S)
-    tap(S, "Continue", exact=True, clickable=True)
-    if not wait(S, "Amount", 15):
+    tap(S, facts.CONTINUE, exact=True, clickable=True)
+    if not wait(S, facts.AMOUNT_STEP, 15):
         raise RuntimeError("send: no amount step")
     clear_field_and_type(amount)
     ph.hide_keyboard(S)
-    c = wait(S, "Continue", 10, exact=True, clickable=True)
+    c = wait(S, facts.CONTINUE, 10, exact=True, clickable=True)
     if not c:
         dump_to_log("send: Continue not enabled")
         raise RuntimeError("send: amount not accepted (Continue off)")
@@ -860,11 +915,11 @@ def send_epicbox(to_addr, amount):
     tap_xy(S, b["center"])
     time.sleep(2)
     if find(S, "PIN"):
-        pin_step("PIN", ("Sent", "Sending", "Waiting", "Done", "Lock wallet", "Payment"))
+        pin_step("PIN", ("Sent", "Sending", "Waiting", facts.DONE, facts.LOCK_WALLET, "Payment"))
     time.sleep(3)
     dump_to_log("send: after send")
     shot("send-done")
-    d = find(S, "Done", exact=True, clickable=True)
+    d = find(S, facts.DONE, exact=True, clickable=True)
     if d:
         tap_xy(S, d["center"])
     home()
@@ -1004,14 +1059,34 @@ def compare(a, b):
                   + f"; in use {cur_a} → {cur_b}; removed '{la['removed']}' → '{lb['removed']}'"
                   + ("" if hosts_a == hosts_b else f"; list {hosts_a} → {hosts_b}"))
     sa, sb = a["settings"], b["settings"]
-    diff = {k: (sa.get(k), sb.get(k)) for k in sa if sa.get(k) != sb.get(k)}
+    # The wallet level is judged on its own (level_after): a previous release without levels has
+    # no row to compare with.
+    diff = {k: (sa.get(k), sb.get(k)) for k in sa if k != "level" and sa.get(k) != sb.get(k)}
     changed_ok = (sa.get("theme") == THEME and sa.get("technical_details") is True
                   and sa.get("node_failover") is False and sa.get("confirmations") == CONFIRMATIONS)
-    res["settings_kept"] = not diff and changed_ok
-    det["settings_kept"] = (f"kept {sb}" if not diff and changed_ok else
+    level_ok, level_why = level_after(sa, sb)
+    res["settings_kept"] = not diff and changed_ok and level_ok
+    det["settings_kept"] = (f"kept {sb}" if not diff and changed_ok and level_ok else
                             f"changed by the update: {diff}" if diff else
-                            f"the test could not set them on the previous version: {sa}")
+                            f"the test could not set them on the previous version: {sa}" if not changed_ok else
+                            level_why)
     return res, det
+
+
+def level_after(sa, sb):
+    """(ok, why): the update kept the wallet at level 3 ("Let me explore everything" in Settings ›
+    Advanced): an existing install comes to a build with levels at level 3, a previous release
+    with levels keeps the level its user picked (the test picks Deep end). A candidate without
+    levels has nothing to read; one with levels must show the row."""
+    if not facts.LEVELS_BUILT:
+        return True, "the candidate has no wallet levels"
+    after = sb.get("level")
+    if after is None:
+        return False, f"no '{facts.LEVEL_ROW}' row in Settings › Advanced after the update"
+    if after != facts.LEVEL_THREE:
+        return False, (f"wallet level after the update is '{after}', not level 3 ('{facts.LEVEL_THREE}')"
+                       + (f"; before '{sa.get('level')}'" if sa.get("level") else ""))
+    return True, f"level 3 ('{after}')"
 
 
 def write_proof(checks, details, extra):
@@ -1123,7 +1198,17 @@ def run():
     if "Success" not in r or vc1 == vc0:
         details["wallet_opens"] = f"the candidate did not install over the previous one: {r.strip()[-200:]}"
         return finish() or 1
-    start_app("PIN", 120)
+    start_app(("PIN", facts.LEVEL_PICK_TITLE), 120)
+    # The first-start level picker after an update means the candidate took the install for a
+    # new one (its marker keys not read): the user's wallet is not what opens.
+    picker = level_picker_shown()
+    extra["levels"] = {"candidate_has_levels": facts.LEVELS_BUILT, "picker_after_update": picker}
+    if picker:
+        shot("after-update-level-picker")
+        dump_to_log("after update: level picker")
+        details["wallet_opens"] = ("the candidate showed the first-start level picker ("
+                                   f"'{facts.LEVEL_PICK_TITLE}') after the update: it took the install for a new one")
+        return finish()
     opened = unlock(180)
     shot("after-update-unlock")
     if not opened:
@@ -1140,6 +1225,9 @@ def run():
         b["balance"], b["history"] = balance("after"), history("after")
     extra["after"] = public_digest(b)
     log("digest after:", json.dumps(public_digest(b), ensure_ascii=False))
+    lv_ok, lv_why = level_after(a["settings"], b["settings"])
+    extra["levels"].update(level_before=a["settings"].get("level"), level_after=b["settings"].get("level"),
+                           level_ok=lv_ok, note=lv_why)
     c, d = compare(a, b)
     checks.update(c)
     details.update(d)

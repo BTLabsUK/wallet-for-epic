@@ -222,7 +222,7 @@ void main() {
     await expectLater(
       wallet.useBuiltInNode(true),
       // Worded from the failure kind (failureLine's words), not the node's English message.
-      throwsA(isA<DeskError>().having((e) => e.message, 'message', contains('port 3413 is used by another program'))),
+      throwsA(isA<DeskError>().having((e) => e.message, 'message', contains('port 3413 is in use by another program'))),
     );
     expect(spawned, isEmpty);
     expect(service.nodeUrls.length, opens);

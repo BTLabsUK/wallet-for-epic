@@ -245,7 +245,7 @@ void main() {
       await tester.tap(find.widgetWithText(EButton, 'Consolidate'));
       await tester.pumpAndSettle();
       expect(wallet.consolidates, 1);
-      expect(find.text('Consolidate posted'), findsOneWidget);
+      expect(find.text('Consolidation posted'), findsOneWidget);
     });
   });
 
@@ -263,7 +263,7 @@ void main() {
       await page(tester, [out(1, 10, OutputStatus.unspent), out(2, 20, OutputStatus.unspent)], bal(30));
       expect(pressed(tester, 'Split…'), isNotNull);
       expect(pressed(tester, 'Consolidate…'), isNotNull);
-      expect(find.textContaining('Fee from'), findsOneWidget);
+      expect(find.textContaining('Fee at least'), findsOneWidget);
     });
 
     testWidgets('something locked: both wait', (tester) async {

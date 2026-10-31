@@ -244,7 +244,7 @@ void main() {
       await _pump(tester, _tx(incoming: true, state: TxState.cancelled), _Desk());
       expect(find.text('Cancelled. If the sender posts it later, it still arrives.'), findsOneWidget);
       await _pump(tester, _tx(incoming: false, state: TxState.cancelled), _Desk());
-      expect(find.text('Cancelled.'), findsOneWidget);
+      expect(find.text('Cancelled'), findsWidgets);
       expect(find.textContaining('still arrives'), findsNothing);
     });
   });

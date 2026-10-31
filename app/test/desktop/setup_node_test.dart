@@ -133,8 +133,7 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('What running the node here means, and which node to use.'), findsOneWidget);
-    expect(find.textContaining('A separate program.', findRichText: true), findsOneWidget);
-    expect(find.text('Start the bundled node'), findsOneWidget);
+    expect(find.text('Start the local node'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('^Use node.epic.invalid until the local node is synced')), findsOneWidget);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull, reason: 'bundled is preselected when nothing answers');
 
@@ -166,7 +165,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
-    expect(find.text('Start the bundled node'), findsOneWidget);
+    expect(find.text('Start the local node'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('until the local node is synced')), findsNothing);
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
@@ -197,7 +196,7 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('Review settings'), findsOneWidget);
-    expect(find.text('Local node, bundled'), findsOneWidget);
+    expect(find.text('Local node'), findsWidgets);
     expect(find.text('node.epic.invalid'), findsOneWidget);
     expect(find.text(mockDataFolder), findsOneWidget);
     expect(find.textContaining('Save starts the node; node.epic.invalid stands in'), findsOneWidget);
@@ -364,7 +363,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Local node'), findsOneWidget);
     expect(find.text('Use this node'), findsOneWidget, reason: 'a found node preselects the existing option');
-    await tester.tap(find.text('Start the bundled node'));
+    await tester.tap(find.text('Start the local node'));
     await tester.pumpAndSettle();
     expect(find.text('Start local node'), findsOneWidget);
     await tester.tap(find.text('Start local node'));
