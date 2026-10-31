@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n.dart' show localInt;
+import '../../network.dart' show EpicboxRelay;
 import '../../levels/level_features.dart' show StatusIcon;
 import '../../levels/wallet_level.dart';
 import '../../ui/common.dart' as common show shortAddress;
@@ -100,6 +101,7 @@ class DeskStatusPopover extends ConsumerWidget {
         final height = status == null || status.nodeHeight <= 0 ? null : status.nodeHeight;
         final version = info?.version;
         if (shallow) {
+          if (url != null && url.isNotEmpty) facts.add((label: l.lvShellServer, value: nodeHost(url), mono: true));
           final tip = info?.networkHeight ?? height;
           if (tip != null) facts.add((label: l.lvShellLatestBlock, value: localInt(l, tip), mono: false));
           facts.add((
@@ -122,10 +124,9 @@ class DeskStatusPopover extends ConsumerWidget {
         final address = ref.watch(deskProvider.select((s) => s.epicboxAddress));
         final server = status?.epicbox;
         if (address != null && address.isNotEmpty) facts.add((label: l.lvShellAddress, value: common.shortAddress(address, relay: false), mono: true));
-        if (shallow) {
-          if (i.state == EState.risk || i.state == EState.warn) body = [Text(l.lvShellBoxDownBody, style: ts.small.copyWith(color: c.dim))];
-        } else {
-          if (server != null && server.domain.isNotEmpty) facts.add((label: l.lvShellServer, value: server.domain, mono: true));
+        if (server != null && server.domain.isNotEmpty) facts.add((label: l.lvShellServer, value: EpicboxRelay(host: server.domain, port: server.port).label, mono: true));
+        if (shallow && (i.state == EState.risk || i.state == EState.warn)) {
+          body = [Text(l.lvShellBoxDownBody, style: ts.small.copyWith(color: c.dim))];
         }
       default:
         if (i.second != '–' && i.second != i.word) sub = i.second;
