@@ -34,7 +34,7 @@ import '../../btlabs_public.dart';
 import '../../net/http.dart';
 import '../../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../../tor_build.dart' show inAppUpdates, torBuilt;
-import '../../updater.dart' show laterUpdateState, storedUpdateState, updateKeyringProvider, updateManifestUrls, updateStateKey;
+import '../../updater.dart' show UpdateStateKeeper, highestSerial, updateKeyringProvider, updateManifestUrls;
 import 'desk_store.dart';
 import 'desk_update_apply.dart';
 import 'state.dart' show deskProvider, deskQuitProvider;
@@ -323,13 +323,9 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// first source on a tie. With none, a source with no manifest or a bad one means nothing
   /// newer is known; only every source failing fails the check (the first one's reason).
   Future<DeskUpdateState> _fetchAndRead() async {
-    await _readState();
+    await _manifest.readOnce();
     final reads = await Future.wait([for (final url in updateManifestUrls) _fetchAndVerify(url)]);
-    Accepted<WalletUpdate>? best;
-    for (final (accepted, _) in reads) {
-      if (accepted == null) continue;
-      if (best == null || accepted.state.serial > best.state.serial) best = accepted;
-    }
+    final best = highestSerial([for (final (accepted, _) in reads) accepted], (a) => a.state);
     if (best != null) return _offer(best);
     if (reads.every((r) => r.$2 != null)) return reads.first.$2!;
     return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
@@ -352,7 +348,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
       final result = await verifyWalletUpdate(
         body,
         keyring: ref.read(updateKeyringProvider),
-        state: _manifestState,
+        state: _manifest.state,
         now: ref.read(deskUpdateClockProvider)().toUtc(),
       );
       if (result is Accepted<WalletUpdate>) return (result, null);
@@ -467,44 +463,25 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
     _ => deskStrings.deskUpdErrStopped,
   };
 
-  /// The last manifest accepted, also in an earlier run ([updateStateKey] in the desk store);
-  /// an older one is refused (FORMAT.md §6).
-  ManifestState? _manifestState;
-
-  /// Whether the stored state was read. Until it is, nothing is stored over it: a store that
-  /// could not be read is asked again at the next check.
-  bool _stateRead = false;
-
-  Future<void> _readState() async {
-    if (_stateRead) return;
-    final store = ref.read(deskStoreProvider);
-    try {
-      if (store != null) _manifestState = laterUpdateState(storedUpdateState(await store.readJson(updateStateKey)), _manifestState);
-      _stateRead = true;
-    } on Object catch (e) {
-      logWarn('update', 'desktop: stored update.json state not read: ${e.runtimeType}');
-    }
-  }
-
-  /// Remembers [next], the state of a manifest that just verified, and stores it.
-  Future<void> _keepState(ManifestState next) async {
-    if (next == _manifestState) return;
-    _manifestState = next;
-    final store = ref.read(deskStoreProvider);
-    if (!_stateRead || store == null) return;
-    try {
-      await store.writeJson(updateStateKey, next.toJson());
-    } on Object catch (e) {
-      logWarn('update', 'desktop: update.json state not stored: ${e.runtimeType}');
-    }
-  }
+  /// The last manifest accepted, also in an earlier run (`updateStateKey` in the desk store;
+  /// none kept without a desk store).
+  late final UpdateStateKeeper _manifest = UpdateStateKeeper(
+    read: (key) async {
+      final store = ref.read(deskStoreProvider);
+      return store == null ? null : await store.readText(key);
+    },
+    write: (key, text) async {
+      await ref.read(deskStoreProvider)?.writeText(key, text);
+    },
+    logPrefix: 'desktop: ',
+  );
 
   /// The update the last accepted manifest offered, if any: it stays offered when a later
   /// manifest does not verify or none is published (FORMAT.md §5: keep what you have).
   DeskUpdateState? _known;
 
   Future<DeskUpdateState> _offer(Accepted<WalletUpdate> result) async {
-    await _keepState(result.state);
+    await _manifest.keep(result.state);
     _known = null;
     // The build without Tor reads the `notor` release; a file without one has nothing newer for it.
     final release = result.manifest.release(tor: torBuilt);

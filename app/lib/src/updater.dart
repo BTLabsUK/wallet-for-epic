@@ -558,6 +558,71 @@ ManifestState? laterUpdateState(ManifestState? stored, ManifestState? seen) {
   );
 }
 
+/// Of the copies the sources gave, in source order, the one whose state has the highest serial,
+/// the first source on a tie; null when none verified. Both updaters pick with it.
+T? highestSerial<T extends Object>(Iterable<T?> copies, ManifestState Function(T copy) stateOf) {
+  T? best;
+  for (final copy in copies) {
+    if (copy == null) continue;
+    if (best == null || stateOf(copy).serial > stateOf(best).serial) best = copy;
+  }
+  return best;
+}
+
+/// update.json's verification state between runs ([updateStateKey]), kept alike by both
+/// updaters: the phone in its secret store, the desktop in its desk store, as the JSON text of
+/// [ManifestState.toJson] either way.
+class UpdateStateKeeper {
+  UpdateStateKeeper({required this.read, required this.write, this.logPrefix = ''});
+
+  /// Reads the stored text of a key (null when none); throws when the store cannot be read.
+  final Future<String?> Function(String key) read;
+
+  /// Stores the text of a key.
+  final Future<void> Function(String key, String text) write;
+
+  /// Put before each log line ('desktop: ' on the desktop).
+  final String logPrefix;
+
+  /// The last manifest accepted, also in an earlier run; an older one is refused (FORMAT.md §6).
+  ManifestState? state;
+
+  /// Whether the stored state was read. Until it is, nothing is stored over it: a store that
+  /// could not be read is asked again at the next check.
+  bool _read = false;
+
+  Future<void> readOnce() async {
+    if (_read) return;
+    try {
+      final text = await read(updateStateKey);
+      Object? json;
+      if (text != null) {
+        try {
+          json = jsonDecode(text);
+        } on FormatException {
+          json = const <String, Object?>{};
+        }
+      }
+      state = laterUpdateState(storedUpdateState(json), state);
+      _read = true;
+    } on Object catch (e) {
+      logWarn('update', '${logPrefix}stored update.json state not read: ${e.runtimeType}');
+    }
+  }
+
+  /// Remembers [next], the state of a manifest that just verified, and stores it.
+  Future<void> keep(ManifestState? next) async {
+    if (next == null || next == state) return;
+    state = next;
+    if (!_read) return;
+    try {
+      await write(updateStateKey, jsonEncode(next.toJson()));
+    } on Object catch (e) {
+      logWarn('update', '${logPrefix}update.json state not stored: ${e.runtimeType}');
+    }
+  }
+}
+
 final updateProvider = NotifierProvider<UpdateNotifier, UpdateState>(
   UpdateNotifier.new,
 );
@@ -571,13 +636,11 @@ class UpdateNotifier extends Notifier<UpdateState> {
   /// A download stopped while the app was away; [resumed] carries it on.
   bool _continueOnReturn = false;
 
-  /// The last manifest accepted, also in an earlier run ([updateStateKey]); an older one is
-  /// refused (FORMAT.md §6).
-  ManifestState? _manifestState;
-
-  /// Whether the stored state was read. Until it is, nothing is stored over it: a store that
-  /// could not be read is asked again at the next check.
-  bool _stateRead = false;
+  /// The last manifest accepted, also in an earlier run ([updateStateKey], in the secret store).
+  late final UpdateStateKeeper _manifest = UpdateStateKeeper(
+    read: (key) => ref.read(secretStoreProvider).read(key),
+    write: (key, text) => ref.read(secretStoreProvider).write(key, text),
+  );
 
   /// The version whose notice was closed ([updateNoticeDismissedKey]), read with the state.
   String? _dismissed;
@@ -604,37 +667,6 @@ class UpdateNotifier extends Notifier<UpdateState> {
       _dismissedRead = true;
     } on Object catch (e) {
       logWarn('update', 'closed notice not read: ${e.runtimeType}');
-    }
-  }
-
-  Future<void> _readState() async {
-    if (_stateRead) return;
-    try {
-      final text = await ref.read(secretStoreProvider).read(updateStateKey);
-      Object? json;
-      if (text != null) {
-        try {
-          json = jsonDecode(text);
-        } on FormatException {
-          json = const <String, Object?>{};
-        }
-      }
-      _manifestState = laterUpdateState(storedUpdateState(json), _manifestState);
-      _stateRead = true;
-    } on Object catch (e) {
-      logWarn('update', 'stored update.json state not read: ${e.runtimeType}');
-    }
-  }
-
-  /// Remembers [next], the state of a manifest that just verified, and stores it.
-  Future<void> _keepState(ManifestState? next) async {
-    if (next == null || next == _manifestState) return;
-    _manifestState = next;
-    if (!_stateRead) return;
-    try {
-      await ref.read(secretStoreProvider).write(updateStateKey, jsonEncode(next.toJson()));
-    } on Object catch (e) {
-      logWarn('update', 'update.json state not stored: ${e.runtimeType}');
     }
   }
 
@@ -710,7 +742,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
 
     final urls = ref.read(updateManifestUrlsProvider);
     try {
-      await _readState();
+      await _manifest.readOnce();
       await _readDismissed();
       // Asked for (About's Check for updates): a closed notice shows again.
       if (!quiet && _dismissed != null) {
@@ -764,7 +796,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
           app,
           keyring: ref.read(updateKeyringProvider),
           now: ref.read(updateClockProvider)(),
-          state: _manifestState,
+          state: _manifest.state,
         );
         if (candidate.rejected case final reason?) {
           // Never shown as an error: the user cannot act on it (FORMAT.md §5).
@@ -776,17 +808,13 @@ class UpdateNotifier extends Notifier<UpdateState> {
 
       final results = await Future.wait([for (final url in urls) readOne(url)]);
       if (!ref.mounted) return;
-      UpdateManifestRead? read;
-      for (final (candidate, _) in results) {
-        if (candidate == null) continue;
-        if (read == null || candidate.state!.serial > read.state!.serial) read = candidate;
-      }
+      final read = highestSerial([for (final (candidate, _) in results) candidate], (c) => c.state!);
       if (read == null) {
         if (results.every((r) => r.$2 != null)) throw results.first.$2!;
         noInformation();
         return;
       }
-      await _keepState(read.state);
+      await _manifest.keep(read.state);
       if (!ref.mounted) return;
       final apkUrl = ref.read(updateApkUrlProvider);
       final picked = read.update;

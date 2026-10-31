@@ -171,6 +171,11 @@ class DeskStore {
 
   Future<void> writeJson(String key, Object? value) => _secrets.write(key, jsonEncode(value));
 
+  /// The stored text of [key] as it is, for what parses it itself (the update state).
+  Future<String?> readText(String key) => _secrets.read(key);
+
+  Future<void> writeText(String key, String text) => _secrets.write(key, text);
+
   Future<void> delete(String key) => _secrets.delete(key);
 
   Future<DeskSettings> settings() async {
