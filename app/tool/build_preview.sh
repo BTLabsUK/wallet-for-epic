@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # Builds the phone app as a clickable web preview on the fake wallet (no server, no demo mode)
-# and stages it for publishing under any path: the app starts in the wallet with no PIN, Lock
-# still works and Unlock is one tap (demo.dart, pinlessBuild).
+# and stages it for publishing under any path. Every visit is a fresh install: the wallet level
+# step, then the normal PIN pad (any PIN opens the fake wallet), then Home with a live payment
+# timeline (a send walks through its steps, a payment from Bob arrives ~20 s after Home) and
+# the Epicbox relay going quiet at level 1 (~45 s, or `?relaydown`) with the offer to move
+# (web/preview.dart, preview_live.dart, preview_levels.dart).
 #
 # Usage: tool/build_preview.sh <out dir>
 #

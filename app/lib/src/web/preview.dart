@@ -10,6 +10,9 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import '../demo.dart' show pinlessProvider;
+import '../levels/first_start.dart' show firstStartProvider;
+import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
 import '../net/http_types.dart' show NetError;
 import '../network.dart';
 import '../pairing_fake.dart' show fakePairingLink;
@@ -17,6 +20,8 @@ import '../pairing_providers.dart' show pairingOnProvider;
 import '../phone_tor.dart';
 import '../relay_directory.dart';
 import '../wallet_service.dart';
+import 'preview_levels.dart';
+import 'preview_live.dart';
 
 /// `--dart-define=WFE_WEB_FAKE=true`: the web app runs on [previewWalletService].
 const bool webFakeBackend = bool.fromEnvironment('WFE_WEB_FAKE');
@@ -28,6 +33,7 @@ FakeWalletService previewWalletService() {
   final service = PreviewWalletService(session: session)
     // At the preview directory's tip, so the status card reads Synced.
     ..nodeTipValue = NodeTip(height: _tip, nodeVersion: '4.1.1');
+  session.tipService = service;
   _previewQrExchange(service, session);
   return service;
 }
@@ -61,6 +67,31 @@ void _previewQrExchange(PreviewWalletService service, FakeWalletSession session)
 /// or `bad` in it, so the pickers' Add can be tried both ways.
 class PreviewWalletService extends FakeWalletService {
   PreviewWalletService({super.session});
+
+  /// A wallet opened or made: its payments start to move ([PreviewSession.opened]).
+  T _opened<T extends WalletSession>(T session) {
+    if (session is PreviewSession) session.opened();
+    return session;
+  }
+
+  @override
+  Future<WalletSession> create({required WalletConfig config, String? mnemonic, required String password}) async =>
+      _opened(await super.create(config: config, mnemonic: mnemonic, password: password));
+
+  @override
+  Future<WalletSession> open({required WalletConfig config, required String password}) async =>
+      _opened(await super.open(config: config, password: password));
+
+  @override
+  Future<PinWallet> createWithPin({required WalletConfig config, String? mnemonic, required String pin}) async {
+    final wallet = await super.createWithPin(config: config, mnemonic: mnemonic, pin: pin);
+    _opened(wallet.session);
+    return wallet;
+  }
+
+  @override
+  Future<WalletSession> openWithPin({required WalletConfig config, required String pin, required String sealedPassword}) async =>
+      _opened(await super.openWithPin(config: config, pin: pin, sealedPassword: sealedPassword));
 
   @override
   Future<NodeTip> nodeAnswer(WalletConfig config) async {
@@ -166,7 +197,7 @@ String _commit(String seed) {
   return buffer.toString();
 }
 
-FakeWalletSession _previewSession() {
+PreviewSession _previewSession() {
   final tip = _tip;
   final anna = _address('anna');
   final btlabs = _address('btlabs');
@@ -185,7 +216,9 @@ FakeWalletSession _previewSession() {
   final confirming = pending >= 2 ? _epic(25) : BigInt.zero;
   final immature = pending >= 2 ? _epic(2) : BigInt.zero;
   final notOnChain = pending >= 3 ? _epic(12.5) : BigInt.zero;
-  final session = FakeWalletSession(
+  final session = PreviewSession(
+    sender: _address('bob'),
+    sendersName: 'Bob',
     summary: WalletSummary(
       lastConfirmedHeight: tip,
       minimumConfirmations: BigInt.from(3),
@@ -355,6 +388,7 @@ FakeWalletSession _previewSession() {
     Contact(id: 'c4', name: 'Merchant: Coffee', address: coffee),
     Contact(id: 'c5', name: 'Mining pool payouts', address: pool),
     Contact(id: 'c6', name: 'Tom', address: tom, note: 'Pays by file'),
+    Contact(id: 'c7', name: 'Bob', address: _address('bob')),
   ]);
   // The outputs the balance is made of, as the desktop's Outputs page shows them.
   WalletOutput output(
@@ -491,6 +525,11 @@ FakeWalletSession _previewSession() {
 List<Override> previewOverrides() => [
   // Pairing shows without its Experimental switch.
   pairingOnProvider.overrideWithValue(true),
+  // The levels: the first-start step on every visit, the normal PIN pad (the fake wallet takes
+  // any PIN), and the relay offer played in seconds.
+  firstStartProvider.overrideWith(PreviewFirstStart.new),
+  pinlessProvider.overrideWithValue(false),
+  relaySwitchProvider.overrideWith(PreviewRelaySwitch.new),
   phoneTorProvider.overrideWith(PreviewPhoneTor.new),
   relayDirectoryProvider.overrideWithValue(const PreviewDirectory()),
 ];
