@@ -259,7 +259,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     _lifecycle;
-    _timer = Timer.periodic(autoRefreshInterval, (_) => _autoRefresh());
+    _startRefreshTimer();
     _tipTimer = Timer.periodic(_tipPace.step, (_) => _tipTick());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
@@ -301,7 +301,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (_syncing(ref.read(homeProvider)) || ref.read(scanProvider).running) {
       return;
     }
+    // The minute's timer counts from this refresh: after a block's refresh it only covers a
+    // node that is stuck or does not answer.
+    _startRefreshTimer();
     _refresh();
+  }
+
+  void _startRefreshTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(autoRefreshInterval, (_) => _autoRefresh());
   }
 
   /// How closely the list is watched now (watch_mode.dart).
