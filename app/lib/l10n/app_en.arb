@@ -704,7 +704,7 @@
       }
     }
   },
-  "txDetailsCancelledByUser": "Cancelled. Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting; it can no longer complete.",
+  "txDetailsCancelledByUser": "Cancelled. Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.",
   "@txDetailsCancelledByUser": {
     "description": "Payment details, why a send is cancelled: the user cancelled it. The slate may have reached the recipient, so it never says nothing was sent."
   },

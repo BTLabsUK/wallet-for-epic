@@ -627,7 +627,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Cancelled. Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting; it can no longer complete.';
+      'Cancelled. Nothing was paid, and the coins are spendable again. If the recipient already got it, their wallet may still show it as waiting.';
 
   @override
   String get txDetailsCancelledReleased =>

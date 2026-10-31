@@ -151,7 +151,7 @@
   "txDetailsConfirmingDays": "In Block {height}. {count} von {target, plural, =1{1 Bestätigung} other{{target} Bestätigungen}}; endgültig in etwa {days, plural, =1{1 Tag} other{{days} Tagen}}.",
   "txDetailsCompleted": "Abgeschlossen.",
   "txDetailsCompletedInBlock": "In Block {height} abgeschlossen.",
-  "txDetailsCancelledByUser": "Storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend; abschließen lässt sie sich nicht mehr.",
+  "txDetailsCancelledByUser": "Storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar. Falls der Empfänger die Zahlung schon erhalten hat, zeigt seine Wallet sie vielleicht noch als wartend.",
   "txDetailsCancelledReleased": "Das Netzwerk hat die Zahlung nie angenommen, daher wurde der Betrag freigegeben. Prüfen Sie vor dem erneuten Senden, ob der Empfänger sie nicht doch erhalten hat.",
   "txDetailsCancelledNotOnChain": "Die Zahlung hat das Netzwerk nicht rechtzeitig erreicht und wurde storniert. Prüfen Sie vor dem erneuten Senden, ob der Empfänger sie nicht doch erhalten hat.",
   "txDetailsCancelledUnanswered": "Der Empfänger hat nicht innerhalb von 24 Stunden geantwortet, daher hat die Wallet die Zahlung storniert. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.",

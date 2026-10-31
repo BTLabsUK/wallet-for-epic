@@ -657,7 +657,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Anulowano. Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą; nie można jej już dokończyć.';
+      'Anulowano. Nic nie zostało zapłacone, a środki są znów dostępne. Jeśli odbiorca już ją otrzymał, jego portfel może nadal pokazywać ją jako oczekującą.';
 
   @override
   String get txDetailsCancelledReleased =>

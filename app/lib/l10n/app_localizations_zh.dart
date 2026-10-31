@@ -597,7 +597,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      '已取消。没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中；这笔付款已无法完成。';
+      '已取消。没有支付任何资金，这些资金已恢复可用。如果接收方已经收到，其钱包可能仍显示为等待中。';
 
   @override
   String get txDetailsCancelledReleased =>

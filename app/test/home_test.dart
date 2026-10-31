@@ -2579,8 +2579,7 @@ void main() {
       expect(
         txExplanation(englishStrings, cancelledSend(), _tip),
         'Cancelled. Nothing was paid, and the coins are spendable again. If the '
-        'recipient already got it, their wallet may still show it as waiting; it '
-        'can no longer complete.',
+        'recipient already got it, their wallet may still show it as waiting.',
       );
     });
 
@@ -2665,15 +2664,13 @@ void main() {
       expect(
         say(cancelled(CancelReason.user)),
         'Cancelled. Nothing was paid, and the coins are spendable again. If the '
-        'recipient already got it, their wallet may still show it as waiting; it '
-        'can no longer complete.',
+        'recipient already got it, their wallet may still show it as waiting.',
       );
       // The user cancelled on day 2; from day 14 the old rule would blame the limit.
       expect(
         say(cancelled(CancelReason.user, cutoff: _tip - BigInt.one)),
         'Cancelled. Nothing was paid, and the coins are spendable again. If the '
-        'recipient already got it, their wallet may still show it as waiting; it '
-        'can no longer complete.',
+        'recipient already got it, their wallet may still show it as waiting.',
       );
       // Released after a refusal, then past the limit: still a release.
       expect(

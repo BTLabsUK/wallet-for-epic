@@ -653,7 +653,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsCancelledByUser =>
-      'Отменено. Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий; завершить его больше нельзя.';
+      'Отменено. Ничего не оплачено, средства снова доступны. Если получатель уже получил платёж, его кошелёк может ещё показывать его как ожидающий.';
 
   @override
   String get txDetailsCancelledReleased =>
