@@ -117,23 +117,6 @@ class SettingsFrame extends ConsumerWidget {
   }
 }
 
-/// The node's state word (a synced node says Synced, never Online).
-String nodeWord(AppLocalizations l, ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => l.deskSetFrameNodeSynced,
-  ServiceHealth.slow => l.deskSetFrameNodeSyncing,
-  ServiceHealth.down => l.deskSetFrameNotResponding,
-  ServiceHealth.off => l.deskSetFrameOff,
-  ServiceHealth.checking => l.deskSetFrameConnecting,
-};
-
-/// The Epicbox listener's state word.
-String epicboxWord(AppLocalizations l, ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => l.deskSetFrameListening,
-  ServiceHealth.slow || ServiceHealth.checking => l.deskSetFrameConnecting,
-  ServiceHealth.down => l.deskSetFrameNotResponding,
-  ServiceHealth.off => l.deskSetFrameOff,
-};
-
 /// 2914414 → "2,914,414".
 String groupDigits(AppLocalizations l, int n) => localInt(l, n);
 
