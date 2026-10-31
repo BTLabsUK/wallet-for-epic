@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../levels/wallet_level.dart';
+import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/mock_hosts.dart';
 import 'dart:async' show unawaited;
 import 'dart:io' show File;
@@ -85,6 +87,9 @@ void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
+/// Shows the screen at [level] (the tour's wallet stands on its own, so the pick is its own).
+Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) => c.read(deskLevelControlProvider).setLevel(level);
+
 final List<DeskShot> settingsShots = [
   const DeskShot(id: '20-node', title: 'Settings › Node: the node card', route: DeskRoute.settingsNode),
   const DeskShot(id: '20b-node-behind', title: 'Node card, behind', route: DeskRoute.settingsNode, arg: NodeDemo.behind),
@@ -397,6 +402,9 @@ final List<DeskShot> settingsShots = [
   DeskShot(id: '43n-pairing-link-off', title: 'A pairing link with Pairing off', route: DeskRoute.send, dialog: (context) async => showExperimentalOffDialog(context)),
   // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
+  // Wallet levels: Advanced (its Depth group on top) at Shallow and Deeper.
+  DeskShot(id: '43-advanced-l1', title: 'Settings › Advanced, Shallow', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(id: '43-advanced-l2', title: 'Settings › Advanced, Deeper', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.casual)),
   const DeskShot(id: '43z-change-level', title: 'Settings › Advanced › Change level', route: DeskRoute.settingsLevel),
   DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
   DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
