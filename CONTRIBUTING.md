@@ -22,7 +22,8 @@ Thank you for helping. Bug reports, translations and code are all welcome.
    flutter test
    ```
 
-   `tools/check.sh` runs the full gate (it also builds LEPIC and the web build).
+   `tools/check.sh` does the same from the repository root: it checks LEPIC at the pin, runs the
+   analyzer and only the tests your change touches (`tools/check.sh --list` shows which).
 4. User-facing text goes through the ARB files in `app/lib/l10n/` (English in `app_en.arb`); run
    `flutter gen-l10n` after editing them. Other languages may stay untranslated in your change.
 5. Tests that need the network stay opt-in (they skip without their environment variables).

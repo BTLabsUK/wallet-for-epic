@@ -33,7 +33,7 @@ kept unchanged for compatibility:
 
 ### The node
 
-The wallet asks a node (BT Labs' public node by default, or one the user sets) about the chain.
+The wallet asks a node (the first one in its server list, `node.epiccash.com` by default, or one the user sets) about the chain.
 
 - A lying node **cannot steal funds**: every transaction is built and signed on the device.
 - It **can** hide or fake confirmations, hide incoming payments, refuse to post a transaction, and see the
@@ -67,11 +67,11 @@ The wallet asks a node (BT Labs' public node by default, or one the user sets) a
   so killing the app does not reset the count.
 - The wallet's own password is random (256 bits) and is sealed under the PIN with Argon2id
   (64 MiB, t=3).
-- **Limit.** Someone who can copy the app's protected storage off the device (a rooted or forensically imaged
-  phone) can try all 10^6 PINs offline at the cost of Argon2id each. Wrapping the PIN key in the phone's
-  hardware Keystore (StrongBox where available), with the attempt counter enforced there, closes this; until
-  a release says it has shipped, assume the limit applies. A longer PIN or passphrase is an option in
-  Settings.
+- On Android the PIN key and the failure count are sealed by a non-exportable Keystore key (StrongBox
+  where the phone has one), so a copy of the app's store taken off the phone cannot be searched for the PIN.
+- **Limit.** Code running inside the app on a rooted phone can still ask the Keystore to unseal the key and
+  then try all 10^6 PINs offline at the cost of Argon2id each. A passphrase instead of the PIN (Settings)
+  closes this. Other platforms keep the sealed text in the system's secure storage without that extra layer.
 - **Screenshots of the recovery phrase are allowed, on purpose**: many people keep their phrase that way.
   Screenshots may sync to cloud photo libraries. Keep the phrase offline if that matters to you. The app hides
   its content in the app switcher (Recents).
@@ -103,12 +103,12 @@ The wallet asks a node (BT Labs' public node by default, or one the user sets) a
 - The app checks the file's size and SHA-256 again right before installing, and Android also requires the
   same signing certificate as the installed app.
 - What this does not cover:
-  - Whoever holds the signing keys can ship an update. The rank-2 key is not kept on the build machine. Each
-    release signature needs a maintainer's explicit approval.
-  - First-time downloads are not protected by the manifest. Check `SHA256SUMS` with its minisign signature and
-    the public key published in the README (never one served next to the file).
+  - Whoever holds the signing keys can ship an update. The rank-2 key is kept offline and is used only to revoke
+    rank 1.
+  - First-time downloads are not protected by the manifest. Compare the SHA-256 of the file you downloaded
+    with the one on the release page.
   - The Windows installer is not yet Authenticode-signed, so Windows SmartScreen warns about it.
-  - The builds are not yet reproducible by third parties. See `https://docs.btlabs.uk/developers/build/variants/` for the F-Droid route.
+  - The builds are not yet reproducible by third parties.
 
 ## What we do not try to protect against
 
