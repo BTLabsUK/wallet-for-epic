@@ -338,7 +338,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               ),
             },
           const SizedBox(height: 16),
-          if (_busy) const LinearProgressIndicator(),
+          if (_busy) const PinCheckBar(),
           if (_busy && checkAt != null) ...[
             const SizedBox(height: 8),
             PinWaitNote(until: checkAt),

@@ -12,6 +12,7 @@ import '../providers.dart';
 import '../vault.dart';
 import 'common.dart';
 import 'demo_pin.dart';
+import 'theme/tokens.dart';
 
 /// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in. With
 /// [passphrase] (a wallet whose PIN was replaced by a passphrase, Settings) a masked text
@@ -344,6 +345,63 @@ String describePinRejection(AppLocalizations l, PinRejected rejection) {
   return _describeWait(wait, l.pinWrongWaitSeconds, l.pinWrongWaitMinutes);
 }
 
+/// The line under the PIN field while a PIN is checked and the wallet opens (the unlock screen,
+/// the PIN prompt): a thin brand-gold line, not the stock in-progress bar, and only once the
+/// check takes long enough to notice, so a quick unlock shows nothing at all.
+class PinCheckBar extends StatefulWidget {
+  const PinCheckBar({super.key});
+
+  /// How long a check runs before the line shows.
+  static const Duration showAfter = Duration(milliseconds: 400);
+
+  @override
+  State<PinCheckBar> createState() => _PinCheckBarState();
+}
+
+class _PinCheckBarState extends State<PinCheckBar> {
+  bool _shown = false;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(PinCheckBar.showAfter, () {
+      if (mounted) setState(() => _shown = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return SizedBox(
+      height: 4,
+      child: Center(
+        child: AnimatedOpacity(
+          opacity: _shown ? 1 : 0,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: _shown
+              ? LinearProgressIndicator(
+                  minHeight: 2,
+                  color: t.accent,
+                  backgroundColor: Colors.transparent,
+                  borderRadius: BorderRadius.circular(1),
+                )
+              : const SizedBox(height: 2),
+        ),
+      ),
+    );
+  }
+}
+
 /// Counts down to [until], while LEPIC waits before it checks a PIN after repeated failures.
 class PinWaitNote extends StatefulWidget {
   const PinWaitNote({super.key, required this.until});
@@ -589,7 +647,7 @@ class _PinPromptDialogState<T extends Object>
             },
             if (_busy) ...[
               const SizedBox(height: 8),
-              const LinearProgressIndicator(),
+              const PinCheckBar(),
               if (checkAt != null) ...[
                 const SizedBox(height: 8),
                 PinWaitNote(until: checkAt),
