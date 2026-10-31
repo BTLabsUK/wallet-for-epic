@@ -1461,9 +1461,9 @@ class _SendViewState extends ConsumerState<SendView> {
     if (pairingTo != null && mailbox == null) return;
     final pairingApi = ref.read(pairingApiProvider);
     final queued = _queues(watch: false);
+    final minimum = ref.read(countedConfirmationsProvider);
     return _run((session) async {
       // What the wallet held before, to tell the payment a failed send leaves behind.
-      final minimum = ref.read(countedConfirmationsProvider);
       final before = {
         for (final t in await session.transactions(refresh: false)) t.key,
       };
@@ -1478,13 +1478,13 @@ class _SendViewState extends ConsumerState<SendView> {
               ? pairingApi.sendViaMailbox(
                   id: mailbox.id,
                   amount: amount,
-                  minimumConfirmations: ref.read(countedConfirmationsProvider),
+                  minimumConfirmations: minimum,
                   message: note.isEmpty ? null : note,
                   options: options,
                 )
               : session.sendEpicbox(
                   amount: amount,
-                  minimumConfirmations: ref.read(countedConfirmationsProvider),
+                  minimumConfirmations: minimum,
                   address: to.address,
                   message: note.isEmpty ? null : note,
                   options: options,
@@ -1573,8 +1573,8 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final options = _sendOptions;
     final note = _noteText;
+    final minimum = ref.read(countedConfirmationsProvider);
     return _run((session) async {
-      final minimum = ref.read(countedConfirmationsProvider);
       final before = {
         for (final t in await session.transactions(refresh: false)) t.key,
       };
@@ -1678,8 +1678,8 @@ class _SendViewState extends ConsumerState<SendView> {
     final amount = reviewed.amount;
     final options = _sendOptions;
     final note = _noteText;
+    final minimum = ref.read(countedConfirmationsProvider);
     return _run((session) async {
-      final minimum = ref.read(countedConfirmationsProvider);
       final before = {
         for (final t in await session.transactions(refresh: false)) t.key,
       };
