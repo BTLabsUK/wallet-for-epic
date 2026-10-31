@@ -397,6 +397,7 @@ final List<DeskShot> settingsShots = [
   DeskShot(id: '43n-pairing-link-off', title: 'A pairing link with Pairing off', route: DeskRoute.send, dialog: (context) async => showExperimentalOffDialog(context)),
   // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
+  const DeskShot(id: '43z-change-level', title: 'Settings › Advanced › Change level', route: DeskRoute.settingsLevel),
   DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
   DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
