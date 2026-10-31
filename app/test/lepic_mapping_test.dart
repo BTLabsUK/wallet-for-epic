@@ -232,12 +232,18 @@ void main() {
         mapLepicError(error(lepic.WalletErrorKind.restoreScanRequired)).kind,
         WalletErrorKind.restoreScanRequired,
       );
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.unsupported)).kind,
+        WalletErrorKind.unsupported,
+      );
+      expect(
+        mapLepicError(error(lepic.WalletErrorKind.cancelled)).kind,
+        WalletErrorKind.cancelled,
+      );
       for (final kind in [
         lepic.WalletErrorKind.changedDuringCancel,
         lepic.WalletErrorKind.locked,
         lepic.WalletErrorKind.notPosted,
-        lepic.WalletErrorKind.cancelled,
-        lepic.WalletErrorKind.unsupported,
         lepic.WalletErrorKind.panic,
       ]) {
         expect(mapLepicError(error(kind)).kind, WalletErrorKind.other);

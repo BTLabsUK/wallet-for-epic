@@ -230,7 +230,7 @@ void main() {
     });
 
     testWidgets('the wallet core finds nothing to merge: said, not an error', (tester) async {
-      wallet.consolidateThrows = const DeskError(nothingToConsolidate);
+      wallet.consolidateThrows = const DeskError(nothingToConsolidate, nothingToMerge: true);
       await open(tester, (c) => showConsolidateDialog(c, spendableCount: 2));
       expect(find.textContaining('fewer than two spendable outputs', findRichText: true), findsOneWidget);
       expect(find.text('No estimate'), findsNothing);

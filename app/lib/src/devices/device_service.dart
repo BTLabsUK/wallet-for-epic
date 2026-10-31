@@ -1317,7 +1317,7 @@ class DeviceService {
     PairingFailure.ownCard => LinkFailure.ownCode,
     PairingFailure.relayUnreachable || PairingFailure.noRelay || PairingFailure.relaysBlocked => LinkFailure.unreachable,
     PairingFailure.invalid || PairingFailure.newerVersion || PairingFailure.wrongNetwork => LinkFailure.invalidCode,
-    null => e is WalletError && e.kind == WalletErrorKind.other ? LinkFailure.unsupported : LinkFailure.unreachable,
+    null => e is WalletError && const {WalletErrorKind.other, WalletErrorKind.unsupported, WalletErrorKind.cancelled}.contains(e.kind) ? LinkFailure.unsupported : LinkFailure.unreachable,
     _ => LinkFailure.cancelled,
   };
 

@@ -29,7 +29,7 @@ class _Desk extends MockDeskWallet {
   @override
   Future<CancelResult> cancelTx(int id, {bool spendBack = true}) async {
     cancelled.add(id);
-    if (refuse) throw const DeskError(cancelRefusedText);
+    if (refuse) throw const DeskError(cancelRefusedText, cancelRefused: true);
     return super.cancelTx(id);
   }
 }

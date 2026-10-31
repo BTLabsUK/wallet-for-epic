@@ -666,7 +666,7 @@ class MockDeskWallet implements DeskWalletApi {
     final exact = _fee(count, 1);
     if (sum == amount + exact) return SendEstimate(amount: amount, fee: exact, inputCount: count, locked: sum);
     final fee = _fee(count, 1 + n);
-    if (sum < amount + fee) throw const DeskError('Not enough funds');
+    if (sum < amount + fee) throw const DeskError('Not enough funds', notEnoughFunds: true);
     final change = sum - amount - fee;
     if (change > 0 && change < n) throw const DeskError('This send cannot be built from the coins available.', unbuildable: true);
     return SendEstimate(amount: amount, fee: fee, inputCount: count, change: change, locked: sum, changeOutputs: change == 0 ? 0 : n);
@@ -737,7 +737,7 @@ class MockDeskWallet implements DeskWalletApi {
     final all = _spendable;
     final sum = all.fold(0, (a, o) => a + o.value);
     final fee = _fee(all.length, outputs);
-    if (sum < fee + outputs) throw const DeskError('Not enough funds');
+    if (sum < fee + outputs) throw const DeskError('Not enough funds', notEnoughFunds: true);
     final part = (sum - fee) ~/ outputs;
     return SendEstimate(amount: part, fee: fee, inputCount: all.length, change: sum - fee - part, locked: sum, changeOutputs: outputs - 1);
   }

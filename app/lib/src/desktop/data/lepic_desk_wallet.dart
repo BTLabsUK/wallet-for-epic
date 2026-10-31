@@ -167,6 +167,8 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     core.WalletErrorKind.inputsSpentElsewhere => l.deskErrInputsSpentElsewhere,
     core.WalletErrorKind.inputsSpentByOwnPayment || core.WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
     core.WalletErrorKind.phraseMismatch => l.deskOnbForgotOtherWallet(l.deskOnbUnlockThisWallet),
+    core.WalletErrorKind.unsupported ||
+    core.WalletErrorKind.cancelled ||
     core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
   };
 }
@@ -181,14 +183,21 @@ String torFailureText(AppLocalizations l, core.TorFailure? f) => switch (f) {
   core.TorFailure.stopped || null => l.deskErrTorStopped,
 };
 
-/// A call LEPIC ended at a lock ("… was cancelled"); its effect may still be stored.
-bool lepicCancelled(Object error) => error is core.WalletError && error.kind == core.WalletErrorKind.other && error.message.endsWith('was cancelled');
+/// A call LEPIC ended at a lock; its effect may still be stored.
+bool lepicCancelled(Object error) => error is core.WalletError && error.kind == core.WalletErrorKind.cancelled;
 
-DeskError _deskError(Object error) => DeskError.l10n(
-  (l) => deskErrorText(error, l),
-  wrongPassword: error is core.WalletError && error.kind == core.WalletErrorKind.wrongPassword,
-  unbuildable: error is core.WalletError && error.kind == core.WalletErrorKind.invalidArgument && error.message == core.sendUnbuildable,
-);
+DeskError _deskError(Object error) {
+  final kind = error is core.WalletError ? error.kind : null;
+  return DeskError.l10n(
+    (l) => deskErrorText(error, l),
+    wrongPassword: kind == core.WalletErrorKind.wrongPassword,
+    unbuildable: kind == core.WalletErrorKind.invalidArgument && (error as core.WalletError).message == core.sendUnbuildable,
+    nothingToMerge: kind == core.WalletErrorKind.invalidArgument && (error as core.WalletError).message == core.nothingToConsolidate,
+    notEnoughFunds: kind == core.WalletErrorKind.notEnoughFunds,
+    nodeUnreachable: kind == core.WalletErrorKind.nodeUnreachable,
+    unsupported: kind == core.WalletErrorKind.unsupported,
+  );
+}
 
 class LepicDeskWallet implements DeskWalletApi {
   LepicDeskWallet({
@@ -2710,11 +2719,17 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> repostTx(int id) => _running(() async {
-    if (!await _repost(_open, id)) throw DeskError.l10n((l) => l.deskErrNodeNotAnswering);
+    if (!await _repost(_open, id)) throw DeskError.l10n((l) => l.deskErrNodeNotAnswering, nodeUnreachable: true);
   });
 
   @override
-  Future<String> finishedPayment(int id) => _open.finishedPaymentText(txId: id);
+  Future<String> finishedPayment(int id) async {
+    try {
+      return await _open.finishedPaymentText(txId: id);
+    } on core.WalletError catch (e) {
+      throw _deskError(e);
+    }
+  }
 
   @override
   Future<core.FinishedPayment> inspectFinished(String text) => _open.inspectFinished(text);
@@ -2970,9 +2985,9 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       return decodeSlateFile(await File(path).readAsBytes());
     } on FileSystemException {
-      throw DeskError.l10n((l) => l.deskErrFileNotReadable);
+      throw DeskError.l10n((l) => l.deskErrFileNotReadable, unreadable: true);
     } on FormatException {
-      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
     }
   }
 
@@ -2989,7 +3004,7 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       json = decodeSlateFile(utf8.encode(text));
     } on FormatException {
-      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
     }
     // The answer goes where a file of that name in the files folder would put it.
     return _receiveJson(json, '${(await _filesDir()).path}${Platform.pathSeparator}pasted', pasted: true);
@@ -3052,7 +3067,7 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       json = decodeSlateFile(utf8.encode(text));
     } on FormatException {
-      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
     }
     return _readRequest(json, '${(await _filesDir()).path}${Platform.pathSeparator}pasted');
   }
@@ -3111,7 +3126,7 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       json = decodeSlateFile(utf8.encode(text));
     } on FormatException {
-      throw DeskError.l10n((l) => l.deskErrNotTxFile2);
+      throw DeskError.l10n((l) => l.deskErrNotTxFile2, wrongType: true);
     }
     return _finalizeJson(json);
   });
@@ -3167,7 +3182,7 @@ class LepicDeskWallet implements DeskWalletApi {
       }
     } on core.WalletError catch (e) {
       // The core asks the node first and refuses a payment it already has (in its pool or a block).
-      if (e.kind == core.WalletErrorKind.invalidArgument) throw DeskError.l10n((l) => l.deskErrCancelRefused);
+      if (e.kind == core.WalletErrorKind.invalidArgument) throw DeskError.l10n((l) => l.deskErrCancelRefused, cancelRefused: true);
       throw _deskError(e);
     }
     await _reload();

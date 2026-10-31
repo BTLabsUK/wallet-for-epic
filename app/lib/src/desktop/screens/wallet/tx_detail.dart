@@ -219,7 +219,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
       if (!mounted) return;
       setState(() => _cancelling = false);
       // The node already has a receive: not a failure, the payment is on its way (as the phone says).
-      if (widget.tx.incoming && e is DeskError && e.message == cancelRefusedText) {
+      if (widget.tx.incoming && e is DeskError && e.cancelRefused) {
         setState(() => _onNetworkFor = widget.tx.id);
         showEToast(context, context.l10n.txDetailsCancelRefusedOnNetwork, tone: ETone.info);
         unawaited(ref.read(deskProvider.notifier).refresh());

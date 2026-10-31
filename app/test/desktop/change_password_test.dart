@@ -114,8 +114,9 @@ void main() {
         core.WalletErrorKind.invalidArgument: 'Use at least 8 characters',
         core.WalletErrorKind.walletBusy: 'Wallet busy. Try again in a moment.',
         core.WalletErrorKind.chainBusy: 'Wallet busy. Try again in a moment.',
-        // LEPIC's secretStore (the key store failed) arrives as io; locked and unsupported as other.
+        // LEPIC's secretStore (the key store failed) arrives as io; locked as other.
         core.WalletErrorKind.io: kept,
+        core.WalletErrorKind.unsupported: kept,
         core.WalletErrorKind.other: kept,
       };
       for (final MapEntry(key: kind, value: text) in cases.entries) {

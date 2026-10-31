@@ -73,7 +73,7 @@ class _FinishedPaymentButtonsState extends ConsumerState<FinishedPaymentButtons>
       return await session.finishedPaymentText(txId: id);
     } on WalletError catch (e) {
       logWarn('finished', 'finished payment text failed: ${e.kind.name}');
-      if (mounted) setState(() => _error = e.message.contains('newer LEPIC') ? l.finishedUnavailable : l.finishedFailed);
+      if (mounted) setState(() => _error = e.kind == WalletErrorKind.unsupported ? l.finishedUnavailable : l.finishedFailed);
       return null;
     }
   }

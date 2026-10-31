@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../models.dart' show nothingToConsolidate;
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -66,14 +65,14 @@ class _SelfSendDialog extends ConsumerStatefulWidget {
 class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
   late int _n = widget.demo?.outputs ?? 4;
   SendEstimate? _est;
-  String? _estError;
+  bool _estNothing = false;
   String? _estErrorText;
   bool _notEnough = false;
   bool _estimating = true;
   late SelfSendPhase _phase = widget.demo?.phase ?? SelfSendPhase.choose;
   SelfSend? _sent;
   late int? _txId = widget.demo?.phase == SelfSendPhase.notPosted ? widget.demo!.txId : null;
-  String? _error;
+  bool _goNothing = false;
   String? _errorText;
   bool _busy = false;
   Timer? _debounce;
@@ -104,20 +103,18 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
       if (!mounted || ask != _asked) return;
       setState(() {
         _est = e;
-        _estError = null;
+        _estNothing = false;
         _notEnough = false;
         _estimating = false;
       });
     } on Object catch (e) {
       if (!mounted || ask != _asked) return;
-      // The English text is what the checks compare; the user reads the translated one.
-      final text = deskErrorText(e);
       final shown = deskErrorText(e, context.l10n);
       setState(() {
         _est = null;
-        _estError = text;
+        _estNothing = e is DeskError && e.nothingToMerge;
         _estErrorText = shown;
-        _notEnough = text == 'Not enough funds'; // l10n-ok: compared with the English error text
+        _notEnough = e is DeskError && e.notEnoughFunds;
         _estimating = false;
       });
     }
@@ -141,7 +138,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
   bool get _tooSmall => _notEnough || (_split && _each != null && _each! < _minEach);
 
   /// LEPIC found fewer than two spendable outputs: nothing to merge, not an error.
-  bool get _nothing => !_split && (_estError == nothingToConsolidate || _error == nothingToConsolidate);
+  bool get _nothing => !_split && (_estNothing || _goNothing);
 
   bool get _canGo => _phase == SelfSendPhase.choose && _est != null && !_tooSmall && !_estimating;
 
@@ -166,7 +163,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
           _txId = e.notPostedTx;
           _phase = SelfSendPhase.notPosted;
         } else {
-          _error = e.message;
+          _goNothing = e.nothingToMerge;
           _errorText = deskErrorText(e, context.l10n);
           _phase = SelfSendPhase.failed;
         }
@@ -174,7 +171,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = deskErrorText(e);
+        _goNothing = false;
         _errorText = deskErrorText(e, context.l10n);
         _phase = SelfSendPhase.failed;
       });

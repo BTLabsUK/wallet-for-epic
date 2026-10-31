@@ -68,7 +68,7 @@ class _Session extends SessionNotifier {
 class _OldCore extends FakeWalletSession {
   @override
   Future<String> finishedPaymentText({required int txId}) async =>
-      throw const WalletError(kind: WalletErrorKind.other, message: 'finished payment needs a newer LEPIC');
+      throw const WalletError(kind: WalletErrorKind.unsupported, message: 'finished payment needs a newer LEPIC');
 }
 
 final _sentEpicbox = fakeTx(key: 's:a', id: 1, slateId: 'a', kind: TxKind.sent, status: TxStatus.awaitingRecipient, transport: 'epicbox');

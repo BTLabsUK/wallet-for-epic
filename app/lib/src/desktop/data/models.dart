@@ -1158,12 +1158,12 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false})
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false, this.notEnoughFunds = false, this.nothingToMerge = false, this.nodeUnreachable = false, this.unreadable = false, this.wrongType = false, this.unsupported = false, this.cancelRefused = false})
     : _text = null;
 
   /// An error the user reads in their language: [text] words it when shown ([DeskError.text]),
   /// [message] keeps its English for logs.
-  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false})
+  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false, this.notEnoughFunds = false, this.nothingToMerge = false, this.nodeUnreachable = false, this.unreadable = false, this.wrongType = false, this.unsupported = false, this.cancelRefused = false})
     : message = text(englishStrings),
       _text = text;
 
@@ -1199,6 +1199,29 @@ class DeskError implements Exception {
 
   /// The wallet closed (a node or Epicbox change could not reopen it): back to Unlock.
   final bool locked;
+
+  // What went wrong, by kind: screens decide on these, never on [message]'s English.
+
+  /// The spendable balance does not cover the amount and its fee.
+  final bool notEnoughFunds;
+
+  /// A consolidate with fewer than two spendable outputs: nothing to merge.
+  final bool nothingToMerge;
+
+  /// The node did not answer.
+  final bool nodeUnreachable;
+
+  /// A transaction file that could not be read.
+  final bool unreadable;
+
+  /// A file or pasted text that is not a transaction file.
+  final bool wrongType;
+
+  /// The core in this build cannot do it (an older LEPIC).
+  final bool unsupported;
+
+  /// A cancel the node refused: it already has the payment.
+  final bool cancelRefused;
 
   @override
   String toString() => message;

@@ -130,12 +130,13 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
     } on DeskError catch (e) {
       if (mounted) {
         _detail = e;
-        setState(() => _error = switch (e.message) {
-          'File not readable' => FinalizeError.unreadable, // l10n-ok: DeskError.message is the English key
-          'Not a transaction file' => FinalizeError.wrongType, // l10n-ok
-          'Node not answering' => FinalizeError.notPosted, // l10n-ok
-          _ => FinalizeError.failed,
-        });
+        setState(() => _error = e.unreadable
+            ? FinalizeError.unreadable
+            : e.wrongType
+            ? FinalizeError.wrongType
+            : e.nodeUnreachable
+            ? FinalizeError.notPosted
+            : FinalizeError.failed);
       }
     } catch (_) {
       if (mounted) setState(() => _error = FinalizeError.unreadable);

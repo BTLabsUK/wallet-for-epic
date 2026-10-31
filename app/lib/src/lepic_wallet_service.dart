@@ -219,12 +219,13 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.notDelivered => WalletErrorKind.transportFailed,
     lepic.WalletErrorKind.restoreScanRequired =>
       WalletErrorKind.restoreScanRequired,
+    // Decided on by kind, never by the core's English message.
+    lepic.WalletErrorKind.unsupported => WalletErrorKind.unsupported,
+    lepic.WalletErrorKind.cancelled => WalletErrorKind.cancelled,
     lepic.WalletErrorKind.changedDuringCancel ||
     lepic.WalletErrorKind.other ||
     lepic.WalletErrorKind.locked ||
     lepic.WalletErrorKind.notPosted ||
-    lepic.WalletErrorKind.cancelled ||
-    lepic.WalletErrorKind.unsupported ||
     lepic.WalletErrorKind.panic => WalletErrorKind.other,
   };
   final split =

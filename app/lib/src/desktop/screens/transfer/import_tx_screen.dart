@@ -145,7 +145,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
     } on DeskError catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.message == 'File not readable' ? ImportError.unreadable : (e.message == 'Not a transaction file' ? ImportError.wrongType : ImportError.failed); // l10n-ok: DeskError.message is the English key
+          _error = e.unreadable ? ImportError.unreadable : (e.wrongType ? ImportError.wrongType : ImportError.failed);
           _detail = e;
         });
       }

@@ -81,6 +81,8 @@ String describeError(AppLocalizations l, Object error) {
       WalletErrorKind.inputsSpentByOwnPayment ||
       WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
       WalletErrorKind.phraseMismatch ||
+      WalletErrorKind.unsupported ||
+      WalletErrorKind.cancelled ||
       WalletErrorKind.other => _withDetail(l.errorOther, error.message),
     };
   }

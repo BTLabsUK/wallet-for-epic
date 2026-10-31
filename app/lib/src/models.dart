@@ -2129,6 +2129,14 @@ enum WalletErrorKind {
   /// Posting failed because the other party's coins in it are already spent: on the receiving
   /// side, a payment its payer cancelled and spent back. It is ended.
   peerInputsSpent,
+
+  /// The core in this build cannot do it: an older LEPIC, or a call this kind of wallet does
+  /// not take (a PIN wallet's password). Nothing was changed.
+  unsupported,
+
+  /// The core ended the call before it finished (a lock, a stop); what it did so far may be
+  /// stored.
+  cancelled,
   io,
   other,
 }

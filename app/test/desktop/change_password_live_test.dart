@@ -103,7 +103,7 @@ void main() {
     addTearDown(created.session.dispose);
     await expectLater(
       created.session.changePassword(currentPassword: 'anything-1', newPassword: _new),
-      throwsA(isA<core.WalletError>().having((e) => e.kind, 'kind', core.WalletErrorKind.other)),
+      throwsA(isA<core.WalletError>().having((e) => e.kind, 'kind', core.WalletErrorKind.unsupported)),
     );
   }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
 }
