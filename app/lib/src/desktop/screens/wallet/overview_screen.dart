@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
-import '../../../price.dart' show priceProvider;
+import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
 import '../../app/tour.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
@@ -354,6 +354,8 @@ class _BalancePanel extends ConsumerWidget {
     final price = b == null || empty || NetGate.restricted || !ref.watch(hostSettingsProvider.select((h) => h.priceEnabled))
         ? null
         : ref.watch(priceProvider).value;
+    // The currency the price is in (main_desktop.dart sets it).
+    final currency = ref.watch(fiatChoiceProvider).value?.currency ?? '';
     // What senders report posted leaves Awaiting finalization for its own line, named as its
     // rows are; it is still not in a block, so not in Total (LNX-13).
     final txs = ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[];
@@ -419,7 +421,7 @@ class _BalancePanel extends ConsumerWidget {
                       Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: hidden ? '≈ \$•••' : '≈ \$${(b.total / nanoPerEpic * price).toStringAsFixed(2)}'), // l10n-ok: the dollar sign and digits
+                            TextSpan(text: hidden ? '≈ ••• ${currency.toUpperCase()}' : '≈ ${localDigits(l, fiatText(BigInt.from(b.total), price, currency))}'), // l10n-ok: digits and the currency code
                             TextSpan(
                               text: l.deskOvFiatNote,
                               style: TextStyle(color: c.faint),
