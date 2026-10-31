@@ -130,15 +130,6 @@ const Duration postingFor = Duration(seconds: 30);
 bool postingNow(TxEntry tx, DateTime now, BlockWatch? steps) =>
     tx.repostable && _sinceLastStep(tx, now, steps) < postingFor.inSeconds;
 
-/// Whether any of [txs] is watched ([watchesChain]).
-bool anyWatched(
-  Iterable<TxEntry> txs, {
-  required DateTime now,
-  required BigInt tip,
-  required int minConfirmations,
-  BlockWatch? steps,
-}) => listPace(txs, now: now, tip: tip, minConfirmations: minConfirmations, steps: steps) != WatchPace.none;
-
 /// Whether [tx] is one the wait note can speak for at [now]: a payment that waits only for a
 /// block. That is a send this wallet finalized, or a payment we answered whose sender reports it
 /// posted ([senderReportsPosted]); any other receive still waits for its sender, and says so. A
