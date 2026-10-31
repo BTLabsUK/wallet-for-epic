@@ -16,7 +16,7 @@
 #   REL_DRY_RUN=1                print the plan, touch nothing
 # Optional: REL_WORK (sandboxes, default ~/.cache/rel-trust-linux), REL_KEEP_FUNDS=1 (REL_FUNDS=0:
 # leave the balance in the sandbox wallet instead of sending it back to P), REL_P_TOOL, REL_P_PASS_FILE,
-# REL_P_PASS_LINE, REL_P_LOCK (default /opt/epic/qa-funder/.rel-lock), REL_P_ADDR.
+# REL_P_PASS_LINE, REL_P_ADDR, REL_P_SERVICE_DIR (P is the shared P service, tools/rellib/p_service.py: no lock).
 #
 # Exit: 0 every check in REL_CHECKS true, 1 some false, 2 could not run.
 # Never prints a recovery phrase or password: they stay in the sandbox folder (mode 600).

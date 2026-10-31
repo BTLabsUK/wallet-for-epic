@@ -40,8 +40,8 @@ CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "
 NODE_PICK = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
 RELAY_PICK = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
 TEST_CONFIRMATIONS = 1  # the setting the test moves to: test payments spend after one block
-P_STALL_S = 240  # answered, not finalized this long: restart P's listener. Never sooner: its finalize waits until the node
-#                 shows the tx in its mempool, 37 s or ~200 s (Dandelion embargo), and a kill then strands it
+P_STALL_S = 120  # answered, not posted this long: ask the shared P service to post P's signed copy again (it posts
+#                 each finalized send with fluff within seconds; a repost of an unsigned copy is refused, harmless)
 FUND_IN = "0.03"     # P -> wallet before the update
 FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")
@@ -195,7 +195,7 @@ class Run:
             "node: %s; Epicbox: %s (picked from %s / %s when unset)" % (self.node or "-", self.relay or "-", NODE_PICK, RELAY_PICK),
             "loopback stand-ins: node http://127.0.0.1:<free port> -> REL_NODE, relay 127.0.0.1:<free port> -> REL_EPICBOX",
             "previous app: create wallet, Settings: node + stand-in node, Epicbox + stand-in relay, Light theme, label, %d confirmation(s), Technical details" % TEST_CONFIRMATIONS,
-            "fund: P -> wallet %s EPIC via Epicbox (flock %s), wait until spendable" % (FUND_IN, self.p.lock_file),
+            "fund: P -> wallet %s EPIC via Epicbox (shared P service %s, no lock), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: address, balance, activity, node and Epicbox lists, settings, data folder files",
             "swap: stop the previous app, start the candidate on the same HOME, unlock, same digest",
             ("funds: P -> wallet %s, then everything back to P" % FUND_AFTER) if self.funds else

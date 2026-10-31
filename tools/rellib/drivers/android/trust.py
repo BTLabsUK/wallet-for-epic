@@ -871,7 +871,7 @@ def send_epicbox(to_addr, amount):
 
 
 def wait_send_funds():
-    """Until the wallet can pay SEND_AMOUNT: a confirmation wait, so outside the P lock."""
+    """Until the wallet can pay SEND_AMOUNT: a confirmation wait, before P is asked for anything."""
     need = Decimal(SEND_AMOUNT) + Decimal("0.01")
     end = time.time() + 1200
     while time.time() < end:

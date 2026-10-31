@@ -52,8 +52,8 @@ _spec.loader.exec_module(lt)  # helpers only: node_up, relay_up, short, sha256, 
 CHECKS = lt.CHECKS
 NODE_PICK = lt.NODE_PICK
 RELAY_PICK = lt.RELAY_PICK
-P_STALL_S = 240  # answered, not finalized this long: restart P's listener. Never sooner: its finalize waits until the node
-#                 shows the tx in its mempool, 37 s or ~200 s (Dandelion embargo), and a kill then strands it
+P_STALL_S = 120  # answered, not posted this long: ask the shared P service to post P's signed copy again (it posts
+#                 each finalized send with fluff within seconds; a repost of an unsigned copy is refused, harmless)
 FUND_IN = "0.03"
 FUND_AFTER = "0.01"
 CAP_SEND = decimal.Decimal("0.05")
@@ -202,7 +202,7 @@ class Run:
             "previous app (Setup /VERYSILENT): create a wallet; Setup assistant: stand-in node added then REL_NODE in use, "
             "stand-in relay added then REL_EPICBOX in use; then, closed, Light theme, Technical details, a label and "
             "%d confirmation(s) seeded into its own files (seed.py) and read back after it reopens" % seed.SEED["confirmations"],
-            "fund: P -> wallet %s EPIC via Epicbox (flock %s), wait until spendable" % (FUND_IN, self.p.lock_file),
+            "fund: P -> wallet %s EPIC via Epicbox (shared P service %s, no lock), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: wallet DB (outputs, transactions), wallets.json, desk store settings keys, settings.toml, wfe.log, data folder files",
             "update: candidate Setup /SILENT /NORESTART /UPDATEFROMAPP=1 while the app runs, app closed, Setup reopens it; "
             "unlock, same digest",
@@ -580,7 +580,7 @@ class Run:
                     return True, "incoming %s EPIC from %s, confirmed at %s" % (
                         num(D(new[-1]["credited"]) / NANO), lt.short(new[-1]["counterparty"]), new[-1]["height"])
                 if new and p.finalized():
-                    posted = True  # the confirmation is waited for below, without the P lock
+                    posted = True  # the confirmation is waited for below
                     break
                 # answered but P has not posted (its listener can hang there): post P's saved copy
                 stuck_since = (stuck_since or time.time()) if new else None
@@ -642,7 +642,7 @@ class Run:
                     self.log("%s: wallet records %s" % (what, state))
                     last = state
                 if out and out[-1]["state"] in ("posted", "confirmed"):
-                    break  # P answered: the confirmation is waited for below, without the P lock
+                    break  # P answered: the confirmation is waited for below
                 time.sleep(15)
             else:
                 return False, "not posted in 15 min (wallet records %s)" % last

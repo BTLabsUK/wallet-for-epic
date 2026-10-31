@@ -6,12 +6,10 @@ send locks the output it spends until its change confirms. With at least LOW con
 every check finds one free. The release preflight counts them and, below LOW, splits P with one
 self-send (`-m self`: no Epicbox, no listener, a few seconds) towards TARGET. It does not wait for
 the split to confirm: P counts outputs with one confirmation, and the builds take longer than a
-block. The lock is held only while p.py runs, never for a confirmation wait.
+block. P's one-shots go through the shared P service (p_service): no lock, no confirmation wait.
 """
-import fcntl
 import os
 import re
-import subprocess
 
 LOW, TARGET, HIGH = 8, 16, 20
 MIN_CONF = 1  # P is a test wallet: one confirmation, not the CLI's default of 10 (p.py passes -c 1)
@@ -41,39 +39,33 @@ def split_args(have):
 
 
 class P:
-    """p.py under the shared P lock; the password from a file, only in p.py's environment."""
+    """p.py one-shots through the shared P service (p_service), which runs them beside P's owner_api and
+    listener; no lock of its own. The password stays in the service's p.py environment."""
 
-    def __init__(self, tool, pass_file, lock_file, pass_line=1, timeout=300):
-        self.tool, self.pass_file, self.lock_file, self.timeout = tool, pass_file, lock_file, timeout
-        self.pass_line = pass_line
+    def __init__(self, tool, pass_file, lock_file=None, pass_line=1, timeout=300):
+        self.tool, self.pass_file, self.timeout, self.pass_line = tool, pass_file, timeout, pass_line
+        from . import p_service
+        self.svc = p_service
+        self.client = p_service.Client(p_service.env_paths(dict(
+            os.environ, REL_P_TOOL=tool, REL_P_PASS_FILE=pass_file, REL_P_PASS_LINE=str(pass_line))))
 
     @classmethod
     def from_env(cls, env=os.environ):
-        """P as the trust drivers find it (REL_P_TOOL, REL_P_PASS_FILE, REL_P_PASS_LINE, REL_P_LOCK)."""
+        """P as the trust drivers find it (REL_P_TOOL, REL_P_PASS_FILE, REL_P_PASS_LINE)."""
         home = os.path.expanduser
         return cls(env.get("REL_P_TOOL") or home("/tmp/epic-build/interop/epicpay/p.py"),
                    env.get("REL_P_PASS_FILE") or home("~/.config/btlabs/p-pass-candidates"),
-                   env.get("REL_P_LOCK") or home("/opt/epic/qa-funder/.rel-lock"),
-                   int(env.get("REL_P_PASS_LINE") or "1"))
+                   None, int(env.get("REL_P_PASS_LINE") or "1"))
 
     def ready(self):
-        return os.path.exists(self.tool) and bool(self._password())
-
-    def _password(self):
-        try:
-            lines = open(self.pass_file).read().splitlines()
-            return lines[self.pass_line - 1].strip() if len(lines) >= self.pass_line else ""
-        except OSError:
-            return ""
+        return os.path.exists(self.tool) and bool(self.svc.password(self.client.cfg))
 
     def run(self, args):
-        env = dict(os.environ, EPIC_P_PASS=self._password())
-        os.makedirs(os.path.dirname(self.lock_file), exist_ok=True)
-        with open(self.lock_file, "a") as lk:
-            fcntl.flock(lk, fcntl.LOCK_EX)
-            r = subprocess.run(["python3", "-I", self.tool, *args], env=env, capture_output=True, text=True,
-                               errors="replace", timeout=self.timeout)
-        return r.returncode, r.stdout + r.stderr
+        why = self.client.ensure()
+        if why:
+            return 2, why
+        r = self.client.call("cli", args=args, timeout=self.timeout + 60)
+        return r.get("rc", 1), r.get("out") or r.get("note", "")
 
 
 def ensure(p, say):

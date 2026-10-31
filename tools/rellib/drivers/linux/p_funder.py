@@ -1,224 +1,88 @@
 # SPDX-License-Identifier: Apache-2.0
-"""P, the funded CLI wallet the release checks pay from and back to, driven by its p.py (outside
-this repository: it runs P's CLI over SSH in a session of its own on the PC that holds P).
+"""P, the funded CLI wallet the release checks pay from and back to, through the shared P service
+(tools/rellib/p_service.py): one owner_api and one Epicbox listener of P for every check at once.
 
-Every use holds an exclusive flock on the shared lock file for the whole exchange (sends and the
-listener that finalizes or answers), so two drivers never run two P listeners on one address.
-P's password comes from a file (line N); it goes only into p.py's environment, never a log.
+There is no P lock any more: sends go to the service at the same time from every driver, each picks
+outputs of its own, and P's listener answers and finalizes them all; the service posts each
+finalized payment with fluff, so nothing waits on the mempool. The methods keep the names of the
+lock era (exchange, start_listener, stop_listener, finalized, unposted_sends, repost), so the
+drivers' flow reads the same; start and stop are the service's business now.
 """
 import contextlib
-import fcntl
 import os
-import re
-import signal
-import subprocess
+import sys
 import time
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+import p_service  # noqa: E402
 
 
 class P:
     def __init__(self, tool, pass_file, pass_line, lock_file, log_dir, log):
+        cfg = p_service.env_paths(dict(os.environ, REL_P_TOOL=tool, REL_P_PASS_FILE=pass_file,
+                                       REL_P_PASS_LINE=str(pass_line)))
+        self.client = p_service.Client(cfg, log)
         self.tool = tool
-        self.pass_file = pass_file
-        self.pass_line = pass_line
-        self.lock_file = lock_file
+        self.lock_file = cfg["dir"]  # where the service lives (named for the plan lines)
         self.log_dir = log_dir
         self.log = log
-        self.listener = None
-        self._lock = None
-        src = open(tool).read() if os.path.exists(tool) else ""
-        m = re.search(r'HOST\s*=\s*os\.environ\.get\("P_HOST",\s*"([^"]+)"\)', src)
-        self.host = os.environ.get("P_HOST") or (m.group(1) if m else None)
+        self.slate = None
+        self.host = os.environ.get("P_HOST") or p_service._tool_const(tool, "HOST")
 
     def ready(self):
         """None when P can be used, else why not."""
         if not os.path.exists(self.tool):
             return "no P tool at %s" % self.tool
-        if not self._password():
-            return "no P password at line %d of %s" % (self.pass_line, self.pass_file)
+        if not p_service.password(self.client.cfg):
+            return "no P password in %s" % self.client.cfg["pass_file"]
         if not self.host:
             return "no P host (P_HOST or p.py's default)"
         return None
 
-    def _password(self):
-        try:
-            lines = open(self.pass_file).read().splitlines()
-            return lines[self.pass_line - 1].strip() if len(lines) >= self.pass_line else ""
-        except OSError:
-            return ""
-
-    def _env(self):
-        env = dict(os.environ)
-        env["EPIC_P_PASS"] = self._password()
-        return env
+    def _note(self, msg):
+        with open(os.path.join(self.log_dir, "p.log"), "a") as lf:
+            lf.write(time.strftime("%H:%M:%S ") + msg + "\n")
 
     @contextlib.contextmanager
-    def exchange(self, what, wait_s=3600):
-        """Hold the P lock for one exchange; the listener is stopped on the way out, whatever happened."""
-        os.makedirs(os.path.dirname(self.lock_file), exist_ok=True)
-        f = open(self.lock_file, "a")
-        t0 = time.time()
-        waited = False
-        while True:
-            try:
-                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                break
-            except BlockingIOError:
-                if not waited:
-                    self.log("waiting for the P lock (%s): another check is using P" % self.lock_file)
-                    waited = True
-                if time.time() - t0 > wait_s:
-                    f.close()
-                    raise TimeoutError("P lock busy for %d s" % wait_s)
-                time.sleep(5)
-        self.log("P lock held for %s (waited %d s)" % (what, time.time() - t0))
-        try:
-            yield self
-        finally:
-            try:
-                self.stop_listener()
-            finally:
-                fcntl.flock(f, fcntl.LOCK_UN)
-                f.close()
-                self.log("P lock released")
-
-    def run(self, *args, timeout=240):
-        """One P command; its output (P's CLI prints no secrets) goes to a log file and is returned."""
-        r = subprocess.run(["python3", "-I", self.tool, *args], env=self._env(), capture_output=True, text=True,
-                           timeout=timeout, cwd=os.path.dirname(self.tool))
-        out = _clean(r.stdout + r.stderr)
-        with open(os.path.join(self.log_dir, "p.log"), "a") as lf:
-            lf.write("\n=== p.py %s (exit %d)\n%s\n" % (" ".join(args), r.returncode, out))
-        return r.returncode, out
-
-    def send(self, address, amount):
-        lp = os.path.join(self.log_dir, "p-listener.log")
-        self.sent_mark = os.path.getsize(lp) if os.path.exists(lp) else 0
-        rc, out = self.run("send", "-m", "epicbox", "-d", address, amount)
-        ok = rc == 0 and "ERROR" not in out and re.search(r"Tx created|successfully|Command 'send' completed", out)
-        return bool(ok), _last_lines(out)
-
-    def finalized(self):
-        """P's listener finalized and posted a payment since the last send: the payment is P's no
-        longer, only the chain's (its confirmation is waited for without the lock)."""
-        lp = os.path.join(self.log_dir, "p-listener.log")
-        try:
-            with open(lp, errors="replace") as f:
-                f.seek(getattr(self, "sent_mark", 0))
-                return "finalized successfully" in f.read()
-        except OSError:
-            return False
-
-    def info(self):
-        rc, out = self.run("info", timeout=180)
-        m = re.search(r"Currently Spendable\s*\|\s*([\d.]+)", out)
-        return m.group(1) if m else None
+    def exchange(self, what, wait_s=None):
+        """One use of P: the shared service is up (started here if no driver has started it). No lock."""
+        why = self.client.ensure()
+        if why:
+            raise TimeoutError(why)
+        self.log("P (shared service) for %s" % what)
+        yield self
 
     def start_listener(self, tries=3):
-        """Start p.py listen and wait for P's 'Starting epicbox listener'. The CLI quits at once when the
-        node says it is syncing (a short blip): then it is started again."""
-        if self.listener and self.listener.poll() is None:
-            return True
-        lp = os.path.join(self.log_dir, "p-listener.log")
-        for attempt in range(tries):
-            start = os.path.getsize(lp) if os.path.exists(lp) else 0
-            log = open(lp, "a")
-            self.listener = subprocess.Popen(["python3", "-I", self.tool, "listen", "-m", "epicbox"], env=self._env(),
-                                             stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                                             cwd=os.path.dirname(self.tool), start_new_session=True)
-            end = time.time() + 120
-            while time.time() < end:
-                with open(lp, errors="replace") as f:
-                    f.seek(start)
-                    new = f.read()
-                if "Starting epicbox listener" in new or "Listening" in new:
-                    self.log("P listener up (local pid %d)" % self.listener.pid)
-                    return True
-                if self.listener.poll() is not None:
-                    break
-                time.sleep(2)
-            why = "node syncing" if "syncing" in new else "no listener line"
-            self.log("P listener did not start (%s), try %d of %d" % (why, attempt + 1, tries))
-            self.stop_listener()
-            time.sleep(20)
-        return False
-
-    def unposted_sends(self, key):
-        """P's sends to [key] still 'Sent (Created)': [(tx id, slate id)]."""
-        rc, out = self.run("txs", timeout=180)
-        rows = re.split(r"\n(?=\s*\d+\s{2,}(?:Sent|Received|Coinbase|Confirmed|Cancelled))", out)
-        hits = []
-        for r in rows:
-            m = re.match(r"\s*(\d+)\s+Sent \(Created\)\s+([0-9a-f-]{36})", r)
-            if m and key[:24] in re.sub(r"\s+", "", r):
-                hits.append((m.group(1), m.group(2)))
-        return hits
-
-    def repost(self, tx_id):
-        rc, out = self.run("repost", "-i", tx_id, timeout=180)
-        return rc == 0 and "ERROR" not in out, _last_lines(out)
-
-    def _remote_listeners(self):
-        q = ("Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'epic-wallet.exe' -and "
-             "$_.CommandLine -like '*epic-gui-wallet-610*listen*' -and $_.SessionId -eq 0 } | "
-             "ForEach-Object { $_.ProcessId }")
-        r = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20", self.host,
-                            "powershell -NoProfile -Command -"], input=q, capture_output=True, text=True, timeout=90)
-        return [p for p in r.stdout.replace("\r", "").split() if p.isdigit()]
+        return self.client.up() or self.client.ensure() is None
 
     def stop_listener(self):
-        """Stop the local p.py listen, then P's SSH-started listener on the remote side by PID (session 0
-        only, never a wallet anyone runs by hand), then check that none is left."""
-        if self.listener and self.listener.poll() is None:
-            try:
-                os.killpg(self.listener.pid, signal.SIGTERM)
-            except OSError:
-                pass
-            try:
-                self.listener.wait(15)
-            except subprocess.TimeoutExpired:
-                os.killpg(self.listener.pid, signal.SIGKILL)
-        if self.listener is None:
-            return True
-        self.listener = None
-        lp = os.path.join(self.log_dir, "p-listener.log")
-        try:
-            with open(lp) as f:
-                text = _clean(f.read())
-            with open(lp, "w") as f:
-                f.write(text + "\n")
-        except OSError:
-            pass
-        left = []
-        for _ in range(3):
-            try:
-                pids = self._remote_listeners()
-            except Exception as e:  # noqa: BLE001
-                self.log("P listener check failed: %s" % e)
-                return False
-            for pid in pids:
-                subprocess.run(["ssh", "-o", "BatchMode=yes", self.host, "taskkill /PID %s /F" % pid],
-                               capture_output=True, text=True, timeout=60)
-            time.sleep(2)
-            left = self._remote_listeners()
-            if not left:
-                self.log("P listener stopped; none left on P's side")
-                return True
-        self.log("P listener still running on P's side: pids %s" % left)
-        return False
+        return True  # the service's listener stays up for the other checks
 
+    def send(self, address, amount):
+        r = self.client.call("send", address=address, amount=str(amount), what=os.environ.get("REL_VARIANT", ""))
+        self._note("send %s -> %s: %s" % (amount, address[:12], r))
+        if not r.get("ok"):
+            return False, r.get("note", "send failed")
+        self.slate = r["slate"]
+        return True, "slate %s, tx %s" % (r["slate"][:8], r.get("tx_id"))
 
-def _clean(out):
-    """P's CLI lines only: the remote shell's prompt, banner and the SSH close line name the PC."""
-    keep = []
-    for line in out.replace("\r", "").splitlines():
-        line = re.sub(r"\S+@\S+ [A-Z]:\\\S*>.*$|[A-Z]:\\\S*>.*$", "", line)
-        if re.search(r"Connection to \S+ closed|Microsoft Windows|Microsoft Corporation|^\s*$", line):
-            continue
-        keep.append(line.rstrip())
-    return "\n".join(keep)
+    def finalized(self):
+        """P has finalized and posted the last send: the payment is the chain's now."""
+        if not self.slate:
+            return False
+        r = self.client.call("status", slate=self.slate)
+        return r.get("state") in ("posted", "confirmed")
 
+    def info(self):
+        r = self.client.call("info")
+        return r.get("spendable") if r.get("ok") else None
 
-def _last_lines(out, n=4):
-    lines = [re.sub(r"^\S+ \S+ (INFO|WARN|ERROR) ", r"\1 ", l.strip()) for l in out.splitlines()
-             if l.strip() and "Password" not in l and re.search(r"INFO|WARN|ERROR", l)]
-    return " / ".join(lines[-n:])
+    def unposted_sends(self, key):
+        """The service's sends to [key] not yet posted or confirmed: [(tx id, slate id)]."""
+        r = self.client.call("unposted", key=key[:24])
+        return [tuple(x) for x in r.get("sends", [])]
+
+    def repost(self, tx_id):
+        r = self.client.call("repost", tx_id=tx_id)
+        self._note("repost %s: %s" % (tx_id, r))
+        return bool(r.get("ok")), r.get("note", "")

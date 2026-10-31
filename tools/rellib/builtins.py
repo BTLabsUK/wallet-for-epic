@@ -257,7 +257,7 @@ def preflight(engine, step, say):
             ok(f"previous release {prev['version']} at {prev['dir']}")
             info["previous"] = prev
         if not engine.dry:
-            # G4 pays from P side by side: at least p_outputs.LOW free outputs, or the checks queue.
+            # G4 pays from P side by side (the shared P service): at least p_outputs.LOW free outputs.
             from . import p_outputs
             p = p_outputs.P.from_env()
             if not p.ready():
@@ -265,8 +265,8 @@ def preflight(engine, step, say):
             else:
                 try:
                     good, note = p_outputs.ensure(p, lambda m: say("    ", m))
-                except subprocess.TimeoutExpired:
-                    good, note = False, f"P's p.py did not answer in {p.timeout} s"
+                except (subprocess.TimeoutExpired, OSError):
+                    good, note = False, f"the shared P service did not answer in {p.timeout} s"
                 (ok if good else bad)(note)
     nodes, boxes = pipe.defaults.get("nodes", []), pipe.defaults.get("epicboxes", [])
     node, tried = pick(nodes, health_node, os.environ.get("REL_NODE"))

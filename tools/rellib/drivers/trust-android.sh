@@ -112,7 +112,7 @@ trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   4 digest   address, Total/Spendable, Activity rows, Node and Epicbox lists, settings
   5 update   adb install -r $cand_apk  (same signature, as the in-app updater's PackageInstaller)
   6 open     launch, unlock with the PIN, digest again, compare
-  7 funds    $( [[ "$REL_FUNDS" == 1 ]] && echo "under flock ${REL_P_LOCK:-/opt/epic/qa-funder/.rel-lock}: send ${REL_TRUST_SEND:-0.01} to P, receive ${REL_TRUST_RECEIVE:-0.02} from P, by Epicbox" || echo "skipped (REL_FUNDS=0)")
+  7 funds    $( [[ "$REL_FUNDS" == 1 ]] && echo "through the shared P service (no lock): send ${REL_TRUST_SEND:-0.01} to P, receive ${REL_TRUST_RECEIVE:-0.02} from P, by Epicbox" || echo "skipped (REL_FUNDS=0)")
   out        $REL_OUT/proof.json, driver.log, screens.log, p.log, shots/
 EOF
   exit 0

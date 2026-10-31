@@ -17,7 +17,7 @@
 #   REL_DRY_RUN=1                print the plan, touch nothing
 # Optional: REL_WIN_HOST (ssh name of the rig, default windows-pc), REL_WORK (local work folders,
 # default ~/.cache/rel-trust-windows), REL_KEEP_FUNDS=1, REL_P_TOOL, REL_P_PASS_FILE, REL_P_PASS_LINE,
-# REL_P_LOCK (default /opt/epic/qa-funder/.rel-lock), REL_P_ADDR.
+# REL_P_ADDR, REL_P_SERVICE_DIR (P is the shared P service, tools/rellib/p_service.py: no lock).
 #
 # Exit: 0 every check in REL_CHECKS true, 1 some false, 2 could not run (proof.json written either way).
 # Never prints a recovery phrase or password: the wallet password stays in the local work folder (mode
