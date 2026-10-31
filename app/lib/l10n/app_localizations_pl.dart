@@ -18953,12 +18953,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get lvShellAddress => 'Adres';
 
   @override
-  String get lvShellHost => 'Host';
-
-  @override
-  String get lvShellOldServer => 'Poprzedni serwer';
-
-  @override
   String lvShellPairNotice(String name) {
     return '$name chce sparować się z tym portfelem.';
   }
@@ -19259,4 +19253,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskLvShellRecheckHint =>
       'Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie.';
+
+  @override
+  String get lvShellSwitchServer => 'Zmień serwer';
+
+  @override
+  String get lvShellNoOtherServer => 'Brak innego serwera na liście.';
 }

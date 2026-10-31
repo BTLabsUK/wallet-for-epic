@@ -4774,8 +4774,6 @@
   "lvShellShowNewAddress": "แสดงที่อยู่ใหม่",
   "lvShellServer": "เซิร์ฟเวอร์",
   "lvShellAddress": "ที่อยู่",
-  "lvShellHost": "โฮสต์",
-  "lvShellOldServer": "เซิร์ฟเวอร์ก่อนหน้า",
   "lvShellPairNotice": "{name} ต้องการจับคู่กับกระเป๋าเงินนี้",
   "lvShellSeeRequest": "ดูคำขอ",
   "lvShellQuietArriving": "+{amount} กำลังเข้า",
@@ -4854,5 +4852,7 @@
   "deskLvShellOn": "เปิด",
   "deskLvShellHeight": "ความสูง",
   "deskLvShellVersion": "เวอร์ชัน",
-  "deskLvShellRecheckHint": "ถ้าจำนวนเงินดูไม่ถูกต้อง กระเป๋าเงินจะอ่านเชนใหม่อีกครั้ง"
+  "deskLvShellRecheckHint": "ถ้าจำนวนเงินดูไม่ถูกต้อง กระเป๋าเงินจะอ่านเชนใหม่อีกครั้ง",
+  "lvShellSwitchServer": "เปลี่ยนเซิร์ฟเวอร์",
+  "lvShellNoOtherServer": "ไม่มีเซิร์ฟเวอร์อื่นในรายการ"
 }

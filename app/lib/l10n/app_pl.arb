@@ -4774,8 +4774,6 @@
   "lvShellShowNewAddress": "Pokaż nowy adres",
   "lvShellServer": "Serwer",
   "lvShellAddress": "Adres",
-  "lvShellHost": "Host",
-  "lvShellOldServer": "Poprzedni serwer",
   "lvShellPairNotice": "{name} chce sparować się z tym portfelem.",
   "lvShellSeeRequest": "Zobacz prośbę",
   "lvShellQuietArriving": "+{amount} w drodze",
@@ -4854,5 +4852,7 @@
   "deskLvShellOn": "Włączone",
   "deskLvShellHeight": "Wysokość",
   "deskLvShellVersion": "Wersja",
-  "deskLvShellRecheckHint": "Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie."
+  "deskLvShellRecheckHint": "Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie.",
+  "lvShellSwitchServer": "Zmień serwer",
+  "lvShellNoOtherServer": "Brak innego serwera na liście."
 }

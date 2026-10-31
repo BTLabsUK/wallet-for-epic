@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The level-1 explore sheets a status icon opens ([ShellStatusIcons]): Network and Epicbox,
-/// each its state, a few plain facts, a "For support" group with the hosts and the address (from
-/// the wallet's own state, never literals) and Copy details. The Epicbox sheet also carries
-/// flow D: the relay offer with Switch / Keep waiting, and after a move the new address.
-/// Levels 2 and 3 keep today's connections sheet and server lists.
+/// each its state and a few plain facts (the server by its address, from the wallet's own state,
+/// never literals), and Switch server ([ShallowServerSwitch]): the other servers of the list,
+/// one tap moves. The Epicbox sheet also carries flow D: the relay offer with Switch / Keep
+/// waiting, and after a move the new address. Levels 2 and 3 keep today's connections sheet and
+/// server lists.
 library;
 
 import 'package:flutter/material.dart';
@@ -12,19 +13,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n.dart';
 import '../../levels/relay_switch_providers.dart';
 import '../../node_failover_phone.dart';
+import '../../server_list.dart' show ServerKind;
 import '../../providers.dart';
-import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../common.dart';
 import '../status.dart';
 import '../theme/tokens.dart';
-import '../tip.dart';
 import 'relay_down.dart';
+import 'shallow_switch.dart';
 import 'shell_status.dart';
 
 /// The keys of the sheets and their parts, for tests.
 const Key networkSheetKey = ValueKey('shell-network-sheet');
 const Key epicboxSheetKey = ValueKey('shell-epicbox-sheet');
-const Key sheetCopyDetailsKey = ValueKey('shell-sheet-copy');
 const Key sheetSwitchKey = ValueKey('shell-sheet-switch');
 const Key sheetKeepWaitingKey = ValueKey('shell-sheet-keep-waiting');
 const Key sheetShowAddressKey = ValueKey('shell-sheet-show-address');
@@ -43,9 +43,8 @@ Future<void> showNetworkSheet(BuildContext context) => _sheet(context, const Net
 /// Opens the Epicbox sheet.
 Future<void> showEpicboxSheet(BuildContext context) => _sheet(context, const EpicboxSheet());
 
-/// One fact: a label and its value. A [full] value (a host, an address) is shown shortened
-/// and whole in its tooltip and in Copy details.
-typedef _Fact = ({String label, String value, String? full});
+/// One fact: a label and its value; [mono] for a host.
+typedef _Fact = ({String label, String value, bool mono});
 
 class _SheetBody extends StatelessWidget {
   const _SheetBody({
@@ -54,7 +53,6 @@ class _SheetBody extends StatelessWidget {
     required this.state,
     required this.stateColor,
     required this.facts,
-    required this.support,
     this.top = const [],
     this.actions = const [],
   });
@@ -64,24 +62,17 @@ class _SheetBody extends StatelessWidget {
   final Color stateColor;
   final List<Widget> top;
   final List<_Fact> facts;
-  final List<_Fact> support;
   final List<Widget> actions;
-
-  String _details() => [
-    title,
-    state,
-    for (final f in [...facts, ...support]) '${f.label}: ${f.full ?? f.value}',
-  ].join('\n');
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    Widget row(_Fact f, {bool small = false}) {
-      final style = small ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium;
+    Widget row(_Fact f) {
+      final style = theme.textTheme.bodyMedium;
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: small ? 4 : 6),
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -91,14 +82,11 @@ class _SheetBody extends StatelessWidget {
               flex: 2,
               child: Align(
                 alignment: AlignmentDirectional.centerEnd,
-                child: Tip.value(
-                  f.full,
-                  child: Text(
-                    f.value,
-                    textAlign: TextAlign.end,
-                    // The address and the host read in mono, as everywhere else.
-                    style: style?.copyWith(fontFamily: f.full != null || small ? t.monoFamily : null),
-                  ),
+                child: Text(
+                  f.value,
+                  textAlign: TextAlign.end,
+                  // A host reads in mono, as everywhere else.
+                  style: style?.copyWith(fontFamily: f.mono ? t.monoFamily : null),
                 ),
               ),
             ),
@@ -118,39 +106,8 @@ class _SheetBody extends StatelessWidget {
           const SizedBox(height: 12),
           ...top,
           for (final f in facts) row(f),
-          // For support: one quiet group, apart from the facts a user reads.
-          if (support.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Semantics(
-              container: true,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-                decoration: BoxDecoration(
-                  color: t.surface,
-                  border: Border.all(color: t.line),
-                  borderRadius: BorderRadius.circular(t.radiusSmall),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(l.lvShellForSupport, style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
-                    const SizedBox(height: 2),
-                    for (final f in support) row(f, small: true),
-                  ],
-                ),
-              ),
-            ),
-          ],
           const SizedBox(height: 16),
           ...actions,
-          OutlinedButton.icon(
-            key: sheetCopyDetailsKey,
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            icon: const Icon(Icons.copy, size: 18),
-            label: Text(l.lvShellCopyDetails),
-            onPressed: () => copyText(context, _details(), l.lvShellDetailsCopied),
-          ),
-          const SizedBox(height: 8),
           TextButton(
             style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
             onPressed: () => Navigator.of(context).pop(),
@@ -168,8 +125,8 @@ Color _stateColor(WalletTokens t, StatusDot dot) => switch (dot) {
   _ => dot.color(t),
 };
 
-/// The Network sheet: the node's state, the latest block, whether this wallet is up to date;
-/// for support the node in use and the one failover moved from.
+/// The Network sheet: the node's state, the latest block, whether this wallet is up to date, the
+/// node in use and the one failover moved from; Switch server.
 class NetworkSheet extends ConsumerWidget {
   const NetworkSheet({super.key});
 
@@ -196,20 +153,18 @@ class NetworkSheet extends ConsumerWidget {
       state: face.word,
       stateColor: _stateColor(t, face.dot),
       facts: [
-        if (tip != null && tip > BigInt.zero) (label: l.lvShellLatestBlock, value: groupDigits(l, tip), full: null),
-        (label: l.lvShellThisWallet, value: wallet, full: null),
+        if (tip != null && tip > BigInt.zero) (label: l.lvShellLatestBlock, value: groupDigits(l, tip), mono: false),
+        (label: l.lvShellThisWallet, value: wallet, mono: false),
+        if (host != null && host.isNotEmpty) (label: l.netStatusNode, value: host, mono: true),
+        if (failover != null) (label: l.lvShellLastChange, value: l.nodeFailoverInsteadOf(serverHost(failover.chosen)), mono: false),
       ],
-      support: [
-        if (host != null && host.isNotEmpty) (label: l.netStatusNode, value: host, full: null),
-        if (failover != null) (label: l.lvShellLastChange, value: l.nodeFailoverInsteadOf(serverHost(failover.chosen)), full: null),
-        if (node.tip?.nodeVersion case final v? when v.isNotEmpty) (label: l.lvShellNodeVersion, value: v, full: null),
-      ],
+      actions: const [ShallowServerSwitch(kind: ServerKind.node), SizedBox(height: 8)],
     );
   }
 }
 
-/// The Epicbox sheet: whether payments can reach this wallet, the server's name; for support
-/// the address and the host. With a relay offer it says payments wait and offers the move; after
+/// The Epicbox sheet: whether payments can reach this wallet, the server by its address; Switch
+/// server. With a relay offer it says payments wait and offers the move; after
 /// a move it names the new server and opens the new address.
 class EpicboxSheet extends ConsumerStatefulWidget {
   const EpicboxSheet({super.key});
@@ -237,16 +192,7 @@ class _EpicboxSheetState extends ConsumerState<EpicboxSheet> {
     final config = ref.watch(walletConfigProvider);
     final offer = ref.watch(relaySwitchProvider);
     final moved = ref.watch(relaySwitchResultProvider);
-    final address = state == null ? null : ref.watch(addressProvider).value;
     final relay = config == null ? null : relayLabel(config);
-    final name = relay == null
-        ? null
-        : ref
-              .watch(hostSettingsProvider)
-              .epicboxServers
-              .where((s) => s.label.toLowerCase() == relay.toLowerCase())
-              .firstOrNull
-              ?.operator;
     final down = state == EpicboxState.offline || state == EpicboxState.blocked;
     final stateText = switch (state) {
       null => l.netStatusOff,
@@ -288,12 +234,7 @@ class _EpicboxSheetState extends ConsumerState<EpicboxSheet> {
         ],
       ],
       facts: [
-        if (name != null) (label: l.lvShellServer, value: name, full: null),
-      ],
-      support: [
-        if (address != null) (label: l.lvShellAddress, value: shortAddress(address), full: address),
-        if (relay != null) (label: l.lvShellHost, value: relay, full: null),
-        if (moved != null) (label: l.lvShellOldServer, value: moved.from.label, full: null),
+        if (relay != null) (label: l.lvShellServer, value: relay, mono: true),
       ],
       actions: [
         if (offer != null) ...[
@@ -328,6 +269,7 @@ class _EpicboxSheetState extends ConsumerState<EpicboxSheet> {
           ),
           const SizedBox(height: 8),
         ],
+        if (!_moving) ...[const ShallowServerSwitch(kind: ServerKind.relay), const SizedBox(height: 8)],
       ],
     );
   }

@@ -17266,12 +17266,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvShellAddress => '地址';
 
   @override
-  String get lvShellHost => '主机';
-
-  @override
-  String get lvShellOldServer => '之前的服务器';
-
-  @override
   String lvShellPairNotice(String name) {
     return '$name 想与此钱包配对。';
   }
@@ -17555,4 +17549,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLvShellRecheckHint => '如果金额看起来不对，钱包会重新读取区块链。';
+
+  @override
+  String get lvShellSwitchServer => '切换服务器';
+
+  @override
+  String get lvShellNoOtherServer => '列表中没有其他服务器。';
 }

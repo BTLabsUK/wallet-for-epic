@@ -231,18 +231,27 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
     }
   }
 
-  /// The user accepted the offer: the open wallet moves to the offered relay (the node stays),
-  /// the old relay is recorded for draining, and [relaySwitchResultProvider] holds the new
-  /// address for Receive. Null when there is no offer, no wallet is open or one is running; a
-  /// refused switch throws the [WalletError] and nothing changes.
+  /// The user accepted the offer: [moveTo] the offered relay. Null when there is no offer.
+  Future<RelaySwitchResult?> accept(WidgetRef widgetRef) async {
+    final offer = state;
+    if (offer == null) return null;
+    return moveTo(widgetRef, RelayCandidate(relay: offer.to, name: offer.name), address: offer.address);
+  }
+
+  /// The user moved the wallet to [to] (an offer accepted, or a relay picked by hand): the open
+  /// wallet moves there (the node stays), the old relay is recorded for draining, and
+  /// [relaySwitchResultProvider] holds the new address for Receive. Null when no wallet is open,
+  /// a move is running or [to] is the relay in use; a refused switch throws the [WalletError] and
+  /// nothing changes. [address] is the new address as guessed before the move.
   ///
   /// Takes the screen's [widgetRef]: the move goes through [switchServersLive], as a relay the
   /// user picks in the list does.
-  Future<RelaySwitchResult?> accept(WidgetRef widgetRef) async {
-    final offer = state;
+  Future<RelaySwitchResult?> moveTo(WidgetRef widgetRef, RelayCandidate to, {String? address}) async {
     final session = ref.read(sessionProvider);
     final config = ref.read(walletConfigProvider);
-    if (offer == null || session == null || config == null || _moving) return null;
+    if (session == null || config == null || _moving) return null;
+    final from = EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort);
+    if (from.host.toLowerCase() == to.relay.host.toLowerCase() && from.port == to.relay.port) return null;
     _moving = true;
     try {
       // The node in use stays: on a failover node too, so the wallet keeps a node that answers.
@@ -250,18 +259,18 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
         widgetRef,
         nodeUrl: config.nodeUrl,
         nodeApiSecret: config.nodeApiSecret,
-        relay: offer.to,
+        relay: to.relay,
       );
-      await recordRelayMove(ref.read(secretStoreProvider), from: offer.from, to: offer.to, now: _now());
-      String? address = offer.address;
+      await recordRelayMove(ref.read(secretStoreProvider), from: from, to: to.relay, now: _now());
+      var shown = address;
       if (live && ref.mounted && ref.read(sessionProvider) == session) {
         try {
-          address = await session.epicboxAddress();
+          shown = await session.epicboxAddress();
         } on Object {
-          // The offer's own guess stands.
+          // The guess stands.
         }
       }
-      final result = RelaySwitchResult(from: offer.from, relay: offer.to, name: offer.name, address: address);
+      final result = RelaySwitchResult(from: from, relay: to.relay, name: to.name, address: shown);
       if (ref.mounted) {
         state = null;
         _since = null;
@@ -270,7 +279,7 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
         _timer = null;
         ref.read(relaySwitchResultProvider.notifier).set(result);
       }
-      logInfo('network', 'relay moved by the user: ${offer.from.label} -> ${offer.to.label}');
+      logInfo('network', 'relay moved by the user: ${from.label} -> ${to.relay.label}');
       return result;
     } finally {
       _moving = false;
