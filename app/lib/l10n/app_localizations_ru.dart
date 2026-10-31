@@ -19421,14 +19421,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get passphraseSetTitle => 'Задать пароль';
 
   @override
-  String get receiveHttpNotPrivateTitle => 'Выключено в этой сети';
+  String get receiveHttpNotTrustedTitle => 'Выключено в этой сети';
 
   @override
-  String get receiveHttpNotPrivate =>
-      'Link · HTTP принимает только в сетях, которые вы отметили как частные.';
+  String get receiveHttpNotTrusted =>
+      'Link · HTTP принимает только в сетях, которым вы доверяете.';
 
   @override
-  String get receiveHttpMarkPrivate => 'Это моя частная сеть';
+  String get receiveHttpTrust => 'Доверять этой сети';
 
   @override
   String get deskSetReportFullDetails => 'Приложить все подробности';
@@ -19437,42 +19437,42 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetReportPartFullDetails => 'Полные детали';
 
   @override
-  String get txPrivateNetworks => 'Частные сети';
+  String get txTrustedNetworks => 'Доверенные сети';
 
   @override
-  String txPrivateNetworksCount(int count) {
+  String txTrustedNetworksCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count отмечено',
-      many: '$count отмечено',
-      few: '$count отмечены',
-      one: '$count отмечена',
+      other: '$count доверенных',
+      many: '$count доверенных',
+      few: '$count доверенные',
+      one: '$count доверенная',
       zero: 'Пока ни одной',
     );
     return '$_temp0';
   }
 
   @override
-  String get txPrivateNetworksBody =>
-      'Link · HTTP принимает в этих сетях. Забудьте сеть, и телефон спросит снова, когда окажется в ней.';
+  String get txTrustedNetworksBody =>
+      'Link · HTTP принимает в сетях, которым вы доверяете. Забудьте сеть, и телефон спросит снова, когда окажется в ней.';
 
   @override
-  String get txPrivateNetworksNone => 'Ни одна сеть пока не отмечена.';
+  String get txTrustedNetworksNone => 'Пока нет доверенных сетей.';
 
   @override
-  String get txPrivateNetworkCurrent => 'Эта сеть';
+  String get txTrustedNetworkCurrent => 'Эта сеть';
 
   @override
-  String get txPrivateNetworkForget => 'Забыть';
+  String get txTrustedNetworkForget => 'Забыть';
 
   @override
-  String txPrivateNetworkForgetLabel(String range) {
+  String txTrustedNetworkForgetLabel(String range) {
     return 'Забыть $range';
   }
 
   @override
-  String txPrivateNetworkRange(String range) {
+  String txTrustedNetworkRange(String range) {
     return '$range.x';
   }
 

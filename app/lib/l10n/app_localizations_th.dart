@@ -9260,7 +9260,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbNodeFirewallText =>
-      'ว่าจะอนุญาตผ่านไฟร์วอลล์ไหม อนุญาตสำหรับเครือข่ายส่วนตัว';
+      'ว่าจะอนุญาตผ่านไฟร์วอลล์ไหม อนุญาตสำหรับเครือข่ายที่ไว้วางใจ';
 
   @override
   String deskOnbNodeGrowing(String free) {
@@ -18364,14 +18364,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get passphraseSetTitle => 'ตั้งวลีรหัสผ่าน';
 
   @override
-  String get receiveHttpNotPrivateTitle => 'ปิดอยู่ในเครือข่ายนี้';
+  String get receiveHttpNotTrustedTitle => 'ปิดอยู่ในเครือข่ายนี้';
 
   @override
-  String get receiveHttpNotPrivate =>
-      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว';
+  String get receiveHttpNotTrusted =>
+      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณไว้วางใจ';
 
   @override
-  String get receiveHttpMarkPrivate => 'นี่คือเครือข่ายส่วนตัวของฉัน';
+  String get receiveHttpTrust => 'ไว้วางใจเครือข่ายนี้';
 
   @override
   String get deskSetReportFullDetails => 'แนบรายละเอียดทั้งหมด';
@@ -18380,39 +18380,39 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetReportPartFullDetails => 'รายละเอียดเต็ม';
 
   @override
-  String get txPrivateNetworks => 'เครือข่ายส่วนตัว';
+  String get txTrustedNetworks => 'เครือข่ายที่ไว้วางใจ';
 
   @override
-  String txPrivateNetworksCount(int count) {
+  String txTrustedNetworksCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'ทำเครื่องหมายแล้ว $count เครือข่าย',
-      zero: 'ยังไม่ได้ทำเครื่องหมาย',
+      other: 'ไว้วางใจแล้ว $count เครือข่าย',
+      zero: 'ยังไม่มี',
     );
     return '$_temp0';
   }
 
   @override
-  String get txPrivateNetworksBody =>
-      'Link · HTTP รับฟังในเครือข่ายเหล่านี้ หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
+  String get txTrustedNetworksBody =>
+      'Link · HTTP รับฟังในเครือข่ายที่คุณไว้วางใจ หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
 
   @override
-  String get txPrivateNetworksNone => 'ยังไม่ได้ทำเครื่องหมายเครือข่ายใด';
+  String get txTrustedNetworksNone => 'ยังไม่มีเครือข่ายที่ไว้วางใจ';
 
   @override
-  String get txPrivateNetworkCurrent => 'เครือข่ายนี้';
+  String get txTrustedNetworkCurrent => 'เครือข่ายนี้';
 
   @override
-  String get txPrivateNetworkForget => 'ลืม';
+  String get txTrustedNetworkForget => 'ลืม';
 
   @override
-  String txPrivateNetworkForgetLabel(String range) {
+  String txTrustedNetworkForgetLabel(String range) {
     return 'ลืม $range';
   }
 
   @override
-  String txPrivateNetworkRange(String range) {
+  String txTrustedNetworkRange(String range) {
     return '$range.x';
   }
 

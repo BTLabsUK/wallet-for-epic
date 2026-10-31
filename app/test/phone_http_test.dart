@@ -49,10 +49,10 @@ const _torOff = PhoneTorState(phase: PhoneTorPhase.off);
 const _torOn = PhoneTorState(phase: PhoneTorPhase.ready, receiving: true);
 
 class _Harness {
-  _Harness({this.payments = const PaymentPrefs(linkHttp: true), this.tor = _torOff, this.advanced, this.privateNetworks = '192.168.1'});
+  _Harness({this.payments = const PaymentPrefs(linkHttp: true), this.tor = _torOff, this.advanced, this.trustedNetworks = '192.168.1'});
 
-  /// What the store holds under [privateNetworksKey]: the test network is marked by default.
-  final String? privateNetworks;
+  /// What the store holds under [trustedNetworksKey]: the test network is trusted by default.
+  final String? trustedNetworks;
 
   final AdvancedPrefs? advanced;
 
@@ -79,7 +79,7 @@ class _Harness {
       return null;
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-    if (privateNetworks != null) store.values[privateNetworksKey] = privateNetworks!;
+    if (trustedNetworks != null) store.values[trustedNetworksKey] = trustedNetworks!;
     if (advanced != null) {
       store.values['app.advanced_prefs'] = advanced!.encode();
       useNetworkModeFile(advanced!.networkMode);
@@ -169,58 +169,58 @@ void main() {
     expect(lanNetworkKey(null), isNull);
   });
 
-  testWidgets('a network not marked private: nothing listens, the card says why; marking it starts it and is kept', (tester) async {
-    final h = _Harness(privateNetworks: null);
+  testWidgets('a network not trusted: nothing listens, the card says why; trusting it starts it and is kept', (tester) async {
+    final h = _Harness(trustedNetworks: null);
     await h.pump(tester);
     expect(h.session.httpListenerStarts, isEmpty);
-    expect(h.http.phase, PhoneHttpPhase.notPrivate);
+    expect(h.http.phase, PhoneHttpPhase.notTrusted);
     expect(find.text('Off on this network'), findsOneWidget);
     // The reason sits behind the info icon, not on the card.
-    expect(find.textContaining('networks you mark private'), findsNothing);
-    await tester.tap(find.byKey(receiveHttpNotPrivateInfoKey));
+    expect(find.textContaining('networks you trust'), findsNothing);
+    await tester.tap(find.byKey(receiveHttpNotTrustedInfoKey));
     await h.settle(tester);
-    expect(find.textContaining('networks you mark private'), findsOneWidget);
+    expect(find.textContaining('networks you trust'), findsOneWidget);
     await tester.tapAt(const Offset(10, 10));
     await h.settle(tester);
-    await tester.tap(find.byKey(receiveHttpMarkPrivateKey));
+    await tester.tap(find.byKey(receiveHttpTrustKey));
     await h.settle(tester);
     expect(h.session.httpListenerStarts, hasLength(1));
-    expect(h.store.values[privateNetworksKey], '192.168.1');
+    expect(h.store.values[trustedNetworksKey], '192.168.1');
 
-    // Another network: it stops until that one is marked too.
+    // Another network: it stops until that one is trusted too.
     await h.emit(tester, HttpListenerEventKind.started, port: 3415);
     h.ip = '10.20.30.40';
     h.network.add(true);
     await h.settle(tester);
-    expect(h.http.phase, PhoneHttpPhase.notPrivate);
+    expect(h.http.phase, PhoneHttpPhase.notTrusted);
     expect(h.session.httpListenerStops, greaterThanOrEqualTo(1));
   });
 
-  testWidgets('the marked networks are in the state; forgetting the one in use stops the listener and the store follows', (tester) async {
-    final h = _Harness(privateNetworks: '10.0.0,192.168.1');
+  testWidgets('the trusted networks are in the state; forgetting the one in use stops the listener and the store follows', (tester) async {
+    final h = _Harness(trustedNetworks: '10.0.0,192.168.1');
     await h.pump(tester);
-    expect(h.http.privateNetworks, ['10.0.0', '192.168.1']);
+    expect(h.http.trustedNetworks, ['10.0.0', '192.168.1']);
     expect(h.session.httpListenerStarts, hasLength(1));
     await h.emit(tester, HttpListenerEventKind.started, port: 3415);
 
-    // A network not marked: nothing changes.
-    await h.container.read(phoneHttpProvider.notifier).forgetPrivate('172.16.0');
+    // A network not trusted: nothing changes.
+    await h.container.read(phoneHttpProvider.notifier).forgetTrusted('172.16.0');
     await h.settle(tester);
-    expect(h.http.privateNetworks, ['10.0.0', '192.168.1']);
+    expect(h.http.trustedNetworks, ['10.0.0', '192.168.1']);
     expect(h.session.httpListenerStops, 0);
 
-    await h.container.read(phoneHttpProvider.notifier).forgetPrivate('192.168.1');
+    await h.container.read(phoneHttpProvider.notifier).forgetTrusted('192.168.1');
     await h.settle(tester);
-    expect(h.http.privateNetworks, ['10.0.0']);
-    expect(h.store.values[privateNetworksKey], '10.0.0');
-    expect(h.http.phase, PhoneHttpPhase.notPrivate);
+    expect(h.http.trustedNetworks, ['10.0.0']);
+    expect(h.store.values[trustedNetworksKey], '10.0.0');
+    expect(h.http.phase, PhoneHttpPhase.notTrusted);
     expect(h.session.httpListenerStops, 1);
 
-    // The last one: an empty store entry, no network marked.
-    await h.container.read(phoneHttpProvider.notifier).forgetPrivate('10.0.0');
+    // The last one: an empty store entry, no network trusted.
+    await h.container.read(phoneHttpProvider.notifier).forgetTrusted('10.0.0');
     await h.settle(tester);
-    expect(h.http.privateNetworks, isEmpty);
-    expect(h.store.values[privateNetworksKey], '');
+    expect(h.http.trustedNetworks, isEmpty);
+    expect(h.store.values[trustedNetworksKey], '');
   });
 
   testWidgets('starts on every interface at 3415 with the wallet open and the switch on; the card shows the address', (

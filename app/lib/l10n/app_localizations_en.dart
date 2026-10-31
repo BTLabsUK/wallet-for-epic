@@ -18788,14 +18788,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passphraseSetTitle => 'Set a passphrase';
 
   @override
-  String get receiveHttpNotPrivateTitle => 'Off on this network';
+  String get receiveHttpNotTrustedTitle => 'Off on this network';
 
   @override
-  String get receiveHttpNotPrivate =>
-      'Link · HTTP listens only on networks you mark private.';
+  String get receiveHttpNotTrusted =>
+      'Link · HTTP listens only on networks you trust.';
 
   @override
-  String get receiveHttpMarkPrivate => 'This is my private network';
+  String get receiveHttpTrust => 'Trust this network';
 
   @override
   String get deskSetReportFullDetails => 'Include full details';
@@ -18804,40 +18804,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetReportPartFullDetails => 'Full details';
 
   @override
-  String get txPrivateNetworks => 'Private networks';
+  String get txTrustedNetworks => 'Trusted networks';
 
   @override
-  String txPrivateNetworksCount(int count) {
+  String txTrustedNetworksCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count marked',
-      one: '$count marked',
-      zero: 'None marked yet',
+      other: '$count trusted',
+      one: '$count trusted',
+      zero: 'None yet',
     );
     return '$_temp0';
   }
 
   @override
-  String get txPrivateNetworksBody =>
-      'Link · HTTP listens on these networks. Forget one and the phone asks again next time it is on it.';
+  String get txTrustedNetworksBody =>
+      'Link · HTTP listens on networks you trust. Forget one and the phone asks again next time it is on it.';
 
   @override
-  String get txPrivateNetworksNone => 'No network marked yet.';
+  String get txTrustedNetworksNone => 'No trusted network yet.';
 
   @override
-  String get txPrivateNetworkCurrent => 'This network';
+  String get txTrustedNetworkCurrent => 'This network';
 
   @override
-  String get txPrivateNetworkForget => 'Forget';
+  String get txTrustedNetworkForget => 'Forget';
 
   @override
-  String txPrivateNetworkForgetLabel(String range) {
+  String txTrustedNetworkForgetLabel(String range) {
     return 'Forget $range';
   }
 
   @override
-  String txPrivateNetworkRange(String range) {
+  String txTrustedNetworkRange(String range) {
     return '$range.x';
   }
 

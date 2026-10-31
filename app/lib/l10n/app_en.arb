@@ -25252,17 +25252,17 @@
   "@passphraseSetTitle": {
     "description": "App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more)."
   },
-  "receiveHttpNotPrivateTitle": "Off on this network",
-  "@receiveHttpNotPrivateTitle": {
-    "description": "Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network has not been marked private. Calm: a state, not an alarm."
+  "receiveHttpNotTrustedTitle": "Off on this network",
+  "@receiveHttpNotTrustedTitle": {
+    "description": "Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network is not one the user trusts. Calm: a state, not an alarm."
   },
-  "receiveHttpNotPrivate": "Link · HTTP listens only on networks you mark private.",
-  "@receiveHttpNotPrivate": {
-    "description": "Receive › Link · HTTP card: the info sheet behind the Off on this network line: the listener runs only on Wi-Fi networks the user has marked private."
+  "receiveHttpNotTrusted": "Link · HTTP listens only on networks you trust.",
+  "@receiveHttpNotTrusted": {
+    "description": "Receive › Link · HTTP card: the info sheet behind the Off on this network line: the listener runs only on Wi-Fi networks the user trusts."
   },
-  "receiveHttpMarkPrivate": "This is my private network",
-  "@receiveHttpMarkPrivate": {
-    "description": "Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it."
+  "receiveHttpTrust": "Trust this network",
+  "@receiveHttpTrust": {
+    "description": "Receive › Link · HTTP card: button that marks the current Wi-Fi network as trusted so the listener may run on it."
   },
   "deskSetReportFullDetails": "Include full details",
   "@deskSetReportFullDetails": {
@@ -25272,13 +25272,13 @@
   "@deskSetReportPartFullDetails": {
     "description": "Report a problem dialog, What is sent: the part listed when Include full details is ticked, after the app log."
   },
-  "txPrivateNetworks": "Private networks",
-  "@txPrivateNetworks": {
-    "description": "Settings › Transactions, row under the Link › HTTP switch: opens the list of Wi-Fi networks marked private (where the phone's HTTP listener runs)."
+  "txTrustedNetworks": "Trusted networks",
+  "@txTrustedNetworks": {
+    "description": "Settings › Transactions, row under the Link › HTTP switch: opens the list of trusted Wi-Fi networks (where the phone's HTTP listener runs)."
   },
-  "txPrivateNetworksCount": "{count, plural, =0{None marked yet} one{{count} marked} other{{count} marked}}",
-  "@txPrivateNetworksCount": {
-    "description": "Settings › Transactions, line under the Private networks row: how many networks are marked.",
+  "txTrustedNetworksCount": "{count, plural, =0{None yet} one{{count} trusted} other{{count} trusted}}",
+  "@txTrustedNetworksCount": {
+    "description": "Settings › Transactions, line under the Trusted networks row: how many networks are trusted.",
     "placeholders": {
       "count": {
         "type": "int",
@@ -25286,25 +25286,25 @@
       }
     }
   },
-  "txPrivateNetworksBody": "Link · HTTP listens on these networks. Forget one and the phone asks again next time it is on it.",
-  "@txPrivateNetworksBody": {
-    "description": "Private networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences."
+  "txTrustedNetworksBody": "Link · HTTP listens on networks you trust. Forget one and the phone asks again next time it is on it.",
+  "@txTrustedNetworksBody": {
+    "description": "Trusted networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences."
   },
-  "txPrivateNetworksNone": "No network marked yet.",
-  "@txPrivateNetworksNone": {
-    "description": "Private networks sheet: the empty list, one short line."
+  "txTrustedNetworksNone": "No trusted network yet.",
+  "@txTrustedNetworksNone": {
+    "description": "Trusted networks sheet: the empty list, one short line."
   },
-  "txPrivateNetworkCurrent": "This network",
-  "@txPrivateNetworkCurrent": {
-    "description": "Private networks sheet: tag beside the entry of the network the phone is on now."
+  "txTrustedNetworkCurrent": "This network",
+  "@txTrustedNetworkCurrent": {
+    "description": "Trusted networks sheet: tag beside the entry of the network the phone is on now."
   },
-  "txPrivateNetworkForget": "Forget",
-  "@txPrivateNetworkForget": {
-    "description": "Private networks sheet: button beside each entry that removes it; the listener then stops on that network until it is marked again."
+  "txTrustedNetworkForget": "Forget",
+  "@txTrustedNetworkForget": {
+    "description": "Trusted networks sheet: button beside each entry that removes it; the listener then stops on that network until it is trusted again."
   },
-  "txPrivateNetworkForgetLabel": "Forget {range}",
-  "@txPrivateNetworkForgetLabel": {
-    "description": "Private networks sheet: screen reader label of the Forget button, with the entry's address range (txPrivateNetworkRange).",
+  "txTrustedNetworkForgetLabel": "Forget {range}",
+  "@txTrustedNetworkForgetLabel": {
+    "description": "Trusted networks sheet: screen reader label of the Forget button, with the entry's address range (txTrustedNetworkRange).",
     "placeholders": {
       "range": {
         "type": "String",
@@ -25312,9 +25312,9 @@
       }
     }
   },
-  "txPrivateNetworkRange": "{range}.x",
-  "@txPrivateNetworkRange": {
-    "description": "Private networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.",
+  "txTrustedNetworkRange": "{range}.x",
+  "@txTrustedNetworkRange": {
+    "description": "Trusted networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.",
     "placeholders": {
       "range": {
         "type": "String",
