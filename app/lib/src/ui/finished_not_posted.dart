@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../help/help_content.dart' show HelpAnchor, HelpId;
 import '../l10n.dart';
 import '../models.dart';
 import '../network_gate.dart' show NetGate;
@@ -18,6 +19,7 @@ import '../providers.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'help_screen.dart' show openHelp;
 import 'qr_show_screen.dart';
 import 'theme/tokens.dart';
 
@@ -190,6 +192,14 @@ class FinishedNotPosted extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(l.finalizeNotPostedBody(epicExact(l, txAmount(tx).amount)), style: theme.textTheme.bodyLarge),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            key: const ValueKey('finished-not-posted-help'),
+            onPressed: () => openHelp(context, HelpId.modes, HelpAnchor.coldStorage),
+            child: Text(l.finalizeNotPostedHelp),
+          ),
+        ),
         const SizedBox(height: 16),
         FinishedPaymentButtons(tx: tx),
       ],

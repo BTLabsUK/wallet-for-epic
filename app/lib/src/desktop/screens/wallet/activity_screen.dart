@@ -425,30 +425,8 @@ class _Learn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ts = context.ts;
-    final c = context.dc;
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
-    final needed = deskMinConfirmations(ref);
-    Widget stage(Widget mark, String title, String text) => Padding(
-      padding: EdgeInsets.symmetric(vertical: Sp.x2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          mark,
-          SizedBox(width: Sp.x3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: ts.strong),
-                Text(text, style: ts.small),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Sp.x8, vertical: Sp.x10),
       child: Center(
@@ -461,9 +439,6 @@ class _Learn extends ConsumerWidget {
                 title: l.deskActEmptyTitle,
                 text: l.deskActEmptyText,
               ),
-              stage(Icon(EIcons.sand, size: 20.u, color: c.info), l.deskActStageWaiting, l.deskActStageWaitingText),
-              stage(ERing(confirmations: 1, needed: needed), l.deskActStageConfirming, l.deskActStageConfirmingText),
-              stage(ERing(confirmations: needed, needed: needed), l.deskActStageSpendable, l.deskActStageSpendableText(needed)),
               SizedBox(height: Sp.x5),
               Wrap(
                 spacing: Sp.x2,

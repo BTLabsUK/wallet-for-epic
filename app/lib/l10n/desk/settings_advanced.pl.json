@@ -37,6 +37,6 @@
   "deskSetAdvConfirmationsFewer": "Mniej potwierdzeń",
   "deskSetAdvConfirmationsMore": "Więcej potwierdzeń",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} potwierdzenie} few{{count} potwierdzenia} many{{count} potwierdzeń} other{{count} potwierdzenia}}",
-  "deskSetAdvConfirmationsLowNote": "Mniej potwierdzeń to szybciej, ale słabsza ochrona przed reorganizacją łańcucha.",
+  "deskSetAdvConfirmationsLowNote": "Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.",
   "deskSetAdvConfirmationsNotSaved": "Nie zmieniono potwierdzeń"
 }

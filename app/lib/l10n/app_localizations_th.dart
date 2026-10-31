@@ -7177,33 +7177,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskActEmptyText => 'รายการที่ส่งและรับ ใหม่สุดก่อน';
 
   @override
-  String get deskActStageWaiting => 'รอ';
-
-  @override
-  String get deskActStageWaitingText =>
-      'กระเป๋าเงินทั้งสองฝั่งลงนาม ผ่าน Epicbox จะทำให้เอง';
-
-  @override
-  String get deskActStageConfirming => 'กำลังยืนยัน';
-
-  @override
-  String get deskActStageConfirmingText =>
-      'อยู่บนบล็อกเชน ประมาณหนึ่งบล็อกต่อนาที';
-
-  @override
-  String get deskActStageSpendable => 'ใช้ได้';
-
-  @override
-  String deskActStageSpendableText(int needed) {
-    String _temp0 = intl.Intl.pluralLogic(
-      needed,
-      locale: localeName,
-      other: 'หลังยืนยันครบ $needed ครั้ง ประมาณ $needed นาที',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get deskActShowAddress => 'แสดงที่อยู่';
 
   @override
@@ -8741,12 +8714,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskOnbNodeSeparate => 'เป็นโปรแกรมแยก';
-
-  @override
-  String get deskOnbNodeSeparateText => 'เริ่มและหยุดพร้อมกับแอป';
-
-  @override
   String get deskOnbNodeFirewall => 'Windows จะถามครั้งเดียว';
 
   @override
@@ -8757,19 +8724,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskOnbNodeGrowing(String free) {
     return 'และเพิ่มขึ้นช้า ๆ · $free';
   }
-
-  @override
-  String get deskOnbNodeHours => 'การซิงก์ครั้งแรก';
-
-  @override
-  String get deskOnbNodeHoursText =>
-      'แสดงความคืบหน้า ระหว่างนั้นใช้โหนดสาธารณะแทน';
-
-  @override
-  String get deskOnbNodeDownload => 'ดาวน์โหลดประมาณ 4 GB';
-
-  @override
-  String get deskOnbNodeDownloadText => 'ในครั้งแรก จากนั้นเพิ่มเล็กน้อยทุกวัน';
 
   @override
   String get deskOnbNodeFound => 'พบ';
@@ -10150,12 +10104,12 @@ class AppLocalizationsTh extends AppLocalizations {
       locale: localeName,
       other: '$count รายการ',
     );
-    return '$_temp0 · คอลัมน์: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height ไฟล์ $file';
+    return '$_temp0 · $file';
   }
 
   @override
   String deskSetBackupCsvInfoNoCount(String file) {
-    return '– · คอลัมน์: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height ไฟล์ $file';
+    return '$file';
   }
 
   @override
@@ -10163,7 +10117,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'ใครมีไฟล์ก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้ นำเข้าไม่ได้ หากต้องการสำรองข้อมูลให้ใช้ ส่งออกข้อมูลกระเป๋าเงิน';
+      'ใครมีไฟล์ก็อ่านจำนวน วันที่ ที่อยู่ และบันทึกได้';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -12890,7 +12844,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advConfirmationsLowNote =>
-      'ยิ่งยืนยันน้อยยิ่งเร็ว แต่ป้องกันการจัดเรียงบล็อกเชนใหม่ได้น้อยลง';
+      'ยิ่งยืนยันน้อยยิ่งเร็ว แต่ปลอดภัยน้อยลง';
 
   @override
   String nodeFailoverSwitched(String host) {
@@ -16084,7 +16038,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'โหนดแสดงว่าเหรียญเหล่านี้ถูกใช้ไปแล้ว และกระเป๋าเงินนี้ไม่ได้ใช้ เป็นไปได้มากว่ากระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณใช้ไป กระเป๋าเงินนี้แสดงจำนวนที่ออกไป ไม่แสดงผู้รับและค่าธรรมเนียม';
+      'ใช้ไปโดยกระเป๋าเงินอื่นที่ใช้วลีกู้คืนเดียวกัน ทราบเฉพาะจำนวน';
 
   @override
   String get txSentFromOtherWalletUnverified =>
@@ -16107,7 +16061,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txDetailsOtherWalletIn =>
-      'กระเป๋าเงินอื่นที่ใช้วลีกู้คืนของคุณได้รับเหรียญเหล่านี้ กระเป๋าเงินนี้แสดงจำนวน ไม่แสดงผู้ส่ง';
+      'รับโดยกระเป๋าเงินอื่นที่ใช้วลีกู้คืนเดียวกัน ทราบเฉพาะจำนวน';
 
   @override
   String get expLinkedDevices => 'อุปกรณ์ที่เชื่อมโยง';
@@ -16629,7 +16583,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsLowNote =>
-      'ยิ่งยืนยันน้อยยิ่งเร็ว แต่ป้องกันการจัดเรียงบล็อกเชนใหม่ได้น้อยลง';
+      'ยิ่งยืนยันน้อยยิ่งเร็ว แต่ปลอดภัยน้อยลง';
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'ไม่ได้เปลี่ยนการยืนยัน';
@@ -17225,7 +17179,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount เสร็จแล้ว สวิตช์ฉุกเฉินเปิดอยู่ โทรศัพท์เครื่องนี้จึงส่งเข้าเครือข่ายไม่ได้ ให้บันทึกไว้หรือแสดงเป็นคิวอาร์โค้ด แล้วส่งจากอุปกรณ์ที่ออนไลน์: ประวัติ › ส่งรายการที่เสร็จแล้ว';
+    return '$amount เสร็จแล้ว สวิตช์ฉุกเฉินเปิดอยู่ โทรศัพท์เครื่องนี้จึงส่งเข้าเครือข่ายไม่ได้: ให้บันทึกไว้หรือแสดงเป็นคิวอาร์โค้ดสำหรับอุปกรณ์ที่ออนไลน์';
   }
 
   @override
@@ -17591,4 +17545,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSlotNotPosted => 'การชำระเงินไม่อยู่ในเครือข่าย';
+
+  @override
+  String get txOtherWalletMore => 'การชำระของกระเป๋าเงินอื่น';
+
+  @override
+  String get finalizeNotPostedHelp => 'จ่ายจากสวิตช์ฉุกเฉิน';
 }

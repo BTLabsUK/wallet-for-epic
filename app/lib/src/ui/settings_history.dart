@@ -123,6 +123,13 @@ String historyFileName(Chain chain, DateTime day, String extension) {
       '${two(day.day)}.$extension';
 }
 
+/// `epic-payments-<yyyyMMdd>.csv`, the name offered for a new payments export.
+String paymentsFileName(Chain chain, DateTime day) {
+  String two(int v) => v.toString().padLeft(2, '0');
+  final tag = chain == Chain.mainnet ? '' : '${chain.name}-';
+  return 'epic-payments-$tag${day.year}${two(day.month)}${two(day.day)}.csv';
+}
+
 void _say(BuildContext context, String message, {required NoticeLevel level}) {
   ProviderScope.containerOf(
     context,
@@ -337,11 +344,7 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
   try {
     final csv = await session.exportHistoryCsv();
     if (!context.mounted) return false;
-    final name = historyFileName(
-      config.chain,
-      ref.read(clockProvider)(),
-      'csv',
-    );
+    final name = paymentsFileName(config.chain, ref.read(clockProvider)());
     final saved = await handOverFile(
       context,
       ref,

@@ -81,6 +81,13 @@ String deskHistoryFileName(String network, DateTime day, String extension, {Stri
   return 'epic-wallet-data-${label.isEmpty ? '' : '$label-'}$tag${DateFormat('yyyyMMdd').format(day)}.$extension';
 }
 
+/// `epic-payments-<wallet>-<yyyymmdd>.csv`: the name offered for a new payments export.
+String deskPaymentsFileName(String network, DateTime day, {String wallet = ''}) {
+  final label = deskWalletFileLabel(wallet);
+  final tag = network.isEmpty || network == 'mainnet' ? '' : '$network-';
+  return 'epic-payments-${label.isEmpty ? '' : '$label-'}$tag${DateFormat('yyyyMMdd').format(day)}.csv';
+}
+
 /// The open wallet's name as the app shows it (the title bar's rule).
 String _openWalletName(WidgetRef ref) {
   final account = ref.read(deskProvider).account;
@@ -644,7 +651,7 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
 
   ({DateTime? from, DateTime? to})? get _days => csvDays(_range, now: DateTime.now(), from: _from.text, to: _to.text);
 
-  String get _name => deskHistoryFileName(ref.read(historyBackupProvider).value?.network ?? 'mainnet', DateTime.now(), 'csv', wallet: _openWalletName(ref));
+  String get _name => deskPaymentsFileName(ref.read(historyBackupProvider).value?.network ?? 'mainnet', DateTime.now(), wallet: _openWalletName(ref));
 
   int _count(List<Tx> txs, ({DateTime? from, DateTime? to}) days) {
     final from = days.from, to = days.to;

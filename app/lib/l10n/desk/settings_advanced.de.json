@@ -37,6 +37,6 @@
   "deskSetAdvConfirmationsFewer": "Weniger Bestätigungen",
   "deskSetAdvConfirmationsMore": "Mehr Bestätigungen",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} Bestätigung} other{{count} Bestätigungen}}",
-  "deskSetAdvConfirmationsLowNote": "Weniger Bestätigungen sind schneller, schützen aber weniger vor einer Reorganisation der Blockchain.",
+  "deskSetAdvConfirmationsLowNote": "Weniger Bestätigungen sind schneller, aber weniger sicher.",
   "deskSetAdvConfirmationsNotSaved": "Bestätigungen nicht geändert"
 }

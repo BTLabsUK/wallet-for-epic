@@ -7478,34 +7478,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Gesendete und empfangene Zahlungen, die neueste zuerst.';
 
   @override
-  String get deskActStageWaiting => 'Wartet';
-
-  @override
-  String get deskActStageWaitingText =>
-      'Beide Wallets signieren sie. Über Epicbox geschieht das automatisch.';
-
-  @override
-  String get deskActStageConfirming => 'Wird bestätigt';
-
-  @override
-  String get deskActStageConfirmingText =>
-      'In der Blockchain. Etwa ein Block pro Minute.';
-
-  @override
-  String get deskActStageSpendable => 'Verfügbar';
-
-  @override
-  String deskActStageSpendableText(int needed) {
-    String _temp0 = intl.Intl.pluralLogic(
-      needed,
-      locale: localeName,
-      other: 'Nach $needed Bestätigungen, etwa $needed Minuten.',
-      one: 'Nach $needed Bestätigung, etwa $needed Minute.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get deskActShowAddress => 'Adresse anzeigen';
 
   @override
@@ -9131,12 +9103,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskOnbNodeSeparate => 'Ein eigenes Programm.';
-
-  @override
-  String get deskOnbNodeSeparateText => 'Startet und stoppt mit der App.';
-
-  @override
   String get deskOnbNodeFirewall => 'Windows fragt einmal,';
 
   @override
@@ -9147,20 +9113,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskOnbNodeGrowing(String free) {
     return 'wächst langsam · $free';
   }
-
-  @override
-  String get deskOnbNodeHours => 'Erste Synchronisierung';
-
-  @override
-  String get deskOnbNodeHoursText =>
-      'zeigt ihren Fortschritt; solange springt ein öffentlicher Node ein.';
-
-  @override
-  String get deskOnbNodeDownload => 'Etwa 4 GB Download';
-
-  @override
-  String get deskOnbNodeDownloadText =>
-      'beim ersten Mal, danach jeden Tag ein wenig.';
 
   @override
   String get deskOnbNodeFound => 'Gefunden';
@@ -10572,12 +10524,12 @@ class AppLocalizationsDe extends AppLocalizations {
       other: '$count Zahlungen',
       one: '1 Zahlung',
     );
-    return '$_temp0 · Spalten: Datum, Typ, Status, Betrag, Gebühr, Gegenseite, Notiz, Slate-ID, Kernel, Blockhöhe. Datei $file.';
+    return '$_temp0 · $file';
   }
 
   @override
   String deskSetBackupCsvInfoNoCount(String file) {
-    return '– · Spalten: Datum, Typ, Status, Betrag, Gebühr, Gegenseite, Notiz, Slate-ID, Kernel, Blockhöhe. Datei $file.';
+    return '$file';
   }
 
   @override
@@ -10585,7 +10537,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Jeder mit der Datei kann Beträge, Datumsangaben, Adressen und Notizen lesen. Sie lässt sich nicht importieren; für eine Sicherung „Wallet-Daten exportieren“ nutzen.';
+      'Jeder mit der Datei kann Beträge, Datumsangaben, Adressen und Notizen lesen.';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -13384,7 +13336,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get advConfirmationsLowNote =>
-      'Weniger Bestätigungen sind schneller, schützen aber weniger vor einer Reorganisation der Blockchain.';
+      'Weniger Bestätigungen sind schneller, aber weniger sicher.';
 
   @override
   String nodeFailoverSwitched(String host) {
@@ -16666,7 +16618,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'Der Node zeigt diese Coins als ausgegeben, und diese Wallet hat sie nicht ausgegeben: Wahrscheinlich war es eine andere Wallet mit Ihrer Wiederherstellungsphrase. Diese Wallet zeigt den Betrag, der abgeflossen ist, nicht den Empfänger und nicht die Gebühr.';
+      'Von einer anderen Wallet mit derselben Wiederherstellungsphrase ausgegeben. Nur der Betrag ist bekannt.';
 
   @override
   String get txSentFromOtherWalletUnverified =>
@@ -16689,7 +16641,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txDetailsOtherWalletIn =>
-      'Eine andere Wallet mit Ihrer Wiederherstellungsphrase hat diese Coins empfangen. Diese Wallet zeigt den Betrag, nicht den Absender.';
+      'Von einer anderen Wallet mit derselben Wiederherstellungsphrase empfangen. Nur der Betrag ist bekannt.';
 
   @override
   String get expLinkedDevices => 'Verknüpfte Geräte';
@@ -17170,7 +17122,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get syncHelpStep4 =>
-      'Die Blockchain bestätigt. Sie entscheidet über den endgültigen Stand.';
+      'Die Chain bestätigt. Sie entscheidet über den endgültigen Stand.';
 
   @override
   String get syncHelpDiagram =>
@@ -17229,7 +17181,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsLowNote =>
-      'Weniger Bestätigungen sind schneller, schützen aber weniger vor einer Reorganisation der Blockchain.';
+      'Weniger Bestätigungen sind schneller, aber weniger sicher.';
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'Bestätigungen nicht geändert';
@@ -17842,7 +17794,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount sind abgeschlossen. „Notaus“ ist an, daher kann dieses Smartphone die Zahlung nicht senden. Speichern Sie sie oder zeigen Sie sie als QR-Code und senden Sie sie dann von einem Gerät, das online ist: Aktivität › Fertige Zahlung senden.';
+    return '$amount sind abgeschlossen. „Notaus“ ist an, daher kann dieses Smartphone die Zahlung nicht senden: Speichern Sie sie oder zeigen Sie sie als QR-Code für ein Gerät, das online ist.';
   }
 
   @override
@@ -18217,4 +18169,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSlotNotPosted => 'Zahlung nicht im Netzwerk';
+
+  @override
+  String get txOtherWalletMore => 'Zahlungen einer anderen Wallet';
+
+  @override
+  String get finalizeNotPostedHelp => 'Zahlen mit „Notaus“';
 }

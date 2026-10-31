@@ -11733,42 +11733,6 @@ abstract class AppLocalizations {
   /// **'Payments sent and received, newest first.'**
   String get deskActEmptyText;
 
-  /// Title of the first of three stages a payment goes through, in the empty state of Activity.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting'**
-  String get deskActStageWaiting;
-
-  /// Text of the first stage in the empty state of Activity.
-  ///
-  /// In en, this message translates to:
-  /// **'Both wallets sign it. Over Epicbox this is automatic.'**
-  String get deskActStageWaitingText;
-
-  /// Title of the second stage in the empty state of Activity.
-  ///
-  /// In en, this message translates to:
-  /// **'Confirming'**
-  String get deskActStageConfirming;
-
-  /// Text of the second stage in the empty state of Activity.
-  ///
-  /// In en, this message translates to:
-  /// **'On the chain. About one block a minute.'**
-  String get deskActStageConfirmingText;
-
-  /// Title of the third stage in the empty state of Activity.
-  ///
-  /// In en, this message translates to:
-  /// **'Spendable'**
-  String get deskActStageSpendable;
-
-  /// Text of the third stage in the empty state of Activity: the number of confirmations before the money can be spent; the minutes equal the confirmations (one block a minute).
-  ///
-  /// In en, this message translates to:
-  /// **'{needed, plural, one{After {needed} confirmation, about {needed} minute.} other{After {needed} confirmations, about {needed} minutes.}}'**
-  String deskActStageSpendableText(int needed);
-
   /// Primary button in the empty state of Activity: opens the Receive page.
   ///
   /// In en, this message translates to:
@@ -14223,18 +14187,6 @@ abstract class AppLocalizations {
   /// **'{size} now,'**
   String deskOnbNodeDisk(String size);
 
-  /// Bold start of the first fact of the local node step, read together with the next message.
-  ///
-  /// In en, this message translates to:
-  /// **'A separate program.'**
-  String get deskOnbNodeSeparate;
-
-  /// Rest of the first fact of the local node step.
-  ///
-  /// In en, this message translates to:
-  /// **'Starts and stops with the app.'**
-  String get deskOnbNodeSeparateText;
-
   /// Bold start of a fact shown on Windows only, read together with the next message.
   ///
   /// In en, this message translates to:
@@ -14252,30 +14204,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'growing slowly · {free}'**
   String deskOnbNodeGrowing(String free);
-
-  /// Bold start of a fact on the local node step, read together with the next message.
-  ///
-  /// In en, this message translates to:
-  /// **'First sync'**
-  String get deskOnbNodeHours;
-
-  /// Rest of the 'Hours to sync' fact. Continues the bold start in lowercase.
-  ///
-  /// In en, this message translates to:
-  /// **'shows its progress; a public node stands in meanwhile.'**
-  String get deskOnbNodeHoursText;
-
-  /// Bold start of a fact on the local node step, read together with the next message.
-  ///
-  /// In en, this message translates to:
-  /// **'About 4 GB downloaded'**
-  String get deskOnbNodeDownload;
-
-  /// Rest of the download fact. Continues the bold start in lowercase.
-  ///
-  /// In en, this message translates to:
-  /// **'the first time, then a little every day.'**
-  String get deskOnbNodeDownloadText;
 
   /// Bold green word on the local node step: a node is running on this computer.
   ///
@@ -16431,16 +16359,16 @@ abstract class AppLocalizations {
   /// **'To'**
   String get deskSetBackupTo;
 
-  /// Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns named are in the file, whose headers stay English.
+  /// Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns are described in Help.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{1 payment} other{{count} payments}} · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.'**
+  /// **'{count, plural, one{1 payment} other{{count} payments}} · {file}'**
   String deskSetBackupCsvInfo(int count, String file);
 
-  /// Export CSV dialog: summary line while the date range is not valid, so there is no count. {file} is the file name.
+  /// Export CSV dialog: summary line while the payments are not counted yet. {file} is the file name, shown in monospace.
   ///
   /// In en, this message translates to:
-  /// **'– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.'**
+  /// **'{file}'**
   String deskSetBackupCsvInfoNoCount(String file);
 
   /// Export CSV dialog: title of the warning notice.
@@ -16452,7 +16380,7 @@ abstract class AppLocalizations {
   /// Export CSV dialog: text of the warning notice.
   ///
   /// In en, this message translates to:
-  /// **'Anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.'**
+  /// **'Anyone with the file can read amounts, dates, addresses and notes.'**
   String get deskSetBackupNotEncryptedBody;
 
   /// Reminder on Overview when the history was never backed up. Count is the number of payments.
@@ -20915,7 +20843,7 @@ abstract class AppLocalizations {
   /// Quiet note under the Confirmations row while the count is below the default. Factual, no alarm.
   ///
   /// In en, this message translates to:
-  /// **'Fewer confirmations are faster but give less protection against chain reorganisations.'**
+  /// **'Fewer confirmations are faster but less safe.'**
   String get advConfirmationsLowNote;
 
   /// Notice when the node in use stopped answering and the wallet moved to the next working node of the list for this session. host: the new node's address.
@@ -25823,7 +25751,7 @@ abstract class AppLocalizations {
   /// Details of a row sent from another wallet: what it is and what is not known about it.
   ///
   /// In en, this message translates to:
-  /// **'The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.'**
+  /// **'Spent by another wallet with the same recovery phrase. Only the amount is known.'**
   String get txDetailsOtherWallet;
 
   /// Title of a history row sent from another wallet while only the node's answers show it (no completed scan has covered its blocks yet).
@@ -25859,7 +25787,7 @@ abstract class AppLocalizations {
   /// Details of a row received by another wallet: what it is and what is not known about it.
   ///
   /// In en, this message translates to:
-  /// **'Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.'**
+  /// **'Received by another wallet with the same recovery phrase. Only the amount is known.'**
   String get txDetailsOtherWalletIn;
 
   /// Settings › Advanced › Experimental: the switch for linked devices (this wallet on two or more of the user's own devices). Also the page and hub row name.
@@ -26537,7 +26465,7 @@ abstract class AppLocalizations {
   /// Sync picture, step 4 caption.
   ///
   /// In en, this message translates to:
-  /// **'The blockchain confirms. The chain decides the final state.'**
+  /// **'The chain confirms. The chain decides the final state.'**
   String get syncHelpStep4;
 
   /// Screen reader description of the sync picture.
@@ -26627,7 +26555,7 @@ abstract class AppLocalizations {
   /// Quiet note under the Confirmations row while the count is below the default. Factual, no alarm.
   ///
   /// In en, this message translates to:
-  /// **'Fewer confirmations are faster but give less protection against chain reorganisations.'**
+  /// **'Fewer confirmations are faster but less safe.'**
   String get deskSetAdvConfirmationsLowNote;
 
   /// Title of the toast when the wallet refused the new Confirmations count; the reason follows. The row goes back to the previous count.
@@ -27473,7 +27401,7 @@ abstract class AppLocalizations {
   /// Body of that screen (phone).
   ///
   /// In en, this message translates to:
-  /// **'{amount} is finished. Kill switch is on, so this phone cannot post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.'**
+  /// **'{amount} is finished. Kill switch is on, so this phone cannot post it: save it or show it as a QR code for a device that is online.'**
   String finalizeNotPostedBody(String amount);
 
   /// Button: save the finished payment as a file.
@@ -28069,6 +27997,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Payment not posted'**
   String get deskSlotNotPosted;
+
+  /// Link under the detail line of a payment made or received by another wallet with the same recovery phrase; opens Help, topic 'Payments by another wallet' (use that topic's title).
+  ///
+  /// In en, this message translates to:
+  /// **'Payments by another wallet'**
+  String get txOtherWalletMore;
+
+  /// Link under the 'finished, not posted' notice; opens Help, Network modes, at the heading 'Paying from Kill switch' (use that heading).
+  ///
+  /// In en, this message translates to:
+  /// **'Paying from Kill switch'**
+  String get finalizeNotPostedHelp;
 }
 
 class _AppLocalizationsDelegate

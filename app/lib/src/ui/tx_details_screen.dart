@@ -4,7 +4,8 @@ import 'dart:async';
 import '../devices/phone_devices.dart' show deviceServiceProvider, watchHistory;
 import 'devices/device_tx_details.dart';
 import 'package:flutter/material.dart';
-import '../help/help_content.dart' show HelpAnchor;
+import '../help/help_content.dart' show HelpAnchor, HelpId;
+import 'help_screen.dart' show openHelp;
 import 'cancel_dialog.dart';
 import 'cancel_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -748,6 +749,15 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
                     Text(txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait, cancelFinal: cancelFinalNow)),
+                    if (tx.origin == TxOrigin.otherWallet && tx.deviceName == null)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          key: const ValueKey('tx-other-wallet-help'),
+                          onPressed: () => openHelp(context, HelpId.otherWallet),
+                          child: Text(l.txOtherWalletMore),
+                        ),
+                      ),
                     // Waiting for a paired contact's answer: its relay silent, or its keys
                     // changed meanwhile.
                     if (mailboxWaiting && mailboxPairing != null && mailboxPairing.state == PairingState.keysChanged) ...[

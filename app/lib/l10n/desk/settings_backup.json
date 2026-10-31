@@ -310,9 +310,9 @@
   "@deskSetBackupTo": {
     "description": "Export CSV dialog: label of the last custom date field."
   },
-  "deskSetBackupCsvInfo": "{count, plural, one{1 payment} other{{count} payments}} · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "deskSetBackupCsvInfo": "{count, plural, one{1 payment} other{{count} payments}} · {file}",
   "@deskSetBackupCsvInfo": {
-    "description": "Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns named are in the file, whose headers stay English.",
+    "description": "Export CSV dialog: summary line. {file} is the file name, shown in monospace. The columns are described in Help.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -322,9 +322,9 @@
       }
     }
   },
-  "deskSetBackupCsvInfoNoCount": "– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File {file}.",
+  "deskSetBackupCsvInfoNoCount": "{file}",
   "@deskSetBackupCsvInfoNoCount": {
-    "description": "Export CSV dialog: summary line while the date range is not valid, so there is no count. {file} is the file name.",
+    "description": "Export CSV dialog: summary line while the payments are not counted yet. {file} is the file name, shown in monospace.",
     "placeholders": {
       "file": {
         "type": "String"
@@ -335,7 +335,7 @@
   "@deskSetBackupNotEncrypted": {
     "description": "Export CSV dialog: title of the warning notice."
   },
-  "deskSetBackupNotEncryptedBody": "Anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.",
+  "deskSetBackupNotEncryptedBody": "Anyone with the file can read amounts, dates, addresses and notes.",
   "@deskSetBackupNotEncryptedBody": {
     "description": "Export CSV dialog: text of the warning notice."
   },
