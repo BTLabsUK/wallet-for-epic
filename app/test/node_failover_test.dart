@@ -163,6 +163,43 @@ void main() {
       });
     });
 
+    test('nothing working: tries again after 30 s, then 1, 2 and 5 minutes', () {
+      fakeAsync((async) {
+        final h = _Harness(async, deadNodes: {_a, _c, _d});
+        int tries() => h.session.nodeTipsFor.where((c) => c.nodeUrl == _c).length;
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 31));
+        expect(tries(), 1);
+        for (final (wait, after) in [(30, 2), (60, 3), (120, 4), (300, 5), (300, 6)]) {
+          h.elapse(Duration(seconds: wait - 2));
+          expect(tries(), after - 1, reason: 'before the ${wait}s wait ends');
+          h.elapse(const Duration(seconds: 2));
+          expect(tries(), after, reason: 'after the ${wait}s wait');
+        }
+        h.dispose();
+      });
+    });
+
+    test('off screen: nothing is asked; back on screen it tries after 30 s', () {
+      fakeAsync((async) {
+        final h = _Harness(async, deadNodes: {_a, _c, _d});
+        int tries() => h.session.nodeTipsFor.where((c) => c.nodeUrl == _c).length;
+        h.nodeDown();
+        h.elapse(const Duration(seconds: 31));
+        expect(tries(), 1);
+        final watch = h.container.read(nodeFailoverWatchProvider.notifier);
+        watch.paused();
+        h.elapse(const Duration(minutes: 10));
+        expect(tries(), 1);
+        watch.resumed();
+        h.elapse(const Duration(seconds: 29));
+        expect(tries(), 1);
+        h.elapse(const Duration(seconds: 2));
+        expect(tries(), 2);
+        h.dispose();
+      });
+    });
+
     test('a node that answers again in time: no move', () {
       fakeAsync((async) {
         final h = _Harness(async);

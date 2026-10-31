@@ -93,6 +93,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         // does a scan.
         ref.read(updateProvider.notifier).paused();
         ref.read(scanProvider.notifier).pause();
+        ref.read(nodeFailoverWatchProvider.notifier).paused();
         if (_leftAt == null &&
             ref.read(sessionProvider) != null &&
             ref.read(autoLockHoldProvider) == 0) {
@@ -102,6 +103,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         // An update that waited for the install permission carries on, lock or no lock.
         unawaited(ref.read(updateProvider.notifier).resumed());
         _resumeScan();
+        ref.read(nodeFailoverWatchProvider.notifier).resumed();
         if (ref.read(autoLockHoldProvider) > 0) {
           _leftAt = null;
           _drainPayments();

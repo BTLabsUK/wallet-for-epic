@@ -32,7 +32,7 @@ import '../screens/settings/prefs.dart' show settingsPrefsProvider;
 export '../../node_failover.dart' show NodeFailover;
 
 /// How often a move held back (Tor starting, nothing working) is tried again while the node
-/// stays down.
+/// stays down; with nothing working, longer each time ([failoverRetryAfter]).
 Duration get deskFailoverRetry => appConfig.nodeFailoverAfter;
 
 /// How often the chosen own node is asked while a public node stands in for it, or while it
@@ -70,9 +70,13 @@ class DeskFailoverWatch extends Notifier<void> {
   bool _moving = false;
   int _good = 0;
 
+  /// Tries in a row that found no other node answering.
+  int _failed = 0;
+
   @override
   void build() {
     ref.watch(deskProvider.select((s) => s.account?.id));
+    _failed = 0;
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
@@ -85,6 +89,7 @@ class DeskFailoverWatch extends Notifier<void> {
 
   void _follow(ServiceHealth? health) {
     if (health != ServiceHealth.down) {
+      _failed = 0;
       _timer?.cancel();
       _timer = null;
       return;
@@ -96,8 +101,18 @@ class DeskFailoverWatch extends Notifier<void> {
     _timer = null;
     if (!ref.mounted) return;
     unawaited(_tryMove().then((again) {
-      if (again && ref.mounted && _down) _timer ??= Timer(deskFailoverRetry, _fire);
+      if (again && ref.mounted && _down) _timer ??= Timer(failoverRetryAfter(_failed, deskFailoverRetry), _fire);
     }));
+  }
+
+  /// The window came back (`shell.dart`): a retry that waits longer than the first comes at
+  /// the first wait again. The first move keeps its time.
+  void resumed() {
+    if (_failed == 0) return;
+    _failed = 0;
+    if (!ref.mounted || _moving) return;
+    _timer?.cancel();
+    _timer = _down ? Timer(deskFailoverRetry, _fire) : null;
   }
 
   /// The chosen node when it is the user's own (not the built-in node), else null.
@@ -179,6 +194,8 @@ class DeskFailoverWatch extends Notifier<void> {
             nodeUrl: current,
           );
     if (hold != null) {
+      // Nothing is asked while held: the next try comes at the first wait.
+      if (!syncing) _failed = 0;
       if (hold != FailoverHold.off) logInfo('desk', 'node failover held: ${hold.name}');
       return hold == FailoverHold.waitingForTor;
     }
@@ -222,6 +239,7 @@ class DeskFailoverWatch extends Notifier<void> {
         return false;
       }
       logInfo('desk', 'node failover: no other node answers; staying');
+      if (!syncing) _failed++;
       return true;
     } finally {
       _moving = false;

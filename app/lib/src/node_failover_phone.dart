@@ -35,7 +35,7 @@ import 'ui/status.dart' show NodeState;
 Duration get _afterShown => nodeFailoverAfter - statusSettle;
 
 /// How often a move held back (a payment being sent, nothing working) is tried again while the
-/// node still does not answer.
+/// node still does not answer; with nothing working, longer each time ([failoverRetryAfter]).
 Duration get nodeFailoverRetry => appConfig.nodeFailoverAfter;
 
 /// The move node failover made for this session, or null on the chosen node. Screens watch
@@ -78,35 +78,72 @@ class NodeFailoverWatch extends Notifier<void> {
   /// A move is running: a second one waits for the next offline.
   bool _moving = false;
 
+  /// Tries in a row that found no other node answering.
+  int _failed = 0;
+
+  /// The app is on screen (`app.dart` says when it is not): no node is asked meanwhile.
+  bool _onScreen = true;
+
   @override
   void build() {
     // A new wallet starts over.
     ref.watch(sessionProvider);
+    _failed = 0;
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
     });
     ref.listen(walletStatusProvider.select((s) => s.node.state), (_, node) => _follow(node));
+    final network = ref.watch(networkChangesProvider).listen((available) {
+      if (available) _startOver();
+    });
+    ref.onDispose(network.cancel);
   }
+
+  bool get _offline => ref.read(walletStatusProvider).node.state == NodeState.offline;
 
   void _follow(NodeState node) {
     if (node != NodeState.offline) {
+      _failed = 0;
       _timer?.cancel();
       _timer = null;
       return;
     }
-    _timer ??= Timer(_afterShown, _fire);
+    if (_onScreen) _timer ??= Timer(_afterShown, _fire);
   }
 
   void _fire() {
     _timer = null;
-    if (!ref.mounted) return;
+    if (!ref.mounted || !_onScreen) return;
     unawaited(_tryMove().then((tryAgain) {
-      if (!tryAgain || !ref.mounted) return;
-      if (ref.read(walletStatusProvider).node.state == NodeState.offline) {
-        _timer ??= Timer(nodeFailoverRetry, _fire);
-      }
+      if (!tryAgain || !ref.mounted || !_onScreen) return;
+      if (_offline) _timer ??= Timer(failoverRetryAfter(_failed, nodeFailoverRetry), _fire);
     }));
+  }
+
+  /// A new network: a retry that waits longer than the first comes at the first wait again.
+  /// The first move keeps its time.
+  void _startOver() {
+    if (_failed == 0) return;
+    _failed = 0;
+    if (!_onScreen || _moving) return;
+    _timer?.cancel();
+    _timer = _offline ? Timer(nodeFailoverRetry, _fire) : null;
+  }
+
+  /// The app left the screen: nothing is asked until it is back.
+  void paused() {
+    _onScreen = false;
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  /// Back on screen: a node still not answering is tried again after the first wait.
+  void resumed() {
+    _onScreen = true;
+    _failed = 0;
+    if (!ref.mounted || _moving) return;
+    if (_offline) _timer ??= Timer(nodeFailoverRetry, _fire);
   }
 
   /// One try: true when it should be tried again while the node stays offline.
@@ -125,6 +162,8 @@ class NodeFailoverWatch extends Notifier<void> {
       busy: ref.read(autoLockHoldProvider) > 0,
     );
     if (hold != null) {
+      // Nothing is asked while held: the next try comes at the first wait.
+      _failed = 0;
       if (hold != FailoverHold.off) logInfo('network', 'node failover held: ${hold.name}');
       return hold == FailoverHold.busy || hold == FailoverHold.waitingForTor;
     }
@@ -166,6 +205,7 @@ class NodeFailoverWatch extends Notifier<void> {
         return false;
       }
       logInfo('network', 'node failover: no other node answers; staying');
+      _failed++;
       return true;
     } finally {
       _moving = false;

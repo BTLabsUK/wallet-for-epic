@@ -105,6 +105,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       onResume: () {
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
+        // A node failover that waits longer each time tries again soon.
+        ref.read(deskFailoverWatchProvider.notifier).resumed();
       },
     );
   }
