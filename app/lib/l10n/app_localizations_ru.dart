@@ -5524,7 +5524,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodReceiveEpicboxShort =>
-      'Отправители могут платить, пока кошелёк закрыт.';
+      'Поделитесь адресом, чтобы получить оплату.';
 
   @override
   String get methodReceiveDirectTitle => 'Прямо в этот кошелёк.';
@@ -6493,8 +6493,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskRecvCopyEpicbox => 'Копировать адрес Epicbox';
 
   @override
-  String get deskRecvEpicboxIntro =>
-      'Поделитесь им, чтобы получить оплату. Отправители могут платить, пока кошелёк закрыт.';
+  String get deskRecvEpicboxIntro => 'Поделитесь им, чтобы получить оплату.';
 
   @override
   String get deskRecvCheckSix =>
@@ -12393,7 +12392,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Что значит запускать узел здесь и какой узел использовать.';
 
   @override
-  String get deskSetupEpicboxTitle => 'Приём, пока кошелёк закрыт';
+  String get deskSetupEpicboxTitle => 'Epicbox';
 
   @override
   String get deskSetupReviewTitle => 'Проверка настроек';
@@ -18968,4 +18967,273 @@ class AppLocalizationsRu extends AppLocalizations {
   String lvPolAbout(String name) {
     return 'О $name';
   }
+
+  @override
+  String get deskLvStartPreviewLabel =>
+      'Превью обзора. Чем глубже уровень, тем больше на нём видно.';
+
+  @override
+  String get deskLvStartPreviewCaption =>
+      'Ваш обзор на этой глубине. Сохранённые данные не меняются.';
+
+  @override
+  String get deskLvStartPreviewCaptionShort => 'Ваш обзор на этой глубине.';
+
+  @override
+  String get deskLvStartCover => 'Выберите положение, чтобы увидеть превью';
+
+  @override
+  String get deskLvStartUndercoverAbout => 'Об Инкогнито';
+
+  @override
+  String get deskLvStartChangeLater =>
+      'Изменить можно в любой момент: Настройки › Дополнительно.';
+
+  @override
+  String get deskLvStartHelpShallow =>
+      'Мелко · один адрес, без имён серверов, без переключателей.';
+
+  @override
+  String get deskLvStartHelpDeeper =>
+      'Глубже · тот же кошелёк, плюс что он делает, простыми словами.';
+
+  @override
+  String get deskLvStartHelpDeep =>
+      'В самую глубь · каждый переключатель, каждая цифра: приложение как сейчас.';
+
+  @override
+  String get deskLvStartPickFirst =>
+      'Сначала выберите глубину. Пока не выберете, ничего не подключается.';
+
+  @override
+  String get deskLvStartMiniWallet => 'Основной кошелёк';
+
+  @override
+  String get deskLvStartMiniLine => '+12,5000 поступает · 25,0000 удерживается';
+
+  @override
+  String get deskLvStartMiniFresh => 'Свежие с майнинга';
+
+  @override
+  String get deskLvStartMiniWaiting => 'Ожидание другой стороны';
+
+  @override
+  String get deskLvStartAdvNote =>
+      'Чем глубже уровень, тем больше видно в кошельке. Сохранённые данные не меняются.';
+
+  @override
+  String deskLvStartAboutDepth(String name) {
+    return 'Глубина: $name';
+  }
+
+  @override
+  String get deskLvSendHowTo => 'Как отправить';
+
+  @override
+  String get deskLvSendButton => 'Отправить';
+
+  @override
+  String deskLvSendButtonAmount(String amount) {
+    return 'Отправить $amount EPIC';
+  }
+
+  @override
+  String deskLvSendButtonTo(String amount, String name) {
+    return 'Отправить $amount EPIC — $name';
+  }
+
+  @override
+  String get deskLvSendNothingLeaves =>
+      'Ничего не уходит, пока вы не нажмёте «Отправить». После этого вернуть нельзя.';
+
+  @override
+  String get deskLvSendPasswordTitle => 'Ваш пароль';
+
+  @override
+  String get deskLvSendConfirm => 'Отправить';
+
+  @override
+  String deskLvSendLiveTo(String name) {
+    return 'Идёт к $name';
+  }
+
+  @override
+  String deskLvSendLiveAmountTo(String amount, String name) {
+    return '$amount EPIC — $name';
+  }
+
+  @override
+  String deskLvSendLiveAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskLvSendYourAddress => 'Ваш адрес';
+
+  @override
+  String get deskLvSendReady => 'Готов к приёму';
+
+  @override
+  String get deskLvSendClosedInfo =>
+      'Платежи, отправленные при закрытом кошельке, придут, когда он откроется.';
+
+  @override
+  String get deskLvSendPayFiles => 'Файлы платежей';
+
+  @override
+  String get deskLvSendSignFile => 'Подписать файл платежа';
+
+  @override
+  String get deskLvSendSignFileText =>
+      'Откройте файл от отправителя и сохраните свой ответ.';
+
+  @override
+  String get deskLvSendFinishFile => 'Завершить файл ответа';
+
+  @override
+  String get deskLvSendFinishFileText =>
+      'Откройте полученный ответ, чтобы опубликовать платёж.';
+
+  @override
+  String get deskLvSendPrevAddress => 'Прежний адрес';
+
+  @override
+  String deskLvSendPrevText(String server) {
+    return 'Старый адрес был на $server. Всем, у кого он есть, нужен новый.';
+  }
+
+  @override
+  String get deskLvPayS1Sent =>
+      'Слейт S1 отправлен через Epicbox · ожидается S2';
+
+  @override
+  String deskLvPayS1On(String relay) {
+    return 'S1 на $relay · ожидается S2';
+  }
+
+  @override
+  String deskLvPayNotOpen(String name) {
+    return 'Кошелёк $name ещё не открыт';
+  }
+
+  @override
+  String deskLvPayWaitingOpen(String name) {
+    return 'Ожидание, пока откроется кошелёк $name';
+  }
+
+  @override
+  String get deskLvPaySenderFinished => 'Отправитель закончил';
+
+  @override
+  String get deskLvPayPostedNode => 'Отправлено в узел';
+
+  @override
+  String deskLvPayConfirmingComma(int count, int target) {
+    return 'Подтверждение, $count из $target';
+  }
+
+  @override
+  String deskLvPayConfirmationsOf(int count, int target) {
+    return 'Подтверждения $count / $target';
+  }
+
+  @override
+  String get deskLvPayDone => 'Готово';
+
+  @override
+  String deskLvPayOnItsWayTo(String name) {
+    return 'Идёт к $name';
+  }
+
+  @override
+  String deskLvPaySendingTo(String name) {
+    return 'Отправка: $name';
+  }
+
+  @override
+  String deskLvPayArrivingFrom(String name) {
+    return 'Поступает от $name';
+  }
+
+  @override
+  String deskLvPayStartedAt(String amount, String time) {
+    return '$amount EPIC · начато $time';
+  }
+
+  @override
+  String deskLvPayHeroArriving(String amount, String name) {
+    return '+$amount поступает от $name';
+  }
+
+  @override
+  String deskLvPayHeroArrivingMany(String amount) {
+    return '+$amount поступает';
+  }
+
+  @override
+  String deskLvPayHeroHold(String amount, String name) {
+    return '$amount удерживается, пока $name не подпишет';
+  }
+
+  @override
+  String deskLvPayHeroHoldMany(String amount) {
+    return '$amount удерживается до подписи';
+  }
+
+  @override
+  String get deskLvPayHeroNothing => 'Пока ничего не поступает.';
+
+  @override
+  String get deskLvPayReadyTitle => 'Кошелёк готов.';
+
+  @override
+  String get deskLvPayReadyText =>
+      'Поделитесь адресом, чтобы получить первые EPIC.';
+
+  @override
+  String get deskLvPayTileConfirming => 'Ещё подтверждается';
+
+  @override
+  String get deskLvPayTileMining => 'Свежие с майнинга';
+
+  @override
+  String get deskLvPayTileWaiting => 'Ожидание другой стороны';
+
+  @override
+  String get deskLvPayTileLocked => 'Отложено для отправок';
+
+  @override
+  String get deskLvPayImmatureCasual => 'Свежие с майнинга, пока недоступны';
+
+  @override
+  String get deskLvPayKind => 'Платёж';
+
+  @override
+  String get deskLvShellNewsTitle => 'Новое: глубина кошелька';
+
+  @override
+  String get deskLvShellNewsText =>
+      'Эта установка показывает всё, как и раньше. «Мелко» и «Глубже» показывают меньше.';
+
+  @override
+  String get deskLvShellNewsLook => 'Посмотреть';
+
+  @override
+  String get deskLvShellFailover => 'Переключение узла';
+
+  @override
+  String get deskLvShellFailoverAuto => 'Вкл. · автоматически';
+
+  @override
+  String get deskLvShellOn => 'Вкл.';
+
+  @override
+  String get deskLvShellHeight => 'Высота';
+
+  @override
+  String get deskLvShellVersion => 'Версия';
+
+  @override
+  String get deskLvShellRecheckHint =>
+      'Если сумма выглядит неверно, кошелёк заново читает цепочку.';
 }

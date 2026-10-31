@@ -5390,8 +5390,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get methodReceiveEpicboxShort =>
-      'Senders can pay while this wallet is closed.';
+  String get methodReceiveEpicboxShort => 'Share the address to get paid.';
 
   @override
   String get methodReceiveDirectTitle => 'Straight to this wallet.';
@@ -6343,8 +6342,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskRecvCopyEpicbox => 'Copy Epicbox address';
 
   @override
-  String get deskRecvEpicboxIntro =>
-      'Share it to get paid. Senders can pay while this wallet is closed.';
+  String get deskRecvEpicboxIntro => 'Share it to get paid.';
 
   @override
   String get deskRecvCheckSix =>
@@ -11952,7 +11950,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'What running the node here means, and which node to use.';
 
   @override
-  String get deskSetupEpicboxTitle => 'Receive while closed';
+  String get deskSetupEpicboxTitle => 'Epicbox';
 
   @override
   String get deskSetupReviewTitle => 'Review settings';
@@ -18346,4 +18344,271 @@ class AppLocalizationsEn extends AppLocalizations {
   String lvPolAbout(String name) {
     return 'About $name';
   }
+
+  @override
+  String get deskLvStartPreviewLabel =>
+      'Preview of the Overview. It shows more as the dial goes deeper.';
+
+  @override
+  String get deskLvStartPreviewCaption =>
+      'Your Overview at this depth. Nothing stored changes between depths.';
+
+  @override
+  String get deskLvStartPreviewCaptionShort => 'Your Overview at this depth.';
+
+  @override
+  String get deskLvStartCover => 'Pick a stop to see the preview';
+
+  @override
+  String get deskLvStartUndercoverAbout => 'About Undercover';
+
+  @override
+  String get deskLvStartChangeLater =>
+      'Change it any time in Settings › Advanced.';
+
+  @override
+  String get deskLvStartHelpShallow =>
+      'Shallow · one address, no server names, no switches.';
+
+  @override
+  String get deskLvStartHelpDeeper =>
+      'Deeper · the same wallet, plus what it is doing, in plain words.';
+
+  @override
+  String get deskLvStartHelpDeep =>
+      'Deep end · every switch, every number: today’s app.';
+
+  @override
+  String get deskLvStartPickFirst =>
+      'Pick a depth first. Nothing connects until you do.';
+
+  @override
+  String get deskLvStartMiniWallet => 'Main wallet';
+
+  @override
+  String get deskLvStartMiniLine => '+12.5000 arriving · 25.0000 on hold';
+
+  @override
+  String get deskLvStartMiniFresh => 'Fresh from mining';
+
+  @override
+  String get deskLvStartMiniWaiting => 'Waiting for the other side';
+
+  @override
+  String get deskLvStartAdvNote =>
+      'More levels show more of the wallet. Nothing stored changes.';
+
+  @override
+  String deskLvStartAboutDepth(String name) {
+    return 'Depth: $name';
+  }
+
+  @override
+  String get deskLvSendHowTo => 'How to send it';
+
+  @override
+  String get deskLvSendButton => 'Send';
+
+  @override
+  String deskLvSendButtonAmount(String amount) {
+    return 'Send $amount EPIC';
+  }
+
+  @override
+  String deskLvSendButtonTo(String amount, String name) {
+    return 'Send $amount EPIC to $name';
+  }
+
+  @override
+  String get deskLvSendNothingLeaves =>
+      'Nothing leaves until you press Send. After that it cannot be taken back.';
+
+  @override
+  String get deskLvSendPasswordTitle => 'Your password';
+
+  @override
+  String get deskLvSendConfirm => 'Send';
+
+  @override
+  String deskLvSendLiveTo(String name) {
+    return 'On its way to $name';
+  }
+
+  @override
+  String deskLvSendLiveAmountTo(String amount, String name) {
+    return '$amount EPIC to $name';
+  }
+
+  @override
+  String deskLvSendLiveAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskLvSendYourAddress => 'Your address';
+
+  @override
+  String get deskLvSendReady => 'Ready to receive';
+
+  @override
+  String get deskLvSendClosedInfo =>
+      'Payments sent while the wallet is closed arrive when it opens.';
+
+  @override
+  String get deskLvSendPayFiles => 'Payment files';
+
+  @override
+  String get deskLvSendSignFile => 'Sign a payment file';
+
+  @override
+  String get deskLvSendSignFileText =>
+      'Open the file the sender gave you and save your reply.';
+
+  @override
+  String get deskLvSendFinishFile => 'Finish a reply file';
+
+  @override
+  String get deskLvSendFinishFileText =>
+      'Open the reply you got back to post the payment.';
+
+  @override
+  String get deskLvSendPrevAddress => 'Previous address';
+
+  @override
+  String deskLvSendPrevText(String server) {
+    return 'The old address was on $server. Anyone who has it needs the new one.';
+  }
+
+  @override
+  String get deskLvPayS1Sent => 'Slate S1 sent over Epicbox · waiting for S2';
+
+  @override
+  String deskLvPayS1On(String relay) {
+    return 'S1 on $relay · awaiting S2';
+  }
+
+  @override
+  String deskLvPayNotOpen(String name) {
+    return '$name’s wallet is not open yet';
+  }
+
+  @override
+  String deskLvPayWaitingOpen(String name) {
+    return 'Waiting for $name’s wallet to open';
+  }
+
+  @override
+  String get deskLvPaySenderFinished => 'Sender finished';
+
+  @override
+  String get deskLvPayPostedNode => 'Posted to node';
+
+  @override
+  String deskLvPayConfirmingComma(int count, int target) {
+    return 'Confirming, $count of $target';
+  }
+
+  @override
+  String deskLvPayConfirmationsOf(int count, int target) {
+    return 'Confirmations $count / $target';
+  }
+
+  @override
+  String get deskLvPayDone => 'Done';
+
+  @override
+  String deskLvPayOnItsWayTo(String name) {
+    return 'On its way to $name';
+  }
+
+  @override
+  String deskLvPaySendingTo(String name) {
+    return 'Sending to $name';
+  }
+
+  @override
+  String deskLvPayArrivingFrom(String name) {
+    return 'Arriving from $name';
+  }
+
+  @override
+  String deskLvPayStartedAt(String amount, String time) {
+    return '$amount EPIC · started $time';
+  }
+
+  @override
+  String deskLvPayHeroArriving(String amount, String name) {
+    return '+$amount arriving from $name';
+  }
+
+  @override
+  String deskLvPayHeroArrivingMany(String amount) {
+    return '+$amount arriving';
+  }
+
+  @override
+  String deskLvPayHeroHold(String amount, String name) {
+    return '$amount on hold until $name signs';
+  }
+
+  @override
+  String deskLvPayHeroHoldMany(String amount) {
+    return '$amount on hold until signed';
+  }
+
+  @override
+  String get deskLvPayHeroNothing => 'Nothing arriving yet.';
+
+  @override
+  String get deskLvPayReadyTitle => 'Your wallet is ready.';
+
+  @override
+  String get deskLvPayReadyText => 'Share the address to get the first EPIC.';
+
+  @override
+  String get deskLvPayTileConfirming => 'Still confirming';
+
+  @override
+  String get deskLvPayTileMining => 'Fresh from mining';
+
+  @override
+  String get deskLvPayTileWaiting => 'Waiting for the other side';
+
+  @override
+  String get deskLvPayTileLocked => 'Set aside for sends';
+
+  @override
+  String get deskLvPayImmatureCasual => 'Fresh from mining, not spendable yet';
+
+  @override
+  String get deskLvPayKind => 'Payment';
+
+  @override
+  String get deskLvShellNewsTitle => 'New: wallet depth';
+
+  @override
+  String get deskLvShellNewsText =>
+      'This install shows everything, as before. Shallow and Deeper show less.';
+
+  @override
+  String get deskLvShellNewsLook => 'Have a look';
+
+  @override
+  String get deskLvShellFailover => 'Failover';
+
+  @override
+  String get deskLvShellFailoverAuto => 'On · automatic';
+
+  @override
+  String get deskLvShellOn => 'On';
+
+  @override
+  String get deskLvShellHeight => 'Height';
+
+  @override
+  String get deskLvShellVersion => 'Version';
+
+  @override
+  String get deskLvShellRecheckHint =>
+      'If an amount looks wrong, the wallet reads the chain again.';
 }

@@ -5546,7 +5546,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get methodReceiveEpicboxShort =>
-      'Nadawcy mogą płacić, gdy ten portfel jest zamknięty.';
+      'Udostępnij adres, aby dostać płatność.';
 
   @override
   String get methodReceiveDirectTitle => 'Prosto do tego portfela.';
@@ -6521,8 +6521,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskRecvCopyEpicbox => 'Kopiuj adres Epicbox';
 
   @override
-  String get deskRecvEpicboxIntro =>
-      'Udostępnij go, aby dostać płatność. Nadawcy mogą płacić, gdy ten portfel jest zamknięty.';
+  String get deskRecvEpicboxIntro => 'Udostępnij go, aby dostać płatność.';
 
   @override
   String get deskRecvCheckSix =>
@@ -12424,7 +12423,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Co oznacza węzeł na tym komputerze i którego węzła użyć.';
 
   @override
-  String get deskSetupEpicboxTitle => 'Odbieranie przy zamkniętym portfelu';
+  String get deskSetupEpicboxTitle => 'Epicbox';
 
   @override
   String get deskSetupReviewTitle => 'Przegląd ustawień';
@@ -18989,4 +18988,273 @@ class AppLocalizationsPl extends AppLocalizations {
   String lvPolAbout(String name) {
     return 'O $name';
   }
+
+  @override
+  String get deskLvStartPreviewLabel =>
+      'Podgląd Przeglądu. Pokazuje więcej, im głębiej ustawisz pokrętło.';
+
+  @override
+  String get deskLvStartPreviewCaption =>
+      'Twój Przegląd na tej głębokości. Nic zapisanego się nie zmienia.';
+
+  @override
+  String get deskLvStartPreviewCaptionShort =>
+      'Twój Przegląd na tej głębokości.';
+
+  @override
+  String get deskLvStartCover => 'Wybierz punkt, aby zobaczyć podgląd';
+
+  @override
+  String get deskLvStartUndercoverAbout => 'O Incognito';
+
+  @override
+  String get deskLvStartChangeLater =>
+      'Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.';
+
+  @override
+  String get deskLvStartHelpShallow =>
+      'Płytko · jeden adres, bez nazw serwerów, bez przełączników.';
+
+  @override
+  String get deskLvStartHelpDeeper =>
+      'Głębiej · ten sam portfel, plus to, co robi, prostymi słowami.';
+
+  @override
+  String get deskLvStartHelpDeep =>
+      'Na głęboką wodę · każdy przełącznik, każda liczba: dzisiejsza aplikacja.';
+
+  @override
+  String get deskLvStartPickFirst =>
+      'Najpierw wybierz głębokość. Nic się nie połączy, dopóki tego nie zrobisz.';
+
+  @override
+  String get deskLvStartMiniWallet => 'Główny portfel';
+
+  @override
+  String get deskLvStartMiniLine => '+12,5000 nadchodzi · 25,0000 wstrzymane';
+
+  @override
+  String get deskLvStartMiniFresh => 'Świeże z kopania';
+
+  @override
+  String get deskLvStartMiniWaiting => 'Czeka na drugą stronę';
+
+  @override
+  String get deskLvStartAdvNote =>
+      'Więcej poziomów pokazuje więcej portfela. Nic zapisanego się nie zmienia.';
+
+  @override
+  String deskLvStartAboutDepth(String name) {
+    return 'Głębokość: $name';
+  }
+
+  @override
+  String get deskLvSendHowTo => 'Jak to wysłać';
+
+  @override
+  String get deskLvSendButton => 'Wyślij';
+
+  @override
+  String deskLvSendButtonAmount(String amount) {
+    return 'Wyślij $amount EPIC';
+  }
+
+  @override
+  String deskLvSendButtonTo(String amount, String name) {
+    return 'Wyślij $amount EPIC do $name';
+  }
+
+  @override
+  String get deskLvSendNothingLeaves =>
+      'Nic nie wychodzi, dopóki nie naciśniesz Wyślij. Potem nie da się tego cofnąć.';
+
+  @override
+  String get deskLvSendPasswordTitle => 'Twoje hasło';
+
+  @override
+  String get deskLvSendConfirm => 'Wyślij';
+
+  @override
+  String deskLvSendLiveTo(String name) {
+    return 'W drodze do $name';
+  }
+
+  @override
+  String deskLvSendLiveAmountTo(String amount, String name) {
+    return '$amount EPIC do $name';
+  }
+
+  @override
+  String deskLvSendLiveAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskLvSendYourAddress => 'Twój adres';
+
+  @override
+  String get deskLvSendReady => 'Gotowe do odbioru';
+
+  @override
+  String get deskLvSendClosedInfo =>
+      'Płatności wysłane, gdy portfel był zamknięty, dotrą po jego otwarciu.';
+
+  @override
+  String get deskLvSendPayFiles => 'Pliki płatności';
+
+  @override
+  String get deskLvSendSignFile => 'Podpisz plik płatności';
+
+  @override
+  String get deskLvSendSignFileText =>
+      'Otwórz plik od nadawcy i zapisz swoją odpowiedź.';
+
+  @override
+  String get deskLvSendFinishFile => 'Dokończ plik odpowiedzi';
+
+  @override
+  String get deskLvSendFinishFileText =>
+      'Otwórz otrzymaną odpowiedź, aby opublikować płatność.';
+
+  @override
+  String get deskLvSendPrevAddress => 'Poprzedni adres';
+
+  @override
+  String deskLvSendPrevText(String server) {
+    return 'Stary adres był na $server. Każdy, kto go ma, potrzebuje nowego.';
+  }
+
+  @override
+  String get deskLvPayS1Sent => 'Slate S1 wysłany przez Epicbox · czeka na S2';
+
+  @override
+  String deskLvPayS1On(String relay) {
+    return 'S1 na $relay · czeka na S2';
+  }
+
+  @override
+  String deskLvPayNotOpen(String name) {
+    return 'Portfel $name nie jest jeszcze otwarty';
+  }
+
+  @override
+  String deskLvPayWaitingOpen(String name) {
+    return 'Czekanie na otwarcie portfela $name';
+  }
+
+  @override
+  String get deskLvPaySenderFinished => 'Nadawca skończył';
+
+  @override
+  String get deskLvPayPostedNode => 'Opublikowano w węźle';
+
+  @override
+  String deskLvPayConfirmingComma(int count, int target) {
+    return 'Potwierdzanie, $count z $target';
+  }
+
+  @override
+  String deskLvPayConfirmationsOf(int count, int target) {
+    return 'Potwierdzenia $count / $target';
+  }
+
+  @override
+  String get deskLvPayDone => 'Gotowe';
+
+  @override
+  String deskLvPayOnItsWayTo(String name) {
+    return 'W drodze do $name';
+  }
+
+  @override
+  String deskLvPaySendingTo(String name) {
+    return 'Wysyłanie do $name';
+  }
+
+  @override
+  String deskLvPayArrivingFrom(String name) {
+    return 'Nadchodzi od $name';
+  }
+
+  @override
+  String deskLvPayStartedAt(String amount, String time) {
+    return '$amount EPIC · rozpoczęto $time';
+  }
+
+  @override
+  String deskLvPayHeroArriving(String amount, String name) {
+    return '+$amount nadchodzi od $name';
+  }
+
+  @override
+  String deskLvPayHeroArrivingMany(String amount) {
+    return '+$amount nadchodzi';
+  }
+
+  @override
+  String deskLvPayHeroHold(String amount, String name) {
+    return '$amount wstrzymane, dopóki $name nie podpisze';
+  }
+
+  @override
+  String deskLvPayHeroHoldMany(String amount) {
+    return '$amount wstrzymane do podpisania';
+  }
+
+  @override
+  String get deskLvPayHeroNothing => 'Nic jeszcze nie nadchodzi.';
+
+  @override
+  String get deskLvPayReadyTitle => 'Twój portfel jest gotowy.';
+
+  @override
+  String get deskLvPayReadyText =>
+      'Udostępnij adres, aby dostać pierwsze EPIC.';
+
+  @override
+  String get deskLvPayTileConfirming => 'Wciąż potwierdzane';
+
+  @override
+  String get deskLvPayTileMining => 'Świeże z kopania';
+
+  @override
+  String get deskLvPayTileWaiting => 'Czeka na drugą stronę';
+
+  @override
+  String get deskLvPayTileLocked => 'Odłożone na wysyłki';
+
+  @override
+  String get deskLvPayImmatureCasual => 'Świeże z kopania, jeszcze niedostępne';
+
+  @override
+  String get deskLvPayKind => 'Płatność';
+
+  @override
+  String get deskLvShellNewsTitle => 'Nowość: głębokość portfela';
+
+  @override
+  String get deskLvShellNewsText =>
+      'Ta instalacja pokazuje wszystko, jak dotąd. Płytko i Głębiej pokazują mniej.';
+
+  @override
+  String get deskLvShellNewsLook => 'Zobacz';
+
+  @override
+  String get deskLvShellFailover => 'Przełączanie węzła';
+
+  @override
+  String get deskLvShellFailoverAuto => 'Włączone · automatycznie';
+
+  @override
+  String get deskLvShellOn => 'Włączone';
+
+  @override
+  String get deskLvShellHeight => 'Wysokość';
+
+  @override
+  String get deskLvShellVersion => 'Wersja';
+
+  @override
+  String get deskLvShellRecheckHint =>
+      'Jeśli kwota wygląda źle, portfel czyta łańcuch ponownie.';
 }

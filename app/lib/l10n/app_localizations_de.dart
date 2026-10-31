@@ -5462,7 +5462,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get methodReceiveEpicboxShort =>
-      'Absender können zahlen, während diese Wallet geschlossen ist.';
+      'Adresse teilen, um bezahlt zu werden.';
 
   @override
   String get methodReceiveDirectTitle => 'Direkt an diese Wallet.';
@@ -6427,8 +6427,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskRecvCopyEpicbox => 'Epicbox-Adresse kopieren';
 
   @override
-  String get deskRecvEpicboxIntro =>
-      'Teilen, um bezahlt zu werden. Absender können zahlen, während diese Wallet geschlossen ist.';
+  String get deskRecvEpicboxIntro => 'Teilen, um bezahlt zu werden.';
 
   @override
   String get deskRecvCheckSix =>
@@ -12087,7 +12086,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Was es bedeutet, den Node hier zu betreiben, und welcher Node genutzt wird.';
 
   @override
-  String get deskSetupEpicboxTitle => 'Auch bei geschlossener Wallet empfangen';
+  String get deskSetupEpicboxTitle => 'Epicbox';
 
   @override
   String get deskSetupReviewTitle => 'Einstellungen prüfen';
@@ -18560,4 +18559,275 @@ class AppLocalizationsDe extends AppLocalizations {
   String lvPolAbout(String name) {
     return 'Über $name';
   }
+
+  @override
+  String get deskLvStartPreviewLabel =>
+      'Vorschau der Übersicht. Sie zeigt mehr, je tiefer der Regler steht.';
+
+  @override
+  String get deskLvStartPreviewCaption =>
+      'Ihre Übersicht in dieser Tiefe. Gespeichert wird nichts anders.';
+
+  @override
+  String get deskLvStartPreviewCaptionShort =>
+      'Ihre Übersicht in dieser Tiefe.';
+
+  @override
+  String get deskLvStartCover => 'Stufe wählen, um die Vorschau zu sehen';
+
+  @override
+  String get deskLvStartUndercoverAbout => 'Über Inkognito';
+
+  @override
+  String get deskLvStartChangeLater =>
+      'Jederzeit änderbar unter Einstellungen › Erweitert.';
+
+  @override
+  String get deskLvStartHelpShallow =>
+      'Flach · eine Adresse, keine Servernamen, keine Schalter.';
+
+  @override
+  String get deskLvStartHelpDeeper =>
+      'Tiefer · dieselbe Wallet, dazu, was sie gerade tut, in einfachen Worten.';
+
+  @override
+  String get deskLvStartHelpDeep =>
+      'Ganz tief · jeder Schalter, jede Zahl: die App von heute.';
+
+  @override
+  String get deskLvStartPickFirst =>
+      'Zuerst eine Tiefe wählen. Bis dahin verbindet sich nichts.';
+
+  @override
+  String get deskLvStartMiniWallet => 'Hauptwallet';
+
+  @override
+  String get deskLvStartMiniLine => '+12,5000 kommen an · 25,0000 gehalten';
+
+  @override
+  String get deskLvStartMiniFresh => 'Frisch vom Mining';
+
+  @override
+  String get deskLvStartMiniWaiting => 'Wartet auf die Gegenseite';
+
+  @override
+  String get deskLvStartAdvNote =>
+      'Mehr Stufen zeigen mehr von der Wallet. Gespeichert wird nichts anders.';
+
+  @override
+  String deskLvStartAboutDepth(String name) {
+    return 'Tiefe: $name';
+  }
+
+  @override
+  String get deskLvSendHowTo => 'So senden';
+
+  @override
+  String get deskLvSendButton => 'Senden';
+
+  @override
+  String deskLvSendButtonAmount(String amount) {
+    return '$amount EPIC senden';
+  }
+
+  @override
+  String deskLvSendButtonTo(String amount, String name) {
+    return '$amount EPIC an $name senden';
+  }
+
+  @override
+  String get deskLvSendNothingLeaves =>
+      'Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen.';
+
+  @override
+  String get deskLvSendPasswordTitle => 'Ihr Passwort';
+
+  @override
+  String get deskLvSendConfirm => 'Senden';
+
+  @override
+  String deskLvSendLiveTo(String name) {
+    return 'Unterwegs zu $name';
+  }
+
+  @override
+  String deskLvSendLiveAmountTo(String amount, String name) {
+    return '$amount EPIC an $name';
+  }
+
+  @override
+  String deskLvSendLiveAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskLvSendYourAddress => 'Ihre Adresse';
+
+  @override
+  String get deskLvSendReady => 'Bereit zum Empfangen';
+
+  @override
+  String get deskLvSendClosedInfo =>
+      'Zahlungen, die gesendet wurden, während die Wallet geschlossen war, kommen an, sobald sie sich öffnet.';
+
+  @override
+  String get deskLvSendPayFiles => 'Zahlungsdateien';
+
+  @override
+  String get deskLvSendSignFile => 'Zahlungsdatei signieren';
+
+  @override
+  String get deskLvSendSignFileText =>
+      'Öffnen Sie die Datei des Absenders und speichern Sie Ihre Antwort.';
+
+  @override
+  String get deskLvSendFinishFile => 'Antwortdatei abschließen';
+
+  @override
+  String get deskLvSendFinishFileText =>
+      'Öffnen Sie die erhaltene Antwort, um die Zahlung zu senden.';
+
+  @override
+  String get deskLvSendPrevAddress => 'Frühere Adresse';
+
+  @override
+  String deskLvSendPrevText(String server) {
+    return 'Die alte Adresse lag auf $server. Wer sie hat, braucht die neue.';
+  }
+
+  @override
+  String get deskLvPayS1Sent =>
+      'Slate S1 über Epicbox gesendet · wartet auf S2';
+
+  @override
+  String deskLvPayS1On(String relay) {
+    return 'S1 auf $relay · wartet auf S2';
+  }
+
+  @override
+  String deskLvPayNotOpen(String name) {
+    return 'Die Wallet von $name ist noch nicht geöffnet';
+  }
+
+  @override
+  String deskLvPayWaitingOpen(String name) {
+    return 'Warten, bis die Wallet von $name sich öffnet';
+  }
+
+  @override
+  String get deskLvPaySenderFinished => 'Absender fertig';
+
+  @override
+  String get deskLvPayPostedNode => 'An Node gesendet';
+
+  @override
+  String deskLvPayConfirmingComma(int count, int target) {
+    return 'Wird bestätigt, $count von $target';
+  }
+
+  @override
+  String deskLvPayConfirmationsOf(int count, int target) {
+    return 'Bestätigungen $count / $target';
+  }
+
+  @override
+  String get deskLvPayDone => 'Fertig';
+
+  @override
+  String deskLvPayOnItsWayTo(String name) {
+    return 'Unterwegs zu $name';
+  }
+
+  @override
+  String deskLvPaySendingTo(String name) {
+    return 'Senden an $name';
+  }
+
+  @override
+  String deskLvPayArrivingFrom(String name) {
+    return 'Kommt von $name';
+  }
+
+  @override
+  String deskLvPayStartedAt(String amount, String time) {
+    return '$amount EPIC · gestartet $time';
+  }
+
+  @override
+  String deskLvPayHeroArriving(String amount, String name) {
+    return '+$amount kommen von $name';
+  }
+
+  @override
+  String deskLvPayHeroArrivingMany(String amount) {
+    return '+$amount kommen an';
+  }
+
+  @override
+  String deskLvPayHeroHold(String amount, String name) {
+    return '$amount gehalten, bis $name signiert';
+  }
+
+  @override
+  String deskLvPayHeroHoldMany(String amount) {
+    return '$amount gehalten, bis signiert wird';
+  }
+
+  @override
+  String get deskLvPayHeroNothing => 'Noch nichts unterwegs.';
+
+  @override
+  String get deskLvPayReadyTitle => 'Ihre Wallet ist bereit.';
+
+  @override
+  String get deskLvPayReadyText =>
+      'Adresse teilen, um die ersten EPIC zu erhalten.';
+
+  @override
+  String get deskLvPayTileConfirming => 'Wird noch bestätigt';
+
+  @override
+  String get deskLvPayTileMining => 'Frisch vom Mining';
+
+  @override
+  String get deskLvPayTileWaiting => 'Wartet auf die Gegenseite';
+
+  @override
+  String get deskLvPayTileLocked => 'Für Sendungen reserviert';
+
+  @override
+  String get deskLvPayImmatureCasual =>
+      'Frisch vom Mining, noch nicht verfügbar';
+
+  @override
+  String get deskLvPayKind => 'Zahlung';
+
+  @override
+  String get deskLvShellNewsTitle => 'Neu: Wallet-Tiefe';
+
+  @override
+  String get deskLvShellNewsText =>
+      'Diese Installation zeigt wie bisher alles. Flach und Tiefer zeigen weniger.';
+
+  @override
+  String get deskLvShellNewsLook => 'Ansehen';
+
+  @override
+  String get deskLvShellFailover => 'Node-Wechsel';
+
+  @override
+  String get deskLvShellFailoverAuto => 'Ein · automatisch';
+
+  @override
+  String get deskLvShellOn => 'Ein';
+
+  @override
+  String get deskLvShellHeight => 'Höhe';
+
+  @override
+  String get deskLvShellVersion => 'Version';
+
+  @override
+  String get deskLvShellRecheckHint =>
+      'Wirkt der Betrag falsch, liest die Wallet die Chain erneut.';
 }
