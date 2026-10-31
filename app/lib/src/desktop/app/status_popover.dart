@@ -242,7 +242,7 @@ class DeskStatusPopover extends ConsumerWidget {
   }
 }
 
-/// `node.example:3413` of a node URL.
+/// `host:port` of a node URL.
 String _hostPort(String url) {
   final u = Uri.tryParse(url.contains('://') ? url : 'http://$url');
   if (u == null || u.host.isEmpty) return url;
