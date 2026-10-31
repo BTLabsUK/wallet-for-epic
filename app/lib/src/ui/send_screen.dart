@@ -52,6 +52,9 @@ import 'help_screen.dart';
 import 'tip.dart';
 import 'info_hint.dart';
 import 'method_names.dart';
+import '../levels/level_features.dart' show TimelineStyle;
+import '../levels/level_providers.dart' show levelFeaturesProvider;
+import 'levels/payment_steps.dart';
 import 'method_strip.dart';
 import 'pairing/pair_check.dart' show CheckWordsScreen;
 import 'pairing/pairing_parts.dart';
@@ -128,6 +131,9 @@ const Key sendQueuedHeadlineKey = ValueKey('send-queued-headline');
 /// Send's method selector, and the tag beside the To label after the method followed the
 /// address, for tests.
 const Key sendMethodsKey = ValueKey('send-methods');
+
+/// Level 1's quiet link between QR Payment and sending to an address.
+const Key sendQuietQrKey = ValueKey('send-quiet-qr');
 
 /// The off-note's Turn on button, under a Link method switched off.
 const Key sendTurnOnMethodKey = ValueKey('send-turn-on-method');
@@ -2477,6 +2483,28 @@ class _SendViewState extends ConsumerState<SendView> {
     );
   }
 
+  /// Level 1's replacement for the method selector: a text link to QR Payment (when it is
+  /// offered) and, inside it, back to sending to an address. Null when there is nothing to offer.
+  Widget? _quietLink(BuildContext context, TransferMethod method) {
+    final l = context.l10n;
+    final qrOffered = ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directQr);
+    final (label, to) = switch (method) {
+      TransferMethod.epicbox when qrOffered && offersQrPayment(ref) => (l.lvPaySendQrLink, TransferMethod.qr),
+      TransferMethod.qr => (l.lvPaySendAddressLink, TransferMethod.epicbox),
+      _ => (null, null),
+    };
+    if (label == null || to == null) return null;
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: TextButton(
+        key: sendQuietQrKey,
+        style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
+        onPressed: _busy || _estimating ? null : () => _chooseMethod(to),
+        child: Text(label),
+      ),
+    );
+  }
+
   /// The selector and, 12 dp under it, the strip that says what [method] means.
   List<Widget> _methodHead(BuildContext context, TransferMethod method) {
     // Epicbox chosen while its listener is down: say so and offer Retry (UP-038); the other
@@ -2484,10 +2512,16 @@ class _SendViewState extends ConsumerState<SendView> {
     final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
     final none = _noMethod;
     final down = !none && method == TransferMethod.epicbox && (epicbox == null || epicbox == EpicboxState.offline);
+    final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
     return [
-      _methodSelector(context, method),
+      if (quiet)
+        // Level 1: Epicbox is just how sending works, so no selector and no strip; QR Payment
+        // is a quiet link into the same flow, and a link back out of it.
+        ?_quietLink(context, method)
+      else
+        _methodSelector(context, method),
       // No method can be chosen: no picture of one.
-      if (!none) ...[
+      if (!none && !quiet) ...[
         const SizedBox(height: 12),
         DismissibleTip(
           id: sendMethodTipId,
@@ -3412,21 +3446,19 @@ class _SendViewState extends ConsumerState<SendView> {
     // The payment's own steps, as its detail lists them (A-03); the wallet waited on is the
     // current step's sub-line. Through a paired contact's mailbox, the mailbox steps; queued
     // while Epicbox is off, the send itself is the step under way.
+    final style = ref.watch(levelFeaturesProvider.select((f) => f.timeline));
+    final mailbox = pairingId == null || name == null
+        ? null
+        : (
+            name: name,
+            relay: ref.watch(pairingByIdProvider(pairingId))?.homeRelay ?? '',
+            paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
+          );
+    final waitingLine = name == null ? l.sendTrackWaiting : l.sendTrackWaitingFor(name);
     final steps =
-        txTimeline(
-          l,
-          live,
-          tip,
-          target: target,
-          mailbox: pairingId == null || name == null
-              ? null
-              : (
-                  name: name,
-                  relay: ref.watch(pairingByIdProvider(pairingId))?.homeRelay ?? '',
-                  paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
-                ),
-          waiting: name == null ? l.sendTrackWaiting : l.sendTrackWaitingFor(name),
-        ) ??
+        (style == TimelineStyle.technicalSteps
+            ? txTimeline(l, live, tip, target: target, mailbox: mailbox, waiting: waitingLine)
+            : paymentSteps(l, live, tip, target: target, who: name, mailbox: mailbox, waiting: waitingLine)) ??
         const <TimelineStep>[];
     final unknown = name == null;
     // Over HTTP or Tor their wallet took it in the exchange itself: past cancelling, and
@@ -3460,6 +3492,18 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ),
       const SizedBox(height: 24),
+      if (style == TimelineStyle.liveSentence) ...[
+        Center(child: Text(l.lvPayOnItsWay, style: theme.textTheme.titleMedium)),
+        const SizedBox(height: 4),
+        Center(
+          child: Text(
+            l.lvPayCloseNote,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
       // Made while Epicbox was off: it waits in the outbox.
       if (sent.queued && name != null && waiting) ...[
         Semantics(

@@ -18736,4 +18736,97 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvPickEpicboxOk => 'Epicbox OK';
+
+  @override
+  String get lvPayArriving => 'Поступает';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return 'Подтверждение $count из $target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name подписал(а)';
+  }
+
+  @override
+  String get lvPaySendQrLink => 'Оба телефона рядом? QR-платёж';
+
+  @override
+  String get lvPaySendAddressLink => 'Отправить на адрес';
+
+  @override
+  String get lvPayOnItsWay => 'В пути';
+
+  @override
+  String get lvPayCloseNote =>
+      'Можно закрыть. Платёж виден в «Активности», пока не завершится.';
+
+  @override
+  String lvPayArrivalFrom(String amount, String name) {
+    return '$amount от $name';
+  }
+
+  @override
+  String get lvPayOpen => 'Открыть';
+
+  @override
+  String get lvPayNewToday => 'Новый сегодня';
+
+  @override
+  String get lvPayNewAddress => 'Ваш новый адрес';
+
+  @override
+  String lvPayServerLine(String name) {
+    return 'Сервер Epicbox: $name.';
+  }
+
+  @override
+  String get lvPayOldAddressLine => 'Тем, у кого старый адрес, нужен новый.';
+
+  @override
+  String get lvPayReceiveBack => 'Назад к моему адресу';
+
+  @override
+  String lvPayDoneSent(String when) {
+    return 'Отправлено. Завершено: $when.';
+  }
+
+  @override
+  String lvPayDoneReceived(String when) {
+    return 'Получено. Завершено: $when.';
+  }
+
+  @override
+  String get lvPayShowSteps => 'Показать шаги';
+
+  @override
+  String get lvPayHideSteps => 'Скрыть шаги';
+
+  @override
+  String get lvPayDetails => 'Подробности';
+
+  @override
+  String get lvPayStarted => 'Начато';
+
+  @override
+  String get lvPayPosted => 'Отправлено в сеть';
+
+  @override
+  String get lvPayPaymentId => 'ID платежа';
+
+  @override
+  String get lvPayConfirmations => 'Подтверждения';
+
+  @override
+  String lvPayOf(int count, int target) {
+    return '$count из $target';
+  }
+
+  @override
+  String get lvPayCopyDetails => 'Скопировать данные';
+
+  @override
+  String get lvPayDetailsCopied => 'Данные скопированы';
 }

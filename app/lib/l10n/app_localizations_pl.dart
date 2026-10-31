@@ -18757,4 +18757,97 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvPickEpicboxOk => 'Epicbox OK';
+
+  @override
+  String get lvPayArriving => 'W drodze';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return 'Potwierdzanie $count z $target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name podpisał(a)';
+  }
+
+  @override
+  String get lvPaySendQrLink => 'Oba telefony obok? Płatność QR';
+
+  @override
+  String get lvPaySendAddressLink => 'Wyślij raczej na adres';
+
+  @override
+  String get lvPayOnItsWay => 'W drodze';
+
+  @override
+  String get lvPayCloseNote =>
+      'Możesz to zamknąć. Płatność jest w Aktywności, aż się zakończy.';
+
+  @override
+  String lvPayArrivalFrom(String amount, String name) {
+    return '$amount od $name';
+  }
+
+  @override
+  String get lvPayOpen => 'Otwórz';
+
+  @override
+  String get lvPayNewToday => 'Nowy dzisiaj';
+
+  @override
+  String get lvPayNewAddress => 'Twój nowy adres';
+
+  @override
+  String lvPayServerLine(String name) {
+    return 'Serwer Epicbox: $name.';
+  }
+
+  @override
+  String get lvPayOldAddressLine => 'Kto ma stary adres, potrzebuje nowego.';
+
+  @override
+  String get lvPayReceiveBack => 'Wróć do mojego adresu';
+
+  @override
+  String lvPayDoneSent(String when) {
+    return 'Wysłano. Zakończono: $when.';
+  }
+
+  @override
+  String lvPayDoneReceived(String when) {
+    return 'Otrzymano. Zakończono: $when.';
+  }
+
+  @override
+  String get lvPayShowSteps => 'Pokaż kroki';
+
+  @override
+  String get lvPayHideSteps => 'Ukryj kroki';
+
+  @override
+  String get lvPayDetails => 'Szczegóły';
+
+  @override
+  String get lvPayStarted => 'Rozpoczęto';
+
+  @override
+  String get lvPayPosted => 'Wysłano do sieci';
+
+  @override
+  String get lvPayPaymentId => 'ID płatności';
+
+  @override
+  String get lvPayConfirmations => 'Potwierdzenia';
+
+  @override
+  String lvPayOf(int count, int target) {
+    return '$count z $target';
+  }
+
+  @override
+  String get lvPayCopyDetails => 'Kopiuj szczegóły';
+
+  @override
+  String get lvPayDetailsCopied => 'Skopiowano szczegóły';
 }

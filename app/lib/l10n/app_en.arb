@@ -24385,5 +24385,153 @@
   "lvPickEpicboxOk": "Epicbox OK",
   "@lvPickEpicboxOk": {
     "description": "Decorative words in the level picker's home preview: Epicbox is fine."
+  },
+  "lvPayArriving": "Arriving",
+  "@lvPayArriving": {
+    "description": "Level 1-2 row step word: an incoming payment the sender is still finishing."
+  },
+  "lvPayConfirming": "Confirming {count} of {target}",
+  "@lvPayConfirming": {
+    "description": "Level 1-2 row step word: confirmations so far of the wallet's setting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "lvPaySigned": "{name} signed",
+  "@lvPaySigned": {
+    "description": "Payment steps, a send: the recipient's wallet signed; name is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvPaySendQrLink": "Both phones here? QR Payment",
+  "@lvPaySendQrLink": {
+    "description": "Level 1 Send: quiet link into QR Payment."
+  },
+  "lvPaySendAddressLink": "Send to an address instead",
+  "@lvPaySendAddressLink": {
+    "description": "Level 1 Send, inside QR Payment: link back to sending to an address."
+  },
+  "lvPayOnItsWay": "On its way",
+  "@lvPayOnItsWay": {
+    "description": "Level 1 Send: heading of the screen shown once a payment is out."
+  },
+  "lvPayCloseNote": "You can close this. It shows under Activity until it is done.",
+  "@lvPayCloseNote": {
+    "description": "Level 1 Send: under On its way."
+  },
+  "lvPayArrivalFrom": "{amount} from {name}",
+  "@lvPayArrivalFrom": {
+    "description": "Level 1 Receive: arrival card title, a payment coming in.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvPayOpen": "Open",
+  "@lvPayOpen": {
+    "description": "Level 1 Receive: opens the arriving payment's details."
+  },
+  "lvPayNewToday": "New today",
+  "@lvPayNewToday": {
+    "description": "Level 1 Receive: badge on the address after the Epicbox server moved."
+  },
+  "lvPayNewAddress": "Your new address",
+  "@lvPayNewAddress": {
+    "description": "Level 1 Receive: address label after the Epicbox server moved."
+  },
+  "lvPayServerLine": "Epicbox server: {name}.",
+  "@lvPayServerLine": {
+    "description": "Level 1 Receive: the server now in use.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvPayOldAddressLine": "Anyone with the old address needs the new one.",
+  "@lvPayOldAddressLine": {
+    "description": "Level 1 Receive: after the server moved; does not promise the old address still works."
+  },
+  "lvPayReceiveBack": "Back to my address",
+  "@lvPayReceiveBack": {
+    "description": "Level 1 Receive, inside QR Payment: link back to the address."
+  },
+  "lvPayDoneSent": "Sent. Done on {when}.",
+  "@lvPayDoneSent": {
+    "description": "Level 1 payment details: sentence of a finished send.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "lvPayDoneReceived": "Received. Done on {when}.",
+  "@lvPayDoneReceived": {
+    "description": "Level 1 payment details: sentence of a finished receive.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "lvPayShowSteps": "Show the steps",
+  "@lvPayShowSteps": {
+    "description": "Level 1 payment details: expands the steps of a done payment."
+  },
+  "lvPayHideSteps": "Hide the steps",
+  "@lvPayHideSteps": {
+    "description": "Level 1 payment details: collapses the steps."
+  },
+  "lvPayDetails": "Details",
+  "@lvPayDetails": {
+    "description": "Level 1 payment details: menu and sheet title."
+  },
+  "lvPayStarted": "Started",
+  "@lvPayStarted": {
+    "description": "Level 1 payment details: when the payment started."
+  },
+  "lvPayPosted": "Posted to the network",
+  "@lvPayPosted": {
+    "description": "Details sheet: when the payment was posted."
+  },
+  "lvPayPaymentId": "Payment ID",
+  "@lvPayPaymentId": {
+    "description": "Details sheet: the slate id."
+  },
+  "lvPayConfirmations": "Confirmations",
+  "@lvPayConfirmations": {
+    "description": "Details sheet row."
+  },
+  "lvPayOf": "{count} of {target}",
+  "@lvPayOf": {
+    "description": "Details sheet: confirmations so far of the target.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "lvPayCopyDetails": "Copy details",
+  "@lvPayCopyDetails": {
+    "description": "Details sheet button."
+  },
+  "lvPayDetailsCopied": "Details copied",
+  "@lvPayDetailsCopied": {
+    "description": "Notice after Copy details."
   }
 }

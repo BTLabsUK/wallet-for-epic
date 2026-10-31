@@ -13,12 +13,17 @@ import '../providers.dart';
 import 'theme/tokens.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
+import '../levels/level_features.dart' show ActivityChips;
+import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'common.dart';
 import 'post_finished_screen.dart' show openPostFinished;
 import 'theme/brand.dart';
 import 'tour/tour_target.dart';
 
 enum HistoryFilter { all, sent, received, pending, cancelled }
+
+/// The chips level 1 shows.
+const _basicFilters = {HistoryFilter.all, HistoryFilter.sent, HistoryFilter.received};
 
 /// The filter's chip label.
 String historyFilterLabel(AppLocalizations l, HistoryFilter filter) =>
@@ -251,6 +256,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final basicChips = ref.watch(levelFeaturesProvider.select((f) => f.activityChips)) == ActivityChips.basic;
     final home = ref.watch(homeProvider);
     final contacts = ref.watch(contactsProvider).value;
     final now = ref.watch(clockProvider)();
@@ -299,6 +305,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       FadingRow(
         children: [
           for (final filter in HistoryFilter.values)
+            if (basicChips ? _basicFilters.contains(filter) : true)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(

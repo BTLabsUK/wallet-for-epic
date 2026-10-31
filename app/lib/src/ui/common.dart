@@ -33,6 +33,8 @@ import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'tx_label.dart';
 import 'tip.dart';
+import 'levels/payment_steps.dart' show paymentStepWord;
+import '../levels/level_providers.dart' show levelFeaturesProvider;
 
 export '../models.dart' show txAmount;
 
@@ -862,12 +864,14 @@ class TxStatusLine extends ConsumerWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: txStatusLabel(
+                  text: paymentStepWord(
                     context.l10n,
                     tx,
                     tip,
+                    style: ref.watch(levelFeaturesProvider.select((f) => f.timeline)),
                     target: target,
                     now: now,
+                    who: txPartyName(ref, tx),
                     pairedWith: mailbox,
                     paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
                   ),
