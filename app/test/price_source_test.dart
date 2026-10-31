@@ -18,20 +18,22 @@ class _Fixed implements PriceSource {
 void main() {
   tearDown(() => TorSwitch.on = false);
 
-  test('Tor off: CoinGecko refuses (no User-Agent, 403) → BT Labs\' copy', () async {
-    final coinGecko = _Fixed(null);
+  test('Tor off: BT Labs\' copy answers → its price, CoinGecko not asked', () async {
+    final coinGecko = _Fixed(1.1);
     final btlabs = _Fixed(1.09);
     final price = await TorAwarePriceSource(coinGecko: coinGecko, btlabs: btlabs).price('usd');
     expect(price, 1.09);
-    expect(coinGecko.asked, 1);
     expect(btlabs.asked, 1);
+    expect(coinGecko.asked, 0);
   });
 
-  test('Tor off: CoinGecko answers → its price, BT Labs not asked', () async {
-    final btlabs = _Fixed(1.09);
-    final price = await TorAwarePriceSource(coinGecko: _Fixed(1.1), btlabs: btlabs).price('usd');
+  test('Tor off: no copy → CoinGecko\'s price', () async {
+    final coinGecko = _Fixed(1.1);
+    final btlabs = _Fixed(null);
+    final price = await TorAwarePriceSource(coinGecko: coinGecko, btlabs: btlabs).price('usd');
     expect(price, 1.1);
-    expect(btlabs.asked, 0);
+    expect(btlabs.asked, 1);
+    expect(coinGecko.asked, 1);
   });
 
   test('Tor on: only BT Labs\' copy, never CoinGecko', () async {
@@ -39,6 +41,9 @@ void main() {
     final coinGecko = _Fixed(1.1);
     final price = await TorAwarePriceSource(coinGecko: coinGecko, btlabs: _Fixed(1.09)).price('usd');
     expect(price, 1.09);
+    expect(coinGecko.asked, 0);
+    // No copy: still never CoinGecko.
+    expect(await TorAwarePriceSource(coinGecko: coinGecko, btlabs: _Fixed(null)).price('usd'), isNull);
     expect(coinGecko.asked, 0);
   });
 
