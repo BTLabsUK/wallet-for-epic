@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../../data_folder_io.dart' show desktopDataFolder, desktopDataFolderName;
 import '../../../log.dart';
 import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../widgets/kit.dart';
@@ -238,7 +241,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           ],
           current: 'restore',
           failed: 'restore',
-          failure: _permissionDenied ? l.deskOnbRestorePermission('~/.epic_cash_desktop') : _failure,
+          failure: _permissionDenied ? l.deskOnbRestorePermission(desktopDataFolder(Platform.environment, windows: Platform.isWindows) ?? desktopDataFolderName) : _failure,
           wait: l.deskOnbRestoreWait,
           onBack: () => setState(() {
             _step = RestoreStep.account;
