@@ -41,7 +41,84 @@ class _Session extends FakeWalletSession {
   }
 }
 
+/// LEPIC's set_servers cancels a running scan (LN-01): its stream ends, the cancel swallowed
+/// as the service does, before the switch returns, which waits for [gate].
+class _SwitchSession extends _Session {
+  final gate = Completer<void>();
+
+  @override
+  Future<void> setServers({required WalletConfig config}) async {
+    final scan = scans.last;
+    if (!scan.isClosed) await scan.close();
+    await gate.future;
+  }
+}
+
+const _switchTo = WalletConfig(
+  dataDir: '/data/mainnet',
+  chain: Chain.mainnet,
+  nodeUrl: 'https://node.example.org',
+  epicboxDomain: 'relay.example.org',
+  epicboxPort: 443,
+);
+
 void main() {
+  for (final start in [null, BigInt.from(1200)]) {
+    test('a server switch during a scan (start $start) runs that scan again to its end', () async {
+      final session = _SwitchSession();
+      final c = ProviderContainer(
+        retry: (_, _) => null,
+        overrides: [sessionProvider.overrideWith(() => _Open(session))],
+      );
+      addTearDown(c.dispose);
+      final scan = c.read(scanProvider.notifier);
+      final run = scan.run(startHeight: start);
+      await pumpEventQueue();
+      session.scans.last.add(const ScanProgress(percent: 40, message: 'Scanning', finished: false));
+      await pumpEventQueue();
+
+      final switched = scan.duringSwitch(
+        () => session.setServers(config: _switchTo),
+      );
+      await pumpEventQueue();
+      expect(session.scanCalls, 1, reason: 'nothing starts while the switch runs');
+      expect(c.read(scanProvider).running, isTrue);
+      expect(c.read(scanProvider).stopped, isFalse);
+
+      session.gate.complete();
+      await switched;
+      await pumpEventQueue();
+      expect(session.scanStarts, [start, start], reason: 'the same scan, a restore stays one');
+      expect(c.read(scanProvider).percent, 40);
+      session.scans.last.add(const ScanProgress(percent: 100, message: 'Done', finished: true));
+      await session.scans.last.close();
+      expect(await run, isTrue);
+      expect(c.read(scanProvider).done, isTrue);
+    });
+  }
+
+  test('Stop during a server switch stops the scan, which does not start again', () async {
+    final session = _SwitchSession();
+    final c = ProviderContainer(
+      retry: (_, _) => null,
+      overrides: [sessionProvider.overrideWith(() => _Open(session))],
+    );
+    addTearDown(c.dispose);
+    final scan = c.read(scanProvider.notifier);
+    final run = scan.run();
+    await pumpEventQueue();
+    final switched = scan.duringSwitch(
+      () => session.setServers(config: _switchTo),
+    );
+    await pumpEventQueue();
+    scan.stop();
+    session.gate.complete();
+    await switched;
+    expect(await run, isFalse);
+    expect(c.read(scanProvider).stopped, isTrue);
+    expect(session.scanCalls, 1);
+  });
+
   test('a scan pauses with the app and goes on from where it was when the app is back', () async {
     final session = _Session();
     final c = ProviderContainer(

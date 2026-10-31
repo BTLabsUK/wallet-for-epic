@@ -46,7 +46,8 @@ Future<bool> switchServersLive(
   final relayChanged =
       next.epicboxDomain != opened.epicboxDomain ||
       next.epicboxPort != opened.epicboxPort;
-  await session.setServers(config: next);
+  // A scan running goes on after the switch, which cancels it.
+  await container.read(scanProvider.notifier).duringSwitch(() => session.setServers(config: next));
   // Both servers move to the top of their lists: the first entry is the one in use.
   await notifier.save(choice.preset, nodeUrl, relay: relay);
   logInfo(
@@ -87,7 +88,7 @@ Future<bool> switchNodeForSession(Ref ref, String nodeUrl) async {
     walletId: opened.walletId,
     offline: opened.offline,
   );
-  await session.setServers(config: next);
+  await ref.read(scanProvider.notifier).duringSwitch(() => session.setServers(config: next));
   if (!ref.mounted || ref.read(sessionProvider) != session) return false;
   logInfo('network', 'node failover: ${Uri.tryParse(nodeUrl)?.host ?? '?'} for this session');
   ref.read(walletConfigProvider.notifier).select(next);

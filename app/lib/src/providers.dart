@@ -762,6 +762,13 @@ class ScanNotifier extends Notifier<ScanState> {
   /// Completes when the app is back, or the scan is stopped or its session gone.
   Completer<void>? _back;
 
+  /// A server switch under way ([duringSwitch]); completes when it is done.
+  Completer<void>? _switch;
+
+  /// A server switch began since the scan's stream started: the stream it cancelled may end
+  /// just before or just after the switch returns.
+  bool _switched = false;
+
   @override
   ScanState build() {
     ref.watch(sessionProvider);
@@ -801,6 +808,20 @@ class ScanNotifier extends Notifier<ScanState> {
     _wake();
   }
 
+  /// Runs [switchServers], the open wallet's [WalletSession.setServers], which cancels a running
+  /// scan (LN-01). That scan, a restore's or a Recheck balance, goes on once the switch returns,
+  /// with the same start, as after a [pause]; a [stop] meanwhile still stops it.
+  Future<T> duringSwitch<T>(Future<T> Function() switchServers) async {
+    final done = _switch = Completer<void>();
+    _switched = true;
+    try {
+      return await switchServers();
+    } finally {
+      if (identical(_switch, done)) _switch = null;
+      done.complete();
+    }
+  }
+
   void _wake() {
     final back = _back;
     _back = null;
@@ -836,6 +857,7 @@ class ScanNotifier extends Notifier<ScanState> {
         state = ScanState(running: true, resuming: true, percent: state.percent);
       }
       failure = null;
+      _switched = _switch != null;
       var first = true;
       try {
         await for (final progress in session.scan(startHeight: startHeight)) {
@@ -873,6 +895,17 @@ class ScanNotifier extends Notifier<ScanState> {
         failure = error;
       }
       if (!ref.mounted) return false;
+      // A server switch cancelled it: the same scan goes on once the switch is done.
+      if (!finished && !_stopping && _switched) {
+        for (var pending = _switch; pending != null; pending = _switch) {
+          await pending.future;
+        }
+        if (!ref.mounted || !identical(ref.read(sessionProvider), session)) return false;
+        if (_stopping) break;
+        logInfo('scan', 'goes on after the server switch');
+        state = ScanState(running: true, resuming: true, percent: state.percent);
+        continue;
+      }
       // A failure while away is the network Android cut: the scan goes on at the return.
       if (finished || _stopping || !_away) break;
     }
