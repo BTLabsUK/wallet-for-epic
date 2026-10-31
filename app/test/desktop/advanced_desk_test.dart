@@ -295,7 +295,7 @@ void main() {
       await _settle(tester);
       await tester.tap(find.descendant(of: find.byKey(const ValueKey('adv-mode-killSwitch')), matching: find.byType(EInfoHint)));
       await _settle(tester);
-      expect(find.textContaining('cold storage'), findsOneWidget);
+      expect(find.textContaining('The wallet works offline'), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
       await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-nodeOnly')));
