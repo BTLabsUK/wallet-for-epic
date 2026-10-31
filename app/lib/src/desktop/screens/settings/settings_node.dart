@@ -65,14 +65,6 @@ bool versionOld(String? v) {
   return false;
 }
 
-ETone nodeTone(ServiceHealth h) => switch (h) {
-  ServiceHealth.ok => ETone.ok,
-  ServiceHealth.checking => ETone.info,
-  ServiceHealth.slow => ETone.warn,
-  ServiceHealth.down => ETone.risk,
-  ServiceHealth.off => ETone.neutral,
-};
-
 /// The picker's footer under the node list.
 String nodeListNoteText(AppLocalizations l) => l.deskSetNodeListNote(statusSiteHost);
 
