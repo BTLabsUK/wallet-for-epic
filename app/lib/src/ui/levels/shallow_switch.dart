@@ -11,7 +11,8 @@
 /// with the relay in use, saved and first in the list, as a pick in the level-3 list.
 ///
 /// No Epicbox switch while no relay may be used ([relaySwitchHold]: Kill switch, Node only,
-/// Epicbox off, Tor not up yet); in Tor only only the relays Tor reaches ([relayOverTor]).
+/// Epicbox off); while Tor starts the user may still pick. In Tor only only the relays Tor
+/// reaches ([relayOverTor]).
 library;
 
 import 'package:flutter/material.dart';
@@ -160,7 +161,8 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
     if (!_node) {
       final tor = ref.exists(phoneTorProvider) ? phoneTorState(ref.watch(phoneTorProvider)) : TorState.off;
       final hold = relaySwitchHold(mode: ref.watch(networkModeProvider), tor: tor, epicboxOn: NetGate.epicbox);
-      if (hold != null) return const SizedBox.shrink();
+      // Waiting for Tor still lets the user pick: the way out must never depend on the relay.
+      if (hold != null && hold != RelaySwitchHold.waitingForTor) return const SizedBox.shrink();
     }
     final rows = _open ? _rows() : const <_Row>[];
     return AnimatedSize(
