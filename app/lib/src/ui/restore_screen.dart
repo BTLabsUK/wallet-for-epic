@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../bip39_words.dart';
+import '../levels/level_providers.dart';
 import '../l10n.dart';
 import '../phrase_problem.dart';
 import '../providers.dart';
@@ -458,7 +459,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         ),
       ),
       RestoreWordCheck(text: _phrase.text),
-      if (!advanced)
+      // Level 1 starts every restore from the beginning: no date or height to get wrong.
+      if (!advanced && ref.watch(levelFeaturesProvider.select((f) => f.restoreHeightField)))
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: TextButton(

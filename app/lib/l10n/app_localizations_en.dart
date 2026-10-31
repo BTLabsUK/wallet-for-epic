@@ -18026,4 +18026,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Change level';
+
+  @override
+  String get lvPickTitle => 'Pick your depth';
+
+  @override
+  String get lvPickLead => 'How much of the wallet do you want to see?';
+
+  @override
+  String get lvPickStopOne => 'Shallow';
+
+  @override
+  String get lvPickStopTwo => 'Deeper';
+
+  @override
+  String get lvPickStopThree => 'Deep end';
+
+  @override
+  String get lvPickLineOne => 'Send, receive, done. The wallet minds the rest.';
+
+  @override
+  String get lvPickLineTwo => 'See what it’s doing, in plain words.';
+
+  @override
+  String get lvPickLineThree => 'Every switch, every number. All yours.';
+
+  @override
+  String get lvPickNone => 'Pick a stop';
+
+  @override
+  String get lvPickNoneLine => 'The preview follows the dial.';
+
+  @override
+  String get lvPickDepth => 'Depth';
+
+  @override
+  String get lvPickPreview =>
+      'Preview of the home screen. It shows more as the dial goes deeper.';
+
+  @override
+  String get lvPickHelpTitle => 'What this decides';
+
+  @override
+  String get lvPickHelpText =>
+      'Only how much the app shows. Every level sends and receives the same way, with the same keys and the same coins.';
+
+  @override
+  String get lvPickUndercoverHelp =>
+      'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.';
+
+  @override
+  String get lvPickUndercover => 'Undercover';
+
+  @override
+  String get lvPickUndercoverLaterHelp =>
+      'Tor only. Every connection goes through Tor; starting takes longer. Where Tor is blocked, the wallet cannot connect until this is off.';
+
+  @override
+  String get lvPickTakesEffect => 'Takes effect right away.';
+
+  @override
+  String get lvPickSaved => 'Level saved';
+
+  @override
+  String get lvPickTorTitle => 'Connecting through Tor';
+
+  @override
+  String get lvPickTorLead =>
+      'The first connection can take a minute. Nothing goes around Tor.';
+
+  @override
+  String get lvPickTorBusy => 'Building the circuit…';
+
+  @override
+  String get lvPickTorBlocked =>
+      'If Tor is blocked where you are, the wallet cannot connect until Undercover is turned off.';
+
+  @override
+  String get lvPickTorOff => 'Turn Undercover off';
+
+  @override
+  String get lvPickTorOffDone => 'Undercover is off. Connecting directly.';
+
+  @override
+  String get lvPickNetworkOk => 'Network OK';
+
+  @override
+  String get lvPickEpicboxOk => 'Epicbox OK';
 }

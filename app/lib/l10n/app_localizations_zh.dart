@@ -16988,4 +16988,87 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get levelChangeTitle => '更改级别';
+
+  @override
+  String get lvPickTitle => '选择深度';
+
+  @override
+  String get lvPickLead => '你想看到钱包的多少内容？';
+
+  @override
+  String get lvPickStopOne => '浅水';
+
+  @override
+  String get lvPickStopTwo => '再深些';
+
+  @override
+  String get lvPickStopThree => '深水区';
+
+  @override
+  String get lvPickLineOne => '收款、付款，就这样。其余交给钱包。';
+
+  @override
+  String get lvPickLineTwo => '用简单的话看到它在做什么。';
+
+  @override
+  String get lvPickLineThree => '每个开关、每个数字，全归你。';
+
+  @override
+  String get lvPickNone => '选一个档位';
+
+  @override
+  String get lvPickNoneLine => '预览随档位变化。';
+
+  @override
+  String get lvPickDepth => '深度';
+
+  @override
+  String get lvPickPreview => '主屏幕预览。档位越深，显示越多。';
+
+  @override
+  String get lvPickHelpTitle => '这决定什么';
+
+  @override
+  String get lvPickHelpText => '只决定应用显示多少。每个级别收付款的方式都一样，密钥和币也一样。';
+
+  @override
+  String get lvPickUndercoverHelp =>
+      '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 网络模式 › 仅 Tor 相同；之后可在 设置 › 高级 中关闭。';
+
+  @override
+  String get lvPickUndercover => '隐身';
+
+  @override
+  String get lvPickUndercoverLaterHelp =>
+      '仅 Tor。所有连接都经过 Tor；启动会慢一些。在 Tor 被封锁的地方，关闭此项之前钱包无法连接。';
+
+  @override
+  String get lvPickTakesEffect => '立即生效。';
+
+  @override
+  String get lvPickSaved => '级别已保存';
+
+  @override
+  String get lvPickTorTitle => '正在通过 Tor 连接';
+
+  @override
+  String get lvPickTorLead => '第一次连接可能需要一分钟。没有任何连接绕过 Tor。';
+
+  @override
+  String get lvPickTorBusy => '正在建立线路…';
+
+  @override
+  String get lvPickTorBlocked => '如果你所在的地方封锁了 Tor，关闭隐身之前钱包无法连接。';
+
+  @override
+  String get lvPickTorOff => '关闭隐身';
+
+  @override
+  String get lvPickTorOffDone => '隐身已关闭。正在直接连接。';
+
+  @override
+  String get lvPickNetworkOk => '网络 正常';
+
+  @override
+  String get lvPickEpicboxOk => 'Epicbox 正常';
 }

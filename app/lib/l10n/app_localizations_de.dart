@@ -18239,4 +18239,92 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Stufe ändern';
+
+  @override
+  String get lvPickTitle => 'Wähle deine Tiefe';
+
+  @override
+  String get lvPickLead => 'Wie viel von der Wallet möchtest du sehen?';
+
+  @override
+  String get lvPickStopOne => 'Flach';
+
+  @override
+  String get lvPickStopTwo => 'Tiefer';
+
+  @override
+  String get lvPickStopThree => 'Ganz tief';
+
+  @override
+  String get lvPickLineOne =>
+      'Senden, empfangen, fertig. Den Rest erledigt die Wallet.';
+
+  @override
+  String get lvPickLineTwo => 'Sieh, was sie gerade tut, in einfachen Worten.';
+
+  @override
+  String get lvPickLineThree => 'Jeder Schalter, jede Zahl. Alles deins.';
+
+  @override
+  String get lvPickNone => 'Wähle eine Stufe';
+
+  @override
+  String get lvPickNoneLine => 'Die Vorschau folgt dem Regler.';
+
+  @override
+  String get lvPickDepth => 'Tiefe';
+
+  @override
+  String get lvPickPreview =>
+      'Vorschau des Startbildschirms. Sie zeigt mehr, je tiefer der Regler steht.';
+
+  @override
+  String get lvPickHelpTitle => 'Was das bestimmt';
+
+  @override
+  String get lvPickHelpText =>
+      'Nur, wie viel die App zeigt. Jede Stufe sendet und empfängt gleich, mit denselben Schlüsseln und denselben Coins.';
+
+  @override
+  String get lvPickUndercoverHelp =>
+      'Nur Tor, ab der ersten Verbindung. Jede Verbindung läuft über Tor; der Start dauert länger.\n\nBisher wurde nichts verbunden. Wie Netzwerkmodus › Nur Tor; lässt sich später unter Einstellungen › Erweitert ausschalten.';
+
+  @override
+  String get lvPickUndercover => 'Inkognito';
+
+  @override
+  String get lvPickUndercoverLaterHelp =>
+      'Nur Tor. Jede Verbindung läuft über Tor; der Start dauert länger. Wo Tor gesperrt ist, kann die Wallet sich erst verbinden, wenn das aus ist.';
+
+  @override
+  String get lvPickTakesEffect => 'Gilt sofort.';
+
+  @override
+  String get lvPickSaved => 'Stufe gespeichert';
+
+  @override
+  String get lvPickTorTitle => 'Verbindung über Tor';
+
+  @override
+  String get lvPickTorLead =>
+      'Die erste Verbindung kann eine Minute dauern. Nichts geht an Tor vorbei.';
+
+  @override
+  String get lvPickTorBusy => 'Verbindung wird aufgebaut…';
+
+  @override
+  String get lvPickTorBlocked =>
+      'Ist Tor bei dir gesperrt, kann die Wallet sich erst verbinden, wenn Inkognito aus ist.';
+
+  @override
+  String get lvPickTorOff => 'Inkognito ausschalten';
+
+  @override
+  String get lvPickTorOffDone => 'Inkognito ist aus. Direkte Verbindung.';
+
+  @override
+  String get lvPickNetworkOk => 'Netzwerk OK';
+
+  @override
+  String get lvPickEpicboxOk => 'Epicbox OK';
 }

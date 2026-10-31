@@ -11,85 +11,40 @@ import '../settings.dart';
 import '../tor_build.dart';
 import 'common.dart';
 import 'launch_screen.dart';
+import 'levels/level_picker.dart';
+import 'levels/level_sheets.dart';
+import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
-/// The words of a level, shared by the first-start step, the Change level dialog and the
-/// Advanced row.
+/// The words of a level, shared by the first-start step, Change level and the Advanced row.
 String levelTitle(AppLocalizations l, WalletLevel level) => switch (level) {
   WalletLevel.justSendReceive => l.levelOneTitle,
   WalletLevel.casual => l.levelTwoTitle,
   WalletLevel.everything => l.levelThreeTitle,
 };
 
-String _levelLine(AppLocalizations l, WalletLevel level) => switch (level) {
-  WalletLevel.justSendReceive => l.levelOneLine,
-  WalletLevel.casual => l.levelTwoLine,
-  WalletLevel.everything => l.levelThreeLine,
-};
+/// The picker's "Create a new wallet" and "Restore from phrase" buttons, for tests.
+const Key levelCreateKey = ValueKey('level-create');
+const Key levelRestoreKey = ValueKey('level-restore');
 
-/// The key of a level's tile, for tests: `levelTileKey(WalletLevel.casual)`.
-Key levelTileKey(WalletLevel level) => ValueKey('level-tile-${level.number}');
+/// The picker's last answer in this run, so Back from the PIN step or the restore phrase
+/// returns to the picker with it, not to the old Welcome choice.
+final levelStepAnswerProvider = NotifierProvider<LevelStepAnswer, ({WalletLevel level, bool undercover})?>(
+  LevelStepAnswer.new,
+);
 
-/// The "Undercover from the start" switch's key, for tests.
-const Key levelUndercoverKey = ValueKey('level-undercover');
-
-/// The Continue button's key, for tests.
-const Key levelContinueKey = ValueKey('level-continue');
-
-/// The three levels as radio tiles, with the Undercover switch in Tor builds. Placeholder
-/// look until the level design lands.
-class LevelChoices extends StatelessWidget {
-  const LevelChoices({
-    super.key,
-    required this.level,
-    required this.onLevel,
-    required this.undercover,
-    required this.onUndercover,
-  });
-
-  final WalletLevel? level;
-  final ValueChanged<WalletLevel> onLevel;
-  final bool undercover;
-  final ValueChanged<bool> onUndercover;
-
+class LevelStepAnswer extends Notifier<({WalletLevel level, bool undercover})?> {
   @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        RadioGroup<WalletLevel>(
-          groupValue: level,
-          onChanged: (v) {
-            if (v != null) onLevel(v);
-          },
-          child: Column(
-            children: [
-              for (final lv in WalletLevel.values)
-                RadioListTile<WalletLevel>(
-                  key: levelTileKey(lv),
-                  value: lv,
-                  title: Text(levelTitle(l, lv)),
-                  subtitle: Text(_levelLine(l, lv)),
-                ),
-            ],
-          ),
-        ),
-        if (torBuilt)
-          SwitchListTile(
-            key: levelUndercoverKey,
-            value: undercover,
-            onChanged: onUndercover,
-            title: Text(l.levelUndercoverTitle),
-            subtitle: Text(l.levelUndercoverLine),
-          ),
-      ],
-    );
-  }
+  ({WalletLevel level, bool undercover})? build() => null;
+
+  void set(({WalletLevel level, bool undercover}) answer) => state = answer;
 }
 
-/// First start of a fresh install, before Welcome and the PIN: the level and, in Tor builds,
-/// Undercover from the start. Nothing connects until Continue.
+/// First start of a fresh install, in place of Welcome: "Pick your depth" (the level, on the
+/// depth dial, with a home preview that follows it), then Create or Restore, and under them,
+/// quiet, Undercover from the start in Tor builds. Nothing connects until Create or Restore.
+/// It fits a 320 x 568 phone without scrolling (the lead and the footer move into the ⓘ
+/// sheet there); it scrolls only when large text needs it.
 class LevelStepScreen extends ConsumerStatefulWidget {
   const LevelStepScreen({super.key});
 
@@ -102,14 +57,35 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
   bool _undercover = false;
   bool _busy = false;
 
-  Future<void> _continue() async {
+  @override
+  void initState() {
+    super.initState();
+    final answer = ref.read(levelStepAnswerProvider);
+    if (answer != null) {
+      _level = answer.level;
+      _undercover = answer.undercover;
+    }
+  }
+
+  Future<void> _go({required bool restore}) async {
     final level = _level;
     if (level == null || _busy) return;
     setState(() => _busy = true);
     try {
+      // A second pass (Back from the PIN) with Undercover now off takes back the Tor only the
+      // first one stored; complete() only ever turns it on.
+      if (!_undercover && torBuilt && (ref.read(levelStepAnswerProvider)?.undercover ?? false)) {
+        final settings = await ref.read(appSettingsProvider.future);
+        await ref.read(appSettingsProvider.notifier).setAdvanced(settings.advanced.withMode(NetworkMode.standard));
+      }
       await ref.read(firstStartProvider.notifier).complete(level: level, undercover: _undercover);
+      ref.read(levelStepAnswerProvider.notifier).set((level: level, undercover: _undercover));
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => const LaunchScreen()));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => LaunchScreen(start: restore ? FirstRunStart.restore : FirstRunStart.create),
+        ),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -119,61 +95,126 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
+    final theme = Theme.of(context);
+    final offered = ref.watch(levelFeaturesProvider.select((f) => f.undercoverOffered));
+    final ready = _level != null && !_busy;
     return SlotScaffold(
-      body: ScreenBody(
-        bottom: BusyButton(
-          key: levelContinueKey,
-          label: l.commonContinue,
-          busy: _busy,
-          onPressed: _level == null ? null : _continue,
-        ),
-        children: [
-          const SizedBox(height: 16),
-          Text(l.levelStepTitle, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 16),
-          LevelChoices(
-            level: _level,
-            onLevel: (v) => setState(() => _level = v),
-            undercover: _undercover,
-            onUndercover: (v) => setState(() => _undercover = v),
-          ),
-          const SizedBox(height: 16),
-          Text(l.levelFooter, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim)),
-        ],
-      ),
-    );
-  }
-}
-
-/// Settings › Advanced › Wallet level: the same choices in a dialog. Picking a level stores it
-/// at once; the Undercover switch (Tor builds) maps to the Tor only network mode.
-Future<void> showChangeLevelDialog(BuildContext context, WidgetRef ref) {
-  return showDialog<void>(
-    context: context,
-    builder: (context) => Consumer(
-      builder: (context, ref, _) {
-        final l = context.l10n;
-        final level = ref.watch(currentLevelProvider);
-        final mode = ref.watch(appSettingsProvider.select((s) => s.value?.advanced.networkMode)) ?? NetworkMode.standard;
-        return AlertDialog(
-          title: Text(l.levelChangeTitle),
-          contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          content: SingleChildScrollView(
-            child: LevelChoices(
-              level: level,
-              onLevel: (v) => ref.read(walletLevelProvider.notifier).setLevel(v),
-              undercover: mode == NetworkMode.torOnly,
-              onUndercover: (on) async {
-                final settings = await ref.read(appSettingsProvider.future);
-                await ref
-                    .read(appSettingsProvider.notifier)
-                    .setAdvanced(settings.advanced.withMode(on ? NetworkMode.torOnly : NetworkMode.standard));
+      glow: heroGlow,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final compact = box.maxHeight < 640;
+                return CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // The lockup is the logo: it keeps its size at any text scale.
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: MediaQuery.withNoTextScaling(
+                                    child: const FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: AlignmentDirectional.centerStart,
+                                      child: BrandLockup(variant: BrandVariant.mobile, size: 22),
+                                    ),
+                                  ),
+                                ),
+                                const Spacer(),
+                                const LevelHelpHint(),
+                              ],
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  SizedBox(height: compact ? 0 : 8),
+                                  Semantics(
+                                    header: true,
+                                    child: Text(
+                                      l.lvPickTitle,
+                                      textAlign: TextAlign.center,
+                                      style: (compact ? theme.textTheme.titleLarge : theme.textTheme.headlineSmall)
+                                          ?.copyWith(color: t.text),
+                                    ),
+                                  ),
+                                  if (!compact) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      l.lvPickLead,
+                                      textAlign: TextAlign.center,
+                                      style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+                                    ),
+                                  ],
+                                  SizedBox(height: compact ? 6 : 12),
+                                  Semantics(
+                                    label: l.lvPickPreview,
+                                    child: ExcludeSemantics(
+                                      child: LevelPreview(level: _level, height: levelPreviewHeight(box.maxHeight)),
+                                    ),
+                                  ),
+                                  SizedBox(height: compact ? 6 : 12),
+                                  LevelDial(
+                                    level: _level,
+                                    compact: compact,
+                                    onLevel: (v) => setState(() => _level = v),
+                                  ),
+                                  SizedBox(height: compact ? 6 : 10),
+                                  LevelCaption(level: _level, compact: compact),
+                                  SizedBox(height: compact ? 6 : 12),
+                                ],
+                              ),
+                            ),
+                            FilledButton.icon(
+                              key: levelCreateKey,
+                              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                              icon: const Icon(Icons.add),
+                              label: Text(l.firstRunCreate),
+                              onPressed: ready ? () => _go(restore: false) : null,
+                            ),
+                            SizedBox(height: compact ? 8 : 12),
+                            OutlinedButton.icon(
+                              key: levelRestoreKey,
+                              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                              icon: const Icon(Icons.restore),
+                              label: Text(l.firstRunRestore),
+                              onPressed: ready ? () => _go(restore: true) : null,
+                            ),
+                            // Niche, so under the two ways in and quiet (the owner).
+                            if (offered) ...[
+                              SizedBox(height: compact ? 6 : 12),
+                              UndercoverRow(
+                                value: _undercover,
+                                onChanged: _busy ? null : (v) => setState(() => _undercover = v),
+                              ),
+                            ],
+                            if (!compact) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                l.levelFooter,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
               },
             ),
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonCancel))],
-        );
-      },
-    ),
-  );
+        ),
+      ),
+    );
+  }
 }

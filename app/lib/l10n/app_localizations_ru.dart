@@ -18648,4 +18648,92 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Сменить уровень';
+
+  @override
+  String get lvPickTitle => 'Выберите глубину';
+
+  @override
+  String get lvPickLead => 'Сколько кошелька вы хотите видеть?';
+
+  @override
+  String get lvPickStopOne => 'Мелко';
+
+  @override
+  String get lvPickStopTwo => 'Глубже';
+
+  @override
+  String get lvPickStopThree => 'В самую глубь';
+
+  @override
+  String get lvPickLineOne =>
+      'Отправили, получили, готово. Об остальном позаботится кошелёк.';
+
+  @override
+  String get lvPickLineTwo => 'Видно, что он делает, простыми словами.';
+
+  @override
+  String get lvPickLineThree => 'Каждый переключатель, каждая цифра. Всё ваше.';
+
+  @override
+  String get lvPickNone => 'Выберите уровень';
+
+  @override
+  String get lvPickNoneLine => 'Превью следует за переключателем.';
+
+  @override
+  String get lvPickDepth => 'Глубина';
+
+  @override
+  String get lvPickPreview =>
+      'Превью главного экрана. Чем глубже уровень, тем больше на нём видно.';
+
+  @override
+  String get lvPickHelpTitle => 'На что это влияет';
+
+  @override
+  String get lvPickHelpText =>
+      'Только то, сколько показывает приложение. На любом уровне отправка и получение одинаковы: те же ключи и те же монеты.';
+
+  @override
+  String get lvPickUndercoverHelp =>
+      'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим сети › Только Tor; позже можно выключить в Настройки › Дополнительно.';
+
+  @override
+  String get lvPickUndercover => 'Инкогнито';
+
+  @override
+  String get lvPickUndercoverLaterHelp =>
+      'Только Tor. Каждое подключение идёт через Tor; запуск дольше. Там, где Tor заблокирован, кошелёк не подключится, пока это не выключить.';
+
+  @override
+  String get lvPickTakesEffect => 'Действует сразу.';
+
+  @override
+  String get lvPickSaved => 'Уровень сохранён';
+
+  @override
+  String get lvPickTorTitle => 'Подключение через Tor';
+
+  @override
+  String get lvPickTorLead =>
+      'Первое подключение может занять минуту. Ничего не идёт в обход Tor.';
+
+  @override
+  String get lvPickTorBusy => 'Строится цепочка…';
+
+  @override
+  String get lvPickTorBlocked =>
+      'Если у вас Tor заблокирован, кошелёк не подключится, пока не выключить Инкогнито.';
+
+  @override
+  String get lvPickTorOff => 'Выключить Инкогнито';
+
+  @override
+  String get lvPickTorOffDone => 'Инкогнито выключено. Подключение напрямую.';
+
+  @override
+  String get lvPickNetworkOk => 'Сеть OK';
+
+  @override
+  String get lvPickEpicboxOk => 'Epicbox OK';
 }

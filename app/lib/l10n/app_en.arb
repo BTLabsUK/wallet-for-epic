@@ -24272,10 +24272,118 @@
   },
   "levelRowTitle": "Wallet level",
   "@levelRowTitle": {
-    "description": "Row at the top of Settings \u203a Advanced; its second line is the current level's title."
+    "description": "Row at the top of Settings › Advanced; its second line is the current level's title."
   },
   "levelChangeTitle": "Change level",
   "@levelChangeTitle": {
     "description": "Title of the dialog opened by the Wallet level row."
+  },
+  "lvPickTitle": "Pick your depth",
+  "@lvPickTitle": {
+    "description": "First-start level picker: the heading."
+  },
+  "lvPickLead": "How much of the wallet do you want to see?",
+  "@lvPickLead": {
+    "description": "First-start level picker: the line under the heading."
+  },
+  "lvPickStopOne": "Shallow",
+  "@lvPickStopOne": {
+    "description": "Level picker dial: the first stop (level 1)."
+  },
+  "lvPickStopTwo": "Deeper",
+  "@lvPickStopTwo": {
+    "description": "Level picker dial: the second stop (level 2)."
+  },
+  "lvPickStopThree": "Deep end",
+  "@lvPickStopThree": {
+    "description": "Level picker dial: the third stop (level 3)."
+  },
+  "lvPickLineOne": "Send, receive, done. The wallet minds the rest.",
+  "@lvPickLineOne": {
+    "description": "Level picker: one-liner of level 1, under its name."
+  },
+  "lvPickLineTwo": "See what it’s doing, in plain words.",
+  "@lvPickLineTwo": {
+    "description": "Level picker: one-liner of level 2, under its name."
+  },
+  "lvPickLineThree": "Every switch, every number. All yours.",
+  "@lvPickLineThree": {
+    "description": "Level picker: one-liner of level 3, under its name."
+  },
+  "lvPickNone": "Pick a stop",
+  "@lvPickNone": {
+    "description": "Level picker before a stop is picked: in place of the level name."
+  },
+  "lvPickNoneLine": "The preview follows the dial.",
+  "@lvPickNoneLine": {
+    "description": "Level picker before a stop is picked: in place of the one-liner."
+  },
+  "lvPickDepth": "Depth",
+  "@lvPickDepth": {
+    "description": "Screen reader name of the level picker's group of three stops."
+  },
+  "lvPickPreview": "Preview of the home screen. It shows more as the dial goes deeper.",
+  "@lvPickPreview": {
+    "description": "Screen reader description of the small home-screen preview on the level picker."
+  },
+  "lvPickHelpTitle": "What this decides",
+  "@lvPickHelpTitle": {
+    "description": "Level picker ⓘ sheet: title."
+  },
+  "lvPickHelpText": "Only how much the app shows. Every level sends and receives the same way, with the same keys and the same coins.",
+  "@lvPickHelpText": {
+    "description": "Level picker ⓘ sheet: text."
+  },
+  "lvPickUndercoverHelp": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.",
+  "@lvPickUndercoverHelp": {
+    "description": "ⓘ sheet of 'Undercover from the start' on the first-start picker."
+  },
+  "lvPickUndercover": "Undercover",
+  "@lvPickUndercover": {
+    "description": "Change level screen: the Undercover (Tor only) switch."
+  },
+  "lvPickUndercoverLaterHelp": "Tor only. Every connection goes through Tor; starting takes longer. Where Tor is blocked, the wallet cannot connect until this is off.",
+  "@lvPickUndercoverLaterHelp": {
+    "description": "ⓘ sheet of the Undercover switch on the Change level screen."
+  },
+  "lvPickTakesEffect": "Takes effect right away.",
+  "@lvPickTakesEffect": {
+    "description": "Change level screen: foot line; the level and Undercover apply on Save."
+  },
+  "lvPickSaved": "Level saved",
+  "@lvPickSaved": {
+    "description": "Notice after saving the level on the Change level screen."
+  },
+  "lvPickTorTitle": "Connecting through Tor",
+  "@lvPickTorTitle": {
+    "description": "Waiting for Tor after the PIN, with Undercover on: heading."
+  },
+  "lvPickTorLead": "The first connection can take a minute. Nothing goes around Tor.",
+  "@lvPickTorLead": {
+    "description": "Waiting for Tor: line under the heading."
+  },
+  "lvPickTorBusy": "Building the circuit…",
+  "@lvPickTorBusy": {
+    "description": "Waiting for Tor: the busy line."
+  },
+  "lvPickTorBlocked": "If Tor is blocked where you are, the wallet cannot connect until Undercover is turned off.",
+  "@lvPickTorBlocked": {
+    "description": "Waiting for Tor: text above the Turn Undercover off button."
+  },
+  "lvPickTorOff": "Turn Undercover off",
+  "@lvPickTorOff": {
+    "description": "Waiting for Tor: button that sets the network mode back to standard."
+  },
+  "lvPickTorOffDone": "Undercover is off. Connecting directly.",
+  "@lvPickTorOffDone": {
+    "description": "Notice after Turn Undercover off on the Tor wait screen."
+  },
+  "lvPickNetworkOk": "Network OK",
+  "@lvPickNetworkOk": {
+    "description": "Decorative words in the level picker's home preview: the network is fine."
+  },
+  "lvPickEpicboxOk": "Epicbox OK",
+  "@lvPickEpicboxOk": {
+    "description": "Decorative words in the level picker's home preview: Epicbox is fine."
   }
 }

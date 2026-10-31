@@ -7,10 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../demo.dart';
 import '../errors.dart';
+import '../levels/level_providers.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../wallet_service.dart' show Chain;
 import 'centered_body.dart';
+import 'launch_screen.dart';
+import 'levels/tor_wait_screen.dart';
 import 'common.dart';
 import 'demo_pin.dart';
 import 'network_menu.dart';
@@ -30,7 +33,11 @@ const Key firstRunRestoreKey = ValueKey('first-run-restore');
 /// The choice is a step of its own, before any text field: a tester whose keyboard covered
 /// the restore link under the PIN field created a wallet they did not want (26.10.16).
 class FirstRunScreen extends ConsumerStatefulWidget {
-  const FirstRunScreen({super.key});
+  const FirstRunScreen({super.key, this.startCreating = false});
+
+  /// From the first-start picker's Create, which stands in for the choice: the PIN step at
+  /// once, and its Back returns to the picker.
+  final bool startCreating;
 
   @override
   ConsumerState<FirstRunScreen> createState() => _FirstRunScreenState();
@@ -47,6 +54,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   @override
   void initState() {
     super.initState();
+    _creating = widget.startCreating;
     // The web demo and preview ask for no PIN: the wallet is set up with the demo PIN at once.
     if (ref.read(pinlessProvider)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -98,7 +106,15 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
             .read(noticeProvider.notifier)
             .show(l.biometricsFromNextStart, level: NoticeLevel.info, persistent: true);
       }
-      goHome(context);
+      // Undercover from the start: Home once Tor carries the wallet's requests.
+      if (shouldWaitForTor(ref)) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute<void>(builder: (_) => const TorWaitScreen()),
+          (_) => false,
+        );
+      } else {
+        goHome(context);
+      }
     } catch (error) {
       logWarn(
         'setup',
@@ -123,6 +139,15 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     if (answer != null) _finish(answer.pin, answer.biometrics);
   }
 
+  /// Back on the PIN step: to the choice, or to the picker that stood in for it.
+  void _backFromPin() {
+    if (widget.startCreating) {
+      _leave(const LaunchScreen());
+    } else {
+      setState(() => _creating = false);
+    }
+  }
+
   void _leave(Widget screen) =>
       Navigator.of(context)
           .pushReplacement(MaterialPageRoute<void>(builder: (_) => screen));
@@ -145,7 +170,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     return PopScope(
       canPop: !onPinStep,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) setState(() => _creating = false);
+        if (!didPop) _backFromPin();
       },
       child: SlotScaffold(
         centered: !(_answer == null && choosing) && !onPinStep,
@@ -154,13 +179,14 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         // PIN step the way back to the choice.
         appBar: AppBar(
           leading: onPinStep
-              ? BackButton(onPressed: () => setState(() => _creating = false))
+              ? BackButton(onPressed: _backFromPin)
               : null,
           automaticallyImplyLeading: false,
           // Mainnet on the built-in node works without a choice, but a new install must be able
           // to reach floonet or another node before it has a wallet, so this is not Advanced.
           actions: [
-            if (!demo && !pinless) NetworkSettingsButton(enabled: !waiting),
+            if (!demo && !pinless && ref.watch(levelFeaturesProvider.select((f) => f.welcomeServerLink)))
+              NetworkSettingsButton(enabled: !waiting),
           ],
         ),
         body: onPinStep && !demo
