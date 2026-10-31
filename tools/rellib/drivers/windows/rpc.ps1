@@ -5,7 +5,7 @@
 param([string]$Run, [string]$Seq, [string]$B64, [int]$TimeoutS = 120)
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
-if (-not $Run.StartsWith('C:\EpicRig\trust\', [StringComparison]::OrdinalIgnoreCase)) { throw "run folder $Run is not under C:\EpicRig\trust" }
+if ($Run -notmatch '^C:\\EpicRig\d?\\trust\\runs\\[^\\]+$') { throw "run folder $Run is not under C:\EpicRig<k>\trust\runs" }
 $json = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($B64))
 $cmd = Join-Path $Run "cmd\$Seq.json"
 $res = Join-Path $Run "res\$Seq.json"

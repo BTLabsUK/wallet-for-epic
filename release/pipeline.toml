@@ -333,10 +333,12 @@ title = "G4 update trust Windows ({variant})"
 platform = "windows"
 for_each = "proof_variant"
 host = "build"
-# One lane: the rig runs one job at a time, and the app's single-instance mutex
-# (Local\uk.btlabs.epiccash.desktop.single, the same in both variants) is shared by every rig job
-# in session 0, so a second variant's app would quit at start and its Setup would wait on the first.
-lane = "trust-windows"
+# A lane per variant, each on its own rig session ([host.windows] rigs in release-hosts.toml,
+# e.g. tor = 1, notor = 5; both 1 when unset). Every rig job runs in Windows session 0, so jobs of
+# one Windows user share the app's single-instance mutex (Local\uk.btlabs.epiccash.desktop.single)
+# and Setup's HKCU uninstall entry: the driver holds a lock per rig user, and two variants whose
+# rigs have the same user still run one after the other. Only rigs with different users overlap.
+lane = "trust-windows-{variant}"
 needs = ["build-android", "build-play", "sign-android", "build-linux", "build-windows@variant"]
 proof = true
 timeout = "180m"

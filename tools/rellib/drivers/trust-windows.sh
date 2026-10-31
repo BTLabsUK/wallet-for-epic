@@ -3,9 +3,10 @@
 # G4 update trust, Windows desktop: a user on the previous release updates to the candidate the way the
 # in-app updater does (its Setup with /SILENT /NORESTART /UPDATEFROMAPP=1 while the app runs) and keeps
 # the wallet, balance, history, their node and Epicbox servers and settings; then (REL_FUNDS=1) one
-# receive and one send on the candidate. Runs on the Windows rig as epicrig through the rig's queue (in
-# the background, session 0, a per-user install in a run folder of its own under C:\EpicRig\trust);
-# the real app is driven blind and every step is read from its own files; see windows/trust.py.
+# receive and one send on the candidate. Runs on the Windows rig as a rig session's user through that
+# session's queue (in the background, Windows session 0, a per-user install in a run folder of its own
+# under C:\EpicRig<k>\trust); the real app is driven blind and every step is read from its own files;
+# see windows/trust.py and windows/rig.py.
 #
 # Env (the runner's contract):
 #   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (epic-cash-desktop-<v>[-notor]-windows-x64-setup.exe)
@@ -15,7 +16,10 @@
 #   REL_NODE, REL_EPICBOX        servers to use; picked here (BT Labs first) when unset
 #   REL_OUT                      proof.json, trust.log, digests, the app's and Setup's logs, P logs
 #   REL_DRY_RUN=1                print the plan, touch nothing
-# Optional: REL_WIN_HOST (ssh name of the rig, default windows-pc), REL_WORK (local work folders,
+# Optional: REL_WIN_HOST (ssh name of the rig, default windows-pc), REL_WIN_RIG (rig session 1..9:
+# task EpicWalletRig<k>, work dir C:\EpicRig<k>; default [host.windows] rigs.<variant> in
+# release-hosts.toml (REL_HOSTS), else 1; runs on rigs with the same Windows user wait for each
+# other, a lock in ~/.cache/rel-trust-windows/ctl), REL_WORK (local work folders,
 # default ~/.cache/rel-trust-windows), REL_KEEP_FUNDS=1, REL_P_TOOL, REL_P_PASS_FILE, REL_P_PASS_LINE,
 # REL_P_ADDR, REL_P_SERVICE_DIR (P is the shared P service, tools/rellib/p_service.py: no lock).
 #

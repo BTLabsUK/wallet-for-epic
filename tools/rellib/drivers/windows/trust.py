@@ -5,8 +5,8 @@ in-app updater does it and keeps everything. Called by ../trust-windows.sh with 
 (see there).
 
 Runs on the Windows rig (rig.py, agent.ps1): the previous release's Setup installs silently as
-epicrig into a run folder of its own (USERPROFILE = <run>\\home, so the per-user install and the data
-folder are there). The real app is driven blind (posted clicks and plain keys; the click map is the
+the rig session's user (epicrig) into a run folder of its own (USERPROFILE = <run>\\home, so the
+per-user install and the data folder are there). The real app is driven blind (posted clicks and plain keys; the click map is the
 app's layout at the rig's 803x691 window, taken from the same releases on Linux) and every step is
 checked in the app's own files, because nothing on the screen can be read there: UIA is off in
 Flutter's Windows engine, the MSAA root fails, captures are one colour.
@@ -17,7 +17,7 @@ seeded into its own files while it is closed (../seed.py) and must read back aft
 
 What is read, before and after: the wallet's own database (wallet.sqlite3: outputs and transactions,
 minimum confirmations), wallets.json (wallet id, label, folder, fingerprints), the desk store
-(flutter_secure_storage.dat, DPAPI; settings keys only, read by the agent as epicrig), the
+(flutter_secure_storage.dat, DPAPI; settings keys only, read by the agent as the rig's user), the
 candidate's settings.toml (servers, the first in use), wfe.log (wallet opened, slates, which Epicbox
 server the listener subscribed to) and the data folder's file list.
 """
@@ -41,7 +41,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, LINUX)
 sys.path.insert(0, os.path.dirname(HERE))
 from p_funder import P  # noqa: E402
-from rig import Rig, RigError  # noqa: E402
+from rig import Rig, RigError, pick_session, task_name, work_dir  # noqa: E402
 import facts  # noqa: E402
 import screens as catalog  # noqa: E402
 import seed  # noqa: E402
@@ -192,9 +192,14 @@ class Run:
             cand = self.setup_exe(self.cand_dir, self.cand_ver)
         except CannotRun as e:
             prev = cand = str(e)
+        try:
+            k = pick_session(self.variant)
+        except RigError as e:
+            return ["rig: %s" % e]
         return [
-            "rig: %s as epicrig through the rig queue (scheduled task EpicWalletRig, session 0); run folder "
-            "C:\\EpicRig\\trust\\runs\\%s (USERPROFILE of the app: its per-user install and data folder there)" % (self.host, self.name),
+            "rig: %s, rig session %d through its queue (scheduled task %s, as its user, Windows session 0; a run "
+            "for the same user waits for the other); run folder %s\\trust\\runs\\%s (USERPROFILE of the app: its "
+            "per-user install and data folder there)" % (self.host, k, task_name(k), work_dir(k), self.name),
             "local work folder: %s (wallet password, mode 600; DB snapshots)" % self.work,
             "previous: %s" % prev,
             "candidate: %s" % cand,
@@ -690,7 +695,8 @@ class Run:
         os.chmod(pw, 0o600)
         self.label = "Trust %s" % datetime.datetime.now().strftime("%m%d %H%M")
         self.want_settings = dict(seed.SEED, label=self.label)
-        self.rig = Rig(self.host, self.name, self.log, os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows", "ctl"))
+        self.rig = Rig(self.host, self.name, self.log, os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows", "ctl"),
+                       session=pick_session(self.variant))
         self.rig.prepare()
         self.rig.put(prev, self.rig.run + "\\prev-setup.exe")
         self.rig.put(cand, self.rig.run + "\\cand-setup.exe")
@@ -712,7 +718,7 @@ class Run:
         self.log("stand-ins on the rig: node %s -> %s, relay %s -> %s" % (self.custom_node, self.node, self.custom_relay, self.relay))
         e = self.call("entry").get("entry")
         if e:
-            raise CannotRun("epicrig already has Epic Cash Desktop installed (%s at %s): left alone" % (e.get("version"), e.get("location")))
+            raise CannotRun("%s already has Epic Cash Desktop installed (%s at %s): left alone" % (self.rig.user, e.get("version"), e.get("location")))
 
         # previous release: installed silently, the user's wallet and choices
         r = self.call("setup", exe=self.rig.run + "\\prev-setup.exe", timeout=400, wait_s=300,

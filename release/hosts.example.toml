@@ -32,6 +32,10 @@ gitlab_token_expires = "YYYY-MM-DD"
 [host.windows]
 ssh = "<alias>"
 workdir = "C:/Users/<user>/code/wfe-rel"
+# G4 trust-windows: the rig session per variant (scheduled task EpicWalletRig<k>, work dir
+# C:\EpicRig<k>; 1 when unset). The variants run side by side only when the two sessions' tasks run
+# as different Windows users (docs/RELEASING.md, "Windows update trust").
+# rigs = { tor = 1, notor = 5 }
 
 # The Apple builder works from a hand-off folder: jobs go there, results come back there.
 # staging = "<ssh alias>:<dir>" is synced with rsync; empty = {run}/handoff only (move by hand).

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
-# G4 update trust, Windows: the rig side. Runs as epicrig (scheduled task EpicWalletRig, session 0, a
-# window station of its own) for one whole run, because a later rig job cannot see an earlier job's
-# windows. Takes commands from <run>\cmd\*.json (oldest first), answers in <run>\res\<same name>.json,
+# G4 update trust, Windows: the rig side. Runs as the rig session's user (epicrig; scheduled task
+# EpicWalletRig<k>, Windows session 0, a window station of its own) for one whole run, because a later
+# rig job cannot see an earlier job's windows. Takes commands from <run>\cmd\*.json (oldest first), answers in <run>\res\<same name>.json,
 # until "quit", <run>\stop, or no command for -IdleMin minutes. Everything it starts or installs lives
 # under <run> (the app's USERPROFILE is <run>\home, so its data folder and its per-user install are
-# there); on the way out it stops those processes. Never touches anything outside C:\EpicRig\trust.
+# there); on the way out it stops those processes. Never touches anything outside its session's <work>\trust.
 #
 # The app's window is never shown on this station. Posted mouse messages and WM_CHAR reach
 # FLUTTERVIEW; nothing can be read back from the screen (UIA is off in Flutter's Windows engine, the
@@ -16,7 +16,7 @@
 # on http://127.0.0.1:<port> forwarding to an https node, a relay on 127.0.0.1:<port> piped into TLS.
 param([string]$Run, [int]$IdleMin = 45)
 $ErrorActionPreference = 'Stop'
-if (-not $Run.StartsWith('C:\EpicRig\trust\', [StringComparison]::OrdinalIgnoreCase)) { throw "run folder $Run is not under C:\EpicRig\trust" }
+if ($Run -notmatch '^C:\\EpicRig\d?\\trust\\runs\\[^\\]+$') { throw "run folder $Run is not under C:\EpicRig<k>\trust\runs" }
 $cmdDir = Join-Path $Run 'cmd'
 $resDir = Join-Path $Run 'res'
 $home_ = Join-Path $Run 'home'
