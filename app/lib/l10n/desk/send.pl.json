@@ -162,5 +162,6 @@
   "deskSendContactNoLink": "{name} nie ma adresu Link.",
   "deskSendHintNeedsMethod": "Sprawdzenie wymaga: {method}",
   "deskSendEpicboxNodeOnly": "Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · Przesyłanie pliku działa.",
-  "deskSendLinkNodeOnly": "Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · Przesyłanie pliku działa."
+  "deskSendLinkNodeOnly": "Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · Przesyłanie pliku działa.",
+  "deskSendKillSwitch": "Wyłącznik awaryjny jest włączony: nic się nie łączy. Bezpośrednio · Przesyłanie pliku działa."
 }

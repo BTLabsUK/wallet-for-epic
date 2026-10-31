@@ -162,5 +162,6 @@
   "deskSendContactNoLink": "{name} ไม่มีที่อยู่ Link",
   "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}",
   "deskSendEpicboxNodeOnly": "โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · โอนไฟล์ ใช้ได้",
-  "deskSendLinkNodeOnly": "โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้"
+  "deskSendLinkNodeOnly": "โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้",
+  "deskSendKillSwitch": "สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · โอนไฟล์ ใช้ได้"
 }

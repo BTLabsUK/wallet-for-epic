@@ -17466,11 +17466,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netBlockLinkNodeOnly =>
-      'Node only is on: Link is off. Direct · QR and Direct · File work.';
+      'Node only is on: Link is off. Direct · QR Payment and Direct · File Transfer work.';
 
   @override
   String get netBlockSendKillSwitch =>
-      'Kill switch is on: nothing connects. Direct · QR and Direct · File work.';
+      'Kill switch is on: nothing connects. Direct · QR Payment and Direct · File Transfer work.';
 
   @override
   String get netBlockNodeOnly => 'Off in Node only.';
@@ -17986,4 +17986,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSendLinkNodeOnly =>
       'Node only is on: Link is off. Direct · File Transfer works.';
+
+  @override
+  String get deskSendKillSwitch =>
+      'Kill switch is on: nothing connects. Direct · File Transfer works.';
 }

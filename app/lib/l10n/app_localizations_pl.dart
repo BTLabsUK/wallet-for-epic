@@ -18091,11 +18091,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netBlockLinkNodeOnly =>
-      'Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · QR i Bezpośrednio · Plik działają.';
+      'Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · Płatność QR i Bezpośrednio · Przesyłanie pliku działają.';
 
   @override
   String get netBlockSendKillSwitch =>
-      'Wyłącznik awaryjny jest włączony: nic się nie łączy. Bezpośrednio · QR i Bezpośrednio · Plik działają.';
+      'Wyłącznik awaryjny jest włączony: nic się nie łączy. Bezpośrednio · Płatność QR i Bezpośrednio · Przesyłanie pliku działają.';
 
   @override
   String get netBlockNodeOnly => 'Wyłączone w trybie Tylko węzeł.';
@@ -18625,4 +18625,8 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSendLinkNodeOnly =>
       'Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · Przesyłanie pliku działa.';
+
+  @override
+  String get deskSendKillSwitch =>
+      'Wyłącznik awaryjny jest włączony: nic się nie łączy. Bezpośrednio · Przesyłanie pliku działa.';
 }

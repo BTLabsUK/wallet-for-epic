@@ -1967,6 +1967,10 @@ class _SendViewState extends ConsumerState<SendView> {
   /// wait while it is not [NetBlock.none]; the File route never does.
   NetBlock _block = NetBlock.none;
 
+  /// What the network mode alone allows Epicbox and Link now (Node only, Kill switch, Tor only
+  /// waiting), read in [build]: the selector shows them Off while it is not [NetBlock.none].
+  NetBlock _modeBlock = NetBlock.none;
+
   /// What it allows the File method: Offline stops making a file too (it asks the node),
   /// unless the node is local.
   /// What the network mode allows finishing and posting a file or QR Payment, which reach
@@ -2081,6 +2085,9 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing recipient's payment waits in the outbox while Epicbox is off ("Queue
     // payment"); Offline and Tor still hold it.
     _block = watchNetBlock(context, ref, method: _pairingTo != null ? null : _sendMethod);
+    _modeBlock = watchNetBlock(context, ref);
+    _onNow = {for (final m in TransferMethod.values) if (_methodOnNow(m)) m};
+    _keepMethodOn();
     // The pairing went (removed elsewhere): back to the To field.
     if (_pairingTo != null && _toPairing() == null && ref.watch(pairingsProvider).hasValue && !_holdsPayment) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2328,6 +2335,64 @@ class _SendViewState extends ConsumerState<SendView> {
   /// Epicbox, Link, Direct · QR and Direct · File, one segment each, icon over label. Link is
   /// the family: the address picks Link · HTTP or Link · Tor. Tor is not a method: the one Tor
   /// switch (Settings › Privacy) changes how Epicbox and Link connect.
+  /// [m] can be chosen now: Epicbox and Link wait for the network mode, Epicbox for its switch
+  /// too (a pairing's mailbox queues), and a pairing recipient has no Link address. QR Payment
+  /// and File Transfer are made without a connection: always, while offered.
+  bool _methodOnNow(TransferMethod m) => switch (m) {
+    TransferMethod.epicbox => _modeBlock == NetBlock.none && (_watchedPayments.epicbox || _pairingTo != null),
+    TransferMethod.direct => _modeBlock == NetBlock.none && _pairingTo == null,
+    TransferMethod.qr => _watchedPayments.directQr && offersQrPayment(ref),
+    TransferMethod.file => _watchedPayments.directFile || hasPendingFileSend(ref.watch(homeProvider.select((h) => h.value?.transactions))),
+  };
+
+  /// The methods that can be chosen now, worked out in [build] ([_methodOnNow]).
+  Set<TransferMethod> _onNow = TransferMethod.values.toSet();
+
+  bool _methodOn(TransferMethod m) => _onNow.contains(m);
+
+  /// No method can be chosen on the address steps (Node only with QR Payment and File Transfer
+  /// off): nothing is selected and the form waits, the note says why.
+  bool get _noMethod =>
+      (_stage == SendStage.recipient || _stage == SendStage.amount) && _onNow.isEmpty;
+
+  bool _moving = false;
+
+  /// A method that cannot be chosen now never stays chosen with a live form (D-06): on the
+  /// address steps Send moves to the first that can, after this frame (QR Payment and File
+  /// Transfer open their route). Only this screen's choice moves; Settings stay as they are.
+  void _keepMethodOn() {
+    if (_moving || _holdsPayment || _busy || _estimating) return;
+    if (_stage != SendStage.recipient && _stage != SendStage.amount) return;
+    if (_methodOn(_method)) return;
+    if (_onNow.isEmpty) return;
+    _moving = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _moving = false;
+      if (!mounted || _holdsPayment || _busy || _estimating) return;
+      if (_stage != SendStage.recipient && _stage != SendStage.amount) return;
+      if (_methodOn(_method)) return;
+      for (final m in TransferMethod.values) {
+        if (!_methodOn(m)) continue;
+        _chooseMethod(m);
+        return;
+      }
+    });
+  }
+
+  /// The form under the selector, dimmed and out of reach while [_noMethod].
+  List<Widget> _waitForMethod(List<Widget> children) => !_noMethod
+      ? children
+      : [
+          ExcludeFocus(
+            child: IgnorePointer(
+              child: Opacity(
+                opacity: 0.4,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+              ),
+            ),
+          ),
+        ];
+
   Widget _methodSelector(BuildContext context, TransferMethod selected) {
     final l = context.l10n;
     final labelStyle = Theme.of(context).textTheme.labelMedium;
@@ -2335,21 +2400,30 @@ class _SendViewState extends ConsumerState<SendView> {
       TransferMethod value,
       IconData icon,
       String label,
-    ) => ButtonSegment(
-      value: value,
-      tooltip: label,
-      label: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(height: 2),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(label, maxLines: 1, style: labelStyle),
-          ),
-        ],
-      ),
-    );
+    ) {
+      // Not available now: Off under the name, and it cannot be chosen.
+      final on = _methodOn(value);
+      return ButtonSegment(
+        value: value,
+        tooltip: label,
+        enabled: on,
+        label: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(label, maxLines: 1, style: labelStyle),
+            ),
+            if (!on) ...[
+              const SizedBox(height: 2),
+              FittedBox(fit: BoxFit.scaleDown, child: EBadge.state(l.netStatusOff, on: false)),
+            ],
+          ],
+        ),
+      );
+    }
     // Settings › Transactions says which methods are offered; the method in use stays
     // whatever the switch says (a pasted onion picks Link; a file send, the failed-Epicbox
     // file fallback and a file waiting for its reply keep File).
@@ -2381,7 +2455,8 @@ class _SendViewState extends ConsumerState<SendView> {
       child: SegmentedButton<TransferMethod>(
         key: sendMethodsKey,
         segments: segments,
-        selected: {selected},
+        selected: _noMethod ? const {} : {selected},
+        emptySelectionAllowed: _noMethod,
         showSelectedIcon: false,
         expandedInsets: EdgeInsets.zero,
         style: const ButtonStyle(
@@ -2402,14 +2477,18 @@ class _SendViewState extends ConsumerState<SendView> {
     // Epicbox chosen while its listener is down: say so and offer Retry (UP-038); the other
     // methods go on as before.
     final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
-    final down = method == TransferMethod.epicbox && (epicbox == null || epicbox == EpicboxState.offline);
+    final none = _noMethod;
+    final down = !none && method == TransferMethod.epicbox && (epicbox == null || epicbox == EpicboxState.offline);
     return [
       _methodSelector(context, method),
-      const SizedBox(height: 12),
-      DismissibleTip(
-        id: sendMethodTipId,
-        child: MethodStrip(method: method),
-      ),
+      // No method can be chosen: no picture of one.
+      if (!none) ...[
+        const SizedBox(height: 12),
+        DismissibleTip(
+          id: sendMethodTipId,
+          child: MethodStrip(method: method),
+        ),
+      ],
       if (down) ...[
         const SizedBox(height: 12),
         EdgeCard(
@@ -2490,6 +2569,7 @@ class _SendViewState extends ConsumerState<SendView> {
     return [
       _header(context, l.sendStepMethod, step: 1),
       ..._methodHead(context, _method),
+      ..._waitForMethod([
       PhoneTourTarget(
         id: 'tour-send-recipient',
         child: TextField(
@@ -2637,6 +2717,7 @@ class _SendViewState extends ConsumerState<SendView> {
             },
           ),
       ],
+      ]),
     ];
   }
 

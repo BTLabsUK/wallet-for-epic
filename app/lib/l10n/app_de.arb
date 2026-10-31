@@ -4544,8 +4544,8 @@
   "statusOffByMode": "Aus ({mode})",
   "statusOffByModeDetail": "Vom Netzwerkmodus ausgeschaltet. Ändern unter Einstellungen › Erweitert › Netzwerk.",
   "netBlockEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · QR-Zahlung und Direkt · Dateiübertragung funktionieren.",
-  "netBlockLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · QR und Direkt · Datei funktionieren.",
-  "netBlockSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · QR und Direkt · Datei funktionieren.",
+  "netBlockLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · QR-Zahlung und Direkt · Dateiübertragung funktionieren.",
+  "netBlockSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · QR-Zahlung und Direkt · Dateiübertragung funktionieren.",
   "netBlockNodeOnly": "Aus bei „Nur Node“.",
   "netBlockKillSwitch": "Aus bei „Notaus“: Nichts verbindet sich.",
   "netBlockWaitingForTorLong": "Wartet auf Tor. Nichts verbindet sich, bis es bereit ist.",
@@ -4680,5 +4680,6 @@
   "txDeviceStatusMadeOn": "Erstellt auf {device}.",
   "txDeviceStatusHeld": "Erstellt auf {device}. Das Geld bleibt hier gehalten, bis die Chain die Zahlung zeigt.",
   "deskSendEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · Dateiübertragung funktioniert.",
-  "deskSendLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert."
+  "deskSendLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert.",
+  "deskSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert."
 }

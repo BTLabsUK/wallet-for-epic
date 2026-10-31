@@ -18073,11 +18073,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netBlockLinkNodeOnly =>
-      'Включён режим «Только узел»: «Ссылка» выключена. «Напрямую · QR» и «Напрямую · Файл» работают.';
+      'Включён режим «Только узел»: «Ссылка» выключена. «Напрямую · Оплата по QR» и «Напрямую · Передача файла» работают.';
 
   @override
   String get netBlockSendKillSwitch =>
-      'Включено «Аварийное отключение»: ничего не подключается. «Напрямую · QR» и «Напрямую · Файл» работают.';
+      'Включено «Аварийное отключение»: ничего не подключается. «Напрямую · Оплата по QR» и «Напрямую · Передача файла» работают.';
 
   @override
   String get netBlockNodeOnly => 'Выключено в режиме «Только узел».';
@@ -18605,4 +18605,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSendLinkNodeOnly =>
       'Включён режим «Только узел»: «Ссылка» выключена. «Напрямую · Передача файла» работает.';
+
+  @override
+  String get deskSendKillSwitch =>
+      'Включено «Аварийное отключение»: ничего не подключается. «Напрямую · Передача файла» работает.';
 }

@@ -16459,10 +16459,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '“仅节点”已开启：Epicbox 已关闭。直接 · 二维码付款 和 直接 · 文件传输可用。';
 
   @override
-  String get netBlockLinkNodeOnly => '“仅节点”已开启：链接已关闭。直接 · QR 和 直接 · 文件可用。';
+  String get netBlockLinkNodeOnly => '“仅节点”已开启：链接已关闭。直接 · 二维码付款 和 直接 · 文件传输可用。';
 
   @override
-  String get netBlockSendKillSwitch => '“紧急断网”已开启：什么都不连接。直接 · QR 和 直接 · 文件可用。';
+  String get netBlockSendKillSwitch =>
+      '“紧急断网”已开启：什么都不连接。直接 · 二维码付款 和 直接 · 文件传输可用。';
 
   @override
   String get netBlockNodeOnly => '在“仅节点”下已关闭。';
@@ -16948,4 +16949,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSendLinkNodeOnly => '“仅节点”已开启：链接已关闭。直接 · 文件传输可用。';
+
+  @override
+  String get deskSendKillSwitch => '“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。';
 }

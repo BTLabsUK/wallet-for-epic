@@ -162,5 +162,6 @@
   "deskSendContactNoLink": "{name} hat keine Link-Adresse.",
   "deskSendHintNeedsMethod": "Prüfen braucht {method}",
   "deskSendEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · Dateiübertragung funktioniert.",
-  "deskSendLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert."
+  "deskSendLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert.",
+  "deskSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert."
 }

@@ -162,5 +162,6 @@
   "deskSendContactNoLink": "{name} 没有 Link 地址。",
   "deskSendHintNeedsMethod": "确认需要 {method}",
   "deskSendEpicboxNodeOnly": "“仅节点”已开启：Epicbox 已关闭。直接 · 文件传输可用。",
-  "deskSendLinkNodeOnly": "“仅节点”已开启：链接已关闭。直接 · 文件传输可用。"
+  "deskSendLinkNodeOnly": "“仅节点”已开启：链接已关闭。直接 · 文件传输可用。",
+  "deskSendKillSwitch": "“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。"
 }

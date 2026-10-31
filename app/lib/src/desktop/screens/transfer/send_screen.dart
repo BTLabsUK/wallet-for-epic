@@ -1459,7 +1459,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The mode's note for this send: Node only names the method that is off, Kill switch says
   /// nothing connects; both say what still works. Tor only waiting has its own line.
   String _blockTitle(AppLocalizations l, NetBlock net) => switch (net) {
-    NetBlock.killSwitch => l.netBlockSendKillSwitch,
+    NetBlock.killSwitch => l.deskSendKillSwitch,
     NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.deskSendEpicboxNodeOnly : l.deskSendLinkNodeOnly,
     _ => netBlockReason(l, net)!,
   };

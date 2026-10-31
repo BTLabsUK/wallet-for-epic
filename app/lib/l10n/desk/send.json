@@ -857,5 +857,9 @@
   "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
   "@deskSendLinkNodeOnly": {
     "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
+  },
+  "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
+  "@deskSendKillSwitch": {
+    "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
   }
 }

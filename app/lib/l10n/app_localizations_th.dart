@@ -17060,11 +17060,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get netBlockLinkNodeOnly =>
-      'โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · QR และ โดยตรง · ไฟล์ ใช้ได้';
+      'โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · ชำระด้วย QR และ โดยตรง · โอนไฟล์ ใช้ได้';
 
   @override
   String get netBlockSendKillSwitch =>
-      'สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · QR และ โดยตรง · ไฟล์ ใช้ได้';
+      'สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · ชำระด้วย QR และ โดยตรง · โอนไฟล์ ใช้ได้';
 
   @override
   String get netBlockNodeOnly => 'ปิดในโหมดโหนดเท่านั้น';
@@ -17574,4 +17574,8 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSendLinkNodeOnly =>
       'โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้';
+
+  @override
+  String get deskSendKillSwitch =>
+      'สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · โอนไฟล์ ใช้ได้';
 }

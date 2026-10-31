@@ -27215,13 +27215,13 @@ abstract class AppLocalizations {
   /// Send over Link while Node only is chosen.
   ///
   /// In en, this message translates to:
-  /// **'Node only is on: Link is off. Direct · QR and Direct · File work.'**
+  /// **'Node only is on: Link is off. Direct · QR Payment and Direct · File Transfer work.'**
   String get netBlockLinkNodeOnly;
 
   /// Send over Epicbox or Link while Kill switch is chosen.
   ///
   /// In en, this message translates to:
-  /// **'Kill switch is on: nothing connects. Direct · QR and Direct · File work.'**
+  /// **'Kill switch is on: nothing connects. Direct · QR Payment and Direct · File Transfer work.'**
   String get netBlockSendKillSwitch;
 
   /// Generic reason an action is unavailable in Node only.
@@ -28033,6 +28033,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Node only is on: Link is off. Direct · File Transfer works.'**
   String get deskSendLinkNodeOnly;
+
+  /// Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill switch is on: nothing connects. Direct · File Transfer works.'**
+  String get deskSendKillSwitch;
 }
 
 class _AppLocalizationsDelegate

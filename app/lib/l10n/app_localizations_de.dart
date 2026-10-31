@@ -17669,11 +17669,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netBlockLinkNodeOnly =>
-      '„Nur Node“ ist an: Link ist aus. Direkt · QR und Direkt · Datei funktionieren.';
+      '„Nur Node“ ist an: Link ist aus. Direkt · QR-Zahlung und Direkt · Dateiübertragung funktionieren.';
 
   @override
   String get netBlockSendKillSwitch =>
-      '„Notaus“ ist an: Nichts verbindet sich. Direkt · QR und Direkt · Datei funktionieren.';
+      '„Notaus“ ist an: Nichts verbindet sich. Direkt · QR-Zahlung und Direkt · Dateiübertragung funktionieren.';
 
   @override
   String get netBlockNodeOnly => 'Aus bei „Nur Node“.';
@@ -18197,4 +18197,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSendLinkNodeOnly =>
       '„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert.';
+
+  @override
+  String get deskSendKillSwitch =>
+      '„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert.';
 }

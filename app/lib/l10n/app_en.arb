@@ -23521,11 +23521,11 @@
   "@netBlockEpicboxNodeOnly": {
     "description": "Send over Epicbox while Node only is chosen."
   },
-  "netBlockLinkNodeOnly": "Node only is on: Link is off. Direct · QR and Direct · File work.",
+  "netBlockLinkNodeOnly": "Node only is on: Link is off. Direct · QR Payment and Direct · File Transfer work.",
   "@netBlockLinkNodeOnly": {
     "description": "Send over Link while Node only is chosen."
   },
-  "netBlockSendKillSwitch": "Kill switch is on: nothing connects. Direct · QR and Direct · File work.",
+  "netBlockSendKillSwitch": "Kill switch is on: nothing connects. Direct · QR Payment and Direct · File Transfer work.",
   "@netBlockSendKillSwitch": {
     "description": "Send over Epicbox or Link while Kill switch is chosen."
   },
@@ -24225,5 +24225,9 @@
   "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
   "@deskSendLinkNodeOnly": {
     "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
+  },
+  "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
+  "@deskSendKillSwitch": {
+    "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
   }
 }
