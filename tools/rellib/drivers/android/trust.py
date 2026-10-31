@@ -473,11 +473,15 @@ def use_typed_server(kind, target):
     """Make `target` a typed-in ("Added by you") entry and the one in use. A built-in entry of
     the same host is first switched away from and removed, so the typed-in entry is the user's."""
     open_sheet(kind)
+    typed = False  # the driver typed the host in and added it this time
     for attempt in range(6):  # switch away, remove, add, switch to it: up to four rounds
         _filter(bare_host(target))
         ns = nodes(S)
         hit = next((n for n in sheet_rows(ns) if same_host(row_info(n["label"])["host"], target)), None)
-        if hit and row_info(hit["label"])["added"]:
+        # A release that ships the host built in (26.10.24 and later for node.btlabs.uk and
+        # epicbox.stackwallet.com) brings it back as its built-in row when it is typed in again:
+        # that row, typed in by the user, is the one to use.
+        if hit and (row_info(hit["label"])["added"] or typed):
             if not row_info(hit["label"])["current"]:
                 tap_xy(S, hit["center"])
                 _confirm_switch()
@@ -507,8 +511,11 @@ def use_typed_server(kind, target):
             dump_to_log(f"{kind}: no Add for {target}")
             raise RuntimeError(f"{kind}: the sheet offers no Add for {target}")
         tap_xy(S, add["center"])
+        typed = True
         end = time.time() + 40
         while time.time() < end and not find(S, "Added by you"):
+            if any(same_host(row_info(n["label"])["host"], target) for n in sheet_rows(nodes(S))):
+                break
             time.sleep(2)
     _filter("")
     time.sleep(1)
