@@ -4,6 +4,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
@@ -99,10 +100,13 @@ class DeskController extends Notifier<DeskState> {
   StreamSubscription<void>? _changes;
   Timer? _statusPoll;
   Timer? _reload;
+  int _nodesShown = 0;
+  Timer? _nodesPoll;
 
   @override
   DeskState build() {
     ref.onDispose(_stopLive);
+    ref.onDispose(() => _nodesPoll?.cancel());
     // The status-site switch is the settings file's `status.enabled`, a hand edit too.
     final boot = ref.read(deskBootProvider).settings;
     final host = ref.read(hostSettingsProvider);
@@ -243,10 +247,39 @@ class DeskController extends Notifier<DeskState> {
       final balance = await a.balance();
       final txs = await a.transactions();
       final contacts = await a.contacts();
-      final nodes = await a.nodes();
+      // Asking the nodes is for the Node page ([showNodes]); off it the rows keep what was read.
+      final nodes = _nodesShown > 0 ? await a.nodes() : null;
       final boxes = await a.epicboxes();
       final status = await a.status();
       if (_changes != null) state = state.copyWith(balance: balance, txs: txs, contacts: contacts, nodes: nodes, epicboxes: boxes, status: status, oldHistory: a.oldHistoryConflicts);
+    } on Object {
+      // Locked meanwhile.
+    }
+  }
+
+  /// The Node page (its list and pickers) is on screen, or no longer: while it is, the nodes
+  /// are read at once and every 15 s, so each one is asked again after nodeRecheck and the
+  /// heights the rows compare stay fresh. Off it, nothing asks the nodes the wallet does not use.
+  void showNodes(bool on) {
+    if (on) {
+      _nodesShown++;
+    } else if (_nodesShown > 0) {
+      _nodesShown--;
+    }
+    if (_nodesShown == 0) {
+      _nodesPoll?.cancel();
+      _nodesPoll = null;
+      return;
+    }
+    if (_nodesPoll != null) return;
+    unawaited(_loadNodes());
+    _nodesPoll = Timer.periodic(const Duration(seconds: 15), (_) => unawaited(_loadNodes()));
+  }
+
+  Future<void> _loadNodes() async {
+    try {
+      final nodes = await api.nodes();
+      if (_nodesShown > 0 && !listEquals(nodes, state.nodes)) state = state.copyWith(nodes: nodes);
     } on Object {
       // Locked meanwhile.
     }
