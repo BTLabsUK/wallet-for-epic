@@ -845,7 +845,6 @@
   "settingsSectionHelpFeedback": "Справка",
   "settingsStateBackUp": "Сохраните фразу восстановления",
   "settingsStateNotBackedUp": "Ещё не сохранена",
-  "settingsHubBackup": "Резервная копия",
   "settingsStateJoin": "{a} · {b}",
   "settingsUseStatusSite": "Использовать {site}",
   "settingsUseStatusSiteSubtitle": "Показывает, какие узлы и серверы Epicbox в сети, по публичному списку на status.btlabs.uk.",
@@ -3304,7 +3303,6 @@
   "deskUpdUnfinished": "Обновление не завершилось. Повторите попытку.",
   "advExperimental": "Экспериментально",
   "advTitle": "Дополнительно",
-  "advStateOff": "Выкл.",
   "advIntro": "Каждый переключатель показывает ещё одну часть кошелька там, где ей место.",
   "advShowsHeader": "Показывает больше",
   "advNetworkHeader": "Сеть",
@@ -3398,18 +3396,6 @@
   "settingsSectionTransactions": "Транзакции",
   "@settingsSectionTransactions": {
     "description": "Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults)."
-  },
-  "settingsHubMethods": "Способы",
-  "@settingsHubMethods": {
-    "description": "Settings hub, state line of the Transactions row: the payment methods."
-  },
-  "settingsHubDefault": "Способ по умолчанию",
-  "@settingsHubDefault": {
-    "description": "Settings hub, state line of the Transactions row: the method Send starts on."
-  },
-  "settingsHubSendDefaults": "Настройки отправки",
-  "@settingsHubSendDefaults": {
-    "description": "Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on."
   },
   "txMethodsHeader": "Способы оплаты",
   "@txMethodsHeader": {

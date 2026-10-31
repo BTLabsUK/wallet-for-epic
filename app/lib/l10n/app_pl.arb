@@ -845,7 +845,6 @@
   "settingsSectionHelpFeedback": "Pomoc",
   "settingsStateBackUp": "Zapisz frazę odzyskiwania",
   "settingsStateNotBackedUp": "Jeszcze nie zapisano",
-  "settingsHubBackup": "Kopia zapasowa",
   "settingsStateJoin": "{a} · {b}",
   "settingsUseStatusSite": "Używaj {site}",
   "settingsUseStatusSiteSubtitle": "Pokazuje, które węzły i serwery Epicbox są online, z publicznej listy na status.btlabs.uk.",
@@ -3304,7 +3303,6 @@
   "deskUpdUnfinished": "Aktualizacja nie została dokończona. Spróbuj ponownie.",
   "advExperimental": "Eksperymentalne",
   "advTitle": "Zaawansowane",
-  "advStateOff": "Wyłączone",
   "advIntro": "Każdy przełącznik pokazuje kolejną część portfela w miejscu, do którego należy.",
   "advShowsHeader": "Pokazuje więcej",
   "advNetworkHeader": "Sieć",
@@ -3398,18 +3396,6 @@
   "settingsSectionTransactions": "Transakcje",
   "@settingsSectionTransactions": {
     "description": "Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults)."
-  },
-  "settingsHubMethods": "Metody",
-  "@settingsHubMethods": {
-    "description": "Settings hub, state line of the Transactions row: the payment methods."
-  },
-  "settingsHubDefault": "Domyślna metoda",
-  "@settingsHubDefault": {
-    "description": "Settings hub, state line of the Transactions row: the method Send starts on."
-  },
-  "settingsHubSendDefaults": "Zasady wysyłki",
-  "@settingsHubSendDefaults": {
-    "description": "Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on."
   },
   "txMethodsHeader": "Metody płatności",
   "@txMethodsHeader": {

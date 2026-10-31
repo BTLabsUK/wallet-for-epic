@@ -3150,9 +3150,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsStateNotBackedUp => 'ยังไม่ได้สำรอง';
 
   @override
-  String get settingsHubBackup => 'สำรองข้อมูล';
-
-  @override
   String settingsStateJoin(String a, String b) {
     return '$a · $b';
   }
@@ -12378,9 +12375,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get advTitle => 'ขั้นสูง';
 
   @override
-  String get advStateOff => 'ปิด';
-
-  @override
   String get advIntro =>
       'แต่ละสวิตช์จะแสดงส่วนของกระเป๋าเงินเพิ่มอีกส่วนในตำแหน่งของมัน';
 
@@ -12705,15 +12699,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsSectionTransactions => 'ธุรกรรม';
-
-  @override
-  String get settingsHubMethods => 'วิธี';
-
-  @override
-  String get settingsHubDefault => 'วิธีเริ่มต้น';
-
-  @override
-  String get settingsHubSendDefaults => 'ค่าเริ่มต้นการส่ง';
 
   @override
   String get txMethodsHeader => 'วิธีชำระเงิน';

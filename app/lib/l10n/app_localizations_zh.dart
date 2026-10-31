@@ -3030,9 +3030,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsStateNotBackedUp => '尚未备份';
 
   @override
-  String get settingsHubBackup => '备份';
-
-  @override
   String settingsStateJoin(String a, String b) {
     return '$a · $b';
   }
@@ -11970,9 +11967,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advTitle => '高级';
 
   @override
-  String get advStateOff => '关闭';
-
-  @override
   String get advIntro => '每个开关会在相应位置显示钱包的另一部分。';
 
   @override
@@ -12286,15 +12280,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSectionTransactions => '交易';
-
-  @override
-  String get settingsHubMethods => '方式';
-
-  @override
-  String get settingsHubDefault => '默认方式';
-
-  @override
-  String get settingsHubSendDefaults => '发送默认设置';
 
   @override
   String get txMethodsHeader => '付款方式';

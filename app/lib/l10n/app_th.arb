@@ -845,7 +845,6 @@
   "settingsSectionHelpFeedback": "ช่วยเหลือ",
   "settingsStateBackUp": "สำรองวลีกู้คืน",
   "settingsStateNotBackedUp": "ยังไม่ได้สำรอง",
-  "settingsHubBackup": "สำรองข้อมูล",
   "settingsStateJoin": "{a} · {b}",
   "settingsUseStatusSite": "ใช้ {site}",
   "settingsUseStatusSiteSubtitle": "แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่ จากรายการสาธารณะบน status.btlabs.uk",
@@ -3304,7 +3303,6 @@
   "deskUpdUnfinished": "อัปเดตไม่เสร็จ ลองอีกครั้ง",
   "advExperimental": "ทดลอง",
   "advTitle": "ขั้นสูง",
-  "advStateOff": "ปิด",
   "advIntro": "แต่ละสวิตช์จะแสดงส่วนของกระเป๋าเงินเพิ่มอีกส่วนในตำแหน่งของมัน",
   "advShowsHeader": "แสดงเพิ่ม",
   "advNetworkHeader": "เครือข่าย",
@@ -3398,18 +3396,6 @@
   "settingsSectionTransactions": "ธุรกรรม",
   "@settingsSectionTransactions": {
     "description": "Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults)."
-  },
-  "settingsHubMethods": "วิธี",
-  "@settingsHubMethods": {
-    "description": "Settings hub, state line of the Transactions row: the payment methods."
-  },
-  "settingsHubDefault": "วิธีเริ่มต้น",
-  "@settingsHubDefault": {
-    "description": "Settings hub, state line of the Transactions row: the method Send starts on."
-  },
-  "settingsHubSendDefaults": "ค่าเริ่มต้นการส่ง",
-  "@settingsHubSendDefaults": {
-    "description": "Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on."
   },
   "txMethodsHeader": "วิธีชำระเงิน",
   "@txMethodsHeader": {

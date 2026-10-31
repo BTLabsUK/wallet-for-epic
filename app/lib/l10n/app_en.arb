@@ -4060,10 +4060,6 @@
   "@settingsStateNotBackedUp": {
     "description": "State line under the Back up recovery phrase row on the Security page while the phrase has not been backed up."
   },
-  "settingsHubBackup": "Backup",
-  "@settingsHubBackup": {
-    "description": "Settings hub, Security row's second line: one of the things on the page (the recovery phrase backup)."
-  },
   "settingsStateJoin": "{a} · {b}",
   "@settingsStateJoin": {
     "description": "Two state words on one line under a Settings group, with a middle dot between them.",
@@ -16892,10 +16888,6 @@
   "@advTitle": {
     "description": "Title of the Advanced page in Settings and its hub row."
   },
-  "advStateOff": "Off",
-  "@advStateOff": {
-    "description": "State line of the Advanced hub row when nothing is switched on."
-  },
   "advIntro": "Each switch shows one more part of the wallet, where it belongs.",
   "@advIntro": {
     "description": "First line of the Advanced page."
@@ -17304,18 +17296,6 @@
   "settingsSectionTransactions": "Transactions",
   "@settingsSectionTransactions": {
     "description": "Section heading in settings, and the hub row: how payments are made (the methods, the one Send starts on, the send defaults)."
-  },
-  "settingsHubMethods": "Methods",
-  "@settingsHubMethods": {
-    "description": "Settings hub, state line of the Transactions row: the payment methods."
-  },
-  "settingsHubDefault": "Default method",
-  "@settingsHubDefault": {
-    "description": "Settings hub, state line of the Transactions row: the method Send starts on."
-  },
-  "settingsHubSendDefaults": "Send defaults",
-  "@settingsHubSendDefaults": {
-    "description": "Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on."
   },
   "txMethodsHeader": "Payment methods",
   "@txMethodsHeader": {

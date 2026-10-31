@@ -5191,12 +5191,6 @@ abstract class AppLocalizations {
   /// **'Not backed up yet'**
   String get settingsStateNotBackedUp;
 
-  /// Settings hub, Security row's second line: one of the things on the page (the recovery phrase backup).
-  ///
-  /// In en, this message translates to:
-  /// **'Backup'**
-  String get settingsHubBackup;
-
   /// Two state words on one line under a Settings group, with a middle dot between them.
   ///
   /// In en, this message translates to:
@@ -20078,12 +20072,6 @@ abstract class AppLocalizations {
   /// **'Advanced'**
   String get advTitle;
 
-  /// State line of the Advanced hub row when nothing is switched on.
-  ///
-  /// In en, this message translates to:
-  /// **'Off'**
-  String get advStateOff;
-
   /// First line of the Advanced page.
   ///
   /// In en, this message translates to:
@@ -20629,24 +20617,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transactions'**
   String get settingsSectionTransactions;
-
-  /// Settings hub, state line of the Transactions row: the payment methods.
-  ///
-  /// In en, this message translates to:
-  /// **'Methods'**
-  String get settingsHubMethods;
-
-  /// Settings hub, state line of the Transactions row: the method Send starts on.
-  ///
-  /// In en, this message translates to:
-  /// **'Default method'**
-  String get settingsHubDefault;
-
-  /// Settings hub, state line of the Transactions row: the send strategy and Split change; named only while Advanced › Send options is on.
-  ///
-  /// In en, this message translates to:
-  /// **'Send defaults'**
-  String get settingsHubSendDefaults;
 
   /// Header on Settings › Transactions above the three payment methods.
   ///
