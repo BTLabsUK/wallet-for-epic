@@ -227,7 +227,10 @@ class DeskController extends Notifier<DeskState> {
     try {
       final s = await api.status();
       // A reopen the wallet made by itself (node fallback, the built-in node) shows here too.
-      if (_changes != null) state = state.copyWith(status: s, session: api.sessionRevision);
+      final session = api.sessionRevision;
+      // Most polls find nothing new: an equal status is not written, so nothing redraws.
+      if (s == state.status && session == state.session) return;
+      if (_changes != null) state = state.copyWith(status: s, session: session);
     } on Object {
       // Locked meanwhile.
     }
