@@ -349,18 +349,44 @@ class WalletHistory {
   }
 
   /// Gives this wallet each of [seeds] once, in the shared book: a seed the wallet already
-  /// had is skipped (a deleted one is never added again), and a contact with the seed's
-  /// address already in the book becomes the seed (nothing added). Does nothing without the
-  /// shared book.
+  /// had is not added again (a deleted one never comes back), and a contact with the seed's
+  /// address already in the book becomes the seed (nothing added). A seed's entry the user
+  /// left untouched follows a new address (the signed btlabs.json's), as on the desktop; an
+  /// edited one is left alone. Does nothing without the shared book.
   Future<void> seedContacts(List<SeedContact> seeds) async {
     final shared = _shared;
     if (shared == null) return;
     for (final s in seeds) {
-      if (meta.seededContacts.contains(s.id)) continue;
+      if (meta.seededContacts.contains(s.id)) {
+        await _followSeed(shared, s);
+        continue;
+      }
       if (!shared.list().any((c) => c.epicbox == s.address)) {
         await shared.save(ContactFields(name: s.name, epicbox: s.address, note: s.note));
       }
-      await _store.update((m) => m.seededContacts.add(s.id));
+      await _store.update((m) {
+        m.seededContacts.add(s.id);
+        m.seededAddresses[s.id] = s.address;
+      });
+    }
+  }
+
+  /// Moves the untouched book entry of the seed [s] to its address now: the seed's name and
+  /// note, one Epicbox address and nothing else, at the address this wallet last wrote. A
+  /// wallet seeded before that was recorded knows no address: there the entry follows when
+  /// only the server moved (same key).
+  Future<void> _followSeed(ContactStore shared, SeedContact s) async {
+    final was = meta.seededAddresses[s.id];
+    if (was == s.address) return;
+    String key(String a) => a.split('@').first;
+    final entry = shared.list().where((c) {
+      final box = c.epicbox;
+      if (box == null || c.http != null || c.tor != null || c.name != s.name || c.note != s.note) return false;
+      return was != null ? box == was : box != s.address && key(box) == key(s.address);
+    }).firstOrNull;
+    if (entry != null) await shared.save(entry.copyWith(epicbox: s.address));
+    if (entry != null || shared.list().any((c) => c.epicbox == s.address)) {
+      await _store.update((m) => m.seededAddresses[s.id] = s.address);
     }
   }
 

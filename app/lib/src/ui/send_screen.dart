@@ -2079,8 +2079,8 @@ class _SendViewState extends ConsumerState<SendView> {
       parseRecipient(_recipient.text).address,
     );
     // A contact with another address is not "only" this way: pick it again for the address
-    // whose method is on.
-    if (contact == null || contact.kinds.length > 1) return reason;
+    // whose method is on. One of another kind is not either: the address in To decides.
+    if (contact == null || contact.kinds.length != 1 || MethodKind.ofRecipient(contact.kinds.single) != m) return reason;
     final name = contact.name;
     final only = m == MethodKind.epicbox
         ? l.sendContactOnlyEpicbox(name)

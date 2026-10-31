@@ -692,20 +692,34 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _moving = false;
 
+  /// The method was picked by hand for the address in To: the address no longer moves it back.
+  bool _methodByHand = false;
+
+  /// The method of the address in To, when it is not the one chosen and can be chosen now: a
+  /// method D-06 moved off comes back once it is on again (an Epicbox address goes by Epicbox,
+  /// never by Link). Null while a method picked by hand, File, or a pairing holds.
+  TxMethod? _addressMethod(DeskState st) {
+    if (_methodByHand || _method == TxMethod.file || _pairingTo != null) return null;
+    final m = methodForKind(addressKindOf(_to.text));
+    if (m == null || _segmentOf(m) == _segmentOf(_method) || !_offered(m) || !_segmentOn(st, m)) return null;
+    return m;
+  }
+
   /// A method that cannot be chosen now never stays chosen with a live form (D-06): Send moves
-  /// to the first that can, after this frame. Only this screen's choice moves; Settings ›
-  /// Transactions › Send starts on stays as it is.
+  /// to the first that can, after this frame, and back to the address's method once that can
+  /// be chosen again. Only this screen's choice moves; Settings › Transactions › Send starts
+  /// on stays as it is.
   void _keepMethodOn(DeskState st) {
-    if (!_strip || _moving || _result != null || _segmentOn(st, _method)) return;
-    final next = _firstOn(st);
-    if (next == null) return;
+    if (!_strip || _moving || _result != null) return;
+    if (_segmentOn(st, _method) && _addressMethod(st) == null) return;
+    if (!_segmentOn(st, _method) && _firstOn(st) == null) return;
     _moving = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _moving = false;
       if (!mounted) return;
       final now = ref.read(deskProvider);
-      if (_result != null || _segmentOn(now, _method)) return;
-      final m = _firstOn(now);
+      if (_result != null) return;
+      final m = _addressMethod(now) ?? (_segmentOn(now, _method) ? null : _firstOn(now));
       if (m == null) return;
       setState(() {
         _method = m;
@@ -751,6 +765,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _allError = null;
       }
       if (to) {
+        _methodByHand = false;
         _toEdited = true;
         _suggestOff = false;
         _codeError = null;
@@ -976,6 +991,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _pairingTo = null;
       _to.text = to;
       _lastTo = to;
+      _methodByHand = false;
       fields();
       if (_strip && m != null && _offered(m)) {
         if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
@@ -1512,6 +1528,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _ => netBlockReason(l, net)!,
   };
 
+  /// [contact]'s one address is of [m]'s kind: it can be paid only that way.
+  static bool _onlyKind(Contact? contact, MethodKind m) =>
+      contact != null && contact.kinds.length == 1 && MethodKind.ofRecipient(contact.kinds.single) == m;
+
   /// The one notice about what keeps a send from going out, most blocking first.
   Widget? _blockNotice(DeskState st) {
     final l = context.l10n;
@@ -1522,7 +1542,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return ENotice(
         key: const ValueKey('send-epicbox-off'),
         title: l.netBlockEpicboxOff,
-        text: contact == null || contact.kinds.length > 1 ? null : l.sendContactOnlyEpicbox(contact.name),
+        text: _onlyKind(contact, MethodKind.epicbox) ? l.sendContactOnlyEpicbox(contact!.name) : null,
         tone: ETone.warn,
         icon: EIcons.epicbox,
         actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
@@ -1534,7 +1554,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       return ENotice(
         key: const ValueKey('send-method-off'),
         title: methodOffReason(l, _kind),
-        text: contact == null || contact.kinds.length > 1 ? null : l.sendContactOnlyMethod(contact.name, MethodIcons.fullName(l, _kind)),
+        text: _onlyKind(contact, _kind) ? l.sendContactOnlyMethod(contact!.name, MethodIcons.fullName(l, _kind)) : null,
         tone: ETone.warn,
         icon: MethodIcons.of(_kind),
         actions: [
@@ -1741,6 +1761,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           onChanged: (m) => setState(() {
             if (m == null) return;
             _method = m == TxMethod.http ? _directRoute(parseAddress(_to.text, ref.read(deskApiProvider)).kind) : m;
+            _methodByHand = _to.text.trim().isNotEmpty;
             _failure = null;
           }),
           ),
