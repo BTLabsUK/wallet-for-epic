@@ -140,3 +140,15 @@ id = "screens-publish-host"
 steps = ["screens"]
 pattern = "screens-publish: (no ssh host|WARNING .* does not serve)"
 hint = "The gallery deploy: set SCREENS_SSH_HOST in ~/.config/btlabs/screens-publish.env, or check the landing page's nginx site (epiccash-landing deploy/install.sh); then `tools/rel run screens --again`."
+
+[[failure]]
+id = "linux-sandbox-display"
+steps = ["trust-linux"]
+pattern = "refusing: DISPLAY \\S+ is not this sandbox's Xvfb"
+hint = "Two Linux trust sandboxes took one X display (fixed in sandbox.py 100ea4b49: a display counts only when its lock names our Xvfb). On an older checkout: `tools/rel retry trust-linux-<variant>` once the other run is up."
+
+[[failure]]
+id = "windows-copy-address"
+steps = ["trust-windows"]
+pattern = "no Epicbox address could be read after the update"
+hint = "Usually the Windows click map, not the app: check wfe.log in the step's out/ for 'wallet opened' and 'epicbox subscribed' after the candidate's start, then render Receive at 800x700 (DESK_SHOTS_SIZE=800x700 flutter test tool/desktop_tour_test.dart --plain-name 17-receive) and compare the copy button with COPY_ADDRESS in drivers/windows/trust.py. No 'wallet opened' = the app: stop and report."

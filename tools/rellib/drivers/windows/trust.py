@@ -68,7 +68,9 @@ TAB, ENTER, SPACE, ESC = 0x09, 0x0D, 0x20, 0x1B
 # bottom-anchored -9 y.
 CLIENT = (803, 691)
 RAIL = {"overview": (36, 82), "activity": (36, 127), "send": (36, 217), "receive": (36, 262), "settings": (36, 326)}
-COPY_ADDRESS = (487, 285)       # Receive: copy the Epicbox address
+# Receive: copy the Epicbox address. Up to 26.10.25 the line under "Epicbox address" wrapped at this
+# width and put the button at y 285; from 26.10.26 (one short line) it is at y 260. Tried in turn.
+COPY_ADDRESS = ((487, 285), (487, 260))
 SEND_TO, SEND_MAX, SEND_REVIEW = (380, 433), (716, 557), (705, 655)
 
 # Why screens/ holds no pictures from the rig (screens.json lists every point as missing with this).
@@ -378,11 +380,12 @@ class Run:
         """The Epicbox address the Receive page copies."""
         for i in range(4):  # a busy box can miss a click: open the page again before each copy
             self.click(RAIL["receive"], 2.5 + i)
-            self.call("clear_clipboard")
-            self.click(COPY_ADDRESS, 1.5 + i)
-            t = (self.call("clipboard").get("text") or "").strip()
-            if re.fullmatch(r"[1-9A-HJ-NP-Za-km-z]{40,60}@[\w.:-]+", t):
-                return t
+            for point in COPY_ADDRESS:
+                self.call("clear_clipboard")
+                self.click(point, 1.5 + i)
+                t = (self.call("clipboard").get("text") or "").strip()
+                if re.fullmatch(r"[1-9A-HJ-NP-Za-km-z]{40,60}@[\w.:-]+", t):
+                    return t
         return None
 
     def create_wallet(self):
