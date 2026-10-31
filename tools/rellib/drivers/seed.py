@@ -28,9 +28,11 @@ import os
 import re
 import sqlite3
 
+import facts
+
 FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
-SEED = {"theme": "light", "technical_details": True, "confirmations": 1}  # 1: test payments spend after one block
+SEED = {"theme": "light", "technical_details": True, "confirmations": facts.TEST_CONFIRMATIONS}  # test payments spend after one block
 TECH = "technicalDetails"
 CONF_KEY = "wallet.minimum_confirmations"
 

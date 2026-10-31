@@ -42,6 +42,7 @@ sys.path.insert(0, LINUX)
 sys.path.insert(0, os.path.dirname(HERE))
 from p_funder import P  # noqa: E402
 from rig import Rig, RigError  # noqa: E402
+import facts  # noqa: E402
 import screens as catalog  # noqa: E402
 import seed  # noqa: E402
 
@@ -50,8 +51,8 @@ lt = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(lt)  # helpers only: node_up, relay_up, short, sha256, num
 
 CHECKS = lt.CHECKS
-NODE_PICK = lt.NODE_PICK
-RELAY_PICK = lt.RELAY_PICK
+NODE_PICK = facts.NODE_PICK
+RELAY_PICK = facts.RELAY_PICK
 P_STALL_S = 120  # answered, not posted this long: ask the shared P service to post P's signed copy again (it posts
 #                 each finalized send with fluff within seconds; a repost of an unsigned copy is refused, harmless)
 FUND_IN = "0.03"
@@ -797,13 +798,10 @@ class Run:
             return False, "the wallet entry changed: %s or folder differ" % key
         addr = self.address()
         # The address the digest read, else the one read when the wallet was made: never an empty one.
-        a0, a1 = (before["address"] or self.setup_address or "").split("@")[0], (addr or "").split("@")[0]
-        if not a1:
-            return False, "unlocked (wfe.log), but no Epicbox address could be copied"
-        if not a0:
-            return False, "the previous release's address could not be copied, so the wallet cannot be compared"
-        if a0 != a1:
-            return False, "a different wallet opened: address %s, was %s" % (lt.short(a1), lt.short(a0))
+        same, why = facts.same_wallet(before["address"] or self.setup_address, addr)
+        if not same:
+            return False, "unlocked (wfe.log), but " + why
+        a1 = why
         return True, ("unlocked with the same password (wfe.log: wallet opened); same wallet entry %s, same folder, "
                       "same Epicbox address %s (copied from the Receive page)" % (e0["id"], lt.short(a1)))
 

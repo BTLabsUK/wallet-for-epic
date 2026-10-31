@@ -32,14 +32,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 import sandbox  # noqa: E402
+import facts  # noqa: E402
 import screens as catalog  # noqa: E402
 from p_funder import P  # noqa: E402
 
 CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept",
           "settings_kept", "send_ok", "receive_ok"]
-NODE_PICK = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
-RELAY_PICK = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
-TEST_CONFIRMATIONS = 1  # the setting the test moves to: test payments spend after one block
+NODE_PICK = facts.NODE_PICK      # release/pipeline.toml [defaults], BT Labs first
+RELAY_PICK = facts.RELAY_PICK
+TEST_CONFIRMATIONS = facts.TEST_CONFIRMATIONS  # the setting the test moves to: test payments spend after one block
 P_STALL_S = 120  # answered, not posted this long: ask the shared P service to post P's signed copy again (it posts
 #                 each finalized send with fluff within seconds; a repost of an unsigned copy is refused, harmless)
 FUND_IN = "0.03"     # P -> wallet before the update
@@ -877,13 +878,10 @@ class Run:
                 return False, "unlock failed: %s" % e
         self.after_unlock()
         addr = self.address()
-        a0 = (before["address"] or "").split("@")[0]
-        a1 = (addr or "").split("@")[0]
-        if not a1:
-            return False, "opened, but no Epicbox address shows"
-        if a0 != a1:
-            return False, "a different wallet opened: address %s, was %s" % (short(a1), short(a0))
-        return True, "unlocked with the same password; same Epicbox address %s" % short(a1)
+        same, why = facts.same_wallet(before["address"], addr)
+        if not same:
+            return False, why
+        return True, "unlocked with the same password; same Epicbox address %s" % short(why)
 
     def settle(self, b, a, wait_s=150):
         """A wallet may still be refreshing when first read: the balance and activity are read again for
@@ -959,7 +957,7 @@ class Run:
         if not a[use_key].split(": ", 1)[-1].startswith(chosen):
             problems.append("in use was %r, now %r" % (b[use_key].split(": ", 1)[-1], a[use_key].split(": ", 1)[-1]))
         # the user's own entries only: a public server the new version no longer lists is not the user's choice
-        own = [x[0] for x in b[key] if "Added by you" in x[1]]
+        own = [x[0] for x in b[key] if facts.ADDED_BY_YOU in x[1]]
         lost = [x for x in own if x not in e1 and x != custom]
         if lost:
             problems.append("own entries gone: %s" % ", ".join(lost))

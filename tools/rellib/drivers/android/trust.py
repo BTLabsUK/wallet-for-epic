@@ -23,6 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 import ph  # noqa: E402
+import facts  # noqa: E402
 import screens as catalog  # noqa: E402
 from ph import PKG, adb, find, key, launch, mask, nodes, secret_words, tap, tap_xy, type_text, wait  # noqa: E402
 
@@ -33,7 +34,7 @@ STATE = os.path.expanduser(E("REL_TRUST_STATE", "~/.config/btlabs/rel-trust-andr
 NODE = E("REL_NODE", "")              # https://host[:port]
 EPICBOX = E("REL_EPICBOX", "")        # host[:port]
 FUNDS = E("REL_FUNDS", "1") == "1"
-CONFIRMATIONS = int(E("REL_TRUST_CONFIRMATIONS", "1"))  # the stored setting the test moves to; 1: test payments spend after one block
+CONFIRMATIONS = facts.TEST_CONFIRMATIONS  # the stored setting the test moves to; 1: test payments spend after one block
 THEME = E("REL_TRUST_THEME", "Dark")
 RECEIVE_AMOUNT = E("REL_TRUST_RECEIVE", "0.02")   # P → wallet
 SEND_AMOUNT = E("REL_TRUST_SEND", "0.01")         # wallet → P
@@ -452,7 +453,7 @@ def sheet_rows(ns):
 def row_info(label):
     host = HOST_ROW.match(label).group(1)
     parts = [p.strip() for p in label.split(",")]
-    return {"host": host, "current": "Current" in parts, "added": "Added by you" in parts}
+    return {"host": host, "current": facts.CURRENT in parts, "added": facts.ADDED_BY_YOU in parts}
 
 
 def server_list(kind, phase=None):
@@ -564,7 +565,7 @@ def use_typed_server(kind, target):
         tap_xy(S, add["center"])
         typed = True
         end = time.time() + 40
-        while time.time() < end and not find(S, "Added by you"):
+        while time.time() < end and not find(S, facts.ADDED_BY_YOU):
             if any(same_host(row_info(n["label"])["host"], target) for n in sheet_rows(nodes(S))):
                 break
             time.sleep(2)
@@ -688,7 +689,7 @@ def _switch_in_row(label):
     return sw[0] if sw else None
 
 
-CONF_ROW = re.compile(r"(\d+) confirmations?, ")  # "1 confirmation, …" / "6 confirmations, …"
+CONF_ROW = facts.CONF_ROW  # "1 confirmation, …" / "6 confirmations, …"
 
 
 def conf_row():
@@ -969,9 +970,8 @@ def fund_new_wallet(p, my_addr, amount):
 
 def compare(a, b):
     res, det = {}, {}
-    ka = (a.get("address") or "").split("@")[0]
-    kb = (b.get("address") or "").split("@")[0]
-    res["wallet_opens"] = bool(b.get("opened") and ka and ka == kb)
+    same, _why = facts.same_wallet(a.get("address"), b.get("address"))
+    res["wallet_opens"] = bool(b.get("opened") and same)
     det["wallet_opens"] = ("unlocked with the PIN; same wallet key " + short(a["address"]).split("@")[0]
                            if res["wallet_opens"] else
                            f"opened={b.get('opened')}, key before {short(a.get('address'))}, after {short(b.get('address'))}")
