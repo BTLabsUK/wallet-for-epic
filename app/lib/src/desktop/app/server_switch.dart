@@ -213,7 +213,18 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
                       padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 6.u),
                       child: Text(l.deskLvShellNoOtherServer, style: ts.small.copyWith(color: c.dim)),
                     )
-                  : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final s in servers) row(s)]),
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Said where the server is chosen, plainly: the move gives a new address.
+                        if (widget.epicbox)
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 4.u),
+                            child: Text(l.slSwitchBody, style: ts.caption.copyWith(color: c.dim)),
+                          ),
+                        for (final s in servers) row(s),
+                      ],
+                    ),
             ),
           ),
         ],

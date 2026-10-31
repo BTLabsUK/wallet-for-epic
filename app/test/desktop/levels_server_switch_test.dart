@@ -107,6 +107,7 @@ void main() {
     }
     expect(find.text('Healthy'), findsWidgets);
     expect(find.text('Not answering'), findsOneWidget);
+    expect(find.text('Switching gives you a new Epicbox address.'), findsOneWidget, reason: 'said plainly where the server is chosen');
     expect(_row(tester, 'epicbox', servers.last.value).onTap, isNull, reason: 'a server not answering cannot be picked');
 
     final pick = servers.first;
@@ -131,6 +132,7 @@ void main() {
     await _open(tester, 'node');
     expect(find.descendant(of: find.byKey(ValueKey('status-switch-node-${healthy.value}')), matching: find.text(healthy.name)), findsOneWidget);
     expect(healthy.name, isNot(contains('://')), reason: 'the address, no scheme');
+    expect(find.text('Switching gives you a new Epicbox address.'), findsNothing, reason: 'a node move keeps the address');
     for (final s in servers.where((s) => s.health == RelayHealth.down)) {
       expect(_row(tester, 'node', s.value).onTap, isNull);
     }
