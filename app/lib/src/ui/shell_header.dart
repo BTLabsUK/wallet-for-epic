@@ -10,7 +10,7 @@ import '../providers.dart';
 import '../settings.dart';
 import '../wallet_service.dart';
 import 'common.dart';
-import 'home_status.dart' show StatusIcons;
+import 'home_status.dart' show StatusIcons, statusEntries;
 import 'status.dart';
 import 'theme/protocol.dart';
 import 'theme/brand.dart' show BrandVariant, BrandWordmark;
@@ -456,17 +456,27 @@ class _Figure extends StatelessWidget {
 }
 
 /// The balance header at the top of Send and Receive, under the app bar, [statusTarget]
-/// high: at its start the spendable figure at a fixed [titleFigureSize] with a small gold
-/// EPIC, and under it the detail line ([pendingTokens]); at its end the status icons
-/// ([StatusIcons]), the same row as under Wallet's figure. The figure never shrinks and
-/// nothing wraps: the detail line collapses into a count ("3 pending") when it does not fit,
-/// and a tap anywhere on the figure opens the balance sheet with every amount in full.
-class BalanceHeader extends StatelessWidget {
+/// high: at its start the spendable figure at [titleFigureSize] with a small gold EPIC, and
+/// under it the detail line (the [pendingTokens], or their count when they do not fit); at its
+/// end the status icons ([StatusIcons]), the same row as under Wallet's figure. A balance is
+/// never clipped (UP-002): on a narrow row the detail line goes under the icons first, then
+/// the figure takes the whole width and the icons a second row, and only then the figure
+/// shrinks, to [titleFigureFloor] at the least. A tap anywhere on the figure opens the
+/// balance sheet with every amount in full.
+class BalanceHeader extends ConsumerWidget {
   const BalanceHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
+    final l = context.l10n;
+    final summary = ref.watch(homeProvider).value?.summary;
+    final hidden = amountDisplay(ref).hidden;
+    // The icons are [statusTarget] wide each: their row's width without laying it out.
+    final iconsWidth = statusEntries(context, ref, bar: true).entries.length * statusTarget;
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    final icons = StatusIcons(key: barStatusesKey, bar: true);
     return Container(
       key: balanceHeaderKey,
       decoration: BoxDecoration(
@@ -477,12 +487,92 @@ class BalanceHeader extends StatelessWidget {
         child: Padding(
           // The figure starts at the text gutter; the last icon's target reaches the edge.
           padding: const EdgeInsetsDirectional.only(start: 16),
-          child: Row(
-            children: [
-              const Expanded(child: _FigureTitle()),
-              const SizedBox(width: 4),
-              StatusIcons(key: barStatusesKey, bar: true),
-            ],
+          child: LayoutBuilder(
+            builder: (context, box) {
+              if (summary == null) {
+                return Row(children: [const Spacer(), icons]);
+              }
+              final tokens = pendingTokens(l, summary, hidden: hidden);
+              final text = hidden ? hiddenAmount : localDigits(l, displayEpic(summary.spendable));
+              final full = box.maxWidth;
+              final beside = full - 4 - iconsWidth;
+              double figureWidth(double size) => _spanWidth(_figureSpan(text, t, size), scaler, direction);
+              final detailWidth = _tokensWidth(context, tokens, scaler, direction);
+              final figureBeside = figureWidth(titleFigureSize) <= beside;
+              final detailBeside = tokens.isEmpty || detailWidth <= beside;
+              final label = [
+                _spendableLabel(l, summary.spendable, hidden),
+                for (final item in tokens) item.label,
+              ].join('\n');
+              Widget figure(double size) => BalanceTap(
+                summary: summary,
+                hidden: hidden,
+                label: label,
+                child: _FigureText(text: text, size: size),
+              );
+              Widget detail() => ExcludeSemantics(
+                child: BalanceTap(
+                  summary: summary,
+                  hidden: hidden,
+                  child: _DetailLine(tokens: tokens),
+                ),
+              );
+              if (figureBeside && detailBeside) {
+                // The figure over its detail line, the icons beside them.
+                return Row(
+                  children: [
+                    Expanded(
+                      child: BalanceTap(
+                        summary: summary,
+                        hidden: hidden,
+                        label: label,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _FigureText(text: text, size: titleFigureSize),
+                            if (tokens.isNotEmpty) _DetailLine(tokens: tokens),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    icons,
+                  ],
+                );
+              }
+              if (figureBeside) {
+                // (1) The detail line on its own, under the icons.
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(children: [Expanded(child: figure(titleFigureSize)), const SizedBox(width: 4), icons]),
+                    detail(),
+                  ],
+                );
+              }
+              // (2) The figure takes the whole width, the icons a second row; (3) only then it
+              // shrinks, never under the floor.
+              var size = titleFigureSize;
+              while (size > titleFigureFloor && figureWidth(size) > full) {
+                size -= 1;
+              }
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  figure(size),
+                  Row(
+                    children: [
+                      Expanded(child: tokens.isEmpty ? const SizedBox.shrink() : detail()),
+                      const SizedBox(width: 4),
+                      icons,
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -490,134 +580,142 @@ class BalanceHeader extends StatelessWidget {
   }
 }
 
-/// The spendable figure ([displayEpic]) in the balance header: [titleFigureSize] in the
-/// heading face with tabular figures and a small gold EPIC after it, never any smaller.
-/// Under it, while anything is locked, coming in or not on chain, the detail line at
-/// [titleDetailSize]: the [pendingTokens] as glyph and amount, or, when they would not fit
-/// the width, the count of them ([AppLocalizations.pendingCount]) with a chevron. A tap
-/// opens the balance sheet; a screen reader hears the exact amount and every detail.
-class _FigureTitle extends ConsumerWidget {
-  const _FigureTitle();
+/// The least size the header's figure shrinks to (UP-002).
+const double titleFigureFloor = 14;
+
+/// The header's figure as one span: the amount at [size] in the heading face with tabular
+/// figures, then a small gold EPIC.
+TextSpan _figureSpan(String text, WalletTokens t, double size) => TextSpan(
+  style: TextStyle(
+    fontFamily: t.headFamily,
+    fontWeight: FontWeight.w600,
+    fontSize: size,
+    height: 1.2,
+    color: t.text,
+    letterSpacing: -0.01 * size,
+    fontFeatures: const [FontFeature.tabularFigures()],
+  ),
+  children: [
+    TextSpan(text: text),
+    TextSpan(
+      text: ' EPIC',
+      style: TextStyle(
+        fontSize: 11,
+        letterSpacing: 0.12 * 11,
+        color: t.accentText,
+      ),
+    ),
+  ],
+);
+
+/// The width of [span] at [scaler], on one line.
+double _spanWidth(InlineSpan span, TextScaler scaler, TextDirection direction) {
+  final painter = TextPainter(
+    text: span,
+    textDirection: direction,
+    textScaler: scaler,
+    maxLines: 1,
+  )..layout();
+  final width = painter.width;
+  painter.dispose();
+  return width;
+}
+
+/// The detail line's style.
+TextStyle _detailStyle(WalletTokens t) => TextStyle(
+  fontSize: titleDetailSize,
+  height: 1.2,
+  color: t.dim,
+  fontWeight: FontWeight.w400,
+  letterSpacing: 0,
+  fontFeatures: const [FontFeature.tabularFigures()],
+);
+
+/// The glyph before each detail amount, the gap after it, and the dot between two tokens.
+const double _detailGlyph = 12, _detailGap = 3;
+const String _detailDot = ' · ';
+
+/// The width of [tokens] laid out on one line, as [_DetailLine] draws them.
+double _tokensWidth(BuildContext context, List<PendingToken> tokens, TextScaler scaler, TextDirection direction) {
+  final style = _detailStyle(context.tokens);
+  var width = 0.0;
+  for (final (n, item) in tokens.indexed) {
+    if (n > 0) width += _textWidth(_detailDot, style, scaler, direction);
+    width += scaler.scale(_detailGlyph) + _detailGap + _textWidth(item.amount, style, scaler, direction);
+  }
+  return width;
+}
+
+/// The spendable figure ([displayEpic]) in the balance header at [size], never wrapped.
+class _FigureText extends StatelessWidget {
+  const _FigureText({required this.text, required this.size});
+
+  final String text;
+  final double size;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final data = ref.watch(homeProvider).value;
-    final summary = data?.summary;
-    if (summary == null) return const SizedBox.shrink();
+  Widget build(BuildContext context) => Text.rich(
+    _figureSpan(text, context.tokens, size),
+    key: titleFigureKey,
+    maxLines: 1,
+    softWrap: false,
+    overflow: TextOverflow.clip,
+  );
+}
+
+/// The header's detail line: the [tokens] as glyph and amount, or, when they would not fit
+/// the width, the count of them ([AppLocalizations.pendingCount]) with a chevron.
+class _DetailLine extends StatelessWidget {
+  const _DetailLine({required this.tokens});
+
+  final List<PendingToken> tokens;
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final hidden = amountDisplay(ref).hidden;
-    final tokens = pendingTokens(l, summary, hidden: hidden);
     final scaler = MediaQuery.textScalerOf(context);
     final direction = Directionality.of(context);
-    final figureStyle = TextStyle(
-      fontFamily: t.headFamily,
-      fontWeight: FontWeight.w600,
-      fontSize: titleFigureSize,
-      height: 1.2,
-      color: t.text,
-      letterSpacing: -0.01 * titleFigureSize,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    final figure = Text.rich(
-      key: titleFigureKey,
-      TextSpan(
-        children: [
-          TextSpan(
-            text: hidden
-                ? hiddenAmount
-                : localDigits(l, displayEpic(summary.spendable)),
-          ),
-          const WidgetSpan(child: SizedBox(width: 6)),
-          TextSpan(
-            text: 'EPIC',
-            style: TextStyle(
-              fontSize: 11,
-              letterSpacing: 0.12 * 11,
-              color: t.accentText,
-            ),
-          ),
-        ],
-      ),
-      maxLines: 1,
-      softWrap: false,
-      overflow: TextOverflow.clip,
-      style: figureStyle,
-    );
-    final detailStyle = TextStyle(
-      fontSize: titleDetailSize,
-      height: 1.2,
-      color: t.dim,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    // The glyph before each amount, the gap after it, and the dot between two tokens.
-    const glyph = 12.0, gap = 3.0, dot = ' · ';
+    final detailStyle = _detailStyle(t);
     Widget token(PendingToken item) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(item.icon, size: scaler.scale(glyph), color: t.dim),
-        const SizedBox(width: gap),
+        Icon(item.icon, size: scaler.scale(_detailGlyph), color: t.dim),
+        const SizedBox(width: _detailGap),
         Text(item.amount, maxLines: 1, softWrap: false, style: detailStyle),
       ],
     );
-    return BalanceTap(
-      summary: summary,
-      hidden: hidden,
-      label: [
-        _spendableLabel(l, summary.spendable, hidden),
-        for (final item in tokens) item.label,
-      ].join('\n'),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          figure,
-          if (tokens.isNotEmpty)
-            LayoutBuilder(
-              builder: (context, constraints) {
-                var width = 0.0;
-                for (final (n, item) in tokens.indexed) {
-                  if (n > 0) {
-                    width += _textWidth(dot, detailStyle, scaler, direction);
-                  }
-                  width += scaler.scale(glyph) +
-                      gap +
-                      _textWidth(item.amount, detailStyle, scaler, direction);
-                }
-                final fits = width <= constraints.maxWidth;
-                return Row(
-                  key: titlePendingKey,
-                  mainAxisSize: MainAxisSize.min,
-                  children: fits
-                      ? [
-                          for (final (n, item) in tokens.indexed) ...[
-                            if (n > 0) Text(dot, style: detailStyle),
-                            token(item),
-                          ],
-                        ]
-                      : [
-                          Flexible(
-                            child: Text(
-                              l.pendingCount(tokens.length),
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
-                              style: detailStyle,
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            size: scaler.scale(14),
-                            color: t.dim,
-                          ),
-                        ],
-                );
-              },
-            ),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final fits = _tokensWidth(context, tokens, scaler, direction) <= constraints.maxWidth;
+        return Row(
+          key: titlePendingKey,
+          mainAxisSize: MainAxisSize.min,
+          children: fits
+              ? [
+                  for (final (n, item) in tokens.indexed) ...[
+                    if (n > 0) Text(_detailDot, style: detailStyle),
+                    token(item),
+                  ],
+                ]
+              : [
+                  Flexible(
+                    child: Text(
+                      l.pendingCount(tokens.length),
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      style: detailStyle,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    size: scaler.scale(14),
+                    color: t.dim,
+                  ),
+                ],
+        );
+      },
     );
   }
 }

@@ -341,11 +341,19 @@ class _BalanceTile extends StatelessWidget {
                   ),
                   if (value != null) ...[
                     const SizedBox(height: 4),
-                    Text(
-                      value!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: valueStyle,
+                    // The whole number, a little smaller, before any ellipsis (UP-002).
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          value!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: valueStyle,
+                        ),
+                      ),
                     ),
                   ],
                 ],

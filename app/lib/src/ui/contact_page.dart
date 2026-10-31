@@ -431,7 +431,11 @@ class _Header extends ConsumerWidget {
         // 4.2): Send in soft gold, not a filled block; Pair while not paired, outlined as in
         // Contacts' app bar ("Pair with Anna" only as its tooltip); Show code a glyph beside
         // Pair, so the row fits Russian at 360 dp.
-        Row(
+        // Labelled buttons only (UP-028): the row wraps to a second line where the words
+        // need it (Russian at 360 dp).
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
             FilledButton.tonalIcon(
               key: contactPageSendKey,
@@ -441,7 +445,6 @@ class _Header extends ConsumerWidget {
               onPressed: contact.addresses.isEmpty && !(p?.paysByMailbox ?? false) ? null : onSend,
             ),
             if (onPair != null) ...[
-              const SizedBox(width: 8),
               Tooltip(
                 message: l.pairWithName(contact.name),
                 excludeFromSemantics: true,
@@ -459,7 +462,6 @@ class _Header extends ConsumerWidget {
                 ),
               ),
             ] else if (onPending != null) ...[
-              const SizedBox(width: 8),
               Tooltip(
                 message: l.pairBadgePendingTip,
                 child: OutlinedButton.icon(
@@ -471,21 +473,12 @@ class _Header extends ConsumerWidget {
                 ),
               ),
             ],
-            const SizedBox(width: 8),
-            if (onPair != null || onPending != null)
-              IconButton.outlined(
-                tooltip: l.contactsShowCode,
-                style: IconButton.styleFrom(side: BorderSide(color: t.lineStrong), fixedSize: const Size(36, 36), minimumSize: const Size(36, 36)),
-                icon: const Icon(Icons.qr_code_2, size: 18),
-                onPressed: contact.addresses.isEmpty ? null : onCode,
-              )
-            else
-              OutlinedButton.icon(
-                style: _headerStyle(context),
-                icon: const Icon(Icons.qr_code_2, size: 18),
-                label: Text(l.contactsShowCode),
-                onPressed: contact.addresses.isEmpty ? null : onCode,
-              ),
+            OutlinedButton.icon(
+              style: _headerStyle(context),
+              icon: const Icon(Icons.qr_code_2, size: 18),
+              label: Text(l.contactsShowCode),
+              onPressed: contact.addresses.isEmpty ? null : onCode,
+            ),
           ],
         ),
         // A contact with only a pairing that cannot take a payment now: why Send is off.

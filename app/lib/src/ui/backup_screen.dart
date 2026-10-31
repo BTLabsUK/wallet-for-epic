@@ -114,8 +114,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       body: ScreenBody(
         children: !_asked
             ? _consent(context)
+            // The PIN dialog is the whole state: no progress line behind it (UP-031).
             : _words.isEmpty
-            ? [const LinearProgressIndicator()]
+            ? const []
             : _phrase(context),
       ),
     );

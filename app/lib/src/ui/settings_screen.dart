@@ -121,26 +121,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         : l.settingsStateBackUp,
                     stateColor: demo || backedUp ? null : t.warn,
                   ),
-                _GroupRow(
-                  key: settingsGroupKey(SettingsSection.privacyNetwork),
-                  section: SettingsSection.privacyNetwork,
-                  state: [
-                    l.serverNodeTitle,
-                    l.serverEpicboxTitle,
-                    if (torBuilt) l.netStatusTor,
-                  ].reduce(l.settingsStateJoin),
-                ),
-                if (walletOpen)
-                  _GroupRow(
-                    key: settingsGroupKey(SettingsSection.wallet),
-                    section: SettingsSection.wallet,
-                    // Outputs is named only while Advanced shows it.
-                    state: [
-                      l.settingsContacts,
-                      if (s.advanced.has(AdvancedFeature.outputs)) l.outputsTitle,
-                      l.settingsSectionHistory,
-                    ].reduce(l.settingsStateJoin),
-                  ),
+                // The shared sections in the desktop's order (GP2-021): Transactions ·
+                // Privacy · Appearance · This wallet; Security keeps its place first.
                 if (walletOpen)
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.transactions),
@@ -155,6 +137,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ].reduce(l.settingsStateJoin),
                   ),
                 _GroupRow(
+                  key: settingsGroupKey(SettingsSection.privacyNetwork),
+                  section: SettingsSection.privacyNetwork,
+                  state: [
+                    l.serverNodeTitle,
+                    l.serverEpicboxTitle,
+                    if (torBuilt) l.netStatusTor,
+                  ].reduce(l.settingsStateJoin),
+                ),
+                _GroupRow(
                   key: settingsGroupKey(SettingsSection.display),
                   section: SettingsSection.display,
                   state: [
@@ -163,6 +154,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     l.settingsCurrency,
                   ].reduce(l.settingsStateJoin),
                 ),
+                if (walletOpen)
+                  _GroupRow(
+                    key: settingsGroupKey(SettingsSection.wallet),
+                    section: SettingsSection.wallet,
+                    // Outputs is named only while Advanced shows it.
+                    state: [
+                      l.settingsContacts,
+                      if (s.advanced.has(AdvancedFeature.outputs)) l.outputsTitle,
+                      l.settingsSectionHistory,
+                    ].reduce(l.settingsStateJoin),
+                  ),
                 _GroupRow(
                   key: settingsHelpKey,
                   icon: Icons.help_outline,

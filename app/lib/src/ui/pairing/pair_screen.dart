@@ -26,9 +26,9 @@ import '../common.dart';
 import '../help_screen.dart' show openHelp;
 import '../info_hint.dart';
 import '../qr_camera.dart';
+import '../qr_scan_screen.dart' show QrFinderOverlay;
 import '../scan_screen.dart' show qrScanSupported;
 import '../theme/brand.dart';
-import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 import 'pair_check.dart';
 import 'pair_incoming.dart';
@@ -572,10 +572,9 @@ class _CardScannerState extends ConsumerState<_CardScanner> {
                   fit: StackFit.expand,
                   children: [
                     camera.preview(context),
-                    Padding(
-                      padding: const EdgeInsets.all(36),
-                      child: CustomPaint(painter: CornerTicksPainter(t.accent, length: 26, width: 3)),
-                    ),
+                    // The same viewfinder as the payment scanner (UP-018); no ring progress,
+                    // one code is the whole scan.
+                    const QrFinderOverlay(margin: 28),
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(

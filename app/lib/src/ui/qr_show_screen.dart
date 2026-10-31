@@ -721,13 +721,9 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
               label: Text(l.qrShow),
               onPressed: ready ? _start : null,
             ),
-            QrShowPhase.countdown => OutlinedButton(
-              key: qrHideButtonKey,
-              style: _tallOutlined,
-              onPressed: () => _cover(QrShowPhase.hidden),
-              child: Text(l.qrHide),
-            ),
-            QrShowPhase.showing => Column(
+            // Fixed slots once the code was shown (UP-023): the primary is the next step
+            // (Scan their reply / Done), the outlined secondary Hide or Show again.
+            QrShowPhase.countdown || QrShowPhase.showing => Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -739,9 +735,9 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
                   onPressed: widget.scanEnabled ? _next : null,
                 ),
                 const SizedBox(height: 8),
-                TextButton(
+                OutlinedButton(
                   key: qrHideButtonKey,
-                  style: _tallText,
+                  style: _tallOutlined,
                   onPressed: () => _cover(QrShowPhase.hidden),
                   child: Text(l.qrHide),
                 ),
@@ -752,18 +748,19 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 FilledButton.icon(
-                  key: qrShowButtonKey,
+                  key: qrNextButtonKey,
                   style: _tall,
+                  icon: Icon(reply ? Icons.check : Icons.qr_code_scanner),
+                  label: Text(nextLabel),
+                  onPressed: widget.scanEnabled ? _next : null,
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  key: qrShowButtonKey,
+                  style: _tallOutlined,
                   icon: const Icon(Icons.qr_code_2),
                   label: Text(l.qrShowAgain),
                   onPressed: ready ? _start : null,
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  key: qrNextButtonKey,
-                  style: _tallText,
-                  onPressed: widget.scanEnabled ? _next : null,
-                  child: Text(nextLabel),
                 ),
               ],
             ),
@@ -821,9 +818,6 @@ final ButtonStyle _tall = FilledButton.styleFrom(
   minimumSize: const Size.fromHeight(48),
 );
 final ButtonStyle _tallOutlined = OutlinedButton.styleFrom(
-  minimumSize: const Size.fromHeight(48),
-);
-final ButtonStyle _tallText = TextButton.styleFrom(
   minimumSize: const Size.fromHeight(48),
 );
 

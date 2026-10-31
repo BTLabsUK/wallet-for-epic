@@ -909,8 +909,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         offered.add(m);
       }
     }
+    // The desktop's list in the short names (UD-031): Epicbox, Link, Direct · QR, Direct · File.
     String startName(MethodKind m) =>
-        m.family == MethodFamily.link ? l.methodDirect : MethodIcons.fullName(l, m);
+        m.family == MethodFamily.link ? MethodIcons.familyName(l, MethodFamily.link) : MethodIcons.shortName(l, m);
     Future<void> save(PaymentPrefs next) => _settings.setPayments(next);
     // The last method on stays on: Send and Receive always keep a way. The switch does not
     // move; the notice says why.

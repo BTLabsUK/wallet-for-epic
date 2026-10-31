@@ -190,26 +190,19 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
               Text(l.sasNotFromCamera, style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 8),
             ],
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    key: checkNoMatchKey,
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    onPressed: _busy ? null : _noMatch,
-                    child: Text(l.sasNoMatch),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextButton(
-                    key: checkSkipKey,
-                    style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: t.dim),
-                    onPressed: _busy ? null : () => _answer(PairingCheck.skip),
-                    child: Text(widget.recheck ? l.sasLater : l.sasSkip),
-                  ),
-                ),
-              ],
+            // Stacked (UP-029).
+            OutlinedButton(
+              key: checkNoMatchKey,
+              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: _busy ? null : _noMatch,
+              child: Text(l.sasNoMatch),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              key: checkSkipKey,
+              style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: t.dim),
+              onPressed: _busy ? null : () => _answer(PairingCheck.skip),
+              child: Text(widget.recheck ? l.sasLater : l.sasSkip),
             ),
           ],
         ),
@@ -363,21 +356,22 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
     return SlotScaffold(
       appBar: AppBar(title: Text(l.pairWaitingTitleShort)),
       body: ScreenBody(
+        // Stacked, the primary first (UP-029).
         bottom: verified
             ? done
-            : Row(
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                      onPressed: () => Navigator.of(context).pushReplacement(
-                        MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id)),
-                      ),
-                      child: Text(l.sasCheckNow),
+                  done,
+                  const SizedBox(height: 8),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                    onPressed: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: record.id)),
                     ),
+                    child: Text(l.sasCheckNow),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(child: done),
                 ],
               ),
         children: [
