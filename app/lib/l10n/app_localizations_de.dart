@@ -13042,7 +13042,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get slSwitchBody =>
-      'Ihre Epicbox-Adresse ändert sich. Teilen Sie die neue.';
+      'Beim Wechsel erhalten Sie eine neue Epicbox-Adresse.';
 
   @override
   String get slSwitch => 'Wechseln';
@@ -13099,7 +13099,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get slRelayWarning =>
-      'Ihre Epicbox-Adresse ändert sich. Teilen Sie die neue.';
+      'Beim Wechsel erhalten Sie eine neue Epicbox-Adresse.';
 
   @override
   String get slNotAnAddress =>

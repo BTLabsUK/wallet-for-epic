@@ -1838,7 +1838,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       // The confirm says the address changes (the sheet's own warning says it too).
-      expect(find.text('Your Epicbox address changes. Share the new one.'), findsWidgets);
+      expect(find.text('Switching gives you a new Epicbox address.'), findsWidgets);
       expect(find.byKey(serverListSwitchKey), findsOneWidget);
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);

@@ -17110,9 +17110,9 @@
       }
     }
   },
-  "slSwitchBody": "Your Epicbox address changes. Share the new one.",
+  "slSwitchBody": "Switching gives you a new Epicbox address.",
   "@slSwitchBody": {
-    "description": "One line under that title: switching Epicbox will change the address senders pay to (future: the switch has not happened yet)."
+    "description": "Neutral line shown where the user chooses another Epicbox server, and in the confirm before a switch: switching gives a new address. Conditional, not a warning; nothing has changed yet."
   },
   "slSwitch": "Switch",
   "@slSwitch": {
@@ -17182,9 +17182,9 @@
   "@slInUseSwitchFirst": {
     "description": "Foot line when the remove button of the server in use is tapped."
   },
-  "slRelayWarning": "Your Epicbox address changes. Share the new one.",
+  "slRelayWarning": "Switching gives you a new Epicbox address.",
   "@slRelayWarning": {
-    "description": "Warning card always shown under the Epicbox field: a general rule (changing the server changes the address), not something happening now."
+    "description": "Neutral secondary-text line under the Epicbox list/field, where the user chooses another server: switching gives a new address. Never a warning; the after-switch notices say Share the new one."
   },
   "slNotAnAddress": "Not a server address. Use host or host:port.",
   "@slNotAnAddress": {

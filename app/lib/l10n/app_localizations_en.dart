@@ -12898,7 +12898,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get slSwitchBody => 'Your Epicbox address changes. Share the new one.';
+  String get slSwitchBody => 'Switching gives you a new Epicbox address.';
 
   @override
   String get slSwitch => 'Switch';
@@ -12953,8 +12953,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slInUseSwitchFirst => 'In use. Switch first.';
 
   @override
-  String get slRelayWarning =>
-      'Your Epicbox address changes. Share the new one.';
+  String get slRelayWarning => 'Switching gives you a new Epicbox address.';
 
   @override
   String get slNotAnAddress => 'Not a server address. Use host or host:port.';

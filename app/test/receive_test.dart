@@ -674,7 +674,7 @@ void main() {
       );
       expect(find.text('Retry'), findsNothing, reason: 'a restart changes nothing here');
       expect(find.textContaining('wait on the Epicbox server'), findsNothing);
-      expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+      expect(find.text('Switching gives you a new Epicbox address.'), findsOneWidget);
 
       await _tap(tester, find.text('Switch to box.stack.invalid'));
       expect(h.session.serverSwitches.single.epicboxDomain, 'box.stack.invalid');

@@ -12148,7 +12148,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get slSwitchBody => '你的 Epicbox 地址会改变。请分享新的地址。';
+  String get slSwitchBody => '切换后你会得到新的 Epicbox 地址。';
 
   @override
   String get slSwitch => '切换';
@@ -12201,7 +12201,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slInUseSwitchFirst => '使用中。请先切换。';
 
   @override
-  String get slRelayWarning => '你的 Epicbox 地址会改变。请分享新的地址。';
+  String get slRelayWarning => '切换后你会得到新的 Epicbox 地址。';
 
   @override
   String get slNotAnAddress => '不是服务器地址。请使用 host 或 host:port。';

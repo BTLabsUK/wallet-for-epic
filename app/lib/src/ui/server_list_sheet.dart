@@ -47,7 +47,6 @@ import 'server_picker.dart'
 import 'server_tile.dart';
 import 'status.dart' hide NodeStatus;
 import 'relay_blocked.dart';
-import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
 import '../settings_file/status_site.dart' show statusSiteHost;
@@ -814,19 +813,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
                     if (_node)
                       _CurrentNodeFacts(choice: choice)
                     else
-                      EdgeCard(
-                        edge: t.warn,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(Icons.warning_amber_rounded, size: 20, color: t.warn),
-                              const SizedBox(width: 8),
-                              Expanded(child: Text(l.slRelayWarning)),
-                            ],
-                          ),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(l.slRelayWarning, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
                       ),
                     if (!nodeLocal) ...[
                       const SizedBox(height: 8),

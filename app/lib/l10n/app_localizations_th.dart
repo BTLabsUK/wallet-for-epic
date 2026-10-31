@@ -12562,8 +12562,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get slSwitchBody =>
-      'ที่อยู่ Epicbox ของคุณเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
+  String get slSwitchBody => 'การสลับจะทำให้คุณได้ที่อยู่ Epicbox ใหม่';
 
   @override
   String get slSwitch => 'สลับ';
@@ -12616,8 +12615,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get slInUseSwitchFirst => 'ใช้อยู่ ต้องเปลี่ยนก่อน';
 
   @override
-  String get slRelayWarning =>
-      'ที่อยู่ Epicbox ของคุณเปลี่ยน แชร์ที่อยู่ใหม่ด้วย';
+  String get slRelayWarning => 'การสลับจะทำให้คุณได้ที่อยู่ Epicbox ใหม่';
 
   @override
   String get slNotAnAddress =>

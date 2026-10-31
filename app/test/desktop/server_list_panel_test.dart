@@ -356,7 +356,7 @@ void main() {
     // Transactions has the payment methods and Send above the Epicbox panel now: a taller
     // window keeps the panel's foot (Added …, Switch) on screen.
     await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen), size: const Size(1280, 1500));
-    const warning = 'Your Epicbox address changes. Share the new one.';
+    const warning = 'Switching gives you a new Epicbox address.';
     expect(find.text(warning), findsOneWidget);
     final before = container.read(deskProvider).status!.epicbox.domain;
     await tap(tester, row('box.stack.invalid'));
