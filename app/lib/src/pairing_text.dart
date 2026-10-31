@@ -84,3 +84,14 @@ T? sameNamedContact<T>(PairingRecord record, Iterable<T> contacts, String Functi
 /// way, which needs none, is offered instead (Pairing UX plan 3).
 bool pairingNoRelay(PairingFailure failure) =>
     failure == PairingFailure.noRelay || failure == PairingFailure.relaysBlocked || failure == PairingFailure.relayUnreachable;
+
+/// The name the app shows for [record]: the contact's when it is attached, else the name the
+/// other side chose, else the label of an invite.
+String pairingName(PairingRecord record, Iterable<Contact> contacts) {
+  final cid = record.contactId;
+  if (cid != null) {
+    final c = contacts.where((c) => c.id == cid).firstOrNull;
+    if (c != null) return c.name;
+  }
+  return record.shownName;
+}

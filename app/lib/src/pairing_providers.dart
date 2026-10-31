@@ -10,10 +10,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart' show NetworkMode;
 import 'contacts.dart';
+import 'pairing_text.dart' show pairingName;
 import 'providers.dart';
 import 'settings.dart';
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'wallet_service.dart';
+
+export 'pairing_text.dart' show pairingName;
 
 /// Pairing is on (Settings › Advanced › Experimental; off by default). Off, nothing of
 /// pairing shows and nothing collects; the stored pairings come back when it is on again.
@@ -186,17 +189,6 @@ class PairingSeenAs extends AsyncNotifier<String> {
     _save?.cancel();
     _save = Timer(const Duration(milliseconds: 600), () => set(text).ignore());
   }
-}
-
-/// The name the app shows for [record]: the contact's when it is attached, else the name the
-/// other side chose, else the label of an invite.
-String pairingName(PairingRecord record, Iterable<Contact> contacts) {
-  final cid = record.contactId;
-  if (cid != null) {
-    final c = contacts.where((c) => c.id == cid).firstOrNull;
-    if (c != null) return c.name;
-  }
-  return record.shownName;
 }
 
 /// [pairingName] with the open wallet's contacts.

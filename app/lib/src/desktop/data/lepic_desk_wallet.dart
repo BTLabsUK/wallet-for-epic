@@ -50,6 +50,7 @@ import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
+import '../../pairing_text.dart' show pairingName;
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
@@ -2289,11 +2290,10 @@ class LepicDeskWallet implements DeskWalletApi {
   Future<Map<String, String>> _pairingNames(List<core.Contact> contacts) async {
     final api = pairing;
     if (!api.supported) return const {};
-    final byId = {for (final c in contacts) c.id: c.name};
     try {
       return {
         for (final r in await api.pairings())
-          if (byId[r.contactId] ?? r.shownName case final name when name.isNotEmpty) r.id: name,
+          if (pairingName(r, contacts) case final name when name.isNotEmpty) r.id: name,
       };
     } on core.WalletError catch (e) {
       logWarn('desk', 'pairing names: ${e.kind.name}');
