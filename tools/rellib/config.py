@@ -107,10 +107,11 @@ class Pipeline:
             for v in s.get("variants", []):
                 if v not in VARIANTS:
                     raise ConfigError(f"{path}: step {name}: unknown variant {v}")
-            # warn_only: a failure is shown as a warning and holds nothing. Only for what comes
-            # after the release is live; a gate, a proof or a build never just warns.
+            # warn_only: a failure is shown as a warning and holds nothing. For what comes after the
+            # release is live, and for a pre-gate step another step judges (the screens render,
+            # judged by screens-check); a gate, a proof or a build never just warns.
             if s.get("warn_only") and (kind in ("gate", "builtin", "handoff") or s.get("proof") or s.get("outputs")):
-                raise ConfigError(f"{path}: step {name}: warn_only is for after-publish steps, never a gate, proof or build")
+                raise ConfigError(f"{path}: step {name}: warn_only is never for a gate, proof or build")
         self._check_cycles()
 
     def _check_cycles(self):

@@ -233,10 +233,10 @@ def preflight(engine, step, say):
             warns.append(f"release commit {info['commit'][:12]} is not on main ({main}): merge it before the "
                          "publish gate, or step tag refuses it")
             say("warn", warns[-1])
-    if live and "screens" in ids and engine.run.status("screens").get("status") != "skipped":
+    if live and "screens-publish" in ids and engine.run.status("screens-publish").get("status") != "skipped":
         conf = os.environ.get("SCREENS_PUBLISH_CONF", os.path.expanduser("~/.config/btlabs/screens-publish.env"))
         if not os.path.isfile(conf):
-            warns.append(f"no {conf}: the screens step will warn (it never holds the release)")
+            warns.append(f"no {conf}: the screens-publish step will warn (it never holds the release)")
             say("warn", warns[-1])
     if live and ("announce" in ids or "publish-page" in ids):
         page = os.path.expanduser(hosts["path"].get("page_repo", ""))
@@ -702,6 +702,8 @@ def gate_summary(engine):
     lines.append("Update trust (G4):")
     for p, (state, text) in proof_table(engine).items():
         lines.append(f"- {p}: {text}"[:300])
+    at_screens = len(lines)
+    lines.extend(screens_lines(run))
     prev = info.get("previous", {})
     if prev:
         lines.append(f"Server: older files leave downloads/ after the switch (keeps {prev.get('version')} as the rollback backup).")
@@ -709,11 +711,44 @@ def gate_summary(engine):
     if skips:
         lines.append("Skipped (not done, not passed): " + "; ".join(f"{x.id} ({run.status(x.id).get('reason', '')})" for x in skips))
     lines.append("Approve = tag, then publish in this order: downloads → page → source → manifests last.")
-    after = [x.id for x in run.steps if x.base in ("screens", "announce", "store-play", "store-play-promote")]
+    after = [x.id for x in run.steps if x.base in ("screens-publish", "announce", "store-play", "store-play-promote")]
     if after:
-        lines.append("Then, after the read-back: " + ", ".join(after) + " (screens and announce never hold the release).")
+        lines.append("Then, after the read-back: " + ", ".join(after) + " (the gallery and announce never hold the release).")
     text = "\n".join(lines)
+    if len(text) > 2900:
+        # Too long for the message: the screens part shrinks to its first line and the report link,
+        # so the approve line is never cut off.
+        sl = screens_lines(run)
+        if len(sl) > 3:
+            lines[at_screens:at_screens + len(sl)] = [sl[0], sl[1], sl[-1]]
+        text = "\n".join(lines)
     return text[:2900]
+
+
+def screens_lines(run):
+    """The pre-gate screen check's lines for the gate (steps/screens-check/out/summary.json, written by
+    tools/rellib/steps/screens_check.py), at most 900 characters: tour renders, not proof of an update."""
+    st = run.status("screens-check") if any(x.base == "screens-check" for x in run.steps) else None
+    if st is None:
+        return []
+    sm = read_json(os.path.join(run.step_dir("screens-check"), "out", "summary.json"))
+    skipped = f"Screens: check SKIPPED ({st.get('reason', '')})" if st["status"] == "skipped" else None
+    if not isinstance(sm, dict):
+        return [skipped or f"Screens: no check result ({st['status']})"]
+    # A skipped check still shows what its last attempt found (the FAIL lines it was skipped over).
+    out, size = [(skipped + ", its last result:") if skipped else
+                 "Screens (tour renders before the gate; not update proof):"], 0
+    for ln in sm.get("lines", [])[:7]:
+        ln = "- " + ln[:240]
+        if size + len(ln) > 900:
+            out.append("- … more in the report")
+            break
+        out.append(ln)
+        size += len(ln)
+    out.append(f"- report: {sm['url']}" if sm.get("url") else
+               "- report: the 'Screens check' link on the live message (the release lead publishes "
+               "steps/screens-check/out/report/)")
+    return out
 
 
 def publish_gate(engine, step, say):

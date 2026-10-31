@@ -26,8 +26,9 @@
 #   proof      true: the step must write {stage}/proof.json with every [proof] check true
 #   skippable  true: release.toml [skip] may skip it with a reason (builds and gates never)
 #   publish    true: a command step of the publish phase (after the gate); kind publish implies it
-#   warn_only  true (after-publish steps only): a failure is shown as a warning (relmsg: failed, no
-#              alert; report: warned) and holds nothing; the run still ends ok
+#   warn_only  true: a failure is shown as a warning (relmsg: failed, no alert; report: warned) and
+#              holds nothing; the run still ends ok. For after-publish steps, and for the pre-gate
+#              screens render, whose result screens-check judges (never a gate, proof or build)
 #   timeout    e.g. "90m"; retries: re-runs on failure before it counts as failed
 #   scratch    publish steps: what runs instead when the target is scratch (a builtin name)
 #   A step may leave links.json ([{label, url}]) and notice.json ({title, detail, expects}) in
@@ -255,6 +256,25 @@ run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test
 results = ["REPORT.txt"]
 timeout = "48h"
 
+# ---- screens, beside the builds (docs/RELEASING.md, "Screens") --------------------------------
+
+# The screen catalogue (tools/screens.sh --candidate) of this release's own source, from when G2
+# passed, in its own lane beside the builds and G4: each tour's flutter test takes a build-slot
+# slot like a build (the step itself is not heavy, or it would hold a slot while it waits for
+# them). `latest` stays on the published release until screens-publish. Reuses the catalogue when
+# its content key is unchanged. warn_only: a failed render never stops a build or a trust run
+# mid-way; screens-check turns it into a FAIL before the gate. Defined after the builds, so when G2
+# passes the builds ask for their slots first.
+[step.screens]
+title = "Screen catalogue (render)"
+host = "build"
+lane = "screens"
+warn_only = true
+skippable = true
+needs = ["source-check"]
+run = "{rel}/tools/rellib/steps/screens.sh {version} {stage}"
+timeout = "120m"
+
 # ---- G3, manifests, G4, G5 -------------------------------------------------------------------
 
 [step.artefacts]
@@ -345,11 +365,28 @@ kind = "builtin"
 host = "local"
 needs = ["artefacts", "trust-manifest", "trust-android", "trust-linux", "trust-windows", "trust-macos", "trust-ios"]
 
+# ---- screen check, before the gate (docs/RELEASING.md, "Screens") ---------------------------
+
+# The pre-gate screen check (tools/rellib/steps/screens_check.py): tour failures, screens gone vs
+# the published release, raw l10n keys, unfilled placeholders, debug text, new hosts / network
+# words / error texts on screens, translations the screens need, the visual diff, and the real
+# installed-build screens the G4 drivers took (copied into the catalogue's real/). Its summary is
+# in the publish-gate message. FAIL findings fail it (fix, or `tools/rel skip screens-check
+# --reason ...`); warnings never hold anything. After G4, so a FAIL stops nothing but the gate.
+[step.screens-check]
+title = "Screen check (before the gate)"
+host = "local"
+lane = "screens"
+skippable = true
+needs = ["screens", "update-trust"]
+run = "{rel}/tools/rellib/steps/screens_check.py {version} {stage}"
+timeout = "30m"
+
 [step.publish-gate]
 title = "G5 publish gate"
 kind = "gate"
 host = "local"
-needs = ["update-trust"]
+needs = ["update-trust", "screens-check"]
 
 # ---- publish, in fixed order: tag -> downloads -> page -> source -> manifests last -----------
 
@@ -460,20 +497,19 @@ needs = ["store-play"]
 run = "tools/play-upload.sh --promote {play_promote} --notes-file {notes_file}"
 scratch = "scratch_noop"
 
-# The screen catalogue (tools/screens.sh) of this release's own source and the public gallery
-# https://epiccash.btlabs.uk/screens/ (tools/screens-publish.sh), as every release did by hand up
-# to 26.10.23. Reuses the catalogue when its content key is unchanged (steps/screens.sh); a TEST
-# run builds the public copy only. Never holds the release: a failure is a warning.
-[step.screens]
-title = "Screen catalogue + gallery"
+# The release is live: its catalogue (step screens, before the gate) becomes `latest` and the
+# public gallery https://epiccash.btlabs.uk/screens/ (tools/screens-publish.sh), as every release
+# did by hand up to 26.10.23. A TEST run builds the public copy only. Never holds the release.
+[step.screens-publish]
+title = "Screen gallery (publish)"
 host = "build"
 lane = "screens"
 publish = true
 warn_only = true
 skippable = true
 needs = ["verify-live"]
-run = "{rel}/tools/rellib/steps/screens.sh {version} {stage}"
-timeout = "120m"
+run = "{rel}/tools/rellib/steps/screens-publish.sh {version} {stage}"
+timeout = "60m"
 
 # The draft Telegram post, from the version's changelog entry, sent to the owner to edit and post (the
 # lead's telegram-<version>.txt up to 26.10.23). Posts nothing. A failure is a warning.
@@ -504,5 +540,5 @@ kind = "builtin"
 host = "local"
 publish = true
 skippable = true
-# After every step that still reads the release worktree (screens renders from it).
-needs = ["verify-live", "prune-downloads", "store-play", "store-play-promote", "screens", "announce", "key-copies"]
+# After every step that still reads the release worktree (screens-publish runs its tools).
+needs = ["verify-live", "prune-downloads", "store-play", "store-play-promote", "screens-publish", "announce", "key-copies"]

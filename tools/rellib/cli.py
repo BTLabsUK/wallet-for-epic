@@ -162,11 +162,12 @@ class App:
             waived = s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"]
             skip = scope["skip"].get(s.base) or (f"waived: {scope['proof']['waive'][s.platforms[0]]}"
                                                   if waived and not drivers.get(s.platforms[0]) else None)
-            print(f"  {'P' if s.publish else ' '} {s.id:28} {s.host:8} {s.kind:8} needs {', '.join(s.needs) or '-'}"
+            print(f"  {'P' if s.publish else ' '} {s.id:28} {s.host:8} {s.kind:8} {s.lane:20} needs {', '.join(s.needs) or '-'}"
                   + (f"   SKIP ({skip})" if skip else "   (waived: runs, shown, blocks nothing)" if waived else ""))
             if a.verbose and s.run:
                 print(f"      {s.run}")
-        print("P = publish phase (tools/rel publish, after the publish gate)")
+        print("P = publish phase (tools/rel publish, after the publish gate); steps in one lane run one at a time, "
+              "lanes side by side (screens renders beside the builds and G4, screens-check reads it before the gate)")
         return EXIT_OK
 
     # ---- start / resume / publish ----

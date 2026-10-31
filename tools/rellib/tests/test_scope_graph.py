@@ -218,8 +218,8 @@ class GraphTest(unittest.TestCase):
         self.assertIn("tag", by["publish-downloads"].needs)
         self.assertTrue(by["tag"].publish and not by["tag"].skippable and not by["tag"].warn_only)
         self.assertIn("tag.sh 26.10.25 " + "a" * 40, by["tag"].run)
-        # Screens and the Telegram draft after the read-back, never holding the release.
-        for sid, script in (("screens", "screens.sh 26.10.25 /r/26.10.25/run-1/steps/screens/out"),
+        # The gallery and the Telegram draft after the read-back, never holding the release.
+        for sid, script in (("screens-publish", "screens-publish.sh 26.10.25 /r/26.10.25/run-1/steps/screens-publish/out"),
                             ("announce", "announce.py 26.10.25")):
             x = by[sid]
             self.assertEqual(x.needs, ["verify-live"])
@@ -227,8 +227,20 @@ class GraphTest(unittest.TestCase):
             self.assertIn(script, x.run)
             self.assertLess(ids.index("verify-live"), ids.index(sid))
             self.assertIn(sid, by["cleanup"].needs)
-        self.assertEqual(by["screens"].lane, "screens")
-        self.assertFalse(by["screens"].heavy)  # tools/screens.sh takes its own build-slot slots
+        # The catalogue renders before the gate, beside the builds: from G2 on, in its own lane; a
+        # failed render holds nothing by itself, screens-check (after G4) judges it before the gate.
+        sc = by["screens"]
+        self.assertEqual((sc.needs, sc.lane, sc.publish, sc.warn_only, sc.skippable), (["source-check"], "screens", False, True, True))
+        self.assertIn("screens.sh 26.10.25 /r/26.10.25/run-1/steps/screens/out", sc.run)
+        self.assertFalse(sc.heavy)  # tools/screens.sh takes its own build-slot slots
+        ck = by["screens-check"]
+        self.assertEqual(sorted(ck.needs), ["screens", "update-trust"])
+        self.assertFalse(ck.publish or ck.warn_only)
+        self.assertTrue(ck.skippable)
+        self.assertIn("screens_check.py 26.10.25", ck.run)
+        self.assertIn("screens-check", by["publish-gate"].needs)
+        self.assertLess(ids.index("screens-check"), ids.index("publish-gate"))
+        self.assertNotIn("screens", by["cleanup"].needs)
 
     def test_github_mirror_on_by_default_and_switchable_off(self):
         s, steps = graph(sets=["publish.github=false"])
