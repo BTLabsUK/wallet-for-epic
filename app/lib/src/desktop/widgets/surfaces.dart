@@ -236,6 +236,12 @@ class ENotice extends StatelessWidget {
   /// Puts [actions] on their own wrapping row under the text (several or long buttons).
   final bool actionsBelow;
 
+  /// The actions beside the words while the words keep [setRowMinWords], else under them.
+  Widget _withActions(Widget words) {
+    if (actionsBelow || actions.isEmpty) return words;
+    return _WrapRow(gap: Sp.x3, runGap: Sp.x3, minWords: setRowMinWords, top: true, children: [words, Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions)]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
@@ -268,7 +274,7 @@ class ENotice extends StatelessWidget {
           ),
           SizedBox(width: Sp.x3),
           Expanded(
-            child: Column(
+            child: _withActions(Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: ts.strong),
@@ -285,12 +291,8 @@ class ENotice extends StatelessWidget {
                   Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions),
                 ],
               ],
-            ),
+            )),
           ),
-          if (!actionsBelow && actions.isNotEmpty) ...[
-            SizedBox(width: Sp.x3),
-            Wrap(spacing: Sp.x2, children: actions),
-          ],
         ],
       ),
     );
@@ -908,27 +910,37 @@ class ESetRow extends StatelessWidget {
 /// [ESetRow]'s layout: the control at its own width at the right with the words in the
 /// rest, while that leaves the words [minWords]; otherwise the control under the words.
 class _WrapRow extends MultiChildRenderObjectWidget {
-  const _WrapRow({required this.gap, required this.runGap, required this.minWords, required super.children});
+  const _WrapRow({required this.gap, required this.runGap, required this.minWords, this.top = false, required super.children});
 
+  /// On one line, both at the top (a notice's actions) instead of centred (a row's control).
+  final bool top;
   final double gap;
   final double runGap;
   final double minWords;
 
   @override
-  RenderObject createRenderObject(BuildContext context) => _RenderWrapRow(gap, runGap, minWords);
+  RenderObject createRenderObject(BuildContext context) => _RenderWrapRow(gap, runGap, minWords, top);
 
   @override
   void updateRenderObject(BuildContext context, _RenderWrapRow renderObject) => renderObject
     ..gap = gap
     ..runGap = runGap
-    ..minWords = minWords;
+    ..minWords = minWords
+    ..top = top;
 }
 
 class _WrapRowData extends ContainerBoxParentData<RenderBox> {}
 
 class _RenderWrapRow extends RenderBox
     with ContainerRenderObjectMixin<RenderBox, _WrapRowData>, RenderBoxContainerDefaultsMixin<RenderBox, _WrapRowData> {
-  _RenderWrapRow(this._gap, this._runGap, this._minWords);
+  _RenderWrapRow(this._gap, this._runGap, this._minWords, this._top);
+
+  bool _top;
+  set top(bool v) {
+    if (v == _top) return;
+    _top = v;
+    markNeedsLayout();
+  }
 
   double _gap;
   set gap(double v) {
@@ -1006,8 +1018,8 @@ class _RenderWrapRow extends RenderBox
       // On one line, both centred on it, as the plain row does.
       _words.layout(BoxConstraints.tightFor(width: width - c.width - _gap), parentUsesSize: true);
       final h = _words.size.height > c.height ? _words.size.height : c.height;
-      wd.offset = Offset(0, (h - _words.size.height) / 2);
-      cd.offset = Offset(width - c.width, (h - c.height) / 2);
+      wd.offset = Offset(0, _top ? 0 : (h - _words.size.height) / 2);
+      cd.offset = Offset(width - c.width, _top ? 0 : (h - c.height) / 2);
       size = constraints.constrain(Size(width, h));
     } else {
       _words.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);
