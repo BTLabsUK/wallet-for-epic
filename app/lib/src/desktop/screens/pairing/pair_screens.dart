@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../l10n.dart' show AppLocalizations, invitedLine, localClock, localDay, localDayMonth;
+import '../../../l10n.dart' show AppLocalizations, invitedLine, localDayMonth;
 import '../../../models.dart'
     show PairingCard, PairingCheck, PairingEvent, PairingEventKind, PairingFailure, PairingInvitePreview, PairingParty, PairingRecord, PairingState, PairingWay, WalletError, WalletErrorKind, pairingError, pairingFailureOf;
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
@@ -897,9 +897,6 @@ class DeskPairSteps extends StatelessWidget {
     );
   }
 }
-
-/// A local day and time for an expiry, as the share text says it.
-String localDayTime(AppLocalizations l, DateTime t) => l.dateWithTime(localDay(l, t), localClock(l, t));
 
 /// Copies [text] and confirms with a toast.
 Future<void> copyToClipboard(BuildContext context, String text, String toast) async {
