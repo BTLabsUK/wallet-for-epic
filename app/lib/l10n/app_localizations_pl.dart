@@ -18870,15 +18870,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get lvShellOpensDetails => 'Pokazuje szczegóły';
 
   @override
-  String get lvShellForSupport => 'Dla wsparcia';
-
-  @override
-  String get lvShellCopyDetails => 'Kopiuj szczegóły';
-
-  @override
-  String get lvShellDetailsCopied => 'Skopiowano szczegóły';
-
-  @override
   String get lvShellLatestBlock => 'Najnowszy blok';
 
   @override
@@ -18892,9 +18883,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvShellLastChange => 'Ostatnia zmiana';
-
-  @override
-  String get lvShellNodeVersion => 'Wersja węzła';
 
   @override
   String get lvShellBoxListening => 'Połączono · czeka na płatności';
@@ -19239,9 +19227,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskLvShellFailover => 'Przełączanie węzła';
 
   @override
-  String get deskLvShellFailoverAuto => 'Włączone · automatycznie';
-
-  @override
   String get deskLvShellOn => 'Włączone';
 
   @override
@@ -19259,4 +19244,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvShellNoOtherServer => 'Brak innego serwera na liście.';
+
+  @override
+  String get deskLvShellSwitchServer => 'Zmień serwer';
+
+  @override
+  String get deskLvShellNoOtherServer => 'Na liście nie ma innego serwera.';
 }

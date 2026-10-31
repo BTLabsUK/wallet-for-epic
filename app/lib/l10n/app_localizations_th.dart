@@ -17813,15 +17813,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get lvShellOpensDetails => 'แสดงรายละเอียด';
 
   @override
-  String get lvShellForSupport => 'สำหรับฝ่ายช่วยเหลือ';
-
-  @override
-  String get lvShellCopyDetails => 'คัดลอกรายละเอียด';
-
-  @override
-  String get lvShellDetailsCopied => 'คัดลอกรายละเอียดแล้ว';
-
-  @override
   String get lvShellLatestBlock => 'บล็อกล่าสุด';
 
   @override
@@ -17835,9 +17826,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvShellLastChange => 'การเปลี่ยนแปลงล่าสุด';
-
-  @override
-  String get lvShellNodeVersion => 'เวอร์ชันโหนด';
 
   @override
   String get lvShellBoxListening => 'เชื่อมต่อแล้ว · รอรับการชำระเงิน';
@@ -18180,9 +18168,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskLvShellFailover => 'สลับโหนดอัตโนมัติ';
 
   @override
-  String get deskLvShellFailoverAuto => 'เปิด · อัตโนมัติ';
-
-  @override
   String get deskLvShellOn => 'เปิด';
 
   @override
@@ -18200,4 +18185,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvShellNoOtherServer => 'ไม่มีเซิร์ฟเวอร์อื่นในรายการ';
+
+  @override
+  String get deskLvShellSwitchServer => 'เปลี่ยนเซิร์ฟเวอร์';
+
+  @override
+  String get deskLvShellNoOtherServer => 'ไม่มีเซิร์ฟเวอร์อื่นในรายการ';
 }

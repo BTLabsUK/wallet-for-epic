@@ -211,20 +211,32 @@ class DeskRelaySwitch extends Notifier<RelaySwitchOffer?> {
     }
   }
 
-  /// The user accepted the offer: the wallet moves to the offered server (the node stays) and
-  /// [deskRelayMovedProvider] holds the new address. Null when there is no offer or a move is
-  /// running; a refused move throws and nothing changes.
+  /// The user accepted the offer: [moveTo] the offered server. Null when there is no offer.
   Future<RelaySwitchResult?> accept() async {
     final offer = state;
-    if (offer == null || _moving) return null;
+    if (offer == null) return null;
+    return moveTo(RelayCandidate(relay: offer.to, name: offer.name));
+  }
+
+  /// The wallet moves to [to] (the node stays): the offer's move, also the user's own pick in
+  /// the Shallow status popover. [deskRelayMovedProvider] holds the new address. Null when a
+  /// move is running or the wallet is already there; a refused move throws and nothing changes.
+  Future<RelaySwitchResult?> moveTo(RelayCandidate to) async {
+    if (_moving) return null;
+    final st = ref.read(deskProvider);
+    final status = st.status;
+    final from = status == null ? null : EpicboxRelay(host: status.epicbox.domain, port: status.epicbox.port);
+    if (from != null && from.host.toLowerCase() == to.relay.host.toLowerCase() && from.port == to.relay.port) return null;
+    final was = state?.from ?? from ?? to.relay;
+    final fallback = state?.to == to.relay ? state!.address : addressAtRelay(st.epicboxAddress, to.relay);
     _moving = true;
     try {
-      await ref.read(deskProvider.notifier).useEpicbox(offer.to.label);
+      await ref.read(deskProvider.notifier).useEpicbox(to.relay.label);
       // The controller read the new address after the move; a wallet that did not give one
-      // keeps the offer's own.
+      // keeps the one worked out from the old address.
       final given = ref.mounted ? ref.read(deskProvider).epicboxAddress : null;
-      final address = given != null && given.toLowerCase().endsWith('@${offer.to.label.toLowerCase()}') ? given : offer.address;
-      final result = RelaySwitchResult(from: offer.from, relay: offer.to, name: offer.name, address: address);
+      final address = given != null && given.toLowerCase().endsWith('@${to.relay.label.toLowerCase()}') ? given : fallback;
+      final result = RelaySwitchResult(from: was, relay: to.relay, name: to.name, address: address);
       if (ref.mounted) {
         _since = null;
         _keptWaitingAt = null;
@@ -234,7 +246,7 @@ class DeskRelaySwitch extends Notifier<RelaySwitchOffer?> {
         ref.read(deskRelayMovedNoticeProvider.notifier).open();
         state = null;
       }
-      logInfo('network', 'relay moved by the user: ${offer.from.label} -> ${offer.to.label}');
+      logInfo('network', 'relay moved by the user: ${was.label} -> ${to.relay.label}');
       return result;
     } finally {
       _moving = false;

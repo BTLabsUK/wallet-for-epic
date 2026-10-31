@@ -17185,15 +17185,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvShellOpensDetails => '显示详情';
 
   @override
-  String get lvShellForSupport => '供客服参考';
-
-  @override
-  String get lvShellCopyDetails => '复制详情';
-
-  @override
-  String get lvShellDetailsCopied => '详情已复制';
-
-  @override
   String get lvShellLatestBlock => '最新区块';
 
   @override
@@ -17207,9 +17198,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lvShellLastChange => '最近变更';
-
-  @override
-  String get lvShellNodeVersion => '节点版本';
 
   @override
   String get lvShellBoxListening => '已连接 · 正在等待付款';
@@ -17536,9 +17524,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvShellFailover => '故障切换';
 
   @override
-  String get deskLvShellFailoverAuto => '开 · 自动';
-
-  @override
   String get deskLvShellOn => '开';
 
   @override
@@ -17555,4 +17540,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lvShellNoOtherServer => '列表中没有其他服务器。';
+
+  @override
+  String get deskLvShellSwitchServer => '切换服务器';
+
+  @override
+  String get deskLvShellNoOtherServer => '列表里没有其他服务器。';
 }

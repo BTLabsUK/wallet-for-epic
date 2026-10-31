@@ -18441,15 +18441,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get lvShellOpensDetails => 'Zeigt Details';
 
   @override
-  String get lvShellForSupport => 'Für den Support';
-
-  @override
-  String get lvShellCopyDetails => 'Details kopieren';
-
-  @override
-  String get lvShellDetailsCopied => 'Details kopiert';
-
-  @override
   String get lvShellLatestBlock => 'Neuester Block';
 
   @override
@@ -18463,9 +18454,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get lvShellLastChange => 'Letzte Änderung';
-
-  @override
-  String get lvShellNodeVersion => 'Node-Version';
 
   @override
   String get lvShellBoxListening => 'Verbunden · wartet auf Zahlungen';
@@ -18812,9 +18800,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskLvShellFailover => 'Node-Wechsel';
 
   @override
-  String get deskLvShellFailoverAuto => 'Ein · automatisch';
-
-  @override
   String get deskLvShellOn => 'Ein';
 
   @override
@@ -18832,4 +18817,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get lvShellNoOtherServer => 'Kein anderer Server in der Liste.';
+
+  @override
+  String get deskLvShellSwitchServer => 'Server wechseln';
+
+  @override
+  String get deskLvShellNoOtherServer => 'Keine anderen Server in der Liste.';
 }

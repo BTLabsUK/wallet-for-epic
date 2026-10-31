@@ -40,7 +40,7 @@ Finder _rail(String label) => find.descendant(of: find.byType(ENavItem), matchin
 
 void main() {
   group('Shallow', () {
-    testWidgets('six rail items, the name without a menu, Network and Epicbox, a popover with Copy details', (tester) async {
+    testWidgets('six rail items, the name without a menu, Network and Epicbox, a popover without For support or Copy details', (tester) async {
       await _pump(tester, WalletLevel.justSendReceive);
       for (final l in ['Overview', 'Activity', 'Contacts', 'Send', 'Receive', 'Settings']) {
         expect(_rail(l), findsOneWidget, reason: l);
@@ -58,8 +58,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byKey(const ValueKey('status-pop-node')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Network')), findsOneWidget);
-      expect(find.text('For support'), findsOneWidget);
-      expect(find.byKey(const ValueKey('status-copy-node')), findsOneWidget);
+      expect(find.text('For support'), findsNothing);
+      expect(find.byKey(const ValueKey('status-copy-node')), findsNothing);
+      expect(find.byKey(const ValueKey('status-switch-node')), findsOneWidget);
       expect(find.byKey(const ValueKey('status-open-node')), findsNothing, reason: 'no settings page to open at Shallow');
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pump(const Duration(milliseconds: 500));

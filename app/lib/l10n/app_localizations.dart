@@ -28454,24 +28454,6 @@ abstract class AppLocalizations {
   /// **'Shows details'**
   String get lvShellOpensDetails;
 
-  /// Heading of the technical facts on a level 1 status sheet (hosts, address), for when the user asks for help.
-  ///
-  /// In en, this message translates to:
-  /// **'For support'**
-  String get lvShellForSupport;
-
-  /// Button on a level 1 status sheet: copies everything on it as text.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy details'**
-  String get lvShellCopyDetails;
-
-  /// Notice after Copy details.
-  ///
-  /// In en, this message translates to:
-  /// **'Details copied'**
-  String get lvShellDetailsCopied;
-
   /// Network sheet fact: the newest block the node knows.
   ///
   /// In en, this message translates to:
@@ -28501,12 +28483,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last change'**
   String get lvShellLastChange;
-
-  /// Network sheet support fact.
-  ///
-  /// In en, this message translates to:
-  /// **'Node version'**
-  String get lvShellNodeVersion;
 
   /// Epicbox sheet state: connected to the Epicbox server and ready to receive.
   ///
@@ -29036,12 +29012,6 @@ abstract class AppLocalizations {
   /// **'Failover'**
   String get deskLvShellFailover;
 
-  /// Desktop status popover at the Shallow level, For support group: value of the Failover row; failover is always on and needs no setting.
-  ///
-  /// In en, this message translates to:
-  /// **'On · automatic'**
-  String get deskLvShellFailoverAuto;
-
   /// Desktop status popover: value of the Failover row when the node failover setting is on.
   ///
   /// In en, this message translates to:
@@ -29077,6 +29047,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No other server in the list.'**
   String get lvShellNoOtherServer;
+
+  /// Desktop title-bar status popover (Network or Epicbox) at the Shallow level: button that opens a short list of the other servers of the user's list, each named by its address; one click moves the wallet to that server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch server'**
+  String get deskLvShellSwitchServer;
+
+  /// Desktop status popover at the Shallow level: shown under Switch server when the user's server list has no server other than the one in use.
+  ///
+  /// In en, this message translates to:
+  /// **'No other server in the list.'**
+  String get deskLvShellNoOtherServer;
 }
 
 class _AppLocalizationsDelegate

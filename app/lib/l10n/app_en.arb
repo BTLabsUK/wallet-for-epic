@@ -24559,18 +24559,6 @@
   "@lvShellOpensDetails": {
     "description": "Screen-reader hint of a level 1 status icon: a tap opens its details sheet."
   },
-  "lvShellForSupport": "For support",
-  "@lvShellForSupport": {
-    "description": "Heading of the technical facts on a level 1 status sheet (hosts, address), for when the user asks for help."
-  },
-  "lvShellCopyDetails": "Copy details",
-  "@lvShellCopyDetails": {
-    "description": "Button on a level 1 status sheet: copies everything on it as text."
-  },
-  "lvShellDetailsCopied": "Details copied",
-  "@lvShellDetailsCopied": {
-    "description": "Notice after Copy details."
-  },
   "lvShellLatestBlock": "Latest block",
   "@lvShellLatestBlock": {
     "description": "Network sheet fact: the newest block the node knows."
@@ -24590,10 +24578,6 @@
   "lvShellLastChange": "Last change",
   "@lvShellLastChange": {
     "description": "Network sheet support fact: the node the wallet moved from by itself."
-  },
-  "lvShellNodeVersion": "Node version",
-  "@lvShellNodeVersion": {
-    "description": "Network sheet support fact."
   },
   "lvShellBoxListening": "Connected · listening for payments",
   "@lvShellBoxListening": {
@@ -25145,10 +25129,6 @@
   "@deskLvShellFailover": {
     "description": "Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering."
   },
-  "deskLvShellFailoverAuto": "On · automatic",
-  "@deskLvShellFailoverAuto": {
-    "description": "Desktop status popover at the Shallow level, For support group: value of the Failover row; failover is always on and needs no setting."
-  },
   "deskLvShellOn": "On",
   "@deskLvShellOn": {
     "description": "Desktop status popover: value of the Failover row when the node failover setting is on."
@@ -25172,5 +25152,13 @@
   "lvShellNoOtherServer": "No other server in the list.",
   "@lvShellNoOtherServer": {
     "description": "Level-1 status sheet, Switch server list: shown when the list holds no server besides the one in use."
+  },
+  "deskLvShellSwitchServer": "Switch server",
+  "@deskLvShellSwitchServer": {
+    "description": "Desktop title-bar status popover (Network or Epicbox) at the Shallow level: button that opens a short list of the other servers of the user's list, each named by its address; one click moves the wallet to that server."
+  },
+  "deskLvShellNoOtherServer": "No other server in the list.",
+  "@deskLvShellNoOtherServer": {
+    "description": "Desktop status popover at the Shallow level: shown under Switch server when the user's server list has no server other than the one in use."
   }
 }

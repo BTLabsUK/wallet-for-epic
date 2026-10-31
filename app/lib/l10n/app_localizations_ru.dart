@@ -18852,15 +18852,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lvShellOpensDetails => 'Показывает подробности';
 
   @override
-  String get lvShellForSupport => 'Для поддержки';
-
-  @override
-  String get lvShellCopyDetails => 'Копировать подробности';
-
-  @override
-  String get lvShellDetailsCopied => 'Данные скопированы';
-
-  @override
   String get lvShellLatestBlock => 'Последний блок';
 
   @override
@@ -18874,9 +18865,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvShellLastChange => 'Последнее изменение';
-
-  @override
-  String get lvShellNodeVersion => 'Версия узла';
 
   @override
   String get lvShellBoxListening => 'Подключено · ждёт платежей';
@@ -19221,9 +19209,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvShellFailover => 'Переключение узла';
 
   @override
-  String get deskLvShellFailoverAuto => 'Вкл. · автоматически';
-
-  @override
   String get deskLvShellOn => 'Вкл.';
 
   @override
@@ -19241,4 +19226,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvShellNoOtherServer => 'Других серверов в списке нет.';
+
+  @override
+  String get deskLvShellSwitchServer => 'Сменить сервер';
+
+  @override
+  String get deskLvShellNoOtherServer => 'В списке нет другого сервера.';
 }
