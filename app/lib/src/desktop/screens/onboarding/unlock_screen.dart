@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../data/remember.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;

@@ -17,7 +17,7 @@ import '../../../devices/device_service.dart';
 import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../data/devices_state.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../settings/settings_devices.dart' show removeLinkedDevice;
 import '../../widgets/kit.dart';

@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models.dart' show PairingRecord, PairingState;
 import '../../data/invoice_state.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';

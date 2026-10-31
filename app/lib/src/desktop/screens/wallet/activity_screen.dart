@@ -7,7 +7,7 @@ import '../../../amount.dart' as shared show formatEpic;
 import '../../data/net_mode_view.dart' show deskLastKnownProvider;
 import '../../desk_l10n.dart';
 
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/tour.dart';
 import '../../widgets/kit.dart';
 import 'tx_detail.dart';

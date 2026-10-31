@@ -16,7 +16,7 @@ import '../../../contacts_file.dart';
 import '../../../legacy/gui_contacts.dart' show AddressChecks;
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../../../ui/method_names.dart' show recipientMethodWord;

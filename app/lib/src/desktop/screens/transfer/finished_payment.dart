@@ -18,7 +18,7 @@ import '../../../models.dart' show FinishedPayment;
 import '../../../network_gate.dart';
 import '../../../slate_files.dart' show shortSlateId;
 import '../../data/history_files.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';

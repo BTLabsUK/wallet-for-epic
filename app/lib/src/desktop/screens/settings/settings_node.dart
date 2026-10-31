@@ -10,7 +10,7 @@ import '../../../network.dart' show mainnetPreset;
 import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings, hostSettings, localNodePortValues;
 import '../../../settings_file/settings_providers.dart' show writeHostSettings;
 import '../../data/desk_node.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/node_view.dart';
 import '../../data/tor_view.dart';
 import '../../app/desk_failover.dart';

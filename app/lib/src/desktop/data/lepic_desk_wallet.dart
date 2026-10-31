@@ -17,6 +17,8 @@
 /// listener events) fires [changes]; [status] reads the fields.
 library;
 
+export 'desk_errors.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -24,7 +26,6 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:flutter/services.dart' show PlatformException;
 import '../../data_folder_io.dart' show appDataDirectory;
 
 import '../../address_format.dart' show shortAddress;
@@ -40,7 +41,7 @@ import '../../legacy/gui_contacts.dart' show AddressChecks;
 import '../../legacy/gui_rules.dart' show cleanGuiLabel;
 import '../../legacy_gui_profile.dart' as gui;
 import '../../legacy_wallets.dart' as legacy;
-import '../../l10n.dart' show AppLocalizations, englishStrings;
+import '../../l10n.dart' show AppLocalizations;
 import '../desk_l10n.dart' show deskStrings;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
@@ -48,7 +49,6 @@ import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
-import '../../pairing_text.dart';
 import '../../providers.dart' show WalletDirResolver, defaultMinimumConfirmations;
 import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
@@ -80,6 +80,7 @@ import 'addresses.dart';
 import 'api.dart';
 import 'backup_reminder.dart';
 import 'backup_settings_desk.dart';
+import 'desk_errors.dart';
 import 'desk_store.dart';
 import 'desk_update.dart' show deskAppVersion;
 import 'features.dart';
@@ -103,85 +104,6 @@ List<NodeServer> get deskPublicNodes => [
 List<EpicboxServer> get deskEpicboxes => [
   for (final r in builtInRelays) EpicboxServer(domain: r.relay.host, port: r.relay.port, operator: r.operator, health: ServiceHealth.checking),
 ];
-
-/// A short sentence for a wallet error.
-/// A second scan asked while one runs.
-const String scanRunning = 'A scan is already running.'; // l10n-ok: the English the tests compare; the throws word deskErrScanRunning
-
-/// Why a cancel was refused: LEPIC reports a payment in the pool or on chain as invalid input.
-const String cancelRefusedText = 'Not cancelled: the node already has this payment.'; // l10n-ok: the English the tests compare; the throws word deskErrCancelRefused
-
-/// A keychain read or write macOS refused (flutter_secure_storage reports the OSStatus as the
-/// code): the login keychain's password is wrong (-25293) or it is locked and may not ask
-/// (-25308), the user cancelled its prompt (-128), or the app lacks the entitlement (-34018).
-/// An unsigned app meets these after every update (a new signature) or a password change.
-bool isMacKeychainRefusal(Object error) =>
-    error is PlatformException && const {'-25293', '-25308', '-128', '-34018'}.contains(error.code);
-
-/// [error] in [l]'s language; English without [l] (logs, and callers not yet localised).
-String deskErrorText(Object error, [AppLocalizations? l]) {
-  l ??= englishStrings;
-  if (error is DeskError) return error.text(l);
-  if (error is SecretProtectError) return l.deskErrSecretProtect;
-  if (error is PlainHttpOffWithTor) return l.sendPlainHttpOffWithTor;
-  // The network mode refused it (network_gate.dart).
-  if (error is NetBlocked) {
-    return error.mode == NetworkMode.torOnly ? l.deskSetAdvModeTorOnlyText : l.statusOffByMode(networkModeName(l, error.mode));
-  }
-  if (isMacKeychainRefusal(error)) return l.deskErrMacKeychain;
-  if (error is! core.WalletError) return l.deskErrSomethingWrong;
-  final detail = error.message.split('\n').first.trim();
-  return switch (error.kind) {
-    core.WalletErrorKind.wrongPassword => l.deskErrWrongPassword,
-    core.WalletErrorKind.invalidMnemonic => l.deskErrPhraseInvalid,
-    core.WalletErrorKind.walletAlreadyExists => l.deskErrWalletExists,
-    core.WalletErrorKind.walletNotFound => l.deskErrWalletNotFound,
-    core.WalletErrorKind.nodeUnreachable => l.deskErrNodeNotAnswering,
-    core.WalletErrorKind.notEnoughFunds => l.deskErrNotEnoughFunds,
-    core.WalletErrorKind.invalidSlate ||
-    core.WalletErrorKind.notQrSlate ||
-    core.WalletErrorKind.foreignQrCode ||
-    core.WalletErrorKind.mixedQrCodes ||
-    core.WalletErrorKind.invalidQrCode ||
-    core.WalletErrorKind.qrCodeTooLarge => l.deskErrNotTxFile,
-    core.WalletErrorKind.transportFailed => l.deskErrEpicboxUnreachable,
-    core.WalletErrorKind.httpUrlInvalid => l.deskErrNotHttpAddress,
-    core.WalletErrorKind.plainHttpNotAllowed => l.deskErrPlainHttp,
-    core.WalletErrorKind.onionAddressInvalid => l.deskErrNotOnion,
-    core.WalletErrorKind.torNotRunning => l.deskErrTorNotConnected,
-    core.WalletErrorKind.onionUnreachable => l.deskErrOnionUnreachable,
-    core.WalletErrorKind.chainBusy || core.WalletErrorKind.walletBusy => l.deskErrWalletBusy,
-    core.WalletErrorKind.networkOff => l.statusOffByMode(networkModeName(l, NetGate.mode)),
-    core.WalletErrorKind.damagedDatabase => l.deskErrDbDamaged,
-    core.WalletErrorKind.paymentExpired => detail.isEmpty ? l.deskErrPaymentExpired : detail,
-    core.WalletErrorKind.invoiceNotFound => l.deskErrInvoiceNotFound,
-    core.WalletErrorKind.amountMismatch => l.deskErrAmountMismatch,
-    core.WalletErrorKind.invoiceAlreadyPaid => l.deskErrInvoicePaid,
-    core.WalletErrorKind.invoiceLockedAboveTip => l.deskErrInvoiceLocked,
-    core.WalletErrorKind.invoiceChanged => l.deskErrInvoiceChanged,
-    core.WalletErrorKind.invoiceNotForThisChain => l.reqOtherChain,
-    core.WalletErrorKind.invalidArgument => detail == core.sendUnbuildable ? l.deskErrSendUnbuildable : detail == core.nothingToConsolidate ? l.deskErrNothingToConsolidate : detail.isEmpty ? l.deskErrNotAccepted : l.deskErrNotAcceptedDetail(detail),
-    core.WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
-    core.WalletErrorKind.pairingFailed => pairingFailureText(l, core.pairingFailureOf(error) ?? core.PairingFailure.invalid),
-    core.WalletErrorKind.restoreScanRequired => l.deskErrRestoreScanRequired,
-    core.WalletErrorKind.inputsSpentElsewhere => l.deskErrInputsSpentElsewhere,
-    core.WalletErrorKind.inputsSpentByOwnPayment || core.WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
-    core.WalletErrorKind.phraseMismatch => l.deskOnbForgotOtherWallet(l.deskOnbUnlockThisWallet),
-    core.WalletErrorKind.unsupported ||
-    core.WalletErrorKind.cancelled ||
-    core.WalletErrorKind.other => detail.isEmpty ? l.deskErrSomethingWrong : detail,
-  };
-}
-
-/// Why tor is down or the onion is not published, for the Tor line.
-String torFailureText(AppLocalizations l, core.TorFailure? f) => switch (f) {
-  core.TorFailure.missing => l.deskErrTorMissing,
-  core.TorFailure.network => l.deskErrTorNetwork,
-  core.TorFailure.clock => l.deskErrTorClock,
-  core.TorFailure.publish || core.TorFailure.keys || core.TorFailure.listener => l.deskErrOnionNotPublished,
-  core.TorFailure.start => l.deskErrTorStart,
-  core.TorFailure.stopped || null => l.deskErrTorStopped,
-};
 
 /// A call LEPIC ended at a lock; its effect may still be stored.
 bool lepicCancelled(Object error) => error is core.WalletError && error.kind == core.WalletErrorKind.cancelled;

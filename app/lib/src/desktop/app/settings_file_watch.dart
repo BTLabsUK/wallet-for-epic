@@ -16,7 +16,7 @@ import '../../log.dart';
 import '../../settings_file/settings_notice.dart';
 import '../../settings_file/settings_notice_text.dart';
 import '../../settings_file/settings_providers.dart';
-import '../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../data/desk_errors.dart' show deskErrorText;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show priceProvider;
 import '../../app/tour.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../../amount.dart' show displayEpic;

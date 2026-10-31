@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../settings_file/host_settings.dart' show hostSettings;
 import '../../data/desk_node.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../settings/local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;

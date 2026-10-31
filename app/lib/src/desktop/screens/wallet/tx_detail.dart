@@ -16,7 +16,7 @@ import '../../../settings_file/settings_providers.dart' show hostSettingsProvide
 import '../../../watch_mode.dart' show BlockWait;
 import '../../data/clock.dart';
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
-import '../../data/lepic_desk_wallet.dart' show cancelRefusedText, deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
 import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInContacts, deskSuggestedContact;
 import '../../desk_l10n.dart';

@@ -21,7 +21,7 @@ import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBack
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
-import '../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../data/desk_errors.dart' show deskErrorText;
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../widgets/kit.dart';

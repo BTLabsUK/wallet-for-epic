@@ -25,7 +25,7 @@ import '../../../pairing_text.dart';
 import '../../../sas_table.dart';
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
 import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';

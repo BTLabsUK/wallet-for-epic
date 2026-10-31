@@ -13,7 +13,7 @@ import '../../../net/probe_not_run.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
 import '../../../send_preflight.dart' show relayProbeProvider;
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../../widgets/server_list_panel.dart';
 import '../../data/server_lists.dart';

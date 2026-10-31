@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/method_names.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;

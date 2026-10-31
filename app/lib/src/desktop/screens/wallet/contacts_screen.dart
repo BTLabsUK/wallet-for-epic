@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';

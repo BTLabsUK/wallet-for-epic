@@ -18,7 +18,7 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesOnProvider;
 import '../devices/link_flow.dart' show showDeskLinkDevice;
 import '../../data/http_address.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;

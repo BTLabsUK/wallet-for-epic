@@ -11,7 +11,7 @@ import '../../../ui/devices/device_parts.dart' show devicesStateLine;
 import '../../desk_l10n.dart';
 import '../../data/devices_state.dart' show deskDeviceBookProvider, deskLinkedDevicesOnProvider;
 import '../../data/files.dart' show deskOpenFolderProvider;
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../onboarding/unlock_screen.dart' show rememberWho;
 import 'backup.dart';

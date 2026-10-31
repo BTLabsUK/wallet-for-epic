@@ -17,7 +17,7 @@ import '../../../log.dart';
 import 'prefs.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/history_files.dart';
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../history/backup_summary.dart';
 import '../../data/backup_settings_desk.dart';
 import '../../data/pairing_state.dart' show deskPairingCall;

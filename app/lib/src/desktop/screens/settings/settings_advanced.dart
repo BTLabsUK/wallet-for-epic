@@ -11,7 +11,7 @@ import '../../../advanced.dart';
 import '../../../ui/network_mode_text.dart';
 import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../app/tour.dart' show TourTarget;
-import '../../data/lepic_desk_wallet.dart' show deskErrorText;
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart' show deskPendingNetworkSends;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
