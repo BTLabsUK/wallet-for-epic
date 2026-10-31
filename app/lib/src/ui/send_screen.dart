@@ -36,6 +36,7 @@ import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../utf8_limit.dart';
 import '../wallet_service.dart';
+import '../wallet/stored_send.dart';
 import '../devices/device_providers.dart' show heldValueByDevice;
 import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices;
 import 'centered_body.dart';
@@ -1373,13 +1374,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final minimum = ref.read(countedConfirmationsProvider);
     return _run((session) async {
       // What the wallet held before, to tell the payment a failed send leaves behind.
-      final before = {
-        for (final t in await session.transactions(refresh: false)) t.key,
-      };
-      final spendableBefore = (await session.summary(
-        refresh: false,
+      final before = await SendBefore.take(
+        session,
         minimumConfirmations: minimum,
-      )).spendable;
+      );
       final TxEntry tx;
       try {
         tx = await hold.during(
@@ -1407,33 +1405,17 @@ class _SendViewState extends ConsumerState<SendView> {
         );
         // LEPIC stores the payment and holds its coins before the relay refuses it.
         container.invalidate(homeProvider);
-        final after = await session.transactions(refresh: false);
-        final spendableAfter = (await session.summary(
-          refresh: false,
+        final left = await before.leftBehind(
+          to: to.address,
+          amount: amount,
+          match: SentToMatch.exact,
           minimumConfirmations: minimum,
-        )).spendable;
-        final left =
-            after
-                .where(
-                  (t) =>
-                      !before.contains(t.key) &&
-                      t.kind == TxKind.sent &&
-                      t.status == TxStatus.awaitingRecipient &&
-                      t.id != null &&
-                      t.counterparty?.trim() == to.address &&
-                      txAmount(t).amount == amount,
-                )
-                .toList()
-              ..sort((a, b) => b.createdAtUnix.compareTo(a.createdAtUnix));
+        );
         if (mounted) {
           setState(() {
             _sendFailed = true;
-            _undelivered = left.firstOrNull;
-            _nothingStored =
-                left.isEmpty &&
-                spendableAfter == spendableBefore &&
-                after.length == before.length &&
-                after.every((t) => before.contains(t.key));
+            _undelivered = left.payment;
+            _nothingStored = left.nothingStored;
           });
         }
         return;
@@ -1484,9 +1466,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final note = _noteText;
     final minimum = ref.read(countedConfirmationsProvider);
     return _run((session) async {
-      final before = {
-        for (final t in await session.transactions(refresh: false)) t.key,
-      };
+      final before = await SendBefore.take(session);
       final HttpSent sent;
       try {
         sent = await hold.during(
@@ -1501,12 +1481,11 @@ class _SendViewState extends ConsumerState<SendView> {
         );
       } on WalletError catch (error) {
         container.invalidate(homeProvider);
-        final stuck = (await _waitingSendsLeft(
-          session,
-          before,
-          to,
-          amount,
-        )).firstOrNull;
+        final stuck = (await before.leftBehind(
+          to: to.address,
+          amount: amount,
+          match: SentToMatch.host,
+        )).payment;
         if (stuck == null) rethrow;
         logWarn(
           'send',
@@ -1551,31 +1530,6 @@ class _SendViewState extends ConsumerState<SendView> {
     WalletErrorKind.transportFailed,
   }.contains(kind);
 
-  /// Sends that were not in [before], to [to] for [amount], waiting for their wallet: what
-  /// a failed Tor send left behind, newest first.
-  Future<List<TxEntry>> _waitingSendsLeft(
-    WalletSession session,
-    Set<String> before,
-    Recipient to,
-    BigInt amount,
-  ) async {
-    final after = await session.transactions(refresh: false);
-    final host = to.address.toLowerCase();
-    return after
-        .where(
-          (t) =>
-              !before.contains(t.key) &&
-              t.kind == TxKind.sent &&
-              t.status == TxStatus.awaitingRecipient &&
-              t.id != null &&
-              txAmount(t).amount == amount &&
-              (t.counterparty == null ||
-                  t.counterparty!.toLowerCase().contains(host)),
-        )
-        .toList()
-      ..sort((a, b) => b.createdAtUnix.compareTo(a.createdAtUnix));
-  }
-
   /// A payment over Tor: tor starts if it is off (the review shows it connecting), then the
   /// other wallet is reached, which can take a while. Reaching it is the whole exchange, so
   /// a success lands on the tracker past "signed". A failure to reach it leaves the payment
@@ -1589,9 +1543,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final note = _noteText;
     final minimum = ref.read(countedConfirmationsProvider);
     return _run((session) async {
-      final before = {
-        for (final t in await session.transactions(refresh: false)) t.key,
-      };
+      final before = await SendBefore.take(session);
       final HttpSent sent;
       try {
         sent = await hold.during(
@@ -1612,8 +1564,11 @@ class _SendViewState extends ConsumerState<SendView> {
           'not delivered over Tor: ${describeError(englishStrings, error)}',
         );
         container.invalidate(homeProvider);
-        final left = await _waitingSendsLeft(session, before, to, amount);
-        final stuck = left.firstOrNull;
+        final stuck = (await before.leftBehind(
+          to: to.address,
+          amount: amount,
+          match: SentToMatch.host,
+        )).payment;
         // The note is the sender's own record; a resend sends the stored message again.
         if (stuck != null && note.isNotEmpty) {
           try {

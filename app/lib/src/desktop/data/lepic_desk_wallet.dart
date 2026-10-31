@@ -76,6 +76,7 @@ import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, 
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../wallet_service.dart' as core;
+import '../../wallet/stored_send.dart';
 import 'addresses.dart';
 import 'api.dart';
 import 'backup_reminder.dart';
@@ -2771,7 +2772,7 @@ class LepicDeskWallet implements DeskWalletApi {
     // An onion pasted under Direct goes over Tor.
     final method = _torFeature && r.method == TxMethod.http && isOnionAddress(r.to ?? '') ? TxMethod.tor : r.method;
     // The rows before a direct send, to tell a send LEPIC stored from one it refused.
-    Set<int?>? before;
+    SendBefore? before;
     try {
       final message = r.message?.trim().isEmpty ?? true ? null : r.message!.trim();
       switch (method) {
@@ -2812,7 +2813,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (plainHttpOffNow && plainHttpNeedsConsent(to)) return SendFailed.l10n((l) => l.sendPlainHttpOffWithTor);
           // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return SendFailed.l10n((l) => l.deskErrPlainHttp);
-          before = {for (final e in await session.transactions(refresh: false)) e.id};
+          before = await SendBefore.take(session);
           final sent = await session.sendHttp(
             amount: BigInt.from(amount),
             minimumConfirmations: _minConf,
@@ -2827,7 +2828,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (!isOnionAddress(to)) return SendFailed.l10n((l) => l.deskErrNotOnion);
           if (!_settings.tor) return SendFailed.l10n((l) => l.deskErrTorOffSend);
           if (!_torCanSend) return SendFailed.l10n((l) => l.deskErrTorConnecting);
-          before = {for (final e in await session.transactions(refresh: false)) e.id};
+          before = await SendBefore.take(session);
           final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message, options: r.options);
           return await _directDone(session, sent, method, amount, to);
       }
@@ -2835,16 +2836,8 @@ class LepicDeskWallet implements DeskWalletApi {
       await _reload();
       // LEPIC stores an HTTP send and locks its inputs before it delivers: whatever fails after
       // that leaves the payment in Activity.
-      final seen = before;
-      var stored = false;
-      if (seen != null) {
-        try {
-          stored = (await session.transactions(refresh: false)).any((t) => !seen.contains(t.id) && t.kind == core.TxKind.sent);
-        } on core.WalletError {
-          // Unknown: say what is safe, that it may wait in Activity.
-          stored = true;
-        }
-      }
+      // Rows that cannot be read again count as stored: say what is safe, that it may wait.
+      final stored = before != null && (await before.leftBehind(to: (r.to ?? '').trim(), amount: BigInt.from(amount), match: SentToMatch.host)).stored;
       // A mailbox send that fails leaves nothing behind: LEPIC refuses before it locks the
       // coins, or cancels what it made.
       if (r.pairingId != null) return SendFailed.l10n((l) => deskErrorText(e, l));

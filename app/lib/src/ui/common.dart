@@ -32,6 +32,8 @@ import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'tx_label.dart';
 
+export '../models.dart' show txAmount;
+
 export 'badge.dart';
 export 'notices.dart';
 
@@ -559,14 +561,6 @@ String shortDate(AppLocalizations l, DateTime t, DateTime now) {
 }
 
 // Transactions.
-
-/// The amount a transaction moved, excluding the fee, and whether it left the wallet.
-({BigInt amount, bool outgoing}) txAmount(TxEntry tx) {
-  final net = tx.amountCredited - tx.amountDebited;
-  if (!net.isNegative) return (amount: net, outgoing: false);
-  final sent = -net - (tx.fee ?? BigInt.zero);
-  return (amount: sent.isNegative ? BigInt.zero : sent, outgoing: true);
-}
 
 /// `+5 EPIC`, `-1 EPIC`, or [hiddenAmount]; by the display rule, or with every decimal when
 /// [exact].

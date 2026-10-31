@@ -1406,6 +1406,14 @@ enum DeviceEnding {
   expired,
 }
 
+/// The amount a transaction moved, excluding the fee, and whether it left the wallet.
+({BigInt amount, bool outgoing}) txAmount(TxEntry tx) {
+  final net = tx.amountCredited - tx.amountDebited;
+  if (!net.isNegative) return (amount: net, outgoing: false);
+  final sent = -net - (tx.fee ?? BigInt.zero);
+  return (amount: sent.isNegative ? BigInt.zero : sent, outgoing: true);
+}
+
 /// One transaction: epic-wallet's log merged with the app's history archive.
 class TxEntry {
   /// Stable across restores: `s:<slate>`, else `k:<kernel>`, else `c:<commit>`, else `l:<id>`.
