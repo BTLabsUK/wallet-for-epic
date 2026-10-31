@@ -152,11 +152,12 @@ class ResignTest(Base):
         rec = json.load(open(os.path.join(res["work"], "resign.json")))
         self.assertEqual((rec["status"], rec["old_serial"], rec["days"]), ("published", self.serial, 45))
 
-    def test_the_default_validity_is_unchanged(self):
+    def test_the_default_validity_and_the_release_setting(self):
+        # 182 without a [manifest] section; the release sets 45 (the owner, 2026-10-31).
         self.assertEqual(self.pipeline.manifest_days(), 182)
         with open(os.path.join(REPO, "release/pipeline.toml"), "rb") as f:
             import tomllib
-            self.assertEqual(tomllib.load(f)["manifest"]["validity_days"], 182)
+            self.assertEqual(tomllib.load(f)["manifest"]["validity_days"], 45)
         res = self.resigner(test=True).run()
         new = payload_of(os.path.join(self.live, "update.json"))
         self.assertEqual(resign.parse_iso(new["expires_at"]) - res["serial"], 182 * 86400)

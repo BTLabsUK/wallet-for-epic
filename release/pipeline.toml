@@ -55,13 +55,12 @@ epicboxes = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.
 
 # The signed update manifests (update.json, update-v2.json; WAL-01). validity_days is how long a
 # signed manifest is valid (expires_at - issued_at), for a release, a rollback and
-# `tools/rel resign`; clients accept at most 400 (btlabs-public FORMAT.md section 5). 182 today.
-# PROPOSED, PENDING the owner'S CALL: 45, with a monthly `tools/rel resign` (one approval): a frozen
-# or stalled feed then goes stale within weeks instead of half a year (docs/RELEASING.md,
-# "Re-signing the live manifests"). warn_days: G1 and `tools/rel doctor` warn when the live
-# manifest expires sooner than that.
+# `tools/rel resign`; clients accept at most 400 (btlabs-public FORMAT.md section 5). 45 days
+# with a `tools/rel resign` once a month (the owner, 2026-10-31): a frozen or stalled feed goes stale
+# within weeks (docs/RELEASING.md, "Re-signing the live manifests"). warn_days: G1 and
+# `tools/rel doctor` warn when the live manifest expires sooner than that.
 [manifest]
-validity_days = 182
+validity_days = 45
 warn_days = 14
 
 [relmsg]
@@ -472,6 +471,18 @@ skippable = true
 needs = ["verify-live"]
 run = "{rel}/tools/rellib/steps/announce.py {version} {path.page_repo} {stage}"
 
+# Q-DEL (the owner's yes, 2026-10-31): once a release signed through the signer is live, ask him
+# to delete the key copies on the build machine (docs/RELEASING.md, Signer). Deletes nothing itself; asks
+# nothing in a run without the signer or once the files are gone. A failure is a warning.
+[step.key-copies]
+title = "Key copies on the build machine (ask the owner)"
+host = "local"
+publish = true
+warn_only = true
+skippable = true
+needs = ["verify-live"]
+run = "{rel}/tools/rellib/steps/key-copies.sh {stage}"
+
 [step.cleanup]
 title = "Cleanup (keep the previous release only)"
 kind = "builtin"
@@ -479,4 +490,4 @@ host = "local"
 publish = true
 skippable = true
 # After every step that still reads the release worktree (screens renders from it).
-needs = ["verify-live", "prune-downloads", "store-play", "store-play-promote", "screens", "announce"]
+needs = ["verify-live", "prune-downloads", "store-play", "store-play-promote", "screens", "announce", "key-copies"]
