@@ -419,8 +419,7 @@ class Run:
         time.sleep(6)
         self.keys(ESC)  # the tour
         time.sleep(1)
-        s = self.store()
-        lists = servers_23(s)
+        lists = servers_of(self.store(), self.toml_servers())
         self.log("previous release stores: node in use %s, list %s (added %s); Epicbox %s, list %s (added %s)" % (
             lists["node_in_use"], lists["nodes"], lists["nodes_added"], lists["relay_in_use"], lists["relays"], lists["relays_added"]))
         bad = []
@@ -516,7 +515,7 @@ class Run:
         dg = {"address": self.address(), "wallets": w, "db_path": d and d["path"],
               "outputs": d and d["outputs"], "txs": d and d["txs"], "db_settings": d and d["settings"],
               "balance": self.balance(d, self.tip()), "settings": self.settings_now(),
-              "store_servers": servers_23(s), "settings_toml": toml, "relay_subscribed": subs,
+              "store_servers": servers_23(s), "servers": servers_of(s, toml), "settings_toml": toml, "relay_subscribed": subs,
               "files": self.rig.files(self.data)}
         with open(os.path.join(self.out, "digest-%s.json" % tag), "w") as f:
             json.dump(dg, f, indent=1, default=str)
@@ -810,12 +809,12 @@ class Run:
         self.log("data folder: %s" % self.details["data_folder"])
 
     def compare_list(self, kind, b, a):
-        """The previous release's lists are its store keys; the candidate's are settings.toml when it has
-        one (its first entry is in use), else its store keys."""
+        """Each release's lists are its settings.toml when it has one (its first entry is in use: 26.10.24
+        and later), else its store keys (26.10.23 and earlier)."""
         check = "custom_nodes_kept" if kind == "node" else "custom_relays_kept"
         custom = self.custom_node if kind == "node" else self.custom_relay
         chosen = host(self.node if kind == "node" else self.relay)
-        lb = b["store_servers"]
+        lb = b["servers"]
         before_list = [host(x) for x in lb["nodes" if kind == "node" else "relays"]]
         before_use = host(lb["node_in_use" if kind == "node" else "relay_in_use"])
         own = [host(x) for x in lb["nodes_added" if kind == "node" else "relays_added"]]
@@ -938,6 +937,16 @@ def servers_23(s):
     n, r = j("desk.serverList.node.mainnet"), j("desk.serverList.relay.mainnet")
     return {"node_in_use": s.get("app.node.mainnet") or "", "nodes": (n or {}).get("entries", []), "nodes_added": (n or {}).get("added", []),
             "relay_in_use": s.get("app.relay.mainnet") or "", "relays": (r or {}).get("entries", []), "relays_added": (r or {}).get("added", [])}
+
+
+def servers_of(s, toml):
+    """The lists and choices in servers_23's shape: settings.toml when the release has one (26.10.24 and
+    later keep their servers there, the first in use; the file has no "added" record), else the store."""
+    if toml is None:
+        return servers_23(s)
+    n, r = toml.get("node") or [], toml.get("epicbox") or []
+    return {"node_in_use": n[0] if n else "", "nodes": n, "nodes_added": [],
+            "relay_in_use": r[0] if r else "", "relays": r, "relays_added": []}
 
 
 def host(u):
