@@ -3093,7 +3093,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsBiometricsOn =>
-      'Биометрическая разблокировка включена. Она заработает со следующего запуска приложения.';
+      'Биометрическая разблокировка работает со следующего запуска приложения.';
 
   @override
   String get settingsBiometricsOff => 'Биометрическая разблокировка выключена';
@@ -19358,7 +19358,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get passphraseSetBiometricsOff =>
-      'Пароль установлен. Биометрическая разблокировка выключена; включите её снова ниже.';
+      'Пароль установлен. Включите биометрическую разблокировку снова ниже.';
 
   @override
   String get passphraseForgot => 'Забыли пароль?';

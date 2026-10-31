@@ -3054,7 +3054,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsBiometricsOn =>
-      'Biometrische Entsperrung aktiviert. Sie funktioniert ab dem nächsten Start der App.';
+      'Biometrisches Entsperren ist ab dem nächsten Start der App an.';
 
   @override
   String get settingsBiometricsOff => 'Biometrische Entsperrung deaktiviert';
@@ -18948,7 +18948,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get passphraseSetBiometricsOff =>
-      'Passphrase festgelegt. Biometrisches Entsperren ist aus; schalten Sie es unten wieder ein.';
+      'Passphrase festgelegt. Schalten Sie biometrisches Entsperren unten wieder ein.';
 
   @override
   String get passphraseForgot => 'Passphrase vergessen?';
@@ -19000,7 +19000,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendQrPassphraseReason(String amount) {
-    return 'Geben Sie die Passphrase ein, um einen Zahlungs-QR über $amount zu erstellen.';
+    return 'Geben Sie Ihre Passphrase ein, um einen Zahlungs-QR über $amount zu erstellen.';
   }
 
   @override
@@ -19013,12 +19013,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendPassphraseReason(String amount) {
-    return 'Geben Sie die Passphrase ein, um $amount zu senden.';
+    return 'Geben Sie Ihre Passphrase ein, um $amount zu senden.';
   }
 
   @override
   String sendFilePassphraseReason(String amount) {
-    return 'Geben Sie die Passphrase ein, um eine Transaktionsdatei über $amount zu erstellen.';
+    return 'Geben Sie Ihre Passphrase ein, um eine Transaktionsdatei über $amount zu erstellen.';
   }
 
   @override

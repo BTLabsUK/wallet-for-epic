@@ -780,7 +780,7 @@
   "settingsSectionSecurity": "ความปลอดภัย",
   "settingsChangePin": "เปลี่ยน PIN",
   "settingsBiometrics": "ปลดล็อกด้วยไบโอเมตริก",
-  "settingsBiometricsOn": "เปิดการปลดล็อกด้วยไบโอเมตริกแล้ว จะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป",
+  "settingsBiometricsOn": "การปลดล็อกด้วยไบโอเมตริกจะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป",
   "settingsBiometricsOff": "ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว",
   "settingsBiometricsFailed": "ตั้งค่าการปลดล็อกด้วยไบโอเมตริกไม่สำเร็จ",
   "settingsBiometricsPinReason": "ป้อน PIN เพื่อเปิดการปลดล็อกด้วยไบโอเมตริก",
@@ -4894,7 +4894,7 @@
   "passphraseRepeat": "ใส่วลีรหัสผ่านอีกครั้ง",
   "passphraseMismatch": "วลีรหัสผ่านทั้งสองไม่ตรงกัน",
   "passphraseSet": "ตั้งวลีรหัสผ่านแล้ว",
-  "passphraseSetBiometricsOff": "ตั้งวลีรหัสผ่านแล้ว การปลดล็อกด้วยไบโอเมตริกปิดอยู่ เปิดอีกครั้งได้ด้านล่าง",
+  "passphraseSetBiometricsOff": "ตั้งวลีรหัสผ่านแล้ว เปิดการปลดล็อกด้วยไบโอเมตริกอีกครั้งได้ด้านล่าง",
   "passphraseForgot": "ลืมวลีรหัสผ่าน?",
   "passphrasePromptTitle": "ใส่วลีรหัสผ่านของคุณ",
   "passphraseEnterCurrent": "ใส่วลีรหัสผ่านปัจจุบันของคุณ",
@@ -4910,7 +4910,7 @@
   "sendQrPassphraseReason": "ใส่วลีรหัสผ่านเพื่อสร้าง QR ของรายการ {amount}",
   "settingsBiometricsPassphraseReason": "ป้อนวลีรหัสผ่านเพื่อเปิดการปลดล็อกด้วยไบโอเมตริก",
   "settingsDeletePassphraseReason": "ป้อนวลีรหัสผ่านเพื่อลบกระเป๋านี้",
-  "sendPassphraseReason": "ป้อนวลีรหัสผ่านเพื่อส่ง {amount}",
-  "sendFilePassphraseReason": "ป้อนวลีรหัสผ่านเพื่อสร้างไฟล์ธุรกรรม {amount}",
+  "sendPassphraseReason": "ใส่วลีรหัสผ่านเพื่อส่ง {amount}",
+  "sendFilePassphraseReason": "ใส่วลีรหัสผ่านเพื่อสร้างไฟล์ธุรกรรม {amount}",
   "passphraseSetTitle": "ตั้งวลีรหัสผ่าน"
 }

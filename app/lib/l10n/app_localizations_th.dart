@@ -2957,7 +2957,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsBiometricsOn =>
-      'เปิดการปลดล็อกด้วยไบโอเมตริกแล้ว จะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป';
+      'การปลดล็อกด้วยไบโอเมตริกจะใช้ได้ตั้งแต่เปิดแอปครั้งถัดไป';
 
   @override
   String get settingsBiometricsOff => 'ปิดการปลดล็อกด้วยไบโอเมตริกแล้ว';
@@ -18307,7 +18307,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get passphraseSetBiometricsOff =>
-      'ตั้งวลีรหัสผ่านแล้ว การปลดล็อกด้วยไบโอเมตริกปิดอยู่ เปิดอีกครั้งได้ด้านล่าง';
+      'ตั้งวลีรหัสผ่านแล้ว เปิดการปลดล็อกด้วยไบโอเมตริกอีกครั้งได้ด้านล่าง';
 
   @override
   String get passphraseForgot => 'ลืมวลีรหัสผ่าน?';
@@ -18369,12 +18369,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sendPassphraseReason(String amount) {
-    return 'ป้อนวลีรหัสผ่านเพื่อส่ง $amount';
+    return 'ใส่วลีรหัสผ่านเพื่อส่ง $amount';
   }
 
   @override
   String sendFilePassphraseReason(String amount) {
-    return 'ป้อนวลีรหัสผ่านเพื่อสร้างไฟล์ธุรกรรม $amount';
+    return 'ใส่วลีรหัสผ่านเพื่อสร้างไฟล์ธุรกรรม $amount';
   }
 
   @override
