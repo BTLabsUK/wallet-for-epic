@@ -1914,10 +1914,13 @@ class BusyButton extends StatelessWidget {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox.square(
-                  dimension: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+                // Under reduced motion a still glyph: a spinner that does not turn is a dot.
+                MediaQuery.disableAnimationsOf(context)
+                    ? const Icon(Icons.hourglass_empty, size: 18)
+                    : const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                 const SizedBox(width: 10),
                 Text(busyLabel ?? label),
               ],
