@@ -117,8 +117,8 @@ void main() {
     for (final f in files) {
       final s = f.readAsStringSync();
       defs += RegExp(r'class ServerRow\b').allMatches(s).length;
-      // The mock's data, the node layer and the hidden debug screen are not user-facing copy.
-      if (f.path.endsWith('mock_wallet.dart') || f.path.endsWith('desk_node.dart') || f.path.contains('/screens/debug/')) continue;
+      // The mock's data and the node layer are not user-facing copy.
+      if (f.path.endsWith('mock_wallet.dart') || f.path.endsWith('desk_node.dart')) continue;
       expect(s.contains('node.btlabs.uk'), isFalse, reason: '${f.path}: no node is the wallet’s own');
     }
     expect(defs, 1);

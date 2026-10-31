@@ -16,12 +16,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _root = 'lib/src/desktop';
 
-/// Files with no text for the user: fixtures, mock data, developer screens.
+/// Files with no text for the user: fixtures and mock data.
 const _skipped = <String>{
   'data/mock_wallet.dart',
   'data/mock_devices.dart', // the prototype's phone for the tour and the tests
   'data/mock_invoices.dart',
-  'screens/debug/',
   'screens/invoices/proto_panel.dart', // the mock wallet's prototype panel: never ships
   'app/shots.dart',
   'screens/invoices/shots.dart',

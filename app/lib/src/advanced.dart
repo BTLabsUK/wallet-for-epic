@@ -32,7 +32,7 @@ enum AdvancedFeature {
   /// The built-in node (desktop): the "This computer" node option, Start node on Overview.
   builtInNode,
 
-  /// Logs and diagnostics: the log folder, Clear logs, the node debug screen.
+  /// Logs and diagnostics: the log folder, Clear logs.
   logs,
 
   /// Transaction files (phone only): the File switch under Settings › Transactions. The

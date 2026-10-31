@@ -7,8 +7,6 @@
 /// does, after the user chose to.
 library;
 
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../builtin_node.dart';
@@ -99,26 +97,6 @@ final peerServiceProvider = FutureProvider.family<PeerService, Chain>((ref, chai
 /// How often the peers are read while the peers table is open; graph samples are kept every
 /// 30 s ([PeerService.sampleEvery]).
 const Duration peerReadEvery = Duration(seconds: 10);
-
-/// The peers, read now and every [peerReadEvery] while something listens (the peers table),
-/// and not at all otherwise.
-final peersProvider = StreamProvider.autoDispose.family<PeerSnapshot, Chain>((ref, chain) async* {
-  final service = await ref.watch(peerServiceProvider(chain).future);
-  final ticks = StreamController<void>();
-  final timer = Timer.periodic(peerReadEvery, (_) => ticks.add(null));
-  ref.onDispose(() {
-    timer.cancel();
-    unawaited(ticks.close());
-  });
-  yield await service.refresh();
-  await for (final _ in ticks.stream) {
-    try {
-      yield await service.refresh();
-    } on Object {
-      // a missed sample: the last snapshot stays
-    }
-  }
-});
 
 /// Whether a node already answers on this computer's standard port.
 final localNodeProbeProvider = FutureProvider.autoDispose.family<LocalNodeProbe, Chain>((ref, chain) async {

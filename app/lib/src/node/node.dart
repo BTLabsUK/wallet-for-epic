@@ -18,7 +18,6 @@
 /// | `localNodeStateProvider(chain)` | `LocalNodeState` stream | the state line, progress, tiles |
 /// | `localNodeControllerProvider(chain)` | `LocalNodeController` | start, stop, restart, options, log |
 /// | `nodeMaintenanceProvider(chain)` | `NodeMaintenance` | change folder, reuse, delete chain data |
-/// | `peersProvider(chain)` | `PeerSnapshot` stream | autoDispose: reads every 10 s only while watched |
 /// | `peerServiceProvider(chain)` | `PeerService` | `ban`, `unban`, `history` (30 s samples) |
 /// | `nodeInfoProvider((url:, preset:))` | `NodeInfo` | any node; `ref.invalidate` to refresh |
 /// | `localNodeProbeProvider(chain)` | `LocalNodeProbe` | a node already on 127.0.0.1 |
