@@ -52,9 +52,14 @@ class _Wallet extends MockDeskWallet {
     NodeServer(url: _d, label: 'd', health: ServiceHealth.ok),
   ];
 
+  /// Every node [checkNode] asked, in order.
+  final List<String> checked = [];
+
   @override
-  Future<NodeServer> checkNode(String url) async =>
-      NodeServer(url: url, label: url, health: dead.contains(url) ? ServiceHealth.down : ServiceHealth.ok);
+  Future<NodeServer> checkNode(String url) async {
+    checked.add(url);
+    return NodeServer(url: url, label: url, health: dead.contains(url) ? ServiceHealth.down : ServiceHealth.ok);
+  }
 
   @override
   Future<void> useNodeForSession(String url) async {
@@ -146,6 +151,25 @@ void main() {
       expect(none.wallet.sessionNodes, isEmpty);
       expect(none.failover, isNull);
       none.dispose();
+    });
+  });
+
+  test('nothing working: tries again after 30 s, then 1, 2 and 5 minutes; the window coming back starts over', () {
+    fakeAsync((async) {
+      final h = _Harness(async, dead: {_a, _c, _d});
+      int tries() => h.wallet.checked.where((u) => u == _c).length;
+      h.elapse(const Duration(seconds: 31));
+      expect(tries(), 1);
+      for (final (wait, after) in [(30, 2), (60, 3), (120, 4), (300, 5), (300, 6)]) {
+        h.elapse(Duration(seconds: wait - 2));
+        expect(tries(), after - 1, reason: 'before the ${wait}s wait ends');
+        h.elapse(const Duration(seconds: 2));
+        expect(tries(), after, reason: 'after the ${wait}s wait');
+      }
+      h.container.read(deskFailoverWatchProvider.notifier).resumed();
+      h.elapse(const Duration(seconds: 31));
+      expect(tries(), 7);
+      h.dispose();
     });
   });
 

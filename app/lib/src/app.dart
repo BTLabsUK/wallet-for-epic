@@ -11,6 +11,7 @@ import 'demo_web_connection.dart';
 import 'l10n.dart';
 import 'node_failover_phone.dart';
 import 'phone_http.dart';
+import 'price.dart' show priceProvider;
 import 'providers.dart';
 import 'restore_scan.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
@@ -93,6 +94,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         // does a scan.
         ref.read(updateProvider.notifier).paused();
         ref.read(scanProvider.notifier).pause();
+        ref.read(nodeFailoverWatchProvider.notifier).paused();
+        if (ref.exists(priceProvider)) ref.read(priceProvider.notifier).paused();
         if (_leftAt == null &&
             ref.read(sessionProvider) != null &&
             ref.read(autoLockHoldProvider) == 0) {
@@ -102,6 +105,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         // An update that waited for the install permission carries on, lock or no lock.
         unawaited(ref.read(updateProvider.notifier).resumed());
         _resumeScan();
+        ref.read(nodeFailoverWatchProvider.notifier).resumed();
+        if (ref.exists(priceProvider)) ref.read(priceProvider.notifier).resumed();
         if (ref.read(autoLockHoldProvider) > 0) {
           _leftAt = null;
           _drainPayments();

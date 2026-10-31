@@ -340,6 +340,20 @@ void main() {
       expect(tester.binding.transientCallbackCount, greaterThan(0));
     });
 
+    testWidgets('after five laps the run rests at the top, and a new phase laps again', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_square(phase: TxPhase.waitingSender));
+      await tester.pump(const Duration(milliseconds: 2400) * txEdgeRunLaps);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(_painter(tester).start, 0);
+      expect(_painter(tester).extent, txEdgeRunShare);
+      expect(tester.binding.transientCallbackCount, 0);
+      await tester.pumpWidget(_square(phase: TxPhase.waitingRecipient));
+      await tester.pump(const Duration(milliseconds: 1200));
+      expect(_painter(tester).start, closeTo(0.25, 0.01));
+    });
+
     testWidgets('a send waiting for its recipient laps in 4.8 s', (
       tester,
     ) async {

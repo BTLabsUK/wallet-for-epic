@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:epic_wallet/src/providers.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -137,5 +138,25 @@ void main() {
       expect(s.node.state, NodeState.connecting);
       expect(s.epicbox, isNull);
     });
+  });
+
+  testWidgets('a pulse breathes five times, then holds at full opacity', (tester) async {
+    Widget pulse(bool active) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: Pulse(active: active, child: const SizedBox.square(dimension: 10)),
+    );
+    double opacity() => tester.widget<FadeTransition>(find.byType(FadeTransition)).opacity.value;
+    await tester.pumpWidget(pulse(true));
+    await tester.pump(const Duration(milliseconds: 800));
+    expect(opacity(), lessThan(1));
+    await tester.pump(const Duration(milliseconds: 1600) * pulseBreaths);
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(opacity(), 1);
+    expect(tester.binding.hasScheduledFrame, isFalse);
+    // A new busy stretch breathes again.
+    await tester.pumpWidget(pulse(false));
+    await tester.pumpWidget(pulse(true));
+    await tester.pump(const Duration(milliseconds: 800));
+    expect(opacity(), lessThan(1));
   });
 }

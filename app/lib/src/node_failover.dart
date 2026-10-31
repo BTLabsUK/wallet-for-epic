@@ -12,6 +12,8 @@
 /// (`desktop/data/desk_failover.dart`) watch their own status and call these.
 library;
 
+import 'dart:math' show min;
+
 import 'advanced.dart';
 import 'network_gate.dart';
 import 'server_list.dart';
@@ -24,6 +26,21 @@ Duration get nodeFailoverAfter => appConfig.nodeFailoverAfter;
 
 /// How long a node the wallet may move to has to answer a tip request (`node.failover_probe_s`).
 Duration get nodeFailoverProbe => appConfig.nodeFailoverProbe;
+
+/// The waits after the first retry while no other node answers either: each try asks the
+/// whole list, so a wallet with no network does not ask it every 30 s for hours.
+const List<Duration> nodeFailoverBackoff = [
+  Duration(minutes: 1),
+  Duration(minutes: 2),
+  Duration(minutes: 5),
+];
+
+/// How long to wait before the next try after [failed] tries in a row found no node:
+/// [first] (`node.failover_after_s`) after one, then [nodeFailoverBackoff], its last at most.
+/// A new network, the app's return or the node's answer starts over.
+Duration failoverRetryAfter(int failed, Duration first) => failed <= 1
+    ? first
+    : nodeFailoverBackoff[min(failed - 1, nodeFailoverBackoff.length) - 1];
 
 /// What is known of a node in the list before it is asked.
 enum FailoverHealth {

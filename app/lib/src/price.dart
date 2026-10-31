@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The EPIC price in the user's display currency: from CoinGecko, or with the Tor switch on
-/// from BT Labs' copy of it on the status site ([BtlabsPriceSource]), never CoinGecko directly.
-/// With Tor off, BT Labs' copy also stands in when CoinGecko gives no price.
+/// The EPIC price in the user's display currency: from BT Labs' copy of CoinGecko's price on
+/// the status site ([BtlabsPriceSource]). With the Tor switch off, CoinGecko stands in when the
+/// copy gives no price; with it on, never CoinGecko directly.
 ///
 /// Prices are decoration: a missing price never blocks anything, it only hides the fiat line.
 library;
@@ -41,7 +41,8 @@ const List<String> fiatCurrencies = [
   'try',
 ];
 
-/// How often [priceProvider] asks for a new price while the app runs (`price.refresh_min`).
+/// How often [priceProvider] asks for a new price while the app is on screen
+/// (`price.refresh_min`).
 Duration get priceRefreshInterval => appConfig.priceRefresh;
 
 /// The price of one EPIC in a currency.
@@ -149,10 +150,10 @@ final priceSourceProvider = Provider<PriceSource>(
   (ref) => const TorAwarePriceSource(),
 );
 
-/// CoinGecko with the Tor switch off; BT Labs' copy with it on ([TorSwitch.on]), asked at
-/// each fetch so a switch takes effect at the next refresh. With Tor off and no price from
-/// CoinGecko, BT Labs' copy: CoinGecko refuses a request without a User-Agent (403) and ours
-/// carry none (`net/http.dart`).
+/// BT Labs' copy first; with the Tor switch off ([TorSwitch.on], asked at each fetch so a
+/// switch takes effect at the next refresh) CoinGecko when the copy gives no price. CoinGecko
+/// refuses a request without a User-Agent (403) and ours carry none (`net/http.dart`), so
+/// asking it first wasted a request at every refresh.
 class TorAwarePriceSource implements PriceSource {
   const TorAwarePriceSource({this.coinGecko, this.btlabs});
 
@@ -163,8 +164,9 @@ class TorAwarePriceSource implements PriceSource {
 
   @override
   Future<double?> price(String currency) async {
-    if (TorSwitch.on) return _copy.price(currency);
-    return await (coinGecko ?? const CoinGeckoPriceSource()).price(currency) ?? await _copy.price(currency);
+    final copy = await _copy.price(currency);
+    if (copy != null || TorSwitch.on) return copy;
+    return (coinGecko ?? const CoinGeckoPriceSource()).price(currency);
   }
 }
 
@@ -173,8 +175,10 @@ class TorAwarePriceSource implements PriceSource {
 bool pricesOffered(HostSettings s) => s.priceEnabled && (s.priceSource != null || s.statusPrice != null);
 
 /// The price of one EPIC in the chosen currency, or null when prices are off or none has been
-/// fetched. Refreshes every [priceRefreshInterval] while the app runs. A failed refresh keeps the
-/// last price for that currency, so one dropped request does not blank every fiat line.
+/// fetched. Refreshes every [priceRefreshInterval] while the app is on screen, and at its
+/// return when the last ask is older than that ([PriceNotifier.paused], [PriceNotifier.resumed]).
+/// A failed refresh keeps the last price for that currency, so one dropped request does not
+/// blank every fiat line.
 final priceProvider = AsyncNotifierProvider<PriceNotifier, double?>(
   PriceNotifier.new,
 );
@@ -182,6 +186,16 @@ final priceProvider = AsyncNotifierProvider<PriceNotifier, double?>(
 class PriceNotifier extends AsyncNotifier<double?> {
   /// Last good price per currency, for the life of the app.
   final Map<String, double> _cache = {};
+
+  /// The app is off screen: no refresh until it is back.
+  bool _paused = false;
+
+  /// The refresh timer, and the currency it asks for; null while no price is asked for.
+  Timer? _timer;
+  String? _currency;
+
+  /// When a price was last asked for.
+  DateTime? _askedAt;
 
   @override
   Future<double?> build() async {
@@ -197,15 +211,44 @@ class PriceNotifier extends AsyncNotifier<double?> {
     // Node only and Kill switch ask for no price: the last one seen stays; leaving them
     // fetches again.
     if (ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch))) return _cache[currency];
-    final timer = Timer.periodic(
-      priceRefreshInterval,
-      (_) => _refresh(currency),
-    );
-    ref.onDispose(timer.cancel);
+    _currency = currency;
+    if (!_paused) _startTimer(currency);
+    ref.onDispose(() {
+      _timer?.cancel();
+      _timer = null;
+      _currency = null;
+    });
     return _fetch(currency);
   }
 
+  void _startTimer(String currency) {
+    _timer?.cancel();
+    _timer = Timer.periodic(priceRefreshInterval, (_) => _refresh(currency));
+  }
+
+  /// The app left the screen (`app.dart`): the timer stops.
+  void paused() {
+    _paused = true;
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  /// Back on screen: a price older than [priceRefreshInterval] is asked for at once, and the
+  /// timer runs again.
+  void resumed() {
+    if (!_paused) return;
+    _paused = false;
+    final currency = _currency;
+    if (currency == null || !ref.mounted) return;
+    _startTimer(currency);
+    final at = _askedAt;
+    if (at == null || ref.read(clockProvider)().difference(at) >= priceRefreshInterval) {
+      unawaited(_refresh(currency));
+    }
+  }
+
   Future<double?> _fetch(String currency) async {
+    _askedAt = ref.read(clockProvider)();
     final fresh = await ref.read(priceSourceProvider).price(currency);
     if (fresh != null) _cache[currency] = fresh;
     return fresh ?? _cache[currency];

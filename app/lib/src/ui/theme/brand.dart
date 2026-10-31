@@ -447,7 +447,8 @@ const Alignment heroGlow = Alignment(0, -0.4);
 const Alignment topGlow = Alignment(0, -0.9);
 
 /// The background of a hero screen: [WalletTokens.bg], a pool of accent light at [focus], and
-/// the measurement grid fading out from it.
+/// the measurement grid fading out from it. With [breath] (0 at full light, 1 at the faintest)
+/// the light fades to 55 %; the painter repaints on its own as it moves.
 class ProtocolBackdropPainter extends CustomPainter {
   const ProtocolBackdropPainter({
     required this.bg,
@@ -455,18 +456,28 @@ class ProtocolBackdropPainter extends CustomPainter {
     required this.grid,
     required this.focus,
     this.step = 28,
-  });
+    this.breath,
+  }) : super(repaint: breath);
 
   final Color bg;
   final Color glow;
   final Color grid;
   final Alignment focus;
   final double step;
+  final Animation<double>? breath;
+
+  /// [glow] as it is painted now, faded by [breath].
+  Color get glowNow {
+    final b = breath;
+    if (b == null) return glow;
+    return glow.withValues(alpha: glow.a * (1 - 0.45 * Curves.easeInOut.transform(b.value)));
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     final center = focus.withinRect(rect);
+    final glow = glowNow;
     canvas.drawRect(rect, Paint()..color = bg);
     canvas.drawRect(
       rect,
@@ -498,13 +509,17 @@ class ProtocolBackdropPainter extends CustomPainter {
       old.glow != glow ||
       old.grid != grid ||
       old.focus != focus ||
-      old.step != step;
+      old.step != step ||
+      old.breath != breath;
 }
 
 /// Paints [ProtocolBackdropPainter] behind [child] with the active tokens, and makes the
 /// scaffold and app bar inside see-through so the light runs under the status bar. With
-/// [breathing] the light swells and fades slowly (3.2 s a breath, between 55 % and full), as
-/// home does while the node syncs; with reduced motion it stays full.
+/// [breathing] the light swells and fades slowly (3.2 s a breath, between 55 % and full) for a
+/// few breaths, as home does once the node starts syncing, then stays full: a light that
+/// breathes for a whole sync redraws the screen for minutes. With reduced motion it stays full;
+/// a new [breathing] stretch breathes again. Only the light repaints as it moves: [child] sits
+/// on its own layer.
 class ProtocolBackdrop extends StatefulWidget {
   const ProtocolBackdrop({
     super.key,
@@ -524,13 +539,28 @@ class ProtocolBackdrop extends StatefulWidget {
 /// The key of the backdrop's paint, for tests.
 const Key backdropPaintKey = ValueKey('protocol-backdrop');
 
+/// Breaths the backdrop takes before it holds still: five, 16 s.
+@visibleForTesting
+const int backdropBreaths = 5;
+
 class _ProtocolBackdropState extends State<ProtocolBackdrop>
     with SingleTickerProviderStateMixin {
   /// 0 at full light, 1 at the faintest.
   late final AnimationController _breath = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1600),
-  );
+  )
+    // The breaths end at full light: a frame that lands past the last one could leave the
+    // value part way down.
+    ..addStatusListener((status) {
+      if (!_breath.isAnimating &&
+          (status == AnimationStatus.completed || status == AnimationStatus.dismissed)) {
+        _breath.value = 0;
+      }
+    });
+
+  /// The breaths ran for this breathing stretch.
+  bool _played = false;
 
   @override
   void didChangeDependencies() {
@@ -541,13 +571,18 @@ class _ProtocolBackdropState extends State<ProtocolBackdrop>
   @override
   void didUpdateWidget(ProtocolBackdrop old) {
     super.didUpdateWidget(old);
+    if (!widget.breathing) _played = false;
     _sync();
   }
 
   void _sync() {
     final run = widget.breathing && !MediaQuery.disableAnimationsOf(context);
-    if (run && !_breath.isAnimating) {
-      _breath.repeat(reverse: true);
+    if (run && !_played) {
+      _played = true;
+      // Fade and swell is one breath: an even count ends at full light.
+      _breath
+        ..value = 0
+        ..repeat(reverse: true, count: backdropBreaths * 2);
     } else if (!run && _breath.isAnimating) {
       _breath
         ..stop()
@@ -568,29 +603,24 @@ class _ProtocolBackdropState extends State<ProtocolBackdrop>
     final dark = theme.brightness == Brightness.dark;
     final clear = t.bg.withValues(alpha: 0);
     final glow = dark ? 0.13 : 0.08;
-    final child = Theme(
-      data: theme.copyWith(
-        scaffoldBackgroundColor: clear,
-        appBarTheme: theme.appBarTheme.copyWith(backgroundColor: clear),
+    return CustomPaint(
+      key: backdropPaintKey,
+      painter: ProtocolBackdropPainter(
+        bg: t.bg,
+        glow: t.accent.withValues(alpha: glow),
+        grid: t.text.withValues(alpha: dark ? 0.05 : 0.06),
+        focus: widget.focus,
+        breath: _breath,
       ),
-      child: widget.child,
-    );
-    return AnimatedBuilder(
-      animation: _breath,
-      builder: (context, child) => CustomPaint(
-        key: backdropPaintKey,
-        painter: ProtocolBackdropPainter(
-          bg: t.bg,
-          glow: t.accent.withValues(
-            alpha:
-                glow * (1 - 0.45 * Curves.easeInOut.transform(_breath.value)),
+      child: RepaintBoundary(
+        child: Theme(
+          data: theme.copyWith(
+            scaffoldBackgroundColor: clear,
+            appBarTheme: theme.appBarTheme.copyWith(backgroundColor: clear),
           ),
-          grid: t.text.withValues(alpha: dark ? 0.05 : 0.06),
-          focus: widget.focus,
+          child: widget.child,
         ),
-        child: child,
       ),
-      child: child,
     );
   }
 }

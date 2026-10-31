@@ -176,7 +176,8 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
           tone: ETone.info,
           title: node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing,
           detail: node.phase == LocalNodePhase.starting ? null : v.marker,
-          progress: -1,
+          // The share its percent says, else a bar without a known end.
+          progress: node.phase == LocalNodePhase.syncing ? node.progress?.overall ?? -1 : -1,
           hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
         ),
       );
@@ -199,7 +200,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
             tone: ETone.info,
             title: l.deskOwnSlotSyncing,
             detail: owner?.progress?.overall != null ? percent(owner!.progress!.overall!) : (behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null),
-            progress: -1,
+            progress: owner?.progress?.overall ?? -1,
             hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
           ),
         );
@@ -327,6 +328,49 @@ Color _toneColor(DeskColors c, ETone t) => switch (t) {
   ETone.neutral => c.faint,
 };
 
+/// Sweeps a bar without a known end plays before it holds still: about 9 s, as the status dot's
+/// five beats.
+@visibleForTesting
+const int slotBarSweeps = 5;
+
+/// One sweep of Flutter's bar without a known end.
+const Duration _sweep = Duration(milliseconds: 1800);
+
+/// A 2 px bar without a known end: it sweeps [slotBarSweeps] times, then holds the empty track
+/// each sweep starts from. A sync can last hours, and a bar that never stops redraws the window
+/// all that time. A new state (its key) sweeps again.
+class _SweepBar extends StatefulWidget {
+  const _SweepBar({super.key, required this.color});
+
+  final Color color;
+
+  @override
+  State<_SweepBar> createState() => _SweepBarState();
+}
+
+class _SweepBarState extends State<_SweepBar> {
+  Timer? _stop;
+  bool _held = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _stop = Timer(_sweep * slotBarSweeps, () {
+      if (mounted) setState(() => _held = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _stop?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      LinearProgressIndicator(value: _held ? 0 : null, minHeight: 2, backgroundColor: context.dc.s3, color: widget.color);
+}
+
 /// A line: icon, title · detail, a 2 px bar under it when it has progress.
 class _Line extends StatelessWidget {
   const _Line({required this.item, required this.compact, required this.more});
@@ -348,7 +392,7 @@ class _Line extends StatelessWidget {
             child: SizedBox(
               height: 2,
               child: i.progress! < 0
-                  ? LinearProgressIndicator(minHeight: 2, backgroundColor: c.s3, color: i.tone == ETone.gold ? c.accent : c.info)
+                  ? _SweepBar(key: ValueKey('${i.id}/${i.title}'), color: i.tone == ETone.gold ? c.accent : c.info)
                   : TweenAnimationBuilder<double>(
                       tween: Tween(end: i.progress!.clamp(0.0, 1.0)),
                       duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
