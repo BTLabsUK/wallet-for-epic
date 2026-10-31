@@ -115,7 +115,7 @@ void main() {
       expect(h.container.read(sessionProvider), isNotNull);
 
       await h.openSecurity(tester);
-      expect(find.text('Use a passphrase instead of the PIN'), findsOneWidget);
+      expect(find.text('Use a passphrase'), findsOneWidget);
       await _tapText(tester, 'Change PIN');
       expect(find.text('Enter your current PIN'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'Current PIN'), findsOneWidget);
@@ -126,7 +126,7 @@ void main() {
       await h.pump(tester);
       await _enter(tester, 'PIN', _pin);
       await h.openSecurity(tester);
-      await _tapText(tester, 'Use a passphrase instead of the PIN');
+      await _tapText(tester, 'Use a passphrase');
       await _enter(tester, 'Current PIN', _pin);
 
       expect(find.text('Choose a passphrase'), findsOneWidget);

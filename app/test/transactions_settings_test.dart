@@ -355,11 +355,11 @@ void main() {
 
   testWidgets('Send starts on: only the methods offered, and a saved choice', (tester) async {
     final c = await _pump(tester, _store());
-    // Epicbox and File Transfer (the default set), by their full names.
+    // Epicbox and Direct · File (the default set), by their short names.
     expect(_row('tx-start-epicbox'), findsOneWidget);
     expect(_row('tx-start-file'), findsOneWidget);
     expect(_row('tx-start-link'), findsNothing);
-    expect(find.descendant(of: _row('tx-start-file'), matching: find.text(_l.methodDirectFile)), findsOneWidget);
+    expect(find.descendant(of: _row('tx-start-file'), matching: find.text(_l.methodShortFile)), findsOneWidget);
     await tester.tap(_row('tx-start-file'));
     await tester.pumpAndSettle();
     expect(_payments(c).defaultMethod, MethodKind.directFile);

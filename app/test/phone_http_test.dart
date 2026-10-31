@@ -318,7 +318,7 @@ void main() {
     await h.pump(tester);
     await h.emit(tester, HttpListenerEventKind.portInUse, port: 3415);
     expect(h.http.phase, PhoneHttpPhase.portInUse);
-    expect(find.text('Port 3415 is used by another program.'), findsOneWidget);
+    expect(find.text('Port 3415 is in use by another program.'), findsOneWidget);
     expect(h.session.httpListenerStarts, hasLength(1));
 
     await tester.tap(find.widgetWithText(TextButton, 'Retry'));

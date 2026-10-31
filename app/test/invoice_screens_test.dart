@@ -518,8 +518,8 @@ void main() {
       );
       expect(approve.onPressed, isNull);
       // Declining stays open.
-      final decline = tester.widget<TextButton>(
-        find.widgetWithText(TextButton, _l.invoiceDecline),
+      final decline = tester.widget<OutlinedButton>(
+        find.widgetWithText(OutlinedButton, _l.invoiceDecline),
       );
       expect(decline.onPressed, isNotNull);
     });

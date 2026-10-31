@@ -318,7 +318,7 @@ void main() {
       expect(_order(tester, [_btlabs, _epicnet, _epiccash]), [_btlabs, _epicnet, _epiccash]);
       expect(_row('https://node.stack.invalid:3413'), findsOneWidget);
       expect(_row('https://epic-node.pool.example.org'), findsOneWidget);
-      expect(_inRow(_btlabs, 'Current'), findsOneWidget);
+      expect(_inRow(_btlabs, 'In use'), findsOneWidget);
       expect(_check(_btlabs), findsOneWidget);
       expect(_check(_epicnet), findsNothing);
       // Nothing typed: no Add, no restore, no match line, a bin on every row.
@@ -340,7 +340,7 @@ void main() {
       expect(find.text(_placeholder), findsOneWidget);
       expect(_row(defaultEpicboxHost), findsOneWidget);
       expect(_inRow(defaultEpicboxHost, 'Default'), findsOneWidget);
-      expect(_inRow(_stack, 'Current'), findsOneWidget);
+      expect(_inRow(_stack, 'In use'), findsOneWidget);
       expect(_check(_stack), findsOneWidget);
       expect(_row('box.lab.invalid'), findsOneWidget, reason: 'the push relay');
     });
@@ -350,7 +350,7 @@ void main() {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
       expect(
-        find.text('Changing the server changes your Epicbox address. Share the new one.'),
+        find.text('Your Epicbox address changes. Share the new one.'),
         findsOneWidget,
       );
       expect(_confirm(), findsNothing);
@@ -359,7 +359,7 @@ void main() {
       expect(_confirm(), findsOneWidget);
       expect(find.text('Switch to box.net.invalid?'), findsOneWidget);
       expect(
-        find.descendant(of: _confirm(), matching: find.text('Your Epicbox address will change. Share the new one.')),
+        find.descendant(of: _confirm(), matching: find.text('Your Epicbox address changes. Share the new one.')),
         findsOneWidget,
       );
       expect(find.byKey(serverListCancelKey), findsOneWidget);
@@ -393,7 +393,7 @@ void main() {
     testWidgets('node: a tap switches at once with no confirm; the foot says so', (tester) async {
       final env = _Env()..liveAnswer = true;
       await _pump(tester, ServerKind.node, env);
-      expect(find.text('Changing the server changes your Epicbox address. Share the new one.'), findsNothing);
+      expect(find.text('Your Epicbox address changes. Share the new one.'), findsNothing);
       await tester.tap(_row(_epicnet));
       await tester.pumpAndSettle();
       expect(_confirm(), findsNothing);
@@ -742,7 +742,7 @@ void main() {
     const lan = 'http://10.0.0.138:4413';
 
     testWidgets('is asked from this phone, never judged by the monitor: no answer reads "Not '
-        'reachable from this computer"; a public node the monitor finds down "Not responding"', (
+        'reachable from this computer"; a public node the monitor finds down "Not answering"', (
       tester,
     ) async {
       final env = _Env(
@@ -759,9 +759,9 @@ void main() {
       await _pump(tester, ServerKind.node, env);
       expect(env.service.nodeTipCalls, 1, reason: 'the local node is checked from here, once');
       expect(_inRow(lan, 'Not reachable from this phone'), findsOneWidget);
-      expect(_inRow(lan, 'Not responding'), findsNothing);
+      expect(_inRow(lan, 'Not answering'), findsNothing);
       expect(_inRow(lan, 'Healthy'), findsNothing);
-      expect(_inRow(_epicnet, 'Not responding'), findsOneWidget);
+      expect(_inRow(_epicnet, 'Not answering'), findsOneWidget);
       expect(_inRow(_epicnet, 'Not reachable'), findsNothing);
       await _timers(tester);
     });
@@ -771,7 +771,7 @@ void main() {
       await _pump(tester, ServerKind.node, env);
       expect(env.service.nodeTipCalls, 1);
       expect(_inRow(lan, 'Not reachable'), findsNothing);
-      expect(_inRow(lan, 'Not responding'), findsNothing);
+      expect(_inRow(lan, 'Not answering'), findsNothing);
       await _timers(tester);
     });
   });

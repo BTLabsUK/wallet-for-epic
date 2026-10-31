@@ -123,6 +123,12 @@ void _clipboard(WidgetTester tester, String text) {
 String? _notice(WidgetTester tester) =>
     ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
 
+/// Opens the menu that ends row number [at] of Pending invites (UP-017).
+Future<void> _openRowMenu(WidgetTester tester, {int at = 0}) async {
+  await tester.tap(find.byType(PopupMenuButton<String>).at(at));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   test('a key check LEPIC refuses (one a day) is said, not silent', () {
     final n = pairingNoticeOf(_l, const PairingEvent(PairingEventKind.keyCheckRefused, pairingId: 'p', name: 'Anna'));
@@ -794,6 +800,8 @@ void main() {
     final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
     await h.api.acceptInvite(token: preview.token, name: 'Alex');
     await h.pump(tester, const PendingInvitesScreen());
+    // Every row ends in a menu (UP-017).
+    await _openRowMenu(tester);
     expect(find.byKey(pendingByHandKey), findsOneWidget);
     expect(find.byKey(pendingRemoveReplyKey), findsOneWidget);
     await tester.tap(find.byKey(pendingByHandKey));
@@ -969,6 +977,15 @@ void main() {
       final open = find.ancestor(of: find.text(_l.pairUnnamedInvite), matching: find.byType(Row)).first;
       expect(find.descendant(of: open, matching: find.byIcon(Icons.link)), findsOneWidget);
       expect(find.descendant(of: open, matching: find.text('?')), findsNothing);
+      // The menu of the answer's row (the other row is an open invite).
+      final menus = find.byType(PopupMenuButton<String>);
+      for (var i = 0; i < menus.evaluate().length && find.byKey(pendingRemoveReplyKey).evaluate().isEmpty; i++) {
+        await _openRowMenu(tester, at: i);
+        if (find.byKey(pendingRemoveReplyKey).evaluate().isEmpty) {
+          await tester.tapAt(const Offset(1, 1));
+          await tester.pumpAndSettle();
+        }
+      }
       await tester.tap(find.byKey(pendingRemoveReplyKey));
       await tester.pumpAndSettle();
       expect(h.api.records.where((r) => r.state == PairingState.pendingReply), isEmpty);
@@ -987,7 +1004,16 @@ void main() {
         expect(find.text(name), findsOneWidget, reason: name);
       }
       expect(find.textContaining(_l.pendingExpired, findRichText: true), findsOneWidget);
-      expect(find.byKey(pendingInviteAgainKey), findsOneWidget);
+      // The menus: only the expired invite offers Invite again.
+      var again = 0;
+      final menus = find.byType(PopupMenuButton<String>);
+      for (var i = 0; i < menus.evaluate().length; i++) {
+        await _openRowMenu(tester, at: i);
+        again += find.byKey(pendingInviteAgainKey).evaluate().length;
+        await tester.tapAt(const Offset(1, 1));
+        await tester.pumpAndSettle();
+      }
+      expect(again, 1);
     });
   });
 

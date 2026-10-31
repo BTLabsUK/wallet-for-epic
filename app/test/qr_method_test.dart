@@ -663,7 +663,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('Scan payment QR'), findsWidgets);
       await h.scan(tester, await h.parts(json));
-      expect(find.text('Got it'), findsOneWidget);
+      expect(find.text('Code read'), findsOneWidget);
       await tester.pump(qrCompleteFor);
       await tester.pumpAndSettle();
 

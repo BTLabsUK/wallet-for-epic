@@ -371,7 +371,7 @@ void main() {
       );
     });
 
-    testWidgets('Tor starting: waiting for Tor, warn', (tester) async {
+    testWidgets('Tor starting: waiting for Tor, in-progress blue', (tester) async {
       final handle = tester.ensureSemantics();
       await _pump(
         tester,
@@ -381,12 +381,13 @@ void main() {
       for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
         expect(
           tester.widget<Text>(_in(row, 'Waiting for Tor')).style?.color,
-          t.warn,
+          t.info,
         );
       }
-      expect(_in(netStatusEpicboxKey, 'Connected'), findsOneWidget);
+      // One state on the row while Tor starts: never Connected over it (UP-014).
+      expect(_in(netStatusEpicboxKey, 'Connected'), findsNothing);
       expect(
-        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Connected, Waiting for Tor$')),
+        find.bySemanticsLabel(RegExp(r'^Epicbox.*, Waiting for Tor$')),
         findsOneWidget,
       );
       expect(

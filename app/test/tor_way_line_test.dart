@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // TorWayLine: what a connection does under the Tor switch, in the words the status card and
-// the server lists share: nothing with Tor off, "Over Tor", or "Waiting for Tor" (warn while
+// the server lists share: nothing with Tor off, "Over Tor", or "Waiting for Tor" (in-progress blue while
 // Tor starts, risk with "Tor is not connected" when it failed).
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -78,7 +78,7 @@ void main() {
       'starting',
       const PhoneTorState(receiving: true, phase: PhoneTorPhase.starting),
       'Waiting for Tor',
-      (WalletTokens t) => t.warn,
+      (WalletTokens t) => t.info,
       'Waiting for Tor',
     ),
     (

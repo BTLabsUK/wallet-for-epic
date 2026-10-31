@@ -25,8 +25,11 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 /// A full-length address, as long as a real one.
 /// The address on the Receive card: a rich text whose server sits on its own line.
+/// The key part of the address; its server is a line of its own under it (UP-033).
 final Finder _addressText = find.byWidgetPredicate(
-  (w) => w is SelectableText && w.textSpan?.toPlainText().replaceAll('\n', '') == _address,
+  (w) =>
+      w is SelectableText &&
+      w.textSpan?.toPlainText().replaceAll('\n', '') == _address.substring(0, _address.indexOf('@')),
 );
 
 const String _address =
@@ -252,7 +255,8 @@ void main() {
         tester.getRect(find.text('How receiving works')).top,
         greaterThan(tester.getRect(find.text('Open file')).bottom),
       );
-      await _tap(tester, find.text('Epicbox'));
+      // Under 360 dp the tabs are icons alone: the name is the tooltip.
+      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Epicbox')));
       expect(find.byKey(receiveAddressKey), findsOneWidget);
     });
 
@@ -670,7 +674,7 @@ void main() {
       );
       expect(find.text('Retry'), findsNothing, reason: 'a restart changes nothing here');
       expect(find.textContaining('wait on the Epicbox server'), findsNothing);
-      expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
+      expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
 
       await _tap(tester, find.text('Switch to box.stack.invalid'));
       expect(h.session.serverSwitches.single.epicboxDomain, 'box.stack.invalid');

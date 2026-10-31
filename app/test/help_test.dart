@@ -59,10 +59,13 @@ void main() {
       final phone = helpTopics(3, platform: HelpPlatform.phone);
       final desk = helpTopics(3, platform: HelpPlatform.desktop);
       expect(desk, hasLength(29));
-      // The phone adds "What an address looks like" and keeps every desktop id but the
-      // desktop-only folder cleanup.
-      expect(phone.map((t) => t.id), containsAll(desk.map((t) => t.id).where((id) => id != HelpId.cleanup)));
-      expect(phone.map((t) => t.id), isNot(contains(HelpId.cleanup)));
+      // The phone adds "What an address looks like" (and its own QR and passphrase topics)
+      // and keeps every desktop id but the desktop-only folder cleanup and local node.
+      const deskOnly = {HelpId.cleanup, HelpId.localNode};
+      expect(phone.map((t) => t.id), containsAll(desk.map((t) => t.id).where((id) => !deskOnly.contains(id))));
+      for (final id in deskOnly) {
+        expect(phone.map((t) => t.id), isNot(contains(id)));
+      }
       expect(phone.where((t) => t.id == HelpId.addresses), hasLength(1));
       for (final t in phone) {
         expect(helpSections.map((s) => s.id), contains(t.section), reason: t.title);

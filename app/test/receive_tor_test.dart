@@ -138,7 +138,8 @@ class _Harness {
     await tester.tap(
       find.descendant(
         of: find.byKey(receiveTabsKey),
-        matching: find.text('Link'),
+        // Under 360 dp the tabs are icons alone: the name is the tooltip.
+        matching: find.byTooltip('Link'),
       ),
     );
     // Bounded frames: the Link · HTTP card's Starting spinner never settles while the fake
@@ -556,7 +557,7 @@ void main() {
       await h.emit(tester, TorEventKind.stopped);
       expect(h.tor.phase, PhoneTorPhase.failed);
       expect(_status('Tor · Not connected'), findsOneWidget);
-      expect(_status('Could not reach the Tor network'), findsOneWidget);
+      expect(_status('Tor could not connect. Retry, or turn Tor off.'), findsOneWidget);
       expect(find.textContaining('minutes'), findsNothing);
       final retry = find.byKey(torRetryKey);
       expect(retry, findsOneWidget);

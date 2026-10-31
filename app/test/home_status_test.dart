@@ -819,7 +819,7 @@ void main() {
       (360.0, 1.3, true),
       (320.0, 1.0, true),
     ]) {
-      testWidgets('$width dp at $scale${big ? ', big balance' : ''}: icons and figure fit, the figure at its one size', (
+      testWidgets('$width dp at $scale${big ? ', big balance' : ''}: icons and figure fit, the figure clear of them', (
         tester,
       ) async {
         final home = HomeData(
@@ -844,10 +844,18 @@ void main() {
           final r = tester.getRect(find.byKey(key));
           expect(r.width, statusTarget, reason: '$key target');
           expect(r.right, lessThanOrEqualTo(header_.right + 0.5), reason: '$key');
-          expect(r.left, greaterThanOrEqualTo(figure.right - 0.5), reason: '$key after the figure');
+          // Beside the figure, or on a row of their own when it takes the whole width.
+          expect(
+            r.left >= figure.right - 0.5 || r.top >= figure.bottom - 0.5 || r.bottom <= figure.top + 0.5,
+            isTrue,
+            reason: '$key clear of the figure',
+          );
         }
-        // The figure never shrinks: its style is the fixed size whatever the width.
-        expect(tester.widget<Text>(find.byKey(titleFigureKey)).style?.fontSize, titleFigureSize);
+        // The figure keeps its size while it fits, then shrinks to the floor at the least
+        // (UP-002); it never runs past the header.
+        final size = (tester.widget<Text>(find.byKey(titleFigureKey)).textSpan! as TextSpan).style?.fontSize;
+        expect(size, inInclusiveRange(titleFigureFloor, titleFigureSize));
+        expect(figure.right, lessThanOrEqualTo(header_.right + 0.5));
         expect(figure.height, greaterThan(0));
       });
     }

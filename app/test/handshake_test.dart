@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -51,6 +50,13 @@ Future<AppLocalizations> _pump(
 Future<void> _nextStep(WidgetTester tester) async {
   await tester.pump(handshakeStepDuration + const Duration(milliseconds: 20));
   await tester.pump();
+}
+
+/// Taps a method chip; the row scrolls sideways, so the chip is brought in view first.
+Future<void> _chip(WidgetTester tester, Finder chip) async {
+  await tester.ensureVisible(chip);
+  await tester.pump();
+  await tester.tap(chip);
 }
 
 String _caption(WidgetTester tester) =>
@@ -195,7 +201,7 @@ void main() {
     ) async {
       final l = await _pump(tester);
       await _nextStep(tester);
-      await tester.tap(find.text(l.handshakeRequest));
+      await _chip(tester, find.text(l.handshakeRequest));
       await tester.pump();
       final request = [
         l.handshakeReq1,
@@ -215,7 +221,7 @@ void main() {
     testWidgets('the file route labels the middle node File', (tester) async {
       final l = await _pump(tester);
       expect(find.text(l.handshakeRelay), findsOneWidget);
-      await tester.tap(find.text(l.methodShortFile));
+      await _chip(tester, find.text(l.methodShortFile));
       await tester.pump();
       expect(_caption(tester), '1. ${l.handshakeFile1}');
       expect(find.text(l.handshakeRelay), findsNothing);
@@ -237,10 +243,17 @@ void main() {
         final l = await _pump(tester, flow: flow);
         expect(_caption(tester), '1. ${first(l)}', reason: '$flow');
         // The tab of the method is the lit one.
-        final tabs = tester.widget<SegmentedButton<HandshakeFlow>>(
-          find.byType(SegmentedButton<HandshakeFlow>),
-        );
-        expect(tabs.selected, {flow});
+        final lit = [
+          for (final c in tester.widgetList<ChoiceChip>(find.byType(ChoiceChip)))
+            if (c.selected) ((c.label as Text).data!),
+        ];
+        final chip = switch (flow) {
+          HandshakeFlow.payment => l.methodEpicbox,
+          HandshakeFlow.direct => l.methodDirect,
+          HandshakeFlow.file => l.methodShortFile,
+          _ => l.methodShortQr,
+        };
+        expect(lit, [chip], reason: '$flow');
       }
     });
 
@@ -299,7 +312,7 @@ void main() {
       final l = await _pump(tester, textScale: 2, size: const Size(1080, 2400));
       expect(tester.takeException(), isNull);
       for (final flow in [l.handshakeRequest, l.methodShortFile]) {
-        await tester.tap(find.text(flow).first);
+        await _chip(tester, find.text(flow).first);
         await tester.pump();
         for (var i = 0; i < 6; i++) {
           await tester.tap(find.byTooltip(l.handshakeNext));

@@ -241,7 +241,7 @@ void main() {
       await _pump(tester, FinishedNotPosted(tx: stuck), session: FakeWalletSession(), files: files);
       expect(find.byKey(finishedTitleKey), findsOneWidget);
       expect(find.text('Finished, not posted'), findsOneWidget);
-      expect(find.textContaining('Kill switch is on, so this phone can’t post it'), findsOneWidget);
+      expect(find.textContaining('Kill switch is on, so this phone cannot post it'), findsOneWidget);
       await _tapKey(tester, finishedSaveKey);
       expect(files.saved.single.name, 'abcdef01.finished.tx');
       await _tapKey(tester, finishedQrKey);
@@ -252,7 +252,7 @@ void main() {
       NetGate.set(NetworkMode.killSwitch);
       await _pump(tester, FinishedNotPosted(tx: stuck), session: _OldCore(), files: FakeSlateFiles());
       await _tapKey(tester, finishedSaveKey);
-      expect(find.text('This version can’t save a finished payment yet.'), findsOneWidget);
+      expect(find.text('This version cannot save a finished payment yet.'), findsOneWidget);
     });
 
     testWidgets('the row and the status word read To be posted elsewhere under Kill switch only', (tester) async {
@@ -285,7 +285,7 @@ void main() {
       expect(find.text('Amount'), findsOneWidget);
       expect(find.text('Fee'), findsOneWidget);
       expect(find.text('Kernel'), findsOneWidget);
-      expect(find.text('Posting puts it on the network. The wallet that made it shows it confirming once it sees it on chain.'), findsOneWidget);
+      expect(find.text('Posting puts it on the network. The wallet that made it shows it confirming once it sees it on the chain.'), findsOneWidget);
       await _tapKey(tester, postFinishedPostKey);
       expect(session.postedFinished, hasLength(1));
       expect(find.byKey(postFinishedDoneKey), findsOneWidget);

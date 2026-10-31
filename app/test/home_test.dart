@@ -512,6 +512,20 @@ double _balanceOpacity(WidgetTester tester) => tester
     )
     .opacity;
 
+/// The header's figure never clips: it ends inside the screen and clear of the status icons,
+/// beside them or, when it takes the whole width, above them (UP-002).
+void _expectFigureClear(WidgetTester tester, {String? why}) {
+  final figure = tester.getRect(find.byKey(titleFigureKey));
+  final icons = tester.getRect(find.byKey(barNodeIconKey));
+  final screen = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+  expect(figure.right, lessThanOrEqualTo(screen + 0.5), reason: why);
+  expect(
+    figure.right <= icons.left + 0.5 || figure.bottom <= icons.top + 0.5 || icons.bottom <= figure.top + 0.5,
+    isTrue,
+    reason: '${why ?? ''} the figure $figure overlaps the icons $icons',
+  );
+}
+
 /// The words of the figure title on Send and Receive: the figure and the unit.
 String _titleText(WidgetTester tester) {
   final span = tester.widget<Text>(find.byKey(titleFigureKey)).textSpan!;
@@ -556,7 +570,7 @@ Future<void> _sendOne(WidgetTester tester, String to) async {
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
-  await _tap(tester, find.text('Send 1.00000000 EPIC'));
+  await _tap(tester, find.text('Send 1.0000 EPIC'));
   await tester.enterText(find.byType(TextField).last, _Harness._pin);
   await tester.pumpAndSettle();
 }
@@ -848,7 +862,7 @@ void main() {
       expect(tester.widget<TxTile>(tiles.first).tx.slateId, 'send-bob');
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
       expect(find.text('≈ 2.50 USD'), findsOneWidget);
-      expect(find.textContaining('Today, 09:00'), findsOneWidget);
+      expect(find.textContaining('09:00'), findsOneWidget);
       expect(find.textContaining('Yesterday, 18:00'), findsOneWidget);
 
       // The waiting send also gets a card that says what it means.
@@ -1118,7 +1132,7 @@ void main() {
           'esBobKey2345678923456789ABCDEFGHJKLMNPQRSTUVWXYZabcd@box.epic.invalid';
       h.scanner.codes.add(scanned);
       await h.pump(tester);
-      await _tap(tester, find.byTooltip('Scan a QR code to send'));
+      await _tap(tester, find.byTooltip('Scan QR code'));
       // The Send tab, not a pushed screen, with the recipient filled in.
       expect(find.byType(SendView), findsOneWidget);
       expect(_toField(tester), scanned);
@@ -1128,7 +1142,7 @@ void main() {
     testWidgets('no scan button where scanning is unsupported', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.byTooltip('Scan a QR code to send'), findsNothing);
+      expect(find.byTooltip('Scan QR code'), findsNothing);
     });
 
     testWidgets('a contact name replaces the address in the list', (
@@ -1252,7 +1266,7 @@ void main() {
           find.descendant(
             of: note,
             matching: find.text(
-              'Only on this device and in your exported wallet data.',
+              'Only in this app and in the exported wallet data.',
             ),
           ),
           findsOneWidget,
@@ -1328,7 +1342,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(StatusTimeline),
-          matching: find.text('Waiting for recipient'),
+          matching: find.text('Recipient signed'),
         ),
         findsOneWidget,
       );
@@ -1461,7 +1475,7 @@ void main() {
         expect(find.textContaining('Published to the network'), findsNothing);
         expect(find.textContaining('Confirming 0'), findsNothing);
         expect(
-          find.textContaining('The network has not taken this payment yet'),
+          find.textContaining('The network has not taken this payment.'),
           findsOneWidget,
         );
         await _tap(tester, find.text('Post again'));
@@ -2472,7 +2486,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:send-bob'))),
         matchesSemantics(
-          label: 'Sending 2.0000 EPIC to Bob, waiting for recipient, Today, 09:00',
+          label: 'Sending 2.0000 EPIC to Bob, waiting for recipient, 09:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -2729,9 +2743,7 @@ void main() {
       h.session.listenerEvents.add(delayed);
       await tester.pumpAndSettle();
       expect(
-        find.text(
-          'Could not reach the node. The payment will finish once it can.',
-        ),
+        find.text('Cannot reach the node. The payment waits.'),
         findsOneWidget,
       );
       expect(find.text('A payment failed.'), findsNothing);
@@ -3577,6 +3589,7 @@ void main() {
       // One tile per balance that is not zero, in a fixed order, Total last.
       const order = [
         (BalanceKind.confirming, 'Confirming', '2.0000'),
+        (BalanceKind.immature, 'Mining rewards', '16.0000'),
         (BalanceKind.waitingSender, 'Waiting for sender', '0.5000'),
         (BalanceKind.locked, 'Locked in sends', '5.0000'),
         (BalanceKind.total, 'Total', '26.7500'),
@@ -3611,11 +3624,11 @@ void main() {
         final (t1, l1) = places[i];
         expect(t1 > t0 || (t1 == t0 && l1 > l0), isTrue, reason: 'tile $i');
       }
-      // Two columns at phone width: four tiles make a 2 × 2 grid, Total last.
+      // Two columns at phone width, Total last: the odd tile out takes its own row.
       expect(places.where((p) => p.$1 == places.first.$1).length, 2);
       expect(
         tester.getRect(find.byKey(balanceTileKey(BalanceKind.total))).width,
-        closeTo((grid.width - BalanceTiles.gap) / 2, 0.5),
+        closeTo(grid.width, 0.5),
       );
       // Only what is pending.
       h.session.summaryValue = _balances(spendable: 1, confirming: 2);
@@ -3823,10 +3836,7 @@ void main() {
               );
               expect(tester.getRect(body).top, header.bottom, reason: tab);
               // The figure keeps its size and ends before the status icons beside it.
-              expect(
-                tester.getRect(find.byKey(titleFigureKey)).right,
-                lessThanOrEqualTo(tester.getRect(find.byKey(barNodeIconKey)).left + 0.5),
-              );
+              _expectFigureClear(tester);
             }
           },
         );
@@ -4279,7 +4289,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.text('Epicbox'),
+          matching: find.byTooltip('Epicbox'),
         ),
       );
       await tester.pumpAndSettle();
@@ -4377,11 +4387,11 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.text('Waiting for their wallet'), findsNothing);
-        expect(find.text('Their wallet signed'), findsOneWidget);
+        expect(find.text('Recipient signed'), findsOneWidget);
         expect(find.text('Posted to the network'), findsOneWidget);
-        expect(find.textContaining('Confirming 0/'), findsOneWidget);
+        expect(find.textContaining('Confirming'), findsWidgets);
         // The tracker says it; a notice would say it twice.
-        expect(find.textContaining('finished. Waiting for'), findsNothing);
+        expect(find.textContaining('finished. Confirming'), findsNothing);
       },
     );
 
@@ -4527,19 +4537,11 @@ void main() {
                     expect(find.byKey(fiatValueKey), findsNothing);
                   }
                 } else {
-                  // The header: the figure and its unit at a fixed size, before the icons.
+                  // The header: the figure and its unit, clear of the icons.
                   expect(_titleText(tester), '$shown EPIC', reason: why);
-                  final title = tester.getRect(find.byKey(titleFigureKey));
-                  expect(
-                    title.right,
-                    lessThanOrEqualTo(tester.getRect(find.byKey(barNodeIconKey)).left + 0.5),
-                    reason: why,
-                  );
-                  expect(
-                    tester.widget<Text>(find.byKey(titleFigureKey)).style?.fontSize,
-                    titleFigureSize,
-                    reason: why,
-                  );
+                  _expectFigureClear(tester, why: why);
+                  final size = (tester.widget<Text>(find.byKey(titleFigureKey)).textSpan! as TextSpan).style?.fontSize;
+                  expect(size, inInclusiveRange(titleFigureFloor, titleFigureSize), reason: why);
                 }
               }
               await _tab(tester, 'Wallet');

@@ -108,7 +108,7 @@ void main() {
     expect(find.text('2 of 3'), findsOneWidget);
     await h.see(tester, parts[0]);
     expect(find.text('3 of 3'), findsOneWidget);
-    expect(find.text('Got it'), findsOneWidget);
+    expect(find.text('Code read'), findsOneWidget);
     expect(h.popped, isFalse);
 
     await tester.pump(qrCompleteFor);
@@ -144,7 +144,7 @@ void main() {
     await h.see(tester, parts[0]);
     await h.see(tester, 'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@epicbox.epiccash.com');
     expect(
-      find.text('That is not a payment QR. Ask them to show the payment code on their phone.'),
+      find.text('That is not a payment QR. Ask them to show the payment QR.'),
       findsOneWidget,
     );
     expect(find.text('1 of 3'), findsOneWidget);

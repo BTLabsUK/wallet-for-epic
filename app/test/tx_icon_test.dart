@@ -322,78 +322,29 @@ void main() {
   });
 
   group('waiting', () {
-    testWidgets('a run of 16 % laps the square in 2.4 s', (tester) async {
-      await tester.pumpWidget(_square(phase: TxPhase.waitingSender));
-      final first = _painter(tester);
-      expect(first.extent, txEdgeRunShare);
-      expect(first.edge, currentMarkEdge(_t));
-      expect(first.halo, currentMarkHalo(_t));
-      await tester.pump(const Duration(milliseconds: 600));
-      final moved = _painter(tester).start - first.start;
-      expect(moved, closeTo(0.25, 0.01));
-      await tester.pump(const Duration(milliseconds: 1800));
-      expect(
-        _painter(tester).start,
-        closeTo(first.start, 0.01),
-        reason: 'one lap',
-      );
-      expect(tester.binding.transientCallbackCount, greaterThan(0));
-    });
-
-    testWidgets('after five laps the run rests at the top, and a new phase laps again', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_square(phase: TxPhase.waitingSender));
-      await tester.pump(const Duration(milliseconds: 2400) * txEdgeRunLaps);
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(_painter(tester).start, 0);
-      expect(_painter(tester).extent, txEdgeRunShare);
-      expect(tester.binding.transientCallbackCount, 0);
-      await tester.pumpWidget(_square(phase: TxPhase.waitingRecipient));
-      await tester.pump(const Duration(milliseconds: 1200));
-      expect(_painter(tester).start, closeTo(0.25, 0.01));
-    });
-
-    testWidgets('a send waiting for its recipient laps in 4.8 s', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_square(phase: TxPhase.waitingRecipient));
-      final first = _painter(tester).start;
-      await tester.pump(const Duration(milliseconds: 1200));
-      expect(_painter(tester).start - first, closeTo(0.25, 0.01));
-    });
-
-    testWidgets('a request waiting for its payer runs too', (tester) async {
-      await tester.pumpWidget(_square(phase: TxPhase.waitingPayer));
-      final first = _painter(tester).start;
-      await tester.pump(const Duration(milliseconds: 600));
-      expect(_painter(tester).start - first, closeTo(0.25, 0.01));
-    });
-
-    testWidgets('with reduced motion it is the full current mark, still', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _square(phase: TxPhase.waitingSender, still: true),
-      );
-      final p = _painter(tester);
-      expect(p.extent, 1);
-      expect(p.edge, currentMarkEdge(_t));
-      expect(p.halo, currentMarkHalo(_t));
-      expect(tester.binding.transientCallbackCount, 0);
-      await tester.pump(const Duration(seconds: 2));
-      expect(_painter(tester).start, p.start);
-    });
-
-    testWidgets('turning reduced motion on stops it', (tester) async {
-      await tester.pumpWidget(_square(phase: TxPhase.waitingSender));
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pumpWidget(
-        _square(phase: TxPhase.waitingSender, still: true),
-      );
-      expect(_painter(tester).extent, 1);
-      expect(tester.binding.transientCallbackCount, 0);
-    });
+    // Waiting shows in the status line (the hourglass), not on the tile: a moving fragment on a
+    // static square read as a glitch (UP-022). The tile is the hairline and nothing turns.
+    for (final phase in [
+      TxPhase.waitingSender,
+      TxPhase.waitingRecipient,
+      TxPhase.waitingPayer,
+    ]) {
+      for (final still in [false, true]) {
+        testWidgets('${phase.name}${still ? ' with reduced motion' : ''}: the hairline, still', (
+          tester,
+        ) async {
+          await tester.pumpWidget(_square(phase: phase, still: still));
+          final p = _painter(tester);
+          expect(txEdgeKind(phase), TxEdgeKind.hairline);
+          expect(p.edge, isNull);
+          expect(p.halo, isNull);
+          expect(p.extent, 0);
+          expect(tester.binding.transientCallbackCount, 0);
+          await tester.pump(const Duration(seconds: 3));
+          expect(_painter(tester).start, p.start);
+        });
+      }
+    }
   });
 
   group('landing', () {
@@ -539,7 +490,7 @@ void main() {
     testWidgets('a pending tile paints the hairline, halo and line', (
       tester,
     ) async {
-      await tester.pumpWidget(_square(phase: TxPhase.waitingSender));
+      await tester.pumpWidget(_square(phase: TxPhase.confirming, fraction: 0.5));
       final box = find.descendant(
         of: find.byType(TxProgressSquare),
         matching: find.byType(CustomPaint),
@@ -582,7 +533,7 @@ void main() {
         .whereType<BoxDecoration>()
         .firstWhere((d) => d.border != null);
     final side = (mark.border! as Border).top;
-    await tester.pumpWidget(_square(phase: TxPhase.waitingSender));
+    await tester.pumpWidget(_square(phase: TxPhase.confirming, fraction: 0.5));
     final tile = _painter(tester);
     expect(tile.edge, side.color);
     expect(side.width, currentMarkStroke);

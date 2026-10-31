@@ -512,11 +512,12 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester);
       final order = [
+        // The desktop's order (GP2-021); Security keeps its place first.
         settingsGroupKey(SettingsSection.security),
-        settingsGroupKey(SettingsSection.privacyNetwork),
-        settingsGroupKey(SettingsSection.wallet),
         settingsGroupKey(SettingsSection.transactions),
+        settingsGroupKey(SettingsSection.privacyNetwork),
         settingsGroupKey(SettingsSection.display),
+        settingsGroupKey(SettingsSection.wallet),
         settingsHelpKey,
         settingsGroupKey(SettingsSection.about),
       ];
@@ -934,9 +935,9 @@ void main() {
       await tester.tap(find.text('I have written down my recovery phrase'));
       await tester.pump();
       expect(deleteButton().onPressed, isNull);
-      await _enter(tester, 'Type "delete" to confirm', 'delet');
+      await _enter(tester, 'Type “delete” to confirm', 'delet');
       expect(deleteButton().onPressed, isNull);
-      await _enter(tester, 'Type "delete" to confirm', 'delete');
+      await _enter(tester, 'Type “delete” to confirm', 'delete');
       expect(deleteButton().onPressed, isNotNull);
       await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
@@ -947,7 +948,7 @@ void main() {
 
       await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
-      await _enter(tester, 'Type "delete" to confirm', 'delete');
+      await _enter(tester, 'Type “delete” to confirm', 'delete');
       await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
       await _enter(tester, 'PIN', _pin);
@@ -997,7 +998,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Export CSV'));
       await tester.pumpAndSettle();
       await _tapText(tester, 'Share');
-      expect(h.files.shared.single.name, 'epic-wallet-data-20260930.csv');
+      expect(h.files.shared.single.name, 'epic-payments-20260930.csv');
       expect(h.files.saved, hasLength(1));
 
       h.files.picks.add(h.files.saved.first.bytes);
@@ -1189,7 +1190,7 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
-      await _enter(tester, 'Type "delete" to confirm', 'delete');
+      await _enter(tester, 'Type “delete” to confirm', 'delete');
       await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
       await _enter(tester, 'PIN', _pin);
@@ -1257,7 +1258,7 @@ void main() {
           await tester.ensureVisible(havePhrase);
           await tester.pumpAndSettle();
           await tester.tap(havePhrase);
-          await _enter(tester, 'Type "delete" to confirm', 'delete');
+          await _enter(tester, 'Type “delete” to confirm', 'delete');
           await tester.tap(find.text('Delete wallet').last);
           await tester.pumpAndSettle();
         }
@@ -1313,7 +1314,7 @@ void main() {
       await tester.tap(delete);
       await frames();
       await tester.tap(find.text('I have written down my recovery phrase'));
-      await tester.enterText(find.widgetWithText(TextField, 'Type "delete" to confirm'), 'delete');
+      await tester.enterText(find.widgetWithText(TextField, 'Type “delete” to confirm'), 'delete');
       await frames();
       await tester.tap(find.text('Delete wallet').last);
       await frames();
@@ -1359,7 +1360,7 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Delete wallet');
       await tester.tap(find.text('I have written down my recovery phrase'));
-      await _enter(tester, 'Type "delete" to confirm', 'delete');
+      await _enter(tester, 'Type “delete” to confirm', 'delete');
       await tester.tap(find.text('Delete wallet').last);
       await tester.pumpAndSettle();
       await _enter(tester, 'PIN', _pin);
@@ -1666,19 +1667,18 @@ void main() {
       await tester.tap(find.byKey(licencesFullKey));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      expect(find.byType(LicensePage), findsOneWidget);
-      expect(find.text('Epic Cash Mobile'), findsWidgets);
+      // The app's own page of full texts (UP-025), not Flutter's stock LicensePage.
+      expect(find.byType(LicenceTextsScreen), findsOneWidget);
       // British, like the row and the rest of the app.
-      expect(find.text('Licences'), findsOneWidget);
       expect(find.text('Licenses'), findsNothing);
       // The registry reads the licences on real async.
-      for (var i = 0; i < 50 && find.text('tor').evaluate().isEmpty; i++) {
+      for (var i = 0; i < 50 && find.text('Tor').evaluate().isEmpty; i++) {
         await tester.runAsync(
           () => Future<void>.delayed(const Duration(milliseconds: 20)),
         );
         await tester.pump();
       }
-      expect(find.text('tor'), findsOneWidget);
+      expect(find.text('Tor'), findsOneWidget);
     }, skip: !torBuilt);
   });
 
@@ -1837,8 +1837,8 @@ void main() {
         find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Switch')),
       );
       await tester.pumpAndSettle();
-      // The confirm says the address will change.
-      expect(find.text('Your Epicbox address will change. Share the new one.'), findsOneWidget);
+      // The confirm says the address changes (the sheet's own warning says it too).
+      expect(find.text('Your Epicbox address changes. Share the new one.'), findsWidgets);
       expect(find.byKey(serverListSwitchKey), findsOneWidget);
       expect(find.textContaining('relay'), findsNothing);
       expect(find.textContaining('ailbox'), findsNothing);

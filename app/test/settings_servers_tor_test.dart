@@ -89,7 +89,7 @@ const _states = [
   (
     PhoneTorState(receiving: true, phase: PhoneTorPhase.starting),
     'Waiting for Tor',
-    'warn',
+    'info',
   ),
   (
     PhoneTorState(receiving: true, phase: PhoneTorPhase.ready),
@@ -109,7 +109,7 @@ const _states = [
 
 Color _colour(WalletTokens t, String name) => switch (name) {
   'ok' => t.ok,
-  'warn' => t.warn,
+  'info' => t.info,
   _ => t.risk,
 };
 

@@ -188,9 +188,9 @@ void main() {
     expect(find.text(_l.txDefaultsHeader), findsOneWidget);
   });
 
-  testWidgets('the Transactions row comes right after Wallet', (tester) async {
+  testWidgets('the Transactions row comes right after Security (the desktop\'s order)', (tester) async {
     await _pump(tester);
-    final wallet = find.byKey(settingsGroupKey(SettingsSection.wallet));
+    final wallet = find.byKey(settingsGroupKey(SettingsSection.security));
     final tx = find.byKey(settingsGroupKey(SettingsSection.transactions));
     expect(tx, findsOneWidget);
     expect(
