@@ -1967,8 +1967,9 @@ class _SendViewState extends ConsumerState<SendView> {
   /// wait while it is not [NetBlock.none]; the File route never does.
   NetBlock _block = NetBlock.none;
 
-  /// What the network mode alone allows Epicbox and Link now (Node only, Kill switch, Tor only
-  /// waiting), read in [build]: the selector shows them Off while it is not [NetBlock.none].
+  /// What the network mode alone allows Epicbox and Link now (Node only, Kill switch), read in
+  /// [build]: the selector shows them Off while it blocks. Tor still starting is no reason to
+  /// move: the payment waits for Tor under its note.
   NetBlock _modeBlock = NetBlock.none;
 
   /// What it allows the File method: Offline stops making a file too (it asks the node),
@@ -2085,7 +2086,10 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing recipient's payment waits in the outbox while Epicbox is off ("Queue
     // payment"); Offline and Tor still hold it.
     _block = watchNetBlock(context, ref, method: _pairingTo != null ? null : _sendMethod);
-    _modeBlock = watchNetBlock(context, ref);
+    _modeBlock = switch (watchNetBlock(context, ref)) {
+      NetBlock.waitingForTor => NetBlock.none,
+      final b => b,
+    };
     _onNow = {for (final m in TransferMethod.values) if (_methodOnNow(m)) m};
     _keepMethodOn();
     // The pairing went (removed elsewhere): back to the To field.

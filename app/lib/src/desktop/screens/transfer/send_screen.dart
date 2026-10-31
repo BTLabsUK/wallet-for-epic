@@ -656,12 +656,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   /// The selector's segment for [m] can be chosen now: Epicbox and Link wait for the network
-  /// mode (Node only, Kill switch, Tor only without Tor), Epicbox for its switch too (a
-  /// pairing's mailbox queues), and a pairing recipient has no Link address. File always can.
+  /// mode (Node only, Kill switch), Epicbox for its switch too (a pairing's mailbox queues),
+  /// and a pairing recipient has no Link address. File always can. Tor still starting is no
+  /// reason to move: the payment waits for Tor under its notice.
   bool _segmentOn(DeskState st, TxMethod m) => switch (_segmentOf(m)) {
-    TxMethod.epicbox => deskNetBlock(st) == NetBlock.none && (st.settings.payments.epicbox || _pairingTo != null),
+    TxMethod.epicbox => _modeAllows(st) && (st.settings.payments.epicbox || _pairingTo != null),
     TxMethod.file => true,
-    _ => _pairingTo == null && deskNetBlock(st) == NetBlock.none,
+    _ => _pairingTo == null && _modeAllows(st),
+  };
+
+  bool _modeAllows(DeskState st) => switch (deskNetBlock(st)) {
+    NetBlock.none || NetBlock.waitingForTor => true,
+    _ => false,
   };
 
   /// The first method that can be chosen now, in the selector's order; null when none can.
