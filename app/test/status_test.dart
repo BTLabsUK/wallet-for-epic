@@ -99,6 +99,23 @@ void main() {
       expect(s.epicbox, EpicboxState.connecting);
     });
 
+    test('a node that does not answer is offline while a refresh retries it (26.10.26)', () {
+      // A filtered network: the tip request fails and the refresh keeps retrying the node. As
+      // "syncing 0 %" node failover never moved; offline lets it.
+      final failed = AsyncError<NodeTip>(StateError('timed out'), StackTrace.empty);
+      final s = walletStatus(tip: failed, syncing: true, percent: 0, listener: _connecting);
+      expect(s.node.state, NodeState.offline);
+      final again = walletStatus(
+        // The 15 s tip check asking again keeps the error until an answer comes.
+        // ignore: invalid_use_of_internal_member
+        tip: const AsyncLoading<NodeTip>().copyWithPrevious(failed),
+        syncing: true,
+        percent: 0,
+        listener: _connecting,
+      );
+      expect(again.node.state, NodeState.offline, reason: 'asking again, with no answer yet');
+    });
+
     test('balances the node did not check are offline, not validated', () {
       final s = walletStatus(
         tip: AsyncData(_tip),

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Flow D, level 1 only ([LevelFeatures.relaySwitchPrompt]): the Epicbox relay in use is down
-/// and another is ready ([relaySwitchProvider]). A docked warning offers the move; Switch moves
-/// the wallet ([RelaySwitchNotifier.accept]), Not now waits ([RelaySwitchNotifier.keepWaiting]).
-/// After the move a success notice offers the new address on Receive, where
-/// [relaySwitchResultProvider] marks it new. Nothing moves by itself: the address changes.
+/// Flow D, every level ([LevelFeatures.relaySwitchPrompt]): the Epicbox relay in use is down
+/// and another is ready ([relaySwitchProvider]). The wallet moves there by itself
+/// ([RelaySwitchNotifier.accept]); after the move a success notice offers the new address on
+/// Receive, where [relaySwitchResultProvider] marks it new. Only a move that failed leaves a
+/// docked warning to tap: Switch tries again, Not now waits ([RelaySwitchNotifier.keepWaiting]).
 ///
 /// The pinned core cannot read the old relay yet, so no text promises that payments to the old
 /// address arrive: anyone with the old address needs the new one.
@@ -72,6 +72,9 @@ class RelayDownNotices extends ConsumerStatefulWidget {
 }
 
 class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
+  /// The offer a move was last made for: a second try waits for a new offer.
+  RelaySwitchOffer? _tried;
+
   @override
   void initState() {
     super.initState();
@@ -90,6 +93,15 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
     final notices = ref.read(noticeProvider.notifier);
     if (offer == null || !ref.read(levelFeaturesProvider).relaySwitchPrompt) {
       notices.dismissTag(relayOfferNoticeTag);
+      return;
+    }
+    // The move is made, not asked: acceptRelaySwitch says the new address after it. Only a move
+    // that failed leaves the offer to tap.
+    if (_tried != offer) {
+      _tried = offer;
+      acceptRelaySwitch(context, ref).then((moved) {
+        if (!moved && mounted && ref.read(relaySwitchProvider) == offer) _follow(offer);
+      });
       return;
     }
     final l = context.l10n;

@@ -194,8 +194,17 @@ class DeskRelaySwitch extends Notifier<RelaySwitchOffer?> {
         address: now.epicboxAddress,
       );
       if (offer != state) {
-        if (offer != null) logInfo('network', 'relay ${inUse.label} down; offering ${offer.to.label}');
+        if (offer != null) logInfo('network', 'relay ${inUse.label} down; moving to ${offer.to.label}');
         state = offer;
+      }
+      // The move is made, not asked: the "Now on" notice tells the new address after it. A move
+      // that fails leaves the offer standing for the user's own Switch.
+      if (offer != null && !_moving) {
+        try {
+          await moveTo(RelayCandidate(relay: offer.to, name: offer.name));
+        } on Object catch (e) {
+          logWarn('network', 'relay move to ${offer.to.label} failed: ${e.runtimeType}');
+        }
       }
     } finally {
       _checking = false;
