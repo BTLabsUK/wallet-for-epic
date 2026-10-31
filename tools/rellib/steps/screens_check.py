@@ -57,6 +57,21 @@ DEBUG = re.compile(r"\bTODO\b|\bFIXME\b|\bXXX\b|lorem ipsum|Instance of '|_Excep
                    r"\bNaN\b|\bInfinity\b|^null$|^undefined$|\bnull\b(?= EPIC)|\bdebugPrint\b|"
                    r"\bassert(?:ion)? failed\b|LateInitializationError|Null check operator", re.I)
 ICU = re.compile(r"\{[A-Za-z_][A-Za-z0-9_]*\}")
+# Translations that read the same as the English on purpose (checked 26.10.26), never "left in
+# English": protocol acronyms, and words those languages share with English. lang "*" = every one.
+SAME_BY_DESIGN = {
+    ("*", "deskOnbNodePortsSub"): "API · P2P: protocol names",
+    ("de", "deskSetAboutVersion"): "German 'Version'",
+    ("de", "deskSetLnodeVersion"): "German 'Version'",
+    ("de", "methodDirectHttp"): "German 'Link' + protocol",
+    ("de", "methodDirectTor"): "German 'Link' + Tor",
+    ("de", "methodShortHttp"): "German 'Link' + protocol",
+    ("de", "methodShortTor"): "German 'Link' + Tor",
+    ("pl", "methodDirectHttp"): "Polish 'link' + protocol",
+    ("pl", "methodDirectTor"): "Polish 'link' + Tor",
+    ("pl", "methodShortHttp"): "Polish 'link' + protocol",
+    ("pl", "methodShortTor"): "Polish 'link' + Tor",
+}
 KEYLIKE = re.compile(r"^(?:desk|ph|phone|onb|set|adv|help|tour)[A-Z][A-Za-z0-9]+$")
 EMPTY = re.compile(r"\b(?:no \w+ yet|nothing (?:here|yet)|something went wrong|failed|error|"
                    r"can[’']t (?:reach|load|open|read)|couldn[’']t|unable to|not available|unreachable|offline)\b", re.I)
@@ -343,7 +358,8 @@ def main(argv):
         l10n = {}
         for lang, tr in langs.items():
             missing = [k for k in shown if k in keys and k not in tr]
-            same = [k for k in shown if k in keys and tr.get(k) == keys[k] and len(re.findall(r"[A-Za-z]{3,}", keys[k])) >= 2]
+            same = [k for k in shown if k in keys and tr.get(k) == keys[k] and len(re.findall(r"[A-Za-z]{3,}", keys[k])) >= 2
+                    and (lang, k) not in SAME_BY_DESIGN and ("*", k) not in SAME_BY_DESIGN]
             l10n[lang] = {"missing": len(missing), "english": len(same), "examples": (missing + same)[:5]}
             if missing or same:
                 add("warn", "l10n", f"{lang}: {len(missing)} keys missing, {len(same)} left in English "
