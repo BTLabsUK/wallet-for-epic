@@ -177,3 +177,30 @@ class SignerTest(Base):
         p = subprocess.run([sys.executable, "-I", tool, "write", files, m, out], capture_output=True, text=True)
         self.assertNotEqual(p.returncode, 0)
         self.assertIn("two hashes", p.stderr)
+
+
+class CertOfTest(Base):
+    """cert_of reads the certificate from apksigner's and keytool's real output."""
+
+    def tool(self, name, text):
+        path = os.path.join(self.tmp, name)
+        with open(path, "w") as f:
+            f.write("#!/bin/sh\ncat <<'EOF'\n%s\nEOF\n" % text)
+        os.chmod(path, 0o755)
+        return path
+
+    def test_apksigner_signer_line(self):
+        out = ("Signer #1 certificate DN: CN=BT Labs Epic Wallet, O=BT Labs\n"
+               "Signer #1 certificate SHA-256 digest: %s\n"
+               "Signer #1 certificate SHA-1 digest: 0123456789abcdef0123456789abcdef01234567" % CERT)
+        tools = {"apksigner": self.tool("apksigner", out), "keytool": "keytool"}
+        self.assertEqual(signer.cert_of("x.apk", tools), CERT)
+
+    def test_keytool_colons(self):
+        colons = ":".join(CERT[i:i + 2].upper() for i in range(0, len(CERT), 2))
+        tools = {"apksigner": "apksigner", "keytool": self.tool("keytool", "\t SHA1: 01:23\n\t SHA256: %s" % colons)}
+        self.assertEqual(signer.cert_of("x.aab", tools), CERT)
+
+    def test_unsigned_is_none(self):
+        tools = {"apksigner": self.tool("apksigner", "DOES NOT VERIFY"), "keytool": "keytool"}
+        self.assertIsNone(signer.cert_of("x.apk", tools))

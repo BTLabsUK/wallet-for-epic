@@ -95,10 +95,10 @@ def cert_of(path, tools):
         out = subprocess.run(cmd, capture_output=True, text=True, timeout=300).stdout
     except (OSError, subprocess.TimeoutExpired):
         return None
+    # apksigner prints "Signer #1 certificate SHA-256 digest: <hex>", keytool "SHA256: AB:CD:..."
     for line in out.splitlines():
-        line = line.strip()
-        if line.startswith(mark):
-            return line[len(mark):].replace(":", "").lower()
+        if mark in line:
+            return line.split(mark, 1)[1].strip().replace(":", "").lower()
     return None
 
 
