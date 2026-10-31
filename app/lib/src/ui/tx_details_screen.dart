@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
-import '../devices/phone_devices.dart' show deviceServiceProvider, watchHistory;
-import 'devices/device_tx_details.dart';
+import '../devices/device_ending.dart' show deviceEndingLine;
+import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices, watchHistory;
+import 'devices/device_parts.dart' show confirmDeviceAction;
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_screen.dart' show openHelp;
@@ -616,8 +617,16 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       );
     }
 
-    // Another linked device's payment: what it told this one, with the chain's view.
-    if (tx.origin == TxOrigin.linkedDevice) return DeviceTxDetails(tx: tx);
+    // Another linked device's payment ("Sent from Desktop"): the same screen as every other
+    // payment (UP-007), with what that device told this one and the chain's view; its coins
+    // held here can be released from the status card. No label or note: there is no record
+    // of it on this device to keep them on.
+    final device = tx.origin == TxOrigin.linkedDevice;
+    final deviceName = tx.deviceName ?? '';
+    final deviceView = device ? ref.watch(phoneDevices.view) : null;
+    final hold = deviceView?.book.holds
+        .where((h) => h.state.holds && h.slateId == tx.slateId && h.commitments.any(tx.spentCommits.contains))
+        .firstOrNull;
 
     final theme = Theme.of(context);
     final display = amountDisplay(ref);
@@ -694,7 +703,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         : null;
     _tickWhile(cancelHeld && !incoming.senderReportsPosted);
     // What the status card offers beside the status.
-    final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || cancel || cancelHeld;
+    final actions = stuck || (tx.undelivered && tx.transport == 'epicbox') || tx.releasable || cancel || cancelHeld || hold != null;
     return SlotScaffold(
       appBar: AppBar(
         title: Text(switch (withdrawal) {
@@ -748,7 +757,16 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                   if (!ownSteps) ...[
                     TxStatusChip(tx: tx, tip: tip),
                     const SizedBox(height: 8),
-                    Text(txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait, cancelFinal: cancelFinalNow)),
+                    Text(
+                      device
+                          ? (hold != null ? l.txDeviceStatusHeld(deviceName) : l.txDeviceStatusMadeOn(deviceName))
+                          : txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait, cancelFinal: cancelFinalNow),
+                    ),
+                    if (device && tx.deviceEnding != null)
+                      if (deviceEndingLine(l, tx.deviceEnding!, deviceName, tx.deviceWhy) case final line?) ...[
+                        const SizedBox(height: 8),
+                        Text(line, style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim)),
+                      ],
                     if (tx.origin == TxOrigin.otherWallet && tx.deviceName == null)
                       Align(
                         alignment: Alignment.centerLeft,
@@ -838,6 +856,31 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                       ),
                     ),
                   ],
+                  // The other device's coins held here: let them go, as Release coins above.
+                  if (hold != null) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.lock_open),
+                        label: Text(l.devicesRelease),
+                        onPressed: _busy
+                            ? null
+                            : () async {
+                                final yes = await confirmDeviceAction(
+                                  context,
+                                  title: l.devicesReleaseTitle,
+                                  body: l.devicesReleaseBody(deviceName),
+                                  action: l.devicesRelease,
+                                  risky: true,
+                                );
+                                if (!yes || !context.mounted) return;
+                                await ref.read(deviceServiceProvider)?.releaseByHandOf(hold.deviceId, hold.slateId);
+                                ref.read(noticeProvider.notifier).show(l.devicesReleased, level: NoticeLevel.success);
+                              },
+                      ),
+                    ),
+                  ],
                   if (tx.releasable) ...[
                     const SizedBox(height: 12),
                     Text(l.txDetailsRefusedBody),
@@ -915,7 +958,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               trailing: const Icon(Icons.chevron_right),
               onTap: _busy ? null : () => _editDetails(tx),
             ),
-          _LabelTile(tx: tx),
+          if (!device) _LabelTile(tx: tx),
           const SizedBox(height: 8),
           _DetailRow(
             label: l.txDetailsDate,
@@ -988,6 +1031,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               value: ownMessage,
               hint: messageHint(l, incoming: !outgoing, bySender: outgoing),
             ),
+          if (!device)
           ListTile(
             key: txPrivateNoteKey,
             contentPadding: EdgeInsets.zero,

@@ -919,14 +919,16 @@ List<TimelineStep>? txTimeline(
     txConfirmations(tx, tip) ?? 0,
     target ?? confirmationsTarget,
   );
-  // Each step: label once done, label while current, label before it is reached.
+  // Each step: label once done, label while current, label before it is reached. The same
+  // five names in every state, as the desktop lists them (GP2-001): the status card above
+  // says what the wallet waits for; the current Confirming step carries its count.
   final List<(String, String, String)> steps;
   final int? at;
   if (_outgoingKind(tx)) {
     steps = [
       (l.txStepStarted, l.txStepStarted, l.txStepStarted),
-      (l.txStepAccepted, l.txStatusWaitingRecipient, l.txStepAccepted),
-      (l.txStepPosted, isPostElsewhere(tx) ? l.txPostElsewhere : l.txStatusNotPosted, l.txStepPosted),
+      (l.txStepAccepted, l.txStepAccepted, l.txStepAccepted),
+      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
@@ -941,7 +943,7 @@ List<TimelineStep>? txTimeline(
     // Nothing arrives before the payer pays.
     steps = [
       (l.txStepRequested, l.txStepRequested, l.txStepRequested),
-      (l.txStepPaid, l.txStatusWaitingPayer, l.txStepPaid),
+      (l.txStepPaid, l.txStepPaid, l.txStepPaid),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
@@ -955,9 +957,9 @@ List<TimelineStep>? txTimeline(
     final reported = now != null && senderReportsPosted(tx, now: now);
     steps = [
       (l.txStepArrived, l.txStepArrived, l.txStepArrived),
-      (l.txStepSenderFinished, l.txStatusWaitingSender, l.txStepSenderFinished),
+      (l.txStepSenderFinished, l.txStepSenderFinished, l.txStepSenderFinished),
       // The sender's wallet posts it; this wallet only hears so from the sender.
-      (l.txStepPosted, reported ? l.txStatusSenderPosted : l.txStepPosted, l.txStepPosted),
+      (l.txStepPosted, l.txStepPosted, l.txStepPosted),
       (l.txStepConfirmed, confirming, l.txStepConfirming),
       (l.txStatusCompleted, l.txStatusCompleted, l.txStatusCompleted),
     ];
