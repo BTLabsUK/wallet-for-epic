@@ -53,7 +53,6 @@
 ///
 /// App-side, not in 0.1.0 (no core change needed):
 /// languages: Setup › Preferences › Language, Settings › Appearance › Language.
-/// fiatPrice: the fiat line under the balance.
 /// contactPictures: the contact form's picture and the list's photos (initials stay).
 library;
 
@@ -79,6 +78,5 @@ abstract final class DeskFeatures {
   static const bool changePassword = true;
   static const bool walletProcesses = false;
   static const bool languages = true;
-  static const bool fiatPrice = false;
   static const bool contactPictures = false;
 }

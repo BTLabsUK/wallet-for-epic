@@ -174,6 +174,16 @@ class TorAwarePriceSource implements PriceSource {
 /// (or the status site's copy) in app-config.toml.
 bool pricesOffered(HostSettings s) => s.priceEnabled && (s.priceSource != null || s.statusPrice != null);
 
+/// Whether a price is wanted, and in which currency. The phone: Settings' fiat switch and
+/// currency, and no price on floonet and usernet, whose test coins are worthless. The desktop
+/// overrides it (`main_desktop.dart`): USD, its balance line's dollars, on mainnet only.
+final fiatChoiceProvider = FutureProvider<({bool show, String currency})>((ref) async {
+  final chain = ref.watch(walletConfigProvider.select((c) => c?.chain));
+  if (chain != null && chain != Chain.mainnet) return (show: false, currency: '');
+  final settings = await ref.watch(appSettingsProvider.future);
+  return (show: settings.showFiat, currency: settings.fiatCurrency);
+});
+
 /// The price of one EPIC in the chosen currency, or null when prices are off or none has been
 /// fetched. Refreshes every [priceRefreshInterval] while the app is on screen, and at its
 /// return when the last ask is older than that ([PriceNotifier.paused], [PriceNotifier.resumed]).
@@ -199,15 +209,12 @@ class PriceNotifier extends AsyncNotifier<double?> {
 
   @override
   Future<double?> build() async {
-    // Test coins on floonet and usernet are worthless: no price, and no request.
-    final chain = ref.watch(walletConfigProvider.select((c) => c?.chain));
-    if (chain != null && chain != Chain.mainnet) return null;
     // settings.toml's `[online] price` off, or no source in app-config.toml: no price.
     final online = ref.watch(hostSettingsProvider.select(pricesOffered));
     if (!online) return null;
-    final settings = await ref.watch(appSettingsProvider.future);
-    if (!settings.showFiat) return null;
-    final currency = settings.fiatCurrency;
+    final choice = await ref.watch(fiatChoiceProvider.future);
+    if (!choice.show) return null;
+    final currency = choice.currency;
     // Node only and Kill switch ask for no price: the last one seen stays; leaving them
     // fetches again.
     if (ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch))) return _cache[currency];

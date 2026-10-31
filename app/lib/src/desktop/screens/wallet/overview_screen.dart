@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
+import '../../../price.dart' show priceProvider;
 import '../../app/tour.dart';
 import '../../data/lepic_desk_wallet.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
@@ -24,9 +25,6 @@ import '../../../settings_file/settings_providers.dart' show hostSettingsProvide
 
 /// States the tour can start Overview in.
 enum OverviewDemo { loading, empty, nodeDown, starting, syncing, nodeProblem }
-
-/// Mock price for the fiat line.
-const double _usdPerEpic = 0.42;
 
 /// Mock sync state for [OverviewDemo.syncing].
 const double _syncPart = 0.62;
@@ -351,6 +349,11 @@ class _BalancePanel extends ConsumerWidget {
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
     final b = balance;
+    // The price as the phone has it (price.dart), only while settings.toml's `[online] price` is
+    // on. Off in Node only and Kill switch: the figure is hidden, never a stale one.
+    final price = b == null || empty || NetGate.restricted || !ref.watch(hostSettingsProvider.select((h) => h.priceEnabled))
+        ? null
+        : ref.watch(priceProvider).value;
     // What senders report posted leaves Awaiting finalization for its own line, named as its
     // rows are; it is still not in a block, so not in Total (LNX-13).
     final txs = ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[];
@@ -412,12 +415,11 @@ class _BalancePanel extends ConsumerWidget {
                     SizedBox(height: 6.u),
                     if (empty)
                       Text(l.deskOvEmptyHint, style: ts.bodyDim)
-                    // Price is off in Node only and Kill switch: the figure is hidden, never stale.
-                    else if (DeskFeatures.fiatPrice && b != null && !NetGate.restricted)
+                    else if (price != null && b != null)
                       Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: hidden ? '≈ \$•••' : '≈ \$${(b.total / nanoPerEpic * _usdPerEpic).toStringAsFixed(2)}'), // l10n-ok: the dollar sign and digits
+                            TextSpan(text: hidden ? '≈ \$•••' : '≈ \$${(b.total / nanoPerEpic * price).toStringAsFixed(2)}'), // l10n-ok: the dollar sign and digits
                             TextSpan(
                               text: l.deskOvFiatNote,
                               style: TextStyle(color: c.faint),

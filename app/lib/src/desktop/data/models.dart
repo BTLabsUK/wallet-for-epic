@@ -1243,7 +1243,6 @@ class DeskSettings {
     this.torAutostart = false,
     this.autoLockMinutes = autoLockDefault,
     this.autoLockOn = true,
-    this.fiat = 'USD',
     this.newLookSeen = false,
     this.internetGuideSeen = false,
     this.tourSeen = false,
@@ -1308,7 +1307,6 @@ class DeskSettings {
 
   /// Auto-lock is on; off, the wallet locks only by Lock wallet or quitting.
   final bool autoLockOn;
-  final String fiat;
 
   /// The one-time "new look" notice on Overview was closed.
   final bool newLookSeen;
@@ -1349,7 +1347,6 @@ class DeskSettings {
     bool? torAutostart,
     int? autoLockMinutes,
     bool? autoLockOn,
-    String? fiat,
     bool? newLookSeen,
     bool? internetGuideSeen,
     bool? tourSeen,
@@ -1374,7 +1371,6 @@ class DeskSettings {
     torAutostart: torAutostart ?? this.torAutostart,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,
     autoLockOn: autoLockOn ?? this.autoLockOn,
-    fiat: fiat ?? this.fiat,
     newLookSeen: newLookSeen ?? this.newLookSeen,
     internetGuideSeen: internetGuideSeen ?? this.internetGuideSeen,
     tourSeen: tourSeen ?? this.tourSeen,

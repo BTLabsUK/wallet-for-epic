@@ -41,6 +41,7 @@ import 'src/desktop/data/lepic_desk_wallet.dart';
 import 'src/desktop/data/logs.dart';
 import 'src/desktop/widgets/kit.dart';
 import 'src/password_lists.dart';
+import 'src/price.dart' show fiatChoiceProvider;
 import 'src/tor_licence.dart';
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
@@ -211,6 +212,9 @@ Future<List<Override>> deskOverrides() async {
   }
   return [
     deskApiProvider.overrideWithValue(wallet),
+    // The balance line's dollars (overview_screen.dart), not the phone's fiat settings; none on
+    // a dev build's test network.
+    fiatChoiceProvider.overrideWith((ref) async => (show: preset.chain == mainnetPreset.chain, currency: 'usd')),
     if (builtInNodeSupported)
       deskNodeProvider.overrideWith((ref) {
         final node = LepicDeskNode(
