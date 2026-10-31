@@ -18,7 +18,8 @@ assets/            style.css, page.js, theme.js, fonts/ (Montserrat, JetBrains M
 
 ## A new release
 
-`tools/rel` does this as its `publish-page` and `prune-downloads` steps (docs/RELEASING.md);
+`tools/rel` does this as its `publish-page` and `prune-downloads` steps (docs/RELEASING.md;
+`publish-page` also commits `releases.json` on main, step 4);
 the page lists only the files of the release folder, so a release that leaves a platform out
 needs the page settled first (the manifests keep that platform's live entry, prune keeps its
 files). By hand:
