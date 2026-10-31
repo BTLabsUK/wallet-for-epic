@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:epic_wallet/src/amount.dart' show normalizeAmountText;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/contacts.dart';
 import 'package:epic_wallet/src/errors.dart';
