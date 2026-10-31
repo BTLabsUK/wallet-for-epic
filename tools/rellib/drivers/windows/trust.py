@@ -558,7 +558,7 @@ class Run:
             if not ok:
                 return False, "P send failed: %s" % out
             end = time.time() + 900
-            stuck_since, reposted, last = None, False, None
+            stuck_since, reposted, last, posted = None, False, None, False
             while time.time() < end:
                 d = self.db()
                 inc = [t for t in (d["txs"] if d else []) if t["direction"] == "incoming"]
@@ -570,6 +570,9 @@ class Run:
                 if new and new[-1]["state"] == "confirmed":
                     return True, "incoming %s EPIC from %s, confirmed at %s" % (
                         num(D(new[-1]["credited"]) / NANO), lt.short(new[-1]["counterparty"]), new[-1]["height"])
+                if new and p.finalized():
+                    posted = True  # the confirmation is waited for below, without the P lock
+                    break
                 # answered but P has not posted (its listener can hang there): post P's saved copy
                 stuck_since = (stuck_since or time.time()) if new else None
                 if stuck_since and time.time() - stuck_since > P_STALL_S and not reposted:
@@ -580,7 +583,17 @@ class Run:
                         self.log("P repost of its send %s (slate %s…): %s (%s)" % (tx_id, slate[:8], "ok" if posted else "FAILED", o))
                     p.start_listener()
                 time.sleep(15)
-            return False, "not received and confirmed in 15 min (wallet records %s)" % last
+            if not posted:
+                return False, "not received and confirmed in 15 min (wallet records %s)" % last
+        while time.time() < end:
+            d = self.db()
+            inc = [t for t in (d["txs"] if d else []) if t["direction"] == "incoming"]
+            new = inc[n0:] if len(inc) > n0 else []
+            if new and new[-1]["state"] == "confirmed":
+                return True, "incoming %s EPIC from %s, confirmed at %s" % (
+                    num(D(new[-1]["credited"]) / NANO), lt.short(new[-1]["counterparty"]), new[-1]["height"])
+            time.sleep(15)
+        return False, "posted by P, not confirmed in 15 min (wallet records %s)" % last
 
     def send_to_p(self, what):
         """Everything (Max) to P through the Send page, P's listener answering; True when the wallet's
@@ -619,13 +632,20 @@ class Run:
                 if state != last:
                     self.log("%s: wallet records %s" % (what, state))
                     last = state
-                if out and out[-1]["state"] == "confirmed":
-                    t = out[-1]
-                    return True, "outgoing %s EPIC (fee %s) to %s, posted and confirmed at %s" % (
-                        num(D(t["debited"] - t["credited"] - (t["fee"] or 0)) / NANO), num(D(t["fee"] or 0) / NANO),
-                        lt.short(t["counterparty"]), t["height"])
+                if out and out[-1]["state"] in ("posted", "confirmed"):
+                    break  # P answered: the confirmation is waited for below, without the P lock
                 time.sleep(15)
-            return False, "not posted and confirmed in 15 min (wallet records %s)" % last
+            else:
+                return False, "not posted in 15 min (wallet records %s)" % last
+        while time.time() < end:
+            out = [t for t in self.db()["txs"] if t["direction"] == "outgoing"][n0:]
+            if out and out[-1]["state"] == "confirmed":
+                t = out[-1]
+                return True, "outgoing %s EPIC (fee %s) to %s, posted and confirmed at %s" % (
+                    num(D(t["debited"] - t["credited"] - (t["fee"] or 0)) / NANO), num(D(t["fee"] or 0) / NANO),
+                    lt.short(t["counterparty"]), t["height"])
+            time.sleep(15)
+        return False, "posted, not confirmed in 15 min (wallet records %s)" % last
 
     # ---- the job
 

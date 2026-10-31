@@ -91,9 +91,22 @@ class P:
         return r.returncode, out
 
     def send(self, address, amount):
+        lp = os.path.join(self.log_dir, "p-listener.log")
+        self.sent_mark = os.path.getsize(lp) if os.path.exists(lp) else 0
         rc, out = self.run("send", "-m", "epicbox", "-d", address, amount)
         ok = rc == 0 and "ERROR" not in out and re.search(r"Tx created|successfully|Command 'send' completed", out)
         return bool(ok), _last_lines(out)
+
+    def finalized(self):
+        """P's listener finalized and posted a payment since the last send: the payment is P's no
+        longer, only the chain's (its confirmation is waited for without the lock)."""
+        lp = os.path.join(self.log_dir, "p-listener.log")
+        try:
+            with open(lp, errors="replace") as f:
+                f.seek(getattr(self, "sent_mark", 0))
+                return "finalized successfully" in f.read()
+        except OSError:
+            return False
 
     def info(self):
         rc, out = self.run("info", timeout=180)
