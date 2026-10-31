@@ -22,9 +22,6 @@ List<PublicNode> builtInNodesFor(NetworkPreset preset) => builtInNodes;
 /// The public relays of a network: the default copy's.
 List<PublicRelay> builtInRelaysFor(NetworkPreset preset) => builtInRelays;
 
-/// The default copy's servers of a kind, as list values.
-List<String> builtInValues(ServerKind kind, Chain chain) => shippedServers(kind);
-
 /// The user's list of a kind on a chain: the settings file's.
 final serverListProvider =
     AsyncNotifierProvider.family<ServerListNotifier, ServerList, (ServerKind, Chain)>(
