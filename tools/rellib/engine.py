@@ -20,9 +20,6 @@ from .run import SETTLED, now_iso, read_json, write_json
 # Exit codes (stable; agents read them).
 EXIT_OK, EXIT_WAITING, EXIT_FAILED, EXIT_PREFLIGHT, EXIT_DENIED, EXIT_USAGE, EXIT_BUSY = 0, 10, 20, 30, 40, 64, 75
 
-SAFE_ENV = ("PATH", "HOME", "USER", "LANG", "ANDROID_HOME", "ANDROID_NDK_HOME", "JAVA_HOME", "TMPDIR")
-
-
 def sha256_file(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:

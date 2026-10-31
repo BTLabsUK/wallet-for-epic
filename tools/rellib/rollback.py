@@ -18,10 +18,10 @@ import datetime as dt
 import json
 import os
 import shutil
-import time
 
 from .config import render
 from .graph import Step, build_graph, topo
+from .resign import new_serial
 from .run import Run, read_json, write_json
 
 
@@ -90,10 +90,6 @@ def make_run(state_root, pipeline, hosts, repo, bad, good, test, base_ctx):
             shutil.copy2(p, os.path.join(run.path, "manifests", name))
     run.event("run", "rollback", replaces=bad["version"], to=good["version"])
     return run
-
-
-def new_serial(*floors):
-    return max([int(time.time())] + [int(f) + 1 for f in floors if f is not None])
 
 
 def resign(engine, step, say):
