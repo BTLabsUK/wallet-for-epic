@@ -514,16 +514,8 @@ String? approxFiat(
 
 // Dates.
 
-String _two(int v) => v.toString().padLeft(2, '0');
-
 DateTime localTime(int unixSeconds) =>
     DateTime.fromMillisecondsSinceEpoch(unixSeconds * 1000);
-
-/// Local `yyyy-MM-dd HH:mm`, the same in every language.
-String formatTimestamp(int unixSeconds) {
-  final t = localTime(unixSeconds);
-  return '${t.year}-${_two(t.month)}-${_two(t.day)} ${_two(t.hour)}:${_two(t.minute)}';
-}
 
 /// `21 Sep 2026, 14:05`.
 String formatDateTime(AppLocalizations l, DateTime t) =>
