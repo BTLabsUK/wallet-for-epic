@@ -54,6 +54,37 @@ void useSignedDonation(List<SeedContact> fromFile) {
 /// Forgets the signed donation address (tests).
 void resetSignedDonation() => _signedDonation = null;
 
+/// The id of the wallet's source code in the signed file's `links` (kind `github`).
+const String signedSourceLinkId = 'wallet-source';
+
+/// The source code link of the signed file in use; null until one verified with that link.
+String? _signedSource;
+
+/// The wallet's source code: the signed btlabs.json's `wallet-source` link when one was verified
+/// this run ([useSignedLinks]), else `[links] source` of `app-config.toml`. Null when that line
+/// is left out: then no Source code row shows, and the signed file cannot add one.
+String? get projectRepoUrl {
+  final bundled = hostSettings.linkSource;
+  if (bundled == null) return null;
+  return _signedSource ?? bundled;
+}
+
+/// Takes the source code link from a verified file for [projectRepoUrl]; a file without one
+/// changes nothing. Only a link on the bundled link's host is taken (FORMAT.md: clients open
+/// only hosts they already know).
+void useSignedLinks(BtlabsPublic file) {
+  final bundled = hostSettings.linkSource;
+  if (bundled == null) return;
+  for (final link in file.links) {
+    if (link.id == signedSourceLinkId && link.kind == 'github' && Uri.parse(link.url).host == Uri.parse(bundled).host) {
+      _signedSource = link.url;
+    }
+  }
+}
+
+/// Forgets the signed source link (tests).
+void resetSignedLinks() => _signedSource = null;
+
 /// What the app ships with; used whenever the website cannot be read.
 List<SeedContact> get bundledSeedContacts => [?btLabsContact];
 

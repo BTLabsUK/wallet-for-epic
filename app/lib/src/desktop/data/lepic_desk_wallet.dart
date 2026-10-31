@@ -3323,6 +3323,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await _applyOnions(_session);
     final list = seedContactsFrom(file, validAddress: isEpicboxAddress);
     useSignedDonation(list);
+    useSignedLinks(file);
     return list;
   }
 
@@ -3357,6 +3358,7 @@ class LepicDeskWallet implements DeskWalletApi {
           await _applyOnions(_session);
           final list = seedContactsFrom(manifest, validAddress: isEpicboxAddress);
           useSignedDonation(list);
+          useSignedLinks(manifest);
           _webSeeds = list;
           await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
       }

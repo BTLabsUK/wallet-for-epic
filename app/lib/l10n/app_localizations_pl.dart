@@ -12642,9 +12642,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskSetAboutCommunity => 'Społeczność';
-
-  @override
   String get deskSetAboutLicences => 'Licencje';
 
   @override

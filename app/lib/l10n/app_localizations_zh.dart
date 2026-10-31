@@ -11449,9 +11449,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetAboutCommunity => '社区';
-
-  @override
   String get deskSetAboutLicences => '许可证';
 
   @override

@@ -7,7 +7,7 @@ import '../../../dist_build.dart' show distStore;
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show TorSourceNote;
-import '../../../ui/settings_screen.dart' show communityUrl, epicCashUrl, privacyPolicyUrl, projectRepoUrl, supportEmail;
+import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl, supportEmail;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 
 import 'package:flutter/material.dart';
@@ -24,9 +24,8 @@ import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
 import 'settings_frame.dart';
 
-/// The Epic Cash community links, from `app-config.toml` (`links.community`,
-/// `links.website`); null when left out (the row is not shown).
-String? get telegramUrl => communityUrl;
+/// The Epic Cash website, from `app-config.toml` (`links.website`); null when left out (the
+/// row is not shown).
 String? get websiteUrl => epicCashUrl;
 
 /// The Licences group, the same words as the phone's Licences screen (lib/l10n, `licences*`).
@@ -108,14 +107,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
               if (deskUpdatesSupported) const _Updates(),
             ],
           ),
-          ESetGroup(
-            title: l.deskSetAboutCommunity,
-            rows: [
-              if (telegramUrl case final t?) linkRow('Telegram', shownUrl(t), t), // l10n-ok: a name
-              if (websiteUrl case final w?) linkRow(shownUrl(w), shownUrl(w), w),
-              if (supportEmail case final e?) _LinkRow(title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
-            ],
-          ),
           // A few sentences, not a catalogue: one line per component with its licence, the
           // bundled tor's source note (its GPL asks for it), and the full texts one click away.
           ESetGroup(
@@ -133,8 +124,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   ],
                 ),
               ),
-              if (projectRepoUrl != null) linkRow(l.deskSetAboutSource, shownUrl(projectRepoUrl!), projectRepoUrl!),
-              if (privacyPolicyUrl case final url?) linkRow(l.settingsPrivacyPolicy, shownUrl(url), url),
               ESetRow(
                 title: l.licencesFull,
                 control: ERowControl(
@@ -145,6 +134,16 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   ),
                 ),
               ),
+            ],
+          ),
+          // The phone's rows in its order (GP2-020): the website, the source, the privacy policy
+          // and the contact address.
+          ESetGroup(
+            rows: [
+              if (websiteUrl case final w?) linkRow(shownUrl(w), w, w),
+              if (projectRepoUrl case final r?) linkRow(l.deskSetAboutSource, shownUrl(r), r),
+              if (privacyPolicyUrl case final url?) linkRow(l.settingsPrivacyPolicy, shownUrl(url), url),
+              if (supportEmail case final e?) _LinkRow(title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
             ],
           ),
         ],

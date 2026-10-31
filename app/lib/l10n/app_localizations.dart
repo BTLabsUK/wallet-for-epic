@@ -19226,12 +19226,6 @@ abstract class AppLocalizations {
   /// **'Node  {version}'**
   String deskSetAboutNode(String version);
 
-  /// Settings › About: group head of the Epic Cash community links (Telegram, the website).
-  ///
-  /// In en, this message translates to:
-  /// **'Community'**
-  String get deskSetAboutCommunity;
-
   /// Settings › About: group head of the open-source licences.
   ///
   /// In en, this message translates to:

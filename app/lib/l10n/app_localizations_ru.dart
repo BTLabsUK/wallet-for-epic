@@ -12609,9 +12609,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskSetAboutCommunity => 'Сообщество';
-
-  @override
   String get deskSetAboutLicences => 'Лицензии';
 
   @override

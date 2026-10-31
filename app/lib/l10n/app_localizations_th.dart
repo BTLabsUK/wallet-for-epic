@@ -11843,9 +11843,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetAboutCommunity => 'ชุมชน';
-
-  @override
   String get deskSetAboutLicences => 'สัญญาอนุญาต';
 
   @override

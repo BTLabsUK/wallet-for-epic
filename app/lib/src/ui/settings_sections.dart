@@ -5,6 +5,8 @@
 /// a page fits a 360 dp phone without a search. Help & feedback opens Help itself.
 library;
 
+import '../address_format.dart' show shownUrl;
+import '../seed_contacts.dart' show projectRepoUrl;
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter/services.dart';
@@ -73,17 +75,12 @@ import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
-
-/// The project's source code; null when `app-config.toml` leaves it out (no link).
-String? get projectRepoUrl => hostSettings.linkSource;
+export '../seed_contacts.dart' show projectRepoUrl;
 
 /// BT Labs' privacy policy; null when `app-config.toml` leaves it out (no link).
 String? get privacyPolicyUrl => hostSettings.linkPrivacy;
 
 String? get epicCashUrl => hostSettings.linkWebsite;
-
-/// The Epic Cash community chat; null: no link.
-String? get communityUrl => hostSettings.linkCommunity;
 
 /// The public contact address, shown in Help and About. Never translated. Null: not shown.
 String? get supportEmail => hostSettings.supportEmail;
@@ -1277,8 +1274,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         title: Text(l.settingsLicences),
         onTap: () => _push(LicencesScreen(version: version.value)),
       ),
-      // A proper name, the same in every language.
-      if (epicCashUrl case final site?) LinkTile(title: 'Epic Cash', url: site),
+      // The site's address as its name, the same in every language and on the desktop.
+      if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site),
       if (projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!),
       if (privacyPolicyUrl case final url?) LinkTile(title: l.settingsPrivacyPolicy, url: url),
       if (supportEmail case final email?) LinkTile(title: l.contactLabel, url: email, email: true),

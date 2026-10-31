@@ -12302,9 +12302,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskSetAboutCommunity => 'Community';
-
-  @override
   String get deskSetAboutLicences => 'Lizenzen';
 
   @override

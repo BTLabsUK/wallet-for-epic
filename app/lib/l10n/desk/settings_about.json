@@ -35,10 +35,6 @@
       }
     }
   },
-  "deskSetAboutCommunity": "Community",
-  "@deskSetAboutCommunity": {
-    "description": "Settings › About: group head of the Epic Cash community links (Telegram, the website)."
-  },
   "deskSetAboutLicences": "Licences",
   "@deskSetAboutLicences": {
     "description": "Settings › About: group head of the open-source licences."

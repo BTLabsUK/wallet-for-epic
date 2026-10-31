@@ -12166,9 +12166,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskSetAboutCommunity => 'Community';
-
-  @override
   String get deskSetAboutLicences => 'Licences';
 
   @override
