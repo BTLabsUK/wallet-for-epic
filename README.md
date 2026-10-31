@@ -10,6 +10,7 @@
 [![Flutter 3.47.5](https://img.shields.io/badge/flutter-3.47.5-02569B.svg)](scripts/linux/flutter.version)
 [![Version 26.10](https://img.shields.io/badge/version-26.10-informational.svg)](app/pubspec.yaml)
 
+[Download](https://epiccash.btlabs.uk/releases/) · [Wiki](https://github.com/BTLabsUK/wallet-for-epic/wiki) ·
 [Build](#build-from-source) · [Documentation](https://docs.btlabs.uk) ·
 [LEPIC](https://gitlab.com/epic-cash-bt/lepic) · [Security](SECURITY.md) ·
 [GitHub mirror](https://github.com/BTLabsUK/wallet-for-epic)
@@ -24,27 +25,44 @@ wallets, scans the chain through an Epic node, and sends and receives with the s
 `epic-wallet`.
 
 > **Status: in production.** Released as calendar versions (26.10.x) for Android, Linux and
-> Windows. The macOS and iOS builds are a preview: they build and pass a smoke test, but
-> are not released yet.
+> Windows. The macOS build (Apple silicon) and the iOS build are a preview.
+
+## Download
+
+Every release is on **[epiccash.btlabs.uk/releases](https://epiccash.btlabs.uk/releases/)**, with
+checksums and a "Before you install" note per platform, and on the
+[GitHub Releases](https://github.com/BTLabsUK/wallet-for-epic/releases) page:
+
+| Platform | File |
+|---|---|
+| Windows 10 and 11 (x64) | `epic-cash-desktop-<version>-windows-x64-setup.exe` |
+| Linux (x86_64) | `EpicCashDesktop-<version>-x86_64.AppImage` |
+| macOS (Apple silicon, preview) | `EpicCashDesktop-<version>-macos.dmg` |
+| Android 7.0 or newer (arm64) | `epic-cash-mobile-<version>-arm64-v8a.apk` |
+
+Each also comes as a build without Tor (`notor` in the file name). Install steps for each platform
+are in the [wiki](https://github.com/BTLabsUK/wallet-for-epic/wiki).
 
 ## What it does
 
-- **Every way to pay:** Epicbox, slate files, QR codes (animated for large slates), and direct
-  HTTP(S) and Tor (`epic-wallet`'s HTTP send and listener).
-- **Tor built in** on desktop and Android: the wallet gets its own `.onion` address, and with Tor on,
-  Epicbox and the node are reached through it. A build without Tor exists too.
+- **Every way to pay:** Epicbox; Link · HTTP and Link · Tor, straight to another wallet
+  (compatible with `epic-wallet`'s HTTP send and listener); Direct · File Transfer, and on the
+  phone Direct · QR Payment, an animated QR code between two phones.
+- **Tor built in** on desktop and Android, off by default: with Tor on, Epicbox goes through it and
+  the wallet gets its own `.onion` address. Network modes go further: Tor only, Node only, or Kill
+  switch (nothing connects). A build without Tor exists too.
 - **Its own node or a public one:** the desktop can run the Epic node it bundles; both apps can use a
   node of your own on your network, with failover between public nodes.
-- **Invoices and contacts,** with paired contacts whose keys are checked, and payment requests by
-  file, Epicbox or QR.
+- **Contacts and linked devices:** the same wallet on a phone and a computer, linked so each knows
+  what the other is paying. Pairing and invoices are experimental switches, off by default.
 - **Moving in from older wallets:** import the seed and transaction history of the Epic Cash GUI
   wallet and `epic-wallet`, checked against a chain scan.
 - **Six languages:** English, German, Polish, Russian, Chinese and Thai, with help in each.
 - **Your servers in one small file:** the Node and Epicbox lists and a few on/off switches live in
   `settings.toml` in the wallet's data folder (the first server of each list is the one in use);
-  on desktop it can be edited while the wallet runs. Everything else the app talks to is in the
-  read-only `app/assets/config/app-config.toml`: no address is written in the code
-  ([docs/settings-file.md](docs/settings-file.md)).
+  on desktop it can be edited while the wallet runs. The defaults are `node.epiccash.com` and
+  `epicbox.epiccash.com`. Everything else the app talks to is in the read-only
+  `app/assets/config/app-config.toml`: no address is written in the code.
 - **Amounts at a glance:** four decimals wherever a balance or amount is shown, all eight where
   the exact value matters (a payment's review, its file and QR code).
 
@@ -125,7 +143,8 @@ No Apple account is needed: the macOS app is signed ad hoc, and the iOS `.ipa` i
 
 ```bash
 cd app && flutter test         # unit and widget tests (need the Linux library from tools/lepic.sh build linux)
-tools/check.sh                 # the full gate: version check, LEPIC build, analyzer, unit and integration tests, web build
+tools/check.sh                 # from the root: LEPIC at the pin, the analyzer, and the tests your change touches
+tools/check.sh --full          # everything: the whole suite, the integration tests and the web build
 ```
 
 Tests that need the network (`app/test/*_live_test.dart`) skip themselves unless their
@@ -162,9 +181,11 @@ engine belong in [LEPIC](https://gitlab.com/epic-cash-bt/lepic).
 
 ## Documentation
 
+- Wiki: installing, your first wallet, payment methods, Tor and network modes, troubleshooting,
+  building and architecture: https://github.com/BTLabsUK/wallet-for-epic/wiki
 - User guide and developer guide: https://docs.btlabs.uk (building from source:
   https://docs.btlabs.uk/developers/build/)
-- Wiki: https://gitlab.com/epic-cash-bt/wallet-for-epic/-/wikis/home
+- In the app: Help, in all six languages.
 
 ## Source
 

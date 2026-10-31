@@ -24,8 +24,8 @@ projects: report them to them privately and tell us only what we need to protect
 ## What the app protects, and its limits
 
 [THREAT_MODEL.md](THREAT_MODEL.md) says what the relay, a node, the network, another app, a phone thief and
-desktop malware can and cannot do, and states the known limits. Among them: the 6-digit PIN against a
-copied phone store, recovery-phrase screenshots being allowed, plain-`http://` sends, and the unencrypted
+desktop malware can and cannot do, and states the known limits. Among them: the 6-digit PIN against code
+running inside the app on a rooted phone, recovery-phrase screenshots being allowed, plain-`http://` sends, and the unencrypted
 wallet database.
 
 ## Update signing keys
