@@ -46,11 +46,10 @@ The wallet asks a node (BT Labs' public node by default, or one the user sets) a
 ### The network: Wi-Fi, a router, the ISP
 
 - Epicbox, the node, updates and https sends use TLS (rustls with the web PKI, no exceptions) or Tor.
-- **Plain `http://` sends.** Desktop can send to a plain `http://` wallet address, which the reference
+- **Plain `http://` sends.** The app can send to a plain `http://` wallet address, which the reference
   Epic Cash wallet needs. In Mimblewimble the sender's first slate goes to whoever answers, so **anyone on
-  the network path can receive that payment instead of the recipient**. The app says exactly that before such
-  a send, prefers Epicbox, Tor or https when the recipient has them, and marks the send as unsafe. A payment
-  proof for a known recipient address makes a substituted receiver fail.
+  the network path can receive that payment instead of the recipient**. The app asks before such a send.
+  While Tor is on, plain `http://` sends to another device are off.
 - **Tor.** With Tor on, the wallet's traffic goes through Tor, and names are resolved inside Tor. If Tor is
   wanted but cannot run, the wallet stops, not falls back to the open internet.
 
