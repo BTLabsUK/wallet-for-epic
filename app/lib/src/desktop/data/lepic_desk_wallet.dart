@@ -3323,6 +3323,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await _applyOnions(_session);
     final list = seedContactsFrom(file, validAddress: isEpicboxAddress);
     useSignedDonation(list);
+    useSignedLinks(file);
     return list;
   }
 
@@ -3357,6 +3358,7 @@ class LepicDeskWallet implements DeskWalletApi {
           await _applyOnions(_session);
           final list = seedContactsFrom(manifest, validAddress: isEpicboxAddress);
           useSignedDonation(list);
+          useSignedLinks(manifest);
           _webSeeds = list;
           await _applySeeds([...bundledSeedContacts, ..._knownSeeds(list)]);
       }
@@ -5495,6 +5497,8 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     messageBySender: core.messageBy(e.messages, core.SlateRole.sender) != null || core.messageBy(e.messages, core.SlateRole.receiver) == null,
     height: height,
     kernel: e.kernelExcess,
+    outputCommits: e.outputCommits,
+    expiryHeight: e.ttlCutoffHeight?.toInt(),
     coinbase: e.kind == core.TxKind.coinbase,
     otherWallet: e.origin == core.TxOrigin.otherWallet,
     unverified: e.unverified,

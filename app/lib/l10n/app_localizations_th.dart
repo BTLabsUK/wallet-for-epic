@@ -159,8 +159,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txEditFromHint => 'ที่อยู่';
 
   @override
-  String get txEditFromHelper =>
-      'ยังไม่ได้ตรวจสอบ ไม่ใช้เป็นหลักฐานการชำระเงิน';
+  String get txEditFromHelper => 'ยังไม่ได้ตรวจสอบ ไว้เป็นบันทึกของคุณเท่านั้น';
 
   @override
   String get txMethodUnknown => 'ไม่ทราบ';
@@ -8167,9 +8166,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskTxPaymentProof => 'หลักฐานการชำระเงิน';
-
-  @override
   String get deskTxFinalize => 'ทำให้เสร็จ';
 
   @override
@@ -8316,40 +8312,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskTxSignedByRecipient => 'ผู้รับลงนามแล้ว';
 
   @override
-  String get deskTxProofView => 'ดู';
-
-  @override
   String get deskTxTechTitle => 'รายละเอียดทางเทคนิค';
-
-  @override
-  String get deskTxTechId => 'ID';
-
-  @override
-  String get deskTxTechSlate => 'Slate ID';
-
-  @override
-  String get deskTxCopySlate => 'คัดลอก Slate ID';
-
-  @override
-  String get deskTxTechHeight => 'บล็อก';
-
-  @override
-  String get deskTxTechKernel => 'Kernel';
-
-  @override
-  String get deskTxTechConfirmed => 'ยืนยันเมื่อ';
-
-  @override
-  String get deskTxTechCredited => 'เข้า';
-
-  @override
-  String get deskTxTechDebited => 'ออก';
-
-  @override
-  String get deskTxTechStatus => 'สถานะ';
-
-  @override
-  String get deskTxTechType => 'ประเภท';
 
   @override
   String get deskTxStepMined => 'ขุดได้ในบล็อก';
@@ -8412,43 +8375,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxCancelOutgoingAction => 'ยกเลิกรายการ';
-
-  @override
-  String deskTxProofIncoming(String amount) {
-    return 'พิสูจน์ว่ากระเป๋าเงินนี้ได้รับ $amount EPIC ใน kernel นี้';
-  }
-
-  @override
-  String deskTxProofOutgoing(String amount) {
-    return 'พิสูจน์ว่าผู้รับได้รับ $amount EPIC ใน kernel นี้';
-  }
-
-  @override
-  String get deskTxProofSenderAddress => 'ที่อยู่ผู้ส่ง';
-
-  @override
-  String get deskTxProofRecipientAddress => 'ที่อยู่ผู้รับ';
-
-  @override
-  String get deskTxProofRecipientSignature => 'ลายเซ็นผู้รับ';
-
-  @override
-  String get deskTxProofCopyKernel => 'คัดลอก kernel';
-
-  @override
-  String get deskTxProofCopySender => 'คัดลอกที่อยู่ผู้ส่ง';
-
-  @override
-  String get deskTxProofCopyRecipient => 'คัดลอกที่อยู่ผู้รับ';
-
-  @override
-  String get deskTxProofCopySignature => 'คัดลอกลายเซ็นผู้รับ';
-
-  @override
-  String get deskTxProofExport => 'ส่งออก';
-
-  @override
-  String get deskTxProofSaved => 'บันทึกหลักฐานแล้ว';
 
   @override
   String get deskOnbWelcomeAdd => 'เพิ่มกระเป๋าเงิน';
@@ -11917,9 +11843,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskSetAboutCommunity => 'ชุมชน';
-
-  @override
   String get deskSetAboutLicences => 'สัญญาอนุญาต';
 
   @override
@@ -12348,7 +12271,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskTxDetailsFromTip =>
-      'ผู้จ่ายเงิน ไว้เป็นบันทึกของคุณ ไม่ได้ตรวจสอบ และไม่ใช้ในหลักฐานการชำระเงิน';
+      'ผู้จ่ายเงิน ไว้เป็นบันทึกของคุณ ไม่ได้ตรวจสอบ';
 
   @override
   String get deskTxDetailsFromHint => 'ที่อยู่ของผู้ส่ง';
@@ -12488,9 +12411,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskHistConflictApply => 'ใช้';
-
-  @override
-  String get deskTxProofNone => 'การชำระเงินนี้ไม่มีหลักฐานการชำระเงิน';
 
   @override
   String get deskUpdAvailable => 'มีอัปเดต';
@@ -12638,7 +12558,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvTechnicalHint =>
-      'แสดงส่วนรายละเอียดทางเทคนิคในทุกธุรกรรม ได้แก่ slate ID, kernel, ความสูงบล็อก, สถานะและชนิดของแกนหลัก และหลักฐานการชำระเงิน ถ้าไม่เปิด ลิงก์ เพิ่มเติม ที่ธุรกรรมจะแสดงให้ดูครั้งเดียว ใน ใบแจ้งหนี้ จะแสดงส่วนขั้นสูง';
+      'แสดงส่วนรายละเอียดทางเทคนิคในทุกธุรกรรม ได้แก่ kernel, slate ID, commitment และความสูงบล็อก ถ้าไม่เปิด ลิงก์ เพิ่มเติม ที่ธุรกรรมจะแสดงให้ดูครั้งเดียว ใน ใบแจ้งหนี้ จะแสดงส่วนขั้นสูง';
 
   @override
   String get deskSetAdvSendOptions => 'ตัวเลือกการส่ง';

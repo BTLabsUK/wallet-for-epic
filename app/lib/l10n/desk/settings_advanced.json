@@ -23,7 +23,7 @@
   "@deskSetAdvTechnical": {
     "description": "Advanced switch: technical rows on transactions."
   },
-  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core’s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
+  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: kernel, slate ID, commitments and block height. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
   "@deskSetAdvTechnicalHint": {
     "description": "Hover card of the Technical details switch on the Advanced page."
   },

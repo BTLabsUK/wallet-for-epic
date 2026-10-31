@@ -158,7 +158,7 @@
   "@txEditFromHint": {
     "description": "Placeholder of the From field: an address the user typed or picked from contacts."
   },
-  "txEditFromHelper": "Not verified. Never used for payment proofs.",
+  "txEditFromHelper": "Not verified. For your records only.",
   "@txEditFromHelper": {
     "description": "Helper under the From field. Short."
   },
@@ -11040,10 +11040,6 @@
       }
     }
   },
-  "deskTxPaymentProof": "Payment proof",
-  "@deskTxPaymentProof": {
-    "description": "Small line under a payment that has a payment proof."
-  },
   "deskTxFinalize": "Finalize",
   "@deskTxFinalize": {
     "description": "Button in an Activity row of an outgoing file payment: finalize it with the response file. Short."
@@ -11262,53 +11258,9 @@
   "@deskTxSignedByRecipient": {
     "description": "Payment proof line on the transaction detail, and a step of the timeline."
   },
-  "deskTxProofView": "View",
-  "@deskTxProofView": {
-    "description": "Button on the transaction detail that opens the payment proof. Short."
-  },
   "deskTxTechTitle": "Technical details",
   "@deskTxTechTitle": {
     "description": "Collapsible section on the transaction detail with technical identifiers."
-  },
-  "deskTxTechId": "Id",
-  "@deskTxTechId": {
-    "description": "Technical details label: the wallet's internal number of the transaction. Narrow label column."
-  },
-  "deskTxTechSlate": "Slate id",
-  "@deskTxTechSlate": {
-    "description": "Technical details label: the slate id, a unique id of the payment. Narrow label column."
-  },
-  "deskTxCopySlate": "Copy slate id",
-  "@deskTxCopySlate": {
-    "description": "Tooltip of the copy button next to the slate id."
-  },
-  "deskTxTechHeight": "Height",
-  "@deskTxTechHeight": {
-    "description": "Technical details label: the block height. Narrow label column."
-  },
-  "deskTxTechKernel": "Kernel",
-  "@deskTxTechKernel": {
-    "description": "Technical details label: the transaction kernel. Narrow label column."
-  },
-  "deskTxTechConfirmed": "Confirmed",
-  "@deskTxTechConfirmed": {
-    "description": "Technical details label: when the payment was confirmed. Narrow label column."
-  },
-  "deskTxTechCredited": "Credited",
-  "@deskTxTechCredited": {
-    "description": "Technical details label: the amount added to the balance. Narrow label column."
-  },
-  "deskTxTechDebited": "Debited",
-  "@deskTxTechDebited": {
-    "description": "Technical details label: the amount taken from the balance. Narrow label column."
-  },
-  "deskTxTechStatus": "Status",
-  "@deskTxTechStatus": {
-    "description": "Technical details label: the internal state name. Narrow label column."
-  },
-  "deskTxTechType": "Type",
-  "@deskTxTechType": {
-    "description": "Technical details label: the core's transaction type name. Narrow label column."
   },
   "deskTxStepMined": "Mined in a block",
   "@deskTxStepMined": {
@@ -11403,62 +11355,6 @@
   "deskTxCancelOutgoingAction": "Cancel payment",
   "@deskTxCancelOutgoingAction": {
     "description": "Danger button in the cancel dialog for an outgoing payment. Short."
-  },
-  "deskTxProofIncoming": "Proves that this wallet received {amount} EPIC in this kernel.",
-  "@deskTxProofIncoming": {
-    "description": "Description in the payment proof dialog for an incoming payment.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5"
-      }
-    }
-  },
-  "deskTxProofOutgoing": "Proves that the recipient received {amount} EPIC in this kernel.",
-  "@deskTxProofOutgoing": {
-    "description": "Description in the payment proof dialog for an outgoing payment.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.5"
-      }
-    }
-  },
-  "deskTxProofSenderAddress": "Sender address",
-  "@deskTxProofSenderAddress": {
-    "description": "Field label in the payment proof dialog."
-  },
-  "deskTxProofRecipientAddress": "Recipient address",
-  "@deskTxProofRecipientAddress": {
-    "description": "Field label in the payment proof dialog."
-  },
-  "deskTxProofRecipientSignature": "Recipient signature",
-  "@deskTxProofRecipientSignature": {
-    "description": "Field label in the payment proof dialog."
-  },
-  "deskTxProofCopyKernel": "Copy kernel",
-  "@deskTxProofCopyKernel": {
-    "description": "Tooltip of the copy button next to the kernel in the payment proof dialog."
-  },
-  "deskTxProofCopySender": "Copy sender address",
-  "@deskTxProofCopySender": {
-    "description": "Tooltip of the copy button next to the sender address in the payment proof dialog."
-  },
-  "deskTxProofCopyRecipient": "Copy recipient address",
-  "@deskTxProofCopyRecipient": {
-    "description": "Tooltip of the copy button next to the recipient address in the payment proof dialog."
-  },
-  "deskTxProofCopySignature": "Copy recipient signature",
-  "@deskTxProofCopySignature": {
-    "description": "Tooltip of the copy button next to the recipient signature in the payment proof dialog."
-  },
-  "deskTxProofExport": "Export",
-  "@deskTxProofExport": {
-    "description": "Primary button in the payment proof dialog: save the proof as a file. Short."
-  },
-  "deskTxProofSaved": "Proof saved",
-  "@deskTxProofSaved": {
-    "description": "Toast title after the payment proof was saved to a file; the path follows as its text."
   },
   "deskOnbWelcomeAdd": "Add a wallet",
   "@deskOnbWelcomeAdd": {
@@ -16243,10 +16139,6 @@
       }
     }
   },
-  "deskSetAboutCommunity": "Community",
-  "@deskSetAboutCommunity": {
-    "description": "Settings › About: group head of the Epic Cash community links (Telegram, the website)."
-  },
   "deskSetAboutLicences": "Licences",
   "@deskSetAboutLicences": {
     "description": "Settings › About: group head of the open-source licences."
@@ -16841,7 +16733,7 @@
   "@deskTxDetailsFrom": {
     "description": "Field name in the details dialog: who paid."
   },
-  "deskTxDetailsFromTip": "Who paid, for your records. Not verified and never used for payment proofs.",
+  "deskTxDetailsFromTip": "Who paid, for your records. Not verified.",
   "@deskTxDetailsFromTip": {
     "description": "Tooltip on the From field of the details dialog."
   },
@@ -17038,10 +16930,6 @@
   "@deskHistConflictApply": {
     "description": "Primary button in the Details differ dialog for the old wallet's history: apply the choices made."
   },
-  "deskTxProofNone": "No payment proof for this payment.",
-  "@deskTxProofNone": {
-    "description": "Body of the payment proof dialog when the payment has no proof to show."
-  },
   "deskUpdAvailable": "Update available",
   "@deskUpdAvailable": {
     "description": "Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it)."
@@ -17232,7 +17120,7 @@
   "@deskSetAdvTechnical": {
     "description": "Advanced switch: technical rows on transactions."
   },
-  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: slate ID, kernel, block height, the core’s status and type, and the payment proof. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
+  "deskSetAdvTechnicalHint": "Shows the Technical details fold on every transaction: kernel, slate ID, commitments and block height. Without it, a More link on a transaction shows them once. In Invoices, shows the Advanced folds.",
   "@deskSetAdvTechnicalHint": {
     "description": "Hover card of the Technical details switch on the Advanced page."
   },

@@ -13,7 +13,7 @@
   "deskTxDetailsTitleEdit": "แก้ไขรายละเอียด",
   "deskTxDetailsTip": "ใช้ได้เฉพาะรายการที่พบจากการตรวจยอดใหม่",
   "deskTxDetailsFrom": "จาก",
-  "deskTxDetailsFromTip": "ผู้จ่ายเงิน ไว้เป็นบันทึกของคุณ ไม่ได้ตรวจสอบ และไม่ใช้ในหลักฐานการชำระเงิน",
+  "deskTxDetailsFromTip": "ผู้จ่ายเงิน ไว้เป็นบันทึกของคุณ ไม่ได้ตรวจสอบ",
   "deskTxDetailsFromHint": "ที่อยู่ของผู้ส่ง",
   "deskTxDetailsFromBad": "ใช้ที่อยู่ Epicbox, http(s) หรือ .onion",
   "deskTxDetailsNote": "บันทึกส่วนตัว",

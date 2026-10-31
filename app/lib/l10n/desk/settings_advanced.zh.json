@@ -5,7 +5,7 @@
   "deskSetAdvOutputs": "输出",
   "deskSetAdvOutputsHint": "在侧边栏显示“输出”页面。它列出组成余额的币，可以拆分或合并，并设置发送使用的默认值。正在进行的拆分或合并会让该页面保持可见。",
   "deskSetAdvTechnical": "技术详情",
-  "deskSetAdvTechnicalHint": "在每笔交易上显示“技术详情”折叠区：slate ID、内核、区块高度、核心的状态和类型，以及付款证明。不开启时，交易上的“更多”链接可以一次性显示它们。在“账单”中显示高级折叠区。",
+  "deskSetAdvTechnicalHint": "在每笔交易上显示“技术详情”折叠区：内核、slate ID、承诺和区块高度。不开启时，交易上的“更多”链接可以一次性显示它们。在“账单”中显示高级折叠区。",
   "deskSetAdvSendOptions": "发送选项",
   "deskSetAdvSendOptionsHint": "在“发送”中加入一个折叠区，单笔发送可以在其中选择花掉哪些输出（“最小”或“全部”），以及是否拆分找零。默认值仍在“输出”中。",
   "deskSetAdvServerDetails": "服务器详情",

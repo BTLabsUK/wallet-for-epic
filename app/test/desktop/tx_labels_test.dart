@@ -8,7 +8,6 @@ import 'package:epic_wallet/src/desktop/data/history_files.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/backup.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
-import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_label.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -298,17 +297,6 @@ void main() {
       await _pump(tester, const ActivityScreen(arg: 35));
       final key = _tx(35).key;
       await tester.runAsync(() => expectLater(_api.setTxDetails(key, note: 'x'), throwsA(isA<DeskError>())));
-    });
-
-    testWidgets('the proof never shows a sender the user typed', (tester) async {
-      await _pump(
-        tester,
-        Builder(builder: (c) => TextButton(onPressed: () => showTxProofDialog(c, _tx(103)), child: const Text('open'))),
-      );
-      expect(_tx(103).manualFields, contains(ManualField.counterparty));
-      await tester.tap(find.text('open'));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('esZr8m'), findsNothing);
     });
   });
 

@@ -13,7 +13,7 @@
   "deskTxDetailsTitleEdit": "编辑详情",
   "deskTxDetailsTip": "仅适用于核对余额时找到的付款。",
   "deskTxDetailsFrom": "来自",
-  "deskTxDetailsFromTip": "付款人，仅供你记录。未验证，也不会用于付款证明。",
+  "deskTxDetailsFromTip": "付款人，仅供你记录。未验证。",
   "deskTxDetailsFromHint": "发送方地址",
   "deskTxDetailsFromBad": "请使用 Epicbox、http(s) 或 .onion 地址。",
   "deskTxDetailsNote": "私人备注",

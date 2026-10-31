@@ -5,7 +5,7 @@
   "deskSetAdvOutputs": "Outputs",
   "deskSetAdvOutputsHint": "Zeigt die Seite Outputs in der Seitenleiste. Sie listet die Coins, aus denen das Guthaben besteht, lässt Sie sie aufteilen oder zusammenführen und legt die Vorgaben für Zahlungen fest. Eine laufende Aufteilung oder Zusammenführung hält die Seite sichtbar.",
   "deskSetAdvTechnical": "Technische Details",
-  "deskSetAdvTechnicalHint": "Zeigt den Bereich Technische Details bei jeder Transaktion: Slate-ID, Kernel, Blockhöhe, Status und Typ des Kerns und den Zahlungsnachweis. Ohne den Schalter zeigt ein Link „Mehr“ an einer Transaktion sie einmalig. Bei Rechnungen werden die erweiterten Bereiche gezeigt.",
+  "deskSetAdvTechnicalHint": "Zeigt den Bereich Technische Details bei jeder Transaktion: Kernel, Slate-ID, Commitments und Blockhöhe. Ohne den Schalter zeigt ein Link „Mehr“ an einer Transaktion sie einmalig. Bei Rechnungen werden die erweiterten Bereiche gezeigt.",
   "deskSetAdvSendOptions": "Zahlungsoptionen",
   "deskSetAdvSendOptionsHint": "Fügt Senden einen Bereich hinzu, in dem eine Zahlung wählen kann, welche Outputs sie verbraucht, Kleinste oder Alle, und ob das Wechselgeld aufgeteilt wird. Die Vorgaben bleiben unter Outputs.",
   "deskSetAdvServerDetails": "Server-Details",

@@ -2,8 +2,8 @@
 /// The phone's copy of BT Labs' signed public file (`[support] signed_file`, btlabs-public
 /// FORMAT.md), read as the desktop reads it: once per app run, in the background, verified with
 /// the keys the app ships ([btlabsKeyring]), never older than the copy kept, which stays in use
-/// when the read is skipped or fails. Only the donation address is taken from it
-/// ([useSignedDonation]); the bundled one stays the fallback.
+/// when the read is skipped or fails. Only the donation address and the source code link are
+/// taken from it ([useSignedDonation], [useSignedLinks]); the bundled ones stay the fallback.
 library;
 
 import 'dart:convert';
@@ -41,7 +41,10 @@ Future<void> refreshBtlabsPublicAtStart(
     final kept = await _readKept(store);
     if (kept != null) {
       final file = await loadCachedBtlabsPublic(kept.envelope, keyring: keys, state: kept.state, alsoRevoked: revoked);
-      if (file != null) useSignedDonation(seedContactsFrom(file, validAddress: valid));
+      if (file != null) {
+        useSignedDonation(seedContactsFrom(file, validAddress: valid));
+        useSignedLinks(file);
+      }
     }
     if (kIsWeb || NetGate.restricted) return;
     final body = await (fetch ?? fetchBtlabsPublic)(Uri.parse(signed));
@@ -53,6 +56,7 @@ Future<void> refreshBtlabsPublicAtStart(
       case Accepted(:final manifest, :final state):
         await store.write(btlabsPublicKey, jsonEncode({'envelope': body, 'state': state.toJson()}));
         useSignedDonation(seedContactsFrom(manifest, validAddress: valid));
+        useSignedLinks(manifest);
     }
   } on Object catch (e) {
     logInfo('btlabs', 'btlabs.json not read: ${e.runtimeType}');

@@ -131,8 +131,7 @@ signed_file = "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/
 
 [links]
 website = "https://epiccash.com"
-community = "https://t.me/EpicCash"
-source = "https://gitlab.com/epic-cash-bt/wallet-for-epic"
+source = "https://github.com/BTLabsUK/wallet-for-epic"   # a signed btlabs.json may replace it (links id wallet-source, same host)
 privacy = "https://btlabs.uk/privacy/"   # the privacy policy; comment out to hide its link
 
 [explorer]

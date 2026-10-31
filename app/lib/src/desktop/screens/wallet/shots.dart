@@ -189,7 +189,6 @@ final List<DeskShot> walletShots = [
   // Tall, so the Cancel row with its quiet line and Help link is in the picture.
   const DeskShot(id: '12n-tx-detail-send-cancel', title: 'Transaction detail, a waiting send: Cancel with its quiet line', route: DeskRoute.activity, arg: 38, height: 1150),
   DeskShot(id: '12c-tx-detail-narrow', title: 'Transaction detail, narrow', route: DeskRoute.activity, arg: 39, width: 900, height: 760),
-  DeskShot(id: '35-dlg-tx-proof', title: 'Payment proof', route: DeskRoute.activity, arg: 36, dialog: (c) => showTxProofDialog(c, _tx(c, 36))),
   DeskShot(id: '35b-dlg-cancel-tx', title: 'Cancel a send', route: DeskRoute.activity, arg: 38, dialog: (c) => showCancelTxDialog(c, _tx(c, 38))),
   DeskShot(
     id: '35c-dlg-cancel-incoming',

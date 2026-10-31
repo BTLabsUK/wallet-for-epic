@@ -13,7 +13,7 @@
   "deskTxDetailsTitleEdit": "Edytuj szczegóły",
   "deskTxDetailsTip": "Tylko dla płatności znalezionych przy sprawdzaniu salda.",
   "deskTxDetailsFrom": "Od",
-  "deskTxDetailsFromTip": "Kto zapłacił, do Twoich zapisów. Niezweryfikowane i nigdy nie używane w potwierdzeniach płatności.",
+  "deskTxDetailsFromTip": "Kto zapłacił, do Twoich zapisów. Niezweryfikowane.",
   "deskTxDetailsFromHint": "Adres nadawcy",
   "deskTxDetailsFromBad": "Użyj adresu Epicbox, http(s) lub .onion.",
   "deskTxDetailsNote": "Prywatna notatka",

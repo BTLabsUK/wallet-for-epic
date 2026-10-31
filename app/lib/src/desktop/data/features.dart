@@ -17,7 +17,8 @@
 ///   (`WFE_TOR=false`, [torBuilt]) turns the flag off.
 /// nodeBackground: Settings › Node's "Sync in background" for the built-in node.
 /// dandelion: Send's Dandelion++ switch and the review's Privacy line.
-/// paymentProofs: Transaction details › Export proof.
+/// paymentProofs: nothing on screen (the old proof dialog is gone, GP2-026); the API's
+///   exportProof stays unsupported.
 ///
 /// App-side, not in 0.1.0 (no core change needed):
 /// contactPictures: the contact form's picture and the list's photos (initials stay).

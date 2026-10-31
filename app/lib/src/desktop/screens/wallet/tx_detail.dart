@@ -27,6 +27,7 @@ import '../../../help/help_content.dart' show HelpAnchor;
 import 'tx_details_dialog.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
+import '../settings/settings_frame.dart' show groupDigits;
 import 'other_wallet_offer.dart';
 import 'tx_label.dart';
 import 'contacts_screen.dart' show ContactsArgs;
@@ -131,9 +132,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.cancelled => l.deskTxNowCancelled,
         };
 
-  /// The core's own fields: ids, height, kernel, status and type.
-  /// The phone's block explorer link (GP-015): the block by its height, once the payment is
-  /// confirmed; null before that, or when `app-config.toml` names no explorer.
+  /// The block explorer link: the block by its height, once the payment is confirmed; null
+  /// before that, or when `app-config.toml` names no explorer.
   String? _explorerUrl(Tx t) {
     if (t.state != TxState.confirmed) return null;
     final settings = ref.watch(hostSettingsProvider);
@@ -141,42 +141,27 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     return height == null ? null : settings.explorerBlock(height);
   }
 
+  /// The phone's technical rows, in its order: block height, slate ID, kernel, the output
+  /// commitments, expiry height and the local id.
   Widget _techFacts(Tx t, AppLocalizations l, DeskText ts) {
-    final url = _explorerUrl(t);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _techRows(t, l, ts),
-        if (url != null) ...[
-          SizedBox(height: Sp.x2),
-          ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true),
-        ],
-      ],
+    Widget mono(String v) => Text(v, style: ts.mono(size: Fs.xs));
+    Widget copyable(String v, String copy) => Row(
+      children: [Expanded(child: mono(v)), ECopyButton(text: v, label: copy)],
     );
+    final single = t.outputCommits.length == 1;
+    return EFacts(labelWidth: 132.u, [
+      if (t.height case final h?) (l.txDetailsBlockHeight, mono(groupDigits(l, h))),
+      if (t.slateId.isNotEmpty) (l.txDetailsSlateId, copyable(t.slateId, l.txDetailsSlateIdCopy)),
+      if (t.kernel case final k? when k.trim().isNotEmpty) (l.txDetailsKernel, copyable(k, l.txDetailsKernelCopy)),
+      for (final (i, c) in t.outputCommits.indexed)
+        (
+          single ? l.txDetailsOutputCommitment : l.txDetailsOutputCommitmentNumbered(i + 1),
+          copyable(c, single ? l.txDetailsOutputCommitmentCopy : l.txDetailsOutputCommitmentNumberedCopy(i + 1)),
+        ),
+      if (t.expiryHeight case final e?) (l.txDetailsExpiryHeight, mono(groupDigits(l, e))),
+      (l.txDetailsLocalId, mono('${t.id}')),
+    ]);
   }
-
-  Widget _techRows(Tx t, AppLocalizations l, DeskText ts) =>
-      EFacts(labelWidth: 96.u, [
-            (l.deskTxTechId, Text('${t.id}', style: ts.mono(size: Fs.xs))),
-            (
-              l.deskTxTechSlate,
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(t.slateId.isEmpty ? '-' : t.slateId, style: ts.mono(size: Fs.xs)),
-                  ),
-                  if (t.slateId.isNotEmpty) ECopyButton(text: t.slateId, label: l.deskTxCopySlate),
-                ],
-              ),
-            ),
-            (l.deskTxTechHeight, Text(t.height == null ? '-' : '${t.height}', style: ts.mono(size: Fs.xs))),
-            (l.deskTxTechKernel, Text(t.kernel ?? '-', style: ts.mono(size: Fs.xs))),
-            (l.deskTxTechConfirmed, Text(t.confirmedAt == null ? '-' : dateTimeOf(l, t, at: t.confirmedAt))),
-            (l.deskTxTechCredited, EMoney(t.incoming ? t.amount : 0, unit: false)),
-            (l.deskTxTechDebited, EMoney(t.incoming ? 0 : t.amount + t.fee, unit: false)),
-            (l.deskTxTechStatus, Text(t.state.name, style: ts.mono(size: Fs.xs))),
-            (l.deskTxTechType, Text(t.coinbase ? 'ConfirmedCoinbase' : (t.incoming ? 'TxReceived' : 'TxSent'), style: ts.mono(size: Fs.xs))), // l10n-ok: the core's type names
-          ]);
 
   Future<void> _sendAgain() async {
     setState(() => _cancelling = true);
@@ -533,15 +518,12 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           ),
           if (t.pending) Padding(padding: EdgeInsets.only(top: Sp.x1), child: Text(l.txDeviceHeld, style: ts.small)),
         ],
-        if (DeskFeatures.paymentProofs && t.hasProof) ...[
-          _Sub(l.deskTxPaymentProof),
-          Row(
-            children: [
-              Icon(EIcons.proof, size: Ctl.iconSm, color: c.ok),
-              SizedBox(width: Sp.x2),
-              Expanded(child: Text(l.deskTxSignedByRecipient, style: ts.small)),
-              EButton(label: l.deskTxProofView, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => showTxProofDialog(context, t)),
-            ],
+        // The phone's explorer row (GP-015): above the fold, once the payment is confirmed.
+        if (_explorerUrl(t) case final url?) ...[
+          SizedBox(height: Sp.x3),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true),
           ),
         ],
         // Advanced › Technical details: the fold, or a small More link that shows the same rows
@@ -923,86 +905,6 @@ Future<CancelChoice?> showCancelTxDialog(BuildContext context, Tx t) => showEDia
       ],
     );
   },
-);
-
-/// The payment proof: who signed what, with copy and export. Shows what the transaction carries;
-/// without a proof (or without its sender and signature) it says so and offers nothing to export.
-String? _some(String? s) => s == null || s.trim().isEmpty ? null : s.trim();
-
-Future<void> showTxProofDialog(BuildContext context, Tx t) => showEDialog<void>(
-  context,
-  builder: (context) => Consumer(
-    builder: (context, ref, _) {
-      final ts = context.ts;
-      final l = context.l10n;
-      Widget field(String label, String copyLabel, String value) => Padding(
-        padding: EdgeInsets.only(bottom: Sp.x3),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(label, style: ts.small),
-            SizedBox(height: Sp.x1),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    value,
-                    style: ts.mono(size: Fs.xs),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                ECopyButton(text: value, label: copyLabel),
-              ],
-            ),
-          ],
-        ),
-      );
-      final sender = _some(t.proofSender), signature = _some(t.proofSignature);
-      if (!t.hasProof || (sender == null && signature == null)) {
-        return EDialog(
-          title: l.deskTxPaymentProof,
-          icon: EIcons.proof,
-          width: 520.u,
-          body: Text(l.deskTxProofNone, style: ts.body),
-          actions: [EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.pop(context))],
-        );
-      }
-      // An address the user typed is not what the payment's proof is about: never shown here.
-      final recipient = t.manualFields.contains(ManualField.counterparty) ? null : _some((t.counterparty ?? '').split('@').first);
-      return EDialog(
-        title: l.deskTxPaymentProof,
-        icon: EIcons.proof,
-        tone: ETone.ok,
-        description: t.incoming ? l.deskTxProofIncoming(formatEpicL(l, t.amount)) : l.deskTxProofOutgoing(formatEpicL(l, t.amount)),
-        width: 520.u,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_some(t.kernel) != null) field(l.deskTxTechKernel, l.deskTxProofCopyKernel, t.kernel!),
-            if (sender != null) field(l.deskTxProofSenderAddress, l.deskTxProofCopySender, sender),
-            if (recipient != null) field(l.deskTxProofRecipientAddress, l.deskTxProofCopyRecipient, recipient),
-            if (signature != null) field(l.deskTxProofRecipientSignature, l.deskTxProofCopySignature, signature),
-          ],
-        ),
-        actions: [
-          EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
-          EButton.primary(
-            label: l.deskTxProofExport,
-            icon: EIcons.download,
-            size: EBtnSize.sm,
-            onPressed: () async {
-              final path = await ref.read(deskApiProvider).exportProof(t.id);
-              if (context.mounted) {
-                showEToast(context, l.deskTxProofSaved, text: path, tone: ETone.ok);
-                Navigator.pop(context);
-              }
-            },
-          ),
-        ],
-      );
-    },
-  ),
 );
 
 /// "From" on a withdrawal: the paired exchange by name; not in the contacts yet, Save as a

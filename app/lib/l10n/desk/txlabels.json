@@ -55,7 +55,7 @@
   "@deskTxDetailsFrom": {
     "description": "Field name in the details dialog: who paid."
   },
-  "deskTxDetailsFromTip": "Who paid, for your records. Not verified and never used for payment proofs.",
+  "deskTxDetailsFromTip": "Who paid, for your records. Not verified.",
   "@deskTxDetailsFromTip": {
     "description": "Tooltip on the From field of the details dialog."
   },
