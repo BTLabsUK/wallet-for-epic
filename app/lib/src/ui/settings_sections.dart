@@ -49,7 +49,8 @@ import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'level_step_screen.dart';
 import 'levels/change_level_screen.dart';
-import '../levels/level_providers.dart' show currentLevelProvider;
+import '../levels/level_features.dart' show AdvancedPageKind;
+import '../levels/level_providers.dart' show currentLevelProvider, levelFeaturesProvider;
 import 'licences_screen.dart';
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
@@ -1109,6 +1110,16 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ChangeLevelScreen())),
       ),
+      // Level 1: the level row alone, and what more levels do.
+      if (ref.watch(levelFeaturesProvider).advancedPage == AdvancedPageKind.changeLevelOnly)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text(
+            l.lvShellLevelCaption,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
+          ),
+        )
+      else ...[
       PhoneTourTarget(
         id: 'tour-advanced-top',
         child: Padding(
@@ -1194,6 +1205,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ),
       // Linked devices stands on its own: it runs the pairing engine for the devices only.
       experimental(AdvancedFeature.linkedDevices, Icons.devices_outlined, l.expLinkedDevices, l.expLinkedDevicesHint),
+      ],
     ];
   }
 

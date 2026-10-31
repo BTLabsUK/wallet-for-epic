@@ -24533,5 +24533,198 @@
   "lvPayDetailsCopied": "Details copied",
   "@lvPayDetailsCopied": {
     "description": "Notice after Copy details."
+  },
+  "lvShellStatusTip": "{name} · {state}",
+  "@lvShellStatusTip": {
+    "description": "Level 1 status icon tooltip and spoken label: the service and its state, e.g. Network · OK.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellStateBehind": "Behind",
+  "@lvShellStateBehind": {
+    "description": "Level 1 network state: the node answers but is behind the network."
+  },
+  "lvShellStateCatchingUp": "Catching up",
+  "@lvShellStateCatchingUp": {
+    "description": "Level 1 network state: the wallet is syncing."
+  },
+  "lvShellStateConnecting": "Connecting",
+  "@lvShellStateConnecting": {
+    "description": "Level 1 state of a status: connecting."
+  },
+  "lvShellOpensDetails": "Shows details",
+  "@lvShellOpensDetails": {
+    "description": "Screen-reader hint of a level 1 status icon: a tap opens its details sheet."
+  },
+  "lvShellForSupport": "For support",
+  "@lvShellForSupport": {
+    "description": "Heading of the technical facts on a level 1 status sheet (hosts, address), for when the user asks for help."
+  },
+  "lvShellCopyDetails": "Copy details",
+  "@lvShellCopyDetails": {
+    "description": "Button on a level 1 status sheet: copies everything on it as text."
+  },
+  "lvShellDetailsCopied": "Details copied.",
+  "@lvShellDetailsCopied": {
+    "description": "Notice after Copy details."
+  },
+  "lvShellLatestBlock": "Latest block",
+  "@lvShellLatestBlock": {
+    "description": "Network sheet fact: the newest block the node knows."
+  },
+  "lvShellThisWallet": "This wallet",
+  "@lvShellThisWallet": {
+    "description": "Network sheet fact label: whether this wallet is up to date."
+  },
+  "lvShellUpToDate": "Up to date",
+  "@lvShellUpToDate": {
+    "description": "Network sheet: this wallet has every block."
+  },
+  "lvShellNotChecked": "Not checked yet",
+  "@lvShellNotChecked": {
+    "description": "Network sheet: the wallet could not be checked against the node yet."
+  },
+  "lvShellLastChange": "Last change",
+  "@lvShellLastChange": {
+    "description": "Network sheet support fact: the node the wallet moved from by itself."
+  },
+  "lvShellNodeVersion": "Node version",
+  "@lvShellNodeVersion": {
+    "description": "Network sheet support fact."
+  },
+  "lvShellBoxListening": "Connected · listening for payments",
+  "@lvShellBoxListening": {
+    "description": "Epicbox sheet state: connected to the Epicbox server and ready to receive."
+  },
+  "lvShellBoxNotReachable": "Not reachable · keeps trying",
+  "@lvShellBoxNotReachable": {
+    "description": "Epicbox sheet state: the Epicbox server does not answer; the wallet keeps retrying."
+  },
+  "lvShellBoxDownBody": "Payments to you wait and arrive when the server is back. Nothing changes unless you switch.",
+  "@lvShellBoxDownBody": {
+    "description": "Epicbox sheet while the server is down."
+  },
+  "lvShellOfferReady": "{name} is ready",
+  "@lvShellOfferReady": {
+    "description": "Epicbox sheet: another Epicbox server, by name, answers and can take over.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellOfferBody": "Switching gives you a new address on {name}. Anyone with your old address needs the new one.",
+  "@lvShellOfferBody": {
+    "description": "Epicbox sheet: what switching servers does. Never promise that payments to the old address still arrive.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellSwitchTo": "Switch to {name}",
+  "@lvShellSwitchTo": {
+    "description": "Button: move the wallet to the named Epicbox server.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellKeepWaiting": "Keep waiting",
+  "@lvShellKeepWaiting": {
+    "description": "Button: stay on the current Epicbox server for now."
+  },
+  "lvShellRelayDownNotice": "Your Epicbox server is not reachable. Payments to you wait. {name} is ready to take over; your address changes with it.",
+  "@lvShellRelayDownNotice": {
+    "description": "Level 1 warning notice when the Epicbox server is down and another can take over.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellSwitchedNotice": "Now on {name}. Your new address is ready.",
+  "@lvShellSwitchedNotice": {
+    "description": "Success notice after the Epicbox server switch.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellNowOn": "Now on {name}",
+  "@lvShellNowOn": {
+    "description": "Epicbox sheet heading after a server switch.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellSwitchedBody": "Your new address is ready. Anyone with your old address needs the new one.",
+  "@lvShellSwitchedBody": {
+    "description": "Epicbox sheet after a server switch. Never promise that payments to the old address still arrive."
+  },
+  "lvShellShowNewAddress": "Show new address",
+  "@lvShellShowNewAddress": {
+    "description": "Button after a server switch: opens Receive with the new address."
+  },
+  "lvShellServer": "Server",
+  "@lvShellServer": {
+    "description": "Epicbox sheet fact: the Epicbox server's name."
+  },
+  "lvShellAddress": "Address",
+  "@lvShellAddress": {
+    "description": "Epicbox sheet support fact: this wallet's Epicbox address."
+  },
+  "lvShellHost": "Host",
+  "@lvShellHost": {
+    "description": "Epicbox sheet support fact: the Epicbox server's host name."
+  },
+  "lvShellOldServer": "Previous server",
+  "@lvShellOldServer": {
+    "description": "Epicbox sheet support fact after a switch: the server the wallet left."
+  },
+  "lvShellPairNotice": "{name} wants to pair with this wallet.",
+  "@lvShellPairNotice": {
+    "description": "Level 1 notice: someone sent a pairing request.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellSeeRequest": "See request",
+  "@lvShellSeeRequest": {
+    "description": "Notice button: opens the pairing request."
+  },
+  "lvShellQuietArriving": "+{amount} arriving",
+  "@lvShellQuietArriving": {
+    "description": "Level 1 quiet line under the balance: money on its way in.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellQuietOnHold": "{amount} on hold",
+  "@lvShellQuietOnHold": {
+    "description": "Level 1 quiet line under the balance: money a send holds until it settles.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lvShellLevelCaption": "More levels show more of the wallet. Nothing stored changes.",
+  "@lvShellLevelCaption": {
+    "description": "Settings › Advanced at level 1, under the Wallet level row."
   }
 }

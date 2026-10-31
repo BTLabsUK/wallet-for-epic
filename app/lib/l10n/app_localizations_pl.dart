@@ -18850,4 +18850,132 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvPayDetailsCopied => 'Skopiowano szczegóły';
+
+  @override
+  String lvShellStatusTip(String name, String state) {
+    return '$name · $state';
+  }
+
+  @override
+  String get lvShellStateBehind => 'Opóźniony';
+
+  @override
+  String get lvShellStateCatchingUp => 'Nadrabia';
+
+  @override
+  String get lvShellStateConnecting => 'Łączenie';
+
+  @override
+  String get lvShellOpensDetails => 'Pokazuje szczegóły';
+
+  @override
+  String get lvShellForSupport => 'Dla wsparcia';
+
+  @override
+  String get lvShellCopyDetails => 'Kopiuj szczegóły';
+
+  @override
+  String get lvShellDetailsCopied => 'Skopiowano szczegóły.';
+
+  @override
+  String get lvShellLatestBlock => 'Najnowszy blok';
+
+  @override
+  String get lvShellThisWallet => 'Ten portfel';
+
+  @override
+  String get lvShellUpToDate => 'Aktualny';
+
+  @override
+  String get lvShellNotChecked => 'Jeszcze nie sprawdzono';
+
+  @override
+  String get lvShellLastChange => 'Ostatnia zmiana';
+
+  @override
+  String get lvShellNodeVersion => 'Wersja węzła';
+
+  @override
+  String get lvShellBoxListening => 'Połączono · czeka na płatności';
+
+  @override
+  String get lvShellBoxNotReachable => 'Nieosiągalny · próbuje dalej';
+
+  @override
+  String get lvShellBoxDownBody =>
+      'Płatności do Ciebie czekają i dotrą, gdy serwer wróci. Nic się nie zmienia, dopóki nie przełączysz.';
+
+  @override
+  String lvShellOfferReady(String name) {
+    return '$name jest gotowy';
+  }
+
+  @override
+  String lvShellOfferBody(String name) {
+    return 'Przełączenie da Ci nowy adres na $name. Każdy, kto ma Twój stary adres, potrzebuje nowego.';
+  }
+
+  @override
+  String lvShellSwitchTo(String name) {
+    return 'Przełącz na $name';
+  }
+
+  @override
+  String get lvShellKeepWaiting => 'Czekaj dalej';
+
+  @override
+  String lvShellRelayDownNotice(String name) {
+    return 'Twój serwer Epicbox jest nieosiągalny. Płatności do Ciebie czekają. $name może przejąć; Twój adres zmieni się razem z nim.';
+  }
+
+  @override
+  String lvShellSwitchedNotice(String name) {
+    return 'Teraz na $name. Twój nowy adres jest gotowy.';
+  }
+
+  @override
+  String lvShellNowOn(String name) {
+    return 'Teraz na $name';
+  }
+
+  @override
+  String get lvShellSwitchedBody =>
+      'Twój nowy adres jest gotowy. Każdy, kto ma Twój stary adres, potrzebuje nowego.';
+
+  @override
+  String get lvShellShowNewAddress => 'Pokaż nowy adres';
+
+  @override
+  String get lvShellServer => 'Serwer';
+
+  @override
+  String get lvShellAddress => 'Adres';
+
+  @override
+  String get lvShellHost => 'Host';
+
+  @override
+  String get lvShellOldServer => 'Poprzedni serwer';
+
+  @override
+  String lvShellPairNotice(String name) {
+    return '$name chce sparować się z tym portfelem.';
+  }
+
+  @override
+  String get lvShellSeeRequest => 'Zobacz prośbę';
+
+  @override
+  String lvShellQuietArriving(String amount) {
+    return '+$amount w drodze';
+  }
+
+  @override
+  String lvShellQuietOnHold(String amount) {
+    return '$amount wstrzymane';
+  }
+
+  @override
+  String get lvShellLevelCaption =>
+      'Wyższe poziomy pokazują więcej portfela. Nic zapisanego się nie zmienia.';
 }

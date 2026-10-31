@@ -68,6 +68,7 @@ class Notice {
     this.text, {
     required this.level,
     this.action,
+    this.secondary,
     this.persistent = false,
     this.progress,
     this.progressLabel,
@@ -80,6 +81,9 @@ class Notice {
   final String text;
   final NoticeLevel level;
   final NoticeAction? action;
+
+  /// A second, quieter button before [action] ("Not now"); with it both sit under the text.
+  final NoticeAction? secondary;
 
   /// Stays until closed or replaced, instead of leaving after [noticeDuration].
   final bool persistent;
@@ -138,6 +142,7 @@ class NoticeNotifier extends Notifier<Notice?> {
     String text, {
     required NoticeLevel level,
     NoticeAction? action,
+    NoticeAction? secondary,
     bool persistent = false,
     double? progress,
     String? progressLabel,
@@ -149,6 +154,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       text,
       level: level,
       action: action,
+      secondary: secondary,
       persistent: persistent,
       progress: progress,
       progressLabel: progressLabel,
@@ -431,6 +437,16 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             },
             child: Text(action.label),
           );
+    final secondary = notice.secondary;
+    final secondaryButton = secondary == null
+        ? null
+        : TextButton(
+            onPressed: () {
+              _notices.dismiss(notice.id);
+              secondary.onPressed();
+            },
+            child: Text(secondary.label),
+          );
     final close = notice.closable
         ? IconButton(
             tooltip: l.commonClose,
@@ -442,7 +458,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
           )
         : null;
     // With large text the action moves under the text, so the text keeps its width.
-    final actionBelow = actionButton != null && scale > 1.3;
+    final actionBelow = actionButton != null && (scale > 1.3 || secondaryButton != null);
     final message = Semantics(
       container: true,
       liveRegion: true,
@@ -493,7 +509,7 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
           if (actionBelow)
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: actionButton,
+              child: Wrap(spacing: 4, children: [?secondaryButton, actionButton]),
             ),
         ],
       ),

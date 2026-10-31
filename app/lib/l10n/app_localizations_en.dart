@@ -18207,4 +18207,132 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lvPayDetailsCopied => 'Details copied';
+
+  @override
+  String lvShellStatusTip(String name, String state) {
+    return '$name · $state';
+  }
+
+  @override
+  String get lvShellStateBehind => 'Behind';
+
+  @override
+  String get lvShellStateCatchingUp => 'Catching up';
+
+  @override
+  String get lvShellStateConnecting => 'Connecting';
+
+  @override
+  String get lvShellOpensDetails => 'Shows details';
+
+  @override
+  String get lvShellForSupport => 'For support';
+
+  @override
+  String get lvShellCopyDetails => 'Copy details';
+
+  @override
+  String get lvShellDetailsCopied => 'Details copied.';
+
+  @override
+  String get lvShellLatestBlock => 'Latest block';
+
+  @override
+  String get lvShellThisWallet => 'This wallet';
+
+  @override
+  String get lvShellUpToDate => 'Up to date';
+
+  @override
+  String get lvShellNotChecked => 'Not checked yet';
+
+  @override
+  String get lvShellLastChange => 'Last change';
+
+  @override
+  String get lvShellNodeVersion => 'Node version';
+
+  @override
+  String get lvShellBoxListening => 'Connected · listening for payments';
+
+  @override
+  String get lvShellBoxNotReachable => 'Not reachable · keeps trying';
+
+  @override
+  String get lvShellBoxDownBody =>
+      'Payments to you wait and arrive when the server is back. Nothing changes unless you switch.';
+
+  @override
+  String lvShellOfferReady(String name) {
+    return '$name is ready';
+  }
+
+  @override
+  String lvShellOfferBody(String name) {
+    return 'Switching gives you a new address on $name. Anyone with your old address needs the new one.';
+  }
+
+  @override
+  String lvShellSwitchTo(String name) {
+    return 'Switch to $name';
+  }
+
+  @override
+  String get lvShellKeepWaiting => 'Keep waiting';
+
+  @override
+  String lvShellRelayDownNotice(String name) {
+    return 'Your Epicbox server is not reachable. Payments to you wait. $name is ready to take over; your address changes with it.';
+  }
+
+  @override
+  String lvShellSwitchedNotice(String name) {
+    return 'Now on $name. Your new address is ready.';
+  }
+
+  @override
+  String lvShellNowOn(String name) {
+    return 'Now on $name';
+  }
+
+  @override
+  String get lvShellSwitchedBody =>
+      'Your new address is ready. Anyone with your old address needs the new one.';
+
+  @override
+  String get lvShellShowNewAddress => 'Show new address';
+
+  @override
+  String get lvShellServer => 'Server';
+
+  @override
+  String get lvShellAddress => 'Address';
+
+  @override
+  String get lvShellHost => 'Host';
+
+  @override
+  String get lvShellOldServer => 'Previous server';
+
+  @override
+  String lvShellPairNotice(String name) {
+    return '$name wants to pair with this wallet.';
+  }
+
+  @override
+  String get lvShellSeeRequest => 'See request';
+
+  @override
+  String lvShellQuietArriving(String amount) {
+    return '+$amount arriving';
+  }
+
+  @override
+  String lvShellQuietOnHold(String amount) {
+    return '$amount on hold';
+  }
+
+  @override
+  String get lvShellLevelCaption =>
+      'More levels show more of the wallet. Nothing stored changes.';
 }

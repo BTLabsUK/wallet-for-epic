@@ -18829,4 +18829,132 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvPayDetailsCopied => 'Данные скопированы';
+
+  @override
+  String lvShellStatusTip(String name, String state) {
+    return '$name · $state';
+  }
+
+  @override
+  String get lvShellStateBehind => 'Отстаёт';
+
+  @override
+  String get lvShellStateCatchingUp => 'Догоняет';
+
+  @override
+  String get lvShellStateConnecting => 'Подключение';
+
+  @override
+  String get lvShellOpensDetails => 'Показывает подробности';
+
+  @override
+  String get lvShellForSupport => 'Для поддержки';
+
+  @override
+  String get lvShellCopyDetails => 'Копировать подробности';
+
+  @override
+  String get lvShellDetailsCopied => 'Подробности скопированы.';
+
+  @override
+  String get lvShellLatestBlock => 'Последний блок';
+
+  @override
+  String get lvShellThisWallet => 'Этот кошелёк';
+
+  @override
+  String get lvShellUpToDate => 'Актуален';
+
+  @override
+  String get lvShellNotChecked => 'Ещё не проверен';
+
+  @override
+  String get lvShellLastChange => 'Последнее изменение';
+
+  @override
+  String get lvShellNodeVersion => 'Версия узла';
+
+  @override
+  String get lvShellBoxListening => 'Подключено · ждёт платежей';
+
+  @override
+  String get lvShellBoxNotReachable => 'Недоступен · продолжает попытки';
+
+  @override
+  String get lvShellBoxDownBody =>
+      'Платежи вам ждут и придут, когда сервер вернётся. Ничего не меняется, пока вы не переключитесь.';
+
+  @override
+  String lvShellOfferReady(String name) {
+    return '$name готов';
+  }
+
+  @override
+  String lvShellOfferBody(String name) {
+    return 'При переключении вы получите новый адрес на $name. Всем, у кого ваш старый адрес, нужен новый.';
+  }
+
+  @override
+  String lvShellSwitchTo(String name) {
+    return 'Переключиться на $name';
+  }
+
+  @override
+  String get lvShellKeepWaiting => 'Подождать';
+
+  @override
+  String lvShellRelayDownNotice(String name) {
+    return 'Ваш сервер Epicbox недоступен. Платежи вам ждут. $name готов заменить его; ваш адрес при этом изменится.';
+  }
+
+  @override
+  String lvShellSwitchedNotice(String name) {
+    return 'Теперь на $name. Ваш новый адрес готов.';
+  }
+
+  @override
+  String lvShellNowOn(String name) {
+    return 'Теперь на $name';
+  }
+
+  @override
+  String get lvShellSwitchedBody =>
+      'Ваш новый адрес готов. Всем, у кого ваш старый адрес, нужен новый.';
+
+  @override
+  String get lvShellShowNewAddress => 'Показать новый адрес';
+
+  @override
+  String get lvShellServer => 'Сервер';
+
+  @override
+  String get lvShellAddress => 'Адрес';
+
+  @override
+  String get lvShellHost => 'Хост';
+
+  @override
+  String get lvShellOldServer => 'Прежний сервер';
+
+  @override
+  String lvShellPairNotice(String name) {
+    return '$name хочет связаться с этим кошельком.';
+  }
+
+  @override
+  String get lvShellSeeRequest => 'Посмотреть запрос';
+
+  @override
+  String lvShellQuietArriving(String amount) {
+    return '+$amount поступает';
+  }
+
+  @override
+  String lvShellQuietOnHold(String amount) {
+    return '$amount удерживается';
+  }
+
+  @override
+  String get lvShellLevelCaption =>
+      'Более высокие уровни показывают больше. Сохранённые данные не меняются.';
 }

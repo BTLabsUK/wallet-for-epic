@@ -48,6 +48,11 @@ import 'theme/brand.dart';
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tour/phone_tour.dart';
+import 'levels/relay_down.dart' show RelayDownNotices;
+import 'levels/shell_pairing.dart' show offerPairRequest;
+import 'levels/shell_status.dart' show ShellStatusIcons, shellStatusesShown;
+import '../levels/level_features.dart' show BalancePresentation;
+import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'tx_details_screen.dart';
 import '../settings_file/host_settings.dart' show appConfig;
 
@@ -438,17 +443,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _openLink() {
     final link = ref.read(incomingLinkProvider.notifier).take();
     if (link == null || !mounted) return;
+    unawaited(_openLinkText(link.text));
+  }
+
+  Future<void> _openLinkText(String text) async {
+    // Level 1: a pairing invite is a notice with See request, not a sheet over the screen.
+    if (await offerPairRequest(context, ref, text) || !mounted) return;
     if (ModalRoute.of(context)?.isCurrent ?? true) {
-      unawaited(openScannedText(context, ref, link.text, origin: CodeOrigin.link));
+      unawaited(openScannedText(context, ref, text, origin: CodeOrigin.link));
       return;
     }
     showLinkWaiting(ref, context.l10n, () {
       if (mounted) {
         unawaited(
-          openScannedText(context, ref, link.text, origin: CodeOrigin.link),
+          openScannedText(context, ref, text, origin: CodeOrigin.link),
         );
       }
-    }, pairing: pairingLinkKind(link.text) != null);
+    }, pairing: pairingLinkKind(text) != null);
   }
 
   void _goTab(ShellTab tab) => ref.read(shellTabProvider.notifier).go(tab);
@@ -649,7 +660,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
     final demo = ref.watch(demoModeProvider);
-    final scan = offersQrScan(ref);
+    final features = ref.watch(levelFeaturesProvider);
+    final scan = offersQrScan(ref) && features.scanInAppBar;
 
     return PhoneTourAnchor(
       child: _Backdrop(
@@ -674,6 +686,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const PairingNotices(),
             // Linked devices' runs (resume, the 5 s reads while on screen); draws nothing.
             const DeviceLifecycle(child: SizedBox.shrink()),
+            // Level 1: the Epicbox relay offer as a notice; draws nothing.
+            const RelayDownNotices(),
+            // Level 1: Network and Epicbox only, in the bar; the other levels have theirs
+            // under the figure.
+            if (shellStatusesShown(features)) const ShellStatusIcons(),
             if (scan)
               IconButton(
                 tooltip: l.scanQrTooltip,
@@ -780,6 +797,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final backupDismissed =
         ref.watch(backupCardDismissedProvider).value ?? false;
     final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
+    // Level 1: the quiet line under the figure stands for the tiles, and View all for the
+    // destinations (Contacts is in Settings › This wallet).
+    final tiles = ref.watch(levelFeaturesProvider.select((f) => f.balanceTiles)) == BalancePresentation.tiles;
     Widget column(Widget child) => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
@@ -818,9 +838,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // The desktop Overview's tiles, then its sidebar's destinations. The
                     // statuses are the icons in the balance area above; the full card is in
                     // Settings. One gap between every card on the tab, the tiles' own.
-                    BalanceTiles(onTap: _openOutputs),
-                    const SizedBox(height: homeCardGap),
-                    HomeDestinations(onOpen: _openDestination),
+                    if (tiles) ...[
+                      BalanceTiles(onTap: _openOutputs),
+                      const SizedBox(height: homeCardGap),
+                      HomeDestinations(onOpen: _openDestination),
+                    ],
                     // An unfinished restore: its own card, with the scan in it.
                     if (restoreUnfinished || importOffer)
                       const Padding(

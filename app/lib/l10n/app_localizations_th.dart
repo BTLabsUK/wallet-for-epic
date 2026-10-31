@@ -17794,4 +17794,132 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvPayDetailsCopied => 'คัดลอกรายละเอียดแล้ว';
+
+  @override
+  String lvShellStatusTip(String name, String state) {
+    return '$name · $state';
+  }
+
+  @override
+  String get lvShellStateBehind => 'ตามหลัง';
+
+  @override
+  String get lvShellStateCatchingUp => 'กำลังตามให้ทัน';
+
+  @override
+  String get lvShellStateConnecting => 'กำลังเชื่อมต่อ';
+
+  @override
+  String get lvShellOpensDetails => 'แสดงรายละเอียด';
+
+  @override
+  String get lvShellForSupport => 'สำหรับฝ่ายช่วยเหลือ';
+
+  @override
+  String get lvShellCopyDetails => 'คัดลอกรายละเอียด';
+
+  @override
+  String get lvShellDetailsCopied => 'คัดลอกรายละเอียดแล้ว';
+
+  @override
+  String get lvShellLatestBlock => 'บล็อกล่าสุด';
+
+  @override
+  String get lvShellThisWallet => 'กระเป๋าเงินนี้';
+
+  @override
+  String get lvShellUpToDate => 'เป็นปัจจุบัน';
+
+  @override
+  String get lvShellNotChecked => 'ยังไม่ได้ตรวจสอบ';
+
+  @override
+  String get lvShellLastChange => 'การเปลี่ยนแปลงล่าสุด';
+
+  @override
+  String get lvShellNodeVersion => 'เวอร์ชันโหนด';
+
+  @override
+  String get lvShellBoxListening => 'เชื่อมต่อแล้ว · รอรับการชำระเงิน';
+
+  @override
+  String get lvShellBoxNotReachable => 'เข้าถึงไม่ได้ · กำลังลองต่อ';
+
+  @override
+  String get lvShellBoxDownBody =>
+      'การชำระเงินถึงคุณจะรออยู่และเข้ามาเมื่อเซิร์ฟเวอร์กลับมา ไม่มีอะไรเปลี่ยนจนกว่าคุณจะสลับ';
+
+  @override
+  String lvShellOfferReady(String name) {
+    return '$name พร้อมแล้ว';
+  }
+
+  @override
+  String lvShellOfferBody(String name) {
+    return 'การสลับจะให้ที่อยู่ใหม่บน $name ทุกคนที่มีที่อยู่เดิมของคุณต้องใช้ที่อยู่ใหม่';
+  }
+
+  @override
+  String lvShellSwitchTo(String name) {
+    return 'สลับไปที่ $name';
+  }
+
+  @override
+  String get lvShellKeepWaiting => 'รอต่อ';
+
+  @override
+  String lvShellRelayDownNotice(String name) {
+    return 'เข้าถึงเซิร์ฟเวอร์ Epicbox ของคุณไม่ได้ การชำระเงินถึงคุณกำลังรอ $name พร้อมรับช่วงต่อ โดยที่อยู่ของคุณจะเปลี่ยนไปด้วย';
+  }
+
+  @override
+  String lvShellSwitchedNotice(String name) {
+    return 'ตอนนี้ใช้ $name แล้ว ที่อยู่ใหม่ของคุณพร้อมแล้ว';
+  }
+
+  @override
+  String lvShellNowOn(String name) {
+    return 'ตอนนี้ใช้ $name';
+  }
+
+  @override
+  String get lvShellSwitchedBody =>
+      'ที่อยู่ใหม่ของคุณพร้อมแล้ว ทุกคนที่มีที่อยู่เดิมของคุณต้องใช้ที่อยู่ใหม่';
+
+  @override
+  String get lvShellShowNewAddress => 'แสดงที่อยู่ใหม่';
+
+  @override
+  String get lvShellServer => 'เซิร์ฟเวอร์';
+
+  @override
+  String get lvShellAddress => 'ที่อยู่';
+
+  @override
+  String get lvShellHost => 'โฮสต์';
+
+  @override
+  String get lvShellOldServer => 'เซิร์ฟเวอร์ก่อนหน้า';
+
+  @override
+  String lvShellPairNotice(String name) {
+    return '$name ต้องการจับคู่กับกระเป๋าเงินนี้';
+  }
+
+  @override
+  String get lvShellSeeRequest => 'ดูคำขอ';
+
+  @override
+  String lvShellQuietArriving(String amount) {
+    return '+$amount กำลังเข้า';
+  }
+
+  @override
+  String lvShellQuietOnHold(String amount) {
+    return 'พัก $amount';
+  }
+
+  @override
+  String get lvShellLevelCaption =>
+      'ระดับที่สูงขึ้นจะแสดงกระเป๋าเงินมากขึ้น ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
 }
