@@ -4,6 +4,7 @@
 /// confirmations. Cancel is the only action; no explorer link and no labels.
 library;
 
+import '../phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -159,7 +160,7 @@ class PlainDetailsMenu extends ConsumerWidget {
       key: payDetailsMenuKey,
       tooltip: l.lvPayDetails,
       icon: const Icon(Icons.more_vert),
-      onPressed: () => showModalBottomSheet<void>(
+      onPressed: () => showPhoneSheet<void>(
         context: context,
         isScrollControlled: true,
         showDragHandle: true,

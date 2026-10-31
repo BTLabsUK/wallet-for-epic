@@ -2861,10 +2861,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsBiometrics => 'Unlock with biometrics';
 
   @override
-  String get settingsBiometricsOn =>
-      'Biometric unlock is on from the next app start.';
-
-  @override
   String get settingsBiometricsOff => 'Biometric unlock turned off';
 
   @override
@@ -17806,10 +17802,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passphraseUsePassphraseInstead => 'Use passphrase instead';
-
-  @override
-  String get biometricsFromNextStart =>
-      'Biometric unlock works from the next app start.';
 
   @override
   String get invoicePassphraseReason =>

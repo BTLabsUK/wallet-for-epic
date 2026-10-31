@@ -8,6 +8,7 @@
 /// view never carries explanation text.
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
@@ -65,7 +66,7 @@ Future<void> showInfoSheet(
   required String text,
   IconData? icon,
   VoidCallback? onHelp,
-}) => showModalBottomSheet<void>(
+}) => showPhoneSheet<void>(
   context: context,
   showDragHandle: true,
   builder: (_) => InfoSheet(title: title, text: text, icon: icon, onHelp: onHelp),

@@ -5,6 +5,7 @@
 /// a page fits a 360 dp phone without a search. Help & feedback opens Help itself.
 library;
 
+import 'phone_sheet.dart';
 import '../address_format.dart' show shownUrl;
 import '../seed_contacts.dart' show projectRepoUrl;
 import 'package:flutter/material.dart';
@@ -415,13 +416,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         action: (pin) => vault.enableBiometrics(session, config, pin),
       );
       if (ok == null) return;
-      if (mounted) {
-        final l = context.l10n;
-        if (ok) {
-          _say(l.settingsBiometricsOn, level: NoticeLevel.success);
-        } else {
-          _say(l.settingsBiometricsFailed, level: NoticeLevel.error);
-        }
+      // On: the switch says so, and the next unlock offers biometrics.
+      if (!ok && mounted) {
+        _say(context.l10n.settingsBiometricsFailed, level: NoticeLevel.error);
       }
     }
     ref.invalidate(biometricsProvider);
@@ -1023,7 +1020,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   /// The strategy a send spends outputs by: the two choices, each with its one line.
   Future<void> _pickStrategy(SelectionStrategy current) async {
     final l = context.l10n;
-    final picked = await showModalBottomSheet<SelectionStrategy>(
+    final picked = await showPhoneSheet<SelectionStrategy>(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
@@ -1499,7 +1496,7 @@ class _TrustedNetworksRow extends ConsumerWidget {
 class _TrustedNetworksSheet extends ConsumerWidget {
   const _TrustedNetworksSheet();
 
-  static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
+  static Future<void> show(BuildContext context) => showPhoneSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,

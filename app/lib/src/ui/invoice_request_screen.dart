@@ -6,6 +6,7 @@
 /// finishes it.
 library;
 
+import 'phone_sheet.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -256,7 +257,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     final l = context.l10n;
     final byFile = requestFilesOn(ref, listen: false);
     final byQr = byFile && offersQrPayment(ref);
-    final picked = await showModalBottomSheet<String>(
+    final picked = await showPhoneSheet<String>(
       context: context,
       showDragHandle: true,
       useSafeArea: true,

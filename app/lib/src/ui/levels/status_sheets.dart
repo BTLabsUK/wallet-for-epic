@@ -7,6 +7,7 @@
 /// server lists.
 library;
 
+import '../phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,7 +30,7 @@ const Key sheetSwitchKey = ValueKey('shell-sheet-switch');
 const Key sheetKeepWaitingKey = ValueKey('shell-sheet-keep-waiting');
 const Key sheetShowAddressKey = ValueKey('shell-sheet-show-address');
 
-Future<void> _sheet(BuildContext context, Widget body) => showModalBottomSheet<void>(
+Future<void> _sheet(BuildContext context, Widget body) => showPhoneSheet<void>(
   context: context,
   showDragHandle: true,
   useSafeArea: true,

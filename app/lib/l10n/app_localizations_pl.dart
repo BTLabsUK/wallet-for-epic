@@ -2961,10 +2961,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsBiometrics => 'Odblokowanie biometryczne';
 
   @override
-  String get settingsBiometricsOn =>
-      'Odblokowanie biometryczne działa od następnego uruchomienia aplikacji.';
-
-  @override
   String get settingsBiometricsOff => 'Wyłączono odblokowanie biometryczne';
 
   @override
@@ -18443,10 +18439,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get passphraseUsePassphraseInstead => 'Użyj zamiast tego hasła';
-
-  @override
-  String get biometricsFromNextStart =>
-      'Odblokowanie biometryczne zadziała od następnego uruchomienia aplikacji.';
 
   @override
   String get invoicePassphraseReason => 'Wpisz hasło, aby zapłacić tę fakturę.';

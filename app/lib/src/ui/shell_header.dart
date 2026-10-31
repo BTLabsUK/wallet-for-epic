@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'phone_sheet.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -856,7 +857,7 @@ Future<void> showBalanceSheet(
   BuildContext context, {
   required WalletSummary summary,
   required bool hidden,
-}) => showModalBottomSheet<void>(
+}) => showPhoneSheet<void>(
   context: context,
   showDragHandle: true,
   useSafeArea: true,

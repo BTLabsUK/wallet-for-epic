@@ -5,6 +5,7 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
+import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -201,7 +202,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     }
   }
 
-  void _showCode(Contact contact) => showModalBottomSheet<void>(
+  void _showCode(Contact contact) => showPhoneSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,

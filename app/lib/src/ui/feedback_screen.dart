@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'phone_sheet.dart';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -253,7 +254,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     var destination = _Destination.device;
     // The choice comes first, so the button only spins while the file is handed over.
     if (outlet.canShare) {
-      final chosen = await showModalBottomSheet<_Destination>(
+      final chosen = await showPhoneSheet<_Destination>(
         context: context,
         showDragHandle: true,
         builder: (context) {

@@ -297,11 +297,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               // ran out under it unseen.
               persistent: true,
             );
-      } else if (useBiometrics && mounted) {
-        // Their copy cannot be read back in the process that wrote it (WAL-11).
-        ref
-            .read(noticeProvider.notifier)
-            .show(l.biometricsFromNextStart, level: NoticeLevel.info, persistent: true);
       }
       await ref.read(sessionProvider.notifier).open(session);
       if (!mounted) return;

@@ -5,6 +5,7 @@
 /// a sheet says what the import does before anything is saved.
 library;
 
+import 'phone_sheet.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -124,7 +125,7 @@ Future<bool> importContacts(BuildContext context, WidgetRef ref) async {
   }
 }
 
-Future<T?> _sheet<T>(BuildContext context, WidgetBuilder builder) => showModalBottomSheet<T>(
+Future<T?> _sheet<T>(BuildContext context, WidgetBuilder builder) => showPhoneSheet<T>(
   context: context,
   showDragHandle: true,
   isScrollControlled: true,
