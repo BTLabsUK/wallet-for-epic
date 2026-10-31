@@ -10916,12 +10916,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetFrameNodeSyncing => 'Synchronisierung';
 
   @override
-  String get deskSetFrameConnecting => 'Verbindung…';
-
-  @override
-  String get deskSetFrameListening => 'Empfangsbereit';
-
-  @override
   String get deskSetFrameNever => 'nie';
 
   @override
@@ -11659,28 +11653,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSetNodeListNote(String site) {
     return 'Status von $site; Latenz von diesem Computer aus gemessen.';
   }
-
-  @override
-  String get deskSetNodeStartTitle => 'Lokalen Node starten?';
-
-  @override
-  String get deskSetNodeStartDesc =>
-      'Ein eigenes Programm synchronisiert die Epic-Blockchain auf diesem Computer.';
-
-  @override
-  String get deskSetNodeStartLine1 =>
-      'Lädt die ganze Blockchain herunter: mehrere GB Speicher und Datenvolumen.';
-
-  @override
-  String get deskSetNodeStartLine2 =>
-      'Die erste Synchronisierung dauert Stunden. Bis dahin zeigt der Node „Synchronisierung“.';
-
-  @override
-  String get deskSetNodeStartLine3 =>
-      'Die Firewall fragt vielleicht, ob das Node-Programm zugelassen werden soll.';
-
-  @override
-  String get deskSetNodeStartButton => 'Lokalen Node starten';
 
   @override
   String get deskSetNodeRowNotSetUp => 'Nicht eingerichtet';

@@ -11250,12 +11250,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetFrameNodeSyncing => 'Synchronizacja';
 
   @override
-  String get deskSetFrameConnecting => 'Łączenie…';
-
-  @override
-  String get deskSetFrameListening => 'Nasłuchuje';
-
-  @override
   String get deskSetFrameNever => 'nigdy';
 
   @override
@@ -12003,28 +11997,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSetNodeListNote(String site) {
     return 'Stan ze $site; opóźnienie mierzone z tego komputera.';
   }
-
-  @override
-  String get deskSetNodeStartTitle => 'Uruchomić węzeł lokalny?';
-
-  @override
-  String get deskSetNodeStartDesc =>
-      'Osobny program synchronizuje łańcuch Epic na tym komputerze.';
-
-  @override
-  String get deskSetNodeStartLine1 =>
-      'Pobiera cały łańcuch: kilka GB miejsca na dysku i transferu.';
-
-  @override
-  String get deskSetNodeStartLine2 =>
-      'Pierwsza synchronizacja trwa godzinami. Do jej końca węzeł pokazuje Synchronizacja.';
-
-  @override
-  String get deskSetNodeStartLine3 =>
-      'Zapora może zapytać o zgodę dla programu węzła.';
-
-  @override
-  String get deskSetNodeStartButton => 'Uruchom węzeł lokalny';
 
   @override
   String get deskSetNodeRowNotSetUp => 'Nieskonfigurowany';

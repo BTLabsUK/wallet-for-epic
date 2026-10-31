@@ -10488,12 +10488,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetFrameNodeSyncing => 'กำลังซิงก์';
 
   @override
-  String get deskSetFrameConnecting => 'กำลังเชื่อมต่อ…';
-
-  @override
-  String get deskSetFrameListening => 'รอรับอยู่';
-
-  @override
   String get deskSetFrameNever => 'ไม่เคย';
 
   @override
@@ -11215,28 +11209,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSetNodeListNote(String site) {
     return 'สถานะจาก $site เวลาตอบสนองวัดจากคอมพิวเตอร์นี้';
   }
-
-  @override
-  String get deskSetNodeStartTitle => 'เริ่มโหนดในเครื่องไหม?';
-
-  @override
-  String get deskSetNodeStartDesc =>
-      'โปรแกรมแยกต่างหากจะซิงก์บล็อกเชน Epic บนคอมพิวเตอร์นี้';
-
-  @override
-  String get deskSetNodeStartLine1 =>
-      'ดาวน์โหลดบล็อกเชนทั้งหมด: ใช้พื้นที่ดิสก์และแบนด์วิดท์หลาย GB';
-
-  @override
-  String get deskSetNodeStartLine2 =>
-      'การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นโหนดจะแสดง กำลังซิงก์';
-
-  @override
-  String get deskSetNodeStartLine3 =>
-      'ไฟร์วอลล์อาจถามว่าจะอนุญาตโปรแกรมโหนดไหม';
-
-  @override
-  String get deskSetNodeStartButton => 'เริ่มโหนดในเครื่อง';
 
   @override
   String get deskSetNodeRowNotSetUp => 'ยังไม่ได้ตั้งค่า';

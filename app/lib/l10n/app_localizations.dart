@@ -17007,18 +17007,6 @@ abstract class AppLocalizations {
   /// **'Syncing'**
   String get deskSetFrameNodeSyncing;
 
-  /// Status word while connecting to a node or to Epicbox.
-  ///
-  /// In en, this message translates to:
-  /// **'Connecting…'**
-  String get deskSetFrameConnecting;
-
-  /// Status word of the Epicbox listener that waits for incoming payments.
-  ///
-  /// In en, this message translates to:
-  /// **'Listening'**
-  String get deskSetFrameListening;
-
   /// Time since an event that never happened. Lowercase, part of a line.
   ///
   /// In en, this message translates to:
@@ -18139,42 +18127,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Status from {site}; latency measured from this computer.'**
   String deskSetNodeListNote(String site);
-
-  /// Dialog title before the local node program starts.
-  ///
-  /// In en, this message translates to:
-  /// **'Start the local node?'**
-  String get deskSetNodeStartTitle;
-
-  /// Start the local node dialog: description under the title.
-  ///
-  /// In en, this message translates to:
-  /// **'A separate program syncs the Epic chain on this computer.'**
-  String get deskSetNodeStartDesc;
-
-  /// Start the local node dialog: first bullet.
-  ///
-  /// In en, this message translates to:
-  /// **'Downloads the whole chain: several GB of disk space and bandwidth.'**
-  String get deskSetNodeStartLine1;
-
-  /// Start the local node dialog: second bullet. "Syncing" is the node status word.
-  ///
-  /// In en, this message translates to:
-  /// **'The first sync takes hours. Until it is done the node shows Syncing.'**
-  String get deskSetNodeStartLine2;
-
-  /// Start the local node dialog: third bullet.
-  ///
-  /// In en, this message translates to:
-  /// **'The firewall may ask to allow the node program.'**
-  String get deskSetNodeStartLine3;
-
-  /// Start the local node dialog: primary button.
-  ///
-  /// In en, this message translates to:
-  /// **'Start local node'**
-  String get deskSetNodeStartButton;
 
   /// Status of the local node in the node picker: not installed or never started.
   ///

@@ -11221,12 +11221,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetFrameNodeSyncing => 'Синхронизация';
 
   @override
-  String get deskSetFrameConnecting => 'Подключение…';
-
-  @override
-  String get deskSetFrameListening => 'Слушает';
-
-  @override
   String get deskSetFrameNever => 'никогда';
 
   @override
@@ -11973,28 +11967,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSetNodeListNote(String site) {
     return 'Состояние по данным $site; задержка измерена с этого компьютера.';
   }
-
-  @override
-  String get deskSetNodeStartTitle => 'Запустить локальный узел?';
-
-  @override
-  String get deskSetNodeStartDesc =>
-      'Отдельная программа синхронизирует блокчейн Epic на этом компьютере.';
-
-  @override
-  String get deskSetNodeStartLine1 =>
-      'Загружает весь блокчейн: несколько ГБ места на диске и трафика.';
-
-  @override
-  String get deskSetNodeStartLine2 =>
-      'Первая синхронизация занимает часы. Пока она не закончится, у узла статус «Синхронизация».';
-
-  @override
-  String get deskSetNodeStartLine3 =>
-      'Брандмауэр может спросить, разрешить ли программу узла.';
-
-  @override
-  String get deskSetNodeStartButton => 'Запустить локальный узел';
 
   @override
   String get deskSetNodeRowNotSetUp => 'Не настроен';

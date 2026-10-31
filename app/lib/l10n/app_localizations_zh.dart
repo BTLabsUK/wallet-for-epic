@@ -10133,12 +10133,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetFrameNodeSyncing => '正在同步';
 
   @override
-  String get deskSetFrameConnecting => '正在连接…';
-
-  @override
-  String get deskSetFrameListening => '正在监听';
-
-  @override
   String get deskSetFrameNever => '从未';
 
   @override
@@ -10846,24 +10840,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSetNodeListNote(String site) {
     return '状态来自 $site；延迟从这台电脑测得。';
   }
-
-  @override
-  String get deskSetNodeStartTitle => '启动本地节点？';
-
-  @override
-  String get deskSetNodeStartDesc => '一个独立的程序会在这台电脑上同步 Epic 区块链。';
-
-  @override
-  String get deskSetNodeStartLine1 => '下载完整的区块链：需要数 GB 的磁盘空间和流量。';
-
-  @override
-  String get deskSetNodeStartLine2 => '首次同步需要数小时。完成之前，节点显示为“正在同步”。';
-
-  @override
-  String get deskSetNodeStartLine3 => '防火墙可能会询问是否允许节点程序。';
-
-  @override
-  String get deskSetNodeStartButton => '启动本地节点';
 
   @override
   String get deskSetNodeRowNotSetUp => '未设置';

@@ -10795,12 +10795,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetFrameNodeSyncing => 'Syncing';
 
   @override
-  String get deskSetFrameConnecting => 'Connecting…';
-
-  @override
-  String get deskSetFrameListening => 'Listening';
-
-  @override
   String get deskSetFrameNever => 'never';
 
   @override
@@ -11531,28 +11525,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSetNodeListNote(String site) {
     return 'Status from $site; latency measured from this computer.';
   }
-
-  @override
-  String get deskSetNodeStartTitle => 'Start the local node?';
-
-  @override
-  String get deskSetNodeStartDesc =>
-      'A separate program syncs the Epic chain on this computer.';
-
-  @override
-  String get deskSetNodeStartLine1 =>
-      'Downloads the whole chain: several GB of disk space and bandwidth.';
-
-  @override
-  String get deskSetNodeStartLine2 =>
-      'The first sync takes hours. Until it is done the node shows Syncing.';
-
-  @override
-  String get deskSetNodeStartLine3 =>
-      'The firewall may ask to allow the node program.';
-
-  @override
-  String get deskSetNodeStartButton => 'Start local node';
 
   @override
   String get deskSetNodeRowNotSetUp => 'Not set up';
