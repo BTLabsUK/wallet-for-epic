@@ -305,6 +305,9 @@ class DeviceService {
   bool _foreground = false;
   bool _disposed = false;
 
+  /// The desktop's interval with a device linked ([setPace]); null: [deviceSyncEvery].
+  Duration? _pace;
+
   PairingApi get _api => host.pairing;
 
   /// Every change of [book] or [link].
@@ -364,6 +367,15 @@ class DeviceService {
     _schedule();
   }
 
+  /// The desktop runs minimized too, so it reads at its own [every] instead of
+  /// [deviceSyncEvery]: the interval starts again from now, after a read now when [now]. With
+  /// a pace set, a payload and the read before a send start the interval again too.
+  void setPace(Duration every, {bool now = false}) {
+    _pace = every;
+    _schedule();
+    if (now) unawaited(sync(DeviceSyncTrigger.resume));
+  }
+
   void _schedule() {
     _timer?.cancel();
     _timer = null;
@@ -371,7 +383,7 @@ class DeviceService {
     final every = _link != null && _link!.phase != LinkPhase.done && _link!.phase != LinkPhase.failed
         ? linkPollEvery
         : book.devices.isNotEmpty || book.removing.isNotEmpty
-        ? deviceSyncEvery
+        ? _pace ?? deviceSyncEvery
         : null;
     if (every == null) return;
     _timer = Timer.periodic(every, (_) => sync(DeviceSyncTrigger.tick).ignore());
@@ -394,6 +406,7 @@ class DeviceService {
     } on Object {
       // Send goes on with what is known; the chain check covers the rest.
     }
+    if (_pace != null) _schedule();
   }
 
   Future<void> _sync(DeviceSyncTrigger trigger) async {
@@ -442,6 +455,8 @@ class DeviceService {
     await _applyWaitingAll();
     await _put(book);
     if (done.isNotEmpty) await _api.ackPayloads(done);
+    // Something came: the next read is a whole interval from now.
+    if (_pace != null) _schedule();
   }
 
   /// Reads [p]; false leaves it with the engine for a later read (a notice for a link that is
