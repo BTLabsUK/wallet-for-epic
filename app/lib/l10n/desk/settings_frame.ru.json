@@ -17,8 +17,6 @@
   "deskSetFrameChecking": "Проверка…",
   "deskSetFrameNodeSynced": "Синхронизирован",
   "deskSetFrameNodeSyncing": "Синхронизация",
-  "deskSetFrameConnecting": "Подключение…",
-  "deskSetFrameListening": "Слушает",
   "deskSetFrameNever": "никогда",
   "deskSetFrameJustNow": "только что",
   "deskSetFrameMinAgo": "{count, plural, one{{count} мин назад} few{{count} мин назад} many{{count} мин назад} other{{count} мин назад}}",

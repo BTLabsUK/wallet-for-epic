@@ -71,14 +71,6 @@
   "@deskSetFrameNodeSyncing": {
     "description": "Status word of a node that is still downloading the blockchain."
   },
-  "deskSetFrameConnecting": "Connecting…",
-  "@deskSetFrameConnecting": {
-    "description": "Status word while connecting to a node or to Epicbox."
-  },
-  "deskSetFrameListening": "Listening",
-  "@deskSetFrameListening": {
-    "description": "Status word of the Epicbox listener that waits for incoming payments."
-  },
   "deskSetFrameNever": "never",
   "@deskSetFrameNever": {
     "description": "Time since an event that never happened. Lowercase, part of a line."

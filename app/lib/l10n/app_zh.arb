@@ -2398,8 +2398,6 @@
   "deskSetFrameChecking": "正在检查…",
   "deskSetFrameNodeSynced": "已同步",
   "deskSetFrameNodeSyncing": "正在同步",
-  "deskSetFrameConnecting": "正在连接…",
-  "deskSetFrameListening": "正在监听",
   "deskSetFrameNever": "从未",
   "deskSetFrameJustNow": "刚刚",
   "deskSetFrameMinAgo": "{count, plural, other{{count} 分钟前}}",

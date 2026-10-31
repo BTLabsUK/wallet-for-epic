@@ -2793,8 +2793,6 @@
   "deskSetFrameChecking": "Wird geprüft…",
   "deskSetFrameNodeSynced": "Synchronisiert",
   "deskSetFrameNodeSyncing": "Synchronisierung",
-  "deskSetFrameConnecting": "Verbindung…",
-  "deskSetFrameListening": "Empfangsbereit",
   "deskSetFrameNever": "nie",
   "deskSetFrameJustNow": "gerade eben",
   "deskSetFrameMinAgo": "{count, plural, one{vor {count} Min.} other{vor {count} Min.}}",
