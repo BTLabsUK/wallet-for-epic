@@ -1,6 +1,6 @@
 {
   "deskActNotUpdated": "Nie zaktualizowano",
-  "deskActSearchHint": "Notatka, kontakt, adres lub kwota",
+  "deskActSearchHint": "Szukaj płatności",
   "deskActSearchLabel": "Szukaj płatności",
   "deskActClearSearch": "Wyczyść wyszukiwanie",
   "deskActShowAmounts": "Pokaż kwoty",
@@ -28,5 +28,6 @@
   "deskActShowAddress": "Pokaż adres",
   "deskActReceiveFile": "Odbierz plik",
   "deskTxStatusWaitingFor": "Czeka na podpis: {name}",
-  "deskActNoneUnderFilter": "Nic pod tym filtrem"
+  "deskActNoneUnderFilter": "Nic pod tym filtrem",
+  "deskActSearchHintFull": "Notatka, kontakt, adres lub kwota"
 }

@@ -569,9 +569,10 @@ class _TxRowState extends ConsumerState<TxRow> {
                     )
                   else
                     Flexible(
+                      // A state is never cut short: it wraps to a second line (UD-005).
                       child: Text(
                         word,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: ts.small.copyWith(color: toneColor),
                       ),

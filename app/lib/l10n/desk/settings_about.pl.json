@@ -3,8 +3,8 @@
   "deskSetAboutLicenceApp": "Epic Cash Desktop od BT Labs: Apache-2.0.",
   "deskSetAboutBrowserNotOpened": "Nie otwarto przeglądarki",
   "deskSetAboutOpen": "Otwórz",
-  "deskSetAboutVersion": "Wersja  {version}",
-  "deskSetAboutNode": "Węzeł  {version}",
+  "deskSetAboutVersion": "Wersja {version}",
+  "deskSetAboutNode": "Węzeł {version}",
   "deskSetAboutLicences": "Licencje",
   "deskSetAboutSource": "Kod źródłowy",
   "deskSetAboutView": "Pokaż",
@@ -21,5 +21,7 @@
   "deskSetAboutCopyLink": "Kopiuj link",
   "deskSetAboutCopied": "Skopiowano",
   "deskSetAboutNotCopied": "Nie skopiowano",
-  "deskSetAboutDownloadPage": "Strona pobierania"
+  "deskSetAboutDownloadPage": "Strona pobierania",
+  "deskSetAboutVersionLabel": "Wersja",
+  "deskSetAboutNodeLabel": "Węzeł"
 }

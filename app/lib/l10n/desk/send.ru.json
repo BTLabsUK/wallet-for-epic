@@ -73,7 +73,7 @@
   "deskSendEpicboxTurnOn": "Включить приём через Epicbox",
   "deskSendDoneViaDirect": "Завершено и отправлено в сеть.",
   "deskSendDoneViaEpicbox": "Передано в Epicbox. Завершится, когда получатель ответит.",
-  "deskSendViewTx": "Открыть платёж",
+  "deskSendViewTx": "Открыть в «Активности»",
   "deskSendFailedTitle": "Отправка не удалась",
   "deskSendReviewAgain": "Проверить снова",
   "deskSendMethodHeader": "Способ оплаты",
@@ -159,5 +159,6 @@
   "deskSendMessageTooLong": "Сообщение длиннее {max} байт. Сократите его.",
   "deskSendRelayUnknownTitle": "Неизвестный сервер Epicbox",
   "deskSendRelayUnknownText": "Приложение не знает сервер {relay}. Проверьте адрес перед отправкой. Отправить всё равно можно.",
-  "deskSendContactNoLink": "У {name} нет адреса Link."
+  "deskSendContactNoLink": "У {name} нет адреса Link.",
+  "deskSendHintNeedsMethod": "Для проверки нужен {method}"
 }

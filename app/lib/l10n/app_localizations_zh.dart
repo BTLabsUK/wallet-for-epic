@@ -6426,7 +6426,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendDoneViaEpicbox => '已交给 Epicbox。接收方响应后即完成。';
 
   @override
-  String get deskSendViewTx => '查看付款';
+  String get deskSendViewTx => '在“活动”中查看';
 
   @override
   String get deskSendFailedTitle => '发送失败';
@@ -6839,7 +6839,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskActNotUpdated => '未更新';
 
   @override
-  String get deskActSearchHint => '备注、联系人、地址或金额';
+  String get deskActSearchHint => '搜索付款';
 
   @override
   String get deskActSearchLabel => '搜索付款';
@@ -10171,7 +10171,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetLnodeNoProgress => '节点没有进展。';
 
   @override
-  String get deskSetLnodeNoProgressText => '请重启，或查看节点日志。';
+  String get deskSetLnodeNoProgressText => '请重新启动节点，或查看节点日志。';
 
   @override
   String deskSetLnodePortInUse(String port) {
@@ -10396,9 +10396,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetLndLooking => '正在查找…';
-
-  @override
-  String get deskSetLndUseIt => '使用它';
 
   @override
   String deskSetLndLastWritten(String date) {
@@ -11396,12 +11393,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskSetAboutVersion(String version) {
-    return '版本  $version';
+    return '版本 $version';
   }
 
   @override
   String deskSetAboutNode(String version) {
-    return '节点  $version';
+    return '节点 $version';
   }
 
   @override
@@ -16925,4 +16922,41 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get finalizeNotPostedHelp => '在“紧急断网”下付款';
+
+  @override
+  String get deskActSearchHintFull => '备注、联系人、地址或金额';
+
+  @override
+  String get deskOutFilterWaiting => '等待中';
+
+  @override
+  String deskRecvHeaderTip(String methods) {
+    return '接收：$methods';
+  }
+
+  @override
+  String deskSendHintNeedsMethod(String method) {
+    return '确认需要 $method';
+  }
+
+  @override
+  String get deskSetAboutVersionLabel => '版本';
+
+  @override
+  String get deskSetAboutNodeLabel => '节点';
+
+  @override
+  String deskTxNowConfirmedBlock(int confirmations, String block) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: '已确认，$confirmations 个确认 · 区块 $block。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitNoAnswerSince(String time) {
+    return '自 $time 起无响应';
+  }
 }

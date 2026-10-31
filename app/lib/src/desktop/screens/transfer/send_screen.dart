@@ -1333,9 +1333,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           _ => l.deskSendDoneViaEpicbox,
         },
         body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
+        // The one result card (UD-007): gold = this screen's next action, outlined = Activity.
         actions: [
+          EButton.primary(label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
           EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
-          EButton.ghost(label: l.deskSendNewSend, onPressed: _reset),
         ],
       ),
     );
@@ -1351,8 +1352,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         body: FileChip(r.fileName),
         actions: [
           EButton.primary(label: l.deskSendFinalize, icon: EIcons.fileUp, onPressed: () => nav.go(DeskRoute.finalize)),
-          EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
-          EButton.ghost(label: l.deskSendNewSend, onPressed: _reset),
+          EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
+          EButton(label: l.deskSendNewSend, onPressed: _reset),
         ],
       ),
     );
@@ -1453,11 +1454,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       );
     }
     if (st.status != null && node != null) {
+      // Syncing is progress, not a fault: the in-progress style and Overview's words (UD-003).
       return ENotice(
-        title: l.deskSendNodeNotSynced,
-        text: node >= 0 ? l.deskSendNodeSyncingPct((node * 100).round()) : l.deskSendNodeSyncing,
-        tone: ETone.warn,
-        icon: EIcons.server,
+        key: const ValueKey('send-node-syncing'),
+        title: node >= 0 ? l.deskOvSyncTitle((node * 100).round()) : l.deskSendNodeNotSynced,
+        text: l.deskSendNodeSyncing,
+        tone: ETone.info,
+        icon: EIcons.info,
       );
     }
     if (_method == TxMethod.file && deskOfflineUsesNode(st)) {
@@ -1635,6 +1638,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             child: EInput(
               controller: _to,
               mono: true,
+              fadeEnd: true,
               invalid: toErr != null,
               hint: l.deskSendToHint,
               semanticLabel: l.deskSendToSem,
@@ -1825,13 +1829,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
+      // Node only: the banner explains, this line names the block only (UD-014).
+      _ when _netBlock(st) == NetBlock.nodeOnly => l.deskSendHintNeedsMethod(_method == TxMethod.epicbox ? l.methodEpicbox : MethodIcons.familyName(l, MethodFamily.link)),
       _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => _blockTitle(l, _netBlock(st)),
       _ when _onionNoTor => l.sendTorNotInVersion,
       _ when nodeBlocked && _nodeDown(st) && _noNode => l.deskSlNoNodeTitle,
       _ when nodeBlocked && _nodeDown(st) => l.deskNodeNotAnsweringLine,
       _ when nodeBlocked => l.deskSendHintNode,
-      _ when _netBlock(st) == NetBlock.epicboxOff => l.netBlockEpicboxOff,
-      _ when _netBlock(st) == NetBlock.methodOff => methodOffReason(l, _kind),
+      _ when _netBlock(st) == NetBlock.epicboxOff => l.deskSendHintNeedsMethod(l.methodEpicbox),
+      _ when _netBlock(st) == NetBlock.methodOff => l.deskSendHintNeedsMethod(MethodIcons.fullName(l, _kind)),
       _ when _epicboxBlocked(st) => l.deskSendHintEpicbox,
       _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
       _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,

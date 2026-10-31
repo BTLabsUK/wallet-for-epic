@@ -47,5 +47,6 @@
   "deskRecvSwitchLabel": "{title}, odbieranie",
   "deskRecvTorOffTitle": "Link · Tor wymaga Tora.",
   "deskRecvTorOffText": "Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Prywatność; kieruje połączenia portfela przez Tor.",
-  "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty."
+  "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty.",
+  "deskRecvHeaderTip": "Odbieranie: {methods}"
 }

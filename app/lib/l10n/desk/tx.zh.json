@@ -103,5 +103,6 @@
   "deskTxNowUndeliveredDirect": "未送达。收款人的钱包没有接收这笔付款（{method}），对方没有收到。请重新发送，或取消以释放资金。",
   "deskTxNowUndeliveredRelay": "未送达。{relay} 没有响应，收款人没有收到这笔付款。请重新发送，或取消以释放资金。",
   "deskTxMore": "更多",
-  "deskTxLess": "收起"
+  "deskTxLess": "收起",
+  "deskTxNowConfirmedBlock": "{confirmations, plural, other{已确认，{confirmations} 个确认 · 区块 {block}。}}"
 }

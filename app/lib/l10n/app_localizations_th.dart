@@ -6659,7 +6659,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ส่งให้ Epicbox แล้ว จะสำเร็จเมื่อผู้รับตอบกลับ';
 
   @override
-  String get deskSendViewTx => 'ดูรายการ';
+  String get deskSendViewTx => 'ดูในประวัติ';
 
   @override
   String get deskSendFailedTitle => 'ส่งไม่สำเร็จ';
@@ -7098,7 +7098,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskActNotUpdated => 'ไม่ได้อัปเดต';
 
   @override
-  String get deskActSearchHint => 'บันทึก ผู้ติดต่อ ที่อยู่ หรือจำนวน';
+  String get deskActSearchHint => 'ค้นหารายการ';
 
   @override
   String get deskActSearchLabel => 'ค้นหารายการ';
@@ -10522,7 +10522,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetLnodeNoProgress => 'โหนดไม่คืบหน้า';
 
   @override
-  String get deskSetLnodeNoProgressText => 'เริ่มใหม่ หรือดูบันทึกของโหนด';
+  String get deskSetLnodeNoProgressText =>
+      'เริ่มโหนดอีกครั้ง หรือดูบันทึกของโหนด';
 
   @override
   String deskSetLnodePortInUse(String port) {
@@ -10752,9 +10753,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetLndLooking => 'กำลังค้นหา…';
-
-  @override
-  String get deskSetLndUseIt => 'ใช้ข้อมูลนี้';
 
   @override
   String deskSetLndLastWritten(String date) {
@@ -11788,12 +11786,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetAboutVersion(String version) {
-    return 'เวอร์ชัน  $version';
+    return 'เวอร์ชัน $version';
   }
 
   @override
   String deskSetAboutNode(String version) {
-    return 'โหนด  $version';
+    return 'โหนด $version';
   }
 
   @override
@@ -17551,4 +17549,41 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get finalizeNotPostedHelp => 'จ่ายจากสวิตช์ฉุกเฉิน';
+
+  @override
+  String get deskActSearchHintFull => 'บันทึก ผู้ติดต่อ ที่อยู่ หรือจำนวน';
+
+  @override
+  String get deskOutFilterWaiting => 'รอ';
+
+  @override
+  String deskRecvHeaderTip(String methods) {
+    return 'การรับเงิน: $methods';
+  }
+
+  @override
+  String deskSendHintNeedsMethod(String method) {
+    return 'การตรวจสอบต้องใช้ $method';
+  }
+
+  @override
+  String get deskSetAboutVersionLabel => 'เวอร์ชัน';
+
+  @override
+  String get deskSetAboutNodeLabel => 'โหนด';
+
+  @override
+  String deskTxNowConfirmedBlock(int confirmations, String block) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'ยืนยันแล้ว $confirmations ครั้ง · บล็อก $block',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitNoAnswerSince(String time) {
+    return 'ไม่ตอบตั้งแต่ $time';
+  }
 }

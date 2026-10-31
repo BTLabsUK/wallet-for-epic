@@ -1,6 +1,6 @@
 {
   "deskActNotUpdated": "未更新",
-  "deskActSearchHint": "备注、联系人、地址或金额",
+  "deskActSearchHint": "搜索付款",
   "deskActSearchLabel": "搜索付款",
   "deskActClearSearch": "清除搜索",
   "deskActShowAmounts": "显示金额",
@@ -28,5 +28,6 @@
   "deskActShowAddress": "显示地址",
   "deskActReceiveFile": "接收文件",
   "deskTxStatusWaitingFor": "等待 {name} 签名",
-  "deskActNoneUnderFilter": "此筛选下没有内容"
+  "deskActNoneUnderFilter": "此筛选下没有内容",
+  "deskActSearchHintFull": "备注、联系人、地址或金额"
 }

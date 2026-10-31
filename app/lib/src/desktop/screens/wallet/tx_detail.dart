@@ -21,6 +21,7 @@ import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, de
 import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInContacts, deskSuggestedContact;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import '../../widgets/server_row.dart' show digitsText;
 import '../invoices/tx_invoice_block.dart';
 import 'cancel_note.dart';
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
@@ -124,7 +125,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           TxState.posted when t.notPosted => l.deskTxNowNotPosted,
           TxState.posted => l.deskTxNowPosted,
           TxState.confirming => l.deskTxNowConfirming(t.confirmations, t.confirmationsNeeded),
-          TxState.confirmed => l.deskTxNowConfirmed(t.confirmations),
+          // Both facts, as the phone (UD-028): the confirmations and the block.
+          TxState.confirmed => t.height == null ? l.deskTxNowConfirmed(t.confirmations) : l.deskTxNowConfirmedBlock(t.confirmations, digitsText(l, t.height!)),
           // The wallet keeps looking for a cancelled receive, so a late post still arrives.
           TxState.cancelled when t.deviceEnding != null =>
             deviceEndingLine(l, t.deviceEnding!, t.deviceName ?? '', t.deviceWhy) ?? deviceEndingLabel(l, t.deviceEnding!, t.deviceName ?? ''),

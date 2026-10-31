@@ -6855,7 +6855,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Handed to Epicbox. Completes when the recipient answers.';
 
   @override
-  String get deskSendViewTx => 'View payment';
+  String get deskSendViewTx => 'View in Activity';
 
   @override
   String get deskSendFailedTitle => 'Send failed';
@@ -7297,7 +7297,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActNotUpdated => 'Not updated';
 
   @override
-  String get deskActSearchHint => 'Note, contact, address or amount';
+  String get deskActSearchHint => 'Search payments';
 
   @override
   String get deskActSearchLabel => 'Search payments';
@@ -10832,7 +10832,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetLnodeNoProgress => 'The node makes no progress.';
 
   @override
-  String get deskSetLnodeNoProgressText => 'Restart, or check the node log.';
+  String get deskSetLnodeNoProgressText =>
+      'Start the node again, or check the node log.';
 
   @override
   String deskSetLnodePortInUse(String port) {
@@ -11065,9 +11066,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetLndLooking => 'Looking…';
-
-  @override
-  String get deskSetLndUseIt => 'Use it';
 
   @override
   String deskSetLndLastWritten(String date) {
@@ -12109,12 +12107,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetAboutVersion(String version) {
-    return 'Version  $version';
+    return 'Version $version';
   }
 
   @override
   String deskSetAboutNode(String version) {
-    return 'Node  $version';
+    return 'Node $version';
   }
 
   @override
@@ -17964,4 +17962,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get finalizeNotPostedHelp => 'Paying from Kill switch';
+
+  @override
+  String get deskActSearchHintFull => 'Note, contact, address or amount';
+
+  @override
+  String get deskOutFilterWaiting => 'Waiting';
+
+  @override
+  String deskRecvHeaderTip(String methods) {
+    return 'Receiving: $methods';
+  }
+
+  @override
+  String deskSendHintNeedsMethod(String method) {
+    return 'Review needs $method';
+  }
+
+  @override
+  String get deskSetAboutVersionLabel => 'Version';
+
+  @override
+  String get deskSetAboutNodeLabel => 'Node';
+
+  @override
+  String deskTxNowConfirmedBlock(int confirmations, String block) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'Confirmed, $confirmations confirmations · block $block.',
+      one: 'Confirmed, $confirmations confirmation · block $block.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitNoAnswerSince(String time) {
+    return 'No answer since $time';
+  }
 }

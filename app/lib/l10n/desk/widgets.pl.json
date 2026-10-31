@@ -120,5 +120,6 @@
   "deskKitQrHide": "Ukryj QR",
   "deskKitQrHideCode": "Ukryj QR",
   "deskKitMethodConnected": "Połączono",
-  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora."
+  "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora.",
+  "deskKitNoAnswerSince": "Brak odpowiedzi od {time}"
 }

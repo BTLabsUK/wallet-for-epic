@@ -1,6 +1,6 @@
 {
   "deskActNotUpdated": "Не обновлено",
-  "deskActSearchHint": "Заметка, контакт, адрес или сумма",
+  "deskActSearchHint": "Поиск платежей",
   "deskActSearchLabel": "Поиск платежей",
   "deskActClearSearch": "Очистить поиск",
   "deskActShowAmounts": "Показать суммы",
@@ -28,5 +28,6 @@
   "deskActShowAddress": "Показать адрес",
   "deskActReceiveFile": "Получить файл",
   "deskTxStatusWaitingFor": "Ждёт подписи: {name}",
-  "deskActNoneUnderFilter": "Под этим фильтром ничего нет"
+  "deskActNoneUnderFilter": "Под этим фильтром ничего нет",
+  "deskActSearchHintFull": "Заметка, контакт, адрес или сумма"
 }

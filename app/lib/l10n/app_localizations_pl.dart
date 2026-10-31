@@ -7166,7 +7166,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Przekazano do Epicbox. Zakończy się, gdy odbiorca odpowie.';
 
   @override
-  String get deskSendViewTx => 'Pokaż płatność';
+  String get deskSendViewTx => 'Pokaż w Aktywności';
 
   @override
   String get deskSendFailedTitle => 'Wysyłka nie powiodła się';
@@ -7616,7 +7616,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskActNotUpdated => 'Nie zaktualizowano';
 
   @override
-  String get deskActSearchHint => 'Notatka, kontakt, adres lub kwota';
+  String get deskActSearchHint => 'Szukaj płatności';
 
   @override
   String get deskActSearchLabel => 'Szukaj płatności';
@@ -11290,7 +11290,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetLnodeNoProgressText =>
-      'Uruchom ponownie albo sprawdź log węzła.';
+      'Uruchom węzeł ponownie albo sprawdź log węzła.';
 
   @override
   String deskSetLnodePortInUse(String port) {
@@ -11527,9 +11527,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetLndLooking => 'Szukanie…';
-
-  @override
-  String get deskSetLndUseIt => 'Użyj ich';
 
   @override
   String deskSetLndLastWritten(String date) {
@@ -12582,12 +12579,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskSetAboutVersion(String version) {
-    return 'Wersja  $version';
+    return 'Wersja $version';
   }
 
   @override
   String deskSetAboutNode(String version) {
-    return 'Węzeł  $version';
+    return 'Węzeł $version';
   }
 
   @override
@@ -18602,4 +18599,44 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get finalizeNotPostedHelp => 'Płacenie z Wyłącznika awaryjnego';
+
+  @override
+  String get deskActSearchHintFull => 'Notatka, kontakt, adres lub kwota';
+
+  @override
+  String get deskOutFilterWaiting => 'Oczekujące';
+
+  @override
+  String deskRecvHeaderTip(String methods) {
+    return 'Odbieranie: $methods';
+  }
+
+  @override
+  String deskSendHintNeedsMethod(String method) {
+    return 'Sprawdzenie wymaga: $method';
+  }
+
+  @override
+  String get deskSetAboutVersionLabel => 'Wersja';
+
+  @override
+  String get deskSetAboutNodeLabel => 'Węzeł';
+
+  @override
+  String deskTxNowConfirmedBlock(int confirmations, String block) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmations,
+      locale: localeName,
+      other: 'Potwierdzona, $confirmations potwierdzenia · blok $block.',
+      many: 'Potwierdzona, $confirmations potwierdzeń · blok $block.',
+      few: 'Potwierdzona, $confirmations potwierdzenia · blok $block.',
+      one: 'Potwierdzona, $confirmations potwierdzenie · blok $block.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskKitNoAnswerSince(String time) {
+    return 'Brak odpowiedzi od $time';
+  }
 }

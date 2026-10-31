@@ -47,5 +47,6 @@
   "deskRecvSwitchLabel": "{title}, приём",
   "deskRecvTorOffTitle": "Link · Tor требует Tor.",
   "deskRecvTorOffText": "Адрес Tor работает, пока включён Tor. Tor — переключатель в Настройки › Приватность; он направляет соединения кошелька через Tor.",
-  "deskRecvHttpIntroInternet": "Для кошельков в интернете, пока этот кошелёк открыт."
+  "deskRecvHttpIntroInternet": "Для кошельков в интернете, пока этот кошелёк открыт.",
+  "deskRecvHeaderTip": "Приём: {methods}"
 }

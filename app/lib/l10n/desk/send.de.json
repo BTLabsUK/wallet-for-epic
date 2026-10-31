@@ -73,7 +73,7 @@
   "deskSendEpicboxTurnOn": "Epicbox-Empfang einschalten",
   "deskSendDoneViaDirect": "Abgeschlossen und an das Netzwerk gesendet.",
   "deskSendDoneViaEpicbox": "An Epicbox übergeben. Wird abgeschlossen, sobald der Empfänger antwortet.",
-  "deskSendViewTx": "Zahlung anzeigen",
+  "deskSendViewTx": "In Aktivität anzeigen",
   "deskSendFailedTitle": "Senden fehlgeschlagen",
   "deskSendReviewAgain": "Erneut prüfen",
   "deskSendMethodHeader": "Zahlungsart",
@@ -159,5 +159,6 @@
   "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie.",
   "deskSendRelayUnknownTitle": "Unbekannter Epicbox-Server",
   "deskSendRelayUnknownText": "{relay} ist der App nicht bekannt. Prüfen Sie die Adresse, bevor Sie senden. Sie können trotzdem senden.",
-  "deskSendContactNoLink": "{name} hat keine Link-Adresse."
+  "deskSendContactNoLink": "{name} hat keine Link-Adresse.",
+  "deskSendHintNeedsMethod": "Prüfen braucht {method}"
 }

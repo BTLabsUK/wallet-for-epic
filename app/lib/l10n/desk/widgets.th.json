@@ -120,5 +120,6 @@
   "deskKitQrHide": "ซ่อน QR",
   "deskKitQrHideCode": "ซ่อน QR",
   "deskKitMethodConnected": "เชื่อมต่อแล้ว",
-  "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor"
+  "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor",
+  "deskKitNoAnswerSince": "ไม่ตอบตั้งแต่ {time}"
 }

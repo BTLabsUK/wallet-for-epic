@@ -15,23 +15,21 @@
   "@deskSetAboutOpen": {
     "description": "Small button on a link row of Settings › About: open the link in the browser."
   },
-  "deskSetAboutVersion": "Version  {version}",
+  "deskSetAboutVersion": "Version {version}",
   "@deskSetAboutVersion": {
-    "description": "Settings › About: the app's version, e.g. 'Version  26.10.2 · core 0.1.0'. Two spaces before the value, as in the English.",
+    "description": "About: the app version row as one sentence for a screen reader (LD-004); the label and value are laid out as two columns.",
     "placeholders": {
       "version": {
-        "type": "String",
-        "example": "26.10.2 · core 0.1.0"
+        "type": "String"
       }
     }
   },
-  "deskSetAboutNode": "Node  {version}",
+  "deskSetAboutNode": "Node {version}",
   "@deskSetAboutNode": {
-    "description": "Settings › About: the version of the Epic node the wallet uses, or '-'. Two spaces before the value, as in the English.",
+    "description": "About: the node version row as one sentence for a screen reader (LD-004).",
     "placeholders": {
       "version": {
-        "type": "String",
-        "example": "3.6.0"
+        "type": "String"
       }
     }
   },
@@ -135,5 +133,13 @@
   "deskSetAboutDownloadPage": "Download page",
   "@deskSetAboutDownloadPage": {
     "description": "Settings › About › Updates: row title of the public download page's address, with Open and a copy button."
+  },
+  "deskSetAboutVersionLabel": "Version",
+  "@deskSetAboutVersionLabel": {
+    "description": "About: label column of the app version row (LD-004)."
+  },
+  "deskSetAboutNodeLabel": "Node",
+  "@deskSetAboutNodeLabel": {
+    "description": "About: label column of the node version row (LD-004)."
   }
 }

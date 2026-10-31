@@ -48,15 +48,30 @@ class EShortAddress extends StatelessWidget {
   }
 }
 
-/// An address in full where a detail view shows it (never cut): the checked part in
-/// fixed chunks of [chunk] characters, one per line, its first and last six in the accent as
-/// on Receive; a server part ("@epicbox.example.org") whole on its own line.
+/// An address in full where a detail view shows it (never cut): the checked part in chunks
+/// of as many characters as the column holds (measured from the mono style; [chunk] caps
+/// it), one per line, its first and last six in the accent as on Receive; a server part
+/// ("@epicbox.example.org") whole on its own line. No line holds fewer than six characters:
+/// the chunk shrinks until the last line has them (UD-001).
 class EFullAddress extends StatelessWidget {
   const EFullAddress(this.address, {super.key, this.chunk = 26, this.size});
 
   final String address;
+
+  /// The most characters on a line; the column's width may give fewer.
   final int chunk;
   final double? size;
+
+  /// The characters per line for [key] in a column [width] wide where one glyph is
+  /// [glyph] wide: the most that fit (at most [max]), reduced until the last line
+  /// holds at least six (or every line, when the key is short).
+  static int chunkFor(int keyLength, double width, double glyph, int max) {
+    var n = glyph <= 0 || !width.isFinite ? max : (width / glyph).floor().clamp(6, max);
+    while (n > 6 && keyLength > n && keyLength % n != 0 && keyLength % n < 6) {
+      n--;
+    }
+    return n;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,22 +80,32 @@ class EFullAddress extends StatelessWidget {
     final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
     final (key, rest) = splitAddress(address);
     final mark = key.length > 14 && !key.toLowerCase().startsWith('http');
-    final spans = <TextSpan>[];
-    var i = 0;
-    while (i < key.length) {
-      // The next stop: a chunk's end or the edge of a highlighted end.
-      final stops = [((i ~/ chunk) + 1) * chunk, if (mark && i < 6) 6, if (mark && i < key.length - 6) key.length - 6, key.length];
-      final end = stops.reduce((a, b) => a < b ? a : b);
-      final lit = mark && (i < 6 || i >= key.length - 6);
-      spans.add(TextSpan(text: key.substring(i, end), style: lit ? hl : null));
-      i = end;
-      if (i < key.length && i % chunk == 0) spans.add(const TextSpan(text: '\n'));
-    }
-    if (rest.isNotEmpty) spans.add(TextSpan(text: rest.startsWith('@') ? '\n$rest' : rest, style: base.copyWith(color: c.dim)));
-    return Semantics(
-      label: address,
-      excludeSemantics: true,
-      child: Text.rich(TextSpan(style: base, children: spans), softWrap: true),
+    final scaler = MediaQuery.textScalerOf(context);
+    final dir = Directionality.of(context);
+    return LayoutBuilder(
+      builder: (context, box) {
+        final tp = TextPainter(text: TextSpan(text: '0', style: base), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+        final glyph = tp.width;
+        tp.dispose();
+        final n = chunkFor(key.length, box.maxWidth - _drawSlack, glyph, chunk);
+        final spans = <TextSpan>[];
+        var i = 0;
+        while (i < key.length) {
+          // The next stop: a chunk's end or the edge of a highlighted end.
+          final stops = [((i ~/ n) + 1) * n, if (mark && i < 6) 6, if (mark && i < key.length - 6) key.length - 6, key.length];
+          final end = stops.reduce((a, b) => a < b ? a : b);
+          final lit = mark && (i < 6 || i >= key.length - 6);
+          spans.add(TextSpan(text: key.substring(i, end), style: lit ? hl : null));
+          i = end;
+          if (i < key.length && i % n == 0) spans.add(const TextSpan(text: '\n'));
+        }
+        if (rest.isNotEmpty) spans.add(TextSpan(text: rest.startsWith('@') ? '\n$rest' : rest, style: base.copyWith(color: c.dim)));
+        return Semantics(
+          label: address,
+          excludeSemantics: true,
+          child: Text.rich(TextSpan(style: base, children: spans), softWrap: true),
+        );
+      },
     );
   }
 }
@@ -141,7 +166,11 @@ class EKindTag extends StatelessWidget {
 /// goes. Nothing wraps. A contact with several [addresses] shows its default one short, then
 /// their kind tags; a row too narrow for both shows the tags alone.
 class EAddressLines extends StatelessWidget {
-  const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.addressStyle});
+  const EAddressLines({super.key, required this.name, required this.address, this.addresses, this.note, this.nameTrailing, this.addressStyle, this.full = false});
+
+  /// The contact list's row (UD-029): the kind badge with its short name beside the glyph,
+  /// as on the phone, and the note as a third line instead of after the address.
+  final bool full;
 
   final String name;
   final String address;
@@ -169,12 +198,26 @@ class EAddressLines extends StatelessWidget {
             Flexible(child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ?nameTrailing,
             // A contact with no address (paired only) has no kind to tag.
-            if (address.trim().isNotEmpty && !several) ...[SizedBox(width: Sp.x2), EKindTag(addressKindOf(address), compact: true)],
+            if (address.trim().isNotEmpty && !several) ...[SizedBox(width: Sp.x2), EKindTag(addressKindOf(address), compact: !full)],
           ],
         ),
         const SizedBox(height: 2),
         LayoutBuilder(
           builder: (context, box) {
+            if (full) {
+              // The address (its tags when several), then the note as its own line.
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (several)
+                    Row(children: [for (final a in addresses!) ...[EKindTag(addressKindOf(a), compact: false), SizedBox(width: Sp.x1)]])
+                  else if (address.trim().isNotEmpty)
+                    EShortAddress(address, style: aStyle),
+                  if (n.isNotEmpty) ...[const SizedBox(height: 2), Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)],
+                ],
+              );
+            }
             if (address.trim().isEmpty) return Text(n, style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis);
             if (several) {
               // The default address, short, before the tags when the row has room for both
@@ -191,9 +234,9 @@ class EAddressLines extends StatelessWidget {
             }
             if (n.isEmpty) return EShortAddress(address, style: aStyle);
             final noteMin = _width(context, ' · ${n.length > 12 ? n.substring(0, 12) : n}', nStyle);
-            final full = shortAddressWidth(context, address, aStyle);
+            final fullW = shortAddressWidth(context, address, aStyle);
             final compact = _width(context, shortAddress(address, compact: true), aStyle) + 1;
-            final double? w = full + noteMin <= box.maxWidth ? full : (compact + noteMin <= box.maxWidth ? compact : null);
+            final double? w = fullW + noteMin <= box.maxWidth ? fullW : (compact + noteMin <= box.maxWidth ? compact : null);
             if (w == null) return EShortAddress(address, style: aStyle);
             return Row(
               children: [

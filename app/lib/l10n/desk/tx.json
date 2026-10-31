@@ -586,5 +586,17 @@
   "deskTxLess": "Less",
   "@deskTxLess": {
     "description": "The same link while the technical rows are shown: hides them again."
+  },
+  "deskTxNowConfirmedBlock": "{confirmations, plural, one{Confirmed, {confirmations} confirmation · block {block}.} other{Confirmed, {confirmations} confirmations · block {block}.}}",
+  "@deskTxNowConfirmedBlock": {
+    "description": "Detail notice of a confirmed payment with its block known: confirmations and block, as the phone says both (UD-028). {block} is the grouped height.",
+    "placeholders": {
+      "confirmations": {
+        "type": "int"
+      },
+      "block": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -267,5 +267,14 @@
   "deskRecvHttpIntroInternet": "For wallets on the internet, while this wallet is open.",
   "@deskRecvHttpIntroInternet": {
     "description": "Receive › Link · HTTP: line under the address when the HTTP listener is reachable from the internet (Settings › Transactions › From the internet)."
+  },
+  "deskRecvHeaderTip": "Receiving: {methods}",
+  "@deskRecvHeaderTip": {
+    "description": "Tooltip of the Receive header's method glyphs: the methods receiving now, joined with ' · ' (UD-015).",
+    "placeholders": {
+      "methods": {
+        "type": "String"
+      }
+    }
   }
 }

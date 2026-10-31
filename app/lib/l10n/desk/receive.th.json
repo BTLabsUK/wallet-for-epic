@@ -47,5 +47,6 @@
   "deskRecvSwitchLabel": "{title}, การรับเงิน",
   "deskRecvTorOffTitle": "Link · Tor ต้องใช้ Tor",
   "deskRecvTorOffText": "ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › ความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor",
-  "deskRecvHttpIntroInternet": "สำหรับกระเป๋าเงินบนอินเทอร์เน็ต ขณะที่กระเป๋าเงินนี้เปิดอยู่"
+  "deskRecvHttpIntroInternet": "สำหรับกระเป๋าเงินบนอินเทอร์เน็ต ขณะที่กระเป๋าเงินนี้เปิดอยู่",
+  "deskRecvHeaderTip": "การรับเงิน: {methods}"
 }

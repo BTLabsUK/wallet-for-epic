@@ -3,8 +3,8 @@
   "deskSetAboutLicenceApp": "Epic Cash Desktop，BT Labs 出品：Apache-2.0。",
   "deskSetAboutBrowserNotOpened": "未能打开浏览器",
   "deskSetAboutOpen": "打开",
-  "deskSetAboutVersion": "版本  {version}",
-  "deskSetAboutNode": "节点  {version}",
+  "deskSetAboutVersion": "版本 {version}",
+  "deskSetAboutNode": "节点 {version}",
   "deskSetAboutLicences": "许可证",
   "deskSetAboutSource": "源代码",
   "deskSetAboutView": "查看",
@@ -21,5 +21,7 @@
   "deskSetAboutCopyLink": "复制链接",
   "deskSetAboutCopied": "已复制",
   "deskSetAboutNotCopied": "未复制",
-  "deskSetAboutDownloadPage": "下载页面"
+  "deskSetAboutDownloadPage": "下载页面",
+  "deskSetAboutVersionLabel": "版本",
+  "deskSetAboutNodeLabel": "节点"
 }
