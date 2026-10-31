@@ -52,9 +52,6 @@ const String _onion = '$_name.onion';
 const String _https = 'https://wallet.example.com:3415';
 const String _lan = 'http://10.0.1.24:3415';
 
-/// A valid onion (the ed25519 key 00 01 02 … 1f): a payment proof can be asked of its wallet.
-const String _proofOnion = 'aaaqeayeaudaocajbifqydiob4ibceqtcqkrmfyydenbwha5dyp3kead.onion';
-
 const TorBundle _bundle = TorBundle(binary: '/data/app/lib/arm64/libtor.so');
 
 WalletSummary _summary() => WalletSummary(
@@ -129,7 +126,6 @@ class _DirectSession extends FakeWalletSession {
     required bool allowPlainHttp,
     String? message,
     SendOptions? options,
-    String? proofAddress,
   }) async {
     final sent = await super.sendHttp(
       amount: amount,
@@ -941,24 +937,6 @@ void main() {
       expect(find.text('Review'), findsOneWidget);
 
       await _tap(tester, find.text('Send 1.00000000 EPIC'));
-      await _tap(tester, find.text('Send anyway'));
-      expect(h.session.httpSends.single.allowPlainHttp, isTrue);
-    });
-
-    // The send to a contact whose onion is known asks the receiver's wallet for a payment
-    // proof; the review says nothing about it (the owner: no new small print on payment screens).
-    testWidgets('a contact with a known onion: the proof is asked, nothing is said', (tester) async {
-      final h = _Harness();
-      await h.session.saveContact(
-        contact: Contact(id: '', name: 'Alice', address: _bob, http: _lan, tor: _proofOnion, note: null),
-      );
-      await h.pump(tester, payments: _directOn);
-      await h.toReview(tester, _lan);
-      expect(find.textContaining('Payment proof'), findsNothing);
-      expect(find.textContaining('Safer address'), findsNothing);
-      expect(find.text('Not encrypted (plain HTTP)'), findsOneWidget);
-      await _tap(tester, find.text('Send 1.00000000 EPIC'));
-      expect(find.text('Not encrypted. Send anyway?'), findsOneWidget);
       await _tap(tester, find.text('Send anyway'));
       expect(h.session.httpSends.single.allowPlainHttp, isTrue);
     });
