@@ -171,6 +171,7 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
     EnableFullDpiSupportIfAvailable(window);
     that->window_handle_ = window;
   } else if (Win32Window* that = GetThisFromHandle(window)) {
+    that->TrackPlacement(window, message, wparam);
     return that->MessageHandler(window, message, wparam, lparam);
   }
 
@@ -184,8 +185,6 @@ Win32Window::MessageHandler(HWND hwnd,
                             LPARAM const lparam) noexcept {
   switch (message) {
     case WM_DESTROY:
-      // Also saved as it changes: Quit (Ctrl+Q) ends the process without a WM_DESTROY.
-      SaveWindowPlacement(hwnd, normal_frame_);
       window_handle_ = nullptr;
       Destroy();
       if (quit_on_close_) {
@@ -203,29 +202,7 @@ Win32Window::MessageHandler(HWND hwnd,
 
       return 0;
     }
-    case WM_ENTERSIZEMOVE:
-      in_size_move_ = true;
-      break;
-
-    case WM_EXITSIZEMOVE:
-      in_size_move_ = false;
-      SaveWindowPlacement(hwnd, normal_frame_);
-      break;
-
-    case WM_MOVE:
-      if (!IsZoomed(hwnd) && !IsIconic(hwnd)) {
-        GetWindowRect(hwnd, &normal_frame_);
-      }
-      break;
-
     case WM_SIZE: {
-      if (wparam == SIZE_RESTORED) {
-        GetWindowRect(hwnd, &normal_frame_);
-      }
-      // Maximise, restore, snap: saved at once, while visible (not during Create).
-      if (!in_size_move_ && wparam != SIZE_MINIMIZED && IsWindowVisible(hwnd)) {
-        SaveWindowPlacement(hwnd, normal_frame_);
-      }
       RECT rect = GetClientArea();
       if (child_content_ != nullptr) {
         // Size and position the child window.
@@ -258,6 +235,47 @@ void Win32Window::Destroy() {
   }
   if (g_active_window_count == 0) {
     WindowClassRegistrar::GetInstance()->UnregisterWindowClass();
+  }
+}
+
+void Win32Window::TrackPlacement(HWND hwnd,
+                                 UINT const message,
+                                 WPARAM const wparam) noexcept {
+  // Saved as it changes, never only at the end: closing the app (the title bar's close, Quit)
+  // ends the process from Dart (exit) without a WM_DESTROY.
+  switch (message) {
+    case WM_DESTROY:
+      SaveWindowPlacement(hwnd, normal_frame_);
+      break;
+
+    case WM_ENTERSIZEMOVE:
+      in_size_move_ = true;
+      break;
+
+    case WM_EXITSIZEMOVE:
+      in_size_move_ = false;
+      SaveWindowPlacement(hwnd, normal_frame_);
+      break;
+
+    case WM_MOVE:
+      if (!IsZoomed(hwnd) && !IsIconic(hwnd)) {
+        GetWindowRect(hwnd, &normal_frame_);
+        // Moved by keys (Win+Shift+arrow) or by the app: saved at once.
+        if (!in_size_move_ && IsWindowVisible(hwnd)) {
+          SaveWindowPlacement(hwnd, normal_frame_);
+        }
+      }
+      break;
+
+    case WM_SIZE:
+      if (wparam == SIZE_RESTORED) {
+        GetWindowRect(hwnd, &normal_frame_);
+      }
+      // Maximise, restore, snap: saved at once, while visible (not during Create).
+      if (!in_size_move_ && wparam != SIZE_MINIMIZED && IsWindowVisible(hwnd)) {
+        SaveWindowPlacement(hwnd, normal_frame_);
+      }
+      break;
   }
 }
 
