@@ -15,7 +15,9 @@ import 'package:flutter/material.dart';
 
 import '../l10n.dart';
 import '../tor_build.dart';
+import 'history_screen.dart' show FadingRow;
 import 'method_icons.dart';
+import 'theme/advanced.dart' show AdvancedOptions;
 import 'theme/tokens.dart';
 
 /// Which handshake the sheet shows.
@@ -366,40 +368,37 @@ class _HandshakeSheetState extends State<HandshakeSheet>
               child: Text(l.sendHowItWorks, style: theme.textTheme.titleLarge),
             ),
             const SizedBox(height: 16),
-            SegmentedButton<HandshakeFlow>(
-              segments: [
-                // One tab per way to pay; the QR tab tells the side it was opened from.
-                for (final (flow, label) in [
+            // One chip per way to pay, in a row that scrolls, every label the same size
+            // (UP-009); the QR chip tells the side it was opened from. Invoice only while
+            // the Invoices switch is on. The chosen flow is a neutral fill with the text
+            // colour: gold is the brand and the primary action, never a selection.
+            FadingRow(
+              children: [
+                for (final (i, (flow, label)) in [
                   (HandshakeFlow.payment, MethodIcons.shortName(l, MethodKind.epicbox)),
-                  (HandshakeFlow.request, l.handshakeRequest),
+                  if (AdvancedOptions.of(context).invoicesOn)
+                    (HandshakeFlow.request, l.handshakeRequest),
                   (HandshakeFlow.direct, MethodIcons.familyName(l, MethodFamily.link)),
                   (_qrFlow, MethodIcons.shortName(l, MethodKind.directQr)),
                   (HandshakeFlow.file, MethodIcons.shortName(l, MethodKind.directFile)),
-                ])
-                  ButtonSegment(
-                    value: flow,
-                    label: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(label, maxLines: 1),
+                ].indexed) ...[
+                  if (i > 0) const SizedBox(width: 8),
+                  ChoiceChip(
+                    label: Text(label),
+                    labelStyle: theme.textTheme.labelLarge?.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: _flow == flow ? t.text : t.dim,
                     ),
+                    selected: _flow == flow,
+                    showCheckmark: false,
+                    backgroundColor: t.surface,
+                    selectedColor: t.selected,
+                    side: BorderSide(color: _flow == flow ? t.lineStrong : t.line),
+                    onSelected: (_) => _switch(flow),
                   ),
+                ],
               ],
-              selected: {_flow},
-              showSelectedIcon: false,
-              // The chosen flow is a neutral fill with the text colour: gold is the brand
-              // and the primary action, never a selection.
-              style: SegmentedButton.styleFrom(
-                backgroundColor: t.surface,
-                foregroundColor: t.dim,
-                selectedBackgroundColor: t.selected,
-                selectedForegroundColor: t.text,
-                side: BorderSide(color: t.lineStrong),
-                textStyle: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              expandedInsets: EdgeInsets.zero,
-              onSelectionChanged: (selected) => _switch(selected.first),
             ),
             const SizedBox(height: 16),
             // The picture says what the caption says; screen readers get the caption.

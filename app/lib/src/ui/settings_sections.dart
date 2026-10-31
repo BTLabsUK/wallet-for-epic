@@ -1831,8 +1831,10 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
               const SizedBox(height: 12),
             ],
             Text(l.settingsDeleteBody),
+            // The box first, as every consent in the app (UP-010).
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
               value: _understood,
               onChanged: (value) =>
                   setState(() => _understood = value ?? false),

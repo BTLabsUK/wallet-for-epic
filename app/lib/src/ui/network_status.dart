@@ -239,6 +239,10 @@ class _StatusRow extends StatelessWidget {
     final l = context.l10n;
     final theme = Theme.of(context);
     final tor = torWayWords(l, t, torWay);
+    // While Tor starts (or failed) the route is not up yet: one state on the row, "Waiting
+    // for Tor", never "Synced" over it (UP-014); "Over Tor" is a line under the state.
+    final torOnly = tor != null && torWay != TorWay.overTor;
+    final dot = torOnly ? (torWay == TorWay.wait ? StatusDot.busy : StatusDot.bad) : netFaceDot(t, face);
     return Semantics(
       button: true,
       liveRegion: true,
@@ -246,7 +250,7 @@ class _StatusRow extends StatelessWidget {
         spoken ?? title,
         if (host.isNotEmpty) host,
         ?note,
-        face.word,
+        if (!torOnly) face.word,
         if (torWay == TorWay.overTor) l.netStatusOverTor else ?tor?.word,
       ].join(', '),
       hint: [?tor?.detail, detail ?? l.netStatusOpenHint].join('\n'),
@@ -273,7 +277,7 @@ class _StatusRow extends StatelessWidget {
                     child: StatusGlyph(
                       icon: glyph,
                       enabled: face.level != SignalLevel.none,
-                      dot: netFaceDot(t, face),
+                      dot: dot,
                       ring: t.surface,
                     ),
                   ),
@@ -342,6 +346,22 @@ class _StatusRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (torOnly)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(torIcon, size: 14, color: tor.color),
+                              const SizedBox(width: 4),
+                              Text(
+                                tor.word,
+                                maxLines: 1,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: tor.color,
+                                ),
+                              ),
+                            ],
+                          )
+                        else
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 150),
                           child: Text(
@@ -355,7 +375,7 @@ class _StatusRow extends StatelessWidget {
                           ),
                         ),
                         // Short in every language: it keeps its width.
-                        if (tor != null)
+                        if (tor != null && !torOnly)
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
