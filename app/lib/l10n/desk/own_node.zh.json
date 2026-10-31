@@ -31,7 +31,7 @@
   "deskOwnDlgFileRead": "已从 {file} 读取",
   "deskOwnDlgFileEmpty": "该文件中没有密钥",
   "deskOwnDlgPlainTitle": "密钥会在家庭网络中未加密传输",
-  "deskOwnDlgPlainText": "如果网络只有你在用，这没有问题。其他情况下，请通过 VPN、https 连接节点，或在节点的电脑上运行钱包。",
+  "deskOwnDlgPlainText": "在共享网络上，请通过 VPN 或 https 连接节点，或在节点的电脑上运行钱包。",
   "deskOwnDlgPlainAgain": "此节点不再提示",
   "deskOwnDlgRefused": "节点拒绝了此密钥",
   "deskOwnDlgNoAnswer": "节点没有响应；密钥已保留",

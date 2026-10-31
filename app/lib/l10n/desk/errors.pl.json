@@ -56,7 +56,7 @@
   "deskErrAlreadyInApp": "Już jest w aplikacji jako {name}",
   "deskErrWrongOldPassword": "Nieprawidłowe stare hasło",
   "deskErrListNotSaved": "Nie zapisano listy portfeli",
-  "deskErrProofSeedRead": "Odczytano seed",
+  "deskErrProofSeedRead": "Odczytano frazę odzyskiwania",
   "deskErrProofWalletCreated": "Utworzono portfel",
   "deskErrProofContacts": "{count, plural, one{Dodano {count} kontakt} few{Dodano {count} kontakty} many{Dodano {count} kontaktów} other{Dodano {count} kontaktu}}",
   "deskErrProofContactsMerged": "{count, plural, one{Scalono {count} kontakt z istniejącym} few{Scalono {count} kontakty z istniejącymi} many{Scalono {count} kontaktów z istniejącymi} other{Scalono {count} kontaktu z istniejącymi}}",

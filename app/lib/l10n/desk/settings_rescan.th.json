@@ -26,7 +26,7 @@
   "deskSetRescanAfter": "ยอดหลัง",
   "deskSetRescanFound": "เอาต์พุตที่พบ",
   "deskSetRescanRestored": "กู้คืน",
-  "deskSetRescanRevived": "กลับมาใช้ได้",
+  "deskSetRescanRevived": "ปลดล็อกอีกครั้ง",
   "deskSetRescanUnlocked": "ปลดล็อก",
   "deskSetRescanDeleted": "ลบ"
 }

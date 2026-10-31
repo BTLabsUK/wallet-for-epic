@@ -85,7 +85,7 @@
   "@deskSetReportFullDetails": {
     "description": "Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened."
   },
-  "deskSetReportFullDetailsInfo": "Sends addresses and amounts as they are instead of shortened. Seeds, keys and passwords are never sent.",
+  "deskSetReportFullDetailsInfo": "Sends addresses and amounts in full instead of shortened. Recovery phrases, keys and passwords are never sent.",
   "@deskSetReportFullDetailsInfo": {
     "description": "Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and that seeds, keys and passwords are never in the report."
   },

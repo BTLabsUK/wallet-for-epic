@@ -18,7 +18,7 @@
   "deskSetReportAttach": "Dołącz logi",
   "deskSetReportAttachHint": "Najnowsza część logu aplikacji, bez frazy odzyskiwania, hasła i innych poufnych danych.",
   "deskSetReportFullDetails": "Dołącz pełne szczegóły",
-  "deskSetReportFullDetailsInfo": "Wysyła adresy i kwoty w całości zamiast skróconych. Frazy, klucze i hasła nigdy nie są wysyłane.",
+  "deskSetReportFullDetailsInfo": "Wysyła adresy i kwoty w całości zamiast skróconych. Frazy odzyskiwania, klucze i hasła nigdy nie są wysyłane.",
   "deskSetReportPartFullDetails": "Pełne szczegóły",
   "deskSetReportSentWhat": "Co zostanie wysłane",
   "deskSetReportNotSentTitle": "Nie wysłano",

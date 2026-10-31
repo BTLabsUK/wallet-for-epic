@@ -167,7 +167,7 @@
   "@deskSetBackupFileNote": {
     "description": "Export history dialog: note under the list."
   },
-  "deskSetBackupExportDesc": "Holds this wallet’s payment history, contacts, invoices and settings, up to now. To restore: enter the recovery phrase first, then import this file.",
+  "deskSetBackupExportDesc": "A file with this wallet’s payment history, contacts, invoices and settings.",
   "@deskSetBackupExportDesc": {
     "description": "Export history dialog: description under the title."
   },

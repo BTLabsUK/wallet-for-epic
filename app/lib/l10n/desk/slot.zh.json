@@ -18,5 +18,6 @@
   "deskSlotOpenRecheck": "打开重新核对余额",
   "deskSlotOpenSend": "打开发送",
   "deskSlotOpenActivity": "在活动中打开",
-  "deskSlotOpenInvoices": "打开账单"
+  "deskSlotOpenInvoices": "打开账单",
+  "deskSlotNotPosted": "付款不在网络上"
 }

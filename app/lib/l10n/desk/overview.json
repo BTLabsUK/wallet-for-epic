@@ -11,17 +11,13 @@
   "@deskOvNodeAddrTitle": {
     "description": "Title of a notice on Overview: the saved node address was corrected."
   },
-  "deskOvNodeAddrText": "Now using {node} instead of {old}.",
+  "deskOvNodeAddrText": "Saved as {node}.",
   "@deskOvNodeAddrText": {
     "description": "Text of the notice about the corrected node address. The addresses stay as written.",
     "placeholders": {
       "node": {
         "type": "String",
         "example": "node.example.org"
-      },
-      "old": {
-        "type": "String",
-        "example": "node.example.org:<port>"
       }
     }
   },
@@ -61,7 +57,7 @@
       }
     }
   },
-  "deskOvCantReachNodeText": "Check that it is running and reachable. Balances may be out of date and sending is paused.",
+  "deskOvCantReachNodeText": "Balances may be out of date. Check the node, or choose another in Node settings.",
   "@deskOvCantReachNodeText": {
     "description": "Text of the notice that the node does not answer."
   },
@@ -149,7 +145,7 @@
       }
     }
   },
-  "deskOvSyncText": "Downloading blocks. Sending resumes when the node is synced.",
+  "deskOvSyncText": "Downloading blocks.",
   "@deskOvSyncText": {
     "description": "Text of the node-syncing notice."
   },
@@ -217,7 +213,7 @@
   "@deskOvBreakConfirming": {
     "description": "Label of a balance cell on Overview: money still waiting for confirmations. Narrow cell."
   },
-  "deskOvBreakImmature": "Immature",
+  "deskOvBreakImmature": "Mining rewards",
   "@deskOvBreakImmature": {
     "description": "Label of a balance cell on Overview: mining rewards not yet spendable. Narrow cell."
   },

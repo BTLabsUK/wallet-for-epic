@@ -61,7 +61,7 @@
       }
     }
   },
-  "deskOutSplitSpendsFee": "{count, plural, one{Spends {count} output. Fee from {fee} EPIC.} other{Spends {count} outputs. Fee from {fee} EPIC.}}",
+  "deskOutSplitSpendsFee": "{count, plural, one{Spends {count} output. Fee at least {fee} EPIC.} other{Spends {count} outputs. Fee at least {fee} EPIC.}}",
   "@deskOutSplitSpendsFee": {
     "description": "Note on the Split card: how many outputs a split would spend and the lowest fee.",
     "placeholders": {
@@ -203,7 +203,7 @@
   "@deskOutTileConfirming": {
     "description": "Label of a balance tile on Outputs: money waiting for confirmations. Narrow tile."
   },
-  "deskOutTileImmature": "Immature",
+  "deskOutTileImmature": "Mining rewards",
   "@deskOutTileImmature": {
     "description": "Label of a balance tile on Outputs: mining rewards not yet spendable. Narrow tile."
   },
@@ -223,7 +223,7 @@
   "@deskOutStrategyTitle": {
     "description": "Setting title in the Defaults panel: which outputs a send spends."
   },
-  "deskOutStrategyHint": "Which outputs a send spends. Smallest spends the fewest small outputs and leaves the rest spendable; All spends everything and returns one output. Send can change it for one send under Advanced.",
+  "deskOutStrategyHint": "Which outputs a send spends. Smallest spends the smallest outputs that cover the amount; All spends every output and returns one.",
   "@deskOutStrategyHint": {
     "description": "Hover card behind the info icon of the Strategy for sends row (its title is deskOutStrategyHelpTitle)."
   },
@@ -293,7 +293,7 @@
       }
     }
   },
-  "deskOutStatusAwaiting": "Awaiting finalization",
+  "deskOutStatusAwaiting": "Waiting for the response",
   "@deskOutStatusAwaiting": {
     "description": "Status of an output of a payment still waiting to be finalized. Narrow status column."
   },
@@ -309,11 +309,11 @@
   "@deskOutNoteNotInBalance": {
     "description": "Small grey note after the status 'Unpaid invoice'. Lower case."
   },
-  "deskOutStatusImmature": "Immature",
+  "deskOutStatusImmature": "Maturing",
   "@deskOutStatusImmature": {
     "description": "Status of a mining reward output that cannot be spent yet. Narrow status column."
   },
-  "deskOutNoteBlocksToGo": "{count, plural, one{{number} block to go} other{{number} blocks to go}}",
+  "deskOutNoteBlocksToGo": "{count, plural, one{{number} confirmation to go} other{{number} confirmations to go}}",
   "@deskOutNoteBlocksToGo": {
     "description": "Small grey note after the status 'Immature': blocks until it can be spent. number is the count with thousands separators.",
     "placeholders": {
@@ -547,7 +547,7 @@
   "@deskOutSplitPosted": {
     "description": "Title of the green notice in the Split dialog when it worked."
   },
-  "deskOutConsPosted": "Consolidate posted",
+  "deskOutConsPosted": "Consolidation posted",
   "@deskOutConsPosted": {
     "description": "Title of the green notice in the Consolidate dialog when it worked."
   },
@@ -686,5 +686,9 @@
   },
   "@deskOutDefaultsOpen": {
     "description": "Inline button after deskOutDefaultsMoved: opens Settings › Transactions."
+  },
+  "deskOutNoteWaitingRecipient": "waiting for the recipient",
+  "@deskOutNoteWaitingRecipient": {
+    "description": "Small grey note after the status 'Waiting for the response' on an output of a send. Lower case."
   }
 }

@@ -9,7 +9,7 @@
   "deskSetRecvAutostart": "เริ่มพร้อมกระเป๋าเงิน",
   "deskSetRecvAutostartHint": "เปิดเมื่อปลดล็อก",
   "deskSetRecvMethodAutostart": "{method}: เริ่มพร้อมกระเป๋าเงิน",
-  "deskSetRecvEpicboxText": "รายการเข้าผ่านเซิร์ฟเวอร์ Epicbox แม้ตอนกระเป๋าเงินปิดอยู่",
+  "deskSetRecvEpicboxText": "เซิร์ฟเวอร์ Epicbox เก็บรายการไว้จนกว่ากระเป๋าเงินจะเปิด",
   "deskSetRecvEpicboxServer": "เซิร์ฟเวอร์ Epicbox",
   "deskSetRecvEpicboxServerHint": "เซิร์ฟเวอร์ที่เก็บรายการของที่อยู่นี้ สองกระเป๋าเงินใช้เซิร์ฟเวอร์ต่างกันได้",
   "deskSetRecvEpicboxOwnHint": "กระเป๋าเงินนี้มีเซิร์ฟเวอร์ Epicbox ของตัวเองที่เก็บไว้จากแอปเดิม การเปลี่ยนที่นี่มีผลกับกระเป๋าเงินนี้เท่านั้น",

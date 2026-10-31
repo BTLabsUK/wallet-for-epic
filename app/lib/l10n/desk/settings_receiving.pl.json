@@ -9,7 +9,7 @@
   "deskSetRecvAutostart": "Uruchamiaj z portfelem",
   "deskSetRecvAutostartHint": "Włącza się po odblokowaniu.",
   "deskSetRecvMethodAutostart": "{method}: uruchamiaj z portfelem",
-  "deskSetRecvEpicboxText": "Płatności docierają przez serwer Epicbox, także gdy portfel jest zamknięty.",
+  "deskSetRecvEpicboxText": "Serwer Epicbox przechowuje płatności, dopóki portfel się nie otworzy.",
   "deskSetRecvEpicboxServer": "Serwer Epicbox",
   "deskSetRecvEpicboxServerHint": "Który serwer przechowuje płatności na ten adres. Oba portfele mogą używać różnych serwerów.",
   "deskSetRecvEpicboxOwnHint": "Ten portfel ma własny serwer Epicbox, zachowany ze starszej aplikacji. Zmiana tutaj dotyczy tylko tego portfela.",

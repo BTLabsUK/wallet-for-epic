@@ -8,7 +8,7 @@
   "deskSetDlgChainOthers": "พบสำเนาอื่นอีก 1 ชุด ชุดนี้ใหม่ที่สุด",
   "deskSetDlgChainInUse": "โปรแกรม Epic อื่นกำลังใช้โฟลเดอร์นี้ ปิดโปรแกรมนั้น แล้วเลือกโหนดในเครื่องอีกครั้งเพื่อใช้ข้อมูลนี้",
   "deskSetDlgChainUseIt": "ใช้ข้อมูลนี้ไหม?",
-  "deskSetDlgChainOlderWallet": "Epic Wallet รุ่นเก่าที่ใช้โฟลเดอร์นี้อาจต้องซิงก์ใหม่หลังจากนี้ เหรียญไม่ได้รับผลกระทบ",
+  "deskSetDlgChainOlderWallet": "Epic Wallet รุ่นเก่าที่ใช้โฟลเดอร์นี้จะซิงก์ใหม่หลังจากนี้",
   "deskSetDlgChainFresh": "ดาวน์โหลดใหม่",
   "deskSetDlgChainUse": "ใช้ข้อมูลนี้",
   "deskSetDlgPwChanged": "เปลี่ยนรหัสผ่านแล้ว",

@@ -224,7 +224,7 @@
   "@deskSendAdvStrategy": {
     "description": "Screen reader label of the group of strategy radio rows on Send."
   },
-  "deskSendAdvSmallestText": "Spends the fewest small outputs; the rest of the balance stays spendable while the change confirms.",
+  "deskSendAdvSmallestText": "Spends the smallest outputs that cover the amount; the rest stays spendable.",
   "@deskSendAdvSmallestText": {
     "description": "Description of the Smallest strategy radio row on Send."
   },
@@ -583,7 +583,7 @@
   "@deskSendHintNeedsTor": {
     "description": "Line under the Review send button when an onion address needs Tor."
   },
-  "deskSendHintFix": "Fix the fields marked in red.",
+  "deskSendHintFix": "Fix the marked fields.",
   "@deskSendHintFix": {
     "description": "Line under the Review send button when the form has errors."
   },
@@ -591,7 +591,7 @@
   "@deskSendHintChecking": {
     "description": "Line under the Review send button while the fee is estimated."
   },
-  "deskSendHintDefault": "Nothing is sent until confirmed.",
+  "deskSendHintDefault": "Nothing is sent before the review.",
   "@deskSendHintDefault": {
     "description": "Line under the Review send button when the form is ready."
   },
@@ -623,7 +623,7 @@
   "@deskSendUpdating": {
     "description": "Caption in the Send summary while the wallet rechecks the balance."
   },
-  "deskSendEpicboxLine1": "The recipient can be offline.",
+  "deskSendEpicboxLine1": "The recipient’s wallet can be closed.",
   "@deskSendEpicboxLine1": {
     "description": "Bold first line under the method selector on Send for the Epicbox method."
   },

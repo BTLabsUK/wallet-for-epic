@@ -107,7 +107,7 @@
   "deskKitChipOverTor": "Przez Tor",
   "deskKitChipStarting": "Tor startuje",
   "deskKitChipNotConnected": "Tor niepołączony",
-  "deskKitChipNotOverTor": "Nie przez Tor",
+  "deskKitChipNotOverTor": "Bez Tora",
   "deskKitPasswordNote": "Szacowane na tym urządzeniu na podstawie długości oraz popularnych słów, imion i wzorców, dla atakującego z szybkim sprzętem, który próbuje 100 000 haseł na sekundę na pliku tego portfela. To wskazówka, nie gwarancja.",
   "deskKitPasswordNoteLabel": "Jak szacowany jest czas",
   "deskKitInfoLabel": "Więcej informacji",

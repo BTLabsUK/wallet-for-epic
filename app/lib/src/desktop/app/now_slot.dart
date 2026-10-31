@@ -142,18 +142,22 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
     final sent = moving.where((m) => m.direction == TxDirection.sent).length;
     final needed = t.confirmationsNeeded <= 0 ? 1 : t.confirmationsNeeded;
     final done = t.state == TxState.posted ? 0 : t.confirmations.clamp(0, needed);
+    // The node refused the payment: the slot says so instead of "on its way".
+    final refused = moving.length == 1 && t.state == TxState.posted && t.notPosted;
     final count = l.deskSlotOf(localInt(l, done), localInt(l, needed));
     items.add(
       NowItem(
         id: 'payment',
         icon: t.direction == TxDirection.sent ? EIcons.send : EIcons.receive,
-        tone: ETone.info,
-        title: moving.length > 1
+        tone: refused ? ETone.warn : ETone.info,
+        title: refused
+            ? l.deskSlotNotPosted
+            : moving.length > 1
             ? (sent == moving.length ? l.deskSlotPaymentsOut : l.deskSlotPaymentsMoving)
             : t.direction == TxDirection.sent
             ? l.deskSlotPaymentOut
             : l.deskSlotPaymentIn,
-        detail: t.state == TxState.posted ? l.deskSlotWaitingBlock : count,
+        detail: refused ? l.deskTxBroadcastAgain : (t.state == TxState.posted ? l.deskSlotWaitingBlock : count),
         progress: done / needed,
         hint: DeskRoute.activity == here ? null : l.deskSlotOpenActivity, onTap: to(DeskRoute.activity, t.id),
       ),

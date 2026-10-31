@@ -18,5 +18,6 @@
   "deskSlotOpenRecheck": "เปิดตรวจยอดใหม่",
   "deskSlotOpenSend": "เปิดส่ง",
   "deskSlotOpenActivity": "เปิดในประวัติ",
-  "deskSlotOpenInvoices": "เปิดใบแจ้งหนี้"
+  "deskSlotOpenInvoices": "เปิดใบแจ้งหนี้",
+  "deskSlotNotPosted": "การชำระเงินไม่อยู่ในเครือข่าย"
 }

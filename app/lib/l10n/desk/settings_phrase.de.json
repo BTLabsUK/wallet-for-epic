@@ -15,7 +15,7 @@
   "deskSetPhraseHidesIn": "Wird in {seconds} s verborgen",
   "deskSetPhraseQrLabel": "QR-Code der Wiederherstellungsphrase",
   "deskSetPhraseBackUp": "Phrase sichern",
-  "deskSetPhraseBackUpText": "Wer diese Wörter hat, kann die EPIC nehmen. Achten Sie darauf, dass niemand den Bildschirm sieht.",
+  "deskSetPhraseBackUpText": "Wer diese Wörter hat, kann die Coins nehmen. Achten Sie darauf, dass niemand den Bildschirm sieht.",
   "deskSetPhraseCopyTitle": "Wiederherstellungsphrase kopieren?",
   "deskSetPhraseCopyText": "Wer diese Wörter hat, kann Ihr Guthaben nehmen. Bewahren Sie die Kopie sicher auf."
 }

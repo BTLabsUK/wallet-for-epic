@@ -107,7 +107,7 @@
   "deskKitChipOverTor": "Über Tor",
   "deskKitChipStarting": "Tor startet",
   "deskKitChipNotConnected": "Tor nicht verbunden",
-  "deskKitChipNotOverTor": "Nicht über Tor",
+  "deskKitChipNotOverTor": "Ohne Tor",
   "deskKitPasswordNote": "Auf diesem Gerät geschätzt, aus der Länge und aus gängigen Wörtern, Namen und Mustern, für einen Angreifer mit schneller Hardware, der 100.000 Versuche pro Sekunde gegen die Datei dieser Wallet probiert. Ein Richtwert, keine Garantie.",
   "deskKitPasswordNoteLabel": "So wird die Zeit geschätzt",
   "deskKitInfoLabel": "Weitere Informationen",

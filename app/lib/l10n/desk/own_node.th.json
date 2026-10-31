@@ -31,7 +31,7 @@
   "deskOwnDlgFileRead": "อ่านจาก {file}",
   "deskOwnDlgFileEmpty": "ไฟล์นี้ไม่มีรหัสลับ",
   "deskOwnDlgPlainTitle": "รหัสลับจะส่งผ่านเครือข่ายในบ้านโดยไม่เข้ารหัส",
-  "deskOwnDlgPlainText": "ใช้ได้บนเครือข่ายที่มีแค่คุณใช้ ที่อื่นให้เชื่อมต่อโหนดผ่าน VPN ผ่าน https หรือใช้กระเป๋าบนคอมพิวเตอร์ของโหนด",
+  "deskOwnDlgPlainText": "บนเครือข่ายที่ใช้ร่วมกัน ให้เชื่อมต่อโหนดผ่าน VPN หรือ https หรือใช้กระเป๋าบนคอมพิวเตอร์ของโหนด",
   "deskOwnDlgPlainAgain": "ไม่ต้องแสดงอีกสำหรับโหนดนี้",
   "deskOwnDlgRefused": "โหนดปฏิเสธรหัสลับนี้",
   "deskOwnDlgNoAnswer": "โหนดไม่ตอบ จึงเก็บรหัสลับไว้",

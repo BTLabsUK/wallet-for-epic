@@ -64,7 +64,7 @@
       }
     }
   },
-  "deskSetRecvEpicboxText": "Payments arrive via the Epicbox server, also while the wallet is closed.",
+  "deskSetRecvEpicboxText": "The Epicbox server holds payments until the wallet opens.",
   "@deskSetRecvEpicboxText": {
     "description": "Settings > Receiving: text of the Epicbox receiving row."
   },

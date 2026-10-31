@@ -56,7 +56,7 @@
   "deskErrAlreadyInApp": "已在应用中，名称为 {name}",
   "deskErrWrongOldPassword": "旧密码错误",
   "deskErrListNotSaved": "钱包列表未保存",
-  "deskErrProofSeedRead": "已读取种子",
+  "deskErrProofSeedRead": "已读取助记词",
   "deskErrProofWalletCreated": "已创建钱包",
   "deskErrProofContacts": "{count, plural, other{已添加 {count} 个联系人}}",
   "deskErrProofContactsMerged": "{count, plural, other{已将 {count} 个联系人与现有联系人合并}}",

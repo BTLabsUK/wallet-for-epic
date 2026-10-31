@@ -21,7 +21,7 @@
   "deskInvPayWaiting": "К оплате",
   "deskInvPayNotDelivered": "Не доставлено",
   "deskInvPayDelivered": "Ждёт отправки",
-  "deskInvPayPosted": "Отправлено сервисом",
+  "deskInvPayPosted": "Опубликовано: {name}",
   "deskInvPayWithdrawnAfterPay": "Отозван после оплаты",
   "deskInvPayPastTtl": "Нет в блокчейне",
   "deskInvPayCancelled": "Отменено",

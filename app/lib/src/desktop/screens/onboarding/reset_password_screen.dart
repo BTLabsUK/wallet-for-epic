@@ -273,14 +273,14 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final bad = e.firstInvalid;
     final complete = e.complete;
     final narrow = MediaQuery.sizeOf(context).width < 760.u;
-    final (String status, Color? tone) = switch (e) {
+    final (String? status, Color? tone) = switch (e) {
       _ when _phraseError != null => (_phraseError!, c.risk),
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
       _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
       _ when complete => (l.deskOnbRestoreAllOk(e.length), c.ok),
       _ when e.checksumOk == false && e.checksumFirm => (l.deskOnbRestoreChecksumFirm, c.risk),
-      _ => (l.deskOnbRestoreStaysHere, null),
+      _ => (null, null),
     };
     return EOnbFrame(
       sideTitle: l.deskOnbForgotTitle,
@@ -305,7 +305,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           SizedBox(height: Sp.x3),
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 20.u),
-            child: Semantics(
+            child: status == null ? null : Semantics(
               liveRegion: true,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

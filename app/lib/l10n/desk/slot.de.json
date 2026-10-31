@@ -18,5 +18,6 @@
   "deskSlotOpenRecheck": "„Guthaben neu prüfen“ öffnen",
   "deskSlotOpenSend": "Senden öffnen",
   "deskSlotOpenActivity": "In Aktivität öffnen",
-  "deskSlotOpenInvoices": "Rechnungen öffnen"
+  "deskSlotOpenInvoices": "Rechnungen öffnen",
+  "deskSlotNotPosted": "Zahlung nicht im Netzwerk"
 }

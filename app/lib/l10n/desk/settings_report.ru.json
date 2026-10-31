@@ -18,7 +18,7 @@
   "deskSetReportAttach": "Приложить журналы",
   "deskSetReportAttachHint": "Последняя часть журнала приложения, без фразы восстановления, пароля и других секретных данных.",
   "deskSetReportFullDetails": "Приложить все подробности",
-  "deskSetReportFullDetailsInfo": "Адреса и суммы отправляются целиком, а не сокращёнными. Сид-фразы, ключи и пароли не отправляются никогда.",
+  "deskSetReportFullDetailsInfo": "Адреса и суммы отправляются целиком, а не сокращёнными. Фразы восстановления, ключи и пароли не отправляются никогда.",
   "deskSetReportPartFullDetails": "Полные детали",
   "deskSetReportSentWhat": "Что отправляется",
   "deskSetReportNotSentTitle": "Не отправлено",

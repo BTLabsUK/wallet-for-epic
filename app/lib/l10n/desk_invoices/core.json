@@ -100,9 +100,15 @@
   "@deskInvPayDelivered": {
     "description": "State of an invoice you paid: the service has your payment and must post it."
   },
-  "deskInvPayPosted": "Posted by service",
+  "deskInvPayPosted": "Posted by {name}",
   "@deskInvPayPosted": {
-    "description": "State of an invoice you paid: the service reports it posted the payment."
+    "description": "State of an invoice you paid: the issuer posted the payment. {name} is the issuer's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Coffee"
+      }
+    }
   },
   "deskInvPayWithdrawnAfterPay": "Withdrawn after paying",
   "@deskInvPayWithdrawnAfterPay": {

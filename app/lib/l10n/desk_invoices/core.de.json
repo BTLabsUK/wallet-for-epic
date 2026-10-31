@@ -21,7 +21,7 @@
   "deskInvPayWaiting": "Zu zahlen",
   "deskInvPayNotDelivered": "Nicht zugestellt",
   "deskInvPayDelivered": "Wartet auf Netzwerk",
-  "deskInvPayPosted": "Vom Dienst gesendet",
+  "deskInvPayPosted": "Von {name} veröffentlicht",
   "deskInvPayWithdrawnAfterPay": "Nach Zahlung zurückgezogen",
   "deskInvPayPastTtl": "Nicht in der Blockchain",
   "deskInvPayCancelled": "Storniert",

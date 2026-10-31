@@ -107,7 +107,7 @@
   "deskKitChipOverTor": "Через Tor",
   "deskKitChipStarting": "Tor запускается",
   "deskKitChipNotConnected": "Tor не подключён",
-  "deskKitChipNotOverTor": "Не через Tor",
+  "deskKitChipNotOverTor": "Без Tor",
   "deskKitPasswordNote": "Оценка сделана на этом устройстве по длине и по распространённым словам, именам и шаблонам — для атакующего с быстрым оборудованием, который перебирает 100 000 вариантов в секунду против файла этого кошелька. Это ориентир, а не гарантия.",
   "deskKitPasswordNoteLabel": "Как оценивается время",
   "deskKitInfoLabel": "Подробнее",

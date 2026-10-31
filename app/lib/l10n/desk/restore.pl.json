@@ -23,7 +23,7 @@
   "deskSetupSkipKeeps": "Pominięcie zachowuje obecne ustawienia węzła i Epicbox.",
   "deskSetupMarkNotCleared": "Nie udało się zapisać, że konfiguracja jest ukończona: {reason}. Może otworzyć się ponownie przy następnym uruchomieniu; „Pomiń konfigurację” ją zamyka.",
   "deskOvRestoredImportTitle": "Portfel przywrócony",
-  "deskOvRestoredImportBody": "Fraza odzyskiwania przywróciła saldo. Aby odzyskać historię, kontakty, faktury i ustawienia, zaimportuj wyeksportowany plik danych portfela.",
+  "deskOvRestoredImportBody": "Saldo wróciło. Plik danych tego portfela przywraca historię, kontakty, faktury i ustawienia.",
   "deskOvRestoredImportButton": "Importuj dane portfela",
   "deskOvRestoredImportLater": "Później w Ustawienia › Ten portfel › Dane portfela.",
   "deskOnbForgotNoCheck": "Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.",

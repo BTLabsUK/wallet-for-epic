@@ -56,7 +56,7 @@
   "deskErrAlreadyInApp": "Уже есть в приложении как {name}",
   "deskErrWrongOldPassword": "Неверный старый пароль",
   "deskErrListNotSaved": "Список кошельков не сохранён",
-  "deskErrProofSeedRead": "Seed прочитан",
+  "deskErrProofSeedRead": "Фраза восстановления прочитана",
   "deskErrProofWalletCreated": "Кошелёк создан",
   "deskErrProofContacts": "{count, plural, one{Добавлен {count} контакт} few{Добавлено {count} контакта} many{Добавлено {count} контактов} other{Добавлено {count} контакта}}",
   "deskErrProofContactsMerged": "{count, plural, one{{count} контакт объединён с существующим} few{{count} контакта объединены с существующими} many{{count} контактов объединены с существующими} other{{count} контакта объединены с существующими}}",

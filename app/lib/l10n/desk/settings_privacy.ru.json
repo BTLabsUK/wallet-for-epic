@@ -15,5 +15,5 @@
   "deskSetPrivProblemDetail": "{problem}. Повторите попытку или выключите Tor.",
   "deskSetPrivStatusSite": "Сайт статуса",
   "deskSetPrivUseStatus": "Использовать {site}",
-  "deskSetPrivUseStatusHint": "Показывает, какие узлы и серверы Epicbox в сети. Загружает только публичный список; из кошелька ничего не отправляется."
+  "deskSetPrivUseStatusHint": "Показывает, какие узлы и серверы Epicbox в сети, по публичному списку на status.btlabs.uk."
 }

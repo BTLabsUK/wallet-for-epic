@@ -51,7 +51,7 @@
   "@deskSetAdvRecheckHint": {
     "description": "Hover card of the Recheck from a height switch on the Advanced page."
   },
-  "deskSetAdvBuiltInNode": "Built-in node",
+  "deskSetAdvBuiltInNode": "Local node",
   "@deskSetAdvBuiltInNode": {
     "description": "Advanced switch: the node on this computer."
   },

@@ -18,7 +18,7 @@
   "deskSetReportAttach": "Protokolle anhängen",
   "deskSetReportAttachHint": "Der neueste Teil des App-Protokolls, ohne Wiederherstellungsphrase, Passwort und andere Geheimnisse.",
   "deskSetReportFullDetails": "Alle Details mitsenden",
-  "deskSetReportFullDetailsInfo": "Sendet Adressen und Beträge unverkürzt. Phrasen, Schlüssel und Passwörter werden nie gesendet.",
+  "deskSetReportFullDetailsInfo": "Sendet Adressen und Beträge unverkürzt. Wiederherstellungsphrasen, Schlüssel und Passwörter werden nie gesendet.",
   "deskSetReportPartFullDetails": "Alle Details",
   "deskSetReportSentWhat": "Was gesendet wird",
   "deskSetReportNotSentTitle": "Nicht gesendet",

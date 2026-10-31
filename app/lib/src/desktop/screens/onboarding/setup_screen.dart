@@ -350,7 +350,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 alignment: Alignment.centerLeft,
                 child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
-            : (_first != null ? Text(l.deskSetupSkipKeeps, style: ts.caption) : null),
+            : (_first != null && _saveFailed == null && !(_demo?.saveFailed ?? false) ? Text(l.deskSetupSkipKeeps, style: ts.caption) : null),
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
           if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),

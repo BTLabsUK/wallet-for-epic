@@ -107,7 +107,7 @@
   "deskKitChipOverTor": "ผ่าน Tor",
   "deskKitChipStarting": "Tor กำลังเริ่ม",
   "deskKitChipNotConnected": "Tor ไม่ได้เชื่อมต่อ",
-  "deskKitChipNotOverTor": "ไม่ผ่าน Tor",
+  "deskKitChipNotOverTor": "ไม่ใช้ Tor",
   "deskKitPasswordNote": "ประเมินบนอุปกรณ์นี้จากความยาวและคำ ชื่อ และรูปแบบที่พบบ่อย สำหรับผู้โจมตีที่ใช้ฮาร์ดแวร์เร็วเดา 100,000 ครั้งต่อวินาทีกับไฟล์ของกระเป๋าเงินนี้ เป็นแนวทาง ไม่ใช่การรับประกัน",
   "deskKitPasswordNoteLabel": "วิธีประเมินเวลา",
   "deskKitInfoLabel": "ข้อมูลเพิ่มเติม",

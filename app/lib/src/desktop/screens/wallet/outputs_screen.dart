@@ -644,7 +644,7 @@ class _OutputRow extends StatelessWidget {
     return switch (o.word) {
       OutputWord.spendable => (l.deskOutStatusSpendable, null, c.ok),
       OutputWord.confirming => (l.deskOutStatusConfirming, l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)), c.info),
-      OutputWord.finalizing => (l.deskOutStatusAwaiting, l.deskOutNoteWaitingSender, c.dim),
+      OutputWord.finalizing => (l.deskOutStatusAwaiting, tx != null && !tx!.incoming ? l.deskOutNoteWaitingRecipient : l.deskOutNoteWaitingSender, c.dim),
       OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
       OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.info),
       OutputWord.mining => (l.deskOutStatusMining, null, c.info),

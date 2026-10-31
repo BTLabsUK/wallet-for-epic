@@ -238,7 +238,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           ],
           current: 'restore',
           failed: 'restore',
-          failure: _permissionDenied ? l.deskOnbRestorePermission : _failure,
+          failure: _permissionDenied ? l.deskOnbRestorePermission('~/.epic_cash_desktop') : _failure,
           wait: l.deskOnbRestoreWait,
           onBack: () => setState(() {
             _step = RestoreStep.account;
@@ -358,15 +358,15 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final bad = e.firstInvalid;
     final complete = e.complete;
     final narrow = MediaQuery.sizeOf(context).width < 760.u;
-    final (String status, Color? tone) = switch (e) {
+    final (String? status, Color? tone) = switch (e) {
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
       _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
       _ when complete => (l.deskOnbRestoreAllOk(length), c.ok),
-      _ when e.checksumOk == false && e.typingLast => (l.deskOnbRestoreStaysHere, null),
+      _ when e.checksumOk == false && e.typingLast => (null, null),
       _ when e.checksumOk == false && e.checksumFirm => (l.deskOnbRestoreChecksumFirm, c.risk),
       _ when e.checksumOk == false => (l.deskOnbRestoreChecksumSoFar(e.span), c.warn),
-      _ => (l.deskOnbRestoreStaysHere, null),
+      _ => (null, null),
     };
     return EOnbFrame(
       sideTitle: l.deskOnbRestoreSide,
@@ -404,7 +404,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           // One line, always there, so the grid never moves when the verdict changes.
           ConstrainedBox(
             constraints: BoxConstraints(minHeight: 20.u),
-            child: Semantics(
+            child: status == null ? null : Semantics(
               liveRegion: true,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

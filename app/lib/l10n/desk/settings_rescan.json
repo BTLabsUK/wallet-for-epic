@@ -112,7 +112,7 @@
   "@deskSetRescanRestored": {
     "description": "Settings > Recheck balance: label of a count of restored outputs in the result card."
   },
-  "deskSetRescanRevived": "Back to unspent",
+  "deskSetRescanRevived": "Unlocked again",
   "@deskSetRescanRevived": {
     "description": "Settings > Recheck balance: label of a count of outputs that became spendable again in the result card."
   },

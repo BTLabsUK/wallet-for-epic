@@ -56,7 +56,7 @@
   "deskErrAlreadyInApp": "Bereits in der App als {name}",
   "deskErrWrongOldPassword": "Falsches altes Passwort",
   "deskErrListNotSaved": "Wallet-Liste nicht gespeichert",
-  "deskErrProofSeedRead": "Seed gelesen",
+  "deskErrProofSeedRead": "Wiederherstellungsphrase gelesen",
   "deskErrProofWalletCreated": "Wallet erstellt",
   "deskErrProofContacts": "{count, plural, one{1 Kontakt hinzugefügt} other{{count} Kontakte hinzugefügt}}",
   "deskErrProofContactsMerged": "{count, plural, one{1 Kontakt mit einem vorhandenen zusammengeführt} other{{count} Kontakte mit vorhandenen zusammengeführt}}",
