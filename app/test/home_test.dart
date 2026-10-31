@@ -1105,7 +1105,7 @@ void main() {
       // Not at the watch pace: none in three of its steps.
       await tester.pump(watchTipEvery * 3);
       expect(h.session.nodeTipsFor.length, asks);
-      // One at the normal pace (the ticks started while home loaded).
+      // One at the normal pace (the timer started while home loaded).
       await tester.pump(tipCheckInterval);
       expect(h.session.nodeTipsFor.length, asks + 1);
     });

@@ -226,11 +226,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late final AppLifecycleListener _lifecycle = AppLifecycleListener(
-    onResume: _autoRefresh,
+    onResume: _resumed,
+    onPause: _paused,
   );
   Timer? _timer;
-  Timer? _tipTimer;
   bool _tipBusy = false;
+
+  /// In the background: the tip timer stays off until the app is back.
+  bool _away = false;
   final TipPacer _tipPace = TipPacer(normal: tipCheckInterval);
 
   /// Payments whose "could not reach the node" notice was already shown.
@@ -260,7 +263,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     _lifecycle;
     _startRefreshTimer();
-    _tipTimer = Timer.periodic(_tipPace.step, (_) => _tipTick());
+    _armTip();
+    // Each list read can change the pace: a new payment, a step, a block.
+    ref.listenManual(homeProvider, (_, next) {
+      final data = next.value;
+      if (data == null || !mounted) return;
+      ref.read(blockWatchProvider).saw(data.transactions, data.summary.lastConfirmedHeight, now: ref.read(clockProvider)());
+      _armTip();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
       // unlock checks from `WalletApp`.
@@ -276,7 +286,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void dispose() {
     _timer?.cancel();
-    _tipTimer?.cancel();
+    _tipPace.stop();
     _lifecycle.dispose();
     _pages.dispose();
     super.dispose();
@@ -312,6 +322,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _timer = Timer.periodic(autoRefreshInterval, (_) => _autoRefresh());
   }
 
+  void _resumed() {
+    _away = false;
+    _armTip();
+    _autoRefresh();
+  }
+
+  void _paused() {
+    _away = true;
+    _tipPace.stop(now: ref.read(clockProvider)());
+  }
+
   /// How closely the list is watched now (watch_mode.dart).
   WatchPace _pace() {
     final data = ref.read(homeProvider).value;
@@ -325,13 +346,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  void _tipTick() {
-    if (!mounted) return;
+  /// Sets the tip timer for the pace now: to the next ask, or to the moment the pace can change
+  /// by time alone.
+  void _armTip() {
+    if (!mounted || _away) return;
     final data = ref.read(homeProvider).value;
-    if (data != null) {
-      ref.read(blockWatchProvider).saw(data.transactions, data.summary.lastConfirmedHeight, now: ref.read(clockProvider)());
-    }
-    if (_tipPace.tick(_pace())) _checkTip();
+    final now = ref.read(clockProvider)();
+    final change = data == null ? null : nextWatchChange(data.transactions, now: now, steps: ref.read(blockWatchProvider));
+    _tipPace.arm(_pace(), change: change, now: now, fire: _tipFired);
+  }
+
+  void _tipFired() {
+    if (!mounted) return;
+    if (_tipPace.due(_pace())) _checkTip();
+    _armTip();
   }
 
   /// Asks the node for its tip and refreshes when it is past the height home counts

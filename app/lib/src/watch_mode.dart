@@ -16,6 +16,8 @@
 /// payment is posted through the stem phase, and the network may first see it only then.
 library;
 
+import 'dart:async';
+
 import 'models.dart';
 import 'settings_file/host_settings.dart' show appConfig;
 
@@ -195,25 +197,47 @@ class BlockWatch {
   }
 }
 
-/// Paces the tip asks of one open wallet. Its owner calls [tick] every [step] and asks the
-/// node when it says so, then reports [answered] or [failed]. It counts ticks rather than
-/// reading the clock, so it keeps time under a test's fake clock too.
+/// The soonest moment after [now] at which the watch of [txs] or a wait note on one of them can
+/// change by time alone: a payment passing [watchFastFor], [watchWindow], [watchInBlockFor] or
+/// [senderReportWindow] after its last step, or a step dated ahead of [now] coming due. Null when
+/// none can. A list read can change them too; its owner arms the pacer again then.
+Duration? nextWatchChange(Iterable<TxEntry> txs, {required DateTime now, BlockWatch? steps}) {
+  final nowMs = now.millisecondsSinceEpoch;
+  final nowUnix = nowMs ~/ 1000;
+  int? soonest;
+  void at(int unix) {
+    if (unix > nowUnix && (soonest == null || unix < soonest!)) soonest = unix;
+  }
+
+  for (final t in txs) {
+    if (t.source != TxSource.wallet || t.status == TxStatus.cancelled) continue;
+    final last = nowUnix - _sinceLastStep(t, now, steps);
+    for (final d in [watchFastFor, watchWindow, watchInBlockFor]) {
+      at(last + d.inSeconds);
+    }
+    for (final step in [t.createdAtUnix, t.finalizedAtUnix, t.senderReportedPostedAtUnix, steps?.stepAt(t.key)]) {
+      if (step != null) at(step);
+    }
+    final reported = t.senderReportedPostedAtUnix;
+    if (reported != null) at(reported + senderReportWindow.inSeconds);
+  }
+  final unix = soonest;
+  return unix == null ? null : Duration(milliseconds: unix * 1000 - nowMs);
+}
+
+/// Paces the tip asks of one open wallet with one timer, set to the next ask or to the next
+/// moment the pace can change ([nextWatchChange]), whichever comes first. Its owner [arm]s it
+/// with the pace now; when it fires, the owner asks the node if [due] says so, reports
+/// [answered] or [failed], and arms it again. It counts the time it waited rather than reading
+/// the clock, so it keeps time under a test's fake clock too; only an [arm] before the timer
+/// fired reads the owner's clock, for the part already waited.
 class TipPacer {
   TipPacer({
     required this.normal,
     Duration? watch,
     Duration? watchSlow,
-    Duration? step,
   }) : watch = watch ?? watchFastEvery,
-       watchSlow = watchSlow ?? watchSlowEvery,
-       step = step ?? _common([normal, watch ?? watchFastEvery, watchSlow ?? watchSlowEvery]);
-
-  /// The longest step every pace is a whole number of: the paces keep their exact length.
-  static Duration _common(List<Duration> paces) {
-    int gcd(int a, int b) => b == 0 ? a : gcd(b, a % b);
-    final ms = paces.map((d) => d.inMilliseconds).where((m) => m > 0).fold(0, gcd);
-    return Duration(milliseconds: ms > 0 ? ms : 1000);
-  }
+       watchSlow = watchSlow ?? watchSlowEvery;
 
   /// The pace outside watch mode.
   final Duration normal;
@@ -224,14 +248,18 @@ class TipPacer {
   /// The pace in its slower part.
   final Duration watchSlow;
 
-  /// How often [tick] is called.
-  final Duration step;
-
   Duration _since = Duration.zero;
   int _failures = 0;
+  Timer? _timer;
+  Duration _armed = Duration.zero;
+  DateTime? _armedAt;
+  WatchPace? _armedPace;
 
   /// Asks that failed in a row.
   int get failures => _failures;
+
+  /// Whether the timer is set.
+  bool get running => _timer != null;
 
   /// The wait before the next ask: [normal] outside watch mode; in it [watch] or [watchSlow],
   /// doubled for each failed ask in a row, never past [normal].
@@ -242,9 +270,52 @@ class TipPacer {
     return backedOff < normal ? backedOff : normal;
   }
 
-  /// One [step] passed: true when an ask is due.
-  bool tick(WatchPace pace) {
-    _since += step;
+  /// How long from the last count to the next ask at [pace], or to [change] when that is
+  /// sooner.
+  Duration next(WatchPace pace, {Duration? change}) {
+    final left = every(pace) - _since;
+    final wait = left > Duration.zero ? left : Duration.zero;
+    return change != null && change < wait ? change : wait;
+  }
+
+  /// Sets the timer for [pace] at [now], with [change] from [nextWatchChange]; [fire] runs when
+  /// it is up. Set already, it stays as it is unless the pace differs or [change] comes before
+  /// it; otherwise the time already waited counts.
+  void arm(WatchPace pace, {Duration? change, required DateTime now, required void Function() fire}) {
+    final armedAt = _armedAt;
+    if (_timer != null && armedAt != null) {
+      final waited = now.difference(armedAt);
+      final keep = pace == _armedPace && (change == null || waited + change >= _armed);
+      if (keep) return;
+      _since += waited < Duration.zero ? Duration.zero : (waited > _armed ? _armed : waited);
+      _timer!.cancel();
+    }
+    final wait = next(pace, change: change);
+    _armed = wait;
+    _armedAt = now;
+    _armedPace = pace;
+    _timer = Timer(wait, () {
+      _timer = null;
+      _armedAt = null;
+      _since += wait;
+      fire();
+    });
+  }
+
+  /// Stops the timer, counting the time already waited up to [now].
+  void stop({DateTime? now}) {
+    final armedAt = _armedAt;
+    if (_timer != null && armedAt != null && now != null) {
+      final waited = now.difference(armedAt);
+      _since += waited < Duration.zero ? Duration.zero : (waited > _armed ? _armed : waited);
+    }
+    _timer?.cancel();
+    _timer = null;
+    _armedAt = null;
+  }
+
+  /// The timer fired: true when an ask is due at [pace], which starts the count again.
+  bool due(WatchPace pace) {
     if (_since < every(pace)) return false;
     _since = Duration.zero;
     return true;

@@ -72,7 +72,7 @@ import '../../slate_files.dart' show decodeSlateFile, replyFileName, sendFileNam
 import '../../tor_location.dart';
 import '../../updater.dart' show updateStateKey;
 import '../../wallet_registry.dart' as reg;
-import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, listPace, postingNow, watchTipEvery;
+import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, listPace, nextWatchChange, postingNow, watchTipEvery;
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
 import '../../wallet_service.dart' as core;
@@ -543,7 +543,9 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// The open wallet's onion, `<56 characters>.onion`.
   String? _onion;
-  Timer? _poll;
+
+  /// Whether the node is polled: the tip timer in [_tipPace] is set.
+  bool _poll = false;
   Future<void>? _syncing;
   bool _syncAgain = false;
   /// Why the last sync did not reach the node; null when it did.
@@ -556,6 +558,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   void _changed() {
     _followTor();
+    _armTip();
     if (!_changes.isClosed) _changes.add(null);
   }
 
@@ -1105,7 +1108,7 @@ class LepicDeskWallet implements DeskWalletApi {
       unawaited(_loadLocal());
       return;
     }
-    _poll = Timer.periodic(_tipPace.step, (_) => _tipTick());
+    _startPoll();
     unawaited(_checkTip());
     unawaited(sync());
     if (!NetGate.epicboxOff) _startInvoices();
@@ -1219,8 +1222,7 @@ class LepicDeskWallet implements DeskWalletApi {
 
   Future<void> _lockNow() async {
     _generation++;
-    _poll?.cancel();
-    _poll = null;
+    _stopPoll();
     _stopInvoices(forget: true);
     await _stopListener();
     await _stopHttp();
@@ -2146,10 +2148,32 @@ class LepicDeskWallet implements DeskWalletApi {
   /// shows its note.
   int? _waitsShown;
 
+  void _startPoll() {
+    _poll = true;
+    _armTip();
+  }
+
+  void _stopPoll() {
+    _poll = false;
+    _tipPace.stop();
+  }
+
+  /// Sets the tip timer for the list now: to the next ask, or to the moment the pace or a wait
+  /// note can change by time alone. Each change ([_changed]) sets it again.
+  void _armTip() {
+    if (!_poll) return;
+    final entries = _entries;
+    if (entries != null) _blockWaits.saw(entries, BigInt.from(_tip));
+    final now = DateTime.now();
+    final change = entries == null ? null : nextWatchChange(entries, now: now, steps: _blockWaits);
+    _tipPace.arm(_pace(), change: change, now: now, fire: _tipTick);
+  }
+
   void _tipTick() {
     final entries = _entries;
     if (entries != null) _blockWaits.saw(entries, BigInt.from(_tip));
-    if (_tipPace.tick(_pace())) unawaited(_checkTip());
+    if (_tipPace.due(_pace())) unawaited(_checkTip());
+    _armTip();
     if (entries == null) return;
     final waits = Object.hashAll(entries.map(_waitOf));
     if (_waitsShown != null && waits != _waitsShown) _changed();
@@ -3502,8 +3526,7 @@ class LepicDeskWallet implements DeskWalletApi {
         if (now == NetworkMode.killSwitch) {
           await _stopTor();
           _settings = _settings.copyWith(tor: false);
-          _poll?.cancel();
-          _poll = null;
+          _stopPoll();
           await _stopScanForUser();
           _nodeHealth = ServiceHealth.off;
           await _reopenForKillSwitch();
@@ -3511,8 +3534,7 @@ class LepicDeskWallet implements DeskWalletApi {
           await _reopenForKillSwitch();
           // Node only after Kill switch: the node again, over Tor when the switch is on.
           final tor = _torFeature && (_beforeOffline?.tor ?? _settings.torAutostart);
-          _poll?.cancel();
-          _poll = Timer.periodic(_tipPace.step, (_) => _tipTick());
+          _startPoll();
           unawaited(_checkTip());
           unawaited(sync());
           if (tor) {
@@ -3554,8 +3576,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (session != null) {
         final tor = _torFeature && (now == NetworkMode.torOnly || (before?.tor ?? _settings.torAutostart));
         if (tor) _settings = _settings.copyWith(tor: true);
-        _poll?.cancel();
-        _poll = Timer.periodic(_tipPace.step, (_) => _tipTick());
+        _startPoll();
         if (before == null) {
           // Opened while Node only or Kill switch: as an unlock would have started it.
           _startInvoices();

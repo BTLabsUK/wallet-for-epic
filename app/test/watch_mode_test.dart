@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // Watch mode (watch_mode.dart): which payments make the app ask the node for its tip every few
-// seconds, for how long, and how the asks back off while the node does not answer.
+// seconds, for how long, how the asks back off while the node does not answer, and when its one
+// timer wakes.
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/ui/tx_details_screen.dart' show txExplanation;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/watch_mode.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _now = DateTime(2026, 10, 25, 12);
@@ -166,25 +168,28 @@ void main() {
   });
 
   test('the pacer asks at the watch pace, backs off while the node fails, and never past normal', () {
-    final pace = TipPacer(normal: const Duration(seconds: 15), step: const Duration(seconds: 1));
-    int ticksTo(WatchPace p) {
-      var n = 1;
-      while (!pace.tick(p)) {
-        n++;
+    fakeAsync((async) {
+      final pace = TipPacer(normal: const Duration(seconds: 15));
+      Duration untilAsk(WatchPace p) {
+        final from = async.elapsed;
+        var asked = false;
+        pace.arm(p, now: _now.add(async.elapsed), fire: () => asked = pace.due(p));
+        async.flushTimers();
+        expect(asked, isTrue);
+        return async.elapsed - from;
       }
-      return n;
-    }
 
-    expect(ticksTo(WatchPace.none), 15);
-    expect(ticksTo(WatchPace.fast), 4);
-    expect(ticksTo(WatchPace.slow), 10);
-    pace.failed();
-    expect(ticksTo(WatchPace.fast), 8);
-    pace.failed();
-    expect(ticksTo(WatchPace.fast), 15, reason: '16 s capped at the normal 15 s');
-    expect(pace.answered(), isTrue, reason: 'back after failing');
-    expect(pace.answered(), isFalse);
-    expect(ticksTo(WatchPace.fast), 4);
+      expect(untilAsk(WatchPace.none), const Duration(seconds: 15));
+      expect(untilAsk(WatchPace.fast), const Duration(seconds: 4));
+      expect(untilAsk(WatchPace.slow), const Duration(seconds: 10));
+      pace.failed();
+      expect(untilAsk(WatchPace.fast), const Duration(seconds: 8));
+      pace.failed();
+      expect(untilAsk(WatchPace.fast), const Duration(seconds: 15), reason: '16 s capped at the normal 15 s');
+      expect(pace.answered(), isTrue, reason: 'back after failing');
+      expect(pace.answered(), isFalse);
+      expect(untilAsk(WatchPace.fast), const Duration(seconds: 4));
+    });
   });
 
   test('the details say it in one calm line, on both sides', () {
@@ -246,9 +251,62 @@ void main() {
     );
   });
 
-  test('the step keeps every pace exact', () {
-    expect(TipPacer(normal: const Duration(seconds: 15)).step, const Duration(seconds: 1));
-    expect(TipPacer(normal: const Duration(seconds: 30)).step, const Duration(seconds: 2));
+  test('one timer: it wakes when the pace can change, and a faster pace counts the time waited', () {
+    fakeAsync((async) {
+      final pace = TipPacer(normal: const Duration(seconds: 15));
+      var fired = 0;
+      void fire() => fired++;
+      DateTime now() => _now.add(async.elapsed);
+
+      // A payment starts mid-wait: 5 s waited already, past the 4 s pace, so it asks at once.
+      pace.arm(WatchPace.none, now: now(), fire: fire);
+      async.elapse(const Duration(seconds: 5));
+      pace.arm(WatchPace.fast, now: now(), fire: fire);
+      async.elapse(Duration.zero);
+      expect(fired, 1);
+      expect(pace.due(WatchPace.fast), isTrue);
+
+      // The fast part ends in 2 s: it wakes then, and waits out the slow pace from there.
+      pace.arm(WatchPace.fast, change: const Duration(seconds: 2), now: now(), fire: fire);
+      async.elapse(const Duration(seconds: 2));
+      expect(fired, 2);
+      expect(pace.due(WatchPace.slow), isFalse, reason: '2 s of 10');
+      pace.arm(WatchPace.slow, now: now(), fire: fire);
+      async.elapse(const Duration(seconds: 7));
+      expect(fired, 2);
+      async.elapse(const Duration(seconds: 1));
+      expect(fired, 3);
+      expect(pace.due(WatchPace.slow), isTrue);
+
+      // The same pace again (a list read that changed nothing) leaves the timer as it was.
+      pace.arm(WatchPace.none, now: now(), fire: fire);
+      async.elapse(const Duration(seconds: 3));
+      pace.arm(WatchPace.none, now: now(), fire: fire);
+      async.elapse(const Duration(seconds: 12));
+      expect(fired, 4);
+      expect(pace.due(WatchPace.none), isTrue);
+
+      // Stopped (the app in the background): nothing fires.
+      pace.arm(WatchPace.fast, now: now(), fire: fire);
+      pace.stop(now: now());
+      async.elapse(const Duration(minutes: 1));
+      expect(fired, 4);
+      expect(pace.running, isFalse);
+    });
+  });
+
+  test('the next change is the end of the fast part, then of the window', () {
+    final waiting = fakeTx(kind: TxKind.received, status: TxStatus.awaitingConfirmation, createdAtUnix: _ago(const Duration(minutes: 1)));
+    expect(nextWatchChange([waiting], now: _now), watchFastFor - const Duration(minutes: 1));
+    final slow = fakeTx(kind: TxKind.received, status: TxStatus.awaitingConfirmation, createdAtUnix: _ago(watchFastFor + const Duration(seconds: 30)));
+    expect(
+      nextWatchChange([slow], now: _now),
+      watchWindow - watchFastFor - const Duration(seconds: 30),
+      reason: 'the end of the window, when the wait note shows',
+    );
+    expect(nextWatchChange([waiting, slow], now: _now), watchFastFor - const Duration(minutes: 1));
+    final done = fakeTx(kind: TxKind.sent, status: TxStatus.confirmed, createdAtUnix: _ago(const Duration(hours: 2)), blockHeight: _tip - BigInt.from(10));
+    expect(nextWatchChange([done], now: _now), isNull);
   });
 
   test('a change the list shows (finalized, posted) restarts the watch, as LEPIC keeps no finalize time', () {
