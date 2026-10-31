@@ -15,8 +15,9 @@
 /// - at a literal CGNAT address (100.64.0.0/10: a Tailscale tailnet, but also a provider's
 ///   carrier-grade NAT, which cannot be told apart) goes through the relay only once the user
 ///   agreed for that node ([allowPlainHttpNode], asked when the node is added). On the first run
-///   with agreements (no `lan_nodes.json` yet) every such node the app uses is agreed for, so a
-///   tailnet node set up before keeps working. Otherwise LEPIC gets it as it is and refuses it.
+///   with agreements (no `lan_nodes.json` yet) every such node already in the settings file's
+///   node list is agreed for when the app uses it, so a tailnet node set up before keeps working.
+///   Otherwise LEPIC gets it as it is and refuses it.
 ///
 /// Anything else (https, a public address, another name, an onion) goes as it is. The relay
 /// answers only requests whose path starts with its random token, which only LEPIC and the
@@ -32,6 +33,7 @@ import 'dart:io';
 import 'dart:math';
 
 import '../network_gate.dart' show NetDial, NetGate;
+import '../settings_file/host_settings.dart' show hostSettings, hostSettingsLoaded;
 import 'local_address.dart';
 
 /// The relays, one per node address (`ip|port`), kept for the app's life.
@@ -189,6 +191,14 @@ Set<String>? _agreed;
 /// No agreement file when this run first looked: the nodes in use were set up before agreements.
 bool _firstRun = false;
 
+/// The nodes of the settings file (`node.servers`), read once on the first run with agreements.
+/// Tests replace it.
+Iterable<String> Function() lanNodesInSettings = () => hostSettingsLoaded ? hostSettings.nodeUrls : const [];
+
+/// On the first run: the CGNAT nodes that were in the settings file when first asked, the only
+/// ones agreed for without asking. A node added later, or one the user declined, never is.
+Set<String>? _carried;
+
 String _nodeKey(String url) {
   final u = Uri.parse(url.trim());
   return '${u.host.toLowerCase()}:${u.hasPort ? u.port : 80}';
@@ -240,6 +250,11 @@ Future<bool> _agreedOrEarlier(String url) async {
   final agreed = await _load();
   if (agreed.contains(_nodeKey(url))) return true;
   if (!_firstRun) return false;
+  final carried = _carried ??= {
+    for (final node in lanNodesInSettings())
+      if (needsPlainHttpConsent(node)) _nodeKey(node),
+  };
+  if (!carried.contains(_nodeKey(url))) return false;
   agreed.add(_nodeKey(url));
   await _save(agreed);
   return true;
@@ -249,4 +264,5 @@ Future<bool> _agreedOrEarlier(String url) async {
 void resetLanNodeAgreements() {
   _agreed = null;
   _firstRun = false;
+  _carried = null;
 }

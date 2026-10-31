@@ -142,11 +142,17 @@ void main() {
     expect(await plainHttpNodeAllowed(tail), isTrue);
   });
 
-  test('on the first run with agreements the tailnet nodes in use count as agreed', () async {
+  test('on the first run with agreements the tailnet nodes in the settings file count as agreed', () async {
     resetLanNodeAgreements();
+    final settingsNodes = lanNodesInSettings;
+    addTearDown(() => lanNodesInSettings = settingsNodes);
+    lanNodesInSettings = () => ['https://node.example', 'http://100.64.3.9:3413'];
     lanNodesFile = () async => File('${home.path}/first.json');
     expect(Uri.parse(await lanNodeUrl('http://100.64.3.9:3413')).host, '127.0.0.1');
     expect(await plainHttpNodeAllowed('http://100.64.3.9:3413'), isTrue);
+    // Not in the settings file (one the user declined): asked for, also on this first run.
+    expect(await lanNodeUrl('http://100.64.7.7:3413'), 'http://100.64.7.7:3413');
+    expect(await plainHttpNodeAllowed('http://100.64.7.7:3413'), isFalse);
     // A later run: only what was agreed.
     resetLanNodeAgreements();
     expect(await lanNodeUrl('http://100.64.20.30:4413'), 'http://100.64.20.30:4413');
