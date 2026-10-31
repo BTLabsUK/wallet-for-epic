@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../amount.dart' as shared show formatEpic;
 
+import '../../../levels/level_features.dart' show ActivityChips;
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../data/net_mode_view.dart' show deskLastKnownProvider;
 import '../../desk_l10n.dart';
 
@@ -81,12 +83,18 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     }
   }
 
+  /// The chosen filter; All when a level change took the chosen chip away.
+  _Filter get _shownFilter {
+    final full = ref.watch(deskLevelFeaturesProvider.select((f) => f.activityChips)) == ActivityChips.full;
+    return !full && (_filter == _Filter.pending || _filter == _Filter.cancelled) ? _Filter.all : _filter;
+  }
+
   List<Tx> _filtered(List<Tx> all) {
     final q = _query.text.trim().toLowerCase();
     final l = context.l10n;
     return [
       for (final t in all)
-        if (_matches(t, _filter) &&
+        if (_matches(t, _shownFilter) &&
             (q.isEmpty ||
                 whoOf(l, t).toLowerCase().contains(q) ||
                 (t.labelText ?? '').toLowerCase().contains(q) ||
@@ -146,12 +154,14 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final hasItems = all?.isNotEmpty ?? false;
     final actions = <Widget>[
       if (roomy) _search(full: false, hasItems: hasItems),
-      EIconButton(
-        icon: hidden ? EIcons.eyeOff : EIcons.eye,
-        label: hidden ? l.deskActShowAmounts : l.deskActHideAmounts,
-        selected: hidden,
-        onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
-      ),
+      // Shallow moves the eye to Settings › Appearance.
+      if (ref.watch(deskLevelUiProvider.select((f) => f.hideAmountsInHeader)))
+        EIconButton(
+          icon: hidden ? EIcons.eyeOff : EIcons.eye,
+          label: hidden ? l.deskActShowAmounts : l.deskActHideAmounts,
+          selected: hidden,
+          onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
+        ),
       _refreshing
           ? SizedBox.square(
               dimension: Ctl.sm,
@@ -270,18 +280,22 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       );
     }
     // The filter sits in the list's header band, level with the detail pane's title.
+    final fullChips = ref.watch(deskLevelFeaturesProvider.select((f) => f.activityChips)) == ActivityChips.full;
     final tabs = ESegmented<_Filter>(
         shrink: true,
         segments: [
           ESegment(_Filter.all, l.deskActFilterAll, count: count(_Filter.all)),
           ESegment(_Filter.sent, l.deskActFilterSent, count: count(_Filter.sent)),
           ESegment(_Filter.received, l.deskActFilterReceived, count: count(_Filter.received)),
-          ESegment(_Filter.pending, l.historyFilterPending, count: count(_Filter.pending)),
-          ESegment(_Filter.cancelled, l.historyFilterCancelled, count: count(_Filter.cancelled)),
+          // Shallow: All, Sent, Received.
+          if (fullChips) ...[
+            ESegment(_Filter.pending, l.historyFilterPending, count: count(_Filter.pending)),
+            ESegment(_Filter.cancelled, l.historyFilterCancelled, count: count(_Filter.cancelled)),
+          ],
           if (ref.watch(deskInvoicesShownProvider))
             ESegment(_Filter.requests, l.deskInvActFilter, icon: EIcons.request, count: all.where((t) => t.isInvoice).length),
         ],
-        value: _filter,
+        value: _shownFilter,
         onChanged: (v) => setState(() {
           _filter = v;
           _page = 0;
@@ -378,11 +392,13 @@ class ListPager extends StatelessWidget {
   }
 }
 
-class ActivityListHead extends StatelessWidget {
+class ActivityListHead extends ConsumerWidget {
   const ActivityListHead({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Shallow's rows say who, how far and how much: no column heads.
+    if (ref.watch(deskLevelUiProvider.select((f) => f.shallow))) return const SizedBox.shrink();
     final c = context.dc;
     final style = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
     final l = context.l10n;

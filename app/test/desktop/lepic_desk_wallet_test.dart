@@ -980,7 +980,7 @@ void main() {
       await w.createWallet(name: '', password: _password);
       await w.createWallet(name: '', password: _password);
       final id = rec.createdConfig!.walletId!;
-      expect((await w.wallets()).map((e) => e.name), ['Wallet 1', 'Wallet 2']);
+      expect((await w.wallets()).map((e) => e.name), ['Wallet', 'Wallet 2']);
       await w.renameWallet(id, '  Savings ');
       expect((await w.wallets()).last.name, 'Savings');
       expect(jsonDecode((await secrets.read('desk.wallet.mainnet.$id'))!), containsPair('name', 'Savings'));
@@ -988,18 +988,18 @@ void main() {
       await expectLater(w.renameWallet(id, 'x' * 33), throwsA(isA<DeskError>()));
     });
 
-    test('wallets made without a name are Wallet 1, 2, 3, the next free number after a rename or removal', () async {
+    test('wallets made without a name are Wallet, Wallet 2, 3, the next free number after a rename or removal', () async {
       await w.createWallet(password: _password);
       await w.createWallet(password: _password);
       await w.restoreWallet(password: _password, phrase: _TwoPhrases.other.split(' '));
-      expect((await w.wallets()).map((e) => e.name), ['Wallet 1', 'Wallet 2', 'Wallet 3']);
+      expect((await w.wallets()).map((e) => e.name), ['Wallet', 'Wallet 2', 'Wallet 3']);
       final second = (await w.wallets())[1].id;
       await w.renameWallet(second, 'Savings');
       await w.createWallet(password: _password);
-      expect((await w.wallets()).map((e) => e.name), ['Wallet 1', 'Savings', 'Wallet 3', 'Wallet 2']);
+      expect((await w.wallets()).map((e) => e.name), ['Wallet', 'Savings', 'Wallet 3', 'Wallet 2']);
       await w.removeWallet((await w.wallets())[2].id, WalletRemoval.list);
       await w.createWallet(password: _password);
-      expect((await w.wallets()).map((e) => e.name), ['Wallet 1', 'Savings', 'Wallet 2', 'Wallet 3']);
+      expect((await w.wallets()).map((e) => e.name), ['Wallet', 'Savings', 'Wallet 2', 'Wallet 3']);
     });
 
     test('a wallet added while another is open is the one Unlock offers and the one opened next start', () async {

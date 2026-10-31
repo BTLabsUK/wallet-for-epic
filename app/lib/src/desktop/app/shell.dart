@@ -22,6 +22,8 @@ import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskI
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
 import '../data/desk_errors.dart' show deskErrorText;
+import '../../levels/wallet_level.dart' show WalletLevel;
+import '../data/desk_levels.dart';
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../widgets/kit.dart';
@@ -235,8 +237,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     ref.listen(deskProvider.select((s) => s.oldHistory), (_, next) {
       if (next.isNotEmpty && mounted) unawaited(_askOldHistory(next));
     });
-    // A place of a part switched off (Pairing, Invoices) reads as Overview.
-    final shown = deskRouteShown(ref, at.route) ? at : const DeskLocation(DeskRoute.overview);
+    // A place of a part switched off (Pairing, Invoices) or one the level hides reads as
+    // Overview, or as the Settings landing for a Settings page.
+    final shown = deskRouteShown(ref, at.route)
+        ? at
+        : DeskLocation(at.route.section == DeskSection.settings ? deskSettingsHome(ref) : DeskRoute.overview);
     final page = KeyedSubtree(key: ValueKey(shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
     final main = Material(color: c.bg, child: DeskSelectable(child: page));
@@ -246,8 +251,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (width < Bp.phone) {
       frame = Scaffold(
         backgroundColor: c.bg,
-        body: SafeArea(child: Column(children: [_PhoneTopBar(section: at.route.section), Expanded(child: FocusTraversalGroup(child: main))])),
-        bottomNavigationBar: _PhoneNav(section: at.route.section),
+        body: SafeArea(child: Column(children: [_PhoneTopBar(section: shown.route.section), Expanded(child: FocusTraversalGroup(child: main))])),
+        bottomNavigationBar: _PhoneNav(section: shown.route.section),
       );
     } else {
       final compact = width < Bp.desktop;
@@ -257,14 +262,14 @@ class _DeskShellState extends ConsumerState<DeskShell> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Two groups: Tab finishes the page before it moves to the sidebar.
-            FocusTraversalGroup(child: _Sidebar(section: at.route.section, compact: compact)),
+            FocusTraversalGroup(child: _Sidebar(section: shown.route.section, compact: compact)),
             Expanded(child: FocusTraversalGroup(child: main)),
           ],
         ),
       );
     }
     return Title(
-      title: deskPageTitle(context.l10n, at.route),
+      title: deskPageTitle(context.l10n, shown.route),
       color: c.accent,
       child: Stack(
         children: [
@@ -419,7 +424,7 @@ class _Sidebar extends ConsumerWidget {
     final c = context.dc;
     final nav = ref.read(deskNavProvider.notifier);
     final pending = ref.watch(deskProvider.select((s) => s.pendingFiles));
-    final invoices = ref.watch(deskInvoicesShownProvider);
+    final invoices = invoicesShown(ref);
     final toPay = ref.watch(deskInvoiceBadgeProvider);
     final l = context.l10n;
     return Semantics(
@@ -468,7 +473,7 @@ class _Sidebar extends ConsumerWidget {
                         label: l.deskShellNavSettings,
                         selected: section == DeskSection.settings,
                         compact: compact,
-                        onTap: () => nav.go(DeskRoute.settingsNode),
+                        onTap: () => nav.go(deskSettingsHome(ref)),
                       ),
                     ),
                   ],
@@ -515,7 +520,7 @@ class _PhoneTopBar extends ConsumerWidget {
               icon: EIcons.settings,
               label: context.l10n.deskShellNavSettings,
               color: section == DeskSection.settings ? c.accentText : null,
-              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsNode),
+              onPressed: () => ref.read(deskNavProvider.notifier).go(deskSettingsHome(ref)),
             ),
           ),
           locking
@@ -528,19 +533,31 @@ class _PhoneTopBar extends ConsumerWidget {
 }
 
 /// Whether [route] is shown: the pairing places need Pairing, the invoice places Invoices
-/// (Settings › Advanced › Experimental).
-bool deskRouteShown(WidgetRef ref, DeskRoute route) => switch (route) {
-  DeskRoute.pair || DeskRoute.pairPending => ref.watch(deskPairsProvider),
-  DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
-    ref.watch(deskInvoicesShownProvider),
-  DeskRoute.settingsDevices => ref.watch(deskLinkedDevicesOnProvider),
-  _ => true,
-};
+/// (Settings › Advanced › Experimental), and the level may hide the page ([deskLevelHides]).
+bool deskRouteShown(WidgetRef ref, DeskRoute route) {
+  if (route == DeskRoute.outputs) return outputsShown(ref);
+  if (deskLevelHides(ref.watch(deskLevelUiProvider), route)) return false;
+  return switch (route) {
+    DeskRoute.pair || DeskRoute.pairPending => ref.watch(deskPairsProvider),
+    DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
+      ref.watch(deskInvoicesShownProvider),
+    DeskRoute.settingsDevices => ref.watch(deskLinkedDevicesOnProvider),
+    _ => true,
+  };
+}
 
-/// Advanced › Outputs, or a split or consolidation the node did not take yet (never hide what
-/// is in use: its Broadcast again and Cancel live there).
+/// Where Settings opens: Node, or Appearance at a level without the node page.
+DeskRoute deskSettingsHome(WidgetRef ref) =>
+    ref.watch(deskLevelUiProvider).nodeSettings ? DeskRoute.settingsNode : DeskRoute.settingsAppearance;
+
+/// Advanced › Outputs at Deep end, or a split or consolidation the node did not take yet at any
+/// level (never hide what is in use: its Broadcast again and Cancel live there).
 bool outputsShown(WidgetRef ref) =>
-    advancedHas(ref, AdvancedFeature.outputs, keep: ref.watch(deskProvider).txs?.any((t) => t.notPosted) ?? false);
+    (ref.watch(deskLevelUiProvider).level == WalletLevel.everything && advancedHas(ref, AdvancedFeature.outputs)) ||
+    (ref.watch(deskProvider).txs?.any((t) => t.notPosted) ?? false);
+
+/// Invoices on the rail: Deep end with Invoices on and a wallet that takes them.
+bool invoicesShown(WidgetRef ref) => ref.watch(deskLevelUiProvider).invoicesPage && ref.watch(deskInvoicesShownProvider);
 
 class _PhoneNav extends ConsumerWidget {
   const _PhoneNav({required this.section});
@@ -550,7 +567,7 @@ class _PhoneNav extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
-    final invoices = ref.watch(deskInvoicesShownProvider);
+    final invoices = invoicesShown(ref);
     final items = [
       for (final n in deskNav)
         if ((n.$1 != DeskSection.invoices || invoices) && (n.$1 != DeskSection.outputs || outputsShown(ref))) n,

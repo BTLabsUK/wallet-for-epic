@@ -97,7 +97,7 @@ void main() {
 
   testWidgets('an open wallet: brand menu, wallet, status, lock and the window controls', (tester) async {
     await pump(tester);
-    for (final id in ['brand', 'wallet', 'status', 'lock', 'min', 'max', 'close']) {
+    for (final id in ['brand', 'wallet', 'status-node', 'status-epicbox', 'lock', 'min', 'max', 'close']) {
       expect(bar(id), findsOneWidget, reason: id);
     }
     // The brand opens the app menu with Lock and Quit and their shortcuts.
@@ -112,7 +112,7 @@ void main() {
   testWidgets('Unlock keeps only the brand and the window controls', (tester) async {
     await pump(tester, start: DeskRoute.unlock);
     expect(bar('brand'), findsNothing, reason: 'no menu on Unlock');
-    for (final id in ['wallet', 'status', 'lock']) {
+    for (final id in ['wallet', 'status-node', 'status-epicbox', 'lock']) {
       expect(bar(id), findsNothing, reason: id);
     }
     for (final id in ['min', 'max', 'close']) {

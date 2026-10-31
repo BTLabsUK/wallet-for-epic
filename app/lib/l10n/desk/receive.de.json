@@ -25,7 +25,7 @@
   "deskRecvAddressUnreadable": "Die Adresse konnte nicht gelesen werden. Öffnen Sie Empfangen gleich noch einmal.",
   "deskRecvEpicboxAddress": "Epicbox-Adresse",
   "deskRecvCopyEpicbox": "Epicbox-Adresse kopieren",
-  "deskRecvEpicboxIntro": "Teilen, um bezahlt zu werden. Absender können zahlen, während diese Wallet geschlossen ist.",
+  "deskRecvEpicboxIntro": "Teilen, um bezahlt zu werden.",
   "deskRecvCheckSix": "Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.",
   "deskRecvHttpAddress": "Link · HTTP-Adresse",
   "deskRecvCopyHttp": "Link · HTTP-Adresse kopieren",

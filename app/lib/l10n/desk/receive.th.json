@@ -25,7 +25,7 @@
   "deskRecvAddressUnreadable": "อ่านที่อยู่ไม่ได้ เปิดหน้า รับ อีกครั้งในอีกสักครู่",
   "deskRecvEpicboxAddress": "ที่อยู่ Epicbox",
   "deskRecvCopyEpicbox": "คัดลอกที่อยู่ Epicbox",
-  "deskRecvEpicboxIntro": "แชร์ที่อยู่เพื่อรับเงิน ผู้ส่งจ่ายได้แม้กระเป๋านี้ปิดอยู่",
+  "deskRecvEpicboxIntro": "แชร์ที่อยู่เพื่อรับเงิน",
   "deskRecvCheckSix": "เวลาอ่านให้กัน ให้เทียบ 6 ตัวแรกและ 6 ตัวสุดท้าย",
   "deskRecvHttpAddress": "ที่อยู่ ลิงก์ · HTTP",
   "deskRecvCopyHttp": "คัดลอกที่อยู่ ลิงก์ · HTTP",

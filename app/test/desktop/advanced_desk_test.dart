@@ -128,9 +128,13 @@ void main() {
   group('sidebar and Overview', () {
     testWidgets('Kill switch: the rows read Off (Kill switch), Overview marks the balance Last known', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _kill);
-      await tester.tap(find.byKey(const ValueKey('bar-status')));
+      await tester.tap(find.byKey(const ValueKey('bar-status-node')));
       await _settle(tester);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Off (Kill switch)')), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _settle(tester);
+      await tester.tap(find.byKey(const ValueKey('bar-status-epicbox')));
+      await _settle(tester);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Off (Kill switch)')), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
@@ -143,10 +147,14 @@ void main() {
       await _open(tester, DeskRoute.overview, advanced: _torOnly);
       // The status rows are in the title bar's status list.
       // Waiting for Tor is in progress: its dots pulse, so the menu gets a fixed time to open.
-      await tester.tap(find.byKey(const ValueKey('bar-status')));
+      await tester.tap(find.byKey(const ValueKey('bar-status-epicbox')));
       await _settle(tester);
       expect(find.byKey(const ValueKey('status-row-epicbox')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Waiting for Tor')), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _settle(tester);
+      await tester.tap(find.byKey(const ValueKey('bar-status-node')));
+      await _settle(tester);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Waiting for Tor')), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
@@ -160,8 +168,8 @@ void main() {
   });
 
   group('Send', () {
-    ESegment<TxMethod> segment(WidgetTester tester, String label) =>
-        tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.firstWhere((s) => s.label == label);
+    ESegment<TxMethod?> segment(WidgetTester tester, String label) =>
+        tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).segments.firstWhere((s) => s.label == label);
 
     testWidgets('Node only: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), advanced: _offline);
@@ -237,12 +245,12 @@ void main() {
 
     testWidgets('Link receiving off: Link is listed, and a pasted onion picks it for this send', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(), tor: true);
-      List<String> labels() => tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).segments.map((s) => s.label).toList();
+      List<String> labels() => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).segments.map((s) => s.label).toList();
       expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
       expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
-      expect(tester.widget<ESegmented<TxMethod>>(find.byType(ESegmented<TxMethod>)).value, TxMethod.http);
+      expect(tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value, TxMethod.http);
       expect(_container.read(deskProvider).settings.payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
     }, skip: !torBuilt);
   });
@@ -347,9 +355,13 @@ void main() {
 
     testWidgets('Node only: Epicbox and Link read Off (Node only) in the status list, the node does not', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _offline);
-      await tester.tap(find.byKey(const ValueKey('bar-status')));
+      await tester.tap(find.byKey(const ValueKey('bar-status-epicbox')));
       await _settle(tester);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Off (Node only)')), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _settle(tester);
+      await tester.tap(find.byKey(const ValueKey('bar-status-node')));
+      await _settle(tester);
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Off (Node only)')), findsNothing);
     });
 

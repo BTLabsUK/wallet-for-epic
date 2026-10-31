@@ -101,7 +101,7 @@ void flows() {
     await _wait(tester, 500);
     await tester.tap(find.text('Continue'));
     await tester.pump();
-    expect(find.text('Wallet 1'), findsOneWidget);
+    expect(find.text('Wallet'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-field')), findsOneWidget);
@@ -135,7 +135,7 @@ void flows() {
     // Thirteen words are not a phrase: the line says so.
     await tester.enterText(_field(0), List.filled(13, 'abandon').join(' '));
     await _wait(tester, 500);
-    expect(find.text('13 words pasted; a phrase has 12, 15, 18, 21 or 24'), findsOneWidget);
+    expect(find.text('13 words pasted; a phrase has 12, 15, 18, 21 or 24.'), findsOneWidget);
     expect(find.text('13 of 24 words'), findsOneWidget);
     await _end(tester);
   });
@@ -214,7 +214,7 @@ void flows() {
   testWidgets('create: the name is the title, no name step, no quiz; Continue on the phrase goes to the first-run setup with the new wallet', (tester) async {
     final container = await _pump(tester, const CreateScreen());
     expect(find.text('Name'), findsNothing);
-    expect(find.text('Wallet 1'), findsOneWidget, reason: 'the next free default name as the title');
+    expect(find.text('Wallet'), findsOneWidget, reason: 'the next free default name as the title');
     expect(find.byKey(const ValueKey('wallet-name-pen')), findsOneWidget);
     expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and repeat only');
     await tester.enterText(_field(0), 'longpassword');
@@ -237,7 +237,7 @@ void flows() {
     final nav = container.read(deskNavProvider);
     expect(nav.route, DeskRoute.setup);
     final added = (nav.arg as SetupFirstRun).added;
-    expect(added.name, 'Wallet 1');
+    expect(added.name, 'Wallet');
     expect(added.id, isNotNull);
     await _end(tester);
     expect(container.read(onbFlowProvider).network, 'mainnet');
@@ -251,7 +251,7 @@ void flows() {
     await tester.enterText(field, 'Savings');
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await tester.pump();
-    expect(find.text('Wallet 1'), findsOneWidget, reason: 'Esc keeps the title');
+    expect(find.text('Wallet'), findsOneWidget, reason: 'Esc keeps the title');
     await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
     await tester.pump();
     await tester.enterText(field, 'Savings');
@@ -263,7 +263,7 @@ void flows() {
     await tester.enterText(field, '   ');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump();
-    expect(find.text('Wallet 1'), findsOneWidget, reason: 'an empty name is the default again');
+    expect(find.text('Wallet'), findsOneWidget, reason: 'an empty name is the default again');
     await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
     await tester.pump();
     await tester.enterText(field, 'Savings');
@@ -292,7 +292,7 @@ void flows() {
     await tester.runAsync(() => api.createWallet(password: 'longpassword'));
     await tester.runAsync(() => api.createWallet(password: 'longpassword'));
     final all = (await tester.runAsync(api.wallets))!;
-    expect(all.map((w) => w.name), containsAll(['Wallet 1', 'Wallet 2']));
+    expect(all.map((w) => w.name), containsAll(['Wallet', 'Wallet 2']));
     final added = all.firstWhere((w) => w.name == 'Wallet 2');
     await tester.runAsync(() => api.selectWallet('legacy-mainnet'));
     await tester.pumpWidget(

@@ -18,7 +18,7 @@
   "deskSetupNodeLead": "钱包通过 Epic 节点读取区块链并发送交易。",
   "deskSetupLocalTitle": "本地节点",
   "deskSetupLocalLead": "在这里运行节点意味着什么，以及使用哪个节点。",
-  "deskSetupEpicboxTitle": "钱包关闭时也能接收",
+  "deskSetupEpicboxTitle": "Epicbox",
   "deskSetupReviewTitle": "检查设置",
   "deskSetupReviewLead": "修改不正确的地方，然后保存。",
   "deskSetupSideTitle": "设置向导",

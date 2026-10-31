@@ -131,11 +131,11 @@ const Map<BackupPlatform, Set<AdvancedFeature>> platformOnlyFeatures = {
 /// The longest invoice expiry the desktop keeps (its `maxInvoiceExpiry`), in seconds.
 const int maxBackupInvoiceExpirySecs = 48 * 3600;
 
-/// A desktop wallet name the app gave itself ("Main wallet", "Wallet 1", "Wallet 2"…): a
+/// A desktop wallet name the app gave itself ("Main wallet", "Wallet", "Wallet 1", "Wallet 2"…): a
 /// file's name replaces it without asking.
 bool isDefaultWalletName(String name) {
   final t = name.trim();
-  return t.isEmpty || t == 'Main wallet' || RegExp(r'^Wallet \d+$').hasMatch(t); // l10n-ok: the names the app stores
+  return t.isEmpty || t == 'Main wallet' || t == 'Wallet' || RegExp(r'^Wallet \d+$').hasMatch(t); // l10n-ok: the names the app stores
 }
 
 /// A server list from the map, in its order: entries that are no server address of [kind] are

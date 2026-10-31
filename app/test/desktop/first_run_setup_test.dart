@@ -175,7 +175,7 @@ void main() {
     expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, node);
     await tester.tap(find.text('Continue'));
     await wait(tester, 1000);
-    expect(find.text('Receive when offline'), findsOneWidget);
+    expect(find.text('The Epicbox server holds payments until the wallet opens.'), findsOneWidget);
     await tester.tap(find.text('Continue'));
     await wait(tester, 300);
     expect(find.text('Review settings'), findsOneWidget);
@@ -201,7 +201,7 @@ void main() {
     final arg = container.read(deskNavProvider).arg;
     expect(arg, isA<SetupFirstRun>());
     // The mock keeps a legacy wallet, so this one is a second wallet: the current node first.
-    expect((arg! as SetupFirstRun).added.name, 'Wallet 1');
+    expect((arg! as SetupFirstRun).added.name, 'Wallet');
     await throughSetup(tester, node: 'https://current.example:3413');
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
     expect(container.read(deskNavProvider).arg, isA<UnlockAdded>());

@@ -1,0 +1,11 @@
+{
+  "deskLvShellNewsTitle": "Новое: глубина кошелька",
+  "deskLvShellNewsText": "Эта установка показывает всё, как и раньше. «Мелко» и «Глубже» показывают меньше.",
+  "deskLvShellNewsLook": "Посмотреть",
+  "deskLvShellFailover": "Переключение узла",
+  "deskLvShellFailoverAuto": "Вкл. · автоматически",
+  "deskLvShellOn": "Вкл.",
+  "deskLvShellHeight": "Высота",
+  "deskLvShellVersion": "Версия",
+  "deskLvShellRecheckHint": "Если сумма выглядит неверно, кошелёк заново читает цепочку."
+}

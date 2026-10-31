@@ -25,7 +25,7 @@
   "deskRecvAddressUnreadable": "无法读取地址。请稍后重新打开“接收”。",
   "deskRecvEpicboxAddress": "Epicbox 地址",
   "deskRecvCopyEpicbox": "复制 Epicbox 地址",
-  "deskRecvEpicboxIntro": "分享它即可收款。 此钱包关闭时，发送方也可付款。",
+  "deskRecvEpicboxIntro": "分享它即可收款。",
   "deskRecvCheckSix": "念给别人核对时，请检查前六位和后六位字符。",
   "deskRecvHttpAddress": "链接 · HTTP 地址",
   "deskRecvCopyHttp": "复制 链接 · HTTP 地址",

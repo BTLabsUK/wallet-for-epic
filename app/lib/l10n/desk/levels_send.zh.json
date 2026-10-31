@@ -1,0 +1,22 @@
+{
+  "deskLvSendHowTo": "发送方式",
+  "deskLvSendButton": "发送",
+  "deskLvSendButtonAmount": "发送 {amount} EPIC",
+  "deskLvSendButtonTo": "向 {name} 发送 {amount} EPIC",
+  "deskLvSendNothingLeaves": "按下“发送”之前不会发出任何内容。发出后无法撤回。",
+  "deskLvSendPasswordTitle": "你的密码",
+  "deskLvSendConfirm": "发送",
+  "deskLvSendLiveTo": "正在发往 {name}",
+  "deskLvSendLiveAmountTo": "{amount} EPIC 给 {name}",
+  "deskLvSendLiveAmount": "{amount} EPIC",
+  "deskLvSendYourAddress": "你的地址",
+  "deskLvSendReady": "可以接收",
+  "deskLvSendClosedInfo": "钱包关闭期间发出的付款，会在钱包打开后到账。",
+  "deskLvSendPayFiles": "付款文件",
+  "deskLvSendSignFile": "签署付款文件",
+  "deskLvSendSignFileText": "打开发送方给你的文件，并保存你的回复。",
+  "deskLvSendFinishFile": "完成回复文件",
+  "deskLvSendFinishFileText": "打开收到的回复，以发布这笔付款。",
+  "deskLvSendPrevAddress": "旧地址",
+  "deskLvSendPrevText": "旧地址在 {server} 上。拥有旧地址的人需要新地址。"
+}

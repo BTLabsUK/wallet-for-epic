@@ -6,7 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
+import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
 import '../../app/tour.dart';
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
+import '../../../levels/level_features.dart' show LevelWording;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
@@ -14,6 +17,7 @@ import '../../../amount.dart' show displayEpic;
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../../ui/common.dart' show epicExact, exactAmountTip;
 import '../../widgets/kit.dart';
+import '../../widgets/pay_steps.dart' show DeskPaymentSteps, payInFlight;
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
 import '../settings/prefs.dart' show settingsPrefsProvider;
@@ -45,6 +49,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   bool _restarting = false;
   bool _problemHidden = false;
   bool _addressNoteHidden = false;
+
+  /// Shallow's first-open notice was answered on this Overview.
+  bool _readyHidden = false;
 
   /// The history import offer was asked on this Overview.
   bool _importOffered = false;
@@ -78,6 +85,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final l = context.l10n;
     final demo = widget.arg is OverviewDemo ? widget.arg! as OverviewDemo : null;
     final s = ref.watch(deskProvider);
+    final lv = ref.watch(deskLevelUiProvider);
+    final shallow = lv.heroSentence;
     final hidden = s.settings.hideAmounts;
     final loading = demo == OverviewDemo.loading || s.balance == null;
     // The scan a restore owes: its progress, not the empty-wallet state.
@@ -97,7 +106,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final nodeUrl = (s.status?.node.url ?? hostSettings.nodeFallback).replaceFirst(RegExp(r'^https?://'), '');
 
-    final recent = _Recent(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
+    final recent = _Recent(txs: txs, shallow: shallow, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onAll: () => nav.go(DeskRoute.activity));
     final pending = empty ? 0 : s.pendingFiles;
     final gap = SizedBox(height: Sp.x4);
 
@@ -111,6 +120,20 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       });
     }
     final notices = <Widget>[
+      // The one notice about levels and the Epicbox server offer (the shell's).
+      if (ref.watch(deskShellNoticesShownProvider)) const DeskShellNotices(),
+      if (shallow && empty && !_readyHidden)
+        ENotice(
+          key: const ValueKey('overview-ready'),
+          tone: ETone.ok,
+          title: l.deskLvPayReadyTitle,
+          text: l.deskLvPayReadyText,
+          actionsBelow: true,
+          actions: [
+            EButton(label: l.deskOvShowAddress, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.receive)),
+            EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _readyHidden = true)),
+          ],
+        ),
       if (restore != null) RestoreScanPanel(scan: restore),
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
       if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
@@ -179,12 +202,14 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       title: l.deskOvTitle,
       width: EPageWidth.full,
       actions: [
-        EIconButton(
-          icon: hidden ? EIcons.eyeOff : EIcons.eye,
-          label: hidden ? l.deskOvShowAmounts : l.deskOvHideAmounts,
-          selected: hidden,
-          onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
-        ),
+        // Shallow moves the eye to Settings › Appearance.
+        if (lv.hideAmountsInHeader)
+          EIconButton(
+            icon: hidden ? EIcons.eyeOff : EIcons.eye,
+            label: hidden ? l.deskOvShowAmounts : l.deskOvHideAmounts,
+            selected: hidden,
+            onPressed: () => ref.read(deskProvider.notifier).saveSettings(s.settings.copyWith(hideAmounts: !hidden)),
+          ),
         _refreshing
             ? SizedBox.square(
                 dimension: Ctl.sm,
@@ -213,8 +238,12 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               asOfBlock: syncing ? _walletTip : null,
               sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,
               nodeAnswers: !(nodeDown || demo == OverviewDemo.nodeProblem),
+              shallow: shallow,
+              casual: lv.casualWords,
             ),
           ),
+          // A payment in progress, at every level: its steps live (D11).
+          if (txs != null) _InFlight(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id)),
           SizedBox(height: Sp.x2),
           // While the restore scan runs, Recent activity shows what it finds, never "No
           // transactions yet" (copy D1).
@@ -320,7 +349,7 @@ class _SyncNotice extends StatelessWidget {
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
 class _BalancePanel extends ConsumerWidget {
-  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false});
+  const _BalancePanel({required this.balance, required this.empty, required this.hidden, this.updating = false, this.asOfBlock, this.sendBlocked = false, this.nodeAnswers = true, this.offline = false, this.shallow = false, this.casual = false});
 
   final Balance? balance;
   final bool empty;
@@ -338,6 +367,12 @@ class _BalancePanel extends ConsumerWidget {
 
   /// Offline mode: the amounts are the last known ones, marked as such.
   final bool offline;
+
+  /// Shallow: one number and one sentence, no tiles, no fiat line.
+  final bool shallow;
+
+  /// Deeper: the tiles in casual words.
+  final bool casual;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -413,7 +448,9 @@ class _BalancePanel extends ConsumerWidget {
                     amount,
                     SizedBox(height: 6.u),
                     if (empty)
-                      Text(l.deskOvEmptyHint, style: ts.bodyDim)
+                      Text(shallow ? l.deskLvPayHeroNothing : l.deskOvEmptyHint, style: ts.bodyDim)
+                    else if (shallow)
+                      _HeroSentence(txs: txs, hidden: hidden)
                     else if (price != null && b != null)
                       Text.rich(
                         TextSpan(
@@ -450,17 +487,18 @@ class _BalancePanel extends ConsumerWidget {
               },
             ),
           ),
-          SizedBox(height: Sp.x5),
-          Divider(height: 1, color: c.line),
+          SizedBox(height: shallow ? Sp.x6 : Sp.x5),
+          if (!shallow) Divider(height: 1, color: c.line),
+          if (!shallow)
           LayoutBuilder(
             builder: (context, box) {
               // The phone's order (GP-007); Available to spend is the big figure above.
               final items = <(String, int?, Widget?)>[
-                (l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, needed: deskMinConfirmations(ref), size: Ctl.iconSm)),
-                if (b == null || b.immature > 0) (l.deskOvBreakImmature, b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                (l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
+                (casual ? l.deskLvPayTileConfirming : l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, needed: deskMinConfirmations(ref), size: Ctl.iconSm)),
+                if (b == null || b.immature > 0) (casual ? l.deskLvPayTileMining : l.deskOvBreakImmature, b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
+                (casual ? l.deskLvPayTileWaiting : l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
                 if (posted > 0) (l.deskTxStatusSenderPosted, posted, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                (l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
+                (casual ? l.deskLvPayTileLocked : l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
               ];
               // Four decimals as the phone's tiles (UP-016); the exact value is each tile's tooltip.
@@ -766,9 +804,12 @@ class _Skeleton extends StatelessWidget {
 }
 
 class _Recent extends StatelessWidget {
-  const _Recent({required this.txs, required this.onOpen, required this.onAll});
+  const _Recent({required this.txs, required this.onOpen, required this.onAll, this.shallow = false});
 
   final List<Tx>? txs;
+
+  /// Shallow: no mining rows, and an empty state that is only its title.
+  final bool shallow;
   final ValueChanged<Tx> onOpen;
   final VoidCallback onAll;
 
@@ -793,21 +834,23 @@ class _Recent extends StatelessWidget {
     } else if (list.isEmpty) {
       body = Builder(
         builder: (context) => Consumer(
-          builder: (context, ref, _) => EEmpty(
-            icon: EIcons.receive,
-            title: l.deskOvEmptyTitle,
-            text: l.deskOvEmptyText(deskMinConfirmations(ref)),
-            actions: [
-              EButton.primary(label: l.deskOvShowAddress, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
-              EButton.ghost(label: l.deskOvReceiveFile, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),
-            ],
-          ),
+          builder: (context, ref, _) => shallow
+              ? EEmpty(icon: EIcons.receive, title: l.deskOvEmptyTitle)
+              : EEmpty(
+                  icon: EIcons.receive,
+                  title: l.deskOvEmptyTitle,
+                  text: l.deskOvEmptyText(deskMinConfirmations(ref)),
+                  actions: [
+                    EButton.primary(label: l.deskOvShowAddress, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
+                    EButton.ghost(label: l.deskOvReceiveFile, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),
+                  ],
+                ),
         ),
       );
     } else {
       body = Column(
         children: [
-          for (final (i, t) in list.take(5).indexed) ...[if (i > 0) Divider(height: 1, color: c.line), TxRow(tx: t, compact: true, onTap: () => onOpen(t))],
+          for (final (i, t) in (shallow ? list.where((t) => !t.immature) : list).take(5).indexed) ...[if (i > 0) Divider(height: 1, color: c.line), TxRow(tx: t, compact: true, onTap: () => onOpen(t))],
         ],
       );
     }
@@ -830,6 +873,166 @@ class _Recent extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Shallow's one sentence under the balance: what is moving, in two parts at most ("+12.5000
+/// arriving from Bob · 25.0000 on hold until Alice signs"). Nothing when nothing moves.
+class _HeroSentence extends StatelessWidget {
+  const _HeroSentence({required this.txs, required this.hidden});
+
+  final List<Tx> txs;
+  final bool hidden;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final arriving = [for (final t in txs) if (t.incoming && payInFlight(t)) t];
+    final held = [for (final t in txs) if (!t.incoming && t.state == TxState.waitingRecipient && !t.notPosted && payInFlight(t)) t];
+    String money(List<Tx> of) => hidden ? '••••••' : formatEpicL(l, of.fold<int>(0, (sum, t) => sum + t.amount));
+    final parts = <(IconData, Color, String)>[
+      if (arriving.isNotEmpty)
+        (
+          EIcons.clock,
+          c.info,
+          arriving.length == 1 && arriving.first.contactName != null ? l.deskLvPayHeroArriving(money(arriving), arriving.first.contactName!) : l.deskLvPayHeroArrivingMany(money(arriving)),
+        ),
+      if (held.isNotEmpty)
+        (
+          EIcons.lock,
+          c.dim,
+          held.length == 1 && held.first.contactName != null ? l.deskLvPayHeroHold(money(held), held.first.contactName!) : l.deskLvPayHeroHoldMany(money(held)),
+        ),
+    ];
+    if (parts.isEmpty) return const SizedBox.shrink();
+    return Wrap(
+      key: const ValueKey('overview-hero-sentence'),
+      spacing: Sp.x2,
+      runSpacing: Sp.x1,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        for (final (i, (icon, color, text)) in parts.indexed) ...[
+          if (i > 0) Text('·', style: ts.small.copyWith(color: c.faint)),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ExcludeSemantics(child: Icon(icon, size: Ctl.iconSm, color: color)),
+              SizedBox(width: Sp.x1),
+              Flexible(child: Text(text, style: ts.small.copyWith(color: color))),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// The payments under way, each a card with its live steps ("On its way to Alice"): above
+/// Recent activity at every level (D11). The newest three.
+class _InFlight extends ConsumerWidget {
+  const _InFlight({required this.txs, required this.onOpen});
+
+  final List<Tx> txs;
+  final ValueChanged<Tx> onOpen;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final live = txs.where(payInFlight).take(3).toList();
+    if (live.isEmpty) return const SizedBox.shrink();
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final technical = ref.watch(deskLevelFeaturesProvider.select((f) => f.wording)) == LevelWording.technical;
+    final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final t in live)
+          Padding(
+            padding: EdgeInsets.only(top: Sp.x4),
+            child: Semantics(
+              button: true,
+              onTap: () => onOpen(t),
+              child: Container(
+                key: ValueKey('overview-inflight-${t.id}'),
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: c.s1,
+                  border: Border.all(color: c.line),
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                ),
+                // The accent bar is drawn under the card, not laid out beside it: the steps
+                // measure their own width (no intrinsic sizes here).
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: SizedBox(width: 3, child: ColoredBox(color: c.info, child: const SizedBox.expand())),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 3),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => onOpen(t),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  children: [
+                                    ExcludeSemantics(child: TxIcon(t)),
+                                    SizedBox(width: Sp.x4),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(_title(l, t, technical), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
+                                          Text(
+                                            l.deskLvPayStartedAt(hidden ? '••••••' : formatEpicL(l, t.amount), timeOf(t)),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: ts.small,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(width: Sp.x4),
+                                    ExcludeSemantics(child: TxAmount(t, showFee: false)),
+                                  ],
+                                ),
+                                SizedBox(height: Sp.x4),
+                                DeskPaymentSteps(tx: t, dense: true),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// "On its way to Alice" (Deep end: "Sending to Alice"); a payment coming in reads "Arriving
+  /// from Bob". The Deep end names an address when no contact does.
+  String _title(AppLocalizations l, Tx t, bool technical) {
+    final name = t.contactName ?? (technical ? whoOf(l, t) : null);
+    if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
+    if (name == null) return l.lvPayOnItsWay;
+    return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);
   }
 }
 

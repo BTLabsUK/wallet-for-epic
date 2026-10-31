@@ -5287,7 +5287,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get methodReceiveEpicboxShort => 'ผู้ส่งจ่ายได้แม้กระเป๋านี้ปิดอยู่';
+  String get methodReceiveEpicboxShort => 'แชร์ที่อยู่เพื่อรับเงิน';
 
   @override
   String get methodReceiveDirectTitle => 'ส่งตรงถึงกระเป๋านี้';
@@ -6226,8 +6226,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskRecvCopyEpicbox => 'คัดลอกที่อยู่ Epicbox';
 
   @override
-  String get deskRecvEpicboxIntro =>
-      'แชร์ที่อยู่เพื่อรับเงิน ผู้ส่งจ่ายได้แม้กระเป๋านี้ปิดอยู่';
+  String get deskRecvEpicboxIntro => 'แชร์ที่อยู่เพื่อรับเงิน';
 
   @override
   String get deskRecvCheckSix =>
@@ -11634,7 +11633,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'การรันโหนดที่นี่หมายถึงอะไร และจะใช้โหนดไหน';
 
   @override
-  String get deskSetupEpicboxTitle => 'รับเงินแม้ปิดกระเป๋า';
+  String get deskSetupEpicboxTitle => 'Epicbox';
 
   @override
   String get deskSetupReviewTitle => 'ตรวจการตั้งค่า';
@@ -17939,4 +17938,271 @@ class AppLocalizationsTh extends AppLocalizations {
   String lvPolAbout(String name) {
     return 'เกี่ยวกับ $name';
   }
+
+  @override
+  String get deskLvStartPreviewLabel =>
+      'ภาพตัวอย่างภาพรวม ยิ่งเลือกลึก ยิ่งแสดงมาก';
+
+  @override
+  String get deskLvStartPreviewCaption =>
+      'ภาพรวมของคุณที่ความลึกนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
+
+  @override
+  String get deskLvStartPreviewCaptionShort => 'ภาพรวมของคุณที่ความลึกนี้';
+
+  @override
+  String get deskLvStartCover => 'เลือกระดับเพื่อดูภาพตัวอย่าง';
+
+  @override
+  String get deskLvStartUndercoverAbout => 'เกี่ยวกับการปกปิดตัวตน';
+
+  @override
+  String get deskLvStartChangeLater =>
+      'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
+
+  @override
+  String get deskLvStartHelpShallow =>
+      'น้ำตื้น · ที่อยู่เดียว ไม่มีชื่อเซิร์ฟเวอร์ ไม่มีสวิตช์';
+
+  @override
+  String get deskLvStartHelpDeeper =>
+      'ลึกขึ้น · กระเป๋าเงินเดิม พร้อมแสดงว่ากำลังทำอะไร ด้วยคำง่าย ๆ';
+
+  @override
+  String get deskLvStartHelpDeep =>
+      'น้ำลึก · ทุกสวิตช์ ทุกตัวเลข: แอปอย่างที่เป็นอยู่ตอนนี้';
+
+  @override
+  String get deskLvStartPickFirst =>
+      'เลือกความลึกก่อน จะยังไม่มีการเชื่อมต่อจนกว่าจะเลือก';
+
+  @override
+  String get deskLvStartMiniWallet => 'กระเป๋าเงินหลัก';
+
+  @override
+  String get deskLvStartMiniLine => '+12.5000 กำลังเข้า · 25.0000 ถูกพักไว้';
+
+  @override
+  String get deskLvStartMiniFresh => 'ใหม่จากการขุด';
+
+  @override
+  String get deskLvStartMiniWaiting => 'รออีกฝ่าย';
+
+  @override
+  String get deskLvStartAdvNote =>
+      'ยิ่งระดับลึก ยิ่งแสดงกระเป๋าเงินมาก ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
+
+  @override
+  String deskLvStartAboutDepth(String name) {
+    return 'ความลึก: $name';
+  }
+
+  @override
+  String get deskLvSendHowTo => 'วิธีส่ง';
+
+  @override
+  String get deskLvSendButton => 'ส่ง';
+
+  @override
+  String deskLvSendButtonAmount(String amount) {
+    return 'ส่ง $amount EPIC';
+  }
+
+  @override
+  String deskLvSendButtonTo(String amount, String name) {
+    return 'ส่ง $amount EPIC ให้ $name';
+  }
+
+  @override
+  String get deskLvSendNothingLeaves =>
+      'จะไม่มีอะไรออกไปจนกว่าจะกดส่ง หลังจากนั้นเรียกคืนไม่ได้';
+
+  @override
+  String get deskLvSendPasswordTitle => 'รหัสผ่านของคุณ';
+
+  @override
+  String get deskLvSendConfirm => 'ส่ง';
+
+  @override
+  String deskLvSendLiveTo(String name) {
+    return 'กำลังไปหา $name';
+  }
+
+  @override
+  String deskLvSendLiveAmountTo(String amount, String name) {
+    return '$amount EPIC ให้ $name';
+  }
+
+  @override
+  String deskLvSendLiveAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskLvSendYourAddress => 'ที่อยู่ของคุณ';
+
+  @override
+  String get deskLvSendReady => 'พร้อมรับเงิน';
+
+  @override
+  String get deskLvSendClosedInfo =>
+      'การชำระที่ส่งมาตอนกระเป๋าเงินปิดอยู่ จะมาถึงเมื่อเปิดกระเป๋า';
+
+  @override
+  String get deskLvSendPayFiles => 'ไฟล์การชำระเงิน';
+
+  @override
+  String get deskLvSendSignFile => 'ลงนามไฟล์การชำระเงิน';
+
+  @override
+  String get deskLvSendSignFileText =>
+      'เปิดไฟล์ที่ผู้ส่งให้มา แล้วบันทึกคำตอบของคุณ';
+
+  @override
+  String get deskLvSendFinishFile => 'ทำไฟล์ตอบกลับให้เสร็จ';
+
+  @override
+  String get deskLvSendFinishFileText =>
+      'เปิดคำตอบที่ได้กลับมา เพื่อโพสต์การชำระเงิน';
+
+  @override
+  String get deskLvSendPrevAddress => 'ที่อยู่เดิม';
+
+  @override
+  String deskLvSendPrevText(String server) {
+    return 'ที่อยู่เดิมอยู่บน $server ใครที่มีที่อยู่นั้นต้องใช้ที่อยู่ใหม่';
+  }
+
+  @override
+  String get deskLvPayS1Sent => 'Slate S1 ส่งผ่าน Epicbox แล้ว · รอ S2';
+
+  @override
+  String deskLvPayS1On(String relay) {
+    return 'S1 บน $relay · รอ S2';
+  }
+
+  @override
+  String deskLvPayNotOpen(String name) {
+    return 'กระเป๋าเงินของ $name ยังไม่เปิด';
+  }
+
+  @override
+  String deskLvPayWaitingOpen(String name) {
+    return 'รอให้กระเป๋าเงินของ $name เปิด';
+  }
+
+  @override
+  String get deskLvPaySenderFinished => 'ผู้ส่งทำเสร็จแล้ว';
+
+  @override
+  String get deskLvPayPostedNode => 'โพสต์ไปที่โหนดแล้ว';
+
+  @override
+  String deskLvPayConfirmingComma(int count, int target) {
+    return 'กำลังยืนยัน $count จาก $target';
+  }
+
+  @override
+  String deskLvPayConfirmationsOf(int count, int target) {
+    return 'การยืนยัน $count / $target';
+  }
+
+  @override
+  String get deskLvPayDone => 'เสร็จแล้ว';
+
+  @override
+  String deskLvPayOnItsWayTo(String name) {
+    return 'กำลังไปหา $name';
+  }
+
+  @override
+  String deskLvPaySendingTo(String name) {
+    return 'กำลังส่งให้ $name';
+  }
+
+  @override
+  String deskLvPayArrivingFrom(String name) {
+    return 'กำลังเข้ามาจาก $name';
+  }
+
+  @override
+  String deskLvPayStartedAt(String amount, String time) {
+    return '$amount EPIC · เริ่มเมื่อ $time';
+  }
+
+  @override
+  String deskLvPayHeroArriving(String amount, String name) {
+    return '+$amount กำลังเข้ามาจาก $name';
+  }
+
+  @override
+  String deskLvPayHeroArrivingMany(String amount) {
+    return '+$amount กำลังเข้ามา';
+  }
+
+  @override
+  String deskLvPayHeroHold(String amount, String name) {
+    return '$amount ถูกพักไว้จนกว่า $name จะลงนาม';
+  }
+
+  @override
+  String deskLvPayHeroHoldMany(String amount) {
+    return '$amount ถูกพักไว้จนกว่าจะลงนาม';
+  }
+
+  @override
+  String get deskLvPayHeroNothing => 'ยังไม่มีอะไรกำลังเข้ามา';
+
+  @override
+  String get deskLvPayReadyTitle => 'กระเป๋าเงินของคุณพร้อมแล้ว';
+
+  @override
+  String get deskLvPayReadyText => 'แชร์ที่อยู่เพื่อรับ EPIC แรก';
+
+  @override
+  String get deskLvPayTileConfirming => 'ยังกำลังยืนยัน';
+
+  @override
+  String get deskLvPayTileMining => 'ใหม่จากการขุด';
+
+  @override
+  String get deskLvPayTileWaiting => 'รออีกฝ่าย';
+
+  @override
+  String get deskLvPayTileLocked => 'กันไว้สำหรับการส่ง';
+
+  @override
+  String get deskLvPayImmatureCasual => 'ใหม่จากการขุด ยังใช้ไม่ได้';
+
+  @override
+  String get deskLvPayKind => 'การชำระเงิน';
+
+  @override
+  String get deskLvShellNewsTitle => 'ใหม่: ความลึกของกระเป๋าเงิน';
+
+  @override
+  String get deskLvShellNewsText =>
+      'การติดตั้งนี้แสดงทุกอย่างเหมือนเดิม น้ำตื้นและลึกขึ้นแสดงน้อยกว่า';
+
+  @override
+  String get deskLvShellNewsLook => 'ไปดู';
+
+  @override
+  String get deskLvShellFailover => 'สลับโหนดอัตโนมัติ';
+
+  @override
+  String get deskLvShellFailoverAuto => 'เปิด · อัตโนมัติ';
+
+  @override
+  String get deskLvShellOn => 'เปิด';
+
+  @override
+  String get deskLvShellHeight => 'ความสูง';
+
+  @override
+  String get deskLvShellVersion => 'เวอร์ชัน';
+
+  @override
+  String get deskLvShellRecheckHint =>
+      'ถ้าจำนวนเงินดูไม่ถูกต้อง กระเป๋าเงินจะอ่านเชนใหม่อีกครั้ง';
 }

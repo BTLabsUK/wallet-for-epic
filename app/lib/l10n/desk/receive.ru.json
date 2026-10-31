@@ -25,7 +25,7 @@
   "deskRecvAddressUnreadable": "Не удалось прочитать адрес. Откройте «Получить» снова через минуту.",
   "deskRecvEpicboxAddress": "Адрес Epicbox",
   "deskRecvCopyEpicbox": "Копировать адрес Epicbox",
-  "deskRecvEpicboxIntro": "Поделитесь им, чтобы получить оплату. Отправители могут платить, пока кошелёк закрыт.",
+  "deskRecvEpicboxIntro": "Поделитесь им, чтобы получить оплату.",
   "deskRecvCheckSix": "Читая его вслух, сверьте первые шесть и последние шесть символов.",
   "deskRecvHttpAddress": "Адрес Ссылка · HTTP",
   "deskRecvCopyHttp": "Копировать адрес Ссылка · HTTP",

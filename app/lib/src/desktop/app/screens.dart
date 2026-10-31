@@ -19,6 +19,7 @@ import '../screens/settings/settings_appearance.dart';
 import '../screens/settings/settings_devices.dart';
 import '../screens/settings/settings_help.dart';
 import '../screens/settings/settings_invoices.dart';
+import '../screens/settings/settings_level.dart';
 import '../screens/settings/settings_node.dart';
 import '../screens/settings/settings_phrase.dart';
 import '../screens/settings/settings_privacy.dart';
@@ -70,6 +71,7 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.settingsPhrase => SettingsPhraseScreen(arg: a),
     DeskRoute.settingsRescan => SettingsRescanScreen(arg: a),
     DeskRoute.settingsAdvanced => SettingsAdvancedScreen(arg: a),
+    DeskRoute.settingsLevel => SettingsLevelScreen(arg: a),
     DeskRoute.settingsAbout => SettingsAboutScreen(arg: a),
     DeskRoute.settingsHelp => SettingsHelpScreen(arg: a),
   };

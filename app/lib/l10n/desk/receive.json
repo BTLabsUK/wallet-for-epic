@@ -165,7 +165,7 @@
   "@deskRecvCopyEpicbox": {
     "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
   },
-  "deskRecvEpicboxIntro": "Share it to get paid. Senders can pay while this wallet is closed.",
+  "deskRecvEpicboxIntro": "Share it to get paid.",
   "@deskRecvEpicboxIntro": {
     "description": "Intro text of the Epicbox panel on Receive."
   },

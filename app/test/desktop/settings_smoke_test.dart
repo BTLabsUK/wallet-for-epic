@@ -195,10 +195,10 @@ void main() {
       child: const DeskApp(),
     ));
     await tester.pump(const Duration(seconds: 1));
-    // The status rows are in the title bar's status list.
-    await tester.tap(find.byKey(const ValueKey('bar-status')));
+    // Each status icon in the title bar opens its popover, whose button opens the settings.
+    await tester.tap(find.byKey(const ValueKey('bar-status-epicbox')));
     await tester.pump(const Duration(milliseconds: 500));
-    await tester.tap(find.byKey(const ValueKey('status-row-epicbox')));
+    await tester.tap(find.byKey(const ValueKey('status-open-epicbox')));
     await tester.pump(const Duration(milliseconds: 500));
     expect(container.read(deskNavProvider).route, DeskRoute.settingsReceiving);
     expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.epicbox);

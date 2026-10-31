@@ -1,0 +1,72 @@
+{
+  "deskLvStartPreviewLabel": "Preview of the Overview. It shows more as the dial goes deeper.",
+  "@deskLvStartPreviewLabel": {
+    "description": "Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth)."
+  },
+  "deskLvStartPreviewCaption": "Your Overview at this depth. Nothing stored changes between depths.",
+  "@deskLvStartPreviewCaption": {
+    "description": "Caption under the Overview picture on Welcome (first start)."
+  },
+  "deskLvStartPreviewCaptionShort": "Your Overview at this depth.",
+  "@deskLvStartPreviewCaptionShort": {
+    "description": "Caption under the Overview picture on the Change level page."
+  },
+  "deskLvStartCover": "Pick a stop to see the preview",
+  "@deskLvStartCover": {
+    "description": "Over the faded Overview picture on Welcome before a stop of the depth dial is picked."
+  },
+  "deskLvStartUndercoverAbout": "About Undercover",
+  "@deskLvStartUndercoverAbout": {
+    "description": "Label of the info button next to the Undercover switch."
+  },
+  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
+  "@deskLvStartChangeLater": {
+    "description": "Welcome, under the depth dial: where the depth can be changed later. A \"What this decides\" link follows it."
+  },
+  "deskLvStartHelpShallow": "Shallow · one address, no server names, no switches.",
+  "@deskLvStartHelpShallow": {
+    "description": "Dialog \"What this decides\": the line for the first stop. Shallow is the stop name."
+  },
+  "deskLvStartHelpDeeper": "Deeper · the same wallet, plus what it is doing, in plain words.",
+  "@deskLvStartHelpDeeper": {
+    "description": "Dialog \"What this decides\": the line for the second stop. Deeper is the stop name."
+  },
+  "deskLvStartHelpDeep": "Deep end · every switch, every number: today’s app.",
+  "@deskLvStartHelpDeep": {
+    "description": "Dialog \"What this decides\": the line for the third stop. Deep end is the stop name."
+  },
+  "deskLvStartPickFirst": "Pick a depth first. Nothing connects until you do.",
+  "@deskLvStartPickFirst": {
+    "description": "Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install."
+  },
+  "deskLvStartMiniWallet": "Main wallet",
+  "@deskLvStartMiniWallet": {
+    "description": "The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet."
+  },
+  "deskLvStartMiniLine": "+12.5000 arriving · 25.0000 on hold",
+  "@deskLvStartMiniLine": {
+    "description": "The one sentence under the balance in the small Overview picture at Shallow. A sample."
+  },
+  "deskLvStartMiniFresh": "Fresh from mining",
+  "@deskLvStartMiniFresh": {
+    "description": "Balance tile in the small Overview picture at Deeper: mining rewards not yet spendable."
+  },
+  "deskLvStartMiniWaiting": "Waiting for the other side",
+  "@deskLvStartMiniWaiting": {
+    "description": "Balance tile in the small Overview picture at Deeper: coins waiting for the sender to sign."
+  },
+  "deskLvStartAdvNote": "More levels show more of the wallet. Nothing stored changes.",
+  "@deskLvStartAdvNote": {
+    "description": "Settings › Advanced at Shallow, under the Depth row."
+  },
+  "deskLvStartAboutDepth": "Depth: {name}",
+  "@deskLvStartAboutDepth": {
+    "description": "Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Shallow"
+      }
+    }
+  }
+}

@@ -14,7 +14,12 @@ import 'level_features.dart';
 import 'wallet_level.dart';
 
 /// The stored level choice, settled once at launch ([settleLevelChoice]).
-final walletLevelProvider = AsyncNotifierProvider<WalletLevelNotifier, LevelChoice>(WalletLevelNotifier.new);
+/// Never retried: a store that can't be read shows Deep end ([currentLevelProvider]) rather than
+/// asking again on a timer.
+final walletLevelProvider = AsyncNotifierProvider<WalletLevelNotifier, LevelChoice>(
+  WalletLevelNotifier.new,
+  retry: (_, _) => null,
+);
 
 class WalletLevelNotifier extends AsyncNotifier<LevelChoice> {
   @override
@@ -22,7 +27,8 @@ class WalletLevelNotifier extends AsyncNotifier<LevelChoice> {
     final store = ref.read(secretStoreProvider);
     final choice = await settleLevelChoice(read: store.read, write: store.write);
     // The settings may have built before the level was known: bring the gate in line.
-    final settings = ref.read(appSettingsProvider).value;
+    // Only when built: the desktop keeps its settings elsewhere and never builds the phone's.
+    final settings = ref.exists(appSettingsProvider) ? ref.read(appSettingsProvider).value : null;
     if (settings != null) NetGate.setExperimental(effectiveAdvanced(_levelOf(choice), settings.advanced));
     return choice;
   }
@@ -30,13 +36,18 @@ class WalletLevelNotifier extends AsyncNotifier<LevelChoice> {
   /// The user picked [level]: stored, then its preset applied to the Advanced prefs when it
   /// changes them (level 3 turns the shown features on).
   Future<void> setLevel(WalletLevel level) async {
-    await ref.read(secretStoreProvider).write(levelKey, LevelChosen(level).encode());
-    state = AsyncData(LevelChosen(level));
+    await store(level);
     final notifier = ref.read(appSettingsProvider.notifier);
     final settings = await ref.read(appSettingsProvider.future);
     final preset = levelPreset(level, settings.advanced);
     if (preset != settings.advanced) await notifier.setAdvanced(preset);
     NetGate.setExperimental(effectiveAdvanced(level, preset));
+  }
+
+  /// Stores [level] and nothing else: the desktop applies the preset to its own settings.
+  Future<void> store(WalletLevel level) async {
+    await ref.read(secretStoreProvider).write(levelKey, LevelChosen(level).encode());
+    state = AsyncData(LevelChosen(level));
   }
 }
 

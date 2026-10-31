@@ -8620,10 +8620,10 @@ abstract class AppLocalizations {
   /// **'{method}: a transaction file is handed over, a response file comes back, then the sender finalizes'**
   String methodArtSpokenFile(String method);
 
-  /// Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No "app": the web demo shows it too.
+  /// Receive's Epicbox strip line: share the address to get paid. No "app": the web demo shows it too.
   ///
   /// In en, this message translates to:
-  /// **'Senders can pay while this wallet is closed.'**
+  /// **'Share the address to get paid.'**
   String get methodReceiveEpicboxShort;
 
   /// Receive's Link strip title.
@@ -10189,7 +10189,7 @@ abstract class AppLocalizations {
   /// Intro text of the Epicbox panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Share it to get paid. Senders can pay while this wallet is closed.'**
+  /// **'Share it to get paid.'**
   String get deskRecvEpicboxIntro;
 
   /// Caption under the Epicbox address on Receive.
@@ -18872,10 +18872,10 @@ abstract class AppLocalizations {
   /// **'What running the node here means, and which node to use.'**
   String get deskSetupLocalLead;
 
-  /// Title of the setup step about the Epicbox server, which holds payments while this wallet is closed.
+  /// Title of the setup step about the Epicbox server (address for getting paid).
   ///
   /// In en, this message translates to:
-  /// **'Receive while closed'**
+  /// **'Epicbox'**
   String get deskSetupEpicboxTitle;
 
   /// Title of the setup's last step: a summary of the choices.
@@ -28657,6 +28657,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About {name}'**
   String lvPolAbout(String name);
+
+  /// Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth).
+  ///
+  /// In en, this message translates to:
+  /// **'Preview of the Overview. It shows more as the dial goes deeper.'**
+  String get deskLvStartPreviewLabel;
+
+  /// Caption under the Overview picture on Welcome (first start).
+  ///
+  /// In en, this message translates to:
+  /// **'Your Overview at this depth. Nothing stored changes between depths.'**
+  String get deskLvStartPreviewCaption;
+
+  /// Caption under the Overview picture on the Change level page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Overview at this depth.'**
+  String get deskLvStartPreviewCaptionShort;
+
+  /// Over the faded Overview picture on Welcome before a stop of the depth dial is picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a stop to see the preview'**
+  String get deskLvStartCover;
+
+  /// Label of the info button next to the Undercover switch.
+  ///
+  /// In en, this message translates to:
+  /// **'About Undercover'**
+  String get deskLvStartUndercoverAbout;
+
+  /// Welcome, under the depth dial: where the depth can be changed later. A "What this decides" link follows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it any time in Settings › Advanced.'**
+  String get deskLvStartChangeLater;
+
+  /// Dialog "What this decides": the line for the first stop. Shallow is the stop name.
+  ///
+  /// In en, this message translates to:
+  /// **'Shallow · one address, no server names, no switches.'**
+  String get deskLvStartHelpShallow;
+
+  /// Dialog "What this decides": the line for the second stop. Deeper is the stop name.
+  ///
+  /// In en, this message translates to:
+  /// **'Deeper · the same wallet, plus what it is doing, in plain words.'**
+  String get deskLvStartHelpDeeper;
+
+  /// Dialog "What this decides": the line for the third stop. Deep end is the stop name.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep end · every switch, every number: today’s app.'**
+  String get deskLvStartHelpDeep;
+
+  /// Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a depth first. Nothing connects until you do.'**
+  String get deskLvStartPickFirst;
+
+  /// The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Main wallet'**
+  String get deskLvStartMiniWallet;
+
+  /// The one sentence under the balance in the small Overview picture at Shallow. A sample.
+  ///
+  /// In en, this message translates to:
+  /// **'+12.5000 arriving · 25.0000 on hold'**
+  String get deskLvStartMiniLine;
+
+  /// Balance tile in the small Overview picture at Deeper: mining rewards not yet spendable.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh from mining'**
+  String get deskLvStartMiniFresh;
+
+  /// Balance tile in the small Overview picture at Deeper: coins waiting for the sender to sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the other side'**
+  String get deskLvStartMiniWaiting;
+
+  /// Settings › Advanced at Shallow, under the Depth row.
+  ///
+  /// In en, this message translates to:
+  /// **'More levels show more of the wallet. Nothing stored changes.'**
+  String get deskLvStartAdvNote;
+
+  /// Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth: {name}'**
+  String deskLvStartAboutDepth(String name);
+
+  /// Heading of the method card on Send at the Deeper level, above the Epicbox, Link and File Transfer choice.
+  ///
+  /// In en, this message translates to:
+  /// **'How to send it'**
+  String get deskLvSendHowTo;
+
+  /// Label of the Summary column's button on Send at the Shallow level while no amount is entered yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskLvSendButton;
+
+  /// Label of the Summary column's button on Send at the Shallow level when the recipient has no name. {amount} is the amount with decimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Send {amount} EPIC'**
+  String deskLvSendButtonAmount(String amount);
+
+  /// Label of the Summary column's button on Send at the Shallow level. {amount} is the amount with decimals, {name} the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Send {amount} EPIC to {name}'**
+  String deskLvSendButtonTo(String amount, String name);
+
+  /// Line under the Send button on Send at the Shallow level, and under the title of the password dialog that follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing leaves until you press Send. After that it cannot be taken back.'**
+  String get deskLvSendNothingLeaves;
+
+  /// Title of the dialog that asks for the wallet's password after Send at the Shallow level.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password'**
+  String get deskLvSendPasswordTitle;
+
+  /// Button of the password dialog at the Shallow level; pressing it sends the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get deskLvSendConfirm;
+
+  /// Heading of Send after a payment went out, at every level. {name} is the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way to {name}'**
+  String deskLvSendLiveTo(String name);
+
+  /// Line under the heading of Send after a payment went out. {amount} is the amount, {name} the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC to {name}'**
+  String deskLvSendLiveAmountTo(String amount, String name);
+
+  /// Line under the heading of Send after a payment went out, when the recipient has no name. {amount} is the amount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC'**
+  String deskLvSendLiveAmount(String amount);
+
+  /// Heading of the address card on Receive at the Shallow level.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address'**
+  String get deskLvSendYourAddress;
+
+  /// State line on Receive at the Shallow level when the Epicbox server answers.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to receive'**
+  String get deskLvSendReady;
+
+  /// Text of the info icon next to the address on Receive: what happens to a payment sent while this wallet is closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments sent while the wallet is closed arrive when it opens.'**
+  String get deskLvSendClosedInfo;
+
+  /// Heading of the file card on Receive at the Deeper level.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment files'**
+  String get deskLvSendPayFiles;
+
+  /// Title of the row on Receive at the Deeper level that opens the sender's payment file to sign.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign a payment file'**
+  String get deskLvSendSignFile;
+
+  /// Text of the Sign a payment file row on Receive at the Deeper level.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the file the sender gave you and save your reply.'**
+  String get deskLvSendSignFileText;
+
+  /// Title of the row on Receive at the Deeper level that opens the reply file of a recipient to post the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish a reply file'**
+  String get deskLvSendFinishFile;
+
+  /// Text of the Finish a reply file row on Receive at the Deeper level.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the reply you got back to post the payment.'**
+  String get deskLvSendFinishFileText;
+
+  /// Title of the collapsed row on Receive after the Epicbox server moved, holding what is left of the old address.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous address'**
+  String get deskLvSendPrevAddress;
+
+  /// Text inside the Previous address row on Receive after the Epicbox server moved. {server} is the old Epicbox server's address (a domain). Says that people with the old address need the new one; it does not promise old-address payments still arrive.
+  ///
+  /// In en, this message translates to:
+  /// **'The old address was on {server}. Anyone who has it needs the new one.'**
+  String deskLvSendPrevText(String server);
+
+  /// Deep end payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox whose relay is not known; S1 and S2 are the two slate messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate S1 sent over Epicbox · waiting for S2'**
+  String get deskLvPayS1Sent;
+
+  /// Deep end payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox; relay is the Epicbox server's address; S1 and S2 are the two slate messages.
+  ///
+  /// In en, this message translates to:
+  /// **'S1 on {relay} · awaiting S2'**
+  String deskLvPayS1On(String relay);
+
+  /// Shallow payment steps: sub-line under the current step of a send over Epicbox, the recipient has not signed because their wallet is not open; name is the contact.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet is not open yet'**
+  String deskLvPayNotOpen(String name);
+
+  /// Deeper payment steps: sub-line under the current step of a send over Epicbox, waiting for the recipient's wallet to open and sign; name is the contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {name}’s wallet to open'**
+  String deskLvPayWaitingOpen(String name);
+
+  /// Shallow and Deeper payment steps of a payment received: the sender's wallet has finished its part.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender finished'**
+  String get deskLvPaySenderFinished;
+
+  /// Deep end payment steps: the payment was posted to the node.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted to node'**
+  String get deskLvPayPostedNode;
+
+  /// Deeper payment steps: confirmations so far of the number the wallet waits for.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming, {count} of {target}'**
+  String deskLvPayConfirmingComma(int count, int target);
+
+  /// Deep end payment steps: confirmations so far over the number the wallet waits for.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmations {count} / {target}'**
+  String deskLvPayConfirmationsOf(int count, int target);
+
+  /// Shallow payment steps: the last step, the payment is finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get deskLvPayDone;
+
+  /// Overview's card for a payment you sent that is not done yet (Shallow and Deeper); name is the contact.
+  ///
+  /// In en, this message translates to:
+  /// **'On its way to {name}'**
+  String deskLvPayOnItsWayTo(String name);
+
+  /// Overview's card for a payment you sent that is not done yet (Deep end); name is the recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending to {name}'**
+  String deskLvPaySendingTo(String name);
+
+  /// Overview's card for a payment received that is not done yet; name is the sender.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving from {name}'**
+  String deskLvPayArrivingFrom(String name);
+
+  /// Overview's card for a payment in progress: its amount and the time it started.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} EPIC · started {time}'**
+  String deskLvPayStartedAt(String amount, String time);
+
+  /// Overview's hero sentence at Shallow: one payment from a contact is on its way in; amount is the EPIC amount.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} arriving from {name}'**
+  String deskLvPayHeroArriving(String amount, String name);
+
+  /// Overview's hero sentence at Shallow: payments are on their way in; amount is their sum.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} arriving'**
+  String deskLvPayHeroArrivingMany(String amount);
+
+  /// Overview's hero sentence at Shallow: a payment you sent is waiting for the recipient to sign, its coins are on hold.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on hold until {name} signs'**
+  String deskLvPayHeroHold(String amount, String name);
+
+  /// Overview's hero sentence at Shallow: payments you sent are waiting to be signed, their coins are on hold; amount is their sum.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on hold until signed'**
+  String deskLvPayHeroHoldMany(String amount);
+
+  /// Overview's hero sentence at Shallow in a wallet with no payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing arriving yet.'**
+  String get deskLvPayHeroNothing;
+
+  /// Overview notice at Shallow in a wallet with no payments: title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet is ready.'**
+  String get deskLvPayReadyTitle;
+
+  /// Overview notice at Shallow in a wallet with no payments: text.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the address to get the first EPIC.'**
+  String get deskLvPayReadyText;
+
+  /// Deeper Overview tile: coins that arrived and wait for more confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Still confirming'**
+  String get deskLvPayTileConfirming;
+
+  /// Deeper Overview tile: mining rewards that are not yet spendable.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh from mining'**
+  String get deskLvPayTileMining;
+
+  /// Deeper Overview tile: payments waiting for the sender to finish.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the other side'**
+  String get deskLvPayTileWaiting;
+
+  /// Deeper Overview tile: coins held by payments you sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Set aside for sends'**
+  String get deskLvPayTileLocked;
+
+  /// Deeper row status of a mining reward that is not spendable yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh from mining, not spendable yet'**
+  String get deskLvPayImmatureCasual;
+
+  /// Shallow Activity row: the line under a name when the payment has no note.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get deskLvPayKind;
+
+  /// Desktop Overview: title of the one-time notice an install that updated into wallet levels sees. 'Wallet depth' is the setting that picks how much the app shows (levels Shallow, Deeper, Deep end).
+  ///
+  /// In en, this message translates to:
+  /// **'New: wallet depth'**
+  String get deskLvShellNewsTitle;
+
+  /// Desktop Overview: text of the one-time 'New: wallet depth' notice. Shallow and Deeper are the names of the two quieter levels; keep them as the level picker names them.
+  ///
+  /// In en, this message translates to:
+  /// **'This install shows everything, as before. Shallow and Deeper show less.'**
+  String get deskLvShellNewsText;
+
+  /// Desktop Overview: button on the 'New: wallet depth' notice; opens the page where the level is changed and dismisses the notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Have a look'**
+  String get deskLvShellNewsLook;
+
+  /// Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering.
+  ///
+  /// In en, this message translates to:
+  /// **'Failover'**
+  String get deskLvShellFailover;
+
+  /// Desktop status popover at the Shallow level, For support group: value of the Failover row; failover is always on and needs no setting.
+  ///
+  /// In en, this message translates to:
+  /// **'On · automatic'**
+  String get deskLvShellFailoverAuto;
+
+  /// Desktop status popover: value of the Failover row when the node failover setting is on.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get deskLvShellOn;
+
+  /// Desktop Node status popover (Deep end level): row label; the node's block height.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get deskLvShellHeight;
+
+  /// Desktop Node status popover (Deep end level): row label; the node software's version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get deskLvShellVersion;
+
+  /// Desktop Settings › This wallet at the Shallow level: info text of the Recheck balance row, whose Open button opens the Recheck balance page.
+  ///
+  /// In en, this message translates to:
+  /// **'If an amount looks wrong, the wallet reads the chain again.'**
+  String get deskLvShellRecheckHint;
 }
 
 class _AppLocalizationsDelegate

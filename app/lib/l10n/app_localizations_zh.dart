@@ -5100,7 +5100,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get methodReceiveEpicboxShort => '此钱包关闭时，发送方也可付款。';
+  String get methodReceiveEpicboxShort => '分享地址即可收款。';
 
   @override
   String get methodReceiveDirectTitle => '直接发送到此钱包。';
@@ -6017,7 +6017,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvCopyEpicbox => '复制 Epicbox 地址';
 
   @override
-  String get deskRecvEpicboxIntro => '分享它即可收款。 此钱包关闭时，发送方也可付款。';
+  String get deskRecvEpicboxIntro => '分享它即可收款。';
 
   @override
   String get deskRecvCheckSix => '念给别人核对时，请检查前六位和后六位字符。';
@@ -11249,7 +11249,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetupLocalLead => '在这里运行节点意味着什么，以及使用哪个节点。';
 
   @override
-  String get deskSetupEpicboxTitle => '钱包关闭时也能接收';
+  String get deskSetupEpicboxTitle => 'Epicbox';
 
   @override
   String get deskSetupReviewTitle => '检查设置';
@@ -17305,4 +17305,257 @@ class AppLocalizationsZh extends AppLocalizations {
   String lvPolAbout(String name) {
     return '关于$name';
   }
+
+  @override
+  String get deskLvStartPreviewLabel => '概览预览。档位越深，显示越多。';
+
+  @override
+  String get deskLvStartPreviewCaption => '此深度下的概览。已保存的内容不会改变。';
+
+  @override
+  String get deskLvStartPreviewCaptionShort => '此深度下的概览。';
+
+  @override
+  String get deskLvStartCover => '选择一个档位以查看预览';
+
+  @override
+  String get deskLvStartUndercoverAbout => '关于隐身';
+
+  @override
+  String get deskLvStartChangeLater => '随时可在 设置 › 高级 中更改。';
+
+  @override
+  String get deskLvStartHelpShallow => '浅水 · 一个地址，不显示服务器名称，没有开关。';
+
+  @override
+  String get deskLvStartHelpDeeper => '再深些 · 同一个钱包，并用简单的话显示它在做什么。';
+
+  @override
+  String get deskLvStartHelpDeep => '深水区 · 每个开关、每个数字：现在的应用。';
+
+  @override
+  String get deskLvStartPickFirst => '请先选择深度。选择之前不会连接任何内容。';
+
+  @override
+  String get deskLvStartMiniWallet => '主钱包';
+
+  @override
+  String get deskLvStartMiniLine => '+12.5000 即将到账 · 25.0000 已冻结';
+
+  @override
+  String get deskLvStartMiniFresh => '刚挖出的币';
+
+  @override
+  String get deskLvStartMiniWaiting => '等待对方';
+
+  @override
+  String get deskLvStartAdvNote => '档位越深，显示的钱包内容越多。已保存的内容不会改变。';
+
+  @override
+  String deskLvStartAboutDepth(String name) {
+    return '深度：$name';
+  }
+
+  @override
+  String get deskLvSendHowTo => '发送方式';
+
+  @override
+  String get deskLvSendButton => '发送';
+
+  @override
+  String deskLvSendButtonAmount(String amount) {
+    return '发送 $amount EPIC';
+  }
+
+  @override
+  String deskLvSendButtonTo(String amount, String name) {
+    return '向 $name 发送 $amount EPIC';
+  }
+
+  @override
+  String get deskLvSendNothingLeaves => '按下“发送”之前不会发出任何内容。发出后无法撤回。';
+
+  @override
+  String get deskLvSendPasswordTitle => '你的密码';
+
+  @override
+  String get deskLvSendConfirm => '发送';
+
+  @override
+  String deskLvSendLiveTo(String name) {
+    return '正在发往 $name';
+  }
+
+  @override
+  String deskLvSendLiveAmountTo(String amount, String name) {
+    return '$amount EPIC 给 $name';
+  }
+
+  @override
+  String deskLvSendLiveAmount(String amount) {
+    return '$amount EPIC';
+  }
+
+  @override
+  String get deskLvSendYourAddress => '你的地址';
+
+  @override
+  String get deskLvSendReady => '可以接收';
+
+  @override
+  String get deskLvSendClosedInfo => '钱包关闭期间发出的付款，会在钱包打开后到账。';
+
+  @override
+  String get deskLvSendPayFiles => '付款文件';
+
+  @override
+  String get deskLvSendSignFile => '签署付款文件';
+
+  @override
+  String get deskLvSendSignFileText => '打开发送方给你的文件，并保存你的回复。';
+
+  @override
+  String get deskLvSendFinishFile => '完成回复文件';
+
+  @override
+  String get deskLvSendFinishFileText => '打开收到的回复，以发布这笔付款。';
+
+  @override
+  String get deskLvSendPrevAddress => '旧地址';
+
+  @override
+  String deskLvSendPrevText(String server) {
+    return '旧地址在 $server 上。拥有旧地址的人需要新地址。';
+  }
+
+  @override
+  String get deskLvPayS1Sent => 'Slate S1 已通过 Epicbox 发出 · 等待 S2';
+
+  @override
+  String deskLvPayS1On(String relay) {
+    return 'S1 已发到 $relay · 等待 S2';
+  }
+
+  @override
+  String deskLvPayNotOpen(String name) {
+    return '$name 的钱包尚未打开';
+  }
+
+  @override
+  String deskLvPayWaitingOpen(String name) {
+    return '等待 $name 的钱包打开';
+  }
+
+  @override
+  String get deskLvPaySenderFinished => '发送方已完成';
+
+  @override
+  String get deskLvPayPostedNode => '已发布到节点';
+
+  @override
+  String deskLvPayConfirmingComma(int count, int target) {
+    return '确认中，$count/$target';
+  }
+
+  @override
+  String deskLvPayConfirmationsOf(int count, int target) {
+    return '确认 $count / $target';
+  }
+
+  @override
+  String get deskLvPayDone => '完成';
+
+  @override
+  String deskLvPayOnItsWayTo(String name) {
+    return '正在发往 $name';
+  }
+
+  @override
+  String deskLvPaySendingTo(String name) {
+    return '正在发送给 $name';
+  }
+
+  @override
+  String deskLvPayArrivingFrom(String name) {
+    return '正在收取来自 $name 的付款';
+  }
+
+  @override
+  String deskLvPayStartedAt(String amount, String time) {
+    return '$amount EPIC · 开始于 $time';
+  }
+
+  @override
+  String deskLvPayHeroArriving(String amount, String name) {
+    return '+$amount 来自 $name，即将到账';
+  }
+
+  @override
+  String deskLvPayHeroArrivingMany(String amount) {
+    return '+$amount 即将到账';
+  }
+
+  @override
+  String deskLvPayHeroHold(String amount, String name) {
+    return '$amount 已冻结，等待 $name 签署';
+  }
+
+  @override
+  String deskLvPayHeroHoldMany(String amount) {
+    return '$amount 已冻结，等待签署';
+  }
+
+  @override
+  String get deskLvPayHeroNothing => '暂时没有即将到账的付款。';
+
+  @override
+  String get deskLvPayReadyTitle => '你的钱包已就绪。';
+
+  @override
+  String get deskLvPayReadyText => '分享地址即可收到第一笔 EPIC。';
+
+  @override
+  String get deskLvPayTileConfirming => '仍在确认';
+
+  @override
+  String get deskLvPayTileMining => '刚挖出的币';
+
+  @override
+  String get deskLvPayTileWaiting => '等待对方';
+
+  @override
+  String get deskLvPayTileLocked => '为付款预留';
+
+  @override
+  String get deskLvPayImmatureCasual => '刚挖出的币，暂不可用';
+
+  @override
+  String get deskLvPayKind => '付款';
+
+  @override
+  String get deskLvShellNewsTitle => '新功能：钱包深度';
+
+  @override
+  String get deskLvShellNewsText => '此安装显示全部内容，与以往相同。浅水和再深些显示得更少。';
+
+  @override
+  String get deskLvShellNewsLook => '去看看';
+
+  @override
+  String get deskLvShellFailover => '故障切换';
+
+  @override
+  String get deskLvShellFailoverAuto => '开 · 自动';
+
+  @override
+  String get deskLvShellOn => '开';
+
+  @override
+  String get deskLvShellHeight => '高度';
+
+  @override
+  String get deskLvShellVersion => '版本';
+
+  @override
+  String get deskLvShellRecheckHint => '如果金额看起来不对，钱包会重新读取区块链。';
 }

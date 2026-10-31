@@ -13,6 +13,8 @@ import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../ui/levels/level_picker.dart' show levelStopName;
+import '../../data/desk_levels.dart' show deskLevelProvider;
 import '../../data/desk_update.dart';
 import '../../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../../data/files.dart' show deskOpenUrlProvider;
@@ -62,6 +64,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
     final ts = context.ts;
     final node = ref.watch(deskProvider.select((s) => s.status?.node.version));
     final l = context.l10n;
+    final depth = levelStopName(l, ref.watch(deskLevelProvider));
     Widget linkRow(String title, String shown, String url) => _LinkRow(title: title, shown: shown, url: url);
     return SettingsFrame(
       route: DeskRoute.settingsAbout,
@@ -90,6 +93,8 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                           _Facts(rows: [
                             (l.deskSetAboutVersionLabel, withBuildId(withCoreVersion(deskAppVersion)), l.deskSetAboutVersion(withBuildId(withCoreVersion(deskAppVersion)))),
                             (l.deskSetAboutNodeLabel, node ?? '-', l.deskSetAboutNode(node ?? '-')),
+                            // Which depth, for support.
+                            (l.lvPickDepth, depth, l.deskLvStartAboutDepth(depth)),
                           ]),
                           // A store build: the store updates it, there is no Updates group.
                           if (distStore != null) ...[

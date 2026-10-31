@@ -22,6 +22,7 @@ import '../../log.dart';
 import '../data/desk_store.dart';
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
+import '../data/desk_levels.dart' show deskLevelUiProvider;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 /// One step: the page it opens, the [TourTarget] ids it lights (their union when several are on
@@ -123,8 +124,14 @@ final List<TourStep> deskTourSteps = tourStepsFor(invoices: deskInvoicesRoute !=
 
 /// The steps for the open wallet: with Invoices only when the page is in the app and the
 /// wallet takes invoices (the sidebar hides the page otherwise).
-List<TourStep> deskTourStepsFor({required bool supportsInvoices}) =>
-    supportsInvoices ? deskTourSteps : tourStepsFor(invoices: false);
+/// At Shallow ([shallow]) it skips the stops whose targets the level hides: the tiles, Send's
+/// methods, the Node page and Advanced.
+List<TourStep> deskTourStepsFor({required bool supportsInvoices, bool shallow = false}) {
+  final steps = supportsInvoices ? deskTourSteps : tourStepsFor(invoices: false);
+  if (!shallow) return steps;
+  const hidden = {DeskRoute.overview, DeskRoute.send, DeskRoute.settingsNode, DeskRoute.settingsAdvanced};
+  return [for (final s in steps) if (!hidden.contains(s.route) && s.route.section != DeskSection.invoices) s];
+}
 
 /// Tests: the steps the shell's overlay shows instead of [deskTourSteps].
 @visibleForTesting
@@ -264,7 +271,12 @@ class DeskTourOverlay extends ConsumerStatefulWidget {
 class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   /// Fixed for this run of the tour: the wallet does not change while it is open.
   late final List<TourStep> _steps =
-      widget.stepList ?? debugTourSteps ?? deskTourStepsFor(supportsInvoices: ref.read(deskInvoicesShownProvider));
+      widget.stepList ??
+      debugTourSteps ??
+      deskTourStepsFor(
+        supportsInvoices: ref.read(deskInvoicesShownProvider) && ref.read(deskLevelUiProvider).invoicesPage,
+        shallow: ref.read(deskLevelUiProvider).shallow,
+      );
   late int _i = widget.startAt.clamp(0, _steps.length - 1);
   final _next = FocusNode(debugLabel: 'tour next');
   final _self = GlobalKey();

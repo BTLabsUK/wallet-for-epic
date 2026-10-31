@@ -486,14 +486,16 @@ class MockDeskWallet implements DeskWalletApi {
   /// The start height the last restore asked for (null: the whole chain).
   BigInt? restoreStartHeight;
 
-  /// The new wallet is listed as the next free "Wallet N" (or [name]) and is the selected one.
-  /// Returns its id.
+  /// The new wallet is listed as "Wallet", else the lowest free "Wallet N" from 2 (or [name]),
+  /// and is the selected one. Returns its id.
   String _addWallet(String name) {
-    var n = 1;
+    var n = 2;
     while (_wallets.any((w) => w.name == 'Wallet $n')) {
       n++;
     }
-    final label = name.trim().isEmpty ? 'Wallet $n' : name.trim();
+    final label = name.trim().isNotEmpty
+        ? name.trim()
+        : (_wallets.any((w) => w.name == 'Wallet') ? 'Wallet $n' : 'Wallet');
     final id = 'new-${_wallets.length}-${DateTime.now().microsecondsSinceEpoch}';
     _wallets.add(WalletEntry(id: id, name: label, folder: '~/.epic_cash_desktop/wallets/$id', network: 'mainnet'));
     _current = id;

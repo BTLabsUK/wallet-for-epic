@@ -604,10 +604,12 @@ class WalletRegistry {
     return name;
   }
 
-  /// "Wallet N" with the lowest N no listed wallet (or [taken] label) uses.
+  /// "Wallet" when no listed wallet (or [taken] label) has it, else "Wallet N" with the lowest
+  /// N from 2 that none uses.
   String _nextLabel({Iterable<String> taken = const []}) {
     final used = {..._entries.map((e) => e.label), ...taken};
-    var n = 1;
+    if (!used.contains('Wallet')) return 'Wallet';
+    var n = 2;
     while (used.contains('Wallet $n')) {
       n++;
     }

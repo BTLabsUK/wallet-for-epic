@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The window's own title bar (the system's is hidden, desk_window.dart), 40 u tall above every
 /// screen. Its left part is as wide as the sidebar and holds the brand, which opens the app
-/// menu (Lock, Switch wallet, Keyboard shortcuts, About, Quit). Then the wallet switcher, the
-/// node · Epicbox · Tor status (a click opens the three rows), Lock and the window controls:
+/// menu (Lock, Switch wallet, Keyboard shortcuts, About, Quit). Then the wallet switcher (the
+/// name alone at Shallow with one wallet), the level's status icons (each a click opens its
+/// popover), Lock and the window controls:
 /// Windows' three on the right, round ones on Linux, the traffic lights' room on the left on
 /// macOS. Unlock and the first-run screens keep only the brand and the controls.
 ///
@@ -26,6 +27,7 @@ import '../data/desk_update.dart' show deskAppVersion;
 import '../../ui/theme/brand.dart' show EpicMark, BrandWordmark;
 import '../../advanced.dart' show NetworkMode;
 import '../../ui/network_mode_text.dart';
+import '../data/desk_levels.dart';
 import '../data/net_mode_view.dart' show deskNetTor;
 import '../data/tor_view.dart' show TorState;
 import '../desk_l10n.dart';
@@ -38,6 +40,7 @@ import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_window.dart';
 import 'rail.dart';
 import 'shell.dart' show deskKeys, lockWallet, deskLockingProvider;
+import 'status_popover.dart';
 
 /// The bar's height before the interface scale.
 const double deskBarHeight = 40;
@@ -249,7 +252,7 @@ class DeskTitleBar extends ConsumerWidget {
             const Spacer(),
             if (wallet) ...[
               _Held(child: _ModeMark(dim: dim)),
-              _Held(child: _StatusCluster(dim: dim)),
+              _Held(child: _StatusIcons(dim: dim)),
               SizedBox(width: Sp.x1),
               _Held(child: _LockButton(dim: dim)),
               if (controls != null && style != DeskWindowStyle.mac)
@@ -826,6 +829,36 @@ class _WalletChip extends ConsumerWidget {
     final locking = ref.watch(deskLockingProvider);
     final name = account?.id != null || (label ?? '').isEmpty ? (account?.name ?? '') : label!;
     final current = wallets.where((w) => w.current).firstOrNull?.id ?? account?.id;
+    final ui = ref.watch(deskLevelUiProvider);
+    Widget chip({required bool chevron}) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        EAvatar(name, size: 21.u),
+        SizedBox(width: Sp.x2),
+        Flexible(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 240.u),
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: ts.body.copyWith(fontWeight: FontWeight.w500, height: 1, color: dim ? c.dim : c.text),
+            ),
+          ),
+        ),
+        if (chevron) ...[SizedBox(width: Sp.x2), Icon(EIcons.chevronDown, size: 16.u, color: c.faint)],
+      ],
+    );
+    // Shallow with one wallet: the name alone, no menu (the switcher shows once a second
+    // wallet exists).
+    if (!ui.walletSwitcher) {
+      return Semantics(
+        key: const ValueKey('bar-wallet-name'),
+        label: name,
+        excludeSemantics: true,
+        child: Padding(padding: EdgeInsetsDirectional.only(start: 5.u, end: Sp.x2), child: chip(chevron: false)),
+      );
+    }
     return _BarMenu(
       minWidth: 260.u,
       children: (context, m) => [
@@ -847,7 +880,7 @@ class _WalletChip extends ConsumerWidget {
             onPressed: w.id == current ? () {} : locking ? null : () => lockWallet(ref, then: UnlockPick(w.id, switched: true)),
           ),
         _menuDivider(c),
-        _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
+        if (ui.addWallet) _menuItem(context, icon: EIcons.plus, label: l.deskBarAddWallet, onPressed: () => _go(ref, DeskRoute.settingsWallets)),
         _menuItem(context, icon: EIcons.settings, label: l.deskBarWalletSettings, onPressed: () => _go(ref, DeskRoute.settingsAccount)),
       ],
       builder: (context, m, open) => _BarButton(
@@ -857,26 +890,7 @@ class _WalletChip extends ConsumerWidget {
         open: open,
         padding: EdgeInsetsDirectional.only(start: 5.u, end: Sp.x2),
         onPressed: () => _toggle(m),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            EAvatar(name, size: 21.u),
-            SizedBox(width: Sp.x2),
-            Flexible(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 240.u),
-                child: Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: ts.body.copyWith(fontWeight: FontWeight.w500, height: 1, color: dim ? c.dim : c.text),
-                ),
-              ),
-            ),
-            SizedBox(width: Sp.x2),
-            Icon(EIcons.chevronDown, size: 16.u, color: c.faint),
-          ],
-        ),
+        child: chip(chevron: true),
       ),
     );
   }
@@ -970,116 +984,48 @@ class _ModeMark extends ConsumerWidget {
   }
 }
 
-/// Node · Epicbox · Tor, each a glyph with a state dot; a click lists the rows of the sidebar's
-/// status, each opening its settings.
-class _StatusCluster extends ConsumerWidget {
-  const _StatusCluster({required this.dim});
+/// The level's status icons (Shallow: Network and Epicbox; deeper: Node, Epicbox, HTTP, Tor),
+/// each a glyph with a state dot, a "Name · State" tooltip, and a popover of its own under it
+/// (status_popover.dart). Enter or Space opens it, Esc closes it.
+class _StatusIcons extends ConsumerWidget {
+  const _StatusIcons({required this.dim});
 
   final bool dim;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final p = ref.read(settingsPrefsProvider.notifier);
+    final level = ref.watch(deskLevelProvider);
     return ServiceRows(
       builder: (context, items) {
-        final ts = context.ts;
-        // Every service, enabled or not: a faint glyph without a dot is off; its
-        // row in the list opens the switch.
-        final shown = items;
-        final summary = '${l.deskBarStatus}: ${[for (final i in items) '${i.name} ${i.word}'].join(', ')}';
-        return _BarMenu(
-          minWidth: 300.u,
-          children: (context, m) => [
-            for (final i in items)
-              _StatusRow(
-                item: i,
-                onTap: () {
-                  m.close();
-                  deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
-                  p.jumpTo(i.opens);
-                },
-              ),
-          ],
-          builder: (context, m, open) => _BarButton(
-            key: const ValueKey('bar-status'),
-            label: summary,
-            tooltip: [for (final i in shown) i.state == EState.off ? '${i.name}: ${i.word} · ${l.deskBarTurnOnHint}' : '${i.name}: ${i.word}'].join('\n'),
-            open: open,
-            padding: EdgeInsets.symmetric(horizontal: 6.u),
-            onPressed: () => _toggle(m),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final i in shown) EStatusGlyph(icon: i.icon, state: i.state, label: i.state == EState.off ? '${i.name}: ${i.word} · ${l.deskBarTurnOnHint}' : '${i.name}: ${i.word}', dim: dim),
-                if (shown.isEmpty) Text('–', style: ts.caption), // l10n-ok: placeholder
-              ],
-            ),
+        final shown = deskStatusShown(ref, items);
+        return Semantics(
+          container: true,
+          label: l.deskBarStatus,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final i in shown)
+                _BarMenu(
+                  minWidth: 280.u,
+                  children: (context, m) => [DeskStatusPopover(item: i, close: m.close)],
+                  builder: (context, m, open) {
+                    final tip = deskStatusTip(l, level, i);
+                    return _BarButton(
+                      key: ValueKey('bar-status-${i.jump.name}'),
+                      label: tip,
+                      tooltip: tip,
+                      open: open,
+                      padding: EdgeInsets.symmetric(horizontal: 3.u),
+                      onPressed: () => _toggle(m),
+                      child: EStatusGlyph(icon: i.icon, state: i.state, label: tip, dim: dim),
+                    );
+                  },
+                ),
+            ],
           ),
         );
       },
-    );
-  }
-}
-
-/// A row of the status list: glyph, the service over its host or state, the state word.
-class _StatusRow extends StatelessWidget {
-  const _StatusRow({required this.item, required this.onTap});
-
-  final RailItem item;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final i = item;
-    final mono = i.icon == EIcons.node || i.icon == EIcons.epicbox;
-    return MenuItemButton(
-      key: ValueKey('status-row-${i.jump.name}'),
-      onPressed: onTap,
-      style: ButtonStyle(
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        minimumSize: WidgetStatePropertyAll(Size(288.u, 52.u)),
-        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10.u, vertical: Sp.x2)),
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
-        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        backgroundColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.hover : null,
-        ),
-      ),
-      leadingIcon: SizedBox(width: 24.u, child: Icon(i.icon, size: 19.u, color: c.dim)),
-      trailingIcon: Padding(
-        padding: EdgeInsetsDirectional.only(start: Sp.x4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            EStateDot(i.state),
-            SizedBox(width: Sp.x2),
-            Text(i.word, style: ts.small.copyWith(color: c.dim)),
-          ],
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsetsDirectional.only(start: Sp.x1),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 170.u),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(i.name, style: ts.strong.copyWith(height: 1.3)),
-              if (i.second != i.word && i.second != '–')
-              Text(
-                i.second,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: mono && i.second != '–' ? ts.mono(size: Fs.xs, color: c.dim) : ts.caption.copyWith(color: c.dim),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

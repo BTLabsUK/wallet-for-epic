@@ -7010,9 +7010,9 @@
       }
     }
   },
-  "methodReceiveEpicboxShort": "Senders can pay while this wallet is closed.",
+  "methodReceiveEpicboxShort": "Share the address to get paid.",
   "@methodReceiveEpicboxShort": {
-    "description": "Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No \"app\": the web demo shows it too."
+    "description": "Receive's Epicbox strip line: share the address to get paid. No \"app\": the web demo shows it too."
   },
   "methodReceiveDirectTitle": "Straight to this wallet.",
   "@methodReceiveDirectTitle": {
@@ -8374,7 +8374,7 @@
   "@deskRecvCopyEpicbox": {
     "description": "Screen reader and tooltip label of the copy button next to the Epicbox address."
   },
-  "deskRecvEpicboxIntro": "Share it to get paid. Senders can pay while this wallet is closed.",
+  "deskRecvEpicboxIntro": "Share it to get paid.",
   "@deskRecvEpicboxIntro": {
     "description": "Intro text of the Epicbox panel on Receive."
   },
@@ -15853,9 +15853,9 @@
   "@deskSetupLocalLead": {
     "description": "Lead under the title of the setup's local node step."
   },
-  "deskSetupEpicboxTitle": "Receive while closed",
+  "deskSetupEpicboxTitle": "Epicbox",
   "@deskSetupEpicboxTitle": {
-    "description": "Title of the setup step about the Epicbox server, which holds payments while this wallet is closed."
+    "description": "Title of the setup step about the Epicbox server (address for getting paid)."
   },
   "deskSetupReviewTitle": "Review settings",
   "@deskSetupReviewTitle": {
@@ -24744,5 +24744,437 @@
         "type": "String"
       }
     }
+  },
+  "deskLvStartPreviewLabel": "Preview of the Overview. It shows more as the dial goes deeper.",
+  "@deskLvStartPreviewLabel": {
+    "description": "Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth)."
+  },
+  "deskLvStartPreviewCaption": "Your Overview at this depth. Nothing stored changes between depths.",
+  "@deskLvStartPreviewCaption": {
+    "description": "Caption under the Overview picture on Welcome (first start)."
+  },
+  "deskLvStartPreviewCaptionShort": "Your Overview at this depth.",
+  "@deskLvStartPreviewCaptionShort": {
+    "description": "Caption under the Overview picture on the Change level page."
+  },
+  "deskLvStartCover": "Pick a stop to see the preview",
+  "@deskLvStartCover": {
+    "description": "Over the faded Overview picture on Welcome before a stop of the depth dial is picked."
+  },
+  "deskLvStartUndercoverAbout": "About Undercover",
+  "@deskLvStartUndercoverAbout": {
+    "description": "Label of the info button next to the Undercover switch."
+  },
+  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
+  "@deskLvStartChangeLater": {
+    "description": "Welcome, under the depth dial: where the depth can be changed later. A \"What this decides\" link follows it."
+  },
+  "deskLvStartHelpShallow": "Shallow · one address, no server names, no switches.",
+  "@deskLvStartHelpShallow": {
+    "description": "Dialog \"What this decides\": the line for the first stop. Shallow is the stop name."
+  },
+  "deskLvStartHelpDeeper": "Deeper · the same wallet, plus what it is doing, in plain words.",
+  "@deskLvStartHelpDeeper": {
+    "description": "Dialog \"What this decides\": the line for the second stop. Deeper is the stop name."
+  },
+  "deskLvStartHelpDeep": "Deep end · every switch, every number: today’s app.",
+  "@deskLvStartHelpDeep": {
+    "description": "Dialog \"What this decides\": the line for the third stop. Deep end is the stop name."
+  },
+  "deskLvStartPickFirst": "Pick a depth first. Nothing connects until you do.",
+  "@deskLvStartPickFirst": {
+    "description": "Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install."
+  },
+  "deskLvStartMiniWallet": "Main wallet",
+  "@deskLvStartMiniWallet": {
+    "description": "The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet."
+  },
+  "deskLvStartMiniLine": "+12.5000 arriving · 25.0000 on hold",
+  "@deskLvStartMiniLine": {
+    "description": "The one sentence under the balance in the small Overview picture at Shallow. A sample."
+  },
+  "deskLvStartMiniFresh": "Fresh from mining",
+  "@deskLvStartMiniFresh": {
+    "description": "Balance tile in the small Overview picture at Deeper: mining rewards not yet spendable."
+  },
+  "deskLvStartMiniWaiting": "Waiting for the other side",
+  "@deskLvStartMiniWaiting": {
+    "description": "Balance tile in the small Overview picture at Deeper: coins waiting for the sender to sign."
+  },
+  "deskLvStartAdvNote": "More levels show more of the wallet. Nothing stored changes.",
+  "@deskLvStartAdvNote": {
+    "description": "Settings › Advanced at Shallow, under the Depth row."
+  },
+  "deskLvStartAboutDepth": "Depth: {name}",
+  "@deskLvStartAboutDepth": {
+    "description": "Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Shallow"
+      }
+    }
+  },
+  "deskLvSendHowTo": "How to send it",
+  "@deskLvSendHowTo": {
+    "description": "Heading of the method card on Send at the Deeper level, above the Epicbox, Link and File Transfer choice."
+  },
+  "deskLvSendButton": "Send",
+  "@deskLvSendButton": {
+    "description": "Label of the Summary column's button on Send at the Shallow level while no amount is entered yet."
+  },
+  "deskLvSendButtonAmount": "Send {amount} EPIC",
+  "@deskLvSendButtonAmount": {
+    "description": "Label of the Summary column's button on Send at the Shallow level when the recipient has no name. {amount} is the amount with decimals.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      }
+    }
+  },
+  "deskLvSendButtonTo": "Send {amount} EPIC to {name}",
+  "@deskLvSendButtonTo": {
+    "description": "Label of the Summary column's button on Send at the Shallow level. {amount} is the amount with decimals, {name} the contact's name.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      },
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvSendNothingLeaves": "Nothing leaves until you press Send. After that it cannot be taken back.",
+  "@deskLvSendNothingLeaves": {
+    "description": "Line under the Send button on Send at the Shallow level, and under the title of the password dialog that follows."
+  },
+  "deskLvSendPasswordTitle": "Your password",
+  "@deskLvSendPasswordTitle": {
+    "description": "Title of the dialog that asks for the wallet's password after Send at the Shallow level."
+  },
+  "deskLvSendConfirm": "Send",
+  "@deskLvSendConfirm": {
+    "description": "Button of the password dialog at the Shallow level; pressing it sends the payment."
+  },
+  "deskLvSendLiveTo": "On its way to {name}",
+  "@deskLvSendLiveTo": {
+    "description": "Heading of Send after a payment went out, at every level. {name} is the contact's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvSendLiveAmountTo": "{amount} EPIC to {name}",
+  "@deskLvSendLiveAmountTo": {
+    "description": "Line under the heading of Send after a payment went out. {amount} is the amount, {name} the contact's name.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      },
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvSendLiveAmount": "{amount} EPIC",
+  "@deskLvSendLiveAmount": {
+    "description": "Line under the heading of Send after a payment went out, when the recipient has no name. {amount} is the amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      }
+    }
+  },
+  "deskLvSendYourAddress": "Your address",
+  "@deskLvSendYourAddress": {
+    "description": "Heading of the address card on Receive at the Shallow level."
+  },
+  "deskLvSendReady": "Ready to receive",
+  "@deskLvSendReady": {
+    "description": "State line on Receive at the Shallow level when the Epicbox server answers."
+  },
+  "deskLvSendClosedInfo": "Payments sent while the wallet is closed arrive when it opens.",
+  "@deskLvSendClosedInfo": {
+    "description": "Text of the info icon next to the address on Receive: what happens to a payment sent while this wallet is closed."
+  },
+  "deskLvSendPayFiles": "Payment files",
+  "@deskLvSendPayFiles": {
+    "description": "Heading of the file card on Receive at the Deeper level."
+  },
+  "deskLvSendSignFile": "Sign a payment file",
+  "@deskLvSendSignFile": {
+    "description": "Title of the row on Receive at the Deeper level that opens the sender's payment file to sign."
+  },
+  "deskLvSendSignFileText": "Open the file the sender gave you and save your reply.",
+  "@deskLvSendSignFileText": {
+    "description": "Text of the Sign a payment file row on Receive at the Deeper level."
+  },
+  "deskLvSendFinishFile": "Finish a reply file",
+  "@deskLvSendFinishFile": {
+    "description": "Title of the row on Receive at the Deeper level that opens the reply file of a recipient to post the payment."
+  },
+  "deskLvSendFinishFileText": "Open the reply you got back to post the payment.",
+  "@deskLvSendFinishFileText": {
+    "description": "Text of the Finish a reply file row on Receive at the Deeper level."
+  },
+  "deskLvSendPrevAddress": "Previous address",
+  "@deskLvSendPrevAddress": {
+    "description": "Title of the collapsed row on Receive after the Epicbox server moved, holding what is left of the old address."
+  },
+  "deskLvSendPrevText": "The old address was on {server}. Anyone who has it needs the new one.",
+  "@deskLvSendPrevText": {
+    "description": "Text inside the Previous address row on Receive after the Epicbox server moved. {server} is the old Epicbox server's address (a domain). Says that people with the old address need the new one; it does not promise old-address payments still arrive.",
+    "placeholders": {
+      "server": {
+        "type": "String",
+        "example": "epicbox.example.com"
+      }
+    }
+  },
+  "deskLvPayS1Sent": "Slate S1 sent over Epicbox · waiting for S2",
+  "@deskLvPayS1Sent": {
+    "description": "Deep end payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox whose relay is not known; S1 and S2 are the two slate messages."
+  },
+  "deskLvPayS1On": "S1 on {relay} · awaiting S2",
+  "@deskLvPayS1On": {
+    "description": "Deep end payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox; relay is the Epicbox server's address; S1 and S2 are the two slate messages.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskLvPayNotOpen": "{name}’s wallet is not open yet",
+  "@deskLvPayNotOpen": {
+    "description": "Shallow payment steps: sub-line under the current step of a send over Epicbox, the recipient has not signed because their wallet is not open; name is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvPayWaitingOpen": "Waiting for {name}’s wallet to open",
+  "@deskLvPayWaitingOpen": {
+    "description": "Deeper payment steps: sub-line under the current step of a send over Epicbox, waiting for the recipient's wallet to open and sign; name is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvPaySenderFinished": "Sender finished",
+  "@deskLvPaySenderFinished": {
+    "description": "Shallow and Deeper payment steps of a payment received: the sender's wallet has finished its part."
+  },
+  "deskLvPayPostedNode": "Posted to node",
+  "@deskLvPayPostedNode": {
+    "description": "Deep end payment steps: the payment was posted to the node."
+  },
+  "deskLvPayConfirmingComma": "Confirming, {count} of {target}",
+  "@deskLvPayConfirmingComma": {
+    "description": "Deeper payment steps: confirmations so far of the number the wallet waits for.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "target": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskLvPayConfirmationsOf": "Confirmations {count} / {target}",
+  "@deskLvPayConfirmationsOf": {
+    "description": "Deep end payment steps: confirmations so far over the number the wallet waits for.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "target": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskLvPayDone": "Done",
+  "@deskLvPayDone": {
+    "description": "Shallow payment steps: the last step, the payment is finished."
+  },
+  "deskLvPayOnItsWayTo": "On its way to {name}",
+  "@deskLvPayOnItsWayTo": {
+    "description": "Overview's card for a payment you sent that is not done yet (Shallow and Deeper); name is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvPaySendingTo": "Sending to {name}",
+  "@deskLvPaySendingTo": {
+    "description": "Overview's card for a payment you sent that is not done yet (Deep end); name is the recipient.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvPayArrivingFrom": "Arriving from {name}",
+  "@deskLvPayArrivingFrom": {
+    "description": "Overview's card for a payment received that is not done yet; name is the sender.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "deskLvPayStartedAt": "{amount} EPIC · started {time}",
+  "@deskLvPayStartedAt": {
+    "description": "Overview's card for a payment in progress: its amount and the time it started.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      },
+      "time": {
+        "type": "String",
+        "example": "09:12"
+      }
+    }
+  },
+  "deskLvPayHeroArriving": "+{amount} arriving from {name}",
+  "@deskLvPayHeroArriving": {
+    "description": "Overview's hero sentence at Shallow: one payment from a contact is on its way in; amount is the EPIC amount.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      },
+      "name": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "deskLvPayHeroArrivingMany": "+{amount} arriving",
+  "@deskLvPayHeroArrivingMany": {
+    "description": "Overview's hero sentence at Shallow: payments are on their way in; amount is their sum.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "12.5000"
+      }
+    }
+  },
+  "deskLvPayHeroHold": "{amount} on hold until {name} signs",
+  "@deskLvPayHeroHold": {
+    "description": "Overview's hero sentence at Shallow: a payment you sent is waiting for the recipient to sign, its coins are on hold.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25.0000"
+      },
+      "name": {
+        "type": "String",
+        "example": "Alice"
+      }
+    }
+  },
+  "deskLvPayHeroHoldMany": "{amount} on hold until signed",
+  "@deskLvPayHeroHoldMany": {
+    "description": "Overview's hero sentence at Shallow: payments you sent are waiting to be signed, their coins are on hold; amount is their sum.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "25.0000"
+      }
+    }
+  },
+  "deskLvPayHeroNothing": "Nothing arriving yet.",
+  "@deskLvPayHeroNothing": {
+    "description": "Overview's hero sentence at Shallow in a wallet with no payments."
+  },
+  "deskLvPayReadyTitle": "Your wallet is ready.",
+  "@deskLvPayReadyTitle": {
+    "description": "Overview notice at Shallow in a wallet with no payments: title."
+  },
+  "deskLvPayReadyText": "Share the address to get the first EPIC.",
+  "@deskLvPayReadyText": {
+    "description": "Overview notice at Shallow in a wallet with no payments: text."
+  },
+  "deskLvPayTileConfirming": "Still confirming",
+  "@deskLvPayTileConfirming": {
+    "description": "Deeper Overview tile: coins that arrived and wait for more confirmations."
+  },
+  "deskLvPayTileMining": "Fresh from mining",
+  "@deskLvPayTileMining": {
+    "description": "Deeper Overview tile: mining rewards that are not yet spendable."
+  },
+  "deskLvPayTileWaiting": "Waiting for the other side",
+  "@deskLvPayTileWaiting": {
+    "description": "Deeper Overview tile: payments waiting for the sender to finish."
+  },
+  "deskLvPayTileLocked": "Set aside for sends",
+  "@deskLvPayTileLocked": {
+    "description": "Deeper Overview tile: coins held by payments you sent."
+  },
+  "deskLvPayImmatureCasual": "Fresh from mining, not spendable yet",
+  "@deskLvPayImmatureCasual": {
+    "description": "Deeper row status of a mining reward that is not spendable yet."
+  },
+  "deskLvPayKind": "Payment",
+  "@deskLvPayKind": {
+    "description": "Shallow Activity row: the line under a name when the payment has no note."
+  },
+  "deskLvShellNewsTitle": "New: wallet depth",
+  "@deskLvShellNewsTitle": {
+    "description": "Desktop Overview: title of the one-time notice an install that updated into wallet levels sees. 'Wallet depth' is the setting that picks how much the app shows (levels Shallow, Deeper, Deep end)."
+  },
+  "deskLvShellNewsText": "This install shows everything, as before. Shallow and Deeper show less.",
+  "@deskLvShellNewsText": {
+    "description": "Desktop Overview: text of the one-time 'New: wallet depth' notice. Shallow and Deeper are the names of the two quieter levels; keep them as the level picker names them."
+  },
+  "deskLvShellNewsLook": "Have a look",
+  "@deskLvShellNewsLook": {
+    "description": "Desktop Overview: button on the 'New: wallet depth' notice; opens the page where the level is changed and dismisses the notice."
+  },
+  "deskLvShellFailover": "Failover",
+  "@deskLvShellFailover": {
+    "description": "Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering."
+  },
+  "deskLvShellFailoverAuto": "On · automatic",
+  "@deskLvShellFailoverAuto": {
+    "description": "Desktop status popover at the Shallow level, For support group: value of the Failover row; failover is always on and needs no setting."
+  },
+  "deskLvShellOn": "On",
+  "@deskLvShellOn": {
+    "description": "Desktop status popover: value of the Failover row when the node failover setting is on."
+  },
+  "deskLvShellHeight": "Height",
+  "@deskLvShellHeight": {
+    "description": "Desktop Node status popover (Deep end level): row label; the node's block height."
+  },
+  "deskLvShellVersion": "Version",
+  "@deskLvShellVersion": {
+    "description": "Desktop Node status popover (Deep end level): row label; the node software's version."
+  },
+  "deskLvShellRecheckHint": "If an amount looks wrong, the wallet reads the chain again.",
+  "@deskLvShellRecheckHint": {
+    "description": "Desktop Settings › This wallet at the Shallow level: info text of the Recheck balance row, whose Open button opens the Recheck balance page."
   }
 }
