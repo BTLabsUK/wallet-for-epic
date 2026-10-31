@@ -1199,22 +1199,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeNoticeView => 'Открыть';
 
   @override
-  String get homeNoticeReceived =>
-      'Платёж в пути. Он поступит, когда отправитель его завершит.';
+  String get homeNoticeReceived => 'Платёж в пути.';
 
   @override
   String homeNoticeReceivedFrom(String who) {
-    return '$who отправляет вам платёж. Он поступит, когда отправитель его завершит.';
+    return '$who отправляет вам платёж.';
   }
 
   @override
   String homeNoticeReceivedAmount(String amount) {
-    return '$amount в пути. Платёж поступит, когда отправитель его завершит.';
+    return '$amount в пути.';
   }
 
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
-    return '$who отправляет вам $amount. Платёж поступит, когда отправитель его завершит.';
+    return '$who отправляет вам $amount.';
   }
 
   @override
@@ -1226,33 +1225,30 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeFinished => 'Платёж завершён. Ожидаются подтверждения.';
+  String get homeNoticeFinished => 'Платёж завершён. Подтверждается.';
 
   @override
   String homeNoticeFinishedTo(String who) {
-    return 'Платёж завершён, получатель: $who. Ожидаются подтверждения.';
+    return 'Платёж для $who завершён. Подтверждается.';
   }
 
   @override
-  String get homeNoticeRepeated =>
-      'Этот платёж уже принят. Отправитель снова получил тот же ответ; второго платежа не будет.';
+  String get homeNoticeRepeated => 'Уже принят. Второго платежа нет.';
 
   @override
   String homeNoticeRepeatedFrom(String who) {
-    return 'Платёж от $who уже принят. Отправитель снова получил тот же ответ; второго платежа не будет.';
+    return 'Платёж от $who уже принят.';
   }
 
   @override
-  String get homeNoticeDelayed =>
-      'Не удаётся подключиться к узлу. Платёж будет завершён, как только это станет возможно.';
+  String get homeNoticeDelayed => 'Нет связи с узлом. Платёж ждёт.';
 
   @override
   String get homeNoticeRelayProblem =>
       'Сервер epicbox сообщил о проблеме. Пробуем снова.';
 
   @override
-  String get homeNoticePaymentFailed =>
-      'Платёж не удался. Подробности в разделе «Активность».';
+  String get homeNoticePaymentFailed => 'Платёж не удался.';
 
   @override
   String get homeBackupCardText => 'Сохраните фразу восстановления.';
@@ -2422,11 +2418,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendReviewTotal => 'Итого';
 
   @override
-  String sendReviewTotalWithFiat(String amount, String fiat) {
-    return '$amount (≈ $fiat)';
-  }
-
-  @override
   String sendReviewSendButton(String amount) {
     return 'Отправить $amount';
   }
@@ -2682,7 +2673,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get qrScanSteady => 'Держите ровнее или подойдите немного ближе.';
 
   @override
-  String get qrScanGot => 'Готово';
+  String get qrScanGot => 'Код считан';
 
   @override
   String qrScanCount(int got, int count) {
@@ -14517,7 +14508,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeUnpaired(String name) {
-    return '$name: сопряжение удалено. Платежи через него больше не дойдут.';
+    return '$name: сопряжение удалено.';
   }
 
   @override
@@ -14551,7 +14542,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'На приглашение $name ответил кто-то ещё. См. «Ожидающие приглашения».';
+    return 'На приглашение $name ответил кто-то ещё.';
   }
 
   @override
@@ -15171,7 +15162,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticePairingReplied(String name) {
-    return '$name: ответ на ваше приглашение. Проверьте вместе.';
+    return '$name: есть ответ. Проверьте вместе.';
   }
 
   @override
@@ -15181,17 +15172,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name запрашивает $amount EPIC. Проверьте в «Счетах».';
+    return '$name запрашивает $amount EPIC.';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return 'Получено $amount EPIC от $name. Ждём публикации.';
+    return 'Получено $amount EPIC от $name.';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return 'Ключи $name изменились. Проверьте снова перед оплатой.';
+    return 'Ключи $name изменились. Проверьте снова.';
   }
 
   @override
@@ -15201,12 +15192,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Сервер Epicbox $name не отвечает. Повторная попытка.';
+    return 'Сервер Epicbox $name не отвечает.';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name: счёт отозван. Ваши средства разблокированы.';
+    return '$name: счёт отозван. Средства разблокированы.';
   }
 
   @override
@@ -15380,7 +15371,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name: слишком много счетов. Лишние отброшены. Выключите счета этого контакта, если это повторяется.';
+    return '$name: слишком много счетов.';
   }
 
   @override
@@ -18621,4 +18612,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitMoreInHelp => 'Подробнее в справке';
+
+  @override
+  String get homeReceiveEpicButton => 'Получить EPIC';
+
+  @override
+  String txDeviceStatusMadeOn(String device) {
+    return 'Создан на $device.';
+  }
+
+  @override
+  String txDeviceStatusHeld(String device) {
+    return 'Создан на $device. Средства удерживаются здесь, пока платёж не появится в цепочке.';
+  }
 }

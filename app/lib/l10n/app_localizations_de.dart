@@ -1175,22 +1175,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeNoticeView => 'Anzeigen';
 
   @override
-  String get homeNoticeReceived =>
-      'Eine Zahlung ist unterwegs und wird abgeschlossen, sobald der Absender sie fertigstellt.';
+  String get homeNoticeReceived => 'Eine Zahlung ist unterwegs.';
 
   @override
   String homeNoticeReceivedFrom(String who) {
-    return 'Eine Zahlung von $who ist unterwegs und wird abgeschlossen, sobald der Absender sie fertigstellt.';
+    return 'Eine Zahlung von $who ist unterwegs.';
   }
 
   @override
   String homeNoticeReceivedAmount(String amount) {
-    return '$amount unterwegs. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt.';
+    return '$amount unterwegs.';
   }
 
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
-    return '$amount von $who unterwegs. Die Zahlung wird abgeschlossen, sobald der Absender sie fertigstellt.';
+    return '$amount von $who unterwegs.';
   }
 
   @override
@@ -1203,34 +1202,31 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeFinished =>
-      'Zahlung fertiggestellt. Warten auf Bestätigungen.';
+  String get homeNoticeFinished => 'Zahlung fertiggestellt. Wird bestätigt.';
 
   @override
   String homeNoticeFinishedTo(String who) {
-    return 'Zahlung an $who fertiggestellt. Warten auf Bestätigungen.';
+    return 'Zahlung an $who fertiggestellt. Wird bestätigt.';
   }
 
   @override
-  String get homeNoticeRepeated =>
-      'Diese Zahlung wurde bereits angenommen. Der Absender hat dieselbe Antwort erneut erhalten; es ist keine zweite Zahlung unterwegs.';
+  String get homeNoticeRepeated => 'Bereits angenommen. Keine zweite Zahlung.';
 
   @override
   String homeNoticeRepeatedFrom(String who) {
-    return 'Die Zahlung von $who wurde bereits angenommen. Der Absender hat dieselbe Antwort erneut erhalten; es ist keine zweite Zahlung unterwegs.';
+    return 'Die Zahlung von $who wurde bereits angenommen.';
   }
 
   @override
   String get homeNoticeDelayed =>
-      'Der Node ist nicht erreichbar. Die Zahlung wird abgeschlossen, sobald er wieder erreichbar ist.';
+      'Der Node ist nicht erreichbar. Die Zahlung wartet.';
 
   @override
   String get homeNoticeRelayProblem =>
       'Der Epicbox-Server meldet ein Problem. Wird erneut versucht.';
 
   @override
-  String get homeNoticePaymentFailed =>
-      'Eine Zahlung ist fehlgeschlagen. Details unter Aktivität.';
+  String get homeNoticePaymentFailed => 'Eine Zahlung ist fehlgeschlagen.';
 
   @override
   String get homeBackupCardText => 'Sichern Sie Ihre Wiederherstellungsphrase.';
@@ -2383,11 +2379,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendReviewTotal => 'Gesamt';
 
   @override
-  String sendReviewTotalWithFiat(String amount, String fiat) {
-    return '$amount (≈ $fiat)';
-  }
-
-  @override
   String sendReviewSendButton(String amount) {
     return '$amount senden';
   }
@@ -2646,7 +2637,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get qrScanSteady => 'Ruhig halten oder etwas näher herangehen.';
 
   @override
-  String get qrScanGot => 'Gelesen';
+  String get qrScanGot => 'Code gelesen';
 
   @override
   String qrScanCount(int got, int count) {
@@ -14190,7 +14181,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticeUnpaired(String name) {
-    return '$name hat die Kopplung entfernt. Zahlungen darüber kommen nicht mehr an.';
+    return '$name hat die Kopplung entfernt.';
   }
 
   @override
@@ -14225,7 +14216,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Jemand anderes hat ebenfalls auf die Einladung von $name geantwortet. Siehe Offene Einladungen.';
+    return 'Jemand anderes hat auf die Einladung von $name geantwortet.';
   }
 
   @override
@@ -14842,7 +14833,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticePairingReplied(String name) {
-    return '$name hat Ihre Einladung beantwortet. Verifizieren Sie gemeinsam.';
+    return '$name hat geantwortet. Gemeinsam verifizieren.';
   }
 
   @override
@@ -14852,17 +14843,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name fordert $amount EPIC an. Prüfen Sie es unter Rechnungen.';
+    return '$name fordert $amount EPIC an.';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return '$amount EPIC von $name empfangen. Warten auf die Veröffentlichung.';
+    return '$amount EPIC von $name empfangen.';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return 'Die Schlüssel von $name haben sich geändert. Verifizieren Sie erneut, bevor Sie zahlen.';
+    return 'Die Schlüssel von $name haben sich geändert. Erneut verifizieren.';
   }
 
   @override
@@ -14872,12 +14863,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'Der Epicbox-Server von $name antwortet nicht. Wird erneut versucht.';
+    return 'Der Epicbox-Server von $name antwortet nicht.';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name hat die Rechnung zurückgezogen. Ihr Geld ist freigegeben.';
+    return '$name hat die Rechnung zurückgezogen. Geld freigegeben.';
   }
 
   @override
@@ -15047,7 +15038,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name hat zu viele Rechnungen gesendet. Weitere wurden verworfen. Schalten Sie die Rechnungen des Kontakts aus, wenn das weiter passiert.';
+    return '$name hat zu viele Rechnungen gesendet.';
   }
 
   @override
@@ -18213,4 +18204,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitMoreInHelp => 'Mehr in der Hilfe';
+
+  @override
+  String get homeReceiveEpicButton => 'EPIC empfangen';
+
+  @override
+  String txDeviceStatusMadeOn(String device) {
+    return 'Erstellt auf $device.';
+  }
+
+  @override
+  String txDeviceStatusHeld(String device) {
+    return 'Erstellt auf $device. Das Geld bleibt hier gehalten, bis die Chain die Zahlung zeigt.';
+  }
 }

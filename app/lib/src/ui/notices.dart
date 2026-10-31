@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
-import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
 /// How much a notice matters. Each has its own icon and token colour.
@@ -374,8 +373,8 @@ String noticeLevelLabel(AppLocalizations l, NoticeLevel level) =>
       NoticeLevel.error => l.noticeLevelError,
     };
 
-/// The card [NoticeDock] shows, swipeable and with its buttons: the balance panel's surface,
-/// hairline and corner ticks, with the level's colour as the leading edge and on the icon.
+/// The card [NoticeDock] shows, swipeable and with its buttons: the balance panel's surface
+/// and hairline, with the level's colour as the leading edge and on the icon.
 class NoticeCard extends ConsumerStatefulWidget {
   const NoticeCard({super.key, required this.notice});
 
@@ -520,9 +519,9 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             offset: Offset(_drag.dx, _drag.dy < 0 ? _drag.dy : 0),
             child: Opacity(
               opacity: (1 - _drag.distance / 300).clamp(0.2, 1),
-              child: CustomPaint(
-                foregroundPainter: CornerTicksPainter(t.tick, length: 8),
-                child: Material(
+              // No corner brackets: those are brand art, and every notice card shares one
+              // look, the level's colour as its leading edge (UP-004).
+              child: Material(
                   key: noticeKey,
                   color: t.surface,
                   shape: RoundedRectangleBorder(
@@ -539,7 +538,6 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
                     ),
                     child: body,
                   ),
-                ),
               ),
             ),
           ),

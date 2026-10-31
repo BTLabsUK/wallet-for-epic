@@ -1386,11 +1386,11 @@
   "@homeNoticeView": {
     "description": "Button on a payment notice that opens the payment's details. Short."
   },
-  "homeNoticeReceived": "A payment is on the way. It completes when the sender finishes.",
+  "homeNoticeReceived": "A payment is on the way.",
   "@homeNoticeReceived": {
     "description": "Notice: the wallet accepted an incoming payment; the sender still has to finish it."
   },
-  "homeNoticeReceivedFrom": "A payment from {who} is on the way. It completes when the sender finishes.",
+  "homeNoticeReceivedFrom": "A payment from {who} is on the way.",
   "@homeNoticeReceivedFrom": {
     "description": "Notice: the wallet accepted an incoming payment from a saved contact; the sender still has to finish it.",
     "placeholders": {
@@ -1400,7 +1400,7 @@
       }
     }
   },
-  "homeNoticeReceivedAmount": "{amount} on the way. It completes when the sender finishes.",
+  "homeNoticeReceivedAmount": "{amount} on the way.",
   "@homeNoticeReceivedAmount": {
     "description": "Notice: the wallet accepted an incoming payment of this amount; the sender still has to finish it.",
     "placeholders": {
@@ -1410,7 +1410,7 @@
       }
     }
   },
-  "homeNoticeReceivedAmountFrom": "{amount} from {who} on the way. It completes when the sender finishes.",
+  "homeNoticeReceivedAmountFrom": "{amount} from {who} on the way.",
   "@homeNoticeReceivedAmountFrom": {
     "description": "Notice: the wallet accepted an incoming payment of this amount from a saved contact; the sender still has to finish it.",
     "placeholders": {
@@ -1438,11 +1438,11 @@
       }
     }
   },
-  "homeNoticeFinished": "Payment finished. Waiting for confirmations.",
+  "homeNoticeFinished": "Payment finished. Confirming.",
   "@homeNoticeFinished": {
     "description": "Notice: an outgoing payment was finished and posted to the chain, not yet confirmed."
   },
-  "homeNoticeFinishedTo": "Payment to {who} finished. Waiting for confirmations.",
+  "homeNoticeFinishedTo": "Payment to {who} finished. Confirming.",
   "@homeNoticeFinishedTo": {
     "description": "Notice: an outgoing payment was finished and posted to the chain, not yet confirmed. who is a contact name or a short address.",
     "placeholders": {
@@ -1452,11 +1452,11 @@
       }
     }
   },
-  "homeNoticeRepeated": "This payment was already accepted. The sender got the same answer again; no second payment is on the way.",
+  "homeNoticeRepeated": "Already accepted. No second payment.",
   "@homeNoticeRepeated": {
     "description": "Notice: an incoming payment the wallet accepted before arrived again and got the same answer; it is not a second payment."
   },
-  "homeNoticeRepeatedFrom": "The payment from {who} was already accepted. They got the same answer again; no second payment is on the way.",
+  "homeNoticeRepeatedFrom": "{who}’s payment was already accepted.",
   "@homeNoticeRepeatedFrom": {
     "description": "Notice: an incoming payment from a saved contact that the wallet accepted before arrived again and got the same answer; it is not a second payment.",
     "placeholders": {
@@ -1466,7 +1466,7 @@
       }
     }
   },
-  "homeNoticeDelayed": "Could not reach the node. The payment will finish once it can.",
+  "homeNoticeDelayed": "Cannot reach the node. The payment waits.",
   "@homeNoticeDelayed": {
     "description": "Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries."
   },
@@ -1474,7 +1474,7 @@
   "@homeNoticeRelayProblem": {
     "description": "Notice: the epicbox relay (a proper name; it carries payments) reported an error not tied to a payment."
   },
-  "homeNoticePaymentFailed": "A payment failed. Open Activity to see it.",
+  "homeNoticePaymentFailed": "A payment failed.",
   "@homeNoticePaymentFailed": {
     "description": "Notice: something went wrong with one payment."
   },
@@ -2915,20 +2915,6 @@
   "@sendReviewTotal": {
     "description": "Row label in the payment review: amount plus fee. Space is tight (about 9 characters)."
   },
-  "sendReviewTotalWithFiat": "{amount} (≈ {fiat})",
-  "@sendReviewTotalWithFiat": {
-    "description": "The total in the payment review with its value in a fiat currency.",
-    "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "1.508 EPIC"
-      },
-      "fiat": {
-        "type": "String",
-        "example": "0.12 USD"
-      }
-    }
-  },
   "sendReviewSendButton": "Send {amount}",
   "@sendReviewSendButton": {
     "description": "Button in the payment review that sends the payment.",
@@ -3276,9 +3262,9 @@
   "@qrScanSteady": {
     "description": "Hint on the camera screen when no new part came for a few seconds."
   },
-  "qrScanGot": "Got it",
+  "qrScanGot": "Code read",
   "@qrScanGot": {
-    "description": "Shown on the camera screen when every part is read."
+    "description": "Scanner dock once the whole code was read: a state, not a button (UP-024)."
   },
   "qrScanCount": "{got} of {count}",
   "@qrScanCount": {
@@ -18626,7 +18612,7 @@
   "@pairLateCheck": {
     "description": "An invite past its time whose relay has not been checked since: a late answer may still be there."
   },
-  "noticeUnpaired": "{name} removed the pairing. Payments through it no longer arrive.",
+  "noticeUnpaired": "{name} removed the pairing.",
   "@noticeUnpaired": {
     "description": "Notice when a paired contact removed the pairing on its side and said so: payments through the pairing no longer arrive.",
     "placeholders": {
@@ -18680,7 +18666,7 @@
   "@pairCheckForUpdates": {
     "description": "Button."
   },
-  "pairSecondReplyTitle": "Someone else also answered {name}’s invite. See Pending invites.",
+  "pairSecondReplyTitle": "Someone else answered {name}’s invite.",
   "@pairSecondReplyTitle": {
     "description": "Docked notice when a used invite gets a second answer; its action opens Pending invites.",
     "placeholders": {
@@ -19638,7 +19624,7 @@
       }
     }
   },
-  "noticePairingReplied": "{name} answered your invite. Verify together.",
+  "noticePairingReplied": "{name} answered. Verify together.",
   "@noticePairingReplied": {
     "description": "PairingReplied (inviter).",
     "placeholders": {
@@ -19658,7 +19644,7 @@
       }
     }
   },
-  "noticeRequest": "{name} requests {amount} EPIC. Review under Invoices.",
+  "noticeRequest": "{name} requests {amount} EPIC.",
   "@noticeRequest": {
     "description": "Docked notice for InvoiceFromContact; its action opens the request.",
     "placeholders": {
@@ -19672,7 +19658,7 @@
       }
     }
   },
-  "noticeWithdrawal": "Received {amount} EPIC from {name}. Waiting for it to post.",
+  "noticeWithdrawal": "Received {amount} EPIC from {name}.",
   "@noticeWithdrawal": {
     "description": "Docked notice for WithdrawalFromContact.",
     "placeholders": {
@@ -19686,7 +19672,7 @@
       }
     }
   },
-  "noticeKeysChanged": "{name}’s keys changed. Verify again before paying.",
+  "noticeKeysChanged": "{name}’s keys changed. Verify again.",
   "@noticeKeysChanged": {
     "description": "Docked notice for ContactKeysChanged; its action opens the contact.",
     "placeholders": {
@@ -19706,7 +19692,7 @@
       }
     }
   },
-  "noticeRelayDown": "{name}’s Epicbox server is not answering. Retrying.",
+  "noticeRelayDown": "Cannot reach {name}’s Epicbox server.",
   "@noticeRelayDown": {
     "description": "Docked notice for HomeRelayUnreachable.",
     "placeholders": {
@@ -19716,7 +19702,7 @@
       }
     }
   },
-  "noticeWithdrew": "{name} withdrew the invoice. The coins are unlocked.",
+  "noticeWithdrew": "{name} withdrew the invoice. Coins unlocked.",
   "@noticeWithdrew": {
     "description": "Docked notice when a contact withdrew a paid request.",
     "placeholders": {
@@ -19954,7 +19940,7 @@
       }
     }
   },
-  "noticeTooMany": "{name} sent too many invoices. Extra ones were dropped. Turn its invoices off if this keeps happening.",
+  "noticeTooMany": "{name} sent too many invoices.",
   "@noticeTooMany": {
     "description": "Docked warning when a contact went over the request cap.",
     "placeholders": {
@@ -24251,5 +24237,27 @@
   "deskKitMoreInHelp": "More in Help",
   "@deskKitMoreInHelp": {
     "description": "Link at the end of an info popover that opens the Help topic saying more (WD2-063)."
+  },
+  "homeReceiveEpicButton": "Receive EPIC",
+  "@homeReceiveEpicButton": {
+    "description": "Empty Home: the primary button to the Receive tab (UP-034), the desktop's words."
+  },
+  "txDeviceStatusMadeOn": "Made on {device}.",
+  "@txDeviceStatusMadeOn": {
+    "description": "Status card line of a payment another linked device made (UP-007).",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "txDeviceStatusHeld": "Made on {device}. Coins held here until the chain shows it.",
+  "@txDeviceStatusHeld": {
+    "description": "Status card line while the other device's payment holds coins on this one (UP-007).",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
   }
 }

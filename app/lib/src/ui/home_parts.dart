@@ -44,6 +44,9 @@ enum BalanceKind {
   /// In a block, confirming.
   confirming,
 
+  /// Mining rewards not spendable yet (maturing).
+  immature,
+
   /// Offered to this wallet, not in a block yet (awaiting finalization).
   waitingSender,
 
@@ -69,10 +72,9 @@ typedef BalanceTileData = ({
   BigInt? value,
 });
 
-/// The tiles for [summary], in a fixed order: every pending balance that is not zero
-/// (confirming, waiting for sender, locked in sends), then Total. Maturing mining rewards get
-/// no tile on a phone (nobody mines to one); they are in Total and in Outputs. With nothing
-/// pending, Total and a calm tile ("All confirmed", or "Nothing here yet" while the wallet
+/// The tiles for [summary], in a fixed order, the desktop Overview's: every pending balance
+/// that is not zero (confirming, mining rewards, waiting for sender, locked in sends), then
+/// Total. With nothing pending, Total and a calm tile ("All confirmed", or "Nothing here yet" while the wallet
 /// has had no payments, [empty]).
 List<BalanceTileData> balanceTiles(
   AppLocalizations l,
@@ -97,6 +99,14 @@ List<BalanceTileData> balanceTiles(
         icon: Icons.timelapse,
         label: l.homeBalanceConfirming,
         value: summary.awaitingConfirmation,
+      ),
+    // The same tile set as the desktop (UD-030); like there, only while there is any.
+    if (summary.immature > BigInt.zero)
+      (
+        kind: BalanceKind.immature,
+        icon: Icons.bolt,
+        label: l.homeBalanceImmature,
+        value: summary.immature,
       ),
     if (waiting > BigInt.zero)
       (

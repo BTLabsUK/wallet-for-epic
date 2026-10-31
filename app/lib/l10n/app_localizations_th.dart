@@ -1150,22 +1150,21 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeNoticeView => 'ดู';
 
   @override
-  String get homeNoticeReceived =>
-      'มีรายการกำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ';
+  String get homeNoticeReceived => 'มีรายการกำลังเข้า';
 
   @override
   String homeNoticeReceivedFrom(String who) {
-    return 'รายการจาก $who กำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ';
+    return 'รายการจาก $who กำลังเข้า';
   }
 
   @override
   String homeNoticeReceivedAmount(String amount) {
-    return '$amount กำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ';
+    return '$amount กำลังเข้า';
   }
 
   @override
   String homeNoticeReceivedAmountFrom(String amount, String who) {
-    return '$amount จาก $who กำลังเข้า จะสำเร็จเมื่อผู้ส่งทำรายการเสร็จ';
+    return '$amount จาก $who กำลังเข้า';
   }
 
   @override
@@ -1178,32 +1177,30 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeFinished => 'ทำรายการเสร็จแล้ว รอการยืนยัน';
+  String get homeNoticeFinished => 'ทำรายการเสร็จแล้ว กำลังยืนยัน';
 
   @override
   String homeNoticeFinishedTo(String who) {
-    return 'รายการถึง $who เสร็จแล้ว รอการยืนยัน';
+    return 'รายการถึง $who เสร็จแล้ว กำลังยืนยัน';
   }
 
   @override
-  String get homeNoticeRepeated =>
-      'รับรายการนี้ไปแล้ว ผู้ส่งได้รับคำตอบเดิมอีกครั้ง ไม่มีรายการที่สองกำลังเข้า';
+  String get homeNoticeRepeated => 'รับไปแล้ว ไม่มีรายการที่สอง';
 
   @override
   String homeNoticeRepeatedFrom(String who) {
-    return 'รับรายการจาก $who ไปแล้ว ผู้ส่งได้รับคำตอบเดิมอีกครั้ง ไม่มีรายการที่สองกำลังเข้า';
+    return 'รับรายการจาก $who ไปแล้ว';
   }
 
   @override
-  String get homeNoticeDelayed =>
-      'เชื่อมต่อโหนดไม่ได้ รายการจะเสร็จเมื่อเชื่อมต่อได้';
+  String get homeNoticeDelayed => 'เชื่อมต่อโหนดไม่ได้ รายการรออยู่';
 
   @override
   String get homeNoticeRelayProblem =>
       'เซิร์ฟเวอร์ Epicbox แจ้งว่ามีปัญหา กำลังลองใหม่';
 
   @override
-  String get homeNoticePaymentFailed => 'รายการหนึ่งไม่สำเร็จ ดูได้ในประวัติ';
+  String get homeNoticePaymentFailed => 'รายการหนึ่งไม่สำเร็จ';
 
   @override
   String get homeBackupCardText => 'สำรองวลีกู้คืน';
@@ -2309,11 +2306,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendReviewTotal => 'รวม';
 
   @override
-  String sendReviewTotalWithFiat(String amount, String fiat) {
-    return '$amount (≈ $fiat)';
-  }
-
-  @override
   String sendReviewSendButton(String amount) {
     return 'ส่ง $amount';
   }
@@ -2560,7 +2552,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get qrScanSteady => 'ถือให้นิ่ง หรือขยับเข้าไปใกล้อีกนิด';
 
   @override
-  String get qrScanGot => 'อ่านครบแล้ว';
+  String get qrScanGot => 'อ่านโค้ดแล้ว';
 
   @override
   String qrScanCount(int got, int count) {
@@ -13669,7 +13661,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeUnpaired(String name) {
-    return '$name ลบการจับคู่แล้ว การชำระเงินผ่านการจับคู่นี้จะไม่ถึงอีก';
+    return '$name ลบการจับคู่แล้ว';
   }
 
   @override
@@ -13704,7 +13696,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'มีคนอื่นตอบคำเชิญของ $name ด้วย ดูที่ คำเชิญที่รออยู่';
+    return 'มีคนอื่นตอบคำเชิญของ $name ด้วย';
   }
 
   @override
@@ -14311,7 +14303,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticePairingReplied(String name) {
-    return '$name ตอบคำเชิญของคุณแล้ว ยืนยันด้วยกัน';
+    return '$name ตอบแล้ว ยืนยันด้วยกัน';
   }
 
   @override
@@ -14321,17 +14313,17 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeRequest(String name, String amount) {
-    return '$name ขอ $amount EPIC ตรวจสอบได้ที่ ใบแจ้งหนี้';
+    return '$name ขอ $amount EPIC';
   }
 
   @override
   String noticeWithdrawal(String amount, String name) {
-    return 'ได้รับ $amount EPIC จาก $name รอการประกาศ';
+    return 'ได้รับ $amount EPIC จาก $name';
   }
 
   @override
   String noticeKeysChanged(String name) {
-    return 'คีย์ของ $name เปลี่ยน ยืนยันอีกครั้งก่อนชำระ';
+    return 'คีย์ของ $name เปลี่ยน ยืนยันอีกครั้ง';
   }
 
   @override
@@ -14341,12 +14333,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeRelayDown(String name) {
-    return 'เซิร์ฟเวอร์ Epicbox ของ $name ไม่ตอบสนอง กำลังลองใหม่';
+    return 'เซิร์ฟเวอร์ Epicbox ของ $name ไม่ตอบสนอง';
   }
 
   @override
   String noticeWithdrew(String name) {
-    return '$name ถอนใบแจ้งหนี้แล้ว เงินของคุณปลดล็อกแล้ว';
+    return '$name ถอนใบแจ้งหนี้แล้ว เงินปลดล็อกแล้ว';
   }
 
   @override
@@ -14511,7 +14503,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String noticeTooMany(String name) {
-    return '$name ส่งใบแจ้งหนี้มากเกินไป ใบแจ้งหนี้ส่วนเกินถูกทิ้ง ปิดใบแจ้งหนี้ของผู้ติดต่อนี้หากยังเกิดขึ้นต่อ';
+    return '$name ส่งใบแจ้งหนี้มากเกินไป';
   }
 
   @override
@@ -17589,4 +17581,17 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitMoreInHelp => 'ดูเพิ่มเติมในความช่วยเหลือ';
+
+  @override
+  String get homeReceiveEpicButton => 'รับ EPIC';
+
+  @override
+  String txDeviceStatusMadeOn(String device) {
+    return 'ทำบน $device';
+  }
+
+  @override
+  String txDeviceStatusHeld(String device) {
+    return 'ทำบน $device เงินถูกถือไว้ที่นี่จนกว่าจะปรากฏบนเชน';
+  }
 }

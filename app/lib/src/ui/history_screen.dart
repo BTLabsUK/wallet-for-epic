@@ -381,10 +381,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           padding: const EdgeInsets.only(top: 16, bottom: 4),
                           child: Semantics(
                             header: true,
+                            // Neutral, as the Settings headers: gold is for the brand and
+                            // the primary action only (UP-015).
                             child: Text(
                               title,
                               style: theme.textTheme.titleSmall?.copyWith(
-                                color: theme.colorScheme.primary,
+                                color: context.tokens.dim,
                               ),
                             ),
                           ),

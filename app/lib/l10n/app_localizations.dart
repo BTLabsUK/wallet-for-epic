@@ -1948,25 +1948,25 @@ abstract class AppLocalizations {
   /// Notice: the wallet accepted an incoming payment; the sender still has to finish it.
   ///
   /// In en, this message translates to:
-  /// **'A payment is on the way. It completes when the sender finishes.'**
+  /// **'A payment is on the way.'**
   String get homeNoticeReceived;
 
   /// Notice: the wallet accepted an incoming payment from a saved contact; the sender still has to finish it.
   ///
   /// In en, this message translates to:
-  /// **'A payment from {who} is on the way. It completes when the sender finishes.'**
+  /// **'A payment from {who} is on the way.'**
   String homeNoticeReceivedFrom(String who);
 
   /// Notice: the wallet accepted an incoming payment of this amount; the sender still has to finish it.
   ///
   /// In en, this message translates to:
-  /// **'{amount} on the way. It completes when the sender finishes.'**
+  /// **'{amount} on the way.'**
   String homeNoticeReceivedAmount(String amount);
 
   /// Notice: the wallet accepted an incoming payment of this amount from a saved contact; the sender still has to finish it.
   ///
   /// In en, this message translates to:
-  /// **'{amount} from {who} on the way. It completes when the sender finishes.'**
+  /// **'{amount} from {who} on the way.'**
   String homeNoticeReceivedAmountFrom(String amount, String who);
 
   /// Notice: the sender of an incoming payment reports that it posted it (amount hidden or unknown). Never say received: the blockchain has not confirmed it.
@@ -1984,31 +1984,31 @@ abstract class AppLocalizations {
   /// Notice: an outgoing payment was finished and posted to the chain, not yet confirmed.
   ///
   /// In en, this message translates to:
-  /// **'Payment finished. Waiting for confirmations.'**
+  /// **'Payment finished. Confirming.'**
   String get homeNoticeFinished;
 
   /// Notice: an outgoing payment was finished and posted to the chain, not yet confirmed. who is a contact name or a short address.
   ///
   /// In en, this message translates to:
-  /// **'Payment to {who} finished. Waiting for confirmations.'**
+  /// **'Payment to {who} finished. Confirming.'**
   String homeNoticeFinishedTo(String who);
 
   /// Notice: an incoming payment the wallet accepted before arrived again and got the same answer; it is not a second payment.
   ///
   /// In en, this message translates to:
-  /// **'This payment was already accepted. The sender got the same answer again; no second payment is on the way.'**
+  /// **'Already accepted. No second payment.'**
   String get homeNoticeRepeated;
 
   /// Notice: an incoming payment from a saved contact that the wallet accepted before arrived again and got the same answer; it is not a second payment.
   ///
   /// In en, this message translates to:
-  /// **'The payment from {who} was already accepted. They got the same answer again; no second payment is on the way.'**
+  /// **'{who}’s payment was already accepted.'**
   String homeNoticeRepeatedFrom(String who);
 
   /// Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries.
   ///
   /// In en, this message translates to:
-  /// **'Could not reach the node. The payment will finish once it can.'**
+  /// **'Cannot reach the node. The payment waits.'**
   String get homeNoticeDelayed;
 
   /// Notice: the epicbox relay (a proper name; it carries payments) reported an error not tied to a payment.
@@ -2020,7 +2020,7 @@ abstract class AppLocalizations {
   /// Notice: something went wrong with one payment.
   ///
   /// In en, this message translates to:
-  /// **'A payment failed. Open Activity to see it.'**
+  /// **'A payment failed.'**
   String get homeNoticePaymentFailed;
 
   /// Card on home until the user writes down the recovery phrase (the 12 or 24 words).
@@ -3739,12 +3739,6 @@ abstract class AppLocalizations {
   /// **'Total'**
   String get sendReviewTotal;
 
-  /// The total in the payment review with its value in a fiat currency.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} (≈ {fiat})'**
-  String sendReviewTotalWithFiat(String amount, String fiat);
-
   /// Button in the payment review that sends the payment.
   ///
   /// In en, this message translates to:
@@ -4123,10 +4117,10 @@ abstract class AppLocalizations {
   /// **'Hold steady, or move a little closer.'**
   String get qrScanSteady;
 
-  /// Shown on the camera screen when every part is read.
+  /// Scanner dock once the whole code was read: a state, not a button (UP-024).
   ///
   /// In en, this message translates to:
-  /// **'Got it'**
+  /// **'Code read'**
   String get qrScanGot;
 
   /// Parts read so far, such as 4 of 7.
@@ -22169,7 +22163,7 @@ abstract class AppLocalizations {
   /// Notice when a paired contact removed the pairing on its side and said so: payments through the pairing no longer arrive.
   ///
   /// In en, this message translates to:
-  /// **'{name} removed the pairing. Payments through it no longer arrive.'**
+  /// **'{name} removed the pairing.'**
   String noticeUnpaired(String name);
 
   /// Badge on a pairing the other side removed (it said so). Nothing sent through it arrives.
@@ -22223,7 +22217,7 @@ abstract class AppLocalizations {
   /// Docked notice when a used invite gets a second answer; its action opens Pending invites.
   ///
   /// In en, this message translates to:
-  /// **'Someone else also answered {name}’s invite. See Pending invites.'**
+  /// **'Someone else answered {name}’s invite.'**
   String pairSecondReplyTitle(String name);
 
   /// Pending row subtitle for the second replier.
@@ -23141,7 +23135,7 @@ abstract class AppLocalizations {
   /// PairingReplied (inviter).
   ///
   /// In en, this message translates to:
-  /// **'{name} answered your invite. Verify together.'**
+  /// **'{name} answered. Verify together.'**
   String noticePairingReplied(String name);
 
   /// PairingConfirmed (invitee).
@@ -23153,19 +23147,19 @@ abstract class AppLocalizations {
   /// Docked notice for InvoiceFromContact; its action opens the request.
   ///
   /// In en, this message translates to:
-  /// **'{name} requests {amount} EPIC. Review under Invoices.'**
+  /// **'{name} requests {amount} EPIC.'**
   String noticeRequest(String name, String amount);
 
   /// Docked notice for WithdrawalFromContact.
   ///
   /// In en, this message translates to:
-  /// **'Received {amount} EPIC from {name}. Waiting for it to post.'**
+  /// **'Received {amount} EPIC from {name}.'**
   String noticeWithdrawal(String amount, String name);
 
   /// Docked notice for ContactKeysChanged; its action opens the contact.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s keys changed. Verify again before paying.'**
+  /// **'{name}’s keys changed. Verify again.'**
   String noticeKeysChanged(String name);
 
   /// Docked notice when a re-pair is added to a contact but LEPIC refuses the key check (RFC 0002 7.8: one check per slot a day); the new pairing is used.
@@ -23177,13 +23171,13 @@ abstract class AppLocalizations {
   /// Docked notice for HomeRelayUnreachable.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s Epicbox server is not answering. Retrying.'**
+  /// **'Cannot reach {name}’s Epicbox server.'**
   String noticeRelayDown(String name);
 
   /// Docked notice when a contact withdrew a paid request.
   ///
   /// In en, this message translates to:
-  /// **'{name} withdrew the invoice. The coins are unlocked.'**
+  /// **'{name} withdrew the invoice. Coins unlocked.'**
   String noticeWithdrew(String name);
 
   /// Dialog on importing a backup whose pairings were used elsewhere (RFC 9.5).
@@ -23453,7 +23447,7 @@ abstract class AppLocalizations {
   /// Docked warning when a contact went over the request cap.
   ///
   /// In en, this message translates to:
-  /// **'{name} sent too many invoices. Extra ones were dropped. Turn its invoices off if this keeps happening.'**
+  /// **'{name} sent too many invoices.'**
   String noticeTooMany(String name);
 
   /// Action of a pairing notice that opens its screen.
@@ -28057,6 +28051,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More in Help'**
   String get deskKitMoreInHelp;
+
+  /// Empty Home: the primary button to the Receive tab (UP-034), the desktop's words.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive EPIC'**
+  String get homeReceiveEpicButton;
+
+  /// Status card line of a payment another linked device made (UP-007).
+  ///
+  /// In en, this message translates to:
+  /// **'Made on {device}.'**
+  String txDeviceStatusMadeOn(String device);
+
+  /// Status card line while the other device's payment holds coins on this one (UP-007).
+  ///
+  /// In en, this message translates to:
+  /// **'Made on {device}. Coins held here until the chain shows it.'**
+  String txDeviceStatusHeld(String device);
 }
 
 class _AppLocalizationsDelegate
