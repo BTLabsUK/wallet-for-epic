@@ -18875,7 +18875,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get lvShellCopyDetails => 'Kopiuj szczegóły';
 
   @override
-  String get lvShellDetailsCopied => 'Skopiowano szczegóły.';
+  String get lvShellDetailsCopied => 'Skopiowano szczegóły';
 
   @override
   String get lvShellLatestBlock => 'Najnowszy blok';
@@ -18978,4 +18978,15 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get lvShellLevelCaption =>
       'Wyższe poziomy pokazują więcej portfela. Nic zapisanego się nie zmienia.';
+
+  @override
+  String get lvPolPosted => 'Wysłano';
+
+  @override
+  String get lvPolInvoiceWaiting => 'Faktura · czeka na twoje zatwierdzenie';
+
+  @override
+  String lvPolAbout(String name) {
+    return 'O $name';
+  }
 }

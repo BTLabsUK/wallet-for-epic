@@ -2514,12 +2514,13 @@ class _SendViewState extends ConsumerState<SendView> {
     final down = !none && method == TransferMethod.epicbox && (epicbox == null || epicbox == EpicboxState.offline);
     final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
     return [
-      if (quiet)
-        // Level 1: Epicbox is just how sending works, so no selector and no strip; QR Payment
-        // is a quiet link into the same flow, and a link back out of it.
-        ?_quietLink(context, method)
-      else
-        _methodSelector(context, method),
+      if (!quiet)
+        _methodSelector(context, method)
+      else if (method != TransferMethod.epicbox)
+        // Level 1: Epicbox is just how sending works, so no selector and no strip. Inside
+        // QR Payment, the link back to sending to an address; the link in (QR Payment) sits
+        // under the recipient's shortcuts ([_recipientStep]).
+        ?_quietLink(context, method),
       // No method can be chosen: no picture of one.
       if (!none && !quiet) ...[
         const SizedBox(height: 12),
@@ -2583,10 +2584,16 @@ class _SendViewState extends ConsumerState<SendView> {
     final shape = sendAddressShape(l, _method);
     final way = _wayOf(_toRoute);
     final pairing = _toPairing();
+    // Level 1: the step is "Send" (there is no method to pick), the address's shape and the
+    // servers in recent addresses are not shown, and QR Payment is a quiet link under the
+    // shortcuts.
+    final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
+    final hosts = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
+    final stepTitle = quiet ? l.homeSendButton : l.sendStepMethod;
     if (pairing != null) {
       final name = _pairingNameOf(pairing.id);
       return [
-        _header(context, l.sendStepMethod, step: 1),
+        _header(context, stepTitle, step: 1),
         ..._methodHead(context, _method),
         Semantics(
           label: l.sendToLabel,
@@ -2606,7 +2613,7 @@ class _SendViewState extends ConsumerState<SendView> {
       ];
     }
     return [
-      _header(context, l.sendStepMethod, step: 1),
+      _header(context, stepTitle, step: 1),
       ..._methodHead(context, _method),
       ..._waitForMethod([
       PhoneTourTarget(
@@ -2688,7 +2695,7 @@ class _SendViewState extends ConsumerState<SendView> {
             _recipientError = null;
           }),
         ),
-      if (text.isEmpty && shape != null)
+      if (text.isEmpty && shape != null && !quiet)
         Row(
           children: [
             const SizedBox(width: 12),
@@ -2712,6 +2719,7 @@ class _SendViewState extends ConsumerState<SendView> {
           ],
         ),
       _recipientButtons(scan),
+      if (quiet) ?_quietLink(context, _method),
       if (valid) ...[
         const SizedBox(height: 8),
         RecipientCard(
@@ -2734,6 +2742,7 @@ class _SendViewState extends ConsumerState<SendView> {
           _RecentRow(
             address: contactSendAddress(contact, _payments.offers),
             name: contact.name,
+            relay: hosts,
             // A contact with no address: through its pairing, never an empty address.
             subtitle: _pairingOnly(contact, watch: true) == null ? null : l.sendRecipientPairing(contact.name),
             onTap: () => _useContact(contact),
@@ -2750,6 +2759,7 @@ class _SendViewState extends ConsumerState<SendView> {
           _RecentRow(
             address: address,
             name: _contactName(address),
+            relay: hosts,
             onTap: () {
               _setRecipient(address);
               _toAmount();
@@ -3172,6 +3182,8 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ),
       const SizedBox(height: 12),
+      // Level 1 does not name Epicbox: it is just how sending works, so no Method row.
+      if (ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed)) || to.kind != RecipientKind.epicbox)
       _Row(
         label: l.sendMethodLabel,
         value: switch (to.kind) {
@@ -4363,10 +4375,13 @@ class _ToChip extends StatelessWidget {
 
 /// One recent recipient: their name where known, else the short address.
 class _RecentRow extends StatelessWidget {
-  const _RecentRow({required this.address, this.name, this.subtitle, required this.onTap});
+  const _RecentRow({required this.address, this.name, this.subtitle, this.relay = true, required this.onTap});
 
   final String address;
   final String? name;
+
+  /// False at level 1: the address without its server.
+  final bool relay;
 
   /// Words in place of the short address (a contact paid through its pairing).
   final String? subtitle;
@@ -4381,7 +4396,7 @@ class _RecentRow extends StatelessWidget {
       minTileHeight: 52,
       leading: _Initial(name: name),
       title: Text(
-        name ?? shortAddress(address),
+        name ?? shortAddress(address, relay: relay),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
@@ -4391,7 +4406,7 @@ class _RecentRow extends StatelessWidget {
           : subtitle != null
           ? Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))
           : Text(
-              shortAddress(address),
+              shortAddress(address, relay: relay),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodySmall?.copyWith(

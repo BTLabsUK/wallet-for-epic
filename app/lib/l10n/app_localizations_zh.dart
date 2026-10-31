@@ -17188,7 +17188,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvShellCopyDetails => '复制详情';
 
   @override
-  String get lvShellDetailsCopied => '已复制详情。';
+  String get lvShellDetailsCopied => '详情已复制';
 
   @override
   String get lvShellLatestBlock => '最新区块';
@@ -17288,4 +17288,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lvShellLevelCaption => '更高级别显示钱包的更多内容。已保存的内容不会改变。';
+
+  @override
+  String get lvPolPosted => '已广播';
+
+  @override
+  String get lvPolInvoiceWaiting => '账单 · 等待你批准';
+
+  @override
+  String lvPolAbout(String name) {
+    return '关于$name';
+  }
 }

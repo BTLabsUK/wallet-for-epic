@@ -50,7 +50,11 @@ String paymentStepWord(
     TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) => today,
     TxPhase.waitingSender => l.lvPayArriving,
     TxPhase.confirming when isPostElsewhere(tx) || tx.repostable || NetGate.killSwitch => today,
-    TxPhase.confirming => l.lvPayConfirming(txConfirmations(tx, tip) ?? 0, target ?? confirmationsTarget),
+    // Taken by the network but in no block yet: "Posted", never "Confirming 0 of 3".
+    TxPhase.confirming => switch (txConfirmations(tx, tip) ?? 0) {
+      0 => l.lvPolPosted,
+      final n => l.lvPayConfirming(n, target ?? confirmationsTarget),
+    },
     _ => today,
   };
 }
@@ -84,8 +88,10 @@ List<TimelineStep>? paymentSteps(
   String? waiting,
   String? held,
 }) {
-  final steps = txTimeline(l, tx, tip, target: target, now: now, mailbox: mailbox, waiting: waiting, held: held);
-  if (steps == null || mailbox != null) return steps;
+  final today = txTimeline(l, tx, tip, target: target, now: now, mailbox: mailbox, waiting: waiting, held: held);
+  if (today == null) return null;
+  final steps = _plainConfirming(l, today, tx, tip, target: target);
+  if (mailbox != null) return steps;
   // Which step carries which known time: started/arrived = when the record began; posted = when
   // this wallet finalized the send; completed = the block's time.
   final times = <int, int?>{
@@ -100,12 +106,32 @@ List<TimelineStep>? paymentSteps(
         var label = s.label;
         if (outgoing && i == 1 && who != null && s.label == l.txStepAccepted) label = l.lvPaySigned(who);
         final at = times[i];
-        final known = s.state == TimelineState.done && at != null && at > 0;
+        // A step reached (done, or the one under way) shows its time; one not reached has none.
+        final known = s.state != TimelineState.todo && at != null && at > 0;
         final time = known ? shortDate(l, localTime(at), now ?? DateTime.now()) : null;
         final detail = [?s.detail, ?time].join(' · ');
         return TimelineStep(label, s.state, detail: detail.isEmpty ? null : detail);
       }(),
   ];
+}
+
+/// [steps] with the Confirming step in the levels' one format: "Confirming 2 of 3" while blocks
+/// come in; with none yet the step before it (Posted to the network, or Paid) is the one under
+/// way and Confirming is still to come, so no step ever reads "Confirming 0 of 3".
+List<TimelineStep> _plainConfirming(AppLocalizations l, List<TimelineStep> steps, TxEntry tx, BigInt? tip, {int? target}) {
+  final n = txConfirmations(tx, tip) ?? 0;
+  final t = target ?? confirmationsTarget;
+  final todays = l.txStatusConfirming(n, t);
+  final i = steps.indexWhere((s) => s.label == todays && s.state == TimelineState.current);
+  if (i < 0) return steps;
+  final out = [...steps];
+  if (n > 0) {
+    out[i] = TimelineStep(l.lvPayConfirming(n, t), TimelineState.current, detail: steps[i].detail);
+    return out;
+  }
+  out[i] = TimelineStep(l.txStepConfirming, TimelineState.todo);
+  if (i > 0) out[i - 1] = TimelineStep(steps[i - 1].label, TimelineState.current, detail: steps[i - 1].detail);
+  return out;
 }
 
 /// The live timeline of [tx]: vertical steps, the current one pulsing a few breaths (still under

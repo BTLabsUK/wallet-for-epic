@@ -21,6 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../demo.dart';
+import '../../levels/level_features.dart' show LevelWording;
+import '../../levels/level_providers.dart' show levelFeaturesProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart' show invoicesShownProvider;
 import '../../providers.dart';
@@ -144,6 +146,9 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
       if (++_waits < 30) _timer = Timer(const Duration(seconds: 1), _tryStart);
       return;
     }
+    // Level 1 is the quiet shell: its Home has none of the tour's tiles, icons or servers, so
+    // the tour never starts by itself there (Help still offers it). Levels 2 and 3 as before.
+    if (ref.read(levelFeaturesProvider).wording == LevelWording.plain) return;
     unawaited(_tour.openIfUnseen());
   }
 

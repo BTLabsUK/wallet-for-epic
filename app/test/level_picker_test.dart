@@ -76,6 +76,12 @@ void main() {
         final rect = tester.getRect(find.byKey(key));
         expect(rect.bottom, lessThanOrEqualTo(size.height), reason: '$key below the screen');
       }
+      // The ⓘ sits where an app bar's actions do: its box at the screen's edge.
+      expect(tester.getRect(find.byKey(const ValueKey('level-help'))).right, size.width);
+      if (torBuilt) {
+        // Its ⓘ is not announced as the switch beside it.
+        expect(find.bySemanticsLabel('About Undercover from the start'), findsOneWidget);
+      }
 
       // Create and Restore wait for a stop; the Undercover row sits under them.
       ButtonStyleButton create() => tester.widget<ButtonStyleButton>(find.byKey(levelCreateKey));

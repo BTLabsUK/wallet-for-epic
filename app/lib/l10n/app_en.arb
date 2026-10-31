@@ -24570,7 +24570,7 @@
   "@lvShellCopyDetails": {
     "description": "Button on a level 1 status sheet: copies everything on it as text."
   },
-  "lvShellDetailsCopied": "Details copied.",
+  "lvShellDetailsCopied": "Details copied",
   "@lvShellDetailsCopied": {
     "description": "Notice after Copy details."
   },
@@ -24726,5 +24726,22 @@
   "lvShellLevelCaption": "More levels show more of the wallet. Nothing stored changes.",
   "@lvShellLevelCaption": {
     "description": "Settings › Advanced at level 1, under the Wallet level row."
+  },
+  "lvPolPosted": "Posted",
+  "@lvPolPosted": {
+    "description": "Levels 1–2 row word for a payment the network has taken but no block holds yet (0 confirmations): never 'Confirming 0 of 3'."
+  },
+  "lvPolInvoiceWaiting": "Invoice · waiting for your approval",
+  "@lvPolInvoiceWaiting": {
+    "description": "Level 1 Home / Activity row sub-line for an incoming invoice not yet paid or declined; the row opens the invoice. Invoices are quiet at level 1: no notice."
+  },
+  "lvPolAbout": "About {name}",
+  "@lvPolAbout": {
+    "description": "Screen-reader label of a row's ⓘ button, so it is not announced as the row itself. {name} is the row's title, e.g. 'Undercover from the start'.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

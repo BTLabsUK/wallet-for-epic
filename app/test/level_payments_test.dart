@@ -130,6 +130,29 @@ void main() {
       expect(steps[1].detail, isNull);
     });
 
+    test('taken by the network but in no block yet is Posted, never Confirming 0 of 3', () {
+      final posted = sent(TxStatus.awaitingConfirmation, height: BigInt.from(1001), finalized: 1700000000);
+      expect(paymentStepWord(l, posted, tip, style: TimelineStyle.liveSentence, target: 3), 'Posted');
+      expect(paymentStepWord(l, posted, tip, style: TimelineStyle.casualSteps, target: 3), 'Posted');
+      expect(paymentStepWord(l, posted, tip, style: TimelineStyle.technicalSteps, target: 3), 'Confirming 0/3');
+      final steps = paymentSteps(l, posted, tip, target: 3, who: 'Alice')!;
+      expect(steps.map((s) => s.label), ['Payment started', 'Alice signed', 'Posted to the network', 'Confirming', 'Completed']);
+      expect(steps.map((s) => s.state), [
+        TimelineState.done,
+        TimelineState.done,
+        TimelineState.current,
+        TimelineState.todo,
+        TimelineState.todo,
+      ]);
+      expect(steps[2].detail, isNotNull, reason: 'the step under way shows its time');
+    });
+
+    test('an address at level 1 is its key alone', () {
+      const address = 'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@box.epic.invalid';
+      expect(shortAddress(address), 'esVeVU…3es6TA@box.epic.invalid');
+      expect(shortAddress(address, relay: false), 'esVeVU…3es6TA');
+    });
+
     test('confirming counts against the target, completed names the way it went', () {
       final confirming = sent(TxStatus.awaitingConfirmation, height: BigInt.from(999), finalized: 1700000000);
       expect(
@@ -138,6 +161,8 @@ void main() {
       );
       final steps = paymentSteps(l, confirming, tip, target: 3, who: 'Alice')!;
       expect(steps[1].label, 'Alice signed');
+      expect(steps[3].label, 'Confirming 2 of 3');
+      expect(steps[3].state, TimelineState.current);
       expect(steps[2].detail, isNotNull, reason: 'posted time is known from finalizedAtUnix');
       final done = sent(TxStatus.confirmed, height: BigInt.from(900));
       expect(paymentStepWord(l, done, tip, style: TimelineStyle.liveSentence), 'Sent');
@@ -162,6 +187,24 @@ void main() {
     expect(find.byKey(sendMethodsKey), findsNothing);
     expect(find.byKey(sendQuietQrKey), findsOneWidget);
     expect(find.text('Both phones here? QR Payment'), findsOneWidget);
+    // The step is Send, not a method to pick; no address-shape hint; the link sits under the
+    // Paste / Contacts shortcuts.
+    expect(find.text('Send'), findsOneWidget);
+    expect(find.text('Payment method'), findsNothing);
+    expect(find.byTooltip('Address kinds'), findsNothing);
+    expect(
+      tester.getRect(find.byKey(sendQuietQrKey)).top,
+      greaterThan(tester.getRect(find.text('Paste')).bottom),
+    );
+  });
+
+  testWidgets('Receive at level 1 says Connected without the server', (tester) async {
+    await _pump(tester, const SlotScaffold(body: ReceiveView()));
+    expect(find.byKey(receiveEpicboxKey), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(receiveEpicboxKey), matching: find.textContaining('box.epic.invalid')),
+      findsNothing,
+    );
   });
 
   testWidgets('Receive at level 1 shows New today and the server line after a server move', (tester) async {

@@ -51,9 +51,10 @@ import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
 import 'levels/shell_pairing.dart' show offerPairRequest;
 import 'levels/shell_status.dart' show ShellStatusIcons, shellStatusesShown;
-import '../levels/level_features.dart' show BalancePresentation;
+import '../levels/level_features.dart' show BalancePresentation, LevelWording;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'tx_details_screen.dart';
+import 'levels/quiet_invoices.dart';
 import '../settings_file/host_settings.dart' show appConfig;
 
 /// How often home refreshes against the node while it is on screen and the app is in front.
@@ -800,6 +801,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Level 1: the quiet line under the figure stands for the tiles, and View all for the
     // destinations (Contacts is in Settings › This wallet).
     final tiles = ref.watch(levelFeaturesProvider.select((f) => f.balanceTiles)) == BalancePresentation.tiles;
+    final plain = ref.watch(levelFeaturesProvider.select((f) => f.wording)) == LevelWording.plain;
     Widget column(Widget child) => Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
@@ -874,7 +876,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: const EdgeInsets.only(top: homeCardGap),
                         child: ErrorText(describeError(l, home.error!)),
                       ),
-                    _PendingSendsCard(transactions: transactions, open: _open),
+                    // Level 1: the rows already say "Waiting for <name>"; no card about it.
+                    if (!plain)
+                      _PendingSendsCard(transactions: transactions, open: _open),
                     if (guide)
                       const Padding(
                         padding: EdgeInsets.only(top: homeCardGap),
@@ -915,6 +919,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 child: Text(l.homeReceiveEpicButton),
                               ),
                       ),
+                    // Level 1: an invoice waiting is a row here, not a notice.
+                    const QuietInvoiceRows(),
                     for (final tx in pendingFirst(
                       transactions,
                     ).take(recentActivityCount))

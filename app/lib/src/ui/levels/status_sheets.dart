@@ -78,26 +78,34 @@ class _SheetBody extends StatelessWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    Widget row(_Fact f) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: Text(f.label, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim))),
-          const SizedBox(width: 12),
-          Flexible(
-            flex: 2,
-            child: Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Tip.value(
-                f.full,
-                child: Text(f.value, textAlign: TextAlign.end, style: theme.textTheme.bodyMedium),
+    Widget row(_Fact f, {bool small = false}) {
+      final style = small ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium;
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: small ? 4 : 6),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: Text(f.label, style: style?.copyWith(color: t.dim))),
+            const SizedBox(width: 12),
+            Flexible(
+              flex: 2,
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Tip.value(
+                  f.full,
+                  child: Text(
+                    f.value,
+                    textAlign: TextAlign.end,
+                    // The address and the host read in mono, as everywhere else.
+                    style: style?.copyWith(fontFamily: f.full != null || small ? t.monoFamily : null),
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       child: Column(
@@ -110,11 +118,28 @@ class _SheetBody extends StatelessWidget {
           const SizedBox(height: 12),
           ...top,
           for (final f in facts) row(f),
+          // For support: one quiet group, apart from the facts a user reads.
           if (support.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text(l.lvShellForSupport, style: theme.textTheme.labelLarge?.copyWith(color: t.dim)),
-            const SizedBox(height: 4),
-            for (final f in support) row(f),
+            Semantics(
+              container: true,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+                decoration: BoxDecoration(
+                  color: t.surface,
+                  border: Border.all(color: t.line),
+                  borderRadius: BorderRadius.circular(t.radiusSmall),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(l.lvShellForSupport, style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
+                    const SizedBox(height: 2),
+                    for (final f in support) row(f, small: true),
+                  ],
+                ),
+              ),
+            ),
           ],
           const SizedBox(height: 16),
           ...actions,

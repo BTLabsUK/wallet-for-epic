@@ -4781,5 +4781,8 @@
   "lvShellSeeRequest": "ดูคำขอ",
   "lvShellQuietArriving": "+{amount} กำลังเข้า",
   "lvShellQuietOnHold": "พัก {amount}",
-  "lvShellLevelCaption": "ระดับที่สูงขึ้นจะแสดงกระเป๋าเงินมากขึ้น ข้อมูลที่บันทึกไว้ไม่เปลี่ยน"
+  "lvShellLevelCaption": "ระดับที่สูงขึ้นจะแสดงกระเป๋าเงินมากขึ้น ข้อมูลที่บันทึกไว้ไม่เปลี่ยน",
+  "lvPolPosted": "ส่งแล้ว",
+  "lvPolInvoiceWaiting": "ใบแจ้งหนี้ · รอการอนุมัติ",
+  "lvPolAbout": "เกี่ยวกับ {name}"
 }

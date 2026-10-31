@@ -17922,4 +17922,15 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get lvShellLevelCaption =>
       'ระดับที่สูงขึ้นจะแสดงกระเป๋าเงินมากขึ้น ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
+
+  @override
+  String get lvPolPosted => 'ส่งแล้ว';
+
+  @override
+  String get lvPolInvoiceWaiting => 'ใบแจ้งหนี้ · รอการอนุมัติ';
+
+  @override
+  String lvPolAbout(String name) {
+    return 'เกี่ยวกับ $name';
+  }
 }

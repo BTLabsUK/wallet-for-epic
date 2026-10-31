@@ -446,7 +446,7 @@ String shownEpic(
 /// epicbox server), `@relay` is dropped when it is that server, since it tells the user nothing.
 /// URLs, and keys already short, come back as they are. Show the full address wherever the user
 /// may need to check or copy it.
-String shortAddress(String address, {String? ownServer}) {
+String shortAddress(String address, {String? ownServer, bool relay = true}) {
   final text = address.trim();
   final lower = text.toLowerCase();
   // A link: its host and port without the scheme, the ends kept, so two links that differ
@@ -466,15 +466,16 @@ String shortAddress(String address, {String? ownServer}) {
   }
   final at = text.indexOf('@');
   final key = at < 0 ? text : text.substring(0, at);
-  var relay = at < 0 ? '' : text.substring(at);
-  if (ownServer != null && relay.isNotEmpty) {
-    final host = relay.substring(1).split(':').first.toLowerCase();
-    if (host == ownServer.trim().toLowerCase()) relay = '';
+  // Level 1 names no server ([LevelFeatures.serverNames]): the key alone ([relay] false).
+  var server = at < 0 || !relay ? '' : text.substring(at);
+  if (ownServer != null && server.isNotEmpty) {
+    final host = server.substring(1).split(':').first.toLowerCase();
+    if (host == ownServer.trim().toLowerCase()) server = '';
   }
   final shortKey = key.length <= 14
       ? key
       : '${key.substring(0, 6)}…${key.substring(key.length - 6)}';
-  return '$shortKey$relay';
+  return '$shortKey$server';
 }
 
 /// `2,500,000`, with [l]'s thousands separator.
@@ -593,6 +594,7 @@ String txTitle(
   TxEntry tx, {
   String? contactName,
   String? ownServer,
+  bool relay = true,
 }) {
   if (_labelOf(tx) case final label?) return label;
   final counterparty = tx.counterparty;
@@ -601,19 +603,19 @@ String txTitle(
   return contactName ??
       (counterparty == null
           ? _directionNoun(l, tx)
-          : shortAddress(counterparty, ownServer: ownServer));
+          : shortAddress(counterparty, ownServer: ownServer, relay: relay));
 }
 
 /// What a labelled row's second line adds after the date, so the name or address the label
 /// replaced is not lost: the contact's name, else the short address; null without a label or
 /// when there is nothing to add.
-String? txTitleAside(TxEntry tx, {String? contactName, String? ownServer}) {
+String? txTitleAside(TxEntry tx, {String? contactName, String? ownServer, bool relay = true}) {
   if (_labelOf(tx) == null) return null;
   final counterparty = tx.counterparty;
   return contactName ??
       (counterparty == null
           ? null
-          : shortAddress(counterparty, ownServer: ownServer));
+          : shortAddress(counterparty, ownServer: ownServer, relay: relay));
 }
 
 /// The details title: the label, else the contact's name, else what kind of payment it is. The
@@ -1709,11 +1711,14 @@ class TxTile extends ConsumerWidget {
         : approxFiat(l, amount, display, short: true);
     final theme = Theme.of(context);
     final name = txPartyName(ref, tx);
+    // Level 1 names no server: an address is its key alone.
+    final relay = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
     final title = txTitle(
       l,
       tx,
       contactName: name,
       ownServer: ownEpicboxServer(ref),
+      relay: relay,
     );
     final date = shortDate(l, localTime(tx.timeUnix), now);
     final signed = signedEpic(l, tx, hidden: display.hidden);
@@ -1725,6 +1730,7 @@ class TxTile extends ConsumerWidget {
       tx,
       contactName: name,
       ownServer: ownEpicboxServer(ref),
+      relay: relay,
     );
     // The row's label field opens from a long press; the builder below hands its opener out.
     VoidCallback? edit;
@@ -1747,6 +1753,7 @@ class TxTile extends ConsumerWidget {
                       : shortAddress(
                           counterparty,
                           ownServer: ownEpicboxServer(ref),
+                          relay: relay,
                         )),
               date: date,
               status: txStatusLabel(

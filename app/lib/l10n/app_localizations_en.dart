@@ -18232,7 +18232,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lvShellCopyDetails => 'Copy details';
 
   @override
-  String get lvShellDetailsCopied => 'Details copied.';
+  String get lvShellDetailsCopied => 'Details copied';
 
   @override
   String get lvShellLatestBlock => 'Latest block';
@@ -18335,4 +18335,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lvShellLevelCaption =>
       'More levels show more of the wallet. Nothing stored changes.';
+
+  @override
+  String get lvPolPosted => 'Posted';
+
+  @override
+  String get lvPolInvoiceWaiting => 'Invoice · waiting for your approval';
+
+  @override
+  String lvPolAbout(String name) {
+    return 'About $name';
+  }
 }

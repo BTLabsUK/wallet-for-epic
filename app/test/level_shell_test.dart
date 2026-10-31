@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
+import 'package:epic_wallet/src/ui/levels/quiet_invoices.dart';
 import 'package:epic_wallet/src/ui/levels/shell_status.dart';
 import 'package:epic_wallet/src/ui/levels/status_sheets.dart';
 import 'package:epic_wallet/src/ui/notices.dart';
@@ -61,7 +62,7 @@ class _Offer extends RelaySwitchNotifier {
   }
 }
 
-Future<void> _pump(WidgetTester tester, {required String level, _Offer? offer}) async {
+Future<void> _pump(WidgetTester tester, {required String level, _Offer? offer, bool invoice = false}) async {
   // The test font is twice Roboto's width: a 600 dp view keeps the notice buttons on their row.
   tester.view.physicalSize = const Size(1800, 2400);
   tester.view.devicePixelRatio = 3;
@@ -83,6 +84,16 @@ Future<void> _pump(WidgetTester tester, {required String level, _Offer? offer}) 
       validatedWithNode: true,
     ),
   );
+  if (invoice) {
+    session.pendingInvoicesValue['inv-1'] = PendingInvoice(
+      slateId: 'inv-1',
+      senderAddress: 'esCoffee@relay-a.example.invalid',
+      amount: BigInt.from(420000000),
+      message: 'Flat white ×2',
+      receivedAt: DateTime.now(),
+      expiresAt: DateTime.now().add(const Duration(hours: 2)),
+    );
+  }
   final service = FakeWalletService(session: session);
   session.owner = service;
   await tester.pumpWidget(
@@ -126,6 +137,15 @@ void main() {
     expect(find.byIcon(Icons.visibility_off_outlined), findsNothing);
     expect(find.byIcon(Icons.qr_code_scanner), findsNothing);
     expect(tester.widget<StatusIcon>(find.byKey(shellNetworkIconKey)).label, startsWith('Network · '));
+  });
+
+  testWidgets('level 1: an invoice waiting is a row under Recent activity, never a notice', (tester) async {
+    await _pump(tester, level: '1', invoice: true);
+    expect(find.byKey(quietInvoiceKey('inv-1')), findsOneWidget);
+    expect(find.text('Invoice · waiting for your approval'), findsOneWidget);
+    expect(find.byKey(noticeKey), findsNothing);
+    // No explainer card about a send that waits: the rows say "Waiting for …" themselves.
+    expect(find.textContaining('A payment is waiting'), findsNothing);
   });
 
   testWidgets('level 1: a tap on Epicbox opens its sheet', (tester) async {

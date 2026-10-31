@@ -111,15 +111,17 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
                   slivers: [
                     SliverFillRemaining(
                       hasScrollBody: false,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // The lockup is the logo: it keeps its size at any text scale.
-                            Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // The lockup is the logo: it keeps its size at any text scale. The
+                          // ⓘ sits where an app bar's actions do: its 48 dp box at the
+                          // screen's edge, so the row runs past the content's side gutter.
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(start: 16),
+                            child: Row(
                               children: [
-                                Flexible(
+                                Expanded(
                                   child: MediaQuery.withNoTextScaling(
                                     child: const FittedBox(
                                       fit: BoxFit.scaleDown,
@@ -128,84 +130,97 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
                                     ),
                                   ),
                                 ),
-                                const Spacer(),
                                 const LevelHelpHint(),
                               ],
                             ),
-                            Expanded(
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  SizedBox(height: compact ? 0 : 8),
-                                  Semantics(
-                                    header: true,
-                                    child: Text(
-                                      l.lvPickTitle,
-                                      textAlign: TextAlign.center,
-                                      style: (compact ? theme.textTheme.titleLarge : theme.textTheme.headlineSmall)
-                                          ?.copyWith(color: t.text),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        SizedBox(height: compact ? 0 : 8),
+                                        Semantics(
+                                          header: true,
+                                          child: Text(
+                                            l.lvPickTitle,
+                                            textAlign: TextAlign.center,
+                                            style:
+                                                (compact ? theme.textTheme.titleLarge : theme.textTheme.headlineSmall)
+                                                    ?.copyWith(color: t.text),
+                                          ),
+                                        ),
+                                        if (!compact) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            l.lvPickLead,
+                                            textAlign: TextAlign.center,
+                                            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+                                          ),
+                                        ],
+                                        SizedBox(height: compact ? 6 : 12),
+                                        Semantics(
+                                          label: l.lvPickPreview,
+                                          child: ExcludeSemantics(
+                                            child: LevelPreview(
+                                              level: _level,
+                                              height: levelPreviewHeight(box.maxHeight),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: compact ? 6 : 12),
+                                        LevelDial(
+                                          level: _level,
+                                          compact: compact,
+                                          onLevel: (v) => setState(() => _level = v),
+                                        ),
+                                        SizedBox(height: compact ? 6 : 10),
+                                        LevelCaption(level: _level, compact: compact),
+                                        SizedBox(height: compact ? 6 : 12),
+                                      ],
                                     ),
                                   ),
+                                  FilledButton.icon(
+                                    key: levelCreateKey,
+                                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                                    icon: const Icon(Icons.add),
+                                    label: Text(l.firstRunCreate),
+                                    onPressed: ready ? () => _go(restore: false) : null,
+                                  ),
+                                  SizedBox(height: compact ? 8 : 12),
+                                  OutlinedButton.icon(
+                                    key: levelRestoreKey,
+                                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                                    icon: const Icon(Icons.restore),
+                                    label: Text(l.firstRunRestore),
+                                    onPressed: ready ? () => _go(restore: true) : null,
+                                  ),
+                                  // Niche, so under the two ways in and quiet (the owner).
+                                  if (offered) ...[
+                                    SizedBox(height: compact ? 6 : 12),
+                                    UndercoverRow(
+                                      value: _undercover,
+                                      onChanged: _busy ? null : (v) => setState(() => _undercover = v),
+                                    ),
+                                  ],
                                   if (!compact) ...[
                                     const SizedBox(height: 4),
                                     Text(
-                                      l.lvPickLead,
+                                      l.levelFooter,
                                       textAlign: TextAlign.center,
-                                      style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+                                      style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                                     ),
                                   ],
-                                  SizedBox(height: compact ? 6 : 12),
-                                  Semantics(
-                                    label: l.lvPickPreview,
-                                    child: ExcludeSemantics(
-                                      child: LevelPreview(level: _level, height: levelPreviewHeight(box.maxHeight)),
-                                    ),
-                                  ),
-                                  SizedBox(height: compact ? 6 : 12),
-                                  LevelDial(
-                                    level: _level,
-                                    compact: compact,
-                                    onLevel: (v) => setState(() => _level = v),
-                                  ),
-                                  SizedBox(height: compact ? 6 : 10),
-                                  LevelCaption(level: _level, compact: compact),
-                                  SizedBox(height: compact ? 6 : 12),
                                 ],
                               ),
                             ),
-                            FilledButton.icon(
-                              key: levelCreateKey,
-                              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                              icon: const Icon(Icons.add),
-                              label: Text(l.firstRunCreate),
-                              onPressed: ready ? () => _go(restore: false) : null,
-                            ),
-                            SizedBox(height: compact ? 8 : 12),
-                            OutlinedButton.icon(
-                              key: levelRestoreKey,
-                              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                              icon: const Icon(Icons.restore),
-                              label: Text(l.firstRunRestore),
-                              onPressed: ready ? () => _go(restore: true) : null,
-                            ),
-                            // Niche, so under the two ways in and quiet (the owner).
-                            if (offered) ...[
-                              SizedBox(height: compact ? 6 : 12),
-                              UndercoverRow(
-                                value: _undercover,
-                                onChanged: _busy ? null : (v) => setState(() => _undercover = v),
-                              ),
-                            ],
-                            if (!compact) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                l.levelFooter,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-                              ),
-                            ],
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

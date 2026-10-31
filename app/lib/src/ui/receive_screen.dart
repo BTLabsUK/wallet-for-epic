@@ -936,11 +936,12 @@ class _EpicboxLine extends ConsumerWidget {
     final blocked = epicbox == EpicboxState.blocked;
     final config = ref.watch(walletConfigProvider);
     // State first, then the server (GP-021): the server matters after a switch, as the
-    // address changes with it.
-    final host = config == null ? null : relayLabel(config);
+    // address changes with it. Level 1 names no server: the state alone.
+    final hosts = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
+    final host = config == null || !hosts ? null : relayLabel(config);
     final (IconData icon, String word, Color color) =
         epicbox == EpicboxState.online
-        ? (EpicGlyphs.epicbox, host == null ? l.statusEpicboxOnline : l.receiveEpicboxConnected(host), t.ok)
+        ? (EpicGlyphs.epicbox, host != null ? l.receiveEpicboxConnected(host) : hosts ? l.statusEpicboxOnline : l.lvShellBoxListening, t.ok)
         : blocked
         ? (EpicGlyphs.epicbox, l.statusEpicboxBlocked, t.risk)
         : offline

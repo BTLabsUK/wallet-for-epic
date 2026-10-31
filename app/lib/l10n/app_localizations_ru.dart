@@ -18854,7 +18854,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lvShellCopyDetails => 'Копировать подробности';
 
   @override
-  String get lvShellDetailsCopied => 'Подробности скопированы.';
+  String get lvShellDetailsCopied => 'Данные скопированы';
 
   @override
   String get lvShellLatestBlock => 'Последний блок';
@@ -18957,4 +18957,15 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get lvShellLevelCaption =>
       'Более высокие уровни показывают больше. Сохранённые данные не меняются.';
+
+  @override
+  String get lvPolPosted => 'Отправлен';
+
+  @override
+  String get lvPolInvoiceWaiting => 'Счёт · ждёт вашего одобрения';
+
+  @override
+  String lvPolAbout(String name) {
+    return 'О $name';
+  }
 }

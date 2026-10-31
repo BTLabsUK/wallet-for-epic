@@ -28475,7 +28475,7 @@ abstract class AppLocalizations {
   /// Notice after Copy details.
   ///
   /// In en, this message translates to:
-  /// **'Details copied.'**
+  /// **'Details copied'**
   String get lvShellDetailsCopied;
 
   /// Network sheet fact: the newest block the node knows.
@@ -28639,6 +28639,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'More levels show more of the wallet. Nothing stored changes.'**
   String get lvShellLevelCaption;
+
+  /// Levels 1–2 row word for a payment the network has taken but no block holds yet (0 confirmations): never 'Confirming 0 of 3'.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted'**
+  String get lvPolPosted;
+
+  /// Level 1 Home / Activity row sub-line for an incoming invoice not yet paid or declined; the row opens the invoice. Invoices are quiet at level 1: no notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice · waiting for your approval'**
+  String get lvPolInvoiceWaiting;
+
+  /// Screen-reader label of a row's ⓘ button, so it is not announced as the row itself. {name} is the row's title, e.g. 'Undercover from the start'.
+  ///
+  /// In en, this message translates to:
+  /// **'About {name}'**
+  String lvPolAbout(String name);
 }
 
 class _AppLocalizationsDelegate

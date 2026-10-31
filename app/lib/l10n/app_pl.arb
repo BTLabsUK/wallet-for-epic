@@ -4754,7 +4754,7 @@
   "lvShellOpensDetails": "Pokazuje szczegóły",
   "lvShellForSupport": "Dla wsparcia",
   "lvShellCopyDetails": "Kopiuj szczegóły",
-  "lvShellDetailsCopied": "Skopiowano szczegóły.",
+  "lvShellDetailsCopied": "Skopiowano szczegóły",
   "lvShellLatestBlock": "Najnowszy blok",
   "lvShellThisWallet": "Ten portfel",
   "lvShellUpToDate": "Aktualny",
@@ -4781,5 +4781,8 @@
   "lvShellSeeRequest": "Zobacz prośbę",
   "lvShellQuietArriving": "+{amount} w drodze",
   "lvShellQuietOnHold": "{amount} wstrzymane",
-  "lvShellLevelCaption": "Wyższe poziomy pokazują więcej portfela. Nic zapisanego się nie zmienia."
+  "lvShellLevelCaption": "Wyższe poziomy pokazują więcej portfela. Nic zapisanego się nie zmienia.",
+  "lvPolPosted": "Wysłano",
+  "lvPolInvoiceWaiting": "Faktura · czeka na twoje zatwierdzenie",
+  "lvPolAbout": "O {name}"
 }

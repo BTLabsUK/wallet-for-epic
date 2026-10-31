@@ -4754,7 +4754,7 @@
   "lvShellOpensDetails": "Zeigt Details",
   "lvShellForSupport": "Für den Support",
   "lvShellCopyDetails": "Details kopieren",
-  "lvShellDetailsCopied": "Details kopiert.",
+  "lvShellDetailsCopied": "Details kopiert",
   "lvShellLatestBlock": "Neuester Block",
   "lvShellThisWallet": "Diese Wallet",
   "lvShellUpToDate": "Aktuell",
@@ -4781,5 +4781,8 @@
   "lvShellSeeRequest": "Anfrage ansehen",
   "lvShellQuietArriving": "+{amount} unterwegs",
   "lvShellQuietOnHold": "{amount} zurückgehalten",
-  "lvShellLevelCaption": "Höhere Stufen zeigen mehr von der Wallet. Gespeichertes ändert sich nicht."
+  "lvShellLevelCaption": "Höhere Stufen zeigen mehr von der Wallet. Gespeichertes ändert sich nicht.",
+  "lvPolPosted": "Gesendet",
+  "lvPolInvoiceWaiting": "Rechnung · wartet auf Ihre Zustimmung",
+  "lvPolAbout": "Über {name}"
 }

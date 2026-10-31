@@ -19,6 +19,7 @@ import 'common.dart';
 import 'post_finished_screen.dart' show openPostFinished;
 import 'theme/brand.dart';
 import 'tour/tour_target.dart';
+import 'levels/quiet_invoices.dart';
 
 enum HistoryFilter { all, sent, received, pending, cancelled }
 
@@ -377,6 +378,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                           style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim),
                         ),
                       ),
+                    ),
+                  // Level 1: an invoice waiting is a row at the top of the whole list.
+                  if (_filter == HistoryFilter.all && _query.trim().isEmpty)
+                    const SliverPadding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverToBoxAdapter(child: QuietInvoiceRows()),
                     ),
                   // Only the rows on screen are built, so 2,000 payments scroll like 20.
                   SliverPadding(

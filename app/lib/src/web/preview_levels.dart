@@ -16,9 +16,9 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import '../levels/relay_switch.dart';
 import '../levels/relay_switch_providers.dart';
 import '../network.dart' show EpicboxRelay;
-import '../providers.dart' show sessionProvider;
+import '../providers.dart' show sessionProvider, walletConfigProvider;
 import '../ui/status.dart' show EpicboxState;
-import '../wallet_service.dart' show WalletError, WalletErrorKind;
+import '../wallet_service.dart' show WalletConfig, WalletError, WalletErrorKind;
 import 'preview_live.dart';
 
 /// `?relaydown` on the page's URL: the relay is gone as soon as Home opens.
@@ -84,11 +84,13 @@ class PreviewRelaySwitch extends RelaySwitchNotifier {
       }
       final session = ref.read(sessionProvider);
       if (session is! PreviewSession || session.relayUp) return;
-      final to = EpicboxRelay(host: mockBoxAt(3));
+      // The second server of the shipped list, named by its operator as the real offer names
+      // a candidate (`relayCandidates`): the same entry the preview directory lists healthy.
+      final to = EpicboxRelay(host: mockBoxAt(1));
       state = RelaySwitchOffer(
         from: EpicboxRelay(host: mockBox),
         to: to,
-        name: mockNodeOp(3),
+        name: mockBoxOp(1),
         address: addressAtRelay(session.address, to),
       );
     });
@@ -117,6 +119,25 @@ class PreviewRelaySwitch extends RelaySwitchNotifier {
       session.moveRelay(address);
       final result = RelaySwitchResult(from: offer.from, relay: offer.to, name: offer.name, address: address);
       if (ref.mounted) {
+        // The wallet's config follows the move, as `switchServersLive` makes it: Receive's
+        // state line and the Epicbox sheet then name the new server.
+        final config = ref.read(walletConfigProvider);
+        if (config != null) {
+          ref
+              .read(walletConfigProvider.notifier)
+              .select(
+                WalletConfig(
+                  dataDir: config.dataDir,
+                  chain: config.chain,
+                  nodeUrl: config.nodeUrl,
+                  nodeApiSecret: config.nodeApiSecret,
+                  epicboxDomain: offer.to.host,
+                  epicboxPort: offer.to.port,
+                  walletId: config.walletId,
+                  offline: config.offline,
+                ),
+              );
+        }
         state = null;
         _keptAt = null;
         ref.read(relaySwitchResultProvider.notifier).set(result);

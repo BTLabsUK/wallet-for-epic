@@ -4754,7 +4754,7 @@
   "lvShellOpensDetails": "Показывает подробности",
   "lvShellForSupport": "Для поддержки",
   "lvShellCopyDetails": "Копировать подробности",
-  "lvShellDetailsCopied": "Подробности скопированы.",
+  "lvShellDetailsCopied": "Данные скопированы",
   "lvShellLatestBlock": "Последний блок",
   "lvShellThisWallet": "Этот кошелёк",
   "lvShellUpToDate": "Актуален",
@@ -4781,5 +4781,8 @@
   "lvShellSeeRequest": "Посмотреть запрос",
   "lvShellQuietArriving": "+{amount} поступает",
   "lvShellQuietOnHold": "{amount} удерживается",
-  "lvShellLevelCaption": "Более высокие уровни показывают больше. Сохранённые данные не меняются."
+  "lvShellLevelCaption": "Более высокие уровни показывают больше. Сохранённые данные не меняются.",
+  "lvPolPosted": "Отправлен",
+  "lvPolInvoiceWaiting": "Счёт · ждёт вашего одобрения",
+  "lvPolAbout": "О {name}"
 }

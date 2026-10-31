@@ -4754,7 +4754,7 @@
   "lvShellOpensDetails": "显示详情",
   "lvShellForSupport": "供客服参考",
   "lvShellCopyDetails": "复制详情",
-  "lvShellDetailsCopied": "已复制详情。",
+  "lvShellDetailsCopied": "详情已复制",
   "lvShellLatestBlock": "最新区块",
   "lvShellThisWallet": "本钱包",
   "lvShellUpToDate": "已是最新",
@@ -4781,5 +4781,8 @@
   "lvShellSeeRequest": "查看请求",
   "lvShellQuietArriving": "+{amount} 即将到账",
   "lvShellQuietOnHold": "{amount} 暂扣中",
-  "lvShellLevelCaption": "更高级别显示钱包的更多内容。已保存的内容不会改变。"
+  "lvShellLevelCaption": "更高级别显示钱包的更多内容。已保存的内容不会改变。",
+  "lvPolPosted": "已广播",
+  "lvPolInvoiceWaiting": "账单 · 等待你批准",
+  "lvPolAbout": "关于{name}"
 }

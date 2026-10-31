@@ -18,12 +18,16 @@ import 'theme/tokens.dart';
 /// required: a sheet with no title reads as a stray sentence) and [icon] beside it; [onHelp]
 /// adds "More in Help" under the text, as the desktop's popover does.
 class InfoHint extends StatelessWidget {
-  const InfoHint(this.text, {super.key, this.size = 40, required this.title, this.icon, this.labelled = true, this.onHelp});
+  const InfoHint(this.text, {super.key, this.size = 40, required this.title, this.icon, this.labelled = true, this.label, this.onHelp});
 
   final String text;
   final double size;
   final String title;
   final IconData? icon;
+
+  /// What a screen reader calls the icon when the row beside it already carries [title] (a
+  /// switch row): "About Undercover", so the icon is not announced as the switch again.
+  final String? label;
 
   /// Opens the Help topic that says more (an explanation longer than a few lines lives there).
   final VoidCallback? onHelp;
@@ -45,7 +49,7 @@ class InfoHint extends StatelessWidget {
     void open() => showInfoSheet(context, title: title, text: text, icon: icon, onHelp: onHelp);
     return Semantics(
       button: true,
-      label: labelled ? title : null,
+      label: labelled ? (label ?? title) : null,
       hint: text,
       excludeSemantics: true,
       onTap: open,
