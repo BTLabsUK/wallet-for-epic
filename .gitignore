@@ -75,11 +75,14 @@ __pycache__/
 *.log
 !app/test/fixtures/**/*.log
 
-# Local tool settings
+# Local tool settings and notes: not tracked
+/.kiro/
 .claude/
 CLAUDE.md
 AGENTS.md
 GEMINI.md
+HANDOFF*
+RESUME*
 .cursor/
 .cursorrules
 .codex/

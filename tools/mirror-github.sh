@@ -69,7 +69,7 @@ export GIT_TERMINAL_PROMPT=0
 
 # Agent and process paths, and CI workflow files: none may reach GitHub (the letters in
 # brackets keep the publish scan of this file quiet).
-forbidden='(^|/)\.(k[i]ro|c[l]aude|coord|fleet|cursor|codex|windsurf|continue|aider[^/]*)(/|$)|(^|/)(AGENTS|C[L]AUDE|GEMINI)\.md$|^\.github/workflows/|^\.gitlab-ci\.yml$'
+forbidden='(^|/)\.(k[i]ro|c[l]aude|coord|fleet|cursor|codex|windsurf|continue|aider[^/]*)(/|$)|(^|/)(AGENTS|C[L]AUDE|GEMINI)\.md$|(^|/)(HANDOFF|RESUME)[^/]*$|^\.github/workflows/|^\.gitlab-ci\.yml$'
 
 fail=0
 for repo in "${repos[@]}"; do
