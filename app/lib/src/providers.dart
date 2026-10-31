@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
-import 'wallet/upkeep.dart' show resendUndelivered;
+import 'wallet/upkeep.dart' show releaseSenderCancelled, resendUndelivered, retrySpendBack, retryStalled;
 import 'demo.dart';
 import 'server_list_file.dart' show useServerValues;
 import 'settings_file/settings_providers.dart';
@@ -503,17 +503,9 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     WalletSession session,
     List<TxEntry> transactions,
   ) async {
-    try {
-      final retry = ref.read(stallRetryProvider);
-      final sent = await retry.run(
-        session,
-        transactions,
-        ref.read(clockProvider)(),
-      );
-      if (sent && ref.mounted) unawaited(reload());
-    } catch (error) {
-      logWarn('home', 'automatic retry failed: ${error.runtimeType}');
-    }
+    if (!ref.mounted) return;
+    final sent = await retryStalled(ref.read(stallRetryProvider), session, transactions, ref.read(clockProvider)(), tag: 'home');
+    if (sent && ref.mounted) unawaited(reload());
   }
 
   /// Releases the incoming payments their senders cancelled (sender_cancel.dart), then reads
@@ -522,24 +514,25 @@ class HomeNotifier extends AsyncNotifier<HomeData> {
     WalletSession session,
     List<TxEntry> transactions,
   ) async {
+    if (!ref.mounted) return;
+    final released = await releaseSenderCancelled(ref.read(senderCancelReleaseProvider), session, transactions, tag: 'home');
+    await _relistAfter(released);
+  }
+
+  /// Reads the list again after an automatic change [done]; a failure is logged.
+  Future<void> _relistAfter(bool done) async {
+    if (!done || !ref.mounted) return;
     try {
-      final released = await ref.read(senderCancelReleaseProvider).run(session, transactions);
-      if (released && ref.mounted) await relist();
+      await relist();
     } catch (error) {
-      logWarn('home', 'release of a cancelled payment failed: ${error.runtimeType}');
+      logWarn('home', 'list not read again: ${error.runtimeType}');
     }
   }
 
   /// Spends back the coins of a payment cancelled while the wallet is open whose spend back
   /// failed (cancel_final.dart), then reads the list again when one went.
   Future<void> _retrySpendBack(WalletSession session) async {
-    final cancels = ref.read(cancelFinalProvider);
-    if (!cancels.owed) return;
-    try {
-      if (await cancels.retry(session) && ref.mounted) await relist();
-    } catch (error) {
-      logWarn('home', 'spend back of a cancelled payment failed: ${error.runtimeType}');
-    }
+    await _relistAfter(await retrySpendBack(ref.read(cancelFinalProvider), session, tag: 'home'));
   }
 
   /// A payment's sender reports it cancelled ([paymentCancelledProvider]): the row says so at

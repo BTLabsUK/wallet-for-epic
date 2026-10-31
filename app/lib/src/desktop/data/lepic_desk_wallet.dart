@@ -5295,11 +5295,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final session = _session;
     final entries = _entries;
     if (session == null || entries == null) return;
-    try {
-      if (await _stall.run(session, entries, DateTime.now()) && _session == session) await _reload();
-    } on Object catch (e) {
-      logWarn('desk', 'automatic retry: ${e.runtimeType}');
-    }
+    if (await retryStalled(_stall, session, entries, DateTime.now(), tag: 'desk') && _session == session) await _reload();
   }
 
   /// The open wallet's release of incoming payments their senders cancelled; a new one per unlock.
@@ -5324,17 +5320,9 @@ class LepicDeskWallet implements DeskWalletApi {
     final session = _session;
     final entries = _entries;
     if (session == null || entries == null) return;
-    try {
-      if (await _senderCancel.run(session, entries) && _session == session) await _reload();
-    } on Object catch (e) {
-      logWarn('desk', 'release of a cancelled payment: ${e.runtimeType}');
-    }
+    if (await releaseSenderCancelled(_senderCancel, session, entries, tag: 'desk') && _session == session) await _reload();
     // A cancel whose spend back failed goes again with the node.
-    try {
-      if (await _cancels.retry(session) && _session == session) await _reload();
-    } on Object catch (e) {
-      logWarn('desk', 'spend back of a cancelled payment: ${e.runtimeType}');
-    }
+    if (await retrySpendBack(_cancels, session, tag: 'desk') && _session == session) await _reload();
   }
 
   /// [_cancelFinal] for [entries]: the outputs are read only when one not yet settled on the
