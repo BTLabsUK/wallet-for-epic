@@ -28111,6 +28111,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change level'**
   String get levelChangeTitle;
+
+  /// Level 1-2 row step word: an incoming payment the sender is still finishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving'**
+  String get lvPayArriving;
+
+  /// Level 1-2 row step word: confirmations so far of the wallet's setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming {count} of {target}'**
+  String lvPayConfirming(int count, int target);
+
+  /// Payment steps, a send: the recipient's wallet signed; name is the contact.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} signed'**
+  String lvPaySigned(String name);
 }
 
 class _AppLocalizationsDelegate

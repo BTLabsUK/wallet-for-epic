@@ -18026,4 +18026,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Change level';
+
+  @override
+  String get lvPayArriving => 'Arriving';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return 'Confirming $count of $target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name signed';
+  }
 }

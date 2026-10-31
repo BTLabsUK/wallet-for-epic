@@ -4693,5 +4693,8 @@
   "levelUndercoverLine": "Nur Tor, ab der ersten Verbindung.",
   "levelFooter": "Jederzeit änderbar unter Einstellungen › Erweitert.",
   "levelRowTitle": "Wallet-Stufe",
-  "levelChangeTitle": "Stufe ändern"
+  "levelChangeTitle": "Stufe ändern",
+  "lvPayArriving": "Unterwegs",
+  "lvPayConfirming": "Bestätigung {count} von {target}",
+  "lvPaySigned": "{name} hat signiert"
 }

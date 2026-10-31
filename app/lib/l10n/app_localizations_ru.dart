@@ -18648,4 +18648,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Сменить уровень';
+
+  @override
+  String get lvPayArriving => 'Поступает';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return 'Подтверждение $count из $target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name подписал(а)';
+  }
 }

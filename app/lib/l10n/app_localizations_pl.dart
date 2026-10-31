@@ -18668,4 +18668,17 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Zmień poziom';
+
+  @override
+  String get lvPayArriving => 'W drodze';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return 'Potwierdzanie $count z $target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name podpisał(a)';
+  }
 }

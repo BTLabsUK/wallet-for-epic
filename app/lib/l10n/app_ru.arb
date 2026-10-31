@@ -4693,5 +4693,8 @@
   "levelUndercoverLine": "Только Tor, с первого соединения.",
   "levelFooter": "Изменить можно в любой момент: Настройки › Дополнительно.",
   "levelRowTitle": "Уровень кошелька",
-  "levelChangeTitle": "Сменить уровень"
+  "levelChangeTitle": "Сменить уровень",
+  "lvPayArriving": "Поступает",
+  "lvPayConfirming": "Подтверждение {count} из {target}",
+  "lvPaySigned": "{name} подписал(а)"
 }

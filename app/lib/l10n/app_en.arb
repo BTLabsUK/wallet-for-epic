@@ -24272,10 +24272,35 @@
   },
   "levelRowTitle": "Wallet level",
   "@levelRowTitle": {
-    "description": "Row at the top of Settings \u203a Advanced; its second line is the current level's title."
+    "description": "Row at the top of Settings › Advanced; its second line is the current level's title."
   },
   "levelChangeTitle": "Change level",
   "@levelChangeTitle": {
     "description": "Title of the dialog opened by the Wallet level row."
+  },
+  "lvPayArriving": "Arriving",
+  "@lvPayArriving": {
+    "description": "Level 1-2 row step word: an incoming payment the sender is still finishing."
+  },
+  "lvPayConfirming": "Confirming {count} of {target}",
+  "@lvPayConfirming": {
+    "description": "Level 1-2 row step word: confirmations so far of the wallet's setting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "lvPaySigned": "{name} signed",
+  "@lvPaySigned": {
+    "description": "Payment steps, a send: the recipient's wallet signed; name is the contact.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

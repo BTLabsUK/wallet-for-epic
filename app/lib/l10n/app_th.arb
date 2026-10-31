@@ -4693,5 +4693,8 @@
   "levelUndercoverLine": "ใช้ Tor เท่านั้น ตั้งแต่การเชื่อมต่อครั้งแรก",
   "levelFooter": "เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง",
   "levelRowTitle": "ระดับกระเป๋าเงิน",
-  "levelChangeTitle": "เปลี่ยนระดับ"
+  "levelChangeTitle": "เปลี่ยนระดับ",
+  "lvPayArriving": "กำลังมาถึง",
+  "lvPayConfirming": "กำลังยืนยัน {count} จาก {target}",
+  "lvPaySigned": "{name} เซ็นแล้ว"
 }

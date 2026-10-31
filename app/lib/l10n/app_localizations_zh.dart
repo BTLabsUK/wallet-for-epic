@@ -16988,4 +16988,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get levelChangeTitle => '更改级别';
+
+  @override
+  String get lvPayArriving => '即将到账';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return '确认中 $count/$target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name 已签名';
+  }
 }

@@ -18239,4 +18239,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Stufe ändern';
+
+  @override
+  String get lvPayArriving => 'Unterwegs';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return 'Bestätigung $count von $target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name hat signiert';
+  }
 }

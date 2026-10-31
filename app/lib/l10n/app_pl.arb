@@ -4693,5 +4693,8 @@
   "levelUndercoverLine": "Tylko Tor, od pierwszego połączenia.",
   "levelFooter": "Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.",
   "levelRowTitle": "Poziom portfela",
-  "levelChangeTitle": "Zmień poziom"
+  "levelChangeTitle": "Zmień poziom",
+  "lvPayArriving": "W drodze",
+  "lvPayConfirming": "Potwierdzanie {count} z {target}",
+  "lvPaySigned": "{name} podpisał(a)"
 }

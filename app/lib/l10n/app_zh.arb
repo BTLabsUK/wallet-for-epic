@@ -4693,5 +4693,8 @@
   "levelUndercoverLine": "仅 Tor，从第一次连接起。",
   "levelFooter": "随时可在 设置 › 高级 中更改。",
   "levelRowTitle": "钱包级别",
-  "levelChangeTitle": "更改级别"
+  "levelChangeTitle": "更改级别",
+  "lvPayArriving": "即将到账",
+  "lvPayConfirming": "确认中 {count}/{target}",
+  "lvPaySigned": "{name} 已签名"
 }

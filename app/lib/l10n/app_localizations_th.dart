@@ -17615,4 +17615,17 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'เปลี่ยนระดับ';
+
+  @override
+  String get lvPayArriving => 'กำลังมาถึง';
+
+  @override
+  String lvPayConfirming(int count, int target) {
+    return 'กำลังยืนยัน $count จาก $target';
+  }
+
+  @override
+  String lvPaySigned(String name) {
+    return '$name เซ็นแล้ว';
+  }
 }
