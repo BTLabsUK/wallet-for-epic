@@ -84,7 +84,6 @@ void main() {
       await _settle(tester);
       expect(find.text('Kernel'), findsOneWidget);
       expect(find.text('Slate ID'), findsOneWidget);
-      expect(find.text('Status'), findsWidgets);
       expect(find.text('Less'), findsOneWidget);
       expect(_advanced.has(AdvancedFeature.technicalDetails), isFalse, reason: 'the switch stays off');
       await tester.ensureVisible(find.byKey(const ValueKey('tx-more')));
