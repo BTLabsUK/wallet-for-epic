@@ -69,11 +69,43 @@ def _save_pid(sb, name, pid):
         f.write(str(pid))
 
 
-def _free_display():
-    for n in range(140, 200):
+def _free_display(start=140):
+    for n in range(start, 200):
         if not os.path.exists("/tmp/.X11-unix/X%d" % n) and not os.path.exists("/tmp/.X%d-lock" % n):
             return n
     raise SystemExit("no free X display")
+
+
+def _lock_pid(n):
+    try:
+        return int(open("/tmp/.X%d-lock" % n).read().strip())
+    except (OSError, ValueError):
+        return None
+
+
+def _own_xvfb(sb, size):
+    """Starts an Xvfb on a free display and returns (display, process) once that display is ours:
+    two sandboxes started in the same second see the same free number, the later Xvfb finds it
+    taken and quits while the other one's socket is there. The X lock file names the server that
+    holds the display, so a display counts as ours only when it names our Xvfb; else the next one."""
+    n = 140
+    while True:
+        n = _free_display(n)
+        x = subprocess.Popen(["Xvfb", ":%d" % n, "-screen", "0", size, "-nolisten", "tcp", "-ac"],
+                             stdout=open(_p(sb, "logs", "xvfb.log"), "w"), stderr=subprocess.STDOUT,
+                             start_new_session=True)
+        for _ in range(100):
+            if x.poll() is not None or (os.path.exists("/tmp/.X11-unix/X%d" % n) and _lock_pid(n) == x.pid):
+                break
+            time.sleep(0.1)
+        if x.poll() is None and _lock_pid(n) == x.pid:
+            return n, x
+        if x.poll() is None:
+            if os.path.exists("/tmp/.X11-unix/X%d" % n):
+                x.kill()  # up, but the display is another server's
+            else:
+                raise SystemExit("Xvfb :%d did not start (logs/xvfb.log)" % n)
+        n += 1
 
 
 def base_env(sb):
@@ -106,17 +138,8 @@ def start(sb, size="1400x950x24"):
         os.makedirs(_p(sb, d), exist_ok=True)
     os.chmod(_p(sb, "runtime"), 0o700)
     env = base_env(sb)
-    n = _free_display()
-    x = subprocess.Popen(["Xvfb", ":%d" % n, "-screen", "0", size, "-nolisten", "tcp", "-ac"],
-                         stdout=open(_p(sb, "logs", "xvfb.log"), "w"), stderr=subprocess.STDOUT,
-                         start_new_session=True)
+    n, x = _own_xvfb(sb, size)
     _save_pid(sb, "xvfb", x.pid)
-    for _ in range(100):
-        if os.path.exists("/tmp/.X11-unix/X%d" % n):
-            break
-        time.sleep(0.1)
-    else:
-        raise SystemExit("Xvfb :%d did not start (logs/xvfb.log)" % n)
     env["DISPLAY"] = ":%d" % n
     # dbus session bus of our own (never the user's)
     out = subprocess.run(["dbus-daemon", "--session", "--fork", "--print-address=1", "--print-pid=1"],
