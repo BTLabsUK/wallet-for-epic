@@ -12,6 +12,14 @@ The owner's approval, fetch the signed files.
         minisign:file=SHA256SUMS,out=SHA256SUMS.sig,trusted_comment=Epic Cash 26.11.0 SHA256SUMS
         apk:file=app-unsigned.apk,out=app.apk     aab:file=x.aab,out=x.aab
       Files are uploaded under their base names (two inputs with one base name are refused).
+      BTSIGN_CONTINUE=<request id>: these jobs are the follow-up that request declared (the
+      update manifests after its Android files): signed on its code, no new one. When that
+      request no longer waits for it (expired, signed, refused), a new request asks for a code.
+  btsign_client.py receipt --out-dir D            exit 0 when D's receipt still holds: every
+      input and output it names is on disk with the hash the signer saw and returned
+Every sign leaves btsign-receipt.json in its out dir. A sign whose jobs and inputs equal the
+receipt's, with the outputs still there and unchanged, takes them again and opens no request
+(a step retried after the signer had answered: tools/rel retry).
 
 Settings: [host.signer] of release-hosts.toml ($REL_HOSTS, else ~/.config/btlabs/release-hosts.toml):
   endpoint = "http://<signer tailnet address>:8797"     unset: no signer (the old local key path)
@@ -35,10 +43,15 @@ import urllib.request
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 WAIT_SECONDS = 35 * 60
+FOLLOW_WAIT_SECONDS = 10 * 60
+RECEIPT = "btsign-receipt.json"
+INPUT_KEYS = ("payload", "prev", "app_config", "file")
 
 
 class SignerError(Exception):
-    pass
+    def __init__(self, msg: str, status: int | None = None):
+        super().__init__(msg)
+        self.status = status
 
 
 def hosts_file() -> str:
@@ -129,7 +142,7 @@ class Client:
                 msg = json.loads(e.read()).get("error")
             except ValueError:
                 msg = e.reason
-            raise SignerError(f"signer: {method} {path.split('?')[0]} → {e.code}: {msg}") from None
+            raise SignerError(f"signer: {method} {path.split('?')[0]} → {e.code}: {msg}", e.code) from None
         except (urllib.error.URLError, OSError) as e:
             raise SignerError(f"signer at {self.url} unreachable ({getattr(e, 'reason', e)})") from None
         if raw:
@@ -195,15 +208,13 @@ class Client:
             raise SignerError("selftest signed our own package")
         return r
 
-    def sign(self, version: str, jobs: list[dict], out_dir: str, label: str = "",
-             wait: float = WAIT_SECONDS) -> dict:
-        """jobs name local paths; outputs land in out_dir under their out names, checked against
-        the signer's SHA-256. Blocks until the owner approved and the signer signed (or refused)."""
-        files, paths = [], {}
-        remote_jobs = []
+    @staticmethod
+    def _prepare(jobs: list[dict]) -> tuple[list[dict], list[dict], dict]:
+        """(remote jobs naming base names, [{name, size, sha256}], {name: local path})."""
+        files, paths, remote_jobs = [], {}, []
         for j in jobs:
             rj = dict(j)
-            for k in ("payload", "prev", "app_config", "file"):
+            for k in INPUT_KEYS:
                 if rj.get(k):
                     p = os.path.abspath(rj[k])
                     name = os.path.basename(p)
@@ -214,36 +225,40 @@ class Client:
             remote_jobs.append(rj)
         for name, p in paths.items():
             files.append({"name": name, "size": os.path.getsize(p), "sha256": sha256_file(p)})
-        req = self.call("POST", "/requests", body={"version": version, "label": label[:80],
-                                                    "jobs": remote_jobs, "files": files})
-        rid = req["id"]
-        self.say(f"signer request {rid}: {len(remote_jobs)} job(s), {len(files)} file(s)")
+        return remote_jobs, files, paths
+
+    def _upload(self, rid: str, files: list[dict], paths: dict) -> None:
+        for f in files:
+            with open(paths[f["name"]], "rb") as fh:
+                got = self.call("PUT", f"/requests/{rid}/in/{f['name']}", stream=fh, length=f["size"],
+                                timeout=1800)
+            if got["sha256"] != f["sha256"]:
+                raise SignerError(f"{f['name']}: the signer hashed {got['sha256']}")
+
+    def _wait(self, rid: str, wait: float, ok: tuple) -> dict:
+        deadline, st = time.time() + wait, None
+        while time.time() < deadline:
+            st = self.call("GET", f"/requests/{rid}", timeout=30)
+            if st["state"] in ok + ("done", "rejected", "expired", "failed", "cancelled"):
+                break
+            time.sleep(5)
+        if not st or st["state"] not in ok:
+            raise SignerError(f"signer request {rid}: {st['state'] if st else 'no answer'}"
+                              f"{' (' + st['note'] + ')' if st and st.get('note') else ''}")
+        return st
+
+    def _cancel(self, rid: str) -> None:
         try:
-            for f in files:
-                with open(paths[f["name"]], "rb") as fh:
-                    got = self.call("PUT", f"/requests/{rid}/in/{f['name']}", stream=fh, length=f["size"],
-                                    timeout=1800)
-                if got["sha256"] != f["sha256"]:
-                    raise SignerError(f"{f['name']}: the signer hashed {got['sha256']}")
-            self.call("POST", f"/requests/{rid}/submit", body={})
-            self.say(f"signer request {rid}: waiting for the owner's code in Telegram (@BTLABS_BOT)")
-            deadline, st = time.time() + wait, None
-            while time.time() < deadline:
-                st = self.call("GET", f"/requests/{rid}", timeout=30)
-                if st["state"] in ("done", "rejected", "expired", "failed", "cancelled"):
-                    break
-                time.sleep(5)
-            if not st or st["state"] != "done":
-                raise SignerError(f"signer request {rid}: {st['state'] if st else 'no answer'}"
-                                  f"{' (' + st['note'] + ')' if st and st.get('note') else ''}")
-        except BaseException:
-            try:
-                self.call("POST", f"/requests/{rid}/cancel", body={}, timeout=15)
-            except SignerError:
-                pass
-            raise
+            self.call("POST", f"/requests/{rid}/cancel", body={}, timeout=15)
+        except SignerError:
+            pass
+
+    def _fetch(self, rid: str, st: dict, names: list[str], out_dir: str) -> None:
         os.makedirs(out_dir, exist_ok=True)
-        for name, meta in st["outputs"].items():
+        for name in names:
+            meta = st["outputs"].get(name)
+            if not meta:
+                raise SignerError(f"signer request {rid}: no output {name}")
             dst = os.path.join(out_dir, name)
             tmp = dst + ".btsign-part"
             with self.call("GET", f"/requests/{rid}/out/{name}", timeout=1800, raw=True) as r, open(tmp, "wb") as f:
@@ -254,7 +269,116 @@ class Client:
                 raise SignerError(f"{name}: download does not match the signer's SHA-256")
             os.replace(tmp, dst)
             self.say(f"  signed {name} {meta['sha256'][:16]}")
-        return st
+
+    @staticmethod
+    def _receipt_write(out_dir: str, rid: str, version: str, remote_jobs: list[dict], files: list[dict],
+                       paths: dict, st: dict, names: list[str], then: list[dict] | None = None) -> dict:
+        """What the signer saw and returned, so a retry can take the same outputs again."""
+        rec = {"id": rid, "version": version, "jobs": remote_jobs,
+               "inputs": {f["name"]: {"path": paths[f["name"]], "sha256": f["sha256"]} for f in files},
+               "outputs": {n: dict(st["outputs"][n]) for n in names},
+               "state": st["state"], "continue_by": st.get("continue_by"), "then": then or None}
+        tmp = os.path.join(out_dir, RECEIPT + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(rec, f, indent=1)
+        os.replace(tmp, os.path.join(out_dir, RECEIPT))
+        return rec
+
+    @staticmethod
+    def receipt_holds(out_dir: str, version: str | None = None, remote_jobs: list[dict] | None = None,
+                      files: list[dict] | None = None) -> dict | None:
+        """The receipt in out_dir when every input it names still has the hash the signer saw
+        and every output is there with the hash it returned (and, given, the same version, jobs
+        and inputs as now); else None."""
+        try:
+            with open(os.path.join(out_dir, RECEIPT), encoding="utf-8") as f:
+                rec = json.load(f)
+            if version is not None and rec["version"] != version:
+                return None
+            if remote_jobs is not None and rec["jobs"] != remote_jobs:
+                return None
+            if files is not None and {f["name"]: f["sha256"] for f in files} != \
+                    {n: i["sha256"] for n, i in rec["inputs"].items()}:
+                return None
+            for i in rec["inputs"].values():
+                if sha256_file(i["path"]) != i["sha256"]:
+                    return None
+            for n, o in rec["outputs"].items():
+                if sha256_file(os.path.join(out_dir, n)) != o["sha256"]:
+                    return None
+            return rec
+        except (OSError, ValueError, KeyError, TypeError):
+            return None
+
+    def sign(self, version: str, jobs: list[dict], out_dir: str, label: str = "",
+             wait: float = WAIT_SECONDS, then: list[dict] | None = None,
+             expect: list[str] | None = None) -> dict:
+        """jobs name local paths; outputs land in out_dir under their out names, checked against
+        the signer's SHA-256. Blocks until the owner approved and the signer signed (or refused).
+        then ([{op, out}]): the follow-up this request declares (follow()); the request then
+        stays open for it after the outputs are fetched. expect (local paths): the release's
+        other files that follow-up may name, declared by name, size and SHA-256. Returns the
+        request's state (id, outputs, continue_by), or the receipt when the same outputs were
+        already here."""
+        remote_jobs, files, paths = self._prepare(jobs)
+        names = [j["out"] for j in remote_jobs]
+        rec = self.receipt_holds(out_dir, version, remote_jobs, files)
+        if rec and set(rec["outputs"]) == set(names) and rec.get("then") == (then or None):
+            self.say(f"signer request {rec['id']} already returned {len(names)} file(s) for exactly these "
+                     "inputs: taking them again, no new request")
+            return rec
+        body = {"version": version, "label": label[:80], "jobs": remote_jobs, "files": files}
+        if then:
+            body["then"] = then
+            body["expect"] = [{"name": os.path.basename(p), "size": os.path.getsize(p), "sha256": sha256_file(p)}
+                              for p in expect or []]
+        req = self.call("POST", "/requests", body=body)
+        rid = req["id"]
+        self.say(f"signer request {rid}: {len(remote_jobs)} job(s), {len(files)} file(s)"
+                 + (f", then {len(then)} on the same code" if then else ""))
+        try:
+            self._upload(rid, files, paths)
+            self.call("POST", f"/requests/{rid}/submit", body={})
+            self.say(f"signer request {rid}: waiting for the owner's code in Telegram (@BTLABS_BOT)")
+            st = self._wait(rid, wait, ("continuing",) if then else ("done",))
+            self._fetch(rid, st, names, out_dir)
+        except BaseException:
+            self._cancel(rid)
+            raise
+        return self._receipt_write(out_dir, rid, version, remote_jobs, files, paths, st, names, then)
+
+    def follow(self, rid: str, version: str, jobs: list[dict], out_dir: str,
+               wait: float = FOLLOW_WAIT_SECONDS) -> dict:
+        """The follow-up request rid declared: signed on its code (no new one) when the signer
+        still waits for it and the jobs are exactly the declared ones. SignerError with status
+        409 when it no longer waits (the caller then asks with a new request)."""
+        remote_jobs, files, paths = self._prepare(jobs)
+        names = [j["out"] for j in remote_jobs]
+        rec = self.receipt_holds(out_dir, version, remote_jobs, files)
+        if rec and set(rec["outputs"]) == set(names):
+            self.say(f"signer request {rec['id']} already returned {len(names)} file(s) for exactly these "
+                     "inputs: taking them again, no new request")
+            return rec
+        try:
+            st = self.call("GET", f"/requests/{rid}", timeout=30)
+        except SignerError as e:
+            if e.status == 404:   # long over: the signer has removed it
+                raise SignerError(f"signer request {rid} is gone, not waiting for this follow-up", 409) from None
+            raise
+        if st.get("state") != "continuing" or st.get("version") != version:
+            raise SignerError(f"signer request {rid} is {st.get('state')} ({st.get('version')}), "
+                              "not waiting for this follow-up", 409)
+        self.call("POST", f"/requests/{rid}/continue", body={"jobs": remote_jobs, "files": files})
+        self.say(f"signer request {rid}: follow-up of {len(remote_jobs)} job(s) on the same code")
+        try:
+            self._upload(rid, files, paths)
+            self.call("POST", f"/requests/{rid}/submit", body={}, timeout=300)
+            st = self._wait(rid, wait, ("done",))
+            self._fetch(rid, st, names, out_dir)
+        except BaseException:
+            self._cancel(rid)
+            raise
+        return self._receipt_write(out_dir, rid, version, remote_jobs, files, paths, st, names)
 
 
 def parse_job(text: str) -> dict:
@@ -284,6 +408,8 @@ def main(argv=None) -> int:
     s.add_argument("--out-dir", required=True)
     s.add_argument("--label", default="")
     s.add_argument("jobs", nargs="+")
+    s = sub.add_parser("receipt")
+    s.add_argument("--out-dir", required=True)
     a = p.parse_args(argv)
     try:
         if a.cmd == "endpoint":
@@ -291,6 +417,12 @@ def main(argv=None) -> int:
             if not e:
                 return 1
             print(e)
+            return 0
+        if a.cmd == "receipt":
+            rec = Client.receipt_holds(a.out_dir)
+            if not rec:
+                return 1
+            print(f"ok: the outputs of signer request {rec['id']} are as it returned them")
             return 0
         c = Client()
         if a.cmd == "check":
@@ -306,7 +438,17 @@ def main(argv=None) -> int:
                   f"the selftest APK ({r['apk']['package']}) carries {r['apk']['cert_sha256']} "
                   f"with schemes {r['apk']['schemes']}")
             return 0
-        c.sign(a.version, [parse_job(j) for j in a.jobs], a.out_dir, a.label)
+        jobs = [parse_job(j) for j in a.jobs]
+        rid = os.environ.get("BTSIGN_CONTINUE", "").strip()
+        if rid:
+            try:
+                c.follow(rid, a.version, jobs, a.out_dir)
+                return 0
+            except SignerError as e:
+                if e.status != 409:
+                    raise
+                c.say(f"{e}: asking with a new request (a new code)")
+        c.sign(a.version, jobs, a.out_dir, a.label)
         return 0
     except SignerError as e:
         print(f"error: {e}", file=sys.stderr)

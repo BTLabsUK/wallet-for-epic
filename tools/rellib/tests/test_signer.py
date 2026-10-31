@@ -29,8 +29,8 @@ class FakeClient:
     def __init__(self, refuse=None, problems=()):
         self.requests, self.refuse, self.problems = [], refuse, list(problems)
 
-    def sign(self, version, jobs, out_dir, label=""):
-        self.requests.append({"version": version, "jobs": jobs, "label": label})
+    def sign(self, version, jobs, out_dir, label="", then=None, expect=None):
+        self.requests.append({"version": version, "jobs": jobs, "label": label, "then": then})
         if self.refuse:
             raise RuntimeError(self.refuse)
         os.makedirs(out_dir, exist_ok=True)

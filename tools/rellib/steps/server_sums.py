@@ -9,6 +9,10 @@ signer can sign it before anything is published (docs/RELEASING.md, "Signer").
       hashes from that verified manifest), sorted by name: the lines the server's
       `ls | grep -vx -e SHA256SUMS -e SHA256SUMS.sig | LC_ALL=C sort | xargs sha256sum` gives
       after prune-downloads.
+  server_sums.py same <files dir> <manifests dir> <SHA256SUMS>
+      exit 0 when the files dir holds exactly what its SHA256SUMS lists, with those hashes, and
+      `write` would give this SHA256SUMS byte for byte (the manifests step's retry: the listing
+      the signer already signed still stands); exit 1 otherwise.
   server_sums.py verify <SHA256SUMS> <SHA256SUMS.sig> <keyring> <gitlab-release.py>
       the minisign signature against the keyring (gitlab-release.py's own check).
   server_sums.py sign <SHA256SUMS> <run>/signer.json <version> <keyring>
@@ -72,6 +76,30 @@ def write(files, mdir, out):
     print(f"{out}: {len(sums)} files")
 
 
+def same(files, mdir, sums):
+    import hashlib
+    try:
+        listed = read_sums(os.path.join(files, "SHA256SUMS"))
+        if sorted(n for n in os.listdir(files) if n != "SHA256SUMS") != sorted(listed):
+            return 1
+        for name, sha in listed.items():
+            h = hashlib.sha256()
+            with open(os.path.join(files, name), "rb") as f:
+                for chunk in iter(lambda: f.read(1 << 20), b""):
+                    h.update(chunk)
+            if h.hexdigest() != sha:
+                return 1
+        fresh = sums + ".same"
+        write(files, mdir, fresh)
+        try:
+            with open(fresh, "rb") as f, open(sums, "rb") as g:
+                return 0 if f.read() == g.read() else 1
+        finally:
+            os.remove(fresh)
+    except (OSError, SystemExit):
+        return 1
+
+
 def gitlab_release(tool):
     spec = importlib.util.spec_from_file_location("gitlab_release", tool)
     gr = importlib.util.module_from_spec(spec)
@@ -128,6 +156,8 @@ def sign_key(sums, key_file, version, keyring, tool):
 def main(argv):
     if len(argv) == 4 and argv[0] == "write":
         write(*argv[1:])
+    elif len(argv) == 4 and argv[0] == "same":
+        sys.exit(same(*argv[1:]))
     elif len(argv) == 5 and argv[0] == "sign":
         try:
             sign(*argv[1:])

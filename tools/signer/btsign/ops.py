@@ -222,6 +222,86 @@ def describe(job: dict, indir: str, hashes: dict, ledger: set) -> list[str]:
     return [f"{job['out']}: the encrypted key bundle (to move the signer)"]
 
 
+def _file_entries(o):
+    """Every {url, sha256} object of a payload (APKs, desktop builds), wherever it sits."""
+    if isinstance(o, dict):
+        if isinstance(o.get("url"), str) and "sha256" in o:
+            yield o
+        for v in o.values():
+            yield from _file_entries(v)
+    elif isinstance(o, list):
+        for v in o:
+            yield from _file_entries(v)
+
+
+def _prev_files(indir: str, job: dict) -> dict:
+    """{file name: sha256} of the published manifest a job names as --prev (already signed and
+    live: the entries a release keeps from it)."""
+    if not job.get("prev"):
+        return {}
+    env = json.loads(_read(os.path.join(indir, job["prev"])))
+    payload = json.loads(base64.b64decode(env["payload"]))
+    return {e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in _file_entries(payload)}
+
+
+def check_follow(jobs: list[dict], indir: str, signed: dict, expect: dict, version: str) -> None:
+    """A follow-up signed on the code of the Android request before it (server.py, `then`). Each
+    update manifest is for the request's version; each APK it names is one this request signed
+    (URL file name, SHA-256, size); each other file it names (a desktop build) is one the
+    request declared when the owner approved it (`expect`: name, SHA-256, size) or one the live
+    manifest (--prev) already names with that SHA-256. Each SHA256SUMS lists every file the
+    manifests name, and a line for a file signed or declared here carries that hash. Raises
+    OpError otherwise."""
+    known = {n: {"sha256": v["sha256"], "size": v["size"]} for n, v in expect.items()}
+    known.update({n: {"sha256": v["sha256"], "size": v["size"]} for n, v in signed.items()})
+    named = set()
+    for j in jobs:
+        if j["op"] != "update-manifest":
+            continue
+        p = json.loads(_read(os.path.join(indir, j["payload"])))
+        if p.get("versionName") != version:
+            raise OpError(f"{j['payload']}: versionName {p.get('versionName')!r} is not the request's {version}")
+        apks = list(p.get("apks") or []) + list((p.get("notor") or {}).get("apks") or [])
+        if not apks:
+            raise OpError(f"{j['payload']}: names no APK")
+        apk_ids = {id(a) for a in apks}
+        try:
+            prev = _prev_files(indir, j)
+        except (ValueError, KeyError, TypeError, AttributeError):
+            raise OpError(f"{j['prev']}: not a readable manifest") from None
+        for e in _file_entries(p):
+            name = e["url"].rsplit("/", 1)[-1]
+            k = (signed if id(e) in apk_ids else known).get(name)
+            if k and e.get("sha256") == k["sha256"] and e.get("size") == k["size"]:
+                named.add(name)
+            elif id(e) not in apk_ids and name not in known and prev.get(name) == e.get("sha256"):
+                continue    # kept from the live manifest: not this release's file
+            else:
+                what = "signed" if id(e) in apk_ids else "declared"
+                raise OpError(f"{j['payload']}: {name} is not the file {what} in this request")
+    for j in jobs:
+        if j["op"] == "update-manifest":
+            continue
+        if j["op"] != "minisign":
+            raise OpError(f"{j['op']} cannot follow on an earlier code")
+        try:
+            text = _read(os.path.join(indir, j["file"]), text=True)
+        except UnicodeDecodeError:
+            raise OpError(f"{j['file']}: not a SHA256SUMS listing") from None
+        rows = [SUMS_LINE.match(x) for x in text.splitlines()]
+        if not text or not all(rows):
+            raise OpError(f"{j['file']}: not a SHA256SUMS listing")
+        listed = {m.group(2): m.group(1) for m in rows}
+        for name, k in known.items():
+            if name in listed and listed[name] != k["sha256"]:
+                raise OpError(f"{j['file']}: {name} is listed with another hash than the one approved here")
+        missing = sorted(named - set(listed))
+        if missing:
+            raise OpError(f"{j['file']}: does not list {', '.join(missing)}")
+        if not any(name in listed for name in signed):
+            raise OpError(f"{j['file']}: lists none of the files signed in this request")
+
+
 # ---------------------------------------------------------------- running
 
 class Tools:

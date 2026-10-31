@@ -165,15 +165,18 @@ timeout = "120m"
 
 # With a signer ([host.signer] endpoint, docs/RELEASING.md "Signer") the builds are unsigned and
 # this signs every Android file of the run (APKs, emulator APKs, the Play bundle) in one request
-# The owner approves with one code; G3 then takes the signed bytes (signed.json). Without one the
-# builds signed themselves and this only checks the certificate. Its own lane: it may wait 30 min.
+# The owner approves with one code; G3 then takes the signed bytes (signed.json). With manifests in
+# the run that request also declares them, and the manifests step signs them on the same code
+# (one code per release, the owner 2026-10-31): so it waits for every build the manifests and G3
+# name, and the follow-up comes within minutes. Without a signer the builds signed themselves
+# and this only checks the certificate. Its own lane: it may wait 30 min.
 [step.sign-android]
 title = "Android signing"
 kind = "builtin"
 host = "local"
 platform = "android"
 lane = "sign"
-needs = ["build-android", "build-play"]
+needs = ["build-android", "build-play", "build-linux", "build-windows", "apple-mac-check", "ios-testflight"]
 
 [step.build-linux]
 title = "Linux AppImage ({variant})"

@@ -11,8 +11,12 @@
 # With a signer (<run>/signer.json, written by G1 when [host.signer] endpoint is set) the release
 # signer signs both manifests and the downloads folder's SHA256SUMS as it will stand once live
 # (server_sums.py: manifests/SHA256SUMS and SHA256SUMS.sig, installed by publish-downloads), in
-# one request: the owner's second approval of the release (docs/RELEASING.md, "Signer"). The key
-# on this machine is not read.
+# one go: the follow-up sign-android's request declared (<run>/signer-continue.json), signed on
+# that request's code, so a release needs one code (docs/RELEASING.md, "Signer"). When that
+# request no longer waits (expired, a retry, a run that signed Android elsewhere) the client asks
+# with a new request and code, as before. A retry after the signer had answered takes the
+# manifests it returned again when nothing they were made from changed (the client's receipt,
+# server_sums.py same), and opens no request. The key on this machine is not read.
 # The manifests are valid for REL_MANIFEST_DAYS days (release/pipeline.toml [manifest]).
 # Env (set by tools/rel): REL_VERSION REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST REL_RUN
 #   REL_MANIFEST_DAYS
@@ -25,9 +29,19 @@ base="$(python3 -I -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1],
 notes="$(cat "${REL_NOTES_FILE:-/dev/null}" 2>/dev/null || true)"
 out="$src/app/build/app/outputs/flutter-apk"
 mkdir -p "$m" "$out"
-for f in update.json update-v2.json update.payload.json update-v2.payload.json; do
-  rm -f -- "${out:?}/$f"
-done
+sj="${REL_RUN:-/nonexistent}/signer.json"
+reuse=0
+if [[ "${REL_TEST:-0}" != 1 && -f "$sj" && -f "$m/SHA256SUMS" && -f "$out/btsign-receipt.json" ]] \
+    && python3 -I "$(jq -r .client "$sj")" receipt --out-dir "$out" \
+    && python3 -I "$(dirname "$0")/server_sums.py" same "$files" "$m" "$m/SHA256SUMS"; then
+  # Checked again below as if just signed (both envelopes verified, the listing's signature).
+  reuse=1
+  echo "the signer already returned these manifests for exactly these files: checking them again, no new request"
+else
+  for f in update.json update-v2.json update.payload.json update-v2.payload.json btsign-receipt.json; do
+    rm -f -- "${out:?}/$f"
+  done
+fi
 export WFE_APK_DIR="$files" WFE_DESKTOP_DIR="$files" BTLABS_PUBLIC="$bp" WFE_MANIFEST_DAYS="${REL_MANIFEST_DAYS:-182}"
 # Desktop systems this release has no file for keep their live entry (desktop_keep.py).
 rm -f -- "$m/desktop-keep.json"
@@ -52,17 +66,30 @@ if [[ "${REL_TEST:-0}" == 1 ]]; then
     --key "$bp/testdata/keys/test-a.key" --keyring "$m/test-keyring.json" \
     --payload "$out/update-v2.payload.json" --out "$out/update-v2.json"
   echo "TEST run: signed with btlabs-public's test key (never accepted by an installed app)"
-elif [[ -f "${REL_RUN:-/nonexistent}/signer.json" ]]; then
-  sj="$REL_RUN/signer.json"
+elif [[ "$reuse" == 1 ]]; then
+  tool="$bp/tool/btlabs_sign.py" keyring="$bp/keys/btlabs-keyring.json"
+  python3 "$tool" verify --type update --keyring "$keyring" --envelope "$out/update.json"
+  python3 "$tool" verify --type update --app-config "$src/app/assets/config/app-config.toml" --keyring "$keyring" \
+    --envelope "$out/update-v2.json"
+  cp -f -- "$out/SHA256SUMS.sig" "$m/SHA256SUMS.sig"
+  python3 "$(dirname "$0")/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" \
+    "$bp/keys/btlabs-keyring.json" "$src/tools/gitlab-release.py"
+elif [[ -f "$sj" ]]; then
   client="$(jq -r .client "$sj")"
   REL_HOSTS="$(jq -r .hosts "$sj")"; export REL_HOSTS
   rm -f -- "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$out/SHA256SUMS.sig"
   python3 -I "$(dirname "$0")/server_sums.py" write "$files" "$m" "$m/SHA256SUMS"
   label="$(jq -r '.keys | min_by(.rank) | .label' "$bp/keys/btlabs-keyring.json")"
-  BTLABS_SIGNER="$client" \
+  # sign-android's request, when it declared these and is for this version: the same code.
+  cont="" cf="$REL_RUN/signer-continue.json"
+  if [[ -f "$cf" && "$(jq -r '.version // empty' "$cf")" == "$REL_VERSION" ]]; then
+    cont="$(jq -r '.request // empty' "$cf")"
+  fi
+  BTLABS_SIGNER="$client" BTSIGN_CONTINUE="$cont" \
     WFE_SIGNER_JOBS="minisign:file=$m/SHA256SUMS,out=SHA256SUMS.sig,trusted_comment=Epic Cash $REL_VERSION SHA256SUMS, BT Labs key $label" \
     "$src/app/tool/release_android.sh" "$base" "$notes"
-  mv -f -- "$out/SHA256SUMS.sig" "$m/SHA256SUMS.sig"
+  # A copy: the signed file stays beside the client's receipt for a retry.
+  cp -f -- "$out/SHA256SUMS.sig" "$m/SHA256SUMS.sig"
   python3 "$(dirname "$0")/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" \
     "$bp/keys/btlabs-keyring.json" "$src/tools/gitlab-release.py"
 else

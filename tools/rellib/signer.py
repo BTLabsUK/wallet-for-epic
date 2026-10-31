@@ -3,8 +3,9 @@
 
 One setting names it: `endpoint` under [host.signer] of release-hosts.toml. Set, every signature
 of a release is made there after the owner's code in Telegram (docs/RELEASING.md, "Signer"): the
-Android files (step sign-android), the manifests and the downloads' SHA256SUMS (step manifests),
-a rollback's manifests. Unset, the old path: the keys on this machine (host.signer's signing_key
+Android files (step sign-android) and, on the same code, the manifests and the downloads'
+SHA256SUMS (step manifests: the follow-up sign-android's request declares, CONTINUE_FILE), a
+rollback's manifests. Unset, the old path: the keys on this machine (host.signer's signing_key
 and android_key_properties), and sign-android only checks the builds signed themselves.
 
 Preflight writes <run>/signer.json (endpoint, the hosts file, the client; never a secret) so the
@@ -20,6 +21,13 @@ from .run import now_iso, write_json
 CLIENT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "signer", "btsign_client.py")
 RUN_FILE = "signer.json"
 SIGNED_FILE = "signed.json"
+# The request sign-android left open for the manifests step: {request, version, then, continue_by}.
+CONTINUE_FILE = "signer-continue.json"
+# What the manifests step signs on sign-android's code (steps/manifests.sh; the outputs of
+# app/tool/release_android.sh and server_sums.py there).
+MANIFEST_FOLLOW = [{"op": "update-manifest", "out": "update.json"},
+                   {"op": "update-manifest", "out": "update-v2.json"},
+                   {"op": "minisign", "out": "SHA256SUMS.sig"}]
 
 
 def settings(hosts):
@@ -116,6 +124,14 @@ def read_signed(run):
         return {}
 
 
+def manifests_follow(engine):
+    """True when the manifests step of this run signs through the signer: then sign-android's
+    request declares them and one code covers both. A TEST run signs its manifests with the
+    test key, a run without manifests signs none."""
+    return (bool(endpoint(engine.hosts)) and not engine.info.get("test")
+            and any(s.base == "manifests" for s in engine.run.steps))
+
+
 def accepted_change(run, name, recorded, actual):
     """True when G3 may take a file whose hash differs from the one its step recorded: the
     signer signed exactly that build into exactly these bytes (sign-android's signed.json)."""
@@ -166,23 +182,46 @@ def sign_android(engine, step, say):
         return {"status": "done", "note": f"no signer endpoint: {len(todo)} file(s) signed in the build, checked"}
     if not todo:
         return {"status": "done", "note": f"{len(targets)} Android file(s) already signed"}
+    # The work folder stays between tries: when the signer already returned these files for
+    # exactly these builds (its receipt in out/), a retry checks them again instead of opening
+    # a new request (no second code).
     work = os.path.join(run.step_dir(step.id), "signer")
-    shutil.rmtree(work, ignore_errors=True)
     inp, outp = os.path.join(work, "in"), os.path.join(work, "out")
-    os.makedirs(inp)
+    os.makedirs(inp, exist_ok=True)
     jobs, names = [], {}
-    for s, key, path, _ in todo:
+    for s, key, path, unsigned in todo:
         name = os.path.basename(key)
         if name in names:
             return {"status": "failed", "note": f"two Android files are called {name}"}
         names[name] = (s, key, path)
-        shutil.copyfile(path, os.path.join(inp, name))
-        jobs.append({"op": "aab" if name.endswith(".aab") else "apk", "file": os.path.join(inp, name), "out": name})
-    label = f"Android {info['version']}" + (" (TEST run)" if info.get("test") else "")
+        copy = os.path.join(inp, name)
+        if not os.path.isfile(copy) or sha256_file(copy) != unsigned:
+            shutil.copyfile(path, copy)
+        jobs.append({"op": "aab" if name.endswith(".aab") else "apk", "file": copy, "out": name})
+    # One code per release: with manifests in this run the same request declares them, and the
+    # manifests step signs them on this code (CONTINUE_FILE) once the signed hashes are in.
+    then = MANIFEST_FOLLOW if manifests_follow(engine) else None
+    label = (f"Android + manifests {info['version']}" if then else f"Android {info['version']}") \
+        + (" (TEST run)" if info.get("test") else "")
+    cont = os.path.join(run.path, CONTINUE_FILE)
+    if os.path.exists(cont):
+        os.remove(cont)
     try:
-        client(engine, say).sign(info["version"], jobs, outp, label=label)
+        c = client(engine, say)
+        if then:
+            # The release's other files (the desktop builds, every build is in): the owner's message
+            # lists them, and the follow-up's manifests may name no other.
+            android = {os.path.basename(key) for _, key, _ in targets}
+            expect = sorted(os.path.join(run.files, f) for f in os.listdir(run.files)
+                            if f not in android and f not in ("SHA256SUMS", "provenance.json", "sbom.cdx.json"))
+            st = c.sign(info["version"], jobs, outp, label=label, then=then, expect=expect)
+        else:
+            st = c.sign(info["version"], jobs, outp, label=label)
     except Exception as e:
         return {"status": "failed", "note": f"signer: {e}"}
+    if then and isinstance(st, dict) and st.get("id"):
+        write_json(cont, {"request": st["id"], "version": info["version"], "then": then,
+                          "continue_by": st.get("continue_by")})
     for name, (s, key, path) in names.items():
         got = os.path.join(outp, name)
         if cert_of(got, tools) != cert:
