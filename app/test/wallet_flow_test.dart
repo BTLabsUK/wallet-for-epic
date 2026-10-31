@@ -977,7 +977,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(device.bio.values['wallet.mainnet.pin'], _pin);
       expect(device.store.values['wallet.mainnet.pinBiometrics'], '1');
-      expect(find.textContaining('Biometric unlock turned on'), findsOneWidget);
+      expect(find.textContaining('Biometric unlock is on'), findsOneWidget);
     });
 
     testWidgets('a full rescan from settings streams progress', (tester) async {

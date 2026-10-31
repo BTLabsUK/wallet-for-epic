@@ -3814,7 +3814,7 @@
   "@settingsBiometrics": {
     "description": "Settings switch: unlock with fingerprint or face instead of the PIN."
   },
-  "settingsBiometricsOn": "Biometric unlock turned on. It works from the next app start.",
+  "settingsBiometricsOn": "Biometric unlock is on from the next app start.",
   "@settingsBiometricsOn": {
     "description": "Notice after the Settings switch. Biometrics cannot read their copy of the PIN in the process that wrote it, so they start working after a restart."
   },
@@ -25185,7 +25185,7 @@
   "@passphraseSet": {
     "description": "Short notice after the passphrase was set."
   },
-  "passphraseSetBiometricsOff": "Passphrase set. Biometric unlock is off; turn it on again below.",
+  "passphraseSetBiometricsOff": "Passphrase set. Turn biometric unlock on again below.",
   "@passphraseSetBiometricsOff": {
     "description": "Notice after setting a passphrase when the biometric prompt was dismissed."
   },
@@ -25242,7 +25242,7 @@
   "@backupPassphraseReason": {
     "description": "backupPinReason for a wallet that opens with a passphrase instead of the PIN."
   },
-  "sendQrPassphraseReason": "Enter the passphrase to make a payment QR for {amount}.",
+  "sendQrPassphraseReason": "Enter your passphrase to make a payment QR for {amount}.",
   "@sendQrPassphraseReason": {
     "description": "sendQrPinReason for a wallet that opens with a passphrase instead of the PIN.",
     "placeholders": {
@@ -25260,7 +25260,7 @@
   "@settingsDeletePassphraseReason": {
     "description": "settingsDeletePinReason for a wallet that opens with a passphrase instead of the PIN."
   },
-  "sendPassphraseReason": "Enter the passphrase to send {amount}.",
+  "sendPassphraseReason": "Enter your passphrase to send {amount}.",
   "@sendPassphraseReason": {
     "description": "sendPinReason for a wallet that opens with a passphrase instead of the PIN.",
     "placeholders": {
@@ -25270,7 +25270,7 @@
       }
     }
   },
-  "sendFilePassphraseReason": "Enter the passphrase to make a transaction file for {amount}.",
+  "sendFilePassphraseReason": "Enter your passphrase to make a transaction file for {amount}.",
   "@sendFilePassphraseReason": {
     "description": "sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.",
     "placeholders": {

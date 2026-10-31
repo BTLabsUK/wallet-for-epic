@@ -4804,7 +4804,7 @@ abstract class AppLocalizations {
   /// Notice after the Settings switch. Biometrics cannot read their copy of the PIN in the process that wrote it, so they start working after a restart.
   ///
   /// In en, this message translates to:
-  /// **'Biometric unlock turned on. It works from the next app start.'**
+  /// **'Biometric unlock is on from the next app start.'**
   String get settingsBiometricsOn;
 
   /// Short notice.
@@ -29297,7 +29297,7 @@ abstract class AppLocalizations {
   /// Notice after setting a passphrase when the biometric prompt was dismissed.
   ///
   /// In en, this message translates to:
-  /// **'Passphrase set. Biometric unlock is off; turn it on again below.'**
+  /// **'Passphrase set. Turn biometric unlock on again below.'**
   String get passphraseSetBiometricsOff;
 
   /// Link on the unlock screen of a wallet that opens with a passphrase; in place of Forgot PIN.
@@ -29375,7 +29375,7 @@ abstract class AppLocalizations {
   /// sendQrPinReason for a wallet that opens with a passphrase instead of the PIN.
   ///
   /// In en, this message translates to:
-  /// **'Enter the passphrase to make a payment QR for {amount}.'**
+  /// **'Enter your passphrase to make a payment QR for {amount}.'**
   String sendQrPassphraseReason(String amount);
 
   /// settingsBiometricsPinReason for a wallet that opens with a passphrase instead of the PIN.
@@ -29393,13 +29393,13 @@ abstract class AppLocalizations {
   /// sendPinReason for a wallet that opens with a passphrase instead of the PIN.
   ///
   /// In en, this message translates to:
-  /// **'Enter the passphrase to send {amount}.'**
+  /// **'Enter your passphrase to send {amount}.'**
   String sendPassphraseReason(String amount);
 
   /// sendFilePinReason for a wallet that opens with a passphrase instead of the PIN.
   ///
   /// In en, this message translates to:
-  /// **'Enter the passphrase to make a transaction file for {amount}.'**
+  /// **'Enter your passphrase to make a transaction file for {amount}.'**
   String sendFilePassphraseReason(String amount);
 
   /// App bar title of the screen that replaces the PIN with a passphrase (short: the Settings row says more).

@@ -3011,7 +3011,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsBiometricsOn =>
-      'Biometric unlock turned on. It works from the next app start.';
+      'Biometric unlock is on from the next app start.';
 
   @override
   String get settingsBiometricsOff => 'Biometric unlock turned off';
@@ -18740,7 +18740,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passphraseSetBiometricsOff =>
-      'Passphrase set. Biometric unlock is off; turn it on again below.';
+      'Passphrase set. Turn biometric unlock on again below.';
 
   @override
   String get passphraseForgot => 'Forgot passphrase?';
@@ -18791,7 +18791,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendQrPassphraseReason(String amount) {
-    return 'Enter the passphrase to make a payment QR for $amount.';
+    return 'Enter your passphrase to make a payment QR for $amount.';
   }
 
   @override
@@ -18804,12 +18804,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendPassphraseReason(String amount) {
-    return 'Enter the passphrase to send $amount.';
+    return 'Enter your passphrase to send $amount.';
   }
 
   @override
   String sendFilePassphraseReason(String amount) {
-    return 'Enter the passphrase to make a transaction file for $amount.';
+    return 'Enter your passphrase to make a transaction file for $amount.';
   }
 
   @override

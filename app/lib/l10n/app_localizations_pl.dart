@@ -3116,7 +3116,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsBiometricsOn =>
-      'Włączono odblokowanie biometryczne. Zadziała od następnego uruchomienia aplikacji.';
+      'Odblokowanie biometryczne działa od następnego uruchomienia aplikacji.';
 
   @override
   String get settingsBiometricsOff => 'Wyłączono odblokowanie biometryczne';
@@ -19389,7 +19389,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get passphraseSetBiometricsOff =>
-      'Ustawiono hasło. Odblokowanie biometryczne jest wyłączone; włącz je ponownie poniżej.';
+      'Ustawiono hasło. Włącz odblokowanie biometryczne ponownie poniżej.';
 
   @override
   String get passphraseForgot => 'Nie pamiętasz hasła?';
