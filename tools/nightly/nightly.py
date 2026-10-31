@@ -43,7 +43,7 @@ A run:
      A failed send never fails the run; result.json `notified` records it;
   7b. after a green source check, one fast G4 update-trust pass per platform (linux, android,
      windows) on the LAST TWO PUBLISHED releases (no builds): previous = the one before the last in
-     /tmp/epic-build/rel/published.json, candidate = the last, tor variant, REL_FUNDS=1, BT Labs node
+     /tmp/epic-build/rel/published.json plus published-by-hand.json (hand releases), candidate = the last, tor variant, REL_FUNDS=1, BT Labs node
      and Epicbox first, the commit's own drivers (tools/rellib/drivers/trust-<platform>.sh). The
      three run side by side, each under a time limit, output in <run>/trust-<platform>/ (proof.json
      there). Each is a step in latest.json (`group: trust`, `proof`, `failing_checks`) with
@@ -495,18 +495,25 @@ def report(result, state, test=False, conf_dir=None, opener=None, sleep=time.sle
 # ---------------------------------------------------------------- G4 trust pass
 
 def published_pair(rel_root=None):
-    """(previous, candidate) as {version, run} dicts: the last two published releases (newest
-    entry per version), or (None, reason) when /tmp/epic-build/rel/published.json has fewer."""
+    """(previous, candidate) as {version, files, extra} dicts: the newest two of the runner's
+    published.json and the hand-made published-by-hand.json ({version, dir} entries; dir is a flat
+    release folder with emulator/ inside), the runner's entry winning for a version; or
+    (None, reason) when fewer than two."""
     root = Path(rel_root or REL_ROOT)
-    pubs = read_json(root / "published.json", [])
     by_version = {}
+    hand = read_json(root / "published-by-hand.json", [])
+    for p in hand if isinstance(hand, list) else []:
+        if isinstance(p, dict) and p.get("version") and p.get("dir"):
+            by_version[p["version"]] = {"version": p["version"], "files": p["dir"], "extra": p["dir"]}
+    pubs = read_json(root / "published.json", [])
     for p in pubs if isinstance(pubs, list) else []:
         if isinstance(p, dict) and p.get("version") and p.get("run") \
                 and p.get("kind", "release") == "release":
-            by_version[p["version"]] = p  # later entries replace earlier (a rebuild)
+            by_version[p["version"]] = {"version": p["version"], "files": str(Path(p["run"]) / "files"),
+                                        "extra": str(Path(p["run"]) / "extra")}  # a rebuild replaces
     versions = sorted(by_version, key=version_key)
     if len(versions) < 2:
-        return None, f"fewer than two published releases in {root / 'published.json'}"
+        return None, f"fewer than two published releases in {root / 'published.json'} and published-by-hand.json"
     return by_version[versions[-2]], by_version[versions[-1]]
 
 
@@ -516,10 +523,10 @@ def version_key(v):
 
 def trust_inputs(platform, prev, cand):
     """(env for the driver, None) or (None, why it is skipped): the pair's binaries must be on
-    disk. The layout is the release runner's: <run>/files (published), <run>/extra/emulator."""
+    disk: `files` holds the desktop and Windows files, `extra`/emulator the x86_64 APKs."""
     pv, cv = prev["version"], cand["version"]
-    pf, cf = Path(prev["run"]) / "files", Path(cand["run"]) / "files"
-    pe, ce = Path(prev["run"]) / "extra", Path(cand["run"]) / "extra"
+    pf, cf = Path(prev["files"]), Path(cand["files"])
+    pe, ce = Path(prev["extra"]), Path(cand["extra"])
     if platform == "linux":
         names = [(pf, f"EpicCashDesktop-{pv}-x86_64.AppImage"), (cf, f"EpicCashDesktop-{cv}-x86_64.AppImage")]
         env = {"REL_PREVIOUS_DIR": str(pf), "REL_CANDIDATE_DIR": str(cf)}

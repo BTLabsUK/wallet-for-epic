@@ -220,12 +220,31 @@ class TrustTest(unittest.TestCase):
         rebuilt = dict(self.cand, run="/elsewhere", run_id="run-2")
         self.publish(old, self.prev, self.cand, rebuilt)
         prev, cand = nightly.published_pair(self.root / "rel")
-        self.assertEqual((prev["version"], cand["version"], cand["run"]),
-                         ("26.10.24", "26.10.25", "/elsewhere"))
+        self.assertEqual((prev["version"], cand["version"], cand["files"]),
+                         ("26.10.24", "26.10.25", "/elsewhere/files"))
         self.publish(self.cand)
         prev, why = nightly.published_pair(self.root / "rel")
         self.assertIsNone(prev)
         self.assertIn("fewer than two", why)
+
+    def test_hand_releases_fill_in_and_the_runner_wins(self):
+        flat = self.root / "hand" / "26.10.24-r2"
+        (flat / "emulator").mkdir(parents=True)
+        (flat / "EpicCashDesktop-26.10.24-x86_64.AppImage").write_text("x")
+        (flat / "emulator" / "epic-cash-mobile-26.10.24-x86_64.apk").write_text("x")
+        hand = [{"version": "26.10.24", "dir": str(flat), "tag": "v26.10.24"},
+                {"version": "26.10.25", "dir": "/hand/25", "tag": "v26.10.25"}]
+        (self.root / "rel" / "published-by-hand.json").write_text(json.dumps(hand))
+        self.publish(self.cand)  # the runner's 26.10.25 replaces the hand entry
+        prev, cand = nightly.published_pair(self.root / "rel")
+        self.assertEqual((prev["files"], cand["files"]),
+                         (str(flat), str(Path(self.cand["run"]) / "files")))
+        env, why = nightly.trust_inputs("android", prev, cand)
+        self.assertEqual(env["REL_PREVIOUS_DIR"], str(flat))  # the flat folder: emulator/ inside
+        self.assertTrue(env["REL_CANDIDATE_EXTRA"].endswith("26.10.25/run-1/extra"))
+        env, why = nightly.trust_inputs("windows", prev, cand)
+        self.assertIsNone(env)
+        self.assertIn("binary missing", why)
 
     def test_no_published_json_skips_every_platform(self):
         steps = self.trust(self.runner(0))
