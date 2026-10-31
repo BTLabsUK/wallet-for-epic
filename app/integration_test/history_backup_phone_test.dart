@@ -470,7 +470,7 @@ Future<T?> waitFor<T>(
 }
 
 Future<BigInt> spendable(WidgetTester tester, WalletSession s) async =>
-    (await tester.runAsync(() => s.summary(refresh: true, minimumConfirmations: BigInt.from(3))))!.spendable;
+    (await tester.runAsync(() => s.summary(refresh: true, minimumConfirmations: liveMinConfirmations)))!.spendable;
 
 Future<List<TxEntry>> txs(WidgetTester tester, WalletSession s, {bool refresh = false}) async =>
     (await tester.runAsync(() => s.transactions(refresh: refresh)))!;
@@ -573,12 +573,12 @@ void main() {
     record('faucet paid B', await claimFaucet(tester, bAddress, 'B'));
     record('faucet paid A (2)', await claimFaucet(tester, aAddress, 'A2'));
     final funded = await waitFor(tester, 'A spendable 20 EPIC', () async {
-      final v = (await a.summary(refresh: true, minimumConfirmations: BigInt.from(3))).spendable;
+      final v = (await a.summary(refresh: true, minimumConfirmations: liveMinConfirmations)).spendable;
       return v >= _ep(20) ? v : null;
     }, timeout: const Duration(minutes: 30), everyMs: 15000);
     record('A has 20 EPIC spendable after 3 confirmations', funded != null, '$funded');
     final bFunded = await waitFor(tester, 'B spendable', () async {
-      final v = (await b.summary(refresh: true, minimumConfirmations: BigInt.from(3))).spendable;
+      final v = (await b.summary(refresh: true, minimumConfirmations: liveMinConfirmations)).spendable;
       return v >= _ep(10) ? v : null;
     }, timeout: const Duration(minutes: 10), everyMs: 15000);
     record('B has 10 EPIC spendable', bFunded != null, '$bFunded');
@@ -617,7 +617,7 @@ void main() {
     await tester.runAsync(() => b.pairing.setAllowInvoices(invite.id, true));
 
     // A pays B 1 EPIC over Epicbox, with a message.
-    final sent = (await tester.runAsync(() => a.sendEpicbox(amount: _epic, minimumConfirmations: BigInt.from(3), address: bAddress, message: 'phone test: to B')))!;
+    final sent = (await tester.runAsync(() => a.sendEpicbox(amount: _epic, minimumConfirmations: liveMinConfirmations, address: bAddress, message: 'phone test: to B')))!;
     final sentDone = await waitFor(tester, 'the send to B finalized', () async {
       final t = (await a.transactions(refresh: true)).where((t) => t.slateId == sent.slateId).firstOrNull;
       return t != null && t.status != TxStatus.awaitingRecipient ? t : null;

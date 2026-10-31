@@ -35,7 +35,7 @@ const _relays = [
 ];
 
 const _pin = '123456';
-final _minConfirmations = BigInt.from(10);
+final _minConfirmations = liveMinConfirmations;
 
 /// A mainnet tip is past this height.
 final _mainnetFloor = BigInt.from(3700000);

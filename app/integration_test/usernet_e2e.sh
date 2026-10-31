@@ -92,7 +92,7 @@ sed -i \
   "$CLI_DIR/epic-wallet.toml"
 
 echo "== funding the CLI from alice"
-net w alice send -m file -d "$CLI_DIR/fund.tx" -c 3 3 > "$LOGS/e2e-alice-send.log" 2>&1
+net w alice send -m file -d "$CLI_DIR/fund.tx" -c 1 3 > "$LOGS/e2e-alice-send.log" 2>&1
 cli receive -i "$CLI_DIR/fund.tx" > "$LOGS/e2e-cli-receive.log" 2>&1
 net w alice finalize -f -i "$CLI_DIR/fund.tx.response" > "$LOGS/e2e-alice-finalize.log" 2>&1
 if ! kill -0 "$(cat "$NET/var/run/miner.pid" 2>/dev/null)" 2>/dev/null; then
@@ -100,7 +100,7 @@ if ! kill -0 "$(cat "$NET/var/run/miner.pid" 2>/dev/null)" 2>/dev/null; then
   STARTED_MINER=1
 fi
 spendable() {
-  cli info --min_conf 3 2>/dev/null | sed -n 's/.*Currently Spendable *| *\([0-9.]*\).*/\1/p' | head -1
+  cli info --min_conf 1 2>/dev/null | sed -n 's/.*Currently Spendable *| *\([0-9.]*\).*/\1/p' | head -1
 }
 for _ in $(seq 150); do
   [ "$(spendable)" = "3.00000000" ] && break
@@ -158,7 +158,7 @@ for ATTEMPT in 1 2 3; do
       ADDRESS="$(sed -n 's/.*WFE_E2E address=\([^ ]*\).*/\1/p' "$LOGS/e2e-test.log" | head -1)"
       if [ -n "$ADDRESS" ]; then
         echo "app address $ADDRESS; the CLI sends 1 EPIC"
-        cli send -m epicbox -d "$ADDRESS" -c 3 1 > "$LOGS/e2e-cli-send.log" 2>&1 ||
+        cli send -m epicbox -d "$ADDRESS" -c 1 1 > "$LOGS/e2e-cli-send.log" 2>&1 ||
           echo "the CLI send failed, see $LOGS/e2e-cli-send.log"
         SENT=1
       fi

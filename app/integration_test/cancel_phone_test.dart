@@ -264,7 +264,7 @@ void main() {
     final faucetOk = await claimFaucet(tester, bAddress, 'B');
     note(faucetOk ? 'faucet paid B' : 'faucet down: waiting for the host funder (tool/floonet_fund_test.dart)');
     final bFunded = await waitFor(tester, 'B spendable', () async {
-      final v = (await b.summary(refresh: true, minimumConfirmations: BigInt.from(3))).spendable;
+      final v = (await b.summary(refresh: true, minimumConfirmations: liveMinConfirmations)).spendable;
       return v >= _ep(9) ? v : null;
     }, timeout: const Duration(minutes: 30), everyMs: 15000);
     record('B has its coins confirmed', bFunded != null, '$bFunded');
@@ -276,7 +276,7 @@ void main() {
 
     // B pays A 1 EPIC over Epicbox. The phone's listener answers; B's listener is off, so B
     // never fetches the answer and the payment stays signed and unposted: the hold line's case.
-    final sent = (await tester.runAsync(() => b.sendEpicbox(amount: _ep(1), minimumConfirmations: BigInt.from(3), address: aAddress, message: 'cancel test: to the phone')))!;
+    final sent = (await tester.runAsync(() => b.sendEpicbox(amount: _ep(1), minimumConfirmations: liveMinConfirmations, address: aAddress, message: 'cancel test: to the phone')))!;
     final received = await waitFor(tester, 'A signed the incoming payment', () async {
       final t = (await a.transactions(refresh: true)).where((t) => t.slateId == sent.slateId && t.kind == TxKind.received).firstOrNull;
       return t != null && t.status == TxStatus.awaitingConfirmation ? t : null;

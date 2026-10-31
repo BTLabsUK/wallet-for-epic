@@ -22,3 +22,6 @@ const String liveRelay = String.fromEnvironment('LIVE_RELAY');
 const String liveRelay2 = String.fromEnvironment('LIVE_RELAY2');
 const String liveRelay3 = String.fromEnvironment('LIVE_RELAY3');
 const String liveFlooRelay = String.fromEnvironment('LIVE_FLOO_RELAY');
+
+/// Live and integration tests that touch a real chain always use one confirmation.
+final BigInt liveMinConfirmations = BigInt.one;
