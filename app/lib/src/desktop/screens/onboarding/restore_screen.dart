@@ -360,7 +360,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final length = e.length;
     final bad = e.firstInvalid;
     final complete = e.complete;
-    final narrow = MediaQuery.sizeOf(context).width < 760.u;
+    final narrow = MediaQuery.sizeOf(context).width < Lay.lg;
     final (String? status, Color? tone) = switch (e) {
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),

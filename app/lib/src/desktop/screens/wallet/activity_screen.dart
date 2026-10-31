@@ -123,10 +123,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
   /// The search. [full] fills its row (narrow layout).
   Widget _search({required bool full, required bool hasItems}) {
-    final width = MediaQuery.sizeOf(context).width;
     final l = context.l10n;
-    // Wide enough for the long placeholder at >= 1280 (UD-002); the short one below that.
-    final wide = width >= 1280.u;
+    // Wide enough for the long placeholder from Lay.wide (UD-002); the short one below that.
+    final wide = _pageW >= Lay.wide;
     final input = EInput(
       controller: _query,
       enabled: hasItems,
@@ -140,15 +139,24 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     return SizedBox(width: wide ? 320.u : 200.u, child: input);
   }
 
+  /// The width the page itself gets; the split and the search placement decide on it.
+  double _pageW = 0;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      _pageW = box.maxWidth;
+      return _buildPage(context, box.maxWidth);
+    },
+  );
+
+  Widget _buildPage(BuildContext context, double width) {
     final s = ref.watch(deskProvider);
     final l = context.l10n;
     final hidden = s.settings.hideAmounts;
-    final width = MediaQuery.sizeOf(context).width;
-    final split = width >= Bp.desktop;
+    final split = width >= Lay.xl;
     // Below this the tabs and the search move out of the header into the page.
-    final roomy = width >= 900.u;
+    final roomy = width >= Lay.xl;
     final all = _noTxs ? const <Tx>[] : s.txs;
     final selectedTx = all?.where((t) => t.id == _selected).firstOrNull;
     final hasItems = all?.isNotEmpty ?? false;

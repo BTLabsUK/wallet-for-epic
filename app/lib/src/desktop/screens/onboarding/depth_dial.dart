@@ -117,22 +117,6 @@ class DeskDepthPicker extends StatelessWidget {
         Text(caption, style: context.ts.small, textAlign: TextAlign.center),
       ],
     );
-    final left = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (title != null) ...[
-          Semantics(header: true, child: Text(title!, style: context.ts.h2)),
-          if (lead != null) Text(lead!, style: context.ts.bodyDim),
-          SizedBox(height: compact ? Sp.x2 : Sp.x4),
-        ],
-        DeskDial(level: level, onLevel: onLevel, compact: compact),
-        SizedBox(height: compact ? Sp.x2 : Sp.x4),
-        DeskLevelCaption(level: level),
-        SizedBox(height: compact ? Sp.x3 : Sp.x4),
-        foot,
-      ],
-    );
     return Container(
       padding: EdgeInsets.symmetric(horizontal: compact ? Sp.x6 : Sp.x8, vertical: compact ? Sp.x5 : Sp.x6),
       decoration: BoxDecoration(
@@ -142,26 +126,92 @@ class DeskDepthPicker extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, box) {
-          final wide = box.maxWidth >= 760.u;
-          if (!wide) {
+          final beside = box.maxWidth >= Lay.xl;
+          final gap = compact ? Sp.x3 : Sp.x4;
+          Widget head() => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (title != null) ...[
+                Semantics(header: true, child: Text(title!, style: context.ts.h2)),
+                if (lead != null) Text(lead!, style: context.ts.bodyDim),
+                SizedBox(height: compact ? Sp.x2 : Sp.x4),
+              ],
+            ],
+          );
+          if (!beside) {
+            // Stacked: the dial and its caption centred in one column, a divider, the rest of
+            // the card left-aligned, then the picture under, capped and centred.
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [left, SizedBox(height: Sp.x5), preview],
+              children: [
+                head(),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: Max.dial),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        DeskDial(level: level, onLevel: onLevel, compact: compact),
+                        SizedBox(height: gap),
+                        DeskLevelCaption(level: level, centered: true),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: gap),
+                Divider(height: 1, thickness: 1, color: c.line),
+                SizedBox(height: gap),
+                _StackedScope(child: foot),
+                SizedBox(height: Sp.x5),
+                Center(
+                  child: ConstrainedBox(constraints: BoxConstraints(maxWidth: Max.preview), child: preview),
+                ),
+              ],
             );
           }
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: left),
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.topStart,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: Max.dial),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        head(),
+                        DeskDial(level: level, onLevel: onLevel, compact: compact),
+                        SizedBox(height: gap),
+                        DeskLevelCaption(level: level),
+                        SizedBox(height: gap),
+                        foot,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(width: compact ? Sp.x8 : Sp.x10),
-              SizedBox(width: (box.maxWidth * 0.5).clamp(340.u, (compact ? 380 : 520).u), child: preview),
+              SizedBox(width: (box.maxWidth * 0.5).clamp(340.u, Max.preview), child: preview),
             ],
           );
         },
       ),
     );
   }
+}
+
+/// Tells the Undercover row inside [DeskDepthPicker]'s stacked layout that the picker already
+/// drew the divider above it.
+class _StackedScope extends InheritedWidget {
+  const _StackedScope({required super.child});
+
+  @override
+  bool updateShouldNotify(_StackedScope old) => false;
 }
 
 /// Three stops on a rail, Shallow to Deep end: a radio group, each stop a radio a click or the
@@ -183,25 +233,39 @@ class DeskDial extends StatelessWidget {
       role: SemanticsRole.radioGroup,
       label: context.l10n.lvPickDepth,
       explicitChildNodes: true,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var i = 0; i < stops.length; i++) ...[
-            if (i > 0)
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: tile / 2 + Sp.x2 - 1.u, left: Sp.x2, right: Sp.x2),
-                  child: AnimatedContainer(
-                    duration: Dur.base,
-                    height: 2.u,
-                    // The rail fills up to the picked stop.
-                    color: (level?.number ?? 0) > i ? c.accent : c.lineStrong,
-                  ),
-                ),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final w = box.maxWidth.clamp(0.0, Max.dial);
+          // The connector takes what the tiles leave, clamped so the rail never vanishes or sprawls.
+          final connector = ((w - 3 * (tile + Sp.x6)) / 2).clamp(32.u, 96.u);
+          return Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: SizedBox(
+              width: 3 * (tile + Sp.x6) + 2 * connector,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var i = 0; i < stops.length; i++) ...[
+                    if (i > 0)
+                      SizedBox(
+                        width: connector,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: tile / 2 + Sp.x2 - 1.u, left: Sp.x2, right: Sp.x2),
+                          child: AnimatedContainer(
+                            duration: Dur.base,
+                            height: 2.u,
+                            // The rail fills up to the picked stop.
+                            color: (level?.number ?? 0) > i ? c.accent : c.lineStrong,
+                          ),
+                        ),
+                      ),
+                    _Stop(key: deskLevelStopKey(stops[i]), level: stops[i], on: stops[i] == level, tile: tile, onTap: () => onLevel(stops[i])),
+                  ],
+                ],
               ),
-            _Stop(key: deskLevelStopKey(stops[i]), level: stops[i], on: stops[i] == level, tile: tile, onTap: () => onLevel(stops[i])),
-          ],
-        ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -270,9 +334,12 @@ class _Stop extends StatelessWidget {
 /// The picked depth's name and line under the dial; "Pick a stop" before a pick. Read out when
 /// it changes.
 class DeskLevelCaption extends StatelessWidget {
-  const DeskLevelCaption({super.key, required this.level});
+  const DeskLevelCaption({super.key, required this.level, this.centered = false});
 
   final WalletLevel? level;
+
+  /// Text centred, for the stacked layout.
+  final bool centered;
 
   @override
   Widget build(BuildContext context) {
@@ -283,12 +350,16 @@ class DeskLevelCaption extends StatelessWidget {
       liveRegion: true,
       container: true,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(level == null ? l.lvPickNone : levelStopName(l, level), style: ts.h3.copyWith(color: level == null ? context.dc.dim : context.dc.text)),
+          Text(
+            level == null ? l.lvPickNone : levelStopName(l, level),
+            style: ts.h3.copyWith(color: level == null ? context.dc.dim : context.dc.text),
+            textAlign: centered ? TextAlign.center : null,
+          ),
           SizedBox(height: Sp.x1),
-          Text(level == null ? l.lvPickNoneLine : levelLine(l, level), style: ts.bodyDim),
+          Text(level == null ? l.lvPickNoneLine : levelLine(l, level), style: ts.bodyDim, textAlign: centered ? TextAlign.center : null),
         ],
       ),
     );
@@ -310,7 +381,7 @@ class DeskUndercoverRow extends StatelessWidget {
     final l = context.l10n;
     final title = later ? l.lvPickUndercover : l.levelUndercoverTitle;
     return DecoratedBox(
-      decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+      decoration: BoxDecoration(border: context.getInheritedWidgetOfExactType<_StackedScope>() == null ? Border(top: BorderSide(color: c.line)) : null),
       child: Padding(
         padding: EdgeInsets.only(top: Sp.x3),
         child: Row(
