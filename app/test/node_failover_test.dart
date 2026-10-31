@@ -142,6 +142,17 @@ void main() {
       });
     });
 
+    test('a node that never answered since the wallet opened: moves as soon as it reads offline', () {
+      fakeAsync((async) {
+        final h = _Harness(async, answered: false);
+        // Offline shows after the settle time; the move follows without the 30 s wait.
+        h.elapse(const Duration(seconds: 1));
+        expect(h.session.serverSwitches.map((c) => c.nodeUrl), [_c]);
+        expect(h.failover, const NodeFailover(chosen: _a, inUse: _c));
+        h.dispose();
+      });
+    });
+
     test('a healthy node that does not answer is passed over', () {
       fakeAsync((async) {
         final h = _Harness(async, deadNodes: {_a, _c});
@@ -342,7 +353,7 @@ class _Directory implements dir.RelayDirectory, dir.NodeDirectory {
 /// An open mainnet wallet on [inUse] (the saved choice a), the list a, b, c, d, the monitor
 /// saying b is down and c, d healthy, and the failover watcher alive.
 class _Harness {
-  _Harness(this._async, {Set<String> deadNodes = const {_a}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false}) {
+  _Harness(this._async, {Set<String> deadNodes = const {_a}, String inUse = _a, AdvancedPrefs? prefs, bool tor = false, bool answered = true}) {
     // The node in use and the Node list: the settings file's.
     hostSettings = testSettings().withValues({
       'node.servers': [_a, _b, _c, _d],
@@ -363,6 +374,8 @@ class _Harness {
         if (tor) phoneTorProvider.overrideWith(_Tor.new),
       ],
     );
+    // A node that never answers from here: offline from the start.
+    if (!answered) container.read(_raw.notifier).set(NodeState.offline);
     final config = this.config(inUse);
     session.openedConfig = config;
     container.read(walletConfigProvider.notifier).select(config);

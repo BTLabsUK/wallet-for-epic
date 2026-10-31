@@ -77,6 +77,7 @@ class DeskFailoverWatch extends Notifier<void> {
   void build() {
     ref.watch(deskProvider.select((s) => s.account?.id));
     _failed = 0;
+    _answered = false;
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
@@ -87,14 +88,19 @@ class DeskFailoverWatch extends Notifier<void> {
 
   bool get _down => ref.read(deskProvider).status?.nodeHealth == ServiceHealth.down;
 
+  /// The node answered since this wallet opened. One that never did (a name this network
+  /// filters) is left as soon as it reads down: no silence to wait out.
+  bool _answered = false;
+
   void _follow(ServiceHealth? health) {
     if (health != ServiceHealth.down) {
+      if (health == ServiceHealth.ok) _answered = true;
       _failed = 0;
       _timer?.cancel();
       _timer = null;
       return;
     }
-    _timer ??= Timer(nodeFailoverAfter, _fire);
+    _timer ??= Timer(_answered ? nodeFailoverAfter : Duration.zero, _fire);
   }
 
   void _fire() {

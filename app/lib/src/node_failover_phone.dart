@@ -96,11 +96,15 @@ class NodeFailoverWatch extends Notifier<void> {
     ref.watch(sessionProvider);
     ++_build;
     _failed = 0;
+    _answered = false;
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
     });
     ref.listen(walletStatusProvider.select((s) => s.node.state), (_, node) => _follow(node));
+    // A node already answering when this build began has answered.
+    final now = ref.read(walletStatusProvider).node;
+    _answered = now.state == NodeState.online || now.state == NodeState.syncing || now.tip != null;
     final network = ref.watch(networkChangesProvider).listen((available) {
       if (available) _startOver();
     });
@@ -109,14 +113,21 @@ class NodeFailoverWatch extends Notifier<void> {
 
   bool get _offline => ref.read(walletStatusProvider).node.state == NodeState.offline;
 
+  /// The node answered since this wallet opened. One that never did (a name this network
+  /// filters) is left as soon as it reads offline: no silence to wait out.
+  bool _answered = false;
+
   void _follow(NodeState node) {
     if (node != NodeState.offline) {
+      if (node == NodeState.online || node == NodeState.syncing) _answered = true;
       _failed = 0;
       _timer?.cancel();
       _timer = null;
       return;
     }
-    if (_onScreen) _timer ??= Timer(_afterShown, _fire);
+    // Offline with a tip (balances it could not check) is a node that answers.
+    if (ref.read(walletStatusProvider).node.tip != null) _answered = true;
+    if (_onScreen) _timer ??= Timer(_answered ? _afterShown : Duration.zero, _fire);
   }
 
   void _fire() {

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../demo.dart';
 import '../errors.dart';
+import '../levels/first_run_servers_phone.dart';
 import '../levels/level_providers.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -70,14 +71,16 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   }
 
   Future<void> _finish(String pin, bool useBiometrics) async {
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
+    if (ref.read(walletConfigProvider) == null) return;
     final l = context.l10n;
     setState(() {
       _answer = (pin: pin, biometrics: useBiometrics);
       _error = null;
     });
     try {
+      // On the servers first run picked: the new wallet's address names a relay that answers.
+      final config = await configAfterFirstRunServers(ref);
+      if (config == null || !mounted) return;
       final vault = ref.read(vaultProvider);
       final result = await vault.create(
         config,

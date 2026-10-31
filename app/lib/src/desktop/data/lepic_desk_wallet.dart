@@ -31,6 +31,7 @@ import '../../data_folder_io.dart' show appDataDirectory;
 import '../../address_format.dart' show shortAddress;
 import '../../advanced.dart' show NetworkMode;
 import '../../btlabs_keys.dart' show btlabsKeyring;
+import '../../first_run_servers.dart' show firstRunServersSettled;
 import '../../devices/device_history.dart' show mergeDeviceHistory;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost, SessionDeviceHost;
@@ -557,7 +558,14 @@ class LepicDeskWallet implements DeskWalletApi {
   /// what [WalletDirResolver] answers, as in 0.1.0, and its walletId null.
   /// An added wallet's folder is always [reg.WalletRegistry.walletDirOf], rebuilt from its id:
   /// a folder written into wallets.json by hand is never opened.
-  Future<core.WalletConfig> _configOf(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async => preset.config(
+  Future<core.WalletConfig> _configOf(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async {
+    // A fresh install's first wallet is made on the servers first run picked. A config for a
+    // node named here (a node check, first run's own among them) does not wait.
+    if (nodeUrl == null) await firstRunServersSettled();
+    return _configOfNow(entry, nodeUrl: nodeUrl, relay: relay);
+  }
+
+  Future<core.WalletConfig> _configOfNow(reg.WalletEntry? entry, {String? nodeUrl, EpicboxRelay? relay}) async => preset.config(
     dataDir: entry == null || entry.isLegacy ? await _walletDir(preset.chain) : await _addedDir(entry),
     nodeUrl: nodeUrl ?? await _nodeUrl(),
     relay: relay ?? await _relay(),

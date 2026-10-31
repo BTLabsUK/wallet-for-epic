@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_log.dart';
 import '../errors.dart';
 import '../bip39_words.dart';
+import '../levels/first_run_servers_phone.dart';
 import '../levels/level_providers.dart';
 import '../l10n.dart';
 import '../phrase_problem.dart';
@@ -267,14 +268,17 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   }
 
   Future<void> _restore(String pin, bool useBiometrics) async {
-    final config = ref.read(walletConfigProvider);
-    if (config == null) return;
+    if (ref.read(walletConfigProvider) == null) return;
     final l = context.l10n;
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
+      // On the servers first run picked: the restored wallet's address names a relay that
+      // answers.
+      final config = await configAfterFirstRunServers(ref);
+      if (config == null || !mounted) return;
       // The vault never replaces a wallet, or sealed text, already on this chain.
       final vault = ref.read(vaultProvider);
       final created = await vault.create(

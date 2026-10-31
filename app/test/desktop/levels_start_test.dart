@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -74,6 +75,7 @@ void main() {
       deskApiProvider.overrideWithValue(wallet),
       deskNodeProvider.overrideWithValue(MockDeskNode()),
       secretStoreProvider.overrideWithValue(store),
+      relayProbeProvider.overrideWithValue(FakeRelayProbe()),
       if (level != null) deskLevelProvider.overrideWithValue(level),
     ],
   );

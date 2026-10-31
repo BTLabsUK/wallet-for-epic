@@ -19,6 +19,7 @@ import '../../levels/wallet_level.dart';
 import '../../log.dart';
 import '../../providers.dart' show secretStoreProvider;
 import '../../secret_store_api.dart';
+import 'desk_first_run_servers.dart';
 import '../../tor_build.dart';
 import 'state.dart';
 
@@ -203,6 +204,7 @@ class DeskLevelControl {
           await _ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withMode(NetworkMode.torOnly)));
         },
         setLevel: setLevel,
+        pickServers: () => deskFirstRunServers(_ref),
       );
 }
 
