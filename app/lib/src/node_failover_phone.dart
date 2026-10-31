@@ -84,10 +84,17 @@ class NodeFailoverWatch extends Notifier<void> {
   /// The app is on screen (`app.dart` says when it is not): no node is asked meanwhile.
   bool _onScreen = true;
 
+  /// Counts the builds. The notifier lives on across rebuilds, so `ref.mounted` stays true
+  /// after a new wallet replaced a build; [_current] tells whether one is still the newest.
+  int _build = 0;
+
+  bool _current(int gen) => gen == _build && ref.mounted;
+
   @override
   void build() {
     // A new wallet starts over.
     ref.watch(sessionProvider);
+    ++_build;
     _failed = 0;
     ref.onDispose(() {
       _timer?.cancel();
@@ -115,8 +122,9 @@ class NodeFailoverWatch extends Notifier<void> {
   void _fire() {
     _timer = null;
     if (!ref.mounted || !_onScreen) return;
+    final gen = _build;
     unawaited(_tryMove().then((tryAgain) {
-      if (!tryAgain || !ref.mounted || !_onScreen) return;
+      if (!tryAgain || !_current(gen) || !_onScreen) return;
       if (_offline) _timer ??= Timer(failoverRetryAfter(_failed, nodeFailoverRetry), _fire);
     }));
   }
@@ -151,6 +159,7 @@ class NodeFailoverWatch extends Notifier<void> {
     final session = ref.read(sessionProvider);
     final config = ref.read(walletConfigProvider);
     if (session == null || config == null || _moving) return false;
+    final gen = _build;
     final settings = ref.read(appSettingsProvider).value;
     final mode = ref.read(networkModeProvider);
     final tor = ref.exists(phoneTorProvider) ? phoneTorState(ref.read(phoneTorProvider)) : TorState.off;
@@ -170,11 +179,11 @@ class NodeFailoverWatch extends Notifier<void> {
     _moving = true;
     try {
       final choice = await ref.read(networkChoiceProvider.future);
-      if (!ref.mounted) return false;
+      if (!_current(gen)) return false;
       final chosen = ref.read(nodeFailoverProvider)?.chosen ?? choice.nodeUrl;
       final list = await ref.read(serverListProvider((ServerKind.node, config.chain)).future);
       final listed = await _monitor(choice.preset);
-      if (!ref.mounted) return false;
+      if (!_current(gen)) return false;
       final onions = onionLookupOf(ref.read(onionDirectoryProvider));
       final candidates = failoverCandidates(
         entries: list.entries,
@@ -189,12 +198,12 @@ class NodeFailoverWatch extends Notifier<void> {
         },
       );
       for (final url in candidates) {
-        if (!ref.mounted || ref.read(sessionProvider) != session) return false;
+        if (!_current(gen) || ref.read(sessionProvider) != session) return false;
         // Still not answering, and nothing being sent: a payment going out waits for no move.
         if (ref.read(walletStatusProvider).node.state != NodeState.offline) return false;
         if (ref.read(autoLockHoldProvider) > 0) return true;
         if (!await _answers(session, config, url)) continue;
-        if (!ref.mounted || ref.read(autoLockHoldProvider) > 0) return ref.mounted;
+        if (!_current(gen) || ref.read(autoLockHoldProvider) > 0) return _current(gen);
         try {
           if (!await switchNodeForSession(ref, url)) return false;
         } on Object catch (e) {

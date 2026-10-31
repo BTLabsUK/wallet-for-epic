@@ -332,17 +332,19 @@ class PhoneHttp extends Notifier<PhoneHttpState> {
       _apply();
       return;
     }
+    final generation = _generation;
     await _stop();
-    if (!ref.mounted) return;
+    if (!_current(generation)) return;
     state = state.copyWith(listener: PhoneHttpPhase.off);
     await _readAddress();
-    if (!ref.mounted) return;
+    if (!_current(generation)) return;
     _apply();
   }
 
   Future<void> _resumed() async {
+    final generation = _generation;
     await _readAddress();
-    if (!ref.mounted) return;
+    if (!_current(generation)) return;
     // A listener that failed while away gets one more go now.
     if (!_running && (state.listener == PhoneHttpPhase.failed || state.listener == PhoneHttpPhase.portInUse)) {
       state = state.copyWith(listener: PhoneHttpPhase.off);

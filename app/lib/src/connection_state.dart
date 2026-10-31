@@ -67,10 +67,15 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
   /// Runs from tor up until [torRelayGrace] while [_torWaited].
   Timer? _torGrace;
 
+  /// Counts the builds. The notifier lives on across rebuilds, so `ref.mounted` stays true
+  /// after a new wallet replaced a build: a settle queued by the old one checks this.
+  int _build = 0;
+
   @override
   WalletStatus build() {
     // A new wallet starts over; within one, the raw status only feeds this.
     ref.watch(sessionProvider);
+    final gen = ++_build;
     ref.onDispose(() {
       _node?.cancel();
       _epicbox?.cancel();
@@ -83,7 +88,7 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
     ref.listen(
       rawWalletStatusProvider,
       (_, raw) => scheduleMicrotask(() {
-        if (ref.mounted) _settle(_heldForTor(raw));
+        if (gen == _build && ref.mounted) _settle(_heldForTor(raw));
       }),
     );
     final raw = _heldForTor(ref.read(rawWalletStatusProvider));

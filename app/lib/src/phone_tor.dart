@@ -409,7 +409,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     // The network mode while the wallet is open: Offline stops tor, Tor only turns the switch
     // on, back to Standard starts tor again if the switch is on.
     ref.listen(networkModeProvider, (_, mode) {
-      if (_current(generation)) unawaited(_modeChanged(mode));
+      if (_current(generation)) unawaited(_modeChanged(mode, generation));
     });
     if (session == null) return PhoneTorState.unread;
     unawaited(_open(session, generation));
@@ -452,7 +452,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
   }
 
   /// Applies a new network mode to the open wallet's tor.
-  Future<void> _modeChanged(NetworkMode mode) async {
+  Future<void> _modeChanged(NetworkMode mode, int generation) async {
     if (_session == null || !state.settled) return;
     switch (mode) {
       case NetworkMode.killSwitch:
@@ -464,7 +464,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
         _forSends = false;
         if (_running && _wanted && _onion) {
           await _stop();
-          if (!ref.mounted) return;
+          if (!_current(generation)) return;
         }
         if (_wanted && !_running && state.phase != PhoneTorPhase.unavailable) _start();
         if (!_wanted) await _stop();
@@ -472,10 +472,10 @@ class PhoneTor extends Notifier<PhoneTorState> {
         // Out of Node only: a tor without the onion starts again with it.
         if (_running && !_onion) {
           await _stop();
-          if (!ref.mounted) return;
+          if (!_current(generation)) return;
         }
         await ref.read(epicboxOverTorProvider.notifier).set(true);
-        if (!ref.mounted) return;
+        if (!_current(generation)) return;
         if (!state.receiving) {
           await setReceiving(true);
         } else if (!_running && state.phase != PhoneTorPhase.unavailable) {
@@ -485,7 +485,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
         // Out of Node only: a tor without the onion starts again with it.
         if (_running && !_onion) {
           await _stop();
-          if (!ref.mounted) return;
+          if (!_current(generation)) return;
         }
         if (_wanted && !_running && state.phase != PhoneTorPhase.unavailable) _start();
     }
@@ -507,17 +507,18 @@ class PhoneTor extends Notifier<PhoneTorState> {
       logInfo('tor', 'receiving stays on in Tor only');
       return;
     }
+    final generation = _generation;
     final was = state.receiving;
     final hooks = ref.read(torSwitchHooksProvider);
     if (on && !was && _session != null && state.phase != PhoneTorPhase.unavailable) {
       await _hook(hooks.beforeOn);
-      if (!ref.mounted) return;
+      if (!_current(generation)) return;
     }
     final config = _config;
     if (config != null) {
       await ref.read(secretStoreProvider).write(receivingKey(config), '$on');
     }
-    if (!ref.mounted) return;
+    if (!_current(generation)) return;
     state = state.copyWith(receiving: on);
     logInfo('tor', 'receiving ${on ? 'on' : 'off'}');
     final session = _session;
@@ -607,7 +608,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
         _stopAfterSends = false;
         if (!_wanted) {
           await _stop();
-          if (ref.mounted && !state.receiving) {
+          if (_current(generation) && !state.receiving) {
             await _hook(ref.read(torSwitchHooksProvider).afterOff);
           }
         }
@@ -619,12 +620,13 @@ class PhoneTor extends Notifier<PhoneTorState> {
   Future<void> retry() async {
     final session = _session;
     if (session == null || state.phase == PhoneTorPhase.unavailable || NetGate.killSwitch) return;
+    final generation = _generation;
     _restartTimer?.cancel();
     _restarts = 0;
     // A restart: the Epicbox connection keeps waiting for the new tor.
     if (_running) await session.expectTor();
     await _stop(keepFailure: false, restarting: true);
-    if (ref.mounted && _session != null) _start();
+    if (_current(generation) && _session != null) _start();
   }
 
   void _start() {
