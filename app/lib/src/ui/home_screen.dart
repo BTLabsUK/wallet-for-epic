@@ -39,7 +39,7 @@ import 'restore_screen.dart' show ScanProgressView;
 import 'scan_route.dart';
 import '../devices/phone_devices.dart' show DeviceLifecycle, watchHistory;
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
-import 'send_screen.dart' show SendView, trackedSendProvider;
+import 'send_screen.dart' show SendBack, SendView, trackedSendProvider;
 import 'shell_header.dart';
 import 'settings_history.dart' show exportHistoryBackup;
 import 'settings_screen.dart';
@@ -252,6 +252,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   /// Bumped when a payment is done, so the Send tab starts a fresh form.
   int _sendForm = 0;
+  final _sendBack = SendBack();
 
   /// The page position as [headerOpenness] reads it: 1 on Wallet, 0 on Send and Receive. A tap
   /// from Send to Receive stays at 0, rather than opening and closing on the way.
@@ -667,7 +668,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final features = ref.watch(levelFeaturesProvider);
     final scan = offersQrScan(ref) && features.scanInAppBar;
 
-    return PhoneTourAnchor(
+    // The Android back: Send takes its own steps back first, then Send and Receive go to
+    // Wallet; on Wallet the app leaves, as the system does. Screens over the shell pop first.
+    return PopScope(
+      canPop: tab == ShellTab.wallet,
+      onPopInvokedWithResult: (didPop, _) {
+        // The tour takes back for its own steps.
+        if (didPop || ref.read(phoneTourProvider).open) return;
+        if (ref.read(shellTabProvider) == ShellTab.send && _sendBack.stepBack()) return;
+        _goTab(ShellTab.wallet);
+      },
+      child: PhoneTourAnchor(
       child: _Backdrop(
       child: SlotScaffold(
         idle: const ShellEdge(),
@@ -742,6 +753,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 SendView(
                   key: ValueKey('send-$_sendForm'),
                   onDone: _sendDone,
+                  back: _sendBack,
                 ),
               ),
             ),
@@ -750,6 +762,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    ),
     ),
     );
   }

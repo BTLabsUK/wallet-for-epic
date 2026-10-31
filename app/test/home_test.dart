@@ -1139,6 +1139,33 @@ void main() {
       expect(_selectedTab(tester), ShellTab.send);
     });
 
+    testWidgets('Android back: Send steps back, then Send and Receive go to Wallet, Wallet leaves', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      final payee = '${'b' * 52}@box.epic.invalid';
+      await _tab(tester, 'Send');
+      await tester.enterText(find.widgetWithText(TextField, 'To'), payee);
+      await tester.pumpAndSettle();
+      await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+      expect(find.widgetWithText(TextField, 'Amount (EPIC)'), findsOneWidget);
+      // Amount back to To, the address kept, still on Send.
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TextField, 'Amount (EPIC)'), findsNothing);
+      expect(_toField(tester), payee);
+      expect(_selectedTab(tester), ShellTab.send);
+      // To has no step before it: Wallet.
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(_selectedTab(tester), ShellTab.wallet);
+      await _tab(tester, 'Receive');
+      expect(await tester.binding.handlePopRoute(), isTrue);
+      await tester.pumpAndSettle();
+      expect(_selectedTab(tester), ShellTab.wallet);
+      // On Wallet the system takes back: the app leaves.
+      expect(await tester.binding.handlePopRoute(), isFalse);
+    });
+
     testWidgets('no scan button where scanning is unsupported', (tester) async {
       final h = _Harness();
       await h.pump(tester);

@@ -217,14 +217,25 @@ enum SendStage {
 /// The Send tab's content. The recipient comes from [sendRecipientProvider] (a scanned QR code,
 /// Send again), at the start and whenever a new one is handed over.
 class SendView extends ConsumerStatefulWidget {
-  const SendView({super.key, required this.onDone});
+  const SendView({super.key, required this.onDone, this.back});
 
   /// The payment is finished or handed to the network: the shell goes back to Wallet and
   /// starts a fresh form.
   final VoidCallback onDone;
 
+  /// Where the shell asks the form to take the Android back.
+  final SendBack? back;
+
   @override
   ConsumerState<SendView> createState() => _SendViewState();
+}
+
+/// The Android back on the Send tab: [stepBack] takes the step back the header's arrow takes
+/// and says whether the form used it; otherwise the shell goes to Wallet.
+class SendBack {
+  bool Function()? _handler;
+
+  bool stepBack() => _handler?.call() ?? false;
 }
 
 /// What the tracker follows.
@@ -452,6 +463,7 @@ class _SendViewState extends ConsumerState<SendView> {
   @override
   void initState() {
     super.initState();
+    widget.back?._handler = _stepBack;
     _recipientFocus.addListener(_recipientFocusChanged);
     final handoff = ref.read(sendRecipientProvider);
     if (handoff != null && handoff.pairingId != null) {
@@ -554,6 +566,7 @@ class _SendViewState extends ConsumerState<SendView> {
 
   @override
   void dispose() {
+    if (widget.back?._handler == _stepBack) widget.back?._handler = null;
     _debounce?.cancel();
     _tagTimer?.cancel();
     _checks?.close();
@@ -972,6 +985,19 @@ class _SendViewState extends ConsumerState<SendView> {
       if (problem == null) _stage = SendStage.amount;
     });
     if (problem == null && focus) _amountFocus.requestFocus();
+  }
+
+  /// The Android back: the step the header's arrow goes to, held like the arrow while the
+  /// fee is worked out or the payment is sent. False where the step has no arrow.
+  bool _stepBack() {
+    final VoidCallback? back = switch (_stage) {
+      SendStage.amount || SendStage.fileAmount => _toRecipient,
+      SendStage.review when !_sendFailed => _backToAmount,
+      _ => null,
+    };
+    if (back == null) return false;
+    if (!_busy && !_estimating) back();
+    return true;
   }
 
   void _toRecipient() {
