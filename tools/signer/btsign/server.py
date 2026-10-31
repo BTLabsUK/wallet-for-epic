@@ -62,7 +62,7 @@ from datetime import datetime, timezone
 from . import crypto, ops
 from .store import Store, StoreError, atomic_write
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 log = logging.getLogger("btsign")
 
 FINAL = ("done", "rejected", "expired", "failed", "cancelled")
@@ -199,7 +199,8 @@ class Signer:
                 "enrolled": bool(s.get("totp")), "locked_until": now_iso(st["locked_until"])
                 if st.get("locked_until", 0) > self.clock() else None,
                 "active_request": active[0] if active else None,
-                "apk_schemes": self.tools.schemes, "ops": list(ops.OPS)}
+                "apk_schemes": self.tools.schemes, "ops": list(ops.OPS),
+                "follow_up": True}   # a request may declare `then` (the client asks before it does)
 
     def ledger(self) -> set:
         p = os.path.join(self.dir, "signed.jsonl")

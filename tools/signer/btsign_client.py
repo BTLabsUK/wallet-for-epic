@@ -322,11 +322,16 @@ class Client:
         already here."""
         remote_jobs, files, paths = self._prepare(jobs)
         names = [j["out"] for j in remote_jobs]
+        asked = then or None    # what the caller asked for, as the receipt records it
         rec = self.receipt_holds(out_dir, version, remote_jobs, files)
-        if rec and set(rec["outputs"]) == set(names) and rec.get("then") == (then or None):
+        if rec and set(rec["outputs"]) == set(names) and rec.get("then") == asked:
             self.say(f"signer request {rec['id']} already returned {len(names)} file(s) for exactly these "
                      "inputs: taking them again, no new request")
             return rec
+        if then and not self.info().get("follow_up"):
+            # A signer before 1.1.0 refuses `then`: the follow-up then asks for its own code.
+            self.say("the signer does not take a follow-up yet: the manifests will ask for their own code")
+            then = None
         body = {"version": version, "label": label[:80], "jobs": remote_jobs, "files": files}
         if then:
             body["then"] = then
@@ -345,7 +350,7 @@ class Client:
         except BaseException:
             self._cancel(rid)
             raise
-        return self._receipt_write(out_dir, rid, version, remote_jobs, files, paths, st, names, then)
+        return self._receipt_write(out_dir, rid, version, remote_jobs, files, paths, st, names, asked)
 
     def follow(self, rid: str, version: str, jobs: list[dict], out_dir: str,
                wait: float = FOLLOW_WAIT_SECONDS) -> dict:
