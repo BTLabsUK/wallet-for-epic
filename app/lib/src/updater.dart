@@ -813,7 +813,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       if (asked == null || !ref.mounted) return;
       if (update == null || asked != update.apk.versionCode) {
         await _notePermissionAsked(null);
-      } else if (app.canInstall && state.phase == UpdatePhase.available) {
+      } else if (app.canInstall && state.phase == UpdatePhase.available && !NetGate.restricted) {
         logInfo('update', 'install allowed while the app was closed; carrying on');
         await _downloadAndInstall(platform, update);
       }
@@ -864,10 +864,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
 
   /// The app is back in front. A download that stopped while it was away carries on from what
   /// arrived. Once the install permission was given, the update that waited for it carries on:
-  /// from the kept download, or a new one if that file is gone.
+  /// from the kept download, or a new one if that file is gone. Node only and Kill switch
+  /// carry nothing on (network_gate.dart): the update waits for a return outside them.
   Future<void> resumed() async {
     _away = false;
-    if (_continueOnReturn) {
+    // Kept for the next return: the download goes on once the mode lets it.
+    if (_continueOnReturn && !NetGate.restricted) {
       _continueOnReturn = false;
       final platform = ref.read(updatePlatformProvider);
       final update = state.update;
@@ -878,7 +880,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       }
     }
     if (state.phase == UpdatePhase.installing) return _awaitInstallWord(state);
-    if (state.phase != UpdatePhase.needsPermission) return;
+    if (state.phase != UpdatePhase.needsPermission || NetGate.restricted) return;
     final platform = ref.read(updatePlatformProvider);
     final update = state.update;
     if (platform == null || update == null) return;
