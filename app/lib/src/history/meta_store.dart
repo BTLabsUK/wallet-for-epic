@@ -663,9 +663,11 @@ class Meta {
     Map<String, ManualRec>? manual,
     Iterable<String>? favourites,
     Iterable<String>? seededContacts,
+    Map<String, String>? seededAddresses,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
        seededContacts = SplayTreeSet.of(seededContacts ?? const []),
+       seededAddresses = SplayTreeMap.of(seededAddresses ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -720,6 +722,7 @@ class Meta {
       manual: map('manual').map((k, v) => MapEntry(k, ManualRec.fromJson(v))),
       favourites: [for (final v in list('favourites')) _str(v, 'favourite')],
       seededContacts: [for (final v in list('seeded_contacts')) _str(v, 'seeded contact')],
+      seededAddresses: map('seeded_addresses').map((k, v) => MapEntry(k, _str(v, 'seeded address'))),
     );
   }
 
@@ -768,6 +771,11 @@ class Meta {
   /// not empty, and not part of a history file.
   final SplayTreeSet<String> seededContacts;
 
+  /// The address this wallet last wrote for each seed contact (by seed id): a book entry still
+  /// at it is untouched, so it follows a new address from the signed btlabs.json. Written only
+  /// when not empty, and not part of a history file.
+  final SplayTreeMap<String, String> seededAddresses;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -809,6 +817,7 @@ class Meta {
     }
     if (favourites.isNotEmpty) out['favourites'] = [...favourites];
     if (seededContacts.isNotEmpty) out['seeded_contacts'] = [...seededContacts];
+    if (seededAddresses.isNotEmpty) out['seeded_addresses'] = {...seededAddresses};
     return out;
   }
 
