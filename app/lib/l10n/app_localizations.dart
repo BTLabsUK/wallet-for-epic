@@ -20390,10 +20390,10 @@ abstract class AppLocalizations {
   /// **'Switch to {host}?'**
   String slSwitchTitle(String host);
 
-  /// One line under that title: switching Epicbox will change the address senders pay to (future: the switch has not happened yet).
+  /// Neutral line shown where the user chooses another Epicbox server, and in the confirm before a switch: switching gives a new address. Conditional, not a warning; nothing has changed yet.
   ///
   /// In en, this message translates to:
-  /// **'Your Epicbox address changes. Share the new one.'**
+  /// **'Switching gives you a new Epicbox address.'**
   String get slSwitchBody;
 
   /// Button that confirms the Epicbox switch, and the action beside the Added foot line of the Node and Epicbox lists. Short.
@@ -20468,10 +20468,10 @@ abstract class AppLocalizations {
   /// **'In use. Switch first.'**
   String get slInUseSwitchFirst;
 
-  /// Warning card always shown under the Epicbox field: a general rule (changing the server changes the address), not something happening now.
+  /// Neutral secondary-text line under the Epicbox list/field, where the user chooses another server: switching gives a new address. Never a warning; the after-switch notices say Share the new one.
   ///
   /// In en, this message translates to:
-  /// **'Your Epicbox address changes. Share the new one.'**
+  /// **'Switching gives you a new Epicbox address.'**
   String get slRelayWarning;
 
   /// Under the field when Add is tapped on text that is no server address. "host" and "host:port" are literal forms; keep them as they are.

@@ -481,9 +481,9 @@ void main() {
       findsWidgets,
     );
     // The sheet warns; the confirm says the address will change.
-    expect(find.text('Your Epicbox address changes. Share the new one.'), findsOneWidget);
+    expect(find.text('Switching gives you a new Epicbox address.'), findsOneWidget);
     await _tap(tester, row);
-    expect(find.text('Your Epicbox address changes. Share the new one.'), findsWidgets);
+    expect(find.text('Switching gives you a new Epicbox address.'), findsWidgets);
     await _tap(tester, find.byKey(serverListCancelKey));
     expect(find.byKey(serverListSwitchKey), findsNothing);
 

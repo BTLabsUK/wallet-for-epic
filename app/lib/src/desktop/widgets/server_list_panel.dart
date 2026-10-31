@@ -950,7 +950,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           ],
           if (relayWarning) ...[
             SizedBox(height: Sp.x2),
-            _WarnStrip(l.slRelayWarning),
+            Text(l.slRelayWarning, key: const ValueKey('server-list-relay-note'), style: ts.caption.copyWith(color: c.dim)),
           ],
           if (sel != null) ...[
             SizedBox(height: Sp.x2),
@@ -1082,34 +1082,6 @@ class _ErrorLine extends StatelessWidget {
           Padding(padding: const EdgeInsets.only(top: 2), child: Icon(EIcons.error, size: Ctl.iconSm, color: c.risk)),
           SizedBox(width: 6.u),
           Expanded(child: Text(text, style: context.ts.small.copyWith(color: c.risk))),
-        ],
-      ),
-    );
-  }
-}
-
-/// The address-change warning of the Epicbox list.
-class _WarnStrip extends StatelessWidget {
-  const _WarnStrip(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-      decoration: BoxDecoration(
-        color: c.warnSoft,
-        borderRadius: BorderRadius.circular(Rad.sm),
-        border: Border(left: BorderSide(color: c.warn, width: 2)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: const EdgeInsets.only(top: 1), child: Icon(EIcons.alert, size: Ctl.iconSm, color: c.warn)),
-          SizedBox(width: Sp.x2),
-          Expanded(child: Text(text, style: context.ts.small.copyWith(color: c.text))),
         ],
       ),
     );

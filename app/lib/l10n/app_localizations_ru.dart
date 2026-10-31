@@ -13365,7 +13365,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get slSwitchBody => 'Ваш адрес Epicbox меняется. Поделитесь новым.';
+  String get slSwitchBody =>
+      'После переключения у вас будет новый адрес Epicbox.';
 
   @override
   String get slSwitch => 'Переключить';
@@ -13423,7 +13424,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get slInUseSwitchFirst => 'Используется. Сначала переключитесь.';
 
   @override
-  String get slRelayWarning => 'Ваш адрес Epicbox меняется. Поделитесь новым.';
+  String get slRelayWarning =>
+      'После переключения у вас будет новый адрес Epicbox.';
 
   @override
   String get slNotAnAddress =>
