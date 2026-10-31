@@ -5,7 +5,7 @@
 library;
 
 import '../../advanced.dart';
-import '../../amount.dart' show AmountFormatException, AmountProblem, cutEpic, displayDecimals, exactDecimals, exactEpic;
+import '../../amount.dart' show AmountFormatException, AmountProblem, cutEpic, displayDecimals, exactDecimals, exactEpic, normalizeAmountText;
 import '../../amount.dart' as shared show parseEpic;
 import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
@@ -19,7 +19,6 @@ import '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, 
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../settings.dart' show autoLockDefault;
 import '../../smart_outputs.dart' show smartOutputsDefault;
-import '../../ui/send_screen.dart' show normalizeAmountText;
 import '../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../network.dart' show EpicboxRelay;
 import '../../relay_directory.dart' show ServerIcon;

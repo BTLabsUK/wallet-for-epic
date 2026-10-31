@@ -34,8 +34,7 @@ import 'pairing/pairing_parts.dart';
 import 'request_qr_screen.dart' show RequestQrScreen;
 import 'scan_screen.dart' show offersQrPayment;
 import 'slate_file_screen.dart' show SlateFileResult;
-import 'send_screen.dart'
-    show Utf8LengthLimiter, fiatToAtomic, normalizeAmountText, utf8Length;
+import 'send_screen.dart' show Utf8LengthLimiter, utf8Length;
 import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
