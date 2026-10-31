@@ -17,6 +17,8 @@ import '../phone_tor.dart';
 import '../providers.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
+import '../levels/level_providers.dart';
+import 'levels/shell_status.dart' show shellStatusesShown;
 import 'network_status.dart' show nodeBehind, nodeTorWay;
 import 'network_mode_phone.dart';
 import 'network_mode_text.dart';
@@ -144,6 +146,10 @@ typedef StatusEntry = ({
 }) {
   final l = context.l10n;
   final t = context.tokens;
+  // The quiet shell carries its own two icons in the app bar ([ShellStatusIcons]).
+  if (shellStatusesShown(ref.watch(levelFeaturesProvider))) {
+    return (mode: ref.watch(networkModeProvider), entries: const <StatusEntry>[]);
+  }
   final status = watchWalletStatus(ref);
   final config = ref.watch(walletConfigProvider);
   final choice = ref.watch(networkChoiceProvider).value;

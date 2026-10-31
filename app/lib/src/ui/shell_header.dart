@@ -12,6 +12,8 @@ import '../wallet_service.dart';
 import 'tip.dart';
 import 'common.dart';
 import 'home_status.dart' show StatusIcons, statusEntries;
+import '../levels/level_features.dart' show BalancePresentation;
+import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'status.dart';
 import 'theme/protocol.dart';
 import 'theme/brand.dart' show BrandVariant, BrandWordmark;
@@ -189,6 +191,10 @@ class WalletBalance extends ConsumerWidget {
       statusTarget,
       _lineHeight(fiatStyle, scaler, context),
     );
+    final features = ref.watch(levelFeaturesProvider);
+    // Level 1: no caption, no icons (they are in the bar), no eye (Hide amounts is in
+    // Settings › Appearance); the fiat value and one quiet line stand for the tiles.
+    final quiet = features.balanceTiles == BalancePresentation.quietLine;
     // The tooltip opens above the eye, over the figure's own row, not over the tiles below.
     final eye = Tip(
       hidden ? l.homeShowBalances : l.homeHideBalances,
@@ -222,6 +228,7 @@ class WalletBalance extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // The caption says what the figure is, as the desktop's Overview does.
+            if (!quiet)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: statusInset),
               child: SizedBox(
@@ -256,6 +263,9 @@ class WalletBalance extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 2),
+            if (quiet)
+              _QuietLines(summary: summary, fiat: fiat, fiatStyle: fiatStyle, captionStyle: captionStyle)
+            else
             // The statuses show before the first balance too: they say why it is not here.
             // The fiat value takes what the icons leave and shrinks rather than wraps, so an
             // icon coming or going (Tor on, the onion published) moves nothing else.
@@ -296,7 +306,7 @@ class WalletBalance extends ConsumerWidget {
                             ),
                           ),
                   ),
-                  if (summary != null) eye,
+                  if (summary != null && features.hideBalancesInHero) eye,
                 ],
                 ),
               ),
@@ -307,6 +317,67 @@ class WalletBalance extends ConsumerWidget {
     );
   }
 }
+
+/// Level 1's lines under the figure: the fiat value, then one quiet line of what is coming
+/// in and what a send holds ("+12.5000 arriving · 25.0000 on hold"), each a fixed height so
+/// nothing moves when amounts change.
+class _QuietLines extends ConsumerWidget {
+  const _QuietLines({required this.summary, required this.fiat, required this.fiatStyle, required this.captionStyle});
+
+  final WalletSummary? summary;
+  final String? fiat;
+  final TextStyle fiatStyle;
+  final TextStyle captionStyle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final scaler = MediaQuery.textScalerOf(context);
+    final summary = this.summary;
+    final hidden = amountDisplay(ref).hidden;
+    String amount(BigInt v) => hidden ? hiddenAmount : localDigits(l, displayEpic(v));
+    final parts = summary == null
+        ? const <String>[]
+        : [
+            if (comingIn(summary) > BigInt.zero) l.lvShellQuietArriving(amount(comingIn(summary))),
+            if (summary.locked > BigInt.zero) l.lvShellQuietOnHold(amount(summary.locked)),
+          ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: statusInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: _lineHeight(fiatStyle, scaler, context),
+            child: fiat == null
+                ? null
+                : FittedBox(
+                    key: fiatValueKey,
+                    fit: BoxFit.scaleDown,
+                    child: Text(fiat!, maxLines: 1, style: fiatStyle),
+                  ),
+          ),
+          const SizedBox(height: 4),
+          SizedBox(
+            height: _lineHeight(captionStyle, scaler, context),
+            child: parts.isEmpty
+                ? null
+                : FittedBox(
+                    key: quietLineKey,
+                    fit: BoxFit.scaleDown,
+                    child: Text(parts.reduce(l.settingsStateJoin), maxLines: 1, style: captionStyle),
+                  ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+/// The key of level 1's quiet line under the figure, for tests.
+const Key quietLineKey = ValueKey('balance-quiet-line');
 
 /// The height of one line of [style] at [scaler].
 double _lineHeight(TextStyle style, TextScaler scaler, BuildContext context) {

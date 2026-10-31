@@ -16988,4 +16988,129 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get levelChangeTitle => '更改级别';
+
+  @override
+  String lvShellStatusTip(String name, String state) {
+    return '$name · $state';
+  }
+
+  @override
+  String get lvShellStateBehind => '落后';
+
+  @override
+  String get lvShellStateCatchingUp => '正在同步';
+
+  @override
+  String get lvShellStateConnecting => '正在连接';
+
+  @override
+  String get lvShellOpensDetails => '显示详情';
+
+  @override
+  String get lvShellForSupport => '供客服参考';
+
+  @override
+  String get lvShellCopyDetails => '复制详情';
+
+  @override
+  String get lvShellDetailsCopied => '已复制详情。';
+
+  @override
+  String get lvShellLatestBlock => '最新区块';
+
+  @override
+  String get lvShellThisWallet => '本钱包';
+
+  @override
+  String get lvShellUpToDate => '已是最新';
+
+  @override
+  String get lvShellNotChecked => '尚未检查';
+
+  @override
+  String get lvShellLastChange => '最近变更';
+
+  @override
+  String get lvShellNodeVersion => '节点版本';
+
+  @override
+  String get lvShellBoxListening => '已连接 · 正在等待付款';
+
+  @override
+  String get lvShellBoxNotReachable => '无法连接 · 正在继续尝试';
+
+  @override
+  String get lvShellBoxDownBody => '发给你的付款会等待，服务器恢复后到账。除非你切换，否则什么都不会改变。';
+
+  @override
+  String lvShellOfferReady(String name) {
+    return '$name 已就绪';
+  }
+
+  @override
+  String lvShellOfferBody(String name) {
+    return '切换后你会在 $name 上获得新地址。持有你旧地址的人需要新地址。';
+  }
+
+  @override
+  String lvShellSwitchTo(String name) {
+    return '切换到 $name';
+  }
+
+  @override
+  String get lvShellKeepWaiting => '继续等待';
+
+  @override
+  String lvShellRelayDownNotice(String name) {
+    return '你的 Epicbox 服务器无法连接。发给你的付款正在等待。$name 可以接替；你的地址会随之改变。';
+  }
+
+  @override
+  String lvShellSwitchedNotice(String name) {
+    return '已切换到 $name。你的新地址已就绪。';
+  }
+
+  @override
+  String lvShellNowOn(String name) {
+    return '已切换到 $name';
+  }
+
+  @override
+  String get lvShellSwitchedBody => '你的新地址已就绪。持有你旧地址的人需要新地址。';
+
+  @override
+  String get lvShellShowNewAddress => '显示新地址';
+
+  @override
+  String get lvShellServer => '服务器';
+
+  @override
+  String get lvShellAddress => '地址';
+
+  @override
+  String get lvShellHost => '主机';
+
+  @override
+  String get lvShellOldServer => '之前的服务器';
+
+  @override
+  String lvShellPairNotice(String name) {
+    return '$name 想与此钱包配对。';
+  }
+
+  @override
+  String get lvShellSeeRequest => '查看请求';
+
+  @override
+  String lvShellQuietArriving(String amount) {
+    return '+$amount 即将到账';
+  }
+
+  @override
+  String lvShellQuietOnHold(String amount) {
+    return '$amount 暂扣中';
+  }
+
+  @override
+  String get lvShellLevelCaption => '更高级别显示钱包的更多内容。已保存的内容不会改变。';
 }

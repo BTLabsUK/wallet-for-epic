@@ -329,17 +329,20 @@ class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
 }
 
 /// The colour of a status's state dot: the service works (green), is busy connecting, syncing
-/// or waiting (blue, in progress), does not work (red), or is off (faint). Never the accent.
+/// or waiting (blue, in progress), does not work (red), needs the user's answer (amber: the
+/// level-1 relay offer), or is off (faint). Never the accent.
 enum StatusDot {
   ok,
   busy,
   bad,
+  warn,
   off;
 
   Color color(WalletTokens t) => switch (this) {
     StatusDot.ok => t.ok,
     StatusDot.busy => t.info,
     StatusDot.bad => t.risk,
+    StatusDot.warn => t.warn,
     StatusDot.off => t.faint,
   };
 }
@@ -488,7 +491,7 @@ class StateDot extends StatelessWidget {
         color: dot == StatusDot.busy ? ring : color,
         border: Border.all(color: dot == StatusDot.busy ? color : ring, width: 1.5),
       ),
-      child: dot == StatusDot.bad
+      child: dot == StatusDot.bad || dot == StatusDot.warn
           ? Text(
               '!',
               textScaler: TextScaler.noScaling,

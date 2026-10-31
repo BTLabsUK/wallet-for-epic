@@ -25,6 +25,9 @@ import 'network_mode_text.dart' show networkModeName;
 import 'settings_sections.dart';
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
+import '../levels/level_features.dart' show AdvancedPageKind;
+import '../levels/level_providers.dart';
+import 'level_step_screen.dart' show levelTitle;
 
 export 'settings_sections.dart';
 
@@ -84,7 +87,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final demo = ref.watch(demoModeProvider);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final t = context.tokens;
-
+    // Level 1 hides Privacy & network and Transactions; Advanced holds only the level.
+    final features = ref.watch(levelFeaturesProvider);
+    final levelOnly = features.advancedPage == AdvancedPageKind.changeLevelOnly;
 
     return SlotScaffold(
       idle: scan.running ? ScanSlotLine(scan: scan) : null,
@@ -123,7 +128,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 // The shared sections in the desktop's order (GP2-021): Transactions ·
                 // Privacy · Appearance · This wallet; Security keeps its place first.
-                if (walletOpen)
+                if (walletOpen && features.transactionsSettings)
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.transactions),
                     section: SettingsSection.transactions,
@@ -136,6 +141,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         l.settingsHubSendDefaults,
                     ].reduce(l.settingsStateJoin),
                   ),
+                if (features.serverSettings)
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.privacyNetwork),
                   section: SettingsSection.privacyNetwork,
@@ -152,6 +158,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     l.settingsTheme,
                     l.languageSetting,
                     l.settingsCurrency,
+                    // The eye left the hero at level 1: say where it went.
+                    if (!features.hideBalancesInHero) l.settingsHideBalances,
                   ].reduce(l.settingsStateJoin),
                 ),
                 if (walletOpen)
@@ -174,7 +182,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.advanced),
                   section: SettingsSection.advanced,
-                  state: advancedStateLine(l, s.advanced),
+                  state: levelOnly ? levelTitle(l, features.level) : advancedStateLine(l, s.advanced),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.about),

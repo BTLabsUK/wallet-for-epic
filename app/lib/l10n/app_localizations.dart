@@ -28111,6 +28111,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change level'**
   String get levelChangeTitle;
+
+  /// Level 1 status icon tooltip and spoken label: the service and its state, e.g. Network · OK.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {state}'**
+  String lvShellStatusTip(String name, String state);
+
+  /// Level 1 network state: the node answers but is behind the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Behind'**
+  String get lvShellStateBehind;
+
+  /// Level 1 network state: the wallet is syncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Catching up'**
+  String get lvShellStateCatchingUp;
+
+  /// Level 1 state of a status: connecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting'**
+  String get lvShellStateConnecting;
+
+  /// Screen-reader hint of a level 1 status icon: a tap opens its details sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows details'**
+  String get lvShellOpensDetails;
+
+  /// Heading of the technical facts on a level 1 status sheet (hosts, address), for when the user asks for help.
+  ///
+  /// In en, this message translates to:
+  /// **'For support'**
+  String get lvShellForSupport;
+
+  /// Button on a level 1 status sheet: copies everything on it as text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy details'**
+  String get lvShellCopyDetails;
+
+  /// Notice after Copy details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details copied.'**
+  String get lvShellDetailsCopied;
+
+  /// Network sheet fact: the newest block the node knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest block'**
+  String get lvShellLatestBlock;
+
+  /// Network sheet fact label: whether this wallet is up to date.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet'**
+  String get lvShellThisWallet;
+
+  /// Network sheet: this wallet has every block.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get lvShellUpToDate;
+
+  /// Network sheet: the wallet could not be checked against the node yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked yet'**
+  String get lvShellNotChecked;
+
+  /// Network sheet support fact: the node the wallet moved from by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Last change'**
+  String get lvShellLastChange;
+
+  /// Network sheet support fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Node version'**
+  String get lvShellNodeVersion;
+
+  /// Epicbox sheet state: connected to the Epicbox server and ready to receive.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected · listening for payments'**
+  String get lvShellBoxListening;
+
+  /// Epicbox sheet state: the Epicbox server does not answer; the wallet keeps retrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reachable · keeps trying'**
+  String get lvShellBoxNotReachable;
+
+  /// Epicbox sheet while the server is down.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to you wait and arrive when the server is back. Nothing changes unless you switch.'**
+  String get lvShellBoxDownBody;
+
+  /// Epicbox sheet: another Epicbox server, by name, answers and can take over.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is ready'**
+  String lvShellOfferReady(String name);
+
+  /// Epicbox sheet: what switching servers does. Never promise that payments to the old address still arrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching gives you a new address on {name}. Anyone with your old address needs the new one.'**
+  String lvShellOfferBody(String name);
+
+  /// Button: move the wallet to the named Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {name}'**
+  String lvShellSwitchTo(String name);
+
+  /// Button: stay on the current Epicbox server for now.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep waiting'**
+  String get lvShellKeepWaiting;
+
+  /// Level 1 warning notice when the Epicbox server is down and another can take over.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Epicbox server is not reachable. Payments to you wait. {name} is ready to take over; your address changes with it.'**
+  String lvShellRelayDownNotice(String name);
+
+  /// Success notice after the Epicbox server switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Now on {name}. Your new address is ready.'**
+  String lvShellSwitchedNotice(String name);
+
+  /// Epicbox sheet heading after a server switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Now on {name}'**
+  String lvShellNowOn(String name);
+
+  /// Epicbox sheet after a server switch. Never promise that payments to the old address still arrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your new address is ready. Anyone with your old address needs the new one.'**
+  String get lvShellSwitchedBody;
+
+  /// Button after a server switch: opens Receive with the new address.
+  ///
+  /// In en, this message translates to:
+  /// **'Show new address'**
+  String get lvShellShowNewAddress;
+
+  /// Epicbox sheet fact: the Epicbox server's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get lvShellServer;
+
+  /// Epicbox sheet support fact: this wallet's Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get lvShellAddress;
+
+  /// Epicbox sheet support fact: the Epicbox server's host name.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get lvShellHost;
+
+  /// Epicbox sheet support fact after a switch: the server the wallet left.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous server'**
+  String get lvShellOldServer;
+
+  /// Level 1 notice: someone sent a pairing request.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wants to pair with this wallet.'**
+  String lvShellPairNotice(String name);
+
+  /// Notice button: opens the pairing request.
+  ///
+  /// In en, this message translates to:
+  /// **'See request'**
+  String get lvShellSeeRequest;
+
+  /// Level 1 quiet line under the balance: money on its way in.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} arriving'**
+  String lvShellQuietArriving(String amount);
+
+  /// Level 1 quiet line under the balance: money a send holds until it settles.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on hold'**
+  String lvShellQuietOnHold(String amount);
+
+  /// Settings › Advanced at level 1, under the Wallet level row.
+  ///
+  /// In en, this message translates to:
+  /// **'More levels show more of the wallet. Nothing stored changes.'**
+  String get lvShellLevelCaption;
 }
 
 class _AppLocalizationsDelegate
