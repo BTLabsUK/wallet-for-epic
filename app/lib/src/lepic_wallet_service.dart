@@ -1356,21 +1356,50 @@ class LepicWalletSession implements WalletSession {
   /// can make: a mailbox payment or a sealed file either way, which have no counterparty
   /// (LEPIC keeps them as file exchanges, and a mailbox send as `epicbox` once its answer is
   /// in), and a request. A row with none is asked again while it is open, as LEPIC links a
-  /// receive to its pairing just after storing it.
+  /// receive to its pairing just after storing it: after [_noContactFor], or at LEPIC's next
+  /// event.
   Future<String?> _pairingOfTx(lepic.TransactionDetails d) async {
     if (d.origin != lepic.TxOrigin.wallet) return null;
     if (d.counterparty != null && d.flow != lepic.TxFlow.invoice) return null;
+    final asked = _noContactAt[d.txId];
+    if (asked != null && DateTime.now().difference(asked) >= _noContactFor) {
+      _txContacts.remove(d.txId);
+      _noContactAt.remove(d.txId);
+    }
+    final fresh = !_txContacts.containsKey(d.txId);
     final contact = await _contactOfTx(d.txId);
     final ended = d.status == lepic.TxStatus.confirmed ||
         d.status == lepic.TxStatus.cancelled ||
         d.status == lepic.TxStatus.expired;
-    if (contact == null && !ended) _txContacts.remove(d.txId);
+    if (contact != null || ended) {
+      _noContactAt.remove(d.txId);
+    } else if (fresh) {
+      _noContactAt[d.txId] = DateTime.now();
+    }
     return contact;
   }
 
-  /// The stored row of [txId], as the history shows it.
+  /// When an open row was last found with no pairing ([_pairingOfTx]).
+  final Map<int, DateTime> _noContactAt = {};
+
+  /// How long an open row's "no pairing" answer is kept.
+  static const Duration _noContactFor = Duration(seconds: 60);
+
+  /// Asks the open rows with no pairing again at the next list read.
+  void _askNoContactAgain() {
+    for (final id in _noContactAt.keys) {
+      _txContacts.remove(id);
+    }
+    _noContactAt.clear();
+  }
+
+  /// The stored row of [txId], as the history shows it. Only its own pairing is asked: the
+  /// history takes a row's pairing from that row alone.
   Future<TxEntry> _entry(int txId) async {
-    final live = await _live();
+    final live = [
+      for (final d in await _wallet.transactions())
+        lepicTxEntry(d, sending: _sending > 0, pairingId: d.txId == txId ? await _pairingOfTx(d) : null),
+    ];
     final shown = _history
         .transactions(live)
         .where((t) => t.id == txId)
@@ -1382,11 +1411,17 @@ class LepicWalletSession implements WalletSession {
         );
   }
 
-  /// The LEPIC id behind a history key: `l:<id>`, or the row shown under [key].
+  /// The LEPIC id behind a history key: `l:<id>`, a key ending `#l<id>` (one side of a
+  /// self-send), or the row shown under [key]. The keys do not depend on the pairings, so none
+  /// is asked.
   Future<int> _txIdOf(String key) async {
     if (key.startsWith('l:')) return lepicTxId(key);
+    final own = RegExp(r'#l(\d+)$').firstMatch(key);
+    if (own != null) return int.parse(own.group(1)!);
     final id = _history
-        .transactions(await _live())
+        .transactions([
+          for (final d in await _wallet.transactions()) lepicTxEntry(d, sending: _sending > 0),
+        ])
         .where((t) => t.key == key)
         .firstOrNull
         ?.id;
@@ -2279,6 +2314,8 @@ class LepicWalletSession implements WalletSession {
   }
 
   Future<void> _onWalletEvent(lepic.WalletEvent e) async {
+    // LEPIC may have linked a row to its pairing meanwhile.
+    _askNoContactAgain();
     try {
       await _pairing.onWalletEvent(e);
     } on Object catch (error) {
@@ -2532,7 +2569,8 @@ class LepicWalletSession implements WalletSession {
   /// what the archive recorded of its reply and receipt; null when LEPIC has no such payment.
   Future<PaidInvoice?> _paidInvoice(String slateId) async {
     final record = _history.paidInvoiceRecord(slateId);
-    for (final d in await _wallet.transactions()) {
+    final rows = await _wallet.transactions();
+    for (final d in rows) {
       if (d.slateId != slateId) continue;
       final paid = paidInvoiceOf(
         lepicTxEntry(d, sending: _sending > 0),
@@ -2554,7 +2592,7 @@ class LepicWalletSession implements WalletSession {
       );
     }
     // One a history backup brought back: shown as recorded, never resent.
-    final live = [for (final d in await _wallet.transactions()) lepicTxEntry(d, sending: _sending > 0)];
+    final live = [for (final d in rows) lepicTxEntry(d, sending: _sending > 0)];
     for (final t in _history.transactions(live)) {
       if (t.source == TxSource.wallet || t.slateId != slateId) continue;
       final paid = paidInvoiceOf(t, status: record?.status, kernelExcess: record?.kernelExcess);
