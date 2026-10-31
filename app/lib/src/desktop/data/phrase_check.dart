@@ -4,31 +4,21 @@ import 'dart:convert' show utf8;
 import 'package:crypto/crypto.dart' show sha256;
 
 import '../../bip39_words.dart';
+import '../../remote/local_checks.dart' show validMnemonic;
 
 /// The BIP-39 word list in index order (the set keeps its insertion order).
 final List<String> bip39List = bip39Words.toList(growable: false);
 
-final Map<String, int> _index = {for (var i = 0; i < bip39List.length; i++) bip39List[i]: i};
-
-/// Whether [words] is a BIP-39 phrase: 12, 15, 18, 21 or 24 words of the list whose check bits
-/// (the first `n / 3` bits of the SHA-256 of the entropy) match. This is the same rule the
-/// wallet core applies; the mock answers with it so the UI tests see real checksums.
+/// Whether [words], one word per slot, is a BIP-39 phrase: 12, 15, 18, 21 or 24 words of the
+/// list whose check bits match ([validMnemonic], the rule the wallet core applies). A blank slot
+/// or one holding a space is refused: joined, it would shift the words after it. The mock
+/// answers with it so the UI tests see real checksums.
 bool bip39PhraseValid(List<String> words) {
-  final n = words.length;
-  if (n < 12 || n > 24 || n % 3 != 0) return false;
-  final bits = StringBuffer();
   for (final w in words) {
-    final i = _index[w.trim().toLowerCase()];
-    if (i == null) return false;
-    bits.write(i.toRadixString(2).padLeft(11, '0'));
+    final word = w.trim();
+    if (word.isEmpty || word.contains(RegExp(r'\s'))) return false;
   }
-  final all = bits.toString();
-  final cs = n ~/ 3;
-  final ent = all.length - cs;
-  final bytes = [for (var i = 0; i < ent; i += 8) int.parse(all.substring(i, i + 8), radix: 2)];
-  final hash = sha256.convert(bytes).bytes;
-  final check = hash.map((b) => b.toRadixString(2).padLeft(8, '0')).join().substring(0, cs);
-  return all.substring(ent) == check;
+  return validMnemonic(words.join(' '));
 }
 
 /// The fingerprint earlier builds kept in the wallet list ([WalletEntry.phraseFingerprint]):
