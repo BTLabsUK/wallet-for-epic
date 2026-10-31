@@ -78,12 +78,13 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) => _page(context, box.maxWidth >= Lay.xl));
+
+  Widget _page(BuildContext context, bool split) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
     final all = _args.loading ? null : (_args.empty ? const <Contact>[] : ref.watch(deskProvider.select((s) => s.contacts)));
-    final split = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final selected = all?.where((x) => x.id == _selected).firstOrNull;
     final paneOpen = _adding || (selected != null && (_editing || _selected != null));
     final panel = BoxDecoration(

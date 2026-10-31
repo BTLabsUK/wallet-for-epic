@@ -208,7 +208,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               ),
               SizedBox(height: tight ? Sp.x3 : Sp.x4),
               LayoutBuilder(
-                builder: (context, box) => box.maxWidth >= 760.u
+                builder: (context, box) => box.maxWidth >= Lay.lg
                     ? IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -413,7 +413,7 @@ class _PhraseGridState extends State<PhraseGrid> {
     final length = entry.length;
     return LayoutBuilder(
       builder: (context, box) {
-        final cols = box.maxWidth < 480.u ? 2 : (box.maxWidth < 560.u ? 3 : 4);
+        final cols = box.maxWidth < Lay.sm ? 2 : (box.maxWidth < Lay.md ? 3 : 4);
         final w = (box.maxWidth - (cols - 1) * Sp.x2) / cols;
         return Wrap(
           spacing: Sp.x2,

@@ -272,7 +272,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final e = _entry;
     final bad = e.firstInvalid;
     final complete = e.complete;
-    final narrow = MediaQuery.sizeOf(context).width < 760.u;
+    final narrow = MediaQuery.sizeOf(context).width < Lay.lg;
     final (String? status, Color? tone) = switch (e) {
       _ when _phraseError != null => (_phraseError!, c.risk),
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
