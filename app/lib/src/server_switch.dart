@@ -2,10 +2,8 @@
 /// Switching the node or the epicbox relay of the open wallet without locking it.
 library;
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'l10n.dart';
 import 'log.dart';
 import 'network.dart';
 import 'providers.dart';
@@ -70,37 +68,6 @@ Future<bool> switchServersLive(
   container.invalidate(nodeTipProvider);
   container.invalidate(homeProvider);
   return true;
-}
-
-/// Asks before the relay changes from [from] to [to], saying the epicbox address changes to
-/// the new domain. True to go on; always true when the relay stays.
-Future<bool> confirmRelaySwitch(
-  BuildContext context, {
-  required EpicboxRelay from,
-  required EpicboxRelay to,
-}) async {
-  if (from == to) return true;
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      final l = context.l10n;
-      return AlertDialog(
-        title: Text(l.serverSwitchRelayTitle),
-        content: Text(l.serverSwitchRelayBody(to.label)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.serverSwitchRelayConfirm),
-          ),
-        ],
-      );
-    },
-  );
-  return confirmed == true;
 }
 
 /// Moves the open wallet onto [nodeUrl] for this session only (node failover,
