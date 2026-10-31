@@ -138,10 +138,6 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
 
   static EpicboxRelay _relayOf(String label) => EpicboxRelay.parse(label) ?? EpicboxRelay(host: label);
 
-  /// The node every wallet of [preset]'s chain uses (`node.use`). Another chain's is read once
-  /// its settings are open ([switchChain]).
-  Future<String> nodeUrlFor(NetworkPreset preset) async => ref.read(hostSettingsProvider).nodeUse;
-
   /// The Epicbox server every wallet uses (`epicbox.use`).
   Future<EpicboxRelay> relayFor(NetworkPreset preset) async => _relayOf(ref.read(hostSettingsProvider).epicboxUse);
 
