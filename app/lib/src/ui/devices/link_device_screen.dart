@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../devices/device_link_code.dart';
 import '../../devices/device_service.dart';
 import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
@@ -320,6 +319,3 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
     );
   }
 }
-
-/// Whether [text] is a device link: the scan and paste routes hand it to Link a device.
-bool isDeviceLink(String text) => isDeviceLinkText(text);
