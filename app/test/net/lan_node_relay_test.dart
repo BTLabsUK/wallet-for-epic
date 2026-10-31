@@ -223,6 +223,8 @@ void main() {
       });
       addTearDown(() => node.close(force: true));
 
+      // A tailnet node goes through the relay once the user agreed for it (AB-08).
+      if (isCgnatIp(lan.address)) await allowPlainHttpNode('http://${lan.address}:${node.port}');
       final via = await lanNodeUrl('http://${lan.address}:${node.port}');
       expect(Uri.parse(via).host, '127.0.0.1');
       final client = HttpClient();
