@@ -59,7 +59,10 @@ ThemeData buildDeskTheme(Brightness brightness) {
       ),
       textStyle: TextStyle(color: c.text, fontSize: Fs.sm),
       padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+      // One look, width and timing for every tip (widgets/tip.dart), the phone's too.
+      constraints: BoxConstraints(maxWidth: 320.u),
       waitDuration: const Duration(milliseconds: 400),
+      showDuration: const Duration(seconds: 3),
     ),
     dialogTheme: DialogThemeData(backgroundColor: c.s4),
     popupMenuTheme: PopupMenuThemeData(

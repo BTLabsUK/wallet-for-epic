@@ -474,7 +474,10 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       textStyle: TextStyle(color: t.text, fontSize: 13, height: 1.4),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       margin: const EdgeInsets.symmetric(horizontal: 16),
+      // One look, width and timing for every tip (ui/tip.dart): a name, never a paragraph.
+      constraints: const BoxConstraints(maxWidth: 280),
       waitDuration: const Duration(milliseconds: 400),
+      showDuration: const Duration(seconds: 3),
     ),
     cardTheme: CardThemeData(
       color: t.surface,

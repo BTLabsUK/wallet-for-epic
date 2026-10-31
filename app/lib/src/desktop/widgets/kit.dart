@@ -27,3 +27,4 @@ export 'selectable.dart';
 export 'start_date.dart';
 export 'status.dart';
 export 'surfaces.dart';
+export 'tip.dart';
