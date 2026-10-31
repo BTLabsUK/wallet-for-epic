@@ -252,7 +252,7 @@
   "@deskNodeStageChainDownload": {
     "description": "Name of the local node's sync stage, lowercase."
   },
-  "deskNodeStageKernels": "checking kernels",
+  "deskNodeStageKernels": "checking the chain",
   "@deskNodeStageKernels": {
     "description": "Name of the local node's sync stage, lowercase."
   },
@@ -320,7 +320,7 @@
   "@deskNodeLineChainBare": {
     "description": "Local node stage line: chain state, size unknown."
   },
-  "deskNodeLineKernels": "Checking kernels · {done} of {total} million",
+  "deskNodeLineKernels": "Checking the chain · {done} of {total} million",
   "@deskNodeLineKernels": {
     "description": "Local node stage line: kernels checked of the total, in millions.",
     "placeholders": {
@@ -334,7 +334,7 @@
       }
     }
   },
-  "deskNodeLineKernelsBare": "Checking kernels",
+  "deskNodeLineKernelsBare": "Checking the chain",
   "@deskNodeLineKernelsBare": {
     "description": "Local node stage line: checking kernels."
   },
@@ -415,7 +415,7 @@
   "@deskTorNetworkLabel": {
     "description": "Label of the Tor switch in Settings › Privacy and the status rail's Tor row."
   },
-  "deskTorNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s internet address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
+  "deskTorNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
   "@deskTorNetworkHint": {
     "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
   },

@@ -31,7 +31,7 @@
   "deskOwnDlgFileRead": "Odczytano z {file}",
   "deskOwnDlgFileEmpty": "Ten plik nie zawiera sekretu",
   "deskOwnDlgPlainTitle": "Sekret idzie przez sieć domową bez szyfrowania",
-  "deskOwnDlgPlainText": "W porządku w sieci, z której korzystasz tylko ty. W innym razie łącz się z węzłem przez VPN, przez https albo uruchom portfel na komputerze węzła.",
+  "deskOwnDlgPlainText": "W sieci współdzielonej łącz się z węzłem przez VPN lub https albo uruchom portfel na komputerze węzła.",
   "deskOwnDlgPlainAgain": "Nie pokazuj więcej dla tego węzła",
   "deskOwnDlgRefused": "Węzeł odrzucił ten sekret",
   "deskOwnDlgNoAnswer": "Węzeł nie odpowiedział; sekret zachowano",

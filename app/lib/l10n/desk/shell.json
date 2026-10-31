@@ -142,7 +142,7 @@
   "@deskAppFirstScanTitle": {
     "description": "Title of the dialog that shows the first scan of a new wallet."
   },
-  "deskAppFirstScanBody": "The wallet looks through the chain for its outputs. It stays usable; the balance updates when the scan is done.",
+  "deskAppFirstScanBody": "The wallet scans the chain for its coins and stays usable meanwhile.",
   "@deskAppFirstScanBody": {
     "description": "Body of the first-scan dialog."
   },
@@ -240,7 +240,7 @@
   "@deskTourOverviewTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
-  "deskTourOverviewText": "The balance and what is still confirming, then the latest transactions. Everything else is in the sidebar.",
+  "deskTourOverviewText": "The balance and what is still confirming, then the latest payments. Everything else is in the sidebar.",
   "@deskTourOverviewText": {
     "description": "Text of the tour card for this page (first-unlock tour); one or two short sentences."
   },

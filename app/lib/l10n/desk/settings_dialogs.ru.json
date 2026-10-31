@@ -8,7 +8,7 @@
   "deskSetDlgChainOthers": "Найдена ещё 1 копия; эта самая новая.",
   "deskSetDlgChainInUse": "Эту папку использует другая программа Epic. Закройте её и снова выберите локальный узел, чтобы использовать эти данные.",
   "deskSetDlgChainUseIt": "Использовать их?",
-  "deskSetDlgChainOlderWallet": "Старому Epic Wallet, который использует эту папку, после этого может понадобиться повторная синхронизация. Монеты это не затрагивает.",
+  "deskSetDlgChainOlderWallet": "Старый Epic Wallet, который использует эту папку, после этого синхронизируется заново.",
   "deskSetDlgChainFresh": "Загрузить заново",
   "deskSetDlgChainUse": "Использовать эти данные",
   "deskSetDlgPwChanged": "Пароль изменён.",

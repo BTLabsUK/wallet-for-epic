@@ -31,7 +31,7 @@
   "deskOwnDlgFileRead": "Aus {file} gelesen",
   "deskOwnDlgFileEmpty": "Diese Datei enthält kein Secret",
   "deskOwnDlgPlainTitle": "Das Secret geht unverschlüsselt durchs Heimnetz",
-  "deskOwnDlgPlainText": "In Ordnung in einem Netz, das nur Sie nutzen. Sonst erreichen Sie den Node über ein VPN, über https, oder nutzen die Wallet auf dem Computer des Nodes.",
+  "deskOwnDlgPlainText": "In einem gemeinsam genutzten Netz erreichen Sie den Node über ein VPN oder https, oder nutzen die Wallet auf dem Computer des Nodes.",
   "deskOwnDlgPlainAgain": "Für diesen Node nicht mehr zeigen",
   "deskOwnDlgRefused": "Der Node hat dieses Secret abgelehnt",
   "deskOwnDlgNoAnswer": "Der Node hat nicht geantwortet; das Secret wurde behalten",

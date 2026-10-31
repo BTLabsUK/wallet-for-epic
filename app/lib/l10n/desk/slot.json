@@ -86,5 +86,9 @@
   "deskSlotOpenInvoices": "Open Invoices",
   "@deskSlotOpenInvoices": {
     "description": "Tooltip line of the slot's requests line: opens Invoices."
+  },
+  "deskSlotNotPosted": "Payment not posted",
+  "@deskSlotNotPosted": {
+    "description": "Sidebar slot line: a payment this wallet sent that the node refused. The line under it is the Post again button's text."
   }
 }

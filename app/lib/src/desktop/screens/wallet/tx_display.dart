@@ -33,8 +33,8 @@ String whoOf(AppLocalizations l, Tx t) {
   // An invoice from a backup with no address (asked by file) is named as the live one is.
   if (cp == null && t.fromBackup && !t.isInvoice) return t.incoming ? l.deskTxReceived : l.deskTxSent;
   if (cp == null) return t.incoming ? l.deskTxUnknownSender : l.deskTxUnknownRecipient;
-  // A file is the transaction file; its name is the row's second line ([fileNameOf]).
-  if (t.method == TxMethod.file) return l.slateFileTitle;
+  // A file is named by its file name ([fileNameOf]), as a contact is by name.
+  if (t.method == TxMethod.file) return fileNameOf(t) ?? l.slateFileTitle;
   // An invoice's other side is an Epicbox address: first six and last six, no host.
   return shortAddress(cp, compact: t.isInvoice);
 }
@@ -441,9 +441,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     // A label takes the title; who it replaced moves to the second line so nothing is lost.
     final file = fileNameOf(t);
     final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? file ?? shortAddress(t.counterparty!, compact: true)) : null;
-    // A file row is titled Transaction file; the file's name is its second line.
-    final fileLine = replaced == null && t.contactName == null ? file : null;
-    final parts = <String>[?method, ?restoredMethod, ?replaced, ?fileLine, ?extra];
+    final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
     final meta = <InlineSpan>[
       for (final (i, p) in parts.indexed) ...[
         if (i > 0)

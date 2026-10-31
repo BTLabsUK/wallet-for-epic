@@ -28,7 +28,7 @@
   "deskSetBackupOpensWithValue": "这个钱包，或用它的助记词恢复的钱包",
   "deskSetBackupFile": "文件",
   "deskSetBackupFileNote": "文件包含截至目前的全部内容。",
-  "deskSetBackupExportDesc": "包含此钱包截至目前的交易记录、联系人、账单和设置。 恢复时：先输入助记词，再导入此文件。",
+  "deskSetBackupExportDesc": "包含这个钱包的交易记录、联系人、账单和设置的文件。",
   "deskSetBackupSaved": "已保存",
   "deskSetBackupKeepCopy": "在这台电脑之外也保存一份：U 盘、另一块硬盘或云存储。",
   "deskSetBackupOpenFolder": "打开文件夹",

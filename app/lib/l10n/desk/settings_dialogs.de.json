@@ -8,7 +8,7 @@
   "deskSetDlgChainOthers": "1 weitere Kopie gefunden; diese ist die neueste.",
   "deskSetDlgChainInUse": "Ein anderes Epic-Programm nutzt diesen Ordner. Schließen Sie es und wählen Sie dann erneut den lokalen Node, um diese Daten zu nutzen.",
   "deskSetDlgChainUseIt": "Nutzen?",
-  "deskSetDlgChainOlderWallet": "Eine ältere Epic Wallet, die diesen Ordner nutzt, muss danach vielleicht neu synchronisieren. Die Coins sind davon nicht betroffen.",
+  "deskSetDlgChainOlderWallet": "Eine ältere Epic Wallet, die diesen Ordner nutzt, synchronisiert danach neu.",
   "deskSetDlgChainFresh": "Neu herunterladen",
   "deskSetDlgChainUse": "Diese Daten nutzen",
   "deskSetDlgPwChanged": "Passwort geändert.",

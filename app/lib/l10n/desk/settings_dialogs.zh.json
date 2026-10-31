@@ -8,7 +8,7 @@
   "deskSetDlgChainOthers": "另找到 1 份副本；这一份是最新的。",
   "deskSetDlgChainInUse": "另一个 Epic 程序正在使用此文件夹。请关闭它，然后重新选择本地节点以使用这些数据。",
   "deskSetDlgChainUseIt": "要使用吗？",
-  "deskSetDlgChainOlderWallet": "之后，使用此文件夹的旧版 Epic Wallet 可能需要重新同步。币不受影响。",
+  "deskSetDlgChainOlderWallet": "使用此文件夹的旧版 Epic Wallet 之后会重新同步。",
   "deskSetDlgChainFresh": "重新下载",
   "deskSetDlgChainUse": "使用这些数据",
   "deskSetDlgPwChanged": "密码已更改。",

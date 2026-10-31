@@ -86,7 +86,7 @@
   "@deskSetupLocalLead": {
     "description": "Lead under the title of the setup's local node step."
   },
-  "deskSetupEpicboxTitle": "Receive when offline",
+  "deskSetupEpicboxTitle": "Receive while closed",
   "@deskSetupEpicboxTitle": {
     "description": "Title of the setup step about the Epicbox server, which holds payments while this wallet is closed."
   },
@@ -138,7 +138,7 @@
   "@deskSetupLocalNodeText": {
     "description": "Text on the Local node choice card of the setup's node step."
   },
-  "deskSetupEpicboxText": "Epicbox delivers payments to the Epicbox address and holds them until the wallet is online.",
+  "deskSetupEpicboxText": "The Epicbox server holds payments until the wallet opens.",
   "@deskSetupEpicboxText": {
     "description": "First paragraph of the setup's Epicbox step."
   },
@@ -184,7 +184,7 @@
       }
     }
   },
-  "deskSetupBundledNode": "Local node, bundled",
+  "deskSetupBundledNode": "Local node",
   "@deskSetupBundledNode": {
     "description": "Node type on the setup's summary: the Epic node that comes with the app, run on this computer."
   },

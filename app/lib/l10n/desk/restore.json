@@ -115,7 +115,7 @@
   "@deskOvRestoredImportTitle": {
     "description": "Title of the history-backup offer after the first unlock of a restored wallet."
   },
-  "deskOvRestoredImportBody": "The recovery phrase restored the balance. To bring back history, contacts, invoices and settings, import the wallet data file you exported.",
+  "deskOvRestoredImportBody": "The balance is back. A wallet data file from this wallet brings back its history, contacts, invoices and settings.",
   "@deskOvRestoredImportBody": {
     "description": "Body of the offer."
   },

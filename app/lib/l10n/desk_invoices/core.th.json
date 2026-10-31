@@ -21,7 +21,7 @@
   "deskInvPayWaiting": "รอชำระ",
   "deskInvPayNotDelivered": "ส่งไม่ถึง",
   "deskInvPayDelivered": "รอส่งเข้าเครือข่าย",
-  "deskInvPayPosted": "บริการส่งเข้าเครือข่ายแล้ว",
+  "deskInvPayPosted": "ประกาศโดย {name}",
   "deskInvPayWithdrawnAfterPay": "ถูกเรียกคืนหลังชำระ",
   "deskInvPayPastTtl": "ไม่อยู่บนบล็อกเชน",
   "deskInvPayCancelled": "ยกเลิกแล้ว",

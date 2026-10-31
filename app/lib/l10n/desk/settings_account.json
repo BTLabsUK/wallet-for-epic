@@ -23,7 +23,7 @@
   "@deskSetAcctLabelSaved": {
     "description": "Toast title after the wallet label was saved. The label follows as text."
   },
-  "deskSetAcctLabel": "Label",
+  "deskSetAcctLabel": "Name",
   "@deskSetAcctLabel": {
     "description": "Settings > This wallet: row title and screen reader name of the wallet label field."
   },

@@ -15,5 +15,5 @@
   "deskSetPrivProblemDetail": "{problem}。请重试，或关闭 Tor。",
   "deskSetPrivStatusSite": "状态网站",
   "deskSetPrivUseStatus": "使用 {site}",
-  "deskSetPrivUseStatusHint": "显示哪些节点和 Epicbox 服务器在线。只下载一份公开列表；不会发送钱包中的任何内容。"
+  "deskSetPrivUseStatusHint": "显示哪些节点和 Epicbox 服务器在线，数据来自 status.btlabs.uk 上的公开列表。"
 }

@@ -73,7 +73,7 @@
   "@deskSetPhraseBackUp": {
     "description": "Settings > Recovery phrase: title of the warning under the words."
   },
-  "deskSetPhraseBackUpText": "Anyone with these words can take the EPIC. Check that nobody can see the screen.",
+  "deskSetPhraseBackUpText": "Anyone with these words can take the coins. Check that nobody can see the screen.",
   "@deskSetPhraseBackUpText": {
     "description": "Settings > Recovery phrase: text of the warning under the words."
   },

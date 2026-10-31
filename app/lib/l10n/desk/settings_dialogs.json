@@ -35,7 +35,7 @@
   "@deskSetDlgChainUseIt": {
     "description": "Existing blockchain data dialog: question line."
   },
-  "deskSetDlgChainOlderWallet": "An older Epic Wallet that uses this folder may need to sync again after this. Coins are not affected.",
+  "deskSetDlgChainOlderWallet": "An older Epic Wallet that uses this folder syncs again afterwards.",
   "@deskSetDlgChainOlderWallet": {
     "description": "Existing blockchain data dialog: small note under the question."
   },

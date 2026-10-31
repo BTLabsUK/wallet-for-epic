@@ -9,7 +9,7 @@
   "deskSetRecvAutostart": "Mit der Wallet starten",
   "deskSetRecvAutostartHint": "Wird beim Entsperren eingeschaltet.",
   "deskSetRecvMethodAutostart": "{method}: mit der Wallet starten",
-  "deskSetRecvEpicboxText": "Zahlungen kommen über den Epicbox-Server an, auch bei geschlossener Wallet.",
+  "deskSetRecvEpicboxText": "Der Epicbox-Server hält Zahlungen, bis die Wallet geöffnet wird.",
   "deskSetRecvEpicboxServer": "Epicbox-Server",
   "deskSetRecvEpicboxServerHint": "Welcher Server Zahlungen für diese Adresse hält. Die beiden Wallets können verschiedene Server nutzen.",
   "deskSetRecvEpicboxOwnHint": "Diese Wallet hat einen eigenen Epicbox-Server aus der älteren App. Eine Änderung hier gilt nur für diese Wallet.",

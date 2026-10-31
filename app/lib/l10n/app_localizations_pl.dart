@@ -887,7 +887,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsNoteHelper =>
-      'Tylko na tym urządzeniu i w wyeksportowanych danych portfela.';
+      'Tylko w tej aplikacji i w wyeksportowanych danych portfela.';
 
   @override
   String get txDetailsNoteSaved => 'Zapisano notatkę';
@@ -1361,7 +1361,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zarezerwowane na rozpoczętą płatność; reszta wróci po jej zakończeniu.';
 
   @override
-  String get homeBalanceImmature => 'Nagrody za kopanie jeszcze niedostępne';
+  String get homeBalanceImmature => 'Nagrody za kopanie';
 
   @override
   String get balanceImmatureHelp =>
@@ -2803,7 +2803,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Płatność QR pokazuje płatność jako animowany kod, który drugi telefon skanuje aparatem, a odpowiedź przyjmuje w ten sam sposób. Działa tylko między telefonami obok siebie, nie wymaga połączenia między portfelami, a kod sam się ukrywa po 40 sekundach. Dodaje Płatność QR do Wyślij i Odbierz.';
 
   @override
-  String get advTransactionFiles => 'Przesyłanie pliku';
+  String get advTransactionFiles => 'Bezpośrednio · Przesyłanie pliku';
 
   @override
   String get advTransactionFilesHint =>
@@ -3335,7 +3335,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsUseStatusSiteSubtitle =>
-      'Pokazuje, które węzły i serwery Epicbox są online. Pobiera tylko publiczną listę; z portfela nic nie jest wysyłane.';
+      'Pokazuje, które węzły i serwery Epicbox są online, z publicznej listy na status.btlabs.uk.';
 
   @override
   String get txStepStarted => 'Rozpoczęto płatność';
@@ -4077,7 +4077,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get outputsStrategyHint =>
-      'Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, więc pozostała część salda zostaje do wydania, gdy reszta się potwierdza. Wszystkie wydaje wszystkie wyjścia do wydania i zwraca jedno wyjście reszty: wszystko jest zablokowane do potwierdzenia, a potem zostaje mniej, ale większych wyjść.';
+      'Które wyjścia wydaje wysyłka. Najmniejsze wydaje najmniejsze wyjścia, które pokrywają kwotę; Wszystkie wydaje każde wyjście i zwraca jedno.';
 
   @override
   String get outputsSmallest => 'Najmniejsze';
@@ -4087,7 +4087,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get outputsSmallestText =>
-      'Wydaje jak najmniej małych wyjść; pozostała część salda jest do wydania, gdy reszta się potwierdza.';
+      'Wydaje najmniejsze wyjścia, które pokrywają kwotę; reszta zostaje do wydania.';
 
   @override
   String get outputsAllText =>
@@ -4133,10 +4133,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get outputsWordConfirming => 'Potwierdzane';
 
   @override
-  String get outputsWordFinalizing => 'Czeka na sfinalizowanie';
+  String get outputsWordFinalizing => 'Czeka na odpowiedź';
 
   @override
-  String get outputsWordImmature => 'Niedojrzałe';
+  String get outputsWordImmature => 'Dojrzewa';
 
   @override
   String get outputsWordMining => 'Kopanie';
@@ -5012,7 +5012,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskInvPayDelivered => 'Czeka na publikację';
 
   @override
-  String get deskInvPayPosted => 'Opublikowane przez serwis';
+  String deskInvPayPosted(String name) {
+    return 'Opublikowane przez $name';
+  }
 
   @override
   String get deskInvPayWithdrawnAfterPay => 'Wycofano po zapłacie';
@@ -5608,7 +5610,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Adres Link zaczyna się od http:// lub https:// albo kończy na .onion.';
 
   @override
-  String get torNotOverTor => 'Nie przez Tor';
+  String get torNotOverTor => 'Bez Tora';
 
   @override
   String get torNeeds => 'Link · Tor wymaga Tora.';
@@ -5639,7 +5641,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres IP portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -5924,7 +5926,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskErrListNotSaved => 'Nie zapisano listy portfeli';
 
   @override
-  String get deskErrProofSeedRead => 'Odczytano seed';
+  String get deskErrProofSeedRead => 'Odczytano frazę odzyskiwania';
 
   @override
   String get deskErrProofWalletCreated => 'Utworzono portfel';
@@ -6345,7 +6347,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskNodeStageChainDownload => 'pobieranie stanu łańcucha';
 
   @override
-  String get deskNodeStageKernels => 'sprawdzanie kerneli';
+  String get deskNodeStageKernels => 'sprawdzanie łańcucha';
 
   @override
   String get deskNodeStageRangeProofs => 'sprawdzanie dowodów zakresu';
@@ -6386,11 +6388,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskNodeLineKernels(String done, String total) {
-    return 'Sprawdzanie kerneli · $done z $total mln';
+    return 'Sprawdzanie łańcucha · $done z $total mln';
   }
 
   @override
-  String get deskNodeLineKernelsBare => 'Sprawdzanie kerneli';
+  String get deskNodeLineKernelsBare => 'Sprawdzanie łańcucha';
 
   @override
   String deskNodeLineRangeProofs(String done, String total) {
@@ -6435,7 +6437,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTorNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres internetowy portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres IP portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel.';
 
   @override
   String get deskTorOff => 'Wyłączony';
@@ -7002,7 +7004,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSendAdvSmallestText =>
-      'Wydaje jak najmniej małych wyjść; pozostała część salda jest do wydania, gdy reszta się potwierdza.';
+      'Wydaje najmniejsze wyjścia, które pokrywają kwotę; reszta zostaje do wydania.';
 
   @override
   String get deskSendAdvAllText =>
@@ -7276,14 +7278,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSendHintNeedsTor => 'Włącz Tor, aby wysłać na adres onion.';
 
   @override
-  String get deskSendHintFix => 'Popraw pola zaznaczone na czerwono.';
+  String get deskSendHintFix => 'Popraw zaznaczone pola.';
 
   @override
   String get deskSendHintChecking => 'Sprawdzanie opłaty dla tej kwoty.';
 
   @override
   String get deskSendHintDefault =>
-      'Nic nie zostanie wysłane bez potwierdzenia.';
+      'Przed sprawdzeniem nic nie zostanie wysłane.';
 
   @override
   String get deskSendReviewWaitTor => 'Oczekiwanie na Tor';
@@ -7308,7 +7310,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Saldo aktualizuje się podczas skanowania portfela.';
 
   @override
-  String get deskSendEpicboxLine1 => 'Odbiorca może być offline.';
+  String get deskSendEpicboxLine1 => 'Portfel odbiorcy może być zamknięty.';
 
   @override
   String get deskSendEpicboxLine2 =>
@@ -7978,10 +7980,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Wydaje $count wyjścia. Opłata od $fee EPIC.',
-      many: 'Wydaje $count wyjść. Opłata od $fee EPIC.',
-      few: 'Wydaje $count wyjścia. Opłata od $fee EPIC.',
-      one: 'Wydaje $count wyjście. Opłata od $fee EPIC.',
+      other: 'Wydaje $count wyjścia. Opłata co najmniej $fee EPIC.',
+      many: 'Wydaje $count wyjść. Opłata co najmniej $fee EPIC.',
+      few: 'Wydaje $count wyjścia. Opłata co najmniej $fee EPIC.',
+      one: 'Wydaje $count wyjście. Opłata co najmniej $fee EPIC.',
     );
     return '$_temp0';
   }
@@ -8094,7 +8096,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOutTileConfirming => 'Potwierdzane';
 
   @override
-  String get deskOutTileImmature => 'Niedojrzałe';
+  String get deskOutTileImmature => 'Nagrody za kopanie';
 
   @override
   String get deskOutTileLocked => 'Zablokowane w wysyłkach';
@@ -8159,7 +8161,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskOutStatusAwaiting => 'Czeka na sfinalizowanie';
+  String get deskOutStatusAwaiting => 'Czeka na odpowiedź';
 
   @override
   String get deskOutNoteWaitingSender => 'czeka na nadawcę';
@@ -8171,17 +8173,17 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOutNoteNotInBalance => 'poza saldem';
 
   @override
-  String get deskOutStatusImmature => 'Niedojrzałe';
+  String get deskOutStatusImmature => 'Dojrzewa';
 
   @override
   String deskOutNoteBlocksToGo(int count, String number) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'jeszcze $number bloku',
-      many: 'jeszcze $number bloków',
-      few: 'jeszcze $number bloki',
-      one: 'jeszcze $number blok',
+      other: 'jeszcze $number potwierdzenia',
+      many: 'jeszcze $number potwierdzeń',
+      few: 'jeszcze $number potwierdzenia',
+      one: 'jeszcze $number potwierdzenie',
     );
     return '$_temp0';
   }
@@ -8479,8 +8481,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOvNodeAddrTitle => 'Zaktualizowano adres węzła';
 
   @override
-  String deskOvNodeAddrText(String node, String old) {
-    return 'Teraz używany jest $node zamiast $old.';
+  String deskOvNodeAddrText(String node) {
+    return 'Zapisano jako $node.';
   }
 
   @override
@@ -8507,7 +8509,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvCantReachNodeText =>
-      'Sprawdź, czy działa i jest osiągalny. Salda mogą być nieaktualne, a wysyłanie jest wstrzymane.';
+      'Salda mogą być nieaktualne. Sprawdź węzeł albo wybierz inny w ustawieniach węzła.';
 
   @override
   String get deskOvStarting => 'Uruchamianie';
@@ -8565,8 +8567,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskOvSyncText =>
-      'Pobieranie bloków. Wysyłanie wróci po synchronizacji węzła.';
+  String get deskOvSyncText => 'Pobieranie bloków.';
 
   @override
   String get deskOvSyncProgress => 'Postęp synchronizacji węzła';
@@ -8610,7 +8611,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOvBreakConfirming => 'Potwierdzane';
 
   @override
-  String get deskOvBreakImmature => 'Niedojrzałe';
+  String get deskOvBreakImmature => 'Nagrody za kopanie';
 
   @override
   String get deskOvBreakAwaiting => 'Czeka na nadawcę';
@@ -8696,7 +8697,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxUnknownRecipient => 'Nieznany odbiorca';
 
   @override
-  String get deskTxNoteBlock => 'Czas bloku. Nadawca nie jest zapisany.';
+  String get deskTxNoteBlock => 'Czas bloku. Nadawca jest nieznany.';
 
   @override
   String get deskTxNoteScanTime =>
@@ -8709,11 +8710,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxFoundRestoredLabel => 'Przywrócona';
 
   @override
-  String get deskTxFoundRestoredLine => 'Znaleziona przy przywracaniu';
+  String get deskTxFoundRestoredLine => 'Znaleziona w łańcuchu';
 
   @override
-  String get deskTxFoundRestoredStep =>
-      'Znaleziona przy przywracaniu tego portfela';
+  String get deskTxFoundRestoredStep => 'Znaleziona w łańcuchu';
 
   @override
   String get deskTxFoundRestoredTip =>
@@ -8749,7 +8749,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxFromBackup => 'Zaimportowana';
 
   @override
-  String get deskTxStatusImmature => 'Niedojrzała';
+  String get deskTxStatusImmature => 'Dojrzewa';
 
   @override
   String get deskTxStatusWaitingSender => 'Czeka na nadawcę';
@@ -8907,7 +8907,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskTxNowCancelled => 'Anulowana.';
+  String get deskTxNowCancelled => 'Anulowana';
 
   @override
   String get deskTxNotCancelled => 'Nie anulowano';
@@ -8922,7 +8922,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTxHeadRestored => 'przywrócona';
 
   @override
-  String get deskTxHeadFoundOnChain => 'znaleziona w łańcuchu';
+  String get deskTxHeadFoundOnChain => 'Znaleziona w łańcuchu';
 
   @override
   String get deskTxHeadBackup => 'zaimportowana z pliku danych portfela';
@@ -9020,10 +9020,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'jeszcze $count bloku',
-      many: 'jeszcze $count bloków',
-      few: 'jeszcze $count bloki',
-      one: 'jeszcze $count blok',
+      other: 'jeszcze $count potwierdzenia',
+      many: 'jeszcze $count potwierdzeń',
+      few: 'jeszcze $count potwierdzenia',
+      one: 'jeszcze $count potwierdzenie',
     );
     return '$_temp0';
   }
@@ -9215,8 +9215,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Nie zapisano portfela: dysk jest pełny. Zwolnij trochę miejsca i spróbuj ponownie.';
 
   @override
-  String get deskOnbCreateWait =>
-      'To może potrwać do minuty. Nie zamykaj aplikacji.';
+  String get deskOnbCreateWait => 'Nie zamykaj aplikacji.';
 
   @override
   String get deskOnbCreateLocking => 'Blokowanie otwartego portfela';
@@ -9243,7 +9242,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbCreateRevealFirst => 'Najpierw odkryj frazę';
 
   @override
-  String get deskOnbCreateWarn => 'Każdy, kto zna te słowa, może zabrać monety';
+  String get deskOnbCreateWarn =>
+      'Każdy, kto zna te słowa, może zabrać monety.';
 
   @override
   String get deskOnbCreateReveal => 'Odkryj frazę';
@@ -9295,12 +9295,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbRestoreRestoring => 'Przywracanie portfela';
 
   @override
-  String get deskOnbRestorePermission =>
-      'Nie zapisano plików portfela: brak uprawnień do ~/.config/Epic Cash Desktop. Zezwól na zapis w tym folderze i spróbuj ponownie.';
+  String deskOnbRestorePermission(String folder) {
+    return 'Nie zapisano plików portfela: brak uprawnień do $folder. Zezwól na zapis w tym folderze i spróbuj ponownie.';
+  }
 
   @override
   String get deskOnbRestoreWait =>
-      'To może potrwać do minuty. Saldo pojawi się po pierwszym skanowaniu łańcucha.';
+      'Nie zamykaj aplikacji. Saldo pojawi się po pierwszym skanowaniu.';
 
   @override
   String get deskOnbRestoreSide => 'Przywróć portfel';
@@ -9330,10 +9331,6 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get deskOnbRestoreStaysHere =>
-      'Fraza nigdy nie opuszcza tego komputera.';
 
   @override
   String get deskOnbRestoreChecksumFirm =>
@@ -9459,9 +9456,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbUnlockTitle => 'Odblokuj portfel';
 
   @override
-  String get deskOnbUnlockLead => 'Klucze zostają na tym komputerze.';
-
-  @override
   String get deskOnbUnlockRemember => 'Zapamiętaj na tym komputerze';
 
   @override
@@ -9474,7 +9468,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskOnbUnlockMissingText(String folder) {
-    return 'Był w $folder';
+    return 'Był w $folder. Usuń portfel z listy albo przywróć go z frazy odzyskiwania.';
   }
 
   @override
@@ -9576,7 +9570,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskOnbNodeCheck => 'Sprawdź';
 
   @override
-  String get deskOnbNodeBundled => 'Uruchom wbudowany węzeł';
+  String get deskOnbNodeBundled => 'Uruchom węzeł lokalny';
 
   @override
   String get deskOnbNodeBundledText =>
@@ -9605,10 +9599,10 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Wklejono $count słowa; fraza ma 12, 15, 18, 21 lub 24 słowa',
-      many: 'Wklejono $count słów; fraza ma 12, 15, 18, 21 lub 24 słowa',
-      few: 'Wklejono $count słowa; fraza ma 12, 15, 18, 21 lub 24 słowa',
-      one: 'Wklejono $count słowo; fraza ma 12, 15, 18, 21 lub 24 słowa',
+      other: 'Wklejono $count słowa; fraza ma 12, 15, 18, 21 lub 24 słowa.',
+      many: 'Wklejono $count słów; fraza ma 12, 15, 18, 21 lub 24 słowa.',
+      few: 'Wklejono $count słowa; fraza ma 12, 15, 18, 21 lub 24 słowa.',
+      one: 'Wklejono $count słowo; fraza ma 12, 15, 18, 21 lub 24 słowa.',
     );
     return '$_temp0';
   }
@@ -9668,7 +9662,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbImportFindingLead =>
-      'Przeszukiwanie folderów starszych wersji Epic Wallet i programu epic; stare foldery są tylko odczytywane.';
+      'Przeszukiwanie folderów starszych wersji Epic Wallet i programu epic.';
 
   @override
   String deskOnbImportFoundTitle(int count) {
@@ -9682,9 +9676,6 @@ class AppLocalizationsPl extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get deskOnbImportFoundLead => 'Stare foldery są tylko odczytywane.';
 
   @override
   String get deskOnbImportNoneTitle => 'Nie znaleziono portfeli';
@@ -9977,7 +9968,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskAppFirstScanBody =>
-      'Portfel przeszukuje łańcuch w poszukiwaniu swoich wyjść. Można go dalej używać; saldo zaktualizuje się po zakończeniu skanowania.';
+      'Portfel skanuje łańcuch w poszukiwaniu swoich monet i w tym czasie można go używać.';
 
   @override
   String get deskAppScanOutput => 'Przebieg skanowania';
@@ -10050,7 +10041,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskTourOverviewText =>
-      'Saldo i to, co jeszcze się potwierdza, a pod nim ostatnie transakcje. Wszystko inne jest na pasku bocznym.';
+      'Saldo i to, co jeszcze się potwierdza, a pod nim ostatnie płatności. Wszystko inne jest na pasku bocznym.';
 
   @override
   String get deskTourSendTitle => 'Wyślij';
@@ -10601,7 +10592,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskKitChipNotConnected => 'Tor niepołączony';
 
   @override
-  String get deskKitChipNotOverTor => 'Nie przez Tor';
+  String get deskKitChipNotOverTor => 'Bez Tora';
 
   @override
   String get deskKitPasswordNote =>
@@ -10660,7 +10651,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetAcctLabelSaved => 'Zapisano etykietę';
 
   @override
-  String get deskSetAcctLabel => 'Etykieta';
+  String get deskSetAcctLabel => 'Nazwa';
 
   @override
   String get deskSetAcctLabelHint => 'Widoczna tylko w tej aplikacji.';
@@ -10862,7 +10853,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetBackupExportDesc =>
-      'Zawiera historię płatności, kontakty, faktury i ustawienia tego portfela, stan na teraz. Aby przywrócić: najpierw wpisz frazę odzyskiwania, potem zaimportuj ten plik.';
+      'Plik z historią płatności, kontaktami, fakturami i ustawieniami tego portfela.';
 
   @override
   String get deskSetBackupSaved => 'Zapisano';
@@ -11070,7 +11061,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetDlgChainOlderWallet =>
-      'Starszy Epic Wallet, który używa tego folderu, może potem wymagać ponownej synchronizacji. Nie dotyczy to monet.';
+      'Starszy Epic Wallet, który używa tego folderu, synchronizuje się potem ponownie.';
 
   @override
   String get deskSetDlgChainFresh => 'Pobierz od nowa';
@@ -12097,7 +12088,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetPhraseBackUpText =>
-      'Każdy, kto zna te słowa, może zabrać EPIC. Upewnij się, że nikt nie widzi ekranu.';
+      'Każdy, kto zna te słowa, może zabrać monety. Upewnij się, że nikt nie widzi ekranu.';
 
   @override
   String get deskSetPrivTorOnFailed => 'Nie włączono Tora';
@@ -12159,7 +12150,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetPrivUseStatusHint =>
-      'Pokazuje, które węzły i serwery Epicbox są online. Pobiera tylko publiczną listę; z portfela nic nie jest wysyłane.';
+      'Pokazuje, które węzły i serwery Epicbox są online, z publicznej listy na status.btlabs.uk.';
 
   @override
   String deskSetRecvMethodOnFailed(String method) {
@@ -12203,7 +12194,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetRecvEpicboxText =>
-      'Płatności docierają przez serwer Epicbox, także gdy portfel jest zamknięty.';
+      'Serwer Epicbox przechowuje płatności, dopóki portfel się nie otworzy.';
 
   @override
   String get deskSetRecvEpicboxServer => 'Serwer Epicbox';
@@ -12475,7 +12466,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetRescanRestored => 'Przywrócone';
 
   @override
-  String get deskSetRescanRevived => 'Znów niewydane';
+  String get deskSetRescanRevived => 'Znów odblokowane';
 
   @override
   String get deskSetRescanUnlocked => 'Odblokowane';
@@ -12599,7 +12590,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Co oznacza węzeł na tym komputerze i którego węzła użyć.';
 
   @override
-  String get deskSetupEpicboxTitle => 'Odbieranie offline';
+  String get deskSetupEpicboxTitle => 'Odbieranie przy zamkniętym portfelu';
 
   @override
   String get deskSetupReviewTitle => 'Przegląd ustawień';
@@ -12641,7 +12632,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxText =>
-      'Epicbox dostarcza płatności na adres Epicbox i przechowuje je, dopóki portfel nie będzie online.';
+      'Serwer Epicbox przechowuje płatności, dopóki portfel się nie otworzy.';
 
   @override
   String get deskSetupEpicboxPrivacy =>
@@ -12674,7 +12665,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskSetupBundledNode => 'Węzeł lokalny, wbudowany';
+  String get deskSetupBundledNode => 'Węzeł lokalny';
 
   @override
   String get deskSetupWhileSyncing => 'Do synchronizacji';
@@ -13079,7 +13070,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOutStrategyHint =>
-      'Które wyjścia wydaje wysyłka. Najmniejsze wydaje jak najmniej małych wyjść, a reszta zostaje do wydania; Wszystkie wydaje wszystko i zwraca jedno wyjście. W Wyślij możesz to zmienić dla jednej wysyłki w sekcji Zaawansowane.';
+      'Które wyjścia wydaje wysyłka. Najmniejsze wydaje najmniejsze wyjścia, które pokrywają kwotę; Wszystkie wydaje każde wyjście i zwraca jedno.';
 
   @override
   String get txStatusNotPosted => 'Nie ma w sieci';
@@ -13457,7 +13448,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get advReset => 'Ukryj wszystko ponownie';
 
   @override
-  String get advBuiltInNode => 'Wbudowany węzeł';
+  String get advBuiltInNode => 'Węzeł lokalny';
 
   @override
   String get advLogs => 'Logi';
@@ -13508,7 +13499,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Pozwala Sprawdź saldo odrzucić także niepotwierdzone transakcje. Przywracanie każdemu daje wybór bloku początkowego, niezależnie od tego przełącznika.';
 
   @override
-  String get deskSetAdvBuiltInNode => 'Wbudowany węzeł';
+  String get deskSetAdvBuiltInNode => 'Węzeł lokalny';
 
   @override
   String get deskSetAdvBuiltInNodeHint =>
@@ -13579,7 +13570,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get slSwitchBody => 'Twój adres Epicbox się zmieni. Udostępnij nowy.';
+  String get slSwitchBody => 'Twój adres Epicbox się zmienia. Udostępnij nowy.';
 
   @override
   String get slSwitch => 'Przełącz';
@@ -13638,7 +13629,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get slRelayWarning =>
-      'Zmiana serwera zmienia twój adres Epicbox. Udostępnij nowy.';
+      'Twój adres Epicbox się zmienia. Udostępnij nowy.';
 
   @override
   String get slNotAnAddress =>
@@ -13993,10 +13984,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Część tego kodu była zbyt długa i została pominięta.';
 
   @override
-  String get payeeNameLabel => 'Nazwa podana przez odbiorcę (niezweryfikowana)';
+  String get payeeNameLabel => 'Nazwa od odbiorcy (niezweryfikowana)';
 
   @override
-  String get payeeNoteLabel => 'Notatka od odbiorcy (niezweryfikowana)';
+  String get payeeNoteLabel => 'Wiadomość od odbiorcy (niezweryfikowana)';
 
   @override
   String get payeeUnverifiedTitle => 'Niezweryfikowane';
@@ -14353,7 +14344,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairWayWords => 'Słowa';
 
   @override
-  String get pairWayAutomatic => 'Automatycznie';
+  String get pairWayAutomatic => 'Głosowo';
 
   @override
   String get pairWayWordsHint =>
@@ -16244,7 +16235,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportBody =>
-      'Fraza odzyskiwania przywróciła saldo. Aby odzyskać historię, kontakty, faktury i ustawienia, zaimportuj wyeksportowany plik danych portfela.';
+      'Saldo wróciło. Plik danych tego portfela przywraca historię, kontakty, faktury i ustawienia.';
 
   @override
   String get deskOvRestoredImportButton => 'Importuj dane portfela';
@@ -16877,7 +16868,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOwnDlgPlainText =>
-      'W porządku w sieci, z której korzystasz tylko ty. W innym razie łącz się z węzłem przez VPN, przez https albo uruchom portfel na komputerze węzła.';
+      'W sieci współdzielonej łącz się z węzłem przez VPN lub https albo uruchom portfel na komputerze węzła.';
 
   @override
   String get deskOwnDlgPlainAgain => 'Nie pokazuj więcej dla tego węzła';
@@ -17309,7 +17300,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesPauseHint =>
-      'Podczas wstrzymania to urządzenie nie odczytuje ani nie wysyła komunikatów; czekają na serwerach do 7 dni. Offline też wstrzymuje.';
+      'Podczas wstrzymania komunikaty czekają na serwerach do 7 dni. Tryby Tylko węzeł i Wyłącznik awaryjny też wstrzymują.';
 
   @override
   String get devicesHeld => 'Wstrzymane monety';
@@ -17514,7 +17505,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get offerLinkRestore =>
-      'Ten portfel jest też na innym urządzeniu? Połącz je, aby dzielić historię i widzieć wzajemnie płatności.';
+      'Ten portfel jest też na innym urządzeniu? Połącz je, aby widzieć wzajemnie płatności.';
 
   @override
   String get offerLinkOtherWallet =>
@@ -18186,7 +18177,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeStandardHint =>
-      'Łączy się bezpośrednio. Włącz Tor w Prywatność i sieć, aby ukryć swój adres IP.';
+      'Łączy się bezpośrednio. Włącz Tor w Prywatność i sieć, aby ukryć adres IP.';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -18198,7 +18189,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advModeNodeOnlyHint =>
-      'Portfel rozmawia tylko z używanym węzłem, z niczym innym. Płatność QR i Przesyłanie pliku nadal działają.';
+      'Łączy się tylko używany węzeł. Bezpośrednio · QR i Bezpośrednio · Plik działają.';
 
   @override
   String get advModeKillSwitchHint =>
@@ -18268,15 +18259,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      'Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Płatność QR i Przesyłanie pliku działają.';
+      'Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · QR i Bezpośrednio · Plik działają.';
 
   @override
   String get netBlockLinkNodeOnly =>
-      'Tryb Tylko węzeł jest włączony: Link jest wyłączony. Płatność QR i Przesyłanie pliku działają.';
+      'Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · QR i Bezpośrednio · Plik działają.';
 
   @override
   String get netBlockSendKillSwitch =>
-      'Wyłącznik awaryjny jest włączony: nic się nie łączy. Płatność QR i Przesyłanie pliku działają.';
+      'Wyłącznik awaryjny jest włączony: nic się nie łączy. Bezpośrednio · QR i Bezpośrednio · Plik działają.';
 
   @override
   String get netBlockNodeOnly => 'Wyłączone w trybie Tylko węzeł.';
@@ -18471,7 +18462,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvModeStandardHint =>
-      'Łączy się bezpośrednio. Włącz Tor w Prywatność, aby ukryć swój adres IP.';
+      'Łączy się bezpośrednio. Włącz Tor w Prywatność, aby ukryć adres IP.';
 
   @override
   String deskFinNotPostedKillBody(String amount) {
@@ -18729,5 +18720,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Wysyła adresy i kwoty w całości zamiast skróconych. Frazy, klucze i hasła nigdy nie są wysyłane.';
+      'Wysyła adresy i kwoty w całości zamiast skróconych. Frazy odzyskiwania, klucze i hasła nigdy nie są wysyłane.';
+
+  @override
+  String get deskOutNoteWaitingRecipient => 'czeka na odbiorcę';
+
+  @override
+  String get deskSlotNotPosted => 'Płatności nie ma w sieci';
 }

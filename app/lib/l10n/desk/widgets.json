@@ -660,7 +660,7 @@
   "@deskKitChipNotConnected": {
     "description": "Small chip: Tor should be used but is not connected. Narrow chip."
   },
-  "deskKitChipNotOverTor": "Not over Tor",
+  "deskKitChipNotOverTor": "Without Tor",
   "@deskKitChipNotOverTor": {
     "description": "Small chip: this method does not go through Tor. Narrow chip."
   },

@@ -18,5 +18,6 @@
   "deskSlotOpenRecheck": "Открыть «Сверка баланса»",
   "deskSlotOpenSend": "Открыть «Отправить»",
   "deskSlotOpenActivity": "Открыть в «Активности»",
-  "deskSlotOpenInvoices": "Открыть «Счета»"
+  "deskSlotOpenInvoices": "Открыть «Счета»",
+  "deskSlotNotPosted": "Платёж не в сети"
 }

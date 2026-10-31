@@ -12,7 +12,7 @@
   "deskSetAdvServerDetailsHint": "Zeigt Hosts, Latenz, Version und Blockhöhe in den Listen für Node und Epicbox, in den Statuszeilen der Seitenleiste und auf der Statuskarte.",
   "deskSetAdvRecheck": "Ab einer Höhe neu prüfen",
   "deskSetAdvRecheckHint": "Lässt „Guthaben neu prüfen“ auch unbestätigte Transaktionen verwerfen. Beim Wiederherstellen steht allen ein Startblock zur Wahl, unabhängig von diesem Schalter.",
-  "deskSetAdvBuiltInNode": "Integrierter Node",
+  "deskSetAdvBuiltInNode": "Lokaler Node",
   "deskSetAdvBuiltInNodeHint": "Lässt diesen Computer einen eigenen Node betreiben: die Option Dieser Computer unter Node, deren Synchronisierungsbereich und Node starten auf der Übersicht. Die Synchronisierung dauert Stunden und braucht mehrere Gigabyte Speicher. Ein laufender Node behält seine Zeilen.",
   "deskSetAdvLogs": "Protokolle",
   "deskSetAdvLogsHint": "Zeigt die Gruppe Protokolle unter Hilfe: Protokollordner öffnen, Protokolle löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.",

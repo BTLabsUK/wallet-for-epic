@@ -56,7 +56,7 @@
   "deskErrAlreadyInApp": "อยู่ในแอปแล้วในชื่อ {name}",
   "deskErrWrongOldPassword": "รหัสผ่านเดิมไม่ถูกต้อง",
   "deskErrListNotSaved": "ไม่ได้บันทึกรายการกระเป๋าเงิน",
-  "deskErrProofSeedRead": "อ่าน seed แล้ว",
+  "deskErrProofSeedRead": "อ่านวลีกู้คืนแล้ว",
   "deskErrProofWalletCreated": "สร้างกระเป๋าเงินแล้ว",
   "deskErrProofContacts": "{count, plural, other{เพิ่มผู้ติดต่อ {count} ราย}}",
   "deskErrProofContactsMerged": "{count, plural, other{รวมผู้ติดต่อ {count} รายเข้ากับรายการที่มีอยู่}}",

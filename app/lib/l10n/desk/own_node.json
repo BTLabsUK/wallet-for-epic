@@ -163,7 +163,7 @@
   "@deskOwnDlgPlainTitle": {
     "description": "Warn notice title in the Owner access dialog for a plain-http node on the home network."
   },
-  "deskOwnDlgPlainText": "Fine on a network only you use. Elsewhere, reach the node over a VPN, over https, or run the wallet on the node’s computer.",
+  "deskOwnDlgPlainText": "On a shared network, reach the node over a VPN or https, or run the wallet on the node’s computer.",
   "@deskOwnDlgPlainText": {
     "description": "Warn notice text in the Owner access dialog for a plain-http node on the home network."
   },

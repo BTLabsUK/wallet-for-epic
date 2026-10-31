@@ -12,7 +12,7 @@
   "deskSetAdvServerDetailsHint": "在节点和 Epicbox 列表、侧边栏的状态行以及状态卡片中显示主机、延迟、版本和区块高度。",
   "deskSetAdvRecheck": "从某个高度重新核对",
   "deskSetAdvRecheckHint": "让“重新核对余额”同时丢弃未确认的交易。无论此项如何设置，恢复钱包时都会向所有人提供起始区块。",
-  "deskSetAdvBuiltInNode": "内置节点",
+  "deskSetAdvBuiltInNode": "本地节点",
   "deskSetAdvBuiltInNodeHint": "让这台电脑运行自己的节点：“节点”下的“这台电脑”选项、它的同步面板，以及概览中的“启动节点”。同步整条链需要数小时和数 GB 磁盘空间。已在运行的节点会保留它的各行。",
   "deskSetAdvLogs": "日志",
   "deskSetAdvLogsHint": "在“帮助”下显示“日志”分组：打开日志文件夹、清除日志。无论是否开启，“报告问题”都会附上日志。",

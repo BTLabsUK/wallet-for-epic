@@ -26,7 +26,7 @@
   "deskSetRescanAfter": "之后的余额",
   "deskSetRescanFound": "找到的输出",
   "deskSetRescanRestored": "已恢复",
-  "deskSetRescanRevived": "恢复为未花费",
+  "deskSetRescanRevived": "已重新解锁",
   "deskSetRescanUnlocked": "已解锁",
   "deskSetRescanDeleted": "已删除"
 }

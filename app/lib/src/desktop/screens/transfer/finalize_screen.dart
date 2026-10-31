@@ -101,7 +101,7 @@ class _FinalizeScreenState extends ConsumerState<FinalizeScreen> {
 
   Future<void> _pick() async {
     final files = ref.read(deskFilesProvider);
-    final path = files == null ? 'invoice_0042.response.slate' : await files.pickSlate(title: context.l10n.deskFinPickTitle);
+    final path = files == null ? 'f0e1d2c3.response' : await files.pickSlate(title: context.l10n.deskFinPickTitle);
     if (path == null || !mounted) return;
     await _finalize((api) => api.finalizeFile(path));
   }

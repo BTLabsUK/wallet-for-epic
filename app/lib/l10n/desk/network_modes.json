@@ -1,5 +1,5 @@
 {
-  "deskSetAdvModeStandardHint": "Connects directly. Turn on Tor under Privacy to hide your IP.",
+  "deskSetAdvModeStandardHint": "Connects directly. Turn on Tor under Privacy to hide the IP address.",
   "@deskSetAdvModeStandardHint": {
     "description": "Info text of the Normal row (desktop)."
   },

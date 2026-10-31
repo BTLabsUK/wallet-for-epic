@@ -8,7 +8,7 @@
   "deskSetDlgChainOthers": "Znaleziono 1 inną kopię; ta jest najnowsza.",
   "deskSetDlgChainInUse": "Inny program Epic używa tego folderu. Zamknij go, a potem ponownie wybierz węzeł lokalny, aby użyć tych danych.",
   "deskSetDlgChainUseIt": "Użyć ich?",
-  "deskSetDlgChainOlderWallet": "Starszy Epic Wallet, który używa tego folderu, może potem wymagać ponownej synchronizacji. Nie dotyczy to monet.",
+  "deskSetDlgChainOlderWallet": "Starszy Epic Wallet, który używa tego folderu, synchronizuje się potem ponownie.",
   "deskSetDlgChainFresh": "Pobierz od nowa",
   "deskSetDlgChainUse": "Użyj tych danych",
   "deskSetDlgPwChanged": "Zmieniono hasło.",

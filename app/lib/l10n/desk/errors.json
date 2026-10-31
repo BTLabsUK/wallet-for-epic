@@ -272,7 +272,7 @@
   "@deskErrListNotSaved": {
     "description": "An error message the user reads in the import wizard when the new wallet could not be listed."
   },
-  "deskErrProofSeedRead": "Seed read",
+  "deskErrProofSeedRead": "Recovery phrase read",
   "@deskErrProofSeedRead": {
     "description": "A line of the import wizard's result: the old wallet's seed was read."
   },

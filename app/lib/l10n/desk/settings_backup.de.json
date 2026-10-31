@@ -28,7 +28,7 @@
   "deskSetBackupOpensWithValue": "Diese Wallet oder eine aus derselben Phrase wiederhergestellte",
   "deskSetBackupFile": "Datei",
   "deskSetBackupFileNote": "Die Datei enthält alles bis jetzt.",
-  "deskSetBackupExportDesc": "Enthält Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen dieser Wallet, Stand jetzt. Zum Wiederherstellen: zuerst die Wiederherstellungsphrase eingeben, dann diese Datei importieren.",
+  "deskSetBackupExportDesc": "Eine Datei mit Zahlungsverlauf, Kontakten, Rechnungen und Einstellungen dieser Wallet.",
   "deskSetBackupSaved": "Gespeichert",
   "deskSetBackupKeepCopy": "Bewahren Sie eine Kopie außerhalb dieses Computers auf: auf einem USB-Stick, einem anderen Laufwerk oder in der Cloud.",
   "deskSetBackupOpenFolder": "Ordner öffnen",

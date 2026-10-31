@@ -19,7 +19,7 @@
   "@deskTxUnknownRecipient": {
     "description": "Name column of an Activity row for an outgoing payment whose recipient is not recorded."
   },
-  "deskTxNoteBlock": "Block time. The sender is not recorded.",
+  "deskTxNoteBlock": "Time of the block. The sender is unknown.",
   "@deskTxNoteBlock": {
     "description": "Small note under the Date step of a payment found by a scan, when the date comes from the block."
   },
@@ -35,11 +35,11 @@
   "@deskTxFoundRestoredLabel": {
     "description": "Name of a payment found while restoring the wallet. Activity table, narrow; one word."
   },
-  "deskTxFoundRestoredLine": "Found while restoring",
+  "deskTxFoundRestoredLine": "Found on the chain",
   "@deskTxFoundRestoredLine": {
     "description": "Small line under the name of a payment found while restoring the wallet. Activity table, narrow."
   },
-  "deskTxFoundRestoredStep": "Found while restoring this wallet",
+  "deskTxFoundRestoredStep": "Found on the chain",
   "@deskTxFoundRestoredStep": {
     "description": "First step on the transaction detail timeline for a payment found while restoring the wallet."
   },
@@ -83,7 +83,7 @@
   "@deskTxFromBackup": {
     "description": "Status and small line of a payment that came from a history backup. Activity table, narrow."
   },
-  "deskTxStatusImmature": "Immature",
+  "deskTxStatusImmature": "Maturing",
   "@deskTxStatusImmature": {
     "description": "Status of a mining reward not yet spendable. Activity table status column, narrow; one word."
   },
@@ -313,7 +313,7 @@
       }
     }
   },
-  "deskTxNowCancelled": "Cancelled.",
+  "deskTxNowCancelled": "Cancelled",
   "@deskTxNowCancelled": {
     "description": "Status line on the transaction detail for a cancelled payment."
   },
@@ -333,7 +333,7 @@
   "@deskTxHeadRestored": {
     "description": "Small line under the big amount on the transaction detail: the payment was found while restoring the wallet. Lower case."
   },
-  "deskTxHeadFoundOnChain": "found on the chain",
+  "deskTxHeadFoundOnChain": "Found on the chain",
   "@deskTxHeadFoundOnChain": {
     "description": "Small line under the big amount on the transaction detail: the payment was found by a scan. Lower case."
   },
@@ -469,7 +469,7 @@
   "@deskTxStepSpendable": {
     "description": "Timeline step: the payment can be spent. Also the status of a payment that has enough confirmations."
   },
-  "deskTxStepBlocksToGo": "{count, plural, one{{count} block to go} other{{count} blocks to go}}",
+  "deskTxStepBlocksToGo": "{count, plural, one{{count} confirmation to go} other{{count} confirmations to go}}",
   "@deskTxStepBlocksToGo": {
     "description": "Small line under the Spendable step of a mining reward.",
     "placeholders": {

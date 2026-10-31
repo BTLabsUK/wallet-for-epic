@@ -211,7 +211,7 @@ class _Review extends ConsumerWidget {
         if (cleanInvoiceText(i.reference) case final reference when reference.isNotEmpty)
           (l.reqReference, Text(reference, style: ts.body, maxLines: 2, overflow: TextOverflow.ellipsis)),
         (l.deskInvPayerExpires, open ? InvCountdown(expiresAt: i.expiresAt, now: book.now, style: ts.body) : Text(invWhen(context, i.expiresAt))),
-        (l.deskInvPayerLockHeight, Text(l.deskInvPayerLockNone)),
+        if (advancedHas(ref, AdvancedFeature.technicalDetails)) (l.deskInvPayerLockHeight, Text(l.deskInvPayerLockNone)),
       ]),
     );
 

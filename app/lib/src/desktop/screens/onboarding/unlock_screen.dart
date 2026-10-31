@@ -340,7 +340,6 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       footer: const AuthFoot(),
       child: EAuthCard(
         title: l.deskOnbUnlockTitle,
-        lead: l.deskOnbUnlockLead,
         alternatives: [
           // The wallet's phrase sets a new password.
           if (selected != null && !selected.missing)

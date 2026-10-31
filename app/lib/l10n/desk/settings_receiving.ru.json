@@ -9,7 +9,7 @@
   "deskSetRecvAutostart": "Запускать вместе с кошельком",
   "deskSetRecvAutostartHint": "Включается при разблокировке.",
   "deskSetRecvMethodAutostart": "{method}: запускать вместе с кошельком",
-  "deskSetRecvEpicboxText": "Платежи приходят через сервер Epicbox, даже когда кошелёк закрыт.",
+  "deskSetRecvEpicboxText": "Сервер Epicbox хранит платежи, пока кошелёк не откроется.",
   "deskSetRecvEpicboxServer": "Сервер Epicbox",
   "deskSetRecvEpicboxServerHint": "Какой сервер хранит платежи для этого адреса. У двух кошельков могут быть разные серверы.",
   "deskSetRecvEpicboxOwnHint": "У этого кошелька свой сервер Epicbox, сохранённый из старого приложения. Изменение здесь касается только этого кошелька.",

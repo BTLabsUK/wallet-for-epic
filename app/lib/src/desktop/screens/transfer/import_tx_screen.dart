@@ -77,7 +77,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
   void initState() {
     super.initState();
     final a = widget.arg;
-    if (a is ImportArgs && a.done) _response = 'invoice_0042.response.slate';
+    if (a is ImportArgs && a.done) _response = 'f0e1d2c3.response';
     if (a is ImportArgs) _error = a.error;
     final text = a is ImportArgs ? a.text : null;
     if (text != null) {
@@ -140,7 +140,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
       if (!mounted) return;
       setState(() {
         _tx = r.tx;
-        _response = mock ? 'invoice_0042.response.slate' : r.response;
+        _response = mock ? 'f0e1d2c3.response' : r.response;
       });
     } on DeskError catch (e) {
       if (mounted) {

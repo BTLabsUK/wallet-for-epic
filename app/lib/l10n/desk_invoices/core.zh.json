@@ -21,7 +21,7 @@
   "deskInvPayWaiting": "待支付",
   "deskInvPayNotDelivered": "未送达",
   "deskInvPayDelivered": "等待广播",
-  "deskInvPayPosted": "已由服务广播",
+  "deskInvPayPosted": "已由 {name} 发布",
   "deskInvPayWithdrawnAfterPay": "付款后已撤回",
   "deskInvPayPastTtl": "不在链上",
   "deskInvPayCancelled": "已取消",

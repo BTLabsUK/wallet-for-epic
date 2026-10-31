@@ -129,7 +129,7 @@
   "@deskOnbCreateDiskFull": {
     "description": "Failure text on the new-wallet progress page when the disk is full."
   },
-  "deskOnbCreateWait": "This can take up to a minute. Keep the app open.",
+  "deskOnbCreateWait": "Keep the app open.",
   "@deskOnbCreateWait": {
     "description": "Hint on the new-wallet progress page."
   },
@@ -161,7 +161,7 @@
   "@deskOnbCreateRevealFirst": {
     "description": "Small hint beside the disabled Continue button until the phrase is revealed."
   },
-  "deskOnbCreateWarn": "Anyone with these words can take the coins",
+  "deskOnbCreateWarn": "Anyone with these words can take the coins.",
   "@deskOnbCreateWarn": {
     "description": "Warning box above the recovery words."
   },
@@ -218,11 +218,17 @@
   "@deskOnbRestoreRestoring": {
     "description": "Title of the restore progress page and its progress step."
   },
-  "deskOnbRestorePermission": "Wallet files not written: no permission for ~/.config/Epic Cash Desktop. Allow writing to that folder, then try again.",
+  "deskOnbRestorePermission": "Wallet files not written: no permission for {folder}. Allow writing to that folder, then try again.",
   "@deskOnbRestorePermission": {
-    "description": "Sample failure text on the restore progress page (permission denied). The folder path stays as written."
+    "description": "Failure text on the restore progress page (permission denied). {folder} is the data folder, a path that stays as written.",
+    "placeholders": {
+      "folder": {
+        "type": "String",
+        "example": "~/.epic_cash_desktop"
+      }
+    }
   },
-  "deskOnbRestoreWait": "This can take up to a minute. The balance appears after the first scan of the chain.",
+  "deskOnbRestoreWait": "Keep the app open. The balance appears after the first scan.",
   "@deskOnbRestoreWait": {
     "description": "Hint on the restore progress page."
   },
@@ -258,10 +264,6 @@
         "type": "int"
       }
     }
-  },
-  "deskOnbRestoreStaysHere": "The phrase never leaves this computer.",
-  "@deskOnbRestoreStaysHere": {
-    "description": "Default status line under the phrase grid."
   },
   "deskOnbRestoreChecksumFirm": "This phrase’s check number does not match. Compare every word with the paper.",
   "@deskOnbRestoreChecksumFirm": {
@@ -399,10 +401,6 @@
   "@deskOnbUnlockTitle": {
     "description": "Title of the unlock page."
   },
-  "deskOnbUnlockLead": "Keys stay on this computer.",
-  "@deskOnbUnlockLead": {
-    "description": "Line under the title of the unlock page."
-  },
   "deskOnbUnlockRemember": "Remember on this computer",
   "@deskOnbUnlockRemember": {
     "description": "Checkbox on the unlock page: store the password in this computer's key store."
@@ -420,7 +418,7 @@
   "@deskOnbUnlockMissingTitle": {
     "description": "Warning title on the unlock page when the wallet's folder no longer exists."
   },
-  "deskOnbUnlockMissingText": "It was at {folder}",
+  "deskOnbUnlockMissingText": "It was at {folder}. Remove it from the list, or restore it from the recovery phrase.",
   "@deskOnbUnlockMissingText": {
     "description": "Warning text under the previous title. {folder} is a path.",
     "placeholders": {
@@ -571,7 +569,7 @@
   "@deskOnbNodeCheck": {
     "description": "Button next to the node address field: test the address. One word."
   },
-  "deskOnbNodeBundled": "Start the bundled node",
+  "deskOnbNodeBundled": "Start the local node",
   "@deskOnbNodeBundled": {
     "description": "Title of a choice card on the local node step."
   },
@@ -604,7 +602,7 @@
   "@deskOnbNodeStart": {
     "description": "Primary button of that dialog when the bundled node is chosen."
   },
-  "deskOnbRestorePasteCount": "{count, plural, one{{count} word pasted; a phrase has 12, 15, 18, 21 or 24} other{{count} words pasted; a phrase has 12, 15, 18, 21 or 24}}",
+  "deskOnbRestorePasteCount": "{count, plural, one{{count} word pasted; a phrase has 12, 15, 18, 21 or 24.} other{{count} words pasted; a phrase has 12, 15, 18, 21 or 24.}}",
   "@deskOnbRestorePasteCount": {
     "description": "Status line under the phrase grid after pasting text whose number of words is not a valid phrase length. {count} is the number of pasted words.",
     "placeholders": {
@@ -661,7 +659,7 @@
   "@deskOnbImportFindingTitle": {
     "description": "Title of the first step of the import wizard."
   },
-  "deskOnbImportFindingLead": "Searching the folders of older Epic Wallet versions and the epic program; old folders are only read.",
+  "deskOnbImportFindingLead": "Searching the folders of older Epic Wallet versions and the epic program.",
   "@deskOnbImportFindingLead": {
     "description": "Line under the title of the first step of the import wizard."
   },
@@ -673,10 +671,6 @@
         "type": "int"
       }
     }
-  },
-  "deskOnbImportFoundLead": "Old folders are only read.",
-  "@deskOnbImportFoundLead": {
-    "description": "Line under the 'wallets found' title."
   },
   "deskOnbImportNoneTitle": "No wallets found",
   "@deskOnbImportNoneTitle": {

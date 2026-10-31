@@ -28,7 +28,7 @@
   "deskSetBackupOpensWithValue": "Ten portfel lub portfel przywrócony z jego frazy odzyskiwania",
   "deskSetBackupFile": "Plik",
   "deskSetBackupFileNote": "Plik obejmuje wszystko do tej chwili.",
-  "deskSetBackupExportDesc": "Zawiera historię płatności, kontakty, faktury i ustawienia tego portfela, stan na teraz. Aby przywrócić: najpierw wpisz frazę odzyskiwania, potem zaimportuj ten plik.",
+  "deskSetBackupExportDesc": "Plik z historią płatności, kontaktami, fakturami i ustawieniami tego portfela.",
   "deskSetBackupSaved": "Zapisano",
   "deskSetBackupKeepCopy": "Zachowaj kopię poza tym komputerem: na pendrivie, innym dysku lub w chmurze.",
   "deskSetBackupOpenFolder": "Otwórz folder",

@@ -21,7 +21,7 @@
   "deskInvPayWaiting": "Do zapłaty",
   "deskInvPayNotDelivered": "Nie dostarczono",
   "deskInvPayDelivered": "Czeka na publikację",
-  "deskInvPayPosted": "Opublikowane przez serwis",
+  "deskInvPayPosted": "Opublikowane przez {name}",
   "deskInvPayWithdrawnAfterPay": "Wycofano po zapłacie",
   "deskInvPayPastTtl": "Brak w łańcuchu",
   "deskInvPayCancelled": "Anulowano",

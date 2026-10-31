@@ -18,5 +18,6 @@
   "deskSlotOpenRecheck": "Otwórz Sprawdź saldo",
   "deskSlotOpenSend": "Otwórz Wyślij",
   "deskSlotOpenActivity": "Otwórz w Aktywności",
-  "deskSlotOpenInvoices": "Otwórz Faktury"
+  "deskSlotOpenInvoices": "Otwórz Faktury",
+  "deskSlotNotPosted": "Płatności nie ma w sieci"
 }
