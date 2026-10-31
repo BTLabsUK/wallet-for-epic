@@ -68,7 +68,7 @@ import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
-import 'theme/protocol.dart' show EdgeCard, TimelineState, TimelineStep;
+import 'theme/protocol.dart' show EdgeCard, TimelineStep;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -3330,42 +3330,27 @@ class _SendViewState extends ConsumerState<SendView> {
     final pairingId = sent.pairingId;
     final name = pairingId != null ? _pairingNameOf(pairingId) : _contactName(sent.to.address);
     final who = name ?? shortAddress(sent.to.address);
-    final at = sendTrackerStep(track);
     final confirmations = txConfirmations(live, tip) ?? 0;
-    final sentLabel = name == null
-        ? l.sendTrackSent
-        : pairingId != null
-        ? l.txStepSentMailbox(name)
-        : l.sendTrackSentTo(name);
-    final labels = <(String done, String now)>[
-      (sentLabel, sentLabel),
-      (
-        name == null ? l.sendTrackSigned : l.sendTrackSignedBy(name),
-        name == null ? l.sendTrackWaiting : l.sendTrackWaitingFor(name),
-      ),
-      (l.sendTrackOnNetwork, l.sendTrackOnNetwork),
-      (l.sendTrackConfirmed, l.txStatusConfirming(confirmations, target)),
-    ];
     final waiting = track == SendTrack.waitingRecipient;
-    // Queued while Epicbox is off: it waits in the outbox, so the send itself is still the
-    // step under way, as the payment's detail shows it.
-    final queued = pairingId != null && waiting && ref.watch(pairNetProvider) == PairNet.epicboxOff;
-    final steps = [
-      for (final (i, (done, now)) in labels.indexed)
-        if (queued && i == 0)
-          TimelineStep(sentLabel, TimelineState.current, detail: l.contactPausedEpicboxOff)
-        else if (queued && i == 1)
-          TimelineStep(done, TimelineState.todo)
-        else
-          TimelineStep(
-            i == at ? now : done,
-            i < at
-                ? TimelineState.done
-                : i == at
-                ? TimelineState.current
-                : TimelineState.todo,
-          ),
-    ];
+    // The payment's own steps, as its detail lists them (A-03); the wallet waited on is the
+    // current step's sub-line. Through a paired contact's mailbox, the mailbox steps; queued
+    // while Epicbox is off, the send itself is the step under way.
+    final steps =
+        txTimeline(
+          l,
+          live,
+          tip,
+          target: target,
+          mailbox: pairingId == null || name == null
+              ? null
+              : (
+                  name: name,
+                  relay: ref.watch(pairingByIdProvider(pairingId))?.homeRelay ?? '',
+                  paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
+                ),
+          waiting: name == null ? l.sendTrackWaiting : l.sendTrackWaitingFor(name),
+        ) ??
+        const <TimelineStep>[];
     final unknown = name == null;
     // Over HTTP or Tor their wallet took it in the exchange itself: past cancelling, and
     // waiting only for a block.
@@ -3524,10 +3509,8 @@ class _SendViewState extends ConsumerState<SendView> {
     onPressed: _amountReady ? _createFile : null,
   );
 
-  /// The file route's three steps, [at] the current one (3 when all are done).
-  ///
-  /// The QR way, once [posted], adds the confirmations the payment collects, as the tracker of
-  /// an Epicbox send does.
+  /// The file and QR ways' steps, the payment's own five as its detail lists them (A-03):
+  /// waiting for the reply ([at] 1), or, once [posted], where that payment stands.
   Widget _fileSteps(
     BuildContext context,
     int at,
@@ -3535,38 +3518,19 @@ class _SendViewState extends ConsumerState<SendView> {
     TxEntry? posted,
   }) {
     final l = context.l10n;
-    final made = _viaQr ? l.sendQrMade : l.sendFileMade;
-    final labels = [
-      (made, made),
-      (l.sendTrackSigned, l.sendFileWaitingReply),
-      (l.sendTrackOnNetwork, l.sendTrackOnNetwork),
-    ];
-    if (_viaQr && at == 3 && posted != null) {
-      final target = confirmationsTargetOf(ref);
-      final tip = tipHeight(ref);
-      labels.add((
-        l.sendTrackConfirmed,
-        l.txStatusConfirming(txConfirmations(posted, tip) ?? 0, target),
-      ));
-      if (sendTrackerAt(posted, tip, target: target) == SendTrack.completed) {
-        at = 4;
-      }
-    }
+    final target = confirmationsTargetOf(ref);
+    final tip = tipHeight(ref);
     return RoundSteps(
-      steps: [
-        for (final (i, (done, now)) in labels.indexed)
-          TimelineStep(
-            i == at ? now : done,
-            i < at
-                ? TimelineState.done
-                : i == at
-                ? TimelineState.current
-                : TimelineState.todo,
-            detail: i == 0 && at < 3
-                ? l.sendFileOnHold(epicText(l, amount))
-                : null,
-          ),
-      ],
+      steps: switch (posted) {
+        final tx? => txTimeline(l, tx, tip, target: target) ?? sendSteps(l, at),
+        null => sendSteps(
+          l,
+          at,
+          // The QR way has no file: its reply is a code.
+          waiting: _viaQr ? l.pairAwaitReplyTitle : l.sendFileWaitingReply,
+          held: l.sendFileOnHold(epicText(l, amount)),
+        ),
+      },
     );
   }
 

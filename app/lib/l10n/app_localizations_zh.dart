@@ -2554,9 +2554,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get sendQrMade => '付款二维码已就绪';
-
-  @override
   String get sendQrHint => '把二维码给接收方的手机看，然后扫描对方的回复。';
 
   @override
@@ -3218,34 +3215,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendAnyway => '仍然发送';
 
   @override
-  String sendTrackSentTo(String name) {
-    return '已发送给 $name';
-  }
-
-  @override
-  String get sendTrackSent => '已发送';
-
-  @override
   String sendTrackWaitingFor(String name) {
     return '等待 $name 的钱包';
   }
 
   @override
   String get sendTrackWaiting => '等待对方的钱包';
-
-  @override
-  String sendTrackSignedBy(String name) {
-    return '$name 的钱包已签名';
-  }
-
-  @override
-  String get sendTrackSigned => '对方钱包已签名';
-
-  @override
-  String get sendTrackOnNetwork => '已广播到网络';
-
-  @override
-  String get sendTrackConfirmed => '已确认';
 
   @override
   String sendTrackOffline(String amount) {
@@ -3266,9 +3241,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sendMakeFile => '生成交易文件';
-
-  @override
-  String get sendFileMade => '文件已生成';
 
   @override
   String sendFileOnHold(String amount) {
