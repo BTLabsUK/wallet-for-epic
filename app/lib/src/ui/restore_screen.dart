@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app_log.dart';
 import '../errors.dart';
 import '../bip39_words.dart';
 import '../l10n.dart';
@@ -226,6 +227,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     );
     if (pin == null || !mounted) return;
     final biometrics = await vault.biometricsEnabled(config.chain);
+    if (!mounted) return;
+    // Read now: the restore below has to finish even if the screen is gone by then.
+    final sessions = ref.read(sessionProvider.notifier);
     _phrase.clear();
     setState(() {
       _validPhrase = phrase;
@@ -241,7 +245,23 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       return;
     }
     _replaced = true;
-    if (!mounted) return;
+    if (!mounted) {
+      // The screen went during the delete: the phrase's wallet still comes, so the phone is
+      // never left with none. Home's own scan carries the restore on.
+      try {
+        final created = await vault.create(
+          config,
+          pin: pin,
+          mnemonic: phrase,
+          useBiometrics: biometrics,
+        );
+        await vault.markBackedUp(config.chain);
+        await sessions.open(created.session);
+      } catch (error) {
+        logWarn('restore', 'create after the screen closed failed: ${error.runtimeType}');
+      }
+      return;
+    }
     await _restore(pin, biometrics);
   }
 
@@ -289,6 +309,23 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (mounted) setState(() => _error = describeError(l, error));
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Back, from the AppBar or the system: never while a step is under way, and never back to
+  /// Settings once the old wallet is gone.
+  bool get _canPop => !_busy && !(widget.replace && _replaced);
+
+  /// The AppBar's Back on the phrase step. Reached by replacing the first-run screen, so back
+  /// means starting over there; from Settings, back to Settings while the wallet is still there.
+  void _back() {
+    if (_busy) return;
+    if (widget.replace && !_replaced) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
+      );
     }
   }
 
@@ -341,21 +378,13 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     // two choices there too; the scan sits in the middle.
     final form = _step == _RestoreStep.phrase;
     final offer = _step == _RestoreStep.importOffer;
-    return SlotScaffold(
+    final scaffold = SlotScaffold(
       centered: !form && !offer,
       glow: _step == _RestoreStep.importOffer ? heroGlow : null,
       appBar: AppBar(
         title: Text(l.restoreTitle),
-        // Reached by replacing the first-run screen, so back means starting over there; from
-        // Settings, back to Settings while the wallet is still there.
         leading: _step == _RestoreStep.phrase
-            ? BackButton(
-                onPressed: () => widget.replace && !_replaced
-                    ? Navigator.of(context).pop()
-                    : Navigator.of(context).pushReplacement(
-                        MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
-                      ),
-              )
+            ? BackButton(onPressed: _back)
             : null,
         automaticallyImplyLeading: false,
       ),
@@ -390,6 +419,14 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               children: steps,
             )
           : CenteredBody(children: steps),
+    );
+    return PopScope(
+      canPop: _canPop,
+      // A system Back the screen keeps does what the AppBar's Back does there, if anything.
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && !_busy && _step == _RestoreStep.phrase) _back();
+      },
+      child: scaffold,
     );
   }
 
