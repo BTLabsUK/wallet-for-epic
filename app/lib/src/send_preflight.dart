@@ -35,8 +35,6 @@ Duration get nodeTorCheckTimeout => appConfig.nodeTorCheckTimeout;
 Duration nodeCheckTimeoutNow() =>
     TorSwitch.on ? nodeTorCheckTimeout : nodeCheckTimeout;
 
-enum SendCheck { node, listener, relay }
-
 enum CheckOutcome { running, passed, failed }
 
 /// The checks of one review. The relay check is left out only for an address without a relay,
