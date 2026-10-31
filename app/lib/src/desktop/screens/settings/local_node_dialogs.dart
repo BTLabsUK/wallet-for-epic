@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../log.dart';
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
@@ -63,9 +65,10 @@ class _LocalNodePortsDialogState extends ConsumerState<LocalNodePortsDialog> {
         await ref.read(deskProvider.notifier).followBuiltInNode();
       }
     } on Object catch (e) {
+      logWarn('desk', 'node ports not saved: $e');
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, l.deskSetLnodePortsNotSaved, text: '$e', tone: ETone.risk);
+      showEToast(context, l.deskSetLnodePortsNotSaved, text: deskErrorText(e, l), tone: ETone.risk);
       return;
     }
     if (!mounted) return;
@@ -210,9 +213,10 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
       Navigator.of(context).pop();
       showEToast(context, l.deskSetLndDeleted, text: l.deskSetLndFreed(bytesText(freed, l)), tone: ETone.ok);
     } on Object catch (e) {
+      logWarn('desk', 'node chain data not deleted: $e');
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, l.deskSetLndNotDeleted, text: '$e', tone: ETone.risk);
+      showEToast(context, l.deskSetLndNotDeleted, text: deskErrorText(e, l), tone: ETone.risk);
     }
   }
 
@@ -310,9 +314,10 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
       Navigator.of(context).pop(true);
       showEToast(context, l.deskSetLndInUse, text: f.path, tone: ETone.ok);
     } on Object catch (e) {
+      logWarn('desk', 'node chain data not reused: $e');
       if (!mounted) return;
       setState(() => _busy = false);
-      showEToast(context, l.deskSetLndNotInUse, text: '$e', tone: ETone.risk);
+      showEToast(context, l.deskSetLndNotInUse, text: deskErrorText(e, l), tone: ETone.risk);
     }
   }
 

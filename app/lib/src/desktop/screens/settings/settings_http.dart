@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../log.dart';
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/http_reach.dart';
 import '../../widgets/kit.dart';
@@ -53,7 +55,8 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
     try {
       await action();
     } on Object catch (e) {
-      if (mounted) showEToast(context, l.deskSetHttpNotChanged, text: '$e', tone: ETone.risk);
+      logWarn('desk', 'http setting not changed: $e');
+      if (mounted) showEToast(context, l.deskSetHttpNotChanged, text: deskErrorText(e, l), tone: ETone.risk);
     }
   }
 

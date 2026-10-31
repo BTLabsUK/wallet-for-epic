@@ -11,6 +11,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../log.dart';
+import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../data/desk_node.dart';
 import '../../../network_gate.dart' show NetBlockByMode;
@@ -108,13 +110,14 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
     try {
       await go();
     } on Object catch (e) {
+      logWarn('desk', 'built-in node $what failed: $e');
       if (mounted) {
         final l = context.l10n;
         showEToast(context, switch (what) {
           'start' => l.deskSetLnodeDidNotStart,
           'stop' => l.deskSetLnodeDidNotStop,
           _ => l.deskSetLnodeDidNotRestart,
-        }, text: '$e', tone: ETone.risk);
+        }, text: deskErrorText(e, l), tone: ETone.risk);
       }
     } finally {
       if (mounted) setState(() => _busy = null);
@@ -133,7 +136,8 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
       });
       if (mounted) showEToast(context, how.$2 == FolderChange.move ? l.deskSetLnodeMoved : l.deskSetLnodeFolderChanged, text: how.$1, tone: ETone.ok);
     } on Object catch (e) {
-      if (mounted) showEToast(context, l.deskSetLnodeFolderFailed, text: '$e', tone: ETone.risk);
+      logWarn('desk', 'node data folder not changed: $e');
+      if (mounted) showEToast(context, l.deskSetLnodeFolderFailed, text: deskErrorText(e, l), tone: ETone.risk);
     } finally {
       if (mounted) setState(() => _moving = null);
     }
