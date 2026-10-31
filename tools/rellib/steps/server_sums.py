@@ -15,6 +15,10 @@ signer can sign it before anything is published (docs/RELEASING.md, "Signer").
       has the release signer sign it into SHA256SUMS.sig beside it (one approval by the owner), for a
       folder that changed after the manifests step signed it (a run without manifests, a prune
       that left another listing); the label of the keyring's rank-1 key goes in the comment.
+  server_sums.py sign-key <SHA256SUMS> <key file> <version> <keyring> <gitlab-release.py>
+      the same signature from the update key's file on this machine (release-hosts.toml
+      host.signer signing_key), for a run without a signer: the keyless path that wrote the
+      listing unsigned, so SHA256SUMS.sig is on the server either way (docs/rebuild-and-compare.md).
 Exit: 0 ok; 1 refused (two hashes for one name, a bad signature)."""
 import importlib.util
 import json
@@ -68,10 +72,15 @@ def write(files, mdir, out):
     print(f"{out}: {len(sums)} files")
 
 
-def verify(sums, sig, keyring, tool):
+def gitlab_release(tool):
     spec = importlib.util.spec_from_file_location("gitlab_release", tool)
     gr = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(gr)
+    return gr
+
+
+def verify(sums, sig, keyring, tool):
+    gr = gitlab_release(tool)
     from pathlib import Path
     with open(sig, encoding="utf-8") as f, open(sums, "rb") as g:
         entry = gr.minisign_verify(f.read(), g.read(), gr.load_keyring(Path(keyring)))
@@ -96,6 +105,26 @@ def sign(sums, signer_json, version, keyring):
     client.Client().sign(version, [job], os.path.dirname(os.path.abspath(sums)), label=f"Downloads SHA256SUMS {version}")
 
 
+def sign_key(sums, key_file, version, keyring, tool):
+    """gitlab-release.py's own minisign signing (the GitHub Release's SHA256SUMS.sig), the trusted
+    comment as sign() gives it, the key's label from the keyring."""
+    gr = gitlab_release(tool)
+    from pathlib import Path
+    key = gr.load_private_key(Path(key_file).expanduser())
+    keyid = gr.keyid_of(gr.raw_public(key))
+    keys = gr.load_keyring(Path(keyring))
+    if keyid not in keys:
+        raise SystemExit(f"signing key {keyid} is not in the keyring {keyring}")
+    trusted = f"Epic Cash {version} SHA256SUMS, BT Labs key {keys[keyid].get('label', keyid)}"
+    with open(sums, "rb") as f:
+        text = gr.minisign_sign(key, keyid, f.read(), trusted)
+    out = os.path.join(os.path.dirname(os.path.abspath(sums)), "SHA256SUMS.sig")
+    with open(out + ".tmp", "w", encoding="utf-8") as f:
+        f.write(text)
+    os.replace(out + ".tmp", out)
+    print(f"{out}: signed with key {keyid}")
+
+
 def main(argv):
     if len(argv) == 4 and argv[0] == "write":
         write(*argv[1:])
@@ -103,6 +132,13 @@ def main(argv):
         try:
             sign(*argv[1:])
         except Exception as e:  # the signer refused, was unreachable, the owner did not answer
+            raise SystemExit(f"{argv[1]}: not signed: {e}") from None
+    elif len(argv) == 6 and argv[0] == "sign-key":
+        try:
+            sign_key(*argv[1:])
+        except SystemExit:
+            raise
+        except Exception as e:  # gitlab-release.Fail (no key file, wrong mode, not Ed25519)
             raise SystemExit(f"{argv[1]}: not signed: {e}") from None
     elif len(argv) == 5 and argv[0] == "verify":
         try:
