@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Fixtures for tools/rel's tests: a small pipeline of fake steps, a fake relmsg, temp roots."""
+"""Fixtures for tools/rel's tests: a small pipeline of fake steps, a fake relmsg, temp roots.
+
+Run them all from the repository root (tools/check.sh does when tools/ changed, and in --full):
+    python3 -m unittest discover -s tools/rellib/tests
+without -t: this folder is not a package and the tests import support from it."""
 import json
 import os
 import shutil

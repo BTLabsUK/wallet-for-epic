@@ -4,7 +4,10 @@
 #   tools/check.sh           fast, the default (a branch before review, main after a merge):
 #                            version, install contract, LEPIC at the pin, no hosts, the plain-Dart
 #                            core, flutter analyze, and only the Flutter tests the change touches
-#                            (rule below); the bot's tests only when bot/ changed.
+#                            (rule below); the bot's tests only when bot/ changed; the release
+#                            tools' own tests (tools/rel, the nightly, sbom, test order, the
+#                            incremental publisher, the screens feedback service) only when
+#                            tools/ changed.
 #   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
 #                            the web build too. Once per release candidate: tools/rel's source
 #                            gate runs it. Between releases nobody runs --full.
@@ -50,14 +53,16 @@ if [[ ${#tests[@]} -gt 0 ]]; then
 fi
 bot_changed=0
 grep -q '^bot/' <<<"$changed" && bot_changed=1
+tools_changed=0
+grep -q '^tools/' <<<"$changed" && tools_changed=1
 
 rule="affected tests = changed app/test/**/*_test.dart + app/test/**/<name>_test.dart for each changed app/lib/**/<name>.dart (vs merge base with $base_ref, ${base:0:10})"
 if [[ $mode == full ]]; then
-  echo "check mode: FULL (whole flutter test suite, integration tests, bot, web build)"
+  echo "check mode: FULL (whole flutter test suite, integration tests, bot, release tools, web build)"
 else
   echo "check mode: fast (--full runs everything: once per release candidate, by tools/rel)"
   echo "rule: $rule"
-  echo "affected tests: ${#tests[@]}$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')"
+  echo "affected tests: ${#tests[@]}$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: release tool tests run')"
   for t in "${tests[@]}"; do echo "  $t"; done
 fi
 [[ $mode == list ]] && exit 0
@@ -104,6 +109,20 @@ fi
 if [[ $mode == full || $bot_changed == 1 ]]; then
   step "bot"
   (cd "$root/bot" && uv run pytest -q && uvx ruff check .)
+fi
+
+if [[ $mode == full || $tools_changed == 1 ]]; then
+  step "release tools (tools/)"
+  # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
+  (cd "$root" && python3 -m unittest discover -s tools/rellib/tests)
+  (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py)
+  # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
+  "$root/tools/publish/test-incremental.sh"
+  if command -v node >/dev/null; then
+    (cd "$root" && node --test tools/screens-feedback/feedback.test.mjs)
+  else
+    echo "skip: node is not installed (tools/screens-feedback/feedback.test.mjs)"
+  fi
 fi
 
 if [[ $mode == full ]]; then

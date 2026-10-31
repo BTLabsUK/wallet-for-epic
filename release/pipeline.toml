@@ -112,11 +112,17 @@ run = "{rel}/tools/rellib/steps/source-check.sh {stage}"
 heavy = true
 timeout = "120m"
 # Reused (not run) when an earlier run or the nightly passed it on the same content of these:
-# the app, the bot, the pins and tools/check.sh with what it runs (tools/rellib/reuse.py).
+# the app, the bot, the pins and tools/check.sh with what it runs (tools/rellib/reuse.py), the
+# release tools' own tests and what they test included (not release/release.toml: the scope,
+# edited for every release, would never let G2 be reused).
 reuse = ["app", "bot", "scripts/linux/flutter.version", "tools/check.sh", "tools/env.sh", "tools/version.sh",
          "tools/lepic.sh", "tools/lepic.rev", "tools/lepic-flutter.rev", "tools/check-install-contract.sh",
          "tools/install_contract.py", "tools/install-contract.json", "docs/install-contract.md",
-         "tools/check-no-hosts.sh", "tools/no_hosts.py", "tools/no-hosts.allow"]
+         "tools/check-no-hosts.sh", "tools/no_hosts.py", "tools/no-hosts.allow",
+         "tools/rel", "tools/rellib", "release/pipeline.toml", "release/failures.toml", "release/hosts.example.toml",
+         "tools/nightly", "tools/sbom.py", "tools/test_sbom.py",
+         "tools/flutter_test_order.py", "tools/test_flutter_test_order.py", "tools/publish-github.sh",
+         "tools/publish", "tools/screens-feedback", "tools/gitlab-release.py", "tools/signer"]
 reuse_nightly = true
 
 # ---- builds ----------------------------------------------------------------------------------
