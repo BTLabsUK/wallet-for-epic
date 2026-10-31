@@ -5,6 +5,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/desk_levels.dart' show DeskLevelFeatures;
 import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import 'package:flutter/widgets.dart' show IconData;
@@ -105,6 +106,18 @@ String deskNavLabel(AppLocalizations l, DeskSection s) => switch (s) {
   DeskSection.outputs => l.deskShellNavOutputs,
   DeskSection.contacts => l.deskShellNavContacts,
   DeskSection.settings => l.deskShellNavSettings,
+};
+
+/// Whether the level hides [route]'s page: Shallow has no Node, Transactions, Privacy or All
+/// wallets page; Invoices and the pairing places are Deep end's (with their switches, which the
+/// shell checks too). Recheck balance stays: This wallet opens it at Shallow.
+bool deskLevelHides(DeskLevelFeatures ui, DeskRoute route) => switch (route) {
+  DeskRoute.settingsNode => !ui.nodeSettings,
+  DeskRoute.settingsReceiving || DeskRoute.settingsPrivacy => ui.shallow,
+  DeskRoute.settingsWallets => !ui.addWallet,
+  DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices => !ui.invoicesPage,
+  DeskRoute.pair || DeskRoute.pairPending => !ui.pairingPages,
+  _ => false,
 };
 
 /// The tabs of Invoices: Pay (invoices to pay) and Issue (invoices this wallet issued).

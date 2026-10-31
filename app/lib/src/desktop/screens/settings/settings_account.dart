@@ -9,6 +9,7 @@ import '../../../l10n.dart' show autoLockLabel;
 import '../../../settings.dart' show autoLockChoices;
 import '../../../ui/devices/device_parts.dart' show devicesStateLine;
 import '../../desk_l10n.dart';
+import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/devices_state.dart' show deskDeviceBookProvider, deskLinkedDevicesOnProvider;
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -114,6 +115,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
       _label.text = label == null || label.isEmpty || a.id != null ? a.name : label;
     }
     final nav = ref.read(deskNavProvider.notifier);
+    final ui = ref.watch(deskLevelUiProvider);
     return SettingsFrame(
       route: DeskRoute.settingsAccount,
       child: Column(
@@ -147,6 +149,20 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
             ],
           ),
           BackupGroup(demo: widget.arg is BackupDemo ? widget.arg as BackupDemo : null),
+          // Shallow: Recheck balance is a row here, not in the side list.
+          if (!ui.recheckInSideList)
+            ESetGroup(
+              rows: [
+                ESetRow(
+                  key: const ValueKey('account-recheck'),
+                  title: l.deskSetFrameRescan,
+                  hint: l.deskLvShellRecheckHint,
+                  control: ERowControl(child: EButton(label: l.commonOpen, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.settingsRescan))),
+                ),
+              ],
+            ),
+          // The folders and Set up again: not at Shallow, which has no Set up.
+          if (ui.setupWizard)
           ESetGroup(
             title: l.deskSetAcctFiles,
             rows: [

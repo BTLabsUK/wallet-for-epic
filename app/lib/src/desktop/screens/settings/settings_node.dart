@@ -9,6 +9,7 @@ import '../../../legacy/gui_rules.dart' show isPrivateHost;
 import '../../../network.dart' show mainnetPreset;
 import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings, hostSettings, localNodePortValues;
 import '../../../settings_file/settings_providers.dart' show writeHostSettings;
+import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/desk_node.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/node_view.dart';
@@ -440,7 +441,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     }),
                     source: nodeSource(nodes, inUse: prefs.builtin ? null : current.url),
                     // Advanced › Built-in node; the node in use stays listed.
-                    local: advancedHas(ref, AdvancedFeature.builtInNode, keep: prefs.builtin) ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
+                    local: (ref.watch(deskLevelUiProvider).builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
                     listNote: nodeListNoteText(l),
                     busy: _saving,
                     busyLabel: l.deskSetNodeChecking,

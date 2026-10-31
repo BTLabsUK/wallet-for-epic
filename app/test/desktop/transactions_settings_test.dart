@@ -81,9 +81,9 @@ List<String> _segments<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(f
 T _selected<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(find.byType(ESegmented<T>).first).value;
 
 /// The sidebar's Link · HTTP row.
-// The HTTP status row, in the title bar's status list (opened first).
+// The HTTP status row, in its title-bar icon's popover (opened first).
 Future<Finder> _railHttp(WidgetTester tester) async {
-  await tester.tap(find.byKey(const ValueKey('bar-status')));
+  await tester.tap(find.byKey(const ValueKey('bar-status-http')));
   await tester.pumpAndSettle();
   return find.byKey(const ValueKey('status-row-http'));
 }

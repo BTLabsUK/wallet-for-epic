@@ -9,22 +9,25 @@ import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
 import 'prefs.dart';
+import '../../data/desk_levels.dart';
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 /// The sections; [invoices] adds Invoices below Transactions (wallets that take invoices), its label
 /// in the app's language. Linked devices has no entry of its own: it belongs to one wallet, so it
 /// opens from This wallet (as on the phone) and that entry stays raised on its page.
-List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices}) => [
-  (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
-  (DeskRoute.settingsReceiving, l.deskSetFrameTransactions, EIcons.antenna),
-  (DeskRoute.settingsPrivacy, l.deskSetFramePrivacy, EIcons.shield),
-  if (invoices) (DeskRoute.settingsInvoices, l.deskInvSetTitle, EIcons.invoice),
+/// Shallow lists six: Appearance, This wallet, Recovery phrase, Advanced, About, Help
+/// (Recheck balance opens from This wallet there).
+List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices, required DeskLevelFeatures ui}) => [
+  if (!deskLevelHides(ui, DeskRoute.settingsNode)) (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
+  if (!deskLevelHides(ui, DeskRoute.settingsReceiving)) (DeskRoute.settingsReceiving, l.deskSetFrameTransactions, EIcons.antenna),
+  if (!deskLevelHides(ui, DeskRoute.settingsPrivacy)) (DeskRoute.settingsPrivacy, l.deskSetFramePrivacy, EIcons.shield),
+  if (invoices && ui.invoicesPage) (DeskRoute.settingsInvoices, l.deskInvSetTitle, EIcons.invoice),
   (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),
   null,
   (DeskRoute.settingsAccount, l.deskSetFrameThisWallet, EIcons.wallet),
-  (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
+  if (!deskLevelHides(ui, DeskRoute.settingsWallets)) (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
   (DeskRoute.settingsPhrase, l.deskSetFramePhrase, EIcons.key),
-  (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
+  if (ui.recheckInSideList) (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
   null,
   (DeskRoute.settingsAdvanced, l.deskSetFrameAdvanced, EIcons.tune),
   null,
@@ -57,9 +60,15 @@ class SettingsFrame extends ConsumerWidget {
     final nav = ref.read(deskNavProvider.notifier);
     final wide = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final l = context.l10n;
-    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider));
-    // Linked devices is a page of This wallet.
-    final current = route == DeskRoute.settingsDevices ? DeskRoute.settingsAccount : route;
+    final ui = ref.watch(deskLevelUiProvider);
+    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
+    // Linked devices is a page of This wallet, and so is Recheck balance at Shallow; Change
+    // level is Advanced's.
+    final current = route == DeskRoute.settingsDevices || (route == DeskRoute.settingsRescan && !ui.recheckInSideList)
+        ? DeskRoute.settingsAccount
+        : route == DeskRoute.settingsLevel
+        ? DeskRoute.settingsAdvanced
+        : route;
     // A big window centres the capped column instead of leaving it at the left.
     final content = Align(
       alignment: Alignment.topCenter,

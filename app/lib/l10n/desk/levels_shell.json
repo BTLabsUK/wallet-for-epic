@@ -1,0 +1,38 @@
+{
+  "deskLvShellNewsTitle": "New: wallet depth",
+  "@deskLvShellNewsTitle": {
+    "description": "Desktop Overview: title of the one-time notice an install that updated into wallet levels sees. 'Wallet depth' is the setting that picks how much the app shows (levels Shallow, Deeper, Deep end)."
+  },
+  "deskLvShellNewsText": "This install shows everything, as before. Shallow and Deeper show less.",
+  "@deskLvShellNewsText": {
+    "description": "Desktop Overview: text of the one-time 'New: wallet depth' notice. Shallow and Deeper are the names of the two quieter levels; keep them as the level picker names them."
+  },
+  "deskLvShellNewsLook": "Have a look",
+  "@deskLvShellNewsLook": {
+    "description": "Desktop Overview: button on the 'New: wallet depth' notice; opens the page where the level is changed and dismisses the notice."
+  },
+  "deskLvShellFailover": "Failover",
+  "@deskLvShellFailover": {
+    "description": "Desktop title-bar status popover (Network or Node): row label; whether the wallet moves to another node when its node stops answering."
+  },
+  "deskLvShellFailoverAuto": "On · automatic",
+  "@deskLvShellFailoverAuto": {
+    "description": "Desktop status popover at the Shallow level, For support group: value of the Failover row; failover is always on and needs no setting."
+  },
+  "deskLvShellOn": "On",
+  "@deskLvShellOn": {
+    "description": "Desktop status popover: value of the Failover row when the node failover setting is on."
+  },
+  "deskLvShellHeight": "Height",
+  "@deskLvShellHeight": {
+    "description": "Desktop Node status popover (Deep end level): row label; the node's block height."
+  },
+  "deskLvShellVersion": "Version",
+  "@deskLvShellVersion": {
+    "description": "Desktop Node status popover (Deep end level): row label; the node software's version."
+  },
+  "deskLvShellRecheckHint": "If an amount looks wrong, the wallet reads the chain again.",
+  "@deskLvShellRecheckHint": {
+    "description": "Desktop Settings › This wallet at the Shallow level: info text of the Recheck balance row, whose Open button opens the Recheck balance page."
+  }
+}

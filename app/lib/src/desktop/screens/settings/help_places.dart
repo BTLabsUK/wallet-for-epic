@@ -7,6 +7,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/routes.dart';
+import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import 'prefs.dart';
 import 'settings_advanced.dart' show advancedHas, advancedOf, AdvancedFeature;
 
@@ -62,11 +63,14 @@ AdvancedFeature? _placeFeature(DeskHelpPlace to) => switch (to.route) {
   _ => null,
 };
 
-/// Whether Help may link [place]: the desktop has the page and Advanced shows it. A place of a
-/// hidden part reads as a term instead.
+/// Whether Help may link [place]: the desktop has the page, the level shows it and Advanced
+/// shows it. A place of a hidden part reads as a term instead.
 bool deskHelpPlaceShown(WidgetRef ref, String place) {
   final to = deskHelpPlace(place);
   if (to == null) return false;
+  final ui = ref.watch(deskLevelUiProvider);
+  if (deskLevelHides(ui, to.route)) return false;
+  if (to.route == DeskRoute.outputs && !ui.outputsPage) return false;
   final f = _placeFeature(to);
   return switch (f) {
     null => true,
@@ -79,7 +83,8 @@ bool deskHelpPlaceShown(WidgetRef ref, String place) {
 /// Goes to [place].
 void openDeskHelpPlace(WidgetRef ref, String place) {
   final to = deskHelpPlace(place);
-  if (to == null) return;
+  // A page the level hides is never opened (a link written before the level changed).
+  if (to == null || deskLevelHides(ref.read(deskLevelUiProvider), to.route)) return;
   final jump = to.jump;
   if (jump != null) {
     // Goes to the page itself, scrolled to the section and flashed.
