@@ -742,12 +742,15 @@ class _ContactDetail extends ConsumerWidget {
             for (final k in x.kinds)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-                child: Row(
-                  children: [
-                    EBadge.kind(k, l: l),
-                    SizedBox(width: Sp.x3),
-                    Expanded(child: EAddress(x.addressOf(k)!, copyLabel: l.contactCopyAddress(recipientMethodWord(l, k)))),
-                  ],
+                // The kind beside the address, or above it in a narrow pane.
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final address = EAddress(x.addressOf(k)!, copyLabel: l.contactCopyAddress(recipientMethodWord(l, k)));
+                    if (box.maxWidth < Lay.sm) {
+                      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [EBadge.kind(k, l: l), SizedBox(height: Sp.x2), address]);
+                    }
+                    return Row(children: [EBadge.kind(k, l: l), SizedBox(width: Sp.x3), Expanded(child: address)]);
+                  },
                 ),
               ),
           ],
