@@ -66,7 +66,7 @@ import '../../settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import '../../settings_file/settings_providers.dart' show DevSettingsMissing, installedSettingsFile, openAppSettings, writeHostSettings;
 import '../../seed_contacts.dart';
 import '../../sender_cancel.dart' show SenderCancelRelease;
-import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSpendsBack, cancelledMayComplete;
+import '../../cancel_final.dart' show CancelFinal, CancelResult, cancelFinal, cancelSettled, cancelSpendsBack, cancelledMayComplete;
 import '../../stall_retry.dart' show StallRetry, invoicePaymentStalled;
 import '../../slate_files.dart' show decodeSlateFile, replyFileName, sendFileName, uniqueFileName;
 import '../../tor_location.dart';
@@ -1242,6 +1242,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _senderCancel = SenderCancelRelease();
     _cancels = CancelFinal();
     _cancelFinal = const {};
+    _cancelSettled.clear();
     _syncProgress = null;
     _epicboxHealth = ServiceHealth.off;
     _clearBlocked();
@@ -3449,6 +3450,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (settings.directHttp && !NetGate.restricted) await setHttpListening(true);
     }
     NetGate.setExperimental(settings.advanced);
+    _invoiceTimers?.setInvoices(NetGate.invoices);
     final was = netModeOf(old.advanced.networkMode);
     if (mode != was) await _applyMode(was, mode);
     if (settings.payments.epicbox != old.payments.epicbox) await _applyEpicboxSwitch(settings.payments.epicbox);
@@ -4798,7 +4800,7 @@ class LepicDeskWallet implements DeskWalletApi {
       invoicesEvery: invoicesEvery,
       paymentsEvery: paymentsEvery,
       watchFocus: invoiceFocus,
-    )..start();
+    )..start(invoices: NetGate.invoices);
   }
 
   /// On lock and before a reopen: timers off, events dropped. [forget] (lock) also drops what
@@ -4833,16 +4835,20 @@ class LepicDeskWallet implements DeskWalletApi {
     final r = await session.drainInvoices();
     if (_session != session) return;
     _invoiceCheckedAt = DateTime.now();
-    if (r.parked > 0 || r.notices > 0 || r.finalized > 0) await _reload();
-    _changed();
+    if (r.parked > 0 || r.notices > 0 || r.finalized > 0) {
+      await _reload();
+    } else {
+      // Only the Invoices page's "Checked at" moved.
+      _changed();
+    }
   }
 
   /// Drains the payments address: payments for issued invoices are finalized and posted.
   Future<void> _drainPayments(core.WalletSession session) async {
     final r = await session.drainPayments();
     if (_session != session) return;
+    // Nothing came: nothing to show, so no refresh either.
     if (r.received > 0 || r.finalized > 0 || r.bounced > 0) await _reload();
-    _changed();
   }
 
   /// A payer: an invoice parked, posted, withdrawn or expired. Never pays anything.
@@ -5359,6 +5365,10 @@ class LepicDeskWallet implements DeskWalletApi {
   /// of its kind), whether the cancel is final ([cancelFinal]), by local id; read with the list.
   Map<int, bool> _cancelFinal = const {};
 
+  /// Local ids of the cancels [cancelSettled] found final on the chain this session: their
+  /// outputs are not read again.
+  final Set<int> _cancelSettled = {};
+
   /// Clears each incoming payment its sender cancelled that still waits (sender_cancel.dart),
   /// then reads the list again. Runs on the sender's notice and with each node check, so one
   /// that failed (no node, locked) goes again.
@@ -5379,16 +5389,22 @@ class LepicDeskWallet implements DeskWalletApi {
     }
   }
 
-  /// [_cancelFinal] for [entries]: the outputs are read only when one needs them.
-  static Future<Map<int, bool>> _cancelFinalOf(core.WalletSession session, List<core.TxEntry> entries) async {
+  /// [_cancelFinal] for [entries]: the outputs are read only when one not yet settled on the
+  /// chain needs them.
+  Future<Map<int, bool>> _cancelFinalOf(core.WalletSession session, List<core.TxEntry> entries) async {
     final cancelled = entries.where((e) => e.id != null && cancelledMayComplete(e)).toList();
-    if (cancelled.isEmpty) return const {};
+    final settled = {for (final e in cancelled) if (_cancelSettled.contains(e.id)) e.id!: true};
+    final open = cancelled.where((e) => !_cancelSettled.contains(e.id)).toList();
+    if (open.isEmpty) return settled;
     try {
       final outputs = await session.outputs();
-      return {for (final e in cancelled) e.id!: cancelFinal(e, outputs)};
+      for (final e in open) {
+        if (cancelSettled(e, outputs)) _cancelSettled.add(e.id!);
+      }
+      return {...settled, for (final e in open) e.id!: cancelFinal(e, outputs)};
     } on core.WalletError catch (e) {
       logWarn('desk', 'cancel final: ${e.kind.name}');
-      return const {};
+      return settled;
     }
   }
 

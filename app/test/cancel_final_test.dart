@@ -114,6 +114,13 @@ void main() {
       expect(cancelFinal(tx, [_out(_coinA, WalletOutputStatus.locked, txId: 12), _out(_other, WalletOutputStatus.unspent, txId: 3)]), isTrue);
       expect(cancelledMayComplete(_send(cancelled: true)), isFalse, reason: 'a plain cancel is certain');
     });
+
+    test('settled only once the coins that took over are spent on the chain', () {
+      final tx = _send(flow: TxFlow.invoice, cancelled: true);
+      expect(cancelSettled(tx, [_out(_coinA, WalletOutputStatus.unspent, txId: 9)]), isFalse);
+      expect(cancelSettled(tx, [_out(_coinA, WalletOutputStatus.locked, txId: 12)]), isFalse, reason: 'the spend back is not mined yet');
+      expect(cancelSettled(tx, [_out(_coinA, WalletOutputStatus.spent, txId: 12), _out(_other, WalletOutputStatus.unspent, txId: 3)]), isTrue);
+    });
   });
 
   group('CancelFinal', () {

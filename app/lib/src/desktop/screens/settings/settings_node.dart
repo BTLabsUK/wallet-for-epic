@@ -180,10 +180,14 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   final _panel = GlobalKey<ServerListPanelState>();
   bool _saving = false;
   String? _error;
+  // The page asks every listed node while it is on screen ([DeskController.showNodes]).
+  late final DeskController _desk;
 
   @override
   void initState() {
     super.initState();
+    _desk = ref.read(deskProvider.notifier);
+    _desk.showNodes(true);
     final arg = widget.arg;
     if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
       Future.microtask(() {
@@ -205,6 +209,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   }
 
   bool _pickFailedShown = false;
+
+  @override
+  void dispose() {
+    _desk.showNodes(false);
+    super.dispose();
+  }
 
   /// The tour's card states, through the mock node layer; any other start puts the mock's
   /// answer back (the shots run one after another).

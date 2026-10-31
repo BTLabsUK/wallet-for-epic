@@ -71,6 +71,12 @@ bool cancelFinal(TxEntry tx, Iterable<WalletOutput> outputs) {
   return !outputs.any((o) => o.txId == id && o.status == WalletOutputStatus.unspent);
 }
 
+/// [cancelFinal], and confirmed on the chain: no coin of this wallet is locked by a send still
+/// unconfirmed, so every coin the payment had is spent by a mined transaction (the spend back
+/// or a later payment). It does not go back, so the outputs need not be read for it again.
+bool cancelSettled(TxEntry tx, Iterable<WalletOutput> outputs) =>
+    cancelFinal(tx, outputs) && !outputs.any((o) => o.status == WalletOutputStatus.locked);
+
 /// How a cancel ended.
 enum CancelResult {
   /// Cancelled; nothing this wallet signed had left it, so nothing else was needed.

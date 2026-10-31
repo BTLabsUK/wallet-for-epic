@@ -17,6 +17,7 @@ import '../../models.dart' show Chain;
 import '../../network_gate.dart';
 import '../../providers.dart' show secretStoreProvider;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../app/desk_window.dart' show deskWindowProvider;
 import '../desk_l10n.dart';
 import 'state.dart';
 
@@ -39,8 +40,13 @@ class DeskDeviceHandle {
 
 final deskDeviceHandleProvider = Provider<DeskDeviceHandle>((ref) => DeskDeviceHandle());
 
+/// How often the desktop reads the channel with a device linked: the window has the focus, or not.
+const Duration deskDevicesFocusedEvery = Duration(seconds: 15);
+const Duration deskDevicesBlurredEvery = Duration(minutes: 1);
+
 /// The open wallet's devices, or null while locked or with Linked devices off. It reads the
-/// channel when the wallet opens, then every 5 s while the app runs (minimized too); the shell
+/// channel when the wallet opens, then every [deskDevicesFocusedEvery] while the window has the
+/// focus and every [deskDevicesBlurredEvery] while it has not (minimized too); the shell
 /// reads it again on a window focus and on Refresh ([deskDevicesRefresh]). One service per open
 /// wallet: its host follows the session through a reopen, so a link under way is not lost.
 final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
@@ -73,8 +79,21 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
     unawaited(ref.read(deskProvider.notifier).reloadWallet());
   });
   ref.onDispose(sub.cancel);
-  // The app runs while it is minimized, and the channel is read the whole time.
+  // The app runs while it is minimized, and the channel is read the whole time: every 15 s
+  // while the window has the focus, every minute while it has not (behind another window,
+  // minimized). Back to the front, it is read at once.
   service.setForeground(true);
+  final window = ref.read(deskWindowProvider).state;
+  var focused = window.value.focused;
+  service.setPace(focused ? deskDevicesFocusedEvery : deskDevicesBlurredEvery);
+  void onWindow() {
+    if (window.value.focused == focused) return;
+    focused = window.value.focused;
+    service.setPace(focused ? deskDevicesFocusedEvery : deskDevicesBlurredEvery, now: focused);
+  }
+
+  window.addListener(onWindow);
+  ref.onDispose(() => window.removeListener(onWindow));
   // A store that cannot be read leaves the devices unloaded; the app itself goes on.
   unawaited(
     service.load().then((_) => service.sync(DeviceSyncTrigger.unlock)).catchError((Object e) {

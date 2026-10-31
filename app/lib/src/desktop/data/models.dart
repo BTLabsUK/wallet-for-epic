@@ -715,6 +715,24 @@ class NodeServer {
 
   /// The operator's name as the status site lists it (the tile's initials), or null.
   final String? listedAs;
+
+  // By value: the 5 s status poll writes a new status only when something in it changed.
+  @override
+  bool operator ==(Object other) =>
+      other is NodeServer &&
+      url == other.url &&
+      label == other.label &&
+      operator == other.operator &&
+      health == other.health &&
+      latencyMs == other.latencyMs &&
+      height == other.height &&
+      version == other.version &&
+      own == other.own &&
+      icon == other.icon &&
+      listedAs == other.listedAs;
+
+  @override
+  int get hashCode => Object.hash(url, label, operator, health, latencyMs, height, version, own, icon, listedAs);
 }
 
 /// One Epicbox relay.
@@ -733,6 +751,20 @@ class EpicboxServer {
 
   /// The operator's name as the status site lists it (the tile's initials), or null.
   final String? listedAs;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EpicboxServer &&
+      domain == other.domain &&
+      port == other.port &&
+      operator == other.operator &&
+      health == other.health &&
+      latencyMs == other.latencyMs &&
+      icon == other.icon &&
+      listedAs == other.listedAs;
+
+  @override
+  int get hashCode => Object.hash(domain, port, operator, health, latencyMs, icon, listedAs);
 }
 
 /// What the status rows and the Overview's status card show.
@@ -833,6 +865,61 @@ class ServiceStatus {
 
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
   final String? notice;
+
+  // Every field: an equal status is not written again, so a field left out here would never show.
+  @override
+  bool operator ==(Object other) =>
+      other is ServiceStatus &&
+      node == other.node &&
+      nodeHealth == other.nodeHealth &&
+      nodeHeight == other.nodeHeight &&
+      epicbox == other.epicbox &&
+      epicboxHealth == other.epicboxHealth &&
+      httpListener == other.httpListener &&
+      httpProblem == other.httpProblem &&
+      httpProblemPort == other.httpProblemPort &&
+      tor == other.tor &&
+      torProgress == other.torProgress &&
+      torProblem == other.torProblem &&
+      torCanSend == other.torCanSend &&
+      torIncluded == other.torIncluded &&
+      torSlowStart == other.torSlowStart &&
+      epicboxViaTor == other.epicboxViaTor &&
+      epicboxBlocked == other.epicboxBlocked &&
+      epicboxInstead == other.epicboxInstead &&
+      epicboxOwn == other.epicboxOwn &&
+      syncProgress == other.syncProgress &&
+      scanning == other.scanning &&
+      restoreScan == other.restoreScan &&
+      lastUpdate == other.lastUpdate &&
+      notice == other.notice;
+
+  @override
+  int get hashCode => Object.hashAll([
+    node,
+    nodeHealth,
+    nodeHeight,
+    epicbox,
+    epicboxHealth,
+    httpListener,
+    httpProblem,
+    httpProblemPort,
+    tor,
+    torProgress,
+    torProblem,
+    torCanSend,
+    torIncluded,
+    torSlowStart,
+    epicboxViaTor,
+    epicboxBlocked,
+    epicboxInstead,
+    epicboxOwn,
+    syncProgress,
+    scanning,
+    restoreScan,
+    lastUpdate,
+    notice,
+  ]);
 }
 
 /// Where the scan a restore owes stands ([ServiceStatus.restoreScan]): it runs (or is about to),
@@ -855,6 +942,13 @@ class RestoreScan {
 
   /// It waits because Offline mode is on (not for a node that does not answer).
   final bool offline;
+
+  @override
+  bool operator ==(Object other) =>
+      other is RestoreScan && state == other.state && percent == other.percent && fromHeight == other.fromHeight && offline == other.offline;
+
+  @override
+  int get hashCode => Object.hash(state, percent, fromHeight, offline);
 }
 
 /// Why the HTTP listener is down: kept structured so every language words it ([httpProblemText]).
