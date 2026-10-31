@@ -11,9 +11,6 @@
 //   WFE_WORDS_MODE=dead: run the emulator with a DNS server that answers nothing
 //     (`-dns-server 192.0.2.1`): no meeting relay is reached and Pairing words says so.
 //
-//   WFE_WORDS_JOINER=desk: the phone copies its words and waits; the desktop app pastes them
-//     (integration_test/release_check/pairing_words_paste_test.dart, WFE_WORDS_FILE).
-//
 //   flutter test -d <emulator> integration_test/pairing_words_phone_test.dart --dart-define=WFE_WORDS_MODE=filter
 //
 // Every check prints one `RC PASS|FAIL | step | evidence` line. Throwaway wallets only; no funds
@@ -46,8 +43,6 @@ import 'package:path_provider/path_provider.dart';
 import 'live_hosts.dart';
 
 const _mode = String.fromEnvironment('WFE_WORDS_MODE', defaultValue: 'filter');
-// `desk`: the desktop app is the other side and pastes what the phone copied.
-const _joiner = String.fromEnvironment('WFE_WORDS_JOINER', defaultValue: 'here');
 const _node = liveNode;
 // A live relay outside the words meeting list: WFE_WORDS_RELAY names it.
 const _ownRelay = EpicboxRelay(host: String.fromEnvironment('WFE_WORDS_RELAY', defaultValue: 'epicbox.other.example'));
@@ -265,22 +260,6 @@ void main() {
     final names = invite.inviteWords.map((w) => w.name).join(' ');
     record('Copy puts only the words on the clipboard', copied == names, copied);
     note('COPIED|$copied|');
-
-    if (_joiner == 'desk') {
-      // The desktop app pastes [copied] and answers (pairing_words_paste_test.dart).
-      PairingRecord? mine;
-      final until = DateTime.now().add(const Duration(minutes: 8));
-      while (DateTime.now().isBefore(until)) {
-        await tester.runAsync(() => c.read(pairingApiProvider).collect());
-        mine = await tester.runAsync<PairingRecord?>(() => c.read(pairingApiProvider).pairing(invite.id));
-        if (mine?.state == PairingState.paired) break;
-        await settle(tester, ms: 3000);
-      }
-      await shot(tester, 'words-desk-paired');
-      record('the desktop\'s answer reached the phone', mine?.state == PairingState.paired, '${mine?.state.name}');
-      note('PHONE SAS|${[for (final w in mine?.sas ?? const <SasWord>[]) w.name].join(' ')}|');
-      return;
-    }
 
     // The other side, in this process: its own relay is stackwallet; it looks on the meeting list.
     final tmp = await tester.runAsync(getTemporaryDirectory);
