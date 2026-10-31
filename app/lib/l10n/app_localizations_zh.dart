@@ -5533,8 +5533,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveHttpNotPrivateTitle => '在此网络上已关闭';
 
   @override
-  String get receiveHttpNotPrivate =>
-      'Link · HTTP 只在你标记为私人的网络上监听。在共用 Wi-Fi 中，那里的任何人都可能连到这个钱包。';
+  String get receiveHttpNotPrivate => 'Link · HTTP 只在你标记为私人的网络上监听。';
 
   @override
   String get receiveHttpMarkPrivate => '这是我的私人网络';
@@ -13062,7 +13061,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txPrivateNetworksBody =>
-      'Link · HTTP 在这些网络上监听。网络以其地址段识别，因此两个地址段相同的住所算作同一个。忘记某个网络后，手机在该网络上会再次询问。';
+      'Link · HTTP 在这些网络上监听。忘记某个网络后，手机下次连上它时会再次询问。';
 
   @override
   String get txPrivateNetworksNone => '尚未标记任何网络。';
@@ -17707,6 +17706,5 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRailOpenNetwork => '打开网络设置';
 
   @override
-  String get deskSetReportFullDetailsInfo =>
-      '地址会缩短，金额以区间表示。勾选后完整发送。助记词、密钥和密码绝不会。';
+  String get deskSetReportFullDetailsInfo => '地址和金额将完整发送而不是缩短。助记词、密钥和密码绝不会发送。';
 }

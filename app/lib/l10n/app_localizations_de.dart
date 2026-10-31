@@ -5930,7 +5930,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP hört nur in Netzen zu, die Sie als privat markieren. In einem geteilten WLAN könnte jeder dort diese Wallet erreichen.';
+      'Link · HTTP hört nur in Netzen zu, die Sie als privat markieren.';
 
   @override
   String get receiveHttpMarkPrivate => 'Das ist mein privates Netz';
@@ -14028,7 +14028,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txPrivateNetworksBody =>
-      'Link · HTTP hört in diesen Netzen zu. Ein Netz wird an seinem Adressbereich erkannt, zwei Zuhause mit demselben Bereich zählen also als eines. Vergessen Sie ein Netz, fragt das Telefon dort erneut.';
+      'Link · HTTP hört in diesen Netzen zu. Vergessen Sie ein Netz, fragt das Telefon dort beim nächsten Mal erneut.';
 
   @override
   String get txPrivateNetworksNone => 'Noch kein Netz markiert.';
@@ -19014,5 +19014,5 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Adressen gehen gekürzt, Beträge als Bereiche. Angekreuzt gehen sie vollständig. Phrasen, Schlüssel und Passwörter nie.';
+      'Sendet Adressen und Beträge unverkürzt. Phrasen, Schlüssel und Passwörter werden nie gesendet.';
 }

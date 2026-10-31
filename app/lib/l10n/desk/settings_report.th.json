@@ -18,7 +18,7 @@
   "deskSetReportAttach": "แนบบันทึก (แนะนำ)",
   "deskSetReportAttachHint": "ส่วนล่าสุดของบันทึกแอป ลบวลี รหัสผ่าน ที่อยู่ IP และโฟลเดอร์ส่วนตัวออกแล้ว",
   "deskSetReportFullDetails": "แนบรายละเอียดทั้งหมด",
-  "deskSetReportFullDetailsInfo": "ที่อยู่จะถูกย่อ และจำนวนเงินแสดงเป็นช่วง เมื่อติ๊กจะส่งแบบเต็ม วลีกู้คืน คีย์ และรหัสผ่านไม่มีวันถูกส่ง",
+  "deskSetReportFullDetailsInfo": "ส่งที่อยู่และจำนวนเงินแบบเต็มแทนที่จะย่อ ซีดวลี คีย์ และรหัสผ่านจะไม่ถูกส่งเลย",
   "deskSetReportPartFullDetails": "รายละเอียดเต็ม",
   "deskSetReportSentWhat": "สิ่งที่ส่ง",
   "deskSetReportNotSentTitle": "ไม่ได้ส่ง",

@@ -4891,18 +4891,18 @@
   "deskSetAdvModeStandardHint": "Wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w Prywatność.",
   "deskFinNotPostedKillBody": "{amount} gotowe. Wyłącznik awaryjny jest włączony, więc ten komputer nie może tego wysłać. Zapisz płatność lub skopiuj ją, a potem wyślij z urządzenia, które jest online: Odbierz › Pliki transakcji › Wyślij gotową płatność.",
   "deskRailOpenNetwork": "Otwórz ustawienia sieci",
-  "receiveHttpNotPrivate": "Link · HTTP nasłuchuje tylko w sieciach oznaczonych jako prywatne. We wspólnym Wi-Fi każdy tam obecny mógłby dotrzeć do tego portfela.",
+  "receiveHttpNotPrivate": "Link · HTTP nasłuchuje tylko w sieciach oznaczonych jako prywatne.",
   "receiveHttpMarkPrivate": "To moja prywatna sieć",
   "deskSetReportFullDetails": "Dołącz pełne szczegóły",
   "receiveHttpNotPrivateTitle": "Wyłączone w tej sieci",
   "txPrivateNetworks": "Sieci prywatne",
   "txPrivateNetworksCount": "{count, plural, =0{Żadnej jeszcze nie oznaczono} one{{count} oznaczona} few{{count} oznaczone} many{{count} oznaczonych} other{{count} oznaczonej}}",
-  "txPrivateNetworksBody": "Link · HTTP nasłuchuje w tych sieciach. Sieć rozpoznawana jest po zakresie adresów, więc dwa domy z tym samym zakresem liczą się jako jedna. Zapomnij sieć, a telefon zapyta w niej ponownie.",
+  "txPrivateNetworksBody": "Link · HTTP nasłuchuje w tych sieciach. Gdy zapomnisz sieć, telefon zapyta ponownie, gdy znów w niej będzie.",
   "txPrivateNetworksNone": "Nie oznaczono jeszcze żadnej sieci.",
   "txPrivateNetworkCurrent": "Ta sieć",
   "txPrivateNetworkForget": "Zapomnij",
   "txPrivateNetworkForgetLabel": "Zapomnij {range}",
   "txPrivateNetworkRange": "{range}.x",
   "deskSetReportPartFullDetails": "Pełne szczegóły",
-  "deskSetReportFullDetailsInfo": "Adresy idą skrócone, a kwoty jako zakresy. Zaznaczone idą w całości. Frazy, klucze i hasła nigdy."
+  "deskSetReportFullDetailsInfo": "Wysyła adresy i kwoty w całości zamiast skróconych. Frazy, klucze i hasła nigdy nie są wysyłane."
 }

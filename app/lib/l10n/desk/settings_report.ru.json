@@ -18,7 +18,7 @@
   "deskSetReportAttach": "Приложить журналы (рекомендуется)",
   "deskSetReportAttachHint": "Последняя часть журнала приложения, очищенная от фраз, паролей, адресов, IP и домашних папок.",
   "deskSetReportFullDetails": "Приложить все подробности",
-  "deskSetReportFullDetailsInfo": "Адреса идут сокращёнными, суммы диапазонами. С отметкой они идут целиком. Фразы, ключи и пароли никогда.",
+  "deskSetReportFullDetailsInfo": "Адреса и суммы отправляются целиком, а не сокращёнными. Сид-фразы, ключи и пароли не отправляются никогда.",
   "deskSetReportPartFullDetails": "Полные детали",
   "deskSetReportSentWhat": "Что отправляется",
   "deskSetReportNotSentTitle": "Не отправлено",

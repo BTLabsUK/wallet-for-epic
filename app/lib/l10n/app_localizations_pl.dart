@@ -6017,7 +6017,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP nasłuchuje tylko w sieciach oznaczonych jako prywatne. We wspólnym Wi-Fi każdy tam obecny mógłby dotrzeć do tego portfela.';
+      'Link · HTTP nasłuchuje tylko w sieciach oznaczonych jako prywatne.';
 
   @override
   String get receiveHttpMarkPrivate => 'To moja prywatna sieć';
@@ -14385,7 +14385,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txPrivateNetworksBody =>
-      'Link · HTTP nasłuchuje w tych sieciach. Sieć rozpoznawana jest po zakresie adresów, więc dwa domy z tym samym zakresem liczą się jako jedna. Zapomnij sieć, a telefon zapyta w niej ponownie.';
+      'Link · HTTP nasłuchuje w tych sieciach. Gdy zapomnisz sieć, telefon zapyta ponownie, gdy znów w niej będzie.';
 
   @override
   String get txPrivateNetworksNone => 'Nie oznaczono jeszcze żadnej sieci.';
@@ -19448,5 +19448,5 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Adresy idą skrócone, a kwoty jako zakresy. Zaznaczone idą w całości. Frazy, klucze i hasła nigdy.';
+      'Wysyła adresy i kwoty w całości zamiast skróconych. Frazy, klucze i hasła nigdy nie są wysyłane.';
 }

@@ -4891,18 +4891,18 @@
   "deskSetAdvModeStandardHint": "钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是“隐私”下的独立开关。",
   "deskFinNotPostedKillBody": "{amount} 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。",
   "deskRailOpenNetwork": "打开网络设置",
-  "receiveHttpNotPrivate": "Link · HTTP 只在你标记为私人的网络上监听。在共用 Wi-Fi 中，那里的任何人都可能连到这个钱包。",
+  "receiveHttpNotPrivate": "Link · HTTP 只在你标记为私人的网络上监听。",
   "receiveHttpMarkPrivate": "这是我的私人网络",
   "deskSetReportFullDetails": "包含完整详情",
   "receiveHttpNotPrivateTitle": "在此网络上已关闭",
   "txPrivateNetworks": "私人网络",
   "txPrivateNetworksCount": "{count, plural, =0{尚未标记} other{已标记 {count} 个}}",
-  "txPrivateNetworksBody": "Link · HTTP 在这些网络上监听。网络以其地址段识别，因此两个地址段相同的住所算作同一个。忘记某个网络后，手机在该网络上会再次询问。",
+  "txPrivateNetworksBody": "Link · HTTP 在这些网络上监听。忘记某个网络后，手机下次连上它时会再次询问。",
   "txPrivateNetworksNone": "尚未标记任何网络。",
   "txPrivateNetworkCurrent": "当前网络",
   "txPrivateNetworkForget": "忘记",
   "txPrivateNetworkForgetLabel": "忘记 {range}",
   "txPrivateNetworkRange": "{range}.x",
   "deskSetReportPartFullDetails": "完整详情",
-  "deskSetReportFullDetailsInfo": "地址会缩短，金额以区间表示。勾选后完整发送。助记词、密钥和密码绝不会。"
+  "deskSetReportFullDetailsInfo": "地址和金额将完整发送而不是缩短。助记词、密钥和密码绝不会发送。"
 }

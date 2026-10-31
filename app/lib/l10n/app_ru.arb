@@ -4891,18 +4891,18 @@
   "deskSetAdvModeStandardHint": "Всё, на что настроен кошелёк: узел, Epicbox, Ссылка, страница статуса, курс и проверка обновлений. Tor включается отдельным переключателем в «Приватность».",
   "deskFinNotPostedKillBody": "{amount}: платёж готов. Включено «Аварийное отключение», поэтому этот компьютер не может его отправить. Сохраните его или скопируйте, затем отправьте с устройства, которое в сети: «Получить» › «Файлы транзакций» › «Отправить готовый платёж».",
   "deskRailOpenNetwork": "Открыть настройки сети",
-  "receiveHttpNotPrivate": "Link · HTTP принимает только в сетях, которые вы отметили как частные. В общем Wi-Fi любой рядом мог бы добраться до этого кошелька.",
+  "receiveHttpNotPrivate": "Link · HTTP принимает только в сетях, которые вы отметили как частные.",
   "receiveHttpMarkPrivate": "Это моя частная сеть",
   "deskSetReportFullDetails": "Приложить все подробности",
   "receiveHttpNotPrivateTitle": "Выключено в этой сети",
   "txPrivateNetworks": "Частные сети",
   "txPrivateNetworksCount": "{count, plural, =0{Пока ни одной} one{{count} отмечена} few{{count} отмечены} many{{count} отмечено} other{{count} отмечено}}",
-  "txPrivateNetworksBody": "Link · HTTP принимает в этих сетях. Сеть узнаётся по диапазону адресов, так что два дома с одним диапазоном считаются одной. Забудьте сеть, и телефон спросит в ней снова.",
+  "txPrivateNetworksBody": "Link · HTTP принимает в этих сетях. Забудьте сеть, и телефон спросит снова, когда окажется в ней.",
   "txPrivateNetworksNone": "Ни одна сеть пока не отмечена.",
   "txPrivateNetworkCurrent": "Эта сеть",
   "txPrivateNetworkForget": "Забыть",
   "txPrivateNetworkForgetLabel": "Забыть {range}",
   "txPrivateNetworkRange": "{range}.x",
   "deskSetReportPartFullDetails": "Полные детали",
-  "deskSetReportFullDetailsInfo": "Адреса идут сокращёнными, суммы диапазонами. С отметкой они идут целиком. Фразы, ключи и пароли никогда."
+  "deskSetReportFullDetailsInfo": "Адреса и суммы отправляются целиком, а не сокращёнными. Сид-фразы, ключи и пароли не отправляются никогда."
 }
