@@ -201,7 +201,7 @@ void main() {
     final arg = container.read(deskNavProvider).arg;
     expect(arg, isA<SetupFirstRun>());
     // The mock keeps a legacy wallet, so this one is a second wallet: the current node first.
-    expect((arg! as SetupFirstRun).added.name, 'Wallet 1');
+    expect((arg! as SetupFirstRun).added.name, 'Wallet');
     await throughSetup(tester, node: 'https://current.example:3413');
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
     expect(container.read(deskNavProvider).arg, isA<UnlockAdded>());

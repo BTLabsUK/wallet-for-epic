@@ -53,13 +53,13 @@ void main() {
     final b = await registry.add(chain: Chain.floonet);
     expect(a.id, matches(RegExp(r'^[0-9a-f]{32}$')));
     expect(a.id, isNot(b.id));
-    expect(a.label, 'Wallet 1');
+    expect(a.label, 'Wallet');
     expect(b.label, 'Wallet 2');
     expect(Directory(a.dataDir).existsSync(), isTrue);
     expect(a.dataDir, '${tmp.path}${sep}wallets$sep${a.id}${sep}floonet');
     await registry.forget(a.id);
     final c = await registry.add(chain: Chain.mainnet);
-    expect(c.label, 'Wallet 1', reason: 'the lowest free number');
+    expect(c.label, 'Wallet', reason: 'the plain name once none has it');
   });
 
   test('the folders every release but 26.10.24 wrote; the one 26.10.24 made is ignored', () async {
@@ -214,7 +214,7 @@ void main() {
       expect(await registry.adoptLegacy(Chain.mainnet), isNull);
       final e = (await registry.adoptLegacy(Chain.floonet))!;
       expect(e.id, 'legacy-floonet');
-      expect(e.label, 'Wallet 1');
+      expect(e.label, 'Wallet');
       expect(e.dataDir, old.path);
       expect(await registry.adoptLegacy(Chain.floonet), isNull);
       expect(await registry.rescan(), isEmpty);
@@ -490,7 +490,7 @@ void main() {
       // A directory where the temp file goes makes the write fail.
       Directory('${tmp.path}${sep}wallets.json.tmp').createSync();
       await expectLater(registry.rename(a.id, 'Other'), throwsA(anything));
-      expect(registry.byId(a.id)!.label, 'Wallet 1');
+      expect(registry.byId(a.id)!.label, 'Wallet');
       await expectLater(registry.markOpened(a.id), throwsA(anything));
       expect(registry.lastUsedId, isNull);
       await expectLater(registry.forget(a.id), throwsA(anything));

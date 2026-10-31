@@ -340,6 +340,7 @@ void main() {
       expect(_keys(_plan(null, here: BackupPlatform.desktop, fileName: 'Savings', myName: 'Daily').conflicts), {BackupItem.walletName});
       expect(_plan(null, here: BackupPlatform.desktop, fileName: 'Wallet 1', myName: 'Daily').isEmpty, isTrue);
       expect(_plan(null, here: BackupPlatform.desktop, fileName: 'Savings', myName: 'Savings').isEmpty, isTrue);
+      expect(isDefaultWalletName('Wallet'), isTrue);
       expect(isDefaultWalletName('Wallet 12'), isTrue);
       expect(isDefaultWalletName('Wallet twelve'), isFalse);
     });

@@ -11,7 +11,10 @@ import '../../../advanced.dart';
 import '../../../ui/network_mode_text.dart';
 import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../app/tour.dart' show TourTarget;
+import '../../../levels/level_features.dart' show AdvancedPageKind;
+import '../../../ui/levels/level_picker.dart' show levelLine, levelStopName;
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelProvider;
 import '../../data/net_mode_view.dart' show deskPendingNetworkSends;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -59,33 +62,72 @@ class SettingsAdvancedScreen extends ConsumerWidget {
   final Object? arg;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => SettingsFrame(
-    route: DeskRoute.settingsAdvanced,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // The tour lights the top of the page: the intro and the switches.
-        TourTarget(
-          id: 'advanced-top',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(context.l10n.deskSetAdvIntro, style: context.ts.bodyDim),
-              SizedBox(height: Sp.x5),
-              const _ShowsGroup(),
-            ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    // Shallow: the Depth row alone; the switches and the network mode belong to Deeper and up.
+    final changeOnly = ref.watch(deskLevelFeaturesProvider.select((f) => f.advancedPage)) == AdvancedPageKind.changeLevelOnly;
+    return SettingsFrame(
+      route: DeskRoute.settingsAdvanced,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const _DepthGroup(),
+          if (changeOnly)
+            Text(l.deskLvStartAdvNote, key: const ValueKey('adv-depth-note'), style: context.ts.small)
+          else ...[
+            // The tour lights the top of the page: the intro and the switches.
+            TourTarget(
+              id: 'advanced-top',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(l.deskSetAdvIntro, style: context.ts.bodyDim),
+                  SizedBox(height: Sp.x5),
+                  const _ShowsGroup(),
+                ],
+              ),
+            ),
+            SizedBox(height: Sp.x6),
+            const JumpSection(section: SettingsJump.network, child: _NetworkGroup()),
+            SizedBox(height: Sp.x6),
+            const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
+            SizedBox(height: Sp.x6),
+            // An "experimental" dialog's Open Advanced lands here (LNX3-1).
+            const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// The depth in force with its line and Change level (Settings › Advanced › Depth).
+class _DepthGroup extends ConsumerWidget {
+  const _DepthGroup();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final level = ref.watch(deskLevelProvider);
+    return ESetGroup(
+      key: const ValueKey('adv-depth'),
+      title: l.lvPickDepth,
+      rows: [
+        ESetRow(
+          title: levelStopName(l, level),
+          text: levelLine(l, level),
+          control: ERowControl(
+            child: EButton(
+              key: const ValueKey('adv-depth-change'),
+              label: l.levelChangeTitle,
+              size: EBtnSize.sm,
+              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsLevel),
+            ),
           ),
         ),
-        SizedBox(height: Sp.x6),
-        const JumpSection(section: SettingsJump.network, child: _NetworkGroup()),
-        SizedBox(height: Sp.x6),
-        const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
-        SizedBox(height: Sp.x6),
-        // An "experimental" dialog's Open Advanced lands here (LNX3-1).
-        const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
       ],
-    ),
-  );
+    );
+  }
 }
 
 /// One row per feature: title, a hover card, a switch.

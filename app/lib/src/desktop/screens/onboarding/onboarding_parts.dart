@@ -151,18 +151,19 @@ Future<UnlockAdded> addedWallet(DeskWalletApi api, Set<String> before, String fa
   return UnlockAdded(fallback, notice: notice);
 }
 
-/// The "Wallet N" an unnamed wallet gets: N is the first number no listed wallet has (the list
-/// the app holds; none on a first run), as the list names it.
+/// The name an unnamed wallet gets: "Wallet", or "Wallet 2", "Wallet 3"… (the lowest free
+/// number) when a listed wallet has the plain one (the list the app holds; none on a first run).
 String defaultWalletName(WidgetRef ref) {
   final names = {for (final w in ref.read(deskProvider).wallets ?? const <WalletEntry>[]) w.name};
-  var n = 1;
+  if (!names.contains('Wallet')) return 'Wallet'; // l10n-ok: the stored default name
+  var n = 2;
   while (names.contains('Wallet $n')) { // l10n-ok: the stored default name
     n++;
   }
   return 'Wallet $n'; // l10n-ok: the stored default name
 }
 
-/// The wallet's name as the step's title, with a pen: [fallback] ("Wallet N") until one is
+/// The wallet's name as the step's title, with a pen: [fallback] ("Wallet") until one is
 /// typed. Edited in place like a transaction's label, with the same field: Enter, blur and a
 /// tap outside save, Esc keeps the title, an empty field goes back to the default. Not a step
 /// and never required: the name lands with the wallet ([DeskWalletApi.createWallet]'s name).
