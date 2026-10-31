@@ -182,7 +182,7 @@
       }
     }
   },
-  "deskSetAdvConfirmationsLowNote": "Fewer confirmations are faster but give less protection against chain reorganisations.",
+  "deskSetAdvConfirmationsLowNote": "Fewer confirmations are faster but less safe.",
   "@deskSetAdvConfirmationsLowNote": {
     "description": "Quiet note under the Confirmations row while the count is below the default. Factual, no alarm."
   },

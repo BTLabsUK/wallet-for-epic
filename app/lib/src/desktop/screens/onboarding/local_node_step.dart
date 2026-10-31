@@ -302,11 +302,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
     final chain = f == null ? l.deskOnbNodeDiskAbout('5 GB') : (f.chainBytesMeasured ? l.deskOnbNodeDisk(_gb(l, f.chainBytes)) : l.deskOnbNodeDiskAbout(_gb(l, f.chainBytes)));
     final windows = f?.firewallPrompt ?? Platform.isWindows;
     final facts = <(IconData, String, String)>[
-      (EIcons.server, l.deskOnbNodeSeparate, l.deskOnbNodeSeparateText),
       if (windows) (EIcons.shield, l.deskOnbNodeFirewall, l.deskOnbNodeFirewallText),
       (EIcons.folder, chain, l.deskOnbNodeGrowing(free)),
-      (EIcons.clock, l.deskOnbNodeHours, l.deskOnbNodeHoursText),
-      (EIcons.download, l.deskOnbNodeDownload, l.deskOnbNodeDownloadText),
     ];
     final p = _choice.probe;
     final existing = _choice.how == LocalNodeHow.existing;

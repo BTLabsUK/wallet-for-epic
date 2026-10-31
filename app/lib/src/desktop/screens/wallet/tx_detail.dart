@@ -23,7 +23,8 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../invoices/tx_invoice_block.dart';
 import 'cancel_note.dart';
-import '../../../help/help_content.dart' show HelpAnchor;
+import '../../../help/help_content.dart' show HelpAnchor, HelpId;
+import '../settings/help_pairing.dart' show HelpAt;
 import 'tx_details_dialog.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -379,6 +380,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       SizedBox(height: Sp.x1),
                     ],
                     Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
+                    if (t.otherWallet && !t.fromBackup && t.receivedOn == null) ...[
+                      SizedBox(height: Sp.x1),
+                      ELink(
+                        key: const ValueKey('tx-other-wallet-help'),
+                        label: l.txOtherWalletMore,
+                        onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.otherWallet)),
+                      ),
+                    ],
                     // Its sender cancelled it: Cancel is there at once, with no line to weigh.
                     if (hold != null && !hold.senderCancelled && !hold.offered) ...[
                       SizedBox(height: Sp.x1),

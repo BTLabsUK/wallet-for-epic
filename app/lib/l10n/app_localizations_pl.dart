@@ -7695,36 +7695,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskActEmptyText => 'Wysłane i odebrane płatności, od najnowszej.';
 
   @override
-  String get deskActStageWaiting => 'Oczekiwanie';
-
-  @override
-  String get deskActStageWaitingText =>
-      'Oba portfele ją podpisują. Przez Epicbox dzieje się to automatycznie.';
-
-  @override
-  String get deskActStageConfirming => 'Potwierdzanie';
-
-  @override
-  String get deskActStageConfirmingText =>
-      'W łańcuchu. Mniej więcej jeden blok na minutę.';
-
-  @override
-  String get deskActStageSpendable => 'Do wydania';
-
-  @override
-  String deskActStageSpendableText(int needed) {
-    String _temp0 = intl.Intl.pluralLogic(
-      needed,
-      locale: localeName,
-      other: 'Po $needed potwierdzenia, czyli po około $needed minuty.',
-      many: 'Po $needed potwierdzeniach, czyli po około $needed minutach.',
-      few: 'Po $needed potwierdzeniach, czyli po około $needed minutach.',
-      one: 'Po $needed potwierdzeniu, czyli po około $needed minucie.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get deskActShowAddress => 'Pokaż adres';
 
   @override
@@ -9425,13 +9395,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskOnbNodeSeparate => 'Osobny program.';
-
-  @override
-  String get deskOnbNodeSeparateText =>
-      'Uruchamia się i zatrzymuje razem z aplikacją.';
-
-  @override
   String get deskOnbNodeFirewall => 'Windows zapyta raz';
 
   @override
@@ -9442,20 +9405,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskOnbNodeGrowing(String free) {
     return 'powoli przybywa · $free';
   }
-
-  @override
-  String get deskOnbNodeHours => 'Pierwsza synchronizacja';
-
-  @override
-  String get deskOnbNodeHoursText =>
-      'pokazuje postęp; w tym czasie zastępuje go węzeł publiczny.';
-
-  @override
-  String get deskOnbNodeDownload => 'Około 4 GB do pobrania';
-
-  @override
-  String get deskOnbNodeDownloadText =>
-      'za pierwszym razem, potem trochę każdego dnia.';
 
   @override
   String get deskOnbNodeFound => 'Znaleziono';
@@ -10903,12 +10852,12 @@ class AppLocalizationsPl extends AppLocalizations {
       few: '$count płatności',
       one: '$count płatność',
     );
-    return '$_temp0 · kolumny: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. Plik $file.';
+    return '$_temp0 · $file';
   }
 
   @override
   String deskSetBackupCsvInfoNoCount(String file) {
-    return '– · kolumny: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. Plik $file.';
+    return '$file';
   }
 
   @override
@@ -10916,7 +10865,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Każdy, kto ma plik, odczyta kwoty, daty, adresy i notatki. Nie da się go zaimportować; kopię zapasową zrobisz przez „Eksportuj dane portfela”.';
+      'Każdy, kto ma plik, odczyta kwoty, daty, adresy i notatki.';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -13737,7 +13686,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get advConfirmationsLowNote =>
-      'Mniej potwierdzeń to szybciej, ale słabsza ochrona przed reorganizacją łańcucha.';
+      'Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.';
 
   @override
   String nodeFailoverSwitched(String host) {
@@ -17068,7 +17017,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'Węzeł pokazuje te monety jako wydane, a ten portfel ich nie wydał: najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania. Ten portfel pokazuje kwotę, która wyszła, a nie odbiorcę ani opłatę.';
+      'Wydane przez inny portfel z tą samą frazą odzyskiwania. Znana jest tylko kwota.';
 
   @override
   String get txSentFromOtherWalletUnverified =>
@@ -17091,7 +17040,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txDetailsOtherWalletIn =>
-      'Inny portfel z Twoją frazą odzyskiwania odebrał te monety. Ten portfel pokazuje kwotę, a nie nadawcę.';
+      'Odebrane przez inny portfel z tą samą frazą odzyskiwania. Znana jest tylko kwota.';
 
   @override
   String get expLinkedDevices => 'Połączone urządzenia';
@@ -17643,7 +17592,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsLowNote =>
-      'Mniej potwierdzeń to szybciej, ale słabsza ochrona przed reorganizacją łańcucha.';
+      'Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.';
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'Nie zmieniono potwierdzeń';
@@ -18268,7 +18217,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount gotowe. Wyłącznik awaryjny jest włączony, więc ten telefon nie może tego wysłać. Zapisz płatność lub pokaż ją jako kod QR, a potem wyślij z urządzenia, które jest online: Aktywność › Wyślij gotową płatność.';
+    return '$amount gotowe. Wyłącznik awaryjny jest włączony, więc ten telefon nie może tego wysłać: zapisz płatność lub pokaż ją jako kod QR dla urządzenia, które jest online.';
   }
 
   @override
@@ -18647,4 +18596,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSlotNotPosted => 'Płatności nie ma w sieci';
+
+  @override
+  String get txOtherWalletMore => 'Płatności z innego portfela';
+
+  @override
+  String get finalizeNotPostedHelp => 'Płacenie z Wyłącznika awaryjnego';
 }

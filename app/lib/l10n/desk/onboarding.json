@@ -470,14 +470,6 @@
       }
     }
   },
-  "deskOnbNodeSeparate": "A separate program.",
-  "@deskOnbNodeSeparate": {
-    "description": "Bold start of the first fact of the local node step, read together with the next message."
-  },
-  "deskOnbNodeSeparateText": "Starts and stops with the app.",
-  "@deskOnbNodeSeparateText": {
-    "description": "Rest of the first fact of the local node step."
-  },
   "deskOnbNodeFirewall": "Windows asks once",
   "@deskOnbNodeFirewall": {
     "description": "Bold start of a fact shown on Windows only, read together with the next message."
@@ -494,22 +486,6 @@
         "type": "String"
       }
     }
-  },
-  "deskOnbNodeHours": "First sync",
-  "@deskOnbNodeHours": {
-    "description": "Bold start of a fact on the local node step, read together with the next message."
-  },
-  "deskOnbNodeHoursText": "shows its progress; a public node stands in meanwhile.",
-  "@deskOnbNodeHoursText": {
-    "description": "Rest of the 'Hours to sync' fact. Continues the bold start in lowercase."
-  },
-  "deskOnbNodeDownload": "About 4 GB downloaded",
-  "@deskOnbNodeDownload": {
-    "description": "Bold start of a fact on the local node step, read together with the next message."
-  },
-  "deskOnbNodeDownloadText": "the first time, then a little every day.",
-  "@deskOnbNodeDownloadText": {
-    "description": "Rest of the download fact. Continues the bold start in lowercase."
   },
   "deskOnbNodeFound": "Found",
   "@deskOnbNodeFound": {

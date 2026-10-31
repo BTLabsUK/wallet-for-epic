@@ -7667,36 +7667,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправленные и полученные платежи, сначала новые.';
 
   @override
-  String get deskActStageWaiting => 'Ожидание';
-
-  @override
-  String get deskActStageWaitingText =>
-      'Оба кошелька подписывают платёж. Через Epicbox это происходит само.';
-
-  @override
-  String get deskActStageConfirming => 'Подтверждение';
-
-  @override
-  String get deskActStageConfirmingText =>
-      'Платёж в блокчейне. Примерно один блок в минуту.';
-
-  @override
-  String get deskActStageSpendable => 'Доступно';
-
-  @override
-  String deskActStageSpendableText(int needed) {
-    String _temp0 = intl.Intl.pluralLogic(
-      needed,
-      locale: localeName,
-      other: 'После $needed подтверждения, примерно через $needed минуты.',
-      many: 'После $needed подтверждений, примерно через $needed минут.',
-      few: 'После $needed подтверждений, примерно через $needed минуты.',
-      one: 'После $needed подтверждения, примерно через $needed минуту.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get deskActShowAddress => 'Показать адрес';
 
   @override
@@ -9396,13 +9366,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskOnbNodeSeparate => 'Отдельная программа.';
-
-  @override
-  String get deskOnbNodeSeparateText =>
-      'Запускается и останавливается вместе с приложением.';
-
-  @override
   String get deskOnbNodeFirewall => 'Windows один раз спросит,';
 
   @override
@@ -9413,20 +9376,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskOnbNodeGrowing(String free) {
     return 'объём медленно растёт · $free';
   }
-
-  @override
-  String get deskOnbNodeHours => 'Первая синхронизация';
-
-  @override
-  String get deskOnbNodeHoursText =>
-      'показывает ход; тем временем работает публичный узел.';
-
-  @override
-  String get deskOnbNodeDownload => 'Около 4 ГБ загрузки';
-
-  @override
-  String get deskOnbNodeDownloadText =>
-      'в первый раз, потом понемногу каждый день.';
 
   @override
   String get deskOnbNodeFound => 'Найден';
@@ -10874,12 +10823,12 @@ class AppLocalizationsRu extends AppLocalizations {
       few: '$count платежа',
       one: '$count платёж',
     );
-    return '$_temp0 · столбцы: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. Файл $file.';
+    return '$_temp0 · $file';
   }
 
   @override
   String deskSetBackupCsvInfoNoCount(String file) {
-    return '– · столбцы: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. Файл $file.';
+    return '$file';
   }
 
   @override
@@ -10887,7 +10836,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Любой, у кого есть файл, увидит суммы, даты, адреса и заметки. Импортировать его нельзя; для резервной копии используйте «Экспорт данных кошелька».';
+      'Любой, у кого есть файл, увидит суммы, даты, адреса и заметки.';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -13709,7 +13658,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advConfirmationsLowNote =>
-      'Меньше подтверждений — быстрее, но слабее защита от реорганизации цепочки.';
+      'Меньше подтверждений — быстрее, но менее надёжно.';
 
   @override
   String nodeFailoverSwitched(String host) {
@@ -17047,7 +16996,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'Узел показывает эти монеты потраченными, а этот кошелёк их не тратил: скорее всего, это сделал другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает ушедшую сумму, но не получателя и не комиссию.';
+      'Потрачено другим кошельком с той же фразой восстановления. Известна только сумма.';
 
   @override
   String get txSentFromOtherWalletUnverified =>
@@ -17070,7 +17019,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txDetailsOtherWalletIn =>
-      'Эти монеты получил другой кошелёк с вашей фразой восстановления. Этот кошелёк показывает сумму, но не отправителя.';
+      'Получено другим кошельком с той же фразой восстановления. Известна только сумма.';
 
   @override
   String get expLinkedDevices => 'Связанные устройства';
@@ -17622,7 +17571,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsLowNote =>
-      'Меньше подтверждений — быстрее, но слабее защита от реорганизации цепочки.';
+      'Меньше подтверждений — быстрее, но менее надёжно.';
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'Подтверждения не изменены';
@@ -18248,7 +18197,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount: платёж готов. Включено «Аварийное отключение», поэтому этот телефон не может его отправить. Сохраните его или покажите как QR-код, затем отправьте с устройства, которое в сети: «Активность» › «Отправить готовый платёж».';
+    return '$amount: платёж готов. Включено «Аварийное отключение», поэтому этот телефон не может его отправить: сохраните его или покажите как QR-код для устройства, которое в сети.';
   }
 
   @override
@@ -18626,4 +18575,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSlotNotPosted => 'Платёж не в сети';
+
+  @override
+  String get txOtherWalletMore => 'Платежи другого кошелька';
+
+  @override
+  String get finalizeNotPostedHelp => 'Оплата при «Аварийном отключении»';
 }

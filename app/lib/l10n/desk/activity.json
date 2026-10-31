@@ -119,36 +119,6 @@
   "@deskActEmptyText": {
     "description": "Text of the empty state on Activity when the wallet has no transactions."
   },
-  "deskActStageWaiting": "Waiting",
-  "@deskActStageWaiting": {
-    "description": "Title of the first of three stages a payment goes through, in the empty state of Activity."
-  },
-  "deskActStageWaitingText": "Both wallets sign it. Over Epicbox this is automatic.",
-  "@deskActStageWaitingText": {
-    "description": "Text of the first stage in the empty state of Activity."
-  },
-  "deskActStageConfirming": "Confirming",
-  "@deskActStageConfirming": {
-    "description": "Title of the second stage in the empty state of Activity."
-  },
-  "deskActStageConfirmingText": "On the chain. About one block a minute.",
-  "@deskActStageConfirmingText": {
-    "description": "Text of the second stage in the empty state of Activity."
-  },
-  "deskActStageSpendable": "Spendable",
-  "@deskActStageSpendable": {
-    "description": "Title of the third stage in the empty state of Activity."
-  },
-  "deskActStageSpendableText": "{needed, plural, one{After {needed} confirmation, about {needed} minute.} other{After {needed} confirmations, about {needed} minutes.}}",
-  "@deskActStageSpendableText": {
-    "description": "Text of the third stage in the empty state of Activity: the number of confirmations before the money can be spent; the minutes equal the confirmations (one block a minute).",
-    "placeholders": {
-      "needed": {
-        "type": "int",
-        "example": "3"
-      }
-    }
-  },
   "deskActShowAddress": "Show address",
   "@deskActShowAddress": {
     "description": "Primary button in the empty state of Activity: opens the Receive page."

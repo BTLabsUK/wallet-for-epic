@@ -37,6 +37,6 @@
   "deskSetAdvConfirmationsFewer": "Меньше подтверждений",
   "deskSetAdvConfirmationsMore": "Больше подтверждений",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} подтверждение} few{{count} подтверждения} many{{count} подтверждений} other{{count} подтверждения}}",
-  "deskSetAdvConfirmationsLowNote": "Меньше подтверждений — быстрее, но слабее защита от реорганизации цепочки.",
+  "deskSetAdvConfirmationsLowNote": "Меньше подтверждений — быстрее, но менее надёжно.",
   "deskSetAdvConfirmationsNotSaved": "Подтверждения не изменены"
 }

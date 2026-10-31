@@ -7376,34 +7376,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActEmptyText => 'Payments sent and received, newest first.';
 
   @override
-  String get deskActStageWaiting => 'Waiting';
-
-  @override
-  String get deskActStageWaitingText =>
-      'Both wallets sign it. Over Epicbox this is automatic.';
-
-  @override
-  String get deskActStageConfirming => 'Confirming';
-
-  @override
-  String get deskActStageConfirmingText =>
-      'On the chain. About one block a minute.';
-
-  @override
-  String get deskActStageSpendable => 'Spendable';
-
-  @override
-  String deskActStageSpendableText(int needed) {
-    String _temp0 = intl.Intl.pluralLogic(
-      needed,
-      locale: localeName,
-      other: 'After $needed confirmations, about $needed minutes.',
-      one: 'After $needed confirmation, about $needed minute.',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get deskActShowAddress => 'Show address';
 
   @override
@@ -9020,12 +8992,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskOnbNodeSeparate => 'A separate program.';
-
-  @override
-  String get deskOnbNodeSeparateText => 'Starts and stops with the app.';
-
-  @override
   String get deskOnbNodeFirewall => 'Windows asks once';
 
   @override
@@ -9036,20 +9002,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskOnbNodeGrowing(String free) {
     return 'growing slowly · $free';
   }
-
-  @override
-  String get deskOnbNodeHours => 'First sync';
-
-  @override
-  String get deskOnbNodeHoursText =>
-      'shows its progress; a public node stands in meanwhile.';
-
-  @override
-  String get deskOnbNodeDownload => 'About 4 GB downloaded';
-
-  @override
-  String get deskOnbNodeDownloadText =>
-      'the first time, then a little every day.';
 
   @override
   String get deskOnbNodeFound => 'Found';
@@ -10456,12 +10408,12 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$count payments',
       one: '1 payment',
     );
-    return '$_temp0 · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File $file.';
+    return '$_temp0 · $file';
   }
 
   @override
   String deskSetBackupCsvInfoNoCount(String file) {
-    return '– · columns: date, type, status, amount, fee, counterparty, note, slate id, kernel, block height. File $file.';
+    return '$file';
   }
 
   @override
@@ -10469,7 +10421,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetBackupNotEncryptedBody =>
-      'Anyone with the file can read amounts, dates, addresses and notes. It cannot be imported; for a backup, use Export wallet data.';
+      'Anyone with the file can read amounts, dates, addresses and notes.';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -13232,7 +13184,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advConfirmationsLowNote =>
-      'Fewer confirmations are faster but give less protection against chain reorganisations.';
+      'Fewer confirmations are faster but less safe.';
 
   @override
   String nodeFailoverSwitched(String host) {
@@ -16475,7 +16427,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsOtherWallet =>
-      'The node shows these coins spent, and this wallet did not spend them: most likely another wallet using your recovery phrase did. This wallet shows the amount that left, not who received it or the fee.';
+      'Spent by another wallet with the same recovery phrase. Only the amount is known.';
 
   @override
   String get txSentFromOtherWalletUnverified =>
@@ -16498,7 +16450,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txDetailsOtherWalletIn =>
-      'Another wallet using your recovery phrase received these coins. This wallet shows the amount, not who sent it.';
+      'Received by another wallet with the same recovery phrase. Only the amount is known.';
 
   @override
   String get expLinkedDevices => 'Linked devices';
@@ -16972,7 +16924,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncHelpStep4 =>
-      'The blockchain confirms. The chain decides the final state.';
+      'The chain confirms. The chain decides the final state.';
 
   @override
   String get syncHelpDiagram =>
@@ -17031,7 +16983,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvConfirmationsLowNote =>
-      'Fewer confirmations are faster but give less protection against chain reorganisations.';
+      'Fewer confirmations are faster but less safe.';
 
   @override
   String get deskSetAdvConfirmationsNotSaved => 'Confirmations not changed';
@@ -17636,7 +17588,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount is finished. Kill switch is on, so this phone cannot post it. Save it or show it as a QR code, then post it on a device that is online: Activity › Post a finished payment.';
+    return '$amount is finished. Kill switch is on, so this phone cannot post it: save it or show it as a QR code for a device that is online.';
   }
 
   @override
@@ -18006,4 +17958,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSlotNotPosted => 'Payment not posted';
+
+  @override
+  String get txOtherWalletMore => 'Payments by another wallet';
+
+  @override
+  String get finalizeNotPostedHelp => 'Paying from Kill switch';
 }

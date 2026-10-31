@@ -6918,31 +6918,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskActEmptyText => '发送和接收的付款，最新的在前。';
 
   @override
-  String get deskActStageWaiting => '等待中';
-
-  @override
-  String get deskActStageWaitingText => '双方钱包都要签名。使用 Epicbox 时会自动完成。';
-
-  @override
-  String get deskActStageConfirming => '确认中';
-
-  @override
-  String get deskActStageConfirmingText => '已上链。大约每分钟一个区块。';
-
-  @override
-  String get deskActStageSpendable => '可用';
-
-  @override
-  String deskActStageSpendableText(int needed) {
-    String _temp0 = intl.Intl.pluralLogic(
-      needed,
-      locale: localeName,
-      other: '$needed 个确认之后，约 $needed 分钟。',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get deskActShowAddress => '显示地址';
 
   @override
@@ -8439,12 +8414,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskOnbNodeSeparate => '独立程序';
-
-  @override
-  String get deskOnbNodeSeparateText => '随应用启动和停止。';
-
-  @override
   String get deskOnbNodeFirewall => 'Windows 会询问一次';
 
   @override
@@ -8454,18 +8423,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskOnbNodeGrowing(String free) {
     return '并缓慢增长 · $free';
   }
-
-  @override
-  String get deskOnbNodeHours => '首次同步';
-
-  @override
-  String get deskOnbNodeHoursText => '会显示进度；期间由公共节点代替。';
-
-  @override
-  String get deskOnbNodeDownload => '下载约 4 GB';
-
-  @override
-  String get deskOnbNodeDownloadText => '首次下载这么多，之后每天下载少量数据。';
 
   @override
   String get deskOnbNodeFound => '已找到';
@@ -9808,20 +9765,19 @@ class AppLocalizationsZh extends AppLocalizations {
       locale: localeName,
       other: '$count 笔付款',
     );
-    return '$_temp0 · 列：日期、类型、状态、金额、手续费、对方、备注、Slate ID、内核、区块高度。文件 $file。';
+    return '$_temp0 · $file';
   }
 
   @override
   String deskSetBackupCsvInfoNoCount(String file) {
-    return '– · 列：日期、类型、状态、金额、手续费、对方、备注、Slate ID、内核、区块高度。文件 $file。';
+    return '$file';
   }
 
   @override
   String get deskSetBackupNotEncrypted => '未加密。';
 
   @override
-  String get deskSetBackupNotEncryptedBody =>
-      '任何拿到文件的人都能看到金额、日期、地址和备注。它无法导入；如需备份，请使用“导出钱包数据”。';
+  String get deskSetBackupNotEncryptedBody => '任何拿到文件的人都能看到金额、日期、地址和备注。';
 
   @override
   String deskSetBackupReminderNever(int count) {
@@ -12459,7 +12415,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get advConfirmationsLowNote => '确认数越少越快，但对链重组的防护越弱。';
+  String get advConfirmationsLowNote => '确认数越少越快，但越不安全。';
 
   @override
   String nodeFailoverSwitched(String host) {
@@ -15519,8 +15475,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get txDetailsOtherWallet =>
-      '节点显示这些币已被花掉，而本钱包没有花它们：很可能是另一个使用你助记词的钱包花掉的。本钱包只显示离开的金额，不显示收款方和手续费。';
+  String get txDetailsOtherWallet => '由使用相同助记词的另一个钱包花掉。只知道金额。';
 
   @override
   String get txSentFromOtherWalletUnverified => '由另一个钱包发出 · 未核实';
@@ -15540,7 +15495,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get txDetailsOtherWalletIn => '这些币由另一个使用您助记词的钱包收到。本钱包只显示金额，不显示发送方。';
+  String get txDetailsOtherWalletIn => '由使用相同助记词的另一个钱包收到。只知道金额。';
 
   @override
   String get expLinkedDevices => '关联设备';
@@ -16046,7 +16001,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetAdvConfirmationsLowNote => '确认数越少越快，但对链重组的防护越弱。';
+  String get deskSetAdvConfirmationsLowNote => '确认数越少越快，但越不安全。';
 
   @override
   String get deskSetAdvConfirmationsNotSaved => '确认数未更改';
@@ -16618,7 +16573,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String finalizeNotPostedBody(String amount) {
-    return '$amount 已完成。“紧急断网”已开启，所以这部手机无法广播它。请保存它或显示为二维码，然后在联网的设备上广播：活动 › 广播已完成的付款。';
+    return '$amount 已完成。“紧急断网”已开启，所以这部手机无法广播它：请保存它，或显示为二维码，供联网的设备使用。';
   }
 
   @override
@@ -16964,4 +16919,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlotNotPosted => '付款不在网络上';
+
+  @override
+  String get txOtherWalletMore => '另一个钱包的付款';
+
+  @override
+  String get finalizeNotPostedHelp => '在“紧急断网”下付款';
 }

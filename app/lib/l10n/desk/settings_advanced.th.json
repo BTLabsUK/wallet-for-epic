@@ -37,6 +37,6 @@
   "deskSetAdvConfirmationsFewer": "ลดการยืนยัน",
   "deskSetAdvConfirmationsMore": "เพิ่มการยืนยัน",
   "deskSetAdvConfirmationsCount": "{count, plural, other{ยืนยัน {count} ครั้ง}}",
-  "deskSetAdvConfirmationsLowNote": "ยิ่งยืนยันน้อยยิ่งเร็ว แต่ป้องกันการจัดเรียงบล็อกเชนใหม่ได้น้อยลง",
+  "deskSetAdvConfirmationsLowNote": "ยิ่งยืนยันน้อยยิ่งเร็ว แต่ปลอดภัยน้อยลง",
   "deskSetAdvConfirmationsNotSaved": "ไม่ได้เปลี่ยนการยืนยัน"
 }
