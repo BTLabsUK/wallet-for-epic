@@ -2455,15 +2455,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               ),
             (
               l.deskSendFactVia,
-              // Plain HTTP to another computer from a code: said where the method is.
-              code != null && d.method == TxMethod.http && d.to != null && plainHttpNeedsConsent(d.to!)
-                  ? Wrap(
-                      spacing: Sp.x2,
-                      runSpacing: Sp.x1,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [Text(via, style: ts.body), EBadge(l.sendPlainHttpRow, key: const ValueKey('send-review-plain-http'), tone: ETone.warn)],
-                    )
-                  : Text(via, style: ts.body),
+              Text(via, style: ts.body),
             ),
             (
               l.deskSendNetworkFee,

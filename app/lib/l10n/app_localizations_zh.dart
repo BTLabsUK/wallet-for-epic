@@ -13255,9 +13255,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendDirectHost => '主机';
 
   @override
-  String get sendPlainHttpRow => '未加密（纯 HTTP）';
-
-  @override
   String get scanNotEpicTitle => '不是 Epic 码';
 
   @override

@@ -14581,9 +14581,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendDirectHost => 'Хост';
 
   @override
-  String get sendPlainHttpRow => 'Без шифрования (обычный HTTP)';
-
-  @override
   String get scanNotEpicTitle => 'Это не код Epic';
 
   @override

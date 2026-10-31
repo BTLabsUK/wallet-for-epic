@@ -3713,7 +3713,6 @@
   "sendOriginLink": "来自链接",
   "sendOriginPasted": "已粘贴",
   "sendDirectHost": "主机",
-  "sendPlainHttpRow": "未加密（纯 HTTP）",
   "scanNotEpicTitle": "不是 Epic 码",
   "scanNotEpicBody": "这不是 Epic 地址，也不是付款码。",
   "scanBadAddress": "此码中的地址无效。",

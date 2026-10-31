@@ -3713,7 +3713,6 @@
   "sendOriginLink": "Из ссылки",
   "sendOriginPasted": "Вставлено",
   "sendDirectHost": "Хост",
-  "sendPlainHttpRow": "Без шифрования (обычный HTTP)",
   "scanNotEpicTitle": "Это не код Epic",
   "scanNotEpicBody": "Это не адрес Epic и не код оплаты.",
   "scanBadAddress": "Адрес в этом коде недействителен.",

@@ -13734,9 +13734,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendDirectHost => 'โฮสต์';
 
   @override
-  String get sendPlainHttpRow => 'ไม่ได้เข้ารหัส (HTTP ธรรมดา)';
-
-  @override
   String get scanNotEpicTitle => 'ไม่ใช่โค้ด Epic';
 
   @override

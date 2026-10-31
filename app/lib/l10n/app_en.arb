@@ -18673,10 +18673,6 @@
   "@sendDirectHost": {
     "description": "Send review: caption over the host of a Link address that came from a code."
   },
-  "sendPlainHttpRow": "Not encrypted (plain HTTP)",
-  "@sendPlainHttpRow": {
-    "description": "Send review: warning row for a Link · HTTP address over plain http to another device."
-  },
   "scanNotEpicTitle": "Not an Epic code",
   "@scanNotEpicTitle": {
     "description": "Title of the sheet after a scan or link that read something other than an Epic address or payment code."

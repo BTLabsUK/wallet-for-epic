@@ -3153,18 +3153,6 @@ class _SendViewState extends ConsumerState<SendView> {
         },
         mono: false,
       ),
-      if (to.kind == RecipientKind.http && plainHttpToOtherDevice(to.address))
-        Padding(
-          padding: const EdgeInsets.only(bottom: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.warning_amber, size: 18, color: t.warn),
-              const SizedBox(width: 8),
-              Expanded(child: Text(l.sendPlainHttpRow)),
-            ],
-          ),
-        ),
       // What the recipient will read, as entered; the history keeps it as the private note.
       if (_noteText.isNotEmpty)
         Padding(

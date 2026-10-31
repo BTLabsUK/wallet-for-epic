@@ -3713,7 +3713,6 @@
   "sendOriginLink": "Aus einem Link",
   "sendOriginPasted": "Eingefügt",
   "sendDirectHost": "Host",
-  "sendPlainHttpRow": "Nicht verschlüsselt (reines HTTP)",
   "scanNotEpicTitle": "Kein Epic-Code",
   "scanNotEpicBody": "Dies ist keine Epic-Adresse und kein Zahlungscode.",
   "scanBadAddress": "Die Adresse in diesem Code ist ungültig.",

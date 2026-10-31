@@ -14087,9 +14087,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendDirectHost => 'Host';
 
   @override
-  String get sendPlainHttpRow => 'Not encrypted (plain HTTP)';
-
-  @override
   String get scanNotEpicTitle => 'Not an Epic code';
 
   @override

@@ -22334,12 +22334,6 @@ abstract class AppLocalizations {
   /// **'Host'**
   String get sendDirectHost;
 
-  /// Send review: warning row for a Link · HTTP address over plain http to another device.
-  ///
-  /// In en, this message translates to:
-  /// **'Not encrypted (plain HTTP)'**
-  String get sendPlainHttpRow;
-
   /// Title of the sheet after a scan or link that read something other than an Epic address or payment code.
   ///
   /// In en, this message translates to:

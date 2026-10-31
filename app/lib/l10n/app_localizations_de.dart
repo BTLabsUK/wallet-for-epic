@@ -14249,9 +14249,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendDirectHost => 'Host';
 
   @override
-  String get sendPlainHttpRow => 'Nicht verschlüsselt (reines HTTP)';
-
-  @override
   String get scanNotEpicTitle => 'Kein Epic-Code';
 
   @override

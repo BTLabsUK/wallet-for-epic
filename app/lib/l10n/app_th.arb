@@ -3713,7 +3713,6 @@
   "sendOriginLink": "จากลิงก์",
   "sendOriginPasted": "วางมา",
   "sendDirectHost": "โฮสต์",
-  "sendPlainHttpRow": "ไม่ได้เข้ารหัส (HTTP ธรรมดา)",
   "scanNotEpicTitle": "ไม่ใช่โค้ด Epic",
   "scanNotEpicBody": "นี่ไม่ใช่ที่อยู่ Epic หรือโค้ดชำระเงิน",
   "scanBadAddress": "ที่อยู่ในโค้ดนี้ไม่ถูกต้อง",
