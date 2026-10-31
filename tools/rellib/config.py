@@ -103,6 +103,13 @@ class Pipeline:
                 if p not in PLATFORMS:
                     raise ConfigError(f"{path}: step {name}: unknown platform {p}")
             parse_duration(s.get("timeout"))
+            for v in s.get("variants", []):
+                if v not in VARIANTS:
+                    raise ConfigError(f"{path}: step {name}: unknown variant {v}")
+            # warn_only: a failure is shown as a warning and holds nothing. Only for what comes
+            # after the release is live; a gate, a proof or a build never just warns.
+            if s.get("warn_only") and (kind in ("gate", "builtin", "handoff") or s.get("proof") or s.get("outputs")):
+                raise ConfigError(f"{path}: step {name}: warn_only is for after-publish steps, never a gate, proof or build")
         self._check_cycles()
 
     def _check_cycles(self):
@@ -152,7 +159,7 @@ DEFAULT_SCOPE = {
     "test": False,
     "platforms": {p: True for p in PLATFORMS},
     "variants": {v: True for v in VARIANTS},
-    "stores": {"play": False},
+    "stores": {"play": False, "play_promote": ""},
     "publish": {"target": "live", "manifests": True, "notes": "", "github": True},
     "skip": {},
     "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "waive": {}},
@@ -292,6 +299,14 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
         errs.append("no variant in scope: switch on tor, notor or both")
     if scope["stores"].get("play") and not scope["platforms"].get("android"):
         errs.append("stores.play needs android in scope")
+    promote = scope["stores"].get("play_promote") or ""
+    if promote and not scope["stores"].get("play"):
+        errs.append("stores.play_promote needs stores.play (the bundle is uploaded to internal first)")
+    if promote in ("internal", "production"):
+        errs.append(f"stores.play_promote = {promote!r}: a testing track after internal (e.g. beta); "
+                    "production stays a click in Play Console")
+    if promote and not scope["variants"].get("tor"):
+        errs.append("stores.play_promote needs the tor variant (Play takes the build with Tor)")
     if scope["publish"]["manifests"]:
         if not scope["platforms"].get("android"):
             errs.append("publish.manifests needs android in scope (app/tool/release_android.sh builds the manifest "
@@ -345,7 +360,9 @@ def scope_summary(scope):
     parts = [f"{', '.join(plats) or 'nothing'} ({vars_})"]
     if out:
         parts.append(f"out of scope: {', '.join(out)}")
-    stores = [k for k, v in scope["stores"].items() if v]
+    stores = [k for k in ("play",) if scope["stores"].get(k)]
+    if stores and scope["stores"].get("play_promote"):
+        stores = [f"play (internal, then {scope['stores']['play_promote']})"]
     if stores:
         parts.append(f"stores: {', '.join(stores)}")
     if not scope["publish"]["manifests"]:

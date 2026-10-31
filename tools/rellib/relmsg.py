@@ -102,19 +102,27 @@ class Relmsg:
         args = ["platform", platform, status] + (["--note", note[:200]] if note else [])
         self._call(args)
 
-    def alert(self, title, step=None, log=None, expects=None, key=None):
+    def alert(self, title, step=None, log=None, expects=None, key=None, detail=None):
         if not self.release_id:
             return
         args = ["alert", title[:200]]
         if step:
             args += ["--step", step]
-        if log and os.path.exists(log):
+        if detail:
+            args += ["--detail", str(detail)[:3000]]
+        elif log and os.path.exists(log):
             args += ["--log", log]
         if expects:
             args += ["--expects", expects[:500]]
         if key:
             args += ["--key", key]
         self._call(args)
+
+    def link(self, label, url):
+        """A labelled link on the live message (the same label replaces it)."""
+        if not self.release_id:
+            return
+        self._call(["link", label, url])
 
     def gate_open(self, name, summary_file):
         """-> (gate_id or None, error text or None). Opening an existing gate returns it."""

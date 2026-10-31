@@ -17,7 +17,7 @@ import tempfile
 from . import failures as known, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
-from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_USAGE, EXIT_WAITING, Engine)
+from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
 from .graph import build_graph, dependents
 from .relmsg import Relmsg
 from .run import Busy, Run, read_json, write_json
@@ -265,8 +265,7 @@ class App:
         for s in run.steps:
             st = run.status(s.id)
             if st["status"] not in ("pending", "running"):
-                rs = {"held": "waiting", "closed": "waiting"}.get(st["status"], st["status"])
-                eng.relmsg.step(s.id, rs, note=st.get("note") or st.get("reason"), label=s.title)
+                eng.relmsg.step(s.id, relmsg_state(st), note=st.get("note") or st.get("reason"), label=s.title)
 
     def cmd_resume(self, a):
         run = self.load_run()
@@ -385,7 +384,9 @@ class App:
             if run.info.get("kind") == "rollback":
                 eng.relmsg.done("ok", note=f"rolled back {run.info.get('replaces')} → {run.info['version']}")
             else:
-                eng.relmsg.done("ok", note=f"{run.info['version']} published ({run.info['target']})")
+                warned = [s.id for s in run.steps if run.status(s.id).get("warned")]
+                eng.relmsg.done("ok", note=f"{run.info['version']} published ({run.info['target']})"
+                                + (f"; not blocking, failed: {', '.join(warned)}" if warned else ""))
         return code
 
     # ---- looking ----
@@ -633,7 +634,7 @@ def report(run):
 :root[data-theme=light]{{--bg:#fff;--fg:#1f2328;--mut:#59636e;--line:#d0d7de}}
 body{{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1100px}}
 table{{border-collapse:collapse;width:100%}}td,th{{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}}
-.done td:nth-child(2){{color:var(--ok)}}.failed td:nth-child(2){{color:var(--bad)}}.waiting td:nth-child(2),.held td:nth-child(2){{color:var(--wait)}}
+.done td:nth-child(2){{color:var(--ok)}}.failed td:nth-child(2){{color:var(--bad)}}.waiting td:nth-child(2),.held td:nth-child(2),.warned td:nth-child(2){{color:var(--wait)}}
 .skipped td:nth-child(2){{color:var(--mut)}}button{{float:right}}.wrap{{overflow-x:auto}}</style></head><body>
 <button onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'':'light'">Light/dark</button>
 <pre>{h.escape(chr(10).join(md[:12]))}</pre><div class="wrap"><table><tr><th>step</th><th>status</th><th>time</th><th>tries</th><th>size</th><th>note</th></tr>{trs}</table></div></body></html>"""

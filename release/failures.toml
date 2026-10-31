@@ -116,3 +116,27 @@ id = "check-red"
 steps = ["source-check"]
 pattern = "(Some tests failed|\\d+ tests? failed|check failed)"
 hint = "tools/check.sh is red on this commit. Fix on main (not in the release), merge, and start a new run from the new commit."
+
+[[failure]]
+id = "tag-not-on-main"
+steps = ["tag"]
+pattern = "is not on main in"
+hint = "The release commit is not on main. Merge it into main (fast-forward), then `tools/rel retry tag`; nothing has left the machine yet."
+
+[[failure]]
+id = "screens-lock"
+steps = ["screens"]
+pattern = "screens: another run holds"
+hint = "Another tools/screens.sh holds /tmp/epic-build/screens/.lock. Wait for it, then `tools/rel run screens --again` (the release is not held)."
+
+[[failure]]
+id = "screens-tours"
+steps = ["screens"]
+pattern = "screens: no catalog made for"
+hint = "A screenshot tour failed; its logs are in /tmp/epic-build/screens/failed-<version>.logs. Fix the tour on main and run the catalogue by hand later (tools/screens.sh <version> && tools/screens-publish.sh <version>)."
+
+[[failure]]
+id = "screens-publish-host"
+steps = ["screens"]
+pattern = "screens-publish: (no ssh host|WARNING .* does not serve)"
+hint = "The gallery deploy: set SCREENS_SSH_HOST in ~/.config/btlabs/screens-publish.env, or check the landing page's nginx site (epiccash-landing deploy/install.sh); then `tools/rel run screens --again`."

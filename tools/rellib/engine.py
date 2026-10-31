@@ -43,6 +43,14 @@ def place(src, dst):
         shutil.copy2(os.path.realpath(src), dst)
 
 
+def relmsg_state(st):
+    """A step's state as relmsg shows it: a warn_only step that failed shows as failed (with its
+    WARNING note and no alert) although the run carries on."""
+    if st.get("warned"):
+        return "failed"
+    return {"held": "waiting", "closed": "waiting"}.get(st["status"], st["status"])
+
+
 class Engine:
     def __init__(self, run, pipeline, hosts, repo, *, relmsg=None, dry=False, echo=None, failures=None):
         self.run = run
@@ -153,6 +161,11 @@ class Engine:
             if hits:
                 result["hint"] = " | ".join(h for _, h in hits)
                 result["known"] = [i for i, _ in hits]
+            if step.warn_only:
+                # After the release is live (pipeline.toml warn_only): a failure is a warning in the
+                # live message and the report; nothing after it is held and the run still ends ok.
+                result.update(status="done", warned=True,
+                              note=f"WARNING, not blocking: {result.get('note') or 'failed'}")
         if result["status"] in ("done", "failed", "skipped"):
             result["ended"] = now_iso()
             result["duration_s"] = dur
@@ -169,13 +182,29 @@ class Engine:
         if st.get("hint"):
             self.echo(f"   hint: {st['hint']}")
         if self.relmsg:
-            rs = {"held": "waiting", "closed": "waiting"}.get(st["status"], st["status"])
+            rs = relmsg_state(st)
             self.relmsg.step(step.id, rs, note=st.get("note"))
+            if st["status"] == "done" and not st.get("warned") and not self.dry:
+                self.forward_messages(step)
             if st["status"] == "failed":
                 self.relmsg.alert(f"{step.id} failed", step=step.id, log=log,
                                   expects=st.get("hint") or "retry, skip or abort? (tools/rel retry|skip|debug)",
                                   key=f"{self.info['run_id']}/{step.id}/{attempt}")
         return st
+
+    def forward_messages(self, step):
+        """A step may leave, in its stage folder, links.json ([{label, url}]: links on the live
+        message, e.g. the screen catalogue) and notice.json ({title, detail, expects}: one message
+        to the owner, e.g. the announcement text). Best effort, like every status call."""
+        out = os.path.join(self.run.step_dir(step.id), "out")
+        links = read_json(os.path.join(out, "links.json"))
+        for ln in links if isinstance(links, list) else []:
+            if isinstance(ln, dict) and str(ln.get("url", "")).startswith("https://"):
+                self.relmsg.link(str(ln.get("label") or step.id)[:40], ln["url"])
+        notice = read_json(os.path.join(out, "notice.json"))
+        if isinstance(notice, dict) and notice.get("title"):
+            self.relmsg.alert(str(notice["title"]), step=step.id, detail=notice.get("detail"),
+                              expects=notice.get("expects"), key=f"{self.info['run_id']}/{step.id}/notice")
 
     def try_reuse(self, step, log):
         """-> (key or None, a done result when an earlier passing result has the same key).

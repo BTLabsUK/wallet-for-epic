@@ -192,6 +192,40 @@ class GraphTest(unittest.TestCase):
         ids = [x.id for x in steps]
         self.assertIn("build-play-tor", ids)
         self.assertIn("store-play-tor", ids)
+        # One bundle per version code: the build with Tor only.
+        self.assertNotIn("build-play-notor", ids)
+        self.assertNotIn("store-play-notor", ids)
+        self.assertNotIn("store-play-promote", ids)
+        s, steps = graph(sets=["stores.play=true", "stores.play_promote=beta"])
+        by = {x.id: x for x in steps}
+        self.assertEqual(by["store-play-promote"].needs, ["store-play-tor"])
+        self.assertIn("tools/play-upload.sh --promote beta", by["store-play-promote"].run)
+        self.assertIn("store-play-promote", by["cleanup"].needs)
+        self.assertIn("internal, then beta", scope_summary(s))
+        for sets in (["stores.play_promote=beta"], ["stores.play=true", "stores.play_promote=production"]):
+            with self.assertRaises(ConfigError):
+                graph(sets=sets)
+
+    def test_tag_screens_and_announce(self):
+        s, steps = graph()
+        by = {x.id: x for x in steps}
+        ids = [x.id for x in steps]
+        # The tag after the gate, before anything leaves the machine.
+        self.assertEqual(by["tag"].needs, ["publish-gate"])
+        self.assertIn("tag", by["publish-downloads"].needs)
+        self.assertTrue(by["tag"].publish and not by["tag"].skippable and not by["tag"].warn_only)
+        self.assertIn("tag.sh 26.10.25 " + "a" * 40, by["tag"].run)
+        # Screens and the Telegram draft after the read-back, never holding the release.
+        for sid, script in (("screens", "screens.sh 26.10.25 /r/26.10.25/run-1/steps/screens/out"),
+                            ("announce", "announce.py 26.10.25")):
+            x = by[sid]
+            self.assertEqual(x.needs, ["verify-live"])
+            self.assertTrue(x.publish and x.warn_only and x.skippable)
+            self.assertIn(script, x.run)
+            self.assertLess(ids.index("verify-live"), ids.index(sid))
+            self.assertIn(sid, by["cleanup"].needs)
+        self.assertEqual(by["screens"].lane, "screens")
+        self.assertFalse(by["screens"].heavy)  # tools/screens.sh takes its own build-slot slots
 
     def test_github_mirror_on_by_default_and_switchable_off(self):
         s, steps = graph(sets=["publish.github=false"])

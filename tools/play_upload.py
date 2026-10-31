@@ -3,7 +3,10 @@
 """Uploads a Play App Bundle to a Google Play testing track (tools/play-upload.sh, https://docs.btlabs.uk/developers/build/variants/).
 
 One edit: edits.insert, bundles.upload, tracks.update (one release, status completed), then
-edits.commit; with --validate, edits.validate and the edit is deleted instead. Signs in as the
+edits.commit; with --validate, edits.validate and the edit is deleted instead. With
+--promote-code instead of --aab, a bundle uploaded before (e.g. to internal) is put on --track
+the same way, without a new upload: Play refuses a version code twice ("Version code already
+used"), so this is how a release moves from internal testing to the open beta. Signs in as the
 service account in the key file (OAuth JWT bearer, RS256), so it needs only the standard library
 and `cryptography`. The key is read, never printed.
 """
@@ -63,23 +66,30 @@ def main():
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument('--key', required=True, help='service account JSON key')
     p.add_argument('--package', required=True)
-    p.add_argument('--aab', required=True)
+    p.add_argument('--aab', help='the App Bundle to upload')
+    p.add_argument('--promote-code', help='instead of --aab: put this already uploaded version code on --track')
     p.add_argument('--track', default='internal')
     p.add_argument('--name', required=True, help='release name, e.g. "26.10.20 (26102000)"')
     p.add_argument('--notes-file', help='release notes, one language: the text of the file')
     p.add_argument('--lang', default='en-GB')
     p.add_argument('--validate', action='store_true', help='validate the edit, then delete it')
     a = p.parse_args()
+    if bool(a.aab) == bool(a.promote_code):
+        p.error('give --aab (upload) or --promote-code (an uploaded bundle), not both')
 
     tok = token(a.key)
     base = f'{API}/{a.package}/edits'
     edit = call(tok, 'POST', base, {})['id']
     print(f'edit {edit}')
-    with open(a.aab, 'rb') as f:
-        up = call(tok, 'POST', f'{UPLOAD}/{a.package}/edits/{edit}/bundles?uploadType=media',
-                  data=f.read(), ctype='application/octet-stream', timeout=900)
-    code = up['versionCode']
-    print(f'bundle uploaded: versionCode {code}, sha256 {up.get("sha256", "?")}')
+    if a.promote_code:
+        code = a.promote_code
+        print(f'versionCode {code}: uploaded before, now onto {a.track}')
+    else:
+        with open(a.aab, 'rb') as f:
+            up = call(tok, 'POST', f'{UPLOAD}/{a.package}/edits/{edit}/bundles?uploadType=media',
+                      data=f.read(), ctype='application/octet-stream', timeout=900)
+        code = up['versionCode']
+        print(f'bundle uploaded: versionCode {code}, sha256 {up.get("sha256", "?")}')
     release = {'name': a.name, 'versionCodes': [str(code)], 'status': 'completed'}
     if a.notes_file:
         release['releaseNotes'] = [{'language': a.lang, 'text': open(a.notes_file).read().strip()}]

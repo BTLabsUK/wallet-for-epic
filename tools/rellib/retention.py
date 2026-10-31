@@ -32,8 +32,15 @@ def mark_published(run):
         run.info["published_scratch"] = now_iso()
         run.save_info()
         return
+    # The tag step's tag (v<version>, or v<version>-rN for a rebuild of the same version).
+    tag = f"v{run.info['version']}"
+    try:
+        with open(os.path.join(run.step_dir("tag"), "out", "tag.txt"), encoding="utf-8") as f:
+            tag = f.read().strip() or tag
+    except OSError:
+        pass
     pubs.append({"version": run.info["version"], "run_id": run.info["run_id"], "run": run.path, "at": now_iso(),
-                 "tag": f"v{run.info['version']}", "kind": run.info.get("kind", "release")})
+                 "tag": tag, "kind": run.info.get("kind", "release")})
     write_json(os.path.join(root, "published.json"), pubs)
     run.info["published"] = pubs[-1]["at"]
     run.save_info()

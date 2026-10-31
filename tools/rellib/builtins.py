@@ -204,6 +204,33 @@ def preflight(engine, step, say):
         else:
             warns.append("host.signer.gitlab_token_expires not set: token expiry not checked")
             say("warn", warns[-1])
+    ids = {x.base for x in engine.run.steps}
+    if live and "tag" in ids:
+        # The tag step refuses a commit that is not on main: say so now, not after the gate.
+        main = os.path.expanduser(hosts["path"].get("main_checkout") or engine.repo)
+        rc, _ = sh(["git", "-C", main, "merge-base", "--is-ancestor", info["commit"], "main"], lambda *a: None)
+        if rc == 0:
+            ok(f"release commit {info['commit'][:12]} is on main ({main})")
+        else:
+            warns.append(f"release commit {info['commit'][:12]} is not on main ({main}): merge it before the "
+                         "publish gate, or step tag refuses it")
+            say("warn", warns[-1])
+    if live and "screens" in ids and engine.run.status("screens").get("status") != "skipped":
+        conf = os.environ.get("SCREENS_PUBLISH_CONF", os.path.expanduser("~/.config/btlabs/screens-publish.env"))
+        if not os.path.isfile(conf):
+            warns.append(f"no {conf}: the screens step will warn (it never holds the release)")
+            say("warn", warns[-1])
+    if live and ("announce" in ids or "publish-page" in ids):
+        page = os.path.expanduser(hosts["path"].get("page_repo", ""))
+        log = os.path.join(page, "site/epic-cash/changelog/index.html")
+        try:
+            has = f'id="v{info["version"]}"' in open(log, encoding="utf-8").read()
+        except OSError:
+            has = False
+        if not has:
+            warns.append(f"the changelog has no entry for {info['version']} ({log}): publish-page will refuse, "
+                         "announce will warn; write it before the gate")
+            say("warn", warns[-1])
     if any(s["platforms"].get(p) and p not in s["proof"]["waive"] for p in PLATFORMS):
         prev = resolve_previous(engine)
         if not prev or not os.path.isdir(prev.get("dir", "")):
@@ -615,7 +642,10 @@ def gate_summary(engine):
     skips = [x for x in run.steps if run.status(x.id)["status"] == "skipped"]
     if skips:
         lines.append("Skipped (not done, not passed): " + "; ".join(f"{x.id} ({run.status(x.id).get('reason', '')})" for x in skips))
-    lines.append("Approve = publish in this order: downloads → page → source → manifests last.")
+    lines.append("Approve = tag, then publish in this order: downloads → page → source → manifests last.")
+    after = [x.id for x in run.steps if x.base in ("screens", "announce", "store-play", "store-play-promote")]
+    if after:
+        lines.append("Then, after the read-back: " + ", ".join(after) + " (screens and announce never hold the release).")
     text = "\n".join(lines)
     return text[:2900]
 
