@@ -527,6 +527,10 @@ final updateApkUrlProvider = Provider<Uri Function(Uri url)>(
 /// manifest revoked. The phone keeps it in the secret store, the desktop in its desk store.
 const String updateStateKey = 'app.update_state';
 
+/// Where a stored [updateStateKey] value that does not read as a state is kept before a good
+/// one is stored over it, so it can still be looked at.
+const String updateStateUnreadableKey = 'app.update_state.unreadable';
+
 /// The version whose update notice the user closed: it is not offered again by itself.
 const String updateNoticeDismissedKey = 'app.update_notice_dismissed';
 
@@ -587,12 +591,20 @@ class UpdateStateKeeper {
   /// The last manifest accepted, also in an earlier run; an older one is refused (FORMAT.md §6).
   ManifestState? state;
 
-  /// Whether the stored state was read. Until it is, nothing is stored over it: a store that
-  /// could not be read is asked again at the next check.
+  /// Whether the stored state was read. Until it is, nothing is stored over it and no update
+  /// is offered: a store that could not be read is asked again at the next check.
   bool _read = false;
 
-  Future<void> readOnce() async {
-    if (_read) return;
+  bool get ready => _read;
+
+  /// The stored text that did not read as a state; kept under [updateStateUnreadableKey] before
+  /// the first good state is stored over it.
+  String? _unreadable;
+
+  /// Reads the stored state if it was not read yet; false when the store cannot be read, and
+  /// then the check offers nothing.
+  Future<bool> readOnce() async {
+    if (_read) return true;
     try {
       final text = await read(updateStateKey);
       Object? json;
@@ -603,11 +615,14 @@ class UpdateStateKeeper {
           json = const <String, Object?>{};
         }
       }
-      state = laterUpdateState(storedUpdateState(json), state);
+      final stored = storedUpdateState(json);
+      if (text != null && stored == null) _unreadable = text;
+      state = laterUpdateState(stored, state);
       _read = true;
     } on Object catch (e) {
       logWarn('update', '${logPrefix}stored update.json state not read: ${e.runtimeType}');
     }
+    return _read;
   }
 
   /// Remembers [next], the state of a manifest that just verified, and stores it.
@@ -615,6 +630,17 @@ class UpdateStateKeeper {
     if (next == null || next == state) return;
     state = next;
     if (!_read) return;
+    final unreadable = _unreadable;
+    if (unreadable != null) {
+      try {
+        await write(updateStateUnreadableKey, unreadable);
+        _unreadable = null;
+      } on Object catch (e) {
+        // Not stored over while it is not kept aside: the next manifest tries again.
+        logWarn('update', '${logPrefix}unreadable update.json state not kept: ${e.runtimeType}');
+        return;
+      }
+    }
     try {
       await write(updateStateKey, jsonEncode(next.toJson()));
     } on Object catch (e) {
@@ -806,6 +832,12 @@ class UpdateNotifier extends Notifier<UpdateState> {
         return (candidate, null);
       }
 
+      // Without the stored state there is no floor to check against: nothing is offered.
+      if (!_manifest.ready) {
+        logInfo('update', 'no update offered: the stored update.json state was not read');
+        noInformation();
+        return;
+      }
       final results = await Future.wait([for (final url in urls) readOne(url)]);
       if (!ref.mounted) return;
       final read = highestSerial([for (final (candidate, _) in results) candidate], (c) => c.state!);

@@ -12,7 +12,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/btlabs_public.dart' show ManifestState;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
-import 'package:epic_wallet/src/updater.dart' show updateManifestSources, updateKeyringProvider, updateStateKey;
+import 'package:epic_wallet/src/updater.dart' show updateManifestSources, updateKeyringProvider, updateStateKey, updateStateUnreadableKey;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -292,5 +292,6 @@ void main() {
     await secrets.write(updateStateKey, '{broken');
     expect((await run(newer)).version, next);
     expect(ManifestState.fromJson(await DeskStore(secrets).readJson(updateStateKey))?.serial, 1790000000);
+    expect(await secrets.read(updateStateUnreadableKey), '{broken');
   }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 }

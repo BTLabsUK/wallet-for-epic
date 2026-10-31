@@ -1230,16 +1230,17 @@ void main() {
       expect(await loadCachedBtlabsPublic(file, keyring: testKeyring(), state: ok.state, alsoRevoked: {keyA}), isNull);
     });
 
-    test('a stored state that does not read is ignored, then replaced', () async {
+    test('a stored state that does not read is ignored, kept aside, then replaced', () async {
       for (final bad in ['{not json', '{"serial": "x"}', '[]']) {
         store.values[updateStateKey] = bad;
         body = await serial(1790000100);
         expect((await run()).update?.versionName, '1.0.1', reason: bad);
         expect(ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!))?.serial, 1790000100, reason: bad);
+        expect(store.values[updateStateUnreadableKey], bad);
       }
     });
 
-    test('a store that cannot be read is not written over', () async {
+    test('a store that cannot be read is not written over and offers nothing', () async {
       store.values[updateStateKey] = jsonEncode(
         ManifestState(serial: 1790000500, keyid: testUpdateKeyring.keys.first.keyid, digest: 'a' * 64).toJson(),
       );
@@ -1257,6 +1258,8 @@ void main() {
       );
       addTearDown(container.dispose);
       await container.read(updateProvider.notifier).check();
+      expect(container.read(updateProvider).phase, UpdatePhase.upToDate);
+      expect(container.read(updateProvider).update, isNull);
       expect(ManifestState.fromJson(jsonDecode(store.values[updateStateKey]!))?.serial, 1790000500);
       expect(broken.writes, 0);
     });

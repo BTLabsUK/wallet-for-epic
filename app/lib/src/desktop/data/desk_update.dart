@@ -323,7 +323,11 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   /// first source on a tie. With none, a source with no manifest or a bad one means nothing
   /// newer is known; only every source failing fails the check (the first one's reason).
   Future<DeskUpdateState> _fetchAndRead() async {
-    await _manifest.readOnce();
+    // Without the stored state there is no floor to check against: nothing is offered.
+    if (!await _manifest.readOnce()) {
+      logInfo('update', 'desktop: no update offered: the stored update.json state was not read');
+      return _known ?? const DeskUpdateState(DeskUpdatePhase.latest);
+    }
     final reads = await Future.wait([for (final url in updateManifestUrls) _fetchAndVerify(url)]);
     final best = highestSerial([for (final (accepted, _) in reads) accepted], (a) => a.state);
     if (best != null) return _offer(best);
