@@ -367,7 +367,7 @@ kind = "publish"
 host = "web"
 needs = ["publish-downloads"]
 skippable = true
-run = "{rel}/tools/rellib/steps/publish-page.sh {version} {files} {path.page_repo}"
+run = "{rel}/tools/rellib/steps/publish-page.sh {version} {files} {path.page_repo} {path.main_checkout}"
 # publish.github on: the page links the GitHub Release (build.py add --github).
 env = { REL_GITHUB = "{github}" }
 scratch = "scratch_page"
