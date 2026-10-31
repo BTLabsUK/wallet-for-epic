@@ -38,7 +38,8 @@ CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "
 NODE_PICK = ["https://node.btlabs.uk", "https://node.epicnet.us:3413", "https://node.epiccash.com"]
 RELAY_PICK = ["epicbox.stackwallet.com", "epicbox.epicnet.us", "epicbox.epiccash.com"]
 TEST_CONFIRMATIONS = 1  # the setting the test moves to: test payments spend after one block
-P_STALL_S = 120  # answered but not finalized this long: P's listener hangs; restart it (a good one takes ~80 s)
+P_STALL_S = 240  # answered, not finalized this long: restart P's listener. Never sooner: its finalize waits until the node
+#                 shows the tx in its mempool, 37 s or ~200 s (Dandelion embargo), and a kill then strands it
 FUND_IN = "0.03"     # P -> wallet before the update
 FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")

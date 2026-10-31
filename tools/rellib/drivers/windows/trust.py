@@ -51,7 +51,8 @@ _spec.loader.exec_module(lt)  # helpers only: node_up, relay_up, short, sha256, 
 CHECKS = lt.CHECKS
 NODE_PICK = lt.NODE_PICK
 RELAY_PICK = lt.RELAY_PICK
-P_STALL_S = 120  # answered but not finalized this long: P's listener hangs; restart it (a good one takes ~80 s)
+P_STALL_S = 240  # answered, not finalized this long: restart P's listener. Never sooner: its finalize waits until the node
+#                 shows the tx in its mempool, 37 s or ~200 s (Dandelion embargo), and a kill then strands it
 FUND_IN = "0.03"
 FUND_AFTER = "0.01"
 CAP_SEND = decimal.Decimal("0.05")
