@@ -48,8 +48,8 @@ enum RelayHealth {
   down,
 }
 
-/// A relay of the list the offer may name: its address and its name from the settings file
-/// (`[operators]`), or its host when that names none.
+/// A relay of the list the offer may name: the relay and the name the UI shows for it, its
+/// address ([EpicboxRelay.label]).
 class RelayCandidate {
   const RelayCandidate({required this.relay, required this.name});
 

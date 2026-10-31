@@ -279,9 +279,11 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
 }
 
 /// The relays an offer may name: the Epicbox list of the settings file, in order, each named
-/// by `[operators]` or its host.
+/// by its address (host, and port when not 443), never its operator: a company name reads like
+/// another app.
 List<RelayCandidate> relayCandidatesOf(Iterable<EpicboxServer> servers) => [
-  for (final s in servers) RelayCandidate(relay: EpicboxRelay(host: s.host, port: s.port), name: s.operator ?? s.host),
+  for (final s in servers)
+    RelayCandidate(relay: EpicboxRelay(host: s.host, port: s.port), name: EpicboxRelay(host: s.host, port: s.port).label),
 ];
 
 /// [relay]'s health as [listed] (the status site) says: healthy only after a completed handshake.

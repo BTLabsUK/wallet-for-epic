@@ -24,10 +24,11 @@ import 'wallet_level.dart';
 /// At launch, before any request: settles the stored level ([settleLevelChoice]) and, for a
 /// fresh install still to answer the first-start step, holds every connection. Returns whether
 /// it held. A store that can't be read holds nothing: an existing install must never lose its
-/// network to a first-start step it will not be shown.
-Future<bool> holdUntilFirstStart(SecretStore store) async {
+/// network to a first-start step it will not be shown. [markers] are the keys only an install
+/// from before levels holds: the phone's by default; the desktop passes its own.
+Future<bool> holdUntilFirstStart(SecretStore store, {List<String> markers = existingInstallMarkers}) async {
   try {
-    final choice = await settleLevelChoice(read: store.read, write: store.write);
+    final choice = await settleLevelChoice(read: store.read, write: store.write, markers: markers);
     if (choice is! LevelPending) return false;
   } on Object catch (e) {
     logWarn('levels', 'level not read: ${e.runtimeType}');
@@ -49,16 +50,30 @@ class FirstStartNotifier extends Notifier<bool> {
   /// The step answered: [level] stored, Tor only stored when [undercover] (Tor builds only;
   /// ignored in a no-Tor build), and only then the gate opens, so the first connection is
   /// already made in the chosen mode. Harmless when nothing is held (the level is stored).
-  Future<void> complete({required WalletLevel level, bool undercover = false}) async {
-    final torOnly = undercover && torBuilt;
-    if (torOnly) {
+  Future<void> complete({required WalletLevel level, bool undercover = false}) => completeWith(
+    level: level,
+    undercover: undercover,
+    torOnly: () async {
       final settings = await ref.read(appSettingsProvider.future);
       await ref.read(appSettingsProvider.notifier).setAdvanced(settings.advanced.withMode(NetworkMode.torOnly));
-    }
-    await ref.read(walletLevelProvider.notifier).setLevel(level);
+    },
+    setLevel: ref.read(walletLevelProvider.notifier).setLevel,
+  );
+
+  /// [complete] for an app that keeps its settings elsewhere (the desktop): [torOnly] stores
+  /// Network mode › Tor only, [setLevel] the level and its preset.
+  Future<void> completeWith({
+    required WalletLevel level,
+    required bool undercover,
+    required Future<void> Function() torOnly,
+    required Future<void> Function(WalletLevel level) setLevel,
+  }) async {
+    final tor = undercover && torBuilt;
+    if (tor) await torOnly();
+    await setLevel(level);
     NetGate.releaseFirstStart();
     if (ref.mounted) state = false;
-    logInfo('levels', 'first start answered: level ${level.number}${torOnly ? ', Tor only' : ''}');
+    logInfo('levels', 'first start answered: level ${level.number}${tor ? ', Tor only' : ''}');
   }
 }
 

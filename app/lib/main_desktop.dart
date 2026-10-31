@@ -34,6 +34,7 @@ import 'src/desktop/data/desk_node.dart';
 import 'src/desktop/data/desk_update.dart' show deskUpdateAutoProvider;
 import 'src/desktop/keyring_check.dart';
 import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
+import 'src/desktop/data/desk_levels.dart';
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/files.dart';
 import 'src/desktop/data/history_files.dart';
@@ -122,6 +123,9 @@ Future<List<Override>> deskOverrides() async {
   final container = ProviderContainer();
   final secrets = container.read(secretStoreProvider);
   final store = DeskStore(secrets);
+  // Before the settings open and before any request: a fresh install opens no connection until
+  // Welcome's depth dial is answered (levels/first_start.dart, desk_levels.dart).
+  await deskHoldUntilFirstStart(secrets);
   // Before the wallet core starts: its runtime takes the log level once.
   await applySavedLogLevel(store);
   // Before anything reads an address: the settings file (docs/settings-file.md), watched for
