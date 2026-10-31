@@ -1318,8 +1318,15 @@ class LepicWalletSession implements WalletSession {
   /// [_guard] for a payment call that reaches only the node (a transaction file or QR Payment
   /// made, signed, finalized or posted, an estimate): Node only lets it use the node in use;
   /// in Kill switch LEPIC makes, signs and finalizes without a node and refuses the posting
-  /// itself (its own gate), so nothing is checked here.
-  Future<T> _nodeGuard<T>(String what, Future<T> Function() call) => _guard(call);
+  /// itself (its own gate), so nothing is checked here. A refusal is logged under [what].
+  Future<T> _nodeGuard<T>(String what, Future<T> Function() call) async {
+    try {
+      return await _guard(call);
+    } on WalletError catch (e) {
+      logInfo('wallet', '$what refused: ${e.kind.name}');
+      rethrow;
+    }
+  }
 
   /// [_netStream] for a stream that reaches only the node and is not a payment (a scan):
   /// Node only lets it run, Kill switch refuses it.
