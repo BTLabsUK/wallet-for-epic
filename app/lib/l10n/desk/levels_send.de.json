@@ -1,0 +1,22 @@
+{
+  "deskLvSendHowTo": "So senden",
+  "deskLvSendButton": "Senden",
+  "deskLvSendButtonAmount": "{amount} EPIC senden",
+  "deskLvSendButtonTo": "{amount} EPIC an {name} senden",
+  "deskLvSendNothingLeaves": "Nichts verlässt die Wallet, bevor Sie auf Senden drücken. Danach lässt es sich nicht zurücknehmen.",
+  "deskLvSendPasswordTitle": "Ihr Passwort",
+  "deskLvSendConfirm": "Senden",
+  "deskLvSendLiveTo": "Unterwegs zu {name}",
+  "deskLvSendLiveAmountTo": "{amount} EPIC an {name}",
+  "deskLvSendLiveAmount": "{amount} EPIC",
+  "deskLvSendYourAddress": "Ihre Adresse",
+  "deskLvSendReady": "Bereit zum Empfangen",
+  "deskLvSendClosedInfo": "Zahlungen, die gesendet wurden, während die Wallet geschlossen war, kommen an, sobald sie sich öffnet.",
+  "deskLvSendPayFiles": "Zahlungsdateien",
+  "deskLvSendSignFile": "Zahlungsdatei signieren",
+  "deskLvSendSignFileText": "Öffnen Sie die Datei des Absenders und speichern Sie Ihre Antwort.",
+  "deskLvSendFinishFile": "Antwortdatei abschließen",
+  "deskLvSendFinishFileText": "Öffnen Sie die erhaltene Antwort, um die Zahlung zu senden.",
+  "deskLvSendPrevAddress": "Frühere Adresse",
+  "deskLvSendPrevText": "An die alte Adresse gesendete Zahlungen kommen noch {days} Tage an, solange {server} antwortet."
+}

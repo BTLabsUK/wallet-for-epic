@@ -1405,7 +1405,7 @@
   "methodDirect": "Link",
   "methodDirectShape": "http://host:{port} lub xxxx….onion",
   "methodSendDirectLine": "Portfel odbiorcy musi być otwarty. Adres onion działa przez Tor.",
-  "methodReceiveEpicboxShort": "Nadawcy mogą płacić, gdy ten portfel jest zamknięty.",
+  "methodReceiveEpicboxShort": "Udostępnij adres, aby dostać płatność.",
   "methodReceiveDirectTitle": "Prosto do tego portfela.",
   "methodReceiveDirectLine": "Działa, gdy aplikacja jest otwarta.",
   "methodLineOverTor": "{line} Przez Tor.",

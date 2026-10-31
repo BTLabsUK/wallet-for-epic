@@ -1405,7 +1405,7 @@
   "methodDirect": "ลิงก์",
   "methodDirectShape": "http://host:{port} หรือ xxxx….onion",
   "methodSendDirectLine": "กระเป๋าของผู้รับต้องเปิดอยู่ ที่อยู่ onion จะส่งผ่าน Tor",
-  "methodReceiveEpicboxShort": "ผู้ส่งจ่ายได้แม้กระเป๋านี้ปิดอยู่",
+  "methodReceiveEpicboxShort": "แชร์ที่อยู่เพื่อรับเงิน",
   "methodReceiveDirectTitle": "ส่งตรงถึงกระเป๋านี้",
   "methodReceiveDirectLine": "ใช้ได้ขณะเปิดแอปอยู่",
   "methodLineOverTor": "{line} ผ่าน Tor",

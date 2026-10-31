@@ -1,0 +1,18 @@
+{
+  "deskLvStartPreviewLabel": "概览预览。档位越深，显示越多。",
+  "deskLvStartPreviewCaption": "此深度下的概览。已保存的内容不会改变。",
+  "deskLvStartPreviewCaptionShort": "此深度下的概览。",
+  "deskLvStartCover": "选择一个档位以查看预览",
+  "deskLvStartUndercoverAbout": "关于隐身",
+  "deskLvStartChangeLater": "随时可在 设置 › 高级 中更改。",
+  "deskLvStartHelpShallow": "浅水 · 一个地址，不显示服务器名称，没有开关。",
+  "deskLvStartHelpDeeper": "再深些 · 同一个钱包，并用简单的话显示它在做什么。",
+  "deskLvStartHelpDeep": "深水区 · 每个开关、每个数字：现在的应用。",
+  "deskLvStartPickFirst": "请先选择深度。选择之前不会连接任何内容。",
+  "deskLvStartMiniWallet": "主钱包",
+  "deskLvStartMiniLine": "+12.5000 即将到账 · 25.0000 已冻结",
+  "deskLvStartMiniFresh": "刚挖出的币",
+  "deskLvStartMiniWaiting": "等待对方",
+  "deskLvStartAdvNote": "档位越深，显示的钱包内容越多。已保存的内容不会改变。",
+  "deskLvStartAboutDepth": "深度：{name}"
+}

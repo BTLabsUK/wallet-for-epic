@@ -1,0 +1,18 @@
+{
+  "deskLvStartPreviewLabel": "ภาพตัวอย่างภาพรวม ยิ่งเลือกลึก ยิ่งแสดงมาก",
+  "deskLvStartPreviewCaption": "ภาพรวมของคุณที่ความลึกนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน",
+  "deskLvStartPreviewCaptionShort": "ภาพรวมของคุณที่ความลึกนี้",
+  "deskLvStartCover": "เลือกระดับเพื่อดูภาพตัวอย่าง",
+  "deskLvStartUndercoverAbout": "เกี่ยวกับการปกปิดตัวตน",
+  "deskLvStartChangeLater": "เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง",
+  "deskLvStartHelpShallow": "น้ำตื้น · ที่อยู่เดียว ไม่มีชื่อเซิร์ฟเวอร์ ไม่มีสวิตช์",
+  "deskLvStartHelpDeeper": "ลึกขึ้น · กระเป๋าเงินเดิม พร้อมแสดงว่ากำลังทำอะไร ด้วยคำง่าย ๆ",
+  "deskLvStartHelpDeep": "น้ำลึก · ทุกสวิตช์ ทุกตัวเลข: แอปอย่างที่เป็นอยู่ตอนนี้",
+  "deskLvStartPickFirst": "เลือกความลึกก่อน จะยังไม่มีการเชื่อมต่อจนกว่าจะเลือก",
+  "deskLvStartMiniWallet": "กระเป๋าเงินหลัก",
+  "deskLvStartMiniLine": "+12.5000 กำลังเข้า · 25.0000 ถูกพักไว้",
+  "deskLvStartMiniFresh": "ใหม่จากการขุด",
+  "deskLvStartMiniWaiting": "รออีกฝ่าย",
+  "deskLvStartAdvNote": "ยิ่งระดับลึก ยิ่งแสดงกระเป๋าเงินมาก ข้อมูลที่บันทึกไว้ไม่เปลี่ยน",
+  "deskLvStartAboutDepth": "ความลึก: {name}"
+}

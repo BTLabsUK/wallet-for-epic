@@ -1,0 +1,18 @@
+{
+  "deskLvStartPreviewLabel": "Превью обзора. Чем глубже уровень, тем больше на нём видно.",
+  "deskLvStartPreviewCaption": "Ваш обзор на этой глубине. Сохранённые данные не меняются.",
+  "deskLvStartPreviewCaptionShort": "Ваш обзор на этой глубине.",
+  "deskLvStartCover": "Выберите положение, чтобы увидеть превью",
+  "deskLvStartUndercoverAbout": "Об Инкогнито",
+  "deskLvStartChangeLater": "Изменить можно в любой момент: Настройки › Дополнительно.",
+  "deskLvStartHelpShallow": "Мелко · один адрес, без имён серверов, без переключателей.",
+  "deskLvStartHelpDeeper": "Глубже · тот же кошелёк, плюс что он делает, простыми словами.",
+  "deskLvStartHelpDeep": "В самую глубь · каждый переключатель, каждая цифра: приложение как сейчас.",
+  "deskLvStartPickFirst": "Сначала выберите глубину. Пока не выберете, ничего не подключается.",
+  "deskLvStartMiniWallet": "Основной кошелёк",
+  "deskLvStartMiniLine": "+12,5000 поступает · 25,0000 удерживается",
+  "deskLvStartMiniFresh": "Свежие с майнинга",
+  "deskLvStartMiniWaiting": "Ожидание другой стороны",
+  "deskLvStartAdvNote": "Чем глубже уровень, тем больше видно в кошельке. Сохранённые данные не меняются.",
+  "deskLvStartAboutDepth": "Глубина: {name}"
+}

@@ -7010,7 +7010,7 @@
       }
     }
   },
-  "methodReceiveEpicboxShort": "Senders can pay while this wallet is closed.",
+  "methodReceiveEpicboxShort": "Share the address to get paid.",
   "@methodReceiveEpicboxShort": {
     "description": "Receive's Epicbox strip line: payments arrive even while the wallet is closed (the Epicbox server holds them). No \"app\": the web demo shows it too."
   },

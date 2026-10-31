@@ -1,0 +1,22 @@
+{
+  "deskLvSendHowTo": "Jak to wysłać",
+  "deskLvSendButton": "Wyślij",
+  "deskLvSendButtonAmount": "Wyślij {amount} EPIC",
+  "deskLvSendButtonTo": "Wyślij {amount} EPIC do {name}",
+  "deskLvSendNothingLeaves": "Nic nie wychodzi, dopóki nie naciśniesz Wyślij. Potem nie da się tego cofnąć.",
+  "deskLvSendPasswordTitle": "Twoje hasło",
+  "deskLvSendConfirm": "Wyślij",
+  "deskLvSendLiveTo": "W drodze do {name}",
+  "deskLvSendLiveAmountTo": "{amount} EPIC do {name}",
+  "deskLvSendLiveAmount": "{amount} EPIC",
+  "deskLvSendYourAddress": "Twój adres",
+  "deskLvSendReady": "Gotowe do odbioru",
+  "deskLvSendClosedInfo": "Płatności wysłane, gdy portfel był zamknięty, dotrą po jego otwarciu.",
+  "deskLvSendPayFiles": "Pliki płatności",
+  "deskLvSendSignFile": "Podpisz plik płatności",
+  "deskLvSendSignFileText": "Otwórz plik od nadawcy i zapisz swoją odpowiedź.",
+  "deskLvSendFinishFile": "Dokończ plik odpowiedzi",
+  "deskLvSendFinishFileText": "Otwórz otrzymaną odpowiedź, aby opublikować płatność.",
+  "deskLvSendPrevAddress": "Poprzedni adres",
+  "deskLvSendPrevText": "Płatności wysłane na stary adres docierają jeszcze przez {days} dni, dopóki {server} odpowiada."
+}

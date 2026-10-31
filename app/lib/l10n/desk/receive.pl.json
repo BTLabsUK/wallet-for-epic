@@ -25,7 +25,7 @@
   "deskRecvAddressUnreadable": "Nie udało się odczytać adresu. Za chwilę otwórz Odbierz ponownie.",
   "deskRecvEpicboxAddress": "Adres Epicbox",
   "deskRecvCopyEpicbox": "Kopiuj adres Epicbox",
-  "deskRecvEpicboxIntro": "Udostępnij go, aby dostać płatność. Nadawcy mogą płacić, gdy ten portfel jest zamknięty.",
+  "deskRecvEpicboxIntro": "Udostępnij go, aby dostać płatność.",
   "deskRecvCheckSix": "Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.",
   "deskRecvHttpAddress": "Adres Link · HTTP",
   "deskRecvCopyHttp": "Kopiuj adres Link · HTTP",

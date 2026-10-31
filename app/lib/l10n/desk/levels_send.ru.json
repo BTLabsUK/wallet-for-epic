@@ -1,0 +1,22 @@
+{
+  "deskLvSendHowTo": "Как отправить",
+  "deskLvSendButton": "Отправить",
+  "deskLvSendButtonAmount": "Отправить {amount} EPIC",
+  "deskLvSendButtonTo": "Отправить {amount} EPIC — {name}",
+  "deskLvSendNothingLeaves": "Ничего не уходит, пока вы не нажмёте «Отправить». После этого вернуть нельзя.",
+  "deskLvSendPasswordTitle": "Ваш пароль",
+  "deskLvSendConfirm": "Отправить",
+  "deskLvSendLiveTo": "Идёт к {name}",
+  "deskLvSendLiveAmountTo": "{amount} EPIC — {name}",
+  "deskLvSendLiveAmount": "{amount} EPIC",
+  "deskLvSendYourAddress": "Ваш адрес",
+  "deskLvSendReady": "Готов к приёму",
+  "deskLvSendClosedInfo": "Платежи, отправленные при закрытом кошельке, придут, когда он откроется.",
+  "deskLvSendPayFiles": "Файлы платежей",
+  "deskLvSendSignFile": "Подписать файл платежа",
+  "deskLvSendSignFileText": "Откройте файл от отправителя и сохраните свой ответ.",
+  "deskLvSendFinishFile": "Завершить файл ответа",
+  "deskLvSendFinishFileText": "Откройте полученный ответ, чтобы опубликовать платёж.",
+  "deskLvSendPrevAddress": "Прежний адрес",
+  "deskLvSendPrevText": "Платежи на старый адрес ещё приходят {days} дн., пока отвечает {server}."
+}

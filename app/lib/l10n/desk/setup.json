@@ -86,9 +86,9 @@
   "@deskSetupLocalLead": {
     "description": "Lead under the title of the setup's local node step."
   },
-  "deskSetupEpicboxTitle": "Receive while closed",
+  "deskSetupEpicboxTitle": "Epicbox",
   "@deskSetupEpicboxTitle": {
-    "description": "Title of the setup step about the Epicbox server, which holds payments while this wallet is closed."
+    "description": "Title of the setup step about the Epicbox server (address for getting paid)."
   },
   "deskSetupReviewTitle": "Review settings",
   "@deskSetupReviewTitle": {

@@ -1,0 +1,22 @@
+{
+  "deskLvSendHowTo": "วิธีส่ง",
+  "deskLvSendButton": "ส่ง",
+  "deskLvSendButtonAmount": "ส่ง {amount} EPIC",
+  "deskLvSendButtonTo": "ส่ง {amount} EPIC ให้ {name}",
+  "deskLvSendNothingLeaves": "จะไม่มีอะไรออกไปจนกว่าจะกดส่ง หลังจากนั้นเรียกคืนไม่ได้",
+  "deskLvSendPasswordTitle": "รหัสผ่านของคุณ",
+  "deskLvSendConfirm": "ส่ง",
+  "deskLvSendLiveTo": "กำลังไปหา {name}",
+  "deskLvSendLiveAmountTo": "{amount} EPIC ให้ {name}",
+  "deskLvSendLiveAmount": "{amount} EPIC",
+  "deskLvSendYourAddress": "ที่อยู่ของคุณ",
+  "deskLvSendReady": "พร้อมรับเงิน",
+  "deskLvSendClosedInfo": "การชำระที่ส่งมาตอนกระเป๋าเงินปิดอยู่ จะมาถึงเมื่อเปิดกระเป๋า",
+  "deskLvSendPayFiles": "ไฟล์การชำระเงิน",
+  "deskLvSendSignFile": "ลงนามไฟล์การชำระเงิน",
+  "deskLvSendSignFileText": "เปิดไฟล์ที่ผู้ส่งให้มา แล้วบันทึกคำตอบของคุณ",
+  "deskLvSendFinishFile": "ทำไฟล์ตอบกลับให้เสร็จ",
+  "deskLvSendFinishFileText": "เปิดคำตอบที่ได้กลับมา เพื่อโพสต์การชำระเงิน",
+  "deskLvSendPrevAddress": "ที่อยู่เดิม",
+  "deskLvSendPrevText": "การชำระที่ส่งไปที่อยู่เก่ายังมาถึงอีก {days} วัน ตราบที่ {server} ยังตอบอยู่"
+}
