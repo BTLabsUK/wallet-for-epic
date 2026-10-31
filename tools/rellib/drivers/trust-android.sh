@@ -13,7 +13,7 @@
 #   REL_FUNDS          1 = also send_ok / receive_ok, 0 = data checks only
 #   REL_NODE           node to type in, e.g. https://node.btlabs.uk (unset: health pick below)
 #   REL_EPICBOX        Epicbox relay to type in, e.g. epicbox.stackwallet.com (unset: health pick)
-#   REL_OUT            proof.json, logs and screenshots go here
+#   REL_OUT            proof.json, logs, shots/ (debug) and screens/ (catalogue: screens.json + PNGs) go here
 #   REL_DRY_RUN=1      print the plan, touch nothing, exit 0
 # Optional:
 #   REL_ANDROID_SERIAL a running emulator to use (else REL_ANDROID_AVD, default wfe_api36, is

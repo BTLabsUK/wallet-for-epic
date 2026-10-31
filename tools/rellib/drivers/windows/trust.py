@@ -42,6 +42,7 @@ sys.path.insert(0, LINUX)
 sys.path.insert(0, os.path.dirname(HERE))
 from p_funder import P  # noqa: E402
 from rig import Rig, RigError  # noqa: E402
+import screens as catalog  # noqa: E402
 import seed  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location("linux_trust", os.path.join(LINUX, "trust.py"))
@@ -70,6 +71,13 @@ CLIENT = (803, 691)
 RAIL = {"overview": (36, 82), "activity": (36, 127), "send": (36, 217), "receive": (36, 262), "settings": (36, 326)}
 COPY_ADDRESS = (487, 285)       # Receive: copy the Epicbox address
 SEND_TO, SEND_MAX, SEND_REVIEW = (380, 433), (716, 557), (705, 655)
+
+# Why screens/ holds no pictures from the rig (screens.json lists every point as missing with this).
+NO_CAPTURE = ("no capture works on the rig: the app runs in epicrig's session-0 window station, whose desktop is never "
+              "shown (IsWindowVisible false for every window); PrintWindow (flags 0, 1 and 2, the last one for the "
+              "D3D/ANGLE surface) gives one colour, WM_PRINT/WM_PRINTCLIENT nothing, and a desktop BitBlt or "
+              "CopyFromScreen reads that same never-composited desktop. Pixels of the real Windows app need an "
+              "interactive session (the ~/wintest VM), not this rig")
 
 
 class CannotRun(Exception):
@@ -111,6 +119,7 @@ class Run:
         self.snap_n = 0
         self.log_mark = 0
         self.setup_address = None
+        self.screens = catalog.Screens(self.out, "windows", self.variant, self.prev_ver, self.cand_ver, self.log)
         self.update_method = (
             "the in-app update's own path: with the previous release open and unlocked, the candidate's published "
             "Setup is started with the arguments the app gives it (/SILENT /NORESTART /UPDATEFROMAPP=1, plus /LOG), "
@@ -1029,6 +1038,7 @@ def main():
         for c in CHECKS:
             run.details.setdefault(c, "not reached")
         run.proof()
+        run.screens.finish(NO_CAPTURE)
         return 2
     run = Run()
     if not run.dry:
@@ -1056,6 +1066,7 @@ def main():
             if run.picked:
                 run.details["servers"] = "; ".join(run.picked)
             run.proof()
+            run.screens.finish(NO_CAPTURE)
     return rc
 
 

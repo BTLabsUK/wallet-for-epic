@@ -21,7 +21,9 @@ from decimal import Decimal, InvalidOperation
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))
 import ph  # noqa: E402
+import screens as catalog  # noqa: E402
 from ph import PKG, adb, find, key, launch, mask, nodes, secret_words, tap, tap_xy, type_text, wait  # noqa: E402
 
 E = os.environ.get
@@ -65,6 +67,42 @@ def shot(name):
         ph.shot(S, os.path.join(d, f"{len(os.listdir(d)):02d}-{name}.png"))
     except Exception as e:  # noqa: BLE001
         log("screenshot failed:", e)
+
+
+def phrase_on_screen(ns):
+    """A recovery phrase (or words of it) on screen: never a screenshot then."""
+    return any(mask(n["label"], n["cls"]).startswith(("***", "Word ***")) and "EditText" not in n["cls"] for n in ns)
+
+
+def pin_on_screen(ns):
+    """A PIN or password entry on screen (as unlock() tells the PIN screen)."""
+    return any("EditText" in n["cls"] for n in ns) and \
+        any(re.search(r"\bPIN\b|(?i:password|passcode)", n["label"]) for n in ns)
+
+
+_SCREENS = []
+
+
+def screens_book():
+    if not _SCREENS:
+        _SCREENS.append(catalog.Screens(OUT, "android", E("REL_VARIANT", "tor"), E("REL_PREVIOUS_VERSION", ""),
+                                        E("REL_CANDIDATE_VERSION", ""), lambda s: log(s)))
+        for phase in catalog.PHASES:
+            _SCREENS[0].miss(f"{phase}-wallets", "the phone app has no wallet list: opening the wallet is the PIN "
+                                                 "screen, which is never captured")
+    return _SCREENS[0]
+
+
+def screen(phase, point, ns, note=""):
+    """A catalogue screen (screens/<phase>-<point>.png) of what [ns] (a dump taken just now) shows;
+    refused on a phrase or a PIN entry. Best effort, no wait."""
+    if not phase:
+        return
+    if phrase_on_screen(ns) or pin_on_screen(ns):
+        screens_book().miss(f"{phase}-{point}", "refused: a phrase or PIN entry was on screen at that moment")
+        log(f"screen {phase}-{point} refused: a phrase or PIN entry on screen")
+        return
+    screens_book().take(phase, point, lambda png: ph.shot(S, png), note)
 
 
 def dump_to_log(title):
@@ -315,9 +353,10 @@ def amount_of(label):
         return None
 
 
-def balance():
+def balance(phase=None):
     home()
     ns = nodes(S)
+    screen(phase, "home", ns, "Wallet tab: balance and recent activity")
     total = next((n["label"] for n in ns if n["label"].startswith("Total:")), None)
     spend = next((n["label"] for n in ns if n["label"].startswith("Spendable:")), None)
     norm = lambda v: format(v.normalize(), "f") if v is not None else None
@@ -329,7 +368,7 @@ def tx_rows(ns):
     return [n["label"] for n in ns if n["clickable"] and TX_RE.match(n["label"])]
 
 
-def history():
+def history(phase=None):
     """Every row of Activity: (label) list, top to bottom."""
     home()
     ns = nodes(S)
@@ -345,8 +384,11 @@ def history():
     # One row per payment: a status that moves while the list scrolls ("confirming 1/4" →
     # "2/4") is the same row, kept at its newest text.
     rows = {}
-    for _ in range(12):
-        new = [r for r in tx_rows(nodes(S)) if rows.get(row_id(r)) != r]
+    for i in range(12):
+        ns = nodes(S)
+        if i == 0:
+            screen(phase, "history", ns, "Activity, top of the list")
+        new = [r for r in tx_rows(ns) if rows.get(row_id(r)) != r]
         if not new:
             break
         for r in new:
@@ -413,12 +455,15 @@ def row_info(label):
     return {"host": host, "current": "Current" in parts, "added": "Added by you" in parts}
 
 
-def server_list(kind):
+def server_list(kind, phase=None):
     """The sheet's list: hosts in order with Current / Added by you, and the removed count."""
     open_sheet(kind)
     seen, rows, removed = set(), [], None
-    for _ in range(6):
+    for i in range(6):
         ns = nodes(S)
+        if i == 0:
+            screen(phase, "settings-node" if kind == "Node" else "settings-epicbox", ns,
+                   f"{kind} sheet from Home's status strip, top of the list: the one in use")
         for n in sheet_rows(ns):
             i = row_info(n["label"])
             if i["host"] not in seen:
@@ -719,14 +764,14 @@ def change_settings():
     home()
 
 
-def digest():
+def digest(phase=None):
     vn, vc = ph.version(S)
     d = {"version": vn, "version_code": vc, "address": address()}
     wait_synced(120)
-    d["balance"] = balance()
-    d["history"] = history()
-    d["nodes"] = server_list("Node")
-    d["relays"] = server_list("Epicbox")
+    d["balance"] = balance(phase)
+    d["history"] = history(phase)
+    d["nodes"] = server_list("Node", phase)
+    d["relays"] = server_list("Epicbox", phase)
     d["settings"] = read_settings()
     shot("home")
     return d
@@ -991,6 +1036,10 @@ def write_proof(checks, details, extra):
     with open(os.path.join(OUT, "proof.json"), "w") as f:
         json.dump(proof, f, indent=2, ensure_ascii=False)
         f.write("\n")
+    try:
+        screens_book().finish()
+    except Exception as e:  # noqa: BLE001
+        log("screens.json:", e)
     return proof
 
 
@@ -1065,7 +1114,7 @@ def run():
         if not any(r["current"] and same_host(r["host"], target) for r in rows):
             log(f"{kind}: {target} not in use before the update: chosen again")
             use_server(kind, target)
-    a = digest()
+    a = digest("before")
     a["opened"] = True
     extra["before"] = public_digest(a)
     log("digest before:", json.dumps(public_digest(a), ensure_ascii=False))
@@ -1088,13 +1137,13 @@ def run():
         details["wallet_opens"] = "the candidate did not open the wallet with the PIN"
         return finish()
     b = {"opened": True}
-    b.update(digest())
+    b.update(digest("after"))
     # a refresh can still be landing: read the balance and history again before judging
     for _ in range(6):
         if b["balance"]["total"] == a["balance"]["total"] and len(b["history"]) >= len(a["history"]):
             break
         time.sleep(20)
-        b["balance"], b["history"] = balance(), history()
+        b["balance"], b["history"] = balance("after"), history("after")
     extra["after"] = public_digest(b)
     log("digest after:", json.dumps(public_digest(b), ensure_ascii=False))
     c, d = compare(a, b)

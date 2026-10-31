@@ -12,7 +12,7 @@
 #   REL_VARIANT tor|notor        REL_CHECKS comma list (default: all eight; without send_ok,receive_ok when REL_FUNDS=0)
 #   REL_FUNDS 1|0                1: also receive from and send to P with the candidate
 #   REL_NODE, REL_EPICBOX        servers to use; picked here (BT Labs first) when unset
-#   REL_OUT                      proof.json, trust.log, digests, screenshots, P logs
+#   REL_OUT                      proof.json, trust.log, digests, shots/ (debug), screens/ (catalogue: screens.json + PNGs), P logs
 #   REL_DRY_RUN=1                print the plan, touch nothing
 # Optional: REL_WORK (sandboxes, default ~/.cache/rel-trust-linux), REL_KEEP_FUNDS=1 (REL_FUNDS=0:
 # leave the balance in the sandbox wallet instead of sending it back to P), REL_P_TOOL, REL_P_PASS_FILE,

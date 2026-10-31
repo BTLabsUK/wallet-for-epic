@@ -30,7 +30,9 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.dirname(HERE))
 import sandbox  # noqa: E402
+import screens as catalog  # noqa: E402
 from p_funder import P  # noqa: E402
 
 CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept",
@@ -92,6 +94,7 @@ class Run:
         self.standins = []
         self.ui = None
         self.shot_n = 0
+        self.screens = catalog.Screens(self.out, "linux", self.variant, self.prev_ver, self.cand_ver, self.log)
         self.update_method = ("appimage-swap: the previous release's AppImage, then the candidate's AppImage on the "
                               "same sandbox HOME (data folder and keyring kept, as the in-app update leaves them); "
                               "both run extracted (--appimage-extract, no libfuse2 here)")
@@ -113,6 +116,12 @@ class Run:
             sandbox.shot(self.sb, os.path.join(self.out, "shots", "%02d-%s.png" % (self.shot_n, name)))
         except Exception as e:  # noqa: BLE001
             self.log("screenshot %s failed: %s" % (name, e))
+
+    def screen(self, phase, point, note=""):
+        """A catalogue screen (screens/<phase>-<point>.png) of what the app shows now. Called only where
+        the flow already stands on that screen; never on a phrase or a typed password."""
+        if phase:
+            self.screens.take(phase, point, lambda png: sandbox.shot(self.sb, png), note)
 
     def fail(self, check, why):
         self.checks[check] = False
@@ -277,7 +286,11 @@ class Run:
             ui.click("re:^Skip setup$")
             i = ui.wait_any(["re:^Unlock wallet$", "Main navigation"], 120) + 1
         if i == 1:
+            self.screen("before", "wallets", "Unlock after creating, before the password is typed (the field empty)")
             self.unlock()
+        else:
+            self.screens.miss("before-wallets", "the previous release opened the new wallet without its Unlock screen; "
+                                                "not navigated to (locking costs a password retype)")
         self.after_unlock()
 
     def tick_written_down(self):
@@ -365,10 +378,13 @@ class Run:
             time.sleep(1)
         raise LookupError("%s picker did not open" % label)
 
-    def picker_entries(self, label):
-        """[(entry, row text, in use)] of the open picker (rows 'Use <entry>, …')."""
+    def picker_entries(self, label, phase=None, point=None):
+        """[(entry, row text, in use)] of the open picker (rows 'Use <entry>, …'); with [phase] the open list
+        is the catalogue's [point] screen."""
         self.open_picker(label)
         time.sleep(1.5)
+        if point:
+            self.screen(phase, point, "Settings, %s list open: the user's own entry and the one in use" % label)
         rows = []
         for n in self.ui.find("re:^Use "):
             if n.role != "button":
@@ -525,9 +541,10 @@ class Run:
                 out[re.sub(r"[^a-z]+", "_", c.lower()).strip("_")] = a
         return out
 
-    def activity(self):
+    def activity(self, phase=None):
         self.nav("Activity")
         time.sleep(1)
+        self.screen(phase, "history", "Activity")
         rows = []
         for n in self.ui.nodes():
             first = n.name.split("\n")[0]
@@ -536,14 +553,14 @@ class Run:
                 rows.append(n.name.replace("\n", " | "))
         return rows
 
-    def lists(self):
+    def lists(self, phase=None):
         out = {}
         self.settings_page("Node")
         out["node_in_use"] = self.combo("Node server").name
-        out["nodes"] = self.picker_entries("Node server")
+        out["nodes"] = self.picker_entries("Node server", phase, "settings-node")
         self.relay_page()
         out["relay_in_use"] = self.combo("Epicbox server").name
-        out["relays"] = self.picker_entries("Epicbox server")
+        out["relays"] = self.picker_entries("Epicbox server", phase, "settings-epicbox")
         return out
 
     def settings(self):
@@ -575,13 +592,15 @@ class Run:
         return sorted(out)
 
     def digest(self, tag):
+        phase = {"previous": "before", "candidate": "after"}.get(tag)  # the in-between release: no catalogue screens
         d = {"app": self.app_version_seen, "address": self.address(), "balance": self.balance(),
-             "activity": self.activity()}
-        d.update(self.lists())
+             "activity": self.activity(phase)}
+        d.update(self.lists(phase))
         d["settings"] = self.settings()
         d["files"] = self.files()
         self.nav("Overview")
         self.shot("%s-overview" % tag)
+        self.screen(phase, "home", "Overview")
         with open(os.path.join(self.out, "digest-%s.json" % tag), "w") as f:
             json.dump(d, f, indent=1, default=str)
         self.log("digest %s: address %s, balance %s, %d activity rows, node %s, relay %s, settings %s, %d files" % (
@@ -805,6 +824,8 @@ class Run:
         self.details["wallet_opens"] = why
         if not opened:
             self.fail("wallet_opens", why)
+            for p in catalog.POINTS[1:]:
+                self.screens.miss("after-" + p, "not reached: the candidate did not open the wallet")
             for c in ("balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"):
                 self.fail(c, "not checked: the wallet did not open")
             after = None
@@ -840,6 +861,10 @@ class Run:
         except TimeoutError:
             return False, "the candidate shows neither Unlock nor the wallet in 2 min"
         self.shot("cand-first")
+        if i == 0:
+            self.screen("after", "wallets", "Unlock as the candidate opens after the update, before the password is typed (the field empty)")
+        else:
+            self.screens.miss("after-wallets", "the candidate did not show its Unlock screen after the update")
         if i == 1:
             return False, "the candidate offers 'Create a new wallet': it found no wallet"
         names = ui.texts()
@@ -870,13 +895,14 @@ class Run:
                     all(any(same_row(r, x) for x in a["activity"]) for r in b["activity"]):
                 break
             time.sleep(15)
-            a["balance"], a["activity"] = self.balance(), self.activity()
+            a["balance"], a["activity"] = self.balance(), self.activity("after")
         a["settled_after_s"] = int(time.time() - t0)
         if a["balance"] != a["first_balance"] or a["activity"] != a["first_activity"]:
             self.log("after %d s: balance %s, activity %s (first read: %s, %s)" % (
                 a["settled_after_s"], fmt_bal(a["balance"] or {}), a["activity"], fmt_bal(a["first_balance"] or {}), a["first_activity"]))
             self.nav("Overview")
             self.shot("candidate-overview-later")
+            self.screen("after", "home", "Overview, once the balance and activity settled")
         with open(os.path.join(self.out, "digest-candidate.json"), "w") as f:
             json.dump(a, f, indent=1, default=str)
 
@@ -1149,6 +1175,7 @@ def main():
             if run.picked:
                 run.details["servers"] = "; ".join(run.picked)
             run.proof()
+            run.screens.finish()
     return rc
 
 
