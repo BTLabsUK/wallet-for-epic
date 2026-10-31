@@ -13,6 +13,7 @@ import 'node_failover_phone.dart';
 import 'phone_http.dart';
 import 'price.dart' show priceProvider;
 import 'levels/level_providers.dart' show effectiveAdvancedProvider;
+import 'levels/relay_switch_providers.dart' show relayDrainWatchProvider, relaySwitchProvider;
 import 'providers.dart';
 import 'restore_scan.dart';
 import 'secret_store.dart' show PlatformBiometricStore;
@@ -77,6 +78,10 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // Alive for the app's life: the Link · HTTP listener runs while a wallet is open and its
     // switch is on, stops on lock and while Tor is on, and starts again on resume.
     ref.listenManual(phoneHttpProvider, (_, _) {});
+    // Alive for the app's life: at level 1 an Epicbox relay down for a while is offered a
+    // one-tap move (never made by itself), and an address left behind is read for 30 days.
+    ref.listenManual(relaySwitchProvider, (_, _) {});
+    ref.listenManual(relayDrainWatchProvider, (_, _) {});
   }
 
   @override
@@ -97,6 +102,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         ref.read(updateProvider.notifier).paused();
         ref.read(scanProvider.notifier).pause();
         ref.read(nodeFailoverWatchProvider.notifier).paused();
+        ref.read(relaySwitchProvider.notifier).paused();
         if (ref.exists(priceProvider)) ref.read(priceProvider.notifier).paused();
         if (_leftAt == null &&
             ref.read(sessionProvider) != null &&
@@ -108,6 +114,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         unawaited(ref.read(updateProvider.notifier).resumed());
         _resumeScan();
         ref.read(nodeFailoverWatchProvider.notifier).resumed();
+        ref.read(relaySwitchProvider.notifier).resumed();
         if (ref.exists(priceProvider)) ref.read(priceProvider.notifier).resumed();
         if (ref.read(autoLockHoldProvider) > 0) {
           _leftAt = null;

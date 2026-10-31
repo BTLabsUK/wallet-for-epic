@@ -295,8 +295,10 @@ class LevelFeatures {
   /// The node is never shown and failover is forced on.
   final bool nodeAutomatic;
 
-  /// A relay that is down is offered a switch, never switched silently.
-  final bool relaySwitchPrompt = true;
+  /// A relay down for a while is offered a one-tap switch to the next healthy one, never
+  /// switched silently (`relay_switch_providers.dart`). Level 1 only: levels 2 and 3 keep
+  /// today's server picker.
+  bool get relaySwitchPrompt => level == WalletLevel.justSendReceive;
 
   /// The Tor-only row on the first-start step and Change level.
   final bool undercoverOffered;

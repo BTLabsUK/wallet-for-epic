@@ -651,6 +651,25 @@ abstract interface class WalletSession {
   Stream<IssuerEvent> issuerEvents();
 }
 
+/// A session that can read this wallet's address on a relay other than its own: after the
+/// user moved the wallet to another relay, payments sent to the old address wait there
+/// (`levels/relay_switch.dart`). Optional, so the fakes, the demo and the remote session need
+/// nothing: [DrainEpicboxAt.drainEpicboxAt] answers null for a session without it.
+abstract interface class EpicboxDrainAt {
+  /// Reads the messages stored for this wallet's address on [domain]:[port] once, answering
+  /// each through that relay (signs payments to it, finalizes and posts its own sends' answers),
+  /// as [WalletSession.drainPayments] does on the relay in use. Null when the core cannot.
+  Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port});
+}
+
+extension DrainEpicboxAt on WalletSession {
+  /// [EpicboxDrainAt.drainEpicboxAt], or null (unsupported) for a session without it.
+  Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port}) async {
+    final self = this;
+    return self is EpicboxDrainAt ? self.drainEpicboxAt(domain: domain, port: port) : null;
+  }
+}
+
 /// The error of an invoice call on a core without them.
 WalletError invoicesUnsupported(String call) => WalletError(
   kind: WalletErrorKind.other,

@@ -1302,7 +1302,7 @@ const String historyAppVersion = 'wfe-lepic';
 
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
-class LepicWalletSession implements WalletSession {
+class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
@@ -2897,6 +2897,12 @@ class LepicWalletSession implements WalletSession {
     _watchEvents();
     return _issuerEvents.stream;
   }
+
+  /// Not yet: the pinned LEPIC drains only the configured relay ([lepic.EpicWallet.drainEpicbox]).
+  /// LEPIC E-15 (`drain_epicbox_at(domain, port)`) adds it; until then the old relay is not
+  /// read and the drainer skips quietly.
+  @override
+  Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port}) async => null;
 }
 
 // ---------------------------------------------------------------------------------------
