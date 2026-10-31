@@ -123,6 +123,8 @@ flutter:
     - assets/fonts/OFL-Montserrat.txt
     - assets/fonts/OFL-JetBrainsMono.txt
     - assets/fonts/OFL-NotoSansThai.txt
+    - assets/fonts/OFL-NotoSansSC.txt
+    - assets/fonts/OFL-NotoEmojiSas.txt
     # Word lists for the password estimate, from zxcvbn-ts (MIT; NOTICE.txt has the notices).
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
@@ -165,6 +167,16 @@ flutter:
           weight: 600
         - asset: assets/fonts/NotoSansThai-Bold.ttf
           weight: 700
+    # Chinese, as a fallback (cjkFallback in fonts.dart): the characters of the Chinese UI only,
+    # for Linux installs without a CJK font. Noto Sans CJK SC, OFL; tool/fonts_subset.py.
+    - family: NotoSansSCSubset
+      fonts:
+        - asset: assets/fonts/NotoSansSCSubset.otf
+    # The pairing pictures (sasEmojiFamily in fonts.dart): the 256 emoji of lib/src/sas_table.dart
+    # only, Noto Color Emoji, OFL; tool/fonts_subset.py.
+    - family: NotoEmojiSas
+      fonts:
+        - asset: assets/fonts/NotoEmojiSas.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

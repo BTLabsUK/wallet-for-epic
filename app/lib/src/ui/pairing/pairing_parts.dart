@@ -18,6 +18,7 @@ import '../contact_page.dart' show contactInitials;
 import '../info_hint.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
+import '../theme/fonts.dart' show sasEmojiFallback;
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 
@@ -162,8 +163,8 @@ class _WordTile extends StatelessWidget {
         child: CustomPaint(
           foregroundPainter: CornerTicksPainter(t.tick, length: 8, width: 2),
           child: Center(
-            // The emoji is drawn by the platform's colour font.
-            child: Text(w.emoji, style: TextStyle(fontSize: side * 0.48, height: 1)),
+            // The emoji is drawn by the bundled picture font (the platform's own on Android).
+            child: Text(w.emoji, style: TextStyle(fontSize: side * 0.48, height: 1, fontFamilyFallback: sasEmojiFallback)),
           ),
         ),
       );

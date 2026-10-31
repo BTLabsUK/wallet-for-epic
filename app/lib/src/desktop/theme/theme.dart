@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
-import '../../ui/theme/fonts.dart' show thaiFallback;
+import '../../ui/theme/fonts.dart' show bundledFallback;
 import 'tokens.dart';
 
 /// Material mapped onto the desktop tokens, so stock widgets (scrollbars, tooltips, text
@@ -36,7 +36,7 @@ ThemeData buildDeskTheme(Brightness brightness) {
     visualDensity: VisualDensity.standard,
     iconTheme: IconThemeData(size: Ctl.iconLg),
     materialTapTargetSize: MaterialTapTargetSize.padded,
-    fontFamilyFallback: thaiFallback,
+    fontFamilyFallback: bundledFallback,
     extensions: [c],
   );
   return base.copyWith(
