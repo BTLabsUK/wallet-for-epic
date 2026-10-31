@@ -17056,7 +17056,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      'โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · QR และ โดยตรง · ไฟล์ ใช้ได้';
+      'โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · ชำระด้วย QR และ โดยตรง · โอนไฟล์ ใช้ได้';
 
   @override
   String get netBlockLinkNodeOnly =>
@@ -17566,4 +17566,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String txDeviceStatusHeld(String device) {
     return 'ทำบน $device เงินถูกถือไว้ที่นี่จนกว่าจะปรากฏบนเชน';
   }
+
+  @override
+  String get deskSendEpicboxNodeOnly =>
+      'โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · โอนไฟล์ ใช้ได้';
+
+  @override
+  String get deskSendLinkNodeOnly =>
+      'โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้';
 }

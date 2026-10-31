@@ -273,6 +273,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   bool _suggestOff = false;
   int? _fee;
   int _feeFor = -1;
+  // The estimate for [_feeFor] is on its way: the summary shows spinners, never a Total
+  // without the fee.
+  bool _feeBusy = false;
   // The estimate with this send's strategy and Split change: [_fee] is its fee.
   SmartSendPlan? _plan;
   // Advanced: this send's choices; null takes the Outputs default.
@@ -544,7 +547,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     int? spendable;
     try {
-      spendable = (await ref.read(deskOutputsProvider.future)).where((o) => o.spendable).length;
+      // The list as last read, else the wallet's own: never `deskOutputsProvider.future`, which
+      // rebuilds on every refresh (a new Balance each time) and left the estimate, and with it
+      // Network fee, Total and the lines under them, waiting for good (D-02).
+      final outputs = ref.read(deskOutputsProvider).value ?? await api.outputs();
+      spendable = outputs.where((o) => o.spendable).length;
     } on Object {
       // Without the list the change is not split.
     }
@@ -563,6 +570,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // Review never reuses a plan made for other choices: it estimates again if this one
     // has not arrived.
     _plan = null;
+    _fee = null;
     unawaited(_loadFee());
   }
 
@@ -573,11 +581,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _fee = null;
         _plan = null;
         _feeFor = -1;
+        _feeBusy = false;
       });
       return;
     }
     if (n == _feeFor) return;
-    _feeFor = n;
+    setState(() {
+      _feeFor = n;
+      _feeBusy = true;
+    });
     SmartSendPlan? plan;
     try {
       plan = await _planFor(n);
@@ -589,6 +601,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     setState(() {
       _plan = plan;
       _fee = plan?.estimate.fee;
+      _feeBusy = false;
+      // A failed estimate is tried again on the next change, even to the same amount.
+      if (plan == null) _feeFor = -1;
     });
   }
 
@@ -632,6 +647,55 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return link ? TxMethod.http : (p.directFile ? TxMethod.file : TxMethod.epicbox);
   }
 
+  /// File Transfer is in the selector: its switch is on, or it is the fallback of a failed
+  /// Epicbox, or a file send is under way.
+  bool _fileShown(DeskState st) {
+    final p = st.settings.payments;
+    final eb = _epicboxHealth(st);
+    return p.directFile || _method == TxMethod.file || (p.epicbox && (eb == ServiceHealth.off || eb == ServiceHealth.down));
+  }
+
+  /// The selector's segment for [m] can be chosen now: Epicbox and Link wait for the network
+  /// mode (Node only, Kill switch, Tor only without Tor), Epicbox for its switch too (a
+  /// pairing's mailbox queues), and a pairing recipient has no Link address. File always can.
+  bool _segmentOn(DeskState st, TxMethod m) => switch (_segmentOf(m)) {
+    TxMethod.epicbox => deskNetBlock(st) == NetBlock.none && (st.settings.payments.epicbox || _pairingTo != null),
+    TxMethod.file => true,
+    _ => _pairingTo == null && deskNetBlock(st) == NetBlock.none,
+  };
+
+  /// The first method that can be chosen now, in the selector's order; null when none can.
+  TxMethod? _firstOn(DeskState st) {
+    for (final m in [TxMethod.epicbox, TxMethod.http, if (_fileShown(st)) TxMethod.file]) {
+      if (_segmentOn(st, m)) return m == TxMethod.http ? _directRoute(parseAddress(_to.text, ref.read(deskApiProvider)).kind) : m;
+    }
+    return null;
+  }
+
+  bool _moving = false;
+
+  /// A method that cannot be chosen now never stays chosen with a live form (D-06): Send moves
+  /// to the first that can, after this frame. Only this screen's choice moves; Settings ›
+  /// Transactions › Send starts on stays as it is.
+  void _keepMethodOn(DeskState st) {
+    if (_moving || _result != null || _segmentOn(st, _method)) return;
+    final next = _firstOn(st);
+    if (next == null) return;
+    _moving = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _moving = false;
+      if (!mounted) return;
+      final now = ref.read(deskProvider);
+      if (_result != null || _segmentOn(now, _method)) return;
+      final m = _firstOn(now);
+      if (m == null) return;
+      setState(() {
+        _method = m;
+        _failure = null;
+      });
+    });
+  }
+
   static bool _offered(TxMethod m) => switch (m) {
     TxMethod.tor => DeskFeatures.tor,
     _ => true,
@@ -649,7 +713,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _torBusy = false;
 
-  /// Turns the Tor switch on (Turn on Tor, Retry) or off (Turn Tor off).
+  /// Turns the Tor switch on (Turn on Tor, Retry). Off is only in Settings › Privacy & network.
   Future<void> _setTor(bool on) async {
     setState(() => _torBusy = true);
     try {
@@ -702,6 +766,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _amountEdited = true;
         _fee = fee;
         _feeFor = n;
+        _feeBusy = false;
         _plan = SmartSendPlan(
           base: max!,
           decision: const SmartOutputsDecision(1, SmartOutputsReason.noChange, outputsLeft: 0),
@@ -1223,7 +1288,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // The Outputs defaults and the balance feed the estimate: a change estimates again.
     ref.watch(deskOutputPrefsProvider);
     ref.listen(deskOutputPrefsProvider, (_, _) => _replan());
-    ref.listen(deskProvider.select((s) => s.balance), (_, _) => _replan());
+    // Balance has no value equality and every refresh makes a new one: only a changed
+    // figure estimates again, or the summary would drop back to "—" on each refresh.
+    ref.listen(deskProvider.select((s) => s.balance), (a, b) {
+      if (a?.spendable == b?.spendable && a?.total == b?.total && a?.minConfirmations == b?.minConfirmations) return;
+      _replan();
+    });
     // A method switched off in Settings › Transactions while Send is open: with To empty and
     // nothing sent, Send moves to the method it starts on now, as after a restart. An address
     // in To keeps its method, with the note that it is off.
@@ -1296,7 +1366,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final l = context.l10n;
     final s = _summary(st, _result);
     final n = _amountNano;
-    final total = n > 0 ? n + (_fee ?? 0) : 0;
+    final fee = _fee;
+    // Never a Total without the fee: a spinner while it is estimated, "—" when that failed.
+    final total = n > 0 && fee != null ? n + fee : 0;
+    final pending = n > 0 && fee == null && _feeBusy;
     return Container(
       key: const ValueKey('send-review-bar'),
       padding: EdgeInsets.symmetric(horizontal: Sp.x8, vertical: Sp.x3),
@@ -1308,7 +1381,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerStart,
-              child: total > 0 ? FittedBox(fit: BoxFit.scaleDown, alignment: AlignmentDirectional.centerStart, child: EMoney(total, size: Fs.lg, weight: FontWeight.w600)) : Text('—', style: ts.mono(size: Fs.md, color: c.faint)), // l10n-ok: no amount yet
+              child: pending
+                  ? const SummaryPending()
+                  : total > 0
+                  ? FittedBox(fit: BoxFit.scaleDown, alignment: AlignmentDirectional.centerStart, child: EMoney(total, size: Fs.lg, weight: FontWeight.w600)) : Text('—', style: ts.mono(size: Fs.md, color: c.faint)), // l10n-ok: no amount yet
           ),
           ),
           SizedBox(width: Sp.x4),
@@ -1384,7 +1460,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// nothing connects; both say what still works. Tor only waiting has its own line.
   String _blockTitle(AppLocalizations l, NetBlock net) => switch (net) {
     NetBlock.killSwitch => l.netBlockSendKillSwitch,
-    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.netBlockEpicboxNodeOnly : l.netBlockLinkNodeOnly,
+    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.deskSendEpicboxNodeOnly : l.deskSendLinkNodeOnly,
     _ => netBlockReason(l, net)!,
   };
 
@@ -1483,7 +1559,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         icon: EIcons.tor,
         actions: [
           EButton(label: l.commonRetry, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
-          EButton.ghost(label: l.deskSendTurnTorOff, size: EBtnSize.inline, onPressed: _torBusy ? null : () => _setTor(false)),
+          // Tor off is never one click: its switch is in Settings › Privacy & network.
+          EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
         ],
       );
     }
@@ -1572,6 +1649,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final fileTip = deskOfflineUsesNode(st) ? l.netOfflineNodeHint : null;
     final pairing = _pairingTo == null ? null : ref.watch(deskPairingByIdProvider(_pairingTo!));
     final pairingName = _pairingTo == null ? '' : ref.watch(deskPairingNameProvider(_pairingTo!));
+    _keepMethodOn(st);
+    // Nothing can be chosen (Node only with File Transfer off): no segment is selected and the
+    // fields wait, the notice above says why.
+    final noMethod = !_segmentOn(st, _method);
+    final epicboxOn = _segmentOn(st, TxMethod.epicbox);
+    final off = EBadge.state(l.deskKitMethodOff, on: false);
     return EPanel(
       padding: EdgeInsets.zero,
       title: l.deskSendMethodHeader,
@@ -1582,11 +1665,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, Sp.x3),
           child: TourTarget(
           id: 'send-methods',
-          child: ESegmented<TxMethod>(
+          child: ESegmented<TxMethod?>(
           stretch: true,
           segments: [
             // A pairing's mailbox takes a payment with Epicbox off too: it waits in the outbox.
-            ESegment(TxMethod.epicbox, MethodIcons.shortName(l, MethodKind.epicbox), icon: MethodIcons.of(MethodKind.epicbox), enabled: netIdle && (st.settings.payments.epicbox || pairing != null), tooltip: netWhy ?? (st.settings.payments.epicbox || pairing != null ? null : l.netBlockEpicboxOff)),
+            ESegment(TxMethod.epicbox, MethodIcons.shortName(l, MethodKind.epicbox), icon: MethodIcons.of(MethodKind.epicbox), enabled: epicboxOn, badge: epicboxOn ? null : off, tooltip: netWhy ?? (st.settings.payments.epicbox || pairing != null ? null : l.netBlockEpicboxOff)),
             // Link: http(s) or an onion, the address decides ([TxMethod.tor] is its route), so
             // the segment names the family. Settings › Transactions: the methods on. The
             // method in use stays (a pasted onion picks Link; a file send in progress or the
@@ -1596,23 +1679,31 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             // A pairing recipient has no Link address.
             pairing != null
                 ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
-                : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: deskNetBlock(st) == NetBlock.none, tooltip: netBlockReason(l, deskNetBlock(st))),
+                : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: netIdle, badge: netIdle ? null : off, tooltip: netWhy),
             // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
             // turned off on purpose is no failure, and File Transfer keeps its own switch).
-            if (st.settings.payments.directFile || file || (st.settings.payments.epicbox && (_epicboxHealth(st) == ServiceHealth.off || _epicboxHealth(st) == ServiceHealth.down)))
+            if (_fileShown(st))
               ESegment(TxMethod.file, MethodIcons.shortName(l, MethodKind.directFile), icon: MethodIcons.of(MethodKind.directFile), tooltip: fileTip),
           ],
-          value: _segmentOf(_method),
+          value: noMethod ? null : _segmentOf(_method),
           onChanged: (m) => setState(() {
+            if (m == null) return;
             _method = m == TxMethod.http ? _directRoute(parseAddress(_to.text, ref.read(deskApiProvider)).kind) : m;
             _failure = null;
           }),
           ),
         ),
         ),
-        Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 0, Sp.panel, Sp.panel), child: _MethodStrip(_segmentOf(_method))),
+        if (!noMethod) Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 0, Sp.panel, Sp.panel), child: _MethodStrip(_segmentOf(_method))),
         Divider(height: 1, thickness: 1, color: c.line),
-        Padding(
+        // No method can be chosen: the fields wait (dimmed, out of reach) until one can.
+        ExcludeFocus(
+          excluding: noMethod,
+          child: IgnorePointer(
+          ignoring: noMethod,
+          child: Opacity(
+          opacity: noMethod ? 0.4 : 1,
+          child: Padding(
           padding: EdgeInsets.all(Sp.panel),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1704,7 +1795,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               children: [
                 Text(l.sendPlainHttpOffWithTor, style: ts.small.copyWith(color: c.warn)),
                 EInfoHint(l.sendPlainHttpOffWithTorWhy, title: l.sendPlainHttpOffWithTor, icon: EIcons.alert, size: Ctl.inline),
-                EButton(label: l.torTurnOff, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(false)),
+                EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
               ],
             ),
           ],
@@ -1813,6 +1904,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             ],
           ),
         ),
+        ),
+        ),
+        ),
       ],
       ),
     );
@@ -1823,7 +1917,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final l = context.l10n;
     final spendable = st.balance?.spendable;
     final n = _amountNano;
-    final fee = n > 0 ? (_fee ?? 0) : 0;
+    final fee = n > 0 ? _fee : null;
     final nodeBlocked = _nodeBlock(st) != null;
     final hint = switch (null) {
       _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
@@ -1854,6 +1948,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return _SendSummary(
       amount: n,
       fee: fee,
+      feeLoading: n > 0 && _feeBusy && (fee == null || plan == null),
       spendable: spendable,
       summary: plan == null || balance == null ? null : SendSummary.of(balance: balance.total, spendable: balance.spendable, estimate: plan.estimate),
       extraFee: plan == null ? 0 : plan.estimate.fee - plan.base.fee,
@@ -1882,6 +1977,7 @@ class _SendSummary extends StatelessWidget {
     required this.amount,
     required this.fee,
     required this.spendable,
+    this.feeLoading = false,
     required this.updating,
     required this.hint,
     required this.reviewing,
@@ -1911,7 +2007,12 @@ class _SendSummary extends StatelessWidget {
 
   /// In nano EPIC; 0 when nothing valid is entered.
   final int amount;
-  final int fee;
+
+  /// LEPIC's estimate; null until it arrives or when it failed.
+  final int? fee;
+
+  /// The estimate is on its way: spinners on Network fee, Total and the rows under it.
+  final bool feeLoading;
   final int? spendable;
 
   /// The wallet scans: the balance after is not final.
@@ -1929,14 +2030,17 @@ class _SendSummary extends StatelessWidget {
     final ts = context.ts;
     final l = context.l10n;
     final n = amount;
-    final bad = n > 0 && spendable != null && n + fee > spendable!;
+    final bad = n > 0 && spendable != null && n + (fee ?? 0) > spendable!;
     final ready = n > 0 && !bad;
-    Widget line(String label, int? v, {bool strong = false, bool risk = false, bool dim = false}) => Padding(
+    final pending = feeLoading && !bad;
+    Widget line(String label, int? v, {bool strong = false, bool risk = false, bool dim = false, bool loading = false}) => Padding(
       padding: EdgeInsets.symmetric(vertical: Sp.x2),
       child: Row(
         children: [
           Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
-          if (v == null || v == 0)
+          if (loading)
+            const SummaryPending()
+          else if (v == null || v == 0)
             Text('—', style: ts.mono(size: Fs.md, color: c.faint))
           else
             EMoney(v, size: strong ? Fs.lg : Fs.md, color: risk ? c.risk : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
@@ -1950,7 +2054,7 @@ class _SendSummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           line(l.deskSendAmount, n > 0 ? n : null, risk: bad),
-          line(l.deskSendNetworkFee, fee > 0 ? fee : null),
+          line(l.deskSendNetworkFee, fee, loading: pending && fee == null),
           ExpandFade(
             open: ready && (summary?.changeOutputs ?? 0) > 1,
             child: summary == null || summary!.changeOutputs < 2
@@ -1958,8 +2062,9 @@ class _SendSummary extends StatelessWidget {
                 : SendSplitLine(outputs: summary!.changeOutputs, extraFee: extraFee, change: summary!.change),
           ),
           Divider(height: Sp.x4, color: c.line),
-          line(l.deskSendTotal, ready ? n + fee : null, strong: true),
-          SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations),
+          // Never Amount alone as Total: it waits for the fee, "—" when the estimate failed.
+          line(l.deskSendTotal, ready && fee != null ? n + fee! : null, strong: true, loading: pending && fee == null),
+          SendLockRows(summary: ready ? summary : null, strategy: strategy, defaultStrategy: defaultStrategy, blocks: confirmations, loading: pending),
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           if (review) ...[

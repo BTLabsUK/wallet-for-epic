@@ -160,5 +160,7 @@
   "deskSendRelayUnknownTitle": "Nieznany serwer Epicbox",
   "deskSendRelayUnknownText": "Aplikacja nie zna serwera {relay}. Sprawdź adres przed wysłaniem. Nadal możesz wysłać.",
   "deskSendContactNoLink": "{name} nie ma adresu Link.",
-  "deskSendHintNeedsMethod": "Sprawdzenie wymaga: {method}"
+  "deskSendHintNeedsMethod": "Sprawdzenie wymaga: {method}",
+  "deskSendEpicboxNodeOnly": "Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · Przesyłanie pliku działa.",
+  "deskSendLinkNodeOnly": "Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · Przesyłanie pliku działa."
 }

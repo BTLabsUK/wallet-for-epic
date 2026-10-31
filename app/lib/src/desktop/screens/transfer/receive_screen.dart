@@ -324,7 +324,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     );
   }
 
-  /// Tor starting or not connected: what it holds up, and Retry or Turn Tor off when it failed.
+  /// Tor starting or not connected: what it holds up, and Retry or Settings when it failed.
   Widget _torNotice(TorState tor) {
     final failed = tor == TorState.failed;
     final busy = _busy.contains(TxMethod.tor);
@@ -337,7 +337,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       actions: [
         if (failed) ...[
           EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
-          EButton.ghost(label: l.deskRecvTurnTorOff, size: EBtnSize.inline, onPressed: busy ? null : () => _toggle(TxMethod.tor, false)),
+          // Tor off is never one click: its switch is in Settings › Privacy & network.
+          EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
         ],
       ],
     );

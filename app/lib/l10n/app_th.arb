@@ -4543,7 +4543,7 @@
   "netMarkChange": "เปลี่ยน",
   "statusOffByMode": "ปิด ({mode})",
   "statusOffByModeDetail": "ปิดโดยโหมดเครือข่าย เปลี่ยนได้ที่ การตั้งค่า › ขั้นสูง › เครือข่าย",
-  "netBlockEpicboxNodeOnly": "โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · QR และ โดยตรง · ไฟล์ ใช้ได้",
+  "netBlockEpicboxNodeOnly": "โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · ชำระด้วย QR และ โดยตรง · โอนไฟล์ ใช้ได้",
   "netBlockLinkNodeOnly": "โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · QR และ โดยตรง · ไฟล์ ใช้ได้",
   "netBlockSendKillSwitch": "สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · QR และ โดยตรง · ไฟล์ ใช้ได้",
   "netBlockNodeOnly": "ปิดในโหมดโหนดเท่านั้น",
@@ -4678,5 +4678,7 @@
   "deskKitMoreInHelp": "ดูเพิ่มเติมในความช่วยเหลือ",
   "homeReceiveEpicButton": "รับ EPIC",
   "txDeviceStatusMadeOn": "ทำบน {device}",
-  "txDeviceStatusHeld": "ทำบน {device} เงินถูกถือไว้ที่นี่จนกว่าจะปรากฏบนเชน"
+  "txDeviceStatusHeld": "ทำบน {device} เงินถูกถือไว้ที่นี่จนกว่าจะปรากฏบนเชน",
+  "deskSendEpicboxNodeOnly": "โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · โอนไฟล์ ใช้ได้",
+  "deskSendLinkNodeOnly": "โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้"
 }

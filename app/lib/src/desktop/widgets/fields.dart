@@ -441,7 +441,7 @@ class ESwitch extends StatelessWidget {
 
 /// A segment of [ESegmented].
 class ESegment<T> {
-  const ESegment(this.value, this.label, {this.icon, this.count, this.enabled = true, this.tooltip});
+  const ESegment(this.value, this.label, {this.icon, this.count, this.enabled = true, this.tooltip, this.badge});
 
   final T value;
   final String label;
@@ -451,6 +451,9 @@ class ESegment<T> {
   /// False: shown dimmed and not pressable (a choice that comes later); [tooltip] says why.
   final bool enabled;
   final String? tooltip;
+
+  /// After the label: an "Off" badge on a choice that is not available now.
+  final Widget? badge;
 }
 
 /// Segmented control: the selected segment is raised, neutral (never gold), with a hairline.
@@ -495,6 +498,7 @@ class ESegmented<T> extends StatelessWidget {
       w += 2 * Sp.x3 + text(s.label, label);
       if (s.icon != null) w += Ctl.iconSm + 6.u;
       if (counts && s.count != null) w += 6.u + text('${s.count}', count);
+      if (s.badge != null) w += 6.u + 40.u;
     }
     return w.ceilToDouble() + 2;
   }
@@ -530,11 +534,11 @@ class ESegmented<T> extends StatelessWidget {
         // Counts into the tooltips.
         final bare = [
           for (final s in segments)
-            ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, tooltip: s.tooltip ?? (s.count == null ? null : '${s.label} · ${s.count}')),
+            ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, badge: s.badge, tooltip: s.tooltip ?? (s.count == null ? null : '${s.label} · ${s.count}')),
         ];
         if (_natural(context, counts: false) <= box.maxWidth) return control(bare, stretch);
         // Shared width, labels cut with an ellipsis: the tooltip holds the whole label.
-        return control([for (final s in bare) ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, tooltip: s.tooltip ?? s.label)], true);
+        return control([for (final s in bare) ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, badge: s.badge, tooltip: s.tooltip ?? s.label)], true);
       },
     );
   }
@@ -610,6 +614,10 @@ class _SegState<T> extends State<_Seg<T>> {
                     if (widget.seg.count != null) ...[
                       SizedBox(width: 6.u),
                       Text('${widget.seg.count}', style: context.ts.mono(size: 11, color: c.faint)),
+                    ],
+                    if (widget.seg.badge case final badge?) ...[
+                      SizedBox(width: 6.u),
+                      badge,
                     ],
                   ],
                 ),

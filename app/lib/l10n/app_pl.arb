@@ -4543,7 +4543,7 @@
   "netMarkChange": "Zmień",
   "statusOffByMode": "Wyłączone ({mode})",
   "statusOffByModeDetail": "Wyłączone przez tryb sieci. Zmienisz to w Ustawienia › Zaawansowane › Sieć.",
-  "netBlockEpicboxNodeOnly": "Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · QR i Bezpośrednio · Plik działają.",
+  "netBlockEpicboxNodeOnly": "Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · Płatność QR i Bezpośrednio · Przesyłanie pliku działają.",
   "netBlockLinkNodeOnly": "Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · QR i Bezpośrednio · Plik działają.",
   "netBlockSendKillSwitch": "Wyłącznik awaryjny jest włączony: nic się nie łączy. Bezpośrednio · QR i Bezpośrednio · Plik działają.",
   "netBlockNodeOnly": "Wyłączone w trybie Tylko węzeł.",
@@ -4678,5 +4678,7 @@
   "deskKitMoreInHelp": "Więcej w Pomocy",
   "homeReceiveEpicButton": "Odbierz EPIC",
   "txDeviceStatusMadeOn": "Utworzona na: {device}.",
-  "txDeviceStatusHeld": "Utworzona na: {device}. Środki są zatrzymane tutaj, dopóki łańcuch nie pokaże płatności."
+  "txDeviceStatusHeld": "Utworzona na: {device}. Środki są zatrzymane tutaj, dopóki łańcuch nie pokaże płatności.",
+  "deskSendEpicboxNodeOnly": "Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · Przesyłanie pliku działa.",
+  "deskSendLinkNodeOnly": "Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · Przesyłanie pliku działa."
 }

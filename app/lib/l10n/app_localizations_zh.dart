@@ -16456,7 +16456,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      '“仅节点”已开启：Epicbox 已关闭。直接 · QR 和 直接 · 文件可用。';
+      '“仅节点”已开启：Epicbox 已关闭。直接 · 二维码付款 和 直接 · 文件传输可用。';
 
   @override
   String get netBlockLinkNodeOnly => '“仅节点”已开启：链接已关闭。直接 · QR 和 直接 · 文件可用。';
@@ -16942,4 +16942,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String txDeviceStatusHeld(String device) {
     return '在 $device 上发起。资金在此保留，直到链上出现该付款。';
   }
+
+  @override
+  String get deskSendEpicboxNodeOnly => '“仅节点”已开启：Epicbox 已关闭。直接 · 文件传输可用。';
+
+  @override
+  String get deskSendLinkNodeOnly => '“仅节点”已开启：链接已关闭。直接 · 文件传输可用。';
 }

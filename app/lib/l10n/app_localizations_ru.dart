@@ -18069,7 +18069,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      'Включён режим «Только узел»: Epicbox выключен. «Напрямую · QR» и «Напрямую · Файл» работают.';
+      'Включён режим «Только узел»: Epicbox выключен. «Напрямую · Оплата по QR» и «Напрямую · Передача файла» работают.';
 
   @override
   String get netBlockLinkNodeOnly =>
@@ -18597,4 +18597,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String txDeviceStatusHeld(String device) {
     return 'Создан на $device. Средства удерживаются здесь, пока платёж не появится в цепочке.';
   }
+
+  @override
+  String get deskSendEpicboxNodeOnly =>
+      'Включён режим «Только узел»: Epicbox выключен. «Напрямую · Передача файла» работает.';
+
+  @override
+  String get deskSendLinkNodeOnly =>
+      'Включён режим «Только узел»: «Ссылка» выключена. «Напрямую · Передача файла» работает.';
 }

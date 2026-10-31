@@ -18087,7 +18087,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      'Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · QR i Bezpośrednio · Plik działają.';
+      'Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · Płatność QR i Bezpośrednio · Przesyłanie pliku działają.';
 
   @override
   String get netBlockLinkNodeOnly =>
@@ -18617,4 +18617,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String txDeviceStatusHeld(String device) {
     return 'Utworzona na: $device. Środki są zatrzymane tutaj, dopóki łańcuch nie pokaże płatności.';
   }
+
+  @override
+  String get deskSendEpicboxNodeOnly =>
+      'Tryb Tylko węzeł jest włączony: Epicbox jest wyłączony. Bezpośrednio · Przesyłanie pliku działa.';
+
+  @override
+  String get deskSendLinkNodeOnly =>
+      'Tryb Tylko węzeł jest włączony: Link jest wyłączony. Bezpośrednio · Przesyłanie pliku działa.';
 }

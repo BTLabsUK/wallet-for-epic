@@ -27209,7 +27209,7 @@ abstract class AppLocalizations {
   /// Send over Epicbox while Node only is chosen.
   ///
   /// In en, this message translates to:
-  /// **'Node only is on: Epicbox is off. Direct · QR and Direct · File work.'**
+  /// **'Node only is on: Epicbox is off. Direct · QR Payment and Direct · File Transfer work.'**
   String get netBlockEpicboxNodeOnly;
 
   /// Send over Link while Node only is chosen.
@@ -28021,6 +28021,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Made on {device}. Coins held here until the chain shows it.'**
   String txDeviceStatusHeld(String device);
+
+  /// Send notice and hint while Node only is on and Epicbox is chosen: the desktop has no QR Payment, so only File Transfer works.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only is on: Epicbox is off. Direct · File Transfer works.'**
+  String get deskSendEpicboxNodeOnly;
+
+  /// Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only is on: Link is off. Direct · File Transfer works.'**
+  String get deskSendLinkNodeOnly;
 }
 
 class _AppLocalizationsDelegate

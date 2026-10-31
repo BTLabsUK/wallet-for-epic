@@ -160,5 +160,7 @@
   "deskSendRelayUnknownTitle": "ไม่รู้จักเซิร์ฟเวอร์ Epicbox",
   "deskSendRelayUnknownText": "แอปไม่รู้จักเซิร์ฟเวอร์ {relay} ตรวจสอบที่อยู่ก่อนส่ง แต่ยังส่งได้",
   "deskSendContactNoLink": "{name} ไม่มีที่อยู่ Link",
-  "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}"
+  "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}",
+  "deskSendEpicboxNodeOnly": "โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · โอนไฟล์ ใช้ได้",
+  "deskSendLinkNodeOnly": "โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้"
 }

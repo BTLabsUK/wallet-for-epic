@@ -17462,7 +17462,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netBlockEpicboxNodeOnly =>
-      'Node only is on: Epicbox is off. Direct · QR and Direct · File work.';
+      'Node only is on: Epicbox is off. Direct · QR Payment and Direct · File Transfer work.';
 
   @override
   String get netBlockLinkNodeOnly =>
@@ -17978,4 +17978,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String txDeviceStatusHeld(String device) {
     return 'Made on $device. Coins held here until the chain shows it.';
   }
+
+  @override
+  String get deskSendEpicboxNodeOnly =>
+      'Node only is on: Epicbox is off. Direct · File Transfer works.';
+
+  @override
+  String get deskSendLinkNodeOnly =>
+      'Node only is on: Link is off. Direct · File Transfer works.';
 }
