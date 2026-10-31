@@ -104,7 +104,7 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
             SizedBox(height: Sp.x2),
             LayoutBuilder(
               builder: (context, box) {
-                final wide = box.maxWidth >= 360.u;
+                final wide = box.maxWidth >= Lay.xs;
                 final mine = _card(context, c, backup: false);
                 final theirs = _card(context, c, backup: true);
                 return wide
