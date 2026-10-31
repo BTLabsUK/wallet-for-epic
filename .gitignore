@@ -1,3 +1,5 @@
+# Coordination state of the retired fleet tooling, never committed
+/.fleet/
 # lepic-flutter (tools/lepic-flutter.rev) and LEPIC (tools/lepic.rev) clones, created by tools/lepic.sh sync
 /app/third_party
 
