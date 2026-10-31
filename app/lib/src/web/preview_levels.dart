@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The levels' parts of the web preview: the first-start step on every visit, and the Epicbox
-/// relay going quiet at level 1 with the offer to move (the real notifier waits two minutes
+/// relay going quiet with the offer to move (the real notifier waits two minutes
 /// and asks the status site; the preview plays it in seconds against [PreviewDirectory]'s
 /// list). Same API as `relay_switch_providers.dart`, so the screens do not know the difference.
 library;
@@ -39,7 +39,7 @@ class PreviewFirstStart extends FirstStartNotifier {
   bool build() => true;
 }
 
-/// The relay offer for the presentation. At level 1 the fake relay stops answering
+/// The relay offer for the presentation. The fake relay stops answering
 /// [previewRelayDownAfter] after the wallet opens (at once with `?relaydown`), and
 /// [previewOfferAfter] later the move to a relay the preview directory lists as healthy is
 /// offered; accepting gives the wallet a new address on it.

@@ -295,10 +295,9 @@ class LevelFeatures {
   /// The node is never shown and failover is forced on.
   final bool nodeAutomatic;
 
-  /// A relay down for [relaySwitchAfter] moves the wallet to the next healthy one of the list
-  /// by itself, at every level (the owner, 26.10.26: never sit on a dead relay); the new address
-  /// is said after the move (`relay_switch_providers.dart`, desktop `desk_relay_switch.dart`).
-  /// The offer to tap stays only for a move that failed.
+  /// A relay down for [relaySwitchAfter] is offered a one-tap switch to the next healthy one, at
+  /// every level, never switched silently: a move changes the wallet's Epicbox address
+  /// (`relay_switch_providers.dart`, desktop `desk_relay_switch.dart`).
   bool get relaySwitchPrompt => true;
 
   /// The Tor-only row on the first-start step and Change level.
