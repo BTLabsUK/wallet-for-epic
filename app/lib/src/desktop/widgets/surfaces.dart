@@ -907,6 +907,22 @@ class ESetRow extends StatelessWidget {
 
 /// The info icon that carries an explanation: a tooltip on hover and on keyboard focus, and
 /// the text itself for a screen reader. Settings rows use it so the main view shows labels only.
+/// [words] with [control] beside them at the end while the words keep [minWords]
+/// ([setRowMinWords] by default), else the control under the words at its own width: a custom
+/// row that is not an [ESetRow]. [top] aligns both to the top instead of centring them.
+class EBesideOrUnder extends StatelessWidget {
+  const EBesideOrUnder({super.key, required this.words, required this.control, this.minWords, this.top = false});
+
+  final Widget words;
+  final Widget control;
+  final double? minWords;
+  final bool top;
+
+  @override
+  Widget build(BuildContext context) =>
+      _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: minWords ?? setRowMinWords, top: top, children: [words, control]);
+}
+
 /// [ESetRow]'s layout: the control at its own width at the right with the words in the
 /// rest, while that leaves the words [minWords]; otherwise the control under the words.
 class _WrapRow extends MultiChildRenderObjectWidget {
