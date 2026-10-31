@@ -123,6 +123,9 @@ class _BackButton extends StatelessWidget {
   );
 }
 
+/// A window too short for the opening screens' full spacing (under 640 u tall).
+bool isShortWindow(BuildContext context) => MediaQuery.sizeOf(context).height < 640.u;
+
 /// The full-window backdrop of the screens that open the app: a pool of accent light at the
 /// top and a measurement grid fading out.
 class EHeroScreen extends StatelessWidget {
@@ -134,6 +137,7 @@ class EHeroScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    final short = isShortWindow(context);
     return ColoredBox(
       color: c.bg,
       child: Stack(
@@ -169,8 +173,8 @@ class EHeroScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(height: footer == null ? 0 : Sp.x10),
-                    Center(child: Padding(padding: EdgeInsets.all(Sp.x8), child: child)),
+                    SizedBox(height: footer == null ? 0 : (short ? Sp.x4 : Sp.x10)),
+                    Center(child: Padding(padding: EdgeInsets.all(short ? Sp.x4 : Sp.x8), child: child)),
                     if (footer != null)
                       Padding(
                         padding: EdgeInsets.only(bottom: Sp.x5),
@@ -279,22 +283,24 @@ class EAuthCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    // A short window keeps the form and its button in view: a smaller tile, tighter gaps.
+    final short = isShortWindow(context);
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: width),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: EGlyphTile(icon: icon)),
-          SizedBox(height: Sp.x5),
+          Center(child: EGlyphTile(icon: icon, size: short ? 48.u : null)),
+          SizedBox(height: short ? Sp.x3 : Sp.x5),
           Semantics(header: true, child: Text(title, style: ts.h1, textAlign: TextAlign.center)),
           if (lead != null) ...[
             SizedBox(height: 6.u),
             Text(lead!, style: ts.bodyDim, textAlign: TextAlign.center),
           ],
-          SizedBox(height: Sp.x6),
+          SizedBox(height: short ? Sp.x4 : Sp.x6),
           Container(
-            padding: EdgeInsets.all(Sp.x8),
+            padding: EdgeInsets.all(short ? Sp.x6 : Sp.x8),
             decoration: BoxDecoration(
               color: c.s1,
               border: Border.all(color: c.line),
