@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../data/mock_hosts.dart';
+import 'dart:async' show unawaited;
 import 'dart:io' show File;
 
 import 'package:flutter/widgets.dart';
@@ -330,6 +331,19 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<InternetGuideChoice>(c, builder: (_) => InternetGuide(port: appConfig.httpListenPort, isPublic: false)),
   ),
   DeskShot(id: '30c-dlg-report-problem', title: 'Report a problem', route: DeskRoute.settingsHelp, dialog: showReportProblemDialog),
+  // The dialog, then the Include full details info popover over it.
+  DeskShot(
+    id: '30c2-dlg-report-problem-full-details-info',
+    title: 'Report a problem, the Include full details info popover',
+    route: DeskRoute.settingsHelp,
+    dialog: (c) async {
+      unawaited(showReportProblemDialog(c));
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      if (!c.mounted) return;
+      // The dialog lives in the navigator's overlay, so the search starts at the root.
+      await openInfoHint(c, title: (l) => l.deskSetReportFullDetails, under: WidgetsBinding.instance.rootElement);
+    },
+  ),
   DeskShot(id: '33-dlg-remove-wallet', title: 'Remove wallet', route: DeskRoute.settingsWallets, dialog: (c) => showRemoveWalletDialog(c, demoOtherWallet)),
   DeskShot(
     id: '33b-dlg-remove-wallet-everything',
@@ -426,7 +440,7 @@ final List<DeskShot> settingsShots = [
 ];
 
 /// Opens the popover of the [EInfoHint] titled [title] under [root] (the tour's dialog hook).
-Future<void> openInfoHint(BuildContext root, {required String Function(AppLocalizations) title}) async {
+Future<void> openInfoHint(BuildContext root, {required String Function(AppLocalizations) title, Element? under}) async {
   final want = title(root.l10n);
   EInfoHintState? found;
   void visit(Element e) {
@@ -437,7 +451,7 @@ Future<void> openInfoHint(BuildContext root, {required String Function(AppLocali
     }
     e.visitChildren(visit);
   }
-  (root as Element).visitChildren(visit);
+  (under ?? root as Element).visitChildren(visit);
   await found?.open();
 }
 
