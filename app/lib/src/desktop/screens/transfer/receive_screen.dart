@@ -252,7 +252,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             if (arriving != null) ...[_arrivalCard(arriving, nav), SizedBox(height: Sp.x4)],
             LayoutBuilder(
           builder: (context, box) {
-            if (box.maxWidth >= 1040.u) {
+            if (box.maxWidth >= Lay.wide) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -518,8 +518,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       grown: true,
       small: const SizedBox.shrink(),
       body: LayoutBuilder(
-        builder: (context, box) => box.maxWidth < 520.u
-            ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Center(child: qr)])
+        builder: (context, box) => box.maxWidth < Lay.lg
+            ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Align(alignment: Alignment.centerLeft, child: qr)])
             : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: info), SizedBox(width: Sp.x6), qr]),
       ),
     );
@@ -658,8 +658,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       key: ValueKey('rx-panel-${TxMethod.epicbox.name}'),
       padding: EdgeInsets.all(Sp.x6),
       child: LayoutBuilder(
-        builder: (context, box) => box.maxWidth < 520.u
-            ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Center(child: qr)])
+        builder: (context, box) => box.maxWidth < Lay.lg
+            ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Align(alignment: Alignment.centerLeft, child: qr)])
             : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: info), SizedBox(width: Sp.x6), qr]),
       ),
     );
