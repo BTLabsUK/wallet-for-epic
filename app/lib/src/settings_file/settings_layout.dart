@@ -158,8 +158,6 @@ ValueProblem? checkEpicboxServer(String v) => isHostPort(v) ? null : ValueProble
 
 ValueProblem? checkHostName(String v) => isHostName(v) ? null : ValueProblem.notHostName;
 
-ValueProblem? checkHostPort(String v) => isHostPort(v) ? null : ValueProblem.notHostName;
-
 /// A domain suffix such as `.ts.net` (the leading dot is optional).
 ValueProblem? checkSuffix(String v) =>
     isHostName(v.startsWith('.') ? v.substring(1) : v) ? null : ValueProblem.notHostName;
@@ -195,14 +193,6 @@ String hostOf(String address) {
   if (uri != null && uri.host.isNotEmpty) return uri.host.toLowerCase();
   final i = address.lastIndexOf(':');
   return (i < 0 ? address : address.substring(0, i)).toLowerCase();
-}
-
-/// `host:port` of a node address, the port filled in from the scheme.
-String nodeHostPort(String url) {
-  final uri = Uri.tryParse(url);
-  if (uri == null || uri.host.isEmpty) return url.toLowerCase();
-  final port = uri.hasPort ? uri.port : (uri.scheme == 'http' ? 80 : 443);
-  return '${uri.host.toLowerCase()}:$port';
 }
 
 /// `host` on 443, else `host:port`: an Epicbox server's label, as an address names it.
