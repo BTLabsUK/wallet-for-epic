@@ -265,9 +265,13 @@ const List<String> logRingFiles = [
 Future<void> startLogging() async {
   try {
     final support = await appDataDirectory();
-    final logs = '${support.path}${Platform.pathSeparator}logs';
-    AppLog.ringDir = '$logs${Platform.pathSeparator}$logRingFolder';
-    AppLog.use(FileLogSink.open(Directory(logs)));
+    final sep = Platform.pathSeparator;
+    AppLog.ringDir = '${support.path}${sep}logs$sep$logRingFolder';
+    AppLog.use(
+      FileLogSink.open(
+        Directory('${support.path}${Platform.pathSeparator}logs'),
+      ),
+    );
   } catch (error) {
     logWarn('log', 'no log file: $error');
   }
