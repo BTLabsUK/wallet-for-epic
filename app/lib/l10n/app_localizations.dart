@@ -29402,10 +29402,10 @@ abstract class AppLocalizations {
   /// **'Off on this network'**
   String get receiveHttpNotPrivateTitle;
 
-  /// Receive › Link · HTTP card: the info sheet behind the Off on this network line: the phone's listener does not run because the Wi-Fi network it is on has not been marked private by the user.
+  /// Receive › Link · HTTP card: the info sheet behind the Off on this network line: the listener runs only on Wi-Fi networks the user has marked private.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.'**
+  /// **'Link · HTTP listens only on networks you mark private.'**
   String get receiveHttpNotPrivate;
 
   /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it.
@@ -29438,10 +29438,10 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{None marked yet} one{{count} marked} other{{count} marked}}'**
   String txPrivateNetworksCount(int count);
 
-  /// Private networks sheet: the info sheet behind the info icon beside the title: what the list is.
+  /// Private networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.'**
+  /// **'Link · HTTP listens on these networks. Forget one and the phone asks again next time it is on it.'**
   String get txPrivateNetworksBody;
 
   /// Private networks sheet: the empty list, one short line.
@@ -29474,10 +29474,10 @@ abstract class AppLocalizations {
   /// **'{range}.x'**
   String txPrivateNetworkRange(String range);
 
-  /// Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and what is never in the report, ticked or not.
+  /// Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and that seeds, keys and passwords are never in the report.
   ///
   /// In en, this message translates to:
-  /// **'Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.'**
+  /// **'Sends addresses and amounts as they are instead of shortened. Seeds, keys and passwords are never sent.'**
   String get deskSetReportFullDetailsInfo;
 }
 

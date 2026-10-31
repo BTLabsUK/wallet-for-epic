@@ -18812,7 +18812,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP listens only on networks you mark private. On a shared Wi-Fi, anyone there could reach this wallet.';
+      'Link · HTTP listens only on networks you mark private.';
 
   @override
   String get receiveHttpMarkPrivate => 'This is my private network';
@@ -18840,7 +18840,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txPrivateNetworksBody =>
-      'Link · HTTP listens on these networks. A network is known by its address range, so two homes on the same range count as one. Forget a network and the phone asks again when it is on it.';
+      'Link · HTTP listens on these networks. Forget one and the phone asks again next time it is on it.';
 
   @override
   String get txPrivateNetworksNone => 'No network marked yet.';
@@ -18863,5 +18863,5 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Addresses go shortened and amounts as ranges. Ticked, they go whole. Seeds, keys and passwords never.';
+      'Sends addresses and amounts as they are instead of shortened. Seeds, keys and passwords are never sent.';
 }

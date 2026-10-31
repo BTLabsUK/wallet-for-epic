@@ -4914,18 +4914,18 @@
   "sendPassphraseReason": "ใส่วลีรหัสผ่านเพื่อส่ง {amount}",
   "sendFilePassphraseReason": "ใส่วลีรหัสผ่านเพื่อสร้างไฟล์ธุรกรรม {amount}",
   "passphraseSetTitle": "ตั้งวลีรหัสผ่าน",
-  "receiveHttpNotPrivate": "Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว ใน Wi-Fi ที่ใช้ร่วมกัน ใครก็ตามที่นั่นอาจเข้าถึงกระเป๋าเงินนี้ได้",
+  "receiveHttpNotPrivate": "Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว",
   "receiveHttpMarkPrivate": "นี่คือเครือข่ายส่วนตัวของฉัน",
   "deskSetReportFullDetails": "แนบรายละเอียดทั้งหมด",
   "receiveHttpNotPrivateTitle": "ปิดอยู่ในเครือข่ายนี้",
   "txPrivateNetworks": "เครือข่ายส่วนตัว",
   "txPrivateNetworksCount": "{count, plural, =0{ยังไม่ได้ทำเครื่องหมาย} other{ทำเครื่องหมายแล้ว {count} เครือข่าย}}",
-  "txPrivateNetworksBody": "Link · HTTP รับฟังในเครือข่ายเหล่านี้ เครือข่ายถูกจดจำด้วยช่วงที่อยู่ ดังนั้นบ้านสองหลังที่ใช้ช่วงเดียวกันจะนับเป็นเครือข่ายเดียว หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น",
+  "txPrivateNetworksBody": "Link · HTTP รับฟังในเครือข่ายเหล่านี้ หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น",
   "txPrivateNetworksNone": "ยังไม่ได้ทำเครื่องหมายเครือข่ายใด",
   "txPrivateNetworkCurrent": "เครือข่ายนี้",
   "txPrivateNetworkForget": "ลืม",
   "txPrivateNetworkForgetLabel": "ลืม {range}",
   "txPrivateNetworkRange": "{range}.x",
   "deskSetReportPartFullDetails": "รายละเอียดเต็ม",
-  "deskSetReportFullDetailsInfo": "ที่อยู่จะถูกย่อ และจำนวนเงินแสดงเป็นช่วง เมื่อติ๊กจะส่งแบบเต็ม วลีกู้คืน คีย์ และรหัสผ่านไม่มีวันถูกส่ง"
+  "deskSetReportFullDetailsInfo": "ส่งที่อยู่และจำนวนเงินแบบเต็มแทนที่จะย่อ ซีดวลี คีย์ และรหัสผ่านจะไม่ถูกส่งเลย"
 }

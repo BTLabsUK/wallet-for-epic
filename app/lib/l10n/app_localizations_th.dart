@@ -18388,7 +18388,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว ใน Wi-Fi ที่ใช้ร่วมกัน ใครก็ตามที่นั่นอาจเข้าถึงกระเป๋าเงินนี้ได้';
+      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณทำเครื่องหมายว่าเป็นส่วนตัว';
 
   @override
   String get receiveHttpMarkPrivate => 'นี่คือเครือข่ายส่วนตัวของฉัน';
@@ -18415,7 +18415,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txPrivateNetworksBody =>
-      'Link · HTTP รับฟังในเครือข่ายเหล่านี้ เครือข่ายถูกจดจำด้วยช่วงที่อยู่ ดังนั้นบ้านสองหลังที่ใช้ช่วงเดียวกันจะนับเป็นเครือข่ายเดียว หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
+      'Link · HTTP รับฟังในเครือข่ายเหล่านี้ หากลืมเครือข่ายใด โทรศัพท์จะถามอีกครั้งเมื่ออยู่ในเครือข่ายนั้น';
 
   @override
   String get txPrivateNetworksNone => 'ยังไม่ได้ทำเครื่องหมายเครือข่ายใด';
@@ -18438,5 +18438,5 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'ที่อยู่จะถูกย่อ และจำนวนเงินแสดงเป็นช่วง เมื่อติ๊กจะส่งแบบเต็ม วลีกู้คืน คีย์ และรหัสผ่านไม่มีวันถูกส่ง';
+      'ส่งที่อยู่และจำนวนเงินแบบเต็มแทนที่จะย่อ ซีดวลี คีย์ และรหัสผ่านจะไม่ถูกส่งเลย';
 }

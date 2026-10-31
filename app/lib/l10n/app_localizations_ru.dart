@@ -19445,7 +19445,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveHttpNotPrivate =>
-      'Link · HTTP принимает только в сетях, которые вы отметили как частные. В общем Wi-Fi любой рядом мог бы добраться до этого кошелька.';
+      'Link · HTTP принимает только в сетях, которые вы отметили как частные.';
 
   @override
   String get receiveHttpMarkPrivate => 'Это моя частная сеть';
@@ -19475,7 +19475,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txPrivateNetworksBody =>
-      'Link · HTTP принимает в этих сетях. Сеть узнаётся по диапазону адресов, так что два дома с одним диапазоном считаются одной. Забудьте сеть, и телефон спросит в ней снова.';
+      'Link · HTTP принимает в этих сетях. Забудьте сеть, и телефон спросит снова, когда окажется в ней.';
 
   @override
   String get txPrivateNetworksNone => 'Ни одна сеть пока не отмечена.';
@@ -19498,5 +19498,5 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetReportFullDetailsInfo =>
-      'Адреса идут сокращёнными, суммы диапазонами. С отметкой они идут целиком. Фразы, ключи и пароли никогда.';
+      'Адреса и суммы отправляются целиком, а не сокращёнными. Сид-фразы, ключи и пароли не отправляются никогда.';
 }

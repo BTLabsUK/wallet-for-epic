@@ -18,7 +18,7 @@
   "deskSetReportAttach": "Protokolle anhängen (empfohlen)",
   "deskSetReportAttachHint": "Der neueste Teil des App-Protokolls, bereinigt um Phrasen, Passwörter, Adressen, IPs und Benutzerordner.",
   "deskSetReportFullDetails": "Alle Details mitsenden",
-  "deskSetReportFullDetailsInfo": "Adressen gehen gekürzt, Beträge als Bereiche. Angekreuzt gehen sie vollständig. Phrasen, Schlüssel und Passwörter nie.",
+  "deskSetReportFullDetailsInfo": "Sendet Adressen und Beträge unverkürzt. Phrasen, Schlüssel und Passwörter werden nie gesendet.",
   "deskSetReportPartFullDetails": "Alle Details",
   "deskSetReportSentWhat": "Was gesendet wird",
   "deskSetReportNotSentTitle": "Nicht gesendet",
