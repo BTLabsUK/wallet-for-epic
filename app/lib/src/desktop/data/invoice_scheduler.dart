@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// When the desktop wallet asks Epicbox for invoices and payments by itself
-///. The invoice address has no listener, so it is
+///. The invoice address has no listener, so while Invoices is on ([setInvoices]) it is
 /// drained every [invoicesEvery] and when the window gains focus; the payments address is
 /// drained every [paymentsEvery] while an issued invoice waits and the Epicbox listener is off
 /// (the listener finalizes payments itself while it runs). Opening the wallet and the Invoices
@@ -44,14 +44,34 @@ class InvoiceScheduler {
   Timer? _invoices;
   Timer? _payments;
   AppLifecycleListener? _focus;
+  bool _running = false;
   bool _draining = false;
 
-  bool get running => _invoices != null;
+  bool get running => _running;
 
-  void start() {
+  /// Whether the invoice address is drained on its timer and on focus (tests).
+  bool get drainsInvoices => _invoices != null;
+
+  /// [invoices]: the Invoices switch (Settings › Advanced › Experimental) as the wallet opens.
+  void start({bool invoices = true}) {
     if (running) return;
-    _invoices = Timer.periodic(invoicesEvery, (_) => unawaited(tick()));
+    _running = true;
     _payments = Timer.periodic(paymentsEvery, (_) => unawaited(paymentsTick()));
+    setInvoices(invoices);
+  }
+
+  /// Invoices switched on or off: off, nothing asks the invoice address by itself.
+  void setInvoices(bool on) {
+    if (!running) return;
+    if (!on) {
+      _invoices?.cancel();
+      _invoices = null;
+      _focus?.dispose();
+      _focus = null;
+      return;
+    }
+    if (_invoices != null) return;
+    _invoices = Timer.periodic(invoicesEvery, (_) => unawaited(tick()));
     if (watchFocus) {
       try {
         _focus = AppLifecycleListener(onResume: () => unawaited(tick()));
@@ -63,6 +83,7 @@ class InvoiceScheduler {
   }
 
   void stop() {
+    _running = false;
     _invoices?.cancel();
     _invoices = null;
     _payments?.cancel();

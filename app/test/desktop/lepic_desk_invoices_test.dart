@@ -679,6 +679,29 @@ void main() {
     expect(payments, 0);
   });
 
+  test('with Invoices off the scheduler leaves the invoice address alone, and drains again when on', () async {
+    var invoices = 0;
+    final s = InvoiceScheduler(
+      drainInvoices: () async => invoices++,
+      drainPayments: () async {},
+      paymentsWanted: () => false,
+      invoicesEvery: const Duration(milliseconds: 20),
+      paymentsEvery: const Duration(milliseconds: 20),
+      watchFocus: false,
+    )..start(invoices: false);
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    expect(s.drainsInvoices, isFalse);
+    expect(invoices, 0);
+    s.setInvoices(true);
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    expect(invoices, greaterThan(0));
+    s.setInvoices(false);
+    final drains = invoices;
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    s.stop();
+    expect(invoices, drains);
+  });
+
   test('payInvoice has one caller on the desktop: Review\'s Approve', () {
     final callers = <String>[];
     for (final f in Directory('lib/src/desktop').listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.dart'))) {

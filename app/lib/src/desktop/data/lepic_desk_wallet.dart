@@ -3425,6 +3425,7 @@ class LepicDeskWallet implements DeskWalletApi {
       if (settings.directHttp && !NetGate.restricted) await setHttpListening(true);
     }
     NetGate.setExperimental(settings.advanced);
+    _invoiceTimers?.setInvoices(NetGate.invoices);
     final was = netModeOf(old.advanced.networkMode);
     if (mode != was) await _applyMode(was, mode);
     if (settings.payments.epicbox != old.payments.epicbox) await _applyEpicboxSwitch(settings.payments.epicbox);
@@ -4777,7 +4778,7 @@ class LepicDeskWallet implements DeskWalletApi {
       invoicesEvery: invoicesEvery,
       paymentsEvery: paymentsEvery,
       watchFocus: invoiceFocus,
-    )..start();
+    )..start(invoices: NetGate.invoices);
   }
 
   /// On lock and before a reopen: timers off, events dropped. [forget] (lock) also drops what
@@ -4812,16 +4813,20 @@ class LepicDeskWallet implements DeskWalletApi {
     final r = await session.drainInvoices();
     if (_session != session) return;
     _invoiceCheckedAt = DateTime.now();
-    if (r.parked > 0 || r.notices > 0 || r.finalized > 0) await _reload();
-    _changed();
+    if (r.parked > 0 || r.notices > 0 || r.finalized > 0) {
+      await _reload();
+    } else {
+      // Only the Invoices page's "Checked at" moved.
+      _changed();
+    }
   }
 
   /// Drains the payments address: payments for issued invoices are finalized and posted.
   Future<void> _drainPayments(core.WalletSession session) async {
     final r = await session.drainPayments();
     if (_session != session) return;
+    // Nothing came: nothing to show, so no refresh either.
     if (r.received > 0 || r.finalized > 0 || r.bounced > 0) await _reload();
-    _changed();
   }
 
   /// A payer: an invoice parked, posted, withdrawn or expired. Never pays anything.
