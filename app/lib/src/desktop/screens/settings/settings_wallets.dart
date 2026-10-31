@@ -151,7 +151,8 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                 LayoutBuilder(
                   builder: (context, box) {
                     // In a row the title block is two lines tall, so the subtitles align (UD-021).
-                    final perRow = box.maxWidth >= Lay.lg ? 3 : (box.maxWidth >= Lay.md ? 2 : 1);
+                    // Three short cards across from Lay.md, else one column (never two and a lone one).
+                    final perRow = box.maxWidth >= Lay.md ? 3 : 1;
                     final row = perRow > 1;
                     final cards = [
                       EChoiceCard(

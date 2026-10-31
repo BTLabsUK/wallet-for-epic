@@ -764,10 +764,32 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                   children: [
                     EStatusDot(widget.tone, size: 8.u),
                     SizedBox(width: Sp.x3),
-                    Flexible(
-                      flex: 2,
-                      child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: ts.mono(size: 13.u, color: c.text)),
-                    ),
+                    if (widget.busy || widget.fieldSub == null)
+                      Flexible(
+                        flex: 2,
+                        child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: ts.mono(size: 13.u, color: c.text)),
+                      )
+                    else
+                      // The host first, whole while it fits; the operator only in the room left.
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, box) {
+                            final hostStyle = ts.mono(size: 13.u, color: c.text);
+                            final tp = TextPainter(text: TextSpan(text: widget.fieldText, style: hostStyle), textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
+                            final hostW = tp.width;
+                            tp.dispose();
+                            final host = Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: hostStyle);
+                            if (hostW + Sp.x2 + 48.u > box.maxWidth) return Align(alignment: AlignmentDirectional.centerStart, child: host);
+                            return Row(
+                              children: [
+                                host,
+                                SizedBox(width: Sp.x2),
+                                Flexible(child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1)),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
                     if (widget.busy) ...[
                       SizedBox(width: Sp.x2),
                       Flexible(
@@ -781,13 +803,8 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                           ),
                         ),
                       ),
-                    ] else if (widget.fieldSub != null) ...[
-                      SizedBox(width: Sp.x2),
-                      Flexible(
-                        child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1),
-                      ),
                     ],
-                    const Spacer(),
+                    if (widget.busy || widget.fieldSub == null) const Spacer(),
                     SizedBox(width: Sp.x2),
                     Icon(EIcons.chevronDown, size: 16.u, color: c.dim),
                   ],
