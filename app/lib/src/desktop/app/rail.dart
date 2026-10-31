@@ -21,7 +21,7 @@ import '../data/tor_view.dart' hide isLocalNodeUrl;
 import '../../ui/network_mode_text.dart' show statusOffByModeWord;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
-import '../widgets/http_reach.dart' show deskHttpReachProvider;
+import '../widgets/http_reach.dart' show deskLastHttpReachProvider;
 import '../widgets/kit.dart';
 
 /// One row's content, whatever the service.
@@ -344,7 +344,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
         jump: nodeItem.jump,
       );
     }
-    final reach = settings.publicMode && httpRun(status) == HttpRun.on ? ref.watch(deskHttpReachProvider).value : null;
+    final reach = settings.publicMode && httpRun(status) == HttpRun.on ? ref.watch(deskLastHttpReachProvider) : null;
     final items = [nodeItem, ...receivingRailItems(l, status, settings, reachClosed: reach?.reachable == false)];
     if (widget.builder != null) return widget.builder!(context, items);
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.opens));

@@ -12,15 +12,16 @@ import '../desk_l10n.dart';
 import '../data/http_address.dart' show HttpReach, WebReachProbe;
 import 'kit.dart';
 
-/// The cached reach check (the API keeps it 2 minutes), for the rail's HTTP row.
-final deskHttpReachProvider = FutureProvider.autoDispose<HttpReach?>((ref) async {
-  if (!WebReachProbe.configured) return null;
-  try {
-    return await ref.read(deskApiProvider).httpReach();
-  } on Object {
-    return null;
-  }
-});
+/// The last answer the reach notice got, for the rail's HTTP row; null until one comes in.
+/// The rail only reads it: no check of its own.
+class DeskLastHttpReach extends Notifier<HttpReach?> {
+  @override
+  HttpReach? build() => null;
+
+  void set(HttpReach? r) => state = r;
+}
+
+final deskLastHttpReachProvider = NotifierProvider<DeskLastHttpReach, HttpReach?>(DeskLastHttpReach.new);
 
 /// The check's notice: checking, reachable, not reachable (forward the port), or could not
 /// tell. Asked on open, every minute (a network change shows within one; the answer is kept 2
@@ -65,6 +66,7 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
       _reach = r;
       _checking = false;
     });
+    ref.read(deskLastHttpReachProvider.notifier).set(r);
     widget.onChanged?.call(r);
   }
 

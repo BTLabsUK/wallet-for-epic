@@ -21,6 +21,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     required this.field,
     required this.line,
     required this.lineStrong,
+    required this.lineField,
     required this.text,
     required this.dim,
     required this.faint,
@@ -62,6 +63,9 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   /// Hairlines: [line] separates, [lineStrong] encloses.
   final Color line;
   final Color lineStrong;
+
+  /// The edge of a text field: 3:1 against the field, which [lineStrong] is not on light.
+  final Color lineField;
 
   /// Text: [text] for content, [dim] for secondary, [faint] for hints and readouts (at least 4.5:1).
   final Color text;
@@ -130,6 +134,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     Color? field,
     Color? line,
     Color? lineStrong,
+    Color? lineField,
     Color? text,
     Color? dim,
     Color? faint,
@@ -163,6 +168,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     field: field ?? this.field,
     line: line ?? this.line,
     lineStrong: lineStrong ?? this.lineStrong,
+    lineField: lineField ?? this.lineField,
     text: text ?? this.text,
     dim: dim ?? this.dim,
     faint: faint ?? this.faint,
@@ -203,6 +209,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
       field: c(field, other.field),
       line: c(line, other.line),
       lineStrong: c(lineStrong, other.lineStrong),
+      lineField: c(lineField, other.lineField),
       text: c(text, other.text),
       dim: c(dim, other.dim),
       faint: c(faint, other.faint),
@@ -256,6 +263,7 @@ const WalletTokens protocolDark = WalletTokens(
   field: Color(0xFF131318),
   line: Color(0xFF24242A),
   lineStrong: Color(0xFF33333D),
+  lineField: Color(0xFF33333D),
   text: Color(0xFFFFF9F9),
   dim: Color(0xFFA4A4AD),
   faint: Color(0xFF8A8A94),
@@ -293,6 +301,7 @@ const WalletTokens protocolLight = WalletTokens(
   field: Color(0xFFEEEEF0),
   line: Color(0xFFE0E0E4),
   lineStrong: Color(0xFFC9C9D0),
+  lineField: Color(0xFF868690),
   text: Color(0xFF1C1E21),
   dim: Color(0xFF55555F),
   faint: Color(0xFF6B6B75),
@@ -385,9 +394,6 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         borderSide: BorderSide(color: color, width: width),
       );
 
-  // Light fields sit on near-white: lineStrong is only 1.4:1 there, a field edge needs 3:1.
-  final edge = t.field.computeLuminance() > 0.5 ? const Color(0xFF868690) : t.lineStrong;
-
   return base.copyWith(
     extensions: [t],
     textTheme: text.copyWith(
@@ -449,8 +455,8 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: t.field,
-      border: border(edge),
-      enabledBorder: border(edge),
+      border: border(t.lineField),
+      enabledBorder: border(t.lineField),
       focusedBorder: border(t.accent, 1.5),
       errorBorder: border(t.risk),
       focusedErrorBorder: border(t.risk, 1.5),
