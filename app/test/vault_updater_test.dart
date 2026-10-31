@@ -692,6 +692,8 @@ void main() {
       container = ProviderContainer(
         overrides: [
           updatePlatformProvider.overrideWithValue(platform),
+          // The stored update.json state must read, or no update is offered (AB-05).
+          secretStoreProvider.overrideWithValue(MemorySecretStore()),
           updateTempDirProvider.overrideWithValue(() async => temp),
           updateManifestUrlProvider.overrideWithValue(
             Uri.parse('http://127.0.0.1:${server.port}/update.json'),
@@ -811,6 +813,7 @@ void main() {
         final seen = <Uri>[];
         container.updateOverrides([
           updatePlatformProvider.overrideWithValue(_FakeUpdatePlatform()),
+          secretStoreProvider.overrideWithValue(MemorySecretStore()),
           updateTempDirProvider.overrideWithValue(() async => Directory.systemTemp),
           updateManifestUrlProvider.overrideWithValue(
             Uri.parse('http://127.0.0.1:${server.port}/update.json'),
@@ -905,6 +908,7 @@ void main() {
     test('a manifest past the expiry offers nothing', () async {
       container.updateOverrides([
         updatePlatformProvider.overrideWithValue(_FakeUpdatePlatform()),
+        secretStoreProvider.overrideWithValue(MemorySecretStore()),
         updateTempDirProvider.overrideWithValue(() async => Directory.systemTemp),
         updateManifestUrlProvider.overrideWithValue(
           Uri.parse('http://127.0.0.1:${server.port}/update.json'),
