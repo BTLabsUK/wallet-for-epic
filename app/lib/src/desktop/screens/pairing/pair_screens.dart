@@ -520,7 +520,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           if (net == DeskPairNet.offline) ...[ENotice(title: l.pairOfflineHint, tone: ETone.warn), SizedBox(height: Sp.x4)],
           if (net == DeskPairNet.epicboxOff) ...[ENotice(title: l.pairEpicboxOffNotice, tone: ETone.info), SizedBox(height: Sp.x4)],
           LayoutBuilder(
-            builder: (context, box) => box.maxWidth >= 900.u
+            builder: (context, box) => box.maxWidth >= Lay.xl
                 ? IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1878,27 +1878,33 @@ class _DeskPendingScreenState extends ConsumerState<DeskPendingScreen> {
           ],
         ),
       };
+      final words = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(name, style: ts.body),
+          Text(text, style: expired ? ts.small.copyWith(color: c.warn) : ts.small),
+        ],
+      );
+      final avatar = DeskPairAvatar(
+        name: r.label ?? r.name ?? '',
+        size: 40.u,
+        icon: r.label == null && (r.name ?? '').trim().isEmpty ? (r.way == PairingWay.words ? EIcons.words : EIcons.link) : null,
+      );
+      final buttons = Wrap(spacing: Sp.x2, runSpacing: Sp.x2, crossAxisAlignment: WrapCrossAlignment.center, children: actions);
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-        child: Row(
-          children: [
-            DeskPairAvatar(
-              name: r.label ?? r.name ?? '',
-              size: 40.u,
-              icon: r.label == null && (r.name ?? '').trim().isEmpty ? (r.way == PairingWay.words ? EIcons.words : EIcons.link) : null,
-            ),
-            SizedBox(width: Sp.x3),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: ts.body),
-                  Text(text, style: expired ? ts.small.copyWith(color: c.warn) : ts.small),
-                ],
-              ),
-            ),
-            Wrap(spacing: Sp.x2, children: actions),
-          ],
+        // Several actions need the room of a split page to sit beside the words; else under them.
+        child: LayoutBuilder(
+          builder: (context, box) => box.maxWidth >= (actions.length > 1 ? Lay.xl : Lay.md)
+              ? Row(children: [avatar, SizedBox(width: Sp.x3), Expanded(child: words), SizedBox(width: Sp.x3), buttons])
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    avatar,
+                    SizedBox(width: Sp.x3),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [words, SizedBox(height: Sp.x2), buttons])),
+                  ],
+                ),
         ),
       );
     }

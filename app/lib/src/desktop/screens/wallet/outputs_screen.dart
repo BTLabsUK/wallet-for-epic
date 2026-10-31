@@ -270,7 +270,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       onPressed: () => _open(() => showConsolidateDialog(context, spendableCount: counts.spendable)),
     );
     return LayoutBuilder(
-      builder: (context, box) => box.maxWidth >= 860.u
+      builder: (context, box) => box.maxWidth >= Lay.xl
           ? IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -595,7 +595,6 @@ class _DefaultsMoved extends ConsumerWidget {
 }
 
 /// Column widths of the wide list.
-const double _wide = 900;
 
 class _OutputHead extends StatelessWidget {
   const _OutputHead();
@@ -607,8 +606,8 @@ class _OutputHead extends StatelessWidget {
     final l = context.l10n;
     return LayoutBuilder(
       builder: (context, box) {
-        final wide = box.maxWidth >= _wide.u;
-        if (box.maxWidth < 600.u) return const SizedBox.shrink();
+        final wide = box.maxWidth >= Lay.xl;
+        if (box.maxWidth < Lay.md) return const SizedBox.shrink();
         Widget col(double w, String t, {bool right = false}) => SizedBox(
           width: w,
           child: Text(t, style: style, textAlign: right ? TextAlign.right : TextAlign.left),
@@ -742,8 +741,8 @@ class _OutputRow extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
           child: LayoutBuilder(
             builder: (context, box) {
-              if (box.maxWidth >= 560.u) {
-                final wide = box.maxWidth >= _wide.u - 2 * Sp.x5;
+              if (box.maxWidth >= Lay.md) {
+                final wide = box.maxWidth >= Lay.xl - 2 * Sp.x5;
                 return Row(
                   children: [
                     SizedBox(width: 150.u, child: value),

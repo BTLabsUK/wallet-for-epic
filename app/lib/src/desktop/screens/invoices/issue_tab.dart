@@ -102,7 +102,7 @@ class _IssueTabState extends ConsumerState<IssueTab> {
     );
     return LayoutBuilder(
       builder: (context, box) {
-        if (box.maxWidth >= 860.u) {
+        if (box.maxWidth >= Lay.xl) {
           // One grid: the list and the detail share their top and bottom edges.
           return Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,

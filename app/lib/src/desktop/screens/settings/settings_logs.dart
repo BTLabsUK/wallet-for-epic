@@ -91,10 +91,8 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
           ),
         ),
         // Two row buttons: under the text when the card leaves the words too little room.
-        LayoutBuilder(
-          builder: (context, box) => ESetRow(
+        ESetRow(
           title: l.deskSetLogsFiles,
-          stacked: box.maxWidth < 720.u,
           text: total == null ? l.deskSetLndReading : l.deskSetLogsSize(logSize(total, l), logSize(2 * maxLogFileBytes, l)),
           control: Wrap(
             spacing: Sp.x2,
@@ -103,7 +101,6 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
               ERowControl(child: EButton(label: l.deskSetLogsOpenFolder, icon: EIcons.folder, size: EBtnSize.sm, onPressed: _open)),
               ERowControl(child: EButton(label: l.deskSetLogsClear, icon: EIcons.trash, size: EBtnSize.sm, onPressed: total == 0 ? null : _clear)),
             ],
-          ),
         ),
         ),
       ],

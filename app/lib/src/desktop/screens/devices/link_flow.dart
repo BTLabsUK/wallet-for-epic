@@ -271,7 +271,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
           child: Row(
             children: [
               Expanded(
-                child: Text(code, key: deskLinkCodeKey, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.mono(size: Fs.xs)),
+                child: EMiddleEllipsis(code, key: deskLinkCodeKey, style: ts.mono(size: Fs.xs)),
               ),
               SizedBox(width: Sp.x2),
               ECopyButton(key: deskLinkCopyKey, text: code, label: l.linkCopy, withLabel: true),

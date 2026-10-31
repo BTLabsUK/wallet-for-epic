@@ -154,9 +154,7 @@ class _ShowsGroup extends ConsumerWidget {
       ),
     );
     final on = adv.shownFeatures.length;
-    return ESetGroup(
-      title: l.deskSetAdvShows,
-      trailing: Row(
+    final trailing = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (on > 0) Text(l.deskSetAdvOn(on), style: context.ts.small),
@@ -171,7 +169,8 @@ class _ShowsGroup extends ConsumerWidget {
                 : () => n.saveSettings(s.copyWith(advanced: adv.withoutShown())),
           ),
         ],
-      ),
+      );
+    final group = ESetGroup(
       rows: [
         row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint),
         row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint),
@@ -181,6 +180,20 @@ class _ShowsGroup extends ConsumerWidget {
         row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint),
         row(AdvancedFeature.logs, l.deskSetAdvLogsHint),
       ],
+    );
+    // The trailing count and Reset sit beside the title while the header has room, else under it.
+    return LayoutBuilder(
+      builder: (context, box) {
+        if (box.maxWidth >= Lay.sm) return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [ESectionHead(l.deskSetAdvShows, top: 0, trailing: trailing), group]);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ESectionHead(l.deskSetAdvShows, top: 0),
+            Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.only(bottom: Sp.x3), child: trailing)),
+            group,
+          ],
+        );
+      },
     );
   }
 }

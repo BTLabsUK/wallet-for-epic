@@ -267,7 +267,7 @@ class _Review extends ConsumerWidget {
           SizedBox(height: Sp.x1),
         ],
         LayoutBuilder(
-          builder: (context, box) => box.maxWidth < 760.u
+          builder: (context, box) => box.maxWidth < Lay.lg
               ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [amountPanel, SizedBox(height: Sp.x4), facts])
               // Side by side on one grid: both panels share their top and bottom edges.
               : IntrinsicHeight(

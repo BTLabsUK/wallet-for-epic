@@ -151,7 +151,8 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                 LayoutBuilder(
                   builder: (context, box) {
                     // In a row the title block is two lines tall, so the subtitles align (UD-021).
-                    final row = box.maxWidth >= 600.u;
+                    final perRow = box.maxWidth >= Lay.lg ? 3 : (box.maxWidth >= Lay.md ? 2 : 1);
+                    final row = perRow > 1;
                     final cards = [
                       EChoiceCard(
                         titleLines: row ? 2 : null,
@@ -181,16 +182,23 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                     if (!row) {
                       return Column(children: [for (final w in cards) Padding(padding: EdgeInsets.only(bottom: Sp.x3), child: w)]);
                     }
-                    return IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (var i = 0; i < cards.length; i++) ...[
-                            if (i > 0) SizedBox(width: Sp.x3),
-                            Expanded(child: cards[i]),
-                          ],
+                    return Column(
+                      children: [
+                        for (var r = 0; r < cards.length; r += perRow) ...[
+                          if (r > 0) SizedBox(height: Sp.x3),
+                          IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                for (var i = 0; i < perRow; i++) ...[
+                                  if (i > 0) SizedBox(width: Sp.x3),
+                                  Expanded(child: r + i < cards.length ? cards[r + i] : const SizedBox.shrink()),
+                                ],
+                              ],
+                            ),
+                          ),
                         ],
-                      ),
+                      ],
                     );
                   },
                 ),

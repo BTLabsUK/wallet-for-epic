@@ -200,7 +200,13 @@ class DeskPaymentSteps extends ConsumerWidget {
       builder: (context, box) => Semantics(
         container: true,
         liveRegion: true,
-        child: down || box.maxWidth < 480.u ? _Down(steps: steps) : _Across(steps: steps, dense: dense),
+        // Across while each step keeps 120 u (five steps: Lay.md), never wider than Max.steps.
+        child: down || box.maxWidth < Lay.md
+            ? _Down(steps: steps)
+            : Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: ConstrainedBox(constraints: BoxConstraints(maxWidth: Max.steps), child: _Across(steps: steps, dense: dense)),
+              ),
       ),
     );
   }
@@ -282,7 +288,7 @@ class _Across extends StatelessWidget {
                               ? ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)
                               : ts.small.copyWith(color: s.state == PayStepState.todo ? c.faint : c.dim),
                         ),
-                        if (s.sub != null) Text(s.sub!, style: ts.caption.copyWith(color: s.state == PayStepState.now ? c.info : c.faint)),
+                        if (s.sub != null) Text(s.sub!, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: s.state == PayStepState.now ? c.info : c.faint)),
                       ],
                     ),
                   ),

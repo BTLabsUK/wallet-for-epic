@@ -15,6 +15,7 @@ import 'buttons.dart';
 import 'selectable.dart';
 import 'motion.dart';
 import 'popover.dart';
+import 'tip.dart';
 
 /// A panel: s1 fill, hairline edge, 8 px radius. [title] (or a custom [head]) and [foot] get
 /// their own bands; the head band is [Ctl.header] tall and starts where the body starts, so
@@ -235,6 +236,12 @@ class ENotice extends StatelessWidget {
   /// Puts [actions] on their own wrapping row under the text (several or long buttons).
   final bool actionsBelow;
 
+  /// The actions beside the words while the words keep [setRowMinWords], else under them.
+  Widget _withActions(Widget words) {
+    if (actionsBelow || actions.isEmpty) return words;
+    return _WrapRow(gap: Sp.x3, runGap: Sp.x3, minWords: setRowMinWords, top: true, children: [words, Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions)]);
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
@@ -267,7 +274,7 @@ class ENotice extends StatelessWidget {
           ),
           SizedBox(width: Sp.x3),
           Expanded(
-            child: Column(
+            child: _withActions(Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: ts.strong),
@@ -284,19 +291,18 @@ class ENotice extends StatelessWidget {
                   Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions),
                 ],
               ],
-            ),
+            )),
           ),
-          if (!actionsBelow && actions.isNotEmpty) ...[
-            SizedBox(width: Sp.x3),
-            Wrap(spacing: Sp.x2, children: actions),
-          ],
         ],
       ),
     );
   }
 }
 
-/// Key/value facts in two columns.
+/// The least an [EFacts] value gets beside its label.
+double get factsMinValue => 200.u;
+
+/// Key/value facts in two columns, or label above value where the value would be squeezed.
 class EFacts extends StatelessWidget {
   const EFacts(this.rows, {super.key, this._labelWidth});
 
@@ -307,24 +313,155 @@ class EFacts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ts = context.ts;
+    // The label beside its value while the value keeps [factsMinValue]; else above it, so an
+    // address or a sentence gets the whole width. A render object, not a LayoutBuilder: facts
+    // sit in rows that measure their children's intrinsic heights.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final (k, v) in rows)
           Padding(
             padding: EdgeInsets.symmetric(vertical: 5.u),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: _FactRow(
+              labelWidth: labelWidth,
+              gap: Sp.x6,
+              runGap: 2.u,
+              minValue: factsMinValue,
               children: [
-                SizedBox(width: labelWidth, child: Text(k, style: ts.bodyDim)),
-                SizedBox(width: Sp.x6),
-                Expanded(child: DefaultTextStyle.merge(style: ts.body, child: v)),
+                Text(k, style: ts.bodyDim),
+                DefaultTextStyle.merge(style: ts.body, child: v),
               ],
             ),
           ),
       ],
     );
   }
+}
+
+/// One [EFacts] row: the label at [labelWidth] beside the value while the value keeps
+/// [minValue], else the label above the value at the full width.
+class _FactRow extends MultiChildRenderObjectWidget {
+  const _FactRow({required this.labelWidth, required this.gap, required this.runGap, required this.minValue, required super.children});
+
+  final double labelWidth;
+  final double gap;
+  final double runGap;
+  final double minValue;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderFactRow(labelWidth, gap, runGap, minValue);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderFactRow r) => r
+    ..labelWidth = labelWidth
+    ..gap = gap
+    ..runGap = runGap
+    ..minValue = minValue;
+}
+
+class _FactRowData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderFactRow extends RenderBox with ContainerRenderObjectMixin<RenderBox, _FactRowData>, RenderBoxContainerDefaultsMixin<RenderBox, _FactRowData> {
+  _RenderFactRow(this._labelWidth, this._gap, this._runGap, this._minValue);
+
+  double _labelWidth;
+  set labelWidth(double v) {
+    if (v == _labelWidth) return;
+    _labelWidth = v;
+    markNeedsLayout();
+  }
+
+  double _gap;
+  set gap(double v) {
+    if (v == _gap) return;
+    _gap = v;
+    markNeedsLayout();
+  }
+
+  double _runGap;
+  set runGap(double v) {
+    if (v == _runGap) return;
+    _runGap = v;
+    markNeedsLayout();
+  }
+
+  double _minValue;
+  set minValue(double v) {
+    if (v == _minValue) return;
+    _minValue = v;
+    markNeedsLayout();
+  }
+
+  RenderBox get _label => firstChild!;
+  RenderBox get _value => lastChild!;
+
+  bool _besideAt(double width) => !width.isFinite || width - _labelWidth - _gap >= _minValue;
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _FactRowData) child.parentData = _FactRowData();
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) => _labelWidth + _gap + _value.getMinIntrinsicWidth(height);
+
+  @override
+  double computeMaxIntrinsicWidth(double height) => _labelWidth + _gap + _value.getMaxIntrinsicWidth(height);
+
+  @override
+  double computeMinIntrinsicHeight(double width) => _height(width, (b, w) => b.getMinIntrinsicHeight(w));
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => _height(width, (b, w) => b.getMaxIntrinsicHeight(w));
+
+  double _height(double width, double Function(RenderBox, double) h) {
+    if (_besideAt(width)) {
+      final a = h(_label, _labelWidth), b = h(_value, width - _labelWidth - _gap);
+      return a > b ? a : b;
+    }
+    return h(_label, width) + _runGap + h(_value, width);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final width = constraints.maxWidth;
+    if (_besideAt(width)) {
+      final a = _label.getDryLayout(BoxConstraints.tightFor(width: _labelWidth)).height;
+      final b = _value.getDryLayout(BoxConstraints.tightFor(width: width - _labelWidth - _gap)).height;
+      return constraints.constrain(Size(width, a > b ? a : b));
+    }
+    final a = _label.getDryLayout(BoxConstraints(maxWidth: width)).height;
+    final b = _value.getDryLayout(BoxConstraints.tightFor(width: width)).height;
+    return constraints.constrain(Size(width, a + _runGap + b));
+  }
+
+  @override
+  void performLayout() {
+    final width = constraints.maxWidth;
+    final beside = _besideAt(width);
+    final ld = _label.parentData! as _FactRowData;
+    final vd = _value.parentData! as _FactRowData;
+    if (beside) {
+      _label.layout(BoxConstraints.tightFor(width: _labelWidth), parentUsesSize: true);
+      _value.layout(width.isFinite ? BoxConstraints.tightFor(width: width - _labelWidth - _gap) : const BoxConstraints(), parentUsesSize: true);
+      ld.offset = Offset.zero;
+      vd.offset = Offset(_labelWidth + _gap, 0);
+      final h = _label.size.height > _value.size.height ? _label.size.height : _value.size.height;
+      size = constraints.constrain(Size(width.isFinite ? width : _labelWidth + _gap + _value.size.width, h));
+    } else {
+      _label.layout(BoxConstraints(maxWidth: width), parentUsesSize: true);
+      _value.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);
+      ld.offset = Offset.zero;
+      vd.offset = Offset(0, _label.size.height + _runGap);
+      size = constraints.constrain(Size(width, _label.size.height + _runGap + _value.size.height));
+    }
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
 }
 
 /// Monospace data that may be copied: an id, a host, a commitment.
@@ -338,6 +475,38 @@ class EMonoText extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       SelectableText(text, style: context.ts.mono(size: size, color: color));
+}
+
+/// Room left over a measured address for the way Windows draws it (a bold glyph a little wider).
+const double addressDrawSlack = 6;
+
+/// How small an [EAddress] gets, as a share of its size, before it gives way in the middle.
+const double _addressMinScale = 0.82;
+
+/// [a] in [st], its first and last six in the accent when [marked].
+TextSpan _marked(String a, TextStyle st, DeskColors c, bool marked) {
+  if (!marked) return TextSpan(text: a, style: st);
+  final h = st.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
+  return TextSpan(
+    style: st,
+    children: [TextSpan(text: a.substring(0, 6), style: h), TextSpan(text: a.substring(6, a.length - 6)), TextSpan(text: a.substring(a.length - 6), style: h)],
+  );
+}
+
+/// [a]'s first [head] and last [tail] characters around "…", the first and last six marked.
+TextSpan _cut(String a, int head, int tail, TextStyle st, DeskColors c, bool marked) {
+  if (head + tail >= a.length) return _marked(a, st, c, marked);
+  final h = st.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
+  final start = a.substring(0, head), end = a.substring(a.length - tail);
+  if (!marked || head < 6 || tail < 6) return TextSpan(text: '$start…$end', style: st);
+  return TextSpan(
+    style: st,
+    children: [
+      TextSpan(text: start.substring(0, 6), style: h),
+      TextSpan(text: '${start.substring(6)}…${end.substring(0, end.length - 6)}'),
+      TextSpan(text: end.substring(end.length - 6), style: h),
+    ],
+  );
 }
 
 /// An address to read and copy: the first and last six characters in the accent.
@@ -380,22 +549,73 @@ class EAddress extends StatelessWidget {
           ]
         : [TextSpan(text: a)];
     final restStyle = base.copyWith(color: c.dim);
-    // When the address needs two lines it breaks only before "@": the server stays whole on
-    // the last line, never a server cut in the middle of its name.
+    // Never more than two lines: the whole address on one when it fits, else the address on
+    // the first line and the server ("@epicbox.example.org") whole on the second. An address
+    // too long for its line gets smaller, down to [_addressMinScale] of its size, then gives
+    // way in the middle, its first and last six still marked; the whole of it is then in the
+    // tooltip and on Copy, and the cut line cannot be selected (it would copy the "…").
     final text = LayoutBuilder(
       builder: (context, box) {
+        final dir = Directionality.of(context);
+        final scaler = MediaQuery.textScalerOf(context);
+        double widthOf(InlineSpan span) {
+          final tp = TextPainter(text: span, textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
+          final w = tp.width;
+          tp.dispose();
+          return w;
+        }
+
+        final room = box.maxWidth - addressDrawSlack;
         final whole = TextSpan(style: base, children: [...keySpans, TextSpan(text: rest, style: restStyle)]);
-        if (!rest.startsWith('@') || !box.maxWidth.isFinite) return SelectableText.rich(whole);
-        final tp = TextPainter(text: whole, textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
-        final fits = tp.width <= box.maxWidth;
-        tp.dispose();
-        if (fits) return SelectableText.rich(whole);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SelectableText.rich(TextSpan(style: base, children: keySpans)),
-            Text(rest, style: restStyle, softWrap: false, overflow: TextOverflow.fade),
-          ],
+        if (!box.maxWidth.isFinite || widthOf(whole) <= room) return SelectableText.rich(whole, maxLines: 1);
+        final split = rest.startsWith('@');
+        final second = split ? Text(rest, style: restStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.fade) : null;
+        // The key whole, smaller where needed.
+        final size = base.fontSize!;
+        for (var s = size; s >= size * _addressMinScale - 0.01; s -= 0.5) {
+          final st = base.copyWith(fontSize: s);
+          final span = split ? _marked(a, st, c, marked) : TextSpan(style: st, children: [_marked(a, st, c, marked), TextSpan(text: rest, style: restStyle.copyWith(fontSize: s))]);
+          if (widthOf(span) <= room) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [SelectableText.rich(span, maxLines: 1), ?second],
+            );
+          }
+        }
+        // Cut in the middle at the smallest size: the most characters that fit, half each side.
+        final st = base.copyWith(fontSize: size * _addressMinScale);
+        final tailSpan = split ? null : TextSpan(text: rest, style: restStyle.copyWith(fontSize: st.fontSize));
+        InlineSpan cutTo(int n) {
+          final h = (n + 1) ~/ 2;
+          final cut = _cut(a, h, n - h, st, c, marked);
+          return tailSpan == null ? cut : TextSpan(children: [cut, tailSpan]);
+        }
+
+        var lo = 12, hi = a.length;
+        while (hi - lo > 1) {
+          final mid = (lo + hi) ~/ 2;
+          final span = cutTo(mid);
+          if (widthOf(span) <= room) {
+            lo = mid;
+          } else {
+            hi = mid;
+          }
+        }
+        return ETip.value(
+          address,
+          mono: true,
+          child: Semantics(
+            label: address,
+            excludeSemantics: true,
+            child: NoSelect(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [Text.rich(cutTo(lo), maxLines: 1, softWrap: false), ?second],
+              ),
+            ),
+          ),
         );
       },
     );
@@ -577,8 +797,14 @@ class ESetGroup extends StatelessWidget {
   }
 }
 
-/// A settings row: title and one line on the left, the control on the right; [stacked] puts
-/// the control under the text (wide controls such as a combobox).
+/// The least a Settings row's words get beside its control; with less, the control goes under
+/// them (rules: no row squeezed under this).
+double get setRowMinWords => 240.u;
+
+/// A settings row: title and one line on the left, the control on the right while the words
+/// keep [setRowMinWords], else the control under the words at its own width (a narrow window
+/// or a large interface scale); [stacked] always puts the control under the text (wide
+/// controls such as a combobox).
 class ESetRow extends StatelessWidget {
   const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.hintHelp, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge});
 
@@ -602,8 +828,8 @@ class ESetRow extends StatelessWidget {
   final Widget? control;
   final bool stacked;
 
-  /// For a control sized to its words (it is no [ERowControl]): beside the words while both
-  /// fit on one line, under them when a narrow window, big text or long words leave no room.
+  /// For a control sized to its words (it is no [ERowControl]): beside the words while they
+  /// keep 160 u (not [setRowMinWords]).
   final bool wrap;
 
   /// Extra content under the row (status line, expanded options).
@@ -669,16 +895,9 @@ class ESetRow extends StatelessWidget {
           if (stacked || control == null) ...[
             words,
             if (control != null) ...[SizedBox(height: Sp.x3), control!],
-          ] else if (wrap)
-            _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: 160.u, children: [words, control!])
-          else
-            Row(
-              children: [
-                Expanded(child: words),
-                SizedBox(width: Sp.x6),
-                control!,
-              ],
-            ),
+          ] else
+            // The control beside the words while they keep their room, else under them.
+            _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: wrap ? 160.u : setRowMinWords, children: [words, control!]),
           if (below != null) ...[SizedBox(height: Sp.x3), below!],
         ],
       ),
@@ -688,30 +907,56 @@ class ESetRow extends StatelessWidget {
 
 /// The info icon that carries an explanation: a tooltip on hover and on keyboard focus, and
 /// the text itself for a screen reader. Settings rows use it so the main view shows labels only.
-/// [ESetRow.wrap]'s layout: the control at its own width at the right with the words in the
+/// [words] with [control] beside them at the end while the words keep [minWords]
+/// ([setRowMinWords] by default), else the control under the words at its own width: a custom
+/// row that is not an [ESetRow]. [top] aligns both to the top instead of centring them.
+class EBesideOrUnder extends StatelessWidget {
+  const EBesideOrUnder({super.key, required this.words, required this.control, this.minWords, this.top = false});
+
+  final Widget words;
+  final Widget control;
+  final double? minWords;
+  final bool top;
+
+  @override
+  Widget build(BuildContext context) =>
+      _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: minWords ?? setRowMinWords, top: top, children: [words, control]);
+}
+
+/// [ESetRow]'s layout: the control at its own width at the right with the words in the
 /// rest, while that leaves the words [minWords]; otherwise the control under the words.
 class _WrapRow extends MultiChildRenderObjectWidget {
-  const _WrapRow({required this.gap, required this.runGap, required this.minWords, required super.children});
+  const _WrapRow({required this.gap, required this.runGap, required this.minWords, this.top = false, required super.children});
 
+  /// On one line, both at the top (a notice's actions) instead of centred (a row's control).
+  final bool top;
   final double gap;
   final double runGap;
   final double minWords;
 
   @override
-  RenderObject createRenderObject(BuildContext context) => _RenderWrapRow(gap, runGap, minWords);
+  RenderObject createRenderObject(BuildContext context) => _RenderWrapRow(gap, runGap, minWords, top);
 
   @override
   void updateRenderObject(BuildContext context, _RenderWrapRow renderObject) => renderObject
     ..gap = gap
     ..runGap = runGap
-    ..minWords = minWords;
+    ..minWords = minWords
+    ..top = top;
 }
 
 class _WrapRowData extends ContainerBoxParentData<RenderBox> {}
 
 class _RenderWrapRow extends RenderBox
     with ContainerRenderObjectMixin<RenderBox, _WrapRowData>, RenderBoxContainerDefaultsMixin<RenderBox, _WrapRowData> {
-  _RenderWrapRow(this._gap, this._runGap, this._minWords);
+  _RenderWrapRow(this._gap, this._runGap, this._minWords, this._top);
+
+  bool _top;
+  set top(bool v) {
+    if (v == _top) return;
+    _top = v;
+    markNeedsLayout();
+  }
 
   double _gap;
   set gap(double v) {
@@ -789,8 +1034,8 @@ class _RenderWrapRow extends RenderBox
       // On one line, both centred on it, as the plain row does.
       _words.layout(BoxConstraints.tightFor(width: width - c.width - _gap), parentUsesSize: true);
       final h = _words.size.height > c.height ? _words.size.height : c.height;
-      wd.offset = Offset(0, (h - _words.size.height) / 2);
-      cd.offset = Offset(width - c.width, (h - c.height) / 2);
+      wd.offset = Offset(0, _top ? 0 : (h - _words.size.height) / 2);
+      cd.offset = Offset(width - c.width, _top ? 0 : (h - c.height) / 2);
       size = constraints.constrain(Size(width, h));
     } else {
       _words.layout(BoxConstraints.tightFor(width: width), parentUsesSize: true);

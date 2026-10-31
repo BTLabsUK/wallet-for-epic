@@ -78,12 +78,13 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) => _page(context, box.maxWidth >= Lay.xl));
+
+  Widget _page(BuildContext context, bool split) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
     final all = _args.loading ? null : (_args.empty ? const <Contact>[] : ref.watch(deskProvider.select((s) => s.contacts)));
-    final split = MediaQuery.sizeOf(context).width >= Bp.desktop;
     final selected = all?.where((x) => x.id == _selected).firstOrNull;
     final paneOpen = _adding || (selected != null && (_editing || _selected != null));
     final panel = BoxDecoration(
@@ -741,12 +742,15 @@ class _ContactDetail extends ConsumerWidget {
             for (final k in x.kinds)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-                child: Row(
-                  children: [
-                    EBadge.kind(k, l: l),
-                    SizedBox(width: Sp.x3),
-                    Expanded(child: EAddress(x.addressOf(k)!, copyLabel: l.contactCopyAddress(recipientMethodWord(l, k)))),
-                  ],
+                // The kind beside the address, or above it in a narrow pane.
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final address = EAddress(x.addressOf(k)!, copyLabel: l.contactCopyAddress(recipientMethodWord(l, k)));
+                    if (box.maxWidth < Lay.sm) {
+                      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [EBadge.kind(k, l: l), SizedBox(height: Sp.x2), address]);
+                    }
+                    return Row(children: [EBadge.kind(k, l: l), SizedBox(width: Sp.x3), Expanded(child: address)]);
+                  },
                 ),
               ),
           ],

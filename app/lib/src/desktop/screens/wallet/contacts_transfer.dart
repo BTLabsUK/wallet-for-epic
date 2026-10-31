@@ -219,7 +219,7 @@ class _ImportConfirm extends StatelessWidget {
       if (plan.add.isNotEmpty) (EIcons.userPlus, l.contactsImportNew(plan.add.length), true),
       if (plan.update.isNotEmpty) (EIcons.pencil, l.contactsImportMerged(plan.update.length), true),
       for (final a in plan.addedToSaved)
-        (EIcons.link, l.contactsImportAddsAddress(a.name, recipientMethodWord(l, a.kind), a.address), true),
+        (EIcons.link, l.contactsImportAddsAddress(a.name, recipientMethodWord(l, a.kind), shortAddress(a.address)), true),
       if (plan.same > 0) (EIcons.check, l.contactsImportSame(plan.same), false),
       if (plan.leftOut > 0) (EIcons.close, l.contactsImportLeftOut(plan.leftOut), false),
       if (plan.otherNetwork > 0) (EIcons.close, l.contactsImportOtherNet(plan.otherNetwork), false),

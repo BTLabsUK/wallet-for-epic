@@ -268,38 +268,34 @@ class _Updates extends ConsumerWidget {
     final stateStyle = u.offered || u.phase == DeskUpdatePhase.failed ? ts.small.copyWith(color: c.text) : ts.small;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(l.deskSetAboutUpdates, style: ts.strong),
-                const SizedBox(height: 2),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 560.u),
-                  child: Wrap(
-                    spacing: Sp.x2,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(blocked ?? state, style: stateStyle),
-                      if (blocked == null && detail != null && detail.isNotEmpty) Text(detail, style: ts.small),
-                      if (page != null) ELink(label: l.deskSetAboutDownloadPage, onPressed: openPage),
-                    ],
-                  ),
-                ),
-              ],
+      // The buttons beside the words while the words keep their room, else under them.
+      child: EBesideOrUnder(
+        top: true,
+        words: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l.deskSetAboutUpdates, style: ts.strong),
+            const SizedBox(height: 2),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 560.u),
+              child: Wrap(
+                spacing: Sp.x2,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(blocked ?? state, style: stateStyle),
+                  if (blocked == null && detail != null && detail.isNotEmpty) Text(detail, style: ts.small),
+                  if (page != null) ELink(label: l.deskSetAboutDownloadPage, onPressed: openPage),
+                ],
+              ),
             ),
-          ),
-          SizedBox(width: Sp.x6),
-          Padding(
-            // Level with the label, as a row's control is.
-            padding: EdgeInsets.only(top: 1.u),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [if (checks || step == null) check, if (step != null) ...[if (checks) SizedBox(width: Sp.x2), step]]),
-          ),
-        ],
+          ],
+        ),
+        control: Padding(
+          // Level with the label, as a row's control is.
+          padding: EdgeInsets.only(top: 1.u),
+          child: Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: [if (checks || step == null) check, ?step]),
+        ),
       ),
     );
   }

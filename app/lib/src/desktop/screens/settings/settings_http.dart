@@ -115,10 +115,8 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        LayoutBuilder(
-          builder: (context, box) => ESetRow(
+        ESetRow(
           title: l.deskSetHttpReachable,
-          stacked: box.maxWidth < 640.u,
           hint: l.deskSetHttpReachableHint,
           control: Row(
             mainAxisSize: MainAxisSize.min,
@@ -150,7 +148,6 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
                   ],
                 )
               : null,
-        ),
         ),
         Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(

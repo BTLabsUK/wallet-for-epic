@@ -316,6 +316,56 @@ class _HelpLanguageSwitch extends ConsumerWidget {
   );
 }
 
+/// A card's header row: `[art | words | actions]`. Art and actions keep their size and the words
+/// get the rest; when the words would get under 240 u the actions go under them as a [Wrap],
+/// and when the words still get under [Lay.xs] the art goes above them too.
+class _HeaderRow extends StatelessWidget {
+  const _HeaderRow({this.art, required this.words, required this.actions, this.gap});
+
+  final Widget? art;
+  final Widget words;
+  final List<Widget> actions;
+  final double? gap;
+
+  @override
+  Widget build(BuildContext context) {
+    final gap = this.gap ?? Sp.x5;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final artW = art == null ? 0.0 : 112.u + gap;
+        // An action is at most a small button with its label.
+        final actionsW = actions.length * 160.u + gap;
+        final beside = box.maxWidth - artW - actionsW >= 240.u;
+        if (beside) {
+          return Row(
+            children: [
+              if (art != null) ...[art!, SizedBox(width: gap)],
+              Expanded(child: words),
+              SizedBox(width: gap),
+              ...actions,
+            ],
+          );
+        }
+        final stackArt = art != null && box.maxWidth - artW < Lay.xs;
+        final underWords = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [words, SizedBox(height: Sp.x3), Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions)],
+        );
+        if (stackArt) {
+          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [art!, SizedBox(height: Sp.x3), underWords]);
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (art != null) ...[art!, SizedBox(width: gap)],
+            Expanded(child: underWords),
+          ],
+        );
+      },
+    );
+  }
+}
+
 /// Report a problem, first on the page.
 class _SupportBar extends StatelessWidget {
   const _SupportBar();
@@ -327,33 +377,27 @@ class _SupportBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-      child: Row(
-        children: [
-          HelpArt('help-support', width: 112.u),
-          SizedBox(width: Sp.x5),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(header: true, child: Text(context.l10n.deskSetReportTitle, style: ts.strong)),
-                SizedBox(height: 2.u),
-                Text(context.l10n.deskSetHelpReportText, style: ts.small),
-                SizedBox(height: 2.u),
-                // Wraps in a narrow window: the label and the address, the address selectable.
-                if (supportEmail case final email?)
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text('${context.l10n.contactLabel}: ', style: ts.small),
-                      SelectableText(email, style: ts.small),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(width: Sp.x5),
-          EButton(label: context.l10n.deskSetReportTitle, icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context)),
-        ],
+      child: _HeaderRow(
+        art: HelpArt('help-support', width: 112.u),
+        words: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(header: true, child: Text(context.l10n.deskSetReportTitle, style: ts.strong)),
+            SizedBox(height: 2.u),
+            Text(context.l10n.deskSetHelpReportText, style: ts.small),
+            SizedBox(height: 2.u),
+            // Wraps in a narrow window: the label and the address, the address selectable.
+            if (supportEmail case final email?)
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text('${context.l10n.contactLabel}: ', style: ts.small),
+                  SelectableText(email, style: ts.small),
+                ],
+              ),
+          ],
+        ),
+        actions: [EButton(label: context.l10n.deskSetReportTitle, icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context))],
       ),
     );
   }
@@ -382,21 +426,16 @@ class _DonateBarState extends State<_DonateBar> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
       decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(header: true, child: Text(context.l10n.helpDonateTitle, style: ts.strong)),
-                SizedBox(height: 2.u),
-                Text(context.l10n.helpDonateText, style: ts.small),
-              ],
-            ),
-          ),
-          SizedBox(width: Sp.x5),
-          ECopyButton(text: address, label: context.l10n.helpDonateCopy, withLabel: true, kind: EBtnKind.secondary, size: EBtnSize.sm),
-        ],
+      child: _HeaderRow(
+        words: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(header: true, child: Text(context.l10n.helpDonateTitle, style: ts.strong)),
+            SizedBox(height: 2.u),
+            Text(context.l10n.helpDonateText, style: ts.small),
+          ],
+        ),
+        actions: [ECopyButton(text: address, label: context.l10n.helpDonateCopy, withLabel: true, kind: EBtnKind.secondary, size: EBtnSize.sm)],
       ),
     );
   }
@@ -463,23 +502,18 @@ class _SectionHead extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
-      child: Row(
-        children: [
-          art,
-          SizedBox(width: Sp.x5),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(header: true, child: Text(section.title, style: ts.h3)),
-                SizedBox(height: 2.u),
-                Text(section.lede, style: ts.small),
-              ],
-            ),
-          ),
-          SizedBox(width: Sp.x4),
-          Text(context.l10n.deskSetHelpTopics(count), style: ts.mono(size: Fs.xs, color: c.faint)),
-        ],
+      child: _HeaderRow(
+        art: art,
+        words: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(header: true, child: Text(section.title, style: ts.h3)),
+            SizedBox(height: 2.u),
+            Text(section.lede, style: ts.small),
+          ],
+        ),
+        actions: [Text(context.l10n.deskSetHelpTopics(count), style: ts.mono(size: Fs.xs, color: c.faint))],
+        gap: Sp.x4,
       ),
     );
   }
@@ -520,20 +554,17 @@ class _TopicState extends ConsumerState<_Topic> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Semantics(header: true, child: Text.rich(marked(context, t.title, widget.words, ts.strong))),
-                    SizedBox(height: 2.u),
-                    Text.rich(marked(context, t.short, widget.words, answer)),
-                  ],
-                ),
-              ),
-              SizedBox(width: Sp.x4),
+          _HeaderRow(
+            gap: Sp.x4,
+            words: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(header: true, child: Text.rich(marked(context, t.title, widget.words, ts.strong))),
+                SizedBox(height: 2.u),
+                Text.rich(marked(context, t.short, widget.words, answer)),
+              ],
+            ),
+            actions: [
               Semantics(
                 button: true,
                 expanded: _open,
@@ -557,7 +588,7 @@ class _TopicState extends ConsumerState<_Topic> {
                     ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
           ExpandFade(

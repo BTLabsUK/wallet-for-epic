@@ -105,6 +105,19 @@ Rect _rect(RenderBox b) => b.localToGlobal(Offset.zero) & b.size;
   return (main: main, side: side, mainHead: head(main), sideHead: head(side));
 }
 
+/// A list and its detail are side by side only on a page of [Lay.xl] (inside its gutters);
+/// below that the detail replaces the list. True when the page shows one column, as it must.
+bool _oneColumn(WidgetTester tester, String what) {
+  final page = tester.getSize(find.byType(EPage).first).width - 2 * Sp.x8;
+  if (find.byType(PanelRow).evaluate().isNotEmpty) {
+    expect(page, greaterThanOrEqualTo(Lay.xl - 0.5), reason: '$what: two columns on a page under Lay.xl');
+    return false;
+  }
+  expect(page, lessThan(Lay.xl), reason: '$what: one column on a page of Lay.xl');
+  expect(tester.takeException(), isNull);
+  return true;
+}
+
 void _expectOneUnit(WidgetTester tester, String what) {
   final c = _columns(tester);
   expect(c.main.top, moreOrLessEquals(c.side.top, epsilon: 0.5), reason: '$what: tops');
@@ -153,8 +166,8 @@ void _expectRowControls(WidgetTester tester, String what) {
       if (row.control == null || row.stacked) continue;
       final ctl = find.descendant(of: find.byWidget(row), matching: find.byWidget(row.control!)).evaluate().first;
       final r = _rect(ctl.renderObject! as RenderBox);
-      // A wrap row whose control went under the title has no right edge to share.
-      if (row.wrap && r.top >= _rect(find.descendant(of: find.byWidget(row), matching: find.text(row.title!)).evaluate().first.renderObject! as RenderBox).bottom) continue;
+      // A row whose control went under its title (too little room beside it) has no right edge to share.
+      if (row.title != null && r.top >= _rect(find.descendant(of: find.byWidget(row), matching: find.text(row.title!)).evaluate().first.renderObject! as RenderBox).bottom) continue;
       edges.add(r.right);
     }
     for (final x in edges) {
@@ -173,6 +186,10 @@ void main() {
         // The newest transactions: a full page of rows beside a short and a long detail.
         for (final id in [39, 36]) {
           await _pump(tester, size, scale, DeskRoute.activity, arg: id);
+          if (_oneColumn(tester, 'Activity, $at')) {
+            await _done(tester);
+            continue;
+          }
           _expectOneUnit(tester, 'Activity, tx $id, $at');
           expect(tester.takeException(), isNull);
           await _done(tester);
@@ -182,7 +199,7 @@ void main() {
       testWidgets('Send and its summary are one unit, $at', (tester) async {
         await _pump(tester, size, scale, DeskRoute.send);
         if (find.byType(PanelRow).evaluate().isEmpty) {
-          // Under 720 u of page the Summary goes below the form: one column, same edges.
+          // Under Lay.xl of page the Summary goes below the form: one column, same edges.
           final panels = find.byType(EPanel).evaluate().map((e) => _rect(e.renderObject! as RenderBox)).toList();
           final summary = _rect(find.ancestor(of: find.text('Summary'), matching: find.byType(EPanel)).evaluate().first.renderObject! as RenderBox);
           expect(panels.first.left, moreOrLessEquals(summary.left, epsilon: 0.5));
@@ -199,6 +216,7 @@ void main() {
         await _pump(tester, size, scale, DeskRoute.contacts);
         await tester.tap(find.text('Anna Kowalska').first);
         await _settle(tester);
+        if (_oneColumn(tester, 'Contacts, $at')) return _done(tester);
         final row = tester.renderObject<RenderPanelRow>(find.byType(PanelRow));
         final a = _rect(row.firstChild!);
         final b = _rect(row.childAfter(row.firstChild!)!);
