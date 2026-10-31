@@ -17694,13 +17694,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get passphraseSetTitle => '设置密码短语';
 
   @override
-  String get receiveHttpNotPrivateTitle => '在此网络上已关闭';
+  String get receiveHttpNotTrustedTitle => '在此网络上已关闭';
 
   @override
-  String get receiveHttpNotPrivate => 'Link · HTTP 只在你标记为私人的网络上监听。';
+  String get receiveHttpNotTrusted => 'Link · HTTP 只在你信任的网络上监听。';
 
   @override
-  String get receiveHttpMarkPrivate => '这是我的私人网络';
+  String get receiveHttpTrust => '信任此网络';
 
   @override
   String get deskSetReportFullDetails => '包含完整详情';
@@ -17709,39 +17709,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetReportPartFullDetails => '完整详情';
 
   @override
-  String get txPrivateNetworks => '私人网络';
+  String get txTrustedNetworks => '信任的网络';
 
   @override
-  String txPrivateNetworksCount(int count) {
+  String txTrustedNetworksCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '已标记 $count 个',
-      zero: '尚未标记',
+      other: '已信任 $count 个',
+      zero: '尚无',
     );
     return '$_temp0';
   }
 
   @override
-  String get txPrivateNetworksBody =>
-      'Link · HTTP 在这些网络上监听。忘记某个网络后，手机下次连上它时会再次询问。';
+  String get txTrustedNetworksBody =>
+      'Link · HTTP 在你信任的网络上监听。忘记某个网络后，手机下次连上它时会再次询问。';
 
   @override
-  String get txPrivateNetworksNone => '尚未标记任何网络。';
+  String get txTrustedNetworksNone => '尚未信任任何网络。';
 
   @override
-  String get txPrivateNetworkCurrent => '当前网络';
+  String get txTrustedNetworkCurrent => '当前网络';
 
   @override
-  String get txPrivateNetworkForget => '忘记';
+  String get txTrustedNetworkForget => '忘记';
 
   @override
-  String txPrivateNetworkForgetLabel(String range) {
+  String txTrustedNetworkForgetLabel(String range) {
     return '忘记 $range';
   }
 
   @override
-  String txPrivateNetworkRange(String range) {
+  String txTrustedNetworkRange(String range) {
     return '$range.x';
   }
 

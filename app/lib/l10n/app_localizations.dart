@@ -29366,23 +29366,23 @@ abstract class AppLocalizations {
   /// **'Set a passphrase'**
   String get passphraseSetTitle;
 
-  /// Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network has not been marked private. Calm: a state, not an alarm.
+  /// Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network is not one the user trusts. Calm: a state, not an alarm.
   ///
   /// In en, this message translates to:
   /// **'Off on this network'**
-  String get receiveHttpNotPrivateTitle;
+  String get receiveHttpNotTrustedTitle;
 
-  /// Receive › Link · HTTP card: the info sheet behind the Off on this network line: the listener runs only on Wi-Fi networks the user has marked private.
+  /// Receive › Link · HTTP card: the info sheet behind the Off on this network line: the listener runs only on Wi-Fi networks the user trusts.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP listens only on networks you mark private.'**
-  String get receiveHttpNotPrivate;
+  /// **'Link · HTTP listens only on networks you trust.'**
+  String get receiveHttpNotTrusted;
 
-  /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as private so the listener may run on it.
+  /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as trusted so the listener may run on it.
   ///
   /// In en, this message translates to:
-  /// **'This is my private network'**
-  String get receiveHttpMarkPrivate;
+  /// **'Trust this network'**
+  String get receiveHttpTrust;
 
   /// Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened.
   ///
@@ -29396,53 +29396,53 @@ abstract class AppLocalizations {
   /// **'Full details'**
   String get deskSetReportPartFullDetails;
 
-  /// Settings › Transactions, row under the Link › HTTP switch: opens the list of Wi-Fi networks marked private (where the phone's HTTP listener runs).
+  /// Settings › Transactions, row under the Link › HTTP switch: opens the list of trusted Wi-Fi networks (where the phone's HTTP listener runs).
   ///
   /// In en, this message translates to:
-  /// **'Private networks'**
-  String get txPrivateNetworks;
+  /// **'Trusted networks'**
+  String get txTrustedNetworks;
 
-  /// Settings › Transactions, line under the Private networks row: how many networks are marked.
+  /// Settings › Transactions, line under the Trusted networks row: how many networks are trusted.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =0{None marked yet} one{{count} marked} other{{count} marked}}'**
-  String txPrivateNetworksCount(int count);
+  /// **'{count, plural, =0{None yet} one{{count} trusted} other{{count} trusted}}'**
+  String txTrustedNetworksCount(int count);
 
-  /// Private networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences.
+  /// Trusted networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences.
   ///
   /// In en, this message translates to:
-  /// **'Link · HTTP listens on these networks. Forget one and the phone asks again next time it is on it.'**
-  String get txPrivateNetworksBody;
+  /// **'Link · HTTP listens on networks you trust. Forget one and the phone asks again next time it is on it.'**
+  String get txTrustedNetworksBody;
 
-  /// Private networks sheet: the empty list, one short line.
+  /// Trusted networks sheet: the empty list, one short line.
   ///
   /// In en, this message translates to:
-  /// **'No network marked yet.'**
-  String get txPrivateNetworksNone;
+  /// **'No trusted network yet.'**
+  String get txTrustedNetworksNone;
 
-  /// Private networks sheet: tag beside the entry of the network the phone is on now.
+  /// Trusted networks sheet: tag beside the entry of the network the phone is on now.
   ///
   /// In en, this message translates to:
   /// **'This network'**
-  String get txPrivateNetworkCurrent;
+  String get txTrustedNetworkCurrent;
 
-  /// Private networks sheet: button beside each entry that removes it; the listener then stops on that network until it is marked again.
+  /// Trusted networks sheet: button beside each entry that removes it; the listener then stops on that network until it is trusted again.
   ///
   /// In en, this message translates to:
   /// **'Forget'**
-  String get txPrivateNetworkForget;
+  String get txTrustedNetworkForget;
 
-  /// Private networks sheet: screen reader label of the Forget button, with the entry's address range (txPrivateNetworkRange).
+  /// Trusted networks sheet: screen reader label of the Forget button, with the entry's address range (txTrustedNetworkRange).
   ///
   /// In en, this message translates to:
   /// **'Forget {range}'**
-  String txPrivateNetworkForgetLabel(String range);
+  String txTrustedNetworkForgetLabel(String range);
 
-  /// Private networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.
+  /// Trusted networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.
   ///
   /// In en, this message translates to:
   /// **'{range}.x'**
-  String txPrivateNetworkRange(String range);
+  String txTrustedNetworkRange(String range);
 
   /// Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and that seeds, keys and passwords are never in the report.
   ///
