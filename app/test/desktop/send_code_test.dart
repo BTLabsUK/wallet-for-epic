@@ -242,6 +242,15 @@ void main() {
     expect(banner(), findsNothing);
   });
 
+  testWidgets('a pasted recovery phrase never stays in To nor shows: To empties, the note says why', (tester) async {
+    await show(tester);
+    await paste(tester, 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art');
+    expect(text(tester, 'To'), '');
+    expect(find.text('That is a recovery phrase, so it was not pasted. Keep it private.'), findsOneWidget);
+    expect(find.textContaining('abandon'), findsNothing);
+    expect(find.byType(Dialog), findsNothing);
+  });
+
   testWidgets("a code's name equal to a contact's selects no contact; the contact's address shows the contact's name", (tester) async {
     await show(tester);
     await paste(tester, 'epic:$_e?label=Anna%20Kowalska');

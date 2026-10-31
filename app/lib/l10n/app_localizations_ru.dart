@@ -2540,6 +2540,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scanQrHint => 'Наведите камеру на QR-код получателя.';
 
   @override
+  String get scanPhraseFoundQr =>
+      'Этот QR-код содержит фразу восстановления. Храните её в тайне.';
+
+  @override
+  String get scanPhraseFoundPasted =>
+      'Это фраза восстановления, поэтому она не вставлена. Храните её в тайне.';
+
+  @override
+  String get scanQrPhraseHint =>
+      'Наведите камеру на QR-код фразы восстановления.';
+
+  @override
+  String get restoreScanNoPhrase => 'В этом QR-коде нет фразы восстановления.';
+
+  @override
   String get scanQrCameraDenied =>
       'Доступ к камере выключен. Разрешите его в настройках телефона или вставьте адрес.';
 

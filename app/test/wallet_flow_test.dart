@@ -4,7 +4,8 @@ import 'dart:async';
 import 'package:epic_wallet/src/errors.dart';
 import 'package:epic_wallet/src/settings.dart' show autoLockHoldProvider;
 import 'package:epic_wallet/src/ui/restore_card.dart';
-import 'package:epic_wallet/src/ui/restore_screen.dart' show restoreRetryKey, restoreStopKey;
+import 'package:epic_wallet/src/ui/restore_screen.dart' show restoreRetryKey, restoreScanKey, restoreStopKey;
+import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/demo.dart';
@@ -100,6 +101,7 @@ class _Device {
   final store = MemorySecretStore();
   final MemoryBiometricStore bio;
   final files = FakeSlateFiles();
+  FakeQrScanner scanner = FakeQrScanner(supported: false);
 
   /// Calls of the shared-file clean-up a delete runs.
   int cleanups = 0;
@@ -139,6 +141,7 @@ Future<void> _pumpApp(
         slateFilesProvider.overrideWithValue(device.files),
         sharedFilesCleanupProvider.overrideWithValue(() async => device.cleanups++),
         priceSourceProvider.overrideWithValue(const _NoPrice()),
+        qrScannerProvider.overrideWithValue(device.scanner),
       ],
       child: const WalletApp(),
     ),
@@ -397,6 +400,25 @@ void main() {
         expect(device.store.values[e.key], e.value);
       }
       expect(device.bio.values['wallet.mainnet.password'], 'old password');
+    });
+
+    testWidgets('Scan QR fills the phrase from its QR code; a code of something else is refused unseen', (tester) async {
+      final service = FakeWalletService();
+      final device = _Device()
+        ..scanner = (FakeQrScanner()..codes.addAll(['esNotAPhrase123@box.epic.invalid', service.phrase.toUpperCase()]));
+      await _pumpApp(tester, service, device);
+      await _tapText(tester, 'Restore from phrase');
+      await tester.tap(find.byKey(restoreScanKey));
+      await tester.pumpAndSettle();
+      expect(find.text('This QR code holds no recovery phrase.'), findsOneWidget);
+      expect(find.textContaining('esNotAPhrase'), findsNothing);
+      await tester.tap(find.byKey(restoreScanKey));
+      await tester.pumpAndSettle();
+      expect(find.text('This QR code holds no recovery phrase.'), findsNothing);
+      final field = tester.widget<TextField>(find.widgetWithText(TextField, 'Recovery phrase'));
+      expect(field.controller!.text, service.phrase);
+      await _tapText(tester, 'Continue');
+      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
     });
 
     testWidgets('restore creates the wallet from the phrase under the PIN', (

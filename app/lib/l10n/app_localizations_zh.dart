@@ -2329,6 +2329,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get scanQrHint => '将摄像头对准接收方的二维码。';
 
   @override
+  String get scanPhraseFoundQr => '此二维码包含助记词。请妥善保密。';
+
+  @override
+  String get scanPhraseFoundPasted => '这是助记词，因此未粘贴。请妥善保密。';
+
+  @override
+  String get scanQrPhraseHint => '将摄像头对准助记词二维码。';
+
+  @override
+  String get restoreScanNoPhrase => '此二维码不含助记词。';
+
+  @override
   String get scanQrCameraDenied => '摄像头权限已关闭。请在手机设置中允许，或直接粘贴地址。';
 
   @override

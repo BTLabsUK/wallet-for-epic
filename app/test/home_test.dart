@@ -1166,6 +1166,19 @@ void main() {
       expect(await tester.binding.handlePopRoute(), isFalse);
     });
 
+    testWidgets('a recovery phrase QR says what it is, never its words', (tester) async {
+      final h = _Harness(scanSupported: true, still: true);
+      h.scanner.codes.add('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art');
+      await h.pump(tester);
+      await _tap(tester, find.byTooltip('Scan QR code'));
+      expect(find.text('This QR code holds a recovery phrase. Keep it private.'), findsOneWidget);
+      expect(find.textContaining('abandon'), findsNothing);
+      expect(find.text('Copy'), findsNothing);
+      await _tap(tester, find.text('OK'));
+      expect(find.text('This QR code holds a recovery phrase. Keep it private.'), findsNothing);
+      expect(_selectedTab(tester), ShellTab.wallet);
+    });
+
     testWidgets('no scan button where scanning is unsupported', (tester) async {
       final h = _Harness();
       await h.pump(tester);

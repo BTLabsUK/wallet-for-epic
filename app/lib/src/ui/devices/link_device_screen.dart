@@ -14,7 +14,7 @@ import '../../l10n.dart';
 import '../../pairing_api.dart' show privateInviteExpiry;
 import '../common.dart';
 import '../pairing/pairing_parts.dart';
-import '../scan_screen.dart' show qrScannerProvider;
+import '../scan_screen.dart' show ScanCode, qrScannerProvider;
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
 import 'device_parts.dart';
@@ -74,7 +74,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
   }
 
   Future<void> _scan() async {
-    final text = await ref.read(qrScannerProvider).scan(context);
+    final text = await ref.read(qrScannerProvider).scanCode(context);
     if (text == null || !mounted) return;
     await _run((s) => s.startScanned(text));
   }

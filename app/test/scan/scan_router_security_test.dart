@@ -744,7 +744,7 @@ void main() {
         r'''^(?:import|export)\s+['"]([^'"]+)['"]''',
         multiLine: true,
       ).allMatches(source).map((m) => m[1]!).toList();
-      expect(imports, ['dart:convert', '../amount.dart', '../payment_method.dart', '../recipient.dart']);
+      expect(imports, ['dart:convert', '../amount.dart', '../bip39_words.dart', '../payment_method.dart', '../recipient.dart']);
       for (final banned in [
         'dart:io',
         'dart:ffi',
@@ -960,7 +960,7 @@ void main() {
               RegExp(r'^epic(cash)?://(pair|pair-reply|pair-confirm|contact)/'),
             ),
           );
-        case SlateText _:
+        case SlateText _ || RecoveryPhraseCode _:
           break;
       }
     }

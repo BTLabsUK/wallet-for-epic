@@ -889,6 +889,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     void dialog(IconData icon, String title, String body, String shown) =>
         showCodeDialog(context, icon: icon, title: title, text: body, code: shown);
     switch (code) {
+      // A recovery phrase never stays in To, nor shows anywhere: To empties, the note says why.
+      case RecoveryPhraseCode():
+        setState(() {
+          _to.text = '';
+          _lastTo = '';
+          _codeError = (l) => l.scanPhraseFoundPasted;
+          _code = null;
+          _toEdited = false;
+          _suggestOff = true;
+        });
       case PaymentRequest():
         _fillFrom(code, origin);
       case ScannedAddress(:final recipient) when !pasted:

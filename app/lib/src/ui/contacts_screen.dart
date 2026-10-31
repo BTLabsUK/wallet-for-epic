@@ -688,7 +688,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
   }
 
   Future<void> _scan(_AddressField f) async {
-    final text = await ref.read(qrScannerProvider).scan(context);
+    final text = await ref.read(qrScannerProvider).scanCode(context);
     if (text == null || !mounted) return;
     f.text.text = parseRecipient(
       addressOfScan(ref.read(walletServiceProvider), text),
