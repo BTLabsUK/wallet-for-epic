@@ -197,6 +197,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
         peerHistory: api.peerHistory(),
         moving: _moving,
         onUseFallback: () => ref.read(deskFallbackProvider.notifier).answer(true),
+        onStart: _busy == null ? () => _run('start', api.start) : null,
         onRestart: _busy == null ? () => _run('restart', api.restart) : null,
         onLog: () => showNodeLogDialog(context, api),
         onChangeFolder: () => _changeFolder(s),
@@ -427,10 +428,11 @@ class StatusWords {
 }
 
 /// What a Status notice's button does.
-enum NodeAct { restart, log, folder, fallback }
+enum NodeAct { start, restart, log, folder, fallback }
 
 /// The label of a notice's button; [fallback] is the host the fallback act names.
 String nodeActLabel(AppLocalizations l, NodeAct a, String fallback) => switch (a) {
+  NodeAct.start => l.deskSetLnodeStart,
   NodeAct.restart => l.deskSetLnodeRestart,
   NodeAct.log => l.deskSetLnodeViewLog,
   NodeAct.folder => l.deskSetLnodeChangeFolder,
@@ -454,7 +456,8 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
       if (s.stalled) {
         return StatusWords(
           detail: l.deskSetLnodeStalledDetail,
-          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: NodeAct.restart),
+          // The node has stopped: the header says Start, so does the notice (UD-019).
+          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: NodeAct.start),
         );
       }
       return StatusWords(
@@ -489,6 +492,7 @@ class _StatusTab extends StatelessWidget {
     required this.peerHistory,
     required this.moving,
     required this.onUseFallback,
+    required this.onStart,
     required this.onRestart,
     required this.onLog,
     required this.onChangeFolder,
@@ -506,6 +510,7 @@ class _StatusTab extends StatelessWidget {
   final List<PeerCountSample> peerHistory;
   final (int, int)? moving;
   final VoidCallback onUseFallback;
+  final VoidCallback? onStart;
   final VoidCallback? onRestart;
   final VoidCallback onLog;
   final VoidCallback onChangeFolder;
@@ -527,6 +532,7 @@ class _StatusTab extends StatelessWidget {
     final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
 
     VoidCallback? actionOf(NodeAct? act) => switch (act) {
+      NodeAct.start => onStart,
       NodeAct.restart => onRestart,
       NodeAct.log => onLog,
       NodeAct.folder => onChangeFolder,

@@ -339,9 +339,10 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
               children: [
                 for (final f in found) ...[
                   _ReuseCard(
-                    title: l.deskSetLndUseIt,
+                    // Each option named by its owner and size: the titles differ (UD-018).
+                    title: '${_source(l, f)} · ${bytesText(f.bytes, l)}',
                     path: f.path,
-                    line: [bytesText(f.bytes, l), if (f.modified != null) l.deskSetLndLastWritten(_date(f.modified!)), _source(l, f)].join(' · '),
+                    line: f.modified == null ? '' : l.deskSetLndLastWritten(_date(f.modified!)),
                     sub: f.lock == FolderLock.locked ? l.deskSetLndLocked : l.deskSetLndNothingCopied,
                     selected: _pick == f.path,
                     enabled: f.lock != FolderLock.locked,
@@ -390,7 +391,7 @@ class _ReuseCard extends StatelessWidget {
         selected: selected,
         onTap: enabled ? onTap : () {},
         tag: path == null ? null : Text(path!, style: ts.mono(size: Fs.xs, color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
-        description: [line, ?sub].join('\n'),
+        description: [if (line.isNotEmpty) line, ?sub].join('\n'),
       ),
     );
   }

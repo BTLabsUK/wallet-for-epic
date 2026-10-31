@@ -36,6 +36,7 @@ class SettingsAccountScreen extends ConsumerStatefulWidget {
 
 class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   final _label = TextEditingController();
+  final _labelFocus = FocusNode();
   bool _filled = false;
 
   /// Whether this wallet opens at start without its password (Unlock's Remember).
@@ -75,6 +76,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   @override
   void dispose() {
     _label.dispose();
+    _labelFocus.dispose();
     super.dispose();
   }
 
@@ -124,14 +126,20 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                 title: l.deskSetAcctLabel,
                 hint: l.deskSetAcctLabelHint,
                 control: ERowControl(
+                  // A name field, not a select (UD-032): the pencil says it is editable, and
+                  // becomes the check only while the name differs from the saved one.
                   child: EInput(
                     size: EBtnSize.sm,
                     controller: _label,
+                    focusNode: _labelFocus,
                     hint: a.name,
                     semanticLabel: l.deskSetAcctLabel,
                     inputFormatters: [LengthLimitingTextInputFormatter(32)],
+                    onChanged: (_) => setState(() {}),
                     onSubmitted: (_) => _save(),
-                    trailing: EIconButton(icon: EIcons.check, label: l.deskSetAcctSaveLabel, size: EBtnSize.inline, onPressed: _save),
+                    trailing: _label.text.trim() != a.name && _label.text.trim().isNotEmpty
+                        ? EIconButton(icon: EIcons.check, label: l.deskSetAcctSaveLabel, size: EBtnSize.inline, onPressed: _save)
+                        : EIconButton(icon: EIcons.pencil, label: l.deskSetAcctLabel, size: EBtnSize.inline, onPressed: _labelFocus.requestFocus),
                   ),
                 ),
               ),

@@ -395,8 +395,9 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
     return SettingsFrame(
       route: DeskRoute.settingsNode,
-      // The panel's facts, tiles, charts and peers table use a big screen's width.
-      width: SettingsWidth.wide,
+      // The same cap as the other sections (UD-011); only the local or own node's panel
+      // (facts, tiles, charts and peers table) takes a big screen's width.
+      width: prefs.builtin || own ? SettingsWidth.wide : SettingsWidth.form,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
