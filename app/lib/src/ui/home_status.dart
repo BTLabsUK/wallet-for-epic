@@ -6,6 +6,7 @@
 /// through [watchWalletStatus] and [phoneTorProvider]; nothing here debounces or decides a route.
 library;
 
+import 'settings_rows.dart' show NavChevron;
 import '../state_language.dart' show ShownState, torShownState;
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
@@ -415,7 +416,7 @@ class ConnectionsSheet extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.chevron_right, size: 20, color: t.faint),
+                const NavChevron(),
               ],
             ),
           ),
