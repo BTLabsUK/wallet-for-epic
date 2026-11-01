@@ -797,7 +797,7 @@ class NodeTile extends StatelessWidget {
       excludeSemantics: true,
       child: Container(
         padding: EdgeInsets.all(Sp.x3),
-        decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+        decoration: c.well,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

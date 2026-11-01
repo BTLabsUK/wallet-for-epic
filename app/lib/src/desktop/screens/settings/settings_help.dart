@@ -789,7 +789,7 @@ class _HelpHandshakeState extends ConsumerState<HelpHandshake> {
     final names = [l.deskSetHelpSender, if (_way != _Way.link) _way == _Way.file ? l.deskSetHelpFile : 'Epicbox', l.deskSetHelpRecipient, l.deskSetHelpNetwork]; // l10n-ok: Epicbox is a name
     return Container(
       padding: EdgeInsets.all(Sp.x4),
-      decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      decoration: c.well,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

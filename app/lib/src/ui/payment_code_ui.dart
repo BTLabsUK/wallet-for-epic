@@ -152,7 +152,8 @@ class RequestBanner extends StatelessWidget {
 }
 
 /// The payee's name and note from a code, captioned "not verified", with an info sheet on
-/// what that means. Plain text, wrapped, never cut. Nothing when both are absent.
+/// what that means, in a well ([WalletTokens.well], as the desktop's EPayeeClaims). Plain
+/// text, wrapped, never cut. Nothing when both are absent.
 class PayeeClaims extends StatelessWidget {
   const PayeeClaims({super.key, this.name, this.note});
 
@@ -178,13 +179,7 @@ class PayeeClaims extends StatelessWidget {
     ];
     return Container(
       key: payeeClaimsKey,
-      decoration: BoxDecoration(
-        color: t.field,
-        border: BorderDirectional(
-          start: BorderSide(color: t.lineStrong, width: 2),
-        ),
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-      ),
+      decoration: t.well,
       padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 4, 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

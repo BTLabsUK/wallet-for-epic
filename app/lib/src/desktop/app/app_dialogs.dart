@@ -101,7 +101,7 @@ class _FirstScanDialogState extends State<FirstScanDialog> {
               label: t.deskAppScanOutput,
               child: Container(
                 constraints: BoxConstraints(maxHeight: 200.u),
-                decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+                decoration: c.well,
                 child: ListView(
                   shrinkWrap: true,
                   padding: EdgeInsets.all(Sp.x3),

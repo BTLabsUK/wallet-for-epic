@@ -483,7 +483,7 @@ class _FileTile extends StatelessWidget {
     return Container(
       width: 40.u,
       height: 40.u,
-      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      decoration: c.well,
       child: Icon(EIcons.file, size: Ctl.icon, color: c.dim),
     );
   }

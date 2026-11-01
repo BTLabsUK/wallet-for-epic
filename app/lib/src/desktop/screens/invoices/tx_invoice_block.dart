@@ -69,7 +69,7 @@ class TxInvoiceBlock extends ConsumerWidget {
     return Container(
       margin: EdgeInsets.only(top: Sp.x4),
       padding: EdgeInsets.all(Sp.x4),
-      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      decoration: c.well,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
