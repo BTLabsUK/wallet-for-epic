@@ -446,6 +446,29 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('a screen reader opens a connections row as a tap does', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester);
+      await tester.tap(find.byKey(nodeStatusKey));
+      await tester.pumpAndSettle();
+      final row = find.descendant(
+        of: find.byKey(connectionsSheetKey),
+        matching: find.bySemanticsLabel('Node, Synced'),
+      );
+      expect(row, findsOneWidget);
+      expect(
+        tester.getSemantics(row),
+        isSemantics(label: 'Node, Synced', isButton: true, hasTapAction: true),
+      );
+      tester.semantics.tap(find.semantics.byLabel('Node, Synced'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(connectionsSheetKey), findsNothing);
+      expect(find.byType(ServerListSheet), findsOneWidget);
+      handle.dispose();
+    });
+
     testWidgets('a long press opens the connections sheet with one line per row; a tap too', (
       tester,
     ) async {
