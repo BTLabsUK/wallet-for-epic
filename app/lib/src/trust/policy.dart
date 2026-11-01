@@ -15,7 +15,9 @@ const int featureMarker = 1 << 0;
 const int featurePairRequests = 1 << 1;
 const int featureAddressProof = 1 << 2;
 const int featureStatusNotices = 1 << 3;
-const int featureLinkedDevices = 1 << 4;
+/// Bit 4 (linked-device forwarding) is reserved and never claimed: both linked devices run the
+/// same release, so forwarding needs no capability check.
+const int featureLinkedDevicesReserved = 1 << 4;
 const int featureDirectory = 1 << 5;
 
 /// A key counts as LEPIC for payments-address traffic only while its last marked message is
@@ -164,10 +166,6 @@ bool mayStatusNotices(Relationship r) =>
 /// the pairing is waiting. Otherwise it is paired at the reply.
 bool mayWaitUntilHeard(Relationship r) =>
     r.waiting && r.peerFeatures & featureStatusNotices != 0;
-
-/// May a wallet-addressed notice be forwarded to a linked device that claims [deviceClaimed].
-bool mayForwardToDevice(int deviceClaimed) =>
-    deviceClaimed & featureLinkedDevices != 0;
 
 /// May a directory payload go to the directory whose pairing claims [directoryClaimed].
 bool mayDirectoryPayload(int directoryClaimed, Relationship r) =>

@@ -200,16 +200,12 @@ void main() {
     }
   });
 
-  group('linked device and directory bits', () {
-    test('device bit 4', () {
-      expect(mayForwardToDevice(featureLinkedDevices | featureMarker), isTrue);
-      expect(mayForwardToDevice(featureMarker | featureDirectory), isFalse);
-    });
+  group('directory bit', () {
     test('directory bit 5 and paired', () {
       expect(mayDirectoryPayload(featureDirectory, paired), isTrue);
       expect(mayDirectoryPayload(featureDirectory, verified), isTrue);
       expect(mayDirectoryPayload(featureDirectory, contact), isFalse);
-      expect(mayDirectoryPayload(featureLinkedDevices, paired), isFalse);
+      expect(mayDirectoryPayload(featureLinkedDevicesReserved, paired), isFalse);
     });
   });
 
