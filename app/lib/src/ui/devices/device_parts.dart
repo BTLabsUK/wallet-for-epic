@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The phone's linked devices pieces shared by its screens: the "seen" line, why a link failed,
-/// the rename and confirm dialogs, the servers sheet, the question to move off the linked
-/// device's Epicbox server, and the quiet offer that turns the feature on.
+/// the rename and confirm dialogs, the Epicbox-off line, and the quiet offer to link.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,16 +8,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_model.dart';
 import '../../devices/device_service.dart';
+import '../../devices/invite_links_api.dart';
 import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
-import '../../network.dart' show EpicboxRelay;
 import '../../providers.dart';
-import '../../relay_block_phone.dart' show switchToRelayInstead;
-import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../../advanced.dart' show NetworkModeRestricted;
+import '../../settings.dart' show appSettingsProvider, networkModeProvider;
 import '../badge.dart';
-import '../pairing/pairing_parts.dart' show PairEdgeNotice;
 import '../theme/tokens.dart';
 import 'link_device_screen.dart';
+import 'linked_devices_screen.dart' show LinkedDevicesScreen;
 
 /// "seen 2 min ago" for [at], or "not seen yet".
 String deviceSeenLine(AppLocalizations l, DateTime? at, DateTime now) {
@@ -39,18 +38,29 @@ String devicesStateLine(AppLocalizations l, List<LinkedDevice> devices, DateTime
   return l.settingsStateJoin(who, deviceSeenLine(l, last.first.lastSeen, now));
 }
 
-String linkFailureText(AppLocalizations l, LinkFailure f) => switch (f) {
+/// Why a link did not complete, in a sentence ([name]: the other device, when known).
+String linkFailureText(AppLocalizations l, LinkFailure f, [String? name]) => switch (f) {
   LinkFailure.invalidCode => l.linkFailInvalid,
   LinkFailure.expired => l.linkFailExpired,
   LinkFailure.notFound => l.linkFailNotFound,
   LinkFailure.ownCode => l.linkFailOwn,
   LinkFailure.otherWallet => l.linkFailOtherWallet,
   LinkFailure.otherWalletCode => l.linkFailOtherWalletCode,
-  LinkFailure.mismatch => l.linkFailMismatch,
-  LinkFailure.cancelled => l.linkFailCancelled,
+  // The other device stopped: the same line as not reached, with Retry.
+  LinkFailure.cancelled => l.linkFailUnreachable,
   LinkFailure.tooMany => l.linkFailTooMany,
+  LinkFailure.full => l.linkFailFull(name ?? l.deskDevTheOther),
+  LinkFailure.update => l.linkFailUpdate,
+  LinkFailure.updateOther => l.linkFailUpdateOther(name ?? l.deskDevTheOther),
   LinkFailure.unreachable => l.linkFailUnreachable,
   LinkFailure.unsupported => l.devicesUnsupported,
+};
+
+/// The icon of a device by its kind; a generic one while its kind is not known.
+IconData deviceIcon(DeviceKind? kind) => switch (kind) {
+  DeviceKind.phone => Icons.smartphone,
+  DeviceKind.desktop => Icons.computer_outlined,
+  null => Icons.devices_outlined,
 };
 
 /// The servers a new link proposes here: the link's set, else this wallet's server and the
@@ -63,6 +73,12 @@ List<String> phoneLinkServers(WidgetRef ref) {
   return ref.read(deviceServiceProvider)?.linkServers(defaults) ?? defaults;
 }
 
+/// Nothing goes over Epicbox now (the Epicbox switch off, Node only, Kill switch): the devices
+/// do not sync and none can be linked.
+final phoneDevicesEpicboxOffProvider = Provider<bool>((ref) {
+  final on = ref.watch(appSettingsProvider.select((s) => s.value?.payments.epicbox ?? true));
+  return ref.watch(networkModeProvider).restricted || !on;
+});
 
 /// A name, typed in a dialog; null when cancelled.
 Future<String?> askDeviceName(BuildContext context, String initial) => showDialog<String>(
@@ -114,15 +130,23 @@ class _NameDialogState extends State<_NameDialog> {
   }
 }
 
-/// A yes/no question whose yes is [action], in the risk tone when [risky].
-Future<bool> confirmDeviceAction(BuildContext context, {required String title, required String body, required String action, bool risky = false}) async =>
+/// A yes/no question whose yes is [action] (and whose no is [cancel], Cancel by default), in
+/// the risk tone when [risky].
+Future<bool> confirmDeviceAction(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String action,
+  String? cancel,
+  bool risky = false,
+}) async =>
     await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(title),
         content: Text(body),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.l10n.commonCancel)),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(cancel ?? context.l10n.commonCancel)),
           TextButton(
             style: risky ? TextButton.styleFrom(foregroundColor: context.tokens.risk) : null,
             onPressed: () => Navigator.pop(context, true),
@@ -133,13 +157,22 @@ Future<bool> confirmDeviceAction(BuildContext context, {required String title, r
     ) ??
     false;
 
+/// Registers the handler of an incoming device invite (an `epiccash://device-link/…` or
+/// `https://…/link#…` link the system opened): Link a device with its confirm step. A link
+/// never links by itself.
+void registerPhoneDeviceInviteHandler() => registerInviteHandler(
+  InviteKind.deviceLink,
+  (context, link) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => LinkDeviceScreen(code: link.invite, confirm: true))),
+);
+
 /// Opens Link a device, with [code] answered at once when a scan or a paste brought one.
 Future<void> openLinkDevice(BuildContext context, WidgetRef ref, {String? code}) =>
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => LinkDeviceScreen(code: code)));
 
 /// The quiet offer: one line and Link a device, with the Experimental badge. Shown where the
-/// problem linking solves shows (the end of a restore, a payment from another wallet), and only
-/// while Linked devices is on (it is unless the user turned it off).
+/// problem linking solves shows (the end of a restore, a payment from another device), and only
+/// while Linked devices is on (it is unless the user turned it off). With a device linked
+/// already, a third device holds this wallet: the line says so, with the way to Linked devices.
 class LinkDeviceOffer extends ConsumerWidget {
   const LinkDeviceOffer({super.key, required this.text});
 
@@ -150,11 +183,12 @@ class LinkDeviceOffer extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     if (!ref.watch(linkedDevicesOnProvider)) return const SizedBox.shrink();
+    final linked = ref.watch(phoneDevices.devices).isNotEmpty;
     return Column(
       key: const ValueKey('link-device-offer'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim)),
+        Text(linked ? l.offerLinkThird : text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim)),
         const SizedBox(height: 6),
         Wrap(
           spacing: 8,
@@ -163,70 +197,15 @@ class LinkDeviceOffer extends ConsumerWidget {
             TextButton.icon(
               key: const ValueKey('link-device-offer-button'),
               icon: const Icon(Icons.devices_outlined),
-              label: Text(l.devicesLink),
-              onPressed: () => openLinkDevice(context, ref),
+              label: Text(linked ? l.expLinkedDevices : l.devicesLink),
+              onPressed: () => linked
+                  ? Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LinkedDevicesScreen()))
+                  : openLinkDevice(context, ref),
             ),
             EBadge(l.advExperimental),
           ],
         ),
       ],
-    );
-  }
-}
-
-const Key devicesRelayUseKey = ValueKey('devices-relay-use');
-const Key devicesRelayKeepKey = ValueKey('devices-relay-keep');
-const Key linkRemoveKey = ValueKey('link-remove');
-
-/// Both devices use one Epicbox server, so both answer a payment to it: the question, once, to
-/// move this one to the next server of its list. Use moves it (the address changes, as on any
-/// server switch); Keep leaves both where they are. Nothing while there is no question or no
-/// other server to offer.
-class RelayClashNotice extends ConsumerStatefulWidget {
-  const RelayClashNotice({super.key});
-
-  @override
-  ConsumerState<RelayClashNotice> createState() => _RelayClashNoticeState();
-}
-
-class _RelayClashNoticeState extends ConsumerState<RelayClashNotice> {
-  bool _busy = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final shared = ref.watch(phoneDevices.view)?.book.relayAsk;
-    if (shared == null) return const SizedBox.shrink();
-    final next = relayToMoveTo([for (final s in ref.watch(hostSettingsProvider).epicboxServers) s.label], shared);
-    if (next == null) return const SizedBox.shrink();
-    final service = ref.read(deviceServiceProvider);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: PairEdgeNotice(
-        tone: BadgeTone.info,
-        title: l.devicesRelayAsk(shared, next),
-        body: l.devicesRelayWhy,
-        actions: [
-          TextButton(key: devicesRelayKeepKey, onPressed: _busy ? null : () => service?.keepRelay(), child: Text(l.devicesRelayKeep)),
-          FilledButton(
-            key: devicesRelayUseKey,
-            onPressed: _busy
-                ? null
-                : () async {
-                    final relay = EpicboxRelay.parse(next);
-                    if (relay == null) return;
-                    setState(() => _busy = true);
-                    try {
-                      await switchToRelayInstead(ref, relay);
-                      await service?.relayMoved();
-                    } finally {
-                      if (mounted) setState(() => _busy = false);
-                    }
-                  },
-            child: Text(l.devicesRelayUse),
-          ),
-        ],
-      ),
     );
   }
 }

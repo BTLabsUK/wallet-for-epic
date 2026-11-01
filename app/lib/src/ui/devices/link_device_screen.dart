@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Link a device (phone): one device shows a code, the other scans or pastes it; both compare
-/// four pictures and tap They match. Nothing is linked until both did, and the two must hold the
-/// same wallet (`devices/device_service.dart`).
+/// Link a device (phone): the camera opens first; Show my code and Paste code are the other
+/// ways. Once both devices are paired each shows the four pictures as "Linking…" while the
+/// hellos cross (nothing to tap: the proof needs the recovery phrase), then "Linked" closes by
+/// itself (`devices/device_service.dart`).
 library;
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_service.dart';
+import '../../devices/invite_links_api.dart';
 import '../../devices/phone_devices.dart';
 import '../../l10n.dart';
-import '../../pairing_api.dart' show privateInviteExpiry;
+import '../../settings.dart' show autoLockHoldProvider, clockProvider;
 import '../common.dart';
 import '../pairing/pairing_parts.dart';
 import '../scan_screen.dart' show ScanCode, qrScannerProvider;
@@ -23,15 +27,25 @@ const Key linkShowKey = ValueKey('link-show');
 const Key linkScanKey = ValueKey('link-scan');
 const Key linkPasteFieldKey = ValueKey('link-paste-field');
 const Key linkPasteKey = ValueKey('link-paste');
-const Key linkMatchKey = ValueKey('link-match');
-const Key linkNoMatchKey = ValueKey('link-no-match');
-const Key linkServersKey = ValueKey('link-servers');
+const Key linkPasteOpenKey = ValueKey('link-paste-open');
+const Key linkCancelKey = ValueKey('link-cancel');
+const Key linkReplaceKey = ValueKey('link-replace');
+const Key linkRetryKey = ValueKey('link-retry');
+const Key linkPasteAnotherKey = ValueKey('link-paste-another');
+const Key linkConfirmKey = ValueKey('link-confirm');
 
 class LinkDeviceScreen extends ConsumerStatefulWidget {
-  const LinkDeviceScreen({super.key, this.code});
+  const LinkDeviceScreen({super.key, this.code, this.openCamera = true, this.confirm = false});
 
-  /// A device link text from a scan or a paste elsewhere: answered at once.
+  /// A device invite from a scan or a paste elsewhere: answered at once, or, with [confirm]
+  /// (it came in as a link), once the user chose to.
   final String? code;
+
+  /// The invite came in as a link: ask before answering it. A link never links by itself.
+  final bool confirm;
+
+  /// Opens the camera first (where the phone scans); the tour and tests start on the choices.
+  final bool openCamera;
 
   @override
   ConsumerState<LinkDeviceScreen> createState() => _LinkDeviceScreenState();
@@ -40,23 +54,48 @@ class LinkDeviceScreen extends ConsumerStatefulWidget {
 class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
   final _paste = TextEditingController();
   bool _busy = false;
+  bool _pasting = false;
+
+  /// An invite that came in as a link, waiting for the user's Link.
+  String? _toConfirm;
+  Timer? _tick;
+  Timer? _close;
+  Completer<void>? _hold;
 
   @override
   void initState() {
     super.initState();
     final code = widget.code;
+    // A link under way holds auto-lock, as a scan does: the user may switch to a messenger to
+    // send the code. Released when the screen goes.
+    final hold = Completer<void>();
+    _hold = hold;
+    unawaited(ref.read(autoLockHoldProvider.notifier).during(() => hold.future));
+    // The minutes left on the code, and the auto-close, follow the clock.
+    _tick = Timer.periodic(const Duration(seconds: 20), (_) {
+      if (mounted) setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final service = ref.read(deviceServiceProvider);
       // A flow left from an earlier visit that ended is not this one.
       service?.closeLink();
-      if (code != null) service?.startScanned(code);
+      if (code != null && widget.confirm) {
+        setState(() => _toConfirm = code);
+      } else if (code != null) {
+        unawaited(_run((s) => s.startScanned(code)));
+      } else if (widget.openCamera && ref.read(qrScannerProvider).supported) {
+        unawaited(_scan());
+      }
     });
   }
 
   @override
   void dispose() {
     _paste.dispose();
+    _tick?.cancel();
+    _close?.cancel();
+    _hold?.complete();
     super.dispose();
   }
 
@@ -73,17 +112,34 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
     }
   }
 
+  /// The invite in [text], in any of its forms (a link, the bare text), as the service reads it.
+  String _invite(String text) => parseInvite(text)?.invite ?? text;
+
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scanCode(context);
     if (text == null || !mounted) return;
-    await _run((s) => s.startScanned(text));
+    await _run((s) => s.startScanned(_invite(text)));
   }
 
   Future<void> _pasteNow() async {
     var text = _paste.text.trim();
     if (text.isEmpty) text = (await Clipboard.getData(Clipboard.kTextPlain))?.text?.trim() ?? '';
     if (text.isEmpty || !mounted) return;
-    await _run((s) => s.startScanned(text));
+    await _run((s) => s.startScanned(_invite(text)));
+  }
+
+  Future<void> _cancel() async {
+    await _service?.cancelLink();
+    if (mounted) await Navigator.of(context).maybePop();
+  }
+
+  /// "Linked" closes by itself after [linkDoneShown].
+  void _closeSoon() {
+    _close ??= Timer(linkDoneShown, () {
+      if (!mounted) return;
+      _service?.closeLink();
+      Navigator.of(context).maybePop();
+    });
   }
 
   @override
@@ -92,6 +148,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
     final view = ref.watch(phoneDevices.view);
     final flow = view?.link;
     final active = flow != null && flow.phase != LinkPhase.done && flow.phase != LinkPhase.failed;
+    if (flow?.phase == LinkPhase.done) _closeSoon();
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         // Leaving mid-way ends the link on both sides; a finished one stays.
@@ -100,15 +157,16 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
       },
       child: SlotScaffold(
         appBar: AppBar(title: Text(l.devicesLink)),
-        idle: active && flow.phase != LinkPhase.checking ? SlotProgress(label: l.linkWaiting) : null,
+        idle: active && flow.phase != LinkPhase.linking ? const SlotProgress(label: '') : null,
         body: switch (flow) {
           _ when view == null || !view.supported => _message(context, l.devicesUnsupported),
+          null when _toConfirm != null => _confirm(context, _toConfirm!),
           null => _start(context),
-          LinkFlow(phase: LinkPhase.starting) => const SizedBox.shrink(),
+          LinkFlow(phase: LinkPhase.starting) => _wait(context, null),
           LinkFlow(phase: LinkPhase.waiting, role: LinkRole.shows) => _showCode(context, flow),
-          LinkFlow(phase: LinkPhase.waiting, otherName: final name?) => _message(context, l.linkWaitingFor(name)),
-          LinkFlow(phase: LinkPhase.waiting) => _message(context, l.linkWaiting),
-          LinkFlow(phase: LinkPhase.checking || LinkPhase.waitingOther) => _check(context, flow),
+          LinkFlow(phase: LinkPhase.waiting, otherName: final name?) => _wait(context, l.linkWaitingFor(name)),
+          LinkFlow(phase: LinkPhase.waiting) => _wait(context, l.linkWaiting),
+          LinkFlow(phase: LinkPhase.linking) => _linking(context, flow),
           LinkFlow(phase: LinkPhase.done) => _done(context, flow),
           LinkFlow(phase: LinkPhase.failed) => _failed(context, flow),
         },
@@ -118,6 +176,46 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
 
   Widget _message(BuildContext context, String text) => ScreenBody(children: [PairLead(text)]);
 
+  /// An invite that came in as a link: the user chooses to answer it.
+  Widget _confirm(BuildContext context, String invite) {
+    final l = context.l10n;
+    return ScreenBody(
+      bottom: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FilledButton(
+            key: linkConfirmKey,
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            onPressed: _busy
+                ? null
+                : () {
+                    setState(() => _toConfirm = null);
+                    unawaited(_run((s) => s.startScanned(_invite(invite))));
+                  },
+            child: Text(l.linkGo),
+          ),
+          const SizedBox(height: 8),
+          TextButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(l.commonCancel)),
+        ],
+      ),
+      children: [PairLead(l.linkConfirmInvite)],
+    );
+  }
+
+  Widget _cancelButton(BuildContext context) => OutlinedButton(
+    key: linkCancelKey,
+    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+    onPressed: _cancel,
+    child: Text(context.l10n.commonCancel),
+  );
+
+  /// A wait with a Cancel: answering, or the other device's turn.
+  Widget _wait(BuildContext context, String? text) => ScreenBody(
+    bottom: _cancelButton(context),
+    children: [if (text != null) PairLead(text)],
+  );
+
   Widget _start(BuildContext context) {
     final l = context.l10n;
     final servers = phoneLinkServers(ref);
@@ -126,49 +224,51 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
       children: [
         PairLead(l.linkLead),
         const SizedBox(height: 16),
-        PairCard(
-          children: [
-            ListTile(
-              key: linkServersKey,
-              leading: const Icon(Icons.dns_outlined),
-              title: Text(l.devicesServers),
-              // Read-only: the first servers of the Epicbox list (Settings › Epicbox).
-              subtitle: Text(servers.join(', ')),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        FilledButton.icon(
-          key: linkShowKey,
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          icon: const Icon(Icons.qr_code_2),
-          label: Text(l.linkShow),
-          onPressed: _busy || servers.isEmpty ? null : () => _run((s) => s.startShowing(servers)),
-        ),
         if (scanner.supported) ...[
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
+          FilledButton.icon(
             key: linkScanKey,
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
             icon: const Icon(Icons.qr_code_scanner),
             label: Text(l.linkScan),
             onPressed: _busy ? null : _scan,
           ),
+          const SizedBox(height: 8),
         ],
-        PairSection(l.linkPaste),
-        TextField(
-          key: linkPasteFieldKey,
-          controller: _paste,
-          maxLines: 2,
-          minLines: 1,
-          decoration: InputDecoration(labelText: l.linkPasteLabel, border: const OutlineInputBorder()),
-          onSubmitted: (_) => _pasteNow(),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          children: [
+            TextButton.icon(
+              key: linkShowKey,
+              icon: const Icon(Icons.qr_code_2),
+              label: Text(l.linkShowMine),
+              onPressed: _busy || servers.isEmpty ? null : () => _run((s) => s.startShowing(servers)),
+            ),
+            TextButton.icon(
+              key: linkPasteOpenKey,
+              icon: const Icon(Icons.content_paste),
+              label: Text(l.linkPaste),
+              onPressed: _busy ? null : () => setState(() => _pasting = true),
+            ),
+          ],
         ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: TextButton(key: linkPasteKey, onPressed: _busy ? null : _pasteNow, child: Text(l.linkGo)),
-        ),
+        if (_pasting) ...[
+          const SizedBox(height: 8),
+          TextField(
+            key: linkPasteFieldKey,
+            controller: _paste,
+            maxLines: 2,
+            minLines: 1,
+            autofocus: true,
+            decoration: InputDecoration(labelText: l.linkPasteLabel, border: const OutlineInputBorder()),
+            onSubmitted: (_) => _pasteNow(),
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: TextButton(key: linkPasteKey, onPressed: _busy ? null : _pasteNow, child: Text(l.linkGo)),
+          ),
+        ],
       ],
     );
   }
@@ -176,13 +276,15 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
   Widget _showCode(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
     final t = context.tokens;
-    final code = flow.code ?? '';
+    // The QR and Copy carry the invite as a link when the invite page is set, else bare.
+    final code = inviteShareText(InviteLink(InviteKind.deviceLink, flow.code ?? ''), invitePage: ref.watch(invitePageProvider));
     final width = MediaQuery.sizeOf(context).width;
     final size = (width - 96).clamp(180.0, 260.0);
+    final until = flow.expiresAt;
     return ScreenBody(
+      bottom: _cancelButton(context),
       children: [
-        PairLead(l.linkShowLead),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Center(
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -199,53 +301,32 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        PairSmallPrint(l.linkExpires(privateInviteExpiry.inMinutes)),
+        if (until != null) PairSmallPrint(l.linkExpires(linkMinutesLeft(until, ref.read(clockProvider)()))),
         const SizedBox(height: 4),
         PairSmallPrint(l.linkWaiting),
       ],
     );
   }
 
-  Widget _check(BuildContext context, LinkFlow flow) {
+  /// Both devices show the same four pictures while the hellos cross. Nothing to tap.
+  Widget _linking(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
     final name = flow.otherName ?? '';
-    final waiting = flow.phase == LinkPhase.waitingOther;
     return ScreenBody(
-      bottom: waiting
-          ? null
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                FilledButton(
-                  key: linkMatchKey,
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  onPressed: _busy ? null : () => _run((s) => s.answerCheck(true)),
-                  child: Text(l.sasMatch),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton(
-                  key: linkNoMatchKey,
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  onPressed: _busy ? null : () => _run((s) => s.answerCheck(false)),
-                  child: Text(l.sasNoMatch),
-                ),
-              ],
-            ),
+      bottom: _cancelButton(context),
       children: [
-        Text(l.linkCheckTitle, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: context.tokens.headFamily)),
-        const SizedBox(height: 8),
-        PairLead(l.linkCheckLead(name)),
+        Text(l.linkLinkingWith(name), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFamily: context.tokens.headFamily)),
         const SizedBox(height: 16),
         PairCard(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 18),
-              child: WordTiles(words: flow.sas, label: l.linkPicturesLabel, size: WordTileSize.check, dim: waiting),
+              child: WordTiles(words: flow.sas, label: l.linkPicturesLabel, size: WordTileSize.check),
             ),
           ],
         ),
-        if (waiting) ...[const SizedBox(height: 16), PairLead(l.linkWaitingCheck(name))],
+        const SizedBox(height: 12),
+        PairSmallPrint(l.linkLinkingSame(name)),
       ],
     );
   }
@@ -254,19 +335,10 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
     final l = context.l10n;
     final t = context.tokens;
     return ScreenBody(
-      bottom: FilledButton(
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: () => Navigator.of(context).maybePop(),
-        child: Text(l.commonDone),
-      ),
       children: [
         Icon(Icons.check_circle_outline, size: 48, color: t.ok),
         const SizedBox(height: 12),
-        Text(l.linkDoneTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
-        const SizedBox(height: 8),
-        PairLead(l.linkDone(flow.device?.name ?? flow.otherName ?? '')),
-        const SizedBox(height: 16),
-        const RelayClashNotice(),
+        Text(l.linkDone(flow.device?.name ?? flow.otherName ?? ''), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
       ],
     );
   }
@@ -274,36 +346,59 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
   Widget _failed(BuildContext context, LinkFlow flow) {
     final l = context.l10n;
     final t = context.tokens;
-    final linked = flow.failure == LinkFailure.tooMany ? _service?.book.devices.firstOrNull : null;
+    final failure = flow.failure ?? LinkFailure.unreachable;
+    final linked = failure == LinkFailure.tooMany ? _service?.book.linked : null;
+    // A pasted code that failed: another one can be pasted. A code this device showed that
+    // went nowhere: a new one.
+    final pasted = flow.role == LinkRole.scans && _pasting;
+    final retry = !pasted && (failure == LinkFailure.unreachable || failure == LinkFailure.cancelled || failure == LinkFailure.expired || failure == LinkFailure.notFound);
     return ScreenBody(
       bottom: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Two devices at most: a refused link offers to remove the one linked, not to try again.
+          // Two devices at most: a refused link offers to replace the one linked.
           if (linked != null)
             FilledButton(
-              key: linkRemoveKey,
+              key: linkReplaceKey,
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
               onPressed: () async {
                 final yes = await confirmDeviceAction(
                   context,
-                  title: l.devicesRemoveTitle(linked.name),
-                  body: l.devicesRemoveBody(linked.name),
-                  action: l.devicesRemove,
+                  title: l.linkReplaceTitle(linked.name),
+                  body: l.linkReplaceBody(linked.name),
+                  action: l.linkReplace,
+                  cancel: l.linkKeep(linked.name),
                   risky: true,
                 );
                 if (!yes || !context.mounted) return;
-                await _service?.removeDevice(linked.deviceId);
-                if (context.mounted) await Navigator.of(context).maybePop();
+                await _run((s) => s.replaceLinked());
               },
-              child: Text(l.devicesRemove),
+              child: Text(l.linkReplaceTitle(linked.name)),
             )
-          else if (flow.failure != LinkFailure.tooMany)
+          else if (pasted)
             FilledButton(
+              key: linkPasteAnotherKey,
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: () => _service?.closeLink(),
-              child: Text(l.linkTryAgain),
+              onPressed: () {
+                _service?.closeLink();
+                setState(() => _paste.clear());
+              },
+              child: Text(l.linkPasteAnother),
+            )
+          else if (retry)
+            FilledButton(
+              key: linkRetryKey,
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: () {
+                _service?.closeLink();
+                if (flow.role == LinkRole.shows && flow.servers.isNotEmpty) {
+                  unawaited(_run((s) => s.startShowing(flow.servers)));
+                } else if (ref.read(qrScannerProvider).supported) {
+                  unawaited(_scan());
+                }
+              },
+              child: Text(l.commonRetry),
             ),
           const SizedBox(height: 8),
           TextButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(l.commonClose)),
@@ -314,7 +409,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
         const SizedBox(height: 12),
         Text(l.linkFailedTitle, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
         const SizedBox(height: 8),
-        PairLead(linkFailureText(l, flow.failure ?? LinkFailure.cancelled)),
+        PairLead(linkFailureText(l, failure, flow.otherName)),
       ],
     );
   }

@@ -48,20 +48,18 @@ class MockPhone {
     }
   }
 
-  /// The phone scans the code [desk] shows; both reach the four pictures.
-  Future<void> scan(DeviceService desk) async {
+  /// The phone scans the code [desk] shows, then both read the channel [rounds] times: with
+  /// enough rounds the hellos cross and the link is made.
+  Future<void> scan(DeviceService desk, {int rounds = 3}) async {
     await service.startScanned(desk.link!.code!);
-    await rounds(desk);
+    await this.rounds(desk, rounds: rounds);
   }
 
-  /// A whole link: [desk] shows a code on [servers], the phone scans it, both check the pictures.
+  /// A whole link: [desk] shows a code on [servers], the phone scans it, the hellos cross.
   Future<void> link(DeviceService desk, {List<String>? servers}) async {
     servers ??= [mockBox];
     await desk.startShowing(servers);
     await scan(desk);
-    await desk.answerCheck(true);
-    await rounds(desk);
-    await service.answerCheck(true);
     await rounds(desk);
   }
 

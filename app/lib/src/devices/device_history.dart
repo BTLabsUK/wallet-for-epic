@@ -9,10 +9,12 @@
 /// (released here, cancelled, failed or expired on the device) until the chain decides: a
 /// payment whose cancel came too late comes back as the same row, confirmed.
 ///
-/// Coins the linked device received (a payment, or the change of its send) reach this wallet as
-/// a chain-check row too: with a device linked, that row reads "Received on `<device>`". A
-/// payment both devices answered (they share a relay) shows once: this device's own answer is
-/// left out once the chain shows the linked device's ([answersTakenThere]).
+/// Coins the linked device received reach this wallet as a chain-check row too. That row reads
+/// "Received on `<device>`" only when the device said so: an output its `recv` notice named, or
+/// the change of a payment it told about (the row's kernel is a known hold's). Anything else
+/// reads "Received by another device": a third install on the same phrase may have received
+/// it. A payment both devices answered (one address, one relay) shows once: this device's own
+/// answer is left out once the chain shows the linked device's ([answersTakenThere]).
 library;
 
 import '../models.dart';
@@ -28,6 +30,7 @@ List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
   final taken = answersTakenThere(rows, book).toSet();
   final linked = book.linked;
   final theirOutputs = {for (final o in book.theirReceives.values) ...o};
+  final theirKernels = {for (final h in book.holds) ?h.kernel};
   // Held, ended without spending (by the device, by the fallbacks or by hand) and confirmed all
   // keep their row.
   final shown = [for (final h in book.holds) if (h.state.holds || h.state.freed || h.state == HoldState.spent) h];
@@ -49,9 +52,10 @@ List<TxEntry> mergeDeviceHistory(List<TxEntry> rows, DeviceBook book) {
     }
     if (taken.contains(r)) continue;
     if (linked != null && r.origin == TxOrigin.otherWallet && r.spentCommits.isEmpty && r.amountCredited > BigInt.zero) {
-      // Coins of this wallet the linked device received: its answers it told about, and anything
-      // the chain shows arriving since the link (its change included).
-      final there = r.outputCommits.any(theirOutputs.contains) || r.timeUnix >= linked.linkedAt.millisecondsSinceEpoch ~/ 1000;
+      // Coins of this wallet the linked device received: the answers it told about, and the
+      // change of the payments it told about. Nothing else is its for sure.
+      final kernel = r.kernelExcess;
+      final there = r.outputCommits.any(theirOutputs.contains) || (kernel != null && theirKernels.contains(kernel));
       if (there) {
         out.add(r.withDeviceName(linked.name));
         continue;

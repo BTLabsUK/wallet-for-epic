@@ -10,7 +10,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../models.dart' show TxEntry;
+import '../models.dart' show InvoiceEvent, InvoiceEventKind, TxEntry;
+import '../ui/devices/device_parts.dart' show registerPhoneDeviceInviteHandler;
+import '../ui/notices.dart' show NoticeLevel, noticeProvider;
 import '../network_gate.dart';
 import '../providers.dart';
 import '../settings.dart';
@@ -23,14 +25,17 @@ final linkedDevicesOnProvider = Provider<bool>(
   (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.linkedDevicesOn)) ?? false,
 );
 
-/// This device's name until the user renames it, in the phone's language.
-String phoneDeviceName() {
+/// The phone's strings, outside a widget.
+AppLocalizations _strings() {
   try {
-    return lookupAppLocalizations(PlatformDispatcher.instance.locale).devicesThisPhone;
+    return lookupAppLocalizations(PlatformDispatcher.instance.locale);
   } on FlutterError {
-    return lookupAppLocalizations(const Locale('en')).devicesThisPhone;
+    return lookupAppLocalizations(const Locale('en'));
   }
 }
+
+/// This device's name until the user renames it, in the phone's language.
+String phoneDeviceName() => _strings().devicesThisPhone;
 
 /// The open wallet's devices, or null while locked or with Linked devices off.
 final deviceServiceProvider = Provider<DeviceService?>((ref) {
@@ -54,6 +59,30 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
     if (ref.exists(homeProvider)) unawaited(ref.read(homeProvider.notifier).reload());
   });
   ref.onDispose(sub.cancel);
+  // Notices that reached this device only go to the linked device; what it passed on is
+  // applied here: the sender's report as if it came here, a request to pay as a notice.
+  final events = session.invoiceEvents().listen((e) {
+    final kind = switch (e.kind) {
+      InvoiceEventKind.paymentPosted => ForwardKind.posted,
+      InvoiceEventKind.paymentCancelled => ForwardKind.cancelled,
+      InvoiceEventKind.received => ForwardKind.invoice,
+      _ => null,
+    };
+    if (kind != null) unawaited(service.forward(kind, e.slateId, kernel: e.kernelExcess));
+  }, onError: (_) {});
+  ref.onDispose(events.cancel);
+  final forwarded = service.forwarded.listen((n) {
+    final event = InvoiceEvent(kind: InvoiceEventKind.paymentPosted, slateId: n.slateId, kernelExcess: n.kernel);
+    switch (n.kind) {
+      case ForwardKind.posted:
+        unawaited(ref.read(paymentPostedProvider.notifier).forwarded(event));
+      case ForwardKind.cancelled:
+        unawaited(ref.read(paymentCancelledProvider.notifier).forwarded(event));
+      case ForwardKind.invoice:
+        ref.read(noticeProvider.notifier).show(_strings().devicesForwardedInvoice(n.device), level: NoticeLevel.info);
+    }
+  });
+  ref.onDispose(forwarded.cancel);
   // Opened or unlocked: one read, then every 5 s while on screen.
   unawaited(service.load().then((_) => service.sync(DeviceSyncTrigger.unlock)));
   service.setForeground(WidgetsBinding.instance.lifecycleState != AppLifecycleState.paused);
@@ -79,6 +108,7 @@ class _DeviceLifecycleState extends ConsumerState<DeviceLifecycle> with WidgetsB
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    registerPhoneDeviceInviteHandler();
   }
 
   @override

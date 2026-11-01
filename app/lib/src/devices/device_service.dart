@@ -6,20 +6,26 @@
 /// Receiving, in one path ([_receive]): the payload must come through a private pairing of a
 /// linked device and name that device → at most [deviceNoticeMaxBytes] (before parsing) → not
 /// seen before (by id) → in order (by seq, waiting up to [noticeWindow] ahead and [gapWait] for
-/// a missing one) → a body valid for its type → its handler in [_handlers]. Anything else is
-/// dropped and logged without amounts or addresses. A newer version or an unknown type keeps its
-/// place in the order and is ignored.
+/// a missing one) → a body valid for its type → its handler in [_handlers]. A `send`, a
+/// `status` of a known hold, `unlink`, `recv` and `fwd` are keyed by slate or device and apply
+/// the same however often they come, so they apply as they arrive, ahead of a missing one
+/// ([_applyEarly]); `servers` and the `pair2*` notices keep the order. Anything else is dropped
+/// and logged without amounts or addresses. A notice of another wire version keeps its place
+/// in the order and marks its device: the user is told to update it ([LinkedDevice.otherVersion]).
 ///
 /// Sending, in one path ([_send]): numbered, stamped, kept in the book's outbox and posted to
 /// every pairing of the linked device (one per server).
 ///
 /// A wallet is on two devices at most: this one and one linked device ([maxLinkedDevices]).
 /// Links are pairwise, so with a third device one of them would not hear the other's payments.
+/// Both devices answer payments to the wallet's one address; the sender takes the first answer,
+/// and the other device drops its own once the chain shows which was used.
 ///
 /// What a notice can do here: hold or release coins, add history details, rename its device,
 /// propose servers (the user accepts here), make a further pairing with this device over the
-/// confirmed channel (second server, a lost pairing made again), and end the link. It never
-/// sends, signs or changes a setting on its own.
+/// confirmed channel (second server, a lost pairing made again), pass on a payer's report or a
+/// contact's request that reached the other device only ([forwarded]), and end the link. It
+/// never sends, signs or changes a setting on its own.
 library;
 
 import 'dart:async';
@@ -50,12 +56,8 @@ abstract interface class DeviceHost {
   /// This wallet's payments key (its Epicbox address without the server).
   Future<String> walletKey();
 
-  /// The Epicbox relay this device's payments arrive at now (its address after the `@`):
-  /// `host`, or `host:port` off 443.
-  Future<String?> walletRelay();
-
   /// Cancels this device's own answer [txId] to a payment the linked device answered and the
-  /// chain took from it.
+  /// chain, or the payer, took from it.
   Future<void> cancelTransaction(int txId);
 
   /// [message] signed with this wallet's address key ([WalletSession.signWithAddressKey]).
@@ -95,9 +97,6 @@ class SessionDeviceHost implements DeviceHost {
   Future<String> walletKey() async => epicboxKey(await session.epicboxAddress());
 
   @override
-  Future<String?> walletRelay() async => relayOfAddress(await session.epicboxAddress());
-
-  @override
   Future<void> cancelTransaction(int txId) => session.cancelTransaction(txId: txId);
 
   @override
@@ -124,14 +123,19 @@ class SessionDeviceHost implements DeviceHost {
 /// What a hello's `proof` signs: a tag, the sending device's id and the four pictures of the
 /// link's private pairing, which both devices see alike and LEPIC derives from both sides' keys,
 /// so a proof holds for this pairing and sender only. JSON keeps the parts apart.
+///
+/// The signature is the wallet's plain address-key signature of these bytes
+/// ([DeviceHost.signProof], one call site: [DeviceService._sendHello]). Once the core signs
+/// under a domain (`epic-device-link/1`), that call passes the domain and this tag goes.
 List<int> helloTranscript(String deviceId, List<SasWord> sas) =>
     utf8.encode(jsonEncode(['epiccash/device-link/hello/v1', deviceId, for (final w in sas) w.name]));
 
 /// How far ahead of the next expected notice one is kept; further ones are dropped.
 const int noticeWindow = 64;
 
-/// How long a missing notice is waited for before the ones after it apply.
-const Duration gapWait = Duration(hours: 1);
+/// How long a missing notice is waited for before the ones after it apply. Every notice goes
+/// through both servers, so one that did not come in a few minutes is lost.
+const Duration gapWait = Duration(minutes: 3);
 
 /// How often the channel is read in the foreground with a device linked, and while a link
 /// is being made.
@@ -141,8 +145,18 @@ const Duration linkPollEvery = Duration(seconds: 2);
 /// How long Send waits for one read of the channel before it chooses coins.
 const Duration sendWaitsForDevices = Duration(seconds: 3);
 
-/// How long a link waits for the other device's check once this one matched.
-const Duration linkCheckWait = Duration(minutes: 10);
+/// How long a link waits for the other device's hello once this one's went out.
+const Duration linkHelloWait = Duration(minutes: 10);
+
+/// How long a device is given to post its `unlink` before the wallet is deleted.
+const Duration unlinkBeforeDeleteWait = Duration(seconds: 5);
+
+/// How long "Linked" stays on screen before the screen closes by itself.
+const Duration linkDoneShown = Duration(seconds: 2);
+
+/// Whole minutes until [t], at least 1: the code's remaining time, shown alike on the phone and
+/// the desktop.
+int linkMinutesLeft(DateTime t, DateTime now) => ((t.difference(now).inSeconds + 59) ~/ 60).clamp(1, 60);
 
 /// The ids of notices remembered per device for duplicates.
 const int _seenIdsKept = 200;
@@ -167,16 +181,23 @@ enum LinkFailure {
   /// The scanned code was made by another wallet; refused before answering it.
   otherWalletCode,
 
-  /// The pictures did not match on this device.
-  mismatch,
-
-  /// The other device cancelled, or did not confirm in time.
+  /// The other device cancelled.
   cancelled,
 
-  /// [maxLinkedDevices] devices are linked already.
+  /// [maxLinkedDevices] devices are linked already on this device: it may replace the one
+  /// linked ([DeviceService.replaceLinked]).
   tooMany,
 
-  /// No server answered.
+  /// The other device is linked to another device already; it said so and unpaired.
+  full,
+
+  /// The other device writes a newer wire version: update this one.
+  update,
+
+  /// The other device writes an older wire version: update that one.
+  updateOther,
+
+  /// No server answered, or the other device could not be reached in time.
   unreachable,
 
   /// This wallet's core cannot link devices yet.
@@ -186,17 +207,15 @@ enum LinkFailure {
 enum LinkRole { shows, scans }
 
 enum LinkPhase {
-  /// Making the code, or answering one.
+  /// Making the invite, or answering one.
   starting,
 
   /// The code is on screen (shows) or the answer went out (scans): waiting for the other.
   waiting,
 
-  /// Both are paired: the user compares the four pictures.
-  checking,
-
-  /// This device matched; waiting for the other device's check.
-  waitingOther,
+  /// Both are paired: this device's hello went out, the four pictures show as "Linking…" and
+  /// the other device's hello is waited for. Nothing to tap.
+  linking,
   done,
   failed,
 }
@@ -214,6 +233,7 @@ class LinkFlow {
     this.otherName,
     this.failure,
     this.device,
+    this.refusing = false,
   });
 
   final LinkRole role;
@@ -230,6 +250,10 @@ class LinkFlow {
 
   /// The device once linked.
   final LinkedDevice? device;
+
+  /// This device is full ([maxLinkedDevices]) and answers the code only to say so: once the
+  /// pairing is made it posts `full` and unpairs, so the other device does not wait.
+  final bool refusing;
 
   LinkFlow to(
     LinkPhase phase, {
@@ -250,13 +274,13 @@ class LinkFlow {
     otherName: otherName ?? this.otherName,
     failure: failure ?? this.failure,
     device: device ?? this.device,
+    refusing: refusing,
   );
 }
 
 /// The state of the other side of a link in the making, kept beside [LinkFlow].
 class _LinkPeer {
-  bool matchedHere = false;
-  DateTime? matchedAt;
+  DateTime? helloSentAt;
   Notice? hello;
 }
 
@@ -268,25 +292,32 @@ String? linkServerOf(String? relay) {
   return r.endsWith(':443') ? r.substring(0, r.length - 4) : r;
 }
 
-/// The relay of Epicbox [address] (`key@host[:port]`) as the link writes servers, or null.
-String? relayOfAddress(String address) {
-  final at = address.indexOf('@');
-  return at < 0 ? null : linkServerOf(address.substring(at + 1));
-}
-
-/// The Epicbox server this device can move to when both devices use [shared]: the first of
-/// [list] (this device's Epicbox list, in order) that is not [shared]; null when there is none.
-String? relayToMoveTo(Iterable<String> list, String shared) =>
-    list.map(linkServerOf).whereType<String>().where((s) => s != shared).firstOrNull;
-
 /// The receives remembered from the linked device.
 const int _theirReceivesKept = 200;
 
 /// Why the service reads the channel now.
 enum DeviceSyncTrigger { start, resume, unlock, refresh, tick, beforeSend, link }
 
+/// What a `fwd` notice passes on: a report from the payer of a payment this wallet answered,
+/// or a contact's request to pay, that reached the other device only.
+enum ForwardKind { posted, cancelled, invoice }
+
+/// A notice the linked device passed on ([DeviceService.forwarded]).
+class ForwardedNotice {
+  const ForwardedNotice({required this.kind, required this.slateId, required this.device, this.kernel});
+
+  final ForwardKind kind;
+  final String slateId;
+
+  /// The name of the device it reached.
+  final String device;
+
+  /// For [ForwardKind.posted]: the kernel excess the payer reported.
+  final String? kernel;
+}
+
 class DeviceService {
-  DeviceService({required this.host, required this.store, required this.defaultName, DateTime Function()? clock})
+  DeviceService({required this.host, required this.store, required this.defaultName, this.kind = DeviceKind.phone, DateTime Function()? clock})
     : _clock = clock ?? DateTime.now;
 
   final DeviceHost host;
@@ -294,12 +325,16 @@ class DeviceService {
 
   /// This device's name until the user renames it ("Phone", "Desktop").
   final String defaultName;
+
+  /// What this device is, told in its hello for the other device's icon.
+  final DeviceKind kind;
   final DateTime Function() _clock;
 
   DeviceBook? _book;
   LinkFlow? _link;
   _LinkPeer _peer = _LinkPeer();
   final StreamController<void> _changes = StreamController<void>.broadcast();
+  final StreamController<ForwardedNotice> _forwarded = StreamController<ForwardedNotice>.broadcast();
   Future<void>? _running;
   Timer? _timer;
   bool _foreground = false;
@@ -312,6 +347,10 @@ class DeviceService {
 
   /// Every change of [book] or [link].
   Stream<void> get changes => _changes.stream;
+
+  /// The notices the linked device passed on, as they are read: the app shows them or reads
+  /// its lists again ([ForwardedNotice]).
+  Stream<ForwardedNotice> get forwarded => _forwarded.stream;
 
   DeviceBook get book => _book ?? DeviceBook(deviceId: '0' * 32, deviceName: defaultName);
 
@@ -333,10 +372,22 @@ class DeviceService {
     _schedule();
   }
 
+  /// Lets the service go. A link still in the making is ended best-effort, so the other device
+  /// does not wait for a session that closed (the auto-lock, a wallet switch).
   void dispose() {
+    final flow = _link;
+    final id = flow?.pairingId;
+    if (flow != null && id != null && flow.phase != LinkPhase.done && flow.phase != LinkPhase.failed) {
+      try {
+        unawaited(_api.removePairing(id).catchError((Object _) {}));
+      } on Object {
+        // The engine is gone with the session: nothing to tell.
+      }
+    }
     _disposed = true;
     _timer?.cancel();
     _changes.close();
+    _forwarded.close();
   }
 
   void _changed() {
@@ -429,7 +480,6 @@ class DeviceService {
       }
     }
     try {
-      await _tellRelay();
       await _announce();
       if (reach) await _flush();
       await _sweep();
@@ -480,6 +530,7 @@ class DeviceService {
       ),
     );
     await _applyWaiting(device.deviceId);
+    await _applyEarly(device.deviceId);
     return true;
   }
 
@@ -512,7 +563,8 @@ class DeviceService {
   }
 
   /// Applies the waiting notices of [deviceId] in order; past [gapWait] a missing one is given
-  /// up and the next present one applies.
+  /// up and the next present one applies. One applied as it came ([_applyEarly]) only takes
+  /// its place.
   Future<void> _applyWaiting(String deviceId) async {
     while (true) {
       final d = book.device(deviceId);
@@ -527,24 +579,58 @@ class DeviceService {
         entry = d.waiting[first]!;
       }
       final waiting = {...d.waiting}..remove(next);
-      _book = book.withDevice(d.copyWith(seqIn: next, waiting: waiting, lastSeen: _clock()));
+      final applied = d.early.contains(next);
+      _book = book.withDevice(d.copyWith(seqIn: next, waiting: waiting, early: {...d.early}..remove(next), lastSeen: _clock()));
+      if (applied) continue;
       final n = noticeFromJson(jsonDecode(entry.json));
       if (n != null) await _dispatch(deviceId, n);
     }
   }
 
+  /// Applies, in order, the waiting notices of [deviceId] that stand on their own, ahead of a
+  /// missing one: a `send` (the coins it names are held or already are), a `status` whose hold
+  /// is known, `unlink`, `recv` and `fwd`. The order still carries them ([_applyWaiting]).
+  Future<void> _applyEarly(String deviceId) async {
+    for (final seq in (book.device(deviceId)?.waiting.keys.toList() ?? const <int>[])..sort()) {
+      final d = book.device(deviceId);
+      if (d == null || d.early.contains(seq)) continue;
+      final entry = d.waiting[seq];
+      if (entry == null) continue;
+      final n = noticeFromJson(jsonDecode(entry.json));
+      if (n == null || !_standsAlone(d, n)) continue;
+      _book = book.withDevice(d.copyWith(early: {...d.early, seq}, lastSeen: _clock()));
+      await _dispatch(deviceId, n);
+    }
+  }
+
+  bool _standsAlone(LinkedDevice d, Notice n) {
+    if (!n.readable || !noticeBodyValid(n.type!, n.body)) return false;
+    return switch (n.type!) {
+      NoticeType.send || NoticeType.unlink || NoticeType.recv || NoticeType.fwd => true,
+      NoticeType.status => book.holds.any((h) => h.deviceId == d.deviceId && h.slateId == n.body['slateId']),
+      _ => false,
+    };
+  }
+
   Future<void> _dispatch(String deviceId, Notice n) async {
-    if (!n.readable) {
-      logInfo('devices', 'ignored a notice of version ${n.v}, type ${n.typeName}');
+    final from = book.device(deviceId);
+    if (from == null) return;
+    if (n.otherVersion) {
+      // Not read: the device that writes it is named on screen until it is updated.
+      logInfo('devices', 'a notice of wire version ${n.v} from a device to update');
+      if (from.otherVersion != n.v) _book = book.withDevice(from.copyWith(otherVersion: n.v));
+      return;
+    }
+    if (from.otherVersion != null) _book = book.withDevice(from.copyWith(clearOtherVersion: true));
+    if (n.type == null) {
+      logInfo('devices', 'ignored a notice of type ${n.typeName}');
       return;
     }
     if (!noticeBodyValid(n.type!, n.body)) {
       logWarn('devices', 'dropped: ${n.type!.name} notice with a bad body');
       return;
     }
-    final from = book.device(deviceId);
-    if (from == null) return;
-    await _handlers[n.type!]!(from, n);
+    await _handlers[n.type!]!(book.device(deviceId)!, n);
   }
 
   /// One handler per notice type.
@@ -559,8 +645,11 @@ class DeviceService {
     NoticeType.pair2ok: _onPair2Ok,
     NoticeType.pair2done: _onPair2Done,
     NoticeType.unlink: _onUnlink,
-    NoticeType.relay: _onRelay,
     NoticeType.recv: _onRecv,
+    NoticeType.fwd: _onForward,
+    // A `full` belongs to a link in the making ([_receiveLink]); from a linked device it says
+    // nothing new.
+    NoticeType.full: _reserved,
     NoticeType.snapshotRequest: _reserved,
     NoticeType.snapshot: _reserved,
   };
@@ -573,53 +662,6 @@ class DeviceService {
     if (name != from.name) _book = book.withDevice(from.copyWith(name: name));
   }
 
-  // Relays: two devices on one relay are one address, and both answer a payment to it. When the
-  // linked device's relay now is this one's, the user here is asked once to move.
-  Future<void> _onRelay(LinkedDevice from, Notice n) async {
-    _book = book.withDevice(from.copyWith(relay: linkServerOf(n.body['relay'] as String)));
-    await _checkRelays(ask: true);
-  }
-
-  /// Clears the question and the kept choice once the relays differ; with [ask], asks when
-  /// they are the same and the user did not keep this one.
-  Future<void> _checkRelays({required bool ask}) async {
-    final theirs = book.linked?.relay;
-    final mine = linkServerOf(await host.walletRelay());
-    if (theirs == null || mine == null || theirs != mine) {
-      if (book.relayAsk != null || book.relayKept != null) _book = book.copyWith(clearRelayAsk: true, clearRelayKept: true);
-      return;
-    }
-    if (book.relayAsk != null && book.relayAsk != mine) _book = book.copyWith(clearRelayAsk: true);
-    if (ask && book.relayKept != mine) _book = book.copyWith(relayAsk: mine);
-  }
-
-  /// Tells the linked device this device's relay when it changed since it was last told.
-  Future<void> _tellRelay() async {
-    if (book.devices.isEmpty) return;
-    final mine = linkServerOf(await host.walletRelay());
-    if (mine == null || mine == book.relaySent) return;
-    _book = book.copyWith(relaySent: mine);
-    await _broadcast(NoticeType.relay, {'relay': mine});
-    await _checkRelays(ask: false);
-  }
-
-  /// The relay both devices use while the user here is asked to move, else null.
-  String? get relayClash => book.relayAsk;
-
-  /// The user keeps the shared relay: duplicate answers stay possible, nothing is blocked.
-  Future<void> keepRelay() async {
-    final r = book.relayAsk;
-    if (r == null) return;
-    await _put(book.copyWith(clearRelayAsk: true, relayKept: r));
-  }
-
-  /// The app moved this device to another Epicbox server: the question goes and the linked
-  /// device is told at once.
-  Future<void> relayMoved() async {
-    await _put(book.copyWith(clearRelayAsk: true));
-    unawaited(sync(DeviceSyncTrigger.refresh));
-  }
-
   Future<void> _onRecv(LinkedDevice from, Notice n) async {
     final slateId = n.body['slateId'] as String;
     final outputs = [for (final c in n.body['outputs'] as List) c as String];
@@ -628,6 +670,38 @@ class DeviceService {
       next.remove(next.keys.first);
     }
     _book = book.copyWith(theirReceives: next);
+  }
+
+  /// A report or a request that reached the other device only. A payer's `posted` or
+  /// `cancelled` for a payment this device answered too: that answer never completes (the payer
+  /// used the other device's, or cancelled), so it is dropped here, quietly. Every kind goes to
+  /// the app ([forwarded]) to show or to read its lists again.
+  Future<void> _onForward(LinkedDevice from, Notice n) async {
+    final kind = ForwardKind.values.asNameMap()[n.body['kind']]!;
+    final slateId = n.body['slateId'] as String;
+    if (kind != ForwardKind.invoice) await _releaseOwnAnswer(slateId);
+    if (!_disposed) _forwarded.add(ForwardedNotice(kind: kind, slateId: slateId, device: from.name, kernel: n.body['kernel'] as String?));
+  }
+
+  /// Cancels this device's own answer to the payment [slateId] while it still waits for its
+  /// payer. The core asks the node first and refuses a payment the network has: that one is
+  /// left to confirm.
+  Future<void> _releaseOwnAnswer(String slateId) async {
+    for (final r in await host.transactions()) {
+      if (r.origin != TxOrigin.thisWallet || r.slateId != slateId || r.kind != TxKind.received || r.confirmed || !r.cancellable || r.id == null) continue;
+      try {
+        await host.cancelTransaction(r.id!);
+        logInfo('devices', 'an answer the payer settled with the linked device was dropped');
+      } on WalletError catch (e) {
+        if (e.kind == WalletErrorKind.invalidArgument) {
+          logInfo('devices', 'the network has this answer: left to confirm');
+        } else {
+          logWarn('devices', 'dropping an answer failed: ${e.kind.name}');
+        }
+      } on Object catch (e) {
+        logWarn('devices', 'dropping an answer failed: ${_kind(e)}');
+      }
+    }
   }
 
   Future<void> _onRename(LinkedDevice from, Notice n) async {
@@ -867,6 +941,20 @@ class DeviceService {
   Future<void> _broadcast(NoticeType type, Map<String, Object?> body) async {
     for (final d in [...book.devices]) {
       await _send(d.deviceId, type, body);
+    }
+  }
+
+  /// Passes on to the linked device a notice that reached this one only: the payer of the
+  /// payment [slateId] this wallet answered reports it [ForwardKind.posted] (with its
+  /// [kernel]) or [ForwardKind.cancelled], or a contact's request to pay arrived
+  /// ([ForwardKind.invoice]). The apps call it from their notice handlers. Nothing without a
+  /// linked device.
+  Future<void> forward(ForwardKind kind, String slateId, {String? kernel}) async {
+    if (book.devices.isEmpty) return;
+    try {
+      await _broadcast(NoticeType.fwd, {'kind': kind.name, 'slateId': slateId, 'kernel': ?kernel});
+    } on Object catch (e) {
+      logWarn('devices', 'passing a notice on failed: ${_kind(e)}');
     }
   }
 
@@ -1192,6 +1280,26 @@ class DeviceService {
     _schedule();
   }
 
+  /// Before this wallet is deleted: tells every linked device, best effort, within [wait] each,
+  /// so it does not list this device, and post to it, for ever. The delete goes on whatever
+  /// happens here; a device not told forgets this one once its pairings are gone.
+  Future<void> unlinkAll({Duration wait = unlinkBeforeDeleteWait}) async {
+    if (!loaded) {
+      try {
+        await load();
+      } on Object {
+        return;
+      }
+    }
+    for (final d in [...book.devices]) {
+      try {
+        await removeDevice(d.deviceId).timeout(wait);
+      } on Object catch (e) {
+        logWarn('devices', 'a linked device was not told of the delete: ${_kind(e)}');
+      }
+    }
+  }
+
   Future<void> renameThis(String name) async {
     final n = name.trim();
     if (n.isEmpty || n == book.deviceName) return;
@@ -1218,7 +1326,8 @@ class DeviceService {
     await _put(book.copyWith(holds: [for (final h in book.holds) h.deviceId == deviceId && h.slateId == slateId ? releaseByHand(h, now) : h]));
   }
 
-  /// Proposes [servers] for the link; with no device linked they are the set at once.
+  /// Proposes [servers] for the link; with no device linked they are the set at once. No screen
+  /// offers it now; the handling of a proposal that comes in stays.
   Future<void> proposeServers(List<String> servers) async {
     final set = servers.take(maxLinkServers).toList();
     if (set.isEmpty) return;
@@ -1254,7 +1363,10 @@ class DeviceService {
 
   Future<void> clearRemovedBy() => _put(book.copyWith(clearRemovedBy: true));
 
-  // Linking (both screens check the pictures; nothing is linked until both matched).
+  // Linking. One device shows a code, the other scans or pastes it. Once the private pairing
+  // is made, each side posts its hello by itself (its pictures show as "Linking…", nothing to
+  // tap) and checks the other's: the hello's proof needs the wallet's address key, which only
+  // a device with the recovery phrase has, and the four pictures are the pairing's own.
 
   /// The servers a new link starts with: the link's set, else [defaults].
   List<String> linkServers(List<String> defaults) => book.servers.isNotEmpty ? book.servers : defaults.take(maxLinkServers).toList();
@@ -1274,7 +1386,7 @@ class DeviceService {
     final set = servers.take(maxLinkServers).toList();
     _peer = _LinkPeer();
     if (!supported) return _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.failed, failure: LinkFailure.unsupported));
-    if (!canLinkMore) return _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.failed, failure: LinkFailure.tooMany));
+    if (!canLinkMore) return _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.failed, servers: set, failure: LinkFailure.tooMany));
     _setLink(LinkFlow(role: LinkRole.shows, phase: LinkPhase.starting, servers: set));
     try {
       final r = await _api.makePrivateInvite(name: book.deviceName, homeRelay: set.first);
@@ -1288,15 +1400,16 @@ class DeviceService {
 
   /// This device answers the device link in [text] (scanned or pasted). A code that carries
   /// another wallet's fingerprint is refused before it is answered; one without a fingerprint
-  /// is answered, and the hello's proof decides ([_finishLink]).
+  /// is answered, and the hello's proof decides ([_finishLink]). A device that is full still
+  /// answers, to tell the other device so ([LinkFlow.refusing]); it then shows Replace.
   Future<void> startScanned(String text) async {
     if (!loaded) await load();
     _peer = _LinkPeer();
     final code = deviceLinkIn(text);
     if (!supported) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.unsupported));
     if (code == null) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.invalidCode));
-    if (!canLinkMore) return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.tooMany));
-    _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.starting));
+    final refusing = !canLinkMore;
+    _setLink(LinkFlow(role: LinkRole.scans, phase: LinkPhase.starting, refusing: refusing));
     try {
       if (code.fingerprint != null &&
           code.fingerprint != deviceLinkFingerprint(await host.signProof(deviceLinkFingerprintMessage(code.invite)))) {
@@ -1304,7 +1417,9 @@ class DeviceService {
         return _setLink(const LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: LinkFailure.otherWalletCode));
       }
       final r = await _api.acceptPrivateInvite(link: code.invite, name: book.deviceName);
-      _setLink(LinkFlow(role: LinkRole.scans, phase: LinkPhase.waiting, pairingId: r.id, otherName: r.name, servers: [?linkServerOf(r.homeRelay)]));
+      _setLink(
+        LinkFlow(role: LinkRole.scans, phase: LinkPhase.waiting, pairingId: r.id, otherName: r.name, servers: [?linkServerOf(r.homeRelay)], refusing: refusing),
+      );
       unawaited(sync(DeviceSyncTrigger.link));
     } on Object catch (e) {
       _setLink(LinkFlow(role: LinkRole.scans, phase: LinkPhase.failed, failure: _failureOf(e)));
@@ -1315,10 +1430,10 @@ class DeviceService {
     PairingFailure.expired => LinkFailure.expired,
     PairingFailure.alreadyUsed || PairingFailure.notFound || PairingFailure.cancelled => LinkFailure.notFound,
     PairingFailure.ownCard => LinkFailure.ownCode,
-    PairingFailure.relayUnreachable || PairingFailure.noRelay || PairingFailure.relaysBlocked => LinkFailure.unreachable,
-    PairingFailure.invalid || PairingFailure.newerVersion || PairingFailure.wrongNetwork => LinkFailure.invalidCode,
-    null => e is WalletError && const {WalletErrorKind.other, WalletErrorKind.unsupported, WalletErrorKind.cancelled}.contains(e.kind) ? LinkFailure.unsupported : LinkFailure.unreachable,
-    _ => LinkFailure.cancelled,
+    PairingFailure.newerVersion => LinkFailure.update,
+    PairingFailure.invalid || PairingFailure.wrongNetwork => LinkFailure.invalidCode,
+    null => e is WalletError && e.kind == WalletErrorKind.unsupported ? LinkFailure.unsupported : LinkFailure.unreachable,
+    _ => LinkFailure.unreachable,
   };
 
   Future<void> _pollLink() async {
@@ -1336,7 +1451,17 @@ class DeviceService {
         // The core names the code's server once the pairing is made, not when it is answered.
         final server = linkServerOf(r.homeRelay);
         final servers = flow.servers.isEmpty && server != null ? [server] : null;
-        return _setLink(flow.to(LinkPhase.checking, sas: r.sas, otherName: r.name, servers: servers));
+        final linking = flow.to(LinkPhase.linking, sas: r.sas, otherName: r.name, servers: servers);
+        _setLink(linking);
+        if (flow.refusing) return _refuse(linking);
+        try {
+          await _sendHello(id, linking);
+        } on Object catch (e) {
+          await _unpair(id);
+          return _setLink(linking.to(LinkPhase.failed, failure: _failureOf(e)));
+        }
+        if (_peer.hello != null) await _finishLink();
+        return;
       }
       final expires = flow.expiresAt ?? r.expiresAt;
       if (expires != null && now.isAfter(expires)) {
@@ -1344,68 +1469,81 @@ class DeviceService {
         return _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.expired));
       }
     }
-    final matched = _peer.matchedAt;
-    if (flow.phase == LinkPhase.waitingOther && matched != null && now.difference(matched) > linkCheckWait) {
+    final sent = _peer.helloSentAt;
+    if (flow.phase == LinkPhase.linking && sent != null && now.difference(sent) > linkHelloWait) {
       await _unpair(id);
-      _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.cancelled));
+      _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.unreachable));
     }
   }
 
-  /// The user's answer on the four pictures. A match sends this device's hello; the link is
-  /// made once the other device's hello (its own match) came too and holds the same wallet.
-  Future<void> answerCheck(bool match) async {
-    final flow = _link;
-    final id = flow?.pairingId;
-    if (flow == null || id == null || flow.phase != LinkPhase.checking) return;
-    if (!match) {
-      // Unpaired rather than only marked: the other device is told and stops waiting.
-      await _unpair(id);
-      return _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.mismatch));
-    }
+  /// Confirms the pairing on this side and posts this device's hello with its proof.
+  Future<void> _sendHello(String id, LinkFlow flow) async {
+    await _api.checkWords(id, PairingCheck.match);
+    final hello = Notice(
+      type: NoticeType.hello,
+      id: randomHexId(),
+      seq: 1,
+      dev: book.deviceId,
+      ts: _clock().millisecondsSinceEpoch,
+      body: {
+        'deviceId': book.deviceId,
+        'name': book.deviceName,
+        'walletAddress': await host.walletKey(),
+        'servers': flow.servers,
+        'proof': await host.signProof(helloTranscript(book.deviceId, flow.sas)),
+        'kind': kind.name,
+      },
+    );
+    await _api.postPayload(id: id, bytes: hello.encode());
+    _peer.helloSentAt = _clock();
+  }
+
+  /// This device is full: once paired it says so and unpairs, and shows Replace.
+  Future<void> _refuse(LinkFlow flow) async {
+    final id = flow.pairingId!;
+    final n = Notice(
+      type: NoticeType.full,
+      id: randomHexId(),
+      seq: 1,
+      dev: book.deviceId,
+      ts: _clock().millisecondsSinceEpoch,
+      body: {'linked': book.linked?.name ?? ''},
+    );
     try {
-      await _api.checkWords(id, PairingCheck.match);
-      final hello = Notice(
-        type: NoticeType.hello,
-        id: randomHexId(),
-        seq: 1,
-        dev: book.deviceId,
-        ts: _clock().millisecondsSinceEpoch,
-        body: {
-          'deviceId': book.deviceId,
-          'name': book.deviceName,
-          'walletAddress': await host.walletKey(),
-          'servers': flow.servers,
-          'relay': ?linkServerOf(await host.walletRelay()),
-          'proof': await host.signProof(helloTranscript(book.deviceId, flow.sas)),
-        },
-      );
-      await _api.postPayload(id: id, bytes: hello.encode());
+      await _api.postPayload(id: id, bytes: n.encode());
     } on Object catch (e) {
-      return _setLink(flow.to(LinkPhase.failed, failure: _failureOf(e)));
+      logWarn('devices', 'the refusal was not posted: ${_kind(e)}');
     }
-    _peer
-      ..matchedHere = true
-      ..matchedAt = _clock();
-    _setLink(flow.to(LinkPhase.waitingOther));
-    if (_peer.hello != null) {
-      await _finishLink();
-    } else {
-      unawaited(sync(DeviceSyncTrigger.link));
-    }
+    await _unpair(id);
+    _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.tooMany));
   }
 
-  /// A payload on the pairing of the link in the making: only the other device's hello is read;
-  /// anything after it waits until the link is made.
+  /// A payload on the pairing of the link in the making: the other device's hello, or its
+  /// refusal; anything after a hello waits until the link is made.
   Future<bool> _receiveLink(PairingPayload p) async {
+    final flow = _link!;
+    final id = flow.pairingId!;
     if (p.bytes.length > deviceNoticeMaxBytes) return _drop('notice too large');
     final n = decodeNotice(p.bytes).notice;
-    if (n == null || !n.readable) return _drop('link notice not readable');
+    if (n == null) return _drop('link notice not readable');
+    if (n.otherVersion) {
+      logInfo('devices', 'the other device writes wire version ${n.v}');
+      await _unpair(id);
+      _setLink(flow.to(LinkPhase.failed, failure: n.v > deviceWireVersion ? LinkFailure.update : LinkFailure.updateOther));
+      return true;
+    }
+    if (n.type == NoticeType.full) {
+      if (!noticeBodyValid(NoticeType.full, n.body)) return _drop('link refusal with a bad body');
+      await _unpair(id);
+      _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.full));
+      return true;
+    }
     if (n.type != NoticeType.hello) return false;
     if (n.seq != 1 || !noticeBodyValid(NoticeType.hello, n.body) || n.body['deviceId'] != n.dev || n.dev == book.deviceId) {
       return _drop('link hello with a bad body');
     }
     _peer.hello = n;
-    if (_peer.matchedHere) await _finishLink();
+    if (_peer.helloSentAt != null) await _finishLink();
     return true;
   }
 
@@ -1413,7 +1551,7 @@ class DeviceService {
     final flow = _link;
     final hello = _peer.hello;
     final id = flow?.pairingId;
-    if (flow == null || hello == null || id == null || flow.phase == LinkPhase.done) return;
+    if (flow == null || hello == null || id == null || flow.phase == LinkPhase.done || flow.phase == LinkPhase.failed) return;
     // The address is public, so it only turns another wallet away early; the proof is the
     // check: only a device holding this wallet's address key can sign this pairing's transcript.
     final key = await host.walletKey();
@@ -1444,13 +1582,13 @@ class DeviceService {
     final device = LinkedDevice(
       deviceId: theirId,
       name: _shownName(hello.body['name'], before?.name ?? '?'),
+      kind: DeviceKind.values.asNameMap()[hello.body['kind']],
       pairings: {server: id},
       linkedAt: _clock(),
       lastSeen: _clock(),
       seqOut: 1,
       seqIn: 1,
       seenIds: [hello.id],
-      relay: linkServerOf(hello.body['relay'] as String?),
     );
     // The only link: both devices take the set of the device that showed the code, whatever an
     // earlier link used. The second server's pairing follows over the channel
@@ -1459,13 +1597,8 @@ class DeviceService {
       servers: servers,
       serversVersion: max(1, book.serversVersion + 1),
       clearProposal: true,
-      relaySent: linkServerOf(await host.walletRelay()),
-      clearRelayAsk: true,
-      clearRelayKept: true,
       theirReceives: const {},
     );
-    // The device being linked (it scanned the code) asks once when both use one relay.
-    await _checkRelays(ask: flow.role == LinkRole.scans);
     await _put(book);
     _setLink(flow.to(LinkPhase.done, device: device));
     unawaited(sync(DeviceSyncTrigger.link));
@@ -1482,6 +1615,19 @@ class DeviceService {
   /// Closes a finished or failed link's screen.
   void closeLink() {
     if (_link?.phase == LinkPhase.done || _link?.phase == LinkPhase.failed) _setLink(null);
+  }
+
+  /// After a link was refused here as [LinkFailure.tooMany], with the user's confirm: the device
+  /// linked is removed (told, its coins here released) and the link starts again, a new code
+  /// when this device showed one; the other device scans it, or shows a new code to scan.
+  Future<void> replaceLinked() async {
+    final flow = _link;
+    if (flow == null || flow.failure != LinkFailure.tooMany) return;
+    for (final d in [...book.devices]) {
+      await removeDevice(d.deviceId);
+    }
+    _setLink(null);
+    if (flow.role == LinkRole.shows && flow.servers.isNotEmpty) await startShowing(flow.servers);
   }
 
   static String _kind(Object e) => e is WalletError ? e.kind.name : e.runtimeType.toString();

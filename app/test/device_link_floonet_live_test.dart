@@ -352,21 +352,7 @@ void main() {
         File('$_dir/link.txt').writeAsStringSync(code!);
         await b.service.startScanned(code);
         _say('B read it: phase ${b.service.link!.phase.name}, other "${b.service.link!.otherName}", server ${b.service.link!.servers}');
-        final checking = await _until(
-          () async => a.service.link?.phase == LinkPhase.checking && b.service.link?.phase == LinkPhase.checking,
-          step: () => _settle(a, b, rounds: 1),
-        );
-        final sasA = a.service.link!.sas.map((w) => w.name).join(' ');
-        final sasB = b.service.link!.sas.map((w) => w.name).join(' ');
-        _say('both at the pictures: $checking; A "$sasA" B "$sasB"');
-        expect(checking, isTrue);
-        expect(sasA, sasB);
-        await a.service.answerCheck(true);
-        _say('A matched: phase ${a.service.link!.phase.name}');
-        await _settle(a, b);
-        _say('before B matched: A ${a.service.link!.phase.name}, devices on A ${a.service.book.devices.length}');
-        expect(a.service.book.devices, isEmpty, reason: 'nothing is linked until both matched');
-        await b.service.answerCheck(true);
+        // Paired, each side posts its hello by itself: nothing to tap.
         final done = await _until(
           () async => a.service.link?.phase == LinkPhase.done && b.service.link?.phase == LinkPhase.done,
           step: () => _settle(a, b, rounds: 1),

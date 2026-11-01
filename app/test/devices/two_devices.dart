@@ -72,20 +72,22 @@ Future<void> settle(Side a, Side b, {int rounds = 3}) async {
   }
 }
 
-/// [a] shows a code on [servers], [b] scans it; both reach the pictures.
+/// [a] shows a code on [servers], [b] scans it, and only [a] reads its channel: [a] is paired
+/// and its hello went out ("Linking…"); [b]'s service never ran, so its hello did not. Tests
+/// that hand-build [b]'s hello start here.
 Future<void> showAndScan(Side a, Side b, {List<String> servers = const ['epicbox.epiccash.com']}) async {
   await a.service.load();
   await b.service.load();
   await a.service.startShowing(servers);
   await b.service.startScanned(a.service.link!.code!);
-  await settle(a, b);
+  await a.sync();
 }
 
-/// A full link: both check the pictures.
+/// A full link: the hellos cross by themselves once both are paired; nothing is tapped.
 Future<void> linkBoth(Side a, Side b, {List<String> servers = const ['epicbox.epiccash.com']}) async {
-  await showAndScan(a, b, servers: servers);
-  await a.service.answerCheck(true);
-  await settle(a, b);
-  await b.service.answerCheck(true);
+  await a.service.load();
+  await b.service.load();
+  await a.service.startShowing(servers);
+  await b.service.startScanned(a.service.link!.code!);
   await settle(a, b);
 }

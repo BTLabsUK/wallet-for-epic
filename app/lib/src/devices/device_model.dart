@@ -19,6 +19,9 @@ const int maxLinkedDevices = 2;
 /// The most servers a link uses: `epicbox.link_servers` of `app-config.toml`.
 int get maxLinkServers => appConfig.linkServerCount;
 
+/// What a device is, for its icon: said in its hello.
+enum DeviceKind { phone, desktop }
+
 /// A random 128-bit id, 32 lowercase hex characters: a device id or a notice id.
 String randomHexId([Random? random]) {
   final r = random ?? Random.secure();
@@ -125,15 +128,25 @@ class LinkedDevice {
     this.waiting = const {},
     this.seenIds = const [],
     this.pending = const [],
-    this.relay,
+    this.early = const {},
+    this.otherVersion,
+    this.kind,
   });
 
   final String deviceId;
   final String name;
 
-  /// The Epicbox relay its payments arrive at (`host`, or `host:port` off 443), as it last told;
-  /// null until it did.
-  final String? relay;
+  /// What it is, as its hello said; null for a link made before hellos said.
+  final DeviceKind? kind;
+
+  /// Sequence numbers among [waiting] whose notices were applied as they came, ahead of a
+  /// missing one (a `send`, a `status` of a known hold, `unlink`, `recv`, `fwd`): they are not
+  /// applied again when the order reaches them.
+  final Set<int> early;
+
+  /// The wire version of the last notice from it that was not this app's, until a notice of
+  /// this version comes: the user is told to update that device. Null while its notices read.
+  final int? otherVersion;
 
   /// Its private pairings, one per server: server → pairing id.
   final Map<String, String> pairings;
@@ -174,11 +187,13 @@ class LinkedDevice {
     Map<int, ({String json, DateTime at})>? waiting,
     List<String>? seenIds,
     List<PendingPairing>? pending,
-    String? relay,
+    Set<int>? early,
+    int? otherVersion,
+    bool clearOtherVersion = false,
   }) => LinkedDevice(
     deviceId: deviceId,
     name: name ?? this.name,
-    relay: relay ?? this.relay,
+    kind: kind,
     pairings: pairings ?? this.pairings,
     linkedAt: linkedAt,
     lastSeen: lastSeen ?? this.lastSeen,
@@ -187,6 +202,8 @@ class LinkedDevice {
     waiting: waiting ?? this.waiting,
     seenIds: seenIds ?? this.seenIds,
     pending: pending ?? this.pending,
+    early: early ?? this.early,
+    otherVersion: clearOtherVersion ? null : otherVersion ?? this.otherVersion,
   );
 
   Map<String, Object?> toJson() => {
@@ -200,7 +217,9 @@ class LinkedDevice {
     'waiting': {for (final e in waiting.entries) '${e.key}': {'json': e.value.json, 'at': e.value.at.millisecondsSinceEpoch}},
     'ids': seenIds,
     'pending': [for (final p in pending) p.toJson()],
-    'relay': relay,
+    'early': early.toList(),
+    'ver': otherVersion,
+    'kind': kind?.name,
   };
 
   static LinkedDevice? fromJson(Object? j) {
@@ -223,7 +242,9 @@ class LinkedDevice {
       },
       seenIds: [for (final s in (j['ids'] as List? ?? const [])) '$s'],
       pending: [for (final p in (j['pending'] as List? ?? const [])) ?PendingPairing.fromJson(p)],
-      relay: j['relay'] as String?,
+      early: {for (final e in (j['early'] as List? ?? const [])) if (e is num) e.toInt()},
+      otherVersion: (j['ver'] as num?)?.toInt(),
+      kind: DeviceKind.values.asNameMap()[j['kind']],
     );
   }
 }
@@ -425,9 +446,6 @@ class DeviceBook {
     this.announced = const {},
     this.outbox = const [],
     this.removedBy,
-    this.relaySent,
-    this.relayAsk,
-    this.relayKept,
     this.theirReceives = const {},
   });
 
@@ -463,19 +481,10 @@ class DeviceBook {
   /// The name of a device that removed this one, until the user saw it.
   final String? removedBy;
 
-  /// This device's Epicbox relay as last told to the linked device.
-  final String? relaySent;
-
-  /// The relay both devices use, while the question to move this one is waiting for the user.
-  /// Both answer payments to one address when they share a relay (the key is the wallet's).
-  final String? relayAsk;
-
-  /// The shared relay the user chose to keep: not asked again until either device changes.
-  final String? relayKept;
-
   /// Payments the linked device answered (its receives): slate id → the commitments of its
   /// outputs. When the chain shows one of them, this device's own answer to the same payment
-  /// was not used ([mergeDeviceHistory], [DeviceService]).
+  /// was not used ([mergeDeviceHistory], [DeviceService]). Both devices answer payments to the
+  /// wallet's one address: the sender takes the first answer and refuses the second.
   final Map<String, List<String>> theirReceives;
 
   /// The one linked device, or null ([maxLinkedDevices]).
@@ -509,11 +518,6 @@ class DeviceBook {
     List<({String deviceId, String json})>? outbox,
     String? removedBy,
     bool clearRemovedBy = false,
-    String? relaySent,
-    String? relayAsk,
-    bool clearRelayAsk = false,
-    String? relayKept,
-    bool clearRelayKept = false,
     Map<String, List<String>>? theirReceives,
   }) => DeviceBook(
     deviceId: deviceId,
@@ -528,9 +532,6 @@ class DeviceBook {
     announced: announced ?? this.announced,
     outbox: outbox ?? this.outbox,
     removedBy: clearRemovedBy ? null : removedBy ?? this.removedBy,
-    relaySent: relaySent ?? this.relaySent,
-    relayAsk: clearRelayAsk ? null : relayAsk ?? this.relayAsk,
-    relayKept: clearRelayKept ? null : relayKept ?? this.relayKept,
     theirReceives: theirReceives ?? this.theirReceives,
   );
 
@@ -556,9 +557,6 @@ class DeviceBook {
     'announced': {for (final e in announced.entries) e.key: e.value.name},
     'outbox': [for (final o in outbox) {'dev': o.deviceId, 'json': o.json}],
     'removedBy': removedBy,
-    'relaySent': relaySent,
-    'relayAsk': relayAsk,
-    'relayKept': relayKept,
     'theirReceives': theirReceives,
   };
 
@@ -585,9 +583,6 @@ class DeviceBook {
           if (o is Map && o['dev'] is String && o['json'] is String) (deviceId: o['dev'] as String, json: o['json'] as String),
       ],
       removedBy: j['removedBy'] as String?,
-      relaySent: j['relaySent'] as String?,
-      relayAsk: j['relayAsk'] as String?,
-      relayKept: j['relayKept'] as String?,
       theirReceives: {
         if (j['theirReceives'] case final Map m)
           for (final e in m.entries)

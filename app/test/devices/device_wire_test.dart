@@ -14,7 +14,7 @@ final _id = 'b' * 32;
 
 List<int> _bytes(Map<String, Object?> m) => utf8.encode(jsonEncode(m));
 
-Map<String, Object?> _env({Object? v = 1, Object? type = 'rename', Object? seq = 1, Map<String, Object?>? body}) => {
+Map<String, Object?> _env({Object? v = deviceWireVersion, Object? type = 'rename', Object? seq = 1, Map<String, Object?>? body}) => {
   'v': v,
   'type': type,
   'id': _id,
@@ -48,12 +48,17 @@ void main() {
     expect(decodeNotice(_bytes(_env()..['body'] = [])).drop, NoticeDrop.malformed);
   });
 
-  test('a newer version and an unknown type decode but are not readable', () {
-    final newer = decodeNotice(_bytes(_env(v: 2))).notice!;
-    expect(newer.readable, isFalse);
-    expect(newer.seq, 1);
+  test('another version and an unknown type decode but are not readable', () {
+    expect(deviceWireVersion, 2);
+    for (final v in [1, 3]) {
+      final other = decodeNotice(_bytes(_env(v: v))).notice!;
+      expect(other.readable, isFalse);
+      expect(other.otherVersion, isTrue, reason: 'version $v names the device to update');
+      expect(other.seq, 1);
+    }
     final unknown = decodeNotice(_bytes(_env(type: 'labels'))).notice!;
     expect(unknown.readable, isFalse);
+    expect(unknown.otherVersion, isFalse);
     expect(unknown.type, isNull);
     expect(unknown.typeName, 'labels');
   });
@@ -69,13 +74,20 @@ void main() {
     expect(noticeBodyValid(NoticeType.rename, {'name': 'x' * 49}), isFalse);
     expect(noticeBodyValid(NoticeType.servers, {'set': ['a', 'b', 'c'], 'version': 2}), isFalse);
     expect(
-      noticeBodyValid(NoticeType.hello, {'deviceId': _dev, 'name': 'Phone', 'walletAddress': 'es1', 'servers': ['epicbox.epiccash.com']}),
+      noticeBodyValid(NoticeType.hello, {'deviceId': _dev, 'name': 'Phone', 'walletAddress': 'es1', 'servers': ['epicbox.epiccash.com'], 'proof': 'ab' * 36, 'kind': 'phone'}),
       isTrue,
     );
     expect(noticeBodyValid(NoticeType.pair2ok, {'server': 's', 'sas': ['a', 'b', 'c']}), isFalse);
+    expect(noticeBodyValid(NoticeType.full, {'linked': 'Desktop'}), isTrue);
+    expect(noticeBodyValid(NoticeType.full, {'linked': 'x' * 49}), isFalse);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'posted', 'slateId': 's', 'kernel': '09${'0' * 64}'}), isTrue);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'cancelled', 'slateId': 's'}), isTrue);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'invoice', 'slateId': 's'}), isTrue);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'pay-it', 'slateId': 's'}), isFalse);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'posted'}), isFalse);
   });
 
-  test("a hello's proof is an address signature in hex, or absent", () {
+  test("a hello's proof is an address signature in hex, and never absent", () {
     Map<String, Object?> hello(Object? proof) => {
       'deviceId': _dev,
       'name': 'Phone',
@@ -84,7 +96,7 @@ void main() {
       'proof': proof,
     };
     expect(noticeBodyValid(NoticeType.hello, hello('3044${'ab' * 68}')), isTrue);
-    expect(noticeBodyValid(NoticeType.hello, hello(null)), isTrue);
+    expect(noticeBodyValid(NoticeType.hello, hello(null)), isFalse);
     expect(noticeBodyValid(NoticeType.hello, hello('')), isFalse);
     expect(noticeBodyValid(NoticeType.hello, hello('3044ZZ${'ab' * 8}')), isFalse);
     expect(noticeBodyValid(NoticeType.hello, hello('ab' * 73)), isFalse);

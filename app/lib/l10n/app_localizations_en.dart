@@ -16393,20 +16393,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get txSentFromOtherWallet => 'Sent from another wallet';
+  String get txSentFromOtherWallet => 'Sent from another device';
 
   @override
   String txSpokenSentFromOtherWallet(String amount) {
-    return 'Sent from another wallet, $amount';
+    return 'Sent from another device, $amount';
   }
 
   @override
   String get txDetailsOtherWallet =>
-      'Spent by another wallet with the same recovery phrase. Only the amount is known.';
+      'Sent from another device with this wallet’s recovery phrase. Only the amount is known.';
 
   @override
   String get txSentFromOtherWalletUnverified =>
-      'Sent from another wallet · unverified';
+      'Sent from another device · unverified';
 
   @override
   String get txDetailsUnverified =>
@@ -16416,23 +16416,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsNotKnown => 'Not known';
 
   @override
-  String get txReceivedByOtherWallet => 'Received by another wallet';
+  String get txReceivedByOtherWallet => 'Received by another device';
 
   @override
   String txSpokenReceivedByOtherWallet(String amount) {
-    return 'Received by another wallet, $amount';
+    return 'Received by another device, $amount';
   }
 
   @override
   String get txDetailsOtherWalletIn =>
-      'Received by another wallet with the same recovery phrase. Only the amount is known.';
+      'Received by another device with this wallet’s recovery phrase. Only the amount is known.';
 
   @override
   String get expLinkedDevices => 'Linked devices';
 
   @override
   String get expLinkedDevicesHint =>
-      'Use the same wallet (the same recovery phrase) on two devices: this one and one linked device. Two different wallets cannot be linked. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.';
+      'This wallet on two devices: each shows the other’s payments and holds the coins the other is spending. Experimental.';
 
   @override
   String get devicesThisPhone => 'Phone';
@@ -16494,50 +16494,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String devicesServerCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count servers',
-      one: '$count server',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get devicesThisDevice => 'This device';
 
   @override
   String get devicesOthers => 'Linked device';
 
   @override
-  String get devicesEmpty => 'This wallet is not linked to another device yet.';
+  String get devicesEmpty =>
+      'Restore this wallet on your other device, then link the two here.';
 
   @override
   String get devicesLink => 'Link a device';
 
   @override
   String get devicesServers => 'Servers';
-
-  @override
-  String get devicesServersNote =>
-      'Notices between the two devices go through each server chosen.';
-
-  @override
-  String devicesServersWaiting(String name) {
-    return 'Waiting for $name to accept the new servers.';
-  }
-
-  @override
-  String devicesProposal(String name, String servers) {
-    return '$name proposes these servers: $servers.';
-  }
-
-  @override
-  String get devicesAccept => 'Accept';
-
-  @override
-  String get devicesNotNow => 'Not now';
 
   @override
   String get devicesPause => 'Pause sync';
@@ -16584,7 +16554,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If $name may be in someone else’s hands, move the coins to a wallet with a new recovery phrase.';
+    return '$name stops getting this wallet’s notices; coins it holds here are released. It can still spend with the recovery phrase: if it may be in someone else’s hands, move the coins to a new wallet.';
   }
 
   @override
@@ -16594,7 +16564,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String devicesRemovedBy(String name) {
-    return '$name removed this device from the link.';
+    return '$name removed this device.';
   }
 
   @override
@@ -16610,34 +16580,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkLead =>
-      'Only for this same wallet on another device: both need the same recovery phrase. One shows a code, the other scans or pastes it.';
+      'For this wallet on your other device. Restore it there from the recovery phrase first.';
 
   @override
-  String get linkShow => 'Show code';
+  String get linkShow => 'Show QR';
 
   @override
-  String get linkScan => 'Scan code';
+  String get linkScan => 'Scan the QR';
 
   @override
-  String get linkPaste => 'Paste code';
+  String get linkPaste => 'Paste invite';
 
   @override
-  String get linkShowLead =>
-      'On the other device, open Link a device and scan this code, or copy it and paste it there.';
+  String get linkCopy => 'Copy invite';
 
   @override
-  String get linkCopy => 'Copy code';
-
-  @override
-  String get linkCopied => 'Code copied.';
+  String get linkCopied => 'Invite copied.';
 
   @override
   String linkExpires(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'The code works for $count min.',
-      one: 'The code works for $count min.',
+      other: 'Invite works $count min more.',
+      one: 'Invite works $count min more.',
     );
     return '$_temp0';
   }
@@ -16651,51 +16617,37 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get linkPasteLabel => 'Device link code';
+  String get linkPasteLabel => 'Invite';
 
   @override
   String get linkGo => 'Link';
 
   @override
-  String get linkCheckTitle => 'Check the pictures';
-
-  @override
-  String linkCheckLead(String name) {
-    return '$name shows four pictures too. Link only if they are the same, in the same order.';
-  }
-
-  @override
   String get linkPicturesLabel => 'The four pictures';
-
-  @override
-  String linkWaitingCheck(String name) {
-    return 'Waiting for $name to check the pictures.';
-  }
 
   @override
   String get linkDoneTitle => 'Linked';
 
   @override
   String linkDone(String name) {
-    return '$name is linked. A payment either device makes shows on both, and its coins are held on the other.';
+    return 'Linked to $name.';
   }
 
   @override
   String get linkFailedTitle => 'Not linked';
 
   @override
-  String get linkFailInvalid =>
-      'This is not a device link code, or it is damaged.';
+  String get linkFailInvalid => 'Not a device invite.';
 
   @override
-  String get linkFailExpired => 'The code ran out of time. Make a new one.';
+  String get linkFailExpired => 'The invite ran out of time. Make a new one.';
 
   @override
-  String get linkFailNotFound => 'This code was used already or was cancelled.';
+  String get linkFailNotFound => 'This invite was used already.';
 
   @override
   String get linkFailOwn =>
-      'This code is from this device. Scan it on the other one.';
+      'This invite is from this device. Scan it on the other one.';
 
   @override
   String get linkFailOtherWallet =>
@@ -16703,22 +16655,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkFailOtherWalletCode =>
-      'This code is from a different wallet. Linking needs the same recovery phrase.';
+      'This invite is from a different wallet. Linking needs the same recovery phrase.';
 
   @override
-  String get linkFailMismatch =>
-      'The pictures differ, so the devices were not linked.';
+  String get linkFailTooMany => 'A device is linked already.';
 
   @override
-  String get linkFailCancelled =>
-      'The other device stopped, or did not check the pictures in time.';
-
-  @override
-  String get linkFailTooMany =>
-      'A device is linked already. Remove it to link another.';
-
-  @override
-  String get linkFailUnreachable => 'No server answered. Try again later.';
+  String get linkFailUnreachable => 'The other device could not be reached.';
 
   @override
   String get linkTryAgain => 'Try again';
@@ -16759,30 +16702,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskDevServersCancel => 'Cancel change';
-
-  @override
-  String deskDevServersDown(int down, int n) {
-    return '$down of $n not responding. Updates go through the other.';
-  }
-
-  @override
-  String get deskDevServersAllDown =>
-      'No server answers. Updates wait and go when one is back.';
-
-  @override
-  String get deskDevServersInfo1 =>
-      'The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.';
-
-  @override
-  String get deskDevServersInfo2 =>
-      'A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.';
-
-  @override
-  String get deskDevServersInfo3 =>
-      'The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.';
-
-  @override
   String get deskDevPausedOffline => 'Paused while Offline is on.';
 
   @override
@@ -16794,9 +16713,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskDevHeldNone => 'No coins held.';
-
-  @override
   String get deskDevRenameThis => 'Rename this computer';
 
   @override
@@ -16805,21 +16721,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deskDevPasteLead => 'Paste the code the other device shows.';
+  String get deskDevPasteLead => 'Paste the invite from the other device.';
 
   @override
-  String get deskDevMakingCode => 'Making the code…';
+  String get deskDevMakingCode => 'Making the invite…';
 
   @override
   String get deskDevConnecting => 'Connecting…';
 
   @override
   String get deskDevTheOther => 'The other device';
-
-  @override
-  String deskDevServersLine(String servers) {
-    return 'Servers: $servers';
-  }
 
   @override
   String get deskDevOfferReceived =>
@@ -17301,21 +17212,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get devicesOneOnly =>
       'One device can be linked. Remove it to link another.';
-
-  @override
-  String devicesRelayAsk(String relay, String next) {
-    return 'Both devices use $relay. Use $next on this device?';
-  }
-
-  @override
-  String get devicesRelayUse => 'Use';
-
-  @override
-  String get devicesRelayKeep => 'Keep';
-
-  @override
-  String get devicesRelayWhy =>
-      'On one Epicbox server, both devices answer the same payments. On different servers, each answers payments to its own address.';
 
   @override
   String txReceivedOnDevice(String device) {
@@ -18692,4 +18588,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String get linkShowMine => 'Show my QR';
+
+  @override
+  String get linkPasteAnother => 'Paste another invite';
+
+  @override
+  String linkLinkingWith(String name) {
+    return 'Linking with $name…';
+  }
+
+  @override
+  String linkLinkingSame(String name) {
+    return '$name shows the same four.';
+  }
+
+  @override
+  String linkFailFull(String name) {
+    return '$name is linked to another device already. Remove that one on $name first.';
+  }
+
+  @override
+  String get linkFailUpdate =>
+      'The other device has a newer app. Update this one, then try again.';
+
+  @override
+  String linkFailUpdateOther(String name) {
+    return '$name has an older app. Update it, then try again.';
+  }
+
+  @override
+  String linkReplaceTitle(String name) {
+    return 'Replace $name?';
+  }
+
+  @override
+  String linkReplaceBody(String name) {
+    return 'A new device asked to link. $name stops getting this wallet’s notices; coins it holds here are released.';
+  }
+
+  @override
+  String get linkReplace => 'Replace';
+
+  @override
+  String linkKeep(String name) {
+    return 'Keep $name';
+  }
+
+  @override
+  String devicesEpicboxOff(String name) {
+    return 'Epicbox is off: $name does not see this device’s payments.';
+  }
+
+  @override
+  String get devicesEpicboxOffNone => 'Epicbox is off.';
+
+  @override
+  String devicesUpdateOther(String name) {
+    return 'Update $name to keep this wallet in sync.';
+  }
+
+  @override
+  String get devicesAbout => 'About the linked device';
+
+  @override
+  String get offerLinkThird =>
+      'A third device has this wallet. Two can be linked.';
+
+  @override
+  String devicesForwardedInvoice(String name) {
+    return '$name received a request to pay. Pay it there.';
+  }
+
+  @override
+  String get linkConfirmInvite =>
+      'Link this device with the one that sent the invite?';
 }

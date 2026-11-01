@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Settings › Linked devices (This wallet group, Experimental): the devices that hold this
-/// wallet, how to link one, the servers they use, a pause switch and the coins another device's
-/// payment holds here. Removing a device stops the sync; it does not protect the money.
+/// wallet (the link's servers under the linked one), how to link one, a pause switch and the
+/// coins another device's payment holds here. Removing a device stops the sync; it does not
+/// protect the money.
 library;
 
 import 'dart:async';
@@ -12,10 +13,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../devices/device_model.dart';
 import '../../../devices/device_providers.dart' show DeviceView;
 import '../../../devices/device_service.dart';
-import '../../../relay_directory.dart' show NodeHealthState;
 import '../../data/devices_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider;
-import '../../data/server_lists.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../devices/link_flow.dart';
@@ -23,13 +22,9 @@ import 'settings_frame.dart' show SettingsFrame;
 
 const Key devicesLinkKey = ValueKey('dev-link');
 const Key devicesPauseKey = ValueKey('dev-pause');
-const Key devicesServersKey = ValueKey('dev-servers');
-const Key devicesServersLineKey = ValueKey('dev-servers-line');
-const Key devicesProposalKey = ValueKey('dev-proposal');
-const Key devicesProposalCancelKey = ValueKey('dev-proposal-cancel');
-const Key devicesProposalAcceptKey = ValueKey('dev-proposal-accept');
-const Key devicesProposalDeclineKey = ValueKey('dev-proposal-decline');
 const Key devicesRemovedByKey = ValueKey('dev-removed-by');
+const Key devicesEpicboxOffKey = ValueKey('dev-epicbox-off');
+const Key devicesUpdateOtherKey = ValueKey('dev-update-other');
 const Key devicesHeldKey = ValueKey('dev-held');
 const Key devicesRenameFieldKey = ValueKey('dev-rename-field');
 const Key devicesRenameSaveKey = ValueKey('dev-rename-save');
@@ -83,8 +78,6 @@ class DevicesSettingsBlock extends ConsumerWidget {
             EInfoHint(l.expLinkedDevicesHint, title: l.expLinkedDevices, icon: EIcons.devices),
           ],
         ),
-        SizedBox(height: Sp.x2),
-        Text(l.devicesMoneyNote, style: ts.bodyDim),
         SizedBox(height: Sp.x5),
         if (view == null || service == null)
           const SettingsLoadingBlock()
@@ -93,9 +86,9 @@ class DevicesSettingsBlock extends ConsumerWidget {
             ENotice(
               key: devicesRemovedByKey,
               title: l.devicesRemovedBy(view.book.removedBy!),
-              tone: ETone.warn,
-              icon: EIcons.alert,
-              actions: [EButton(label: l.commonClose, size: EBtnSize.inline, onPressed: () => unawaited(service.clearRemovedBy()))],
+              tone: ETone.info,
+              icon: EIcons.info,
+              actions: [EButton(label: l.commonOk, size: EBtnSize.inline, onPressed: () => unawaited(service.clearRemovedBy()))],
             ),
             SizedBox(height: Sp.x4),
           ],
@@ -103,11 +96,9 @@ class DevicesSettingsBlock extends ConsumerWidget {
             ENotice(title: l.devicesUnsupported, tone: ETone.info, icon: EIcons.info),
             SizedBox(height: Sp.x4),
           ],
-          const DeskRelayClashNotice(),
-          _DevicesGroup(view: view, service: service),
-          _ServersGroup(view: view, service: service),
+          _DevicesGroup(view: view, service: service, epicboxOff: net == DeskPairNet.epicboxOff),
           _SyncGroup(view: view, service: service, net: net),
-          _HeldGroup(view: view, service: service),
+          if (view.held.isNotEmpty) _HeldGroup(view: view, service: service),
         ],
       ],
     );
@@ -126,10 +117,13 @@ class SettingsLoadingBlock extends StatelessWidget {
 }
 
 class _DevicesGroup extends ConsumerWidget {
-  const _DevicesGroup({required this.view, required this.service});
+  const _DevicesGroup({required this.view, required this.service, required this.epicboxOff});
 
   final DeviceView view;
   final DeviceService service;
+
+  /// Nothing goes over Epicbox: the devices do not sync, and none can be linked.
+  final bool epicboxOff;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -166,7 +160,7 @@ class _DevicesGroup extends ConsumerWidget {
                   label: l.devicesLink,
                   icon: EIcons.link,
                   size: EBtnSize.sm,
-                  onPressed: view.supported ? () => unawaited(showDeskLinkDevice(context)) : null,
+                  onPressed: view.supported && !epicboxOff ? () => unawaited(showDeskLinkDevice(context)) : null,
                 ),
           rows: [
             // A device removed while this one was offline, until its notice goes; Remove again
@@ -174,7 +168,7 @@ class _DevicesGroup extends ConsumerWidget {
             for (final d in book.removing)
               ESetRow(
                 key: ValueKey('dev-removing-${d.deviceId}'),
-                leading: EIcons.phone,
+                leading: deskDeviceIcon(d.kind),
                 title: d.name,
                 text: l.devicesRemoving,
                 control: EButton(
@@ -188,9 +182,14 @@ class _DevicesGroup extends ConsumerWidget {
             if (book.linked case final d?)
               ESetRow(
                 key: ValueKey('dev-${d.deviceId}'),
-                leading: EIcons.phone,
+                leading: deskDeviceIcon(d.kind),
                 title: d.name,
                 text: deviceSeen(l, d.lastSeen, now),
+                // The one-device rule and the servers live behind ⓘ.
+                hint: '${l.devicesOneOnly}\n\n${l.devicesServers}: ${(d.servers.isEmpty ? book.servers : d.servers).join(' · ')}',
+                hintTitle: l.devicesAbout,
+                hintIcon: EIcons.devices,
+                // Its servers under it: the link's channel, as a caption.
                 below: d.servers.isEmpty
                     ? null
                     : Text(d.servers.join(' · '), style: ts.mono(size: Fs.xs).copyWith(color: context.dc.faint), overflow: TextOverflow.ellipsis),
@@ -209,10 +208,15 @@ class _DevicesGroup extends ConsumerWidget {
                   ],
                 ),
               ),
-            if (book.linked == null)
-              ESetRow(key: const ValueKey('dev-none'), text: l.devicesEmpty)
-            else
-              ESetRow(key: const ValueKey('dev-one-only'), text: l.devicesOneOnly),
+            // Under the linked device: Epicbox off, an app to update, then the money note once.
+            if (book.linked case final d?) ...[
+              if (epicboxOff) ESetRow(key: devicesEpicboxOffKey, leading: EIcons.alert, text: l.devicesEpicboxOff(d.name)),
+              if (d.otherVersion != null) ESetRow(key: devicesUpdateOtherKey, leading: EIcons.alert, text: l.devicesUpdateOther(d.name)),
+              ESetRow(key: const ValueKey('dev-money-note'), text: l.devicesMoneyNote),
+            ] else ...[
+              ESetRow(key: const ValueKey('dev-none'), text: l.devicesEmpty),
+              if (epicboxOff) ESetRow(key: devicesEpicboxOffKey, text: l.devicesEpicboxOffNone),
+            ],
           ],
         ),
       ],
@@ -273,90 +277,6 @@ Future<void> removeLinkedDevice(BuildContext context, DeviceService service, Lin
   if (context.mounted) showEToast(context, l.devicesRemoved(d.name), tone: ETone.neutral);
 }
 
-/// Servers: the set the devices use, a proposal under way, one from another device waiting for
-/// the user here, and what the monitor says of the chosen servers.
-class _ServersGroup extends ConsumerWidget {
-  const _ServersGroup({required this.view, required this.service});
-
-  final DeviceView view;
-  final DeviceService service;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final ts = context.ts;
-    final c = context.dc;
-    final book = view.book;
-    final boxes = ref.watch(deskProvider.select((s) => s.epicboxes)) ?? const [];
-    final defaults = ref.watch(deskLinkServersProvider);
-    final chosen = book.servers.isNotEmpty ? book.servers : defaults;
-    final proposal = book.proposal;
-    final health = {
-      for (final b in boxes)
-        serverKeyOf(ServerKind.relay, relayLabel(b)): switch (b.health) {
-          ServiceHealth.down => NodeHealthState.down,
-          ServiceHealth.ok || ServiceHealth.slow => NodeHealthState.healthy,
-          ServiceHealth.checking || ServiceHealth.off => null,
-        },
-    };
-    final down = chosen.where((s) => health[serverKeyOf(ServerKind.relay, s)] == NodeHealthState.down).length;
-    final (line, lineColor) = switch (down) {
-      0 => (null, c.dim),
-      _ when down >= chosen.length => (l.deskDevServersAllDown, c.risk),
-      _ => (l.deskDevServersDown(down, chosen.length), c.warn),
-    };
-    final waiting = proposal != null && proposal.fromHere;
-    final incoming = proposal != null && !proposal.fromHere;
-    final from = incoming ? view.nameOf(proposal.accepted.firstOrNull ?? '') : '';
-    return ESetGroup(
-      title: l.devicesServers,
-      rows: [
-        ESetRow(
-          key: devicesServersKey,
-          title: l.devicesServers,
-          hint: '${l.deskDevServersInfo1}\n\n${l.deskDevServersInfo2}\n\n${l.deskDevServersInfo3}',
-          hintTitle: l.devicesServers,
-          hintIcon: EIcons.epicbox,
-          text: l.devicesServersNote,
-          stacked: true,
-          // Read-only: the first servers of the Epicbox list (Settings › Receiving) are the link's.
-          control: Text(chosen.join(', '), key: const ValueKey('devices-servers-value'), style: ts.body),
-          below: line == null
-              ? null
-              : Semantics(
-                  liveRegion: true,
-                  child: Text(line, key: devicesServersLineKey, style: ts.small.copyWith(color: lineColor)),
-                ),
-        ),
-        if (waiting)
-          ESetRow(
-            key: devicesProposalKey,
-            title: l.devicesServersWaiting(_waitingFor(view, proposal)),
-            text: proposal.servers.join(', '),
-            control: EButton(key: devicesProposalCancelKey, label: l.deskDevServersCancel, size: EBtnSize.sm, onPressed: () => unawaited(service.cancelProposal())),
-          ),
-        if (incoming)
-          ESetRow(
-            key: devicesProposalKey,
-            title: l.devicesProposal(from, proposal.servers.join(', ')),
-            control: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                EButton(key: devicesProposalDeclineKey, label: l.devicesNotNow, size: EBtnSize.sm, onPressed: () => unawaited(service.declineProposal())),
-                SizedBox(width: Sp.x2),
-                EButton.primary(key: devicesProposalAcceptKey, label: l.devicesAccept, size: EBtnSize.sm, onPressed: () => unawaited(service.acceptProposal())),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  /// The devices that have not accepted yet, by name.
-  static String _waitingFor(DeviceView view, ServerProposal p) =>
-      [for (final d in view.devices) if (!p.accepted.contains(d.deviceId)) d.name].join(', ');
-}
-
 /// The pause switch, and why the channel rests when Offline or Epicbox is off.
 class _SyncGroup extends StatelessWidget {
   const _SyncGroup({required this.view, required this.service, required this.net});
@@ -386,7 +306,14 @@ class _SyncGroup extends StatelessWidget {
   }
 }
 
-/// Coins another device's payment holds here, each with Release.
+/// The icon of a linked device by its kind; a generic one while its kind is not known.
+IconData deskDeviceIcon(DeviceKind? kind) => switch (kind) {
+  DeviceKind.phone => EIcons.phone,
+  DeviceKind.desktop => EIcons.computer,
+  null => EIcons.devices,
+};
+
+/// Coins another device's payment holds here, each with Release. Shown only with coins held.
 class _HeldGroup extends ConsumerWidget {
   const _HeldGroup({required this.view, required this.service});
 
@@ -402,10 +329,7 @@ class _HeldGroup extends ConsumerWidget {
       key: devicesHeldKey,
       title: l.devicesHeld,
       rows: [
-        if (held.isEmpty)
-          ESetRow(text: l.deskDevHeldNone)
-        else
-          for (final h in held)
+        for (final h in held)
             ESetRow(
               key: ValueKey('dev-held-${h.deviceId}-${h.slateId}'),
               leading: EIcons.lock,

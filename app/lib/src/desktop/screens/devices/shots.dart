@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Screenshot tour entries of the linked devices (see app/shots.dart): Settings › Linked devices
 /// with no device, with a phone linked and one of its payments held, the link flow (code, paste,
-/// pictures, done, failed), the other device's payments in Activity, Outputs and Send, and the
-/// quiet link offers. The phone is a [MockPhone] over the mock wallet's fake pairing engine.
+/// the pictures while linking, done, failed), the other device's payments in Activity, Outputs
+/// and Send, and the quiet link offers. The phone is a [MockPhone] over the mock wallet's fake pairing engine.
 library;
 
 import '../../data/mock_hosts.dart';
@@ -43,25 +43,20 @@ Future<void> _linkedHeld(ProviderContainer c) async {
   await _linked(c, pay: true);
 }
 
-/// The link flow stopped at the four pictures, this computer showing the code.
-Future<void> _checking(ProviderContainer c) async {
+/// The link flow at the four pictures ("Linking…"), this computer showing the code: the phone
+/// answered, the computer's hello went out, the phone's has not come yet.
+Future<void> _linking(ProviderContainer c) async {
   final (wallet, desk) = await _desk(c);
   final phone = await MockPhone.create(wallet);
   await desk.startShowing([mockBox, mockBoxAt(1)]);
-  await phone.scan(desk);
+  await phone.scan(desk, rounds: 0);
+  await desk.sync(DeviceSyncTrigger.tick);
 }
 
 /// A device link this computer cannot read, answered.
 Future<void> _failed(ProviderContainer c) async {
   final (_, desk) = await _desk(c);
   await desk.startScanned('epiccash://device-link/1/AAAA');
-}
-
-/// A server change waiting for the phone to accept.
-Future<void> _proposal(ProviderContainer c) async {
-  final (_, desk) = await _desk(c);
-  await _linked(c);
-  await desk.proposeServers([mockBox, mockBoxAt(3)]);
 }
 
 final List<DeskShot> deviceShots = [
@@ -78,10 +73,9 @@ final List<DeskShot> deviceShots = [
     height: 1338,
     prepare: (c, _) => _linkedHeld(c),
   ),
-  DeskShot(id: '44c-devices-servers-waiting', title: 'Linked devices, a server change waiting for the phone', route: DeskRoute.settingsDevices, prepare: (c, _) => _proposal(c)),
   DeskShot(id: '44d-link-show', title: 'Link a device, the code', route: DeskRoute.settingsDevices, dialog: (ctx) => showDeskLinkDevice(ctx)),
   DeskShot(id: '44e-link-paste', title: 'Link a device, paste a code', route: DeskRoute.settingsDevices, dialog: (ctx) => showDeskLinkDevice(ctx, paste: true)),
-  DeskShot(id: '44f-link-check', title: 'Link a device, the four pictures', route: DeskRoute.settingsDevices, prepare: (c, _) => _checking(c), dialog: (ctx) => showDeskLinkDevice(ctx)),
+  DeskShot(id: '44f-link-linking', title: 'Link a device, the four pictures while linking', route: DeskRoute.settingsDevices, prepare: (c, _) => _linking(c), dialog: (ctx) => showDeskLinkDevice(ctx)),
   DeskShot(
     id: '44g-link-done',
     title: 'Link a device, linked',

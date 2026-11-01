@@ -13,12 +13,13 @@ import '../../devices/device_providers.dart';
 import '../../devices/device_service.dart';
 import '../../devices/device_store.dart';
 import '../../log.dart' show logWarn;
-import '../../models.dart' show Chain;
+import '../../models.dart' show Chain, InvoiceEventKind;
 import '../../network_gate.dart';
 import '../../providers.dart' show secretStoreProvider;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../app/desk_window.dart' show deskWindowProvider;
 import '../desk_l10n.dart';
+import '../screens/devices/link_flow.dart' show registerDeskDeviceInviteHandler;
 import 'state.dart';
 
 /// Linked devices is on (Settings › Advanced › Experimental).
@@ -47,6 +48,8 @@ const Duration deskDevicesBlurredEvery = Duration(minutes: 1);
 /// wallet: its host follows the session through a reopen, so a link under way is not lost.
 final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   if (!ref.watch(deskLinkedDevicesOnProvider)) return null;
+  // An incoming device invite (a link the system opened) goes to the link dialog's confirm step.
+  registerDeskDeviceInviteHandler();
   final account = ref.watch(deskProvider.select((s) => s.account == null ? null : (s.account!.id, s.account!.network)));
   if (account == null) return null;
   final api = ref.read(deskApiProvider);
@@ -57,6 +60,7 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
     host: host,
     store: DeviceStore(ref.watch(secretStoreProvider), chain: account.$2 == 'floonet' ? Chain.floonet : Chain.mainnet, walletId: account.$1),
     defaultName: deskStrings.devicesThisComputer,
+    kind: DeviceKind.desktop,
     clock: ref.read(deskDeviceClockProvider),
   );
   // What the history, the balance and the outputs show of the other devices.
@@ -75,6 +79,14 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
     unawaited(ref.read(deskProvider.notifier).reloadWallet());
   });
   ref.onDispose(sub.cancel);
+  // Notices that reached this device only go to the linked device; what it passed on is
+  // applied here (the lists read again, a request to pay announced).
+  api.noticeForwarder = (e) => unawaited(service.forward(_forwardKindOf(e.kind)!, e.slateId, kernel: e.kernelExcess));
+  final forwarded = service.forwarded.listen((n) => unawaited(api.applyForwarded(n)));
+  ref.onDispose(() {
+    api.noticeForwarder = null;
+    forwarded.cancel();
+  });
   // The app runs while it is minimized, and the channel is read the whole time: every 15 s
   // while the window has the focus, every minute while it has not (behind another window,
   // minimized). Back to the front, it is read at once.
@@ -98,6 +110,14 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   );
   return service;
 });
+
+/// What a wallet notice is for the linked device, or null for one that is not passed on.
+ForwardKind? _forwardKindOf(InvoiceEventKind kind) => switch (kind) {
+  InvoiceEventKind.paymentPosted => ForwardKind.posted,
+  InvoiceEventKind.paymentCancelled => ForwardKind.cancelled,
+  InvoiceEventKind.received => ForwardKind.invoice,
+  _ => null,
+};
 
 /// The desktop's device providers ([DeviceProviders.view] and the rest).
 final deskDevices = DeviceProviders(deskDeviceServiceProvider);

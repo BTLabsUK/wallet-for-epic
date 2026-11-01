@@ -15,10 +15,10 @@ import 'dart:typed_data';
 
 import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
-import '../../devices/device_service.dart' show DeviceHost, linkServerOf;
+import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show DeviceEnding, FinishedPayment, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../models.dart' show DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
@@ -548,7 +548,7 @@ class MockDeskWallet implements DeskWalletApi {
   DeviceBook? Function()? _deviceBook;
 
   @override
-  DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs, () => _epicbox);
+  DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs);
 
   /// The canned outputs as the core lists them, for linked devices.
   Future<List<WalletOutput>> walletOutputs() async => [
@@ -573,6 +573,12 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   void useDevices(DeviceBook? Function()? book) => _deviceBook = book;
+
+  @override
+  set noticeForwarder(void Function(InvoiceEvent e)? forward) {}
+
+  @override
+  Future<void> applyForwarded(ForwardedNotice notice) async {}
 
   Map<String, String> _heldBy() {
     final book = _deviceBook?.call();
@@ -1519,22 +1525,18 @@ class MockDeskWallet implements DeskWalletApi {
 
 /// The mock's linked-devices host: the prototype's pairing engine, no coins of its own.
 class _MockDeviceHost implements DeviceHost {
-  _MockDeviceHost(this.pairing, this._online, this._outputs, this._relay);
+  _MockDeviceHost(this.pairing, this._online, this._outputs);
 
   @override
   final FakePairing pairing;
   final bool Function() _online;
   final Future<List<WalletOutput>> Function() _outputs;
-  final String Function() _relay;
 
   @override
   bool get online => _online();
 
   @override
   Future<String> walletKey() async => _epicboxKey;
-
-  @override
-  Future<String?> walletRelay() async => linkServerOf(_relay());
 
   @override
   Future<void> cancelTransaction(int txId) async {}

@@ -41,6 +41,7 @@ import '../wallet_service.dart';
 import '../wallet/stored_send.dart';
 import '../devices/device_providers.dart' show heldValueByDevice;
 import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices;
+import 'devices/device_parts.dart' show phoneDevicesEpicboxOffProvider;
 import 'centered_body.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
@@ -2981,6 +2982,12 @@ class _SendViewState extends ConsumerState<SendView> {
       if (_estimateError != null) ErrorText(_estimateError!),
       // Coins another linked device is spending: why the amount does not fit.
       if (_estimateError != null) ..._heldLines(context),
+      // A device is linked and nothing goes over Epicbox: it does not see this payment.
+      if (ref.watch(phoneDevices.view)?.book.linked case final linked? when ref.watch(phoneDevicesEpicboxOffProvider))
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(l.devicesEpicboxOff(linked.name), key: const ValueKey('send-devices-epicbox-off'), style: theme.textTheme.bodySmall?.copyWith(color: t.warn)),
+        ),
       if (!_maxUsed && AdvancedOptions.has(context, AdvancedFeature.sendOptions))
         _strategyPicker(context),
       const SizedBox(height: 12),

@@ -25697,25 +25697,25 @@ abstract class AppLocalizations {
   /// Title of a history row for coins of this wallet that another wallet using the same recovery phrase spent: this wallet has no record of the payment, only that the coins left.
   ///
   /// In en, this message translates to:
-  /// **'Sent from another wallet'**
+  /// **'Sent from another device'**
   String get txSentFromOtherWallet;
 
   /// Screen-reader text of a history row sent from another wallet. {amount} is the amount that left.
   ///
   /// In en, this message translates to:
-  /// **'Sent from another wallet, {amount}'**
+  /// **'Sent from another device, {amount}'**
   String txSpokenSentFromOtherWallet(String amount);
 
   /// Details of a row sent from another wallet: what it is and what is not known about it.
   ///
   /// In en, this message translates to:
-  /// **'Spent by another wallet with the same recovery phrase. Only the amount is known.'**
+  /// **'Sent from another device with this wallet’s recovery phrase. Only the amount is known.'**
   String get txDetailsOtherWallet;
 
   /// Title of a history row sent from another wallet while only the node's answers show it (no completed scan has covered its blocks yet).
   ///
   /// In en, this message translates to:
-  /// **'Sent from another wallet · unverified'**
+  /// **'Sent from another device · unverified'**
   String get txSentFromOtherWalletUnverified;
 
   /// Details line of a row sent from another wallet that no completed scan has checked yet: only the node reports it. Recheck balance is the name of the action in Settings.
@@ -25733,19 +25733,19 @@ abstract class AppLocalizations {
   /// Title of a history row for coins that another wallet using the same recovery phrase received: this wallet has no record of the payment, only that the coins arrived.
   ///
   /// In en, this message translates to:
-  /// **'Received by another wallet'**
+  /// **'Received by another device'**
   String get txReceivedByOtherWallet;
 
   /// Screen-reader text of a history row received by another wallet. {amount} is the amount that arrived.
   ///
   /// In en, this message translates to:
-  /// **'Received by another wallet, {amount}'**
+  /// **'Received by another device, {amount}'**
   String txSpokenReceivedByOtherWallet(String amount);
 
   /// Details of a row received by another wallet: what it is and what is not known about it.
   ///
   /// In en, this message translates to:
-  /// **'Received by another wallet with the same recovery phrase. Only the amount is known.'**
+  /// **'Received by another device with this wallet’s recovery phrase. Only the amount is known.'**
   String get txDetailsOtherWalletIn;
 
   /// Settings › Advanced › Experimental: the switch for linked devices (this wallet on two or more of the user's own devices). Also the page and hub row name.
@@ -25757,7 +25757,7 @@ abstract class AppLocalizations {
   /// The info text of the Linked devices switch.
   ///
   /// In en, this message translates to:
-  /// **'Use the same wallet (the same recovery phrase) on two devices: this one and one linked device. Two different wallets cannot be linked. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.'**
+  /// **'This wallet on two devices: each shows the other’s payments and holds the coins the other is spending. Experimental.'**
   String get expLinkedDevicesHint;
 
   /// The name this phone has for linked devices until the user renames it. Shown on the user's other devices.
@@ -25814,12 +25814,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} device} other{{count} devices}}'**
   String devicesCount(int count);
 
-  /// How many servers carry the link to one device, on its row.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, one{{count} server} other{{count} servers}}'**
-  String devicesServerCount(int count);
-
   /// Linked devices page: the heading over this device's own name.
   ///
   /// In en, this message translates to:
@@ -25835,7 +25829,7 @@ abstract class AppLocalizations {
   /// Linked devices page with no device linked.
   ///
   /// In en, this message translates to:
-  /// **'This wallet is not linked to another device yet.'**
+  /// **'Restore this wallet on your other device, then link the two here.'**
   String get devicesEmpty;
 
   /// Button: start linking another device. Also the title of that flow.
@@ -25849,36 +25843,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Servers'**
   String get devicesServers;
-
-  /// Under the server list when choosing the linked devices' servers.
-  ///
-  /// In en, this message translates to:
-  /// **'Notices between the two devices go through each server chosen.'**
-  String get devicesServersNote;
-
-  /// Linked devices page: a server change this device proposed waits for the others.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for {name} to accept the new servers.'**
-  String devicesServersWaiting(String name);
-
-  /// Linked devices page: another device proposes other servers; the user accepts here or not.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} proposes these servers: {servers}.'**
-  String devicesProposal(String name, String servers);
-
-  /// Button: accept the servers another device proposed.
-  ///
-  /// In en, this message translates to:
-  /// **'Accept'**
-  String get devicesAccept;
-
-  /// Button: leave the servers another device proposed.
-  ///
-  /// In en, this message translates to:
-  /// **'Not now'**
-  String get devicesNotNow;
 
   /// Switch on the Linked devices page: stop reading and sending notices for now.
   ///
@@ -25955,7 +25919,7 @@ abstract class AppLocalizations {
   /// Body of the confirm before removing a linked device. Must say plainly that removing does not protect the money.
   ///
   /// In en, this message translates to:
-  /// **'{name} stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If {name} may be in someone else’s hands, move the coins to a wallet with a new recovery phrase.'**
+  /// **'{name} stops getting this wallet’s notices; coins it holds here are released. It can still spend with the recovery phrase: if it may be in someone else’s hands, move the coins to a new wallet.'**
   String devicesRemoveBody(String name);
 
   /// Notice after removing a linked device.
@@ -25967,7 +25931,7 @@ abstract class AppLocalizations {
   /// Linked devices page: another device removed this one from the link.
   ///
   /// In en, this message translates to:
-  /// **'{name} removed this device from the link.'**
+  /// **'{name} removed this device.'**
   String devicesRemovedBy(String name);
 
   /// Linked devices row: this device removed the other one while offline; the notice goes when it is next online. Remove on the row again forgets the device here at once.
@@ -25991,49 +25955,43 @@ abstract class AppLocalizations {
   /// First step of Link a device.
   ///
   /// In en, this message translates to:
-  /// **'Only for this same wallet on another device: both need the same recovery phrase. One shows a code, the other scans or pastes it.'**
+  /// **'For this wallet on your other device. Restore it there from the recovery phrase first.'**
   String get linkLead;
 
-  /// Link a device: this device shows the code.
+  /// Link a device (desktop), a tab: this computer shows the QR of its invite.
   ///
   /// In en, this message translates to:
-  /// **'Show code'**
+  /// **'Show QR'**
   String get linkShow;
 
-  /// Link a device: scan the other device's code with the camera.
+  /// Link a device (phone): the button that opens the camera to scan the QR of the other device’s invite; also the camera’s accessibility label.
   ///
   /// In en, this message translates to:
-  /// **'Scan code'**
+  /// **'Scan the QR'**
   String get linkScan;
 
-  /// Link a device: paste the other device's code.
+  /// Link a device: the tab (desktop) or text button (phone) to paste the invite the other device shows, as text.
   ///
   /// In en, this message translates to:
-  /// **'Paste code'**
+  /// **'Paste invite'**
   String get linkPaste;
 
-  /// Under the device link QR.
+  /// Under the invite’s QR: copies the invite as text.
   ///
   /// In en, this message translates to:
-  /// **'On the other device, open Link a device and scan this code, or copy it and paste it there.'**
-  String get linkShowLead;
-
-  /// Button: copy the device link code.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy code'**
+  /// **'Copy invite'**
   String get linkCopy;
 
-  /// Notice after copying the device link code.
+  /// Notice after Copy invite.
   ///
   /// In en, this message translates to:
-  /// **'Code copied.'**
+  /// **'Invite copied.'**
   String get linkCopied;
 
-  /// Under the device link QR: how long the code works.
+  /// Under the invite’s QR: how many minutes the invite still works.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{The code works for {count} min.} other{The code works for {count} min.}}'**
+  /// **'{count, plural, one{Invite works {count} min more.} other{Invite works {count} min more.}}'**
   String linkExpires(int count);
 
   /// Link a device: waiting for the other device to answer.
@@ -26048,10 +26006,10 @@ abstract class AppLocalizations {
   /// **'Waiting for {name}…'**
   String linkWaitingFor(String name);
 
-  /// Field label: the pasted device link code.
+  /// Label of the field where the invite is pasted; also the QR image’s accessibility label.
   ///
   /// In en, this message translates to:
-  /// **'Device link code'**
+  /// **'Invite'**
   String get linkPasteLabel;
 
   /// Button: link with the pasted code.
@@ -26060,29 +26018,11 @@ abstract class AppLocalizations {
   /// **'Link'**
   String get linkGo;
 
-  /// Link a device: the step where the user compares four pictures on both devices.
-  ///
-  /// In en, this message translates to:
-  /// **'Check the pictures'**
-  String get linkCheckTitle;
-
-  /// Link a device: compare the four pictures.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} shows four pictures too. Link only if they are the same, in the same order.'**
-  String linkCheckLead(String name);
-
   /// Screen reader label of the four pictures.
   ///
   /// In en, this message translates to:
   /// **'The four pictures'**
   String get linkPicturesLabel;
-
-  /// Link a device: this device matched, the other has not checked yet.
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for {name} to check the pictures.'**
-  String linkWaitingCheck(String name);
 
   /// Link a device: done.
   ///
@@ -26093,7 +26033,7 @@ abstract class AppLocalizations {
   /// Link a device: done.
   ///
   /// In en, this message translates to:
-  /// **'{name} is linked. A payment either device makes shows on both, and its coins are held on the other.'**
+  /// **'Linked to {name}.'**
   String linkDone(String name);
 
   /// Link a device: it did not complete.
@@ -26102,28 +26042,28 @@ abstract class AppLocalizations {
   /// **'Not linked'**
   String get linkFailedTitle;
 
-  /// Link failure.
+  /// Link failed: the scanned or pasted text is not a device invite.
   ///
   /// In en, this message translates to:
-  /// **'This is not a device link code, or it is damaged.'**
+  /// **'Not a device invite.'**
   String get linkFailInvalid;
 
-  /// Link failure.
+  /// Link failed: the invite’s time ran out.
   ///
   /// In en, this message translates to:
-  /// **'The code ran out of time. Make a new one.'**
+  /// **'The invite ran out of time. Make a new one.'**
   String get linkFailExpired;
 
-  /// Link failure.
+  /// Link failed: the invite was answered by another device already, or was cancelled.
   ///
   /// In en, this message translates to:
-  /// **'This code was used already or was cancelled.'**
+  /// **'This invite was used already.'**
   String get linkFailNotFound;
 
-  /// Link failure: the user scanned this device's own code.
+  /// Link failed: the invite scanned or pasted is this device’s own.
   ///
   /// In en, this message translates to:
-  /// **'This code is from this device. Scan it on the other one.'**
+  /// **'This invite is from this device. Scan it on the other one.'**
   String get linkFailOwn;
 
   /// Link failure: the other device holds a different wallet.
@@ -26132,34 +26072,22 @@ abstract class AppLocalizations {
   /// **'This device holds another wallet. Linking needs the same recovery phrase.'**
   String get linkFailOtherWallet;
 
-  /// Link failure on the scanning device: the scanned or pasted link code was made by a different wallet, so it was refused before answering.
+  /// Link failed: the invite was made by another wallet (its fingerprint is not this wallet’s); refused before answering.
   ///
   /// In en, this message translates to:
-  /// **'This code is from a different wallet. Linking needs the same recovery phrase.'**
+  /// **'This invite is from a different wallet. Linking needs the same recovery phrase.'**
   String get linkFailOtherWalletCode;
-
-  /// Link failure: the user said the pictures differ.
-  ///
-  /// In en, this message translates to:
-  /// **'The pictures differ, so the devices were not linked.'**
-  String get linkFailMismatch;
-
-  /// Link failure: the other device stopped or did not check in time.
-  ///
-  /// In en, this message translates to:
-  /// **'The other device stopped, or did not check the pictures in time.'**
-  String get linkFailCancelled;
 
   /// Link failure: a device is linked already (only one can be).
   ///
   /// In en, this message translates to:
-  /// **'A device is linked already. Remove it to link another.'**
+  /// **'A device is linked already.'**
   String get linkFailTooMany;
 
   /// Link failure: no server answered.
   ///
   /// In en, this message translates to:
-  /// **'No server answered. Try again later.'**
+  /// **'The other device could not be reached.'**
   String get linkFailUnreachable;
 
   /// Button after a failed link.
@@ -26216,42 +26144,6 @@ abstract class AppLocalizations {
   /// **'Released here · {name} may still send it'**
   String devicesReleasedRow(String name);
 
-  /// Button on the waiting row of a server change this computer proposed: withdraws it.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel change'**
-  String get deskDevServersCancel;
-
-  /// Line under the Servers picker when one of two chosen servers does not answer.
-  ///
-  /// In en, this message translates to:
-  /// **'{down} of {n} not responding. Updates go through the other.'**
-  String deskDevServersDown(int down, int n);
-
-  /// Line under the Servers picker when no chosen server answers.
-  ///
-  /// In en, this message translates to:
-  /// **'No server answers. Updates wait and go when one is back.'**
-  String get deskDevServersAllDown;
-
-  /// Info card of the Servers row, paragraph 1.
-  ///
-  /// In en, this message translates to:
-  /// **'The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.'**
-  String get deskDevServersInfo1;
-
-  /// Info card of the Servers row, paragraph 2.
-  ///
-  /// In en, this message translates to:
-  /// **'A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.'**
-  String get deskDevServersInfo2;
-
-  /// Info card of the Servers row, paragraph 3.
-  ///
-  /// In en, this message translates to:
-  /// **'The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.'**
-  String get deskDevServersInfo3;
-
   /// Under the Pause sync switch while the app is in Offline mode.
   ///
   /// In en, this message translates to:
@@ -26270,12 +26162,6 @@ abstract class AppLocalizations {
   /// **'{amount} EPIC'**
   String deskDevHeldAmount(String amount);
 
-  /// Held coins list when no other device holds any coin here.
-  ///
-  /// In en, this message translates to:
-  /// **'No coins held.'**
-  String get deskDevHeldNone;
-
   /// Title of the dialog that renames this computer.
   ///
   /// In en, this message translates to:
@@ -26288,16 +26174,16 @@ abstract class AppLocalizations {
   /// **'Rename {name}'**
   String deskDevRenameDevice(String name);
 
-  /// Link dialog, Paste code tab: what to paste.
+  /// Link a device (desktop), the lead of the Paste invite tab.
   ///
   /// In en, this message translates to:
-  /// **'Paste the code the other device shows.'**
+  /// **'Paste the invite from the other device.'**
   String get deskDevPasteLead;
 
-  /// Link dialog while the code is made.
+  /// Link a device (desktop), while the invite is being made.
   ///
   /// In en, this message translates to:
-  /// **'Making the code…'**
+  /// **'Making the invite…'**
   String get deskDevMakingCode;
 
   /// Link dialog while this computer answers a pasted code.
@@ -26311,12 +26197,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The other device'**
   String get deskDevTheOther;
-
-  /// Link dialog, under the code: the servers the link uses.
-  ///
-  /// In en, this message translates to:
-  /// **'Servers: {servers}'**
-  String deskDevServersLine(String servers);
 
   /// Quiet line at the end of the details of a payment received by another wallet.
   ///
@@ -26965,30 +26845,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'One device can be linked. Remove it to link another.'**
   String get devicesOneOnly;
-
-  /// Question on a device being linked (or after a relay change): both linked devices use the same Epicbox relay, so both answer a payment; offers to move this device to another relay. {relay} is the shared relay's address, {next} the relay offered.
-  ///
-  /// In en, this message translates to:
-  /// **'Both devices use {relay}. Use {next} on this device?'**
-  String devicesRelayAsk(String relay, String next);
-
-  /// Button: move this device to the offered relay.
-  ///
-  /// In en, this message translates to:
-  /// **'Use'**
-  String get devicesRelayUse;
-
-  /// Button: keep both devices on the same relay.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep'**
-  String get devicesRelayKeep;
-
-  /// One-line hint under the relay question: what one relay or different relays mean for the two linked devices.
-  ///
-  /// In en, this message translates to:
-  /// **'On one Epicbox server, both devices answer the same payments. On different servers, each answers payments to its own address.'**
-  String get devicesRelayWhy;
 
   /// Title of a history row for coins of this wallet that the linked device received (a payment it received, or the change of its own send). {device} is the device's name.
   ///
@@ -29191,6 +29047,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Link a device (phone), a text button under the camera: this phone shows the QR of its own invite instead of scanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my QR'**
+  String get linkShowMine;
+
+  /// Link a device, after a pasted invite failed: back to the paste field.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste another invite'**
+  String get linkPasteAnother;
+
+  /// Link a device, while both devices are paired and exchange their hellos: the four pictures show under it. {name} is the other device.
+  ///
+  /// In en, this message translates to:
+  /// **'Linking with {name}…'**
+  String linkLinkingWith(String name);
+
+  /// Caption under the four pictures while linking: the other device shows the same pictures. {name} is the other device.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} shows the same four.'**
+  String linkLinkingSame(String name);
+
+  /// Link failed: the device whose code this one scanned, or that scanned this one’s code, is linked to another device already. {name} is that device.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is linked to another device already. Remove that one on {name} first.'**
+  String linkFailFull(String name);
+
+  /// Link failed: the other device writes a newer wire version.
+  ///
+  /// In en, this message translates to:
+  /// **'The other device has a newer app. Update this one, then try again.'**
+  String get linkFailUpdate;
+
+  /// Link failed: the other device writes an older wire version. {name} is the other device.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has an older app. Update it, then try again.'**
+  String linkFailUpdateOther(String name);
+
+  /// Dialog title and button on the device that is linked already, when a new device asks to link: replace the linked device {name} with the new one.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace {name}?'**
+  String linkReplaceTitle(String name);
+
+  /// Body of the Replace dialog. {name} is the device linked now.
+  ///
+  /// In en, this message translates to:
+  /// **'A new device asked to link. {name} stops getting this wallet’s notices; coins it holds here are released.'**
+  String linkReplaceBody(String name);
+
+  /// The confirming button of the Replace dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get linkReplace;
+
+  /// The declining button of the Replace dialog: keep the device linked now. {name} is that device.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep {name}'**
+  String linkKeep(String name);
+
+  /// Line under the linked device, and under the method row of Send, while nothing goes over Epicbox: the devices do not sync. {name} is the linked device.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox is off: {name} does not see this device’s payments.'**
+  String devicesEpicboxOff(String name);
+
+  /// Caption under the disabled Link a device button while nothing goes over Epicbox and no device is linked.
+  ///
+  /// In en, this message translates to:
+  /// **'Epicbox is off.'**
+  String get devicesEpicboxOffNone;
+
+  /// Line under the linked device when its notices are of another wire version and cannot be read. {name} is the linked device.
+  ///
+  /// In en, this message translates to:
+  /// **'Update {name} to keep this wallet in sync.'**
+  String devicesUpdateOther(String name);
+
+  /// Label of the info button on the linked device’s row; it opens the one-device rule and the servers.
+  ///
+  /// In en, this message translates to:
+  /// **'About the linked device'**
+  String get devicesAbout;
+
+  /// In place of the link offer while a device is linked already: the payment came from a third device on the same recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'A third device has this wallet. Two can be linked.'**
+  String get offerLinkThird;
+
+  /// Notice when a contact’s request to pay arrived on the linked device {name}; it can be paid only there.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} received a request to pay. Pay it there.'**
+  String devicesForwardedInvoice(String name);
+
+  /// Link a device, when a device invite came in as a link the system opened: the question before it is answered, with Link and Cancel. A link never links by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Link this device with the one that sent the invite?'**
+  String get linkConfirmInvite;
 }
 
 class _AppLocalizationsDelegate
