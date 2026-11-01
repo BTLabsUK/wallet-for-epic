@@ -1,0 +1,328 @@
+# SPDX-License-Identifier: Apache-2.0
+"""Windows rig health (drivers/windows/rig.py): the judge on the facts rig-health.ps1 reads, the fallback
+order, the fail-fast pickup, the driver's move to a healthy rig with one alert, G1 preflight and the
+nightly's `rigs`. No rig: the box's answers are canned (rig 1 and rig 5 as read on 2026-11-01)."""
+import importlib.util
+import json
+import os
+import sys
+import tempfile
+import unittest
+from unittest import mock
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+TOOLS = os.path.dirname(os.path.dirname(HERE))
+WIN = os.path.join(os.path.dirname(HERE), "drivers", "windows")
+sys.path.insert(0, WIN)
+sys.path.insert(0, TOOLS)
+
+
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+import rig  # noqa: E402  (the module trust.py imports)
+wt = load("win_trust_rigs", os.path.join(WIN, "trust.py"))
+nightly = load("nightly_rigs", os.path.join(TOOLS, "nightly", "nightly.py"))
+from rellib import builtins  # noqa: E402
+
+RIG1 = {"session": 1, "task": "EpicWalletRig", "work": "C:\\EpicRig", "exists": True, "enabled": True, "state": "Ready",
+        "logon": "Password", "last_result": 0, "last_run": "2026-11-01T09:04:36Z", "next_run": "2026-11-01T09:06:35Z",
+        "sid": "S-1-5-21-1-2-3-1002", "user": "epicrig", "account_enabled": True, "password_expires": None,
+        "account_expires": None, "locked": False, "rights_error": "", "batch_right": True, "batch_denied": False,
+        "profile": True, "queued": 0, "oldest_queued": None, "running_jobs": 0, "now": "2026-11-01T09:04:59Z"}
+RIG5 = dict(RIG1, session=5, task="EpicWalletRig5", work="C:\\EpicRig5", last_result=267011, last_run=None,
+            sid="S-1-5-21-1-2-3-1004", user="epicrig2", batch_right=False, profile=False)
+
+
+def hosts(rigs):
+    d = tempfile.mkdtemp()
+    p = os.path.join(d, "hosts.toml")
+    with open(p, "w") as f:
+        f.write("[host.windows]\nssh = \"windows-pc\"\nrigs = { %s }\n" % ", ".join("%s = %d" % kv for kv in rigs.items()))
+    return p
+
+
+def read_notice(r):
+    with open(os.path.join(r.out, "notice.json"), encoding="utf-8") as f:
+        return json.load(f)
+
+
+class JudgeTest(unittest.TestCase):
+    def test_rig1_healthy(self):
+        self.assertEqual(rig.judge(RIG1), [])
+
+    def test_rig5_names_the_batch_right_first(self):
+        p = rig.judge(RIG5)
+        self.assertIn("SeBatchLogonRight", p[0])
+        self.assertIn("epicrig2", p[0])
+        self.assertTrue(any("never run" in x and "267011" in x for x in p))
+
+    def test_account_states(self):
+        for change, word in (({"enabled": False}, "disabled"), ({"account_enabled": False}, "account epicrig is disabled"),
+                             ({"locked": True}, "locked out"), ({"password_expires": "2026-10-31T00:00:00Z"}, "password"),
+                             ({"batch_denied": True}, "SeDenyBatchLogonRight"), ({"exists": False}, "no scheduled task"),
+                             ({"last_result": 1}, "last run result 1 (0x1)")):
+            with self.subTest(word):
+                self.assertTrue(any(word in x for x in rig.judge(dict(RIG1, **change))), rig.judge(dict(RIG1, **change)))
+
+    def test_password_expiring_later_is_fine(self):
+        self.assertEqual(rig.judge(dict(RIG1, password_expires="2027-01-01T00:00:00Z")), [])
+
+    def test_heartbeat(self):
+        old = dict(RIG1, last_run="2026-11-01T08:30:00Z")
+        self.assertTrue(any("has not run since" in x for x in rig.judge(old)))
+        # a long job: the task is running, no new run for hours is expected
+        self.assertEqual(rig.judge(dict(old, state="Running", last_result=0x41301)), [])
+
+    def test_stuck_queue(self):
+        stuck = dict(RIG1, queued=1, oldest_queued="2026-11-01T08:00:00Z")
+        self.assertTrue(any("waiting in C:\\EpicRig\\queue" in x for x in rig.judge(stuck)))
+        self.assertEqual(rig.judge(dict(RIG1, queued=1, oldest_queued="2026-11-01T09:04:00Z")), [])
+
+    def test_missing_record(self):
+        self.assertEqual(rig.judge(None), ["not found on the box"])
+
+    def test_parse(self):
+        out = "noise\r\nRIG %s\r\nRIG %s\r\nRIG {bad\n" % (json.dumps(RIG1), json.dumps(RIG5))
+        self.assertEqual(sorted(rig.parse_health(out)), [1, 5])
+
+    def test_command_fits_cmd_exe(self):
+        cmd = rig.ps_file_command(os.path.join(WIN, "rig-health.ps1"), "-Sessions 1,5")
+        self.assertLess(len(cmd), 8000)
+        self.assertTrue(cmd.endswith('-Sessions 1,5"'))
+
+
+class CandidatesTest(unittest.TestCase):
+    def test_order(self):
+        with mock.patch.dict(os.environ, {"REL_WIN_RIG": ""}):
+            self.assertEqual(rig.candidate_sessions("notor", hosts({"tor": 1, "notor": 5})), [5, 1])
+            self.assertEqual(rig.candidate_sessions("tor", hosts({"tor": 2, "notor": 5})), [2, 5, 1])
+            self.assertEqual(rig.candidate_sessions("tor", hosts({"tor": 1, "notor": 1})), [1])
+
+
+class FakeRig(rig.Rig):
+    """A Rig whose box is a dict: the queue holds our job until `picks` checks have passed."""
+
+    def __init__(self, picks=None, problems=()):
+        super().__init__("box", "run", lambda s: self.logs.append(s), tempfile.mkdtemp(), session=5)
+        self.logs, self.picks, self.probs, self.removed = [], picks, list(problems), []
+        self.checks = 0
+
+    def pwsh(self, script, timeout=120, check=True):
+        if "queue-script.ps1" in script:
+            return "queued C:\\EpicRig5\\queue\\20261101-1-trust.json; log: x\n"
+        if script.startswith("Remove-Item"):
+            self.removed.append(script)
+        return ""
+
+    def queued(self):
+        self.checks += 1
+        return self.picks is None or self.checks <= self.picks
+
+    def problems(self):
+        return self.probs
+
+    def call(self, op, timeout=120, **kw):
+        return {"ok": True, "user": "epicrig2", "profile": "p"}
+
+
+class Clock:
+    def __init__(self):
+        self.t = 1000.0
+
+    def time(self):
+        return self.t
+
+    def sleep(self, s):
+        self.t += s
+
+
+class PickupTest(unittest.TestCase):
+    def run_agent(self, r, **kw):
+        c = Clock()
+        with mock.patch.object(rig.time, "time", c.time), mock.patch.object(rig.time, "sleep", c.sleep):
+            try:
+                return r.start_agent(**kw), c.t - 1000
+            except rig.RigDead as e:
+                return e, c.t - 1000
+
+    def test_picked_up(self):
+        r = FakeRig(picks=2)
+        res, _ = self.run_agent(r)
+        self.assertTrue(res["ok"])
+        self.assertEqual(r.removed, [])
+
+    def test_dead_rig_fails_in_three_minutes_and_takes_its_job_back(self):
+        r = FakeRig(picks=None, problems=["epicrig2 lacks 'Log on as a batch job' (SeBatchLogonRight)"])
+        res, took = self.run_agent(r)
+        self.assertIsInstance(res, rig.RigDead)
+        self.assertLessEqual(took, rig.PICKUP_S + 15)
+        self.assertIn("SeBatchLogonRight", str(res))
+        self.assertEqual(len(r.removed), 1)
+        self.assertIn("20261101-1-trust.json", r.removed[0])
+
+    def test_behind_other_jobs_a_dead_rig_is_seen_early(self):
+        r = FakeRig(picks=None, problems=["task EpicWalletRig5 has not run since 2026-11-01T08:00:00Z"])
+        res, took = self.run_agent(r, wait_s=1800, waiting=1)
+        self.assertIsInstance(res, rig.RigDead)
+        self.assertLess(took, 300)
+
+    def test_behind_other_jobs_a_live_rig_may_take_longer(self):
+        r = FakeRig(picks=20)  # 20 checks of 15 s: 5 min, past PICKUP_S
+        res, _ = self.run_agent(r, wait_s=1800, waiting=1)
+        self.assertTrue(res["ok"])
+
+
+class DriverFallbackTest(unittest.TestCase):
+    def make_run(self):
+        r = object.__new__(wt.Run)
+        r.out = tempfile.mkdtemp()
+        r.work = r.out
+        r.variant, r.host, r.name = "notor", "box", "run"
+        r.details = {}
+        r.logs = []
+        r.log = r.logs.append
+        return r
+
+    def fake_rig_class(self, dead_on_pickup=()):
+        made = []
+
+        class R:
+            def __init__(self, host, name, log, ctl, session=1):
+                self.session, self.run = session, "C:\\EpicRig%d\\trust\\runs\\run" % session
+                made.append(self)
+
+            def prepare(self):
+                pass
+
+            def put(self, *a):
+                pass
+
+            def put_secret(self, *a):
+                return "secret"
+
+            def busy(self):
+                return 0
+
+            def start_agent(self, **kw):
+                if self.session in dead_on_pickup:
+                    raise rig.RigDead("rig session %d did not pick up the job within 180 s" % self.session)
+
+            def close(self):
+                pass
+        return R, made
+
+    def test_dead_rig_skipped_with_one_alert(self):
+        r = self.make_run()
+        R, made = self.fake_rig_class()
+        report = {5: (RIG5, rig.judge(RIG5)), 1: (RIG1, [])}
+        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wt, "health", lambda host, s: report):
+            r.start_on_healthy_rig("prev", "cand", "pw")
+        self.assertEqual(r.rig.session, 1)
+        self.assertEqual([m.session for m in made], [1])
+        notice = read_notice(r)
+        self.assertIn("rig 5 dead", notice["title"])
+        self.assertIn("used rig 1", notice["title"])
+        self.assertIn("SeBatchLogonRight", notice["detail"])
+
+    def test_no_pickup_moves_on(self):
+        r = self.make_run()
+        R, made = self.fake_rig_class(dead_on_pickup=(5,))
+        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wt, "health", lambda host, s: {5: (RIG5, []), 1: (RIG1, [])}):
+            r.start_on_healthy_rig("prev", "cand", "pw")
+        self.assertEqual([m.session for m in made], [5, 1])
+        self.assertEqual(r.rig.session, 1)
+        self.assertTrue(os.path.isfile(os.path.join(r.out, "notice.json")))
+
+    def test_healthy_rig_no_alert(self):
+        r = self.make_run()
+        R, _ = self.fake_rig_class()
+        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [1]), \
+                mock.patch.object(wt, "health", lambda host, s: {1: (RIG1, [])}):
+            r.start_on_healthy_rig("prev", "cand", "pw")
+        self.assertFalse(os.path.exists(os.path.join(r.out, "notice.json")))
+
+    def test_all_dead_cannot_run(self):
+        r = self.make_run()
+        R, _ = self.fake_rig_class()
+        report = {5: (RIG5, rig.judge(RIG5)), 1: (RIG1, ["account epicrig is locked out"])}
+        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wt, "health", lambda host, s: report):
+            with self.assertRaises(wt.CannotRun) as e:
+                r.start_on_healthy_rig("prev", "cand", "pw")
+        self.assertIn("no healthy Windows rig", str(e.exception))
+        self.assertIn("no healthy rig left", read_notice(r)["title"])
+
+    def test_health_unreadable_still_tries(self):
+        r = self.make_run()
+        R, _ = self.fake_rig_class()
+
+        def boom(host, s):
+            raise rig.RigError("box asleep")
+        with mock.patch.object(wt, "Rig", R), mock.patch.object(wt, "candidate_sessions", lambda v: [5, 1]), \
+                mock.patch.object(wt, "health", boom):
+            r.start_on_healthy_rig("prev", "cand", "pw")
+        self.assertEqual(r.rig.session, 5)
+
+
+class PreflightTest(unittest.TestCase):
+    def run_pf(self, rigs, report, variants=("tor", "notor")):
+        lines = []
+        with mock.patch.dict(os.environ, {"REL_WIN_RIG": ""}):
+            warns = builtins.rig_preflight("box", list(variants), hosts(rigs), lambda m: lines.append(("ok", m)),
+                                           lambda m: lines.append(("FAIL", m)), lambda k, m: lines.append((k, m)),
+                                           rig=rig, report=report)
+        return lines, warns
+
+    def test_all_healthy(self):
+        lines, warns = self.run_pf({"tor": 1, "notor": 1}, {1: (RIG1, [])})
+        self.assertEqual([k for k, _ in lines], ["ok", "ok"])
+        self.assertEqual(warns, [])
+
+    def test_dead_rig_with_fallback_warns_by_name(self):
+        lines, warns = self.run_pf({"tor": 1, "notor": 5}, {1: (RIG1, []), 5: (RIG5, rig.judge(RIG5))})
+        self.assertFalse(any(k == "FAIL" for k, _ in lines))
+        self.assertTrue(any("notor is dead, the run falls back to rig 1" in w and "SeBatchLogonRight" in w for w in warns))
+
+    def test_no_healthy_rig_fails(self):
+        lines, _ = self.run_pf({"tor": 5, "notor": 5}, {1: (RIG1, ["x"]), 5: (RIG5, rig.judge(RIG5))}, variants=("tor",))
+        self.assertTrue(any(k == "FAIL" and "no healthy Windows rig for tor" in m for k, m in lines))
+
+    def test_unused_dead_rig_is_named(self):
+        _, warns = self.run_pf({"tor": 1, "notor": 1}, {1: (RIG1, []), 5: (RIG5, rig.judge(RIG5))})
+        self.assertTrue(any("rig 5" in w and "not used by this run" in w for w in warns))
+
+
+class NightlyTest(unittest.TestCase):
+    def test_dead_rig_flagged(self):
+        h = hosts({"tor": 1})
+        r = nightly.rig_health(hosts_file=h, probe=lambda host: {1: (RIG1, []), 5: (RIG5, rig.judge(RIG5))})
+        self.assertEqual(r["status"], "dead")
+        self.assertEqual(r["checked"], [1, 5])
+        self.assertTrue(r["dead"][0].startswith("rig 5: "))
+        self.assertEqual(nightly.rig_step(r)["status"], "fail")
+
+    def test_ok_and_unknown(self):
+        h = hosts({"tor": 1})
+        self.assertEqual(nightly.rig_health(hosts_file=h, probe=lambda host: {1: (RIG1, [])})["status"], "ok")
+
+        def boom(host):
+            raise OSError("no route")
+        r = nightly.rig_health(hosts_file=h, probe=boom)
+        self.assertEqual(r["status"], "unknown")
+        self.assertEqual(nightly.rig_step(r)["status"], "skipped")
+
+    def test_summary_names_dead_rig(self):
+        res = {"ended": "2026-11-02T03:00:00Z", "status": "green", "sha": "0" * 40, "tests": {}, "duration_s": 60,
+               "steps": [], "rigs": {"status": "dead", "dead": ["rig 5: no batch right"]}}
+        self.assertIn("Windows rig dead: rig 5: no batch right", nightly.summary_line(res))
+
+
+if __name__ == "__main__":
+    unittest.main()

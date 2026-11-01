@@ -128,6 +128,48 @@ def resolve_previous(engine):
     return {}
 
 
+def windows_rig_module():
+    spec = importlib.util.spec_from_file_location("win_rig", os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                          "drivers", "windows", "rig.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def rig_preflight(alias, variants, hosts_file, ok, bad, say, rig=None, report=None):
+    """Every Windows rig session on the box, read before the run (drivers/windows/rig.py health): the
+    variant's own rig, or a healthy one it falls back to, must be there; a dead rig is named with its
+    cause. -> the warnings."""
+    rig = rig or windows_rig_module()
+    warns = []
+    if report is None:
+        try:
+            report = rig.health(alias)
+        except Exception as e:  # noqa: BLE001
+            bad(f"Windows rig health not read on {alias}: {e}")
+            return warns
+    used = set()
+    for v in variants:
+        cands = rig.candidate_sessions(v, hosts_file)
+        healthy = [k for k in cands if k in report and not report[k][1]]
+        own = cands[0]
+        if healthy and healthy[0] == own:
+            ok(f"Windows rig for {v}: {rig.describe(own, [])}")
+        elif healthy:
+            warns.append(f"Windows rig for {v} is dead, the run falls back to rig {healthy[0]}: "
+                         f"{rig.describe(own, report.get(own, (None, ['not found on the box']))[1])}")
+            say("warn", warns[-1])
+        else:
+            bad(f"no healthy Windows rig for {v}: " + " | ".join(
+                rig.describe(k, report.get(k, (None, ["not found on the box"]))[1]) for k in cands))
+        used.update(cands)
+    for k, (_, probs) in sorted(report.items()):
+        if probs and k not in used:
+            warns.append(f"Windows {rig.describe(k, probs)} (not used by this run)")
+            say("warn", warns[-1])
+    return warns
+
+
 def preflight(engine, step, say):
     info, s = engine.info, engine.info["scope"]
     hosts, pipe = engine.hosts, engine.pipeline
@@ -197,6 +239,8 @@ def preflight(engine, step, say):
         rc = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", alias, "exit"],
                             capture_output=True, timeout=40).returncode
         (ok if rc == 0 else bad)(f"ssh {role} ({alias}) reachable")
+        if role == "windows" and rc == 0:
+            warns += rig_preflight(alias, [v for v, on in s["variants"].items() if on], hosts["file"], ok, bad, say)
     for k, plat in (("node_bin_linux", "linux"), ("node_bin_windows", "windows")):
         if plat in plats:
             pth = hosts["path"].get(k, "")

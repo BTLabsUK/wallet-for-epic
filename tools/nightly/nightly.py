@@ -53,6 +53,10 @@ A run:
      sends ONE DM (key nightly-<sha8>-trust) naming the failing checks. NIGHTLY_TRUST=0 turns the
      pass off, NIGHTLY_TRUST_PLATFORMS=linux,android limits it, NIGHTLY_TRUST_CHECKS overrides
      REL_CHECKS (default: the driver's eight);
+  7c. reads every Windows rig session's health (drivers/windows/rig.py health, read-only over SSH:
+     task, last run and result, account, batch logon right, queue): latest.json `rigs` {status:
+     ok|dead|unknown, dead: ["rig <k>: <cause>"]} and a `Windows rig health` step (group rigs);
+     a dead rig is named in summary.txt too. It never changes the run's status;
   8. runs `tools/lepic.sh prune-shared` and `prebuild` (fills the prebuilt LEPIC cache) when the
      commit has them, ignoring their result.
 Python 3 standard library only.
@@ -671,6 +675,40 @@ def run_trust(run_dir, env_base, worktree=None, rel_root=None, runner=None, busy
     return [results[p] for p in platforms]
 
 
+def rig_health(worktree=None, hosts_file=None, probe=None):
+    """Every Windows rig session on the box, read-only (the commit's drivers/windows/rig.py health, as
+    BT over SSH): {status: ok|dead|unknown, dead: [str], checked: [int]} for latest.json `rigs`.
+    `probe(host)` -> {session: (facts, problems)}; injectable for tests."""
+    hosts_file = Path(hosts_file or os.environ.get("REL_HOSTS") or HOME / ".config" / "btlabs" / "release-hosts.toml")
+    try:
+        import tomllib
+        host = tomllib.loads(hosts_file.read_text(encoding="utf-8")).get("host", {}).get("windows", {}).get("ssh")
+    except (OSError, ValueError):
+        host = None
+    host = host or "windows-pc"
+    try:
+        if probe is None:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(
+                "win_rig", Path(worktree or WORKTREE) / "tools" / "rellib" / "drivers" / "windows" / "rig.py")
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            probe = mod.health
+        report = probe(host)
+    except Exception as e:  # the box asleep or unreachable: unknown, not dead
+        return {"status": "unknown", "host": host, "dead": [], "checked": [], "reason": _clip(str(e), 200)}
+    dead = [f"rig {k}: " + "; ".join(probs) for k, (_, probs) in sorted(report.items()) if probs]
+    return {"status": "dead" if dead else "ok", "host": host, "dead": dead, "checked": sorted(report)}
+
+
+def rig_step(rigs):
+    status = {"ok": "ok", "dead": "fail"}.get(rigs["status"], "skipped")
+    step = {"name": "Windows rig health", "group": "rigs", "status": status, "duration_s": 0}
+    if rigs["status"] != "ok":
+        step["reason"] = "; ".join(rigs["dead"]) or rigs.get("reason", "")
+    return step
+
+
 def trust_summary(steps):
     """{status: red|green|skipped, failed: [str]} for the result; None without trust steps."""
     if not steps:
@@ -898,6 +936,7 @@ def cmd_run(by_hand):
         trust_steps = run_trust(run_dir, {k: v for k, v in env.items()
                                           if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")})
 
+    rigs = rig_health()
     last_green = state.get("last_green_sha")
     result = {
         "status": status,
@@ -908,8 +947,9 @@ def cmd_run(by_hand):
         "kind": kind,
         "command": command,
         "exit": rc,
-        "steps": parsed["steps"] + trust_steps,
+        "steps": parsed["steps"] + trust_steps + [rig_step(rigs)],
         "trust": trust_summary(trust_steps),
+        "rigs": rigs,
         "failing_step": parsed["failing_step"],
         "tests": parsed["tests"],
         "failing_tests": parsed["failing_tests"],
@@ -978,6 +1018,9 @@ def summary_line(r):
         skipped = [s["platform"] for s in r["steps"] if s.get("group") == "trust" and s["status"] == "skipped"]
         if skipped:
             line += f" (skipped: {', '.join(skipped)})"
+    rigs = r.get("rigs") or {}
+    if rigs.get("status") == "dead":
+        line += " | Windows rig dead: " + "; ".join(rigs["dead"])
     return line
 
 

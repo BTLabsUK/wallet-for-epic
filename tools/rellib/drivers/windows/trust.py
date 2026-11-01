@@ -41,7 +41,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, LINUX)
 sys.path.insert(0, os.path.dirname(HERE))
 from p_funder import P  # noqa: E402
-from rig import Rig, RigError, pick_session, task_name, work_dir  # noqa: E402
+from rig import Rig, RigDead, RigError, candidate_sessions, describe, health, pick_session, task_name, work_dir  # noqa: E402
 import facts  # noqa: E402
 import screens as catalog  # noqa: E402
 import seed  # noqa: E402
@@ -713,21 +713,69 @@ class Run:
         os.chmod(pw, 0o600)
         self.label = "Trust %s" % datetime.datetime.now().strftime("%m%d %H%M")
         self.want_settings = dict(seed.SEED, label=self.label)
-        self.rig = Rig(self.host, self.name, self.log, os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows", "ctl"),
-                       session=pick_session(self.variant))
-        self.rig.prepare()
-        self.rig.put(prev, self.rig.run + "\\prev-setup.exe")
-        self.rig.put(cand, self.rig.run + "\\cand-setup.exe")
-        self.pw_remote = self.rig.put_secret(pw, "wallet.pw")
-        self.log("rig run folder %s; local work folder %s" % (self.rig.run, self.work))
-        waiting = self.rig.busy()
-        if waiting:
-            self.log("the rig queue has %d job(s) before ours" % waiting)
-        self.rig.start_agent(idle_min=45, wait_s=1800 if waiting else 420)
+        self.start_on_healthy_rig(prev, cand, pw)
         try:
             return self.flow()
         finally:
             self.shutdown()
+
+    def start_on_healthy_rig(self, prev, cand, pw):
+        """The variant's rig session, or the next healthy one when it is dead (rig.candidate_sessions): its
+        health is read first, and a session that does not pick up our job in time is left for the next.
+        A dead rig is named in one alert (notice.json, forwarded by the release tool)."""
+        self.rig = None
+        sessions = candidate_sessions(self.variant)
+        try:
+            report = health(self.host, sessions)
+        except (RigError, OSError, ValueError) as e:  # an unanswered health check never blocks the run
+            self.log("rig health not read (%s): trying rig session %d as configured" % (e, sessions[0]))
+            report = {}
+        dead = []
+        for k in sessions:
+            probs = report.get(k, (None, []))[1]
+            if probs:
+                dead.append((k, probs))
+                self.log("DEAD %s" % describe(k, probs))
+                continue
+            self.rig = Rig(self.host, self.name, self.log, os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows", "ctl"),
+                           session=k)
+            try:
+                self.rig.prepare()
+                self.rig.put(prev, self.rig.run + "\\prev-setup.exe")
+                self.rig.put(cand, self.rig.run + "\\cand-setup.exe")
+                self.pw_remote = self.rig.put_secret(pw, "wallet.pw")
+                self.log("rig run folder %s; local work folder %s" % (self.rig.run, self.work))
+                waiting = self.rig.busy()
+                if waiting:
+                    self.log("the rig queue has %d job(s) before ours" % waiting)
+                self.rig.start_agent(idle_min=45, wait_s=1800 if waiting else 420, waiting=waiting)
+            except RigDead as e:
+                dead.append((k, [str(e)]))
+                self.log("DEAD %s" % e)
+                self.rig.close()
+                self.rig = None
+                continue
+            break
+        if dead:
+            self.alert_dead(dead, self.rig.session if self.rig else None)
+        if not self.rig:
+            raise CannotRun("no healthy Windows rig: %s" % " | ".join(describe(k, p) for k, p in dead))
+        self.details["rig"] = "rig session %d (%s)" % (self.rig.session, task_name(self.rig.session)) + (
+            "; dead and skipped: " + " | ".join(describe(k, p) for k, p in dead) if dead else "")
+
+    def alert_dead(self, dead, used):
+        """One message to the owner naming the dead rig(s) and the cause (REL_OUT/notice.json: the release
+        tool forwards it once when the step ends)."""
+        names = ", ".join("rig %d" % k for k, _ in dead)
+        notice = {
+            "title": "Windows %s dead: %s" % (names, "this run used rig %d" % used if used else "no healthy rig left"),
+            "detail": "\n".join(describe(k, p) for k, p in dead),
+            "expects": "fix the rig (wintest-rig scripts\\setup-test-user.ps1, elevated), or point [host.windows] rigs "
+                       "in release-hosts.toml at a healthy one",
+        }
+        with open(os.path.join(self.out, "notice.json"), "w", encoding="utf-8") as f:
+            json.dump(notice, f, indent=2)
+        self.log("ALERT %s" % notice["title"])
 
     def flow(self):
         r = self.call("standins", node=self.node, relay=self.relay)

@@ -13,7 +13,9 @@ two runs as the same Windows user collide on the app's single-instance mutex and
 key. So a run holds a lock on its rig's user (here, flock) and a second run for the same user waits;
 only rigs with different users run side by side."""
 import base64
+import datetime
 import fcntl
+import gzip
 import json
 import os
 import re
@@ -22,6 +24,15 @@ import time
 
 QUEUE = r"C:\wintest-rig\scripts\queue-script.ps1"
 HERE = os.path.dirname(os.path.abspath(__file__))
+# A rig task wakes every 2 minutes and picks the oldest job: a job not picked within PICKUP_S of an
+# empty queue means the rig is dead (REL_WIN_PICKUP_S overrides). A task with no run for HEARTBEAT_S
+# that is not running a job has stopped waking.
+PICKUP_S = 180
+HEARTBEAT_S = 600
+STUCK_QUEUE_S = 600
+# LastTaskResult: 0 ok, 0x41301 running; 0x41303 "has not yet run"
+RESULT_OK = (0, 0x41301)
+NEVER_RAN = 0x41303
 
 
 def work_dir(session):
@@ -51,8 +62,123 @@ def pick_session(variant, hosts_file=None):
     return int(v)
 
 
+def candidate_sessions(variant, hosts_file=None):
+    """The session for a variant first, then the other sessions [host.windows] rigs names, then 1: where a
+    run goes when its own rig is dead."""
+    out = [pick_session(variant, hosts_file)]
+    path = os.path.expanduser(hosts_file or os.environ.get("REL_HOSTS") or "~/.config/btlabs/release-hosts.toml")
+    try:
+        import tomllib
+        with open(path, "rb") as f:
+            rigs = tomllib.load(f).get("host", {}).get("windows", {}).get("rigs", {})
+    except (OSError, ValueError):
+        rigs = {}
+    for k in [rigs.get(variant)] + [v for n, v in sorted(rigs.items()) if n != variant] + [1]:
+        if re.fullmatch(r"[1-9]", str(k or "")) and int(k) not in out:
+            out.append(int(k))
+    return out
+
+
 class RigError(Exception):
     pass
+
+
+class RigDead(RigError):
+    """The rig session did not pick up a job: another session may take the run."""
+
+
+# ---- health (read-only, as BT, no admin): rig-health.ps1 on the box, judged here
+
+def ps_file_command(path, args=""):
+    """A command line that runs a local PowerShell file on the box: gzip + base64 inline, short enough for
+    cmd.exe (an -EncodedCommand of the whole file is not)."""
+    with open(path, "rb") as f:
+        b = base64.b64encode(gzip.compress(f.read(), 9)).decode()
+    return ("pwsh -NoProfile -NonInteractive -Command \"$s=[IO.StreamReader]::new([IO.Compression.GZipStream]::new("
+            "[IO.MemoryStream]::new([Convert]::FromBase64String('%s')),[IO.Compression.CompressionMode]::Decompress))"
+            ".ReadToEnd(); & ([ScriptBlock]::Create($s)) %s\"" % (b, args))
+
+
+def parse_health(out):
+    """rig-health.ps1's output -> {session: facts}."""
+    recs = {}
+    for line in (out or "").splitlines():
+        line = line.strip().lstrip("\ufeff")
+        if line.startswith("RIG "):
+            try:
+                r = json.loads(line[4:])
+            except ValueError:
+                continue
+            recs[int(r["session"])] = r
+    return recs
+
+
+def _when(s):
+    try:
+        return datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def judge(r, now=None):
+    """What is wrong with one rig session, most basic cause first; [] when healthy."""
+    if not r:
+        return ["not found on the box"]
+    if not r.get("exists"):
+        return ["no scheduled task %s" % r.get("task")]
+    now = now or _when(r.get("now")) or datetime.datetime.now(datetime.timezone.utc)
+    user = r.get("user") or "?"
+    bad = []
+    if not r.get("enabled"):
+        bad.append("task %s is disabled" % r["task"])
+    if not r.get("sid") or "account_enabled" not in r:
+        bad.append("the task's user %s is not a local account" % user)
+    else:
+        if not r.get("account_enabled"):
+            bad.append("account %s is disabled" % user)
+        if r.get("locked"):
+            bad.append("account %s is locked out" % user)
+        exp = _when(r.get("password_expires"))
+        if exp and exp <= now:
+            bad.append("the password of %s expired %s" % (user, r["password_expires"]))
+        exp = _when(r.get("account_expires"))
+        if exp and exp <= now:
+            bad.append("account %s expired %s" % (user, r["account_expires"]))
+        if r.get("batch_denied"):
+            bad.append("%s is denied 'Log on as a batch job' (SeDenyBatchLogonRight)" % user)
+        elif not r.get("batch_right") and not r.get("rights_error"):
+            bad.append("%s lacks 'Log on as a batch job' (SeBatchLogonRight), so the task cannot log it on" % user)
+    res = r.get("last_result")
+    running = r.get("state") == "Running"
+    last = _when(r.get("last_run"))
+    if res == NEVER_RAN and not last:
+        bad.append("task %s has never run (last result 267011 = 0x41303, has not yet run)" % r["task"])
+    elif res not in RESULT_OK and res is not None:
+        bad.append("task %s last run result %d (0x%X)" % (r["task"], res, res & 0xFFFFFFFF))
+    if last and not running and (now - last).total_seconds() > HEARTBEAT_S:
+        bad.append("task %s has not run since %s" % (r["task"], r["last_run"]))
+    oldest = _when(r.get("oldest_queued"))
+    if oldest and not running and (now - oldest).total_seconds() > STUCK_QUEUE_S:
+        bad.append("%d job(s) waiting in %s\\queue since %s" % (r.get("queued") or 0, r.get("work"), r["oldest_queued"]))
+    return bad
+
+
+def health(host, sessions=None, timeout=120, ssh_opts=()):
+    """{session: (facts, problems)} for the given sessions (every rig task on the box when None); raises
+    RigError when the box does not answer."""
+    args = ("-Sessions %s" % ",".join(str(int(k)) for k in sessions)) if sessions else ""
+    r = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=15", *ssh_opts, host,
+                        ps_file_command(os.path.join(HERE, "rig-health.ps1"), args)],
+                       capture_output=True, text=True, errors="replace", timeout=timeout)
+    recs = parse_health(r.stdout)
+    if r.returncode != 0 and not recs:
+        raise RigError("rig health on %s: exit %d: %s" % (host, r.returncode, (r.stderr or r.stdout)[-300:]))
+    want = list(sessions) if sessions else sorted(recs)
+    return {k: (recs.get(k), judge(recs.get(k))) for k in want}
+
+
+def describe(session, problems):
+    return "rig %d (%s): %s" % (session, task_name(session), "; ".join(problems) if problems else "ok")
 
 
 class Rig:
@@ -63,6 +189,7 @@ class Rig:
         self.run = self.base + r"\runs" + "\\" + name
         self.log = log
         self.user = None
+        self.job = None
         self.control_dir = control_dir
         self._lock = None
         os.makedirs(control_dir, mode=0o700, exist_ok=True)
@@ -137,16 +264,55 @@ class Rig:
         n = [int(x) for x in out.split()[:2]] if out.strip() else [0, 0]
         return n[0] + n[1]
 
-    def start_agent(self, idle_min=45, wait_s=420):
+    def start_agent(self, idle_min=45, wait_s=420, waiting=0, pickup_s=None):
+        """Queues the agent and waits for it. With an empty queue the rig must pick the job within pickup_s
+        (PICKUP_S): otherwise the job is taken back and RigDead says why. Behind other jobs the wait is
+        wait_s, cut short when the rig turns out dead."""
         label = "trust-" + self.run.rsplit("\\", 1)[-1][-15:]
-        self.pwsh("& '%s' '%s\\bin\\agent.ps1' -ScriptArgs @('%s','%d') -Label '%s' -Session %d"
-                  % (QUEUE, self.base, self.run, idle_min, label, self.session))
+        out = self.pwsh("& '%s' '%s\\bin\\agent.ps1' -ScriptArgs @('%s','%d') -Label '%s' -Session %d"
+                        % (QUEUE, self.base, self.run, idle_min, label, self.session))
+        m = re.search(r"queued (\S+\.json)", out)
+        self.job = m.group(1) if m else None
         self.log("rig agent queued as %s in rig session %d (%s)" % (self.user, self.session, label))
-        r = self.call("ping", timeout=wait_s)
+        if pickup_s is None:
+            pickup_s = int(os.environ.get("REL_WIN_PICKUP_S") or PICKUP_S)
+        t0 = time.time()
+        limit = wait_s if waiting else min(pickup_s, wait_s)
+        checked = t0
+        while self.job and self.queued():
+            if time.time() - t0 > limit:
+                self.withdraw()
+                raise RigDead("rig session %d did not pick up the job within %d s: %s" % (
+                    self.session, limit, "; ".join(self.problems()) or "no cause found by the health check"))
+            if waiting and time.time() - checked > 120:
+                checked = time.time()
+                probs = self.problems()
+                if probs:
+                    self.withdraw()
+                    raise RigDead("rig session %d is dead: %s" % (self.session, "; ".join(probs)))
+            time.sleep(15)
+        r = self.call("ping", timeout=max(60, int(wait_s - (time.time() - t0))))
         if not r.get("ok"):
             raise RigError("rig agent did not start: %s" % r.get("error"))
         self.log("rig agent up: user %s, profile %s" % (r.get("user"), r.get("profile")))
         return r
+
+    def queued(self):
+        """Our job file still waits in the queue (the task moves it to done\\ when it starts it)."""
+        out = self.pwsh("if (Test-Path -LiteralPath '%s') { 'QUEUED' } else { 'GONE' }" % self.job, check=False)
+        return "QUEUED" in out
+
+    def withdraw(self):
+        """Takes our own job back out of the queue (by its exact path), so a dead rig keeps no stale job."""
+        if self.job:
+            self.pwsh("Remove-Item -LiteralPath '%s' -Force -ErrorAction SilentlyContinue" % self.job, check=False)
+            self.log("rig session %d: took our job %s back out of its queue" % (self.session, self.job))
+
+    def problems(self):
+        try:
+            return health(self.host, [self.session], ssh_opts=self.ssh_opts)[self.session][1]
+        except (RigError, subprocess.TimeoutExpired, OSError) as e:
+            return ["health check failed: %s" % e]
 
     def call(self, op, timeout=120, **kw):
         self.seq += 1
