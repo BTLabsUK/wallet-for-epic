@@ -24,7 +24,9 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 import ph  # noqa: E402
 import facts  # noqa: E402
+import migration  # noqa: E402
 import screens as catalog  # noqa: E402
+import seed  # noqa: E402
 from ph import PKG, adb, find, key, launch, mask, nodes, secret_words, tap, tap_xy, type_text, wait  # noqa: E402
 
 E = os.environ.get
@@ -40,8 +42,11 @@ RECEIVE_AMOUNT = E("REL_TRUST_RECEIVE", "0.02")   # P → wallet
 SEND_AMOUNT = E("REL_TRUST_SEND", "0.01")         # wallet → P
 FUND_AMOUNT = E("REL_TRUST_FUND", "0.05")         # P → a new (or empty) test wallet
 PREP_AMOUNT = E("REL_TRUST_PREP", "0.01")         # P → the restored wallet, for its history
+# The four a candidate that encrypts the wallet database must pass (migration.py); "not applicable" before it.
+MIGRATION_CHECKS = ("store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept")
 CHECKS = ("wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept",
-          "custom_relays_kept", "settings_kept", "send_ok", "receive_ok")
+          "custom_relays_kept", "settings_kept", "send_ok", "receive_ok") + MIGRATION_CHECKS
+MIGRATE = facts.encrypts_store(E("REL_CANDIDATE_VERSION", ""))
 # Activity rows: "Received 0.05 EPIC from esa57k…ZwzB4d, …", and after a restore
 # "Found on the chain: 0.02 EPIC, received, …".
 TX_RE = re.compile(r"^(Received|Receiving|Sent|Sending|Cancelled|Canceled|Failed|Paid|Payment|Found on the chain)\b.*?\b([0-9]+(?:\.[0-9]+)?) EPIC\b")
@@ -1194,6 +1199,158 @@ def level_after(sa, sb):
     return True, f"level 3 ('{after}')"
 
 
+# ---- the app's files (an emulator image with adb root: the release APK is not debuggable, so no run-as)
+
+class AppFiles:
+    """The app's data folder on the emulator, read and written as root over adb."""
+
+    def __init__(self):
+        self.root = None
+
+    def sh(self, cmd, timeout=60):
+        return adb(S, "shell", cmd, timeout=timeout)
+
+    def cat(self, rel):
+        r = subprocess.run([ph.ADB, "-s", S, "exec-out", "cat", "%s/%s" % (self.root, rel)], capture_output=True, timeout=60)
+        return r.stdout if r.returncode == 0 else None
+
+    def prepare(self):
+        if "uid=0" not in self.sh("id"):
+            adb(S, "root", timeout=60)
+            adb(S, "wait-for-device", timeout=60)
+            time.sleep(2)
+        if "uid=0" not in self.sh("id"):
+            raise RuntimeError("adb root is not available on this emulator image (the app's files cannot be read)")
+        out = self.sh("find /data/data/%s -name settings.toml -o -name wallets.json 2>/dev/null" % PKG)
+        dirs = {os.path.dirname(l.strip()) for l in out.splitlines() if l.strip()}
+        if len(dirs) != 1:
+            raise RuntimeError("the app's data folder (settings.toml, wallets.json) not found under /data/data/%s: %s" % (PKG, sorted(dirs)))
+        self.root = dirs.pop()
+
+    def listing(self):
+        out = self.sh("cd '%s' && find . -type f" % self.root, timeout=120)
+        files = [l.strip()[2:] for l in out.splitlines() if l.strip().startswith("./")]
+        return sorted(f for f in files if f.split("/")[0] not in ("logs", "tor", "cache")
+                      and not f.endswith((".lock", ".log")) and not os.path.basename(f).startswith("LOCK"))
+
+    def text(self, rel):
+        b = self.cat(rel)
+        return b.decode("utf-8", "replace") if b is not None else None
+
+    def snapshot(self):
+        listing = self.listing()
+        return listing, {p: migration.sha256_bytes(self.cat(p) or b"") for p in listing if os.path.basename(p) in migration.WATCHED}
+
+    def put(self, rel, text):
+        local = os.path.join(OUT, "seed-" + os.path.basename(rel))
+        with open(local, "w", encoding="utf-8") as f:
+            f.write(text)
+        adb(S, "push", local, "/data/local/tmp/seed.tmp")
+        uid = self.sh("stat -c %%u '%s'" % self.root).strip()
+        dest = "%s/%s" % (self.root, rel)
+        self.sh("cat /data/local/tmp/seed.tmp > '%s' && chown %s:%s '%s' && chmod 600 '%s'; restorecon '%s' 2>/dev/null" % (
+            dest, uid, uid, dest, dest, dest))
+        os.unlink(local)
+        if self.text(rel) != text:
+            raise RuntimeError("could not write %s into the app's data folder" % rel)
+
+    def first_tx_id(self):
+        dbs = [p for p in self.listing() if p.endswith("/%s/%s" % (facts.STORE_DIR, facts.STORE_PLAIN))]
+        if len(dbs) != 1:
+            raise RuntimeError("%d %s under the app's data folder (one expected)" % (len(dbs), facts.STORE_PLAIN))
+        d = os.path.join(OUT, "seed-db")
+        os.makedirs(d, exist_ok=True)
+        names = [facts.STORE_PLAIN + suffix for suffix in ("", "-wal", "-shm")]
+        for n, suffix in zip(names, ("", "-wal", "-shm")):
+            adb(S, "pull", "%s/%s%s" % (self.root, dbs[0], suffix), os.path.join(d, n))
+        try:
+            return seed.first_tx_id(os.path.join(d, facts.STORE_PLAIN))
+        finally:
+            for n in names:
+                if os.path.exists(os.path.join(d, n)):
+                    os.unlink(os.path.join(d, n))
+            os.rmdir(d)
+
+
+FILES = AppFiles()
+BEFORE_FILES = ([], {})
+LAN_BEFORE = [None]
+
+
+def seed_previous_files():
+    """With the previous release stopped: a contact, a note on the wallet's first transaction and the
+    stand-in node's plain-http agreement, in its own files and format (seed.py)."""
+    adb(S, "shell", "am", "force-stop", PKG)
+    time.sleep(2)
+    FILES.prepare()
+    metas = [p for p in FILES.listing() if p.endswith("/" + facts.META_PLAIN) and p.count("/") == 2]
+    if len(metas) != 1:
+        raise RuntimeError("%d %s under wallets/ (one expected)" % (len(metas), facts.META_PLAIN))
+    try:
+        meta = seed.meta_note(FILES.text(metas[0]), FILES.first_tx_id())
+        contacts = seed.contacts_json(FILES.text(facts.CONTACTS_PLAIN), E("REL_P_ADDR") or "p@epicbox.stackwallet.com")
+    except seed.SeedError as e:
+        raise RuntimeError("seeding the previous release's contact and note: %s" % e)
+    FILES.put(metas[0], meta)
+    FILES.put(facts.CONTACTS_PLAIN, contacts)
+    FILES.put(facts.LAN_NODES_FILE, seed.lan_nodes_json(["http://%s" % CUSTOM["Node"]]))
+    LAN_BEFORE[0] = FILES.text(facts.LAN_NODES_FILE)
+    log("seeded into the stopped previous release: contact %r, note %r, plain-http agreement for %s" % (
+        seed.CONTACT["name"], seed.NOTE, CUSTOM["Node"]))
+
+
+def tab_shows(text):
+    """Whether the first or the third tab's screen shows [text] (the wallet is tab 2 of 3)."""
+    home()
+    for tab in ("Tab 1 of 3", "Tab 3 of 3"):
+        t = find(S, tab)
+        if t:
+            tap_xy(S, t["center"])
+            time.sleep(2)
+            if any(text in n["label"] for n in nodes(S)):
+                return True
+    return False
+
+
+def note_shown():
+    home()
+    ns = nodes(S)
+    if any(seed.NOTE in n["label"] for n in ns):
+        return True
+    rows = [n for n in ns if n["clickable"] and TX_RE.match(n["label"])]
+    if not rows:
+        return False
+    tap_xy(S, rows[0]["center"])
+    time.sleep(2)
+    shown = any(seed.NOTE in n["label"] for n in nodes(S))
+    key(S, 4)
+    return shown
+
+
+def migration_checks():
+    """-> (checks, details) of the four checks, after the candidate has unlocked."""
+    res, det = {}, {}
+    if not MIGRATE:
+        for c in MIGRATION_CHECKS:
+            res[c], det[c] = True, "not applicable: candidate %s keeps the plain database" % E("REL_CANDIDATE_VERSION", "")
+        return res, det
+    b_list, b_hash = BEFORE_FILES
+    FILES.prepare()
+    a_list, a_hash = FILES.snapshot()
+    res["store_encrypted"], det["store_encrypted"] = migration.store_files(b_list, a_list)
+    try:
+        ids = [w["id"] for w in json.loads(FILES.text("wallets.json") or "{}").get("wallets") or [] if w.get("id")]
+    except (ValueError, AttributeError):
+        ids = []
+    res["app_files_kept"], det["app_files_kept"] = migration.app_files(b_list, b_hash, a_list, a_hash, ids)
+    res["lan_nodes_kept"], det["lan_nodes_kept"] = migration.lan_nodes(
+        LAN_BEFORE[0], b_hash.get(facts.LAN_NODES_FILE), a_hash.get(facts.LAN_NODES_FILE), FILES.text(facts.SETTINGS_TOML))
+    res["contact_note_kept"], det["contact_note_kept"] = migration.contact_note(
+        seed.CONTACT["name"], seed.NOTE, b_hash, a_hash, tab_shows(seed.CONTACT["name"]), note_shown(),
+        "plain files unchanged; read on the Contacts tab and the first payment")
+    return res, det
+
+
 def write_proof(checks, details, extra):
     proof = {
         "platform": "android",
@@ -1222,7 +1379,8 @@ RESULT = ({}, {}, {})  # checks, details, extra: kept when the run stops on an e
 
 def run():
     prev_apk, cand_apk = E("REL_PREVIOUS_APK"), E("REL_CANDIDATE_APK")
-    required = [c for c in E("REL_CHECKS", ",".join(CHECKS)).split(",") if c]
+    default = [c for c in CHECKS if MIGRATE or c not in MIGRATION_CHECKS]
+    required = [c for c in E("REL_CHECKS", ",".join(default)).split(",") if c]
     if not FUNDS:  # data checks only: the payment checks are not asked for
         required = [c for c in required if c not in ("send_ok", "receive_ok")]
     checks, details, extra = RESULT
@@ -1294,7 +1452,12 @@ def run():
     log("digest before:", json.dumps(public_digest(a), ensure_ascii=False))
     if not (ok_n and ok_r):
         extra["setup_note"] = "the typed-in node or relay could not be put in use on the previous version"
-    # 4. update the way the in-app updater does: same package, same signature, data kept
+    # 4. update the way the in-app updater does: same package, same signature, data kept. The app is
+    # stopped first to seed its files; the file set is read right before the install.
+    global BEFORE_FILES
+    if MIGRATE:
+        seed_previous_files()
+        BEFORE_FILES = FILES.snapshot()
     log("candidate APK", os.path.basename(cand_apk))
     r = adb(S, "install", "-r", cand_apk, timeout=300)
     vn1, vc1 = ph.version(S)
@@ -1347,6 +1510,9 @@ def run():
     extra["levels"].update(level_before=a["settings"].get("level"), level_after=b["settings"].get("level"),
                            level_ok=lv_ok, note=lv_why)
     c, d = compare(a, b)
+    checks.update(c)
+    details.update(d)
+    c, d = migration_checks()
     checks.update(c)
     details.update(d)
     for k in ("last_session", "problem"):
