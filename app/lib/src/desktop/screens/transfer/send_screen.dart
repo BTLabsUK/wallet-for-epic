@@ -2131,20 +2131,9 @@ class _SendSummary extends StatelessWidget {
     final bad = n > 0 && spendable != null && n + (fee ?? 0) > spendable!;
     final ready = n > 0 && !bad;
     final pending = feeLoading && !bad;
-    Widget line(String label, int? v, {bool strong = false, bool risk = false, bool dim = false, bool loading = false}) => Padding(
-      padding: EdgeInsets.symmetric(vertical: Sp.x2),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
-          if (loading)
-            const SummaryPending()
-          else if (v == null || v == 0)
-            Text('—', style: ts.mono(size: Fs.md, color: c.faint))
-          else
-            EMoney(v, size: strong ? Fs.lg : Fs.md, color: risk ? c.risk : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
-        ],
-      ),
-    );
+    // The summary's one row ([SummaryLine]); a zero reads as "—", nothing to show yet.
+    Widget line(String label, int? v, {bool strong = false, bool risk = false, bool loading = false}) =>
+        SummaryLine(label: label, value: v == 0 ? null : v, strong: strong, risk: risk, loading: loading);
     return EPanel(
       title: l.deskSendSummary,
       padding: EdgeInsets.all(Sp.panel),

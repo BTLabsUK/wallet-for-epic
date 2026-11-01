@@ -32,9 +32,9 @@ class SummaryPending extends StatelessWidget {
 }
 
 /// One summary line: the label, and the amount on the right ("—" while unknown, a spinner
-/// while [loading]).
+/// while [loading]). The one row of Send's summary, its panel and its lock rows alike.
 class SummaryLine extends StatelessWidget {
-  const SummaryLine({super.key, required this.label, required this.value, this.strong = false, this.dim = false, this.warn = false, this.top = false, this.loading = false});
+  const SummaryLine({super.key, required this.label, required this.value, this.strong = false, this.dim = false, this.warn = false, this.risk = false, this.top = false, this.loading = false, this.reserveLines = 1});
 
   final String label;
   final int? value;
@@ -42,31 +42,43 @@ class SummaryLine extends StatelessWidget {
   final bool dim;
   final bool warn;
 
+  /// The amount is more than can be sent: in the risk colour.
+  final bool risk;
+
   /// The value sits at the top of a label that wraps.
   final bool top;
 
   /// The estimate is on its way.
   final bool loading;
 
+  /// Lines of label height the row keeps whatever the value, so a label that wraps beside a
+  /// wide amount but not beside "—" never moves the rows under it.
+  final int reserveLines;
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final v = value;
+    final labelStyle = strong ? ts.strong : ts.bodyDim;
+    final lineHeight = MediaQuery.textScalerOf(context).scale(labelStyle.fontSize ?? Fs.md) * (labelStyle.height ?? 1.5);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Sp.x2),
-      child: Row(
-        crossAxisAlignment: top ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
-          SizedBox(width: Sp.x3),
-          if (loading)
-            const SummaryPending()
-          else if (v == null)
-            Text('—', style: ts.mono(size: Fs.md, color: c.faint))
-          else
-            EMoney(v, size: strong ? Fs.lg : Fs.md, color: warn ? c.warn : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
-        ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: reserveLines > 1 ? lineHeight * reserveLines : 0),
+        child: Row(
+          crossAxisAlignment: top ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+          children: [
+            Expanded(child: Text(label, style: labelStyle)),
+            SizedBox(width: Sp.x3),
+            if (loading)
+              const SummaryPending()
+            else if (v == null)
+              Text('—', style: ts.mono(size: Fs.md, color: c.faint)) // l10n-ok: no amount yet
+            else
+              EMoney(v, size: strong ? Fs.lg : Fs.md, color: risk ? c.risk : (warn ? c.warn : (dim ? c.dim : null)), weight: strong ? FontWeight.w600 : null),
+          ],
+        ),
       ),
     );
   }
@@ -159,7 +171,9 @@ class SendLockRows extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SummaryLine(label: l.deskSendBalanceAfter, value: s?.balanceAfter, dim: true, loading: loading && s == null),
-        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true, loading: loading && s == null),
+        // The label wraps beside an amount but not beside "—": two lines kept, so typing an
+        // amount never moves the rows under it (#28).
+        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true, reserveLines: 2, loading: loading && s == null),
         ExpandFade(
           open: caption != null,
           child: Semantics(
