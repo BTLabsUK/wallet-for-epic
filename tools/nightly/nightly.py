@@ -53,7 +53,8 @@ A run:
      sends ONE DM (key nightly-<sha8>-trust) naming the failing checks. NIGHTLY_TRUST=0 turns the
      pass off, NIGHTLY_TRUST_PLATFORMS=linux,android limits it, NIGHTLY_TRUST_CHECKS overrides
      REL_CHECKS (default: the driver's eight);
-  8. runs `tools/lepic.sh prune-shared` when the commit has it, ignoring its result.
+  8. runs `tools/lepic.sh prune-shared` and `prebuild` (fills the prebuilt LEPIC cache) when the
+     commit has them, ignoring their result.
 Python 3 standard library only.
 """
 
@@ -986,6 +987,11 @@ def prune_shared():
         if "prune-shared" in lepic.read_text(encoding="utf-8"):
             subprocess.run([str(lepic), "prune-shared"], cwd=str(WORKTREE), env=check_env_path(),
                            capture_output=True, timeout=1800)
+        if "prebuild" in lepic.read_text(encoding="utf-8"):
+            # Keeps the shared prebuilt LEPIC cache warm for the pin on main; the result is ignored.
+            heavy = shutil.which("build-slot")
+            subprocess.run(([heavy] if heavy else []) + [str(lepic), "prebuild"], cwd=str(WORKTREE),
+                           env=check_env_path(), capture_output=True, timeout=3600)
     except (OSError, subprocess.SubprocessError):
         pass
 

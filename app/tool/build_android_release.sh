@@ -108,7 +108,7 @@ if [[ $dist == fdroid ]]; then
   export RUSTFLAGS="--remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
 fi
 # The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0.
-WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
+LEPIC_NO_CACHE=1 WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
 
 apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"

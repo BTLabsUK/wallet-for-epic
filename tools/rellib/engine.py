@@ -309,6 +309,7 @@ class Engine:
             return {"status": "failed", "note": f"working dir {cwd} does not exist"}
         full_env = {k: v for k, v in os.environ.items()}
         full_env.update(env)
+        full_env["LEPIC_NO_CACHE"] = "1"  # release builds come from source, never the prebuilt cache
         with open(log, "ab") as f:
             p = subprocess.Popen(argv, cwd=cwd, env=full_env, stdout=f, stderr=subprocess.STDOUT,
                                  stdin=subprocess.DEVNULL, start_new_session=True)
@@ -331,6 +332,7 @@ class Engine:
     def _dry_proof(self, step, cwd, env, log):
         full_env = dict(os.environ)
         full_env.update(env)
+        full_env["LEPIC_NO_CACHE"] = "1"
         argv = ["bash", "-c", "set -euo pipefail\n" + step.run]
         if not os.path.isdir(cwd):
             cwd = self.repo  # no release worktree in a dry run: the driver from this checkout

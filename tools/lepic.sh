@@ -15,7 +15,13 @@
 #   tools/lepic.sh build android     the three Android ABIs into the binding's native/
 #   tools/lepic.sh build all         both
 #   tools/lepic.sh lib               print the path of the Linux library
+#   tools/lepic.sh prebuild          sync, then fill the shared cache for linux; keep two keys
 #   tools/lepic.sh prune-shared      remove shared builds (below) unused for LEPIC_SHARED_DAYS (14)
+#
+# The Linux library is cached in /tmp/epic-build/lepic-prebuilt/<key>/ (LEPIC_PREBUILT_DIR), keyed by
+# both pins, the target, the Rust toolchain and WFE_TOR. A hit copies and checks it; a miss builds
+# and stores it (temp dir, then rename). LEPIC_NO_CACHE=1 skips the cache both ways: release
+# builds (tools/rel, the release scripts) set it and always build from source. Android is never cached.
 #
 # WFE_TOR=0 builds the libraries without LEPIC's tor feature (https://docs.btlabs.uk/developers/build/variants/): the
 # binding's tool/lepic.sh reads the same switch.
@@ -40,6 +46,53 @@ binding_repo="$(wfe_repo "${LEPIC_FLUTTER_REPO:-}" "$HOME/lepic-flutter" \
   https://gitlab.com/epic-cash-bt/lepic-flutter.git "$binding_rev")"
 # One target directory per clone: a shared one bakes the wrong paths into xtask.
 unset CARGO_TARGET_DIR
+
+cache_root="${LEPIC_PREBUILT_DIR:-$HOME/epic-build/lepic-prebuilt}"
+linux_triple=x86_64-unknown-linux-gnu
+
+# The cache key of the Linux library: everything that changes the output.
+cache_key() {
+  local tor=1
+  case "${WFE_TOR:-1}" in 0|false|off) tor=0 ;; esac
+  printf '%s\n' "lepic=$rev" "binding=$binding_rev" "target=$linux_triple" "tor=$tor" \
+    "rustc=$(cd "$clone" && rustc -Vv | tr '\n' ' ')" | sha256sum | cut -c1-24
+}
+
+cache_off() { [ -n "${LEPIC_NO_CACHE:-}" ] && [ "$LEPIC_NO_CACHE" != 0 ]; }
+
+# Copies the cached Linux library into the binding's native/ and checks it; fails on a miss or a bad copy.
+cache_restore() {
+  local src="$cache_root/$1/$linux_triple" dst="$binding/native/$linux_triple"
+  [ -f "$src/liblepic_ffi.so" ] || return 1
+  (cd "$src" && sha256sum --check --quiet SHA256SUMS) || return 1
+  mkdir -p "$dst"
+  cp -f "$src/liblepic_ffi.so" "$src/SHA256SUMS" "$dst/"
+  (cd "$dst" && sha256sum --check --quiet SHA256SUMS)
+}
+
+# Stores the built Linux library under key $1: a temp dir first, then one rename.
+cache_store() {
+  local src="$binding/native/$linux_triple" tmp
+  [ -f "$src/liblepic_ffi.so" ] || return 0
+  mkdir -p "$cache_root"
+  tmp="$(mktemp -d "$cache_root/.tmp.XXXXXX")"
+  mkdir "$tmp/$linux_triple"
+  cp "$src/liblepic_ffi.so" "$tmp/$linux_triple/"
+  (cd "$tmp/$linux_triple" && sha256sum liblepic_ffi.so > SHA256SUMS)
+  printf 'lepic %s\nbinding %s\nbuilt %s\n' "$rev" "$binding_rev" "$(date -u +%FT%TZ)" > "$tmp/META"
+  if mv -T "$tmp" "$cache_root/$1" 2>/dev/null; then :; else rm -r "$tmp"; fi
+}
+
+# Keeps the two newest keys (by directory time); older ones go, each by exact path.
+cache_prune() {
+  local n=0 d
+  [ -d "$cache_root" ] || return 0
+  while IFS= read -r d; do
+    n=$((n + 1))
+    [ "$n" -le 2 ] && continue
+    if [[ "$d" =~ ^[0-9a-f]{24}$ ]]; then rm -r "$cache_root/$d"; fi
+  done < <(cd "$cache_root" && ls -1t)
+}
 
 # Moves (or first makes) the clone $1 of repository $2 to commit $3.
 sync_clone() {
@@ -105,8 +158,21 @@ case "${1:-}" in
     what="${2:-all}"
     case "$what" in
       linux|android|all) ;;
-      *) sed -n '9,15p' "$0" >&2; exit 2 ;;
+      *) sed -n '9,17p' "$0" >&2; exit 2 ;;
     esac
+    # The Linux library from the prebuilt cache when it has this key (LEPIC_NO_CACHE=1 skips it).
+    key="" build_linux=0
+    if [ "$what" = linux ] || [ "$what" = all ]; then
+      build_linux=1
+      if ! cache_off; then
+        key="$(cache_key)"
+        if cache_restore "$key"; then
+          build_linux=0
+          echo "linux: from the prebuilt cache $cache_root/$key"
+        fi
+      fi
+    fi
+    if [ "$what" = linux ] && [ "$build_linux" = 0 ]; then exit 0; fi
     src="$clone"
     if [ "${LEPIC_SHARED:-0}" = 1 ]; then
       src="$(shared_clone)"
@@ -116,8 +182,9 @@ case "${1:-}" in
       flock -n "$lock" || { echo "waiting for another build from $src"; flock "$lock"; }
       touch "$src.used"
     fi
-    if [ "$what" = linux ] || [ "$what" = all ]; then
+    if [ "$build_linux" = 1 ]; then
       LEPIC_DIR="$src" "$binding/tool/lepic.sh" build linux
+      [ -z "$key" ] || cache_store "$key"
       echo "linux: $binding/native/x86_64-unknown-linux-gnu/"
     fi
     if [ "$what" = android ] || [ "$what" = all ]; then
@@ -140,11 +207,18 @@ case "${1:-}" in
       exec {lock}>&-
     done
     ;;
+  prebuild)
+    "$0" sync
+    LEPIC_NO_CACHE=0 LEPIC_SHARED=1 "$0" build linux
+    touch "$cache_root/$(cache_key)"
+    cache_prune
+    echo "prebuilt cache: $cache_root"
+    ;;
   lib)
     echo "$binding/native/x86_64-unknown-linux-gnu/liblepic_ffi.so"
     ;;
   *)
-    sed -n '9,15p' "$0" >&2
+    sed -n '9,17p' "$0" >&2
     exit 2
     ;;
 esac

@@ -93,7 +93,7 @@ if [[ -z "${WFE_APK_DIR:-}" ]]; then
   flutter pub get
   # package:lepic's build hook bundles prebuilt libraries and fails without them. Up to date,
   # this is a no-op build.
-  "$app_dir/../tools/lepic.sh" build android
+  LEPIC_NO_CACHE=1 "$app_dir/../tools/lepic.sh" build android
   flutter build apk --release --target-platform android-arm64 --split-per-abi \
     ${WFE_UPDATE_URL:+--dart-define=WFE_UPDATE_URL="$WFE_UPDATE_URL"}
 else
