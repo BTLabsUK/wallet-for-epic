@@ -46,6 +46,15 @@ FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")
 CAP_JOB = decimal.Decimal("1")
 AMOUNT = re.compile(r"^(-?[\d,]+(?:\.\d+)?) EPIC$")
+# Settings' sections the driver opens or may see beside them: a narrow page lists them as chips, and
+# where two rows of chips are not enough as a dropdown that names only the section shown (87d01a220)
+SECTIONS = ("Node", "Transactions", "Receiving", "Privacy", "Appearance", "This wallet", "All wallets",
+            "Recovery phrase", "Recheck balance", "Advanced", "About")
+THEMES = ("System", "Dark", "Light")
+# the toast a build with the last-session report shows once after unlock (5f9933de6)
+LAST_SESSION = facts.label("deskLastSessionClosed", "The app closed unexpectedly last time. Send the log?")
+LAST_SESSION_FROZE = facts.label("deskLastSessionFroze", "The app stopped responding last time. Send the log?")
+FIRST_RUN_LOG = re.compile(r"first run: ")  # first_run_servers.dart's log lines: the server pick of a fresh install
 D = decimal.Decimal
 
 
@@ -196,7 +205,8 @@ class Run:
             "previous app: create wallet (the depth dial, where shown: Deep end), Settings: node + stand-in node, Epicbox + stand-in relay, Light theme, label, %d confirmation(s), Technical details" % TEST_CONFIRMATIONS,
             "fund: P -> wallet %s EPIC via Epicbox (shared P service %s, no lock), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: address, balance, activity, node and Epicbox lists, settings, data folder files",
-            "swap: stop the previous app, start the candidate on the same HOME, unlock, same digest; a candidate with levels must name Deep end (level 3) in Settings › About",
+            "swap: stop the previous app, start the candidate on the same HOME, unlock, same digest; a candidate with levels must name Deep end (level 3) in Settings › About, "
+            "ask no depth and run no first-run server pick (its log line moves servers); a last-session notice is noted and left to close",
             ("funds: P -> wallet %s, then everything back to P" % FUND_AFTER) if self.funds else
             ("funds: none checked; %s" % ("balance left in the sandbox (REL_KEEP_FUNDS=1)" if self.keep_funds else "balance sent back to P")),
             "checks required: %s; proof: %s/proof.json" % (",".join(self.required), self.out),
@@ -361,6 +371,7 @@ class Run:
         ui = self.ui
         ui.wait("Main navigation", 180)
         time.sleep(2)
+        self.last_session_toast()
         for _ in range(3):
             if ui.has("re:^Skip tour$"):
                 ui.click("re:^Skip tour$")
@@ -369,18 +380,57 @@ class Run:
             ui.click("re:^Skip setup$")
             time.sleep(1)
 
+    def last_session_toast(self):
+        """A build with the last-session report offers a crashed or killed session's log once after
+        unlock, as a toast with a Send button (5f9933de6). A user lets it go ("Not now" is the toast
+        leaving); the driver does the same and waits it out, so a "Send" press never lands on the
+        toast's button. It is noted in the proof, never hidden: after the update it would mean the
+        candidate took the previous release's clean close for a crash."""
+        ui = self.ui
+        rx = "re:^(%s|%s)" % (re.escape(LAST_SESSION), re.escape(LAST_SESSION_FROZE))
+        found = ui.find(rx)
+        if not found:
+            return
+        text = found[0].name.split("\n")[0]
+        app = getattr(self, "app_version_seen", "?")
+        self.log("last-session notice shown by %s: %r; left to close by itself (Not now)" % (app, text))
+        self.shot("last-session-notice")
+        self.details.setdefault("last_session", "%s showed %r after unlock" % (app, text))
+        try:
+            ui.wait(rx, 20, gone=True)
+        except TimeoutError:
+            ui.key("Escape")
+            time.sleep(0.8)
+
     def nav(self, name):
         # A long wait (P busy with another check) can pass the auto-lock: unlock as the user would.
         if self.ui.has("re:^Unlock wallet$"):
             self.log("the wallet locked itself while waiting (auto-lock): unlocking again")
             self.unlock()
             self.after_unlock()
+        self.last_session_toast()
         self.ui.click("re:^%s$" % re.escape(name), role="button")
         time.sleep(1.2)
 
     def settings_page(self, section):
+        """Settings › [section]: from the section list beside the page, the chips above it, or (a page
+        too narrow for two rows of chips) the dropdown that names the section shown."""
         self.nav("Settings")
-        self.ui.click("re:^%s$" % re.escape(section), role="button")
+        ui = self.ui
+        want = "re:^%s$" % re.escape(section)
+        shown = {n.name.strip() for n in ui.nodes() if n.role == "button" and n.name.strip() in SECTIONS}
+        if len(shown) != 1:
+            ui.click(want, role="button")
+        elif section not in shown:
+            current = shown.pop()
+            ui.click("re:^%s$" % re.escape(current), role="button")
+            time.sleep(0.8)
+            try:
+                ui.click(want, timeout=8)
+            except LookupError:
+                ui.key("Escape")
+                time.sleep(0.5)
+                raise LookupError("Settings dropdown (on %s) lists no %s" % (current, section))
         time.sleep(1.2)
 
     def combo(self, label):
@@ -482,13 +532,13 @@ class Run:
         self.shot("prev-relay")
 
     def relay_page(self):
-        self.nav("Settings")
         for section in ("Transactions", "Receiving"):
-            if self.ui.find("re:^%s$" % section, role="button"):
-                self.ui.click("re:^%s$" % section, role="button")
-                time.sleep(1.2)
-                if self.ui.find("re:^Epicbox server: "):
-                    return
+            try:
+                self.settings_page(section)
+            except LookupError:
+                continue
+            if self.ui.find("re:^Epicbox server: "):
+                return
         raise LookupError("no Epicbox server picker under Settings")
 
     def change_settings(self):
@@ -593,7 +643,10 @@ class Run:
         ui = self.ui
         out = {}
         self.settings_page("Appearance")
-        sel = [n.name for n in ui.find(re.compile(r"^(System|Dark|Light)$"), role="button") if "selected" in n.states]
+        themes = ui.find(re.compile(r"^(System|Dark|Light)$"), role="button")
+        sel = [n.name for n in themes if "selected" in n.states]
+        if not sel and len({n.name for n in themes}) == 1:
+            sel = [themes[0].name]  # a narrow page's dropdown names only the theme chosen
         out["theme"] = sel[0] if sel else None
         self.settings_page("This wallet")
         f = [x for x in ui.fields() if x.role != "password text"]
@@ -699,12 +752,17 @@ class Run:
             self.nav("Send")
             if ui.has("re:^Send another$"):
                 ui.click("re:^Send another$")
-            if ui.find("re:^Epicbox$", role="button"):
-                ui.click("re:^Epicbox$", role="button")
+            # the method row: Epicbox pressed only as a segment beside Link (a narrow row's dropdown
+            # names just the method chosen, and pressing it would only open the list)
+            eb = ui.find("re:^Epicbox$", role="button")
+            if eb and ui.find("re:^Link$", role="button") and "selected" not in eb[0].states:
+                ui.tap(eb[0])
                 time.sleep(0.8)
             ui.fill(0, self.p_addr)
             if amount is None:
-                mx = [n for n in ui.find("re:^(Max|All)$", role="button") if n.actions]
+                # "Max" before "All": the advanced panel's coin choice is also named All
+                mx = [n for n in ui.find("re:^Max$", role="button") if n.actions] or \
+                     [n for n in ui.find("re:^All$", role="button") if n.actions]
                 if not mx:
                     return False, "no Max button on the Send page"
                 ui.tap(mx[0])
@@ -873,10 +931,17 @@ class Run:
     def open_after_update(self, before):
         ui = self.ui
         try:
-            i = ui.wait_any(["re:^Unlock wallet$", "re:^Create a new wallet", "Main navigation"], 120)
+            i = ui.wait_any(["re:^Unlock wallet$", "re:^Create a new wallet", "Main navigation",
+                             "re:^%s$" % re.escape(facts.LEVEL_PICK_TITLE)], 120)
         except TimeoutError:
             return False, "the candidate shows neither Unlock nor the wallet in 2 min"
         self.shot("cand-first")
+        # an existing install is level 3 and never asked (levels-backend): the depth dial or the
+        # picker before unlock means the update took it for a fresh install
+        dial = [n for n in ui.find("re:^%s$" % re.escape(facts.LEVEL_DEEP_END)) if n.role != "label"]
+        if i == 3 or dial:
+            return False, "the candidate asks for the depth (%s) as on a fresh install" % (
+                facts.LEVEL_PICK_TITLE if i == 3 else "the dial's %s" % facts.LEVEL_DEEP_END)
         if i == 0:
             self.screen("after", "wallets", "Unlock as the candidate opens after the update, before the password is typed (the field empty)")
         else:
@@ -962,6 +1027,24 @@ class Run:
             len(b["files"]), len(set(a["files"]) - set(b["files"])))) if not gone else ("files gone after the update: %s" % ", ".join(gone[:10]))
         self.log("data folder: %s" % self.details["data_folder"])
 
+    def first_run_lines(self):
+        """The app log's first-run server pick lines (07c430866). A fresh install's pick only: on an
+        update it would move the user's servers, so any line is a finding (the previous release
+        predates the pick and writes none)."""
+        if getattr(self, "_first_run", None) is None:
+            self._first_run = []
+            for dp, _dn, fn in os.walk(os.path.join(self.sb, "home")):
+                for f in fn:
+                    if f.startswith("wfe.log"):
+                        try:
+                            with open(os.path.join(dp, f), errors="replace") as fh:
+                                self._first_run += [l.strip()[-160:] for l in fh if FIRST_RUN_LOG.search(l)]
+                        except OSError:
+                            pass
+            self.details["first_run"] = ("no first-run server pick in the app log (an existing install keeps its servers)"
+                                         if not self._first_run else "first-run server pick ran: %s" % "; ".join(self._first_run[:3]))
+        return self._first_run
+
     def compare_list(self, kind, b, a, custom, chosen):
         key = "nodes" if kind == "node" else "relays"
         check = "custom_nodes_kept" if kind == "node" else "custom_relays_kept"
@@ -976,6 +1059,8 @@ class Run:
         if not a[use_key].split(": ", 1)[-1].startswith(chosen):
             problems.append("in use was %r, now %r" % (b[use_key].split(": ", 1)[-1], a[use_key].split(": ", 1)[-1]))
         # the user's own entries only: a public server the new version no longer lists is not the user's choice
+        if self.first_run_lines():
+            problems.append("the candidate ran first run's server pick on an existing install: %s" % "; ".join(self.first_run_lines()[:2]))
         own = [x[0] for x in b[key] if facts.ADDED_BY_YOU in x[1]]
         lost = [x for x in own if x not in e1 and x != custom]
         if lost:
