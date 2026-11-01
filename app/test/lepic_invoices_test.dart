@@ -454,7 +454,7 @@ void main() {
       for (final kind in lepic.WalletEventKind.values) {
         wallet.eventSink.add(_event(kind));
       }
-      await session.drainInvoices();
+      await session.collectInvoices();
       await _settle();
       await sub.cancel();
       expect(events, isNotEmpty);
@@ -463,22 +463,28 @@ void main() {
     });
   });
 
-  group('drain and pending', () {
+  group('collect and pending', () {
     test(
-      'a drain collects the contacts\' mailboxes, counts what arrived and sweeps',
+      'a collect asks the contacts\' mailboxes, counts what arrived and sweeps',
       () async {
         expect(
-          await session.drainInvoices(),
-          const InvoiceDrainReport(parked: 2),
+          await session.collectInvoices(),
+          const InvoiceCollectReport(parked: 2),
         );
         expect(wallet.collects, [lepic.CollectTrigger.open]);
         expect(wallet.expiries, [BigInt.from(86400)]);
       },
     );
 
-    test('a failed sweep does not fail the drain', () async {
+    test('a failed sweep does not fail the collect', () async {
       wallet.sweepFails = true;
-      expect((await session.drainInvoices()).parked, 2);
+      expect((await session.collectInvoices()).parked, 2);
+    });
+
+    test('the background collect of the contacts\' mailboxes sweeps too', () async {
+      await session.pairing.collect(trigger: PairingCollectTrigger.foreground);
+      expect(wallet.collects, [lepic.CollectTrigger.foreground]);
+      expect(wallet.expiries, [BigInt.from(86400)]);
     });
 
     test('waiting invoices name their contact, reference and times', () async {

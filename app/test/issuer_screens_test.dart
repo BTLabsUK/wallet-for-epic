@@ -34,7 +34,7 @@ BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 String _address(String c, [String relay = 'epicbox.epiccash.com']) =>
     'es${c * 50}@$relay';
 
-/// The payer's invoice address.
+/// The payer's address.
 final String _payer = _address('P');
 
 /// This wallet's payments address, valid so the own-address check can see it.

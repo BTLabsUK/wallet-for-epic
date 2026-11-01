@@ -61,7 +61,7 @@ enum SessionMember {
   exportHistoryCsv,
   importHistory,
   estimateMax,
-  drainInvoices,
+  collectInvoices,
   pendingInvoices,
   payInvoice,
   payRequestFile,

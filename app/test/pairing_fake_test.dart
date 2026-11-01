@@ -96,7 +96,7 @@ void main() {
     final anna = api.seedPaired(name: 'Anna', paymentsAddress: 'es${'a' * 50}@relay');
     Future<int> parked(String slateId) async {
       session.relayInvoice(from: 'es${'a' * 50}@relay', slateId: slateId, amount: BigInt.one);
-      return (await session.drainInvoices()).parked;
+      return (await session.collectInvoices()).parked;
     }
 
     expect(await parked('i0'), 0);
@@ -113,7 +113,7 @@ void main() {
     expect(changed.contactId, 'c1');
     expect((await api.pairingForContact('c1'))!.id, changed.id);
     session.relayInvoice(from: 'es${'a' * 50}@relay', slateId: 'i1', amount: BigInt.one);
-    expect((await session.drainInvoices()).parked, 0, reason: 'nothing parks while the keys are in question');
+    expect((await session.collectInvoices()).parked, 0, reason: 'nothing parks while the keys are in question');
     final back = await api.resolveKeysChanged(changed.id, KeysChoice.keepOld);
     expect((back.id, back.state, back.allowInvoices), (old.id, PairingState.verified, true));
     expect(await api.pairing(changed.id), isNull);

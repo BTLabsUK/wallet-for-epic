@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:epic_wallet/src/app_log.dart';
+import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -188,6 +189,37 @@ void main() {
     final store = await MetaStore.open(dir.path);
     expect(store.snapshot.notes['l:1'], 'x');
     expect(store.snapshot.version, metaVersion);
+  });
+
+  test('the retired invoice index and service labels of an older install open and are not written again', () async {
+    metaFile().writeAsStringSync(
+      '{"version":1,"notes":{"l:1":"x"},"invoice_index":3,"service_labels":{"es1@relay":"Shop"}}',
+    );
+    final store = await MetaStore.open(dir.path);
+    expect(store.snapshot.notes['l:1'], 'x');
+    expect(corruptCopies(), isEmpty, reason: 'the old fields are not damage');
+    await store.update((m) => m.notes['l:2'] = 'y');
+    final written = jsonDecode(metaFile().readAsStringSync()) as Map<String, Object?>;
+    expect(written.containsKey('invoice_index'), isFalse);
+    expect(written.containsKey('service_labels'), isFalse);
+    expect((written['notes'] as Map)['l:1'], 'x');
+  });
+
+  test('a history file with the retired invoice index and service labels reads, without them', () {
+    final old = HistoryPayload.fromJson({
+      'format': 'wfe-history',
+      'version': 1,
+      'chain': 'Mainnet',
+      'wallet_fp': 'fp',
+      'exported_at_unix': 1,
+      'app_version': 'old',
+      'txs': <Object?>[],
+      'contacts': <Object?>[],
+      'invoice_index': 4,
+      'service_labels': {'es1@relay': 'Shop'},
+    });
+    expect(old.walletFp, 'fp');
+    expect(old.toJson().keys, isNot(anyOf(contains('invoice_index'), contains('service_labels'))));
   });
 
   test('every field the old core writes survives a rewrite', () async {

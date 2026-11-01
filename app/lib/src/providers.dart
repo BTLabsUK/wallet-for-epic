@@ -1469,12 +1469,12 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
     ref.onDispose(() => _expiry?.cancel());
     final session = _invoiceSession(ref);
     if (session == null) return const [];
-    // Node only and Kill switch drain nothing: the invoices already in the wallet show;
-    // leaving them drains.
+    // Node only and Kill switch collect nothing: the invoices already in the wallet show;
+    // leaving them collects.
     if (ref.watch(networkModeProvider.select((m) => m == NetworkMode.nodeOnly || m == NetworkMode.killSwitch))) {
       return _unexpired(await session.pendingInvoices());
     }
-    final report = await session.drainInvoices();
+    final report = await session.collectInvoices();
     if (!ref.mounted) return const [];
     // A receipt or a withdrawal changes what a paid invoice's details show.
     if (report.notices > 0) ref.invalidate(paidInvoiceProvider);
@@ -1501,14 +1501,14 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
     return live;
   }
 
-  /// Drains the invoice address again and reloads the list.
+  /// Collects the paired contacts' mailboxes again and reloads the list.
   Future<void> refresh() async {
     ref.invalidateSelf();
     await future;
   }
 
-  /// Reads the wallet's waiting invoices again without a drain: one that arrived another way
-  /// (a paired contact's mailbox) or a drain's own event.
+  /// Reads the wallet's waiting invoices again without a collect: one a background collect
+  /// of the contacts' mailboxes parked, or a collect's own event.
   Future<void> reload() async {
     final session = _invoiceSession(ref);
     if (session == null || !state.hasValue) return;
@@ -1516,7 +1516,7 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
     if (ref.mounted) state = AsyncData(_unexpired(fresh));
   }
 
-  /// Takes an invoice the user paid or declined off the list, without another drain.
+  /// Takes an invoice the user paid or declined off the list, without another collect.
   void answered(String slateId) {
     final shown = state.value;
     if (shown == null) return;
@@ -1527,14 +1527,14 @@ class PendingInvoicesNotifier extends AsyncNotifier<List<PendingInvoice>> {
   }
 }
 
-/// How many pending invoices wait, for Home's badge. 0 until the first drain is done.
+/// How many pending invoices wait, for Home's badge. 0 until the first collect is done.
 final pendingInvoiceCountProvider = Provider.autoDispose<int>(
   (ref) => ref.watch(pendingInvoicesProvider).value?.length ?? 0,
 );
 
 /// The invoice behind the transaction with that slate id, once paid, or null. Reloads when
 /// a receipt or a withdrawal for it arrives: LEPIC reports those as events, which may come
-/// after the drain that found them has returned.
+/// after the collect that found them has returned.
 final paidInvoiceProvider = FutureProvider.autoDispose
     .family<PaidInvoice?, String>((ref, slateId) {
       final session = _invoiceSession(ref);

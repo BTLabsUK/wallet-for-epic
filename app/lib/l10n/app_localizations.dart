@@ -4675,7 +4675,7 @@ abstract class AppLocalizations {
   /// **'Contacts'**
   String get settingsContacts;
 
-  /// Settings › Wallet row (replaces ‘Invoice address and trusted services’).
+  /// Settings › Wallet row that opens the invoice settings: the paired contacts allowed to send invoices.
   ///
   /// In en, this message translates to:
   /// **'Invoices'**

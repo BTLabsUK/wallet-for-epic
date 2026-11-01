@@ -33,7 +33,7 @@ enum DeskRoute {
   finalize(section: DeskSection.receive),
 
   /// Invoices: the To pay and Sent tabs ([InvoicesTab] or a slate id
-  /// to select), the request form (a [Contact] or an invoice address to start from) and the
+  /// to select), the request form (a paired contact or an address to start from) and the
   /// review of one invoice (its slate id).
   invoices(section: DeskSection.invoices),
   invoiceIssue(section: DeskSection.invoices),

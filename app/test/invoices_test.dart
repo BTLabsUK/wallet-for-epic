@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// The invoice service layer (I-01) against the fake: drains, pay, decline, expiry, a failed
+// The invoice service layer (I-01) against the fake: collects, pay, decline, expiry, a failed
 // reply, invoices only from paired contacts with Allow invoices on, and the providers over them.
 import 'dart:io';
 
@@ -72,7 +72,7 @@ void main() {
       allow(s, shop, 'Shop');
     });
 
-    test('a drain parks invoices from trusted services only', () async {
+    test('a collect parks invoices from allowed paired contacts only', () async {
       s.relayInvoice(
         from: shop,
         slateId: 'i1',
@@ -89,11 +89,12 @@ void main() {
       expect(
         await s.pendingInvoices(),
         isEmpty,
-        reason: 'nothing before a drain',
+        reason: 'nothing before a collect',
       );
 
-      final report = await s.drainInvoices();
-      expect(report, const InvoiceDrainReport(parked: 2, dropped: 1));
+      final report = await s.collectInvoices();
+      expect(report, const InvoiceCollectReport(parked: 2));
+      expect(s.droppedInvoiceMessages, 1);
       final pending = await s.pendingInvoices();
       expect([for (final i in pending) i.slateId], ['i1', 'i2']);
       expect(pending.first.senderAddress, shop);
@@ -105,15 +106,15 @@ void main() {
         (InvoiceEventKind.received, 'i2'),
       ]);
 
-      // A second copy of a known invoice changes nothing; an empty drain finds nothing.
+      // A second copy of a known invoice changes nothing; an empty collect finds nothing.
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
-      expect(await s.drainInvoices(), const InvoiceDrainReport());
+      expect(await s.collectInvoices(), const InvoiceCollectReport());
       expect(await s.pendingInvoices(), hasLength(2));
     });
 
     test('pay needs the invoiced amount', () async {
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
-      await s.drainInvoices();
+      await s.collectInvoices();
 
       await expectLater(
         s.payInvoice(slateId: 'i1', amount: eight + BigInt.one),
@@ -142,7 +143,7 @@ void main() {
 
     test('decline takes it off the list and tells the service', () async {
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
-      await s.drainInvoices();
+      await s.collectInvoices();
       await s.declineInvoice(slateId: 'i1');
       expect(await s.pendingInvoices(), isEmpty);
       expect(s.declinedInvoices, ['i1']);
@@ -165,7 +166,7 @@ void main() {
         amount: eight,
         expiresIn: const Duration(hours: 2),
       );
-      await s.drainInvoices();
+      await s.collectInvoices();
       final invoice = (await s.pendingInvoices()).single;
       expect(invoice.timeLeftAt(now), const Duration(hours: 2));
 
@@ -202,15 +203,16 @@ void main() {
         expiresIn: maxInvoiceExpiry + const Duration(seconds: 1),
       );
       expect(
-        await s.drainInvoices(),
-        const InvoiceDrainReport(parked: 1, dropped: 1),
+        await s.collectInvoices(),
+        const InvoiceCollectReport(parked: 1),
       );
+      expect(s.droppedInvoiceMessages, 1);
       expect([for (final i in await s.pendingInvoices()) i.slateId], ['max']);
     });
 
     test('a failed reply is resent without a second payment', () async {
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
-      await s.drainInvoices();
+      await s.collectInvoices();
       s.replyError = const WalletError(
         kind: WalletErrorKind.transportFailed,
         message: 'relay unreachable',
@@ -259,10 +261,10 @@ void main() {
       allow(s, exchange, 'Exchange');
       s.relayInvoice(from: shop, slateId: 'paid', amount: eight);
       s.relayInvoice(from: shop, slateId: 'open', amount: eight);
-      await s.drainInvoices();
+      await s.collectInvoices();
       final paid = await s.payInvoice(slateId: 'paid', amount: eight);
 
-      // Another trusted service, a stranger, and an unknown slate are all dropped.
+      // Another paired contact, a stranger, and an unknown slate are all dropped.
       s.relayNotice(
         from: exchange,
         kind: InvoiceEventKind.posted,
@@ -277,7 +279,8 @@ void main() {
       s.relayNotice(from: shop, kind: InvoiceEventKind.posted, slateId: 'nope');
       // A receipt for an invoice not paid means nothing.
       s.relayNotice(from: shop, kind: InvoiceEventKind.posted, slateId: 'open');
-      expect(await s.drainInvoices(), const InvoiceDrainReport(dropped: 4));
+      expect(await s.collectInvoices(), const InvoiceCollectReport());
+      expect(s.droppedInvoiceMessages, 4);
       expect(
         (await s.paidInvoice(slateId: 'paid'))!.status,
         InvoiceStatus.replied,
@@ -295,7 +298,7 @@ void main() {
         kind: InvoiceEventKind.withdrawn,
         slateId: 'open',
       );
-      expect(await s.drainInvoices(), const InvoiceDrainReport(notices: 2));
+      expect(await s.collectInvoices(), const InvoiceCollectReport(notices: 2));
       final receipt = (await s.paidInvoice(slateId: 'paid'))!;
       expect(
         (receipt.status, receipt.kernelExcess),
@@ -317,14 +320,14 @@ void main() {
 
     test('a withdrawal after payment is shown, never acted on', () async {
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
-      await s.drainInvoices();
+      await s.collectInvoices();
       await s.payInvoice(slateId: 'i1', amount: eight);
       s.relayNotice(
         from: shop,
         kind: InvoiceEventKind.withdrawn,
         slateId: 'i1',
       );
-      await s.drainInvoices();
+      await s.collectInvoices();
       expect(
         (await s.paidInvoice(slateId: 'i1'))!.status,
         InvoiceStatus.withdrawn,
@@ -335,12 +338,13 @@ void main() {
     test('Allow invoices off declines the open requests and drops the next', () async {
       final paired = s.pairing.records.single;
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
-      await s.drainInvoices();
+      await s.collectInvoices();
       expect(await s.pairing.setAllowInvoices(paired.id, false), 1);
       expect(await s.pendingInvoices(), isEmpty);
       expect(s.declinedInvoices, ['i1']);
       s.relayInvoice(from: shop, slateId: 'i2', amount: eight);
-      expect((await s.drainInvoices()).dropped, 1);
+      expect((await s.collectInvoices()).parked, 0);
+      expect(s.droppedInvoiceMessages, 1);
       expect(s.invoicePayments, 0);
     });
 
@@ -348,12 +352,13 @@ void main() {
       final r = s.pairing.seedPaired(name: 'Tom', state: PairingState.paired, paymentsAddress: exchange);
       await expectLater(s.pairing.setAllowInvoices(r.id, true), invalidArgument('check the words'));
       s.relayInvoice(from: exchange, slateId: 'x1', amount: eight);
-      expect((await s.drainInvoices()).dropped, 1);
+      expect((await s.collectInvoices()).parked, 0);
+      expect(s.droppedInvoiceMessages, 1);
     });
 
     test('a parked invoice carries its pairing and reference', () async {
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight, reference: 'NW-48213');
-      await s.drainInvoices();
+      await s.collectInvoices();
       final invoice = (await s.pendingInvoices()).single;
       expect(invoice.pairingId, s.pairing.records.single.id);
       expect(invoice.reference, 'NW-48213');
@@ -362,7 +367,7 @@ void main() {
     test('a core without invoices refuses every call', () async {
       s.invoicesSupported = false;
       expect(s.supportsInvoices, isFalse);
-      await expectLater(s.drainInvoices(), throwsA(isA<WalletError>()));
+      await expectLater(s.collectInvoices(), throwsA(isA<WalletError>()));
       await expectLater(
         s.payInvoice(slateId: 'i1', amount: eight),
         throwsA(isA<WalletError>()),
@@ -388,7 +393,7 @@ void main() {
       return container.read(pendingInvoicesProvider.future);
     }
 
-    test('the first read drains, and so does a refresh', () async {
+    test('the first read collects, and so does a refresh', () async {
       start();
       allow(s, shop, 'Shop');
       s.relayInvoice(from: shop, slateId: 'i1', amount: eight);
@@ -397,7 +402,7 @@ void main() {
       expect(
         container.read(pendingInvoiceCountProvider),
         0,
-        reason: 'before the drain',
+        reason: 'before the collect',
       );
 
       expect([for (final i in await pending()) i.slateId], ['i1']);
@@ -441,7 +446,7 @@ void main() {
     });
 
     test(
-      'a receipt reaches the paid invoice\'s details on the next drain',
+      'a receipt reaches the paid invoice\'s details on the next collect',
       () async {
         start();
         allow(s, shop, 'Shop');
@@ -479,7 +484,7 @@ void main() {
       },
     );
 
-    test('no invoice event, drain or notice leads to a payment', () async {
+    test('no invoice event, collect or notice leads to a payment', () async {
       start();
       allow(s, shop, 'Shop');
       final seen = <InvoiceEvent>[];

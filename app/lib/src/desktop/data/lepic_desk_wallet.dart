@@ -161,9 +161,7 @@ class LepicDeskWallet implements DeskWalletApi {
     this._seedFetch,
     Keyring? keyring,
     OnionDirectory? onions,
-    this.invoicesEvery = const Duration(minutes: 2),
     this.paymentsEvery = const Duration(seconds: 60),
-    this.invoiceFocus = true,
     HttpReachCache? httpReach,
   }) : nodePoll = nodePoll ?? appConfig.nodePoll,
        nodeRecheck = nodeRecheck ?? appConfig.nodeRecheck,
@@ -322,13 +320,9 @@ class LepicDeskWallet implements DeskWalletApi {
   /// How long closing the app waits for a payment under way before it locks anyway.
   final Duration closeWait;
 
-  /// How often the invoice address is drained, and the payments address while an issued
-  /// invoice waits and the listener is off ([InvoiceScheduler]).
-  final Duration invoicesEvery;
+  /// How often the payments address is drained while an issued invoice waits and the
+  /// listener is off ([InvoiceScheduler]).
   final Duration paymentsEvery;
-
-  /// Drain the invoice address when the window gains focus (off in tests).
-  final bool invoiceFocus;
 
   /// Makes the built-in node of a network (desktop builds with the bundled `epic`); null
   /// where there is none.
@@ -3404,7 +3398,6 @@ class LepicDeskWallet implements DeskWalletApi {
       if (settings.directHttp && !NetGate.restricted) await setHttpListening(true);
     }
     NetGate.setExperimental(settings.advanced);
-    _invoiceTimers?.setInvoices(NetGate.invoices);
     final was = netModeOf(old.advanced.networkMode);
     if (mode != was) await _applyMode(was, mode);
     if (settings.payments.epicbox != old.payments.epicbox) await _applyEpicboxSwitch(settings.payments.epicbox);
@@ -4687,9 +4680,11 @@ class LepicDeskWallet implements DeskWalletApi {
   // mapped onto the desktop's own types (invoices.dart), not renamed. LEPIC keeps the
   // pairings and the waiting invoices; the session keeps what became of each invoice in
   // `wfe_meta.json`. Nothing here pays but [payInvoice], whose only
-  // caller is Review's Approve, after the password; no event, drain or timer leads to it.
+  // caller is Review's Approve, after the password; no event, collect, drain or timer leads
+  // to it. Contact invoices come with the shell's collect of the contacts' mailboxes, as
+  // events ([_onInvoiceEvent]).
 
-  /// Drains on a timer and on focus while a wallet is open ([_startInvoices]).
+  /// Drains the payments address on a timer while a wallet is open ([_startInvoices]).
   InvoiceScheduler? _invoiceTimers;
   StreamSubscription<core.InvoiceEvent>? _invoiceSub;
   StreamSubscription<core.IssuerEvent>? _issuerSub;
@@ -4737,7 +4732,7 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Stream<InvoiceNotice> invoiceNotices() => _invoiceNotices.stream;
 
-  /// A notice for the open screens; none once the app closed ([dispose]): a drain or an event
+  /// A notice for the open screens; none once the app closed ([dispose]): a collect or an event
   /// still running then would otherwise throw on the closed stream.
   void _notify(InvoiceNotice notice) {
     if (!_invoiceNotices.isClosed) _invoiceNotices.add(notice);
@@ -4762,13 +4757,10 @@ class LepicDeskWallet implements DeskWalletApi {
     _invoiceSub = session.invoiceEvents().listen((e) => unawaited(_onInvoiceEvent(session, e)));
     _issuerSub = session.issuerEvents().listen((e) => unawaited(_onIssuerEvent(session, e)));
     _invoiceTimers = InvoiceScheduler(
-      drainInvoices: () => _drainInvoices(session),
       drainPayments: () => _drainPayments(session),
       paymentsWanted: _paymentsWanted,
-      invoicesEvery: invoicesEvery,
       paymentsEvery: paymentsEvery,
-      watchFocus: invoiceFocus,
-    )..start(invoices: NetGate.invoices);
+    )..start();
   }
 
   /// On lock and before a reopen: timers off, events dropped. [forget] (lock) also drops what
@@ -4799,11 +4791,11 @@ class LepicDeskWallet implements DeskWalletApi {
   bool _paymentsWanted() => _listener == null && (_entries ?? const <core.TxEntry>[]).any((e) => e.awaitingPayer);
 
   /// Collects the contacts' mailboxes (the session sweeps after it) and records the check.
-  Future<void> _drainInvoices(core.WalletSession session) async {
-    final r = await session.drainInvoices();
+  Future<void> _collectInvoices(core.WalletSession session) async {
+    final r = await session.collectInvoices();
     if (_session != session) return;
     _invoiceCheckedAt = DateTime.now();
-    if (r.parked > 0 || r.notices > 0 || r.finalized > 0) {
+    if (r.parked > 0 || r.notices > 0) {
       await _reload();
     } else {
       // Only the Invoices page's "Checked at" moved.
@@ -5078,7 +5070,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final session = _open;
     _invoiceCheck = InvoiceCheck.checking;
     try {
-      await _drainInvoices(session);
+      await _collectInvoices(session);
       if (_listener == null) await _drainPayments(session);
       _invoiceCheck = InvoiceCheck.ok;
       _invoiceProblem = null;

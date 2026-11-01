@@ -179,9 +179,7 @@ void main() {
       secrets: MemorySecretStore(),
       filesDir: () async => support,
       nodePoll: const Duration(hours: 1),
-      invoicesEvery: const Duration(hours: 1),
       paymentsEvery: const Duration(hours: 1),
-      invoiceFocus: false,
     );
     await wallet.createWallet(name: 'Main', password: _password);
     expect(await wallet.unlock(_password), isTrue);

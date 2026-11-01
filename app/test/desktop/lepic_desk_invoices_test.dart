@@ -441,9 +441,7 @@ void main() {
         secrets: MemorySecretStore(),
         filesDir: () async => support,
         nodePoll: const Duration(hours: 1),
-        invoicesEvery: const Duration(milliseconds: 40),
         paymentsEvery: const Duration(milliseconds: 40),
-        invoiceFocus: false,
       );
       // Invoices (Experimental) on: the wallet's default settings have it off.
       NetGate.setExperimental(AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));
@@ -561,12 +559,12 @@ void main() {
       expect(lepicWallet.invoiceDrains, 0);
     });
 
-    test('the scheduler drains on its timers while open and stops on lock', () async {
+    test('the scheduler drains the payments address while open, stops on lock, and opens no contact mailbox', () async {
       lepicWallet.stored.add(_tx(txId: 5, slateId: 'req-1', direction: lepic.TxDirection.incoming, status: lepic.TxStatus.received, counterparty: _payer, credited: BigInt.from(7000)));
       await wallet.sync();
       expect(wallet.invoiceTimersRunning, isTrue);
       await Future<void>.delayed(const Duration(milliseconds: 150));
-      expect(lepicWallet.invoiceDrains, greaterThan(0));
+      expect(lepicWallet.invoiceDrains, 0, reason: 'contact invoices come with the shell\'s collect');
       expect(lepicWallet.paymentDrains, greaterThan(0), reason: 'an issued invoice waits and the listener is off');
       await wallet.lock();
       expect(wallet.invoiceTimersRunning, isFalse);
@@ -673,42 +671,31 @@ void main() {
   });
 
   test('the scheduler leaves the payments address alone while nothing waits', () async {
-    var invoices = 0, payments = 0;
+    var payments = 0;
     final s = InvoiceScheduler(
-      drainInvoices: () async => invoices++,
       drainPayments: () async => payments++,
       paymentsWanted: () => false,
-      invoicesEvery: const Duration(milliseconds: 20),
       paymentsEvery: const Duration(milliseconds: 20),
-      watchFocus: false,
     )..start();
     await Future<void>.delayed(const Duration(milliseconds: 90));
     s.stop();
-    expect(invoices, greaterThan(0));
     expect(payments, 0);
   });
 
-  test('with Invoices off the scheduler leaves the invoice address alone, and drains again when on', () async {
-    var invoices = 0;
+  test('the scheduler drains the payments address while one is wanted, and not after stop', () async {
+    var payments = 0;
     final s = InvoiceScheduler(
-      drainInvoices: () async => invoices++,
-      drainPayments: () async {},
-      paymentsWanted: () => false,
-      invoicesEvery: const Duration(milliseconds: 20),
+      drainPayments: () async => payments++,
+      paymentsWanted: () => true,
       paymentsEvery: const Duration(milliseconds: 20),
-      watchFocus: false,
-    )..start(invoices: false);
+    )..start();
     await Future<void>.delayed(const Duration(milliseconds: 90));
-    expect(s.drainsInvoices, isFalse);
-    expect(invoices, 0);
-    s.setInvoices(true);
-    await Future<void>.delayed(const Duration(milliseconds: 90));
-    expect(invoices, greaterThan(0));
-    s.setInvoices(false);
-    final drains = invoices;
-    await Future<void>.delayed(const Duration(milliseconds: 90));
+    expect(payments, greaterThan(0));
     s.stop();
-    expect(invoices, drains);
+    expect(s.running, isFalse);
+    final drains = payments;
+    await Future<void>.delayed(const Duration(milliseconds: 90));
+    expect(payments, drains);
   });
 
   test('payInvoice has one caller on the desktop: Review\'s Approve', () {

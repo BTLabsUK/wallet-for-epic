@@ -636,7 +636,7 @@ class GatedWalletSession implements WalletSession {
   PairingApi get pairing => _inner.pairing;
 
   @override
-  Future<InvoiceDrainReport> drainInvoices() => _inner.drainInvoices();
+  Future<InvoiceCollectReport> collectInvoices() => _inner.collectInvoices();
 
   @override
   Future<List<PendingInvoice>> pendingInvoices() => _inner.pendingInvoices();

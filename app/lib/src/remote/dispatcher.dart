@@ -585,9 +585,9 @@ class WalletDispatcher {
       s.nodeTipFor(config: _config(p)),
       nodeTipWire,
     ),
-    SessionMember.drainInvoices => _once(
-      s.drainInvoices(),
-      invoiceDrainReportWire,
+    SessionMember.collectInvoices => _once(
+      s.collectInvoices(),
+      invoiceCollectReportWire,
     ),
     SessionMember.pendingInvoices => _once(
       s.pendingInvoices(),

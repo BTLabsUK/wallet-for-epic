@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Invoices from paired contacts the user allows (I-03, RFC 0002 11): home's entry with its badge, the list, and the
-/// notices for what the drains find. Paying is the review screen's, behind the PIN gate;
+/// notices for what the collects find. Paying is the review screen's, behind the PIN gate;
 /// nothing here pays. The list also holds the requests this wallet sent (I-06), and home's
 /// entry turns their events into notices.
 library;
@@ -84,7 +84,7 @@ String invoiceTimeLeft(AppLocalizations l, Duration left) {
 const Key invoicesEntryKey = ValueKey('invoices-entry');
 
 /// Home's app bar button to the invoices, with a badge of the pending ones, when the wallet
-/// handles invoices. Being on home drains the invoice address once at start
+/// handles invoices. Being on home collects the paired contacts' mailboxes once at start
 /// ([pendingInvoicesProvider]) and again when the app comes back to the front. It also turns
 /// invoice events into notices; none of them pays or cancels anything. With [visible] false
 /// it draws nothing and keeps all of that, so home can show the way to the invoices elsewhere.
@@ -99,7 +99,7 @@ class InvoicesEntry extends ConsumerStatefulWidget {
 
 class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
   late final AppLifecycleListener _lifecycle = AppLifecycleListener(
-    onResume: _drain,
+    onResume: _collect,
   );
   StreamSubscription<InvoiceEvent>? _events;
 
@@ -131,7 +131,7 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     _events = session.invoiceEvents().listen(_notify);
   }
 
-  Future<void> _drain() async {
+  Future<void> _collect() async {
     final session = ref.read(invoiceSessionProvider);
     if (!mounted || session == null) return;
     try {
@@ -366,12 +366,12 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
 
   @override
   Widget build(BuildContext context) {
-    // Invoices off (Settings › Advanced) or none on this core: no entry, nothing drained.
+    // Invoices off (Settings › Advanced) or none on this core: no entry, nothing collected.
     final session = ref.watch(invoiceSessionProvider);
     if (session == null) {
       return const SizedBox.shrink();
     }
-    // Watched even when hidden: it is what drains the invoice address at start.
+    // Watched even when hidden: it is what collects the contacts' mailboxes at start.
     final count = ref.watch(pendingInvoiceCountProvider);
     if (!widget.visible) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
@@ -398,9 +398,10 @@ const Key invoicesSegmentsKey = ValueKey('invoices-segments');
 const Key invoicesNewRequestKey = ValueKey('invoices-new-request');
 
 /// Invoices to pay, oldest first, and the requests this wallet sent, under two segments with
-/// live counts. Opening it and pulling down drain the invoice and payments addresses; the
-/// progress line shows for the first load only. With [segment], it opens on that half;
-/// otherwise on To pay, or on Sent while there is nothing to pay and something sent.
+/// live counts. Opening it and pulling down collect the contacts' mailboxes and drain the
+/// payments address; the progress line shows for the first load only. With [segment], it
+/// opens on that half; otherwise on To pay, or on Sent while there is nothing to pay and
+/// something sent.
 class InvoicesScreen extends ConsumerStatefulWidget {
   const InvoicesScreen({super.key, this.segment});
 

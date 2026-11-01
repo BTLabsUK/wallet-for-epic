@@ -291,12 +291,12 @@ void main() {
       final s = await openSession();
       expect(s.supportsInvoices, false);
       await expectLater(
-        s.drainInvoices(),
+        s.collectInvoices(),
         throwsA(
           isA<WalletError>().having(
             (e) => e.message,
             'message',
-            invoicesUnsupported('drainInvoices').message,
+            invoicesUnsupported('collectInvoices').message,
           ),
         ),
       );
@@ -705,7 +705,7 @@ void main() {
         slateId: 'inv2',
         amount: BigInt.from(2000),
       );
-      expect(await s.drainInvoices(), const InvoiceDrainReport(parked: 2));
+      expect(await s.collectInvoices(), const InvoiceCollectReport(parked: 2));
       final pending = await s.pendingInvoices();
       expect(
         pending.first,

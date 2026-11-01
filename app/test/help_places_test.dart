@@ -43,7 +43,6 @@ void main() {
     'Transactions': {l.settingsSectionTransactions, l.deskSetFrameTransactions},
     'Export wallet data': {l.settingsExportHistory, l.deskSetBackupExportTitle},
     'Recheck balance': {l.settingsRescan, l.deskSetFrameRescan},
-    'Invoice address and trusted services': {l.settingsInvoices},
     'Node': {l.deskSetFrameNode, l.serverNodeTitle},
     'Epicbox': {l.serverEpicboxTitle},
     'Privacy': {l.deskSetFramePrivacy},
