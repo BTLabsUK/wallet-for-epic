@@ -200,13 +200,12 @@ void showCodeDialog(BuildContext context, {required IconData icon, required Stri
         actions: [
           EButton(
             label: ctx.l10n.commonCopy,
-            kind: EBtnKind.ghost,
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: code));
               if (ctx.mounted) showEToast(ctx, ctx.l10n.scanCopied, tone: ETone.ok);
             },
           ),
-          EButton.primary(label: ctx.l10n.commonOk, onPressed: () => Navigator.of(ctx).pop()),
+          EButton(label: ctx.l10n.commonOk, onPressed: () => Navigator.of(ctx).pop()),
         ],
       ),
     ),

@@ -10,6 +10,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../vault.dart';
+import 'app_dialog.dart';
 import 'common.dart';
 import 'demo_pin.dart';
 import 'theme/tokens.dart';
@@ -480,8 +481,8 @@ Future<T?> askPin<T extends Object>(
   bool allowBiometrics = true,
   required Future<T> Function(String pin) action,
 }) {
-  return showDialog<T>(
-    context: context,
+  return showAppDialog<T>(
+    context,
     builder: (_) => _PinPromptDialog<T>(
       reason: reason,
       allowBiometrics: allowBiometrics,
@@ -636,16 +637,14 @@ class _PinPromptDialogState<T extends Object>
     // it checks the PIN), so it stays open until the action ends.
     return PopScope(
       canPop: !_busy,
-      child: AlertDialog(
-        title: Text(passphrase ? l.passphrasePromptTitle : l.pinPromptTitle),
-        content: Column(
+      child: AppDialog(
+        title: passphrase ? l.passphrasePromptTitle : l.pinPromptTitle,
+        icon: Icons.lock_outline,
+        description: widget.reason,
+        body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (widget.reason != null) ...[
-              Text(widget.reason!),
-              const SizedBox(height: 16),
-            ],
             switch (_autoPin) {
               null => const SizedBox(height: 56),
               true => DemoPinFill(compact: true, onDone: _runDemoPin),
@@ -679,10 +678,7 @@ class _PinPromptDialogState<T extends Object>
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: _busy ? null : () => Navigator.pop(context),
-            child: Text(l.commonCancel),
-          ),
+          DialogButton.secondary(label: l.commonCancel, onPressed: _busy ? null : () => Navigator.pop(context)),
         ],
       ),
     );

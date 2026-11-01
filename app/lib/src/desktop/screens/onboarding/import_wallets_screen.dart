@@ -896,7 +896,7 @@ Future<bool?> showImportStopDialog(BuildContext context) => showEDialog<bool>(
     description: ctx.l10n.deskOnbImportStopBody,
     icon: EIcons.stop,
     tone: ETone.warn,
-    width: 420.u,
+    size: DialogWidth.standard,
     actions: [
       EButton(label: ctx.l10n.deskOnbImportGoBack, onPressed: () => Navigator.pop(ctx, false)),
       EButton(label: ctx.l10n.deskOnbImportStop, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),

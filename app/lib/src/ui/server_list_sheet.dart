@@ -9,6 +9,7 @@
 /// operator's icon from the monitor, else initials, and the health as a dot.
 library;
 
+import 'app_dialog.dart';
 import 'phone_sheet.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -323,26 +324,17 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     if (_node) return _switchTo(value, choice);
     final l = context.l10n;
     final host = serverHost(value);
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: _FitTitle(l.slSwitchTitle(host)),
-        content: Text(l.slSwitchBody),
-        actions: [
-          TextButton(
-            key: serverListCancelKey,
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            key: serverListSwitchKey,
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.slSwitch),
-          ),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.slSwitchTitle(host),
+      icon: _node ? EpicGlyphs.node : MethodIcons.epicbox,
+      description: l.slSwitchBody,
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.slSwitch,
+      cancelKey: serverListCancelKey,
+      confirmKey: serverListSwitchKey,
     );
-    if (sure == true && mounted) await _switchTo(value, choice);
+    if (sure && mounted) await _switchTo(value, choice);
   }
 
   /// Done on the field: a listed address is picked, anything else goes to [_add], which says
@@ -361,21 +353,16 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// A plain-http node at a shared (CGNAT) address may be the user's tailnet or the provider's
   /// network, which cannot be told apart: a dialog asks before it is used.
   Future<bool> _plainHttpAgreed(String value) async {
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.slPlainHttpTitle),
-          content: Text(l.slPlainHttpBody(Uri.tryParse(value)?.authority ?? value)),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-            TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.slPlainHttpUse)),
-          ],
-        );
-      },
+    final l = context.l10n;
+    return confirmAppDialog(
+      context,
+      title: l.slPlainHttpTitle,
+      icon: Icons.lan_outlined,
+      tone: DialogTone.warn,
+      description: l.slPlainHttpBody(Uri.tryParse(value)?.authority ?? value),
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.slPlainHttpUse,
     );
-    return sure == true;
   }
 
   /// Add: a typed text that is no address is answered under the field; an address is tested
@@ -1850,35 +1837,5 @@ extension on _CurrentNodeFactsState {
         ],
       ),
     );
-  }
-}
-
-/// A dialog title that carries a host: the usual title size when every word fits the line,
-/// else the next size down, so a long host never breaks mid-word on a narrow phone. The line
-/// is measured from the screen (an AlertDialog sizes its title intrinsically, so no
-/// LayoutBuilder): the dialog's inset and its title padding, 24 dp each side.
-class _FitTitle extends StatelessWidget {
-  const _FitTitle(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final usual = theme.dialogTheme.titleTextStyle ?? theme.textTheme.headlineSmall!;
-    final sizes = [usual, theme.textTheme.titleLarge!, theme.textTheme.titleMedium!];
-    final longest = text.split(' ').reduce((a, b) => a.length >= b.length ? a : b);
-    final media = MediaQuery.of(context);
-    final line = math.min(media.size.width, 560.0) - 2 * 40 - 2 * 24;
-    final style = sizes.firstWhere((s) {
-      final painter = TextPainter(
-        text: TextSpan(text: longest, style: s),
-        textDirection: Directionality.of(context),
-        textScaler: media.textScaler,
-        maxLines: 1,
-      )..layout();
-      return painter.width <= line;
-    }, orElse: () => sizes.last);
-    return Text(text, style: style);
   }
 }

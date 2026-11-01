@@ -929,8 +929,9 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Delete wallet');
 
-      FilledButton deleteButton() =>
-          tester.widget(find.widgetWithText(FilledButton, 'Delete wallet'));
+      // The destructive confirm is the outlined risk style (one dialog anatomy).
+      DangerButton deleteButton() =>
+          tester.widget(find.widgetWithText(DangerButton, 'Delete wallet'));
       expect(deleteButton().onPressed, isNull);
       await tester.tap(find.text('I have written down my recovery phrase'));
       await tester.pump();

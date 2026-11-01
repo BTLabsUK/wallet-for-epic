@@ -428,7 +428,7 @@ void main() {
       expect(h.session.cancelledTxIds, isEmpty);
       await tester.tap(find.text(_l.issuedWithdraw));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, _l.issuedWithdraw));
+      await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [request.txId]);
       expect(_rich(_l.issuedWithdrawn), findsOneWidget);
@@ -478,7 +478,7 @@ void main() {
         expect(find.text(_l.txDetailsCancelPayment), findsNothing);
         await tester.tap(find.text(_l.issuedWithdraw));
         await tester.pumpAndSettle();
-        await tester.tap(find.widgetWithText(FilledButton, _l.issuedWithdraw));
+        await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
         await tester.pumpAndSettle();
         expect(h.session.cancelledTxIds, [request.txId]);
         expect(find.text(_l.issuedDetailsWithdrawn), findsOneWidget);

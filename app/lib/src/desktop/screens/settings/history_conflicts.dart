@@ -133,7 +133,7 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
       title: l.deskHistConflictTitle,
       description: widget.oldWallet ? l.deskHistConflictLeadOldWallet(payments.length) : l.deskHistConflictLead(payments.length),
       icon: EIcons.archive,
-      width: 600.u,
+      size: DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -142,9 +142,9 @@ class _HistoryConflictsDialogState extends State<HistoryConflictsDialog> {
       ),
       actions: [
         // The phone's order: Cancel as text first, Keep all mine, Import last.
-        EButton.ghost(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
-        EButton(label: l.deskHistConflictKeepAll, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop(_keepAll)),
-        EButton.primary(label: widget.oldWallet ? l.deskHistConflictApply : l.deskHistConflictImport, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop({..._useBackup})),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.deskHistConflictKeepAll, onPressed: () => Navigator.of(context).pop(_keepAll)),
+        EButton.primary(label: widget.oldWallet ? l.deskHistConflictApply : l.deskHistConflictImport, onPressed: () => Navigator.of(context).pop({..._useBackup})),
       ],
     );
   }

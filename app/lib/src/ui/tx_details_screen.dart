@@ -23,6 +23,7 @@ import '../settings_file/host_settings.dart' show hostSettings;
 import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
+import 'app_dialog.dart';
 import 'common.dart';
 import 'finished_not_posted.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
@@ -340,8 +341,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   }
 
   Future<void> _editNote(TxEntry tx) async {
-    final note = await showDialog<String>(
-      context: context,
+    final note = await showAppDialog<String>(
+      context,
       builder: (context) => _NoteDialog(initial: tx.note ?? ''),
     );
     if (note == null || !mounted) return;
@@ -1215,9 +1216,10 @@ class _NoteDialogState extends State<_NoteDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AlertDialog(
-      title: Text(l.txDetailsNoteDialogTitle),
-      content: TextField(
+    return AppDialog(
+      title: l.txDetailsNoteDialogTitle,
+      icon: Icons.sticky_note_2_outlined,
+      body: TextField(
         controller: _controller,
         autofocus: true,
         maxLines: 3,
@@ -1230,14 +1232,8 @@ class _NoteDialogState extends State<_NoteDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.commonCancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, _controller.text),
-          child: Text(l.commonSave),
-        ),
+        DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        DialogButton.primary(label: l.commonSave, onPressed: () => Navigator.pop(context, _controller.text)),
       ],
     );
   }

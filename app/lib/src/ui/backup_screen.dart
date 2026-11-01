@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
 import '../providers.dart';
+import 'app_dialog.dart';
 import 'common.dart';
 import 'pin.dart';
 import '../phrase_clipboard.dart';
@@ -79,24 +80,16 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   /// the clipboard is cleared soon.
   Future<void> _copy() async {
     final l = context.l10n;
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.backupCopyTitle),
-        content: Text(l.backupCopyBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.commonCopy),
-          ),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.backupCopyTitle,
+      icon: Icons.content_copy_outlined,
+      tone: DialogTone.warn,
+      description: l.backupCopyBody,
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.commonCopy,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     final copied = await copyRecoveryPhrase(_words.join(' '));
     if (!mounted) return;
     ref

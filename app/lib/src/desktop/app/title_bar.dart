@@ -1396,7 +1396,7 @@ class _ShortcutsDialog extends StatelessWidget {
             ),
         ],
       ),
-      actions: [EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
+      actions: [EButton(label: l.commonClose, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }

@@ -43,12 +43,13 @@ Future<void> showDepthHelp(BuildContext context) => showEDialog<void>(
     final l = context.l10n;
     return EDialog(
       title: l.lvPickHelpTitle,
+      icon: EIcons.help,
       description: l.lvPickHelpText,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [for (final lv in WalletLevel.values) Padding(padding: EdgeInsets.only(bottom: Sp.x2), child: Text(_helpLine(l, lv), style: context.ts.body))],
       ),
-      actions: [EButton.primary(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
+      actions: [EButton(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
     );
   },
 );
@@ -60,8 +61,9 @@ Future<void> showUndercoverHelp(BuildContext context, {required bool later}) => 
     final l = context.l10n;
     return EDialog(
       title: later ? l.lvPickUndercover : l.levelUndercoverTitle,
+      icon: EIcons.help,
       description: later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelp,
-      actions: [EButton.primary(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
+      actions: [EButton(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
     );
   },
 );

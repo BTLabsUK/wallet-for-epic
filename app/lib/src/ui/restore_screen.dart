@@ -18,6 +18,7 @@ import '../restore_scan.dart';
 import '../secure_screen.dart' show hidePreview, keepScreenOn;
 import '../settings.dart' show autoLockHoldProvider;
 import '../wallet_service.dart';
+import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
@@ -214,8 +215,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final config = ref.read(walletConfigProvider);
     final session = ref.read(sessionProvider);
     if (config == null || session == null) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
+    final confirmed = await showAppDialog<bool>(
+      context,
       builder: (_) => const DeleteWalletDialog(restore: true),
     );
     if (confirmed != true || !mounted) return;

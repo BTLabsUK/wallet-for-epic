@@ -15,8 +15,8 @@ import 'package:flutter/material.dart';
 import '../cancel_choice.dart';
 import '../help/help_content.dart';
 import '../l10n.dart';
+import 'app_dialog.dart';
 import 'cancel_note.dart';
-import 'common.dart' show DangerButton;
 import 'info_hint.dart';
 import 'theme/tokens.dart';
 
@@ -24,6 +24,9 @@ export '../cancel_choice.dart';
 
 /// The info icon beside the fee line of a cancel confirmation (tests, the tour).
 const Key cancelFeeHintKey = ValueKey('cancel-fee-hint');
+
+/// The tile of every cancel confirmation (the desktop's EIcons.cancel).
+const IconData cancelDialogIcon = Icons.block;
 
 /// The three buttons (tests, the tour).
 const Key cancelForSureKey = ValueKey('cancel-for-sure');
@@ -41,8 +44,8 @@ Future<CancelChoice> showCancelChoices(
   required String anchor,
   required String keepLabel,
 }) async {
-  final choice = await showDialog<CancelChoice>(
-    context: context,
+  final choice = await showAppDialog<CancelChoice>(
+    context,
     builder: (context) => _ChoicesDialog(title: title, body: body, anchor: anchor, keepLabel: keepLabel),
   );
   return choice ?? CancelChoice.keep;
@@ -58,21 +61,23 @@ Future<bool> showPlainCancel(
   required String keepLabel,
   required String cancelLabel,
 }) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
+  final confirmed = await showAppDialog<bool>(
+    context,
     builder: (context) {
       final theme = Theme.of(context);
-      return AlertDialog(
-        title: Text(title),
-        content: CancelNote(
+      return AppDialog(
+        title: title,
+        icon: cancelDialogIcon,
+        body: CancelNote(
           text: body,
           anchor: anchor,
           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
-        // One destructive look: the cancelling choice in red, the safe one neutral.
+        // One destructive look: the cancelling choice in the outlined risk style, Keep the
+        // shared outlined secondary.
         actions: [
-          OutlinedButton(onPressed: () => Navigator.pop(context, false), child: Text(keepLabel)),
-          DangerButton(onPressed: () => Navigator.pop(context, true), child: Text(cancelLabel)),
+          DialogButton.secondary(key: cancelKeepKey, label: keepLabel, onPressed: () => Navigator.pop(context, false)),
+          DialogButton.risk(label: cancelLabel, onPressed: () => Navigator.pop(context, true)),
         ],
       );
     },
@@ -95,52 +100,52 @@ class _ChoicesDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final bodyStyle = theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     final line = theme.textTheme.bodySmall!.copyWith(color: t.dim);
-    return AlertDialog(
-      title: Text(title),
+    return AppDialog(
+      title: title,
+      icon: cancelDialogIcon,
       // The one sentence, and the way to Help; the buttons below say the rest.
-      content: CancelNote(text: body, anchor: anchor, style: bodyStyle),
+      body: CancelNote(text: body, anchor: anchor, style: bodyStyle),
       // The choices stack, each with its own quiet line, so the fee belongs to the main
       // button alone and the free one reads free. Full width, so a long label (German,
       // Russian) never wraps beside another button at 360 dp.
+      stackActions: true,
       actions: [
-        SizedBox(
-          width: double.infinity,
-          child: Column(
+        DialogButton.risk(
+          key: cancelForSureKey,
+          label: l.cancelForSure,
+          onPressed: () => Navigator.pop(context, CancelChoice.cancelForSure),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 2, bottom: 10),
+          // The fee line and, right beside it, the info icon: the two ways to cancel.
+          child: Row(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DangerButton(
-                key: cancelForSureKey,
-                onPressed: () => Navigator.pop(context, CancelChoice.cancelForSure),
-                child: Text(l.cancelForSure),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 2, bottom: 10),
-                // The fee line and, right beside it, the info icon: the two ways to cancel.
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(child: Text(l.cancelFeeLine, style: line)),
-                    InfoHint(l.cancelChoicesWhy, key: cancelFeeHintKey, size: 32, title: l.cancelChoicesTitle, icon: Icons.info_outline),
-                  ],
-                ),
-              ),
-              OutlinedButton(
-                key: cancelStopWaitingKey,
-                onPressed: () => Navigator.pop(context, CancelChoice.stopWaiting),
-                child: Text(l.cancelStopWaiting),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 6, bottom: 14, left: 2),
-                child: Text(l.cancelStopWaitingLine, style: line),
-              ),
-              TextButton(
-                key: cancelKeepKey,
-                onPressed: () => Navigator.pop(context, CancelChoice.keep),
-                child: Text(keepLabel),
+              Flexible(child: Text(l.cancelFeeLine, style: line)),
+              InfoHint(
+                l.cancelChoicesWhy,
+                key: cancelFeeHintKey,
+                size: 32,
+                title: l.cancelChoicesTitle,
+                icon: Icons.info_outline,
               ),
             ],
           ),
+        ),
+        DialogButton.secondary(
+          key: cancelStopWaitingKey,
+          label: l.cancelStopWaiting,
+          onPressed: () => Navigator.pop(context, CancelChoice.stopWaiting),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 14, left: 2),
+          child: Text(l.cancelStopWaitingLine, style: line),
+        ),
+        // Keep: the shared outlined secondary (#50), as in every dialog.
+        DialogButton.secondary(
+          key: cancelKeepKey,
+          label: keepLabel,
+          onPressed: () => Navigator.pop(context, CancelChoice.keep),
         ),
       ],
     );

@@ -379,15 +379,14 @@ class _ExportHistoryDialogState extends ConsumerState<ExportHistoryDialog> {
           : list,
       actions: saved != null
           ? [
-              EButton(label: l.deskSetBackupOpenFolder, icon: EIcons.folder, size: EBtnSize.sm, onPressed: () => _openFolder(ref, saved)),
-              EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+              EButton(label: l.deskSetBackupOpenFolder, icon: EIcons.folder, onPressed: () => _openFolder(ref, saved)),
+              EButton(label: l.commonDone, onPressed: () => Navigator.of(context).pop()),
             ]
           : [
-              EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: _saving ? null : () => Navigator.of(context).pop()),
+              EButton(label: l.commonCancel, onPressed: _saving ? null : () => Navigator.of(context).pop()),
               EButton.primary(
                 label: _saving ? l.deskSetBackupSaving : (_failed != null ? l.deskSetBackupTryAgain : l.deskSetBackupSaveAs),
                 icon: EIcons.download,
-                size: EBtnSize.sm,
                 busy: _saving,
                 onPressed: _saving ? null : _save,
               ),
@@ -452,8 +451,8 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
                   description: l.deskSetBackupServersBody,
                   icon: EIcons.settings,
                   actions: [
-                    EButton(label: l.deskSetBackupServersKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-                    EButton.primary(label: l.deskSetBackupServersUse, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+                    EButton(label: l.deskSetBackupServersKeep, onPressed: () => Navigator.pop(ctx, false)),
+                    EButton.primary(label: l.deskSetBackupServersUse, onPressed: () => Navigator.pop(ctx, true)),
                   ],
                 ),
               ) ==
@@ -470,8 +469,8 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
                   description: l.backupSettingsBody(plan.conflicts.length),
                   icon: EIcons.settings,
                   actions: [
-                    EButton(label: l.backupSettingsKeepMine, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-                    EButton.primary(label: l.backupSettingsUseBackup, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+                    EButton(label: l.backupSettingsKeepMine, onPressed: () => Navigator.pop(ctx, false)),
+                    EButton.primary(label: l.backupSettingsUseBackup, onPressed: () => Navigator.pop(ctx, true)),
                   ],
                 ),
               ) ==
@@ -494,8 +493,8 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
             description: l.restoreUseContactsBody(result.pairingsOtherDevice),
             icon: EIcons.trusted,
             actions: [
-              EButton(label: l.pairNotNow, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-              EButton.primary(label: l.restoreUseHere, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+              EButton(label: l.pairNotNow, onPressed: () => Navigator.pop(ctx, false)),
+              EButton.primary(label: l.restoreUseHere, onPressed: () => Navigator.pop(ctx, true)),
             ],
           ),
         );
@@ -555,7 +554,7 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
                 if (r.replaced > 0) ...[SizedBox(height: Sp.x3), Text(l.deskHistImportedReplaced(r.replaced), style: ts.small)],
               ],
             );
-      actions = [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())];
+      actions = [EButton(label: l.commonDone, onPressed: () => Navigator.of(context).pop())];
     } else {
       body = reading != null
           ? Padding(
@@ -582,8 +581,8 @@ class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
               ],
             );
       actions = [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: reading != null ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: l.deskSetBackupChooseFile, icon: EIcons.folder, size: EBtnSize.sm, onPressed: reading != null ? null : _choose),
+        EButton(label: l.commonCancel, onPressed: reading != null ? null : () => Navigator.of(context).pop()),
+        EButton.primary(label: l.deskSetBackupChooseFile, icon: EIcons.folder, onPressed: reading != null ? null : _choose),
       ];
     }
     return EDialog(
@@ -700,8 +699,8 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
           ],
         ),
         actions: [
-          EButton(label: l.deskSetBackupOpenFolder, icon: EIcons.folder, size: EBtnSize.sm, onPressed: () => _openFolder(ref, saved.path)),
-          EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+          EButton(label: l.deskSetBackupOpenFolder, icon: EIcons.folder, onPressed: () => _openFolder(ref, saved.path)),
+          EButton(label: l.commonDone, onPressed: () => Navigator.of(context).pop()),
         ],
       );
     }
@@ -768,11 +767,10 @@ class _ExportCsvDialogState extends ConsumerState<ExportCsvDialog> {
         ],
       ),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: _saving ? null : () => Navigator.of(context).pop()),
+        EButton(label: l.commonCancel, onPressed: _saving ? null : () => Navigator.of(context).pop()),
         EButton.primary(
           label: _saving ? l.deskSetBackupSaving : (_failed != null ? l.deskSetBackupTryAgain : l.deskSetBackupSaveAs),
           icon: EIcons.table,
-          size: EBtnSize.sm,
           busy: _saving,
           onPressed: _saving || count == null ? null : () => _save(count),
         ),
@@ -814,7 +812,7 @@ class HistoryImportOfferDialog extends StatelessWidget {
         ],
       ),
       actions: [
-        EButton.ghost(label: l.deskSetBackupNotNow, onPressed: () => Navigator.pop(context, false)),
+        EButton(label: l.deskSetBackupNotNow, onPressed: () => Navigator.pop(context, false)),
         EButton.primary(label: l.deskOvRestoredImportButton, icon: EIcons.upload, onPressed: () => Navigator.pop(context, true)),
       ],
     );

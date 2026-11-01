@@ -2615,8 +2615,9 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     final sum = d.summary;
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, blocks: d.confirmations, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
-      width: Max.dialog,
+      size: DialogWidth.wide,
       title: widget.compact ? l.deskLvSendPasswordTitle : l.deskSendReviewTitle,
+      icon: EIcons.send,
       description: widget.compact ? l.deskLvSendNothingLeaves : l.deskSendReviewDesc,
       dismissible: !_busy,
       body: Column(
@@ -2764,7 +2765,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             )
           : null,
       actions: [
-        EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton(label: l.deskSendBack, onPressed: _busy ? null : () => Navigator.of(context).pop()),
         EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : l.deskSendConfirm(formatEpicL(l, d.amount)))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );

@@ -15,6 +15,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart' show clockProvider;
+import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
@@ -326,28 +327,16 @@ class TestCoinsButton extends ConsumerWidget {
 /// End demo, in Settings: confirm, end the demo on the server, then the welcome screen.
 Future<void> endDemo(BuildContext context, WidgetRef ref) async {
   final l = context.l10n;
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.demoEndTitle),
-      content: Text(l.demoEndBody),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l.commonCancel),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.error,
-            foregroundColor: Theme.of(context).colorScheme.onError,
-          ),
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l.demoEnd),
-        ),
-      ],
-    ),
+  final confirmed = await confirmAppDialog(
+    context,
+    title: l.demoEndTitle,
+    icon: Icons.logout,
+    description: l.demoEndBody,
+    cancelLabel: l.commonCancel,
+    confirmLabel: l.demoEnd,
+    risk: true,
   );
-  if (confirmed != true || !context.mounted) return;
+  if (!confirmed || !context.mounted) return;
   final config = ref.read(walletConfigProvider);
   ref.read(sessionProvider.notifier).lock();
   try {
