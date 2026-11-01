@@ -70,13 +70,14 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
     // send the code. Released when the screen goes.
     final hold = Completer<void>();
     _hold = hold;
-    unawaited(ref.read(autoLockHoldProvider.notifier).during(() => hold.future));
-    // The minutes left on the code, and the auto-close, follow the clock.
+    // The minutes left on the invite, and the auto-close, follow the clock.
     _tick = Timer.periodic(const Duration(seconds: 20), (_) {
       if (mounted) setState(() {});
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      // Taken after the first frame: a provider is not changed while the tree builds.
+      unawaited(ref.read(autoLockHoldProvider.notifier).during(() => hold.future));
       final service = ref.read(deviceServiceProvider);
       // A flow left from an earlier visit that ended is not this one.
       service?.closeLink();
