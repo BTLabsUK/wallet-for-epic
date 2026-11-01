@@ -746,6 +746,10 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       child: Builder(
         builder: (context) {
           final focused = _button.hasFocus;
+          // A host (or a chosen set of them) is data, in mono; a word ("Local node", "Pick a
+          // node", "Checking…") is in the interface face.
+          final isHost = typedServerValue(widget.kind, widget.fieldText.trim().split(RegExp(r'[\s,]+')).first) != null;
+          final valueStyle = isHost ? ts.mono(size: 13.u, color: c.text) : ts.body.copyWith(color: c.text);
           return Semantics(
             button: true,
             label: '${widget.label}: ${widget.fieldText}${widget.fieldSub != null ? ', ${widget.fieldSub}' : ''}',
@@ -770,47 +774,50 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                   children: [
                     EStatusDot(widget.tone, size: 8.u),
                     SizedBox(width: Sp.x3),
-                    if (widget.busy || widget.fieldSub == null)
-                      Flexible(
-                        flex: 2,
-                        child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: ts.mono(size: 13.u, color: c.text)),
-                      )
-                    else
-                      // The host first, whole while it fits; the operator only in the room left.
-                      Expanded(
-                        child: LayoutBuilder(
-                          builder: (context, box) {
-                            final hostStyle = ts.mono(size: 13.u, color: c.text);
-                            final tp = TextPainter(text: TextSpan(text: widget.fieldText, style: hostStyle), textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
-                            final hostW = tp.width;
-                            tp.dispose();
-                            final host = Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: hostStyle);
-                            if (hostW + Sp.x2 + 48.u > box.maxWidth) return Align(alignment: AlignmentDirectional.centerStart, child: host);
-                            return Row(
+                    // The value takes the room up to the chevron, which stays at the end whatever the
+                    // value is (a bare host, a host and its operator, a word while it switches).
+                    Expanded(
+                      child: widget.busy || widget.fieldSub == null
+                          ? Row(
                               children: [
-                                host,
-                                SizedBox(width: Sp.x2),
-                                Flexible(child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1)),
+                                Flexible(
+                                  flex: 2,
+                                  child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: valueStyle),
+                                ),
+                                if (widget.busy) ...[
+                                  SizedBox(width: Sp.x2),
+                                  Flexible(
+                                    child: Semantics(
+                                      liveRegion: true,
+                                      child: Text(
+                                        _slow ? l.deskSetComboNoAnswer : (widget.busyLabel ?? l.deskSetFrameChecking),
+                                        style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
-                            );
-                          },
-                        ),
-                      ),
-                    if (widget.busy) ...[
-                      SizedBox(width: Sp.x2),
-                      Flexible(
-                        child: Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            _slow ? l.deskSetComboNoAnswer : (widget.busyLabel ?? l.deskSetFrameChecking),
-                            style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ),
-                    ],
-                    if (widget.busy || widget.fieldSub == null) const Spacer(),
+                            )
+                          // The host first, whole while it fits; the operator only in the room left.
+                          : LayoutBuilder(
+                              builder: (context, box) {
+                                final tp = TextPainter(text: TextSpan(text: widget.fieldText, style: valueStyle), textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
+                                final hostW = tp.width;
+                                tp.dispose();
+                                final host = Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: valueStyle);
+                                if (hostW + Sp.x2 + 48.u > box.maxWidth) return Align(alignment: AlignmentDirectional.centerStart, child: host);
+                                return Row(
+                                  children: [
+                                    host,
+                                    SizedBox(width: Sp.x2),
+                                    Flexible(child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1)),
+                                  ],
+                                );
+                              },
+                            ),
+                    ),
                     SizedBox(width: Sp.x2),
                     Icon(EIcons.chevronDown, size: 16.u, color: c.dim),
                   ],
