@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
+import 'package:epic_wallet/src/ui/cancel_dialog.dart' show cancelForSureKey;
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
@@ -2415,16 +2416,16 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
       final release = find.widgetWithText(OutlinedButton, 'Release coins');
       await _tap(tester, release);
-      // One calm sentence; the fee line under Cancel for sure, the free line under Stop waiting.
+      // One calm sentence, the two-line comparison, the choices named by outcome (B-04).
       expect(find.text('This payment did not go through, but it still could later.'), findsOneWidget);
-      expect(find.text('Costs the normal network fee.'), findsOneWidget);
-      expect(find.text('Free. The payment may still finish.'), findsOneWidget);
-      expect(find.text('Cancel for sure'), findsOneWidget);
-      expect(find.text('Stop waiting'), findsOneWidget);
+      expect(find.text('Move coins back: certain, for the network fee.'), findsOneWidget);
+      expect(find.textContaining('Unlock coins: free'), findsOneWidget);
+      expect(find.textContaining('Move coins back'), findsNWidgets(2));
+      expect(find.text('Unlock coins, leave payment open'), findsOneWidget);
       await _tap(tester, find.text('Keep waiting'));
       expect(h.session.releasedKeys, isEmpty);
       await _tap(tester, release);
-      await _tap(tester, find.text('Cancel for sure'));
+      await _tap(tester, find.byKey(cancelForSureKey));
       expect(h.session.releasedKeys, ['s:refused']);
       expect(find.textContaining('Coins released'), findsOneWidget);
     });

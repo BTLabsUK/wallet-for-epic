@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-// The phone's cancel confirmations (WAL-20 copy, 2026-10-30). Where the other side could still
-// finish the payment (an invoice this wallet paid, a refused send released), the dialog offers
-// three choices: Cancel for sure with the fee line and an info icon that opens the two ways to
-// cancel, the free Stop waiting with its own line, and Keep. Stop waiting cancels (or releases)
-// with nothing spent; Cancel for sure still spends the coins back. A plain cancel (a send still
-// waiting) keeps one free cancel, no fee line, no icon, no Stop waiting.
+// The phone's cancel confirmations (WAL-20 copy, 2026-10-30; calmer, B-04, 2026-11-01). Where
+// the other side could still finish the payment (an invoice this wallet paid, a refused send
+// released), the dialog has one sentence, a two-line comparison and three choices named by
+// outcome: Move coins back with its fee (the one primary), Unlock coins, and the dismiss.
+// Unlock cancels (or releases) with nothing spent; Move coins back still spends the coins
+// back. A plain cancel (a send still waiting) keeps one free cancel and no comparison.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -128,63 +128,48 @@ Future<void> _openCancel(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// The three choices, stacked main first, each inside the 360 dp screen.
+/// The three choices, stacked main first, each inside the 360 dp screen, under the comparison.
 void _expectThreeChoices(WidgetTester tester, {required String keep}) {
   expect(find.byKey(cancelForSureKey), findsOneWidget);
   expect(find.byKey(cancelStopWaitingKey), findsOneWidget);
   expect(find.byKey(cancelKeepKey), findsOneWidget);
-  expect(find.text(_l.cancelForSure), findsOneWidget);
-  expect(find.text(_l.cancelStopWaiting), findsOneWidget);
+  // The fee of the one locked coin spent back into one output: 0.004 EPIC, on its button.
+  expect(find.descendant(of: find.byKey(cancelForSureKey), matching: find.textContaining('0.0040')), findsOneWidget);
+  expect(find.descendant(of: find.byKey(cancelForSureKey), matching: find.textContaining(_l.cancelMoveBack)), findsOneWidget);
+  expect(find.text(_l.cancelUnlockOpen), findsOneWidget);
   expect(find.text(keep), findsOneWidget);
-  expect(find.text(_l.cancelFeeLine), findsOneWidget);
-  expect(find.text(_l.cancelStopWaitingLine), findsOneWidget);
-  expect(find.byKey(cancelFeeHintKey), findsOneWidget);
+  expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
+  expect(find.text(_l.cancelCompareUnlock), findsOneWidget);
+  // No caption under a button, no info icon (B-04).
+  expect(find.text(_l.cancelFeeLine), findsNothing);
+  expect(find.text(_l.cancelStopWaitingLine), findsNothing);
+  expect(find.byKey(cancelFeeHintKey), findsNothing);
+  final compare = tester.getRect(find.text(_l.cancelCompareUnlock));
   final main = tester.getRect(find.byKey(cancelForSureKey));
-  final fee = tester.getRect(find.text(_l.cancelFeeLine));
   final stop = tester.getRect(find.byKey(cancelStopWaitingKey));
-  final free = tester.getRect(find.text(_l.cancelStopWaitingLine));
   final dismiss = tester.getRect(find.byKey(cancelKeepKey));
-  expect(main.bottom, lessThanOrEqualTo(fee.top + 1), reason: 'the fee line sits under Cancel for sure');
-  expect(fee.bottom, lessThanOrEqualTo(stop.top + 1), reason: 'then Stop waiting');
-  expect(stop.bottom, lessThanOrEqualTo(free.top + 1), reason: 'with its free line under it');
-  expect(free.bottom, lessThanOrEqualTo(dismiss.top + 1), reason: 'Keep last');
+  expect(compare.bottom, lessThanOrEqualTo(main.top + 1), reason: 'the comparison above the buttons');
+  expect(main.bottom, lessThanOrEqualTo(stop.top + 1), reason: 'Move coins back first');
+  expect(stop.bottom, lessThanOrEqualTo(dismiss.top + 1), reason: 'the dismiss last');
   for (final r in [main, stop, dismiss]) {
     expect(r.left, greaterThanOrEqualTo(0));
     expect(r.right, lessThanOrEqualTo(360));
     expect(r.height, greaterThanOrEqualTo(44), reason: 'a full-size tap target');
   }
-  // Beside the fee line: the icon sits on the same row as the text.
-  final icon = tester.getRect(find.byKey(cancelFeeHintKey));
-  expect(icon.left, greaterThanOrEqualTo(fee.right - 1));
-  expect(icon.center.dy, closeTo(fee.center.dy, 12));
+  expect(find.descendant(of: find.byKey(cancelForSureKey), matching: find.byType(FilledButton)), findsOneWidget, reason: 'the one primary');
 }
 
 void main() {
-  testWidgets('an invoice paid: one calm sentence, three choices, the info icon opens the two ways', (tester) async {
+  testWidgets('an invoice paid: one calm sentence, the comparison, three choices named by outcome', (tester) async {
     await _pump(tester, _send(flow: TxFlow.invoice));
     await _openCancel(tester);
     expect(find.text(_l.txDetailsCancelTitle), findsOneWidget);
     expect(find.text(_l.txDetailsCancelRequestBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
     expect(find.text(_l.cancelMoreInHelp), findsOneWidget, reason: 'the dialog only');
     _expectThreeChoices(tester, keep: _l.txDetailsCancelKeep);
-    await tester.tap(find.byKey(cancelFeeHintKey));
-    await tester.pumpAndSettle();
-    expect(find.byType(InfoSheet), findsOneWidget);
-    expect(find.text(_l.cancelChoicesTitle), findsOneWidget);
-    expect(find.text(_l.cancelChoicesWhy), findsOneWidget);
-    // Two short paragraphs, one per way: what it does, what it costs, what may still happen.
-    final ways = _l.cancelChoicesWhy.split('\n\n');
-    expect(ways, hasLength(2));
-    expect(ways.first, startsWith(_l.cancelForSure));
-    expect(ways.first, contains('normal network fee'));
-    expect(ways.last, startsWith(_l.cancelStopWaiting));
-    expect(ways.last, contains('shows as paid'));
-    // One fee line only, never a count of coins (the owner, 2026-10-30).
-    expect(_l.cancelChoicesWhy, isNot(matches(RegExp(r'\d'))));
-    expect(_l.cancelChoicesWhy, isNot(contains('output')));
   });
 
-  testWidgets('Stop waiting: cancelled with nothing spent, a calm notice that it may still finish', (tester) async {
+  testWidgets('Unlock coins: cancelled with nothing spent, a calm notice that it may still finish', (tester) async {
     final s = await _pump(tester, _send(flow: TxFlow.invoice));
     await _openCancel(tester);
     await tester.tap(find.byKey(cancelStopWaitingKey));
@@ -195,7 +180,7 @@ void main() {
     expect(_notice(tester)?.level, NoticeLevel.info);
   });
 
-  testWidgets('Cancel for sure: cancelled and the coins spent back, as before', (tester) async {
+  testWidgets('Move coins back: cancelled and the coins spent back, as before', (tester) async {
     final s = await _pump(tester, _send(flow: TxFlow.invoice));
     await _openCancel(tester);
     await tester.tap(find.byKey(cancelForSureKey));
@@ -214,7 +199,7 @@ void main() {
     expect(find.byKey(cancelForSureKey), findsNothing);
   });
 
-  testWidgets('a send still waiting: one free cancel, no fee line, no icon, no Stop waiting', (tester) async {
+  testWidgets('a send still waiting: one free cancel, no comparison, no Unlock coins', (tester) async {
     final s = await _pump(tester, _send());
     await _openCancel(tester);
     expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
@@ -222,7 +207,7 @@ void main() {
     expect(find.byKey(cancelFeeHintKey), findsNothing);
     expect(find.byType(InfoHint), findsNothing);
     expect(find.byKey(cancelStopWaitingKey), findsNothing);
-    expect(find.text(_l.cancelStopWaiting), findsNothing);
+    expect(find.text(_l.cancelCompareUnlock), findsNothing);
     expect(find.text(_l.txDetailsCancelKeep), findsOneWidget);
     await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
     await tester.pumpAndSettle();
@@ -231,7 +216,7 @@ void main() {
     expect(_notice(tester)?.text, _l.txDetailsPaymentCancelled);
   });
 
-  testWidgets('Release coins: the same three choices; Stop waiting releases with nothing spent', (tester) async {
+  testWidgets('Release coins: the same three choices; Unlock coins releases with nothing spent', (tester) async {
     final s = await _pump(tester, _send(releasable: true));
     await tester.tap(find.widgetWithText(OutlinedButton, _l.txDetailsReleaseFunds));
     await tester.pumpAndSettle();
@@ -247,7 +232,7 @@ void main() {
     expect(_notice(tester)?.level, NoticeLevel.info);
   });
 
-  testWidgets('Release coins, Cancel for sure: released and the coins spent back', (tester) async {
+  testWidgets('Release coins, Move coins back: released and the coins spent back', (tester) async {
     final s = await _pump(tester, _send(releasable: true));
     await tester.tap(find.widgetWithText(OutlinedButton, _l.txDetailsReleaseFunds));
     await tester.pumpAndSettle();
@@ -265,9 +250,8 @@ void main() {
       _l.txDetailsCancelSendBody,
       _l.txDetailsCancelReceiveBody,
       _l.txDetailsReleaseBody,
-      _l.cancelFeeLine,
-      _l.cancelStopWaitingLine,
-      _l.cancelChoicesWhy,
+      _l.cancelCompareMoveBack,
+      _l.cancelCompareUnlock,
       _l.txDetailsStoppedWaiting,
     ];
     for (final s in surfaces) {
@@ -280,9 +264,12 @@ void main() {
     for (final s in [_l.txDetailsCancelRequestBody, _l.txDetailsCancelNotPostedBody, _l.txDetailsCancelSendBody, _l.txDetailsReleaseBody]) {
       expect(s.split('. ').length, 1, reason: s);
     }
-    // The button labels: one to three words each.
-    for (final s in [_l.cancelForSure, _l.cancelStopWaiting, _l.txDetailsCancelKeep]) {
-      expect(s.split(' ').length, inInclusiveRange(1, 3), reason: s);
+    // The buttons are named by outcome (B-04): what happens to the coins and the payment.
+    expect(_l.cancelMoveBack, contains('coins'));
+    expect(_l.cancelUnlockOpen, contains('coins'));
+    expect(_l.cancelMoveBackFee('0.0040 EPIC'), startsWith(_l.cancelMoveBack));
+    for (final s in [_l.cancelCompareMoveBack, _l.cancelCompareUnlock]) {
+      expect(s.split('. ').length, 1, reason: 'one line each: $s');
     }
   });
 }

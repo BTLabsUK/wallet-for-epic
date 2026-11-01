@@ -18,7 +18,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 final _l = englishStrings;
 final _now = DateTime(2026, 10, 30, 12);
-final Finder _popover = find.byKey(const ValueKey('info-popover-text'));
 
 Tx _send({required bool notPosted}) => Tx(
   id: 77,
@@ -74,23 +73,15 @@ Future<void> _end(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('a send the network refused: the fee line with its info icon, which opens the explanation', (tester) async {
+  testWidgets('a send the network refused: the comparison names the fee; no info icon (B-04)', (tester) async {
     await _pump(tester, TxDetail(tx: _send(notPosted: true)));
     await tester.tap(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction).first);
     await _frames(tester);
     expect(find.text(_l.deskTxCancelOutgoingTitle), findsOneWidget);
-    expect(find.text(_l.cancelFeeLine), findsOneWidget);
-    expect(find.byKey(deskCancelFeeHintKey), findsOneWidget);
-    // Beside the fee line: the icon sits on the same row as the text.
-    final line = tester.getRect(find.text(_l.cancelFeeLine));
-    final icon = tester.getRect(find.byKey(deskCancelFeeHintKey));
-    expect(icon.left, greaterThanOrEqualTo(line.right - 1));
-    expect(icon.center.dy, closeTo(line.center.dy, 12));
-    await tester.tap(find.byKey(deskCancelFeeHintKey));
-    await _frames(tester);
-    expect(_popover, findsOneWidget);
-    expect(find.text(_l.cancelChoicesTitle), findsOneWidget);
-    expect(find.text(_l.cancelChoicesWhy), findsOneWidget);
+    expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
+    expect(find.text(_l.cancelFeeLine), findsNothing);
+    expect(find.byKey(deskCancelFeeHintKey), findsNothing);
+    expect(find.text(_l.cancelMoreInHelp), findsOneWidget, reason: 'Help keeps the explanation');
     await _end(tester);
   });
 
@@ -105,7 +96,7 @@ void main() {
     await _end(tester);
   });
 
-  testWidgets('an invoice paid: the fee line with its info icon', (tester) async {
+  testWidgets('an invoice paid: the same comparison, no info icon', (tester) async {
     final invoice = IncomingInvoice(
       slateId: 'inv-1',
       senderAddress: 'esShop',
@@ -124,11 +115,8 @@ void main() {
     await _frames(tester);
     expect(find.text(_l.deskInvPayerCancelTitle), findsOneWidget);
     expect(find.text(_l.deskInvPayerCancelText), findsOneWidget);
-    expect(find.text(_l.cancelFeeLine), findsOneWidget);
-    expect(find.byKey(deskCancelFeeHintKey), findsOneWidget);
-    await tester.tap(find.byKey(deskCancelFeeHintKey));
-    await _frames(tester);
-    expect(find.text(_l.cancelChoicesWhy), findsOneWidget);
+    expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
+    expect(find.byKey(deskCancelFeeHintKey), findsNothing);
     await _end(tester);
   });
 }

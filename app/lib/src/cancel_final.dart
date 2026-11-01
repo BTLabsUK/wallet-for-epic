@@ -49,6 +49,29 @@ int spendBackOutputs(List<BigInt> values, {int minChange = SmartOutputsRule.stan
   return n;
 }
 
+/// The fee "Move coins back" costs for coins worth [values]: [spendBackFee] of those coins into
+/// the outputs [spendBackOutputs] makes of them, the rule LEPIC prices the spend back by. Null
+/// for no coins. Display only: the fee paid is the one LEPIC computes.
+BigInt? spendBackFeeFor(List<BigInt> values) =>
+    values.isEmpty ? null : spendBackFee(values.length, spendBackOutputs(values));
+
+/// [spendBackFeeFor] the coins [tx] locks, read from [session]; null when none are locked or
+/// the outputs cannot be read, so the choice shows without a figure rather than a wrong one.
+Future<BigInt?> spendBackFeeOf(WalletSession session, TxEntry tx) async {
+  final id = tx.id;
+  if (id == null) return null;
+  try {
+    final outputs = await session.outputs();
+    return spendBackFeeFor([
+      for (final o in outputs)
+        if (o.txId == id && o.status == WalletOutputStatus.locked) o.value,
+    ]);
+  } on WalletError catch (e) {
+    logWarn('cancel', 'fee not estimated: ${e.kind.name}');
+    return null;
+  }
+}
+
 /// Whether cancelling [tx] also spends its coins back to this wallet: an outgoing payment the
 /// other side may complete without this wallet. An invoice this wallet paid, or a send both
 /// wallets signed that is not confirmed.

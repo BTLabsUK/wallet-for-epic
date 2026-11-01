@@ -330,13 +330,17 @@ class _InvoicesEntryState extends ConsumerState<InvoicesEntry> {
     final id = tx.id;
     if (!mounted || id == null) return;
     // The payment of an invoice: its issuer holds a copy it can finish, so the user picks
-    // Cancel for sure (the coins spent back, for a fee) or the free Stop waiting (cancel_dialog.dart).
+    // Move coins back (spent back, for a fee) or the free Unlock coins (cancel_dialog.dart).
+    final session0 = ref.read(sessionProvider);
+    final fee = session0 == null ? null : await spendBackFeeOf(session0, tx);
+    if (!mounted) return;
     final choice = await showCancelChoices(
       context,
       title: context.l10n.txDetailsCancelTitle,
       body: context.l10n.txDetailsCancelRequestBody,
       anchor: HelpAnchor.requests,
       keepLabel: context.l10n.txDetailsCancelKeep,
+      fee: fee,
     );
     if (!choice.cancels || !mounted) return;
     final session = ref.read(sessionProvider);

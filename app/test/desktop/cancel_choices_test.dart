@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // The desktop's cancel confirmations (WAL-20, 2026-10-30). A send both wallets signed that the
-// network refused offers Keep / Stop waiting / Cancel for sure, each way named on its own line
-// above the buttons (the fee with Cancel for sure only). Stop waiting cancels with no spend
-// back and a calm toast; Cancel for sure spends back as before. A send still waiting keeps one
+// network refused offers Keep / Unlock coins / Move coins back, under a calm two-line
+// comparison (B-04). Unlock coins cancels with no spend back and a calm toast; Move coins back
+// spends back as before. A send still waiting keeps one
 // free cancel. The invoice payer's dialog has the same three buttons.
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
 import 'package:epic_wallet/src/desktop/data/clock.dart';
@@ -86,26 +86,25 @@ Finder _button(String label) => find.widgetWithText(EButton, label);
 
 void main() {
   group('a send both signed that the network refused', () {
-    testWidgets('three choices, each way on its own line; the fee with Cancel for sure only', (tester) async {
+    testWidgets('three choices named by outcome, the two-line comparison above them', (tester) async {
       await _pump(tester, (_) => TxDetail(tx: _send(notPosted: true)));
       await tester.tap(_button(_l.deskTxCancelOutgoingAction).first);
       await _frames(tester);
       expect(find.text(_l.deskTxCancelOutgoingTitle), findsOneWidget);
       expect(find.byType(DeskCancelChoices), findsOneWidget);
       expect(_button(_l.deskTxCancelKeep), findsOneWidget);
-      expect(_button(_l.cancelStopWaiting), findsOneWidget);
-      expect(_button(_l.cancelForSure), findsOneWidget);
-      // The two lines name their buttons, so the fee reads as Cancel for sure's alone.
-      expect(find.text(_l.cancelForSure), findsNWidgets(2));
-      expect(find.text(_l.cancelStopWaiting), findsNWidgets(2));
-      expect(find.text(_l.cancelFeeLine), findsOneWidget);
-      expect(find.text(_l.cancelStopWaitingLine), findsOneWidget);
-      expect(find.byKey(deskCancelFeeHintKey), findsOneWidget);
+      expect(_button(_l.cancelUnlockOpen), findsOneWidget);
+      expect(_button(_l.cancelMoveBack), findsOneWidget);
+      // A calm two-line comparison above the buttons; no caption per way, no info icon (B-04).
+      expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
+      expect(find.text(_l.cancelCompareUnlock), findsOneWidget);
+      expect(find.text(_l.cancelFeeLine), findsNothing);
+      expect(find.byKey(deskCancelFeeHintKey), findsNothing);
       expect(find.text(_l.cancelMoreInHelp), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
-      // The main button is the last one: at the end of the bar, after Stop waiting, which comes
+      // The main button is the last one: at the end of the bar, after Unlock coins, which comes
       // after Keep (the bar may wrap onto a second row when the labels are long).
-      final sure = tester.getRect(_button(_l.cancelForSure));
-      final stop = tester.getRect(_button(_l.cancelStopWaiting));
+      final sure = tester.getRect(_button(_l.cancelMoveBack));
+      final stop = tester.getRect(_button(_l.cancelUnlockOpen));
       final keep = tester.getRect(_button(_l.deskTxCancelKeep));
       expect(sure.bottom, greaterThanOrEqualTo(stop.bottom - 1));
       expect(sure.bottom, greaterThanOrEqualTo(keep.bottom - 1));
@@ -115,12 +114,12 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Stop waiting: cancelled with no spend back, a calm toast', (tester) async {
+    testWidgets('Unlock coins: cancelled with no spend back, a calm toast', (tester) async {
       final desk = await _pump(tester, (_) => TxDetail(tx: _send(notPosted: true, id: MockDeskWallet.signedCancelDemoId)));
       desk.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
       await tester.tap(_button(_l.deskTxCancelOutgoingAction).first);
       await _frames(tester);
-      await tester.tap(_button(_l.cancelStopWaiting));
+      await tester.tap(_button(_l.cancelUnlockOpen));
       await _frames(tester, 20);
       expect(desk.cancels, [(MockDeskWallet.signedCancelDemoId, false)]);
       expect(find.text(_l.cancelStoppedWaitingTitle), findsOneWidget);
@@ -129,12 +128,12 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Cancel for sure: cancelled and spent back, as before', (tester) async {
+    testWidgets('Move coins back: cancelled and spent back, as before', (tester) async {
       final desk = await _pump(tester, (_) => TxDetail(tx: _send(notPosted: true, id: MockDeskWallet.signedCancelDemoId)));
       desk.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
       await tester.tap(_button(_l.deskTxCancelOutgoingAction).first);
       await _frames(tester);
-      await tester.tap(_button(_l.cancelForSure));
+      await tester.tap(_button(_l.cancelMoveBack));
       await _frames(tester, 20);
       expect(desk.cancels, [(MockDeskWallet.signedCancelDemoId, true)]);
       expect(find.text(_l.deskTxCancelled), findsOneWidget);
@@ -159,8 +158,8 @@ void main() {
     await tester.tap(_button(_l.deskTxCancelOutgoingAction).first);
     await _frames(tester);
     expect(find.byType(DeskCancelChoices), findsNothing);
-    expect(_button(_l.cancelStopWaiting), findsNothing);
-    expect(_button(_l.cancelForSure), findsNothing);
+    expect(_button(_l.cancelUnlockOpen), findsNothing);
+    expect(_button(_l.cancelMoveBack), findsNothing);
     expect(find.text(_l.cancelFeeLine), findsNothing);
     expect(_button(_l.deskTxCancelOutgoingAction), findsNWidgets(2), reason: 'the pane and the dialog say the same');
     await tester.tap(_button(_l.deskTxCancelOutgoingAction).last);
@@ -187,10 +186,10 @@ void main() {
     expect(find.text(_l.deskInvPayerCancelText), findsOneWidget);
     expect(find.byType(DeskCancelChoices), findsOneWidget);
     expect(_button(_l.deskInvPayerKeepPayment), findsOneWidget);
-    expect(_button(_l.cancelStopWaiting), findsOneWidget);
-    expect(_button(_l.cancelForSure), findsOneWidget);
-    expect(find.text(_l.cancelFeeLine), findsOneWidget);
-    expect(find.text(_l.cancelStopWaitingLine), findsOneWidget);
+    expect(_button(_l.cancelUnlockOpen), findsOneWidget);
+    expect(_button(_l.cancelMoveBack), findsOneWidget);
+    expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
+    expect(find.text(_l.cancelCompareUnlock), findsOneWidget);
     await _end(tester);
   });
 }

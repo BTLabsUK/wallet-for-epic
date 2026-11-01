@@ -54,13 +54,13 @@ void main() {
       });
 
       // WAL-20: once the other side holds what it needs to finish the payment, Cancel offers two
-      // ways: Cancel for sure (the coins back, one network fee) and the free Stop waiting.
+      // ways: Move coins back (one network fee) and the free Unlock coins (B-04 names).
       test('${platform.name}: names the two ways to cancel, the fee, and what may still finish means', () {
         final all = topic.bodyText;
         // The bold names render with their own spacing: check the name and its sentence apart.
-        expect(all, contains('Cancel for sure'));
+        expect(all, contains('Move coins back'));
         expect(all, contains('moves the coins back to this wallet first, for the normal network fee'));
-        expect(all, contains('Stop waiting'));
+        expect(all, contains('Unlock coins'));
         expect(all, contains('is free and moves nothing'));
         expect(all, contains('if it does, it shows as paid'));
         expect(all, isNot(contains('offered with the cancel')));

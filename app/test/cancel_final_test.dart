@@ -265,6 +265,12 @@ void main() {
       expect(spendBackFee(9, 1), e(0.001), reason: 'never below one unit of weight');
     });
 
+    test('the fee on the Move coins back button: the coins locked, into the outputs made', () {
+      expect(spendBackFeeFor(const []), isNull, reason: 'no figure rather than a wrong one');
+      expect(spendBackFeeFor([e(3)]), e(0.004));
+      expect(spendBackFeeFor([e(2), e(1.5), e(5)]), spendBackFee(3, 3));
+    });
+
     test('one coin: one back', () => expect(spendBackOutputs([e(3)]), 1));
 
     test('three coins: three back', () => expect(spendBackOutputs([e(2), e(1.5), e(5)]), 3));
@@ -353,7 +359,7 @@ void main() {
       final s = await pump(tester, _send(flow: TxFlow.invoice));
       await cancel(tester);
       expect(find.text(_l.txDetailsCancelRequestBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
-      expect(find.text(_l.cancelFeeLine), findsOneWidget);
+      expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
       await tester.tap(find.byKey(cancelForSureKey));
       await tester.pumpAndSettle();
       expect(s.cancelledTxIds, [9]);
@@ -365,7 +371,7 @@ void main() {
       final s = await pump(tester, _send());
       await cancel(tester);
       expect(find.text(_l.txDetailsCancelSendBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
-      expect(find.text(_l.cancelFeeLine), findsNothing);
+      expect(find.text(_l.cancelCompareMoveBack), findsNothing);
       await tester.tap(find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).last);
       await tester.pumpAndSettle();
       expect(s.spentToSelf, isEmpty);
@@ -440,7 +446,7 @@ void main() {
       await pump(tester, tx());
       await tester.tap(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction).first);
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text(_l.cancelFeeLine), findsOneWidget);
+      expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
       expect(find.byType(ECheckbox), findsNothing, reason: 'no extra step');
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 1));
