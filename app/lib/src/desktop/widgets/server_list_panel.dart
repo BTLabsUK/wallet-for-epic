@@ -196,6 +196,7 @@ class ServerListPanel extends ConsumerStatefulWidget {
     required this.onTest,
     this.fieldSub,
     this.tone = ETone.ok,
+    this.state,
     this.chooseOnly = false,
     this.local,
     this.listNote,
@@ -229,6 +230,10 @@ class ServerListPanel extends ConsumerStatefulWidget {
   final String fieldText;
   final String? fieldSub;
   final ETone tone;
+
+  /// The state of the server in use, drawn as the field's dot over [tone]: the same state the
+  /// page's status line shows, so the two never disagree (#76).
+  final EState? state;
 
   /// What the wallet knows of each server, in any order; the list's order is the store's.
   final List<PanelServer> servers;
@@ -762,7 +767,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                 ),
                 child: Row(
                   children: [
-                    EStatusDot(widget.tone, size: 8.u),
+                    if (widget.state case final st?) EStateDot(st, size: 8.u) else EStatusDot(widget.tone, size: 8.u),
                     SizedBox(width: Sp.x3),
                     if (widget.busy || widget.fieldSub == null)
                       Flexible(

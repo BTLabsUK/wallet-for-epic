@@ -160,6 +160,16 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   );
 }
 
+/// The user's own node [url] as the Node page shows it, the one state its field's dot and its
+/// panel's line both read (#76, E-03). [health] is the wallet's view of the node in use; it
+/// speaks for the own node only while no public node stands in for it ([standIn] names the
+/// node it stands in for): with one standing in, the own node's own answer ([info]) decides,
+/// so a node that does not answer reads Not answering, never the stand-in's Synced.
+NodeView ownNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, NodeFailover? standIn, bool mine = false}) {
+  final standing = standIn != null && standIn.chosen == url;
+  return remoteNodeView(l, url, info, health: !standing && health == ServiceHealth.ok ? health : null, mine: mine);
+}
+
 /// A node URL on this computer (the local node's own address).
 bool isLocalNodeUrl(String url) {
   final h = nodeHost(url).toLowerCase();

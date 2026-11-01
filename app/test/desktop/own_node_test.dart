@@ -12,6 +12,8 @@ import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart' show ServerListPanel;
+import 'package:epic_wallet/src/desktop/widgets/status.dart' show EState, EStateDot, EStatusGlyph;
 import 'package:epic_wallet/src/redact.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -302,6 +304,13 @@ void main() {
       expect(find.text('Own node not answering'), findsOneWidget);
       expect(find.text('Try now'), findsOneWidget);
       expect(find.text('Keep node.lab.invalid'), findsOneWidget);
+      // #76: the Node field's dot and the panel's line read one state, never Synced next to
+      // Not answering while a public node stands in.
+      final dot = tester.widget<EStateDot>(find.descendant(of: find.byType(ServerListPanel), matching: find.byType(EStateDot)).first);
+      expect(dot.state, EState.risk);
+      final glyph = tester.widget<EStatusGlyph>(find.byType(EStatusGlyph).first);
+      expect(glyph.state, dot.state);
+      expect(find.textContaining('Not answering', findRichText: true), findsWidgets);
       await end(tester);
     });
   });
