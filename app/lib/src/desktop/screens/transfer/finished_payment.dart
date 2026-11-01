@@ -140,7 +140,7 @@ class _FinishedNotPostedPanelState extends ConsumerState<FinishedNotPostedPanel>
     final c = context.dc;
     return ResultPanel(
       title: l.finalizeNotPostedTitle,
-      text: l.deskFinNotPostedKillBody('${formatEpicL(l, widget.tx.amount)} EPIC'), // l10n-ok: the unit
+      text: l.deskFinNotPostedKillBody(epicTextL(l, widget.tx.amount)),
       glyph: Icon(EIcons.sand, size: 32.u, color: c.info),
       body: _error == null ? null : Text(_error!, key: const ValueKey('finished-error'), style: context.ts.small.copyWith(color: c.dim)),
       actions: [

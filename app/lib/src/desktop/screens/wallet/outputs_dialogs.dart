@@ -235,7 +235,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     final facts = e == null
         ? null
         : EFacts([
-            (l.deskOutFactFee, Text('${formatEpicL(l, e.fee, minDecimals: 3)} EPIC')),
+            (l.deskOutFactFee, Text(epicTextL(l, e.fee))),
             if (_split) (l.deskOutFactEach, Text(l.deskOutFactAbout(_e4(each!)))),
             (l.deskOutFactLocked, Text(l.deskOutFactLockedValue(formatEpicL(l, e.locked), blocks))),
           ]);
