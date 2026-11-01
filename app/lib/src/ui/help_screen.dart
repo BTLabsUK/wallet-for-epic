@@ -731,7 +731,7 @@ enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, sett
 /// The rows of each Settings page that Help names: `Settings › This wallet › Recheck balance`.
 const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
   'Security': (HelpPhonePlace.security, {'Back up recovery phrase'}),
-  'Privacy & network': (HelpPhonePlace.privacyNetwork, {'Tor network', 'Node', 'Epicbox'}),
+  'Network & privacy': (HelpPhonePlace.privacyNetwork, {'Tor network', 'Node', 'Epicbox'}),
   'This wallet': (HelpPhonePlace.wallet, {'Export wallet data', 'Recheck balance', 'Invoices', 'Linked devices'}),
   'Transactions': (HelpPhonePlace.transactions, {'Send defaults'}),
   'Appearance': (HelpPhonePlace.display, <String>{}),

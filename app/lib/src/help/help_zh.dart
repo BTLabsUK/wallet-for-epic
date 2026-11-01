@@ -21,9 +21,10 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? '这部手机' : '这台电脑';
   final secret = phone ? '你的 PIN 码或密码短语' : '钱包密码';
-  final nodePlace = phone ? '[[设置 › 隐私与网络 › 节点|Settings › Privacy & network › Node]]' : '[[设置 › 节点|Settings › Node]]';
-  final epicboxPlace = phone ? '[[设置 › 隐私与网络 › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[设置 › 交易 › Epicbox|Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[设置 › 隐私与网络 › Tor 网络|Settings › Privacy & network › Tor network]]' : '[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]';
+  final nodePlace = phone ? '[[设置 › 网络与隐私 › 节点|Settings › Network & privacy › Node]]' : '[[设置 › 节点|Settings › Node]]';
+  final epicboxPlace = phone ? '[[设置 › 网络与隐私 › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[设置 › 交易 › Epicbox|Settings › Transactions › Epicbox]]';
+  final torPlace = phone ? '[[设置 › 网络与隐私 › Tor 网络|Settings › Network & privacy › Tor network]]' : '[[设置 › 网络与隐私 › Tor|Settings › Network & privacy › Tor]]';
+  final netPlace = '[[设置 › 网络与隐私|Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
       ? '[[设置 › 此钱包 › 导出钱包数据|Settings › This wallet › Export wallet data]]'
@@ -321,7 +322,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
             '发往 onion 地址的链接付款经由 Tor；“发送”会显示付款是否经由 Tor。',
             '比不使用 Tor 慢。某些国家封锁了 Tor；在那里它无法连接。',
             '应用打开时可以通过 .onion 地址接收；Epicbox 同时照常工作。',
-            '在“高级”中选择“仅 Tor”时，开关保持开启，无法关闭。',
+            '网络模式为“仅 Tor”时，开关保持开启，无法关闭。',
           ]),
           const HelpBlock.p('**正在启动…** 表示 Tor 正在连接；受其覆盖的连接会等待，绝不绕过它。**未连接** 表示连接失败：点“重试”，或关闭 Tor。有些钱包显示的 Tor 地址不带 .onion；两者是同一个地址。'),
         ],
@@ -335,12 +336,12 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。开启 Tor 不会改变你分享的地址。'),
           HelpBlock.ul([
-            '在[[设置 › 隐私 › Tor|Settings › Privacy › Tor]]中开启。侧边栏中的 Tor 行显示其状态。',
+            '在[[设置 › 网络与隐私 › Tor|Settings › Network & privacy › Tor]]中开启。侧边栏中的 Tor 行显示其状态。',
             'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或关闭 Tor。',
             '链接 · HTTP 发往 http(s) 地址时不经由 Tor；“发送”会注明这一点。',
             'Tor 开启期间 链接 · HTTP 接收关闭：其他钱包直接发来的付款会到达 链接 · Tor 地址。',
             '某些国家封锁或不允许使用 Tor；在那里它无法连接。',
-            '在“高级”中选择“仅 Tor”时，开关保持开启，无法关闭。',
+            '网络模式为“仅 Tor”时，开关保持开启，无法关闭。',
           ]),
           HelpBlock.p('有些钱包显示的地址不带 .onion；两者是同一个地址。'),
         ],
@@ -353,7 +354,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           ? '常规、仅 Tor、仅节点或紧急断网：各自连接什么，以及如何用一个从不联网的钱包付款。'
           : '常规、仅节点或紧急断网：各自连接什么，以及如何用一个从不联网的钱包付款。',
       [
-        HelpBlock.p('钱包使用多少互联网，是设置中**高级**页面里“网络”下的一个选择，钱包会记住它。离开**常规**模式后，${phone ? '主页' : '标题栏'}上的标记会写出当前模式；点它即可更改。'),
+        HelpBlock.p('钱包使用多少互联网，是 $netPlace 中的一个选择，钱包会记住它。离开**常规**模式后，${phone ? '主页' : '标题栏'}上的标记会写出当前模式；点它即可更改。'),
         HelpBlock.ul([
           tor
               ? '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是 $torPlace 中的独立开关。'
@@ -374,6 +375,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           '回到这里，付款会显示**待在其他设备广播**；离开“紧急断网”后，钱包在链上看到它，就会显示**确认中**。',
         ]),
         HelpBlock.p('被模式关闭的服务会显示为灰色的**关闭（仅节点）**：这是模式，不是错误。切换时不会取消任何内容；通过 Epicbox 等待接收方的付款会在你离开该模式后继续${tor ? '（或切换到“仅 Tor”）' : ''}。'),
+        HelpBlock.p('**节点故障切换**默认开启。当你的节点 30 秒没有响应时，钱包会改用列表里下一个可用的节点，只在本次会话中有效：你自己的节点仍然保存着，下次启动时，或者你自己选择节点后，钱包就会回到它。在“仅节点”和“紧急断网”下它从不切换${phone ? '' : '，也不会离开这台电脑上的节点'}${tor ? '；选择“仅 Tor”时，它只切换到可通过 Tor 访问的节点' : ''}。'),
       ],
       id: HelpId.modes,
     ),
@@ -398,10 +400,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           if (!phone) '**本地节点**：让这台电脑运行自己的节点，在$nodePlace中。',
           if (!phone) '**日志**：“帮助”中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
         ]),
-        HelpBlock.p('**节点故障切换**默认开启。当你的节点 30 秒没有响应时，钱包会改用列表里下一个可用的节点，只在本次会话中有效：你自己的节点仍然保存着，下次启动时，或者你自己选择节点后，钱包就会回到它。在“仅节点”和“紧急断网”下它从不切换${phone ? '' : '，也不会离开这台电脑上的节点'}${tor ? '；选择“仅 Tor”时，它只切换到可通过 Tor 访问的节点' : ''}。'),
         const HelpBlock.p('**确认数** 决定收到的付款要等待多少个区块，其输出才能花费：默认 6，可设为 1 到 30。确认数越少越快，但越不安全。'),
         const HelpBlock.p('**实验性** 包含 **账单**，一开始是关闭的：已配对联系人之间的付款请求和账单。关闭时它们被隐藏，也不会为其检查任何内容。配对本身始终开启。'),
-        const HelpBlock.p('同一页面还设置网络模式：见“网络模式”。'),
+        HelpBlock.p('网络模式和**节点故障切换**都在 $netPlace 中：见“网络模式”。'),
       ],
       id: HelpId.advanced,
     ),
@@ -426,7 +427,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**付款没有到账。** 在“接收”中检查接收是否已开启、节点是否已同步。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。'),
         if (phone && tor)
-          const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在[[设置 › 隐私与网络|Settings › Privacy & network]]中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
+          const HelpBlock.p('**Tor 显示“未连接”。** Tor 无法连接到其网络。在[[设置 › 网络与隐私|Settings › Network & privacy]]中点“重试”，或关闭 Tor；在此期间不会发出任何内容。'),
         if (!phone) ...[
           HelpBlock.p('**“端口 ${appConfig.httpListenPort} 已被其他程序占用”。** 另一个程序（通常是另一个 Epic 钱包）正在使用该端口进行 链接 · HTTP 付款。关闭它，然后在“接收”中点“重试”。在此期间 ${tor ? 'Epicbox、链接 · Tor 和 直接 · 文件传输' : 'Epicbox 和 直接 · 文件传输'}照常工作。'),
           const HelpBlock.p('**“另一个 Epic 程序正在使用此文件夹”。** 另一个 Epic 钱包或节点打开了相同的文件。关闭它后重试。'),
@@ -435,10 +436,10 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**忘记 PIN 码。** 在解锁界面删除钱包，然后用助记词恢复并设置新的 PIN 码。没有助记词，EPIC 将无法找回。')
         else
           const HelpBlock.p('**“密码错误”。** 检查大写锁定键和键盘布局。如果忘记了密码：用助记词恢复钱包并设置新密码。'),
-        HelpBlock.p('**余额看起来不对。** 运行$recheckPlace。'),
         HelpBlock.p(tor
-            ? '**某个操作是灰色的，并写出某个模式或“等待 Tor”。** “高级”中开启了“仅 Tor”、“仅节点”或“紧急断网”。请在那里把模式改回“常规”，或等待 Tor 连接。'
-            : '**某个操作是灰色的，并写出某个模式。** “高级”中开启了“仅节点”或“紧急断网”。请在那里把模式改回“常规”。'),
+            ? '**某个操作是灰色的，并写出某个模式或“等待 Tor”。** $netPlace 中开启了“仅 Tor”、“仅节点”或“紧急断网”。请在那里把模式改回“常规”，或等待 Tor 连接。'
+            : '**某个操作是灰色的，并写出某个模式。** $netPlace 中开启了“仅节点”或“紧急断网”。请在那里把模式改回“常规”。'),
+        HelpBlock.p('**余额看起来不对。** 运行$recheckPlace。'),
       ],
       id: HelpId.trouble,
     ),

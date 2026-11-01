@@ -37,7 +37,7 @@ void main() {
     'Settings': {l.settingsTitle, l.deskShellNavSettings},
     'Security': {l.settingsSectionSecurity},
     'Back up recovery phrase': {l.settingsBackupPhrase},
-    'Privacy & network': {l.settingsSectionPrivacyNetwork},
+    'Network & privacy': {l.settingsSectionNetworkPrivacy},
     'Tor network': {l.torNetworkLabel},
     'Wallet': {l.settingsSectionWallet},
     'Transactions': {l.settingsSectionTransactions, l.deskSetFrameTransactions},
@@ -77,7 +77,7 @@ void main() {
     test('phone: Settings places open the page that holds them', () {
       expect(helpPlaceDestination('Settings › Security'), HelpPhonePlace.security);
       expect(helpPlaceDestination('Settings › Security › Back up recovery phrase'), HelpPhonePlace.security);
-      expect(helpPlaceDestination('Settings › Privacy & network › Tor network'), HelpPhonePlace.privacyNetwork);
+      expect(helpPlaceDestination('Settings › Network & privacy › Tor network'), HelpPhonePlace.privacyNetwork);
       expect(helpPlaceDestination('Settings › This wallet › Recheck balance'), HelpPhonePlace.wallet);
       expect(helpPlaceDestination('Settings › Appearance'), HelpPhonePlace.display);
       expect(helpPlaceDestination('Settings › About'), HelpPhonePlace.about);
@@ -91,7 +91,8 @@ void main() {
         'Settings › Recovery phrase',
         'Settings › Node',
         'Settings › Security › Nothing',
-        'Settings › Privacy & network › Tor › More',
+        'Settings › Network & privacy › Tor › More',
+        'Settings › Privacy & network',
         'Receive › Transaction files › Sign a transaction file',
         'Restore from a recovery phrase',
         'Empfangen',
@@ -104,8 +105,10 @@ void main() {
     test('desktop: each place has its page, and a jump where it names a section', () {
       expect(deskHelpPlace('Settings › Recovery phrase')!.route, DeskRoute.settingsPhrase);
       expect(deskHelpPlace('Settings › Recheck balance')!.route, DeskRoute.settingsRescan);
-      expect(deskHelpPlace('Settings › Privacy › Tor')!.route, DeskRoute.settingsPrivacy);
-      expect(deskHelpPlace('Settings › Privacy › Tor')!.jump, SettingsJump.tor);
+      expect(deskHelpPlace('Settings › Network & privacy › Tor')!.route, DeskRoute.settingsPrivacy);
+      expect(deskHelpPlace('Settings › Network & privacy › Tor')!.jump, SettingsJump.tor);
+      expect(deskHelpPlace('Settings › Network & privacy')!.jump, SettingsJump.network);
+      expect(deskHelpPlace('Settings › Privacy › Tor'), isNull, reason: 'one page now (B-03)');
       expect(deskHelpPlace('Settings › Transactions › Epicbox')!.jump, SettingsJump.epicbox);
       expect(deskHelpPlace('Receive › Transaction files › Finalize a response file')!.route, DeskRoute.finalize);
       expect(deskHelpPlace('Invoices › Issue')!.arg, InvoicesTab.issue);
