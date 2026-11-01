@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/watch_mode.dart' show postingFor;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
@@ -578,6 +579,11 @@ void main() {
       lepicWallet.stored.add(_tx(txId: 5, slateId: 'req-1', direction: lepic.TxDirection.incoming, status: lepic.TxStatus.finalized, counterparty: _payer, credited: BigInt.from(7000)));
       lepicWallet.events$.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.invoiceFinalized, slateId: 'req-1'));
       await _settle();
+      // Finalized moments ago, its post may still be under way (Posting…): past postingFor it
+      // reads Not posted.
+      final later = DateTime.now().add(postingFor + const Duration(seconds: 1));
+      LepicWalletSession.postingClock = () => later;
+      addTearDown(() => LepicWalletSession.postingClock = DateTime.now);
       await wallet.sync();
       expect((await wallet.invoices()).request('req-1')!.state, RequestState.notPosted);
       lepicWallet.cancelError = lepic.WalletErrorKind.inPool;
