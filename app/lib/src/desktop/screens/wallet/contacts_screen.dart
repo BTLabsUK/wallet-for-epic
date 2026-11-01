@@ -161,7 +161,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                 sideFirst: true,
                 sideWidth: Ctl.sideList,
                 side: loadingList,
-                main: EPanel(title: l.deskConDetailsTitle, padding: EdgeInsets.all(Sp.x6), child: const Opacity(opacity: 0.5, child: _Idle())),
+                main: EPanel(title: l.deskConDetailsTitle, child: const Opacity(opacity: 0.5, child: _Idle())),
               )
             : loadingList,
       );
@@ -329,7 +329,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               // A header band like the list's: what the pane shows.
               main: EPanel(
                     title: _adding || _editing ? null : l.deskConDetailsTitle,
-                    padding: EdgeInsets.all(Sp.x6),
                     child: paneOpen
                         ? Align(
                             alignment: Alignment.topLeft,
@@ -1190,8 +1189,8 @@ Future<bool?> showDeleteContactDialog(BuildContext context, Contact x, {bool pai
       tone: ETone.risk,
       description: paired ? '${l.deskConDeleteBody}\n\n${l.contactDeletePaired(x.name)}' : l.deskConDeleteBody,
       actions: [
-        EButton(label: l.deskConKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-        EButton(label: l.deskConDeleteAction, icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+        EButton(label: l.deskConKeep, onPressed: () => Navigator.pop(context, false)),
+        EButton(label: l.deskConDeleteAction, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => Navigator.pop(context, true)),
       ],
     );
   },
@@ -1371,7 +1370,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             title: l.contactKeysBack(name),
             text: l.contactKeysBackBody,
             tone: ETone.ok,
-            actions: [EButton(label: l.commonOk, size: EBtnSize.sm, onPressed: () => ref.read(deskKeysBackProvider.notifier).close(p.id))],
+            actions: [EButton(label: l.commonOk, onPressed: () => ref.read(deskKeysBackProvider.notifier).close(p.id))],
           ),
           SizedBox(height: Sp.x4),
         ],
@@ -1417,7 +1416,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           rows: [
             ESetRow(
               title: statusTitle,
-              text: verified && p.verifiedAt != null ? '${l.contactWordsChecked(localDayMonth(l, p.verifiedAt!))} · $statusLine' : statusLine,
+              text: verified && p.verifiedAt != null ? metaLine([l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)), statusLine]) : statusLine,
               control: !changed && p.sas.isNotEmpty && (waiting || p.state == PairingState.paired)
                   ? EButton(key: deskContactCheckKey, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: !waiting))
                   : null,
@@ -1531,12 +1530,6 @@ class _ContactMoreMenu extends StatelessWidget {
     final l = context.l10n;
     return MenuAnchor(
       consumeOutsideTap: true,
-      style: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(c.s4),
-        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-        padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong))),
-      ),
       menuChildren: [
         for (final (key, icon, label, risk, run) in items)
           MenuItemButton(
