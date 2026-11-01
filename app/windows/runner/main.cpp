@@ -2,6 +2,8 @@
 #include <flutter/flutter_view_controller.h>
 #include <windows.h>
 
+#include <string>
+
 #include "flutter_window.h"
 #include "utils.h"
 #include "window_placement.h"
@@ -12,6 +14,19 @@ namespace {
 constexpr const wchar_t kWindowTitle[] = L"Epic Cash Desktop";
 // The app's ID (uk.btlabs.epiccash.desktop); Setup waits on the same name (AppMutex).
 constexpr const wchar_t kSingleInstanceMutex[] = L"Local\\uk.btlabs.epiccash.desktop.single";
+
+// An epiccash:// link on the command line (the registry's "%1", installer\epic_wallet.iss).
+bool IsLinkArgument(const std::string& arg) {
+  constexpr char kScheme[] = "epiccash:";
+  constexpr size_t kLen = sizeof(kScheme) - 1;
+  if (arg.size() <= kLen || arg.size() > FlutterWindow::kMaxLinkChars) return false;
+  for (size_t i = 0; i < kLen; i++) {
+    char c = arg[i];
+    if (c >= 'A' && c <= 'Z') c = static_cast<char>(c - 'A' + 'a');
+    if (c != kScheme[i]) return false;
+  }
+  return true;
+}
 }  // namespace
 
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
@@ -28,6 +43,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   if (::GetLastError() == ERROR_ALREADY_EXISTS) {
     HWND first = ::FindWindowW(L"FLUTTER_RUNNER_WIN32_WINDOW", kWindowTitle);
     if (first != nullptr) {
+      // An epiccash:// link (a browser starts the app with it): the running window takes it.
+      for (const std::string& arg : GetCommandLineArguments()) {
+        if (IsLinkArgument(arg)) {
+          COPYDATASTRUCT data{FlutterWindow::kLinkCopyDataId, static_cast<DWORD>(arg.size()),
+                              const_cast<char*>(arg.data())};
+          ::SendMessageTimeoutW(first, WM_COPYDATA, 0, reinterpret_cast<LPARAM>(&data),
+                                SMTO_ABORTIFHUNG, 5000, nullptr);
+          break;
+        }
+      }
       if (::IsIconic(first)) ::ShowWindow(first, SW_RESTORE);
       ::SetForegroundWindow(first);
     }

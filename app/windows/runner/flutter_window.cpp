@@ -1,5 +1,8 @@
 #include "flutter_window.h"
 
+#include <flutter/method_result_functions.h>
+#include <flutter/standard_method_codec.h>
+
 #include <optional>
 
 #include "flutter/generated_plugin_registrant.h"
@@ -25,6 +28,23 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
+  link_channel_ = std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+      flutter_controller_->engine()->messenger(), "epic_wallet/incoming_link",
+      &flutter::StandardMethodCodec::GetInstance());
+  link_channel_->SetMethodCallHandler(
+      [this](const flutter::MethodCall<flutter::EncodableValue>& call,
+             std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+        if (call.method_name() != "takePending") {
+          result->NotImplemented();
+          return;
+        }
+        if (pending_link_.empty()) {
+          result->Success();
+        } else {
+          result->Success(flutter::EncodableValue(pending_link_));
+          pending_link_.clear();
+        }
+      });
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -39,7 +59,21 @@ bool FlutterWindow::OnCreate() {
   return true;
 }
 
+void FlutterWindow::DeliverLink(const std::string& link) {
+  // Held until Dart answers: before it listens, its takePending collects it.
+  pending_link_ = link;
+  if (!link_channel_) return;
+  link_channel_->InvokeMethod(
+      "link", std::make_unique<flutter::EncodableValue>(link),
+      std::make_unique<flutter::MethodResultFunctions<flutter::EncodableValue>>(
+          [this, link](const flutter::EncodableValue*) {
+            if (pending_link_ == link) pending_link_.clear();
+          },
+          nullptr, nullptr));
+}
+
 void FlutterWindow::OnDestroy() {
+  link_channel_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }
@@ -62,6 +96,16 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   }
 
   switch (message) {
+    // A second start's epiccash:// link (main.cpp).
+    case WM_COPYDATA: {
+      const auto* data = reinterpret_cast<const COPYDATASTRUCT*>(lparam);
+      if (data != nullptr && data->dwData == kLinkCopyDataId && data->lpData != nullptr &&
+          data->cbData > 0 && data->cbData <= kMaxLinkChars) {
+        DeliverLink(std::string(static_cast<const char*>(data->lpData), data->cbData));
+        return TRUE;
+      }
+      break;
+    }
     case WM_FONTCHANGE:
       flutter_controller_->engine()->ReloadSystemFonts();
       break;

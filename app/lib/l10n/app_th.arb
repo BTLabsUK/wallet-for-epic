@@ -4864,5 +4864,7 @@
   "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
-  "deskNodeSwitchStoppingWord": "กำลังหยุด"
+  "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "inviteLinkUnreadable": "เปิดลิงก์นี้ไม่ได้",
+  "inviteLinkNoHandler": "{feature} ปิดอยู่หรือใช้ไม่ได้ในวอลเล็ตนี้"
 }

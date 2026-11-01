@@ -25,3 +25,8 @@ servers = [
 status_site = true   # health of the servers above
 update_check = true
 price = true         # fiat value of the balance
+
+[invite]
+# The page an invite's link opens: Share invite sends <page>/pair#<invite>. Empty shares the bare
+# epiccash:// invite. The invite is only in the part after #, which is never sent to the page.
+page = "https://epiccash.btlabs.uk"

@@ -17628,4 +17628,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get inviteLinkUnreadable => '无法打开此链接。';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '“$feature”已关闭或在此钱包中不可用。';
+  }
 }

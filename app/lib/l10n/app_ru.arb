@@ -4864,5 +4864,7 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "inviteLinkUnreadable": "Эту ссылку нельзя открыть.",
+  "inviteLinkNoHandler": "«{feature}» выключено или недоступно в этом кошельке."
 }

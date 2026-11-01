@@ -18276,4 +18276,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String get inviteLinkUnreadable => 'เปิดลิงก์นี้ไม่ได้';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '$feature ปิดอยู่หรือใช้ไม่ได้ในวอลเล็ตนี้';
+  }
 }

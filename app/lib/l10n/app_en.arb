@@ -25300,5 +25300,18 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "inviteLinkUnreadable": "This link can't be opened.",
+  "@inviteLinkUnreadable": {
+    "description": "Short notice: a pairing or device-link invite link the system opened could not be read, so it was ignored."
+  },
+  "inviteLinkNoHandler": "{feature} is off or not available in this wallet.",
+  "@inviteLinkNoHandler": {
+    "description": "Short notice: an invite link was opened but the part it needs is off or not available in this wallet; the link is dropped. {feature} is the part's switch name (Pairing, Linked devices).",
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
   }
 }

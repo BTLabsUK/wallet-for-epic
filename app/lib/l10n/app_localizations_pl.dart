@@ -19339,4 +19339,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
+
+  @override
+  String get inviteLinkUnreadable => 'Nie można otworzyć tego linku.';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '$feature: wyłączone lub niedostępne w tym portfelu.';
+  }
 }

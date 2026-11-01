@@ -19319,4 +19319,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String get inviteLinkUnreadable => 'Эту ссылку нельзя открыть.';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '«$feature» выключено или недоступно в этом кошельке.';
+  }
 }

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'settings_file_watch.dart';
+import '../../invite_links.dart' show inviteInboxProvider;
 import '../../app_info.dart';
 import '../../l10n.dart';
 import 'package:flutter/material.dart';
@@ -89,6 +90,9 @@ class _DeskRootState extends ConsumerState<DeskRoot> {
     if (_started[container] ?? false) return;
     _started[container] = true;
     ref.read(deskProvider.notifier).loadSettings();
+    // Invite links from the command line or the runner wait from the start, not only from the
+    // unlock (the shell routes them: invite_link_gate.dart).
+    ref.read(inviteInboxProvider);
     // Started straight on an in-app page (WFE_DESK_START, the tour): load the mock wallet.
     if (!ref.read(deskNavProvider).route.bare) ref.read(deskProvider.notifier).refresh();
   }

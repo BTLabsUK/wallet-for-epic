@@ -57,6 +57,7 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'tx_details_screen.dart';
 import 'levels/quiet_invoices.dart';
 import '../settings_file/host_settings.dart' show appConfig;
+import 'invite_link_gate.dart';
 
 /// How often home refreshes against the node while it is on screen and the app is in front.
 Duration get autoRefreshInterval => appConfig.nodeRefresh;
@@ -670,7 +671,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     // The Android back: Send takes its own steps back first, then Send and Receive go to
     // Wallet; on Wallet the app leaves, as the system does. Screens over the shell pop first.
-    return PopScope(
+    // Invites the system opened (pairing, device link) go to their feature's confirm sheet.
+    return InviteLinkGate(
+      onUnreadable: (context) => _showNotice(context.l10n.inviteLinkUnreadable, level: NoticeLevel.warning),
+      onNoHandler: (context, kind) => _showNotice(inviteNoHandlerText(context.l10n, kind), level: NoticeLevel.info),
+      child: PopScope(
       canPop: tab == ShellTab.wallet,
       onPopInvokedWithResult: (didPop, _) {
         // The tour takes back for its own steps.
@@ -764,7 +769,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     ),
     ),
-    );
+    ));
   }
 
   /// A balance tile opens Outputs, filtered to that balance (Total: every output).

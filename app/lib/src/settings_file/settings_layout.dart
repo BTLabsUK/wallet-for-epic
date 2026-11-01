@@ -250,6 +250,9 @@ const List<SettingsKey> settingsKeys = [
   SettingsKey('local_node.p2p_port', _userPort, byDefault: notSet),
   // [network]: the network mode (Settings › Advanced › Network); left out for Normal.
   SettingsKey('network.mode', TextKind(checkNetworkMode), byDefault: ''),
+  // [invite]: the page whose https link Share invite carries (invite_links.dart); empty shares
+  // the bare epiccash:// invite.
+  SettingsKey('invite.page', TextKind(checkInvitePage)),
 ];
 
 /// The comment above a key the default copy leaves out, written with it when the app adds it.
@@ -263,6 +266,15 @@ const Set<String> networkModeValues = {'', 'tor_only', 'node_only', 'kill_switch
 
 /// A network mode the file names (`network.mode`).
 ValueProblem? checkNetworkMode(String v) => networkModeValues.contains(v) ? null : ValueProblem.notText;
+
+/// The invite page: an https address without a query or a fragment (the invite goes in the
+/// fragment), or empty for none.
+ValueProblem? checkInvitePage(String v) {
+  if (v.isEmpty) return null;
+  final uri = Uri.tryParse(v);
+  if (uri == null || uri.scheme != 'https' || uri.hasQuery || !isWebAddress(v)) return ValueProblem.notWebAddress;
+  return null;
+}
 
 /// Every key of `app-config.toml`, in its order. Read-only: the app never writes it.
 const List<SettingsKey> configKeys = [

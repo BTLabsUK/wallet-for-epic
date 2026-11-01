@@ -4864,5 +4864,7 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "inviteLinkUnreadable": "Nie można otworzyć tego linku.",
+  "inviteLinkNoHandler": "{feature}: wyłączone lub niedostępne w tym portfelu."
 }

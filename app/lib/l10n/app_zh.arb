@@ -4864,5 +4864,7 @@
   "deskNodeSwitchConnecting": "正在连接 {host}…",
   "deskNodeSwitchStarting": "正在启动本地节点…",
   "deskNodeSwitchStopping": "正在停止本地节点…",
-  "deskNodeSwitchStoppingWord": "正在停止"
+  "deskNodeSwitchStoppingWord": "正在停止",
+  "inviteLinkUnreadable": "无法打开此链接。",
+  "inviteLinkNoHandler": "“{feature}”已关闭或在此钱包中不可用。"
 }

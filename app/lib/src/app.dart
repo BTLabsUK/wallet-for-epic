@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'scan/incoming_link.dart' show incomingLinkProvider;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -56,6 +57,10 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     _lifecycle;
     // Alive for the app's life: it drains the payments address whenever a wallet opens.
     ref.listenManual(paymentsDrainProvider, (_, _) {});
+    // Alive for the app's life: a link another app opened is taken from the start, so an invite
+    // waits in the invite inbox until a wallet is open (invite_links.dart), and a payment link's
+    // wait for the unlock counts from its arrival (linkMaxAge).
+    ref.listenManual(incomingLinkProvider, (_, _) {});
     // Alive for the app's life: a node that read offline is asked again when the network
     // returns and on resume.
     ref.listenManual(nodeRecheckProvider, (_, _) {});

@@ -18692,4 +18692,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String get inviteLinkUnreadable => 'This link can\'t be opened.';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '$feature is off or not available in this wallet.';
+  }
 }
