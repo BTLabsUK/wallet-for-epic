@@ -56,7 +56,8 @@ TxEntry _mailboxSend(DateTime sentAt) => fakeTx(
   kind: TxKind.sent,
   status: TxStatus.awaitingRecipient,
   createdAtUnix: _at(sentAt),
-  amountDebited: _epic(3),
+  // 3 EPIC sent, the fee on top.
+  amountDebited: _epic(3.007),
   fee: _epic(0.007),
   numInputs: 1,
   transport: 'epicbox',
@@ -86,23 +87,22 @@ class _Harness {
 
   FakePairing get api => session.pairing;
 
-  /// Anna in the address book, with her Epicbox address unless [address] is false.
-  Contact anna({bool address = true}) {
-    final c = Contact(id: 'c1', name: 'Anna', epicbox: address ? _anna : null);
+  /// Anna in the address book, with her Epicbox address.
+  Contact anna() {
+    final c = Contact(id: 'c1', name: 'Anna', epicbox: _anna);
     session.contactsValue.add(c);
     return c;
   }
 
-  /// Anna paired (verified unless [state]); her card's payments address unless [cardAddress]
-  /// is false.
-  PairingRecord pair({PairingState state = PairingState.verified, DateTime? lastSealedIn, bool cardAddress = true}) {
+  /// Anna paired (verified unless [state]), her card naming her payments address.
+  PairingRecord pair({PairingState state = PairingState.verified, DateTime? lastSealedIn}) {
     api.clock = () => _now;
     return api.seedPaired(
       id: 'p-anna',
       name: 'Anna',
       state: state,
       contactId: 'c1',
-      paymentsAddress: cardAddress ? _anna : null,
+      paymentsAddress: _anna,
       lastSealedIn: lastSealedIn,
     );
   }
@@ -240,7 +240,7 @@ void main() {
       await tester.tap(find.byKey(txDetailsResendKey));
       await tester.pumpAndSettle();
       expect(find.text(_l.mailboxResendBody('Anna')), findsOneWidget);
-      await tester.tap(find.widgetWithText(TextButton, _l.mailboxKeepWaiting));
+      await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(TextButton, _l.mailboxKeepWaiting)));
       await tester.pumpAndSettle();
       expect(find.text(_l.mailboxResendBody('Anna')), findsNothing);
       expect(h.session.cancelledTxIds, isEmpty);
@@ -263,14 +263,19 @@ void main() {
     });
 
     testWidgets('no Epicbox address for Anna: the facts, no resend', (tester) async {
-      final h = _Harness()
-        ..anna(address: false)
-        ..pair(cardAddress: false);
-      final tx = h.waiting(_ago(const Duration(hours: 30)));
-      await h.pump(tester, TxDetailsScreen(txKey: tx.key));
-      expect(find.text(_l.mailboxNotAnswered), findsWidgets);
-      expect(find.byKey(mailboxResendCardKey), findsOneWidget);
+      // The fake pairs always with a card address, so the policy's answer is checked on its own:
+      // paired, no address, no resend; and the card without a resend shows the facts only.
+      const noAddress = Relationship(RelationshipKind.verified, hasEpicboxAddress: false);
+      final offer = mailboxResendOffer(noAddress, _ago(const Duration(hours: 30)), _now)!;
+      expect(offer.resend, isFalse);
+      final h = _Harness();
+      await h.pump(
+        tester,
+        Scaffold(body: MailboxResendCard(offer: offer, name: 'Anna', busy: false, onResend: null, onKeepWaiting: () {})),
+      );
+      expect(find.text(_l.mailboxNotAnswered), findsOneWidget);
       expect(find.byKey(txDetailsResendKey), findsNothing);
+      expect(find.byKey(txDetailsKeepWaitingKey), findsNothing);
     });
 
     testWidgets('after 7 days: Not picked up, never picked this up, Cancel first and the resend second', (tester) async {

@@ -4,6 +4,7 @@
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/src/trust/policy.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
 /// Fails any native call, so a test proves the adapter refused before reaching LEPIC.
@@ -147,6 +148,36 @@ class _SendingWallet extends _NoNativeWallet {
 }
 
 void main() {
+  group('peer compat mapping', () {
+    test('keeps the stored facts as dates and bits, and leaves what LEPIC derives to the policy', () {
+      final c = lepicPeerCompat(
+        const lepic.PeerCompat(
+          lastMarkedAtMs: 1767225600000,
+          lastUnmarkedAtMs: 1767312000000,
+          claimed: 3,
+          works: 1,
+          featuresAtMs: 1767225600000,
+          lepic: false,
+          notices: false,
+          fresh: false,
+        ),
+      )!;
+      expect(c.lastMarkedAt, DateTime.utc(2026, 1, 1));
+      expect(c.lastUnmarkedAt, DateTime.utc(2026, 1, 2));
+      expect(c.featuresAt, DateTime.utc(2026, 1, 1));
+      expect(c.claimed, 3);
+      expect(c.works, 1);
+      expect(c.claims(featureMarker), isTrue);
+      expect(c.claims(featurePairRequests), isTrue);
+      expect(c.worked(featurePairRequests), isFalse);
+      expect(answeredByOtherApp(c), isTrue);
+    });
+
+    test('a key nothing is known about is no row at all', () {
+      expect(lepicPeerCompat(const lepic.PeerCompat(claimed: 0, works: 0, lepic: false, notices: false, fresh: false)), isNull);
+    });
+  });
+
   group('error mapping', () {
     lepic.WalletError error(lepic.WalletErrorKind kind) =>
         lepic.WalletError(kind: kind, code: 0, message: 'm');

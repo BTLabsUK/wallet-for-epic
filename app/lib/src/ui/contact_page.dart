@@ -311,9 +311,10 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                 run: _run,
                 onCheck: () => _openCheck(pairing.id),
               ),
-            // The compatibility line (trust policy): one sentence, never a badge.
-            ContactTrustLine(contactId: contact.id, name: contact.name),
           ],
+          // The compatibility line (trust policy): one sentence, never a badge; a plain
+          // contact's key can answer as another wallet app with pairing off too.
+          ContactTrustLine(contactId: contact.id, name: contact.name),
           if (contact.note?.trim() case final note? when note.isNotEmpty) ...[
             PairSection(l.contactsNoteHeading),
             Text(note, style: Theme.of(context).textTheme.bodyMedium),

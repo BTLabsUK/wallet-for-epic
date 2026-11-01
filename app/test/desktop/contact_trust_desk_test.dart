@@ -68,13 +68,17 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<Contact> _open(WidgetTester tester, Widget Function(Contact anna) screen, {PeerCompat? learned}) async {
+Future<Contact> _open(WidgetTester tester, Widget Function(Contact anna) screen, {PeerCompat? learned, DateTime? lastSealedIn}) async {
   tester.view.physicalSize = const Size(1280, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   _mock = _Desk();
   final anna = (await _mock.contacts()).firstWhere((c) => c.id == 'c1');
   if (learned != null) _mock.peerCompats[anna.epicbox!] = learned;
+  if (lastSealedIn != null) {
+    final r = (await _mock.pairing.pairings()).firstWhere((r) => r.id == mockAnnaPairing);
+    _mock.pairing.seed(r.copyWith(lastSealedIn: lastSealedIn));
+  }
   _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(_mock), deskClockProvider.overrideWithValue(() => _now)]);
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
@@ -116,10 +120,10 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('not heard for 90 days: the date of the last marked message', (tester) async {
-      final marked = _ago(const Duration(days: 100));
-      final anna = await _open(tester, _contacts, learned: PeerCompat(lastMarkedAt: marked));
-      expect(tester.widget<Text>(find.byKey(deskContactTrustLineKey)).data, _l.trustLineNotHeard(anna.name, localDayMonth(_l, marked)));
+    testWidgets('not heard for 90 days: the date of the latest sign of life', (tester) async {
+      final sealed = _ago(const Duration(days: 95));
+      final anna = await _open(tester, _contacts, learned: PeerCompat(lastMarkedAt: _ago(const Duration(days: 100))), lastSealedIn: sealed);
+      expect(tester.widget<Text>(find.byKey(deskContactTrustLineKey)).data, _l.trustLineNotHeard(anna.name, localDayMonth(_l, sealed)));
       await _end(tester);
     });
 
