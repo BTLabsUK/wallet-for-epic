@@ -5031,6 +5031,7 @@
   "pairSeenAsAskTitle": "他人看到的名字",
   "pairSeenAsHint": "你的名字",
   "devicesNameWithCode": "{name} {code}",
+  "deskSetDlgRemoveUnlockHintSecurity": "如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 安全”中的“删除钱包”。",
   "deskRecvHttpTorHintNet": "如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。",
   "deskRecvTorIntroNet": "本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 网络与隐私”中设置。",
   "deskRecvTorOffTextNet": "Tor 开启时，Tor 地址才可用。Tor 是设置 › 网络与隐私中的开关，它让钱包的连接走 Tor。",

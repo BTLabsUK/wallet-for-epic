@@ -15382,15 +15382,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairInvP1 =>
-      'Ein Shop, eine Börse oder eine Person, mit der Sie gekoppelt sind, kann Rechnungen senden, wenn Sie es erlauben: **Rechnungen erlauben** auf der Kontaktseite oder unter [[Einstellungen › Rechnungen|Settings › Invoices]]. Der Schalter funktioniert nur für einen verifizierten Kontakt.';
+      'Ein Shop, eine Börse oder eine Person, mit der Sie gekoppelt sind, kann Rechnungen senden, wenn Sie es erlauben: **Rechnungen erlauben** auf der Kontaktseite oder unter [[Einstellungen › Rechnungen|Settings › Invoices]]. Der Schalter funktioniert nur für einen verifizierten Kontakt.';
 
   @override
   String get helpPairInvP2Desktop =>
-      'Eine Rechnung steht unter [[Rechnungen › Bezahlen|Invoices › Pay]] mit dem Namen des Kontakts, dem Betrag und einer Referenz. Nichts wird bezahlt, bis Sie mit dem Wallet-Passwort zustimmen. Eine Rechnung bringt nie Geld in Ihre Wallet.';
+      'Eine Rechnung steht unter [[Rechnungen › Bezahlen|Invoices › Pay]] mit dem Namen des Kontakts, dem Betrag und einer Referenz. Nichts wird bezahlt, bis Sie mit dem Wallet-Passwort zustimmen. Eine Rechnung bringt nie Geld in Ihre Wallet.';
 
   @override
   String get helpPairInvP2 =>
-      'Eine Rechnung steht unter [[Rechnungen › Bezahlen|Invoices › Pay]] mit dem Namen des Kontakts, dem Betrag und einer Referenz. Nichts wird bezahlt, bis Sie mit Ihrer PIN zustimmen. Eine Rechnung bringt nie Geld in Ihre Wallet.';
+      'Eine Rechnung steht unter [[Rechnungen › Bezahlen|Invoices › Pay]] mit dem Namen des Kontakts, dem Betrag und einer Referenz. Nichts wird bezahlt, bis Sie mit Ihrer PIN zustimmen. Eine Rechnung bringt nie Geld in Ihre Wallet.';
 
   @override
   String get helpPairInvP3 =>
@@ -19579,6 +19579,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskSetDlgRemoveUnlockHintSecurity =>
+      'Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Sicherheit.';
 
   @override
   String get deskRecvHttpTorHintNet =>

@@ -88,6 +88,7 @@ const _routes = [
   DeskRoute.settingsAccount,
   DeskRoute.settingsWallets,
   DeskRoute.settingsPhrase,
+  DeskRoute.settingsSecurity,
   DeskRoute.settingsRescan,
   DeskRoute.settingsAdvanced,
   DeskRoute.settingsAbout,

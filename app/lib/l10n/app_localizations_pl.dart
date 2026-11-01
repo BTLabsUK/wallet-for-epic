@@ -15747,15 +15747,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairInvP1 =>
-      'Sklep, giełda lub osoba, z którą jesteś sparowany, może wysyłać faktury, jeśli na to zezwolisz: **Zezwól na faktury** na stronie kontaktu lub w [[Ustawienia › Faktury|Settings › Invoices]]. Przełącznik działa tylko dla zweryfikowanego kontaktu.';
+      'Sklep, giełda lub osoba, z którą jesteś sparowany, może wysyłać faktury, jeśli na to zezwolisz: **Zezwól na faktury** na stronie kontaktu lub w [[Ustawienia › Faktury|Settings › Invoices]]. Przełącznik działa tylko dla zweryfikowanego kontaktu.';
 
   @override
   String get helpPairInvP2Desktop =>
-      'Faktura pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej hasłem portfela. Faktura nigdy nie dodaje pieniędzy do portfela.';
+      'Faktura pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej hasłem portfela. Faktura nigdy nie dodaje pieniędzy do portfela.';
 
   @override
   String get helpPairInvP2 =>
-      'Faktura pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej PIN-em. Faktura nigdy nie dodaje pieniędzy do portfela.';
+      'Faktura pojawia się w [[Faktury › Zapłać|Invoices › Pay]] z nazwą kontaktu, kwotą i numerem referencyjnym. Nic nie zostanie zapłacone, dopóki nie zatwierdzisz jej PIN-em. Faktura nigdy nie dodaje pieniędzy do portfela.';
 
   @override
   String get helpPairInvP3 =>
@@ -20007,6 +20007,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskSetDlgRemoveUnlockHintSecurity =>
+      'Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Bezpieczeństwo.';
 
   @override
   String get deskRecvHttpTorHintNet =>

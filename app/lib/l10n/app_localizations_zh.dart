@@ -14318,15 +14318,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairInvP1 =>
-      '与你配对的商店、交易所或个人在你允许后可以发送账单：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
+      '与你配对的商店、交易所或个人在你允许后可以发送账单：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
 
   @override
   String get helpPairInvP2Desktop =>
-      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用钱包密码批准之前不会付款。账单绝不会向你的钱包加钱。';
+      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用钱包密码批准之前不会付款。账单绝不会向你的钱包加钱。';
 
   @override
   String get helpPairInvP2 =>
-      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用 PIN 批准之前不会付款。账单绝不会向你的钱包加钱。';
+      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用 PIN 批准之前不会付款。账单绝不会向你的钱包加钱。';
 
   @override
   String get helpPairInvP3 => '关闭开关立即生效：该联系人的新账单会被丢弃，未处理的账单会被拒绝。';
@@ -18257,6 +18257,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskSetDlgRemoveUnlockHintSecurity =>
+      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 安全”中的“删除钱包”。';
 
   @override
   String get deskRecvHttpTorHintNet => '如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。';

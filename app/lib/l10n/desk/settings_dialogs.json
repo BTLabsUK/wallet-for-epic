@@ -144,6 +144,10 @@
   "@deskSetDlgRemoveUnlockHint": {
     "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
   },
+  "deskSetDlgRemoveUnlockHintSecurity": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.",
+  "@deskSetDlgRemoveUnlockHintSecurity": {
+    "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › Security\" is a menu path (the Security page, where Delete wallet is)."
+  },
   "deskSetDlgRemoveUnlock": "Unlock this wallet",
   "@deskSetDlgRemoveUnlock": {
     "description": "Remove wallet dialog: link that locks the open wallet and opens Unlock with this wallet selected."

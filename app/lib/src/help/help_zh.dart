@@ -33,7 +33,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ? '**用助记词恢复**（在首屏或[[设置 › 此钱包|Settings › This wallet]]中）'
       : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 所有钱包|Settings › All wallets]]中）';
   final recheckPlace = phone ? '[[设置 › 此钱包 › 重新核对余额|Settings › This wallet › Recheck balance]]' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
-  final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 助记词|Settings › Recovery phrase]]';
+  final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 安全 › 助记词|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',

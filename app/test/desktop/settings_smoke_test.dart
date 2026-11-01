@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_phrase.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_rescan.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_security.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 
@@ -31,6 +32,7 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.settingsAccount => SettingsAccountScreen(arg: a),
     DeskRoute.settingsWallets => SettingsWalletsScreen(arg: a),
     DeskRoute.settingsPhrase => SettingsPhraseScreen(arg: a),
+    DeskRoute.settingsSecurity => SettingsSecurityScreen(arg: a),
     DeskRoute.settingsRescan => SettingsRescanScreen(arg: a),
     DeskRoute.settingsAbout => SettingsAboutScreen(arg: a),
     _ => SettingsHelpScreen(arg: a),
@@ -53,6 +55,8 @@ void main() {
     ('appearance', const DeskLocation(DeskRoute.settingsAppearance)),
     ('account', const DeskLocation(DeskRoute.settingsAccount)),
     ('wallets', const DeskLocation(DeskRoute.settingsWallets)),
+    ('security', const DeskLocation(DeskRoute.settingsSecurity)),
+    ('security auto-lock', const DeskLocation(DeskRoute.settingsSecurity, SecurityDemo.autoLockOpen)),
     ('phrase', const DeskLocation(DeskRoute.settingsPhrase)),
     ('phrase shown', const DeskLocation(DeskRoute.settingsPhrase, PhraseDemo.shown)),
     ('phrase qr', const DeskLocation(DeskRoute.settingsPhrase, PhraseDemo.qr)),

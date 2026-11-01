@@ -63,7 +63,7 @@ void main() {
       await _pumpShot(tester, shot, lang, check: (l) {
         for (final name in [
           l.deskSetFrameNode, l.deskSetFrameTransactions, l.settingsSectionNetworkPrivacy, l.deskSetFrameAppearance,
-          l.deskSetFrameThisWallet, l.deskSetFrameAllWallets, l.deskSetFramePhrase, l.deskSetFrameRescan,
+          l.deskSetFrameThisWallet, l.deskSetFrameAllWallets, l.settingsSectionSecurity, l.deskSetFrameRescan,
           l.deskSetFrameAdvanced, l.deskSetFrameAbout, l.deskSetFrameHelp,
         ]) {
           for (final p in _paragraphs(tester, name)) {

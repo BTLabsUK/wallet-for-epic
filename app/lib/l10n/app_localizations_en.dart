@@ -15199,15 +15199,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairInvP1 =>
-      'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
+      'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.';
 
   @override
   String get helpPairInvP2Desktop =>
-      'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.';
+      'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.';
 
   @override
   String get helpPairInvP2 =>
-      'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.';
+      'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.';
 
   @override
   String get helpPairInvP3 =>
@@ -19350,6 +19350,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskSetDlgRemoveUnlockHintSecurity =>
+      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.';
 
   @override
   String get deskRecvHttpTorHintNet =>

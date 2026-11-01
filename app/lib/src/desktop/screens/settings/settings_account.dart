@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../l10n.dart' show autoLockLabel;
-import '../../../settings.dart' show autoLockChoices;
 import '../../../ui/devices/device_parts.dart' show devicesStateLine;
 import '../../desk_l10n.dart';
 import '../../data/desk_levels.dart' show deskLevelUiProvider;
@@ -14,17 +12,12 @@ import '../../data/devices_state.dart' show deskDeviceBookProvider, deskLinkedDe
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
-import '../onboarding/unlock_screen.dart' show rememberWho;
 import 'backup.dart';
-import 'dialogs.dart';
 import 'prefs.dart';
 import 'settings_frame.dart';
 
 /// Where the app keeps its own files (mock).
 const appFilesDir = '~/.config/epic-wallet';
-
-/// Demo states of the page for the tour's shots.
-enum AccountDemo { autoLockOpen }
 
 class SettingsAccountScreen extends ConsumerStatefulWidget {
   const SettingsAccountScreen({super.key, this.arg});
@@ -39,40 +32,6 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
   final _label = TextEditingController();
   final _labelFocus = FocusNode();
   bool _filled = false;
-
-  /// Whether this wallet opens at start without its password (Unlock's Remember).
-  bool _remembered = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _readRemembered();
-  }
-
-  /// The open wallet's list id; empty in the mock, which answers for its selected wallet.
-  String get _walletId => ref.read(deskProvider).account?.id ?? '';
-
-  Future<void> _readRemembered() async {
-    try {
-      final r = await ref.read(deskApiProvider).isRemembered(_walletId);
-      if (mounted) setState(() => _remembered = r);
-    } on Object {
-      // Unknown: the row stays hidden.
-    }
-  }
-
-  Future<void> _forget() async {
-    final l = context.l10n;
-    try {
-      await ref.read(deskApiProvider).forgetRemembered(_walletId);
-    } on Object catch (e) {
-      if (mounted) showEToast(context, l.deskSetAcctNotForgotten, text: deskErrorText(e, l), tone: ETone.risk);
-      return;
-    }
-    if (!mounted) return;
-    setState(() => _remembered = false);
-    showEToast(context, l.deskSetAcctForgotten, text: l.deskSetAcctForgottenText, tone: ETone.ok);
-  }
 
   @override
   void dispose() {
@@ -177,28 +136,6 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ),
             ],
           ),
-          ESetGroup(
-            title: l.deskSetAcctSecurity,
-            rows: [
-              _AutoLockRow(open: widget.arg == AccountDemo.autoLockOpen),
-              if (_remembered)
-                ESetRow(
-                  title: l.deskSetAcctRemembered,
-                  hint: l.deskSetAcctRememberedHint(rememberWho(l)),
-                  control: ERowControl(child: EButton(label: l.deskSetAcctForget, icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
-                ),
-              ESetRow(
-                title: l.deskSetDlgPassword,
-                hint: l.deskSetAcctPasswordHint,
-                control: ERowControl(child: EButton(label: l.deskSetAcctChangePassword, size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
-              ),
-              ESetRow(
-                  title: l.deskSetDlgDeleteWallet,
-                  hint: l.deskSetAcctDeleteHint,
-                  control: ERowControl(child: EButton(label: l.deskSetLnodeDelete, size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context))),
-                ),
-            ],
-          ),
         ],
       ),
     );
@@ -270,46 +207,6 @@ class _FolderRow extends ConsumerWidget {
           SizedBox(width: Sp.x1),
           ECopyButton(text: path, label: l.deskSetAcctCopyPath(title)),
         ],
-      ),
-    );
-  }
-}
-
-/// Auto-lock: after how many minutes without a key or the mouse (the phone's choices), or
-/// Never (testers looked for an Off in the list; a separate switch was missed). Never keeps the
-/// minutes, so choosing a time again needs no second step. Lock wallet works either way.
-class _AutoLockRow extends ConsumerWidget {
-  const _AutoLockRow({this.open = false});
-
-  /// The list opens with the page (the tour's shot).
-  final bool open;
-
-  /// The list's value for Never; the minutes are all positive.
-  static const _never = -1;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final s = ref.watch(deskProvider.select((d) => d.settings));
-    void save(DeskSettings next) => ref.read(deskProvider.notifier).saveSettings(next);
-    return ESetRow(
-      title: l.settingsAutoLock,
-      hint: l.deskSetAcctAutoLockHint,
-      control: ERowControl(
-        child: ESelect<int>(
-          key: const ValueKey('auto-lock-minutes'),
-          size: EBtnSize.sm,
-          semanticLabel: l.settingsAutoLock,
-          value: s.autoLockOn ? s.autoLockMinutes : _never,
-          openInitially: open,
-          items: [
-            for (final m in autoLockChoices) ESelectItem(m, autoLockLabel(l, m)),
-            ESelectItem(_never, autoLockLabel(l, null)),
-          ],
-          onChanged: (m) => save(
-            m == _never ? s.copyWith(autoLockOn: false) : s.copyWith(autoLockOn: true, autoLockMinutes: m),
-          ),
-        ),
       ),
     );
   }

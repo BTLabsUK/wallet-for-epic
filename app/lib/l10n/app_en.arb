@@ -26254,6 +26254,10 @@
       }
     }
   },
+  "deskSetDlgRemoveUnlockHintSecurity": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.",
+  "@deskSetDlgRemoveUnlockHintSecurity": {
+    "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › Security\" is a menu path (the Security page, where Delete wallet is)."
+  },
   "deskRecvHttpTorHintNet": "Turn on Tor in Settings › Network & privacy for a Tor address instead.",
   "@deskRecvHttpTorHintNet": {
     "description": "Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy)."

@@ -211,8 +211,8 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
 
   bool get _ready => !_busy && _mode != null && (_mode != WalletRemoval.delete || (_nameOk && _ack && _password.text.isNotEmpty));
 
-  /// Locks the open wallet and opens Unlock with this one selected, landing on Settings › This
-  /// wallet, where Delete wallet is.
+  /// Locks the open wallet and opens Unlock with this one selected, landing on Settings ›
+  /// Security, where Delete wallet is.
   Future<void> _unlockThis() async {
     final l = context.l10n;
     setState(() => _busy = true);
@@ -230,7 +230,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
     }
     if (!mounted) return;
     Navigator.of(context).pop();
-    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, UnlockPick(w.id, then: DeskRoute.settingsAccount));
+    ref.read(deskNavProvider.notifier).reset(DeskRoute.unlock, UnlockPick(w.id, then: DeskRoute.settingsSecurity));
   }
 
   Future<void> _remove() async {
@@ -319,7 +319,7 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
             if (!_isOpen) ...[
               SizedBox(height: Sp.x3),
               Text(
-                l.deskSetDlgRemoveUnlockHint,
+                l.deskSetDlgRemoveUnlockHintSecurity,
                 style: ts.small,
               ),
               SizedBox(height: Sp.x1),

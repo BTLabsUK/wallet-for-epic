@@ -71,7 +71,7 @@ void main() {
     testWidgets('Settings: six entries, Recheck balance from This wallet; hidden pages read as the landing', (tester) async {
       final c = await _pump(tester, WalletLevel.justSendReceive, start: DeskRoute.settingsAccount);
       Finder side(String l) => find.descendant(of: find.byType(ESubnav), matching: find.text(l));
-      for (final l in ['Appearance', 'This wallet', 'Recovery phrase', 'Advanced', 'About', 'Help']) {
+      for (final l in ['Appearance', 'This wallet', 'Security', 'Advanced', 'About', 'Help']) {
         expect(side(l), findsOneWidget, reason: l);
       }
       for (final l in ['Node', 'Transactions', 'Privacy', 'All wallets', 'Recheck balance']) {
@@ -108,7 +108,7 @@ void main() {
     testWidgets("Settings: today's side list", (tester) async {
       await _pump(tester, WalletLevel.everything, start: DeskRoute.settingsAccount);
       Finder side(String l) => find.descendant(of: find.byType(ESubnav), matching: find.text(l));
-      for (final l in ['Node', 'Transactions', 'Privacy', 'Appearance', 'This wallet', 'All wallets', 'Recovery phrase', 'Recheck balance', 'Advanced', 'About', 'Help']) {
+      for (final l in ['Node', 'Transactions', 'Privacy', 'Appearance', 'This wallet', 'All wallets', 'Security', 'Recheck balance', 'Advanced', 'About', 'Help']) {
         expect(side(l), findsOneWidget, reason: l);
       }
       expect(find.byKey(const ValueKey('account-recheck')), findsNothing);

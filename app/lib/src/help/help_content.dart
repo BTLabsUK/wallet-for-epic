@@ -216,7 +216,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       ? '**Restore from phrase** (on the first screen, or under [[Settings › This wallet]])'
       : '**Restore from phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
   final recheckPlace = phone ? '[[Settings › This wallet › Recheck balance]]' : '[[Settings › Recheck balance]]';
-  final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Recovery phrase]]';
+  final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',

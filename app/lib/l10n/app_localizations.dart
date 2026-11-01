@@ -23931,19 +23931,19 @@ abstract class AppLocalizations {
   /// Topic 4.
   ///
   /// In en, this message translates to:
-  /// **'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
+  /// **'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
   String get helpPairInvP1;
 
   /// helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN.
   ///
   /// In en, this message translates to:
-  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.'**
+  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.'**
   String get helpPairInvP2Desktop;
 
   /// Topic 4.
   ///
   /// In en, this message translates to:
-  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.'**
+  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.'**
   String get helpPairInvP2;
 
   /// Topic 4.
@@ -30191,6 +30191,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} {code}'**
   String devicesNameWithCode(String name, String code);
+
+  /// Remove wallet dialog: shown for a locked wallet. "Settings › Security" is a menu path (the Security page, where Delete wallet is).
+  ///
+  /// In en, this message translates to:
+  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.'**
+  String get deskSetDlgRemoveUnlockHintSecurity;
 
   /// Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy).
   ///

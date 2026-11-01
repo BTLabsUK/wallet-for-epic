@@ -135,9 +135,9 @@ void main() {
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
   });
 
-  testWidgets('Settings › Account: Never in the list turns it off, a time turns it back on', (tester) async {
+  testWidgets('Settings › Security: Never in the list turns it off, a time turns it back on', (tester) async {
     final api = _Wallet();
-    final container = await _open(tester, api, route: DeskRoute.settingsAccount);
+    final container = await _open(tester, api, route: DeskRoute.settingsSecurity);
     final list = find.byKey(const ValueKey('auto-lock-minutes'));
     await tester.ensureVisible(list);
     await _idle(tester, Duration.zero);

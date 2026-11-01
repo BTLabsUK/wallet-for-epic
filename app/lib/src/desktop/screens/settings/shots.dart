@@ -41,7 +41,7 @@ import '../../../wallet_service.dart' show FakeWalletSession;
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
 import 'settings_help.dart' show HelpDemo;
-import 'settings_account.dart' show AccountDemo;
+import 'settings_security.dart' show SecurityDemo;
 import 'settings_rescan.dart';
 import '../wallet/tx_detail.dart' show txMoreDemoProvider;
 import '../../../advanced.dart';
@@ -240,7 +240,9 @@ final List<DeskShot> settingsShots = [
     prepare: (c, _) => resetSettingsDemo(c),
   ),
   const DeskShot(id: '25-settings-account', title: 'Settings, this wallet', route: DeskRoute.settingsAccount),
-  DeskShot(id: '25b-dlg-change-password', title: 'Change password', route: DeskRoute.settingsAccount, dialog: showChangePasswordDialog),
+  const DeskShot(id: '25n-settings-security', title: 'Settings, security', route: DeskRoute.settingsSecurity),
+  DeskShot(id: '25b-dlg-change-password', title: 'Change password', route: DeskRoute.settingsSecurity, dialog: showChangePasswordDialog),
+  DeskShot(id: '25o-dlg-delete-wallet', title: 'Delete wallet', route: DeskRoute.settingsSecurity, dialog: showDeleteWalletDialog),
   DeskShot(
     id: '25c-settings-backup',
     title: 'Settings, this wallet: Backup, never exported',
@@ -248,7 +250,7 @@ final List<DeskShot> settingsShots = [
     height: 1100,
     prepare: (c, _) async => _backup(c, const HistoryBackupState(unbacked: 12, payments: 48, contacts: 6)),
   ),
-  const DeskShot(id: '25m-settings-account-auto-lock', title: 'Settings, this wallet: the auto-lock list, Never last', route: DeskRoute.settingsAccount, arg: AccountDemo.autoLockOpen, height: 1700),
+  const DeskShot(id: '25m-settings-security-auto-lock', title: 'Settings, security: the auto-lock list, Never last', route: DeskRoute.settingsSecurity, arg: SecurityDemo.autoLockOpen, height: 1000),
   const DeskShot(id: '25d-settings-backup-since', title: 'Settings, this wallet: Backup, payments since', route: DeskRoute.settingsAccount, height: 1100),
   const DeskShot(
     id: '25e-settings-backup-busy',
@@ -370,7 +372,7 @@ final List<DeskShot> settingsShots = [
     route: DeskRoute.settingsWallets,
     dialog: (c) => showRemoveWalletDialog(c, demoOtherWallet, mode: RemoveMode.everything),
   ),
-  DeskShot(id: '38-dlg-change-password', title: 'Change password', route: DeskRoute.settingsAccount, dialog: showChangePasswordDialog),
+  DeskShot(id: '38-dlg-change-password', title: 'Change password', route: DeskRoute.settingsSecurity, dialog: showChangePasswordDialog),
   DeskShot(id: '39-dlg-node-synced', title: 'Local node synced', route: DeskRoute.overview, dialog: showNodeSyncedDialog),
   DeskShot(id: '40-dlg-first-scan', title: 'Wallet first scan', route: DeskRoute.overview, dialog: (c) => showFirstScanDialog(c)),
   DeskShot(
