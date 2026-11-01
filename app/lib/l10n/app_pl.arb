@@ -4963,6 +4963,7 @@
   "pairEndedNeverFinished": "Portfel {name} nigdy nie dokończył.",
   "pairNoAnswerFrom": "Brak odpowiedzi od portfela {name}",
   "pairAgain": "Paruj ponownie",
+  "pairAddressNotConfirmed": "Adres niepotwierdzony przez parowanie.",
   "pairHeldSend": "Czeka na odbiorcę",
   "pairProvesOther": "Portfel {name} potwierdza inny adres",
   "pairUpdateAddress": "Zaktualizuj adres kontaktu",

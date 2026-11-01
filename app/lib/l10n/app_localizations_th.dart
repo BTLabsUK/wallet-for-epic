@@ -18680,6 +18680,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairAgain => 'จับคู่อีกครั้ง';
 
   @override
+  String get pairAddressNotConfirmed =>
+      'ที่อยู่ยังไม่ได้รับการยืนยันจากการจับคู่';
+
+  @override
   String get pairHeldSend => 'กำลังรอผู้รับ';
 
   @override

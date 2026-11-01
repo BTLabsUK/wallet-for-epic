@@ -25911,6 +25911,10 @@
   "@pairAgain": {
     "description": "Ended block and expired request: opens the Pair screen (by code)."
   },
+  "pairAddressNotConfirmed": "Address not confirmed by pairing.",
+  "@pairAddressNotConfirmed": {
+    "description": "Contact page, pairing block: a pairing made before addresses were proven (Paired or Verified) does not confirm the contact's payments address. Offered with Pair again."
+  },
   "pairHeldSend": "Waiting for recipient",
   "@pairHeldSend": {
     "description": "Ended block: a sealed send held in that mailbox, with Cancel."

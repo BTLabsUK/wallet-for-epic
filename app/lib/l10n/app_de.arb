@@ -4963,6 +4963,7 @@
   "pairEndedNeverFinished": "Die Wallet von {name} hat nie abgeschlossen.",
   "pairNoAnswerFrom": "Keine Antwort von der Wallet von {name}",
   "pairAgain": "Erneut koppeln",
+  "pairAddressNotConfirmed": "Adresse nicht durch die Kopplung bestätigt.",
   "pairHeldSend": "Wartet auf Empfänger",
   "pairProvesOther": "Die Wallet von {name} belegt eine andere Adresse",
   "pairUpdateAddress": "Adresse des Kontakts aktualisieren",

@@ -4963,6 +4963,7 @@
   "pairEndedNeverFinished": "{name} 的钱包始终未完成。",
   "pairNoAnswerFrom": "{name} 的钱包没有回复",
   "pairAgain": "重新配对",
+  "pairAddressNotConfirmed": "地址未经配对确认。",
   "pairHeldSend": "等待收款方",
   "pairProvesOther": "{name} 的钱包证明了另一个地址",
   "pairUpdateAddress": "更新联系人的地址",
