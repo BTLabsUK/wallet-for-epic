@@ -271,8 +271,11 @@ Future<void> startLogging() async {
     final support = await appDataDirectory();
     final sep = Platform.pathSeparator;
     AppLog.ringDir = '${support.path}${sep}logs$sep$logRingFolder';
-    final logs = Directory('${support.path}${sep}logs');
-    final sink = FileLogSink.open(logs);
+    // The install contract probes the folder line (all.log_file): keep it as written.
+    final sink = FileLogSink.open(
+      Directory('${support.path}${Platform.pathSeparator}logs'),
+    );
+    final logs = sink.dir;
     // Before this session writes a line: the last one's end is still the file's end.
     final session = lastSession = LastSession(logs);
     await session.begin(
