@@ -656,7 +656,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           );
     return EPanel(
       key: ValueKey('rx-panel-${TxMethod.epicbox.name}'),
-      padding: EdgeInsets.all(Sp.x6),
       child: LayoutBuilder(
         builder: (context, box) => box.maxWidth < Lay.lg
             ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Align(alignment: Alignment.centerLeft, child: qr)])
@@ -784,7 +783,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(Sp.x6, 20.u, Sp.x6, Sp.x2),
+            padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, Sp.x2),
             child: Row(
               children: [
                 Icon(EIcons.file, size: 20.u, color: c.dim),
@@ -822,7 +821,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           if (offlineNode) ...[
             Divider(height: 1, thickness: 1, color: c.line),
             Padding(
-              padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x4),
+              padding: EdgeInsets.fromLTRB(Sp.panel, Sp.x3, Sp.panel, Sp.x4),
               child: Row(
                 key: const ValueKey('rx-files-offline-node'),
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -880,7 +879,7 @@ class _MethodPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(Sp.x6, 20.u, Sp.x6, 0),
+            padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, 0),
             child: Row(
               children: [
                 EMethodIcon(method, state, size: 20.u),
@@ -910,11 +909,11 @@ class _MethodPanel extends StatelessWidget {
           if (method != TxMethod.epicbox)
             ExpandFade(
               open: !grown,
-              child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, 6.u, Sp.x6, Sp.x4), child: small),
+              child: Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 6.u, Sp.panel, Sp.x4), child: small),
             ),
           ExpandFade(
             open: grown,
-            child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x6), child: body),
+            child: Padding(padding: EdgeInsets.fromLTRB(Sp.panel, Sp.x3, Sp.panel, Sp.panel), child: body),
           ),
         ],
       ),
