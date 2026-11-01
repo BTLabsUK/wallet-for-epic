@@ -273,7 +273,9 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('reset-password-save')));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await settle(tester);
-      expect(find.text('Password not changed. The current password still opens the wallet.'), findsOneWidget);
+      // The step's title and lead say it; the notice under them gives the reason.
+      expect(find.text('Password not changed'), findsWidgets);
+      expect(find.text('The current password still opens the wallet.'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('reset-restore-instead')));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await settle(tester);

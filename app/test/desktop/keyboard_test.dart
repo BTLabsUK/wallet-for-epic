@@ -180,11 +180,11 @@ void main() {
       await _open(tester, DeskRoute.send);
       await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid');
       await _type(tester, 'Amount', '1');
-      final tabs = await _tabs(tester, _edit('Recipient'), 8);
+      final tabs = await _tabs(tester, _edit('Recipient'), 9);
       // Contacts and All are the stops right after their fields; paste and clear are not. The
       // address is the BT Labs contact: its card's Clear comes next; the Advanced disclosure
-      // follows Message.
-      expect(tabs.take(7), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'button:Review']);
+      // follows Message, then the summary's help icon (keyboard-reachable), then Review.
+      expect(tabs.take(8), ['button:Contacts', 'button:Clear', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'help:Why the change is split', 'button:Review']);
       expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
       expect(tabs, _noSecondary);
       await _end(tester);
