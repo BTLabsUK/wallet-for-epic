@@ -2893,6 +2893,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesFull => '全部许可证文本';
 
   @override
+  String licencesPackageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个许可证',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsCopyLink => '复制链接';
 
   @override

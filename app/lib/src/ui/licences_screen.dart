@@ -116,7 +116,7 @@ class _LicenceTextsScreenState extends State<LicenceTextsScreen> {
               return ListTile(
                 title: Text(licencePackageName(name)),
                 subtitle: Text(
-                  MaterialLocalizations.of(context).licensesPackageDetailText(entries.length),
+                  l.licencesPackageCount(entries.length),
                   style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                 ),
                 trailing: Icon(Icons.chevron_right, color: t.dim),

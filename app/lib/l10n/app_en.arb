@@ -3876,6 +3876,15 @@
   "@licencesFull": {
     "description": "Licences screen button that opens the full texts of every licence (Flutter’s licence page)."
   },
+  "licencesPackageCount": "{count, plural, one{{count} licence} other{{count} licences}}",
+  "@licencesPackageCount": {
+    "description": "Full licence texts list: how many licence texts a package has, under the package name (British spelling, like the rest of the app).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "settingsCopyLink": "Copy link",
   "@settingsCopyLink": {
     "description": "Screen-reader label of the copy icon on a link row."

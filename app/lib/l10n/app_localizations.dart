@@ -4939,6 +4939,12 @@ abstract class AppLocalizations {
   /// **'All licence texts'**
   String get licencesFull;
 
+  /// Full licence texts list: how many licence texts a package has, under the package name (British spelling, like the rest of the app).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} licence} other{{count} licences}}'**
+  String licencesPackageCount(int count);
+
   /// Screen-reader label of the copy icon on a link row.
   ///
   /// In en, this message translates to:

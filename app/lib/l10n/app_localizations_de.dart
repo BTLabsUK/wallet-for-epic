@@ -3108,6 +3108,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get licencesFull => 'Alle Lizenztexte';
 
   @override
+  String licencesPackageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Lizenzen',
+      one: '$count Lizenz',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsCopyLink => 'Link kopieren';
 
   @override

@@ -803,6 +803,7 @@
   "licencesTor": "Tor：GNU 通用公共许可证第 3 版。其源代码见下文。",
   "licencesFonts": "字体 Montserrat、JetBrains Mono 和 Noto Sans Thai：SIL 开放字体许可证 1.1。",
   "licencesFull": "全部许可证文本",
+  "licencesPackageCount": "{count, plural, other{{count} 个许可证}}",
   "settingsCopyLink": "复制链接",
   "settingsLinkCopied": "链接已复制",
   "settingsAddressCopied": "地址已复制",

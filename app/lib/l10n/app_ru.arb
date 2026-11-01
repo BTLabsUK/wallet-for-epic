@@ -803,6 +803,7 @@
   "licencesTor": "Tor: GNU General Public License, версия 3. Исходный код указан ниже.",
   "licencesFonts": "Шрифты Montserrat, JetBrains Mono и Noto Sans Thai: SIL Open Font License 1.1.",
   "licencesFull": "Все тексты лицензий",
+  "licencesPackageCount": "{count, plural, one{{count} лицензия} few{{count} лицензии} many{{count} лицензий} other{{count} лицензии}}",
   "settingsCopyLink": "Копировать ссылку",
   "settingsLinkCopied": "Ссылка скопирована",
   "settingsAddressCopied": "Адрес скопирован",

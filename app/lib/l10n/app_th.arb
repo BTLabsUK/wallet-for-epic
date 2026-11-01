@@ -803,6 +803,7 @@
   "licencesTor": "Tor: GNU General Public License เวอร์ชัน 3 แหล่งซอร์สโค้ดระบุไว้ด้านล่าง",
   "licencesFonts": "ฟอนต์ Montserrat และ JetBrains Mono: SIL Open Font License 1.1",
   "licencesFull": "ข้อความสัญญาอนุญาตทั้งหมด",
+  "licencesPackageCount": "{count, plural, other{สัญญาอนุญาต {count} ฉบับ}}",
   "settingsCopyLink": "คัดลอกลิงก์",
   "settingsLinkCopied": "คัดลอกลิงก์แล้ว",
   "settingsAddressCopied": "คัดลอกที่อยู่แล้ว",

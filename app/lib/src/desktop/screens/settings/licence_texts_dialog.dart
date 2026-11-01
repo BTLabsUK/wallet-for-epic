@@ -59,7 +59,7 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
                     child: Row(
                       children: [
                         Expanded(child: Text(licencePackageName(name), style: ts.body)),
-                        Text(MaterialLocalizations.of(context).licensesPackageDetailText(entries.length), style: ts.small),
+                        Text(l.licencesPackageCount(entries.length), style: ts.small),
                         SizedBox(width: Sp.x2),
                         Icon(EIcons.chevronRight, size: Ctl.icon, color: c.dim),
                       ],

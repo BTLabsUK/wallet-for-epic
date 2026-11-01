@@ -3140,6 +3140,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get licencesFull => 'Все тексты лицензий';
 
   @override
+  String licencesPackageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count лицензии',
+      many: '$count лицензий',
+      few: '$count лицензии',
+      one: '$count лицензия',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsCopyLink => 'Копировать ссылку';
 
   @override

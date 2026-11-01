@@ -3010,6 +3010,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get licencesFull => 'ข้อความสัญญาอนุญาตทั้งหมด';
 
   @override
+  String licencesPackageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'สัญญาอนุญาต $count ฉบับ',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get settingsCopyLink => 'คัดลอกลิงก์';
 
   @override

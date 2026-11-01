@@ -1613,28 +1613,6 @@ class _TorNeededLine extends StatelessWidget {
   }
 }
 
-/// Flutter's licence page under the app's name and [version]. The app writes British English
-/// ("Licences", "Cancelled"), and Flutter's own strings for `en` are American ("Licenses"):
-/// in English the page takes the `en_GB` Material strings so its title matches the row.
-void openFlutterLicences(BuildContext context, String? version) {
-  final locale = Localizations.localeOf(context);
-  final page = LicensePage(
-    applicationName: context.l10n.appTitle,
-    applicationVersion: version,
-  );
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => locale.languageCode == 'en'
-          ? Localizations.override(
-              context: context,
-              locale: const Locale('en', 'GB'),
-              child: page,
-            )
-          : page,
-    ),
-  );
-}
-
 /// A web link. The app has no browser launcher, so tapping copies the address.
 class LinkTile extends StatelessWidget {
   const LinkTile({super.key, required this.title, required this.url, this.email = false});
