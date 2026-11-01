@@ -60,6 +60,10 @@ enum DeskRoute {
   settingsDevices(section: DeskSection.settings),
   settingsWallets(section: DeskSection.settings),
   settingsPhrase(section: DeskSection.settings),
+
+  /// Security (`settings_security.dart`): the recovery phrase, auto-lock, the password and
+  /// Delete wallet, as on the phone. Recovery phrase is its page.
+  settingsSecurity(section: DeskSection.settings),
   settingsRescan(section: DeskSection.settings),
 
   /// The expert features' switches and the network mode (`settings_advanced.dart`).

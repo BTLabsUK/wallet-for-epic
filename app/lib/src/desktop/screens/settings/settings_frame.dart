@@ -14,8 +14,9 @@ import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 
 /// The sections; [invoices] adds Invoices below Transactions (wallets that take invoices), its label
 /// in the app's language. Linked devices has no entry of its own: it belongs to one wallet, so it
-/// opens from This wallet (as on the phone) and that entry stays raised on its page.
-/// Shallow lists six: Appearance, This wallet, Recovery phrase, Advanced, About, Help
+/// opens from This wallet (as on the phone) and that entry stays raised on its page; Recovery
+/// phrase opens from Security the same way.
+/// Shallow lists six: Appearance, This wallet, Security, Advanced, About, Help
 /// (Recheck balance opens from This wallet there).
 List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices, required DeskLevelFeatures ui}) => [
   if (!deskLevelHides(ui, DeskRoute.settingsNode)) (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
@@ -26,7 +27,7 @@ List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required boo
   null,
   (DeskRoute.settingsAccount, l.deskSetFrameThisWallet, EIcons.wallet),
   if (!deskLevelHides(ui, DeskRoute.settingsWallets)) (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
-  (DeskRoute.settingsPhrase, l.deskSetFramePhrase, EIcons.key),
+  (DeskRoute.settingsSecurity, l.settingsSectionSecurity, EIcons.shield),
   if (ui.recheckInSideList) (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
   null,
   (DeskRoute.settingsAdvanced, l.deskSetFrameAdvanced, EIcons.tune),
@@ -61,10 +62,12 @@ class SettingsFrame extends ConsumerWidget {
     final l = context.l10n;
     final ui = ref.watch(deskLevelUiProvider);
     final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
-    // Linked devices is a page of This wallet, and so is Recheck balance at Shallow; Change
-    // level is Advanced's.
+    // Linked devices is a page of This wallet, and so is Recheck balance at Shallow; Recovery
+    // phrase is Security's; Change level is Advanced's.
     final current = route == DeskRoute.settingsDevices || (route == DeskRoute.settingsRescan && !ui.recheckInSideList)
         ? DeskRoute.settingsAccount
+        : route == DeskRoute.settingsPhrase
+        ? DeskRoute.settingsSecurity
         : route == DeskRoute.settingsLevel
         ? DeskRoute.settingsAdvanced
         : route;

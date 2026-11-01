@@ -25,6 +25,7 @@ import '../screens/settings/settings_phrase.dart';
 import '../screens/settings/settings_privacy.dart';
 import '../screens/settings/settings_receiving.dart';
 import '../screens/settings/settings_rescan.dart';
+import '../screens/settings/settings_security.dart';
 import '../screens/settings/settings_wallets.dart';
 import '../screens/transfer/finalize_screen.dart';
 import '../screens/transfer/import_tx_screen.dart';
@@ -68,6 +69,7 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.settingsDevices => SettingsDevicesScreen(arg: a),
     DeskRoute.settingsWallets => SettingsWalletsScreen(arg: a),
     DeskRoute.settingsPhrase => SettingsPhraseScreen(arg: a),
+    DeskRoute.settingsSecurity => SettingsSecurityScreen(arg: a),
     DeskRoute.settingsRescan => SettingsRescanScreen(arg: a),
     DeskRoute.settingsAdvanced => SettingsAdvancedScreen(arg: a),
     DeskRoute.settingsLevel => SettingsLevelScreen(arg: a),
