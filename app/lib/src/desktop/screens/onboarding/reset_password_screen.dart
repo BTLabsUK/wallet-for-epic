@@ -8,6 +8,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../log.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
+import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
 import 'restore_screen.dart' show RestoreSample;
 import 'unlock_screen.dart' show UnlockPick;
@@ -278,6 +279,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       _ when _phraseError != null => (_phraseError!, c.risk),
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
+      _ when e.invalid.length > 1 => (l.deskOnbRestoreBadWords(unknownWordsText(e.unknownWords)), c.risk),
       _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
       _ when complete => (l.deskOnbRestoreAllOk(e.length), c.ok),
       _ when e.checksumOk == false && e.checksumFirm => (l.deskOnbRestoreChecksumFirm, c.risk),

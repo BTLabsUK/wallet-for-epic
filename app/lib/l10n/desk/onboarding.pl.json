@@ -56,6 +56,7 @@
   "deskOnbRestorePasswordLead": "Ustaw hasło, które odblokowuje ten portfel na tym komputerze.",
   "deskOnbRestoreNothingToPaste": "Nie ma czego wkleić: w schowku nie ma słów.",
   "deskOnbRestoreBadWord": "Słowo {position}, „{word}”, nie występuje na liście słów.",
+  "deskOnbRestoreBadWords": "Nie ma na liście słów: {words}.",
   "deskOnbRestoreAllOk": "{count, plural, one{{count} słowo jest poprawne.} few{Wszystkie {count} słowa są poprawne.} many{Wszystkie {count} słów jest poprawnych.} other{Wszystkie {count} słowa są poprawne.}}",
   "deskOnbRestoreChecksumFirm": "Suma kontrolna tej frazy się nie zgadza. Porównaj każde słowo z kartką.",
   "deskOnbRestoreChecksumSoFar": "{count, plural, one{Na razie {count} słowo; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.} few{Na razie {count} słowa; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.} many{Na razie {count} słów; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.} other{Na razie {count} słowa; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.}}",

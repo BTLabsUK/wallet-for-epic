@@ -2014,6 +2014,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String restorePhraseUnknownWords(String words) {
+    return 'Not in the word list: $words.';
+  }
+
+  @override
   String restorePhraseWordCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -18747,6 +18752,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String deskOnbRestoreBadWords(String words) {
+    return 'Not in the word list: $words.';
+  }
 
   @override
   String get deskSetupExistingNodeType => 'Existing node';

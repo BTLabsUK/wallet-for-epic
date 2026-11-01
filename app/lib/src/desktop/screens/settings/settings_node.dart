@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../demo_fixtures.dart';
 
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
@@ -221,7 +222,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
             syncStatus: 'txhashset_kernels_validation',
             progress: const SyncProgress(SyncStage.chainStateKernels, overall: 0.64, done: 3100000, total: 4800000),
             peers: 9,
-            version: '4.1.1',
+            version: demoNodeVersion,
             height: mockTip - 12340,
           )
         : null;
@@ -233,7 +234,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     if (!mounted) return;
     final p = ref.read(settingsPrefsProvider);
     ref.read(settingsPrefsProvider.notifier).set(
-      p.copyWith(builtin: false, typedNode: NodeServer(url: ownDemoUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: '4.1.1', own: true), ownFallback: {...p.ownFallback}..remove(ownDemoUrl)),
+      p.copyWith(builtin: false, typedNode: NodeServer(url: ownDemoUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: demoNodeVersion, own: true), ownFallback: {...p.ownFallback}..remove(ownDemoUrl)),
     );
     if (arg == NodeDemo.ownDown) {
       ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: ownDemoUrl, inUse: mainnetPreset.nodeUrl, at: DateTime(2026, 10, 22, 14, 2)));

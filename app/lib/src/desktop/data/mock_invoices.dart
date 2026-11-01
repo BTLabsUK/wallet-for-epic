@@ -464,7 +464,7 @@ class InvoiceProto {
           counterparty: r.payerAddress,
           contactName: r.payerName,
           message: r.message,
-          height: conf > 0 ? 2914414 - conf + 1 : null,
+          height: conf > 0 ? demoTip - conf + 1 : null,
           flow: TxFlow.invoice,
         ),
       );
@@ -494,7 +494,7 @@ class InvoiceProto {
           contactName: i.label,
           message: i.message,
           kernel: i.kernel,
-          height: conf > 0 ? 2914414 - conf + 1 : null,
+          height: conf > 0 ? demoTip - conf + 1 : null,
           flow: TxFlow.invoice,
         ),
       );

@@ -18,6 +18,7 @@ class DeskShot {
     this.prepare,
     this.after,
     this.before,
+    this.opensDialog = false,
     this.width = 1280,
     this.height = 800,
   });
@@ -44,6 +45,10 @@ class DeskShot {
   /// Runs on the fresh container before the route opens, for state the screen reads as it
   /// builds (a method switched on, a contact's address), unlike [prepare], which runs after.
   final Future<void> Function(ProviderContainer container)? before;
+
+  /// The screen opens a dialog by itself (Send's review, after its fee estimate): the tour waits
+  /// until it is on stage before the shot, and fails the shot if it never opens.
+  final bool opensDialog;
 
   final double width;
   final double height;

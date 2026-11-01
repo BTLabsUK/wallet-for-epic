@@ -42,6 +42,9 @@ Future<void> _outputsOn(ProviderContainer c) async {
   await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.outputs, true)));
 }
 
+/// [_outputsOn] for the shots of other screens that open the Outputs page (the held-coin shot).
+const Future<void> Function(ProviderContainer) outputsOnForShots = _outputsOn;
+
 /// Clicks the title bar's button with [key] (a status icon, then a button inside its
 /// popover), as the pointer would: the popover opens under the icon.
 Future<void> _click(Key key) async {
@@ -268,7 +271,7 @@ final List<DeskShot> walletShots = [
   ),
   DeskShot(id: '19c-outputs-spent', title: 'Outputs, spent shown', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: _six, balance: _sixBalance, showSpent: true), height: 1000),
   DeskShot(id: '19d-outputs-locked', title: 'Outputs, after a split', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: _afterSplit, balance: _afterSplitBalance), height: 1000),
-  DeskShot(id: '19e-outputs-one', title: 'Outputs, one output', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: [_out(1, 100, OutputStatus.unspent, 2913020, 1394, 30)], balance: _bal(100)), height: 1000),
+  DeskShot(id: '19e-outputs-one', title: 'Outputs, one output', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: [_out(1, 100, OutputStatus.unspent, 3763581, 1394, 30)], balance: _bal(100)), height: 1000),
   DeskShot(id: '19f-outputs-empty', title: 'Outputs, none yet', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: const [], balance: _bal(0))),
   const DeskShot(id: '19g-outputs-loading', title: 'Outputs, loading', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(waiting: true)),
   DeskShot(id: '19h-outputs-narrow', title: 'Outputs at 980 wide', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, width: 980, height: 1000),
@@ -339,13 +342,13 @@ Balance _bal(double spendable, {double confirming = 0, double locked = 0, double
 
 /// Six outputs (and a spent one): four spendable, one confirming, one awaiting finalization.
 final List<Output> _six = [
-  _out(1, 25, OutputStatus.confirming, 2914410, 2, 36),
+  _out(1, 25, OutputStatus.confirming, 3764971, 2, 36),
   _out(2, 12.5, OutputStatus.unconfirmed, 0, 0, 38, finalizing: true),
-  _out(5, 148.73215, OutputStatus.unspent, 2913020, 1394, 30),
-  _out(6, 7.5, OutputStatus.unspent, 2913500, 914, 31),
-  _out(7, 0.5, OutputStatus.unspent, 2908700, 5714, 33),
-  _out(8, 1000, OutputStatus.unspent, 2902900, 11514, 34),
-  _out(9, 40.008, OutputStatus.spent, 2900100, 14314, 35),
+  _out(5, 148.73215, OutputStatus.unspent, 3763581, 1394, 30),
+  _out(6, 7.5, OutputStatus.unspent, 3764061, 914, 31),
+  _out(7, 0.5, OutputStatus.unspent, 3759261, 5714, 33),
+  _out(8, 1000, OutputStatus.unspent, 3753461, 11514, 34),
+  _out(9, 40.008, OutputStatus.spent, 3750661, 14314, 35),
 ];
 final Balance _sixBalance = _bal(1156.73215, confirming: 25, finalizing: 12.5);
 final OutputsArgs _outputsSix = OutputsArgs(outputs: _six, balance: _sixBalance);

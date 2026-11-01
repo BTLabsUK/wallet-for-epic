@@ -139,6 +139,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   String _phraseError(AppLocalizations l, String phrase) {
     final problem = phraseProblem(phrase);
     return switch (problem.kind) {
+      PhraseProblemKind.word when problem.unknown.length > 1 => l.restorePhraseUnknownWords(
+        unknownWordsText(problem.unknown),
+      ),
       PhraseProblemKind.word => l.restorePhraseUnknownWord(
         problem.position!,
         problem.word!,

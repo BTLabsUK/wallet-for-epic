@@ -56,6 +56,7 @@
   "deskOnbRestorePasswordLead": "ตั้งรหัสผ่านที่ใช้ปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้",
   "deskOnbRestoreNothingToPaste": "ไม่มีอะไรให้วาง: คลิปบอร์ดไม่มีคำ",
   "deskOnbRestoreBadWord": "คำที่ {position} “{word}” ไม่อยู่ในรายการคำ",
+  "deskOnbRestoreBadWords": "ไม่อยู่ในรายการคำ: {words}",
   "deskOnbRestoreAllOk": "{count, plural, other{ทั้ง {count} คำถูกต้อง}}",
   "deskOnbRestoreChecksumFirm": "เลขตรวจสอบของวลีนี้ไม่ตรง เทียบทุกคำกับกระดาษ",
   "deskOnbRestoreChecksumSoFar": "{count, plural, other{ใส่แล้ว {count} คำ เลขตรวจสอบไม่ตรง พิมพ์ต่อ หรือเทียบทุกคำกับกระดาษ}}",

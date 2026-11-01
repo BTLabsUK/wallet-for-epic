@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../demo_fixtures.dart';
 import '../../../levels/level_providers.dart' show walletLevelProvider;
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
@@ -75,7 +76,7 @@ Future<void> showLocalNode(ProviderContainer c, LocalNodeState state, FallbackCo
 
 /// An update to [phase] for the tour: the next version, from the download folder.
 void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
-  const v = '26.10.19';
+  final v = demoUpdateVersion;
   c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(
     phase,
     version: v,
@@ -124,10 +125,10 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '22d-node-pick-failed', title: 'Node pick failed', route: DeskRoute.settingsNode, arg: NodeDemo.pickFailed),
   for (final (id, title, state, consent) in [
     ('21-local-starting', 'Local node, starting', mockLocalNode(LocalNodePhase.starting), FallbackConsent.accepted),
-    ('21-local-syncing', 'Local node, syncing headers with the fallback', mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)), FallbackConsent.accepted),
+    ('21-local-syncing', 'Local node, syncing headers with the fallback', mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: demoTip, eta: const Duration(hours: 3)), FallbackConsent.accepted),
     ('21-local-syncing-download', 'Local node, chain state download', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), FallbackConsent.accepted),
-    ('21-local-syncing-kernels', 'Local node, checking kernels', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), FallbackConsent.accepted),
-    ('21-local-syncing-nofallback', 'Local node, syncing without the fallback', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: 3764975, eta: const Duration(minutes: 12)), FallbackConsent.declined),
+    ('21-local-syncing-kernels', 'Local node, checking kernels', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: demoTip), FallbackConsent.accepted),
+    ('21-local-syncing-nofallback', 'Local node, syncing without the fallback', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: demoTip, eta: const Duration(minutes: 12)), FallbackConsent.declined),
     ('21-local-synced', 'Local node, synced', mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
     ('21-local-stalled', 'Local node, stalled', mockLocalNode(LocalNodePhase.error, stalled: true), FallbackConsent.accepted),
     ('21-local-failed-port', 'Local node, port in use', mockLocalNode(LocalNodePhase.error, failure: NodeFailure.portInUse), FallbackConsent.accepted),
@@ -160,7 +161,7 @@ final List<DeskShot> settingsShots = [
     title: 'Use the public node until synced?',
     route: DeskRoute.settingsNode,
     arg: NodeDemo.builtin,
-    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975), FallbackConsent.unasked),
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: demoTip), FallbackConsent.unasked),
     dialog: (ctx) => showFallbackAskDialog(ctx, host: Uri.parse(mockNodeAt(0)).host),
   ),
   DeskShot(
@@ -197,8 +198,6 @@ final List<DeskShot> settingsShots = [
   ),
   DeskShot(id: '22-node-local-dialog', title: 'Local node: the dialog from Settings', route: DeskRoute.settingsNode, dialog: (c) => showLocalNodeSetupDialog(c)),
   DeskShot(id: '22b-node-local-dialog-ports', title: 'Local node: the dialog with Advanced open (the ports)', route: DeskRoute.settingsNode, dialog: (c) => showLocalNodeSetupDialog(c, portsOpen: true)),
-  DeskShot(id: '22g-dlg-chain-offer', title: 'Existing blockchain data', route: DeskRoute.settingsNode, dialog: showChainOfferDialog),
-  DeskShot(id: '22h-dlg-chain-offer-in-use', title: 'Existing blockchain data, in use', route: DeskRoute.settingsNode, dialog: (c) => showChainOfferDialog(c, inUse: true)),
   DeskShot(
     id: '23-settings-receiving',
     title: 'Settings, transactions',
@@ -416,13 +415,13 @@ final List<DeskShot> settingsShots = [
   DeskShot(id: '43z-change-level-l2', title: 'Change level at Deeper', route: DeskRoute.settingsLevel, before: _level(WalletLevel.casual)),
   const DeskShot(id: '43z-change-level-narrow', title: 'Change level at 1000x750', route: DeskRoute.settingsLevel, width: 1000, height: 750),
   DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
-  DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
+  DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(id: '43e-overview-waiting-tor', title: 'Overview, Tor only waiting for Tor', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
-  DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
+  DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(id: '43h-privacy-tor-only', title: 'Privacy, the Tor switch locked by Tor only', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
+  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(
     id: '43j-tx-detail-more',
     title: 'Transaction detail, More opened with Technical details off',

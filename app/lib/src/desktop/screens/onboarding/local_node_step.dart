@@ -8,6 +8,7 @@ library;
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import '../../../demo_fixtures.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -260,7 +261,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
       // Never inside the first build: the parent gets the choice a microtask later.
       await Future<void>.delayed(Duration.zero);
       final p = switch (widget.demo) {
-        LocalNodeDemo.found => LocalNodeProbe(url: _localUrl, answers: true, version: '4.1.1', height: mockTip, readyForTxs: true, latencyMs: 3),
+        LocalNodeDemo.found => LocalNodeProbe(url: _localUrl, answers: true, version: demoNodeVersion, height: mockTip, readyForTxs: true, latencyMs: 3),
         LocalNodeDemo.notFound => LocalNodeProbe(url: _localUrl, answers: false),
         LocalNodeDemo.none => await api.probe(),
       };

@@ -15,7 +15,7 @@ enum PhraseProblemKind {
 }
 
 class PhraseProblem {
-  const PhraseProblem(this.kind, {required this.count, this.position, this.word});
+  const PhraseProblem(this.kind, {required this.count, this.position, this.word, this.unknown = const []});
 
   final PhraseProblemKind kind;
 
@@ -25,7 +25,13 @@ class PhraseProblem {
   /// The first unknown word's place, from 1.
   final int? position;
   final String? word;
+
+  /// Every unknown word as (place from 1, word), in phrase order; [position]/[word] are its first.
+  final List<(int, String)> unknown;
 }
+
+/// The unknown words for the status line: `harbo (24), wandr (15)`, one entry per word, in place order.
+String unknownWordsText(Iterable<(int, String)> unknown) => unknown.map((u) => '${u.$2} (${u.$1})').join(', ');
 
 /// Word counts a recovery phrase can have.
 const Set<int> phraseWordCounts = {12, 15, 18, 21, 24};
@@ -35,15 +41,18 @@ const Set<int> phraseWordCounts = {12, 15, 18, 21, 24};
 /// after the core refused the phrase; the core alone decides validity.
 PhraseProblem phraseProblem(String phrase) {
   final words = phrase.isEmpty ? const <String>[] : phrase.split(' ');
-  for (var i = 0; i < words.length; i++) {
-    if (!bip39Words.contains(words[i])) {
-      return PhraseProblem(
-        PhraseProblemKind.word,
-        count: words.length,
-        position: i + 1,
-        word: words[i],
-      );
-    }
+  final unknown = <(int, String)>[
+    for (var i = 0; i < words.length; i++)
+      if (!bip39Words.contains(words[i])) (i + 1, words[i]),
+  ];
+  if (unknown.isNotEmpty) {
+    return PhraseProblem(
+      PhraseProblemKind.word,
+      count: words.length,
+      position: unknown.first.$1,
+      word: unknown.first.$2,
+      unknown: unknown,
+    );
   }
   if (!phraseWordCounts.contains(words.length)) {
     return PhraseProblem(PhraseProblemKind.count, count: words.length);

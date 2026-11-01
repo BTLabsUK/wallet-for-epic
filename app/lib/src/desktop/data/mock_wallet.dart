@@ -4,6 +4,7 @@
 /// is anything but "wrong"; "wrong" fails the unlock.
 library;
 
+import '../../demo_fixtures.dart';
 import '../../settings_file/host_settings.dart' show hostSettings, shippedHostSettings;
 import 'mock_hosts.dart';
 import '../../cancel_final.dart' show CancelResult;
@@ -69,9 +70,9 @@ ServerIcon mockServerIcon(String hash) => ServerIcon(
 /// What the demo shows for the first servers of the node list: health, latency, height, version
 /// (the fourth does not answer).
 const _mockNodeLook = [
-  (ServiceHealth.ok, 18, 2914414, '4.1.1'),
-  (ServiceHealth.ok, 132, 2914414, '4.1.1'),
-  (ServiceHealth.slow, 940, 2914413, '4.1.1'),
+  (ServiceHealth.ok, 18, demoTip, '4.1.1'),
+  (ServiceHealth.ok, 132, demoTip, '4.1.1'),
+  (ServiceHealth.slow, 940, 3764974, '4.1.1'),
   (ServiceHealth.down, null, null, '4.1.0'),
 ];
 
@@ -143,24 +144,24 @@ class MockDeskWallet implements DeskWalletApi {
 
   late final List<Tx> _txs = [
     if (otherWalletRows) ...[
-      Tx(id: 107, slateId: '', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(35.4), fee: 0, created: _ago(hours: 20), confirmations: 14, height: 2917120, otherWallet: true, confirmedAt: _ago(hours: 20)),
-      Tx(id: 108, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(6.2), fee: 0, created: _ago(days: 2, hours: 3), confirmations: 410, height: 2916580, otherWallet: true, confirmedAt: _ago(days: 2, hours: 3)),
+      Tx(id: 107, slateId: '', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(35.4), fee: 0, created: _ago(hours: 20), confirmations: 14, height: 3767681, otherWallet: true, confirmedAt: _ago(hours: 20)),
+      Tx(id: 108, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(6.2), fee: 0, created: _ago(days: 2, hours: 3), confirmations: 410, height: 3767141, otherWallet: true, confirmedAt: _ago(days: 2, hours: 3)),
     ],
-    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: _lunchConfirmations, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 2914410),
+    Tx(id: 39, slateId: 'b7e2c1d4-8f3a-4e21-9c7b-5a1d2e3f4a5b', direction: TxDirection.received, state: TxState.confirming, method: TxMethod.epicbox, amount: _epic(25), fee: 0, created: _ago(minutes: 18), confirmations: _lunchConfirmations, counterparty: _contacts[0].address, contactName: 'Anna Kowalska', message: 'Lunch, thanks', height: 3764971),
     Tx(id: 38, slateId: 'a1f9e8d7-6c5b-4a39-8271-605f4e3d2c1b', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(12.5), fee: _epic(0.007), cancellable: true, created: _ago(hours: 3), counterparty: 'a1f9e8d7.tx'),
     Tx(id: 37, slateId: 'c3d4e5f6-0718-4293-a4b5-c6d7e8f90a1b', direction: TxDirection.sent, state: TxState.posted, method: TxMethod.epicbox, amount: _epic(3.2), fee: _epic(0.006), created: _ago(hours: 5), counterparty: _contacts[4].address, contactName: 'Merchant: Coffee'),
-    Tx(id: 36, slateId: 'd4e5f607-1829-43a4-b5c6-d7e8f90a1b2c', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(148.73215), fee: 0, created: _ago(days: 1, hours: 2), confirmations: 1440, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 2913020, kernel: '09a1c3e5f7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3', outputCommits: const ['08c7e1a4b2d9f3e6a0c5b8d1f4e7a2c9b6d3f0e8a5c1b7d4f2e9a6c3b0d8f5e1a7'], hasProof: true, proofSender: 'esMockSender1KeyForDemoProofOnly0123456789abcdefghijklmn', proofSignature: '304402200011c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011'),
-    Tx(id: 35, slateId: 'e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.http, amount: _epic(40), fee: _epic(0.008), created: _ago(days: 2, hours: 6), confirmations: 2810, counterparty: 'http://10.0.1.24:3415', contactName: 'Tom', height: 2911600, kernel: '08b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4', hasProof: true, proofSender: 'esMockSender2KeyForDemoProofOnly0123456789abcdefghijklmn', proofSignature: '304402200021c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011', label: 'Rent, October', manualFields: {ManualField.label}, manualEditedAt: _ago(days: 2)),
+    Tx(id: 36, slateId: 'd4e5f607-1829-43a4-b5c6-d7e8f90a1b2c', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(148.73215), fee: 0, created: _ago(days: 1, hours: 2), confirmations: 1440, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 3763581, kernel: '09a1c3e5f7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3', outputCommits: const ['08c7e1a4b2d9f3e6a0c5b8d1f4e7a2c9b6d3f0e8a5c1b7d4f2e9a6c3b0d8f5e1a7'], hasProof: true, proofSender: 'esMockSender1KeyForDemoProofOnly0123456789abcdefghijklmn', proofSignature: '304402200011c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011'),
+    Tx(id: 35, slateId: 'e5f60718-2a3b-44c5-d6e7-f8091a2b3c4d', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.http, amount: _epic(40), fee: _epic(0.008), created: _ago(days: 2, hours: 6), confirmations: 2810, counterparty: 'http://10.0.1.24:3415', contactName: 'Tom', height: 3762161, kernel: '08b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4', hasProof: true, proofSender: 'esMockSender2KeyForDemoProofOnly0123456789abcdefghijklmn', proofSignature: '304402200021c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011', label: 'Rent, October', manualFields: {ManualField.label}, manualEditedAt: _ago(days: 2)),
     Tx(id: 34, slateId: 'f6071829-3b4c-45d6-e7f8-091a2b3c4d5e', direction: TxDirection.sent, state: TxState.cancelled, method: TxMethod.epicbox, amount: _epic(5), fee: _epic(0.006), created: _ago(days: 3), counterparty: _contacts[2].address, contactName: 'Exchange deposit'),
-    Tx(id: 101, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(2), fee: 0, created: _ago(days: 4), confirmations: 620, height: 2913794, coinbase: true, confirmedAt: _ago(days: 4)),
-    Tx(id: 102, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(7.5), fee: 0, created: _ago(days: 4, hours: 6), confirmations: 900, height: 2913500, foundByScan: true, foundDuring: FoundDuring.restore, confirmedAt: _ago(days: 4, hours: 6)),
-    Tx(id: 33, slateId: '0718293a-4c5d-46e7-f809-1a2b3c4d5e6f', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.tor, amount: _epic(0.5), fee: 0, created: _ago(days: 5), confirmations: 5700, counterparty: 'http://${mockOnion('3fz7k2mq9xr4tbv6')}', height: 2908700, kernel: '07c3e5a7b9d1f3e5a7c9b1d3f5e7a9c1b3d5e7f9a1c3b5d7e9f1a3c5b7d9e1f3a5'),
-    Tx(id: 103, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(4.25), fee: 0, created: _ago(days: 6), confirmations: 8600, height: 2905800, foundByScan: true, foundDuring: FoundDuring.rescan, confirmedAt: _ago(days: 6), counterparty: _contacts[1].address, transport: 'epicbox', note: 'Weekly payout from the pool.', label: 'Pool payout, March', manualFields: {ManualField.label, ManualField.counterparty, ManualField.transport, ManualField.note}, manualEditedAt: _ago(days: 1)),
-    Tx(id: 104, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(1.1), fee: 0, created: _ago(days: 7), confirmations: 10000, height: 2904400, foundByScan: true, foundDuring: FoundDuring.rescan, datedByBlock: false),
-    Tx(id: 105, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(0.8), fee: 0, created: _ago(days: 8), confirmations: 11400, height: 2903000, foundByScan: true, confirmedAt: _ago(days: 8)),
-    Tx(id: 32, slateId: '18293a4b-5d6e-47f8-091a-2b3c4d5e6f70', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.file, amount: _epic(1000), fee: 0, created: _ago(days: 9), confirmations: 11500, counterparty: 'receive_1000.slate.json', height: 2902900, kernel: '06d4f6b8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6'),
-    Tx(id: 31, slateId: '293a4b5c-6e7f-4809-1a2b-3c4d5e6f7081', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(250), fee: _epic(0.012), created: _ago(days: 14), confirmations: 18700, counterparty: _contacts[2].address, contactName: 'Exchange deposit', height: 2895700, hasProof: true, proofSender: 'esMockSender3KeyForDemoProofOnly0123456789abcdefghijklmn', proofSignature: '304402200031c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011', kernel: '05e5a7c9b1d3f5a7e9c1b3d5f7a9e1c3b5d7f9a1e3c5b7d9f1a3e5c7b9d1f3a5e7', label: 'Exchange top-up', manualFields: {ManualField.label}, manualEditedAt: _ago(days: 9)),
-    Tx(id: 30, slateId: '3a4b5c6d-7f80-491a-2b3c-4d5e6f708192', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(132.1), fee: 0, created: _ago(days: 21), confirmations: 28800, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 2885600, kernel: '04f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8'),
+    Tx(id: 101, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(2), fee: 0, created: _ago(days: 4), confirmations: 620, height: 3764355, coinbase: true, confirmedAt: _ago(days: 4)),
+    Tx(id: 102, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(7.5), fee: 0, created: _ago(days: 4, hours: 6), confirmations: 900, height: 3764061, foundByScan: true, foundDuring: FoundDuring.restore, confirmedAt: _ago(days: 4, hours: 6)),
+    Tx(id: 33, slateId: '0718293a-4c5d-46e7-f809-1a2b3c4d5e6f', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.tor, amount: _epic(0.5), fee: 0, created: _ago(days: 5), confirmations: 5700, counterparty: 'http://${mockOnion('3fz7k2mq9xr4tbv6')}', height: 3759261, kernel: '07c3e5a7b9d1f3e5a7c9b1d3f5e7a9c1b3d5e7f9a1c3b5d7e9f1a3c5b7d9e1f3a5'),
+    Tx(id: 103, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(4.25), fee: 0, created: _ago(days: 6), confirmations: 8600, height: 3756361, foundByScan: true, foundDuring: FoundDuring.rescan, confirmedAt: _ago(days: 6), counterparty: _contacts[1].address, transport: 'epicbox', note: 'Weekly payout from the pool.', label: 'Pool payout, March', manualFields: {ManualField.label, ManualField.counterparty, ManualField.transport, ManualField.note}, manualEditedAt: _ago(days: 1)),
+    Tx(id: 104, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(1.1), fee: 0, created: _ago(days: 7), confirmations: 10000, height: 3754961, foundByScan: true, foundDuring: FoundDuring.rescan, datedByBlock: false),
+    Tx(id: 105, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(0.8), fee: 0, created: _ago(days: 8), confirmations: 11400, height: 3753561, foundByScan: true, confirmedAt: _ago(days: 8)),
+    Tx(id: 32, slateId: '18293a4b-5d6e-47f8-091a-2b3c4d5e6f70', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.file, amount: _epic(1000), fee: 0, created: _ago(days: 9), confirmations: 11500, counterparty: 'receive_1000.slate.json', height: 3753461, kernel: '06d4f6b8a0c2e4f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6'),
+    Tx(id: 31, slateId: '293a4b5c-6e7f-4809-1a2b-3c4d5e6f7081', direction: TxDirection.sent, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(250), fee: _epic(0.012), created: _ago(days: 14), confirmations: 18700, counterparty: _contacts[2].address, contactName: 'Exchange deposit', height: 3746261, hasProof: true, proofSender: 'esMockSender3KeyForDemoProofOnly0123456789abcdefghijklmn', proofSignature: '304402200031c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0011', kernel: '05e5a7c9b1d3f5a7e9c1b3d5f7a9e1c3b5d7f9a1e3c5b7d9f1a3e5c7b9d1f3a5e7', label: 'Exchange top-up', manualFields: {ManualField.label}, manualEditedAt: _ago(days: 9)),
+    Tx(id: 30, slateId: '3a4b5c6d-7f80-491a-2b3c-4d5e6f708192', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(132.1), fee: 0, created: _ago(days: 21), confirmations: 28800, counterparty: _contacts[1].address, contactName: 'Mining pool payouts', height: 3736161, kernel: '04f6b8d0a2c4e6f8b0d2a4c6e8f0b2d4a6c8e0f2b4d6a8c0e2f4b6d8a0c2e4f6b8'),
     Tx(id: -106, slateId: '', direction: TxDirection.received, state: TxState.confirmed, method: TxMethod.epicbox, amount: _epic(12.5), fee: 0, created: _ago(days: 22), fromBackup: true),
     for (var i = 0; i < 18; i++)
       Tx(
@@ -175,7 +176,7 @@ class MockDeskWallet implements DeskWalletApi {
         confirmations: 30000 + i * 5760,
         counterparty: i.isEven ? _contacts[1].address : _contacts[0].address,
         contactName: i.isEven ? 'Mining pool payouts' : 'Anna Kowalska',
-        height: 2880000 - i * 5760,
+        height: 3730561 - i * 5760,
       ),
   ];
 
@@ -193,7 +194,7 @@ class MockDeskWallet implements DeskWalletApi {
         icon: _operatorIcon(mockNodeOp(i)),
         listedAs: mockNodeOp(i),
       ),
-    NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: 2914414, version: '4.1.1', own: true),
+    NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: demoTip, version: demoNodeVersion, own: true),
   ];
 
   // As the status site lists them: the icons and operator names it serves.
@@ -446,7 +447,7 @@ class MockDeskWallet implements DeskWalletApi {
 
   static const _words = [
     'orbit', 'hazard', 'velvet', 'cabin', 'sudden', 'meadow', 'brick', 'gesture', 'lunar', 'invest', 'pledge', 'saddle',
-    'timber', 'crisp', 'wander', 'echo', 'faculty', 'notable', 'ripple', 'garlic', 'stamp', 'dwarf', 'enjoy', 'harbor',
+    'timber', 'crisp', 'wonder', 'echo', 'faculty', 'notable', 'ripple', 'garlic', 'stamp', 'dwarf', 'enjoy', 'harbor',
   ];
 
   @override
@@ -513,7 +514,7 @@ class MockDeskWallet implements DeskWalletApi {
     final held = _heldValue();
     final lunch = _lunchCounted ? _epic(25) : 0;
     return Balance(
-      spendable: _epic(1284.73215) + lunch + p.spendDelta - held,
+      spendable: _epic(1156.73215) + lunch + p.spendDelta - held,
       awaitingConfirmation: _epic(25) - lunch + p.confirmingDelta,
       locked: _epic(15.713) + p.lockDelta + held,
       awaitingFinalization: _epic(12.5),
@@ -626,23 +627,15 @@ class MockDeskWallet implements DeskWalletApi {
   List<Output> _cannedOutputs() {
     final cmt = mockCommitment;
     return [
-      Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 2914410, confirmations: _lunchConfirmations),
+      Output(commitment: cmt(1), value: _epic(25), status: OutputStatus.confirming, height: 3764971, confirmations: _lunchConfirmations),
       Output(commitment: cmt(2), value: _epic(12.5), status: OutputStatus.unconfirmed, awaitingFinalization: true),
-      Output(commitment: cmt(3), value: _epic(15.713), status: OutputStatus.locked, height: 2911600, confirmations: 2810),
-      Output(commitment: cmt(4), value: _epic(2), status: OutputStatus.immature, height: 2913794, confirmations: 620, lockHeight: 2915234),
-      Output(commitment: cmt(5), value: _epic(148.73215), status: OutputStatus.unspent, height: 2913020, confirmations: 1394),
-      Output(commitment: cmt(6), value: _epic(7.5), status: OutputStatus.unspent, height: 2913500, confirmations: 914),
-      Output(commitment: cmt(7), value: _epic(0.5), status: OutputStatus.unspent, height: 2908700, confirmations: 5714),
-      Output(commitment: cmt(8), value: _epic(1000), status: OutputStatus.unspent, height: 2902900, confirmations: 11514),
-      Output(commitment: cmt(9), value: _epic(40.008), status: OutputStatus.spent, height: 2900100, confirmations: 14314),
-      for (var i = 0; i < 16; i++)
-        Output(
-          commitment: cmt(10 + i),
-          value: _epic(8 + i * 3.5),
-          status: i % 5 == 4 ? OutputStatus.spent : OutputStatus.unspent,
-          height: 2880000 - i * 5760,
-          confirmations: 34414 + i * 5760,
-        ),
+      Output(commitment: cmt(3), value: _epic(15.713), status: OutputStatus.locked, height: 3762161, confirmations: 2810),
+      Output(commitment: cmt(4), value: _epic(2), status: OutputStatus.immature, height: 3764355, confirmations: 620, lockHeight: 3765795),
+      Output(commitment: cmt(5), value: _epic(148.73215), status: OutputStatus.unspent, height: 3763581, confirmations: 1394),
+      Output(commitment: cmt(6), value: _epic(7.5), status: OutputStatus.unspent, height: 3764061, confirmations: 914),
+      Output(commitment: cmt(7), value: _epic(0.5), status: OutputStatus.unspent, height: 3759261, confirmations: 5714),
+      Output(commitment: cmt(8), value: _epic(1000), status: OutputStatus.unspent, height: 3753461, confirmations: 11514),
+      Output(commitment: cmt(9), value: _epic(40.008), status: OutputStatus.spent, height: 3750661, confirmations: 14314),
     ];
   }
 
@@ -806,7 +799,7 @@ class MockDeskWallet implements DeskWalletApi {
     return ServiceStatus(
       node: node,
       nodeHealth: node.health,
-      nodeHeight: 2914414,
+      nodeHeight: demoTip,
       epicbox: box,
       epicboxHealth: _listening ? (epicboxBlocked ? ServiceHealth.down : box.health) : ServiceHealth.off,
       epicboxBlocked: _listening && epicboxBlocked,
@@ -1056,7 +1049,7 @@ class MockDeskWallet implements DeskWalletApi {
     final known = _nodes.where((n) => n.url == url);
     if (known.isNotEmpty) return known.first;
     if (url.contains('bad')) return NodeServer(url: url, label: url, health: ServiceHealth.down);
-    return NodeServer(url: url, label: Uri.tryParse(url)?.host ?? url, health: ServiceHealth.ok, latencyMs: 48, height: 2914414, version: '3.6.0', own: true);
+    return NodeServer(url: url, label: Uri.tryParse(url)?.host ?? url, health: ServiceHealth.ok, latencyMs: 48, height: demoTip, version: demoNodeVersion, own: true);
   }
 
   @override
@@ -1111,11 +1104,11 @@ class MockDeskWallet implements DeskWalletApi {
 
   static const _scanLog = [
     'Starting UTXO scan',
-    'Checking 1000 outputs, up to index 1000 (highest index: 2914414)',
+    'Checking 1000 outputs, up to index 1000 (highest index: $demoTip)',
     'Identified 4 wallet outputs as belonging to this wallet',
-    'Checking 1000 outputs, up to index 2000 (highest index: 2914414)',
+    'Checking 1000 outputs, up to index 2000 (highest index: $demoTip)',
     'Identified 2 wallet outputs as belonging to this wallet',
-    'Checking 1000 outputs, up to index 3000 (highest index: 2914414)',
+    'Checking 1000 outputs, up to index 3000 (highest index: $demoTip)',
     'Scanning for outputs, 41% complete',
   ];
 

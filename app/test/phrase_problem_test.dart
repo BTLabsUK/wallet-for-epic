@@ -15,6 +15,12 @@ void main() {
     expect(p.word, 'abandom');
   });
 
+  test('lists every unknown word, in phrase order', () {
+    final p = phraseProblem('abandon abandom zoo harbo');
+    expect(p.unknown, [(2, 'abandom'), (4, 'harbo')]);
+    expect(unknownWordsText(p.unknown), 'abandom (2), harbo (4)');
+  });
+
   test('a wrong count once every word is in the list', () {
     final p = phraseProblem(_twelve.split(' ').take(11).join(' '));
     expect(p.kind, PhraseProblemKind.count);
