@@ -516,6 +516,7 @@
   "restoreReplaceLead": "Fraza przywraca portfel w miejsce portfela na tym telefonie. Nic się nie zmienia, zanim fraza nie zostanie sprawdzona, a zamiana potwierdzona.",
   "restoreReplacePinReason": "Wpisz PIN, aby zastąpić ten portfel. Przywrócony portfel zachowa ten PIN.",
   "restorePhraseUnknownWord": "Słowo {position}, „{word}”, nie występuje na liście słów.",
+  "restorePhraseUnknownWords": "Nie ma na liście słów: {words}.",
   "restorePhraseWordCount": "{count, plural, one{Ta fraza ma {count} słowo. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.} few{Ta fraza ma {count} słowa. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.} many{Ta fraza ma {count} słów. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.} other{Ta fraza ma {count} słowa. Fraza odzyskiwania ma 12, 15, 18, 21 lub 24 słowa.}}",
   "restorePhraseChecksum": "Każde słowo jest na liście słów, ale fraza się nie zgadza. Jedno słowo jest błędne albo w złym miejscu.",
   "deleteFailedNotice": "Portfel nie został usunięty. {error} Odblokuj go i spróbuj ponownie w Ustawieniach.",
@@ -4864,5 +4865,6 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "deskOnbRestoreBadWords": "Nie ma na liście słów: {words}."
 }

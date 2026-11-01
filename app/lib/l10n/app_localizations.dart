@@ -3217,6 +3217,12 @@ abstract class AppLocalizations {
   /// **'Word {position}, “{word}”, is not in the word list.'**
   String restorePhraseUnknownWord(int position, String word);
 
+  /// Status line on the Restore screen when more than one word is not a valid recovery word. {words} lists them as "word (place)", comma-separated.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the word list: {words}.'**
+  String restorePhraseUnknownWords(String words);
+
   /// Phrase error: wrong number of words; {count} is what was typed.
   ///
   /// In en, this message translates to:
@@ -29191,6 +29197,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as "word (place)", comma-separated.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the word list: {words}.'**
+  String deskOnbRestoreBadWords(String words);
 }
 
 class _AppLocalizationsDelegate

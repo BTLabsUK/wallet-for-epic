@@ -122,6 +122,9 @@ class PhraseEntry extends ChangeNotifier {
 
   List<String> get phrase => words.take(length).toList();
 
+  /// Every bad field as (place from 1, word), in field order.
+  List<(int, String)> get unknownWords => [for (final i in invalid.toList()..sort()) (i + 1, words[i])];
+
   /// The first bad field, or null.
   int? get firstInvalid => invalid.isEmpty ? null : (invalid.toList()..sort()).first;
 

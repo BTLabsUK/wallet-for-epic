@@ -12,6 +12,7 @@ import '../../../log.dart';
 import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
+import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
 import 'reset_password_screen.dart' show ResetPasswordArg;
 import 'same_wallet_dialog.dart';
@@ -43,7 +44,7 @@ class RestoreScreen extends ConsumerStatefulWidget {
 
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   static const _sample =
-      'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wander echo faculty notable ripple garlic stamp dwarf enjoy h4rbor'; // l10n-ok: sample recovery words
+      'orbit hazard velvet cabin sudden meadow brick gesture lunar invest pledge saddle timber crisp wonder echo faculty notable ripple garlic stamp dwarf enjoy harbo'; // l10n-ok: sample recovery words
 
   /// The name typed into the title; null keeps the default "Wallet N".
   String? _name;
@@ -364,6 +365,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final (String? status, Color? tone) = switch (e) {
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
+      _ when e.invalid.length > 1 => (l.deskOnbRestoreBadWords(unknownWordsText(e.unknownWords)), c.risk),
       _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
       _ when complete => (l.deskOnbRestoreAllOk(length), c.ok),
       _ when e.checksumOk == false && e.typingLast => (null, null),

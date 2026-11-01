@@ -56,6 +56,7 @@
   "deskOnbRestorePasswordLead": "请设置在这台电脑上解锁此钱包的密码。",
   "deskOnbRestoreNothingToPaste": "没有可粘贴的内容：剪贴板中没有单词。",
   "deskOnbRestoreBadWord": "第 {position} 个单词“{word}”不在词表中。",
+  "deskOnbRestoreBadWords": "不在词表中：{words}。",
   "deskOnbRestoreAllOk": "{count, plural, other{全部 {count} 个单词均有效。}}",
   "deskOnbRestoreChecksumFirm": "此助记词的校验位不匹配。请把每个单词与纸上的逐一核对。",
   "deskOnbRestoreChecksumSoFar": "{count, plural, other{已输入 {count} 个单词；校验位不匹配。请继续输入，或把每个单词与纸上的逐一核对。}}",

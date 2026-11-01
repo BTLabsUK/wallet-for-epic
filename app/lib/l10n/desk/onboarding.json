@@ -256,6 +256,16 @@
       }
     }
   },
+  "deskOnbRestoreBadWords": "Not in the word list: {words}.",
+  "@deskOnbRestoreBadWords": {
+    "description": "Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as \"word (place)\", comma-separated.",
+    "placeholders": {
+      "words": {
+        "type": "String",
+        "example": "harbo (24), wandr (15)"
+      }
+    }
+  },
   "deskOnbRestoreAllOk": "{count, plural, one{All {count} word checks out.} other{All {count} words check out.}}",
   "@deskOnbRestoreAllOk": {
     "description": "Status line under the phrase grid when the whole phrase is valid. {count} is 12 or 24.",

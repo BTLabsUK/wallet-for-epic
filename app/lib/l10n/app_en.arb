@@ -2487,6 +2487,16 @@
       }
     }
   },
+  "restorePhraseUnknownWords": "Not in the word list: {words}.",
+  "@restorePhraseUnknownWords": {
+    "description": "Status line on the Restore screen when more than one word is not a valid recovery word. {words} lists them as \"word (place)\", comma-separated.",
+    "placeholders": {
+      "words": {
+        "type": "String",
+        "example": "harbo (24), wandr (15)"
+      }
+    }
+  },
   "restorePhraseWordCount": "{count, plural, =1{This phrase has 1 word. A recovery phrase has 12, 15, 18, 21 or 24.} other{This phrase has {count} words. A recovery phrase has 12, 15, 18, 21 or 24.}}",
   "@restorePhraseWordCount": {
     "description": "Phrase error: wrong number of words; {count} is what was typed.",
@@ -25300,5 +25310,15 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskOnbRestoreBadWords": "Not in the word list: {words}.",
+  "@deskOnbRestoreBadWords": {
+    "description": "Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as \"word (place)\", comma-separated.",
+    "placeholders": {
+      "words": {
+        "type": "String",
+        "example": "harbo (24), wandr (15)"
+      }
+    }
   }
 }

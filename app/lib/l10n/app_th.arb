@@ -516,6 +516,7 @@
   "restoreReplaceLead": "วลีนี้จะกู้คืนกระเป๋าเงินมาแทนกระเป๋าเงินบนโทรศัพท์นี้ จะไม่มีอะไรเปลี่ยนจนกว่าวลีจะผ่านการตรวจและยืนยันการแทนที่",
   "restoreReplacePinReason": "ใส่ PIN เพื่อแทนที่กระเป๋าเงินนี้ กระเป๋าเงินที่กู้คืนจะใช้ PIN นี้ต่อ",
   "restorePhraseUnknownWord": "คำที่ {position} “{word}” ไม่อยู่ในรายการคำ",
+  "restorePhraseUnknownWords": "ไม่อยู่ในรายการคำ: {words}",
   "restorePhraseWordCount": "{count, plural, other{วลีนี้มี {count} คำ วลีกู้คืนมี 12, 15, 18, 21 หรือ 24 คำ}}",
   "restorePhraseChecksum": "ทุกคำอยู่ในรายการคำ แต่วลีไม่ผ่านการตรวจ มีคำผิดหรือลำดับไม่ถูก",
   "deleteFailedNotice": "ยังไม่ได้ลบกระเป๋าเงิน {error} ปลดล็อกแล้วลองอีกครั้งใน การตั้งค่า",
@@ -4864,5 +4865,6 @@
   "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
-  "deskNodeSwitchStoppingWord": "กำลังหยุด"
+  "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "deskOnbRestoreBadWords": "ไม่อยู่ในรายการคำ: {words}"
 }

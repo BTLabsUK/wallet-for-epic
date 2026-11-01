@@ -1874,6 +1874,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String restorePhraseUnknownWords(String words) {
+    return '不在词表中：$words。';
+  }
+
+  @override
   String restorePhraseWordCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -17628,4 +17633,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String deskOnbRestoreBadWords(String words) {
+    return '不在词表中：$words。';
+  }
 }
