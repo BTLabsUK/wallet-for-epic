@@ -348,11 +348,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
         ],
       ),
-      idle: home.isLoading
-          ? SlotProgress(
-              label: all == null ? l.historyLoading : l.historyRefreshing,
-            )
-          : null,
+      // Only the first load shows the bar: a refresh runs in the background, often during a
+      // sync, and the list it refreshes stays on screen.
+      idle: home.isLoading && all == null ? SlotProgress(label: l.historyLoading) : null,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(

@@ -532,8 +532,6 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               ),
             ),
         ]),
-        SizedBox(height: Sp.x4),
-        const EProgress(),
       ],
     );
   }
