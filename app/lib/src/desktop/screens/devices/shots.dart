@@ -18,6 +18,7 @@ import '../../../help/help_content.dart' show HelpId;
 import '../settings/backup.dart' show HistoryImportOfferDialog;
 import '../settings/help_pairing.dart' show HelpAt;
 import '../transfer/send_screen.dart' show SendArgs, SendStep;
+import '../wallet/shots.dart' show outputsOnForShots;
 import 'link_flow.dart';
 
 /// The mock wallet and this computer's service, loaded.
@@ -88,7 +89,7 @@ final List<DeskShot> deviceShots = [
   DeskShot(id: '44h-link-failed', title: 'Link a device, not a device code', route: DeskRoute.settingsDevices, prepare: (c, _) => _failed(c), dialog: (ctx) => showDeskLinkDevice(ctx, paste: true)),
   DeskShot(id: '44i-activity-device-row', title: 'Activity, a payment of the phone under way', route: DeskRoute.activity, prepare: (c, _) => _linkedHeld(c)),
   DeskShot(id: '44j-tx-device-details', title: 'Activity, details of the phone’s payment', route: DeskRoute.activity, arg: -100, prepare: (c, _) => _linkedHeld(c)),
-  DeskShot(id: '44k-outputs-held', title: 'Outputs, a coin the phone’s payment holds', route: DeskRoute.outputs, prepare: (c, _) => _linkedHeld(c)),
+  DeskShot(id: '44k-outputs-held', title: 'Outputs, a coin the phone’s payment holds', route: DeskRoute.outputs, before: outputsOnForShots, prepare: (c, _) => _linkedHeld(c)),
   DeskShot(
     id: '44l-send-held',
     title: 'Send, the amount is held by the phone’s payment',
