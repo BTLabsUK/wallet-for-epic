@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+"""tools/l10n: keeps every translation at the English template's keys (tools/tlib/l10n.py).
+
+  tools/l10n sync [--no-gen]   add missing keys (as English, listed in lib/l10n/untranslated.json),
+                               drop stale ones, merge the desktop fragments, run gen-l10n
+  tools/l10n check             print what is out of step and the file to edit; exit 1 if anything
+
+After adding or renaming a string in app_en.arb or a desk/ fragment: tools/l10n sync, then
+translate what it lists, then tools/l10n sync again (it clears translated keys from the list).
+"""
+import os
+import subprocess
+import sys
+
+TOOLS = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(TOOLS)
+sys.path.insert(0, TOOLS)
+
+from tlib import l10n  # noqa: E402
+
+
+def toolchain_env():
+    r = subprocess.run(["bash", "-c", '. "$1" && env -0', "_", os.path.join(TOOLS, "env.sh")],
+                       capture_output=True, check=True)
+    return dict(item.decode().split("=", 1) for item in r.stdout.split(b"\0") if b"=" in item)
+
+
+def main(argv):
+    if not argv or argv[0] not in ("sync", "check") or argv[0] == "check" and len(argv) > 1 \
+            or argv[0] == "sync" and argv[1:] not in ([], ["--no-gen"]):
+        print(__doc__.strip(), file=sys.stderr)
+        return 2
+    s = l10n.Strings(ROOT)
+    if argv[0] == "sync":
+        try:
+            rep = s.sync(gen="--no-gen" not in argv, env=toolchain_env())
+        except (ValueError, subprocess.CalledProcessError) as e:
+            print(f"tools/l10n: {e}", file=sys.stderr)
+            return 2
+        lines = l10n.report_lines(s, rep)
+        print("tools/l10n sync: " + (f"rewrote {', '.join('app_%s.arb' % c for c in rep['changed'])}"
+                                     if rep["changed"] else "ARB files already in step")
+              + ("; gen-l10n ran" if "--no-gen" not in argv else ""))
+        print("\n".join(lines))
+        return 0
+    rep = s.check()
+    problems = 0
+    for loc in s.locales:
+        for kind in ("missing", "extra"):
+            keys = rep[kind][loc]
+            if keys:
+                problems += len(keys)
+                print(f"app_{loc}.arb: {len(keys)} {kind} keys ({', '.join(keys[:5])}"
+                      f"{', …' if len(keys) > 5 else ''}): tools/l10n sync")
+        for k in rep["untranslated"][loc]:
+            problems += 1
+            print(f"untranslated: {k} -> {s.where(k, loc)}")
+    for loc, k, why in rep["placeholders"]:
+        problems += 1
+        print(f"fix by hand: {k} in {s.where(k, loc)}: {why}")
+    print(f"tools/l10n check: {problems or 'nothing'} to do")
+    return 1 if problems else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

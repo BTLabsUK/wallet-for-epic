@@ -3406,9 +3406,6 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "@txAlwaysOn": {
-    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
-  },
   "txEpicboxHint": "Epicbox zahlt über einen Server, die andere Wallet muss also nicht geöffnet sein. Aus: Die Wallet verbindet sich mit keinem Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter.",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."
