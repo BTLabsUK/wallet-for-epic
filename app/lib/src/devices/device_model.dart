@@ -16,6 +16,10 @@ import '../settings_file/host_settings.dart';
 /// Links are pairwise, so a third device would not hear the other's payments.
 const int maxLinkedDevices = 2;
 
+/// A device's short code: the first four characters of its id, upper case. It tells two
+/// devices of one kind apart in their default names.
+String deviceCode(String deviceId) => deviceId.substring(0, min(4, deviceId.length)).toUpperCase();
+
 /// The most servers a link uses: `epicbox.link_servers` of `app-config.toml`.
 int get maxLinkServers => appConfig.linkServerCount;
 
@@ -449,8 +453,13 @@ class DeviceBook {
     this.theirReceives = const {},
   });
 
-  /// A fresh book: a new random device id, [name] as this device's name.
-  factory DeviceBook.fresh(String name) => DeviceBook(deviceId: randomHexId(), deviceName: name);
+  /// A fresh book: a new random device id, [name] as this device's name. With [withCode] the
+  /// name carries the id's short code ([deviceCode]), so two phones of one wallet are told
+  /// apart before either is renamed.
+  factory DeviceBook.fresh(String name, {String Function(String name, String code)? withCode}) {
+    final id = randomHexId();
+    return DeviceBook(deviceId: id, deviceName: withCode == null ? name : withCode(name, deviceCode(id)));
+  }
 
   final String deviceId;
   final String deviceName;

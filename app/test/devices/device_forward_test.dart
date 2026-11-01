@@ -76,6 +76,61 @@ void main() {
     expect(b.session.cancelledTxIds, isEmpty);
   });
 
+  test('a request to pair that reached A only is listed on B; the first Pair wins, A says where', () async {
+    final seenOnA = <PairingEvent>[];
+    a.pairing.events().listen(seenOnA.add);
+    final request = a.pairing.receiveRequest(from: 'esAnnaKey@epicbox.epiccash.com', name: 'Anna')!;
+    await Future<void>.delayed(Duration.zero);
+    await settle(a, b);
+    final onB = (await b.pairing.requests()).single;
+    expect((onB.id, onB.fromAddress, onB.claimedName, onB.inviteLink), (request.id, request.fromAddress, 'Anna', request.inviteLink));
+
+    // B answers it: A hides its own copy and says the request was handled on B.
+    final preview = await b.pairing.openRequest(onB.id);
+    await b.pairing.acceptInvite(token: preview.token, name: 'Alex');
+    await Future<void>.delayed(Duration.zero);
+    await settle(a, b);
+    expect(await a.pairing.requests(), isEmpty);
+    final elsewhere = seenOnA.where((e) => e.kind == PairingEventKind.pairedElsewhere).single;
+    expect((elsewhere.requestId, elsewhere.name), (request.id, 'Phone'));
+    // Nothing went back to A as a new request.
+    expect(seenOnA.where((e) => e.kind == PairingEventKind.requested), hasLength(1));
+  });
+
+  test("a notice for a slate A holds nothing of goes to B as it came, and B's core applies it", () async {
+    a.session.unmatchedController.add(
+      const UnmatchedNotice(slateId: 'out-1', kind: 'posted', sender: 'esPayerKey@epicbox.epiccash.com', notice: '{"lepic":1,"type":"posted"}'),
+    );
+    await Future<void>.delayed(Duration.zero);
+    await settle(a, b);
+    expect(b.session.forwardedNotices.single, (sender: 'esPayerKey@epicbox.epiccash.com', notice: '{"lepic":1,"type":"posted"}'));
+    expect(a.session.forwardedNotices, isEmpty);
+  });
+
+  test('two phones of one wallet get names told apart: "Received on" names one device', () async {
+    String withCode(String name, String code) => '$name $code';
+    final p1 = Side('Phone', clock: clock, net: net, nameWithCode: withCode);
+    final p2 = Side('Phone', clock: clock, net: net, nameWithCode: withCode);
+    await linkBoth(p1, p2);
+    expect(p1.service.book.deviceName, 'Phone ${deviceCode(p1.service.book.deviceId)}');
+    expect(p1.service.book.devices.single.name, p2.service.book.deviceName);
+    expect(p1.service.book.devices.single.name, isNot(p1.service.book.deviceName));
+    p1.service.dispose();
+    p2.service.dispose();
+  });
+
+  test("a linked device that renames itself to this device's name is told apart by its code", () async {
+    String withCode(String name, String code) => '$name $code';
+    final p1 = Side('Phone', clock: clock, net: net, nameWithCode: withCode);
+    final p2 = Side('Tablet', clock: clock, net: net, nameWithCode: withCode);
+    await linkBoth(p1, p2);
+    await p2.service.renameThis(p1.service.book.deviceName);
+    await settle(p1, p2);
+    expect(p1.service.book.devices.single.name, '${p1.service.book.deviceName} ${deviceCode(p2.service.book.deviceId)}');
+    p1.service.dispose();
+    p2.service.dispose();
+  });
+
   test('nothing is passed on without a linked device', () async {
     final c = Side('Laptop', clock: clock, net: net);
     await c.service.load();

@@ -23,8 +23,8 @@ class DeviceStore {
   bool _unreadable = false;
 
   /// The stored book, or a fresh one named [defaultName] (a new device id) when there is none
-  /// or it does not read.
-  Future<DeviceBook> load({required String defaultName}) async {
+  /// or it does not read; [withCode] adds the new id's short code to the name.
+  Future<DeviceBook> load({required String defaultName, String Function(String name, String code)? withCode}) async {
     final String? raw;
     try {
       raw = await _store.read(key);
@@ -32,7 +32,7 @@ class DeviceStore {
       // A keyring that is locked or missing: no linked devices this run, nothing lost.
       logWarn('devices', 'linked devices not readable: ${e.runtimeType}');
       _unreadable = true;
-      return DeviceBook.fresh(defaultName);
+      return DeviceBook.fresh(defaultName, withCode: withCode);
     }
     _unreadable = false;
     if (raw != null) {
@@ -44,7 +44,7 @@ class DeviceStore {
       }
       logWarn('devices', 'stored linked devices did not read; starting fresh');
     }
-    return DeviceBook.fresh(defaultName);
+    return DeviceBook.fresh(defaultName, withCode: withCode);
   }
 
   Future<void> save(DeviceBook book) async {

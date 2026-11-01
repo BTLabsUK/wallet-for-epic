@@ -18,7 +18,7 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show epicboxKey, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../models.dart' show epicboxKey, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
@@ -1597,7 +1597,13 @@ class _MockDeviceHost implements DeviceHost {
   Future<String> signProof(List<int> message) async => fakeAddressSignature(_epicboxKey, message);
 
   @override
-  Future<bool> verifyProof(String key, List<int> message, String signature) async => signature == fakeAddressSignature(key, message);
+  Future<bool> verifyProof(List<int> message, String signature) async => signature == fakeAddressSignature(_epicboxKey, message);
+
+  @override
+  Stream<UnmatchedNotice> unmatchedNotices() => const Stream.empty();
+
+  @override
+  Future<bool> applyForwardedNotice(String sender, String notice) async => false;
 
   @override
   Future<List<WalletOutput>> outputs() => _outputs();

@@ -92,7 +92,8 @@ void main() {
     await show(tester, const DevicesSettingsBlock());
     expect(find.text('Linked devices'), findsOneWidget);
     expect(find.byKey(const ValueKey('dev-this')), findsOneWidget);
-    expect(find.text('Desktop'), findsOneWidget);
+    // This computer's default name carries its short code, so two computers are told apart.
+    expect(find.textContaining(RegExp(r'^Desktop [0-9A-F]{4}$')), findsOneWidget);
     expect(find.text('Restore this wallet on your other device, then link the two here.'), findsOneWidget);
     expect(find.byKey(devicesHeldKey), findsNothing, reason: 'no empty Held coins group');
     expect(tester.widget<EButton>(find.byKey(devicesLinkKey)).onPressed, isNotNull);
@@ -187,7 +188,7 @@ void main() {
     await tester.pump(linkDoneShown + const Duration(milliseconds: 100));
     await settle(tester);
     expect(shown.book.devices.single.name, 'Phone');
-    expect(phone.service.book.devices.single.name, 'Desktop');
+    expect(phone.service.book.devices.single.name, matches(r'^Desktop [0-9A-F]{4}$'));
     expect(find.byKey(ValueKey('dev-${phone.service.book.deviceId}')), findsOneWidget);
     // The book is kept: the next start lists the phone too.
     final again = DeviceStore(container.read(secretStoreProvider), chain: Chain.mainnet, walletId: container.read(deskProvider).account!.id);
@@ -228,7 +229,7 @@ void main() {
     await settle(tester);
     expect(desk.link?.phase, LinkPhase.done);
     expect(desk.book.devices.single.name, 'Laptop');
-    expect(phone.service.book.devices.single.name, 'Desktop');
+    expect(phone.service.book.devices.single.name, matches(r'^Desktop [0-9A-F]{4}$'));
     await end(tester);
   });
 
@@ -284,7 +285,7 @@ void main() {
     await tester.runAsync(() => phone.rounds(desk));
     await settle(tester);
     expect(desk.book.devices, isEmpty);
-    expect(phone.service.book.removedBy, 'Desktop');
+    expect(phone.service.book.removedBy, matches(r'^Desktop [0-9A-F]{4}$'));
     await end(tester);
   });
 

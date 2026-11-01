@@ -189,7 +189,7 @@ void main() {
         // B hand-builds its hello: the right address, as anyone could, but no valid proof.
         final forged = switch (proof) {
           'other' => fakeAddressSignature('esAnotherWallet', helloTranscript(b.service.book.deviceId, sas)),
-          'sas' => await b.session.signWithAddressKey(helloTranscript(b.service.book.deviceId, sas.reversed.toList())),
+          'sas' => await b.session.signDeviceLink(helloTranscript(b.service.book.deviceId, sas.reversed.toList())),
           _ => null,
         };
         await b.pairing.checkWords(id, PairingCheck.match);
@@ -215,13 +215,12 @@ void main() {
       });
     }
 
-    test("each device's hello carries a proof the other checks with its own wallet key", () async {
+    test("each device's hello carries a proof the other checks with its own device-link key", () async {
       await showAndScan(a, b);
       final sas = a.service.link!.sas;
-      final proof = await b.session.signWithAddressKey(helloTranscript(b.service.book.deviceId, sas));
-      final key = epicboxKey(a.session.address);
-      expect(await a.session.verifyAddressSignature(key: key, message: helloTranscript(b.service.book.deviceId, sas), signature: proof), isTrue);
-      expect(await a.session.verifyAddressSignature(key: key, message: helloTranscript(a.service.book.deviceId, sas), signature: proof), isFalse);
+      final proof = await b.session.signDeviceLink(helloTranscript(b.service.book.deviceId, sas));
+      expect(await a.session.verifyDeviceLink(transcript: helloTranscript(b.service.book.deviceId, sas), signature: proof), isTrue);
+      expect(await a.session.verifyDeviceLink(transcript: helloTranscript(a.service.book.deviceId, sas), signature: proof), isFalse);
       await settle(a, b);
       expect(a.service.link!.phase, LinkPhase.done);
       expect(b.service.link!.phase, LinkPhase.done);
@@ -245,7 +244,7 @@ void main() {
           'name': 'Phone',
           'walletAddress': 'esSameWalletKey',
           'servers': [_s1],
-          'proof': await b.session.signWithAddressKey(helloTranscript(b.service.book.deviceId, sas)),
+          'proof': await b.session.signDeviceLink(helloTranscript(b.service.book.deviceId, sas)),
         },
       );
       await b.pairing.postPayload(id: id, bytes: hello.encode());

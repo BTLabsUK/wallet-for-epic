@@ -29,7 +29,14 @@ class Clock {
 }
 
 class Side {
-  Side(this.name, {required this.clock, required FakePrivateNet net, String key = 'esSameWalletKey', bool Function()? online}) {
+  Side(
+    this.name, {
+    required this.clock,
+    required FakePrivateNet net,
+    String key = 'esSameWalletKey',
+    bool Function()? online,
+    String Function(String name, String code)? nameWithCode,
+  }) {
     session.address = '$key@epicbox.epiccash.com';
     session.pairing.privateNet = net;
     session.pairing.clock = clock.call;
@@ -49,6 +56,7 @@ class Side {
       host: SessionDeviceHost(session, online: online),
       store: DeviceStore(store, chain: Chain.floonet),
       defaultName: name,
+      nameWithCode: nameWithCode,
       clock: clock.call,
     );
   }

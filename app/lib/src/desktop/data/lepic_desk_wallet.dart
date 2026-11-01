@@ -5740,7 +5740,13 @@ class _DeskDeviceHost implements DeviceHost {
   Future<String> signProof(List<int> message) => _host.signProof(message);
 
   @override
-  Future<bool> verifyProof(String key, List<int> message, String signature) => _host.verifyProof(key, message, signature);
+  Future<bool> verifyProof(List<int> message, String signature) => _host.verifyProof(message, signature);
+
+  @override
+  Stream<core.UnmatchedNotice> unmatchedNotices() => _host.unmatchedNotices();
+
+  @override
+  Future<bool> applyForwardedNotice(String sender, String notice) => _host.applyForwardedNotice(sender, notice);
 
   @override
   Future<List<core.WalletOutput>> outputs() => _host.outputs();

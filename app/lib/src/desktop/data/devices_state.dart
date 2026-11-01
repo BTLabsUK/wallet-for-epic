@@ -60,6 +60,7 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
     host: host,
     store: DeviceStore(ref.watch(secretStoreProvider), chain: account.$2 == 'floonet' ? Chain.floonet : Chain.mainnet, walletId: account.$1),
     defaultName: deskStrings.devicesThisComputer,
+    nameWithCode: deskStrings.devicesNameWithCode,
     kind: DeviceKind.desktop,
     clock: ref.read(deskDeviceClockProvider),
   );

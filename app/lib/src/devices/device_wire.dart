@@ -32,7 +32,7 @@ const int deviceNameMaxLength = 48;
 
 enum NoticeType {
   /// Posted as soon as the sender's side of the link's pairing is made: its device id, name,
-  /// wallet and servers, with a proof signed by the wallet's address key.
+  /// wallet and servers, with a proof signed by the wallet's device-link key.
   hello,
 
   /// The sender started a payment: hold its inputs here.
@@ -74,7 +74,9 @@ enum NoticeType {
 
   /// A notice sent to the wallet's address that reached the sender only (the relay hands a
   /// message to one device): a payer's `posted` or `cancelled` report, a contact's request to
-  /// pay. The other device applies what it can and shows the rest.
+  /// pay, a request to pair (`pair`) and that it was answered there (`paired`), or a notice for
+  /// a slate the sender holds nothing of (`notice`, passed on as it came). The other device
+  /// applies what it can and shows the rest.
   fwd,
 
   // Reserved for a later version: read for their order, not acted on.
@@ -170,12 +172,34 @@ bool _commit(Object? v) => v is String && RegExp(r'^[0-9a-f]{66}$').hasMatch(v);
 bool _servers(Object? v) => v is List && v.isNotEmpty && v.length <= maxLinkServers && v.every((s) => _str(s, max: 255));
 bool _sas(Object? v) => v is List && v.length == 4 && v.every((s) => _str(s, max: 64));
 
-/// A hello's proof: an address key signature, DER in hex (8 to 72 bytes).
-bool _proof(Object? v) => v is String && RegExp(r'^[0-9a-f]{16,144}$').hasMatch(v);
+/// A hello's proof: the device-link key's signature in hex (64 bytes).
+bool _proof(Object? v) => v is String && RegExp(r'^[0-9a-f]{128}$').hasMatch(v);
 
 /// What a `fwd` notice carries: the payer of a payment the sender answered reports it posted
-/// (`kernel` set) or cancelled; a contact's request to pay arrived (`invoice`).
-const forwardKinds = {'posted', 'cancelled', 'invoice'};
+/// (`kernel` set) or cancelled; a contact's request to pay arrived (`invoice`); a request to
+/// pair arrived (`pair`) or was answered on the sender (`paired`); a notice for a slate the
+/// sender holds nothing of (`notice`).
+const forwardKinds = {'posted', 'cancelled', 'invoice', 'pair', 'paired', 'notice'};
+
+/// The longest notice LEPIC reads, as a `notice` forward carries it.
+const int forwardNoticeMaxLength = 8192;
+
+bool _requestId(Object? v) => v is String && RegExp(r'^[0-9a-f]{16}$').hasMatch(v);
+
+bool _fwd(Map<String, Object?> b) => switch (b['kind']) {
+  'posted' || 'cancelled' || 'invoice' => _str(b['slateId'], max: 64) && _optStr(b['kernel'], max: 66),
+  'pair' =>
+    _requestId(b['requestId']) &&
+        _str(b['link'], max: 4096) &&
+        _str(b['from'], max: 256) &&
+        _str(b['name'], max: 256, empty: true) &&
+        _optStr(b['party'], max: 16) &&
+        b['received'] is int &&
+        b['expires'] is int,
+  'paired' => _requestId(b['requestId']),
+  'notice' => _str(b['sender'], max: 256) && _str(b['notice'], max: forwardNoticeMaxLength),
+  _ => false,
+};
 
 /// The payment states a `status` notice names.
 const noticeStatusStates = {'finalized', 'posted', 'cancelled', 'expired', 'failed', 'released'};
@@ -220,7 +244,7 @@ bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
   NoticeType.pair2ok || NoticeType.pair2done => _str(b['server'], max: 255) && _sas(b['sas']),
   NoticeType.unlink => true,
   NoticeType.full => _str(b['linked'], max: deviceNameMaxLength),
-  NoticeType.fwd => forwardKinds.contains(b['kind']) && _str(b['slateId'], max: 64) && _optStr(b['kernel'], max: 66),
+  NoticeType.fwd => forwardKinds.contains(b['kind']) && _fwd(b),
   NoticeType.recv => _str(b['slateId'], max: 64) && b['outputs'] is List && (b['outputs'] as List).length <= 16 && (b['outputs'] as List).every(_commit),
   NoticeType.snapshotRequest || NoticeType.snapshot => true,
 };

@@ -60,11 +60,17 @@ abstract interface class DeviceHost {
   /// chain, or the payer, took from it.
   Future<void> cancelTransaction(int txId);
 
-  /// [message] signed with this wallet's address key ([WalletSession.signWithAddressKey]).
+  /// [message] signed with this wallet's device-link key ([WalletSession.signDeviceLink]).
   Future<String> signProof(List<int> message);
 
-  /// Whether [signature] is [signProof] of [message] by the wallet with payments key [key].
-  Future<bool> verifyProof(String key, List<int> message, String signature);
+  /// Whether [signature] is [signProof] of [message] by a wallet of this wallet's phrase.
+  Future<bool> verifyProof(List<int> message, String signature);
+
+  /// Notices for a slate this device holds nothing of ([WalletSession.unmatchedNotices]).
+  Stream<UnmatchedNotice> unmatchedNotices();
+
+  /// Applies a notice the linked device passed on ([WalletSession.applyForwardedNotice]).
+  Future<bool> applyForwardedNotice(String sender, String notice);
 
   Future<List<WalletOutput>> outputs();
 
@@ -100,11 +106,18 @@ class SessionDeviceHost implements DeviceHost {
   Future<void> cancelTransaction(int txId) => session.cancelTransaction(txId: txId);
 
   @override
-  Future<String> signProof(List<int> message) => session.signWithAddressKey(message);
+  Future<String> signProof(List<int> message) => session.signDeviceLink(message);
 
   @override
-  Future<bool> verifyProof(String key, List<int> message, String signature) =>
-      session.verifyAddressSignature(key: key, message: message, signature: signature);
+  Future<bool> verifyProof(List<int> message, String signature) =>
+      session.verifyDeviceLink(transcript: message, signature: signature);
+
+  @override
+  Stream<UnmatchedNotice> unmatchedNotices() => session.unmatchedNotices();
+
+  @override
+  Future<bool> applyForwardedNotice(String sender, String notice) =>
+      session.applyForwardedNotice(sender: sender, notice: notice);
 
   @override
   Future<List<WalletOutput>> outputs() => session.outputs();
@@ -124,9 +137,10 @@ class SessionDeviceHost implements DeviceHost {
 /// link's private pairing, which both devices see alike and LEPIC derives from both sides' keys,
 /// so a proof holds for this pairing and sender only. JSON keeps the parts apart.
 ///
-/// The signature is the wallet's plain address-key signature of these bytes
-/// ([DeviceHost.signProof], one call site: [DeviceService._sendHello]). Once the core signs
-/// under a domain (`epic-device-link/1`), that call passes the domain and this tag goes.
+/// The signature is the wallet's device-link key's, which LEPIC makes under its own tag
+/// (`lepic/device-link/v1`) and every install of the phrase shares ([DeviceHost.signProof]:
+/// [DeviceService._sendHello]; the link code's fingerprint signs another message). This tag
+/// keeps a hello apart from the fingerprint's message under that one key.
 List<int> helloTranscript(String deviceId, List<SasWord> sas) =>
     utf8.encode(jsonEncode(['epiccash/device-link/hello/v1', deviceId, for (final w in sas) w.name]));
 
@@ -317,14 +331,25 @@ class ForwardedNotice {
 }
 
 class DeviceService {
-  DeviceService({required this.host, required this.store, required this.defaultName, this.kind = DeviceKind.phone, DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  DeviceService({
+    required this.host,
+    required this.store,
+    required this.defaultName,
+    this.nameWithCode,
+    this.kind = DeviceKind.phone,
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now;
 
   final DeviceHost host;
   final DeviceStore store;
 
-  /// This device's name until the user renames it ("Phone", "Desktop").
+  /// This device's kind of name until the user renames it ("Phone", "Desktop").
   final String defaultName;
+
+  /// A name with a device's short code ([deviceCode]), in the app's language: a new book's
+  /// own name, and a linked device's that would read the same as this one's. Null keeps names
+  /// as they are (tests).
+  final String Function(String name, String code)? nameWithCode;
 
   /// What this device is, told in its hello for the other device's icon.
   final DeviceKind kind;
@@ -339,6 +364,14 @@ class DeviceService {
   Timer? _timer;
   bool _foreground = false;
   bool _disposed = false;
+
+  /// What reaches this device only and goes on to the linked device: requests to pair and
+  /// their answers here ([_onPairingEvent]), notices for slates held elsewhere.
+  StreamSubscription<PairingEvent>? _pairingEvents;
+  StreamSubscription<UnmatchedNotice>? _unmatched;
+
+  /// Requests the linked device passed on: never passed back.
+  final Set<String> _requestsFromLinked = {};
 
   /// The desktop's interval with a device linked ([setPace]); null: [deviceSyncEvery].
   Duration? _pace;
@@ -363,7 +396,8 @@ class DeviceService {
   bool get supported => _api.privateSupported;
 
   Future<void> load() async {
-    _book ??= await store.load(defaultName: defaultName);
+    _book ??= await store.load(defaultName: defaultName, withCode: nameWithCode);
+    _passOn();
     host.heldOutputs = book.heldCommitments;
     _changed();
     // The apps set the foreground before the book is read: with devices linked already (a
@@ -386,6 +420,8 @@ class DeviceService {
     }
     _disposed = true;
     _timer?.cancel();
+    _pairingEvents?.cancel();
+    _unmatched?.cancel();
     _changes.close();
     _forwarded.close();
   }
@@ -658,7 +694,7 @@ class DeviceService {
 
   // A hello again from a linked device changes nothing but its name.
   Future<void> _onHello(LinkedDevice from, Notice n) async {
-    final name = _shownName(n.body['name'], from.name);
+    final name = _apart(_shownName(n.body['name'], from.name), from.deviceId);
     if (name != from.name) _book = book.withDevice(from.copyWith(name: name));
   }
 
@@ -677,6 +713,27 @@ class DeviceService {
   /// used the other device's, or cancelled), so it is dropped here, quietly. Every kind goes to
   /// the app ([forwarded]) to show or to read its lists again.
   Future<void> _onForward(LinkedDevice from, Notice n) async {
+    switch (n.body['kind']) {
+      case 'pair':
+        return _onForwardedRequest(n.body);
+      case 'paired':
+        final id = n.body['requestId'] as String;
+        _requestsFromLinked.remove(id);
+        try {
+          await _api.requestHandledOn(id, from.name);
+        } on Object catch (e) {
+          logInfo('devices', 'a request answered on the linked device was not known here: ${_kind(e)}');
+        }
+        return;
+      case 'notice':
+        try {
+          final taken = await host.applyForwardedNotice(n.body['sender'] as String, n.body['notice'] as String);
+          logInfo('devices', taken ? 'a notice the linked device passed on applied' : 'a notice the linked device passed on matched nothing here');
+        } on Object catch (e) {
+          logWarn('devices', 'a notice the linked device passed on was refused: ${_kind(e)}');
+        }
+        return;
+    }
     final kind = ForwardKind.values.asNameMap()[n.body['kind']]!;
     final slateId = n.body['slateId'] as String;
     if (kind != ForwardKind.invoice) await _releaseOwnAnswer(slateId);
@@ -705,12 +762,20 @@ class DeviceService {
   }
 
   Future<void> _onRename(LinkedDevice from, Notice n) async {
-    _book = book.withDevice(from.copyWith(name: _shownName(n.body['name'], from.name)));
+    _book = book.withDevice(from.copyWith(name: _apart(_shownName(n.body['name'], from.name), from.deviceId)));
   }
 
   /// A device's name as the user reads it: plain text, no direction marks or invisible
   /// characters ([cleanUntrustedText]); [fallback] when nothing is left.
   static String _shownName(Object? name, String fallback) => cleanUntrustedText(name as String) ?? fallback;
+
+  /// [name] of the device [deviceId], told apart from this device's own: the same name gets
+  /// the other device's short code, so "Received on …" names one device only.
+  String _apart(String name, String deviceId) {
+    final withCode = nameWithCode;
+    if (withCode == null || name.trim().toLowerCase() != book.deviceName.trim().toLowerCase()) return name;
+    return withCode(name, deviceCode(deviceId));
+  }
 
   // A linked device is the same wallet's, but what its notices hold is bounded: no more than
   // [maxOpenHoldsPerDevice] payments at once, never coins the user released from it by hand, and
@@ -953,6 +1018,80 @@ class DeviceService {
     if (book.devices.isEmpty) return;
     try {
       await _broadcast(NoticeType.fwd, {'kind': kind.name, 'slateId': slateId, 'kernel': ?kernel});
+    } on Object catch (e) {
+      logWarn('devices', 'passing a notice on failed: ${_kind(e)}');
+    }
+  }
+
+  /// Passes on what reaches this device only: requests to pair (and that one was answered
+  /// here, so the other device hides its copy: the first Pair wins) and notices for slates
+  /// this device holds nothing of. Subscribed once, when the book is read.
+  void _passOn() {
+    if (_disposed) return;
+    try {
+      _pairingEvents ??= _api.events().listen((e) => unawaited(_onPairingEvent(e)), onError: (Object _) {});
+    } on Object catch (e) {
+      logInfo('devices', 'no pairing events to pass on: ${_kind(e)}');
+    }
+    try {
+      _unmatched ??= host.unmatchedNotices().listen(
+        (n) => unawaited(_broadcastForward({'kind': 'notice', 'sender': n.sender, 'notice': n.notice})),
+        onError: (Object _) {},
+      );
+    } on Object catch (e) {
+      logInfo('devices', 'no notices to pass on: ${_kind(e)}');
+    }
+  }
+
+  Future<void> _onPairingEvent(PairingEvent e) async {
+    final id = e.requestId;
+    if (id == null || book.devices.isEmpty) return;
+    if (e.kind == PairingEventKind.requestAnswered) {
+      _requestsFromLinked.remove(id);
+      return _broadcastForward({'kind': 'paired', 'requestId': id});
+    }
+    if (e.kind != PairingEventKind.requested || _requestsFromLinked.contains(id)) return;
+    final PairRequest? request;
+    try {
+      request = (await _api.requests()).where((r) => r.id == id).firstOrNull;
+    } on Object catch (e) {
+      return logWarn('devices', 'a request to pair was not read: ${_kind(e)}');
+    }
+    if (request == null) return;
+    await _broadcastForward({
+      'kind': 'pair',
+      'requestId': request.id,
+      'link': request.inviteLink,
+      'from': request.fromAddress,
+      'name': request.claimedName,
+      'party': request.kind.name,
+      'received': request.receivedAt.millisecondsSinceEpoch,
+      'expires': request.expiresAt.millisecondsSinceEpoch,
+    });
+  }
+
+  Future<void> _onForwardedRequest(Map<String, Object?> b) async {
+    final request = PairRequest(
+      id: b['requestId'] as String,
+      fromAddress: b['from'] as String,
+      claimedName: cleanUntrustedText(b['name'] as String) ?? '',
+      kind: PairingParty.values.asNameMap()[b['party']] ?? PairingParty.person,
+      receivedAt: DateTime.fromMillisecondsSinceEpoch(b['received'] as int),
+      expiresAt: DateTime.fromMillisecondsSinceEpoch(b['expires'] as int),
+      inviteLink: b['link'] as String,
+    );
+    _requestsFromLinked.add(request.id);
+    try {
+      await _api.takeForwardedRequest(request);
+    } on Object catch (e) {
+      logWarn('devices', 'a request the linked device passed on was not taken: ${_kind(e)}');
+    }
+  }
+
+  Future<void> _broadcastForward(Map<String, Object?> body) async {
+    if (_disposed || book.devices.isEmpty) return;
+    try {
+      await _broadcast(NoticeType.fwd, body);
     } on Object catch (e) {
       logWarn('devices', 'passing a notice on failed: ${_kind(e)}');
     }
@@ -1510,7 +1649,11 @@ class DeviceService {
       body: {'linked': book.linked?.name ?? ''},
     );
     try {
+      // LEPIC carries a payload only on a pairing whose words this side confirmed, as a hello
+      // does; out before the unpair, which drops what still waits in the outbox.
+      await _api.checkWords(id, PairingCheck.match);
       await _api.postPayload(id: id, bytes: n.encode());
+      await _api.collectPrivate(only: [id]);
     } on Object catch (e) {
       logWarn('devices', 'the refusal was not posted: ${_kind(e)}');
     }
@@ -1553,13 +1696,13 @@ class DeviceService {
     final id = flow?.pairingId;
     if (flow == null || hello == null || id == null || flow.phase == LinkPhase.done || flow.phase == LinkPhase.failed) return;
     // The address is public, so it only turns another wallet away early; the proof is the
-    // check: only a device holding this wallet's address key can sign this pairing's transcript.
+    // check: only a device holding this wallet's phrase can sign this pairing's transcript.
     final key = await host.walletKey();
     final proof = hello.body['proof'];
     if (hello.body['walletAddress'] != key ||
         proof is! String ||
         flow.sas.length != 4 ||
-        !await host.verifyProof(key, helloTranscript(hello.dev, flow.sas), proof)) {
+        !await host.verifyProof(helloTranscript(hello.dev, flow.sas), proof)) {
       logWarn('devices', 'link hello did not prove this wallet');
       await _unpair(id);
       return _setLink(flow.to(LinkPhase.failed, failure: LinkFailure.otherWallet));
@@ -1581,7 +1724,7 @@ class DeviceService {
     if (before != null) await _forget(theirId, keepHolds: true);
     final device = LinkedDevice(
       deviceId: theirId,
-      name: _shownName(hello.body['name'], before?.name ?? '?'),
+      name: _apart(_shownName(hello.body['name'], before?.name ?? '?'), theirId),
       kind: DeviceKind.values.asNameMap()[hello.body['kind']],
       pairings: {server: id},
       linkedAt: _clock(),

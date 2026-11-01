@@ -7,7 +7,7 @@
 /// The fingerprint ([deviceLinkFingerprint]) lets the scanning device refuse a code of another
 /// wallet at once, before it answers. It proves nothing: the hello's proof does, so a code
 /// without one (made before it existed) is answered and left to the proof. Only a device of the
-/// same wallet can compute it: it hashes the wallet's address-key signature of the invite, so
+/// same wallet can compute it: it hashes the wallet's device-link key signature of the invite, so
 /// someone who sees a code cannot test it against an address they know.
 library;
 
@@ -26,8 +26,8 @@ typedef DeviceLinkCode = ({String invite, String? fingerprint});
 String deviceLinkText(String inviteLink, {required String fingerprint}) =>
     '$deviceLinkPrefix${base64Url.encode(utf8.encode(inviteLink)).replaceAll('=', '')}/$fingerprint';
 
-/// What a wallet signs with its address key for the fingerprint of the device link of
-/// [inviteLink]: a tag and the private invite. ECDSA signing is deterministic, so every device
+/// What a wallet signs with its device-link key for the fingerprint of the device link of
+/// [inviteLink]: a tag and the private invite. Ed25519 signing is deterministic, so every device
 /// of the wallet gets the same signature.
 List<int> deviceLinkFingerprintMessage(String inviteLink) => utf8.encode('epiccash/device-link/fp/v2|$inviteLink');
 

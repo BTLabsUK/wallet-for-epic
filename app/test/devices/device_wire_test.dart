@@ -74,7 +74,7 @@ void main() {
     expect(noticeBodyValid(NoticeType.rename, {'name': 'x' * 49}), isFalse);
     expect(noticeBodyValid(NoticeType.servers, {'set': ['a', 'b', 'c'], 'version': 2}), isFalse);
     expect(
-      noticeBodyValid(NoticeType.hello, {'deviceId': _dev, 'name': 'Phone', 'walletAddress': 'es1', 'servers': ['epicbox.epiccash.com'], 'proof': 'ab' * 36, 'kind': 'phone'}),
+      noticeBodyValid(NoticeType.hello, {'deviceId': _dev, 'name': 'Phone', 'walletAddress': 'es1', 'servers': ['epicbox.epiccash.com'], 'proof': 'ab' * 64, 'kind': 'phone'}),
       isTrue,
     );
     expect(noticeBodyValid(NoticeType.pair2ok, {'server': 's', 'sas': ['a', 'b', 'c']}), isFalse);
@@ -85,9 +85,24 @@ void main() {
     expect(noticeBodyValid(NoticeType.fwd, {'kind': 'invoice', 'slateId': 's'}), isTrue);
     expect(noticeBodyValid(NoticeType.fwd, {'kind': 'pay-it', 'slateId': 's'}), isFalse);
     expect(noticeBodyValid(NoticeType.fwd, {'kind': 'posted'}), isFalse);
+    final pair = {
+      'kind': 'pair',
+      'requestId': '0123456789abcdef',
+      'link': 'epiccash://pair/1/x',
+      'from': 'esKey@relay',
+      'name': 'Anna',
+      'received': 1,
+      'expires': 2,
+    };
+    expect(noticeBodyValid(NoticeType.fwd, pair), isTrue);
+    expect(noticeBodyValid(NoticeType.fwd, {...pair, 'requestId': 'not-an-id'}), isFalse);
+    expect(noticeBodyValid(NoticeType.fwd, {...pair}..remove('link')), isFalse);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'paired', 'requestId': '0123456789abcdef'}), isTrue);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'notice', 'sender': 'esKey@relay', 'notice': '{}'}), isTrue);
+    expect(noticeBodyValid(NoticeType.fwd, {'kind': 'notice', 'sender': 'esKey@relay', 'notice': 'x' * (forwardNoticeMaxLength + 1)}), isFalse);
   });
 
-  test("a hello's proof is an address signature in hex, and never absent", () {
+  test("a hello's proof is a device-link signature in hex, and never absent", () {
     Map<String, Object?> hello(Object? proof) => {
       'deviceId': _dev,
       'name': 'Phone',
@@ -95,11 +110,12 @@ void main() {
       'servers': ['epicbox.epiccash.com'],
       'proof': proof,
     };
-    expect(noticeBodyValid(NoticeType.hello, hello('3044${'ab' * 68}')), isTrue);
+    expect(noticeBodyValid(NoticeType.hello, hello('ab' * 64)), isTrue);
     expect(noticeBodyValid(NoticeType.hello, hello(null)), isFalse);
     expect(noticeBodyValid(NoticeType.hello, hello('')), isFalse);
-    expect(noticeBodyValid(NoticeType.hello, hello('3044ZZ${'ab' * 8}')), isFalse);
-    expect(noticeBodyValid(NoticeType.hello, hello('ab' * 73)), isFalse);
+    expect(noticeBodyValid(NoticeType.hello, hello('ZZ${'ab' * 63}')), isFalse);
+    expect(noticeBodyValid(NoticeType.hello, hello('ab' * 63)), isFalse);
+    expect(noticeBodyValid(NoticeType.hello, hello('ab' * 65)), isFalse);
     expect(noticeBodyValid(NoticeType.hello, hello(42)), isFalse);
   });
 

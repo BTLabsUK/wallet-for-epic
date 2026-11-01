@@ -48,6 +48,7 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
     host: SessionDeviceHost(session, online: () => !NetGate.epicboxOff && NetGate.linkedDevices && !torOnlyWaiting),
     store: DeviceStore(ref.watch(secretStoreProvider), chain: config.chain, walletId: config.walletId),
     defaultName: phoneDeviceName(),
+    nameWithCode: _strings().devicesNameWithCode,
   );
   ref.onDispose(service.dispose);
   // Coins another device starts or stops holding change Home's balance: read it again.
