@@ -88,10 +88,11 @@ class EPage extends StatelessWidget {
             ],
           ),
         ),
+        // A breath between the title row and the content (its first row of tabs or tiles).
         Expanded(
           child: scroll
-              ? SingleChildScrollView(padding: EdgeInsets.fromLTRB(pad, 0, pad, pad), child: body)
-              : Padding(padding: EdgeInsets.fromLTRB(pad, 0, pad, pad), child: body),
+              ? SingleChildScrollView(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body)
+              : Padding(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body),
         ),
         ?footer,
       ],

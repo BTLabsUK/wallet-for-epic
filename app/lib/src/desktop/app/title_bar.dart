@@ -571,7 +571,8 @@ class _BarMenuState extends State<_BarMenu> {
 
 void _toggle(MenuController m) => m.isOpen ? m.close() : m.open();
 
-/// Mark, "Epic Cash", "DESKTOP"; in an open wallet it opens the app menu.
+/// Mark, then "Epic Cash" over "DESKTOP" as [BrandWordmark] sets them; in an open wallet it
+/// opens the app menu (hover and pressed fills say so). The build sits at the sidebar's foot.
 class _Brand extends ConsumerWidget {
   const _Brand({required this.menu, required this.compact, required this.dim});
 
@@ -582,71 +583,50 @@ class _Brand extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.dc;
-    final mark = AnimatedOpacity(
+    Widget mark(double size) => AnimatedOpacity(
       opacity: dim ? 0.7 : 1,
       duration: Dur.base,
-      child: EpicMark(size: 20.u, color: dim ? c.accentDeep : null),
+      child: EpicMark(size: size, color: dim ? c.accentDeep : null),
     );
-    final chevron = Icon(EIcons.chevronDown, size: 16.u, color: c.faint);
-    // Mark, then "Epic Cash DESKTOP" over the room the build label takes (it is its own
-    // button, laid over that room). Scaled down rather than cut in a narrow window.
-    Widget lockup({required bool withChevron}) => FittedBox(
+    // The platform word a little over half the brand's size, letter-spaced and set flush with
+    // the brand's end, as the wordmark has it. Scaled down rather than cut in a narrow window.
+    const second = 10.0;
+    final lockup = FittedBox(
       fit: BoxFit.scaleDown,
       alignment: AlignmentDirectional.centerStart,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          mark,
-          SizedBox(width: 9.u),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    BrandWordmark.brand,
-                    maxLines: 1,
-                    style: context.ts.h3.copyWith(fontSize: Fs.md, height: 1.15, letterSpacing: -0.2 * deskScale, color: dim ? c.dim : c.text),
-                  ),
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(start: 6.u, top: 2.u),
-                    child: Text(
-                      BrandVariantWord.desktop,
-                      maxLines: 1,
-                      style: TextStyle(fontSize: 9, height: 1, fontWeight: FontWeight.w500, letterSpacing: 9 * 0.14 * deskScale, color: c.faint),
-                    ),
-                  ),
-                  if (withChevron) Padding(padding: EdgeInsetsDirectional.only(start: 2.u), child: chevron),
-                ],
-              ),
-              SizedBox(height: 2.u),
-              // The build label's room; the label itself is laid over it.
-              _BuildLabel(dim: dim, ghost: true),
-            ],
+          mark(26.u),
+          SizedBox(width: Sp.x3),
+          IntrinsicWidth(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  BrandWordmark.brand,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: context.ts.h3.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: Fs.lg * -0.02 * deskScale, color: dim ? c.dim : c.text),
+                ),
+                SizedBox(height: 2.u),
+                Text(
+                  BrandVariantWord.desktop,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: context.ts.h3.copyWith(fontSize: second, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: second * 0.14 * deskScale, color: c.faint),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
-    final Widget brand;
-    if (!menu) {
-      brand = Semantics(label: appName, excludeSemantics: true, child: lockup(withChevron: false));
-    } else if (compact) {
-      // The rail: the mark alone, the build in its tooltip; Copy build info is in the menu.
-      brand = _appMenu(context, ref, Row(mainAxisSize: MainAxisSize.min, children: [mark, chevron]), tooltip: '$appName ${deskBuildLabel()}');
-      return brand;
-    } else {
-      brand = _appMenu(context, ref, lockup(withChevron: true));
-    }
-    return Stack(
-      alignment: AlignmentDirectional.centerStart,
-      children: [
-        brand,
-        PositionedDirectional(start: 29.u - Sp.x1, bottom: 0, top: 0, child: Align(alignment: AlignmentDirectional.bottomStart, child: Padding(padding: EdgeInsets.only(bottom: 3.u), child: _BuildLabel(dim: dim)))),
-      ],
-    );
+    if (!menu) return Semantics(label: appName, excludeSemantics: true, child: Padding(padding: EdgeInsetsDirectional.only(start: Sp.x3), child: lockup));
+    // The rail: the mark alone, the build in its tooltip; Copy build info is in the menu.
+    if (compact) return _appMenu(context, ref, Center(widthFactor: 1, child: mark(22.u)), tooltip: '$appName ${deskBuildLabel()}');
+    return _appMenu(context, ref, lockup);
   }
 
   Widget _appMenu(BuildContext context, WidgetRef ref, Widget child, {String? tooltip}) {
@@ -673,7 +653,8 @@ class _Brand extends ConsumerWidget {
         tooltip: tooltip,
         open: open,
         height: 36,
-        padding: EdgeInsetsDirectional.only(start: compact ? 4.u : 0, end: 4.u),
+        // The mark lines up with the sidebar's icons below it.
+        padding: compact ? EdgeInsets.symmetric(horizontal: Sp.x2) : EdgeInsetsDirectional.only(start: Sp.x3, end: Sp.x4),
         onPressed: () => _toggle(m),
         child: child,
       ),
@@ -720,19 +701,16 @@ Future<void> copyBuildInfo() async {
   if (shown != null && shown.mounted) showEToast(shown, shown.l10n.deskBarBuildCopied, text: info, tone: ETone.ok);
 }
 
-/// The build under the lockup, small, mono, faint; a click copies the build info. [ghost] only
-/// takes its room (inside the brand button, under the real one).
-class _BuildLabel extends StatefulWidget {
-  const _BuildLabel({required this.dim, this.ghost = false});
-
-  final bool dim;
-  final bool ghost;
+/// The build at the sidebar's foot, under Help and Report a problem: caption size, mono,
+/// faint; a click copies the build info.
+class DeskBuildLabel extends StatefulWidget {
+  const DeskBuildLabel({super.key});
 
   @override
-  State<_BuildLabel> createState() => _BuildLabelState();
+  State<DeskBuildLabel> createState() => _DeskBuildLabelState();
 }
 
-class _BuildLabelState extends State<_BuildLabel> {
+class _DeskBuildLabelState extends State<DeskBuildLabel> {
   bool _hover = false;
   bool _copied = false;
   Timer? _flash;
@@ -760,7 +738,7 @@ class _BuildLabelState extends State<_BuildLabel> {
     final l = context.l10n;
     final parts = deskBuildLabel().split(' · ');
     final color = _copied ? c.ok : (_hover ? c.dim : c.faint);
-    final style = ts.mono(size: 10, color: color).copyWith(height: 1.2, letterSpacing: 10 * 0.06 * deskScale, fontFeatures: const [FontFeature.tabularFigures(), FontFeature.slashedZero()]);
+    final style = ts.mono(size: Fs.xs, color: color).copyWith(height: 1.2, fontFeatures: const [FontFeature.tabularFigures(), FontFeature.slashedZero()]);
     final text = Text.rich(
       TextSpan(
         children: [
@@ -776,13 +754,12 @@ class _BuildLabelState extends State<_BuildLabel> {
     );
     final chip = AnimatedContainer(
       duration: Dur.fast,
-      height: 16.u,
+      height: 20.u,
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.symmetric(horizontal: Sp.x1),
-      decoration: BoxDecoration(color: _hover && !widget.ghost ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
+      decoration: BoxDecoration(color: _hover ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
       child: text,
     );
-    if (widget.ghost) return ExcludeSemantics(child: Opacity(opacity: 0, child: Transform.translate(offset: Offset(-Sp.x1, 0), child: chip)));
     final tip = appBuildId.isEmpty
         ? l.deskBarBuildTipDev(deskAppVersion)
         : appBuildTag.isEmpty
