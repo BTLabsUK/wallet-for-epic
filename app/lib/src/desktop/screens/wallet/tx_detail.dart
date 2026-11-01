@@ -221,10 +221,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         title: l.mailboxResendTitle,
         description: l.mailboxResendBody(name),
         icon: EIcons.send,
-        width: 480.u,
         actions: [
-          EButton(label: l.mailboxKeepWaiting, size: EBtnSize.sm, onPressed: () => Navigator.of(ctx).pop(false)),
-          EButton.primary(key: deskMailboxResendConfirmKey, label: l.mailboxResendAction, size: EBtnSize.sm, onPressed: () => Navigator.of(ctx).pop(true)),
+          EButton(label: l.mailboxKeepWaiting, onPressed: () => Navigator.of(ctx).pop(false)),
+          EButton.primary(key: deskMailboxResendConfirmKey, label: l.mailboxResendAction, onPressed: () => Navigator.of(ctx).pop(true)),
         ],
       ),
     );
@@ -444,6 +443,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 children: [
                   FitMoney(
                     t.incoming ? t.amount : -t.amount,
+                    // The details are where an amount is inspected: every decimal.
+                    surface: AmountSurface.exact,
                     sign: !txAsked(t),
                     sizes: const [Fs.h2, Fs.h3, Fs.lg, Fs.md],
                     weight: FontWeight.w500,
@@ -563,7 +564,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         if (paidTo != null && t.isInvoice && t.state != TxState.cancelled) ...[_Sub(l.deskTxSubProgress), for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1)],
         if (t.state != TxState.cancelled && !t.senderCancelled && !t.fromBackup && !t.isInvoice && !t.otherWallet) ...[
           _Sub(l.deskTxSubProgress),
-          if (plainSteps && payHasSteps(t) && paidTo == null && withdrawal == null)
+          // Every level reads an ordinary payment's five shared steps (A-03), in its words.
+          if (payHasSteps(t) && paidTo == null && withdrawal == null)
             DeskPaymentSteps(tx: t, vertical: true)
           else
             for (final (i, st) in steps.indexed) _TimelineStep(step: st, last: i == steps.length - 1),
@@ -653,11 +655,11 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   ? _withTag(t, ManualField.transport, Text(restoredMethodOf(l, t) ?? '–'))
                   : Text(methodLabel(l, mailboxName != null ? TxMethod.epicbox : t.method)),
             ),
-          (l.deskTxFactAmount, EMoney(t.amount)),
+          (l.deskTxFactAmount, EMoney(t.amount, surface: AmountSurface.exact)),
           // The other wallet paid the fee: this wallet only saw the coins leave.
           if (shallow) ...const <(String, Widget)>[]
           else if (!t.incoming && t.otherWallet) (l.deskTxFactFee, Text(l.txDetailsNotKnown))
-          else if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600))],
+          else if (!t.incoming) ...[(l.deskTxFactFee, EMoney(t.fee, surface: AmountSurface.exact)), (l.deskTxFactTotal, EMoney(total, weight: FontWeight.w600, surface: AmountSurface.exact))],
           // The same word as Send's field and its review; the line under it says which way it went.
           if (t.message != null)
             (
@@ -738,7 +740,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final (word, _) = levelStatusWithMailbox(l, t, ref.read(deskLevelFeaturesProvider).wording, t.contactName);
     return [
       titleOf(l, t),
-      '${t.incoming ? '+' : '−'}${formatEpicL(l, t.amount)} EPIC',
+      epicTextL(l, t.incoming ? t.amount : -t.amount, surface: AmountSurface.exact, signed: true),
       word,
       '${l.lvPayStarted}: ${dateTimeOf(l, t, at: t.startedAt)}',
       '${l.lvPayPaymentId}: ${t.slateId}',
@@ -820,7 +822,6 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final queued = waiting && paused;
     final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted && !t.posting);
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
-    final done = t.state == TxState.confirmed;
     return [
       _Step(
         l.txStepSentMailbox(name),
@@ -829,14 +830,9 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         sub: queued ? l.contactPausedEpicboxOff : (relay.isEmpty ? null : l.contactDeliveredVia(relay)),
       ),
       _Step(l.txStepAnswerFrom(name), queued ? _S.todo : (waiting ? _S.now : _S.done), '', sub: waiting && !queued ? l.txStepCollecting(name) : null),
-      _Step(l.deskTxStepPosted, posted ? _S.done : (!waiting && !inBlock ? _S.now : _S.todo), ''),
-      _Step(
-        l.deskTxStepConfirming,
-        done ? _S.done : (inBlock ? _S.now : _S.todo),
-        '',
-        sub: t.state == TxState.confirming ? l.deskTxStepProgress(t.confirmations, t.confirmationsNeeded) : null,
-      ),
-      _Step(l.deskTxStepSpendable, done ? _S.done : _S.todo, ''),
+      // Then the shared steps' words (payStepList, A-03).
+      _Step(l.txStepPosted, posted ? _S.done : (!waiting && !inBlock ? _S.now : _S.todo), ''),
+      ...payStepList(l, t, ref.read(deskLevelFeaturesProvider).timeline, name: name).skip(3),
     ];
   }
 
@@ -865,36 +861,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           _Step(l.deskTxStepSpendable, _S.done, ''),
       ];
     }
-    final f = PayFacts.of(t);
-    final signed = f.signed;
-    final waitingSender = f.waitingSender;
-    final posted = f.posted;
-    final inBlock = f.inBlock;
-    final done = f.done;
-    return [
-      _Step(t.incoming ? l.deskTxStepReceivedSlate : l.deskTxStepCreated, _S.done, hm(Duration.zero)),
-      _Step(
-        t.incoming ? l.deskTxStepSignedReturned : l.deskTxSignedByRecipient,
-        signed ? _S.done : _S.now,
-        // Only a time the record has: this wallet signs a payment the moment it takes it in;
-        // when the recipient signed, or the payment was posted, it does not keep (LNX-13).
-        signed && t.incoming ? hm(Duration.zero) : '',
-        sub: signed ? null : (t.method == TxMethod.file ? l.deskTxStepWaitingFile : l.deskTxStepWaitingRecipient),
-      ),
-      _Step(
-        l.deskTxStepPosted,
-        posted ? _S.done : (waitingSender || (t.notPosted && NetGate.killSwitch) ? _S.now : _S.todo),
-        '',
-        sub: waitingSender ? (t.senderPosted ? l.deskTxStatusSenderPosted : l.deskTxStatusWaitingSender) : (t.notPosted && NetGate.killSwitch ? l.txPostElsewhere : null),
-      ),
-      _Step(
-        l.deskTxStepConfirming,
-        done ? _S.done : (inBlock ? _S.now : _S.todo),
-        '',
-        sub: t.state == TxState.confirming ? l.deskTxStepProgress(t.confirmations, t.confirmationsNeeded) : null,
-      ),
-      _Step(l.deskTxStepSpendable, done ? _S.done : _S.todo, ''),
-    ];
+    // A payment another linked device made: the five shared steps, as every other payment.
+    return payStepList(l, t, ref.read(deskLevelFeaturesProvider).timeline, name: t.contactName, times: true);
   }
 }
 
@@ -1065,19 +1033,21 @@ Future<CancelChoice?> showCancelTxDialog(BuildContext context, Tx t) => showEDia
       title: t.incoming ? l.deskTxCancelIncomingTitle : l.deskTxCancelOutgoingTitle,
       icon: EIcons.cancel,
       tone: ETone.neutral,
+      // The amount as the details show it, exact, kept on one line with its unit.
       description: t.incoming
           ? l.txDetailsCancelReceiveBody
-          : twoWays
-          ? l.deskTxCancelNotPostedBody(formatEpicL(l, t.amount), whoOf(l, t))
-          : l.deskTxCancelOutgoingBody(formatEpicL(l, t.amount), whoOf(l, t)),
+          : keepNumbersWithUnits(
+              twoWays
+                  ? l.deskTxCancelNotPostedBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), whoOf(l, t))
+                  : l.deskTxCancelOutgoingBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), whoOf(l, t)),
+            ),
       body: twoWays ? DeskCancelChoices(anchor: anchor) : DeskCancelNote(anchor: anchor, inDialog: true),
       actions: [
-        EButton(label: l.deskTxCancelKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, CancelChoice.keep)),
-        if (twoWays) EButton(label: l.cancelStopWaiting, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, CancelChoice.stopWaiting)),
+        EButton(label: l.deskTxCancelKeep, onPressed: () => Navigator.pop(context, CancelChoice.keep)),
+        if (twoWays) EButton(label: l.cancelStopWaiting, onPressed: () => Navigator.pop(context, CancelChoice.stopWaiting)),
         EButton(
           label: twoWays ? l.cancelForSure : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
           kind: EBtnKind.danger,
-          size: EBtnSize.sm,
           onPressed: () => Navigator.pop(context, CancelChoice.cancelForSure),
         ),
       ],
