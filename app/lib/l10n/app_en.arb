@@ -3904,6 +3904,10 @@
   "@settingsPinCurrentLabel": {
     "description": "Label of the PIN field."
   },
+  "settingsPinNewLabel": "New PIN",
+  "@settingsPinNewLabel": {
+    "description": "Label of the field for the new PIN on Change PIN (the step after the current PIN)."
+  },
   "settingsPinChooseNew": "{digits, plural, other{Choose a new {digits}-digit PIN}}",
   "@settingsPinChooseNew": {
     "description": "Heading above the field for the new PIN.",
@@ -25300,5 +25304,14 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskKitPasswordRule": "{count, plural, one{{count} character or more} other{{count} characters or more}}",
+  "@deskKitPasswordRule": {
+    "description": "Small print under a new-password field before anything is typed: the least length. Replaced by the character count and the time to crack while typing.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

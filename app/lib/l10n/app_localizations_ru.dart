@@ -3161,6 +3161,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsPinCurrentLabel => 'Текущий PIN-код';
 
   @override
+  String get settingsPinNewLabel => 'Новый PIN-код';
+
+  @override
   String settingsPinChooseNew(int digits) {
     String _temp0 = intl.Intl.pluralLogic(
       digits,
@@ -19319,4 +19322,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String deskKitPasswordRule(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count символа или больше',
+      many: '$count символов или больше',
+      few: '$count символа или больше',
+      one: '$count символ или больше',
+    );
+    return '$_temp0';
+  }
 }

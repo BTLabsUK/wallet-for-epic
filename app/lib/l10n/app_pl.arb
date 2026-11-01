@@ -810,6 +810,7 @@
   "settingsPinTitle": "Zmień PIN",
   "settingsPinEnterCurrent": "Wpisz obecny PIN",
   "settingsPinCurrentLabel": "Obecny PIN",
+  "settingsPinNewLabel": "Nowy PIN",
   "settingsPinChooseNew": "{digits, plural, few{Wybierz nowy {digits}-cyfrowy PIN} many{Wybierz nowy {digits}-cyfrowy PIN} other{Wybierz nowy {digits}-cyfrowy PIN}}",
   "settingsPinChanged": "Zmieniono PIN",
   "settingsPinChangedBiometricsOff": "Zmieniono PIN. Odblokowanie biometryczne jest wyłączone; włącz je ponownie poniżej.",
@@ -4864,5 +4865,6 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "deskKitPasswordRule": "{count, plural, one{{count} znak lub więcej} few{{count} znaki lub więcej} many{{count} znaków lub więcej} other{{count} znaku lub więcej}}"
 }

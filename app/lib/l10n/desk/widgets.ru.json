@@ -110,6 +110,7 @@
   "deskKitChipNotOverTor": "Без Tor",
   "deskKitPasswordNote": "Оценка сделана на этом устройстве по длине и по распространённым словам, именам и шаблонам — для атакующего с быстрым оборудованием, который перебирает 100 000 вариантов в секунду против файла этого кошелька. Это ориентир, а не гарантия.",
   "deskKitPasswordNoteLabel": "Как оценивается время",
+  "deskKitPasswordRule": "{count, plural, one{{count} символ или больше} few{{count} символа или больше} many{{count} символов или больше} other{{count} символа или больше}}",
   "deskKitInfoLabel": "Подробнее",
   "deskKitNotCopied": "Не скопировано",
   "deskKitCopied": "Скопировано",

@@ -4981,6 +4981,12 @@ abstract class AppLocalizations {
   /// **'Current PIN'**
   String get settingsPinCurrentLabel;
 
+  /// Label of the field for the new PIN on Change PIN (the step after the current PIN).
+  ///
+  /// In en, this message translates to:
+  /// **'New PIN'**
+  String get settingsPinNewLabel;
+
   /// Heading above the field for the new PIN.
   ///
   /// In en, this message translates to:
@@ -29191,6 +29197,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Small print under a new-password field before anything is typed: the least length. Replaced by the character count and the time to crack while typing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} character or more} other{{count} characters or more}}'**
+  String deskKitPasswordRule(int count);
 }
 
 class _AppLocalizationsDelegate

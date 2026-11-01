@@ -246,6 +246,25 @@ OutputLabel outputWord(WalletOutput output) {
   }
 }
 
+/// The part of the balance an output is in, on both platforms' Outputs pages: the one tile
+/// that counts it and the one filter that lists it (besides All), so a tile and its filter
+/// never disagree. Confirming takes the outputs awaiting finalization too; spent outputs and
+/// an unpaid invoice's are in no part. All and Total count every output with a part, so All =
+/// Total = the sum of the tiles (UD-008).
+enum OutputPart { spendable, confirming, immature, locked }
+
+/// [output]'s [OutputPart] (the phone's outputs), or null when it is in none.
+OutputPart? walletOutputPart(WalletOutput output) {
+  if (output.category == OutputCategory.unpaidInvoice) return null;
+  return switch (outputWord(output)) {
+    OutputLabel.spendable => OutputPart.spendable,
+    OutputLabel.confirming || OutputLabel.finalizing => OutputPart.confirming,
+    OutputLabel.immature || OutputLabel.mining => OutputPart.immature,
+    OutputLabel.locked => OutputPart.locked,
+    OutputLabel.spent => null,
+  };
+}
+
 /// The phone's send of [amount] as Outputs set it: [strategy], and with [splitChange]
 /// SmartOutputs over the wallet's spendable outputs ([planSend], never for All). The estimate
 /// the send goes out with and the options it must be sent with.

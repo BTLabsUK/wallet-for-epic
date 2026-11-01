@@ -243,8 +243,8 @@ void main() {
 
   testWidgets('android-03: each tile counts the outputs its value adds up', (tester) async {
     // 2 spendable; 0.5 confirming; 0.6 and 0.4 awaiting finalization; a 0.01 unpaid invoice.
-    // LEPIC's figures: awaiting finalization is in Confirming but not in Total, and an unpaid
-    // invoice is in no figure.
+    // Awaiting finalization is in Confirming, and an unpaid invoice in no tile; All lists and
+    // Total counts every output with a tile, so All = Total = the sum of the tiles (UD-008).
     final h = _Harness(
       outputs: [
         _out(_commit('a'), 2),
@@ -269,9 +269,14 @@ void main() {
     // Confirming: 0.5 + 0.6 + 0.4, three outputs; the unpaid invoice is in no tile.
     expect(find.text('1.5000 EPIC'), findsOneWidget);
     expect(find.text('3 outputs'), findsOneWidget);
-    // Total: 2 + 0.5, two outputs; nothing awaiting finalization.
-    expect(find.text('2.5000 EPIC'), findsOneWidget);
-    expect(find.text('2 outputs'), findsOneWidget);
+    // Total: the sum of the tiles, 2 + 1.5 + 0; its count, the four outputs with a tile, as All's.
+    expect(find.text('3.5000 EPIC'), findsOneWidget);
+    expect(find.text('2.5000 EPIC'), findsNothing, reason: "not the wallet's own total here");
+    expect(find.text('4 outputs'), findsOneWidget);
+    expect(find.text(_l.outputsFilterAll(4)), findsOneWidget);
+    // Spendable 1 + Confirming 3 + Locked 0 = 4.
+    expect(find.text('1 output'), findsOneWidget);
+    expect(find.text('0 outputs'), findsOneWidget);
   });
 
   testWidgets('the table sits under the tiles, Advanced below it', (

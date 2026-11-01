@@ -810,6 +810,7 @@
   "settingsPinTitle": "PIN ändern",
   "settingsPinEnterCurrent": "Geben Sie Ihre aktuelle PIN ein",
   "settingsPinCurrentLabel": "Aktuelle PIN",
+  "settingsPinNewLabel": "Neue PIN",
   "settingsPinChooseNew": "{digits, plural, other{Wählen Sie eine neue {digits}-stellige PIN}}",
   "settingsPinChanged": "PIN geändert",
   "settingsPinChangedBiometricsOff": "PIN geändert. Die biometrische Entsperrung ist aus; schalten Sie sie unten wieder ein.",
@@ -4864,5 +4865,6 @@
   "deskNodeSwitchConnecting": "Verbindung zu {host}…",
   "deskNodeSwitchStarting": "Lokaler Node startet…",
   "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",
-  "deskNodeSwitchStoppingWord": "Stoppt"
+  "deskNodeSwitchStoppingWord": "Stoppt",
+  "deskKitPasswordRule": "{count, plural, one{{count} Zeichen oder mehr} other{{count} Zeichen oder mehr}}"
 }

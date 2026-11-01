@@ -544,8 +544,16 @@ class _OwnerAccessDialogState extends ConsumerState<_OwnerAccessDialog> {
             }),
             onSubmitted: (_) => _busy ? null : _ok(),
           ),
-          if (_file != null) ...[SizedBox(height: Sp.x1), Text(l.deskOwnDlgFileRead(_file!), style: ts.caption.copyWith(color: c.dim))],
-          if (_error != null) ...[SizedBox(height: Sp.x1), Text(_error!, style: ts.caption.copyWith(color: c.risk))],
+          SizedBox(height: Sp.x1),
+          // One held line: what is wrong, or what the file gave; empty it keeps its room.
+          ReservedSlot.lines(
+            style: ts.caption,
+            child: _error != null
+                ? Text(_error!, style: ts.caption.copyWith(color: c.risk))
+                : _file != null
+                ? Text(l.deskOwnDlgFileRead(_file!), style: ts.caption.copyWith(color: c.dim))
+                : null,
+          ),
           if (thisComputer) ...[
             SizedBox(height: Sp.x3),
             Align(alignment: AlignmentDirectional.centerStart, child: EButton(label: l.deskOwnDlgPick, icon: EIcons.folder, size: EBtnSize.sm, onPressed: _busy ? null : _pick)),

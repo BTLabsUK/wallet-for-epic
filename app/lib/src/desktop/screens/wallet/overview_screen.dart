@@ -495,7 +495,8 @@ class _BalancePanel extends ConsumerWidget {
               // The phone's order (GP-007); Available to spend is the big figure above.
               final items = <(String, int?, Widget?)>[
                 (casual ? l.deskLvPayTileConfirming : l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, needed: deskMinConfirmations(ref), size: Ctl.iconSm)),
-                if (b == null || b.immature > 0) (casual ? l.deskLvPayTileMining : l.deskOvBreakImmature, b?.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
+                // Loading draws the tiles most wallets have: no Immature (a miner's tile).
+                if (b != null && b.immature > 0) (casual ? l.deskLvPayTileMining : l.deskOvBreakImmature, b.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
                 (casual ? l.deskLvPayTileWaiting : l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
                 if (posted > 0) (l.deskTxStatusSenderPosted, posted, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
                 (casual ? l.deskLvPayTileLocked : l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
@@ -617,13 +618,18 @@ class _BigAmount extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
+                  // Past the least size the figure scales down rather than cut to an
+                  // ellipsis: a clipped balance reads as a different number (A-01).
                   Flexible(
-                    child: Text.rich(
-                      TextSpan(children: spans),
-                      style: style,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text.rich(
+                        TextSpan(children: spans),
+                        style: style,
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
                     ),
                   ),
                   SizedBox(width: 10.u),

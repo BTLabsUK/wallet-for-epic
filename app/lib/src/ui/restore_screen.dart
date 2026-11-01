@@ -359,10 +359,13 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     final steps = switch (_step) {
       _RestoreStep.phrase => _form(context),
       _RestoreStep.pin => [
-        if (_busy)
-          const LinearProgressIndicator()
-        else
-          PinSetupView(onDone: _restore),
+        // The PIN step stays while the wallet is made, the line above it busy, so nothing
+        // moves; a failure starts the PIN over (the error is its key).
+        SizedBox(height: 4, child: _busy ? const LinearProgressIndicator() : null),
+        AbsorbPointer(
+          absorbing: _busy,
+          child: PinSetupView(key: ValueKey(_error), onDone: _restore),
+        ),
         if (_error != null) ...[
           ErrorText(_error!),
           TextButton(

@@ -810,6 +810,7 @@
   "settingsPinTitle": "Изменить PIN-код",
   "settingsPinEnterCurrent": "Введите текущий PIN-код",
   "settingsPinCurrentLabel": "Текущий PIN-код",
+  "settingsPinNewLabel": "Новый PIN-код",
   "settingsPinChooseNew": "{digits, plural, few{Придумайте новый {digits}-значный PIN-код} many{Придумайте новый {digits}-значный PIN-код} other{Придумайте новый {digits}-значный PIN-код}}",
   "settingsPinChanged": "PIN-код изменён",
   "settingsPinChangedBiometricsOff": "PIN-код изменён. Биометрическая разблокировка выключена; включите её снова ниже.",
@@ -4864,5 +4865,6 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "deskKitPasswordRule": "{count, plural, one{{count} символ или больше} few{{count} символа или больше} many{{count} символов или больше} other{{count} символа или больше}}"
 }

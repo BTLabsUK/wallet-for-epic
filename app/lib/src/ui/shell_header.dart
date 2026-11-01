@@ -629,16 +629,22 @@ class BalanceHeader extends ConsumerWidget {
               // (2) The figure takes the whole width, the icons a second row; (3) only then it
               // shrinks, never under the floor: past that the unit goes (the semantics still
               // say EPIC), as Wallet's figure does, and only an extreme width scales it down.
+              // On its own row the figure keeps the end gutter too, so its unit never runs to
+              // the edge (A-01).
+              final room = full - _headerEndGutter;
               var size = titleFigureSize;
-              while (size > titleFigureFloor && figureWidth(size) > full) {
+              while (size > titleFigureFloor && figureWidth(size) > room) {
                 size -= 1;
               }
-              final unit = figureWidth(size) <= full;
+              final unit = figureWidth(size) <= room;
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  figure(size, unit: unit),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: _headerEndGutter),
+                    child: figure(size, unit: unit),
+                  ),
                   // The detail line beside the icons where it fits, else under them.
                   if (tokens.isEmpty || detailBeside)
                     Row(
@@ -664,6 +670,10 @@ class BalanceHeader extends ConsumerWidget {
 
 /// The least size the header's figure shrinks to (UP-002).
 const double titleFigureFloor = 14;
+
+/// The text gutter at the header's end, kept by a figure on its own row (the start one is
+/// the header's padding).
+const double _headerEndGutter = 16;
 
 /// The header's figure as one span: the amount at [size] in the heading face with tabular
 /// figures, then a small gold EPIC.

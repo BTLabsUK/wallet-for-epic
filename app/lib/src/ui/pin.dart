@@ -9,6 +9,7 @@ import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
+import '../reserved_slot.dart';
 import '../vault.dart';
 import 'app_dialog.dart';
 import 'common.dart';
@@ -28,6 +29,7 @@ class PinField extends StatelessWidget {
     this.enabled = true,
     this.autofocus = true,
     this.passphrase = false,
+    this.reserveError = false,
   });
 
   final TextEditingController controller;
@@ -37,6 +39,9 @@ class PinField extends StatelessWidget {
   final bool enabled;
   final bool autofocus;
   final bool passphrase;
+
+  /// Keeps the error line's room while there is no error, so an error moves nothing.
+  final bool reserveError;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +53,7 @@ class PinField extends StatelessWidget {
         enabled: enabled,
         autofocus: autofocus,
         onCompleted: onCompleted,
+        reserveError: reserveError,
       );
     }
     return TextField(
@@ -70,6 +76,7 @@ class PinField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         errorText: errorText,
+        helperText: reserveError ? ' ' : null,
         counterText: '',
         border: const OutlineInputBorder(),
       ),
@@ -87,6 +94,7 @@ class _PassphraseEntry extends StatefulWidget {
     required this.errorText,
     required this.enabled,
     required this.autofocus,
+    required this.reserveError,
   });
 
   final TextEditingController controller;
@@ -95,6 +103,7 @@ class _PassphraseEntry extends StatefulWidget {
   final String? errorText;
   final bool enabled;
   final bool autofocus;
+  final bool reserveError;
 
   @override
   State<_PassphraseEntry> createState() => _PassphraseEntryState();
@@ -124,6 +133,7 @@ class _PassphraseEntryState extends State<_PassphraseEntry> {
       decoration: InputDecoration(
         labelText: widget.label,
         errorText: widget.errorText,
+        helperText: widget.reserveError ? ' ' : null,
         errorMaxLines: 3,
         border: const OutlineInputBorder(),
         suffixIcon: Row(
@@ -155,6 +165,7 @@ class PinSetupView extends ConsumerStatefulWidget {
     this.intro,
     this.askBiometrics = true,
     this.chooseTitle,
+    this.chooseLabel,
     this.actionsAtFoot = false,
   });
 
@@ -169,6 +180,9 @@ class PinSetupView extends ConsumerStatefulWidget {
 
   /// Replaces "Choose a 6-digit PIN".
   final String? chooseTitle;
+
+  /// Replaces the first field's label, "PIN" ("New PIN" on Change PIN).
+  final String? chooseLabel;
 
   /// Shown above the first PIN field.
   final Widget? intro;
@@ -230,23 +244,14 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
     final theme = Theme.of(context);
     final l = context.l10n;
     // The step's content, then its actions: at the foot of the screen when asked. The choose
-    // step holds the room of the confirm step's button, so the PIN field stays in one place
-    // between the two steps.
+    // step holds the room of the confirm step's button ([PinStepFoot]), so the PIN field stays
+    // in one place between the two steps.
     final (List<Widget> content, List<Widget> actions) = switch (_step) {
-      _PinStep.choose => (
-        _chooseStep(theme, l),
-        [
-          const SizedBox(height: 8),
-          Visibility(
-            visible: false,
-            maintainSize: true,
-            maintainAnimation: true,
-            maintainState: true,
-            child: _chooseDifferent(l),
-          ),
-        ],
+      _PinStep.choose => (_chooseStep(theme, l), [const SizedBox(height: 8), const PinStepFoot()]),
+      _PinStep.confirm => (
+        _confirmStep(theme, l),
+        [const SizedBox(height: 8), PinStepFoot(child: _chooseDifferent(l))],
       ),
-      _PinStep.confirm => (_confirmStep(theme, l), [const SizedBox(height: 8), _chooseDifferent(l)]),
       _PinStep.biometrics => (_biometricsStep(theme, l), _biometricsActions(l)),
     };
     if (!widget.actionsAtFoot) {
@@ -269,32 +274,26 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
 
   List<Widget> _chooseStep(ThemeData theme, AppLocalizations l) => [
           ?widget.intro,
-          Text(
-            widget.chooseTitle ?? l.pinChooseTitle(pinLength),
-            style: theme.textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
+          PinStepTitle(widget.chooseTitle ?? l.pinChooseTitle(pinLength)),
           const SizedBox(height: 16),
           PinField(
             key: const ValueKey('pin-choose'),
             controller: _pin,
-            label: l.pinLabel,
+            label: widget.chooseLabel ?? l.pinLabel,
             errorText: _mismatch ? l.pinMismatch : null,
+            reserveError: true,
             onCompleted: _chosenPin,
           ),
         ];
 
   List<Widget> _confirmStep(ThemeData theme, AppLocalizations l) => [
-          Text(
-            l.pinConfirmTitle,
-            style: theme.textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
+          PinStepTitle(l.pinConfirmTitle),
           const SizedBox(height: 16),
           PinField(
             key: const ValueKey('pin-confirm'),
             controller: _confirm,
             label: l.pinRepeatLabel,
+            reserveError: true,
             onCompleted: _confirmed,
           ),
         ];
@@ -340,6 +339,41 @@ class _PinSetupViewState extends ConsumerState<PinSetupView> {
             child: Text(l.pinBiometricsNotNow),
           ),
         ];
+}
+
+/// A PIN step's heading, with room for two lines whether it takes one or two: the steps'
+/// headings differ in length (and wrap differently per language), and the field under them
+/// stays in one place. The spare line falls above the heading, which stays by its field.
+class PinStepTitle extends StatelessWidget {
+  const PinStepTitle(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.titleMedium ?? const TextStyle();
+    return ReservedSlot.lines(
+      style: style,
+      lines: 2,
+      alignment: AlignmentDirectional.bottomCenter,
+      child: Text(text, style: style, textAlign: TextAlign.center),
+    );
+  }
+}
+
+/// The room under a PIN step's field: the confirm step's "Choose a different PIN" holds it, and
+/// every other step keeps it free (or puts its progress or error in it), so changing step moves
+/// nothing.
+class PinStepFoot extends StatelessWidget {
+  const PinStepFoot({super.key, this.child});
+
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) => ReservedSlot.like(
+        model: TextButton(onPressed: null, child: Text(context.l10n.pinChooseDifferent)),
+        child: child,
+      );
 }
 
 /// A sentence for a wait before LEPIC checks a PIN: seconds up to two minutes, then minutes.
