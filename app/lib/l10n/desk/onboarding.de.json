@@ -126,6 +126,7 @@
   "deskOnbImportFindingTitle": "Wallets werden gesucht",
   "deskOnbImportFindingLead": "Die Ordner älterer Epic-Wallet-Versionen und des Programms epic werden durchsucht.",
   "deskOnbImportFoundTitle": "{count, plural, one{{count} Wallet gefunden} other{{count} Wallets gefunden}}",
+  "deskOnbImportFoundLead": "Weiter, um die Wallets zum Hinzufügen auszuwählen.",
   "deskOnbImportNoneTitle": "Keine Wallets gefunden",
   "deskOnbImportNoneLead": "Wählen Sie den Wallet-Ordner oder stellen Sie mit der Wiederherstellungsphrase wieder her.",
   "deskOnbImportChooseTitle": "Wallets wählen",

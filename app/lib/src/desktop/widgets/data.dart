@@ -343,8 +343,9 @@ class ESelect<T> extends StatefulWidget {
   /// Room the open list leaves free under it, so the form's main button stays in view.
   final double keepBelow;
 
-  /// A widget the open list never covers (the form's primary button): its top less 8 u is
-  /// the list's bottom, whatever sits between (UD-006).
+  /// A widget the open list stays clear of (the form's primary button): its top less 8 u is
+  /// the list's bottom, whatever sits between (UD-006), unless that leaves fewer than four
+  /// rows; then the list covers it.
   final GlobalKey? keepClear;
 
   /// `md` (44, a form's field) or `sm` ([Ctl.sm], a Settings row's dropdown).
@@ -377,9 +378,20 @@ class _ESelectState<T> extends State<ESelect<T>> {
     final bottom = anchor.localToGlobal(Offset(0, anchor.size.height)).dy;
     var below = MediaQuery.sizeOf(context).height - bottom - widget.keepBelow - 8.u;
     final clear = widget.keepClear?.currentContext?.findRenderObject() as RenderBox?;
-    if (clear != null && clear.attached && clear.hasSize) below = clear.localToGlobal(Offset.zero).dy - bottom - 8.u;
+    if (clear != null && clear.attached && clear.hasSize) {
+      // Clear of the primary while four rows fit; below that the list covers it (opaque, with
+      // the popover's shadow for an edge) rather than show two and a half options.
+      final room = MediaQuery.sizeOf(context).height - bottom - 8.u;
+      below = math.max(clear.localToGlobal(Offset.zero).dy - bottom - 8.u, math.min(_fourRows, room));
+    }
     final h = below.clamp(120.u, 420.u);
     if (h != _maxHeight) setState(() => _maxHeight = h);
+  }
+
+  /// The list's height at four options (fewer when there are fewer), with its padding and footer.
+  double get _fourRows {
+    final rows = widget.items.take(4).fold<double>(0, (sum, i) => sum + (i.subtitle == null ? 40.u : 52.u));
+    return rows + 2 * Sp.x2 + (widget.footer == null ? 0 : Sp.x3 + Ctl.md);
   }
 
   @override
@@ -455,7 +467,7 @@ class _ESelectState<T> extends State<ESelect<T>> {
                         Text(item.title, style: mono ? ts.mono(size: Fs.sm) : ts.body, overflow: TextOverflow.ellipsis),
                         if (item.subtitle != null)
                           item.subtitleIsPath
-                              ? EMiddleEllipsis(item.subtitle!, style: ts.caption, tooltip: item.tooltip == null, width: width)
+                              ? EMiddleEllipsis(item.subtitle!, style: ts.mono(size: Fs.xs, color: c.faint), tooltip: item.tooltip == null, width: width)
                               : Text(item.subtitle!, style: ts.caption, overflow: TextOverflow.ellipsis),
                       ],
                     ),

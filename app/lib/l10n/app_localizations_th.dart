@@ -5333,6 +5333,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodReceiveEpicboxShort => 'แชร์ที่อยู่เพื่อรับเงิน';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'เซิร์ฟเวอร์ Epicbox จะเก็บการชำระเงินไว้จนกว่าจะเปิดวอลเล็ตนี้';
+
+  @override
   String get methodReceiveDirectTitle => 'ส่งตรงถึงกระเป๋านี้';
 
   @override
@@ -16384,7 +16388,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC ถูกพักไว้โดยรายการที่ $name กำลังทำ';
+    return '$amount EPIC ถูกพักไว้โดยรายการที่ “$name” กำลังทำ';
   }
 
   @override
@@ -18316,6 +18320,22 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String get deskOnbImportFoundLead =>
+      'ดำเนินการต่อเพื่อเลือกวอลเล็ตที่จะเพิ่ม';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'ไม่ได้เปลี่ยนรหัสผ่าน';
+
+  @override
+  String get deskOnbForgotFailedLead => 'รหัสผ่านปัจจุบันยังคงเปิดวอลเล็ตได้';
+
+  @override
+  String get deskSetHelpSupportHead => 'การสนับสนุน';
+
+  @override
+  String get deskSetHelpTopicsHead => 'หัวข้อ';
 
   @override
   String deskKitPasswordRule(int count) {

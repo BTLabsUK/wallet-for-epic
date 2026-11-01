@@ -359,7 +359,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         l.deskSetupLocalLead,
         LocalNodeStep(demo: _demo?.local ?? LocalNodeDemo.none, onChanged: (c) => setState(() => _localChoice = c)),
       ),
-      SetupStep.epicbox => (l.deskSetupEpicboxTitle, again, _epicbox(context)),
+      SetupStep.epicbox => (l.deskSetupEpicboxTitle, again ?? l.deskSetupEpicboxText, _epicbox(context)),
       SetupStep.review => (l.deskSetupReviewTitle, again ?? l.deskSetupReviewLead, _review(context)),
     };
     final first = _step == _steps.first;
@@ -377,11 +377,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
             : null,
+        back: first ? null : backButton(() => _to(_back)),
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
           // What Skip keeps is the button's tooltip and accessible description (UD-016).
           if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
-          if (!first) backButton(() => _to(_back)),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
         child: body,
@@ -506,8 +506,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.deskSetupEpicboxText, style: ts.body),
-        SizedBox(height: Sp.x2),
         Text(l.deskSetupEpicboxPrivacy, style: ts.bodyDim),
         SizedBox(height: Sp.x6),
         ESwitch(

@@ -5438,6 +5438,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodReceiveEpicboxShort => 'Share the address to get paid.';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'The Epicbox server holds a payment until this wallet opens.';
+
+  @override
   String get methodReceiveDirectTitle => 'Straight to this wallet.';
 
   @override
@@ -16782,7 +16786,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC is held by a payment $name is making.';
+    return '$amount EPIC is held by a payment ‘$name’ is making.';
   }
 
   @override
@@ -18732,6 +18736,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String get deskOnbImportFoundLead => 'Continue to choose the wallets to add.';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'Password not changed';
+
+  @override
+  String get deskOnbForgotFailedLead =>
+      'The current password still opens the wallet.';
+
+  @override
+  String get deskSetHelpSupportHead => 'Support';
+
+  @override
+  String get deskSetHelpTopicsHead => 'Topics';
 
   @override
   String deskKitPasswordRule(int count) {

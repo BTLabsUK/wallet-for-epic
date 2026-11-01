@@ -294,7 +294,7 @@ void main() {
   test('statusWords: the table of §19', () {
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epic.invalid', accepted: true).detail, 'blocks · using node.epic.invalid meanwhile');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epic.invalid', accepted: true).detail, 'the wallet uses node.epic.invalid meanwhile');
-    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, NodeAct.folder);
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, isNull, reason: 'the folder row has Change');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);
   });
 }

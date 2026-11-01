@@ -169,7 +169,7 @@ void main() {
   testWidgets('the restart notice shows when settings changed', (tester) async {
     await show(tester, restartNeeded: true);
     expect(find.text('Settings changed.'), findsOneWidget);
-    expect(find.text('Restart now'), findsOneWidget);
+    expect(find.text('Restart now'), findsNothing, reason: 'Restart is the page header\'s');
     await end(tester);
   });
 

@@ -1419,6 +1419,7 @@
   "methodDirectShape": "http://host:{port} или xxxx….onion",
   "methodSendDirectLine": "Кошелёк получателя должен быть открыт. Платёж на адрес .onion идёт через Tor.",
   "methodReceiveEpicboxShort": "Поделитесь адресом, чтобы получить оплату.",
+  "methodReceiveEpicboxMore": "Сервер Epicbox хранит платёж, пока этот кошелёк не откроется.",
   "methodReceiveDirectTitle": "Прямо в этот кошелёк.",
   "methodReceiveDirectLine": "Работает, пока приложение открыто.",
   "methodLineOverTor": "{line} Через Tor.",
@@ -4377,7 +4378,7 @@
   "txSentFromDevice": "Отправлено с {device}",
   "txDeviceMadeOn": "Создано на {device}. Подробности пришли с этого устройства; сумма и подтверждения — из блокчейна.",
   "txDeviceHeld": "Его монеты удерживаются на этом устройстве, пока блокчейн не покажет платёж или другое устройство его не завершит.",
-  "sendHeldByDevice": "{amount} EPIC удерживается платежом, который выполняет {name}.",
+  "sendHeldByDevice": "{amount} EPIC удерживается платежом, который выполняет «{name}».",
   "offerLinkRestore": "Этот кошелёк есть и на другом устройстве? Свяжите их, чтобы видеть платежи друг друга.",
   "offerLinkOtherWallet": "Это ваше другое устройство? Свяжите его, чтобы видеть, кому заплачено, и держать оба в согласии.",
   "devicesReleasedRow": "Освобождено здесь · {name} ещё может его отправить",
@@ -4877,5 +4878,10 @@
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
   "deskNodeSwitchStoppingWord": "Остановка",
+  "deskOnbImportFoundLead": "Далее — выбор кошельков для добавления.",
+  "deskOnbForgotFailedTitle": "Пароль не изменён",
+  "deskOnbForgotFailedLead": "Текущий пароль по-прежнему открывает кошелёк.",
+  "deskSetHelpSupportHead": "Поддержка",
+  "deskSetHelpTopicsHead": "Темы",
   "deskKitPasswordRule": "{count, plural, one{{count} символ или больше} few{{count} символа или больше} many{{count} символов или больше} other{{count} символа или больше}}"
 }

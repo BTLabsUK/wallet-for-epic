@@ -126,6 +126,7 @@
   "deskOnbImportFindingTitle": "正在查找钱包",
   "deskOnbImportFindingLead": "正在搜索旧版 Epic Wallet 和 epic 程序的文件夹。",
   "deskOnbImportFoundTitle": "{count, plural, other{找到 {count} 个钱包}}",
+  "deskOnbImportFoundLead": "继续以选择要添加的钱包。",
   "deskOnbImportNoneTitle": "未找到钱包",
   "deskOnbImportNoneLead": "请选择钱包文件夹，或用助记词恢复。",
   "deskOnbImportChooseTitle": "选择钱包",

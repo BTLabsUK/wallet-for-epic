@@ -5594,6 +5594,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Udostępnij adres, aby dostać płatność.';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'Serwer Epicbox przechowuje płatność, dopóki ten portfel nie zostanie otwarty.';
+
+  @override
   String get methodReceiveDirectTitle => 'Prosto do tego portfela.';
 
   @override
@@ -17387,7 +17391,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC jest wstrzymane przez płatność, którą wykonuje: $name.';
+    return '$amount EPIC jest wstrzymane przez płatność, którą wykonuje „$name”.';
   }
 
   @override
@@ -19379,6 +19383,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
+
+  @override
+  String get deskOnbImportFoundLead => 'Dalej, aby wybrać portfele do dodania.';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'Hasło nie zostało zmienione';
+
+  @override
+  String get deskOnbForgotFailedLead => 'Obecne hasło nadal otwiera portfel.';
+
+  @override
+  String get deskSetHelpSupportHead => 'Wsparcie';
+
+  @override
+  String get deskSetHelpTopicsHead => 'Tematy';
 
   @override
   String deskKitPasswordRule(int count) {

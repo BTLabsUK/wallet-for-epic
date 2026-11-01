@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 export '../../ui/badge.dart';
 
 import '../desk_l10n.dart';
+import '../../balanced_text.dart';
 import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
@@ -59,7 +60,8 @@ class EPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final pad = (padding ?? EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5)).resolve(Directionality.of(context));
+    // One inset for every panel ([Sp.panel]), the same as an [ESetRow]'s inside one.
+    final pad = (padding ?? EdgeInsets.all(Sp.panel)).resolve(Directionality.of(context));
     // A scrolling pane is a column of its own: its text selects within it (selectable.dart), so a
     // drag never lands in the pane next to it.
     final body = scroll
@@ -80,12 +82,12 @@ class EPanel extends StatelessWidget {
           if (hasHead)
             Container(
               key: const ValueKey('epanel-head'),
-              // Starts where the body starts (Sp.x5 over an unpadded body); a custom head ends
+              // Starts where the body starts (Sp.panel over an unpadded body); a custom head ends
               // close to the edge for its icon button.
               padding: EdgeInsets.fromLTRB(
-                pad.left < Sp.x4 ? Sp.x5 : pad.left,
+                pad.left < Sp.x4 ? Sp.panel : pad.left,
                 head != null ? 0 : Sp.x2,
-                head != null ? Sp.x2 : (pad.right < Sp.x4 ? Sp.x5 : pad.right),
+                head != null ? Sp.x2 : (pad.right < Sp.x4 ? Sp.panel : pad.right),
                 head != null ? 0 : Sp.x2,
               ),
               constraints: BoxConstraints(minHeight: Ctl.header),
@@ -102,7 +104,7 @@ class EPanel extends StatelessWidget {
           body,
           if (foot != null)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),
+              padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x3),
               decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
               child: foot,
             ),
@@ -742,7 +744,7 @@ class EEmpty extends StatelessWidget {
             SizedBox(height: Sp.x2),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: 420.u),
-              child: Text(text!, style: ts.bodyDim, textAlign: TextAlign.center),
+              child: BalancedText(text!, style: ts.bodyDim),
             ),
           ],
           if (actions.isNotEmpty) ...[
@@ -888,7 +890,7 @@ class ESetRow extends StatelessWidget {
             ],
           );
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+      padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

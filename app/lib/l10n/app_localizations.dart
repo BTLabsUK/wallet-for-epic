@@ -8704,6 +8704,12 @@ abstract class AppLocalizations {
   /// **'Share the address to get paid.'**
   String get methodReceiveEpicboxShort;
 
+  /// Behind the info icon of Receive's Epicbox strip: what Epicbox does for the receiver.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox server holds a payment until this wallet opens.'**
+  String get methodReceiveEpicboxMore;
+
   /// Receive's Link strip title.
   ///
   /// In en, this message translates to:
@@ -26264,10 +26270,10 @@ abstract class AppLocalizations {
   /// **'Its coins are held on this device until the chain shows the payment or the other device ends it.'**
   String get txDeviceHeld;
 
-  /// Send: part of the balance is held by a payment another linked device is making.
+  /// Send: part of the balance is held by a payment another linked device is making; {name} is that device’s name, in quotes.
   ///
   /// In en, this message translates to:
-  /// **'{amount} EPIC is held by a payment {name} is making.'**
+  /// **'{amount} EPIC is held by a payment ‘{name}’ is making.'**
   String sendHeldByDevice(String amount, String name);
 
   /// Quiet offer at the end of a restore.
@@ -29263,6 +29269,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Lead under the title of the import page once older wallets are found; the next step picks which ones to add.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to choose the wallets to add.'**
+  String get deskOnbImportFoundLead;
+
+  /// Title of the forgot-password page when the phrase could not be checked against the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Password not changed'**
+  String get deskOnbForgotFailedTitle;
+
+  /// Lead under deskOnbForgotFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password still opens the wallet.'**
+  String get deskOnbForgotFailedLead;
+
+  /// Section head at the top of Settings › Help, over the support and donation bars.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get deskSetHelpSupportHead;
+
+  /// Section head of Settings › Help over the search and the help topics.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get deskSetHelpTopicsHead;
 
   /// Small print under a new-password field before anything is typed: the least length. Replaced by the character count and the time to crack while typing.
   ///

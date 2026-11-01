@@ -29,7 +29,8 @@ class SettingsPrivacyScreen extends ConsumerWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (DeskFeatures.tor) ...[TorGroup(demo: arg is PrivacyDemo ? arg as PrivacyDemo : null), SizedBox(height: Sp.x6)],
+        // ESetGroup owns the gap between groups.
+        if (DeskFeatures.tor) TorGroup(demo: arg is PrivacyDemo ? arg as PrivacyDemo : null),
         const PrivacyGroup(),
       ],
     ),

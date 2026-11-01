@@ -24,6 +24,8 @@
   "deskSetHelpWithFile": "ด้วยไฟล์",
   "deskSetHelpStep": "ขั้นตอน {number} จาก {total}",
   "deskSetHelpSearch": "ค้นหาความช่วยเหลือ",
+  "deskSetHelpSupportHead": "การสนับสนุน",
+  "deskSetHelpTopicsHead": "หัวข้อ",
   "deskSetHelpSearchKeys": "กด / เพื่อค้นหา กด Esc เพื่อล้างการค้นหา",
   "deskSetHelpSearchHint": "เช่น ไฟล์ การยืนยัน วลีกู้คืน",
   "deskSetHelpClear": "ล้างการค้นหา",

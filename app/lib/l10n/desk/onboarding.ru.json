@@ -126,6 +126,7 @@
   "deskOnbImportFindingTitle": "Поиск кошельков",
   "deskOnbImportFindingLead": "Поиск в папках старых версий Epic Wallet и программы epic.",
   "deskOnbImportFoundTitle": "{count, plural, one{Найден {count} кошелёк} few{Найдено {count} кошелька} many{Найдено {count} кошельков} other{Найдено {count} кошелька}}",
+  "deskOnbImportFoundLead": "Далее — выбор кошельков для добавления.",
   "deskOnbImportNoneTitle": "Кошельки не найдены",
   "deskOnbImportNoneLead": "Выберите папку кошелька или восстановите его по фразе восстановления.",
   "deskOnbImportChooseTitle": "Выбор кошельков",

@@ -648,6 +648,10 @@
       }
     }
   },
+  "deskOnbImportFoundLead": "Continue to choose the wallets to add.",
+  "@deskOnbImportFoundLead": {
+    "description": "Lead under the title of the import page once older wallets are found; the next step picks which ones to add."
+  },
   "deskOnbImportNoneTitle": "No wallets found",
   "@deskOnbImportNoneTitle": {
     "description": "Title of the import wizard when nothing was found."

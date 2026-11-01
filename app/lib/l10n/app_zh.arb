@@ -1419,6 +1419,7 @@
   "methodDirectShape": "http://host:{port} 或 xxxx….onion",
   "methodSendDirectLine": "对方钱包必须处于打开状态。onion 地址经由 Tor。",
   "methodReceiveEpicboxShort": "分享地址即可收款。",
+  "methodReceiveEpicboxMore": "Epicbox 服务器会保留付款，直到此钱包打开。",
   "methodReceiveDirectTitle": "直接发送到此钱包。",
   "methodReceiveDirectLine": "仅在应用打开时可用。",
   "methodLineOverTor": "{line} 经由 Tor。",
@@ -4377,7 +4378,7 @@
   "txSentFromDevice": "从 {device} 发送",
   "txDeviceMadeOn": "在 {device} 上发起。详情来自该设备；金额和确认数来自区块链。",
   "txDeviceHeld": "在区块链显示这笔付款或另一台设备结束它之前，其币会在本设备上被保留。",
-  "sendHeldByDevice": "{amount} EPIC 被 {name} 正在进行的一笔付款保留。",
+  "sendHeldByDevice": "{amount} EPIC 被“{name}”正在进行的一笔付款保留。",
   "offerLinkRestore": "也在另一台设备上使用这个钱包？关联它们即可看到彼此的付款。",
   "offerLinkOtherWallet": "这是你的另一台设备吗？关联它即可看到付给了谁，并让两台设备保持同步。",
   "devicesReleasedRow": "已在此释放 · {name} 仍可能发送",
@@ -4877,5 +4878,10 @@
   "deskNodeSwitchStarting": "正在启动本地节点…",
   "deskNodeSwitchStopping": "正在停止本地节点…",
   "deskNodeSwitchStoppingWord": "正在停止",
+  "deskOnbImportFoundLead": "继续以选择要添加的钱包。",
+  "deskOnbForgotFailedTitle": "密码未更改",
+  "deskOnbForgotFailedLead": "当前密码仍可打开钱包。",
+  "deskSetHelpSupportHead": "支持",
+  "deskSetHelpTopicsHead": "主题",
   "deskKitPasswordRule": "{count, plural, other{至少 {count} 个字符}}"
 }

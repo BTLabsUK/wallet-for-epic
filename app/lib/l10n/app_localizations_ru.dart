@@ -5572,6 +5572,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Поделитесь адресом, чтобы получить оплату.';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'Сервер Epicbox хранит платёж, пока этот кошелёк не откроется.';
+
+  @override
   String get methodReceiveDirectTitle => 'Прямо в этот кошелёк.';
 
   @override
@@ -17367,7 +17371,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC удерживается платежом, который выполняет $name.';
+    return '$amount EPIC удерживается платежом, который выполняет «$name».';
   }
 
   @override
@@ -19359,6 +19363,23 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String get deskOnbImportFoundLead =>
+      'Далее — выбор кошельков для добавления.';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'Пароль не изменён';
+
+  @override
+  String get deskOnbForgotFailedLead =>
+      'Текущий пароль по-прежнему открывает кошелёк.';
+
+  @override
+  String get deskSetHelpSupportHead => 'Поддержка';
+
+  @override
+  String get deskSetHelpTopicsHead => 'Темы';
 
   @override
   String deskKitPasswordRule(int count) {

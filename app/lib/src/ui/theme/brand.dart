@@ -10,6 +10,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
+import '../../balanced_text.dart';
 import 'protocol.dart';
 import 'tokens.dart';
 
@@ -649,9 +650,8 @@ class EmptyState extends StatelessWidget {
         children: [
           GlyphTile(size: 72, child: icon),
           const SizedBox(height: 20),
-          Text(
+          BalancedText(
             message,
-            textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

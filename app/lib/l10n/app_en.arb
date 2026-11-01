@@ -7072,6 +7072,10 @@
   "@methodReceiveEpicboxShort": {
     "description": "Receive's Epicbox strip line: share the address to get paid. No \"app\": the web demo shows it too."
   },
+  "methodReceiveEpicboxMore": "The Epicbox server holds a payment until this wallet opens.",
+  "@methodReceiveEpicboxMore": {
+    "description": "Behind the info icon of Receive's Epicbox strip: what Epicbox does for the receiver."
+  },
   "methodReceiveDirectTitle": "Straight to this wallet.",
   "@methodReceiveDirectTitle": {
     "description": "Receive's Link strip title."
@@ -22453,9 +22457,9 @@
   "@txDeviceHeld": {
     "description": "Details of a pending payment another linked device is making."
   },
-  "sendHeldByDevice": "{amount} EPIC is held by a payment {name} is making.",
+  "sendHeldByDevice": "{amount} EPIC is held by a payment ‘{name}’ is making.",
   "@sendHeldByDevice": {
-    "description": "Send: part of the balance is held by a payment another linked device is making.",
+    "description": "Send: part of the balance is held by a payment another linked device is making; {name} is that device’s name, in quotes.",
     "placeholders": {
       "amount": {
         "type": "String"
@@ -25354,6 +25358,26 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskOnbImportFoundLead": "Continue to choose the wallets to add.",
+  "@deskOnbImportFoundLead": {
+    "description": "Lead under the title of the import page once older wallets are found; the next step picks which ones to add."
+  },
+  "deskOnbForgotFailedTitle": "Password not changed",
+  "@deskOnbForgotFailedTitle": {
+    "description": "Title of the forgot-password page when the phrase could not be checked against the wallet."
+  },
+  "deskOnbForgotFailedLead": "The current password still opens the wallet.",
+  "@deskOnbForgotFailedLead": {
+    "description": "Lead under deskOnbForgotFailedTitle."
+  },
+  "deskSetHelpSupportHead": "Support",
+  "@deskSetHelpSupportHead": {
+    "description": "Section head at the top of Settings › Help, over the support and donation bars."
+  },
+  "deskSetHelpTopicsHead": "Topics",
+  "@deskSetHelpTopicsHead": {
+    "description": "Section head of Settings › Help over the search and the help topics."
   },
   "deskKitPasswordRule": "{count, plural, one{{count} character or more} other{{count} characters or more}}",
   "@deskKitPasswordRule": {

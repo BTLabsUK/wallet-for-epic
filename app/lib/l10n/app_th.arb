@@ -1419,6 +1419,7 @@
   "methodDirectShape": "http://host:{port} หรือ xxxx….onion",
   "methodSendDirectLine": "กระเป๋าของผู้รับต้องเปิดอยู่ ที่อยู่ onion จะส่งผ่าน Tor",
   "methodReceiveEpicboxShort": "แชร์ที่อยู่เพื่อรับเงิน",
+  "methodReceiveEpicboxMore": "เซิร์ฟเวอร์ Epicbox จะเก็บการชำระเงินไว้จนกว่าจะเปิดวอลเล็ตนี้",
   "methodReceiveDirectTitle": "ส่งตรงถึงกระเป๋านี้",
   "methodReceiveDirectLine": "ใช้ได้ขณะเปิดแอปอยู่",
   "methodLineOverTor": "{line} ผ่าน Tor",
@@ -4377,7 +4378,7 @@
   "txSentFromDevice": "ส่งจาก {device}",
   "txDeviceMadeOn": "ทำบน {device} รายละเอียดมาจากอุปกรณ์นั้น ส่วนจำนวนเงินและการยืนยันมาจากเชน",
   "txDeviceHeld": "เหรียญของรายการถูกพักไว้บนอุปกรณ์นี้จนกว่าเชนจะแสดงรายการ หรืออุปกรณ์อีกเครื่องจะจบรายการ",
-  "sendHeldByDevice": "{amount} EPIC ถูกพักไว้โดยรายการที่ {name} กำลังทำ",
+  "sendHeldByDevice": "{amount} EPIC ถูกพักไว้โดยรายการที่ “{name}” กำลังทำ",
   "offerLinkRestore": "ใช้กระเป๋าเงินนี้บนอุปกรณ์อื่นด้วยหรือไม่ เชื่อมโยงเพื่อเห็นรายการของกันและกัน",
   "offerLinkOtherWallet": "นี่คืออุปกรณ์อีกเครื่องของคุณหรือไม่ เชื่อมโยงเพื่อดูว่าจ่ายให้ใคร และให้ทั้งสองเครื่องตรงกัน",
   "devicesReleasedRow": "ปล่อยที่นี่แล้ว · {name} อาจยังส่งรายการนี้",
@@ -4877,5 +4878,10 @@
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
   "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "deskOnbImportFoundLead": "ดำเนินการต่อเพื่อเลือกวอลเล็ตที่จะเพิ่ม",
+  "deskOnbForgotFailedTitle": "ไม่ได้เปลี่ยนรหัสผ่าน",
+  "deskOnbForgotFailedLead": "รหัสผ่านปัจจุบันยังคงเปิดวอลเล็ตได้",
+  "deskSetHelpSupportHead": "การสนับสนุน",
+  "deskSetHelpTopicsHead": "หัวข้อ",
   "deskKitPasswordRule": "{count, plural, other{อย่างน้อย {count} ตัวอักษร}}"
 }

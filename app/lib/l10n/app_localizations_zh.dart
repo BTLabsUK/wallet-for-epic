@@ -5144,6 +5144,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodReceiveEpicboxShort => '分享地址即可收款。';
 
   @override
+  String get methodReceiveEpicboxMore => 'Epicbox 服务器会保留付款，直到此钱包打开。';
+
+  @override
   String get methodReceiveDirectTitle => '直接发送到此钱包。';
 
   @override
@@ -15809,7 +15812,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC 被 $name 正在进行的一笔付款保留。';
+    return '$amount EPIC 被“$name”正在进行的一笔付款保留。';
   }
 
   @override
@@ -17666,6 +17669,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get deskOnbImportFoundLead => '继续以选择要添加的钱包。';
+
+  @override
+  String get deskOnbForgotFailedTitle => '密码未更改';
+
+  @override
+  String get deskOnbForgotFailedLead => '当前密码仍可打开钱包。';
+
+  @override
+  String get deskSetHelpSupportHead => '支持';
+
+  @override
+  String get deskSetHelpTopicsHead => '主题';
 
   @override
   String deskKitPasswordRule(int count) {

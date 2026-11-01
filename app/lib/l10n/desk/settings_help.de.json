@@ -24,6 +24,8 @@
   "deskSetHelpWithFile": "Mit Datei",
   "deskSetHelpStep": "Schritt {number} von {total}",
   "deskSetHelpSearch": "Hilfe durchsuchen",
+  "deskSetHelpSupportHead": "Support",
+  "deskSetHelpTopicsHead": "Themen",
   "deskSetHelpSearchKeys": "Mit / suchen. Esc leert die Suche.",
   "deskSetHelpSearchHint": "Zum Beispiel: Datei, Bestätigungen, Phrase",
   "deskSetHelpClear": "Suche leeren",

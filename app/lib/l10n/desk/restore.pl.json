@@ -14,6 +14,8 @@
   "deskSetRescanWholeChainHint": "Od pierwszego bloku. Znajduje wszystko i trwa długo. Kończy też nieukończone przywracanie.",
   "deskOnbForgotLink": "Nie pamiętasz hasła?",
   "deskOnbForgotTitle": "Ustaw nowe hasło",
+  "deskOnbForgotFailedTitle": "Hasło nie zostało zmienione",
+  "deskOnbForgotFailedLead": "Obecne hasło nadal otwiera portfel.",
   "deskOnbForgotLead": "Fraza odzyskiwania portfela {name} zastępuje jego hasło. Historia, notatki i etykiety zostają; skanowanie nie jest potrzebne.",
   "deskOnbForgotPasswordLead": "Fraza się zgadza. Wybierz nowe hasło, które odblokuje ten portfel na tym komputerze.",
   "deskOnbForgotSet": "Ustaw hasło",

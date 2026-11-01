@@ -1437,7 +1437,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           ),
           SizedBox(width: Sp.x4),
-          EButton.primary(label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, onPressed: s.onReview),
+          EButton.primary(label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, tooltip: s.reviewTip, onPressed: s.onReview),
         ],
       ),
     );
@@ -2003,30 +2003,31 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final n = _amountNano;
     final fee = n > 0 ? _fee : null;
     final nodeBlocked = _nodeBlock(st) != null;
-    final hint = switch (null) {
-      _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
+    // The line under Review, and whether it names a block: then Review is off until it clears.
+    final (hint, blocker) = switch (null) {
+      _ when res is SendDone => (_queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued, true),
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
       // Node only: the banner explains, this line names the block only (UD-014).
-      _ when _netBlock(st) == NetBlock.nodeOnly => l.deskSendHintNeedsMethod(_method == TxMethod.epicbox ? l.methodEpicbox : MethodIcons.familyName(l, MethodFamily.link)),
-      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => _blockTitle(l, _netBlock(st)),
-      _ when _onionNoTor => l.sendTorNotInVersion,
-      _ when nodeBlocked && _nodeDown(st) && _noNode => l.deskSlNoNodeTitle,
-      _ when nodeBlocked && _nodeDown(st) => l.deskNodeNotAnsweringLine,
-      _ when nodeBlocked => l.deskSendHintNode,
-      _ when _netBlock(st) == NetBlock.epicboxOff => l.deskSendHintNeedsMethod(l.methodEpicbox),
-      _ when _netBlock(st) == NetBlock.methodOff => l.deskSendHintNeedsMethod(MethodIcons.fullName(l, _kind)),
-      _ when _epicboxBlocked(st) => l.deskSendHintEpicbox,
-      _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
-      _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,
-      _ when _torWay(st) == TorWay.needsTor => l.deskSendHintNeedsTor,
-      _ when _method == TxMethod.http && _torWay(st) == TorWay.off => l.sendPlainHttpOffWithTor,
-      _ when _submitted && !_toEdited && _toError(st) != null => l.deskSendHintFix,
-      _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
-      _ when _messageTooLong => l.deskSendHintFix,
-      _ when _reviewing => l.deskSendHintChecking,
-      _ when !_reviewStep => l.deskLvSendNothingLeaves,
-      _ => l.deskSendHintDefault,
+      _ when _netBlock(st) == NetBlock.nodeOnly => (l.deskSendHintNeedsMethod(_method == TxMethod.epicbox ? l.methodEpicbox : MethodIcons.familyName(l, MethodFamily.link)), true),
+      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => (_blockTitle(l, _netBlock(st)), true),
+      _ when _onionNoTor => (l.sendTorNotInVersion, true),
+      _ when nodeBlocked && _nodeDown(st) && _noNode => (l.deskSlNoNodeTitle, true),
+      _ when nodeBlocked && _nodeDown(st) => (l.deskNodeNotAnsweringLine, true),
+      _ when nodeBlocked => (l.deskSendHintNode, true),
+      _ when _netBlock(st) == NetBlock.epicboxOff => (l.deskSendHintNeedsMethod(l.methodEpicbox), true),
+      _ when _netBlock(st) == NetBlock.methodOff => (l.deskSendHintNeedsMethod(MethodIcons.fullName(l, _kind)), true),
+      _ when _epicboxBlocked(st) => (l.deskSendHintEpicbox, true),
+      _ when _torWay(st) == TorWay.wait => (l.deskSendHintTorWait, true),
+      _ when _torWay(st) == TorWay.blocked => (l.deskSendHintTorBlocked, true),
+      _ when _torWay(st) == TorWay.needsTor => (l.deskSendHintNeedsTor, true),
+      _ when _method == TxMethod.http && _torWay(st) == TorWay.off => (l.sendPlainHttpOffWithTor, true),
+      _ when _submitted && !_toEdited && _toError(st) != null => (l.deskSendHintFix, true),
+      _ when _submitted && !_amountEdited && _amountError(spendable) != null => (l.deskSendHintFix, true),
+      _ when _messageTooLong => (l.deskSendHintFix, true),
+      _ when _reviewing => (l.deskSendHintChecking, false),
+      _ when !_reviewStep => (l.deskLvSendNothingLeaves, false),
+      _ => (l.deskSendHintDefault, false),
     };
     final plan = _plan?.estimate.amount == n && n > 0 ? _plan : null;
     final balance = st.balance;
@@ -2042,10 +2043,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       confirmations: balance?.minConfirmations ?? defaultMinimumConfirmations,
       updating: st.status?.syncProgress != null,
       hint: hint,
+      // The button keeps its name while it is off; the reason is the line under it, and the
+      // short one its tip.
+      reviewTip: blocker ? switch (_torWay(st)) { TorWay.wait => l.deskSendReviewWaitTor, TorWay.blocked => l.deskSendReviewTorOff, _ => null } : null,
       reviewLabel: switch (_torWay(st)) {
         _ when _viaPairing && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff => l.sendQueue,
-        TorWay.wait => l.deskSendReviewWaitTor,
-        TorWay.blocked => l.deskSendReviewTorOff,
         // Shallow: the button is the Send itself, naming the amount and whom it goes to.
         _ when !_reviewStep => n <= 0
             ? l.deskLvSendButton
@@ -2056,7 +2058,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _ => l.deskSendReview,
       },
       reviewing: _reviewing,
-      onReview: _canSend(st) && !_reviewing ? _review : null,
+      onReview: _canSend(st) && !_reviewing && !blocker ? _review : null,
       review: review,
       lockRows: _reviewStep,
     );
@@ -2076,6 +2078,7 @@ class _SendSummary extends StatelessWidget {
     required this.reviewing,
     required this.onReview,
     required this.reviewLabel,
+    this.reviewTip,
     this.summary,
     this.extraFee = 0,
     this.strategy = SelectionStrategy.smallest,
@@ -2119,8 +2122,11 @@ class _SendSummary extends StatelessWidget {
   final bool reviewing;
   final VoidCallback? onReview;
 
-  /// "Review send", or what holds it ("Waiting for Tor").
+  /// "Review", or the shallow level's "Send 1.5 EPIC to …"; never what holds it.
   final String reviewLabel;
+
+  /// The short reason the button is off ("Waiting for Tor"), on hover; the line under it says it.
+  final String? reviewTip;
 
   @override
   Widget build(BuildContext context) {
@@ -2166,7 +2172,7 @@ class _SendSummary extends StatelessWidget {
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           if (review) ...[
-            EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
+            EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
             SizedBox(height: Sp.x3),
           ],
           Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
@@ -2176,16 +2182,17 @@ class _SendSummary extends StatelessWidget {
   }
 }
 
-/// Under the selector: the method's picture, what it does in bold (Epicbox has no bold line)
-/// and what it needs.
+/// Under the selector: the method's picture and one short line on what it does, the same shape
+/// for every method; the rest is behind its ⓘ (the phone's MethodStrip does the same).
 /// The art goes above the text in a narrow column; a method change crossfades.
 class _MethodStrip extends StatelessWidget {
   const _MethodStrip(this.method);
 
   final TxMethod method;
 
-  static (String?, String) words(AppLocalizations l, TxMethod m) => switch (m) {
-    TxMethod.epicbox => (null, l.deskSendEpicboxLine2),
+  /// The line, and what the ⓘ says.
+  static (String, String) words(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => (l.methodSendEpicboxTitle, l.deskSendEpicboxLine2),
     TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, DeskFeatures.tor ? l.deskSendDirectLine2 : l.deskNoTorSendDirectLine2),
     TxMethod.file => (l.deskSendFileLine1, l.deskSendFileLine2),
   };
@@ -2194,7 +2201,8 @@ class _MethodStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final reduce = MediaQuery.disableAnimationsOf(context);
-    final (title, line) = words(context.l10n, method);
+    final l = context.l10n;
+    final (line, more) = words(l, method);
     // The first section of the form's panel: no frame of its own.
     return AnimatedSwitcher(
         duration: reduce ? Duration.zero : Motion.cross,
@@ -2204,12 +2212,11 @@ class _MethodStrip extends StatelessWidget {
         child: LayoutBuilder(
           key: ValueKey(method),
           builder: (context, box) {
-            final text = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+            final text = Row(
               children: [
-                if (title != null) ...[Text(title, style: ts.strong), SizedBox(height: 2.u)],
-                Text(line, style: ts.small),
+                Flexible(child: Text(line, style: ts.body)),
+                SizedBox(width: Sp.x1),
+                EInfoHint(more, title: MethodIcons.fullName(l, methodKindOf(method)), icon: methodIcon(method)),
               ],
             );
             if (box.maxWidth < Lay.sm) {
