@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../data/remember.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../../models.dart' show StoreMigrationProgress, WalletError, WalletErrorKind;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
@@ -19,7 +21,7 @@ import 'reset_password_screen.dart' show ResetPasswordArg;
 import 'setup_screen.dart' show SetupFirstRun, setupSkippedThisSession;
 
 /// What [UnlockScreen] starts on, for the screenshot tour.
-enum UnlockShow { wrongPassword, progress, failed, missing, listOpen }
+enum UnlockShow { wrongPassword, progress, encrypting, failed, missing, listOpen }
 
 /// Unlock with the wallet [id] selected, then [then] instead of Overview: Settings › This
 /// wallet when "Unlock this wallet" was chosen in the remove dialog of another wallet.
@@ -70,6 +72,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   /// The stage running now; null while the form shows.
   String? _stage;
 
+  /// The copy step of a first unlock after the update, while it runs; null otherwise.
+  StoreMigrationProgress? _copy;
+
   /// The message of a failure before the password step.
   String? _failure;
   String _failedStage = '';
@@ -86,6 +91,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         _password.text = 'secret';
       case UnlockShow.progress:
         _stage = 'wallet';
+      // The first unlock after the update, a large wallet copying its records.
+      case UnlockShow.encrypting:
+        _stage = 'encrypt';
+        _copied = true;
+        _copy = const StoreMigrationProgress(done: 4200, total: 10000);
       case UnlockShow.failed:
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) setState(() => _failure = context.l10n.deskOnbUnlockPortInUse('${appConfig.httpListenPort}'));
@@ -211,11 +221,27 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   WalletEntry? get _selected => _wallets?.where((w) => w.id == _id).firstOrNull;
 
+  /// The copy step shows only on an unlock that copies the records ([_copied]).
+  bool _copied = false;
+
   List<Stage> _stages(AppLocalizations l) => [
     Stage('check', l.deskOnbUnlockStageCheck),
     Stage('wallet', l.deskOnbUnlockStageWallet),
+    // The label carries its own "…": the running stage adds none ([StageList]).
+    if (_copied) Stage('encrypt', l.storeEncrypting.replaceAll('…', '')),
     Stage('unlock', l.deskOnbUnlockStageUnlock),
   ];
+
+  /// A copy-step event of LEPIC's open: the stage runs while rows are copied, then the open goes
+  /// on. Idempotent on LEPIC's side, so nothing here asks the user to wait or not to close.
+  void _onCopy(StoreMigrationProgress p) {
+    if (!mounted || _stage == null) return;
+    setState(() {
+      _copied = true;
+      _copy = p.finished ? null : p;
+      _stage = p.finished ? 'unlock' : 'encrypt';
+    });
+  }
 
   /// Shows [stage] running; false when the screen went away.
   Future<bool> _run(String stage) async {
@@ -260,10 +286,15 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       });
       return;
     }
-    setState(() => _stage = 'unlock');
+    setState(() {
+      _stage = 'unlock';
+      _copied = false;
+      _copy = null;
+    });
     final bool ok;
+    final api = ref.read(deskApiProvider);
+    final copying = api.storeMigration.listen(_onCopy);
     try {
-      final api = ref.read(deskApiProvider);
       if (_id != null) await api.selectWallet(_id!);
       ok = remembered ? await api.unlockRemembered() : await api.unlock(password, remember: _remember);
     } on RememberUnavailable {
@@ -272,12 +303,20 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       return;
     } on Object catch (e) {
       if (!mounted) return;
+      if (e is WalletError && e.kind == WalletErrorKind.wrongKey) {
+        // Nothing was changed: the message sits under the password and Unlock stays ready.
+        _backToForm(error: deskErrorText(e, context.l10n));
+        return;
+      }
       setState(() {
         _failure = deskErrorText(e, context.l10n);
         _failedStage = 'unlock';
         _stage = null;
       });
       return;
+    } finally {
+      // Not awaited: the open is through, and the screen moves on at once.
+      unawaited(copying.cancel());
     }
     if (!mounted) return;
     if (!ok) {
@@ -323,11 +362,15 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       );
     }
     if (_stage != null) {
+      final copy = _copy;
+      // How far the copy is, while it runs (LEPIC counts pages, so no number is shown).
+      final fraction = _stage == 'encrypt' ? copy?.fraction : null;
       return ProgressView(
         title: l.deskOnbUnlockUnlocking(name),
         stages: _stages(l),
         current: _stage!,
         note: l.deskOnbUnlockNote,
+        progress: fraction,
       );
     }
     return _form(context);

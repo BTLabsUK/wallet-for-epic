@@ -29683,6 +29683,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Good for 7 days. A new invite appears when this one is used.'**
   String get pairStandingFootnote;
+
+  /// Unlock progress, phone and desktop: the first unlock after the update copies the wallet's records into its encrypted store. Shown while it runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypting wallet records…'**
+  String get storeEncrypting;
+
+  /// Info notice after unlock, once per session, phone and desktop: the copy into the encrypted store did not go through (for example a full disk), so this session uses the unencrypted records.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet records stay unencrypted for now. The app tries again next time.'**
+  String get storeRecordsPlain;
+
+  /// Unlock or recovery error: the wallet's encrypted records do not open with the key from this wallet's phrase. No file was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet\'s records could not be opened with this phrase. Nothing was changed.'**
+  String get errorStoreWrongKey;
+
+  /// Contacts screen, phone and desktop, in place of the list: the shared address book cannot be opened by this wallet yet (it has no key to it).
+  ///
+  /// In en, this message translates to:
+  /// **'Address book closed'**
+  String get contactsClosedTitle;
+
+  /// Under 'Address book closed'.
+  ///
+  /// In en, this message translates to:
+  /// **'It opens once a wallet that uses it is unlocked.'**
+  String get contactsClosedText;
 }
 
 class _AppLocalizationsDelegate

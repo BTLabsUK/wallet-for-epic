@@ -19646,4 +19646,22 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get pairStandingFootnote =>
       'Ważne 7 dni. Nowe zaproszenie pojawi się, gdy to zostanie użyte.';
+
+  @override
+  String get storeEncrypting => 'Szyfrowanie danych portfela…';
+
+  @override
+  String get storeRecordsPlain =>
+      'Dane portfela na razie pozostają niezaszyfrowane. Kolejna próba nastąpi przy następnym uruchomieniu.';
+
+  @override
+  String get errorStoreWrongKey =>
+      'Danych tego portfela nie udało się otworzyć tą frazą. Nic nie zostało zmienione.';
+
+  @override
+  String get contactsClosedTitle => 'Książka adresowa zamknięta';
+
+  @override
+  String get contactsClosedText =>
+      'Otworzy się po odblokowaniu portfela, który z niej korzysta.';
 }

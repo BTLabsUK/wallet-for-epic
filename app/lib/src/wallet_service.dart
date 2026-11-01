@@ -127,6 +127,11 @@ abstract interface class WalletService {
   /// Wrong PINs counted by the core since the last right one.
   Future<int> pinFailures({required WalletConfig config});
 
+  /// The copy step of a first open after the update that encrypts the wallet's records:
+  /// events arrive while an open ([open], [openWithPin]) copies the plain database into the
+  /// encrypted store, and none otherwise. Broadcast; listen before the open starts.
+  Stream<StoreMigrationProgress> get storeMigrationProgress;
+
   /// Deletes the wallet files in `config.dataDir`. Every session on it must be disposed first.
   /// Only the recovery phrase can bring the wallet back.
   Future<void> deleteWallet({required WalletConfig config});
@@ -171,6 +176,14 @@ Duration pinDelay(int failures) {
 /// disposed before a wallet on another chain can be opened.
 abstract interface class WalletSession {
   void dispose();
+
+  /// How this session's open found the wallet's records: encrypted, encrypted by this open, or
+  /// left plain for now because the copy did not go through ([StoreOpenOutcome]).
+  StoreOpenOutcome get storeOpen;
+
+  /// False while the shared address book is closed to this wallet (it has no key to it yet):
+  /// [contacts] is then not the book's contents, and saving a contact is refused.
+  bool get contactsAvailable;
 
   Future<String> mnemonic({required String password});
 
@@ -1020,6 +1033,7 @@ class FakeWalletService implements WalletService {
         message: 'wrong password',
       );
     }
+    await _openStore();
     openWallets.add(config.dataDir);
     session.openedConfig = config;
     return session..owner = this;
@@ -1091,6 +1105,7 @@ class FakeWalletService implements WalletService {
       );
     }
     _checkPin(pin, sealedPassword);
+    await _openStore();
     if (damageOnNextOpen) {
       // The core sets the damaged database aside; the next open rebuilds it with the flag set.
       damageOnNextOpen = false;
@@ -1105,6 +1120,38 @@ class FakeWalletService implements WalletService {
   /// When set, the next [openWithPin] reports a damaged database once, as the core does
   /// before it rebuilds one.
   bool damageOnNextOpen = false;
+
+  /// How the next opens find the records ([WalletSession.storeOpen]).
+  StoreOpenOutcome storeOutcome = StoreOpenOutcome.encrypted;
+
+  /// Copy-step events each open emits on [storeMigrationProgress] before it returns, as a
+  /// first open after the update does. Empty: an open with nothing to copy.
+  List<StoreMigrationProgress> migrationSteps = const [];
+
+  /// When set, an open that emits [migrationSteps] waits for it after the first one, so a test
+  /// sees the copy step on screen.
+  Completer<void>? migrationGate;
+
+  /// When set, opens refuse with [WalletErrorKind.wrongKey], as the core does when the key
+  /// check beside the encrypted store does not match. Nothing changes.
+  bool wrongKey = false;
+
+  final StreamController<StoreMigrationProgress> _migration = StreamController<StoreMigrationProgress>.broadcast();
+
+  @override
+  Stream<StoreMigrationProgress> get storeMigrationProgress => _migration.stream;
+
+  /// The store step of every open: the key check, then the copy events.
+  Future<void> _openStore() async {
+    if (wrongKey) {
+      throw const WalletError(kind: WalletErrorKind.wrongKey, message: 'the store key check does not match');
+    }
+    for (final (i, step) in migrationSteps.indexed) {
+      _migration.add(step);
+      if (i == 0) await migrationGate?.future;
+    }
+    session.storeOpenValue = storeOutcome;
+  }
 
   @override
   Future<int> pinFailures({required WalletConfig config}) async =>
@@ -1200,6 +1247,18 @@ class FakeWalletSession implements WalletSession {
     disposeCalls++;
     owner?.openWallets.remove(openedConfig?.dataDir);
   }
+
+  /// What [storeOpen] answers; [FakeWalletService] sets it at each open.
+  StoreOpenOutcome storeOpenValue = StoreOpenOutcome.encrypted;
+
+  @override
+  StoreOpenOutcome get storeOpen => storeOpenValue;
+
+  /// What [contactsAvailable] answers: false shows the address book closed.
+  bool contactsAvailableValue = true;
+
+  @override
+  bool get contactsAvailable => contactsAvailableValue;
 
   @override
   Future<String> mnemonic({required String password}) async => phrase;
@@ -2182,12 +2241,16 @@ class FakeWalletSession implements WalletSession {
   }
 
   @override
-  Future<List<Contact>> contacts() async =>
-      [...contactsValue]
-        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+  Future<List<Contact>> contacts() async => !contactsAvailableValue
+      ? <Contact>[]
+      : ([...contactsValue]
+          ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())));
 
   @override
   Future<Contact> saveContact({required Contact contact}) async {
+    if (!contactsAvailableValue) {
+      throw const WalletError(kind: WalletErrorKind.io, message: 'the address book is closed');
+    }
     // As the wallet's book: a name is required, an address not (a contact a pairing pays).
     if (contact.name.trim().isEmpty) {
       throw const WalletError(

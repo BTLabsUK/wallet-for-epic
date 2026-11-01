@@ -18,7 +18,7 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show epicboxKey, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../models.dart' show epicboxKey, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
@@ -27,7 +27,7 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../finished_payment.dart' show readFinishedPayment;
-import '../../wallet_service.dart' show FakeWalletSession, WalletError, onionAddressFormat;
+import '../../wallet_service.dart' show FakeWalletSession, WalletError, WalletErrorKind, onionAddressFormat;
 import 'api.dart';
 import 'backup_settings_desk.dart';
 import 'features.dart';
@@ -384,10 +384,40 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   bool openedRemembered = false;
 
+  /// Copy-step events each unlock emits on [storeMigration] before it opens, as the first
+  /// unlock after the update does; empty: nothing to copy.
+  List<StoreMigrationProgress> migrationSteps = const [];
+
+  /// When set, an unlock that emits [migrationSteps] waits for it after the first one.
+  Completer<void>? migrationGate;
+
+  /// The session runs on the unencrypted records ([ServiceStatus.recordsPlain]).
+  bool recordsPlain = false;
+
+  /// The shared address book is closed to this wallet ([ServiceStatus.contactsClosed]).
+  bool contactsClosed = false;
+
+  /// When set, unlocks refuse with the store's wrong-key error.
+  bool wrongKey = false;
+
+  final StreamController<StoreMigrationProgress> _migration = StreamController<StoreMigrationProgress>.broadcast();
+
+  @override
+  Stream<StoreMigrationProgress> get storeMigration => _migration.stream;
+
+  Future<void> _copyStore() async {
+    if (wrongKey) throw const WalletError(kind: WalletErrorKind.wrongKey, message: 'the store key check does not match');
+    for (final (i, step) in migrationSteps.indexed) {
+      _migration.add(step);
+      if (i == 0) await migrationGate?.future;
+    }
+  }
+
   @override
   Future<bool> unlock(String password, {bool remember = false}) async {
     await _wait(2);
     final ok = password.isNotEmpty && password != 'wrong';
+    if (ok) await _copyStore();
     if (!ok && ++_fails >= 5) _remembered.remove(_selected);
     notRemembered = false;
     if (ok) {
@@ -403,6 +433,7 @@ class MockDeskWallet implements DeskWalletApi {
   Future<bool> unlockRemembered() async {
     if (!_remembered.contains(_selected)) return false;
     await _wait(2);
+    await _copyStore();
     openedRemembered = true;
     return true;
   }
@@ -823,6 +854,8 @@ class MockDeskWallet implements DeskWalletApi {
       tor: _settings.tor ? ServiceHealth.ok : ServiceHealth.off,
       torCanSend: _settings.tor,
       lastUpdate: _ago(minutes: 1),
+      recordsPlain: recordsPlain,
+      contactsClosed: contactsClosed,
     );
   }
 

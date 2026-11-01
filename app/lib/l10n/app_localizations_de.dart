@@ -19222,4 +19222,22 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get pairStandingFootnote =>
       'Gültig für 7 Tage. Eine neue Einladung erscheint, sobald diese benutzt wurde.';
+
+  @override
+  String get storeEncrypting => 'Wallet-Daten werden verschlüsselt…';
+
+  @override
+  String get storeRecordsPlain =>
+      'Die Wallet-Daten bleiben vorerst unverschlüsselt. Beim nächsten Start wird es erneut versucht.';
+
+  @override
+  String get errorStoreWrongKey =>
+      'Die Daten dieser Wallet ließen sich mit dieser Phrase nicht öffnen. Nichts wurde geändert.';
+
+  @override
+  String get contactsClosedTitle => 'Adressbuch geschlossen';
+
+  @override
+  String get contactsClosedText =>
+      'Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt.';
 }

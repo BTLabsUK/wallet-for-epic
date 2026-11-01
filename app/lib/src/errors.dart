@@ -74,6 +74,8 @@ String describeError(AppLocalizations l, Object error) {
       // Receive, send or an invoice before the restore's scan from block 0 has finished; Home
       // shows that scan (restore_scan.dart).
       WalletErrorKind.restoreScanRequired => l.errorRestoreScanRequired,
+      // The key check beside the encrypted records did not match: nothing was touched.
+      WalletErrorKind.wrongKey => l.errorStoreWrongKey,
       // Another wallet with this phrase spent the coins; the send is released and a refresh follows.
       WalletErrorKind.inputsSpentElsewhere => l.errorInputsSpentElsewhere,
       // A late post of a cancelled payment whose coins were moved: the node only says "internal

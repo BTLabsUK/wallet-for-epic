@@ -49,6 +49,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   /// When LEPIC checks the PIN being tried, while it waits after repeated failures.
   DateTime? _checkAt;
 
+  /// The copy step of a first unlock after the update, while it runs; null otherwise.
+  StoreMigrationProgress? _copy;
+
   /// The user's choice between the PIN and the passphrase field, over the stored mode. Only a
   /// wallet that ever had a passphrase is offered it: if the app stopped between the new
   /// sealed text and the recorded mode, the field would otherwise not fit the secret.
@@ -192,6 +195,11 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     });
     final checkAt = await pinCheckTime(ref);
     if (mounted) setState(() => _checkAt = checkAt);
+    // LEPIC's open copies the records into the encrypted store on the first unlock after the
+    // update; the line shows while it does. It restarts cleanly, so nothing asks to wait.
+    final copying = ref.read(walletServiceProvider).storeMigrationProgress.listen((p) {
+      if (mounted) setState(() => _copy = p.finished ? null : p);
+    });
     try {
       var rebuilt = false;
       WalletSession? session;
@@ -212,6 +220,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         return;
       }
       await ref.read(sessionProvider.notifier).open(session);
+      if (session.storeOpen == StoreOpenOutcome.plainFallback) {
+        ref.read(noticeProvider.notifier).show(l.storeRecordsPlain, level: NoticeLevel.info, persistent: true);
+      }
       if (rebuilt) {
         ref
             .read(noticeProvider.notifier)
@@ -232,10 +243,12 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       _pin.clear();
       if (mounted) setState(() => _error = describeError(l, error));
     } finally {
+      unawaited(copying.cancel());
       if (mounted) {
         setState(() {
           _busy = false;
           _checkAt = null;
+          _copy = null;
         });
       }
     }
@@ -338,7 +351,10 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               ),
             },
           const SizedBox(height: 16),
-          if (_busy) const PinCheckBar(),
+          if (_busy && _copy != null)
+            StoreCopyLine(progress: _copy!)
+          else if (_busy)
+            const PinCheckBar(),
           if (_busy && checkAt != null) ...[
             const SizedBox(height: 8),
             PinWaitNote(until: checkAt),
@@ -428,6 +444,40 @@ class _ResetDialogState extends State<_ResetDialog> {
           child: Text(l.pinResetDelete),
         ),
       ],
+    );
+  }
+}
+
+/// The copy step of a first unlock after the update: "Encrypting wallet records…" and a bar.
+class StoreCopyLine extends StatelessWidget {
+  const StoreCopyLine({super.key, required this.progress});
+
+  final StoreMigrationProgress progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final fraction = progress.fraction;
+    return Semantics(
+      liveRegion: true,
+      child: Column(
+        key: const ValueKey('store-copy'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+              const SizedBox(width: 10),
+              Flexible(child: Text(l.storeEncrypting, textAlign: TextAlign.center)),
+            ],
+          ),
+          if (fraction != null) ...[
+            const SizedBox(height: 12),
+            LinearProgressIndicator(value: fraction),
+          ],
+        ],
+      ),
     );
   }
 }

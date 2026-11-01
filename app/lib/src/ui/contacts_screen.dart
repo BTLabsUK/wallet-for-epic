@@ -143,7 +143,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final canExport = contacts.value?.isNotEmpty ?? false;
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
-    final none = switch (contacts) {
+    // A shared book this wallet has no key to yet: said closed, never shown as an empty one.
+    final closed = !(ref.watch(sessionProvider)?.contactsAvailable ?? true);
+    final none = closed || switch (contacts) {
       AsyncData(:final value) => value.isEmpty && requests == 0 && orphans.isEmpty,
       _ => false,
     };
@@ -204,7 +206,22 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       ),
       body: PhoneTourTarget(
         id: 'tour-contacts-list',
-        child: none
+        child: closed
+          ? CenteredBody(
+              children: [
+                EmptyState(
+                  key: const ValueKey('contacts-closed'),
+                  icon: const Icon(Icons.lock_outline),
+                  message: l.contactsClosedTitle,
+                  action: Text(
+                    l.contactsClosedText,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim),
+                  ),
+                ),
+              ],
+            )
+          : none
           ? CenteredBody(
               children: [
                 EmptyState(

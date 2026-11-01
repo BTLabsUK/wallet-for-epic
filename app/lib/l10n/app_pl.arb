@@ -4946,5 +4946,10 @@
   "helpPairWhyP1b": "Po parowaniu zaproszeniem oba portfele pokazują te same cztery obrazki i nazwy. Porównaj je z drugą osobą osobiście, głosem albo na wideorozmowie, nigdy w czacie, którym przyszło zaproszenie: kto mógłby podmienić zaproszenie po drodze, mógłby też podmienić to, co pokazuje ten czat.",
   "helpPairWhyP2b": "**Zgadzają się** oznacza kontakt jako Zweryfikowany; drugi portfel dowiaduje się o tym i pokazuje „też potwierdził(a)”. **Nie zgadzają się** kończy parowanie po obu stronach i nic, co przez nie wysłano, nie zostanie dokończone. Omyłkowe Nie też je kończy: sparuj ponownie z nowym zaproszeniem.",
   "helpPairWhyP3b": "Zweryfikowany oznacza portfel stojący za adresem w twoich kontaktach. Po prośbie między dwoma kontaktami ustawia się bez słów, bo prośba i odpowiedź potwierdziły ten adres.",
-  "helpPairWhyP4b": "„Potwierdzony” znaczy, że w ostatnich 30 dniach między tymi dwoma adresami Epicbox przeszła płatność oznaczona przez oba portfele. Kontakt, na który od tego czasu odpowiedziała inna aplikacja portfela, nie jest potwierdzony do następnej oznaczonej płatności."
+  "helpPairWhyP4b": "„Potwierdzony” znaczy, że w ostatnich 30 dniach między tymi dwoma adresami Epicbox przeszła płatność oznaczona przez oba portfele. Kontakt, na który od tego czasu odpowiedziała inna aplikacja portfela, nie jest potwierdzony do następnej oznaczonej płatności.",
+  "storeEncrypting": "Szyfrowanie danych portfela…",
+  "storeRecordsPlain": "Dane portfela na razie pozostają niezaszyfrowane. Kolejna próba nastąpi przy następnym uruchomieniu.",
+  "errorStoreWrongKey": "Danych tego portfela nie udało się otworzyć tą frazą. Nic nie zostało zmienione.",
+  "contactsClosedTitle": "Książka adresowa zamknięta",
+  "contactsClosedText": "Otworzy się po odblokowaniu portfela, który z niej korzysta."
 }

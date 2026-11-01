@@ -136,6 +136,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         ),
       if (restore != null) RestoreScanPanel(scan: restore),
       if (s.status?.notice != null) ENotice(tone: ETone.warn, icon: EIcons.alert, title: s.status!.notice!),
+      // This session runs on the unencrypted records; the next unlock copies them again.
+      if (s.status?.recordsPlain ?? false) ENotice(key: const ValueKey('overview-records-plain'), tone: ETone.info, icon: EIcons.info, title: l.storeRecordsPlain),
       if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
       if (starting) const _Steps(),
       if (demo == OverviewDemo.nodeProblem && !_addressNoteHidden)

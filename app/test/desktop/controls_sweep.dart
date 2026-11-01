@@ -18,7 +18,7 @@ import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent;
+import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
@@ -122,6 +122,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   Future<bool> unlock(String password, {bool remember = false}) => _r('unlock', () => _m.unlock(password, remember: remember));
   @override
   Future<bool> unlockRemembered() => _r('unlockRemembered', _m.unlockRemembered);
+  @override
+  Stream<StoreMigrationProgress> get storeMigration => _m.storeMigration;
   @override
   Future<bool> isRemembered(String id) => _m.isRemembered(id);
   @override

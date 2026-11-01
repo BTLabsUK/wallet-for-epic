@@ -73,6 +73,7 @@ String deskErrorText(Object error, [AppLocalizations? l]) {
     WalletErrorKind.io => detail.isEmpty ? l.deskErrDisk : l.deskErrDiskDetail(detail),
     WalletErrorKind.pairingFailed => pairingFailureText(l, pairingFailureOf(error) ?? PairingFailure.invalid),
     WalletErrorKind.restoreScanRequired => l.deskErrRestoreScanRequired,
+    WalletErrorKind.wrongKey => l.errorStoreWrongKey,
     WalletErrorKind.inputsSpentElsewhere => l.deskErrInputsSpentElsewhere,
     WalletErrorKind.inputsSpentByOwnPayment || WalletErrorKind.peerInputsSpent => l.errorPaymentCancelledCoinsMoved,
     WalletErrorKind.phraseMismatch => l.deskOnbForgotOtherWallet(l.deskOnbUnlockThisWallet),

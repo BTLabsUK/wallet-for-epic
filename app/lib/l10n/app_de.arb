@@ -4946,5 +4946,10 @@
   "helpPairWhyP1b": "Nach dem Koppeln per Einladung zeigen beide Wallets dieselben vier Bilder und Namen. Vergleiche sie mit der anderen Person persönlich, per Sprache oder in einem Videoanruf, nie in dem Chat, durch den die Einladung kam: Wer die Einladung unterwegs ändern könnte, könnte auch ändern, was dieser Chat zeigt.",
   "helpPairWhyP2b": "**Sie stimmen überein** markiert den Kontakt als Verifiziert; die andere Wallet erfährt es und zeigt „hat auch bestätigt“. **Sie stimmen nicht überein** beendet die Kopplung auf beiden Seiten, und nichts, was hindurch gesendet wurde, wird abgeschlossen. Ein versehentliches Nein beendet sie ebenfalls: kopple erneut mit einer frischen Einladung.",
   "helpPairWhyP3b": "Verifiziert bedeutet: die Wallet hinter der Adresse in deinen Kontakten. Nach einer Anfrage zwischen zwei Kontakten wird es ohne Wörter gesetzt, weil Anfrage und Antwort diese Adresse jeweils belegt haben.",
-  "helpPairWhyP4b": "„Belegt“ heißt: Eine von beiden Wallets markierte Zahlung ist in den letzten 30 Tagen zwischen den beiden Epicbox-Adressen gelaufen. Ein Kontakt, der seitdem von einer anderen Wallet-App beantwortet wurde, gilt bis zur nächsten markierten Zahlung nicht als belegt."
+  "helpPairWhyP4b": "„Belegt“ heißt: Eine von beiden Wallets markierte Zahlung ist in den letzten 30 Tagen zwischen den beiden Epicbox-Adressen gelaufen. Ein Kontakt, der seitdem von einer anderen Wallet-App beantwortet wurde, gilt bis zur nächsten markierten Zahlung nicht als belegt.",
+  "storeEncrypting": "Wallet-Daten werden verschlüsselt…",
+  "storeRecordsPlain": "Die Wallet-Daten bleiben vorerst unverschlüsselt. Beim nächsten Start wird es erneut versucht.",
+  "errorStoreWrongKey": "Die Daten dieser Wallet ließen sich mit dieser Phrase nicht öffnen. Nichts wurde geändert.",
+  "contactsClosedTitle": "Adressbuch geschlossen",
+  "contactsClosedText": "Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt."
 }

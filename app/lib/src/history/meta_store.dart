@@ -17,6 +17,7 @@ import 'dart:io';
 
 import '../log.dart';
 import '../recipient.dart';
+import '../sealed_file.dart';
 import '../wallet_service.dart';
 
 const String metaFileName = 'wfe_meta.json';
@@ -825,79 +826,233 @@ class Meta {
   Meta copy() => Meta.fromJson(jsonDecode(encodeJson(toJson())));
 }
 
+/// Adds to [into] what [plain] holds and [into] lacks: a plain `wfe_meta.json` an older build
+/// changed after the sealed file was made. Only adds; where both hold an entry, [into] wins.
+/// Returns whether anything was added.
+bool mergePlainMeta(Meta into, Meta plain) {
+  final before = encodeJson(into.toJson());
+  void maps<V>(Map<String, V> to, Map<String, V> from) {
+    for (final e in from.entries) {
+      to.putIfAbsent(e.key, () => e.value);
+    }
+  }
+
+  maps(into.notes, plain.notes);
+  maps(into.manual, plain.manual);
+  maps(into.annotations, plain.annotations);
+  maps(into.blockTimes, plain.blockTimes);
+  maps(into.kernelHeights, plain.kernelHeights);
+  maps(into.blockTimeMisses, plain.blockTimeMisses);
+  maps(into.paidInvoices, plain.paidInvoices);
+  maps(into.issuedInvoices, plain.issuedInvoices);
+  maps(into.seededAddresses, plain.seededAddresses);
+  into.favourites.addAll(plain.favourites);
+  into.seededContacts.addAll(plain.seededContacts);
+  for (final c in plain.contacts) {
+    if (!into.contacts.any((e) => e.id == c.id)) into.contacts.add(c);
+  }
+  for (final r in plain.records) {
+    if (!into.records.any((e) => e.sameTx(r))) into.records.add(r);
+  }
+  return encodeJson(into.toJson()) != before;
+}
+
+/// The sealed archive beside the plain one.
+const String metaSealedFileName = 'wfe_meta.sealed';
+
 /// The archive of one wallet, loaded once per session.
+///
+/// Opened with an [AppDataSealer] (every LEPIC session), it lives in `wfe_meta.sealed` and
+/// `wfe_meta.json` is only read: on the first open the plain file is sealed copy-then-switch
+/// (`wfe_meta.sealed.tmp`, read back and opened, renamed), and left where it is for a rollback
+/// to an older build. The sealed file records the plain file's size and hash; a plain file
+/// changed since (an older build wrote it) is merged in at the next open, adding only.
 class MetaStore {
-  MetaStore._(this.path, this._meta);
+  MetaStore._(this.path, this._meta, {this._sealer, this._walletId, this._plain, this.readOnly = false});
 
   /// An archive kept in memory only, for a session no file belongs to (tests).
-  MetaStore.memory() : path = null, _meta = Meta();
+  MetaStore.memory() : path = null, _meta = Meta(), _sealer = null, _walletId = null, readOnly = false;
 
-  /// The file, or null for [MetaStore.memory].
+  /// The file written: `wfe_meta.sealed` when sealed, else `wfe_meta.json`; null for
+  /// [MetaStore.memory].
   final String? path;
   Meta _meta;
   bool _closed = false;
   Future<void> _tail = Future.value();
+  final AppDataSealer? _sealer;
+  final String? _walletId;
+  PlainRecord? _plain;
 
-  /// Stores open on a file, so a delete can stop their late writes.
+  /// A sealed file this app may not rewrite (another wallet's, another kind, a later version):
+  /// read as far as it goes, never written.
+  final bool readOnly;
+
+  bool get sealed => _sealer != null;
+
+  /// Stores open on a wallet's archive (by its plain file's path), so a delete can stop their
+  /// late writes.
   static final Map<String, Set<MetaStore>> _open = {};
 
-  static String _fileOf(String dataDir) =>
-      File('$dataDir${Platform.pathSeparator}$metaFileName').absolute.path;
+  static String _fileOf(String dataDir, [String name = metaFileName]) =>
+      File('$dataDir${Platform.pathSeparator}$name').absolute.path;
 
-  /// Loads `<dataDir>/wfe_meta.json`, or starts empty when there is none. A file that cannot be
-  /// parsed is moved aside to `wfe_meta.json.corrupt-<ms>` rather than overwritten, so notes
-  /// are never destroyed silently, and the wallet still opens.
-  static Future<MetaStore> open(String dataDir) async {
-    final path = _fileOf(dataDir);
+  /// Loads the archive of [dataDir]. With [sealer] (and the wallet's [walletId]) the sealed
+  /// archive, migrated from `wfe_meta.json` the first time; without, `wfe_meta.json` itself.
+  static Future<MetaStore> open(String dataDir, {AppDataSealer? sealer, String? walletId}) async {
+    final MetaStore store;
+    if (sealer == null) {
+      final path = _fileOf(dataDir);
+      store = MetaStore._(path, await _readPlain(path, moveAside: true) ?? Meta());
+    } else {
+      if (walletId == null || !sealedWalletIdPattern.hasMatch(walletId)) {
+        throw _io('a sealed archive needs the wallet id');
+      }
+      store = await _openSealed(dataDir, sealer, walletId);
+    }
+    (_open[_fileOf(dataDir)] ??= {}).add(store);
+    return store;
+  }
+
+  /// Reads `wfe_meta.json`, or null when there is none. One that cannot be parsed is moved aside
+  /// to `wfe_meta.json.corrupt-<ms>` with [moveAside] (the plain archive in use, so notes are
+  /// never destroyed silently and the wallet still opens), else left as it is and read as empty.
+  static Future<Meta?> _readPlain(String path, {required bool moveAside}) async {
     final file = File(path);
-    Meta meta;
     try {
       final bytes = await file.readAsBytes();
       try {
-        meta = Meta.fromJson(jsonDecode(utf8.decode(bytes)));
+        return Meta.fromJson(jsonDecode(utf8.decode(bytes)));
       } on Object catch (e) {
         if (e is! FormatException && e is! MetaFormatException) rethrow;
-        // Timestamped, so a second damaged file does not replace the first.
-        final aside = '$path.corrupt-${DateTime.now().millisecondsSinceEpoch}';
         // Never the exception's text: Dart's FormatException quotes the source, which holds
         // notes and addresses. serde's error in the old core named only the position.
         final why = switch (e) {
-          FormatException(:final offset) =>
-            offset == null ? 'not JSON' : 'not JSON at byte $offset',
+          FormatException(:final offset) => offset == null ? 'not JSON' : 'not JSON at byte $offset',
           MetaFormatException(:final message) => 'wrong shape: $message',
           _ => 'unreadable',
         };
+        if (!moveAside) {
+          logWarn('history', '$metaFileName is unreadable ($why); not merged');
+          return Meta();
+        }
         logWarn('history', '$metaFileName is unreadable ($why); moved aside');
+        // Timestamped, so a second damaged file does not replace the first.
+        final aside = '$path.corrupt-${DateTime.now().millisecondsSinceEpoch}';
         try {
           await file.rename(aside);
         } on FileSystemException catch (e) {
           throw _io('moving $path: ${e.message}');
         }
-        meta = Meta();
+        return Meta();
       }
     } on PathNotFoundException {
-      meta = Meta();
+      return null;
     } on FileSystemException catch (e) {
       throw _io('reading $path: ${e.message}');
     }
-    final store = MetaStore._(path, meta);
-    (_open[path] ??= {}).add(store);
+  }
+
+  /// The sealed open. Each step leaves a state the next open completes:
+  /// 1. a `wfe_meta.sealed.tmp` is a write a crash cut short: deleted;
+  /// 2. no sealed file: the plain one (or nothing) is sealed copy-then-switch; until the rename
+  ///    nothing but the tmp changed, so a crash starts over;
+  /// 3. a sealed file: opened; a plain file whose size or hash differs from the record is merged
+  ///    in and the record moves, in one sealed write. Merging only adds, so doing it twice
+  ///    changes nothing.
+  /// The plain file is never written, renamed or deleted.
+  static Future<MetaStore> _openSealed(String dataDir, AppDataSealer sealer, String walletId) async {
+    final path = _fileOf(dataDir, metaSealedFileName);
+    final plainPath = _fileOf(dataDir);
+    try {
+      await SealedFile.dropTmp(path);
+    } on FileSystemException catch (e) {
+      throw _io('deleting ${SealedFile.tmpOf(path)}: ${e.message}');
+    }
+    final PlainRecord? plainRec;
+    SealedPayload? found;
+    try {
+      plainRec = await PlainRecord.ofFile(plainPath);
+      found = await SealedFile.readSealed(path, sealer, kind: sealedKindMeta, walletId: walletId);
+    } on SealedOpenError catch (e) {
+      if (e.problem != SealedOpenProblem.damaged) {
+        // Not this wallet's archive, or a later one: never overwritten. The plain file, if any,
+        // shows what it can, read-only.
+        logWarn('history', '$metaSealedFileName does not open here (${e.problem.name}); read-only');
+        final plain = await _readPlain(plainPath, moveAside: false);
+        return MetaStore._(path, plain ?? Meta(), sealer: sealer, walletId: walletId, readOnly: true);
+      }
+      logWarn('history', '$metaSealedFileName is damaged; moved aside');
+      try {
+        await File(path).rename('$path.corrupt-${DateTime.now().millisecondsSinceEpoch}');
+      } on FileSystemException catch (e) {
+        throw _io('moving $path: ${e.message}');
+      }
+      return _openSealed(dataDir, sealer, walletId);
+    } on FileSystemException catch (e) {
+      throw _io('reading $path: ${e.message}');
+    }
+    if (found != null) {
+      final Meta meta;
+      try {
+        meta = Meta.fromJson(jsonDecode(utf8.decode(found.body)));
+      } on Object catch (e) {
+        if (e is! FormatException && e is! MetaFormatException) rethrow;
+        // Sealed and intact, yet not an archive: kept as it is.
+        logWarn('history', '$metaSealedFileName holds no archive; read-only');
+        return MetaStore._(path, Meta(), sealer: sealer, walletId: walletId, readOnly: true);
+      }
+      final store = MetaStore._(
+        path,
+        meta,
+        sealer: sealer,
+        walletId: walletId,
+        plain: found.plain,
+        readOnly: found.version > sealedHeaderVersion,
+      );
+      if (plainRec != null && plainRec != found.plain && !store.readOnly && meta.version <= metaVersion) {
+        final plain = await _readPlain(plainPath, moveAside: false) ?? Meta();
+        final next = meta.copy();
+        mergePlainMeta(next, plain);
+        try {
+          await store._writeSealed(next, plainRec);
+          logInfo('history', '$metaFileName changed since it was sealed; merged in');
+        } on WalletError {
+          // Tried again at the next open; nothing was lost, the plain file is still there.
+          logWarn('history', '$metaFileName changed since it was sealed; not merged yet');
+        }
+      }
+      return store;
+    }
+    final plain = plainRec == null ? null : await _readPlain(plainPath, moveAside: false);
+    final store = MetaStore._(path, plain ?? Meta(), sealer: sealer, walletId: walletId, plain: plainRec);
+    if (plain != null) {
+      try {
+        await store._writeSealed(store._meta, plainRec);
+        logInfo('history', '$metaFileName sealed');
+      } on WalletError {
+        // Disk full or the like: this session runs on the copy in memory; the next change, or
+        // the next open, seals again. The plain file is still there.
+        logWarn('history', '$metaFileName could not be sealed yet');
+      }
+    }
     return store;
   }
 
-  /// Removes the archive of [dataDir], its temp file and the `.corrupt-<ms>` copies moved aside,
-  /// and stops every store still open on it from writing, so no late call brings the file back
-  /// and a new wallet in the same directory starts with no notes or contacts.
+  /// Removes the archive of [dataDir] (plain and sealed), their temp files and the
+  /// `.corrupt-<ms>` copies moved aside, and stops every store still open on it from writing, so
+  /// no late call brings a file back and a new wallet in the same directory starts with no notes
+  /// or contacts.
   static Future<void> deleteFiles(String dataDir) async {
     final path = _fileOf(dataDir);
+    final sealedPath = _fileOf(dataDir, metaSealedFileName);
     for (final store in _open.remove(path) ?? const <MetaStore>{}) {
       store._closed = true;
     }
     final corrupt = <String>[];
     try {
       await for (final e in Directory(File(path).parent.path).list()) {
-        if (e is File &&
-            e.uri.pathSegments.last.startsWith('$metaFileName.corrupt-')) {
+        final name = e.uri.pathSegments.last;
+        if (e is File && (name.startsWith('$metaFileName.corrupt-') || name.startsWith('$metaSealedFileName.corrupt-'))) {
           corrupt.add(e.path);
         }
       }
@@ -906,7 +1061,7 @@ class MetaStore {
     } on FileSystemException catch (e) {
       throw _io('listing ${File(path).parent.path}: ${e.message}');
     }
-    for (final name in [path, _tmpOf(path), ...corrupt]) {
+    for (final name in [path, _tmpOf(path), sealedPath, SealedFile.tmpOf(sealedPath), ...corrupt]) {
       try {
         await File(name).delete();
       } on PathNotFoundException {
@@ -927,7 +1082,8 @@ class MetaStore {
   void close() {
     _closed = true;
     final p = path;
-    if (p != null) _open[p]?.remove(this);
+    if (p == null) return;
+    _open[_fileOf(File(p).parent.path)]?.remove(this);
   }
 
   /// Applies [change] to a copy and persists it. The state changes only if the write succeeds.
@@ -940,6 +1096,7 @@ class MetaStore {
 
   Future<R> _apply<R>(R Function(Meta meta) change) async {
     if (_closed) throw _io('the wallet is closed or was deleted');
+    if (readOnly) throw _io('$path does not open as this wallet\'s archive; it is kept as it is');
     if (_meta.version > metaVersion) {
       // Rewriting it would drop whatever the newer version added.
       throw _io(
@@ -953,10 +1110,34 @@ class MetaStore {
     final text = encodeJson(next.toJson());
     if (text != encodeJson(_meta.toJson())) {
       final p = path;
+      if (p != null && sealed) {
+        await _writeSealed(next, _plain);
+        return out;
+      }
       if (p != null) await _writeAtomic(p, utf8.encode(text));
       _meta = next;
     }
     return out;
+  }
+
+  /// Seals [meta] with the record [plain] into the sealed file; the state moves only once the
+  /// sealed copy is in place.
+  Future<void> _writeSealed(Meta meta, PlainRecord? plain) async {
+    final payload = SealedPayload(
+      kind: sealedKindMeta,
+      walletId: _walletId!,
+      plain: plain,
+      body: utf8.encode(encodeJson(meta.toJson())),
+    );
+    try {
+      await SealedFile.writeSealed(path!, _sealer!, payload);
+    } on FileSystemException catch (e) {
+      throw _io('writing $path: ${e.message}');
+    } on SealedOpenError catch (e) {
+      throw _io('writing $path: the sealed copy did not open (${e.problem.name})');
+    }
+    _meta = meta;
+    _plain = plain;
   }
 
   /// Writes [bytes] to [path] so a crash leaves either the old file or the new one. The

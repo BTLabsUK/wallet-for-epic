@@ -18999,4 +18999,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pairStandingFootnote =>
       'Good for 7 days. A new invite appears when this one is used.';
+
+  @override
+  String get storeEncrypting => 'Encrypting wallet records…';
+
+  @override
+  String get storeRecordsPlain =>
+      'Wallet records stay unencrypted for now. The app tries again next time.';
+
+  @override
+  String get errorStoreWrongKey =>
+      'This wallet\'s records could not be opened with this phrase. Nothing was changed.';
+
+  @override
+  String get contactsClosedTitle => 'Address book closed';
+
+  @override
+  String get contactsClosedText =>
+      'It opens once a wallet that uses it is unlocked.';
 }

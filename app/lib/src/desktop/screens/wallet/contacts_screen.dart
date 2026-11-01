@@ -167,6 +167,14 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             : loadingList,
       );
     }
+    // A book this wallet has no key to yet: closed, said so, never shown as an empty one.
+    if (ref.watch(deskProvider.select((s) => s.status?.contactsClosed ?? false))) {
+      return EPage(
+        title: l.deskConTitle,
+        width: EPageWidth.narrow,
+        child: Container(decoration: panel, child: const _Closed()),
+      );
+    }
     final orphans = ref.watch(deskPairsProvider) ? ref.watch(deskOrphanPairingsProvider) : const <PairingRecord>[];
     if (all.isEmpty && orphans.isEmpty && !_adding) {
       return EPage(
@@ -354,6 +362,30 @@ class _Idle extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// The shared address book is closed to the open wallet: nothing to list, nothing to add.
+class _Closed extends StatelessWidget {
+  const _Closed();
+
+  @override
+  Widget build(BuildContext context) {
+    final ts = context.ts;
+    final l = context.l10n;
+    return Padding(
+      key: const ValueKey('contacts-closed'),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x10),
+      child: Column(
+        children: [
+          ExcludeSemantics(child: Icon(EIcons.lock, size: Ctl.iconLg, color: context.dc.faint)),
+          SizedBox(height: Sp.x5),
+          Semantics(header: true, child: Text(l.contactsClosedTitle, style: ts.h3, textAlign: TextAlign.center)),
+          SizedBox(height: Sp.x2),
+          Text(l.contactsClosedText, style: ts.bodyDim, textAlign: TextAlign.center),
+        ],
+      ),
+    );
+  }
 }
 
 /// No contacts saved yet.

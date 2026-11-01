@@ -19626,4 +19626,22 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get pairStandingFootnote =>
       'Действует 7 дней. Новое приглашение появится, когда это будет использовано.';
+
+  @override
+  String get storeEncrypting => 'Шифрование данных кошелька…';
+
+  @override
+  String get storeRecordsPlain =>
+      'Данные кошелька пока остаются незашифрованными. Следующая попытка — при следующем запуске.';
+
+  @override
+  String get errorStoreWrongKey =>
+      'Данные этого кошелька не удалось открыть этой фразой. Ничего не изменено.';
+
+  @override
+  String get contactsClosedTitle => 'Адресная книга закрыта';
+
+  @override
+  String get contactsClosedText =>
+      'Она откроется, когда будет разблокирован кошелёк, который её использует.';
 }

@@ -12,6 +12,7 @@ import 'package:crypto/crypto.dart';
 import '../contact_store.dart';
 import '../legacy/gui_contacts.dart';
 import '../recipient.dart';
+import '../sealed_file.dart';
 import '../seed_contacts.dart';
 import '../wallet_service.dart';
 import 'export.dart';
@@ -157,11 +158,25 @@ class WalletHistory {
     : _store = MetaStore.memory(),
       _shared = contacts;
 
-  /// Opens the archive in [dataDir].
-  static Future<WalletHistory> open(String dataDir, Chain chain, {ContactStore? contacts}) async =>
-      WalletHistory(await MetaStore.open(dataDir), chain: chain, contacts: contacts);
+  /// Opens the archive in [dataDir]: sealed by [sealer] for the wallet [walletId] when given
+  /// (`MetaStore.open`).
+  static Future<WalletHistory> open(
+    String dataDir,
+    Chain chain, {
+    ContactStore? contacts,
+    AppDataSealer? sealer,
+    String? walletId,
+  }) async => WalletHistory(
+    await MetaStore.open(dataDir, sealer: sealer, walletId: walletId),
+    chain: chain,
+    contacts: contacts,
+  );
 
   final ContactStore? _shared;
+
+  /// False while the shared book is closed to this wallet (no key to it yet): [contacts] is
+  /// then empty because nothing could be read, not because there are none.
+  bool get contactsAvailable => _shared?.available ?? true;
 
   final MetaStore _store;
 
@@ -355,7 +370,8 @@ class WalletHistory {
   /// edited one is left alone. Does nothing without the shared book.
   Future<void> seedContacts(List<SeedContact> seeds) async {
     final shared = _shared;
-    if (shared == null) return;
+    // A closed book is not written; the seeds come with the next wallet that opens it.
+    if (shared == null || !shared.available) return;
     for (final s in seeds) {
       if (meta.seededContacts.contains(s.id)) {
         await _followSeed(shared, s);

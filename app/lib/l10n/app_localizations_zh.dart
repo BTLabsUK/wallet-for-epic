@@ -17932,4 +17932,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairStandingFootnote => '有效期 7 天。此邀请被使用后会出现新的邀请。';
+
+  @override
+  String get storeEncrypting => '正在加密钱包记录…';
+
+  @override
+  String get storeRecordsPlain => '钱包记录暂时保持未加密。下次启动时会再次尝试。';
+
+  @override
+  String get errorStoreWrongKey => '无法用此助记词打开该钱包的记录。未做任何更改。';
+
+  @override
+  String get contactsClosedTitle => '通讯录已关闭';
+
+  @override
+  String get contactsClosedText => '解锁使用该通讯录的钱包后即可打开。';
 }
