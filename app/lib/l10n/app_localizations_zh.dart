@@ -15771,7 +15771,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC 被 $name 正在进行的一笔付款保留。';
+    return '$amount EPIC 被“$name”正在进行的一笔付款保留。';
   }
 
   @override

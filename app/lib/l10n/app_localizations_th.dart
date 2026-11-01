@@ -16344,7 +16344,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC ถูกพักไว้โดยรายการที่ $name กำลังทำ';
+    return '$amount EPIC ถูกพักไว้โดยรายการที่ “$name” กำลังทำ';
   }
 
   @override

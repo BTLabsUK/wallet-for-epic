@@ -17347,7 +17347,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC jest wstrzymane przez płatność, którą wykonuje: $name.';
+    return '$amount EPIC jest wstrzymane przez płatność, którą wykonuje „$name”.';
   }
 
   @override

@@ -17327,7 +17327,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC удерживается платежом, который выполняет $name.';
+    return '$amount EPIC удерживается платежом, который выполняет «$name».';
   }
 
   @override

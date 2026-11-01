@@ -22399,9 +22399,9 @@
   "@txDeviceHeld": {
     "description": "Details of a pending payment another linked device is making."
   },
-  "sendHeldByDevice": "{amount} EPIC is held by a payment {name} is making.",
+  "sendHeldByDevice": "{amount} EPIC is held by a payment ‘{name}’ is making.",
   "@sendHeldByDevice": {
-    "description": "Send: part of the balance is held by a payment another linked device is making.",
+    "description": "Send: part of the balance is held by a payment another linked device is making; {name} is that device’s name, in quotes.",
     "placeholders": {
       "amount": {
         "type": "String"

@@ -16940,7 +16940,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC sind durch eine Zahlung von $name zurückgehalten.';
+    return '$amount EPIC sind durch eine Zahlung von „$name“ zurückgehalten.';
   }
 
   @override

@@ -26192,10 +26192,10 @@ abstract class AppLocalizations {
   /// **'Its coins are held on this device until the chain shows the payment or the other device ends it.'**
   String get txDeviceHeld;
 
-  /// Send: part of the balance is held by a payment another linked device is making.
+  /// Send: part of the balance is held by a payment another linked device is making; {name} is that device’s name, in quotes.
   ///
   /// In en, this message translates to:
-  /// **'{amount} EPIC is held by a payment {name} is making.'**
+  /// **'{amount} EPIC is held by a payment ‘{name}’ is making.'**
   String sendHeldByDevice(String amount, String name);
 
   /// Quiet offer at the end of a restore.

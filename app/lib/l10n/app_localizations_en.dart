@@ -16742,7 +16742,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sendHeldByDevice(String amount, String name) {
-    return '$amount EPIC is held by a payment $name is making.';
+    return '$amount EPIC is held by a payment ‘$name’ is making.';
   }
 
   @override

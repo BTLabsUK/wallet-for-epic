@@ -4365,7 +4365,7 @@
   "txSentFromDevice": "Gesendet von {device}",
   "txDeviceMadeOn": "Auf {device} erstellt. Die Details stammen von diesem Gerät; Betrag und Bestätigungen aus der Blockchain.",
   "txDeviceHeld": "Seine Münzen bleiben auf diesem Gerät zurückgehalten, bis die Blockchain die Zahlung zeigt oder das andere Gerät sie beendet.",
-  "sendHeldByDevice": "{amount} EPIC sind durch eine Zahlung von {name} zurückgehalten.",
+  "sendHeldByDevice": "{amount} EPIC sind durch eine Zahlung von „{name}“ zurückgehalten.",
   "offerLinkRestore": "Diese Wallet auch auf einem anderen Gerät? Verknüpfen, um die Zahlungen des anderen zu sehen.",
   "offerLinkOtherWallet": "Ist das Ihr anderes Gerät? Verknüpfen, um zu sehen, wer bezahlt wurde, und beide abzugleichen.",
   "devicesReleasedRow": "Hier freigegeben · {name} sendet sie womöglich noch",
