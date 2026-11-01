@@ -31,6 +31,7 @@ void main() {
           ]) ...{
             'text on $sname': (c.text, surface),
             'dim on $sname': (c.dim, surface),
+            'faint on $sname': (c.faint, surface),
             'accentText on $sname': (c.accentText, surface),
             'ok on $sname': (c.ok, surface),
             'warn on $sname': (c.warn, surface),
@@ -87,6 +88,17 @@ void main() {
         expect(c.txReceived, c.ok);
         expect(c.txCancelled, isNot(c.warn));
         expect((c.txCancelled.r - c.txCancelled.b).abs(), lessThan(0.06), reason: 'cancelled is grey');
+      });
+
+      test('floating surfaces take the soft shadow, never the scrim', () {
+        expect(c.shadow, isNot(c.scrim));
+        expect(c.shadow.a, lessThanOrEqualTo(0.4));
+        expect(c.popover.boxShadow, c.popShadow);
+        expect((c.popover.border! as Border).top.color, c.lineStrong);
+        expect((c.well.border! as Border).isUniform, isTrue);
+        expect(contrast(c.lineField, c.s2), greaterThanOrEqualTo(3), reason: '$mode field edge');
+        final theme = buildDeskTheme(b);
+        expect(theme.colorScheme.shadow, c.shadowInk);
       });
 
       test('the theme carries the colours', () {

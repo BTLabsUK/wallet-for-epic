@@ -21,6 +21,8 @@ ThemeData buildDeskTheme(Brightness brightness) {
     surfaceContainerHighest: c.s3,
     outline: c.lineField,
     outlineVariant: c.line,
+    scrim: c.scrim,
+    shadow: c.shadowInk,
   );
   final base = ThemeData(
     useMaterial3: true,
