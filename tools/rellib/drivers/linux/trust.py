@@ -54,6 +54,9 @@ THEMES = ("System", "Dark", "Light")
 # the toast a build with the last-session report shows once after unlock (5f9933de6)
 LAST_SESSION = facts.label("deskLastSessionClosed", "The app closed unexpectedly last time. Send the log?")
 LAST_SESSION_FROZE = facts.label("deskLastSessionFroze", "The app stopped responding last time. Send the log?")
+# a finalized send's row while its post may still succeed (c640a0593: up to 30 s), and after it failed
+POSTING = facts.label("postFinishedPosting", "Posting…")
+NOT_POSTED = (facts.label("deskTxStatusNotPosted", "Not on the network"), facts.label("txPostElsewhere", "To be posted elsewhere"))
 FIRST_RUN_LOG = re.compile(r"first run: ")  # first_run_servers.dart's log lines: the server pick of a fresh install
 D = decimal.Decimal
 
@@ -800,9 +803,14 @@ class Run:
                     last = b
                 rows = self.activity()
                 waiting = sum((v for k, v in b.items() if "waiting" in k or "finaliz" in k), D(0))
-                sent = [r for r in rows if r.startswith("Sent") and not re.search(r"(?i)waiting for (the )?recipient|cancel|not sent|failed", r)]
-                if sent and waiting == 0:
-                    return True, sent[0]
+                # the newest Sent row is this send: done once posted (Waiting for a block, Confirming,
+                # Sent); Posting… is still on its way, Not on the network its post failed (kept
+                # waiting for: the app may post it again)
+                sent = [r for r in rows if r.startswith("Sent")][:1]
+                done = [r for r in sent if not re.search(r"(?i)waiting for (the )?recipient|cancel|not sent|failed", r)
+                        and POSTING not in r and not any(w in r for w in NOT_POSTED)]
+                if done and waiting == 0:
+                    return True, done[0]
                 time.sleep(15)
             return False, "not finalized and posted in 15 min (balance %s; rows %s)" % (fmt_bal(last or {}), self.activity()[:2])
 
