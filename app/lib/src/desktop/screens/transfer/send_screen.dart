@@ -1458,6 +1458,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         constraints: BoxConstraints(maxWidth: Max.form),
         child: ResultPanel(
           key: const ValueKey('send-queued'),
+          // Queued, not sent yet: the waiting tile, never the done check.
+          glyph: const ResultGlyph.waiting(),
           title: l.sendQueuedHeadline,
           text: l.sendQueuedBody(_queuedFor!),
           body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
@@ -1474,6 +1476,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       constraints: BoxConstraints(maxWidth: Max.form),
       child: ResultPanel(
         key: const ValueKey('send-done'),
+        // On its way: the steps under it say how far; the tile says it is under way.
+        glyph: const ResultGlyph(icon: EIcons.send, tone: ETone.info),
         title: name == null ? l.lvPayOnItsWay : l.deskLvSendLiveTo(name),
         text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
         body: Column(

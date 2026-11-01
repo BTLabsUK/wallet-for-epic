@@ -22,7 +22,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import 'file_panels.dart' show ResultPanel;
+import 'file_panels.dart' show ResultGlyph, ResultPanel;
 
 /// The file a finished payment is saved as.
 String finishedFileName(String slateId) => '${shortSlateId(slateId)}.finished.tx';
@@ -141,7 +141,7 @@ class _FinishedNotPostedPanelState extends ConsumerState<FinishedNotPostedPanel>
     return ResultPanel(
       title: l.finalizeNotPostedTitle,
       text: l.deskFinNotPostedKillBody('${formatEpicL(l, widget.tx.amount)} EPIC'), // l10n-ok: the unit
-      glyph: Icon(EIcons.sand, size: 32.u, color: c.info),
+      glyph: const ResultGlyph.waiting(),
       body: _error == null ? null : Text(_error!, key: const ValueKey('finished-error'), style: context.ts.small.copyWith(color: c.dim)),
       actions: [
         EButton.primary(key: const ValueKey('finished-save'), label: l.finishedSaveFile, icon: EIcons.fileDown, busy: _busy, onPressed: _busy ? null : _save),
