@@ -39,8 +39,12 @@ Future<void> showDeskLinkDevice(BuildContext context, {String? pasted, bool past
 /// Registers the handler of an incoming device invite (an `epiccash://device-link/…` or
 /// `https://…/link#…` link the system opened): the link dialog with its confirm step. A link
 /// never links by itself.
-void registerDeskDeviceInviteHandler() =>
-    registerInviteHandler(InviteKind.deviceLink, (context, link) => showDeskLinkDevice(context, pasted: link.invite, confirm: true));
+void registerDeskDeviceInviteHandler() => registerInviteHandler(InviteKind.deviceLink, _openDeskDeviceInvite);
+
+/// Takes the handler out again (Linked devices turned off): a device link then opens nothing.
+void unregisterDeskDeviceInviteHandler() => unregisterInviteHandler(InviteKind.deviceLink, _openDeskDeviceInvite);
+
+Future<void> _openDeskDeviceInvite(BuildContext context, InviteLink link) => showDeskLinkDevice(context, pasted: link.invite, confirm: true);
 
 class DeskLinkDialog extends ConsumerStatefulWidget {
   const DeskLinkDialog({super.key, this.pasted, this.paste = false, this.confirm = false});

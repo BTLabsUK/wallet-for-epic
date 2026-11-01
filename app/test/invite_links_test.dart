@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:epic_wallet/src/desktop/screens/devices/link_flow.dart' show registerDeskDeviceInviteHandler, unregisterDeskDeviceInviteHandler;
 import 'package:epic_wallet/src/invite_links.dart';
 import 'package:epic_wallet/src/scan/incoming_link.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/settings_file/settings_layout.dart' show checkInvitePage;
+import 'package:epic_wallet/src/ui/devices/device_parts.dart' show registerPhoneDeviceInviteHandler, unregisterPhoneDeviceInviteHandler;
 import 'package:epic_wallet/src/ui/invite_link_gate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -155,6 +157,17 @@ void main() {
       expect(c.read(inviteInboxProvider).held, isNull);
       await tester.pump(const Duration(seconds: 5));
       expect(calls, hasLength(1), reason: 'handled once');
+    });
+
+    test('the device link handlers come out again when Linked devices is turned off', () {
+      registerPhoneDeviceInviteHandler();
+      expect(inviteHandler(InviteKind.deviceLink), isNotNull);
+      unregisterPhoneDeviceInviteHandler();
+      expect(inviteHandler(InviteKind.deviceLink), isNull);
+      registerDeskDeviceInviteHandler();
+      expect(inviteHandler(InviteKind.deviceLink), isNotNull);
+      unregisterDeskDeviceInviteHandler();
+      expect(inviteHandler(InviteKind.deviceLink), isNull);
     });
 
     testWidgets('one handler per kind; the newest replaces the one before', (tester) async {

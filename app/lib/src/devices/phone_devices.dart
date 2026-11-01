@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../models.dart' show InvoiceEvent, InvoiceEventKind, TxEntry, WalletError;
-import '../ui/devices/device_parts.dart' show registerPhoneDeviceInviteHandler;
+import '../ui/devices/device_parts.dart' show registerPhoneDeviceInviteHandler, unregisterPhoneDeviceInviteHandler;
 import '../ui/notices.dart' show NoticeLevel, noticeProvider;
 import '../network_gate.dart';
 import '../pairing_providers.dart' show requestPassOnProvider;
@@ -122,12 +122,14 @@ class _DeviceLifecycleState extends ConsumerState<DeviceLifecycle> with WidgetsB
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    registerPhoneDeviceInviteHandler();
+    // A device link opens Link a device only while Linked devices is on.
+    ref.listenManual<bool>(linkedDevicesOnProvider, (_, on) => on ? registerPhoneDeviceInviteHandler() : unregisterPhoneDeviceInviteHandler(), fireImmediately: true);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unregisterPhoneDeviceInviteHandler();
     super.dispose();
   }
 

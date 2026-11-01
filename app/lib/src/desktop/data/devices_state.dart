@@ -20,7 +20,7 @@ import '../../providers.dart' show secretStoreProvider;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../app/desk_window.dart' show deskWindowProvider;
 import '../desk_l10n.dart';
-import '../screens/devices/link_flow.dart' show registerDeskDeviceInviteHandler;
+import '../screens/devices/link_flow.dart' show registerDeskDeviceInviteHandler, unregisterDeskDeviceInviteHandler;
 import 'state.dart';
 
 /// Linked devices is on (Settings › Advanced › Experimental).
@@ -51,6 +51,8 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   if (!ref.watch(deskLinkedDevicesOnProvider)) return null;
   // An incoming device invite (a link the system opened) goes to the link dialog's confirm step.
   registerDeskDeviceInviteHandler();
+  // Turned off (this provider then builds again and stops above), a device link opens nothing.
+  ref.onDispose(unregisterDeskDeviceInviteHandler);
   final account = ref.watch(deskProvider.select((s) => s.account == null ? null : (s.account!.id, s.account!.network)));
   if (account == null) return null;
   final api = ref.read(deskApiProvider);
