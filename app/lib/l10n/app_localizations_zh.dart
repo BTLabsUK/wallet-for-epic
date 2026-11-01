@@ -2560,7 +2560,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advTransactionFiles => '直接 · 文件传输';
 
   @override
-  String get advTransactionFilesHint => '在设置 › 交易中加入“文件传输”：用你自己传递的文件付款或收款。';
+  String get advTransactionFilesHint => '在设置 › 交易中加入“文件传输”：用你自己传递的文件付款或收款。';
 
   @override
   String get sendMakeQr => '生成付款二维码';
@@ -2878,14 +2878,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesLead => '本钱包包含的开源软件，各自适用其许可证。';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile，BT Labs 出品：Apache 2.0。';
+  String get licencesApp => 'Epic Cash Mobile，BT Labs 出品：Apache-2.0。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
 
   @override
   String get licencesLepic =>
-      'LEPIC，Epic Cash 钱包库：Apache 2.0，包含 Epic Cash 的 secp256k1-zkp 分支（CC0）以及 MIT 或 Apache 2.0 许可的 Rust crate，其中有 tokio、rustls、rusqlite 和 blake2。';
+      'LEPIC，Epic Cash 钱包库：Apache-2.0，包含 Epic Cash 的 secp256k1-zkp 分支（CC0）以及 MIT 或 Apache-2.0 许可的 Rust crate，其中有 tokio、rustls、rusqlite 和 blake2。';
 
   @override
   String get licencesTor => 'Tor：GNU 通用公共许可证第 3 版。其源代码见下文。';
@@ -3609,7 +3609,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 交易。发出前会先确认。';
+      '粘贴或扫描地址，或选择联系人。Epicbox 向地址付款；二维码把码显示给身边的手机。更多方式：设置 › 交易。发出前会先确认。';
 
   @override
   String get tourPhoneReceiveTitle => '接收';
@@ -4927,7 +4927,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerNodeDownText =>
-      '钱包无法检查你的资金，因此无法付款。节点恢复响应后即可再次批准；你可以在“设置 › 节点”中选择其他节点。';
+      '钱包无法检查你的资金，因此无法付款。节点恢复响应后即可再次批准；你可以在“设置 › 节点”中选择其他节点。';
 
   @override
   String get deskInvPayerPaid => '此账单已支付。不能再为其付款。';
@@ -4980,7 +4980,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredToastText =>
-      'Epicbox 服务器无响应。请在“账单 › 支付”中重试；无需再次批准。';
+      'Epicbox 服务器无响应。请在“账单 › 支付”中重试；无需再次批准。';
 
   @override
   String get deskInvPayerRetryFailed => '仍未送达';
@@ -5176,7 +5176,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      '网络活动经由 Tor 网络。Tor 隐藏钱包的 IP 地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。';
+      '网络活动经由 Tor 网络。Tor 隐藏钱包的 IP 地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。';
 
   @override
   String get receiveTabDirect => '链接';
@@ -5795,7 +5795,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskNodeStartIt => '可在“设置 › 节点”中启动。';
+  String get deskNodeStartIt => '可在“设置 › 节点”中启动。';
 
   @override
   String deskNodeFailPort(String port) {
@@ -6055,19 +6055,19 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 交易”。';
+  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 交易”。';
 
   @override
   String get deskRecvHttpIntro => '供此电脑上的钱包使用，仅在此钱包打开时。';
 
   @override
-  String get deskRecvHttpTorHint => '如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。';
+  String get deskRecvHttpTorHint => '如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。';
 
   @override
   String get deskRecvDirectTor => '链接 · Tor 地址';
 
   @override
-  String get deskRecvTorIntro => '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 隐私”中设置。';
+  String get deskRecvTorIntro => '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 隐私”中设置。';
 
   @override
   String get deskRecvTorAddress => '链接 · Tor 地址';
@@ -6403,6 +6403,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskSendEpicboxOffText =>
       '开启 Epicbox 接收即可通过 Epicbox 发送，或使用 直接 · 文件传输。';
+
+  @override
+  String deskSendEpicboxOffTab(String method) {
+    return '开启 Epicbox 接收即可通过 Epicbox 发送，或使用 $method。';
+  }
 
   @override
   String get deskSendEpicboxTurnOn => '开启 Epicbox 接收';
@@ -8923,7 +8928,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTourContactsText => '按名称保存的地址。“发送”从这里选择。';
 
   @override
-  String get deskTourNodeTitle => '设置 › 节点';
+  String get deskTourNodeTitle => '设置 › 节点';
 
   @override
   String get deskTourNodeText => '钱包从哪个节点读取区块链。其余设置页面列在左侧。';
@@ -9843,6 +9848,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetDlgPwDesc => '从现在起用新密码解锁此钱包；“在这台电脑上记住”会关闭。';
 
   @override
+  String get deskSetDlgPwDescPlain => '从现在起用新密码解锁此钱包，这台电脑也不再记住它。';
+
+  @override
   String get deskSetDlgPwCurrent => '当前密码';
 
   @override
@@ -9893,7 +9901,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHint =>
-      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 此钱包”中的“删除钱包”。';
+      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 此钱包”中的“删除钱包”。';
 
   @override
   String get deskSetDlgRemoveUnlock => '解锁此钱包';
@@ -10310,7 +10318,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetLndAskNote => '只询问一次。可以在“设置 › 节点 › 同步期间”中更改节点和这个选择。';
+  String get deskSetLndAskNote => '只询问一次。可以在“设置 › 节点 › 同步期间”中更改节点和这个选择。';
 
   @override
   String get deskSetLndAskWait => '等待本地节点';
@@ -12027,7 +12035,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get advSendOptionsHint =>
-      '在“设置 › 交易”中显示发送的“策略”和“拆分找零”：一笔发送花掉哪些输出，以及找零是否拆分。只要其中一项不是默认值，就保持可见。';
+      '在“设置 › 交易”中显示发送的“策略”和“拆分找零”：一笔发送花掉哪些输出，以及找零是否拆分。只要其中一项不是默认值，就保持可见。';
 
   @override
   String get advServerDetails => '服务器详情';
@@ -12350,7 +12358,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDefaultsHeader => '发送默认设置';
 
   @override
-  String get outputsDefaultsMoved => '发送默认设置已移到“设置 › 交易”';
+  String get outputsDefaultsMoved => '发送默认设置已移到“设置 › 交易”';
 
   @override
   String get advNodeFailover => '节点故障切换';
@@ -12432,11 +12440,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netOfflineNodeLine => '使用节点';
 
   @override
-  String get netBlockEpicboxOff => 'Epicbox 已在 设置 › 交易 中关闭。';
+  String get netBlockEpicboxOff => 'Epicbox 已在 设置 › 交易 中关闭。';
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method 已在设置 › 交易中关闭。';
+    return '$method 已在设置 › 交易中关闭。';
   }
 
   @override
@@ -12472,7 +12480,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveNoMethods => '没有开启任何收款方式';
 
   @override
-  String get receiveNoMethodsBody => '请在 设置 › 交易 中开启一种。';
+  String get receiveNoMethodsBody => '请在 设置 › 交易 中开启一种。';
 
   @override
   String get receiveNoMethodsButton => '打开设置';
@@ -12481,7 +12489,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNetOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
-  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 交易”中设置。';
+  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 交易”中设置。';
 
   @override
   String get deskOutDefaultsOpen => '打开“交易”';
@@ -12633,7 +12641,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskRecvTorOffText =>
-      'Tor 开启时，Tor 地址才可用。Tor 是设置 › 隐私中的开关，它让钱包的连接走 Tor。';
+      'Tor 开启时，Tor 地址才可用。Tor 是设置 › 隐私中的开关，它让钱包的连接走 Tor。';
 
   @override
   String get deskSetupSaveFailedTitle => '设置未保存';
@@ -13239,7 +13247,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String sasLeadRecheck(String name) {
-    return '$name 的钱包在“$name › 核对词语”中显示这些词。请通过电话或当面比较。';
+    return '$name 的钱包在“$name › 核对词语”中显示这些词。请通过电话或当面比较。';
   }
 
   @override
@@ -14152,15 +14160,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairInvP1 =>
-      '与你配对的商店、交易所或个人在你允许后可以发送账单：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
+      '与你配对的商店、交易所或个人在你允许后可以发送账单：在联系人页面或[[设置 › 账单|Settings › Invoices]]中打开**允许账单**。此开关仅对已验证的联系人有效。';
 
   @override
   String get helpPairInvP2Desktop =>
-      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用钱包密码批准之前不会付款。账单绝不会向你的钱包加钱。';
+      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用钱包密码批准之前不会付款。账单绝不会向你的钱包加钱。';
 
   @override
   String get helpPairInvP2 =>
-      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用 PIN 批准之前不会付款。账单绝不会向你的钱包加钱。';
+      '账单会显示在[[账单 › 支付|Invoices › Pay]]中，附有联系人的名字、金额和参考号。在你用 PIN 批准之前不会付款。账单绝不会向你的钱包加钱。';
 
   @override
   String get helpPairInvP3 => '关闭开关立即生效：该联系人的新账单会被丢弃，未处理的账单会被拒绝。';
@@ -14363,13 +14371,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get expPairingOffTitle => '配对是实验性功能';
 
   @override
-  String get expPairingOffBody => '可在 设置 › 高级 中开启。';
+  String get expPairingOffBody => '可在 设置 › 高级 中开启。';
 
   @override
   String get expInvoicesOffTitle => '账单是实验性功能';
 
   @override
-  String get expInvoicesOffBody => '可在 设置 › 高级 中开启。';
+  String get expInvoicesOffBody => '可在 设置 › 高级 中开启。';
 
   @override
   String get expOpenAdvanced => '打开高级';
@@ -14636,7 +14644,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvRestoredImportButton => '导入钱包数据';
 
   @override
-  String get deskOvRestoredImportLater => '以后可在“设置 › 此钱包 › 钱包数据”中导入。';
+  String get deskOvRestoredImportLater => '以后可在“设置 › 此钱包 › 钱包数据”中导入。';
 
   @override
   String get deskOnbForgotNoCheck => '此钱包的文件无法确认该助记词，因此密码保持不变。';
@@ -14743,7 +14751,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqOtherChain => '此账单属于另一个 Epic 网络，或者它的时限与本网络不符。未付款。';
 
   @override
-  String get reqQrOpenNote => '在 账单 › 已发送 中保留 24 小时，之后过期。';
+  String get reqQrOpenNote => '在 账单 › 已发送 中保留 24 小时，之后过期。';
 
   @override
   String get reqQrWrongReply => '此回复属于另一个账单。请扫描针对这个账单的回复。';
@@ -16173,13 +16181,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
+  String get netStatusTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
 
   @override
-  String get netStatusTurnOnHintPrivacy => '已关闭。在“设置 › 隐私与网络”中开启。';
+  String get netStatusTurnOnHintPrivacy => '已关闭。在“设置 › 隐私与网络”中开启。';
 
   @override
-  String get deskBarTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
+  String get deskBarTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
 
   @override
   String get deskErrMacKeychain =>
@@ -16689,7 +16697,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。';
+    return '$amount 已完成。“紧急断网”已开启，所以这台电脑无法广播它。请保存或复制它，然后在联网的设备上广播：接收 › 交易文件 › 广播已完成的付款。';
   }
 
   @override
@@ -16992,10 +17000,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendEpicboxNodeOnly => '“仅节点”已开启：Epicbox 已关闭。直接 · 文件传输可用。';
 
   @override
+  String deskSendEpicboxNodeOnlyTab(String method) {
+    return '“仅节点”已开启：Epicbox 已关闭。$method 可用。';
+  }
+
+  @override
   String get deskSendLinkNodeOnly => '“仅节点”已开启：链接已关闭。直接 · 文件传输可用。';
 
   @override
+  String deskSendLinkNodeOnlyTab(String method) {
+    return '“仅节点”已开启：链接已关闭。$method 可用。';
+  }
+
+  @override
   String get deskSendKillSwitch => '“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。';
+
+  @override
+  String deskSendKillSwitchTab(String method) {
+    return '“紧急断网”已开启：什么都不连接。$method 可用。';
+  }
 
   @override
   String get levelStepTitle => '你想要多少钱包功能？';
@@ -17025,7 +17048,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get levelUndercoverLine => '仅 Tor，从第一次连接起。';
 
   @override
-  String get levelFooter => '随时可在 设置 › 高级 中更改。';
+  String get levelFooter => '随时可在 设置 › 高级 中更改。';
 
   @override
   String get levelRowTitle => '钱包视图';
@@ -17077,7 +17100,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelp =>
-      '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 网络模式 › 仅 Tor 相同；之后可在 设置 › 高级 中关闭。';
+      '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 网络模式 › 仅 Tor 相同；之后可在 设置 › 高级 中关闭。';
 
   @override
   String get lvPickUndercover => '隐身';
@@ -17342,7 +17365,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartUndercoverAbout => '关于隐身';
 
   @override
-  String get deskLvStartChangeLater => '随时可在 设置 › 高级 中更改。';
+  String get deskLvStartChangeLater => '随时可在 设置 › 高级 中更改。';
 
   @override
   String get deskLvStartHelpShallow => '浅水 · 一个地址，不显示服务器名称，没有开关。';

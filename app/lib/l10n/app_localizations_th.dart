@@ -2668,7 +2668,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advTransactionFilesHint =>
-      'เพิ่มโอนไฟล์ใน ตั้งค่า › ธุรกรรม: จ่ายหรือรับเงินด้วยไฟล์ที่คุณส่งต่อเอง';
+      'เพิ่มโอนไฟล์ใน ตั้งค่า › ธุรกรรม: จ่ายหรือรับเงินด้วยไฟล์ที่คุณส่งต่อเอง';
 
   @override
   String get sendMakeQr => 'สร้าง QR ของรายการ';
@@ -2993,7 +2993,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ซอฟต์แวร์โอเพนซอร์สในกระเป๋านี้ แต่ละส่วนมีสัญญาอนุญาตของตนเอง';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile โดย BT Labs: Apache 2.0';
+  String get licencesApp => 'Epic Cash Mobile โดย BT Labs: Apache-2.0';
 
   @override
   String get licencesFlutter =>
@@ -3001,7 +3001,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get licencesLepic =>
-      'LEPIC ไลบรารีกระเป๋า Epic Cash: Apache 2.0 พร้อม Epic Cash secp256k1-zkp fork (CC0) และ Rust crate ภายใต้ MIT หรือ Apache 2.0 เช่น tokio, rustls, rusqlite และ blake2';
+      'LEPIC ไลบรารีกระเป๋า Epic Cash: Apache-2.0 พร้อม Epic Cash secp256k1-zkp fork (CC0) และ Rust crate ภายใต้ MIT หรือ Apache-2.0 เช่น tokio, rustls, rusqlite และ blake2';
 
   @override
   String get licencesTor =>
@@ -3755,7 +3755,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
+      'วางหรือสแกนที่อยู่ หรือเลือกผู้ติดต่อ Epicbox จ่ายไปที่อยู่ QR แสดงโค้ดให้โทรศัพท์ที่อยู่ข้างคุณ วิธีอื่น: การตั้งค่า › ธุรกรรม จะมีการตรวจสอบก่อนเสมอ';
 
   @override
   String get tourPhoneReceiveTitle => 'รับ';
@@ -5104,7 +5104,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerNodeDownText =>
-      'กระเป๋าตรวจยอดเงินไม่ได้ จึงชำระไม่ได้ การอนุมัติจะใช้ได้อีกครั้งเมื่อโหนดตอบสนอง เลือกโหนดอื่นได้ใน การตั้งค่า › โหนด';
+      'กระเป๋าตรวจยอดเงินไม่ได้ จึงชำระไม่ได้ การอนุมัติจะใช้ได้อีกครั้งเมื่อโหนดตอบสนอง เลือกโหนดอื่นได้ใน การตั้งค่า › โหนด';
 
   @override
   String get deskInvPayerPaid => 'ใบแจ้งหนี้นี้ชำระแล้ว ชำระเพิ่มไม่ได้';
@@ -5159,7 +5159,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredToastText =>
-      'เซิร์ฟเวอร์ Epicbox ไม่ตอบสนอง ลองใหม่ได้ใน ใบแจ้งหนี้ › ชำระ โดยไม่ต้องอนุมัติซ้ำ';
+      'เซิร์ฟเวอร์ Epicbox ไม่ตอบสนอง ลองใหม่ได้ใน ใบแจ้งหนี้ › ชำระ โดยไม่ต้องอนุมัติซ้ำ';
 
   @override
   String get deskInvPayerRetryFailed => 'ยังส่งไม่ถึง';
@@ -5364,7 +5364,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่ IP ของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน หากต้องการรับเงินที่ที่อยู่ Tor ให้เปิด ลิงก์ · Tor ใน การตั้งค่า › ธุรกรรม';
+      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่ IP ของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน หากต้องการรับเงินที่ที่อยู่ Tor ให้เปิด ลิงก์ · Tor ใน การตั้งค่า › ธุรกรรม';
 
   @override
   String get receiveTabDirect => 'ลิงก์';
@@ -6000,7 +6000,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskNodeStartIt => 'เริ่มได้ที่ การตั้งค่า › โหนด';
+  String get deskNodeStartIt => 'เริ่มได้ที่ การตั้งค่า › โหนด';
 
   @override
   String deskNodeFailPort(String port) {
@@ -6266,7 +6266,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › ธุรกรรม';
+      'โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › ธุรกรรม';
 
   @override
   String get deskRecvHttpIntro =>
@@ -6274,14 +6274,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHint =>
-      'เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน';
+      'เปิด Tor ที่ การตั้งค่า › ความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน';
 
   @override
   String get deskRecvDirectTor => 'ที่อยู่ ลิงก์ · Tor';
 
   @override
   String get deskRecvTorIntro =>
-      'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › ความเป็นส่วนตัว';
+      'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › ความเป็นส่วนตัว';
 
   @override
   String get deskRecvTorAddress => 'ที่อยู่ ลิงก์ · Tor';
@@ -6631,6 +6631,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSendEpicboxOffText =>
       'เปิดการรับผ่าน Epicbox เพื่อส่งผ่าน Epicbox หรือใช้ โดยตรง · โอนไฟล์';
+
+  @override
+  String deskSendEpicboxOffTab(String method) {
+    return 'เปิดการรับผ่าน Epicbox เพื่อส่งผ่าน Epicbox หรือใช้ $method';
+  }
 
   @override
   String get deskSendEpicboxTurnOn => 'เปิดการรับผ่าน Epicbox';
@@ -9238,7 +9243,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ที่อยู่ที่บันทึกไว้ตามชื่อ หน้าส่งเลือกจากที่นี่';
 
   @override
-  String get deskTourNodeTitle => 'การตั้งค่า › โหนด';
+  String get deskTourNodeTitle => 'การตั้งค่า › โหนด';
 
   @override
   String get deskTourNodeText =>
@@ -10184,6 +10189,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ตั้งแต่นี้รหัสผ่านใหม่จะใช้ปลดล็อกกระเป๋าเงินนี้ และ จำไว้บนคอมพิวเตอร์นี้ จะถูกปิด';
 
   @override
+  String get deskSetDlgPwDescPlain =>
+      'ตั้งแต่นี้รหัสผ่านใหม่จะใช้ปลดล็อกกระเป๋าเงินนี้ และคอมพิวเตอร์นี้จะไม่จำไว้อีก';
+
+  @override
   String get deskSetDlgPwCurrent => 'รหัสผ่านปัจจุบัน';
 
   @override
@@ -10234,7 +10243,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHint =>
-      'ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › กระเป๋าเงินนี้';
+      'ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › กระเป๋าเงินนี้';
 
   @override
   String get deskSetDlgRemoveUnlock => 'ปลดล็อกกระเป๋าเงินนี้';
@@ -10662,7 +10671,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetLndAskNote =>
-      'ถามครั้งเดียว เปลี่ยนโหนดและตัวเลือกนี้ได้ที่ การตั้งค่า › โหนด › ระหว่างซิงก์';
+      'ถามครั้งเดียว เปลี่ยนโหนดและตัวเลือกนี้ได้ที่ การตั้งค่า › โหนด › ระหว่างซิงก์';
 
   @override
   String get deskSetLndAskWait => 'รอโหนดในเครื่อง';
@@ -12437,7 +12446,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get advSendOptionsHint =>
-      'แสดงวิธีเลือกของการส่งและแยกเงินทอนใน การตั้งค่า › ธุรกรรม คือการส่งใช้เอาต์พุตไหน และแยกเงินทอนหรือไม่ แสดงอยู่ตลอดตราบใดที่ตัวใดตัวหนึ่งไม่ใช่ค่าเริ่มต้น';
+      'แสดงวิธีเลือกของการส่งและแยกเงินทอนใน การตั้งค่า › ธุรกรรม คือการส่งใช้เอาต์พุตไหน และแยกเงินทอนหรือไม่ แสดงอยู่ตลอดตราบใดที่ตัวใดตัวหนึ่งไม่ใช่ค่าเริ่มต้น';
 
   @override
   String get advServerDetails => 'รายละเอียดเซิร์ฟเวอร์';
@@ -12772,7 +12781,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get outputsDefaultsMoved =>
-      'ค่าเริ่มต้นการส่งอยู่ที่ การตั้งค่า › ธุรกรรม';
+      'ค่าเริ่มต้นการส่งอยู่ที่ การตั้งค่า › ธุรกรรม';
 
   @override
   String get advNodeFailover => 'สลับโหนดอัตโนมัติ';
@@ -12859,11 +12868,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get netOfflineNodeLine => 'ใช้โหนด';
 
   @override
-  String get netBlockEpicboxOff => 'Epicbox ปิดอยู่ใน การตั้งค่า › ธุรกรรม';
+  String get netBlockEpicboxOff => 'Epicbox ปิดอยู่ใน การตั้งค่า › ธุรกรรม';
 
   @override
   String netBlockMethodOff(String method) {
-    return '$method ปิดอยู่ใน ตั้งค่า › ธุรกรรม';
+    return '$method ปิดอยู่ใน ตั้งค่า › ธุรกรรม';
   }
 
   @override
@@ -12901,7 +12910,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveNoMethods => 'ไม่มีวิธีรับเงินที่เปิดอยู่';
 
   @override
-  String get receiveNoMethodsBody => 'เปิดสักวิธีใน การตั้งค่า › ธุรกรรม';
+  String get receiveNoMethodsBody => 'เปิดสักวิธีใน การตั้งค่า › ธุรกรรม';
 
   @override
   String get receiveNoMethodsButton => 'เปิดการตั้งค่า';
@@ -12912,7 +12921,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม';
+      'วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม';
 
   @override
   String get deskOutDefaultsOpen => 'เปิดธุรกรรม';
@@ -13070,7 +13079,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvTorOffText =>
-      'ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › ความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor';
+      'ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › ความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor';
 
   @override
   String get deskSetupSaveFailedTitle => 'ไม่ได้บันทึกการตั้งค่า';
@@ -13709,7 +13718,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String sasLeadRecheck(String name) {
-    return 'กระเป๋าเงินของ $name แสดงคำเหล่านี้ที่ $name › ตรวจคำ เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว';
+    return 'กระเป๋าเงินของ $name แสดงคำเหล่านี้ที่ $name › ตรวจคำ เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว';
   }
 
   @override
@@ -14658,15 +14667,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairInvP1 =>
-      'ร้านค้า ศูนย์แลกเปลี่ยน หรือบุคคลที่คุณจับคู่ด้วย ส่งใบแจ้งหนี้ได้หากคุณอนุญาต: **อนุญาตใบแจ้งหนี้** ที่หน้าผู้ติดต่อ หรือที่ [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]] สวิตช์นี้ใช้ได้เฉพาะผู้ติดต่อที่ยืนยันแล้ว';
+      'ร้านค้า ศูนย์แลกเปลี่ยน หรือบุคคลที่คุณจับคู่ด้วย ส่งใบแจ้งหนี้ได้หากคุณอนุญาต: **อนุญาตใบแจ้งหนี้** ที่หน้าผู้ติดต่อ หรือที่ [[การตั้งค่า › ใบแจ้งหนี้|Settings › Invoices]] สวิตช์นี้ใช้ได้เฉพาะผู้ติดต่อที่ยืนยันแล้ว';
 
   @override
   String get helpPairInvP2Desktop =>
-      'ใบแจ้งหนี้จะแสดงที่ [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] พร้อมชื่อผู้ติดต่อ จำนวนเงิน และเลขอ้างอิง จะไม่มีการชำระจนกว่าคุณจะอนุมัติด้วยรหัสผ่านกระเป๋าเงิน ใบแจ้งหนี้ไม่เคยเพิ่มเงินเข้ากระเป๋าเงินของคุณ';
+      'ใบแจ้งหนี้จะแสดงที่ [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] พร้อมชื่อผู้ติดต่อ จำนวนเงิน และเลขอ้างอิง จะไม่มีการชำระจนกว่าคุณจะอนุมัติด้วยรหัสผ่านกระเป๋าเงิน ใบแจ้งหนี้ไม่เคยเพิ่มเงินเข้ากระเป๋าเงินของคุณ';
 
   @override
   String get helpPairInvP2 =>
-      'ใบแจ้งหนี้จะแสดงที่ [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] พร้อมชื่อผู้ติดต่อ จำนวนเงิน และเลขอ้างอิง จะไม่มีการชำระจนกว่าคุณจะอนุมัติด้วย PIN ใบแจ้งหนี้ไม่เคยเพิ่มเงินเข้ากระเป๋าเงินของคุณ';
+      'ใบแจ้งหนี้จะแสดงที่ [[ใบแจ้งหนี้ › ชำระ|Invoices › Pay]] พร้อมชื่อผู้ติดต่อ จำนวนเงิน และเลขอ้างอิง จะไม่มีการชำระจนกว่าคุณจะอนุมัติด้วย PIN ใบแจ้งหนี้ไม่เคยเพิ่มเงินเข้ากระเป๋าเงินของคุณ';
 
   @override
   String get helpPairInvP3 =>
@@ -14879,13 +14888,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get expPairingOffTitle => 'การจับคู่เป็นฟีเจอร์ทดลอง';
 
   @override
-  String get expPairingOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
+  String get expPairingOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
 
   @override
   String get expInvoicesOffTitle => 'ใบแจ้งหนี้เป็นฟีเจอร์ทดลอง';
 
   @override
-  String get expInvoicesOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
+  String get expInvoicesOffBody => 'เปิดได้ที่ การตั้งค่า › ขั้นสูง';
 
   @override
   String get expOpenAdvanced => 'เปิดขั้นสูง';
@@ -15169,7 +15178,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportLater =>
-      'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลกระเป๋าเงิน';
+      'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -15284,7 +15293,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqQrOpenNote =>
-      'เปิดอยู่ใน ใบแจ้งหนี้ › ส่งแล้ว เป็นเวลา 24 ชั่วโมง แล้วจะหมดอายุ';
+      'เปิดอยู่ใน ใบแจ้งหนี้ › ส่งแล้ว เป็นเวลา 24 ชั่วโมง แล้วจะหมดอายุ';
 
   @override
   String get reqQrWrongReply =>
@@ -16758,14 +16767,14 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get netStatusTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
+  String get netStatusTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
 
   @override
   String get netStatusTurnOnHintPrivacy =>
-      'ปิดอยู่ เปิดได้ใน ตั้งค่า › ความเป็นส่วนตัวและเครือข่าย';
+      'ปิดอยู่ เปิดได้ใน ตั้งค่า › ความเป็นส่วนตัวและเครือข่าย';
 
   @override
-  String get deskBarTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
+  String get deskBarTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
 
   @override
   String get deskErrMacKeychain =>
@@ -17093,7 +17102,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get statusOffByModeDetail =>
-      'ปิดโดยโหมดเครือข่าย เปลี่ยนได้ที่ การตั้งค่า › ขั้นสูง › เครือข่าย';
+      'ปิดโดยโหมดเครือข่าย เปลี่ยนได้ที่ การตั้งค่า › ขั้นสูง › เครือข่าย';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -17300,7 +17309,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount เสร็จแล้ว สวิตช์ฉุกเฉินเปิดอยู่ คอมพิวเตอร์เครื่องนี้จึงส่งเข้าเครือข่ายไม่ได้ ให้บันทึกไว้หรือคัดลอก แล้วส่งจากอุปกรณ์ที่ออนไลน์: รับ › ไฟล์ธุรกรรม › ส่งรายการที่เสร็จแล้ว';
+    return '$amount เสร็จแล้ว สวิตช์ฉุกเฉินเปิดอยู่ คอมพิวเตอร์เครื่องนี้จึงส่งเข้าเครือข่ายไม่ได้ ให้บันทึกไว้หรือคัดลอก แล้วส่งจากอุปกรณ์ที่ออนไลน์: รับ › ไฟล์ธุรกรรม › ส่งรายการที่เสร็จแล้ว';
   }
 
   @override
@@ -17615,12 +17624,27 @@ class AppLocalizationsTh extends AppLocalizations {
       'โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · โอนไฟล์ ใช้ได้';
 
   @override
+  String deskSendEpicboxNodeOnlyTab(String method) {
+    return 'โหนดเท่านั้นเปิดอยู่: Epicbox ปิด $method ใช้ได้';
+  }
+
+  @override
   String get deskSendLinkNodeOnly =>
       'โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้';
 
   @override
+  String deskSendLinkNodeOnlyTab(String method) {
+    return 'โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด $method ใช้ได้';
+  }
+
+  @override
   String get deskSendKillSwitch =>
       'สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · โอนไฟล์ ใช้ได้';
+
+  @override
+  String deskSendKillSwitchTab(String method) {
+    return 'สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ $method ใช้ได้';
+  }
 
   @override
   String get levelStepTitle => 'คุณต้องการกระเป๋าเงินแค่ไหน?';
@@ -17651,7 +17675,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ใช้ Tor เท่านั้น ตั้งแต่การเชื่อมต่อครั้งแรก';
 
   @override
-  String get levelFooter => 'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
+  String get levelFooter => 'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
 
   @override
   String get levelRowTitle => 'มุมมองกระเป๋าเงิน';
@@ -17704,7 +17728,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelp =>
-      'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดเครือข่าย › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › ขั้นสูง';
+      'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดเครือข่าย › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › ขั้นสูง';
 
   @override
   String get lvPickUndercover => 'ปกปิดตัวตน';
@@ -17978,7 +18002,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvStartChangeLater =>
-      'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
+      'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
 
   @override
   String get deskLvStartHelpShallow =>

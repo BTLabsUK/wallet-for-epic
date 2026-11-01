@@ -1632,7 +1632,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(LicencesScreen), findsOneWidget);
-      expect(find.text('Epic Cash Mobile by BT Labs: Apache 2.0.'), findsOneWidget);
+      expect(find.text('Epic Cash Mobile by BT Labs: Apache-2.0.'), findsOneWidget);
       expect(find.textContaining('wallet-for-epic'), findsNothing);
       expect(find.textContaining('GitHub'), findsNothing);
     });
@@ -1656,7 +1656,7 @@ void main() {
       // one button.
       expect(find.byType(LicencesScreen), findsOneWidget);
       expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
-      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache 2.0'), findsOneWidget);
+      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
       // The source note is an asset, read in real time.
       for (var i = 0; i < 50 && find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false).evaluate().isEmpty; i++) {
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));

@@ -31,7 +31,7 @@
   "deskNodeStillUsing": "Noch wird {host} genutzt; der lokale Node übernimmt in Kürze.",
   "deskNodeNoProgress": "Seit 5 Min. kein Fortschritt. Bereits einmal neu gestartet.",
   "deskNodeUsingMeanwhile": "Solange wird {host} genutzt.",
-  "deskNodeStartIt": "Starten Sie ihn unter Einstellungen › Node.",
+  "deskNodeStartIt": "Starten Sie ihn unter Einstellungen › Node.",
   "deskNodeFailPort": "Port {port} wird von einem anderen Programm genutzt",
   "deskNodeFailDisk": "nicht genug Speicherplatz",
   "deskNodeFailMissing": "das Node-Programm fehlt",

@@ -413,7 +413,7 @@
       }
     }
   },
-  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
+  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
   "@deskSetLndAskNote": {
     "description": "Fallback question dialog: small note. \"Settings › Node › While syncing\" is a menu path."
   },

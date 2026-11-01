@@ -646,7 +646,7 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, h.session.pairing.inviteLinkFrom(name: 'Anna'));
       expect(find.text('Pairing is experimental'), findsOneWidget);
-      expect(find.text('Turn it on in Settings › Advanced.'), findsOneWidget);
+      expect(find.text('Turn it on in Settings\u00a0›\u00a0Advanced.'), findsOneWidget);
       expect(find.text('Pair with Anna?'), findsNothing);
       await _tap(tester, find.text('Open Advanced'));
       expect(find.text('Pairing is experimental'), findsNothing);

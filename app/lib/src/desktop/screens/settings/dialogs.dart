@@ -127,7 +127,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       child: EDialog(
       title: l.deskSetDlgPwTitle,
       dismissible: !_busy,
-      description: l.deskSetDlgPwDesc,
+      description: l.deskSetDlgPwDescPlain,
       icon: EIcons.lock,
       // Enter: Current → New → Repeat, then Change password once all three are valid.
       body: EForm(

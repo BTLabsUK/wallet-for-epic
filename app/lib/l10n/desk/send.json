@@ -419,6 +419,16 @@
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
   },
+  "deskSendEpicboxOffTab": "Turn on Epicbox receiving to send by Epicbox, or use {method}.",
+  "@deskSendEpicboxOffTab": {
+    "description": "Send page notice when Epicbox receiving is off. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendEpicboxTurnOn": "Turn on Epicbox receiving",
   "@deskSendEpicboxTurnOn": {
     "description": "Button in that notice."
@@ -850,12 +860,42 @@
   "@deskSendEpicboxNodeOnly": {
     "description": "Send notice and hint while Node only is on and Epicbox is chosen: the desktop has no QR Payment, so only File Transfer works."
   },
+  "deskSendEpicboxNodeOnlyTab": "Node only is on: Epicbox is off. {method} works.",
+  "@deskSendEpicboxNodeOnlyTab": {
+    "description": "Send page notice on the Epicbox tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
   "@deskSendLinkNodeOnly": {
     "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
   },
+  "deskSendLinkNodeOnlyTab": "Node only is on: Link is off. {method} works.",
+  "@deskSendLinkNodeOnlyTab": {
+    "description": "Send page notice on the Link tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
   "@deskSendKillSwitch": {
     "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
+  },
+  "deskSendKillSwitchTab": "Kill switch is on: nothing connects. {method} works.",
+  "@deskSendKillSwitchTab": {
+    "description": "Send page notice under Kill switch. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
   }
 }

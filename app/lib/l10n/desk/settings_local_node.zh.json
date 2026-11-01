@@ -75,7 +75,7 @@
   "deskSetLnodeStepOf": "同步第 {n} 步，共 4 步：{name}",
   "deskSetLndAskTitle": "本地节点同步完成前使用 {host}？",
   "deskSetLndAskDesc": "本地节点同步完成前，可由公共节点 {host} 代替。",
-  "deskSetLndAskNote": "只询问一次。可以在“设置 › 节点 › 同步期间”中更改节点和这个选择。",
+  "deskSetLndAskNote": "只询问一次。可以在“设置 › 节点 › 同步期间”中更改节点和这个选择。",
   "deskSetLndAskWait": "等待本地节点",
   "deskSetLndAskUse": "使用 {host}",
   "deskSetLndPickTitle": "同步期间使用的节点",

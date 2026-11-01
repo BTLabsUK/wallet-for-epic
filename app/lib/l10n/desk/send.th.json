@@ -70,6 +70,7 @@
   "deskSendTorStartingText": "การส่งจะรอ Tor",
   "deskSendEpicboxOff": "Epicbox ไม่ได้เชื่อมต่อ",
   "deskSendEpicboxOffText": "เปิดการรับผ่าน Epicbox เพื่อส่งผ่าน Epicbox หรือใช้ โดยตรง · โอนไฟล์",
+  "deskSendEpicboxOffTab": "เปิดการรับผ่าน Epicbox เพื่อส่งผ่าน Epicbox หรือใช้ {method}",
   "deskSendEpicboxTurnOn": "เปิดการรับผ่าน Epicbox",
   "deskSendDoneViaDirect": "ทำรายการเสร็จและส่งเข้าเครือข่ายแล้ว",
   "deskSendDoneViaEpicbox": "ส่งให้ Epicbox แล้ว จะสำเร็จเมื่อผู้รับตอบกลับ",
@@ -161,6 +162,9 @@
   "deskSendContactNoLink": "{name} ไม่มีที่อยู่ Link",
   "deskSendHintNeedsMethod": "การตรวจสอบต้องใช้ {method}",
   "deskSendEpicboxNodeOnly": "โหนดเท่านั้นเปิดอยู่: Epicbox ปิด โดยตรง · โอนไฟล์ ใช้ได้",
+  "deskSendEpicboxNodeOnlyTab": "โหนดเท่านั้นเปิดอยู่: Epicbox ปิด {method} ใช้ได้",
   "deskSendLinkNodeOnly": "โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด โดยตรง · โอนไฟล์ ใช้ได้",
-  "deskSendKillSwitch": "สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · โอนไฟล์ ใช้ได้"
+  "deskSendLinkNodeOnlyTab": "โหนดเท่านั้นเปิดอยู่: ลิงก์ปิด {method} ใช้ได้",
+  "deskSendKillSwitch": "สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ โดยตรง · โอนไฟล์ ใช้ได้",
+  "deskSendKillSwitchTab": "สวิตช์ฉุกเฉินเปิดอยู่: ไม่มีอะไรเชื่อมต่อ {method} ใช้ได้"
 }

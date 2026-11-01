@@ -190,7 +190,7 @@
       }
     }
   },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
@@ -198,7 +198,7 @@
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
-  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
+  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
@@ -206,7 +206,7 @@
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
-  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
+  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
@@ -260,7 +260,7 @@
   "@deskRecvTorOffTitle": {
     "description": "Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs."
   },
-  "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
+  "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
   "@deskRecvTorOffText": {
     "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy)."
   },

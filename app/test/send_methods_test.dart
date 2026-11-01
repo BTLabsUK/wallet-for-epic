@@ -611,7 +611,7 @@ void main() {
       await _settle(tester);
       expect(_method(tester), TransferMethod.direct);
       expect(_segment('Epicbox'), findsNothing);
-      expect(find.text('Epicbox is off in Settings › Transactions.'), findsNothing);
+      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions.'), findsNothing);
     });
 
     testWidgets('an Epicbox address in To moves to the next method when Epicbox goes off', (tester) async {
@@ -625,7 +625,7 @@ void main() {
       // The address still goes over Epicbox, which is off: Continue waits, with the note.
       expect(_toText(tester), _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      expect(find.text('Epicbox is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
     });
 
@@ -1180,7 +1180,7 @@ void main() {
       expect(_segment('Direct · File'), findsNothing);
       await _enter(tester, 'To', _bob);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
-      expect(find.text('Epicbox is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
       await h.session.saveContact(contact: Contact(id: '', name: 'Alice', address: _bob, note: null));
       h.container.invalidate(contactsProvider);
       await tester.pumpAndSettle();

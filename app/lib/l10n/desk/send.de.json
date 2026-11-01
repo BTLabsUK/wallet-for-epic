@@ -70,6 +70,7 @@
   "deskSendTorStartingText": "Das Senden wartet auf Tor.",
   "deskSendEpicboxOff": "Epicbox nicht verbunden",
   "deskSendEpicboxOffText": "Schalten Sie den Epicbox-Empfang ein, um über Epicbox zu senden, oder nutzen Sie Direkt · Dateiübertragung.",
+  "deskSendEpicboxOffTab": "Epicbox-Empfang einschalten, um über Epicbox zu senden, oder {method} nutzen.",
   "deskSendEpicboxTurnOn": "Epicbox-Empfang einschalten",
   "deskSendDoneViaDirect": "Abgeschlossen und an das Netzwerk gesendet.",
   "deskSendDoneViaEpicbox": "An Epicbox übergeben. Wird abgeschlossen, sobald der Empfänger antwortet.",
@@ -161,6 +162,9 @@
   "deskSendContactNoLink": "{name} hat keine Link-Adresse.",
   "deskSendHintNeedsMethod": "Prüfen braucht {method}",
   "deskSendEpicboxNodeOnly": "„Nur Node“ ist an: Epicbox ist aus. Direkt · Dateiübertragung funktioniert.",
+  "deskSendEpicboxNodeOnlyTab": "„Nur Node“ ist an: Epicbox ist aus. {method} funktioniert.",
   "deskSendLinkNodeOnly": "„Nur Node“ ist an: Link ist aus. Direkt · Dateiübertragung funktioniert.",
-  "deskSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert."
+  "deskSendLinkNodeOnlyTab": "„Nur Node“ ist an: Link ist aus. {method} funktioniert.",
+  "deskSendKillSwitch": "„Notaus“ ist an: Nichts verbindet sich. Direkt · Dateiübertragung funktioniert.",
+  "deskSendKillSwitchTab": "„Notaus“ ist an: Nichts verbindet sich. {method} funktioniert."
 }

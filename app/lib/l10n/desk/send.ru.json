@@ -70,6 +70,7 @@
   "deskSendTorStartingText": "Отправка ждёт Tor.",
   "deskSendEpicboxOff": "Epicbox не подключён",
   "deskSendEpicboxOffText": "Включите приём через Epicbox, чтобы отправлять через Epicbox, или используйте «Напрямую · Передача файла».",
+  "deskSendEpicboxOffTab": "Включите приём через Epicbox, чтобы отправлять через Epicbox, или используйте «{method}».",
   "deskSendEpicboxTurnOn": "Включить приём через Epicbox",
   "deskSendDoneViaDirect": "Завершено и отправлено в сеть.",
   "deskSendDoneViaEpicbox": "Передано в Epicbox. Завершится, когда получатель ответит.",
@@ -161,6 +162,9 @@
   "deskSendContactNoLink": "У {name} нет адреса Link.",
   "deskSendHintNeedsMethod": "Для проверки нужен {method}",
   "deskSendEpicboxNodeOnly": "Включён режим «Только узел»: Epicbox выключен. «Напрямую · Передача файла» работает.",
+  "deskSendEpicboxNodeOnlyTab": "Включён режим «Только узел»: Epicbox выключен. «{method}» работает.",
   "deskSendLinkNodeOnly": "Включён режим «Только узел»: «Ссылка» выключена. «Напрямую · Передача файла» работает.",
-  "deskSendKillSwitch": "Включено «Аварийное отключение»: ничего не подключается. «Напрямую · Передача файла» работает."
+  "deskSendLinkNodeOnlyTab": "Включён режим «Только узел»: «Ссылка» выключена. «{method}» работает.",
+  "deskSendKillSwitch": "Включено «Аварийное отключение»: ничего не подключается. «Напрямую · Передача файла» работает.",
+  "deskSendKillSwitchTab": "Включено «Аварийное отключение»: ничего не подключается. «{method}» работает."
 }

@@ -142,7 +142,7 @@ void main() {
     await pump(tester, (_) async => (404, ''));
     expect(find.text('Licences'), findsOneWidget);
     expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
-    expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache 2.0'), findsOneWidget);
+    expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
     expect(find.textContaining('Flutter and its Dart packages'), findsOneWidget);
     // The note is an asset, read after the first frame.
     for (var i = 0; i < 10; i++) {

@@ -4318,7 +4318,7 @@ abstract class AppLocalizations {
   /// Advanced page: what the Transaction files switch shows.
   ///
   /// In en, this message translates to:
-  /// **'Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.'**
+  /// **'Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.'**
   String get advTransactionFilesHint;
 
   /// Button that makes the payment shown as a QR code.
@@ -4912,7 +4912,7 @@ abstract class AppLocalizations {
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile by BT Labs: Apache 2.0.'**
+  /// **'Epic Cash Mobile by BT Labs: Apache-2.0.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.
@@ -4924,7 +4924,7 @@ abstract class AppLocalizations {
   /// Licences screen: one line for LEPIC and its key Rust crates. Keep the crate names as they are.
   ///
   /// In en, this message translates to:
-  /// **'LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.'**
+  /// **'LEPIC, the Epic Cash wallet library: Apache-2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache-2.0, among them tokio, rustls, rusqlite and blake2.'**
   String get licencesLepic;
 
   /// Licences screen: one line for Tor; the English source note with the version and URLs follows it.
@@ -6196,7 +6196,7 @@ abstract class AppLocalizations {
   /// Text of the tour card for the Send tab; names the two payment methods shown by default.
   ///
   /// In en, this message translates to:
-  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.'**
+  /// **'Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.'**
   String get tourPhoneSendText;
 
   /// Title of the tour card for the Receive tab (first-unlock tour). Short.
@@ -8317,7 +8317,7 @@ abstract class AppLocalizations {
   /// Text under the node-down reason. The wallet never switches node by itself.
   ///
   /// In en, this message translates to:
-  /// **'The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.'**
+  /// **'The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.'**
   String get deskInvPayerNodeDownText;
 
   /// Read-only Review invoice: the invoice was already approved and paid.
@@ -8413,7 +8413,7 @@ abstract class AppLocalizations {
   /// Toast text after Approve when the relay did not take the payment.
   ///
   /// In en, this message translates to:
-  /// **'The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.'**
+  /// **'The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.'**
   String get deskInvPayerNotDeliveredToastText;
 
   /// Toast when Retry failed.
@@ -8749,7 +8749,7 @@ abstract class AppLocalizations {
   /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
+  /// **'Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
   String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
@@ -9793,7 +9793,7 @@ abstract class AppLocalizations {
   /// Local node tooltip line when the node is stopped.
   ///
   /// In en, this message translates to:
-  /// **'Start it under Settings › Node.'**
+  /// **'Start it under Settings › Node.'**
   String get deskNodeStartIt;
 
   /// Why the local node failed, as a detail after the word "Failed". Lowercase fragment.
@@ -10243,7 +10243,7 @@ abstract class AppLocalizations {
   /// Caption under the HTTP address when receiving is only for this computer.
   ///
   /// In en, this message translates to:
-  /// **'Programs on this computer can pay this address. For other devices, see Settings › Transactions.'**
+  /// **'Programs on this computer can pay this address. For other devices, see Settings › Transactions.'**
   String get deskRecvHttpLocal;
 
   /// Intro text of the HTTP panel on Receive.
@@ -10255,7 +10255,7 @@ abstract class AppLocalizations {
   /// Caption at the bottom of the HTTP panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Turn on Tor in Settings › Privacy for a Tor address instead.'**
+  /// **'Turn on Tor in Settings › Privacy for a Tor address instead.'**
   String get deskRecvHttpTorHint;
 
   /// Title of the Tor panel on Receive.
@@ -10267,7 +10267,7 @@ abstract class AppLocalizations {
   /// Intro text of the Tor panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.'**
+  /// **'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.'**
   String get deskRecvTorIntro;
 
   /// Title of the QR code of the Tor address on Receive.
@@ -10760,6 +10760,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.'**
   String get deskSendEpicboxOffText;
+
+  /// Send page notice when Epicbox receiving is off. {method} is the Direct · File tab's own name, exactly as the tab shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Epicbox receiving to send by Epicbox, or use {method}.'**
+  String deskSendEpicboxOffTab(String method);
 
   /// Button in that notice.
   ///
@@ -15042,7 +15048,7 @@ abstract class AppLocalizations {
   /// Title of the tour card for this page (first-unlock tour). Short.
   ///
   /// In en, this message translates to:
-  /// **'Settings › Node'**
+  /// **'Settings › Node'**
   String get deskTourNodeTitle;
 
   /// Text of the Settings › Node step of the first-run tour.
@@ -16473,6 +16479,12 @@ abstract class AppLocalizations {
   /// **'The new password unlocks this wallet from now on; Remember on this computer is turned off.'**
   String get deskSetDlgPwDesc;
 
+  /// Description of the Change password dialog: the new password takes over, and the wallet is no longer remembered on this computer (the Remember switch turns off). Plain words, no switch name.
+  ///
+  /// In en, this message translates to:
+  /// **'From now on the new password unlocks this wallet, and this computer no longer remembers it.'**
+  String get deskSetDlgPwDescPlain;
+
   /// Change password dialog: label and screen reader name of the field.
   ///
   /// In en, this message translates to:
@@ -16554,7 +16566,7 @@ abstract class AppLocalizations {
   /// Remove wallet dialog: shown for a locked wallet. "Settings › This wallet" is a menu path.
   ///
   /// In en, this message translates to:
-  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.'**
+  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.'**
   String get deskSetDlgRemoveUnlockHint;
 
   /// Remove wallet dialog: link that locks the open wallet and opens Unlock with this wallet selected.
@@ -17244,7 +17256,7 @@ abstract class AppLocalizations {
   /// Fallback question dialog: small note. "Settings › Node › While syncing" is a menu path.
   ///
   /// In en, this message translates to:
-  /// **'Asked once. The node and the choice can be changed under Settings › Node › While syncing.'**
+  /// **'Asked once. The node and the choice can be changed under Settings › Node › While syncing.'**
   String get deskSetLndAskNote;
 
   /// Fallback question dialog: button to wait instead of using a public node.
@@ -20171,7 +20183,7 @@ abstract class AppLocalizations {
   /// Info sheet of the Send options switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.'**
+  /// **'Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.'**
   String get advSendOptionsHint;
 
   /// Advanced switch: hosts, latency, version, height.
@@ -20729,7 +20741,7 @@ abstract class AppLocalizations {
   /// Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are.
   ///
   /// In en, this message translates to:
-  /// **'Send defaults are in Settings › Transactions'**
+  /// **'Send defaults are in Settings › Transactions'**
   String get outputsDefaultsMoved;
 
   /// Switch on the Advanced page, under the network modes: on by default.
@@ -20855,13 +20867,13 @@ abstract class AppLocalizations {
   /// Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop.
   ///
   /// In en, this message translates to:
-  /// **'Epicbox is off in Settings › Transactions.'**
+  /// **'Epicbox is off in Settings › Transactions.'**
   String get netBlockEpicboxOff;
 
   /// Reason line under a disabled action by a payment method whose switch on Settings › Transactions is off. {method} is the method's full name (Link · HTTP, Link · Tor, Direct · QR Payment, Direct · File Transfer). Phone and desktop.
   ///
   /// In en, this message translates to:
-  /// **'{method} is off in Settings › Transactions.'**
+  /// **'{method} is off in Settings › Transactions.'**
   String netBlockMethodOff(String method);
 
   /// Title of the confirm shown when Epicbox is turned off while a payment still waits for its reply over Epicbox.
@@ -20909,7 +20921,7 @@ abstract class AppLocalizations {
   /// Receive, empty state body under receiveNoMethods.
   ///
   /// In en, this message translates to:
-  /// **'Turn one on in Settings › Transactions.'**
+  /// **'Turn one on in Settings › Transactions.'**
   String get receiveNoMethodsBody;
 
   /// Receive, empty state button that opens Settings › Transactions.
@@ -20927,7 +20939,7 @@ abstract class AppLocalizations {
   /// One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went.
   ///
   /// In en, this message translates to:
-  /// **'The strategy and Split change for sends are set in Settings › Transactions.'**
+  /// **'The strategy and Split change for sends are set in Settings › Transactions.'**
   String get deskOutDefaultsMoved;
 
   /// Inline button after deskOutDefaultsMoved: opens Settings › Transactions.
@@ -21215,7 +21227,7 @@ abstract class AppLocalizations {
   /// Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy).
   ///
   /// In en, this message translates to:
-  /// **'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.'**
+  /// **'The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.'**
   String get deskRecvTorOffText;
 
   /// Title of the red notice on the setup's last step after Save failed on a first run. The notice has a button to continue without saving (deskSetupSkipSave).
@@ -22223,7 +22235,7 @@ abstract class AppLocalizations {
   /// Lead when re-checking from the contact page.
   ///
   /// In en, this message translates to:
-  /// **'{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.'**
+  /// **'{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.'**
   String sasLeadRecheck(String name);
 
   /// Primary button.
@@ -23675,19 +23687,19 @@ abstract class AppLocalizations {
   /// Topic 4.
   ///
   /// In en, this message translates to:
-  /// **'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
+  /// **'A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.'**
   String get helpPairInvP1;
 
   /// helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN.
   ///
   /// In en, this message translates to:
-  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.'**
+  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.'**
   String get helpPairInvP2Desktop;
 
   /// Topic 4.
   ///
   /// In en, this message translates to:
-  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.'**
+  /// **'An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.'**
   String get helpPairInvP2;
 
   /// Topic 4.
@@ -23945,7 +23957,7 @@ abstract class AppLocalizations {
   /// Body of that sheet
   ///
   /// In en, this message translates to:
-  /// **'Turn it on in Settings › Advanced.'**
+  /// **'Turn it on in Settings › Advanced.'**
   String get expPairingOffBody;
 
   /// Title of the sheet shown when an invoice opens while Invoices is off
@@ -23957,7 +23969,7 @@ abstract class AppLocalizations {
   /// Body of that sheet
   ///
   /// In en, this message translates to:
-  /// **'Turn them on in Settings › Advanced.'**
+  /// **'Turn them on in Settings › Advanced.'**
   String get expInvoicesOffBody;
 
   /// Button of those sheets: opens Settings › Advanced
@@ -24407,7 +24419,7 @@ abstract class AppLocalizations {
   /// Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup.
   ///
   /// In en, this message translates to:
-  /// **'Later under Settings › This wallet › Wallet data.'**
+  /// **'Later under Settings › This wallet › Wallet data.'**
   String get deskOvRestoredImportLater;
 
   /// Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed.
@@ -24593,7 +24605,7 @@ abstract class AppLocalizations {
   /// Dim line on the request page: where the request stays and for how long.
   ///
   /// In en, this message translates to:
-  /// **'Open in Invoices › Sent for 24 h, then it expires.'**
+  /// **'Open in Invoices › Sent for 24 h, then it expires.'**
   String get reqQrOpenNote;
 
   /// Merchant scanned a reply to a different request.
@@ -26771,19 +26783,19 @@ abstract class AppLocalizations {
   /// Status icons: tooltip and hint of a payment method that is off; a tap opens the switch.
   ///
   /// In en, this message translates to:
-  /// **'Off. Turn on in Settings › Transactions.'**
+  /// **'Off. Turn on in Settings › Transactions.'**
   String get netStatusTurnOnHint;
 
   /// Status icons: tooltip of the Tor icon while Tor is off; a tap opens the switch.
   ///
   /// In en, this message translates to:
-  /// **'Off. Turn on in Settings › Privacy & network.'**
+  /// **'Off. Turn on in Settings › Privacy & network.'**
   String get netStatusTurnOnHintPrivacy;
 
   /// Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch.
   ///
   /// In en, this message translates to:
-  /// **'Off. Turn on in Settings › Transactions.'**
+  /// **'Off. Turn on in Settings › Transactions.'**
   String get deskBarTurnOnHint;
 
   /// Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, Epic Cash Desktop and the button name 'Always Allow' (as macOS shows it in each language) are names.
@@ -27251,7 +27263,7 @@ abstract class AppLocalizations {
   /// Detail of a status icon that is off because of the network mode.
   ///
   /// In en, this message translates to:
-  /// **'Turned off by the network mode. Change it in Settings › Advanced › Network.'**
+  /// **'Turned off by the network mode. Change it in Settings › Advanced › Network.'**
   String get statusOffByModeDetail;
 
   /// Send over Epicbox while Node only is chosen.
@@ -27599,7 +27611,7 @@ abstract class AppLocalizations {
   /// Body of that screen (desktop).
   ///
   /// In en, this message translates to:
-  /// **'{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
+  /// **'{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.'**
   String deskFinNotPostedKillBody(String amount);
 
   /// Row in the connections sheet naming the network mode.
@@ -28070,17 +28082,35 @@ abstract class AppLocalizations {
   /// **'Node only is on: Epicbox is off. Direct · File Transfer works.'**
   String get deskSendEpicboxNodeOnly;
 
+  /// Send page notice on the Epicbox tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only is on: Epicbox is off. {method} works.'**
+  String deskSendEpicboxNodeOnlyTab(String method);
+
   /// Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop.
   ///
   /// In en, this message translates to:
   /// **'Node only is on: Link is off. Direct · File Transfer works.'**
   String get deskSendLinkNodeOnly;
 
+  /// Send page notice on the Link tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only is on: Link is off. {method} works.'**
+  String deskSendLinkNodeOnlyTab(String method);
+
   /// Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop.
   ///
   /// In en, this message translates to:
   /// **'Kill switch is on: nothing connects. Direct · File Transfer works.'**
   String get deskSendKillSwitch;
+
+  /// Send page notice under Kill switch. {method} is the Direct · File tab's own name, exactly as the tab shows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill switch is on: nothing connects. {method} works.'**
+  String deskSendKillSwitchTab(String method);
 
   /// First-start screen (before Welcome and the PIN): heading above the three wallet levels.
   ///
@@ -28139,7 +28169,7 @@ abstract class AppLocalizations {
   /// Footer of the first-start step: where to change the level later.
   ///
   /// In en, this message translates to:
-  /// **'Change it any time in Settings › Advanced.'**
+  /// **'Change it any time in Settings › Advanced.'**
   String get levelFooter;
 
   /// Row at the top of Settings › Advanced; its second line is the current level's title.
@@ -28241,7 +28271,7 @@ abstract class AppLocalizations {
   /// ⓘ sheet of 'Undercover from the start' on the first-start picker.
   ///
   /// In en, this message translates to:
-  /// **'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.'**
+  /// **'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.'**
   String get lvPickUndercoverHelp;
 
   /// Change level screen: the Undercover (Tor only) switch.
@@ -28697,7 +28727,7 @@ abstract class AppLocalizations {
   /// Welcome, under the depth dial: where the depth can be changed later. A "What this decides" link follows it.
   ///
   /// In en, this message translates to:
-  /// **'Change it any time in Settings › Advanced.'**
+  /// **'Change it any time in Settings › Advanced.'**
   String get deskLvStartChangeLater;
 
   /// Dialog "What this decides": the line for the first stop. Shallow is the stop name.

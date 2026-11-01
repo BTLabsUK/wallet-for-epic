@@ -284,7 +284,7 @@
   "@deskTourContactsText": {
     "description": "Text of the Contacts step of the first-run tour."
   },
-  "deskTourNodeTitle": "Settings › Node",
+  "deskTourNodeTitle": "Settings › Node",
   "@deskTourNodeTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },

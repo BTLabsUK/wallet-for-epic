@@ -70,6 +70,7 @@
   "deskSendTorStartingText": "发送会等待 Tor。",
   "deskSendEpicboxOff": "Epicbox 未连接",
   "deskSendEpicboxOffText": "开启 Epicbox 接收即可通过 Epicbox 发送，或使用 直接 · 文件传输。",
+  "deskSendEpicboxOffTab": "开启 Epicbox 接收即可通过 Epicbox 发送，或使用 {method}。",
   "deskSendEpicboxTurnOn": "开启 Epicbox 接收",
   "deskSendDoneViaDirect": "已完成并广播到网络。",
   "deskSendDoneViaEpicbox": "已交给 Epicbox。接收方响应后即完成。",
@@ -161,6 +162,9 @@
   "deskSendContactNoLink": "{name} 没有 Link 地址。",
   "deskSendHintNeedsMethod": "确认需要 {method}",
   "deskSendEpicboxNodeOnly": "“仅节点”已开启：Epicbox 已关闭。直接 · 文件传输可用。",
+  "deskSendEpicboxNodeOnlyTab": "“仅节点”已开启：Epicbox 已关闭。{method} 可用。",
   "deskSendLinkNodeOnly": "“仅节点”已开启：链接已关闭。直接 · 文件传输可用。",
-  "deskSendKillSwitch": "“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。"
+  "deskSendLinkNodeOnlyTab": "“仅节点”已开启：链接已关闭。{method} 可用。",
+  "deskSendKillSwitch": "“紧急断网”已开启：什么都不连接。直接 · 文件传输可用。",
+  "deskSendKillSwitchTab": "“紧急断网”已开启：什么都不连接。{method} 可用。"
 }

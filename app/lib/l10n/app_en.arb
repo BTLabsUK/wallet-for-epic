@@ -3414,7 +3414,7 @@
   "@advTransactionFiles": {
     "description": "Advanced page switch name: transaction files (the File payment method)."
   },
-  "advTransactionFilesHint": "Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.",
+  "advTransactionFilesHint": "Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.",
   "@advTransactionFilesHint": {
     "description": "Advanced page: what the Transaction files switch shows."
   },
@@ -3862,7 +3862,7 @@
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Cash Mobile by BT Labs: Apache 2.0.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },
@@ -3870,7 +3870,7 @@
   "@licencesFlutter": {
     "description": "Licences screen: one line for Flutter and the Dart packages."
   },
-  "licencesLepic": "LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.",
+  "licencesLepic": "LEPIC, the Epic Cash wallet library: Apache-2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache-2.0, among them tokio, rustls, rusqlite and blake2.",
   "@licencesLepic": {
     "description": "Licences screen: one line for LEPIC and its key Rust crates. Keep the crate names as they are."
   },
@@ -4904,7 +4904,7 @@
   "@tourPhoneSendTitle": {
     "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
   },
-  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.",
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.",
   "@tourPhoneSendText": {
     "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
   },
@@ -6749,7 +6749,7 @@
   "@deskInvPayerNodeDownTitle": {
     "description": "Reason Approve is disabled: the wallet's node cannot be reached."
   },
-  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
+  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
   "@deskInvPayerNodeDownText": {
     "description": "Text under the node-down reason. The wallet never switches node by itself."
   },
@@ -6829,7 +6829,7 @@
   "@deskInvPayerNotDeliveredToast": {
     "description": "Toast after Approve when the relay did not take the payment."
   },
-  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
+  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
   "@deskInvPayerNotDeliveredToastText": {
     "description": "Toast text after Approve when the relay did not take the payment."
   },
@@ -7110,7 +7110,7 @@
   "@torNetworkLabel": {
     "description": "The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row."
   },
-  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.",
+  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.",
   "@torNetworkHint": {
     "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
@@ -7984,7 +7984,7 @@
       }
     }
   },
-  "deskNodeStartIt": "Start it under Settings › Node.",
+  "deskNodeStartIt": "Start it under Settings › Node.",
   "@deskNodeStartIt": {
     "description": "Local node tooltip line when the node is stopped."
   },
@@ -8426,7 +8426,7 @@
       }
     }
   },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
@@ -8434,7 +8434,7 @@
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
-  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
+  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
@@ -8442,7 +8442,7 @@
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
-  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
+  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
@@ -8911,6 +8911,16 @@
   "deskSendEpicboxOffText": "Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.",
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
+  },
+  "deskSendEpicboxOffTab": "Turn on Epicbox receiving to send by Epicbox, or use {method}.",
+  "@deskSendEpicboxOffTab": {
+    "description": "Send page notice when Epicbox receiving is off. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
   },
   "deskSendEpicboxTurnOn": "Turn on Epicbox receiving",
   "@deskSendEpicboxTurnOn": {
@@ -12485,7 +12495,7 @@
   "@deskTourContactsText": {
     "description": "Text of the Contacts step of the first-run tour."
   },
-  "deskTourNodeTitle": "Settings › Node",
+  "deskTourNodeTitle": "Settings › Node",
   "@deskTourNodeTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
@@ -13796,6 +13806,10 @@
   "@deskSetDlgPwDesc": {
     "description": "Change password dialog: description under the title."
   },
+  "deskSetDlgPwDescPlain": "From now on the new password unlocks this wallet, and this computer no longer remembers it.",
+  "@deskSetDlgPwDescPlain": {
+    "description": "Description of the Change password dialog: the new password takes over, and the wallet is no longer remembered on this computer (the Remember switch turns off). Plain words, no switch name."
+  },
   "deskSetDlgPwCurrent": "Current password",
   "@deskSetDlgPwCurrent": {
     "description": "Change password dialog: label and screen reader name of the field."
@@ -13873,7 +13887,7 @@
       }
     }
   },
-  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
+  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
   "@deskSetDlgRemoveUnlockHint": {
     "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
   },
@@ -14468,7 +14482,7 @@
       }
     }
   },
-  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
+  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
   "@deskSetLndAskNote": {
     "description": "Fallback question dialog: small note. \"Settings › Node › While syncing\" is a menu path."
   },
@@ -16963,7 +16977,7 @@
   "@advSendOptions": {
     "description": "Advanced switch: strategy and split change on Send."
   },
-  "advSendOptionsHint": "Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
+  "advSendOptionsHint": "Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
   "@advSendOptionsHint": {
     "description": "Info sheet of the Send options switch."
   },
@@ -17386,7 +17400,7 @@
   "@txDefaultsHeader": {
     "description": "Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options."
   },
-  "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
+  "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
   "@outputsDefaultsMoved": {
     "description": "Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are."
   },
@@ -17520,11 +17534,11 @@
   "@netOfflineNodeLine": {
     "description": "Phone: the short line beside the info icon that opens netOfflineNodeHint, under a file or QR Payment action while Offline. 1-3 words."
   },
-  "netBlockEpicboxOff": "Epicbox is off in Settings › Transactions.",
+  "netBlockEpicboxOff": "Epicbox is off in Settings › Transactions.",
   "@netBlockEpicboxOff": {
     "description": "Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop."
   },
-  "netBlockMethodOff": "{method} is off in Settings › Transactions.",
+  "netBlockMethodOff": "{method} is off in Settings › Transactions.",
   "@netBlockMethodOff": {
     "description": "Reason line under a disabled action by a payment method whose switch on Settings › Transactions is off. {method} is the method's full name (Link · HTTP, Link · Tor, Direct · QR Payment, Direct · File Transfer). Phone and desktop.",
     "placeholders": {
@@ -17579,7 +17593,7 @@
   "@receiveNoMethods": {
     "description": "Receive, empty state title when every method is off in Settings › Transactions."
   },
-  "receiveNoMethodsBody": "Turn one on in Settings › Transactions.",
+  "receiveNoMethodsBody": "Turn one on in Settings › Transactions.",
   "@receiveNoMethodsBody": {
     "description": "Receive, empty state body under receiveNoMethods."
   },
@@ -17591,7 +17605,7 @@
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
   },
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
   "deskOutDefaultsOpen": "Open Transactions",
   "@deskOutDefaultsMoved": {
     "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
@@ -17795,7 +17809,7 @@
   "@deskRecvTorOffTitle": {
     "description": "Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs."
   },
-  "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
+  "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
   "@deskRecvTorOffText": {
     "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy)."
   },
@@ -18695,7 +18709,7 @@
       }
     }
   },
-  "sasLeadRecheck": "{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.",
+  "sasLeadRecheck": "{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.",
   "@sasLeadRecheck": {
     "description": "Lead when re-checking from the contact page.",
     "placeholders": {
@@ -20156,15 +20170,15 @@
   "@helpPairInvShort": {
     "description": "Topic 4 lede."
   },
-  "helpPairInvP1": "A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
+  "helpPairInvP1": "A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
   "@helpPairInvP1": {
     "description": "Topic 4."
   },
-  "helpPairInvP2Desktop": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.",
+  "helpPairInvP2Desktop": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.",
   "@helpPairInvP2Desktop": {
     "description": "helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN."
   },
-  "helpPairInvP2": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.",
+  "helpPairInvP2": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.",
   "@helpPairInvP2": {
     "description": "Topic 4."
   },
@@ -20393,7 +20407,7 @@
   "@expPairingOffTitle": {
     "description": "Title of the sheet shown when a pairing link opens while Pairing is off"
   },
-  "expPairingOffBody": "Turn it on in Settings › Advanced.",
+  "expPairingOffBody": "Turn it on in Settings › Advanced.",
   "@expPairingOffBody": {
     "description": "Body of that sheet"
   },
@@ -20401,7 +20415,7 @@
   "@expInvoicesOffTitle": {
     "description": "Title of the sheet shown when an invoice opens while Invoices is off"
   },
-  "expInvoicesOffBody": "Turn them on in Settings › Advanced.",
+  "expInvoicesOffBody": "Turn them on in Settings › Advanced.",
   "@expInvoicesOffBody": {
     "description": "Body of that sheet"
   },
@@ -20807,7 +20821,7 @@
   "@deskOvRestoredImportButton": {
     "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
   },
-  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
+  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },
@@ -20966,7 +20980,7 @@
   "@reqOtherChain": {
     "description": "Customer: the scanned request's time limit does not fit this network."
   },
-  "reqQrOpenNote": "Open in Invoices › Sent for 24 h, then it expires.",
+  "reqQrOpenNote": "Open in Invoices › Sent for 24 h, then it expires.",
   "@reqQrOpenNote": {
     "description": "Dim line on the request page: where the request stays and for how long."
   },
@@ -22992,15 +23006,15 @@
       }
     }
   },
-  "netStatusTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "netStatusTurnOnHint": "Off. Turn on in Settings › Transactions.",
   "@netStatusTurnOnHint": {
     "description": "Status icons: tooltip and hint of a payment method that is off; a tap opens the switch."
   },
-  "netStatusTurnOnHintPrivacy": "Off. Turn on in Settings › Privacy & network.",
+  "netStatusTurnOnHintPrivacy": "Off. Turn on in Settings › Privacy & network.",
   "@netStatusTurnOnHintPrivacy": {
     "description": "Status icons: tooltip of the Tor icon while Tor is off; a tap opens the switch."
   },
-  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
   "@deskBarTurnOnHint": {
     "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
   },
@@ -23580,7 +23594,7 @@
       }
     }
   },
-  "statusOffByModeDetail": "Turned off by the network mode. Change it in Settings › Advanced › Network.",
+  "statusOffByModeDetail": "Turned off by the network mode. Change it in Settings › Advanced › Network.",
   "@statusOffByModeDetail": {
     "description": "Detail of a status icon that is off because of the network mode."
   },
@@ -23866,7 +23880,7 @@
   "@deskSetAdvModeStandardHint": {
     "description": "Info text of the Normal row (desktop)."
   },
-  "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
+  "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
   "@deskFinNotPostedKillBody": {
     "description": "Body of that screen (desktop).",
     "placeholders": {
@@ -24286,13 +24300,43 @@
   "@deskSendEpicboxNodeOnly": {
     "description": "Send notice and hint while Node only is on and Epicbox is chosen: the desktop has no QR Payment, so only File Transfer works."
   },
+  "deskSendEpicboxNodeOnlyTab": "Node only is on: Epicbox is off. {method} works.",
+  "@deskSendEpicboxNodeOnlyTab": {
+    "description": "Send page notice on the Epicbox tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
   "@deskSendLinkNodeOnly": {
     "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
   },
+  "deskSendLinkNodeOnlyTab": "Node only is on: Link is off. {method} works.",
+  "@deskSendLinkNodeOnlyTab": {
+    "description": "Send page notice on the Link tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
   "@deskSendKillSwitch": {
     "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
+  },
+  "deskSendKillSwitchTab": "Kill switch is on: nothing connects. {method} works.",
+  "@deskSendKillSwitchTab": {
+    "description": "Send page notice under Kill switch. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
   },
   "levelStepTitle": "How much wallet do you want?",
   "@levelStepTitle": {
@@ -24330,7 +24374,7 @@
   "@levelUndercoverLine": {
     "description": "Line under the Undercover from the start switch."
   },
-  "levelFooter": "Change it any time in Settings › Advanced.",
+  "levelFooter": "Change it any time in Settings › Advanced.",
   "@levelFooter": {
     "description": "Footer of the first-start step: where to change the level later."
   },
@@ -24398,7 +24442,7 @@
   "@lvPickHelpText": {
     "description": "Level picker ⓘ sheet: text."
   },
-  "lvPickUndercoverHelp": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.",
+  "lvPickUndercoverHelp": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.",
   "@lvPickUndercoverHelp": {
     "description": "ⓘ sheet of 'Undercover from the start' on the first-start picker."
   },
@@ -24804,7 +24848,7 @@
   "@deskLvStartUndercoverAbout": {
     "description": "Label of the info button next to the Undercover switch."
   },
-  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
+  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
   "@deskLvStartChangeLater": {
     "description": "Welcome, under the depth dial: where the depth can be changed later. A \"What this decides\" link follows it."
   },
