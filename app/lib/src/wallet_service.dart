@@ -216,6 +216,10 @@ abstract interface class WalletSession {
 
   Future<void> cancelTransaction({required int txId});
 
+  /// Drops what the wallet learned about Epicbox keys it has not heard from for [olderThan]
+  /// (the rows behind [WalletService.peerCompat]). Called on every open.
+  Future<void> forgetPeers({required Duration olderThan});
+
   /// Posts a finalized send that never reached the chain again ([TxEntry.repostable]). Its
   /// inputs stay locked until it confirms.
   Future<void> repostTransaction({required String key});
@@ -1162,6 +1166,12 @@ class FakeWalletSession implements WalletSession {
   int disposeCalls = 0;
   String phrase = FakeWalletService._defaultPhrase;
   final List<int> cancelledTxIds = [];
+
+  /// Every [forgetPeers] call's age limit.
+  final List<Duration> forgetPeersCalls = [];
+
+  @override
+  Future<void> forgetPeers({required Duration olderThan}) async => forgetPeersCalls.add(olderThan);
 
   /// Thrown by [cancelTransaction] after it records the id, while set: LEPIC refusing a payment
   /// the network has (`invalidArgument`), or a node it cannot reach.

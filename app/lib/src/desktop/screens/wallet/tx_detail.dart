@@ -22,6 +22,7 @@ import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInCo
 import '../../desk_l10n.dart';
 import '../../../levels/level_features.dart' show TimelineStyle, TxActionSet;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
+import '../../../trust/contact_trust.dart' show mailboxResendOffer, relationshipOf, trustAddressOf;
 import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart';
 import '../../widgets/server_row.dart' show digitsText;
@@ -50,6 +51,10 @@ class TxMoreDemo extends Notifier<bool> {
 
 /// One transaction: amount and counterparty, where it stands, its progress, details, proof,
 /// technical details and the actions it allows (cancel, finalize).
+/// Cancel and send by Epicbox on the details, and its dialog's confirm, for tests.
+const Key deskTxResendKey = ValueKey('tx-resend-epicbox');
+const Key deskMailboxResendConfirmKey = ValueKey('mailbox-resend-confirm');
+
 class TxDetail extends ConsumerStatefulWidget {
   const TxDetail({super.key, required this.tx, this.showTitle = false});
 
@@ -199,6 +204,42 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     showEToast(context, context.l10n.deskTxBroadcastDone, tone: ETone.ok);
   }
 
+  /// Cancel and send by Epicbox (trust policy, an unanswered mailbox send): the waiting send
+  /// is cancelled through the ordinary cancel, then an ordinary Epicbox send of the same amount
+  /// and message goes to [address], the contact's Epicbox address. One confirm first.
+  Future<void> _resend(String name, String address) async {
+    final l = context.l10n;
+    final ok = await showEDialog<bool>(
+      context,
+      builder: (ctx) => EDialog(
+        title: l.mailboxResendTitle,
+        description: l.mailboxResendBody(name),
+        icon: EIcons.send,
+        width: 480.u,
+        actions: [
+          EButton(label: l.mailboxKeepWaiting, size: EBtnSize.sm, onPressed: () => Navigator.of(ctx).pop(false)),
+          EButton.primary(key: deskMailboxResendConfirmKey, label: l.mailboxResendAction, size: EBtnSize.sm, onPressed: () => Navigator.of(ctx).pop(true)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final t = widget.tx;
+    setState(() => _cancelling = true);
+    try {
+      final n = ref.read(deskProvider.notifier);
+      await n.cancelTx(t.id, spendBack: false);
+      await n.send(SendRequest(method: TxMethod.epicbox, amount: t.amount, to: address, message: t.messageBySender ? t.message : null));
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _cancelling = false);
+      showEToast(context, deskErrorText(e, l), tone: ETone.risk);
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    showEToast(context, l.mailboxResent, tone: ETone.ok);
+  }
+
   Future<void> _cancel() async {
     final choice = await showCancelTxDialog(context, widget.tx) ?? CancelChoice.keep;
     if (!choice.cancels || !mounted) return;
@@ -284,6 +325,19 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             final id? => ref.watch(deskPairingByIdProvider(id)),
             null => null,
           };
+    // The paired contact behind the mailbox and its Epicbox address: Cancel and send by Epicbox
+    // needs one (trust policy, mailboxResendOffer).
+    final mailboxContact = mailboxPairing?.contactId == null
+        ? null
+        : (ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[]).where((x) => x.id == mailboxPairing!.contactId).firstOrNull;
+    final resendAddress = trustAddressOf(mailboxContact?.epicbox, mailboxPairing);
+    final resendOffer = mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered && mailboxPairing != null
+        ? mailboxResendOffer(
+            relationshipOf(inContacts: mailboxContact != null, epicboxAddress: mailboxContact?.epicbox, pairing: mailboxPairing),
+            t.created,
+            ref.watch(deskClockProvider)(),
+          )
+        : null;
     final finalizable = fullActions && !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient && mailboxName == null;
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
     final repostable = fullActions && !t.fromBackup && !t.isInvoice && t.notPosted;
@@ -391,7 +445,19 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                       EBadge(l.deskTxStatusSenderPosted, key: const ValueKey('tx-sender-posted'), tone: ETone.info),
                       SizedBox(height: Sp.x1),
                     ],
-                    Text(mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered ? l.deskTxStatusWaitingFor(mailboxName) : _now(l, t), style: ts.body),
+                    Text(
+                      resendOffer != null
+                          ? (resendOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
+                          : mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered
+                          ? l.deskTxStatusWaitingFor(mailboxName)
+                          : _now(l, t),
+                      style: ts.body,
+                    ),
+                    // Gone from the relay after seven days: the line says so.
+                    if (resendOffer?.gone ?? false) ...[
+                      SizedBox(height: Sp.x1),
+                      Text(l.mailboxNeverPickedUp(mailboxName!), key: const ValueKey('tx-mailbox-gone'), style: ts.small),
+                    ],
                     if (t.otherWallet && !t.fromBackup && t.receivedOn == null) ...[
                       SizedBox(height: Sp.x1),
                       ELink(
@@ -420,13 +486,33 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           ENotice(title: l.reqReceivedWaiting(contactName), text: l.reqReceivedWaitingBody, tone: ETone.info),
         ],
         // The actions come first: Cancel, Send again and Finalize are seen without scrolling.
-        if (cancelable || finalizable || sendAgain || repostable) ...[
+        if (cancelable || finalizable || sendAgain || repostable || (resendOffer != null && resendAddress != null)) ...[
           SizedBox(height: Sp.x4),
           Wrap(
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
+              // An unanswered mailbox send: after a day the main action, at seven days second to
+              // Cancel (trust policy). Only with the contact's Epicbox address.
+              if (resendOffer != null && resendAddress != null)
+                resendOffer.resendPrimary
+                    ? EButton.primary(
+                        key: deskTxResendKey,
+                        label: l.mailboxResendTitle,
+                        icon: EIcons.send,
+                        size: EBtnSize.sm,
+                        busy: _cancelling,
+                        onPressed: _cancelling ? null : () => _resend(mailboxName!, resendAddress),
+                      )
+                    : EButton(
+                        key: deskTxResendKey,
+                        label: l.mailboxResendTitle,
+                        icon: EIcons.send,
+                        size: EBtnSize.sm,
+                        busy: _cancelling,
+                        onPressed: _cancelling ? null : () => _resend(mailboxName!, resendAddress),
+                      ),
               if (cancelable)
                 EButton(
                   label: _cancelling ? l.deskTxCancelling : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),

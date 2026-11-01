@@ -33,6 +33,7 @@ import 'features.dart';
 import 'http_address.dart';
 import 'invoices.dart';
 import 'phrase_check.dart';
+import '../../trust/policy.dart' show PeerCompat;
 import 'models.dart';
 
 export 'invoices.dart' show InvoiceError, InvoiceProblem;
@@ -1300,6 +1301,18 @@ class MockDeskWallet implements DeskWalletApi {
   /// pairings. The Prototype panel and the tour drive its other side.
   @override
   late final FakePairing pairing = _seedPairing(FakePairing());
+
+  /// What [peerCompat] answers, by address.
+  final Map<String, PeerCompat> peerCompats = {};
+
+  @override
+  Future<PeerCompat?> peerCompat(String address) async => peerCompats[address];
+
+  /// Every [forgetPeers] call's age limit.
+  final List<Duration> forgetPeersCalls = [];
+
+  @override
+  Future<void> forgetPeers({required Duration olderThan}) async => forgetPeersCalls.add(olderThan);
 
   FakePairing _seedPairing(FakePairing p) {
     p.clock = () => proto.now;

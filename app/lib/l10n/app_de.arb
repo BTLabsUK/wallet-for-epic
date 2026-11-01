@@ -4864,5 +4864,16 @@
   "deskNodeSwitchConnecting": "Verbindung zu {host}…",
   "deskNodeSwitchStarting": "Lokaler Node startet…",
   "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",
-  "deskNodeSwitchStoppingWord": "Stoppt"
+  "deskNodeSwitchStoppingWord": "Stoppt",
+  "trustLineOtherApp": "Die letzte Zahlung von {name} wurde von einer anderen Wallet-App beantwortet.",
+  "trustLineNotHeard": "Seit {date} nichts von der Wallet von {name} gehört.",
+  "mailboxNotAnswered": "Noch nicht beantwortet",
+  "mailboxNotPickedUp": "Nicht abgeholt",
+  "mailboxNeverPickedUp": "Die Wallet von {name} hat dies nie abgeholt.",
+  "mailboxResendTitle": "Stornieren und per Epicbox senden",
+  "mailboxResendBody": "Die wartende Zahlung wird storniert und derselbe Betrag geht als gewöhnliche Zahlung an die Epicbox-Adresse von {name}. Beide Zeilen bleiben im Verlauf.",
+  "mailboxResendAction": "Stornieren und senden",
+  "mailboxKeepWaiting": "Weiter warten",
+  "mailboxResent": "Storniert und per Epicbox gesendet.",
+  "torRelayCaption": "Über Tor sieht der Epicbox-Server die Adresse dieses Geräts nicht."
 }

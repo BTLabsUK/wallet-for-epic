@@ -336,6 +336,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('On many blockchains anyone can look up an address and see its balance and history. Epic Cash is different:'),
         HelpBlock.ul(['**No addresses on the blockchain.** The Epicbox address only tells Epicbox where to deliver messages. It is never written on the blockchain.', '**No amounts on the blockchain.** Amounts are hidden with cryptography, and the network can still check that no coins were created out of nothing.', '**Notes stay off the blockchain.** A message added to a send goes only to the other wallet. Contacts and wallet names stay on $device.']),
         HelpBlock.p('What is not hidden: the node and the Epicbox server see the wallet’s IP address, and a public node can see which outputs the wallet asks about. ${tor ? 'Tor or a VPN' : 'A VPN'} hides the IP address.'),
+        if (tor) const HelpBlock.p('**Epicbox.** Over Tor the relay does not see this device’s address.'),
       ],
       id: HelpId.privacy,
     ),

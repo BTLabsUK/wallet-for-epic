@@ -18276,4 +18276,46 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String trustLineOtherApp(Object name) {
+    return 'การชำระเงินล่าสุดของ $name ถูกตอบโดยแอปกระเป๋าอื่น';
+  }
+
+  @override
+  String trustLineNotHeard(Object name, Object date) {
+    return 'ไม่ได้ข่าวจากกระเป๋าของ $name ตั้งแต่ $date';
+  }
+
+  @override
+  String get mailboxNotAnswered => 'ยังไม่มีการตอบ';
+
+  @override
+  String get mailboxNotPickedUp => 'ไม่ได้รับ';
+
+  @override
+  String mailboxNeverPickedUp(Object name) {
+    return 'กระเป๋าของ $name ไม่เคยรับรายการนี้';
+  }
+
+  @override
+  String get mailboxResendTitle => 'ยกเลิกและส่งผ่าน Epicbox';
+
+  @override
+  String mailboxResendBody(Object name) {
+    return 'รายการที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
+  }
+
+  @override
+  String get mailboxResendAction => 'ยกเลิกและส่ง';
+
+  @override
+  String get mailboxKeepWaiting => 'รอต่อ';
+
+  @override
+  String get mailboxResent => 'ยกเลิกและส่งผ่าน Epicbox แล้ว';
+
+  @override
+  String get torRelayCaption =>
+      'ผ่าน Tor เซิร์ฟเวอร์ Epicbox จะไม่เห็นที่อยู่ของอุปกรณ์นี้';
 }

@@ -689,6 +689,10 @@ class RemoteWalletSession implements WalletSession {
   Future<void> cancelTransaction({required int txId}) =>
       _call(SessionMember.cancelTransaction, voidWire, {'txId': txId});
 
+  // The wallet behind the service prunes its own rows on its open; nothing to send.
+  @override
+  Future<void> forgetPeers({required Duration olderThan}) async {}
+
   @override
   Future<void> repostTransaction({required String key}) =>
       _call(SessionMember.repostTransaction, voidWire, {'key': key});

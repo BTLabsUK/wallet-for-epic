@@ -4864,5 +4864,16 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "trustLineOtherApp": "На последний платёж {name} ответило другое приложение-кошелёк.",
+  "trustLineNotHeard": "От кошелька {name} ничего не слышно с {date}.",
+  "mailboxNotAnswered": "Пока без ответа",
+  "mailboxNotPickedUp": "Не забран",
+  "mailboxNeverPickedUp": "Кошелёк {name} так и не забрал этот платёж.",
+  "mailboxResendTitle": "Отменить и отправить через Epicbox",
+  "mailboxResendBody": "Ожидающий платёж отменяется, и та же сумма уходит на адрес Epicbox {name} обычным платежом. В истории остаются две строки.",
+  "mailboxResendAction": "Отменить и отправить",
+  "mailboxKeepWaiting": "Подождать ещё",
+  "mailboxResent": "Отменено и отправлено через Epicbox.",
+  "torRelayCaption": "Через Tor сервер Epicbox не видит адрес этого устройства."
 }

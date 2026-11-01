@@ -14,6 +14,8 @@ import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
 import '../../data/method_names.dart';
 import '../../widgets/kit.dart';
+import '../../../trust/contact_trust.dart' show mailboxStageWord;
+import '../../data/clock.dart' show deskClockProvider;
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
 import 'tx_label.dart';
 
@@ -88,18 +90,24 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
 /// [statusOf], with "Waiting for Anna to sign" for a send through [mailbox]'s mailbox, and
 /// "Waiting for Anna" for a payment from it: Anna's wallet finalizes by itself, no file. While
 /// Epicbox is off ([paused]) a send waits in the outbox, and the row says that instead.
-(String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox, {bool paused = false}) =>
-    mailbox != null && t.state == TxState.waitingRecipient && !t.undelivered && !t.senderPosted && !t.senderCancelled
-    ? (t.incoming ? l.txStatusWaitingFor(mailbox) : (paused ? l.contactPausedEpicboxOff : l.deskTxStatusWaitingFor(mailbox)), paused ? ETone.warn : ETone.info)
-    : statusOf(l, t);
+(String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox, {bool paused = false, DateTime? now}) {
+  if (mailbox == null || t.state != TxState.waitingRecipient || t.undelivered || t.senderPosted || t.senderCancelled) return statusOf(l, t);
+  if (t.incoming) return (l.txStatusWaitingFor(mailbox), ETone.info);
+  if (paused) return (l.contactPausedEpicboxOff, ETone.warn);
+  // Unanswered for a day, or gone from the relay after seven: the stage, not the name.
+  final stage = now == null ? null : mailboxStageWord(l, t.created, now);
+  if (stage != null) return (stage, ETone.warn);
+  return (l.deskTxStatusWaitingFor(mailbox), ETone.info);
+}
 
 /// [statusWithMailbox] in the words of [wording]: Shallow and Deeper read an ordinary payment
 /// in plain words (Waiting for Alice, Arriving, Confirming, 2 of 3); the Deep end and every
 /// case with a word of its own (not delivered, posting, not posted, a backup, an invoice, another
 /// device, the sender's cancel) keep today's.
-(String, ETone) levelStatusWithMailbox(AppLocalizations l, Tx t, LevelWording wording, String? mailbox, {bool paused = false}) {
-  final today = statusWithMailbox(l, t, mailbox, paused: paused);
+(String, ETone) levelStatusWithMailbox(AppLocalizations l, Tx t, LevelWording wording, String? mailbox, {bool paused = false, DateTime? now}) {
+  final today = statusWithMailbox(l, t, mailbox, paused: paused, now: now);
   final own = t.deviceEnding != null ||
+      (mailbox != null && !t.incoming && t.state == TxState.waitingRecipient && now != null && mailboxStageWord(l, t.created, now) != null) ||
       t.fromBackup ||
       t.isInvoice ||
       t.undelivered ||
@@ -462,7 +470,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     final shallow = ref.watch(deskLevelUiProvider.select((f) => f.shallow));
     final (word, tone) =
         invoiceStatusOf(context, ref, t) ??
-        levelStatusWithMailbox(context.l10n, t, wording, mailbox, paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff);
+        levelStatusWithMailbox(context.l10n, t, wording, mailbox, paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff, now: ref.watch(deskClockProvider)());
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,

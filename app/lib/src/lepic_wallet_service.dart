@@ -1071,8 +1071,8 @@ class LepicWalletService implements WalletService {
         ),
       );
 
-  // STUB: returns null until the LEPIC binding has `peer_compat`; the lead wires it when the
-  // pin moves. Null means "knows nothing", which the trust policy treats as the safe default.
+  // STUB Trust (F): returns null until the LEPIC binding has `peer_compat`; the lead wires it
+  // when the pin moves. Null means "knows nothing", which the trust policy treats as the safe default.
   @override
   Future<PeerCompat?> peerCompat(String address) async => null;
 
@@ -1580,6 +1580,11 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   @override
   Future<void> cancelTransaction({required int txId}) =>
       _guard(() => _wallet.cancelTransaction(txId: txId));
+
+  // STUB Trust (F): does nothing until the LEPIC binding has `forget_peers`; the lead wires it
+  // when the pin moves. Until then the rows are only pruned by LEPIC's own rules.
+  @override
+  Future<void> forgetPeers({required Duration olderThan}) async {}
 
   @override
   Future<void> repostTransaction({required String key}) =>

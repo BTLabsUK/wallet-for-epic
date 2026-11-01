@@ -4864,5 +4864,16 @@
   "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
-  "deskNodeSwitchStoppingWord": "กำลังหยุด"
+  "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "trustLineOtherApp": "การชำระเงินล่าสุดของ {name} ถูกตอบโดยแอปกระเป๋าอื่น",
+  "trustLineNotHeard": "ไม่ได้ข่าวจากกระเป๋าของ {name} ตั้งแต่ {date}",
+  "mailboxNotAnswered": "ยังไม่มีการตอบ",
+  "mailboxNotPickedUp": "ไม่ได้รับ",
+  "mailboxNeverPickedUp": "กระเป๋าของ {name} ไม่เคยรับรายการนี้",
+  "mailboxResendTitle": "ยกเลิกและส่งผ่าน Epicbox",
+  "mailboxResendBody": "รายการที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ {name} เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว",
+  "mailboxResendAction": "ยกเลิกและส่ง",
+  "mailboxKeepWaiting": "รอต่อ",
+  "mailboxResent": "ยกเลิกและส่งผ่าน Epicbox แล้ว",
+  "torRelayCaption": "ผ่าน Tor เซิร์ฟเวอร์ Epicbox จะไม่เห็นที่อยู่ของอุปกรณ์นี้"
 }

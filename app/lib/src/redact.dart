@@ -19,6 +19,11 @@
 ///
 /// The slate rule keeps the slate's id (8 characters) and state: `[slate 0f3b2a1c… S2]`.
 ///
+/// 7. What the wallet learned about another wallet's key (a compat row: `peer_compat` and the
+///    rest of its line, and the values of `last_marked_at`, `last_unmarked_at`, `features_at`,
+///    `claimed` and `works`) becomes `[redacted]`, in every mode: no peer key, feature bit or
+///    date of it leaves the device.
+///
 /// Unless `details` is set, which only Detailed logging does ([AppLog.detailed]), it also takes
 /// out what says who was paid and how much, so the default log has neither:
 ///
@@ -56,6 +61,10 @@ const List<String> _secretKeys = [
 
 const List<String> _authSchemes = ['bearer', 'basic'];
 
+/// The fields of a compat row (rule 7); `peer_compat` takes the rest of its line with it.
+const List<String> _compatKeys = ['last_marked_at', 'last_unmarked_at', 'features_at', 'claimed', 'works'];
+final RegExp _compatRow = RegExp(r'peer_compat\b[^\n]*');
+
 const List<String> _slateMarkers = [
   '"participant_data"',
   '"public_blind_excess"',
@@ -71,6 +80,7 @@ String redact(String text, {bool details = false}) {
   var out = _redactSlate(text);
   out = _redactSlatepack(out);
   out = _redactPhrases(out);
+  out = out.replaceAll(_compatRow, 'peer_compat $redacted');
   out = _redactKeyed(out);
   out = out.replaceAllMapped(
     RegExp(r'[A-Za-z0-9-]+'),
@@ -264,7 +274,7 @@ String _redactKeyed(String text) {
     text.codeUnits.map((c) => c >= 0x41 && c <= 0x5a ? c + 32 : c),
   );
   final spans = <(int, int)>[];
-  for (final key in [..._secretKeys, ..._authSchemes]) {
+  for (final key in [..._secretKeys, ..._compatKeys, ..._authSchemes]) {
     var from = 0;
     while (true) {
       final at = haystack.indexOf(key, from);

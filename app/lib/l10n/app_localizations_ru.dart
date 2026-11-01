@@ -19319,4 +19319,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String trustLineOtherApp(Object name) {
+    return 'На последний платёж $name ответило другое приложение-кошелёк.';
+  }
+
+  @override
+  String trustLineNotHeard(Object name, Object date) {
+    return 'От кошелька $name ничего не слышно с $date.';
+  }
+
+  @override
+  String get mailboxNotAnswered => 'Пока без ответа';
+
+  @override
+  String get mailboxNotPickedUp => 'Не забран';
+
+  @override
+  String mailboxNeverPickedUp(Object name) {
+    return 'Кошелёк $name так и не забрал этот платёж.';
+  }
+
+  @override
+  String get mailboxResendTitle => 'Отменить и отправить через Epicbox';
+
+  @override
+  String mailboxResendBody(Object name) {
+    return 'Ожидающий платёж отменяется, и та же сумма уходит на адрес Epicbox $name обычным платежом. В истории остаются две строки.';
+  }
+
+  @override
+  String get mailboxResendAction => 'Отменить и отправить';
+
+  @override
+  String get mailboxKeepWaiting => 'Подождать ещё';
+
+  @override
+  String get mailboxResent => 'Отменено и отправлено через Epicbox.';
+
+  @override
+  String get torRelayCaption =>
+      'Через Tor сервер Epicbox не видит адрес этого устройства.';
 }

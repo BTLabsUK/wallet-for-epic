@@ -18913,4 +18913,46 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stoppt';
+
+  @override
+  String trustLineOtherApp(Object name) {
+    return 'Die letzte Zahlung von $name wurde von einer anderen Wallet-App beantwortet.';
+  }
+
+  @override
+  String trustLineNotHeard(Object name, Object date) {
+    return 'Seit $date nichts von der Wallet von $name gehört.';
+  }
+
+  @override
+  String get mailboxNotAnswered => 'Noch nicht beantwortet';
+
+  @override
+  String get mailboxNotPickedUp => 'Nicht abgeholt';
+
+  @override
+  String mailboxNeverPickedUp(Object name) {
+    return 'Die Wallet von $name hat dies nie abgeholt.';
+  }
+
+  @override
+  String get mailboxResendTitle => 'Stornieren und per Epicbox senden';
+
+  @override
+  String mailboxResendBody(Object name) {
+    return 'Die wartende Zahlung wird storniert und derselbe Betrag geht als gewöhnliche Zahlung an die Epicbox-Adresse von $name. Beide Zeilen bleiben im Verlauf.';
+  }
+
+  @override
+  String get mailboxResendAction => 'Stornieren und senden';
+
+  @override
+  String get mailboxKeepWaiting => 'Weiter warten';
+
+  @override
+  String get mailboxResent => 'Storniert und per Epicbox gesendet.';
+
+  @override
+  String get torRelayCaption =>
+      'Über Tor sieht der Epicbox-Server die Adresse dieses Geräts nicht.';
 }

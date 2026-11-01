@@ -175,6 +175,9 @@ const Key settingsPrivacyKey = ValueKey('settings-privacy');
 const Key settingsNodeKey = netStatusNodeKey;
 const Key settingsEpicboxKey = netStatusEpicboxKey;
 
+/// The Tor caption under the Epicbox row, for tests.
+const Key torRelayCaptionKey = ValueKey('tor-relay-caption');
+
 /// The key of the Node failover switch on the Advanced page, for tests.
 const Key advNodeFailoverKey = ValueKey('adv-nodeFailover');
 
@@ -681,6 +684,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           onTap: () => showEpicboxPicker(context),
         ),
       ],
+      // While Tor is off: where the relay would not see this phone's address.
+      if (!demo && torAvailable && torState == TorState.off && (walletOpen || config != null))
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Text(l.torRelayCaption, key: torRelayCaptionKey, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim)),
+        ),
       // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
       // state; it moves nothing the user chose.
       SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),

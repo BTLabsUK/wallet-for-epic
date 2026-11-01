@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'trust/contact_trust.dart' show peerCompatRetention;
 import 'wallet/held_coins.dart' show heldSpendable;
 import 'wallet/upkeep.dart' show releaseSenderCancelled, resendUndelivered, retrySpendBack, retryStalled;
 import 'demo.dart';
@@ -249,7 +250,15 @@ class SessionNotifier extends Notifier<WalletSession?> {
   void unlocked(WalletSession session) {
     final previous = state;
     if (previous != null && !identical(previous, session)) previous.dispose();
-    if (!identical(previous, session)) logInfo('session', 'wallet unlocked');
+    if (!identical(previous, session)) {
+      logInfo('session', 'wallet unlocked');
+      // What the wallet learned about keys silent since: dropped on every open.
+      unawaited(
+        session
+            .forgetPeers(olderThan: peerCompatRetention)
+            .catchError((Object e) => logDebug('session', 'peers not pruned: ${e.runtimeType}')),
+      );
+    }
     state = session;
   }
 

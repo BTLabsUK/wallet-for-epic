@@ -29191,6 +29191,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Contact page line (not a badge): the contact's last Epicbox payment came from a wallet that is not this app, newer than its last one that was.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s last payment was answered by another wallet app.'**
+  String trustLineOtherApp(Object name);
+
+  /// Contact page line: a paired contact whose wallet sent nothing for 90 days; date is a day and month.
+  ///
+  /// In en, this message translates to:
+  /// **'Not heard from {name}’s wallet since {date}.'**
+  String trustLineNotHeard(Object name, Object date);
+
+  /// Status of a send through a paired contact's mailbox with no answer after 24 hours (row and details).
+  ///
+  /// In en, this message translates to:
+  /// **'Not answered yet'**
+  String get mailboxNotAnswered;
+
+  /// Status of a send through a paired contact's mailbox with no answer after 7 days: the relay has dropped it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not picked up'**
+  String get mailboxNotPickedUp;
+
+  /// Line under the status of a mailbox send unanswered for 7 days.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s wallet never picked this up.'**
+  String mailboxNeverPickedUp(Object name);
+
+  /// Button and dialog title: cancel an unanswered mailbox send and send the same amount to the contact's Epicbox address as an ordinary payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and send by Epicbox'**
+  String get mailboxResendTitle;
+
+  /// Body of the Cancel and send by Epicbox confirm dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'The waiting send is cancelled and the same amount goes to {name}’s Epicbox address as an ordinary payment. Two rows stay in the history.'**
+  String mailboxResendBody(Object name);
+
+  /// The confirming button of the Cancel and send by Epicbox dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and send'**
+  String get mailboxResendAction;
+
+  /// The closing button of the Cancel and send by Epicbox dialog and of the unanswered mailbox send's details: nothing changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep waiting'**
+  String get mailboxKeepWaiting;
+
+  /// Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled and sent by Epicbox.'**
+  String get mailboxResent;
+
+  /// Caption under the Epicbox row in Settings while Tor is off, and a Help › Privacy line.
+  ///
+  /// In en, this message translates to:
+  /// **'Over Tor the relay does not see this device’s address.'**
+  String get torRelayCaption;
 }
 
 class _AppLocalizationsDelegate

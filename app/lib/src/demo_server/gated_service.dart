@@ -291,6 +291,10 @@ class GatedWalletSession implements WalletSession {
       _inner.cancelTransaction(txId: txId);
 
   @override
+  Future<void> forgetPeers({required Duration olderThan}) =>
+      _inner.forgetPeers(olderThan: olderThan);
+
+  @override
   Future<void> repostTransaction({required String key}) =>
       _inner.repostTransaction(key: key);
 

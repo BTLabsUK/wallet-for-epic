@@ -19339,4 +19339,46 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
+
+  @override
+  String trustLineOtherApp(Object name) {
+    return 'Na ostatnią płatność $name odpowiedziała inna aplikacja portfela.';
+  }
+
+  @override
+  String trustLineNotHeard(Object name, Object date) {
+    return 'Brak wieści od portfela $name od $date.';
+  }
+
+  @override
+  String get mailboxNotAnswered => 'Jeszcze bez odpowiedzi';
+
+  @override
+  String get mailboxNotPickedUp => 'Nieodebrana';
+
+  @override
+  String mailboxNeverPickedUp(Object name) {
+    return 'Portfel $name nigdy tego nie odebrał.';
+  }
+
+  @override
+  String get mailboxResendTitle => 'Anuluj i wyślij przez Epicbox';
+
+  @override
+  String mailboxResendBody(Object name) {
+    return 'Oczekująca płatność zostanie anulowana, a ta sama kwota trafi na adres Epicbox $name jako zwykła płatność. W historii zostaną dwa wiersze.';
+  }
+
+  @override
+  String get mailboxResendAction => 'Anuluj i wyślij';
+
+  @override
+  String get mailboxKeepWaiting => 'Czekaj dalej';
+
+  @override
+  String get mailboxResent => 'Anulowano i wysłano przez Epicbox.';
+
+  @override
+  String get torRelayCaption =>
+      'Przez Tor serwer Epicbox nie widzi adresu tego urządzenia.';
 }
