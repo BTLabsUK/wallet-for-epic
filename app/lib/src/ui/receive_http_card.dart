@@ -8,6 +8,7 @@ import '../network_gate.dart';
 import '../phone_http.dart';
 import '../providers.dart';
 import '../slate_files.dart';
+import 'address_view.dart';
 import 'common.dart';
 import 'info_hint.dart' show InfoHint;
 import 'net_block.dart';
@@ -195,7 +196,6 @@ class _AddressState extends ConsumerState<_Address> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final files = ref.watch(slateFilesProvider);
     final canShare = !ref.watch(demoModeProvider) && (files.canShare || files.canShareText);
     final reduce = MediaQuery.of(context).disableAnimations;
@@ -204,12 +204,7 @@ class _AddressState extends ConsumerState<_Address> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Selectable for a long press; a tap copies.
-        SelectableText(
-          widget.address,
-          key: receiveHttpAddressKey,
-          onTap: _copy,
-          style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
-        ),
+        MarkedAddress(widget.address, key: receiveHttpAddressKey, selectable: true, onTap: _copy),
         Wrap(
           spacing: 4,
           children: [

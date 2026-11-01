@@ -7,6 +7,8 @@ import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../address_format.dart' show displayCase;
+import '../address_format.dart' as address_format show shortAddress;
 import '../advanced.dart' show NetworkModeRestricted;
 import '../amount.dart';
 import '../devices/device_ending.dart';
@@ -23,6 +25,7 @@ import '../stall_retry.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
+import 'address_view.dart' show ShortAddressText;
 import 'method_names.dart' show methodKindOfTransport;
 import 'notices.dart';
 import 'badge.dart';
@@ -447,15 +450,13 @@ String shownEpic(
 /// URLs, and keys already short, come back as they are. Show the full address wherever the user
 /// may need to check or copy it.
 String shortAddress(String address, {String? ownServer, bool relay = true}) {
-  final text = address.trim();
+  // Scheme and host in lower case, as every address is shown; a key keeps its case.
+  final text = displayCase(address.trim());
   final lower = text.toLowerCase();
-  // A link: its host and port without the scheme, the ends kept, so two links that differ
-  // only at the end still tell apart ("pay.ex…m:<port>"); the full link stays on the details.
+  // A link: its host:port whole, without the scheme (address_format.dart's compact form);
+  // a host is never cut inside, and the full link stays on the details.
   if (lower.startsWith('http://') || lower.startsWith('https://')) {
-    final rest = text.substring(text.indexOf('://') + 3).replaceAll(RegExp(r'/+$'), '');
-    return rest.length <= 14
-        ? rest
-        : '${rest.substring(0, 6)}…${rest.substring(rest.length - 6)}';
+    return address_format.shortAddress(text, compact: true);
   }
   // An onion: the ends of its 56 characters, then `.onion`, which says what it is.
   if (lower.endsWith('.onion')) {
@@ -1728,6 +1729,10 @@ class TxTile extends ConsumerWidget {
       MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
     );
     final counterparty = tx.counterparty;
+    // No label and no name: the title is the short address.
+    final addressTitle = counterparty != null &&
+        name == null &&
+        title == shortAddress(counterparty, ownServer: ownEpicboxServer(ref), relay: relay);
     final aside = txTitleAside(
       tx,
       contactName: name,
@@ -1821,12 +1826,15 @@ class TxTile extends ConsumerWidget {
                         edit = tx.origin == TxOrigin.linkedDevice ? null : startEdit;
                         return IgnorePointer(
                           child: ExcludeSemantics(
-                            child: Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodyLarge,
-                            ),
+                            // An address for a title is in the mono face, shrunk, never cut.
+                            child: addressTitle
+                                ? ShortAddressText(counterparty, ownServer: ownEpicboxServer(ref), relay: relay, style: theme.textTheme.bodyMedium)
+                                : Text(
+                                    title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodyLarge,
+                                  ),
                           ),
                         );
                       },

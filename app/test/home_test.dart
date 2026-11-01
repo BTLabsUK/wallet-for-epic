@@ -664,7 +664,7 @@ void main() {
           englishStrings,
           fakeTx(counterparty: 'http://203.0.113.5:3415'),
         ),
-        '203.0.…5:3415',
+        '203.0.113.5:3415',
       );
     });
 
@@ -1485,7 +1485,9 @@ void main() {
     testWidgets('an unknown address offers to save it', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      expect(find.text(_bob), findsOneWidget);
+      // The key, then its server whole on its own line.
+      expect(find.text(_bob.split('@').first), findsOneWidget);
+      expect(find.text('@${_bob.split('@').last}'), findsOneWidget);
       expect(find.text('Add to contacts'), findsOneWidget);
     });
 
@@ -1531,9 +1533,9 @@ void main() {
   group('addresses', () {
     test('lists shorten the key around an ellipsis and keep the relay', () {
       expect(shortAddress(_bob), 'esBobA…567890@box.epic.invalid');
-      // A link: host and port without the scheme, the ends kept.
-      expect(shortAddress('http://203.0.113.5:3415'), '203.0.…5:3415');
-      expect(shortAddress('https://pay.example.com:3415/'), 'pay.ex…m:3415');
+      // A link: host:port whole, without the scheme, in lower case; never cut inside a host.
+      expect(shortAddress('http://203.0.113.5:3415'), '203.0.113.5:3415');
+      expect(shortAddress('https://Pay.Example.com:3415/'), 'pay.example.com:3415');
       expect(shortAddress('http://host:3415'), 'host:3415');
       expect(shortAddress('short@relay'), 'short@relay');
       expect(shortAddress('${'a' * 52}@r.io:443'), 'aaaaaa…aaaaaa@r.io:443');
@@ -1553,7 +1555,7 @@ void main() {
       );
       expect(
         shortAddress('http://203.0.113.5:3415', ownServer: own),
-        '203.0.…5:3415',
+        '203.0.113.5:3415',
       );
       final tx = fakeTx(kind: TxKind.sent, counterparty: _bob);
       expect(txTitle(englishStrings, tx, ownServer: own), 'esBobA…567890');
@@ -2265,7 +2267,7 @@ void main() {
         await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
         expect(find.text('Outgoing payment'), findsOneWidget);
         expect(find.textContaining('esBobA…'), findsNothing);
-        expect(find.text(_bob), findsOneWidget);
+        expect(find.text(_bob.split('@').first), findsOneWidget);
         expect(find.byTooltip('Copy address'), findsOneWidget);
       },
     );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../address_format.dart' show hostPort;
 import '../demo.dart' show devNetworksOf;
 
 import '../connection_state.dart';
@@ -176,7 +177,7 @@ _Face _nodeFace(BuildContext context, NodeStatus node, WalletConfig? config) {
   };
   final host = config == null
       ? null
-      : Uri.tryParse(config.nodeUrl)?.host ?? config.nodeUrl;
+      : serverHost(config.nodeUrl);
   final height = node.height;
   final version = node.tip?.nodeVersion ?? '';
   final chain = config?.chain;
@@ -746,14 +747,9 @@ NetFace epicboxNetFace(BuildContext context, EpicboxState? state) {
 String relayLabel(WalletConfig config) =>
     EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label;
 
-/// A server address as the screen shows it: the host only, with the port only when it is not
-/// the scheme's default. Text that is no address comes back as it is.
-String serverHost(String url) {
-  final u = Uri.tryParse(url.trim());
-  if (u == null || u.host.isEmpty) return url.trim();
-  final port = u.hasPort && u.port != (u.scheme == 'http' ? 80 : 443);
-  return port ? '${u.host}:${u.port}' : u.host;
-}
+/// A server address as the screen shows it: host:port, the port only when it is not the
+/// scheme's default ([hostPort]). Text that is no address comes back trimmed.
+String serverHost(String url) => hostPort(url);
 
 /// What the node's status icon says to a screen reader ("Node online") and its tooltip
 /// detail, for the status card's row.

@@ -39,6 +39,7 @@ import '../node/node_info_types.dart' show NodeInfo, NodeHead;
 import '../node/node_info_provider.dart' if (dart.library.js_interop) '../node/node_info_provider_web.dart' show nodeInfoProvider;
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
+import 'address_view.dart' show HostText;
 import 'badge.dart';
 import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
@@ -1115,17 +1116,9 @@ class _ServerRow extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
+                                  // Shrunk rather than cut: a host is read whole.
                                   Flexible(
-                                    child: Text(
-                                      e.host,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: t.monoFamily,
-                                        fontSize: 13,
-                                        color: words,
-                                      ),
-                                    ),
+                                    child: HostText(e.host, style: TextStyle(fontSize: 13, color: words)),
                                   ),
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
