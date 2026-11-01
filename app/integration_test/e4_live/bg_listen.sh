@@ -1,5 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
+# E4 step 5: how long a backgrounded phone (screen off, unplugged) keeps answering payments.
 # Needs: wfe_qa on 5556 with the wallet unlocked, the desktop app stopped, a funded CLI wallet
 # (cli_pay.sh) and ADDR_FILE with the shared address. Sends 1 EPIC at each offset (minutes) after
 # the phone went to the background and reports whether the phone received the slate and when.
