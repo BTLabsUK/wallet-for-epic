@@ -7,10 +7,12 @@ sources leave this machine as a `git archive` of the LEPIC clone, are unpacked a
 the box into C:\\EpicRig\\lepic-cli\\<pin>\\lepic.exe. A folder that holds lepic.exe is a cache hit for
 every later run at that pin.
 
-Read (after the update): the candidate's wallet folder is copied by the rig's user into the run folder
-(never opened in place: the running app holds the data-dir claim and an open can write), and
-`lepic wallet info` and `lepic tx list` run on the copy offline, with the run's wallet password on
-standard input from the run's secret folder (never an argument or a variable).
+Read (after the update): the store key comes from the seed, so a CLI wallet restored from the run
+wallet's phrase (`wallet restore --no-scan` into a fresh folder) opens the app's encrypted store. The
+app's `wallet.enc.sqlite3` and `.check` are copied (never moved, never the live folder: the running app
+holds the data-dir claim) over the fresh store, and `wallet info` and `tx list` run there. The phrase
+(captured at the Create wallet screen into the run's secret folder, removed at the end) and the wallet
+password go in on standard input, never as an argument or a variable.
 
 What this reads: balances (total, spendable) and the transactions (id, direction, state, amounts, fee,
 slate id, transport). It does not give outputs by commitment, a transaction's counterparty or the
@@ -26,7 +28,7 @@ import tomllib
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 CLI_ROOT = r"C:\EpicRig\lepic-cli"
-COMMANDS = {"info": ["wallet", "info"], "txs": ["tx", "list"]}
+COMMANDS = {"restore": ["wallet", "restore", "--no-scan"], "info": ["wallet", "info"], "txs": ["tx", "list"]}
 GLOBAL = ["--network", "mainnet", "--log-level", "error", "--output", "json"]  # --offline is a `contact` flag only
 
 
@@ -113,26 +115,37 @@ def ensure(rig, scratch, log, dry=False):
     return exe
 
 
-def read_script(exe, lepic_dir, run, tag, pw_file, settings_toml):
-    """PowerShell, run by the rig's user: copy the wallet folder, run the reads on the copy offline."""
+def read_script(exe, lepic_dir, run, tag, pw_file, settings_toml, phrase_file):
+    """PowerShell, run by the rig's user. A fresh data folder is restored from the run wallet's phrase
+    (`wallet restore --no-scan`: it makes the CLI's own vault and a store under the same seed-derived key),
+    the app's encrypted store files are COPIED over the fresh store (never the live folder, never moved;
+    the app's lock files stay behind), and the reads run on that. The phrase and the password come from
+    the run's secret folder on standard input, never an argument."""
     dst = "%s\\cli\\%s" % (run, tag)
     glob_ = " ".join("'%s'" % a for a in GLOBAL)
-    parts = []
-    for name, args in COMMANDS.items():
-        parts.append("'@@%s'; $pw | & '%s' --data-dir $dst --settings \"$dst\\..\\cli-settings.toml\" %s %s 2>>$err" % (
-            name, exe, glob_, " ".join("'%s'" % a for a in args)))
+    cfg = '--data-dir $dst --settings "$dst\\..\\cli-settings.toml" ' + glob_
+
+    def call(args, stdin):
+        return "%s | & '%s' %s %s 2>>$err" % (stdin, exe, cfg, " ".join("'%s'" % a for a in args))
+    parts = ["'@@restore'; " + call(COMMANDS["restore"], '"$phrase`n$pw"'),
+             "Get-ChildItem -LiteralPath $src -Force | Where-Object { $_.Name -like 'wallet.enc.sqlite3*' -and $_.Name -notlike '*.tmp' } "
+             "| Copy-Item -Destination $dst -Force"]
+    for name in ("info", "txs"):
+        parts.append("'@@%s'; " % name + call(COMMANDS[name], "$pw"))
     return r"""
 $ErrorActionPreference = 'Stop'
 $src = '%(src)s'; $dst = '%(dst)s'
 Remove-Item -Recurse -Force -LiteralPath $dst -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $dst | Out-Null
-Get-ChildItem -LiteralPath $src -Force | Where-Object { $_.Name -notmatch '\.lock$' } | Copy-Item -Destination $dst -Recurse -Force
 $pw = (Get-Content -Raw -LiteralPath '%(pw)s').TrimEnd("`r", "`n")
+$phrase = (Get-Content -Raw -LiteralPath '%(phrase)s').TrimEnd("`r", "`n")
 $err = "$dst\..\cli-stderr.txt"
 if (Test-Path -LiteralPath '%(settings)s') { Copy-Item -LiteralPath '%(settings)s' "$dst\..\cli-settings.toml" -Force }
+$ErrorActionPreference = 'Continue'  # redirected native stderr must not stop the script
 %(parts)s
 Remove-Item -Recurse -Force -LiteralPath $dst -ErrorAction SilentlyContinue
-""" % {"src": lepic_dir, "dst": dst, "pw": pw_file, "settings": settings_toml, "parts": "\n".join(parts)}
+""" % {"src": lepic_dir, "dst": dst, "pw": pw_file, "phrase": phrase_file, "settings": settings_toml,
+       "parts": "\n".join(parts)}
 
 
 def parse(out):

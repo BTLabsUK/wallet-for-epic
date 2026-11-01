@@ -143,6 +143,7 @@ class Run:
         self.before_files = ([], {})  # the data folder just before the update (listing, hashes)
         self.lan_before = None        # lan_nodes.json as the previous release left it
         self.conf_before = None
+        self.phrase_remote = None     # the throwaway wallet's phrase in the run's secret folder (deleted at the end)
         self.first_start_lines = []
         self.screens = catalog.Screens(self.out, "windows", self.variant, self.prev_ver, self.cand_ver, self.log)
         self.update_method = (
@@ -254,7 +255,8 @@ class Run:
         except lepic_cli.CliError as e:
             exe = "<no LEPIC pin: %s>" % e
         return ("after the update (%s): the wallet.sqlite3 reads become reads of the copied encrypted store through the Windows "
-                "LEPIC CLI (%s; `wallet info`, `tx list`, offline, the run's wallet password on stdin from the run's secret folder); "
+                "LEPIC CLI (%s: `wallet restore --no-scan` from the run wallet's phrase into a fresh folder, the app's wallet.enc.sqlite3 + .check copied in, "
+                "then `wallet info`, `tx list`; phrase and password from the run's secret folder on stdin); "
                 "migration checks %s" % (self.cand_ver, exe, ",".join(MIGRATION_CHECKS)))
 
     # ---- the rig
@@ -373,9 +375,11 @@ class Run:
         """The candidate's encrypted store, read through the LEPIC CLI on a copy of its folder."""
         if not self.cli_exe:
             raise CannotRun("no lepic.exe at the candidate's LEPIC pin on the rig")
+        if not self.phrase_remote:
+            raise CannotRun("no recovery phrase was kept for the CLI restore")
         self.snap_n += 1
         out = self.rig.as_owner(lepic_cli.read_script(self.cli_exe, lepic_dir, self.rig.run, "%02d" % self.snap_n, self.pw_remote,
-                                                   self.data + "\\" + facts.SETTINGS_TOML),
+                                                   self.data + "\\" + facts.SETTINGS_TOML, self.phrase_remote),
                                 timeout=600)
         if out is None:
             raise CannotRun("the rig agent did not run the LEPIC CLI read")
@@ -477,13 +481,50 @@ class Run:
         # Recovery phrase: Reveal, tick "written down", Continue (the phrase stays in the wallet's store)
         self.keys(TAB, ENTER)
         time.sleep(1.5)
-        self.keys(TAB, TAB, TAB, TAB, SPACE)
+        if self.migrate:
+            # the throwaway wallet's phrase goes to a private file: after the update a LEPIC CLI wallet is
+            # restored from it, and the app's encrypted store (the key comes from the seed) copied into that
+            self.capture_phrase()
+            self.keys(TAB, TAB, SPACE)  # Copy had the focus: the QR button, then the written-down box
+        else:
+            self.keys(TAB, TAB, TAB, TAB, SPACE)
         self.keys(TAB, ENTER)
         time.sleep(4)
         w = self.wallets()
         if not w or not w.get("wallets"):
             raise CannotRun("no wallet in wallets.json after the create steps")
         self.log("wallet created: %s (id %s)" % (w["wallets"][0].get("label"), w["wallets"][0].get("id")))
+
+    PHRASE = re.compile(r"(?:[a-z]+ ){11}[a-z]+|(?:[a-z]+ ){23}[a-z]+")
+
+    def capture_phrase(self):
+        """The Copy button of the revealed phrase (after Hide: Tab Tab) and its confirm dialog, then the
+        clipboard: the phrase into <work>/phrase.txt (mode 600), put into the run's secret folder, the local
+        file and the clipboard cleared. Never logged. The dialog's first focus is not known: Enter, else Tab Enter."""
+        self.keys(TAB, TAB, ENTER)  # Copy, opening its "Copy the recovery phrase?" dialog
+        time.sleep(1.2)
+        text = ""
+        for i, step in enumerate(((ENTER,), (ENTER, TAB, ENTER))):
+            self.call("clear_clipboard")
+            self.keys(*step)
+            time.sleep(1.2)
+            text = (self.call("clipboard").get("text") or "").strip()
+            if self.PHRASE.fullmatch(text):
+                break
+            text = ""
+        self.call("clear_clipboard")
+        if not text:
+            raise CannotRun("the recovery phrase could not be copied from the Create wallet screen (the Copy button and its "
+                            "dialog are driven blind: Tab Tab Enter, then Enter or Tab Enter); retune capture_phrase")
+        local = os.path.join(self.work, "phrase.txt")
+        with open(local, "w") as f:
+            f.write(text + "\n")
+        os.chmod(local, 0o600)
+        try:
+            self.phrase_remote = self.rig.put_secret(local, "phrase.txt")
+        finally:
+            os.unlink(local)
+        self.log("recovery phrase of the run's throwaway wallet kept in the run's secret folder (%d words, not logged)" % len(text.split()))
 
     def setup_servers(self):
         """The Setup assistant after creating: the stand-in, then REL_NODE (Enter on a typed address adds it
@@ -1213,6 +1254,11 @@ class Run:
                 self.rig.get(self.rig.run + "\\" + n, os.path.join(self.out, n))
         except Exception as e:  # noqa: BLE001
             self.log("logs: %s" % e)
+        if self.phrase_remote:
+            try:
+                self.rig.pwsh("Remove-Item -LiteralPath '%s' -Force -ErrorAction SilentlyContinue" % self.phrase_remote, check=False)
+            except Exception as e:  # noqa: BLE001
+                self.log("phrase file not removed: %s" % e)
         self.rig.quit_agent()
         self.rig.close()
         self.log("rig: app uninstalled, agent stopped; the wallet's data folder stays in %s\\home (password in %s, mode 600)" % (
