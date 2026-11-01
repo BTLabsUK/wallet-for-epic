@@ -365,7 +365,9 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
             onFile: () => Navigator.of(context).pop(const QrScanOpenFile()),
           );
         }
-        return _view(context, state);
+        // The camera view is dark in either theme, so it takes the whole dark theme: the title,
+        // icons and tips then read on the feed (a light theme's title was dark on black).
+        return Theme(data: _scannerTheme, child: _view(context, state));
       },
     );
   }
@@ -416,11 +418,10 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
         : Colors.white;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: dark.bg,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
@@ -535,6 +536,9 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     );
   }
 }
+
+/// The scanner's theme: Protocol dark whatever the app's.
+final ThemeData _scannerTheme = buildWalletTheme(protocolDark, Brightness.dark);
 
 enum _DockTone { plain, info, warn, risk, ok }
 
