@@ -303,7 +303,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           alignment: AlignmentDirectional.centerStart,
           child: ELink(
             key: const ValueKey('restore-from-link'),
-            label: _fromOpen ? l.deskOnbRestoreFromHide : l.restoreStartFromLink,
+            label: _fromOpen ? l.deskOnbRestoreFromHide : l.restoreStartFromMonthLink,
             onPressed: () => setState(() => _fromOpen = !_fromOpen),
           ),
         ),
@@ -319,14 +319,14 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 if (_datesOk) ...[
                   ESegmented<bool>(
                     key: const ValueKey('restore-from-by'),
-                    segments: [ESegment(true, l.restoreStartByDate), ESegment(false, l.restoreStartByHeight)],
+                    segments: [ESegment(true, l.restoreStartByMonth), ESegment(false, l.restoreStartByHeight)],
                     value: _byDate,
                     onChanged: (v) => setState(() => _byDate = v),
                   ),
                   SizedBox(height: Sp.x3),
                 ],
                 if (_usesDate)
-                  EStartDate(date: _fromDate, hint: l.restoreDateHint, onChanged: (d) => setState(() => _fromDate = d))
+                  EStartDate(date: _fromDate, hint: l.restoreMonthHint, onChanged: (d) => setState(() => _fromDate = d))
                 else
                   EField(
                     label: l.deskOnbRestoreFromLabel,

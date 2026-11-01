@@ -1902,6 +1902,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get restoreStartByDate => 'Datum';
 
   @override
+  String get restoreStartByMonth => 'Monat';
+
+  @override
   String get restoreStartByHeight => 'Blockhöhe';
 
   @override
@@ -1940,6 +1943,34 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreWholeChain => 'Stattdessen die gesamte Blockchain scannen';
+
+  @override
+  String get restorePickMonth => 'Erstellungsmonat der Wallet wählen';
+
+  @override
+  String get restorePickMonthShort => 'Monat wählen';
+
+  @override
+  String get restorePickMonthFirst => 'Wählen Sie zuerst einen Monat.';
+
+  @override
+  String get restoreMonthHint =>
+      'Optional. Bei Unsicherheit einen früheren Monat wählen: Ein späterer kann Guthaben übersehen.';
+
+  @override
+  String restoreMonthStart(String height) {
+    return 'Der Scan beginnt ab Block $height.';
+  }
+
+  @override
+  String get restoreMonthRecent =>
+      'Ein aktueller Monat: Guthaben aus früheren Monaten kann übersehen werden.';
+
+  @override
+  String get restoreMonthEarlierYear => 'Früheres Jahr';
+
+  @override
+  String get restoreMonthLaterYear => 'Späteres Jahr';
 
   @override
   String get restoreScanIntro =>
@@ -2980,6 +3011,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsRescanFromDate => 'Ab einem Datum';
+
+  @override
+  String get settingsRescanFromMonth => 'Ab einem Monat';
 
   @override
   String get settingsRescanFromHeight => 'Ab einer Blockhöhe';
@@ -13032,6 +13066,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreStartFromLink => 'Ab einem Datum oder einer Höhe starten';
+
+  @override
+  String get restoreStartFromMonthLink =>
+      'Ab einem Monat oder einer Höhe starten';
 
   @override
   String get settingsRescanBodyPlain =>

@@ -53,6 +53,7 @@ import 'levels/change_level_screen.dart';
 import '../levels/level_features.dart' show AdvancedPageKind;
 import '../levels/level_providers.dart' show currentLevelProvider, levelFeaturesProvider;
 import 'licences_screen.dart';
+import 'month_picker.dart' show StartMonthChoice;
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
 import 'network_mode_text.dart' show blockMode, networkModeName;
@@ -63,7 +64,7 @@ import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
-    show RestoreScreen, ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
+    show RestoreScreen, ScanSlotLine, mainnetHeightForDate;
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
@@ -1689,17 +1690,6 @@ class _RescanDialogState extends State<_RescanDialog> {
     super.dispose();
   }
 
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date ?? now,
-      firstDate: mainnetFirstDay,
-      lastDate: now,
-    );
-    if (picked != null) setState(() => _date = picked);
-  }
-
   void _start() {
     final l = context.l10n;
     final BigInt? start;
@@ -1707,7 +1697,7 @@ class _RescanDialogState extends State<_RescanDialog> {
       case _RescanFrom.date:
         final date = _date;
         if (date == null) {
-          setState(() => _error = l.settingsRescanPickDateFirst);
+          setState(() => _error = l.restorePickMonthFirst);
           return;
         }
         start = mainnetHeightForDate(date);
@@ -1729,7 +1719,6 @@ class _RescanDialogState extends State<_RescanDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final date = _date;
     return AlertDialog(
       title: Text(l.settingsRescanTitle),
       content: SingleChildScrollView(
@@ -1752,7 +1741,7 @@ class _RescanDialogState extends State<_RescanDialog> {
                       RadioListTile(
                         contentPadding: EdgeInsets.zero,
                         value: _RescanFrom.date,
-                        title: Text(l.settingsRescanFromDate),
+                        title: Text(l.settingsRescanFromMonth),
                       ),
                     RadioListTile(
                       contentPadding: EdgeInsets.zero,
@@ -1768,12 +1757,13 @@ class _RescanDialogState extends State<_RescanDialog> {
                 ),
               ),
             if (_from == _RescanFrom.date)
-              OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  date == null ? l.settingsRescanPickDate : localDay(l, date),
-                ),
-                onPressed: _pickDate,
+              StartMonthChoice(
+                date: _date,
+                label: l.restorePickMonthShort,
+                onChanged: (d) => setState(() {
+                  _date = d;
+                  _error = null;
+                }),
               ),
             if (_from == _RescanFrom.height)
               TextField(

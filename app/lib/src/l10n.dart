@@ -98,6 +98,26 @@ String localDayMonth(AppLocalizations l, DateTime t) => (l.localeName == 'en'
         : DateFormat.MMMd(l.localeName))
     .format(t);
 
+/// `September 2021`, `Wrzesień 2021`, `2021年9月`: a month and its year as a value on its own
+/// (the restore start), capitalised: Polish and Russian write the month small only inside a
+/// sentence.
+String localMonthYear(AppLocalizations l, DateTime t) {
+  final s = DateFormat.yMMMM(l.localeName).format(t);
+  return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
+
+/// `Sep`, `Sept.`, `9月`: a month's short name on its own (the standalone form: `wrz`, not
+/// a date's), in a month picker's grid.
+String localMonthShort(AppLocalizations l, DateTime t) =>
+    DateFormat.LLL(l.localeName).format(t);
+
+/// `September`: a month's full name, for a screen reader.
+String localMonthName(AppLocalizations l, DateTime t) =>
+    DateFormat.LLLL(l.localeName).format(t);
+
+/// `2021`, `2021年`: a year as a picker's header shows it.
+String localYear(AppLocalizations l, DateTime t) => DateFormat.y(l.localeName).format(t);
+
 /// `14:05`, on the 24-hour clock in every language the app has.
 String localClock(AppLocalizations l, DateTime t) =>
     DateFormat.Hm(l.localeName).format(t);

@@ -1852,6 +1852,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get restoreStartByDate => 'วันที่';
 
   @override
+  String get restoreStartByMonth => 'เดือน';
+
+  @override
   String get restoreStartByHeight => 'ความสูงบล็อก';
 
   @override
@@ -1889,6 +1892,34 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreWholeChain => 'สแกนทั้งบล็อกเชนแทน';
+
+  @override
+  String get restorePickMonth => 'เลือกเดือนที่สร้างกระเป๋าเงิน';
+
+  @override
+  String get restorePickMonthShort => 'เลือกเดือน';
+
+  @override
+  String get restorePickMonthFirst => 'เลือกเดือนก่อน';
+
+  @override
+  String get restoreMonthHint =>
+      'ไม่บังคับ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า: เดือนที่หลังกว่าอาจทำให้เงินบางส่วนหายไป';
+
+  @override
+  String restoreMonthStart(String height) {
+    return 'เริ่มสแกนตั้งแต่บล็อก $height';
+  }
+
+  @override
+  String get restoreMonthRecent =>
+      'เดือนล่าสุด: เงินที่ได้รับก่อนหน้านั้นอาจไม่ถูกพบ';
+
+  @override
+  String get restoreMonthEarlierYear => 'ปีก่อนหน้า';
+
+  @override
+  String get restoreMonthLaterYear => 'ปีถัดไป';
 
   @override
   String get restoreScanIntro =>
@@ -2886,6 +2917,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsRescanFromDate => 'จากวันที่';
+
+  @override
+  String get settingsRescanFromMonth => 'จากเดือน';
 
   @override
   String get settingsRescanFromHeight => 'จากความสูงบล็อก';
@@ -12551,6 +12585,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreStartFromLink => 'เริ่มจากวันที่หรือความสูงบล็อก';
+
+  @override
+  String get restoreStartFromMonthLink => 'เริ่มจากเดือนหรือความสูงบล็อก';
 
   @override
   String get settingsRescanBodyPlain =>

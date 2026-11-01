@@ -2365,6 +2365,10 @@
   "@restoreStartByDate": {
     "description": "Segment button: give the scan's start as a date. Short."
   },
+  "restoreStartByMonth": "Month",
+  "@restoreStartByMonth": {
+    "description": "Segment button: give the scan's start as a month and year. Short."
+  },
   "restoreStartByHeight": "Block height",
   "@restoreStartByHeight": {
     "description": "Segment button: give the scan's start as a block number. Short."
@@ -2411,6 +2415,44 @@
   "restoreWholeChain": "Scan the whole chain instead",
   "@restoreWholeChain": {
     "description": "Button that clears the start date."
+  },
+  "restorePickMonth": "Pick the month you created the wallet",
+  "@restorePickMonth": {
+    "description": "Button that opens the month picker for the scan's start (restore)."
+  },
+  "restorePickMonthShort": "Pick a month",
+  "@restorePickMonthShort": {
+    "description": "Button that opens the month picker for a recheck's start. Short."
+  },
+  "restorePickMonthFirst": "Pick a month first.",
+  "@restorePickMonthFirst": {
+    "description": "Error under the month picker: Start was pressed before a month was chosen."
+  },
+  "restoreMonthHint": "Optional. If unsure, pick an earlier month: a later one can miss coins.",
+  "@restoreMonthHint": {
+    "description": "Under the month picker before a month is chosen."
+  },
+  "restoreMonthStart": "Scanning starts from block {height}.",
+  "@restoreMonthStart": {
+    "description": "Under the chosen start month: the block number the scan starts from (just before the 1st of the month).",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "3,712,345"
+      }
+    }
+  },
+  "restoreMonthRecent": "A recent month: coins from before it may be missed.",
+  "@restoreMonthRecent": {
+    "description": "Warning under the chosen start month when it is this month or the previous one."
+  },
+  "restoreMonthEarlierYear": "Earlier year",
+  "@restoreMonthEarlierYear": {
+    "description": "Icon button in the month picker: show the year before. Screen-reader label and tooltip."
+  },
+  "restoreMonthLaterYear": "Later year",
+  "@restoreMonthLaterYear": {
+    "description": "Icon button in the month picker: show the year after. Screen-reader label and tooltip."
   },
   "restoreScanIntro": "Looking for this wallet’s coins on the chain. Keep the app open until this finishes.",
   "restoreOpenWallet": "Open wallet",
@@ -3718,6 +3760,10 @@
   "settingsRescanFromDate": "From a date",
   "@settingsRescanFromDate": {
     "description": "Choice in the rescan dialog: start at the block of a picked day."
+  },
+  "settingsRescanFromMonth": "From a month",
+  "@settingsRescanFromMonth": {
+    "description": "Recheck balance choice: start the scan from a month and year."
   },
   "settingsRescanFromHeight": "From a block height",
   "@settingsRescanFromHeight": {
@@ -17096,6 +17142,10 @@
   "restoreStartFromLink": "Start from a date or height",
   "@restoreStartFromLink": {
     "description": "Small link on Restore that opens the choice of where to start scanning the chain."
+  },
+  "restoreStartFromMonthLink": "Start from a month or height",
+  "@restoreStartFromMonthLink": {
+    "description": "Link on Restore that opens the choice of where the scan starts: a month or a block height."
   },
   "settingsRescanBodyPlain": "The wallet looks for its coins again, from the first block.",
   "@settingsRescanBodyPlain": {

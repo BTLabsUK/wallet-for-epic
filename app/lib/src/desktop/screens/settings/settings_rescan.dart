@@ -104,7 +104,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       case _From.date:
         final d = _fromDate;
         if (d == null) {
-          setState(() => _heightError = l.deskSetRescanPickDateFirst);
+          setState(() => _heightError = l.restorePickMonthFirst);
           return (start: null, ok: false);
         }
         return (start: mainnetHeightForDate(d), ok: true);
@@ -242,7 +242,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                               SizedBox(height: Sp.x2),
                               // One choice, as radio buttons are (EChoiceCard is a mutually exclusive group).
                               for (final (from, title, hint) in [
-                                if (_datesOk) (_From.date, l.deskSetRescanFromDate, null),
+                                if (_datesOk) (_From.date, l.settingsRescanFromMonth, null),
                                 (_From.height, l.deskSetRescanFromHeight, null),
                                 (_From.wholeChain, l.deskSetRescanWholeChain, l.deskSetRescanWholeChainHint),
                               ]) ...[
@@ -264,7 +264,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                                       children: [
                                         EStartDate(
                                           date: _fromDate,
-                                          label: l.deskSetRescanPickDate,
+                                          label: l.restorePickMonthShort,
                                           onChanged: (d) => setState(() {
                                             _fromDate = d;
                                             _heightError = null;
