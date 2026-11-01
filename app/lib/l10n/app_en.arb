@@ -22004,7 +22004,7 @@
   "@expLinkedDevices": {
     "description": "Settings › Advanced › Experimental: the switch for linked devices (this wallet on two or more of the user's own devices). Also the page and hub row name."
   },
-  "expLinkedDevicesHint": "Use this wallet on two devices: this one and one linked device. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.",
+  "expLinkedDevicesHint": "Use the same wallet (the same recovery phrase) on two devices: this one and one linked device. Two different wallets cannot be linked. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.",
   "@expLinkedDevicesHint": {
     "description": "The info text of the Linked devices switch."
   },
@@ -22081,7 +22081,7 @@
   "@devicesOthers": {
     "description": "Linked devices page: the heading over the other devices."
   },
-  "devicesEmpty": "No device linked yet.",
+  "devicesEmpty": "This wallet is not linked to another device yet.",
   "@devicesEmpty": {
     "description": "Linked devices page with no device linked."
   },
@@ -22228,7 +22228,7 @@
   "@devicesUnsupported": {
     "description": "Linked devices page and link flow when this build's wallet core cannot link devices yet."
   },
-  "linkLead": "Both devices must hold this wallet. One shows a code, the other scans or pastes it.",
+  "linkLead": "Only for this same wallet on another device: both need the same recovery phrase. One shows a code, the other scans or pastes it.",
   "@linkLead": {
     "description": "First step of Link a device."
   },
@@ -22345,11 +22345,11 @@
   "@linkFailOwn": {
     "description": "Link failure: the user scanned this device's own code."
   },
-  "linkFailOtherWallet": "This device holds another wallet.",
+  "linkFailOtherWallet": "This device holds another wallet. Linking needs the same recovery phrase.",
   "@linkFailOtherWallet": {
     "description": "Link failure: the other device holds a different wallet."
   },
-  "linkFailOtherWalletCode": "This code is from a different wallet.",
+  "linkFailOtherWalletCode": "This code is from a different wallet. Linking needs the same recovery phrase.",
   "@linkFailOtherWalletCode": {
     "description": "Link failure on the scanning device: the scanned or pasted link code was made by a different wallet, so it was refused before answering."
   },

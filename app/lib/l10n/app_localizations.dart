@@ -25757,7 +25757,7 @@ abstract class AppLocalizations {
   /// The info text of the Linked devices switch.
   ///
   /// In en, this message translates to:
-  /// **'Use this wallet on two devices: this one and one linked device. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.'**
+  /// **'Use the same wallet (the same recovery phrase) on two devices: this one and one linked device. Two different wallets cannot be linked. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.'**
   String get expLinkedDevicesHint;
 
   /// The name this phone has for linked devices until the user renames it. Shown on the user's other devices.
@@ -25835,7 +25835,7 @@ abstract class AppLocalizations {
   /// Linked devices page with no device linked.
   ///
   /// In en, this message translates to:
-  /// **'No device linked yet.'**
+  /// **'This wallet is not linked to another device yet.'**
   String get devicesEmpty;
 
   /// Button: start linking another device. Also the title of that flow.
@@ -25991,7 +25991,7 @@ abstract class AppLocalizations {
   /// First step of Link a device.
   ///
   /// In en, this message translates to:
-  /// **'Both devices must hold this wallet. One shows a code, the other scans or pastes it.'**
+  /// **'Only for this same wallet on another device: both need the same recovery phrase. One shows a code, the other scans or pastes it.'**
   String get linkLead;
 
   /// Link a device: this device shows the code.
@@ -26129,13 +26129,13 @@ abstract class AppLocalizations {
   /// Link failure: the other device holds a different wallet.
   ///
   /// In en, this message translates to:
-  /// **'This device holds another wallet.'**
+  /// **'This device holds another wallet. Linking needs the same recovery phrase.'**
   String get linkFailOtherWallet;
 
   /// Link failure on the scanning device: the scanned or pasted link code was made by a different wallet, so it was refused before answering.
   ///
   /// In en, this message translates to:
-  /// **'This code is from a different wallet.'**
+  /// **'This code is from a different wallet. Linking needs the same recovery phrase.'**
   String get linkFailOtherWalletCode;
 
   /// Link failure: the user said the pictures differ.

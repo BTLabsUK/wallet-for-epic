@@ -90,7 +90,7 @@ void main() {
     expect(find.text('Linked devices'), findsOneWidget);
     expect(find.byKey(const ValueKey('dev-this')), findsOneWidget);
     expect(find.text('Desktop'), findsOneWidget);
-    expect(find.text('No device linked yet.'), findsOneWidget);
+    expect(find.text('This wallet is not linked to another device yet.'), findsOneWidget);
     expect(find.text('No coins held.'), findsOneWidget);
     expect(tester.widget<EButton>(find.byKey(devicesLinkKey)).onPressed, isNotNull);
     await end(tester);
@@ -295,7 +295,7 @@ void main() {
     await settle(tester);
     expect(desk.link?.phase, LinkPhase.failed);
     expect(desk.link?.failure, LinkFailure.otherWalletCode);
-    expect(find.text('This code is from a different wallet.'), findsOneWidget);
+    expect(find.text('This code is from a different wallet. Linking needs the same recovery phrase.'), findsOneWidget);
     await tester.runAsync(() => phone.rounds(desk));
     expect(phone.service.link?.phase, LinkPhase.waiting);
     expect(desk.book.devices, isEmpty);

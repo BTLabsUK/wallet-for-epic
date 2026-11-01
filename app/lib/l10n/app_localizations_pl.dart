@@ -17022,7 +17022,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'Ten portfel na dwóch urządzeniach: tym i jednym połączonym. Każde informuje drugie o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na drugim, a jego płatności widać w historii drugiego. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.';
+      'Ten sam portfel (ta sama fraza odzyskiwania) na dwóch urządzeniach: tym i jednym połączonym. Dwóch różnych portfeli nie można połączyć. Każde informuje drugie o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na drugim, a jego płatności widać w historii drugiego. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.';
 
   @override
   String get devicesThisPhone => 'Telefon';
@@ -17111,7 +17111,8 @@ class AppLocalizationsPl extends AppLocalizations {
   String get devicesOthers => 'Połączone urządzenie';
 
   @override
-  String get devicesEmpty => 'Nie połączono jeszcze żadnego urządzenia.';
+  String get devicesEmpty =>
+      'Ten portfel nie jest jeszcze połączony z innym urządzeniem.';
 
   @override
   String get devicesLink => 'Połącz urządzenie';
@@ -17211,7 +17212,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get linkLead =>
-      'Oba urządzenia muszą mieć ten portfel. Jedno pokazuje kod, drugie go skanuje lub wkleja.';
+      'Tylko dla tego samego portfela na innym urządzeniu: oba potrzebują tej samej frazy odzyskiwania. Jedno pokazuje kod, drugie go skanuje lub wkleja.';
 
   @override
   String get linkShow => 'Pokaż kod';
@@ -17301,10 +17302,12 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ten kod pochodzi z tego urządzenia. Zeskanuj go na drugim.';
 
   @override
-  String get linkFailOtherWallet => 'To urządzenie ma inny portfel.';
+  String get linkFailOtherWallet =>
+      'To urządzenie ma inny portfel. Połączenie wymaga tej samej frazy odzyskiwania.';
 
   @override
-  String get linkFailOtherWalletCode => 'Ten kod pochodzi z innego portfela.';
+  String get linkFailOtherWalletCode =>
+      'Ten kod pochodzi z innego portfela. Połączenie wymaga tej samej frazy odzyskiwania.';
 
   @override
   String get linkFailMismatch =>

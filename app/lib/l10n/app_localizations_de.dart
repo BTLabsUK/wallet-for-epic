@@ -16625,7 +16625,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'Diese Wallet auf zwei Geräten nutzen: diesem und einem verknüpften Gerät. Jedes meldet dem anderen seine Zahlungen, so bleiben Münzen, die eines gerade ausgibt, auf dem anderen zurückgehalten, und seine Zahlungen erscheinen im Verlauf des anderen. Die Verknüpfung schützt das Geteilte, nicht das Geld: Jedes Gerät mit der Wiederherstellungsphrase kann ausgeben. Experimentell: Es kann sich noch ändern.';
+      'Dieselbe Wallet (dieselbe Wiederherstellungsphrase) auf zwei Geräten nutzen: diesem und einem verknüpften Gerät. Zwei verschiedene Wallets lassen sich nicht verknüpfen. Jedes meldet dem anderen seine Zahlungen, so bleiben Münzen, die eines gerade ausgibt, auf dem anderen zurückgehalten, und seine Zahlungen erscheinen im Verlauf des anderen. Die Verknüpfung schützt das Geteilte, nicht das Geld: Jedes Gerät mit der Wiederherstellungsphrase kann ausgeben. Experimentell: Es kann sich noch ändern.';
 
   @override
   String get devicesThisPhone => 'Telefon';
@@ -16704,7 +16704,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get devicesOthers => 'Verknüpftes Gerät';
 
   @override
-  String get devicesEmpty => 'Noch kein Gerät verknüpft.';
+  String get devicesEmpty =>
+      'Diese Wallet ist noch mit keinem anderen Gerät verknüpft.';
 
   @override
   String get devicesLink => 'Gerät verknüpfen';
@@ -16804,7 +16805,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get linkLead =>
-      'Beide Geräte müssen diese Wallet enthalten. Eines zeigt einen Code, das andere scannt ihn oder fügt ihn ein.';
+      'Nur für dieselbe Wallet auf einem anderen Gerät: beide brauchen dieselbe Wiederherstellungsphrase. Eines zeigt einen Code, das andere scannt ihn oder fügt ihn ein.';
 
   @override
   String get linkShow => 'Code zeigen';
@@ -16894,11 +16895,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dieser Code stammt von diesem Gerät. Ihn auf dem anderen scannen.';
 
   @override
-  String get linkFailOtherWallet => 'Dieses Gerät enthält eine andere Wallet.';
+  String get linkFailOtherWallet =>
+      'Dieses Gerät enthält eine andere Wallet. Verknüpfen braucht dieselbe Wiederherstellungsphrase.';
 
   @override
   String get linkFailOtherWalletCode =>
-      'Dieser Code stammt von einer anderen Wallet.';
+      'Dieser Code stammt von einer anderen Wallet. Verknüpfen braucht dieselbe Wiederherstellungsphrase.';
 
   @override
   String get linkFailMismatch =>

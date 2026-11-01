@@ -16432,7 +16432,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      'Use this wallet on two devices: this one and one linked device. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.';
+      'Use the same wallet (the same recovery phrase) on two devices: this one and one linked device. Two different wallets cannot be linked. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.';
 
   @override
   String get devicesThisPhone => 'Phone';
@@ -16511,7 +16511,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devicesOthers => 'Linked device';
 
   @override
-  String get devicesEmpty => 'No device linked yet.';
+  String get devicesEmpty => 'This wallet is not linked to another device yet.';
 
   @override
   String get devicesLink => 'Link a device';
@@ -16610,7 +16610,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkLead =>
-      'Both devices must hold this wallet. One shows a code, the other scans or pastes it.';
+      'Only for this same wallet on another device: both need the same recovery phrase. One shows a code, the other scans or pastes it.';
 
   @override
   String get linkShow => 'Show code';
@@ -16698,10 +16698,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'This code is from this device. Scan it on the other one.';
 
   @override
-  String get linkFailOtherWallet => 'This device holds another wallet.';
+  String get linkFailOtherWallet =>
+      'This device holds another wallet. Linking needs the same recovery phrase.';
 
   @override
-  String get linkFailOtherWalletCode => 'This code is from a different wallet.';
+  String get linkFailOtherWalletCode =>
+      'This code is from a different wallet. Linking needs the same recovery phrase.';
 
   @override
   String get linkFailMismatch =>
