@@ -10,6 +10,7 @@ import 'dart:async';
 
 import '../log.dart';
 import 'host_settings.dart';
+import 'plain_http_nodes.dart' show withPlainHttpKept;
 import 'settings_backend.dart';
 import 'settings_layout.dart';
 import 'settings_notice.dart';
@@ -101,9 +102,11 @@ class SettingsFileController {
   /// Writes the app's changes to the file at once. [values] maps keys (`node.servers`) to
   /// values: bools and text lists. Throws [ArgumentError] for an unknown key
   /// or a bad value. A key the file changed since it was last read keeps the file's value
-  /// (a conflict notice says so).
+  /// (a conflict notice says so). A node taken out of the list takes its plain-http agreement
+  /// with it ([withPlainHttpKept]).
   Future<void> setAll(Map<String, Object> values) {
-    final checked = {for (final e in values.entries) e.key: checkAppValue(e.key, e.value)};
+    final all = withPlainHttpKept(values, _settings);
+    final checked = {for (final e in all.entries) e.key: checkAppValue(e.key, e.value)};
     return _queued(() => _write(checked));
   }
 

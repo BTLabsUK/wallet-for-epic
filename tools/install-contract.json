@@ -266,17 +266,30 @@
       ]
     },
     {
-      "id": "desktop.lan_nodes_file",
+      "id": "all.lan_nodes_file",
       "platforms": [
         "windows",
-        "linux"
+        "linux",
+        "android"
       ],
-      "what": "LAN/tailnet node consents and the relay token.",
-      "value": "<data>/lan_nodes.json",
+      "what": "The plain-http agreements for tailnet (CGNAT) nodes: settings.toml's [node] plain_http. 26.10.25 and older kept them in <data>/lan_nodes.json, read once at start and moved in (store mark app.lanNodesMoved), never written. Removing the reader before every install ran the move makes their tailnet node stop working.",
+      "value": "settings.toml [node] plain_http; <data>/lan_nodes.json read once, + store key app.lanNodesMoved",
       "probes": [
         {
           "file": "app/lib/src/data_folder_io.dart",
-          "contains": "lanNodesFile = () async => File('${(await appDataDirectory()).path}${Platform.pathSeparator}lan_nodes.json');"
+          "contains": "final f = File('${(await appDataDirectory()).path}${Platform.pathSeparator}lan_nodes.json');"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_layout.dart",
+          "contains": "SettingsKey('node.plain_http', TextListKind(checkNodeAddress), byDefault: <String>[]),"
+        },
+        {
+          "file": "app/lib/src/settings_file/plain_http_nodes.dart",
+          "contains": "const String lanNodesMovedKey = 'app.lanNodesMoved';"
+        },
+        {
+          "file": "app/lib/src/settings_file/settings_providers.dart",
+          "contains": "await importLanNodesFile(store, c);"
         }
       ]
     },
@@ -749,6 +762,14 @@
       "migration": "None needed: app-config.toml ships read-only with each build, so installed apps keep their own list (BT Labs' server first, then the GitLab copy) and update exactly as before; only builds from this commit read the new source. Its answer is checked with the same keys and anti-rollback serial as every source, and a 404 (no GitHub Release yet) counts as no information, like the dead address did.",
       "migration_test": "app/test/settings_file/host_settings_test.dart",
       "approved_by": "the owner, 2026-10-30 (this URL change, in the GitHub mirror job)"
+    },
+    {
+      "date": "2026-11-01",
+      "items_sha256": "29338477e6ca919131b5563c18741f4e4369fc40cd4df024ecb1f3cdab9c2017",
+      "change": "desktop.lan_nodes_file becomes all.lan_nodes_file: the plain-http agreements for tailnet (CGNAT, 100.64/10) nodes move from <data>/lan_nodes.json into settings.toml's [node] plain_http, next to the node list, so hosts live only in settings.toml (docs/settings-file.md). The phone wrote the same file in its app folder, so Android is listed too.",
+      "migration": "Once at start, after the data folder is settled and settings.toml is open (importLanNodesFile in openAppSettings): each node of the Node list that lan_nodes.json agreed for (matched by host:port, 80 when none) joins [node] plain_http through the settings writer (comments, unknown keys and order kept; tmp file and rename); agreements for nodes no longer in the list are dropped. The store mark app.lanNodesMoved is written only after the file holds them; a rerun after a crash adds nothing the file has. lan_nodes.json is left as it was and never written again, so a rollback to 26.10.25 still finds it; its reader can be taken out one release after this ships. Installs without the file keep the first-run rule: tailnet nodes already in the list count as agreed when first used.",
+      "migration_test": "app/test/install_upgrade_test.dart",
+      "approved_by": "the owner, 2026-11-01 (explicit yes to this install-contract change, lan-nodes-merge job)"
     }
   ]
 }
