@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 export '../../ui/badge.dart';
 
 import '../desk_l10n.dart';
+import '../../balanced_text.dart';
 import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
@@ -742,7 +743,7 @@ class EEmpty extends StatelessWidget {
             SizedBox(height: Sp.x2),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: 420.u),
-              child: Text(text!, style: ts.bodyDim, textAlign: TextAlign.center),
+              child: BalancedText(text!, style: ts.bodyDim),
             ),
           ],
           if (actions.isNotEmpty) ...[

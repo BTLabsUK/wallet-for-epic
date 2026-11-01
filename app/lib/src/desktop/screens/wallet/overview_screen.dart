@@ -841,7 +841,8 @@ class _Recent extends StatelessWidget {
                   title: l.deskOvEmptyTitle,
                   text: l.deskOvEmptyText(deskMinConfirmations(ref)),
                   actions: [
-                    EButton.primary(label: l.deskOvShowAddress, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
+                    // The hero's Receive EPIC is the primary: one per screen.
+                    EButton(label: l.deskOvShowAddress, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.receive)),
                     EButton.ghost(label: l.deskOvReceiveFile, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.importTx)),
                   ],
                 ),
