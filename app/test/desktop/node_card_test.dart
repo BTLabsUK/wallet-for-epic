@@ -85,7 +85,7 @@ void main() {
   testWidgets('the words match the rail: Synced, Behind, Synced (old), Not answering', (tester) async {
     await _pump(tester, _card(mockNodeInfo(_url)));
     expect(find.textContaining('Synced', findRichText: true), findsOneWidget);
-    expect(find.text('synced'), findsOneWidget);
+    expect(find.text('synced'), findsNothing, reason: 'the status line says it once');
     expect(find.text('latest'), findsOneWidget);
     expect(find.text('99.7%'), findsOneWidget);
     expect(find.text('listed as official'), findsOneWidget);

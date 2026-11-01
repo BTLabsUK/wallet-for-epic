@@ -332,8 +332,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
     final l = context.l10n;
     final st = ref.watch(deskProvider);
     final prefs = ref.watch(settingsPrefsProvider);
@@ -385,15 +383,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       }
     }
 
-    final head = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(EIcons.node, size: Ctl.iconSm, color: stateColor(c, view.state)),
-        SizedBox(width: Sp.x2),
-        Text(view.word, style: ts.small.copyWith(color: stateColor(c, view.state), fontWeight: FontWeight.w600)),
-      ],
-    );
-
     return SettingsFrame(
       route: DeskRoute.settingsNode,
       // The same cap as the other sections (UD-011); only the local or own node's panel
@@ -412,7 +401,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
               child: ESetGroup(
               gap: false,
               title: l.deskSetFrameNode,
-              trailing: head,
               rows: [
                 ESetRow(
                   title: l.deskSetNodeServer,

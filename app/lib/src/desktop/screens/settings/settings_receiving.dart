@@ -156,7 +156,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// The group's first row: the switch (a spinner while it runs) and the state line. Without
   /// [switchable] the row is the state alone: the method's switch in Payment methods is the
   /// one switch (Link · HTTP), so none is repeated here.
-  Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, bool switchable = true, Widget? notice}) {
+  Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, bool switchable = true, Widget? notice, Widget? picker}) {
     final l = context.l10n;
     final busy = _busy.contains(m);
     // The row's info hint describes the method: an "Off" line needs no repeat of it.
@@ -179,6 +179,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       below: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Epicbox: the server picker is the row's first line; the state line follows it.
+          if (picker != null) ...[picker, SizedBox(height: Sp.x3)],
           EStateLine(
             shown,
             key: ValueKey('st-state-${m.name}'),
@@ -486,17 +488,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         if (!ebOff) ...[
           _receivingRow(
             TxMethod.epicbox,
-            l.deskSetRecvEpicboxText,
+            // The server's hint lived on its own row; the picker is here now, so its ⓘ is too.
+            '${l.deskSetRecvEpicboxText}\n\n${status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint}',
             status.epicboxHealth != ServiceHealth.off,
-            ebLine,
+            // The picker names the server: the line keeps its word and any detail beyond the host.
+            ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine,
             notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
-          ),
-          _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
-          ESetRow(
-            title: l.deskSetRecvEpicboxServer,
-            hint: status.epicboxOwn ? l.deskSetRecvEpicboxOwnHint : l.deskSetRecvEpicboxServerHint,
-            stacked: true,
-            control: ServerListPanel(
+            picker: ServerListPanel(
               kind: ServerKind.relay,
               label: l.deskSetRecvEpicboxServer,
               value: relayLabel(box),
@@ -514,6 +512,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               onTest: _test,
             ),
           ),
+          _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
         ],
       ]),
       // Link · HTTP on; a listener that is on keeps its rows. The switch is the method's: these

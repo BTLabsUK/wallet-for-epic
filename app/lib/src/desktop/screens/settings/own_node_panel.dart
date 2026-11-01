@@ -176,8 +176,6 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
                 TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
                 TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
                 TextSpan(text: ownLabel(l, cls, url), style: ts.body.copyWith(color: c.text)),
-                TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
-                TextSpan(text: ownAddress(url), style: ts.mono(size: Fs.sm, color: c.dim)),
                 if (detail != null) ...[
                   TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
                   TextSpan(text: detail, style: ts.small.copyWith(color: c.dim)),
