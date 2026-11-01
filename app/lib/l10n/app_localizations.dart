@@ -27738,6 +27738,36 @@ abstract class AppLocalizations {
   /// **'Free. The payment may still finish.'**
   String get cancelStopWaitingLine;
 
+  /// Release coins / cancel choice that spends the locked coins back to this wallet (spendBack: true), when its fee is not known. Names the outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Move coins back'**
+  String get cancelMoveBack;
+
+  /// The same choice with its fee: {fee} is an amount with its unit (e.g. 0.0010 EPIC).
+  ///
+  /// In en, this message translates to:
+  /// **'Move coins back · fee {fee}'**
+  String cancelMoveBackFee(String fee);
+
+  /// Release coins / cancel choice that only unlocks the coins (free); the other side may still finish the payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock coins, leave payment open'**
+  String get cancelUnlockOpen;
+
+  /// First line of the two-line comparison above the choices: what moving the coins back means.
+  ///
+  /// In en, this message translates to:
+  /// **'Move coins back: certain, for the network fee.'**
+  String get cancelCompareMoveBack;
+
+  /// Second line of the comparison: what unlocking means.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock coins: free, the payment may still finish.'**
+  String get cancelCompareUnlock;
+
   /// Title of the info sheet (phone) or popover (desktop) behind the info icon beside the fee line: the two ways to cancel.
   ///
   /// In en, this message translates to:

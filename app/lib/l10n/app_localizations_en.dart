@@ -17804,6 +17804,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelStopWaitingLine => 'Free. The payment may still finish.';
 
   @override
+  String get cancelMoveBack => 'Move coins back';
+
+  @override
+  String cancelMoveBackFee(String fee) {
+    return 'Move coins back · fee $fee';
+  }
+
+  @override
+  String get cancelUnlockOpen => 'Unlock coins, leave payment open';
+
+  @override
+  String get cancelCompareMoveBack =>
+      'Move coins back: certain, for the network fee.';
+
+  @override
+  String get cancelCompareUnlock =>
+      'Unlock coins: free, the payment may still finish.';
+
+  @override
   String get cancelChoicesTitle => 'Two ways to cancel';
 
   @override

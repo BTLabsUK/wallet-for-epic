@@ -42,11 +42,12 @@ void main() {
     for (final platform in HelpPlatform.values) {
       final topic = helpTopics(3, platform: platform).firstWhere((t) => t.id == HelpId.cancel);
 
-      test('${platform.name}: three headings in order, under When something goes wrong', () {
+      test('${platform.name}: four headings in order, under When something goes wrong', () {
         expect(topic.section, 'trouble');
         expect(topic.title, 'Cancelling a payment');
-        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests]);
-        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Sending', 'Receiving', 'Invoices (experimental)']);
+        // The two ways first, named as their buttons are (B-04), then the three cases.
+        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.twoWays, HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests]);
+        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Move coins back, or unlock them', 'Sending', 'Receiving', 'Invoices (experimental)']);
         // Every other block has no anchor; a heading is never a list.
         for (final b in topic.body) {
           expect(b.anchor.isNotEmpty, b.kind == HelpBlockKind.h, reason: b.text);
@@ -90,7 +91,7 @@ void main() {
       for (final lang in ['de', 'pl', 'ru', 'zh', 'th']) {
         for (final platform in HelpPlatform.values) {
           final t = localizedHelpTopics(lang, 3, platform: platform).firstWhere((t) => t.id == HelpId.cancel);
-          expect([for (final b in t.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests], reason: lang);
+          expect([for (final b in t.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.twoWays, HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests], reason: lang);
           expect(t.title, isNot('Cancelling a payment'), reason: lang);
         }
       }
