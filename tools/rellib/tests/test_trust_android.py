@@ -62,6 +62,47 @@ class AnswerOffersTest(unittest.TestCase):
         self.assertEqual(trust.SEEN["biometric_prompt"], 1)
 
 
+class OpenSheetTest(unittest.TestCase):
+    """Home's Node icon: 26.10.24-r2 opens the Node sheet, 26.10.25 the Connections sheet first
+    (a tap on any status icon), whose row (not clickable in the dump) opens the Node sheet."""
+    HOME = [node(trust.facts.LOCK_WALLET, 100, clickable=True),
+            node("Node, Synced | Up to date. | Node: node.example.org | Shows details", 400, clickable=True)]
+    CONNECTIONS = [node("Scrim", 1000, clickable=True), node(trust.CONNECTIONS, 1200),
+                   node("Node, Synced | Up to date · node.example.org", 1400),
+                   node("Epicbox, Connected | Connected · box.epic.invalid", 1550)]
+    NODE = [node("Scrim", 1000, clickable=True), node("Node", 900),
+            node("node.lab.invalid, In use, Status unknown, BT Labs", 1300, clickable=True)]
+
+    def run_open(self, screens):
+        taps, seq = [], list(screens)
+
+        def dump(serial=None):
+            return seq.pop(0) if len(seq) > 1 else seq[0]
+
+        def tapped(s, xy):
+            taps.append(xy)
+
+        for obj, name, fake in ((trust, "home", lambda: True), (trust, "nodes", dump), (trust.ph, "nodes", dump),
+                                (trust, "tap_xy", tapped), (trust, "log", lambda *a: None),
+                                (trust.time, "sleep", lambda s: None)):
+            p = mock.patch.object(obj, name, fake)
+            p.start()
+            self.addCleanup(p.stop)
+        trust.open_sheet("Node")
+        return taps
+
+    def test_candidate_goes_through_the_connections_row(self):
+        self.assertEqual(self.run_open([self.HOME, self.CONNECTIONS, self.NODE]), [(540, 400), (540, 1400)])
+
+    def test_previous_release_opens_the_sheet_directly(self):
+        self.assertEqual(self.run_open([self.HOME, self.NODE]), [(540, 400)])
+
+    def test_no_row_for_the_service_fails(self):
+        conn = [n for n in self.CONNECTIONS if not n["label"].startswith("Node, ")]
+        with mock.patch.object(trust, "dump_to_log", lambda t: None), self.assertRaises(RuntimeError):
+            self.run_open([self.HOME, conn])
+
+
 class SwitchingTest(unittest.TestCase):
     def test_connecting_and_connected_rows_are_a_switch_in_progress(self):
         row = lambda facts: node("epicbox.stackwallet.com, " + facts, 900, clickable=True)
