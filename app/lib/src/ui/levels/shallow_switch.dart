@@ -30,6 +30,7 @@ import '../../node_failover_phone.dart';
 import '../../phone_tor.dart';
 import '../../providers.dart';
 import '../../relay_directory.dart' show NodeHealthState, NodeStatus, RelayStatus, nodeStatusFor, relayStatusProvider;
+import '../../server_list_file.dart' show operatorFor;
 import '../../server_list_store.dart';
 import '../../server_switch.dart';
 import '../../settings.dart' show networkModeProvider;
@@ -39,8 +40,10 @@ import '../../tor_routes.dart' show TorState;
 import '../notices.dart';
 import '../server_picker.dart' show publicNodeStatusProvider;
 import '../status.dart' show serverHost;
+import '../badge.dart';
 import '../theme/tokens.dart';
 import 'relay_down.dart';
+import 'status_parts.dart';
 
 /// The Switch server button of [kind]'s sheet, and a row of its list by the server's value (a
 /// node address, a relay's label), for tests.
@@ -50,7 +53,7 @@ Key shallowSwitchRowKey(String value) => ValueKey('shallow-switch-row-$value');
 /// What the status site says of a server, in the list's order.
 enum _Health { healthy, behind, unknown, down }
 
-typedef _Row = ({String value, String host, _Health health, RelayCandidate? relay});
+typedef _Row = ({String value, String host, _Health health, RelayCandidate? relay, ServerFace face});
 
 class ShallowServerSwitch extends ConsumerStatefulWidget {
   const ShallowServerSwitch({super.key, required this.kind, this.liveSwitch = switchServersLive});
@@ -80,6 +83,10 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
     final preset = ref.watch(networkChoiceProvider).value?.preset;
     if (config == null) return const [];
     final rows = <_Row>[];
+    final known = [
+      for (final n in (preset == null ? null : ref.watch(publicNodeStatusProvider(preset)).value) ?? const <NodeStatus>[]) (operator: n.operator, icon: n.icon),
+      for (final r in (preset == null ? null : ref.watch(relayStatusProvider(preset)).value) ?? const <RelayStatus>[]) (operator: r.operator, icon: r.icon),
+    ];
     if (_node) {
       final inUse = ref.watch(nodeFailoverProvider)?.inUse ?? config.nodeUrl;
       final list = ref.watch(serverListProvider((ServerKind.node, config.chain))).value?.entries ?? const [];
@@ -92,7 +99,15 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
           NodeHealthState.down => _Health.down,
           _ => _Health.unknown,
         };
-        rows.add((value: url, host: serverHost(url), health: health, relay: null));
+        final s = nodeStatusFor(listed ?? const <NodeStatus>[], url);
+        final operator = operatorFor(ServerKind.node, url, listed: s?.operator);
+        rows.add((
+          value: url,
+          host: serverHost(url),
+          health: health,
+          relay: null,
+          face: (operator: s?.operator ?? operator, icon: serverIconFor(s?.icon, s?.operator ?? operator, known)),
+        ));
       }
     } else {
       final inUse = EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort);
@@ -107,7 +122,15 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
           RelayHealth.down => _Health.down,
           RelayHealth.unknown => _Health.unknown,
         };
-        rows.add((value: c.relay.label, host: c.name, health: health, relay: c));
+        final s = (listed ?? const <RelayStatus>[]).where((r) => r.relay == c.relay).firstOrNull;
+        final operator = operatorFor(ServerKind.relay, c.relay.label, listed: s?.operator);
+        rows.add((
+          value: c.relay.label,
+          host: c.name,
+          health: health,
+          relay: c,
+          face: (operator: s?.operator ?? operator, icon: serverIconFor(s?.icon, s?.operator ?? operator, known)),
+        ));
       }
     }
     // Healthy first; otherwise the list's order.
@@ -193,7 +216,7 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
                   }),
           ),
           if (_open) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             if (!_node)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
@@ -216,18 +239,20 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
     final t = context.tokens;
     final theme = Theme.of(context);
     final down = r.health == _Health.down;
-    final (word, color) = switch (r.health) {
-      _Health.healthy => (l.serverHealthy, t.ok),
-      _Health.behind => (l.serverDegraded, t.warn),
-      _Health.unknown => (l.serverHealthNone, t.dim),
-      _Health.down => (l.serverNotResponding, t.dim),
+    final (word, tone) = switch (r.health) {
+      _Health.healthy => (l.serverHealthy, BadgeTone.ok),
+      _Health.behind => (l.serverDegraded, BadgeTone.warn),
+      _Health.unknown => (l.serverHealthNone, BadgeTone.neutral),
+      _Health.down => (l.serverNotResponding, BadgeTone.neutral),
     };
     final busy = _moving == r.value;
     return ListTile(
       key: shallowSwitchRowKey(r.value),
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-      minTileHeight: 48,
+      minTileHeight: 52,
+      horizontalTitleGap: 12,
       enabled: !down && _moving == null,
+      leading: StatusServerTile(host: r.host, operator: r.face.operator, icon: r.face.icon, size: 32, dimmed: down),
       title: Text(
         r.host,
         maxLines: 1,
@@ -237,12 +262,15 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
           color: down ? t.faint : null,
         ),
       ),
-      subtitle: Text(word, style: theme.textTheme.bodySmall?.copyWith(color: color)),
       trailing: busy
           ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-          : down
-          ? null
-          : Icon(Icons.chevron_right, color: t.dim),
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                EBadge(word, tone: tone, dot: true),
+                if (!down) ...[const SizedBox(width: 4), Icon(Icons.chevron_right, size: 20, color: t.dim)],
+              ],
+            ),
       onTap: down || _moving != null ? null : () => _pick(r),
     );
   }

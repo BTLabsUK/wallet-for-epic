@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-/// What a title-bar status icon opens (wallet levels, D5/D10): a popover under that icon with
-/// "Name · State", two or three plain rows and, at Deeper and Deep end, a button to the
-/// service's settings. Shallow names the node "Network" and, having no server settings, offers
-/// Switch server ([DeskServerSwitch]) for the node and Epicbox; Deep end adds the height and the
-/// version. The Epicbox popover carries the server offer ([DeskRelayOfferPanel]) when there is
-/// one.
+/// What a title-bar status icon opens (wallet levels, D5/D10): a popover under that icon. Its
+/// header is the service's tile (the server's operator icon or initials as the server lists
+/// show it; the glyph on a gold-ticked tile for Tor and Link), the name with the state as a
+/// badge and the server under it; then the facts as a strip of aligned cells, a note where
+/// one is due, and a footer band with the actions (`status_parts.dart`). At Deeper and Deep
+/// end the footer opens the service's settings. Shallow names the node "Network" and, having no
+/// server settings, offers Switch server ([DeskServerSwitch]) for the node and Epicbox with
+/// Close beside it; Deep end adds the height and the version. The Epicbox popover carries the
+/// server offer ([DeskRelayOfferPanel]) when there is one.
 library;
 
 import 'package:flutter/material.dart';
@@ -25,6 +28,7 @@ import 'desk_failover.dart';
 import 'rail.dart' show RailItem;
 import 'relay_offer.dart';
 import 'server_switch.dart';
+import 'status_parts.dart';
 
 /// The level's icon for a status row (Node is the level's Network).
 StatusIcon deskStatusIconOf(RailItem i) => switch (i.jump) {
@@ -68,7 +72,8 @@ String deskStatusWord(AppLocalizations l, WalletLevel level, RailItem i) {
 /// "Name · State", the icon's tooltip and its button's label.
 String deskStatusTip(AppLocalizations l, WalletLevel level, RailItem i) => l.lvShellStatusTip(deskStatusName(l, level, i), deskStatusWord(l, level, i));
 
-typedef _Fact = ({String label, String value, bool mono});
+/// The popover's width: wide enough for a relay's label beside its tile, never a reading column.
+double get deskStatusPopoverWidth => 320.u;
 
 /// The popover's content for [item]; [close] closes it (before a jump into Settings).
 class DeskStatusPopover extends ConsumerWidget {
@@ -89,19 +94,27 @@ class DeskStatusPopover extends ConsumerWidget {
     final status = ref.watch(deskProvider.select((s) => s.status));
     final name = deskStatusName(l, level, i);
     final word = deskStatusWord(l, level, i);
-    final facts = <_Fact>[];
-    String? sub;
-    var body = const <Widget>[];
+    final facts = <DeskFact>[];
+    final notes = <String>[];
+    Widget tile;
+    String? second;
+    var secondMono = false;
     switch (i.jump) {
       case SettingsJump.node:
-        final url = status?.node.url;
+        final node = status?.node;
+        final url = node?.url;
         final info = url == null || url.isEmpty ? null : ref.watch(deskNodeInfoProvider(url)).value;
         final failover = ref.watch(deskFailoverProvider);
         final failoverOn = ref.watch(deskProvider.select((s) => s.settings.advanced.nodeFailover));
         final height = status == null || status.nodeHeight <= 0 ? null : status.nodeHeight;
         final version = info?.version;
+        final host = url == null || url.isEmpty ? null : nodeHost(url);
+        tile = host == null
+            ? DeskServiceTile(icon: i.icon, state: i.state)
+            : DeskServerTile(host: host, operator: node?.listedAs ?? node?.operator, icon: node?.icon, dimmed: i.state == EState.off);
+        second = host;
+        secondMono = true;
         if (shallow) {
-          if (url != null && url.isNotEmpty) facts.add((label: l.lvShellServer, value: nodeHost(url), mono: true));
           final tip = info?.networkHeight ?? height;
           if (tip != null) facts.add((label: l.lvShellLatestBlock, value: localInt(l, tip), mono: false));
           facts.add((
@@ -115,7 +128,10 @@ class DeskStatusPopover extends ConsumerWidget {
           ));
           if (failover != null) facts.add((label: l.lvShellLastChange, value: l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen)), mono: false));
         } else {
-          if (i.second != '–' && i.second != i.word) sub = i.second;
+          if (i.byMode) {
+            second = i.second;
+            secondMono = false;
+          }
           if (deep && height != null) facts.add((label: l.deskLvShellHeight, value: localInt(l, height), mono: false));
           if (deep && version != null && version.isNotEmpty) facts.add((label: l.deskLvShellVersion, value: version, mono: false));
           facts.add((label: l.deskLvShellFailover, value: failoverOn ? l.deskLvShellOn : l.netStatusOff, mono: false));
@@ -123,92 +139,83 @@ class DeskStatusPopover extends ConsumerWidget {
       case SettingsJump.epicbox:
         final address = ref.watch(deskProvider.select((s) => s.epicboxAddress));
         final server = status?.epicbox;
+        final relay = server == null || server.domain.isEmpty ? null : EpicboxRelay(host: server.domain, port: server.port).label;
+        tile = relay == null
+            ? DeskServiceTile(icon: i.icon, state: i.state)
+            : DeskServerTile(host: server!.domain, operator: server.listedAs ?? server.operator, icon: server.icon, dimmed: i.state == EState.off);
+        second = i.byMode ? i.second : relay;
+        secondMono = !i.byMode;
         if (address != null && address.isNotEmpty) facts.add((label: l.lvShellAddress, value: common.shortAddress(address, relay: false), mono: true));
-        if (server != null && server.domain.isNotEmpty) facts.add((label: l.lvShellServer, value: EpicboxRelay(host: server.domain, port: server.port).label, mono: true));
-        if (shallow && (i.state == EState.risk || i.state == EState.warn)) {
-          body = [Text(l.lvShellBoxDownBody, style: ts.small.copyWith(color: c.dim))];
-        }
+        if (shallow && (i.state == EState.risk || i.state == EState.warn)) notes.add(l.lvShellBoxDownBody);
       default:
-        if (i.second != '–' && i.second != i.word) sub = i.second;
-        if (i.note != null) body = [Text(i.note!, style: ts.small.copyWith(color: c.dim))];
+        tile = DeskServiceTile(icon: i.icon, state: i.state);
+        if (i.second != '–' && i.second != i.word) second = [i.second, ?i.marker].join(' ');
+        if (i.note != null) notes.add(i.note!);
     }
+    if (i.byMode) notes.addAll(i.lines);
 
-    Widget row(_Fact f) {
-      final style = ts.small;
-      final value = f.mono ? ts.mono(size: Fs.sm, color: c.text) : style.copyWith(color: c.text);
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 3.u),
-        child: f.label.isEmpty
-            ? Text(f.value, style: value)
-            : Row(
+    final switchable = shallow && (i.jump == SettingsJump.node || i.jump == SettingsJump.epicbox);
+    final closeButton = EButton(key: ValueKey('status-close-${i.jump.name}'), label: l.commonClose, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: close);
+    return SizedBox(
+      width: deskStatusPopoverWidth,
+      child: Column(
+        key: ValueKey('status-pop-${i.jump.name}'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, Sp.x3),
+            child: DeskStatusHeader(
+              rowKey: ValueKey('status-row-${i.jump.name}'),
+              tile: tile,
+              name: name,
+              word: word,
+              state: i.state,
+              second: second,
+              secondMono: secondMono,
+            ),
+          ),
+          if (facts.isNotEmpty) Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: DeskFactStrip(facts)),
+          if (notes.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x3, facts.isEmpty ? 0 : Sp.x3, Sp.x3, 0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(width: 112.u, child: Text(f.label, style: style.copyWith(color: c.dim))),
-                  SizedBox(width: Sp.x2),
-                  Expanded(child: Text(f.value, style: value)),
-                ],
-              ),
-      );
-    }
-
-    final stateColor = switch (i.state) {
-      EState.ok => c.ok,
-      EState.active => c.info,
-      EState.warn => c.warn,
-      EState.risk => c.risk,
-      EState.off => c.dim,
-    };
-    return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: 280.u, maxWidth: 340.u),
-      child: Padding(
-        padding: EdgeInsets.all(Sp.x3),
-        child: Column(
-          key: ValueKey('status-pop-${i.jump.name}'),
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Semantics(
-              header: true,
-              child: Row(
-                key: ValueKey('status-row-${i.jump.name}'),
-                children: [
-                  Icon(i.icon, size: 18.u, color: c.dim),
-                  SizedBox(width: Sp.x2),
-                  Text(name, style: ts.strong),
-                  Text(' · ', style: ts.strong.copyWith(color: c.faint)), // l10n-ok: separator
-                  Flexible(child: Text(word, style: ts.strong.copyWith(color: stateColor))),
-                ],
+                children: [for (final n in notes) Padding(padding: EdgeInsets.only(bottom: 4.u), child: Text(n, style: ts.small.copyWith(color: c.dim)))],
               ),
             ),
-            if (sub != null) ...[SizedBox(height: Sp.x1), Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.mono(size: Fs.xs, color: c.dim))],
-            if (body.isNotEmpty) ...[SizedBox(height: Sp.x2), ...body],
-            if (facts.isNotEmpty) ...[SizedBox(height: Sp.x2), for (final f in facts) row(f)],
-            if (i.jump == SettingsJump.epicbox) DeskRelayOfferPanel(close: close),
-            if (shallow && (i.jump == SettingsJump.node || i.jump == SettingsJump.epicbox))
-              DeskServerSwitch(key: ValueKey('status-switch-box-${i.jump.name}'), epicbox: i.jump == SettingsJump.epicbox, close: close),
-            SizedBox(height: Sp.x3),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: Sp.x2,
-              runSpacing: Sp.x2,
-              children: [
-                if (!shallow)
-                  EButton(
-                    key: ValueKey('status-open-${i.jump.name}'),
-                    label: i.open,
-                    size: EBtnSize.sm,
-                    onPressed: () {
-                      close();
-                      deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
-                      ref.read(settingsPrefsProvider.notifier).jumpTo(i.opens);
-                    },
-                  )
-                else
-                  EButton(key: ValueKey('status-close-${i.jump.name}'), label: l.commonClose, size: EBtnSize.sm, onPressed: close),
-              ],
-            ),
-          ],
-        ),
+          if (i.jump == SettingsJump.epicbox) Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: DeskRelayOfferPanel(close: close)),
+          // The footer band: Switch server with Close beside it (Shallow), or the settings button.
+          Padding(
+            padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, Sp.x2),
+            child: switchable
+                ? DeskServerSwitch(key: ValueKey('status-switch-box-${i.jump.name}'), epicbox: i.jump == SettingsJump.epicbox, close: close, trailing: closeButton)
+                : Container(
+                    padding: EdgeInsets.only(top: Sp.x2),
+                    decoration: BoxDecoration(border: Border(top: BorderSide(color: c.lineStrong))),
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      spacing: Sp.x2,
+                      runSpacing: Sp.x2,
+                      children: [
+                        if (!shallow)
+                          EButton(
+                            key: ValueKey('status-open-${i.jump.name}'),
+                            label: i.open,
+                            size: EBtnSize.sm,
+                            onPressed: () {
+                              close();
+                              deskNavigatorKey.currentState?.popUntil((r) => r.isFirst);
+                              ref.read(settingsPrefsProvider.notifier).jumpTo(i.opens);
+                            },
+                          )
+                        else
+                          closeButton,
+                      ],
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }

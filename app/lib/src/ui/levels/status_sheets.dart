@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The level-1 explore sheets a status icon opens ([ShellStatusIcons]): Network and Epicbox,
-/// each its state and a few plain facts (the server by its address, from the wallet's own state,
-/// never literals), and Switch server ([ShallowServerSwitch]): the other servers of the list,
-/// one tap moves. The Epicbox sheet also carries flow D: the relay offer with Switch / Keep
-/// waiting, and after a move the new address. Levels 2 and 3 keep today's connections sheet and
-/// server lists.
+/// each a header with the server's tile, the name and its state as a badge, the server under
+/// them (from the wallet's own state, never literals), a few plain facts as a strip
+/// (`status_parts.dart`), and Switch server ([ShallowServerSwitch]): the other servers of the
+/// list, one tap moves. The Epicbox sheet also carries flow D: the relay offer with Switch /
+/// Keep waiting, and after a move the new address. Levels 2 and 3 keep today's connections
+/// sheet and server lists.
 library;
 
 import '../phone_sheet.dart';
@@ -18,10 +19,12 @@ import '../../server_list.dart' show ServerKind;
 import '../../providers.dart';
 import '../common.dart';
 import '../status.dart';
+import '../status_icons.dart';
 import '../theme/tokens.dart';
 import 'relay_down.dart';
 import 'shallow_switch.dart';
 import 'shell_status.dart';
+import 'status_parts.dart';
 
 /// The keys of the sheets and their parts, for tests.
 const Key networkSheetKey = ValueKey('shell-network-sheet');
@@ -44,25 +47,22 @@ Future<void> showNetworkSheet(BuildContext context) => _sheet(context, const Net
 /// Opens the Epicbox sheet.
 Future<void> showEpicboxSheet(BuildContext context) => _sheet(context, const EpicboxSheet());
 
-/// One fact: a label and its value; [mono] for a host.
-typedef _Fact = ({String label, String value, bool mono});
-
+/// The sheet's frame: the header, the notes under it, the facts strip, the cards and the
+/// actions, then OK.
 class _SheetBody extends StatelessWidget {
   const _SheetBody({
     super.key,
-    required this.title,
-    required this.state,
-    required this.stateColor,
-    required this.facts,
-    this.top = const [],
+    required this.header,
+    this.notes = const [],
+    this.facts = const [],
+    this.cards = const [],
     this.actions = const [],
   });
 
-  final String title;
-  final String state;
-  final Color stateColor;
-  final List<Widget> top;
-  final List<_Fact> facts;
+  final Widget header;
+  final List<String> notes;
+  final List<SheetFact> facts;
+  final List<Widget> cards;
   final List<Widget> actions;
 
   @override
@@ -70,43 +70,19 @@ class _SheetBody extends StatelessWidget {
     final l = context.l10n;
     final t = context.tokens;
     final theme = Theme.of(context);
-    Widget row(_Fact f) {
-      final style = theme.textTheme.bodyMedium;
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: Text(f.label, style: style?.copyWith(color: t.dim))),
-            const SizedBox(width: 12),
-            Flexible(
-              flex: 2,
-              child: Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: Text(
-                  f.value,
-                  textAlign: TextAlign.end,
-                  // A host reads in mono, as everywhere else.
-                  style: style?.copyWith(fontFamily: f.mono ? t.monoFamily : null),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(header: true, child: Text(title, style: theme.textTheme.titleLarge)),
-          const SizedBox(height: 4),
-          Text(state, style: theme.textTheme.bodyMedium?.copyWith(color: stateColor)),
-          const SizedBox(height: 12),
-          ...top,
-          for (final f in facts) row(f),
+          header,
+          if (notes.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            for (final n in notes) Padding(padding: const EdgeInsets.only(bottom: 4), child: Text(n, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim))),
+          ],
+          if (facts.isNotEmpty) ...[const SizedBox(height: 14), StatusFactStrip(facts)],
+          for (final c in cards) ...[const SizedBox(height: 12), c],
           const SizedBox(height: 16),
           ...actions,
           TextButton(
@@ -120,21 +96,14 @@ class _SheetBody extends StatelessWidget {
   }
 }
 
-Color _stateColor(WalletTokens t, StatusDot dot) => switch (dot) {
-  StatusDot.ok => t.ok,
-  StatusDot.off => t.dim,
-  _ => dot.color(t),
-};
-
-/// The Network sheet: the node's state, the latest block, whether this wallet is up to date, the
-/// node in use and the one failover moved from; Switch server.
+/// The Network sheet: the node's tile, state and address, the latest block, whether this
+/// wallet is up to date and the one failover moved from; Switch server.
 class NetworkSheet extends ConsumerWidget {
   const NetworkSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final t = context.tokens;
     final status = watchWalletStatus(ref);
     final face = shellNetworkFace(context, ref);
     final config = ref.watch(walletConfigProvider);
@@ -147,16 +116,24 @@ class NetworkSheet extends ConsumerWidget {
       NodeState.syncing || NodeState.online => l.lvShellStateCatchingUp,
       NodeState.connecting || NodeState.offline => l.lvShellNotChecked,
     };
-    final host = config == null ? null : serverHost(config.nodeUrl);
+    final url = config?.nodeUrl;
+    final host = url == null ? null : serverHost(url);
+    final server = url == null ? null : serverFaceOf(ref, ServerKind.node, url);
     return _SheetBody(
       key: networkSheetKey,
-      title: l.settingsAboutNetwork,
-      state: face.word,
-      stateColor: _stateColor(t, face.dot),
+      header: StatusSheetHeader(
+        tile: host == null || host.isEmpty
+            ? StatusServiceTile(icon: EpicGlyphs.node, enabled: face.dot != StatusDot.off)
+            : StatusServerTile(host: host, operator: server?.operator, icon: server?.icon, dimmed: face.dot == StatusDot.off),
+        name: l.settingsAboutNetwork,
+        word: face.word,
+        dot: face.dot,
+        second: host,
+        secondMono: true,
+      ),
       facts: [
         if (tip != null && tip > BigInt.zero) (label: l.lvShellLatestBlock, value: groupDigits(l, tip), mono: false),
         (label: l.lvShellThisWallet, value: wallet, mono: false),
-        if (host != null && host.isNotEmpty) (label: l.netStatusNode, value: host, mono: true),
         if (failover != null) (label: l.lvShellLastChange, value: l.nodeFailoverInsteadOf(serverHost(failover.chosen)), mono: false),
       ],
       actions: const [ShallowServerSwitch(kind: ServerKind.node), SizedBox(height: 8)],
@@ -164,8 +141,8 @@ class NetworkSheet extends ConsumerWidget {
   }
 }
 
-/// The Epicbox sheet: whether payments can reach this wallet, the server by its address; Switch
-/// server. With a relay offer it says payments wait and offers the move; after
+/// The Epicbox sheet: the server's tile, state and address, whether payments can reach this
+/// wallet; Switch server. With a relay offer it says payments wait and offers the move; after
 /// a move it names the new server and opens the new address.
 class EpicboxSheet extends ConsumerStatefulWidget {
   const EpicboxSheet({super.key});
@@ -186,14 +163,13 @@ class _EpicboxSheetState extends ConsumerState<EpicboxSheet> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
     final state = watchWalletStatus(ref).epicbox;
     final face = shellEpicboxFace(context, ref);
     final config = ref.watch(walletConfigProvider);
     final offer = ref.watch(relaySwitchProvider);
     final moved = ref.watch(relaySwitchResultProvider);
     final relay = config == null ? null : relayLabel(config);
+    final server = relay == null ? null : serverFaceOf(ref, ServerKind.relay, relay);
     final down = state == EpicboxState.offline || state == EpicboxState.blocked;
     final stateText = switch (state) {
       null => l.netStatusOff,
@@ -201,41 +177,33 @@ class _EpicboxSheetState extends ConsumerState<EpicboxSheet> {
       EpicboxState.connecting => l.lvShellStateConnecting,
       EpicboxState.offline || EpicboxState.blocked => l.lvShellBoxNotReachable,
     };
-    Widget card(String title, String body) => Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: theme.textTheme.titleSmall),
-          const SizedBox(height: 4),
-          Text(body, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-        ],
-      ),
-    );
     return _SheetBody(
       key: epicboxSheetKey,
-      title: l.netStatusEpicbox,
-      state: stateText,
-      stateColor: _stateColor(t, face.dot),
-      top: [
-        if (moved != null && offer == null)
-          card(l.lvShellNowOn(moved.name), l.lvShellSwitchedBody)
-        else if (down) ...[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(l.lvShellBoxDownBody, style: theme.textTheme.bodyMedium),
-          ),
-          if (offer != null) card(l.lvShellOfferReady(offer.name), l.lvShellOfferBody(offer.name)),
-        ],
+      header: StatusSheetHeader(
+        tile: relay == null
+            ? StatusServiceTile(icon: EpicGlyphs.epicbox, enabled: face.dot != StatusDot.off)
+            : StatusServerTile(host: config!.epicboxDomain, operator: server?.operator, icon: server?.icon, dimmed: face.dot == StatusDot.off),
+        name: l.netStatusEpicbox,
+        word: face.word,
+        dot: face.dot,
+        second: relay,
+        secondMono: true,
+      ),
+      notes: [
+        // The state in a sentence under the header; what it means for payments when down.
+        if (stateText != face.word) stateText,
+        if (down && !(moved != null && offer == null)) l.lvShellBoxDownBody,
       ],
-      facts: [
-        if (relay != null) (label: l.lvShellServer, value: relay, mono: true),
+      cards: [
+        if (moved != null && offer == null)
+          StatusSheetCard(tone: BadgeTone.ok, icon: EpicGlyphs.epicbox, title: l.lvShellNowOn(moved.name), body: l.lvShellSwitchedBody)
+        else if (offer != null)
+          StatusSheetCard(
+            tone: BadgeTone.warn,
+            icon: EpicGlyphs.epicbox,
+            title: l.lvShellOfferReady(offer.name),
+            body: l.lvShellOfferBody(offer.name),
+          ),
       ],
       actions: [
         if (offer != null) ...[

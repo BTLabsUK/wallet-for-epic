@@ -139,8 +139,8 @@ class _DeskRelayNoticeState extends ConsumerState<DeskRelayNotice> {
   }
 }
 
-/// The offer inside the Epicbox status popover: a short line and Switch, which asks in the same
-/// dialog as the notice. [close] closes the popover before the dialog opens.
+/// The offer inside the Epicbox status popover: an amber notice with Switch, which asks in the
+/// same dialog as the notice. [close] closes the popover before the dialog opens.
 class DeskRelayOfferPanel extends ConsumerWidget {
   const DeskRelayOfferPanel({super.key, this.close});
 
@@ -152,24 +152,16 @@ class DeskRelayOfferPanel extends ConsumerWidget {
     final offer = ref.watch(deskRelayOfferProvider);
     if (!prompt || offer == null) return const SizedBox.shrink();
     final l = context.l10n;
-    final c = context.dc;
-    final ts = context.ts;
-    return Container(
-      key: const ValueKey('relay-pop-offer'),
-      margin: EdgeInsets.only(top: Sp.x3),
-      padding: EdgeInsets.all(Sp.x3),
-      decoration: BoxDecoration(
-        color: c.s3,
-        border: Border.all(color: c.line),
-        borderRadius: BorderRadius.circular(Rad.sm),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l.lvShellOfferReady(offer.name), style: ts.strong),
-          SizedBox(height: Sp.x1),
-          Text(l.lvShellOfferBody(offer.name), style: ts.small),
-          SizedBox(height: Sp.x2),
+    return Padding(
+      padding: EdgeInsets.only(top: Sp.x3),
+      child: ENotice(
+        key: const ValueKey('relay-pop-offer'),
+        tone: ETone.warn,
+        icon: EIcons.epicbox,
+        title: l.lvShellOfferReady(offer.name),
+        text: l.lvShellOfferBody(offer.name),
+        actionsBelow: true,
+        actions: [
           EButton.primary(
             key: const ValueKey('relay-pop-switch'),
             label: l.lvShellSwitchTo(offer.name),
