@@ -1155,7 +1155,8 @@ class EInfoHintState extends State<EInfoHint> {
 }
 
 
-/// A 4 px progress bar; null [value] runs indeterminate.
+/// A 4 px progress bar that holds still: it fills to [value] and only moves when the number
+/// does. Null (no number yet) shows the empty track; the words beside it say the work runs.
 
 class EProgress extends StatelessWidget {
   const EProgress({super.key, this.value});
@@ -1168,7 +1169,7 @@ class EProgress extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(2),
       child: LinearProgressIndicator(
-        value: value,
+        value: value ?? 0,
         minHeight: 4.u,
         backgroundColor: c.s3,
         // Progress is in progress: blue, never the brand gold.

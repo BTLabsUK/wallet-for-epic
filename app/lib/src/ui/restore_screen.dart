@@ -806,8 +806,9 @@ class ScanProgressView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (scan.running)
+          // Holds still: the empty track until a percent comes; the line below says it runs.
           LinearProgressIndicator(
-            value: percent == null ? null : percent / 100,
+            value: (percent ?? 0) / 100,
             semanticsLabel: l.restoreScanProgressLabel,
             // A number: Flutter asserts that a progress bar's semantic value parses as one.
             semanticsValue: percent == null ? null : '$percent',
@@ -837,7 +838,7 @@ class ScanSlotLine extends StatelessWidget {
       children: [
         LinearProgressIndicator(
           minHeight: 2,
-          value: percent == null ? null : percent / 100,
+          value: (percent ?? 0) / 100,
           semanticsLabel: l.restoreScanProgressLabel,
           semanticsValue: percent == null ? null : '$percent',
         ),

@@ -80,7 +80,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('reduced motion: an unknown amount shows a still bar; a panel under 150 u lays out', (tester) async {
+  testWidgets('an unknown amount shows the still, empty track; a panel under 150 u lays out', (tester) async {
     node.show(mockLocalNode(LocalNodePhase.starting));
     await node.setFallbackChoice(const FallbackChoice(FallbackConsent.accepted));
     for (final width in [900.0, 140.0]) {
@@ -106,7 +106,7 @@ void main() {
       FlutterError.onError = was;
       expect(errors.whereType<ArgumentError>(), isEmpty);
       if (width > 200) expect(errors, isEmpty);
-      if (width > 200) expect(tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value, 1, reason: 'no sweep');
+      if (width > 200) expect(tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value, 0, reason: 'no sweep');
     }
     await end(tester);
   });

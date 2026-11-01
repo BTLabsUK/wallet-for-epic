@@ -337,17 +337,16 @@ Color _toneColor(DeskColors c, ETone t) => switch (t) {
   ETone.neutral => c.faint,
 };
 
-/// Sweeps a bar without a known end plays before it holds still: about 9 s, as the status dot's
-/// five beats.
+/// Sweeps a bar without a known end plays before it holds still: about 12 s.
 @visibleForTesting
 const int slotBarSweeps = 5;
 
-/// One sweep of Flutter's bar without a known end.
-const Duration _sweep = Duration(milliseconds: 1800);
+/// One sweep: slow and steady, so the one moving bar in the window stays calm.
+const Duration _sweep = Duration(milliseconds: 2400);
 
 /// A 2 px bar without a known end: it sweeps [slotBarSweeps] times, then holds the empty track
 /// each sweep starts from. A sync can last hours, and a bar that never stops redraws the window
-/// all that time. A new state (its key) sweeps again.
+/// all that time. A new state (its key) sweeps again. Reduced motion: the still track only.
 class _SweepBar extends StatefulWidget {
   const _SweepBar({super.key, required this.color});
 
@@ -376,8 +375,44 @@ class _SweepBarState extends State<_SweepBar> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      LinearProgressIndicator(value: _held ? 0 : null, minHeight: 2, backgroundColor: context.dc.s3, color: widget.color);
+  Widget build(BuildContext context) => _held || MediaQuery.disableAnimationsOf(context)
+      ? LinearProgressIndicator(value: 0, minHeight: 2, backgroundColor: context.dc.s3, color: widget.color)
+      : _SlowSweep(period: _sweep, color: widget.color);
+}
+
+/// A third of the bar gliding left to right at an even pace, one pass per [period]: calmer
+/// than Flutter's bar without a known end, which runs two quick strokes every 1.8 s.
+class _SlowSweep extends StatefulWidget {
+  const _SlowSweep({required this.period, required this.color});
+
+  final Duration period;
+  final Color color;
+
+  @override
+  State<_SlowSweep> createState() => _SlowSweepState();
+}
+
+class _SlowSweepState extends State<_SlowSweep> with SingleTickerProviderStateMixin {
+  late final AnimationController _run = AnimationController(vsync: this, duration: widget.period)..repeat();
+
+  @override
+  void dispose() {
+    _run.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: context.dc.s3,
+    child: AnimatedBuilder(
+      animation: _run,
+      // -2 .. 2 moves the third from just off the left edge to just off the right one.
+      builder: (context, _) => Align(
+        alignment: Alignment(-2 + 4 * _run.value, 0),
+        child: FractionallySizedBox(widthFactor: 1 / 3, heightFactor: 1, child: ColoredBox(color: widget.color)),
+      ),
+    ),
+  );
 }
 
 /// A line: icon, title · detail, a 2 px bar under it when it has progress.

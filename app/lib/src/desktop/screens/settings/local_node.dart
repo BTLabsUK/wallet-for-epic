@@ -713,16 +713,16 @@ class NodeSyncBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final reduced = MediaQuery.disableAnimationsOf(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(3.u),
       child: SizedBox(
         height: 6.u,
-        // Reduced motion: no sweep for an unknown amount; a still, dimmed full bar instead.
+        // No sweep here: the rail's status line is the one place a sync moves. An unknown amount
+        // shows the empty track; the words above say what runs.
         child: LinearProgressIndicator(
-          value: value ?? (reduced ? 1 : null),
+          value: value ?? 0,
           backgroundColor: c.s3,
-          color: value == null && reduced ? c.info.withValues(alpha: 0.35) : c.info,
+          color: c.info,
           semanticsLabel: context.l10n.deskSetLnodeSyncProgress,
           semanticsValue: value == null ? null : '${(value! * 100).floor()}%',
         ),
