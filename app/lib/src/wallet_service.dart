@@ -14,6 +14,7 @@ import 'package:crypto/crypto.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'history/wallet_history.dart';
 import 'models.dart';
+import 'trust/policy.dart';
 import 'finished_payment.dart' show readFinishedPayment;
 import 'network_gate.dart' show NetGate;
 import 'pairing_api.dart';
@@ -70,6 +71,10 @@ abstract interface class WalletService {
   /// True for an onion v3 address: 56 characters, with or without `.onion`, an `http://`
   /// prefix, a port or a path, whose version and checksum hold.
   bool validateOnionAddress({required String address});
+
+  /// What the wallet has learned about the software behind [address] (an Epicbox address), or
+  /// null when it knows nothing. Feeds the trust policy (lib/src/trust/policy.dart).
+  Future<PeerCompat?> peerCompat(String address);
 
   Future<bool> walletExists({required WalletConfig config});
 
@@ -763,6 +768,12 @@ class FakeWalletService implements WalletService {
 
   /// When set, [inspectSlate] waits for it, so tests see the file screen while it reads.
   Completer<void>? inspectGate;
+
+  /// What [peerCompat] returns, by address.
+  final Map<String, PeerCompat> peerCompats = {};
+
+  @override
+  Future<PeerCompat?> peerCompat(String address) async => peerCompats[address];
 
   @override
   Future<SlateInfo> inspectSlate({required String json}) async {

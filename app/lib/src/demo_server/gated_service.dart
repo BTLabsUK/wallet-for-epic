@@ -8,6 +8,7 @@ library;
 
 import 'dart:typed_data';
 
+import '../trust/policy.dart' show PeerCompat;
 import '../wallet_service.dart';
 import 'limits.dart';
 
@@ -91,6 +92,10 @@ class GatedWalletService implements WalletService {
   @override
   String walletFingerprint({required String mnemonic, required Chain chain}) =>
       _inner.walletFingerprint(mnemonic: mnemonic, chain: chain);
+
+  @override
+  Future<PeerCompat?> peerCompat(String address) =>
+      _inner.peerCompat(address);
 
   @override
   Future<SlateInfo> inspectSlate({required String json}) =>

@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../models.dart';
+import '../trust/policy.dart' show PeerCompat;
 import '../pairing_api.dart';
 import '../wallet_service.dart'
     show PinWallet, WalletService, WalletSession, onionAddressFormat;
@@ -463,6 +464,10 @@ class RemoteWalletService implements WalletService {
   @override
   bool validateOnionAddress({required String address}) =>
       onionAddressFormat(address);
+
+  /// Not carried over the remote protocol: a remote wallet learns nothing about peers here.
+  @override
+  Future<PeerCompat?> peerCompat(String address) async => null;
 
   @override
   Future<SlateInfo> inspectSlate({required String json}) =>

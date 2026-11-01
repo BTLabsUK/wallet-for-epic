@@ -31,6 +31,7 @@ import 'net/lan_node_relay.dart';
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
+import 'trust/policy.dart' show PeerCompat;
 import 'relay_refused.dart' show refusedHandshake;
 import 'recipient.dart' show plainHttpToOtherDevice;
 import 'redact.dart';
@@ -1069,6 +1070,11 @@ class LepicWalletService implements WalletService {
           chain: _lepicChain(chain),
         ),
       );
+
+  // STUB: returns null until the LEPIC binding has `peer_compat`; the lead wires it when the
+  // pin moves. Null means "knows nothing", which the trust policy treats as the safe default.
+  @override
+  Future<PeerCompat?> peerCompat(String address) async => null;
 
   @override
   Future<SlateInfo> inspectSlate({required String json}) => _guard(
