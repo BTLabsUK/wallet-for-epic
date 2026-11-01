@@ -501,7 +501,6 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             child: InputDecorator(
               decoration: InputDecoration(
                 labelText: l.reqNewTo,
-                border: const OutlineInputBorder(),
                 error: _payerError == null ? null : LiveFieldError(_payerError!),
                 suffixIcon: const Icon(Icons.expand_more),
               ),
@@ -558,7 +557,6 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               error: _amountError == null
                   ? null
                   : LiveFieldError(_amountError!),
-              border: const OutlineInputBorder(),
               suffixIcon: price != null || _fiatEntry
                   ? TextButton(
                       onPressed: _toggleUnit,
@@ -597,7 +595,6 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               labelText: l.requestMessageLabel,
               helperText: l.requestMessageHelper,
               helperMaxLines: 3,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),

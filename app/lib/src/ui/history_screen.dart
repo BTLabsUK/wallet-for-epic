@@ -291,7 +291,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           labelText: l.historySearchLabel,
           hintText: l.historySearchHint,
           prefixIcon: const Icon(Icons.search),
-          border: const OutlineInputBorder(),
           suffixIcon: _search.text.isEmpty
               ? null
               : IconButton(

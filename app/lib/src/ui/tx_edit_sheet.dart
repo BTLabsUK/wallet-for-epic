@@ -141,7 +141,6 @@ class _TxDetailsSheetState extends ConsumerState<_TxDetailsSheet> {
                 helperMaxLines: 2,
                 errorText: _fromError,
                 errorMaxLines: 3,
-                border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
                   tooltip: l.sendChooseContactTooltip,
                   icon: const Icon(Icons.people_outline),
@@ -197,7 +196,6 @@ class _TxDetailsSheetState extends ConsumerState<_TxDetailsSheet> {
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                 labelText: l.txDetailsNoteLabel,
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),

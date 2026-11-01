@@ -1689,7 +1689,6 @@ class _RescanDialogState extends State<_RescanDialog> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: l.settingsRescanStartHeight,
-                  border: const OutlineInputBorder(),
                 ),
               ),
             if (_error != null) ErrorText(_error!),
@@ -1763,7 +1762,6 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 labelText: l.settingsDeleteTypeToConfirm(word),
-                border: const OutlineInputBorder(),
               ),
             ),
           ],

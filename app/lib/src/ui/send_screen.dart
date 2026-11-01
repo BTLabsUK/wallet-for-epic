@@ -2704,7 +2704,6 @@ class _SendViewState extends ConsumerState<SendView> {
           error: _recipientError == null
               ? null
               : LiveFieldError(_recipientError!),
-          border: const OutlineInputBorder(),
         ),
       ),
       ),
@@ -3046,7 +3045,6 @@ class _SendViewState extends ConsumerState<SendView> {
                       _note.text == _activeRequest?.note
                   ? l.sendNoteFromCodeHelper
                   : l.sendNoteHelper,
-              border: const OutlineInputBorder(),
             ),
           ),
         ),
