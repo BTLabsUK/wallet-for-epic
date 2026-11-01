@@ -51,6 +51,9 @@ MIN_FREE_GB = float(os.environ.get("TESTBIN_MIN_FREE_GB", "12"))
 REL_LOCKS = str(HOME / "epic-build" / "rel" / "*" / "run-*" / ".lock")
 ARTIFACTS = {"linux": "linux", "apk": "app-debug.apk"}
 VARIANTS = ("tor", "notor")
+# systemd's PATH lacks ~/.local/bin, where build-slot lives
+if str(HOME / ".local" / "bin") not in os.environ.get("PATH", "").split(":"):
+    os.environ["PATH"] = f"{HOME / '.local' / 'bin'}:{os.environ.get('PATH', '/usr/bin:/bin')}"
 
 
 def log(msg):
