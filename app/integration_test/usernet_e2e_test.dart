@@ -390,7 +390,7 @@ void main() {
       await _tapText(tester, 'Delete wallet');
       await _tapText(tester, 'I have written down my recovery phrase');
       await _enter(tester, 'Type "delete" to confirm', 'delete');
-      await _tap(tester, find.widgetWithText(FilledButton, 'Delete wallet'));
+      await _tap(tester, find.widgetWithText(OutlinedButton, 'Delete wallet'));
       await _enter(tester, 'PIN', _pin);
       debugPrint(
         'WFE_E2E step=deleted after ${DateTime.now().difference(started)}',

@@ -311,7 +311,7 @@ Future<void> deleteWalletUi(WidgetTester tester) async {
   await tapText(tester, 'Delete wallet');
   await tapText(tester, 'I have written down my recovery phrase');
   await typeInto(tester, find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)), 'delete');
-  await tapF(tester, find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(FilledButton, 'Delete wallet')));
+  await tapF(tester, find.descendant(of: find.byType(AlertDialog), matching: find.widgetWithText(OutlinedButton, 'Delete wallet')));
   await typeInto(tester, fieldF('PIN'), _pin);
   await waitText(tester, 'Create a new wallet', timeout: const Duration(minutes: 2));
 }

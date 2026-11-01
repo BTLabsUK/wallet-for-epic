@@ -24,9 +24,11 @@ import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
 import '../history/backup_summary.dart';
+import 'app_dialog.dart';
 import 'backup_settings_phone.dart';
 import 'common.dart';
 import 'history_conflicts.dart';
+import 'status_icons.dart' show EpicGlyphs;
 
 /// History backups are small; a file far larger is not one.
 const int maxHistoryFileBytes = 32 << 20;
@@ -138,20 +140,14 @@ void _say(BuildContext context, String message, {required NoticeLevel level}) {
   ).read(noticeProvider.notifier).show(message, level: level);
 }
 
-Future<void> _tell(BuildContext context, String title, String message) =>
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(context.l10n.commonDone),
-          ),
-        ],
-      ),
-    );
+Future<void> _tell(BuildContext context, String title, String message) => tellAppDialog(
+  context,
+  title: title,
+  icon: Icons.check_circle_outline,
+  tone: DialogTone.ok,
+  description: message,
+  closeLabel: context.l10n.commonDone,
+);
 
 enum _Destination { device, share }
 
@@ -246,27 +242,15 @@ String backupFileNote(AppLocalizations l) =>
 /// "Use the settings from this backup?" for [n] settings the user changed here that the file
 /// has otherwise. True takes the backup's.
 Future<bool> _askSettings(BuildContext context, int n) async {
-  final use = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      final l = context.l10n;
-      return AlertDialog(
-        title: Text(l.backupSettingsTitle),
-        content: Text(l.backupSettingsBody(n)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.backupSettingsKeepMine),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.backupSettingsUseBackup),
-          ),
-        ],
-      );
-    },
+  final l = context.l10n;
+  return confirmAppDialog(
+    context,
+    title: l.backupSettingsTitle,
+    icon: Icons.settings_outlined,
+    description: l.backupSettingsBody(n),
+    cancelLabel: l.backupSettingsKeepMine,
+    confirmLabel: l.backupSettingsUseBackup,
   );
-  return use == true;
 }
 
 /// Exports the encrypted history backup. Returns true once the file was handed over.
@@ -321,27 +305,16 @@ Future<bool> exportHistoryCsv(BuildContext context, WidgetRef ref) async {
   final config = ref.read(walletConfigProvider);
   if (session == null || config == null) return false;
   final l = context.l10n;
-  final go = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      final l = context.l10n;
-      return AlertDialog(
-        title: Text(l.historyBackupCsvTitle),
-        content: Text(l.historyBackupCsvWarning),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.historyBackupCsvConfirm),
-          ),
-        ],
-      );
-    },
+  final go = await confirmAppDialog(
+    context,
+    title: l.historyBackupCsvTitle,
+    icon: Icons.table_chart_outlined,
+    tone: DialogTone.warn,
+    description: l.historyBackupCsvWarning,
+    cancelLabel: l.commonCancel,
+    confirmLabel: l.historyBackupCsvConfirm,
   );
-  if (go != true || !context.mounted) return false;
+  if (!go || !context.mounted) return false;
   try {
     final csv = await session.exportHistoryCsv();
     if (!context.mounted) return false;
@@ -430,24 +403,15 @@ Future<bool> importHistoryBackup(BuildContext context, WidgetRef ref) async {
     }
     // Pairings used on another device wait until the user takes them over here (RFC 9.5).
     if (report.pairingsOtherDevice > 0 && context.mounted) {
-      final use = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(l.restoreUseContactsTitle),
-          content: Text(l.restoreUseContactsBody(report.pairingsOtherDevice)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.pairNotNow),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.restoreUseHere),
-            ),
-          ],
-        ),
+      final use = await confirmAppDialog(
+        context,
+        title: l.restoreUseContactsTitle,
+        icon: EpicGlyphs.verified,
+        description: l.restoreUseContactsBody(report.pairingsOtherDevice),
+        cancelLabel: l.pairNotNow,
+        confirmLabel: l.restoreUseHere,
       );
-      if (use == true) await session.pairing.useImportedPairings();
+      if (use) await session.pairing.useImportedPairings();
       ref.invalidate(pairingsProvider);
     }
     return true;

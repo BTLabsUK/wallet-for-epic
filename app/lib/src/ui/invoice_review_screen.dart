@@ -22,6 +22,7 @@ import '../settings.dart';
 import '../slate_files.dart' show responseFileName, sealedFileName;
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../wallet_service.dart';
+import 'app_dialog.dart';
 import 'common.dart';
 import 'invoice_rows.dart';
 import 'invoices_screen.dart';
@@ -170,24 +171,17 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
   Future<void> _decline() async {
     final l = context.l10n;
     final service = _service();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.invoiceDeclineTitle),
-        content: Text(l.invoiceDeclineBody(service)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.invoiceDeclineKeep),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.invoiceDecline),
-          ),
-        ],
-      ),
+    // Declining is final: the outlined risk style, as the desktop's Decline.
+    final confirmed = await confirmAppDialog(
+      context,
+      title: l.invoiceDeclineTitle,
+      icon: Icons.cancel_outlined,
+      description: l.invoiceDeclineBody(service),
+      cancelLabel: l.invoiceDeclineKeep,
+      confirmLabel: l.invoiceDecline,
+      risk: true,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
     final container = ProviderScope.containerOf(context, listen: false);

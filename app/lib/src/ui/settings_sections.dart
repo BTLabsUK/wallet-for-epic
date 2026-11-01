@@ -38,6 +38,7 @@ import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
+import 'app_dialog.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'confirmations_row.dart';
@@ -286,30 +287,34 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   Future<T?> _choose<T>({
     required String title,
+    required IconData icon,
     required List<({T value, String label})> options,
     required T current,
     Widget? Function(T value)? leadingOf,
   }) {
-    return showDialog<T>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(title),
-        children: [
-          RadioGroup<T>(
-            groupValue: current,
-            onChanged: (value) => Navigator.pop(context, value),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final option in options)
-                  RadioListTile<T>(
-                    value: option.value,
-                    title: Text(option.label),
-                    secondary: leadingOf?.call(option.value),
-                  ),
-              ],
-            ),
+    return showAppDialog<T>(
+      context,
+      builder: (context) => AppDialog(
+        title: title,
+        icon: icon,
+        body: RadioGroup<T>(
+          groupValue: current,
+          onChanged: (value) => Navigator.pop(context, value),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final option in options)
+                RadioListTile<T>(
+                  contentPadding: EdgeInsets.zero,
+                  value: option.value,
+                  title: Text(option.label),
+                  secondary: leadingOf?.call(option.value),
+                ),
+            ],
           ),
+        ),
+        actions: [
+          DialogButton.secondary(label: context.l10n.commonCancel, onPressed: () => Navigator.pop(context)),
         ],
       ),
     );
@@ -321,6 +326,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final l = context.l10n;
     final code = await _choose(
       title: l.settingsCurrency,
+      icon: Icons.payments_outlined,
       current: s.fiatCurrency,
       options: [
         for (final c in fiatCurrencies) (value: c, label: currencyLabel(l, c)),
@@ -333,6 +339,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final l = context.l10n;
     final mode = await _choose(
       title: l.settingsTheme,
+      icon: Icons.palette_outlined,
       current: s.themeMode,
       options: [
         for (final m in ThemeMode.values) (value: m, label: themeLabel(l, m)),
@@ -347,6 +354,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     const system = '';
     final code = await _choose<String>(
       title: context.l10n.languageSetting,
+      icon: Icons.translate,
       current: s.language ?? system,
       options: [
         (value: system, label: context.l10n.languageSystem),
@@ -385,6 +393,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final current = s.autoLockMinutes;
     final minutes = await _choose<int>(
       title: l.settingsAutoLock,
+      icon: Icons.lock_clock_outlined,
       current: current == null ? never : autoLockChoice(current),
       options: [
         for (final m in autoLockChoices) (value: m, label: autoLockLabel(l, m)),
@@ -436,8 +445,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   Future<void> _rescan() async {
     final chain = ref.read(walletConfigProvider)?.chain;
-    final start = await showDialog<BigInt>(
-      context: context,
+    final start = await showAppDialog<BigInt>(
+      context,
       builder: (_) => _RescanDialog(
         datesSupported: chain == Chain.mainnet,
         // Advanced › Recheck from a height: without it the dialog only confirms.
@@ -463,8 +472,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
       return;
     }
-    final confirmed = await showDialog<bool>(
-      context: context,
+    final confirmed = await showAppDialog<bool>(
+      context,
       builder: (_) => const DeleteWalletDialog(),
     );
     if (confirmed != true || !mounted) return;
@@ -848,16 +857,18 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   /// "Turn Epicbox off?" while [waiting] sends still wait for their replies over Epicbox.
   Future<bool> _confirmEpicboxOff(int waiting) async {
-    final yes = await showDialog<bool>(
-      context: context,
+    final yes = await showAppDialog<bool>(
+      context,
       builder: (context) {
         final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.txEpicboxOffTitle),
-          content: Text(l.txEpicboxOffPending(waiting)),
+        return AppDialog(
+          title: l.txEpicboxOffTitle,
+          icon: MethodIcons.epicbox,
+          tone: DialogTone.warn,
+          description: l.txEpicboxOffPending(waiting),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l.txEpicboxOffAction)),
+            DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
+            DialogButton.primary(label: l.txEpicboxOffAction, onPressed: () => Navigator.pop(context, true)),
           ],
         );
       },
@@ -1730,15 +1741,14 @@ class _RescanDialogState extends State<_RescanDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final date = _date;
-    return AlertDialog(
-      title: Text(l.settingsRescanTitle),
-      content: SingleChildScrollView(
-        child: Column(
+    return AppDialog(
+      title: l.settingsRescanTitle,
+      icon: Icons.manage_search,
+      description: widget.choice ? l.settingsRescanBody : l.settingsRescanBodyPlain,
+      body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(widget.choice ? l.settingsRescanBody : l.settingsRescanBodyPlain),
-            const SizedBox(height: 8),
             if (widget.choice)
               RadioGroup<_RescanFrom>(
                 groupValue: _from,
@@ -1788,13 +1798,9 @@ class _RescanDialogState extends State<_RescanDialog> {
             if (_error != null) ErrorText(_error!),
           ],
         ),
-      ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.commonCancel),
-        ),
-        FilledButton(onPressed: _start, child: Text(l.settingsRescanButton)),
+        DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        DialogButton.primary(label: l.settingsRescanButton, onPressed: _start),
       ],
     );
   }
@@ -1834,33 +1840,25 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final word = l.settingsDeleteConfirmWord;
-    final error = Theme.of(context).colorScheme.error;
-    return AlertDialog(
-      icon: Icon(
-        Icons.warning_amber,
-        color: error,
-        semanticLabel: l.settingsDeleteWarningIcon,
-      ),
-      title: Text(l.settingsDeleteTitle),
-      content: SingleChildScrollView(
-        child: Column(
+    return AppDialog(
+      icon: Icons.delete_outline,
+      tone: DialogTone.risk,
+      title: l.settingsDeleteTitle,
+      description: widget.restore ? l.settingsRestoreReplaces : null,
+      body: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (widget.restore) ...[
-              Text(l.settingsRestoreReplaces),
-              const SizedBox(height: 12),
-            ],
             Text(l.settingsDeleteBody),
-            // The box first, as every consent in the app (UP-010).
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
+            const SizedBox(height: 8),
+            // The box first, as every consent in the app (UP-010): body text, on the body's
+            // edge (#65).
+            DialogCheckRow(
               value: _understood,
-              onChanged: (value) =>
-                  setState(() => _understood = value ?? false),
-              title: Text(l.settingsDeleteHavePhrase),
+              onChanged: (value) => setState(() => _understood = value),
+              label: l.settingsDeleteHavePhrase,
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _word,
               autocorrect: false,
@@ -1873,17 +1871,9 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
             ),
           ],
         ),
-      ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l.settingsDeleteKeep),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: error),
-          onPressed: _ready(word) ? () => Navigator.pop(context, true) : null,
-          child: Text(l.settingsDeleteConfirm),
-        ),
+        DialogButton.secondary(label: l.settingsDeleteKeep, onPressed: () => Navigator.pop(context, false)),
+        DialogButton.risk(label: l.settingsDeleteConfirm, onPressed: _ready(word) ? () => Navigator.pop(context, true) : null),
       ],
     );
   }

@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
+import 'app_dialog.dart';
 import 'cancel_note.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -3912,18 +3913,17 @@ class _SendViewState extends ConsumerState<SendView> {
   /// "Send as plain instead" (RFC 9.3): asks first, then hands over the same payment unsealed.
   Future<void> _sendAsPlain(Slate slate) async {
     final l = context.l10n;
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.sendAsPlainTitle),
-        content: Text(l.sendAsPlainBody),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.sendKeepSealed)),
-          FilledButton(key: sendAsPlainConfirmKey, onPressed: () => Navigator.pop(context, true), child: Text(l.sendPlain)),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.sendAsPlainTitle,
+      icon: Icons.lock_open_outlined,
+      tone: DialogTone.warn,
+      description: l.sendAsPlainBody,
+      cancelLabel: l.sendKeepSealed,
+      confirmLabel: l.sendPlain,
+      confirmKey: sendAsPlainConfirmKey,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     await _run((session) async {
       final plain = await session.pairing.plainSlate('s:${slate.slateId}');
       if (mounted) setState(() => _plainCopy = plain);

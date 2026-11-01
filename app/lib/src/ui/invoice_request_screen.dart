@@ -6,6 +6,7 @@
 /// finishes it.
 library;
 
+import 'app_dialog.dart';
 import 'phone_sheet.dart';
 import 'dart:async';
 
@@ -82,27 +83,23 @@ Future<bool> confirmWithdraw(
           invoice.payerAddress,
           paired: invoice.pairingId == null ? null : ref.read(pairingNameProvider(invoice.pairingId!)),
         );
-  final confirmed = await showDialog<bool>(
-    context: context,
+  final confirmed = await showAppDialog<bool>(
+    context,
     builder: (context) {
       final l = context.l10n;
       final theme = Theme.of(context);
-      return AlertDialog(
-        title: Text(l.issuedWithdrawTitle),
-        content: CancelNote(
+      // Withdrawing cancels the request: the outlined risk style; Keep is the secondary.
+      return AppDialog(
+        title: l.issuedWithdrawTitle,
+        icon: Icons.request_quote_outlined,
+        body: CancelNote(
           text: l.issuedWithdrawBody(payer),
           anchor: HelpAnchor.requests,
           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.issuedWithdrawKeep),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.issuedWithdraw),
-          ),
+          DialogButton.secondary(label: l.issuedWithdrawKeep, onPressed: () => Navigator.pop(context, false)),
+          DialogButton.risk(label: l.issuedWithdraw, onPressed: () => Navigator.pop(context, true)),
         ],
       );
     },

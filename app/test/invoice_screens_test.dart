@@ -672,7 +672,7 @@ void main() {
       expect(h.session.declinedInvoices, isEmpty);
       await tester.tap(find.text(_l.invoiceDecline));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, _l.invoiceDecline));
+      await tester.tap(find.widgetWithText(DangerButton, _l.invoiceDecline).last);
       await tester.pumpAndSettle();
       expect(h.session.declinedInvoices, ['inv-1']);
       expect(h.session.invoicePayments, 0);
