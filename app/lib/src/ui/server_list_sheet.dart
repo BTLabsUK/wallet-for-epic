@@ -1339,9 +1339,9 @@ class _Facts extends StatelessWidget {
       TextSpan(
         children: [
           for (var i = 0; i < facts.length; i++) ...[
-            if (i > 0) const TextSpan(text: ' · '),
+            if (i > 0) const TextSpan(text: _factSeparator),
             TextSpan(
-              text: facts[i],
+              text: _whole(facts[i]),
               style: tip != null && facts[i] == tip!.text
                   ? TextStyle(color: tip!.color, fontFamily: t.monoFamily)
                   : facts[i] == l.serverNotResponding || facts[i] == l.serverLocalNotReachablePhone
@@ -1355,12 +1355,20 @@ class _Facts extends StatelessWidget {
           ],
         ],
       ),
-      maxLines: 1,
+      // Two lines, broken only between facts: "4.1.1" and "40 s ago" stay whole.
+      maxLines: 2,
       overflow: TextOverflow.ellipsis,
       style: style,
     );
   }
 }
+
+// Facts on a line break only after a separator, never inside a fact. The same rule as
+// metaLine(parts, whole: true) on polish/numbers (text_join.dart), which replaces these.
+const String _factSeparator = '\u00A0· ';
+
+/// [fact] with its spaces no-break, so a line never breaks inside it.
+String _whole(String fact) => fact.trim().replaceAll(' ', '\u00A0');
 
 // The tile.
 
@@ -1744,7 +1752,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
           ],
           if (network.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text(network.join(' · '), style: small),
+            Text(network.map(_whole).join(_factSeparator), style: small),
           ],
           if (checked != null)
             Text(l.serverCheckedAt(localClock(l, checked.toLocal()), statusSiteHost), style: small),
