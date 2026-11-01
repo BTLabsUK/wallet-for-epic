@@ -16,6 +16,7 @@ import '../common.dart';
 import '../help_screen.dart' show HelpButton;
 import '../info_hint.dart';
 import '../pairing/pairing_parts.dart';
+import '../settings_rows.dart' show SettingsHeader;
 import '../theme/tokens.dart';
 import 'device_parts.dart';
 
@@ -48,7 +49,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
               children: [
                 if (!view.supported) ...[PairEdgeNotice(tone: BadgeTone.warn, title: l.devicesUnsupported), const SizedBox(height: 12)],
                 if (view.book.removedBy case final by?) _removedBy(context, ref, by),
-                PairSection(l.devicesThisDevice),
+                SettingsHeader.inBody(l.devicesThisDevice),
                 PairCard(
                   children: [
                     ListTile(
@@ -63,7 +64,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                PairSection(l.devicesOthers),
+                SettingsHeader.inBody(l.devicesOthers),
                 // A device removed while this one was offline, until its notice goes.
                 if (view.book.removing.isNotEmpty) ...[
                   PairCard(children: [for (final d in view.book.removing) _RemovingRow(device: d)]),
@@ -113,7 +114,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   ],
                 ),
                 if (view.held.isNotEmpty) ...[
-                  PairSection(l.devicesHeld),
+                  SettingsHeader.inBody(l.devicesHeld),
                   PairCard(children: [for (final h in view.held) _HeldRow(hold: h, name: view.nameOf(h.deviceId))]),
                 ],
               ],

@@ -18,6 +18,7 @@ import 'common.dart';
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pairing_parts.dart';
+import 'settings_rows.dart' show SettingsHeader;
 import 'theme/advanced.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
@@ -127,7 +128,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
               ),
             )
           else ...[
-            PairSection(l.invSetPaired),
+            SettingsHeader.inBody(l.invSetPaired),
             PairCard(
               children: [
                 for (final r in paired) _row(l, t, r, contacts, paused),
