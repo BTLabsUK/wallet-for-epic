@@ -509,7 +509,7 @@ void main() {
       await h.switchOn(tester);
       expect(h.session.torStarts, hasLength(1));
       expect(h.tor.receiving, isTrue);
-      expect(_status('Tor · Starting'), findsOneWidget);
+      expect(_status('Tor\u00A0· Starting'), findsOneWidget);
       expect(find.text('Link · Tor address'), findsOneWidget);
       expect(find.text(h.session.onion), findsOneWidget);
       final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
@@ -526,12 +526,12 @@ void main() {
       // The code shows, dimmed: the address is not reachable yet.
       expect(_qrOpacity(tester), 0.4);
       await h.emit(tester, TorEventKind.starting, progress: 45);
-      expect(_status('Tor · Starting'), findsOneWidget);
+      expect(_status('Tor\u00A0· Starting'), findsOneWidget);
       await h.emit(tester, TorEventKind.bootstrapped);
-      expect(_status('Tor · Connected'), findsOneWidget);
+      expect(_status('Tor\u00A0· Connected'), findsOneWidget);
       expect(_qrOpacity(tester), 0.4);
       await h.emit(tester, TorEventKind.ready);
-      expect(_status('Tor · Connected'), findsOneWidget);
+      expect(_status('Tor\u00A0· Connected'), findsOneWidget);
       expect(_qrOpacity(tester), 1);
       expect(find.byKey(torRetryKey), findsNothing);
     });
@@ -557,7 +557,7 @@ void main() {
       await h.emit(tester, TorEventKind.failed, failure: TorFailure.network);
       await h.emit(tester, TorEventKind.stopped);
       expect(h.tor.phase, PhoneTorPhase.failed);
-      expect(_status('Tor · Not connected'), findsOneWidget);
+      expect(_status('Tor\u00A0· Not connected'), findsOneWidget);
       expect(_status('Tor could not connect. Retry, or turn Tor off.'), findsOneWidget);
       expect(find.textContaining('minutes'), findsNothing);
       final retry = find.byKey(torRetryKey);
@@ -565,7 +565,7 @@ void main() {
       await tester.tap(retry);
       await tester.pumpAndSettle();
       expect(h.session.torStarts, hasLength(2));
-      expect(_status('Tor · Starting'), findsOneWidget);
+      expect(_status('Tor\u00A0· Starting'), findsOneWidget);
     });
 
     testWidgets('connected but not reachable: the reason and Retry', (

@@ -116,7 +116,7 @@ void main() {
     await pump(tester, const SendArgs(recipient: anna, amount: '25', step: SendStep.review));
     expect(find.text('Check and send'), findsOneWidget);
     expect(find.text('Locks'), findsOneWidget);
-    expect(find.textContaining('until this payment confirms (6 blocks)'), findsOneWidget);
+    expect(find.textContaining('until this payment confirms (6\u00A0blocks)'), findsOneWidget);
   });
 
   testWidgets('Review right after a new strategy sends with that strategy, not the last plan', (tester) async {

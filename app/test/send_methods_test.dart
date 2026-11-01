@@ -1049,7 +1049,7 @@ void main() {
       // The review says it too.
       await _enter(tester, 'To', _https);
       await h.toReview(tester, _https);
-      expect(_reviewMethod('Link · HTTP · Over Tor'), findsOneWidget);
+      expect(_reviewMethod('Link · HTTP\u00A0· Over Tor'), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('Tor on: plain http to another device is off, and says why', (tester) async {
@@ -1079,7 +1079,7 @@ void main() {
       await h.pump(tester);
       await h.torOn(tester);
       await h.toReview(tester, _bob);
-      expect(_reviewMethod('Epicbox · Over Tor'), findsOneWidget);
+      expect(_reviewMethod('Epicbox\u00A0· Over Tor'), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('with Tor off there are no Tor tags', (tester) async {
@@ -1286,7 +1286,7 @@ void main() {
       await _tap(tester, find.byKey(receiveTurnOnTorKey));
       expect(h.container.read(phoneTorProvider).receiving, isTrue);
       expect(find.byKey(receiveTorAddressKey), findsOneWidget);
-      expect(find.text('Tor · Starting…'), findsOneWidget);
+      expect(find.text('Tor\u00A0· Starting…'), findsOneWidget);
       expect(
         find.text(
           'Some wallets show the address without .onion; both are the same '
