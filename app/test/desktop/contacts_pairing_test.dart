@@ -170,6 +170,10 @@ void main() {
     expect(find.byKey(deskContactEditKey), findsOneWidget);
     expect(find.byKey(deskContactStarKey), findsOneWidget);
     expect(find.byKey(deskContactDeleteKey), findsOneWidget);
+    // Out of the tree before the test ends, so the providers it read (the contact line's
+    // among them) are let go on a frame of the test's own clock.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
   });
 
   testWidgets('a contact whose pairing the other side removed: Ended · removed, Pair again', (tester) async {

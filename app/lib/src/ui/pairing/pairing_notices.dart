@@ -15,10 +15,12 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../providers.dart' show homeProvider, pendingInvoicesProvider;
+import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
 import '../invoices_screen.dart';
+import '../scan_route.dart' show showPairingSheet;
 import '../tx_details_screen.dart';
 import 'invite_links.dart';
 import 'pair_check.dart';
@@ -132,6 +134,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   /// pairing by itself.
   Future<void> _pairInvite(BuildContext _, InviteLink link) async {
     if (!mounted) return;
+    // A core without pairing: the sheet that says so, never the pairing calls.
+    if (!ref.read(pairingSupportedProvider)) return showPairingSheet(context, link.invite, origin: CodeOrigin.link);
     await openPairingLink(context, ref, link.invite);
   }
 

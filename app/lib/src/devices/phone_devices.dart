@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../models.dart' show InvoiceEvent, InvoiceEventKind, TxEntry;
+import '../models.dart' show InvoiceEvent, InvoiceEventKind, TxEntry, WalletError;
 import '../ui/devices/device_parts.dart' show registerPhoneDeviceInviteHandler;
 import '../ui/notices.dart' show NoticeLevel, noticeProvider;
 import '../network_gate.dart';
@@ -61,16 +61,22 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
   ref.onDispose(sub.cancel);
   // Notices that reached this device only go to the linked device; what it passed on is
   // applied here: the sender's report as if it came here, a request to pay as a notice.
-  final events = session.invoiceEvents().listen((e) {
-    final kind = switch (e.kind) {
-      InvoiceEventKind.paymentPosted => ForwardKind.posted,
-      InvoiceEventKind.paymentCancelled => ForwardKind.cancelled,
-      InvoiceEventKind.received => ForwardKind.invoice,
-      _ => null,
-    };
-    if (kind != null) unawaited(service.forward(kind, e.slateId, kernel: e.kernelExcess));
-  }, onError: (_) {});
-  ref.onDispose(events.cancel);
+  // A core without invoices has no events to pass on.
+  StreamSubscription<InvoiceEvent>? events;
+  try {
+    events = session.invoiceEvents().listen((e) {
+      final kind = switch (e.kind) {
+        InvoiceEventKind.paymentPosted => ForwardKind.posted,
+        InvoiceEventKind.paymentCancelled => ForwardKind.cancelled,
+        InvoiceEventKind.received => ForwardKind.invoice,
+        _ => null,
+      };
+      if (kind != null) unawaited(service.forward(kind, e.slateId, kernel: e.kernelExcess));
+    }, onError: (_) {});
+  } on WalletError {
+    events = null;
+  }
+  ref.onDispose(() => events?.cancel());
   final forwarded = service.forwarded.listen((n) {
     final event = InvoiceEvent(kind: InvoiceEventKind.paymentPosted, slateId: n.slateId, kernelExcess: n.kernel);
     switch (n.kind) {

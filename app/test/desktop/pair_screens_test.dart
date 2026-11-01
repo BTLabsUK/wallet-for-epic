@@ -13,6 +13,7 @@ import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter;
@@ -98,7 +99,9 @@ void main() {
     expect((await tester.runAsync(_pairing.pairings))!.where((r) => r.id == standing), isEmpty, reason: 'an unused invite is no row');
     await tester.tap(find.byKey(deskPairCopyInviteKey));
     await _real(tester);
-    expect(_clip, _l.pairInviteMessage(_pairing.standing!.inviteLink!));
+    // The invite page from the settings: Copy invite carries its https link.
+    final page = ProviderScope.containerOf(tester.element(find.byType(DeskPairScreen))).read(invitePageProvider);
+    expect(_clip, _l.pairInviteMessage(deskPairingInviteText(_pairing.standing!, invitePage: page)));
     expect(tester.takeException(), isNull);
   });
 

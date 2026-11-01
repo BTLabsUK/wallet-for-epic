@@ -31,8 +31,6 @@ import 'package:epic_wallet/src/ui/scan_result_sheet.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/settings_history.dart';
-import 'package:epic_wallet/src/ui/settings_screen.dart' show SettingsSection;
-import 'package:epic_wallet/src/ui/settings_sections.dart' show SettingsSectionScreen;
 import 'package:epic_wallet/src/ui/slate_file_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -642,18 +640,6 @@ void main() {
       );
     });
 
-    testWidgets('a pairing link with Pairing off says it is experimental; Open Advanced goes there', (tester) async {
-      final h = _Harness(pairing: false);
-      await h.pump(tester);
-      await h.scan(tester, h.session.pairing.inviteLinkFrom(name: 'Anna'));
-      expect(find.text('Pairing is experimental'), findsOneWidget);
-      expect(find.text('Turn it on in Settings › Advanced.'), findsOneWidget);
-      expect(find.text('Pair with Anna?'), findsNothing);
-      await _tap(tester, find.text('Open Advanced'));
-      expect(find.text('Pairing is experimental'), findsNothing);
-      expect(find.byWidgetPredicate((w) => w is SettingsSectionScreen && w.section == SettingsSection.advanced), findsOneWidget);
-    });
-
     testWidgets('a pairing invite opens the incoming invite', (tester) async {
       final h = _Harness();
       await h.pump(tester);
@@ -813,6 +799,8 @@ void main() {
     testWidgets('a pairing invite with no pairing handler: a short notice', (tester) async {
       final h = _Harness();
       await h.pump(tester);
+      // Pairing registers its handler with Home; none for this case.
+      clearInviteHandlers();
       h.container.read(incomingLinkProvider.notifier).deliver('epiccash://pair/1/AAAA');
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();

@@ -1492,7 +1492,6 @@ void main() {
       await tester.tap(find.byKey(invoiceSettingsPairKey));
       await tester.pumpAndSettle();
       expect(find.text(l.pairTitle), findsWidgets);
-      expect(find.text(l.pairInPerson), findsOneWidget);
     });
 
     testWidgets('a verified contact is switched on and off; off declines its requests', (tester) async {
@@ -1927,7 +1926,7 @@ void main() {
               if (section == SettingsSection.advanced) {
                 // No Connection servers row: they are the first of the Epicbox list.
                 expect(pages[section], isNot(contains('key:adv-connection-servers')), reason: '$size');
-                for (final row in ['adv-pairing', 'adv-invoices', 'adv-linkedDevices', 'adv-mode-standard', 'adv-mode-nodeOnly']) {
+                for (final row in ['adv-invoices', 'adv-linkedDevices', 'adv-mode-standard', 'adv-mode-nodeOnly']) {
                   expect(pages[section], contains('key:$row'), reason: '$row at $size');
                 }
               }

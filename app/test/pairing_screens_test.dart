@@ -5,6 +5,7 @@
 // contact page's Pairing block in every state, Contacts rows and the Pair requests row, the
 // Way 1 sheet, and the Experimental switch gone.
 
+import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -147,7 +148,7 @@ void main() {
       expect(await h.api.pairings(), isEmpty, reason: 'an unused invite is no row');
       await tester.tap(find.byKey(pairShareKey));
       await _frames(tester);
-      expect(h.files.sharedTexts.single, contains(h.api.standing!.inviteLink!));
+      expect(h.files.sharedTexts.single, contains(pairingInviteText(h.api.standing!, invitePage: h.container(tester).read(invitePageProvider))));
     });
 
     testWidgets('Change: one name per wallet, a new invite carries it', (tester) async {

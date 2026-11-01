@@ -39,6 +39,10 @@ class _InviteLinkGateState extends ConsumerState<InviteLinkGate> {
   StreamSubscription<void>? _unreadable;
   Timer? _wait;
 
+  /// False while the tree takes this widget out (a handler unregistering in its own dispose
+  /// notifies [inviteHandlersChanged] then): nothing may be read from the tree.
+  bool _active = true;
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +58,18 @@ class _InviteLinkGateState extends ConsumerState<InviteLinkGate> {
   }
 
   @override
+  void deactivate() {
+    _active = false;
+    super.deactivate();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _active = true;
+  }
+
+  @override
   void dispose() {
     inviteHandlersChanged.removeListener(_route);
     _wait?.cancel();
@@ -66,7 +82,7 @@ class _InviteLinkGateState extends ConsumerState<InviteLinkGate> {
   /// (it waits for them). Without a handler for its kind it waits [inviteHandlerWait] for one,
   /// then says so and is dropped.
   void _route() {
-    if (!mounted || ref.read(linkBusyProvider)) return;
+    if (!mounted || !_active || ref.read(linkBusyProvider)) return;
     final inbox = ref.read(inviteInboxProvider);
     final held = inbox.held;
     if (held == null) return;
@@ -83,7 +99,7 @@ class _InviteLinkGateState extends ConsumerState<InviteLinkGate> {
 
   void _giveUp() {
     _wait = null;
-    if (!mounted) return;
+    if (!mounted || !_active) return;
     final inbox = ref.read(inviteInboxProvider);
     final held = inbox.held;
     if (held == null || inviteHandler(held.kind) != null) return _route();
