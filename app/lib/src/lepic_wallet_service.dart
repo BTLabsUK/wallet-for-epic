@@ -34,6 +34,7 @@ import 'tor_build.dart';
 import 'relay_refused.dart' show refusedHandshake;
 import 'recipient.dart' show plainHttpToOtherDevice;
 import 'redact.dart';
+import 'sealed_file.dart';
 import 'secret_store_api.dart';
 import 'settings_file/host_settings.dart';
 import 'wallet_service.dart';
@@ -1199,29 +1200,37 @@ class LepicWalletService implements WalletService {
     WalletConfig config,
     lepic.EpicWallet wallet,
   ) async {
+    final sealer = LepicAppDataSealer(wallet);
+    final walletId = sealedWalletId(config.walletId, config.chain.name);
+    ContactStore? contacts;
     try {
+      contacts = await _sharedContacts(walletId, sealer);
       return (await LepicWalletSession.openOn(
         wallet,
         config.dataDir,
         config.chain,
-        contacts: await _sharedContacts(),
+        contacts: contacts,
+        sealer: sealer,
+        walletId: walletId,
       ))
         ..nodeUrl = config.nodeUrl
         ..nodeApiSecret = config.nodeApiSecret;
     } catch (_) {
+      await contacts?.detach(walletId, sealer);
       wallet.lock();
       wallet.dispose();
       rethrow;
     }
   }
 
-  /// The shared address book, or null without [contactsDir]. A book that cannot be read (its
-  /// folder unreadable) never keeps a wallet from opening: the wallet then keeps its own list.
-  Future<ContactStore?> _sharedContacts() async {
+  /// The shared address book, sealed, with this wallet attached; null without [contactsDir]. A
+  /// book that cannot be read (its folder unreadable) never keeps a wallet from opening: the
+  /// wallet then keeps its own list.
+  Future<ContactStore?> _sharedContacts(String walletId, AppDataSealer sealer) async {
     final dir = contactsDir;
     if (dir == null) return null;
     try {
-      return await ContactStore.open(await dir());
+      return await ContactStore.openSealed(await dir(), walletId, sealer);
     } on Object catch (e) {
       logWarn('contacts', 'the shared address book could not be opened (${e.runtimeType})');
       return null;
@@ -1292,6 +1301,11 @@ class LepicWalletService implements WalletService {
     );
     // After LEPIC, which refuses while a wallet on the directory is open.
     await MetaStore.deleteFiles(config.dataDir);
+    // Only this wallet's key to the shared book; the book goes with the last one.
+    final dir = contactsDir;
+    if (dir != null) {
+      await ContactStore.removeWalletKey(await dir(), sealedWalletId(config.walletId, config.chain.name));
+    }
   });
 
   @override
@@ -1312,6 +1326,38 @@ class LepicWalletService implements WalletService {
 
 /// What a history file names as the program that wrote it. Informational only.
 const String historyAppVersion = 'wfe-lepic';
+
+/// The app's files sealed by an open LEPIC wallet (`sealed_file.dart`): LEPIC's `sealAppData`
+/// and `openAppData`, with LEPIC's refusals as [SealedOpenError].
+class LepicAppDataSealer implements AppDataSealer {
+  LepicAppDataSealer(this._wallet);
+
+  final lepic.EpicWallet _wallet;
+
+  @override
+  Future<Uint8List> seal(Uint8List payload) async {
+    try {
+      return await _wallet.sealAppData(payload: payload);
+    } on lepic.WalletError catch (e) {
+      throw mapLepicError(e);
+    }
+  }
+
+  @override
+  Future<Uint8List> open(Uint8List file) async {
+    try {
+      return await _wallet.openAppData(file: file);
+    } on lepic.WalletError catch (e) {
+      throw switch (e.kind) {
+        lepic.WalletErrorKind.foreignAppData => const SealedOpenError(SealedOpenProblem.foreign),
+        lepic.WalletErrorKind.damagedAppData => const SealedOpenError(SealedOpenProblem.damaged),
+        lepic.WalletErrorKind.unsupported => const SealedOpenError(SealedOpenProblem.newer),
+        lepic.WalletErrorKind.invalidArgument => const SealedOpenError(SealedOpenProblem.notOurs),
+        _ => mapLepicError(e),
+      };
+    }
+  }
+}
 
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
@@ -1359,20 +1405,31 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   /// [wallet] with the archive in [dataDir], and LEPIC given the invoice index kept there,
   /// as every open does. Public so tests can drive it with a stand-in wallet.
   @visibleForTesting
+  /// With [sealer] and [walletId] the archive is sealed (`wfe_meta.sealed`) and [contacts] is
+  /// the sealed book this wallet is attached to, detached again on [dispose].
   static Future<LepicWalletSession> openOn(
     lepic.EpicWallet wallet,
     String dataDir,
     Chain chain, {
     ContactStore? contacts,
+    AppDataSealer? sealer,
+    String? walletId,
   }) async {
-    final history = await WalletHistory.open(dataDir, chain, contacts: contacts);
+    final history = await WalletHistory.open(dataDir, chain, contacts: contacts, sealer: sealer, walletId: walletId);
     try {
       await history.seedContacts(bundledSeedContacts);
     } on Object catch (e) {
       logWarn('contacts', 'seed contacts not added (${e.runtimeType})');
     }
-    return LepicWalletSession(wallet, history: history);
+    final session = LepicWalletSession(wallet, history: history);
+    if (contacts != null && contacts.sealed && sealer != null && walletId != null) {
+      session._detachBook = () => contacts.detach(walletId, sealer);
+    }
+    return session;
   }
+
+  /// Ends this wallet's use of the sealed address book.
+  Future<void> Function()? _detachBook;
 
   final lepic.EpicWallet _wallet;
   final WalletHistory _history;
@@ -1385,6 +1442,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     _invoiceEvents.close();
     _issuerEvents.close();
     _history.close();
+    final detach = _detachBook;
+    _detachBook = null;
+    if (detach != null) unawaited(detach());
     if (_wallet.isDisposed) return;
     _wallet.lock();
     _wallet.dispose();
@@ -2336,7 +2396,10 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   /// LEPIC's answer for a history file, in the old core's sentences the UI translates.
   Future<Uint8List> _openHistoryFile(Uint8List data) async {
     try {
-      return await _wallet.openAppData(file: data);
+      final payload = await _wallet.openAppData(file: data);
+      // A wallet's own sealed archive or key opens with the same key, but is no history file.
+      if (isSealedAppPayload(payload)) throw historyError(historyNotOurs);
+      return payload;
     } on lepic.WalletError catch (e) {
       throw switch (e.kind) {
         lepic.WalletErrorKind.foreignAppData => historyError(
