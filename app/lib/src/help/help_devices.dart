@@ -30,7 +30,7 @@ List<HelpTopic> _en() {
         const HelpBlock.p('What the chain does not show is what only the device that made a payment knows: who was paid, the message, and a payment still under way. Without a link, the other device shows such a payment as **Sent from another wallet**, with the amount only, once it is confirmed.'),
         const HelpBlock.p('Linking adds that. Each device tells the other when it starts a payment and how it ends. The coins it spends are held on the other until the chain shows them spent, so the two devices do not pick the same coins, and the payment shows as **Sent from** and the device’s name, with its details. Coins this wallet received on the linked device (a payment it received, or the change of its own send) show as **Received on** and the device’s name.'),
         const HelpBlock.p('Each device should use its own Epicbox server. On the same server, both answer a payment to that address; the app offers to move one device when they match. **Keep** is fine: the payment shows once, as received on the device the sender used. Receive on each device shows that device’s own address.'),
-        const HelpBlock.p('**Both devices must already have this wallet**, restored from the same recovery phrase: linking does not create it on the other device.'),
+        const HelpBlock.p('**Both devices must already have this same wallet**, restored from the same recovery phrase: linking does not create it on the other device. Two different wallets cannot be linked.'),
         HelpBlock.ol([
           'Open $place on both devices and choose **Link a device**.',
           'One device shows a code; the other scans it or pastes it.',
@@ -95,7 +95,7 @@ List<HelpTopic> _de() {
         const HelpBlock.p('Was die Blockchain nicht zeigt, weiß nur das Gerät, das eine Zahlung gemacht hat: wer bezahlt wurde, die Nachricht und eine noch laufende Zahlung. Ohne Verknüpfung zeigt das andere Gerät eine solche Zahlung erst nach der Bestätigung als **Von einer anderen Wallet gesendet**, nur mit dem Betrag.'),
         const HelpBlock.p('Die Verknüpfung ergänzt das. Jedes Gerät meldet dem anderen, wenn es eine Zahlung beginnt und wie sie endet. Die Münzen, die es ausgibt, bleiben auf dem anderen zurückgehalten, bis die Blockchain sie als ausgegeben zeigt; so wählen die beiden Geräte nicht dieselben Münzen, und die Zahlung erscheint als **Gesendet von** mit dem Gerätenamen und ihren Details. Münzen, die diese Wallet auf dem verknüpften Gerät empfangen hat (eine empfangene Zahlung oder das Wechselgeld seiner eigenen Zahlung), erscheinen als **Empfangen auf** mit dem Gerätenamen.'),
         const HelpBlock.p('Jedes Gerät sollte seinen eigenen Epicbox-Server nutzen. Auf demselben Server beantworten beide eine Zahlung an diese Adresse; die App bietet an, ein Gerät umzustellen, wenn sie übereinstimmen. **Beibehalten** ist in Ordnung: Die Zahlung erscheint einmal, als auf dem Gerät empfangen, das der Absender genutzt hat. Empfangen zeigt auf jedem Gerät dessen eigene Adresse.'),
-        const HelpBlock.p('**Beide Geräte müssen diese Wallet schon haben**, aus derselben Wiederherstellungsphrase wiederhergestellt: Die Verknüpfung legt sie auf dem anderen Gerät nicht an.'),
+        const HelpBlock.p('**Beide Geräte müssen schon dieselbe Wallet haben**, aus derselben Wiederherstellungsphrase wiederhergestellt: Die Verknüpfung legt sie auf dem anderen Gerät nicht an. Zwei verschiedene Wallets lassen sich nicht verknüpfen.'),
         HelpBlock.ol([
           'Auf beiden Geräten $place öffnen und **Gerät verknüpfen** wählen.',
           'Ein Gerät zeigt einen Code; das andere scannt ihn oder fügt ihn ein.',
@@ -160,7 +160,7 @@ List<HelpTopic> _pl() {
         const HelpBlock.p('Łańcuch nie pokazuje tego, co wie tylko urządzenie, które wykonało płatność: komu zapłacono, wiadomości i płatności w toku. Bez połączenia drugie urządzenie pokazuje taką płatność dopiero po potwierdzeniu jako **Wysłano z innego portfela**, tylko z kwotą.'),
         const HelpBlock.p('Połączenie to uzupełnia. Każde urządzenie informuje drugie, gdy zaczyna płatność i jak się ona kończy. Monety, które wydaje, są wstrzymane na drugim, dopóki łańcuch nie pokaże ich jako wydanych; dzięki temu dwa urządzenia nie wybiorą tych samych monet, a płatność widać jako **Wysłano z** z nazwą urządzenia i szczegółami. Monety tego portfela odebrane na połączonym urządzeniu (odebrana płatność albo reszta z jego własnej płatności) widać jako **Odebrano na** z nazwą urządzenia.'),
         const HelpBlock.p('Każde urządzenie powinno używać własnego serwera Epicbox. Na tym samym serwerze oba odpowiadają na płatność na ten adres; gdy się zgadzają, aplikacja proponuje przeniesienie jednego urządzenia. **Zostaw** też jest w porządku: płatność widać raz, jako odebraną na urządzeniu, którego użył nadawca. Odbieranie na każdym urządzeniu pokazuje jego własny adres.'),
-        const HelpBlock.p('**Oba urządzenia muszą już mieć ten portfel**, przywrócony z tej samej frazy odzyskiwania: połączenie nie tworzy go na drugim urządzeniu.'),
+        const HelpBlock.p('**Oba urządzenia muszą już mieć ten sam portfel**, przywrócony z tej samej frazy odzyskiwania: połączenie nie tworzy go na drugim urządzeniu. Dwóch różnych portfeli nie można połączyć.'),
         HelpBlock.ol([
           'Na obu urządzeniach otwórz $place i wybierz **Połącz urządzenie**.',
           'Jedno urządzenie pokazuje kod; drugie go skanuje lub wkleja.',
@@ -225,7 +225,7 @@ List<HelpTopic> _ru() {
         const HelpBlock.p('Блокчейн не показывает то, что знает только устройство, сделавшее платёж: кому заплачено, сообщение и платёж, который ещё идёт. Без связи другое устройство покажет такой платёж только после подтверждения, как **Отправлено с другого кошелька**, лишь с суммой.'),
         const HelpBlock.p('Связь добавляет это. Каждое устройство сообщает другому, когда начинает платёж и чем он закончился. Монеты, которые оно тратит, удерживаются на другом, пока блокчейн не покажет их потраченными; так два устройства не выберут одни и те же монеты, а платёж виден как **Отправлено с** с именем устройства и подробностями. Монеты этого кошелька, полученные на связанном устройстве (принятый платёж или сдача от его собственного платежа), видны как **Получено на** с именем устройства.'),
         const HelpBlock.p('Каждое устройство должно использовать свой сервер Epicbox. На одном сервере оба отвечают на платёж на этот адрес; когда серверы совпадают, приложение предлагает перевести одно устройство. **Оставить** тоже можно: платёж виден один раз, как полученный на устройстве, которое выбрал отправитель. Получение на каждом устройстве показывает его собственный адрес.'),
-        const HelpBlock.p('**На обоих устройствах уже должен быть этот кошелёк**, восстановленный из той же фразы восстановления: связь не создаёт его на другом устройстве.'),
+        const HelpBlock.p('**На обоих устройствах уже должен быть один и тот же кошелёк**, восстановленный из той же фразы восстановления: связь не создаёт его на другом устройстве. Два разных кошелька связать нельзя.'),
         HelpBlock.ol([
           'На обоих устройствах откройте $place и выберите **Связать устройство**.',
           'Одно устройство показывает код; другое сканирует или вставляет его.',
@@ -290,7 +290,7 @@ List<HelpTopic> _zh() {
         const HelpBlock.p('区块链不会显示只有发起付款的设备才知道的内容：付给了谁、留言，以及仍在进行中的付款。未关联时，另一台设备要等付款确认后才会显示为 **从另一个钱包发送**，且只有金额。'),
         const HelpBlock.p('关联补上了这些。每台设备在开始付款和付款结束时都会告知另一台。它花费的币会在另一台设备上被保留，直到区块链显示它们已花费；这样两台设备不会选中相同的币，付款也会显示为 **从某设备发送**，并带有详情。本钱包在关联设备上收到的币（收到的付款，或它自己付款的找零）会显示为 **在某设备上收到**，并带有设备名称。'),
         const HelpBlock.p('每台设备应使用各自的 Epicbox 服务器。在同一个服务器上，两台设备都会回应发往该地址的付款；两者相同时，应用会提议改动其中一台。选择 **保持不变** 也可以：付款只显示一次，显示为在发送方所用的设备上收到。每台设备的收款页只显示自己的地址。'),
-        const HelpBlock.p('**两台设备都必须已有这个钱包**，即用同一个助记词恢复：关联不会在另一台设备上创建钱包。'),
+        const HelpBlock.p('**两台设备都必须已有同一个钱包**，即用同一个助记词恢复：关联不会在另一台设备上创建钱包。两个不同的钱包无法关联。'),
         HelpBlock.ol([
           '在两台设备上打开 $place，选择 **关联设备**。',
           '一台设备显示代码；另一台扫描或粘贴它。',
@@ -355,7 +355,7 @@ List<HelpTopic> _th() {
         const HelpBlock.p('สิ่งที่เชนไม่แสดงคือสิ่งที่รู้เฉพาะอุปกรณ์ที่ทำรายการ: จ่ายให้ใคร ข้อความ และรายการที่ยังไม่เสร็จ หากไม่ได้เชื่อมโยง อุปกรณ์อีกเครื่องจะแสดงรายการนั้นหลังยืนยันแล้วเท่านั้น ว่า **ส่งจากกระเป๋าเงินอื่น** พร้อมจำนวนเงินอย่างเดียว'),
         const HelpBlock.p('การเชื่อมโยงเติมส่วนนี้ แต่ละอุปกรณ์แจ้งอีกเครื่องเมื่อเริ่มรายการและเมื่อรายการจบ เหรียญที่มันใช้จะถูกพักไว้บนอีกเครื่องจนกว่าเชนจะแสดงว่าใช้ไปแล้ว สองอุปกรณ์จึงไม่เลือกเหรียญเดียวกัน และรายการจะแสดงว่า **ส่งจาก** ตามด้วยชื่ออุปกรณ์พร้อมรายละเอียด เหรียญของกระเป๋าเงินนี้ที่อุปกรณ์ที่เชื่อมโยงได้รับ (รายการที่รับ หรือเงินทอนจากรายการที่ส่งเอง) จะแสดงว่า **รับบน** ตามด้วยชื่ออุปกรณ์'),
         const HelpBlock.p('แต่ละอุปกรณ์ควรใช้เซิร์ฟเวอร์ Epicbox ของตนเอง บนเซิร์ฟเวอร์เดียวกัน ทั้งสองเครื่องจะตอบรายการที่ส่งมายังที่อยู่นั้น เมื่อตรงกัน แอปจะเสนอให้ย้ายหนึ่งเครื่อง การเลือก **คงไว้** ก็ได้: รายการจะแสดงครั้งเดียว ว่ารับบนเครื่องที่ผู้ส่งใช้ หน้ารับเงินบนแต่ละเครื่องแสดงที่อยู่ของเครื่องนั้นเอง'),
-        const HelpBlock.p('**ทั้งสองอุปกรณ์ต้องมีกระเป๋าเงินนี้อยู่แล้ว** โดยกู้คืนจากวลีกู้คืนเดียวกัน การเชื่อมโยงไม่ได้สร้างกระเป๋าเงินบนอีกอุปกรณ์ให้'),
+        const HelpBlock.p('**ทั้งสองอุปกรณ์ต้องมีกระเป๋าเงินเดียวกันอยู่แล้ว** โดยกู้คืนจากวลีกู้คืนเดียวกัน การเชื่อมโยงไม่ได้สร้างกระเป๋าเงินบนอีกอุปกรณ์ให้ ไม่สามารถเชื่อมโยงกระเป๋าเงินสองใบที่ต่างกันได้'),
         HelpBlock.ol([
           'เปิด $place บนทั้งสองอุปกรณ์ แล้วเลือก **เชื่อมโยงอุปกรณ์**',
           'เครื่องหนึ่งแสดงรหัส อีกเครื่องสแกนหรือวาง',

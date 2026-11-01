@@ -15468,7 +15468,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get expLinkedDevicesHint =>
-      '在两台设备上使用这个钱包：本设备和一台关联设备。每台设备把自己的付款告知另一台，因此一台正在花费的币会在另一台上被保留，它的付款也会显示在另一台的记录中。关联保护的是共享的内容，而不是资金：任何拥有助记词的设备都能花费。实验性：仍可能变化。';
+      '在两台设备上使用同一个钱包（同一个助记词）：本设备和一台关联设备。两个不同的钱包无法关联。每台设备把自己的付款告知另一台，因此一台正在花费的币会在另一台上被保留，它的付款也会显示在另一台的记录中。关联保护的是共享的内容，而不是资金：任何拥有助记词的设备都能花费。实验性：仍可能变化。';
 
   @override
   String get devicesThisPhone => '手机';
@@ -15542,7 +15542,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get devicesOthers => '关联设备';
 
   @override
-  String get devicesEmpty => '尚未关联设备。';
+  String get devicesEmpty => '这个钱包尚未关联其他设备。';
 
   @override
   String get devicesLink => '关联设备';
@@ -15636,7 +15636,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get devicesUnsupported => '此版本暂不能关联设备。';
 
   @override
-  String get linkLead => '两台设备都必须持有这个钱包。一台显示代码，另一台扫描或粘贴它。';
+  String get linkLead => '仅用于另一台设备上的同一个钱包：两台设备需要同一个助记词。一台显示代码，另一台扫描或粘贴它。';
 
   @override
   String get linkShow => '显示代码';
@@ -15720,10 +15720,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkFailOwn => '此代码来自本设备。请在另一台设备上扫描。';
 
   @override
-  String get linkFailOtherWallet => '该设备持有另一个钱包。';
+  String get linkFailOtherWallet => '该设备持有另一个钱包。关联需要同一个助记词。';
 
   @override
-  String get linkFailOtherWalletCode => '此代码来自另一个钱包。';
+  String get linkFailOtherWalletCode => '此代码来自另一个钱包。关联需要同一个助记词。';
 
   @override
   String get linkFailMismatch => '图片不同，因此设备未关联。';
