@@ -506,14 +506,42 @@ def tx_key(label):
     return f"{kind} {amt} {who.group(1) if who else ''}".strip()
 
 
+CONNECTIONS = facts.label("connectionsSheetTitle", "Connections")
+
+
+def connections_row(kind, ns):
+    """The Connections sheet's row for [kind], "<kind>, <state> | <one line>", or None. Not
+    asked to be clickable: the row's Semantics exclude its InkWell's tap (26.10.25)."""
+    return next((n for n in ns if n["label"].startswith(f"{kind}, ")), None)
+
+
 def open_sheet(kind):
+    """The Node / Epicbox sheet from Home's status icon. 26.10.25: a tap on any status icon opens
+    the Connections sheet and the service's own sheet opens from its row there; 26.10.24-r2:
+    the icon opens it directly. Either way, until the sheet's exact title shows."""
     home()
     n = find(S, f"{kind}, ", clickable=True)
     if not n:
         raise RuntimeError(f"no {kind} status on Home")
     tap_xy(S, n["center"])
-    if not wait(S, kind, 10, exact=True):
-        raise RuntimeError(f"{kind} sheet did not open")
+    end = time.time() + 10
+    while True:
+        ns = nodes(S)
+        if find(S, kind, exact=True, ns=ns):
+            break
+        if find(S, CONNECTIONS, exact=True, ns=ns):
+            row = connections_row(kind, ns)
+            if not row:
+                dump_to_log(f"no {kind} row in the Connections sheet")
+                raise RuntimeError(f"no {kind} row in the Connections sheet")
+            log(f"Connections sheet: {row['label']}")
+            tap_xy(S, row["center"])
+            if not wait(S, kind, 10, exact=True):
+                raise RuntimeError(f"{kind} sheet did not open from the Connections sheet")
+            break
+        if time.time() > end:
+            raise RuntimeError(f"{kind} sheet did not open")
+        time.sleep(1.5)
     time.sleep(2)
 
 
