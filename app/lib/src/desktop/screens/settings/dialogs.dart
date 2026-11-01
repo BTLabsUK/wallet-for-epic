@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../data/devices_state.dart' show deskDeviceHandleProvider;
 import '../../widgets/kit.dart';
 import '../onboarding/onboarding_parts.dart' show accountErrors;
 import '../onboarding/unlock_screen.dart' show UnlockPick;
@@ -446,6 +447,8 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
     final id = ref.read(deskProvider).account?.id;
     try {
       if (id == null) throw DeskError.l10n((l) => l.deskSetDlgWalletLocked);
+      // The linked device is told first, best effort: its records go with the database.
+      await ref.read(deskDeviceHandleProvider).service?.unlinkAll();
       await desk.removeWallet(id, WalletRemoval.delete, password: _password.text);
     } on Object catch (e) {
       if (!mounted) return;

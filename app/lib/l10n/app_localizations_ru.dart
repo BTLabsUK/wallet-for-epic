@@ -16965,20 +16965,20 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get txSentFromOtherWallet => 'Отправлено из другого кошелька';
+  String get txSentFromOtherWallet => 'Отправлено с другого устройства';
 
   @override
   String txSpokenSentFromOtherWallet(String amount) {
-    return 'Отправлено из другого кошелька, $amount';
+    return 'Отправлено с другого устройства, $amount';
   }
 
   @override
   String get txDetailsOtherWallet =>
-      'Потрачено другим кошельком с той же фразой восстановления. Известна только сумма.';
+      'Отправлено с другого устройства с фразой восстановления этого кошелька. Известна только сумма.';
 
   @override
   String get txSentFromOtherWalletUnverified =>
-      'Отправлено из другого кошелька · не проверено';
+      'Отправлено с другого устройства · не проверено';
 
   @override
   String get txDetailsUnverified =>
@@ -16988,23 +16988,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsNotKnown => 'Неизвестно';
 
   @override
-  String get txReceivedByOtherWallet => 'Получено другим кошельком';
+  String get txReceivedByOtherWallet => 'Получено на другом устройстве';
 
   @override
   String txSpokenReceivedByOtherWallet(String amount) {
-    return 'Получено другим кошельком, $amount';
+    return 'Получено на другом устройстве, $amount';
   }
 
   @override
   String get txDetailsOtherWalletIn =>
-      'Получено другим кошельком с той же фразой восстановления. Известна только сумма.';
+      'Получено на другом устройстве с фразой восстановления этого кошелька. Известна только сумма.';
 
   @override
   String get expLinkedDevices => 'Связанные устройства';
 
   @override
   String get expLinkedDevicesHint =>
-      'Один и тот же кошелёк (та же фраза восстановления) на двух устройствах: этом и одном связанном. Два разных кошелька связать нельзя. Каждое сообщает другому о своих платежах, поэтому монеты, которые тратит одно, удерживаются на другом, а его платежи видны в истории другого. Связь защищает то, чем устройства делятся, а не деньги: любое устройство с фразой восстановления может тратить. Экспериментально: может ещё измениться.';
+      'Этот кошелёк на двух устройствах: каждое показывает платежи другого и удерживает монеты, которые другое сейчас тратит. Экспериментально.';
 
   @override
   String get devicesThisPhone => 'Телефон';
@@ -17074,52 +17074,20 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String devicesServerCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count сервера',
-      many: '$count серверов',
-      few: '$count сервера',
-      one: '$count сервер',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get devicesThisDevice => 'Это устройство';
 
   @override
   String get devicesOthers => 'Связанное устройство';
 
   @override
-  String get devicesEmpty => 'Этот кошелёк ещё не связан с другим устройством.';
+  String get devicesEmpty =>
+      'Восстановите этот кошелёк на другом устройстве, затем свяжите их здесь.';
 
   @override
   String get devicesLink => 'Связать устройство';
 
   @override
   String get devicesServers => 'Серверы';
-
-  @override
-  String get devicesServersNote =>
-      'Сообщения между двумя устройствами идут через каждый выбранный сервер.';
-
-  @override
-  String devicesServersWaiting(String name) {
-    return 'Ожидание, пока $name примет новые серверы.';
-  }
-
-  @override
-  String devicesProposal(String name, String servers) {
-    return '$name предлагает эти серверы: $servers.';
-  }
-
-  @override
-  String get devicesAccept => 'Принять';
-
-  @override
-  String get devicesNotNow => 'Не сейчас';
 
   @override
   String get devicesPause => 'Приостановить синхронизацию';
@@ -17166,7 +17134,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name перестаёт получать и отправлять сообщения, а монеты, которые оно здесь удерживает, освобождаются. Это не защищает деньги: устройство с фразой восстановления всегда может их потратить. Если $name может быть в чужих руках, переведите средства в кошелёк с новой фразой восстановления.';
+    return '$name больше не получает сообщений этого кошелька; удержанные здесь монеты освобождаются. С фразой восстановления оно по-прежнему может тратить: если оно может быть в чужих руках, переведите средства в новый кошелёк.';
   }
 
   @override
@@ -17176,7 +17144,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String devicesRemovedBy(String name) {
-    return '$name удалило это устройство из связи.';
+    return '$name удалило это устройство.';
   }
 
   @override
@@ -17193,36 +17161,32 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get linkLead =>
-      'Только для этого же кошелька на другом устройстве: на обоих нужна одна фраза восстановления. Одно показывает код, другое сканирует или вставляет его.';
+      'Для этого кошелька на другом устройстве. Сначала восстановите его там из фразы восстановления.';
 
   @override
-  String get linkShow => 'Показать код';
+  String get linkShow => 'Показать QR';
 
   @override
-  String get linkScan => 'Сканировать код';
+  String get linkScan => 'Сканировать QR';
 
   @override
-  String get linkPaste => 'Вставить код';
+  String get linkPaste => 'Вставить приглашение';
 
   @override
-  String get linkShowLead =>
-      'На другом устройстве откройте «Связать устройство» и отсканируйте этот код или скопируйте и вставьте его там.';
+  String get linkCopy => 'Копировать приглашение';
 
   @override
-  String get linkCopy => 'Копировать код';
-
-  @override
-  String get linkCopied => 'Код скопирован.';
+  String get linkCopied => 'Приглашение скопировано.';
 
   @override
   String linkExpires(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Код действует $count мин.',
-      many: 'Код действует $count мин.',
-      few: 'Код действует $count мин.',
-      one: 'Код действует $count мин.',
+      other: 'Приглашение действует ещё $count мин.',
+      many: 'Приглашение действует ещё $count мин.',
+      few: 'Приглашение действует ещё $count мин.',
+      one: 'Приглашение действует ещё $count мин.',
     );
     return '$_temp0';
   }
@@ -17236,50 +17200,37 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get linkPasteLabel => 'Код связи';
+  String get linkPasteLabel => 'Приглашение';
 
   @override
   String get linkGo => 'Связать';
 
   @override
-  String get linkCheckTitle => 'Проверьте картинки';
-
-  @override
-  String linkCheckLead(String name) {
-    return '$name тоже показывает четыре картинки. Связывайте, только если они одинаковые и в том же порядке.';
-  }
-
-  @override
   String get linkPicturesLabel => 'Четыре картинки';
-
-  @override
-  String linkWaitingCheck(String name) {
-    return 'Ожидание, пока $name проверит картинки.';
-  }
 
   @override
   String get linkDoneTitle => 'Связано';
 
   @override
   String linkDone(String name) {
-    return '$name: связано. Платёж с любого из устройств виден на обоих, а его монеты удерживаются на другом.';
+    return 'Связано с $name.';
   }
 
   @override
   String get linkFailedTitle => 'Не связано';
 
   @override
-  String get linkFailInvalid => 'Это не код связи устройств, или он повреждён.';
+  String get linkFailInvalid => 'Это не приглашение устройства.';
 
   @override
-  String get linkFailExpired => 'Срок кода истёк. Создайте новый.';
+  String get linkFailExpired => 'Срок приглашения истёк. Создайте новое.';
 
   @override
-  String get linkFailNotFound => 'Этот код уже использован или отменён.';
+  String get linkFailNotFound => 'Это приглашение уже использовано.';
 
   @override
   String get linkFailOwn =>
-      'Этот код с этого устройства. Отсканируйте его на другом.';
+      'Это приглашение с этого устройства. Отсканируйте его на другом.';
 
   @override
   String get linkFailOtherWallet =>
@@ -17287,23 +17238,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get linkFailOtherWalletCode =>
-      'Этот код из другого кошелька. Для связи нужна та же фраза восстановления.';
+      'Это приглашение от другого кошелька. Для связи нужна та же фраза восстановления.';
 
   @override
-  String get linkFailMismatch =>
-      'Картинки различаются, поэтому устройства не связаны.';
-
-  @override
-  String get linkFailCancelled =>
-      'Другое устройство прервало связь или не проверило картинки вовремя.';
-
-  @override
-  String get linkFailTooMany =>
-      'Одно устройство уже связано. Чтобы связать другое, сначала удалите его.';
+  String get linkFailTooMany => 'Одно устройство уже связано.';
 
   @override
   String get linkFailUnreachable =>
-      'Ни один сервер не ответил. Попробуйте позже.';
+      'Не удалось связаться с другим устройством.';
 
   @override
   String get linkTryAgain => 'Попробовать снова';
@@ -17344,30 +17286,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskDevServersCancel => 'Отменить изменение';
-
-  @override
-  String deskDevServersDown(int down, int n) {
-    return '$down из $n не отвечает. Сообщения идут через другой.';
-  }
-
-  @override
-  String get deskDevServersAllDown =>
-      'Ни один сервер не отвечает. Сообщения ждут и уйдут, когда один вернётся.';
-
-  @override
-  String get deskDevServersInfo1 =>
-      'Два связанных устройства обмениваются сообщениями через эти серверы. Каждое сообщение уходит на все выбранные серверы, поэтому отказ одного ничего не меняет.';
-
-  @override
-  String get deskDevServersInfo2 =>
-      'Изменение сначала отправляется другому устройству и вступает в силу, когда оно его примет. До этого используются прежние серверы, а после замены они ещё читаются 7 дней.';
-
-  @override
-  String get deskDevServersInfo3 =>
-      'Серверы видят, что два устройства обмениваются сообщениями и когда, а без Tor и с каких адресов; но никогда не их содержимое. Два сервера — это два оператора, которые это видят.';
-
-  @override
   String get deskDevPausedOffline => 'Приостановлено, пока включён «Офлайн».';
 
   @override
@@ -17380,9 +17298,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskDevHeldNone => 'Удержанных монет нет.';
-
-  @override
   String get deskDevRenameThis => 'Переименовать этот компьютер';
 
   @override
@@ -17391,22 +17306,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskDevPasteLead =>
-      'Вставьте код, который показывает другое устройство.';
+  String get deskDevPasteLead => 'Вставьте приглашение с другого устройства.';
 
   @override
-  String get deskDevMakingCode => 'Создание кода…';
+  String get deskDevMakingCode => 'Создание приглашения…';
 
   @override
   String get deskDevConnecting => 'Подключение…';
 
   @override
   String get deskDevTheOther => 'Другое устройство';
-
-  @override
-  String deskDevServersLine(String servers) {
-    return 'Серверы: $servers';
-  }
 
   @override
   String get deskDevOfferReceived =>
@@ -17907,21 +17816,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get devicesOneOnly =>
       'Можно связать одно устройство. Чтобы связать другое, сначала удалите его.';
-
-  @override
-  String devicesRelayAsk(String relay, String next) {
-    return 'Оба устройства используют $relay. Использовать $next на этом устройстве?';
-  }
-
-  @override
-  String get devicesRelayUse => 'Использовать';
-
-  @override
-  String get devicesRelayKeep => 'Оставить';
-
-  @override
-  String get devicesRelayWhy =>
-      'На одном сервере Epicbox оба устройства отвечают на одни и те же платежи. На разных серверах каждое отвечает на платежи на свой адрес.';
 
   @override
   String txReceivedOnDevice(String device) {
@@ -19369,4 +19263,81 @@ class AppLocalizationsRu extends AppLocalizations {
   String inviteLinkNoHandler(String feature) {
     return '«$feature» выключено или недоступно в этом кошельке.';
   }
+
+  @override
+  String get linkShowMine => 'Показать мой QR';
+
+  @override
+  String get linkPasteAnother => 'Вставить другое приглашение';
+
+  @override
+  String linkLinkingWith(String name) {
+    return 'Связь с $name…';
+  }
+
+  @override
+  String linkLinkingSame(String name) {
+    return '$name показывает те же четыре.';
+  }
+
+  @override
+  String linkFailFull(String name) {
+    return '$name уже связано с другим устройством. Сначала удалите его на $name.';
+  }
+
+  @override
+  String get linkFailUpdate =>
+      'На другом устройстве более новая версия приложения. Обновите это и попробуйте снова.';
+
+  @override
+  String linkFailUpdateOther(String name) {
+    return 'На $name более старая версия приложения. Обновите её там и попробуйте снова.';
+  }
+
+  @override
+  String linkReplaceTitle(String name) {
+    return 'Заменить $name?';
+  }
+
+  @override
+  String linkReplaceBody(String name) {
+    return 'Новое устройство просит связать его. $name больше не получает сообщений этого кошелька; удержанные здесь монеты освобождаются.';
+  }
+
+  @override
+  String get linkReplace => 'Заменить';
+
+  @override
+  String linkKeep(String name) {
+    return 'Оставить $name';
+  }
+
+  @override
+  String devicesEpicboxOff(String name) {
+    return 'Epicbox выключен: $name не видит платежей этого устройства.';
+  }
+
+  @override
+  String get devicesEpicboxOffNone => 'Epicbox выключен.';
+
+  @override
+  String devicesUpdateOther(String name) {
+    return 'Обновите $name, чтобы этот кошелёк оставался синхронизированным.';
+  }
+
+  @override
+  String get devicesAbout => 'О связанном устройстве';
+
+  @override
+  String get offerLinkThird =>
+      'Этот кошелёк есть на третьем устройстве. Связать можно два.';
+
+  @override
+  String devicesForwardedInvoice(String name) {
+    return '$name получило запрос на оплату. Оплатите его там.';
+  }
+
+  @override
+  String get linkConfirmInvite =>
+      'Связать это устройство с тем, что прислало приглашение?';
 }

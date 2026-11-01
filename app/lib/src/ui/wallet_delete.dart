@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
 import '../devices/device_store.dart' show DeviceStore;
+import '../devices/phone_devices.dart' show deviceServiceProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -58,6 +59,9 @@ Future<void> _stopRunningScan(WidgetRef ref) async {
 }
 
 Future<void> _delete(WidgetRef ref, WalletConfig config) async {
+  // The linked device is told first, best effort: its records go with the database, and
+  // nothing else would tell it.
+  await ref.read(deviceServiceProvider)?.unlinkAll();
   ref.read(sessionProvider.notifier).lock();
   // The core waits until every call on this wallet has ended before it removes the files.
   await ref.read(walletServiceProvider).deleteWallet(config: config);

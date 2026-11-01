@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Wallet › Linked devices (phone): this device, the linked ones (last seen, servers),
-/// Link a device, the link's servers, the pause switch, and the coins other devices hold here
-/// with Release. Removing a device stops sync; it does not protect the money.
+/// Settings › Wallet › Linked devices (phone): this device, the linked one (last seen, its
+/// servers under it), Link a device, the pause switch, and the coins the other device holds
+/// here with Release. Removing a device stops sync; it does not protect the money.
 library;
 
-import '../phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../devices/device_model.dart';
-import '../../devices/device_providers.dart';
 import '../../devices/phone_devices.dart';
 import '../../help/help_content.dart' show HelpId;
 import '../../l10n.dart';
@@ -22,9 +20,13 @@ import '../theme/tokens.dart';
 import 'device_parts.dart';
 
 const Key devicesLinkKey = ValueKey('devices-link');
-const Key devicesServersKey = ValueKey('devices-servers');
 const Key devicesPauseKey = ValueKey('devices-pause');
 const Key devicesThisKey = ValueKey('devices-this');
+const Key devicesEpicboxOffKey = ValueKey('devices-epicbox-off');
+const Key devicesUpdateOtherKey = ValueKey('devices-update-other');
+const Key devicesAboutKey = ValueKey('devices-about');
+const Key devicesRenameKey = ValueKey('devices-rename');
+const Key devicesRemoveKey = ValueKey('devices-remove');
 ValueKey<String> deviceRowKey(String id) => ValueKey('device-$id');
 ValueKey<String> heldRowKey(String slateId) => ValueKey('held-$slateId');
 
@@ -36,6 +38,8 @@ class LinkedDevicesScreen extends ConsumerWidget {
     final l = context.l10n;
     final view = ref.watch(phoneDevices.view);
     final now = ref.watch(clockProvider)();
+    final epicboxOff = ref.watch(phoneDevicesEpicboxOffProvider);
+    final linked = view?.book.linked;
     return SlotScaffold(
       appBar: AppBar(title: Text(l.expLinkedDevices), actions: [HelpButton(HelpId.linkedDevices)]),
       body: view == null || !view.loaded
@@ -44,8 +48,6 @@ class LinkedDevicesScreen extends ConsumerWidget {
               children: [
                 if (!view.supported) ...[PairEdgeNotice(tone: BadgeTone.warn, title: l.devicesUnsupported), const SizedBox(height: 12)],
                 if (view.book.removedBy case final by?) _removedBy(context, ref, by),
-                if (view.book.proposal case final p? when !p.fromHere) _proposal(context, ref, view, p),
-                const RelayClashNotice(),
                 PairSection(l.devicesThisDevice),
                 PairCard(
                   children: [
@@ -67,12 +69,23 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   PairCard(children: [for (final d in view.book.removing) _RemovingRow(device: d)]),
                   const SizedBox(height: 8),
                 ],
-                // One device can be linked: Link a device until it is, then that device (Remove
-                // is on its row).
-                if (view.book.linked case final d?) ...[
-                  PairCard(children: [_DeviceRow(device: d, now: now)]),
+                // One device can be linked: Link a device until it is, then that device with
+                // its lines (Epicbox off, an app to update), Rename and Remove, and the money
+                // note once, under it.
+                if (linked != null) ...[
+                  PairCard(
+                    children: [
+                      _DeviceRow(device: linked, now: now, servers: view.book.servers),
+                      // Nothing goes over Epicbox: the devices do not sync.
+                      if (epicboxOff) _Line(key: devicesEpicboxOffKey, text: l.devicesEpicboxOff(linked.name)),
+                      // The other device writes another wire version: nothing from it is read
+                      // until it is updated.
+                      if (linked.otherVersion != null) _Line(key: devicesUpdateOtherKey, text: l.devicesUpdateOther(linked.name)),
+                      _DeviceActions(device: linked),
+                    ],
+                  ),
                   const SizedBox(height: 4),
-                  PairSmallPrint(l.devicesOneOnly),
+                  PairSmallPrint(l.devicesMoneyNote),
                 ] else ...[
                   Padding(padding: const EdgeInsets.only(bottom: 8), child: PairSmallPrint(l.devicesEmpty)),
                   const SizedBox(height: 4),
@@ -81,13 +94,14 @@ class LinkedDevicesScreen extends ConsumerWidget {
                     style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                     icon: const Icon(Icons.add_link),
                     label: Text(l.devicesLink),
-                    onPressed: view.supported ? () => openLinkDevice(context, ref) : null,
+                    onPressed: view.supported && !epicboxOff ? () => openLinkDevice(context, ref) : null,
                   ),
+                  // Nothing goes over Epicbox: none can be linked.
+                  if (epicboxOff) ...[const SizedBox(height: 4), PairSmallPrint(l.devicesEpicboxOffNone, key: devicesEpicboxOffKey)],
                 ],
                 const SizedBox(height: 12),
                 PairCard(
                   children: [
-                    _servers(context, ref, view),
                     HintSwitchTile(
                       key: devicesPauseKey,
                       icon: Icons.pause_circle_outline,
@@ -102,26 +116,8 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   PairSection(l.devicesHeld),
                   PairCard(children: [for (final h in view.held) _HeldRow(hold: h, name: view.nameOf(h.deviceId))]),
                 ],
-                const SizedBox(height: 16),
-                PairSmallPrint(l.devicesMoneyNote),
               ],
             ),
-    );
-  }
-
-  Widget _servers(BuildContext context, WidgetRef ref, DeviceView view) {
-    final l = context.l10n;
-    final mine = view.book.proposal;
-    final waiting = mine != null && mine.fromHere
-        ? [for (final d in view.devices) if (!mine.accepted.contains(d.deviceId)) d.name]
-        : const <String>[];
-    final servers = view.book.servers.isEmpty ? phoneLinkServers(ref) : view.book.servers;
-    return ListTile(
-      key: devicesServersKey,
-      leading: const Icon(Icons.dns_outlined),
-      title: Text(l.devicesServers),
-      // Read-only: the first servers of the Epicbox list (Settings › Epicbox) are the link's.
-      subtitle: Text(waiting.isEmpty ? servers.join(', ') : l.devicesServersWaiting(waiting.join(', '))),
     );
   }
 
@@ -133,85 +129,108 @@ class LinkedDevicesScreen extends ConsumerWidget {
       actions: [TextButton(onPressed: () => ref.read(deviceServiceProvider)?.clearRemovedBy(), child: Text(context.l10n.commonOk))],
     ),
   );
+}
 
-  Widget _proposal(BuildContext context, WidgetRef ref, DeviceView view, ServerProposal p) {
+class _DeviceRow extends ConsumerWidget {
+  const _DeviceRow({required this.device, required this.now, required this.servers});
+
+  final LinkedDevice device;
+  final DateTime now;
+
+  /// The link's servers: the caption under the device, and the ⓘ sheet's.
+  final List<String> servers;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final from = p.accepted.map(view.nameOf).where((n) => n.isNotEmpty).join(', ');
+    final t = context.tokens;
+    final list = (device.servers.isEmpty ? servers : device.servers).join(' · ');
+    return ListTile(
+      key: deviceRowKey(device.deviceId),
+      leading: Icon(deviceIcon(device.kind)),
+      title: Text(device.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      // Its servers under it: the link's channel, as a caption.
+      subtitle: Text(
+        list.isEmpty ? deviceSeenLine(l, device.lastSeen, now) : l.settingsStateJoin(deviceSeenLine(l, device.lastSeen, now), list),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: t.dim),
+      ),
+      // The one-device rule and the servers live behind ⓘ.
+      trailing: IconButton(
+        key: devicesAboutKey,
+        icon: const Icon(Icons.info_outline),
+        tooltip: l.devicesAbout,
+        onPressed: () => showInfoSheet(context, title: l.devicesAbout, text: '${l.devicesOneOnly}\n\n${l.devicesServers}: $list', icon: Icons.devices_outlined),
+      ),
+    );
+  }
+}
+
+/// A line under the device: Epicbox off, an app to update.
+class _Line extends StatelessWidget {
+  const _Line({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: PairCard(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-            child: Text(l.devicesProposal(from, p.servers.join(', '))),
-          ),
-          OverflowBar(
-            alignment: MainAxisAlignment.end,
-            children: [
-              TextButton(onPressed: () => ref.read(deviceServiceProvider)?.declineProposal(), child: Text(l.devicesNotNow)),
-              TextButton(onPressed: () => ref.read(deviceServiceProvider)?.acceptProposal(), child: Text(l.devicesAccept)),
-            ],
-          ),
+          Icon(Icons.warning_amber_outlined, size: 16, color: t.warn),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.warn))),
         ],
       ),
     );
   }
 }
 
-class _DeviceRow extends ConsumerWidget {
-  const _DeviceRow({required this.device, required this.now});
+/// Rename and Remove, under the device.
+class _DeviceActions extends ConsumerWidget {
+  const _DeviceActions({required this.device});
 
   final LinkedDevice device;
-  final DateTime now;
-
-  Future<void> _menu(BuildContext context, WidgetRef ref) async {
-    final l = context.l10n;
-    final choice = await showPhoneSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(leading: const Icon(Icons.edit_outlined), title: Text(l.devicesRename), onTap: () => Navigator.pop(context, 'rename')),
-            ListTile(
-              leading: Icon(Icons.link_off, color: context.tokens.risk),
-              title: Text(l.devicesRemove, style: TextStyle(color: context.tokens.risk)),
-              onTap: () => Navigator.pop(context, 'remove'),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (!context.mounted) return;
-    final service = ref.read(deviceServiceProvider);
-    if (choice == 'rename') {
-      final name = await askDeviceName(context, device.name);
-      if (name != null) await service?.renameDevice(device.deviceId, name);
-    } else if (choice == 'remove') {
-      final yes = await confirmDeviceAction(
-        context,
-        title: l.devicesRemoveTitle(device.name),
-        body: l.devicesRemoveBody(device.name),
-        action: l.devicesRemove,
-        risky: true,
-      );
-      if (!yes || !context.mounted) return;
-      await service?.removeDevice(device.deviceId);
-      ref.read(noticeProvider.notifier).show(l.devicesRemoved(device.name), level: NoticeLevel.success);
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    return ListTile(
-      key: deviceRowKey(device.deviceId),
-      leading: const Icon(Icons.devices_outlined),
-      title: Text(device.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(l.settingsStateJoin(deviceSeenLine(l, device.lastSeen, now), l.devicesServerCount(device.pairings.length))),
-      trailing: const Icon(Icons.more_vert),
-      onTap: () => _menu(context, ref),
+    final service = ref.read(deviceServiceProvider);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      child: Row(
+        children: [
+          TextButton(
+            key: devicesRenameKey,
+            onPressed: () async {
+              final name = await askDeviceName(context, device.name);
+              if (name != null) await service?.renameDevice(device.deviceId, name);
+            },
+            child: Text(l.devicesRename),
+          ),
+          TextButton(
+            key: devicesRemoveKey,
+            style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
+            onPressed: () async {
+              final yes = await confirmDeviceAction(
+                context,
+                title: l.devicesRemoveTitle(device.name),
+                body: l.devicesRemoveBody(device.name),
+                action: l.devicesRemove,
+                risky: true,
+              );
+              if (!yes || !context.mounted) return;
+              await service?.removeDevice(device.deviceId);
+              ref.read(noticeProvider.notifier).show(l.devicesRemoved(device.name), level: NoticeLevel.success);
+            },
+            child: Text(l.devicesRemove),
+          ),
+        ],
+      ),
     );
   }
 }

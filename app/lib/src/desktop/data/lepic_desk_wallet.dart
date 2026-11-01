@@ -34,7 +34,7 @@ import '../../btlabs_keys.dart' show btlabsKeyring;
 import '../../first_run_servers.dart' show firstRunServersSettled;
 import '../../devices/device_history.dart' show mergeDeviceHistory;
 import '../../devices/device_model.dart' show DeviceBook;
-import '../../devices/device_service.dart' show DeviceHost, SessionDeviceHost;
+import '../../devices/device_service.dart' show DeviceHost, ForwardKind, ForwardedNotice, SessionDeviceHost;
 import '../../devices/device_store.dart' show DeviceStore;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
@@ -4821,6 +4821,10 @@ class LepicDeskWallet implements DeskWalletApi {
 
   /// A payer: an invoice parked, posted, withdrawn or expired. Never pays anything.
   Future<void> _onInvoiceEvent(core.WalletSession session, core.InvoiceEvent e) async {
+    // What reached this device only, for the linked device.
+    if (e.kind == core.InvoiceEventKind.paymentPosted || e.kind == core.InvoiceEventKind.paymentCancelled || e.kind == core.InvoiceEventKind.received) {
+      _forward?.call(e);
+    }
     if (_session != session) return;
     final seen = _waitingSeen[e.slateId];
     final now = DateTime.now();
@@ -5285,6 +5289,29 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   void useDevices(DeviceBook? Function()? book) => _deviceBook = book;
 
+  /// Where notices that reached this device only go for the linked device ([noticeForwarder]).
+  void Function(core.InvoiceEvent e)? _forward;
+
+  @override
+  set noticeForwarder(void Function(core.InvoiceEvent e)? forward) => _forward = forward;
+
+  @override
+  Future<void> applyForwarded(ForwardedNotice notice) async {
+    final session = _session;
+    if (session == null) return;
+    switch (notice.kind) {
+      case ForwardKind.posted:
+        logInfo('desk', 'the linked device heard a payment posted');
+        await _reload();
+        if (_session == session) unawaited(sync());
+      case ForwardKind.cancelled:
+        logInfo('desk', 'the linked device heard a payment cancelled');
+        await _reload();
+      case ForwardKind.invoice:
+        _notify(InvoiceNotice(InvoiceNoticeKind.requestOnDevice, slateId: notice.slateId, who: notice.device));
+    }
+  }
+
   /// [entries] with the other devices' payments merged in; the same list for every reader, so
   /// the rows keep their fallback ids.
   List<core.TxEntry> _withDevices(List<core.TxEntry> entries) {
@@ -5697,9 +5724,6 @@ class _DeskDeviceHost implements DeviceHost {
 
   @override
   Future<String> walletKey() => _host.walletKey();
-
-  @override
-  Future<String?> walletRelay() => _host.walletRelay();
 
   @override
   Future<void> cancelTransaction(int txId) => _host.cancelTransaction(txId);

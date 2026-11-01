@@ -449,7 +449,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Płatności z innego portfela',
       'Płatności, których ten portfel nie wykonał ani nie odebrał sam: ta sama fraza odzyskiwania jest używana w innym portfelu.',
       [
-        HelpBlock.p('Wiersz **Wysłano z innego portfela** lub **Odebrano w innym portfelu** to płatność innego portfela używającego tej samej frazy odzyskiwania. Łańcuch pokazuje te monety jako wydane lub odebrane, więc ten portfel ją wyświetla.'),
+        HelpBlock.p('Wiersz **Wysłano z innego urządzenia** lub **Odebrano na innym urządzeniu** to płatność innego portfela używającego tej samej frazy odzyskiwania. Łańcuch pokazuje te monety jako wydane lub odebrane, więc ten portfel ją wyświetla.'),
         HelpBlock.p('Kwota to to, co opuściło ten portfel po odjęciu reszty, która wróciła, albo to, co wpłynęło. Druga strona i opłata nie są tu znane.'),
         HelpBlock.p('**Jeśli nie używasz z tą frazą innego portfela**, najpierw zapytaj inny węzeł: przełącz węzeł i użyj „Sprawdź saldo”. Węzeł, który pomija monety w odpowiedziach, może sprawić, że wyglądają na wydane. Jeśli nadal są wydane, ktoś inny może znać frazę odzyskiwania: przenieś EPIC do nowego portfela z nową frazą.'),
         HelpBlock.p('**Wysyłka, która kończy się komunikatem „Węzeł pokazuje te monety jako już wydane, a ten portfel ich nie wydał. Najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania.”**, została zwolniona. Portfel się odświeża; wyślij ponownie, gdy saldo będzie poprawne.'),

@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The one envelope linked devices send each other, as the payload bytes of a private pairing
-/// (UTF-8 JSON): `{"v":1,"type":…,"id":…,"seq":…,"dev":…,"ts":…,"body":{…}}`.
+/// (UTF-8 JSON): `{"v":2,"type":…,"id":…,"seq":…,"dev":…,"ts":…,"body":{…}}`.
 ///
-/// - `v`: the format version; a newer one is read for its place in the order and ignored.
+/// - `v`: the format version. Only [deviceWireVersion] is acted on; a notice of another version
+///   keeps its place in the order and tells the user which device to update
+///   ([LinkedDevice.otherVersion]). There is no code for other versions: both devices update.
 /// - `type`: what it says ([NoticeType]); an unknown type is ignored the same way, so later
 ///   kinds (labels, contacts) need no change here or in LEPIC.
 /// - `id`: 128 random bits; the copy that comes through the second server is dropped by it.
@@ -18,8 +20,9 @@ import 'dart:convert';
 
 import 'device_model.dart';
 
-/// The version this app writes and reads.
-const int deviceWireVersion = 1;
+/// The version this app writes and reads: 2 (the hello carries a proof, no relay question,
+/// forwarded notices, the full-device answer).
+const int deviceWireVersion = 2;
 
 /// The largest notice read; a larger payload is dropped before it is parsed.
 const int deviceNoticeMaxBytes = 16 * 1024;
@@ -28,7 +31,8 @@ const int deviceNoticeMaxBytes = 16 * 1024;
 const int deviceNameMaxLength = 48;
 
 enum NoticeType {
-  /// After the pictures matched on the sender: its device id, name, wallet and servers.
+  /// Posted as soon as the sender's side of the link's pairing is made: its device id, name,
+  /// wallet and servers, with a proof signed by the wallet's address key.
   hello,
 
   /// The sender started a payment: hold its inputs here.
@@ -60,11 +64,18 @@ enum NoticeType {
   /// The sender removed this device: the link ends on both.
   unlink,
 
-  /// The Epicbox relay the sender's payments arrive at now (also in its hello).
-  relay,
-
   /// The sender answered a payment: its slate id and the commitments of the sender's outputs.
   recv,
+
+  /// The sender is linked to another device already and refuses this link: its name and the
+  /// name of the device it is linked to. Sent on the pairing of the link in the making, then
+  /// the sender unpairs.
+  full,
+
+  /// A notice sent to the wallet's address that reached the sender only (the relay hands a
+  /// message to one device): a payer's `posted` or `cancelled` report, a contact's request to
+  /// pay. The other device applies what it can and shows the rest.
+  fwd,
 
   // Reserved for a later version: read for their order, not acted on.
   snapshotRequest,
@@ -97,6 +108,9 @@ class Notice {
 
   /// Acted on here: this version and a known type.
   bool get readable => v == deviceWireVersion && type != null;
+
+  /// Written by an app of another version: the user is told which device to update.
+  bool get otherVersion => v != deviceWireVersion;
 
   List<int> encode() => utf8.encode(jsonEncode(toJson()));
 
@@ -156,9 +170,12 @@ bool _commit(Object? v) => v is String && RegExp(r'^[0-9a-f]{66}$').hasMatch(v);
 bool _servers(Object? v) => v is List && v.isNotEmpty && v.length <= maxLinkServers && v.every((s) => _str(s, max: 255));
 bool _sas(Object? v) => v is List && v.length == 4 && v.every((s) => _str(s, max: 64));
 
-/// A hello's proof: an address key signature, DER in hex (8 to 72 bytes). Absent in a hello of
-/// an app from before proofs; such a hello is read and the link refused ([DeviceService]).
-bool _optProof(Object? v) => v == null || (v is String && RegExp(r'^[0-9a-f]{16,144}$').hasMatch(v));
+/// A hello's proof: an address key signature, DER in hex (8 to 72 bytes).
+bool _proof(Object? v) => v is String && RegExp(r'^[0-9a-f]{16,144}$').hasMatch(v);
+
+/// What a `fwd` notice carries: the payer of a payment the sender answered reports it posted
+/// (`kernel` set) or cancelled; a contact's request to pay arrived (`invoice`).
+const forwardKinds = {'posted', 'cancelled', 'invoice'};
 
 /// The payment states a `status` notice names.
 const noticeStatusStates = {'finalized', 'posted', 'cancelled', 'expired', 'failed', 'released'};
@@ -174,8 +191,8 @@ bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
         _str(b['name'], max: deviceNameMaxLength) &&
         _str(b['walletAddress'], max: 128) &&
         _servers(b['servers']) &&
-        _optStr(b['relay'], max: 255) &&
-        _optProof(b['proof']),
+        _proof(b['proof']) &&
+        _optStr(b['kind'], max: 16),
   NoticeType.send =>
     _str(b['slateId'], max: 64) &&
         _optInt(b['txId']) &&
@@ -202,7 +219,8 @@ bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
   NoticeType.pair2 => _str(b['inviteLink'], max: 4096) && _str(b['server'], max: 255),
   NoticeType.pair2ok || NoticeType.pair2done => _str(b['server'], max: 255) && _sas(b['sas']),
   NoticeType.unlink => true,
-  NoticeType.relay => _str(b['relay'], max: 255),
+  NoticeType.full => _str(b['linked'], max: deviceNameMaxLength),
+  NoticeType.fwd => forwardKinds.contains(b['kind']) && _str(b['slateId'], max: 64) && _optStr(b['kernel'], max: 66),
   NoticeType.recv => _str(b['slateId'], max: 64) && b['outputs'] is List && (b['outputs'] as List).length <= 16 && (b['outputs'] as List).every(_commit),
   NoticeType.snapshotRequest || NoticeType.snapshot => true,
 };

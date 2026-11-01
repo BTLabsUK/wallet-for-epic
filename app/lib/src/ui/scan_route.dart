@@ -74,7 +74,7 @@ Future<void> openScannedText(
         );
 }
 
-/// A device link code from a scan or a paste: Link a device answers it, or, with Linked devices
+/// A device invite from a scan or a paste: Link a device answers it, or, with Linked devices
 /// turned off, a sheet says it is experimental and where to turn it on.
 Future<void> openDeviceLinkText(BuildContext context, WidgetRef ref, String text) async {
   if (!ref.read(linkedDevicesOnProvider)) return showExperimentalOffSheet(context, ref, devices: true);

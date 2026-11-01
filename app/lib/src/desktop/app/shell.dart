@@ -306,6 +306,7 @@ void _invoiceToast(BuildContext context, InvoiceNotice n) {
     InvoiceNoticeKind.unknownPayment => (l.deskInvNoticeUnknownPayment, ETone.warn),
     InvoiceNoticeKind.unknownAnswer => (l.deskInvNoticeUnknownAnswer, ETone.warn),
     InvoiceNoticeKind.receiveSuperseded => (l.deskInvNoticeReceiveSuperseded, ETone.neutral),
+    InvoiceNoticeKind.requestOnDevice => (l.devicesForwardedInvoice(n.who), ETone.neutral),
   };
   showEToast(context, text, tone: tone);
 }

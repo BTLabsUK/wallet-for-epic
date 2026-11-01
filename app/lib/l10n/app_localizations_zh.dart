@@ -15446,18 +15446,18 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get txSentFromOtherWallet => '由另一个钱包发出';
+  String get txSentFromOtherWallet => '从另一台设备发送';
 
   @override
   String txSpokenSentFromOtherWallet(String amount) {
-    return '由另一个钱包发出，$amount';
+    return '从另一台设备发送，$amount';
   }
 
   @override
-  String get txDetailsOtherWallet => '由使用相同助记词的另一个钱包花掉。只知道金额。';
+  String get txDetailsOtherWallet => '由持有此钱包助记词的另一台设备发送。只知道金额。';
 
   @override
-  String get txSentFromOtherWalletUnverified => '由另一个钱包发出 · 未核实';
+  String get txSentFromOtherWalletUnverified => '从另一台设备发送 · 未验证';
 
   @override
   String get txDetailsUnverified => '未核实：目前只有节点报告了这笔付款。用“重新核对余额”来确认。';
@@ -15466,22 +15466,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsNotKnown => '未知';
 
   @override
-  String get txReceivedByOtherWallet => '由另一个钱包收到';
+  String get txReceivedByOtherWallet => '由另一台设备收到';
 
   @override
   String txSpokenReceivedByOtherWallet(String amount) {
-    return '由另一个钱包收到，$amount';
+    return '由另一台设备收到，$amount';
   }
 
   @override
-  String get txDetailsOtherWalletIn => '由使用相同助记词的另一个钱包收到。只知道金额。';
+  String get txDetailsOtherWalletIn => '由持有此钱包助记词的另一台设备收到。只知道金额。';
 
   @override
   String get expLinkedDevices => '关联设备';
 
   @override
   String get expLinkedDevicesHint =>
-      '在两台设备上使用同一个钱包（同一个助记词）：本设备和一台关联设备。两个不同的钱包无法关联。每台设备把自己的付款告知另一台，因此一台正在花费的币会在另一台上被保留，它的付款也会显示在另一台的记录中。关联保护的是共享的内容，而不是资金：任何拥有助记词的设备都能花费。实验性：仍可能变化。';
+      '此钱包在两台设备上使用：每台显示另一台的付款，并保留另一台正在花费的币。实验性功能。';
 
   @override
   String get devicesThisPhone => '手机';
@@ -15539,48 +15539,19 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String devicesServerCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 个服务器',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get devicesThisDevice => '本设备';
 
   @override
   String get devicesOthers => '关联设备';
 
   @override
-  String get devicesEmpty => '这个钱包尚未关联其他设备。';
+  String get devicesEmpty => '先在另一台设备上恢复此钱包，然后在这里关联两台设备。';
 
   @override
   String get devicesLink => '关联设备';
 
   @override
   String get devicesServers => '服务器';
-
-  @override
-  String get devicesServersNote => '两台设备之间的消息会经过每个所选服务器。';
-
-  @override
-  String devicesServersWaiting(String name) {
-    return '等待 $name 接受新的服务器。';
-  }
-
-  @override
-  String devicesProposal(String name, String servers) {
-    return '$name 建议使用这些服务器：$servers。';
-  }
-
-  @override
-  String get devicesAccept => '接受';
-
-  @override
-  String get devicesNotNow => '暂不';
 
   @override
   String get devicesPause => '暂停同步';
@@ -15626,7 +15597,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name 将不再接收和发送消息，它在这里保留的币会被释放。这不能保护资金：持有助记词的设备始终可以花费它。如果 $name 可能落入他人之手，请把资金转到使用新助记词的钱包。';
+    return '$name 将不再收到此钱包的消息；它在这里保留的币会被释放。它仍可用助记词花费：如果它可能落入他人之手，请把资金转到新钱包。';
   }
 
   @override
@@ -15636,7 +15607,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String devicesRemovedBy(String name) {
-    return '$name 已将本设备移出关联。';
+    return '$name 移除了此设备。';
   }
 
   @override
@@ -15649,32 +15620,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get devicesUnsupported => '此版本暂不能关联设备。';
 
   @override
-  String get linkLead => '仅用于另一台设备上的同一个钱包：两台设备需要同一个助记词。一台显示代码，另一台扫描或粘贴它。';
+  String get linkLead => '用于另一台设备上的此钱包。请先在那里用助记词恢复它。';
 
   @override
-  String get linkShow => '显示代码';
+  String get linkShow => '显示二维码';
 
   @override
-  String get linkScan => '扫描代码';
+  String get linkScan => '扫描二维码';
 
   @override
-  String get linkPaste => '粘贴代码';
+  String get linkPaste => '粘贴邀请';
 
   @override
-  String get linkShowLead => '在另一台设备上打开“关联设备”并扫描此代码，或复制后在那里粘贴。';
+  String get linkCopy => '复制邀请';
 
   @override
-  String get linkCopy => '复制代码';
-
-  @override
-  String get linkCopied => '已复制代码。';
+  String get linkCopied => '邀请已复制。';
 
   @override
   String linkExpires(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '代码 $count 分钟内有效。',
+      other: '邀请还可用 $count 分钟。',
     );
     return '$_temp0';
   }
@@ -15688,67 +15656,48 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get linkPasteLabel => '关联代码';
+  String get linkPasteLabel => '邀请';
 
   @override
   String get linkGo => '关联';
 
   @override
-  String get linkCheckTitle => '核对图片';
-
-  @override
-  String linkCheckLead(String name) {
-    return '$name 也显示四张图片。只有图片相同且顺序一致时才关联。';
-  }
-
-  @override
   String get linkPicturesLabel => '四张图片';
-
-  @override
-  String linkWaitingCheck(String name) {
-    return '正在等待 $name 核对图片。';
-  }
 
   @override
   String get linkDoneTitle => '已关联';
 
   @override
   String linkDone(String name) {
-    return '$name 已关联。任一设备的付款都会显示在两台设备上，其币会在另一台设备上被保留。';
+    return '已关联 $name。';
   }
 
   @override
   String get linkFailedTitle => '未关联';
 
   @override
-  String get linkFailInvalid => '这不是设备关联代码，或已损坏。';
+  String get linkFailInvalid => '这不是设备邀请。';
 
   @override
-  String get linkFailExpired => '代码已过期。请生成新的代码。';
+  String get linkFailExpired => '邀请已过期。请重新生成。';
 
   @override
-  String get linkFailNotFound => '此代码已被使用或已取消。';
+  String get linkFailNotFound => '此邀请已被使用。';
 
   @override
-  String get linkFailOwn => '此代码来自本设备。请在另一台设备上扫描。';
+  String get linkFailOwn => '此邀请来自本设备。请在另一台设备上扫描。';
 
   @override
   String get linkFailOtherWallet => '该设备持有另一个钱包。关联需要同一个助记词。';
 
   @override
-  String get linkFailOtherWalletCode => '此代码来自另一个钱包。关联需要同一个助记词。';
+  String get linkFailOtherWalletCode => '此邀请来自另一个钱包。关联需要相同的助记词。';
 
   @override
-  String get linkFailMismatch => '图片不同，因此设备未关联。';
+  String get linkFailTooMany => '已关联了一台设备。';
 
   @override
-  String get linkFailCancelled => '另一台设备已停止，或未及时核对图片。';
-
-  @override
-  String get linkFailTooMany => '已关联一台设备。请先移除它，再关联另一台。';
-
-  @override
-  String get linkFailUnreachable => '没有服务器响应。请稍后再试。';
+  String get linkFailUnreachable => '无法联系另一台设备。';
 
   @override
   String get linkTryAgain => '重试';
@@ -15786,29 +15735,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskDevServersCancel => '取消更改';
-
-  @override
-  String deskDevServersDown(int down, int n) {
-    return '$n 个中有 $down 个无响应。消息经由另一个发送。';
-  }
-
-  @override
-  String get deskDevServersAllDown => '没有服务器响应。消息会等待，待有服务器恢复后发送。';
-
-  @override
-  String get deskDevServersInfo1 =>
-      '两台关联设备通过这些服务器互相发送消息。每条消息都会发往所有所选服务器，因此一个服务器故障不会有影响。';
-
-  @override
-  String get deskDevServersInfo2 =>
-      '更改会先发送给另一台设备，待其接受后才生效。在此之前继续使用原来的服务器，生效后原服务器还会被读取 7 天。';
-
-  @override
-  String get deskDevServersInfo3 =>
-      '服务器能看到两台设备在何时交换消息，没有 Tor 时还能看到来自哪些地址，但看不到内容。两个服务器意味着两个运营方能看到这些。';
-
-  @override
   String get deskDevPausedOffline => '离线开启时已暂停。';
 
   @override
@@ -15820,9 +15746,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskDevHeldNone => '没有被保留的币。';
-
-  @override
   String get deskDevRenameThis => '重命名这台电脑';
 
   @override
@@ -15831,21 +15754,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskDevPasteLead => '粘贴另一台设备显示的代码。';
+  String get deskDevPasteLead => '粘贴另一台设备的邀请。';
 
   @override
-  String get deskDevMakingCode => '正在生成代码…';
+  String get deskDevMakingCode => '正在生成邀请…';
 
   @override
   String get deskDevConnecting => '正在连接…';
 
   @override
   String get deskDevTheOther => '另一台设备';
-
-  @override
-  String deskDevServersLine(String servers) {
-    return '服务器：$servers';
-  }
 
   @override
   String get deskDevOfferReceived => '这是你的另一台设备吗？关联它即可看到是谁发来的，并让两台设备保持同步。';
@@ -16307,21 +16225,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get devicesOneOnly => '只能关联一台设备。请先移除它，再关联另一台。';
-
-  @override
-  String devicesRelayAsk(String relay, String next) {
-    return '两台设备都在使用 $relay。要在本设备上改用 $next 吗？';
-  }
-
-  @override
-  String get devicesRelayUse => '改用';
-
-  @override
-  String get devicesRelayKeep => '保持不变';
-
-  @override
-  String get devicesRelayWhy =>
-      '在同一个 Epicbox 服务器上，两台设备会回应相同的付款。在不同的服务器上，每台设备只回应发往自己地址的付款。';
 
   @override
   String txReceivedOnDevice(String device) {
@@ -17677,4 +17580,78 @@ class AppLocalizationsZh extends AppLocalizations {
   String inviteLinkNoHandler(String feature) {
     return '“$feature”已关闭或在此钱包中不可用。';
   }
+
+  @override
+  String get linkShowMine => '显示我的二维码';
+
+  @override
+  String get linkPasteAnother => '粘贴另一个邀请';
+
+  @override
+  String linkLinkingWith(String name) {
+    return '正在与 $name 关联…';
+  }
+
+  @override
+  String linkLinkingSame(String name) {
+    return '$name 显示相同的四张图片。';
+  }
+
+  @override
+  String linkFailFull(String name) {
+    return '$name 已关联了另一台设备。请先在 $name 上移除那台设备。';
+  }
+
+  @override
+  String get linkFailUpdate => '另一台设备的应用版本更新。请更新此设备后重试。';
+
+  @override
+  String linkFailUpdateOther(String name) {
+    return '$name 的应用版本较旧。请在那里更新后重试。';
+  }
+
+  @override
+  String linkReplaceTitle(String name) {
+    return '替换 $name？';
+  }
+
+  @override
+  String linkReplaceBody(String name) {
+    return '一台新设备请求关联。$name 将不再收到此钱包的消息；它在这里保留的币会被释放。';
+  }
+
+  @override
+  String get linkReplace => '替换';
+
+  @override
+  String linkKeep(String name) {
+    return '保留 $name';
+  }
+
+  @override
+  String devicesEpicboxOff(String name) {
+    return 'Epicbox 已关闭：$name 看不到此设备的付款。';
+  }
+
+  @override
+  String get devicesEpicboxOffNone => 'Epicbox 已关闭。';
+
+  @override
+  String devicesUpdateOther(String name) {
+    return '请更新 $name，以保持此钱包同步。';
+  }
+
+  @override
+  String get devicesAbout => '关于关联设备';
+
+  @override
+  String get offerLinkThird => '第三台设备持有此钱包。只能关联两台。';
+
+  @override
+  String devicesForwardedInvoice(String name) {
+    return '$name 收到了一个付款请求。请在那里支付。';
+  }
+
+  @override
+  String get linkConfirmInvite => '将此设备与发送邀请的设备关联？';
 }

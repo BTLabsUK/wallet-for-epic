@@ -8,8 +8,8 @@ import 'dart:typed_data';
 
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../cancel_final.dart' show CancelResult;
-import '../../models.dart' show FinishedPayment;
-import '../../devices/device_service.dart' show DeviceHost;
+import '../../models.dart' show FinishedPayment, InvoiceEvent;
+import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../pairing_api.dart';
 
 import 'backup_settings_desk.dart' show DeskBackupSettings;
@@ -495,4 +495,12 @@ abstract interface class DeskWalletApi {
   /// merges the other devices' payments ([mergeDeviceHistory]) and the balance and the outputs
   /// show the coins they hold as locked. [DeskController.reloadWallet] reads them again.
   void useDevices(DeviceBook? Function()? book);
+
+  /// Where the wallet hands the notices that reached this device only, for the linked device
+  /// (a payer's `posted` or `cancelled` report, a contact's request to pay); null for none.
+  set noticeForwarder(void Function(InvoiceEvent e)? forward);
+
+  /// A notice the linked device passed on ([DeviceService.forwarded]): the lists are read
+  /// again, a request to pay is announced.
+  Future<void> applyForwarded(ForwardedNotice notice);
 }

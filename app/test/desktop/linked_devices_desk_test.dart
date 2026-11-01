@@ -3,6 +3,8 @@
 // payments): the code, the four pictures on both sides and the link; a payment of the phone holds
 // its coins here (Locked in the balance, held in the outputs, a row Sent from the phone, the Send
 // message) until Release by hand; the switch in Settings › Advanced hides it all.
+import 'dart:async';
+
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
@@ -19,12 +21,13 @@ import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart' show sta
 import 'package:epic_wallet/src/devices/device_ending.dart';
 import 'package:epic_wallet/src/devices/device_service.dart';
 import 'package:epic_wallet/src/devices/device_store.dart';
+import 'package:epic_wallet/src/devices/device_wire.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/models.dart' show CancelReason, Chain, DeviceEnding;
+import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
-import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/desktop/data/mock_hosts.dart' show mockBox;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,8 +93,8 @@ void main() {
     expect(find.text('Linked devices'), findsOneWidget);
     expect(find.byKey(const ValueKey('dev-this')), findsOneWidget);
     expect(find.text('Desktop'), findsOneWidget);
-    expect(find.text('This wallet is not linked to another device yet.'), findsOneWidget);
-    expect(find.text('No coins held.'), findsOneWidget);
+    expect(find.text('Restore this wallet on your other device, then link the two here.'), findsOneWidget);
+    expect(find.byKey(devicesHeldKey), findsNothing, reason: 'no empty Held coins group');
     expect(tester.widget<EButton>(find.byKey(devicesLinkKey)).onPressed, isNotNull);
     await end(tester);
   });
@@ -120,7 +123,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Link a device: the code, the pictures on both devices, then linked', (tester) async {
+  testWidgets('Link a device: the code, the pictures as Linking… on both devices, then Linked closes itself', (tester) async {
     final desk = await show(tester, const DevicesSettingsBlock());
     final phone = (await tester.runAsync(() => MockPhone.create(wallet)))!;
 
@@ -129,29 +132,30 @@ void main() {
     expect(desk.link?.phase, LinkPhase.waiting);
     expect(find.byKey(deskLinkCodeKey), findsOneWidget);
     expect(find.text('Waiting for the other device…'), findsOneWidget);
+    expect(find.byKey(deskLinkCancelKey), findsOneWidget);
 
-    await tester.runAsync(() => phone.scan(desk));
+    // The phone answers; this computer reads its channel: paired, its hello out, the pictures.
+    await tester.runAsync(() => phone.scan(desk, rounds: 0));
+    await tester.runAsync(() => desk.sync(DeviceSyncTrigger.tick));
     await settle(tester);
-    expect(desk.link?.phase, LinkPhase.checking);
+    expect(desk.link?.phase, LinkPhase.linking);
     expect(find.byType(WordTiles), findsOneWidget);
-    expect(find.byKey(deskLinkMatchKey), findsOneWidget);
+    expect(find.text('Linking with Phone…'), findsOneWidget);
+    expect(find.text('Phone shows the same four.'), findsOneWidget);
+    expect(find.byKey(deskLinkCancelKey), findsOneWidget, reason: 'Cancel is the only button');
+    expect(desk.book.devices, isEmpty, reason: "nothing is linked until the phone's hello came");
 
-    await tester.tap(find.byKey(deskLinkMatchKey));
-    await settle(tester);
-    expect(desk.link?.phase, LinkPhase.waitingOther);
-    expect(desk.book.devices, isEmpty, reason: 'nothing is linked until both matched');
-
-    await tester.runAsync(() async {
-      await phone.service.answerCheck(true);
-      await phone.rounds(desk);
-    });
+    await tester.runAsync(() => phone.rounds(desk));
     await settle(tester);
     expect(desk.link?.phase, LinkPhase.done);
-    expect(find.text('Linked'), findsOneWidget);
-    await tester.tap(find.byKey(deskLinkDoneKey));
+    expect(find.text('Linked to Phone.'), findsOneWidget);
+    // No button: the dialog closes by itself.
+    await tester.pump(linkDoneShown + const Duration(milliseconds: 100));
     await settle(tester);
+    expect(find.text('Linked to Phone.'), findsNothing);
     expect(find.text('Phone'), findsWidgets);
     expect(desk.book.devices.single.name, 'Phone');
+    expect(desk.book.devices.single.kind, DeviceKind.phone);
     await end(tester);
   });
 
@@ -164,11 +168,10 @@ void main() {
     final phone = (await tester.runAsync(() => MockPhone.create(wallet)))!;
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.runAsync(() => phone.scan(desk));
+    await tester.runAsync(() => phone.scan(desk, rounds: 0));
+    await tester.runAsync(() => desk.sync(DeviceSyncTrigger.tick));
     await settle(tester);
-    await tester.tap(find.byKey(deskLinkMatchKey));
-    await settle(tester);
-    expect(desk.link?.phase, LinkPhase.waitingOther);
+    expect(desk.link?.phase, LinkPhase.linking);
 
     // Another node: the wallet reopens on it, then the lists reload.
     await tester.runAsync(() => container.read(deskProvider.notifier).useNode('https://node.example'));
@@ -178,13 +181,10 @@ void main() {
     final shown = container.read(deskDeviceServiceProvider)!;
     expect(shown, same(desk), reason: 'one service for the open wallet, through the reopen');
 
-    await tester.runAsync(() async {
-      await phone.service.answerCheck(true);
-      await phone.rounds(shown);
-    });
+    await tester.runAsync(() => phone.rounds(shown));
     await settle(tester);
     expect(shown.link?.phase, LinkPhase.done);
-    await tester.tap(find.byKey(deskLinkDoneKey));
+    await tester.pump(linkDoneShown + const Duration(milliseconds: 100));
     await settle(tester);
     expect(shown.book.devices.single.name, 'Phone');
     expect(phone.service.book.devices.single.name, 'Desktop');
@@ -196,64 +196,19 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('one device linked: no Link a device, the device with Remove and the one-device line', (tester) async {
+  testWidgets('one device linked: no Link a device, the device with its servers under it, Remove, and the money note once', (tester) async {
     final desk = await show(tester, const DevicesSettingsBlock());
     final phone = await linkedPhone(tester, desk);
     await settle(tester);
     expect(find.byKey(devicesLinkKey), findsNothing);
     expect(find.byKey(ValueKey('dev-remove-${phone.service.book.deviceId}')), findsOneWidget);
-    expect(find.text('One device can be linked. Remove it to link another.'), findsOneWidget);
+    expect(find.text(mockBox), findsOneWidget, reason: 'the servers as a caption under the device');
+    expect(find.text('One device can be linked. Remove it to link another.'), findsNothing, reason: 'behind the info hint');
+    expect(find.text('Linking shares payments between the two devices. It does not protect the money: any device that holds the recovery phrase can spend it.'), findsOneWidget);
     expect(find.byKey(const ValueKey('dev-none')), findsNothing);
+    expect(find.byKey(devicesEpicboxOffKey), findsNothing);
+    expect(find.byKey(devicesUpdateOtherKey), findsNothing);
     await end(tester);
-  });
-
-  group('both devices on one Epicbox server', () {
-    String other() => hostSettings.epicboxServers.map((s) => s.label).firstWhere((s) => s != mockBox);
-
-    /// The phone moves off the computer's server and back: the computer, the other side, asks.
-    Future<MockPhone> phoneComesBack(WidgetTester tester, DeviceService desk) async {
-      final phone = await linkedPhone(tester, desk);
-      await settle(tester);
-      expect(find.byKey(deskRelayUseKey), findsNothing, reason: 'the computer showed the code: the phone asks, not the computer');
-      phone.session.address = '$mockEpicboxKey@${other()}';
-      await tester.runAsync(() => phone.rounds(desk));
-      phone.session.address = '$mockEpicboxKey@$mockBox';
-      await tester.runAsync(() => phone.rounds(desk));
-      await settle(tester);
-      return phone;
-    }
-
-    testWidgets('a later change asks once; Keep keeps both and is not asked again', (tester) async {
-      final desk = await show(tester, const DevicesSettingsBlock());
-      final phone = await phoneComesBack(tester, desk);
-      expect(find.text('Both devices use $mockBox. Use ${other()} on this device?'), findsOneWidget);
-      expect(phone.service.relayClash, isNull, reason: 'the device that changed does not ask');
-      await tester.tap(find.byKey(deskRelayKeepKey));
-      await settle(tester);
-      expect(find.byKey(deskRelayUseKey), findsNothing);
-      await tester.runAsync(() => phone.rounds(desk));
-      await settle(tester);
-      expect(find.byKey(deskRelayUseKey), findsNothing);
-      expect(desk.book.relayKept, mockBox);
-      await end(tester);
-    });
-
-    testWidgets('Use moves this computer to the next server and the phone hears it', (tester) async {
-      final desk = await show(tester, const DevicesSettingsBlock());
-      final phone = await phoneComesBack(tester, desk);
-      await tester.tap(find.byKey(deskRelayUseKey));
-      await settle(tester);
-      await tester.runAsync(() async {
-        await wallet.epicboxAddress();
-        await phone.rounds(desk);
-      });
-      await settle(tester);
-      expect(find.byKey(deskRelayUseKey), findsNothing);
-      expect((await tester.runAsync(wallet.epicboxAddress))!, endsWith('@${other()}'));
-      expect(phone.service.book.devices.single.relay, other());
-      expect(phone.service.relayClash, isNull);
-      await end(tester);
-    });
   });
 
   testWidgets('a pasted code from another computer answers the link', (tester) async {
@@ -264,19 +219,72 @@ void main() {
 
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.tap(find.text('Paste code'));
+    await tester.tap(find.text('Paste invite'));
     await settle(tester);
     await tester.enterText(find.byKey(deskLinkPasteFieldKey), code);
     await tester.tap(find.byKey(deskLinkGoKey));
     await settle(tester);
     await tester.runAsync(() => phone.rounds(desk));
     await settle(tester);
-    expect(desk.link?.phase, LinkPhase.checking);
-    await tester.tap(find.byKey(deskLinkNoMatchKey));
+    expect(desk.link?.phase, LinkPhase.done);
+    expect(desk.book.devices.single.name, 'Laptop');
+    expect(phone.service.book.devices.single.name, 'Desktop');
+    await end(tester);
+  });
+
+  testWidgets('a pasted code that was used already: Paste another code goes back to the field', (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    final phone = (await tester.runAsync(() => MockPhone.create(wallet, name: 'Laptop')))!;
+    final other = (await tester.runAsync(() => MockPhone.create(wallet, name: 'Tablet')))!;
+    await tester.runAsync(() => phone.service.startShowing(const ['epicbox.epiccash.com']));
+    final code = phone.service.link!.code!;
+    // Another device took the code first.
+    await tester.runAsync(() => other.service.startScanned(code));
+
+    await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    expect(desk.link?.phase, LinkPhase.failed);
-    expect(find.text('The pictures differ, so the devices were not linked.'), findsOneWidget);
+    await tester.tap(find.text('Paste invite'));
+    await settle(tester);
+    await tester.enterText(find.byKey(deskLinkPasteFieldKey), code);
+    await tester.tap(find.byKey(deskLinkGoKey));
+    await settle(tester);
+    expect(desk.link?.failure, LinkFailure.notFound);
+    expect(find.text('This invite was used already.'), findsOneWidget);
+    await tester.tap(find.byKey(deskLinkPasteAnotherKey));
+    await settle(tester);
+    expect(desk.link, isNull);
+    expect(find.byKey(deskLinkPasteFieldKey), findsOneWidget);
+    expect(tester.widget<EInput>(find.byKey(deskLinkPasteFieldKey)).controller!.text, isEmpty);
+    await end(tester);
+  });
+
+  testWidgets('a third device\'s code while one is linked: Replace asks, then removes the linked device', (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    final phone = await linkedPhone(tester, desk);
+    final third = (await tester.runAsync(() => MockPhone.create(wallet, name: 'Laptop')))!;
+    await tester.runAsync(() => third.service.startShowing(const ['epicbox.epiccash.com']));
+    final code = third.service.link!.code!;
+    await settle(tester);
+
+    // Linked already: the button is gone; the dialog opens from the paste of an invite elsewhere.
+    expect(find.byKey(devicesLinkKey), findsNothing);
+    unawaited(showDeskLinkDevice(tester.element(find.byType(DevicesSettingsBlock)), pasted: code));
+    await settle(tester);
+    await tester.runAsync(() => third.rounds(desk));
+    await settle(tester);
+    expect(desk.link?.failure, LinkFailure.tooMany);
+    expect(third.service.link?.failure, LinkFailure.full);
+    expect(find.byKey(deskLinkReplaceKey), findsOneWidget);
+    expect(find.text('Replace Phone?'), findsOneWidget);
+    await tester.tap(find.byKey(deskLinkReplaceKey));
+    await settle(tester);
+    expect(find.text('A new device asked to link. Phone stops getting this wallet’s notices; coins it holds here are released.'), findsOneWidget);
+    await tester.tap(find.byKey(deskLinkReplaceConfirmKey));
+    await settle(tester);
+    await tester.runAsync(() => phone.rounds(desk));
+    await settle(tester);
     expect(desk.book.devices, isEmpty);
+    expect(phone.service.book.removedBy, 'Desktop');
     await end(tester);
   });
 
@@ -288,14 +296,14 @@ void main() {
 
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.tap(find.text('Paste code'));
+    await tester.tap(find.text('Paste invite'));
     await settle(tester);
     await tester.enterText(find.byKey(deskLinkPasteFieldKey), code);
     await tester.tap(find.byKey(deskLinkGoKey));
     await settle(tester);
     expect(desk.link?.phase, LinkPhase.failed);
     expect(desk.link?.failure, LinkFailure.otherWalletCode);
-    expect(find.text('This code is from a different wallet. Linking needs the same recovery phrase.'), findsOneWidget);
+    expect(find.text('This invite is from a different wallet. Linking needs the same recovery phrase.'), findsOneWidget);
     await tester.runAsync(() => phone.rounds(desk));
     expect(phone.service.link?.phase, LinkPhase.waiting);
     expect(desk.book.devices, isEmpty);
@@ -306,12 +314,51 @@ void main() {
     await show(tester, const DevicesSettingsBlock());
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.tap(find.text('Paste code'));
+    await tester.tap(find.text('Paste invite'));
     await settle(tester);
     await tester.enterText(find.byKey(deskLinkPasteFieldKey), 'epiccash://pair/abc');
     await tester.tap(find.byKey(deskLinkGoKey));
     await settle(tester);
-    expect(find.text('This is not a device link code, or it is damaged.'), findsOneWidget);
+    expect(find.text('Not a device invite.'), findsOneWidget);
+    await end(tester);
+  });
+
+  testWidgets('Epicbox off: Link a device disabled with its caption; linked, the line under the device', (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    // The switch is also the app-wide gate ([NetGate]): put it back for the tests after.
+    Future<void> epicbox(bool on) => tester.runAsync(
+      () => container.read(deskProvider.notifier).saveSettings(container.read(deskProvider).settings.copyWith(payments: container.read(deskProvider).settings.payments.copyWith(epicbox: on))),
+    );
+    addTearDown(() => NetGate.setEpicbox(true));
+    await epicbox(false);
+    await settle(tester);
+    expect(find.byKey(devicesEpicboxOffKey), findsOneWidget);
+    expect(find.text('Epicbox is off.'), findsOneWidget);
+    expect(tester.widget<EButton>(find.byKey(devicesLinkKey)).onPressed, isNull);
+    // On again: the link is made; off again: the line names the linked device.
+    await epicbox(true);
+    await settle(tester);
+    await linkedPhone(tester, desk);
+    await settle(tester);
+    expect(find.byKey(devicesEpicboxOffKey), findsNothing);
+    await epicbox(false);
+    await settle(tester);
+    expect(find.text('Epicbox is off: Phone does not see this device’s payments.'), findsOneWidget);
+    await epicbox(true);
+    await end(tester);
+  });
+
+  testWidgets('the phone writes another wire version: the update line under it', (tester) async {
+    final desk = await show(tester, const DevicesSettingsBlock());
+    final phone = await linkedPhone(tester, desk);
+    final d = desk.book.devices.single;
+    final bytes = Notice(v: 3, type: NoticeType.rename, id: 'f' * 32, seq: d.seqIn + 1, dev: phone.service.book.deviceId, ts: 1, body: const {'name': 'x'}).encode();
+    wallet.pairing.receivePayload(d.pairings.values.first, bytes);
+    await tester.runAsync(() => desk.sync(DeviceSyncTrigger.tick));
+    await settle(tester);
+    expect(desk.book.devices.single.otherVersion, 3);
+    expect(find.byKey(devicesUpdateOtherKey), findsOneWidget);
+    expect(find.text('Update Phone to keep this wallet in sync.'), findsOneWidget);
     await end(tester);
   });
 
@@ -353,7 +400,7 @@ void main() {
     await tester.tap(find.byKey(devicesReleaseConfirmKey));
     await settle(tester);
     expect(desk.book.holds.single.state, HoldState.byHand);
-    expect(find.text('No coins held.'), findsOneWidget);
+    expect(find.byKey(devicesHeldKey), findsNothing, reason: 'the empty Held coins group is hidden');
 
     // Released here: the coin is spendable again, and the row reads that the phone may still send it.
     final freed = (await tester.runAsync(wallet.balance))!;
@@ -391,7 +438,7 @@ void main() {
     await tester.tap(find.byKey(ValueKey('dev-remove-${desk.book.devices.single.deviceId}')));
     await settle(tester);
     expect(find.text('Remove Phone?'), findsOneWidget);
-    expect(find.textContaining('stops getting and sending notices'), findsOneWidget);
+    expect(find.textContaining('stops getting this wallet’s notices'), findsOneWidget);
     await tester.tap(find.byKey(devicesRemoveConfirmKey));
     await settle(tester);
     expect(desk.book.devices, isEmpty);

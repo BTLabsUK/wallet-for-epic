@@ -16004,20 +16004,20 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get txSentFromOtherWallet => 'ส่งจากกระเป๋าเงินอื่น';
+  String get txSentFromOtherWallet => 'ส่งจากอุปกรณ์อื่น';
 
   @override
   String txSpokenSentFromOtherWallet(String amount) {
-    return 'ส่งจากกระเป๋าเงินอื่น $amount';
+    return 'ส่งจากอุปกรณ์อื่น $amount';
   }
 
   @override
   String get txDetailsOtherWallet =>
-      'ใช้ไปโดยกระเป๋าเงินอื่นที่ใช้วลีกู้คืนเดียวกัน ทราบเฉพาะจำนวน';
+      'ส่งจากอุปกรณ์อื่นที่มีวลีกู้คืนของกระเป๋าเงินนี้ ทราบเพียงจำนวนเงิน';
 
   @override
   String get txSentFromOtherWalletUnverified =>
-      'ส่งจากกระเป๋าเงินอื่น · ยังไม่ได้ตรวจสอบ';
+      'ส่งจากอุปกรณ์อื่น · ยังไม่ตรวจสอบ';
 
   @override
   String get txDetailsUnverified =>
@@ -16027,23 +16027,23 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsNotKnown => 'ไม่ทราบ';
 
   @override
-  String get txReceivedByOtherWallet => 'รับโดยกระเป๋าเงินอื่น';
+  String get txReceivedByOtherWallet => 'รับโดยอุปกรณ์อื่น';
 
   @override
   String txSpokenReceivedByOtherWallet(String amount) {
-    return 'รับโดยกระเป๋าเงินอื่น $amount';
+    return 'รับโดยอุปกรณ์อื่น $amount';
   }
 
   @override
   String get txDetailsOtherWalletIn =>
-      'รับโดยกระเป๋าเงินอื่นที่ใช้วลีกู้คืนเดียวกัน ทราบเฉพาะจำนวน';
+      'รับโดยอุปกรณ์อื่นที่มีวลีกู้คืนของกระเป๋าเงินนี้ ทราบเพียงจำนวนเงิน';
 
   @override
   String get expLinkedDevices => 'อุปกรณ์ที่เชื่อมโยง';
 
   @override
   String get expLinkedDevicesHint =>
-      'ใช้กระเป๋าเงินเดียวกัน (วลีกู้คืนเดียวกัน) บนอุปกรณ์สองเครื่อง: เครื่องนี้และอุปกรณ์ที่เชื่อมโยงหนึ่งเครื่อง ไม่สามารถเชื่อมโยงกระเป๋าเงินสองใบที่ต่างกันได้ แต่ละเครื่องแจ้งรายการของตนให้อีกเครื่องทราบ เหรียญที่เครื่องหนึ่งกำลังใช้จึงถูกพักไว้บนอีกเครื่อง และรายการของมันจะแสดงในประวัติของอีกเครื่อง การเชื่อมโยงปกป้องสิ่งที่แชร์ ไม่ใช่เงิน อุปกรณ์ใดที่มีวลีกู้คืนก็ใช้จ่ายได้ เป็นฟีเจอร์ทดลอง: อาจยังเปลี่ยนแปลงได้';
+      'กระเป๋าเงินนี้บนสองอุปกรณ์: แต่ละเครื่องแสดงรายการของอีกเครื่อง และพักเหรียญที่อีกเครื่องกำลังใช้ ฟีเจอร์ทดลอง';
 
   @override
   String get devicesThisPhone => 'โทรศัพท์';
@@ -16101,49 +16101,20 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String devicesServerCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'เซิร์ฟเวอร์ $count เครื่อง',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get devicesThisDevice => 'อุปกรณ์นี้';
 
   @override
   String get devicesOthers => 'อุปกรณ์ที่เชื่อมโยง';
 
   @override
-  String get devicesEmpty => 'กระเป๋าเงินนี้ยังไม่ได้เชื่อมโยงกับอุปกรณ์อื่น';
+  String get devicesEmpty =>
+      'กู้คืนกระเป๋าเงินนี้บนอุปกรณ์อีกเครื่อง แล้วเชื่อมโยงทั้งสองที่นี่';
 
   @override
   String get devicesLink => 'เชื่อมโยงอุปกรณ์';
 
   @override
   String get devicesServers => 'เซิร์ฟเวอร์';
-
-  @override
-  String get devicesServersNote =>
-      'ข้อความระหว่างอุปกรณ์ทั้งสองเครื่องจะส่งผ่านทุกเซิร์ฟเวอร์ที่เลือก';
-
-  @override
-  String devicesServersWaiting(String name) {
-    return 'กำลังรอ $name ยอมรับเซิร์ฟเวอร์ใหม่';
-  }
-
-  @override
-  String devicesProposal(String name, String servers) {
-    return '$name เสนอเซิร์ฟเวอร์เหล่านี้: $servers';
-  }
-
-  @override
-  String get devicesAccept => 'ยอมรับ';
-
-  @override
-  String get devicesNotNow => 'ไม่ใช่ตอนนี้';
 
   @override
   String get devicesPause => 'หยุดซิงค์ชั่วคราว';
@@ -16190,7 +16161,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name จะไม่รับและไม่ส่งข้อความอีก และเหรียญที่มันพักไว้ที่นี่จะถูกปล่อย การนำออกไม่ได้ปกป้องเงิน อุปกรณ์ที่มีวลีกู้คืนใช้จ่ายได้เสมอ ถ้า $name อาจอยู่ในมือคนอื่น ให้ย้ายเงินไปยังกระเป๋าเงินที่มีวลีกู้คืนใหม่';
+    return '$name จะไม่ได้รับข้อความของกระเป๋าเงินนี้อีก เหรียญที่มันพักไว้ที่นี่จะถูกปล่อย มันยังใช้จ่ายด้วยวลีกู้คืนได้: ถ้าอาจอยู่ในมือคนอื่น ให้ย้ายเหรียญไปยังกระเป๋าเงินใหม่';
   }
 
   @override
@@ -16200,7 +16171,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String devicesRemovedBy(String name) {
-    return '$name นำอุปกรณ์นี้ออกจากการเชื่อมโยงแล้ว';
+    return '$name นำอุปกรณ์นี้ออกแล้ว';
   }
 
   @override
@@ -16216,33 +16187,29 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get linkLead =>
-      'ใช้กับกระเป๋าเงินเดียวกันบนอุปกรณ์อื่นเท่านั้น: ทั้งสองเครื่องต้องใช้วลีกู้คืนเดียวกัน เครื่องหนึ่งแสดงรหัส อีกเครื่องสแกนหรือวาง';
+      'สำหรับกระเป๋าเงินนี้บนอุปกรณ์อีกเครื่อง กู้คืนที่นั่นจากวลีกู้คืนก่อน';
 
   @override
-  String get linkShow => 'แสดงรหัส';
+  String get linkShow => 'แสดง QR';
 
   @override
-  String get linkScan => 'สแกนรหัส';
+  String get linkScan => 'สแกน QR';
 
   @override
-  String get linkPaste => 'วางรหัส';
+  String get linkPaste => 'วางคำเชิญ';
 
   @override
-  String get linkShowLead =>
-      'บนอุปกรณ์อีกเครื่อง เปิด เชื่อมโยงอุปกรณ์ แล้วสแกนรหัสนี้ หรือคัดลอกไปวางที่นั่น';
+  String get linkCopy => 'คัดลอกคำเชิญ';
 
   @override
-  String get linkCopy => 'คัดลอกรหัส';
-
-  @override
-  String get linkCopied => 'คัดลอกรหัสแล้ว';
+  String get linkCopied => 'คัดลอกคำเชิญแล้ว';
 
   @override
   String linkExpires(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'รหัสใช้ได้ $count นาที',
+      other: 'คำเชิญใช้ได้อีก $count นาที',
     );
     return '$_temp0';
   }
@@ -16256,49 +16223,36 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get linkPasteLabel => 'รหัสเชื่อมโยง';
+  String get linkPasteLabel => 'คำเชิญ';
 
   @override
   String get linkGo => 'เชื่อมโยง';
 
   @override
-  String get linkCheckTitle => 'ตรวจภาพ';
-
-  @override
-  String linkCheckLead(String name) {
-    return '$name ก็แสดงภาพสี่ภาพเช่นกัน เชื่อมโยงเฉพาะเมื่อภาพเหมือนกันและเรียงลำดับเดียวกัน';
-  }
-
-  @override
   String get linkPicturesLabel => 'ภาพสี่ภาพ';
-
-  @override
-  String linkWaitingCheck(String name) {
-    return 'กำลังรอ $name ตรวจภาพ';
-  }
 
   @override
   String get linkDoneTitle => 'เชื่อมโยงแล้ว';
 
   @override
   String linkDone(String name) {
-    return 'เชื่อมโยง $name แล้ว รายการที่อุปกรณ์เครื่องใดทำจะแสดงบนทั้งสองเครื่อง และเหรียญของรายการจะถูกพักไว้บนอีกเครื่อง';
+    return 'เชื่อมโยงกับ $name แล้ว';
   }
 
   @override
   String get linkFailedTitle => 'ไม่ได้เชื่อมโยง';
 
   @override
-  String get linkFailInvalid => 'นี่ไม่ใช่รหัสเชื่อมโยงอุปกรณ์ หรือรหัสเสียหาย';
+  String get linkFailInvalid => 'ไม่ใช่คำเชิญของอุปกรณ์';
 
   @override
-  String get linkFailExpired => 'รหัสหมดเวลาแล้ว สร้างรหัสใหม่';
+  String get linkFailExpired => 'คำเชิญหมดเวลาแล้ว สร้างใหม่';
 
   @override
-  String get linkFailNotFound => 'รหัสนี้ถูกใช้แล้วหรือถูกยกเลิก';
+  String get linkFailNotFound => 'คำเชิญนี้ถูกใช้ไปแล้ว';
 
   @override
-  String get linkFailOwn => 'รหัสนี้มาจากอุปกรณ์นี้ ให้สแกนบนอีกเครื่อง';
+  String get linkFailOwn => 'คำเชิญนี้มาจากอุปกรณ์นี้ สแกนบนอีกเครื่อง';
 
   @override
   String get linkFailOtherWallet =>
@@ -16306,21 +16260,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get linkFailOtherWalletCode =>
-      'รหัสนี้มาจากกระเป๋าเงินอื่น การเชื่อมโยงต้องใช้วลีกู้คืนเดียวกัน';
+      'คำเชิญนี้มาจากกระเป๋าเงินอื่น การเชื่อมโยงต้องใช้วลีกู้คืนเดียวกัน';
 
   @override
-  String get linkFailMismatch => 'ภาพไม่ตรงกัน จึงไม่ได้เชื่อมโยงอุปกรณ์';
+  String get linkFailTooMany => 'มีอุปกรณ์เชื่อมโยงอยู่แล้ว';
 
   @override
-  String get linkFailCancelled =>
-      'อุปกรณ์อีกเครื่องหยุด หรือไม่ได้ตรวจภาพทันเวลา';
-
-  @override
-  String get linkFailTooMany =>
-      'เชื่อมโยงอุปกรณ์ไว้แล้วหนึ่งเครื่อง นำออกก่อนจึงจะเชื่อมโยงเครื่องอื่นได้';
-
-  @override
-  String get linkFailUnreachable => 'ไม่มีเซิร์ฟเวอร์ตอบ ลองใหม่ภายหลัง';
+  String get linkFailUnreachable => 'ติดต่ออุปกรณ์อีกเครื่องไม่ได้';
 
   @override
   String get linkTryAgain => 'ลองอีกครั้ง';
@@ -16361,30 +16307,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskDevServersCancel => 'ยกเลิกการเปลี่ยน';
-
-  @override
-  String deskDevServersDown(int down, int n) {
-    return '$down จาก $n ไม่ตอบสนอง ข้อความจะส่งผ่านเซิร์ฟเวอร์อีกตัว';
-  }
-
-  @override
-  String get deskDevServersAllDown =>
-      'ไม่มีเซิร์ฟเวอร์ตอบสนอง ข้อความจะรอและส่งเมื่อมีเซิร์ฟเวอร์กลับมา';
-
-  @override
-  String get deskDevServersInfo1 =>
-      'อุปกรณ์ที่เชื่อมโยงทั้งสองเครื่องส่งข้อความถึงกันผ่านเซิร์ฟเวอร์เหล่านี้ ทุกข้อความส่งไปยังเซิร์ฟเวอร์ที่เลือกทั้งหมด เซิร์ฟเวอร์ตัวหนึ่งล่มจึงไม่มีผล';
-
-  @override
-  String get deskDevServersInfo2 =>
-      'การเปลี่ยนจะส่งไปยังอุปกรณ์อีกเครื่องก่อน และมีผลเมื่อเครื่องนั้นยอมรับ ก่อนหน้านั้นยังใช้เซิร์ฟเวอร์เดิม และหลังจากนั้นยังอ่านจากเซิร์ฟเวอร์เดิมอีก 7 วัน';
-
-  @override
-  String get deskDevServersInfo3 =>
-      'เซิร์ฟเวอร์เห็นว่าอุปกรณ์สองเครื่องแลกเปลี่ยนข้อความและเมื่อใด และหากไม่ใช้ Tor ก็เห็นว่ามาจากที่อยู่ใด แต่ไม่เห็นเนื้อหา เซิร์ฟเวอร์สองตัวหมายความว่าผู้ให้บริการสองรายเห็นสิ่งนี้';
-
-  @override
   String get deskDevPausedOffline => 'หยุดชั่วคราวขณะที่ออฟไลน์เปิดอยู่';
 
   @override
@@ -16396,9 +16318,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskDevHeldNone => 'ไม่มีเหรียญที่ถูกพักไว้';
-
-  @override
   String get deskDevRenameThis => 'เปลี่ยนชื่อคอมพิวเตอร์เครื่องนี้';
 
   @override
@@ -16407,21 +16326,16 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get deskDevPasteLead => 'วางรหัสที่อุปกรณ์อีกเครื่องแสดง';
+  String get deskDevPasteLead => 'วางคำเชิญจากอุปกรณ์อีกเครื่อง';
 
   @override
-  String get deskDevMakingCode => 'กำลังสร้างรหัส…';
+  String get deskDevMakingCode => 'กำลังสร้างคำเชิญ…';
 
   @override
   String get deskDevConnecting => 'กำลังเชื่อมต่อ…';
 
   @override
   String get deskDevTheOther => 'อุปกรณ์อีกเครื่อง';
-
-  @override
-  String deskDevServersLine(String servers) {
-    return 'เซิร์ฟเวอร์: $servers';
-  }
 
   @override
   String get deskDevOfferReceived =>
@@ -16896,21 +16810,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get devicesOneOnly =>
       'เชื่อมโยงได้หนึ่งเครื่อง นำออกก่อนจึงจะเชื่อมโยงเครื่องอื่นได้';
-
-  @override
-  String devicesRelayAsk(String relay, String next) {
-    return 'อุปกรณ์ทั้งสองใช้ $relay ใช้ $next บนเครื่องนี้หรือไม่';
-  }
-
-  @override
-  String get devicesRelayUse => 'ใช้';
-
-  @override
-  String get devicesRelayKeep => 'คงไว้';
-
-  @override
-  String get devicesRelayWhy =>
-      'บนเซิร์ฟเวอร์ Epicbox เดียวกัน อุปกรณ์ทั้งสองจะตอบรายการเดียวกัน บนเซิร์ฟเวอร์ต่างกัน แต่ละเครื่องจะตอบรายการที่ส่งมายังที่อยู่ของตนเอง';
 
   @override
   String txReceivedOnDevice(String device) {
@@ -18326,4 +18225,81 @@ class AppLocalizationsTh extends AppLocalizations {
   String inviteLinkNoHandler(String feature) {
     return '$feature ปิดอยู่หรือใช้ไม่ได้ในวอลเล็ตนี้';
   }
+
+  @override
+  String get linkShowMine => 'แสดง QR ของฉัน';
+
+  @override
+  String get linkPasteAnother => 'วางคำเชิญอื่น';
+
+  @override
+  String linkLinkingWith(String name) {
+    return 'กำลังเชื่อมโยงกับ $name…';
+  }
+
+  @override
+  String linkLinkingSame(String name) {
+    return '$name แสดงภาพสี่ภาพเดียวกัน';
+  }
+
+  @override
+  String linkFailFull(String name) {
+    return '$name เชื่อมโยงกับอุปกรณ์อื่นอยู่แล้ว นำเครื่องนั้นออกบน $name ก่อน';
+  }
+
+  @override
+  String get linkFailUpdate =>
+      'อุปกรณ์อีกเครื่องมีแอปเวอร์ชันใหม่กว่า อัปเดตเครื่องนี้แล้วลองอีกครั้ง';
+
+  @override
+  String linkFailUpdateOther(String name) {
+    return '$name มีแอปเวอร์ชันเก่ากว่า อัปเดตที่นั่นแล้วลองอีกครั้ง';
+  }
+
+  @override
+  String linkReplaceTitle(String name) {
+    return 'แทนที่ $name?';
+  }
+
+  @override
+  String linkReplaceBody(String name) {
+    return 'อุปกรณ์ใหม่ขอเชื่อมโยง $name จะไม่ได้รับข้อความของกระเป๋าเงินนี้อีก เหรียญที่มันพักไว้ที่นี่จะถูกปล่อย';
+  }
+
+  @override
+  String get linkReplace => 'แทนที่';
+
+  @override
+  String linkKeep(String name) {
+    return 'เก็บ $name ไว้';
+  }
+
+  @override
+  String devicesEpicboxOff(String name) {
+    return 'Epicbox ปิดอยู่: $name ไม่เห็นรายการของอุปกรณ์นี้';
+  }
+
+  @override
+  String get devicesEpicboxOffNone => 'Epicbox ปิดอยู่';
+
+  @override
+  String devicesUpdateOther(String name) {
+    return 'อัปเดต $name เพื่อให้กระเป๋าเงินนี้ซิงค์ต่อไป';
+  }
+
+  @override
+  String get devicesAbout => 'เกี่ยวกับอุปกรณ์ที่เชื่อมโยง';
+
+  @override
+  String get offerLinkThird =>
+      'อุปกรณ์เครื่องที่สามมีกระเป๋าเงินนี้ เชื่อมโยงได้สองเครื่อง';
+
+  @override
+  String devicesForwardedInvoice(String name) {
+    return '$name ได้รับคำขอชำระเงิน ชำระที่นั่น';
+  }
+
+  @override
+  String get linkConfirmInvite =>
+      'เชื่อมโยงอุปกรณ์นี้กับเครื่องที่ส่งคำเชิญมาหรือไม่?';
 }

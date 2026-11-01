@@ -16983,20 +16983,20 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get txSentFromOtherWallet => 'Wysłano z innego portfela';
+  String get txSentFromOtherWallet => 'Wysłano z innego urządzenia';
 
   @override
   String txSpokenSentFromOtherWallet(String amount) {
-    return 'Wysłano z innego portfela, $amount';
+    return 'Wysłano z innego urządzenia, $amount';
   }
 
   @override
   String get txDetailsOtherWallet =>
-      'Wydane przez inny portfel z tą samą frazą odzyskiwania. Znana jest tylko kwota.';
+      'Wysłano z innego urządzenia z frazą odzyskiwania tego portfela. Znana jest tylko kwota.';
 
   @override
   String get txSentFromOtherWalletUnverified =>
-      'Wysłano z innego portfela · niezweryfikowane';
+      'Wysłano z innego urządzenia · niezweryfikowane';
 
   @override
   String get txDetailsUnverified =>
@@ -17006,23 +17006,23 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsNotKnown => 'Nieznane';
 
   @override
-  String get txReceivedByOtherWallet => 'Odebrano w innym portfelu';
+  String get txReceivedByOtherWallet => 'Odebrano na innym urządzeniu';
 
   @override
   String txSpokenReceivedByOtherWallet(String amount) {
-    return 'Odebrano w innym portfelu, $amount';
+    return 'Odebrano na innym urządzeniu, $amount';
   }
 
   @override
   String get txDetailsOtherWalletIn =>
-      'Odebrane przez inny portfel z tą samą frazą odzyskiwania. Znana jest tylko kwota.';
+      'Odebrano na innym urządzeniu z frazą odzyskiwania tego portfela. Znana jest tylko kwota.';
 
   @override
   String get expLinkedDevices => 'Połączone urządzenia';
 
   @override
   String get expLinkedDevicesHint =>
-      'Ten sam portfel (ta sama fraza odzyskiwania) na dwóch urządzeniach: tym i jednym połączonym. Dwóch różnych portfeli nie można połączyć. Każde informuje drugie o swoich płatnościach, więc monety, które jedno wydaje, są wstrzymane na drugim, a jego płatności widać w historii drugiego. Połączenie chroni to, co udostępniane, nie pieniądze: każde urządzenie z frazą odzyskiwania może wydawać. Eksperymentalne: może się jeszcze zmienić.';
+      'Ten portfel na dwóch urządzeniach: każde pokazuje płatności drugiego i wstrzymuje monety, które drugie właśnie wydaje. Funkcja eksperymentalna.';
 
   @override
   String get devicesThisPhone => 'Telefon';
@@ -17092,19 +17092,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String devicesServerCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count serwera',
-      many: '$count serwerów',
-      few: '$count serwery',
-      one: '$count serwer',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get devicesThisDevice => 'To urządzenie';
 
   @override
@@ -17112,33 +17099,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get devicesEmpty =>
-      'Ten portfel nie jest jeszcze połączony z innym urządzeniem.';
+      'Przywróć ten portfel na drugim urządzeniu, a potem połącz oba tutaj.';
 
   @override
   String get devicesLink => 'Połącz urządzenie';
 
   @override
   String get devicesServers => 'Serwery';
-
-  @override
-  String get devicesServersNote =>
-      'Komunikaty między dwoma urządzeniami idą przez każdy wybrany serwer.';
-
-  @override
-  String devicesServersWaiting(String name) {
-    return 'Czekanie, aż $name przyjmie nowe serwery.';
-  }
-
-  @override
-  String devicesProposal(String name, String servers) {
-    return '$name proponuje te serwery: $servers.';
-  }
-
-  @override
-  String get devicesAccept => 'Przyjmij';
-
-  @override
-  String get devicesNotNow => 'Nie teraz';
 
   @override
   String get devicesPause => 'Wstrzymaj synchronizację';
@@ -17185,7 +17152,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String devicesRemoveBody(String name) {
-    return '$name przestaje odbierać i wysyłać komunikaty, a monety wstrzymane przez nie tutaj zostają zwolnione. To nie chroni pieniędzy: urządzenie z frazą odzyskiwania zawsze może je wydać. Jeśli $name może być w cudzych rękach, przenieś środki do portfela z nową frazą odzyskiwania.';
+    return '$name przestaje dostawać komunikaty tego portfela; monety, które tu wstrzymuje, zostają zwolnione. Z frazą odzyskiwania nadal może wydawać: jeśli może być w cudzych rękach, przenieś środki do nowego portfela.';
   }
 
   @override
@@ -17195,7 +17162,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String devicesRemovedBy(String name) {
-    return '$name usunęło to urządzenie z połączenia.';
+    return '$name usunął to urządzenie.';
   }
 
   @override
@@ -17212,36 +17179,32 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get linkLead =>
-      'Tylko dla tego samego portfela na innym urządzeniu: oba potrzebują tej samej frazy odzyskiwania. Jedno pokazuje kod, drugie go skanuje lub wkleja.';
+      'Dla tego portfela na drugim urządzeniu. Najpierw przywróć go tam z frazy odzyskiwania.';
 
   @override
-  String get linkShow => 'Pokaż kod';
+  String get linkShow => 'Pokaż QR';
 
   @override
-  String get linkScan => 'Skanuj kod';
+  String get linkScan => 'Skanuj QR';
 
   @override
-  String get linkPaste => 'Wklej kod';
+  String get linkPaste => 'Wklej zaproszenie';
 
   @override
-  String get linkShowLead =>
-      'Na drugim urządzeniu otwórz „Połącz urządzenie” i zeskanuj ten kod albo skopiuj go i wklej tam.';
+  String get linkCopy => 'Kopiuj zaproszenie';
 
   @override
-  String get linkCopy => 'Kopiuj kod';
-
-  @override
-  String get linkCopied => 'Skopiowano kod.';
+  String get linkCopied => 'Skopiowano zaproszenie.';
 
   @override
   String linkExpires(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Kod działa $count min.',
-      many: 'Kod działa $count min.',
-      few: 'Kod działa $count min.',
-      one: 'Kod działa $count min.',
+      other: 'Zaproszenie działa jeszcze $count min.',
+      many: 'Zaproszenie działa jeszcze $count min.',
+      few: 'Zaproszenie działa jeszcze $count min.',
+      one: 'Zaproszenie działa jeszcze $count min.',
     );
     return '$_temp0';
   }
@@ -17255,51 +17218,37 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get linkPasteLabel => 'Kod połączenia';
+  String get linkPasteLabel => 'Zaproszenie';
 
   @override
   String get linkGo => 'Połącz';
 
   @override
-  String get linkCheckTitle => 'Sprawdź obrazki';
-
-  @override
-  String linkCheckLead(String name) {
-    return '$name też pokazuje cztery obrazki. Połącz tylko, jeśli są takie same i w tej samej kolejności.';
-  }
-
-  @override
   String get linkPicturesLabel => 'Cztery obrazki';
-
-  @override
-  String linkWaitingCheck(String name) {
-    return 'Czekanie, aż $name sprawdzi obrazki.';
-  }
 
   @override
   String get linkDoneTitle => 'Połączono';
 
   @override
   String linkDone(String name) {
-    return '$name: połączono. Płatność z jednego urządzenia widać na obu, a jej monety są wstrzymane na drugim.';
+    return 'Połączono z $name.';
   }
 
   @override
   String get linkFailedTitle => 'Nie połączono';
 
   @override
-  String get linkFailInvalid =>
-      'To nie jest kod połączenia urządzeń albo jest uszkodzony.';
+  String get linkFailInvalid => 'To nie jest zaproszenie urządzenia.';
 
   @override
-  String get linkFailExpired => 'Kod wygasł. Utwórz nowy.';
+  String get linkFailExpired => 'Zaproszenie wygasło. Utwórz nowe.';
 
   @override
-  String get linkFailNotFound => 'Ten kod został już użyty albo anulowany.';
+  String get linkFailNotFound => 'To zaproszenie zostało już użyte.';
 
   @override
   String get linkFailOwn =>
-      'Ten kod pochodzi z tego urządzenia. Zeskanuj go na drugim.';
+      'To zaproszenie pochodzi z tego urządzenia. Zeskanuj je na drugim.';
 
   @override
   String get linkFailOtherWallet =>
@@ -17307,23 +17256,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get linkFailOtherWalletCode =>
-      'Ten kod pochodzi z innego portfela. Połączenie wymaga tej samej frazy odzyskiwania.';
+      'To zaproszenie pochodzi z innego portfela. Łączenie wymaga tej samej frazy odzyskiwania.';
 
   @override
-  String get linkFailMismatch =>
-      'Obrazki się różnią, więc urządzeń nie połączono.';
-
-  @override
-  String get linkFailCancelled =>
-      'Drugie urządzenie przerwało albo nie sprawdziło obrazków na czas.';
-
-  @override
-  String get linkFailTooMany =>
-      'Jedno urządzenie jest już połączone. Aby połączyć inne, najpierw je usuń.';
+  String get linkFailTooMany => 'Jedno urządzenie jest już połączone.';
 
   @override
   String get linkFailUnreachable =>
-      'Żaden serwer nie odpowiedział. Spróbuj później.';
+      'Nie udało się połączyć z drugim urządzeniem.';
 
   @override
   String get linkTryAgain => 'Spróbuj ponownie';
@@ -17364,30 +17304,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskDevServersCancel => 'Anuluj zmianę';
-
-  @override
-  String deskDevServersDown(int down, int n) {
-    return '$down z $n nie odpowiada. Komunikaty idą przez drugi.';
-  }
-
-  @override
-  String get deskDevServersAllDown =>
-      'Żaden serwer nie odpowiada. Komunikaty czekają i idą dalej, gdy któryś wróci.';
-
-  @override
-  String get deskDevServersInfo1 =>
-      'Dwa połączone urządzenia wysyłają sobie komunikaty przez te serwery. Każdy komunikat trafia do wszystkich wybranych serwerów, więc awaria jednego nic nie zmienia.';
-
-  @override
-  String get deskDevServersInfo2 =>
-      'Zmiana jest najpierw wysyłana do drugiego urządzenia i wchodzi w życie, gdy je przyjmie. Do tego czasu używane są dotychczasowe serwery, a po zmianie są jeszcze czytane przez 7 dni.';
-
-  @override
-  String get deskDevServersInfo3 =>
-      'Serwery widzą, że dwa urządzenia wymieniają komunikaty i kiedy, a bez Tora także z jakich adresów; nigdy ich treści. Dwa serwery oznaczają, że widzą to dwaj operatorzy.';
-
-  @override
   String get deskDevPausedOffline => 'Wstrzymano, gdy Offline jest włączone.';
 
   @override
@@ -17400,9 +17316,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskDevHeldNone => 'Brak wstrzymanych monet.';
-
-  @override
   String get deskDevRenameThis => 'Zmień nazwę tego komputera';
 
   @override
@@ -17411,21 +17324,16 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get deskDevPasteLead => 'Wklej kod, który pokazuje drugie urządzenie.';
+  String get deskDevPasteLead => 'Wklej zaproszenie z drugiego urządzenia.';
 
   @override
-  String get deskDevMakingCode => 'Tworzenie kodu…';
+  String get deskDevMakingCode => 'Tworzenie zaproszenia…';
 
   @override
   String get deskDevConnecting => 'Łączenie…';
 
   @override
   String get deskDevTheOther => 'Drugie urządzenie';
-
-  @override
-  String deskDevServersLine(String servers) {
-    return 'Serwery: $servers';
-  }
 
   @override
   String get deskDevOfferReceived =>
@@ -17923,21 +17831,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get devicesOneOnly =>
       'Można połączyć jedno urządzenie. Aby połączyć inne, najpierw je usuń.';
-
-  @override
-  String devicesRelayAsk(String relay, String next) {
-    return 'Oba urządzenia używają $relay. Użyć $next na tym urządzeniu?';
-  }
-
-  @override
-  String get devicesRelayUse => 'Użyj';
-
-  @override
-  String get devicesRelayKeep => 'Zostaw';
-
-  @override
-  String get devicesRelayWhy =>
-      'Na jednym serwerze Epicbox oba urządzenia odpowiadają na te same płatności. Na różnych serwerach każde odpowiada na płatności na swój adres.';
 
   @override
   String txReceivedOnDevice(String device) {
@@ -19389,4 +19282,81 @@ class AppLocalizationsPl extends AppLocalizations {
   String inviteLinkNoHandler(String feature) {
     return '$feature: wyłączone lub niedostępne w tym portfelu.';
   }
+
+  @override
+  String get linkShowMine => 'Pokaż mój QR';
+
+  @override
+  String get linkPasteAnother => 'Wklej inne zaproszenie';
+
+  @override
+  String linkLinkingWith(String name) {
+    return 'Łączenie z $name…';
+  }
+
+  @override
+  String linkLinkingSame(String name) {
+    return '$name pokazuje te same cztery.';
+  }
+
+  @override
+  String linkFailFull(String name) {
+    return '$name jest już połączony z innym urządzeniem. Najpierw usuń je na $name.';
+  }
+
+  @override
+  String get linkFailUpdate =>
+      'Drugie urządzenie ma nowszą aplikację. Zaktualizuj tę i spróbuj ponownie.';
+
+  @override
+  String linkFailUpdateOther(String name) {
+    return '$name ma starszą aplikację. Zaktualizuj ją tam i spróbuj ponownie.';
+  }
+
+  @override
+  String linkReplaceTitle(String name) {
+    return 'Zastąpić $name?';
+  }
+
+  @override
+  String linkReplaceBody(String name) {
+    return 'Nowe urządzenie prosi o połączenie. $name przestaje dostawać komunikaty tego portfela; monety, które tu wstrzymuje, zostają zwolnione.';
+  }
+
+  @override
+  String get linkReplace => 'Zastąp';
+
+  @override
+  String linkKeep(String name) {
+    return 'Zostaw $name';
+  }
+
+  @override
+  String devicesEpicboxOff(String name) {
+    return 'Epicbox jest wyłączony: $name nie widzi płatności tego urządzenia.';
+  }
+
+  @override
+  String get devicesEpicboxOffNone => 'Epicbox jest wyłączony.';
+
+  @override
+  String devicesUpdateOther(String name) {
+    return 'Zaktualizuj $name, aby ten portfel pozostał zsynchronizowany.';
+  }
+
+  @override
+  String get devicesAbout => 'O połączonym urządzeniu';
+
+  @override
+  String get offerLinkThird =>
+      'Trzecie urządzenie ma ten portfel. Połączyć można dwa.';
+
+  @override
+  String devicesForwardedInvoice(String name) {
+    return '$name otrzymał prośbę o zapłatę. Zapłać tam.';
+  }
+
+  @override
+  String get linkConfirmInvite =>
+      'Połączyć to urządzenie z tym, które wysłało zaproszenie?';
 }

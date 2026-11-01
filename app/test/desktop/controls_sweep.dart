@@ -17,11 +17,11 @@ import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/models.dart' show FinishedPayment;
+import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent;
 import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
-import 'package:epic_wallet/src/devices/device_service.dart' show DeviceHost;
+import 'package:epic_wallet/src/devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
@@ -388,6 +388,12 @@ class _Recorder implements DeskWalletApi, MockBacked {
 
   @override
   void useDevices(DeviceBook? Function()? book) => _m.useDevices(book);
+
+  @override
+  set noticeForwarder(void Function(InvoiceEvent e)? forward) => _m.noticeForwarder = forward;
+
+  @override
+  Future<void> applyForwarded(ForwardedNotice notice) => _m.applyForwarded(notice);
   @override
   Future<void> setInvoiceExpiry(Duration expiry) => _r('setInvoiceExpiry', () => _m.setInvoiceExpiry(expiry));
 }

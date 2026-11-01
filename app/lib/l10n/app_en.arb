@@ -21952,11 +21952,11 @@
       }
     }
   },
-  "txSentFromOtherWallet": "Sent from another wallet",
+  "txSentFromOtherWallet": "Sent from another device",
   "@txSentFromOtherWallet": {
     "description": "Title of a history row for coins of this wallet that another wallet using the same recovery phrase spent: this wallet has no record of the payment, only that the coins left."
   },
-  "txSpokenSentFromOtherWallet": "Sent from another wallet, {amount}",
+  "txSpokenSentFromOtherWallet": "Sent from another device, {amount}",
   "@txSpokenSentFromOtherWallet": {
     "description": "Screen-reader text of a history row sent from another wallet. {amount} is the amount that left.",
     "placeholders": {
@@ -21966,11 +21966,11 @@
       }
     }
   },
-  "txDetailsOtherWallet": "Spent by another wallet with the same recovery phrase. Only the amount is known.",
+  "txDetailsOtherWallet": "Sent from another device with this wallet’s recovery phrase. Only the amount is known.",
   "@txDetailsOtherWallet": {
     "description": "Details of a row sent from another wallet: what it is and what is not known about it."
   },
-  "txSentFromOtherWalletUnverified": "Sent from another wallet · unverified",
+  "txSentFromOtherWalletUnverified": "Sent from another device · unverified",
   "@txSentFromOtherWalletUnverified": {
     "description": "Title of a history row sent from another wallet while only the node's answers show it (no completed scan has covered its blocks yet)."
   },
@@ -21982,11 +21982,11 @@
   "@txDetailsNotKnown": {
     "description": "Value of a details row (the fee) that this wallet cannot know."
   },
-  "txReceivedByOtherWallet": "Received by another wallet",
+  "txReceivedByOtherWallet": "Received by another device",
   "@txReceivedByOtherWallet": {
     "description": "Title of a history row for coins that another wallet using the same recovery phrase received: this wallet has no record of the payment, only that the coins arrived."
   },
-  "txSpokenReceivedByOtherWallet": "Received by another wallet, {amount}",
+  "txSpokenReceivedByOtherWallet": "Received by another device, {amount}",
   "@txSpokenReceivedByOtherWallet": {
     "description": "Screen-reader text of a history row received by another wallet. {amount} is the amount that arrived.",
     "placeholders": {
@@ -21996,7 +21996,7 @@
       }
     }
   },
-  "txDetailsOtherWalletIn": "Received by another wallet with the same recovery phrase. Only the amount is known.",
+  "txDetailsOtherWalletIn": "Received by another device with this wallet’s recovery phrase. Only the amount is known.",
   "@txDetailsOtherWalletIn": {
     "description": "Details of a row received by another wallet: what it is and what is not known about it."
   },
@@ -22004,7 +22004,7 @@
   "@expLinkedDevices": {
     "description": "Settings › Advanced › Experimental: the switch for linked devices (this wallet on two or more of the user's own devices). Also the page and hub row name."
   },
-  "expLinkedDevicesHint": "Use the same wallet (the same recovery phrase) on two devices: this one and one linked device. Two different wallets cannot be linked. Each tells the other about its payments, so coins one is spending are held on the other and its payments show in its history. Linking protects what is shared, not the money: any device with the recovery phrase can spend. Experimental: it can still change.",
+  "expLinkedDevicesHint": "This wallet on two devices: each shows the other’s payments and holds the coins the other is spending. Experimental.",
   "@expLinkedDevicesHint": {
     "description": "The info text of the Linked devices switch."
   },
@@ -22064,15 +22064,6 @@
       }
     }
   },
-  "devicesServerCount": "{count, plural, one{{count} server} other{{count} servers}}",
-  "@devicesServerCount": {
-    "description": "How many servers carry the link to one device, on its row.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "devicesThisDevice": "This device",
   "@devicesThisDevice": {
     "description": "Linked devices page: the heading over this device's own name."
@@ -22081,7 +22072,7 @@
   "@devicesOthers": {
     "description": "Linked devices page: the heading over the other devices."
   },
-  "devicesEmpty": "This wallet is not linked to another device yet.",
+  "devicesEmpty": "Restore this wallet on your other device, then link the two here.",
   "@devicesEmpty": {
     "description": "Linked devices page with no device linked."
   },
@@ -22092,39 +22083,6 @@
   "devicesServers": "Servers",
   "@devicesServers": {
     "description": "Linked devices page: the row with the servers the devices' notices go through."
-  },
-  "devicesServersNote": "Notices between the two devices go through each server chosen.",
-  "@devicesServersNote": {
-    "description": "Under the server list when choosing the linked devices' servers."
-  },
-  "devicesServersWaiting": "Waiting for {name} to accept the new servers.",
-  "@devicesServersWaiting": {
-    "description": "Linked devices page: a server change this device proposed waits for the others.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "devicesProposal": "{name} proposes these servers: {servers}.",
-  "@devicesProposal": {
-    "description": "Linked devices page: another device proposes other servers; the user accepts here or not.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "servers": {
-        "type": "String"
-      }
-    }
-  },
-  "devicesAccept": "Accept",
-  "@devicesAccept": {
-    "description": "Button: accept the servers another device proposed."
-  },
-  "devicesNotNow": "Not now",
-  "@devicesNotNow": {
-    "description": "Button: leave the servers another device proposed."
   },
   "devicesPause": "Pause sync",
   "@devicesPause": {
@@ -22189,7 +22147,7 @@
       }
     }
   },
-  "devicesRemoveBody": "{name} stops getting and sending notices, and coins it holds here are released. This does not protect the money: a device that holds the recovery phrase can always spend it. If {name} may be in someone else’s hands, move the coins to a wallet with a new recovery phrase.",
+  "devicesRemoveBody": "{name} stops getting this wallet’s notices; coins it holds here are released. It can still spend with the recovery phrase: if it may be in someone else’s hands, move the coins to a new wallet.",
   "@devicesRemoveBody": {
     "description": "Body of the confirm before removing a linked device. Must say plainly that removing does not protect the money.",
     "placeholders": {
@@ -22207,7 +22165,7 @@
       }
     }
   },
-  "devicesRemovedBy": "{name} removed this device from the link.",
+  "devicesRemovedBy": "{name} removed this device.",
   "@devicesRemovedBy": {
     "description": "Linked devices page: another device removed this one from the link.",
     "placeholders": {
@@ -22228,37 +22186,33 @@
   "@devicesUnsupported": {
     "description": "Linked devices page and link flow when this build's wallet core cannot link devices yet."
   },
-  "linkLead": "Only for this same wallet on another device: both need the same recovery phrase. One shows a code, the other scans or pastes it.",
+  "linkLead": "For this wallet on your other device. Restore it there from the recovery phrase first.",
   "@linkLead": {
     "description": "First step of Link a device."
   },
-  "linkShow": "Show code",
+  "linkShow": "Show QR",
   "@linkShow": {
-    "description": "Link a device: this device shows the code."
+    "description": "Link a device (desktop), a tab: this computer shows the QR of its invite."
   },
-  "linkScan": "Scan code",
+  "linkScan": "Scan the QR",
   "@linkScan": {
-    "description": "Link a device: scan the other device's code with the camera."
+    "description": "Link a device (phone): the button that opens the camera to scan the QR of the other device’s invite; also the camera’s accessibility label."
   },
-  "linkPaste": "Paste code",
+  "linkPaste": "Paste invite",
   "@linkPaste": {
-    "description": "Link a device: paste the other device's code."
+    "description": "Link a device: the tab (desktop) or text button (phone) to paste the invite the other device shows, as text."
   },
-  "linkShowLead": "On the other device, open Link a device and scan this code, or copy it and paste it there.",
-  "@linkShowLead": {
-    "description": "Under the device link QR."
-  },
-  "linkCopy": "Copy code",
+  "linkCopy": "Copy invite",
   "@linkCopy": {
-    "description": "Button: copy the device link code."
+    "description": "Under the invite’s QR: copies the invite as text."
   },
-  "linkCopied": "Code copied.",
+  "linkCopied": "Invite copied.",
   "@linkCopied": {
-    "description": "Notice after copying the device link code."
+    "description": "Notice after Copy invite."
   },
-  "linkExpires": "{count, plural, one{The code works for {count} min.} other{The code works for {count} min.}}",
+  "linkExpires": "{count, plural, one{Invite works {count} min more.} other{Invite works {count} min more.}}",
   "@linkExpires": {
-    "description": "Under the device link QR: how long the code works.",
+    "description": "Under the invite’s QR: how many minutes the invite still works.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -22278,45 +22232,23 @@
       }
     }
   },
-  "linkPasteLabel": "Device link code",
+  "linkPasteLabel": "Invite",
   "@linkPasteLabel": {
-    "description": "Field label: the pasted device link code."
+    "description": "Label of the field where the invite is pasted; also the QR image’s accessibility label."
   },
   "linkGo": "Link",
   "@linkGo": {
     "description": "Button: link with the pasted code."
   },
-  "linkCheckTitle": "Check the pictures",
-  "@linkCheckTitle": {
-    "description": "Link a device: the step where the user compares four pictures on both devices."
-  },
-  "linkCheckLead": "{name} shows four pictures too. Link only if they are the same, in the same order.",
-  "@linkCheckLead": {
-    "description": "Link a device: compare the four pictures.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "linkPicturesLabel": "The four pictures",
   "@linkPicturesLabel": {
     "description": "Screen reader label of the four pictures."
-  },
-  "linkWaitingCheck": "Waiting for {name} to check the pictures.",
-  "@linkWaitingCheck": {
-    "description": "Link a device: this device matched, the other has not checked yet.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
   },
   "linkDoneTitle": "Linked",
   "@linkDoneTitle": {
     "description": "Link a device: done."
   },
-  "linkDone": "{name} is linked. A payment either device makes shows on both, and its coins are held on the other.",
+  "linkDone": "Linked to {name}.",
   "@linkDone": {
     "description": "Link a device: done.",
     "placeholders": {
@@ -22329,43 +22261,35 @@
   "@linkFailedTitle": {
     "description": "Link a device: it did not complete."
   },
-  "linkFailInvalid": "This is not a device link code, or it is damaged.",
+  "linkFailInvalid": "Not a device invite.",
   "@linkFailInvalid": {
-    "description": "Link failure."
+    "description": "Link failed: the scanned or pasted text is not a device invite."
   },
-  "linkFailExpired": "The code ran out of time. Make a new one.",
+  "linkFailExpired": "The invite ran out of time. Make a new one.",
   "@linkFailExpired": {
-    "description": "Link failure."
+    "description": "Link failed: the invite’s time ran out."
   },
-  "linkFailNotFound": "This code was used already or was cancelled.",
+  "linkFailNotFound": "This invite was used already.",
   "@linkFailNotFound": {
-    "description": "Link failure."
+    "description": "Link failed: the invite was answered by another device already, or was cancelled."
   },
-  "linkFailOwn": "This code is from this device. Scan it on the other one.",
+  "linkFailOwn": "This invite is from this device. Scan it on the other one.",
   "@linkFailOwn": {
-    "description": "Link failure: the user scanned this device's own code."
+    "description": "Link failed: the invite scanned or pasted is this device’s own."
   },
   "linkFailOtherWallet": "This device holds another wallet. Linking needs the same recovery phrase.",
   "@linkFailOtherWallet": {
     "description": "Link failure: the other device holds a different wallet."
   },
-  "linkFailOtherWalletCode": "This code is from a different wallet. Linking needs the same recovery phrase.",
+  "linkFailOtherWalletCode": "This invite is from a different wallet. Linking needs the same recovery phrase.",
   "@linkFailOtherWalletCode": {
-    "description": "Link failure on the scanning device: the scanned or pasted link code was made by a different wallet, so it was refused before answering."
+    "description": "Link failed: the invite was made by another wallet (its fingerprint is not this wallet’s); refused before answering."
   },
-  "linkFailMismatch": "The pictures differ, so the devices were not linked.",
-  "@linkFailMismatch": {
-    "description": "Link failure: the user said the pictures differ."
-  },
-  "linkFailCancelled": "The other device stopped, or did not check the pictures in time.",
-  "@linkFailCancelled": {
-    "description": "Link failure: the other device stopped or did not check in time."
-  },
-  "linkFailTooMany": "A device is linked already. Remove it to link another.",
+  "linkFailTooMany": "A device is linked already.",
   "@linkFailTooMany": {
     "description": "Link failure: a device is linked already (only one can be)."
   },
-  "linkFailUnreachable": "No server answered. Try again later.",
+  "linkFailUnreachable": "The other device could not be reached.",
   "@linkFailUnreachable": {
     "description": "Link failure: no server answered."
   },
@@ -22428,38 +22352,6 @@
       }
     }
   },
-  "deskDevServersCancel": "Cancel change",
-  "@deskDevServersCancel": {
-    "description": "Button on the waiting row of a server change this computer proposed: withdraws it."
-  },
-  "deskDevServersDown": "{down} of {n} not responding. Updates go through the other.",
-  "@deskDevServersDown": {
-    "description": "Line under the Servers picker when one of two chosen servers does not answer.",
-    "placeholders": {
-      "down": {
-        "type": "int"
-      },
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "deskDevServersAllDown": "No server answers. Updates wait and go when one is back.",
-  "@deskDevServersAllDown": {
-    "description": "Line under the Servers picker when no chosen server answers."
-  },
-  "deskDevServersInfo1": "The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.",
-  "@deskDevServersInfo1": {
-    "description": "Info card of the Servers row, paragraph 1."
-  },
-  "deskDevServersInfo2": "A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.",
-  "@deskDevServersInfo2": {
-    "description": "Info card of the Servers row, paragraph 2."
-  },
-  "deskDevServersInfo3": "The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.",
-  "@deskDevServersInfo3": {
-    "description": "Info card of the Servers row, paragraph 3."
-  },
   "deskDevPausedOffline": "Paused while Offline is on.",
   "@deskDevPausedOffline": {
     "description": "Under the Pause sync switch while the app is in Offline mode."
@@ -22477,10 +22369,6 @@
       }
     }
   },
-  "deskDevHeldNone": "No coins held.",
-  "@deskDevHeldNone": {
-    "description": "Held coins list when no other device holds any coin here."
-  },
   "deskDevRenameThis": "Rename this computer",
   "@deskDevRenameThis": {
     "description": "Title of the dialog that renames this computer."
@@ -22494,13 +22382,13 @@
       }
     }
   },
-  "deskDevPasteLead": "Paste the code the other device shows.",
+  "deskDevPasteLead": "Paste the invite from the other device.",
   "@deskDevPasteLead": {
-    "description": "Link dialog, Paste code tab: what to paste."
+    "description": "Link a device (desktop), the lead of the Paste invite tab."
   },
-  "deskDevMakingCode": "Making the code…",
+  "deskDevMakingCode": "Making the invite…",
   "@deskDevMakingCode": {
-    "description": "Link dialog while the code is made."
+    "description": "Link a device (desktop), while the invite is being made."
   },
   "deskDevConnecting": "Connecting…",
   "@deskDevConnecting": {
@@ -22509,15 +22397,6 @@
   "deskDevTheOther": "The other device",
   "@deskDevTheOther": {
     "description": "The other device in the link dialog when it has not told its name yet."
-  },
-  "deskDevServersLine": "Servers: {servers}",
-  "@deskDevServersLine": {
-    "description": "Link dialog, under the code: the servers the link uses.",
-    "placeholders": {
-      "servers": {
-        "type": "String"
-      }
-    }
   },
   "deskDevOfferReceived": "Is this your other device? Link it to see who sent it and to keep both in step.",
   "@deskDevOfferReceived": {
@@ -23279,32 +23158,6 @@
   "devicesOneOnly": "One device can be linked. Remove it to link another.",
   "@devicesOneOnly": {
     "description": "Note under the linked device: only one device can be linked at a time; remove it to link another."
-  },
-  "devicesRelayAsk": "Both devices use {relay}. Use {next} on this device?",
-  "@devicesRelayAsk": {
-    "description": "Question on a device being linked (or after a relay change): both linked devices use the same Epicbox relay, so both answer a payment; offers to move this device to another relay. {relay} is the shared relay's address, {next} the relay offered.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "relay.example.org"
-      },
-      "next": {
-        "type": "String",
-        "example": "relay2.example.org"
-      }
-    }
-  },
-  "devicesRelayUse": "Use",
-  "@devicesRelayUse": {
-    "description": "Button: move this device to the offered relay."
-  },
-  "devicesRelayKeep": "Keep",
-  "@devicesRelayKeep": {
-    "description": "Button: keep both devices on the same relay."
-  },
-  "devicesRelayWhy": "On one Epicbox server, both devices answer the same payments. On different servers, each answers payments to its own address.",
-  "@devicesRelayWhy": {
-    "description": "One-line hint under the relay question: what one relay or different relays mean for the two linked devices."
   },
   "txReceivedOnDevice": "Received on {device}",
   "@txReceivedOnDevice": {
@@ -25370,5 +25223,137 @@
         "type": "String"
       }
     }
+  },
+  "linkShowMine": "Show my QR",
+  "@linkShowMine": {
+    "description": "Link a device (phone), a text button under the camera: this phone shows the QR of its own invite instead of scanning."
+  },
+  "linkPasteAnother": "Paste another invite",
+  "@linkPasteAnother": {
+    "description": "Link a device, after a pasted invite failed: back to the paste field."
+  },
+  "linkLinkingWith": "Linking with {name}…",
+  "@linkLinkingWith": {
+    "description": "Link a device, while both devices are paired and exchange their hellos: the four pictures show under it. {name} is the other device.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "linkLinkingSame": "{name} shows the same four.",
+  "@linkLinkingSame": {
+    "description": "Caption under the four pictures while linking: the other device shows the same pictures. {name} is the other device.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "linkFailFull": "{name} is linked to another device already. Remove that one on {name} first.",
+  "@linkFailFull": {
+    "description": "Link failed: the device whose code this one scanned, or that scanned this one’s code, is linked to another device already. {name} is that device.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "linkFailUpdate": "The other device has a newer app. Update this one, then try again.",
+  "@linkFailUpdate": {
+    "description": "Link failed: the other device writes a newer wire version."
+  },
+  "linkFailUpdateOther": "{name} has an older app. Update it, then try again.",
+  "@linkFailUpdateOther": {
+    "description": "Link failed: the other device writes an older wire version. {name} is the other device.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "linkReplaceTitle": "Replace {name}?",
+  "@linkReplaceTitle": {
+    "description": "Dialog title and button on the device that is linked already, when a new device asks to link: replace the linked device {name} with the new one.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "linkReplaceBody": "A new device asked to link. {name} stops getting this wallet’s notices; coins it holds here are released.",
+  "@linkReplaceBody": {
+    "description": "Body of the Replace dialog. {name} is the device linked now.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "linkReplace": "Replace",
+  "@linkReplace": {
+    "description": "The confirming button of the Replace dialog."
+  },
+  "linkKeep": "Keep {name}",
+  "@linkKeep": {
+    "description": "The declining button of the Replace dialog: keep the device linked now. {name} is that device.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "devicesEpicboxOff": "Epicbox is off: {name} does not see this device’s payments.",
+  "@devicesEpicboxOff": {
+    "description": "Line under the linked device, and under the method row of Send, while nothing goes over Epicbox: the devices do not sync. {name} is the linked device.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "devicesEpicboxOffNone": "Epicbox is off.",
+  "@devicesEpicboxOffNone": {
+    "description": "Caption under the disabled Link a device button while nothing goes over Epicbox and no device is linked."
+  },
+  "devicesUpdateOther": "Update {name} to keep this wallet in sync.",
+  "@devicesUpdateOther": {
+    "description": "Line under the linked device when its notices are of another wire version and cannot be read. {name} is the linked device.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "devicesAbout": "About the linked device",
+  "@devicesAbout": {
+    "description": "Label of the info button on the linked device’s row; it opens the one-device rule and the servers."
+  },
+  "offerLinkThird": "A third device has this wallet. Two can be linked.",
+  "@offerLinkThird": {
+    "description": "In place of the link offer while a device is linked already: the payment came from a third device on the same recovery phrase."
+  },
+  "devicesForwardedInvoice": "{name} received a request to pay. Pay it there.",
+  "@devicesForwardedInvoice": {
+    "description": "Notice when a contact’s request to pay arrived on the linked device {name}; it can be paid only there.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Desktop"
+      }
+    }
+  },
+  "linkConfirmInvite": "Link this device with the one that sent the invite?",
+  "@linkConfirmInvite": {
+    "description": "Link a device, when a device invite came in as a link the system opened: the question before it is answered, with Link and Cancel. A link never links by itself."
   }
 }

@@ -466,6 +466,10 @@ enum InvoiceNoticeKind {
   /// A service withdrew an invoice before the user answered it.
   withdrawn,
 
+  /// A contact's request to pay arrived on the linked device ([InvoiceNotice.who] names it);
+  /// it is paid there.
+  requestOnDevice,
+
   /// An invoice ran out of time before the user answered it.
   expired,
 

@@ -48,7 +48,7 @@ void _inject(Side from, Side to, Map<String, Object?> envelope) {
   to.pairing.receivePayload(d.pairings.values.first, utf8.encode(jsonEncode(envelope)));
 }
 
-Map<String, Object?> _env(Side from, int seq, String type, Map<String, Object?> body, {int v = 1, String? id}) => {
+Map<String, Object?> _env(Side from, int seq, String type, Map<String, Object?> body, {int v = deviceWireVersion, String? id}) => {
   'v': v,
   'type': type,
   'id': id ?? randomHexId(),
@@ -72,7 +72,7 @@ void main() {
   });
 
   group('linking', () {
-    test('A shows, B scans, both check: linked both ways, out of the contact lists', () async {
+    test('A shows, B scans: linked both ways with nothing tapped, out of the contact lists', () async {
       await linkBoth(a, b);
       expect(a.service.link!.phase, LinkPhase.done);
       expect(b.service.link!.phase, LinkPhase.done);
@@ -80,10 +80,15 @@ void main() {
       expect(b.service.book.devices.single.name, 'Desktop');
       expect(a.service.book.devices.single.deviceId, b.service.book.deviceId);
       expect(b.service.book.servers, [_s1]);
+      // Each hello says what its device is, for the other's icon.
+      expect(a.service.book.devices.single.kind, DeviceKind.phone);
       // Private pairings never list as contacts.
       expect(await a.pairing.pairings(), isEmpty);
       expect(await b.pairing.pairings(), isEmpty);
       expect((await a.pairing.privatePairings()).single.state, PairingState.verified);
+      // Linked, the four pictures are the same on both devices.
+      expect(a.service.link!.sas, b.service.link!.sas);
+      expect(a.service.link!.sas, hasLength(4));
     });
 
     test("a service let go never writes: the wallet's next service keeps the link it saved", () async {
@@ -120,30 +125,29 @@ void main() {
       });
     });
 
-    test('nothing is linked until both devices checked the pictures', () async {
+    test("paired, each device posts its hello by itself; nothing is linked until the other's came", () async {
       await showAndScan(a, b);
-      expect(a.service.link!.phase, LinkPhase.checking);
-      expect(b.service.link!.phase, LinkPhase.checking);
-      expect(a.service.link!.sas, b.service.link!.sas);
-      await a.service.answerCheck(true);
-      await settle(a, b);
-      expect(a.service.link!.phase, LinkPhase.waitingOther);
-      expect(b.service.link!.phase, LinkPhase.checking);
+      expect(a.service.link!.phase, LinkPhase.linking);
+      expect(a.service.link!.sas, hasLength(4));
       expect(a.service.book.devices, isEmpty);
-      expect(b.service.book.devices, isEmpty);
+      // A's hello went out on its own: the pairing is confirmed on A's side.
+      expect((await a.pairing.privatePairings()).single.state, PairingState.verified);
+      expect(a.pairing.posted.where((p) => utf8.decode(p.bytes).contains('"hello"')), hasLength(1));
       // A private pairing has no "check later".
-      expect(() => b.pairing.checkWords(b.service.link!.pairingId!, PairingCheck.skip), throwsA(isA<WalletError>()));
+      expect(() => a.pairing.checkWords(a.service.link!.pairingId!, PairingCheck.skip), throwsA(isA<WalletError>()));
+      // B reads its channel: its hello goes, A's is read, both are linked.
+      await settle(a, b);
+      expect(a.service.link!.phase, LinkPhase.done);
+      expect(b.service.link!.phase, LinkPhase.done);
     });
 
-    test('pictures that do not match end the link on both devices', () async {
+    test("the other device's hello does not come: the link gives up after a while, as not reached", () async {
       await showAndScan(a, b);
-      await a.service.answerCheck(true);
-      await b.service.answerCheck(false);
-      await settle(a, b);
-      expect(b.service.link!.failure, LinkFailure.mismatch);
+      clock.now = clock.now.add(linkHelloWait + const Duration(seconds: 1));
+      await a.sync();
       expect(a.service.link!.phase, LinkPhase.failed);
-      expect(a.service.book.devices, isEmpty);
-      expect(b.service.book.devices, isEmpty);
+      expect(a.service.link!.failure, LinkFailure.unreachable);
+      expect(await a.pairing.privatePairings(), isEmpty);
     });
 
     test('a code of another wallet is refused at the scan, before it is answered', () async {
@@ -168,10 +172,6 @@ void main() {
       final old = a.service.link!.code!.replaceFirst(RegExp(r'/[0-9a-f]{16}$'), '');
       await other.service.startScanned(old);
       await settle(a, other);
-      await a.service.answerCheck(true);
-      await settle(a, other);
-      await other.service.answerCheck(true);
-      await settle(a, other);
       expect(a.service.link!.failure, LinkFailure.otherWallet);
       expect(other.service.link!.failure, LinkFailure.otherWallet);
       expect(a.service.book.devices, isEmpty);
@@ -180,10 +180,12 @@ void main() {
     });
 
     for (final (what, proof) in [('no proof', null), ('a proof of another wallet', 'other'), ('a proof of another pairing', 'sas')]) {
-      test('a hello with the right wallet address and $what is refused and unpaired', () async {
+      test('a hello with the right wallet address and $what does not link', () async {
         await showAndScan(a, b);
-        final id = b.service.link!.pairingId!;
-        final sas = b.service.link!.sas;
+        // B's engine completes its side without B's service, which would post a real hello.
+        await b.pairing.collectPrivate();
+        final id = (await b.pairing.privatePairings()).single.id;
+        final sas = a.service.link!.sas;
         // B hand-builds its hello: the right address, as anyone could, but no valid proof.
         final forged = switch (proof) {
           'other' => fakeAddressSignature('esAnotherWallet', helloTranscript(b.service.book.deviceId, sas)),
@@ -200,11 +202,16 @@ void main() {
           body: {'deviceId': b.service.book.deviceId, 'name': 'Phone', 'walletAddress': 'esSameWalletKey', 'servers': [_s1], 'proof': ?forged},
         );
         await b.pairing.postPayload(id: id, bytes: hello.encode());
-        await a.service.answerCheck(true);
-        await settle(a, b);
-        expect(a.service.link!.failure, LinkFailure.otherWallet);
+        await a.sync();
         expect(a.service.book.devices, isEmpty);
-        expect(await a.pairing.privatePairings(), isEmpty);
+        if (proof == null) {
+          // No proof is no hello of this version: dropped, the link waits on until it gives up.
+          expect(a.service.link!.phase, LinkPhase.linking);
+          expect(await a.pairing.privatePairings(), hasLength(1));
+        } else {
+          expect(a.service.link!.failure, LinkFailure.otherWallet);
+          expect(await a.pairing.privatePairings(), isEmpty);
+        }
       });
     }
 
@@ -215,12 +222,36 @@ void main() {
       final key = epicboxKey(a.session.address);
       expect(await a.session.verifyAddressSignature(key: key, message: helloTranscript(b.service.book.deviceId, sas), signature: proof), isTrue);
       expect(await a.session.verifyAddressSignature(key: key, message: helloTranscript(a.service.book.deviceId, sas), signature: proof), isFalse);
-      await a.service.answerCheck(true);
-      await settle(a, b);
-      await b.service.answerCheck(true);
       await settle(a, b);
       expect(a.service.link!.phase, LinkPhase.done);
       expect(b.service.link!.phase, LinkPhase.done);
+    });
+
+    test('a hello of another wire version ends the link and says which device to update', () async {
+      await showAndScan(a, b);
+      await b.pairing.collectPrivate();
+      final id = (await b.pairing.privatePairings()).single.id;
+      await b.pairing.checkWords(id, PairingCheck.match);
+      final sas = a.service.link!.sas;
+      final hello = Notice(
+        v: 3,
+        type: NoticeType.hello,
+        id: randomHexId(),
+        seq: 1,
+        dev: b.service.book.deviceId,
+        ts: 1,
+        body: {
+          'deviceId': b.service.book.deviceId,
+          'name': 'Phone',
+          'walletAddress': 'esSameWalletKey',
+          'servers': [_s1],
+          'proof': await b.session.signWithAddressKey(helloTranscript(b.service.book.deviceId, sas)),
+        },
+      );
+      await b.pairing.postPayload(id: id, bytes: hello.encode());
+      await a.sync();
+      expect(a.service.link!.failure, LinkFailure.update);
+      expect(await a.pairing.privatePairings(), isEmpty);
     });
 
     test('a contact invite does not link, and a device link does not pair a contact', () async {
@@ -279,15 +310,35 @@ void main() {
       expect(b.service.book.holds.single.state, HoldState.held);
     });
 
-    test('an unknown type and a newer version are ignored and keep the order', () async {
+    test('an unknown type is ignored and keeps the order', () async {
       final seq = b.service.book.devices.single.seqIn;
       _inject(a, b, _env(a, seq + 1, 'labels', {'x': 1}));
-      _inject(a, b, _env(a, seq + 2, 'rename', {'name': 'Never'}, v: 2));
-      _inject(a, b, _env(a, seq + 3, 'rename', {'name': 'Laptop'}));
+      _inject(a, b, _env(a, seq + 2, 'rename', {'name': 'Laptop'}));
       await b.sync();
       final d = b.service.book.devices.single;
       expect(d.name, 'Laptop');
-      expect(d.seqIn, seq + 3);
+      expect(d.seqIn, seq + 2);
+      expect(d.otherVersion, isNull);
+    });
+
+    test('a notice of another wire version keeps the order and names the device to update, until one of this version comes', () async {
+      final seq = b.service.book.devices.single.seqIn;
+      _inject(a, b, _env(a, seq + 1, 'rename', {'name': 'Never'}, v: 3));
+      await b.sync();
+      var d = b.service.book.devices.single;
+      expect(d.name, 'Desktop');
+      expect(d.seqIn, seq + 1);
+      expect(d.otherVersion, 3, reason: 'the screen says "Update Desktop to keep this wallet in sync"');
+      // An older app writes version 1: the same line.
+      _inject(a, b, _env(a, seq + 2, 'rename', {'name': 'Older'}, v: 1));
+      await b.sync();
+      expect(b.service.book.devices.single.otherVersion, 1);
+      // Updated: its next notice reads, and the line goes.
+      _inject(a, b, _env(a, seq + 3, 'rename', {'name': 'Laptop'}));
+      await b.sync();
+      d = b.service.book.devices.single;
+      expect(d.name, 'Laptop');
+      expect(d.otherVersion, isNull);
     });
 
     test('an oversize payload is dropped', () async {
@@ -325,13 +376,45 @@ void main() {
       expect(b.service.book.devices.single.seqIn, seq + 2);
     });
 
-    test('a missing notice is given up after an hour', () async {
+    test('a missing notice is given up after a few minutes', () async {
       final seq = b.service.book.devices.single.seqIn;
       _inject(a, b, _env(a, seq + 2, 'rename', {'name': 'Later'}));
       await b.sync();
-      clock.now = clock.now.add(const Duration(minutes: 61));
+      expect(b.service.book.devices.single.name, 'Desktop', reason: 'a rename keeps the order');
+      clock.now = clock.now.add(gapWait + const Duration(seconds: 1));
       await b.sync();
       expect(b.service.book.devices.single.name, 'Later');
+    });
+
+    test('a send, an unlink and a status of a known hold apply as they come, ahead of a missing notice', () async {
+      final seq = b.service.book.devices.single.seqIn;
+      // The send came through, the notice before it did not: its coins are held at once.
+      _inject(a, b, _env(a, seq + 2, 'send', {'slateId': 'early', 'inputs': [cm(2)], 'amount': '100'}));
+      await b.sync();
+      expect(b.service.book.heldCommitments, {cm(2)});
+      expect(b.service.book.devices.single.seqIn, seq, reason: 'the order still waits for the missing one');
+      // Its status applies at once too; one for a payment never held waits for the order.
+      _inject(a, b, _env(a, seq + 4, 'status', {'slateId': 'unknown', 'state': 'cancelled'}));
+      _inject(a, b, _env(a, seq + 3, 'status', {'slateId': 'early', 'state': 'cancelled'}));
+      await b.sync();
+      expect(b.service.book.holds.single.state, HoldState.released);
+      // The missing notice comes: the order catches up without applying the early ones twice.
+      _inject(a, b, _env(a, seq + 1, 'rename', {'name': 'First'}));
+      await b.sync();
+      final d = b.service.book.devices.single;
+      expect(d.name, 'First');
+      expect(d.seqIn, seq + 4);
+      expect(d.waiting, isEmpty);
+      expect(d.early, isEmpty);
+      expect(b.service.book.holds.single.state, HoldState.released);
+    });
+
+    test('an unlink ahead of a missing notice ends the link at once', () async {
+      final seq = b.service.book.devices.single.seqIn;
+      _inject(a, b, _env(a, seq + 2, 'unlink', {}));
+      await b.sync();
+      expect(b.service.book.devices, isEmpty);
+      expect(b.service.book.removedBy, 'Desktop');
     });
 
     test('a notice too far ahead is dropped', () async {

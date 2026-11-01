@@ -113,11 +113,7 @@ void main() {
     _say('D shows: ${ds.link?.phase.name}');
     await ps.startScanned(ds.link!.code!);
     _say('P scanned: ${ps.link?.phase.name}');
-    final checking = await _until(() async => ds.link?.phase == LinkPhase.checking && ps.link?.phase == LinkPhase.checking, settle);
-    _say('both checking: $checking');
-    await ps.answerCheck(true);
-    await settle();
-    await ds.answerCheck(true);
+    // Paired, each side posts its hello by itself: nothing to tap.
     final done = await _until(() async => ds.link?.phase == LinkPhase.done && ps.link?.phase == LinkPhase.done, settle);
     _say('both done: $done; D link ${ds.link?.phase.name}/${ds.link?.failure?.name}, P link ${ps.link?.phase.name}/${ps.link?.failure?.name}');
     _say('D book: ${_book(ds)}; P book: ${_book(ps)}');

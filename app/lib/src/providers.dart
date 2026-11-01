@@ -1324,6 +1324,10 @@ class PaymentPostedNotifier extends Notifier<InvoiceEvent?> {
     return null;
   }
 
+  /// The linked device heard the sender's report instead ([DeviceService.forwarded]): the
+  /// same list read and chain check.
+  Future<void> forwarded(InvoiceEvent event) => _onPosted(event);
+
   Future<void> _onPosted(InvoiceEvent event) async {
     logInfo('home', 'sender reports a payment posted');
     try {
@@ -1371,6 +1375,10 @@ class PaymentCancelledNotifier extends Notifier<InvoiceEvent?> {
     ref.onDispose(events.cancel);
     return null;
   }
+
+  /// The linked device heard the sender's report instead ([DeviceService.forwarded]); the
+  /// service dropped this device's answer, so only the list is read again.
+  Future<void> forwarded(InvoiceEvent event) => _onCancelled(event);
 
   Future<void> _onCancelled(InvoiceEvent event) async {
     logInfo('home', 'sender reports a payment cancelled');
