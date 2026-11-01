@@ -127,7 +127,7 @@ void main() {
     expect(container.read(deskProvider).account, isNotNull, reason: 'a wallet is open');
     await tester.tap(find.text('open'));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('To delete its files as well, unlock this wallet and use Delete wallet under Settings\u00a0›\u00a0This wallet.'), findsOneWidget);
+    expect(find.text('To delete its files as well, unlock this wallet and use Delete wallet under Settings\u00a0›\u00a0Security.'), findsOneWidget);
     await tester.tap(find.text('Unlock this wallet'));
     await _wait(tester);
     expect(api.locked, isTrue, reason: 'the open wallet is locked first');
@@ -138,7 +138,7 @@ void main() {
     final pick = nav.arg;
     expect(pick, isA<UnlockPick>());
     expect((pick! as UnlockPick).id, demoOtherWallet.id);
-    expect((pick as UnlockPick).then, DeskRoute.settingsAccount);
+    expect((pick as UnlockPick).then, DeskRoute.settingsSecurity);
     await _end(tester);
   });
 

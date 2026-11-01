@@ -29,6 +29,7 @@
   "deskSetDlgDeleteWallet": "删除钱包",
   "deskSetDlgRemoveDeleteHint": "从 {folder} 删除它的密钥和数据库。只有助记词能恢复它；没有助记词，币就会丢失。",
   "deskSetDlgRemoveUnlockHint": "如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 此钱包”中的“删除钱包”。",
+  "deskSetDlgRemoveUnlockHintSecurity": "如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 安全”中的“删除钱包”。",
   "deskSetDlgRemoveUnlock": "解锁此钱包",
   "deskSetDlgRemoveIrreversible": "无法撤销",
   "deskSetDlgRemoveIrreversibleBody": "只有助记词能恢复这个钱包；没有助记词，币就会永久丢失。",
