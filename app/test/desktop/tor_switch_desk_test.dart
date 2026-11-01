@@ -81,15 +81,15 @@ void main() {
       expect(failed.jump, SettingsJump.tor);
     }, skip: _skip);
 
-    test('Epicbox waits for Tor while it starts or failed, and says over Tor once on', () {
+    test('Epicbox waits for Tor while it starts, is not connected when it failed, and says over Tor once on', () {
       RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Epicbox');
       const on = DeskSettings(tor: true);
       expect(ebRow(on, _status(tor: ServiceHealth.checking, epicbox: ServiceHealth.checking)).word, 'Waiting for Tor');
-      expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, 'Waiting for Tor');
+      expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, 'Not connected');
       expect(ebRow(on, _status(tor: ServiceHealth.ok, canSend: true)).lines, contains('Over Tor'));
       expect(ebRow(const DeskSettings(), _status()).lines, isNot(contains('Over Tor')));
       final line = methodStateLine(englishStrings, TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
-      expect(line.word, 'Waiting for Tor');
+      expect(line.word, 'Not connected');
     }, skip: _skip);
 
     test('the coverage text names only what goes over Tor', () {

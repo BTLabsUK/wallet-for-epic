@@ -161,6 +161,19 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('Tor not connected: the banner is the one message (D-04)', (tester) async {
+    await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.failed));
+    expect(find.byKey(const ValueKey('rx-tor-notice')), findsOneWidget);
+    // The banner offers Retry; the Tor line keeps only its state, with no second Retry.
+    expect(find.descendant(of: find.byKey(const ValueKey('rx-panel-tor')), matching: find.text('Retry')), findsNothing);
+    final line = tester.widget<EStateLine>(find.byKey(const ValueKey('rx-state-tor')).first);
+    expect(line.line.detail, isNull);
+    expect(line.line.state, EState.risk);
+    // The chip keeps its words in the neutral look, never a second red signal.
+    final chip = tester.widget<EBadge>(find.byKey(const ValueKey('tor-chip')));
+    expect(chip.tone, BadgeTone.neutral);
+  }, skip: !torBuilt);
+
   testWidgets('no banned words on the page', (tester) async {
     for (final a in _args) {
       await _pump(tester, a);

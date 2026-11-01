@@ -9,7 +9,7 @@ import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../state_language.dart' show ShownState, torShownState;
-import 'status.dart' show toneColor;
+import 'status.dart' show StateDot, StatusDot, toneColor;
 import '../l10n.dart';
 import '../phone_tor.dart';
 import '../tor_phone.dart';
@@ -294,10 +294,11 @@ class TorStateLine extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    state == TorState.failed ? Icons.error_outline : torIcon,
-                    size: 16,
-                    color: torWordColor(t, state),
+                  // The state's own dot (state_language.dart), as the desktop's Receive line.
+                  StateDot(
+                    dot: StatusDot.of(torShownState(state)),
+                    size: 10,
+                    ring: theme.scaffoldBackgroundColor,
                   ),
                   const SizedBox(width: 6),
                   Flexible(

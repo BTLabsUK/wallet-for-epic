@@ -93,6 +93,8 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
   final blocked = st != null && st.epicboxBlocked && eb == ServiceHealth.down && !ebWaits;
   // One word per state (state_language.dart): a connection is Connected, never On (#29).
   final ebWord = switch (eb) {
+    // Tor failed: Epicbox is not connected (as its Receive line), Tor's own row says why.
+    _ when ebWaits && ebWay == TorWay.blocked => ShownState.notConnected.word(l),
     _ when ebWaits => ShownState.waitingTor.word(l),
     _ when blocked => l.deskEpicboxBlockedWord,
     ServiceHealth.ok => ShownState.connected.word(l),

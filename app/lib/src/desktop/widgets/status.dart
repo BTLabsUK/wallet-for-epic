@@ -242,7 +242,8 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       final way = torWay(TorRoute.epicbox, torStateOf(settings, s));
       if (s.epicboxHealth != ServiceHealth.off) {
         if (way == TorWay.wait) return MethodLine.of(l, ShownState.waitingTor, detail: host);
-        if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: host);
+        // Tor failed: Epicbox is not connected; why is Tor's to say (one message per page).
+        if (way == TorWay.blocked) return MethodLine.of(l, ShownState.notConnected, detail: host);
         if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine.of(l, ShownState.connected, detail: l.deskKitMethodOverTor(host));
       }
       return switch (s.epicboxHealth) {
