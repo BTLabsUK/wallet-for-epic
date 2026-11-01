@@ -250,7 +250,7 @@ void main() {
       expect(fixtures['remote no answer']!.$1.lines, ['node.epic.invalid · since 14:02', 'The node is not answering.']);
       expect(fixtures['local syncing, fallback']!.$1.host, 'epic.invalid');
       expect(fixtures['local syncing, fallback']!.$1.lines, [
-        'Local node · 12%',
+        'Local node · 12% · about 3 h left',
         'Headers · 1,480,200 of 3,764,975 · 14 peers',
         'Using node.epic.invalid until it is synced.',
       ]);
