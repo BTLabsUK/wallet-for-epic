@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -529,12 +530,104 @@ void main() {
       tester.getSemantics(find.bySemanticsLabel('Error: $long')),
       isSemantics(isLiveRegion: true),
     );
-    // Two lines on screen.
+    // Three lines on screen (A-10).
     final text = tester.widget<Text>(
       find.descendant(of: _card, matching: find.text(long)),
     );
-    expect(text.maxLines, 2);
+    expect(text.maxLines, noticeMaxLines);
+    expect(noticeMaxLines, 3);
     handle.dispose();
+  });
+
+  group('the action row (#07)', () {
+    RenderNoticeLayout layout(WidgetTester tester) =>
+        tester.renderObject<RenderNoticeLayout>(find.descendant(of: _card, matching: find.byType(NoticeLayout)));
+
+    testWidgets('a one-line notice keeps its action beside it, centred on the row', (tester) async {
+      final c = await _pump(tester);
+      c.notices.show('Copied', level: NoticeLevel.success, action: NoticeAction('View', () {}));
+      await tester.pumpAndSettle();
+      expect(layout(tester).actionsBeside, isTrue);
+      final text = tester.getRect(find.text('Copied'));
+      final button = tester.getRect(find.widgetWithText(TextButton, 'View'));
+      final icon = tester.getRect(find.descendant(of: _card, matching: find.byIcon(Icons.check_circle_outline)));
+      expect(button.left, greaterThan(text.right));
+      expect(text.center.dy, moreOrLessEquals(button.center.dy, epsilon: 1));
+      expect(icon.center.dy, moreOrLessEquals(text.center.dy, epsilon: 1));
+    });
+
+    testWidgets('text that would wrap puts the action on its own row and keeps the whole text', (tester) async {
+      final c = await _pump(tester);
+      // The test font draws every letter 14 dp wide: three lines on a phone.
+      const text = 'Now on epicbox.example.org. New address ready.';
+      c.notices.show(text, level: NoticeLevel.success, action: NoticeAction('Show new address', () {}));
+      await tester.pumpAndSettle();
+      expect(layout(tester).actionsBeside, isFalse);
+      final words = tester.getRect(find.text(text));
+      final button = tester.getRect(find.widgetWithText(TextButton, 'Show new address'));
+      // Under the words, at the end; the words are not cut to a few letters.
+      expect(button.top, greaterThanOrEqualTo(words.bottom));
+      expect(button.right, moreOrLessEquals(tester.getRect(_card).right - 4, epsilon: 1));
+      final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
+      expect(paragraph.didExceedMaxLines, isFalse);
+      // The close button stays level with the first line.
+      final close = tester.getRect(find.byTooltip('Close'));
+      expect(close.top, lessThan(words.top + 20));
+    });
+
+    testWidgets('a second action goes with the first: beside when short, under when not', (tester) async {
+      final c = await _pump(tester);
+      c.notices.show('Down', level: NoticeLevel.warning, action: NoticeAction('Go', () {}), secondary: NoticeAction('No', () {}));
+      await tester.pumpAndSettle();
+      expect(layout(tester).actionsBeside, isTrue);
+      c.notices.show(
+        'Epicbox server epicbox.example.org is not answering. Switch to another?',
+        level: NoticeLevel.warning,
+        persistent: true,
+        action: NoticeAction('Switch', () {}),
+        secondary: NoticeAction('Not now', () {}),
+      );
+      await tester.pumpAndSettle();
+      expect(layout(tester).actionsBeside, isFalse);
+      expect(
+        tester.getRect(find.text('Not now')).center.dy,
+        moreOrLessEquals(tester.getRect(find.text('Switch')).center.dy, epsilon: 1),
+      );
+    });
+
+    testWidgets('a title is bold and the text under it regular and dim', (tester) async {
+      final c = await _pump(tester);
+      c.notices.show('Free some space, then try again.', title: 'Wallet not saved', level: NoticeLevel.error);
+      await tester.pumpAndSettle();
+      final t = tester.element(_card).tokens;
+      final title = tester.widget<Text>(find.text('Wallet not saved'));
+      final body = tester.widget<Text>(find.text('Free some space, then try again.'));
+      expect(title.style?.fontWeight, FontWeight.w600);
+      expect(body.style?.fontWeight, isNot(FontWeight.w600));
+      expect(body.style?.color, t.dim);
+      expect(find.bySemanticsLabel('Error: Wallet not saved. Free some space, then try again.'), findsOneWidget);
+    });
+
+    testWidgets('an inline notice has the same parts, never cut', (tester) async {
+      await _pump(tester);
+      const long =
+          'Anyone who sees the recovery phrase can take the coins. Write it on paper, keep it '
+          'offline, and never type it into a website or a chat. A copy on this phone is only as '
+          'safe as the phone.';
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: buildWalletTheme(protocolLight, Brightness.light),
+          home: Scaffold(
+            body: InlineNotice(level: NoticeLevel.warning, title: 'Before you look', text: long, actions: [TextButton(onPressed: () {}, child: const Text('OK'))]),
+          ),
+        ),
+      );
+      expect(tester.renderObject<RenderParagraph>(find.text(long)).didExceedMaxLines, isFalse);
+      expect(tester.widget<Text>(find.text(long)).maxLines, isNull);
+      expect(tester.getRect(find.text('OK')).top, greaterThan(tester.getRect(find.text(long)).bottom));
+    });
   });
 
   for (final theme in [ThemeMode.light, ThemeMode.dark]) {

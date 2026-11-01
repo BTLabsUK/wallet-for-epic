@@ -10,6 +10,7 @@ import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../../ui/badge.dart';
+import '../../ui/notice_layout.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
@@ -207,7 +208,12 @@ class EStatusDot extends StatelessWidget {
   }
 }
 
-/// An inline message in the flow: tinted, with an icon, title, text and actions on the right.
+/// An inline message in the flow, the phone notice's anatomy ([NoticeLayout]): the tone's icon,
+/// a bold [title] (a few words), an optional regular, dim [text] (the sentence), and [actions].
+/// The actions sit beside the words while those fit on one line, else on their own row under
+/// them, at the end; a notice of one line is centred on its row with its icon and buttons.
+/// Warnings and risks are tinted; the calm tones (neutral, ok, info) sit on the panel with the
+/// tone on the icon. Gold is the brand's, never a notice's: it reads as [ETone.neutral].
 class ENotice extends StatelessWidget {
   const ENotice({
     super.key,
@@ -233,20 +239,16 @@ class ENotice extends StatelessWidget {
   final IconData? icon;
   final List<Widget> actions;
 
-  /// Puts [actions] on their own wrapping row under the text (several or long buttons).
+  /// Puts [actions] on their own row under the text whatever its length (several buttons).
   final bool actionsBelow;
-
-  /// The actions beside the words while the words keep [setRowMinWords], else under them.
-  Widget _withActions(Widget words) {
-    if (actionsBelow || actions.isEmpty) return words;
-    return _WrapRow(gap: Sp.x3, runGap: Sp.x3, minWords: setRowMinWords, top: true, children: [words, Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions)]);
-  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final tone = this.tone == ETone.gold ? ETone.neutral : this.tone;
     final (fg, bg) = tone.colors(c);
+    final calm = tone == ETone.neutral || tone == ETone.ok || tone == ETone.info;
     final iconColor = tone == ETone.neutral ? c.dim : fg;
     final glyph = icon ??
         switch (tone) {
@@ -255,45 +257,41 @@ class ENotice extends StatelessWidget {
           ETone.risk => EIcons.error,
           _ => EIcons.info,
         };
+    final strong = ts.strong;
+    final line = MediaQuery.textScalerOf(context).scale(strong.fontSize ?? Fs.md) * (strong.height ?? 1.5);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
       decoration: BoxDecoration(
         // In progress (info) is not a warning: the neutral panel with a blue icon.
-        color: tone == ETone.neutral || tone == ETone.ok || tone == ETone.info ? c.s1 : (tone == ETone.gold ? c.accentFaint : bg),
+        color: calm ? c.s1 : bg,
         borderRadius: BorderRadius.circular(Rad.sm),
-        border: Border.all(
-          color: tone == ETone.neutral || tone == ETone.ok || tone == ETone.info ? c.lineStrong : fg.withValues(alpha: 0.4),
-        ),
+        border: Border.all(color: calm ? c.lineStrong : fg.withValues(alpha: 0.4)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 1),
-            child: Icon(glyph, size: Ctl.icon, color: iconColor),
-          ),
-          SizedBox(width: Sp.x3),
-          Expanded(
-            child: _withActions(Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: ts.strong),
-                if (text != null) ...[
-                  const SizedBox(height: 2),
-                  Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
-                ],
-                if (below != null) ...[
-                  SizedBox(height: Sp.x2),
-                  SizedBox(width: double.infinity, child: below),
-                ],
-                if (actionsBelow && actions.isNotEmpty) ...[
-                  SizedBox(height: Sp.x3),
-                  Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions),
-                ],
-              ],
-            )),
-          ),
-        ],
+      child: NoticeLayout(
+        icon: Icon(glyph, size: Ctl.icon, color: iconColor),
+        words: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: strong),
+            if (text != null) ...[
+              const SizedBox(height: 2),
+              Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
+            ],
+            if (below != null) ...[
+              SizedBox(height: Sp.x2),
+              SizedBox(width: double.infinity, child: below),
+            ],
+          ],
+        ),
+        actions: actions.isEmpty
+            ? null
+            : Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, spacing: Sp.x2, runSpacing: Sp.x2, children: actions),
+        actionsBelow: actionsBelow,
+        iconGap: Sp.x3,
+        actionGap: Sp.x4,
+        runGap: Sp.x3,
+        firstLine: line,
       ),
     );
   }

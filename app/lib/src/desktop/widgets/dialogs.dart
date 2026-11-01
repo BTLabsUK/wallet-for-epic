@@ -278,7 +278,8 @@ void showEToast(BuildContext context, String title, {String? text, required ETon
     ETone.warn => c.warn,
     ETone.info => c.info,
     ETone.neutral => c.dim,
-    ETone.gold => c.accentText,
+    // Gold is the brand's, never a notice's: a done toast in gold reads as done (ok).
+    ETone.gold => c.ok,
   };
   final shown = messenger.showSnackBar(
     SnackBar(
