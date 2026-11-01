@@ -3661,6 +3661,8 @@
   "pairNotNow": "Не сейчас",
   "pairWaitingBody": "Другой кошелёк ответит, когда его откроют. Этот экран можно закрыть; проверка появится, когда сопряжение завершится.",
   "pairSendByHand": "Отправить вручную",
+  "pairReplyLateTitle": "Ещё не связаны?",
+  "pairReplyLateBody": "Ваш ответ ушёл к {name} через сервер Epicbox. Если их кошелёк закрыт или не видит сервер, отправьте ответ в чате.",
   "pairRelayUnreachableTitle": "Сервер недоступен",
   "pairRelayUnreachableBody": "Отправить ответ вручную?",
   "pairRelayUnreachableTor": "Сервер недоступен через Tor. Отправить ответ вручную?",

@@ -13894,6 +13894,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairSendByHand => 'Send by hand';
 
   @override
+  String get pairReplyLateTitle => 'Not paired yet?';
+
+  @override
+  String pairReplyLateBody(String name) {
+    return 'Your reply went to $name over the Epicbox server. If their wallet is closed or can\'t reach one, send the reply in the chat instead.';
+  }
+
+  @override
   String get pairRelayUnreachableTitle => 'Cannot reach the server';
 
   @override

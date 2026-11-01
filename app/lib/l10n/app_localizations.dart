@@ -21968,6 +21968,18 @@ abstract class AppLocalizations {
   /// **'Send by hand'**
   String get pairSendByHand;
 
+  /// Joiner by message: the pairing has not finished over the relay after a short wait; the reply to send in the chat is offered as the fallback
+  ///
+  /// In en, this message translates to:
+  /// **'Not paired yet?'**
+  String get pairReplyLateTitle;
+
+  /// Under pairReplyLateTitle
+  ///
+  /// In en, this message translates to:
+  /// **'Your reply went to {name} over the Epicbox server. If their wallet is closed or can\'t reach one, send the reply in the chat instead.'**
+  String pairReplyLateBody(String name);
+
   /// Notice on the waiting screen (cases file).
   ///
   /// In en, this message translates to:

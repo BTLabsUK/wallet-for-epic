@@ -6,6 +6,11 @@ library;
 import 'l10n.dart';
 import 'models.dart';
 
+/// Invite by message, the answerer: the reply went to the relay too, so the pairing usually
+/// finishes by itself. Only when it has not after this long is the reply offered to send back
+/// in the chat, as the fallback (Epicbox off on the other side, its wallet closed).
+const Duration pairReplyFallbackAfter = Duration(seconds: 30);
+
 /// The one line a [failure] reads as: the outcome screen's title, a field error, a toast.
 /// [name] is the other side's name where the sentence names it.
 String pairingFailureText(AppLocalizations l, PairingFailure failure, {String name = ''}) => switch (failure) {

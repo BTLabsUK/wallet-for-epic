@@ -3661,6 +3661,8 @@
   "pairNotNow": "暂不",
   "pairWaitingBody": "对方的钱包打开时会回复。你可以关闭此页面；配对完成后会出现验证。",
   "pairSendByHand": "手动发送",
+  "pairReplyLateTitle": "还没配对？",
+  "pairReplyLateBody": "你的回复已通过 Epicbox 服务器发给 {name}。若对方的钱包已关闭或连不上服务器，请改在聊天中发送回复。",
   "pairRelayUnreachableTitle": "无法连接服务器",
   "pairRelayUnreachableBody": "手动发送你的回复？",
   "pairRelayUnreachableTor": "无法通过 Tor 连接服务器。手动发送你的回复？",

@@ -38,6 +38,9 @@ const Key incomingAllowKey = ValueKey('incoming-allow');
 const Key waitingByHandKey = ValueKey('waiting-by-hand');
 const Key byHandCheckWordsKey = ValueKey('by-hand-check-words');
 const Key waitingPasteFinishKey = ValueKey('waiting-paste-finish');
+
+/// Send your reply on the wait after an invite link, once the relay has been slow: the fallback.
+const Key waitingReplyFallbackKey = ValueKey('waiting-reply-fallback');
 const Key replyShareKey = ValueKey('reply-share');
 const Key replyCopyKey = ValueKey('reply-copy');
 const Key finishShareKey = ValueKey('finish-share');
@@ -137,9 +140,13 @@ Future<void> showIncomingInvite(
     builder: (_) => IncomingInviteSheet(preview: preview, contact: contact),
   );
   if (answered == null || !context.mounted) return;
-  // A link came in a message: the reply goes back the same way (it also goes to the relay).
-  // Words: the relay carries the answer, and the wait follows.
-  final Widget screen = viaLink ? PairReplyScreen(pairingId: answered.id, name: preview.name) : PairingWaitingScreen(pairingId: answered.id);
+  // The answer went to the relay: the wait follows, and the pairing finishes by itself. A link
+  // that came in a message offers its reply to send back the same way, but only as the fallback
+  // once the relay is slow; at once when the relay could not take it or there is none.
+  final byRelay = ref.read(pairNetProvider) == PairNet.online && !answered.relayDown;
+  final Widget screen = viaLink && !byRelay
+      ? PairReplyScreen(pairingId: answered.id, name: preview.name)
+      : PairingWaitingScreen(pairingId: answered.id, name: preview.name, viaLink: viaLink);
   final nav = Navigator.of(context);
   await (replace ? nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => screen)) : nav.push(MaterialPageRoute<void>(builder: (_) => screen)));
 }
@@ -284,9 +291,13 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
 /// when the relay could not take the answer, and opens the words check when the confirm
 /// arrives. It can be closed: the pairing goes on in the background.
 class PairingWaitingScreen extends ConsumerStatefulWidget {
-  const PairingWaitingScreen({super.key, required this.pairingId, this.byMessage = false, this.name = ''});
+  const PairingWaitingScreen({super.key, required this.pairingId, this.byMessage = false, this.name = '', this.viaLink = false});
 
   final String pairingId;
+
+  /// The invite came as a link in a message and the answer went to the relay: after
+  /// [pairReplyFallbackAfter] without the confirm, the reply to send in the chat is offered.
+  final bool viaLink;
 
   /// The inviter's name from its invite, until the records have it.
   final String name;
@@ -301,6 +312,8 @@ class PairingWaitingScreen extends ConsumerStatefulWidget {
 
 class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   PairingCollector? _collector;
+  Timer? _slow;
+  bool _late = false;
   bool _left = false;
   StreamSubscription<PairingEvent>? _events;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
@@ -312,6 +325,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     pairingStepsOnScreen[widget.pairingId] = () => mounted && (ModalRoute.of(context)?.isCurrent ?? false);
     final api = ref.read(pairingApiProvider);
     _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
+    if (widget.viaLink) _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     _events = api.events().listen((e) {
       if (e.pairingId != widget.pairingId || !mounted) return;
       // Under another screen (the confirm pasted by hand opened its own words check), the
@@ -346,6 +360,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     pairingWordsOnScreen.remove(_onScreen);
     pairingStepsOnScreen.remove(widget.pairingId);
     _collector?.stop();
+    _slow?.cancel();
     _events?.cancel();
     super.dispose();
   }
@@ -353,6 +368,12 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   void _byHand() => Navigator.of(context).push<void>(
     MaterialPageRoute<void>(builder: (_) => PairingByHandScreen(pairingId: widget.pairingId)),
   );
+
+  /// The fallback after an invite link: the reply to send back in the chat, in this one's place.
+  void _replyInChat() {
+    _left = true;
+    Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => PairReplyScreen(pairingId: widget.pairingId, name: widget.name)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -444,13 +465,16 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
               onPressed: () => Navigator.pop(context),
               child: Text(l.pairClosed),
             ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              key: waitingByHandKey,
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-              onPressed: _byHand,
-              child: Text(l.pairSendByHand),
-            ),
+            // After a link, the fallback is the reply in the chat, offered below once it is slow.
+            if (!widget.viaLink) ...[
+              const SizedBox(height: 8),
+              OutlinedButton(
+                key: waitingByHandKey,
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                onPressed: _byHand,
+                child: Text(l.pairSendByHand),
+              ),
+            ],
           ],
         ),
         children: [
@@ -485,9 +509,20 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
               },
               body: net != PairNet.online ? null : (overTor ? l.pairRelayUnreachableTor : l.pairRelayUnreachableBody),
               actions: [
-                FilledButton(onPressed: _byHand, child: Text(l.pairSendByHand)),
+                if (widget.viaLink)
+                  FilledButton(key: waitingReplyFallbackKey, onPressed: _replyInChat, child: Text(l.pairReplyTitle))
+                else
+                  FilledButton(onPressed: _byHand, child: Text(l.pairSendByHand)),
                 if (net == PairNet.online) OutlinedButton(onPressed: () => ref.read(pairingApiProvider).collect().ignore(), child: Text(l.pairEnterTryAgain)),
               ],
+            ),
+          ] else if (_late) ...[
+            const SizedBox(height: 20),
+            PairEdgeNotice(
+              tone: BadgeTone.info,
+              title: l.pairReplyLateTitle,
+              body: l.pairReplyLateBody(name),
+              actions: [FilledButton(key: waitingReplyFallbackKey, onPressed: _replyInChat, child: Text(l.pairReplyTitle))],
             ),
           ],
         ],

@@ -14413,6 +14413,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairSendByHand => 'Wyślij ręcznie';
 
   @override
+  String get pairReplyLateTitle => 'Jeszcze nie sparowane?';
+
+  @override
+  String pairReplyLateBody(String name) {
+    return 'Twoja odpowiedź poszła do $name przez serwer Epicbox. Jeśli ich portfel jest zamknięty albo nie ma dostępu do serwera, wyślij odpowiedź w czacie.';
+  }
+
+  @override
   String get pairRelayUnreachableTitle => 'Brak połączenia z serwerem';
 
   @override
