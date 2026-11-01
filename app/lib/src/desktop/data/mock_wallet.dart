@@ -513,7 +513,7 @@ class MockDeskWallet implements DeskWalletApi {
     final held = _heldValue();
     final lunch = _lunchCounted ? _epic(25) : 0;
     return Balance(
-      spendable: _epic(1284.73215) + lunch + p.spendDelta - held,
+      spendable: _epic(1156.73215) + lunch + p.spendDelta - held,
       awaitingConfirmation: _epic(25) - lunch + p.confirmingDelta,
       locked: _epic(15.713) + p.lockDelta + held,
       awaitingFinalization: _epic(12.5),
@@ -635,14 +635,6 @@ class MockDeskWallet implements DeskWalletApi {
       Output(commitment: cmt(7), value: _epic(0.5), status: OutputStatus.unspent, height: 2908700, confirmations: 5714),
       Output(commitment: cmt(8), value: _epic(1000), status: OutputStatus.unspent, height: 2902900, confirmations: 11514),
       Output(commitment: cmt(9), value: _epic(40.008), status: OutputStatus.spent, height: 2900100, confirmations: 14314),
-      for (var i = 0; i < 16; i++)
-        Output(
-          commitment: cmt(10 + i),
-          value: _epic(8 + i * 3.5),
-          status: i % 5 == 4 ? OutputStatus.spent : OutputStatus.unspent,
-          height: 2880000 - i * 5760,
-          confirmations: 34414 + i * 5760,
-        ),
     ];
   }
 
