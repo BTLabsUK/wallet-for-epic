@@ -414,15 +414,10 @@ class _ESelectState<T> extends State<ESelect<T>> {
           onOpen: _measure,
           // A click outside only closes the list: it does not also press what is under it.
           consumeOutsideTap: true,
+          // The app's menu look comes from the theme's menuTheme; the list is the field's width.
           style: MenuStyle(
-            backgroundColor: WidgetStatePropertyAll(c.s4),
-            surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-            padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
             minimumSize: WidgetStatePropertyAll(Size(box.maxWidth, 0)),
             maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, maxHeight)),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
-            ),
           ),
           menuChildren: [
             for (final item in items)

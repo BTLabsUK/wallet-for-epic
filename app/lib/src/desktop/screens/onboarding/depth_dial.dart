@@ -710,7 +710,7 @@ class DeskOverviewPreview extends StatelessWidget {
                   child: Center(
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2),
-                      decoration: BoxDecoration(color: c.s4, border: Border.all(color: c.lineStrong), borderRadius: BorderRadius.circular(Rad.sm)),
+                      decoration: c.popover,
                       child: Text(l.deskLvStartCover, style: context.ts.body),
                     ),
                   ),

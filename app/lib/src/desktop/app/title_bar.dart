@@ -443,17 +443,11 @@ class _BarButtonState extends State<_BarButton> {
   }
 }
 
-/// The menu look of the app (popupMenuTheme: s4, lineStrong, radius 8).
-MenuStyle _menuStyle(DeskColors c, {double? minWidth}) => MenuStyle(
-  backgroundColor: WidgetStatePropertyAll(c.s4),
-  surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+/// The title bar's menus: the app's menu look (the theme's menuTheme: s4, lineStrong, the soft
+/// shadow), a little tighter and at least [minWidth] wide.
+MenuStyle _menuStyle({double? minWidth}) => MenuStyle(
   padding: WidgetStatePropertyAll(EdgeInsets.all(6.u)),
   minimumSize: WidgetStatePropertyAll(Size(minWidth ?? 240.u, 0)),
-  elevation: const WidgetStatePropertyAll(12),
-  shadowColor: WidgetStatePropertyAll(Colors.black.withValues(alpha: 0.55)),
-  shape: WidgetStatePropertyAll(
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
-  ),
 );
 
 /// One menu row: icon (or a leading widget), label, and the shortcut on the right.
@@ -548,11 +542,10 @@ class _BarMenuState extends State<_BarMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
     return MenuAnchor(
       controller: _menu,
       consumeOutsideTap: true,
-      style: _menuStyle(c, minWidth: widget.minWidth),
+      style: _menuStyle(minWidth: widget.minWidth),
       alignmentOffset: Offset(0, 4.u),
       onOpen: () => setState(() => _open = true),
       onClose: () {

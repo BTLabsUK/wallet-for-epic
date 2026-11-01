@@ -1032,15 +1032,13 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           groupId: _group,
           child: CallbackShortcuts(
             bindings: {const SingleActivator(LogicalKeyboardKey.escape): collapse},
+            // The popover look: s4, the lineStrong hairline dialogs use, the one soft shadow.
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Rad.sm),
-                boxShadow: [BoxShadow(color: c.scrim, blurRadius: 16.u, offset: Offset(0, 4.u))],
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.sm), boxShadow: c.popShadow),
               child: Material(
               color: c.s4,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.line)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
               clipBehavior: Clip.antiAlias,
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: _width, maxWidth: _width, maxHeight: maxHeight),

@@ -526,6 +526,17 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       waitDuration: const Duration(milliseconds: 400),
       showDuration: const Duration(seconds: 3),
     ),
+    // Every popup menu: the desktop's menu look (raised fill, lineStrong edge, soft shadow).
+    popupMenuTheme: PopupMenuThemeData(
+      color: t.raised,
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: t.shadowInk,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+        side: BorderSide(color: t.lineStrong),
+      ),
+    ),
     cardTheme: CardThemeData(
       color: t.surface,
       elevation: 0,

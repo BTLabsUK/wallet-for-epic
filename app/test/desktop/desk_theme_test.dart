@@ -98,6 +98,7 @@ void main() {
         expect((c.well.border! as Border).isUniform, isTrue);
         expect(contrast(c.lineField, c.s2), greaterThanOrEqualTo(3), reason: '$mode field edge');
         final theme = buildDeskTheme(b);
+        expect(theme.menuTheme.style?.shadowColor?.resolve({}), c.shadowInk);
         expect(theme.colorScheme.shadow, c.shadowInk);
       });
 

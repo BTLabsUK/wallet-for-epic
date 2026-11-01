@@ -95,6 +95,7 @@ void main() {
         expect(t.popShadow.single.blurRadius, greaterThanOrEqualTo(16));
         final theme = buildWalletTheme(t, b);
         expect(theme.colorScheme.scrim, t.scrim);
+        expect(theme.popupMenuTheme.color, t.raised);
       });
 
       test('a row subtitle is dim, set once in the theme', () {
