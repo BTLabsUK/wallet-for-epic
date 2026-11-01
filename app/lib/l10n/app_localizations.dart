@@ -29191,6 +29191,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not finished'**
+  String get deskOnbFailedTitle;
 }
 
 class _AppLocalizationsDelegate

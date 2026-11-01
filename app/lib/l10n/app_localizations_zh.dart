@@ -17628,4 +17628,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get deskOnbFailedTitle => '未完成';
 }

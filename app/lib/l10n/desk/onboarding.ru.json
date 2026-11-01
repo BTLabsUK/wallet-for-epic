@@ -204,5 +204,6 @@
   "deskOnbNodePortRange": "Число от {min} до {max}.",
   "deskOnbNodePortsSame": "Порты должны различаться.",
   "deskOnbNodePortTaken": "Порт {port} занят другой программой. {next} свободен.",
-  "deskOnbNodePortUse": "Использовать {port}"
+  "deskOnbNodePortUse": "Использовать {port}",
+  "deskOnbFailedTitle": "Не завершено"
 }

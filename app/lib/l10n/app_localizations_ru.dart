@@ -19319,4 +19319,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String get deskOnbFailedTitle => 'Не завершено';
 }

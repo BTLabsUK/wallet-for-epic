@@ -1068,5 +1068,9 @@
         "type": "String"
       }
     }
+  },
+  "deskOnbFailedTitle": "Not finished",
+  "@deskOnbFailedTitle": {
+    "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
   }
 }

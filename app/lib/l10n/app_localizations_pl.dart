@@ -19339,4 +19339,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
+
+  @override
+  String get deskOnbFailedTitle => 'Nie ukończono';
 }

@@ -25300,5 +25300,9 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskOnbFailedTitle": "Not finished",
+  "@deskOnbFailedTitle": {
+    "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
   }
 }

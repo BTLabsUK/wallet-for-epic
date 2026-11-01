@@ -204,5 +204,6 @@
   "deskOnbNodePortRange": "Eine Zahl von {min} bis {max}.",
   "deskOnbNodePortsSame": "Die beiden Ports müssen sich unterscheiden.",
   "deskOnbNodePortTaken": "Port {port} wird von einem anderen Programm genutzt. {next} ist frei.",
-  "deskOnbNodePortUse": "{port} nutzen"
+  "deskOnbNodePortUse": "{port} nutzen",
+  "deskOnbFailedTitle": "Nicht abgeschlossen"
 }

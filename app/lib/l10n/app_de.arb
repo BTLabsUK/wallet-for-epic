@@ -4864,5 +4864,6 @@
   "deskNodeSwitchConnecting": "Verbindung zu {host}…",
   "deskNodeSwitchStarting": "Lokaler Node startet…",
   "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",
-  "deskNodeSwitchStoppingWord": "Stoppt"
+  "deskNodeSwitchStoppingWord": "Stoppt",
+  "deskOnbFailedTitle": "Nicht abgeschlossen"
 }
