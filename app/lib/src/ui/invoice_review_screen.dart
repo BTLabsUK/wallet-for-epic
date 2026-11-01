@@ -1197,7 +1197,8 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  OutlinedButton.icon(
+                  // Cancel payment looks the same everywhere: the outlined risk style (A-06).
+                  DangerButton.icon(
                     icon: const Icon(Icons.cancel_outlined),
                     label: Text(l.txDetailsCancelPayment),
                     onPressed: widget.onCancel,
