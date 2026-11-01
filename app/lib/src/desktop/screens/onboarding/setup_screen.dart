@@ -377,11 +377,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
             : null,
+        back: first ? null : backButton(() => _to(_back)),
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
           // What Skip keeps is the button's tooltip and accessible description (UD-016).
           if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
-          if (!first) backButton(() => _to(_back)),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
         child: body,

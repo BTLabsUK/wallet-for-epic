@@ -364,7 +364,6 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ts = context.ts;
     final l = context.l10n;
     final h = _head(l);
     final chosen = _chosen;
@@ -405,9 +404,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               alignment: Alignment.centerLeft,
               child: EButton.ghost(label: l.commonCancel, icon: EIcons.close, tabStop: false, onPressed: _busy ? null : _cancel),
             ),
+      back: canBack ? backButton(_back, label: l.deskOnbImportBack) : null,
+      status: stat,
       actions: [
-        if (stat != null) Expanded(child: Text(stat, style: ts.small)) else const SizedBox.shrink(),
-        if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: l.deskOnbImportBack, tabStop: false, onPressed: _back)),
         if (_step == ImportStep.import && current != null)
           // Tab: Import, then Skip (Skip sits left of the main button).
           FocusTraversalGroup(

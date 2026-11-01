@@ -261,8 +261,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           title: _name ?? defaultWalletName(ref),
           heading: WalletNameTitle(place: 'restore', name: _name, fallback: defaultWalletName(ref), onChanged: (v) => setState(() => _name = v)),
           lead: l.deskOnbRestorePasswordLead,
+          back: backButton(() => setState(() => _step = RestoreStep.words)),
           actions: [
-            backButton(() => setState(() => _step = RestoreStep.words)),
             EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null),
           ],
           child: Column(
@@ -376,8 +376,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 0),
       title: l.deskOnbStepPhrase,
       lead: l.deskOnbRestoreWordsLead,
+      back: backButton(() => nav.back()),
       actions: [
-        backButton(() => nav.back()),
         // Words only on a narrow window, so the row fits "Use 24 words".
         EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
         EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: filled == 0 ? null : e.clear),
