@@ -11,6 +11,7 @@ import 'data.dart' show ESelect, ESelectItem;
 import 'keyboard.dart';
 import 'selectable.dart';
 import 'tip.dart';
+import '../../text_join.dart';
 
 /// Label, control, then help or error. [aside] sits at the label's right (e.g. "Available …").
 class EField extends StatelessWidget {
@@ -681,7 +682,7 @@ class ESegmented<T> extends StatelessWidget {
         // Counts into the tooltips.
         final bare = [
           for (final s in segments)
-            ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, badge: s.badge, tooltip: s.tooltip ?? (s.count == null ? null : '${s.label} · ${s.count}')),
+            ESegment<T>(s.value, s.label, icon: s.icon, enabled: s.enabled, badge: s.badge, tooltip: s.tooltip ?? (s.count == null ? null : metaLine([s.label, '${s.count}']))),
         ];
         if (_natural(context, counts: false) <= box.maxWidth) return control(bare, stretch);
         // Still too wide: the labels stay whole and the segments wrap onto a second row; past two
@@ -689,7 +690,7 @@ class ESegmented<T> extends StatelessWidget {
         if (_rowsIn(context, box.maxWidth) <= 2) return control(bare, false, wrap: true);
         return ESelect<T>(
           size: size,
-          items: [for (final s in segments) ESelectItem<T>(s.value, s.count == null ? s.label : '${s.label} · ${s.count}', tooltip: s.tooltip)],
+          items: [for (final s in segments) ESelectItem<T>(s.value, s.count == null ? s.label : metaLine([s.label, '${s.count}']), tooltip: s.tooltip)],
           value: value,
           onChanged: onChanged,
         );

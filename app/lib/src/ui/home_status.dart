@@ -6,6 +6,7 @@
 /// through [watchWalletStatus] and [phoneTorProvider]; nothing here debounces or decides a route.
 library;
 
+import 'settings_rows.dart' show NavChevron;
 import '../state_language.dart' show ShownState, torShownState;
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ import 'levels/status_parts.dart' show StatusServiceTile;
 import 'status.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import '../text_join.dart';
 
 /// The key of the Tor status icon, for tests.
 const Key torIconKey = ValueKey('status-tor');
@@ -145,7 +147,7 @@ String statusBrief(String detail, {String? host}) {
   var first = detail.split('\n').first.trim();
   if (host == null || host.isEmpty || first.contains(host)) return first;
   if (first.endsWith('.') || first.endsWith('。')) first = first.substring(0, first.length - 1);
-  return '$first · $host';
+  return metaLine([first, host]);
 }
 
 /// The statuses in their order, Node, Epicbox, Tor, Link. A service the network mode turns off
@@ -415,7 +417,7 @@ class ConnectionsSheet extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Icon(Icons.chevron_right, size: 20, color: t.faint),
+                const NavChevron(),
               ],
             ),
           ),

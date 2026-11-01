@@ -78,7 +78,6 @@ class PinField extends StatelessWidget {
         errorText: errorText,
         helperText: reserveError ? ' ' : null,
         counterText: '',
-        border: const OutlineInputBorder(),
       ),
     );
   }
@@ -135,7 +134,6 @@ class _PassphraseEntryState extends State<_PassphraseEntry> {
         errorText: widget.errorText,
         helperText: widget.reserveError ? ' ' : null,
         errorMaxLines: 3,
-        border: const OutlineInputBorder(),
         suffixIcon: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

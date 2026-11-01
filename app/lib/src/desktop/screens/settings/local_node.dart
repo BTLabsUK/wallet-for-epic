@@ -308,7 +308,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                     EMiddleEllipsis(s.dataFolder, style: ts.mono(size: Fs.sm, color: c.text)),
                     SizedBox(height: 2.u),
                     Text(
-                      [if (s.chainDataBytes != null) l.deskSetLnodeUsed(bytesText(s.chainDataBytes!, l)), s.freeBytes == null ? l.deskSetLnodeFreeUnknown : l.deskSetLnodeFree(bytesText(s.freeBytes!, l))].join(' · '),
+                      metaLine([if (s.chainDataBytes != null) l.deskSetLnodeUsed(bytesText(s.chainDataBytes!, l)), s.freeBytes == null ? l.deskSetLnodeFreeUnknown : l.deskSetLnodeFree(bytesText(s.freeBytes!, l))]),
                       style: ts.caption.copyWith(color: c.dim),
                     ),
                   ],
@@ -453,7 +453,7 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
         notice: (tone: ETone.neutral, title: l.deskSetLnodeNothingUntilSynced, text: null, action: NodeAct.fallback),
       );
     case LocalNodePhase.synced:
-      return StatusWords(detail: [if (s.height != null) digits(l, s.height!), l.deskSetLnodeAtTip].join(' · '));
+      return StatusWords(detail: metaLine([if (s.height != null) digits(l, s.height!), l.deskSetLnodeAtTip]));
     case LocalNodePhase.error:
       if (s.stalled) {
         return StatusWords(
@@ -579,12 +579,12 @@ class _StatusTab extends StatelessWidget {
         ),
     ];
 
-    final meta = [
+    final meta = metaLine([
       if (s.version != null) l.deskSetLnodeVersion(s.version!),
       if (live && s.uptime != null) l.deskSetLnodeRunning(duration(l, s.uptime!)),
       if (!live) l.deskSetLnodeStoppedAt(hhmm(s.at)),
       if (live && s.peers != null) l.deskSetLnodePeersCount(s.peers!),
-    ].join(' · ');
+    ]);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -598,7 +598,7 @@ class _StatusTab extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
-                    TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                    TextSpan(text: metaSeparator, style: ts.body.copyWith(color: c.faint)),
                     TextSpan(text: words.detail, style: ts.small.copyWith(color: c.dim)),
                   ],
                 ),
@@ -624,7 +624,7 @@ class _StatusTab extends StatelessWidget {
               Text(
                 p?.stage == SyncStage.waitingForPeers || p == null
                     ? (startedAgo == null ? '' : (startedAgo.inSeconds < 90 ? l.deskSetLnodeStartedSecAgo(startedAgo.inSeconds) : l.deskSetLnodeStartedAgo(duration(l, startedAgo))))
-                    : [?pct, syncEtaText(l, s.etaTotal)].join(' · '),
+                    : metaLine([?pct, syncEtaText(l, s.etaTotal)]),
                 style: ts.small.copyWith(color: c.dim),
               ),
             ],

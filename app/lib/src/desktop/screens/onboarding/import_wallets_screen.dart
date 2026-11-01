@@ -486,7 +486,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(extra == null ? f.name : '${f.name} · $extra', style: ts.label),
+              Text(extra == null ? f.name : metaLine([f.name, extra]), style: ts.label),
               ETip.value(
                 f.folder,
                 mono: true,
@@ -594,7 +594,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     final ts = context.ts;
     final c = context.dc;
     final l = context.l10n;
-    final meta = [if (f.lastUsed != null) l.deskOnbImportLastUsed(_date(l, f.lastUsed!)), _size(l, f.sizeBytes)].join(' · ');
+    final meta = metaLine([if (f.lastUsed != null) l.deskOnbImportLastUsed(_date(l, f.lastUsed!)), _size(l, f.sizeBytes)]);
     final notes = [
       if (f.blocked != null) f.blocked!,
       if (f.importable && f.sameAs != null) l.deskOnbImportSecondCopy('${f.sameAs}'),

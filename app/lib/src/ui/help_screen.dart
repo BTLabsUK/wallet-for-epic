@@ -246,7 +246,6 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                               icon: const Icon(Icons.close),
                               onPressed: () => setState(_query.clear),
                             ),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),

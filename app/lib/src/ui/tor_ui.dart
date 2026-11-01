@@ -21,6 +21,7 @@ import 'notices.dart';
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
+import '../text_join.dart';
 
 /// Tor's icon wherever a method or a status needs one: a private connection.
 const IconData torIcon = EpicGlyphs.tor;
@@ -303,7 +304,7 @@ class TorStateLine extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      '${l.netStatusTor} · ${torWord(l, state)}',
+                      metaLine([l.netStatusTor, torWord(l, state)]),
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: torWordColor(t, state),
                       ),

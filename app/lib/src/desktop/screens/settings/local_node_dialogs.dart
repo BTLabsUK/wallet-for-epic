@@ -342,7 +342,7 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
                 for (final f in found) ...[
                   _ReuseCard(
                     // Each option named by its owner and size: the titles differ (UD-018).
-                    title: '${_source(l, f)} · ${bytesText(f.bytes, l)}',
+                    title: metaLine([_source(l, f), bytesText(f.bytes, l)]),
                     path: f.path,
                     line: f.modified == null ? '' : l.deskSetLndLastWritten(shortDay(l, f.modified!)),
                     sub: f.lock == FolderLock.locked ? l.deskSetLndLocked : l.deskSetLndNothingCopied,

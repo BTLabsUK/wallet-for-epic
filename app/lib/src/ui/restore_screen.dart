@@ -461,7 +461,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           labelText: l.restorePhraseLabel,
           helperText: l.restorePhraseHelper,
           alignLabelWithHint: true,
-          border: const OutlineInputBorder(),
           // The phrase as a QR code (Show QR on the backup screen).
           suffixIcon: offersQrScan(ref)
               ? IconButton(
@@ -527,7 +526,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             decoration: InputDecoration(
               labelText: l.restoreStartHeightLabel,
               helperText: l.restoreStartHeightHelper,
-              border: const OutlineInputBorder(),
             ),
           ),
       ],

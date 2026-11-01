@@ -457,7 +457,7 @@ class _Figure extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final unitWidth =
-              8 + _textWidth('EPIC', unitStyle, unitScaler, direction);
+              8 + _textWidth(epicUnit, unitStyle, unitScaler, direction);
           bool fits(double size, {bool unit = true}) =>
               _textWidth(text, figure(size), TextScaler.noScaling, direction) +
                   (unit ? unitWidth : 0) <=
@@ -512,7 +512,7 @@ class _Figure extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsetsDirectional.only(start: 8, top: 7),
                   child: Text(
-                    'EPIC',
+                    epicUnit,
                     key: balanceUnitKey,
                     maxLines: 1,
                     textScaler: unitScaler,
@@ -690,7 +690,7 @@ TextSpan _figureSpan(String text, WalletTokens t, double size, {bool unit = true
   children: [
     TextSpan(text: text),
     TextSpan(
-      text: ' EPIC',
+      text: '\u2002$epicUnit',
       style: TextStyle(
         fontSize: 11,
         letterSpacing: 0.12 * 11,
@@ -725,14 +725,13 @@ TextStyle _detailStyle(WalletTokens t) => TextStyle(
 
 /// The glyph before each detail amount, the gap after it, and the dot between two tokens.
 const double _detailGlyph = 12, _detailGap = 3;
-const String _detailDot = ' · ';
 
 /// The width of [tokens] laid out on one line, as [_DetailLine] draws them.
 double _tokensWidth(BuildContext context, List<PendingToken> tokens, TextScaler scaler, TextDirection direction) {
   final style = _detailStyle(context.tokens);
   var width = 0.0;
   for (final (n, item) in tokens.indexed) {
-    if (n > 0) width += _textWidth(_detailDot, style, scaler, direction);
+    if (n > 0) width += _textWidth(metaSeparator, style, scaler, direction);
     width += scaler.scale(_detailGlyph) + _detailGap + _textWidth(item.amount, style, scaler, direction);
   }
   return width;
@@ -790,7 +789,7 @@ class _DetailLine extends StatelessWidget {
           children: fits
               ? [
                   for (final (n, item) in tokens.indexed) ...[
-                    if (n > 0) Text(_detailDot, style: detailStyle),
+                    if (n > 0) Text(metaSeparator, style: detailStyle),
                     token(item),
                   ],
                 ]

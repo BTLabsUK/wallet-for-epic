@@ -699,7 +699,7 @@ class _Brand extends ConsumerWidget {
 /// The running build in a few characters: `26.10.16 · r2 · 810de1e`; the version alone in a
 /// build without a commit (development).
 String deskBuildLabel() =>
-    [deskAppVersion, if (appBuildTag.isNotEmpty) appBuildTag, if (appBuildId.isNotEmpty) appBuildId.substring(0, appBuildId.length.clamp(0, 7))].join(' · ');
+    metaLine([deskAppVersion, if (appBuildTag.isNotEmpty) appBuildTag, if (appBuildId.isNotEmpty) appBuildId.substring(0, appBuildId.length.clamp(0, 7))]);
 
 /// What Copy build info puts on the clipboard: the build, the core and the system.
 String deskBuildInfo() =>
@@ -770,14 +770,14 @@ class _DeskBuildLabelState extends State<DeskBuildLabel> {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final parts = deskBuildLabel().split(' · ');
+    final parts = deskBuildLabel().split(metaSeparator);
     final color = _copied ? c.ok : (_hover ? c.dim : c.faint);
     final style = ts.mono(size: Fs.xs, color: color).copyWith(height: 1.2, fontFeatures: const [FontFeature.tabularFigures(), FontFeature.slashedZero()]);
     final text = Text.rich(
       TextSpan(
         children: [
           for (final (i, p) in parts.indexed) ...[
-            if (i > 0) TextSpan(text: ' · ', style: style.copyWith(color: c.lineField, letterSpacing: 0)), // l10n-ok: separator
+            if (i > 0) TextSpan(text: metaSeparator, style: style.copyWith(color: c.lineField, letterSpacing: 0)), // l10n-ok: separator
             TextSpan(text: p),
           ],
         ],
@@ -974,7 +974,7 @@ class _ModeMark extends ConsumerWidget {
           builder: (context, m, open) => _BarButton(
             key: const ValueKey('bar-net-mode'),
             label: l.netMarkSemanticsDesk(name),
-            tooltip: glyphOnly ? '$name · ${networkModeMarkLine(l, mode, waitingForTor: waiting)}' : networkModeMarkLine(l, mode, waitingForTor: waiting),
+            tooltip: glyphOnly ? metaLine([name, networkModeMarkLine(l, mode, waitingForTor: waiting)]) : networkModeMarkLine(l, mode, waitingForTor: waiting),
             open: open,
             padding: EdgeInsets.symmetric(horizontal: 4.u),
             onPressed: () => _toggle(m),

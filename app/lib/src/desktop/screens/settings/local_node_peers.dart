@@ -312,7 +312,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                   SizedBox(width: Sp.x3),
                   Expanded(
                     child: Text(
-                      [if (b.lastBanned != null) l.deskSetPeersBannedAt(hhmm(b.lastBanned!)), if (b.banReason.isNotEmpty) banReasonText(b.banReason)].join(' · '),
+                      metaLine([if (b.lastBanned != null) l.deskSetPeersBannedAt(hhmm(b.lastBanned!)), if (b.banReason.isNotEmpty) banReasonText(b.banReason)]),
                       style: ts.caption.copyWith(color: c.dim),
                       overflow: TextOverflow.ellipsis,
                     ),

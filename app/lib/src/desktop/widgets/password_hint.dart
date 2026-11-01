@@ -10,6 +10,7 @@ import '../../password_estimate.dart';
 import '../../password_lists.dart';
 import '../theme/tokens.dart';
 import 'surfaces.dart' show EInfoHint;
+import '../../text_join.dart';
 
 /// The estimator while a screen with a [PasswordHint] is open; released after it closes.
 /// Loading until the lists are ranked (a fraction of a second, in the background).
@@ -104,7 +105,7 @@ class _PasswordHintState extends ConsumerState<PasswordHint> {
       if (next.hasValue && widget.controller.text.isNotEmpty && _estimateTimer?.isActive != true) _estimate();
     });
     final c = context.dc;
-    final line = _count == 0 ? context.l10n.deskKitPasswordRule(widget.minLength) : [characterCount(_count), ?_time].join(' · ');
+    final line = _count == 0 ? context.l10n.deskKitPasswordRule(widget.minLength) : metaLine([characterCount(_count), ?_time]);
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: Ctl.inline),
       child: Row(

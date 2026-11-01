@@ -346,7 +346,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(_parts(l).join(' · '), style: ts.small),
+                  Text(metaLine(_parts(l)), style: ts.small),
                   SizedBox(height: Sp.x2),
                   ReportPreview(text: _log == null && _attachLogs ? null : _preview),
                 ],

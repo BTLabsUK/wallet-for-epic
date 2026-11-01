@@ -672,7 +672,7 @@ class DeskOverviewPreview extends StatelessWidget {
                         tone: c.txReceived,
                         how: l.methodEpicbox,
                         id: 'a1f9e8d7', // l10n-ok: sample payment
-                        casual: '${l.lvPayArriving} · ${l.lvPayConfirming(2, 6)}',
+                        casual: metaLine([l.lvPayArriving, l.lvPayConfirming(2, 6)]),
                         technical: '${l.txDetailsKernel} 8f1c2e…9a3b · ${l.lvPayConfirmations} 2/6', // l10n-ok: sample numbers
                       ),
                       payment('Alice', '−25.0000', tone: c.txSent, how: l.methodEpicbox, id: '7c21b0e4'), // l10n-ok: sample payment

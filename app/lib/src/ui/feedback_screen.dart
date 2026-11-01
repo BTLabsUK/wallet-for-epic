@@ -390,7 +390,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
               error: _messageError == null
                   ? null
                   : LiveFieldError(_messageError!),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
@@ -404,7 +403,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
             decoration: InputDecoration(
               labelText: l.feedbackEmailLabel,
               error: _emailError == null ? null : LiveFieldError(_emailError!),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),

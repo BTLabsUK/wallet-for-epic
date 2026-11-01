@@ -2128,7 +2128,6 @@ class _PasswordFieldState extends State<PasswordField> {
       decoration: InputDecoration(
         labelText: widget.label,
         errorText: widget.errorText,
-        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           tooltip: _obscure
               ? context.l10n.passwordShow
@@ -2213,7 +2212,6 @@ class SlateInput extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         alignLabelWithHint: true,
-        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           tooltip: context.l10n.commonPaste,
           icon: const Icon(Icons.content_paste),

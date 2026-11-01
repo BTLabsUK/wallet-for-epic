@@ -484,7 +484,7 @@ void main() {
         expect(find.descendant(of: sheet, matching: find.text(label)), findsOneWidget, reason: label);
       }
       // One line per row: the first line of the tip with the host, never the whole tooltip.
-      expect(find.descendant(of: sheet, matching: find.text('Up to date · node.example.org')), findsOneWidget);
+      expect(find.descendant(of: sheet, matching: find.text('Up to date\u00A0· node.example.org')), findsOneWidget);
       // A row closes the sheet and opens the service as its icon does.
       await tester.tap(find.descendant(of: sheet, matching: find.text('Node, Synced')));
       await tester.pumpAndSettle();

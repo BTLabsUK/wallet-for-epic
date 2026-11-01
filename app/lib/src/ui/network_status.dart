@@ -29,6 +29,7 @@ import 'status.dart';
 import 'status_icons.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import '../text_join.dart';
 
 /// The keys of the card's rows, for tests: the node and epicbox rows take the keys the
 /// header's status icons had.
@@ -133,7 +134,7 @@ class NetworkStatusCard extends ConsumerWidget {
                 chain != Chain.mainnet &&
                 nodeHost.isNotEmpty &&
                 devNetworksOf(context)
-            ? '${chainName(l, chain)} · $nodeHost'
+            ? metaLine([chainName(l, chain), nodeHost])
             : nodeHost,
         note: failover == null
             ? null
