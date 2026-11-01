@@ -404,35 +404,14 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
           ],
           if (short != null && canAnswer) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.risk,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Semantics(
-                  liveRegion: true,
-                  child: Text(l.invoicesShort(epicExact(l, short))),
-                ),
-              ),
-            ),
+            InlineNotice(level: NoticeLevel.error, text: l.invoicesShort(epicExact(l, short)), liveRegion: true),
           ],
           if (unsent != null) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.warn,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      l.invoiceReplyFailedTitle(service),
-                      style: theme.textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(l.invoiceReplyFailedBody),
-                  ],
-                ),
-              ),
+            InlineNotice(
+              level: NoticeLevel.warning,
+              title: l.invoiceReplyFailedTitle(service),
+              text: l.invoiceReplyFailedBody,
             ),
           ],
         ],
@@ -760,13 +739,10 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
               ],
             ),
             const SizedBox(height: 16),
-            EdgeCard(
+            InlineNotice(
               key: requestFileWarnKey,
-              edge: t.warn,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(widget.scanned ? l.reqFromQrWarn : l.reqFromFileWarn),
-              ),
+              level: NoticeLevel.warning,
+              text: widget.scanned ? l.reqFromQrWarn : l.reqFromFileWarn,
             ),
           ],
           const SizedBox(height: 24),
@@ -793,23 +769,12 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           ],
           if (short != null) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.risk,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Semantics(liveRegion: true, child: Text(l.invoicesShort(epicExact(l, short)))),
-              ),
-            ),
+            InlineNotice(level: NoticeLevel.error, text: l.invoicesShort(epicExact(l, short)), liveRegion: true),
           ],
           if (refused != null) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.dim,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Semantics(liveRegion: true, child: Text(refused(l))),
-              ),
-            ),
+            // Refused by the wallet's own rules: information, not an error of the user's.
+            InlineNotice(level: NoticeLevel.info, text: refused(l), liveRegion: true),
           ],
         ],
       ),
@@ -1089,29 +1054,8 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
     final message = invoiceMessageLine(paid.message);
     final tip = ref.watch(homeProvider).value?.summary.lastConfirmedHeight;
 
-    Widget warning(String text, Widget? action) => EdgeCard(
-      edge: t.warn,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.warning_amber_rounded, color: t.warn),
-                const SizedBox(width: 8),
-                Expanded(child: Text(text)),
-              ],
-            ),
-            if (action != null)
-              Align(alignment: AlignmentDirectional.centerEnd, child: action)
-            else
-              const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
+    Widget warning(String text, Widget? action) =>
+        InlineNotice(level: NoticeLevel.warning, text: text, actions: [?action]);
 
     final now = ref.watch(clockProvider)();
     // A paired contact's request: the states in the contact's own words.

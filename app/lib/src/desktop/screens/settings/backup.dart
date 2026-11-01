@@ -242,30 +242,13 @@ class _Done extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
+    // The app's one notice (ENotice): done is the calm panel with the green tick.
     return Semantics(
       liveRegion: true,
-      child: Container(
-        padding: EdgeInsets.all(Sp.x3),
-        decoration: BoxDecoration(color: c.okSoft, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.ok.withValues(alpha: 0.35))),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.check_circle_outline, size: Ctl.icon, color: c.ok),
-            SizedBox(width: Sp.x3),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: ts.strong),
-                  SizedBox(height: 2.u),
-                  DefaultTextStyle.merge(style: ts.small, child: child),
-                ],
-              ),
-            ),
-          ],
-        ),
+      child: ENotice(
+        tone: ETone.ok,
+        title: title,
+        below: DefaultTextStyle.merge(style: context.ts.small, child: child),
       ),
     );
   }

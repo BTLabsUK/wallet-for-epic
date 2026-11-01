@@ -25,7 +25,6 @@ import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
 import 'slate_file_screen.dart' show NotPostedNotice, openSlateFile;
 import 'theme/brand.dart' show GlyphTile;
-import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 
 /// The keys of the request QR screen, for tests.
@@ -311,11 +310,7 @@ class _RequestQrScreenState extends ConsumerState<RequestQrScreen> {
           if (!canPost) ...[const SizedBox(height: 12), NetBlockNote(watchNetBlock(context, ref, node: true))],
           if (error != null) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              key: requestQrErrorKey,
-              edge: t.risk,
-              child: Padding(padding: const EdgeInsets.all(16), child: Text(error(l))),
-            ),
+            InlineNotice(key: requestQrErrorKey, level: NoticeLevel.error, text: error(l), liveRegion: true),
           ],
         ],
       ),

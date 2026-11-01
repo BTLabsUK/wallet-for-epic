@@ -88,8 +88,8 @@ class CodeBanner extends StatelessWidget {
         key: const ValueKey('send-code-banner'),
         title: l.sendRequestTitle,
         text: problems.isEmpty ? l.sendRequestCheck : problems.join('\n'),
-        textColor: problems.isEmpty ? null : context.dc.warn,
-        tone: ETone.info,
+        // Parts the app dropped make it a warning; a clean request only informs (as the phone).
+        tone: problems.isEmpty ? ETone.info : ETone.warn,
         icon: codeOriginIcon(code.origin),
         actions: [EIconButton(key: const ValueKey('send-code-dismiss'), icon: EIcons.close, label: l.sendRequestDismiss, size: EBtnSize.inline, onPressed: onDismiss)],
       ),

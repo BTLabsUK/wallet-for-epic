@@ -22,7 +22,6 @@ import '../providers.dart';
 import '../settings.dart';
 import 'common.dart';
 import 'settings_history.dart' show handOverFile, historyFilesProvider;
-import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'method_names.dart' show recipientMethodWord;
 
@@ -207,7 +206,6 @@ class _ImportFailed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     final theme = Theme.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -217,13 +215,7 @@ class _ImportFailed extends StatelessWidget {
         children: [
           Semantics(header: true, child: Text(l.contactsImport, style: theme.textTheme.titleLarge)),
           const SizedBox(height: 16),
-          Semantics(
-            liveRegion: true,
-            child: EdgeCard(
-              edge: t.risk,
-              child: Padding(padding: const EdgeInsets.all(12), child: Text(message, style: theme.textTheme.bodyMedium)),
-            ),
-          ),
+          InlineNotice(level: NoticeLevel.error, text: message, liveRegion: true),
           const SizedBox(height: 20),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),

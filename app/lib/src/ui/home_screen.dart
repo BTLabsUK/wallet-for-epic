@@ -47,7 +47,6 @@ import 'slate_file_screen.dart';
 import 'status.dart';
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
-import 'theme/tokens.dart';
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
 import 'levels/shell_pairing.dart' show offerPairRequest;
@@ -1140,32 +1139,21 @@ class _HistoryBackupCard extends ConsumerWidget {
         : l.homeHistoryChangedSinceBackup(count);
     return Padding(
       padding: const EdgeInsets.only(top: homeCardGap),
-      child: EdgeCard(
-        edge: context.tokens.warn,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(text),
-              Wrap(
-                alignment: WrapAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => ref
-                        .read(appSettingsProvider.notifier)
-                        .dismissHistoryReminder(chain, now),
-                    child: Text(l.homeHistoryReminderNotNow),
-                  ),
-                  TextButton(
-                    onPressed: () => exportHistoryBackup(context, ref),
-                    child: Text(l.homeHistoryExportButton),
-                  ),
-                ],
-              ),
-            ],
+      child: InlineNotice(
+        level: NoticeLevel.warning,
+        text: text,
+        actions: [
+          TextButton(
+            onPressed: () => ref
+                .read(appSettingsProvider.notifier)
+                .dismissHistoryReminder(chain, now),
+            child: Text(l.homeHistoryReminderNotNow),
           ),
-        ),
+          TextButton(
+            onPressed: () => exportHistoryBackup(context, ref),
+            child: Text(l.homeHistoryExportButton),
+          ),
+        ],
       ),
     );
   }
@@ -1202,29 +1190,19 @@ class _BackupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final l = context.l10n;
-    return EdgeCard(
-      edge: t.warn,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 14),
-        child: Row(
-          children: [
-            Icon(Icons.key_outlined, color: t.accentText),
-            const SizedBox(width: 12),
-            Expanded(child: Text(l.homeBackupCardText)),
-            TextButton(
-              onPressed: onBackup,
-              child: Text(l.homeBackupCardButton),
-            ),
-            IconButton(
-              tooltip: l.homeBackupCardDismiss,
-              icon: const Icon(Icons.close),
-              onPressed: onDismiss,
-            ),
-          ],
+    return InlineNotice(
+      level: NoticeLevel.warning,
+      icon: Icons.key_outlined,
+      text: l.homeBackupCardText,
+      actions: [
+        TextButton(
+          onPressed: onBackup,
+          child: Text(l.homeBackupCardButton),
         ),
-      ),
+      ],
+      onClose: onDismiss,
+      closeLabel: l.homeBackupCardDismiss,
     );
   }
 }
@@ -1259,25 +1237,12 @@ class _PendingSendsCard extends ConsumerWidget {
     final count = waiting.length;
     return Padding(
       padding: const EdgeInsets.only(top: homeCardGap),
-      // In progress, not a warning: the blue edge.
-      child: EdgeCard(
-        edge: context.tokens.info,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l.homePendingTitle(count),
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 4),
-              // One line; "Why is it waiting?" has the rest.
-              Text(l.homePendingShort(shownEpic(l, total, hidden: hidden))),
-              // One row on a phone; wraps only at large text.
-              Wrap(
-                alignment: WrapAlignment.end,
-                children: [
+      // In progress, not a warning: the blue edge. One line; "Why is it waiting?" has the rest.
+      child: InlineNotice(
+        level: NoticeLevel.info,
+        title: l.homePendingTitle(count),
+        text: l.homePendingShort(shownEpic(l, total, hidden: hidden)),
+        actions: [
                   TextButton(
                     style: _compact,
                     onPressed: () =>
@@ -1293,11 +1258,7 @@ class _PendingSendsCard extends ConsumerWidget {
                     ),
                     child: Text(l.homePendingView(count)),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
