@@ -82,7 +82,7 @@ String? netBlockReason(AppLocalizations l, NetBlock b) => switch (b) {
   NetBlock.none => null,
   NetBlock.nodeOnly => l.netBlockNodeOnly,
   NetBlock.killSwitch => l.netBlockKillSwitch,
-  NetBlock.waitingForTor => l.deskNetWaitingTorReason,
+  NetBlock.waitingForTor => l.netBlockWaitingForTorLong,
   NetBlock.epicboxOff => l.netBlockEpicboxOff,
   // The screen names the method it asked about ([methodOffReason]).
   NetBlock.methodOff => null,

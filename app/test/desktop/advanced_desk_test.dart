@@ -99,7 +99,7 @@ void main() {
     });
   });
 
-  group('Settings › Privacy', () {
+  group('Settings › Network & privacy', () {
     ESwitch torSwitch(WidgetTester tester) => tester.widget<ESwitch>(find.byKey(const ValueKey('privacy-tor-switch')));
 
     testWidgets('Standard: the switch is the user’s', (tester) async {
@@ -108,7 +108,7 @@ void main() {
       expect(find.byKey(const ValueKey('privacy-mode-line')), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('Undercover (Tor only): on and disabled; a tap and its line say why and lead to the Depth page', (tester) async {
+    testWidgets('Tor only: on and disabled; its line names the mode, chosen right above on the same page', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy, advanced: _torOnly);
       expect(torSwitch(tester).value, isTrue);
       expect(torSwitch(tester).onChanged, isNull);
@@ -117,14 +117,10 @@ void main() {
         lessThan(1),
         reason: 'looks disabled',
       );
-      expect(find.text('Undercover keeps Tor on.'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('privacy-tor-switch')));
-      await _settle(tester);
-      expect(find.text('Undercover keeps Tor on.'), findsNWidgets(2), reason: 'the line and the toast');
-      expect(find.text('Change Undercover'), findsNWidgets(2));
-      await tester.tap(find.byKey(const ValueKey('privacy-undercover-change')));
-      await _settle(tester);
-      expect(_container.read(deskNavProvider).route, DeskRoute.settingsLevel);
+      expect(find.text('On in Tor only.'), findsOneWidget);
+      // No way off to another page (B-03): the mode's radio is on this one.
+      expect(find.byKey(const ValueKey('privacy-undercover-change')), findsNothing);
+      expect(find.byKey(const ValueKey('adv-mode-torOnly')), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('Kill switch: disabled, with the reason', (tester) async {
@@ -246,7 +242,7 @@ void main() {
     testWidgets('Tor only without Tor: the same, with the Tor reason', (tester) async {
       await _open(tester, DeskRoute.send, advanced: _torOnly);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
-      expect(find.text('Waiting for Tor. Tor only is on in Advanced.'), findsWidgets);
+      expect(find.text('Waiting for Tor. Nothing connects until it is ready.'), findsWidgets);
       // Tor still starting keeps the chosen method (7acea2920): Epicbox waits for Tor.
       expect(segment(tester, 'Epicbox').enabled, isTrue);
       // A file needs no connection of its own: it goes on while Tor connects.
@@ -312,8 +308,8 @@ void main() {
         if (find.byKey(ValueKey('adv-mode-${m.name}')).evaluate().isNotEmpty) m.name,
     ];
 
-    testWidgets('Advanced › Network: a row per mode, just its name and its info popover; choosing one saves it', (tester) async {
-      await _open(tester, DeskRoute.settingsAdvanced);
+    testWidgets('Network & privacy › Network: a row per mode, just its name and its info popover; choosing one saves it', (tester) async {
+      await _open(tester, DeskRoute.settingsPrivacy);
       expect(rowKeys(), torBuilt ? ['standard', 'torOnly', 'nodeOnly', 'killSwitch'] : ['standard', 'nodeOnly', 'killSwitch']);
       // No explanation in the list: no line under a mode, no section ⓘ of its own.
       expect(find.textContaining('Only the node in use.'), findsNothing);
@@ -333,7 +329,7 @@ void main() {
     });
 
     testWidgets('a send waiting over Epicbox: Kill switch asks first; Cancel keeps the mode', (tester) async {
-      await _open(tester, DeskRoute.settingsAdvanced);
+      await _open(tester, DeskRoute.settingsPrivacy);
       final waiting = _container.read(deskProvider).txs!.where((t) => !t.incoming && t.state == TxState.waitingRecipient && t.method != TxMethod.file).length;
       if (waiting == 0) {
         // The mock holds none: nothing to ask about.
@@ -359,7 +355,7 @@ void main() {
       expect(find.byKey(const ValueKey('bar-net-mode')), findsNothing);
     });
 
-    testWidgets('the title bar mark shows off Normal; its popover says what the mode does and Change opens Advanced', (tester) async {
+    testWidgets('the title bar mark shows off Normal; its popover says what the mode does and Change opens Network & privacy', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _offline);
       expect(find.byKey(const ValueKey('bar-net-mode')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const ValueKey('bar-net-mode')), matching: find.text('Node only')), findsOneWidget);
@@ -368,7 +364,7 @@ void main() {
       expect(find.text('Only the node in use. Epicbox, Link, updates and price are off.'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bar-mode-change')));
       await _settle(tester);
-      expect(_container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
+      expect(_container.read(deskNavProvider).route, DeskRoute.settingsPrivacy);
       await tester.pump(const Duration(seconds: 5));
     });
 

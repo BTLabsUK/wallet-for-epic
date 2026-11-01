@@ -62,7 +62,7 @@ Future<void> showUndercoverHelp(BuildContext context, {required bool later}) => 
     return EDialog(
       title: later ? l.lvPickUndercover : l.levelUndercoverTitle,
       icon: EIcons.help,
-      description: later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelp,
+      description: later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelpNet,
       actions: [EButton(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
     );
   },

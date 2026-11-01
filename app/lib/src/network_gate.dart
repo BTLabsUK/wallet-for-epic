@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The network mode at run time (Settings › Advanced › Network): what may reach the network
+/// The network mode at run time (Settings › Network & privacy): what may reach the network
 /// now, for the screens (status lines, disabled buttons, the Tor switch) and for the code that
 /// makes the calls. Pure Dart, also on the web.
 ///

@@ -545,10 +545,13 @@ class _ESelectState<T> extends State<ESelect<T>> {
 
 /// A vertical list of sub-pages (settings) with the current one raised.
 class ESubnav extends StatelessWidget {
-  const ESubnav({super.key, required this.items, required this.current, required this.onTap, this.wrap});
+  const ESubnav({super.key, required this.items, required this.current, required this.onTap, this.wrap, this.details});
 
   /// Null entries draw a separator.
   final List<(Object, String, IconData)?> items;
+
+  /// A short state line under an entry, by its id (Network & privacy: "Normal · Tor off").
+  final Map<Object, String>? details;
   final Object current;
   final ValueChanged<Object> onTap;
 
@@ -572,6 +575,7 @@ class ESubnav extends StatelessWidget {
               ENavItem(
                 icon: item.$3,
                 label: item.$2,
+                detail: details?[item.$1],
                 selected: item.$1 == current,
                 onTap: () => onTap(item.$1),
               ),
@@ -585,10 +589,13 @@ class ESubnav extends StatelessWidget {
 /// A 40 px navigation entry: icon, label, optional count badge. Used by the sidebar and
 /// sub-navigation.
 class ENavItem extends StatefulWidget {
-  const ENavItem({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false});
+  const ENavItem({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.detail});
 
   final IconData icon;
   final String label;
+
+  /// A short state line under the label, dim and small (not in [compact]).
+  final String? detail;
   final bool selected;
   final VoidCallback onTap;
   final int? count;
@@ -639,11 +646,18 @@ class _ENavItemState extends State<ENavItem> {
           if (!widget.compact) ...[
             SizedBox(width: Sp.x3),
             Expanded(
-              child: Text(
-                widget.label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: Fs.md, height: 1.4, fontWeight: FontWeight.w500, color: sel || _hover ? c.text : c.dim),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: Fs.md, height: 1.4, fontWeight: FontWeight.w500, color: sel || _hover ? c.text : c.dim),
+                  ),
+                  if (widget.detail case final d?)
+                    Text(d, maxLines: 2, overflow: TextOverflow.ellipsis, style: context.ts.small.copyWith(color: c.dim)),
+                ],
               ),
             ),
             if (count > 0)
@@ -663,7 +677,11 @@ class _ENavItemState extends State<ENavItem> {
     return Semantics(
       button: true,
       selected: sel,
-      label: count > 0 ? context.l10n.deskKitNeedAction(widget.label, count) : widget.label,
+      label: count > 0
+          ? context.l10n.deskKitNeedAction(widget.label, count)
+          : widget.detail == null || widget.compact
+          ? widget.label
+          : '${widget.label}, ${widget.detail}',
       excludeSemantics: true,
       onTap: widget.onTap,
       child: FocusableActionDetector(

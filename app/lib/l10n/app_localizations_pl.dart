@@ -3373,6 +3373,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => 'Prywatność i sieć';
 
   @override
+  String get settingsSectionNetworkPrivacy => 'Sieć i prywatność';
+
+  @override
+  String get netSummaryTorOn => 'Tor włączony';
+
+  @override
+  String get netSummaryTorOff => 'Tor wyłączony';
+
+  @override
+  String get netPageServers => 'Serwery';
+
+  @override
   String get settingsSectionHelpFeedback => 'Pomoc';
 
   @override
@@ -4018,11 +4030,23 @@ class AppLocalizationsPl extends AppLocalizations {
       'Z jakiego węzła i serwera Epicbox korzysta portfel oraz przełącznik Tora. Dotknij serwera, aby go zmienić.';
 
   @override
+  String get tourPhoneNetworkText =>
+      'Tryb sieci, przełącznik Tora i serwery, z których korzysta portfel. Dotknij serwera, aby go zmienić.';
+
+  @override
+  String get tourPhoneNetworkTextNoTor =>
+      'Tryb sieci i serwery, z których korzysta portfel. Dotknij serwera, aby go zmienić.';
+
+  @override
   String get tourPhoneAdvancedTitle => 'Zaawansowane';
 
   @override
   String get tourPhoneAdvancedText =>
       'Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
+
+  @override
+  String get tourAdvancedShowsText =>
+      'Wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.';
 
   @override
   String get tourPhoneHelpTitle => 'Pomoc';
@@ -13542,6 +13566,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get torUndercoverKeepsOn => 'Incognito utrzymuje Tor włączony.';
 
   @override
+  String get torLockedTorOnly => 'Włączony w trybie Tylko Tor.';
+
+  @override
   String get torUndercoverChange => 'Zmień Incognito';
 
   @override
@@ -13738,7 +13765,15 @@ class AppLocalizationsPl extends AppLocalizations {
       'Link · Tor płaci prosto do portfela pod adresem onion i daje temu telefonowi adres Tor, na który można mu płacić. Oba portfele muszą być otwarte. Wymaga Tora: przełącznik Tor w Prywatność i sieć kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij i Odbierz.';
 
   @override
+  String get txLinkTorHintNet =>
+      'Link · Tor płaci prosto do portfela pod adresem onion i daje temu telefonowi adres Tor, na który można mu płacić. Oba portfele muszą być otwarte. Wymaga Tora: przełącznik Tor w Sieć i prywatność kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij i Odbierz.';
+
+  @override
   String get txLinkTorNeedsTor => 'Wymaga Tora. Włącz go w Prywatność i sieć.';
+
+  @override
+  String get txLinkTorNeedsTorNet =>
+      'Wymaga Tora. Włącz go w Sieć i prywatność.';
 
   @override
   String get txLastMethodNotice =>
@@ -17850,6 +17885,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Wyłączone. Włącz w Ustawienia › Prywatność i sieć.';
 
   @override
+  String get netStatusTurnOnHintNet =>
+      'Wyłączone. Włącz w Ustawienia › Sieć i prywatność.';
+
+  @override
   String get deskBarTurnOnHint => 'Wyłączone. Włącz w Ustawienia › Transakcje.';
 
   @override
@@ -18099,6 +18138,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Łączy się bezpośrednio. Włącz Tor w Prywatność i sieć, aby ukryć adres IP.';
 
   @override
+  String get advModeStandardHintHere =>
+      'Łączy się bezpośrednio. Włącz Tor poniżej, aby ukryć adres IP.';
+
+  @override
   String get advModeStandardHintNoTor =>
       'Łączy się bezpośrednio z węzłem i usługami, których używasz.';
 
@@ -18175,6 +18218,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get statusOffByModeDetail =>
       'Wyłączone przez tryb sieci. Zmienisz to w Ustawienia › Zaawansowane › Sieć.';
+
+  @override
+  String get statusOffByModeDetailNet =>
+      'Wyłączone przez tryb sieci. Zmienisz to w Ustawienia › Sieć i prywatność.';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -18849,6 +18896,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get lvPickUndercoverHelp =>
       'Tylko Tor, od pierwszego połączenia. Każde połączenie idzie przez Tor; start trwa dłużej.\n\nNic jeszcze się nie połączyło. To samo co Tryb sieci › Tylko Tor; można to później wyłączyć w Ustawienia › Zaawansowane.';
+
+  @override
+  String get lvPickUndercoverHelpNet =>
+      'Tylko Tor, od pierwszego połączenia. Każde połączenie idzie przez Tor; start trwa dłużej.\n\nNic jeszcze się nie połączyło. To samo co Tryb sieci › Tylko Tor; można to później wyłączyć w Ustawienia › Sieć i prywatność.';
 
   @override
   String get lvPickUndercover => 'Incognito';
@@ -19956,4 +20007,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskRecvHttpTorHintNet =>
+      'Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Sieć i prywatność.';
+
+  @override
+  String get deskRecvTorIntroNet =>
+      'Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Sieć i prywatność.';
+
+  @override
+  String get deskRecvTorOffTextNet =>
+      'Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Sieć i prywatność; kieruje połączenia portfela przez Tor.';
+
+  @override
+  String get deskSetTxTorHintNet =>
+      'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Sieci i prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.';
+
+  @override
+  String get deskSetTxTorNeedsTorNet =>
+      'Tor jest wyłączony. Włącz go w Sieci i prywatności, aby przyjmować płatności na adres Tor.';
+
+  @override
+  String get deskRailOpenNetworkPrivacy => 'Otwórz Sieć i prywatność';
 }

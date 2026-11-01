@@ -8,6 +8,7 @@ import '../../widgets/kit.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
+import '../../../ui/network_mode_text.dart' show networkSummary;
 import 'prefs.dart';
 import '../../data/desk_levels.dart';
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
@@ -20,7 +21,7 @@ import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
 List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices, required DeskLevelFeatures ui}) => [
   if (!deskLevelHides(ui, DeskRoute.settingsNode)) (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
   if (!deskLevelHides(ui, DeskRoute.settingsReceiving)) (DeskRoute.settingsReceiving, l.deskSetFrameTransactions, EIcons.antenna),
-  if (!deskLevelHides(ui, DeskRoute.settingsPrivacy)) (DeskRoute.settingsPrivacy, l.deskSetFramePrivacy, EIcons.shield),
+  if (!deskLevelHides(ui, DeskRoute.settingsPrivacy)) (DeskRoute.settingsPrivacy, l.settingsSectionNetworkPrivacy, EIcons.network),
   if (invoices && ui.invoicesPage) (DeskRoute.settingsInvoices, l.deskInvSetTitle, EIcons.invoice),
   (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),
   null,
@@ -61,6 +62,11 @@ class SettingsFrame extends ConsumerWidget {
     final l = context.l10n;
     final ui = ref.watch(deskLevelUiProvider);
     final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
+    // Network & privacy says how the wallet connects under its entry, as the phone's hub row.
+    final net = ref.watch(deskProvider.select((s) => (s.settings.advanced.networkMode, s.settings.tor, s.status?.torIncluded ?? true)));
+    final details = <Object, String>{
+      DeskRoute.settingsPrivacy: networkSummary(l, net.$1, torOn: net.$2, tor: DeskFeatures.tor && net.$3),
+    };
     // Linked devices is a page of This wallet, and so is Recheck balance at Shallow; Change
     // level is Advanced's.
     final current = route == DeskRoute.settingsDevices || (route == DeskRoute.settingsRescan && !ui.recheckInSideList)
@@ -96,6 +102,7 @@ class SettingsFrame extends ConsumerWidget {
                     child: ESubnav(
                       items: items,
                       current: current,
+                      details: details,
                       onTap: (r) => nav.go(r as DeskRoute),
                       wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
                     ),

@@ -1957,7 +1957,16 @@ void main() {
               if (section == SettingsSection.advanced) {
                 // No Connection servers row: they are the first of the Epicbox list.
                 expect(pages[section], isNot(contains('key:adv-connection-servers')), reason: '$size');
-                for (final row in ['adv-invoices', 'adv-linkedDevices', 'adv-mode-standard', 'adv-mode-nodeOnly']) {
+                for (final row in ['adv-invoices', 'adv-linkedDevices']) {
+                  expect(pages[section], contains('key:$row'), reason: '$row at $size');
+                }
+                // The network mode and failover moved to Network & privacy (B-03).
+                for (final row in ['adv-mode-standard', 'adv-nodeFailover']) {
+                  expect(pages[section], isNot(contains('key:$row')), reason: '$row at $size');
+                }
+              }
+              if (section == SettingsSection.privacyNetwork) {
+                for (final row in ['adv-mode-standard', 'adv-mode-nodeOnly', 'adv-mode-killSwitch', 'adv-nodeFailover']) {
                   expect(pages[section], contains('key:$row'), reason: '$row at $size');
                 }
               }

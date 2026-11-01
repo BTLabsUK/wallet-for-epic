@@ -26,6 +26,7 @@
   "deskRailTorSlow": "{problem}。发送不受影响。",
   "deskRailTorNoAddress": "Tor 地址尚未发布",
   "deskRailOpenPrivacy": "打开隐私设置",
+  "deskRailOpenNetworkPrivacy": "打开网络与隐私",
   "deskRailNode": "节点",
   "deskRailOpenNode": "打开节点设置",
   "deskAppNodeSyncedTitle": "本地节点已同步",

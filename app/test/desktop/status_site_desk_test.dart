@@ -112,7 +112,7 @@ void main() {
     expect(hosts, hasLength(2));
   });
 
-  testWidgets('Settings › Privacy shows the status site switch; turning it off applies at once', (tester) async {
+  testWidgets('Settings › Network & privacy shows the status site switch; turning it off applies at once', (tester) async {
     tester.view.physicalSize = const Size(1280, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -129,13 +129,14 @@ void main() {
       child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsPrivacyScreen())),
     ));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Status site'), findsOneWidget);
+    expect(find.text('Servers'), findsOneWidget);
     expect(find.text('Use ${Uri.parse(hostSettings.statusDirectory!).host}'), findsOneWidget);
     // Label only; the sentence is behind the info icon (its popover).
     expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text == 'Shows which nodes and Epicbox servers are online, from a public list on status.btlabs.uk.'), findsOneWidget);
     expect(find.textContaining('Server health'), findsNothing);
 
-    final toggle = find.descendant(of: find.byType(PrivacyGroup), matching: find.byType(ESwitch));
+    // The group's first row is the status site (Node failover follows).
+    final toggle = find.descendant(of: find.byType(PrivacyGroup), matching: find.byType(ESwitch)).first;
     await tester.ensureVisible(toggle);
     await tester.tap(toggle);
     await tester.pump(const Duration(seconds: 1));

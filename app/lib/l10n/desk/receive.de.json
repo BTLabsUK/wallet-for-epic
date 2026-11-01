@@ -33,8 +33,10 @@
   "deskRecvHttpLocal": "Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Transaktionen.",
   "deskRecvHttpIntro": "Für Wallets auf diesem Computer, solange diese Wallet geöffnet ist.",
   "deskRecvHttpTorHint": "Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
+  "deskRecvHttpTorHintNet": "Schalten Sie Tor unter Einstellungen › Netzwerk & Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
   "deskRecvDirectTor": "Link · Tor-Adresse",
   "deskRecvTorIntro": "Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Datenschutz eingestellt.",
+  "deskRecvTorIntroNet": "Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Netzwerk & Datenschutz eingestellt.",
   "deskRecvTorAddress": "Link · Tor-Adresse",
   "deskRecvCopyTor": "Tor-Adresse kopieren",
   "deskRecvTorOnion": "Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.",
@@ -47,6 +49,7 @@
   "deskRecvSwitchLabel": "{title}, Empfang",
   "deskRecvTorOffTitle": "Link · Tor braucht Tor.",
   "deskRecvTorOffText": "Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Datenschutz; er leitet die Verbindungen der Wallet über Tor.",
+  "deskRecvTorOffTextNet": "Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Netzwerk & Datenschutz; er leitet die Verbindungen der Wallet über Tor.",
   "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist.",
   "deskRecvHeaderTip": "Empfang: {methods}"
 }

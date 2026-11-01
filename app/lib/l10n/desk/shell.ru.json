@@ -26,6 +26,7 @@
   "deskRailTorSlow": "{problem}. Отправка работает.",
   "deskRailTorNoAddress": "Адрес Tor не опубликован",
   "deskRailOpenPrivacy": "Открыть настройки приватности",
+  "deskRailOpenNetworkPrivacy": "Открыть «Сеть и приватность»",
   "deskRailNode": "Узел",
   "deskRailOpenNode": "Открыть настройки узла",
   "deskAppNodeSyncedTitle": "Локальный узел синхронизирован",

@@ -72,8 +72,8 @@ class RailItem {
     word: statusOffByModeWord(l, mode),
     state: EState.off,
     second: statusOffByModeWord(l, mode),
-    lines: [l.statusOffByModeDetail],
-    open: l.deskRailOpenNetwork,
+    lines: [l.statusOffByModeDetailNet],
+    open: l.deskRailOpenNetworkPrivacy,
     jump: jump,
     byMode: true,
   );
@@ -183,7 +183,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
           if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,
           if (tor == TorState.on && st?.tor == ServiceHealth.slow) l.deskRailTorSlow(st?.torProblem ?? l.deskRailTorNoAddress),
         ],
-        open: l.deskRailOpenPrivacy,
+        open: l.deskRailOpenNetworkPrivacy,
         jump: SettingsJump.tor,
       ),
     );

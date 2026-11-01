@@ -6,36 +6,48 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../advanced.dart' show NetworkMode;
+import '../../../ui/network_mode_text.dart';
+import '../../../levels/level_features.dart' show AdvancedPageKind;
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
+import '../transfer/send_advanced.dart' show ERadioRow;
 import 'prefs.dart';
 import 'settings_frame.dart';
-import 'settings_advanced.dart' show openAdvanced;
+import 'settings_advanced.dart' show confirmNetworkModeSwitch;
 import '../../../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
 enum PrivacyDemo { torOn, torStarting, torFailed }
 
-/// Settings › Privacy: the one Tor switch (what it covers is `tor_routes.dart`'s) and whether
-/// the status site is asked.
+/// Settings › Network & privacy (B-03): how the wallet reaches the network, on one page in the
+/// phone's order. The network mode, the one Tor switch (what it covers is `tor_routes.dart`'s),
+/// then the servers: whether the status site is asked, and Node failover. Stored settings are
+/// the same as before the page was merged; only the place of the controls moved.
 class SettingsPrivacyScreen extends ConsumerWidget {
   const SettingsPrivacyScreen({super.key, this.arg});
 
   final Object? arg;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => SettingsFrame(
-    route: DeskRoute.settingsPrivacy,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // ESetGroup owns the gap between groups.
-        if (DeskFeatures.tor) TorGroup(demo: arg is PrivacyDemo ? arg as PrivacyDemo : null),
-        const PrivacyGroup(),
-      ],
-    ),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    // The mode and failover belong to Deeper and up, as on Advanced before (Shallow has no
+    // section here; a Tor link may still open the page there).
+    final full = ref.watch(deskLevelFeaturesProvider.select((f) => f.advancedPage)) == AdvancedPageKind.full;
+    return SettingsFrame(
+      route: DeskRoute.settingsPrivacy,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ESetGroup owns the gap between groups.
+          if (full) const JumpSection(section: SettingsJump.network, child: NetworkModeGroup()),
+          if (DeskFeatures.tor) TorGroup(demo: arg is PrivacyDemo ? arg as PrivacyDemo : null),
+          PrivacyGroup(failover: full),
+        ],
+      ),
+    );
+  }
 }
 
 /// The Tor switch with its state line; Retry and Turn Tor off when it is not connected.
@@ -103,20 +115,11 @@ class _TorGroupState extends ConsumerState<TorGroup> {
     final included = status?.torIncluded ?? true;
     final tor = netTorState(st.settings, status);
     final line = torStateLine(l, tor, status, included: included);
-    // Advanced › Network: Tor only keeps the switch on, Kill switch leaves it off; in Node only
-    // it is the user's and carries the node.
+    // The mode above it on this page: Tor only keeps the switch on, Kill switch leaves it off;
+    // in Node only it is the user's and carries the node.
     final mode = st.settings.advanced.networkMode;
     final torOnly = mode == NetworkMode.torOnly;
     final offline = mode == NetworkMode.killSwitch;
-    // Undercover is Tor only: the switch shows disabled, and a tap, its ⓘ and its line say why
-    // and lead to the Depth page, where Undercover is changed.
-    void changeUndercover() => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsLevel);
-    final control = ESwitch(
-      key: const ValueKey('privacy-tor-switch'),
-      value: (torOnly || st.settings.tor) && included && !offline,
-      semanticLabel: torNetworkLabel(context.l10n),
-      onChanged: included && !torOnly && !offline ? _set : null,
-    );
     return JumpSection(
       section: SettingsJump.tor,
       child: ESetGroup(
@@ -124,7 +127,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
         rows: [
           ESetRow(
             title: torNetworkLabel(context.l10n),
-            hint: torOnly ? '${torNetworkHint(l)}\n\n${l.deskSetPrivUndercoverLine}' : torNetworkHint(l),
+            hint: torOnly ? '${torNetworkHint(l)}\n\n${l.torLockedTorOnly}' : torNetworkHint(l),
             hintTitle: torNetworkLabel(context.l10n),
             hintIcon: EIcons.tor,
             control: SizedBox(
@@ -132,18 +135,11 @@ class _TorGroupState extends ConsumerState<TorGroup> {
               height: 24.u,
               child: _busy
                   ? Center(child: Semantics(label: l.deskSetPrivSwitching, child: ESpinner(size: 18.u)))
-                  : !torOnly
-                  ? control
-                  : GestureDetector(
-                      key: const ValueKey('privacy-tor-undercover-tap'),
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => showEToast(
-                        context,
-                        l.deskSetPrivUndercoverLine,
-                        tone: ETone.info,
-                        action: (label: l.deskSetPrivUndercoverChange, run: changeUndercover),
-                      ),
-                      child: control,
+                  : ESwitch(
+                      key: const ValueKey('privacy-tor-switch'),
+                      value: (torOnly || st.settings.tor) && included && !offline,
+                      semanticLabel: torNetworkLabel(context.l10n),
+                      onChanged: included && !torOnly && !offline ? _set : null,
                     ),
             ),
             below: Column(
@@ -152,24 +148,10 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                 if (!offline) EStateLine(line, key: const ValueKey('privacy-tor-state')),
                 if (torOnly || offline) ...[
                   SizedBox(height: Sp.x2),
-                  Wrap(
-                    spacing: Sp.x2,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        torOnly ? l.deskSetPrivUndercoverLine : l.netBlockKillSwitch,
-                        key: const ValueKey('privacy-mode-line'),
-                        style: context.ts.small,
-                      ),
-                      if (torOnly)
-                        ELink(
-                          key: const ValueKey('privacy-undercover-change'),
-                          label: l.deskSetPrivUndercoverChange,
-                          onPressed: changeUndercover,
-                        )
-                      else
-                        ELink(label: l.deskNetOpenAdvanced, onPressed: () => openAdvanced(ref)),
-                    ],
+                  Text(
+                    torOnly ? l.torLockedTorOnly : l.netBlockKillSwitch,
+                    key: const ValueKey('privacy-mode-line'),
+                    style: context.ts.small,
                   ),
                 ],
                 if (tor == TorState.failed && !offline) ...[
@@ -213,30 +195,96 @@ MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status,
   };
 }
 
-/// Whether the status site is asked ([DeskSettings.useStatusSite]). Off, the node and
-/// Epicbox lists are the built-in ones with health from the servers themselves. Applies at once.
+/// The servers' group: whether the status site is asked ([DeskSettings.useStatusSite]; off,
+/// the node and Epicbox lists are the built-in ones with health from the servers themselves)
+/// and Node failover. Each applies at once.
 class PrivacyGroup extends ConsumerWidget {
-  const PrivacyGroup({super.key});
+  const PrivacyGroup({super.key, this.failover = true});
+
+  /// Whether the Node failover row shows (Deeper and up).
+  final bool failover;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // No status site in app-config.toml: no group.
-    if (!statusSiteConfigured) return const SizedBox.shrink();
     final s = ref.watch(deskProvider.select((s) => s.settings));
+    final adv = s.advanced;
     final l = context.l10n;
+    final n = ref.read(deskProvider.notifier);
+    if (!statusSiteConfigured && !failover) return const SizedBox.shrink();
     return ESetGroup(
-      title: l.deskSetPrivStatusSite,
+      key: const ValueKey('privacy-servers'),
+      title: l.netPageServers,
       rows: [
+        // No status site in app-config.toml: no row.
+        if (statusSiteConfigured)
+          ESetRow(
+            title: l.deskSetPrivUseStatus(statusSiteHost),
+            hint: l.deskSetPrivUseStatusHint,
+            control: ESwitch(
+              value: s.useStatusSite,
+              semanticLabel: l.deskSetPrivUseStatus(statusSiteHost),
+              onChanged: (v) => n.saveSettings(s.copyWith(useStatusSite: v)),
+            ),
+          ),
+        // On by default: the one switch here that keeps the simple app working.
+        if (failover)
         ESetRow(
-          title: l.deskSetPrivUseStatus(statusSiteHost),
-          hint: l.deskSetPrivUseStatusHint,
+          key: const ValueKey('adv-nodeFailover'),
+          title: l.deskSetAdvNodeFailover,
+          hint: l.deskSetAdvNodeFailoverHint,
+          hintTitle: l.deskSetAdvNodeFailover,
           control: ESwitch(
-
-            value: s.useStatusSite,
-            semanticLabel: l.deskSetPrivUseStatus(statusSiteHost),
-            onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(useStatusSite: v)),
+            value: adv.nodeFailover,
+            semanticLabel: l.deskSetAdvNodeFailover,
+            onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withNodeFailover(v))),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// The network modes as radio rows (each with its ⓘ): Normal, Tor only, Node only, Kill switch.
+/// A switch that would pause a waiting send asks first ([confirmNetworkModeSwitch]).
+class NetworkModeGroup extends ConsumerWidget {
+  const NetworkModeGroup({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final st = ref.watch(deskProvider);
+    final s = st.settings;
+    final adv = s.advanced;
+    final torIncluded = (st.status?.torIncluded ?? true) && DeskFeatures.tor;
+    Future<void> choose(NetworkMode m) async {
+      if (m == adv.networkMode) return;
+      final waiting = switchPausesSends(m) && !switchPausesSends(adv.networkMode) ? deskPendingNetworkSends(st) : 0;
+      if (waiting > 0) {
+        final ok = await confirmNetworkModeSwitch(context, mode: m, waiting: waiting);
+        if (ok != true) return;
+      }
+      await ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withMode(m)));
+    }
+    Widget mode(NetworkMode m, {bool tor = false}) => ERadioRow(
+      key: ValueKey('adv-mode-${m.name}'),
+      selected: adv.networkMode == m,
+      // Just the name and its ⓘ: no explanations in the list (the owner).
+      title: networkModeName(l, m),
+      hint: networkModeHint(l, m, tor: DeskFeatures.tor),
+      hintIcon: networkModeGlyph(m),
+      tag: tor && !torIncluded ? l.deskSetAdvNotInBuild : null,
+      onSelected: tor && !torIncluded ? null : () => choose(m),
+    );
+    return ESetGroup(
+      key: const ValueKey('privacy-network'),
+      title: l.deskSetAdvNetwork,
+      rows: [
+        // One row per mode, as tall as a settings row (its padding less the radio row's own).
+        for (final (m, tor) in [(NetworkMode.standard, false), if (DeskFeatures.tor) (NetworkMode.torOnly, true), (NetworkMode.nodeOnly, false), (NetworkMode.killSwitch, false)])
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2),
+            child: mode(m, tor: tor),
+          ),
       ],
     );
   }

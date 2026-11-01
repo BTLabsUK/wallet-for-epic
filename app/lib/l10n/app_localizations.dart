@@ -5287,6 +5287,30 @@ abstract class AppLocalizations {
   /// **'Privacy & network'**
   String get settingsSectionPrivacyNetwork;
 
+  /// Settings: the one page with the network mode, Tor, the status site and node failover. The phone's hub row and page title, the desktop's settings section.
+  ///
+  /// In en, this message translates to:
+  /// **'Network & privacy'**
+  String get settingsSectionNetworkPrivacy;
+
+  /// Second part of the Network & privacy summary under its settings entry ("Normal · Tor on"): the Tor switch is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor on'**
+  String get netSummaryTorOn;
+
+  /// Second part of the Network & privacy summary under its settings entry ("Normal · Tor off"): the Tor switch is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor off'**
+  String get netSummaryTorOff;
+
+  /// Settings › Network & privacy: heading of the group with the node and Epicbox servers, the status site switch and Node failover.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers'**
+  String get netPageServers;
+
   /// Settings group on the phone's Settings hub: opens Help, which starts with Send feedback.
   ///
   /// In en, this message translates to:
@@ -6343,6 +6367,18 @@ abstract class AppLocalizations {
   /// **'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.'**
   String get tourPhonePrivacyText;
 
+  /// Text of the tour card for Settings › Network & privacy (first-unlock tour); one or two short sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'The network mode, the Tor switch and the servers the wallet uses. Tap a server to change it.'**
+  String get tourPhoneNetworkText;
+
+  /// tourPhoneNetworkText in the build without Tor: no Tor switch.
+  ///
+  /// In en, this message translates to:
+  /// **'The network mode and the servers the wallet uses. Tap a server to change it.'**
+  String get tourPhoneNetworkTextNoTor;
+
   /// Title of the tour card for Settings › Advanced (first-unlock tour). Short.
   ///
   /// In en, this message translates to:
@@ -6354,6 +6390,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tor-only mode, outputs and technical details live here. Switch on what you need.'**
   String get tourPhoneAdvancedText;
+
+  /// Text of the tour card for Settings › Advanced on phone and desktop: the switches that show more of the wallet (the network mode is on Network & privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs and technical details live here. Switch on what you need.'**
+  String get tourAdvancedShowsText;
 
   /// Title of the tour card for the Help screen (first-unlock tour). Short.
   ///
@@ -20562,6 +20604,12 @@ abstract class AppLocalizations {
   /// **'Undercover keeps Tor on.'**
   String get torUndercoverKeepsOn;
 
+  /// Settings › Network & privacy: line under the Tor switch while the network mode Tor only keeps it on and locked.
+  ///
+  /// In en, this message translates to:
+  /// **'On in Tor only.'**
+  String get torLockedTorOnly;
+
   /// Small link next to the Undercover line under the Tor switch; opens the level page where Undercover is turned on or off.
   ///
   /// In en, this message translates to:
@@ -20880,11 +20928,23 @@ abstract class AppLocalizations {
   /// **'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.'**
   String get txLinkTorHint;
 
+  /// Info text of the Link · Tor switch on Settings › Transactions. Names the page with the Tor switch (Network & privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.'**
+  String get txLinkTorHintNet;
+
   /// Line under the Link › Tor row on Settings › Transactions while that switch is on and Tor (Privacy & network) is off. A tap opens Privacy & network.
   ///
   /// In en, this message translates to:
   /// **'Needs Tor. Turn it on under Privacy & network.'**
   String get txLinkTorNeedsTor;
+
+  /// Line under the Link › Tor row on Settings › Transactions while that switch is on and Tor is off. A tap opens Settings › Network & privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Tor. Turn it on under Network & privacy.'**
+  String get txLinkTorNeedsTorNet;
 
   /// Notice when the last payment method that is on is switched off: the switch stays on. Phone and desktop.
   ///
@@ -26856,6 +26916,12 @@ abstract class AppLocalizations {
   /// **'Off. Turn on in Settings › Privacy & network.'**
   String get netStatusTurnOnHintPrivacy;
 
+  /// Home status card: detail of the Tor row while Tor is off; names where the Tor switch is.
+  ///
+  /// In en, this message translates to:
+  /// **'Off. Turn on in Settings › Network & privacy.'**
+  String get netStatusTurnOnHintNet;
+
   /// Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch.
   ///
   /// In en, this message translates to:
@@ -27210,6 +27276,12 @@ abstract class AppLocalizations {
   /// **'Connects directly. Turn on Tor in Privacy & network to hide the IP address.'**
   String get advModeStandardHint;
 
+  /// Settings › Network & privacy: info text of the Normal network mode. The Tor switch is right below the modes on the same page.
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly. Turn on Tor below to hide the IP address.'**
+  String get advModeStandardHintHere;
+
   /// Info text of the Normal row in the build without Tor.
   ///
   /// In en, this message translates to:
@@ -27305,6 +27377,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turned off by the network mode. Change it in Settings › Advanced › Network.'**
   String get statusOffByModeDetail;
+
+  /// Detail of a service the network mode turned off (status icons, Receive). Names the page where the mode is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned off by the network mode. Change it in Settings › Network & privacy.'**
+  String get statusOffByModeDetailNet;
 
   /// Send over Epicbox while Node only is chosen.
   ///
@@ -28349,6 +28427,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.'**
   String get lvPickUndercoverHelp;
+
+  /// Info text of Undercover on the level picker. Names where Tor only is turned off later (Settings › Network & privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Network & privacy.'**
+  String get lvPickUndercoverHelpNet;
 
   /// Change level screen: the Undercover (Tor only) switch.
   ///
@@ -30107,6 +30191,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} {code}'**
   String devicesNameWithCode(String name, String code);
+
+  /// Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on Tor in Settings › Network & privacy for a Tor address instead.'**
+  String get deskRecvHttpTorHintNet;
+
+  /// Receive, Link · Tor: intro line; names where Tor is set (Settings › Network & privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.'**
+  String get deskRecvTorIntroNet;
+
+  /// Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Network & privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.'**
+  String get deskRecvTorOffTextNet;
+
+  /// Info text of the Link · Tor switch on Settings › Transactions. Names the page with the Tor switch (Network & privacy).
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.'**
+  String get deskSetTxTorHintNet;
+
+  /// Notice under the Link › Tor switch on Settings › Transactions while it is on and Tor is off; the button beside it opens Settings › Network & privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'**
+  String get deskSetTxTorNeedsTorNet;
+
+  /// Status rail, Tor row: the link that opens Settings › Network & privacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Network & privacy'**
+  String get deskRailOpenNetworkPrivacy;
 }
 
 class _AppLocalizationsDelegate

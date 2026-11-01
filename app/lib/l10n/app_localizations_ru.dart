@@ -3353,6 +3353,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => 'Приватность и сеть';
 
   @override
+  String get settingsSectionNetworkPrivacy => 'Сеть и приватность';
+
+  @override
+  String get netSummaryTorOn => 'Tor включён';
+
+  @override
+  String get netSummaryTorOff => 'Tor выключен';
+
+  @override
+  String get netPageServers => 'Серверы';
+
+  @override
   String get settingsSectionHelpFeedback => 'Справка';
 
   @override
@@ -3997,11 +4009,23 @@ class AppLocalizationsRu extends AppLocalizations {
       'Какой узел и сервер Epicbox использует кошелёк, и переключатель Tor. Нажмите на сервер, чтобы изменить его.';
 
   @override
+  String get tourPhoneNetworkText =>
+      'Режим сети, переключатель Tor и серверы, которые использует кошелёк. Нажмите на сервер, чтобы изменить его.';
+
+  @override
+  String get tourPhoneNetworkTextNoTor =>
+      'Режим сети и серверы, которые использует кошелёк. Нажмите на сервер, чтобы изменить его.';
+
+  @override
   String get tourPhoneAdvancedTitle => 'Дополнительно';
 
   @override
   String get tourPhoneAdvancedText =>
       'Режим «Только Tor», выходы и технические сведения собраны здесь. Включайте то, что нужно.';
+
+  @override
+  String get tourAdvancedShowsText =>
+      'Выходы и технические сведения собраны здесь. Включайте то, что нужно.';
 
   @override
   String get tourPhoneHelpTitle => 'Справка';
@@ -13512,6 +13536,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get torUndercoverKeepsOn => 'Инкогнито держит Tor включённым.';
 
   @override
+  String get torLockedTorOnly => 'Включён в режиме «Только Tor».';
+
+  @override
   String get torUndercoverChange => 'Изменить «Инкогнито»';
 
   @override
@@ -13712,8 +13739,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ссылка · Tor платит прямо в кошелёк по адресу onion и даёт этому телефону адрес Tor, на который ему можно платить. Оба кошелька должны быть открыты. Нужен Tor: переключатель Tor в «Приватность и сеть» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Ссылка · Tor в «Отправить» и «Получить».';
 
   @override
+  String get txLinkTorHintNet =>
+      'Ссылка · Tor платит прямо в кошелёк по адресу onion и даёт этому телефону адрес Tor, на который ему можно платить. Оба кошелька должны быть открыты. Нужен Tor: переключатель Tor в «Сеть и приватность» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Ссылка · Tor в «Отправить» и «Получить».';
+
+  @override
   String get txLinkTorNeedsTor =>
       'Нужен Tor. Включите его в «Приватность и сеть».';
+
+  @override
+  String get txLinkTorNeedsTorNet =>
+      'Нужен Tor. Включите его в «Сеть и приватность».';
 
   @override
   String get txLastMethodNotice =>
@@ -17834,6 +17869,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Выключено. Включите в «Настройки › Приватность и сеть».';
 
   @override
+  String get netStatusTurnOnHintNet =>
+      'Выключено. Включите в «Настройки › Сеть и приватность».';
+
+  @override
   String get deskBarTurnOnHint =>
       'Выключено. Включите в «Настройки › Транзакции».';
 
@@ -18085,6 +18124,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Подключается напрямую. Включите Tor в разделе «Приватность и сеть», чтобы скрыть IP-адрес.';
 
   @override
+  String get advModeStandardHintHere =>
+      'Подключается напрямую. Включите Tor ниже, чтобы скрыть IP-адрес.';
+
+  @override
   String get advModeStandardHintNoTor =>
       'Подключается напрямую к узлу и сервисам, которыми вы пользуетесь.';
 
@@ -18161,6 +18204,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get statusOffByModeDetail =>
       'Выключено режимом сети. Изменить: «Настройки» › «Дополнительно» › «Сеть».';
+
+  @override
+  String get statusOffByModeDetailNet =>
+      'Выключено режимом сети. Изменить: «Настройки» › «Сеть и приватность».';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -18833,6 +18880,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get lvPickUndercoverHelp =>
       'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим сети › Только Tor; позже можно выключить в Настройки › Дополнительно.';
+
+  @override
+  String get lvPickUndercoverHelpNet =>
+      'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим сети › Только Tor; позже можно выключить в Настройки › Сеть и приватность.';
 
   @override
   String get lvPickUndercover => 'Инкогнито';
@@ -19939,4 +19990,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskRecvHttpTorHintNet =>
+      'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Сеть и приватность».';
+
+  @override
+  String get deskRecvTorIntroNet =>
+      'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Сеть и приватность».';
+
+  @override
+  String get deskRecvTorOffTextNet =>
+      'Адрес Tor работает, пока включён Tor. Tor — переключатель в Настройки › Сеть и приватность; он направляет соединения кошелька через Tor.';
+
+  @override
+  String get deskSetTxTorHintNet =>
+      'Платите и получайте платежи напрямую от кошелька к кошельку по адресу onion, через Tor, без сервера посередине. Работает, только пока оба кошелька открыты. Нужен Tor: переключатель Tor в разделе «Сеть и приватность» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Ссылка · Tor в «Отправить», а его адрес — в «Получить».';
+
+  @override
+  String get deskSetTxTorNeedsTorNet =>
+      'Tor выключен. Включите его в разделе «Сеть и приватность», чтобы получать платежи на адрес Tor.';
+
+  @override
+  String get deskRailOpenNetworkPrivacy => 'Открыть «Сеть и приватность»';
 }

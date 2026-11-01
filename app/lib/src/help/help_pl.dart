@@ -21,9 +21,10 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'tym telefonie' : 'tym komputerze';
   final secret = phone ? 'swój PIN lub hasło' : 'hasło portfela';
-  final nodePlace = phone ? '[[Ustawienia › Prywatność i sieć › Węzeł|Settings › Privacy & network › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Ustawienia › Prywatność i sieć › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Ustawienia › Transakcje › Epicbox|Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[Ustawienia › Prywatność i sieć › Sieć Tor|Settings › Privacy & network › Tor network]]' : '[[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]';
+  final nodePlace = phone ? '[[Ustawienia › Sieć i prywatność › Węzeł|Settings › Network & privacy › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Ustawienia › Sieć i prywatność › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Ustawienia › Transakcje › Epicbox|Settings › Transactions › Epicbox]]';
+  final torPlace = phone ? '[[Ustawienia › Sieć i prywatność › Sieć Tor|Settings › Network & privacy › Tor network]]' : '[[Ustawienia › Sieć i prywatność › Tor|Settings › Network & privacy › Tor]]';
+  final netPlace = '[[Ustawienia › Sieć i prywatność|Settings › Network & privacy]]';
   final cancelPlace = phone
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'
       : '[[Aktywność › transakcja › Anuluj|Activity › the transaction › Cancel]]';
@@ -323,7 +324,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
             'Płatność Link na adres onion idzie przez Tor; Wyślij pokazuje, czy płatność idzie przez Tor.',
             'Wolniej niż bez Tora. W niektórych krajach Tor jest blokowany; tam się nie połączy.',
             'Odbieranie na adres .onion działa, gdy aplikacja jest otwarta; Epicbox działa obok.',
-            'Przy Tylko Tor w Zaawansowanych przełącznik zostaje włączony i nie da się go wyłączyć.',
+            'W trybie sieci Tylko Tor przełącznik zostaje włączony i nie da się go wyłączyć.',
           ]),
           const HelpBlock.p('**Uruchamianie…** oznacza, że Tor się łączy; objęte nim połączenia czekają i nigdy nie idą inną drogą. **Brak połączenia** oznacza niepowodzenie: Ponów lub wyłącz Tor. Niektóre portfele pokazują adres Tor bez .onion; to ten sam adres.'),
         ],
@@ -337,12 +338,12 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.p('Z włączonym Torem połączenie z serwerem Epicbox idzie przez Tor, a portfel ma adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio, z dowolnego miejsca, bez przekierowywania czegokolwiek na routerze. Włączenie Tora nie zmienia adresów, które udostępniasz.'),
           HelpBlock.ul([
-            'Włącz go w [[Ustawienia › Prywatność › Tor|Settings › Privacy › Tor]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
+            'Włącz go w [[Ustawienia › Sieć i prywatność › Tor|Settings › Network & privacy › Tor]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
             'Gdy Tor się uruchamia lub nie jest połączony, to, co idzie przez Tor, czeka; nic nie idzie obok. Ponów lub wyłącz Tor.',
             'Link · HTTP na adres http(s) nie idzie przez Tor; Wyślij o tym informuje.',
             'Odbieranie przez Link · HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Link · Tor.',
             'W niektórych krajach Tor jest blokowany lub niedozwolony; tam się nie połączy.',
-            'Przy Tylko Tor w Zaawansowanych przełącznik zostaje włączony i nie da się go wyłączyć.',
+            'W trybie sieci Tylko Tor przełącznik zostaje włączony i nie da się go wyłączyć.',
           ]),
           HelpBlock.p('Niektóre portfele pokazują adres bez .onion; to ten sam adres.'),
         ],
@@ -355,7 +356,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           ? 'Normalny, Tylko Tor, Tylko węzeł lub Wyłącznik awaryjny: z czym łączy się każdy z nich i jak płacić z portfela, który nigdy nie wchodzi online.'
           : 'Normalny, Tylko węzeł lub Wyłącznik awaryjny: z czym łączy się każdy z nich i jak płacić z portfela, który nigdy nie wchodzi online.',
       [
-        HelpBlock.p('To, ile internetu używa portfel, to jeden wybór na stronie **Zaawansowane** w Ustawieniach, w sekcji Sieć, a portfel go zapamiętuje. Poza trybem **Normalny** oznaczenie ${phone ? 'na ekranie głównym' : 'na pasku tytułu'} podaje tryb; dotknij go, by go zmienić.'),
+        HelpBlock.p('To, ile internetu używa portfel, to jeden wybór w $netPlace, a portfel go zapamiętuje. Poza trybem **Normalny** oznaczenie ${phone ? 'na ekranie głównym' : 'na pasku tytułu'} podaje tryb; dotknij go, by go zmienić.'),
         HelpBlock.ul([
           tor
               ? '**Normalny**: wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w $torPlace.'
@@ -376,6 +377,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           'Tutaj płatność pokaże **Do wysłania z innego urządzenia**, a po wyjściu z trybu i gdy portfel zobaczy ją w łańcuchu, **Potwierdzanie**.',
         ]),
         HelpBlock.p('Usługi wyłączone przez tryb są szare jako **Wyłączone (Tylko węzeł)**: to tryb, nie błąd. Przy przełączaniu nic nie jest anulowane; płatność czekająca na odbiorcę przez Epicbox wznawia się po wyjściu z trybu${tor ? ' (lub po przejściu na Tylko Tor)' : ''}.'),
+        HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybach Tylko węzeł i Wyłącznik awaryjny${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}${tor ? ', a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -400,10 +402,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           if (!phone) '**Węzeł lokalny**: pozwala temu komputerowi uruchomić własny węzeł, w $nodePlace.',
           if (!phone) '**Logi**: grupa Logi w Pomocy, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
         ]),
-        HelpBlock.p('**Automatyczna zmiana węzła** jest domyślnie włączona. Gdy twój węzeł nie odpowiada przez 30 sekund, portfel przechodzi na następny działający węzeł z twojej listy, tylko na czas tej sesji: twój własny węzeł zostaje zapisany, a portfel wraca na niego przy następnym uruchomieniu albo gdy sam wybierzesz węzeł. Nigdy nie zmienia węzła w trybach Tylko węzeł i Wyłącznik awaryjny${phone ? '' : ' ani nie odchodzi od węzła na tym komputerze'}${tor ? ', a przy Tylko Tor przechodzi tylko na węzeł osiągalny przez Tor' : ''}.'),
         const HelpBlock.p('**Potwierdzenia** określają, ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać: domyślnie 6, od 1 do 30. Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.'),
         const HelpBlock.p('**Eksperymentalne** zawiera **Faktury**, na początku wyłączone: prośby o płatność i faktury między sparowanymi kontaktami. Wyłączone są ukryte i nic nie jest dla nich sprawdzane. Samo parowanie jest zawsze włączone.'),
-        const HelpBlock.p('Ta sama strona ustawia tryb sieci: zobacz „Tryby sieci”.'),
+        HelpBlock.p('Tryb sieci i **automatyczna zmiana węzła** są w $netPlace: zobacz „Tryby sieci”.'),
       ],
       id: HelpId.advanced,
     ),
@@ -428,7 +429,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź w Odbierz, czy odbieranie jest włączone, a węzeł zsynchronizowany. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.'),
         if (phone && tor)
-          const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w [[Ustawienia › Prywatność i sieć|Settings › Privacy & network]] albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
+          const HelpBlock.p('**Tor pokazuje „Brak połączenia”.** Tor nie mógł połączyć się ze swoją siecią. Naciśnij Ponów w [[Ustawienia › Sieć i prywatność|Settings › Network & privacy]] albo wyłącz Tor; w tym czasie nic nie wychodzi.'),
         if (!phone) ...[
           HelpBlock.p('**„Port ${appConfig.httpListenPort} jest używany przez inny program”.** Inny program, często inny portfel Epic, używa tego portu do płatności Link · HTTP. Zamknij go, potem naciśnij Spróbuj ponownie w Odbierz. ${tor ? 'Epicbox, Link · Tor i Bezpośrednio · Przesyłanie pliku działają' : 'Epicbox i Bezpośrednio · Przesyłanie pliku działają'} w tym czasie dalej.'),
           const HelpBlock.p('**„Inny program Epic używa tego folderu”.** Inny portfel lub węzeł Epic ma otwarte te same pliki. Zamknij go i spróbuj ponownie.'),
@@ -437,10 +438,10 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**Zapomniany PIN.** Usuń portfel na ekranie odblokowania i przywróć go z frazy odzyskiwania z nowym PIN-em. Bez frazy EPIC nie da się odzyskać.')
         else
           const HelpBlock.p('**„Nieprawidłowe hasło”.** Sprawdź Caps Lock i układ klawiatury. Zapomniane hasło: przywróć portfel z frazy odzyskiwania i wybierz nowe.'),
-        HelpBlock.p('**Saldo wygląda na błędne.** Uruchom $recheckPlace.'),
         HelpBlock.p(tor
-            ? '**Akcja jest wyszarzona i wymienia tryb albo mówi „Czeka na Tor”.** W Zaawansowanych włączono Tylko Tor, Tylko węzeł lub Wyłącznik awaryjny. Przywróć tam tryb Normalny albo poczekaj, aż Tor się połączy.'
-            : '**Akcja jest wyszarzona i wymienia tryb.** W Zaawansowanych włączono Tylko węzeł lub Wyłącznik awaryjny. Przywróć tam tryb Normalny.'),
+            ? '**Akcja jest wyszarzona i wymienia tryb albo mówi „Czeka na Tor”.** W $netPlace włączono Tylko Tor, Tylko węzeł lub Wyłącznik awaryjny. Przywróć tam tryb Normalny albo poczekaj, aż Tor się połączy.'
+            : '**Akcja jest wyszarzona i wymienia tryb.** W $netPlace włączono Tylko węzeł lub Wyłącznik awaryjny. Przywróć tam tryb Normalny.'),
+        HelpBlock.p('**Saldo wygląda na błędne.** Uruchom $recheckPlace.'),
       ],
       id: HelpId.trouble,
     ),

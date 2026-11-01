@@ -234,7 +234,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_payments(c).linkTor, isTrue);
     expect(find.byKey(txTorNeededKey), findsOneWidget);
-    expect(find.text(_l.txLinkTorNeedsTor), findsOneWidget);
+    expect(find.text(_l.txLinkTorNeedsTorNet), findsOneWidget);
     await tester.tap(find.byKey(txTorNeededKey));
     await tester.pumpAndSettle();
     // Settings opens over the page, at Privacy & network (the hub stays under it).
@@ -282,7 +282,7 @@ void main() {
     for (final (title, text) in [
       (_l.methodEpicbox, _l.txEpicboxHint),
       (_l.methodDirectHttp, _l.txLinkHttpHint('${appConfig.httpListenPort}')),
-      (_l.methodDirectTor, _l.txLinkTorHint),
+      (_l.methodDirectTor, _l.txLinkTorHintNet),
       (_l.methodDirectFile, _l.txFileHint),
     ]) {
       await tester.tap(

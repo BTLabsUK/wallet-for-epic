@@ -14,6 +14,8 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/text_join.dart' show metaLine;
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,7 +93,6 @@ void main() {
   testWidgets('section rows show the title only, no list of what is inside', (tester) async {
     await _pump(tester);
     for (final section in [
-      SettingsSection.privacyNetwork,
       SettingsSection.wallet,
       SettingsSection.transactions,
       SettingsSection.display,
@@ -103,6 +104,12 @@ void main() {
       );
     }
     expect(find.text(_l.settingsContacts), findsNothing);
+  });
+
+  testWidgets('Network & privacy says the mode and the Tor switch on its line (B-03)', (tester) async {
+    await _pump(tester);
+    expect(_line(SettingsSection.privacyNetwork, torBuilt ? metaLine([_l.advModeStandard, _l.netSummaryTorOff]) : _l.advModeStandard), findsOneWidget);
+    expect(find.text(_l.settingsSectionNetworkPrivacy), findsOneWidget);
   });
 
   testWidgets('the Transactions row comes right after Security (the desktop\'s order)', (tester) async {
@@ -145,7 +152,8 @@ void main() {
     await _pump(tester);
     expect(find.textContaining('epicnet.us'), findsNothing);
     expect(find.textContaining('stackwallet.com'), findsNothing);
-    expect(find.textContaining('Tor off'), findsNothing);
+    // Network & privacy's line is the choice (mode and Tor switch), not a live state.
+    expect(find.textContaining('Tor off'), torBuilt ? findsOneWidget : findsNothing);
     final about = find.descendant(
       of: find.byKey(settingsGroupKey(SettingsSection.about)),
       matching: find.byType(Text),

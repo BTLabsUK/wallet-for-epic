@@ -3319,6 +3319,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => 'Datenschutz & Netzwerk';
 
   @override
+  String get settingsSectionNetworkPrivacy => 'Netzwerk & Datenschutz';
+
+  @override
+  String get netSummaryTorOn => 'Tor an';
+
+  @override
+  String get netSummaryTorOff => 'Tor aus';
+
+  @override
+  String get netPageServers => 'Server';
+
+  @override
   String get settingsSectionHelpFeedback => 'Hilfe';
 
   @override
@@ -3963,11 +3975,23 @@ class AppLocalizationsDe extends AppLocalizations {
       'Welchen Node und welchen Epicbox-Server die Wallet nutzt, und der Tor-Schalter. Tippen Sie auf einen Server, um ihn zu ändern.';
 
   @override
+  String get tourPhoneNetworkText =>
+      'Der Netzwerkmodus, der Tor-Schalter und die Server, die die Wallet nutzt. Tippen Sie auf einen Server, um ihn zu ändern.';
+
+  @override
+  String get tourPhoneNetworkTextNoTor =>
+      'Der Netzwerkmodus und die Server, die die Wallet nutzt. Tippen Sie auf einen Server, um ihn zu ändern.';
+
+  @override
   String get tourPhoneAdvancedTitle => 'Erweitert';
 
   @override
   String get tourPhoneAdvancedText =>
       'Der Nur-Tor-Modus, Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.';
+
+  @override
+  String get tourAdvancedShowsText =>
+      'Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.';
 
   @override
   String get tourPhoneHelpTitle => 'Hilfe';
@@ -13183,6 +13207,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get torUndercoverKeepsOn => 'Inkognito lässt Tor eingeschaltet.';
 
   @override
+  String get torLockedTorOnly => 'An bei „Nur Tor“.';
+
+  @override
   String get torUndercoverChange => 'Inkognito ändern';
 
   @override
@@ -13386,8 +13413,16 @@ class AppLocalizationsDe extends AppLocalizations {
       'Link · Tor zahlt direkt an eine Wallet unter einer Onion-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Beide Wallets müssen geöffnet sein. Braucht Tor: Der Tor-Schalter unter Datenschutz & Netzwerk leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und Empfangen hinzu.';
 
   @override
+  String get txLinkTorHintNet =>
+      'Link · Tor zahlt direkt an eine Wallet unter einer Onion-Adresse und gibt diesem Telefon eine Tor-Adresse, unter der es bezahlt werden kann. Beide Wallets müssen geöffnet sein. Braucht Tor: Der Tor-Schalter unter Netzwerk & Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und Empfangen hinzu.';
+
+  @override
   String get txLinkTorNeedsTor =>
       'Braucht Tor. Schalten Sie es unter Datenschutz & Netzwerk ein.';
+
+  @override
+  String get txLinkTorNeedsTorNet =>
+      'Braucht Tor. Schalten Sie es unter Netzwerk & Datenschutz ein.';
 
   @override
   String get txLastMethodNotice =>
@@ -17428,6 +17463,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Aus. Einschalten unter Einstellungen › Datenschutz & Netzwerk.';
 
   @override
+  String get netStatusTurnOnHintNet =>
+      'Aus. Einschalten unter Einstellungen › Netzwerk & Datenschutz.';
+
+  @override
   String get deskBarTurnOnHint =>
       'Aus. Einschalten unter Einstellungen › Transaktionen.';
 
@@ -17677,6 +17716,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Verbindet sich direkt. Schalten Sie Tor unter Datenschutz & Netzwerk ein, um die IP-Adresse zu verbergen.';
 
   @override
+  String get advModeStandardHintHere =>
+      'Verbindet sich direkt. Schalten Sie Tor weiter unten ein, um die IP-Adresse zu verbergen.';
+
+  @override
   String get advModeStandardHintNoTor =>
       'Verbindet sich direkt mit dem Node und den Diensten, die Sie nutzen.';
 
@@ -17749,6 +17792,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get statusOffByModeDetail =>
       'Vom Netzwerkmodus ausgeschaltet. Ändern unter Einstellungen › Erweitert › Netzwerk.';
+
+  @override
+  String get statusOffByModeDetailNet =>
+      'Vom Netzwerkmodus ausgeschaltet. Ändern unter Einstellungen › Netzwerk & Datenschutz.';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -18415,6 +18462,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get lvPickUndercoverHelp =>
       'Nur Tor, ab der ersten Verbindung. Jede Verbindung läuft über Tor; der Start dauert länger.\n\nBisher wurde nichts verbunden. Wie Netzwerkmodus › Nur Tor; lässt sich später unter Einstellungen › Erweitert ausschalten.';
+
+  @override
+  String get lvPickUndercoverHelpNet =>
+      'Nur Tor, ab der ersten Verbindung. Jede Verbindung läuft über Tor; der Start dauert länger.\n\nBisher wurde nichts verbunden. Wie Netzwerkmodus › Nur Tor; lässt sich später unter Einstellungen › Netzwerk & Datenschutz ausschalten.';
 
   @override
   String get lvPickUndercover => 'Inkognito';
@@ -19528,4 +19579,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskRecvHttpTorHintNet =>
+      'Schalten Sie Tor unter Einstellungen › Netzwerk & Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.';
+
+  @override
+  String get deskRecvTorIntroNet =>
+      'Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Netzwerk & Datenschutz eingestellt.';
+
+  @override
+  String get deskRecvTorOffTextNet =>
+      'Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Netzwerk & Datenschutz; er leitet die Verbindungen der Wallet über Tor.';
+
+  @override
+  String get deskSetTxTorHintNet =>
+      'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Netzwerk & Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.';
+
+  @override
+  String get deskSetTxTorNeedsTorNet =>
+      'Tor ist aus. Schalten Sie es unter Netzwerk & Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.';
+
+  @override
+  String get deskRailOpenNetworkPrivacy => 'Netzwerk & Datenschutz öffnen';
 }

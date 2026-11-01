@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Tor on the phone, as the user sees it: the one Tor switch in Settings › Privacy
+/// Tor on the phone, as the user sees it: the one Tor switch in Settings › Network & privacy
 /// ([phoneTorProvider] is the one source of truth), its state in the same four words
 /// everywhere, and the words for each way Tor can fail.
 library;
@@ -16,9 +16,6 @@ import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'info_hint.dart';
-import 'levels/change_level_screen.dart';
-import 'notices.dart';
-import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import '../text_join.dart';
@@ -32,14 +29,14 @@ const IconData torIcon = EpicGlyphs.tor;
 bool torShown(PhoneTorState s) =>
     s.phase != PhoneTorPhase.unavailable && s.onion != null;
 
-/// The key of the Tor switch in Settings › Privacy, for tests.
+/// The key of the Tor switch in Settings › Network & privacy, for tests.
 const Key torReceivingSwitchKey = ValueKey('tor-receiving-switch');
 
 /// The key of the line under the Tor switch that names the locking mode, for tests.
 const Key torLockedLineKey = ValueKey('tor-locked-line');
 
-/// The tap area over the locked Tor switch in Undercover, and its Change Undercover link, for
-/// tests.
+/// Former keys of the tap area over the switch locked by Tor only and its Change Undercover
+/// link: the line under the switch names the mode, which is changed right above it.
 const Key torUndercoverTapKey = ValueKey('tor-undercover-tap');
 const Key torUndercoverChangeKey = ValueKey('tor-undercover-change');
 
@@ -130,7 +127,7 @@ String torWord(AppLocalizations l, TorState state) => torShownState(state).word(
 /// The colour of [torWord]: its state's tone ([toneColor]).
 Color torWordColor(WalletTokens t, TorState state) => toneColor(t, torShownState(state).tone);
 
-/// Settings › Privacy's one Tor switch: the phone's per-wallet switch ([PhoneTor.setReceiving]).
+/// Settings › Network & privacy's one Tor switch: the phone's per-wallet switch ([PhoneTor.setReceiving]).
 /// The row is the label "Tor network" with the explanation behind its info icon; its line
 /// shows only a state that needs saying: "Starting", or "Not connected" with Retry.
 /// No confirmation and no other change: Tor on routes, nothing the user chose moves.
@@ -146,21 +143,16 @@ class TorSwitchTile extends ConsumerWidget {
     final state = phoneTorState(tor);
     final failed = state == TorState.failed;
     final busy = tor.phase == PhoneTorPhase.unavailable;
-    // Advanced › Network: Tor only locks the switch on, Offline turns it off and away.
+    // The network mode above it on the same page: Tor only locks the switch on, Kill switch
+    // (and Node only) leave it as it is, disabled; the line under it names the mode.
     final mode = AdvancedOptions.of(context).networkMode;
     final locked = mode != NetworkMode.standard;
-    // Undercover is Tor only: the switch shows disabled, and a tap, its ⓘ and its line say
-    // why and lead to the level page, where Undercover is changed.
-    final undercover = mode == NetworkMode.torOnly;
-    void changeUndercover() => Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const ChangeLevelScreen()));
     final tile = HintSwitchTile(
       key: torReceivingSwitchKey,
       icon: torIcon,
       title: l.torNetworkLabel,
-      hint: undercover
-          ? '${l.torNetworkHint}\n\n${l.torUndercoverKeepsOn}'
+      hint: mode == NetworkMode.torOnly
+          ? '${l.torNetworkHint}\n\n${l.torLockedTorOnly}'
           : l.torNetworkHint,
       sheetTitle: l.torNetworkLabel,
       sheetIcon: torIcon,
@@ -191,58 +183,18 @@ class TorSwitchTile extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (undercover)
-          GestureDetector(
-            key: torUndercoverTapKey,
-            behavior: HitTestBehavior.opaque,
-            onTap: () => ref
-                .read(noticeProvider.notifier)
-                .show(
-                  l.torUndercoverKeepsOn,
-                  level: NoticeLevel.info,
-                  action: NoticeAction(l.torUndercoverChangeShort, changeUndercover),
-                ),
-            child: tile,
-          )
-        else
-          tile,
-        if (undercover)
+        tile,
+        if (locked)
           Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(60, 0, 16, 4),
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 4,
-              children: [
-                Text(
-                  l.torUndercoverKeepsOn,
-                  key: torLockedLineKey,
-                  style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-                ),
-                TextButton(
-                  key: torUndercoverChangeKey,
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-                  onPressed: changeUndercover,
-                  child: Text(l.torUndercoverChange),
-                ),
-              ],
-            ),
-          )
-        else if (locked)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: InkWell(
+            padding: const EdgeInsetsDirectional.fromSTEB(60, 0, 16, 8),
+            child: Text(
+              switch (mode) {
+                NetworkMode.torOnly => l.torLockedTorOnly,
+                NetworkMode.killSwitch => l.netBlockKillSwitch,
+                _ => l.netBlockNodeOnly,
+              },
               key: torLockedLineKey,
-              onTap: () =>
-                  openSettingsSection(context, SettingsSection.advanced),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(60, 4, 16, 8),
-                child: Text(
-                  mode == NetworkMode.killSwitch
-                      ? l.netBlockKillSwitch
-                      : l.netBlockNodeOnly,
-                  style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-                ),
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
             ),
           ),
         if (failed && !mode.restricted)

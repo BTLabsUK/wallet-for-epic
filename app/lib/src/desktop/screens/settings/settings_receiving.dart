@@ -287,7 +287,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final hint = switch (m) {
       MethodKind.epicbox => l.deskSetTxEpicboxHint,
       MethodKind.linkHttp => DeskFeatures.tor ? l.deskSetTxDirectHint('${appConfig.httpListenPort}') : l.deskNoTorSetTxDirectHint('${appConfig.httpListenPort}'),
-      MethodKind.linkTor => l.deskSetTxTorHint,
+      MethodKind.linkTor => l.deskSetTxTorHintNet,
       MethodKind.directQr => '',
       MethodKind.directFile => l.deskSetTxFileHint,
     };
@@ -316,14 +316,19 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           ? ENotice(
               key: const ValueKey('st-tor-needs-tor'),
               icon: EIcons.tor,
-              title: l.deskSetTxTorNeedsTor,
-              // Offline: Tor never runs there, so no way to turn it on here; the reason instead.
+              title: l.deskSetTxTorNeedsTorNet,
+              // Offline: Tor never runs there; the reason instead.
               text: s.advanced.networkMode == NetworkMode.killSwitch ? l.netBlockKillSwitch : (s.advanced.networkMode.restricted ? l.netBlockNodeOnly : null),
+              // Tor and the mode are set on Network & privacy only (B-03): one way there, as on
+              // the phone.
               actions: [
-                if (!s.advanced.networkMode.restricted) ...[
-                  EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, onPressed: () => _toggle(TxMethod.tor, true)),
-                  EButton.ghost(label: l.deskSetRecvPrivacySettings, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor)),
-                ],
+                EButton(
+                  key: const ValueKey('st-tor-open-network'),
+                  label: l.settingsSectionNetworkPrivacy,
+                  icon: EIcons.tor,
+                  size: EBtnSize.inline,
+                  onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(s.advanced.networkMode.restricted ? SettingsJump.network : SettingsJump.tor),
+                ),
               ],
             )
           : null,
@@ -543,7 +548,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                     text: l.deskSetRecvHttpOffText,
                     actions: [
                       EButton(
-                        label: l.deskSetRecvPrivacySettings,
+                        label: l.settingsSectionNetworkPrivacy,
                         size: EBtnSize.inline,
                         onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor),
                       ),

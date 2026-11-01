@@ -201,7 +201,7 @@ void main() {
         'Activity',
         'Contacts',
         'Invoices',
-        'Privacy & network',
+        'Network & privacy',
         'Advanced',
         'Help',
       ]);
@@ -412,7 +412,7 @@ void main() {
       expect(_inTour(find.text('Advanced')), findsOneWidget);
       expect(find.byType(SettingsSectionScreen), findsOneWidget);
       expect(_lit('tour-advanced-top'), isTrue);
-      expect(_lit('tour-advanced-modes'), isTrue);
+      expect(_lit('tour-advanced-modes'), isFalse, reason: 'the modes are on Network & privacy');
       await _tap(tester, 'Next');
       await _tap(tester, 'Done');
       expect(rig.container.read(appSettingsProvider).value?.advanced, AdvancedPrefs.none.withExperimental(AdvancedFeature.invoices, true));

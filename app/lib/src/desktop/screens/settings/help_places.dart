@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Where a place in Help goes on the desktop: `Settings › Privacy › Tor` is the Privacy page with
+/// Where a place in Help goes on the desktop: `Settings › Network & privacy › Tor` is that page with
 /// the Tor switch flashed. [deskHelpPlace] is pure, so a test can hold every link in Help to a
 /// page that exists.
 library;
@@ -34,8 +34,9 @@ final Map<String, DeskHelpPlace> _places = {
   'Settings › Node': _page(DeskRoute.settingsNode, jump: SettingsJump.node),
   'Settings › Transactions': _page(DeskRoute.settingsReceiving),
   'Settings › Transactions › Epicbox': _page(DeskRoute.settingsReceiving, jump: SettingsJump.epicbox),
-  'Settings › Privacy': _page(DeskRoute.settingsPrivacy),
-  'Settings › Privacy › Tor': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.tor),
+  // Network & privacy (B-03): the mode, Tor, the status site and failover on one page.
+  'Settings › Network & privacy': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.network),
+  'Settings › Network & privacy › Tor': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.tor),
   'Settings › Invoices': _page(DeskRoute.settingsInvoices),
   'Settings › This wallet': _page(DeskRoute.settingsAccount),
   'Settings › This wallet › Export wallet data': _page(DeskRoute.settingsAccount),

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Settings on the phone: a hub of groups that fits one screen, in the order people reach for
-/// them. Security, Privacy & network, Wallet, Transactions, Display, Advanced and About open a
+/// them. Security, Network & privacy, Wallet, Transactions, Display, Advanced and About open a
 /// page each (`settings_sections.dart`); Help & feedback opens Help, which starts with Send
 /// feedback. A group's row shows its state on a
 /// second line ("example.org · example.net · Tor off"), so the state is visible without opening
@@ -14,10 +14,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../demo.dart';
 import '../l10n.dart';
 import '../errors.dart';
+import '../phone_tor.dart' show phoneTorProvider;
 import '../providers.dart';
+import '../settings.dart' show networkModeProvider;
 import 'backup_screen.dart';
 import 'common.dart';
 import 'help_screen.dart';
+import 'network_mode_text.dart' show networkSummary;
 import 'restore_screen.dart' show ScanSlotLine;
 import 'settings_sections.dart';
 import 'theme/tokens.dart';
@@ -26,7 +29,7 @@ import 'level_step_screen.dart' show levelTitle;
 
 export 'settings_sections.dart';
 
-/// Opens Settings at Privacy & network, where the Tor switch is: the page over the hub, so
+/// Opens Settings at Network & privacy, where the Tor switch is: the page over the hub, so
 /// Back lands on the hub.
 Future<void> openPrivacySettings(BuildContext context) => Navigator.of(context)
     .push(
@@ -44,12 +47,12 @@ Key settingsGroupKey(SettingsSection section) =>
 /// The key of the hub's Help & feedback row, for tests.
 const Key settingsHelpKey = ValueKey('settings-group-help');
 
-/// The Settings hub. With [section] (or [privacy], the Privacy & network page), that page
+/// The Settings hub. With [section] (or [privacy], the Network & privacy page), that page
 /// opens over the hub on arrival.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key, this.privacy = false, this.section});
 
-  /// Opens the Privacy & network page at once.
+  /// Opens the Network & privacy page at once.
   final bool privacy;
 
   /// The page to open at once.
@@ -81,7 +84,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final demo = ref.watch(demoModeProvider);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final t = context.tokens;
-    // Level 1 hides Privacy & network and Transactions.
+    // Level 1 hides Network & privacy and Transactions.
     final features = ref.watch(levelFeaturesProvider);
 
     return SlotScaffold(
@@ -119,6 +122,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.privacyNetwork),
                   section: SettingsSection.privacyNetwork,
+                  // The mode and the Tor switch: how the wallet connects, at a glance.
+                  state: networkSummary(
+                    l,
+                    ref.watch(networkModeProvider),
+                    torOn: ref.watch(phoneTorProvider.select((t) => t.receiving)),
+                  ),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.display),

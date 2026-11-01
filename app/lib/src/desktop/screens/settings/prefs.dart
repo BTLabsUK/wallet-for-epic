@@ -12,6 +12,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../levels/level_features.dart' show AdvancedPageKind;
+import '../../data/desk_levels.dart' show deskLevelFeaturesProvider;
 import '../../data/desk_store.dart';
 import '../../widgets/kit.dart';
 
@@ -170,7 +172,10 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
     ref.read(deskNavProvider.notifier).go(switch (section) {
       SettingsJump.node => DeskRoute.settingsNode,
       SettingsJump.tor => DeskRoute.settingsPrivacy,
-      SettingsJump.experimental || SettingsJump.confirmations || SettingsJump.network => DeskRoute.settingsAdvanced,
+      // The mode is on Network & privacy; at Shallow (no mode there) Advanced, the way out.
+      SettingsJump.network =>
+        ref.read(deskLevelFeaturesProvider).advancedPage == AdvancedPageKind.full ? DeskRoute.settingsPrivacy : DeskRoute.settingsAdvanced,
+      SettingsJump.experimental || SettingsJump.confirmations => DeskRoute.settingsAdvanced,
       _ => DeskRoute.settingsReceiving,
     });
   }

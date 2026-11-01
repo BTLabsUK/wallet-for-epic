@@ -206,9 +206,10 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   // The words that differ between a computer and a phone.
   final device = phone ? 'this phone' : 'this computer';
   final secret = phone ? 'your PIN or passphrase' : 'the wallet password';
-  final nodePlace = phone ? '[[Settings › Privacy & network › Node]]' : '[[Settings › Node]]';
-  final epicboxPlace = phone ? '[[Settings › Privacy & network › Epicbox]]' : '[[Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[Settings › Privacy & network › Tor network]]' : '[[Settings › Privacy › Tor]]';
+  final nodePlace = phone ? '[[Settings › Network & privacy › Node]]' : '[[Settings › Node]]';
+  final epicboxPlace = phone ? '[[Settings › Network & privacy › Epicbox]]' : '[[Settings › Transactions › Epicbox]]';
+  final torPlace = phone ? '[[Settings › Network & privacy › Tor network]]' : '[[Settings › Network & privacy › Tor]]';
+  final netPlace = '[[Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone ? '[[Settings › This wallet › Export wallet data]]' : '[[Settings › This wallet › Export wallet data]]';
   final restorePlace = phone
@@ -506,7 +507,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
             'A Link payment to an onion address goes through Tor; Send shows whether a payment goes over Tor.',
             'Slower than without Tor. Tor is blocked in some countries; there it does not connect.',
             'Receiving at the .onion address works while the app is open; Epicbox keeps working beside it.',
-            'With Tor only in Advanced the switch stays on and cannot be turned off.',
+            'With the network mode Tor only the switch stays on and cannot be turned off.',
           ]),
           const HelpBlock.p('**Starting…** means Tor is connecting; the covered connections wait and never fall back. **Not connected** means it failed: Retry, or turn Tor off. Some wallets show a Tor address without .onion; both are the same address.'),
         ],
@@ -520,12 +521,12 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         [
           HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. Turning Tor on does not change the addresses you share.'),
           HelpBlock.ul([
-            'Turn it on under [[Settings › Privacy › Tor]]. The Tor row in the sidebar shows its state.',
+            'Turn it on under [[Settings › Network & privacy › Tor]]. The Tor row in the sidebar shows its state.',
             'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',
             'Link sends to an http(s) address do not go over Tor; Send says so.',
             'Link · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Link · Tor address.',
             'Tor is blocked or not allowed in some countries; there it does not connect.',
-            'With Tor only in Advanced the switch stays on and cannot be turned off.',
+            'With the network mode Tor only the switch stays on and cannot be turned off.',
           ]),
           HelpBlock.p('Some wallets show the address without .onion; both are the same address.'),
         ],
@@ -538,7 +539,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           ? 'Normal, Tor only, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.'
           : 'Normal, Node only or Kill switch: what each one connects to, and how to pay from a wallet that never goes online.',
       [
-        HelpBlock.p('How much of the internet the wallet uses is one choice on the **Advanced** page in Settings, under Network, and the wallet remembers it. Off **Normal**, a mark on ${phone ? 'Home' : 'the title bar'} names the mode; tap it to change it.'),
+        HelpBlock.p('How much of the internet the wallet uses is one choice under $netPlace, and the wallet remembers it. Off **Normal**, a mark on ${phone ? 'Home' : 'the title bar'} names the mode; tap it to change it.'),
         HelpBlock.ul([
           tor
               ? '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under $torPlace.'
@@ -559,6 +560,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           'Back here the payment shows **To be posted elsewhere**, then **Confirming** once the wallet sees it on chain after you leave Kill switch.',
         ]),
         HelpBlock.p('Services a mode turns off show as **Off (Node only)** in grey: that is the mode, not an error. Nothing is cancelled when you switch; a send waiting for its recipient over Epicbox continues when you leave${tor ? ' (or switch to Tor only)' : ''}.'),
+        HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -583,10 +585,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           if (!phone) '**Local node**: lets this computer run its own node, under $nodePlace.',
           if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
-        HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
         const HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but less safe.'),
         const HelpBlock.p('**Experimental** holds **Invoices**, off to begin with: requests and invoices between paired contacts. Off, they are hidden and nothing is checked for them. Pairing itself is always on.'),
-        const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
+        HelpBlock.p('The network mode and **Node failover** are under $netPlace: see "Network modes".'),
       ],
       id: HelpId.advanced,
     ),
@@ -611,7 +612,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         else
           const HelpBlock.p('**A payment has not arrived.** Check on Receive that receiving is on and the node is synced. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then a few minutes for the confirmations.'),
         if (phone && tor)
-          const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press Retry under [[Settings › Privacy & network]], or turn Tor off; nothing goes out meanwhile.'),
+          const HelpBlock.p('**Tor says "Not connected".** Tor could not reach its network. Press Retry under [[Settings › Network & privacy]], or turn Tor off; nothing goes out meanwhile.'),
         if (!phone) ...[
           HelpBlock.p('**"Port ${appConfig.httpListenPort} is in use by another program".** Another program, often another Epic wallet, uses the port for Link · HTTP payments. Close it, then press Try again on Receive. ${tor ? 'Epicbox, Link · Tor and Direct · File Transfer keep' : 'Epicbox and Direct · File Transfer keep'} working meanwhile.'),
           const HelpBlock.p('**"Another Epic program is using this folder".** Another Epic wallet or node has the same files open. Close it and try again.'),
@@ -621,8 +622,8 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         else
           const HelpBlock.p('**"Wrong password".** Check Caps Lock and the keyboard layout. A forgotten password: restore the wallet from its recovery phrase and choose a new one.'),
         HelpBlock.p(tor
-            ? '**An action is greyed out and names a mode, or says "Waiting for Tor".** Tor only, Node only or Kill switch is on in Advanced. Set the mode back to Normal there, or wait for Tor to connect.'
-            : '**An action is greyed out and names a mode.** Node only or Kill switch is on in Advanced. Set the mode back to Normal there.'),
+            ? '**An action is greyed out and names a mode, or says "Waiting for Tor".** Tor only, Node only or Kill switch is on under $netPlace. Set the mode back to Normal there, or wait for Tor to connect.'
+            : '**An action is greyed out and names a mode.** Node only or Kill switch is on under $netPlace. Set the mode back to Normal there.'),
         HelpBlock.p('**The balance looks wrong.** Run $recheckPlace.'),
       ],
       id: HelpId.trouble,

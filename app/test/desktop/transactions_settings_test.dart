@@ -172,9 +172,15 @@ void main() {
       await _settle(tester);
       expect(_payments.linkTor, isTrue);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
-      expect(find.text('Tor is off. Turn it on under Privacy to be paid at the Tor address.'), findsOneWidget);
+      expect(find.text('Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'), findsOneWidget);
       expect(find.byKey(const ValueKey('st-details-linkTor')), findsOneWidget);
-      await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
+      // Tor is switched on Network & privacy only (B-03): the notice leads there.
+      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('st-tor-open-network')));
+      await _settle(tester);
+      expect(_container.read(deskNavProvider).route, DeskRoute.settingsPrivacy);
+      await tester.runAsync(() => _container.read(deskProvider.notifier).setTor(true));
+      _container.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving);
       await _settle(tester);
       expect(_container.read(deskProvider).settings.tor, isTrue);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
@@ -359,12 +365,13 @@ void main() {
   });
 
   group('Advanced', () {
-    testWidgets('no Link switch; the others and the network modes stay', (tester) async {
+    testWidgets('no Link switch and no network mode (on Network & privacy); the others stay', (tester) async {
       await _open(tester, DeskRoute.settingsAdvanced);
       expect(find.byKey(const ValueKey('adv-directReceiving')), findsNothing);
       expect(find.text('Link receiving'), findsNothing);
       expect(find.byKey(const ValueKey('adv-sendOptions')), findsOneWidget);
-      expect(find.byKey(const ValueKey('adv-mode-nodeOnly')), findsOneWidget);
+      expect(find.byKey(const ValueKey('adv-mode-nodeOnly')), findsNothing);
+      expect(find.byKey(const ValueKey('adv-nodeFailover')), findsNothing);
     });
 
     test('the old Link receiving switch is taken over as Link · HTTP and Link · Tor on', () {

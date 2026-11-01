@@ -227,10 +227,11 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '23i-receiving-http-public', title: 'Receiving, HTTP from the internet', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpPublic, height: 1000),
   const DeskShot(id: '23n-transactions-direct-on', title: 'Transactions, Link · HTTP on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.directOn, height: 1200),
   const DeskShot(id: '23o-transactions-send-options', title: 'Transactions, Send options on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.sendOptions, height: 1400),
-  const DeskShot(id: '23j-privacy', title: 'Privacy, Tor off', route: DeskRoute.settingsPrivacy),
-  const DeskShot(id: '23k-privacy-tor-starting', title: 'Privacy, Tor starting', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torStarting),
-  const DeskShot(id: '23l-privacy-tor-on', title: 'Privacy, Tor on', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torOn),
-  const DeskShot(id: '23m-privacy-tor-failed', title: 'Privacy, Tor not connected', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torFailed),
+  // Network & privacy (B-03): the mode, Tor and the servers on one page, tall enough for all three.
+  const DeskShot(id: '23j-privacy', title: 'Network & privacy, Normal, Tor off', route: DeskRoute.settingsPrivacy, height: 1000),
+  const DeskShot(id: '23k-privacy-tor-starting', title: 'Network & privacy, Tor starting', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torStarting, height: 1000),
+  const DeskShot(id: '23l-privacy-tor-on', title: 'Network & privacy, Tor on', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torOn, height: 1000),
+  const DeskShot(id: '23m-privacy-tor-failed', title: 'Network & privacy, Tor not connected', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torFailed, height: 1000),
   DeskShot(
     id: '24-settings-appearance',
     title: 'Settings, appearance',
@@ -402,7 +403,8 @@ final List<DeskShot> settingsShots = [
   // what off leaves: Contacts without Pair, a pairing link that says where to turn it on.
   const DeskShot(id: '43k-advanced-experimental', title: 'Settings › Advanced › Experimental, Pairing and Invoices on', route: DeskRoute.settingsAdvanced, height: 1450),
   const DeskShot(id: '43l-advanced-experimental-off', title: 'Settings › Advanced › Experimental, both off', route: DeskRoute.settingsAdvanced, height: 1450),
-  // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
+  // Advanced mode (Settings › Advanced; the network mode is on Network & privacy) and what the
+  // network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
   // Wallet levels: Advanced (its Depth group on top) at Shallow and Deeper.
   DeskShot(id: '43-advanced-l1', title: 'Settings › Advanced, Shallow', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.justSendReceive)),
@@ -411,14 +413,12 @@ final List<DeskShot> settingsShots = [
   DeskShot(id: '43z-change-level-l1', title: 'Change level at Shallow', route: DeskRoute.settingsLevel, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '43z-change-level-l2', title: 'Change level at Deeper', route: DeskRoute.settingsLevel, before: _level(WalletLevel.casual)),
   const DeskShot(id: '43z-change-level-narrow', title: 'Change level at 1000x750', route: DeskRoute.settingsLevel, width: 1000, height: 750),
-  DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(id: '43e-overview-waiting-tor', title: 'Overview, Tor only waiting for Tor', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
   DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(id: '43g-receive-offline', title: 'Receive, Offline', route: DeskRoute.receive, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
-  DeskShot(id: '43h-privacy-tor-only', title: 'Privacy, the Tor switch locked by Tor only', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
-  DeskShot(id: '43i-privacy-offline', title: 'Privacy, the Tor switch disabled by Offline', route: DeskRoute.settingsPrivacy, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
+  DeskShot(id: '43h-privacy-tor-only', title: 'Network & privacy, Tor only: the Tor switch locked on', route: DeskRoute.settingsPrivacy, height: 1000, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
+  DeskShot(id: '43i-privacy-offline', title: 'Network & privacy, Kill switch: the Tor switch off', route: DeskRoute.settingsPrivacy, height: 1000, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(
     id: '43j-tx-detail-more',
     title: 'Transaction detail, More opened with Technical details off',
@@ -434,11 +434,11 @@ final List<DeskShot> settingsShots = [
   DeskShot(id: '43q-overview-confirmations-3', title: 'Overview counting with 3 confirmations', route: DeskRoute.overview, prepare: (c, _) => _minConfirmations(c, 3)),
   // Network modes: the section, a mode's info popover, the mark in the title bar, a blocked
   // note, and the cold-payment screens.
-  const DeskShot(id: '44a-network-section', title: 'Settings › Advanced › Network, the four modes', route: DeskRoute.settingsAdvanced, height: 1450),
-  DeskShot(id: '44b2-network-normal-hint', title: 'Settings › Network mode, the Normal info popover', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeStandard)),
-  DeskShot(id: '44b3-network-tor-only-hint', title: 'Settings › Network mode, the Tor only info popover', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeTorOnly)),
-  DeskShot(id: '44b4-network-node-only-hint', title: 'Settings › Network mode, the Node only info popover', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeNodeOnly)),
-  DeskShot(id: '44b-network-kill-switch-hint', title: 'Settings › Network mode, the Kill switch info popover', route: DeskRoute.settingsAdvanced, height: 1450, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeKillSwitch)),
+  const DeskShot(id: '44a-network-section', title: 'Settings › Network & privacy › Network, the four modes', route: DeskRoute.settingsPrivacy, height: 1000),
+  DeskShot(id: '44b2-network-normal-hint', title: 'Settings › Network & privacy, the Normal info popover', route: DeskRoute.settingsPrivacy, height: 1000, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeStandard)),
+  DeskShot(id: '44b3-network-tor-only-hint', title: 'Settings › Network & privacy, the Tor only info popover', route: DeskRoute.settingsPrivacy, height: 1000, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeTorOnly)),
+  DeskShot(id: '44b4-network-node-only-hint', title: 'Settings › Network & privacy, the Node only info popover', route: DeskRoute.settingsPrivacy, height: 1000, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeNodeOnly)),
+  DeskShot(id: '44b-network-kill-switch-hint', title: 'Settings › Network & privacy, the Kill switch info popover', route: DeskRoute.settingsPrivacy, height: 1000, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.advModeKillSwitch)),
   DeskShot(id: '44c-overview-node-only', title: 'Overview in Node only: the mark, Epicbox and Link off', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '44d-overview-kill-switch', title: 'Overview in Kill switch: the mark, every service off, the balance last known', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(
@@ -462,7 +462,7 @@ final List<DeskShot> settingsShots = [
     dialog: (ctx) => showPostFinished(ctx, text: FakeWalletSession.fakeFinishedText(5)),
   ),
   // The help popover (widgets/popover.dart) open on the Network group's info icon.
-  DeskShot(id: '43r-advanced-network-help', title: 'Settings › Advanced › Network, the help popover open', route: DeskRoute.settingsAdvanced, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
+  DeskShot(id: '43r-network-help', title: 'Settings › Network & privacy › Network, the help popover open', route: DeskRoute.settingsPrivacy, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
 ];
 
 /// Opens the popover of the [EInfoHint] titled [title] under [root] (the tour's dialog hook).

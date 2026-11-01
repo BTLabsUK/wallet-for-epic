@@ -26,6 +26,7 @@
   "deskRailTorSlow": "{problem}. Senden funktioniert.",
   "deskRailTorNoAddress": "Tor-Adresse nicht veröffentlicht",
   "deskRailOpenPrivacy": "Datenschutz-Einstellungen öffnen",
+  "deskRailOpenNetworkPrivacy": "Netzwerk & Datenschutz öffnen",
   "deskRailNode": "Node",
   "deskRailOpenNode": "Node-Einstellungen öffnen",
   "deskAppNodeSyncedTitle": "Lokaler Node synchronisiert",

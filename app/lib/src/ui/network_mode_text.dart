@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import '../advanced.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
+import '../text_join.dart' show metaLine;
 import '../tor_build.dart';
 import 'status_icons.dart';
 
@@ -42,20 +43,27 @@ IconData networkModeGlyph(NetworkMode m) => switch (m) {
   NetworkMode.killSwitch => EpicGlyphs.unplugged,
 };
 
-/// The info text behind a mode's ⓘ. Normal names the Tor switch, so the build without Tor
-/// gets its own line; the desktop names its settings section.
+/// The info text behind a mode's ⓘ. Normal names the Tor switch (right below the modes on
+/// Network & privacy, on both apps), so the build without Tor gets its own line. [desktop] is
+/// kept for callers; both apps read the same words.
 String networkModeHint(AppLocalizations l, NetworkMode m, {bool desktop = false, bool? tor}) {
   final withTor = tor ?? torBuilt;
   return switch (m) {
-    NetworkMode.standard => !withTor
-        ? l.advModeStandardHintNoTor
-        : desktop
-        ? l.deskSetAdvModeStandardHint
-        : l.advModeStandardHint,
+    NetworkMode.standard => withTor ? l.advModeStandardHintHere : l.advModeStandardHintNoTor,
     NetworkMode.torOnly => l.advModeTorOnlyHint,
     NetworkMode.nodeOnly => l.advModeNodeOnlyHint,
     NetworkMode.killSwitch => l.advModeKillSwitchHint,
   };
+}
+
+/// Network & privacy in one line, under its entry in Settings (the phone's hub row, the
+/// desktop's section list): the mode, then the Tor switch where the mode leaves it to the user
+/// ("Normal · Tor off"). Tor only and Kill switch decide Tor themselves, and a build without
+/// Tor ([tor] false) has no switch: the mode alone.
+String networkSummary(AppLocalizations l, NetworkMode mode, {required bool torOn, bool? tor}) {
+  final name = networkModeName(l, mode);
+  if (!(tor ?? torBuilt) || mode == NetworkMode.torOnly || mode == NetworkMode.killSwitch) return name;
+  return metaLine([name, torOn ? l.netSummaryTorOn : l.netSummaryTorOff]);
 }
 
 /// The mode mark popover's line. [waitingForTor]: Tor only and Tor is not ready.

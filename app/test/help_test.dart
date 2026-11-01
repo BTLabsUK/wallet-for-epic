@@ -92,7 +92,7 @@ void main() {
       expect(all.toLowerCase(), isNot(contains(' we ')));
       // the Tor rule: one switch, nothing the user chose changes.
       final tor = helpTopics(3, platform: HelpPlatform.phone).firstWhere((t) => t.id == HelpId.tor);
-      expect(tor.bodyText, contains('Settings › Privacy & network › Tor network'));
+      expect(tor.bodyText, contains('Settings › Network & privacy › Tor network'));
       // the owner: the switch names only what goes over Tor, never what does not.
       expect(tor.bodyText, isNot(contains('Not over Tor')));
       expect(tor.bodyText, contains('same address'));
@@ -140,8 +140,8 @@ void main() {
     test('places the phone can go to', () {
       expect(helpPlaceGoes('Receive'), isTrue);
       expect(helpPlaceGoes('Settings › Security › Back up recovery phrase'), isTrue);
-      expect(helpPlaceGoes('Settings › Privacy & network › Node'), isTrue);
-      expect(helpPlaceGoes('Settings › Privacy & network › Epicbox'), isTrue);
+      expect(helpPlaceGoes('Settings › Network & privacy › Node'), isTrue);
+      expect(helpPlaceGoes('Settings › Network & privacy › Epicbox'), isTrue);
       expect(helpPlaceGoes('Settings › Recovery phrase'), isFalse);
       expect(helpPlaceGoes('Restore from a recovery phrase'), isFalse);
     });

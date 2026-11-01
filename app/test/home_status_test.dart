@@ -635,7 +635,7 @@ void main() {
       expect(_label(tester, directIconKey), 'Link, Off (Node only)');
       // Calm: faint with a slash, no problem colour.
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
-      expect(_tip_(tester, epicboxStatusKey), 'Turned off by the network mode. Change it in Settings\u00a0›\u00a0Advanced\u00a0›\u00a0Network.');
+      expect(_tip_(tester, epicboxStatusKey), 'Turned off by the network mode. Change it in Settings\u00a0›\u00a0Network & privacy.');
     });
 
     testWidgets('Kill switch: every service reads Off (Kill switch); a tap opens the Network section', (

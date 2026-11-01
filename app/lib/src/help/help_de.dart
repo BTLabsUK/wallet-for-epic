@@ -21,9 +21,10 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   // The words that differ between a computer and a phone.
   final device = phone ? 'diesem Smartphone' : 'diesem Computer';
   final secret = phone ? 'Ihre PIN oder Passphrase' : 'das Wallet-Passwort';
-  final nodePlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Node|Settings › Privacy & network › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Epicbox|Settings › Privacy & network › Epicbox]]' : '[[Einstellungen › Transaktionen › Epicbox|Settings › Transactions › Epicbox]]';
-  final torPlace = phone ? '[[Einstellungen › Datenschutz & Netzwerk › Tor-Netzwerk|Settings › Privacy & network › Tor network]]' : '[[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]]';
+  final nodePlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Node|Settings › Network & privacy › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
+  final epicboxPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Einstellungen › Transaktionen › Epicbox|Settings › Transactions › Epicbox]]';
+  final torPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Tor-Netzwerk|Settings › Network & privacy › Tor network]]' : '[[Einstellungen › Netzwerk & Datenschutz › Tor|Settings › Network & privacy › Tor]]';
+  final netPlace = '[[Einstellungen › Netzwerk & Datenschutz|Settings › Network & privacy]]';
   final cancelPlace = phone
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
       : '[[Aktivität › die Transaktion › Zahlung stornieren|Activity › the transaction › Cancel]]';
@@ -323,7 +324,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
             'Eine Link-Zahlung an eine Onion-Adresse läuft über Tor; Senden zeigt, ob eine Zahlung über Tor läuft.',
             'Langsamer als ohne Tor. In manchen Ländern ist Tor blockiert; dort verbindet es sich nicht.',
             'Empfangen an der .onion-Adresse funktioniert, solange die App geöffnet ist; Epicbox arbeitet daneben weiter.',
-            'Mit „Nur Tor“ unter Erweitert bleibt der Schalter an und lässt sich nicht ausschalten.',
+            'Mit dem Netzwerkmodus „Nur Tor“ bleibt der Schalter an und lässt sich nicht ausschalten.',
           ]),
           const HelpBlock.p('**Startet…** heißt, Tor verbindet sich; die abgedeckten Verbindungen warten und weichen nie aus. **Nicht verbunden** heißt, es ist fehlgeschlagen: Wiederholen oder Tor ausschalten. Manche Wallets zeigen eine Tor-Adresse ohne .onion; beides ist dieselbe Adresse.'),
         ],
@@ -337,12 +338,12 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         [
           HelpBlock.p('Mit Tor läuft die Verbindung zum Epicbox-Server über Tor, und die Wallet hat eine Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können, von überall, ohne Weiterleitung am Router. Tor ändert die Adressen nicht, die Sie weitergeben.'),
           HelpBlock.ul([
-            'Schalten Sie es unter [[Einstellungen › Datenschutz › Tor|Settings › Privacy › Tor]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
+            'Schalten Sie es unter [[Einstellungen › Netzwerk & Datenschutz › Tor|Settings › Network & privacy › Tor]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
             'Solange Tor startet oder nicht verbunden ist, wartet, was über Tor läuft; nichts geht daran vorbei. Wiederholen oder Tor ausschalten.',
             'Link · HTTP an eine http(s)-Adresse läuft nicht über Tor; Senden weist darauf hin.',
             'Link · HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Link · Tor-Adresse an.',
             'In manchen Ländern ist Tor blockiert oder nicht erlaubt; dort verbindet es sich nicht.',
-            'Mit „Nur Tor“ unter Erweitert bleibt der Schalter an und lässt sich nicht ausschalten.',
+            'Mit dem Netzwerkmodus „Nur Tor“ bleibt der Schalter an und lässt sich nicht ausschalten.',
           ]),
           HelpBlock.p('Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.'),
         ],
@@ -355,7 +356,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           ? 'Normal, Nur Tor, Nur Node oder Notaus: womit sich jeder verbindet und wie man von einer Wallet zahlt, die nie online geht.'
           : 'Normal, Nur Node oder Notaus: womit sich jeder verbindet und wie man von einer Wallet zahlt, die nie online geht.',
       [
-        HelpBlock.p('Wie viel vom Internet die Wallet nutzt, ist eine einzige Wahl auf der Seite **Erweitert** in den Einstellungen, unter Netzwerk, und die Wallet merkt sie sich. Außerhalb von **Normal** nennt eine Markierung ${phone ? 'auf dem Startbildschirm' : 'in der Titelleiste'} den Modus; tippen Sie darauf, um ihn zu ändern.'),
+        HelpBlock.p('Wie viel vom Internet die Wallet nutzt, ist eine einzige Wahl unter $netPlace, und die Wallet merkt sie sich. Außerhalb von **Normal** nennt eine Markierung ${phone ? 'auf dem Startbildschirm' : 'in der Titelleiste'} den Modus; tippen Sie darauf, um ihn zu ändern.'),
         HelpBlock.ul([
           tor
               ? '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung. Tor ist ein eigener Schalter unter $torPlace.'
@@ -376,6 +377,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           'Zurück hier steht bei der Zahlung **Wird anderswo gesendet**, danach **Bestätigung**, sobald die Wallet sie in der Chain sieht, nachdem Sie „Notaus“ verlassen haben.',
         ]),
         HelpBlock.p('Dienste, die ein Modus abschaltet, erscheinen grau als **Aus (Nur Node)**: Das ist der Modus, kein Fehler. Beim Wechsel wird nichts abgebrochen; eine Zahlung, die über Epicbox auf den Empfänger wartet, läuft weiter, wenn Sie den Modus verlassen${tor ? ' (oder zu „Nur Tor“ wechseln)' : ''}.'),
+        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Bei „Nur Node“ und „Notaus“ wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
       ],
       id: HelpId.modes,
     ),
@@ -400,10 +402,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           if (!phone) '**Lokaler Node**: lässt diesen Computer einen eigenen Node betreiben, unter $nodePlace.',
           if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
-        HelpBlock.p('Der **automatische Node-Wechsel** ist standardmäßig an. Antwortet Ihr Node 30 Sekunden lang nicht, wechselt die Wallet zum nächsten funktionierenden Node Ihrer Liste, nur für diese Sitzung: Ihr eigener Node bleibt gespeichert, und die Wallet ist beim nächsten Start wieder darauf, oder sobald Sie selbst einen Node wählen. Bei „Nur Node“ und „Notaus“ wechselt sie nie${phone ? '' : ', und auch nie weg von einem Node auf diesem Computer'}${tor ? '; mit „Nur Tor“ wechselt sie nur zu einem Node, der über Tor erreichbar ist' : ''}.'),
         const HelpBlock.p('**Bestätigungen** legt fest, wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind: standardmäßig 6, jeder Wert von 1 bis 30. Weniger Bestätigungen sind schneller, sind aber weniger sicher.'),
         const HelpBlock.p('**Experimentell** enthält **Rechnungen**, zu Beginn aus: Zahlungsanforderungen und Rechnungen zwischen gekoppelten Kontakten. Aus sind sie verborgen, und nichts wird für sie geprüft. Kopplung selbst ist immer an.'),
-        const HelpBlock.p('Dieselbe Seite legt den Netzwerkmodus fest: siehe „Netzwerkmodi“.'),
+        HelpBlock.p('Netzwerkmodus und **automatischer Node-Wechsel** stehen unter $netPlace: siehe „Netzwerkmodi“.'),
       ],
       id: HelpId.advanced,
     ),
@@ -428,7 +429,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         else
           const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie unter Empfangen, ob der Empfang eingeschaltet und der Node synchronisiert ist. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.'),
         if (phone && tor)
-          const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter [[Einstellungen › Datenschutz & Netzwerk|Settings › Privacy & network]] auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
+          const HelpBlock.p('**Tor zeigt „Nicht verbunden“.** Tor konnte sein Netzwerk nicht erreichen. Drücken Sie unter [[Einstellungen › Netzwerk & Datenschutz|Settings › Network & privacy]] auf „Wiederholen“ oder schalten Sie Tor aus; in der Zwischenzeit geht nichts hinaus.'),
         if (!phone) ...[
           HelpBlock.p('**„Port ${appConfig.httpListenPort} wird von einem anderen Programm genutzt“.** Ein anderes Programm, oft eine andere Epic-Wallet, nutzt den Port für Link · HTTP-Zahlungen. Schließen Sie es und drücken Sie dann unter Empfangen auf „Erneut versuchen“. ${tor ? 'Epicbox, Link · Tor und Direkt · Dateiübertragung funktionieren' : 'Epicbox und Direkt · Dateiübertragung funktionieren'} in der Zwischenzeit weiter.'),
           const HelpBlock.p('**„Ein anderes Epic-Programm nutzt diesen Ordner“.** Eine andere Epic-Wallet oder ein Node hat dieselben Dateien geöffnet. Schließen Sie sie und versuchen Sie es erneut.'),
@@ -437,10 +438,10 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           const HelpBlock.p('**PIN vergessen.** Löschen Sie die Wallet auf dem Entsperrbildschirm und stellen Sie sie mit ihrer Wiederherstellungsphrase und einer neuen PIN wieder her. Ohne die Phrase lassen sich die EPIC nicht zurückholen.')
         else
           const HelpBlock.p('**„Falsches Passwort“.** Prüfen Sie die Feststelltaste und das Tastaturlayout. Passwort vergessen: Stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her und wählen Sie ein neues.'),
-        HelpBlock.p('**Das Guthaben sieht falsch aus.** Starten Sie $recheckPlace.'),
         HelpBlock.p(tor
-            ? '**Eine Aktion ist ausgegraut und nennt einen Modus oder „Wartet auf Tor“.** „Nur Tor“, „Nur Node“ oder „Notaus“ ist unter Erweitert an. Stellen Sie dort den Modus auf Normal zurück oder warten Sie, bis Tor verbunden ist.'
-            : '**Eine Aktion ist ausgegraut und nennt einen Modus.** „Nur Node“ oder „Notaus“ ist unter Erweitert an. Stellen Sie dort den Modus auf Normal zurück.'),
+            ? '**Eine Aktion ist ausgegraut und nennt einen Modus oder „Wartet auf Tor“.** „Nur Tor“, „Nur Node“ oder „Notaus“ ist unter $netPlace an. Stellen Sie dort den Modus auf Normal zurück oder warten Sie, bis Tor verbunden ist.'
+            : '**Eine Aktion ist ausgegraut und nennt einen Modus.** „Nur Node“ oder „Notaus“ ist unter $netPlace an. Stellen Sie dort den Modus auf Normal zurück.'),
+        HelpBlock.p('**Das Guthaben sieht falsch aus.** Starten Sie $recheckPlace.'),
       ],
       id: HelpId.trouble,
     ),

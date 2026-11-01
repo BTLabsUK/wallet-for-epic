@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Settings › Advanced: the switches that show more of the wallet, each explained in a hover
-/// card, and the one network mode. Nothing here is a value the simple path needs; what a switch
+/// card (the network mode is on Network & privacy, `settings_privacy.dart`). Nothing here is a value the simple path needs; what a switch
 /// turns on appears where it belongs (the sidebar, Send, a transaction's details).
 library;
 
@@ -15,10 +15,8 @@ import '../../../levels/level_features.dart' show AdvancedPageKind;
 import '../../../ui/levels/level_picker.dart' show levelLine, levelStopName;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelProvider;
-import '../../data/net_mode_view.dart' show deskPendingNetworkSends;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../transfer/send_advanced.dart' show ERadioRow;
 import '../wallet/outputs_dialogs.dart' show EStepper;
 import 'prefs.dart' show SettingsJump;
 import 'settings_frame.dart';
@@ -64,7 +62,7 @@ class SettingsAdvancedScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    // Shallow: the Depth row alone; the switches and the network mode belong to Deeper and up.
+    // Shallow: the Depth row alone; the switches belong to Deeper and up.
     final changeOnly = ref.watch(deskLevelFeaturesProvider.select((f) => f.advancedPage)) == AdvancedPageKind.changeLevelOnly;
     return SettingsFrame(
       route: DeskRoute.settingsAdvanced,
@@ -87,7 +85,6 @@ class SettingsAdvancedScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const JumpSection(section: SettingsJump.network, child: _NetworkGroup()),
             const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
             // An "experimental" dialog's Open Advanced lands here (LNX3-1).
             const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
@@ -294,62 +291,6 @@ class _BalanceGroup extends ConsumerWidget {
   }
 }
 
-
-/// The network modes as radio rows (each with its ⓘ), the line the chosen mode brings under them.
-class _NetworkGroup extends ConsumerWidget {
-  const _NetworkGroup();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final st = ref.watch(deskProvider);
-    final s = st.settings;
-    final adv = s.advanced;
-    final torIncluded = (st.status?.torIncluded ?? true) && DeskFeatures.tor;
-    Future<void> choose(NetworkMode m) async {
-      if (m == adv.networkMode) return;
-      final waiting = switchPausesSends(m) && !switchPausesSends(adv.networkMode) ? deskPendingNetworkSends(st) : 0;
-      if (waiting > 0) {
-        final ok = await confirmNetworkModeSwitch(context, mode: m, waiting: waiting);
-        if (ok != true) return;
-      }
-      await ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withMode(m)));
-    }
-    Widget mode(NetworkMode m, {bool tor = false}) => ERadioRow(
-      key: ValueKey('adv-mode-${m.name}'),
-      selected: adv.networkMode == m,
-      // Just the name and its ⓘ: no explanations in the list (the owner).
-      title: networkModeName(l, m),
-      hint: networkModeHint(l, m, desktop: true, tor: DeskFeatures.tor),
-      hintIcon: networkModeGlyph(m),
-      tag: tor && !torIncluded ? l.deskSetAdvNotInBuild : null,
-      onSelected: tor && !torIncluded ? null : () => choose(m),
-    );
-    return ESetGroup(
-      title: l.deskSetAdvNetwork,
-      rows: [
-        // One row per mode, as tall as a settings row (its padding less the radio row's own).
-        for (final (m, tor) in [(NetworkMode.standard, false), if (DeskFeatures.tor) (NetworkMode.torOnly, true), (NetworkMode.nodeOnly, false), (NetworkMode.killSwitch, false)])
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2),
-            child: mode(m, tor: tor),
-          ),
-        // On by default: the one switch here that keeps the simple app working.
-        ESetRow(
-          key: const ValueKey('adv-nodeFailover'),
-          title: l.deskSetAdvNodeFailover,
-          hint: l.deskSetAdvNodeFailoverHint,
-          hintTitle: l.deskSetAdvNodeFailover,
-          control: ESwitch(
-            value: adv.nodeFailover,
-            semanticLabel: l.deskSetAdvNodeFailover,
-            onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withNodeFailover(v))),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 /// The key of the switch confirmation dialog.
 const Key advModeConfirmKey = ValueKey('adv-mode-confirm');

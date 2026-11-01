@@ -8,6 +8,8 @@
   "deskSetTxStart": "Domyślna metoda",
   "deskSetTxStartHint": "Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.",
   "deskSetTxTorHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.",
+  "deskSetTxTorHintNet": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Sieci i prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.",
   "deskSetTxTorNeedsTor": "Tor jest wyłączony. Włącz go w Prywatności, aby przyjmować płatności na adres Tor.",
+  "deskSetTxTorNeedsTorNet": "Tor jest wyłączony. Włącz go w Sieci i prywatności, aby przyjmować płatności na adres Tor.",
   "deskSetTxLastMethod": "Przynajmniej jedna metoda płatności musi zostać włączona."
 }

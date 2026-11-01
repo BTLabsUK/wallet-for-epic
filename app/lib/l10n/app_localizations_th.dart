@@ -3215,6 +3215,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => 'ความเป็นส่วนตัวและเครือข่าย';
 
   @override
+  String get settingsSectionNetworkPrivacy => 'เครือข่ายและความเป็นส่วนตัว';
+
+  @override
+  String get netSummaryTorOn => 'Tor เปิด';
+
+  @override
+  String get netSummaryTorOff => 'Tor ปิด';
+
+  @override
+  String get netPageServers => 'เซิร์ฟเวอร์';
+
+  @override
   String get settingsSectionHelpFeedback => 'ช่วยเหลือ';
 
   @override
@@ -3842,11 +3854,23 @@ class AppLocalizationsTh extends AppLocalizations {
       'โหนดและเซิร์ฟเวอร์ Epicbox ที่กระเป๋าเงินใช้ และสวิตช์ Tor แตะเซิร์ฟเวอร์เพื่อเปลี่ยน';
 
   @override
+  String get tourPhoneNetworkText =>
+      'โหมดเครือข่าย สวิตช์ Tor และเซิร์ฟเวอร์ที่กระเป๋าเงินใช้ แตะเซิร์ฟเวอร์เพื่อเปลี่ยน';
+
+  @override
+  String get tourPhoneNetworkTextNoTor =>
+      'โหมดเครือข่ายและเซิร์ฟเวอร์ที่กระเป๋าเงินใช้ แตะเซิร์ฟเวอร์เพื่อเปลี่ยน';
+
+  @override
   String get tourPhoneAdvancedTitle => 'ขั้นสูง';
 
   @override
   String get tourPhoneAdvancedText =>
       'โหมด Tor เท่านั้น เอาต์พุต และรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
+
+  @override
+  String get tourAdvancedShowsText =>
+      'เอาต์พุตและรายละเอียดทางเทคนิคอยู่ที่นี่ เปิดเฉพาะที่ต้องการ';
 
   @override
   String get tourPhoneHelpTitle => 'ช่วยเหลือ';
@@ -12695,6 +12719,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get torUndercoverKeepsOn => 'โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด';
 
   @override
+  String get torLockedTorOnly => 'เปิดในโหมด Tor เท่านั้น';
+
+  @override
   String get torUndercoverChange => 'เปลี่ยนโหมดปกปิดตัวตน';
 
   @override
@@ -12886,8 +12913,16 @@ class AppLocalizationsTh extends AppLocalizations {
       'ลิงก์ · Tor จ่ายตรงถึงกระเป๋าเงินที่ที่อยู่ onion และให้โทรศัพท์เครื่องนี้มีที่อยู่ Tor สำหรับรับเงิน ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง ต้องใช้ Tor: สวิตช์ Tor ใน ความเป็นส่วนตัวและเครือข่ายส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor สวิตช์นี้เพียงเปิดที่อยู่ เพิ่ม ลิงก์ · Tor ใน ส่ง และ รับ';
 
   @override
+  String get txLinkTorHintNet =>
+      'ลิงก์ · Tor จ่ายตรงถึงกระเป๋าเงินที่ที่อยู่ onion และให้โทรศัพท์เครื่องนี้มีที่อยู่ Tor สำหรับรับเงิน ต้องเปิดกระเป๋าเงินทั้งสองฝั่ง ต้องใช้ Tor: สวิตช์ Tor ใน เครือข่ายและความเป็นส่วนตัวส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor สวิตช์นี้เพียงเปิดที่อยู่ เพิ่ม ลิงก์ · Tor ใน ส่ง และ รับ';
+
+  @override
   String get txLinkTorNeedsTor =>
       'ต้องใช้ Tor เปิดได้ที่ ความเป็นส่วนตัวและเครือข่าย';
+
+  @override
+  String get txLinkTorNeedsTorNet =>
+      'ต้องใช้ Tor เปิดได้ที่ เครือข่ายและความเป็นส่วนตัว';
 
   @override
   String get txLastMethodNotice => 'ต้องเปิดวิธีชำระเงินไว้อย่างน้อยหนึ่งวิธี';
@@ -16821,6 +16856,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ปิดอยู่ เปิดได้ใน ตั้งค่า › ความเป็นส่วนตัวและเครือข่าย';
 
   @override
+  String get netStatusTurnOnHintNet =>
+      'ปิดอยู่ เปิดได้ใน ตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
+
+  @override
   String get deskBarTurnOnHint => 'ปิดอยู่ เปิดได้ใน ตั้งค่า › ธุรกรรม';
 
   @override
@@ -17065,6 +17104,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'เชื่อมต่อโดยตรง เปิด Tor ในความเป็นส่วนตัวและเครือข่ายเพื่อซ่อนที่อยู่ IP';
 
   @override
+  String get advModeStandardHintHere =>
+      'เชื่อมต่อโดยตรง เปิด Tor ด้านล่างเพื่อซ่อนที่อยู่ IP';
+
+  @override
   String get advModeStandardHintNoTor =>
       'เชื่อมต่อโดยตรงกับโหนดและบริการที่คุณใช้';
 
@@ -17135,6 +17178,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get statusOffByModeDetail =>
       'ปิดโดยโหมดเครือข่าย เปลี่ยนได้ที่ การตั้งค่า › ขั้นสูง › เครือข่าย';
+
+  @override
+  String get statusOffByModeDetailNet =>
+      'ปิดโดยโหมดเครือข่าย เปลี่ยนได้ที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -17784,6 +17831,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get lvPickUndercoverHelp =>
       'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดเครือข่าย › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › ขั้นสูง';
+
+  @override
+  String get lvPickUndercoverHelpNet =>
+      'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดเครือข่าย › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
 
   @override
   String get lvPickUndercover => 'ปกปิดตัวตน';
@@ -18881,4 +18932,27 @@ class AppLocalizationsTh extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskRecvHttpTorHintNet =>
+      'เปิด Tor ที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว เพื่อใช้ที่อยู่ Tor แทน';
+
+  @override
+  String get deskRecvTorIntroNet =>
+      'ตรงจากกระเป๋าเงินอื่นผ่าน Tor ขณะที่กระเป๋าเงินนี้เปิดอยู่ ตั้งค่า Tor ได้ที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
+
+  @override
+  String get deskRecvTorOffTextNet =>
+      'ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › เครือข่ายและความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor';
+
+  @override
+  String get deskSetTxTorHintNet =>
+      'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่ onion ผ่าน Tor โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง ต้องใช้ Tor: สวิตช์ Tor ใน เครือข่ายและความเป็นส่วนตัว ส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor สวิตช์นี้เพียงเปิดที่อยู่ เพิ่ม ลิงก์ · Tor ใน ส่ง และที่อยู่ของมันใน รับ';
+
+  @override
+  String get deskSetTxTorNeedsTorNet =>
+      'Tor ปิดอยู่ เปิดได้ที่ เครือข่ายและความเป็นส่วนตัว เพื่อรับเงินที่ที่อยู่ Tor';
+
+  @override
+  String get deskRailOpenNetworkPrivacy => 'เปิดเครือข่ายและความเป็นส่วนตัว';
 }

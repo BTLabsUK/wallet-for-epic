@@ -8,6 +8,8 @@
   "deskSetTxStart": "Standardmethode",
   "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.",
   "deskSetTxTorHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.",
+  "deskSetTxTorHintNet": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Netzwerk & Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.",
   "deskSetTxTorNeedsTor": "Tor ist aus. Schalten Sie es unter Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.",
+  "deskSetTxTorNeedsTorNet": "Tor ist aus. Schalten Sie es unter Netzwerk & Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.",
   "deskSetTxLastMethod": "Mindestens eine Zahlungsmethode bleibt eingeschaltet."
 }

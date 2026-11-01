@@ -206,6 +206,7 @@ void main() {
     expect(find.byKey(const ValueKey('adv-outputs')), findsNothing);
     expect(find.byKey(const ValueKey('adv-experimental')), findsNothing);
     expect(find.byKey(const ValueKey('adv-mode-standard')), findsNothing);
+    expect(find.byKey(const ValueKey('adv-nodeFailover')), findsNothing);
     await tester.tap(find.byKey(const ValueKey('adv-depth-change')));
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.settingsLevel);
