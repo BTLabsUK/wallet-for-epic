@@ -87,8 +87,9 @@ class PairingsNotifier extends AsyncNotifier<List<PairingRecord>> {
 }
 
 /// The requests to pair that came to this wallet's address, from contacts only, newest first;
-/// reloads on every pairing event. A request from someone not in Contacts is dismissed on
-/// arrival ([dismissStrangers]) and never listed.
+/// reloads on every pairing event and when the address book loads. A request from someone not
+/// in Contacts is dismissed ([dismissStrangers]) and never listed, but only once the book is
+/// known: while it loads or is closed, every request is kept and none is listed.
 final pairRequestsProvider = AsyncNotifierProvider<PairRequestsNotifier, List<PairRequest>>(PairRequestsNotifier.new);
 
 class PairRequestsNotifier extends AsyncNotifier<List<PairRequest>> {
@@ -98,9 +99,11 @@ class PairRequestsNotifier extends AsyncNotifier<List<PairRequest>> {
     if (!api.supported) return const [];
     final sub = api.events().listen((_) => ref.invalidateSelf());
     ref.onDispose(sub.cancel);
-    final keys = contactKeysOf(ref.watch(contactsProvider).value ?? const <Contact>[]);
-    final shown = requestsFromContacts(await api.requests(), keys).reversed.toList();
-    return shown;
+    final keys = phoneContactKeys(ref.watch(contactsProvider), closed: !(ref.watch(sessionProvider)?.contactsAvailable ?? true));
+    final all = await api.requests();
+    if (keys == null) return const [];
+    unawaited(dismissStrangers(api, keys, all, passOn: ref.read(requestPassOnProvider).run));
+    return requestsFromContacts(all, keys).reversed.toList();
   }
 
   Future<void> reload() async {
@@ -119,20 +122,55 @@ Set<String> contactKeysOf(Iterable<Contact> contacts) => {
     if (c.epicbox case final a? when a.trim().isNotEmpty) epicboxKey(a),
 };
 
-/// A request that just arrived from an address not in Contacts is dismissed, as the plan
-/// has it (strangers never show). Returns true when it was a contact's and stays.
-Future<bool> keepOrDismissRequest(PairingApi api, Set<String> contactKeys, PairingEvent e) async {
+/// The Epicbox keys of the phone's address book, or null while it is unknown: still loading,
+/// failed to load, or [closed] (the shared book has no key for this wallet yet).
+Set<String>? phoneContactKeys(AsyncValue<List<Contact>> contacts, {bool closed = false}) =>
+    closed || !contacts.hasValue ? null : contactKeysOf(contacts.value!);
+
+/// Whether the request that just arrived ([e]) is from a contact, by [contactKeys]; null keys
+/// (the book not known yet) count as no. Nothing is dismissed here: the requests list does that
+/// once the book is known ([dismissStrangers]), so a request that came before the book loaded
+/// is kept.
+bool requestFromContact(Set<String>? contactKeys, PairingEvent e) {
   final sender = e.sender;
-  final id = e.requestId;
-  if (e.kind != PairingEventKind.requested || sender == null || id == null) return false;
-  if (contactKeys.contains(epicboxKey(sender))) return true;
-  try {
-    await api.dismissRequest(id);
-  } on Object {
-    // Gone already: nothing to hide.
-  }
-  return false;
+  if (e.kind != PairingEventKind.requested || sender == null || e.requestId == null || contactKeys == null) return false;
+  return contactKeys.contains(epicboxKey(sender));
 }
+
+/// Dismisses the requests of [all] whose sender is not in Contacts ([contactKeys], the book
+/// known), as the plan has it: strangers never show. Each goes first to [passOn] (the linked
+/// device, whose address book may hold the sender), then is dismissed here.
+Future<void> dismissStrangers(
+  PairingApi api,
+  Set<String> contactKeys,
+  Iterable<PairRequest> all, {
+  Future<void> Function(PairRequest request)? passOn,
+}) async {
+  for (final r in all) {
+    if (contactKeys.contains(epicboxKey(r.fromAddress))) continue;
+    if (passOn != null) {
+      try {
+        await passOn(r);
+      } on Object {
+        // Not passed on: it is still dismissed here, as without a linked device.
+      }
+    }
+    try {
+      await api.dismissRequest(r.id);
+    } on Object {
+      // Gone already: nothing to hide.
+    }
+  }
+}
+
+/// Where a request this device is about to dismiss goes first: the linked device's service
+/// sets [run] while Linked devices is on (address books are per device, so the sender may be
+/// a contact there). Shared by the phone and the desktop.
+class RequestPassOn {
+  Future<void> Function(PairRequest request)? run;
+}
+
+final requestPassOnProvider = Provider<RequestPassOn>((ref) => RequestPassOn());
 
 /// The contact a request came from, by the key of its address, or null.
 Contact? contactOfRequest(Iterable<Contact> contacts, PairRequest r) {

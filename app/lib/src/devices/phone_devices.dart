@@ -14,6 +14,7 @@ import '../models.dart' show InvoiceEvent, InvoiceEventKind, TxEntry, WalletErro
 import '../ui/devices/device_parts.dart' show registerPhoneDeviceInviteHandler;
 import '../ui/notices.dart' show NoticeLevel, noticeProvider;
 import '../network_gate.dart';
+import '../pairing_providers.dart' show requestPassOnProvider;
 import '../providers.dart';
 import '../settings.dart';
 import 'device_providers.dart';
@@ -51,6 +52,12 @@ final deviceServiceProvider = Provider<DeviceService?>((ref) {
     nameWithCode: _strings().devicesNameWithCode,
   );
   ref.onDispose(service.dispose);
+  // A request to pair from someone not in this phone's contacts goes to the linked device
+  // before it is dismissed here.
+  final passOn = ref.read(requestPassOnProvider)..run = service.passOnRequest;
+  ref.onDispose(() {
+    if (passOn.run == service.passOnRequest) passOn.run = null;
+  });
   // Coins another device starts or stops holding change Home's balance: read it again.
   var held = session.heldOutputs;
   final sub = service.changes.listen((_) {
