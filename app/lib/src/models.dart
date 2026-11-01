@@ -2243,14 +2243,14 @@ enum InvoiceStatus {
   /// not approve again.
   replyFailed,
 
-  /// The reply reached the relay; the service finalizes and posts it.
+  /// The reply reached the relay; the contact finalizes and posts it.
   replied,
 
-  /// The service reports it posted the payment (a receipt, with the kernel excess). It
+  /// The contact reports it posted the payment (a receipt, with the kernel excess). It
   /// informs only: confirmation comes from the chain.
   posted,
 
-  /// The service withdrew the invoice after the user paid it. Offer a cancel the user
+  /// The contact withdrew the invoice after the user paid it. Offer a cancel the user
   /// confirms; never cancel on its own.
   withdrawn,
 }
@@ -2324,16 +2324,16 @@ class PaidInvoice {
 /// What happened to an invoice. `posted`, `declined` and `withdrawn` are the notices; they
 /// inform and never move funds.
 enum InvoiceEventKind {
-  /// A trusted service's invoice was parked for review.
+  /// A paired contact's invoice was parked for review.
   received,
 
-  /// Receipt: the service reports it posted a paid invoice. `kernelExcess` is set.
+  /// Receipt: the contact reports it posted a paid invoice. `kernelExcess` is set.
   posted,
 
-  /// This wallet declined the invoice and told the service.
+  /// This wallet declined the invoice and told the contact.
   declined,
 
-  /// The service withdrew the invoice (cancelled it, or its own expiry).
+  /// The contact withdrew the invoice (cancelled it, or its own expiry).
   withdrawn,
 
   /// The invoice's time ran out before the user answered it.
@@ -2390,43 +2390,24 @@ class InvoiceEvent {
           kernelExcess == other.kernelExcess;
 }
 
-/// What one drain of the invoice address did.
-class InvoiceDrainReport {
-  /// Invoices from trusted services, now pending.
+/// What one collect of the paired contacts' mailboxes did for invoices
+/// ([WalletSession.collectInvoices]).
+class InvoiceCollectReport {
+  /// Invoices from paired contacts the user allows, now pending.
   final int parked;
-
-  /// Invoice replies finalized (the issuer side; the app pays only, so 0 for now).
-  final int finalized;
-
-  /// Messages from senders not on the list, or notices from anyone but the invoice's service,
-  /// dropped unread. The user is not told; Advanced shows a count.
-  final int dropped;
 
   /// Notices accepted (receipts, withdrawals).
   final int notices;
 
-  const InvoiceDrainReport({
-    this.parked = 0,
-    this.finalized = 0,
-    this.dropped = 0,
-    this.notices = 0,
-  });
+  const InvoiceCollectReport({this.parked = 0, this.notices = 0});
 
   @override
-  int get hashCode =>
-      parked.hashCode ^
-      finalized.hashCode ^
-      dropped.hashCode ^
-      notices.hashCode;
+  int get hashCode => Object.hash(parked, notices);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is InvoiceDrainReport &&
-          parked == other.parked &&
-          finalized == other.finalized &&
-          dropped == other.dropped &&
-          notices == other.notices;
+      other is InvoiceCollectReport && parked == other.parked && notices == other.notices;
 }
 
 /// How long an invoice stays payable: UP-14's default day, for invoices the wallet pays and
@@ -2675,7 +2656,7 @@ class IssuerEvent {
   final IssuerEventKind kind;
   final String slateId;
 
-  /// The payer's invoice address, when known, so a notice can name them.
+  /// The payer's address, when known, so a notice can name them.
   final String? payerAddress;
 
   /// The paired contact asked, as on [IssuedInvoice.pairingId].

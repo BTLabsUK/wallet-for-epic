@@ -142,9 +142,7 @@ void main() {
     secrets: secrets,
     filesDir: () async => support,
     nodePoll: const Duration(hours: 1),
-    invoicesEvery: const Duration(hours: 1),
     paymentsEvery: const Duration(hours: 1),
-    invoiceFocus: false,
   );
 
   setUp(() async {

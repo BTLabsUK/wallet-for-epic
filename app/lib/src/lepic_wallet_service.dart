@@ -1398,8 +1398,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     return url;
   }
 
-  /// [wallet] with the archive in [dataDir], and LEPIC given the invoice index kept there,
-  /// as every open does. Public so tests can drive it with a stand-in wallet.
+  /// [wallet] with the archive in [dataDir], as every open does. Public so tests can drive it with a stand-in wallet.
   @visibleForTesting
   static Future<LepicWalletSession> openOn(
     lepic.EpicWallet wallet,
@@ -2409,9 +2408,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     }
   }
 
-  // Invoices over epicbox (UP-14). LEPIC keeps the invoice address, the allowlist and the
-  // waiting invoices; the app keeps the labels, the invoice index and what became of each
-  // invoice it paid, in `wfe_meta.json`. Nothing here pays but [payInvoice], which only the
+  // Invoices from paired contacts (RFC 0002 11). LEPIC keeps the pairings, their mailboxes
+  // and the waiting invoices; the app keeps what became of each invoice it paid or issued,
+  // in `wfe_meta.json`. Nothing here pays but [payInvoice], which only the
   // review screen calls after the PIN or biometric gate; no event leads to it.
 
   /// The confirmations LEPIC's balance counts a coin spendable with, so an invoice is paid
@@ -2445,7 +2444,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     return result;
   }
 
-  /// Subscribes to LEPIC's events on the first invoice call, so a notice found by a drain
+  /// Subscribes to LEPIC's events on the first invoice call, so a notice found by a collect
   /// updates the archive before the app's event goes out.
   void _watchEvents() {
     if (_walletEvents != null || _wallet.isDisposed) return;
@@ -2582,21 +2581,22 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   @override
   PairingApi get pairing => _pairing;
 
-  /// Invoices come only from paired contacts (RFC 11): a drain collects their mailboxes.
+  /// Invoices come only from paired contacts (RFC 0002 11): an open collect of their
+  /// mailboxes, then the sweep.
   @override
-  Future<InvoiceDrainReport> drainInvoices() => _epicboxGuard('invoice drain', () async {
+  Future<InvoiceCollectReport> collectInvoices() => _epicboxGuard('invoice collect', () async {
     // Invoices off (Settings › Advanced › Experimental): no mailbox is opened, nothing expires.
-    if (!NetGate.invoices) return const InvoiceDrainReport();
+    if (!NetGate.invoices) return const InvoiceCollectReport();
     _watchEvents();
     final before = (await _wallet.contactInvoices()).length;
     await _pairing.collectOrFail(PairingCollectTrigger.open);
     await _sweep();
     final after = (await _wallet.contactInvoices()).length;
-    return InvoiceDrainReport(parked: after > before ? after - before : 0);
+    return InvoiceCollectReport(parked: after > before ? after - before : 0);
   });
 
   /// Expires invoices on both sides: waiting ones to pay are deleted, issued ones cancelled,
-  /// each with its event. A failure is logged only; the next drain sweeps again.
+  /// each with its event. A failure is logged only; the next collect sweeps again.
   Future<void> _sweep() async {
     try {
       final sweep = await _wallet.sweepInvoices(expirySecs: _expirySecs);
@@ -3463,11 +3463,14 @@ class _LepicPairing implements PairingApi {
     } on lepic.WalletError catch (error) {
       logWarn('pairing', 'collect failed: ${error.kind.name}');
       return 0;
+    } finally {
+      // Contact invoices arrive with this collect: what ran out expires on the same beat.
+      if (NetGate.invoices && !_s._wallet.isDisposed) await _s._sweep();
     }
   }
 
-  /// [collect], failing as LEPIC does: a check the user or the invoice scheduler asked for
-  /// says when the relay is down.
+  /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
+  /// down.
   Future<int> collectOrFail(PairingCollectTrigger trigger) async {
     // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
     if (!NetGate.pairing) return 0;

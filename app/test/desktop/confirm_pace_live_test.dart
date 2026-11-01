@@ -58,7 +58,6 @@ void main() {
       watchPoll: watch ? const Duration(seconds: 4) : const Duration(seconds: 30),
       rememberDir: () async => Directory('${dir.path}/$role-remember'),
       listProcesses: () async => const [],
-      invoiceFocus: false,
     );
     // A receiver needs no funds: a fresh wallet when the home has none.
     if (!File('$home/wallets.json').existsSync()) {

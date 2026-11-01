@@ -627,7 +627,7 @@ void main() {
     // B asks A for 0.5 EPIC through the pairing; A pays it (an invoice paid).
     final asked = (await tester.runAsync(() => b.pairing.requestPayment(id: invite.id, amount: _ep(0.5), message: 'Phone test order')))!;
     final waiting = await waitFor(tester, 'B\'s invoice parked at A', () async {
-      await a.drainInvoices();
+      await a.collectInvoices();
       return (await a.pendingInvoices()).where((i) => i.slateId == asked.slateId).firstOrNull;
     }, timeout: const Duration(minutes: 4), everyMs: 4000);
     record('B\'s request waits at A', waiting != null);
@@ -635,7 +635,7 @@ void main() {
     record('A paid B\'s invoice', paidInv != null, '${paidInv?.status.name}');
     final bPaid = await waitFor(tester, 'B finalized the invoice', () async {
       await b.pairing.collect(trigger: PairingCollectTrigger.pull);
-      await b.drainInvoices();
+      await b.collectInvoices();
       await b.drainPayments();
       final i = await b.issuedInvoice(slateId: asked.slateId);
       return i?.state == IssuedInvoiceState.paid ? i : null;

@@ -1120,8 +1120,8 @@ class RemoteWalletSession implements WalletSession {
   );
 
   @override
-  Future<InvoiceDrainReport> drainInvoices() =>
-      _call(SessionMember.drainInvoices, invoiceDrainReportWire);
+  Future<InvoiceCollectReport> collectInvoices() =>
+      _call(SessionMember.collectInvoices, invoiceCollectReportWire);
 
   @override
   Future<List<PendingInvoice>> pendingInvoices() =>

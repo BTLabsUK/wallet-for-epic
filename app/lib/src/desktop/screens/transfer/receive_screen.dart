@@ -477,7 +477,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           if (line == null) const Align(alignment: Alignment.centerLeft, child: ESpinner()) else EStateLine(line, key: const ValueKey('rx-state-epicbox')),
           if (health == ServiceHealth.down) ...[SizedBox(height: Sp.x3), EpicboxDownNotice(sentence: false, status: status)],
         ],
-        // Invoices: ask someone to pay; the invoice address never shows here.
+        // Invoices: ask a paired contact to pay.
         if (ref.watch(deskInvoicesShownProvider) && ref.watch(deskPairsProvider)) ...[
           SizedBox(height: Sp.x5),
           Wrap(

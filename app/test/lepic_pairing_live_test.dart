@@ -184,7 +184,7 @@ void main() {
     expect(asked.pairingId, ids.aSide);
     expect(asked.payerAddress, isEmpty);
 
-    expect((await anna.drainInvoices()).parked, 1);
+    expect((await anna.collectInvoices()).parked, 1);
     final waiting = (await anna.pendingInvoices()).single;
     expect(waiting.slateId, asked.slateId);
     expect(waiting.pairingId, ids.bSide);
@@ -201,7 +201,7 @@ void main() {
 
     final told = <IssuerEvent>[];
     final sub = ben.issuerEvents().listen(told.add);
-    await ben.drainInvoices();
+    await ben.collectInvoices();
     expect(chain.pushedCount(), 1);
     final issued = (await ben.issuedInvoice(slateId: asked.slateId))!;
     expect(issued.state, IssuedInvoiceState.paid);

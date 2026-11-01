@@ -692,19 +692,12 @@ final WireCodec<InvoiceEvent> invoiceEventWire = _object<InvoiceEvent>(
   ),
 );
 
-final WireCodec<InvoiceDrainReport> invoiceDrainReportWire =
-    _object<InvoiceDrainReport>(
-      'InvoiceDrainReport',
-      (v) => {
-        'parked': v.parked,
-        'finalized': v.finalized,
-        'dropped': v.dropped,
-        'notices': v.notices,
-      },
-      (r) => InvoiceDrainReport(
+final WireCodec<InvoiceCollectReport> invoiceCollectReportWire =
+    _object<InvoiceCollectReport>(
+      'InvoiceCollectReport',
+      (v) => {'parked': v.parked, 'notices': v.notices},
+      (r) => InvoiceCollectReport(
         parked: r.of('parked', intWire),
-        finalized: r.of('finalized', intWire),
-        dropped: r.of('dropped', intWire),
         notices: r.of('notices', intWire),
       ),
     );

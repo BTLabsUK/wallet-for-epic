@@ -602,9 +602,10 @@ abstract interface class WalletSession {
   /// Pairing (RFC 0002): [PairingApi.supported] says whether this core pairs.
   PairingApi get pairing;
 
-  /// Collects what waits in the paired contacts' mailboxes: invoices from contacts the user
-  /// allows are parked, notices applied, everything else dropped unread. Runs on demand only.
-  Future<InvoiceDrainReport> drainInvoices();
+  /// Collects what waits in the paired contacts' mailboxes (an open collect) and expires
+  /// what ran out: invoices from contacts the user allows are parked, notices applied,
+  /// everything else dropped unread.
+  Future<InvoiceCollectReport> collectInvoices();
 
   /// Parked invoices not yet answered or expired, oldest first.
   Future<List<PendingInvoice>> pendingInvoices();
@@ -630,7 +631,7 @@ abstract interface class WalletSession {
   /// The invoice behind the transaction with [slateId], once paid, or null.
   Future<PaidInvoice?> paidInvoice({required String slateId});
 
-  /// Invoices parked, receipts and withdrawals applied, expiries, as drains and answers find
+  /// Invoices parked, receipts and withdrawals applied, expiries, as collects and answers find
   /// them. Informational: no event pays or cancels anything.
   Stream<InvoiceEvent> invoiceEvents();
 
@@ -656,7 +657,7 @@ abstract interface class WalletSession {
   /// withdrawn and raises one [IssuerEventKind.bounced] event, however often it comes back.
   Future<PaymentsDrainReport> drainPayments();
 
-  /// What happened to issued invoices, as drains, the listener and sweeps find it.
+  /// What happened to issued invoices, as collects, drains, the listener and sweeps find it.
   Stream<IssuerEvent> issuerEvents();
 }
 
@@ -2646,7 +2647,7 @@ class FakeWalletSession implements WalletSession {
   // Invoices. The fake plays the wallet's half: an invoice parks only from a sender the
   // wallet allows (a verified paired contact with Allow invoices on, [FakePairing]), and issued invoices' states live in [invoiceHistory], as the LEPIC session
   // keeps them. Tests and the tour drive it with [relayInvoice], [relayNotice], [clock] and
-  // [replyError]; [drainInvoices] picks up what was relayed.
+  // [replyError]; [collectInvoices] picks up what was relayed.
 
   /// When false, every invoice call throws [invoicesUnsupported], as on a core without them.
   bool invoicesSupported = true;
@@ -2658,8 +2659,12 @@ class FakeWalletSession implements WalletSession {
   DateTime Function() clock = DateTime.now;
 
 
-  /// Waiting at the relay until the next [drainInvoices].
+  /// Waiting at the relay until the next [collectInvoices].
   final List<_Relayed> _relay = [];
+
+  /// Messages [collectInvoices] dropped unread: invoices from anyone but an allowed paired
+  /// contact, notices from anyone but the invoice's contact.
+  int droppedInvoiceMessages = 0;
 
   /// Parked invoices by slate id, in arrival order.
   final Map<String, PendingInvoice> pendingInvoicesValue = {};
@@ -2682,7 +2687,7 @@ class FakeWalletSession implements WalletSession {
   final StreamController<InvoiceEvent> invoiceEventsController =
       StreamController<InvoiceEvent>.broadcast();
 
-  /// An invoice from [from] waiting at the relay. Parked by the next drain only if [from]'s
+  /// An invoice from [from] waiting at the relay. Parked by the next collect only if [from]'s
   /// key is a verified paired contact's with Allow invoices on and [expiresIn] is at most [maxInvoiceExpiry]; dropped
   /// otherwise.
   void relayInvoice({
@@ -2704,7 +2709,7 @@ class FakeWalletSession implements WalletSession {
   );
 
   /// A notice from [from] waiting at the relay: [InvoiceEventKind.posted] (with
-  /// [kernelExcess]) or [InvoiceEventKind.withdrawn]. Applied by the next drain only when
+  /// [kernelExcess]) or [InvoiceEventKind.withdrawn]. Applied by the next collect only when
   /// [from] is the service of that invoice; dropped otherwise.
   void relayNotice({
     required String from,
@@ -2849,8 +2854,8 @@ class FakeWalletSession implements WalletSession {
   }
 
   @override
-  Future<InvoiceDrainReport> drainInvoices() async {
-    _requireInvoices('drainInvoices');
+  Future<InvoiceCollectReport> collectInvoices() async {
+    _requireInvoices('collectInvoices');
     var parked = 0, dropped = 0, notices = 0;
     final batch = [..._relay];
     _relay.clear();
@@ -2915,11 +2920,8 @@ class FakeWalletSession implements WalletSession {
       notices++;
     }
     _sweepExpired();
-    return InvoiceDrainReport(
-      parked: parked,
-      dropped: dropped,
-      notices: notices,
-    );
+    droppedInvoiceMessages += dropped;
+    return InvoiceCollectReport(parked: parked, notices: notices);
   }
 
   @override

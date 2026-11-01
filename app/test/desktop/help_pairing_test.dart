@@ -44,7 +44,6 @@ void main() {
     final last = tester.getTopLeft(find.text('What a restore does', findRichText: true)).dy;
     final trouble = tester.getTopLeft(find.text('When something goes wrong').last).dy;
     expect(last, lessThan(trouble));
-    expect(find.text('Why a separate invoice address', findRichText: true), findsNothing);
   });
 
   testWidgets('HelpAt opens the first pairing topic', (tester) async {

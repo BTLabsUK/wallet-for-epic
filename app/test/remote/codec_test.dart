@@ -337,13 +337,8 @@ void main() {
         const InvoiceEvent(kind: InvoiceEventKind.expired, slateId: 's'),
       );
       roundTrip(
-        invoiceDrainReportWire,
-        const InvoiceDrainReport(
-          parked: 1,
-          finalized: 2,
-          dropped: 3,
-          notices: 4,
-        ),
+        invoiceCollectReportWire,
+        const InvoiceCollectReport(parked: 1, notices: 4),
       );
       roundTrip(
         issuedInvoiceWire,

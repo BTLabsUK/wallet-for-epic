@@ -308,7 +308,7 @@ void main() {
       expect(find.text('My Exchange'), findsNothing);
       // It arrives another way than this screen's drain (a contact's mailbox), with its event.
       await h.invoice(slateId: 'late');
-      await tester.runAsync(() => h.session.drainInvoices());
+      await tester.runAsync(() => h.session.collectInvoices());
       await tester.pumpAndSettle();
       expect(find.text('My Exchange'), findsOneWidget, reason: 'the open list shows it');
       expect(_notice(tester), _l.invoiceNoticeReceived);
@@ -329,7 +329,7 @@ void main() {
       expect(find.text(_l.reqTitle), findsOneWidget);
       // The withdrawal comes by another drain than this screen's, with its event.
       h.session.relayNotice(from: _shop, kind: InvoiceEventKind.withdrawn, slateId: 'w1');
-      await tester.runAsync(() => h.session.drainInvoices());
+      await tester.runAsync(() => h.session.collectInvoices());
       await tester.pumpAndSettle();
       expect(find.text(_l.invoiceGone), findsOneWidget);
       expect(_notice(tester), _l.deskInvNoticeWithdrawn('Anna'));
@@ -735,7 +735,7 @@ void main() {
     }) async {
       final h = _Harness();
       await h.invoice();
-      await h.session.drainInvoices();
+      await h.session.collectInvoices();
       h.session.replyError = replyError;
       await h.session.payInvoice(slateId: 'inv-1', amount: _epic(8));
       return h;
@@ -751,7 +751,7 @@ void main() {
       final h = _Harness();
       h.session.pairing.seedPaired(name: 'Floo C', kind: PairingParty.person, allowInvoices: true, paymentsAddress: _shop);
       await h.invoice();
-      await h.session.drainInvoices();
+      await h.session.collectInvoices();
       await h.session.payInvoice(slateId: 'inv-1', amount: _epic(8));
       await details(tester, h);
       expect(find.text(_l.reqPaidWaiting('Floo C')), findsOneWidget);
@@ -789,7 +789,7 @@ void main() {
         slateId: 'inv-1',
         kernelExcess: '09abc',
       );
-      await h.session.drainInvoices();
+      await h.session.collectInvoices();
       await details(tester, h);
       expect(find.text(_l.invoiceDetailsPosted('My Exchange')), findsOneWidget);
       expect(find.text(_l.invoiceDetailsReplied('My Exchange')), findsNothing);
@@ -851,7 +851,7 @@ void main() {
         kind: InvoiceEventKind.withdrawn,
         slateId: 'inv-1',
       );
-      await h.session.drainInvoices();
+      await h.session.collectInvoices();
       await details(tester, h);
       expect(
         find.text(_l.invoiceDetailsWithdrawn('My Exchange')),

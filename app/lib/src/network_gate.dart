@@ -250,8 +250,8 @@ abstract final class NetGate {
   static bool get torOnly => mode == NetworkMode.torOnly;
 
   /// The experimental switches (Settings › Advanced › Experimental), for the wallet adapters:
-  /// off, nothing collects the pairing or contact mailboxes ([pairing]) or drains invoices
-  /// ([invoices]). The phone's settings and the desktop's store set them at launch, before a
+  /// off, nothing collects the pairing or contact mailboxes ([pairing]) or invoices from
+  /// them ([invoices]). The phone's settings and the desktop's store set them at launch, before a
   /// wallet opens, and on every change; on until then, so a core test without settings pairs.
   static bool _pairing = true;
   static bool _invoices = true;

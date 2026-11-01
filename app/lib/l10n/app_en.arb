@@ -3696,7 +3696,7 @@
   },
   "settingsInvoices": "Invoices",
   "@settingsInvoices": {
-    "description": "Settings › Wallet row (replaces ‘Invoice address and trusted services’)."
+    "description": "Settings › Wallet row that opens the invoice settings: the paired contacts allowed to send invoices."
   },
   "settingsInvoicesSubtitle": "Who may ask you to pay",
   "@settingsInvoicesSubtitle": {

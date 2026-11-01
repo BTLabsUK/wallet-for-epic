@@ -1484,7 +1484,6 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _reveal(tester, find.text('Who may ask you to pay'));
       expect(find.text('Who may ask you to pay'), findsOneWidget);
-      expect(find.text('Invoice address and trusted services'), findsNothing);
     });
 
     testWidgets('no pairings: the empty state offers Pair with a shop or exchange', (tester) async {
@@ -1502,7 +1501,7 @@ void main() {
       expect(find.text('Northwind'), findsOneWidget);
       expect(find.text(l.invSetAllowed), findsOneWidget);
       h.session.relayInvoice(from: shop, slateId: 'i1', amount: BigInt.from(100));
-      await h.session.drainInvoices();
+      await h.session.collectInvoices();
       await tester.tap(find.byKey(invoiceSettingsSwitchKey(r.id)));
       await tester.pumpAndSettle();
       expect(notice('${l.invSetSwitchedOff('Northwind')} ${l.invSetDeclinedCount(1)}'), findsOneWidget);

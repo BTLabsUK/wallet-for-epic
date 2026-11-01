@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Riverpod state for invoices on desktop: the
-/// open wallet's [InvoiceBook], reloaded on the wallet's change events, drained when the wallet
-/// opens and when the Invoices page opens (the wallet drains on its own timer and
-/// on focus, `invoice_scheduler.dart`), and the calls the screens make. Null while locked,
+/// open wallet's [InvoiceBook], reloaded on the wallet's change events, checked when the wallet
+/// opens and when the Invoices page opens (between, the shell's collect of the contacts'
+/// mailboxes brings invoices as events, and the wallet drains the payments address on its
+/// own timer, `invoice_scheduler.dart`), and the calls the screens make. Null while locked,
 /// loading, or when the wallet has no invoices.
 library;
 
@@ -44,7 +45,7 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
     // Invoices off (Settings › Advanced): no book, so nothing of invoices shows or is checked.
     if (!api.supportsInvoices || !ref.watch(deskInvoicesOnProvider) || !open) return null;
     _changes = api.changes().listen((_) => unawaited(load()));
-    // The invoice address carries the relay: a switch moves the payments address, read again.
+    // A relay switch moves the payments address: read again.
     ref.listen(deskProvider.select((s) => s.epicboxAddress), (before, now) {
       if (before != null && before != now) unawaited(load());
     });
@@ -88,7 +89,7 @@ class DeskInvoices extends Notifier<InvoiceBook?> {
     }
   }
 
-  /// Drains the invoice and payments addresses. A failure keeps the lists and marks the check
+  /// Collects the contacts' mailboxes and drains the payments address. A failure keeps the lists and marks the check
   /// failed (the screens show the relay status); [quiet] swallows it for the timers.
   Future<void> check({bool quiet = false}) async {
     if (!supported) return;
