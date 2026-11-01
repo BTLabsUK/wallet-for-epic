@@ -3703,6 +3703,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get demoTestCoinsPill => 'Test-Coins';
 
   @override
+  String get demoStripeLabel => 'Demo';
+
+  @override
   String get demoTestCoinsPillTip =>
       'Das Testnetz von Epic. Die Coins haben keinen Wert.';
 
@@ -5559,6 +5562,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torTurnOff => 'Tor ausschalten';
+
+  @override
+  String get torTurnOffCaption =>
+      'Gilt für jede Verbindung, nicht nur für diese Zahlung.';
 
   @override
   String get torNotConnectedNotice => 'Tor ist nicht verbunden.';
@@ -18974,6 +18981,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stoppt';
+
+  @override
+  String get deskOnbFailedTitle => 'Nicht abgeschlossen';
+
+  @override
+  String get deskDemoStripe => 'Demo · Beispieldaten';
 
   @override
   String deskOnbRestoreBadWords(String words) {

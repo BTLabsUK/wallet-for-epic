@@ -473,13 +473,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           children: [
             if (summary != null) ...[
               // A summary informs: the info edge, not the brand's (UP-035).
-              EdgeCard(
-                edge: t.info,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(summary, key: requestSummaryKey),
-                ),
-              ),
+              InlineNotice(key: requestSummaryKey, level: NoticeLevel.info, text: summary),
               const SizedBox(height: 12),
             ],
             // Sending the request is a network action; the file is not.
@@ -792,11 +786,7 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
           ),
           if (invoice.byFile && invoice.withdrawable) ...[
             const SizedBox(height: 12),
-            EdgeCard(
-              key: requestFileWaitingKey,
-              edge: t.info,
-              child: Padding(padding: const EdgeInsets.all(12), child: Text(l.reqFileWaitingCard)),
-            ),
+            InlineNotice(key: requestFileWaitingKey, level: NoticeLevel.info, text: l.reqFileWaitingCard),
           ],
           if (invoice.withdrawable) ...[
             Align(

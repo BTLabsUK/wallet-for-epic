@@ -12,6 +12,7 @@ import '../scan/scan_router.dart' show RequestProblem;
 import '../scan/scan_text.dart';
 import 'badge.dart';
 import 'info_hint.dart';
+import 'notices.dart';
 import 'theme/tokens.dart';
 
 const Key sendRequestBannerKey = Key('send-request-banner');
@@ -72,81 +73,18 @@ class RequestBanner extends StatelessWidget {
 
   Widget _card(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
     final lines = requestProblemLines(l, problems);
-    final text = lines.isEmpty ? l.sendRequestCheck : lines.join('\n');
-    return Container(
+    // Parts the app dropped make it a warning; a clean request only informs.
+    return InlineNotice(
       key: sendRequestBannerKey,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: t.surface,
-        border: Border.all(color: t.line),
-        borderRadius: BorderRadius.circular(t.radiusSmall),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ColoredBox(color: t.info, child: const SizedBox(width: 3)),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 0, 10),
-                child: Semantics(
-                  container: true,
-                  liveRegion: true,
-                  label: '${l.sendRequestTitle}. $text',
-                  excludeSemantics: true,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(originIcon(origin), size: 20, color: t.info),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l.sendRequestTitle,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: t.text,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              text,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: lines.isEmpty ? t.dim : t.warn,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 2),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: IconButton(
-                  key: sendRequestDismissKey,
-                  tooltip: l.sendRequestDismiss,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 44,
-                    height: 44,
-                  ),
-                  icon: Icon(Icons.close, size: 20, color: t.dim),
-                  onPressed: onDismiss,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      level: lines.isEmpty ? NoticeLevel.info : NoticeLevel.warning,
+      icon: originIcon(origin),
+      title: l.sendRequestTitle,
+      text: lines.isEmpty ? l.sendRequestCheck : lines.join('\n'),
+      liveRegion: true,
+      onClose: onDismiss,
+      closeKey: sendRequestDismissKey,
+      closeLabel: l.sendRequestDismiss,
     );
   }
 }

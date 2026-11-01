@@ -117,49 +117,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
   /// What a copy of the phrase means, agreed to before the PIN.
   List<Widget> _consent(BuildContext context) {
-    final theme = Theme.of(context);
     final l = context.l10n;
-    final onError = theme.colorScheme.onErrorContainer;
     return [
-      Card(
-        color: theme.colorScheme.errorContainer,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.warning_amber,
-                color: onError,
-                semanticLabel: l.backupWarningIconLabel,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.backupConsentTitle,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: onError,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${l.backupConsentWhat} ${l.backupConsentReady}',
-                      style: TextStyle(color: onError),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l.backupCopyWarning,
-                      style: TextStyle(color: onError),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      InlineNotice(
+        level: NoticeLevel.warning,
+        title: l.backupConsentTitle,
+        text: '${l.backupConsentWhat} ${l.backupConsentReady}\n\n${l.backupCopyWarning}',
       ),
       const SizedBox(height: 8),
       CheckboxListTile(
@@ -182,29 +145,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final theme = Theme.of(context);
     final l = context.l10n;
     return [
-      Card(
-        color: theme.colorScheme.errorContainer,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.warning_amber,
-                color: theme.colorScheme.onErrorContainer,
-                semanticLabel: l.backupWarningIconLabel,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  l.backupWriteDown(_words.length),
-                  style: TextStyle(color: theme.colorScheme.onErrorContainer),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      InlineNotice(level: NoticeLevel.warning, text: l.backupWriteDown(_words.length)),
       const SizedBox(height: 16),
       LayoutBuilder(
         builder: (context, constraints) {

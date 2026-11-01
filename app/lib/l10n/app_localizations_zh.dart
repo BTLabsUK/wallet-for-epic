@@ -3451,6 +3451,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get demoTestCoinsPill => '测试币';
 
   @override
+  String get demoStripeLabel => '演示';
+
+  @override
   String get demoTestCoinsPillTip => 'Epic 的测试网络。这些币没有价值。';
 
   @override
@@ -5189,6 +5192,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torTurnOff => '关闭 Tor';
+
+  @override
+  String get torTurnOffCaption => '适用于所有连接，不只是这笔付款。';
 
   @override
   String get torNotConnectedNotice => 'Tor 未连接。';
@@ -17685,6 +17691,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get deskOnbFailedTitle => '未完成';
+
+  @override
+  String get deskDemoStripe => '演示 · 示例数据';
 
   @override
   String deskOnbRestoreBadWords(String words) {

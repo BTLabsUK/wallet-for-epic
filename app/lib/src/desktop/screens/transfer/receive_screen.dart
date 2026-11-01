@@ -360,9 +360,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       text: failed ? l.deskRecvTorDownText : l.deskRecvTorStartingText,
       actions: [
         if (failed) ...[
+          // Retry only (D-05): turning Tor off is never the fix an error offers.
           EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
-          // Tor off is never one click: its switch is in Settings › Privacy & network.
-          EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
         ],
       ],
     );

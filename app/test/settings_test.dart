@@ -1733,6 +1733,9 @@ void main() {
               expect(row, findsOneWidget);
             }
             final before = [for (final row in rows) tester.getCenter(row)];
+            // A finger on the list led to the notice (a press, let go without a tap).
+            final press = await tester.startGesture(before.first);
+            await press.cancel();
             h.container
                 .read(noticeProvider.notifier)
                 .show('Notifications off', level: NoticeLevel.info);

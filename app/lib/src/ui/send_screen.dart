@@ -76,7 +76,7 @@ import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
-import 'theme/protocol.dart' show EdgeCard, TimelineStep;
+import 'theme/protocol.dart' show TimelineStep;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -179,6 +179,9 @@ TorRoute sendRoute(Recipient to) => switch (to.kind) {
 const Key sendTorNoticeKey = ValueKey('send-tor-notice');
 const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
 const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
+
+/// The caption under Turn Tor off: it is the switch for every connection (D-05).
+const Key sendTurnOffTorCaptionKey = ValueKey('send-turn-off-tor-caption');
 const Key sendPlainHttpOffInfoKey = ValueKey('send-plain-http-off-info');
 
 /// The tag beside To that says whether the payment goes over Tor, for tests.
@@ -2564,25 +2567,18 @@ class _SendViewState extends ConsumerState<SendView> {
       ],
       if (down) ...[
         const SizedBox(height: 12),
-        EdgeCard(
+        InlineNotice(
           key: sendEpicboxDownKey,
-          edge: context.tokens.warn,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-            child: Row(
-              children: [
-                Icon(Icons.cloud_off, size: 18, color: context.tokens.warn),
-                const SizedBox(width: 10),
-                Expanded(child: Text(context.l10n.statusEpicboxOffline)),
-                TextButton.icon(
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-                  icon: const Icon(Icons.refresh),
-                  label: Text(context.l10n.commonRetry),
-                  onPressed: () => ref.read(listenerProvider.notifier).restart(),
-                ),
-              ],
+          level: NoticeLevel.warning,
+          icon: Icons.cloud_off,
+          text: context.l10n.statusEpicboxOffline,
+          actions: [
+            TextButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: Text(context.l10n.commonRetry),
+              onPressed: () => ref.read(listenerProvider.notifier).restart(),
             ),
-          ),
+          ],
         ),
       ],
       const SizedBox(height: 16),
@@ -3297,15 +3293,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // An address whose relay the app does not know may be mistyped: a warning, not a block.
       if (checks.unknownRelay case final unknown? when !_sendFailed) ...[
         const SizedBox(height: 8),
-        Row(
-          key: sendUnknownRelayKey,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.warning_amber, size: 18, color: t.warn),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l.sendRelayUnknown(unknown.label))),
-          ],
-        ),
+        InlineNotice(key: sendUnknownRelayKey, level: NoticeLevel.warning, text: l.sendRelayUnknown(unknown.label)),
       ],
       // The cancel rule for this method, with the way to the Help topic (CancelNote). After a
       // failed delivery the actions below carry their own line, so this one steps aside.
@@ -3321,21 +3309,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // Epicbox off: the mailbox payment waits in the outbox until it is on again.
       if (queued && !_sendFailed) ...[
         const SizedBox(height: 12),
-        EdgeCard(
-          key: sendQueuedCardKey,
-          edge: t.info,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.info_outline, size: 20, color: t.info),
-                const SizedBox(width: 10),
-                Expanded(child: Text(l.sendQueuedEpicboxOff, style: theme.textTheme.bodyMedium)),
-              ],
-            ),
-          ),
-        ),
+        InlineNotice(key: sendQueuedCardKey, level: NoticeLevel.info, text: l.sendQueuedEpicboxOff),
       ],
     ];
   }
@@ -4254,26 +4228,32 @@ class _TorNotice extends ConsumerWidget {
                 ],
               ),
             ),
-            if (blocked) ...[
+            // Retry only (D-05): turning Tor off is never the fix an error offers.
+            if (blocked)
               TextButton(
                 style: quiet,
                 onPressed: tor.retry,
                 child: Text(l.commonRetry),
-              ),
-              TextButton(
-                key: sendTurnOffTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(false),
-                child: Text(l.torTurnOff),
-              ),
-            ] else if (plainOff)
-              TextButton(
-                key: sendTurnOffTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(false),
-                child: Text(l.torTurnOff),
               )
-            else
+            else if (plainOff) ...[
+              TextButton(
+                key: sendTurnOffTorKey,
+                style: quiet,
+                onPressed: () => tor.setReceiving(false),
+                child: Text(l.torTurnOff),
+              ),
+              // The switch is the app's, not this payment's: said where it is pressed, on a
+              // line of its own.
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsetsDirectional.only(start: 28, end: 4),
+                child: Text(
+                  l.torTurnOffCaption,
+                  key: sendTurnOffTorCaptionKey,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+                ),
+              ),
+            ] else
               TextButton(
                 key: sendTurnOnTorKey,
                 style: quiet,

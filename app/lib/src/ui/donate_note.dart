@@ -4,10 +4,10 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../l10n.dart';
 import '../seed_contacts.dart';
+import 'common.dart' show copyText;
 
 /// The key of the Copy address button, for tests.
 const Key helpDonateCopyKey = ValueKey('help-donate-copy');
@@ -48,9 +48,8 @@ class _DonateNoteState extends State<DonateNote> {
               icon: const Icon(Icons.copy_outlined),
               label: Text(l.helpDonateCopy),
               onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                await Clipboard.setData(ClipboardData(text: address));
-                messenger.showSnackBar(SnackBar(content: Text(l.helpDonateCopied)));
+                // The app's one notice, docked under the app bar, not a snack bar.
+                await copyText(context, address, l.helpDonateCopied);
               },
             ),
           ),

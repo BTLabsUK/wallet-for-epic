@@ -5941,6 +5941,12 @@ abstract class AppLocalizations {
   /// **'Test coins'**
   String get demoTestCoinsPill;
 
+  /// First word of the web demo's stripe under the app bar: "Demo · Test coins · 5 h left". One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo'**
+  String get demoStripeLabel;
+
   /// Web demo: tooltip and screen-reader text of the Test coins pill.
   ///
   /// In en, this message translates to:
@@ -8787,6 +8793,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn Tor off'**
   String get torTurnOff;
+
+  /// Caption under the Turn Tor off button on Send (a plain http:// recipient while Tor is on): the button is the app's Tor switch, not a setting for this payment. Short, impersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to every connection, not only this payment.'**
+  String get torTurnOffCaption;
 
   /// Notice on Send while Tor is on but not connected: nothing that needs it goes.
   ///
@@ -29293,6 +29305,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it.
+  ///
+  /// In en, this message translates to:
+  /// **'Not finished'**
+  String get deskOnbFailedTitle;
+
+  /// The stripe under the title bar in the desktop web demo (sample data, no real wallet). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo · sample data'**
+  String get deskDemoStripe;
 
   /// Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as "word (place)", comma-separated.
   ///

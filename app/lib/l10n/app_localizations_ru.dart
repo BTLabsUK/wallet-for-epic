@@ -3734,6 +3734,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demoTestCoinsPill => 'Тестовые монеты';
 
   @override
+  String get demoStripeLabel => 'Демо';
+
+  @override
   String get demoTestCoinsPillTip =>
       'Тестовая сеть Epic. Монеты ничего не стоят.';
 
@@ -5618,6 +5621,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torTurnOff => 'Выключить Tor';
+
+  @override
+  String get torTurnOffCaption =>
+      'Действует на все соединения, а не только на этот платёж.';
 
   @override
   String get torNotConnectedNotice => 'Tor не подключён.';
@@ -19379,6 +19386,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String get deskOnbFailedTitle => 'Не завершено';
+
+  @override
+  String get deskDemoStripe => 'Демо · пример данных';
 
   @override
   String deskOnbRestoreBadWords(String words) {

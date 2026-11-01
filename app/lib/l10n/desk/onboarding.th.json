@@ -206,5 +206,6 @@
   "deskOnbNodePortRange": "ตัวเลขตั้งแต่ {min} ถึง {max}",
   "deskOnbNodePortsSame": "พอร์ตทั้งสองต้องต่างกัน",
   "deskOnbNodePortTaken": "พอร์ต {port} ถูกโปรแกรมอื่นใช้อยู่ {next} ว่าง",
-  "deskOnbNodePortUse": "ใช้ {port}"
+  "deskOnbNodePortUse": "ใช้ {port}",
+  "deskOnbFailedTitle": "ไม่เสร็จสิ้น"
 }

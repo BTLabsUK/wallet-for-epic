@@ -746,7 +746,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _torBusy = false;
 
-  /// Turns the Tor switch on (Turn on Tor, Retry). Off is only in Settings › Privacy & network.
+  /// Turns the Tor switch on (Turn on Tor, Retry) or off (Turn Tor off, beside a plain http://
+  /// recipient only, its caption saying it applies to every connection: D-05).
   Future<void> _setTor(bool on) async {
     setState(() => _torBusy = true);
     try {
@@ -1641,9 +1642,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         tone: ETone.risk,
         icon: EIcons.tor,
         actions: [
-          EButton(label: l.commonRetry, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
-          // Tor off is never one click: its switch is in Settings › Privacy & network.
-          EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
+          // Retry only (D-05): turning Tor off is never the fix an error offers.
+          EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
         ],
       );
     }
@@ -1874,7 +1874,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x2),
             Text(l.deskSendHttpClearnet, key: const ValueKey('send-http-clearnet'), style: ts.small),
           ] else if (DeskFeatures.tor && _method == TxMethod.http && _torWay(st) == TorWay.off) ...[
-            // Plain http:// to another computer with Tor on: the why is behind the info icon.
+            // Plain http:// to another computer with Tor on: the why is behind the info icon;
+            // Turn Tor off says under it that it is the switch for every connection (D-05).
             SizedBox(height: Sp.x2),
             Wrap(
               key: const ValueKey('send-plain-http-off'),
@@ -1884,9 +1885,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               children: [
                 Text(l.sendPlainHttpOffWithTor, style: ts.small.copyWith(color: c.warn)),
                 EInfoHint(l.sendPlainHttpOffWithTorWhy, title: l.sendPlainHttpOffWithTor, icon: EIcons.alert, size: Ctl.inline),
-                EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
+                EButton(key: const ValueKey('send-turn-tor-off'), label: l.torTurnOff, icon: EIcons.tor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(false)),
               ],
             ),
+            Text(l.torTurnOffCaption, key: const ValueKey('send-turn-tor-off-caption'), style: ts.small),
           ],
           if (contact != null) ...[
             SizedBox(height: Sp.x2),

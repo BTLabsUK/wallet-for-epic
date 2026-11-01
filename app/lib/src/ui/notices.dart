@@ -10,7 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import 'notice_layout.dart';
 import 'theme/tokens.dart';
+
+export 'notice_layout.dart' show NoticeLayout, RenderNoticeLayout;
 
 /// How much a notice matters. Each has its own icon and token colour.
 enum NoticeLevel {
@@ -61,12 +64,13 @@ class NoticeAction {
   final VoidCallback onPressed;
 }
 
-/// A short message: two lines on screen, the whole text for a screen reader.
+/// A short message: three lines on screen at most, the whole text for a screen reader.
 class Notice {
   const Notice(
     this.id,
     this.text, {
     required this.level,
+    this.title,
     this.action,
     this.secondary,
     this.persistent = false,
@@ -80,6 +84,9 @@ class Notice {
   final int id;
   final String text;
   final NoticeLevel level;
+
+  /// A few bold words above [text], which then reads as the quieter detail.
+  final String? title;
   final NoticeAction? action;
 
   /// A second, quieter button before [action] ("Not now"); with it both sit under the text.
@@ -141,6 +148,7 @@ class NoticeNotifier extends Notifier<Notice?> {
   void show(
     String text, {
     required NoticeLevel level,
+    String? title,
     NoticeAction? action,
     NoticeAction? secondary,
     bool persistent = false,
@@ -153,6 +161,7 @@ class NoticeNotifier extends Notifier<Notice?> {
       id,
       text,
       level: level,
+      title: title,
       action: action,
       secondary: secondary,
       persistent: persistent,
@@ -427,7 +436,6 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
     final l = context.l10n;
     final (icon, color) = noticeLook(t, notice.level);
     final action = notice.action;
-    final scale = MediaQuery.textScalerOf(context).scale(1);
     final actionButton = action == null
         ? null
         : TextButton(
@@ -457,61 +465,30 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
             },
           )
         : null;
-    // With large text the action moves under the text, so the text keeps its width.
-    final actionBelow = actionButton != null && (scale > 1.3 || secondaryButton != null);
-    final message = Semantics(
-      container: true,
-      liveRegion: true,
-      label: '${noticeLevelLabel(l, notice.level)}: ${notice.text}',
-      child: ExcludeSemantics(
-        child: Text(
-          notice.text,
-          // A persistent notice is read, not glanced at: it shows its whole text.
-          maxLines: notice.persistent ? null : 2,
-          overflow: notice.persistent ? null : TextOverflow.ellipsis,
-          style: TextStyle(color: t.text),
-        ),
-      ),
-    );
     final progress = notice.progress;
     final body = Padding(
-      padding: EdgeInsets.only(
-        left: 12,
-        right: close == null && (actionButton == null || actionBelow) ? 16 : 4,
-        top: 4,
-        bottom: 4,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-            child: Row(
-              children: [
-                Icon(icon, color: color),
-                const SizedBox(width: 12),
-                Expanded(child: message),
-                if (!actionBelow) ?actionButton,
-                ?close,
-              ],
-            ),
-          ),
-          if (progress != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(36, 0, 12, 8),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 2,
-                semanticsLabel: notice.progressLabel,
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
+      child: NoticeParts(
+        level: notice.level,
+        title: notice.title,
+        text: notice.text,
+        // A persistent notice is read, not glanced at: it shows its whole text.
+        maxLines: notice.persistent ? null : noticeMaxLines,
+        icon: icon,
+        color: color,
+        below: progress == null
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(top: 6, bottom: 4),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 2,
+                  semanticsLabel: notice.progressLabel,
+                ),
               ),
-            ),
-          if (actionBelow)
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: Wrap(spacing: 4, children: [?secondaryButton, actionButton]),
-            ),
-        ],
+        actions: [?secondaryButton, ?actionButton],
+        close: close,
+        liveRegion: true,
       ),
     );
     return Listener(
@@ -537,26 +514,194 @@ class _NoticeCardState extends ConsumerState<NoticeCard> {
               opacity: (1 - _drag.distance / 300).clamp(0.2, 1),
               // No corner brackets: those are brand art, and every notice card shares one
               // look, the level's colour as its leading edge (UP-004).
-              child: Material(
-                  key: noticeKey,
-                  color: t.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(t.radiusSmall),
-                    side: BorderSide(color: t.line),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: DecoratedBox(
-                    // The level's colour as a 3 dp edge on the leading side.
-                    decoration: BoxDecoration(
-                      border: BorderDirectional(
-                        start: BorderSide(color: color, width: 3),
-                      ),
-                    ),
-                    child: body,
-                  ),
-              ),
+              child: NoticeSurface(key: noticeKey, color: color, child: body),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The most lines a passing notice shows; a persistent one shows its whole text. Three keep a
+/// sentence whole on a phone (A-10); the screen reader always hears all of it.
+const int noticeMaxLines = 3;
+
+/// The surface of every phone notice, docked or in the flow: the panel's surface and hairline,
+/// with [color] (the level's) as a 3 dp leading edge. No corner brackets: those are brand art.
+class NoticeSurface extends StatelessWidget {
+  const NoticeSurface({super.key, required this.color, required this.child});
+
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    return Material(
+      color: t.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+        side: BorderSide(color: t.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: BorderDirectional(start: BorderSide(color: color, width: 3)),
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+/// A phone notice's parts in [NoticeLayout]: the level's icon, a bold [title] and/or a regular
+/// [text] (dim under a title), [below] (a progress bar), the [actions] beside the words while
+/// they fit on one line and on their own row under them otherwise, and [close] at the end. A
+/// screen reader hears the level and the words as one.
+class NoticeParts extends StatelessWidget {
+  const NoticeParts({
+    super.key,
+    required this.level,
+    this.title,
+    this.text,
+    this.maxLines,
+    required this.icon,
+    required this.color,
+    this.below,
+    this.actions = const [],
+    this.actionsBelow = false,
+    this.close,
+    this.liveRegion = false,
+  }) : assert(title != null || text != null);
+
+  final NoticeLevel level;
+  final String? title;
+  final String? text;
+  final int? maxLines;
+  final IconData icon;
+  final Color color;
+  final Widget? below;
+  final List<Widget> actions;
+  final bool actionsBelow;
+  final Widget? close;
+  final bool liveRegion;
+
+  /// Space above and below the words, inside the card's 4 dp.
+  static const double wordsPad = 8;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final l = context.l10n;
+    final base = Theme.of(context).textTheme.bodyMedium ?? const TextStyle(fontSize: 14, height: 1.43);
+    final line = MediaQuery.textScalerOf(context).scale(base.fontSize ?? 14) * (base.height ?? 1.43);
+    final title = this.title, text = this.text;
+    final cut = maxLines == null ? null : TextOverflow.ellipsis;
+    final words = Semantics(
+      container: true,
+      liveRegion: liveRegion,
+      label: '${noticeLevelLabel(l, level)}: ${[?title, ?text].join('. ')}',
+      child: ExcludeSemantics(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title != null)
+              Text(title, maxLines: maxLines, overflow: cut, style: base.copyWith(color: t.text, fontWeight: FontWeight.w600)),
+            if (text != null)
+              Text(text, maxLines: maxLines, overflow: cut, style: base.copyWith(color: title == null ? t.text : t.dim)),
+          ],
+        ),
+      ),
+    );
+    return NoticeLayout(
+      icon: ExcludeSemantics(child: Icon(icon, color: color)),
+      words: Padding(
+        padding: const EdgeInsets.symmetric(vertical: wordsPad),
+        child: below == null
+            ? words
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [words, below!],
+              ),
+      ),
+      actions: actions.isEmpty
+          ? null
+          : Wrap(alignment: WrapAlignment.end, spacing: 4, children: actions),
+      actionsBelow: actionsBelow,
+      close: close,
+      iconGap: 12,
+      actionGap: 4,
+      firstLine: line + 2 * wordsPad,
+      textEnd: 12,
+      minHeight: 48,
+    );
+  }
+}
+
+/// A notice in the flow of a screen, where it stays while its reason does (a refused amount,
+/// a warning before the recovery phrase): the docked card's look and anatomy ([NoticeSurface],
+/// [NoticeParts]), never cut, with no timer. A screen's passing messages go through
+/// [NoticeNotifier.show] instead. [icon] replaces the level's own; [onClose] adds a close
+/// button named [closeLabel] (Close by default).
+class InlineNotice extends StatelessWidget {
+  const InlineNotice({
+    super.key,
+    required this.level,
+    this.title,
+    this.text,
+    this.icon,
+    this.actions = const [],
+    this.actionsBelow = false,
+    this.below,
+    this.onClose,
+    this.closeKey,
+    this.closeLabel,
+    this.liveRegion = false,
+  }) : assert(title != null || text != null);
+
+  final NoticeLevel level;
+  final String? title;
+  final String? text;
+  final IconData? icon;
+  final Key? closeKey;
+  final List<Widget> actions;
+  final bool actionsBelow;
+  final Widget? below;
+  final VoidCallback? onClose;
+  final String? closeLabel;
+
+  /// Announced when it appears or changes (an error after a tap).
+  final bool liveRegion;
+
+  @override
+  Widget build(BuildContext context) {
+    final (glyph, color) = noticeLook(context.tokens, level);
+    final onClose = this.onClose;
+    return NoticeSurface(
+      color: color,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
+        child: NoticeParts(
+          level: level,
+          title: title,
+          text: text,
+          icon: icon ?? glyph,
+          color: color,
+          below: below,
+          actions: actions,
+          actionsBelow: actionsBelow,
+          liveRegion: liveRegion,
+          close: onClose == null
+              ? null
+              : IconButton(
+                  key: closeKey,
+                  tooltip: closeLabel ?? context.l10n.commonClose,
+                  icon: const Icon(Icons.close),
+                  onPressed: onClose,
+                ),
         ),
       ),
     );

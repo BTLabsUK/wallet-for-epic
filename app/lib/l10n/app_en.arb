@@ -4679,6 +4679,10 @@
   "@demoTestCoinsPill": {
     "description": "Web demo: a small pill in the app bar saying the wallet holds test coins. Keep it very short."
   },
+  "demoStripeLabel": "Demo",
+  "@demoStripeLabel": {
+    "description": "First word of the web demo's stripe under the app bar: \"Demo · Test coins · 5 h left\". One short word."
+  },
   "demoTestCoinsPillTip": "Epic’s test network. The coins have no value.",
   "@demoTestCoinsPillTip": {
     "description": "Web demo: tooltip and screen-reader text of the Test coins pill."
@@ -7138,6 +7142,10 @@
   "torTurnOff": "Turn Tor off",
   "@torTurnOff": {
     "description": "Button that turns the Tor switch off."
+  },
+  "torTurnOffCaption": "Applies to every connection, not only this payment.",
+  "@torTurnOffCaption": {
+    "description": "Caption under the Turn Tor off button on Send (a plain http:// recipient while Tor is on): the button is the app's Tor switch, not a setting for this payment. Short, impersonal."
   },
   "torNotConnectedNotice": "Tor is not connected.",
   "@torNotConnectedNotice": {
@@ -25388,6 +25396,14 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskOnbFailedTitle": "Not finished",
+  "@deskOnbFailedTitle": {
+    "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
+  },
+  "deskDemoStripe": "Demo · sample data",
+  "@deskDemoStripe": {
+    "description": "The stripe under the title bar in the desktop web demo (sample data, no real wallet). Short."
   },
   "deskOnbRestoreBadWords": "Not in the word list: {words}.",
   "@deskOnbRestoreBadWords": {
