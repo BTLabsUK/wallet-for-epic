@@ -197,7 +197,7 @@ class _Row extends StatelessWidget {
                 Container(
                   width: 36.u,
                   height: 36.u,
-                  decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+                  decoration: c.well,
                   child: Icon(EIcons.request, size: Ctl.iconSm, color: r.state.endedUnpaid ? c.faint : (r.state.paidOut ? c.txReceived : c.dim)),
                 ),
                 SizedBox(width: Sp.x4),
@@ -222,7 +222,7 @@ class _Row extends StatelessWidget {
                       ),
                       SizedBox(height: 2.u),
                       Text(
-                        [if (line.isNotEmpty) line, l.deskInvIssuerIssued(invWhen(context, r.issuedAt))].join(' · '),
+                        metaLine([if (line.isNotEmpty) line, l.deskInvIssuerIssued(invWhen(context, r.issuedAt))]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: ts.small.copyWith(color: c.dim),

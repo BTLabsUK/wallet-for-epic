@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../l10n.dart';
 import '../tor_build.dart';
 import '../settings.dart';
+import 'info_hint.dart';
 import 'method_art.dart';
+import 'method_icons.dart';
 import 'theme/tokens.dart';
 
 export 'method_art.dart' show TransferMethod;
@@ -106,9 +108,10 @@ class _TipScope extends InheritedWidget {
 }
 
 /// What a method means, under Send's selector and at the top of each Receive tab: its picture
-/// on the left, a short title and one plain line on the right. [receiving] picks Receive's
-/// words; [overTor] adds "Over Tor." to the line while the method's connection goes through
-/// Tor. A new method fades in over 160 ms; with reduced motion it swaps at once.
+/// on the left, one short line on the right, and the rest behind the method's ⓘ, the same
+/// shape for every method (the desktop's Send strip does the same). [receiving] picks
+/// Receive's words; [overTor] adds "Over Tor." to the ⓘ's text while the method's connection
+/// goes through Tor. A new method fades in over 160 ms; with reduced motion it swaps at once.
 class MethodStrip extends StatelessWidget {
   const MethodStrip({
     super.key,
@@ -121,7 +124,7 @@ class MethodStrip extends StatelessWidget {
   final bool receiving;
   final bool overTor;
 
-  /// The title and the line for [method], on Send or on Receive.
+  /// The line for [method] and what its ⓘ says, on Send or on Receive.
   static (String title, String line) words(
     AppLocalizations l,
     TransferMethod method, {
@@ -129,8 +132,8 @@ class MethodStrip extends StatelessWidget {
   }) => receiving
       ? switch (method) {
           TransferMethod.epicbox => (
-            l.methodReceiveEpicboxTitle,
             l.methodReceiveEpicboxShort,
+            l.methodReceiveEpicboxMore,
           ),
           TransferMethod.direct => (
             l.methodReceiveDirectTitle,
@@ -155,26 +158,31 @@ class MethodStrip extends StatelessWidget {
           TransferMethod.file => (l.methodSendFileTitle, l.methodSendFileLine),
         };
 
+  /// The method's name, the ⓘ sheet's title.
+  static String name(AppLocalizations l, TransferMethod method) => switch (method) {
+    TransferMethod.epicbox => l.methodEpicbox,
+    TransferMethod.direct => MethodIcons.familyName(l, MethodFamily.link),
+    TransferMethod.qr => MethodIcons.fullName(l, MethodKind.directQr),
+    TransferMethod.file => MethodIcons.fullName(l, MethodKind.directFile),
+  };
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final theme = Theme.of(context);
     final l = context.l10n;
-    final (title, words) = MethodStrip.words(l, method, receiving: receiving);
-    final line = overTor ? l.methodLineOverTor(words) : words;
+    final (line, words) = MethodStrip.words(l, method, receiving: receiving);
+    final more = overTor ? l.methodLineOverTor(words) : words;
     final still = MediaQuery.disableAnimationsOf(context);
-    final text = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final text = Row(
       children: [
-        Text(
-          title,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: t.text,
-            fontWeight: FontWeight.w600,
+        Flexible(
+          child: Text(
+            line,
+            style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
           ),
         ),
-        const SizedBox(height: 2),
-        Text(line, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+        InfoHint(more, title: name(l, method)),
       ],
     );
     return Container(

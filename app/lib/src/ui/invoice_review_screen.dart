@@ -22,6 +22,7 @@ import '../settings.dart';
 import '../slate_files.dart' show responseFileName, sealedFileName;
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../wallet_service.dart';
+import 'app_dialog.dart';
 import 'common.dart';
 import 'invoice_rows.dart';
 import 'invoices_screen.dart';
@@ -170,24 +171,17 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
   Future<void> _decline() async {
     final l = context.l10n;
     final service = _service();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.invoiceDeclineTitle),
-        content: Text(l.invoiceDeclineBody(service)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.invoiceDeclineKeep),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.invoiceDecline),
-          ),
-        ],
-      ),
+    // Declining is final: the outlined risk style, as the desktop's Decline.
+    final confirmed = await confirmAppDialog(
+      context,
+      title: l.invoiceDeclineTitle,
+      icon: Icons.cancel_outlined,
+      description: l.invoiceDeclineBody(service),
+      cancelLabel: l.invoiceDeclineKeep,
+      confirmLabel: l.invoiceDecline,
+      risk: true,
     );
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
     final container = ProviderScope.containerOf(context, listen: false);
@@ -404,35 +398,14 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
           ],
           if (short != null && canAnswer) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.risk,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Semantics(
-                  liveRegion: true,
-                  child: Text(l.invoicesShort(epicExact(l, short))),
-                ),
-              ),
-            ),
+            InlineNotice(level: NoticeLevel.error, text: l.invoicesShort(epicExact(l, short)), liveRegion: true),
           ],
           if (unsent != null) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.warn,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      l.invoiceReplyFailedTitle(service),
-                      style: theme.textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(l.invoiceReplyFailedBody),
-                  ],
-                ),
-              ),
+            InlineNotice(
+              level: NoticeLevel.warning,
+              title: l.invoiceReplyFailedTitle(service),
+              text: l.invoiceReplyFailedBody,
             ),
           ],
         ],
@@ -760,13 +733,10 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
               ],
             ),
             const SizedBox(height: 16),
-            EdgeCard(
+            InlineNotice(
               key: requestFileWarnKey,
-              edge: t.warn,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(widget.scanned ? l.reqFromQrWarn : l.reqFromFileWarn),
-              ),
+              level: NoticeLevel.warning,
+              text: widget.scanned ? l.reqFromQrWarn : l.reqFromFileWarn,
             ),
           ],
           const SizedBox(height: 24),
@@ -793,23 +763,12 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
           ],
           if (short != null) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.risk,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Semantics(liveRegion: true, child: Text(l.invoicesShort(epicExact(l, short)))),
-              ),
-            ),
+            InlineNotice(level: NoticeLevel.error, text: l.invoicesShort(epicExact(l, short)), liveRegion: true),
           ],
           if (refused != null) ...[
             const SizedBox(height: 16),
-            EdgeCard(
-              edge: t.dim,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Semantics(liveRegion: true, child: Text(refused(l))),
-              ),
-            ),
+            // Refused by the wallet's own rules: information, not an error of the user's.
+            InlineNotice(level: NoticeLevel.info, text: refused(l), liveRegion: true),
           ],
         ],
       ),
@@ -823,8 +782,8 @@ String _shortKey(String address) {
   return shortAddress(at < 0 ? address : address.substring(0, at));
 }
 
-/// The invoice's amount in the display face at 34, with every decimal, and a small gold
-/// EPIC after it.
+/// The invoice's amount at 34 with every decimal ([AmountSurface.exact]), in the data face as
+/// every amount but the balance headline, and a small gold EPIC after it.
 class ReviewAmount extends StatelessWidget {
   const ReviewAmount({super.key, required this.amount});
 
@@ -845,23 +804,21 @@ class ReviewAmount extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(
-              localDigits(l, formatEpic(amount, grouped: true)),
+            AmountText(
+              epicFor(l, amount, surface: AmountSurface.exact, unit: false),
               key: invoiceReviewAmountKey,
               maxLines: 1,
               style: TextStyle(
-                fontFamily: t.headFamily,
                 fontSize: 34,
                 fontWeight: FontWeight.w600,
                 color: t.text,
-                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
             const SizedBox(width: 6),
             Text(
-              'EPIC',
+              epicUnit,
               style: TextStyle(
-                fontFamily: t.headFamily,
+                fontFamily: t.monoFamily,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: t.accentText,
@@ -1089,29 +1046,8 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
     final message = invoiceMessageLine(paid.message);
     final tip = ref.watch(homeProvider).value?.summary.lastConfirmedHeight;
 
-    Widget warning(String text, Widget? action) => EdgeCard(
-      edge: t.warn,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.warning_amber_rounded, color: t.warn),
-                const SizedBox(width: 8),
-                Expanded(child: Text(text)),
-              ],
-            ),
-            if (action != null)
-              Align(alignment: AlignmentDirectional.centerEnd, child: action)
-            else
-              const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
+    Widget warning(String text, Widget? action) =>
+        InlineNotice(level: NoticeLevel.warning, text: text, actions: [?action]);
 
     final now = ref.watch(clockProvider)();
     // A paired contact's request: the states in the contact's own words.
@@ -1197,7 +1133,8 @@ class _PaidInvoiceBlockState extends ConsumerState<PaidInvoiceBlock> {
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  OutlinedButton.icon(
+                  // Cancel payment looks the same everywhere: the outlined risk style (A-06).
+                  DangerButton.icon(
                     icon: const Icon(Icons.cancel_outlined),
                     label: Text(l.txDetailsCancelPayment),
                     onPressed: widget.onCancel,

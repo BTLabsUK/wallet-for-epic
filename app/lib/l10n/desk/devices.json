@@ -1,36 +1,4 @@
 {
-  "deskDevServersCancel": "Cancel change",
-  "@deskDevServersCancel": {
-    "description": "Button on the waiting row of a server change this computer proposed: withdraws it."
-  },
-  "deskDevServersDown": "{down} of {n} not responding. Updates go through the other.",
-  "@deskDevServersDown": {
-    "description": "Line under the Servers picker when one of two chosen servers does not answer.",
-    "placeholders": {
-      "down": {
-        "type": "int"
-      },
-      "n": {
-        "type": "int"
-      }
-    }
-  },
-  "deskDevServersAllDown": "No server answers. Updates wait and go when one is back.",
-  "@deskDevServersAllDown": {
-    "description": "Line under the Servers picker when no chosen server answers."
-  },
-  "deskDevServersInfo1": "The two linked devices send each other updates through these servers. Every update goes to all chosen servers, so one server down changes nothing.",
-  "@deskDevServersInfo1": {
-    "description": "Info card of the Servers row, paragraph 1."
-  },
-  "deskDevServersInfo2": "A change here is sent to the other device first; it takes effect once that device has accepted it. The previous servers stay in use until then, and are still read for 7 days after.",
-  "@deskDevServersInfo2": {
-    "description": "Info card of the Servers row, paragraph 2."
-  },
-  "deskDevServersInfo3": "The servers see that two devices exchange updates and when, and, without Tor, from which addresses; never what is in them. Two servers mean two operators see that.",
-  "@deskDevServersInfo3": {
-    "description": "Info card of the Servers row, paragraph 3."
-  },
   "deskDevPausedOffline": "Paused while Offline is on.",
   "@deskDevPausedOffline": {
     "description": "Under the Pause sync switch while the app is in Offline mode."
@@ -47,10 +15,6 @@
         "type": "String"
       }
     }
-  },
-  "deskDevHeldNone": "No coins held.",
-  "@deskDevHeldNone": {
-    "description": "Held coins list when no other device holds any coin here."
   },
   "deskDevRenameThis": "Rename this computer",
   "@deskDevRenameThis": {
@@ -80,15 +44,6 @@
   "deskDevTheOther": "The other device",
   "@deskDevTheOther": {
     "description": "The other device in the link dialog when it has not told its name yet."
-  },
-  "deskDevServersLine": "Servers: {servers}",
-  "@deskDevServersLine": {
-    "description": "Link dialog, under the code: the servers the link uses.",
-    "placeholders": {
-      "servers": {
-        "type": "String"
-      }
-    }
   },
   "deskDevOfferReceived": "Is this your other device? Link it to see who sent it and to keep both in step.",
   "@deskDevOfferReceived": {

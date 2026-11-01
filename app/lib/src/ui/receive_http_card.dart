@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../state_language.dart' show ShownState;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,6 +9,7 @@ import '../network_gate.dart';
 import '../phone_http.dart';
 import '../providers.dart';
 import '../slate_files.dart';
+import 'address_view.dart';
 import 'common.dart';
 import 'info_hint.dart' show InfoHint;
 import 'net_block.dart';
@@ -70,7 +72,7 @@ class ReceiveHttpCard extends ConsumerWidget {
           children: [
             const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
             const SizedBox(width: 8),
-            Flexible(child: Text(l.torWordStarting, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim))),
+            Flexible(child: Text(ShownState.starting.word(l), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim))),
           ],
         ),
       ),
@@ -99,7 +101,7 @@ class ReceiveHttpCard extends ConsumerWidget {
                   child: Text(l.receiveHttpNotTrustedTitle, style: theme.textTheme.bodyMedium),
                 ),
               ),
-              InfoHint(l.receiveHttpNotTrusted, key: receiveHttpNotTrustedInfoKey, size: 32, title: l.receiveHttpNotTrustedTitle, icon: Icons.pause_circle_outline),
+              InfoHint(l.receiveHttpNotTrusted, key: receiveHttpNotTrustedInfoKey, title: l.receiveHttpNotTrustedTitle, icon: Icons.pause_circle_outline),
             ],
           ),
           const SizedBox(height: 4),
@@ -130,7 +132,9 @@ class ReceiveHttpCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Its own node: only the title is the heading, not the card's other text.
             Semantics(
+              container: true,
               header: true,
               child: Row(
                 children: [
@@ -195,7 +199,6 @@ class _AddressState extends ConsumerState<_Address> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final theme = Theme.of(context);
     final files = ref.watch(slateFilesProvider);
     final canShare = !ref.watch(demoModeProvider) && (files.canShare || files.canShareText);
     final reduce = MediaQuery.of(context).disableAnimations;
@@ -204,12 +207,7 @@ class _AddressState extends ConsumerState<_Address> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Selectable for a long press; a tap copies.
-        SelectableText(
-          widget.address,
-          key: receiveHttpAddressKey,
-          onTap: _copy,
-          style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
-        ),
+        MarkedAddress(widget.address, key: receiveHttpAddressKey, selectable: true, onTap: _copy),
         Wrap(
           spacing: 4,
           children: [
@@ -257,7 +255,10 @@ class _AddressState extends ConsumerState<_Address> {
                             color: protocolLight.surface,
                             borderRadius: BorderRadius.circular(t.radiusSmall),
                           ),
+                          // Its own node: merged into the card, the label read as part of
+                          // the card's whole text.
                           child: Semantics(
+                            container: true,
                             label: l.receiveHttpQrLabel,
                             image: true,
                             child: MarkedQr(

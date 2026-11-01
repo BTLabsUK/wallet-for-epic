@@ -4,27 +4,34 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/models.dart' show minPasswordLength;
 import '../desk_l10n.dart';
 import '../../password_estimate.dart';
 import '../../password_lists.dart';
 import '../theme/tokens.dart';
 import 'surfaces.dart' show EInfoHint;
+import '../../text_join.dart';
 
 /// The estimator while a screen with a [PasswordHint] is open; released after it closes.
 /// Loading until the lists are ranked (a fraction of a second, in the background).
 final passwordEstimatorProvider = FutureProvider.autoDispose<PasswordEstimator>((ref) => loadPasswordEstimator());
 
 
-/// The small print under a new password: "14 characters · about 300 years to crack".
+/// The small print under a new password: "14 characters · about 300 years to crack", and
+/// before anything is typed the least length ("8 characters or more"), so its line is never
+/// blank and nothing under it moves when typing starts. Every new-password field has it.
 ///
 /// The count follows every keystroke; the time comes [estimateDelay] after typing stops.
 /// It only informs: nothing here blocks the form. Screen readers hear the time in a live
 /// region, [announceDelay] after typing stops and only when it changed. The password and the
 /// estimate never leave this widget.
 class PasswordHint extends ConsumerStatefulWidget {
-  const PasswordHint({super.key, required this.controller});
+  const PasswordHint({super.key, required this.controller, this.minLength = minPasswordLength});
 
   final TextEditingController controller;
+
+  /// The least length, shown at rest.
+  final int minLength;
 
   static const estimateDelay = Duration(milliseconds: 150);
   static const announceDelay = Duration(seconds: 1);
@@ -98,7 +105,7 @@ class _PasswordHintState extends ConsumerState<PasswordHint> {
       if (next.hasValue && widget.controller.text.isNotEmpty && _estimateTimer?.isActive != true) _estimate();
     });
     final c = context.dc;
-    final line = _count == 0 ? '' : [characterCount(_count), ?_time].join(' · ');
+    final line = _count == 0 ? context.l10n.deskKitPasswordRule(widget.minLength) : metaLine([characterCount(_count), ?_time]);
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: Ctl.inline),
       child: Row(

@@ -83,6 +83,12 @@ String localInt(AppLocalizations l, Object number) =>
       number is BigInt ? number.toInt() : number as num,
     );
 
+/// A percentage as [l]'s language writes it (`40%` in English, `40 %` with a no-break space
+/// in German, Polish and Russian): the one way every percent on both platforms is shown.
+/// [value] is 0–100; a fraction is rounded unless [decimals] keeps some.
+String percentText(AppLocalizations l, num value, {int decimals = 0}) =>
+    l.percentValue(decimals == 0 ? localInt(l, value.round()) : localDigits(l, value.toStringAsFixed(decimals)));
+
 // Dates. English keeps the day-first style the app always had ("21 Sep 2026"); the other
 // languages use CLDR's patterns ("21. Sept. 2026", "2026年9月21日").
 
@@ -97,6 +103,26 @@ String localDayMonth(AppLocalizations l, DateTime t) => (l.localeName == 'en'
         ? DateFormat('d MMM', 'en')
         : DateFormat.MMMd(l.localeName))
     .format(t);
+
+/// `September 2021`, `Wrzesień 2021`, `2021年9月`: a month and its year as a value on its own
+/// (the restore start), capitalised: Polish and Russian write the month small only inside a
+/// sentence.
+String localMonthYear(AppLocalizations l, DateTime t) {
+  final s = DateFormat.yMMMM(l.localeName).format(t);
+  return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
+
+/// `Sep`, `Sept.`, `9月`: a month's short name on its own (the standalone form: `wrz`, not
+/// a date's), in a month picker's grid.
+String localMonthShort(AppLocalizations l, DateTime t) =>
+    DateFormat.LLL(l.localeName).format(t);
+
+/// `September`: a month's full name, for a screen reader.
+String localMonthName(AppLocalizations l, DateTime t) =>
+    DateFormat.LLLL(l.localeName).format(t);
+
+/// `2021`, `2021年`: a year as a picker's header shows it.
+String localYear(AppLocalizations l, DateTime t) => DateFormat.y(l.localeName).format(t);
 
 /// `14:05`, on the 24-hour clock in every language the app has.
 String localClock(AppLocalizations l, DateTime t) =>

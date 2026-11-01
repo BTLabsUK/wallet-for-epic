@@ -3,6 +3,7 @@
 /// and the words every place uses for it (status card, Settings › Privacy, Send, Receive).
 library;
 
+import '../../state_language.dart' show torShownState;
 import '../../l10n.dart' show AppLocalizations;
 import '../../tor_routes.dart';
 import 'models.dart';
@@ -30,12 +31,7 @@ String torNetworkLabel(AppLocalizations l) => l.deskTorNetworkLabel;
 String torNetworkHint(AppLocalizations l) => l.deskTorNetworkHint;
 
 /// The state word: Off, Starting…, On, Not connected.
-String torWord(AppLocalizations l, TorState s) => switch (s) {
-  TorState.off => l.deskTorOff,
-  TorState.starting => l.deskTorStarting,
-  TorState.on => l.deskTorOn,
-  TorState.failed => l.deskTorNotConnected,
-};
+String torWord(AppLocalizations l, TorState s) => torShownState(s).word(l);
 
 /// What goes over Tor, from [torCovered]: one short sentence. The switch never lists what
 /// does not (the rule); a send that skips Tor says so on that send.

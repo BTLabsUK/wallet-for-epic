@@ -4,6 +4,8 @@
   "deskOnbWelcomeCreate": "创建新钱包",
   "deskOnbWelcomeImport": "导入钱包",
   "deskOnbWelcomeImportSub": "从旧版 Epic Wallet 或文件夹导入",
+  "deskOnbWelcomeCreateSub": "生成新的助记词",
+  "deskOnbWelcomeRestoreSub": "也适用于 Stack Wallet 或 Epic Pay",
   "deskOnbWelcomeRestore": "用助记词恢复",
   "deskOnbWelcomeTestNote": "新钱包将创建在此测试网络上。",
   "deskOnbWelcomeBack": "返回解锁",
@@ -56,6 +58,7 @@
   "deskOnbRestorePasswordLead": "请设置在这台电脑上解锁此钱包的密码。",
   "deskOnbRestoreNothingToPaste": "没有可粘贴的内容：剪贴板中没有单词。",
   "deskOnbRestoreBadWord": "第 {position} 个单词“{word}”不在词表中。",
+  "deskOnbRestoreBadWords": "不在词表中：{words}。",
   "deskOnbRestoreAllOk": "{count, plural, other{全部 {count} 个单词均有效。}}",
   "deskOnbRestoreChecksumFirm": "此助记词的校验位不匹配。请把每个单词与纸上的逐一核对。",
   "deskOnbRestoreChecksumSoFar": "{count, plural, other{已输入 {count} 个单词；校验位不匹配。请继续输入，或把每个单词与纸上的逐一核对。}}",
@@ -126,6 +129,7 @@
   "deskOnbImportFindingTitle": "正在查找钱包",
   "deskOnbImportFindingLead": "正在搜索旧版 Epic Wallet 和 epic 程序的文件夹。",
   "deskOnbImportFoundTitle": "{count, plural, other{找到 {count} 个钱包}}",
+  "deskOnbImportFoundLead": "继续以选择要添加的钱包。",
   "deskOnbImportNoneTitle": "未找到钱包",
   "deskOnbImportNoneLead": "请选择钱包文件夹，或用助记词恢复。",
   "deskOnbImportChooseTitle": "选择钱包",
@@ -204,5 +208,6 @@
   "deskOnbNodePortRange": "{min} 到 {max} 之间的数字。",
   "deskOnbNodePortsSame": "两个端口必须不同。",
   "deskOnbNodePortTaken": "端口 {port} 被其他程序占用。{next} 可用。",
-  "deskOnbNodePortUse": "使用 {port}"
+  "deskOnbNodePortUse": "使用 {port}",
+  "deskOnbFailedTitle": "未完成"
 }

@@ -200,7 +200,7 @@
       }
     }
   },
-  "deskNodeStartIt": "Start it under Settings › Node.",
+  "deskNodeStartIt": "Start it under Settings › Node.",
   "@deskNodeStartIt": {
     "description": "Local node tooltip line when the node is stopped."
   },

@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../../ui/theme/palette.dart';
 import '../../ui/theme/tokens.dart' show montserrat, jetBrainsMono;
 
 /// Interface scale (Settings › Appearance) as a factor, [deskBase] at 100 %. [DeskApp] sets it
@@ -217,6 +218,7 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.press,
     required this.grid,
     required this.scrim,
+    required this.shadow,
     required this.glow,
   });
 
@@ -247,6 +249,36 @@ class DeskColors extends ThemeExtension<DeskColors> {
   final Color txSent, txReceived, txCancelled;
   final Color hover, press, grid, scrim, glow;
 
+  /// The one soft shadow under a floating surface (popover, menu, server list, tour card),
+  /// drawn with [popShadow]. Never [scrim]: that is the dialog barrier, and as a shadow it
+  /// draws a hard grey band in light.
+  final Color shadow;
+
+  /// The shadow under a floating surface: soft and low, the same for every popover and menu.
+  List<BoxShadow> get popShadow => [BoxShadow(color: shadow, blurRadius: 24.u, offset: Offset(0, 8.u))];
+
+  /// [shadow] at full strength, for a Material `shadowColor` (a MenuAnchor's menu draws its
+  /// own elevation, which thins the colour itself).
+  Color get shadowInk => shadow.withValues(alpha: 1);
+
+  /// A floating surface: [s4] with a [lineStrong] hairline and [popShadow]. Popovers, the
+  /// server list, the tour card; menus take the same look from `deskMenuStyle`.
+  BoxDecoration get popover => BoxDecoration(
+    color: s4,
+    border: Border.all(color: lineStrong),
+    borderRadius: BorderRadius.circular(Rad.sm),
+    boxShadow: popShadow,
+  );
+
+  /// A read-only box of text in a panel or a dialog (a code's text, the payee's note, a
+  /// command, an id): the field fill with a hairline on every side, so it shows in both themes.
+  /// The phone's `WalletTokens.well` is the same.
+  BoxDecoration get well => BoxDecoration(
+    color: s2,
+    border: Border.all(color: line),
+    borderRadius: BorderRadius.circular(Rad.sm),
+  );
+
   @override
   DeskColors copyWith() => this;
 
@@ -254,78 +286,81 @@ class DeskColors extends ThemeExtension<DeskColors> {
   DeskColors lerp(DeskColors? other, double t) => t < 0.5 ? this : (other ?? this);
 }
 
+/// Both sets come from the shared palette (`ui/theme/palette.dart`), as the phone's.
 const DeskColors deskDark = DeskColors(
-  bg: Color(0xFF08080A),
-  s1: Color(0xFF0D0D10),
-  s2: Color(0xFF131318),
-  s3: Color(0xFF1A1A21),
-  s4: Color(0xFF22222B),
-  line: Color(0xFF24242A),
-  lineStrong: Color(0xFF33333D),
-  lineField: Color(0xFF62626D),
-  text: Color(0xFFFFF9F9),
-  dim: Color(0xFFA4A4AD),
-  faint: Color(0xFF8A8A94),
-  accent: Color(0xFFF6D471),
-  accentDeep: Color(0xFFC98A3E),
-  accentInk: Color(0xFF08080A),
-  accentText: Color(0xFFF6D471),
-  accentSoft: Color(0x24F6D471),
-  accentFaint: Color(0x0FF6D471),
-  tick: Color(0xFFC98A3E),
-  ok: Color(0xFF8AD98A),
-  okSoft: Color(0x1F8AD98A),
-  warn: Color(0xFFF5A54A),
-  warnSoft: Color(0x1FF5A54A),
-  risk: Color(0xFFF08A8A),
-  riskSoft: Color(0x1FF08A8A),
-  info: Color(0xFF8FB8E8),
-  infoSoft: Color(0x1F8FB8E8),
-  txSent: Color(0xFFF3645F),
-  txReceived: Color(0xFF8AD98A),
-  txCancelled: Color(0xFF8A8A94),
-  hover: Color(0x0DFFF9F9),
-  press: Color(0x17FFF9F9),
-  grid: Color(0x09FFF9F9),
-  scrim: Color(0xB8050506),
-  glow: Color(0x52F6D471),
+  bg: PaletteDark.bg,
+  s1: PaletteDark.s1,
+  s2: PaletteDark.s2,
+  s3: PaletteDark.s3,
+  s4: PaletteDark.s4,
+  line: PaletteDark.line,
+  lineStrong: PaletteDark.lineStrong,
+  lineField: PaletteDark.lineField,
+  text: PaletteDark.text,
+  dim: PaletteDark.dim,
+  faint: PaletteDark.faint,
+  accent: PaletteDark.accent,
+  accentDeep: PaletteDark.accentDeep,
+  accentInk: PaletteDark.accentInk,
+  accentText: PaletteDark.accentText,
+  accentSoft: PaletteDark.accentSoft,
+  accentFaint: PaletteDark.accentFaint,
+  tick: PaletteDark.tick,
+  ok: PaletteDark.ok,
+  okSoft: PaletteDark.okSoft,
+  warn: PaletteDark.warn,
+  warnSoft: PaletteDark.warnSoft,
+  risk: PaletteDark.risk,
+  riskSoft: PaletteDark.riskSoft,
+  info: PaletteDark.info,
+  infoSoft: PaletteDark.infoSoft,
+  txSent: PaletteDark.txSent,
+  txReceived: PaletteDark.txReceived,
+  txCancelled: PaletteDark.txCancelled,
+  hover: PaletteDark.hover,
+  press: PaletteDark.press,
+  grid: PaletteDark.grid,
+  scrim: PaletteDark.scrim,
+  shadow: PaletteDark.shadow,
+  glow: PaletteDark.glow,
 );
 
 const DeskColors deskLight = DeskColors(
-  bg: Color(0xFFF7F7F8),
-  s1: Color(0xFFFFFFFF),
-  s2: Color(0xFFFFFFFF),
-  s3: Color(0xFFEEEEF0),
-  s4: Color(0xFFFFFFFF),
-  line: Color(0xFFE0E0E4),
-  lineStrong: Color(0xFFC9C9D0),
-  lineField: Color(0xFF868690),
-  text: Color(0xFF1C1E21),
-  dim: Color(0xFF55555F),
-  faint: Color(0xFF6B6B75),
-  accent: Color(0xFF8F5E1F),
-  accentDeep: Color(0xFF8F5E1F),
-  accentInk: Color(0xFFFFFFFF),
-  accentText: Color(0xFF815525),
-  accentSoft: Color(0x1F8F5E1F),
-  accentFaint: Color(0x0D8F5E1F),
-  tick: Color(0xFF1C1E21),
-  ok: Color(0xFF1F7A3A),
-  okSoft: Color(0x1A1F7A3A),
-  warn: Color(0xFFAA5500),
-  warnSoft: Color(0x1AAA5500),
-  risk: Color(0xFFB3261E),
-  riskSoft: Color(0x14B3261E),
-  info: Color(0xFF2F5F9E),
-  infoSoft: Color(0x1A2F5F9E),
-  txSent: Color(0xFFC41E3A),
-  txReceived: Color(0xFF1F7A3A),
-  txCancelled: Color(0xFF6B6B75),
-  hover: Color(0x0A000000),
-  press: Color(0x12000000),
-  grid: Color(0x0D1C1E21),
-  scrim: Color(0x661C1E21),
-  glow: Color(0x298F5E1F),
+  bg: PaletteLight.bg,
+  s1: PaletteLight.s1,
+  s2: PaletteLight.s2,
+  s3: PaletteLight.s3,
+  s4: PaletteLight.s4,
+  line: PaletteLight.line,
+  lineStrong: PaletteLight.lineStrong,
+  lineField: PaletteLight.lineField,
+  text: PaletteLight.text,
+  dim: PaletteLight.dim,
+  faint: PaletteLight.faint,
+  accent: PaletteLight.accent,
+  accentDeep: PaletteLight.accentDeep,
+  accentInk: PaletteLight.accentInk,
+  accentText: PaletteLight.accentText,
+  accentSoft: PaletteLight.accentSoft,
+  accentFaint: PaletteLight.accentFaint,
+  tick: PaletteLight.tick,
+  ok: PaletteLight.ok,
+  okSoft: PaletteLight.okSoft,
+  warn: PaletteLight.warn,
+  warnSoft: PaletteLight.warnSoft,
+  risk: PaletteLight.risk,
+  riskSoft: PaletteLight.riskSoft,
+  info: PaletteLight.info,
+  infoSoft: PaletteLight.infoSoft,
+  txSent: PaletteLight.txSent,
+  txReceived: PaletteLight.txReceived,
+  txCancelled: PaletteLight.txCancelled,
+  hover: PaletteLight.hover,
+  press: PaletteLight.press,
+  grid: PaletteLight.grid,
+  scrim: PaletteLight.scrim,
+  shadow: PaletteLight.shadow,
+  glow: PaletteLight.glow,
 );
 
 /// The type scale, about 1.2 per step. Montserrat for display (balance, titles, section heads),

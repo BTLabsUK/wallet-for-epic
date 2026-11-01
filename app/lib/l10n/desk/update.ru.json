@@ -2,7 +2,7 @@
   "deskUpdAvailable": "Доступно обновление",
   "deskUpdDownload": "Скачать {version}",
   "deskUpdOpensPage": "Открывает страницу загрузки",
-  "deskUpdDownloading": "Загрузка: {percent} %",
+  "deskUpdDownloading": "Загрузка: {percent} %",
   "deskUpdRestart": "Перезапустить и обновить",
   "deskUpdReady": "{version} готова",
   "deskUpdRestartHint": "Приложение закроется, установит обновление и откроется снова.",

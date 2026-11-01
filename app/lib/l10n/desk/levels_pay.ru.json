@@ -1,6 +1,7 @@
 {
   "deskLvPayS1Sent": "Слейт S1 отправлен через Epicbox · ожидается S2",
   "deskLvPayS1On": "S1 на {relay} · ожидается S2",
+  "deskLvPayOnEpicbox": "На Epicbox",
   "deskLvPayNotOpen": "Кошелёк {name} ещё не открыт",
   "deskLvPayWaitingOpen": "Ожидание, пока откроется кошелёк {name}",
   "deskLvPaySenderFinished": "Отправитель закончил",
@@ -18,10 +19,12 @@
   "deskLvPayHeroHoldMany": "{amount} удерживается до подписи",
   "deskLvPayHeroNothing": "Пока ничего не поступает.",
   "deskLvPayReadyTitle": "Кошелёк готов.",
+  "deskLvPayReadyHead": "Кошелёк готов",
   "deskLvPayReadyText": "Поделитесь адресом, чтобы получить первые EPIC.",
   "deskLvPayTileConfirming": "Ещё подтверждается",
   "deskLvPayTileMining": "Свежие с майнинга",
   "deskLvPayTileWaiting": "Ожидание другой стороны",
+  "deskLvPayTileAwaiting": "Ждёт ответа",
   "deskLvPayTileLocked": "Отложено для отправок",
   "deskLvPayImmatureCasual": "Свежие с майнинга, пока недоступны",
   "deskLvPayKind": "Платёж"

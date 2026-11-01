@@ -8,7 +8,7 @@ import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show TorSourceNote;
 import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl, supportEmail;
-import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
+import '../../../ui/theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +24,7 @@ import '../../../network_gate.dart' show NetBlock;
 import '../../desk_l10n.dart';
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
+import 'licence_texts_dialog.dart';
 import 'settings_frame.dart';
 
 /// The Epic Cash website, from `app-config.toml` (`links.website`); null when left out (the
@@ -38,6 +39,7 @@ List<String> licenceLines(AppLocalizations l) => [
   if (DeskFeatures.tor) l.licencesTor,
   l.licencesFonts,
   flagsLicenceNote,
+  sasPicturesLicenceNote,
 ];
 
 class SettingsAboutScreen extends ConsumerStatefulWidget {
@@ -133,7 +135,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   child: EButton(
                     label: l.deskSetAboutView,
                     size: EBtnSize.sm,
-                    onPressed: () => showLicensePage(context: context, applicationName: appName, applicationVersion: deskAppVersion),
+                    onPressed: () => showLicenceTextsDialog(context),
                   ),
                 ),
               ),

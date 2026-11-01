@@ -64,7 +64,7 @@ void main() {
     expect(find.text('Check and send'), findsOneWidget);
   }
 
-  Finder sendButton() => find.widgetWithText(EButton, 'Send 1.0000 EPIC');
+  Finder sendButton() => find.widgetWithText(EButton, 'Send 1.00000000\u00a0EPIC');
   Finder password() => find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField));
 
   testWidgets('a typed unlock: the send asks the password too', (tester) async {
@@ -113,7 +113,7 @@ void main() {
 
   testWidgets('remembered on this computer, a small send still asks the password', (tester) async {
     wallet.openedRemembered = true;
-    // Saved by an earlier build: "Ask password above" 5 EPIC for this wallet.
+    // Saved by an earlier build: "Ask password above" 5\u00a0EPIC for this wallet.
     container.read(settingsPrefsProvider.notifier).set(SettingsPrefs.fromJson({'askAbove': {'legacy-mainnet': 5 * nanoPerEpic}}));
     await review(tester, amount: '1');
     expect(password(), findsOneWidget);

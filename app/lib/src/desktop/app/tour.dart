@@ -464,12 +464,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
                       label: l.deskTourSemantics,
                       child: Container(
                         padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x3),
-                        decoration: BoxDecoration(
-                          color: c.s4,
-                          border: Border.all(color: c.lineStrong),
-                          borderRadius: BorderRadius.circular(Rad.lg),
-                          boxShadow: [BoxShadow(color: c.scrim, blurRadius: 24.u, offset: Offset(0, 8.u))],
-                        ),
+                        decoration: c.popover.copyWith(borderRadius: BorderRadius.circular(Rad.lg)),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,

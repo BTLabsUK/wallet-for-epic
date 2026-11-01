@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../help/help_content.dart' show HelpAnchor;
+import 'app_dialog.dart';
 import 'cancel_note.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,6 +44,9 @@ import '../devices/device_providers.dart' show heldValueByDevice;
 import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices;
 import 'devices/device_parts.dart' show phoneDevicesEpicboxOffProvider;
 import 'centered_body.dart';
+import '../address_field.dart';
+import '../address_format.dart' show addressSpan;
+import 'address_view.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
 import 'demo_screens.dart' show TestCoinsButton;
@@ -73,12 +77,14 @@ import 'shell_header.dart' show comingIn;
 import 'send_tracker.dart';
 import 'slate_file_screen.dart';
 import 'theme/brand.dart';
-import 'theme/protocol.dart' show EdgeCard, TimelineStep;
+import 'theme/protocol.dart' show TimelineStep;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
+import 'settings_rows.dart' show RadioRow;
+import 'inline_button.dart';
 
 export '../utf8_limit.dart';
 
@@ -174,6 +180,9 @@ TorRoute sendRoute(Recipient to) => switch (to.kind) {
 const Key sendTorNoticeKey = ValueKey('send-tor-notice');
 const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
 const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
+
+/// The caption under Turn Tor off: it is the switch for every connection (D-05).
+const Key sendTurnOffTorCaptionKey = ValueKey('send-turn-off-tor-caption');
 const Key sendPlainHttpOffInfoKey = ValueKey('send-plain-http-off-info');
 
 /// The tag beside To that says whether the payment goes over Tor, for tests.
@@ -281,7 +290,7 @@ BigInt _pending(WalletSummary s) =>
     s.awaitingConfirmation + s.awaitingFinalization + s.immature + s.locked;
 
 class _SendViewState extends ConsumerState<SendView> {
-  final _recipient = TextEditingController();
+  final _recipient = AddressFieldController();
   final _amount = TextEditingController();
   final _note = TextEditingController();
   final _response = TextEditingController();
@@ -2525,9 +2534,8 @@ class _SendViewState extends ConsumerState<SendView> {
     if (label == null || to == null) return null;
     return Align(
       alignment: AlignmentDirectional.centerStart,
-      child: TextButton(
+      child: InlineTextButton(
         key: sendQuietQrKey,
-        style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
         onPressed: _busy || _estimating ? null : () => _chooseMethod(to),
         child: Text(label),
       ),
@@ -2560,25 +2568,18 @@ class _SendViewState extends ConsumerState<SendView> {
       ],
       if (down) ...[
         const SizedBox(height: 12),
-        EdgeCard(
+        InlineNotice(
           key: sendEpicboxDownKey,
-          edge: context.tokens.warn,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-            child: Row(
-              children: [
-                Icon(Icons.cloud_off, size: 18, color: context.tokens.warn),
-                const SizedBox(width: 10),
-                Expanded(child: Text(context.l10n.statusEpicboxOffline)),
-                TextButton.icon(
-                  style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-                  icon: const Icon(Icons.refresh),
-                  label: Text(context.l10n.commonRetry),
-                  onPressed: () => ref.read(listenerProvider.notifier).restart(),
-                ),
-              ],
+          level: NoticeLevel.warning,
+          icon: Icons.cloud_off,
+          text: context.l10n.statusEpicboxOffline,
+          actions: [
+            TextButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: Text(context.l10n.commonRetry),
+              onPressed: () => ref.read(listenerProvider.notifier).restart(),
             ),
-          ),
+          ],
         ),
       ],
       const SizedBox(height: 16),
@@ -2704,7 +2705,6 @@ class _SendViewState extends ConsumerState<SendView> {
           error: _recipientError == null
               ? null
               : LiveFieldError(_recipientError!),
-          border: const OutlineInputBorder(),
         ),
       ),
       ),
@@ -2859,8 +2859,8 @@ class _SendViewState extends ConsumerState<SendView> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicText(l, amount)}'
-          : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
+          ? approxText(epicText(l, amount))
+          : approxText(localDigits(l, fiatText(amount, price, currency)));
     }
     // A code's amount: "Requested by the code" while the field holds it, what it asked for
     // once changed.
@@ -2870,7 +2870,7 @@ class _SendViewState extends ConsumerState<SendView> {
       final marker = fromCode
           ? l.sendAmountFromCode
           : l.sendAmountCodeAsked(epicText(l, asked));
-      amountHelper = amountHelper == null ? marker : '$marker · $amountHelper';
+      amountHelper = amountHelper == null ? marker : metaLine([marker, amountHelper]);
     }
     // Why nothing is available yet, in the header's words.
     final held = [
@@ -2903,7 +2903,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         decoration: InputDecoration(
           labelText: l.sendAmountLabel(
-            _fiatEntry ? currency.toUpperCase() : 'EPIC',
+            _fiatEntry ? currency.toUpperCase() : epicUnit,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           floatingLabelAlignment: FloatingLabelAlignment.center,
@@ -2916,7 +2916,7 @@ class _SendViewState extends ConsumerState<SendView> {
             children: [
               if (price != null || _fiatEntry)
                 Tip(
-                  l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+                  l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
                   child: TextButton(
                     style: TextButton.styleFrom(
                       minimumSize: const Size(44, 44),
@@ -2925,9 +2925,9 @@ class _SendViewState extends ConsumerState<SendView> {
                     ),
                     onPressed: _toggleUnit,
                     child: Semantics(
-                      label: l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+                      label: l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
                       excludeSemantics: true,
-                      child: Text(_fiatEntry ? currency.toUpperCase() : 'EPIC'),
+                      child: Text(_fiatEntry ? currency.toUpperCase() : epicUnit),
                     ),
                   ),
                 ),
@@ -3052,7 +3052,6 @@ class _SendViewState extends ConsumerState<SendView> {
                       _note.text == _activeRequest?.note
                   ? l.sendNoteFromCodeHelper
                   : l.sendNoteHelper,
-              border: const OutlineInputBorder(),
             ),
           ),
         ),
@@ -3203,18 +3202,11 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
-      // Four decimals, as every shown amount (UD-027); the exact value on a tap.
-      exactAmountTip(
-        context,
-        estimate.amount,
-        hidden: false,
-        child: Text(
-          epicText(l, estimate.amount),
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontFamily: t.monoFamily,
-            color: t.text,
-          ),
-        ),
+      // The review commits the money: every amount on it exact ([AmountSurface.exact]), as on
+      // the desktop's and in the payment's details; mono, as every amount but the headline.
+      AmountText(
+        epicExact(l, estimate.amount),
+        style: theme.textTheme.headlineMedium?.copyWith(color: t.text),
       ),
       const SizedBox(height: 12),
       // Level 1 does not name Epicbox: it is just how sending works, so no Method row.
@@ -3223,10 +3215,10 @@ class _SendViewState extends ConsumerState<SendView> {
         label: l.sendMethodLabel,
         value: switch (to.kind) {
           RecipientKind.epicbox || RecipientKind.http when way == TorWay.overTor =>
-            '${recipientMethodWord(l, to.kind)} · ${l.sendOverTor}',
+            metaLine([recipientMethodWord(l, to.kind), l.sendOverTor]),
           RecipientKind.http
               when way == TorWay.clearnet && torState != TorState.off =>
-            '${recipientMethodWord(l, to.kind)} · ${l.torNotOverTor}',
+            metaLine([recipientMethodWord(l, to.kind), l.torNotOverTor]),
           _ => recipientMethodWord(l, to.kind),
         },
         mono: false,
@@ -3256,7 +3248,7 @@ class _SendViewState extends ConsumerState<SendView> {
             ],
           ),
         ),
-      _Row(label: l.sendNetworkFee, value: epicText(l, estimate.fee)),
+      _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
       // Strategy All is a consolidating send: its change is one output, never split.
       if (_sendOptions?.strategy == SelectionStrategy.all &&
           estimate.change > BigInt.zero)
@@ -3265,26 +3257,25 @@ class _SendViewState extends ConsumerState<SendView> {
           key: sendUsesAllOutputsKey,
           style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
         ),
-      // The amount, then the fiat estimate dim under it, as the amount step and the list rows
-      // show them (UP-005); the exact value on a tap (UD-027).
+      // The amount, then the fiat estimate of the total (fee included) dim on its own line
+      // under it, as the amount step and the list rows show them (UP-005, A-05).
       _Row(
         label: l.sendReviewTotal,
-        value: epicText(l, total),
-        sub: price == null ? null : '≈ ${localDigits(l, fiatText(total, price, currency))}',
-        exact: total,
+        value: epicExact(l, total),
+        sub: price == null ? null : approxText(localDigits(l, fiatText(total, price, currency))),
         strong: true,
       ),
       // What stays after this send: the balance once it is out, and,
       // while the change confirms, only the outputs the send does not lock.
       if (spendable != null && spendable >= total) ...[
-        _Row(label: l.sendBalanceAfter, value: epicText(l, spendable - total)),
+        _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
         // The change locks outputs: only said where Outputs shows (Advanced).
         if (outputsShown(context, ref) &&
             estimate.locked > total &&
             estimate.locked <= spendable) ...[
           _Row(
-            label: l.sendSpendableUntilChange,
-            value: epicText(l, spendable - estimate.locked),
+            label: l.sendAvailableWhileConfirms,
+            value: epicExact(l, spendable - estimate.locked),
           ),
           Text(
             l.sendSpendableUntilChangeHint,
@@ -3307,15 +3298,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // An address whose relay the app does not know may be mistyped: a warning, not a block.
       if (checks.unknownRelay case final unknown? when !_sendFailed) ...[
         const SizedBox(height: 8),
-        Row(
-          key: sendUnknownRelayKey,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(Icons.warning_amber, size: 18, color: t.warn),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l.sendRelayUnknown(unknown.label))),
-          ],
-        ),
+        InlineNotice(key: sendUnknownRelayKey, level: NoticeLevel.warning, text: l.sendRelayUnknown(unknown.label)),
       ],
       // The cancel rule for this method, with the way to the Help topic (CancelNote). After a
       // failed delivery the actions below carry their own line, so this one steps aside.
@@ -3331,21 +3314,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // Epicbox off: the mailbox payment waits in the outbox until it is on again.
       if (queued && !_sendFailed) ...[
         const SizedBox(height: 12),
-        EdgeCard(
-          key: sendQueuedCardKey,
-          edge: t.info,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.info_outline, size: 20, color: t.info),
-                const SizedBox(width: 10),
-                Expanded(child: Text(l.sendQueuedEpicboxOff, style: theme.textTheme.bodyMedium)),
-              ],
-            ),
-          ),
-        ),
+        InlineNotice(key: sendQueuedCardKey, level: NoticeLevel.info, text: l.sendQueuedEpicboxOff),
       ],
     ];
   }
@@ -3361,7 +3330,8 @@ class _SendViewState extends ConsumerState<SendView> {
     final pairs = _pairingTo == null || (_toPairing()?.paysByMailbox ?? false);
     final canSend =
         checks.ready && !_busy && torGoes(way) && _block == NetBlock.none && pairs;
-    final amount = epicText(l, _estimate!.amount);
+    // The Send button names the exact amount, as the review above it (a commit surface).
+    final amount = epicExact(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -3632,10 +3602,10 @@ class _SendViewState extends ConsumerState<SendView> {
         const SizedBox(height: 8),
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: TextButton.icon(
+          child: InlineTextButton(
             icon: const Icon(Icons.person_add_alt),
-            label: Text(l.sendSaveContact),
             onPressed: () => _saveContact(sent.to.address),
+            child: Text(l.sendSaveContact),
           ),
         ),
       ],
@@ -3822,17 +3792,17 @@ class _SendViewState extends ConsumerState<SendView> {
               onChanged: (v) => setState(() => _filePlain = v ?? false),
               child: Column(
                 children: [
-                  RadioListTile<bool>(
+                  RadioRow<bool>(
                     key: sendSealedOptionKey,
                     value: false,
-                    title: Text(l.sendSealedOption),
-                    subtitle: Text(l.sendSealedOptionHint(name)),
+                    title: l.sendSealedOption,
+                    subtitle: l.sendSealedOptionHint(name),
                   ),
-                  RadioListTile<bool>(
+                  RadioRow<bool>(
                     key: sendPlainOptionKey,
                     value: true,
-                    title: Text(l.sendPlainOption),
-                    subtitle: Text(l.sendPlainOptionHint),
+                    title: l.sendPlainOption,
+                    subtitle: l.sendPlainOptionHint,
                   ),
                 ],
               ),
@@ -3919,18 +3889,17 @@ class _SendViewState extends ConsumerState<SendView> {
   /// "Send as plain instead" (RFC 9.3): asks first, then hands over the same payment unsealed.
   Future<void> _sendAsPlain(Slate slate) async {
     final l = context.l10n;
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.sendAsPlainTitle),
-        content: Text(l.sendAsPlainBody),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.sendKeepSealed)),
-          FilledButton(key: sendAsPlainConfirmKey, onPressed: () => Navigator.pop(context, true), child: Text(l.sendPlain)),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.sendAsPlainTitle,
+      icon: Icons.lock_open_outlined,
+      tone: DialogTone.warn,
+      description: l.sendAsPlainBody,
+      cancelLabel: l.sendKeepSealed,
+      confirmLabel: l.sendPlain,
+      confirmKey: sendAsPlainConfirmKey,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     await _run((session) async {
       final plain = await session.pairing.plainSlate('s:${slate.slateId}');
       if (mounted) setState(() => _plainCopy = plain);
@@ -4060,13 +4029,7 @@ class RecipientCard extends StatelessWidget {
                           color: t.dim,
                         ),
                       ),
-                      Text(
-                        host,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontFamily: t.monoFamily,
-                          color: t.text,
-                        ),
-                      ),
+                      HostText(host, style: theme.textTheme.titleMedium),
                       const SizedBox(height: 4),
                     ],
                     AddressEnds(address: address),
@@ -4078,10 +4041,10 @@ class RecipientCard extends StatelessWidget {
           if (onSave != null)
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
+              child: InlineTextButton(
                 icon: const Icon(Icons.person_add_alt, size: 18),
-                label: Text(l.sendSaveContact),
                 onPressed: onSave,
+                child: Text(l.sendSaveContact),
               ),
             )
           else
@@ -4095,45 +4058,17 @@ class RecipientCard extends StatelessWidget {
 /// The address is an onion address, `<56 characters>.onion`, as [parseRecipient] gives it.
 bool isOnionAddress(String address) => address.toLowerCase().endsWith('.onion');
 
-/// An address in the mono face with the first and last 6 characters of its key strong and
-/// the rest dim, and the relay on its own line; an onion keeps `.onion` dim at its end.
+/// An address on the recipient card: [MarkedAddress] at the card's small size.
 class AddressEnds extends StatelessWidget {
   const AddressEnds({super.key, required this.address});
 
   final String address;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final base = Theme.of(context).textTheme.bodySmall
-        ?.copyWith(fontFamily: t.monoFamily, color: t.dim, height: 1.45);
-    final strong = base?.copyWith(color: t.text, fontWeight: FontWeight.w700);
-    final onion = isOnionAddress(address);
-    final at = onion ? -1 : address.indexOf('@');
-    final key = onion
-        ? address.substring(0, address.length - '.onion'.length)
-        : at < 0
-        ? address
-        : address.substring(0, at);
-    final relay = at < 0 ? null : address.substring(at);
-    final spans = key.length <= 12
-        ? [TextSpan(text: key, style: strong)]
-        : [
-            TextSpan(text: key.substring(0, 6), style: strong),
-            TextSpan(text: key.substring(6, key.length - 6)),
-            TextSpan(text: key.substring(key.length - 6), style: strong),
-          ];
-    return Text.rich(
-      TextSpan(
-        style: base,
-        children: [
-          ...spans,
-          if (onion) const TextSpan(text: '.onion'),
-          if (relay != null) TextSpan(text: '\n$relay'),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MarkedAddress(
+    address,
+    style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.45),
+  );
 }
 
 /// "Direct address" / "Via Epicbox" beside the To label for 3 s after the address moved the
@@ -4291,33 +4226,38 @@ class _TorNotice extends ConsumerWidget {
                     InfoHint(
                       l.sendPlainHttpOffWithTorWhy,
                       key: sendPlainHttpOffInfoKey,
-                      size: 32,
                       title: l.sendPlainHttpOffWithTor,
                       icon: Icons.error_outline,
                     ),
                 ],
               ),
             ),
-            if (blocked) ...[
+            // Retry only (D-05): turning Tor off is never the fix an error offers.
+            if (blocked)
               TextButton(
                 style: quiet,
                 onPressed: tor.retry,
                 child: Text(l.commonRetry),
-              ),
-              TextButton(
-                key: sendTurnOffTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(false),
-                child: Text(l.torTurnOff),
-              ),
-            ] else if (plainOff)
-              TextButton(
-                key: sendTurnOffTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(false),
-                child: Text(l.torTurnOff),
               )
-            else
+            else if (plainOff) ...[
+              TextButton(
+                key: sendTurnOffTorKey,
+                style: quiet,
+                onPressed: () => tor.setReceiving(false),
+                child: Text(l.torTurnOff),
+              ),
+              // The switch is the app's, not this payment's: said where it is pressed, on a
+              // line of its own.
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsetsDirectional.only(start: 28, end: 4),
+                child: Text(
+                  l.torTurnOffCaption,
+                  key: sendTurnOffTorCaptionKey,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+                ),
+              ),
+            ] else
               TextButton(
                 key: sendTurnOnTorKey,
                 style: quiet,
@@ -4380,6 +4320,42 @@ class _ToChip extends StatelessWidget {
   final String address;
   final String? name;
 
+  /// "To Alice", or the sentence in the sans face with the short address in it as a mono span,
+  /// its ends marked (address_format.dart); shrunk rather than cut, so no host is cut short.
+  Widget _toChipText(BuildContext context, WalletTokens t) {
+    final l = context.l10n;
+    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text);
+    final name = this.name;
+    if (name != null) return Text(l.sendTo(name), overflow: TextOverflow.ellipsis, style: style);
+    // The sentence around a marker, so the address sits where the language puts it.
+    const marker = '\u0000';
+    final sentence = l.sendTo(marker);
+    final at = sentence.indexOf(marker);
+    final shown = shortAddress(address);
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: Text.rich(
+        TextSpan(
+          style: style,
+          children: [
+            TextSpan(text: at < 0 ? '$sentence ' : sentence.substring(0, at)),
+            addressSpan(
+              shown,
+              style: TextStyle(fontFamily: t.monoFamily),
+              mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
+              quiet: TextStyle(color: t.dim),
+            ),
+            if (at >= 0) TextSpan(text: sentence.substring(at + marker.length)),
+          ],
+        ),
+        maxLines: 1,
+        softWrap: false,
+        semanticsLabel: l.sendTo(shown),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -4395,14 +4371,7 @@ class _ToChip extends StatelessWidget {
         children: [
           Transform.scale(scale: 0.8, child: _Initial(name: name)),
           const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              context.l10n.sendTo(name ?? shortAddress(address)),
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: t.text),
-            ),
-          ),
+          Flexible(child: _toChipText(context, t)),
         ],
       ),
     );
@@ -4431,25 +4400,20 @@ class _RecentRow extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       minTileHeight: 52,
       leading: _Initial(name: name),
-      title: Text(
-        name ?? shortAddress(address, relay: relay),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
-      ),
+      // No name: the short address is the title, in the mono face as every address.
+      title: name == null
+          ? ShortAddressText(address, relay: relay, style: theme.textTheme.bodyMedium)
+          : Text(
+              name!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
+            ),
       subtitle: name == null
           ? null
           : subtitle != null
           ? Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))
-          : Text(
-              shortAddress(address, relay: relay),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: t.dim,
-                fontFamily: t.monoFamily,
-              ),
-            ),
+          : ShortAddressText(address, relay: relay, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
       onTap: onTap,
     );
   }
@@ -4611,7 +4575,6 @@ class _Row extends StatelessWidget {
     required this.label,
     required this.value,
     this.sub,
-    this.exact,
     this.strong = false,
     this.mono = true,
   });
@@ -4621,9 +4584,6 @@ class _Row extends StatelessWidget {
 
   /// A dim second line under the value (the fiat estimate).
   final String? sub;
-
-  /// The exact amount behind [value], shown on a tap.
-  final BigInt? exact;
 
   final bool strong;
 
@@ -4638,14 +4598,11 @@ class _Row extends StatelessWidget {
       color: strong ? t.text : t.dim,
       fontWeight: strong ? FontWeight.w600 : null,
     );
-    Widget figure = Text(
+    final figure = Text(
       value,
       textAlign: TextAlign.end,
-      style: mono ? style?.copyWith(fontFamily: t.monoFamily) : style,
+      style: mono ? amountStyle(context, style) : style,
     );
-    if (exact case final exact?) {
-      figure = exactAmountTip(context, exact, hidden: false, child: figure);
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(

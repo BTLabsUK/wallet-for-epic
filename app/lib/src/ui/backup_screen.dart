@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
 import '../providers.dart';
+import 'app_dialog.dart';
 import 'common.dart';
 import 'pin.dart';
 import '../phrase_clipboard.dart';
@@ -79,24 +80,16 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   /// the clipboard is cleared soon.
   Future<void> _copy() async {
     final l = context.l10n;
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.backupCopyTitle),
-        content: Text(l.backupCopyBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.commonCopy),
-          ),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.backupCopyTitle,
+      icon: Icons.content_copy_outlined,
+      tone: DialogTone.warn,
+      description: l.backupCopyBody,
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.commonCopy,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     final copied = await copyRecoveryPhrase(_words.join(' '));
     if (!mounted) return;
     ref
@@ -124,49 +117,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
 
   /// What a copy of the phrase means, agreed to before the PIN.
   List<Widget> _consent(BuildContext context) {
-    final theme = Theme.of(context);
     final l = context.l10n;
-    final onError = theme.colorScheme.onErrorContainer;
     return [
-      Card(
-        color: theme.colorScheme.errorContainer,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.warning_amber,
-                color: onError,
-                semanticLabel: l.backupWarningIconLabel,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.backupConsentTitle,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: onError,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${l.backupConsentWhat} ${l.backupConsentReady}',
-                      style: TextStyle(color: onError),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l.backupCopyWarning,
-                      style: TextStyle(color: onError),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      InlineNotice(
+        level: NoticeLevel.warning,
+        title: l.backupConsentTitle,
+        text: '${l.backupConsentWhat} ${l.backupConsentReady}\n\n${l.backupCopyWarning}',
       ),
       const SizedBox(height: 8),
       CheckboxListTile(
@@ -189,29 +145,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final theme = Theme.of(context);
     final l = context.l10n;
     return [
-      Card(
-        color: theme.colorScheme.errorContainer,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.warning_amber,
-                color: theme.colorScheme.onErrorContainer,
-                semanticLabel: l.backupWarningIconLabel,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  l.backupWriteDown(_words.length),
-                  style: TextStyle(color: theme.colorScheme.onErrorContainer),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      InlineNotice(level: NoticeLevel.warning, text: l.backupWriteDown(_words.length)),
       const SizedBox(height: 16),
       LayoutBuilder(
         builder: (context, constraints) {

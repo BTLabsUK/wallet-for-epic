@@ -25,8 +25,8 @@ class NodeSyncedDialog extends StatelessWidget {
       icon: EIcons.server,
       tone: ETone.ok,
       actions: [
-        EButton(label: l.deskAppNotNow, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.pop(false)),
-        EButton.primary(label: l.deskAppRestartNow, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => nav.pop(true)),
+        EButton(label: l.deskAppNotNow, onPressed: () => nav.pop(false)),
+        EButton.primary(label: l.deskAppRestartNow, icon: EIcons.restart, onPressed: () => nav.pop(true)),
       ],
     );
   }
@@ -83,7 +83,7 @@ class _FirstScanDialogState extends State<FirstScanDialog> {
       title: t.deskAppFirstScanTitle,
       description: t.deskAppFirstScanBody,
       icon: EIcons.scan,
-      width: 520.u,
+      size: DialogWidth.standard,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -101,7 +101,7 @@ class _FirstScanDialogState extends State<FirstScanDialog> {
               label: t.deskAppScanOutput,
               child: Container(
                 constraints: BoxConstraints(maxHeight: 200.u),
-                decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+                decoration: c.well,
                 child: ListView(
                   shrinkWrap: true,
                   padding: EdgeInsets.all(Sp.x3),
@@ -114,8 +114,8 @@ class _FirstScanDialogState extends State<FirstScanDialog> {
       ),
       actions: [
         if (shown.isNotEmpty)
-          EButton(label: _log ? t.deskAppFirstScanHideLog : t.deskAppFirstScanShowLog, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => setState(() => _log = !_log)),
-        EButton(label: t.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+          EButton(label: _log ? t.deskAppFirstScanHideLog : t.deskAppFirstScanShowLog, onPressed: () => setState(() => _log = !_log)),
+        EButton(label: t.commonClose, onPressed: () => Navigator.of(context).pop()),
       ],
     );
   }

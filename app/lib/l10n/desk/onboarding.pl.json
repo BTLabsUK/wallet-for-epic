@@ -4,6 +4,8 @@
   "deskOnbWelcomeCreate": "Utwórz nowy portfel",
   "deskOnbWelcomeImport": "Importuj portfele",
   "deskOnbWelcomeImportSub": "Ze starszego Epic Wallet lub z folderu",
+  "deskOnbWelcomeCreateSub": "Z nową frazą odzyskiwania",
+  "deskOnbWelcomeRestoreSub": "Także ze Stack Wallet lub Epic Pay",
   "deskOnbWelcomeRestore": "Przywróć z frazy",
   "deskOnbWelcomeTestNote": "Nowe portfele powstają w tej sieci testowej.",
   "deskOnbWelcomeBack": "Wróć do odblokowania",
@@ -56,6 +58,7 @@
   "deskOnbRestorePasswordLead": "Ustaw hasło, które odblokowuje ten portfel na tym komputerze.",
   "deskOnbRestoreNothingToPaste": "Nie ma czego wkleić: w schowku nie ma słów.",
   "deskOnbRestoreBadWord": "Słowo {position}, „{word}”, nie występuje na liście słów.",
+  "deskOnbRestoreBadWords": "Nie ma na liście słów: {words}.",
   "deskOnbRestoreAllOk": "{count, plural, one{{count} słowo jest poprawne.} few{Wszystkie {count} słowa są poprawne.} many{Wszystkie {count} słów jest poprawnych.} other{Wszystkie {count} słowa są poprawne.}}",
   "deskOnbRestoreChecksumFirm": "Suma kontrolna tej frazy się nie zgadza. Porównaj każde słowo z kartką.",
   "deskOnbRestoreChecksumSoFar": "{count, plural, one{Na razie {count} słowo; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.} few{Na razie {count} słowa; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.} many{Na razie {count} słów; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.} other{Na razie {count} słowa; suma kontrolna się nie zgadza. Pisz dalej albo porównaj każde słowo z kartką.}}",
@@ -126,6 +129,7 @@
   "deskOnbImportFindingTitle": "Szukanie portfeli",
   "deskOnbImportFindingLead": "Przeszukiwanie folderów starszych wersji Epic Wallet i programu epic.",
   "deskOnbImportFoundTitle": "{count, plural, one{Znaleziono {count} portfel} few{Znaleziono {count} portfele} many{Znaleziono {count} portfeli} other{Znaleziono {count} portfela}}",
+  "deskOnbImportFoundLead": "Dalej, aby wybrać portfele do dodania.",
   "deskOnbImportNoneTitle": "Nie znaleziono portfeli",
   "deskOnbImportNoneLead": "Wybierz folder portfela albo przywróć go z frazy odzyskiwania.",
   "deskOnbImportChooseTitle": "Wybierz portfele",
@@ -204,5 +208,6 @@
   "deskOnbNodePortRange": "Liczba od {min} do {max}.",
   "deskOnbNodePortsSame": "Oba porty muszą się różnić.",
   "deskOnbNodePortTaken": "Port {port} zajmuje inny program. {next} jest wolny.",
-  "deskOnbNodePortUse": "Użyj {port}"
+  "deskOnbNodePortUse": "Użyj {port}",
+  "deskOnbFailedTitle": "Nie ukończono"
 }

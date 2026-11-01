@@ -603,7 +603,8 @@ class ProgressView extends StatelessWidget {
             ),
             SizedBox(height: Sp.x5),
             if (failure != null) ...[
-              ENotice(title: failure, tone: ETone.risk, icon: EIcons.alert),
+              // A short bold heading; the sentence under it, regular (#39).
+              ENotice(title: context.l10n.deskOnbFailedTitle, text: failure, tone: ETone.risk, icon: EIcons.alert),
               SizedBox(height: Sp.x5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,

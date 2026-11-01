@@ -82,7 +82,7 @@ void main() {
     expect(find.textContaining('@'), findsNothing);
     await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Send 1.0000 EPIC'));
+    await tester.tap(find.widgetWithText(EButton, 'Send 1.00000000\u00a0EPIC'));
     await tester.pumpAndSettle();
     expect(wallet.sent.single.pairingId, 'pz');
     expect(wallet.sent.single.to, isNull);

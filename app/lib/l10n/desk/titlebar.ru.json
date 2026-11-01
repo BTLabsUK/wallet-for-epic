@@ -29,5 +29,6 @@
   "deskBarBuildTipRebuild": "Версия {version}, пересборка {rebuild}, коммит {commit}. Щелчок копирует сведения о сборке.",
   "deskBarBuildTipDev": "Версия {version}. Сборка для разработки. Щелчок копирует сведения о сборке.",
   "deskBarKeyMenu": "Открыть меню приложения",
-  "deskBarTurnOnHint": "Выключено. Включите в «Настройки › Транзакции»."
+  "deskBarTurnOnHint": "Выключено. Включите в «Настройки › Транзакции».",
+  "deskDemoStripe": "Демо · пример данных"
 }

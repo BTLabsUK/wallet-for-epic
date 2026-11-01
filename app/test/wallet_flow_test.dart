@@ -429,11 +429,11 @@ void main() {
       await _pumpApp(tester, service, device);
       await _tapText(tester, 'Restore from phrase');
 
-      // The error names the first word that is not a phrase word.
+      // The error names every word that is not a phrase word, with its place.
       await _enter(tester, 'Recovery phrase', 'not a valid phrase');
       await _tapText(tester, 'Continue');
       expect(
-        find.text('Word 1, “not”, is not in the word list.'),
+        find.text('Not in the word list: not (1), a (2).'),
         findsOneWidget,
       );
 
@@ -443,7 +443,7 @@ void main() {
         '  ${service.phrase.toUpperCase()} ',
       );
       // The start choice is offered to everyone behind a small link.
-      await _tapText(tester, 'Start from a date or height');
+      await _tapText(tester, 'Start from a month or height');
       await _tapText(tester, 'Block height');
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');
@@ -699,7 +699,7 @@ void main() {
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider).
       await tester.pump(statusSettle);
-      expect(find.bySemanticsLabel(RegExp('^Node, Offline')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
       handle.dispose();
       // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
       for (final (kind, label, value) in [
@@ -737,9 +737,9 @@ void main() {
         findsNothing,
       );
 
-      await _reveal(tester, find.text('+5.0000 EPIC'));
+      await _reveal(tester, find.text('+5.0000\u00a0EPIC'));
       expect(find.text('Incoming payment'), findsOneWidget);
-      expect(find.text('-1.0000 EPIC'), findsOneWidget);
+      expect(find.text('\u22121.0000\u00a0EPIC'), findsOneWidget);
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
       expect(find.textContaining('Received'), findsOneWidget);
       // No actions on rows: cancel lives in the details.
@@ -761,7 +761,7 @@ void main() {
       // The label tile above the rows pushes the fee below a short screen's first page.
       await _reveal(tester, find.text('Fee'));
       expect(find.text('Fee'), findsOneWidget);
-      expect(find.text('0.00800000 EPIC'), findsOneWidget);
+      expect(find.text('0.00800000\u00a0EPIC'), findsOneWidget);
       final cancel = find.widgetWithText(DangerButton, 'Cancel payment');
       await _tap(tester, cancel.first);
       await _tapText(tester, 'Keep');
@@ -1085,7 +1085,7 @@ void main() {
       await tester.pump(statusSettle);
       expect(find.bySemanticsLabel(RegExp('^Epicbox, Connected')), findsOneWidget);
       // Balances the node did not check count as the node being offline, and say why.
-      expect(find.bySemanticsLabel(RegExp('^Node, Offline')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
       expect(
         tester.getSemantics(find.byKey(nodeStatusKey).first).hint,
         startsWith('Not validated with node. Balances may be out of date.'),
@@ -1096,17 +1096,17 @@ void main() {
         ListenerEvent(
           kind: ListenerEventKind.received,
           slateId: 's',
-          message: 'Received 3.0000 EPIC from zz…',
+          message: 'Received 3.0000\u00a0EPIC from zz…',
           amount: _epic(3),
         ),
       );
       await tester.pumpAndSettle();
       // A notice in words, not the listener's raw message.
       expect(
-        find.text('3.0000 EPIC on the way.'),
+        find.text('3.0000\u00a0EPIC on the way.'),
         findsOneWidget,
       );
-      expect(find.text('Received 3.0000 EPIC from zz…'), findsNothing);
+      expect(find.text('Received 3.0000\u00a0EPIC from zz…'), findsNothing);
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0000');
 
       await _clearNotices(tester);
@@ -1135,7 +1135,7 @@ void main() {
           .deliver(const SlateFile(name: 'shared.tx', json: incoming));
       await _unlockToHome(tester);
       await tester.pumpAndSettle();
-      expect(find.text('Someone is sending you 2.00000000 EPIC.'), findsOneWidget);
+      expect(find.text('Someone is sending you 2.00000000\u00a0EPIC.'), findsOneWidget);
     });
   });
 

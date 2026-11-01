@@ -106,7 +106,7 @@ class _SendRunningDialog extends ConsumerWidget {
       title: l.deskBarSendRunningTitle,
       description: l.deskBarSendRunningBody,
       actions: [
-        EButton(label: l.deskBarCloseAfterSend, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop(true)),
+        EButton(label: l.deskBarCloseAfterSend, onPressed: () => Navigator.of(context).pop(true)),
         EButton.primary(label: l.deskBarKeepOpen, autofocus: true, onPressed: () => Navigator.of(context).pop(false)),
       ],
     );

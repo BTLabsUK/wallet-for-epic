@@ -41,6 +41,7 @@
   "deskSetupType": "Art",
   "deskSetupAddress": "Adresse",
   "deskSetupExistingNode": "Vorhandener Node unter {host}",
+  "deskSetupExistingNodeType": "Vorhandener Node",
   "deskSetupBundledNode": "Lokaler Node",
   "deskSetupWhileSyncing": "Beim Synchronisieren",
   "deskSetupWait": "warten",

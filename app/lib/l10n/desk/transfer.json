@@ -234,6 +234,16 @@
       }
     }
   },
+  "deskEpicboxBlockedShort": "This network blocks {host}. Try another server or a private DNS.",
+  "@deskEpicboxBlockedShort": {
+    "description": "Epicbox state line detail, rail tooltip line and notice text when the network blocks the relay. {host} is the relay's host name. Short, two lines at most; never names a provider.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
   "deskEpicboxBlockedSwitch": "Switch to {host}",
   "@deskEpicboxBlockedSwitch": {
     "description": "Button of the blocked-relay notice: one tap moves the wallet to another Epicbox server, no confirmation. {host} is that server's host name.",

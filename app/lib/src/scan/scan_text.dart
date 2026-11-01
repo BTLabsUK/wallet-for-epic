@@ -3,6 +3,7 @@
 /// what was dropped from it, and the host of a Direct address.
 library;
 
+import '../address_format.dart' show hostPort;
 import '../l10n.dart';
 import 'scan_checks.dart' show CodeOrigin;
 import 'scan_router.dart' show RequestProblem, untrustedTextForbidden;
@@ -25,14 +26,9 @@ List<String> requestProblemLines(
   if (problems.contains(RequestProblem.tooLong)) l.sendCodeTooLong,
 ];
 
-/// The host of a Direct address, with its port: `203.0.113.4:<port>`, `<56 characters>.onion`.
-String directHostOf(String address) {
-  final uri = Uri.tryParse(
-    address.contains('://') ? address : 'http://$address',
-  );
-  if (uri == null || uri.host.isEmpty) return address;
-  return uri.hasPort ? '${uri.host}:${uri.port}' : uri.host;
-}
+/// The host of a Direct address, with its port: `203.0.113.4:<port>`, `<56 characters>.onion`
+/// ([hostPort]).
+String directHostOf(String address) => hostPort(address);
 
 /// The host line for the review of a Direct payment, or null when the address already is the
 /// host (a bare onion address, a `host:port` pair, either with only a scheme before it): the

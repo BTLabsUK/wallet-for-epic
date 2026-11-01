@@ -11,6 +11,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../demo.dart' show pinlessProvider;
+import '../demo_fixtures.dart';
 import '../levels/first_start.dart' show firstStartProvider;
 import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
 import '../net/http_types.dart' show NetError;
@@ -31,7 +32,7 @@ FakeWalletService previewWalletService() {
   final session = _previewSession();
   final service = PreviewWalletService(session: session)
     // At the preview directory's tip, so the status card reads Synced.
-    ..nodeTipValue = NodeTip(height: _tip, nodeVersion: '4.1.1');
+    ..nodeTipValue = NodeTip(height: _tip, nodeVersion: demoNodeVersion);
   session.tipService = service;
   _previewQrExchange(service, session);
   return service;
@@ -127,10 +128,10 @@ class PreviewDirectory implements RelayDirectory, NodeDirectory, NetworkDirector
     final checked = DateTime.now().subtract(const Duration(minutes: 2));
     final tip = _tip.toInt();
     return [
-      NodeStatus(url: mockNodeAt(1), healthy: true, verified: true, operator: 'btlabs', icon: _icon('7f31acd64c95a28ca70a'), height: tip, latencyMs: 20, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.999, lastCheckedAt: checked),
-      NodeStatus(url: mockNodeAt(2), healthy: true, verified: true, operator: mockNodeOp(2), height: tip, latencyMs: 766, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 61, uptime24h: 0.998, lastCheckedAt: checked),
-      NodeStatus(url: mockNodeAt(0), healthy: true, verified: true, operator: 'Epic Cash', icon: _icon('41bec7e038f3b806b2db'), height: tip, latencyMs: 733, state: NodeHealthState.healthy, nodeVersion: '4.1.1', tipLag: 0, peers: 54, uptime24h: 0.997, lastCheckedAt: checked),
-      NodeStatus(url: mockNodeAt(3), healthy: true, verified: true, operator: 'Cypher Stack', icon: _icon('9a573fcde155e6753f68'), height: tip - 12, latencyMs: 1127, state: NodeHealthState.degraded, reason: 'behind', nodeVersion: '4.1.0', tipLag: 12, peers: 61, uptime24h: 0.98, lastCheckedAt: checked),
+      NodeStatus(url: mockNodeAt(1), healthy: true, verified: true, operator: 'btlabs', icon: _icon('7f31acd64c95a28ca70a'), height: tip, latencyMs: 20, state: NodeHealthState.healthy, nodeVersion: demoNodeVersion, tipLag: 0, peers: 61, uptime24h: demoNodeUptime, lastCheckedAt: checked),
+      NodeStatus(url: mockNodeAt(2), healthy: true, verified: true, operator: mockNodeOp(2), height: tip, latencyMs: 766, state: NodeHealthState.healthy, nodeVersion: demoNodeVersion, tipLag: 0, peers: 61, uptime24h: demoNodeUptime, lastCheckedAt: checked),
+      NodeStatus(url: mockNodeAt(0), healthy: true, verified: true, operator: 'Epic Cash', icon: _icon('41bec7e038f3b806b2db'), height: tip, latencyMs: 733, state: NodeHealthState.healthy, nodeVersion: demoNodeVersion, tipLag: 0, peers: 54, uptime24h: demoNodeUptime, lastCheckedAt: checked),
+      NodeStatus(url: mockNodeAt(3), healthy: true, verified: true, operator: 'Cypher Stack', icon: _icon('9a573fcde155e6753f68'), height: tip - 12, latencyMs: 1127, state: NodeHealthState.degraded, reason: 'behind', nodeVersion: demoNodeVersion, tipLag: 12, peers: 61, uptime24h: demoNodeUptime, lastCheckedAt: checked),
       NodeStatus(url: 'https://node.epic.example:3413', healthy: false, verified: false, operator: 'Example pool', state: NodeHealthState.down, reason: 'timeout', lastCheckedAt: checked),
     ];
   }
@@ -167,7 +168,7 @@ class PreviewDirectory implements RelayDirectory, NodeDirectory, NetworkDirector
   }
 }
 
-final BigInt _tip = BigInt.from(3900000);
+final BigInt _tip = BigInt.from(demoTip);
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 

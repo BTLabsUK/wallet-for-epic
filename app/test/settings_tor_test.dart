@@ -271,7 +271,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(torStatusKey),
-        matching: find.text('Starting…'),
+        matching: find.text('Starting'),
       ),
       findsOneWidget,
     );

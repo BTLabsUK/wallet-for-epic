@@ -153,8 +153,12 @@
   "@deskBarKeyMenu": {
     "description": "Keyboard-shortcuts row: F10 opens the app menu in the title bar."
   },
-  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
   "@deskBarTurnOnHint": {
     "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
+  },
+  "deskDemoStripe": "Demo · sample data",
+  "@deskDemoStripe": {
+    "description": "The stripe under the title bar in the desktop web demo (sample data, no real wallet). Short."
   }
 }

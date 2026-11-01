@@ -624,10 +624,11 @@ class _QrShowScreenState extends ConsumerState<QrShowScreen>
     final counting = _phase == QrShowPhase.countdown && !done;
 
     final content = <Widget>[
-      Text(
+      // The exact amount, in the data face as every amount but the balance headline.
+      AmountText(
         amount,
         textAlign: TextAlign.center,
-        style: theme.textTheme.titleMedium?.copyWith(fontFamily: t.headFamily),
+        style: theme.textTheme.titleMedium,
       ),
       const SizedBox(height: 2),
       Text(

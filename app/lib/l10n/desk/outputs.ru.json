@@ -68,6 +68,7 @@
   "deskOutStatusMining": "Майнинг",
   "deskOutStatusLocked": "Заблокирован",
   "deskOutNoteBySend": "отправкой #{id}",
+  "deskOutNoteByPendingSend": "незавершённой отправкой · {date}",
   "deskOutStatusSpent": "Потрачен",
   "deskOutTxReceived": "Получено {date}",
   "deskOutTxSent": "Отправлено {date}",
@@ -119,7 +120,7 @@
   "deskOutNothingText": "Нечего объединять: у кошелька {what}.",
   "deskOutWhatFewer": "меньше двух доступных выходов",
   "deskOutWhatOne": "один доступный выход",
-  "deskOutDefaultsMoved": "«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».",
+  "deskOutDefaultsMoved": "«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».",
   "deskOutDefaultsOpen": "Открыть «Транзакции»",
   "deskOutNoteWaitingRecipient": "ждёт получателя",
   "deskOutFilterWaiting": "Ожидают"

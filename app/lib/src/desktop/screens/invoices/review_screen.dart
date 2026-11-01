@@ -199,7 +199,7 @@ class _Review extends ConsumerWidget {
                     TrustBadge(pairing),
                     if (pairing.contactId == null) const ClaimedNameBadge(),
                     Text(
-                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : '${l.reqSealedSigned(i.label)} · ${l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!))}',
+                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : metaLine([l.reqSealedSigned(i.label), l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!))]),
                       style: ts.small,
                     ),
                   ],
@@ -483,7 +483,7 @@ class _FileTile extends StatelessWidget {
     return Container(
       width: 40.u,
       height: 40.u,
-      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      decoration: c.well,
       child: Icon(EIcons.file, size: Ctl.icon, color: c.dim),
     );
   }

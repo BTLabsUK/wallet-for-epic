@@ -24,6 +24,8 @@
   "deskSetHelpWithFile": "Plikiem",
   "deskSetHelpStep": "Krok {number} z {total}",
   "deskSetHelpSearch": "Szukaj w pomocy",
+  "deskSetHelpSupportHead": "Wsparcie",
+  "deskSetHelpTopicsHead": "Tematy",
   "deskSetHelpSearchKeys": "Naciśnij /, aby szukać. Esc czyści wyszukiwanie.",
   "deskSetHelpSearchHint": "Na przykład: plik, potwierdzenia, fraza",
   "deskSetHelpClear": "Wyczyść wyszukiwanie",

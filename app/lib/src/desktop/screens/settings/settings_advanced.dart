@@ -87,11 +87,8 @@ class SettingsAdvancedScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            SizedBox(height: Sp.x6),
             const JumpSection(section: SettingsJump.network, child: _NetworkGroup()),
-            SizedBox(height: Sp.x6),
             const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
-            SizedBox(height: Sp.x6),
             // An "experimental" dialog's Open Advanced lands here (LNX3-1).
             const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
           ],

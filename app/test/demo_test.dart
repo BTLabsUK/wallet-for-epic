@@ -416,15 +416,19 @@ void main() {
       expect(demoTimeLeft(Duration.zero), isNull);
     });
 
-    testWidgets('a Test coins pill in the title, the end in its '
+    testWidgets('a Demo stripe under the app bar (B-05), the end in its '
         'tooltip', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       await h.unlock(tester);
-      // The bar names no network, and neither does the pill's tooltip.
+      // The bar names no network, and neither does the stripe's tooltip. The stripe spans the
+      // screen under the app bar.
+      final stripe = tester.getRect(find.byKey(demoCountdownKey));
+      expect(stripe.width, tester.getSize(find.byType(Scaffold).first).width);
+      expect(stripe.top, tester.getRect(find.byType(AppBar).first).bottom);
       expect(find.text(chainName(l, Chain.floonet)), findsNothing);
       expect(
-        find.text('${l.demoTestCoinsPill} · ${l.demoLeftHours(5)}'),
+        find.text('${l.demoStripeLabel}\u00A0· ${l.demoTestCoinsPill}\u00A0· ${l.demoLeftHours(5)}'),
         findsOneWidget,
       );
       final tooltip = tester.widget<Tooltip>(find.descendant(of: find.byKey(demoCountdownKey), matching: find.byType(Tooltip)));
@@ -440,7 +444,7 @@ void main() {
       h.now = h.now.add(const Duration(hours: 4, minutes: 20));
       await tester.pump(const Duration(seconds: 15));
       expect(
-        find.text('${l.demoTestCoinsPill} · ${l.demoLeftMinutes(40)}'),
+        find.text('${l.demoStripeLabel}\u00A0· ${l.demoTestCoinsPill}\u00A0· ${l.demoLeftMinutes(40)}'),
         findsOneWidget,
       );
       expect(_notice(h), isNull);
@@ -461,7 +465,7 @@ void main() {
       await tester.pump(const Duration(seconds: 15));
       expect(_notice(h), isNull);
       expect(
-        find.text('${l.demoTestCoinsPill} · ${l.demoLeftMinutes(25)}'),
+        find.text('${l.demoStripeLabel}\u00A0· ${l.demoTestCoinsPill}\u00A0· ${l.demoLeftMinutes(25)}'),
         findsOneWidget,
       );
     });

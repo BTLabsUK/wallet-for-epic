@@ -140,10 +140,7 @@ class ScanResultSheet extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: t.field,
-                    borderRadius: BorderRadius.circular(t.radiusSmall),
-                  ),
+                  decoration: t.well,
                   child: Text(
                     shown,
                     maxLines: 3,

@@ -22,6 +22,8 @@ import 'package:epic_wallet/src/ui/language_flag.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
+import 'package:epic_wallet/src/ui/month_picker.dart';
+import 'package:epic_wallet/src/start_month.dart' show StartMonth;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
     show
@@ -389,18 +391,21 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, 'Restore from phrase');
       await _enter(tester, 'Recovery phrase', h.service.phrase);
-      await _tapText(tester, 'Start from a date or height');
-      await _tapText(tester, 'Pick the date you created the wallet');
-      // The picker opens on today (the real clock); pick the 1st of this month.
-      await tester.tap(find.text('1'));
-      await tester.tap(find.text('OK'));
+      await _tapText(tester, 'Start from a month or height');
+      await _tapText(tester, 'Pick the month you created the wallet');
+      // Year and month, no day: the picker opens on 2019 (never today); two years on, July.
+      expect(find.text('2019'), findsOneWidget);
+      await tester.tap(find.byKey(StartMonthPicker.laterKey));
+      await tester.pump();
+      await tester.tap(find.byKey(StartMonthPicker.laterKey));
+      await tester.pump();
+      await tester.tap(find.byKey(StartMonthPicker.monthKey(const StartMonth(2021, 7))));
       await tester.pumpAndSettle();
-      final today = DateTime.now();
-      final dayStart = DateTime(today.year, today.month);
-      expect(
-        find.text('From ${localDay(englishStrings, dayStart)}'),
-        findsOneWidget,
-      );
+      final dayStart = DateTime(2021, 7);
+      expect(find.text('July 2021'), findsOneWidget);
+      expect(find.text('Scanning starts from block ${localInt(englishStrings, mainnetHeightForDate(dayStart))}.'), findsOneWidget);
+      // An old month: no warning that coins may be missed.
+      expect(find.byKey(StartMonthChoice.recentKey), findsNothing);
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
@@ -885,10 +890,16 @@ void main() {
       await h.openSettings(tester, SettingsSection.security);
       await _tapText(tester, 'Change PIN');
 
+      final field = find.byType(TextField);
+      final at = tester.getRect(field);
       await _enter(tester, 'Current PIN', '000000');
       expect(find.textContaining('Wrong PIN'), findsOneWidget);
+      expect(tester.getRect(field), at, reason: 'the error line was held');
       await _enter(tester, 'Current PIN', _pin);
-      await _enter(tester, 'PIN', '654321');
+      // The new PIN's field is named so, and takes the current one's place (#64).
+      expect(tester.getRect(find.widgetWithText(TextField, 'New PIN')), at);
+      await _enter(tester, 'New PIN', '654321');
+      expect(tester.getRect(find.widgetWithText(TextField, 'Repeat PIN')), at);
       await _enter(tester, 'Repeat PIN', '654321');
 
       // Back on settings, docked under the app bar, and gone after a while.
@@ -929,8 +940,9 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Delete wallet');
 
-      FilledButton deleteButton() =>
-          tester.widget(find.widgetWithText(FilledButton, 'Delete wallet'));
+      // The destructive confirm is the outlined risk style (one dialog anatomy).
+      DangerButton deleteButton() =>
+          tester.widget(find.widgetWithText(DangerButton, 'Delete wallet'));
       expect(deleteButton().onPressed, isNull);
       await tester.tap(find.text('I have written down my recovery phrase'));
       await tester.pump();
@@ -1081,7 +1093,7 @@ void main() {
       await _tapText(tester, 'Recheck balance');
       // No start choice: the from-height stays behind the Advanced switch.
       expect(find.text('From a block height'), findsNothing);
-      expect(find.text('From a date'), findsNothing);
+      expect(find.text('From a month'), findsNothing);
       expect(find.text('The whole chain'), findsNothing);
       // Block 0: only a scan from there finishes a restore.
       await _tapText(tester, 'Recheck');
@@ -1630,7 +1642,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(LicencesScreen), findsOneWidget);
-      expect(find.text('Epic Cash Mobile by BT Labs: Apache 2.0.'), findsOneWidget);
+      expect(find.text('Epic Cash Mobile by BT Labs: Apache-2.0.'), findsOneWidget);
       expect(find.textContaining('wallet-for-epic'), findsNothing);
       expect(find.textContaining('GitHub'), findsNothing);
     });
@@ -1654,7 +1666,7 @@ void main() {
       // one button.
       expect(find.byType(LicencesScreen), findsOneWidget);
       expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
-      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache 2.0'), findsOneWidget);
+      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
       // The source note is an asset, read in real time.
       for (var i = 0; i < 50 && find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false).evaluate().isEmpty; i++) {
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
@@ -1677,6 +1689,11 @@ void main() {
         await tester.pump();
       }
       expect(find.text('Tor'), findsOneWidget);
+      // Tor's licence as written (polish #10): one preformatted block, not centred paragraphs.
+      await tester.tap(find.text('Tor'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.textContaining('This file contains the license for Tor'), findsOneWidget);
     }, skip: !torBuilt);
   });
 
@@ -1719,6 +1736,9 @@ void main() {
               expect(row, findsOneWidget);
             }
             final before = [for (final row in rows) tester.getCenter(row)];
+            // A finger on the list led to the notice (a press, let go without a tap).
+            final press = await tester.startGesture(before.first);
+            await press.cancel();
             h.container
                 .read(noticeProvider.notifier)
                 .show('Notifications off', level: NoticeLevel.info);
@@ -1953,7 +1973,7 @@ void main() {
         expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
         await _tapText(tester, 'Restore from phrase');
         expect(find.text('Where to start scanning'), findsNothing);
-        expect(find.text('Pick the date you created the wallet'), findsNothing);
+        expect(find.text('Pick the month you created the wallet'), findsNothing);
         expect(find.text('Block height'), findsNothing);
         expect(find.byKey(restoreStartLinkKey), findsOneWidget);
         await _enter(tester, 'Recovery phrase', h.service.phrase);
@@ -1975,12 +1995,12 @@ void main() {
       expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
       await _tapText(tester, 'Restore from phrase');
       expect(find.byKey(restoreStartLinkKey), findsOneWidget);
-      expect(find.text('Start from a date or height'), findsOneWidget);
+      expect(find.text('Start from a month or height'), findsOneWidget);
       expect(find.text('Where to start scanning'), findsNothing);
-      await _tapText(tester, 'Start from a date or height');
+      await _tapText(tester, 'Start from a month or height');
       expect(find.byKey(restoreStartLinkKey), findsNothing);
       expect(find.text('Where to start scanning'), findsOneWidget);
-      expect(find.text('Pick the date you created the wallet'), findsOneWidget);
+      expect(find.text('Pick the month you created the wallet'), findsOneWidget);
       await _tapText(tester, 'Block height');
       expect(
         find.widgetWithText(TextField, 'Start height (optional)'),

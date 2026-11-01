@@ -308,7 +308,7 @@ class _LocalNodePanelState extends ConsumerState<LocalNodePanel> {
                     EMiddleEllipsis(s.dataFolder, style: ts.mono(size: Fs.sm, color: c.text)),
                     SizedBox(height: 2.u),
                     Text(
-                      [if (s.chainDataBytes != null) l.deskSetLnodeUsed(bytesText(s.chainDataBytes!, l)), s.freeBytes == null ? l.deskSetLnodeFreeUnknown : l.deskSetLnodeFree(bytesText(s.freeBytes!, l))].join(' · '),
+                      metaLine([if (s.chainDataBytes != null) l.deskSetLnodeUsed(bytesText(s.chainDataBytes!, l)), s.freeBytes == null ? l.deskSetLnodeFreeUnknown : l.deskSetLnodeFree(bytesText(s.freeBytes!, l))]),
                       style: ts.caption.copyWith(color: c.dim),
                     ),
                   ],
@@ -453,13 +453,14 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
         notice: (tone: ETone.neutral, title: l.deskSetLnodeNothingUntilSynced, text: null, action: NodeAct.fallback),
       );
     case LocalNodePhase.synced:
-      return StatusWords(detail: [if (s.height != null) digits(l, s.height!), l.deskSetLnodeAtTip].join(' · '));
+      return StatusWords(detail: metaLine([if (s.height != null) digits(l, s.height!), l.deskSetLnodeAtTip]));
     case LocalNodePhase.error:
       if (s.stalled) {
         return StatusWords(
           detail: l.deskSetLnodeStalledDetail,
-          // The node has stopped: the header says Start, so does the notice (UD-019).
-          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: NodeAct.start),
+          // The node has stopped: the notice says so; Start and View log are the header's and
+          // the status foot's, each once on the page (UD-019).
+          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: null),
         );
       }
       return StatusWords(
@@ -469,11 +470,12 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
             tone: ETone.risk,
             title: l.deskSetLnodePortInUse('${hostSettings.localNodeApiPort}'),
             text: l.deskSetLnodePortInUseText,
-            action: NodeAct.log,
+            action: null,
           ),
-          NodeFailure.diskLow => (tone: ETone.risk, title: l.deskSetLnodeDiskLow, text: l.deskSetLnodeDiskLowText, action: NodeAct.folder),
+          // The data folder row has Change.
+          NodeFailure.diskLow => (tone: ETone.risk, title: l.deskSetLnodeDiskLow, text: l.deskSetLnodeDiskLowText, action: null),
           NodeFailure.binaryMissing => (tone: ETone.risk, title: l.deskSetLnodeMissing, text: l.deskSetLnodeMissingText, action: null),
-          _ => (tone: ETone.risk, title: l.deskSetLnodeStopped, text: l.deskSetLnodeStoppedText, action: NodeAct.log),
+          _ => (tone: ETone.risk, title: l.deskSetLnodeStopped, text: l.deskSetLnodeStoppedText, action: null),
         },
       );
     case LocalNodePhase.stopped:
@@ -530,7 +532,7 @@ class _StatusTab extends StatelessWidget {
     final syncing = s.phase == LocalNodePhase.syncing || s.phase == LocalNodePhase.starting;
     final live = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
     final overall = p?.overall;
-    final pct = overall == null ? null : percent(overall);
+    final pct = overall == null ? null : syncPercent(l, overall);
     final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
 
     VoidCallback? actionOf(NodeAct? act) => switch (act) {
@@ -556,7 +558,7 @@ class _StatusTab extends StatelessWidget {
         series: [for (final h in peerHistory) (h.inbound + h.outbound).toDouble()],
         chart: nodeChartHeight(wide: wide),
       ),
-      NodeTile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? '100%' : '–'), series: [for (final x in sync) x.value], chart: nodeChartHeight(wide: wide)),
+      NodeTile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? percentText(l, 100) : '–'), series: [for (final x in sync) x.value], chart: nodeChartHeight(wide: wide)),
       if (p?.stage == SyncStage.chainStateDownload)
         NodeTile(
           label: l.deskSetLnodeTileDownload,
@@ -577,12 +579,12 @@ class _StatusTab extends StatelessWidget {
         ),
     ];
 
-    final meta = [
+    final meta = metaLine([
       if (s.version != null) l.deskSetLnodeVersion(s.version!),
       if (live && s.uptime != null) l.deskSetLnodeRunning(duration(l, s.uptime!)),
       if (!live) l.deskSetLnodeStoppedAt(hhmm(s.at)),
       if (live && s.peers != null) l.deskSetLnodePeersCount(s.peers!),
-    ].join(' · ');
+    ]);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -596,7 +598,7 @@ class _StatusTab extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
-                    TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                    TextSpan(text: metaSeparator, style: ts.body.copyWith(color: c.faint)),
                     TextSpan(text: words.detail, style: ts.small.copyWith(color: c.dim)),
                   ],
                 ),
@@ -622,7 +624,7 @@ class _StatusTab extends StatelessWidget {
               Text(
                 p?.stage == SyncStage.waitingForPeers || p == null
                     ? (startedAgo == null ? '' : (startedAgo.inSeconds < 90 ? l.deskSetLnodeStartedSecAgo(startedAgo.inSeconds) : l.deskSetLnodeStartedAgo(duration(l, startedAgo))))
-                    : [?pct, syncEtaText(l, s.etaTotal)].join(' · '),
+                    : metaLine([?pct, syncEtaText(l, s.etaTotal)]),
                 style: ts.small.copyWith(color: c.dim),
               ),
             ],
@@ -639,15 +641,15 @@ class _StatusTab extends StatelessWidget {
             child: n == null ? const SizedBox.shrink() : Padding(padding: EdgeInsets.only(top: Sp.x4), child: notice(n)),
           ),
         ),
+        // Wide, the Peers panel beside says it; Restart is the header's.
         ExpandFade(
-          open: s.restartNeeded && live,
+          open: s.restartNeeded && live && !wide,
           child: Padding(
             padding: EdgeInsets.only(top: Sp.x4),
             child: ENotice(
               tone: ETone.warn,
               title: l.deskSetLnodeSettingsChanged,
               text: l.deskSetLnodeSettingsChangedText,
-              actions: [EButton(label: l.deskSetLnodeRestartNow, size: EBtnSize.inline, onPressed: onRestart)],
             ),
           ),
         ),
@@ -724,7 +726,7 @@ class NodeSyncBar extends StatelessWidget {
           backgroundColor: c.s3,
           color: c.info,
           semanticsLabel: context.l10n.deskSetLnodeSyncProgress,
-          semanticsValue: value == null ? null : '${(value! * 100).floor()}%',
+          semanticsValue: value == null ? null : percentText(context.l10n, (value! * 100).floor()),
         ),
       ),
     );
@@ -797,21 +799,21 @@ class NodeTile extends StatelessWidget {
       excludeSemantics: true,
       child: Container(
         padding: EdgeInsets.all(Sp.x3),
-        decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+        decoration: c.well,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label, style: ts.caption.copyWith(color: c.faint)),
             SizedBox(height: 2.u),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: value, style: ts.body.copyWith(fontSize: 15.u, fontWeight: FontWeight.w500, fontFeatures: const [FontFeature.tabularFigures()])),
-                  if (suffix != null) TextSpan(text: '  $suffix', style: ts.caption.copyWith(color: c.dim)),
-                ],
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            // The suffix goes under the value when both do not fit: never cut ("+300 MB this
+            // session").
+            Wrap(
+              spacing: Sp.x2,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              children: [
+                Text(value, style: ts.body.copyWith(fontSize: 15.u, fontWeight: FontWeight.w500, fontFeatures: const [FontFeature.tabularFigures()])),
+                if (suffix != null) Text(suffix!, style: ts.caption.copyWith(color: c.dim)),
+              ],
             ),
             SizedBox(height: Sp.x2),
             SizedBox(height: chart ?? 32.u, width: double.infinity, child: CustomPaint(painter: Sparkline(series, c.accent))),

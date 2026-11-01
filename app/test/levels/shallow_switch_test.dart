@@ -131,7 +131,7 @@ void main() {
     ];
     expect(ys[0] < ys[1] && ys[1] < ys[2], isTrue);
     expect(find.text('Healthy'), findsOneWidget);
-    expect(find.text('Status unknown'), findsOneWidget);
+    expect(find.text('Not checked'), findsOneWidget);
     expect(find.text('Not answering'), findsOneWidget);
     // A relay listed as down cannot be picked.
     expect(tester.widget<ListTile>(find.byKey(shallowSwitchRowKey(_b.label))).onTap, isNull);

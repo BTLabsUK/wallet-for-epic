@@ -153,14 +153,15 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
 
     final cls = shownClass(url, info, mine: prefs.mineNodes.contains(url));
     // Failover stands in: the wallet's health is the stand-in's, so the head is the node's own answer.
-    final v = remoteNodeView(l, url, info, health: standIn == null && widget.health == ServiceHealth.ok ? widget.health : null, mine: prefs.mineNodes.contains(url));
+    // The same state the Node field's dot shows ([ownNodeView], #76).
+    final v = ownNodeView(l, url, info, health: widget.health, standIn: failover, mine: prefs.mineNodes.contains(url));
     final head = info?.head;
     final syncing = head == NodeHead.syncing || (ownerOk != null && !ownerOk.synced && ownerOk.progress != null);
     final fallback = ownFallbackHost(standIn);
     final answered = prefs.ownFallback[url];
 
     final String? detail = standIn != null && !standIn.syncing
-        ? [l.deskOwnUsingMeanwhile(fallback), if (standIn.at != null) l.deskKitSince(hhmm(standIn.at!))].join(' · ')
+        ? metaLine([l.deskOwnUsingMeanwhile(fallback), if (standIn.at != null) l.deskKitSince(hhmm(standIn.at!))])
         : standIn != null
         ? l.deskOwnUsingUntilSynced(fallback)
         : null;
@@ -174,10 +175,10 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
             TextSpan(
               children: [
                 TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
-                TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                TextSpan(text: metaSeparator, style: ts.body.copyWith(color: c.faint)),
                 TextSpan(text: ownLabel(l, cls, url), style: ts.body.copyWith(color: c.text)),
                 if (detail != null) ...[
-                  TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                  TextSpan(text: metaSeparator, style: ts.body.copyWith(color: c.faint)),
                   TextSpan(text: detail, style: ts.small.copyWith(color: c.dim)),
                 ],
               ],
@@ -234,7 +235,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
       final p = o.progress;
       final tiles = [
         NodeTile(label: l.deskSetLnodeTilePeers, value: '${o.peers}', series: [for (final h in ref.read(deskNodeProvider).ownPeerHistory(url)) (h.inbound + h.outbound).toDouble()], chart: nodeChartHeight(wide: wide)),
-        NodeTile(label: l.deskSetLnodeTileSync, value: o.synced ? '100 %' : (p?.overall == null ? '–' : percent(p!.overall!)), series: [for (final x in _sync) x.value], chart: nodeChartHeight(wide: wide)),
+        NodeTile(label: l.deskSetLnodeTileSync, value: o.synced ? percentText(l, 100) : (p?.overall == null ? '–' : syncPercent(l, p!.overall!)), series: [for (final x in _sync) x.value], chart: nodeChartHeight(wide: wide)),
         NodeTile(label: l.deskOwnFactMempool, value: info?.poolSize == null ? '–' : poolText(l, info!.poolSize!), series: [for (final x in _pool) x.value], chart: nodeChartHeight(wide: wide)),
       ];
       return Column(
@@ -246,7 +247,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
             Row(
               children: [
                 Expanded(child: Text(stageLine(l, p), style: ts.small)),
-                if (p.overall != null) Text(percent(p.overall!), style: ts.small.copyWith(color: c.dim)),
+                if (p.overall != null) Text(syncPercent(l, p.overall!), style: ts.small.copyWith(color: c.dim)),
               ],
             ),
             SizedBox(height: Sp.x3),
@@ -544,8 +545,16 @@ class _OwnerAccessDialogState extends ConsumerState<_OwnerAccessDialog> {
             }),
             onSubmitted: (_) => _busy ? null : _ok(),
           ),
-          if (_file != null) ...[SizedBox(height: Sp.x1), Text(l.deskOwnDlgFileRead(_file!), style: ts.caption.copyWith(color: c.dim))],
-          if (_error != null) ...[SizedBox(height: Sp.x1), Text(_error!, style: ts.caption.copyWith(color: c.risk))],
+          SizedBox(height: Sp.x1),
+          // One held line: what is wrong, or what the file gave; empty it keeps its room.
+          ReservedSlot.lines(
+            style: ts.caption,
+            child: _error != null
+                ? Text(_error!, style: ts.caption.copyWith(color: c.risk))
+                : _file != null
+                ? Text(l.deskOwnDlgFileRead(_file!), style: ts.caption.copyWith(color: c.dim))
+                : null,
+          ),
           if (thisComputer) ...[
             SizedBox(height: Sp.x3),
             Align(alignment: AlignmentDirectional.centerStart, child: EButton(label: l.deskOwnDlgPick, icon: EIcons.folder, size: EBtnSize.sm, onPressed: _busy ? null : _pick)),

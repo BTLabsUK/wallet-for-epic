@@ -26,12 +26,15 @@ enum PayStepState { done, now, todo }
 /// One step of a payment: its words, where it stands, the time the wallet knows for it, and a
 /// line under it when the data says something about it.
 class PayStep {
-  const PayStep(this.title, this.state, this.time, {this.sub});
+  const PayStep(this.title, this.state, this.time, {this.sub, this.subTip});
 
   final String title;
   final PayStepState state;
   final String time;
   final String? sub;
+
+  /// The whole of what [sub] names (the relay's host), on hover: the sub-line stays short.
+  final String? subTip;
 }
 
 /// What the record of [t] says about how far the payment has come.
@@ -96,19 +99,24 @@ bool payInFlight(Tx t) => payHasSteps(t) && t.state != TxState.confirmed;
 
 final _clock = DateFormat('HH:mm:ss');
 
-/// The five steps of [t] in the words of [style]. [name] is the other side by name when known;
-/// [vertical] adds the time of the step the wallet knows (the started one).
+/// The five steps of [t] in the words of [style], the phone's own five ([sendSteps] and
+/// [paymentSteps] there, A-03): Payment started (or arrived), Recipient signed (or Signed and
+/// returned), Posted to the network, Confirming, Completed. The technical level counts
+/// "Confirming 2/6" as the phone's details do; the other levels say "Confirming 2 of 6", and
+/// with no block yet keep Posted as the step under way. [name] is the other side by name when
+/// known; [times] adds the time of the step the wallet knows (the started one).
 List<PayStep> payStepList(AppLocalizations l, Tx t, TimelineStyle style, {String? name, bool times = false}) {
   final f = PayFacts.of(t);
-  final plain = style == TimelineStyle.liveSentence;
-  final casual = style == TimelineStyle.casualSteps;
   final technical = style == TimelineStyle.technicalSteps;
   final at = t.startedAt ?? t.created;
   final started = times ? _clock.format(at) : '';
   final n = t.confirmations;
   final target = t.confirmationsNeeded;
 
+  // The current "Recipient signed" step's sub-line: what the payment waits on, never slate
+  // jargon. Over Epicbox the relay's host is in the tooltip, never broken across lines (#06).
   final String? recipientSub;
+  String? recipientTip;
   if (t.incoming || f.signed) {
     recipientSub = null;
   } else if (t.undelivered) {
@@ -117,61 +125,48 @@ List<PayStep> payStepList(AppLocalizations l, Tx t, TimelineStyle style, {String
     recipientSub = l.deskTxStepWaitingFile;
   } else if (t.method != TxMethod.epicbox) {
     recipientSub = null;
-  } else if (technical) {
-    final relay = recipientRelay(t.counterparty ?? '');
-    recipientSub = relay == null ? l.deskLvPayS1Sent : l.deskLvPayS1On(relay.label);
-  } else if (name == null) {
-    recipientSub = null;
   } else {
-    recipientSub = plain ? l.deskLvPayNotOpen(name) : l.deskLvPayWaitingOpen(name);
+    recipientSub = name == null ? l.deskLvPayOnEpicbox : l.sendTrackWaitingFor(name);
+    recipientTip = recipientRelay(t.counterparty ?? '')?.label;
   }
 
   PayStepState at2(bool doneNow, bool nowNow) => doneNow ? PayStepState.done : (nowNow ? PayStepState.now : PayStepState.todo);
 
+  final inBlockNow = f.inBlock && !f.done;
+  // The levels never read "Confirming 0 of 6": until a block has it, Posted is under way.
+  final postedHolds = !technical && inBlockNow && n <= 0;
+
   final first = PayStep(t.incoming ? l.txStepArrived : l.txStepStarted, PayStepState.done, started);
   final second = t.incoming
       ? PayStep(
-          technical ? l.txStepSenderFinished : l.deskLvPaySenderFinished,
+          l.txStepSenderFinished,
           at2(!f.waitingSender || t.senderPosted, true),
           '',
           sub: f.waitingSender && !t.senderPosted ? l.deskTxStatusWaitingSender : null,
         )
       : PayStep(
-          technical
-              ? l.deskTxSignedByRecipient
-              : name == null
-              ? l.txStepAccepted
-              : l.lvPaySigned(name),
+          technical || name == null ? l.txStepAccepted : l.lvPaySigned(name),
           f.signed ? PayStepState.done : PayStepState.now,
           '',
           sub: recipientSub,
+          subTip: recipientTip,
         );
   final third = PayStep(
-    technical ? l.deskLvPayPostedNode : l.txStepPosted,
-    at2(f.posted, f.postedNow(t)),
+    l.txStepPosted,
+    postedHolds ? PayStepState.now : at2(f.posted, f.postedNow(t)),
     '',
     sub: f.notPostedKill ? l.txPostElsewhere : (t.incoming && t.senderPosted && !f.posted ? l.deskTxStatusSenderPosted : null),
   );
-  final inBlockNow = f.inBlock && !f.done;
   final fourth = PayStep(
-    plain
-        ? l.txStepConfirming
-        : casual
-        ? l.deskLvPayConfirmingComma(n, target)
-        : l.deskLvPayConfirmationsOf(n, target),
-    at2(f.done, inBlockNow),
-    '',
-    sub: plain && inBlockNow ? l.lvPayOf(n, target) : null,
-  );
-  final fifth = PayStep(
-    plain
-        ? l.deskLvPayDone
-        : casual
-        ? l.txStatusCompleted
-        : l.txStepConfirmed,
-    f.done ? PayStepState.done : PayStepState.todo,
+    f.done
+        ? l.txStepConfirmed
+        : inBlockNow && !postedHolds
+        ? (technical ? l.txStatusConfirming(n, target) : l.lvPayConfirmingOf(n, target))
+        : l.txStepConfirming,
+    postedHolds ? PayStepState.todo : at2(f.done, inBlockNow),
     '',
   );
+  final fifth = PayStep(l.txStatusCompleted, f.done ? PayStepState.done : PayStepState.todo, '');
   return [first, second, third, fourth, fifth];
 }
 
@@ -217,6 +212,20 @@ String _stateWord(AppLocalizations l, PayStepState s) => switch (s) {
   PayStepState.now => l.deskOvStepNow,
   PayStepState.todo => l.deskOvStepWait,
 };
+
+/// A step's sub-line, with the whole of what it names on hover ([PayStep.subTip]).
+class _Sub extends StatelessWidget {
+  const _Sub(this.step, this.child);
+
+  final PayStep step;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => switch (step.subTip) {
+    final tip? => ETip.value(tip, mono: true, child: child),
+    null => child,
+  };
+}
 
 class _Dot extends StatelessWidget {
   const _Dot(this.state, {required this.size});
@@ -288,7 +297,7 @@ class _Across extends StatelessWidget {
                               ? ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)
                               : ts.small.copyWith(color: s.state == PayStepState.todo ? c.faint : c.dim),
                         ),
-                        if (s.sub != null) Text(s.sub!, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: s.state == PayStepState.now ? c.info : c.faint)),
+                        if (s.sub != null) _Sub(s, Text(s.sub!, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: s.state == PayStepState.now ? c.info : c.faint))),
                       ],
                     ),
                   ),
@@ -343,7 +352,7 @@ class _Down extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(s.title, style: s.state == PayStepState.todo ? ts.body.copyWith(color: c.faint, fontWeight: FontWeight.w500) : ts.strong),
-                          if (s.sub != null) Text(s.sub!, style: ts.small.copyWith(color: s.state == PayStepState.now ? c.info : c.faint)),
+                          if (s.sub != null) _Sub(s, Text(s.sub!, style: ts.small.copyWith(color: s.state == PayStepState.now ? c.info : c.faint))),
                         ],
                       ),
                     ),

@@ -149,7 +149,7 @@ void main() {
     await tester.tap(find.text('Check'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Found', findRichText: true), findsOneWidget);
-    expect(find.textContaining('Epic 4.1.1 at 127.0.0.1:3413 · height 3,764,975 · synced', findRichText: true), findsOneWidget);
+    expect(find.textContaining('Found\u00A0· Epic 4.1.1 at 127.0.0.1:3413\u00A0· height 3,764,975\u00A0· synced', findRichText: true), findsOneWidget);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     expect(node.calls.where((c) => c == 'start'), isEmpty);
     expect(wallet.calls, isEmpty, reason: 'nothing moves before Save');
@@ -197,9 +197,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Review settings'), findsOneWidget);
     expect(find.text('Local node'), findsWidgets);
-    expect(find.text('node.epic.invalid'), findsOneWidget);
+    expect(find.text(hostPort(defaultFallbackNodeUrl)), findsOneWidget);
     expect(find.text(mockDataFolder), findsOneWidget);
-    expect(find.textContaining('Save starts the node; node.epic.invalid stands in'), findsOneWidget);
+    expect(find.textContaining('Save starts the node; ${hostPort(defaultFallbackNodeUrl)} stands in'), findsOneWidget);
     expect(wallet.calls, isEmpty);
     expect(node.calls.where((c) => c.startsWith('start')), isEmpty);
 
@@ -225,7 +225,7 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('Remote node'), findsOneWidget);
-    expect(find.text('https://node.net.invalid:3413'), findsOneWidget);
+    expect(find.text('node.net.invalid:3413'), findsOneWidget);
     await tester.tap(find.text('Save settings'));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 500));

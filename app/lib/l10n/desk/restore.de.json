@@ -14,6 +14,8 @@
   "deskSetRescanWholeChainHint": "Ab dem ersten Block. Findet alles und dauert lange. Schließt auch eine nicht abgeschlossene Wiederherstellung ab.",
   "deskOnbForgotLink": "Passwort vergessen?",
   "deskOnbForgotTitle": "Neues Passwort festlegen",
+  "deskOnbForgotFailedTitle": "Passwort nicht geändert",
+  "deskOnbForgotFailedLead": "Das bisherige Passwort öffnet die Wallet weiterhin.",
   "deskOnbForgotLead": "Die Wiederherstellungsphrase von {name} ersetzt das Passwort. Verlauf, Notizen und Bezeichnungen bleiben erhalten; kein Scan nötig.",
   "deskOnbForgotPasswordLead": "Die Phrase stimmt. Wählen Sie das neue Passwort, das diese Wallet auf diesem Computer entsperrt.",
   "deskOnbForgotSet": "Passwort festlegen",
@@ -25,7 +27,7 @@
   "deskOvRestoredImportTitle": "Ihre Wallet ist wiederhergestellt",
   "deskOvRestoredImportBody": "Das Guthaben ist zurück. Eine Wallet-Datendatei dieser Wallet bringt Verlauf, Kontakte, Rechnungen und Einstellungen zurück.",
   "deskOvRestoredImportButton": "Wallet-Daten importieren",
-  "deskOvRestoredImportLater": "Später unter Einstellungen › Diese Wallet › Wallet-Daten.",
+  "deskOvRestoredImportLater": "Später unter Einstellungen › Diese Wallet › Wallet-Daten.",
   "deskOnbForgotNoCheck": "Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.",
   "deskOnbForgotRestoreHint": "Stellen Sie sie stattdessen aus der Phrase wieder her: {name} verlässt die Liste, ihre Dateien bleiben auf diesem Computer.",
   "deskOnbForgotRestoreInstead": "Aus der Phrase wiederherstellen"

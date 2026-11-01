@@ -43,12 +43,13 @@ Future<void> showDepthHelp(BuildContext context) => showEDialog<void>(
     final l = context.l10n;
     return EDialog(
       title: l.lvPickHelpTitle,
+      icon: EIcons.help,
       description: l.lvPickHelpText,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [for (final lv in WalletLevel.values) Padding(padding: EdgeInsets.only(bottom: Sp.x2), child: Text(_helpLine(l, lv), style: context.ts.body))],
       ),
-      actions: [EButton.primary(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
+      actions: [EButton(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
     );
   },
 );
@@ -60,8 +61,9 @@ Future<void> showUndercoverHelp(BuildContext context, {required bool later}) => 
     final l = context.l10n;
     return EDialog(
       title: later ? l.lvPickUndercover : l.levelUndercoverTitle,
+      icon: EIcons.help,
       description: later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelp,
-      actions: [EButton.primary(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
+      actions: [EButton(label: l.commonOk, autofocus: true, onPressed: () => Navigator.pop(context))],
     );
   },
 );
@@ -616,7 +618,7 @@ class DeskOverviewPreview extends StatelessWidget {
                       children: [
                         tile(l.deskOvBreakConfirming, '50.00'),
                         tile(depth == 2 ? l.deskLvStartMiniFresh : l.deskOvBreakImmature, '2.00'),
-                        tile(depth == 2 ? l.deskLvStartMiniWaiting : l.deskOvBreakAwaiting, '12.50'),
+                        tile(depth == 2 ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, '12.50'),
                         tile(l.deskOvBreakLocked, '18.91'),
                         tile(l.deskOvBreakTotal, '1,352.44'),
                       ],
@@ -670,7 +672,7 @@ class DeskOverviewPreview extends StatelessWidget {
                         tone: c.txReceived,
                         how: l.methodEpicbox,
                         id: 'a1f9e8d7', // l10n-ok: sample payment
-                        casual: '${l.lvPayArriving} · ${l.lvPayConfirming(2, 6)}',
+                        casual: metaLine([l.lvPayArriving, l.lvPayConfirming(2, 6)]),
                         technical: '${l.txDetailsKernel} 8f1c2e…9a3b · ${l.lvPayConfirmations} 2/6', // l10n-ok: sample numbers
                       ),
                       payment('Alice', '−25.0000', tone: c.txSent, how: l.methodEpicbox, id: '7c21b0e4'), // l10n-ok: sample payment
@@ -710,7 +712,7 @@ class DeskOverviewPreview extends StatelessWidget {
                   child: Center(
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2),
-                      decoration: BoxDecoration(color: c.s4, border: Border.all(color: c.lineStrong), borderRadius: BorderRadius.circular(Rad.sm)),
+                      decoration: c.popover,
                       child: Text(l.deskLvStartCover, style: context.ts.body),
                     ),
                   ),

@@ -64,6 +64,14 @@
   "@deskOnbForgotTitle": {
     "description": "Side title of the forgot-password page."
   },
+  "deskOnbForgotFailedTitle": "Password not changed",
+  "@deskOnbForgotFailedTitle": {
+    "description": "Title of the forgot-password page when the phrase could not be checked against the wallet."
+  },
+  "deskOnbForgotFailedLead": "The current password still opens the wallet.",
+  "@deskOnbForgotFailedLead": {
+    "description": "Lead under deskOnbForgotFailedTitle."
+  },
   "deskOnbForgotLead": "The recovery phrase of {name} replaces its password. History, notes and labels stay; no scan is needed.",
   "@deskOnbForgotLead": {
     "description": "Lead of the phrase step; {name} is the wallet shown on Unlock. ⚠ de \"Labels\": use the word the desktop tx-label feature uses in German.",
@@ -123,7 +131,7 @@
   "@deskOvRestoredImportButton": {
     "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
   },
-  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
+  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },

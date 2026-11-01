@@ -21,6 +21,8 @@ ThemeData buildDeskTheme(Brightness brightness) {
     surfaceContainerHighest: c.s3,
     outline: c.lineField,
     outlineVariant: c.line,
+    scrim: c.scrim,
+    shadow: c.shadowInk,
   );
   final base = ThemeData(
     useMaterial3: true,
@@ -75,11 +77,28 @@ ThemeData buildDeskTheme(Brightness brightness) {
       color: c.accent,
       linearTrackColor: c.line,
     ),
+    // Every menu, popup or anchored, has the popover look ([DeskColors.popover]): s4, a
+    // lineStrong hairline, the one soft shadow. A menu sets only its size and padding.
     popupMenuTheme: PopupMenuThemeData(
       color: c.s4,
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: c.shadowInk,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rad.sm),
         side: BorderSide(color: c.lineStrong),
+      ),
+    ),
+    menuTheme: MenuThemeData(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(c.s4),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
+        elevation: const WidgetStatePropertyAll(8),
+        shadowColor: WidgetStatePropertyAll(c.shadowInk),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
+        ),
       ),
     ),
   );

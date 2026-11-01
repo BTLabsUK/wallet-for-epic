@@ -4,6 +4,8 @@
   "deskOnbWelcomeCreate": "Neue Wallet erstellen",
   "deskOnbWelcomeImport": "Wallets importieren",
   "deskOnbWelcomeImportSub": "Aus einer älteren Epic Wallet oder einem Ordner",
+  "deskOnbWelcomeCreateSub": "Mit einer neuen Wiederherstellungsphrase",
+  "deskOnbWelcomeRestoreSub": "Auch aus Stack Wallet oder Epic Pay",
   "deskOnbWelcomeRestore": "Mit Phrase wiederherstellen",
   "deskOnbWelcomeTestNote": "Neue Wallets werden in diesem Testnetzwerk erstellt.",
   "deskOnbWelcomeBack": "Zurück zum Entsperren",
@@ -56,6 +58,7 @@
   "deskOnbRestorePasswordLead": "Legen Sie das Passwort fest, das diese Wallet auf diesem Computer entsperrt.",
   "deskOnbRestoreNothingToPaste": "Nichts einzufügen: Die Zwischenablage enthält keine Wörter.",
   "deskOnbRestoreBadWord": "Wort {position}, „{word}“, steht nicht in der Wortliste.",
+  "deskOnbRestoreBadWords": "Nicht in der Wortliste: {words}.",
   "deskOnbRestoreAllOk": "{count, plural, one{{count} Wort ist gültig.} other{Alle {count} Wörter sind gültig.}}",
   "deskOnbRestoreChecksumFirm": "Die Prüfsumme dieser Phrase stimmt nicht. Vergleichen Sie jedes Wort mit dem Papier.",
   "deskOnbRestoreChecksumSoFar": "{count, plural, one{Bisher {count} Wort; die Prüfsumme stimmt nicht. Tippen Sie weiter oder vergleichen Sie jedes Wort mit dem Papier.} other{Bisher {count} Wörter; die Prüfsumme stimmt nicht. Tippen Sie weiter oder vergleichen Sie jedes Wort mit dem Papier.}}",
@@ -126,6 +129,7 @@
   "deskOnbImportFindingTitle": "Wallets werden gesucht",
   "deskOnbImportFindingLead": "Die Ordner älterer Epic-Wallet-Versionen und des Programms epic werden durchsucht.",
   "deskOnbImportFoundTitle": "{count, plural, one{{count} Wallet gefunden} other{{count} Wallets gefunden}}",
+  "deskOnbImportFoundLead": "Weiter, um die Wallets zum Hinzufügen auszuwählen.",
   "deskOnbImportNoneTitle": "Keine Wallets gefunden",
   "deskOnbImportNoneLead": "Wählen Sie den Wallet-Ordner oder stellen Sie mit der Wiederherstellungsphrase wieder her.",
   "deskOnbImportChooseTitle": "Wallets wählen",
@@ -204,5 +208,6 @@
   "deskOnbNodePortRange": "Eine Zahl von {min} bis {max}.",
   "deskOnbNodePortsSame": "Die beiden Ports müssen sich unterscheiden.",
   "deskOnbNodePortTaken": "Port {port} wird von einem anderen Programm genutzt. {next} ist frei.",
-  "deskOnbNodePortUse": "{port} nutzen"
+  "deskOnbNodePortUse": "{port} nutzen",
+  "deskOnbFailedTitle": "Nicht abgeschlossen"
 }

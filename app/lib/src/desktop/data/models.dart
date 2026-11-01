@@ -5,7 +5,7 @@
 library;
 
 import '../../advanced.dart';
-import '../../amount.dart' show AmountFormatException, AmountProblem, cutEpic, displayDecimals, exactDecimals, exactEpic, normalizeAmountText;
+import '../../amount.dart' show AmountFormatException, AmountProblem, AmountSurface, cutEpic, displayDecimals, epicFor, exactDecimals, exactEpic, normalizeAmountText;
 import '../../amount.dart' as shared show parseEpic;
 import '../../models.dart' show DeviceEnding;
 import '../../payment_prefs.dart';
@@ -27,7 +27,7 @@ import '../../watch_mode.dart' show BlockWait;
 export '../../models.dart' show ImportConflict, ManualField, SelectionStrategy, SendOptions, txLabelMaxLength, txTransports;
 export '../../relay_directory.dart' show ServerIcon;
 export '../../send_summary.dart' show SendEstimate, SendSummary;
-export '../../amount.dart' show AmountFormatException, AmountProblem;
+export '../../amount.dart' show AmountFormatException, AmountProblem, AmountSurface, epicUnit, minusSign;
 
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
@@ -42,9 +42,17 @@ String formatEpic(int nano, {int decimals = displayDecimals, bool trim = true, i
 }
 
 /// [formatEpic] in [l]'s separators (`1.281,5261` in German): for text shown, never for a field,
-/// the clipboard or a file.
+/// the clipboard or a file. A negative amount gets the true minus (`minusSign`). Without the
+/// unit; with it, [epicTextL].
 String formatEpicL(AppLocalizations l, int nano, {int decimals = displayDecimals, bool trim = true, int minDecimals = displayDecimals}) =>
-    localDigits(l, formatEpic(nano, decimals: decimals, trim: trim, minDecimals: minDecimals));
+    decimals == displayDecimals || decimals >= exactDecimals
+    ? epicFor(l, BigInt.from(nano), surface: decimals >= exactDecimals ? AmountSurface.exact : AmountSurface.row, unit: false)
+    : localDigits(l, formatEpic(nano, decimals: decimals, trim: trim, minDecimals: minDecimals));
+
+/// [nano] as [surface] shows it with its unit after a no-break space (`epicFor`):
+/// `12.5000 EPIC`. For a sentence or label that puts an amount in its words.
+String epicTextL(AppLocalizations l, int nano, {AmountSurface surface = AmountSurface.row, bool signed = false}) =>
+    epicFor(l, BigInt.from(nano), surface: surface, signed: signed);
 
 /// An amount field's text in [l]'s language to nanoepic, by the one parser of both apps
 /// (`parseEpic` in amount.dart): cleaned by [normalizeAmountText] first, so "1.000" in German,

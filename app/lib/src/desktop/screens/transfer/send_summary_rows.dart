@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../desk_l10n.dart';
+import '../../../amount.dart' show exactDecimals;
 import '../../widgets/kit.dart';
 
 /// The strategy's name as a word, in Send's radio rows and inside sentences.
@@ -31,9 +32,9 @@ class SummaryPending extends StatelessWidget {
 }
 
 /// One summary line: the label, and the amount on the right ("—" while unknown, a spinner
-/// while [loading]).
+/// while [loading]). The one row of Send's summary, its panel and its lock rows alike.
 class SummaryLine extends StatelessWidget {
-  const SummaryLine({super.key, required this.label, required this.value, this.strong = false, this.dim = false, this.warn = false, this.top = false, this.loading = false});
+  const SummaryLine({super.key, required this.label, required this.value, this.strong = false, this.dim = false, this.warn = false, this.risk = false, this.top = false, this.loading = false, this.reserveLines = 1});
 
   final String label;
   final int? value;
@@ -41,31 +42,43 @@ class SummaryLine extends StatelessWidget {
   final bool dim;
   final bool warn;
 
+  /// The amount is more than can be sent: in the risk colour.
+  final bool risk;
+
   /// The value sits at the top of a label that wraps.
   final bool top;
 
   /// The estimate is on its way.
   final bool loading;
 
+  /// Lines of label height the row keeps whatever the value, so a label that wraps beside a
+  /// wide amount but not beside "—" never moves the rows under it.
+  final int reserveLines;
+
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final v = value;
+    final labelStyle = strong ? ts.strong : ts.bodyDim;
+    final lineHeight = MediaQuery.textScalerOf(context).scale(labelStyle.fontSize ?? Fs.md) * (labelStyle.height ?? 1.5);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Sp.x2),
-      child: Row(
-        crossAxisAlignment: top ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-        children: [
-          Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
-          SizedBox(width: Sp.x3),
-          if (loading)
-            const SummaryPending()
-          else if (v == null)
-            Text('—', style: ts.mono(size: Fs.md, color: c.faint))
-          else
-            EMoney(v, size: strong ? Fs.lg : Fs.md, color: warn ? c.warn : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
-        ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: reserveLines > 1 ? lineHeight * reserveLines : 0),
+        child: Row(
+          crossAxisAlignment: top ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+          children: [
+            Expanded(child: Text(label, style: labelStyle)),
+            SizedBox(width: Sp.x3),
+            if (loading)
+              const SummaryPending()
+            else if (v == null)
+              Text('—', style: ts.mono(size: Fs.md, color: c.faint)) // l10n-ok: no amount yet
+            else
+              EMoney(v, size: strong ? Fs.lg : Fs.md, color: risk ? c.risk : (warn ? c.warn : (dim ? c.dim : null)), weight: strong ? FontWeight.w600 : null),
+          ],
+        ),
       ),
     );
   }
@@ -86,7 +99,7 @@ class SendSplitLine extends StatelessWidget {
   final int change;
 
   /// The help icon's text.
-  static String why(AppLocalizations l, int outputs, int change) => l.deskSendSplitWhy(outputs, formatEpicL(l, change ~/ outputs, decimals: 4));
+  static String why(AppLocalizations l, int outputs, int change) => keepNumbersWithUnits(l.deskSendSplitWhy(outputs, formatEpicL(l, change ~/ outputs)));
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +112,7 @@ class SendSplitLine extends StatelessWidget {
         children: [
           Icon(EIcons.split, size: 14.u, color: c.accentText),
           SizedBox(width: Sp.x2),
-          Expanded(child: Text(l.deskSendSplitLine(outputs, formatEpicL(l, extraFee, minDecimals: 3)), style: ts.small)),
+          Expanded(child: Text(keepNumbersWithUnits(l.deskSendSplitLine(outputs, formatEpicL(l, extraFee))), style: ts.small)),
           HelpTip(text: why(l, outputs, change), label: l.deskSendSplitWhyLabel),
         ],
       ),
@@ -124,9 +137,9 @@ class HelpTip extends StatelessWidget {
 /// spendable). [blocks] is the wallet's minimum confirmations.
 (String, bool) lockCaption(AppLocalizations l, SendSummary s, int blocks) {
   final n = s.lockedOutputs;
-  if (s.noChange) return (l.deskSendLockNoChange(n), false);
-  if (s.locksAll) return (l.deskSendLockAll(n, formatEpicL(l, s.locked), blocks), true);
-  return (l.deskSendLockSome(n, formatEpicL(l, s.locked), blocks), false);
+  if (s.noChange) return (keepNumbersWithUnits(l.deskSendLockNoChange(n)), false);
+  if (s.locksAll) return (keepNumbersWithUnits(l.deskSendLockAll(n, formatEpicL(l, s.locked), blocks)), true);
+  return (keepNumbersWithUnits(l.deskSendLockSome(n, formatEpicL(l, s.locked), blocks)), false);
 }
 
 /// Under Total: Balance after, Spendable until change confirms with the lock caption, and
@@ -158,7 +171,9 @@ class SendLockRows extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SummaryLine(label: l.deskSendBalanceAfter, value: s?.balanceAfter, dim: true, loading: loading && s == null),
-        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true, loading: loading && s == null),
+        // Two lines kept whatever the label does, so typing an amount never moves the rows
+        // under it (#28).
+        SummaryLine(label: l.deskSendSpendableWhile, value: s?.spendableMeanwhile, warn: warn, top: true, reserveLines: 2, loading: loading && s == null),
         ExpandFade(
           open: caption != null,
           child: Semantics(
@@ -178,14 +193,22 @@ class SendLockRows extends StatelessWidget {
   }
 }
 
-/// The review dialog's Locks fact (§4.5); [blocks] is the wallet's minimum confirmations.
+/// The review dialog's Locks fact (§4.5); [blocks] is the wallet's minimum confirmations. The
+/// review is a commit surface: its amounts are exact ([AmountSurface.exact]).
 String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy, int blocks) {
-  final n = s.lockedOutputs;
-  final locked = formatEpicL(l, s.locked);
-  if (s.noChange) return l.deskSendReviewLocksNone(n, locked);
-  if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewLocksAll(n, locked, blocks);
-  if (s.locksAll) return l.deskSendReviewLocksEverything(n, locked, blocks);
-  return l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile), blocks);
+  // In plain words (D-07): what is set aside and until when, no outputs or change.
+  final locked = formatEpicL(l, s.locked, decimals: exactDecimals);
+  final String text;
+  if (s.noChange) {
+    text = l.deskSendReviewSetAsideNone(locked);
+  } else if (strategy == SelectionStrategy.all && s.locksAll) {
+    text = l.deskSendReviewSetAsideAll(locked, blocks);
+  } else if (s.locksAll) {
+    text = l.deskSendReviewSetAsideEverything(locked, blocks);
+  } else {
+    text = l.deskSendReviewSetAsideSome(locked, blocks, formatEpicL(l, s.spendableMeanwhile, decimals: exactDecimals));
+  }
+  return keepNumbersWithUnits(text);
 }
 
 /// The review dialog's lines for the outputs: the second line of Network fee when the change
@@ -205,7 +228,7 @@ String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy
   feeSecondLine: strategy == SelectionStrategy.all && s.change > 0 && usesAll != null
       ? usesAll(s.lockedOutputs)
       : s.changeOutputs > 1
-      ? l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, minDecimals: 3))
+      ? keepNumbersWithUnits(l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, decimals: exactDecimals)))
       : null,
   facts: [
     (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy, blocks))),

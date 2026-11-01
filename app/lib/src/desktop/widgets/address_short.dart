@@ -30,10 +30,10 @@ class EShortAddress extends StatelessWidget {
       builder: (context, box) {
         // Lists drop a link's scheme (http://, https://); the tooltip and Copy keep it.
         final link = RegExp(r'^\s*https?://', caseSensitive: false).hasMatch(address);
-        var shown = shortAddress(address, compact: link);
+        var shown = shortAddress(displayCase(address), compact: link);
         if (!link && box.maxWidth.isFinite) {
           final tp = TextPainter(text: TextSpan(text: shown, style: st), textDirection: dir, textScaler: scaler, maxLines: 1)..layout();
-          if (tp.width + addressDrawSlack > box.maxWidth) shown = shortAddress(address, compact: true);
+          if (tp.width + addressDrawSlack > box.maxWidth) shown = shortAddress(displayCase(address), compact: true);
           tp.dispose();
         }
         return Text(shown, style: st, maxLines: 1, softWrap: false, overflow: TextOverflow.clip);
@@ -76,7 +76,19 @@ class EFullAddress extends StatelessWidget {
     final base = context.ts.mono(size: size ?? Fs.xs, color: c.text);
     final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
     final (key, rest) = splitAddress(address);
-    final mark = key.length > 14 && !key.toLowerCase().startsWith('http');
+    // A link: host:port marked as one token and never broken inside, a line only before the
+    // path (address_format.dart).
+    if (RegExp(r'^\s*[a-zA-Z][a-zA-Z0-9+.-]*://').hasMatch(address)) {
+      return Semantics(
+        label: address,
+        excludeSemantics: true,
+        child: Text.rich(
+          addressSpan(address, style: base, mark: hl, quiet: TextStyle(color: c.dim), joined: true),
+          softWrap: true,
+        ),
+      );
+    }
+    final mark = key.length > 12;
     final scaler = MediaQuery.textScalerOf(context);
     final dir = Directionality.of(context);
     return LayoutBuilder(

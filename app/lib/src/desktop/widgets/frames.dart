@@ -340,6 +340,8 @@ class EOnbFrame extends StatelessWidget {
     this.lead,
     required this.child,
     this.actions = const [],
+    this.back,
+    this.status,
     this.sideFoot,
   });
 
@@ -353,9 +355,20 @@ class EOnbFrame extends StatelessWidget {
   final String? lead;
   final Widget child;
 
-  /// Left to right; put the primary last.
+  /// The right group of the action bar, left to right: secondary actions (Skip, Paste, …), the
+  /// primary last.
   final List<Widget> actions;
+
+  /// The bar's fixed left slot: Back (`backButton`), on every step that has one. Steps without
+  /// Back leave the slot empty, so Skip and the primary never move.
+  final Widget? back;
+
+  /// A short line in the bar, between Back and the actions, set against the actions it explains
+  /// ("Imported 1 of 3", "Reveal the words first").
+  final String? status;
   final Widget? sideFoot;
+
+  bool get _hasBar => actions.isNotEmpty || back != null;
 
   @override
   Widget build(BuildContext context) {
@@ -397,7 +410,7 @@ class EOnbFrame extends StatelessWidget {
               ),
               // Content cut by the footer line fades out over 24 u first, so it reads as
               // scrollable rather than chopped (UD-024).
-              if (actions.isNotEmpty)
+              if (_hasBar)
                 Positioned(
                   left: 0,
                   right: 0,
@@ -414,7 +427,7 @@ class EOnbFrame extends StatelessWidget {
             ],
           ),
         ),
-        if (actions.isNotEmpty)
+        if (_hasBar)
           Container(
             padding: EdgeInsets.symmetric(horizontal: narrow ? Sp.x5 : Sp.x12, vertical: Sp.x5),
             decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
@@ -422,11 +435,19 @@ class EOnbFrame extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: 600.u),
+                // One bar on every step: Back in the left slot, the status line beside the
+                // actions it explains, then secondary actions and the primary on the right.
                 child: Row(
                   children: [
+                    ?back,
+                    if (back != null) SizedBox(width: Sp.x4),
+                    Expanded(
+                      child: status == null
+                          ? const SizedBox.shrink()
+                          : Text(status!, style: ts.caption, textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    ),
                     for (var i = 0; i < actions.length; i++) ...[
-                      if (i == actions.length - 1) const Spacer(),
-                      if (i > 0 && i < actions.length - 1) SizedBox(width: Sp.x3),
+                      SizedBox(width: Sp.x3),
                       actions[i],
                     ],
                   ],

@@ -55,7 +55,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
           : verified
           ? (r.allowInvoices ? l.invSetRowAllowed : l.invSetRowOff)
           : l.invSetRowCheckFirst;
-      final text = contact == null ? '$state · ${l.pairNotInContacts}' : state;
+      final text = contact == null ? metaLine([state, l.pairNotInContacts]) : state;
       return ESetRow(
         title: name,
         text: text,

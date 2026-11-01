@@ -429,7 +429,7 @@ class _Figure extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final direction = Directionality.of(context);
-    final text = hidden ? hiddenAmount : localDigits(l, displayEpic(spendable));
+    final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(spendable, AmountSurface.hero));
     TextStyle figure(double size) =>
         (theme.textTheme.displaySmall ?? const TextStyle()).copyWith(
           fontFamily: t.headFamily,
@@ -457,7 +457,7 @@ class _Figure extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final unitWidth =
-              8 + _textWidth('EPIC', unitStyle, unitScaler, direction);
+              8 + _textWidth(epicUnit, unitStyle, unitScaler, direction);
           bool fits(double size, {bool unit = true}) =>
               _textWidth(text, figure(size), TextScaler.noScaling, direction) +
                   (unit ? unitWidth : 0) <=
@@ -512,7 +512,7 @@ class _Figure extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsetsDirectional.only(start: 8, top: 7),
                   child: Text(
-                    'EPIC',
+                    epicUnit,
                     key: balanceUnitKey,
                     maxLines: 1,
                     textScaler: unitScaler,
@@ -566,7 +566,7 @@ class BalanceHeader extends ConsumerWidget {
                 return Row(children: [const Spacer(), icons]);
               }
               final tokens = pendingTokens(l, summary, hidden: hidden);
-              final text = hidden ? hiddenAmount : localDigits(l, displayEpic(summary.spendable));
+              final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(summary.spendable, AmountSurface.hero));
               final full = box.maxWidth;
               final beside = full - 4 - iconsWidth;
               double figureWidth(double size, {bool unit = true}) =>
@@ -629,16 +629,22 @@ class BalanceHeader extends ConsumerWidget {
               // (2) The figure takes the whole width, the icons a second row; (3) only then it
               // shrinks, never under the floor: past that the unit goes (the semantics still
               // say EPIC), as Wallet's figure does, and only an extreme width scales it down.
+              // On its own row the figure keeps the end gutter too, so its unit never runs to
+              // the edge (A-01).
+              final room = full - _headerEndGutter;
               var size = titleFigureSize;
-              while (size > titleFigureFloor && figureWidth(size) > full) {
+              while (size > titleFigureFloor && figureWidth(size) > room) {
                 size -= 1;
               }
-              final unit = figureWidth(size) <= full;
+              final unit = figureWidth(size) <= room;
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  figure(size, unit: unit),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: _headerEndGutter),
+                    child: figure(size, unit: unit),
+                  ),
                   // The detail line beside the icons where it fits, else under them.
                   if (tokens.isEmpty || detailBeside)
                     Row(
@@ -665,6 +671,10 @@ class BalanceHeader extends ConsumerWidget {
 /// The least size the header's figure shrinks to (UP-002).
 const double titleFigureFloor = 14;
 
+/// The text gutter at the header's end, kept by a figure on its own row (the start one is
+/// the header's padding).
+const double _headerEndGutter = 16;
+
 /// The header's figure as one span: the amount at [size] in the heading face with tabular
 /// figures, then a small gold EPIC.
 TextSpan _figureSpan(String text, WalletTokens t, double size, {bool unit = true}) => TextSpan(
@@ -680,7 +690,7 @@ TextSpan _figureSpan(String text, WalletTokens t, double size, {bool unit = true
   children: [
     TextSpan(text: text),
     TextSpan(
-      text: ' EPIC',
+      text: '\u2002$epicUnit',
       style: TextStyle(
         fontSize: 11,
         letterSpacing: 0.12 * 11,
@@ -715,14 +725,13 @@ TextStyle _detailStyle(WalletTokens t) => TextStyle(
 
 /// The glyph before each detail amount, the gap after it, and the dot between two tokens.
 const double _detailGlyph = 12, _detailGap = 3;
-const String _detailDot = ' · ';
 
 /// The width of [tokens] laid out on one line, as [_DetailLine] draws them.
 double _tokensWidth(BuildContext context, List<PendingToken> tokens, TextScaler scaler, TextDirection direction) {
   final style = _detailStyle(context.tokens);
   var width = 0.0;
   for (final (n, item) in tokens.indexed) {
-    if (n > 0) width += _textWidth(_detailDot, style, scaler, direction);
+    if (n > 0) width += _textWidth(metaSeparator, style, scaler, direction);
     width += scaler.scale(_detailGlyph) + _detailGap + _textWidth(item.amount, style, scaler, direction);
   }
   return width;
@@ -780,7 +789,7 @@ class _DetailLine extends StatelessWidget {
           children: fits
               ? [
                   for (final (n, item) in tokens.indexed) ...[
-                    if (n > 0) Text(_detailDot, style: detailStyle),
+                    if (n > 0) Text(metaSeparator, style: detailStyle),
                     token(item),
                   ],
                 ]

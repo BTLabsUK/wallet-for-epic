@@ -9,6 +9,7 @@
 /// operator's icon from the monitor, else initials, and the health as a dot.
 library;
 
+import 'app_dialog.dart';
 import 'phone_sheet.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -18,8 +19,10 @@ import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../state_language.dart' show ShownState, serverHealthState;
 import '../connection_state.dart' show walletStatusProvider;
 import '../errors.dart';
+import '../text_join.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../node_failover_phone.dart';
@@ -39,6 +42,7 @@ import '../node/node_info_types.dart' show NodeInfo, NodeHead;
 import '../node/node_info_provider.dart' if (dart.library.js_interop) '../node/node_info_provider_web.dart' show nodeInfoProvider;
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
+import 'address_view.dart' show HostText;
 import 'badge.dart';
 import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
@@ -52,6 +56,7 @@ import 'relay_blocked.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
 import '../settings_file/status_site.dart' show statusSiteHost;
+import 'inline_button.dart';
 
 // The sheet.
 
@@ -323,26 +328,17 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
     if (_node) return _switchTo(value, choice);
     final l = context.l10n;
     final host = serverHost(value);
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: _FitTitle(l.slSwitchTitle(host)),
-        content: Text(l.slSwitchBody),
-        actions: [
-          TextButton(
-            key: serverListCancelKey,
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            key: serverListSwitchKey,
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.slSwitch),
-          ),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.slSwitchTitle(host),
+      icon: _node ? EpicGlyphs.node : MethodIcons.epicbox,
+      description: l.slSwitchBody,
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.slSwitch,
+      cancelKey: serverListCancelKey,
+      confirmKey: serverListSwitchKey,
     );
-    if (sure == true && mounted) await _switchTo(value, choice);
+    if (sure && mounted) await _switchTo(value, choice);
   }
 
   /// Done on the field: a listed address is picked, anything else goes to [_add], which says
@@ -361,21 +357,16 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// A plain-http node at a shared (CGNAT) address may be the user's tailnet or the provider's
   /// network, which cannot be told apart: a dialog asks before it is used.
   Future<bool> _plainHttpAgreed(String value) async {
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.slPlainHttpTitle),
-          content: Text(l.slPlainHttpBody(Uri.tryParse(value)?.authority ?? value)),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-            TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l.slPlainHttpUse)),
-          ],
-        );
-      },
+    final l = context.l10n;
+    return confirmAppDialog(
+      context,
+      title: l.slPlainHttpTitle,
+      icon: Icons.lan_outlined,
+      tone: DialogTone.warn,
+      description: l.slPlainHttpBody(Uri.tryParse(value)?.authority ?? value),
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.slPlainHttpUse,
     );
-    return sure == true;
   }
 
   /// Add: a typed text that is no address is answered under the field; an address is tested
@@ -834,8 +825,8 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             hintMaxLines: 1,
             helperText: helper,
             helperMaxLines: 2,
-            helperStyle: _fieldError != null ? TextStyle(color: t.risk) : null,
             border: const OutlineInputBorder(),
+            helperStyle: _fieldError != null ? TextStyle(color: t.risk) : null,
             prefixIcon: Icon(
               filtering ? Icons.search : (_node ? EpicGlyphs.node : EpicGlyphs.epicbox),
               size: 20,
@@ -1022,12 +1013,8 @@ class _ServerRow extends StatelessWidget {
     final state = e.state;
     final down = state == NodeHealthState.down;
     final unknown = state == null && e.directoryAnswered;
-    final healthWord = switch (state) {
-      NodeHealthState.healthy => l.serverHealthy,
-      NodeHealthState.degraded => l.serverDegraded,
-      NodeHealthState.down => e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
-      _ => l.serverHealthNone,
-    };
+    // One word per state (state_language.dart), as the tile's dot.
+    final healthWord = down && e.local ? l.serverLocalNotReachablePhone : serverHealthState(state).word(l);
     final n = e.node;
     final lag = n?.tipLag;
     final tip = down || lag == null
@@ -1049,7 +1036,7 @@ class _ServerRow extends StatelessWidget {
         l.serverCurrent,
       if (tip != null) tip.text,
       if (down) e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
-      if (unknown) l.serverHealthNone,
+      if (unknown) ShownState.unchecked.word(l),
       if (e.operator != null && e.operator!.isNotEmpty) e.operator!,
       if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
       if (!down && n?.nodeVersion != null && n!.nodeVersion!.isNotEmpty) n.nodeVersion!,
@@ -1115,17 +1102,9 @@ class _ServerRow extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
+                                  // Shrunk rather than cut: a host is read whole.
                                   Flexible(
-                                    child: Text(
-                                      e.host,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: t.monoFamily,
-                                        fontSize: 13,
-                                        color: words,
-                                      ),
-                                    ),
+                                    child: HostText(e.host, style: TextStyle(fontSize: 13, color: words)),
                                   ),
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
@@ -1283,12 +1262,12 @@ class _ResetRow extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
-        child: TextButton.icon(
+        child: InlineTextButton(
           key: serverListResetKey,
-          style: TextButton.styleFrom(foregroundColor: t.dim, minimumSize: const Size(48, 44)),
+          style: TextButton.styleFrom(foregroundColor: t.dim),
           onPressed: onTap,
           icon: const Icon(Icons.restart_alt, size: 18),
-          label: Text(l.slResetDefaults),
+          child: Text(l.slResetDefaults),
         ),
       ),
     );
@@ -1346,9 +1325,9 @@ class _Facts extends StatelessWidget {
       TextSpan(
         children: [
           for (var i = 0; i < facts.length; i++) ...[
-            if (i > 0) const TextSpan(text: ' · '),
+            if (i > 0) const TextSpan(text: metaSeparator),
             TextSpan(
-              text: facts[i],
+              text: keepWhole(facts[i].trim()),
               style: tip != null && facts[i] == tip!.text
                   ? TextStyle(color: tip!.color, fontFamily: t.monoFamily)
                   : facts[i] == l.serverNotResponding || facts[i] == l.serverLocalNotReachablePhone
@@ -1362,7 +1341,8 @@ class _Facts extends StatelessWidget {
           ],
         ],
       ),
-      maxLines: 1,
+      // Two lines, broken only between facts: "4.1.1" and "40 s ago" stay whole.
+      maxLines: 2,
       overflow: TextOverflow.ellipsis,
       style: style,
     );
@@ -1422,6 +1402,7 @@ class ServerTile extends StatelessWidget {
         warn: t.warn,
         risk: t.risk,
         unknown: t.faint,
+        info: t.info,
         ring: Theme.of(context).colorScheme.surface,
       ),
     );
@@ -1667,7 +1648,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
       if (version != null && version.isNotEmpty) (l.serverFactVersion, version),
       if (dirNode?.peers != null) (l.serverFactPeers, groupDigits(l, dirNode!.peers!)),
       if (dirNode?.uptime24h != null)
-        (l.serverFactUptime, '${localDigits(l, (dirNode!.uptime24h! * 100).toStringAsFixed(1))} %'),
+        (l.serverFactUptime, percentText(l, dirNode!.uptime24h! * 100, decimals: 1)),
     ];
     final age = net?.tipAgeSeconds;
     final network = [
@@ -1751,7 +1732,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
           ],
           if (network.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text(network.join(' · '), style: small),
+            Text(metaLine(network, whole: true), style: small),
           ],
           if (checked != null)
             Text(l.serverCheckedAt(localClock(l, checked.toLocal()), statusSiteHost), style: small),
@@ -1850,35 +1831,5 @@ extension on _CurrentNodeFactsState {
         ],
       ),
     );
-  }
-}
-
-/// A dialog title that carries a host: the usual title size when every word fits the line,
-/// else the next size down, so a long host never breaks mid-word on a narrow phone. The line
-/// is measured from the screen (an AlertDialog sizes its title intrinsically, so no
-/// LayoutBuilder): the dialog's inset and its title padding, 24 dp each side.
-class _FitTitle extends StatelessWidget {
-  const _FitTitle(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final usual = theme.dialogTheme.titleTextStyle ?? theme.textTheme.headlineSmall!;
-    final sizes = [usual, theme.textTheme.titleLarge!, theme.textTheme.titleMedium!];
-    final longest = text.split(' ').reduce((a, b) => a.length >= b.length ? a : b);
-    final media = MediaQuery.of(context);
-    final line = math.min(media.size.width, 560.0) - 2 * 40 - 2 * 24;
-    final style = sizes.firstWhere((s) {
-      final painter = TextPainter(
-        text: TextSpan(text: longest, style: s),
-        textDirection: Directionality.of(context),
-        textScaler: media.textScaler,
-        maxLines: 1,
-      )..layout();
-      return painter.width <= line;
-    }, orElse: () => sizes.last);
-    return Text(text, style: style);
   }
 }

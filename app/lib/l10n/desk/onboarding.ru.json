@@ -4,6 +4,8 @@
   "deskOnbWelcomeCreate": "Создать новый кошелёк",
   "deskOnbWelcomeImport": "Импортировать кошельки",
   "deskOnbWelcomeImportSub": "Из старого Epic Wallet или из папки",
+  "deskOnbWelcomeCreateSub": "С новой фразой восстановления",
+  "deskOnbWelcomeRestoreSub": "Также из Stack Wallet или Epic Pay",
   "deskOnbWelcomeRestore": "Восстановить по фразе",
   "deskOnbWelcomeTestNote": "Новые кошельки создаются в этой тестовой сети.",
   "deskOnbWelcomeBack": "Назад к разблокировке",
@@ -56,6 +58,7 @@
   "deskOnbRestorePasswordLead": "Задайте пароль, который открывает этот кошелёк на этом компьютере.",
   "deskOnbRestoreNothingToPaste": "Нечего вставить: в буфере обмена нет слов.",
   "deskOnbRestoreBadWord": "Слова {position} («{word}») нет в списке слов.",
+  "deskOnbRestoreBadWords": "Нет в списке слов: {words}.",
   "deskOnbRestoreAllOk": "{count, plural, one{Все {count} слово верны.} few{Все {count} слова верны.} many{Все {count} слов верны.} other{Все {count} слова верны.}}",
   "deskOnbRestoreChecksumFirm": "Контрольная сумма фразы не сходится. Сверьте каждое слово с бумагой.",
   "deskOnbRestoreChecksumSoFar": "{count, plural, one{Пока {count} слово; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.} few{Пока {count} слова; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.} many{Пока {count} слов; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.} other{Пока {count} слова; контрольная сумма не сходится. Продолжайте ввод или сверьте каждое слово с бумагой.}}",
@@ -126,6 +129,7 @@
   "deskOnbImportFindingTitle": "Поиск кошельков",
   "deskOnbImportFindingLead": "Поиск в папках старых версий Epic Wallet и программы epic.",
   "deskOnbImportFoundTitle": "{count, plural, one{Найден {count} кошелёк} few{Найдено {count} кошелька} many{Найдено {count} кошельков} other{Найдено {count} кошелька}}",
+  "deskOnbImportFoundLead": "Далее — выбор кошельков для добавления.",
   "deskOnbImportNoneTitle": "Кошельки не найдены",
   "deskOnbImportNoneLead": "Выберите папку кошелька или восстановите его по фразе восстановления.",
   "deskOnbImportChooseTitle": "Выбор кошельков",
@@ -204,5 +208,6 @@
   "deskOnbNodePortRange": "Число от {min} до {max}.",
   "deskOnbNodePortsSame": "Порты должны различаться.",
   "deskOnbNodePortTaken": "Порт {port} занят другой программой. {next} свободен.",
-  "deskOnbNodePortUse": "Использовать {port}"
+  "deskOnbNodePortUse": "Использовать {port}",
+  "deskOnbFailedTitle": "Не завершено"
 }

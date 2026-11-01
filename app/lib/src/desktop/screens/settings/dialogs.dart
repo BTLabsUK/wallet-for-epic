@@ -8,56 +8,26 @@ import '../../data/devices_state.dart' show deskDeviceHandleProvider;
 import '../../widgets/kit.dart';
 import '../onboarding/onboarding_parts.dart' show accountErrors;
 import '../onboarding/unlock_screen.dart' show UnlockPick;
+import '../../data/desk_node.dart' show deskNodeProvider;
+import 'local_node_dialogs.dart' show ReuseChainDataDialog;
 
 // ---- Existing blockchain data --------------------------------------------------------------
 
-/// The built-in node picked and older chain data found: use it (true), download fresh
-/// (false), or back (null). [inUse]: another Epic program holds the folder.
+/// The built-in node picked and older chain data found. One design for both offers: this is
+/// [ReuseChainDataDialog] over the app's node (a folder another program holds shows in it as
+/// in use, whatever [inUse] says). True: a folder taken into use; false: download fresh.
 Future<bool?> showChainOfferDialog(BuildContext context, {bool inUse = false}) =>
     showEDialog<bool>(context, builder: (_) => ChainOfferDialog(inUse: inUse));
 
-class ChainOfferDialog extends StatelessWidget {
+/// Kept for its callers: the same dialog as [ReuseChainDataDialog].
+class ChainOfferDialog extends ConsumerWidget {
   const ChainOfferDialog({super.key, this.inUse = false});
 
+  /// Unused: the candidates say which folder is in use.
   final bool inUse;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final l = context.l10n;
-    final nav = Navigator.of(context);
-    return EDialog(
-      title: l.deskSetDlgChainTitle,
-      description: l.deskSetDlgChainDesc,
-      icon: EIcons.node,
-      tone: ETone.gold,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          EFacts([
-            (l.deskSetDlgChainFolder, Text('~/.epic/main/chain_data', style: ts.mono(size: Fs.sm, color: c.text))),
-            (l.deskSetDlgChainSize, Text('4.2 GB', style: ts.mono(size: Fs.sm, color: c.text))), // l10n-ok: size
-            (l.deskSetDlgChainUpdated, Text(l.deskSetDlgChainUpdatedValue, style: ts.small.copyWith(color: c.text))),
-          ], labelWidth: 110.u),
-          SizedBox(height: Sp.x3),
-          Text(l.deskSetDlgChainOthers, style: ts.small),
-          SizedBox(height: Sp.x3),
-          Text(
-            inUse ? l.deskSetDlgChainInUse : l.deskSetDlgChainUseIt,
-            style: ts.body.copyWith(fontWeight: FontWeight.w600),
-          ),
-          SizedBox(height: Sp.x2),
-          Text(l.deskSetDlgChainOlderWallet, style: ts.caption),
-        ],
-      ),
-      actions: [
-        EButton(label: l.deskSetDlgChainFresh, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: () => nav.pop(false)),
-        if (inUse) EButton.ghost(label: l.commonClose, size: EBtnSize.sm, onPressed: () => nav.pop()),
-        EButton.primary(label: l.deskSetDlgChainUse, icon: EIcons.check, size: EBtnSize.sm, onPressed: inUse ? null : () => nav.pop(true)),
-      ],
-    );
-  }
+  Widget build(BuildContext context, WidgetRef ref) => ReuseChainDataDialog(api: ref.read(deskNodeProvider));
 }
 
 // ---- Change password -----------------------------------------------------------------------
@@ -128,7 +98,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       child: EDialog(
       title: l.deskSetDlgPwTitle,
       dismissible: !_busy,
-      description: l.deskSetDlgPwDesc,
+      description: l.deskSetDlgPwDescPlain,
       icon: EIcons.lock,
       // Enter: Current → New → Repeat, then Change password once all three are valid.
       body: EForm(
@@ -136,9 +106,13 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // One rhythm for the three fields (#82): each has one line under its input (the
+          // error line kept, or the New password's hint, Ctl.inline tall for its info icon),
+          // then the same gap to the next label.
           EField(
             label: l.deskSetDlgPwCurrent,
             error: _wrong ? l.deskSetDlgPwWrong : null,
+            reserveError: true,
             child: EPasswordInput(
               controller: _current,
               autofocus: true,
@@ -150,7 +124,8 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               }),
             ),
           ),
-          SizedBox(height: Sp.x4),
+          // EField's kept line is 20 tall; the hint line below New is Ctl.inline.
+          SizedBox(height: Sp.x4 + Ctl.inline - 20.u),
           EField(
             label: l.deskSetDlgPwNew,
             error: nextError,
@@ -158,7 +133,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: l.deskSetDlgPwNew, onChanged: (_) => _edited()),
-                SizedBox(height: Sp.x2),
+                SizedBox(height: 6.u),
                 // Informs only; its info icon is not a Tab stop.
                 ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
               ],
@@ -168,6 +143,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           EField(
             label: l.deskSetDlgPwRepeat,
             error: repeatError,
+            reserveError: true,
             child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: l.deskSetDlgPwRepeat, onChanged: (_) => _edited()),
           ),
           if (_error != null) ...[
@@ -178,8 +154,8 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
       ),
       ),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: l.deskSetDlgPwTitle, size: EBtnSize.sm, busy: _busy, onPressed: _valid ? _save : null),
+        EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton.primary(label: l.deskSetDlgPwTitle, busy: _busy, onPressed: _valid ? _save : null),
       ],
     ),
     );
@@ -392,11 +368,10 @@ class _RemoveWalletDialogState extends ConsumerState<RemoveWalletDialog> {
         ),
         ),
         actions: [
-          EButton(label: l.commonCancel, size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+          EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
           EButton(
             label: _mode == WalletRemoval.delete ? l.deskSetDlgDeleteWallet : l.deskSetDlgRemoveFromList,
             icon: EIcons.trash,
-            size: EBtnSize.sm,
             kind: EBtnKind.danger,
             busy: _busy,
             onPressed: _ready ? _remove : null,
@@ -507,8 +482,8 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
         ],
       ),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, kind: EBtnKind.ghost, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton(label: l.deskSetDlgDeleteWallet, icon: EIcons.trash, size: EBtnSize.sm, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
+        EButton(label: l.commonCancel, tabStop: false, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton(label: l.deskSetDlgDeleteWallet, icon: EIcons.trash, kind: EBtnKind.danger, busy: _busy, onPressed: _ready ? _delete : null),
       ],
     ),
   );

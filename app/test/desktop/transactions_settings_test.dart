@@ -94,8 +94,9 @@ void main() {
   group('the page', () {
     testWidgets('Payment methods: one switch per method, grouped by family, Epicbox on', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
+      // The page's header is the nav item's name (polish #88): the nav and the header.
       expect(find.text('Transactions'), findsWidgets);
-      expect(find.text('Payment methods'), findsOneWidget);
+      expect(find.text('Payment methods'), findsNothing);
       expect(find.text('Always on'), findsNothing);
       expect(tester.widget<ESwitch>(_offer('epicbox')).value, isTrue);
       // The families: Epicbox stands alone; Link and Direct carry a subhead over their methods.
@@ -352,7 +353,7 @@ void main() {
       expect(find.text('Strategy for sends'), findsNothing);
       await tester.tap(find.text('Open Transactions'));
       await _settle(tester);
-      expect(find.text('Payment methods'), findsOneWidget);
+      expect(find.text('Transactions'), findsWidgets);
       expect(find.byKey(const ValueKey('st-strategy')), findsOneWidget);
     });
   });
@@ -397,7 +398,7 @@ void main() {
       await _settle(tester);
       expect(_selected<TxMethod?>(tester), TxMethod.http);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
       await tester.tap(find.widgetWithText(EButton, 'Turn on Link · HTTP'));
       await _settle(tester);
       expect(_payments.linkHttp, isTrue);
@@ -424,14 +425,14 @@ void main() {
       expect(_selected<TxMethod?>(tester), TxMethod.http);
       expect(_payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
     }, skip: !torBuilt);
 
     testWidgets('an http address with Link · HTTP off but Link · Tor on: the reason names Link · HTTP, the contact-only line names the contact', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'https://wallet.example.org', amount: '1'), payments: const PaymentPrefs(linkTor: true));
       expect(_selected<TxMethod?>(tester), TxMethod.http);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
       expect(find.text('Send'), findsWidgets);
     });
 
@@ -455,7 +456,7 @@ void main() {
       await _settle(tester);
       expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
       expect(find.textContaining('has only'), findsNothing);
     }, skip: !torBuilt);
 
@@ -506,7 +507,7 @@ void main() {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@box.net.invalid', amount: '1'), payments: const PaymentPrefs(epicbox: false));
       final epicbox = tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>).first).segments.firstWhere((s) => s.label == 'Epicbox');
       expect(epicbox.enabled, isFalse);
-      expect(epicbox.tooltip, 'Epicbox is off in Settings › Transactions.');
+      expect(epicbox.tooltip, 'Epicbox is off in Settings\u00a0›\u00a0Transactions.');
       expect(find.byKey(const ValueKey('send-epicbox-off')), findsOneWidget);
       expect(find.text('Mining pool payouts has only an Epicbox address.'), findsOneWidget);
     });
@@ -554,7 +555,7 @@ void main() {
     testWidgets('Epicbox off: the notice stands in the address panel\'s place', (tester) async {
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(epicbox: false));
       expect(find.byKey(const ValueKey('rx-epicbox-off')), findsOneWidget);
-      expect(find.text('Epicbox is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
       expect(find.text('Epicbox address'), findsNothing);
     });
 

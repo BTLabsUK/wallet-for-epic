@@ -17,6 +17,7 @@ import 'badge.dart';
 import 'info_hint.dart';
 import 'notices.dart';
 import 'theme/tokens.dart';
+import 'inline_button.dart';
 
 /// Keys of the row's parts, for tests and the tour.
 const confirmationsRowKey = ValueKey('adv-confirmations');
@@ -85,14 +86,8 @@ class ConfirmationsRow extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           child: EBadge(l.advConfirmationsDefault),
                         )
-                      : TextButton(
+                      : InlineTextButton(
                           key: confirmationsResetKey,
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(48, 40),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            visualDensity: VisualDensity.compact,
-                          ),
                           onPressed: () => set(defaultMinimumConfirmations),
                           child: Text(l.advConfirmationsReset(defaultMinimumConfirmations)),
                         ),

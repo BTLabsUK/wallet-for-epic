@@ -14,6 +14,8 @@
   "deskSetRescanWholeChainHint": "ตั้งแต่บล็อกแรก พบทุกอย่างแต่ใช้เวลานาน และทำให้การกู้คืนที่ค้างอยู่เสร็จด้วย",
   "deskOnbForgotLink": "ลืมรหัสผ่าน?",
   "deskOnbForgotTitle": "ตั้งรหัสผ่านใหม่",
+  "deskOnbForgotFailedTitle": "ไม่ได้เปลี่ยนรหัสผ่าน",
+  "deskOnbForgotFailedLead": "รหัสผ่านปัจจุบันยังคงเปิดวอลเล็ตได้",
   "deskOnbForgotLead": "วลีกู้คืนของ {name} ใช้แทนรหัสผ่านได้ ประวัติ บันทึก และป้ายกำกับยังอยู่ ไม่ต้องสแกน",
   "deskOnbForgotPasswordLead": "วลีถูกต้อง เลือกรหัสผ่านใหม่สำหรับปลดล็อกกระเป๋าเงินนี้บนคอมพิวเตอร์นี้",
   "deskOnbForgotSet": "ตั้งรหัสผ่าน",
@@ -25,7 +27,7 @@
   "deskOvRestoredImportTitle": "กู้คืนกระเป๋าเงินแล้ว",
   "deskOvRestoredImportBody": "ยอดคงเหลือกลับมาแล้ว ไฟล์ข้อมูลกระเป๋าเงินของกระเป๋านี้จะนำประวัติ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา",
   "deskOvRestoredImportButton": "นำเข้าข้อมูลกระเป๋าเงิน",
-  "deskOvRestoredImportLater": "ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลกระเป๋าเงิน",
+  "deskOvRestoredImportLater": "ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลกระเป๋าเงิน",
   "deskOnbForgotNoCheck": "ไฟล์ของกระเป๋าเงินนี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม",
   "deskOnbForgotRestoreHint": "ให้กู้คืนจากวลีแทน: {name} จะออกจากรายการ และไฟล์ยังอยู่บนคอมพิวเตอร์นี้",
   "deskOnbForgotRestoreInstead": "กู้คืนจากวลี"

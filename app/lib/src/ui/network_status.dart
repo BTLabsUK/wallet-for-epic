@@ -29,6 +29,7 @@ import 'status.dart';
 import 'status_icons.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import '../text_join.dart';
 
 /// The keys of the card's rows, for tests: the node and epicbox rows take the keys the
 /// header's status icons had.
@@ -133,7 +134,7 @@ class NetworkStatusCard extends ConsumerWidget {
                 chain != Chain.mainnet &&
                 nodeHost.isNotEmpty &&
                 devNetworksOf(context)
-            ? '${chainName(l, chain)} · $nodeHost'
+            ? metaLine([chainName(l, chain), nodeHost])
             : nodeHost,
         note: failover == null
             ? null
@@ -301,10 +302,9 @@ class _StatusRow extends StatelessWidget {
                                   child: ExcludeSemantics(child: Text(title)),
                                 ),
                                 const SizedBox(width: 4),
-                                // 48 dp: the icon is a target of its own on this row.
+                                // The icon is a target of its own on this row (48 dp).
                                 InfoHint(
                                   hint!,
-                                  size: 48,
                                   title: title,
                                   icon: torIcon,
                                 ),
@@ -393,9 +393,7 @@ class _StatusRow extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ExcludeSemantics(
-                    child: Icon(Icons.chevron_right, size: 20, color: t.dim),
-                  ),
+                  const NavChevron(size: 20),
                 ],
               ),
             ),

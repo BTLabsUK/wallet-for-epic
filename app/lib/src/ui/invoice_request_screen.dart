@@ -6,6 +6,7 @@
 /// finishes it.
 library;
 
+import 'app_dialog.dart';
 import 'phone_sheet.dart';
 import 'dart:async';
 
@@ -82,27 +83,23 @@ Future<bool> confirmWithdraw(
           invoice.payerAddress,
           paired: invoice.pairingId == null ? null : ref.read(pairingNameProvider(invoice.pairingId!)),
         );
-  final confirmed = await showDialog<bool>(
-    context: context,
+  final confirmed = await showAppDialog<bool>(
+    context,
     builder: (context) {
       final l = context.l10n;
       final theme = Theme.of(context);
-      return AlertDialog(
-        title: Text(l.issuedWithdrawTitle),
-        content: CancelNote(
+      // Withdrawing cancels the request: the outlined risk style; Keep is the secondary.
+      return AppDialog(
+        title: l.issuedWithdrawTitle,
+        icon: Icons.request_quote_outlined,
+        body: CancelNote(
           text: l.issuedWithdrawBody(payer),
           anchor: HelpAnchor.requests,
           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l.issuedWithdrawKeep),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.issuedWithdraw),
-          ),
+          DialogButton.secondary(label: l.issuedWithdrawKeep, onPressed: () => Navigator.pop(context, false)),
+          DialogButton.risk(label: l.issuedWithdraw, onPressed: () => Navigator.pop(context, true)),
         ],
       );
     },
@@ -462,8 +459,8 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicExact(l, amount)}'
-          : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
+          ? approxText(epicExact(l, amount))
+          : approxText(localDigits(l, fiatText(amount, price, currency)));
     }
 
     return SlotScaffold(
@@ -476,13 +473,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
           children: [
             if (summary != null) ...[
               // A summary informs: the info edge, not the brand's (UP-035).
-              EdgeCard(
-                edge: t.info,
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(summary, key: requestSummaryKey),
-                ),
-              ),
+              InlineNotice(key: requestSummaryKey, level: NoticeLevel.info, text: summary),
               const SizedBox(height: 12),
             ],
             // Sending the request is a network action; the file is not.
@@ -510,7 +501,6 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             child: InputDecorator(
               decoration: InputDecoration(
                 labelText: l.reqNewTo,
-                border: const OutlineInputBorder(),
                 error: _payerError == null ? null : LiveFieldError(_payerError!),
                 suffixIcon: const Icon(Icons.expand_more),
               ),
@@ -561,19 +551,18 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             onChanged: _onAmountChanged,
             decoration: InputDecoration(
               labelText: l.sendAmountLabel(
-                _fiatEntry ? currency.toUpperCase() : 'EPIC',
+                _fiatEntry ? currency.toUpperCase() : epicUnit,
               ),
               helperText: amountHelper,
               error: _amountError == null
                   ? null
                   : LiveFieldError(_amountError!),
-              border: const OutlineInputBorder(),
               suffixIcon: price != null || _fiatEntry
                   ? TextButton(
                       onPressed: _toggleUnit,
                       child: Text(
                         l.sendUseUnit(
-                          _fiatEntry ? 'EPIC' : currency.toUpperCase(),
+                          _fiatEntry ? epicUnit : currency.toUpperCase(),
                         ),
                       ),
                     )
@@ -606,7 +595,6 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
               labelText: l.requestMessageLabel,
               helperText: l.requestMessageHelper,
               helperMaxLines: 3,
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -795,11 +783,7 @@ class _IssuedInvoiceBlockState extends ConsumerState<IssuedInvoiceBlock> {
           ),
           if (invoice.byFile && invoice.withdrawable) ...[
             const SizedBox(height: 12),
-            EdgeCard(
-              key: requestFileWaitingKey,
-              edge: t.info,
-              child: Padding(padding: const EdgeInsets.all(12), child: Text(l.reqFileWaitingCard)),
-            ),
+            InlineNotice(key: requestFileWaitingKey, level: NoticeLevel.info, text: l.reqFileWaitingCard),
           ],
           if (invoice.withdrawable) ...[
             Align(

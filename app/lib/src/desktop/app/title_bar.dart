@@ -83,8 +83,12 @@ class DeskWindowFrame extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final window = ref.watch(deskWindowProvider);
     final width = MediaQuery.sizeOf(context).width;
-    // The phone layout (the web build in a narrow tab) has its own top bar.
-    if (!window.frameless && width < Bp.phone) return child;
+    // The phone layout (the web build in a narrow tab) has its own top bar; the web demo's
+    // stripe still goes on top.
+    if (!window.frameless && width < Bp.phone) {
+      if (!kIsWeb) return child;
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const DeskDemoStripe(), Expanded(child: child)]);
+    }
     return ValueListenableBuilder(
       valueListenable: window.state,
       builder: (context, w, _) {
@@ -94,6 +98,8 @@ class DeskWindowFrame extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const DeskTitleBar(),
+            // The web demo on sample data says so on every screen (B-05).
+            if (kIsWeb) const DeskDemoStripe(),
             Expanded(
               child: Stack(
                 children: [
@@ -140,6 +146,41 @@ class DeskWindowFrame extends ConsumerWidget {
         // Above the navigator there is no Material: the bar's text takes the app's style here.
         return Overlay.wrap(child: Material(color: c.bg, child: body));
       },
+    );
+  }
+}
+
+/// The web demo's mark (B-05): a thin full-width stripe under the title bar, "Demo · sample
+/// data", in the in-progress blue, never the brand's gold, as the phone's demo stripe. Only the
+/// web build (`main_desktop_web.dart`, canned data) shows it.
+class DeskDemoStripe extends StatelessWidget {
+  const DeskDemoStripe({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      key: const ValueKey('desk-demo-stripe'),
+      constraints: BoxConstraints(minHeight: 26.u),
+      padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x1),
+      decoration: BoxDecoration(
+        color: c.infoSoft,
+        border: Border(bottom: BorderSide(color: c.info.withValues(alpha: 0.4))),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.science_outlined, size: Ctl.iconSm, color: c.info),
+          SizedBox(width: Sp.x2),
+          Flexible(
+            child: Text(
+              context.l10n.deskDemoStripe,
+              textAlign: TextAlign.center,
+              style: context.ts.small.copyWith(color: c.text, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -443,17 +484,11 @@ class _BarButtonState extends State<_BarButton> {
   }
 }
 
-/// The menu look of the app (popupMenuTheme: s4, lineStrong, radius 8).
-MenuStyle _menuStyle(DeskColors c, {double? minWidth}) => MenuStyle(
-  backgroundColor: WidgetStatePropertyAll(c.s4),
-  surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+/// The title bar's menus: the app's menu look (the theme's menuTheme: s4, lineStrong, the soft
+/// shadow), a little tighter and at least [minWidth] wide.
+MenuStyle _menuStyle({double? minWidth}) => MenuStyle(
   padding: WidgetStatePropertyAll(EdgeInsets.all(6.u)),
   minimumSize: WidgetStatePropertyAll(Size(minWidth ?? 240.u, 0)),
-  elevation: const WidgetStatePropertyAll(12),
-  shadowColor: WidgetStatePropertyAll(Colors.black.withValues(alpha: 0.55)),
-  shape: WidgetStatePropertyAll(
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
-  ),
 );
 
 /// One menu row: icon (or a leading widget), label, and the shortcut on the right.
@@ -548,11 +583,10 @@ class _BarMenuState extends State<_BarMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
     return MenuAnchor(
       controller: _menu,
       consumeOutsideTap: true,
-      style: _menuStyle(c, minWidth: widget.minWidth),
+      style: _menuStyle(minWidth: widget.minWidth),
       alignmentOffset: Offset(0, 4.u),
       onOpen: () => setState(() => _open = true),
       onClose: () {
@@ -665,7 +699,7 @@ class _Brand extends ConsumerWidget {
 /// The running build in a few characters: `26.10.16 · r2 · 810de1e`; the version alone in a
 /// build without a commit (development).
 String deskBuildLabel() =>
-    [deskAppVersion, if (appBuildTag.isNotEmpty) appBuildTag, if (appBuildId.isNotEmpty) appBuildId.substring(0, appBuildId.length.clamp(0, 7))].join(' · ');
+    metaLine([deskAppVersion, if (appBuildTag.isNotEmpty) appBuildTag, if (appBuildId.isNotEmpty) appBuildId.substring(0, appBuildId.length.clamp(0, 7))]);
 
 /// What Copy build info puts on the clipboard: the build, the core and the system.
 String deskBuildInfo() =>
@@ -736,14 +770,14 @@ class _DeskBuildLabelState extends State<DeskBuildLabel> {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final parts = deskBuildLabel().split(' · ');
+    final parts = deskBuildLabel().split(metaSeparator);
     final color = _copied ? c.ok : (_hover ? c.dim : c.faint);
     final style = ts.mono(size: Fs.xs, color: color).copyWith(height: 1.2, fontFeatures: const [FontFeature.tabularFigures(), FontFeature.slashedZero()]);
     final text = Text.rich(
       TextSpan(
         children: [
           for (final (i, p) in parts.indexed) ...[
-            if (i > 0) TextSpan(text: ' · ', style: style.copyWith(color: c.lineField, letterSpacing: 0)), // l10n-ok: separator
+            if (i > 0) TextSpan(text: metaSeparator, style: style.copyWith(color: c.lineField, letterSpacing: 0)), // l10n-ok: separator
             TextSpan(text: p),
           ],
         ],
@@ -940,7 +974,7 @@ class _ModeMark extends ConsumerWidget {
           builder: (context, m, open) => _BarButton(
             key: const ValueKey('bar-net-mode'),
             label: l.netMarkSemanticsDesk(name),
-            tooltip: glyphOnly ? '$name · ${networkModeMarkLine(l, mode, waitingForTor: waiting)}' : networkModeMarkLine(l, mode, waitingForTor: waiting),
+            tooltip: glyphOnly ? metaLine([name, networkModeMarkLine(l, mode, waitingForTor: waiting)]) : networkModeMarkLine(l, mode, waitingForTor: waiting),
             open: open,
             padding: EdgeInsets.symmetric(horizontal: 4.u),
             onPressed: () => _toggle(m),
@@ -1403,7 +1437,7 @@ class _ShortcutsDialog extends StatelessWidget {
             ),
         ],
       ),
-      actions: [EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
+      actions: [EButton(label: l.commonClose, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }

@@ -186,7 +186,7 @@ class _PostFinishedScreenState extends ConsumerState<PostFinishedScreen> {
       ];
     } else {
       children = [
-        Text(l.postFinishedIntro, style: dim),
+        Text(l.postFinishedIntroOffline, style: dim),
         const SizedBox(height: 16),
         button(postFinishedOpenKey, Icons.folder_open, l.postFinishedOpenFile, _openFile),
         const SizedBox(height: 8),

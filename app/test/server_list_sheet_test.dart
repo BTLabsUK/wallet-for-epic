@@ -265,8 +265,11 @@ Future<void> _pump(WidgetTester tester, ServerKind kind, _Env env, {bool tall = 
 Future<void> _timers(WidgetTester tester) => tester.pump(const Duration(seconds: 9));
 
 Finder _row(String value) => find.byKey(serverListRowKey(value));
-Finder _inRow(String value, String text) =>
-    find.descendant(of: _row(value), matching: find.textContaining(text, findRichText: true));
+// A row's facts keep their words together with no-break spaces: matched as either space.
+Finder _inRow(String value, String text) => find.descendant(
+  of: _row(value),
+  matching: find.textContaining(RegExp(RegExp.escape(text).replaceAll(' ', '[ \u00A0]')), findRichText: true),
+);
 Finder _foot(String text) =>
     find.descendant(of: find.byKey(serverListFootKey), matching: find.text(text));
 Finder _field() => find.byKey(serverListFieldKey);
@@ -325,6 +328,11 @@ void main() {
       expect(_row('https://node.stack.invalid:3413'), findsOneWidget);
       expect(_row('https://epic-node.pool.example.org'), findsOneWidget);
       expect(_inRow(_btlabs, 'In use'), findsOneWidget);
+      // The facts wrap to a second line between facts, never inside one ("40 s / ago").
+      final facts = tester.widget<Text>(find.descendant(of: _row(_btlabs), matching: find.textContaining(RegExp('In[ \u00A0]use'))));
+      expect(facts.maxLines, 2);
+      expect(facts.textSpan!.toPlainText(), contains('In\u00A0use\u00A0· '));
+      expect(facts.textSpan!.toPlainText(), isNot(contains(' · ')));
       expect(_check(_btlabs), findsOneWidget);
       expect(_check(_epicnet), findsNothing);
       // Nothing typed: no Add, no restore, no match line, a bin on every row.

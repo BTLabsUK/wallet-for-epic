@@ -206,12 +206,7 @@ class _EInfoPopoverState extends State<EInfoPopover> {
           child: Material(
             type: MaterialType.transparency,
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: c.s4,
-                border: Border.all(color: c.lineStrong),
-                borderRadius: BorderRadius.circular(Rad.sm),
-                boxShadow: [BoxShadow(color: c.scrim, blurRadius: 16.u, offset: Offset(0, 4.u))],
-              ),
+              decoration: c.popover,
               child: DeskSelectable(child: content),
             ),
           ),

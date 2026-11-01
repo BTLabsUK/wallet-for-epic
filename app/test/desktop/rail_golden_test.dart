@@ -81,6 +81,8 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 400));
+    // The dots cross-fade from Checking (a blue ring) to the state once the node's info is in.
+    await tester.pump(const Duration(milliseconds: 400));
     await expectLater(find.byKey(const ValueKey('rail-shot')), matchesGoldenFile('goldens/$file'));
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(milliseconds: 1));

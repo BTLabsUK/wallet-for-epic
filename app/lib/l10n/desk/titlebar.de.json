@@ -29,5 +29,6 @@
   "deskBarBuildTipRebuild": "Version {version}, Neubau {rebuild}, Commit {commit}. Ein Klick kopiert die Build-Info.",
   "deskBarBuildTipDev": "Version {version}. Ein Entwicklungs-Build. Ein Klick kopiert die Build-Info.",
   "deskBarKeyMenu": "App-Menü öffnen",
-  "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen."
+  "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
+  "deskDemoStripe": "Demo · Beispieldaten"
 }

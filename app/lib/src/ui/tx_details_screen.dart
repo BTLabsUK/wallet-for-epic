@@ -25,6 +25,8 @@ import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
 import '../contacts.dart' show contactsProvider;
 import '../trust/contact_trust.dart' show mailboxResendOffer, relationshipOf, trustAddressOf;
+import 'app_dialog.dart';
+import 'address_view.dart';
 import 'common.dart';
 import 'mailbox_resend.dart';
 import 'finished_not_posted.dart';
@@ -45,6 +47,8 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'levels/pay_details.dart';
 import 'tx_edit_sheet.dart';
 import 'tx_label.dart';
+import 'settings_rows.dart' show NavChevron;
+import 'inline_button.dart';
 
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
@@ -343,8 +347,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   }
 
   Future<void> _editNote(TxEntry tx) async {
-    final note = await showDialog<String>(
-      context: context,
+    final note = await showAppDialog<String>(
+      context,
       builder: (context) => _NoteDialog(initial: tx.note ?? ''),
     );
     if (note == null || !mounted) return;
@@ -767,7 +771,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             Semantics(
               label: hidden ? l.txDetailsAmountHidden : null,
               excludeSemantics: hidden,
-              child: Text(signedEpic(l, tx, hidden: hidden, exact: true), style: theme.textTheme.headlineMedium),
+              child: AmountText(signedEpic(l, tx, hidden: hidden, exact: true), style: theme.textTheme.headlineMedium),
             ),
             if (fiat != null)
               Text(fiat, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
@@ -813,7 +817,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     Semantics(
                       label: hidden ? l.txDetailsAmountHidden : null,
                       excludeSemantics: hidden,
-                      child: Text(
+                      // The exact amount in the data face, as the list shows it.
+                      child: AmountText(
                         signedEpic(l, tx, hidden: hidden, exact: true),
                         style: theme.textTheme.headlineMedium,
                       ),
@@ -856,7 +861,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     if (tx.origin == TxOrigin.otherWallet && tx.deviceName == null)
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: TextButton(
+                        child: InlineTextButton(
                           key: const ValueKey('tx-other-wallet-help'),
                           onPressed: () => openHelp(context, HelpId.otherWallet),
                           child: Text(l.txOtherWalletMore),
@@ -1053,7 +1058,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     : l.txEditAdd,
                 style: theme.textTheme.labelLarge,
               ),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const NavChevron(),
               onTap: _busy ? null : () => _editDetails(tx),
             ),
           if (!device) _LabelTile(tx: tx),
@@ -1109,6 +1114,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             _DetailRow(
               label: l.txDetailsFee,
               value: shownEpic(l, fee, hidden: hidden, exact: true),
+              amount: true,
             )
           else if (tx.origin == TxOrigin.otherWallet && outgoing)
             // The other wallet paid it; this wallet only saw the coins leave.
@@ -1173,12 +1179,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               !_more)
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: TextButton(
+              child: InlineTextButton(
                 key: txDetailsMoreKey,
-                style: TextButton.styleFrom(
-                  minimumSize: const Size(48, 44),
-                  padding: EdgeInsets.zero,
-                ),
                 onPressed: () => setState(() => _more = true),
                 child: Text(l.txDetailsMore),
               ),
@@ -1273,9 +1275,10 @@ class _NoteDialogState extends State<_NoteDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AlertDialog(
-      title: Text(l.txDetailsNoteDialogTitle),
-      content: TextField(
+    return AppDialog(
+      title: l.txDetailsNoteDialogTitle,
+      icon: Icons.sticky_note_2_outlined,
+      body: TextField(
         controller: _controller,
         autofocus: true,
         maxLines: 3,
@@ -1288,14 +1291,8 @@ class _NoteDialogState extends State<_NoteDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.commonCancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, _controller.text),
-          child: Text(l.commonSave),
-        ),
+        DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        DialogButton.primary(label: l.commonSave, onPressed: () => Navigator.pop(context, _controller.text)),
       ],
     );
   }
@@ -1336,10 +1333,14 @@ class _DetailRow extends StatelessWidget {
     this.copy,
     this.tag,
     this.hint,
+    this.amount = false,
   });
 
   final String label;
   final String value;
+
+  /// [value] is an amount: in the data face ([amountStyle]).
+  final bool amount;
 
   /// A small line under [value]: where it came from or went.
   final String? hint;
@@ -1359,7 +1360,12 @@ class _DetailRow extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: _TitleWithTag(label, tag: tag),
-      subtitle: switch ((copy == null ? SelectableText(value) : Text(value), hint)) {
+      subtitle: switch ((
+        copy == null
+            ? SelectableText(value, style: amount ? amountStyle(context) : null)
+            : Text(value, style: amount ? amountStyle(context) : null),
+        hint,
+      )) {
         (final shown, null) => shown,
         (final shown, final hint?) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1415,7 +1421,7 @@ class _CounterpartyRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (name != null) Text(name!, style: theme.textTheme.titleMedium),
-              SelectableText(address),
+              MarkedAddress(address, selectable: true),
             ],
           ),
           trailing: IconButton(

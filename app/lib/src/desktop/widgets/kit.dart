@@ -3,6 +3,8 @@
 library;
 
 export '../../address_format.dart';
+export '../../reserved_slot.dart';
+export '../../text_join.dart';
 export '../app/routes.dart';
 export '../data/addresses.dart';
 export '../data/features.dart';
@@ -28,3 +30,4 @@ export 'start_date.dart';
 export 'status.dart';
 export 'surfaces.dart';
 export 'tip.dart';
+export '../../ui/sas_picture.dart';

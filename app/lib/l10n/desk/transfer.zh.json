@@ -52,5 +52,6 @@
   "deskImpOpenAnother": "打开另一个文件",
   "deskEpicboxBlockedWord": "被拦截",
   "deskEpicboxBlockedText": "此网络拦截了 {host}。请选择其他 Epicbox 服务器或使用专用 DNS。",
+  "deskEpicboxBlockedShort": "此网络拦截了 {host}。请换个服务器或使用专用 DNS。",
   "deskEpicboxBlockedSwitch": "切换到 {host}"
 }

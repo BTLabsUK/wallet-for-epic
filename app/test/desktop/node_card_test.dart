@@ -89,8 +89,8 @@ void main() {
     expect(find.text('latest'), findsOneWidget);
     expect(find.text('99.7%'), findsOneWidget);
     expect(find.text('listed as official'), findsOneWidget);
-    expect(find.textContaining('Nodes agree on 3,764,975 · 5 of 6 nodes up · 4 of 4 Epicbox servers up · last block 40 s ago'), findsOneWidget);
-    expect(find.textContaining('status.lab.invalid, checked 14:02 · latency measured from this computer'), findsOneWidget);
+    expect(find.textContaining('Nodes agree on 3,764,975\u00A0· 5 of 6 nodes up\u00A0· 4 of 4 Epicbox servers up\u00A0· last block 40 s ago'), findsOneWidget);
+    expect(find.textContaining('status.lab.invalid, checked 14:02\u00A0· latency measured from this computer'), findsOneWidget);
 
     await _pump(tester, _card(mockNodeInfo(_url, behind: 12, state: NodeHealthState.degraded)));
     expect(find.textContaining('Behind', findRichText: true), findsOneWidget);
@@ -152,7 +152,7 @@ void main() {
         onSwitch: (t) => to = t,
       ),
     );
-    expect(find.text('Node not answering.'), findsOneWidget);
+    expect(find.text('Node not answering'), findsOneWidget);
     expect(find.text('Switch to node.lab.invalid, the healthiest other node?'), findsOneWidget);
     await tester.tap(find.text('Switch'));
     expect(to?.url, 'https://node.lab.invalid');
@@ -174,7 +174,7 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
-    expect(find.text('Node not answering.'), findsOneWidget);
+    expect(find.text('Node not answering'), findsOneWidget);
     // The healthy node of the Node list (settings.toml) with the lowest latency: the mock's
     // home node is not in the test list, so it is not offered.
     expect(find.text('Switch to node.epic.invalid, the healthiest other node?'), findsOneWidget);

@@ -14,6 +14,8 @@
   "deskSetRescanWholeChainHint": "从第一个区块开始。能找到全部，但耗时很长。也会完成未完成的恢复。",
   "deskOnbForgotLink": "忘记密码？",
   "deskOnbForgotTitle": "设置新密码",
+  "deskOnbForgotFailedTitle": "密码未更改",
+  "deskOnbForgotFailedLead": "当前密码仍可打开钱包。",
   "deskOnbForgotLead": "用 {name} 的助记词替换其密码。交易记录、备注和标签保留，无需扫描。",
   "deskOnbForgotPasswordLead": "助记词核对无误。请设置在这台电脑上解锁此钱包的新密码。",
   "deskOnbForgotSet": "设置密码",
@@ -25,7 +27,7 @@
   "deskOvRestoredImportTitle": "钱包已恢复",
   "deskOvRestoredImportBody": "余额已找回。此钱包的钱包数据文件可找回记录、联系人、账单和设置。",
   "deskOvRestoredImportButton": "导入钱包数据",
-  "deskOvRestoredImportLater": "以后可在“设置 › 此钱包 › 钱包数据”中导入。",
+  "deskOvRestoredImportLater": "以后可在“设置 › 此钱包 › 钱包数据”中导入。",
   "deskOnbForgotNoCheck": "此钱包的文件无法确认该助记词，因此密码保持不变。",
   "deskOnbForgotRestoreHint": "请改为用助记词恢复：{name} 会从列表中移除，其文件仍保留在这台电脑上。",
   "deskOnbForgotRestoreInstead": "用助记词恢复"

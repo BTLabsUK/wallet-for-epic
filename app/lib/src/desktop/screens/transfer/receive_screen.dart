@@ -237,7 +237,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       // How receiving connects while the Tor switch is on (tor_routes.dart). Nothing with it
       // off: the switch names only what goes over Tor.
       titleTrailing: !shallow && DeskFeatures.tor && torWay(TorRoute.epicbox, tor) != TorWay.clearnet
-          ? TorChip(torWay(TorRoute.epicbox, tor))
+          ? TorChip(torWay(TorRoute.epicbox, tor), quiet: _torBanner(st, status))
           : null,
       width: EPageWidth.full,
       actions: [if (!shallow) _indicator(st, status)],
@@ -339,6 +339,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     );
   }
 
+  /// Whether the page's banner says Tor is not connected ([_torNotice]): then it is the one
+  /// place that explains it and offers Retry; the Tor line keeps only its state, the chip its
+  /// neutral look (D-04).
+  bool _torBanner(DeskState st, ServiceStatus? status) {
+    final p = st.settings.payments;
+    final torPanel = ref.read(deskLevelFeaturesProvider).linkPayments && DeskFeatures.tor && p.linkTor && st.settings.tor;
+    return torPanel && deskNetBlock(st) == NetBlock.none && netTorState(st.settings, status) == TorState.failed;
+  }
+
   /// Tor starting or not connected: what it holds up, and Retry or Settings when it failed.
   Widget _torNotice(TorState tor) {
     final failed = tor == TorState.failed;
@@ -351,9 +360,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       text: failed ? l.deskRecvTorDownText : l.deskRecvTorStartingText,
       actions: [
         if (failed) ...[
+          // Retry only (D-05): turning Tor off is never the fix an error offers.
           EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
-          // Tor off is never one click: its switch is in Settings › Privacy & network.
-          EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
         ],
       ],
     );
@@ -372,7 +380,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off)
             : methodStateLine(l, m, status, st.settings),
     };
-    String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
+    // The line's own word (state_language.dart), spoken: "connected", "receiving", "off".
+    String word(TxMethod m) => lines[m]?.word.toLowerCase() ?? l.deskRecvStateChecking;
     final receiving = lines.values.any((m) => m != null && m.state != EState.off);
     // The glyphs alone; "Receiving" stays on the card switch and in this tooltip (UD-015). With
     // every method off the header shows nothing, as it would claim receiving.
@@ -381,7 +390,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       liveRegion: true,
       label: [for (final m in methods) l.deskRecvSemList(_name(l, m), word(m))].join(', '),
       child: ETip(
-        l.deskRecvHeaderTip([for (final m in methods) if (lines[m] != null && lines[m]!.state != EState.off) _name(l, m)].join(' · ')),
+        l.deskRecvHeaderTip(metaLine([for (final m in methods) if (lines[m] != null && lines[m]!.state != EState.off) _name(l, m)])),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -656,7 +665,6 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           );
     return EPanel(
       key: ValueKey('rx-panel-${TxMethod.epicbox.name}'),
-      padding: EdgeInsets.all(Sp.x6),
       child: LayoutBuilder(
         builder: (context, box) => box.maxWidth < Lay.lg
             ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [info, SizedBox(height: Sp.x5), Align(alignment: Alignment.centerLeft, child: qr)])
@@ -730,7 +738,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final l = context.l10n;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
+    final full = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
+    // The banner says why and offers Retry: the line keeps its state's dot and word.
+    final line = full != null && _torBanner(st, status) ? MethodLine(full.word, full.state) : full;
     final ready = status?.tor == ServiceHealth.ok;
     final failed = status?.tor == ServiceHealth.down || status?.tor == ServiceHealth.slow;
     final addr = _tor;
@@ -784,7 +794,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(Sp.x6, 20.u, Sp.x6, Sp.x2),
+            padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, Sp.x2),
             child: Row(
               children: [
                 Icon(EIcons.file, size: 20.u, color: c.dim),
@@ -796,7 +806,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ESetRow(
             title: casual ? l.deskLvSendSignFile : l.deskRecvSignTitle,
             text: casual ? l.deskLvSendSignFileText : l.deskRecvSignText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
           ),
           Divider(height: 1, thickness: 1, color: c.line),
           ESetRow(
@@ -809,7 +819,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ESetRow(
             key: const ValueKey('rx-post-finished'),
             title: l.postFinishedDeskRow,
-            text: NetGate.killSwitch ? l.postFinishedOffKill : l.postFinishedDeskRowText,
+            text: NetGate.killSwitch ? l.postFinishedOffKill : l.postFinishedIntroOffline,
             control: EButton(
               key: const ValueKey('rx-post-finished-open'),
               label: l.postFinishedOpen,
@@ -822,7 +832,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           if (offlineNode) ...[
             Divider(height: 1, thickness: 1, color: c.line),
             Padding(
-              padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x4),
+              padding: EdgeInsets.fromLTRB(Sp.panel, Sp.x3, Sp.panel, Sp.x4),
               child: Row(
                 key: const ValueKey('rx-files-offline-node'),
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -880,7 +890,7 @@ class _MethodPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(Sp.x6, 20.u, Sp.x6, 0),
+            padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, 0),
             child: Row(
               children: [
                 EMethodIcon(method, state, size: 20.u),
@@ -910,11 +920,11 @@ class _MethodPanel extends StatelessWidget {
           if (method != TxMethod.epicbox)
             ExpandFade(
               open: !grown,
-              child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, 6.u, Sp.x6, Sp.x4), child: small),
+              child: Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 6.u, Sp.panel, Sp.x4), child: small),
             ),
           ExpandFade(
             open: grown,
-            child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x6), child: body),
+            child: Padding(padding: EdgeInsets.fromLTRB(Sp.panel, Sp.x3, Sp.panel, Sp.panel), child: body),
           ),
         ],
       ),

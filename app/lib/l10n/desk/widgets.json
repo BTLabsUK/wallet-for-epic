@@ -433,6 +433,10 @@
   "@deskKitNodeDownTitle": {
     "description": "Title of the notice on the node card when the node does not answer."
   },
+  "deskKitNodeDownHead": "Node not answering",
+  "@deskKitNodeDownHead": {
+    "description": "Node card notice title: the node does not answer. A title: no period."
+  },
   "deskKitNodeDownText": "Switch to {host}, the healthiest other node?",
   "@deskKitNodeDownText": {
     "description": "Text of the notice on the node card offering to use another node. {host} is a host name.",
@@ -671,6 +675,15 @@
   "deskKitPasswordNoteLabel": "How the time is estimated",
   "@deskKitPasswordNoteLabel": {
     "description": "Screen-reader name of the info icon under a new-password field."
+  },
+  "deskKitPasswordRule": "{count, plural, one{{count} character or more} other{{count} characters or more}}",
+  "@deskKitPasswordRule": {
+    "description": "Small print under a new-password field before anything is typed: the least length. Replaced by the character count and the time to crack while typing.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "deskKitInfoLabel": "More information",
   "@deskKitInfoLabel": {

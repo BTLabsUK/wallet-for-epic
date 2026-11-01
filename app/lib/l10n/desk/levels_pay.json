@@ -13,6 +13,10 @@
       }
     }
   },
+  "deskLvPayOnEpicbox": "On Epicbox",
+  "@deskLvPayOnEpicbox": {
+    "description": "Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short."
+  },
   "deskLvPayNotOpen": "{name}’s wallet is not open yet",
   "@deskLvPayNotOpen": {
     "description": "Shallow payment steps: sub-line under the current step of a send over Epicbox, the recipient has not signed because their wallet is not open; name is the contact.",
@@ -173,6 +177,10 @@
   "@deskLvPayReadyTitle": {
     "description": "Overview notice at Shallow in a wallet with no payments: title."
   },
+  "deskLvPayReadyHead": "Wallet ready",
+  "@deskLvPayReadyHead": {
+    "description": "Overview notice title at Shallow when the new wallet is ready. A title: no period, no \"your\"."
+  },
   "deskLvPayReadyText": "Share the address to get the first EPIC.",
   "@deskLvPayReadyText": {
     "description": "Overview notice at Shallow in a wallet with no payments: text."
@@ -188,6 +196,10 @@
   "deskLvPayTileWaiting": "Waiting for the other side",
   "@deskLvPayTileWaiting": {
     "description": "Deeper Overview tile: payments waiting for the sender to finish."
+  },
+  "deskLvPayTileAwaiting": "Awaiting reply",
+  "@deskLvPayTileAwaiting": {
+    "description": "Deeper Overview tile and the small Overview picture at Deeper: payments waiting for the other wallet's reply. Short: fits one line in a narrow tile."
   },
   "deskLvPayTileLocked": "Set aside for sends",
   "@deskLvPayTileLocked": {

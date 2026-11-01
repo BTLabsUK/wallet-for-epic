@@ -76,7 +76,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(wallet.sent, isEmpty);
     expect(find.text('The fee changed'), findsOneWidget);
-    expect(find.textContaining('now pays ${formatEpic(reviewed - 100000)} EPIC instead of ${formatEpic(reviewed)} EPIC'), findsOneWidget);
+    expect(find.textContaining('now pays ${formatEpic(reviewed - 100000, decimals: 8)}\u00a0EPIC instead of ${formatEpic(reviewed, decimals: 8)}\u00a0EPIC'), findsOneWidget);
     // The user has seen the new fee: Send now sends it.
     await tester.tap(send);
     await tester.pumpAndSettle();

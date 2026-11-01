@@ -16,6 +16,7 @@ import '../method_names.dart';
 import '../theme/tokens.dart';
 import '../tx_details_screen.dart' show txPrivateNoteKey;
 import 'payment_steps.dart';
+import '../inline_button.dart';
 
 /// Keys for tests.
 const Key payShowStepsKey = ValueKey('pay-show-steps');
@@ -86,9 +87,8 @@ class _PlainTxDetailsState extends ConsumerState<PlainTxDetails> {
           if (tx.status != TxStatus.cancelled)
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: TextButton(
+              child: InlineTextButton(
                 key: payShowStepsKey,
-                style: TextButton.styleFrom(minimumSize: const Size(48, 44), padding: EdgeInsets.zero),
                 onPressed: () => setState(() => _steps = !_steps),
                 child: Text(_steps ? l.lvPayHideSteps : l.lvPayShowSteps),
               ),
@@ -188,7 +188,7 @@ class _DetailsSheet extends ConsumerWidget {
       if (tx.finalizedAtUnix case final at?) (l.lvPayPosted, formatDateTime(l, localTime(at))),
       if (tx.blockTimeUnix case final at?) (l.txDetailsDate, formatDateTime(l, localTime(at))),
       if (confirmations != null) (l.lvPayConfirmations, l.lvPayOf(confirmations, target)),
-      if (tx.fee != null && txAmount(tx).outgoing) (l.txDetailsFee, epicText(l, tx.fee!)),
+      if (tx.fee != null && txAmount(tx).outgoing) (l.txDetailsFee, epicExact(l, tx.fee!)),
     ];
     return SafeArea(
       child: SingleChildScrollView(

@@ -28,7 +28,6 @@ import 'qr_scan_screen.dart';
 import 'qr_show_screen.dart';
 import 'scan_screen.dart' show offersQrPayment;
 import 'theme/brand.dart' show GlyphTile;
-import 'theme/protocol.dart' show EdgeCard;
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'pairing/experimental_off.dart';
@@ -520,14 +519,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
       body = [];
     } else if (_answerUnknown) {
       body = [
-        EdgeCard(
-          key: requestAnswerUnknownKey,
-          edge: context.tokens.risk,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Semantics(liveRegion: true, child: Text(l.reqAnswerUnknown)),
-          ),
-        ),
+        InlineNotice(key: requestAnswerUnknownKey, level: NoticeLevel.error, text: l.reqAnswerUnknown, liveRegion: true),
         const SizedBox(height: 16),
         TextButton(
           style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),

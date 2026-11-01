@@ -200,7 +200,6 @@ class _GroupRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     final section = this.section;
     final state = this.state;
     return ListTile(
@@ -214,7 +213,7 @@ class _GroupRow extends StatelessWidget {
               state,
               style: stateColor == null ? null : TextStyle(color: stateColor),
             ),
-      trailing: Icon(Icons.chevron_right, color: t.dim),
+      trailing: const NavChevron(),
       onTap: section == null
           ? onTap
           : () => openSettingsSection(context, section),

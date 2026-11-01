@@ -20,6 +20,7 @@ import 'providers.dart';
 import 'settings_file/host_settings.dart' show HostSettings, appConfig, hostSettings;
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 import 'settings.dart';
+import 'text_join.dart' show withUnit;
 import 'wallet_service.dart' show Chain;
 
 /// Display currencies offered in settings: lower-case CoinGecko codes. `currencyName`
@@ -267,11 +268,12 @@ class PriceNotifier extends AsyncNotifier<double?> {
   }
 }
 
-/// `12.34 USD` for [amount] atomic units at [price] per EPIC. Bitcoin gets 8 decimals.
+/// `12.34 USD` for [amount] atomic units at [price] per EPIC, a no-break space before the code
+/// ([withUnit]). Bitcoin gets 8 decimals.
 String fiatText(BigInt amount, double price, String currency) {
   final value = amount / atomicPerEpic * price;
   final code = currency.toUpperCase();
-  if (code == 'BTC') return '${value.toStringAsFixed(8)} BTC';
+  if (code == 'BTC') return withUnit(value.toStringAsFixed(8), 'BTC');
   final fixed = value.abs().toStringAsFixed(2);
   final dot = fixed.indexOf('.');
   final whole = fixed.substring(0, dot);
@@ -281,5 +283,5 @@ String fiatText(BigInt amount, double price, String currency) {
     grouped.write(whole[i]);
   }
   final sign = value < 0 && fixed != '0.00' ? '-' : '';
-  return '$sign$grouped${fixed.substring(dot)} $code';
+  return withUnit('$sign$grouped${fixed.substring(dot)}', code);
 }

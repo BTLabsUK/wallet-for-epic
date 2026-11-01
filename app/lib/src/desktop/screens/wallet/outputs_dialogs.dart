@@ -235,7 +235,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
     final facts = e == null
         ? null
         : EFacts([
-            (l.deskOutFactFee, Text('${formatEpicL(l, e.fee, minDecimals: 3)} EPIC')),
+            (l.deskOutFactFee, Text(epicTextL(l, e.fee))),
             if (_split) (l.deskOutFactEach, Text(l.deskOutFactAbout(_e4(each!)))),
             (l.deskOutFactLocked, Text(l.deskOutFactLockedValue(formatEpicL(l, e.locked), blocks))),
           ]);
@@ -279,11 +279,10 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
           ],
         ];
         actions = [
-          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+          EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
           EButton.primary(
             label: _split ? l.deskOutSplitInto(_n) : l.deskOutConsolidateButton,
             icon: _split ? EIcons.split : EIcons.merge,
-            size: EBtnSize.sm,
             onPressed: _canGo ? _go : null,
           ),
         ];
@@ -314,7 +313,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
             text: _split ? l.deskOutSplitDoneText(n, _e4(perOne), blocks) : l.deskOutConsDoneText(formatEpicL(l, perOne), blocks),
           ),
         ];
-        actions = [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())];
+        actions = [EButton(label: l.commonDone, onPressed: () => Navigator.of(context).pop())];
       case SelfSendPhase.notPosted:
         body = [
           ENotice(
@@ -324,16 +323,15 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
           ),
         ];
         actions = [
-          EButton(label: _split ? l.deskOutCancelSplit : l.deskOutCancelCons, size: EBtnSize.sm, onPressed: _busy ? null : _cancelIt),
-          EButton.primary(label: l.deskOutPostAgain, icon: EIcons.refresh, size: EBtnSize.sm, busy: _busy, onPressed: _busy ? null : _repost),
+          EButton(label: _split ? l.deskOutCancelSplit : l.deskOutCancelCons, kind: EBtnKind.danger, onPressed: _busy ? null : _cancelIt),
+          EButton.primary(label: l.deskOutPostAgain, icon: EIcons.refresh, busy: _busy, onPressed: _busy ? null : _repost),
         ];
       case SelfSendPhase.failed:
         body = [ENotice(tone: ETone.risk, title: l.deskOutNotDoneTitle, text: l.deskOutNotDoneText(_errorText ?? l.deskOutSomethingWrong))];
         actions = [
-          EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+          EButton(label: l.commonClose, onPressed: () => Navigator.of(context).pop()),
           EButton.primary(
             label: l.deskOutTryAgain,
-            size: EBtnSize.sm,
             onPressed: () {
               setState(() => _phase = SelfSendPhase.choose);
               _estimate();
@@ -362,7 +360,7 @@ class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
               _ => _split ? l.deskOutSplitDesc : l.deskOutConsDesc,
             },
             dismissible: !busy,
-            width: 520.u,
+            size: DialogWidth.standard,
             body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: body),
             actions: actions,
           ),
@@ -385,14 +383,14 @@ class _NothingToConsolidate extends StatelessWidget {
     return EDialog(
       title: l.deskOutConsDialogTitle,
       icon: EIcons.merge,
-      width: 520.u,
+      size: DialogWidth.standard,
       body: Text.rich(
         TextSpan(
           children: _marked(l.deskOutNothingText('\u0001'), [several ? l.deskOutWhatFewer : l.deskOutWhatOne], TextStyle(color: c.text, fontWeight: FontWeight.w600)),
         ),
         style: context.ts.bodyDim,
       ),
-      actions: [EButton.primary(label: l.commonDone, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop())],
+      actions: [EButton(label: l.commonDone, onPressed: () => Navigator.of(context).pop())],
     );
   }
 }

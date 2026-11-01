@@ -1,6 +1,7 @@
 {
   "deskLvPayS1Sent": "Slate S1 已通过 Epicbox 发出 · 等待 S2",
   "deskLvPayS1On": "S1 已发到 {relay} · 等待 S2",
+  "deskLvPayOnEpicbox": "在 Epicbox 上",
   "deskLvPayNotOpen": "{name} 的钱包尚未打开",
   "deskLvPayWaitingOpen": "等待 {name} 的钱包打开",
   "deskLvPaySenderFinished": "发送方已完成",
@@ -18,10 +19,12 @@
   "deskLvPayHeroHoldMany": "{amount} 已冻结，等待签署",
   "deskLvPayHeroNothing": "暂时没有即将到账的付款。",
   "deskLvPayReadyTitle": "你的钱包已就绪。",
+  "deskLvPayReadyHead": "钱包已就绪",
   "deskLvPayReadyText": "分享地址即可收到第一笔 EPIC。",
   "deskLvPayTileConfirming": "仍在确认",
   "deskLvPayTileMining": "刚挖出的币",
   "deskLvPayTileWaiting": "等待对方",
+  "deskLvPayTileAwaiting": "等待回复",
   "deskLvPayTileLocked": "为付款预留",
   "deskLvPayImmatureCasual": "刚挖出的币，暂不可用",
   "deskLvPayKind": "付款"

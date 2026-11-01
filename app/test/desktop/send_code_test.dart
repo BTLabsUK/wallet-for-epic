@@ -152,7 +152,7 @@ void main() {
     // The fields stay editable; the marker says what the code asked for.
     await tester.enterText(field('Amount'), '2');
     await tester.pump();
-    expect(find.text('The code asked for 1.5000 EPIC.'), findsOneWidget);
+    expect(find.text('The code asked for 1.5000\u00a0EPIC.'), findsOneWidget);
     await tester.enterText(field('Amount'), '1.5');
     await tester.pumpAndSettle();
 
@@ -163,7 +163,7 @@ void main() {
     expect(inDialog(find.byWidgetPredicate((w) => w is EAddress && w.address == _e)), findsOneWidget, reason: 'the whole address, not shortened');
     expect(inDialog(find.byKey(const ValueKey('send-code-claims'))), findsOneWidget);
 
-    final send = find.widgetWithText(EButton, 'Send 1.5000 EPIC');
+    final send = find.widgetWithText(EButton, 'Send 1.50000000\u00a0EPIC');
     expect(tester.widget<EButton>(send).onPressed, isNull, reason: 'the password comes first');
     await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
@@ -440,7 +440,9 @@ void main() {
 
       await review(tester);
       expect(inDialog(selectable('pay.example.com:3415')), findsOneWidget);
-      expect(inDialog(selectable(direct)), findsOneWidget);
+      // The link in full: its host:port marked on the first line, the long path wrapping below.
+      expect(inDialog(selectable('https://pay.example.com:3415')), findsOneWidget);
+      expect(inDialog(selectable(direct.substring('https://pay.example.com:3415'.length))), findsOneWidget);
       expect(inDialog(find.byKey(const ValueKey('send-code-note'))), findsOneWidget);
       expect(tester.takeException(), isNull);
     });

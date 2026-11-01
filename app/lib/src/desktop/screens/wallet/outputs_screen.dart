@@ -4,18 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
-import '../../../l10n.dart' show localInt;
+import '../../../l10n.dart' show localDayMonth, localInt;
 import '../../widgets/kit.dart';
 import 'activity_screen.dart' show ListPager;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../devices/device_providers.dart' show holdOf;
 import '../../data/devices_state.dart' show deskDeviceBookProvider;
 import '../settings/settings_devices.dart' show deskReleaseHeld;
+import '../../../models.dart' show defaultMinimumConfirmations;
+import '../../../smart_outputs.dart' show OutputPart;
 import 'outputs_dialogs.dart';
 import 'tx_display.dart' show iconOf, shortDayMonth;
 
 /// The list's filter on the Outputs page.
-enum OutputsFilter { all, spendable, confirming, locked, waiting }
+enum OutputsFilter { all, spendable, confirming, locked }
 
 /// Starts the Outputs page on given data (the screenshot tour) or a state.
 class OutputsArgs {
@@ -41,33 +43,51 @@ String shortCommitment(String s) => s.length <= 13 ? s : '${s.substring(0, 6)}â€
 
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
-/// How many outputs of each part of the balance: spendable; confirming and awaiting
-/// finalization; immature and mining; locked; and in Total (the outputs its value adds up:
-/// not the ones awaiting finalization, which are in no figure but Confirming).
+/// [w]'s [OutputPart]: the one mapping the tiles, the filter tabs' counts and the table share.
+OutputPart? outputPart(OutputWord w) => switch (w) {
+  OutputWord.spendable => OutputPart.spendable,
+  OutputWord.confirming || OutputWord.finalizing => OutputPart.confirming,
+  OutputWord.immature || OutputWord.mining => OutputPart.immature,
+  OutputWord.locked => OutputPart.locked,
+  OutputWord.unpaidInvoice || OutputWord.spent => null,
+};
+
+/// Whether the table lists an output of [w] under [filter]: All lists every output with an
+/// [OutputPart] (what Total counts, UD-008), and the spent ones with [showSpent]; each other
+/// filter lists its part. An unpaid invoice's output is in none.
+bool outputListed(OutputsFilter filter, OutputWord w, {bool showSpent = false}) => switch (filter) {
+  OutputsFilter.all => outputPart(w) != null || (showSpent && w == OutputWord.spent),
+  OutputsFilter.spendable => outputPart(w) == OutputPart.spendable,
+  OutputsFilter.confirming => outputPart(w) == OutputPart.confirming,
+  OutputsFilter.locked => outputPart(w) == OutputPart.locked,
+};
+
+/// How many outputs of each [OutputPart], and in Total: every output with a part, so Total =
+/// All = the sum of the tiles (UD-008).
 typedef OutputCounts = ({int spendable, int confirming, int immature, int locked, int total});
+
+/// The Outputs page's Total value: the sum of its tiles' values (Confirming's takes awaiting
+/// finalization), so it adds up as its count does. Only this page: elsewhere the balance's own
+/// [Balance.total] stays the headline.
+int outputsTotalValue(Balance b) => b.spendable + b.awaitingConfirmation + b.awaitingFinalization + b.immature + b.locked;
 
 OutputCounts outputCounts(List<Output> all) {
   var s = 0, c = 0, i = 0, l = 0, t = 0;
   for (final o in all) {
-    switch (o.word) {
-      case OutputWord.spendable:
+    final part = outputPart(o.word);
+    switch (part) {
+      case OutputPart.spendable:
         s++;
-        t++;
-      case OutputWord.confirming:
+      case OutputPart.confirming:
         c++;
-        t++;
-      case OutputWord.finalizing:
-        c++;
-      case OutputWord.immature || OutputWord.mining:
+      case OutputPart.immature:
         i++;
-        t++;
-      case OutputWord.locked:
+      case OutputPart.locked:
         l++;
-        t++;
-      // An unpaid invoice's output is in no part of the balance.
-      case OutputWord.unpaidInvoice || OutputWord.spent:
+      case null:
         break;
     }
+    if (part != null) t++;
   }
   return (spendable: s, confirming: c, immature: i, locked: l, total: t);
 }
@@ -157,20 +177,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     if (mounted) setState(() => _estimatedFor = null);
   }
 
-  bool _matches(Output o, String q) {
-    final w = o.word;
-    if (w == OutputWord.spent && !_showSpent) return false;
-    // All counts what Total counts (UD-008): an output awaiting finalization is in no balance
-    // figure, so it has its own filter, Waiting.
-    final kept = switch (_filter) {
-      OutputsFilter.all => w != OutputWord.finalizing,
-      OutputsFilter.spendable => w == OutputWord.spendable,
-      OutputsFilter.confirming => w == OutputWord.confirming,
-      OutputsFilter.locked => w == OutputWord.locked,
-      OutputsFilter.waiting => w == OutputWord.finalizing,
-    };
-    return kept && (q.isEmpty || o.commitment.contains(q));
-  }
+  bool _matches(Output o, String q) =>
+      outputListed(_filter, o.word, showSpent: _showSpent) && (q.isEmpty || o.commitment.contains(q));
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +219,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (balance != null) ...[_Tiles(balance: balance, counts: all == null ? null : counts), SizedBox(height: Sp.x4)],
+          _Tiles(balance: balance, counts: all == null ? null : counts),
+          SizedBox(height: Sp.x4),
           ..._list(value, counts),
           // The management part, after the table: what outputs are, Split and Consolidate,
           // a line to where the defaults for sends are.
@@ -327,15 +336,18 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     // One line of Ctl.sm controls on one centre line: the status tabs and Show spent on the
     // left, the commitment search at the right end. Short of room (a narrow window) the
     // search goes under the tabs, at its own width; the tabs shrink before they clip.
+    // Each tab counts the rows it lists, so a tab and its tile agree (#69).
+    int listed(OutputsFilter f) => all.where((o) => outputListed(f, o.word, showSpent: _showSpent)).length;
     final tabs = ESegmented<OutputsFilter>(
       shrink: true,
       segments: [
-        ESegment(OutputsFilter.all, l.deskOutFilterAll, count: all.where((o) => (_showSpent || o.word != OutputWord.spent) && o.word != OutputWord.finalizing).length),
-        ESegment(OutputsFilter.spendable, l.deskOutFilterSpendable, count: counts.spendable),
-        ESegment(OutputsFilter.confirming, l.deskOutFilterConfirming, count: all.where((o) => o.word == OutputWord.confirming).length),
-        ESegment(OutputsFilter.locked, l.deskOutFilterLocked, count: counts.locked),
-        if (all.any((o) => o.word == OutputWord.finalizing))
-          ESegment(OutputsFilter.waiting, l.deskOutFilterWaiting, count: all.where((o) => o.word == OutputWord.finalizing).length),
+        for (final (f, label) in [
+          (OutputsFilter.all, l.deskOutFilterAll),
+          (OutputsFilter.spendable, l.deskOutFilterSpendable),
+          (OutputsFilter.confirming, l.deskOutFilterConfirming),
+          (OutputsFilter.locked, l.deskOutFilterLocked),
+        ])
+          ESegment(f, label, count: listed(f)),
       ],
       value: _filter,
       onChanged: (v) => setState(() {
@@ -448,69 +460,89 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   }
 }
 
-/// The balance by part, each with its number of outputs; Total on the right.
+/// The balance by part, each with its number of outputs; Total on the right. Every tile is
+/// always there (a zero one dimmed), so the row never changes with the balance; until the
+/// balance and the outputs are read, each count and value is a [Skeleton] of the loaded text.
 class _Tiles extends StatelessWidget {
   const _Tiles({required this.balance, required this.counts});
 
-  final Balance balance;
+  final Balance? balance;
   final OutputCounts? counts;
+
+  /// What a loading tile lays out under its bars: a count and a value of a usual width.
+  static const int _placeholderCount = 88;
+  static const int _placeholderNano = 1000 * 100000000;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    // Label, then "N outputs", then the value, as the phone's tiles. [hint] puts an
-    // explanation behind an info icon after the label (the Locked tile while outputs are locked).
-    Widget tile(String label, Widget? mark, int nano, int? n, {bool total = false, String? hint}) => Semantics(
-      container: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ?mark,
-              if (mark != null) SizedBox(width: Sp.x2),
-              Text(label, style: ts.small),
-              if (hint != null) ...[SizedBox(width: Sp.x1), EInfoHint(hint)],
-            ],
-          ),
-          SizedBox(height: Sp.x1),
-          SizedBox(
-            height: 24.u,
-            child: n == null
-                ? Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5.u),
-                    child: Container(
-                      key: const ValueKey('outputs-count-loading'),
-                      width: 56.u,
-                      decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(Rad.xs)),
-                    ),
-                  )
-                : Text(l.deskOutCount(n), style: ts.body.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, color: n == 0 ? c.dim : c.text)),
-          ),
-          SizedBox(height: 2.u),
-          EMoney(nano, size: Fs.sm, unit: total, weight: total ? FontWeight.w600 : null, color: nano == 0 ? c.faint : c.dim),
-        ],
-      ),
-    );
-    final icon = Ctl.iconSm;
     final b = balance;
     final n = counts;
+    final loading = b == null || n == null;
+    // Label, then "N outputs", then the value, as the phone's tiles. [hint] puts an
+    // explanation behind an info icon after the label (the Locked tile while outputs are locked).
+    Widget tile(String label, Widget? mark, int? nano, int? count, {bool total = false, String? hint}) {
+      final shownCount = loading ? _placeholderCount : count!;
+      final shownNano = loading ? _placeholderNano : nano!;
+      return Semantics(
+        container: true,
+        child: ConstrainedBox(
+          // A tile's width does not follow its figures, so the next tile stays put as they load.
+          constraints: BoxConstraints(minWidth: 128.u),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ?mark,
+                  if (mark != null) SizedBox(width: Sp.x2),
+                  Text(label, style: ts.small),
+                  if (hint != null && !loading) ...[SizedBox(width: Sp.x1), EInfoHint(hint)],
+                ],
+              ),
+              SizedBox(height: Sp.x1),
+              Skeleton(
+                key: loading ? const ValueKey('outputs-count-loading') : null,
+                loading: loading,
+                color: c.s3,
+                radius: Rad.xs,
+                inset: EdgeInsets.symmetric(vertical: 5.u),
+                child: SizedBox(
+                  height: 24.u,
+                  child: Text(l.deskOutCount(shownCount), style: ts.body.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, color: shownCount == 0 ? c.dim : c.text)),
+                ),
+              ),
+              SizedBox(height: 2.u),
+              Skeleton(
+                loading: loading,
+                color: c.s3,
+                radius: Rad.xs,
+                inset: EdgeInsets.symmetric(vertical: 3.u),
+                child: EMoney(shownNano, size: Fs.sm, unit: total, weight: total ? FontWeight.w600 : null, color: shownNano == 0 ? c.faint : c.dim),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final icon = Ctl.iconSm;
     return EPanel(
       child: Wrap(
         spacing: 40.u,
         runSpacing: 24.u,
         children: [
-          tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b.spendable, n?.spendable),
+          tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b?.spendable, n?.spendable),
           // Its count takes the outputs awaiting finalization too, so its value does (linux-08),
           // as the phone's: they are in no other figure and not in Total.
-          tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b.minConfirmations, size: icon), b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
-          if (b.immature > 0) tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b.immature, n?.immature),
-          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked, hint: b.locked > 0 ? l.deskOutLockedNote : null),
-          tile(l.deskOutTileTotal, null, b.total, n?.total, total: true),
+          tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b?.minConfirmations ?? defaultMinimumConfirmations, size: icon), b == null ? null : b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
+          tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b?.immature, n?.immature),
+          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b?.locked, n?.locked, hint: (b?.locked ?? 0) > 0 ? l.deskOutLockedNote : null),
+          tile(l.deskOutTileTotal, null, b == null ? null : outputsTotalValue(b), n?.total, total: true),
         ],
       ),
     );
@@ -709,7 +741,7 @@ class _OutputRow extends StatelessWidget {
       OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
       OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.info),
       OutputWord.mining => (l.deskOutStatusMining, null, c.info),
-      OutputWord.locked => (l.deskOutStatusLocked, o.heldBy != null ? l.devicesHeldBy(o.heldBy!) : (o.txId == null ? null : l.deskOutNoteBySend(o.txId!)), c.dim),
+      OutputWord.locked => (l.deskOutStatusLocked, o.heldBy != null ? l.devicesHeldBy(o.heldBy!) : (o.txId == null ? null : tx == null ? l.deskOutNoteBySend(o.txId!) : l.deskOutNoteByPendingSend(localDayMonth(l, tx!.created))), c.dim),
       OutputWord.spent => (l.deskOutStatusSpent, null, c.faint),
     };
   }

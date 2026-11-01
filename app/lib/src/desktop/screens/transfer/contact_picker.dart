@@ -139,6 +139,7 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
     }
     return EDialog(
       title: l.deskSendPickTitle,
+      icon: EIcons.contacts,
       description: widget.description ?? l.deskSendPickDesc,
       body: Column(
         mainAxisSize: MainAxisSize.min,
@@ -174,8 +175,8 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
         ],
       ),
       actions: [
-        if (contacts != null && contacts.isNotEmpty) EButton.ghost(label: l.deskSendPickOpen, onPressed: _openContacts),
-        EButton(label: l.commonCancel, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: () => Navigator.of(context).pop()),
+        if (contacts != null && contacts.isNotEmpty) EButton(label: l.deskSendPickOpen, onPressed: _openContacts),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
       ],
     );
   }

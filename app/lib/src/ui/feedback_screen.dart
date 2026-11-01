@@ -22,6 +22,7 @@ import 'contacts_screen.dart' show LiveFieldError;
 import 'net_block.dart';
 import 'network_mode_text.dart' show blockMode, networkModeName;
 import 'settings_screen.dart' show appVersionProvider;
+import 'inline_button.dart';
 
 /// `android 14 (…)`: the OS and its version, as Dart reports them. Tests pin it.
 // A browser has no dart:io Platform: every member throws there, and the preview build runs
@@ -389,7 +390,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
               error: _messageError == null
                   ? null
                   : LiveFieldError(_messageError!),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
@@ -403,7 +403,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
             decoration: InputDecoration(
               labelText: l.feedbackEmailLabel,
               error: _emailError == null ? null : LiveFieldError(_emailError!),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 8),
@@ -420,10 +419,10 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: TextButton.icon(
+            child: InlineTextButton(
               icon: const Icon(Icons.visibility_outlined),
-              label: Text(l.feedbackPreviewButton),
               onPressed: _busy ? null : _preview,
+              child: Text(l.feedbackPreviewButton),
             ),
           ),
           const SizedBox(height: 8),

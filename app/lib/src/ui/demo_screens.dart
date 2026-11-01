@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The web demo's own screens and controls (`app/README.md` "Web demo"): the gate before the
-/// app's usual start, the welcome and ended screens, the Test coins pill with the countdown,
+/// app's usual start, the welcome and ended screens, the Demo stripe with the countdown,
 /// Get test coins and End demo. Nothing here shows unless [demoModeProvider] is on. The demo
 /// is the app itself, so nothing here points to another app, a store or a download.
 library;
@@ -15,10 +15,12 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
 import '../settings.dart' show clockProvider;
+import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
 import 'theme/brand.dart';
+import 'theme/tokens.dart';
 import 'tip.dart';
 
 /// The demo's first route, in place of [LaunchScreen]: welcome without a demo, the ended
@@ -176,20 +178,26 @@ class _DemoStartScaffoldState extends ConsumerState<_DemoStartScaffold> {
   }
 }
 
-/// The key of the Test coins pill with the countdown, for tests.
+/// The key of the Demo stripe with the countdown, for tests.
 const Key demoCountdownKey = ValueKey('demo-countdown');
 
-/// Wallet's app bar title in the demo: a quiet pill, "Test coins · 5 h left". Its tooltip
-/// names Floonet and the exact end. Warns once at [demoWarningAt] left, and asks the server
-/// again when the time is up.
-class DemoCountdown extends ConsumerStatefulWidget {
-  const DemoCountdown({super.key});
+/// The stripe's words, for tests.
+const Key demoStripeTextKey = ValueKey('demo-stripe-text');
+
+/// The demo's mark on every screen (B-05): a thin full-width stripe under the app bar,
+/// "Demo · Test coins · 5 h left", in the in-progress blue, never the brand's gold, so no
+/// screenshot of the demo passes for a real wallet. `SlotScaffold` puts it on every screen; it
+/// draws nothing outside a running demo. Its tooltip says the coins have no value and when the
+/// demo ends. Warns once at [demoWarningAt] left, and asks the server again when the time is
+/// up. (It replaces the small Test coins pill that sat beside Wallet's title.)
+class DemoStripe extends ConsumerStatefulWidget {
+  const DemoStripe({super.key});
 
   @override
-  ConsumerState<DemoCountdown> createState() => _DemoCountdownState();
+  ConsumerState<DemoStripe> createState() => _DemoStripeState();
 }
 
-class _DemoCountdownState extends ConsumerState<DemoCountdown> {
+class _DemoStripeState extends ConsumerState<DemoStripe> {
   Timer? _tick;
   bool _rechecked = false;
 
@@ -238,6 +246,7 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
       status.expiresAt.difference(ref.watch(clockProvider)()),
     );
     if (left == null) return const SizedBox.shrink();
+    final t = context.tokens;
     final time = left.hours > 0
         ? l.demoLeftHours(left.hours)
         : l.demoLeftMinutes(left.minutes);
@@ -245,11 +254,28 @@ class _DemoCountdownState extends ConsumerState<DemoCountdown> {
       '${l.demoTestCoinsPillTip}\n'
       '${l.demoEndsAt(formatDateTime(l, status.expiresAt.toLocal()))}',
       key: demoCountdownKey,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 48),
-        child: Align(
-          widthFactor: 1,
-          child: EBadge('${l.demoTestCoinsPill} · $time', icon: Icons.science_outlined, tone: BadgeTone.gold),
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        decoration: BoxDecoration(
+          color: t.infoSoft,
+          border: Border(bottom: BorderSide(color: t.info.withValues(alpha: 0.4))),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.science_outlined, size: 16, color: t.info),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                metaLine([l.demoStripeLabel, l.demoTestCoinsPill, time]),
+                key: demoStripeTextKey,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: t.text),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -326,28 +352,16 @@ class TestCoinsButton extends ConsumerWidget {
 /// End demo, in Settings: confirm, end the demo on the server, then the welcome screen.
 Future<void> endDemo(BuildContext context, WidgetRef ref) async {
   final l = context.l10n;
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.demoEndTitle),
-      content: Text(l.demoEndBody),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l.commonCancel),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.error,
-            foregroundColor: Theme.of(context).colorScheme.onError,
-          ),
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l.demoEnd),
-        ),
-      ],
-    ),
+  final confirmed = await confirmAppDialog(
+    context,
+    title: l.demoEndTitle,
+    icon: Icons.logout,
+    description: l.demoEndBody,
+    cancelLabel: l.commonCancel,
+    confirmLabel: l.demoEnd,
+    risk: true,
   );
-  if (confirmed != true || !context.mounted) return;
+  if (!confirmed || !context.mounted) return;
   final config = ref.read(walletConfigProvider);
   ref.read(sessionProvider.notifier).lock();
   try {

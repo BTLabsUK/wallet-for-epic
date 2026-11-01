@@ -20,7 +20,6 @@ class LevelHelpHint extends StatelessWidget {
       '${l.lvPickHelpText}\n\n${l.levelFooter}',
       key: const ValueKey('level-help'),
       title: l.lvPickHelpTitle,
-      size: 48,
     );
   }
 }
@@ -42,7 +41,6 @@ class UndercoverHelpHint extends StatelessWidget {
       title: title,
       // The switch beside it is announced by the same name; the icon is "About …".
       label: l.lvPolAbout(title),
-      size: 44,
     );
   }
 }

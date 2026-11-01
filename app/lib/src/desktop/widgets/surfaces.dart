@@ -5,14 +5,18 @@ import 'package:flutter/rendering.dart';
 
 export '../../ui/badge.dart';
 
+import '../../address_format.dart' show AddressPart, AddressTone, addressLines, addressParts, addressPartsSpan;
 import '../desk_l10n.dart';
+import '../../balanced_text.dart';
 import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../../ui/badge.dart';
+import '../../ui/notice_layout.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
+import 'status.dart' show EState, EStateDot;
 import 'motion.dart';
 import 'popover.dart';
 import 'tip.dart';
@@ -59,7 +63,8 @@ class EPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final pad = (padding ?? EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x5)).resolve(Directionality.of(context));
+    // One inset for every panel ([Sp.panel]), the same as an [ESetRow]'s inside one.
+    final pad = (padding ?? EdgeInsets.all(Sp.panel)).resolve(Directionality.of(context));
     // A scrolling pane is a column of its own: its text selects within it (selectable.dart), so a
     // drag never lands in the pane next to it.
     final body = scroll
@@ -80,12 +85,12 @@ class EPanel extends StatelessWidget {
           if (hasHead)
             Container(
               key: const ValueKey('epanel-head'),
-              // Starts where the body starts (Sp.x5 over an unpadded body); a custom head ends
+              // Starts where the body starts (Sp.panel over an unpadded body); a custom head ends
               // close to the edge for its icon button.
               padding: EdgeInsets.fromLTRB(
-                pad.left < Sp.x4 ? Sp.x5 : pad.left,
+                pad.left < Sp.x4 ? Sp.panel : pad.left,
                 head != null ? 0 : Sp.x2,
-                head != null ? Sp.x2 : (pad.right < Sp.x4 ? Sp.x5 : pad.right),
+                head != null ? Sp.x2 : (pad.right < Sp.x4 ? Sp.panel : pad.right),
                 head != null ? 0 : Sp.x2,
               ),
               constraints: BoxConstraints(minHeight: Ctl.header),
@@ -102,7 +107,7 @@ class EPanel extends StatelessWidget {
           body,
           if (foot != null)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: Sp.x6, vertical: Sp.x3),
+              padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x3),
               decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
               child: foot,
             ),
@@ -183,7 +188,9 @@ extension on ETone {
   };
 }
 
-/// A status dot: shape and colour, never colour alone (filled ok, ring warn, cross risk).
+/// A status dot by notice tone: the shared state mark ([EStateDot]), never colour alone.
+/// Prefer [EStateDot] with the state itself; a neutral or gold tone is a state not known yet
+/// (a blue ring), never a healthy dot.
 class EStatusDot extends StatelessWidget {
   const EStatusDot(this.tone, {super.key, this.size = 8});
 
@@ -191,23 +198,23 @@ class EStatusDot extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final (fg, _) = tone.colors(c);
-    final color = tone == ETone.neutral ? c.faint : fg;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: tone == ETone.ok || tone == ETone.risk ? color : Colors.transparent,
-        border: Border.all(color: color, width: 1.5),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => EStateDot(
+    switch (tone) {
+      ETone.ok => EState.ok,
+      ETone.warn => EState.warn,
+      ETone.risk => EState.risk,
+      ETone.info || ETone.neutral || ETone.gold => EState.active,
+    },
+    size: size,
+  );
 }
 
-/// An inline message in the flow: tinted, with an icon, title, text and actions on the right.
+/// An inline message in the flow, the phone notice's anatomy ([NoticeLayout]): the tone's icon,
+/// a bold [title] (a few words), an optional regular, dim [text] (the sentence), and [actions].
+/// The actions sit beside the words while those fit on one line, else on their own row under
+/// them, at the end; a notice of one line is centred on its row with its icon and buttons.
+/// Warnings and risks are tinted; the calm tones (neutral, ok, info) sit on the panel with the
+/// tone on the icon. Gold is the brand's, never a notice's: it reads as [ETone.neutral].
 class ENotice extends StatelessWidget {
   const ENotice({
     super.key,
@@ -233,20 +240,16 @@ class ENotice extends StatelessWidget {
   final IconData? icon;
   final List<Widget> actions;
 
-  /// Puts [actions] on their own wrapping row under the text (several or long buttons).
+  /// Puts [actions] on their own row under the text whatever its length (several buttons).
   final bool actionsBelow;
-
-  /// The actions beside the words while the words keep [setRowMinWords], else under them.
-  Widget _withActions(Widget words) {
-    if (actionsBelow || actions.isEmpty) return words;
-    return _WrapRow(gap: Sp.x3, runGap: Sp.x3, minWords: setRowMinWords, top: true, children: [words, Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions)]);
-  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
+    final tone = this.tone == ETone.gold ? ETone.neutral : this.tone;
     final (fg, bg) = tone.colors(c);
+    final calm = tone == ETone.neutral || tone == ETone.ok || tone == ETone.info;
     final iconColor = tone == ETone.neutral ? c.dim : fg;
     final glyph = icon ??
         switch (tone) {
@@ -255,45 +258,41 @@ class ENotice extends StatelessWidget {
           ETone.risk => EIcons.error,
           _ => EIcons.info,
         };
+    final strong = ts.strong;
+    final line = MediaQuery.textScalerOf(context).scale(strong.fontSize ?? Fs.md) * (strong.height ?? 1.5);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
       decoration: BoxDecoration(
         // In progress (info) is not a warning: the neutral panel with a blue icon.
-        color: tone == ETone.neutral || tone == ETone.ok || tone == ETone.info ? c.s1 : (tone == ETone.gold ? c.accentFaint : bg),
+        color: calm ? c.s1 : bg,
         borderRadius: BorderRadius.circular(Rad.sm),
-        border: Border.all(
-          color: tone == ETone.neutral || tone == ETone.ok || tone == ETone.info ? c.lineStrong : fg.withValues(alpha: 0.4),
-        ),
+        border: Border.all(color: calm ? c.lineStrong : fg.withValues(alpha: 0.4)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 1),
-            child: Icon(glyph, size: Ctl.icon, color: iconColor),
-          ),
-          SizedBox(width: Sp.x3),
-          Expanded(
-            child: _withActions(Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: ts.strong),
-                if (text != null) ...[
-                  const SizedBox(height: 2),
-                  Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
-                ],
-                if (below != null) ...[
-                  SizedBox(height: Sp.x2),
-                  SizedBox(width: double.infinity, child: below),
-                ],
-                if (actionsBelow && actions.isNotEmpty) ...[
-                  SizedBox(height: Sp.x3),
-                  Wrap(spacing: Sp.x2, runSpacing: Sp.x2, children: actions),
-                ],
-              ],
-            )),
-          ),
-        ],
+      child: NoticeLayout(
+        icon: Icon(glyph, size: Ctl.icon, color: iconColor),
+        words: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: strong),
+            if (text != null) ...[
+              const SizedBox(height: 2),
+              Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
+            ],
+            if (below != null) ...[
+              SizedBox(height: Sp.x2),
+              SizedBox(width: double.infinity, child: below),
+            ],
+          ],
+        ),
+        actions: actions.isEmpty
+            ? null
+            : Wrap(alignment: WrapAlignment.end, crossAxisAlignment: WrapCrossAlignment.center, spacing: Sp.x2, runSpacing: Sp.x2, children: actions),
+        actionsBelow: actionsBelow,
+        iconGap: Sp.x3,
+        actionGap: Sp.x4,
+        runGap: Sp.x3,
+        firstLine: line,
       ),
     );
   }
@@ -533,27 +532,30 @@ class EAddress extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final base = ts.mono(size: large ? 14.5 : Fs.sm);
-    final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
-    // The highlight marks the address itself, not the server after "@", ".onion" or a URL.
-    final at = address.indexOf('@');
-    final onion = at < 0 && address.toLowerCase().endsWith('.onion');
-    final cut = at > 0 ? at : (onion ? address.length - 6 : address.length);
-    final a = address.substring(0, cut);
-    final rest = address.substring(cut);
-    final marked = a.length > 14 && !a.startsWith('http');
-    final keySpans = marked
-        ? [
-            TextSpan(text: a.substring(0, 6), style: hl),
-            TextSpan(text: a.substring(6, a.length - 6)),
-            TextSpan(text: a.substring(a.length - 6), style: hl),
-          ]
-        : [TextSpan(text: a)];
+    // address_format.dart's parts: a key's first and last six or a link's host:port in the
+    // accent, a link's scheme and path, `.onion` and an Epicbox server dim.
+    const mark = TextStyle(fontWeight: FontWeight.w600);
+    final markStyle = mark.copyWith(color: c.accentText);
+    final quietStyle = TextStyle(color: c.dim, fontWeight: FontWeight.w400);
+    TextSpan spanOf(TextStyle st, List<AddressPart> ps) => addressPartsSpan(ps, style: st, mark: markStyle, quiet: quietStyle);
+    final parts = addressParts(address);
+    final lines = addressLines(parts);
+    final first = lines.isEmpty ? const <AddressPart>[] : lines.first;
+    final rest = lines.skip(1).expand((l) => l).map((p) => p.text).join();
+    final firstText = first.map((p) => p.text).join();
+    // The part that gives way in the middle at the last: a key (its ends stay marked), else
+    // the first line's text.
+    final keyLen = first.takeWhile((p) => p.tone != AddressTone.quiet).fold(0, (n, p) => n + p.text.length);
+    final a = keyLen > 0 ? firstText.substring(0, keyLen) : firstText;
+    final keyTail = keyLen > 0 ? firstText.substring(keyLen) : '';
+    final marked = keyLen > 12;
     final restStyle = base.copyWith(color: c.dim);
-    // Never more than two lines: the whole address on one when it fits, else the address on
-    // the first line and the server ("@epicbox.example.org") whole on the second. An address
-    // too long for its line gets smaller, down to [_addressMinScale] of its size, then gives
-    // way in the middle, its first and last six still marked; the whole of it is then in the
-    // tooltip and on Copy, and the cut line cannot be selected (it would copy the "…").
+    // Never more than two lines: the whole address on one when it fits, else the key (a link's
+    // host:port) on the first line and the server ("@epicbox.example.org", a link's path) whole
+    // on the second, shrunk rather than cut. An address too long for its line gets smaller,
+    // down to [_addressMinScale] of its size, then a key gives way in the middle, its first
+    // and last six still marked; the whole of it is then in the tooltip and on Copy, and the
+    // cut line cannot be selected (it would copy the "…").
     final text = LayoutBuilder(
       builder: (context, box) {
         final dir = Directionality.of(context);
@@ -566,15 +568,24 @@ class EAddress extends StatelessWidget {
         }
 
         final room = box.maxWidth - addressDrawSlack;
-        final whole = TextSpan(style: base, children: [...keySpans, TextSpan(text: rest, style: restStyle)]);
+        final whole = spanOf(base, parts);
         if (!box.maxWidth.isFinite || widthOf(whole) <= room) return SelectableText.rich(whole, maxLines: 1);
-        final split = rest.startsWith('@');
-        final second = split ? Text(rest, style: restStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.fade) : null;
-        // The key whole, smaller where needed.
+        final split = rest.isNotEmpty;
+        // An Epicbox server whole on one line, shrunk rather than cut; a link's path wraps
+        // (it may be long), selectable like the line above.
+        final Widget? second = !split
+            ? null
+            : rest.startsWith('@')
+            ? Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FittedBox(fit: BoxFit.scaleDown, alignment: AlignmentDirectional.centerStart, child: Text(rest, style: restStyle, maxLines: 1, softWrap: false)),
+              )
+            : SelectableText(rest, style: restStyle);
+        // The first line whole, smaller where needed.
         final size = base.fontSize!;
         for (var s = size; s >= size * _addressMinScale - 0.01; s -= 0.5) {
           final st = base.copyWith(fontSize: s);
-          final span = split ? _marked(a, st, c, marked) : TextSpan(style: st, children: [_marked(a, st, c, marked), TextSpan(text: rest, style: restStyle.copyWith(fontSize: s))]);
+          final span = spanOf(st, split ? first : parts);
           if (widthOf(span) <= room) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -585,7 +596,7 @@ class EAddress extends StatelessWidget {
         }
         // Cut in the middle at the smallest size: the most characters that fit, half each side.
         final st = base.copyWith(fontSize: size * _addressMinScale);
-        final tailSpan = split ? null : TextSpan(text: rest, style: restStyle.copyWith(fontSize: st.fontSize));
+        final tailSpan = keyTail.isEmpty ? null : TextSpan(text: keyTail, style: restStyle.copyWith(fontSize: st.fontSize));
         InlineSpan cutTo(int n) {
           final h = (n + 1) ~/ 2;
           final cut = _cut(a, h, n - h, st, c, marked);
@@ -742,7 +753,7 @@ class EEmpty extends StatelessWidget {
             SizedBox(height: Sp.x2),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: 420.u),
-              child: Text(text!, style: ts.bodyDim, textAlign: TextAlign.center),
+              child: BalancedText(text!, style: ts.bodyDim),
             ),
           ],
           if (actions.isNotEmpty) ...[
@@ -888,7 +899,7 @@ class ESetRow extends StatelessWidget {
             ],
           );
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+      padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

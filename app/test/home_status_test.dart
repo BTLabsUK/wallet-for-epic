@@ -305,7 +305,7 @@ void main() {
       expect(_dot(tester, torIconKey), t.faint);
       expect(find.byKey(directIconKey), findsOneWidget);
       expect(_label(tester, directIconKey), 'Link, Off');
-      expect(_hint(tester, directIconKey), contains('Turn on in Settings › Transactions'));
+      expect(_hint(tester, directIconKey), contains('Turn on in Settings\u00a0›\u00a0Transactions'));
       expect(_label(tester, nodeStatusKey), isNot(contains('Tor')));
     });
 
@@ -319,7 +319,7 @@ void main() {
         ),
         percent: 40,
       );
-      expect(_label(tester, nodeStatusKey), 'Node, Syncing 40 %');
+      expect(_label(tester, nodeStatusKey), 'Node, Syncing 40%');
       expect(_icon(tester, nodeStatusKey), Icons.sync);
       expect(_dot(tester, nodeStatusKey), _tokens(tester).info);
       expect(_tip_(tester, nodeStatusKey), startsWith('Syncing… 40%'));
@@ -363,7 +363,7 @@ void main() {
         final dot = tester.getRect(
           find.descendant(
             of: find.byKey(key),
-            matching: find.byType(Container),
+            matching: find.byType(StateDot),
           ),
         );
         expect(dot.size, const Size(statusDotSize, statusDotSize));
@@ -410,7 +410,7 @@ void main() {
         listener: _lost,
       );
       final t = _tokens(tester);
-      expect(_label(tester, nodeStatusKey), 'Node, Offline');
+      expect(_label(tester, nodeStatusKey), 'Node, Not answering');
       expect(_icon(tester, nodeStatusKey), Icons.cloud_off);
       expect(_dot(tester, nodeStatusKey), t.risk);
       expect(_tip_(tester, nodeStatusKey), startsWith('Node unreachable.'));
@@ -432,7 +432,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
       expect(
         _tip_(tester, epicboxStatusKey),
-        'Off. Turn on in Settings › Transactions.',
+        'Off. Turn on in Settings\u00a0›\u00a0Transactions.',
       );
     });
 
@@ -484,7 +484,7 @@ void main() {
         expect(find.descendant(of: sheet, matching: find.text(label)), findsOneWidget, reason: label);
       }
       // One line per row: the first line of the tip with the host, never the whole tooltip.
-      expect(find.descendant(of: sheet, matching: find.text('Up to date · node.example.org')), findsOneWidget);
+      expect(find.descendant(of: sheet, matching: find.text('Up to date\u00A0· node.example.org')), findsOneWidget);
       // A row closes the sheet and opens the service as its icon does.
       await tester.tap(find.descendant(of: sheet, matching: find.text('Node, Synced')));
       await tester.pumpAndSettle();
@@ -507,7 +507,7 @@ void main() {
     ) async {
       await _pump(tester, tor: _torStarting);
       final t = _tokens(tester);
-      expect(_label(tester, torIconKey), 'Tor, Starting…');
+      expect(_label(tester, torIconKey), 'Tor, Starting');
       expect(_icon(tester, torIconKey), torIcon);
       expect(_dot(tester, torIconKey), t.info);
       expect(_tip_(tester, torIconKey), 'Connecting to Tor… 40%');
@@ -534,9 +534,9 @@ void main() {
     ) async {
       await _pump(tester, tor: _torReady);
       final t = _tokens(tester);
-      expect(_label(tester, torIconKey), 'Tor, On');
+      expect(_label(tester, torIconKey), 'Tor, Connected');
       expect(_dot(tester, torIconKey), t.ok);
-      expect(_tip_(tester, torIconKey), 'On');
+      expect(_tip_(tester, torIconKey), 'Connected');
       expect(_label(tester, directIconKey), 'Link, Reachable');
       expect(_icon(tester, directIconKey), EpicGlyphs.link);
       expect(_dot(tester, directIconKey), t.ok);
@@ -635,7 +635,7 @@ void main() {
       expect(_label(tester, directIconKey), 'Link, Off (Node only)');
       // Calm: faint with a slash, no problem colour.
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
-      expect(_tip_(tester, epicboxStatusKey), 'Turned off by the network mode. Change it in Settings › Advanced › Network.');
+      expect(_tip_(tester, epicboxStatusKey), 'Turned off by the network mode. Change it in Settings\u00a0›\u00a0Advanced\u00a0›\u00a0Network.');
     });
 
     testWidgets('Kill switch: every service reads Off (Kill switch); a tap opens the Network section', (
@@ -803,7 +803,7 @@ void main() {
         listener: _lost,
       );
       final t = tokens(tester);
-      expect(_label(tester, barNodeIconKey), 'Node, Offline');
+      expect(_label(tester, barNodeIconKey), 'Node, Not answering');
       expect(_dot(tester, barNodeIconKey), t.risk);
       expect(_label(tester, barEpicboxIconKey), 'Epicbox, Not connected');
       expect(_dot(tester, barEpicboxIconKey), t.risk);
@@ -811,7 +811,7 @@ void main() {
 
     testWidgets('Tor on: its icon lights up', (tester) async {
       await _pump(tester, child: header(), tor: _torReady);
-      expect(_label(tester, barTorIconKey), 'Tor, On');
+      expect(_label(tester, barTorIconKey), 'Tor, Connected');
       expect(_dot(tester, barTorIconKey), tokens(tester).ok);
     });
 

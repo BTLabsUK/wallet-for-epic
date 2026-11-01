@@ -359,7 +359,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         l.deskSetupLocalLead,
         LocalNodeStep(demo: _demo?.local ?? LocalNodeDemo.none, onChanged: (c) => setState(() => _localChoice = c)),
       ),
-      SetupStep.epicbox => (l.deskSetupEpicboxTitle, again, _epicbox(context)),
+      SetupStep.epicbox => (l.deskSetupEpicboxTitle, again ?? l.deskSetupEpicboxText, _epicbox(context)),
       SetupStep.review => (l.deskSetupReviewTitle, again ?? l.deskSetupReviewLead, _review(context)),
     };
     final first = _step == _steps.first;
@@ -377,11 +377,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 child: EButton.ghost(label: l.deskSetupBackToWallet, icon: EIcons.arrowLeft, tabStop: false, onPressed: nav.back),
               )
             : null,
+        back: first ? null : backButton(() => _to(_back)),
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
           // What Skip keeps is the button's tooltip and accessible description (UD-016).
           if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
-          if (!first) backButton(() => _to(_back)),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
         child: body,
@@ -428,6 +428,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       listNote: nodeListNoteText(l),
       chooseOnly: true,
       keepBelow: Ctl.md + Sp.x8,
+      // The field sits Sp.x4 in from the choice cards (below); the open list reaches their edges.
+      panelOverhang: Sp.x4,
       openInitially: _demo?.listOpen ?? false,
       onChoose: (v) async => setState(() {
         _picked = true;
@@ -504,8 +506,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.deskSetupEpicboxText, style: ts.body),
-        SizedBox(height: Sp.x2),
         Text(l.deskSetupEpicboxPrivacy, style: ts.bodyDim),
         SizedBox(height: Sp.x6),
         ESwitch(
@@ -583,15 +583,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final domain = _epicboxOn ? _relay : '';
     final local = _local ? _localChoice : null;
     final bundled = local == null ? _local : local.how == LocalNodeHow.bundled;
-    final fallback = nodeHost(defaultFallbackNodeUrl);
+    final fallback = hostPort(defaultFallbackNodeUrl);
     final folder = ref.watch(deskLocalNodeProvider).value?.dataFolder ?? mockDataFolder;
     final l = context.l10n;
     final nodeRows = <(String, Widget)>[
       if (local == null && !_local) ...[
         (l.deskSetupType, Text(l.deskSetupRemoteNode, style: ts.body)),
-        (l.deskSetupAddress, Text(_nodeUrl ?? '–', style: ts.mono())),
+        // host:port, as everywhere the node is shown; the full URL only in its field.
+        (l.deskSetupAddress, Text(_nodeUrl == null ? '–' : hostPort(_nodeUrl!), style: ts.mono())),
       ] else if (!bundled) ...[
-        (l.deskSetupType, Text(l.deskSetupExistingNode(hostOf(local!.existingUrl)), style: ts.body)),
+        (l.deskSetupType, Text(l.deskSetupExistingNodeType, style: ts.body)),
+        (l.deskSetupAddress, Text(hostPort(local!.existingUrl), style: ts.mono())),
       ] else ...[
         (l.deskSetupType, Text(l.deskSetupBundledNode, style: ts.body)),
         (l.deskSetupWhileSyncing, Text(local?.useFallback ?? hasFallbackNode ? fallback : l.deskSetupWait, style: ts.mono())),

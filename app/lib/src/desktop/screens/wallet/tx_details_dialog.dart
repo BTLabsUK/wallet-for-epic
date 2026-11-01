@@ -88,7 +88,7 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
       title: _had ? l.deskTxDetailsTitleEdit : l.deskTxDetailsTitleAdd,
       description: l.deskTxDetailsTip,
       icon: EIcons.pencil,
-      width: 560.u,
+      size: DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -144,8 +144,8 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
         ],
       ),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: l.commonSave, size: EBtnSize.sm, busy: _busy, onPressed: _busy ? null : _save),
+        EButton(label: l.commonCancel, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton.primary(label: l.commonSave, busy: _busy, onPressed: _busy ? null : _save),
       ],
     );
   }

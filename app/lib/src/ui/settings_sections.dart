@@ -7,6 +7,7 @@ library;
 
 import 'phone_sheet.dart';
 import '../address_format.dart' show shownUrl;
+import 'address_view.dart' show HostText;
 import '../seed_contacts.dart' show projectRepoUrl;
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
@@ -38,6 +39,7 @@ import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
+import 'app_dialog.dart';
 import 'backup_screen.dart';
 import 'common.dart';
 import 'confirmations_row.dart';
@@ -53,6 +55,7 @@ import 'levels/change_level_screen.dart';
 import '../levels/level_features.dart' show AdvancedPageKind;
 import '../levels/level_providers.dart' show currentLevelProvider, levelFeaturesProvider;
 import 'licences_screen.dart';
+import 'month_picker.dart' show StartMonthChoice;
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
 import 'network_mode_text.dart' show blockMode, networkModeName;
@@ -63,11 +66,12 @@ import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart'
-    show RestoreScreen, ScanSlotLine, mainnetFirstDay, mainnetHeightForDate;
+    show RestoreScreen, ScanSlotLine, mainnetHeightForDate;
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
+import 'settings_rows.dart';
 import 'settings_screen.dart' show openPrivacySettings;
 import 'status.dart' show serverHost;
 import 'theme/advanced.dart';
@@ -80,6 +84,7 @@ import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 export 'wallet_delete.dart' show sharedFilesCleanupProvider;
+export 'settings_rows.dart' show SettingsHeader, SettingsSubHeader, NavChevron, RadioRow;
 export '../seed_contacts.dart' show projectRepoUrl;
 
 /// BT Labs' privacy policy; null when `app-config.toml` leaves it out (no link).
@@ -289,30 +294,33 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   Future<T?> _choose<T>({
     required String title,
+    required IconData icon,
     required List<({T value, String label})> options,
     required T current,
     Widget? Function(T value)? leadingOf,
   }) {
-    return showDialog<T>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: Text(title),
-        children: [
-          RadioGroup<T>(
-            groupValue: current,
-            onChanged: (value) => Navigator.pop(context, value),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final option in options)
-                  RadioListTile<T>(
-                    value: option.value,
-                    title: Text(option.label),
-                    secondary: leadingOf?.call(option.value),
-                  ),
-              ],
-            ),
+    return showAppDialog<T>(
+      context,
+      builder: (context) => AppDialog(
+        title: title,
+        icon: icon,
+        body: RadioGroup<T>(
+          groupValue: current,
+          onChanged: (value) => Navigator.pop(context, value),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final option in options)
+                RadioRow<T>(
+                  value: option.value,
+                  title: option.label,
+                  leading: leadingOf?.call(option.value),
+                ),
+            ],
           ),
+        ),
+        actions: [
+          DialogButton.secondary(label: context.l10n.commonCancel, onPressed: () => Navigator.pop(context)),
         ],
       ),
     );
@@ -324,6 +332,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final l = context.l10n;
     final code = await _choose(
       title: l.settingsCurrency,
+      icon: Icons.payments_outlined,
       current: s.fiatCurrency,
       options: [
         for (final c in fiatCurrencies) (value: c, label: currencyLabel(l, c)),
@@ -336,6 +345,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final l = context.l10n;
     final mode = await _choose(
       title: l.settingsTheme,
+      icon: Icons.palette_outlined,
       current: s.themeMode,
       options: [
         for (final m in ThemeMode.values) (value: m, label: themeLabel(l, m)),
@@ -350,6 +360,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     const system = '';
     final code = await _choose<String>(
       title: context.l10n.languageSetting,
+      icon: Icons.translate,
       current: s.language ?? system,
       options: [
         (value: system, label: context.l10n.languageSystem),
@@ -388,6 +399,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final current = s.autoLockMinutes;
     final minutes = await _choose<int>(
       title: l.settingsAutoLock,
+      icon: Icons.lock_clock_outlined,
       current: current == null ? never : autoLockChoice(current),
       options: [
         for (final m in autoLockChoices) (value: m, label: autoLockLabel(l, m)),
@@ -439,8 +451,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   Future<void> _rescan() async {
     final chain = ref.read(walletConfigProvider)?.chain;
-    final start = await showDialog<BigInt>(
-      context: context,
+    final start = await showAppDialog<BigInt>(
+      context,
       builder: (_) => _RescanDialog(
         datesSupported: chain == Chain.mainnet,
         // Advanced › Recheck from a height: without it the dialog only confirms.
@@ -466,8 +478,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
       return;
     }
-    final confirmed = await showDialog<bool>(
-      context: context,
+    final confirmed = await showAppDialog<bool>(
+      context,
       builder: (_) => const DeleteWalletDialog(),
     );
     if (confirmed != true || !mounted) return;
@@ -580,6 +592,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   l.settingsStateNotBackedUp,
                   style: TextStyle(color: t.warn),
                 ),
+          trailing: const NavChevron(),
           onTap: _showPhrase,
         ),
       ListTile(
@@ -594,6 +607,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ListTile(
           leading: const Icon(Icons.pin),
           title: Text(l.settingsChangePin),
+          trailing: const NavChevron(),
           onTap: () => _push(const ChangePinScreen()),
         ),
       // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
@@ -605,12 +619,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                 ? l.settingsChangePassphrase
                 : l.settingsUsePassphrase,
           ),
+          trailing: const NavChevron(),
           onTap: () => _push(const ChangePinScreen(passphrase: true)),
         ),
       if (!demo && (biometrics?.available ?? false))
-        SwitchListTile(
-          secondary: const Icon(Icons.fingerprint),
-          title: Text(l.settingsBiometrics),
+        HintSwitchTile(
+          icon: Icons.fingerprint,
+          title: l.settingsBiometrics,
           value: biometrics!.enabled,
           onChanged: _setBiometrics,
         ),
@@ -660,7 +675,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(EpicGlyphs.node),
           title: Text(l.serverNodeTitle),
           subtitle: withTorWay(
-            network == null ? null : Text(serverHost(network.nodeUrl)),
+            network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: context.tokens.dim)),
             nodeTorWay(network?.nodeUrl, torState),
           ),
           onTap: () => showNodePicker(context),
@@ -670,15 +685,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(EpicGlyphs.epicbox),
           title: Text(l.serverEpicboxTitle),
           subtitle: withTorWay(
-            Text(
-              network?.relay.label ??
-                  (config == null
-                      ? l.commonUnknown
-                      : EpicboxRelay(
-                          host: config.epicboxDomain,
-                          port: config.epicboxPort,
-                        ).label),
-            ),
+            switch (network?.relay.label ??
+                (config == null ? null : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label)) {
+              final host? => HostText(host, style: TextStyle(color: context.tokens.dim)),
+              null => Text(l.commonUnknown),
+            },
             torWay(TorRoute.epicbox, torState),
           ),
           onTap: () => showEpicboxPicker(context),
@@ -742,6 +753,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       ListTile(
         leading: const Icon(Icons.contacts_outlined),
         title: Text(l.settingsContacts),
+        trailing: const NavChevron(),
         onTap: () => _push(const ContactsScreen()),
       ),
       // Advanced › Outputs; a split or consolidation mid-way keeps the row (never hide what is
@@ -751,6 +763,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(Icons.grain),
           title: Text(l.outputsTitle),
           subtitle: outputsSubtitle,
+          trailing: const NavChevron(),
           onTap: () => _push(const OutputsScreen()),
         ),
       if (invoices)
@@ -762,6 +775,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             icon: Icons.request_quote_outlined,
           ),
           subtitle: Text(l.settingsInvoicesSubtitle),
+          trailing: const NavChevron(),
           onTap: () => _push(const InvoiceSettingsScreen()),
         ),
       // Linked devices (Experimental, on unless turned off): the state line names the device
@@ -776,6 +790,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             children: [Text(l.expLinkedDevices), EBadge(l.advExperimental)],
           ),
           subtitle: Text(devicesStateLine(l, ref.watch(phoneDevices.devices), ref.watch(clockProvider)())),
+          trailing: const NavChevron(),
           onTap: () => _push(const LinkedDevicesScreen()),
         ),
       if (!demo) ...[
@@ -829,6 +844,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(Icons.restore),
           title: Text(l.firstRunRestore),
           enabled: !_busy,
+          trailing: const NavChevron(),
           onTap: _restoreFromPhrase,
         ),
       ListTile(
@@ -857,16 +873,18 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
 
   /// "Turn Epicbox off?" while [waiting] sends still wait for their replies over Epicbox.
   Future<bool> _confirmEpicboxOff(int waiting) async {
-    final yes = await showDialog<bool>(
-      context: context,
+    final yes = await showAppDialog<bool>(
+      context,
       builder: (context) {
         final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.txEpicboxOffTitle),
-          content: Text(l.txEpicboxOffPending(waiting)),
+        return AppDialog(
+          title: l.txEpicboxOffTitle,
+          icon: MethodIcons.epicbox,
+          tone: DialogTone.warn,
+          description: l.txEpicboxOffPending(waiting),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l.txEpicboxOffAction)),
+            DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
+            DialogButton.primary(label: l.txEpicboxOffAction, onPressed: () => Navigator.pop(context, true)),
           ],
         );
       },
@@ -962,7 +980,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       SettingsHeader(l.txMethodsHeader),
       for (final f in MethodFamily.values) ...[
         // Epicbox is a family of one: its row stands alone.
-        if (f != MethodFamily.epicbox) _MethodFamilyHeader(f),
+        if (f != MethodFamily.epicbox)
+          SettingsSubHeader(
+            MethodIcons.familyName(l, f),
+            key: ValueKey('tx-family-${f.name}'),
+            icon: MethodIcons.family(f),
+          ),
         for (final m in MethodKind.values)
           if (m.family == f && shown(m)) ...[
             methodTile(m),
@@ -983,15 +1006,13 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           child: Column(
             children: [
               for (final m in offered)
-                RadioListTile<MethodKind>(
+                RadioRow<MethodKind>(
                   key: txStartKey(m),
                   value: m,
-                  secondary: Icon(
-                    m.family == MethodFamily.link
-                        ? MethodIcons.family(MethodFamily.link)
-                        : MethodIcons.of(m),
-                  ),
-                  title: Text(startName(m)),
+                  icon: m.family == MethodFamily.link
+                      ? MethodIcons.family(MethodFamily.link)
+                      : MethodIcons.of(m),
+                  title: startName(m),
                 ),
             ],
           ),
@@ -1033,38 +1054,21 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final strategy in SelectionStrategy.values)
-              Semantics(
-                inMutuallyExclusiveGroup: true,
-                checked: strategy == current,
-                child: ListTile(
+        child: RadioGroup<SelectionStrategy>(
+          groupValue: current,
+          onChanged: (strategy) => Navigator.pop(context, strategy),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final strategy in SelectionStrategy.values)
+                RadioRow<SelectionStrategy>(
                   key: ValueKey('tx-strategy-${strategy.name}'),
-                  minVerticalPadding: 12,
-                  leading: Icon(
-                    strategy == current
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    color: strategy == current
-                        ? context.tokens.accent
-                        : context.tokens.dim,
-                  ),
-                  title: Text(
-                    strategy == SelectionStrategy.smallest
-                        ? l.outputsSmallest
-                        : l.outputsAll,
-                  ),
-                  subtitle: Text(
-                    strategy == SelectionStrategy.smallest
-                        ? l.outputsSmallestText
-                        : l.outputsAllText,
-                  ),
-                  onTap: () => Navigator.pop(context, strategy),
+                  value: strategy,
+                  title: strategy == SelectionStrategy.smallest ? l.outputsSmallest : l.outputsAll,
+                  subtitle: strategy == SelectionStrategy.smallest ? l.outputsSmallestText : l.outputsAllText,
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1112,7 +1116,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         leading: const Icon(Icons.tune),
         title: Text(l.levelRowTitle),
         subtitle: Text(levelTitle(l, ref.watch(currentLevelProvider))),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const NavChevron(),
         onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ChangeLevelScreen())),
       ),
       // Level 1: the level row alone, and what more levels do.
@@ -1228,17 +1232,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         subtitle: Text(languageLabel(l, s.language)),
         onTap: () => _pickLanguage(s),
       ),
-      SwitchListTile(
-        secondary: const Icon(Icons.visibility_off),
-        title: Text(l.settingsHideBalances),
+      HintSwitchTile(
+        icon: Icons.visibility_off,
+        title: l.settingsHideBalances,
         value: s.hideBalances,
         onChanged: _settings.setHideBalances,
       ),
       // No price source in app-config.toml, or `[online] price` off in settings.toml: no rows.
       if (pricesOffered(ref.watch(hostSettingsProvider))) ...[
-        SwitchListTile(
-          secondary: const Icon(Icons.show_chart),
-          title: Text(l.settingsShowPrices),
+        HintSwitchTile(
+          icon: Icons.show_chart,
+          title: l.settingsShowPrices,
           value: s.showFiat,
           onChanged: _setShowFiat,
         ),
@@ -1300,6 +1304,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         key: settingsLicencesKey,
         leading: const Icon(Icons.article_outlined),
         title: Text(l.settingsLicences),
+        trailing: const NavChevron(),
         onTap: () => _push(LicencesScreen(version: version.value)),
       ),
       // The site's address as its name, the same in every language and on the desktop.
@@ -1346,86 +1351,8 @@ Widget? withTorWay(Widget? subtitle, TorWay way) {
   );
 }
 
-/// A small header over a run of rows on a Settings page.
 /// The Linked devices row on the Wallet page, for tests.
 const Key settingsLinkedDevicesKey = ValueKey('settings-linked-devices');
-
-class SettingsHeader extends StatelessWidget {
-  const SettingsHeader(this.title, {super.key, this.trailing});
-
-  final String title;
-
-  /// A small action at the header's end (the desktop's "Hide everything again").
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    // Neutral, as the desktop's section headers: gold is for the brand and the primary
-    // action only.
-    final text = Semantics(
-      header: true,
-      child: Text(
-        title,
-        style: theme.textTheme.titleSmall?.copyWith(color: context.tokens.dim),
-      ),
-    );
-    if (trailing == null) {
-      return Padding(padding: const EdgeInsets.fromLTRB(16, 24, 16, 4), child: text);
-    }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 8, 0),
-      child: Row(
-        children: [
-          Expanded(child: text),
-          trailing!,
-        ],
-      ),
-    );
-  }
-}
-
-/// A family's subhead inside Payment methods (Settings › Transactions): its glyph and name,
-/// and one line on what the family is, over its methods' switches.
-class _MethodFamilyHeader extends StatelessWidget {
-  const _MethodFamilyHeader(this.family);
-
-  final MethodFamily family;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final t = context.tokens;
-    return Padding(
-      key: ValueKey('tx-family-${family.name}'),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 1),
-            child: Icon(MethodIcons.family(family), size: 18, color: t.dim),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    MethodIcons.familyName(context.l10n, family),
-                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// The key of a method's switch on Settings › Transactions, for tests and the tour:
 /// `tx-epicbox`, `tx-http`, `tx-tor`, `tx-qr`, `tx-file`.
@@ -1487,7 +1414,7 @@ class _TrustedNetworksRow extends ConsumerWidget {
                 Expanded(
                   child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
                 ),
-                Icon(Icons.chevron_right, size: 18, color: t.dim),
+                const NavChevron(size: 18),
               ],
             ),
           ),
@@ -1611,35 +1538,13 @@ class _TorNeededLine extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.info),
                 ),
               ),
-              Icon(Icons.chevron_right, size: 18, color: t.info),
+              NavChevron(size: 18, color: t.info),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-/// Flutter's licence page under the app's name and [version]. The app writes British English
-/// ("Licences", "Cancelled"), and Flutter's own strings for `en` are American ("Licenses"):
-/// in English the page takes the `en_GB` Material strings so its title matches the row.
-void openFlutterLicences(BuildContext context, String? version) {
-  final locale = Localizations.localeOf(context);
-  final page = LicensePage(
-    applicationName: context.l10n.appTitle,
-    applicationVersion: version,
-  );
-  Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => locale.languageCode == 'en'
-          ? Localizations.override(
-              context: context,
-              locale: const Locale('en', 'GB'),
-              child: page,
-            )
-          : page,
-    ),
-  );
 }
 
 /// A web link. The app has no browser launcher, so tapping copies the address.
@@ -1696,17 +1601,6 @@ class _RescanDialogState extends State<_RescanDialog> {
     super.dispose();
   }
 
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date ?? now,
-      firstDate: mainnetFirstDay,
-      lastDate: now,
-    );
-    if (picked != null) setState(() => _date = picked);
-  }
-
   void _start() {
     final l = context.l10n;
     final BigInt? start;
@@ -1714,7 +1608,7 @@ class _RescanDialogState extends State<_RescanDialog> {
       case _RescanFrom.date:
         final date = _date;
         if (date == null) {
-          setState(() => _error = l.settingsRescanPickDateFirst);
+          setState(() => _error = l.restorePickMonthFirst);
           return;
         }
         start = mainnetHeightForDate(date);
@@ -1736,16 +1630,14 @@ class _RescanDialogState extends State<_RescanDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final date = _date;
-    return AlertDialog(
-      title: Text(l.settingsRescanTitle),
-      content: SingleChildScrollView(
-        child: Column(
+    return AppDialog(
+      title: l.settingsRescanTitle,
+      icon: Icons.manage_search,
+      description: widget.choice ? l.settingsRescanBody : l.settingsRescanBodyPlain,
+      body: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(widget.choice ? l.settingsRescanBody : l.settingsRescanBodyPlain),
-            const SizedBox(height: 8),
             if (widget.choice)
               RadioGroup<_RescanFrom>(
                 groupValue: _from,
@@ -1753,34 +1645,27 @@ class _RescanDialogState extends State<_RescanDialog> {
                   _from = value ?? _from;
                   _error = null;
                 }),
-                child: Column(
-                  children: [
-                    if (widget.datesSupported)
-                      RadioListTile(
-                        contentPadding: EdgeInsets.zero,
-                        value: _RescanFrom.date,
-                        title: Text(l.settingsRescanFromDate),
-                      ),
-                    RadioListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: _RescanFrom.height,
-                      title: Text(l.settingsRescanFromHeight),
-                    ),
-                    RadioListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: _RescanFrom.start,
-                      title: Text(l.settingsRescanWholeChain),
-                    ),
-                  ],
+                // On the dialog's own inset, so the titles line up with its text.
+                child: ListTileTheme.merge(
+                  contentPadding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      if (widget.datesSupported)
+                        RadioRow(value: _RescanFrom.date, title: l.settingsRescanFromMonth),
+                      RadioRow(value: _RescanFrom.height, title: l.settingsRescanFromHeight),
+                      RadioRow(value: _RescanFrom.start, title: l.settingsRescanWholeChain),
+                    ],
+                  ),
                 ),
               ),
             if (_from == _RescanFrom.date)
-              OutlinedButton.icon(
-                icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  date == null ? l.settingsRescanPickDate : localDay(l, date),
-                ),
-                onPressed: _pickDate,
+              StartMonthChoice(
+                date: _date,
+                label: l.restorePickMonthShort,
+                onChanged: (d) => setState(() {
+                  _date = d;
+                  _error = null;
+                }),
               ),
             if (_from == _RescanFrom.height)
               TextField(
@@ -1789,19 +1674,14 @@ class _RescanDialogState extends State<_RescanDialog> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: l.settingsRescanStartHeight,
-                  border: const OutlineInputBorder(),
                 ),
               ),
             if (_error != null) ErrorText(_error!),
           ],
         ),
-      ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.commonCancel),
-        ),
-        FilledButton(onPressed: _start, child: Text(l.settingsRescanButton)),
+        DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        DialogButton.primary(label: l.settingsRescanButton, onPressed: _start),
       ],
     );
   }
@@ -1841,33 +1721,25 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final word = l.settingsDeleteConfirmWord;
-    final error = Theme.of(context).colorScheme.error;
-    return AlertDialog(
-      icon: Icon(
-        Icons.warning_amber,
-        color: error,
-        semanticLabel: l.settingsDeleteWarningIcon,
-      ),
-      title: Text(l.settingsDeleteTitle),
-      content: SingleChildScrollView(
-        child: Column(
+    return AppDialog(
+      icon: Icons.delete_outline,
+      tone: DialogTone.risk,
+      title: l.settingsDeleteTitle,
+      description: widget.restore ? l.settingsRestoreReplaces : null,
+      body: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (widget.restore) ...[
-              Text(l.settingsRestoreReplaces),
-              const SizedBox(height: 12),
-            ],
             Text(l.settingsDeleteBody),
-            // The box first, as every consent in the app (UP-010).
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
+            const SizedBox(height: 8),
+            // The box first, as every consent in the app (UP-010): body text, on the body's
+            // edge (#65).
+            DialogCheckRow(
               value: _understood,
-              onChanged: (value) =>
-                  setState(() => _understood = value ?? false),
-              title: Text(l.settingsDeleteHavePhrase),
+              onChanged: (value) => setState(() => _understood = value),
+              label: l.settingsDeleteHavePhrase,
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _word,
               autocorrect: false,
@@ -1875,22 +1747,13 @@ class _DeleteWalletDialogState extends State<DeleteWalletDialog> {
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 labelText: l.settingsDeleteTypeToConfirm(word),
-                border: const OutlineInputBorder(),
               ),
             ),
           ],
         ),
-      ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l.settingsDeleteKeep),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: error),
-          onPressed: _ready(word) ? () => Navigator.pop(context, true) : null,
-          child: Text(l.settingsDeleteConfirm),
-        ),
+        DialogButton.secondary(label: l.settingsDeleteKeep, onPressed: () => Navigator.pop(context, false)),
+        DialogButton.risk(label: l.settingsDeleteConfirm, onPressed: _ready(word) ? () => Navigator.pop(context, true) : null),
       ],
     );
   }

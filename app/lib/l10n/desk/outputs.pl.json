@@ -68,6 +68,7 @@
   "deskOutStatusMining": "Kopanie",
   "deskOutStatusLocked": "Zablokowane",
   "deskOutNoteBySend": "przez wysyłkę #{id}",
+  "deskOutNoteByPendingSend": "przez trwającą wysyłkę · {date}",
   "deskOutStatusSpent": "Wydane",
   "deskOutTxReceived": "Odebrano {date}",
   "deskOutTxSent": "Wysłano {date}",
@@ -119,7 +120,7 @@
   "deskOutNothingText": "Nie ma czego scalać: portfel ma {what}.",
   "deskOutWhatFewer": "mniej niż dwa wyjścia do wydania",
   "deskOutWhatOne": "jedno wyjście do wydania",
-  "deskOutDefaultsMoved": "Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.",
+  "deskOutDefaultsMoved": "Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.",
   "deskOutDefaultsOpen": "Otwórz Transakcje",
   "deskOutNoteWaitingRecipient": "czeka na odbiorcę",
   "deskOutFilterWaiting": "Oczekujące"

@@ -233,7 +233,7 @@ void main() {
     await h.pump(tester);
     await tester.tap(find.text('What is sent'));
     await settle(tester);
-    expect(find.text('Report text · lepic.0.log (all, 1 KB) · lepic.1.log (all, 1 KB)'), findsOneWidget);
+    expect(find.text('Report text\u00A0· lepic.0.log (all, 1 KB)\u00A0· lepic.1.log (all, 1 KB)'), findsOneWidget);
     var preview = previewText(tester);
     expect(preview, contains('== app/lepic.1.log ==\n$older\n== app/lepic.0.log ==\n$newer'));
     expect(preview, isNot(contains('app/wfe.log')));
@@ -266,7 +266,7 @@ void main() {
     await h.pump(tester);
     await tester.tap(find.text('What is sent'));
     await settle(tester);
-    expect(find.text('Report text · wfe.log (all, 100 KB) · wfe.log.1 (last 156 KB of 1.0 MB)'), findsOneWidget);
+    expect(find.text('Report text\u00A0· wfe.log (all, 100 KB)\u00A0· wfe.log.1 (last 156 KB of 1.0 MB)'), findsOneWidget);
     expect(previewText(tester), contains('log level: normal'));
   });
 

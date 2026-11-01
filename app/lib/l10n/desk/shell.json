@@ -59,6 +59,14 @@
   "@deskRailOnLocal": {
     "description": "Second line of the sidebar's HTTP row: running and reachable on this computer's network only. Narrow: keep the · separator."
   },
+  "deskRailReceivingInternet": "Receiving · internet",
+  "@deskRailReceivingInternet": {
+    "description": "Sidebar status, second line of the Link · HTTP row: the listener runs and takes payments from the internet. 'Receiving' is the state word; short."
+  },
+  "deskRailReceivingLocal": "Receiving · local",
+  "@deskRailReceivingLocal": {
+    "description": "Sidebar status, second line of the Link · HTTP row: the listener runs and takes payments from this computer only. 'Receiving' is the state word; short."
+  },
   "deskRailPortInUse": "Port in use",
   "@deskRailPortInUse": {
     "description": "Second line of the sidebar's HTTP row: the chosen port is taken by another program. Narrow."
@@ -284,7 +292,7 @@
   "@deskTourContactsText": {
     "description": "Text of the Contacts step of the first-run tour."
   },
-  "deskTourNodeTitle": "Settings › Node",
+  "deskTourNodeTitle": "Settings › Node",
   "@deskTourNodeTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },

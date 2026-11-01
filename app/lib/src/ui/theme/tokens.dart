@@ -10,6 +10,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 
 import 'fonts.dart' show phoneFontFallback;
+import 'palette.dart';
 
 /// Every value the look may change. One instance per brightness.
 @immutable
@@ -18,6 +19,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     required this.bg,
     required this.surface,
     required this.surfaceHi,
+    required this.raised,
     required this.field,
     required this.line,
     required this.lineStrong,
@@ -43,6 +45,8 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     required this.txSent,
     required this.txReceived,
     required this.txCancelled,
+    required this.scrim,
+    required this.shadow,
     required this.radius,
     required this.radiusSmall,
     required this.controlHeight,
@@ -57,14 +61,18 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final Color surface;
   final Color surfaceHi;
 
-  /// Text field fill.
+  /// Dialogs, sheets' menus, popup menus and tooltips: the desktop's `s4`.
+  final Color raised;
+
+  /// Text field fill: a white well in light, as on the desktop, so a field reads by its
+  /// [lineField] edge.
   final Color field;
 
   /// Hairlines: [line] separates, [lineStrong] encloses.
   final Color line;
   final Color lineStrong;
 
-  /// The edge of a text field: 3:1 against the field, which [lineStrong] is not on light.
+  /// The edge of a text field: 3:1 against the field, which [lineStrong] is not.
   final Color lineField;
 
   /// Text: [text] for content, [dim] for secondary, [faint] for hints and readouts (at least 4.5:1).
@@ -115,6 +123,13 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final Color txReceived;
   final Color txCancelled;
 
+  /// The barrier behind a dialog. Never a shadow: at its strength a shadow turns into a band.
+  final Color scrim;
+
+  /// The one soft shadow under a floating surface (a menu, a popover, the tour card), drawn
+  /// with [popShadow] next to a [lineStrong] border.
+  final Color shadow;
+
   final double radius;
   final double radiusSmall;
 
@@ -126,11 +141,28 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
   final String headFamily;
   final String monoFamily;
 
+  /// The shadow under a floating surface: soft and low, one for every popover and menu.
+  List<BoxShadow> get popShadow => [BoxShadow(color: shadow, blurRadius: 24, offset: const Offset(0, 8))];
+
+  /// [shadow] at full strength, for a Material `shadowColor` (menus that draw their own
+  /// elevation): Material thins it to the same soft shadow.
+  Color get shadowInk => shadow.withValues(alpha: 1);
+
+  /// A read-only box of text inside a panel, a sheet or a dialog (a commitment, a code's text,
+  /// the payee's note): the field fill with a hairline on every side, so it shows in both
+  /// themes. The desktop's `DeskColors.well` is the same.
+  BoxDecoration get well => BoxDecoration(
+    color: field,
+    border: Border.all(color: line),
+    borderRadius: BorderRadius.circular(radiusSmall),
+  );
+
   @override
   WalletTokens copyWith({
     Color? bg,
     Color? surface,
     Color? surfaceHi,
+    Color? raised,
     Color? field,
     Color? line,
     Color? lineStrong,
@@ -156,6 +188,8 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     Color? txSent,
     Color? txReceived,
     Color? txCancelled,
+    Color? scrim,
+    Color? shadow,
     double? radius,
     double? radiusSmall,
     double? controlHeight,
@@ -165,6 +199,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     bg: bg ?? this.bg,
     surface: surface ?? this.surface,
     surfaceHi: surfaceHi ?? this.surfaceHi,
+    raised: raised ?? this.raised,
     field: field ?? this.field,
     line: line ?? this.line,
     lineStrong: lineStrong ?? this.lineStrong,
@@ -190,6 +225,8 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
     txSent: txSent ?? this.txSent,
     txReceived: txReceived ?? this.txReceived,
     txCancelled: txCancelled ?? this.txCancelled,
+    scrim: scrim ?? this.scrim,
+    shadow: shadow ?? this.shadow,
     radius: radius ?? this.radius,
     radiusSmall: radiusSmall ?? this.radiusSmall,
     controlHeight: controlHeight ?? this.controlHeight,
@@ -206,6 +243,7 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
       bg: c(bg, other.bg),
       surface: c(surface, other.surface),
       surfaceHi: c(surfaceHi, other.surfaceHi),
+      raised: c(raised, other.raised),
       field: c(field, other.field),
       line: c(line, other.line),
       lineStrong: c(lineStrong, other.lineStrong),
@@ -231,6 +269,8 @@ class WalletTokens extends ThemeExtension<WalletTokens> {
       txSent: c(txSent, other.txSent),
       txReceived: c(txReceived, other.txReceived),
       txCancelled: c(txCancelled, other.txCancelled),
+      scrim: c(scrim, other.scrim),
+      shadow: c(shadow, other.shadow),
       radius: d(radius, other.radius),
       radiusSmall: d(radiusSmall, other.radiusSmall),
       controlHeight: d(controlHeight, other.controlHeight),
@@ -254,37 +294,39 @@ extension WalletTokensOf on BuildContext {
 const String montserrat = 'Montserrat';
 const String jetBrainsMono = 'JetBrainsMonoNL';
 
-/// Protocol, dark. The status set (amber apart from the
-/// gold, a blue for in-progress states, a neutral selection) is the wallet's own.
+/// Protocol, dark, from the shared palette (`palette.dart`), as the desktop's.
 const WalletTokens protocolDark = WalletTokens(
-  bg: Color(0xFF08080A),
-  surface: Color(0xFF0D0D10),
-  surfaceHi: Color(0xFF1A1A21),
-  field: Color(0xFF131318),
-  line: Color(0xFF24242A),
-  lineStrong: Color(0xFF33333D),
-  lineField: Color(0xFF33333D),
-  text: Color(0xFFFFF9F9),
-  dim: Color(0xFFA4A4AD),
-  faint: Color(0xFF8A8A94),
-  accent: Color(0xFFF6D471),
-  accentInk: Color(0xFF08080A),
-  accentText: Color(0xFFF6D471),
-  accentSoft: Color(0x24F6D471),
-  tick: Color(0xFFC98A3E),
-  ok: Color(0xFF8AD98A),
-  okSoft: Color(0x1F8AD98A),
-  warn: Color(0xFFF5A54A),
-  warnSoft: Color(0x1FF5A54A),
-  risk: Color(0xFFF08A8A),
-  riskSoft: Color(0x1FF08A8A),
-  info: Color(0xFF8FB8E8),
-  infoSoft: Color(0x1F8FB8E8),
-  selected: Color(0xFF22222B),
-  selectedLine: Color(0xFF4A4A56),
-  txSent: Color(0xFFF3645F),
-  txReceived: Color(0xFF8AD98A),
-  txCancelled: Color(0xFFA4A4AD),
+  bg: PaletteDark.bg,
+  surface: PaletteDark.s1,
+  surfaceHi: PaletteDark.s3,
+  raised: PaletteDark.s4,
+  field: PaletteDark.s2,
+  line: PaletteDark.line,
+  lineStrong: PaletteDark.lineStrong,
+  lineField: PaletteDark.lineField,
+  text: PaletteDark.text,
+  dim: PaletteDark.dim,
+  faint: PaletteDark.faint,
+  accent: PaletteDark.accent,
+  accentInk: PaletteDark.accentInk,
+  accentText: PaletteDark.accentText,
+  accentSoft: PaletteDark.accentSoft,
+  tick: PaletteDark.tick,
+  ok: PaletteDark.ok,
+  okSoft: PaletteDark.okSoft,
+  warn: PaletteDark.warn,
+  warnSoft: PaletteDark.warnSoft,
+  risk: PaletteDark.risk,
+  riskSoft: PaletteDark.riskSoft,
+  info: PaletteDark.info,
+  infoSoft: PaletteDark.infoSoft,
+  selected: PaletteDark.selected,
+  selectedLine: PaletteDark.selectedLine,
+  txSent: PaletteDark.txSent,
+  txReceived: PaletteDark.txReceived,
+  txCancelled: PaletteDark.txCancelled,
+  scrim: PaletteDark.scrim,
+  shadow: PaletteDark.shadow,
   radius: 14,
   radiusSmall: 8,
   controlHeight: 48,
@@ -292,37 +334,40 @@ const WalletTokens protocolDark = WalletTokens(
   monoFamily: jetBrainsMono,
 );
 
-/// Protocol, light. Gold becomes the devhub's AA brown, amber a burnt orange, and the ticks
-/// turn charcoal.
+/// Protocol, light, from the shared palette: gold an AA brown, amber a burnt orange, the
+/// ticks charcoal, fields white.
 const WalletTokens protocolLight = WalletTokens(
-  bg: Color(0xFFF7F7F8),
-  surface: Color(0xFFFFFFFF),
-  surfaceHi: Color(0xFFEEEEF0),
-  field: Color(0xFFEEEEF0),
-  line: Color(0xFFE0E0E4),
-  lineStrong: Color(0xFFC9C9D0),
-  lineField: Color(0xFF868690),
-  text: Color(0xFF1C1E21),
-  dim: Color(0xFF55555F),
-  faint: Color(0xFF6B6B75),
-  accent: Color(0xFF8F5E1F),
-  accentInk: Color(0xFFFFFFFF),
-  accentText: Color(0xFF8F5E1F),
-  accentSoft: Color(0x1F8F5E1F),
-  tick: Color(0xFF1C1E21),
-  ok: Color(0xFF1F7A3A),
-  okSoft: Color(0x1A1F7A3A),
-  warn: Color(0xFFAA5500),
-  warnSoft: Color(0x1AAA5500),
-  risk: Color(0xFFB3261E),
-  riskSoft: Color(0x1AB3261E),
-  info: Color(0xFF2F5F9E),
-  infoSoft: Color(0x1A2F5F9E),
-  selected: Color(0xFFECECEF),
-  selectedLine: Color(0xFFB4B4BD),
-  txSent: Color(0xFFC41E3A),
-  txReceived: Color(0xFF1F7A3A),
-  txCancelled: Color(0xFF55555F),
+  bg: PaletteLight.bg,
+  surface: PaletteLight.s1,
+  surfaceHi: PaletteLight.s3,
+  raised: PaletteLight.s4,
+  field: PaletteLight.s2,
+  line: PaletteLight.line,
+  lineStrong: PaletteLight.lineStrong,
+  lineField: PaletteLight.lineField,
+  text: PaletteLight.text,
+  dim: PaletteLight.dim,
+  faint: PaletteLight.faint,
+  accent: PaletteLight.accent,
+  accentInk: PaletteLight.accentInk,
+  accentText: PaletteLight.accentText,
+  accentSoft: PaletteLight.accentSoft,
+  tick: PaletteLight.tick,
+  ok: PaletteLight.ok,
+  okSoft: PaletteLight.okSoft,
+  warn: PaletteLight.warn,
+  warnSoft: PaletteLight.warnSoft,
+  risk: PaletteLight.risk,
+  riskSoft: PaletteLight.riskSoft,
+  info: PaletteLight.info,
+  infoSoft: PaletteLight.infoSoft,
+  selected: PaletteLight.selected,
+  selectedLine: PaletteLight.selectedLine,
+  txSent: PaletteLight.txSent,
+  txReceived: PaletteLight.txReceived,
+  txCancelled: PaletteLight.txCancelled,
+  scrim: PaletteLight.scrim,
+  shadow: PaletteLight.shadow,
   radius: 14,
   radiusSmall: 8,
   controlHeight: 48,
@@ -368,6 +413,8 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     inverseSurface: t.text,
     onInverseSurface: t.bg,
     inversePrimary: t.accent,
+    scrim: t.scrim,
+    shadow: t.shadowInk,
   );
   final base = ThemeData(
     colorScheme: scheme,
@@ -416,20 +463,32 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         tracking: -0.4,
       )?.copyWith(color: t.text, fontSize: 19),
     ),
+    // One disabled recipe for every button, as the desktop's EButton (D-03): a flat fill
+    // ([disabledButtonFill]), faint ink, no edge, so a disabled primary never reads as an
+    // enabled outlined secondary.
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: minSize,
         shape: shape,
         textStyle: buttonText,
+        disabledBackgroundColor: disabledButtonFill(t),
+        disabledForegroundColor: t.faint,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: t.text,
-        side: BorderSide(color: t.lineStrong),
         minimumSize: minSize,
         shape: shape,
         textStyle: buttonText,
+        disabledForegroundColor: t.faint,
+      ).copyWith(
+        side: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.disabled) ? BorderSide.none : BorderSide(color: t.lineStrong),
+        ),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.disabled) ? disabledButtonFill(t) : null,
+        ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -467,7 +526,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     // never Material's light default.
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
-        color: t.surfaceHi,
+        color: t.raised,
         border: Border.all(color: t.lineStrong),
         borderRadius: BorderRadius.circular(t.radiusSmall),
       ),
@@ -479,6 +538,17 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       waitDuration: const Duration(milliseconds: 400),
       showDuration: const Duration(seconds: 3),
     ),
+    // Every popup menu: the desktop's menu look (raised fill, lineStrong edge, soft shadow).
+    popupMenuTheme: PopupMenuThemeData(
+      color: t.raised,
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: t.shadowInk,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(t.radiusSmall),
+        side: BorderSide(color: t.lineStrong),
+      ),
+    ),
     cardTheme: CardThemeData(
       color: t.surface,
       elevation: 0,
@@ -488,7 +558,12 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         side: BorderSide(color: t.line),
       ),
     ),
-    listTileTheme: ListTileThemeData(iconColor: t.dim, textColor: t.text),
+    // A row's subtitle (a setting's value: "Dark", "After 15 minutes") is secondary: dim, set
+    // here once. The title keeps the text colour.
+    listTileTheme: ListTileThemeData(
+      iconColor: t.dim,
+      subtitleTextStyle: text.bodyMedium?.copyWith(color: t.dim),
+    ),
     dividerTheme: DividerThemeData(color: t.line, thickness: 1, space: 1),
     // A disabled switch fades to 40%, as the desktop's ESwitch: a locked one never looks live.
     switchTheme: SwitchThemeData(
@@ -559,3 +634,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
 /// [color] at 40% while the switch is disabled.
 Color _switchFade(Set<WidgetState> states, Color color) =>
     states.contains(WidgetState.disabled) ? color.withValues(alpha: 0.4) : color;
+
+/// The fill of a disabled button (filled or outlined, both platforms' recipe): the text colour
+/// at a low alpha, visible on every surface without looking pressable.
+Color disabledButtonFill(WalletTokens t) => t.text.withValues(alpha: 0.08);

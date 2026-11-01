@@ -323,8 +323,8 @@ void main() {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     Finder says(String value, String text) => find.descendant(of: row(value), matching: find.textContaining(text, findRichText: true));
     expect(says('http://10.0.1.24:3413', 'Not reachable from this computer'), findsOneWidget);
-    expect(says('http://10.0.1.24:3413', 'Not responding'), findsNothing);
-    expect(says('https://node.stack.invalid:3413', 'Not responding'), findsOneWidget);
+    expect(says('http://10.0.1.24:3413', 'Not answering'), findsNothing);
+    expect(says('https://node.stack.invalid:3413', 'Not answering'), findsOneWidget);
     expect(says('https://node.stack.invalid:3413', 'Not reachable'), findsNothing);
     await end(tester);
   });
@@ -460,6 +460,47 @@ void main() {
       final rows = nodePanelRows(const [NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', own: true)], labels: const {'http://10.0.1.24:3413': 'Garage'});
       expect(rows.single.operator, 'Garage');
       expect(nodePanelRows(const [NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', own: true)]).single.operator, 'Home node');
+    });
+  });
+
+  group('the closed field', () {
+    Future<void> pumpField(WidgetTester tester, String text, {String? sub}) => show(
+      tester,
+      Align(
+        alignment: Alignment.topLeft,
+        child: SizedBox(
+          width: 520,
+          child: ServerListPanel(
+            kind: ServerKind.node,
+            label: 'Node',
+            value: _epicnet,
+            fieldText: text,
+            fieldSub: sub,
+            servers: [PanelServer.bare(ServerKind.node, _epicnet)],
+            source: const DeskServerSource(public: [_epicnet]),
+            onChoose: (_) async {},
+            onTest: (_) async => null,
+          ),
+        ),
+      ),
+    );
+
+    String? family(WidgetTester tester, String text) => tester.widget<Text>(find.text(text)).style?.fontFamily;
+
+    testWidgets('a host is in mono, a word in the interface face; the chevron stays at the end', (tester) async {
+      for (final (text, sub, mono) in [
+        ('10.0.1.24:3413', null, true),
+        ('node.net.invalid:3413', 'EpicNet', true),
+        ('Local node', null, false),
+        ('Local node', 'Running', false),
+      ]) {
+        await pumpField(tester, text, sub: sub);
+        expect(family(tester, text) == 'JetBrainsMonoNL', mono, reason: text);
+        final chevron = tester.getRect(find.byIcon(EIcons.chevronDown));
+        // The field is 520 wide with Sp.x2 padding at the end: the chevron sits against it.
+        expect(chevron.right, greaterThan(520 - 24), reason: '$text: chevron at the end');
+        await end(tester);
+      }
     });
   });
 }

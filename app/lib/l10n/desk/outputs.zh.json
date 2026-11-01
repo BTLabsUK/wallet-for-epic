@@ -68,6 +68,7 @@
   "deskOutStatusMining": "挖矿",
   "deskOutStatusLocked": "已锁定",
   "deskOutNoteBySend": "被发送 #{id} 锁定",
+  "deskOutNoteByPendingSend": "被进行中的付款占用 · {date}",
   "deskOutStatusSpent": "已花费",
   "deskOutTxReceived": "收到 {date}",
   "deskOutTxSent": "发出 {date}",
@@ -119,7 +120,7 @@
   "deskOutNothingText": "无需合并：钱包只有{what}。",
   "deskOutWhatFewer": "不到两个可用输出",
   "deskOutWhatOne": "一个可用输出",
-  "deskOutDefaultsMoved": "发送的“策略”和“拆分找零”在“设置 › 交易”中设置。",
+  "deskOutDefaultsMoved": "发送的“策略”和“拆分找零”在“设置 › 交易”中设置。",
   "deskOutDefaultsOpen": "打开“交易”",
   "deskOutNoteWaitingRecipient": "等待接收方",
   "deskOutFilterWaiting": "等待中"

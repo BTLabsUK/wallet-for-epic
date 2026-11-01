@@ -41,6 +41,7 @@
   "deskSetupType": "ประเภท",
   "deskSetupAddress": "ที่อยู่",
   "deskSetupExistingNode": "โหนดที่มีอยู่ที่ {host}",
+  "deskSetupExistingNodeType": "โหนดที่มีอยู่",
   "deskSetupBundledNode": "โหนดในเครื่อง",
   "deskSetupWhileSyncing": "ระหว่างซิงก์",
   "deskSetupWait": "รอ",

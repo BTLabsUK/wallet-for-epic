@@ -8,6 +8,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../log.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
+import '../../../phrase_problem.dart';
 import 'phrase_grid.dart';
 import 'restore_screen.dart' show RestoreSample;
 import 'unlock_screen.dart' show UnlockPick;
@@ -220,12 +221,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           child: EOnbFrame(
             sideTitle: l.deskOnbForgotTitle,
             steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
-            title: l.deskErrPasswordNotChanged,
+            title: l.deskOnbForgotFailedTitle,
+            lead: l.deskOnbForgotFailedLead,
+            back: backButton(() => setState(() => _step = _Step.words)),
             actions: [
-              backButton(() => setState(() => _step = _Step.words)),
               EButton.primary(key: const ValueKey('reset-restore-instead'), label: l.deskOnbForgotRestoreInstead, busy: _checking, onPressed: _checking ? null : _restoreInstead),
             ],
-            child: ENotice(tone: ETone.warn, title: l.deskOnbForgotTitle, text: _failure),
+            child: ENotice(tone: ETone.warn, title: _failure ?? l.deskErrPasswordNotChanged),
           ),
         );
       case _Step.working || _Step.failed:
@@ -253,8 +255,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
             title: l.deskSetDlgPwNew,
             lead: l.deskOnbForgotPasswordLead,
+            back: backButton(() => setState(() => _step = _Step.words)),
             actions: [
-              backButton(() => setState(() => _step = _Step.words)),
               EButton.primary(key: const ValueKey('reset-password-save'), label: l.deskOnbForgotSet, onPressed: _passwordOk ? _reset : null),
             ],
             child: AccountForm(password: _password, confirm: _confirm, passwordError: pe, confirmError: ce, onChanged: () => setState(() {}), onSubmit: _passwordOk ? _reset : null),
@@ -277,6 +279,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       _ when _phraseError != null => (_phraseError!, c.risk),
       _ when _clipboardEmpty => (l.deskOnbRestoreNothingToPaste, c.warn),
       _ when e.pasteError != null => (l.deskOnbRestorePasteCount(e.pasteError!), c.risk),
+      _ when e.invalid.length > 1 => (l.deskOnbRestoreBadWords(unknownWordsText(e.unknownWords)), c.risk),
       _ when bad != null => (l.deskOnbRestoreBadWord(bad + 1, e.words[bad]), c.risk),
       _ when complete => (l.deskOnbRestoreAllOk(e.length), c.ok),
       _ when e.checksumOk == false && e.checksumFirm => (l.deskOnbRestoreChecksumFirm, c.risk),
@@ -287,8 +290,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 0),
       title: l.deskOnbStepPhrase,
       lead: l.deskOnbForgotLead(name),
+      back: backButton(() => _toUnlock()),
       actions: [
-        backButton(() => _toUnlock()),
         EButton.ghost(label: l.commonPaste, icon: narrow ? null : EIcons.paste, onPressed: _pasteClipboard),
         EButton.ghost(label: l.deskOnbRestoreClear, icon: narrow ? null : EIcons.trash, onPressed: e.filled == 0 ? null : e.clear),
         EButton.primary(

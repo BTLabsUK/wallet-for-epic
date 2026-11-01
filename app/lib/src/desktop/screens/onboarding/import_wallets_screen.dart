@@ -346,7 +346,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 
   ({String title, String? lead}) _head(AppLocalizations l) => switch (_step) {
     ImportStep.find => (title: l.deskOnbImportFindingTitle, lead: l.deskOnbImportFindingLead),
-    ImportStep.found => (title: l.deskOnbImportFoundTitle(_found.length), lead: null),
+    ImportStep.found => (title: l.deskOnbImportFoundTitle(_found.length), lead: l.deskOnbImportFoundLead),
     ImportStep.none => (title: l.deskOnbImportNoneTitle, lead: l.deskOnbImportNoneLead),
     ImportStep.choose => (title: l.deskOnbImportChooseTitle, lead: l.deskOnbImportChooseLead),
     ImportStep.check => (title: l.deskOnbImportCheckTitle, lead: l.deskOnbImportCheckLead),
@@ -364,7 +364,6 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ts = context.ts;
     final l = context.l10n;
     final h = _head(l);
     final chosen = _chosen;
@@ -405,9 +404,9 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
               alignment: Alignment.centerLeft,
               child: EButton.ghost(label: l.commonCancel, icon: EIcons.close, tabStop: false, onPressed: _busy ? null : _cancel),
             ),
+      back: canBack ? backButton(_back, label: l.deskOnbImportBack) : null,
+      status: stat,
       actions: [
-        if (stat != null) Expanded(child: Text(stat, style: ts.small)) else const SizedBox.shrink(),
-        if (canBack) Padding(padding: EdgeInsets.only(right: Sp.x3), child: EButton(label: l.deskOnbImportBack, tabStop: false, onPressed: _back)),
         if (_step == ImportStep.import && current != null)
           // Tab: Import, then Skip (Skip sits left of the main button).
           FocusTraversalGroup(
@@ -487,7 +486,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(extra == null ? f.name : '${f.name} · $extra', style: ts.label),
+              Text(extra == null ? f.name : metaLine([f.name, extra]), style: ts.label),
               ETip.value(
                 f.folder,
                 mono: true,
@@ -595,7 +594,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
     final ts = context.ts;
     final c = context.dc;
     final l = context.l10n;
-    final meta = [if (f.lastUsed != null) l.deskOnbImportLastUsed(_date(l, f.lastUsed!)), _size(l, f.sizeBytes)].join(' · ');
+    final meta = metaLine([if (f.lastUsed != null) l.deskOnbImportLastUsed(_date(l, f.lastUsed!)), _size(l, f.sizeBytes)]);
     final notes = [
       if (f.blocked != null) f.blocked!,
       if (f.importable && f.sameAs != null) l.deskOnbImportSecondCopy('${f.sameAs}'),
@@ -896,7 +895,7 @@ Future<bool?> showImportStopDialog(BuildContext context) => showEDialog<bool>(
     description: ctx.l10n.deskOnbImportStopBody,
     icon: EIcons.stop,
     tone: ETone.warn,
-    width: 420.u,
+    size: DialogWidth.standard,
     actions: [
       EButton(label: ctx.l10n.deskOnbImportGoBack, onPressed: () => Navigator.pop(ctx, false)),
       EButton(label: ctx.l10n.deskOnbImportStop, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),

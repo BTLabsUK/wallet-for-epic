@@ -9,6 +9,7 @@
 /// does, after the user agreed.
 library;
 
+import '../../demo_fixtures.dart';
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -528,7 +529,7 @@ class MockDeskNode implements DeskNodeApi {
               direction: i % 3 == 2 ? PeerDirection.outbound : PeerDirection.inbound,
               userAgent: i == 5 ? 'MW/Epic 3.6.0' : 'MW/Epic 4.1.1', // l10n-ok: mock peer user agent
               protocolVersion: 1000,
-              height: 3764975 - (i % 4) * 2,
+              height: demoTip - (i % 4) * 2,
             ),
             firstSeen: at.subtract(Duration(minutes: i * 7)),
           ),
@@ -644,7 +645,7 @@ class MockDeskNode implements DeskNodeApi {
   Future<OwnNodeStatus> ownerStatus(String url, {int? networkHeight}) async {
     await _ownerReady(url);
     return ownStatus ??
-        OwnNodeStatus(at: DateTime(2026, 10, 22, 14, 2), syncStatus: 'no_sync', progress: null, peers: peerCount, version: '4.1.1', height: mockTip);
+        OwnNodeStatus(at: DateTime(2026, 10, 22, 14, 2), syncStatus: 'no_sync', progress: null, peers: peerCount, version: demoNodeVersion, height: mockTip);
   }
 
   @override
@@ -668,7 +669,7 @@ const int _gb = 1000 * 1000 * 1000;
 const String mockDataFolder = '~/.epic_cash_desktop/node';
 
 /// The mock's network tip.
-const int mockTip = 3764975;
+const int mockTip = demoTip;
 
 /// A local node state of the mock: [phase] with the usual numbers, [stage] while syncing.
 LocalNodeState mockLocalNode(
@@ -710,7 +711,7 @@ LocalNodeState mockLocalNode(
     networkHeight: mockTip,
     blocksBehind: phase == LocalNodePhase.synced ? 0 : null,
     readyForTxs: phase == LocalNodePhase.synced,
-    version: '4.1.1',
+    version: demoNodeVersion,
     startedAt: live || stalled ? at.subtract(const Duration(hours: 2, minutes: 14)) : null,
     uptime: live || stalled ? const Duration(hours: 2, minutes: 14) : null,
     chainDataBytes: bytes ?? (phase == LocalNodePhase.stopped && bytes == 0 ? 0 : (5.2 * _gb).round()),
@@ -801,7 +802,7 @@ NodeInfo mockNodeInfo(
     releasedVersion: directory ? '4.1.1' : null,
     latencyMs: down ? null : latencyMs,
     directoryReachedAt: directory ? DateTime(2026, 10, 22, 14, 1) : null,
-    uptime24h: directory ? 0.997 : null,
+    uptime24h: directory ? demoNodeUptime : null,
     peers: directory ? 63 : null,
     operator: directory ? 'Epic Cash' : null, // l10n-ok: mock operator name
     listing: directory ? 'official' : null,
@@ -852,7 +853,7 @@ const List<String> mockNodeLog = [
   '20261022 13:58:01.530 INFO epic_p2p::serv - P2P server started on 0.0.0.0:3414', // l10n-ok: mock node log (log lines are English)
   '20261022 13:58:04.882 INFO epic_servers::epic::sync::syncer - sync: waiting for peers', // l10n-ok: mock node log (log lines are English)
   '20261022 13:58:12.301 WARN epic_p2p::peers - connect to 198.51.100.4:3414 timed out', // l10n-ok: mock node log (log lines are English)
-  '20261022 13:58:19.004 INFO epic_servers::epic::sync::header_sync - header sync: 1480200 of 3764975', // l10n-ok: mock node log (log lines are English)
+  '20261022 13:58:19.004 INFO epic_servers::epic::sync::header_sync - header sync: 1480200 of $demoTip', // l10n-ok: mock node log (log lines are English)
   '20261022 14:01:44.770 ERROR epic_p2p::protocol - bad block from 203.0.113.9:3414, banning', // l10n-ok: mock node log (log lines are English)
-  '20261022 14:02:00.010 INFO epic_servers::epic::sync::header_sync - header sync: 1482900 of 3764975', // l10n-ok: mock node log (log lines are English)
+  '20261022 14:02:00.010 INFO epic_servers::epic::sync::header_sync - header sync: 1482900 of $demoTip', // l10n-ok: mock node log (log lines are English)
 ];

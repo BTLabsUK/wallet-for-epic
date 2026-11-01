@@ -198,7 +198,7 @@ void main() {
 
     testWidgets('syncing with a percent', (tester) async {
       await _pump(tester, syncing: true, percent: 42);
-      expect(_in(netStatusNodeKey, 'Syncing 42 %'), findsOneWidget);
+      expect(_in(netStatusNodeKey, 'Syncing 42%'), findsOneWidget);
     });
 
     testWidgets('syncing without a percent, while the wallet is behind the tip', (tester) async {
@@ -218,7 +218,7 @@ void main() {
 
     testWidgets('offline when the node fails', (tester) async {
       await _pump(tester, tip: AsyncError(StateError('no'), StackTrace.empty));
-      expect(_in(netStatusNodeKey, 'Offline'), findsOneWidget);
+      expect(_in(netStatusNodeKey, 'Not answering'), findsOneWidget);
     });
 
     testWidgets('behind when the network is ahead', (tester) async {
@@ -245,7 +245,7 @@ void main() {
         nodeUrl: 'https://floo-node.lab.invalid',
       );
       expect(
-        _in(netStatusNodeKey, 'Floonet · floo-node.lab.invalid'),
+        _in(netStatusNodeKey, 'Floonet\u00A0· floo-node.lab.invalid'),
         findsOneWidget,
       );
     });
@@ -293,10 +293,10 @@ void main() {
     for (final (state, word) in [
       (
         const PhoneTorState(receiving: true, phase: PhoneTorPhase.starting, progress: 40),
-        'Starting…',
+        'Starting',
       ),
-      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.connected), 'On'),
-      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), 'On'),
+      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.connected), 'Connected'),
+      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), 'Connected'),
       (
         const PhoneTorState(receiving: true, phase: PhoneTorPhase.failed,
           failure: TorFailure.network,
@@ -311,7 +311,7 @@ void main() {
     }
 
     for (final (state, word, ok) in [
-      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), 'On', true),
+      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), 'Connected', true),
       (
         const PhoneTorState(receiving: true, phase: PhoneTorPhase.failed),
         'Not connected',

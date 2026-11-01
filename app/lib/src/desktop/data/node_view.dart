@@ -6,11 +6,13 @@ library;
 
 import '../../address_format.dart' show railHost;
 import '../../builtin_node.dart' show NodeStartException;
-import '../../l10n.dart' show AppLocalizations, localDigits, localInt;
-import '../widgets/status.dart' show EState;
+import '../../node_failover.dart' show NodeFailover;
+import '../../l10n.dart' show AppLocalizations, localDigits, localInt, percentText;
+import '../widgets/status.dart' show EState, ShownState;
 import 'desk_node.dart';
 import '../../settings_file/host_settings.dart' show hostSettings;
 import 'models.dart' show ServiceHealth;
+import '../../text_join.dart';
 
 /// One node as the rail and the panels show it.
 class NodeView {
@@ -22,6 +24,9 @@ class NodeView {
     this.eta,
     this.lines = const [],
   });
+
+  /// A node in [shown]: its one word and state (state_language.dart).
+  NodeView.of(AppLocalizations l, ShownState shown, {required this.host, this.marker, this.eta, this.lines = const []}) : word = shown.word(l), state = EState.of(shown);
 
   /// Synced, Behind, Not answering, Checking, Starting, Syncing, Stalled, Failed, Stopped.
   final String word;
@@ -40,7 +45,7 @@ class NodeView {
   /// The tooltip's lines, only the known ones.
   final List<String> lines;
 
-  String get second => marker == null ? host : '$host · $marker';
+  String get second => marker == null ? host : metaLine([host, marker]);
 }
 
 /// 2914414 → "2,914,414" (`2.914.414` in German), for text shown.
@@ -48,7 +53,11 @@ String digits(AppLocalizations l, int n) => localInt(l, n);
 
 String hhmm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
-/// "12 %" of an overall progress 0–1 (floored: never 100 % before Synced).
+/// "12%" of an overall progress 0–1 (floored: never 100% before Synced), in [l]'s language.
+String syncPercent(AppLocalizations l, double overall) => percentText(l, (overall * 100).floor().clamp(0, 99));
+
+/// "12%" of an overall progress 0–1, always the English form.
+@Deprecated("Use syncPercent, which writes the percent in the user's language")
 String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)}%';
 
 /// The whole sync's rough time left as the sidebar status and the Node page say it: "about
@@ -103,32 +112,28 @@ String ownAddress(String url) {
 NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false}) {
   // An own node: "Your node" on the rail, "Your node · 10.0.1.24:<port>" in the tooltip.
   final own = shownClass(url, info, mine: mine).own;
-  final full = own ? '${l.deskOwnYourNode} · ${ownAddress(url)}' : nodeHost(url);
+  final full = own ? metaLine([l.deskOwnYourNode, ownAddress(url)]) : nodeHost(url);
   final host = own ? l.deskOwnYourNode : railHost('Node', full); // l10n-ok: railHost's kind key
   final probeFailed = info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
-  if (probeFailed && health == ServiceHealth.ok) return NodeView(word: l.deskNodeSynced, state: EState.ok, host: host, lines: [full]);
+  if (probeFailed && health == ServiceHealth.ok) return NodeView.of(l, ShownState.synced, host: host, lines: [full]);
   final down = health == ServiceHealth.down || probeFailed;
   if (down) {
-    return NodeView(
-      word: l.deskNodeNotAnswering,
-      state: EState.risk,
+    return NodeView.of(l, ShownState.notAnswering,
       host: host,
       marker: l.deskNodeMarkerNoAnswer,
       lines: [downSince == null ? full : l.deskNodeHostSince(full, hhmm(downSince)), l.deskNodeNotAnsweringLine],
     );
   }
-  if (info == null) return NodeView(word: l.deskNodeChecking, state: EState.off, host: host, lines: [full]);
+  if (info == null) return NodeView.of(l, ShownState.checking, host: host, lines: [full]);
   final behind = info.blocksBehind;
   // An own node that is syncing: its own word, how far it has to go.
   if (own && info.head == NodeHead.syncing) {
     final h = info.height;
-    return NodeView(
-      word: l.deskNodeSyncing,
-      state: EState.active,
+    return NodeView.of(l, ShownState.syncing,
       host: host,
       marker: behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null,
       lines: [
-        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))].join(' · '),
+        metaLine([full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))]),
         l.deskOwnSyncingLine,
       ],
     );
@@ -136,32 +141,38 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   final h = info.height;
   final old = info.updateAvailable == true;
   final latency = shownLatency(info, torOn: torOn);
-  final second = [
+  final second = metaLine([
     if (latency != null) info.latencyOverTor ? l.deskNodeLatencyOverTor(digits(l, latency)) : l.deskNodeLatency(digits(l, latency)),
     if (info.version != null) 'v${info.version}',
     if (old && info.releasedVersion != null) l.deskNodeNewerOut(info.releasedVersion!),
-  ].join(' · ');
+  ]);
   if ((behind != null && behind > syncedWithinBlocks) || (own && info.head == NodeHead.behind)) {
-    return NodeView(
-      word: l.deskNodeBehind,
-      state: EState.warn,
+    return NodeView.of(l, ShownState.behind,
       host: host,
       marker: behind == null ? null : l.deskNodeMarkerBehind(digits(l, behind)),
       lines: [
-        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))].join(' · '),
+        metaLine([full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))]),
         l.deskNodeBehindLine,
       ],
     );
   }
-  return NodeView(
-    word: l.deskNodeSynced,
-    state: EState.ok,
+  return NodeView.of(l, ShownState.synced,
     host: host,
     lines: [
-      [full, if (h != null) digits(l, h), if (behind != null) l.deskNodeAtTip].join(' · '),
+      metaLine([full, if (h != null) digits(l, h), if (behind != null) l.deskNodeAtTip]),
       if (second.isNotEmpty) second,
     ],
   );
+}
+
+/// The user's own node [url] as the Node page shows it, the one state its field's dot and its
+/// panel's line both read (#76, E-03). [health] is the wallet's view of the node in use; it
+/// speaks for the own node only while no public node stands in for it ([standIn] names the
+/// node it stands in for): with one standing in, the own node's own answer ([info]) decides,
+/// so a node that does not answer reads Not answering, never the stand-in's Synced.
+NodeView ownNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, NodeFailover? standIn, bool mine = false}) {
+  final standing = standIn != null && standIn.chosen == url;
+  return remoteNodeView(l, url, info, health: !standing && health == ServiceHealth.ok ? health : null, mine: mine);
 }
 
 /// A node URL on this computer (the local node's own address).
@@ -177,61 +188,51 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
   final name = l.deskNodeLocal;
   final fallback = fallbackUrl == null || isLocalNodeUrl(fallbackUrl) ? null : nodeHost(fallbackUrl);
   final host = fallback != null ? railHost('Node', fallback) : name; // l10n-ok: railHost's row key
-  if (s == null) return NodeView(word: l.deskNodeChecking, state: EState.off, host: host, lines: [name]);
+  if (s == null) return NodeView.of(l, ShownState.checking, host: host, lines: [name]);
   final p = s.progress;
   switch (s.phase) {
     case LocalNodePhase.starting:
-      return NodeView(
-        word: l.deskNodeStarting,
-        state: EState.active,
+      return NodeView.of(l, ShownState.starting,
         host: host,
         marker: l.deskNodeMarkerStarting,
         lines: [name, l.deskNodeConnectingPeers, if (fallback != null) l.deskNodeUsingUntilSynced(fallback)],
       );
     case LocalNodePhase.syncing:
-      final pct = p?.overall == null ? null : percent(p!.overall!);
-      return NodeView(
-        word: l.deskNodeSyncing,
-        state: EState.active,
+      final pct = p?.overall == null ? null : syncPercent(l, p!.overall!);
+      return NodeView.of(l, ShownState.syncing,
         host: host,
         marker: pct,
         eta: syncEtaText(l, s.etaTotal),
         lines: [
-          [name, ?pct, syncEtaText(l, s.etaTotal)].join(' · '),
-          [if (p != null) stageLine(l, p), if (s.peers != null) l.deskNodePeers(s.peers!)].join(' · '),
+          metaLine([name, ?pct, syncEtaText(l, s.etaTotal)]),
+          metaLine([if (p != null) stageLine(l, p), if (s.peers != null) l.deskNodePeers(s.peers!)]),
           fallback != null ? l.deskNodeUsingUntilSynced(fallback) : l.deskNodeNothingUntilSynced,
         ].where((line) => line.isNotEmpty).toList(),
       );
     case LocalNodePhase.synced:
-      return NodeView(
-        word: l.deskNodeSynced,
-        state: EState.ok,
+      return NodeView.of(l, ShownState.synced,
         host: host,
         lines: [
-          [name, if (s.height != null) digits(l, s.height!), l.deskNodeAtTip].join(' · '),
-          [if (s.peers != null) l.deskNodePeers(s.peers!), if (s.version != null) 'v${s.version}', if (s.uptime != null) l.deskNodeRunning(duration(l, s.uptime!))].join(' · '),
+          metaLine([name, if (s.height != null) digits(l, s.height!), l.deskNodeAtTip]),
+          metaLine([if (s.peers != null) l.deskNodePeers(s.peers!), if (s.version != null) 'v${s.version}', if (s.uptime != null) l.deskNodeRunning(duration(l, s.uptime!))]),
           if (fallback != null) l.deskNodeStillUsing(fallback),
         ],
       );
     case LocalNodePhase.error:
       if (s.stalled) {
-        return NodeView(
-          word: l.deskNodeStalled,
-          state: EState.risk,
+        return NodeView.of(l, ShownState.stalled,
           host: host,
           marker: l.deskNodeMarkerStalled,
           lines: [
-            [name, if (s.height != null) digits(l, s.height!)].join(' · '),
+            metaLine([name, if (s.height != null) digits(l, s.height!)]),
             l.deskNodeNoProgress,
             if (fallback != null) l.deskNodeUsingMeanwhile(fallback),
           ],
         );
       }
-      return NodeView(word: l.deskNodeFailed, state: EState.risk, host: host, marker: l.deskNodeMarkerFailed, lines: [name, failureLine(l, s), if (fallback != null) l.deskNodeUsingMeanwhile(fallback)]);
+      return NodeView.of(l, ShownState.failed, host: host, marker: l.deskNodeMarkerFailed, lines: [name, failureLine(l, s), if (fallback != null) l.deskNodeUsingMeanwhile(fallback)]);
     case LocalNodePhase.stopped:
-      return NodeView(
-        word: l.deskNodeStopped,
-        state: EState.off,
+      return NodeView.of(l, ShownState.stopped,
         host: host,
         marker: l.deskNodeMarkerStopped,
         lines: [name, l.deskNodeStartIt, if (fallback != null) l.deskNodeUsingMeanwhile(fallback)],

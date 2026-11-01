@@ -3,10 +3,13 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, PointerEvent;
 import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../address_format.dart' show displayCase;
+import '../address_format.dart' as address_format show shortAddress;
 import '../advanced.dart' show NetworkModeRestricted;
 import '../amount.dart';
 import '../devices/device_ending.dart';
@@ -21,12 +24,15 @@ import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../stall_retry.dart';
+import '../text_join.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
+import 'address_view.dart' show ShortAddressText;
 import 'method_names.dart' show methodKindOfTransport;
 import 'notices.dart';
 import 'badge.dart';
+import 'demo_screens.dart' show DemoStripe;
 import 'finished_not_posted.dart' show isPostElsewhere;
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
@@ -38,6 +44,7 @@ import 'levels/payment_steps.dart' show paymentStepWord;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 
 export '../models.dart' show txAmount;
+export '../text_join.dart';
 
 export 'badge.dart';
 export 'notices.dart';
@@ -195,6 +202,8 @@ class _SlotScaffoldState extends State<SlotScaffold> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // The web demo's stripe (B-05); nothing outside a running demo.
+          const DemoStripe(),
           ProgressSlot(idle: widget.idle),
           MeasureDock(meter: _dock, child: const NoticeDock()),
           Expanded(
@@ -225,16 +234,34 @@ class _SlotScaffoldState extends State<SlotScaffold> {
 /// room below their last row. The rows that slide under the card come back when it leaves a
 /// few seconds later. A persistent notice (the update banner, there for minutes) instead
 /// pushes the content down and takes its own space, with no slack, so nothing sits under it
-/// (android-18). A change at the bottom (the keyboard) is left alone. [meter] reads the
-/// [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
+/// (android-18). So does a passing notice that no finger led to: one after a tap in a dialog
+/// or on another screen, or from the wallet by itself. Holding still would only slide the top
+/// of the screen under the card (a status card's header, A-07), with no finger to keep still
+/// for. The finger counts while the last press anywhere in the app was in this body, at most
+/// [touchWindow] before the notice. A change at the bottom (the keyboard) is left alone.
+/// [meter] reads the [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
 class StillUnderDock extends ConsumerStatefulWidget {
   const StillUnderDock({super.key, required this.child, this.meter});
 
   final Widget child;
   final DockMeter? meter;
 
+  /// How long after a press in the body a notice still counts as led by it.
+  static const Duration touchWindow = Duration(seconds: 3);
+
   @override
   ConsumerState<StillUnderDock> createState() => _StillUnderDockState();
+}
+
+/// The last press anywhere in the app: its pointer and when it went down.
+int _lastPress = -1;
+DateTime _lastPressAt = DateTime.fromMillisecondsSinceEpoch(0);
+bool _pressRoute = false;
+
+void _onAnyPointer(PointerEvent event) {
+  if (event is! PointerDownEvent) return;
+  _lastPress = event.pointer;
+  _lastPressAt = DateTime.now();
 }
 
 class _StillUnderDockState extends ConsumerState<StillUnderDock> {
@@ -243,9 +270,25 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
   double? _dockBefore;
   bool _slack = false;
 
-  /// Whether the dock's last change came from a persistent notice: opening for one, or
-  /// closing after one. Then the content moves with the dock instead of staying put.
-  bool _persistent = false;
+  /// Whether the dock's last change pushes the content: a persistent notice, or one no press
+  /// in this body led to; opening for it, or closing after it. Otherwise the content stays.
+  bool _push = false;
+
+  /// The last press in this body.
+  int _press = -2;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_pressRoute) {
+      _pressRoute = true;
+      GestureBinding.instance.pointerRouter.addGlobalRoute(_onAnyPointer);
+    }
+  }
+
+  /// Whether a finger in this body led to the notice arriving now.
+  bool get _touched =>
+      _press == _lastPress && DateTime.now().difference(_lastPressAt) <= StillUnderDock.touchWindow;
 
   double get _dockHeight => widget.meter?.height ?? 0;
 
@@ -270,7 +313,7 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
     final position = _position;
     if (before == null || position == null || !position.hasPixels) return;
     final moved = height - before;
-    if (moved.abs() < 0.01 || _persistent) return;
+    if (moved.abs() < 0.01 || _push) return;
     var to = math.max(position.pixels + moved, position.minScrollExtent);
     // Without slack to scroll into, the content moves by the rest.
     if (!_use.used) to = math.min(to, math.max(position.maxScrollExtent, position.pixels));
@@ -280,22 +323,27 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
   @override
   Widget build(BuildContext context) {
     ref.listen<Notice?>(noticeProvider, (previous, notice) {
-      _persistent = (notice ?? previous)?.persistent ?? false;
+      if (notice == null) return; // Closing goes the way it opened.
+      // Decided as the dock opens; a notice replacing one keeps its way, unless persistent.
+      _push = notice.persistent || (previous == null || previous.persistent ? !_touched : _push);
     });
     // Slack from the moment a notice arrives, before the dock has moved anything, and until
-    // the dock is shut; none for a persistent notice, which pushes the content instead.
+    // the dock is shut; none for a notice that pushes the content instead.
     final notice = ref.watch(noticeProvider);
     if (notice != null && notice.persistent) {
-      _persistent = true;
-    } else if (notice != null || _dockHeight >= 0.5) {
+      _push = true;
+    } else if (!_push && (notice != null || _dockHeight >= 0.5)) {
       _slack = true;
     }
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _onMetrics,
-      child: DockSlack(
-        extra: _slack ? MediaQuery.sizeOf(context).height : 0,
-        use: _use,
-        child: _OnLayout(onLayout: _onLayout, child: widget.child),
+      child: Listener(
+        onPointerDown: (e) => _press = e.pointer,
+        child: DockSlack(
+          extra: _slack ? MediaQuery.sizeOf(context).height : 0,
+          use: _use,
+          child: _OnLayout(onLayout: _onLayout, child: widget.child),
+        ),
       ),
     );
   }
@@ -403,18 +451,54 @@ class CenteredScroll extends StatelessWidget {
   }
 }
 
-/// [atomic] as text with its unit, by the one display rule ([displayEpic]: four decimals, cut
-/// off, never rounded). For everything shown; the exact amount is [epicExact].
-String epicText(AppLocalizations l, BigInt atomic) =>
-    '${localDigits(l, displayEpic(atomic))} EPIC';
+/// [atomic] as text with its unit after a no-break space, as a row shows it ([epicFor],
+/// [AmountSurface.row]: four decimals, cut off, never rounded). The exact amount, for commit
+/// surfaces, is [epicExact].
+String epicText(AppLocalizations l, BigInt atomic) => epicFor(l, atomic);
 
-/// [atomic] with every decimal and its unit ([exactEpic]): the balance sheet, a payment's
-/// exact amount, fees.
+/// [atomic] with every decimal and its unit ([AmountSurface.exact]): where money is committed
+/// or inspected (the review, the payment's details, its QR code), the balance sheet.
 String epicExact(AppLocalizations l, BigInt atomic) =>
-    '${localDigits(l, exactEpic(atomic))} EPIC';
+    epicFor(l, atomic, surface: AmountSurface.exact);
 
 /// What an amount shows while balances are hidden.
 const String hiddenAmount = '•••••';
+
+/// [base] in the data face every amount but the balance headline wears: JetBrains Mono with
+/// tabular figures, so digits line up from row to row.
+TextStyle amountStyle(BuildContext context, [TextStyle? base]) =>
+    (base ?? const TextStyle()).copyWith(
+      fontFamily: context.tokens.monoFamily,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+
+/// An amount's text ([epicFor], [epicText], [epicExact], [signedEpic]) in [amountStyle]: the
+/// phone's one amount widget, the desktop's being `EMoney`.
+class AmountText extends StatelessWidget {
+  const AmountText(
+    this.text, {
+    super.key,
+    this.style,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+  });
+
+  final String text;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: amountStyle(context, style),
+    textAlign: textAlign,
+    maxLines: maxLines,
+    overflow: overflow,
+  );
+}
 
 /// The exact amount behind a headline figure, for its tooltip: a tap on the phone, a hover
 /// with a mouse. None while amounts are hidden.
@@ -448,15 +532,13 @@ String shownEpic(
 /// URLs, and keys already short, come back as they are. Show the full address wherever the user
 /// may need to check or copy it.
 String shortAddress(String address, {String? ownServer, bool relay = true}) {
-  final text = address.trim();
+  // Scheme and host in lower case, as every address is shown; a key keeps its case.
+  final text = displayCase(address.trim());
   final lower = text.toLowerCase();
-  // A link: its host and port without the scheme, the ends kept, so two links that differ
-  // only at the end still tell apart ("pay.ex…m:<port>"); the full link stays on the details.
+  // A link: its host:port whole, without the scheme (address_format.dart's compact form);
+  // a host is never cut inside, and the full link stays on the details.
   if (lower.startsWith('http://') || lower.startsWith('https://')) {
-    final rest = text.substring(text.indexOf('://') + 3).replaceAll(RegExp(r'/+$'), '');
-    return rest.length <= 14
-        ? rest
-        : '${rest.substring(0, 6)}…${rest.substring(rest.length - 6)}';
+    return address_format.shortAddress(text, compact: true);
   }
   // An onion: the ends of its 56 characters, then `.onion`, which says what it is.
   if (lower.endsWith('.onion')) {
@@ -510,10 +592,10 @@ String? approxFiat(
   if (short) {
     final dot = text.indexOf('.');
     if (dot >= 0 && text.substring(0, dot).contains(',')) {
-      text = text.substring(0, dot) + text.substring(text.indexOf(' ', dot));
+      text = text.substring(0, dot) + text.substring(text.indexOf(noBreakSpace, dot));
     }
   }
-  return '≈ ${localDigits(l, text)}';
+  return approxText(localDigits(l, text));
 }
 
 // Dates.
@@ -564,8 +646,8 @@ String shortDate(AppLocalizations l, DateTime t, DateTime now) {
 
 // Transactions.
 
-/// `+5 EPIC`, `-1 EPIC`, or [hiddenAmount]; by the display rule, or with every decimal when
-/// [exact].
+/// `+5.0000 EPIC`, `−1.0000 EPIC` (a true minus, [minusSign]), or [hiddenAmount]; by the
+/// display rule, or with every decimal when [exact].
 String signedEpic(
   AppLocalizations l,
   TxEntry tx, {
@@ -575,7 +657,7 @@ String signedEpic(
   if (hidden) return hiddenAmount;
   final (:amount, :outgoing) = txAmount(tx);
   final text = shownEpic(l, amount, hidden: false, exact: exact);
-  return '${outgoing ? '-' : '+'}$text';
+  return '${outgoing ? minusSign : '+'}$text';
 }
 
 bool _outgoingKind(TxEntry tx) =>
@@ -867,14 +949,16 @@ class TxStatusLine extends ConsumerWidget {
           child: Icon(icon, size: 14, color: color),
         ),
         const SizedBox(width: 5),
-        // One text, so the status, method and time share the line; when they do not fit it
-        // wraps to a second line (status first, then the time) rather than cutting the time
-        // off (UP-001).
+        // One text, so the time, status and method share the line; the time comes first, so
+        // a long status or method never cuts it off (A-04): it is how two like payments tell
+        // apart. When they do not fit the line wraps after a dot ([metaSpans]), never cutting
+        // the time (UP-001).
         Flexible(
           flex: 3,
           child: Text.rich(
             TextSpan(
-              children: [
+              children: metaSpans([
+                TextSpan(text: date, style: base),
                 TextSpan(
                   text: paymentStepWord(
                     context.l10n,
@@ -889,12 +973,9 @@ class TxStatusLine extends ConsumerWidget {
                   ),
                   style: inProgress ? base?.copyWith(color: t.info) : base,
                 ),
-                if (method != null)
-                  TextSpan(text: ' \u00B7 $method', style: base),
-                TextSpan(text: ' \u00B7 $date', style: base),
-                if (aside != null)
-                  TextSpan(text: ' \u00B7 $aside', style: base),
-              ],
+                if (method != null) TextSpan(text: method, style: base),
+                if (aside != null) TextSpan(text: aside, style: base),
+              ], dot: base),
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -1165,7 +1246,7 @@ class TxStatusChip extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         badge,
-        InfoHint(context.l10n.devicesStatusInfo(name), size: 32, title: context.l10n.txSentFromDevice(name)),
+        InfoHint(context.l10n.devicesStatusInfo(name), size: InfoHint.inRow, title: context.l10n.txSentFromDevice(name)),
       ],
     );
   }
@@ -1736,6 +1817,10 @@ class TxTile extends ConsumerWidget {
       MaterialPageRoute<void>(builder: (_) => TxDetailsScreen(txKey: tx.key)),
     );
     final counterparty = tx.counterparty;
+    // No label and no name: the title is the short address.
+    final addressTitle = counterparty != null &&
+        name == null &&
+        title == shortAddress(counterparty, ownServer: ownEpicboxServer(ref), relay: relay);
     final aside = txTitleAside(
       tx,
       contactName: name,
@@ -1829,12 +1914,15 @@ class TxTile extends ConsumerWidget {
                         edit = tx.origin == TxOrigin.linkedDevice ? null : startEdit;
                         return IgnorePointer(
                           child: ExcludeSemantics(
-                            child: Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodyLarge,
-                            ),
+                            // An address for a title is in the mono face, shrunk, never cut.
+                            child: addressTitle
+                                ? ShortAddressText(counterparty, ownServer: ownEpicboxServer(ref), relay: relay, style: theme.textTheme.bodyMedium)
+                                : Text(
+                                    title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodyLarge,
+                                  ),
                           ),
                         );
                       },
@@ -1870,11 +1958,10 @@ class TxTile extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         // Amounts are data, so the mono face.
-                        Text(
+                        AmountText(
                           signed,
                           textAlign: TextAlign.end,
                           style: theme.textTheme.bodyLarge?.copyWith(
-                            fontFamily: context.tokens.monoFamily,
                             fontSize: 14.5,
                             // The amount wears the direction, like the icon: green in, red
                             // out; a cancelled one is struck through in grey.
@@ -1994,10 +2081,18 @@ class DangerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // The outlined risk style; disabled, the one disabled recipe (theme/tokens.dart).
     final style = OutlinedButton.styleFrom(
       foregroundColor: t.risk,
-      side: BorderSide(color: t.risk),
-      minimumSize: const Size(48, 44),
+      disabledForegroundColor: t.faint,
+      minimumSize: Size(48, t.controlHeight),
+    ).copyWith(
+      side: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? BorderSide.none : BorderSide(color: t.risk),
+      ),
+      backgroundColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? disabledButtonFill(t) : null,
+      ),
     );
     if (icon != null) return OutlinedButton.icon(style: style, icon: icon, label: label!, onPressed: onPressed);
     return OutlinedButton(style: style, onPressed: onPressed, child: child!);
@@ -2041,7 +2136,6 @@ class _PasswordFieldState extends State<PasswordField> {
       decoration: InputDecoration(
         labelText: widget.label,
         errorText: widget.errorText,
-        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           tooltip: _obscure
               ? context.l10n.passwordShow
@@ -2126,7 +2220,6 @@ class SlateInput extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         alignLabelWithHint: true,
-        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           tooltip: context.l10n.commonPaste,
           icon: const Icon(Icons.content_paste),

@@ -127,8 +127,8 @@ Future<void> showUpdateReadyDialog(ProviderContainer container, BuildContext? fa
         icon: EIcons.restart,
         tone: ETone.gold,
         actions: [
-          EButton(label: l.deskUpdLater, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-          EButton(label: byHand ? l.deskUpdOpenDmg : l.deskUpdRestartNow, kind: EBtnKind.primary, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+          EButton(label: l.deskUpdLater, onPressed: () => Navigator.pop(context, false)),
+          EButton(label: byHand ? l.deskUpdOpenDmg : l.deskUpdRestartNow, kind: EBtnKind.primary, onPressed: () => Navigator.pop(context, true)),
         ],
       );
     },

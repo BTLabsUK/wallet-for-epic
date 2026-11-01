@@ -8,6 +8,7 @@ library;
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import '../../../demo_fixtures.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -260,7 +261,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
       // Never inside the first build: the parent gets the choice a microtask later.
       await Future<void>.delayed(Duration.zero);
       final p = switch (widget.demo) {
-        LocalNodeDemo.found => LocalNodeProbe(url: _localUrl, answers: true, version: '4.1.1', height: mockTip, readyForTxs: true, latencyMs: 3),
+        LocalNodeDemo.found => LocalNodeProbe(url: _localUrl, answers: true, version: demoNodeVersion, height: mockTip, readyForTxs: true, latencyMs: 3),
         LocalNodeDemo.notFound => LocalNodeProbe(url: _localUrl, answers: false),
         LocalNodeDemo.none => await api.probe(),
       };
@@ -316,12 +317,12 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
               children: [
                 TextSpan(text: l.deskOnbNodeFound, style: ts.small.copyWith(color: c.ok, fontWeight: FontWeight.w600)),
                 TextSpan(
-                  text: [
-                    '',
-                    l.deskOnbNodeFoundAt(p.version ?? '?', '${nodeHost(p.url)}:${Uri.parse(p.url).port}'),
+                  // The dot after "Found" leads the line (metaLine drops a blank part).
+                  text: metaSeparator + metaLine([
+                    l.deskOnbNodeFoundAt(p.version ?? '?', hostPort(p.url)),
                     if (p.height != null) l.deskOnbNodeHeight(digits(context.l10n, p.height!)),
                     if (p.readyForTxs == true) l.deskOnbNodeSynced,
-                  ].join(' · '),
+                  ]),
                   style: ts.small.copyWith(color: c.dim),
                 ),
               ],
@@ -331,7 +332,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
             TextSpan(
               children: [
                 TextSpan(text: l.deskOnbNodeNoAnswer, style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w600)),
-                TextSpan(text: ' · ${l.deskOnbNodeNoAnswerAt('${nodeHost(p.url)}:${Uri.parse(p.url).port}')}', style: ts.small.copyWith(color: c.dim)),
+                TextSpan(text: '$metaSeparator${l.deskOnbNodeNoAnswerAt(hostPort(p.url))}', style: ts.small.copyWith(color: c.dim)),
               ],
             ),
           );
@@ -492,7 +493,7 @@ class _LocalNodeSetupDialogState extends ConsumerState<LocalNodeSetupDialog> {
       title: l.deskOnbNodeDialogTitle,
       description: l.deskOnbNodeDialogBody,
       icon: EIcons.monitor,
-      width: 640.u,
+      size: DialogWidth.wide,
       body: LocalNodeStep(
         compact: true,
         demo: widget.demo,
@@ -506,7 +507,7 @@ class _LocalNodeSetupDialogState extends ConsumerState<LocalNodeSetupDialog> {
         }),
       ),
       actions: [
-        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(
           label: existing ? l.deskOnbNodeUseThis : l.deskOnbNodeStart,
           busy: _checking,

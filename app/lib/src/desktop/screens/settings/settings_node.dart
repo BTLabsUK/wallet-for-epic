@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../demo_fixtures.dart';
 
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
@@ -51,7 +52,8 @@ String nodeUrlOf(String typed) {
   return '${isPrivateHost(host) ? 'http' : 'https'}://$t';
 }
 
-String hostOf(String url) => url.replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
+/// A node URL as the screens show it: host:port ([hostPort]).
+String hostOf(String url) => hostPort(url);
 
 /// The oldest node version the wallet works well with.
 const minNodeVersion = '3.6.0';
@@ -76,7 +78,7 @@ String localNodeRowText(AppLocalizations l, LocalNodeState? s) {
   return switch (s.phase) {
     LocalNodePhase.stopped => (s.chainDataBytes ?? 0) == 0 ? l.deskSetNodeRowNotSetUp : l.deskSetNodeRowStopped,
     LocalNodePhase.starting => l.deskSetNodeRowStarting,
-    LocalNodePhase.syncing => s.progress?.overall == null ? l.deskSetFrameNodeSyncing : l.deskSetNodeRowSyncingPct(percent(s.progress!.overall!)),
+    LocalNodePhase.syncing => s.progress?.overall == null ? l.deskSetFrameNodeSyncing : l.deskSetNodeRowSyncingPct(syncPercent(l, s.progress!.overall!)),
     LocalNodePhase.synced => l.deskSetFrameNodeSynced,
     LocalNodePhase.error => s.stalled ? l.deskSetNodeRowStalled : l.deskSetNodeRowFailed,
   };
@@ -220,7 +222,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
             syncStatus: 'txhashset_kernels_validation',
             progress: const SyncProgress(SyncStage.chainStateKernels, overall: 0.64, done: 3100000, total: 4800000),
             peers: 9,
-            version: '4.1.1',
+            version: demoNodeVersion,
             height: mockTip - 12340,
           )
         : null;
@@ -232,7 +234,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     if (!mounted) return;
     final p = ref.read(settingsPrefsProvider);
     ref.read(settingsPrefsProvider.notifier).set(
-      p.copyWith(builtin: false, typedNode: NodeServer(url: ownDemoUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: '4.1.1', own: true), ownFallback: {...p.ownFallback}..remove(ownDemoUrl)),
+      p.copyWith(builtin: false, typedNode: NodeServer(url: ownDemoUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: demoNodeVersion, own: true), ownFallback: {...p.ownFallback}..remove(ownDemoUrl)),
     );
     if (arg == NodeDemo.ownDown) {
       ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: ownDemoUrl, inUse: mainnetPreset.nodeUrl, at: DateTime(2026, 10, 22, 14, 2)));
@@ -391,10 +393,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     // The word and state of the head: the same the rail shows. The down demo's mock wallet
     // still reaches its node, which would keep it Synced.
     final nodeHealth = widget.arg == NodeDemo.down ? ServiceHealth.down : status.nodeHealth;
+    // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
+    // stands in for it, so the field's dot never says Synced next to Not answering (#76).
     final NodeView view = prefs.builtin
         ? localNodeView(context.l10n, local, fallbackUrl: status.node.url)
         : own
-        ? remoteNodeView(context.l10n, chosenUrl, chosenInfo, health: failover == null && nodeHealth == ServiceHealth.ok ? nodeHealth : null, mine: mine)
+        ? ownNodeView(context.l10n, chosenUrl, chosenInfo, health: nodeHealth, standIn: ref.watch(deskFailoverProvider), mine: mine)
         : remoteNodeView(context.l10n, current.url, info, health: nodeHealth, torOn: torOn);
     final down = view.state == EState.risk && !prefs.builtin && !own;
     // The Switch action's target: the healthy listed node with the lowest latency.
@@ -454,6 +458,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                         ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
                         : (prefs.nodeLabels[current.url] ?? current.operator),
                     tone: stateTone(view.state),
+                    state: switching != null ? EState.active : view.state,
                     servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
                       final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
                       return c.own ? ownLabel(l, c, url) : null;

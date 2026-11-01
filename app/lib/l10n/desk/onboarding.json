@@ -19,6 +19,14 @@
   "@deskOnbWelcomeImportSub": {
     "description": "One-line description under 'Import wallets'."
   },
+  "deskOnbWelcomeCreateSub": "With a new recovery phrase",
+  "@deskOnbWelcomeCreateSub": {
+    "description": "One-line description under 'Create a new wallet' on Welcome, like the other cards' lines. No trailing period."
+  },
+  "deskOnbWelcomeRestoreSub": "Also from Stack Wallet or Epic Pay",
+  "@deskOnbWelcomeRestoreSub": {
+    "description": "One-line description under 'Restore from phrase' on Welcome: wallets from the other apps come back by phrase too. No trailing period."
+  },
   "deskOnbWelcomeRestore": "Restore from phrase",
   "@deskOnbWelcomeRestore": {
     "description": "Title of a choice card on the Welcome page: restore a wallet from its recovery words."
@@ -253,6 +261,16 @@
       },
       "word": {
         "type": "String"
+      }
+    }
+  },
+  "deskOnbRestoreBadWords": "Not in the word list: {words}.",
+  "@deskOnbRestoreBadWords": {
+    "description": "Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as \"word (place)\", comma-separated.",
+    "placeholders": {
+      "words": {
+        "type": "String",
+        "example": "harbo (24), wandr (15)"
       }
     }
   },
@@ -647,6 +665,10 @@
         "type": "int"
       }
     }
+  },
+  "deskOnbImportFoundLead": "Continue to choose the wallets to add.",
+  "@deskOnbImportFoundLead": {
+    "description": "Lead under the title of the import page once older wallets are found; the next step picks which ones to add."
   },
   "deskOnbImportNoneTitle": "No wallets found",
   "@deskOnbImportNoneTitle": {
@@ -1068,5 +1090,9 @@
         "type": "String"
       }
     }
+  },
+  "deskOnbFailedTitle": "Not finished",
+  "@deskOnbFailedTitle": {
+    "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
   }
 }

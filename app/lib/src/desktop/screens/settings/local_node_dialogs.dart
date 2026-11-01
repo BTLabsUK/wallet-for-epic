@@ -15,6 +15,7 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/server_row.dart';
+import '../wallet/tx_display.dart' show shortDay;
 import '../../../settings_file/host_settings.dart' show hostSettings, localNodePortValues;
 import '../../../settings_file/settings_providers.dart' show writeHostSettings;
 import '../onboarding/local_node_step.dart' show LocalNodePorts, LocalNodePortsFields, findTakenPorts;
@@ -99,7 +100,7 @@ class _LocalNodePortsDialogState extends ConsumerState<LocalNodePortsDialog> {
         ],
       ),
       actions: [
-        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(label: l.commonSave, busy: _busy, onPressed: changed && _ports.valid && !_busy ? _save : null),
       ],
     );
@@ -122,7 +123,7 @@ Future<bool?> showFallbackAskDialog(BuildContext context, {required String host}
       description: l.deskSetLndAskDesc(host),
       body: Text(l.deskSetLndAskNote, style: context.ts.caption),
       actions: [
-        EButton.ghost(label: l.deskSetLndAskWait, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(false)),
+        EButton(label: l.deskSetLndAskWait, onPressed: () => Navigator.of(context).pop(false)),
         EButton.primary(label: l.deskSetLndAskUse(host), onPressed: () => Navigator.of(context).pop(true)),
       ],
     );
@@ -158,7 +159,7 @@ Future<String?> showFallbackPickerDialog(BuildContext context, {required String 
         description: l.deskSetLndPickDesc,
         icon: EIcons.node,
         // Room for the host before the fixed operator, tip and latency columns.
-        width: 680.u,
+        size: DialogWidth.wide,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -240,7 +241,7 @@ class _DeleteChainDataDialogState extends State<DeleteChainDataDialog> {
         ],
       ),
       actions: [
-        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
         EButton(label: l.deskSetLndDeleteTitle, kind: EBtnKind.danger, busy: _busy, onPressed: _ok && !_busy ? _go : null),
       ],
     );
@@ -256,8 +257,9 @@ Widget _withWord(String text, String word, TextStyle wordStyle, {TextStyle? styl
   );
 }
 
-/// Chain data found on this computer: one card per candidate, a last card to download fresh.
-/// Returns true when a folder was taken into use.
+/// Chain data found on this computer, the one dialog for every offer (setup, Settings › Node):
+/// one card per candidate (a folder another program holds shows, dimmed, as in use), a last
+/// card to download fresh. Returns true when a folder was taken into use, false for fresh.
 Future<bool?> showReuseChainDataDialog(BuildContext context, DeskNodeApi api) =>
     showEDialog<bool>(context, builder: (_) => ReuseChainDataDialog(api: api));
 
@@ -330,7 +332,7 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
     return EDialog(
       title: l.deskSetLndReuseTitle,
       icon: EIcons.folder,
-      width: 640.u,
+      size: DialogWidth.wide,
       description: l.deskSetLndReuseDesc,
       body: found == null
           ? SizedBox(height: 80.u, child: Center(child: Text(l.deskSetLndLooking, style: ts.small.copyWith(color: c.dim))))
@@ -340,9 +342,9 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
                 for (final f in found) ...[
                   _ReuseCard(
                     // Each option named by its owner and size: the titles differ (UD-018).
-                    title: '${_source(l, f)} · ${bytesText(f.bytes, l)}',
+                    title: metaLine([_source(l, f), bytesText(f.bytes, l)]),
                     path: f.path,
-                    line: f.modified == null ? '' : l.deskSetLndLastWritten(_date(f.modified!)),
+                    line: f.modified == null ? '' : l.deskSetLndLastWritten(shortDay(l, f.modified!)),
                     sub: f.lock == FolderLock.locked ? l.deskSetLndLocked : l.deskSetLndNothingCopied,
                     selected: _pick == f.path,
                     enabled: f.lock != FolderLock.locked,
@@ -360,14 +362,12 @@ class _ReuseChainDataDialogState extends State<ReuseChainDataDialog> {
               ],
             ),
       actions: [
-        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(label: l.commonContinue, busy: _busy, onPressed: found == null || _pick == null || _busy ? null : _go),
       ],
     );
   }
 }
-
-String _date(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
 class _ReuseCard extends StatelessWidget {
   const _ReuseCard({required this.title, this.path, required this.line, this.sub, required this.selected, required this.enabled, required this.onTap});
@@ -447,14 +447,14 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
     return EDialog(
       title: l10n.deskSetLndLogTitle,
       icon: EIcons.log,
-      width: 640.u,
+      size: DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
             height: 320.u,
             padding: EdgeInsets.all(Sp.x3),
-            decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+            decoration: c.well,
             child: lines == null
                 ? Text(l10n.deskSetLndReading, style: ts.small.copyWith(color: c.dim))
                 : SingleChildScrollView(
@@ -491,9 +491,8 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
         ],
       ),
       actions: [
-        EButton.ghost(
+        EButton(
           label: l10n.deskSetBackupOpenFolder,
-          size: EBtnSize.md,
           onPressed: _path == null
               ? null
               : () async {
@@ -503,9 +502,8 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
                   if (!ok && context.mounted) showEToast(context, l10n.deskSetLnodeFolderNotOpened, text: dir, tone: ETone.warn);
                 },
         ),
-        EButton.ghost(
+        EButton(
           label: l10n.commonCopy,
-          size: EBtnSize.md,
           onPressed: lines == null
               ? null
               : () async {
@@ -513,7 +511,7 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
                   if (context.mounted) showEToast(context, l10n.deskSetLndCopied, text: l10n.deskSetLndLines(lines.length), tone: ETone.ok);
                 },
         ),
-        EButton.primary(label: l10n.commonClose, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l10n.commonClose, onPressed: () => Navigator.of(context).pop()),
       ],
     );
   }
@@ -540,7 +538,7 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
             children: [for (final p in plan.problems) Text(moveProblemText(context.l10n, p, plan), style: context.ts.small.copyWith(color: context.dc.risk))],
           ),
           actions: [
-            EButton.ghost(label: context.l10n.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(false)),
+            EButton(label: context.l10n.commonCancel, onPressed: () => Navigator.of(context).pop(false)),
             EButton.primary(label: context.l10n.deskSetLndChooseAnother, onPressed: () => Navigator.of(context).pop(true)),
           ],
         ),
@@ -555,7 +553,7 @@ Future<(String, FolderChange)?> showChangeFolderDialog(BuildContext context, Des
         icon: EIcons.folder,
         description: context.l10n.deskSetLndMoveDesc,
         actions: [
-          EButton.ghost(label: context.l10n.deskSetLndStartFresh, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop(FolderChange.point)),
+          EButton(label: context.l10n.deskSetLndStartFresh, onPressed: () => Navigator.of(context).pop(FolderChange.point)),
           EButton.primary(label: context.l10n.deskSetLndMove, onPressed: () => Navigator.of(context).pop(FolderChange.move)),
         ],
       ),

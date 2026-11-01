@@ -119,7 +119,9 @@ void main() {
       expect(find.text('Node'), findsOneWidget);
       expect(find.text('Epicbox'), findsOneWidget);
       final bars = tester.widgetList<EStatusGlyph>(find.byType(EStatusGlyph)).map((b) => b.state);
-      expect(bars.every((s) => s == EState.off), isTrue);
+      // Not known yet is the blue ring (state_language.dart), never a healthy dot.
+      expect(bars, isNot(contains(EState.ok)));
+      expect(bars.where((s) => s == EState.active).length, greaterThanOrEqualTo(2));
     });
 
     testWidgets('compact: same rows, same height, icons with bars', (tester) async {
@@ -217,7 +219,7 @@ void main() {
       'remote older version': (remoteNodeView(englishStrings, url, mockNodeInfo(url, version: '4.1.0')), 'Synced', EState.ok, null),
       'remote behind': (remoteNodeView(englishStrings, url, mockNodeInfo(url, behind: 12)), 'Behind', EState.warn, '12 behind'),
       'remote no answer': (remoteNodeView(englishStrings, url, mockNodeInfo(url, state: NodeHealthState.down), downSince: since), 'Not answering', EState.risk, 'no answer'),
-      'nothing known': (remoteNodeView(englishStrings, url, null), 'Checking', EState.off, null),
+      'nothing known': (remoteNodeView(englishStrings, url, null), 'Checking', EState.active, null),
       'local starting': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.starting)), 'Starting', EState.active, 'starting'),
       'local syncing, fallback': (
         localNodeView(englishStrings, 
@@ -244,20 +246,20 @@ void main() {
         if (marker != null) expect(marker.length, lessThanOrEqualTo(9), reason: e.key);
       }
       expect(fixtures['remote at tip, version current']!.$1.host, 'epic.invalid');
-      expect(fixtures['remote at tip, version current']!.$1.lines, ['node.epic.invalid · 3,764,975 · synced', '722 ms · v4.1.1']);
-      expect(fixtures['remote older version']!.$1.lines.last, '24 ms · v4.1.0 · 4.1.1 is out');
-      expect(fixtures['remote behind']!.$1.lines.first, 'node.epic.invalid · 3,764,963 of 3,764,975');
+      expect(fixtures['remote at tip, version current']!.$1.lines, ['node.epic.invalid\u00A0· 3,764,975\u00A0· synced', '722 ms\u00A0· v4.1.1']);
+      expect(fixtures['remote older version']!.$1.lines.last, '24 ms\u00A0· v4.1.0\u00A0· 4.1.1 is out');
+      expect(fixtures['remote behind']!.$1.lines.first, 'node.epic.invalid\u00A0· 3,764,963 of 3,764,975');
       expect(fixtures['remote no answer']!.$1.lines, ['node.epic.invalid · since 14:02', 'The node is not answering.']);
       expect(fixtures['local syncing, fallback']!.$1.host, 'epic.invalid');
       expect(fixtures['local syncing, fallback']!.$1.lines, [
-        'Local node · 12% · about 3 h left',
-        'Headers · 1,480,200 of 3,764,975 · 14 peers',
+        'Local node\u00A0· 12%\u00A0· about 3 h left',
+        'Headers · 1,480,200 of 3,764,975\u00A0· 14 peers',
         'Using node.epic.invalid until it is synced.',
       ]);
       expect(fixtures['local syncing, no fallback']!.$1.host, 'Local node');
       expect(fixtures['local syncing, no fallback']!.$1.lines.last, 'Nothing can be sent until it is synced.');
-      expect(fixtures['local synced']!.$1.lines.first, 'Local node · 3,764,975 · synced');
-      expect(fixtures['local stopped']!.$1.lines.last, 'Start it under Settings › Node.');
+      expect(fixtures['local synced']!.$1.lines.first, 'Local node\u00A0· 3,764,975\u00A0· synced');
+      expect(fixtures['local stopped']!.$1.lines.last, 'Start it under Settings\u00a0›\u00a0Node.');
     });
 
     testWidgets('every state keeps the row at 40 u and the marker whole', (tester) async {

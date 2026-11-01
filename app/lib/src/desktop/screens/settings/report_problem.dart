@@ -261,7 +261,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
         icon: EIcons.check,
         tone: ETone.ok,
         description: id.isEmpty ? l.deskSetReportArrived : l.deskSetReportArrivedRef(id),
-        actions: [EButton.primary(label: l.commonClose, size: EBtnSize.sm, onPressed: nav.pop)],
+        actions: [EButton(label: l.commonClose, autofocus: true, onPressed: nav.pop)],
       );
     }
     final block = ref.watch(deskNetBlockProvider);
@@ -274,7 +274,8 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
       canPop: !_busy,
       child: EDialog(
         title: l.deskSetReportTitle,
-        width: 560.u,
+        icon: EIcons.bug,
+        size: DialogWidth.wide,
         dismissible: !_busy,
         description: l.deskSetReportDesc,
         body: Column(
@@ -345,7 +346,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(_parts(l).join(' · '), style: ts.small),
+                  Text(metaLine(_parts(l)), style: ts.small),
                   SizedBox(height: Sp.x2),
                   ReportPreview(text: _log == null && _attachLogs ? null : _preview),
                 ],
@@ -369,9 +370,9 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
           ],
         ),
         actions: [
-          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: _busy ? null : nav.pop),
-          EButton(label: l.deskSetReportSaveToFile, icon: EIcons.download, size: EBtnSize.sm, busy: _saving, onPressed: _busy ? null : _save),
-          EButton.primary(label: l.deskSetReportSend, icon: EIcons.send, size: EBtnSize.sm, busy: _busy, onPressed: canSend ? _send : null),
+          EButton(label: l.commonCancel, onPressed: _busy ? null : nav.pop),
+          EButton(label: l.deskSetReportSaveToFile, icon: EIcons.download, busy: _saving, onPressed: _busy ? null : _save),
+          EButton.primary(label: l.deskSetReportSend, icon: EIcons.send, busy: _busy, onPressed: canSend ? _send : null),
         ],
       ),
       ),

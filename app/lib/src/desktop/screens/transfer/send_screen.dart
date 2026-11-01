@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../address_field.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
@@ -256,7 +257,7 @@ class SendScreen extends ConsumerStatefulWidget {
 }
 
 class _SendScreenState extends ConsumerState<SendScreen> {
-  final _to = TextEditingController();
+  final _to = AddressFieldController();
   final _amount = TextEditingController();
   final _message = TextEditingController();
   late final SendArgs _args;
@@ -745,7 +746,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _torBusy = false;
 
-  /// Turns the Tor switch on (Turn on Tor, Retry). Off is only in Settings › Privacy & network.
+  /// Turns the Tor switch on (Turn on Tor, Retry) or off (Turn Tor off, beside a plain http://
+  /// recipient only, its caption saying it applies to every connection: D-05).
   Future<void> _setTor(bool on) async {
     setState(() => _torBusy = true);
     try {
@@ -1434,7 +1436,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           ),
           SizedBox(width: Sp.x4),
-          EButton.primary(label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, onPressed: s.onReview),
+          EButton.primary(label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, tooltip: s.reviewTip, onPressed: s.onReview),
         ],
       ),
     );
@@ -1455,6 +1457,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         constraints: BoxConstraints(maxWidth: Max.form),
         child: ResultPanel(
           key: const ValueKey('send-queued'),
+          // Queued, not sent yet: the waiting tile, never the done check.
+          glyph: const ResultGlyph.waiting(),
           title: l.sendQueuedHeadline,
           text: l.sendQueuedBody(_queuedFor!),
           body: EMoney(r.tx.amount, size: Fs.lg, color: context.dc.txSent),
@@ -1471,6 +1475,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       constraints: BoxConstraints(maxWidth: Max.form),
       child: ResultPanel(
         key: const ValueKey('send-done'),
+        // On its way: the steps under it say how far; the tile says it is under way.
+        glyph: const ResultGlyph(icon: EIcons.send, tone: ETone.info),
         title: name == null ? l.lvPayOnItsWay : l.deskLvSendLiveTo(name),
         text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
         body: Column(
@@ -1530,8 +1536,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The mode's note for this send: Node only names the method that is off, Kill switch says
   /// nothing connects; both say what still works. Tor only waiting has its own line.
   String _blockTitle(AppLocalizations l, NetBlock net) => switch (net) {
-    NetBlock.killSwitch => l.deskSendKillSwitch,
-    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.deskSendEpicboxNodeOnly : l.deskSendLinkNodeOnly,
+    // The banner names the tab as the tab itself reads (Direct · File).
+    NetBlock.killSwitch => l.deskSendKillSwitchTab(MethodIcons.shortName(l, MethodKind.directFile)),
+    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.deskSendEpicboxNodeOnlyTab(MethodIcons.shortName(l, MethodKind.directFile)) : l.deskSendLinkNodeOnlyTab(MethodIcons.shortName(l, MethodKind.directFile)),
     _ => netBlockReason(l, net)!,
   };
 
@@ -1633,9 +1640,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         tone: ETone.risk,
         icon: EIcons.tor,
         actions: [
-          EButton(label: l.commonRetry, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
-          // Tor off is never one click: its switch is in Settings › Privacy & network.
-          EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
+          // Retry only (D-05): turning Tor off is never the fix an error offers.
+          EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
         ],
       );
     }
@@ -1662,7 +1668,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_epicboxBlocked(st)) {
       return ENotice(
         title: l.deskSendEpicboxOff,
-        text: l.deskSendEpicboxOffText,
+        text: l.deskSendEpicboxOffTab(MethodIcons.shortName(l, MethodKind.directFile)),
         tone: ETone.warn,
         icon: EIcons.antenna,
         actions: [
@@ -1866,7 +1872,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             SizedBox(height: Sp.x2),
             Text(l.deskSendHttpClearnet, key: const ValueKey('send-http-clearnet'), style: ts.small),
           ] else if (DeskFeatures.tor && _method == TxMethod.http && _torWay(st) == TorWay.off) ...[
-            // Plain http:// to another computer with Tor on: the why is behind the info icon.
+            // Plain http:// to another computer with Tor on: the why is behind the info icon;
+            // Turn Tor off says under it that it is the switch for every connection (D-05).
             SizedBox(height: Sp.x2),
             Wrap(
               key: const ValueKey('send-plain-http-off'),
@@ -1876,9 +1883,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               children: [
                 Text(l.sendPlainHttpOffWithTor, style: ts.small.copyWith(color: c.warn)),
                 EInfoHint(l.sendPlainHttpOffWithTorWhy, title: l.sendPlainHttpOffWithTor, icon: EIcons.alert, size: Ctl.inline),
-                EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
+                EButton(key: const ValueKey('send-turn-tor-off'), label: l.torTurnOff, icon: EIcons.tor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(false)),
               ],
             ),
+            Text(l.torTurnOffCaption, key: const ValueKey('send-turn-tor-off-caption'), style: ts.small),
           ],
           if (contact != null) ...[
             SizedBox(height: Sp.x2),
@@ -1902,7 +1910,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           help: switch (code?.amount) {
             null => null,
             final asked when asked == _parsed => l.sendAmountFromCode,
-            final asked => l.sendAmountCodeAsked('${formatEpicL(l, asked)} EPIC'),
+            final asked => l.sendAmountCodeAsked(epicTextL(l, asked)),
           },
           aside: spendable == null
               ? Text(l.deskSendAvailableNone, style: ts.small)
@@ -1923,7 +1931,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('EPIC', style: ts.small.copyWith(color: c.dim)),
+                Text(epicUnit, style: ts.small.copyWith(color: c.dim)),
                 SizedBox(width: Sp.x2),
                 EButton(label: l.deskSendAllButton, size: EBtnSize.inline, busy: _allBusy, onPressed: spendable == null || _allBusy ? null : _sendAll),
               ],
@@ -1938,10 +1946,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         EField(
           label: l.deskSendMessage,
           optional: true,
-          // Bytes, as LEPIC counts them: an emoji takes 4.
-          aside: Text(l.deskSendMessageBytes(utf8Length(_message.text), slateMessageMaxBytes), style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : c.faint)),
+          // Bytes, as LEPIC counts them (an emoji takes 4), shown with no unit; amber from 90 %
+          // of the limit, red over it.
+          aside: Text(
+            l.deskSendMessageCount(utf8Length(_message.text), slateMessageMaxBytes),
+            style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : utf8Length(_message.text) * 10 >= slateMessageMaxBytes * 9 ? c.warn : c.faint),
+          ),
           help: code != null && code.noteFilled && _message.text == code.note ? l.sendNoteFromCodeHelper : l.deskSendMessageHelp,
-          error: _messageTooLong ? l.deskSendMessageTooLong(slateMessageMaxBytes) : null,
+          error: _messageTooLong ? l.deskSendMessageTooLongPlain : null,
           child: EInput(
             controller: _message,
             maxLines: 3,
@@ -2000,30 +2012,31 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final n = _amountNano;
     final fee = n > 0 ? _fee : null;
     final nodeBlocked = _nodeBlock(st) != null;
-    final hint = switch (null) {
-      _ when res is SendDone => _queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued,
+    // The line under Review, and whether it names a block: then Review is off until it clears.
+    final (hint, blocker) = switch (null) {
+      _ when res is SendDone => (_queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued, true),
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
       // Node only: the banner explains, this line names the block only (UD-014).
-      _ when _netBlock(st) == NetBlock.nodeOnly => l.deskSendHintNeedsMethod(_method == TxMethod.epicbox ? l.methodEpicbox : MethodIcons.familyName(l, MethodFamily.link)),
-      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => _blockTitle(l, _netBlock(st)),
-      _ when _onionNoTor => l.sendTorNotInVersion,
-      _ when nodeBlocked && _nodeDown(st) && _noNode => l.deskSlNoNodeTitle,
-      _ when nodeBlocked && _nodeDown(st) => l.deskNodeNotAnsweringLine,
-      _ when nodeBlocked => l.deskSendHintNode,
-      _ when _netBlock(st) == NetBlock.epicboxOff => l.deskSendHintNeedsMethod(l.methodEpicbox),
-      _ when _netBlock(st) == NetBlock.methodOff => l.deskSendHintNeedsMethod(MethodIcons.fullName(l, _kind)),
-      _ when _epicboxBlocked(st) => l.deskSendHintEpicbox,
-      _ when _torWay(st) == TorWay.wait => l.deskSendHintTorWait,
-      _ when _torWay(st) == TorWay.blocked => l.deskSendHintTorBlocked,
-      _ when _torWay(st) == TorWay.needsTor => l.deskSendHintNeedsTor,
-      _ when _method == TxMethod.http && _torWay(st) == TorWay.off => l.sendPlainHttpOffWithTor,
-      _ when _submitted && !_toEdited && _toError(st) != null => l.deskSendHintFix,
-      _ when _submitted && !_amountEdited && _amountError(spendable) != null => l.deskSendHintFix,
-      _ when _messageTooLong => l.deskSendHintFix,
-      _ when _reviewing => l.deskSendHintChecking,
-      _ when !_reviewStep => l.deskLvSendNothingLeaves,
-      _ => l.deskSendHintDefault,
+      _ when _netBlock(st) == NetBlock.nodeOnly => (l.deskSendHintNeedsMethod(_method == TxMethod.epicbox ? l.methodEpicbox : MethodIcons.familyName(l, MethodFamily.link)), true),
+      _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => (_blockTitle(l, _netBlock(st)), true),
+      _ when _onionNoTor => (l.sendTorNotInVersion, true),
+      _ when nodeBlocked && _nodeDown(st) && _noNode => (l.deskSlNoNodeTitle, true),
+      _ when nodeBlocked && _nodeDown(st) => (l.deskNodeNotAnsweringLine, true),
+      _ when nodeBlocked => (l.deskSendHintNode, true),
+      _ when _netBlock(st) == NetBlock.epicboxOff => (l.deskSendHintNeedsMethod(l.methodEpicbox), true),
+      _ when _netBlock(st) == NetBlock.methodOff => (l.deskSendHintNeedsMethod(MethodIcons.fullName(l, _kind)), true),
+      _ when _epicboxBlocked(st) => (l.deskSendHintEpicbox, true),
+      _ when _torWay(st) == TorWay.wait => (l.deskSendHintTorWait, true),
+      _ when _torWay(st) == TorWay.blocked => (l.deskSendHintTorBlocked, true),
+      _ when _torWay(st) == TorWay.needsTor => (l.deskSendHintNeedsTor, true),
+      _ when _method == TxMethod.http && _torWay(st) == TorWay.off => (l.sendPlainHttpOffWithTor, true),
+      _ when _submitted && !_toEdited && _toError(st) != null => (l.deskSendHintFix, true),
+      _ when _submitted && !_amountEdited && _amountError(spendable) != null => (l.deskSendHintFix, true),
+      _ when _messageTooLong => (l.deskSendHintFix, true),
+      _ when _reviewing => (l.deskSendHintChecking, false),
+      _ when !_reviewStep => (l.deskLvSendNothingLeaves, false),
+      _ => (l.deskSendHintDefault, false),
     };
     final plan = _plan?.estimate.amount == n && n > 0 ? _plan : null;
     final balance = st.balance;
@@ -2039,21 +2052,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       confirmations: balance?.minConfirmations ?? defaultMinimumConfirmations,
       updating: st.status?.syncProgress != null,
       hint: hint,
+      // The button keeps its name while it is off; the reason is the line under it, and the
+      // short one its tip.
+      reviewTip: blocker ? switch (_torWay(st)) { TorWay.wait => l.deskSendReviewWaitTor, TorWay.blocked => l.deskSendReviewTorOff, _ => null } : null,
       reviewLabel: switch (_torWay(st)) {
         _ when _viaPairing && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff => l.sendQueue,
-        TorWay.wait => l.deskSendReviewWaitTor,
-        TorWay.blocked => l.deskSendReviewTorOff,
         // Shallow: the button is the Send itself, naming the amount and whom it goes to.
         _ when !_reviewStep => n <= 0
             ? l.deskLvSendButton
             : switch (_viaPairing ? ref.watch(deskPairingNameProvider(_pairingTo!)) : _contactOf(st.contacts)?.name) {
-                final who? => l.deskLvSendButtonTo(formatEpicL(l, n), who),
-                null => l.deskLvSendButtonAmount(formatEpicL(l, n)),
+                final who? => keepNumbersWithUnits(l.deskLvSendButtonTo(formatEpicL(l, n), who)),
+                null => keepNumbersWithUnits(l.deskLvSendButtonAmount(formatEpicL(l, n))),
               },
         _ => l.deskSendReview,
       },
       reviewing: _reviewing,
-      onReview: _canSend(st) && !_reviewing ? _review : null,
+      onReview: _canSend(st) && !_reviewing && !blocker ? _review : null,
       review: review,
       lockRows: _reviewStep,
     );
@@ -2073,6 +2087,7 @@ class _SendSummary extends StatelessWidget {
     required this.reviewing,
     required this.onReview,
     required this.reviewLabel,
+    this.reviewTip,
     this.summary,
     this.extraFee = 0,
     this.strategy = SelectionStrategy.smallest,
@@ -2116,8 +2131,11 @@ class _SendSummary extends StatelessWidget {
   final bool reviewing;
   final VoidCallback? onReview;
 
-  /// "Review send", or what holds it ("Waiting for Tor").
+  /// "Review", or the shallow level's "Send 1.5 EPIC to …"; never what holds it.
   final String reviewLabel;
+
+  /// The short reason the button is off ("Waiting for Tor"), on hover; the line under it says it.
+  final String? reviewTip;
 
   @override
   Widget build(BuildContext context) {
@@ -2128,20 +2146,9 @@ class _SendSummary extends StatelessWidget {
     final bad = n > 0 && spendable != null && n + (fee ?? 0) > spendable!;
     final ready = n > 0 && !bad;
     final pending = feeLoading && !bad;
-    Widget line(String label, int? v, {bool strong = false, bool risk = false, bool dim = false, bool loading = false}) => Padding(
-      padding: EdgeInsets.symmetric(vertical: Sp.x2),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: strong ? ts.strong : ts.bodyDim)),
-          if (loading)
-            const SummaryPending()
-          else if (v == null || v == 0)
-            Text('—', style: ts.mono(size: Fs.md, color: c.faint))
-          else
-            EMoney(v, size: strong ? Fs.lg : Fs.md, color: risk ? c.risk : (dim ? c.dim : null), weight: strong ? FontWeight.w600 : null),
-        ],
-      ),
-    );
+    // The summary's one row ([SummaryLine]); a zero reads as "—", nothing to show yet.
+    Widget line(String label, int? v, {bool strong = false, bool risk = false, bool loading = false}) =>
+        SummaryLine(label: label, value: v == 0 ? null : v, strong: strong, risk: risk, loading: loading);
     return EPanel(
       title: l.deskSendSummary,
       padding: EdgeInsets.all(Sp.panel),
@@ -2163,7 +2170,7 @@ class _SendSummary extends StatelessWidget {
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           if (review) ...[
-            EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, onPressed: onReview),
+            EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
             SizedBox(height: Sp.x3),
           ],
           Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
@@ -2173,16 +2180,17 @@ class _SendSummary extends StatelessWidget {
   }
 }
 
-/// Under the selector: the method's picture, what it does in bold (Epicbox has no bold line)
-/// and what it needs.
+/// Under the selector: the method's picture and one short line on what it does, the same shape
+/// for every method; the rest is behind its ⓘ (the phone's MethodStrip does the same).
 /// The art goes above the text in a narrow column; a method change crossfades.
 class _MethodStrip extends StatelessWidget {
   const _MethodStrip(this.method);
 
   final TxMethod method;
 
-  static (String?, String) words(AppLocalizations l, TxMethod m) => switch (m) {
-    TxMethod.epicbox => (null, l.deskSendEpicboxLine2),
+  /// The line, and what the ⓘ says.
+  static (String, String) words(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => (l.methodSendEpicboxTitle, l.deskSendEpicboxLine2),
     TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, DeskFeatures.tor ? l.deskSendDirectLine2 : l.deskNoTorSendDirectLine2),
     TxMethod.file => (l.deskSendFileLine1, l.deskSendFileLine2),
   };
@@ -2191,7 +2199,8 @@ class _MethodStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final reduce = MediaQuery.disableAnimationsOf(context);
-    final (title, line) = words(context.l10n, method);
+    final l = context.l10n;
+    final (line, more) = words(l, method);
     // The first section of the form's panel: no frame of its own.
     return AnimatedSwitcher(
         duration: reduce ? Duration.zero : Motion.cross,
@@ -2201,12 +2210,11 @@ class _MethodStrip extends StatelessWidget {
         child: LayoutBuilder(
           key: ValueKey(method),
           builder: (context, box) {
-            final text = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+            final text = Row(
               children: [
-                if (title != null) ...[Text(title, style: ts.strong), SizedBox(height: 2.u)],
-                Text(line, style: ts.small),
+                Flexible(child: Text(line, style: ts.body)),
+                SizedBox(width: Sp.x1),
+                EInfoHint(more, title: MethodIcons.fullName(l, methodKindOf(method)), icon: methodIcon(method)),
               ],
             );
             if (box.maxWidth < Lay.sm) {
@@ -2273,7 +2281,7 @@ class _PickedCard extends StatelessWidget {
     return Container(
       key: const ValueKey('send-picked'),
       padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      decoration: c.well,
       child: Row(
         children: [
           EAvatar(contact.name, size: 28.u),
@@ -2311,7 +2319,7 @@ class _PairingCard extends StatelessWidget {
     final ok = pairing.paysByMailbox;
     return Container(
       key: const ValueKey('send-picked-pairing'),
-      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      decoration: c.well,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -2566,31 +2574,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     }
   }
 
-  /// A Direct address's host and port (`203.0.113.4:<port>`, `<56 characters>.onion`).
-  // The same marking as EAddress: the key's first and last six characters, the server dim.
-  Widget _address(BuildContext context, String to) {
-    if (to.contains('@') && !to.startsWith('http')) return EAddress(to, copy: false);
-    final c = context.dc;
-    final base = context.ts.mono(size: Fs.sm, color: c.dim);
-    final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
-    final at = to.indexOf('@');
-    final onion = at < 0 && to.toLowerCase().endsWith('.onion');
-    final cut = at > 0 ? at : (onion ? to.length - 6 : to.length);
-    final key = to.substring(0, cut);
-    final rest = to.substring(cut);
-    if (key.length <= 14 || key.startsWith('http')) return SelectableText(to, style: base);
-    return SelectableText.rich(
-      TextSpan(
-        style: base,
-        children: [
-          TextSpan(text: key.substring(0, 6), style: hl),
-          TextSpan(text: key.substring(6, key.length - 6)),
-          TextSpan(text: key.substring(key.length - 6), style: hl),
-          TextSpan(text: rest),
-        ],
-      ),
-    );
-  }
+  /// The address to check: [EAddress]'s marking for every kind, an Epicbox key's or an
+  /// onion's first and last six, a link's host:port, so "Check the highlighted characters"
+  /// is true for each.
+  Widget _address(BuildContext context, String to) => EAddress(to, copy: false);
 
   @override
   Widget build(BuildContext context) {
@@ -2612,8 +2599,9 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     final sum = d.summary;
     final lines = sum == null ? null : reviewOutputLines(l, sum, strategy: d.strategy, defaultStrategy: d.defaultStrategy, blocks: d.confirmations, extraFee: d.extraFee, usesAll: l.deskSendUsesAll);
     return EDialog(
-      width: Max.dialog,
+      size: DialogWidth.wide,
       title: widget.compact ? l.deskLvSendPasswordTitle : l.deskSendReviewTitle,
+      icon: EIcons.send,
       description: widget.compact ? l.deskLvSendNothingLeaves : l.deskSendReviewDesc,
       dismissible: !_busy,
       body: Column(
@@ -2626,7 +2614,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           ],
           if (widget.compact) ...[
             Text(
-              d.contactName == null ? l.deskLvSendButtonAmount(formatEpicL(l, d.amount, decimals: exactDecimals)) : l.deskLvSendButtonTo(formatEpicL(l, d.amount, decimals: exactDecimals), d.contactName!),
+              keepNumbersWithUnits(d.contactName == null ? l.deskLvSendButtonAmount(formatEpicL(l, d.amount, decimals: exactDecimals)) : l.deskLvSendButtonTo(formatEpicL(l, d.amount, decimals: exactDecimals), d.contactName!)),
               key: const ValueKey('send-compact-line'),
               style: ts.strong,
             ),
@@ -2642,9 +2630,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Flexible(child: Text(formatEpicL(l, d.amount, decimals: exactDecimals), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
+              // The exact amount in the data face, as every amount but the balance headline.
+              Flexible(child: Text(formatEpicL(l, d.amount, decimals: exactDecimals), style: ts.mono(size: Fs.h1, weight: FontWeight.w600).copyWith(height: 1.2))),
               SizedBox(width: Sp.x2),
-              Text('EPIC', style: ts.lead),
+              Text(epicUnit, style: ts.mono(size: Fs.lg, color: c.dim)),
             ],
           ),
           SizedBox(height: Sp.x4),
@@ -2685,12 +2674,12 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  EMoney(d.fee, decimals: exactDecimals),
+                  EMoney(d.fee, surface: AmountSurface.exact),
                   if (lines?.feeSecondLine != null) Text(lines!.feeSecondLine!, style: ts.small),
                 ],
               ),
             ),
-            (l.deskSendTotal, EMoney(d.total, decimals: exactDecimals, weight: FontWeight.w600)),
+            (l.deskSendTotal, EMoney(d.total, surface: AmountSurface.exact, weight: FontWeight.w600)),
             ...?lines?.facts,
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
@@ -2717,7 +2706,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             ENotice(
               tone: ETone.warn,
               title: l.deskSendFeeChangedTitle,
-              text: l.deskSendFeeChangedText(formatEpicL(l, d.fee), formatEpicL(l, _feeWas!)),
+              text: keepNumbersWithUnits(l.deskSendFeeChangedText(formatEpicL(l, d.fee, decimals: exactDecimals), formatEpicL(l, _feeWas!, decimals: exactDecimals))),
             ),
           ],
           // The Send button turns while it runs; the line beside it stays still (one spinner).
@@ -2761,8 +2750,8 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             )
           : null,
       actions: [
-        EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : l.deskSendConfirm(formatEpicL(l, d.amount)))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton(label: l.deskSendBack, onPressed: _busy ? null : () => Navigator.of(context).pop()),
+        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : keepNumbersWithUnits(l.deskSendConfirm(formatEpicL(l, d.amount, decimals: exactDecimals))))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }

@@ -167,7 +167,7 @@ void main() {
       await show(tester);
       expect(find.textContaining('Blocked', findRichText: true), findsOneWidget);
       expect(
-        find.textContaining('This network blocks box.epic.invalid. Choose another Epicbox server', findRichText: true),
+        find.textContaining('This network blocks box.epic.invalid. Try another server', findRichText: true),
         findsOneWidget,
       );
       expect(find.widgetWithText(EButton, 'Switch to box.stack.invalid'), findsOneWidget);

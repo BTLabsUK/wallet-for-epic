@@ -22,7 +22,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import 'file_panels.dart' show ResultPanel;
+import 'file_panels.dart' show ResultGlyph, ResultPanel;
 
 /// The file a finished payment is saved as.
 String finishedFileName(String slateId) => '${shortSlateId(slateId)}.finished.tx';
@@ -140,8 +140,8 @@ class _FinishedNotPostedPanelState extends ConsumerState<FinishedNotPostedPanel>
     final c = context.dc;
     return ResultPanel(
       title: l.finalizeNotPostedTitle,
-      text: l.deskFinNotPostedKillBody('${formatEpicL(l, widget.tx.amount)} EPIC'), // l10n-ok: the unit
-      glyph: Icon(EIcons.sand, size: 32.u, color: c.info),
+      text: l.deskFinNotPostedKillBody(epicTextL(l, widget.tx.amount)),
+      glyph: const ResultGlyph.waiting(),
       body: _error == null ? null : Text(_error!, key: const ValueKey('finished-error'), style: context.ts.small.copyWith(color: c.dim)),
       actions: [
         EButton.primary(key: const ValueKey('finished-save'), label: l.finishedSaveFile, icon: EIcons.fileDown, busy: _busy, onPressed: _busy ? null : _save),
@@ -266,7 +266,7 @@ class _PostFinishedDialogState extends ConsumerState<PostFinishedDialog> {
     return EDialog(
       key: const ValueKey('post-finished-dialog'),
       title: _posted ? l.postFinishedDone : l.postFinishedTitle,
-      description: _posted ? l.postFinishedDoneBody : l.postFinishedIntro,
+      description: _posted ? l.postFinishedDoneBody : l.postFinishedIntroOffline,
       icon: _posted ? EIcons.check : EIcons.fileUp,
       tone: _posted ? ETone.ok : ETone.neutral,
       body: _posted
@@ -314,7 +314,7 @@ class _PostFinishedDialogState extends ConsumerState<PostFinishedDialog> {
             ),
       actions: [
         if (_posted)
-          EButton.primary(label: l.commonDone, autofocus: true, onPressed: () => Navigator.pop(context))
+          EButton(label: l.commonDone, autofocus: true, onPressed: () => Navigator.pop(context))
         else ...[
           EButton(label: l.commonClose, onPressed: () => Navigator.pop(context)),
           if (p != null)

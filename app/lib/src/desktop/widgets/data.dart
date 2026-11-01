@@ -8,9 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../desk_l10n.dart';
 import '../../ui/pairing/pairing_parts.dart' show PairAvatar;
 import '../../ui/theme/brand.dart' show MarkedQr;
+import '../../amount.dart' show AmountSurface, epicFor, epicUnit, exactDecimals;
 import '../../initials.dart';
+import '../../text_join.dart' show noBreakSpace, withUnit;
 import '../../providers.dart' show defaultMinimumConfirmations;
-import '../data/models.dart';
 import '../data/state.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -102,40 +103,53 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.value != value || old.arc != arc;
 }
 
-/// An amount in EPIC: mono, tabular, blurred while amounts are hidden.
+/// An amount in EPIC: mono, tabular, the unit after a no-break space, dots while amounts are
+/// hidden. The desktop's one amount widget (the phone's is `AmountText`): [surface] picks the
+/// precision ([AmountSurface.row], four decimals, unless the place is a commit surface).
 class EMoney extends ConsumerWidget {
-  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight, this.decimals});
+  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight, this.decimals, this.surface});
 
   final int nano;
   final double size;
   final Color? color;
 
-  /// Prefix "+" for incoming amounts.
+  /// Prefix "+" for incoming amounts (an outgoing one, negative, always has its minus).
   final bool sign;
   final bool unit;
   final FontWeight? weight;
 
-  /// Decimals shown: 4 (the display rule) unless exact, 8 (`exactDecimals`).
+  /// Kept for callers: 8 (`exactDecimals`) means [AmountSurface.exact]. Prefer [surface].
   final int? decimals;
+
+  /// Where the amount is shown, so how many decimals it has; [AmountSurface.row] by default.
+  final AmountSurface? surface;
+
+  /// The surface [surface] or [decimals] asks for.
+  static AmountSurface surfaceOf(AmountSurface? surface, int? decimals) =>
+      surface ?? (decimals != null && decimals >= exactDecimals ? AmountSurface.exact : AmountSurface.row);
+
+  /// The figure as EMoney shows it, without the unit: for a caller that measures it.
+  static String figure(AppLocalizations l, int nano, {AmountSurface surface = AmountSurface.row, bool sign = false}) =>
+      epicFor(l, BigInt.from(nano), surface: surface, unit: false, signed: sign);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final c = context.dc;
-    final text = '${sign && nano > 0 ? '+' : ''}${formatEpicL(context.l10n, nano, decimals: decimals ?? 4)}';
+    final text = figure(context.l10n, nano, surface: surfaceOf(surface, decimals), sign: sign);
     final style = context.ts.mono(size: size, color: color, weight: weight ?? FontWeight.w500);
     final row = Text.rich(
       TextSpan(
         children: [
           TextSpan(text: hidden ? '••••••' : text),
-          if (unit) TextSpan(text: ' EPIC', style: style.copyWith(color: c.dim, fontSize: size * 0.82)),
+          if (unit) TextSpan(text: '$noBreakSpace$epicUnit', style: style.copyWith(color: c.dim, fontSize: size * 0.82)),
         ],
       ),
       style: style,
       maxLines: 1,
       softWrap: false,
     );
-    return Semantics(label: hidden ? context.l10n.deskKitHiddenAmount : '$text EPIC', excludeSemantics: true, child: row);
+    return Semantics(label: hidden ? context.l10n.deskKitHiddenAmount : withUnit(text, epicUnit), excludeSemantics: true, child: row);
   }
 }
 
@@ -343,8 +357,9 @@ class ESelect<T> extends StatefulWidget {
   /// Room the open list leaves free under it, so the form's main button stays in view.
   final double keepBelow;
 
-  /// A widget the open list never covers (the form's primary button): its top less 8 u is
-  /// the list's bottom, whatever sits between (UD-006).
+  /// A widget the open list stays clear of (the form's primary button): its top less 8 u is
+  /// the list's bottom, whatever sits between (UD-006), unless that leaves fewer than four
+  /// rows; then the list covers it.
   final GlobalKey? keepClear;
 
   /// `md` (44, a form's field) or `sm` ([Ctl.sm], a Settings row's dropdown).
@@ -377,9 +392,20 @@ class _ESelectState<T> extends State<ESelect<T>> {
     final bottom = anchor.localToGlobal(Offset(0, anchor.size.height)).dy;
     var below = MediaQuery.sizeOf(context).height - bottom - widget.keepBelow - 8.u;
     final clear = widget.keepClear?.currentContext?.findRenderObject() as RenderBox?;
-    if (clear != null && clear.attached && clear.hasSize) below = clear.localToGlobal(Offset.zero).dy - bottom - 8.u;
+    if (clear != null && clear.attached && clear.hasSize) {
+      // Clear of the primary while four rows fit; below that the list covers it (opaque, with
+      // the popover's shadow for an edge) rather than show two and a half options.
+      final room = MediaQuery.sizeOf(context).height - bottom - 8.u;
+      below = math.max(clear.localToGlobal(Offset.zero).dy - bottom - 8.u, math.min(_fourRows, room));
+    }
     final h = below.clamp(120.u, 420.u);
     if (h != _maxHeight) setState(() => _maxHeight = h);
+  }
+
+  /// The list's height at four options (fewer when there are fewer), with its padding and footer.
+  double get _fourRows {
+    final rows = widget.items.take(4).fold<double>(0, (sum, i) => sum + (i.subtitle == null ? 40.u : 52.u));
+    return rows + 2 * Sp.x2 + (widget.footer == null ? 0 : Sp.x3 + Ctl.md);
   }
 
   @override
@@ -414,15 +440,10 @@ class _ESelectState<T> extends State<ESelect<T>> {
           onOpen: _measure,
           // A click outside only closes the list: it does not also press what is under it.
           consumeOutsideTap: true,
+          // The app's menu look comes from the theme's menuTheme; the list is the field's width.
           style: MenuStyle(
-            backgroundColor: WidgetStatePropertyAll(c.s4),
-            surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-            padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
             minimumSize: WidgetStatePropertyAll(Size(box.maxWidth, 0)),
             maximumSize: WidgetStatePropertyAll(Size(box.maxWidth, maxHeight)),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
-            ),
           ),
           menuChildren: [
             for (final item in items)
@@ -460,7 +481,7 @@ class _ESelectState<T> extends State<ESelect<T>> {
                         Text(item.title, style: mono ? ts.mono(size: Fs.sm) : ts.body, overflow: TextOverflow.ellipsis),
                         if (item.subtitle != null)
                           item.subtitleIsPath
-                              ? EMiddleEllipsis(item.subtitle!, style: ts.caption, tooltip: item.tooltip == null, width: width)
+                              ? EMiddleEllipsis(item.subtitle!, style: ts.mono(size: Fs.xs, color: c.faint), tooltip: item.tooltip == null, width: width)
                               : Text(item.subtitle!, style: ts.caption, overflow: TextOverflow.ellipsis),
                       ],
                     ),

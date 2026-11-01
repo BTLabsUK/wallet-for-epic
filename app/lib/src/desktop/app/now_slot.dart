@@ -18,7 +18,7 @@ import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeInfoProvider
 import '../data/desk_update.dart' show DeskUpdatePhase, deskUpdateProvider;
 import '../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
-import '../data/node_view.dart' show localNodeView, digits, percent;
+import '../data/node_view.dart' show localNodeView, digits, syncPercent;
 import 'desk_failover.dart' show deskFailoverProvider;
 import '../../l10n.dart' show localInt;
 import '../../tor_build.dart' show inAppUpdates;
@@ -58,7 +58,7 @@ class NowItem {
   final double? progress;
   final VoidCallback? onTap;
 
-  String get words => [detail == null ? title : '$title · $detail', ?hint].join('\n');
+  String get words => [detail == null ? title : metaLine([title, detail]), ?hint].join('\n');
 }
 
 /// What goes on now, the most important first (the slot shows two).
@@ -88,7 +88,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
         icon: EIcons.scan,
         tone: ETone.info,
         title: l.deskSlotScanning,
-        detail: scan.percent == null ? null : '${localInt(l, scan.percent!)}%',
+        detail: scan.percent == null ? null : percentText(l, scan.percent!),
         progress: scan.percent == null ? -1 : scan.percent! / 100,
         hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan),
       ),
@@ -182,7 +182,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
           icon: EIcons.node,
           tone: ETone.info,
           title: node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing,
-          detail: node.phase == LocalNodePhase.starting ? null : [?v.marker, ?v.eta].join(' · '),
+          detail: node.phase == LocalNodePhase.starting ? null : metaLine([?v.marker, ?v.eta]),
           stacked: true,
           // The share its percent says, else a bar without a known end.
           progress: node.phase == LocalNodePhase.syncing ? node.progress?.overall ?? -1 : -1,
@@ -207,7 +207,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
             icon: EIcons.node,
             tone: ETone.info,
             title: l.deskOwnSlotSyncing,
-            detail: owner?.progress?.overall != null ? percent(owner!.progress!.overall!) : (behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null),
+            detail: owner?.progress?.overall != null ? syncPercent(l, owner!.progress!.overall!) : (behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null),
             stacked: true,
             progress: owner?.progress?.overall ?? -1,
             hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),
@@ -487,7 +487,7 @@ class _Line extends StatelessWidget {
                   child: Text(i.title, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.small.copyWith(color: c.text, height: 20 / Fs.sm)),
                 ),
                 if (i.detail != null && !under) ...[
-                  Text(' · ', style: ts.small.copyWith(color: c.lineField)), // l10n-ok: separator
+                  Text(metaSeparator, style: ts.small.copyWith(color: c.lineField)), // l10n-ok: separator
                   // A number or an action word fits whole; a longer detail gives up at half the line.
                   ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: box.maxWidth / 2),
@@ -557,7 +557,7 @@ class _Resting extends ConsumerWidget {
       child: Row(
         children: [
           _TextLink(key: const ValueKey('now-help'), label: l.deskSlotHelp, onTap: help),
-          Text(' · ', style: context.ts.caption.copyWith(color: c.lineField)), // l10n-ok: separator
+          Text(metaSeparator, style: context.ts.caption.copyWith(color: c.lineField)), // l10n-ok: separator
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerStart,

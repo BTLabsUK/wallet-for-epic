@@ -104,7 +104,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       case _From.date:
         final d = _fromDate;
         if (d == null) {
-          setState(() => _heightError = l.deskSetRescanPickDateFirst);
+          setState(() => _heightError = l.restorePickMonthFirst);
           return (start: null, ok: false);
         }
         return (start: mainnetHeightForDate(d), ok: true);
@@ -192,7 +192,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     final l = context.l10n;
     final log = Container(
       constraints: BoxConstraints(maxHeight: 220.u),
-      decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      decoration: c.well,
       child: Semantics(
         label: l.deskSetRescanLog,
         // A scroll view of a column: lines are added at the top, which a lazy list under the
@@ -242,7 +242,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                               SizedBox(height: Sp.x2),
                               // One choice, as radio buttons are (EChoiceCard is a mutually exclusive group).
                               for (final (from, title, hint) in [
-                                if (_datesOk) (_From.date, l.deskSetRescanFromDate, null),
+                                if (_datesOk) (_From.date, l.settingsRescanFromMonth, null),
                                 (_From.height, l.deskSetRescanFromHeight, null),
                                 (_From.wholeChain, l.deskSetRescanWholeChain, l.deskSetRescanWholeChainHint),
                               ]) ...[
@@ -264,13 +264,14 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                                       children: [
                                         EStartDate(
                                           date: _fromDate,
-                                          label: l.deskSetRescanPickDate,
+                                          label: l.restorePickMonthShort,
                                           onChanged: (d) => setState(() {
                                             _fromDate = d;
                                             _heightError = null;
                                           }),
                                         ),
-                                        if (_heightError != null) ...[SizedBox(height: Sp.x1), Text(_heightError!, style: ts.small.copyWith(color: c.risk))],
+                                        SizedBox(height: Sp.x1),
+                                        ReservedSlot.lines(style: ts.small, child: _heightError == null ? null : Text(_heightError!, style: ts.small.copyWith(color: c.risk))),
                                       ],
                                     ),
                                   ),
@@ -282,6 +283,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                                       child: EField(
                                         label: l.deskOnbRestoreFromLabel,
                                         error: _heightError,
+                                        reserveError: true,
                                         child: EInput(
                                           key: const ValueKey('rescan-height'),
                                           controller: _height,

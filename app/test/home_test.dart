@@ -560,7 +560,7 @@ String _toField(WidgetTester tester) => tester
     .controller!
     .text;
 
-/// On the shell's Send tab: [to], 1 EPIC, review, Send.
+/// On the shell's Send tab: [to], 1\u00a0EPIC, review, Send.
 Future<void> _sendOne(WidgetTester tester, String to) async {
   await _tab(tester, 'Send');
   await tester.enterText(find.widgetWithText(TextField, 'To'), to);
@@ -570,7 +570,7 @@ Future<void> _sendOne(WidgetTester tester, String to) async {
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pumpAndSettle();
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
-  await _tap(tester, find.text('Send 1.0000 EPIC'));
+  await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
   await tester.enterText(find.byType(TextField).last, _Harness._pin);
   await tester.pumpAndSettle();
 }
@@ -664,7 +664,7 @@ void main() {
           englishStrings,
           fakeTx(counterparty: 'http://203.0.113.5:3415'),
         ),
-        '203.0.…5:3415',
+        '203.0.113.5:3415',
       );
     });
 
@@ -690,8 +690,8 @@ void main() {
     });
 
     test('EPIC amounts group thousands for display, not for fields', () {
-      expect(epicText(englishStrings, _epic(1234.5678)), '1,234.5678 EPIC');
-      expect(epicText(englishStrings, _epic(-1234567)), '-1,234,567.0000 EPIC');
+      expect(epicText(englishStrings, _epic(1234.5678)), '1,234.5678\u00a0EPIC');
+      expect(epicText(englishStrings, _epic(-1234567)), '\u22121,234,567.0000\u00a0EPIC');
       expect(formatEpic(_epic(1234.5)), '1234.5');
       expect(
         matchesQuery(fakeTx(amountCredited: _epic(1234.5)), '1,234'),
@@ -758,8 +758,8 @@ void main() {
     });
 
     test('fiat text groups thousands and keeps satoshis for BTC', () {
-      expect(fiatText(_epic(3000), 0.41, 'usd'), '1,230.00 USD');
-      expect(fiatText(_epic(1), 0.00000512, 'btc'), '0.00000512 BTC');
+      expect(fiatText(_epic(3000), 0.41, 'usd'), '1,230.00\u00a0USD');
+      expect(fiatText(_epic(1), 0.00000512, 'btc'), '0.00000512\u00a0BTC');
     });
   });
 
@@ -807,8 +807,8 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'rent');
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
-      expect(find.text('+5.0000 EPIC'), findsOneWidget);
-      expect(find.text('-2.0000 EPIC'), findsNothing);
+      expect(find.text('+5.0000\u00a0EPIC'), findsOneWidget);
+      expect(find.text('\u22122.0000\u00a0EPIC'), findsNothing);
 
       await tester.enterText(find.widgetWithText(TextField, 'Search'), 'zzz');
       await tester.pump(searchDebounce);
@@ -817,16 +817,16 @@ void main() {
 
       await _tap(tester, find.byTooltip('Clear search'));
       await _tap(tester, find.widgetWithText(ChoiceChip, 'Sent'));
-      expect(find.text('-2.0000 EPIC'), findsOneWidget);
-      expect(find.text('+5.0000 EPIC'), findsNothing);
+      expect(find.text('\u22122.0000\u00a0EPIC'), findsOneWidget);
+      expect(find.text('+5.0000\u00a0EPIC'), findsNothing);
       // The cancelled send has its own filter.
-      expect(find.text('-1.0000 EPIC'), findsNothing);
+      expect(find.text('\u22121.0000\u00a0EPIC'), findsNothing);
       await _tap(tester, find.widgetWithText(ChoiceChip, 'Cancelled'));
-      expect(find.text('-1.0000 EPIC'), findsOneWidget);
+      expect(find.text('\u22121.0000\u00a0EPIC'), findsOneWidget);
 
       await _tap(tester, find.widgetWithText(ChoiceChip, 'Received'));
-      expect(find.text('+5.0000 EPIC'), findsOneWidget);
-      expect(find.text('+7.2500 EPIC'), findsOneWidget);
+      expect(find.text('+5.0000\u00a0EPIC'), findsOneWidget);
+      expect(find.text('+7.2500\u00a0EPIC'), findsOneWidget);
     });
 
     testWidgets('empty states in plain words', (tester) async {
@@ -844,10 +844,10 @@ void main() {
       await h.pump(tester);
 
       expect(_figure(tester), '12.5000');
-      expect(find.text('≈ 6.25 USD'), findsOneWidget);
+      expect(find.text('≈\u00a06.25\u00a0USD'), findsOneWidget);
       expect(_statusWord(tester, nodeStatusKey), 'Node, Synced');
       expect(_statusWord(tester, epicboxStatusKey), 'Epicbox, Connecting');
-      // 2 EPIC are locked, so the Locked in sends tile says so.
+      // 2\u00a0EPIC are locked, so the Locked in sends tile says so.
       expect(_inTile(BalanceKind.locked, '2.0000'), findsOneWidget);
       // The height is only in the tooltip.
       expect(
@@ -861,7 +861,7 @@ void main() {
       expect(tiles, findsNWidgets(4));
       expect(tester.widget<TxTile>(tiles.first).tx.slateId, 'send-bob');
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
-      expect(find.text('≈ 2.50 USD'), findsOneWidget);
+      expect(find.text('≈\u00a02.50\u00a0USD'), findsOneWidget);
       expect(find.textContaining('09:00'), findsOneWidget);
       expect(find.textContaining('Yesterday, 18:00'), findsOneWidget);
 
@@ -894,8 +894,8 @@ void main() {
       );
       await h.pump(tester);
       expect(find.byType(TxTile), findsNWidgets(recentActivityCount));
-      expect(find.text('+7.0000 EPIC'), findsOneWidget);
-      expect(find.text('+2.0000 EPIC'), findsNothing);
+      expect(find.text('+7.0000\u00a0EPIC'), findsOneWidget);
+      expect(find.text('+2.0000\u00a0EPIC'), findsNothing);
     });
 
     testWidgets('the eye hides every amount and remembers it', (tester) async {
@@ -904,8 +904,8 @@ void main() {
 
       await _tap(tester, find.byTooltip('Hide amounts'));
       expect(_figure(tester), hiddenAmount);
-      expect(find.text('≈ 6.25 USD'), findsNothing);
-      expect(find.text('+5.0000 EPIC'), findsNothing);
+      expect(find.text('≈\u00a06.25\u00a0USD'), findsNothing);
+      expect(find.text('+5.0000\u00a0EPIC'), findsNothing);
       expect(find.text(hiddenAmount), findsWidgets);
       expect(h.store.values['app.hide_balances'], 'true');
 
@@ -924,16 +924,16 @@ void main() {
     testWidgets('the price refreshes every five minutes', (tester) async {
       final h = _Harness(price: 0.5);
       await h.pump(tester);
-      expect(find.text('≈ 6.25 USD'), findsOneWidget);
+      expect(find.text('≈\u00a06.25\u00a0USD'), findsOneWidget);
       h.prices.value = 1;
       await tester.pump(priceRefreshInterval);
       await tester.pumpAndSettle();
-      expect(find.text('≈ 12.50 USD'), findsOneWidget);
+      expect(find.text('≈\u00a012.50\u00a0USD'), findsOneWidget);
       // A failed fetch keeps the last price.
       h.prices.value = null;
       await tester.pump(priceRefreshInterval);
       await tester.pumpAndSettle();
-      expect(find.text('≈ 12.50 USD'), findsOneWidget);
+      expect(find.text('≈\u00a012.50\u00a0USD'), findsOneWidget);
       expect(h.prices.calls, 3);
     });
 
@@ -1203,8 +1203,8 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
 
       // The details say the exact amount.
-      expect(find.text('+5.00000000 EPIC'), findsOneWidget);
-      expect(find.text('≈ 2.50 USD'), findsOneWidget);
+      expect(find.text('+5.00000000\u00a0EPIC'), findsOneWidget);
+      expect(find.text('≈\u00a02.50\u00a0USD'), findsOneWidget);
       expect(find.text('Completed in block 2,499,300.'), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
       expect(
@@ -1485,7 +1485,9 @@ void main() {
     testWidgets('an unknown address offers to save it', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      expect(find.text(_bob), findsOneWidget);
+      // The key, then its server whole on its own line.
+      expect(find.text(_bob.split('@').first), findsOneWidget);
+      expect(find.text('@${_bob.split('@').last}'), findsOneWidget);
       expect(find.text('Add to contacts'), findsOneWidget);
     });
 
@@ -1531,9 +1533,9 @@ void main() {
   group('addresses', () {
     test('lists shorten the key around an ellipsis and keep the relay', () {
       expect(shortAddress(_bob), 'esBobA…567890@box.epic.invalid');
-      // A link: host and port without the scheme, the ends kept.
-      expect(shortAddress('http://203.0.113.5:3415'), '203.0.…5:3415');
-      expect(shortAddress('https://pay.example.com:3415/'), 'pay.ex…m:3415');
+      // A link: host:port whole, without the scheme, in lower case; never cut inside a host.
+      expect(shortAddress('http://203.0.113.5:3415'), '203.0.113.5:3415');
+      expect(shortAddress('https://Pay.Example.com:3415/'), 'pay.example.com:3415');
       expect(shortAddress('http://host:3415'), 'host:3415');
       expect(shortAddress('short@relay'), 'short@relay');
       expect(shortAddress('${'a' * 52}@r.io:443'), 'aaaaaa…aaaaaa@r.io:443');
@@ -1553,7 +1555,7 @@ void main() {
       );
       expect(
         shortAddress('http://203.0.113.5:3415', ownServer: own),
-        '203.0.…5:3415',
+        '203.0.113.5:3415',
       );
       final tx = fakeTx(kind: TxKind.sent, counterparty: _bob);
       expect(txTitle(englishStrings, tx, ownServer: own), 'esBobA…567890');
@@ -1600,7 +1602,7 @@ void main() {
       // The listener only accepted it: the sender still has to finish.
       expect(
         paymentNotice(englishStrings, received, tx),
-        '1.5000 EPIC on the way.',
+        '1.5000\u00a0EPIC on the way.',
       );
       expect(
         paymentNotice(
@@ -1613,7 +1615,7 @@ void main() {
           null,
           contactName: 'Alice',
         ),
-        '2.0000 EPIC from Alice on the way.',
+        '2.0000\u00a0EPIC from Alice on the way.',
       );
       expect(
         paymentNotice(englishStrings, received, null),
@@ -1657,13 +1659,13 @@ void main() {
         ListenerEvent(
           kind: ListenerEventKind.received,
           slateId: 'from-alice',
-          message: 'Received 5.0000 EPIC from esAlice…',
+          message: 'Received 5.0000\u00a0EPIC from esAlice…',
           amount: _epic(5),
         ),
       );
       await tester.pumpAndSettle();
       expect(
-        find.text('5.0000 EPIC on the way.'),
+        find.text('5.0000\u00a0EPIC on the way.'),
         findsOneWidget,
       );
       expect(find.textContaining('esAlice'), findsNothing);
@@ -1727,7 +1729,7 @@ void main() {
         const ListenerEvent(
           kind: ListenerEventKind.finalized,
           slateId: 'send-bob',
-          message: 'Sent 2.0000 EPIC, posted to the node',
+          message: 'Sent 2.0000\u00a0EPIC, posted to the node',
         ),
       );
       await tester.pumpAndSettle();
@@ -1779,7 +1781,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byKey(noticeKey), findsOneWidget);
-      expect(find.textContaining('5.0000 EPIC on the way'), findsOneWidget);
+      expect(find.textContaining('5.0000\u00a0EPIC on the way'), findsOneWidget);
       expect(find.byType(SnackBar), findsNothing);
       // Docked between the app bar and the balance: nothing overlaps, and the balance
       // moved down by the dock's height.
@@ -1948,7 +1950,7 @@ void main() {
       await tester.pump(statusSettle);
       // Local figures while the refresh against the node runs, with its progress.
       expect(_figure(tester), '12.5000');
-      expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40 %');
+      expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40%');
       // The line along the app bar's foot is drawn as far as the sync has come, and no
       // other progress shows.
       expect(_syncLine(tester), 0.4);
@@ -2167,10 +2169,10 @@ void main() {
     testWidgets('cancelled rows show no fiat value', (tester) async {
       final h = _Harness(price: 0.5);
       await h.pump(tester, const HistoryScreen());
-      // The cancelled 1 EPIC send would be 0.50 USD.
-      expect(find.text('-1.0000 EPIC'), findsOneWidget);
-      expect(find.text('≈ 0.50 USD'), findsNothing);
-      expect(find.text('≈ 1.00 USD'), findsOneWidget);
+      // The cancelled 1\u00a0EPIC send would be 0.50\u00a0USD.
+      expect(find.text('\u22121.0000\u00a0EPIC'), findsOneWidget);
+      expect(find.text('≈\u00a00.50\u00a0USD'), findsNothing);
+      expect(find.text('≈\u00a01.00\u00a0USD'), findsOneWidget);
       // Cancelled is said by the chip, not the title.
       expect(find.text('Outgoing payment'), findsOneWidget);
     });
@@ -2265,7 +2267,7 @@ void main() {
         await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
         expect(find.text('Outgoing payment'), findsOneWidget);
         expect(find.textContaining('esBobA…'), findsNothing);
-        expect(find.text(_bob), findsOneWidget);
+        expect(find.text(_bob.split('@').first), findsOneWidget);
         expect(find.byTooltip('Copy address'), findsOneWidget);
       },
     );
@@ -2361,7 +2363,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(
-        find.text('2.0000 EPIC stays locked until the recipient’s wallet answers.'),
+        find.text('2.0000\u00a0EPIC stays locked until the recipient’s wallet answers.'),
         findsOneWidget,
       );
       expect(find.textContaining('on its way'), findsNothing);
@@ -2463,7 +2465,7 @@ void main() {
       await tester.pump(searchDebounce);
       await tester.pumpAndSettle();
       expect(find.byType(TxTile), findsOneWidget);
-      expect(find.text('+1,501.0000 EPIC'), findsOneWidget);
+      expect(find.text('+1,501.0000\u00a0EPIC'), findsOneWidget);
     });
 
     testWidgets('2,000 payments: home shows five', (tester) async {
@@ -2499,7 +2501,7 @@ void main() {
           status: 'Received',
           hidden: false,
         ),
-        'Received 10.0000 EPIC from Alice, received, Today, 10:01',
+        'Received 10.0000\u00a0EPIC from Alice, received, Today, 10:01',
       );
       expect(
         txSpokenLabel(
@@ -2526,7 +2528,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:send-bob'))),
         matchesSemantics(
-          label: 'Sending 2.0000 EPIC to Bob, waiting for recipient, 09:00',
+          label: 'Sending 2.0000\u00a0EPIC to Bob, waiting for recipient, 09:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -2535,7 +2537,7 @@ void main() {
       expect(
         tester.getSemantics(find.byKey(const ValueKey('tx-s:from-alice'))),
         matchesSemantics(
-          label: 'Received 5.0000 EPIC, received, Yesterday, 18:00',
+          label: 'Received 5.0000\u00a0EPIC, received, Yesterday, 18:00',
           isButton: true,
           hasTapAction: true,
           hasLongPressAction: true,
@@ -2568,7 +2570,7 @@ void main() {
           hasLongPressAction: true,
         ),
       );
-      expect(find.bySemanticsLabel(RegExp('5 EPIC')), findsNothing);
+      expect(find.bySemanticsLabel(RegExp('5\u00a0EPIC')), findsNothing);
       handle.dispose();
     });
 
@@ -3410,7 +3412,7 @@ void main() {
           expect(find.byKey(balanceHeaderKey), findsOneWidget, reason: tab);
           expect(find.text('Epic Cash'), findsOneWidget, reason: tab);
           expect(_titleText(tester), '12.5000 EPIC', reason: tab);
-          // 2 EPIC are locked: the line under the figure says so, as a token.
+          // 2\u00a0EPIC are locked: the line under the figure says so, as a token.
           final pending = find.byKey(titlePendingKey);
           expect(
             find.descendant(of: pending, matching: find.text('2.0000')),
@@ -3558,16 +3560,16 @@ void main() {
       expect(find.byKey(walletStatusesKey), findsOneWidget);
       expect(find.byType(BalanceHelp), findsNothing);
       // The fiat value in mono under the figure, then the eye.
-      expect(find.text('≈ 6.25 USD'), findsOneWidget);
+      expect(find.text('≈\u00a06.25\u00a0USD'), findsOneWidget);
       expect(
-        tester.widget<Text>(find.text('≈ 6.25 USD')).style!.fontFamily,
+        tester.widget<Text>(find.text('≈\u00a06.25\u00a0USD')).style!.fontFamily,
         jetBrainsMono,
       );
       expect(fiat.top, greaterThanOrEqualTo(figure.bottom));
       final eye = tester.getRect(find.byTooltip('Hide amounts'));
       expect(eye.left, greaterThanOrEqualTo(fiat.right));
       expect(eye.center.dy, closeTo(fiat.center.dy, 1));
-      // The locked 2 EPIC is a tile under that row.
+      // The locked 2\u00a0EPIC is a tile under that row.
       final tile = find.byKey(balanceTileKey(BalanceKind.locked));
       expect(tile, findsOneWidget);
       expect(tester.getRect(tile).top, greaterThanOrEqualTo(eye.bottom));
@@ -3581,7 +3583,7 @@ void main() {
           hasTapAction: true,
         ),
       );
-      expect(find.bySemanticsLabel('Spendable: 12.50000000 EPIC'), findsOneWidget);
+      expect(find.bySemanticsLabel('Spendable: 12.50000000\u00a0EPIC'), findsOneWidget);
       handle.dispose();
     });
 
@@ -3739,7 +3741,7 @@ void main() {
               immature: 16,
             ),
           );
-          // A payment lands: 2 EPIC confirmed, while the sweep runs.
+          // A payment lands: 2\u00a0EPIC confirmed, while the sweep runs.
           h.session.summaryValue = _balances(
             spendable: 5.25,
             waiting: 0.5,
@@ -3986,7 +3988,7 @@ void main() {
             }
             await _frames(tester, 15);
           }
-          // The confirming 2 EPIC lands.
+          // The confirming 2\u00a0EPIC lands.
           h.session.summaryValue = _balances(spendable: 15, waiting: 1);
           await tester.pump(autoRefreshInterval);
           await tester.pump();
@@ -4281,9 +4283,9 @@ void main() {
       ).toPlainText();
       expect(
         tip,
-        'Total: 14.50000000 EPIC\nEverything in this wallet, spendable or not.\n\n'
-        'Spendable: 12.50000000 EPIC\n\n'
-        'Locked by a payment in progress: 2.00000000 EPIC\n'
+        'Total: 14.50000000\u00a0EPIC\nEverything in this wallet, spendable or not.\n\n'
+        'Spendable: 12.50000000\u00a0EPIC\n\n'
+        'Locked by a payment in progress: 2.00000000\u00a0EPIC\n'
         'Held for a payment you started; the change comes back when it '
         'completes.',
       );
@@ -4422,7 +4424,7 @@ void main() {
           const ListenerEvent(
             kind: ListenerEventKind.finalized,
             slateId: 'send-1',
-            message: 'Sent 1.0000 EPIC, posted to the node',
+            message: 'Sent 1.0000\u00a0EPIC, posted to the node',
           ),
         );
         await tester.pumpAndSettle();

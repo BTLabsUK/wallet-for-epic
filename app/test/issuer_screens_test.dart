@@ -376,7 +376,7 @@ void main() {
       expect(find.text(_l.invoicesSentEmpty), findsNothing);
       expect(find.text(shortAddress(_payer)), findsNWidgets(5));
       for (final (amount, state) in [
-        (1, '${_l.invoicesWaitingPayment} · ${_l.invoiceTimeLeftHours(24, 0)}'),
+        (1, '${_l.invoicesWaitingPayment}\u00a0· ${_l.invoiceTimeLeftHours(24, 0)}'),
         (2, _l.issuedPaid),
         (3, _l.issuedDeclined),
         (4, _l.issuedWithdrawn),
@@ -427,7 +427,7 @@ void main() {
       expect(h.session.cancelledTxIds, isEmpty);
       await tester.tap(find.text(_l.issuedWithdraw));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, _l.issuedWithdraw));
+      await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
       await tester.pumpAndSettle();
       expect(h.session.cancelledTxIds, [request.txId]);
       expect(_rich(_l.issuedWithdrawn), findsOneWidget);
@@ -477,7 +477,7 @@ void main() {
         expect(find.text(_l.txDetailsCancelPayment), findsNothing);
         await tester.tap(find.text(_l.issuedWithdraw));
         await tester.pumpAndSettle();
-        await tester.tap(find.widgetWithText(FilledButton, _l.issuedWithdraw));
+        await tester.tap(find.widgetWithText(DangerButton, _l.issuedWithdraw).last);
         await tester.pumpAndSettle();
         expect(h.session.cancelledTxIds, [request.txId]);
         expect(find.text(_l.issuedDetailsWithdrawn), findsOneWidget);
