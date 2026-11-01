@@ -12,13 +12,15 @@ import 'dart:io';
 import 'package:epic_wallet/src/app_log_io.dart' show logFileName;
 import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/contact_store.dart' show contactsFileName;
-import 'package:epic_wallet/src/data_folder_io.dart' show desktopDataFolder;
+import 'package:epic_wallet/src/data_folder_io.dart' show dataFolderOverride, desktopDataFolder, settleDataFolder;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart' show LepicDeskWallet;
 import 'package:epic_wallet/src/history/meta_store.dart' show metaFileName;
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/net/lan_node_relay.dart' show closeLanNodeRelays, lanNodeSettings, lanNodeUrl, resetLanNodeAgreements;
 import 'package:epic_wallet/src/settings_file/legacy_import.dart';
+import 'package:epic_wallet/src/settings_file/plain_http_nodes.dart';
 import 'package:epic_wallet/src/settings_file/settings_backend.dart' show settingsFileName;
 import 'package:epic_wallet/src/settings_file/settings_backend_io.dart';
 import 'package:epic_wallet/src/settings_file/settings_controller.dart';
@@ -226,5 +228,74 @@ void main() {
     expect(c.settings.nodeUse, fresh, reason: 'the newer pick stays in use');
     expect(c.settings.epicboxUse, 'box.stack.invalid', reason: 'the Epicbox list was untouched');
     expect([for (final b in c.settings.epicboxServers) b.label], containsAll([_ownBox, _walletBox]));
+  });
+
+  // 26.10.25 and older kept the plain-http agreements for tailnet (CGNAT) nodes in
+  // <data>/lan_nodes.json; they move into settings.toml's [node] plain_http once
+  // (plain_http_nodes.dart). The old file is left as it was and never written again.
+  test('lan_nodes.json: agreed nodes join [node] plain_http once, the node still goes through the relay', () async {
+    final at = '${tmp.path}${_sep}from-lan-nodes';
+    final (data, store) = _install(_fixtureR2, at);
+    const tail = 'http://100.64.3.9:3413';
+    const asked = 'http://100.64.7.7:3413';
+    final settings = File('$data$_sep$settingsFileName');
+    settings.writeAsStringSync(settings.readAsStringSync().replaceFirst('servers = [\n', 'servers = [\n  "$tail",\n  "$asked",\n'));
+    // 100.64.3.9 agreed and listed; 100.64.99.1 agreed but removed from the list since.
+    final old = File('$data${_sep}lan_nodes.json')..writeAsStringSync('{"plainHttp":["100.64.3.9:3413","100.64.99.1:3413"]}');
+    final oldBytes = old.readAsBytesSync();
+    final oldStamp = old.lastModifiedSync();
+    dataFolderOverride = data;
+    final relaySettings = lanNodeSettings;
+    addTearDown(() async {
+      dataFolderOverride = null;
+      readLanNodesFile = () async => null;
+      lanNodeSettings = relaySettings;
+      resetLanNodeAgreements();
+      await closeLanNodeRelays();
+    });
+    await settleDataFolder();
+
+    Future<SettingsFileController> start() async {
+      final c = await SettingsFileController.open(
+        backend: FileSettingsBackend(Directory(data)),
+        shippedText: testSettingsText(),
+        config: testConfig(),
+      );
+      await importLegacySettings(store, c, walletIds: () async => [_addedId]);
+      await importLanNodesFile(store, c);
+      lanNodeSettings = () => c.settings;
+      resetLanNodeAgreements();
+      return c;
+    }
+
+    final c = await start();
+    expect(c.settings.value(plainHttpKey), [tail]);
+    expect(settings.readAsStringSync(), contains('plain_http = ["$tail"]'));
+    expect(store.values[lanNodesMovedKey], isNotNull);
+    // Through the relay, as before; the node it was not agreed for is not.
+    expect(Uri.parse(await lanNodeUrl(tail)).host, '127.0.0.1');
+    expect(await lanNodeUrl(asked), asked);
+    await c.close();
+    expect(old.readAsBytesSync(), oldBytes, reason: 'lan_nodes.json is never written');
+    expect(old.lastModifiedSync(), oldStamp);
+
+    // Once: the next start changes nothing.
+    final text = settings.readAsStringSync();
+    final again = await start();
+    expect(settings.readAsStringSync(), text);
+    expect(Uri.parse(await lanNodeUrl(tail)).host, '127.0.0.1');
+    await again.close();
+
+    // A crash before the done-mark: the rerun finds the agreements there and adds nothing.
+    store.values.remove(lanNodesMovedKey);
+    final rerun = await start();
+    addTearDown(rerun.close);
+    expect(settings.readAsStringSync(), text);
+    expect(store.values[lanNodesMovedKey], isNotNull);
+
+    // Taking the node off the list takes its agreement with it.
+    await rerun.setAll({'node.servers': [for (final u in rerun.settings.nodeUrls) if (u != tail) u]});
+    expect(rerun.settings.value(plainHttpKey), isEmpty);
+    expect(settings.readAsStringSync(), isNot(contains('plain_http')));
   });
 }

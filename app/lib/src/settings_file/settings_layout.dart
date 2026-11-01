@@ -238,6 +238,9 @@ const torOnionsKind = TablesKind([
 /// the file only while it differs from `app-config.toml` (the built-in node's ports).
 const List<SettingsKey> settingsKeys = [
   SettingsKey('node.servers', TextListKind(checkNodeAddress)),
+  // The nodes at a shared address (100.64/10) the user agreed to reach over plain http
+  // (`plain_http_nodes.dart`); left out while there is none.
+  SettingsKey('node.plain_http', TextListKind(checkNodeAddress), byDefault: <String>[]),
   SettingsKey('epicbox.servers', TextListKind(checkEpicboxServer)),
   SettingsKey('online.status_site', BoolKind()),
   SettingsKey('online.update_check', BoolKind()),
@@ -251,6 +254,7 @@ const List<SettingsKey> settingsKeys = [
 
 /// The comment above a key the default copy leaves out, written with it when the app adds it.
 const Map<String, List<String>> keyComments = {
+  'node.plain_http': ['# Nodes at a shared address (100.64.x.x: Tailscale) you agreed to reach over plain, unencrypted http.'],
   'network.mode': ['# Network mode: tor_only, node_only or kill_switch (Settings › Advanced › Network). Absent = normal.'],
 };
 

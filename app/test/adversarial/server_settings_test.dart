@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/net/lan_node_relay.dart';
+import 'package:epic_wallet/src/settings_file/plain_http_nodes.dart';
 import 'package:epic_wallet/src/server_list.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -125,10 +126,8 @@ void main() {
 
     test('a_public_or_cgnat_plain_http_node_is_never_relayed_without_consent', () async {
       resetLanNodeAgreements();
-      final dir = Directory.systemTemp.createTempSync('wfe-lan-');
-      addTearDown(() => dir.deleteSync(recursive: true));
-      final f = File('${dir.path}/lan_nodes.json')..writeAsStringSync('{"plainHttp":[]}');
-      lanNodesFile = () async => f;
+      readLanNodesFile = () async => '{"plainHttp":[]}';
+      addTearDown(() => readLanNodesFile = () async => null);
       for (final url in ['http://8.8.8.8:3413', 'http://${'100.64'}.0.9:3413', 'http://[::ffff:${'100.64'}.0.9]:3413', 'http://node.example.com:3413']) {
         expect(await lanNodeUrl(url), url, reason: url);
       }

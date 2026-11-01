@@ -14,10 +14,11 @@
 ///   it as before;
 /// - at a literal CGNAT address (100.64.0.0/10: a Tailscale tailnet, but also a provider's
 ///   carrier-grade NAT, which cannot be told apart) goes through the relay only once the user
-///   agreed for that node ([allowPlainHttpNode], asked when the node is added). On the first run
-///   with agreements (no `lan_nodes.json` yet) every such node already in the settings file's
-///   node list is agreed for when the app uses it, so a tailnet node set up before keeps working.
-///   Otherwise LEPIC gets it as it is and refuses it.
+///   agreed for that node ([allowPlainHttpNode], asked when the node is added), kept in the
+///   settings file's `[node] plain_http` (`plain_http_nodes.dart`). On the first run with
+///   agreements (none in the file, no `lan_nodes.json` from before) every such node already in
+///   the settings file's node list is agreed for when the app uses it, so a tailnet node set up
+///   before keeps working. Otherwise LEPIC gets it as it is and refuses it.
 ///
 /// Anything else (https, a public address, another name, an onion) goes as it is. The relay
 /// answers only requests whose path starts with its random token, which only LEPIC and the
@@ -33,7 +34,8 @@ import 'dart:io';
 import 'dart:math';
 
 import '../network_gate.dart' show NetDial, NetGate;
-import '../settings_file/host_settings.dart' show hostSettings, hostSettingsLoaded;
+import '../settings_file/host_settings.dart' show HostSettings, hostSettings;
+import '../settings_file/plain_http_nodes.dart';
 import 'local_address.dart';
 
 /// The relays, one per node address (`ip|port`), kept for the app's life.
@@ -181,88 +183,72 @@ bool needsPlainHttpConsent(String url) {
   return u != null && u.scheme == 'http' && u.host.isNotEmpty && isCgnatIp(u.host);
 }
 
-/// Where the agreed nodes are kept: `lan_nodes.json` in the app's data folder, which
-/// `settleDataFolder` (data_folder_io.dart) sets at start so this file stays free of Flutter, as
-/// the wallet core needs. Tests replace it.
-Future<File> Function() lanNodesFile = () async => throw StateError('the data folder is not settled');
+/// The settings the agreements are read from: `[node] plain_http` and the Node list of the
+/// settings in use (`plain_http_nodes.dart`). Tests replace it.
+HostSettings Function() lanNodeSettings = () => hostSettings;
 
-Set<String>? _agreed;
+/// No agreement anywhere when this run first looked (none in the settings file, and no
+/// `lan_nodes.json` from before): the nodes in use were set up before agreements.
+bool? _firstRun;
 
-/// No agreement file when this run first looked: the nodes in use were set up before agreements.
-bool _firstRun = false;
-
-/// The nodes of the settings file (`node.servers`), read once on the first run with agreements.
-/// Tests replace it.
-Iterable<String> Function() lanNodesInSettings = () => hostSettingsLoaded ? hostSettings.nodeUrls : const [];
-
-/// On the first run: the CGNAT nodes that were in the settings file when first asked, the only
-/// ones agreed for without asking. A node added later, or one the user declined, never is.
+/// On the first run: the CGNAT nodes that were in the settings file's node list when first
+/// asked, the only ones agreed for without asking. A node added later, or one the user
+/// declined, never is.
 Set<String>? _carried;
 
-String _nodeKey(String url) {
-  final u = Uri.parse(url.trim());
-  return '${u.host.toLowerCase()}:${u.hasPort ? u.port : 80}';
-}
-
-Future<Set<String>> _load() async {
-  final agreed = _agreed;
-  if (agreed != null) return agreed;
-  final loaded = <String>{};
-  try {
-    final file = await lanNodesFile();
-    _firstRun = !await file.exists();
-    if (!_firstRun) {
-      final json = jsonDecode(await file.readAsString());
-      if (json is Map && json['plainHttp'] is List) {
-        loaded.addAll((json['plainHttp'] as List).whereType<String>());
-      }
+Future<bool> _isFirstRun() async {
+  if (_firstRun case final known?) return known;
+  var none = plainHttpNodesIn(lanNodeSettings()).isEmpty;
+  if (none) {
+    try {
+      none = await readLanNodesFile() == null;
+    } on Object {
+      // Unreadable: as if there were one, nothing carried.
+      none = false;
     }
-  } on Object {
-    // Unreadable: nothing agreed; the user can agree again.
   }
-  return _agreed ??= loaded;
-}
-
-Future<void> _save(Set<String> agreed) async {
-  try {
-    final file = await lanNodesFile();
-    await file.parent.create(recursive: true);
-    final tmp = File('${file.path}.tmp');
-    await tmp.writeAsString(jsonEncode({'plainHttp': agreed.toList()..sort()}), flush: true);
-    await tmp.rename(file.path);
-  } on Object {
-    // Kept for this run only.
-  }
+  return _firstRun ??= none;
 }
 
 /// Whether the user agreed to reach the CGNAT node [url] over plain http.
-Future<bool> plainHttpNodeAllowed(String url) async => (await _load()).contains(_nodeKey(url));
+Future<bool> plainHttpNodeAllowed(String url) async => plainHttpAgreedIn(lanNodeSettings(), url);
 
 /// Records that the user agreed to reach [url] (a CGNAT address, [needsPlainHttpConsent]) over
-/// plain http; the next [lanNodeUrl] for it goes through the relay.
+/// plain http, in the settings file's `[node] plain_http`; the next [lanNodeUrl] for it goes
+/// through the relay.
 Future<void> allowPlainHttpNode(String url) async {
   if (!needsPlainHttpConsent(url)) return;
-  final agreed = await _load();
-  if (agreed.add(_nodeKey(url))) await _save(agreed);
+  await _record(url);
+}
+
+Future<void> _record(String url) async {
+  final s = lanNodeSettings();
+  if (plainHttpAgreedIn(s, url)) return;
+  final u = Uri.parse(url.trim());
+  // As the node list holds it: scheme, host and port only.
+  final node = Uri(scheme: u.scheme, host: u.host, port: u.hasPort ? u.port : null).toString();
+  try {
+    await writePlainHttpNodes({plainHttpKey: plainHttpWith(s, node)});
+  } on Object {
+    // Not written: asked for again on a later run.
+  }
 }
 
 Future<bool> _agreedOrEarlier(String url) async {
-  final agreed = await _load();
-  if (agreed.contains(_nodeKey(url))) return true;
-  if (!_firstRun) return false;
+  if (plainHttpAgreedIn(lanNodeSettings(), url)) return true;
+  if (!await _isFirstRun()) return false;
+  final key = plainHttpNodeKey(url);
   final carried = _carried ??= {
-    for (final node in lanNodesInSettings())
-      if (needsPlainHttpConsent(node)) _nodeKey(node),
+    for (final node in lanNodeSettings().nodeUrls)
+      if (needsPlainHttpConsent(node)) ?plainHttpNodeKey(node),
   };
-  if (!carried.contains(_nodeKey(url))) return false;
-  agreed.add(_nodeKey(url));
-  await _save(agreed);
+  if (!carried.contains(key)) return false;
+  await _record(url);
   return true;
 }
 
-/// Forgets what [_load] read (tests).
+/// Forgets what this run looked up for the first run (tests).
 void resetLanNodeAgreements() {
-  _agreed = null;
-  _firstRun = false;
+  _firstRun = null;
   _carried = null;
 }

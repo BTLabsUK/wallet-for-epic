@@ -13,6 +13,7 @@ import '../secret_store_api.dart';
 import 'host_settings.dart';
 import 'legacy_import.dart';
 import 'network_mode_file.dart';
+import 'plain_http_nodes.dart' show importLanNodesFile, writePlainHttpNodes;
 import 'settings_backend.dart' show SettingsBackend;
 import 'settings_controller.dart';
 import 'settings_layout.dart' show settingsKeys;
@@ -90,7 +91,8 @@ Future<HostSettings> loadShippedSettings({AssetBundle? bundle}) async {
 /// The network mode (`[network] mode`, `network_mode_file.dart`) reaches [NetGate] here, before
 /// this returns and so before any connection of the app (Tor, the status site, the price, the
 /// updater, the built-in node, a wallet), and again on every change of the file (the app's own
-/// writes, a hand edit, a restored backup). The store's old mode moves into the file first.
+/// writes, a hand edit, a restored backup). The store's old mode moves into the file first, and
+/// so do the plain-http agreements of `lan_nodes.json` (`plain_http_nodes.dart`).
 Future<SettingsFileController> openAppSettings({
   required SecretStore store,
   String? devChain,
@@ -140,11 +142,13 @@ Future<SettingsFileController> openAppSettingsOn({
   if (devChain == null && shippedText == null) {
     await importLegacySettings(store, c, walletIds: walletIds);
     await importNetworkMode(store, c);
+    await importLanNodesFile(store, c);
   }
   NetGate.set(networkModeIn(c.settings));
   final before = _installed;
   _installed = c;
   _installedChain = devChain;
+  writePlainHttpNodes = writeHostSettings;
   unawaited(_changesSub?.cancel());
   unawaited(_useSub?.cancel());
   _changesSub = c.changes.listen((e) {

@@ -7,7 +7,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 import 'log.dart' show logInfo;
-import 'net/lan_node_relay.dart' show lanNodesFile;
+import 'settings_file/plain_http_nodes.dart' show readLanNodesFile;
 import 'owner_only_windows.dart';
 
 /// The folder Epic Cash Desktop keeps in the user's home folder on every desktop system, as
@@ -46,7 +46,12 @@ Future<Directory> appCacheDirectory({Map<String, String>? environment}) async {
 /// Creates the desktop data folder at start, so it exists before anything reads it, and keeps
 /// it to its owner ([ownerOnly]). The phone: nothing, its folder is the app's own.
 Future<void> settleDataFolder({Map<String, String>? environment}) async {
-  lanNodesFile = () async => File('${(await appDataDirectory()).path}${Platform.pathSeparator}lan_nodes.json');
+  // 26.10.25 and older kept the plain-http agreements here: read to move them into
+  // settings.toml once (`plain_http_nodes.dart`), never written. Remove one release later.
+  readLanNodesFile = () async {
+    final f = File('${(await appDataDirectory()).path}${Platform.pathSeparator}lan_nodes.json');
+    return await f.exists() ? f.readAsString() : null;
+  };
   if (!_isDesktop && dataFolderOverride == null) return;
   try {
     final dir = await appDataDirectory(environment: environment);

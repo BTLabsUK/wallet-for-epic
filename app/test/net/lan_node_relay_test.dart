@@ -13,6 +13,8 @@ import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/models.dart';
 import 'package:epic_wallet/src/net/lan_node_relay.dart';
 import 'package:epic_wallet/src/net/local_address.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
+import 'package:epic_wallet/src/settings_file/plain_http_nodes.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -38,7 +40,7 @@ void main() {
   late Directory home;
   setUp(() {
     home = Directory.systemTemp.createTempSync('wfe_lan_');
-    lanNodesFile = () async => File('${home.path}/lan_nodes.json');
+    readLanNodesFile = () async => null;
     resetLanNodeAgreements();
   });
   tearDown(() async {
@@ -128,8 +130,9 @@ void main() {
 
   test('a tailnet (CGNAT) node goes through the relay only once agreed for', () async {
     resetLanNodeAgreements();
-    final other = File('${home.path}/other.json')..writeAsStringSync('{"plainHttp":[]}');
-    lanNodesFile = () async => other;
+    hostSettings = hostSettings.withValues({plainHttpKey: <String>[]});
+    // Not the first run: an old file was there.
+    readLanNodesFile = () async => '{"plainHttp":[]}';
     const tail = 'http://100.64.21.31:3413';
     expect(needsPlainHttpConsent(tail), isTrue);
     expect(needsPlainHttpConsent('http://10.0.0.5:3413'), isFalse);
@@ -137,17 +140,18 @@ void main() {
     expect(await lanNodeUrl(tail), tail, reason: 'LEPIC refuses it as before');
     await allowPlainHttpNode(tail);
     expect(Uri.parse(await lanNodeUrl(tail)).host, '127.0.0.1');
-    // Kept: a new run reads the agreement back.
+    // Kept in settings.toml's [node] plain_http: a new run reads the agreement back.
+    expect(hostSettings.value('node.plain_http'), [tail]);
     resetLanNodeAgreements();
     expect(await plainHttpNodeAllowed(tail), isTrue);
   });
 
   test('on the first run with agreements the tailnet nodes in the settings file count as agreed', () async {
     resetLanNodeAgreements();
-    final settingsNodes = lanNodesInSettings;
-    addTearDown(() => lanNodesInSettings = settingsNodes);
-    lanNodesInSettings = () => ['https://node.example', 'http://100.64.3.9:3413'];
-    lanNodesFile = () async => File('${home.path}/first.json');
+    hostSettings = hostSettings.withValues({
+      'node.servers': ['https://node.example', 'http://100.64.3.9:3413'],
+      plainHttpKey: <String>[],
+    });
     expect(Uri.parse(await lanNodeUrl('http://100.64.3.9:3413')).host, '127.0.0.1');
     expect(await plainHttpNodeAllowed('http://100.64.3.9:3413'), isTrue);
     // Not in the settings file (one the user declined): asked for, also on this first run.
