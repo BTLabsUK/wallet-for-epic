@@ -178,11 +178,17 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
 
     // Narrow: the detail replaces the list.
     if (!split && selectedTx != null) {
-      return EPage(
-        title: selectedTx.isInvoice ? l.deskInvActBlock : (selectedTx.incoming ? l.deskActDetailReceived : l.deskActDetailSent),
-        width: EPageWidth.narrow,
-        onBack: () => setState(() => _selected = null),
-        child: TxDetail(tx: selectedTx, showTitle: true),
+      // The payment's actions pinned at the page's bottom, in view however long it runs (C-03).
+      return TxDetail(
+        tx: selectedTx,
+        showTitle: true,
+        frame: (details, actions) => EPage(
+          title: selectedTx.isInvoice ? l.deskInvActBlock : (selectedTx.incoming ? l.deskActDetailReceived : l.deskActDetailSent),
+          width: EPageWidth.narrow,
+          onBack: () => setState(() => _selected = null),
+          footer: actions == null ? null : TxPageActions(child: actions),
+          child: details,
+        ),
       );
     }
 
@@ -486,19 +492,24 @@ class _DetailPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return EPanel(
-      strong: true,
-      scroll: true,
-      padding: EdgeInsets.all(Sp.panel),
-      head: Row(
-        children: [
-          Expanded(
-            child: TxPanelTitle(tx: tx, fallback: tx.isInvoice ? l.deskInvActBlock : (tx.incoming ? l.deskActDetailReceived : l.deskActDetailSent)),
-          ),
-          EIconButton(icon: EIcons.close, label: l.commonClose, onPressed: onClose),
-        ],
+    // The payment's actions at the pane's foot, under the scrolling details (C-03).
+    return TxDetail(
+      tx: tx,
+      frame: (details, actions) => EPanel(
+        strong: true,
+        scroll: true,
+        padding: EdgeInsets.all(Sp.panel),
+        head: Row(
+          children: [
+            Expanded(
+              child: TxPanelTitle(tx: tx, fallback: tx.isInvoice ? l.deskInvActBlock : (tx.incoming ? l.deskActDetailReceived : l.deskActDetailSent)),
+            ),
+            EIconButton(icon: EIcons.close, label: l.commonClose, onPressed: onClose),
+          ],
+        ),
+        foot: actions == null ? null : KeyedSubtree(key: const ValueKey('tx-actions-bar'), child: actions),
+        child: details,
       ),
-      child: TxDetail(tx: tx),
     );
   }
 }

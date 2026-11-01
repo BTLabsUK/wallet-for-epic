@@ -56,12 +56,18 @@ const Key deskTxResendKey = ValueKey('tx-resend-epicbox');
 const Key deskMailboxResendConfirmKey = ValueKey('mailbox-resend-confirm');
 
 class TxDetail extends ConsumerStatefulWidget {
-  const TxDetail({super.key, required this.tx, this.showTitle = false});
+  const TxDetail({super.key, required this.tx, this.showTitle = false, this.frame});
 
   final Tx tx;
 
   /// Starts with the title (the label's field), for a layout whose page title is a plain string.
   final bool showTitle;
+
+  /// Puts the details and the bar of the payment's actions (null when it has none) in the
+  /// caller's frame: the bar pinned at a pane's foot or a page's bottom, so Cancel, Finalize
+  /// and Post again are in view however long the details run (C-03). Without it the bar sits
+  /// under the status.
+  final Widget Function(Widget details, Widget? actions)? frame;
 
   @override
   ConsumerState<TxDetail> createState() => _TxDetailState();
@@ -359,7 +365,68 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ? _mailboxSteps(l, t, mailboxName, mailboxPairing?.homeRelay ?? '', ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff)
         : _steps(l, t);
     final onChain = t.state == TxState.confirming || t.state == TxState.confirmed;
-    return Column(
+    // The payment's actions: a destructive Cancel at the start, the way on (Finalize, Post
+    // again, Send again) at the end.
+    final cancel = cancelable
+        ? EButton(
+            label: _cancelling ? l.deskTxCancelling : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
+            icon: EIcons.cancel,
+            // A receive's Cancel is a tidy-up for a payment the sender never posted, so
+            // it stays quiet; a send's unlocks funds.
+            kind: t.incoming && !t.senderCancelled ? EBtnKind.ghost : EBtnKind.danger,
+            size: EBtnSize.sm,
+            busy: _cancelling,
+            onPressed: _cancel,
+          )
+        : null;
+    final onward = <Widget>[
+      // An unanswered mailbox send: after a day the main action, at seven days second to
+      // Cancel (trust policy). Only with the contact's Epicbox address.
+      if (resendOffer != null && resendAddress != null)
+        resendOffer.resendPrimary
+            ? EButton.primary(
+                key: deskTxResendKey,
+                label: l.mailboxResendTitle,
+                icon: EIcons.send,
+                size: EBtnSize.sm,
+                busy: _cancelling,
+                onPressed: _cancelling ? null : () => _resend(mailboxName!, resendAddress),
+              )
+            : EButton(
+                key: deskTxResendKey,
+                label: l.mailboxResendTitle,
+                icon: EIcons.send,
+                size: EBtnSize.sm,
+                busy: _cancelling,
+                onPressed: _cancelling ? null : () => _resend(mailboxName!, resendAddress),
+              ),
+      if (sendAgain)
+        EButton.primary(
+          label: context.l10n.deskTxSendAgain,
+          icon: EIcons.refresh,
+          size: EBtnSize.sm,
+          busy: _cancelling,
+          onPressed: _sendAgain,
+        ),
+      if (repostable && NetGate.killSwitch) FinishedPaymentActions(tx: t),
+      if (repostable && !NetGate.killSwitch)
+        EButton.primary(
+          label: l.deskTxBroadcastAgain,
+          icon: EIcons.refresh,
+          size: EBtnSize.sm,
+          busy: _cancelling,
+          onPressed: _broadcastAgain,
+        ),
+      if (finalizable)
+        EButton.primary(
+          label: l.deskTxFinalize,
+          icon: EIcons.fileDown,
+          size: EBtnSize.sm,
+          onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize),
+        ),
+    ];
+    final actions = cancel == null && onward.isEmpty ? null : TxActionBar(leading: cancel, trailing: onward);
+    final details = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.showTitle) ...[
@@ -485,71 +552,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           SizedBox(height: Sp.x3),
           ENotice(title: l.reqReceivedWaiting(contactName), text: l.reqReceivedWaitingBody, tone: ETone.info),
         ],
-        // The actions come first: Cancel, Send again and Finalize are seen without scrolling.
-        if (cancelable || finalizable || sendAgain || repostable || (resendOffer != null && resendAddress != null)) ...[
+        // Inline, the bar comes first: Cancel, Send again and Finalize are seen without scrolling.
+        if (actions != null && widget.frame == null) ...[
           SizedBox(height: Sp.x4),
-          Wrap(
-            spacing: Sp.x2,
-            runSpacing: Sp.x2,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              // An unanswered mailbox send: after a day the main action, at seven days second to
-              // Cancel (trust policy). Only with the contact's Epicbox address.
-              if (resendOffer != null && resendAddress != null)
-                resendOffer.resendPrimary
-                    ? EButton.primary(
-                        key: deskTxResendKey,
-                        label: l.mailboxResendTitle,
-                        icon: EIcons.send,
-                        size: EBtnSize.sm,
-                        busy: _cancelling,
-                        onPressed: _cancelling ? null : () => _resend(mailboxName!, resendAddress),
-                      )
-                    : EButton(
-                        key: deskTxResendKey,
-                        label: l.mailboxResendTitle,
-                        icon: EIcons.send,
-                        size: EBtnSize.sm,
-                        busy: _cancelling,
-                        onPressed: _cancelling ? null : () => _resend(mailboxName!, resendAddress),
-                      ),
-              if (cancelable)
-                EButton(
-                  label: _cancelling ? l.deskTxCancelling : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
-                  icon: EIcons.cancel,
-                  // A receive's Cancel is a tidy-up for a payment the sender never posted, so
-                  // it stays quiet; a send's unlocks funds.
-                  kind: t.incoming && !t.senderCancelled ? EBtnKind.ghost : EBtnKind.danger,
-                  size: EBtnSize.sm,
-                  busy: _cancelling,
-                  onPressed: _cancel,
-                ),
-              if (sendAgain)
-                EButton.primary(
-                  label: context.l10n.deskTxSendAgain,
-                  icon: EIcons.refresh,
-                  size: EBtnSize.sm,
-                  busy: _cancelling,
-                  onPressed: _sendAgain,
-                ),
-              if (repostable && NetGate.killSwitch) FinishedPaymentActions(tx: t),
-              if (repostable && !NetGate.killSwitch)
-                EButton.primary(
-                  label: l.deskTxBroadcastAgain,
-                  icon: EIcons.refresh,
-                  size: EBtnSize.sm,
-                  busy: _cancelling,
-                  onPressed: _broadcastAgain,
-                ),
-              if (finalizable)
-                EButton.primary(
-                  label: l.deskTxFinalize,
-                  icon: EIcons.fileDown,
-                  size: EBtnSize.sm,
-                  onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.finalize),
-                ),
-            ],
-          ),
+          actions,
           SizedBox(height: Sp.x2),
         ],
         // An invoice-flow transaction: the invoice behind it, in the Invoices page's words.
@@ -724,6 +730,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         if (t.otherWallet && t.receivedOn == null) DeskSentFromOtherWalletOffer(incoming: t.incoming),
       ],
     );
+    return widget.frame?.call(details, actions) ?? details;
   }
 
   /// What Copy details puts on the clipboard: who, how much, where it stands, when, its id.
@@ -960,6 +967,49 @@ class _TimelineStep extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A payment's actions on one line: [leading] (Cancel, destructive) at the start, [trailing]
+/// (the way on, its primary last) at the end; in a narrow pane the end group goes under it.
+class TxActionBar extends StatelessWidget {
+  const TxActionBar({super.key, this.leading, this.trailing = const []});
+
+  final Widget? leading;
+  final List<Widget> trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final end = Wrap(alignment: WrapAlignment.end, spacing: Sp.x2, runSpacing: Sp.x2, crossAxisAlignment: WrapCrossAlignment.center, children: trailing);
+    final lead = leading;
+    if (lead == null) return Align(alignment: AlignmentDirectional.centerEnd, child: end);
+    if (trailing.isEmpty) return Align(alignment: AlignmentDirectional.centerStart, child: lead);
+    return OverflowBar(
+      alignment: MainAxisAlignment.spaceBetween,
+      spacing: Sp.x3,
+      overflowSpacing: Sp.x2,
+      overflowAlignment: OverflowBarAlignment.end,
+      children: [lead, end],
+    );
+  }
+}
+
+/// A payment's [TxActionBar] pinned at a page's bottom (the narrow Activity's detail page):
+/// the pane's foot in the page's gutter, a hairline over it.
+class TxPageActions extends StatelessWidget {
+  const TxPageActions({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      key: const ValueKey('tx-actions-bar'),
+      padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width < Bp.phone ? Sp.x4 : Sp.x6, vertical: Sp.x3),
+      decoration: BoxDecoration(color: c.s1, border: Border(top: BorderSide(color: c.line))),
+      child: child,
     );
   }
 }
