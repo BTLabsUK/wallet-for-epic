@@ -3661,6 +3661,8 @@
   "pairNotNow": "Nicht jetzt",
   "pairWaitingBody": "Die andere Wallet antwortet, sobald sie geöffnet wird. Sie können diese Seite schließen; die Verifizierung erscheint, wenn die Kopplung fertig ist.",
   "pairSendByHand": "Von Hand senden",
+  "pairReplyLateTitle": "Noch nicht gekoppelt?",
+  "pairReplyLateBody": "Ihre Antwort ging über den Epicbox-Server an {name}. Ist deren Wallet geschlossen oder erreicht keinen, senden Sie die Antwort stattdessen im Chat.",
   "pairRelayUnreachableTitle": "Der Server ist nicht erreichbar",
   "pairRelayUnreachableBody": "Antwort von Hand senden?",
   "pairRelayUnreachableTor": "Der Server ist über Tor nicht erreichbar. Antwort von Hand senden?",

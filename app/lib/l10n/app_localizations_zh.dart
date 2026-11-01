@@ -13073,6 +13073,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairSendByHand => '手动发送';
 
   @override
+  String get pairReplyLateTitle => '还没配对？';
+
+  @override
+  String pairReplyLateBody(String name) {
+    return '你的回复已通过 Epicbox 服务器发给 $name。若对方的钱包已关闭或连不上服务器，请改在聊天中发送回复。';
+  }
+
+  @override
   String get pairRelayUnreachableTitle => '无法连接服务器';
 
   @override

@@ -14389,6 +14389,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairSendByHand => 'Отправить вручную';
 
   @override
+  String get pairReplyLateTitle => 'Ещё не связаны?';
+
+  @override
+  String pairReplyLateBody(String name) {
+    return 'Ваш ответ ушёл к $name через сервер Epicbox. Если их кошелёк закрыт или не видит сервер, отправьте ответ в чате.';
+  }
+
+  @override
   String get pairRelayUnreachableTitle => 'Сервер недоступен';
 
   @override

@@ -48,6 +48,9 @@ const Key deskPairCancelSentKey = ValueKey('desk-pair-cancel-sent');
 const Key deskPairHowKey = ValueKey('desk-pair-how');
 const Key deskFinishCopyKey = ValueKey('desk-finish-copy');
 const Key deskReplyCopyKey = ValueKey('desk-reply-copy');
+
+/// Send your reply on the wait after an invite link, once the relay has been slow: the fallback.
+const Key deskReplyFallbackKey = ValueKey('desk-reply-fallback');
 const Key deskPasteFinishKey = ValueKey('desk-paste-finish');
 const Key deskPairGoKey = ValueKey('desk-pair-go');
 const Key deskPairPasteKey = ValueKey('desk-pair-paste');
@@ -1102,9 +1105,9 @@ class _CardBackDialog extends StatelessWidget {
   }
 }
 
-/// "Pair with Anna?" as a dialog. Pair answers; an invite that came as a link ([viaLink]) then
-/// shows the reply to copy back (Invite by message, step 2), one found by its words the wait
-/// for the confirm.
+/// "Pair with Anna?" as a dialog. Pair answers, then the wait for the confirm, which the relay
+/// carries. An invite that came as a link ([viaLink]) offers its reply to copy back (Invite by
+/// message, step 2) as the fallback: when the relay is slow, could not take it, or there is none.
 Future<void> showDeskIncoming(BuildContext context, WidgetRef ref, PairingInvitePreview p, {Contact? contact, bool viaLink = true}) async {
   final answered = await showEDialog<PairingRecord>(context, builder: (_) => _IncomingDialog(preview: p, contact: contact));
   if (answered == null || !context.mounted) return;
@@ -1215,7 +1218,8 @@ class DeskPairWaitingDialog extends ConsumerStatefulWidget {
 
   final String pairingId;
 
-  /// Invite by message: the reply to copy, then the wait for the finish link.
+  /// Invite by message: the reply to copy, then the wait for the finish link. With the relay
+  /// on, only after [pairReplyFallbackAfter] without the confirm, or when the user asks.
   final bool byMessage;
 
   @override
@@ -1224,6 +1228,13 @@ class DeskPairWaitingDialog extends ConsumerStatefulWidget {
 
 class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
   Timer? _collect;
+  Timer? _slow;
+
+  /// The relay has been slow: the reply in the chat is offered.
+  bool _late = false;
+
+  /// The reply to copy is on screen (asked for, or no relay to wait for).
+  bool _replyShown = false;
   StreamSubscription<PairingEvent>? _events;
   String? _link;
   bool _copied = false;
@@ -1240,6 +1251,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     deskPairingStepsOnScreen.add(widget.pairingId);
     final api = ref.read(deskPairingApiProvider);
     _collect = Timer.periodic(const Duration(seconds: 5), (_) => api.collect().ignore());
+    if (widget.byMessage) _slow = Timer(pairReplyFallbackAfter, () => mounted ? setState(() => _late = true) : null);
     _events = api.events().listen((e) {
       if (e.pairingId != widget.pairingId || !mounted || _done) return;
       if (e.kind == PairingEventKind.confirmed) {
@@ -1267,6 +1279,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     deskPairingStepsOnScreen.remove(widget.pairingId);
     pairingWordsOnScreen.remove(_onScreen);
     _collect?.cancel();
+    _slow?.cancel();
     _events?.cancel();
     super.dispose();
   }
@@ -1383,8 +1396,10 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     final r = ref.watch(deskPairingByIdProvider(widget.pairingId));
     // The finish link came another way (pasted on the page, by the relay): the words.
     if (r != null && r.state.isPaired && !_done) WidgetsBinding.instance.addPostFrameCallback((_) => _finished());
-    if (widget.byMessage) return _byMessage(l, name);
-    final link = _link;
+    final net = ref.watch(deskPairNetProvider);
+    // The relay carries the answer: the reply to copy only as the fallback.
+    if (widget.byMessage && (_replyShown || net != DeskPairNet.online || (r?.relayDown ?? false))) return _byMessage(l, name);
+    final link = widget.byMessage ? null : _link;
     return EDialog(
       title: link == null ? l.pairWaitingFinish(name) : l.pairByHandTitle,
       width: 520.u,
@@ -1396,8 +1411,12 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
             SizedBox(height: Sp.x3),
             // By hand (Offline, Epicbox off) nothing continues in the background.
             if (ref.watch(deskPairNetProvider) == DeskPairNet.online) Text(l.pairWaitingBody, style: ts.bodyDim),
+            if (widget.byMessage && _late) ...[
+              SizedBox(height: Sp.x3),
+              ENotice(title: l.pairReplyLateTitle, text: l.pairReplyLateBody(name), tone: ETone.info),
+            ],
             // Offline or Epicbox off on this wallet is no relay trouble: it says which.
-            if (ref.watch(deskPairNetProvider) case final net when (r?.relayDown ?? false) || net != DeskPairNet.online) ...[
+            if ((r?.relayDown ?? false) || net != DeskPairNet.online) ...[
               SizedBox(height: Sp.x3),
               switch (net) {
                 DeskPairNet.offline => ENotice(title: l.pairOfflineHint, tone: ETone.warn),
@@ -1417,7 +1436,9 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
         ],
       ),
       actions: [
-        if (link == null)
+        if (widget.byMessage) ...[
+          if (_late) EButton(key: deskReplyFallbackKey, label: l.pairReplyTitle, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => setState(() => _replyShown = true)),
+        ] else if (link == null)
           EButton(label: l.pairSendByHand, size: EBtnSize.sm, onPressed: _byHand)
         else
           EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, link, l.pairCopied)),

@@ -18426,6 +18426,20 @@
   "@pairSendByHand": {
     "description": "Button on the waiting screen and the relay notice."
   },
+  "pairReplyLateTitle": "Not paired yet?",
+  "pairReplyLateBody": "Your reply went to {name} over the Epicbox server. If their wallet is closed or can't reach one, send the reply in the chat instead.",
+  "@pairReplyLateTitle": {
+    "description": "Joiner by message: the pairing has not finished over the relay after a short wait; the reply to send in the chat is offered as the fallback"
+  },
+  "@pairReplyLateBody": {
+    "description": "Under pairReplyLateTitle",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
   "pairRelayUnreachableTitle": "Cannot reach the server",
   "@pairRelayUnreachableTitle": {
     "description": "Notice on the waiting screen (cases file)."

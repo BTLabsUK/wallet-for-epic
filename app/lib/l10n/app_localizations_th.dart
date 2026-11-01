@@ -13537,6 +13537,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairSendByHand => 'ส่งด้วยตนเอง';
 
   @override
+  String get pairReplyLateTitle => 'ยังไม่จับคู่ใช่ไหม';
+
+  @override
+  String pairReplyLateBody(String name) {
+    return 'คำตอบของคุณส่งถึง $name ผ่านเซิร์ฟเวอร์ Epicbox แล้ว หากกระเป๋าเงินของอีกฝ่ายปิดอยู่หรือเข้าถึงเซิร์ฟเวอร์ไม่ได้ ให้ส่งคำตอบในแชตแทน';
+  }
+
+  @override
   String get pairRelayUnreachableTitle => 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้';
 
   @override

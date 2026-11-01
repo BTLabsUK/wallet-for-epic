@@ -3661,6 +3661,8 @@
   "pairNotNow": "Nie teraz",
   "pairWaitingBody": "Drugi portfel odpowie, gdy zostanie otwarty. Możesz zamknąć ten ekran; weryfikacja pojawi się po zakończeniu parowania.",
   "pairSendByHand": "Wyślij ręcznie",
+  "pairReplyLateTitle": "Jeszcze nie sparowane?",
+  "pairReplyLateBody": "Twoja odpowiedź poszła do {name} przez serwer Epicbox. Jeśli ich portfel jest zamknięty albo nie ma dostępu do serwera, wyślij odpowiedź w czacie.",
   "pairRelayUnreachableTitle": "Brak połączenia z serwerem",
   "pairRelayUnreachableBody": "Wysłać odpowiedź ręcznie?",
   "pairRelayUnreachableTor": "Brak połączenia z serwerem przez Tor. Wysłać odpowiedź ręcznie?",

@@ -23,7 +23,8 @@ import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingWordsOnScreen;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
-import 'package:epic_wallet/src/wallet_service.dart' show PairingEvent, PairingEventKind, PairingState;
+import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter;
+import 'package:epic_wallet/src/wallet_service.dart' show PairingEvent, PairingEventKind, PairingRecord, PairingState;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,7 +130,7 @@ void main() {
     await _real(tester);
   });
 
-  testWidgets('the joiner by message: Pair, the reply to copy, then Paste finish link opens the words', (tester) async {
+  Future<PairingRecord> answerLink(WidgetTester tester) async {
     await _open(tester, const DeskPairScreen());
     await _seenAs(tester, 'Alex');
     await tester.enterText(
@@ -141,7 +142,29 @@ void main() {
     await _real(tester);
     await tester.tap(find.byKey(deskIncomingPairKey));
     await _real(tester);
-    final answered = (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply).single;
+    return (await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply).single;
+  }
+
+  testWidgets('the joiner by message, relay on: the wait, no reply to copy; the confirm by the relay opens the words', (tester) async {
+    final answered = await answerLink(tester);
+    expect(find.text(_l.pairWaitingFinish('Anna')), findsOneWidget);
+    expect(find.byKey(deskReplyCopyKey), findsNothing);
+    expect(find.byKey(deskReplyFallbackKey), findsNothing);
+    _pairing.confirmAnswer(answered.id);
+    await _real(tester);
+    expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
+    expect(find.text(_l.pairReplyTitle), findsNothing);
+    Navigator.of(tester.element(find.byKey(deskCheckMatchKey))).pop();
+    await _real(tester);
+  });
+
+  testWidgets('the joiner by message: the relay slow, Send your reply as the fallback, then Paste finish link opens the words', (tester) async {
+    final answered = await answerLink(tester);
+    await tester.pump(pairReplyFallbackAfter);
+    await tester.pump();
+    expect(find.text(_l.pairReplyLateTitle), findsOneWidget);
+    await tester.tap(find.byKey(deskReplyFallbackKey));
+    await _real(tester);
     expect(find.text(_l.pairReplyTitle), findsOneWidget);
     await tester.tap(find.byKey(deskReplyCopyKey));
     await _real(tester);

@@ -6,7 +6,7 @@ import 'package:epic_wallet/src/sas_table.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show pairingSpan;
+import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, pairingSpan;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -303,8 +303,7 @@ void main() {
       expect(find.byType(PairMessageScreen), findsNothing);
     });
 
-    testWidgets('the joiner: Pair on a link opens the reply to share, then the wait for the finish link, then the words', (tester) async {
-      final h = _Harness();
+    Future<PairingRecord> answerLink(WidgetTester tester, _Harness h) async {
       await h.pump(tester, const EnterLinkScreen());
       await tester.enterText(find.byKey(pairEnterFieldKey), _l.pairInviteMessage(h.api.inviteLinkFrom(name: 'Anna')));
       await tester.pumpAndSettle();
@@ -312,7 +311,31 @@ void main() {
       await _frames(tester);
       await tester.tap(find.byKey(incomingPairKey));
       await _frames(tester);
-      final answered = h.api.records.single;
+      return h.api.records.single;
+    }
+
+    testWidgets('the joiner, relay on: Pair on a link opens the wait, no reply to share; the confirm by the relay opens the words', (tester) async {
+      final h = _Harness();
+      final answered = await answerLink(tester, h);
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      expect(find.byType(PairReplyScreen), findsNothing);
+      expect(find.byKey(waitingReplyFallbackKey), findsNothing);
+      expect(find.byKey(waitingByHandKey), findsNothing);
+      h.api.confirmAnswer(answered.id);
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+      expect(find.byType(PairReplyScreen, skipOffstage: false), findsNothing);
+    });
+
+    testWidgets('the joiner: the relay slow, Send your reply as the fallback, then the wait for the finish link, then the words', (tester) async {
+      final h = _Harness();
+      final answered = await answerLink(tester, h);
+      await tester.pump(pairReplyFallbackAfter);
+      await _frames(tester);
+      expect(find.text(_l.pairReplyLateTitle), findsOneWidget);
+      await tester.ensureVisible(find.byKey(waitingReplyFallbackKey));
+      await tester.tap(find.byKey(waitingReplyFallbackKey));
+      await _frames(tester);
       expect(find.byType(PairReplyScreen), findsOneWidget);
       expect(find.text(_l.pairReplyLead('Anna')), findsOneWidget);
       await tester.tap(find.byKey(replyShareKey));
@@ -469,7 +492,7 @@ void main() {
       expect(tester.getBottomLeft(find.byKey(pairNameFieldKey)).dy, lessThanOrEqualTo(keyboardTop));
     });
 
-    testWidgets('an invite link opens the incoming invite; Pair answers and offers the reply; a relay confirm opens the words', (tester) async {
+    testWidgets('an invite link opens the incoming invite; Pair answers and waits for the relay; a relay confirm opens the words', (tester) async {
       final h = _Harness();
       await h.pump(tester, const EnterLinkScreen());
       final link = h.api.inviteLinkFrom(name: 'Northwind', kind: PairingParty.exchange, asksInvoices: true);
@@ -486,8 +509,9 @@ void main() {
       await _frames(tester);
       final answered = h.api.records.single;
       expect((answered.state, answered.asksInvoices), (PairingState.pendingReply, false));
-      // A link came in a message: the reply goes back the same way first.
-      expect(find.byType(PairReplyScreen), findsOneWidget);
+      // The relay carries the answer: the wait, the reply in the chat only as the fallback.
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      expect(find.byType(PairReplyScreen), findsNothing);
 
       h.api.confirmAnswer(answered.id);
       await _frames(tester);
