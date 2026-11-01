@@ -429,7 +429,7 @@ class _Figure extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final direction = Directionality.of(context);
-    final text = hidden ? hiddenAmount : localDigits(l, displayEpic(spendable));
+    final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(spendable, AmountSurface.hero));
     TextStyle figure(double size) =>
         (theme.textTheme.displaySmall ?? const TextStyle()).copyWith(
           fontFamily: t.headFamily,
@@ -566,7 +566,7 @@ class BalanceHeader extends ConsumerWidget {
                 return Row(children: [const Spacer(), icons]);
               }
               final tokens = pendingTokens(l, summary, hidden: hidden);
-              final text = hidden ? hiddenAmount : localDigits(l, displayEpic(summary.spendable));
+              final text = hidden ? hiddenAmount : localDigits(l, surfaceEpic(summary.spendable, AmountSurface.hero));
               final full = box.maxWidth;
               final beside = full - 4 - iconsWidth;
               double figureWidth(double size, {bool unit = true}) =>
