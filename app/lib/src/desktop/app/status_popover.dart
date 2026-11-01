@@ -128,7 +128,8 @@ class DeskStatusPopover extends ConsumerWidget {
           ));
           if (failover != null) facts.add((label: l.lvShellLastChange, value: l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen)), mono: false));
         } else {
-          if (i.byMode) {
+          // A mode's own line, unless it only repeats the state word (then the host stays).
+          if (i.byMode && i.second != i.word) {
             second = i.second;
             secondMono = false;
           }
@@ -143,8 +144,9 @@ class DeskStatusPopover extends ConsumerWidget {
         tile = relay == null
             ? DeskServiceTile(icon: i.icon, state: i.state)
             : DeskServerTile(host: server!.domain, operator: server.listedAs ?? server.operator, icon: server.icon, dimmed: i.state == EState.off);
-        second = i.byMode ? i.second : relay;
-        secondMono = !i.byMode;
+        final modeLine = i.byMode && i.second != i.word;
+        second = modeLine ? i.second : relay;
+        secondMono = !modeLine;
         if (address != null && address.isNotEmpty) facts.add((label: l.lvShellAddress, value: common.shortAddress(address, relay: false), mono: true));
         if (shallow && (i.state == EState.risk || i.state == EState.warn)) notes.add(l.lvShellBoxDownBody);
       default:
