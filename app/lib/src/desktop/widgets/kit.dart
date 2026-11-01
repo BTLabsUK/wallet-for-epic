@@ -3,6 +3,7 @@
 library;
 
 export '../../address_format.dart';
+export '../../reserved_slot.dart';
 export '../app/routes.dart';
 export '../data/addresses.dart';
 export '../data/features.dart';
