@@ -73,6 +73,9 @@ $ErrorActionPreference = 'Stop'
 $d = '%(d)s'
 if (Test-Path -LiteralPath "$d\lepic.exe") { 'CACHED'; exit 0 }
 $env:Path = "$env:USERPROFILE\.cargo\bin;" + $env:Path
+# LEPIC pins its own Rust (rust-toolchain.toml); the box's system Rust may be older: a toolchain copied to
+# C:\EpicRig\lepic-cli\toolchain (bin\cargo.exe) goes first.
+if (Test-Path -LiteralPath '%(root)s\toolchain\bin\cargo.exe') { $env:Path = '%(root)s\toolchain\bin;' + $env:Path; $env:RUSTUP_TOOLCHAIN = '' }
 foreach ($t in 'cargo','git') { if (-not (Get-Command $t -ErrorAction SilentlyContinue)) { throw "$t not found on PATH" } }
 Remove-Item -Recurse -Force "$d\src" -ErrorAction SilentlyContinue
 Expand-Archive -LiteralPath "$d\src.zip" -DestinationPath "$d\src" -Force
@@ -85,7 +88,7 @@ Copy-Item "$d\target\release\lepic.exe" "$d\lepic.exe" -Force
 Remove-Item -Recurse -Force "$d\src", "$d\src.zip" -ErrorAction SilentlyContinue
 & "$d\lepic.exe" --version
 'BUILT'
-""" % {"d": d}
+""" % {"d": d, "root": CLI_ROOT}
 
 
 def ensure(rig, scratch, log, dry=False):

@@ -498,13 +498,15 @@ class Run:
     PHRASE = re.compile(r"(?:[a-z]+ ){11}[a-z]+|(?:[a-z]+ ){23}[a-z]+")
 
     def capture_phrase(self):
-        """The Copy button of the revealed phrase (after Hide: Tab Tab) and its confirm dialog, then the
-        clipboard: the phrase into <work>/phrase.txt (mode 600), put into the run's secret folder, the local
-        file and the clipboard cleared. Never logged. The dialog's first focus is not known: Enter, else Tab Enter."""
-        self.keys(TAB, TAB, ENTER)  # Copy, opening its "Copy the recovery phrase?" dialog
+        """The Copy button of the revealed phrase (after Hide: Tab Tab) and its "Copy the recovery phrase?" dialog,
+        then the clipboard: the phrase into <work>/phrase.txt (mode 600), put into the run's secret folder, the
+        local file and the clipboard cleared. Never logged. The dialog has no initial focus: Tab, Tab reaches
+        Cancel then Copy (Esc closes it, focus returns to the Copy button), so each attempt is Tab Tab Enter,
+        and a miss is followed by Esc and a press of the Copy button again."""
+        self.keys(TAB, TAB, ENTER)  # Copy, opening its dialog
         time.sleep(1.2)
         text = ""
-        for i, step in enumerate(((ENTER,), (ENTER, TAB, ENTER))):
+        for i, step in enumerate(((TAB, TAB, ENTER), (ESC, ENTER, TAB, TAB, ENTER), (ESC, TAB, TAB, ENTER, TAB, TAB, ENTER))):
             self.call("clear_clipboard")
             self.keys(*step)
             time.sleep(1.2)
@@ -515,7 +517,7 @@ class Run:
         self.call("clear_clipboard")
         if not text:
             raise CannotRun("the recovery phrase could not be copied from the Create wallet screen (the Copy button and its "
-                            "dialog are driven blind: Tab Tab Enter, then Enter or Tab Enter); retune capture_phrase")
+                            "dialog are driven blind: Tab Tab Enter twice); retune capture_phrase")
         local = os.path.join(self.work, "phrase.txt")
         with open(local, "w") as f:
             f.write(text + "\n")
