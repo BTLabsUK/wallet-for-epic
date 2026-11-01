@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../advanced.dart' show AdvancedFeature;
 import '../../../contact_store.dart' show ContactFields;
 import '../../../contacts_file.dart' show encodeContactsFile;
 import '../../app/shots.dart';
@@ -33,6 +34,13 @@ Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async 
   await c.read(walletLevelProvider.future);
   await c.read(deskLevelControlProvider).setLevel(level);
 };
+
+/// The Outputs page is on the rail at Deep end with Advanced › Outputs on.
+Future<void> _outputsOn(ProviderContainer c) async {
+  await _level(WalletLevel.everything)(c);
+  final s = c.read(deskProvider).settings;
+  await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.outputs, true)));
+}
 
 /// Clicks the title bar's button with [key] (a status icon, then a button inside its
 /// popover), as the pointer would: the popover opens under the icon.
@@ -250,33 +258,33 @@ final List<DeskShot> walletShots = [
     arg: 36,
     dialog: (c) => showCancelTxDialog(c, Tx(id: 36, slateId: '', direction: TxDirection.received, state: TxState.posted, method: TxMethod.epicbox, amount: 250000000, fee: 0, created: DateTime(2026, 10, 20), counterparty: 'esAlice@epicbox.example', cancellable: true)),
   ),
-  DeskShot(id: '19a-outputs', title: 'Outputs', route: DeskRoute.outputs, arg: _outputsSix, height: 1000),
+  DeskShot(id: '19a-outputs', title: 'Outputs', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, height: 1000),
   DeskShot(
     id: '19b-outputs-filter',
     title: 'Outputs, spendable only',
-    route: DeskRoute.outputs,
+    route: DeskRoute.outputs, before: _outputsOn,
     arg: OutputsArgs(outputs: _six, balance: _sixBalance, filter: OutputsFilter.spendable),
     height: 1000,
   ),
-  DeskShot(id: '19c-outputs-spent', title: 'Outputs, spent shown', route: DeskRoute.outputs, arg: OutputsArgs(outputs: _six, balance: _sixBalance, showSpent: true), height: 1000),
-  DeskShot(id: '19d-outputs-locked', title: 'Outputs, after a split', route: DeskRoute.outputs, arg: OutputsArgs(outputs: _afterSplit, balance: _afterSplitBalance), height: 1000),
-  DeskShot(id: '19e-outputs-one', title: 'Outputs, one output', route: DeskRoute.outputs, arg: OutputsArgs(outputs: [_out(1, 100, OutputStatus.unspent, 2913020, 1394, 30)], balance: _bal(100)), height: 1000),
-  DeskShot(id: '19f-outputs-empty', title: 'Outputs, none yet', route: DeskRoute.outputs, arg: OutputsArgs(outputs: const [], balance: _bal(0))),
-  const DeskShot(id: '19g-outputs-loading', title: 'Outputs, loading', route: DeskRoute.outputs, arg: OutputsArgs(waiting: true)),
-  DeskShot(id: '19h-outputs-narrow', title: 'Outputs at 980 wide', route: DeskRoute.outputs, arg: _outputsSix, width: 980, height: 1000),
-  DeskShot(id: '19i-dlg-split', title: 'Split outputs', route: DeskRoute.outputs, arg: _outputsSix, dialog: (c) => showSplitDialog(c)),
-  DeskShot(id: '19j-dlg-split-posting', title: 'Split, posting', route: DeskRoute.outputs, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.posting))),
-  DeskShot(id: '19k-dlg-split-done', title: 'Split, done', route: DeskRoute.outputs, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.done))),
-  DeskShot(id: '19l-dlg-split-not-posted', title: 'Split, not posted', route: DeskRoute.outputs, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.notPosted))),
-  DeskShot(id: '19m-dlg-consolidate', title: 'Consolidate outputs', route: DeskRoute.outputs, arg: _outputsSix, dialog: (c) => showConsolidateDialog(c, spendableCount: 4)),
+  DeskShot(id: '19c-outputs-spent', title: 'Outputs, spent shown', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: _six, balance: _sixBalance, showSpent: true), height: 1000),
+  DeskShot(id: '19d-outputs-locked', title: 'Outputs, after a split', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: _afterSplit, balance: _afterSplitBalance), height: 1000),
+  DeskShot(id: '19e-outputs-one', title: 'Outputs, one output', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: [_out(1, 100, OutputStatus.unspent, 2913020, 1394, 30)], balance: _bal(100)), height: 1000),
+  DeskShot(id: '19f-outputs-empty', title: 'Outputs, none yet', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(outputs: const [], balance: _bal(0))),
+  const DeskShot(id: '19g-outputs-loading', title: 'Outputs, loading', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(waiting: true)),
+  DeskShot(id: '19h-outputs-narrow', title: 'Outputs at 980 wide', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, width: 980, height: 1000),
+  DeskShot(id: '19i-dlg-split', title: 'Split outputs', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c)),
+  DeskShot(id: '19j-dlg-split-posting', title: 'Split, posting', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.posting))),
+  DeskShot(id: '19k-dlg-split-done', title: 'Split, done', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.done))),
+  DeskShot(id: '19l-dlg-split-not-posted', title: 'Split, not posted', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.notPosted))),
+  DeskShot(id: '19m-dlg-consolidate', title: 'Consolidate outputs', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showConsolidateDialog(c, spendableCount: 4)),
   DeskShot(
     id: '19n-dlg-consolidate-done',
     title: 'Consolidate, done',
-    route: DeskRoute.outputs,
+    route: DeskRoute.outputs, before: _outputsOn,
     arg: _outputsSix,
     dialog: (c) => showConsolidateDialog(c, spendableCount: 4, demo: const SelfSendDemo(SelfSendPhase.done)),
   ),
-  DeskShot(id: '19o-dlg-consolidate-one', title: 'Consolidate, one output', route: DeskRoute.outputs, arg: _outputsSix, dialog: (c) => showConsolidateDialog(c, spendableCount: 1)),
+  DeskShot(id: '19o-dlg-consolidate-one', title: 'Consolidate, one output', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showConsolidateDialog(c, spendableCount: 1)),
   const DeskShot(id: '21-contacts', title: 'Contacts', route: DeskRoute.contacts),
   const DeskShot(id: '21-contacts-narrow', title: 'Contacts at 1000x750, one column', route: DeskRoute.contacts, width: 1000, height: 750),
   const DeskShot(id: '21b-contacts-empty', title: 'Contacts, empty', route: DeskRoute.contacts, arg: ContactsArgs(empty: true)),
