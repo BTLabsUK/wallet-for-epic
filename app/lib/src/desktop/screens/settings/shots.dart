@@ -198,8 +198,6 @@ final List<DeskShot> settingsShots = [
   ),
   DeskShot(id: '22-node-local-dialog', title: 'Local node: the dialog from Settings', route: DeskRoute.settingsNode, dialog: (c) => showLocalNodeSetupDialog(c)),
   DeskShot(id: '22b-node-local-dialog-ports', title: 'Local node: the dialog with Advanced open (the ports)', route: DeskRoute.settingsNode, dialog: (c) => showLocalNodeSetupDialog(c, portsOpen: true)),
-  DeskShot(id: '22g-dlg-chain-offer', title: 'Existing blockchain data', route: DeskRoute.settingsNode, dialog: showChainOfferDialog),
-  DeskShot(id: '22h-dlg-chain-offer-in-use', title: 'Existing blockchain data, in use', route: DeskRoute.settingsNode, dialog: (c) => showChainOfferDialog(c, inUse: true)),
   DeskShot(
     id: '23-settings-receiving',
     title: 'Settings, transactions',
