@@ -38,7 +38,7 @@ List<HelpTopic> helpTopicsTh(int confirmations, {required HelpPlatform platform,
       ? '**กู้คืนจากวลีกู้คืน** (ที่หน้าจอแรก หรือที่ [[การตั้งค่า › กระเป๋าเงินนี้|Settings › This wallet]])'
       : '**กู้คืนจากวลีกู้คืน** (ที่หน้าจอแรก ที่ ปลดล็อก › เพิ่มกระเป๋าเงิน หรือที่ [[การตั้งค่า › กระเป๋าเงินทั้งหมด|Settings › All wallets]])';
   final recheckPlace = phone ? '[[การตั้งค่า › กระเป๋าเงินนี้ › ตรวจยอดใหม่|Settings › This wallet › Recheck balance]]' : '[[การตั้งค่า › ตรวจยอดใหม่|Settings › Recheck balance]]';
-  final phrasePlace = phone ? '[[การตั้งค่า › ความปลอดภัย › สำรองวลีกู้คืน|Settings › Security › Back up recovery phrase]]' : '[[การตั้งค่า › วลีกู้คืน|Settings › Recovery phrase]]';
+  final phrasePlace = phone ? '[[การตั้งค่า › ความปลอดภัย › สำรองวลีกู้คืน|Settings › Security › Back up recovery phrase]]' : '[[การตั้งค่า › ความปลอดภัย › วลีกู้คืน|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',

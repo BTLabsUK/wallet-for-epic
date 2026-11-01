@@ -150,7 +150,7 @@ void main() {
 
   testWidgets('a place in a topic is a link to its page', (tester) async {
     final container = await _pump(tester, arg: 'words again');
-    final link = find.text('Settings › Recovery phrase', findRichText: true);
+    final link = find.text('Settings › Security › Recovery phrase', findRichText: true);
     expect(link, findsOneWidget);
     // "Check the words again" in the Pairing topics matches too, above it.
     await tester.ensureVisible(link);

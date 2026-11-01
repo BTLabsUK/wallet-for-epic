@@ -34,7 +34,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       ? '**Przywróć z frazy** (na pierwszym ekranie lub w [[Ustawienia › Ten portfel|Settings › This wallet]])'
       : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Wszystkie portfele|Settings › All wallets]])';
   final recheckPlace = phone ? '[[Ustawienia › Ten portfel › Sprawdź saldo|Settings › This wallet › Recheck balance]]' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
-  final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Fraza odzyskiwania|Settings › Recovery phrase]]';
+  final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Bezpieczeństwo › Fraza odzyskiwania|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',

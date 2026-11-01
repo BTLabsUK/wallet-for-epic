@@ -102,14 +102,14 @@ void main() {
     });
 
     test('desktop: each place has its page, and a jump where it names a section', () {
-      expect(deskHelpPlace('Settings › Recovery phrase')!.route, DeskRoute.settingsPhrase);
+      expect(deskHelpPlace('Settings › Security › Recovery phrase')!.route, DeskRoute.settingsPhrase);
+      expect(deskHelpPlace('Settings › Security')!.route, DeskRoute.settingsSecurity);
       expect(deskHelpPlace('Settings › Recheck balance')!.route, DeskRoute.settingsRescan);
       expect(deskHelpPlace('Settings › Privacy › Tor')!.route, DeskRoute.settingsPrivacy);
       expect(deskHelpPlace('Settings › Privacy › Tor')!.jump, SettingsJump.tor);
       expect(deskHelpPlace('Settings › Transactions › Epicbox')!.jump, SettingsJump.epicbox);
       expect(deskHelpPlace('Receive › Transaction files › Finalize a response file')!.route, DeskRoute.finalize);
       expect(deskHelpPlace('Invoices › Issue')!.arg, InvoicesTab.issue);
-      expect(deskHelpPlace('Settings › Security'), isNull);
       expect(deskHelpPlace('Settings › Security › Back up recovery phrase'), isNull);
     });
 

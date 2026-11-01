@@ -34,7 +34,7 @@ List<HelpTopic> helpTopicsRu(int confirmations, {required HelpPlatform platform,
       ? '**Восстановить по фразе** (на первом экране или в [[Настройки › Этот кошелёк|Settings › This wallet]])'
       : '**Восстановить по фразе** (на первом экране, в «Разблокировка › Добавить кошелёк» или в [[Настройки › Все кошельки|Settings › All wallets]])';
   final recheckPlace = phone ? '[[Настройки › Этот кошелёк › Сверка баланса|Settings › This wallet › Recheck balance]]' : '[[Настройки › Сверка баланса|Settings › Recheck balance]]';
-  final phrasePlace = phone ? '[[Настройки › Безопасность › Сохранить фразу восстановления|Settings › Security › Back up recovery phrase]]' : '[[Настройки › Сид-фраза|Settings › Recovery phrase]]';
+  final phrasePlace = phone ? '[[Настройки › Безопасность › Сохранить фразу восстановления|Settings › Security › Back up recovery phrase]]' : '[[Настройки › Безопасность › Сид-фраза|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
       'start',
