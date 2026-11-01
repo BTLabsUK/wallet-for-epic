@@ -145,7 +145,7 @@ class _DeviceRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final list = (device.servers.isEmpty ? servers : device.servers).join(' · ');
+    final list = metaLine(device.servers.isEmpty ? servers : device.servers, whole: true);
     return ListTile(
       key: deviceRowKey(device.deviceId),
       leading: Icon(deviceIcon(device.kind)),
