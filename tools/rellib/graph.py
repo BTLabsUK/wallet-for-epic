@@ -32,6 +32,7 @@ class Step:
     retries: int = 0
     scratch: str = None
     warn_only: bool = False
+    capped: bool = False  # counts toward [concurrency] max_heavy although not heavy (tools/rellib/window.py)
 
     @property
     def phase(self):
@@ -123,6 +124,10 @@ def build_graph(pipeline, scope, ctx):
                 plat = spec["platform"]
                 driver = pipeline.proof.get("drivers", {}).get(plat)
                 run = driver or f"echo 'no update-trust driver for {plat} (release/pipeline.toml [proof.drivers])' >&2; exit 2"
+            publish = bool(spec.get("publish")) or kind == "publish"
+            # Every build-phase command has a hard limit: its own `timeout`, else [defaults] timeout.
+            timeout = spec.get("timeout") or (pipeline.defaults.get("timeout")
+                                              if kind == "command" and not publish else None)
             step = Step(
                 id=sid, base=name, kind=kind,
                 title=render(spec.get("title", name), {"variant": var or ""}, where),
@@ -138,12 +143,13 @@ def build_graph(pipeline, scope, ctx):
                 results=[render(o, c, where) for o in spec.get("results", [])],
                 send=[render(o, c, where) for o in spec.get("send", [])],
                 proof=bool(spec.get("proof")),
-                publish=bool(spec.get("publish")) or kind == "publish",
+                publish=publish,
                 skippable=bool(spec.get("skippable")),
-                timeout=parse_duration(spec.get("timeout")),
+                timeout=parse_duration(timeout),
                 retries=int(spec.get("retries", 0)),
                 scratch=spec.get("scratch"),
                 warn_only=bool(spec.get("warn_only")),
+                capped=bool(spec.get("capped")),
             )
             steps.append(step)
     return topo(steps)

@@ -11,8 +11,11 @@ checks the installed Flutter against that pin.
 When an earlier run (any version folder under the state root) has the same step done with the
 same key, and its output files are still there with their recorded checksums, the step is not
 run: its files are copied in and it is marked "reused from <run> (<commit>)". For G2 a green
-nightly full check (`reuse_nightly`) of a commit with the same key counts too. A changed key runs
-the step. Dry runs never reuse.
+nightly full check (`reuse_nightly`) of a commit with the same key counts too, and so does any
+green `tools/check.sh --full` on a clean tree (`reuse_green`: the <sha>.json records check.sh
+writes in /tmp/epic-build/green/, the nightly's own run included). `tools/rel start` refuses a
+candidate none of these covers unless --run-source-check. A changed key runs the step. Dry runs
+never reuse.
 """
 import glob
 import hashlib
@@ -78,18 +81,55 @@ def _outputs_intact(run_dir, outs):
     return True
 
 
-def find(engine, step, paths, nightly=None):
-    """-> (key, parts, source or None). source: {"kind": "run"|"nightly", "label", "commit",
+GREEN_DIR = "/tmp/epic-build/green"
+
+
+def nightly_dir(spec):
+    n = spec.get("reuse_nightly")
+    return os.path.expanduser("/tmp/epic-build/nightly") if n is True else n
+
+
+def green_dir(spec):
+    """Where `tools/check.sh --full` records green runs (<sha>.json); WFE_GREEN_DIR wins, as for check.sh."""
+    g = spec.get("reuse_green")
+    if not g:
+        return None
+    return os.path.expanduser(os.environ.get("WFE_GREEN_DIR") or (GREEN_DIR if g is True else g))
+
+
+def green_records(gdir):
+    """[(sha, record)] of the green full checks in gdir, newest first. Only a clean tree's
+    `--full` run that ended with `check passed` counts (tools/check.sh writes nothing else)."""
+    out = []
+    for p in glob.glob(os.path.join(gdir, "*.json")):
+        try:
+            with open(p, encoding="utf-8") as f:
+                r = json.load(f)
+            mtime = os.path.getmtime(p)
+        except (OSError, ValueError):
+            continue
+        if not isinstance(r, dict) or r.get("status") != "green" or r.get("clean") is not True \
+                or "--full" not in str(r.get("command", "")) or not r.get("sha"):
+            continue
+        out.append((mtime, r["sha"], r))
+    return [(s, r) for _, s, r in sorted(out, key=lambda x: x[0], reverse=True)]
+
+
+def find(engine, step, paths, nightly=None, green=None):
+    """-> (key, parts, source or None). source: {"kind": "run"|"nightly"|"green", "label", "commit",
     "run_dir"?, "status"?}."""
-    info = engine.info
-    repo = engine.repo
-    k, parts = key(repo, info["commit"], info["version"], step, paths)
     root = os.path.dirname(os.path.dirname(engine.run.path))
+    return find_source(engine.repo, root, engine.info, step, paths, nightly, green, this_run=engine.run.path)
+
+
+def find_source(repo, root, info, step, paths, nightly=None, green=None, this_run=None):
+    """find() without a run: also what `tools/rel start` asks before it makes one (G2's green check)."""
+    k, parts = key(repo, info["commit"], info["version"], step, paths)
     keys = {}  # commit → key, computed once
     cands = []
     for st_path in glob.glob(os.path.join(root, "*", "run-*", "steps", step.id, "status.json")):
         run_dir = os.path.dirname(os.path.dirname(os.path.dirname(st_path)))
-        if os.path.realpath(run_dir) == os.path.realpath(engine.run.path):
+        if this_run and os.path.realpath(run_dir) == os.path.realpath(this_run):
             continue
         try:
             st = json.load(open(st_path))
@@ -125,6 +165,15 @@ def find(engine, step, paths, nightly=None):
                     keys[c] = key(repo, c, info["version"], step, paths)[0]
                 if keys[c] == k:
                     return k, parts, {"kind": "nightly", "label": f"nightly {n.get('ended', '')}".strip(), "commit": c}
+    if green and os.path.isdir(green):
+        for c, r in green_records(green):
+            if _git(repo, "cat-file", "-e", f"{c}^{{commit}}") is None:
+                continue
+            if c not in keys:
+                keys[c] = key(repo, c, info["version"], step, paths)[0]
+            if keys[c] == k:
+                label = f"tools/check.sh --full {r.get('ended', '')} ({r.get('by') or r.get('host') or '?'})".strip()
+                return k, parts, {"kind": "green", "label": label, "commit": c}
     return k, parts, None
 
 
