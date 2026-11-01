@@ -4864,5 +4864,6 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "deskSetupExistingNodeType": "Уже запущенный узел"
 }

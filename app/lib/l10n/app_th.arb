@@ -4864,5 +4864,6 @@
   "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
-  "deskNodeSwitchStoppingWord": "กำลังหยุด"
+  "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "deskSetupExistingNodeType": "โหนดที่มีอยู่"
 }

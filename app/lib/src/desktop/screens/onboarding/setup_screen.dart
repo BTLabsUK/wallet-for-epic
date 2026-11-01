@@ -583,15 +583,17 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final domain = _epicboxOn ? _relay : '';
     final local = _local ? _localChoice : null;
     final bundled = local == null ? _local : local.how == LocalNodeHow.bundled;
-    final fallback = nodeHost(defaultFallbackNodeUrl);
+    final fallback = hostPort(defaultFallbackNodeUrl);
     final folder = ref.watch(deskLocalNodeProvider).value?.dataFolder ?? mockDataFolder;
     final l = context.l10n;
     final nodeRows = <(String, Widget)>[
       if (local == null && !_local) ...[
         (l.deskSetupType, Text(l.deskSetupRemoteNode, style: ts.body)),
-        (l.deskSetupAddress, Text(_nodeUrl ?? '–', style: ts.mono())),
+        // host:port, as everywhere the node is shown; the full URL only in its field.
+        (l.deskSetupAddress, Text(_nodeUrl == null ? '–' : hostPort(_nodeUrl!), style: ts.mono())),
       ] else if (!bundled) ...[
-        (l.deskSetupType, Text(l.deskSetupExistingNode(hostOf(local!.existingUrl)), style: ts.body)),
+        (l.deskSetupType, Text(l.deskSetupExistingNodeType, style: ts.body)),
+        (l.deskSetupAddress, Text(hostPort(local!.existingUrl), style: ts.mono())),
       ] else ...[
         (l.deskSetupType, Text(l.deskSetupBundledNode, style: ts.body)),
         (l.deskSetupWhileSyncing, Text(local?.useFallback ?? hasFallbackNode ? fallback : l.deskSetupWait, style: ts.mono())),

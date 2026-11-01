@@ -25300,5 +25300,9 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskSetupExistingNodeType": "Existing node",
+  "@deskSetupExistingNodeType": {
+    "description": "Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below."
   }
 }

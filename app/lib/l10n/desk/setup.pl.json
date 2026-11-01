@@ -41,6 +41,7 @@
   "deskSetupType": "Typ",
   "deskSetupAddress": "Adres",
   "deskSetupExistingNode": "Istniejący węzeł na {host}",
+  "deskSetupExistingNodeType": "Istniejący węzeł",
   "deskSetupBundledNode": "Węzeł lokalny",
   "deskSetupWhileSyncing": "Do synchronizacji",
   "deskSetupWait": "czeka",

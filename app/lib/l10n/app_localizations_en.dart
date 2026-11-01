@@ -18692,4 +18692,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String get deskSetupExistingNodeType => 'Existing node';
 }

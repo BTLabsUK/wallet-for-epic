@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 
 export '../../ui/badge.dart';
 
+import '../../address_format.dart' show AddressPart, AddressTone, addressLines, addressParts, addressPartsSpan;
 import '../desk_l10n.dart';
 import '../../log.dart' show logWarn;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
@@ -533,27 +534,30 @@ class EAddress extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final base = ts.mono(size: large ? 14.5 : Fs.sm);
-    final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
-    // The highlight marks the address itself, not the server after "@", ".onion" or a URL.
-    final at = address.indexOf('@');
-    final onion = at < 0 && address.toLowerCase().endsWith('.onion');
-    final cut = at > 0 ? at : (onion ? address.length - 6 : address.length);
-    final a = address.substring(0, cut);
-    final rest = address.substring(cut);
-    final marked = a.length > 14 && !a.startsWith('http');
-    final keySpans = marked
-        ? [
-            TextSpan(text: a.substring(0, 6), style: hl),
-            TextSpan(text: a.substring(6, a.length - 6)),
-            TextSpan(text: a.substring(a.length - 6), style: hl),
-          ]
-        : [TextSpan(text: a)];
+    // address_format.dart's parts: a key's first and last six or a link's host:port in the
+    // accent, a link's scheme and path, `.onion` and an Epicbox server dim.
+    const mark = TextStyle(fontWeight: FontWeight.w600);
+    final markStyle = mark.copyWith(color: c.accentText);
+    final quietStyle = TextStyle(color: c.dim, fontWeight: FontWeight.w400);
+    TextSpan spanOf(TextStyle st, List<AddressPart> ps) => addressPartsSpan(ps, style: st, mark: markStyle, quiet: quietStyle);
+    final parts = addressParts(address);
+    final lines = addressLines(parts);
+    final first = lines.isEmpty ? const <AddressPart>[] : lines.first;
+    final rest = lines.skip(1).expand((l) => l).map((p) => p.text).join();
+    final firstText = first.map((p) => p.text).join();
+    // The part that gives way in the middle at the last: a key (its ends stay marked), else
+    // the first line's text.
+    final keyLen = first.takeWhile((p) => p.tone != AddressTone.quiet).fold(0, (n, p) => n + p.text.length);
+    final a = keyLen > 0 ? firstText.substring(0, keyLen) : firstText;
+    final keyTail = keyLen > 0 ? firstText.substring(keyLen) : '';
+    final marked = keyLen > 12;
     final restStyle = base.copyWith(color: c.dim);
-    // Never more than two lines: the whole address on one when it fits, else the address on
-    // the first line and the server ("@epicbox.example.org") whole on the second. An address
-    // too long for its line gets smaller, down to [_addressMinScale] of its size, then gives
-    // way in the middle, its first and last six still marked; the whole of it is then in the
-    // tooltip and on Copy, and the cut line cannot be selected (it would copy the "…").
+    // Never more than two lines: the whole address on one when it fits, else the key (a link's
+    // host:port) on the first line and the server ("@epicbox.example.org", a link's path) whole
+    // on the second, shrunk rather than cut. An address too long for its line gets smaller,
+    // down to [_addressMinScale] of its size, then a key gives way in the middle, its first
+    // and last six still marked; the whole of it is then in the tooltip and on Copy, and the
+    // cut line cannot be selected (it would copy the "…").
     final text = LayoutBuilder(
       builder: (context, box) {
         final dir = Directionality.of(context);
@@ -566,15 +570,24 @@ class EAddress extends StatelessWidget {
         }
 
         final room = box.maxWidth - addressDrawSlack;
-        final whole = TextSpan(style: base, children: [...keySpans, TextSpan(text: rest, style: restStyle)]);
+        final whole = spanOf(base, parts);
         if (!box.maxWidth.isFinite || widthOf(whole) <= room) return SelectableText.rich(whole, maxLines: 1);
-        final split = rest.startsWith('@');
-        final second = split ? Text(rest, style: restStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.fade) : null;
-        // The key whole, smaller where needed.
+        final split = rest.isNotEmpty;
+        // An Epicbox server whole on one line, shrunk rather than cut; a link's path wraps
+        // (it may be long), selectable like the line above.
+        final Widget? second = !split
+            ? null
+            : rest.startsWith('@')
+            ? Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FittedBox(fit: BoxFit.scaleDown, alignment: AlignmentDirectional.centerStart, child: Text(rest, style: restStyle, maxLines: 1, softWrap: false)),
+              )
+            : SelectableText(rest, style: restStyle);
+        // The first line whole, smaller where needed.
         final size = base.fontSize!;
         for (var s = size; s >= size * _addressMinScale - 0.01; s -= 0.5) {
           final st = base.copyWith(fontSize: s);
-          final span = split ? _marked(a, st, c, marked) : TextSpan(style: st, children: [_marked(a, st, c, marked), TextSpan(text: rest, style: restStyle.copyWith(fontSize: s))]);
+          final span = spanOf(st, split ? first : parts);
           if (widthOf(span) <= room) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -585,7 +598,7 @@ class EAddress extends StatelessWidget {
         }
         // Cut in the middle at the smallest size: the most characters that fit, half each side.
         final st = base.copyWith(fontSize: size * _addressMinScale);
-        final tailSpan = split ? null : TextSpan(text: rest, style: restStyle.copyWith(fontSize: st.fontSize));
+        final tailSpan = keyTail.isEmpty ? null : TextSpan(text: keyTail, style: restStyle.copyWith(fontSize: st.fontSize));
         InlineSpan cutTo(int n) {
           final h = (n + 1) ~/ 2;
           final cut = _cut(a, h, n - h, st, c, marked);

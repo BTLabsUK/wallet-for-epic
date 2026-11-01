@@ -184,6 +184,10 @@
       }
     }
   },
+  "deskSetupExistingNodeType": "Existing node",
+  "@deskSetupExistingNodeType": {
+    "description": "Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below."
+  },
   "deskSetupBundledNode": "Local node",
   "@deskSetupBundledNode": {
     "description": "Node type on the setup's summary: the Epic node that comes with the app, run on this computer."

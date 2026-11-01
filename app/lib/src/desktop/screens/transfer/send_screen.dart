@@ -2570,31 +2570,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
     }
   }
 
-  /// A Direct address's host and port (`203.0.113.4:<port>`, `<56 characters>.onion`).
-  // The same marking as EAddress: the key's first and last six characters, the server dim.
-  Widget _address(BuildContext context, String to) {
-    if (to.contains('@') && !to.startsWith('http')) return EAddress(to, copy: false);
-    final c = context.dc;
-    final base = context.ts.mono(size: Fs.sm, color: c.dim);
-    final hl = base.copyWith(color: c.accentText, fontWeight: FontWeight.w600);
-    final at = to.indexOf('@');
-    final onion = at < 0 && to.toLowerCase().endsWith('.onion');
-    final cut = at > 0 ? at : (onion ? to.length - 6 : to.length);
-    final key = to.substring(0, cut);
-    final rest = to.substring(cut);
-    if (key.length <= 14 || key.startsWith('http')) return SelectableText(to, style: base);
-    return SelectableText.rich(
-      TextSpan(
-        style: base,
-        children: [
-          TextSpan(text: key.substring(0, 6), style: hl),
-          TextSpan(text: key.substring(6, key.length - 6)),
-          TextSpan(text: key.substring(key.length - 6), style: hl),
-          TextSpan(text: rest),
-        ],
-      ),
-    );
-  }
+  /// The address to check: [EAddress]'s marking for every kind, an Epicbox key's or an
+  /// onion's first and last six, a link's host:port, so "Check the highlighted characters"
+  /// is true for each.
+  Widget _address(BuildContext context, String to) => EAddress(to, copy: false);
 
   @override
   Widget build(BuildContext context) {

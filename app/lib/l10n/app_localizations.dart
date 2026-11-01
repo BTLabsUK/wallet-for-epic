@@ -29191,6 +29191,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing node'**
+  String get deskSetupExistingNodeType;
 }
 
 class _AppLocalizationsDelegate

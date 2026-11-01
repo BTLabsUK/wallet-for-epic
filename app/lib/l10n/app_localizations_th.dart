@@ -18276,4 +18276,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String get deskSetupExistingNodeType => 'โหนดที่มีอยู่';
 }

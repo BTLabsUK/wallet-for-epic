@@ -18913,4 +18913,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stoppt';
+
+  @override
+  String get deskSetupExistingNodeType => 'Vorhandener Node';
 }

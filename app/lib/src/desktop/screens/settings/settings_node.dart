@@ -51,7 +51,8 @@ String nodeUrlOf(String typed) {
   return '${isPrivateHost(host) ? 'http' : 'https'}://$t';
 }
 
-String hostOf(String url) => url.replaceFirst(RegExp('^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
+/// A node URL as the screens show it: host:port ([hostPort]).
+String hostOf(String url) => hostPort(url);
 
 /// The oldest node version the wallet works well with.
 const minNodeVersion = '3.6.0';

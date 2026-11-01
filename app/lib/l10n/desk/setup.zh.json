@@ -41,6 +41,7 @@
   "deskSetupType": "类型",
   "deskSetupAddress": "地址",
   "deskSetupExistingNode": "{host} 上的现有节点",
+  "deskSetupExistingNodeType": "现有节点",
   "deskSetupBundledNode": "本地节点",
   "deskSetupWhileSyncing": "同步期间",
   "deskSetupWait": "等待",
