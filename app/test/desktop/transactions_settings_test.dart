@@ -398,7 +398,7 @@ void main() {
       await _settle(tester);
       expect(_selected<TxMethod?>(tester), TxMethod.http);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
       await tester.tap(find.widgetWithText(EButton, 'Turn on Link · HTTP'));
       await _settle(tester);
       expect(_payments.linkHttp, isTrue);
@@ -425,14 +425,14 @@ void main() {
       expect(_selected<TxMethod?>(tester), TxMethod.http);
       expect(_payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
     }, skip: !torBuilt);
 
     testWidgets('an http address with Link · HTTP off but Link · Tor on: the reason names Link · HTTP, the contact-only line names the contact', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'https://wallet.example.org', amount: '1'), payments: const PaymentPrefs(linkTor: true));
       expect(_selected<TxMethod?>(tester), TxMethod.http);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
       expect(find.text('Send'), findsWidgets);
     });
 
@@ -456,7 +456,7 @@ void main() {
       await _settle(tester);
       expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
       expect(find.textContaining('has only'), findsNothing);
     }, skip: !torBuilt);
 

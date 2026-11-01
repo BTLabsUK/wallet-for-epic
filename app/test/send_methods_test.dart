@@ -432,13 +432,13 @@ void main() {
       await h.pump(tester);
       await _tap(tester, _segment('Link'));
       expect(_method(tester), TransferMethod.direct);
-      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Turn on Link · HTTP'), findsOneWidget);
       await _tap(tester, find.byKey(sendTurnOnMethodKey));
       expect(h.container.read(appSettingsProvider).value!.payments.linkHttp, isTrue);
       expect(h.container.read(appSettingsProvider).value!.payments.linkTor, isFalse);
       expect(find.byKey(sendTurnOnMethodKey), findsNothing);
-      expect(find.text('Link · HTTP is off in Settings › Transactions.'), findsNothing);
+      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsNothing);
       expect(_method(tester), TransferMethod.direct);
     });
 
@@ -558,7 +558,7 @@ void main() {
       expect(_segment('Link'), findsOneWidget);
       expect(_method(tester), TransferMethod.direct);
       // Never a silent refusal: the note names the method that is off.
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
     }, skip: !torBuilt);
 
@@ -571,7 +571,7 @@ void main() {
       expect(find.byKey(netBlockNoteKey), findsNothing);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNotNull);
       await _enter(tester, 'To', _onion);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
     }, skip: !torBuilt);
 
@@ -584,7 +584,7 @@ void main() {
       await _tap(tester, find.text('Contacts'));
       await _tap(tester, find.text('Tor Tom'));
       expect(_method(tester), TransferMethod.direct);
-      const line = 'Link · Tor is off in Settings › Transactions. Tor Tom has only a Link · Tor address.';
+      const line = 'Link · Tor is off in Settings\u00a0›\u00a0Transactions. Tor Tom has only a Link · Tor address.';
       expect(find.text(line), findsOneWidget);
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
       // The line opens Settings › Transactions.
@@ -765,7 +765,7 @@ void main() {
       await _tap(tester, find.text('Paste'));
       // Never swapped: what was pasted stays, and the note names the method that is off.
       expect(_toText(tester), _onion);
-      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsOneWidget);
+      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
       expect(find.textContaining('has only'), findsNothing);
     }, skip: !torBuilt);
 
@@ -830,7 +830,7 @@ void main() {
           );
           expect(
             find.text(
-              '${address == _onion ? 'Link · Tor' : 'Link · HTTP'} is off in Settings › Transactions.',
+              '${address == _onion ? 'Link · Tor' : 'Link · HTTP'} is off in Settings\u00a0›\u00a0Transactions.',
             ),
             findsOneWidget,
             reason: address,
@@ -1184,7 +1184,7 @@ void main() {
       await h.session.saveContact(contact: Contact(id: '', name: 'Alice', address: _bob, note: null));
       h.container.invalidate(contactsProvider);
       await tester.pumpAndSettle();
-      expect(find.text('Epicbox is off in Settings › Transactions. Alice has only an Epicbox address.'), findsOneWidget);
+      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions. Alice has only an Epicbox address.'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
     });
 
