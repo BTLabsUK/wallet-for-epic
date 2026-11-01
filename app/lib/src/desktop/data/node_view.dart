@@ -19,6 +19,7 @@ class NodeView {
     required this.state,
     required this.host,
     this.marker,
+    this.eta,
     this.lines = const [],
   });
 
@@ -31,6 +32,10 @@ class NodeView {
 
   /// After the host, never cut: "12 behind", "no answer", "12 %", "stalled".
   final String? marker;
+
+  /// The whole sync's time left ([syncEtaText]), after the marker where there is room: the
+  /// sidebar status and the Node page, not the rail.
+  final String? eta;
 
   /// The tooltip's lines, only the known ones.
   final List<String> lines;
@@ -45,6 +50,22 @@ String hhmm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toSt
 
 /// "12 %" of an overall progress 0–1 (floored: never 100 % before Synced).
 String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)}%';
+
+/// The whole sync's rough time left as the sidebar status and the Node page say it: "about
+/// 2 h 30 min left", or "Calculating time left…" until there is a measured rate (and while
+/// it is too rough to show, [roundSyncEta]).
+String syncEtaText(AppLocalizations l, Duration? etaTotal) {
+  final d = etaTotal == null ? null : roundSyncEta(etaTotal);
+  if (d == null) return l.deskNodeEtaCalculating;
+  final time = d.isAboutAMinute
+      ? l.deskNodeEtaMinute
+      : d.hours == 0
+      ? l.deskNodeEtaMinutes(d.minutes)
+      : d.minutes == 0
+      ? l.deskNodeEtaHours(d.hours)
+      : l.deskNodeEtaHoursMinutes(d.hours, d.minutes);
+  return l.deskNodeEtaLeft(time);
+}
 
 /// [i]'s latency as shown, or null: while Tor is on ([torOn]) a figure this computer measured
 /// directly is never shown, only one over Tor or the monitor's.
@@ -174,8 +195,9 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
         state: EState.active,
         host: host,
         marker: pct,
+        eta: syncEtaText(l, s.etaTotal),
         lines: [
-          [name, ?pct].join(' · '),
+          [name, ?pct, syncEtaText(l, s.etaTotal)].join(' · '),
           [if (p != null) stageLine(l, p), if (s.peers != null) l.deskNodePeers(s.peers!)].join(' · '),
           fallback != null ? l.deskNodeUsingUntilSynced(fallback) : l.deskNodeNothingUntilSynced,
         ].where((line) => line.isNotEmpty).toList(),

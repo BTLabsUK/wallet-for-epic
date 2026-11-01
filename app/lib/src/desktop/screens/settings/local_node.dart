@@ -622,7 +622,7 @@ class _StatusTab extends StatelessWidget {
               Text(
                 p?.stage == SyncStage.waitingForPeers || p == null
                     ? (startedAgo == null ? '' : (startedAgo.inSeconds < 90 ? l.deskSetLnodeStartedSecAgo(startedAgo.inSeconds) : l.deskSetLnodeStartedAgo(duration(l, startedAgo))))
-                    : pct ?? '',
+                    : [?pct, syncEtaText(l, s.etaTotal)].join(' · '),
                 style: ts.small.copyWith(color: c.dim),
               ),
             ],

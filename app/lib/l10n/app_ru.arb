@@ -4854,5 +4854,11 @@
   "deskLastSessionReportClosed": "Приложение неожиданно закрылось.",
   "deskLastSessionAttached": "С журналом последнего сеанса.",
   "deskSetPrivUndercoverLine": "Инкогнито держит Tor включённым.",
-  "deskSetPrivUndercoverChange": "Изменить «Инкогнито»"
+  "deskSetPrivUndercoverChange": "Изменить «Инкогнито»",
+  "deskNodeEtaCalculating": "Расчёт оставшегося времени…",
+  "deskNodeEtaLeft": "осталось около {time}",
+  "deskNodeEtaMinute": "минуты",
+  "deskNodeEtaMinutes": "{minutes} мин",
+  "deskNodeEtaHours": "{hours} ч",
+  "deskNodeEtaHoursMinutes": "{hours} ч {minutes} мин"
 }

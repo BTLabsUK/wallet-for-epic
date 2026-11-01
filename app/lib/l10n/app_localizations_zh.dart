@@ -17588,4 +17588,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetPrivUndercoverChange => '更改隐身设置';
+
+  @override
+  String get deskNodeEtaCalculating => '正在计算剩余时间…';
+
+  @override
+  String deskNodeEtaLeft(String time) {
+    return '还需约 $time';
+  }
+
+  @override
+  String get deskNodeEtaMinute => '一分钟';
+
+  @override
+  String deskNodeEtaMinutes(int minutes) {
+    return '$minutes 分钟';
+  }
+
+  @override
+  String deskNodeEtaHours(int hours) {
+    return '$hours 小时';
+  }
+
+  @override
+  String deskNodeEtaHoursMinutes(int hours, int minutes) {
+    return '$hours 小时 $minutes 分钟';
+  }
 }

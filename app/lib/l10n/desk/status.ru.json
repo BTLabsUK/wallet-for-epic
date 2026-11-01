@@ -78,5 +78,11 @@
   "deskNodeFailoverSwitched": "Узел не отвечает. Переключено на {host}.",
   "deskNodeFailoverInsteadOf": "Вместо {host}",
   "deskNodeDurationDh": "{days} д {hours} ч",
-  "deskNodeDurationH": "{hours} ч"
+  "deskNodeDurationH": "{hours} ч",
+  "deskNodeEtaCalculating": "Расчёт оставшегося времени…",
+  "deskNodeEtaLeft": "осталось около {time}",
+  "deskNodeEtaMinute": "минуты",
+  "deskNodeEtaMinutes": "{minutes} мин",
+  "deskNodeEtaHours": "{hours} ч",
+  "deskNodeEtaHoursMinutes": "{hours} ч {minutes} мин"
 }

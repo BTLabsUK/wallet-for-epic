@@ -54,6 +54,8 @@ class LocalNodeController {
   final StreamController<LocalNodeState> _out =
       StreamController<LocalNodeState>.broadcast();
   final EtaEstimator _eta = EtaEstimator();
+  final SyncEta _syncEta = SyncEta();
+  SyncStage? _syncStage;
   late final StreamSubscription<BuiltInNodeState> _sub;
   late LocalNodeState _state;
   Timer? _diskTimer;
@@ -151,6 +153,7 @@ class LocalNodeController {
         status,
         networkHeight: networkTipOf(peersHeight: _peersHeight, directoryTip: _directoryHeight),
       );
+      _syncStage = p.stage;
       if (p.done != null) {
         _eta.add(_clock(), p.stage, p.done!, p.total);
       } else {
@@ -158,6 +161,8 @@ class LocalNodeController {
       }
     } else if (!s.isActive) {
       _eta.reset();
+      _syncEta.reset();
+      _syncStage = null;
     }
     // The first answer of a node: ask for the network's height now, not a minute later.
     if (s.isActive && _directoryHeight == null && _peersHeight == null) {
@@ -239,6 +244,13 @@ class LocalNodeController {
     return dir.path;
   }
 
+  Duration? _etaTotal() {
+    final stage = _syncStage;
+    if (stage == null) return null;
+    final now = _clock();
+    return _syncEta.update(now, stage, _eta.eta(now: now));
+  }
+
   LocalNodeState _derive() => deriveLocalNodeState(
     node.state,
     now: _clock(),
@@ -248,6 +260,7 @@ class LocalNodeController {
     peersHeight: _peersHeight,
     eta: _eta.eta(now: _clock()),
     stageRate: _eta.ratePerSecond(now: _clock()),
+    etaTotal: _etaTotal(),
     chainDataBytes: _chainDataBytes,
     chainDataBytesAtStart: _chainDataBytesAtStart,
     freeBytes: _free,

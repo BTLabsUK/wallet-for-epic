@@ -78,5 +78,11 @@
   "deskNodeFailoverSwitched": "节点无响应。已切换到 {host}。",
   "deskNodeFailoverInsteadOf": "代替 {host}",
   "deskNodeDurationDh": "{days} 天 {hours} 小时",
-  "deskNodeDurationH": "{hours} 小时"
+  "deskNodeDurationH": "{hours} 小时",
+  "deskNodeEtaCalculating": "正在计算剩余时间…",
+  "deskNodeEtaLeft": "还需约 {time}",
+  "deskNodeEtaMinute": "一分钟",
+  "deskNodeEtaMinutes": "{minutes} 分钟",
+  "deskNodeEtaHours": "{hours} 小时",
+  "deskNodeEtaHoursMinutes": "{hours} 小时 {minutes} 分钟"
 }

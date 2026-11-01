@@ -678,6 +678,7 @@ LocalNodeState mockLocalNode(
   int? done,
   int? total,
   Duration? eta,
+  Duration? etaTotal,
   NodeFailure? failure,
   String? reason,
   bool stalled = false,
@@ -703,6 +704,7 @@ LocalNodeState mockLocalNode(
           )
         : null,
     eta: syncing ? eta : null,
+    etaTotal: syncing ? etaTotal ?? eta : null,
     stageRate: stage == SyncStage.chainStateDownload && syncing ? 2.4e6 : null,
     height: phase == LocalNodePhase.synced ? mockTip : (syncing && stage == SyncStage.blocks ? done : (stalled ? 1480200 : null)),
     networkHeight: mockTip,

@@ -4854,5 +4854,11 @@
   "deskLastSessionReportClosed": "应用意外关闭。",
   "deskLastSessionAttached": "附带上次运行的日志。",
   "deskSetPrivUndercoverLine": "隐身模式让 Tor 保持开启。",
-  "deskSetPrivUndercoverChange": "更改隐身设置"
+  "deskSetPrivUndercoverChange": "更改隐身设置",
+  "deskNodeEtaCalculating": "正在计算剩余时间…",
+  "deskNodeEtaLeft": "还需约 {time}",
+  "deskNodeEtaMinute": "一分钟",
+  "deskNodeEtaMinutes": "{minutes} 分钟",
+  "deskNodeEtaHours": "{hours} 小时",
+  "deskNodeEtaHoursMinutes": "{hours} 小时 {minutes} 分钟"
 }

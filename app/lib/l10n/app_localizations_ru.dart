@@ -19279,4 +19279,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetPrivUndercoverChange => 'Изменить «Инкогнито»';
+
+  @override
+  String get deskNodeEtaCalculating => 'Расчёт оставшегося времени…';
+
+  @override
+  String deskNodeEtaLeft(String time) {
+    return 'осталось около $time';
+  }
+
+  @override
+  String get deskNodeEtaMinute => 'минуты';
+
+  @override
+  String deskNodeEtaMinutes(int minutes) {
+    return '$minutes мин';
+  }
+
+  @override
+  String deskNodeEtaHours(int hours) {
+    return '$hours ч';
+  }
+
+  @override
+  String deskNodeEtaHoursMinutes(int hours, int minutes) {
+    return '$hours ч $minutes мин';
+  }
 }

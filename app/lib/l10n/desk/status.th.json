@@ -78,5 +78,11 @@
   "deskNodeFailoverSwitched": "โหนดไม่ตอบสนอง สลับไปที่ {host} แล้ว",
   "deskNodeFailoverInsteadOf": "แทน {host}",
   "deskNodeDurationDh": "{days} วัน {hours} ชั่วโมง",
-  "deskNodeDurationH": "{hours} ชั่วโมง"
+  "deskNodeDurationH": "{hours} ชั่วโมง",
+  "deskNodeEtaCalculating": "กำลังคำนวณเวลาที่เหลือ…",
+  "deskNodeEtaLeft": "เหลืออีกประมาณ {time}",
+  "deskNodeEtaMinute": "หนึ่งนาที",
+  "deskNodeEtaMinutes": "{minutes} นาที",
+  "deskNodeEtaHours": "{hours} ชั่วโมง",
+  "deskNodeEtaHoursMinutes": "{hours} ชั่วโมง {minutes} นาที"
 }
