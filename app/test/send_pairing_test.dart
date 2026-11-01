@@ -183,15 +183,6 @@ void main() {
       });
     }
 
-    testWidgets('Pairing switched off: a paired contact with no address keeps Send off, no pairing row', (tester) async {
-      final h = _Harness(pairing: false);
-      h.session.pairing.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
-      await h.pump(tester, const ContactPage(contactId: 'c1'));
-      expect(_enabled(tester, find.byKey(contactPageSendKey)), isFalse);
-      expect(find.byKey(contactPageViaPairingKey), findsNothing);
-      expect(find.text(_l.contactNoAddresses), findsOneWidget);
-    });
-
     testWidgets('not paired and no address: Send off, "No addresses saved."', (tester) async {
       final h = _Harness();
       await h.pump(tester, const ContactPage(contactId: 'c1'));

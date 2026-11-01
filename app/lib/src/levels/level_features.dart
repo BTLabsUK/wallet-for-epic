@@ -159,9 +159,9 @@ class LevelFeatures {
       serverSettings: !one,
       transactionsSettings: !one,
       advancedPage: one ? AdvancedPageKind.changeLevelOnly : AdvancedPageKind.full,
-      pairingListener: one || prefs.pairingOn,
-      pairingSetupScreens: !one && prefs.pairingOn,
-      incomingPairingPrompt: one || prefs.pairingOn,
+      pairingListener: true,
+      pairingSetupScreens: !one,
+      incomingPairingPrompt: true,
       invoices: one
           ? InvoicePresence.quiet
           : prefs.invoicesOn

@@ -12710,7 +12710,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairInPersonTitle => '当面配对';
 
   @override
-  String get pairShowMyCode => '出示我的码';
+  String get pairShowMyCode => '显示我的邀请';
 
   @override
   String get pairScanTheirs => '扫描对方的码';
@@ -12722,7 +12722,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairScanCaption => '双方都要扫描。两个码都读取后会打开词语核对。';
 
   @override
-  String get pairScanPrompt => '将相机对准对方的码';
+  String get pairScanPrompt => '扫描对方的二维码';
 
   @override
   String get pairSeenAs => '对方看到你的名字';
@@ -12734,7 +12734,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairCameraDeniedTitle => '未允许使用相机';
 
   @override
-  String get pairCameraDeniedBody => '允许相机以进行扫描，或改用配对词。';
+  String get pairCameraDeniedBody => '允许使用相机扫描，或粘贴邀请。';
 
   @override
   String get pairOpenSettings => '打开设置';
@@ -13121,7 +13121,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairExpiredBody(String name) {
-    return '请向 $name 索取新的邀请。';
+    return '请索取新的邀请。';
   }
 
   @override
@@ -13132,7 +13132,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name 已取消此邀请';
+    return '$name 取消了这次配对';
   }
 
   @override
@@ -13197,18 +13197,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return '还有其他人回应了 $name 的邀请。';
+    return '还有其他人回复了你的邀请';
   }
 
   @override
-  String get pairAnsweredSameInvite => '回应了同一邀请 · 未保存';
+  String get pairAnsweredSameInvite => '回复了同一邀请 · 未保存';
 
   @override
-  String get sasTitle => '核对校验词';
+  String get sasTitle => '核对词语';
 
   @override
   String sasLead(String name) {
-    return '$name 的钱包显示相同的四个校验词。请通过电话或当面比较。';
+    return '$name 的钱包显示同样的四个词语。请核对。';
   }
 
   @override
@@ -13247,7 +13247,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sasNoMatchTitle => '词语不一致';
 
   @override
-  String get sasNoMatchBody => '可能有人在途中更改了邀请。不会保留任何内容。请重新配对，当面或使用新的邀请。';
+  String get sasNoMatchBody => '配对将在双方结束，通过它发送的内容都不会完成。请用新的邀请重新配对。';
 
   @override
   String get sasStopPairing => '停止配对';
@@ -13840,13 +13840,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreUseHere => '在此使用';
 
   @override
-  String get pairInvalidLink => '这不是配对链接';
+  String get pairInvalidLink => '这不是配对邀请。';
 
   @override
-  String get pairInvalidBody => '请检查是否复制了完整链接，或索取新的链接。';
+  String get pairInvalidBody => '请检查是否完整复制了邀请，或索取新的邀请。';
 
   @override
-  String get pairWrongNetworkBody => '它由另一网络上的钱包生成。钱包只能在同一网络中配对。';
+  String get pairWrongNetworkBody => '此邀请属于另一个网络。';
 
   @override
   String get pairOwnCode => '这是你自己的码';
@@ -14064,7 +14064,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWhatP1 =>
-      '配对一次性地连接两个钱包：当面互相扫描对方的码，或在线使用邀请链接或五个配对词。每个钱包保存一把只为该联系人生成的密钥；这些都不会与 Epicbox 服务器共享。';
+      '配对将两个钱包连接一次：向你曾通过 Epicbox 付款的联系人发送请求，或使用你的邀请（扫描二维码或打开链接）。每个钱包为这一个联系人保留一把专用密钥；不与任何其他人共享。';
 
   @override
   String get helpPairWhatP2 =>
@@ -14074,10 +14074,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairWhatStep1 => '打开[[联系人|Contacts]]，选择**配对**。';
 
   @override
-  String get helpPairWhatStep2 => '选择一种方式：口头、通过消息邀请或当面。';
+  String get helpPairWhatStep2 => '与联系人配对，或显示你的邀请让对方扫描。';
 
   @override
-  String get helpPairWhatStep3 => '一起验证，然后选择**一致**。';
+  String get helpPairWhatStep3 => '一起核对词语（请求之后无需核对），然后点 **一致**。';
 
   @override
   String get helpPairWhatP3 =>
@@ -17628,4 +17628,282 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get pairYourCode => '你的邀请';
+
+  @override
+  String get pairCodeCaption => '让对方扫描二维码，或发送邀请。';
+
+  @override
+  String pairCodeCaptionFor(String name) {
+    return '让 $name 扫描二维码，或发送邀请。';
+  }
+
+  @override
+  String pairSeenAsLine(String name) {
+    return '对方看到你的名字是 $name';
+  }
+
+  @override
+  String get pairChange => '更改';
+
+  @override
+  String get pairSeenAsField => '对方看到你的名字';
+
+  @override
+  String get pairCopyLink => '复制邀请';
+
+  @override
+  String get pairHaveTheirCode => '有对方的邀请？';
+
+  @override
+  String pairHaveNamesCode(String name) {
+    return '有 $name 的邀请？';
+  }
+
+  @override
+  String get pairScan => '扫描二维码';
+
+  @override
+  String get pairPasteField => '粘贴邀请';
+
+  @override
+  String get pairNotACode => '这不是配对邀请。';
+
+  @override
+  String get pairEpicboxOffLine => 'Epicbox 已关闭。收到回复后请在下方粘贴。';
+
+  @override
+  String get pairWaitingAnswer => '等待回复…';
+
+  @override
+  String pairAnsweredFinishing(String name) {
+    return '$name 已回复你的邀请。等待 $name 的钱包完成。';
+  }
+
+  @override
+  String get pairFinishCodeTitle => '确认';
+
+  @override
+  String pairFinishCodeBody(String name) {
+    return '把它发给 $name。对方钱包读取后，会打开词语核对。';
+  }
+
+  @override
+  String get pairYourAnswerBody => '按邀请来的方式发回去。然后粘贴收到的内容。';
+
+  @override
+  String get pairPasteFinishField => '粘贴确认';
+
+  @override
+  String pairPairingWith(String name) {
+    return '正在与 $name 配对…';
+  }
+
+  @override
+  String get pairInContacts => '在你的联系人中';
+
+  @override
+  String get pairRequestBody => '请求会发送到该联系人的 Epicbox 地址。对方钱包打开时会显示。';
+
+  @override
+  String get pairSendRequest => '发送请求';
+
+  @override
+  String get pairShowMyCodeInstead => '改为显示我的邀请';
+
+  @override
+  String pairRequestSent(String date) {
+    return '请求已发送 · $date';
+  }
+
+  @override
+  String pairWaitingFor(String name) {
+    return '等待 $name 的钱包';
+  }
+
+  @override
+  String get pairAnsweredNotHeard => '已回复你的邀请 · 尚无消息';
+
+  @override
+  String pairNotChecked(String name) {
+    return '$name 尚未核对';
+  }
+
+  @override
+  String pairConfirmedToo(String name) {
+    return '$name 也已确认。';
+  }
+
+  @override
+  String get pairEndedShort => '配对已结束';
+
+  @override
+  String get pairEndedMismatch => '你报告了词语不一致。';
+
+  @override
+  String pairEndedPeerMismatch(String name) {
+    return '$name 报告了词语不一致。';
+  }
+
+  @override
+  String pairEndedNeverFinished(String name) {
+    return '$name 的钱包始终未完成。';
+  }
+
+  @override
+  String pairNoAnswerFrom(String name) {
+    return '$name 的钱包没有回复';
+  }
+
+  @override
+  String get pairAgain => '重新配对';
+
+  @override
+  String get pairHeldSend => '等待收款方';
+
+  @override
+  String pairProvesOther(String name) {
+    return '$name 的钱包证明了另一个地址';
+  }
+
+  @override
+  String get pairUpdateAddress => '更新联系人的地址';
+
+  @override
+  String get pairDetach => '解除关联';
+
+  @override
+  String get pairCheckWords => '核对词语';
+
+  @override
+  String pairWantsToPair(String name) {
+    return '$name 想要配对。';
+  }
+
+  @override
+  String pairPairedWith(String name) {
+    return '已与 $name 配对。';
+  }
+
+  @override
+  String pairPairedOn(String device) {
+    return '已在 $device 上配对。';
+  }
+
+  @override
+  String pairRequestsRow(int count) {
+    return '配对请求 · $count';
+  }
+
+  @override
+  String get pairRequestsTitle => '配对请求';
+
+  @override
+  String get pairEndedNotice => '配对已结束。请用新的邀请重新配对。';
+
+  @override
+  String get pairOtherWalletTitle => '这个回复来自另一个钱包。';
+
+  @override
+  String get pairOtherWalletBody => '没有保存任何内容。';
+
+  @override
+  String pairNotProvenBody(String name) {
+    return '尚未与 $name 有过 Epic Cash 付款，无法发送请求。';
+  }
+
+  @override
+  String pairInProgressTitle(String name) {
+    return '与 $name 的配对正在进行。';
+  }
+
+  @override
+  String pairCrossedTitle(String name) {
+    return '$name 的钱包也发起了配对。正在等待其回复。';
+  }
+
+  @override
+  String pairDismissedTitle(String name) {
+    return '该请求已被忽略。请让 $name 重新发送。';
+  }
+
+  @override
+  String get pairEndedBody => '不会再有新内容通过它。移除它，或用新的邀请重新配对。';
+
+  @override
+  String get pairWaitingSendBody => '请改用 Epicbox 发送。';
+
+  @override
+  String get pairNotFoundTitle => '没有与此匹配的配对。';
+
+  @override
+  String get trustWaiting => '等待中';
+
+  @override
+  String get trustEnded => '已结束';
+
+  @override
+  String get pairRequestPair => '配对';
+
+  @override
+  String get pairCancelPairingTitle => '取消这次配对？';
+
+  @override
+  String pairCancelPairingBody(String name) {
+    return '如果 $name 的钱包迟来回复，会被告知。不会保留任何内容。';
+  }
+
+  @override
+  String get pairCancelPairing => '取消配对';
+
+  @override
+  String get pairBackLater => '返回';
+
+  @override
+  String get pairProofPending => '地址尚未得到证明';
+
+  @override
+  String get helpPairTwoWaysTitle => '两种配对方式';
+
+  @override
+  String get helpPairTwoWaysShort => '向联系人发送请求，或使用你的邀请。';
+
+  @override
+  String get helpPairTwoWaysP1 =>
+      '**与联系人配对。** 对于你曾通过 Epicbox 付款或收款的联系人，“配对”会向该地址发送请求。对方钱包打开时会显示，点一下即可回复。双方都直接成为“已验证”，无需核对词语：请求和回复各自证明了对方联系人中已有的地址。';
+
+  @override
+  String get helpPairTwoWaysP2 =>
+      '**通过邀请配对。** 联系人 › 配对 显示你的邀请，有效期 7 天。对方钱包扫描它或打开链接；双方通过 Epicbox 完成，然后核对四个词语。若任一方关闭了 Epicbox，同一屏幕会以手动方式传递回复和确认：分享与粘贴。';
+
+  @override
+  String get helpPairTwoWaysP3 =>
+      '请求只会发给已证明运行 Epic Cash 的钱包：最近 30 天内两个地址之间有一笔带标记的付款。对其他人，“配对”会显示你的邀请。';
+
+  @override
+  String get helpPairWhyTitle2 => '为什么要核对词语';
+
+  @override
+  String get helpPairWhyShort2 => '当面、通话或视频核对。';
+
+  @override
+  String get helpPairWhyP1b =>
+      '通过邀请配对后，两个钱包显示相同的四个图片和名称。请与对方当面、通话或视频核对，绝不要在传来邀请的聊天里核对：能在途中篡改邀请的人，也能篡改那个聊天显示的内容。';
+
+  @override
+  String get helpPairWhyP2b =>
+      '**一致** 将联系人标为已验证；对方钱包会得知并显示“也已确认”。**不一致** 会在双方结束配对，通过它发送的内容都不会完成。误点“否”同样会结束：请用新的邀请重新配对。';
+
+  @override
+  String get helpPairWhyP3b =>
+      '已验证表示你的联系人中该地址背后的钱包。两个联系人之间的请求完成后无需词语即可设为已验证，因为请求和回复都证明了该地址。';
+
+  @override
+  String get helpPairWhyP4b =>
+      '“已证明”指最近 30 天内两个 Epicbox 地址之间有一笔双方钱包都标记的付款。此后由另一款钱包应用回复过的联系人，在下一笔带标记的付款之前不算已证明。';
+
+  @override
+  String get pairStandingFootnote => '有效期 7 天。此邀请被使用后会出现新的邀请。';
 }

@@ -20,7 +20,10 @@ import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
-import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
+import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
+import '../../ui/pairing/invite_links.dart';
+import '../../pairing_providers.dart' show keepOrDismissRequest;
+import '../../models.dart' show PairingEvent, epicboxKey;
 import '../data/desk_errors.dart' show deskErrorText;
 import '../../levels/wallet_level.dart' show WalletLevel;
 import '../data/desk_levels.dart';
@@ -86,9 +89,28 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     if (api.supported) api.collect(trigger: trigger).ignore();
   }
 
+  /// An incoming pair invite (a tapped link, a scheme open): the confirm dialog, never a
+  /// pairing by itself.
+  Future<void> _pairInvite(BuildContext _, InviteLink link) async {
+    if (!mounted) return;
+    await deskOpenPairingText(context, ref, link.invite);
+  }
+
+  /// A request to pair: from a contact it is a toast that opens the requests; from anyone
+  /// else it is dismissed before it shows.
+  Future<void> _pairRequested(PairingEvent e) async {
+    final contacts = ref.read(deskProvider).contacts ?? const <Contact>[];
+    final keys = {for (final c in contacts) if (c.epicbox case final a? when a.isNotEmpty) epicboxKey(a)};
+    if (!await keepOrDismissRequest(ref.read(deskPairingApiProvider), keys, e) || !mounted) return;
+    final key = epicboxKey(e.sender!);
+    final name = contacts.where((c) => c.epicbox != null && epicboxKey(c.epicbox!) == key).firstOrNull?.name ?? e.name;
+    showEToast(context, context.l10n.pairWantsToPair(name), tone: ETone.info, action: (label: context.l10n.noticeOpen, run: () => unawaited(showDeskPairRequests(context, ref))));
+  }
+
   @override
   void initState() {
     super.initState();
+    registerInviteHandler(InviteKind.pair, _pairInvite);
     // The user's own node is asked every 15 s (failover's way back, the syncing offer); the
     // timer lives with the shell, not in the provider, so a test's container keeps none.
     _ownAsk = Timer.periodic(ownAskBackEvery, (_) {
@@ -168,6 +190,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 
   @override
   void dispose() {
+    unregisterInviteHandler(InviteKind.pair, _pairInvite);
     HardwareKeyboard.instance.removeHandler(_onKey);
     _tourTimer?.cancel();
     _ownAsk?.cancel();
@@ -201,10 +224,13 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // words check themselves, Pending invites keeps the rest.
     ref.listen(deskPairingEventsProvider, (_, next) {
       final e = next.value;
+      if (e == null) return;
       // A mailbox payment's answer was finalized: Activity shows it posted.
-      if (e?.kind == PairingEventKind.paymentFinalized) unawaited(ref.read(deskProvider.notifier).refresh());
-      final n = e == null ? null : pairingNoticeOf(context.l10n, e);
-      if (n == null || !mounted || pairingEventOnScreen(e!)) return;
+      if (e.kind == PairingEventKind.paymentFinalized) unawaited(ref.read(deskProvider.notifier).refresh());
+      // A request to pair from someone not in Contacts is dropped unseen.
+      if (e.kind == PairingEventKind.requested) return unawaited(_pairRequested(e));
+      final n = pairingNoticeOf(context.l10n, e);
+      if (n == null || !mounted || pairingEventOnScreen(e)) return;
       final id = e.pairingId;
       // An answer to an invite, on any screen: the toast opens the words check.
       final check = (e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) && id != null
@@ -541,7 +567,7 @@ bool deskRouteShown(WidgetRef ref, DeskRoute route) {
   if (route == DeskRoute.outputs) return outputsShown(ref);
   if (deskLevelHides(ref.watch(deskLevelUiProvider), route)) return false;
   return switch (route) {
-    DeskRoute.pair || DeskRoute.pairPending => ref.watch(deskPairsProvider),
+    DeskRoute.pair => ref.watch(deskPairsProvider),
     DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
       ref.watch(deskInvoicesShownProvider),
     DeskRoute.settingsDevices => ref.watch(deskLinkedDevicesOnProvider),

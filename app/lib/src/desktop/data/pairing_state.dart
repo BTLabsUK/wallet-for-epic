@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The desktop's pairing state (RFC 0002): the open wallet's [PairingApi] through
-/// [DeskWalletApi.pairing], its records, its events, and the name others see. The types are
-/// the core's, shared with the phone.
+/// [DeskWalletApi.pairing], its records, the requests to its address, its events, and the
+/// name others see. The types are the core's, shared with the phone. Pairing is on for
+/// everyone: there is no switch.
 library;
 
 import 'dart:async';
@@ -10,19 +11,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
-import '../../models.dart' show PairingCard, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, contactPairingOf;
+import '../../models.dart' show PairRequest, PairingEndReason, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf, epicboxKey;
 import '../../pairing_api.dart';
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../../trust/policy.dart';
 import 'invoices.dart' show deskFailureKind;
-import 'models.dart' show Contact;
+import 'models.dart' show Contact, Tx, TxDirection, TxState;
 import 'state.dart';
 
-/// Pairing is on (Settings › Advanced › Experimental; off by default). Off, nothing of
-/// pairing shows and nothing collects; the stored pairings come back when it is on again.
-final deskPairingOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.pairingOn)));
-
-/// Invoices are on (Settings › Advanced › Experimental; off by default, never without
-/// Pairing): the Invoices page, requests, notices and Settings › Invoices.
+/// Invoices are on (Settings › Advanced › Experimental; off by default).
 final deskInvoicesOnProvider = Provider<bool>((ref) => ref.watch(deskProvider.select((s) => s.settings.advanced.invoicesOn)));
 
 /// The invoices show: the wallet takes them and Invoices is on. Off, the Invoices page,
@@ -31,15 +28,12 @@ final deskInvoicesShownProvider = Provider<bool>(
   (ref) => ref.watch(deskInvoicesOnProvider) && ref.watch(deskApiProvider).supportsInvoices,
 );
 
-/// The open wallet's pairing; [NoPairing] while locked or while Pairing is off. Follows the unlock and the reopen a
+/// The open wallet's pairing; [NoPairing] while locked. Follows the unlock and the reopen a
 /// node or Epicbox change makes, which closes the old session's pairing.
 final deskPairingApiProvider = Provider<PairingApi>((ref) {
-  if (!ref.watch(deskPairingOnProvider)) return const NoPairing();
   ref.watch(deskProvider.select((s) => s.account));
   ref.watch(deskProvider.select((s) => s.session));
   final api = ref.watch(deskApiProvider).pairing;
-  // The words calls meet on the first `epicbox.pairing_servers` of the Epicbox list (a hand
-  // edit of settings.toml shows at once).
   api.setConnectionServers(ref.watch(hostSettingsProvider.select((s) => s.pairingServers)));
   return api;
 });
@@ -47,7 +41,7 @@ final deskPairingApiProvider = Provider<PairingApi>((ref) {
 /// Whether this wallet pairs: Pair, the Pairing block and the trust badges show.
 final deskPairsProvider = Provider<bool>((ref) => ref.watch(deskPairingApiProvider).supported);
 
-/// What reaches the relays now: Offline, Epicbox off (only in person and by hand), or online.
+/// What reaches the relays now: Offline, Epicbox off (by hand only), or online.
 enum DeskPairNet { online, offline, epicboxOff }
 
 final deskPairNetProvider = Provider<DeskPairNet>((ref) {
@@ -71,8 +65,45 @@ class DeskPairings extends AsyncNotifier<List<PairingRecord>> {
 
   Future<void> reload() async {
     ref.invalidateSelf();
-    await future;
+    try {
+      await future;
+    } on Object {
+      // Disposed meanwhile: nothing to show it to.
+    }
   }
+}
+
+/// The requests to pair that came to this wallet's address, from contacts only, newest
+/// first; reloads on every pairing event. Strangers' requests are dismissed on arrival by the
+/// shell's notices.
+final deskPairRequestsProvider = AsyncNotifierProvider<DeskPairRequests, List<PairRequest>>(DeskPairRequests.new);
+
+class DeskPairRequests extends AsyncNotifier<List<PairRequest>> {
+  @override
+  Future<List<PairRequest>> build() async {
+    final api = ref.watch(deskPairingApiProvider);
+    if (!api.supported) return const [];
+    final sub = api.events().listen((_) => ref.invalidateSelf());
+    ref.onDispose(sub.cancel);
+    final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
+    final keys = {for (final c in contacts) if (c.epicbox case final a? when a.isNotEmpty) epicboxKey(a)};
+    return requestsFromContacts(await api.requests(), keys).reversed.toList();
+  }
+
+  Future<void> reload() async {
+    ref.invalidateSelf();
+    try {
+      await future;
+    } on Object {
+      // Disposed meanwhile: nothing to show it to.
+    }
+  }
+}
+
+/// The contact a request came from, by the key of its address, or null.
+Contact? deskContactOfRequest(Iterable<Contact> contacts, PairRequest r) {
+  final key = epicboxKey(r.fromAddress);
+  return contacts.where((c) => c.epicbox != null && epicboxKey(c.epicbox!) == key).firstOrNull;
 }
 
 /// The pairing the contact [contactId] uses ([contactPairingOf]), or null.
@@ -85,29 +116,42 @@ final deskPairingByIdProvider = Provider.family<PairingRecord?, String>((ref, id
   return all.where((r) => r.id == id).firstOrNull;
 });
 
-/// Paired records, newest first.
+/// Paired records (heard, not ended), newest first.
 final deskPairedProvider = Provider<List<PairingRecord>>((ref) => [
   for (final r in ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[])
     if (r.state.isPaired) r,
 ]);
 
 /// Pairings in no contact (never saved, or deleted from the shared book): Contacts lists them
-/// by the name they chose.
+/// by the name they chose. Waiting and ended records too, and an answer to a code waiting
+/// for its confirm.
 final deskOrphanPairingsProvider = Provider<List<PairingRecord>>((ref) {
   final ids = {for (final c in ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[]) c.id};
   return [
-    for (final r in ref.watch(deskPairedProvider))
+    for (final r in pairingsInContacts(ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]))
       if (r.contactId == null || !ids.contains(r.contactId)) r,
   ];
 });
 
-/// In flight: invites, answers, pairings still to check.
+/// In flight and in Contacts: a request sent, an answer waiting for its confirm.
 final deskPendingPairingsProvider = Provider<List<PairingRecord>>((ref) => [
-  for (final r in ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[])
-    if (r.state.isPending || r.awaitsCheck) r,
+  for (final r in pairingsInContacts(ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]))
+    if (r.state.isPending) r,
 ]);
 
+/// The pending pairing of the contact [contactId], or null.
+final deskContactPendingProvider = Provider.family<PairingRecord?, String>(
+  (ref, contactId) => ref.watch(deskPendingPairingsProvider).where((r) => r.contactId == contactId).firstOrNull,
+);
+
 final deskPairingEventsProvider = StreamProvider<PairingEvent>((ref) => ref.watch(deskPairingApiProvider).events());
+
+/// The sealed sends through the pairing [pairingId] still waiting for the recipient: after a
+/// mismatch they are held, never finalized, and each offers Cancel.
+final deskHeldSendsProvider = Provider.family<List<Tx>, String>((ref, pairingId) => [
+  for (final t in ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
+    if (t.pairingId == pairingId && t.direction == TxDirection.sent && t.state == TxState.waitingRecipient && t.cancellable) t,
+]);
 
 /// The pairings whose keys a re-pair found again this session (RFC 7.8): their contact page
 /// docks "keys are back" until it is closed. The shell keeps it listening.
@@ -150,49 +194,74 @@ final deskPairingSlateProvider = FutureProvider.autoDispose.family<PairingSlate?
   return api.slateOf(slateId);
 });
 
-/// This wallet's in-person card while one is out (RFC 7.4): the card the other wallet's card
-/// link is read against. Memory only; it ends with the pairing it made and with the wallet.
-final deskOwnCardProvider = NotifierProvider<DeskOwnCard, PairingCard?>(DeskOwnCard.new);
-
-class DeskOwnCard extends Notifier<PairingCard?> {
-  @override
-  PairingCard? build() {
-    ref.watch(deskPairingApiProvider);
-    return null;
-  }
-
-  void set(PairingCard? card) => state = card;
-}
-
-/// The name others see when pairing ("They will see you as"), kept in the settings.
+/// The name others see when pairing ("They see you as"), kept in the settings; the wallet's
+/// name until the user changes it (one name per wallet).
 final deskSeenAsProvider = NotifierProvider<DeskSeenAs, String>(DeskSeenAs.new);
 
 class DeskSeenAs extends Notifier<String> {
-  Timer? _save;
-
   @override
   String build() {
-    ref.onDispose(() => _save?.cancel());
-    return ref.watch(deskProvider.select((s) => s.settings.pairingSeenAs));
+    final saved = ref.watch(deskProvider.select((s) => s.settings.pairingSeenAs)).trim();
+    if (saved.isNotEmpty) return saved;
+    return ref.watch(deskProvider.select((s) => s.account?.name)) ?? '';
   }
 
-  /// Takes [name] at once and keeps it in the settings once typing pauses, as the phone keeps
-  /// it on the device.
-  void set(String name) {
+  /// Keeps [name] in the settings and tells the engine: every later code and request carries
+  /// it, and the paired contacts get a fresh card (L7).
+  Future<void> set(String name) async {
     final shown = name.trim();
     if (shown == state) return;
     state = shown;
-    _save?.cancel();
-    _save = Timer(const Duration(milliseconds: 600), () {
-      final desk = ref.read(deskProvider.notifier);
-      desk.saveSettings(ref.read(deskProvider).settings.copyWith(pairingSeenAs: shown)).ignore();
-    });
+    final desk = ref.read(deskProvider.notifier);
+    await desk.saveSettings(ref.read(deskProvider).settings.copyWith(pairingSeenAs: shown));
+    final api = ref.read(deskPairingApiProvider);
+    if (api.supported && shown.isNotEmpty) {
+      try {
+        await api.setOwnName(shown);
+      } on Object catch (e) {
+        logWarn('pairing', 'own name not set: ${deskFailureKind(e)}');
+      }
+    }
   }
 }
 
-/// The pairings whose message step is up on the Pair page or in a dialog (the inviter's wait
-/// for the reply, the finish link, the joiner's wait for the finish link): a link for one of
-/// them, pasted or offered, leaves the next step to that step.
+/// The trust policy's view of the contact [contactId]: what the user has with it.
+final deskContactRelationshipProvider = Provider.family<Relationship, String>((ref, contactId) {
+  final contact = (ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[]).where((c) => c.id == contactId).firstOrNull;
+  if (contact == null) return const Relationship.none();
+  final p = ref.watch(deskContactPairingProvider(contactId));
+  final pending = ref.watch(deskContactPendingProvider(contactId));
+  final hasAddress = (contact.epicbox ?? '').trim().isNotEmpty || p?.paymentsAddress != null;
+  if (p == null) return Relationship(RelationshipKind.contact, waiting: pending != null, hasEpicboxAddress: hasAddress);
+  final kind = switch (p.state) {
+    PairingState.ended => RelationshipKind.ended,
+    PairingState.verified => RelationshipKind.verified,
+    PairingState.keysChanged => RelationshipKind.keysChanged,
+    PairingState.paired => RelationshipKind.paired,
+    _ => RelationshipKind.contact,
+  };
+  return Relationship(
+    kind,
+    waiting: p.state == PairingState.waiting || pending != null,
+    endedReason: switch (p.endedReason) {
+      PairingEndReason.mismatch || PairingEndReason.peerMismatch => EndedReason.mismatch,
+      PairingEndReason.unpaired => EndedReason.unpaired,
+      PairingEndReason.neverFinished => EndedReason.notHeard,
+      null => null,
+    },
+    hasEpicboxAddress: hasAddress,
+    peerFeatures: p.peerFeatures,
+  );
+});
+
+/// What the contact's Epicbox key has shown it can do (LEPIC's `peer_compat`), or null.
+final deskPeerCompatProvider = FutureProvider.autoDispose.family<PeerCompat?, String>((ref, address) async {
+  if (address.trim().isEmpty) return null;
+  return ref.watch(deskApiProvider).peerCompat(address);
+});
+
+/// The pairings whose wait is up in a dialog (the answerer's wait for the confirm): a
+/// confirmation for one of them, pasted or offered, leaves the next step to that dialog.
 final Set<String> deskPairingStepsOnScreen = {};
 
 /// Runs [call], then reads the records again. A failure is logged by its kind.
@@ -204,5 +273,33 @@ Future<T> deskPairingCall<T>(WidgetRef ref, Future<T> Function(PairingApi api) c
     rethrow;
   } finally {
     unawaited(ref.read(deskPairingsProvider.notifier).reload());
+    unawaited(ref.read(deskPairRequestsProvider.notifier).reload());
+  }
+}
+
+/// Writes the proven address of the verified pairing [r] into its contact's empty Epicbox
+/// slot (at Verified only, never over an address). Best effort.
+Future<void> deskWriteProvenAddress(WidgetRef ref, PairingRecord r) async {
+  final address = r.paymentsAddress;
+  final cid = r.contactId;
+  if (address == null || cid == null || r.state != PairingState.verified) return;
+  final contact = (ref.read(deskProvider).contacts ?? const <Contact>[]).where((c) => c.id == cid).firstOrNull;
+  if (contact == null || (contact.epicbox ?? '').trim().isNotEmpty) return;
+  try {
+    await ref.read(deskProvider.notifier).saveContact(
+      Contact(
+        id: contact.id,
+        name: contact.name,
+        epicbox: address,
+        http: contact.http,
+        tor: contact.tor,
+        note: contact.note,
+        favourite: contact.favourite,
+        lastUsed: contact.lastUsed,
+        hasPicture: contact.hasPicture,
+      ),
+    );
+  } on Object catch (e) {
+    logWarn('pairing', 'address not written: ${deskFailureKind(e)}');
   }
 }

@@ -59,7 +59,6 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.outputs => OutputsScreen(arg: a),
     DeskRoute.contacts => ContactsScreen(arg: a),
     DeskRoute.pair => DeskPairScreen(arg: a),
-    DeskRoute.pairPending => DeskPendingScreen(arg: a),
     DeskRoute.settingsNode => SettingsNodeScreen(arg: a),
     DeskRoute.settingsReceiving => SettingsReceivingScreen(arg: a),
     DeskRoute.settingsPrivacy => SettingsPrivacyScreen(arg: a),

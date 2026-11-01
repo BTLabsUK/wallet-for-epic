@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart';
-import '../help/help_content.dart' show HelpId;
 import '../errors.dart';
 import '../l10n.dart';
 import '../tor_build.dart';
@@ -17,12 +16,13 @@ import 'centered_body.dart';
 import 'common.dart';
 import 'contact_page.dart';
 import 'contacts_transfer.dart';
-import 'help_screen.dart' show openHelp;
 import 'method_names.dart';
 import 'pairing/pair_check.dart' show attachPairingTo, confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
+import 'pairing/pair_incoming.dart' show confirmCancelPairing;
 import 'pairing/pair_screen.dart';
+import 'pairing/pair_way1.dart' show PairRequestsRow;
 import 'pairing/pairing_parts.dart';
-import 'pairing/pending_invites.dart';
+import '../pairing_text.dart' show pairingEndedText;
 import 'scan_screen.dart';
 import 'status_icons.dart';
 import 'theme/brand.dart';
@@ -31,15 +31,14 @@ import 'tour/tour_target.dart';
 
 /// Keys for tests.
 const Key contactsPairKey = ValueKey('contacts-pair');
-const Key contactsPendingKey = ValueKey('contacts-pending');
-const Key contactsPairHintKey = ValueKey('contacts-pair-hint');
-const Key contactsPairLearnKey = ValueKey('contacts-pair-learn');
 const Key contactsMoreKey = ValueKey('contacts-more');
 const Key contactsImportKey = ValueKey('contacts-import');
 const Key contactsExportKey = ValueKey('contacts-export');
 
-/// The row menu of a pairing in no contact, by its id.
+/// The row menu of a pairing in no contact, by its id, and the row itself.
 Key contactsOrphanMenuKey(String id) => ValueKey('contacts-orphan-menu-$id');
+Key contactsPairingRowKey(String id) => ValueKey('contacts-pairing-row-$id');
+const Key contactsCancelPairingKey = ValueKey('contacts-cancel-pairing');
 const Key contactAddAnotherKey = ValueKey('contact-add-another');
 const Key contactKeepOldKey = ValueKey('contact-keep-old');
 const Key contactReplaceKey = ValueKey('contact-replace');
@@ -73,8 +72,8 @@ class LiveFieldError extends StatelessWidget {
 }
 
 /// The address book. With [pick], tapping a contact returns it instead of opening its page.
-/// Where the wallet pairs, the app bar offers Pair and the list starts with Pending invites
-/// while any are in flight.
+/// Where the wallet pairs, the app bar offers Pair; the list starts with Pair requests while
+/// contacts' requests wait, and carries each pairing's badge and the pending rows.
 class ContactsScreen extends ConsumerStatefulWidget {
   const ContactsScreen({super.key, this.pick = false});
 
@@ -132,13 +131,20 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final contacts = ref.watch(contactsProvider);
     final l = context.l10n;
     final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
-    final pending = pairs ? ref.watch(pendingPairingsProvider).length : 0;
-    final orphans = pairs ? ref.watch(orphanPairingsProvider) : const <PairingRecord>[];
+    final requests = pairs ? (ref.watch(pairRequestsProvider).value ?? const <PairRequest>[]).length : 0;
+    // Pairings in no contact: stored ones, and an answer to a code waiting for its confirm.
+    final orphans = pairs
+        ? [
+            ...ref.watch(orphanPairingsProvider),
+            for (final r in ref.watch(pendingPairingsProvider))
+              if (r.contactId == null) r,
+          ]
+        : const <PairingRecord>[];
     final canExport = contacts.value?.isNotEmpty ?? false;
     // With no contacts at all, a search field has nothing to search: the empty state sits in
     // the middle instead.
     final none = switch (contacts) {
-      AsyncData(:final value) => value.isEmpty && pending == 0 && orphans.isEmpty,
+      AsyncData(:final value) => value.isEmpty && requests == 0 && orphans.isEmpty,
       _ => false,
     };
     return SlotScaffold(
@@ -229,8 +235,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                           label: Text(l.pairTitle),
                           onPressed: _pair,
                         ),
-                        const SizedBox(height: 16),
-                        const _PairHint(center: true),
                       ],
                     ],
                   ),
@@ -269,7 +273,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                       ),
                       Expanded(
                         child: switch (contacts) {
-                          AsyncData(:final value) => _list(value, pending, orphans),
+                          AsyncData(:final value) => _list(value, orphans),
                           AsyncError(:final error) => ListView(
                             padding: const EdgeInsets.all(16),
                             children: [ErrorText(describeError(l, error))],
@@ -286,30 +290,19 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     );
   }
 
-  Widget _list(List<Contact> all, int pending, List<PairingRecord> orphans) {
+  Widget _list(List<Contact> all, List<PairingRecord> orphans) {
     final contacts = _filter(all);
     final t = context.tokens;
     final l = context.l10n;
     final query = _search.text.trim().toLowerCase();
-    // What pairing is for, while nobody is paired yet (Pairing UX plan 4.1).
-    final hint = ref.watch(pairingSupportedProvider) && !widget.pick && query.isEmpty && ref.watch(pairedProvider).isEmpty;
+    final pairs = ref.watch(pairingSupportedProvider) && !widget.pick;
     final rows = <Widget>[
-      if (hint) ...[const _PairHint(), Divider(height: 1, color: t.line)],
-      // Pairings in no contact, by the name they chose: Add to contacts or Remove pairing.
+      // Requests from contacts, while any wait.
+      if (pairs && query.isEmpty) const PairRequestsRow(),
+      // Pairings in no contact, by the name they chose: waiting or ended with their row, the
+      // rest with Add to contacts or Remove pairing.
       for (final r in orphans)
         if (query.isEmpty || r.shownName.toLowerCase().contains(query)) _OrphanRow(record: r, contacts: all),
-      if (pending > 0 && _search.text.trim().isEmpty) ...[
-        ListTile(
-          key: contactsPendingKey,
-          minTileHeight: 64,
-          leading: GlyphTile(size: 40, child: Icon(Icons.schedule, color: t.info)),
-          title: Text(l.pendingTitle),
-          subtitle: Text(l.pendingRowHint(pending)),
-          trailing: Icon(Icons.chevron_right, color: t.dim),
-          onTap: () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PendingInvitesScreen())),
-        ),
-        Divider(height: 1, color: t.line),
-      ],
     ];
     if (contacts.isEmpty) {
       return ListView(
@@ -371,8 +364,12 @@ class _OrphanRow extends ConsumerWidget {
       case 'add':
         final picked = await pickContactForPairing(context);
         if (context.mounted) await _attach(context, ref, picked);
+      case 'cancel':
+        if (await confirmCancelPairing(context, record.shownName)) {
+          await pairingCall(ref, (api) => record.state.isPending ? api.cancelInvite(record.id) : api.removePairing(record.id));
+        }
       case 'remove':
-        if (await confirmRemovePairing(context, record.shownName)) await pairingCall(ref, (api) => api.removePairing(record.id));
+        if (record.ended || await confirmRemovePairing(context, record.shownName)) await pairingCall(ref, (api) => api.removePairing(record.id));
     }
   }
 
@@ -389,26 +386,41 @@ class _OrphanRow extends ConsumerWidget {
       paired: (c) => all.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
       epicboxOf: (c) => c.epicbox,
     );
+    final r = record;
+    final inFlight = r.state.isPending || r.state == PairingState.waiting;
+    final subtitle = r.ended
+        ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, name)
+        : r.state == PairingState.waiting
+            ? l.pairAnsweredNotHeard
+            : r.state == PairingState.pendingReply
+                ? l.pairPairingWith(name)
+                : l.pairNotInContacts;
     return ListTile(
+      key: contactsPairingRowKey(r.id),
       minTileHeight: 64,
-      leading: PairAvatar(name: name, kind: record.kind, size: 40),
+      leading: PairAvatar(name: name, kind: r.kind, size: 40),
       title: Row(
         children: [
           Flexible(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis)),
           const SizedBox(width: 8),
-          TrustBadge(record, short: true),
+          if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
         ],
       ),
-      subtitle: Text(l.pairNotInContacts, style: TextStyle(color: t.dim)),
+      subtitle: Text(subtitle, style: TextStyle(color: t.dim)),
       trailing: PopupMenuButton<String>(
-        key: contactsOrphanMenuKey(record.id),
+        key: contactsOrphanMenuKey(r.id),
         tooltip: l.contactMore,
         onSelected: (v) => _choose(context, ref, v, suggested),
         itemBuilder: (context) => [
-          if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
-          PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
-          PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
-          PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
+          if (!inFlight && !r.ended) ...[
+            if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
+            PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
+            PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
+          ],
+          if (inFlight)
+            PopupMenuItem(key: contactsCancelPairingKey, value: 'cancel', child: Text(l.commonCancel, style: TextStyle(color: t.risk)))
+          else
+            PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
         ],
       ),
     );
@@ -465,10 +477,8 @@ class _ContactRow extends ConsumerWidget {
     final theme = Theme.of(context);
     final note = contact.note?.trim();
     final pairing = ref.watch(pairingSupportedProvider) ? ref.watch(contactPairingProvider(contact.id)) : null;
-    // An invite or answer for this contact in flight: Pairing… until it is paired.
-    final inFlight = pairing == null &&
-        ref.watch(pairingSupportedProvider) &&
-        (ref.watch(pairingsProvider).value ?? const <PairingRecord>[]).any((r) => r.contactId == contact.id && r.state.isPending);
+    // A request sent to this contact, or its code answered: Waiting until it is paired.
+    final inFlight = pairing == null && ref.watch(pairingSupportedProvider) && ref.watch(contactPendingPairingProvider(contact.id)) != null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
     final address = shortAddress(contact.address);
@@ -943,53 +953,6 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
             ),
           ),
       ],
-    );
-  }
-}
-
-/// The line over the list while no contact is paired: what pairing is for, and How it works
-/// (Help › Pairing › Three ways to pair). Pair itself is in the app bar only.
-class _PairHint extends StatelessWidget {
-  const _PairHint({this.center = false});
-
-  /// In the empty state, under its caption.
-  final bool center;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final text = Text(
-      l.contactsPairHint,
-      textAlign: center ? TextAlign.center : TextAlign.start,
-      style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-    );
-    final learn = TextButton(
-      key: contactsPairLearnKey,
-      style: TextButton.styleFrom(minimumSize: const Size(0, 44), padding: const EdgeInsets.symmetric(horizontal: 8)),
-      onPressed: () => openHelp(context, HelpId.pairingWays),
-      child: Text(l.contactsPairLearn),
-    );
-    if (center) return Column(key: contactsPairHintKey, mainAxisSize: MainAxisSize.min, children: [text, learn]);
-    // The link goes under the sentence, as on the desktop: beside it, the German and Russian
-    // sentences squeeze into four short lines at 360 dp.
-    return Padding(
-      key: contactsPairHintKey,
-      padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: const EdgeInsets.only(top: 1), child: Icon(EpicGlyphs.verified, size: 18, color: t.dim)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [text, Transform.translate(offset: const Offset(-8, 0), child: learn)],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -648,12 +648,12 @@ class WalletDispatcher {
     ),
     SessionMember.pairingStrays => _once(s.pairing.strays(), listOf(pairingStrayWire)),
     SessionMember.pairingRemoveStray => _once(s.pairing.removeStray(p.of('id', stringWire)), voidWire),
-    SessionMember.pairingMakeInvite => _once(
-      s.pairing.makeInvite(
+    SessionMember.pairingStandingCode => _once(s.pairing.standingCode(name: p.of('name', stringWire)), pairingRecordWire),
+    SessionMember.pairingSetOwnName => _once(s.pairing.setOwnName(p.of('name', stringWire)), intWire),
+    SessionMember.pairingRequest => _once(
+      s.pairing.requestPairing(
+        toAddress: p.of('toAddress', stringWire),
         name: p.of('name', stringWire),
-        expiry: Duration(seconds: p.of('expirySecs', intWire)),
-        words: p.of('words', boolWire),
-        label: p.of('label', optString),
         contactId: p.of('contactId', optString),
       ),
       pairingRecordWire,
@@ -662,9 +662,12 @@ class WalletDispatcher {
     SessionMember.pairingOpenReply => _once(s.pairing.openReply(p.of('link', stringWire)), pairingRecordWire),
     SessionMember.pairingConfirmLink => _once(s.pairing.confirmLink(p.of('id', stringWire)), stringWire),
     SessionMember.pairingOpenInvite => _once(s.pairing.openInvite(p.of('link', stringWire)), pairingPreviewWire),
-    SessionMember.pairingOpenWords => _once(
-      s.pairing.openWords(p.of('words', listOf(stringWire))),
-      pairingPreviewWire,
+    SessionMember.pairingRequests => _once(s.pairing.requests(), listOf(pairRequestWire)),
+    SessionMember.pairingOpenRequest => _once(s.pairing.openRequest(p.of('requestId', stringWire)), pairingPreviewWire),
+    SessionMember.pairingDismissRequest => _once(s.pairing.dismissRequest(p.of('requestId', stringWire)), voidWire),
+    SessionMember.pairingRequestHandledOn => _once(
+      s.pairing.requestHandledOn(p.of('requestId', stringWire), p.of('device', stringWire)),
+      voidWire,
     ),
     SessionMember.pairingAccept => _once(
       s.pairing.acceptInvite(
@@ -678,11 +681,6 @@ class WalletDispatcher {
     ),
     SessionMember.pairingReplyLink => _once(s.pairing.replyLink(p.of('id', stringWire)), stringWire),
     SessionMember.pairingOpenConfirm => _once(s.pairing.openConfirm(p.of('link', stringWire)), pairingRecordWire),
-    SessionMember.pairingShowCard => _once(s.pairing.showCard(name: p.of('name', stringWire)), pairingCardWire),
-    SessionMember.pairingScanCard => _once(
-      s.pairing.scanCard(cardId: p.of('cardId', stringWire), text: p.of('text', stringWire)),
-      pairingRecordWire,
-    ),
     SessionMember.pairingCheckWords => _once(
       s.pairing.checkWords(p.of('id', stringWire), p.of('check', pairingCheckWire)),
       nullable(pairingRecordWire),
@@ -698,7 +696,7 @@ class WalletDispatcher {
       intWire,
     ),
     SessionMember.pairingAttach => _once(
-      s.pairing.attach(p.of('id', stringWire), p.of('contactId', optString)),
+      s.pairing.attach(p.of('id', stringWire), p.of('contactId', optString), contactAddress: p.of('contactAddress', optString)),
       pairingRecordWire,
     ),
     SessionMember.pairingResolveKeys => _once(

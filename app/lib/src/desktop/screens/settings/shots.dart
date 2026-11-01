@@ -43,7 +43,6 @@ import 'settings_help.dart' show HelpDemo;
 import 'settings_account.dart' show AccountDemo;
 import 'settings_rescan.dart';
 import '../wallet/tx_detail.dart' show txMoreDemoProvider;
-import '../transfer/send_code.dart' show showExperimentalOffDialog;
 import '../../../advanced.dart';
 import '../../../payment_prefs.dart';
 import '../../../settings_file/host_settings.dart' show appConfig;
@@ -404,8 +403,6 @@ final List<DeskShot> settingsShots = [
   // what off leaves: Contacts without Pair, a pairing link that says where to turn it on.
   const DeskShot(id: '43k-advanced-experimental', title: 'Settings › Advanced › Experimental, Pairing and Invoices on', route: DeskRoute.settingsAdvanced, height: 1450),
   const DeskShot(id: '43l-advanced-experimental-off', title: 'Settings › Advanced › Experimental, both off', route: DeskRoute.settingsAdvanced, height: 1450),
-  const DeskShot(id: '43m-contacts-pairing-off', title: 'Contacts with Pairing off: no Pair, no paired marks', route: DeskRoute.contacts),
-  DeskShot(id: '43n-pairing-link-off', title: 'A pairing link with Pairing off', route: DeskRoute.send, dialog: (context) async => showExperimentalOffDialog(context)),
   // Advanced mode (Settings › Advanced) and what the network modes do to the screens.
   const DeskShot(id: '43-advanced', title: 'Settings › Advanced, everything off', route: DeskRoute.settingsAdvanced),
   // Wallet levels: Advanced (its Depth group on top) at Shallow and Deeper.

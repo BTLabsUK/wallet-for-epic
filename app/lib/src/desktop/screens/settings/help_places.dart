@@ -57,7 +57,7 @@ DeskHelpPlace? deskHelpPlace(String place) => _places[place.split('›').map((p)
 /// invoice places (Experimental).
 AdvancedFeature? _placeFeature(DeskHelpPlace to) => switch (to.route) {
   DeskRoute.outputs => AdvancedFeature.outputs,
-  DeskRoute.pair || DeskRoute.pairPending => AdvancedFeature.pairing,
+  DeskRoute.pair => AdvancedFeature.pairing,
   DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
     AdvancedFeature.invoices,
   _ => null,
@@ -74,7 +74,6 @@ bool deskHelpPlaceShown(WidgetRef ref, String place) {
   final f = _placeFeature(to);
   return switch (f) {
     null => true,
-    AdvancedFeature.pairing => advancedOf(ref).pairingOn,
     AdvancedFeature.invoices => advancedOf(ref).invoicesOn,
     _ => advancedHas(ref, f),
   };

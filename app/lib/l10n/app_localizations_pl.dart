@@ -14021,7 +14021,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairInPersonTitle => 'Parowanie osobiście';
 
   @override
-  String get pairShowMyCode => 'Pokaż mój kod';
+  String get pairShowMyCode => 'Pokaż moje zaproszenie';
 
   @override
   String get pairScanTheirs => 'Zeskanuj ich kod';
@@ -14035,7 +14035,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Skanujecie oboje. Sprawdzanie słów otworzy się, gdy oba kody zostaną odczytane.';
 
   @override
-  String get pairScanPrompt => 'Skieruj aparat na kod drugiej osoby';
+  String get pairScanPrompt => 'Zeskanuj ich kod QR';
 
   @override
   String get pairSeenAs => 'Druga strona zobaczy cię jako';
@@ -14048,7 +14048,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairCameraDeniedBody =>
-      'Zezwól na aparat, aby skanować, albo użyj słów.';
+      'Zezwól na aparat, aby skanować, albo wklej zaproszenie.';
 
   @override
   String get pairOpenSettings => 'Otwórz ustawienia';
@@ -14464,7 +14464,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairExpiredBody(String name) {
-    return 'Poproś $name o nowe.';
+    return 'Poproś o nowe.';
   }
 
   @override
@@ -14475,7 +14475,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name: zaproszenie anulowane';
+    return '$name anulował(a) to parowanie';
   }
 
   @override
@@ -14541,19 +14541,19 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Ktoś inny odpowiedział na zaproszenie od $name.';
+    return 'Ktoś inny też odpowiedział na twoje zaproszenie';
   }
 
   @override
   String get pairAnsweredSameInvite =>
-      'Odpowiedź na to samo zaproszenie · niezapisana';
+      'Odpowiedź na to samo zaproszenie · nie zapisano';
 
   @override
-  String get sasTitle => 'Porównaj słowa kontrolne';
+  String get sasTitle => 'Sprawdź słowa';
 
   @override
   String sasLead(String name) {
-    return 'Portfel $name pokazuje te same cztery słowa kontrolne. Porównajcie je przez telefon lub osobiście.';
+    return 'Portfel $name pokazuje te same cztery. Porównajcie je.';
   }
 
   @override
@@ -14593,7 +14593,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get sasNoMatchBody =>
-      'Ktoś mógł zmienić zaproszenie po drodze. Nic nie zostaje zachowane. Sparuj się ponownie, osobiście lub z nowym zaproszeniem.';
+      'Parowanie kończy się po obu stronach i nic, co przez nie wysłano, nie zostanie dokończone. Sparuj ponownie z nowym zaproszeniem.';
 
   @override
   String get sasStopPairing => 'Przerwij parowanie';
@@ -15228,15 +15228,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get restoreUseHere => 'Używaj tutaj';
 
   @override
-  String get pairInvalidLink => 'To nie jest link do parowania';
+  String get pairInvalidLink => 'To nie jest zaproszenie do parowania.';
 
   @override
   String get pairInvalidBody =>
-      'Sprawdź, czy skopiowano cały link, lub poproś o nowy.';
+      'Sprawdź, czy skopiowano całe zaproszenie, albo poproś o nowe.';
 
   @override
-  String get pairWrongNetworkBody =>
-      'Utworzył go portfel w innej sieci. Portfele parują się tylko w tej samej sieci.';
+  String get pairWrongNetworkBody => 'To zaproszenie jest dla innej sieci.';
 
   @override
   String get pairOwnCode => 'To twój własny kod';
@@ -15461,7 +15460,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatP1 =>
-      'Parowanie łączy dwa portfele jeden raz: osobiście, gdy skanujecie nawzajem swoje kody, lub online przez link z zaproszeniem albo pięć słów parowania. Każdy portfel trzyma klucz utworzony dla tego jednego kontaktu; nic z tego nie trafia na serwer Epicbox.';
+      'Parowanie łączy dwa portfele raz: prośbą do kontaktu, któremu płaciłeś przez Epicbox, albo twoim zaproszeniem, zeskanowanym jako QR lub otwartym jako link. Każdy portfel trzyma klucz zrobiony tylko dla tego jednego kontaktu; z nikim innym nic nie jest dzielone.';
 
   @override
   String get helpPairWhatP2 =>
@@ -15473,11 +15472,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Wybierz sposób: Głosowo, Zaproszenie w wiadomości lub Osobiście.';
+      'Sparuj z kontaktem albo pokaż swoje zaproszenie i daj je zeskanować.';
 
   @override
   String get helpPairWhatStep3 =>
-      'Zweryfikujcie razem, potem **Zgadzają się**.';
+      'Sprawdźcie słowa razem (po prośbie niepotrzebne), potem **Zgadzają się**.';
 
   @override
   String get helpPairWhatP3 =>
@@ -19339,4 +19338,292 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
+
+  @override
+  String get pairYourCode => 'Twoje zaproszenie';
+
+  @override
+  String get pairCodeCaption =>
+      'Niech zeskanują kod QR albo wyślij zaproszenie.';
+
+  @override
+  String pairCodeCaptionFor(String name) {
+    return 'Niech $name zeskanuje kod QR albo wyślij zaproszenie.';
+  }
+
+  @override
+  String pairSeenAsLine(String name) {
+    return 'Widzą cię jako $name';
+  }
+
+  @override
+  String get pairChange => 'Zmień';
+
+  @override
+  String get pairSeenAsField => 'Widzą cię jako';
+
+  @override
+  String get pairCopyLink => 'Kopiuj zaproszenie';
+
+  @override
+  String get pairHaveTheirCode => 'Masz ich zaproszenie?';
+
+  @override
+  String pairHaveNamesCode(String name) {
+    return 'Masz zaproszenie od $name?';
+  }
+
+  @override
+  String get pairScan => 'Skanuj QR';
+
+  @override
+  String get pairPasteField => 'Wklej zaproszenie';
+
+  @override
+  String get pairNotACode => 'To nie jest zaproszenie do parowania.';
+
+  @override
+  String get pairEpicboxOffLine =>
+      'Epicbox jest wyłączony. Wklej odpowiedź poniżej, gdy wróci.';
+
+  @override
+  String get pairWaitingAnswer => 'Czekanie na odpowiedź…';
+
+  @override
+  String pairAnsweredFinishing(String name) {
+    return '$name odpowiedział(a) na zaproszenie. Czekanie, aż portfel $name dokończy.';
+  }
+
+  @override
+  String get pairFinishCodeTitle => 'Potwierdzenie';
+
+  @override
+  String pairFinishCodeBody(String name) {
+    return 'Wyślij to do $name. Sprawdzanie słów otworzy się, gdy ten portfel to odczyta.';
+  }
+
+  @override
+  String get pairYourAnswerBody =>
+      'Odeślij ją tą samą drogą, którą przyszło zaproszenie. Potem wklej to, co wróci.';
+
+  @override
+  String get pairPasteFinishField => 'Wklej potwierdzenie';
+
+  @override
+  String pairPairingWith(String name) {
+    return 'Parowanie z $name…';
+  }
+
+  @override
+  String get pairInContacts => 'W twoich kontaktach';
+
+  @override
+  String get pairRequestBody =>
+      'Prośba trafia na adres Epicbox tego kontaktu. Jego portfel pokaże ją, gdy będzie otwarty.';
+
+  @override
+  String get pairSendRequest => 'Wyślij prośbę';
+
+  @override
+  String get pairShowMyCodeInstead => 'Pokaż zamiast tego moje zaproszenie';
+
+  @override
+  String pairRequestSent(String date) {
+    return 'Prośba wysłana · $date';
+  }
+
+  @override
+  String pairWaitingFor(String name) {
+    return 'Czekanie na portfel $name';
+  }
+
+  @override
+  String get pairAnsweredNotHeard =>
+      'Odpowiedź na twoje zaproszenie · jeszcze bez wieści';
+
+  @override
+  String pairNotChecked(String name) {
+    return '$name jeszcze nie sprawdził(a)';
+  }
+
+  @override
+  String pairConfirmedToo(String name) {
+    return '$name też potwierdził(a).';
+  }
+
+  @override
+  String get pairEndedShort => 'Parowanie zakończone';
+
+  @override
+  String get pairEndedMismatch => 'Zgłoszono, że słowa się nie zgadzają.';
+
+  @override
+  String pairEndedPeerMismatch(String name) {
+    return '$name zgłosił(a), że słowa się nie zgadzają.';
+  }
+
+  @override
+  String pairEndedNeverFinished(String name) {
+    return 'Portfel $name nigdy nie dokończył.';
+  }
+
+  @override
+  String pairNoAnswerFrom(String name) {
+    return 'Brak odpowiedzi od portfela $name';
+  }
+
+  @override
+  String get pairAgain => 'Paruj ponownie';
+
+  @override
+  String get pairHeldSend => 'Czeka na odbiorcę';
+
+  @override
+  String pairProvesOther(String name) {
+    return 'Portfel $name potwierdza inny adres';
+  }
+
+  @override
+  String get pairUpdateAddress => 'Zaktualizuj adres kontaktu';
+
+  @override
+  String get pairDetach => 'Odłącz';
+
+  @override
+  String get pairCheckWords => 'Sprawdź słowa';
+
+  @override
+  String pairWantsToPair(String name) {
+    return '$name chce sparować.';
+  }
+
+  @override
+  String pairPairedWith(String name) {
+    return 'Sparowano z $name.';
+  }
+
+  @override
+  String pairPairedOn(String device) {
+    return 'Sparowano na $device.';
+  }
+
+  @override
+  String pairRequestsRow(int count) {
+    return 'Prośby o parowanie · $count';
+  }
+
+  @override
+  String get pairRequestsTitle => 'Prośby o parowanie';
+
+  @override
+  String get pairEndedNotice =>
+      'Parowanie zakończone. Sparuj ponownie z nowym zaproszeniem.';
+
+  @override
+  String get pairOtherWalletTitle => 'Ta odpowiedź przyszła z innego portfela.';
+
+  @override
+  String get pairOtherWalletBody => 'Niczego nie zapisano.';
+
+  @override
+  String pairNotProvenBody(String name) {
+    return 'Nie było jeszcze płatności Epic Cash z $name, więc nie można wysłać prośby.';
+  }
+
+  @override
+  String pairInProgressTitle(String name) {
+    return 'Parowanie z $name już trwa.';
+  }
+
+  @override
+  String pairCrossedTitle(String name) {
+    return 'Portfel $name też zaczął parowanie. Czekanie na jego odpowiedź.';
+  }
+
+  @override
+  String pairDismissedTitle(String name) {
+    return 'Ta prośba została odrzucona. Poproś $name o nową.';
+  }
+
+  @override
+  String get pairEndedBody =>
+      'Nic nowego już przez nie nie przejdzie. Usuń je albo sparuj ponownie z nowym zaproszeniem.';
+
+  @override
+  String get pairWaitingSendBody => 'Wyślij zamiast tego przez Epicbox.';
+
+  @override
+  String get pairNotFoundTitle => 'Żadne parowanie do tego nie pasuje.';
+
+  @override
+  String get trustWaiting => 'Oczekuje';
+
+  @override
+  String get trustEnded => 'Zakończone';
+
+  @override
+  String get pairRequestPair => 'Paruj';
+
+  @override
+  String get pairCancelPairingTitle => 'Anulować to parowanie?';
+
+  @override
+  String pairCancelPairingBody(String name) {
+    return 'Portfel $name dowie się, jeśli odpowie późno. Nic nie zostanie zachowane.';
+  }
+
+  @override
+  String get pairCancelPairing => 'Anuluj parowanie';
+
+  @override
+  String get pairBackLater => 'Wstecz';
+
+  @override
+  String get pairProofPending => 'Adres jeszcze niepotwierdzony';
+
+  @override
+  String get helpPairTwoWaysTitle => 'Dwa sposoby parowania';
+
+  @override
+  String get helpPairTwoWaysShort =>
+      'Prośba do kontaktu albo twoje zaproszenie.';
+
+  @override
+  String get helpPairTwoWaysP1 =>
+      '**Paruj z kontaktem.** Przy kontakcie, któremu płaciłeś lub który płacił tobie przez Epicbox, Paruj wysyła prośbę na ten adres. Jego portfel pokaże ją, gdy będzie otwarty; jedno dotknięcie odpowiada. Oba portfele kończą jako Zweryfikowane bez sprawdzania słów: prośba i odpowiedź potwierdzają adres, który już jest w kontaktach drugiej strony.';
+
+  @override
+  String get helpPairTwoWaysP2 =>
+      '**Paruj zaproszeniem.** Kontakty › Paruj pokazuje twoje zaproszenie, ważne 7 dni. Drugi portfel skanuje je albo otwiera link; oba kończą przez Epicbox, a potem porównują cztery słowa. Gdy po którejś stronie Epicbox jest wyłączony, ten sam ekran przenosi odpowiedź i potwierdzenie ręcznie: Udostępnij i Wklej.';
+
+  @override
+  String get helpPairTwoWaysP3 =>
+      'Prośba idzie tylko do portfela, który pokazał, że działa na Epic Cash: oznaczona płatność między tymi dwoma adresami w ostatnich 30 dniach. Dla każdego innego Paruj pokazuje twoje zaproszenie.';
+
+  @override
+  String get helpPairWhyTitle2 => 'Po co sprawdzać słowa';
+
+  @override
+  String get helpPairWhyShort2 =>
+      'Porównajcie je osobiście, głosem albo wideo.';
+
+  @override
+  String get helpPairWhyP1b =>
+      'Po parowaniu zaproszeniem oba portfele pokazują te same cztery obrazki i nazwy. Porównaj je z drugą osobą osobiście, głosem albo na wideorozmowie, nigdy w czacie, którym przyszło zaproszenie: kto mógłby podmienić zaproszenie po drodze, mógłby też podmienić to, co pokazuje ten czat.';
+
+  @override
+  String get helpPairWhyP2b =>
+      '**Zgadzają się** oznacza kontakt jako Zweryfikowany; drugi portfel dowiaduje się o tym i pokazuje „też potwierdził(a)”. **Nie zgadzają się** kończy parowanie po obu stronach i nic, co przez nie wysłano, nie zostanie dokończone. Omyłkowe Nie też je kończy: sparuj ponownie z nowym zaproszeniem.';
+
+  @override
+  String get helpPairWhyP3b =>
+      'Zweryfikowany oznacza portfel stojący za adresem w twoich kontaktach. Po prośbie między dwoma kontaktami ustawia się bez słów, bo prośba i odpowiedź potwierdziły ten adres.';
+
+  @override
+  String get helpPairWhyP4b =>
+      '„Potwierdzony” znaczy, że w ostatnich 30 dniach między tymi dwoma adresami Epicbox przeszła płatność oznaczona przez oba portfele. Kontakt, na który od tego czasu odpowiedziała inna aplikacja portfela, nie jest potwierdzony do następnej oznaczonej płatności.';
+
+  @override
+  String get pairStandingFootnote =>
+      'Ważne 7 dni. Nowe zaproszenie pojawi się, gdy to zostanie użyte.';
 }

@@ -13505,7 +13505,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairInPersonTitle => 'Pair in person';
 
   @override
-  String get pairShowMyCode => 'Show my code';
+  String get pairShowMyCode => 'Show my invite';
 
   @override
   String get pairScanTheirs => 'Scan theirs';
@@ -13518,7 +13518,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Both of you scan. The words check opens when both codes are in.';
 
   @override
-  String get pairScanPrompt => 'Point the camera at their code';
+  String get pairScanPrompt => 'Scan their QR';
 
   @override
   String get pairSeenAs => 'They will see you as';
@@ -13531,7 +13531,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairCameraDeniedBody =>
-      'Allow the camera to scan, or use words instead.';
+      'Allow the camera to scan, or paste the invite.';
 
   @override
   String get pairOpenSettings => 'Open settings';
@@ -13945,7 +13945,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairExpiredBody(String name) {
-    return 'Ask $name for a new one.';
+    return 'Ask for a new one.';
   }
 
   @override
@@ -13956,7 +13956,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name cancelled this invite';
+    return '$name cancelled this pairing';
   }
 
   @override
@@ -14022,18 +14022,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Someone else answered $name’s invite.';
+    return 'Someone else also answered your invite';
   }
 
   @override
   String get pairAnsweredSameInvite => 'Answered the same invite · not stored';
 
   @override
-  String get sasTitle => 'Compare the check words';
+  String get sasTitle => 'Check the words';
 
   @override
   String sasLead(String name) {
-    return '$name’s wallet shows the same four check words. Compare them on a call or in person.';
+    return '$name’s wallet shows the same four. Compare them.';
   }
 
   @override
@@ -14073,7 +14073,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sasNoMatchBody =>
-      'Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.';
+      'The pairing ends on both sides and nothing sent through it is finished. Pair again with a fresh invite.';
 
   @override
   String get sasStopPairing => 'Stop pairing';
@@ -14690,15 +14690,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreUseHere => 'Use them here';
 
   @override
-  String get pairInvalidLink => 'This is not a pairing link';
+  String get pairInvalidLink => 'Not a pairing invite.';
 
   @override
   String get pairInvalidBody =>
-      'Check that the whole link was copied, or ask for a new one.';
+      'Check that the whole invite was copied, or ask for a new one.';
 
   @override
-  String get pairWrongNetworkBody =>
-      'It was made by a wallet on the other network. Wallets pair only on the same network.';
+  String get pairWrongNetworkBody => 'This invite is for another network.';
 
   @override
   String get pairOwnCode => 'This is your own code';
@@ -14922,7 +14921,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatP1 =>
-      'Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.';
+      'Pairing links two wallets once: with a request to a contact you have paid over Epicbox, or with your invite, scanned as a QR or opened as a link. Each wallet keeps a key made for that one contact; nothing is shared with anyone else.';
 
   @override
   String get helpPairWhatP2 =>
@@ -14933,10 +14932,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Choose a way: Spoken, Invite by message or In person.';
+      'Pair with a contact, or show your invite and let them scan it.';
 
   @override
-  String get helpPairWhatStep3 => 'Verify together, then **They match**.';
+  String get helpPairWhatStep3 =>
+      'Check the words together (not needed after a request), then **They match**.';
 
   @override
   String get helpPairWhatP3 =>
@@ -18692,4 +18692,288 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String get pairYourCode => 'Your invite';
+
+  @override
+  String get pairCodeCaption => 'Let them scan the QR, or send the invite.';
+
+  @override
+  String pairCodeCaptionFor(String name) {
+    return 'Let $name scan the QR, or send the invite.';
+  }
+
+  @override
+  String pairSeenAsLine(String name) {
+    return 'They see you as $name';
+  }
+
+  @override
+  String get pairChange => 'Change';
+
+  @override
+  String get pairSeenAsField => 'They see you as';
+
+  @override
+  String get pairCopyLink => 'Copy invite';
+
+  @override
+  String get pairHaveTheirCode => 'Have their invite?';
+
+  @override
+  String pairHaveNamesCode(String name) {
+    return 'Have $name’s invite?';
+  }
+
+  @override
+  String get pairScan => 'Scan QR';
+
+  @override
+  String get pairPasteField => 'Paste the invite';
+
+  @override
+  String get pairNotACode => 'Not a pairing invite.';
+
+  @override
+  String get pairEpicboxOffLine =>
+      'Epicbox is off. Paste the answer below when it comes back.';
+
+  @override
+  String get pairWaitingAnswer => 'Waiting for the answer…';
+
+  @override
+  String pairAnsweredFinishing(String name) {
+    return '$name answered your invite. Waiting for $name’s wallet to finish.';
+  }
+
+  @override
+  String get pairFinishCodeTitle => 'Confirmation';
+
+  @override
+  String pairFinishCodeBody(String name) {
+    return 'Send this to $name. The words check opens when that wallet reads it.';
+  }
+
+  @override
+  String get pairYourAnswerBody =>
+      'Send it back the way the invite came. Then paste what comes back.';
+
+  @override
+  String get pairPasteFinishField => 'Paste the confirmation';
+
+  @override
+  String pairPairingWith(String name) {
+    return 'Pairing with $name…';
+  }
+
+  @override
+  String get pairInContacts => 'In your contacts';
+
+  @override
+  String get pairRequestBody =>
+      'A request goes to this contact’s Epicbox address. Their wallet shows it when it is open.';
+
+  @override
+  String get pairSendRequest => 'Send request';
+
+  @override
+  String get pairShowMyCodeInstead => 'Show my invite instead';
+
+  @override
+  String pairRequestSent(String date) {
+    return 'Request sent · $date';
+  }
+
+  @override
+  String pairWaitingFor(String name) {
+    return 'Waiting for $name’s wallet';
+  }
+
+  @override
+  String get pairAnsweredNotHeard => 'Answered your invite · not heard yet';
+
+  @override
+  String pairNotChecked(String name) {
+    return '$name has not checked yet';
+  }
+
+  @override
+  String pairConfirmedToo(String name) {
+    return '$name confirmed too.';
+  }
+
+  @override
+  String get pairEndedShort => 'Pairing ended';
+
+  @override
+  String get pairEndedMismatch => 'You reported the words do not match.';
+
+  @override
+  String pairEndedPeerMismatch(String name) {
+    return '$name reported the words do not match.';
+  }
+
+  @override
+  String pairEndedNeverFinished(String name) {
+    return '$name’s wallet never finished.';
+  }
+
+  @override
+  String pairNoAnswerFrom(String name) {
+    return 'No answer from $name’s wallet';
+  }
+
+  @override
+  String get pairAgain => 'Pair again';
+
+  @override
+  String get pairHeldSend => 'Waiting for recipient';
+
+  @override
+  String pairProvesOther(String name) {
+    return '$name’s wallet proves another address';
+  }
+
+  @override
+  String get pairUpdateAddress => 'Update the contact’s address';
+
+  @override
+  String get pairDetach => 'Detach';
+
+  @override
+  String get pairCheckWords => 'Check the words';
+
+  @override
+  String pairWantsToPair(String name) {
+    return '$name wants to pair.';
+  }
+
+  @override
+  String pairPairedWith(String name) {
+    return 'Paired with $name.';
+  }
+
+  @override
+  String pairPairedOn(String device) {
+    return 'Paired on $device.';
+  }
+
+  @override
+  String pairRequestsRow(int count) {
+    return 'Pair requests · $count';
+  }
+
+  @override
+  String get pairRequestsTitle => 'Pair requests';
+
+  @override
+  String get pairEndedNotice =>
+      'The pairing ended. Pair again with a fresh invite.';
+
+  @override
+  String get pairOtherWalletTitle => 'This answer came from another wallet.';
+
+  @override
+  String get pairOtherWalletBody => 'Nothing was stored.';
+
+  @override
+  String pairNotProvenBody(String name) {
+    return 'No Epic Cash payment with $name yet, so a request cannot be sent.';
+  }
+
+  @override
+  String pairInProgressTitle(String name) {
+    return 'A pairing with $name is under way.';
+  }
+
+  @override
+  String pairCrossedTitle(String name) {
+    return '$name’s wallet also started a pairing. Waiting for its answer.';
+  }
+
+  @override
+  String pairDismissedTitle(String name) {
+    return 'This request was dismissed. Ask $name to send a new one.';
+  }
+
+  @override
+  String get pairEndedBody =>
+      'Nothing new goes through it. Remove it, or pair again with a fresh invite.';
+
+  @override
+  String get pairWaitingSendBody => 'Send by Epicbox instead.';
+
+  @override
+  String get pairNotFoundTitle => 'No pairing matches this.';
+
+  @override
+  String get trustWaiting => 'Waiting';
+
+  @override
+  String get trustEnded => 'Ended';
+
+  @override
+  String get pairRequestPair => 'Pair';
+
+  @override
+  String get pairCancelPairingTitle => 'Cancel this pairing?';
+
+  @override
+  String pairCancelPairingBody(String name) {
+    return '$name’s wallet is told if it answers late. Nothing is kept.';
+  }
+
+  @override
+  String get pairCancelPairing => 'Cancel pairing';
+
+  @override
+  String get pairBackLater => 'Back';
+
+  @override
+  String get pairProofPending => 'Address not proven yet';
+
+  @override
+  String get helpPairTwoWaysTitle => 'Two ways to pair';
+
+  @override
+  String get helpPairTwoWaysShort => 'A request to a contact, or your code.';
+
+  @override
+  String get helpPairTwoWaysP1 =>
+      '**Pair with a contact.** On a contact you have paid or been paid by over Epicbox, Pair sends a request to that address. Their wallet shows it when it is open; one tap answers. Both wallets end Verified without a words check: the request and the answer each prove the address already in the other’s Contacts.';
+
+  @override
+  String get helpPairTwoWaysP2 =>
+      '**Pair by code.** Contacts › Pair shows your code, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish code by hand: Share and Paste.';
+
+  @override
+  String get helpPairTwoWaysP3 =>
+      'A request is sent only to a wallet that has shown it runs Epic Cash: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.';
+
+  @override
+  String get helpPairWhyTitle2 => 'Why check the words';
+
+  @override
+  String get helpPairWhyShort2 => 'Compare them in person, by voice or video.';
+
+  @override
+  String get helpPairWhyP1b =>
+      'After pairing by code both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the code came through: whoever could change the code on the way could also change what that chat shows.';
+
+  @override
+  String get helpPairWhyP2b =>
+      '**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh code.';
+
+  @override
+  String get helpPairWhyP3b =>
+      'Verified means the wallet behind the address in your Contacts. After a request between two contacts it is set without words, because the request and the answer each proved that address.';
+
+  @override
+  String get helpPairWhyP4b =>
+      '“Proven” means a payment marked by both wallets has passed between the two Epicbox addresses within 30 days. A contact answered by another wallet app since then is not proven until the next marked payment.';
+
+  @override
+  String get pairStandingFootnote =>
+      'Good for 7 days. A new invite appears when this one is used.';
 }

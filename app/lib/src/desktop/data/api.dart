@@ -11,6 +11,7 @@ import '../../cancel_final.dart' show CancelResult;
 import '../../models.dart' show FinishedPayment;
 import '../../devices/device_service.dart' show DeviceHost;
 import '../../pairing_api.dart';
+import '../../trust/policy.dart' show PeerCompat;
 
 import 'backup_settings_desk.dart' show DeskBackupSettings;
 import 'http_address.dart';
@@ -477,6 +478,10 @@ abstract interface class DeskWalletApi {
   /// Pairing (RFC 0002) of the open wallet: [PairingApi.supported] false while locked or on a
   /// core without it. The types are the core's (`models.dart`), shared with the phone.
   PairingApi get pairing;
+
+  /// What the wallet software behind the Epicbox [address] has shown it can do (LEPIC's
+  /// peer compat), or null for a key never heard from. The trust policy reads it.
+  Future<PeerCompat?> peerCompat(String address);
 
   /// What linked devices (`devices/`) need from the open wallet: its pairing engine, outputs,
   /// history and the coins every send leaves out; null while locked. [online] says whether the

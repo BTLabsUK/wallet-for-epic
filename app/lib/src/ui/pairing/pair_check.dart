@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Check the words: the four words both wallets show, then They match
-/// (Verified), They don't match (the pairing goes on this side) or Skip for now (Paired, not
-/// verified). The results offer to save the contact; the app never decides on its own which
-/// address-book entry a pairing belongs to.
+/// Check the words: the four words both wallets show, then They match (Verified; the other
+/// side learns of it) or They do not match (the pairing ends on both sides, kept, its sends
+/// held). Back is later: the row stays Paired. The results offer to save the contact; the app
+/// never decides on its own which address-book entry a pairing belongs to.
 library;
 
 import 'package:flutter/material.dart';
@@ -26,7 +26,6 @@ import 'pairing_parts.dart';
 /// Keys for tests.
 const Key checkMatchKey = ValueKey('check-match');
 const Key checkNoMatchKey = ValueKey('check-no-match');
-const Key checkSkipKey = ValueKey('check-skip');
 const Key checkStopKey = ValueKey('check-stop');
 const Key checkDoneKey = ValueKey('check-done');
 const Key checkAllowKey = ValueKey('check-allow');
@@ -35,8 +34,6 @@ const Key resultSaveNewKey = ValueKey('result-save-new');
 const Key resultAddToKey = ValueKey('result-add-to');
 const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 
-/// The words check of the pairing [pairingId]. [recheck] is the contact page's "Check the
-/// words again": Later instead of Skip for now. [inPerson]: the camera saw the other phone.
 /// Asks before removing the pairing with [name]: Keep, or Remove in risk. Undoing it
 /// means pairing again.
 Future<bool> confirmRemovePairing(BuildContext context, String name) async {
@@ -63,9 +60,9 @@ Future<bool> confirmRemovePairing(BuildContext context, String name) async {
 /// The Remove button of [confirmRemovePairing], for tests.
 const Key confirmRemovePairingKey = ValueKey('confirm-remove-pairing');
 
-/// Save as a new contact: the form with the name the pairing claims and its card's payments
-/// address, when it shows one, for the user to check. The pairing pays the contact, so no
-/// address is needed. The contact saved, or null.
+/// Save as a new contact: the form with the name the pairing claims and its proven address,
+/// when it has one, for the user to check. The pairing pays the contact, so no address is
+/// needed. The contact saved, or null.
 Future<Contact?> savePairingAsNewContact(BuildContext context, PairingRecord r) => Navigator.of(context).push<Contact>(
   MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress, addressOptional: true)),
 );
@@ -80,12 +77,18 @@ Future<Contact?> pickContactForPairing(BuildContext context) => Navigator.of(con
 /// Save as a new contact. The contact the pairing went to, or null.
 Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRecord r, Contact contact) async {
   try {
-    await pairingCall(ref, (api) => api.attach(r.id, contact.id));
-    // The pairing's address filled the contact's empty Epicbox slot: the list reads it again.
-    if (contact.epicbox == null && r.paymentsAddress != null) ref.invalidate(contactsProvider);
+    final attached = await pairingCall(ref, (api) => api.attach(r.id, contact.id, contactAddress: contact.epicbox));
+    // The proven address fills the contact's empty Epicbox slot once verified.
+    await writeProvenAddress(ref, attached);
     return contact;
   } on WalletError catch (error) {
-    if (pairingFailureOf(error) != PairingFailure.otherAddress) rethrow;
+    final failure = pairingFailureOf(error);
+    if (failure == PairingFailure.addressProofMissing) {
+      // No proof yet: tried again when a card with one arrives; said meanwhile.
+      if (context.mounted) ref.read(noticeProvider.notifier).show(context.l10n.pairProofPending, level: NoticeLevel.info);
+      return null;
+    }
+    if (failure != PairingFailure.otherAddress) rethrow;
   }
   if (!context.mounted) return null;
   final l = context.l10n;
@@ -110,16 +113,13 @@ Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRec
 /// Save as a new contact in [attachPairingTo]'s refusal, for tests.
 const Key pairOtherAddressNewKey = ValueKey('pair-other-address-new');
 
+/// The words check of the pairing [pairingId]. [recheck] is the contact page's "Check the
+/// words" on a pairing already paired.
 class CheckWordsScreen extends ConsumerStatefulWidget {
-  const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false, this.inPerson = false, this.byCamera = true});
+  const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false});
 
   final String pairingId;
   final bool recheck;
-  final bool inPerson;
-
-  /// In person: the other code was read by this phone's camera. A pasted one cannot be
-  /// confirmed by the words (RFC 0002 7.4), so They match is not offered for it.
-  final bool byCamera;
 
   @override
   ConsumerState<CheckWordsScreen> createState() => _CheckWordsScreenState();
@@ -151,12 +151,11 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       if (record != null && check == PairingCheck.match && _allow && !record.allowInvoices) {
         await pairingCall(ref, (api) => api.setAllowInvoices(record.id, true));
       }
+      if (record != null && check == PairingCheck.match) await writeProvenAddress(ref, record);
       if (!mounted) return;
       if (check == PairingCheck.mismatch || record == null) {
-        Navigator.pop(context);
-        return;
-      }
-      if (widget.recheck && check == PairingCheck.skip) {
+        // Ended on both sides, kept: the contact page lists what was in flight.
+        ref.read(noticeProvider.notifier).show(l.pairEndedNotice, level: NoticeLevel.warning);
         Navigator.pop(context);
         return;
       }
@@ -183,7 +182,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
             key: checkStopKey,
             style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l.sasStopPairing),
+            child: Text(l.sasNoMatch),
           ),
         ],
       ),
@@ -202,9 +201,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     }
     final name = ref.watch(pairingNameProvider(record.id));
     final service = record.kind != PairingParty.person;
-    final lead = widget.recheck
-        ? l.sasLeadRecheck(name)
-        : (service && record.way != PairingWay.inPerson ? l.sasLeadExchange(name) : l.sasLead(name));
+    final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (record.asksInvoices || record.caps.issuesInvoices) && record.state == PairingState.paired;
     return SlotScaffold(
       appBar: AppBar(title: Text(l.sasTitle)),
@@ -213,31 +210,19 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (widget.byCamera) ...[
-              FilledButton(
-                key: checkMatchKey,
-                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                onPressed: _busy ? null : () => _answer(PairingCheck.match),
-                child: Text(l.sasMatch),
-              ),
-              const SizedBox(height: 8),
-            ] else ...[
-              Text(l.sasNotFromCamera, style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 8),
-            ],
-            // Stacked (UP-029).
+            FilledButton(
+              key: checkMatchKey,
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              onPressed: _busy ? null : () => _answer(PairingCheck.match),
+              child: Text(l.sasMatch),
+            ),
+            const SizedBox(height: 8),
+            // Stacked (UP-029). No Skip: Back is later, the row stays Paired.
             OutlinedButton(
               key: checkNoMatchKey,
               style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
               onPressed: _busy ? null : _noMatch,
               child: Text(l.sasNoMatch),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              key: checkSkipKey,
-              style: TextButton.styleFrom(minimumSize: const Size.fromHeight(48), foregroundColor: t.dim),
-              onPressed: _busy ? null : () => _answer(PairingCheck.skip),
-              child: Text(widget.recheck ? l.sasLater : l.sasSkip),
             ),
           ],
         ),
@@ -371,6 +356,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
     final name = ref.watch(pairingNameProvider(record.id));
     final verified = record.state == PairingState.verified;
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    final who = ref.watch(pairingNameProvider(record.id));
     final saved = record.contactId != null && contacts.any((c) => c.id == record.contactId);
     // A contact of the name it chose (a restore or re-pair): one tap attaches it, and the key
     // check finds whether its keys are back.
@@ -433,6 +419,14 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
           const SizedBox(height: 12),
           // The result's badge is the big one: the same badge, scaled up.
           Center(child: SizedBox(height: 30, child: FittedBox(child: TrustBadge(record)))),
+          if (verified) ...[
+            const SizedBox(height: 8),
+            Text(
+              record.peerVerifiedAt != null ? l.pairConfirmedToo(who) : l.pairNotChecked(who),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+            ),
+          ],
           // Where it goes first: at 360 dp the choices show without scrolling.
           if (!saved) ...[
             const SizedBox(height: 20),

@@ -26,7 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/experimental.dart';
-import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider, pairingOnProvider;
+import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider;
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
@@ -138,7 +138,6 @@ class _Harness {
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
           // On from the first frame, before the stored settings load.
-          pairingOnProvider.overrideWithValue(true),
           invoicesOnProvider.overrideWithValue(true),
           biometricStoreProvider.overrideWithValue(MemoryBiometricStore()),
           updatePlatformProvider.overrideWithValue(null),

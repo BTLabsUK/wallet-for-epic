@@ -226,7 +226,7 @@ void main() {
     test('a contact invite does not link, and a device link does not pair a contact', () async {
       await a.service.load();
       await b.service.load();
-      final contact = await a.pairing.makeInvite(name: 'Anna', expiry: const Duration(hours: 1));
+      final contact = await a.pairing.standingCode(name: 'Anna');
       await b.service.startScanned(contact.inviteLink!);
       expect(b.service.link!.failure, LinkFailure.invalidCode);
       await a.service.startShowing([_s1]);

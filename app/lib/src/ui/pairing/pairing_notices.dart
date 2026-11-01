@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The pairing events as notices: docked under the app bar, one line, the next
-/// step as its action. Mounted on home, so they show wherever the user is. It also looks for a
-/// pairing link on the clipboard when the app comes to the front (Pairing UX plan 5).
+/// step as its action. Mounted on home, so they show wherever the user is. A request that
+/// arrives from an address not in Contacts is dismissed here, before anyone sees it.
 library;
 
 import 'dart:async';
@@ -19,9 +19,11 @@ import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
 import '../invoices_screen.dart';
-import 'pair_check.dart';
-import 'pending_invites.dart';
 import '../tx_details_screen.dart';
+import 'invite_links.dart';
+import 'pair_check.dart';
+import 'pair_incoming.dart' show openPairingLink;
+import 'pair_way1.dart' show PairRequestsScreen;
 
 /// Screens and dialogs that show a pairing's words, or open them on its next answer, add a
 /// test here while they are up: the "answered" and "paired" notices for an event one of them
@@ -42,7 +44,8 @@ String pairingSlateNoticeTag(String slateId) => 'pairing-slate:$slateId';
 /// Whether [e] is an answer a screen already turns into the words check, or news an open page
 /// already shows.
 bool pairingEventOnScreen(PairingEvent e) =>
-    ((e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed) && pairingWordsOnScreen.any((handles) => handles(e))) ||
+    ((e.kind == PairingEventKind.replied || e.kind == PairingEventKind.confirmed || e.kind == PairingEventKind.heard) &&
+        pairingWordsOnScreen.any((handles) => handles(e))) ||
     pairingNewsOnScreen.any((shows) => shows(e));
 
 /// Invites whose "No answer from" was said this session.
@@ -51,8 +54,8 @@ final Set<String> _noAnswerSaid = {};
 /// The text and level of [e]'s notice, or null for an event that shows none.
 ({String text, NoticeLevel level})? pairingNoticeOf(AppLocalizations l, PairingEvent e) {
   final name = e.name;
-  // An invite of this wallet's that ran out unanswered: once per invite, and only when it has
-  // a name to say ("No answer from" alone said nothing). Its Pending row stays (LNX3-2).
+  // A request of this wallet's that ran out unanswered: once per request, and only when it
+  // has a name to say ("No answer from" alone said nothing). Its row stays.
   if (e.kind == PairingEventKind.failed && (e.failure ?? PairingFailure.invalid) == PairingFailure.noAnswer) {
     if (name.trim().isEmpty) return null;
     final id = e.pairingId;
@@ -62,6 +65,11 @@ final Set<String> _noAnswerSaid = {};
   return switch (e.kind) {
     PairingEventKind.replied => (text: l.noticePairingReplied(name), level: NoticeLevel.success),
     PairingEventKind.confirmed => (text: l.noticePairingConfirmed(name), level: NoticeLevel.success),
+    PairingEventKind.heard => (text: l.pairPairedWith(name), level: NoticeLevel.success),
+    PairingEventKind.peerVerified => (text: l.pairConfirmedToo(name), level: NoticeLevel.info),
+    PairingEventKind.ended => (text: pairingEndedText(l, e.endedReason ?? PairingEndReason.neverFinished, name), level: NoticeLevel.warning),
+    PairingEventKind.requested => (text: l.pairWantsToPair(name), level: NoticeLevel.info),
+    PairingEventKind.pairedElsewhere => (text: l.pairPairedOn(name), level: NoticeLevel.info),
     PairingEventKind.failed => (text: pairingFailureText(l, e.failure ?? PairingFailure.invalid, name: name), level: NoticeLevel.warning),
     PairingEventKind.keysRestored => (text: '${l.contactKeysBack(name)} ${l.contactKeysBackBody}', level: NoticeLevel.success),
     PairingEventKind.keysChanged => (text: l.noticeKeysChanged(name), level: NoticeLevel.warning),
@@ -77,8 +85,12 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.tooManyRequests => (text: l.noticeTooMany(name), level: NoticeLevel.warning),
     PairingEventKind.requestWithdrawn => (text: l.noticeWithdrew(name), level: NoticeLevel.info),
     PairingEventKind.unpaired => (text: l.noticeUnpaired(name), level: NoticeLevel.warning),
-    // The payment's row and tracker move on by themselves.
-    PairingEventKind.contactUpdated || PairingEventKind.sealedReceived || PairingEventKind.outboxDelivered || PairingEventKind.paymentFinalized => null,
+    // The payment's row, the contact page and the tracker move on by themselves.
+    PairingEventKind.contactUpdated ||
+    PairingEventKind.addressUpdated ||
+    PairingEventKind.sealedReceived ||
+    PairingEventKind.outboxDelivered ||
+    PairingEventKind.paymentFinalized => null,
   };
 }
 
@@ -116,9 +128,17 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     }
   }
 
+  /// An incoming pair invite (a tapped link, a scheme open): the confirm sheet, never a
+  /// pairing by itself.
+  Future<void> _pairInvite(BuildContext _, InviteLink link) async {
+    if (!mounted) return;
+    await openPairingLink(context, ref, link.invite);
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unregisterInviteHandler(InviteKind.pair, _pairInvite);
     _timer?.cancel();
     super.dispose();
   }
@@ -128,20 +148,20 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     super.initState();
     // Home shows once the wallet is open or unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addObserver(this);
+    registerInviteHandler(InviteKind.pair, _pairInvite);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _collect(PairingCollectTrigger.open);
     });
     _startTick();
     ref.listenManual<AsyncValue<PairingEvent>>(pairingEventsProvider, (_, next) {
       final e = next.value;
-      if (e != null && mounted) _show(e);
+      if (e != null && mounted) unawaited(_show(e));
     });
     // A contact whose keys came back docks the notice on its page, whenever that opens.
     ref.listenManual(keysBackProvider, (_, _) {});
   }
 
-
-  void _show(PairingEvent e) {
+  Future<void> _show(PairingEvent e) async {
     final l = context.l10n;
     // A withdrawal, a withdrawn request or a mailbox payment's answer changes the wallet's
     // transactions.
@@ -154,9 +174,20 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     if (e.kind == PairingEventKind.invoiceFromContact || e.kind == PairingEventKind.requestWithdrawn) {
       ref.read(pendingInvoicesProvider.notifier).reload().ignore();
     }
-    final notice = pairingNoticeOf(l, e);
-    if (notice == null || pairingEventOnScreen(e)) return;
-    final id = e.pairingId;
+    // A request to pair from someone not in Contacts is dropped unseen (M6).
+    var event = e;
+    if (e.kind == PairingEventKind.requested) {
+      final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
+      if (!await keepOrDismissRequest(ref.read(pairingApiProvider), contactKeysOf(contacts), e)) return;
+      if (!mounted) return;
+      final key = epicboxKey(e.sender!);
+      final contact = contacts.where((c) => c.epicbox != null && epicboxKey(c.epicbox!) == key).firstOrNull;
+      if (contact != null) event = PairingEvent(e.kind, requestId: e.requestId, sender: e.sender, name: contact.name);
+      unawaited(ref.read(pairRequestsProvider.notifier).reload());
+    }
+    final notice = pairingNoticeOf(l, event);
+    if (notice == null || pairingEventOnScreen(event)) return;
+    final id = event.pairingId;
     final contactId = id == null ? null : ref.read(pairingByIdProvider(id))?.contactId;
     final contact = contactId == null
         ? null
@@ -165,30 +196,33 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // away, and a context of its own would then open nothing.
     final nav = Navigator.of(context);
     void push(Widget screen) => nav.push<void>(MaterialPageRoute<void>(builder: (_) => screen));
-    final NoticeAction? action = switch (e.kind) {
-      PairingEventKind.replied || PairingEventKind.confirmed when id != null =>
+    final NoticeAction? action = switch (event.kind) {
+      PairingEventKind.replied || PairingEventKind.confirmed when id != null && (ref.read(pairingByIdProvider(id))?.sas.isNotEmpty ?? false) =>
         NoticeAction(l.noticeCheckWords, () => push(CheckWordsScreen(pairingId: id))),
-      PairingEventKind.failed || PairingEventKind.secondReply => NoticeAction(l.noticeOpen, () => push(const PendingInvitesScreen())),
+      PairingEventKind.requested => NoticeAction(l.noticeOpen, () => push(const PairRequestsScreen())),
       PairingEventKind.keysChanged ||
       PairingEventKind.keysRestored ||
       PairingEventKind.homeRelayUnreachable ||
+      PairingEventKind.heard ||
+      PairingEventKind.peerVerified ||
+      PairingEventKind.ended ||
       PairingEventKind.unpaired when contact != null =>
         NoticeAction(l.noticeOpen, () => push(ContactPage(contactId: contact.id, initial: contact))),
       PairingEventKind.invoiceFromContact ||
       PairingEventKind.duplicateRequests ||
       PairingEventKind.tooManyRequests => NoticeAction(l.noticeView, () => push(const InvoicesScreen())),
-      PairingEventKind.withdrawalFromContact when e.slateId != null =>
+      PairingEventKind.withdrawalFromContact when event.slateId != null =>
         NoticeAction(l.noticeView, () {
           // The row's key is the wallet's; find it by its slate.
-          final tx = ref.read(homeProvider).value?.transactions.where((t) => t.slateId == e.slateId).firstOrNull;
-          push(TxDetailsScreen(txKey: tx?.key ?? 's:${e.slateId}'));
+          final tx = ref.read(homeProvider).value?.transactions.where((t) => t.slateId == event.slateId).firstOrNull;
+          push(TxDetailsScreen(txKey: tx?.key ?? 's:${event.slateId}'));
         }),
       _ => null,
     };
-    final tag = switch (e.kind) {
+    final tag = switch (event.kind) {
       PairingEventKind.homeRelayUnreachable || PairingEventKind.keysChanged || PairingEventKind.keysRestored when id != null =>
         pairingContactNoticeTag(id),
-      PairingEventKind.withdrawalFromContact when e.slateId != null => pairingSlateNoticeTag(e.slateId!),
+      PairingEventKind.withdrawalFromContact when event.slateId != null => pairingSlateNoticeTag(event.slateId!),
       _ => null,
     };
     // Old keys not checked is news the user must not miss: it stays until closed.
@@ -197,7 +231,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       level: notice.level,
       action: action,
       tag: tag,
-      persistent: e.kind == PairingEventKind.keyCheckRefused,
+      persistent: event.kind == PairingEventKind.keyCheckRefused,
     );
   }
 

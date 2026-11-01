@@ -132,15 +132,7 @@ class _SlateFileScreenState extends ConsumerState<SlateFileScreen> {
   /// contact that seals ("This arrived unsealed"). False when a sealed file did not open.
   Future<bool> _open() async {
     final sealed = isSealedText(_file.json);
-    // A sealed file needs Pairing; off (Settings › Advanced) it says so and opens nothing. The
-    // settings are read first: the screen can open before they are loaded.
-    final settings = await ref.read(appSettingsProvider.future);
-    if (!mounted) return false;
     final api = ref.read(pairingApiProvider);
-    if (sealed && !settings.advanced.pairingOn) {
-      if (mounted) unawaited(showExperimentalOffSheet(context, ref));
-      return false;
-    }
     if (!api.supported) return true;
     try {
       final opened = await api.openSlate(_file.json);

@@ -13153,7 +13153,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairInPersonTitle => 'จับคู่แบบพบตัว';
 
   @override
-  String get pairShowMyCode => 'แสดงโค้ดของฉัน';
+  String get pairShowMyCode => 'แสดงคำเชิญของฉัน';
 
   @override
   String get pairScanTheirs => 'สแกนโค้ดของอีกฝ่าย';
@@ -13167,7 +13167,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'สแกนทั้งสองฝ่าย การตรวจคำจะเปิดขึ้นเมื่ออ่านโค้ดครบทั้งสอง';
 
   @override
-  String get pairScanPrompt => 'หันกล้องไปที่โค้ดของอีกฝ่าย';
+  String get pairScanPrompt => 'สแกน QR ของอีกฝ่าย';
 
   @override
   String get pairSeenAs => 'อีกฝ่ายจะเห็นคุณเป็น';
@@ -13179,7 +13179,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairCameraDeniedTitle => 'ไม่ได้อนุญาตให้ใช้กล้อง';
 
   @override
-  String get pairCameraDeniedBody => 'อนุญาตกล้องเพื่อสแกน หรือใช้คำแทน';
+  String get pairCameraDeniedBody => 'อนุญาตกล้องเพื่อสแกน หรือวางคำเชิญ';
 
   @override
   String get pairOpenSettings => 'เปิดการตั้งค่า';
@@ -13588,18 +13588,18 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairExpiredBody(String name) {
-    return 'ขอคำเชิญใหม่จาก $name';
+    return 'ขอคำเชิญใหม่';
   }
 
   @override
-  String get pairUsedTitle => 'คำเชิญนี้ถูกใช้แล้ว';
+  String get pairUsedTitle => 'คำเชิญนี้ถูกใช้ไปแล้ว';
 
   @override
   String get pairUsedBody => 'ขอคำเชิญใหม่';
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name ยกเลิกคำเชิญนี้แล้ว';
+    return '$name ยกเลิกการจับคู่นี้';
   }
 
   @override
@@ -13667,18 +13667,18 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'มีคนอื่นตอบคำเชิญของ $name ด้วย';
+    return 'มีคนอื่นตอบคำเชิญของคุณด้วย';
   }
 
   @override
   String get pairAnsweredSameInvite => 'ตอบคำเชิญเดียวกัน · ไม่ได้บันทึก';
 
   @override
-  String get sasTitle => 'เทียบคำตรวจสอบ';
+  String get sasTitle => 'ตรวจคำ';
 
   @override
   String sasLead(String name) {
-    return 'กระเป๋าเงินของ $name แสดงคำตรวจสอบสี่คำเดียวกัน เปรียบเทียบทางโทรศัพท์หรือแบบพบตัว';
+    return 'กระเป๋าของ $name แสดงคำสี่คำเดียวกัน เทียบกัน';
   }
 
   @override
@@ -13718,7 +13718,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sasNoMatchBody =>
-      'อาจมีคนเปลี่ยนคำเชิญระหว่างทาง จะไม่เก็บสิ่งใดไว้ จับคู่อีกครั้งแบบพบตัว หรือด้วยคำเชิญใหม่';
+      'การจับคู่จะสิ้นสุดทั้งสองฝ่าย และสิ่งที่ส่งผ่านมันจะไม่เสร็จสมบูรณ์ จับคู่อีกครั้งด้วยคำเชิญใหม่';
 
   @override
   String get sasStopPairing => 'หยุดการจับคู่';
@@ -14330,14 +14330,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String get restoreUseHere => 'ใช้ที่นี่';
 
   @override
-  String get pairInvalidLink => 'นี่ไม่ใช่ลิงก์จับคู่';
+  String get pairInvalidLink => 'ไม่ใช่คำเชิญจับคู่';
 
   @override
-  String get pairInvalidBody => 'ตรวจว่าคัดลอกลิงก์ครบทั้งหมด หรือขอลิงก์ใหม่';
+  String get pairInvalidBody =>
+      'ตรวจว่าคัดลอกคำเชิญครบทั้งหมด หรือขอคำเชิญใหม่';
 
   @override
-  String get pairWrongNetworkBody =>
-      'สร้างโดยกระเป๋าเงินในเครือข่ายอื่น กระเป๋าเงินจับคู่กันได้เฉพาะในเครือข่ายเดียวกัน';
+  String get pairWrongNetworkBody => 'คำเชิญนี้เป็นของอีกเครือข่าย';
 
   @override
   String get pairOwnCode => 'นี่คือโค้ดของคุณเอง';
@@ -14561,7 +14561,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhatP1 =>
-      'การจับคู่เชื่อมสองกระเป๋าเงินเพียงครั้งเดียว แบบพบตัวโดยสแกนโค้ดของกันและกัน หรือออนไลน์ด้วยลิงก์คำเชิญหรือคำจับคู่ห้าคำ แต่ละกระเป๋าเงินเก็บคีย์ที่สร้างขึ้นสำหรับผู้ติดต่อนั้นเท่านั้น และไม่มีข้อมูลใดส่งไปยังเซิร์ฟเวอร์ Epicbox';
+      'การจับคู่เชื่อมกระเป๋าสองใบครั้งเดียว: ด้วยคำขอถึงผู้ติดต่อที่คุณเคยจ่ายผ่าน Epicbox หรือด้วยคำเชิญของคุณที่สแกนเป็น QR หรือเปิดเป็นลิงก์ แต่ละกระเป๋าเก็บกุญแจที่ทำขึ้นสำหรับผู้ติดต่อคนนั้นคนเดียว ไม่แบ่งปันกับใครอื่น';
 
   @override
   String get helpPairWhatP2 =>
@@ -14573,10 +14573,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'เลือกวิธี: ทางวาจา, เชิญทางข้อความ หรือ แบบพบตัว';
+      'จับคู่กับผู้ติดต่อ หรือแสดงคำเชิญของคุณให้อีกฝ่ายสแกน';
 
   @override
-  String get helpPairWhatStep3 => 'ยืนยันด้วยกัน แล้วเลือก **ตรงกัน**';
+  String get helpPairWhatStep3 =>
+      'ตรวจคำด้วยกัน (ไม่จำเป็นหลังคำขอ) แล้วกด **ตรงกัน**';
 
   @override
   String get helpPairWhatP3 =>
@@ -18276,4 +18277,288 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String get pairYourCode => 'คำเชิญของคุณ';
+
+  @override
+  String get pairCodeCaption => 'ให้อีกฝ่ายสแกน QR หรือส่งคำเชิญไป';
+
+  @override
+  String pairCodeCaptionFor(String name) {
+    return 'ให้ $name สแกน QR หรือส่งคำเชิญไป';
+  }
+
+  @override
+  String pairSeenAsLine(String name) {
+    return 'อีกฝ่ายเห็นคุณเป็น $name';
+  }
+
+  @override
+  String get pairChange => 'เปลี่ยน';
+
+  @override
+  String get pairSeenAsField => 'อีกฝ่ายเห็นคุณเป็น';
+
+  @override
+  String get pairCopyLink => 'คัดลอกคำเชิญ';
+
+  @override
+  String get pairHaveTheirCode => 'มีคำเชิญของอีกฝ่ายไหม';
+
+  @override
+  String pairHaveNamesCode(String name) {
+    return 'มีคำเชิญของ $name ไหม';
+  }
+
+  @override
+  String get pairScan => 'สแกน QR';
+
+  @override
+  String get pairPasteField => 'วางคำเชิญ';
+
+  @override
+  String get pairNotACode => 'ไม่ใช่คำเชิญจับคู่';
+
+  @override
+  String get pairEpicboxOffLine =>
+      'Epicbox ปิดอยู่ เมื่อได้รับคำตอบกลับ ให้วางไว้ด้านล่าง';
+
+  @override
+  String get pairWaitingAnswer => 'กำลังรอคำตอบ…';
+
+  @override
+  String pairAnsweredFinishing(String name) {
+    return '$name ตอบคำเชิญของคุณแล้ว กำลังรอให้กระเป๋าของ $name ทำเสร็จ';
+  }
+
+  @override
+  String get pairFinishCodeTitle => 'การยืนยัน';
+
+  @override
+  String pairFinishCodeBody(String name) {
+    return 'ส่งสิ่งนี้ให้ $name การตรวจคำจะเปิดเมื่อกระเป๋านั้นอ่านแล้ว';
+  }
+
+  @override
+  String get pairYourAnswerBody =>
+      'ส่งกลับทางเดียวกับที่คำเชิญมา แล้ววางสิ่งที่ได้รับกลับมา';
+
+  @override
+  String get pairPasteFinishField => 'วางการยืนยัน';
+
+  @override
+  String pairPairingWith(String name) {
+    return 'กำลังจับคู่กับ $name…';
+  }
+
+  @override
+  String get pairInContacts => 'อยู่ในรายชื่อติดต่อของคุณ';
+
+  @override
+  String get pairRequestBody =>
+      'คำขอจะส่งไปยังที่อยู่ Epicbox ของผู้ติดต่อนี้ กระเป๋าของเขาจะแสดงเมื่อเปิดอยู่';
+
+  @override
+  String get pairSendRequest => 'ส่งคำขอ';
+
+  @override
+  String get pairShowMyCodeInstead => 'แสดงคำเชิญของฉันแทน';
+
+  @override
+  String pairRequestSent(String date) {
+    return 'ส่งคำขอแล้ว · $date';
+  }
+
+  @override
+  String pairWaitingFor(String name) {
+    return 'กำลังรอกระเป๋าของ $name';
+  }
+
+  @override
+  String get pairAnsweredNotHeard => 'ตอบคำเชิญของคุณแล้ว · ยังไม่ได้ยินข่าว';
+
+  @override
+  String pairNotChecked(String name) {
+    return '$name ยังไม่ได้ตรวจ';
+  }
+
+  @override
+  String pairConfirmedToo(String name) {
+    return '$name ยืนยันแล้วเช่นกัน';
+  }
+
+  @override
+  String get pairEndedShort => 'การจับคู่สิ้นสุดแล้ว';
+
+  @override
+  String get pairEndedMismatch => 'คุณรายงานว่าคำไม่ตรงกัน';
+
+  @override
+  String pairEndedPeerMismatch(String name) {
+    return '$name รายงานว่าคำไม่ตรงกัน';
+  }
+
+  @override
+  String pairEndedNeverFinished(String name) {
+    return 'กระเป๋าของ $name ไม่เคยทำเสร็จ';
+  }
+
+  @override
+  String pairNoAnswerFrom(String name) {
+    return 'ไม่มีคำตอบจากกระเป๋าของ $name';
+  }
+
+  @override
+  String get pairAgain => 'จับคู่อีกครั้ง';
+
+  @override
+  String get pairHeldSend => 'กำลังรอผู้รับ';
+
+  @override
+  String pairProvesOther(String name) {
+    return 'กระเป๋าของ $name พิสูจน์ที่อยู่อื่น';
+  }
+
+  @override
+  String get pairUpdateAddress => 'อัปเดตที่อยู่ของผู้ติดต่อ';
+
+  @override
+  String get pairDetach => 'ยกเลิกการเชื่อม';
+
+  @override
+  String get pairCheckWords => 'ตรวจคำ';
+
+  @override
+  String pairWantsToPair(String name) {
+    return '$name ต้องการจับคู่';
+  }
+
+  @override
+  String pairPairedWith(String name) {
+    return 'จับคู่กับ $name แล้ว';
+  }
+
+  @override
+  String pairPairedOn(String device) {
+    return 'จับคู่บน $device แล้ว';
+  }
+
+  @override
+  String pairRequestsRow(int count) {
+    return 'คำขอจับคู่ · $count';
+  }
+
+  @override
+  String get pairRequestsTitle => 'คำขอจับคู่';
+
+  @override
+  String get pairEndedNotice =>
+      'การจับคู่สิ้นสุดแล้ว จับคู่อีกครั้งด้วยคำเชิญใหม่';
+
+  @override
+  String get pairOtherWalletTitle => 'คำตอบนี้มาจากกระเป๋าอื่น';
+
+  @override
+  String get pairOtherWalletBody => 'ไม่มีอะไรถูกบันทึก';
+
+  @override
+  String pairNotProvenBody(String name) {
+    return 'ยังไม่มีการชำระ Epic Cash กับ $name จึงส่งคำขอไม่ได้';
+  }
+
+  @override
+  String pairInProgressTitle(String name) {
+    return 'การจับคู่กับ $name กำลังดำเนินอยู่';
+  }
+
+  @override
+  String pairCrossedTitle(String name) {
+    return 'กระเป๋าของ $name ก็เริ่มจับคู่เช่นกัน กำลังรอคำตอบของฝ่ายนั้น';
+  }
+
+  @override
+  String pairDismissedTitle(String name) {
+    return 'คำขอนี้ถูกปัดไปแล้ว ขอให้ $name ส่งใหม่';
+  }
+
+  @override
+  String get pairEndedBody =>
+      'จะไม่มีสิ่งใหม่ผ่านมันอีก ลบออก หรือจับคู่อีกครั้งด้วยคำเชิญใหม่';
+
+  @override
+  String get pairWaitingSendBody => 'ส่งผ่าน Epicbox แทน';
+
+  @override
+  String get pairNotFoundTitle => 'ไม่มีการจับคู่ที่ตรงกับสิ่งนี้';
+
+  @override
+  String get trustWaiting => 'กำลังรอ';
+
+  @override
+  String get trustEnded => 'สิ้นสุดแล้ว';
+
+  @override
+  String get pairRequestPair => 'จับคู่';
+
+  @override
+  String get pairCancelPairingTitle => 'ยกเลิกการจับคู่นี้หรือไม่';
+
+  @override
+  String pairCancelPairingBody(String name) {
+    return 'กระเป๋าของ $name จะได้รับแจ้งหากตอบช้า ไม่มีอะไรถูกเก็บไว้';
+  }
+
+  @override
+  String get pairCancelPairing => 'ยกเลิกการจับคู่';
+
+  @override
+  String get pairBackLater => 'ย้อนกลับ';
+
+  @override
+  String get pairProofPending => 'ยังไม่ได้พิสูจน์ที่อยู่';
+
+  @override
+  String get helpPairTwoWaysTitle => 'สองวิธีในการจับคู่';
+
+  @override
+  String get helpPairTwoWaysShort => 'ส่งคำขอถึงผู้ติดต่อ หรือใช้คำเชิญของคุณ';
+
+  @override
+  String get helpPairTwoWaysP1 =>
+      '**จับคู่กับผู้ติดต่อ** สำหรับผู้ติดต่อที่คุณเคยจ่ายหรือรับเงินผ่าน Epicbox ปุ่มจับคู่จะส่งคำขอไปยังที่อยู่นั้น กระเป๋าของเขาจะแสดงเมื่อเปิดอยู่ แตะครั้งเดียวเพื่อตอบ ทั้งสองกระเป๋าจะเป็น “ยืนยันแล้ว” โดยไม่ต้องตรวจคำ เพราะคำขอและคำตอบต่างพิสูจน์ที่อยู่ที่อยู่ในรายชื่อติดต่อของอีกฝ่ายแล้ว';
+
+  @override
+  String get helpPairTwoWaysP2 =>
+      '**จับคู่ด้วยคำเชิญ** รายชื่อติดต่อ › จับคู่ แสดงคำเชิญของคุณ ใช้ได้ 7 วัน อีกกระเป๋าสแกนหรือเปิดลิงก์ ทั้งสองทำให้เสร็จผ่าน Epicbox แล้วเทียบคำสี่คำ หากฝ่ายใดปิด Epicbox หน้าจอเดิมจะส่งคำตอบและการยืนยันด้วยมือ: แชร์และวาง';
+
+  @override
+  String get helpPairTwoWaysP3 =>
+      'คำขอจะส่งไปยังกระเป๋าที่แสดงแล้วว่าใช้ Epic Cash เท่านั้น นั่นคือมีการชำระที่ทำเครื่องหมายระหว่างสองที่อยู่ภายใน 30 วันที่ผ่านมา สำหรับคนอื่น ปุ่มจับคู่จะแสดงคำเชิญของคุณ';
+
+  @override
+  String get helpPairWhyTitle2 => 'ทำไมต้องตรวจคำ';
+
+  @override
+  String get helpPairWhyShort2 => 'เทียบคำต่อหน้า ทางเสียง หรือวิดีโอ';
+
+  @override
+  String get helpPairWhyP1b =>
+      'หลังจับคู่ด้วยคำเชิญ ทั้งสองกระเป๋าจะแสดงภาพและชื่อสี่อย่างเหมือนกัน เทียบกับอีกฝ่ายต่อหน้า ทางเสียง หรือวิดีโอคอล ห้ามเทียบในแชทที่คำเชิญส่งมา เพราะใครที่เปลี่ยนคำเชิญระหว่างทางได้ ก็เปลี่ยนสิ่งที่แชทนั้นแสดงได้เช่นกัน';
+
+  @override
+  String get helpPairWhyP2b =>
+      '**ตรงกัน** ทำให้ผู้ติดต่อเป็นยืนยันแล้ว กระเป๋าอีกฝ่ายจะรู้และแสดง “ยืนยันแล้วเช่นกัน” **ไม่ตรงกัน** จะสิ้นสุดการจับคู่ทั้งสองฝ่าย และสิ่งที่ส่งผ่านมันจะไม่เสร็จสมบูรณ์ การกด “ไม่” โดยพลาดก็สิ้นสุดเช่นกัน: จับคู่อีกครั้งด้วยคำเชิญใหม่';
+
+  @override
+  String get helpPairWhyP3b =>
+      'ยืนยันแล้วหมายถึงกระเป๋าที่อยู่เบื้องหลังที่อยู่ในรายชื่อติดต่อของคุณ หลังคำขอระหว่างผู้ติดต่อสองคน จะตั้งเป็นยืนยันแล้วโดยไม่ต้องใช้คำ เพราะคำขอและคำตอบพิสูจน์ที่อยู่นั้นแล้ว';
+
+  @override
+  String get helpPairWhyP4b =>
+      '“พิสูจน์แล้ว” หมายถึงมีการชำระที่ทั้งสองกระเป๋าทำเครื่องหมาย ผ่านระหว่างสองที่อยู่ Epicbox ภายใน 30 วัน ผู้ติดต่อที่ถูกตอบโดยแอปกระเป๋าอื่นตั้งแต่นั้น จะไม่นับว่าพิสูจน์แล้วจนกว่าจะมีการชำระที่ทำเครื่องหมายครั้งถัดไป';
+
+  @override
+  String get pairStandingFootnote =>
+      'ใช้ได้ 7 วัน คำเชิญใหม่จะปรากฏเมื่อคำเชิญนี้ถูกใช้แล้ว';
 }

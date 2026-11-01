@@ -78,6 +78,7 @@ import '../../wallet_registry.dart' as reg;
 import '../../watch_mode.dart' show BlockWait, BlockWatch, TipPacer, WatchPace, listPace, nextWatchChange, postingNow, watchTipEvery;
 import '../../history/export.dart' show historyCsv, historyDamaged, historyNewer, historyOtherWallet;
 import '../../settings.dart' show HistoryExportSnapshot;
+import '../../trust/policy.dart' show PeerCompat;
 import '../../wallet_service.dart' as core;
 import '../../wallet/held_coins.dart';
 import '../../wallet/stored_send.dart';
@@ -5255,6 +5256,9 @@ class LepicDeskWallet implements DeskWalletApi {
   // The open wallet's pairing; nothing while locked.
   @override
   core.PairingApi get pairing => _session?.pairing ?? const core.NoPairing();
+
+  @override
+  Future<PeerCompat?> peerCompat(String address) => _service.peerCompat(address);
 
   /// Where the book of linked devices is read from ([useDevices]).
   DeviceBook? Function()? _deviceBook;

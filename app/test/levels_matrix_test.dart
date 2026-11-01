@@ -27,7 +27,7 @@ void main() {
     expect(c.wording, LevelWording.casual);
     expect(c.timeline, TimelineStyle.casualSteps);
     expect(c.invoices, InvoicePresence.off);
-    expect(c.pairingListener, isFalse);
+    expect(c.pairingListener, isTrue);
     expect(c.outputs, isFalse);
     final e = f(WalletLevel.everything, AdvancedPrefs.all);
     expect(e.wording, LevelWording.technical);
@@ -59,7 +59,6 @@ void main() {
     for (final x in AdvancedFeature.values.where((x) => !experimentalFeatures.contains(x))) {
       expect(three.has(x), isTrue, reason: x.name);
     }
-    expect(three.has(AdvancedFeature.pairing), isFalse);
     expect(three.has(AdvancedFeature.invoices), isFalse);
     expect(three.networkMode, NetworkMode.nodeOnly);
     expect(three.nodeFailover, isFalse);

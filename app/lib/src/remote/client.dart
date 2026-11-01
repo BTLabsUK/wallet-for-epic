@@ -1221,19 +1221,14 @@ class RemotePairing implements PairingApi {
   Future<void> removeStray(String id) => _call(SessionMember.pairingRemoveStray, voidWire, {'id': id});
 
   @override
-  Future<PairingRecord> makeInvite({
-    required String name,
-    required Duration expiry,
-    bool words = false,
-    String? label,
-    String? contactId,
-  }) => _call(SessionMember.pairingMakeInvite, pairingRecordWire, {
-    'name': name,
-    'expirySecs': expiry.inSeconds,
-    'words': words,
-    'label': label,
-    'contactId': contactId,
-  });
+  Future<PairingRecord> standingCode({required String name}) => _call(SessionMember.pairingStandingCode, pairingRecordWire, {'name': name});
+
+  @override
+  Future<int> setOwnName(String name) => _call(SessionMember.pairingSetOwnName, intWire, {'name': name});
+
+  @override
+  Future<PairingRecord> requestPairing({required String toAddress, required String name, String? contactId}) =>
+      _call(SessionMember.pairingRequest, pairingRecordWire, {'toAddress': toAddress, 'name': name, 'contactId': contactId});
 
   @override
   Future<void> cancelInvite(String id) => _call(SessionMember.pairingCancelInvite, voidWire, {'id': id});
@@ -1249,8 +1244,18 @@ class RemotePairing implements PairingApi {
       _call(SessionMember.pairingOpenInvite, pairingPreviewWire, {'link': link});
 
   @override
-  Future<PairingInvitePreview> openWords(List<String> words) =>
-      _call(SessionMember.pairingOpenWords, pairingPreviewWire, {'words': words});
+  Future<List<PairRequest>> requests() => _call(SessionMember.pairingRequests, listOf(pairRequestWire));
+
+  @override
+  Future<PairingInvitePreview> openRequest(String requestId) =>
+      _call(SessionMember.pairingOpenRequest, pairingPreviewWire, {'requestId': requestId});
+
+  @override
+  Future<void> dismissRequest(String requestId) => _call(SessionMember.pairingDismissRequest, voidWire, {'requestId': requestId});
+
+  @override
+  Future<void> requestHandledOn(String requestId, String device) =>
+      _call(SessionMember.pairingRequestHandledOn, voidWire, {'requestId': requestId, 'device': device});
 
   @override
   Future<PairingRecord> acceptInvite({
@@ -1274,13 +1279,6 @@ class RemotePairing implements PairingApi {
   Future<PairingRecord> openConfirm(String link) => _call(SessionMember.pairingOpenConfirm, pairingRecordWire, {'link': link});
 
   @override
-  Future<PairingCard> showCard({required String name}) => _call(SessionMember.pairingShowCard, pairingCardWire, {'name': name});
-
-  @override
-  Future<PairingRecord> scanCard({required String cardId, required String text}) =>
-      _call(SessionMember.pairingScanCard, pairingRecordWire, {'cardId': cardId, 'text': text});
-
-  @override
   Future<PairingRecord?> checkWords(String id, PairingCheck check) => _call(
     SessionMember.pairingCheckWords,
     nullable(pairingRecordWire),
@@ -1301,8 +1299,8 @@ class RemotePairing implements PairingApi {
   Future<int> setAllowInvoices(String id, bool on) => _call(SessionMember.pairingSetAllowInvoices, intWire, {'id': id, 'on': on});
 
   @override
-  Future<PairingRecord> attach(String id, String? contactId) =>
-      _call(SessionMember.pairingAttach, pairingRecordWire, {'id': id, 'contactId': contactId});
+  Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress}) =>
+      _call(SessionMember.pairingAttach, pairingRecordWire, {'id': id, 'contactId': contactId, 'contactAddress': contactAddress});
 
   @override
   Future<PairingRecord> resolveKeysChanged(String id, KeysChoice choice) => _call(

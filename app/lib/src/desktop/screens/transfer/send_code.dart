@@ -216,16 +216,16 @@ void showCodeDialog(BuildContext context, {required IconData icon, required Stri
   );
 }
 
-/// A pairing link (or, [invoices], an invoice) while its switch in Settings › Advanced ›
-/// Experimental is off: says so, Open Advanced goes there.
-void showExperimentalOffDialog(BuildContext context, {bool invoices = false}) => unawaited(
+/// An invoice while Invoices in Settings › Advanced › Experimental is off: says so, Open
+/// Advanced goes there.
+void showExperimentalOffDialog(BuildContext context, {bool invoices = true}) => unawaited(
   showEDialog<void>(
     context,
     builder: (ctx) => EDialog(
       key: const ValueKey('experimental-off'),
-      title: invoices ? ctx.l10n.expInvoicesOffTitle : ctx.l10n.expPairingOffTitle,
-      description: invoices ? ctx.l10n.expInvoicesOffBody : ctx.l10n.expPairingOffBody,
-      icon: invoices ? EIcons.invoice : Icons.handshake_outlined,
+      title: ctx.l10n.expInvoicesOffTitle,
+      description: ctx.l10n.expInvoicesOffBody,
+      icon: EIcons.invoice,
       actions: [
         EButton(label: ctx.l10n.commonClose, onPressed: () => Navigator.of(ctx).pop()),
         EButton.primary(

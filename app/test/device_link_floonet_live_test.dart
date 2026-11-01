@@ -46,7 +46,6 @@ final String? _lib = _env['WFE_LEPIC_LIB'];
 final String? _dir = _env['WFE_LIVE_DIR'];
 final String _step = _env['WFE_LIVE_STEP'] ?? '';
 final List<String> _linkServers = (_env['WFE_LINK_SERVERS'] ?? 'epicbox.stackwallet.com,epicbox.epicnet.us').split(',');
-final List<String> _meeting = (_env['WFE_MEETING'] ?? 'epicbox.epicnet.us').split(',');
 
 const _node = 'https://floo-node.btlabs.uk';
 const _mainnetNode = 'https://node.btlabs.uk';
@@ -539,46 +538,6 @@ void main() {
         a.dispose();
         b.dispose();
         r.dispose();
-
-      case 'words':
-        // Two different wallets on mainnet: no coins move, only the pairing.
-        final x = await _wallet('X', mainnet: true, relay: 'epicbox.stackwallet.com');
-        final y = await _wallet('Y', mainnet: true, relay: 'epicbox.stackwallet.com');
-        x.pairing.setConnectionServers(_meeting);
-        y.pairing.setConnectionServers(_meeting);
-        final invite = await x.pairing.makeInvite(name: 'Xena', expiry: const Duration(minutes: 10), words: true);
-        final words = [for (final w in invite.inviteWords) w.name];
-        _say('X words invite on meeting set $_meeting, home ${invite.homeRelay}: ${words.length} words');
-        // Y on a set without X's servers does not find them.
-        final other = (_env['WFE_MEETING_OTHER'] ?? 'epicbox.epiccash.com').split(',');
-        y.pairing.setConnectionServers(other);
-        try {
-          await y.pairing.openWords(words);
-          _say('Y on $other found them (unexpected)');
-          fail('words found on a set without their servers');
-        } on Object catch (e) {
-          _say('Y on $other: not found (${e is WalletError ? e.kind.name : e})');
-        }
-        y.pairing.setConnectionServers(_meeting);
-        final preview = await y.pairing.openWords(words);
-        final answer = await y.pairing.acceptInvite(token: preview.token, name: 'Yuri');
-        final paired = await _until(() async {
-          final xr = await x.pairing.pairing(invite.id);
-          final yr = await y.pairing.pairing(answer.id);
-          return (xr?.state.isPaired ?? false) && (yr?.state.isPaired ?? false);
-        }, step: () async {
-          await x.pairing.collect(trigger: PairingCollectTrigger.pull);
-          await y.pairing.collect(trigger: PairingCollectTrigger.pull);
-        }, tries: 30);
-        final xr = (await x.pairing.pairing(invite.id))!;
-        final yr = (await y.pairing.pairing(answer.id))!;
-        _say('Y on $_meeting found and answered; paired $paired; X "${xr.sas.map((w) => w.name).join(' ')}" Y "${yr.sas.map((w) => w.name).join(' ')}"; homes ${xr.homeRelay} / ${yr.homeRelay}');
-        expect(paired, isTrue);
-        expect(xr.sas.map((w) => w.name).join(' '), yr.sas.map((w) => w.name).join(' '));
-        await x.pairing.removePairing(invite.id);
-        await y.pairing.removePairing(answer.id);
-        x.dispose();
-        y.dispose();
 
       case 'paybox':
         // A floonet payment to a wallet whose payments box is on a public relay (WFE_PAY_RELAY).

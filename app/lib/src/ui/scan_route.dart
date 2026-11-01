@@ -13,7 +13,7 @@ import '../devices/device_link_code.dart';
 import '../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import '../errors.dart';
 import '../l10n.dart';
-import '../pairing_providers.dart' show pairingOnProvider, pairingSupportedProvider;
+import '../pairing_providers.dart' show pairingSupportedProvider;
 import '../payment_prefs.dart';
 import '../providers.dart';
 import '../scan/scan_checks.dart';
@@ -100,9 +100,6 @@ Future<void> openScannedCode(
       }
     case SlateText(:final text):
       await _showSlateText(context, text);
-    // Pairing off (Settings › Advanced): it is experimental, and where to turn it on.
-    case PairingLink() when !ref.read(pairingOnProvider):
-      await showExperimentalOffSheet(context, ref);
     case PairingLink(:final text) when ref.read(pairingSupportedProvider):
       await openPairingLink(context, ref, text, byCamera: origin == CodeOrigin.qr);
     case PairingLink(:final text):

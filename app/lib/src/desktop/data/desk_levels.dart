@@ -122,7 +122,7 @@ class DeskLevelFeatures {
       fileTransfer: !shallow,
       outputsPage: deep && prefs.has(AdvancedFeature.outputs),
       invoicesPage: deep && prefs.invoicesOn,
-      pairingPages: deep && prefs.pairingOn,
+      pairingPages: deep,
     );
   }
 

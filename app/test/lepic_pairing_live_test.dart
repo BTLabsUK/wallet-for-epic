@@ -110,7 +110,7 @@ void main() {
   /// Pairs [a] (the inviter) and [b] by an invite through the relay and checks the words on
   /// both sides. Returns each side's id of the other.
   Future<({String aSide, String bSide})> pair(LepicWalletSession a, LepicWalletSession b) async {
-    final invite = await a.pairing.makeInvite(name: 'Anna', expiry: const Duration(days: 1));
+    final invite = await a.pairing.standingCode(name: 'Anna');
     expect(invite.state, PairingState.pendingInvite);
     expect(invite.inviteLink, startsWith('epiccash://pair/1/'));
     final preview = await b.pairing.openInvite(invite.inviteLink!);
@@ -146,7 +146,7 @@ void main() {
   test('a wallet opening its own invite is refused before the answer, also after a restart', () async {
     final (anna, w) = await wallet();
     final (carl, _) = await wallet();
-    final invite = await anna.pairing.makeInvite(name: 'Anna', expiry: const Duration(days: 1));
+    final invite = await anna.pairing.standingCode(name: 'Anna');
     Future<PairingFailure?> failureOf(Future<Object?> call) async {
       try {
         await call;
@@ -160,18 +160,6 @@ void main() {
     final again = LepicWalletSession(w);
     expect(await failureOf(again.pairing.openInvite(invite.inviteLink!)), PairingFailure.ownCard);
     expect((await carl.pairing.openInvite(invite.inviteLink!)).name, 'Anna');
-  }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
-
-  test('two phones pair in person by their cards, with no relay', () async {
-    final (anna, _) = await wallet();
-    final (carl, _) = await wallet();
-    final annaCard = await anna.pairing.showCard(name: 'Anna');
-    final carlCard = await carl.pairing.showCard(name: 'Carl');
-    final a = await anna.pairing.scanCard(cardId: annaCard.id, text: carlCard.link);
-    final c = await carl.pairing.scanCard(cardId: carlCard.id, text: annaCard.link);
-    expect(a.name, 'Carl');
-    expect(c.name, 'Anna');
-    expect([for (final w in a.sas) w.name], [for (final w in c.sas) w.name]);
   }, skip: _lib == null ? 'needs WFE_LEPIC_MOCK_LIB (the mock build)' : false);
 
   test('a request to a verified contact that allows it is paid and finalized', () async {

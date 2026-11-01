@@ -3,9 +3,10 @@
 /// screenshot tour, the web preview and the desktop prototype. Nothing is sealed: links and
 /// sealed files are readable JSON that only this fake opens.
 ///
-/// Tests drive the other side with [answerInvite], [confirmAnswer], [failPending],
+/// Tests drive the other side with [answerInvite], [confirmAnswer], [hear], [peerMatch],
+/// [peerMismatch], [neverFinished], [removedByPeer], [receiveRequest], [failPending],
 /// [changeKeys], [restoreKeys], [setRelayDown], [secondAnswer] and [emit]. With
-/// [autoAnswerAfter] set, an invite is answered and an answer confirmed on their own after
+/// [autoAnswerAfter] set, a request is answered and an answer confirmed on their own after
 /// that long, as the preview wants.
 library;
 
@@ -15,7 +16,9 @@ import 'dart:convert';
 
 import 'models.dart';
 import 'pairing_api.dart';
+import 'recipient.dart';
 import 'sas_table.dart';
+import 'trust/policy.dart' show featureStatusNotices;
 import 'wallet_service.dart' show FakeWalletSession, fakeTx;
 
 /// The fake's links: `epiccash://<path>/1/<base64url of a JSON object>`.
@@ -78,55 +81,68 @@ class FakePairing implements PairingApi {
   /// The Connection servers the app last set ([setConnectionServers]); null the defaults.
   List<String>? connectionServers;
 
-  /// The meeting servers each words call used, in order, as the call saw [connectionServers]:
-  /// null is the defaults. `invite` for [makeInvite] with words, `find` for [openWords].
-  final List<({String call, List<String>? servers})> wordsServers = [];
-
   @override
   void setConnectionServers(List<String>? hosts) => connectionServers = hosts == null ? null : List.unmodifiable(hosts);
 
   /// Now, for expiries.
   DateTime Function() clock = DateTime.now;
 
-  /// The relay the fake's own invites name ("Delivered via").
+  /// The relay the fake's own codes name ("Delivered via").
   String homeRelay = mockBox;
 
-  /// When set, the other side answers invites and confirms answers on its own after this long.
+  /// This wallet's own payments address: what a request goes out from, and the key the
+  /// lower-key rule compares.
+  String ownAddress = fakePairedAddress('self');
+
+  /// When set, the other side answers requests and confirms answers on its own after this long.
   Duration? autoAnswerAfter;
 
   /// The name the other side gives itself when it answers on its own.
   String autoAnswerName = 'Anna';
 
-  /// An invite answered on its own came back as a message (Invite by message, step 2), not
-  /// through the relay: its finish link is there to send, as after [openReply].
-  bool autoAnswerByMessage = false;
-
-  /// When set, the relay is not reachable: answers wait to go by hand, words cannot be made
-  /// or found ([PairingFailure.noRelay]).
+  /// When set, the relay is not reachable: answers wait to go by hand, requests cannot be
+  /// posted.
   bool relayUnreachable = false;
+
+  /// Epicbox is off on this wallet: a request cannot be sent ([PairingFailure.relayUnreachable]).
+  bool epicboxOff = false;
+
+  /// The Epicbox keys a request may go to: proven peers (a marked payment within 30 days and
+  /// pair requests claimed). Addresses or keys; compared by key.
+  final Set<String> provenPeers = {};
+
+  /// The feature bits the other side announces when it answers ([answerInvite] default):
+  /// status notices on, so the inviter waits until heard.
+  int peerFeatures = featureStatusNotices;
 
   /// Whether a key check (a new pairing added to a contact that has one) finds the old keys:
   /// true is a restored wallet ("keys are back"), false another wallet ("keys changed").
   bool keyCheckFindsOldKeys = true;
 
-  /// When set, the next open of a link, words or card fails with it.
+  /// When set, the next open of a link fails with it.
   PairingFailure? nextOpenFailure;
-
-  /// Invites another wallet made that [openWords] finds by their words (joined names).
-  final Map<String, PairingInvitePreview> wordsInvites = {};
 
   final List<PairingRecord> records = [];
   final List<PairingStray> strayList = [];
   final Map<String, PairingInvitePreview> _previews = {};
-  final Map<String, String> _cards = {};
 
-  /// Invites whose reply was opened by hand: as LEPIC, only these hold a finish link.
+  /// The standing code, apart from [records]: an unused code is no row.
+  PairingRecord? standing;
+
+  /// The live requests to this wallet's address, oldest first, and the ids dismissed or
+  /// answered (replays are dropped).
+  final List<PairRequest> requestList = [];
+  final Set<String> dismissedRequests = {};
+  final Set<String> answeredRequests = {};
+
+  /// Codes whose reply was opened by hand: as LEPIC, only these hold a finish link, unless
+  /// the confirm could not be posted ([relayUnreachable]).
   final Set<String> _repliedByHand = {};
   final StreamController<PairingEvent> _events = StreamController<PairingEvent>.broadcast();
   final List<Timer> _timers = [];
   int _seq = 0;
 
-  /// Every call that changed something, in order (`makeInvite`, `accept`, `check:match`, …).
+  /// Every call that changed something, in order (`standing`, `request`, `accept`, `check:match`, …).
   final List<String> calls = [];
 
   String _id(String prefix) => '$prefix-${++_seq}';
@@ -149,11 +165,27 @@ class FakePairing implements PairingApi {
     }
   }
 
-  /// The pairing whose contact sends from [address], matched on the key, or null.
+  String get ownKey => epicboxKey(ownAddress);
+
+  bool _sameKey(String? a, String? b) => a != null && b != null && epicboxKey(a) == epicboxKey(b);
+
+  /// The pairing whose contact sends from [address], matched on the key, or null. Ended
+  /// records do not count.
   PairingRecord? recordFor(String address) {
     final key = epicboxKey(address);
     for (final r in records) {
-      if (r.paymentsAddress != null && epicboxKey(r.paymentsAddress!) == key) return r;
+      if (!r.ended && r.paymentsAddress != null && epicboxKey(r.paymentsAddress!) == key) return r;
+    }
+    return null;
+  }
+
+  /// A pairing in progress with [address]'s key: a pending code or request expecting it, a
+  /// waiting record, or a live request from it (M7's lower-key rule applies to these).
+  PairingRecord? inProgressWith(String address) {
+    for (final r in records) {
+      if (r.state == PairingState.pendingInvite && _sameKey(r.expectAddress, address)) return r;
+      if (r.state == PairingState.pendingReply && _sameKey(r.expectAddress, address)) return r;
+      if (r.state == PairingState.waiting && _sameKey(r.paymentsAddress, address)) return r;
     }
     return null;
   }
@@ -182,7 +214,8 @@ class FakePairing implements PairingApi {
   /// Adds [record] as if it had been paired before (a seeded wallet, a test).
   void seed(PairingRecord record) => _put(record);
 
-  /// A paired contact in one call, for tests and the preview.
+  /// A paired contact in one call, for tests and the preview. [state] waiting leaves the peer
+  /// unheard; ended needs [endedReason].
   PairingRecord seedPaired({
     required String name,
     String? id,
@@ -196,63 +229,137 @@ class FakePairing implements PairingApi {
     PairingCaps caps = const PairingCaps(),
     DateTime? verifiedAt,
     DateTime? lastSealedIn,
+    DateTime? peerVerifiedAt,
     bool relayDown = false,
-    bool checkSkipped = false,
-    PairingWay way = PairingWay.inPerson,
+    PairingWay way = PairingWay.link,
     List<SasWord>? sas,
+    PairingEndReason? endedReason,
+    int? peerFeatures,
+    bool inviter = false,
   }) {
     final rid = id ?? _id('pairing');
     final now = clock();
+    final ended = state == PairingState.ended;
     final record = PairingRecord(
       id: rid,
       state: state,
       way: way,
-      inviter: false,
+      inviter: inviter,
       createdAt: now.subtract(const Duration(days: 3)),
       name: name,
       kind: kind,
       caps: caps,
       sas: sas ?? fakeSasWords(rid),
-      verifiedAt: state == PairingState.verified ? (verifiedAt ?? now.subtract(const Duration(days: 1))) : null,
+      verifiedAt: state == PairingState.verified ? (verifiedAt ?? now.subtract(const Duration(days: 1))) : verifiedAt,
       allowInvoices: allowInvoices && state == PairingState.verified,
       seal: seal,
       homeRelay: relay ?? homeRelay,
       contactId: contactId,
       paymentsAddress: paymentsAddress ?? fakePairedAddress(rid),
       lastSealedIn: lastSealedIn ?? now.subtract(const Duration(hours: 5)),
+      peerHeardAt: state == PairingState.waiting ? null : now.subtract(const Duration(days: 3)),
+      peerVerifiedAt: peerVerifiedAt,
+      peerFeatures: peerFeatures ?? this.peerFeatures,
+      endedReason: ended ? (endedReason ?? PairingEndReason.peerMismatch) : null,
+      endedAt: ended ? now.subtract(const Duration(hours: 1)) : null,
       relayDown: relayDown,
-      checkSkipped: checkSkipped,
     );
     _put(record);
     return record;
   }
 
-  /// The other wallet answered the invite [id] as [name]: it becomes paired and the inviter
-  /// gets [PairingEventKind.replied].
-  PairingRecord answerInvite(String id, {String? name, PairingParty kind = PairingParty.person, PairingCaps? caps}) {
-    final r = _get(id);
+  /// The other wallet answered the code or request [id] as [name], from [fromAddress]. A
+  /// request answered from another key than it went to stores nothing ("This answer came from
+  /// another wallet", [PairingFailure.otherWallet]). With status notices in [features] the
+  /// inviter waits until heard (Waiting); without, it is paired at the reply. A request
+  /// answered by the expected key is verified on completion, shown Waiting until heard.
+  PairingRecord? answerInvite(String id, {String? name, String? fromAddress, PairingParty kind = PairingParty.person, PairingCaps? caps, int? features}) {
+    final r = id == standing?.id ? standing! : _get(id);
     final who = name ?? r.label ?? autoAnswerName;
-    final paired = r.copyWith(
-      state: PairingState.paired,
+    final from = fromAddress ?? r.expectAddress ?? fakePairedAddress(r.id);
+    if (r.expectAddress != null && !_sameKey(r.expectAddress, from)) {
+      records.removeWhere((e) => e.id == id);
+      emit(PairingEvent(PairingEventKind.failed, pairingId: id, name: who, failure: PairingFailure.otherWallet));
+      return null;
+    }
+    final bits = features ?? peerFeatures;
+    final waits = bits & featureStatusNotices != 0;
+    final now = clock();
+    final answered = r.copyWith(
+      state: waits ? PairingState.waiting : PairingState.paired,
       name: who,
       kind: kind,
       caps: caps,
       sas: fakeSasWords(r.id),
-      paymentsAddress: fakePairedAddress(r.id),
+      paymentsAddress: from,
+      peerFeatures: bits,
+      peerHeardAt: waits ? null : now,
+      // Both addresses proven: verified once heard (D3).
+      verifiedAt: r.expectAddress != null ? now : null,
     );
-    _put(paired);
-    emit(PairingEvent(PairingEventKind.replied, pairingId: id, name: paired.shownName));
-    return paired;
+    if (id == standing?.id) {
+      // The standing code was used: it becomes a row, and the next visit makes a fresh code.
+      standing = null;
+    }
+    _put(answered.copyWith(state: !waits && r.expectAddress != null ? PairingState.verified : answered.state));
+    emit(PairingEvent(PairingEventKind.replied, pairingId: id, name: answered.shownName));
+    return _get(id);
   }
 
-  /// The inviter confirmed the answer [id]: it becomes paired and the answerer gets
+  /// The inviter confirmed the answer [id]: the answerer is paired (heard at the confirm), or
+  /// verified when it answered a request (both addresses proven), with
   /// [PairingEventKind.confirmed].
   PairingRecord confirmAnswer(String id) {
     final r = _get(id);
-    final paired = r.copyWith(state: PairingState.paired, sas: fakeSasWords(r.id), paymentsAddress: fakePairedAddress(r.id));
+    final now = clock();
+    final request = r.expectAddress != null;
+    final paired = r.copyWith(
+      state: request ? PairingState.verified : PairingState.paired,
+      verifiedAt: request ? now : null,
+      sas: fakeSasWords(r.id),
+      paymentsAddress: r.expectAddress ?? fakePairedAddress(r.id),
+      peerHeardAt: now,
+    );
     _put(paired);
     emit(PairingEvent(PairingEventKind.confirmed, pairingId: id, name: paired.shownName));
     return paired;
+  }
+
+  /// The other wallet was heard in the pairing [id] (its finished notice, a card, a slate):
+  /// Waiting becomes Paired, or Verified for a request, with [PairingEventKind.heard].
+  PairingRecord hear(String id) {
+    final r = _get(id);
+    if (r.state != PairingState.waiting) return r;
+    final heard = r.copyWith(state: r.verifiedAt != null ? PairingState.verified : PairingState.paired, peerHeardAt: clock());
+    _put(heard);
+    emit(PairingEvent(PairingEventKind.heard, pairingId: id, name: _nameOf(heard)));
+    return heard;
+  }
+
+  /// The other side pressed They match on [id] ("Anna confirmed too"). Counts as heard.
+  PairingRecord peerMatch(String id) {
+    hear(id);
+    final r = _get(id).copyWith(peerVerifiedAt: clock());
+    _put(r);
+    emit(PairingEvent(PairingEventKind.peerVerified, pairingId: id, name: _nameOf(r)));
+    return r;
+  }
+
+  /// The other side pressed They do not match on [id]: ended, kept, with
+  /// [PairingEventKind.ended]. Nothing in its mailbox is finalized any more.
+  PairingRecord peerMismatch(String id) => _end(id, PairingEndReason.peerMismatch);
+
+  /// The other wallet was never heard within 7 days of collecting: ended as never finished.
+  PairingRecord neverFinished(String id) => _end(id, PairingEndReason.neverFinished);
+
+  PairingRecord _end(String id, PairingEndReason reason) {
+    final r = _get(id);
+    if (r.ended) return r;
+    final ended = r.copyWith(state: PairingState.ended, endedReason: reason, endedAt: clock(), allowInvoices: false);
+    _put(ended);
+    _dropInvoicesOf(ended);
+    emit(PairingEvent(PairingEventKind.ended, pairingId: id, name: _nameOf(ended), endedReason: reason));
+    return ended;
   }
 
   /// The pending pairing [id] ended with [failure]: removed, with [PairingEventKind.failed].
@@ -262,14 +369,42 @@ class FakePairing implements PairingApi {
     emit(PairingEvent(PairingEventKind.failed, pairingId: id, name: r.shownName, failure: failure));
   }
 
-  /// The other side removed the pairing [id] and said so (RFC 7.6): it stays, marked, with
+  /// The other side removed the pairing [id] and said so (RFC 7.6): it stays, ended, with
   /// [PairingEventKind.unpaired] once, as LEPIC keeps it.
   void removedByPeer(String id) {
     final r = _get(id);
-    if (r.removedByPeer) return;
-    final marked = r.copyWith(removedByPeer: true, allowInvoices: false);
+    if (r.ended) return;
+    final marked = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.unpaired, endedAt: clock(), allowInvoices: false);
     _put(marked);
-    emit(PairingEvent(PairingEventKind.unpaired, pairingId: id, name: marked.shownName));
+    _dropInvoicesOf(marked);
+    emit(PairingEvent(PairingEventKind.unpaired, pairingId: id, name: _nameOf(marked)));
+  }
+
+  /// A request to pair came to this wallet's address from [from] (the sender's `key@relay`),
+  /// claiming [name]. Stored and raised as [PairingEventKind.requested] unless its sender has
+  /// a live pairing, or it is not newer than the one kept for that sender; a newer one
+  /// replaces the older. Returns the stored request, or null when it was dropped.
+  PairRequest? receiveRequest({required String from, required String name, Duration expiresIn = pairingInviteExpiry, PairingParty kind = PairingParty.person}) {
+    if (recordFor(from) != null) return null;
+    final now = clock();
+    final expires = now.add(expiresIn);
+    final older = requestList.where((q) => _sameKey(q.fromAddress, from)).firstOrNull;
+    if (older != null && !expires.isAfter(older.expiresAt)) return null;
+    requestList.removeWhere((q) => _sameKey(q.fromAddress, from));
+    final id = _id('request');
+    final request = PairRequest(
+      id: id,
+      fromAddress: from,
+      claimedName: name,
+      kind: kind,
+      receivedAt: now,
+      expiresAt: expires,
+      inviteLink: fakePairingLink('pair', {'t': id, 'n': name, 'e': expires.millisecondsSinceEpoch, 'k': kind.name, 'i': false, 'r': homeRelay, 'from': from}),
+    );
+    requestList.add(request);
+    if (requestList.length > 20) requestList.removeAt(0);
+    emit(PairingEvent(PairingEventKind.requested, requestId: id, sender: from, name: name));
+    return request;
   }
 
   /// The old records a keys-changed pairing would replace, by the new pairing's id: they stay
@@ -296,6 +431,8 @@ class FakePairing implements PairingApi {
       contactId: old.contactId,
       paymentsAddress: old.paymentsAddress,
       verifiedAt: old.verifiedAt,
+      peerHeardAt: clock(),
+      peerFeatures: old.peerFeatures,
     );
     records.removeWhere((r) => r.id == oldId);
     _superseded[id] = old;
@@ -317,7 +454,7 @@ class FakePairing implements PairingApi {
     if (down) emit(PairingEvent(PairingEventKind.homeRelayUnreachable, pairingId: id, name: _nameOf(r)));
   }
 
-  /// A second wallet answered the used invite [inviteId], claiming [name].
+  /// A second wallet answered the used code [inviteId], claiming [name].
   PairingStray secondAnswer(String inviteId, String name) {
     final stray = PairingStray(id: _id('stray'), inviteId: inviteId, name: name);
     strayList.add(stray);
@@ -325,13 +462,15 @@ class FakePairing implements PairingApi {
     return stray;
   }
 
-  /// An invite from another wallet, as its link: [openInvite] reads it.
+  /// A code of another wallet, as its link: [openInvite] reads it. [from] is the sender's
+  /// address when the code travels as a request.
   String inviteLinkFrom({
     required String name,
-    Duration expiresIn = const Duration(hours: 23, minutes: 12),
+    Duration expiresIn = const Duration(days: 6, hours: 23),
     PairingParty kind = PairingParty.person,
     bool asksInvoices = false,
     String? relay,
+    String? from,
   }) {
     final token = _id('invite');
     return fakePairingLink('pair', {
@@ -341,17 +480,23 @@ class FakePairing implements PairingApi {
       'k': kind.name,
       'i': asksInvoices,
       'r': relay ?? homeRelay,
+      'from': ?from,
     });
   }
-
-  /// A card of another wallet, as its link: [scanCard] reads it.
-  String cardLinkFrom(String name) => fakePairingLink('contact', {'c': _id('peer'), 'n': name});
 
   /// The name the app shows for [r]: its contact's, else its own.
   String _nameOf(PairingRecord r) {
     final cid = r.contactId;
     final contact = cid == null ? null : session?.contactsValue.where((c) => c.id == cid).firstOrNull;
     return contact?.name ?? r.shownName;
+  }
+
+  /// Drops the open invoices from the contact of [r], as the core does when a pairing ends.
+  void _dropInvoicesOf(PairingRecord r) {
+    final s = session;
+    if (s == null || r.paymentsAddress == null) return;
+    final key = epicboxKey(r.paymentsAddress!);
+    s.pendingInvoicesValue.removeWhere((_, i) => i.pairingId == r.id || epicboxKey(i.senderAddress) == key);
   }
 
   // PairingApi.
@@ -368,7 +513,7 @@ class FakePairing implements PairingApi {
   @override
   Future<PairingRecord?> pairing(String id) async {
     if (!enabled) return null;
-    return records.where((r) => r.id == id).firstOrNull;
+    return records.where((r) => r.id == id).firstOrNull ?? (standing?.id == id ? standing : null);
   }
 
   @override
@@ -386,54 +531,110 @@ class FakePairing implements PairingApi {
     strayList.removeWhere((s) => s.id == id);
   }
 
-  @override
-  Future<PairingRecord> makeInvite({
-    required String name,
-    required Duration expiry,
-    bool words = false,
-    String? label,
-    String? contactId,
-  }) async {
-    _require('makeInvite');
+  String _checkName(String name) {
     final shown = name.trim();
     if (shown.isEmpty || utf8.encode(shown).length > 48) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'the name must be 1 to 48 bytes');
     }
-    if (words && relayUnreachable) throw pairingError(PairingFailure.noRelay);
-    if (words) wordsServers.add((call: 'invite', servers: connectionServers));
-    calls.add('makeInvite');
+    return shown;
+  }
+
+  PairingRecord _newCode({required String name, String? expectAddress, String? label, String? contactId, PairingWay way = PairingWay.link}) {
     final id = _id('invite');
     final now = clock();
-    final expires = now.add(words ? pairingWordsExpiry : expiry);
-    final record = PairingRecord(
+    final expires = now.add(pairingInviteExpiry);
+    return PairingRecord(
       id: id,
       state: PairingState.pendingInvite,
-      way: words ? PairingWay.words : PairingWay.link,
+      way: way,
       inviter: true,
       createdAt: now,
       label: label,
       homeRelay: homeRelay,
       contactId: contactId,
       expiresAt: expires,
-      inviteLink: fakePairingLink('pair', {'t': id, 'n': shown, 'e': expires.millisecondsSinceEpoch, 'k': 'person', 'i': false, 'r': homeRelay}),
-      inviteWords: words ? fakeSasWords('words:$id', count: pairingWordCount) : const [],
+      expectAddress: expectAddress,
+      inviteLink: fakePairingLink('pair', {'t': id, 'n': name, 'e': expires.millisecondsSinceEpoch, 'k': 'person', 'i': false, 'r': homeRelay, 'from': ownAddress}),
     );
+  }
+
+  /// The name the standing code carries.
+  String? standingName;
+
+  @override
+  Future<PairingRecord> standingCode({required String name}) async {
+    _require('standingCode');
+    final shown = _checkName(name);
+    final now = clock();
+    final old = standing;
+    final stale = old == null ||
+        old.expiresAt == null ||
+        old.expiresAt!.difference(now) < pairingInviteRenewBefore ||
+        old.homeRelay != homeRelay ||
+        standingName != shown;
+    if (!stale) return old;
+    // A new name withdraws the old code; the rest leave it valid, no longer standing.
+    if (old != null && standingName != shown) _cancelled.add(old.id);
+    calls.add('standing');
+    standing = _newCode(name: shown);
+    standingName = shown;
+    return standing!;
+  }
+
+  @override
+  Future<int> setOwnName(String name) async {
+    _require('setOwnName');
+    _checkName(name);
+    calls.add('ownName');
+    return records.where((r) => r.state.isPaired || r.state == PairingState.waiting).length;
+  }
+
+  /// The requests this wallet sent, in order, as (to, name).
+  final List<({String to, String name})> sentRequests = [];
+
+  @override
+  Future<PairingRecord> requestPairing({required String toAddress, required String name, String? contactId}) async {
+    _require('requestPairing');
+    final shown = _checkName(name);
+    if (parseRecipient(toAddress).kind != RecipientKind.epicbox) {
+      throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'not an Epicbox address');
+    }
+    if (epicboxOff) throw pairingError(PairingFailure.relayUnreachable);
+    final key = epicboxKey(toAddress);
+    if (!provenPeers.any((p) => epicboxKey(p) == key)) throw pairingError(PairingFailure.peerNotProven);
+    if (recordFor(toAddress) != null) throw pairingError(PairingFailure.alreadyUsed);
+    if (inProgressWith(toAddress) != null || requestList.any((q) => _sameKey(q.fromAddress, toAddress))) {
+      throw pairingError(PairingFailure.inProgress);
+    }
+    if (relayUnreachable) throw const WalletError(kind: WalletErrorKind.transportFailed, message: 'the request could not be posted');
+    calls.add('request');
+    sentRequests.add((to: toAddress, name: shown));
+    final label = contactId == null ? null : session?.contactsValue.where((c) => c.id == contactId).firstOrNull?.name;
+    final record = _newCode(name: shown, expectAddress: toAddress, label: label, contactId: contactId, way: PairingWay.request);
     _put(record);
     _later(() {
-      if (!records.any((r) => r.id == id && r.state == PairingState.pendingInvite)) return;
-      // Words always come back through the relay.
-      if (autoAnswerByMessage && !words) _repliedByHand.add(id);
-      answerInvite(id);
+      if (!records.any((r) => r.id == record.id && r.state == PairingState.pendingInvite)) return;
+      answerInvite(record.id);
+      _later(() => hear(record.id));
     });
     return record;
   }
+
+  /// Codes cancelled and kept hidden until they expire: a late answer is refused.
+  final Set<String> _cancelled = {};
 
   @override
   Future<void> cancelInvite(String id) async {
     _require('cancelInvite');
     calls.add('cancelInvite');
-    // LEPIC's pairing_cancel: an invite stops working, an answer waiting for its confirm goes.
+    // LEPIC's pairing_cancel: a code stops working (its row hides, a late reply is refused), an
+    // answer waiting for its confirm goes.
+    if (records.any((r) => r.id == id && r.state == PairingState.pendingInvite)) _cancelled.add(id);
     records.removeWhere((r) => r.id == id && r.state.isPending);
+    if (standing?.id == id) {
+      _cancelled.add(id);
+      standing = null;
+    }
   }
 
   @override
@@ -442,23 +643,26 @@ class FakePairing implements PairingApi {
     final body = _readLink(link, 'pair-reply');
     if (body == null) throw pairingError(PairingFailure.invalid);
     final id = body['t'] as String?;
-    final invite = records.where((r) => r.id == id).firstOrNull;
-    if (invite == null) throw pairingError(PairingFailure.notFound);
+    final invite = records.where((r) => r.id == id).firstOrNull ?? (standing?.id == id ? standing : null);
+    if (invite == null) throw pairingError(_cancelled.contains(id) ? PairingFailure.cancelled : PairingFailure.notFound);
     // The same reply again (it came through the relay first): LEPIC answers it with the same
     // finish link and changes nothing.
-    if (invite.state.isPaired && invite.inviter) return invite;
+    if (invite.state.isRecord && invite.inviter) return invite;
     if (invite.state != PairingState.pendingInvite) throw pairingError(PairingFailure.alreadyUsed);
     calls.add('openReply');
     _repliedByHand.add(invite.id);
-    return answerInvite(invite.id, name: body['n'] as String?);
+    final answered = answerInvite(invite.id, name: body['n'] as String?, fromAddress: body['from'] as String?);
+    if (answered == null) throw pairingError(PairingFailure.otherWallet);
+    return answered;
   }
 
   @override
   Future<String> confirmLink(String id) async {
     _require('confirmLink');
     final r = _get(id);
-    // A reply that came through the relay was confirmed through it too: no link to send.
-    if (!_repliedByHand.contains(id)) throw pairingError(PairingFailure.notFound);
+    // A reply that came through the relay was confirmed through it too: no finish code to
+    // send, unless the confirm could not be posted.
+    if (!_repliedByHand.contains(id) && !relayUnreachable && !epicboxOff) throw pairingError(PairingFailure.notFound);
     return fakePairingLink('pair-confirm', {'t': r.id, 'n': r.shownName});
   }
 
@@ -474,9 +678,11 @@ class FakePairing implements PairingApi {
     // A private invite (a device link) is not a contact invite.
     if (body == null || body['class'] == 'private') throw pairingError(PairingFailure.invalid);
     final token = body['t'] as String? ?? _id('invite');
-    if (records.any((r) => r.id == token)) throw pairingError(PairingFailure.ownCard);
+    if (records.any((r) => r.id == token) || standing?.id == token || _cancelled.contains(token)) throw pairingError(PairingFailure.ownCard);
     final expires = DateTime.fromMillisecondsSinceEpoch((body['e'] as num?)?.toInt() ?? 0);
     if (!clock().isBefore(expires)) throw pairingError(PairingFailure.expired);
+    // A copy of a stored request (forwarded by the linked device, or opened from its row).
+    final stored = requestList.where((q) => q.id == token).firstOrNull;
     final preview = PairingInvitePreview(
       token: token,
       name: body['n'] as String? ?? '',
@@ -485,33 +691,45 @@ class FakePairing implements PairingApi {
       asksInvoices: body['i'] == true,
       homeRelay: body['r'] as String? ?? homeRelay,
       wordsAvailable: !relayUnreachable,
+      fromAddress: stored?.fromAddress ?? body['from'] as String?,
+      requestId: stored?.id,
     );
     _previews[token] = preview;
     return preview;
   }
 
   @override
-  Future<PairingInvitePreview> openWords(List<String> words) async {
-    _require('openWords');
-    if (relayUnreachable) throw pairingError(PairingFailure.noRelay);
-    wordsServers.add((call: 'find', servers: connectionServers));
-    final failure = nextOpenFailure;
-    if (failure != null) {
-      nextOpenFailure = null;
-      throw pairingError(failure);
-    }
-    final names = [
-      for (final w in words) (sasWordNamed(w) ?? sasWordOfEmoji(w))?.name ?? w.trim().toLowerCase(),
-    ];
-    if (names.length != pairingWordCount) throw pairingError(PairingFailure.notFound);
-    final key = names.join(' ');
-    final preview = wordsInvites[key];
-    if (preview == null) throw pairingError(PairingFailure.notFound);
-    if (!clock().isBefore(preview.expiresAt)) throw pairingError(PairingFailure.expired);
-    // The first to use the words takes the invite (C-33).
-    wordsInvites.remove(key);
-    _previews[preview.token] = preview;
-    return preview;
+  Future<List<PairRequest>> requests() async {
+    if (!enabled) return const [];
+    final now = clock();
+    requestList.removeWhere((q) => q.expiredAt(now));
+    return [for (final q in requestList) if (!dismissedRequests.contains(q.id) && !answeredRequests.contains(q.id)) q];
+  }
+
+  @override
+  Future<PairingInvitePreview> openRequest(String requestId) async {
+    _require('openRequest');
+    final q = requestList.where((r) => r.id == requestId).firstOrNull;
+    if (q == null) throw pairingError(PairingFailure.notFound);
+    return openInvite(q.inviteLink);
+  }
+
+  @override
+  Future<void> dismissRequest(String requestId) async {
+    _require('dismissRequest');
+    if (!requestList.any((q) => q.id == requestId)) throw pairingError(PairingFailure.notFound);
+    calls.add('dismiss');
+    dismissedRequests.add(requestId);
+  }
+
+  @override
+  Future<void> requestHandledOn(String requestId, String device) async {
+    _require('requestHandledOn');
+    final q = requestList.where((r) => r.id == requestId).firstOrNull;
+    if (q == null) throw pairingError(PairingFailure.notFound);
+    calls.add('handledOn');
+    dismissedRequests.add(requestId);
+    emit(PairingEvent(PairingEventKind.pairedElsewhere, requestId: requestId, name: device, sender: q.fromAddress));
   }
 
   @override
@@ -526,13 +744,27 @@ class FakePairing implements PairingApi {
     final preview = _previews[token];
     if (preview == null) throw pairingError(PairingFailure.invalid);
     if (!clock().isBefore(preview.expiresAt)) throw pairingError(PairingFailure.expired);
+    if (dismissedRequests.contains(token)) throw pairingError(PairingFailure.inviteDismissed);
+    final from = preview.fromAddress;
+    if (from != null) {
+      if (recordFor(from) != null) throw pairingError(PairingFailure.alreadyUsed);
+      // Crossed codes (M7): the pairing made by the lower key survives.
+      final own = inProgressWith(from);
+      if (own != null && own.id != token) {
+        if (ownKey.compareTo(epicboxKey(from)) < 0) throw pairingError(PairingFailure.crossed);
+        records.removeWhere((r) => r.id == own.id);
+        _cancelled.add(own.id);
+        emit(PairingEvent(PairingEventKind.failed, pairingId: own.id, name: own.shownName, failure: PairingFailure.crossed));
+      }
+    }
     calls.add('accept');
     _previews.remove(token);
+    if (preview.requestId != null) answeredRequests.add(preview.requestId!);
     final now = clock();
     final record = PairingRecord(
       id: _id('pairing'),
       state: PairingState.pendingReply,
-      way: PairingWay.link,
+      way: preview.isRequest ? PairingWay.request : PairingWay.link,
       inviter: false,
       createdAt: now,
       name: preview.name,
@@ -542,6 +774,7 @@ class FakePairing implements PairingApi {
       homeRelay: preview.homeRelay,
       contactId: contactId,
       expiresAt: now.add(pairingReplyWait),
+      expectAddress: from,
       // The answer could not be posted: it waits to be sent by hand.
       relayDown: !byHand && relayUnreachable,
     );
@@ -558,7 +791,7 @@ class FakePairing implements PairingApi {
   Future<String> replyLink(String id) async {
     _require('replyLink');
     final r = _get(id);
-    return fakePairingLink('pair-reply', {'t': r.id, 'n': session == null ? 'Alex' : r.shownName});
+    return fakePairingLink('pair-reply', {'t': r.id, 'n': session == null ? 'Alex' : r.shownName, 'from': ownAddress});
   }
 
   @override
@@ -574,65 +807,32 @@ class FakePairing implements PairingApi {
   }
 
   @override
-  Future<PairingCard> showCard({required String name}) async {
-    _require('showCard');
-    final id = _id('card');
-    _cards[id] = name;
-    return PairingCard(id: id, link: fakePairingLink('contact', {'c': id, 'n': name}));
-  }
-
-  @override
-  Future<PairingRecord> scanCard({required String cardId, required String text}) async {
-    _require('scanCard');
-    final failure = nextOpenFailure;
-    if (failure != null) {
-      nextOpenFailure = null;
-      throw pairingError(failure);
-    }
-    final body = _readLink(text, 'contact');
-    if (body == null) throw pairingError(PairingFailure.invalid);
-    final peer = body['c'] as String? ?? '';
-    if (_cards.containsKey(peer)) throw pairingError(PairingFailure.ownCard);
-    calls.add('scanCard');
-    final now = clock();
-    final record = PairingRecord(
-      id: _id('pairing'),
-      state: PairingState.paired,
-      way: PairingWay.inPerson,
-      inviter: false,
-      createdAt: now,
-      name: body['n'] as String? ?? '',
-      sas: fakeSasWords('$cardId:$peer'),
-      homeRelay: homeRelay,
-      paymentsAddress: fakePairedAddress(peer),
-    );
-    _put(record);
-    return record;
-  }
-
-  @override
   Future<PairingRecord?> checkWords(String id, PairingCheck check) async {
     _require('checkWords');
     calls.add('check:${check.name}');
     if (_privateIndex(id) >= 0) return _checkPrivate(id, check);
     final r = _get(id);
+    if (r.ended) throw pairingError(PairingFailure.ended);
     switch (check) {
       case PairingCheck.match:
+        // They match counts as heard (H3), and makes it verified.
         final verified = r.copyWith(
           state: PairingState.verified,
           verifiedAt: clock(),
+          peerHeardAt: r.peerHeardAt ?? clock(),
           allowInvoices: r.asksInvoices || r.allowInvoices,
-          checkSkipped: false,
         );
         _put(verified);
         return verified;
       case PairingCheck.mismatch:
-        records.removeWhere((e) => e.id == id);
-            return null;
+        // Ended, not deleted: the verdict goes to the other side, and a sealed send waiting in
+        // this mailbox is never finalized (its row offers Cancel).
+        final ended = r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.mismatch, endedAt: clock(), allowInvoices: false);
+        _put(ended);
+        _dropInvoicesOf(ended);
+        return ended;
       case PairingCheck.skip:
-        final skipped = r.copyWith(checkSkipped: true);
-        _put(skipped);
-        return skipped;
+        return r;
     }
   }
 
@@ -643,14 +843,14 @@ class FakePairing implements PairingApi {
     final now = clock();
     var taken = 0;
     // An answer whose confirm never came in the invite's window ends as not completed (C-16);
-    // an expired invite stays listed, so Pending invites can offer Invite again, until it is
-    // cancelled.
+    // an expired request stays listed ("No answer from Anna's wallet"), until it is removed.
     for (final r in [...records]) {
       if (r.state == PairingState.pendingReply && r.expiredAt(now)) {
         failPending(r.id, PairingFailure.notCompleted);
         taken++;
       }
     }
+    requestList.removeWhere((q) => q.expiredAt(now));
     return taken;
   }
 
@@ -666,6 +866,7 @@ class FakePairing implements PairingApi {
   Future<PairingRecord> setSeal(String id, bool on) async {
     _require('setSeal');
     final r = _get(id);
+    if (r.ended) throw pairingError(PairingFailure.ended);
     if (r.paused) throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'keys changed: check the words first');
     final next = r.copyWith(seal: on ? SealMode.on : SealMode.off);
     _put(next);
@@ -676,6 +877,8 @@ class FakePairing implements PairingApi {
   Future<int> setAllowInvoices(String id, bool on) async {
     _require('setAllowInvoices');
     final r = _get(id);
+    if (r.ended) throw pairingError(PairingFailure.ended);
+    if (on && r.state == PairingState.waiting) throw pairingError(PairingFailure.waiting);
     if (on && !r.canAllowInvoices) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'check the words first');
     }
@@ -698,14 +901,17 @@ class FakePairing implements PairingApi {
   }
 
   @override
-  Future<PairingRecord> attach(String id, String? contactId) async {
+  Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress}) async {
     _require('attach');
     calls.add('attach');
     final fresh = _get(id);
-    // As LEPIC's adapter: the contact's Epicbox address decides first ([contactForPairing]).
-    final contact = contactId == null ? null : session?.contactsValue.where((c) => c.id == contactId).firstOrNull;
-    final filled = contact == null ? null : contactForPairing(contact, fresh);
-    if (filled != null) await session!.saveContact(contact: filled);
+    // The contact's Epicbox address decides first: a proven address of another key refuses,
+    // and a contact with an address needs a proof to attach to.
+    if (contactId != null && contactAddress != null && contactAddress.trim().isNotEmpty) {
+      final proven = fresh.paymentsAddress;
+      if (proven == null) throw pairingError(PairingFailure.addressProofMissing);
+      if (!_sameKey(proven, contactAddress)) throw pairingError(PairingFailure.otherAddress);
+    }
     final old = contactId == null ? null : records.where((r) => r.contactId == contactId && r.id != id).firstOrNull;
     if (old != null && old.state.isPaired) {
       // A new pairing for a contact that has one runs the key check (RFC 7.8).
@@ -744,16 +950,22 @@ class FakePairing implements PairingApi {
         return back;
       case KeysChoice.useNew:
         // The new keys stay, paired and to be checked; the old record goes.
-        final next = r.copyWith(state: PairingState.paired, clearVerified: true, checkSkipped: false, allowInvoices: false);
+        final next = r.copyWith(state: PairingState.paired, clearVerified: true, clearPeerVerified: true, allowInvoices: false);
         _put(next);
         return next;
     }
+  }
+
+  void _needsLive(PairingRecord r) {
+    if (r.ended) throw pairingError(PairingFailure.ended);
+    if (r.state == PairingState.waiting) throw pairingError(PairingFailure.waiting);
   }
 
   @override
   Future<IssuedInvoice> requestPayment({required String id, required BigInt amount, String? message}) async {
     _require('requestPayment');
     final r = _get(id);
+    _needsLive(r);
     if (r.state != PairingState.verified || !r.caps.paysInvoices) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'the contact cannot be sent requests');
     }
@@ -792,6 +1004,7 @@ class FakePairing implements PairingApi {
   Future<String> sealSlate({required String id, required String slateJson}) async {
     _require('sealSlate');
     final r = _get(id);
+    _needsLive(r);
     if (!r.seals) throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'not sealing for this contact');
     final body = base64Url.encode(utf8.encode(jsonEncode({'p': id, 's': slateJson})));
     // Kept by the transaction, as the engine keeps a sealed send, for [plainSlate].
@@ -825,6 +1038,8 @@ class FakePairing implements PairingApi {
     final r = _get(id);
     if (r.seal == SealMode.degraded) _put(r.copyWith(seal: SealMode.on));
     _put(_get(id).copyWith(lastSealedIn: clock()));
+    // A sealed slate is the other wallet, heard.
+    hear(id);
     final json = body['s'] as String? ?? '';
     // As LEPIC: what the slate holds, not the slate.
     if (!handsOutSealedSlate) {
@@ -856,6 +1071,7 @@ class FakePairing implements PairingApi {
   }) async {
     _require('sendViaMailbox');
     final r = _get(id);
+    _needsLive(r);
     final s = session;
     // As LEPIC: the paired state and the card's "opens sealed", not the seal switch. A contact
     // with no address takes it too.
@@ -871,7 +1087,15 @@ class FakePairing implements PairingApi {
       options: options,
     );
     if (tx.slateId case final slateId?) slates[slateId] = PairingSlate(pairingId: id, purpose: SlatePurpose.payment);
-    return tx;
+    // The row carries its pairing, as LEPIC's does, and waits for the recipient in the list.
+    final marked = tx.withPairing(id);
+    final i = s.transactionsValue.indexWhere((t) => t.key == tx.key);
+    if (i >= 0) {
+      s.transactionsValue[i] = marked;
+    } else {
+      s.transactionsValue.add(marked);
+    }
+    return marked;
   }
 
   /// Every [collect], by its trigger.
@@ -911,6 +1135,9 @@ class FakePairing implements PairingApi {
     final inside = _inside(text);
     final s = session;
     if (s == null) throw pairingUnsupported('finalizeSealed');
+    // A mailbox that ended by mismatch finalizes nothing (the send stays cancellable).
+    final r = _get(inside.id);
+    if (r.endedReason == PairingEndReason.mismatch || r.endedReason == PairingEndReason.peerMismatch) throw pairingError(PairingFailure.ended);
     return s.finalizeAndPost(slateJson: inside.slateJson);
   }
 
@@ -998,7 +1225,8 @@ class FakePairing implements PairingApi {
     return n;
   }
 
-  /// The backup object an export carries (RFC 10.5): the records, nothing secret.
+  /// The backup object an export carries (RFC 10.5): the paired records, nothing secret.
+  /// Never a pending, waiting or ended one.
   Map<String, Object?>? exportBackup() {
     final paired = [for (final r in records) if (r.state.isPaired) r];
     if (!enabled || paired.isEmpty) return null;
@@ -1015,13 +1243,17 @@ class FakePairing implements PairingApi {
             'payments': r.paymentsAddress,
             'verified_at': r.verifiedAt?.millisecondsSinceEpoch,
             'contact_id': r.contactId,
+            'peer_features': r.peerFeatures,
+            'peer_heard_at': r.peerHeardAt?.millisecondsSinceEpoch,
+            'peer_verified_at': r.peerVerifiedAt?.millisecondsSinceEpoch,
           },
       ],
     };
   }
 
   /// Takes [backup] in; with [otherDevice] the records wait for [useImportedPairings].
-  /// Returns how many records came in.
+  /// Returns how many records came in. An entry without the new fields counts as heard when
+  /// it was made, with no features.
   int importBackup(Map<String, Object?>? backup, {bool otherDevice = true}) {
     if (!enabled || backup == null) return 0;
     var n = 0;
@@ -1029,21 +1261,25 @@ class FakePairing implements PairingApi {
       final m = raw as Map<String, Object?>;
       final id = m['id'] as String;
       if (records.any((r) => r.id == id)) continue;
-      final verifiedAt = m['verified_at'] as int?;
+      DateTime? at(String key) => switch (m[key]) { final int ms => DateTime.fromMillisecondsSinceEpoch(ms), _ => null };
+      final created = clock();
       _put(
         PairingRecord(
           id: id,
           state: PairingState.values.asNameMap()[m['state']] ?? PairingState.paired,
-          way: PairingWay.inPerson,
+          way: PairingWay.link,
           inviter: false,
-          createdAt: clock(),
+          createdAt: created,
           name: m['name'] as String?,
           kind: PairingParty.values.asNameMap()[m['kind']] ?? PairingParty.person,
           sas: fakeSasWords(id),
-          verifiedAt: verifiedAt == null ? null : DateTime.fromMillisecondsSinceEpoch(verifiedAt),
+          verifiedAt: at('verified_at'),
           homeRelay: m['relay'] as String? ?? homeRelay,
           paymentsAddress: m['payments'] as String?,
           contactId: m['contact_id'] as String?,
+          peerFeatures: m['peer_features'] as int? ?? 0,
+          peerHeardAt: at('peer_heard_at') ?? created,
+          peerVerifiedAt: at('peer_verified_at'),
           otherDevice: otherDevice,
         ),
       );
@@ -1197,10 +1433,10 @@ class FakePairing implements PairingApi {
           _putPrivate(r.copyWith(state: PairingState.paired, sas: fakeSasWords('private:${m.token}'), homeRelay: _answeredOn.remove(r.id)));
           taken++;
         case _MailKind.payload:
-          if (!r.state.isPaired || r.removedByPeer) continue;
+          if (!r.state.isPaired) continue;
           _payloads.add(PairingPayload(id: privateNet._next('payload'), pairingId: r.id, bytes: m.bytes!, receivedAt: clock()));
         case _MailKind.unpaired:
-          _putPrivate(r.copyWith(removedByPeer: true));
+          _putPrivate(r.copyWith(state: PairingState.ended, endedReason: PairingEndReason.unpaired, endedAt: clock()));
           taken++;
       }
     }
@@ -1212,7 +1448,7 @@ class FakePairing implements PairingApi {
     _require('postPayload');
     // A contact pairing never carries a payload.
     final r = _private(id);
-    if (!r.state.isPaired || r.removedByPeer) throw pairingError(PairingFailure.invalid);
+    if (!r.state.isPaired) throw pairingError(PairingFailure.invalid);
     if (bytes.length > privatePayloadMaxBytes) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'payload too large');
     }
@@ -1235,7 +1471,7 @@ class FakePairing implements PairingApi {
     if (!r.state.isPaired) throw pairingError(PairingFailure.invalid);
     switch (check) {
       case PairingCheck.match:
-        final verified = r.copyWith(state: PairingState.verified, verifiedAt: clock(), checkSkipped: false);
+        final verified = r.copyWith(state: PairingState.verified, verifiedAt: clock());
         _putPrivate(verified);
         return verified;
       case PairingCheck.mismatch:

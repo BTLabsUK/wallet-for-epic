@@ -41,9 +41,8 @@ enum DeskRoute {
   outputs(section: DeskSection.outputs),
   contacts(section: DeskSection.contacts),
 
-  /// Pairing (RFC 0002): the Pair page (a [Contact] to attach to) and Pending invites.
+  /// Pairing (RFC 0002): the Pair page (a [Contact] to attach to).
   pair(section: DeskSection.contacts),
-  pairPending(section: DeskSection.contacts),
   settingsNode(section: DeskSection.settings),
   settingsReceiving(section: DeskSection.settings),
 
@@ -116,7 +115,7 @@ bool deskLevelHides(DeskLevelFeatures ui, DeskRoute route) => switch (route) {
   DeskRoute.settingsReceiving || DeskRoute.settingsPrivacy => ui.shallow,
   DeskRoute.settingsWallets => !ui.addWallet,
   DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices => !ui.invoicesPage,
-  DeskRoute.pair || DeskRoute.pairPending => !ui.pairingPages,
+  DeskRoute.pair => !ui.pairingPages,
   _ => false,
 };
 
