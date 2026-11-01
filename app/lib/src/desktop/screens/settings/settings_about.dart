@@ -8,7 +8,7 @@ import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show TorSourceNote;
 import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl, supportEmail;
-import '../../../ui/theme/fonts.dart' show flagsLicenceNote;
+import '../../../ui/theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,6 +38,7 @@ List<String> licenceLines(AppLocalizations l) => [
   if (DeskFeatures.tor) l.licencesTor,
   l.licencesFonts,
   flagsLicenceNote,
+  sasPicturesLicenceNote,
 ];
 
 class SettingsAboutScreen extends ConsumerStatefulWidget {

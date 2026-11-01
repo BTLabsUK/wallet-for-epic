@@ -44,6 +44,7 @@ import 'src/desktop/widgets/kit.dart';
 import 'src/password_lists.dart';
 import 'src/price.dart' show fiatChoiceProvider;
 import 'src/tor_licence.dart';
+import 'src/ui/theme/fonts.dart' show registerFontLicences;
 import 'src/providers.dart';
 import 'src/relay_directory.dart';
 import 'src/settings_file/host_settings.dart' show hostSettings;
@@ -89,6 +90,7 @@ Future<void> main() async {
       return false;
     };
     await initWalletBackend();
+    registerFontLicences();
     registerPasswordListLicences();
     registerTorLicence();
     logInfo('app', 'desktop start $deskVersion, $platformLabel');

@@ -12,7 +12,7 @@ import '../tor_build.dart';
 import '../tor_licence.dart';
 import 'common.dart';
 import 'settings_screen.dart' show projectRepoUrl;
-import 'theme/fonts.dart' show flagsLicenceNote;
+import 'theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 import 'theme/tokens.dart';
 import 'settings_rows.dart' show NavChevron;
 
@@ -45,6 +45,7 @@ class LicencesScreen extends StatelessWidget {
             if (torBuilt) l.licencesTor,
             l.licencesFonts,
             flagsLicenceNote,
+            sasPicturesLicenceNote,
           ])
             Padding(
               padding: const EdgeInsets.only(bottom: 10),

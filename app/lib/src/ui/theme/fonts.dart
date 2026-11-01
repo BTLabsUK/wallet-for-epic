@@ -28,7 +28,7 @@ List<String>? get sasEmojiFallback => !kIsWeb && Platform.isAndroid ? null : con
 /// asked, not the target platform, so tests and tours on a desktop host keep the bundled font.
 List<String>? get phoneFontFallback => !kIsWeb && Platform.isAndroid ? null : bundledFallback;
 
-/// The bundled fonts' OFL texts and the language flags' MIT text, keyed by the package name the
+/// The bundled fonts' OFL texts, the language flags' MIT text and the pairing pictures' notice, keyed by the package name the
 /// licences page shows.
 const Map<String, String> fontLicenceAssets = {
   'Montserrat': 'assets/fonts/OFL-Montserrat.txt',
@@ -37,6 +37,7 @@ const Map<String, String> fontLicenceAssets = {
   'Noto Sans SC (subset)': 'assets/fonts/OFL-NotoSansSC.txt',
   'Noto Color Emoji (subset)': 'assets/fonts/OFL-NotoEmojiSas.txt',
   'flag-icons': 'assets/flags/LICENSE-flag-icons.txt',
+  'Noto Emoji (pairing pictures)': 'assets/sas/LICENSE.txt',
   'Status icons (Bootstrap Icons, Carbon, Material Symbols)': 'assets/licenses/status-icons.txt',
 };
 
@@ -44,8 +45,12 @@ const Map<String, String> fontLicenceAssets = {
 /// the licence texts themselves.
 const String flagsLicenceNote = 'Language flags from flag-icons: MIT licence.';
 
+/// The licences screens' line for the pairing pictures (assets/sas, ui/sas_picture.dart), in
+/// English like [flagsLicenceNote].
+const String sasPicturesLicenceNote = 'Pairing pictures from Noto Emoji: Apache 2.0 licence.';
+
 /// Adds the bundled fonts' licences to [LicenseRegistry], as OFL 1.1 requires when the fonts
-/// are redistributed, and the flag-icons MIT text. They appear on the licences page next to the
+/// are redistributed, the flag-icons MIT text and the Noto Emoji notice of the pairing pictures. They appear on the licences page next to the
 /// packages'.
 void registerFontLicences() {
   LicenseRegistry.addLicense(() async* {

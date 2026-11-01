@@ -91,6 +91,9 @@ dependencies:
 
 dev_dependencies:
   fake_async: ^1.3.3
+  # flutter_svg's own parser, warnings as errors, over every pairing picture
+  # (test/sas_picture_test.dart); already resolved through flutter_svg.
+  vector_graphics_compiler: 1.3.2
   flutter_test:
     sdk: flutter
 
@@ -136,6 +139,9 @@ flutter:
     # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see
     # lib/src/ui/theme/fonts.dart).
     - assets/flags/
+    # The 256 pairing pictures and their licence notice (Noto Emoji SVGs, Apache 2.0;
+    # tool/sas_pictures.py), drawn by SasPicture (lib/src/ui/sas_picture.dart).
+    - assets/sas/
     # The two settings files (docs/settings-file.md): the first-start copy of the user's
     # settings.toml, and the read-only app configuration.
     - assets/config/settings.default.toml
