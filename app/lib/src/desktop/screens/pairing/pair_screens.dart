@@ -1476,26 +1476,58 @@ const Key deskConfirmRemovePairingKey = ValueKey('desk-confirm-remove-pairing');
 /// matched or saved for them): with [asNew], a form with the name it claims to check first;
 /// else one of their contacts from the picker. True once it is in one.
 Future<bool> deskPutPairingInContacts(BuildContext context, WidgetRef ref, PairingRecord r, {required bool asNew}) async {
+  if (asNew) return _deskSaveAsNewContact(context, ref, r);
+  // Not Send's picker: the pairing joins the contact.
+  final picked = await showContactPicker(context, description: context.l10n.deskConPickForPairing);
+  if (picked == null || !context.mounted) return false;
+  return deskAttachPairingTo(context, ref, r, picked);
+}
+
+/// Save as a new contact: the form, then the pairing joins the contact it made.
+Future<bool> _deskSaveAsNewContact(BuildContext context, WidgetRef ref, PairingRecord r) async {
   final l = context.l10n;
-  final String contactId;
-  final String name;
-  if (asNew) {
-    // The form owns its field: it is disposed with the dialog, after the close animation.
-    final saved = await showEDialog<String>(context, builder: (_) => _SaveContactDialog(record: r));
-    if (saved == null || saved.isEmpty || !context.mounted) return false;
-    contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, address: r.paymentsAddress));
-    name = saved;
-  } else {
-    // Not Send's picker: the pairing joins the contact.
-    final picked = await showContactPicker(context, description: context.l10n.deskConPickForPairing);
-    if (picked == null) return false;
-    contactId = picked.id;
-    name = picked.name;
-  }
+  // The form owns its field: it is disposed with the dialog, after the close animation.
+  final saved = await showEDialog<String>(context, builder: (_) => _SaveContactDialog(record: r));
+  if (saved == null || saved.isEmpty || !context.mounted) return false;
+  final contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, address: r.paymentsAddress));
   await deskPairingCall(ref, (api) => api.attach(r.id, contactId));
-  if (context.mounted) showEToast(context, l.pairSavedAs(name), tone: ETone.ok);
+  if (context.mounted) showEToast(context, l.pairSavedAs(saved), tone: ETone.ok);
   return true;
 }
+
+/// Attaches the pairing [r] to [contact], the user's pick. Refused because the contact has an
+/// Epicbox address the pairing cannot confirm ([contactForPairing]): the dialog says so and
+/// offers Save as a new contact. True once the pairing is in a contact.
+Future<bool> deskAttachPairingTo(BuildContext context, WidgetRef ref, PairingRecord r, Contact contact) async {
+  final l = context.l10n;
+  try {
+    await deskPairingCall(ref, (api) => api.attach(r.id, contact.id));
+  } on WalletError catch (error) {
+    if (pairingFailureOf(error) != PairingFailure.otherAddress || !context.mounted) rethrow;
+    final asNew = await showEDialog<bool>(
+      context,
+      builder: (ctx) => EDialog(
+        title: l.pairOtherAddressTitle(contact.name),
+        description: l.pairOtherAddressBody(contact.name),
+        tone: ETone.warn,
+        icon: EIcons.alert,
+        actions: [
+          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
+          EButton.primary(key: deskOtherAddressNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+        ],
+      ),
+    );
+    if (asNew != true || !context.mounted) return false;
+    return _deskSaveAsNewContact(context, ref, r);
+  }
+  // The pairing's address filled the contact's empty Epicbox slot: the list reads it again.
+  if (contact.epicbox == null && r.paymentsAddress != null) await ref.read(deskProvider.notifier).saveContacts(const []);
+  if (context.mounted) showEToast(context, l.pairSavedAs(contact.name), tone: ETone.ok);
+  return true;
+}
+
+/// Save as a new contact in [deskAttachPairingTo]'s refusal, for tests.
+const Key deskOtherAddressNewKey = ValueKey('desk-other-address-new');
 
 /// Save as a new contact: the name it claims, to check, and its payments address.
 class _SaveContactDialog extends StatefulWidget {
@@ -1547,15 +1579,14 @@ Contact? deskSuggestedContact(WidgetRef ref, PairingRecord r) {
   final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
   if (r.contactId != null && contacts.any((c) => c.id == r.contactId)) return null;
   final all = ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[];
-  return sameNamedContact<Contact>(r, contacts, (c) => c.name, paired: (c) => all.any((p) => p.id != r.id && p.contactId == c.id && p.state.isPaired));
+  return sameNamedContact<Contact>(r, contacts, (c) => c.name, paired: (c) => all.any((p) => p.id != r.id && p.contactId == c.id && p.state.isPaired), epicboxOf: (c) => c.epicbox);
 }
 
 /// Attaches the pairing [r] to [contact], the user's one-tap choice of [deskSuggestedContact].
 Future<void> deskAttachPairing(BuildContext context, WidgetRef ref, PairingRecord r, Contact contact) async {
   final l = context.l10n;
   try {
-    await deskPairingCall(ref, (api) => api.attach(r.id, contact.id));
-    if (context.mounted) showEToast(context, l.pairSavedAs(contact.name), tone: ETone.ok);
+    await deskAttachPairingTo(context, ref, r, contact);
   } catch (error) {
     if (context.mounted) showEToast(context, deskErrorText(error, l), tone: ETone.risk);
   }

@@ -29,6 +29,7 @@ String pairingFailureText(AppLocalizations l, PairingFailure failure, {String na
   PairingFailure.ownCard => l.pairOwnCode,
   PairingFailure.sealedForOther => l.openSealedOtherTitle,
   PairingFailure.wrongNetwork => l.scanWrongNetworkTitle,
+  PairingFailure.otherAddress => name.isEmpty ? l.pairOtherAddress : l.pairOtherAddressTitle(name),
 };
 
 /// The second line of an outcome screen for [failure], or null where the title says it all.
@@ -48,6 +49,7 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.ownCard => l.pairOwnCodeBody,
       PairingFailure.sealedForOther => l.openSealedOtherBody,
       PairingFailure.wrongNetwork => l.pairWrongNetworkBody,
+      PairingFailure.otherAddress => name.isEmpty ? null : l.pairOtherAddressBody(name),
     };
 
 /// A short time span for countdowns: `6 d 23 h`, `23 h 12 min`, `12 min`, `under a minute`.
@@ -74,12 +76,19 @@ String pairingWordsText(List<SasWord> words) => words.map((w) => w.name).join(' 
 /// The address-book contact a new pairing [record] most likely belongs to: the one whose name
 /// is the name it chose, ignoring case and spaces. One with a pairing of its own comes first
 /// (a restore or a re-pair, whose key check starts once the user attaches it); several
-/// unpaired ones of that name are no suggestion. Only offered, never attached on its own.
-T? sameNamedContact<T>(PairingRecord record, Iterable<T> contacts, String Function(T) nameOf, {required bool Function(T) paired}) {
+/// unpaired ones of that name are no suggestion. Only offered, never attached on its own, and
+/// never one whose Epicbox address ([epicboxOf]) attaching refuses ([pairingVouchesFor]).
+T? sameNamedContact<T>(
+  PairingRecord record,
+  Iterable<T> contacts,
+  String Function(T) nameOf, {
+  required bool Function(T) paired,
+  required String? Function(T) epicboxOf,
+}) {
   String norm(String s) => s.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
   final names = {for (final n in [record.name, record.label]) if (n != null && norm(n).isNotEmpty) norm(n)};
   if (names.isEmpty) return null;
-  final same = [for (final c in contacts) if (names.contains(norm(nameOf(c)))) c];
+  final same = [for (final c in contacts) if (names.contains(norm(nameOf(c))) && pairingVouchesFor(record, epicboxOf(c))) c];
   final withPairing = same.where(paired).toList();
   if (withPairing.length == 1) return withPairing.single;
   return withPairing.isEmpty && same.length == 1 ? same.single : null;

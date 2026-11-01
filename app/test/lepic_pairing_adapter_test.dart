@@ -185,6 +185,41 @@ void main() {
     expect(seen.where((e) => e.kind == PairingEventKind.keyCheckRefused), isEmpty);
   });
 
+  // Attaching to a picked contact (26.10.25): LEPIC's cards bring no payments address, so a
+  // pairing cannot confirm an Epicbox address the contact has; it is refused, nothing stored.
+  test('a pairing is refused by a contact with an Epicbox address it cannot confirm', () async {
+    final c = await session.saveContact(contact: Contact(id: '', name: 'BT Labs', epicbox: 'es${'B' * 50}@epicbox.example.org'));
+    wallet.paired.add(_view('new'));
+
+    await expectLater(
+      session.pairing.attach('new', c.id),
+      throwsA(isA<WalletError>().having(pairingFailureOf, 'failure', PairingFailure.otherAddress)),
+    );
+    expect(wallet.paired.single.appContact, isNull);
+    expect((await session.contacts()).single.epicbox, c.epicbox);
+  });
+
+  test('a contact with no Epicbox address takes the pairing; its HTTP and Tor stay', () async {
+    final c = await session.saveContact(contact: Contact(id: '', name: 'Ana', http: 'https://wallet.example.org'));
+    wallet.paired.add(_view('new'));
+
+    final r = await session.pairing.attach('new', c.id);
+
+    expect(r.contactId, c.id);
+    final saved = (await session.contacts()).single;
+    expect((saved.epicbox, saved.http), (null, 'https://wallet.example.org'));
+    expect(wallet.calls, isEmpty, reason: 'no other pairing, no key check');
+  });
+
+  test('a contact with a pairing already takes a new one only through the key check', () async {
+    final c = await session.saveContact(contact: Contact(id: '', name: 'Ana'));
+    wallet.paired.addAll([_view('old', app: c.id), _view('new', created: 1792990000000)]);
+
+    await session.pairing.attach('new', c.id);
+
+    expect(wallet.calls, ['keyCheck']);
+  });
+
   test("using the new keys removes the contact's older pairings, which the other side lost", () async {
     wallet.paired.addAll([
       _view('older', app: 'book-1', created: 1792800000000),

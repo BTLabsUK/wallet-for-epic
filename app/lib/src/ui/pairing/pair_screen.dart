@@ -394,7 +394,9 @@ class _InPersonScreenState extends ConsumerState<InPersonScreen> {
     try {
       final record = await pairingCall(ref, (api) => api.scanCard(cardId: card.id, text: text));
       await pairingCall(ref, (api) => dropOlderInPersonPairings(api, record));
-      if (widget.contact != null) await pairingCall(ref, (api) => api.attach(record.id, widget.contact!.id));
+      if (!mounted) return;
+      // Refused, the pairing stays in no contact: the words check offers where it goes.
+      if (widget.contact case final c?) await attachPairingTo(context, ref, record, c);
       if (!mounted) return;
       SemanticsService.sendAnnouncement(View.of(context), context.l10n.pairInPersonDone, Directionality.of(context));
       await Navigator.of(context).pushReplacement(

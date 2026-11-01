@@ -14001,6 +14001,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairSaveNewContact => '保存为新联系人';
 
   @override
+  String pairOtherAddressTitle(String name) {
+    return '未添加到联系人 $name';
+  }
+
+  @override
+  String pairOtherAddressBody(String name) {
+    return '$name 已有一个此配对无法确认的 Epicbox 地址。';
+  }
+
+  @override
+  String get pairOtherAddress => '此联系人已有一个此配对无法确认的 Epicbox 地址。';
+
+  @override
   String pairAddToNamed(String name) {
     return '添加到联系人 $name';
   }

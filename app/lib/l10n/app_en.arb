@@ -19940,6 +19940,30 @@
   "@pairSaveNewContact": {
     "description": "Button: make an address-book contact for this pairing."
   },
+  "pairOtherAddressTitle": "Not added to {name}",
+  "@pairOtherAddressTitle": {
+    "description": "Title of the dialog when the contact the user picked for a pairing has an Epicbox address the pairing cannot confirm (a different one, or the pairing brought none): the pairing was not attached. Offers Save as a new contact.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairOtherAddressBody": "{name} has an Epicbox address this pairing can’t confirm.",
+  "@pairOtherAddressBody": {
+    "description": "Text of that dialog, and a line on the contact page when an older pairing sits on such a contact. \"Confirm\": the pairing did not bring this address, so it cannot vouch for it.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "pairOtherAddress": "This contact has an Epicbox address this pairing can’t confirm.",
+  "@pairOtherAddress": {
+    "description": "The same refusal as one line, where no contact name is at hand (an error toast)."
+  },
   "pairAddToNamed": "Add to {name}",
   "@pairAddToNamed": {
     "description": "First choice on the words-check result (and an orphan pairing's row) when an address-book contact has the name the pairing chose: attaches it there, which starts the key check of a re-pair. Offered, never done on its own.",

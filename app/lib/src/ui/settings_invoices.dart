@@ -79,16 +79,14 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
   Future<void> _attach(PairingRecord r, {required bool asNew}) async {
     final contact = asNew ? await savePairingAsNewContact(context, r) : await pickContactForPairing(context);
     if (contact == null || !mounted) return;
-    final l = context.l10n;
-    await pairingCall(ref, (api) => api.attach(r.id, contact.id));
-    ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
+    await _attachTo(r, contact);
   }
 
   Future<void> _attachTo(PairingRecord r, Contact contact) async {
     final l = context.l10n;
-    await pairingCall(ref, (api) => api.attach(r.id, contact.id));
-    if (!mounted) return;
-    ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
+    final to = await attachPairingTo(context, ref, r, contact);
+    if (to == null || !mounted) return;
+    ref.read(noticeProvider.notifier).show(l.pairSavedAs(to.name), level: NoticeLevel.success);
   }
 
   Future<void> _remove(PairingRecord r, String name) async {
@@ -169,7 +167,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     // A contact of the name it chose comes first: a re-pair's key check starts there.
     final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
     final suggested = orphan
-        ? sameNamedContact<Contact>(r, contacts, (c) => c.name, paired: (c) => all.any((p) => p.id != r.id && p.contactId == c.id && p.state.isPaired))
+        ? sameNamedContact<Contact>(r, contacts, (c) => c.name, paired: (c) => all.any((p) => p.id != r.id && p.contactId == c.id && p.state.isPaired), epicboxOf: (c) => c.epicbox)
         : null;
     // Keys changed, as the contact page shows it: the risk badge, paused until the words match.
     final changed = r.state == PairingState.keysChanged;

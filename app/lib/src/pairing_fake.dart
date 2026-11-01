@@ -702,6 +702,10 @@ class FakePairing implements PairingApi {
     _require('attach');
     calls.add('attach');
     final fresh = _get(id);
+    // As LEPIC's adapter: the contact's Epicbox address decides first ([contactForPairing]).
+    final contact = contactId == null ? null : session?.contactsValue.where((c) => c.id == contactId).firstOrNull;
+    final filled = contact == null ? null : contactForPairing(contact, fresh);
+    if (filled != null) await session!.saveContact(contact: filled);
     final old = contactId == null ? null : records.where((r) => r.contactId == contactId && r.id != id).firstOrNull;
     if (old != null && old.state.isPaired) {
       // A new pairing for a contact that has one runs the key check (RFC 7.8).

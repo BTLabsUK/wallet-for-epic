@@ -408,7 +408,8 @@ class _Header extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  if (p != null) ...[
+                  // Verified is about the Epicbox address: none beside one the pairing did not bring.
+                  if (p != null && pairingVouchesFor(p, contact.epicbox)) ...[
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 6,
@@ -751,6 +752,11 @@ class _PairingBlock extends ConsumerWidget {
         ],
         if (p.relayDown && !paused) ...[
           PairEdgeNotice(tone: BadgeTone.warn, title: l.contactRelayDownTitle(name), body: l.contactRelayDownBody),
+          const SizedBox(height: 12),
+        ],
+        // Attached before attaching checked the address: said, its address not marked verified.
+        if (!pairingVouchesFor(p, contact.epicbox)) ...[
+          PairEdgeNotice(tone: BadgeTone.warn, title: l.pairOtherAddressBody(name)),
           const SizedBox(height: 12),
         ],
         if (p.seal == SealMode.degraded && !changed) ...[

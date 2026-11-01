@@ -14495,6 +14495,20 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairSaveNewContact => 'บันทึกเป็นผู้ติดต่อใหม่';
 
   @override
+  String pairOtherAddressTitle(String name) {
+    return 'ไม่ได้เพิ่มในผู้ติดต่อ $name';
+  }
+
+  @override
+  String pairOtherAddressBody(String name) {
+    return '$name มีที่อยู่ Epicbox ที่การจับคู่นี้ยืนยันไม่ได้';
+  }
+
+  @override
+  String get pairOtherAddress =>
+      'ผู้ติดต่อนี้มีที่อยู่ Epicbox ที่การจับคู่นี้ยืนยันไม่ได้';
+
+  @override
   String pairAddToNamed(String name) {
     return 'เพิ่มในผู้ติดต่อ $name';
   }

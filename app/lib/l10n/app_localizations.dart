@@ -23432,6 +23432,24 @@ abstract class AppLocalizations {
   /// **'Save as a new contact'**
   String get pairSaveNewContact;
 
+  /// Title of the dialog when the contact the user picked for a pairing has an Epicbox address the pairing cannot confirm (a different one, or the pairing brought none): the pairing was not attached. Offers Save as a new contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Not added to {name}'**
+  String pairOtherAddressTitle(String name);
+
+  /// Text of that dialog, and a line on the contact page when an older pairing sits on such a contact. "Confirm": the pairing did not bring this address, so it cannot vouch for it.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has an Epicbox address this pairing can’t confirm.'**
+  String pairOtherAddressBody(String name);
+
+  /// The same refusal as one line, where no contact name is at hand (an error toast).
+  ///
+  /// In en, this message translates to:
+  /// **'This contact has an Epicbox address this pairing can’t confirm.'**
+  String get pairOtherAddress;
+
   /// First choice on the words-check result (and an orphan pairing's row) when an address-book contact has the name the pairing chose: attaches it there, which starts the key check of a re-pair. Offered, never done on its own.
   ///
   /// In en, this message translates to:

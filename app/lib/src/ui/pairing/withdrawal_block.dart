@@ -13,7 +13,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
-import 'pair_check.dart' show pickContactForPairing, savePairingAsNewContact;
+import 'pair_check.dart' show attachPairingTo, pickContactForPairing, savePairingAsNewContact;
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 
@@ -37,9 +37,9 @@ class WithdrawalFromRow extends ConsumerWidget {
   final String pairingId;
   final String name;
 
-  Future<void> _attach(WidgetRef ref, Contact? contact) async {
-    if (contact == null) return;
-    await pairingCall(ref, (api) => api.attach(pairingId, contact.id));
+  Future<void> _attach(BuildContext context, WidgetRef ref, PairingRecord record, Contact? contact) async {
+    if (contact == null || !context.mounted) return;
+    await attachPairingTo(context, ref, record, contact);
   }
 
   @override
@@ -64,14 +64,20 @@ class WithdrawalFromRow extends ConsumerWidget {
               children: [
                 Expanded(
                   child: FilledButton.tonal(
-                    onPressed: () async => _attach(ref, await savePairingAsNewContact(context, record)),
+                    onPressed: () async {
+                      final saved = await savePairingAsNewContact(context, record);
+                      if (context.mounted) await _attach(context, ref, record, saved);
+                    },
                     child: Text(l.pairSaveNewContact, textAlign: TextAlign.center),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () async => _attach(ref, await pickContactForPairing(context)),
+                    onPressed: () async {
+                      final picked = await pickContactForPairing(context);
+                      if (context.mounted) await _attach(context, ref, record, picked);
+                    },
                     child: Text(l.pairAddToAContact, textAlign: TextAlign.center),
                   ),
                 ),
