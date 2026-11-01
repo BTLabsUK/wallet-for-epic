@@ -11,7 +11,7 @@ H=$(cd "$(dirname "$0")" && pwd); S=emulator-5556; P=uk.btlabs.epiccash.mobile
 OFFSETS=${OFFSETS:-"1 5 15 30 60"}
 say() { echo "LIVE $(date -u +%T) $*"; }
 plog() { adb -s $S shell "run-as $P cat files/logs/wfe.log" 2>/dev/null; }
-adb -s $S shell dumpsys battery unplug
+[ "${PLUGGED:-0}" = 1 ] || adb -s $S shell dumpsys battery unplug
 adb -s $S shell input keyevent KEYCODE_HOME; sleep 2
 adb -s $S shell input keyevent KEYCODE_SLEEP
 T0=$(date +%s); say "phone backgrounded, screen off, battery unplugged"
