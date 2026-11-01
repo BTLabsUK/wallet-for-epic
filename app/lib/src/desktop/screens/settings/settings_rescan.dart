@@ -270,7 +270,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                                             _heightError = null;
                                           }),
                                         ),
-                                        if (_heightError != null) ...[SizedBox(height: Sp.x1), Text(_heightError!, style: ts.small.copyWith(color: c.risk))],
+                                        SizedBox(height: Sp.x1),
+                                        ReservedSlot.lines(style: ts.small, child: _heightError == null ? null : Text(_heightError!, style: ts.small.copyWith(color: c.risk))),
                                       ],
                                     ),
                                   ),
@@ -282,6 +283,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                                       child: EField(
                                         label: l.deskOnbRestoreFromLabel,
                                         error: _heightError,
+                                        reserveError: true,
                                         child: EInput(
                                           key: const ValueKey('rescan-height'),
                                           controller: _height,
