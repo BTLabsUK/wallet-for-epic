@@ -114,7 +114,9 @@ void main() {
         await show(tester, SendArgs(recipient: to, amount: '1'));
         expect(chip('Tor starting'), findsOneWidget);
         expect(find.text('Tor is starting'), findsOneWidget);
-        expect(review(tester).label, 'Waiting for Tor');
+        // The button keeps its name; the short reason is its tip.
+        expect(review(tester).label, 'Review');
+        expect(review(tester).tooltip, 'Waiting for Tor');
         expect(review(tester).onPressed, isNull);
         // Enter in Amount does not review either.
         await tester.tap(find.byType(EditableText).at(1));
@@ -137,7 +139,8 @@ void main() {
       expect(find.text('Tor is not connected'), findsOneWidget);
       expect(find.text('Nothing is sent until it is, or until Tor is turned off.'), findsOneWidget);
       expect(chip('Tor not connected'), findsOneWidget);
-      expect(review(tester).label, 'Tor not connected');
+      expect(review(tester).label, 'Review');
+      expect(review(tester).tooltip, 'Tor not connected');
       expect(review(tester).onPressed, isNull);
       await tester.tap(find.widgetWithText(EButton, 'Retry'));
       await tester.pumpAndSettle();
