@@ -346,7 +346,9 @@ class TxIcon extends StatelessWidget {
   }
 }
 
-/// Ring or icon for the state, sized for a row.
+/// Ring or icon for the state, sized for a row. Every state takes the same circle of [size],
+/// the icon ones too (an hourglass in the ring's track), so the state's words always start at
+/// one x.
 class TxStateMark extends StatelessWidget {
   const TxStateMark(this.tx, {super.key, this._size});
 
@@ -357,12 +359,20 @@ class TxStateMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    if (tx.immature) return Icon(EIcons.sand, size: size * 0.75, color: c.info);
+    // An icon in the ring's empty track, the size of a ring.
+    Widget circled(IconData icon, Color color) => SizedBox.square(
+      dimension: size,
+      child: DecoratedBox(
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: c.lineStrong, width: 2)),
+        child: Center(child: Icon(icon, size: size * 0.55, color: color)),
+      ),
+    );
+    if (tx.immature) return circled(EIcons.sand, c.info);
     // The chain was not asked about a payment only a backup knows: no count to show.
-    if (tx.fromBackup) return Icon(EIcons.archive, size: size * 0.75, color: c.dim);
+    if (tx.fromBackup) return circled(EIcons.archive, c.dim);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
-      TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: tx.undelivered ? c.warn : c.info),
+      TxState.waitingRecipient => circled(EIcons.sand, tx.undelivered ? c.warn : c.info),
       TxState.posted => ERing(confirmations: 0, size: size),
       _ => ERing(confirmations: tx.confirmations, needed: tx.confirmationsNeeded, size: size),
     };
