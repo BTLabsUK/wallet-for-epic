@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, PointerEvent;
 import 'package:flutter/rendering.dart' show RenderProxyBox;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -224,16 +225,34 @@ class _SlotScaffoldState extends State<SlotScaffold> {
 /// room below their last row. The rows that slide under the card come back when it leaves a
 /// few seconds later. A persistent notice (the update banner, there for minutes) instead
 /// pushes the content down and takes its own space, with no slack, so nothing sits under it
-/// (android-18). A change at the bottom (the keyboard) is left alone. [meter] reads the
-/// [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
+/// (android-18). So does a passing notice that no finger led to: one after a tap in a dialog
+/// or on another screen, or from the wallet by itself. Holding still would only slide the top
+/// of the screen under the card (a status card's header, A-07), with no finger to keep still
+/// for. The finger counts while the last press anywhere in the app was in this body, at most
+/// [touchWindow] before the notice. A change at the bottom (the keyboard) is left alone.
+/// [meter] reads the [NoticeDock]'s height, so the slack lasts exactly as long as it is open.
 class StillUnderDock extends ConsumerStatefulWidget {
   const StillUnderDock({super.key, required this.child, this.meter});
 
   final Widget child;
   final DockMeter? meter;
 
+  /// How long after a press in the body a notice still counts as led by it.
+  static const Duration touchWindow = Duration(seconds: 3);
+
   @override
   ConsumerState<StillUnderDock> createState() => _StillUnderDockState();
+}
+
+/// The last press anywhere in the app: its pointer and when it went down.
+int _lastPress = -1;
+DateTime _lastPressAt = DateTime.fromMillisecondsSinceEpoch(0);
+bool _pressRoute = false;
+
+void _onAnyPointer(PointerEvent event) {
+  if (event is! PointerDownEvent) return;
+  _lastPress = event.pointer;
+  _lastPressAt = DateTime.now();
 }
 
 class _StillUnderDockState extends ConsumerState<StillUnderDock> {
@@ -242,9 +261,25 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
   double? _dockBefore;
   bool _slack = false;
 
-  /// Whether the dock's last change came from a persistent notice: opening for one, or
-  /// closing after one. Then the content moves with the dock instead of staying put.
-  bool _persistent = false;
+  /// Whether the dock's last change pushes the content: a persistent notice, or one no press
+  /// in this body led to; opening for it, or closing after it. Otherwise the content stays.
+  bool _push = false;
+
+  /// The last press in this body.
+  int _press = -2;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_pressRoute) {
+      _pressRoute = true;
+      GestureBinding.instance.pointerRouter.addGlobalRoute(_onAnyPointer);
+    }
+  }
+
+  /// Whether a finger in this body led to the notice arriving now.
+  bool get _touched =>
+      _press == _lastPress && DateTime.now().difference(_lastPressAt) <= StillUnderDock.touchWindow;
 
   double get _dockHeight => widget.meter?.height ?? 0;
 
@@ -269,7 +304,7 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
     final position = _position;
     if (before == null || position == null || !position.hasPixels) return;
     final moved = height - before;
-    if (moved.abs() < 0.01 || _persistent) return;
+    if (moved.abs() < 0.01 || _push) return;
     var to = math.max(position.pixels + moved, position.minScrollExtent);
     // Without slack to scroll into, the content moves by the rest.
     if (!_use.used) to = math.min(to, math.max(position.maxScrollExtent, position.pixels));
@@ -279,22 +314,27 @@ class _StillUnderDockState extends ConsumerState<StillUnderDock> {
   @override
   Widget build(BuildContext context) {
     ref.listen<Notice?>(noticeProvider, (previous, notice) {
-      _persistent = (notice ?? previous)?.persistent ?? false;
+      if (notice == null) return; // Closing goes the way it opened.
+      // Decided as the dock opens; a notice replacing one keeps its way, unless persistent.
+      _push = notice.persistent || (previous == null || previous.persistent ? !_touched : _push);
     });
     // Slack from the moment a notice arrives, before the dock has moved anything, and until
-    // the dock is shut; none for a persistent notice, which pushes the content instead.
+    // the dock is shut; none for a notice that pushes the content instead.
     final notice = ref.watch(noticeProvider);
     if (notice != null && notice.persistent) {
-      _persistent = true;
-    } else if (notice != null || _dockHeight >= 0.5) {
+      _push = true;
+    } else if (!_push && (notice != null || _dockHeight >= 0.5)) {
       _slack = true;
     }
     return NotificationListener<ScrollMetricsNotification>(
       onNotification: _onMetrics,
-      child: DockSlack(
-        extra: _slack ? MediaQuery.sizeOf(context).height : 0,
-        use: _use,
-        child: _OnLayout(onLayout: _onLayout, child: widget.child),
+      child: Listener(
+        onPointerDown: (e) => _press = e.pointer,
+        child: DockSlack(
+          extra: _slack ? MediaQuery.sizeOf(context).height : 0,
+          use: _use,
+          child: _OnLayout(onLayout: _onLayout, child: widget.child),
+        ),
       ),
     );
   }

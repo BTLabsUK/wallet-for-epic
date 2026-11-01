@@ -400,6 +400,41 @@ void main() {
     expect(tester.getCenter(row).dy, moreOrLessEquals(before.dy, epsilon: 1));
   });
 
+  testWidgets('A-07: a notice no finger in the body led to pushes the content down, covering nothing', (
+    tester,
+  ) async {
+    final c = await _pump(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator));
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => SlotScaffold(
+          appBar: AppBar(title: const Text('Payment')),
+          body: ListView(
+            children: [
+              for (var i = 0; i < 30; i++)
+                ListTile(key: ValueKey('row$i'), title: Text('Row $i')),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // The last press was elsewhere (a dialog's button, another screen): here, the app bar.
+    final press = await tester.startGesture(tester.getCenter(find.text('Payment')));
+    await press.up();
+    final first = find.byKey(const ValueKey('row0'));
+    final before = tester.getTopLeft(first).dy;
+    c.notices.show('Payment cancelled', level: NoticeLevel.success);
+    await tester.pumpAndSettle();
+    final dock = tester.getSize(find.byType(NoticeDock).last).height;
+    expect(dock, greaterThan(0));
+    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before + dock, epsilon: 1));
+    expect(tester.getRect(_card).overlaps(tester.getRect(first)), isFalse);
+    await tester.pump(noticeDuration(NoticeLevel.success));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(first).dy, moreOrLessEquals(before, epsilon: 1));
+  });
+
   testWidgets('android-18: a persistent notice pushes the content down and covers nothing', (
     tester,
   ) async {
