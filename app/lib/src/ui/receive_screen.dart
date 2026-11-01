@@ -511,9 +511,6 @@ class ReceiveView extends ConsumerWidget {
                 child: _ReceivePage(
                   height: math.max(0, viewport.maxHeight - 2 * padding),
                   leastCode: receiveQrMinSize + _AddressQr.frame,
-                  // Link's cards without a code start under the tabs: centred they left a
-                  // band of empty page above the tip.
-                  centre: tab != ReceiveTab.direct || code != null,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -533,7 +530,9 @@ class ReceiveView extends ConsumerWidget {
   }
 }
 
-/// Receive's page: the tabs at the top, then the rest centred in the room under them. With
+/// Receive's page: the tabs at the top, then the rest right under them on every tab, so
+/// switching tabs never moves the content's start (a centred tab left a band of empty page
+/// above it). With
 /// four children the third is the QR code, which gets the room the others leave, at least
 /// [leastCode]: the page is [height] tall, or taller and scrolled when even the least code
 /// does not fit.
@@ -541,26 +540,21 @@ class _ReceivePage extends MultiChildRenderObjectWidget {
   const _ReceivePage({
     required this.height,
     required this.leastCode,
-    this.centre = true,
     required super.children,
   });
 
   final double height;
   final double leastCode;
 
-  /// The part under the tabs centred in the room left; else at the top.
-  final bool centre;
-
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      _RenderReceivePage(height, leastCode, centre);
+      _RenderReceivePage(height, leastCode);
 
   @override
   void updateRenderObject(BuildContext context, _RenderReceivePage render) {
     render
       ..height = height
-      ..leastCode = leastCode
-      ..centre = centre;
+      ..leastCode = leastCode;
   }
 }
 
@@ -570,14 +564,7 @@ class _RenderReceivePage extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, _ReceivePageData>,
         RenderBoxContainerDefaultsMixin<RenderBox, _ReceivePageData> {
-  _RenderReceivePage(this._height, this._leastCode, this._centre);
-
-  bool _centre;
-  set centre(bool value) {
-    if (value == _centre) return;
-    _centre = value;
-    markNeedsLayout();
-  }
+  _RenderReceivePage(this._height, this._leastCode);
 
   double _height;
   set height(double value) {
@@ -635,9 +622,9 @@ class _RenderReceivePage extends RenderBox
       used += code.size.height;
     }
     size = constraints.constrain(Size(width, math.max(_height, used)));
-    // The tabs stay at the top; the rest is centred in the room under them.
+    // The tabs stay at the top; the rest starts right under them, centred across.
     final head = children.first;
-    var y = head.size.height + (_centre ? (size.height - used) / 2 : 0);
+    var y = head.size.height;
     (head.parentData! as _ReceivePageData).offset = Offset.zero;
     for (final child in children.skip(1)) {
       (child.parentData! as _ReceivePageData).offset = Offset(
@@ -1167,7 +1154,7 @@ class _AddressQrState extends State<_AddressQr> {
     final reduce = MediaQuery.disableAnimationsOf(context);
     final code = MarkedQr(data: widget.address, size: widget.size);
     return Center(
-      // As tall as the code, so the page centres it with the rest.
+      // As tall as the code, so the page stacks it with the rest.
       heightFactor: 1,
       // The corner ticks frame the code as the screen's one object.
       child: CustomPaint(
