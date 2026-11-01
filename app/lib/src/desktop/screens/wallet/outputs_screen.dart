@@ -11,11 +11,12 @@ import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../devices/device_providers.dart' show holdOf;
 import '../../data/devices_state.dart' show deskDeviceBookProvider;
 import '../settings/settings_devices.dart' show deskReleaseHeld;
+import '../../../smart_outputs.dart' show OutputPart;
 import 'outputs_dialogs.dart';
 import 'tx_display.dart' show iconOf, shortDayMonth;
 
 /// The list's filter on the Outputs page.
-enum OutputsFilter { all, spendable, confirming, locked, waiting }
+enum OutputsFilter { all, spendable, confirming, locked }
 
 /// Starts the Outputs page on given data (the screenshot tour) or a state.
 class OutputsArgs {
@@ -41,33 +42,45 @@ String shortCommitment(String s) => s.length <= 13 ? s : '${s.substring(0, 6)}â€
 
 String _group(AppLocalizations l, int n) => localInt(l, n);
 
-/// How many outputs of each part of the balance: spendable; confirming and awaiting
-/// finalization; immature and mining; locked; and in Total (the outputs its value adds up:
-/// not the ones awaiting finalization, which are in no figure but Confirming).
+/// [w]'s [OutputPart]: the one mapping the tiles, the filter tabs' counts and the table share.
+OutputPart? outputPart(OutputWord w) => switch (w) {
+  OutputWord.spendable => OutputPart.spendable,
+  OutputWord.confirming || OutputWord.finalizing => OutputPart.confirming,
+  OutputWord.immature || OutputWord.mining => OutputPart.immature,
+  OutputWord.locked => OutputPart.locked,
+  OutputWord.unpaidInvoice || OutputWord.spent => null,
+};
+
+/// Whether the table lists an output of [w] under [filter]: All lists every output but the
+/// spent ones (unless [showSpent]); each other filter lists its [OutputPart].
+bool outputListed(OutputsFilter filter, OutputWord w, {bool showSpent = false}) => switch (filter) {
+  OutputsFilter.all => showSpent || w != OutputWord.spent,
+  OutputsFilter.spendable => outputPart(w) == OutputPart.spendable,
+  OutputsFilter.confirming => outputPart(w) == OutputPart.confirming,
+  OutputsFilter.locked => outputPart(w) == OutputPart.locked,
+};
+
+/// How many outputs of each [OutputPart], and in Total: the outputs its value adds up, so not
+/// the ones awaiting finalization (in no block yet, LNX-13), which only Confirming counts.
 typedef OutputCounts = ({int spendable, int confirming, int immature, int locked, int total});
 
 OutputCounts outputCounts(List<Output> all) {
   var s = 0, c = 0, i = 0, l = 0, t = 0;
   for (final o in all) {
-    switch (o.word) {
-      case OutputWord.spendable:
+    final part = outputPart(o.word);
+    switch (part) {
+      case OutputPart.spendable:
         s++;
-        t++;
-      case OutputWord.confirming:
+      case OutputPart.confirming:
         c++;
-        t++;
-      case OutputWord.finalizing:
-        c++;
-      case OutputWord.immature || OutputWord.mining:
+      case OutputPart.immature:
         i++;
-        t++;
-      case OutputWord.locked:
+      case OutputPart.locked:
         l++;
-        t++;
-      // An unpaid invoice's output is in no part of the balance.
-      case OutputWord.unpaidInvoice || OutputWord.spent:
+      case null:
         break;
     }
+    if (part != null && o.word != OutputWord.finalizing) t++;
   }
   return (spendable: s, confirming: c, immature: i, locked: l, total: t);
 }
@@ -157,20 +170,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     if (mounted) setState(() => _estimatedFor = null);
   }
 
-  bool _matches(Output o, String q) {
-    final w = o.word;
-    if (w == OutputWord.spent && !_showSpent) return false;
-    // All counts what Total counts (UD-008): an output awaiting finalization is in no balance
-    // figure, so it has its own filter, Waiting.
-    final kept = switch (_filter) {
-      OutputsFilter.all => w != OutputWord.finalizing,
-      OutputsFilter.spendable => w == OutputWord.spendable,
-      OutputsFilter.confirming => w == OutputWord.confirming,
-      OutputsFilter.locked => w == OutputWord.locked,
-      OutputsFilter.waiting => w == OutputWord.finalizing,
-    };
-    return kept && (q.isEmpty || o.commitment.contains(q));
-  }
+  bool _matches(Output o, String q) =>
+      outputListed(_filter, o.word, showSpent: _showSpent) && (q.isEmpty || o.commitment.contains(q));
 
   @override
   Widget build(BuildContext context) {
@@ -327,15 +328,18 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     // One line of Ctl.sm controls on one centre line: the status tabs and Show spent on the
     // left, the commitment search at the right end. Short of room (a narrow window) the
     // search goes under the tabs, at its own width; the tabs shrink before they clip.
+    // Each tab counts the rows it lists, so a tab and its tile agree (#69).
+    int listed(OutputsFilter f) => all.where((o) => outputListed(f, o.word, showSpent: _showSpent)).length;
     final tabs = ESegmented<OutputsFilter>(
       shrink: true,
       segments: [
-        ESegment(OutputsFilter.all, l.deskOutFilterAll, count: all.where((o) => (_showSpent || o.word != OutputWord.spent) && o.word != OutputWord.finalizing).length),
-        ESegment(OutputsFilter.spendable, l.deskOutFilterSpendable, count: counts.spendable),
-        ESegment(OutputsFilter.confirming, l.deskOutFilterConfirming, count: all.where((o) => o.word == OutputWord.confirming).length),
-        ESegment(OutputsFilter.locked, l.deskOutFilterLocked, count: counts.locked),
-        if (all.any((o) => o.word == OutputWord.finalizing))
-          ESegment(OutputsFilter.waiting, l.deskOutFilterWaiting, count: all.where((o) => o.word == OutputWord.finalizing).length),
+        for (final (f, label) in [
+          (OutputsFilter.all, l.deskOutFilterAll),
+          (OutputsFilter.spendable, l.deskOutFilterSpendable),
+          (OutputsFilter.confirming, l.deskOutFilterConfirming),
+          (OutputsFilter.locked, l.deskOutFilterLocked),
+        ])
+          ESegment(f, label, count: listed(f)),
       ],
       value: _filter,
       onChanged: (v) => setState(() {

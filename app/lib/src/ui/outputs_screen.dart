@@ -31,14 +31,14 @@ enum OutputsFilter { all, spendable, confirming, locked, immature }
 /// Mining rewards and the like need more than this to unlock; the sheet words it plainly.
 const int _minSplitEach = nanoEpic ~/ 2;
 
-bool _matches(OutputsFilter f, OutputLabel w) => switch (f) {
-  OutputsFilter.all => w != OutputLabel.spent,
-  OutputsFilter.spendable => w == OutputLabel.spendable,
-  OutputsFilter.confirming =>
-    w == OutputLabel.confirming || w == OutputLabel.finalizing,
-  OutputsFilter.locked => w == OutputLabel.locked,
-  OutputsFilter.immature =>
-    w == OutputLabel.immature || w == OutputLabel.mining,
+/// Whether the list shows [o] under [f]: All every output but the spent ones; each other
+/// filter its [OutputPart], the one its tile counts.
+bool _matches(OutputsFilter f, WalletOutput o) => switch (f) {
+  OutputsFilter.all => outputWord(o) != OutputLabel.spent,
+  OutputsFilter.spendable => walletOutputPart(o) == OutputPart.spendable,
+  OutputsFilter.confirming => walletOutputPart(o) == OutputPart.confirming,
+  OutputsFilter.locked => walletOutputPart(o) == OutputPart.locked,
+  OutputsFilter.immature => walletOutputPart(o) == OutputPart.immature,
 };
 
 String _wordText(AppLocalizations l, OutputLabel w) => switch (w) {
@@ -173,24 +173,19 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       for (final x in home?.transactions ?? const <TxEntry>[])
         if (x.id != null) x.id!: x,
     };
-    int count(bool Function(OutputLabel) test) =>
-        list?.where((o) => test(outputWord(o))).length ?? 0;
-    final nSpendable = count((w) => w == OutputLabel.spendable);
-    final nConfirming = count(
-      (w) => w == OutputLabel.confirming || w == OutputLabel.finalizing,
-    );
-    final nLocked = count((w) => w == OutputLabel.locked);
-    final nSpent = count((w) => w == OutputLabel.spent);
-    final nAll = list == null ? 0 : list.length - nSpent;
-    // The tiles count the outputs their value adds up, as LEPIC's figures do: an unpaid
-    // invoice's output is in none, one awaiting finalization is in Confirming, not in Total.
-    bool unpaid(WalletOutput o) => o.category == OutputCategory.unpaidInvoice;
-    final nConfirmingTile = list
-            ?.where((o) => !unpaid(o) && const {OutputLabel.confirming, OutputLabel.finalizing}.contains(outputWord(o)))
-            .length ??
-        0;
+    // One count for a tile and its filter: the outputs of its [OutputPart] (#69).
+    int listed(OutputsFilter f) =>
+        list?.where((o) => _matches(f, o)).length ?? 0;
+    final nSpendable = listed(OutputsFilter.spendable);
+    final nConfirming = listed(OutputsFilter.confirming);
+    final nLocked = listed(OutputsFilter.locked);
+    final nAll = listed(OutputsFilter.all);
+    final nSpent =
+        list?.where((o) => outputWord(o) == OutputLabel.spent).length ?? 0;
+    // Total counts the outputs its value adds up, as LEPIC's figures do: every part but the
+    // outputs awaiting finalization, which are in no block yet.
     final nTotalTile = list
-            ?.where((o) => !const {OutputLabel.spent, OutputLabel.finalizing}.contains(outputWord(o)))
+            ?.where((o) => walletOutputPart(o) != null && outputWord(o) != OutputLabel.finalizing)
             .length ??
         0;
     final locked = summary?.locked ?? BigInt.zero;
@@ -225,7 +220,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final shown = [
       for (final o in list ?? const <WalletOutput>[])
         if (_showSpent && outputWord(o) == OutputLabel.spent ||
-            _matches(_filter, outputWord(o)))
+            _matches(_filter, o))
           o,
     ];
     final now = DateTime.now();
@@ -252,7 +247,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                       ? null
                       : summary.awaitingConfirmation +
                             summary.awaitingFinalization,
-                  list == null ? null : nConfirmingTile,
+                  list == null ? null : nConfirming,
                 ),
               ),
             ],
