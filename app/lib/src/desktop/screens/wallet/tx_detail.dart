@@ -1042,14 +1042,19 @@ Future<CancelChoice?> showCancelTxDialog(BuildContext context, Tx t) => showEDia
                   : l.deskTxCancelOutgoingBody(EMoney.figure(l, t.amount, surface: AmountSurface.exact), whoOf(l, t)),
             ),
       body: twoWays ? DeskCancelChoices(anchor: anchor) : DeskCancelNote(anchor: anchor, inDialog: true),
+      // Named by outcome (B-04): Keep and Unlock coins outlined, Move coins back the one
+      // primary where both ways are offered; a plain cancel keeps its risk outline.
       actions: [
         EButton(label: l.deskTxCancelKeep, onPressed: () => Navigator.pop(context, CancelChoice.keep)),
-        if (twoWays) EButton(label: l.cancelStopWaiting, onPressed: () => Navigator.pop(context, CancelChoice.stopWaiting)),
-        EButton(
-          label: twoWays ? l.cancelForSure : (t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction),
-          kind: EBtnKind.danger,
-          onPressed: () => Navigator.pop(context, CancelChoice.cancelForSure),
-        ),
+        if (twoWays) EButton(label: l.cancelUnlockOpen, onPressed: () => Navigator.pop(context, CancelChoice.stopWaiting)),
+        if (twoWays)
+          EButton.primary(label: l.cancelMoveBack, onPressed: () => Navigator.pop(context, CancelChoice.cancelForSure))
+        else
+          EButton(
+            label: t.incoming ? l.deskTxCancelIncomingAction : l.deskTxCancelOutgoingAction,
+            kind: EBtnKind.danger,
+            onPressed: () => Navigator.pop(context, CancelChoice.cancelForSure),
+          ),
       ],
     );
   },

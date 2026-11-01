@@ -42,11 +42,12 @@ void main() {
     for (final platform in HelpPlatform.values) {
       final topic = helpTopics(3, platform: platform).firstWhere((t) => t.id == HelpId.cancel);
 
-      test('${platform.name}: three headings in order, under When something goes wrong', () {
+      test('${platform.name}: four headings in order, under When something goes wrong', () {
         expect(topic.section, 'trouble');
         expect(topic.title, 'Cancelling a payment');
-        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests]);
-        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Sending', 'Receiving', 'Invoices (experimental)']);
+        // The two ways first, named as their buttons are (B-04), then the three cases.
+        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.twoWays, HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests]);
+        expect([for (final b in topic.body) if (b.kind == HelpBlockKind.h) b.text], ['Move coins back, or unlock them', 'Sending', 'Receiving', 'Invoices (experimental)']);
         // Every other block has no anchor; a heading is never a list.
         for (final b in topic.body) {
           expect(b.anchor.isNotEmpty, b.kind == HelpBlockKind.h, reason: b.text);
@@ -54,13 +55,13 @@ void main() {
       });
 
       // WAL-20: once the other side holds what it needs to finish the payment, Cancel offers two
-      // ways: Cancel for sure (the coins back, one network fee) and the free Stop waiting.
+      // ways: Move coins back (one network fee) and the free Unlock coins (B-04 names).
       test('${platform.name}: names the two ways to cancel, the fee, and what may still finish means', () {
         final all = topic.bodyText;
         // The bold names render with their own spacing: check the name and its sentence apart.
-        expect(all, contains('Cancel for sure'));
+        expect(all, contains('Move coins back'));
         expect(all, contains('moves the coins back to this wallet first, for the normal network fee'));
-        expect(all, contains('Stop waiting'));
+        expect(all, contains('Unlock coins'));
         expect(all, contains('is free and moves nothing'));
         expect(all, contains('if it does, it shows as paid'));
         expect(all, isNot(contains('offered with the cancel')));
@@ -90,7 +91,7 @@ void main() {
       for (final lang in ['de', 'pl', 'ru', 'zh', 'th']) {
         for (final platform in HelpPlatform.values) {
           final t = localizedHelpTopics(lang, 3, platform: platform).firstWhere((t) => t.id == HelpId.cancel);
-          expect([for (final b in t.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests], reason: lang);
+          expect([for (final b in t.body) if (b.kind == HelpBlockKind.h) b.anchor], [HelpAnchor.twoWays, HelpAnchor.sending, HelpAnchor.receiving, HelpAnchor.requests], reason: lang);
           expect(t.title, isNot('Cancelling a payment'), reason: lang);
         }
       }

@@ -17399,6 +17399,25 @@ class AppLocalizationsTh extends AppLocalizations {
       'ไม่มีค่าธรรมเนียม รายการนี้ยังอาจสำเร็จได้';
 
   @override
+  String get cancelMoveBack => 'ย้ายเหรียญกลับ';
+
+  @override
+  String cancelMoveBackFee(String fee) {
+    return 'ย้ายเหรียญกลับ · ค่าธรรมเนียม $fee';
+  }
+
+  @override
+  String get cancelUnlockOpen => 'ปลดล็อกเหรียญ เปิดรายการไว้';
+
+  @override
+  String get cancelCompareMoveBack =>
+      'ย้ายเหรียญกลับ: แน่นอน มีค่าธรรมเนียมเครือข่าย';
+
+  @override
+  String get cancelCompareUnlock =>
+      'ปลดล็อกเหรียญ: ไม่มีค่าธรรมเนียม รายการนี้ยังอาจสำเร็จได้';
+
+  @override
   String get cancelChoicesTitle => 'สองวิธีในการยกเลิก';
 
   @override

@@ -332,9 +332,9 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
           ? [InvButton(label: l.deskInvPayerClose, onPressed: () => Navigator.of(context).pop())]
           : [
               InvButton(label: l.deskInvPayerKeepPayment, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-              InvButton(label: l.cancelStopWaiting, onPressed: _busy ? null : () => _cancel(spendBack: false)),
-              // Three at the least width, so they stay on one row in the 480-wide dialog.
-              InvButton(label: l.cancelForSure, kind: EBtnKind.danger, busy: _busy, onPressed: _busy ? null : _cancel),
+              InvButton(label: l.cancelUnlockOpen, onPressed: _busy ? null : () => _cancel(spendBack: false)),
+              // Named by outcome (B-04); moving the coins back is the one primary.
+              InvButton(label: l.cancelMoveBack, kind: EBtnKind.primary, busy: _busy, onPressed: _busy ? null : _cancel),
             ],
     );
   }

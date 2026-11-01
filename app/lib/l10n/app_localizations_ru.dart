@@ -18429,6 +18429,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cancelStopWaitingLine => 'Бесплатно. Платёж ещё может пройти.';
 
   @override
+  String get cancelMoveBack => 'Вернуть монеты';
+
+  @override
+  String cancelMoveBackFee(String fee) {
+    return 'Вернуть монеты · комиссия $fee';
+  }
+
+  @override
+  String get cancelUnlockOpen =>
+      'Разблокировать монеты, платёж остаётся открытым';
+
+  @override
+  String get cancelCompareMoveBack =>
+      'Вернуть монеты: наверняка, за сетевую комиссию.';
+
+  @override
+  String get cancelCompareUnlock =>
+      'Разблокировать монеты: бесплатно, платёж ещё может пройти.';
+
+  @override
   String get cancelChoicesTitle => 'Два способа отменить';
 
   @override

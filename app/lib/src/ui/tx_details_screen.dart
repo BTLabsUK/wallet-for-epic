@@ -481,6 +481,10 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   /// Unlocks the coins of a send the network never took, once the user chose how: Cancel for
   /// sure also spends them back to this wallet, Stop waiting only unlocks them (cancel_dialog.dart).
   Future<void> _release(TxEntry tx) async {
+    final session0 = ref.read(sessionProvider);
+    // What moving the coins back costs, on its button; without it the button has no figure.
+    final fee = session0 == null ? null : await spendBackFeeOf(session0, tx);
+    if (!mounted) return;
     final l0 = context.l10n;
     final choice = await showCancelChoices(
       context,
@@ -488,6 +492,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
       body: l0.txDetailsReleaseBody,
       anchor: HelpAnchor.sending,
       keepLabel: l0.txDetailsReleaseKeepWaiting,
+      fee: fee,
     );
     if (!choice.cancels || !mounted) return;
     final session = ref.read(sessionProvider);
@@ -534,20 +539,25 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     final paidRequest = !receive &&
         (tx.flow == TxFlow.invoice || (tx.slateId != null && ref.read(paidInvoiceProvider(tx.slateId!)).value != null));
     // A send both wallets signed: a copy could still reach the network. Either way the user
-    // picks Cancel for sure (the coins spent back, for a fee) or the free Stop waiting
+    // picks Move coins back (spent back, for a fee) or the free Unlock coins
     // (cancel_dialog.dart); a plain cancel has one free choice.
     final signedSend = !receive && !paidRequest && cancelSpendsBack(tx);
-    final l0 = context.l10n;
     final CancelChoice choice;
     if (paidRequest || signedSend) {
+      final session0 = ref.read(sessionProvider);
+      final fee = session0 == null ? null : await spendBackFeeOf(session0, tx);
+      if (!mounted) return;
+      final l0 = context.l10n;
       choice = await showCancelChoices(
         context,
         title: l0.txDetailsCancelTitle,
         body: paidRequest ? l0.txDetailsCancelRequestBody : l0.txDetailsCancelNotPostedBody,
         anchor: paidRequest ? HelpAnchor.requests : HelpAnchor.sending,
         keepLabel: l0.txDetailsCancelKeep,
+        fee: fee,
       );
     } else {
+      final l0 = context.l10n;
       final confirmed = await showPlainCancel(
         context,
         title: l0.txDetailsCancelTitle,

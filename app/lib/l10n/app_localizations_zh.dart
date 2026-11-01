@@ -16782,6 +16782,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancelStopWaitingLine => '免费。这笔付款仍可能完成。';
 
   @override
+  String get cancelMoveBack => '把币转回';
+
+  @override
+  String cancelMoveBackFee(String fee) {
+    return '把币转回 · 手续费 $fee';
+  }
+
+  @override
+  String get cancelUnlockOpen => '解锁币，付款保持未结';
+
+  @override
+  String get cancelCompareMoveBack => '把币转回：确定，需支付网络手续费。';
+
+  @override
+  String get cancelCompareUnlock => '解锁币：免费，这笔付款仍可能完成。';
+
+  @override
   String get cancelChoicesTitle => '两种取消方式';
 
   @override

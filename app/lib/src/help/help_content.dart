@@ -182,6 +182,9 @@ abstract final class HelpAnchor {
   static const receiving = 'receiving';
   static const requests = 'requests';
 
+  /// Move coins back or Unlock coins: the two ways where the other side could still finish.
+  static const twoWays = 'two-ways';
+
   /// The headings of [HelpId.modes] ("Network modes").
   static const ownNode = 'own-node';
   static const coldStorage = 'cold-storage';
@@ -642,10 +645,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'When Cancel is certain, when it is not, and what happens to the coins.',
       [
         const HelpBlock.p('Cancel stops a payment that has not gone through yet. Whether it is certain depends on one thing: whether the other side already has what it needs to finish the payment. If not, Cancel is certain: the payment cannot go through without this wallet, and cancelling is free. If so, the other side could still finish the payment, and the wallet offers two ways to cancel.'),
-        const HelpBlock.p('**Cancel for sure** moves the coins back to this wallet first, for the normal network fee; after that the old payment can never go through. **Stop waiting** is free and moves nothing: the coins are spendable again, and the payment is left as it is. If the other side still finishes it, it shows as paid; if not, nothing happens.'),
+        const HelpBlock.h('Move coins back, or unlock them', anchor: HelpAnchor.twoWays),
+        const HelpBlock.p('**Move coins back** moves the coins back to this wallet first, for the normal network fee; after that the old payment can never go through. **Unlock coins** is free and moves nothing: the coins are spendable again, and the payment is left as it is. If the other side still finishes it, it shows as paid; if not, nothing happens.'),
         const HelpBlock.h('Sending', anchor: HelpAnchor.sending),
         const HelpBlock.p('A payment sent from this wallet first waits for the other side’s answer. While it waits, Cancel is certain: nothing can go through without this wallet, and the coins are unlocked at once. No fee. The other wallet may still show the payment as waiting, but it cannot finish it.'),
-        HelpBlock.p('Once the answer is in, this wallet finishes the payment and posts it to the network in one step. A payment that reached the network cannot be cancelled, undone or refunded; only the recipient can pay it back. If the network does not take it, the payment is complete all the same and could still go through later. ${phone ? 'After about a day the wallet offers Release coins, with the same two ways: Cancel for sure moves the coins back to this wallet, for the normal network fee; Stop waiting is free.' : 'The wallet offers to post it again, or to cancel. That Cancel checks the network first and refuses when the network already has the payment. Otherwise it offers the same two ways: Cancel for sure moves the coins back to this wallet, for the normal network fee; Stop waiting is free.'}'),
+        HelpBlock.p('Once the answer is in, this wallet finishes the payment and posts it to the network in one step. A payment that reached the network cannot be cancelled, undone or refunded; only the recipient can pay it back. If the network does not take it, the payment is complete all the same and could still go through later. ${phone ? 'After about a day the wallet offers Release coins, with the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee; Unlock coins is free.' : 'The wallet offers to post it again, or to cancel. That Cancel checks the network first and refuses when the network already has the payment. Otherwise it offers the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee; Unlock coins is free.'}'),
         const HelpBlock.p('A payment nobody answers cancels by itself after about a day (1,440 blocks), and the coins are unlocked. This holds for Epicbox, Link and Direct payments alike: Cancel is certain until the other side’s answer is in this wallet.'),
         HelpBlock.p('**A send looks stuck.** Usually the other wallet is offline. Wait, or cancel it in $cancelPlace and send again. A cancelled payment cannot go through later.'),
         const HelpBlock.h('Receiving', anchor: HelpAnchor.receiving),
@@ -653,7 +657,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         const HelpBlock.p('After that, Cancel clears a payment the sender never posted. It is not certain: the wallet checks the network first and refuses when the payment is already there. A cancelled payment stays watched. If the sender posts it later, it arrives anyway and shows as received.'),
         const HelpBlock.h('Invoices (experimental)', anchor: HelpAnchor.requests),
         const HelpBlock.p('An invoice sent from this wallet holds no coins until it is paid. It can be withdrawn any time before then: the payer can no longer pay it, and no coins move. An invoice nobody pays expires after 24 hours. An invoice shown as a QR code can be paid once; a second scan is refused, so nothing is paid twice.'),
-        const HelpBlock.p('An invoice paid from this wallet is the other way round: the other side already has what it needs to finish the payment. Cancel appears once the invoice’s time runs out, about a day after it was paid, or sooner when the other side withdraws it. It offers the same two ways: Cancel for sure moves the coins back to this wallet, for the normal network fee, so the old payment can no longer go through; Stop waiting is free and leaves it to the other side. If the coins cannot be moved back at once, the wallet tries again while it is open. Until then the other side could still finish the payment, and if it does, it shows as paid.'),
+        const HelpBlock.p('An invoice paid from this wallet is the other way round: the other side already has what it needs to finish the payment. Cancel appears once the invoice’s time runs out, about a day after it was paid, or sooner when the other side withdraws it. It offers the same two ways: Move coins back moves the coins back to this wallet, for the normal network fee, so the old payment can no longer go through; Unlock coins is free and leaves it to the other side. If the coins cannot be moved back at once, the wallet tries again while it is open. Until then the other side could still finish the payment, and if it does, it shows as paid.'),
       ],
       id: HelpId.cancel,
     ),

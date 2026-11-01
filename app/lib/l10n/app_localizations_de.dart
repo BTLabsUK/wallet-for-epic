@@ -18021,6 +18021,25 @@ class AppLocalizationsDe extends AppLocalizations {
       'Kostenlos. Die Zahlung kann noch durchgehen.';
 
   @override
+  String get cancelMoveBack => 'Coins zurückholen';
+
+  @override
+  String cancelMoveBackFee(String fee) {
+    return 'Coins zurückholen · Gebühr $fee';
+  }
+
+  @override
+  String get cancelUnlockOpen => 'Coins freigeben, Zahlung offen lassen';
+
+  @override
+  String get cancelCompareMoveBack =>
+      'Coins zurückholen: sicher, gegen die Netzwerkgebühr.';
+
+  @override
+  String get cancelCompareUnlock =>
+      'Coins freigeben: kostenlos, die Zahlung kann noch durchgehen.';
+
+  @override
   String get cancelChoicesTitle => 'Zwei Wege zu stornieren';
 
   @override

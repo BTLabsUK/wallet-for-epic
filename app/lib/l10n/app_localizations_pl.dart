@@ -18444,6 +18444,25 @@ class AppLocalizationsPl extends AppLocalizations {
       'Bez opłaty. Płatność wciąż może przejść.';
 
   @override
+  String get cancelMoveBack => 'Przenieś monety z powrotem';
+
+  @override
+  String cancelMoveBackFee(String fee) {
+    return 'Przenieś monety z powrotem · opłata $fee';
+  }
+
+  @override
+  String get cancelUnlockOpen => 'Odblokuj monety, płatność zostaje otwarta';
+
+  @override
+  String get cancelCompareMoveBack =>
+      'Przenieś monety z powrotem: na pewno, za opłatą sieciową.';
+
+  @override
+  String get cancelCompareUnlock =>
+      'Odblokuj monety: bez opłaty, płatność wciąż może przejść.';
+
+  @override
   String get cancelChoicesTitle => 'Dwa sposoby anulowania';
 
   @override

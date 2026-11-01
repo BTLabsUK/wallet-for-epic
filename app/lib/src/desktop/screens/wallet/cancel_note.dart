@@ -16,7 +16,8 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../settings/help_pairing.dart' show HelpAt;
 
-/// The info icon beside the fee line of a cancel confirmation (tests).
+/// The info icon the cancel confirmations had beside the fee line (before B-04); kept for
+/// callers, nothing draws it any more.
 const Key deskCancelFeeHintKey = ValueKey('desk-cancel-fee-hint');
 
 /// [text] (none for a link alone) then the Help link for [anchor] ([HelpAnchor]). [inDialog]
@@ -64,9 +65,9 @@ class DeskCancelHelpLink extends ConsumerWidget {
   }
 }
 
-/// The body of a confirmation with Keep / Stop waiting / Cancel for sure: one line per way to
-/// cancel, named as its button is, then the Help link. The fee belongs to Cancel for sure
-/// alone; the info icon beside it explains both ways in plain words.
+/// The body of a confirmation with Keep / Unlock coins / Move coins back (B-04, 2026-11-01): a
+/// calm two-line comparison of the two ways, named as their buttons are, then the Help link.
+/// No caption per button and no info icon: the buttons say what they do, Help the rest.
 class DeskCancelChoices extends StatelessWidget {
   const DeskCancelChoices({super.key, required this.anchor});
 
@@ -75,38 +76,14 @@ class DeskCancelChoices extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final ts = context.ts;
-    final name = ts.body.copyWith(fontWeight: FontWeight.w600);
-    final line = ts.body.copyWith(color: context.dc.dim);
+    final line = context.ts.body.copyWith(color: context.dc.dim);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Table(
-          columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: [
-            TableRow(
-              children: [
-                Padding(padding: EdgeInsets.only(right: Sp.x3, top: Sp.x1, bottom: Sp.x1), child: Text(l.cancelForSure, style: name)),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(child: Text(l.cancelFeeLine, style: line)),
-                    SizedBox(width: Sp.x1),
-                    EInfoHint(l.cancelChoicesWhy, key: deskCancelFeeHintKey, title: l.cancelChoicesTitle, icon: EIcons.info),
-                  ],
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                Padding(padding: EdgeInsets.only(right: Sp.x3, top: Sp.x1, bottom: Sp.x1), child: Text(l.cancelStopWaiting, style: name)),
-                Text(l.cancelStopWaitingLine, style: line),
-              ],
-            ),
-          ],
-        ),
+        Text(l.cancelCompareMoveBack, style: line),
+        SizedBox(height: Sp.x1),
+        Text(l.cancelCompareUnlock, style: line),
         SizedBox(height: Sp.x3),
         DeskCancelHelpLink(anchor: anchor, inDialog: true),
       ],

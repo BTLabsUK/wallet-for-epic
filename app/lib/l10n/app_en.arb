@@ -24013,6 +24013,31 @@
   "@cancelStopWaitingLine": {
     "description": "The quiet line beside the Stop waiting button, as cancelFeeLine is beside Cancel for sure: free, and the payment may still finish."
   },
+  "cancelMoveBack": "Move coins back",
+  "@cancelMoveBack": {
+    "description": "Release coins / cancel choice that spends the locked coins back to this wallet (spendBack: true), when its fee is not known. Names the outcome."
+  },
+  "cancelMoveBackFee": "Move coins back · fee {fee}",
+  "@cancelMoveBackFee": {
+    "description": "The same choice with its fee: {fee} is an amount with its unit (e.g. 0.0010 EPIC).",
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelUnlockOpen": "Unlock coins, leave payment open",
+  "@cancelUnlockOpen": {
+    "description": "Release coins / cancel choice that only unlocks the coins (free); the other side may still finish the payment."
+  },
+  "cancelCompareMoveBack": "Move coins back: certain, for the network fee.",
+  "@cancelCompareMoveBack": {
+    "description": "First line of the two-line comparison above the choices: what moving the coins back means."
+  },
+  "cancelCompareUnlock": "Unlock coins: free, the payment may still finish.",
+  "@cancelCompareUnlock": {
+    "description": "Second line of the comparison: what unlocking means."
+  },
   "cancelChoicesTitle": "Two ways to cancel",
   "@cancelChoicesTitle": {
     "description": "Title of the info sheet (phone) or popover (desktop) behind the info icon beside the fee line: the two ways to cancel."
