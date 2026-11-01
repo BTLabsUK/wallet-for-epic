@@ -377,7 +377,7 @@ void main() {
       expect(find.text(_l.invoicesSentEmpty), findsNothing);
       expect(find.text(shortAddress(_payer)), findsNWidgets(5));
       for (final (amount, state) in [
-        (1, '${_l.invoicesWaitingPayment} · ${_l.invoiceTimeLeftHours(24, 0)}'),
+        (1, '${_l.invoicesWaitingPayment}\u00a0· ${_l.invoiceTimeLeftHours(24, 0)}'),
         (2, _l.issuedPaid),
         (3, _l.issuedDeclined),
         (4, _l.issuedWithdrawn),

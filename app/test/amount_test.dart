@@ -91,11 +91,11 @@ void main() {
     test(
       'epicText follows the display rule, epicExact writes every decimal out',
       () {
-        expect(epicText(englishStrings, big), '1,234,567.1234 EPIC');
-        expect(epicExact(englishStrings, big), '1,234,567.12345678 EPIC');
+        expect(epicText(englishStrings, big), '1,234,567.1234\u00a0EPIC');
+        expect(epicExact(englishStrings, big), '1,234,567.12345678\u00a0EPIC');
         expect(
           shownEpic(englishStrings, big, hidden: false, exact: true),
-          '1,234,567.12345678 EPIC',
+          '1,234,567.12345678\u00a0EPIC',
         );
         expect(
           shownEpic(englishStrings, big, hidden: true, exact: true),
@@ -105,24 +105,53 @@ void main() {
     );
 
     test('each language\'s marks', () {
-      expect(epicText(l('de'), big), '1.234.567,1234 EPIC');
-      expect(epicText(l('pl'), big), '1\u00a0234\u00a0567,1234 EPIC');
-      expect(epicText(l('ru'), big), '1\u00a0234\u00a0567,1234 EPIC');
-      expect(epicText(l('zh'), big), '1,234,567.1234 EPIC');
+      expect(epicText(l('de'), big), '1.234.567,1234\u00a0EPIC');
+      expect(epicText(l('pl'), big), '1\u00a0234\u00a0567,1234\u00a0EPIC');
+      expect(epicText(l('ru'), big), '1\u00a0234\u00a0567,1234\u00a0EPIC');
+      expect(epicText(l('zh'), big), '1,234,567.1234\u00a0EPIC');
+    });
+
+    test('one formatter per surface, the same on both apps', () {
+      final amount = parseEpic('12.508');
+      expect(AmountSurface.row.decimals, displayDecimals);
+      expect(AmountSurface.exact.decimals, exactDecimals);
+      expect(AmountSurface.hero.decimals, displayDecimals);
+      expect(surfaceEpic(big, AmountSurface.row), '1,234,567.1234');
+      expect(surfaceEpic(big, AmountSurface.exact), '1,234,567.12345678');
+      expect(surfaceEpic(big, AmountSurface.hero), '1,234,567.1234');
+      expect(epicFor(englishStrings, amount), '12.5080\u00a0EPIC');
+      expect(
+        epicFor(englishStrings, amount, surface: AmountSurface.exact),
+        '12.50800000\u00a0EPIC',
+      );
+      expect(epicFor(englishStrings, amount, unit: false), '12.5080');
+      expect(epicFor(l('de'), amount, surface: AmountSurface.exact), '12,50800000\u00a0EPIC');
+    });
+
+    test('signs: plus on request, a true minus always', () {
+      final amount = parseEpic('25');
+      expect(epicFor(englishStrings, amount, signed: true), '+25.0000\u00a0EPIC');
+      expect(epicFor(englishStrings, -amount), '\u221225.0000\u00a0EPIC');
+      expect(epicFor(englishStrings, -amount, signed: true, unit: false), '\u221225.0000');
+      expect(epicFor(englishStrings, BigInt.zero, signed: true), '0.0000\u00a0EPIC');
+      // Cut towards zero, never rounded away from it; what cuts to zero has no sign.
+      expect(epicFor(englishStrings, -parseEpic('1.00009999'), unit: false), '\u22121.0000');
+      expect(epicFor(englishStrings, -parseEpic('0.00009999'), unit: false), '0.0000');
+      expect(epicFor(englishStrings, parseEpic('0.00009999'), signed: true, unit: false), '0.0000');
     });
 
     test('a short fiat value drops its cents from 1,000, cut off', () {
       const display = (hidden: false, price: 0.5, currency: 'usd');
       String? fiat(String epic, {bool short = true}) =>
           approxFiat(englishStrings, parseEpic(epic), display, short: short);
-      expect(fiat('12.5'), '≈ 6.25 USD');
-      expect(fiat('1999.98'), '≈ 999.99 USD');
-      expect(fiat('2001.98'), '≈ 1,000 USD');
-      expect(fiat('17639999.98'), '≈ 8,819,999 USD');
-      expect(fiat('17639999.98', short: false), '≈ 8,819,999.99 USD');
+      expect(fiat('12.5'), '≈\u00a06.25\u00a0USD');
+      expect(fiat('1999.98'), '≈\u00a0999.99\u00a0USD');
+      expect(fiat('2001.98'), '≈\u00a01,000\u00a0USD');
+      expect(fiat('17639999.98'), '≈\u00a08,819,999\u00a0USD');
+      expect(fiat('17639999.98', short: false), '≈\u00a08,819,999.99\u00a0USD');
       expect(
         approxFiat(l('de'), parseEpic('2001.98'), display, short: true),
-        '≈ 1.000 USD',
+        '≈\u00a01.000\u00a0USD',
       );
     });
   });

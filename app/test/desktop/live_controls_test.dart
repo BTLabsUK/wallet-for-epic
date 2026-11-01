@@ -89,13 +89,13 @@ void main() {
     final row = find.byKey(const ValueKey('balance-row'));
     expect(find.descendant(of: row, matching: find.textContaining(headline, findRichText: true)), findsOneWidget);
     expect(find.descendant(of: row, matching: find.textContaining(exact, findRichText: true)), findsNothing);
-    expect(find.text('Exact amount: $exact EPIC'), findsNothing);
+    expect(find.text('Exact amount: $exact\u00a0EPIC'), findsNothing);
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await mouse.addPointer(location: Offset.zero);
     addTearDown(mouse.removePointer);
     await mouse.moveTo(tester.getCenter(row));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Exact amount: $exact EPIC'), findsOneWidget);
+    expect(find.text('Exact amount: $exact\u00a0EPIC'), findsOneWidget);
     await mouse.moveTo(Offset.zero);
     await _settle(tester);
   });

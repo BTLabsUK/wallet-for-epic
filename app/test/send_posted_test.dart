@@ -180,7 +180,7 @@ void main() {
     });
 
     test('the notice names the amount unless balances are hidden', () {
-      expect(senderPostedNotice(_l, _waiting()), 'Sender reports 1.5000 EPIC posted.');
+      expect(senderPostedNotice(_l, _waiting()), 'Sender reports 1.5000\u00a0EPIC posted.');
       expect(senderPostedNotice(_l, _waiting(), hidden: true), _l.homeNoticeSenderPosted);
       expect(senderPostedNotice(_l, null), _l.homeNoticeSenderPosted);
     });
@@ -213,7 +213,7 @@ void main() {
       expect(badge.label, 'Sender reports posted');
       expect(badge.tone, BadgeTone.info);
       expect(find.bySemanticsLabel('Sender reports posted'), findsOneWidget);
-      expect(find.textContaining('Sender reports posted · 12:00', findRichText: true), findsOneWidget);
+      expect(find.textContaining('12:00\u00a0· Sender reports posted', findRichText: true), findsOneWidget);
     });
   });
 

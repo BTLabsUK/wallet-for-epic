@@ -248,7 +248,7 @@ double fitFontSize(BuildContext context, String text, TextStyle style, List<doub
 
 /// An [EMoney] that steps its size down through [sizes] to fit its width.
 class FitMoney extends ConsumerWidget {
-  const FitMoney(this.nano, {super.key, required this.sizes, this.color, this.sign = false, this.unit = false, this.weight, this.width, this.decimals});
+  const FitMoney(this.nano, {super.key, required this.sizes, this.color, this.sign = false, this.unit = false, this.weight, this.width, this.decimals, this.surface});
 
   final int nano;
   final List<double> sizes;
@@ -261,22 +261,26 @@ class FitMoney extends ConsumerWidget {
   final bool unit;
   final FontWeight? weight;
 
-  /// At least this many decimals (a row of tiles shows one precision).
+  /// Kept for callers: 8 means [AmountSurface.exact]. Prefer [surface].
   final int? decimals;
+
+  /// Where the amount is shown ([EMoney.surface]).
+  final AmountSurface? surface;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
-    final text = '${sign && nano > 0 ? '+' : ''}${hidden ? '••••••' : formatEpicL(context.l10n, nano, minDecimals: decimals ?? 4)}${unit ? ' EPIC' : ''}';
+    final figure = hidden ? '••••••' : EMoney.figure(context.l10n, nano, surface: EMoney.surfaceOf(surface, decimals), sign: sign);
+    final text = unit ? withUnit(figure, epicUnit) : figure;
     final style = context.ts.mono(weight: weight ?? FontWeight.w500);
     if (width != null) {
-      return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight, decimals: decimals);
+      return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight, decimals: decimals, surface: surface);
     }
     return LayoutBuilder(
       builder: (context, box) {
         final size = box.maxWidth.isFinite ? fitFontSize(context, text, style, sizes, box.maxWidth) : sizes.first;
         return ClipRect(
-          child: EMoney(nano, size: size, color: color, sign: sign, unit: unit, weight: weight, decimals: decimals),
+          child: EMoney(nano, size: size, color: color, sign: sign, unit: unit, weight: weight, decimals: decimals, surface: surface),
         );
       },
     );
@@ -342,7 +346,9 @@ class TxIcon extends StatelessWidget {
   }
 }
 
-/// Ring or icon for the state, sized for a row.
+/// Ring or icon for the state, sized for a row. Every state takes the same circle of [size],
+/// the icon ones too (an hourglass in the ring's track), so the state's words always start at
+/// one x.
 class TxStateMark extends StatelessWidget {
   const TxStateMark(this.tx, {super.key, this._size});
 
@@ -353,12 +359,20 @@ class TxStateMark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    if (tx.immature) return Icon(EIcons.sand, size: size * 0.75, color: c.info);
+    // An icon in the ring's empty track, the size of a ring.
+    Widget circled(IconData icon, Color color) => SizedBox.square(
+      dimension: size,
+      child: DecoratedBox(
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: c.lineStrong, width: 2)),
+        child: Center(child: Icon(icon, size: size * 0.55, color: color)),
+      ),
+    );
+    if (tx.immature) return circled(EIcons.sand, c.info);
     // The chain was not asked about a payment only a backup knows: no count to show.
-    if (tx.fromBackup) return Icon(EIcons.archive, size: size * 0.75, color: c.dim);
+    if (tx.fromBackup) return circled(EIcons.archive, c.dim);
     return switch (tx.state) {
       TxState.cancelled => ERing(confirmations: 0, size: size, off: true),
-      TxState.waitingRecipient => Icon(EIcons.sand, size: size * 0.75, color: tx.undelivered ? c.warn : c.info),
+      TxState.waitingRecipient => circled(EIcons.sand, tx.undelivered ? c.warn : c.info),
       TxState.posted => ERing(confirmations: 0, size: size),
       _ => ERing(confirmations: tx.confirmations, needed: tx.confirmationsNeeded, size: size),
     };
@@ -491,16 +505,8 @@ class _TxRowState extends ConsumerState<TxRow> {
     final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? file ?? shortAddress(t.counterparty!, compact: true)) : null;
     final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
     if (shallow && parts.isEmpty && !t.isInvoice) parts.add(l.deskLvPayKind);
-    final meta = <InlineSpan>[
-      for (final (i, p) in parts.indexed) ...[
-        if (i > 0)
-          TextSpan(
-            text: '  ·  ',
-            style: TextStyle(color: c.lineField),
-          ),
-        TextSpan(text: p),
-      ],
-    ];
+    // One joiner on both apps ([metaSpans]): " · ", a quieter dot, a break only after it.
+    final meta = metaSpans([for (final p in parts) TextSpan(text: p)], dot: TextStyle(color: c.lineField));
     // The sender, method or note the user typed on a scan find carries the tag.
     final typed = t.manualFields.any((f) => f != ManualField.label);
     final TextStyle titleStyle = ts.strong;
@@ -553,14 +559,10 @@ class _TxRowState extends ConsumerState<TxRow> {
                 Flexible(
                   child: Text.rich(
                     TextSpan(
-                      text: word,
-                      children: [
-                        if (replaced != null)
-                          TextSpan(
-                            text: '  ·  $replaced',
-                            style: TextStyle(color: c.faint),
-                          ),
-                      ],
+                      children: metaSpans([
+                        TextSpan(text: word),
+                        if (replaced != null) TextSpan(text: replaced, style: TextStyle(color: c.faint)),
+                      ], dot: TextStyle(color: c.lineField)),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -661,7 +663,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       // A request is never read out as money received;
       // it reads Unpaid only while it is, then its state word says what became of it. The pen
       // keeps its own node.
-      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : '${formatEpicL(l, t.amount)} EPIC', word),
+      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : epicTextL(l, t.amount), word),
       child: Focus(
         canRequestFocus: false,
         skipTraversal: true,

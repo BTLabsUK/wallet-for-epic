@@ -66,7 +66,7 @@ void main() {
       expect(find.text('Not encrypted. Send anyway?'), findsNothing);
       expect(find.text('Check and send'), findsOneWidget);
       await enterReviewPassword(tester);
-      await tester.tap(find.text('Send 1.0000 EPIC'));
+      await tester.tap(find.text('Send 1.00000000\u00a0EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.http);
       expect(wallet.sent.single.allowPlainHttp, isTrue);

@@ -20,6 +20,7 @@ import '../price.dart';
 import '../providers.dart';
 import '../settings.dart';
 import '../stall_retry.dart';
+import '../text_join.dart';
 import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
@@ -37,6 +38,7 @@ import 'levels/payment_steps.dart' show paymentStepWord;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 
 export '../models.dart' show txAmount;
+export '../text_join.dart';
 
 export 'badge.dart';
 export 'notices.dart';
@@ -402,18 +404,54 @@ class CenteredScroll extends StatelessWidget {
   }
 }
 
-/// [atomic] as text with its unit, by the one display rule ([displayEpic]: four decimals, cut
-/// off, never rounded). For everything shown; the exact amount is [epicExact].
-String epicText(AppLocalizations l, BigInt atomic) =>
-    '${localDigits(l, displayEpic(atomic))} EPIC';
+/// [atomic] as text with its unit after a no-break space, as a row shows it ([epicFor],
+/// [AmountSurface.row]: four decimals, cut off, never rounded). The exact amount, for commit
+/// surfaces, is [epicExact].
+String epicText(AppLocalizations l, BigInt atomic) => epicFor(l, atomic);
 
-/// [atomic] with every decimal and its unit ([exactEpic]): the balance sheet, a payment's
-/// exact amount, fees.
+/// [atomic] with every decimal and its unit ([AmountSurface.exact]): where money is committed
+/// or inspected (the review, the payment's details, its QR code), the balance sheet.
 String epicExact(AppLocalizations l, BigInt atomic) =>
-    '${localDigits(l, exactEpic(atomic))} EPIC';
+    epicFor(l, atomic, surface: AmountSurface.exact);
 
 /// What an amount shows while balances are hidden.
 const String hiddenAmount = '•••••';
+
+/// [base] in the data face every amount but the balance headline wears: JetBrains Mono with
+/// tabular figures, so digits line up from row to row.
+TextStyle amountStyle(BuildContext context, [TextStyle? base]) =>
+    (base ?? const TextStyle()).copyWith(
+      fontFamily: context.tokens.monoFamily,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+
+/// An amount's text ([epicFor], [epicText], [epicExact], [signedEpic]) in [amountStyle]: the
+/// phone's one amount widget, the desktop's being `EMoney`.
+class AmountText extends StatelessWidget {
+  const AmountText(
+    this.text, {
+    super.key,
+    this.style,
+    this.textAlign,
+    this.maxLines,
+    this.overflow,
+  });
+
+  final String text;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+  final int? maxLines;
+  final TextOverflow? overflow;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: amountStyle(context, style),
+    textAlign: textAlign,
+    maxLines: maxLines,
+    overflow: overflow,
+  );
+}
 
 /// The exact amount behind a headline figure, for its tooltip: a tap on the phone, a hover
 /// with a mouse. None while amounts are hidden.
@@ -509,10 +547,10 @@ String? approxFiat(
   if (short) {
     final dot = text.indexOf('.');
     if (dot >= 0 && text.substring(0, dot).contains(',')) {
-      text = text.substring(0, dot) + text.substring(text.indexOf(' ', dot));
+      text = text.substring(0, dot) + text.substring(text.indexOf(noBreakSpace, dot));
     }
   }
-  return '≈ ${localDigits(l, text)}';
+  return approxText(localDigits(l, text));
 }
 
 // Dates.
@@ -563,8 +601,8 @@ String shortDate(AppLocalizations l, DateTime t, DateTime now) {
 
 // Transactions.
 
-/// `+5 EPIC`, `-1 EPIC`, or [hiddenAmount]; by the display rule, or with every decimal when
-/// [exact].
+/// `+5.0000 EPIC`, `−1.0000 EPIC` (a true minus, [minusSign]), or [hiddenAmount]; by the
+/// display rule, or with every decimal when [exact].
 String signedEpic(
   AppLocalizations l,
   TxEntry tx, {
@@ -574,7 +612,7 @@ String signedEpic(
   if (hidden) return hiddenAmount;
   final (:amount, :outgoing) = txAmount(tx);
   final text = shownEpic(l, amount, hidden: false, exact: exact);
-  return '${outgoing ? '-' : '+'}$text';
+  return '${outgoing ? minusSign : '+'}$text';
 }
 
 bool _outgoingKind(TxEntry tx) =>
@@ -859,14 +897,16 @@ class TxStatusLine extends ConsumerWidget {
           child: Icon(icon, size: 14, color: color),
         ),
         const SizedBox(width: 5),
-        // One text, so the status, method and time share the line; when they do not fit it
-        // wraps to a second line (status first, then the time) rather than cutting the time
-        // off (UP-001).
+        // One text, so the time, status and method share the line; the time comes first, so
+        // a long status or method never cuts it off (A-04): it is how two like payments tell
+        // apart. When they do not fit the line wraps after a dot ([metaSpans]), never cutting
+        // the time (UP-001).
         Flexible(
           flex: 3,
           child: Text.rich(
             TextSpan(
-              children: [
+              children: metaSpans([
+                TextSpan(text: date, style: base),
                 TextSpan(
                   text: paymentStepWord(
                     context.l10n,
@@ -881,12 +921,9 @@ class TxStatusLine extends ConsumerWidget {
                   ),
                   style: inProgress ? base?.copyWith(color: t.info) : base,
                 ),
-                if (method != null)
-                  TextSpan(text: ' \u00B7 $method', style: base),
-                TextSpan(text: ' \u00B7 $date', style: base),
-                if (aside != null)
-                  TextSpan(text: ' \u00B7 $aside', style: base),
-              ],
+                if (method != null) TextSpan(text: method, style: base),
+                if (aside != null) TextSpan(text: aside, style: base),
+              ], dot: base),
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -1862,11 +1899,10 @@ class TxTile extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         // Amounts are data, so the mono face.
-                        Text(
+                        AmountText(
                           signed,
                           textAlign: TextAlign.end,
                           style: theme.textTheme.bodyLarge?.copyWith(
-                            fontFamily: context.tokens.monoFamily,
                             fontSize: 14.5,
                             // The amount wears the direction, like the icon: green in, red
                             // out; a cancelled one is struck through in grey.

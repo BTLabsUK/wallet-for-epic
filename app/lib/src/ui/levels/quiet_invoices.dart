@@ -106,7 +106,7 @@ class _Row extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(amount, style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily, color: t.text)),
+                  AmountText(amount, style: theme.textTheme.bodyMedium?.copyWith(color: t.text)),
                   if (fiat != null) Text(fiat!, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                 ],
               ),

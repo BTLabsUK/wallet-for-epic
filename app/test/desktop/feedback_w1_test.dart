@@ -198,7 +198,7 @@ void main() {
     await tester.tap(find.text('Review'));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('This is the wallet’s own address.'), findsOneWidget);
-    expect(find.text('Send 1.0000 EPIC'), findsNothing, reason: 'no review dialog');
+    expect(find.text('Send 1.00000000\u00a0EPIC'), findsNothing, reason: 'no review dialog');
   });
 
   // The own-address check: the key exactly, the server this one, missing or with :443.

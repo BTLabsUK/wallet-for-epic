@@ -4,7 +4,8 @@
 /// Amounts stay [BigInt] end to end. Doubles would lose precision above 2^53 atomic units.
 library;
 
-import 'l10n.dart' show LocalizedFormatException, localDecimal;
+import 'l10n.dart' show AppLocalizations, LocalizedFormatException, localDecimal, localDigits;
+import 'text_join.dart' show withUnit;
 
 /// Number of decimal places in one EPIC.
 const int epicDecimals = 8;
@@ -64,6 +65,56 @@ String displayEpic(BigInt atomic) => cutEpic(atomic, displayDecimals);
 /// [atomic] with every decimal, grouped: `1,234.56781234`, `12.50000000`.
 String exactEpic(BigInt atomic) =>
     formatEpic(atomic, minDecimals: exactDecimals, grouped: true);
+
+/// Where an amount is shown. Each surface has one precision, the same on the phone and the
+/// desktop, so a figure reads alike wherever it appears. Display only: fields, the clipboard
+/// and files take [formatEpic].
+enum AmountSurface {
+  /// Rows, tiles, lists, summaries, notices and buttons: [displayDecimals], cut off.
+  row(displayDecimals),
+
+  /// Where money is committed or inspected: a payment's review (its Send button too), its
+  /// details, its QR code and payment request. All [exactDecimals].
+  exact(exactDecimals),
+
+  /// The balance headline (phone Wallet, desktop Overview): [displayDecimals], the exact
+  /// amount a tap or hover away.
+  hero(displayDecimals);
+
+  const AmountSurface(this.decimals);
+
+  /// Decimals always written out on this surface.
+  final int decimals;
+}
+
+/// The unit of every amount.
+const String epicUnit = 'EPIC';
+
+/// [atomic] as [surface] shows it, canonical (`,` groups, `.` decimals) and without the unit:
+/// `1,234.5678` for a row, `1,234.56781234` exact.
+String surfaceEpic(BigInt atomic, AmountSurface surface) => cutEpic(atomic, surface.decimals);
+
+/// The minus a shown amount carries: U+2212, as wide as the plus, never a hyphen.
+const String minusSign = '\u2212';
+
+/// [atomic] as [surface] shows it in [l]'s separators (`1.234,5678` in German), with the unit
+/// after a no-break space unless [unit] is false: the one amount text of both apps. With
+/// [signed], `+` before a positive amount and [minusSign] before a negative one.
+String epicFor(
+  AppLocalizations l,
+  BigInt atomic, {
+  AmountSurface surface = AmountSurface.row,
+  bool unit = true,
+  bool signed = false,
+}) {
+  // The sign of what is shown: an amount that cuts to zero has none.
+  final cut = BigInt.from(10).pow(epicDecimals - surface.decimals);
+  final shown = atomic - atomic.remainder(cut);
+  final digits = localDigits(l, surfaceEpic(shown.abs(), surface));
+  final sign = shown.isNegative ? minusSign : (signed && shown > BigInt.zero ? '+' : '');
+  final number = '$sign$digits';
+  return unit ? withUnit(number, epicUnit) : number;
+}
 
 String _group(String digits) {
   final out = StringBuffer();

@@ -2860,8 +2860,8 @@ class _SendViewState extends ConsumerState<SendView> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicText(l, amount)}'
-          : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
+          ? approxText(epicText(l, amount))
+          : approxText(localDigits(l, fiatText(amount, price, currency)));
     }
     // A code's amount: "Requested by the code" while the field holds it, what it asked for
     // once changed.
@@ -2904,7 +2904,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
         decoration: InputDecoration(
           labelText: l.sendAmountLabel(
-            _fiatEntry ? currency.toUpperCase() : 'EPIC',
+            _fiatEntry ? currency.toUpperCase() : epicUnit,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           floatingLabelAlignment: FloatingLabelAlignment.center,
@@ -2917,7 +2917,7 @@ class _SendViewState extends ConsumerState<SendView> {
             children: [
               if (price != null || _fiatEntry)
                 Tip(
-                  l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+                  l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
                   child: TextButton(
                     style: TextButton.styleFrom(
                       minimumSize: const Size(44, 44),
@@ -2926,9 +2926,9 @@ class _SendViewState extends ConsumerState<SendView> {
                     ),
                     onPressed: _toggleUnit,
                     child: Semantics(
-                      label: l.sendUseUnit(_fiatEntry ? 'EPIC' : currency.toUpperCase()),
+                      label: l.sendUseUnit(_fiatEntry ? epicUnit : currency.toUpperCase()),
                       excludeSemantics: true,
-                      child: Text(_fiatEntry ? currency.toUpperCase() : 'EPIC'),
+                      child: Text(_fiatEntry ? currency.toUpperCase() : epicUnit),
                     ),
                   ),
                 ),
@@ -3198,18 +3198,11 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
-      // Four decimals, as every shown amount (UD-027); the exact value on a tap.
-      exactAmountTip(
-        context,
-        estimate.amount,
-        hidden: false,
-        child: Text(
-          epicText(l, estimate.amount),
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontFamily: t.monoFamily,
-            color: t.text,
-          ),
-        ),
+      // The review commits the money: every amount on it exact ([AmountSurface.exact]), as on
+      // the desktop's and in the payment's details; mono, as every amount but the headline.
+      AmountText(
+        epicExact(l, estimate.amount),
+        style: theme.textTheme.headlineMedium?.copyWith(color: t.text),
       ),
       const SizedBox(height: 12),
       // Level 1 does not name Epicbox: it is just how sending works, so no Method row.
@@ -3251,7 +3244,7 @@ class _SendViewState extends ConsumerState<SendView> {
             ],
           ),
         ),
-      _Row(label: l.sendNetworkFee, value: epicText(l, estimate.fee)),
+      _Row(label: l.sendNetworkFee, value: epicExact(l, estimate.fee)),
       // Strategy All is a consolidating send: its change is one output, never split.
       if (_sendOptions?.strategy == SelectionStrategy.all &&
           estimate.change > BigInt.zero)
@@ -3260,26 +3253,25 @@ class _SendViewState extends ConsumerState<SendView> {
           key: sendUsesAllOutputsKey,
           style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
         ),
-      // The amount, then the fiat estimate dim under it, as the amount step and the list rows
-      // show them (UP-005); the exact value on a tap (UD-027).
+      // The amount, then the fiat estimate of the total (fee included) dim on its own line
+      // under it, as the amount step and the list rows show them (UP-005, A-05).
       _Row(
         label: l.sendReviewTotal,
-        value: epicText(l, total),
-        sub: price == null ? null : '≈ ${localDigits(l, fiatText(total, price, currency))}',
-        exact: total,
+        value: epicExact(l, total),
+        sub: price == null ? null : approxText(localDigits(l, fiatText(total, price, currency))),
         strong: true,
       ),
       // What stays after this send: the balance once it is out, and,
       // while the change confirms, only the outputs the send does not lock.
       if (spendable != null && spendable >= total) ...[
-        _Row(label: l.sendBalanceAfter, value: epicText(l, spendable - total)),
+        _Row(label: l.sendBalanceAfter, value: epicExact(l, spendable - total)),
         // The change locks outputs: only said where Outputs shows (Advanced).
         if (outputsShown(context, ref) &&
             estimate.locked > total &&
             estimate.locked <= spendable) ...[
           _Row(
             label: l.sendSpendableUntilChange,
-            value: epicText(l, spendable - estimate.locked),
+            value: epicExact(l, spendable - estimate.locked),
           ),
           Text(
             l.sendSpendableUntilChangeHint,
@@ -3356,7 +3348,8 @@ class _SendViewState extends ConsumerState<SendView> {
     final pairs = _pairingTo == null || (_toPairing()?.paysByMailbox ?? false);
     final canSend =
         checks.ready && !_busy && torGoes(way) && _block == NetBlock.none && pairs;
-    final amount = epicText(l, _estimate!.amount);
+    // The Send button names the exact amount, as the review above it (a commit surface).
+    final amount = epicExact(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -4605,7 +4598,6 @@ class _Row extends StatelessWidget {
     required this.label,
     required this.value,
     this.sub,
-    this.exact,
     this.strong = false,
     this.mono = true,
   });
@@ -4615,9 +4607,6 @@ class _Row extends StatelessWidget {
 
   /// A dim second line under the value (the fiat estimate).
   final String? sub;
-
-  /// The exact amount behind [value], shown on a tap.
-  final BigInt? exact;
 
   final bool strong;
 
@@ -4632,14 +4621,11 @@ class _Row extends StatelessWidget {
       color: strong ? t.text : t.dim,
       fontWeight: strong ? FontWeight.w600 : null,
     );
-    Widget figure = Text(
+    final figure = Text(
       value,
       textAlign: TextAlign.end,
-      style: mono ? style?.copyWith(fontFamily: t.monoFamily) : style,
+      style: mono ? amountStyle(context, style) : style,
     );
-    if (exact case final exact?) {
-      figure = exactAmountTip(context, exact, hidden: false, child: figure);
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(

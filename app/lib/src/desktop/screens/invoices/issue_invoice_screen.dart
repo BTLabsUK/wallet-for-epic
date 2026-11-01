@@ -268,7 +268,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
               mono: true,
               invalid: amountErr != null,
               hint: '0.00',
-              trailing: Padding(padding: EdgeInsets.only(right: Sp.x3), child: Text('EPIC', style: ts.small.copyWith(color: c.dim))),
+              trailing: Padding(padding: EdgeInsets.only(right: Sp.x3), child: Text(epicUnit, style: ts.small.copyWith(color: c.dim))),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               semanticLabel: l.deskInvIssuerAmount,
               onChanged: (_) => setState(() => _failure = null),

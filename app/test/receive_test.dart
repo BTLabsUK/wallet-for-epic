@@ -795,7 +795,7 @@ void main() {
       h.clipboard = '  $incoming\n';
       await _tap(tester, find.text('Paste'));
       expect(find.text('Pasted payment'), findsOneWidget);
-      expect(find.text('Someone is sending you 3.00000000 EPIC.'), findsOneWidget);
+      expect(find.text('Someone is sending you 3.00000000\u00a0EPIC.'), findsOneWidget);
       await _tap(tester, find.text('Accept payment'));
       expect(h.session.receivedSlates, [incoming]);
       expect(

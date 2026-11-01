@@ -13,7 +13,7 @@ import '../../../levels/level_features.dart' show LevelWording;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../desk_l10n.dart';
-import '../../../amount.dart' show displayEpic;
+import '../../../amount.dart' show AmountSurface, surfaceEpic;
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../../ui/common.dart' show epicExact, exactAmountTip;
 import '../../widgets/kit.dart';
@@ -502,8 +502,9 @@ class _BalancePanel extends ConsumerWidget {
                 (casual ? l.deskLvPayTileLocked : l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),
               ];
-              // Four decimals as the phone's tiles (UP-016); the exact value is each tile's tooltip.
-              const decimals = 4;
+              // One precision for every tile, the row surface as the phone's tiles (UP-016, C-01):
+              // never computed from the data; the exact value is each tile's tooltip.
+              const surface = AmountSurface.row;
               // One row when it fits; else rows of three (two for four tiles), the last row's
               // tiles stretching, so no tile is left alone beside an empty cell.
               final perRow = box.maxWidth >= items.length * 180.u ? items.length : (items.length == 4 ? 2 : 3);
@@ -522,7 +523,7 @@ class _BalancePanel extends ConsumerWidget {
                                 label: it.$1,
                                 nano: it.$2,
                                 lead: it.$3,
-                                decimals: decimals,
+                                surface: surface,
                                 width: box.maxWidth / row.length,
                                 dim: updating,
                                 hidden: hidden,
@@ -551,7 +552,7 @@ class _UpdatingTag extends StatelessWidget {
   Widget build(BuildContext context) => EBadge(context.l10n.deskOvUpdating, busy: true, liveRegion: true);
 }
 
-/// The balance in Montserrat 44: whole part bright, the four decimals ([displayEpic], the one
+/// The balance in Montserrat 44: whole part bright, the four decimals ([AmountSurface.hero], the one
 /// display rule) dim, unit in mono. A hover shows the exact amount.
 class _BigAmount extends StatelessWidget {
   const _BigAmount({required this.nano, required this.hidden, this.dim = false});
@@ -565,7 +566,7 @@ class _BigAmount extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    final canonical = displayEpic(BigInt.from(nano));
+    final canonical = surfaceEpic(BigInt.from(nano), AmountSurface.hero);
     final dot = canonical.indexOf('.');
     final whole = localDigits(l, dot < 0 ? canonical : canonical.substring(0, dot));
     final frac = dot < 0 ? '' : localDigits(l, canonical.substring(dot));
@@ -575,7 +576,7 @@ class _BigAmount extends StatelessWidget {
         final base = ts.display.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
         final unitStyle = ts.mono(size: Fs.md, weight: FontWeight.w500);
         final unitPainter = TextPainter(
-          text: TextSpan(text: 'EPIC', style: unitStyle),
+          text: TextSpan(text: epicUnit, style: unitStyle),
           textDirection: TextDirection.ltr,
           textScaler: MediaQuery.textScalerOf(context),
         )..layout();
@@ -634,7 +635,7 @@ class _BigAmount extends StatelessWidget {
                   ),
                   SizedBox(width: 10.u),
                   Text(
-                    'EPIC',
+                    epicUnit,
                     style: ts.mono(size: Fs.md, color: c.dim, weight: FontWeight.w500),
                   ),
                 ],
@@ -678,12 +679,12 @@ class _Break extends StatelessWidget {
     this.right = false,
     this.bottom = false,
     this.dim = false,
-    this.decimals = 4,
+    this.surface = AmountSurface.row,
     this.hidden = false,
   });
 
-  /// Decimals shown: the same in every tile of the row.
-  final int decimals;
+  /// Where the amounts sit, so their decimals: the same in every tile of the row.
+  final AmountSurface surface;
 
   /// Amounts hidden: no exact value in the tooltip.
   final bool hidden;
@@ -733,7 +734,7 @@ class _Break extends StatelessWidget {
                   hidden: hidden,
                   child: FitMoney(
                     nano!,
-                    decimals: decimals,
+                    surface: surface,
                     sizes: const [Fs.lg, Fs.md, Fs.sm, Fs.xs],
                     width: width - (first ? Sp.x8 : Sp.x5) - Sp.x5,
                     color: zero || dim ? c.faint : c.text,

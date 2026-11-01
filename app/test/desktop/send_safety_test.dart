@@ -71,7 +71,7 @@ void main() {
     wallet.sendThrows = StateError('socket closed');
     await review(tester);
     await enterReviewPassword(tester);
-    await tester.tap(find.text('Send 1.0000 EPIC'));
+    await tester.tap(find.text('Send 1.00000000\u00a0EPIC'));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsNothing);
     expect(find.text('Not confirmed. Check Activity before sending again.'), findsOneWidget);
@@ -84,7 +84,7 @@ void main() {
     wallet.sendReturns = const SendFailed('Not delivered. The payment waits in Activity; cancel it there to free the coins.', inActivity: true);
     await review(tester);
     await enterReviewPassword(tester);
-    await tester.tap(find.text('Send 1.0000 EPIC'));
+    await tester.tap(find.text('Send 1.00000000\u00a0EPIC'));
     await tester.pumpAndSettle();
     expect(find.text('View in Activity'), findsOneWidget);
     expect(find.text('Review again'), findsNothing);
@@ -95,7 +95,7 @@ void main() {
     expect(find.text('Unknown Epicbox server'), findsOneWidget);
     expect(find.textContaining('epicbox.stackwalle is not a server this app knows'), findsOneWidget);
     await enterReviewPassword(tester);
-    await tester.tap(find.text('Send 1.0000 EPIC'));
+    await tester.tap(find.text('Send 1.00000000\u00a0EPIC'));
     await tester.pumpAndSettle();
     expect(wallet.sends, 1, reason: 'a warning, not a block');
   });
@@ -109,7 +109,7 @@ void main() {
     wallet.sendReturns = const SendFailed('Not enough EPIC');
     await review(tester);
     await enterReviewPassword(tester);
-    await tester.tap(find.text('Send 1.0000 EPIC'));
+    await tester.tap(find.text('Send 1.00000000\u00a0EPIC'));
     await tester.pumpAndSettle();
     expect(find.text('Review again'), findsOneWidget);
   });

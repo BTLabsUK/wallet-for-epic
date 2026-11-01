@@ -463,8 +463,9 @@ void main() {
       await h.invoice(message: hostile);
       await h.review(tester);
       expect(find.text(_l.reqRequests('My Exchange')), findsOneWidget);
-      final amount = tester.widget<Text>(find.byKey(invoiceReviewAmountKey));
-      expect(amount.data, formatEpic(_epic(8), grouped: true));
+      final amount = tester.widget<Text>(find.descendant(of: find.byKey(invoiceReviewAmountKey), matching: find.byType(Text)));
+      // The exact amount: a commit surface writes all eight decimals out.
+      expect(amount.data, exactEpic(_epic(8)));
       expect(amount.style?.fontSize, 34);
       // A contact's request names the contact: no mailbox address, no relay name (RFC C-21).
       expect(

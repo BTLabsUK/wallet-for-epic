@@ -8,9 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../desk_l10n.dart';
 import '../../ui/pairing/pairing_parts.dart' show PairAvatar;
 import '../../ui/theme/brand.dart' show MarkedQr;
+import '../../amount.dart' show AmountSurface, epicFor, epicUnit, exactDecimals;
 import '../../initials.dart';
+import '../../text_join.dart' show noBreakSpace, withUnit;
 import '../../providers.dart' show defaultMinimumConfirmations;
-import '../data/models.dart';
 import '../data/state.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -102,40 +103,53 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) => old.value != value || old.arc != arc;
 }
 
-/// An amount in EPIC: mono, tabular, blurred while amounts are hidden.
+/// An amount in EPIC: mono, tabular, the unit after a no-break space, dots while amounts are
+/// hidden. The desktop's one amount widget (the phone's is `AmountText`): [surface] picks the
+/// precision ([AmountSurface.row], four decimals, unless the place is a commit surface).
 class EMoney extends ConsumerWidget {
-  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight, this.decimals});
+  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight, this.decimals, this.surface});
 
   final int nano;
   final double size;
   final Color? color;
 
-  /// Prefix "+" for incoming amounts.
+  /// Prefix "+" for incoming amounts (an outgoing one, negative, always has its minus).
   final bool sign;
   final bool unit;
   final FontWeight? weight;
 
-  /// Decimals shown: 4 (the display rule) unless exact, 8 (`exactDecimals`).
+  /// Kept for callers: 8 (`exactDecimals`) means [AmountSurface.exact]. Prefer [surface].
   final int? decimals;
+
+  /// Where the amount is shown, so how many decimals it has; [AmountSurface.row] by default.
+  final AmountSurface? surface;
+
+  /// The surface [surface] or [decimals] asks for.
+  static AmountSurface surfaceOf(AmountSurface? surface, int? decimals) =>
+      surface ?? (decimals != null && decimals >= exactDecimals ? AmountSurface.exact : AmountSurface.row);
+
+  /// The figure as EMoney shows it, without the unit: for a caller that measures it.
+  static String figure(AppLocalizations l, int nano, {AmountSurface surface = AmountSurface.row, bool sign = false}) =>
+      epicFor(l, BigInt.from(nano), surface: surface, unit: false, signed: sign);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final c = context.dc;
-    final text = '${sign && nano > 0 ? '+' : ''}${formatEpicL(context.l10n, nano, decimals: decimals ?? 4)}';
+    final text = figure(context.l10n, nano, surface: surfaceOf(surface, decimals), sign: sign);
     final style = context.ts.mono(size: size, color: color, weight: weight ?? FontWeight.w500);
     final row = Text.rich(
       TextSpan(
         children: [
           TextSpan(text: hidden ? '••••••' : text),
-          if (unit) TextSpan(text: ' EPIC', style: style.copyWith(color: c.dim, fontSize: size * 0.82)),
+          if (unit) TextSpan(text: '$noBreakSpace$epicUnit', style: style.copyWith(color: c.dim, fontSize: size * 0.82)),
         ],
       ),
       style: style,
       maxLines: 1,
       softWrap: false,
     );
-    return Semantics(label: hidden ? context.l10n.deskKitHiddenAmount : '$text EPIC', excludeSemantics: true, child: row);
+    return Semantics(label: hidden ? context.l10n.deskKitHiddenAmount : withUnit(text, epicUnit), excludeSemantics: true, child: row);
   }
 }
 

@@ -188,7 +188,7 @@ class _DetailsSheet extends ConsumerWidget {
       if (tx.finalizedAtUnix case final at?) (l.lvPayPosted, formatDateTime(l, localTime(at))),
       if (tx.blockTimeUnix case final at?) (l.txDetailsDate, formatDateTime(l, localTime(at))),
       if (confirmations != null) (l.lvPayConfirmations, l.lvPayOf(confirmations, target)),
-      if (tx.fee != null && txAmount(tx).outgoing) (l.txDetailsFee, epicText(l, tx.fee!)),
+      if (tx.fee != null && txAmount(tx).outgoing) (l.txDetailsFee, epicExact(l, tx.fee!)),
     ];
     return SafeArea(
       child: SingleChildScrollView(

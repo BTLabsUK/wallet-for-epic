@@ -56,7 +56,7 @@ void main() {
     expect(find.text('How to send it'), findsNothing);
     expect(find.text('Send options'), findsNothing);
     expect(find.text('Nothing leaves until you press Send. After that it cannot be taken back.'), findsOneWidget);
-    final button = find.widgetWithText(EButton, 'Send 1.0000 EPIC');
+    final button = find.widgetWithText(EButton, 'Send 1.0000\u00a0EPIC');
     expect(button, findsOneWidget);
     expect(find.widgetWithText(EButton, 'Review'), findsNothing);
     await tester.tap(button);

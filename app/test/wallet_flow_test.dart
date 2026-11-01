@@ -737,9 +737,9 @@ void main() {
         findsNothing,
       );
 
-      await _reveal(tester, find.text('+5.0000 EPIC'));
+      await _reveal(tester, find.text('+5.0000\u00a0EPIC'));
       expect(find.text('Incoming payment'), findsOneWidget);
-      expect(find.text('-1.0000 EPIC'), findsOneWidget);
+      expect(find.text('\u22121.0000\u00a0EPIC'), findsOneWidget);
       expect(find.textContaining('Waiting for recipient'), findsOneWidget);
       expect(find.textContaining('Received'), findsOneWidget);
       // No actions on rows: cancel lives in the details.
@@ -761,7 +761,7 @@ void main() {
       // The label tile above the rows pushes the fee below a short screen's first page.
       await _reveal(tester, find.text('Fee'));
       expect(find.text('Fee'), findsOneWidget);
-      expect(find.text('0.00800000 EPIC'), findsOneWidget);
+      expect(find.text('0.00800000\u00a0EPIC'), findsOneWidget);
       final cancel = find.widgetWithText(DangerButton, 'Cancel payment');
       await _tap(tester, cancel.first);
       await _tapText(tester, 'Keep');
@@ -1096,17 +1096,17 @@ void main() {
         ListenerEvent(
           kind: ListenerEventKind.received,
           slateId: 's',
-          message: 'Received 3.0000 EPIC from zz…',
+          message: 'Received 3.0000\u00a0EPIC from zz…',
           amount: _epic(3),
         ),
       );
       await tester.pumpAndSettle();
       // A notice in words, not the listener's raw message.
       expect(
-        find.text('3.0000 EPIC on the way.'),
+        find.text('3.0000\u00a0EPIC on the way.'),
         findsOneWidget,
       );
-      expect(find.text('Received 3.0000 EPIC from zz…'), findsNothing);
+      expect(find.text('Received 3.0000\u00a0EPIC from zz…'), findsNothing);
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0000');
 
       await _clearNotices(tester);
@@ -1135,7 +1135,7 @@ void main() {
           .deliver(const SlateFile(name: 'shared.tx', json: incoming));
       await _unlockToHome(tester);
       await tester.pumpAndSettle();
-      expect(find.text('Someone is sending you 2.00000000 EPIC.'), findsOneWidget);
+      expect(find.text('Someone is sending you 2.00000000\u00a0EPIC.'), findsOneWidget);
     });
   });
 
