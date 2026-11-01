@@ -28994,6 +28994,12 @@ abstract class AppLocalizations {
   /// **'Waiting for the other side'**
   String get deskLvPayTileWaiting;
 
+  /// Deeper Overview tile and the small Overview picture at Deeper: payments waiting for the other wallet's reply. Short: fits one line in a narrow tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting reply'**
+  String get deskLvPayTileAwaiting;
+
   /// Deeper Overview tile: coins held by payments you sent.
   ///
   /// In en, this message translates to:

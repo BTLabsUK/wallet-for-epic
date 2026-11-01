@@ -22,6 +22,7 @@
   "deskLvPayTileConfirming": "Wciąż potwierdzane",
   "deskLvPayTileMining": "Świeże z kopania",
   "deskLvPayTileWaiting": "Czeka na drugą stronę",
+  "deskLvPayTileAwaiting": "Czeka na odpowiedź",
   "deskLvPayTileLocked": "Odłożone na wysyłki",
   "deskLvPayImmatureCasual": "Świeże z kopania, jeszcze niedostępne",
   "deskLvPayKind": "Płatność"

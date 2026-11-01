@@ -4832,6 +4832,7 @@
   "deskLvPayTileConfirming": "Wird noch bestätigt",
   "deskLvPayTileMining": "Frisch vom Mining",
   "deskLvPayTileWaiting": "Wartet auf die Gegenseite",
+  "deskLvPayTileAwaiting": "Wartet auf Antwort",
   "deskLvPayTileLocked": "Für Sendungen reserviert",
   "deskLvPayImmatureCasual": "Frisch vom Mining, noch nicht verfügbar",
   "deskLvPayKind": "Zahlung",

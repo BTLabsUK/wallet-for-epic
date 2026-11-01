@@ -4832,6 +4832,7 @@
   "deskLvPayTileConfirming": "ยังกำลังยืนยัน",
   "deskLvPayTileMining": "ใหม่จากการขุด",
   "deskLvPayTileWaiting": "รออีกฝ่าย",
+  "deskLvPayTileAwaiting": "รอการตอบกลับ",
   "deskLvPayTileLocked": "กันไว้สำหรับการส่ง",
   "deskLvPayImmatureCasual": "ใหม่จากการขุด ยังใช้ไม่ได้",
   "deskLvPayKind": "การชำระเงิน",

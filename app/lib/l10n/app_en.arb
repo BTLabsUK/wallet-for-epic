@@ -25140,6 +25140,10 @@
   "@deskLvPayTileWaiting": {
     "description": "Deeper Overview tile: payments waiting for the sender to finish."
   },
+  "deskLvPayTileAwaiting": "Awaiting reply",
+  "@deskLvPayTileAwaiting": {
+    "description": "Deeper Overview tile and the small Overview picture at Deeper: payments waiting for the other wallet's reply. Short: fits one line in a narrow tile."
+  },
   "deskLvPayTileLocked": "Set aside for sends",
   "@deskLvPayTileLocked": {
     "description": "Deeper Overview tile: coins held by payments you sent."

@@ -19218,6 +19218,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvPayTileWaiting => 'Ожидание другой стороны';
 
   @override
+  String get deskLvPayTileAwaiting => 'Ждёт ответа';
+
+  @override
   String get deskLvPayTileLocked => 'Отложено для отправок';
 
   @override

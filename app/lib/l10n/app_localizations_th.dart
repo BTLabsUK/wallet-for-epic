@@ -18173,6 +18173,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskLvPayTileWaiting => 'รออีกฝ่าย';
 
   @override
+  String get deskLvPayTileAwaiting => 'รอการตอบกลับ';
+
+  @override
   String get deskLvPayTileLocked => 'กันไว้สำหรับการส่ง';
 
   @override

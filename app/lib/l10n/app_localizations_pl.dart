@@ -19237,6 +19237,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskLvPayTileWaiting => 'Czeka na drugą stronę';
 
   @override
+  String get deskLvPayTileAwaiting => 'Czeka na odpowiedź';
+
+  @override
   String get deskLvPayTileLocked => 'Odłożone na wysyłki';
 
   @override

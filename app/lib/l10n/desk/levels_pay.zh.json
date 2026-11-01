@@ -22,6 +22,7 @@
   "deskLvPayTileConfirming": "仍在确认",
   "deskLvPayTileMining": "刚挖出的币",
   "deskLvPayTileWaiting": "等待对方",
+  "deskLvPayTileAwaiting": "等待回复",
   "deskLvPayTileLocked": "为付款预留",
   "deskLvPayImmatureCasual": "刚挖出的币，暂不可用",
   "deskLvPayKind": "付款"

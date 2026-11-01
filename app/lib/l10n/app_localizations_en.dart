@@ -18589,6 +18589,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskLvPayTileWaiting => 'Waiting for the other side';
 
   @override
+  String get deskLvPayTileAwaiting => 'Awaiting reply';
+
+  @override
   String get deskLvPayTileLocked => 'Set aside for sends';
 
   @override

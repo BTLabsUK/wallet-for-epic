@@ -18808,6 +18808,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskLvPayTileWaiting => 'Wartet auf die Gegenseite';
 
   @override
+  String get deskLvPayTileAwaiting => 'Wartet auf Antwort';
+
+  @override
   String get deskLvPayTileLocked => 'Für Sendungen reserviert';
 
   @override

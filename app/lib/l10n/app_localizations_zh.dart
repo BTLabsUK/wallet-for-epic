@@ -17528,6 +17528,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvPayTileWaiting => '等待对方';
 
   @override
+  String get deskLvPayTileAwaiting => '等待回复';
+
+  @override
   String get deskLvPayTileLocked => '为付款预留';
 
   @override
