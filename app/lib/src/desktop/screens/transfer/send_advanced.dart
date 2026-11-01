@@ -95,10 +95,13 @@ class SendAdvanced extends StatelessWidget {
 /// A radio choice as a row: an 18 u circle, a title (with an optional tag) and one line of
 /// text; the whole row selects it. Arrow keys move between rows as Tab does.
 class ERadioRow extends StatefulWidget {
-  const ERadioRow({super.key, required this.selected, required this.title, this.text, this.tag, this.onSelected, this.hint, this.hintIcon});
+  const ERadioRow({super.key, required this.selected, required this.title, this.text, this.tag, this.onSelected, this.hint, this.hintIcon, this.leading});
 
   final bool selected;
   final String title;
+
+  /// A small picture between the radio and the words (a depth's glyph), drawn by the caller.
+  final Widget? leading;
   /// The line under the title; null for a row that is just its name (the [hint] then sits
   /// right after it).
   final String? text;
@@ -166,6 +169,10 @@ class _ERadioRowState extends State<ERadioRow> {
                             : null,
                       ),
                       SizedBox(width: Sp.x3),
+                      if (widget.leading != null) ...[
+                        Padding(padding: EdgeInsets.only(top: widget.text == null ? 0 : 1.u), child: widget.leading),
+                        SizedBox(width: Sp.x3),
+                      ],
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

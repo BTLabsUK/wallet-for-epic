@@ -484,28 +484,51 @@ class DeskOverviewPreview extends StatelessWidget {
               ),
             ),
           );
-          Widget payment(String name, String amount, {required Color tone, String? how, String? id}) => Container(
+          // A payment row. Deeper adds the method; Deep end the id in mono. [casual] and
+          // [technical] are the line under the first (pending) payment: plain words at Deeper,
+          // the kernel and the count at Deep end, so the two depths differ at a glance.
+          Widget payment(String name, String amount, {required Color tone, String? how, String? id, String? casual, String? technical}) => Container(
             padding: EdgeInsets.symmetric(horizontal: 8 * k, vertical: 5 * k),
             decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: 11 * k,
                   height: 11 * k,
+                  margin: EdgeInsets.only(top: 0.5 * k),
                   decoration: BoxDecoration(border: Border.all(color: tone), borderRadius: BorderRadius.circular(3 * k)),
                 ),
                 SizedBox(width: 6 * k),
                 Expanded(
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: name, style: s(9, weight: FontWeight.w500)),
-                        if (depth >= 2 && how != null) TextSpan(text: ' · $how', style: s(8, color: c.dim)),
-                        if (depth == 3 && id != null) TextSpan(text: ' · $id', style: s(8, color: c.dim)),
-                      ],
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: name, style: s(9, weight: FontWeight.w500)),
+                            if (depth >= 2 && how != null) TextSpan(text: ' · $how', style: s(8, color: c.dim)),
+                            if (depth == 3 && id != null) TextSpan(text: ' · $id', style: s(7.5, color: c.dim, family: monoFamily)),
+                          ],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (casual != null && technical != null)
+                        layer(
+                          depth >= 2,
+                          Padding(
+                            padding: EdgeInsets.only(top: 1.5 * k),
+                            child: Text(
+                              depth == 3 ? technical : casual,
+                              style: depth == 3 ? s(7.5, color: c.dim, family: monoFamily) : s(8, color: c.dim),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 Text(amount, style: s(8.5, color: tone, family: monoFamily)),
@@ -620,6 +643,19 @@ class DeskOverviewPreview extends StatelessWidget {
                     ],
                   ),
                 ),
+                // Deep end: the node's numbers in a line of their own, in mono.
+                layer(
+                  depth == 3,
+                  Padding(
+                    padding: EdgeInsets.only(top: 4 * k),
+                    child: Text(
+                      '${l.lvShellLatestBlock} 2,934,118 · ${l.lvShellUpToDate} · ${l.deskKitFactPeers} 8', // l10n-ok: sample numbers
+                      style: s(7.5, color: c.dim, family: monoFamily),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
                 SizedBox(height: 7 * k),
                 hero,
                 SizedBox(height: 7 * k),
@@ -628,7 +664,15 @@ class DeskOverviewPreview extends StatelessWidget {
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
-                      payment('Bob', '+12.5000', tone: c.txReceived, how: l.methodEpicbox, id: 'a1f9e8d7'), // l10n-ok: sample payment
+                      payment(
+                        'Bob', // l10n-ok: sample payment
+                        '+12.5000', // l10n-ok: sample payment
+                        tone: c.txReceived,
+                        how: l.methodEpicbox,
+                        id: 'a1f9e8d7', // l10n-ok: sample payment
+                        casual: '${l.lvPayArriving} · ${l.lvPayConfirming(2, 6)}',
+                        technical: '${l.txDetailsKernel} 8f1c2e…9a3b · ${l.lvPayConfirmations} 2/6', // l10n-ok: sample numbers
+                      ),
                       payment('Alice', '−25.0000', tone: c.txSent, how: l.methodEpicbox, id: '7c21b0e4'), // l10n-ok: sample payment
                       payment('Alice', '+148.7321', tone: c.txReceived, how: l.methodEpicbox, id: '02ab9c11'), // l10n-ok: sample payment
                     ],

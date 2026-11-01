@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../levels/level_providers.dart' show walletLevelProvider;
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/mock_hosts.dart';
@@ -88,7 +89,11 @@ void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
 /// Shows the screen at [level] (the tour's wallet stands on its own, so the pick is its own).
-Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) => c.read(deskLevelControlProvider).setLevel(level);
+/// The level's first build settles the store first: a pick before that is overwritten by it.
+Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async {
+  await c.read(walletLevelProvider.future);
+  await c.read(deskLevelControlProvider).setLevel(level);
+};
 
 final List<DeskShot> settingsShots = [
   const DeskShot(id: '20-node', title: 'Settings › Node: the node card', route: DeskRoute.settingsNode),
@@ -407,7 +412,9 @@ final List<DeskShot> settingsShots = [
   DeskShot(id: '43-advanced-l1', title: 'Settings › Advanced, Shallow', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '43-advanced-l2', title: 'Settings › Advanced, Deeper', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.casual)),
   const DeskShot(id: '43z-change-level', title: 'Settings › Advanced › Change level', route: DeskRoute.settingsLevel),
-  const DeskShot(id: '43z-change-level-narrow', title: 'Change level at 1000x750, dial over preview', route: DeskRoute.settingsLevel, width: 1000, height: 750),
+  DeskShot(id: '43z-change-level-l1', title: 'Change level at Shallow', route: DeskRoute.settingsLevel, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(id: '43z-change-level-l2', title: 'Change level at Deeper', route: DeskRoute.settingsLevel, before: _level(WalletLevel.casual)),
+  const DeskShot(id: '43z-change-level-narrow', title: 'Change level at 1000x750', route: DeskRoute.settingsLevel, width: 1000, height: 750),
   DeskShot(id: '43b-advanced-tor-only', title: 'Settings, network mode Tor only', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
   DeskShot(id: '43c-advanced-offline', title: 'Settings › Advanced, Offline', route: DeskRoute.settingsAdvanced, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
   DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.nodeOnly)),
