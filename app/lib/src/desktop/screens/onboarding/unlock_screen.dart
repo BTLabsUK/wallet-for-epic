@@ -480,11 +480,9 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
             // does not move under the pointer.
             Padding(
               padding: EdgeInsets.only(left: Sp.x8),
-              child: ReservedSlot.like(
-                alignment: AlignmentDirectional.topStart,
-                model: Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption),
-                child: _remember ? Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption) : null,
-              ),
+              child: _remember
+                  ? Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption)
+                  : ReservedSlot.like(model: Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption)),
             ),
             if (_missing) ...[
               SizedBox(height: Sp.x4),
