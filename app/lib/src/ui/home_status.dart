@@ -373,16 +373,20 @@ class ConnectionsSheet extends ConsumerWidget {
       required VoidCallback onTap,
     }) {
       final problem = dot == StatusDot.bad;
+      void open() {
+        Navigator.of(context).pop();
+        onTap();
+      }
+
+      // The row's own tap for a screen reader: excludeSemantics drops the InkWell's.
       return Semantics(
         button: true,
         label: label,
         hint: detail,
         excludeSemantics: true,
+        onTap: open,
         child: InkWell(
-          onTap: () {
-            Navigator.of(context).pop();
-            onTap();
-          },
+          onTap: open,
           borderRadius: BorderRadius.circular(t.radiusSmall),
           child: Container(
             constraints: const BoxConstraints(minHeight: 64),
