@@ -45,6 +45,10 @@ class GraphTest(unittest.TestCase):
         _, _, dirs = self.g.deps("app/test/fixture_test.dart")
         self.assertIn("app/test/fixtures/install", dirs)
 
+    def test_browser_only_files_are_not_vm_tests(self):
+        self.assertNotIn("app/test/web/dom_web_test.dart", self.g.tests())
+        self.assertIn("app/test/home_test.dart", self.g.tests())
+
     def test_hit(self):
         self.assertEqual(self.g.hit("app/test/home_test.dart", {"app/lib/src/model.dart"}), "app/lib/src/model.dart")
         self.assertIsNone(self.g.hit("app/test/send_test.dart", {"app/lib/src/web_io.dart"}))

@@ -32,6 +32,8 @@ _SKIPPABLE = re.compile(r"^\s*(//.*|/\*.*|\*.*|@\w.*)?$")
 # A literal that may be a path: no spaces, at least one slash, no scheme.
 _PATHISH = re.compile(r"^[\w.\-]+(/[\w.\-${}]*)+$")
 _DIR_CALL = re.compile(r"""Directory\(\s*'([\w.\-]+)'\s*\)""")
+# `@TestOn('browser')` and the like: a file the Dart VM never runs (flutter test skips it).
+_TEST_ON = re.compile(r"""^@TestOn\(\s*['"]([^'"]*)['"]""", re.M)
 
 
 def norm(path):
@@ -171,7 +173,14 @@ class Graph:
         self.data_files[f], self.data_dirs[f] = data_deps(body, f, self._exists)
 
     def tests(self):
-        return sorted(f for f in self.sources if f.startswith(TEST_DIR + "/") and f.endswith("_test.dart"))
+        """The test files `flutter test` runs on the VM (browser-only files are left out)."""
+        return sorted(f for f in self.sources if f.startswith(TEST_DIR + "/") and f.endswith("_test.dart")
+                      and self.vm(f))
+
+    def vm(self, test):
+        """False for a file whose @TestOn names a browser and not the VM."""
+        m = _TEST_ON.search(self.sources.get(test, "")[:4000])
+        return not m or "vm" in m.group(1) or not any(w in m.group(1) for w in ("browser", "chrome", "js"))
 
     def configs(self, test):
         """The flutter_test_config.dart files flutter loads for `test`."""

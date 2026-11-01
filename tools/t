@@ -253,7 +253,12 @@ def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=Fa
     run, rc, seconds, queue = run_flutter(ordered, env, args, name_filter, update_goldens)
     counts = run.counts()
     failures = run.failures()
-    if run.success is None and not failures:
+    if rc == 79 and not failures:
+        # flutter test's "No tests were found": a name that matches nothing, or browser-only files
+        status, code = "error", 2
+        run.other.append("no test ran: the name matches no test, or the file runs only in a browser "
+                         "(flutter test --platform chrome <file>)")
+    elif run.success is None and not failures:
         status, code = "error", 2
     elif rc == 0 and run.success and not failures:
         status, code = "green", 0

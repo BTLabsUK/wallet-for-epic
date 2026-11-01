@@ -73,6 +73,13 @@ APP = {
     "app/test/desktop/goldens/node.png": "png",
     "app/test/desktop/bye_test.dart": "void main() { l.bye; }\n",
     "app/test/gone_test.dart": "import 'package:epic_wallet/src/removed.dart';\n",
+    "app/test/web/dom_web_test.dart": """
+        // SPDX-License-Identifier: Apache-2.0
+        @TestOn('browser')
+        library;
+
+        import 'package:epic_wallet/src/model.dart';
+        """,
     "tools/lepic.rev": "abc\n",
 }
 
