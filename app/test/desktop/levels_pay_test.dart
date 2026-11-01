@@ -102,8 +102,8 @@ void main() {
     expect(find.byTooltip('Hide amounts'), findsNothing);
     expect(find.text('On its way to Alice'), findsOneWidget);
     expect(find.text('Alice signed'), findsOneWidget);
-    expect(find.text('Alice’s wallet is not open yet'), findsOneWidget);
-    expect(find.text('Done'), findsWidgets);
+    expect(find.text('Waiting for Alice’s wallet'), findsOneWidget);
+    expect(find.text('Completed'), findsWidgets);
     expect(find.textContaining('closed'), findsNothing, reason: 'never "receives while closed"');
   });
 
@@ -122,19 +122,22 @@ void main() {
     expect(find.text('Set aside for sends'), findsOneWidget);
     expect(find.text('Total'), findsOneWidget);
     expect(find.text('On its way to Alice'), findsOneWidget);
-    expect(find.text('Waiting for Alice’s wallet to open'), findsOneWidget);
+    expect(find.text('Waiting for Alice’s wallet'), findsOneWidget);
   });
 
   testWidgets('Deep end Overview: today\'s tiles and words, the card in technical words', (tester) async {
     await _pump(tester, const OverviewScreen(), WalletLevel.everything, [_sendToAlice]);
-    expect(find.text('Confirming'), findsOneWidget);
+    // The balance tile and the payment card's Confirming step (the phone's five steps, A-03).
+    expect(find.text('Confirming'), findsWidgets);
     expect(find.text('Locked in sends'), findsOneWidget);
     expect(find.text('Still confirming'), findsNothing);
     expect(find.text('Sending to Alice'), findsOneWidget);
     expect(find.text('Recipient signed'), findsOneWidget);
-    expect(find.text('Confirmations 0 / ${_sendToAlice.confirmationsNeeded}'), findsOneWidget);
-    expect(find.text('Slate S1 sent over Epicbox · waiting for S2'), findsNothing, reason: 'the relay is named when known');
-    expect(find.text('S1 on epicbox.example.org · awaiting S2'), findsOneWidget);
+    expect(find.text('Posted to the network'), findsOneWidget);
+    // No slate jargon on a screen (#06): what it waits for, the relay's host on hover.
+    expect(find.textContaining('S1'), findsNothing);
+    expect(find.text('Waiting for Alice’s wallet'), findsOneWidget);
+    expect(find.byTooltip('epicbox.example.org'), findsOneWidget);
   });
 
   testWidgets('Activity chips: All, Sent, Received at Shallow; Pending and Cancelled from Deeper', (tester) async {
@@ -173,14 +176,21 @@ void main() {
     final l = englishStrings;
     List<String> words(Tx t, TimelineStyle style, {String? name = 'Alice'}) => [for (final s in payStepList(l, t, style, name: name)) s.title];
 
-    test('a send: Shallow, Deeper and Deep end words', () {
-      expect(words(_sendToAlice, TimelineStyle.liveSentence), ['Payment started', 'Alice signed', 'Posted to the network', 'Confirming', 'Done']);
-      expect(words(_sendToAlice, TimelineStyle.casualSteps), ['Payment started', 'Alice signed', 'Posted to the network', 'Confirming, 0 of ${_sendToAlice.confirmationsNeeded}', 'Completed']);
-      expect(words(_sendToAlice, TimelineStyle.technicalSteps), ['Payment started', 'Recipient signed', 'Posted to node', 'Confirmations 0 / ${_sendToAlice.confirmationsNeeded}', 'Confirmed']);
+    test('a send: the five steps of the phone at every level (A-03)', () {
+      final five = ['Payment started', 'Alice signed', 'Posted to the network', 'Confirming', 'Completed'];
+      expect(words(_sendToAlice, TimelineStyle.liveSentence), five);
+      expect(words(_sendToAlice, TimelineStyle.casualSteps), five);
+      expect(words(_sendToAlice, TimelineStyle.technicalSteps), ['Payment started', 'Recipient signed', 'Posted to the network', 'Confirming', 'Completed']);
+      // No slate jargon: an Epicbox send waits "On Epicbox", the relay's host on hover (#06).
+      final anon = payStepList(l, _sendToAlice, TimelineStyle.technicalSteps);
+      expect(anon[1].sub, 'On Epicbox');
+      for (final s in anon) {
+        expect('${s.title} ${s.sub ?? ''}', isNot(contains('S1')));
+      }
     });
 
     test('a receive: arrived, sender finished, posted, confirming, done', () {
-      expect(words(_fromBob, TimelineStyle.liveSentence, name: 'Bob'), ['Payment arrived', 'Sender finished', 'Posted to the network', 'Confirming', 'Done']);
+      expect(words(_fromBob, TimelineStyle.liveSentence, name: 'Bob'), ['Payment arrived', 'Signed and returned', 'Posted to the network', 'Confirming', 'Completed']);
       final s = payStepList(l, _fromBob, TimelineStyle.liveSentence, name: 'Bob');
       expect([for (final x in s) x.state], [PayStepState.done, PayStepState.now, PayStepState.todo, PayStepState.todo, PayStepState.todo]);
       expect(s[1].sub, l.deskTxStatusWaitingSender);
@@ -189,9 +199,9 @@ void main() {
     test('the current step and its sub-line follow the data', () {
       final s = payStepList(l, _sendToAlice, TimelineStyle.liveSentence, name: 'Alice');
       expect([for (final x in s) x.state], [PayStepState.done, PayStepState.now, PayStepState.todo, PayStepState.todo, PayStepState.todo]);
-      expect(s[1].sub, 'Alice’s wallet is not open yet');
-      // No name: no sub-line to invent.
-      expect(payStepList(l, _sendToAlice, TimelineStyle.liveSentence)[1].sub, isNull);
+      expect(s[1].sub, 'Waiting for Alice’s wallet');
+      // No name: where it waits, never a name invented.
+      expect(payStepList(l, _sendToAlice, TimelineStyle.liveSentence)[1].sub, 'On Epicbox');
       // A file send waits for a response file.
       expect(payStepList(l, _fileSend, TimelineStyle.casualSteps)[1].sub, l.deskTxStepWaitingFile);
       // Confirming: the count shows on the current step.
@@ -207,7 +217,9 @@ void main() {
         confirmations: 2,
       );
       final c = payStepList(l, confirming, TimelineStyle.casualSteps, name: 'Alice');
-      expect(c[3].title, 'Confirming, 2 of ${confirming.confirmationsNeeded}');
+      // "2 of 6" in no-break spaces: it never splits across lines (#12).
+      expect(c[3].title, 'Confirming 2\u00a0of\u00a0${confirming.confirmationsNeeded}');
+      expect(payStepList(l, confirming, TimelineStyle.technicalSteps)[3].title, 'Confirming 2/${confirming.confirmationsNeeded}');
       expect([for (final x in c) x.state], [PayStepState.done, PayStepState.done, PayStepState.done, PayStepState.now, PayStepState.todo]);
     });
 
