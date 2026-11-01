@@ -95,7 +95,7 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
 
 /// [statusWithMailbox] in the words of [wording]: Shallow and Deeper read an ordinary payment
 /// in plain words (Waiting for Alice, Arriving, Confirming, 2 of 3); the Deep end and every
-/// case with a word of its own (not delivered, not posted, a backup, an invoice, another
+/// case with a word of its own (not delivered, posting, not posted, a backup, an invoice, another
 /// device, the sender's cancel) keep today's.
 (String, ETone) levelStatusWithMailbox(AppLocalizations l, Tx t, LevelWording wording, String? mailbox, {bool paused = false}) {
   final today = statusWithMailbox(l, t, mailbox, paused: paused);
@@ -104,6 +104,7 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
       t.isInvoice ||
       t.undelivered ||
       t.notPosted ||
+      t.posting ||
       t.deviceName != null ||
       paused ||
       (t.incoming && t.senderCancelled) ||
@@ -193,6 +194,8 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
         // Finished under Kill switch: a device that is online posts it (in progress, not a fault).
         TxState.posted when t.notPosted && NetGate.killSwitch => (l.txPostElsewhere, ETone.info),
         TxState.posted when t.notPosted => (l.deskTxStatusNotPosted, ETone.warn),
+        // Finished moments ago and its post may still be under way: no warning yet.
+        TxState.posted when t.posting => (l.postFinishedPosting, ETone.info),
         TxState.posted => (l.deskTxStatusWaitingBlock, ETone.neutral),
         // Kill switch asks no node: the count is the one seen last.
         TxState.confirming when NetGate.killSwitch => (l.lastKnownConfirming(l.deskTxStatusConfirming(t.confirmations, t.confirmationsNeeded)), ETone.info),

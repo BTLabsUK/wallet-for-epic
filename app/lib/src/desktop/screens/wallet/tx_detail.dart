@@ -725,7 +725,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
   List<_Step> _mailboxSteps(AppLocalizations l, Tx t, String name, String relay, bool paused) {
     final waiting = t.state == TxState.waitingRecipient;
     final queued = waiting && paused;
-    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted);
+    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted && !t.posting);
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
     final done = t.state == TxState.confirmed;
     return [

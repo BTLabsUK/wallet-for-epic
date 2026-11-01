@@ -50,7 +50,7 @@ class PayFacts {
     // sender to post it.
     final signed = t.incoming || t.state != TxState.waitingRecipient;
     final waitingSender = t.incoming && t.state == TxState.waitingRecipient;
-    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted);
+    final posted = t.state == TxState.confirming || t.state == TxState.confirmed || (t.state == TxState.posted && !t.notPosted && !t.posting);
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
     return PayFacts._(
       signed: signed,

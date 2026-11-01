@@ -286,6 +286,7 @@ class Tx {
     this.fromBackup = false,
     this.cancellable = false,
     this.notPosted = false,
+    this.posting = false,
     this.cancelFinal,
     this.undelivered = false,
     this.confirmedAt,
@@ -418,6 +419,10 @@ class Tx {
   /// outputs locked. It can still be cancelled; the core asks the node first.
   final bool notPosted;
 
+  /// Our send, finalized moments ago, whose post may still be under way (core
+  /// `TxEntry.posting`): "Posting…", never [notPosted] yet.
+  final bool posting;
+
   /// For a cancelled payment the other side could have finished without this wallet (an
   /// invoice it paid, a send both signed): whether the cancel is final, its coins spent again
   /// (cancel_final.dart). Null for every other row.
@@ -514,6 +519,7 @@ class Tx {
       fromBackup: fromBackup,
       cancellable: cancellable,
       notPosted: notPosted,
+      posting: posting,
       cancelFinal: cancelFinal,
       undelivered: undelivered,
       confirmedAt: confirmedAt,
@@ -574,6 +580,7 @@ class Tx {
     fromBackup: fromBackup,
     cancellable: cancellable,
     notPosted: notPosted,
+    posting: posting,
     cancelFinal: cancelFinal,
     undelivered: undelivered,
     confirmedAt: confirmedAt,

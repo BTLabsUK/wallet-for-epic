@@ -123,6 +123,7 @@ class MergedTx {
       cancellable = e.cancellable,
       repostable = e.repostable,
       undelivered = e.undelivered,
+      posting = e.posting,
       statusDetail = e.statusDetail,
       releasable = e.releasable,
       finalizedAtUnix = e.finalizedAtUnix,
@@ -167,6 +168,7 @@ class MergedTx {
   bool cancellable;
   bool repostable;
   bool undelivered;
+  bool posting;
   String? statusDetail;
   bool releasable;
   int? finalizedAtUnix;
@@ -227,6 +229,7 @@ class MergedTx {
     cancellable: cancellable,
     repostable: repostable,
     undelivered: undelivered,
+    posting: posting,
     statusDetail: statusDetail,
     releasable: releasable,
     finalizedAtUnix: finalizedAtUnix,

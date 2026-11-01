@@ -3506,6 +3506,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final delivered =
         sent.to.kind != RecipientKind.epicbox &&
         track == SendTrack.confirming &&
+        !live.posting &&
         confirmations == 0;
     return [
       Align(

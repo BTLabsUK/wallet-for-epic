@@ -210,7 +210,9 @@ void main() {
     // Read between LEPIC's "finalized" and its post, as the listener's event makes it.
     lepicWallet.status = lepic.TxStatus.finalized;
     await wallet.syncNow().catchError((Object _) {});
-    expect((await send()).notPosted, isTrue);
+    // Its post may still succeed: posting, not Not posted.
+    final during = await send();
+    expect((during.notPosted, during.posting), (false, true));
     // Posted; the collect says the payment is finalized.
     lepicWallet.status = lepic.TxStatus.posted;
     lepicWallet.events$.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.contactPaymentFinalized, txId: 7, slateId: _slate, contactId: _pairing));
