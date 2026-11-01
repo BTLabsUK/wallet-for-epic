@@ -223,8 +223,13 @@ class Run:
                                  stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
             self.standins.append(p)
             self.ports[kind] = port
-        time.sleep(1)
-        if not node_up("http://127.0.0.1:%d" % self.ports["node"]):
+        # one slow answer from the upstream node is not a dead stand-in: three tries
+        for attempt in range(3):
+            time.sleep(1 if attempt == 0 else 5)
+            if node_up("http://127.0.0.1:%d" % self.ports["node"]):
+                break
+            self.log("loopback node stand-in: no answer in 10 s (try %d)" % (attempt + 1))
+        else:
             raise CannotRun("loopback node stand-in does not answer")
         self.custom_node = "127.0.0.1:%d" % self.ports["node"]
         self.custom_relay = "127.0.0.1:%d" % self.ports["relay"]
