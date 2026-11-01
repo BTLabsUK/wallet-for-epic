@@ -24,6 +24,10 @@ import '../tor_routes.dart';
 /// How long the relay in use must have stopped answering before another one is offered.
 const Duration relaySwitchAfter = Duration(minutes: 2);
 
+/// How long a relay that answers again must stay up before its outage is over: one that drops
+/// again sooner keeps counting from the first drop.
+const Duration relayStableFor = Duration(minutes: 2);
+
 /// How long "Keep waiting" holds the offer back while the relay stays down.
 const Duration relayKeepWaitingFor = Duration(minutes: 30);
 

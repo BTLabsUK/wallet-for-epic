@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // The settled statuses (walletStatusProvider): node offline, node syncing and Epicbox offline
-// show only once they have lasted statusSettle (5 s); a shorter drop or refresh shows nothing,
-// and a way back shows at once. Driven by a fake raw status on a fake clock.
+// show only once they have lasted statusSettle (5 s); a shorter node drop or refresh shows
+// nothing, an Epicbox drop reads connecting meanwhile, and a way back shows at once. Driven by a
+// fake raw status on a fake clock.
 
 import 'package:epic_wallet/src/app_log.dart';
 import 'dart:async';
@@ -127,14 +128,14 @@ void main() {
       });
     });
 
-    test('a 3 s drop shows nothing', () {
+    test('a 3 s drop reads connecting, never online, and never offline', () {
       fakeAsync((async) {
         final h = _Harness(async);
         expect(h.shown.epicbox, EpicboxState.online);
         h.set(epicbox: EpicboxState.offline);
-        expect(h.shown.epicbox, EpicboxState.online);
+        expect(h.shown.epicbox, EpicboxState.connecting);
         h.elapse(_s * 3);
-        expect(h.shown.epicbox, EpicboxState.online);
+        expect(h.shown.epicbox, EpicboxState.connecting);
         h.set(epicbox: EpicboxState.online);
         h.elapse(_s * 10);
         expect(h.shown.epicbox, EpicboxState.online, reason: 'the reconnect cancelled it');
@@ -142,12 +143,12 @@ void main() {
       });
     });
 
-    test('a 10 s drop shows offline from 5 s on, and the reconnect at once', () {
+    test('a 10 s drop reads connecting, offline from 5 s on, and the reconnect at once', () {
       fakeAsync((async) {
         final h = _Harness(async);
         h.set(epicbox: EpicboxState.offline);
         h.elapse(_s * 4);
-        expect(h.shown.epicbox, EpicboxState.online);
+        expect(h.shown.epicbox, EpicboxState.connecting);
         h.elapse(_s);
         expect(h.shown.epicbox, EpicboxState.offline);
         h.elapse(_s * 5);
@@ -244,7 +245,7 @@ void main() {
         h.set(epicbox: EpicboxState.offline);
         h.elapse(_s * 2);
         expect(h.shown.node.state, NodeState.offline);
-        expect(h.shown.epicbox, EpicboxState.online);
+        expect(h.shown.epicbox, EpicboxState.connecting);
         h.elapse(_s * 3);
         expect(h.shown.epicbox, EpicboxState.offline);
         h.container.dispose();

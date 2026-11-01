@@ -2,9 +2,10 @@
 /// The Epicbox relay offer on the phone (`relay_switch.dart` has the rules): watches the
 /// Epicbox status Home shows ([walletStatusProvider]) and, once the relay in use has not
 /// answered for [relaySwitchAfter] and another relay of the list is seen healthy, holds an
-/// offer in [relaySwitchProvider]. Nothing moves until the user accepts
+/// offer in [relaySwitchProvider]. A relay that answers and drops again counts as not answering
+/// until it has stayed up for [relayStableFor]. Nothing moves until the user accepts
 /// ([RelaySwitchNotifier.accept]); "Keep waiting" ([RelaySwitchNotifier.keepWaiting]) holds the
-/// offer back until the relay answers again or [relayKeepWaitingFor] passes.
+/// offer back until the relay has stayed up again or [relayKeepWaitingFor] passes.
 ///
 /// After a move the old relay is drained for [relayDrainWindow] ([relayDrainWatchProvider]),
 /// so payments sent to the old address still arrive.
@@ -20,6 +21,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../btlabs_onions.dart';
 import '../connection_state.dart';
 import '../log.dart';
+import '../net/tor_switch.dart';
 import '../network.dart';
 import '../network_gate.dart';
 import '../phone_tor.dart';
@@ -28,7 +30,7 @@ import '../relay_directory.dart' show RelayStatus, relayStatusProvider;
 import '../server_switch.dart';
 import '../settings.dart';
 import '../secret_store_api.dart' show SecretStore;
-import '../settings_file/host_settings.dart' show EpicboxServer;
+import '../settings_file/host_settings.dart' show EpicboxServer, appConfig;
 import '../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
@@ -41,8 +43,10 @@ import 'relay_switch.dart';
 /// changes, a Keep waiting runs out).
 const Duration relaySwitchRecheck = Duration(minutes: 1);
 
-/// How long the status site may take to say which relays are healthy.
-const Duration _healthWait = Duration(seconds: 10);
+/// How long the status site may take to say which relays are healthy: over Tor its onion gets
+/// the directory's own Tor limit, and a little more for its one retry to answer.
+Duration _healthWait() =>
+    TorSwitch.on ? appConfig.statusTorTimeout + const Duration(seconds: 5) : const Duration(seconds: 10);
 
 /// What a move did, for Receive: the relay now in use, its name and the wallet's address there.
 class RelaySwitchResult {
@@ -81,8 +85,13 @@ class RelaySwitchResultNotifier extends Notifier<RelaySwitchResult?> {
 class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
   Timer? _timer;
 
-  /// Since when the shown Epicbox status reads offline or blocked; null while it does not.
+  /// Since when the relay in use has not answered: the shown Epicbox status read offline or
+  /// blocked, or connecting after a lost connection. Null once it has stayed up for
+  /// [relayStableFor].
   DateTime? _since;
+
+  /// Runs while the relay reads online during an outage; the outage ends when it fires.
+  Timer? _stable;
 
   /// When the user chose Keep waiting during this outage.
   DateTime? _keptWaitingAt;
@@ -106,47 +115,83 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
     _keptWaitingAt = null;
     ref.onDispose(() {
       _timer?.cancel();
-      _timer = null;
+      _stable?.cancel();
+      _timer = _stable = null;
     });
     if (!prompt) return null;
-    ref.listen(walletStatusProvider.select((s) => s.epicbox), (_, epicbox) => _follow(epicbox));
+    ref.listen(walletStatusProvider.select((s) => s.epicbox), (_, _) => _follow());
+    ref.listen(listenerProvider.select((l) => l.lost), (_, _) => _follow());
     // A relay already down when the wallet opened counts from now (after the build: the state
     // is not set yet).
     final gen = _build;
     Future<void>.delayed(Duration.zero, () {
-      if (ref.mounted && gen == _build) _follow(ref.read(walletStatusProvider).epicbox);
+      if (ref.mounted && gen == _build) _follow();
     });
     return null;
   }
 
-  static bool _down(EpicboxState? s) => s == EpicboxState.offline || s == EpicboxState.blocked;
+  /// Not answering: offline or blocked, or connecting again after the connection was lost (a
+  /// relay that drops is retried at once, so its status may never last long enough to read
+  /// offline). The first connection, and one after Retry, do not count.
+  static bool _down(EpicboxState? s, {required bool lost}) =>
+      s == EpicboxState.offline || s == EpicboxState.blocked || (s == EpicboxState.connecting && lost);
 
-  void _follow(EpicboxState? epicbox) {
-    if (!_down(epicbox)) {
-      // Answering again (or stopped): the outage and its Keep waiting are over.
-      _since = null;
-      _keptWaitingAt = null;
-      _timer?.cancel();
-      _timer = null;
-      if (state != null) state = null;
+  /// Whether no relay may be offered now at all ([relaySwitchHold]): then nothing counts.
+  bool _held() {
+    final tor = ref.exists(phoneTorProvider) ? phoneTorState(ref.read(phoneTorProvider)) : TorState.off;
+    return relaySwitchHold(mode: ref.read(networkModeProvider), tor: tor, epicboxOn: NetGate.epicbox) != null;
+  }
+
+  void _follow() {
+    final epicbox = ref.read(walletStatusProvider).epicbox;
+    if (epicbox == null || _held()) {
+      // Stopped, or the relay is not to be reached now (Tor starting, Offline): no outage.
+      _end();
       return;
     }
-    // The shown status already waited [statusSettle] before it read offline.
-    _since ??= _now().subtract(statusSettle);
+    if (epicbox == EpicboxState.online) {
+      // Answering again: no new check while it does, and the outage ends once it has held.
+      _timer?.cancel();
+      _timer = null;
+      if (_since != null) {
+        _stable ??= Timer(relayStableFor, () {
+          _stable = null;
+          if (ref.mounted) _end();
+        });
+      }
+      return;
+    }
+    if (!_down(epicbox, lost: ref.read(listenerProvider).lost)) return;
+    _stable?.cancel();
+    _stable = null;
+    // An offline status already waited [statusSettle] before it showed.
+    _since ??= _now().subtract(epicbox == EpicboxState.connecting ? Duration.zero : statusSettle);
     _arm();
   }
 
+  /// The outage, its Keep waiting and its offer are over.
+  void _end() {
+    _since = null;
+    _keptWaitingAt = null;
+    _timer?.cancel();
+    _stable?.cancel();
+    _timer = _stable = null;
+    if (state != null) state = null;
+  }
+
   void _arm() {
-    if (!_onScreen || _since == null || _timer != null) return;
+    if (!_onScreen || _since == null || _timer != null || _stable != null) return;
     final left = relaySwitchAfter - _now().difference(_since!);
     _timer = Timer(left.isNegative ? Duration.zero : left, _fire);
   }
 
   void _fire() {
     _timer = null;
-    if (!ref.mounted || !_onScreen || _since == null) return;
+    if (!ref.mounted || !_onScreen || _since == null || _stable != null) return;
     unawaited(_check().whenComplete(() {
-      if (ref.mounted && _since != null && _onScreen) _timer ??= Timer(relaySwitchRecheck, _fire);
+      if (ref.mounted && _since != null && _onScreen && _stable == null) {
+        _timer ??= Timer(relaySwitchRecheck, _fire);
+      }
     }));
   }
 
@@ -163,7 +208,8 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
     if (ref.mounted) _arm();
   }
 
-  /// Not now: no offer until the relay answers again or [relayKeepWaitingFor] passes.
+  /// Not now: no offer until the relay has stayed up again ([relayStableFor]) or
+  /// [relayKeepWaitingFor] passes.
   void keepWaiting() {
     _keptWaitingAt = _now();
     state = null;
@@ -223,7 +269,7 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
   Future<List<RelayStatus>> _health(NetworkPreset preset) async {
     final sub = ref.listen(relayStatusProvider(preset).future, (_, _) {});
     try {
-      return await sub.read().timeout(_healthWait);
+      return await sub.read().timeout(_healthWait());
     } on Object {
       return const [];
     } finally {
@@ -272,11 +318,7 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
       }
       final result = RelaySwitchResult(from: from, relay: to.relay, name: to.name, address: shown);
       if (ref.mounted) {
-        state = null;
-        _since = null;
-        _keptWaitingAt = null;
-        _timer?.cancel();
-        _timer = null;
+        _end();
         ref.read(relaySwitchResultProvider.notifier).set(result);
       }
       logInfo('network', 'relay moved by the user: ${from.label} -> ${to.relay.label}');
@@ -401,7 +443,7 @@ class RelayDrainWatch extends Notifier<void> {
     if (choice == null) return const [];
     final sub = ref.listen(relayStatusProvider(choice.preset).future, (_, _) {});
     try {
-      return await sub.read().timeout(_healthWait);
+      return await sub.read().timeout(_healthWait());
     } on Object {
       return const [];
     } finally {
