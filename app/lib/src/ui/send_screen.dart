@@ -79,6 +79,7 @@ import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 import 'settings_rows.dart' show RadioRow;
+import 'inline_button.dart';
 
 export '../utf8_limit.dart';
 
@@ -2525,9 +2526,8 @@ class _SendViewState extends ConsumerState<SendView> {
     if (label == null || to == null) return null;
     return Align(
       alignment: AlignmentDirectional.centerStart,
-      child: TextButton(
+      child: InlineTextButton(
         key: sendQuietQrKey,
-        style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
         onPressed: _busy || _estimating ? null : () => _chooseMethod(to),
         child: Text(label),
       ),
@@ -3626,10 +3626,10 @@ class _SendViewState extends ConsumerState<SendView> {
         const SizedBox(height: 8),
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: TextButton.icon(
+          child: InlineTextButton(
             icon: const Icon(Icons.person_add_alt),
-            label: Text(l.sendSaveContact),
             onPressed: () => _saveContact(sent.to.address),
+            child: Text(l.sendSaveContact),
           ),
         ),
       ],
@@ -4072,10 +4072,10 @@ class RecipientCard extends StatelessWidget {
           if (onSave != null)
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
+              child: InlineTextButton(
                 icon: const Icon(Icons.person_add_alt, size: 18),
-                label: Text(l.sendSaveContact),
                 onPressed: onSave,
+                child: Text(l.sendSaveContact),
               ),
             )
           else

@@ -22,6 +22,7 @@ import 'common.dart';
 import 'help_screen.dart' show openHelp;
 import 'qr_show_screen.dart';
 import 'theme/tokens.dart';
+import 'inline_button.dart';
 
 /// The file a finished payment is saved as.
 String finishedFileName(String slateId) => '${shortSlateId(slateId)}.finished.tx';
@@ -194,7 +195,7 @@ class FinishedNotPosted extends StatelessWidget {
         Text(l.finalizeNotPostedBody(epicExact(l, txAmount(tx).amount)), style: theme.textTheme.bodyLarge),
         Align(
           alignment: Alignment.centerLeft,
-          child: TextButton(
+          child: InlineTextButton(
             key: const ValueKey('finished-not-posted-help'),
             onPressed: () => openHelp(context, HelpId.modes, HelpAnchor.coldStorage),
             child: Text(l.finalizeNotPostedHelp),

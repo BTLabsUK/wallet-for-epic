@@ -30,6 +30,7 @@ import 'wallet_delete.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'devices/device_parts.dart' show LinkDeviceOffer;
+import 'inline_button.dart';
 
 export '../start_month.dart' show mainnetHeightForDate, mainnetFirstDay, mainnetBlockOneUnix, blockSeconds, restoreMarginBlocks;
 
@@ -470,9 +471,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (!advanced && ref.watch(levelFeaturesProvider.select((f) => f.restoreHeightField)))
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: TextButton(
+          child: InlineTextButton(
             key: restoreStartLinkKey,
-            style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
             onPressed: () => setState(() => _startOpen = true),
             child: Text(l.restoreStartFromMonthLink),
           ),

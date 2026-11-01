@@ -52,6 +52,7 @@ import 'relay_blocked.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart' show TorWayLine;
 import '../settings_file/status_site.dart' show statusSiteHost;
+import 'inline_button.dart';
 
 // The sheet.
 
@@ -1283,12 +1284,12 @@ class _ResetRow extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: Align(
         alignment: AlignmentDirectional.centerStart,
-        child: TextButton.icon(
+        child: InlineTextButton(
           key: serverListResetKey,
-          style: TextButton.styleFrom(foregroundColor: t.dim, minimumSize: const Size(48, 44)),
+          style: TextButton.styleFrom(foregroundColor: t.dim),
           onPressed: onTap,
           icon: const Icon(Icons.restart_alt, size: 18),
-          label: Text(l.slResetDefaults),
+          child: Text(l.slResetDefaults),
         ),
       ),
     );

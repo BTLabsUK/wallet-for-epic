@@ -10,6 +10,7 @@ import '../l10n.dart';
 import '../start_month.dart';
 import 'phone_sheet.dart';
 import 'theme/tokens.dart';
+import 'inline_button.dart';
 
 /// The start-month button, the line under it and, once a month is chosen, the warning for a
 /// recent one and [onClear]'s button. [date] is the chosen month's first day, null for none.
@@ -90,7 +91,7 @@ class StartMonthChoice extends StatelessWidget {
         if (chosen != null && clearLabel != null)
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: TextButton(onPressed: () => onChanged(null), child: Text(clearLabel!)),
+            child: InlineTextButton(onPressed: () => onChanged(null), child: Text(clearLabel!)),
           ),
       ],
     );
