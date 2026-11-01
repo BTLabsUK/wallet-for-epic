@@ -2276,7 +2276,7 @@ class _PickedCard extends StatelessWidget {
     return Container(
       key: const ValueKey('send-picked'),
       padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      decoration: c.well,
       child: Row(
         children: [
           EAvatar(contact.name, size: 28.u),
@@ -2314,7 +2314,7 @@ class _PairingCard extends StatelessWidget {
     final ok = pairing.paysByMailbox;
     return Container(
       key: const ValueKey('send-picked-pairing'),
-      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+      decoration: c.well,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

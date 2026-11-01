@@ -207,10 +207,16 @@ class ServerListPanel extends ConsumerStatefulWidget {
     this.demo,
     this.selection,
     this.keepBelow = 0,
+    this.panelOverhang = 0,
   });
 
   /// Room the open list leaves free under it, so the page's main button stays in view.
   final double keepBelow;
+
+  /// How far the open list reaches past the field on each side: a field inset in a column of
+  /// cards (setup's node step) passes the inset, so the list lands flush with the cards' edges
+  /// and none shows beside it.
+  final double panelOverhang;
 
   final ServerKind kind;
 
@@ -740,6 +746,10 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       child: Builder(
         builder: (context) {
           final focused = _button.hasFocus;
+          // A host (or a chosen set of them) is data, in mono; a word ("Local node", "Pick a
+          // node", "Checking…") is in the interface face.
+          final isHost = typedServerValue(widget.kind, widget.fieldText.trim().split(RegExp(r'[\s,]+')).first) != null;
+          final valueStyle = isHost ? ts.mono(size: 13.u, color: c.text) : ts.body.copyWith(color: c.text);
           return Semantics(
             button: true,
             label: '${widget.label}: ${widget.fieldText}${widget.fieldSub != null ? ', ${widget.fieldSub}' : ''}',
@@ -764,47 +774,50 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                   children: [
                     EStatusDot(widget.tone, size: 8.u),
                     SizedBox(width: Sp.x3),
-                    if (widget.busy || widget.fieldSub == null)
-                      Flexible(
-                        flex: 2,
-                        child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: ts.mono(size: 13.u, color: c.text)),
-                      )
-                    else
-                      // The host first, whole while it fits; the operator only in the room left.
-                      Expanded(
-                        child: LayoutBuilder(
-                          builder: (context, box) {
-                            final hostStyle = ts.mono(size: 13.u, color: c.text);
-                            final tp = TextPainter(text: TextSpan(text: widget.fieldText, style: hostStyle), textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
-                            final hostW = tp.width;
-                            tp.dispose();
-                            final host = Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: hostStyle);
-                            if (hostW + Sp.x2 + 48.u > box.maxWidth) return Align(alignment: AlignmentDirectional.centerStart, child: host);
-                            return Row(
+                    // The value takes the room up to the chevron, which stays at the end whatever the
+                    // value is (a bare host, a host and its operator, a word while it switches).
+                    Expanded(
+                      child: widget.busy || widget.fieldSub == null
+                          ? Row(
                               children: [
-                                host,
-                                SizedBox(width: Sp.x2),
-                                Flexible(child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1)),
+                                Flexible(
+                                  flex: 2,
+                                  child: Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: valueStyle),
+                                ),
+                                if (widget.busy) ...[
+                                  SizedBox(width: Sp.x2),
+                                  Flexible(
+                                    child: Semantics(
+                                      liveRegion: true,
+                                      child: Text(
+                                        _slow ? l.deskSetComboNoAnswer : (widget.busyLabel ?? l.deskSetFrameChecking),
+                                        style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
-                            );
-                          },
-                        ),
-                      ),
-                    if (widget.busy) ...[
-                      SizedBox(width: Sp.x2),
-                      Flexible(
-                        child: Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            _slow ? l.deskSetComboNoAnswer : (widget.busyLabel ?? l.deskSetFrameChecking),
-                            style: ts.small.copyWith(color: _slow ? c.warn : c.dim),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ),
-                    ],
-                    if (widget.busy || widget.fieldSub == null) const Spacer(),
+                            )
+                          // The host first, whole while it fits; the operator only in the room left.
+                          : LayoutBuilder(
+                              builder: (context, box) {
+                                final tp = TextPainter(text: TextSpan(text: widget.fieldText, style: valueStyle), textDirection: Directionality.of(context), textScaler: MediaQuery.textScalerOf(context), maxLines: 1)..layout();
+                                final hostW = tp.width;
+                                tp.dispose();
+                                final host = Text(widget.fieldText, maxLines: _sel == null ? 1 : 3, overflow: TextOverflow.ellipsis, softWrap: _sel != null, style: valueStyle);
+                                if (hostW + Sp.x2 + 48.u > box.maxWidth) return Align(alignment: AlignmentDirectional.centerStart, child: host);
+                                return Row(
+                                  children: [
+                                    host,
+                                    SizedBox(width: Sp.x2),
+                                    Flexible(child: Text(widget.fieldSub!, style: ts.caption.copyWith(color: c.dim), overflow: TextOverflow.ellipsis, maxLines: 1)),
+                                  ],
+                                );
+                              },
+                            ),
+                    ),
                     SizedBox(width: Sp.x2),
                     Icon(EIcons.chevronDown, size: 16.u, color: c.dim),
                   ],
@@ -1022,28 +1035,28 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final below = box == null || !_laidOut(box) ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - anchor - Sp.x4 - widget.keepBelow;
     final maxHeight = below.clamp(widget.keepBelow > 0 ? 160.u : 260.u, 520.u);
 
+    final reach = widget.panelOverhang;
+    final width = _width + 2 * reach;
     return CompositedTransformFollower(
       link: _link,
       targetAnchor: Alignment.bottomLeft,
-      offset: Offset(0, Sp.x1),
+      offset: Offset(-reach, Sp.x1),
       child: Align(
         alignment: Alignment.topLeft,
         child: TapRegion(
           groupId: _group,
           child: CallbackShortcuts(
             bindings: {const SingleActivator(LogicalKeyboardKey.escape): collapse},
+            // The popover look: s4, the lineStrong hairline dialogs use, the one soft shadow.
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(Rad.sm),
-                boxShadow: [BoxShadow(color: c.scrim, blurRadius: 16.u, offset: Offset(0, 4.u))],
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(Rad.sm), boxShadow: c.popShadow),
               child: Material(
               color: c.s4,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.line)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
               clipBehavior: Clip.antiAlias,
               child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: _width, maxWidth: _width, maxHeight: maxHeight),
+                constraints: BoxConstraints(minWidth: width, maxWidth: width, maxHeight: maxHeight),
                 child: Semantics(
                   label: widget.label,
                   explicitChildNodes: true,

@@ -625,10 +625,11 @@ class _TourCard extends StatelessWidget {
     const tap = Size(48, 48);
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: maxHeight),
+      // The floating-surface look, as the desktop's tour card: raised, lineStrong, the soft shadow.
       child: Material(
-        color: t.surfaceHi,
+        color: t.raised,
         elevation: 8,
-        shadowColor: theme.colorScheme.scrim,
+        shadowColor: t.shadowInk,
         shape: RoundedRectangleBorder(
           side: BorderSide(color: t.lineStrong),
           borderRadius: BorderRadius.circular(t.radius),

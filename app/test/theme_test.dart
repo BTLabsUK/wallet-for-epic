@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'package:epic_wallet/src/desktop/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/theme/protocol.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
@@ -37,8 +38,11 @@ void main() {
             ('surface', t.surface),
             ('surfaceHi', t.surfaceHi),
             ('field', t.field),
+            ('raised', t.raised),
             ('selected', t.selected),
           ]) ...{
+            // Hints, tags and metadata lines (the phone's faint once failed on surfaceHi).
+            'faint on $sname': (t.faint, surface),
             'ok on $sname': (t.ok, surface),
             'warn on $sname': (t.warn, surface),
             'risk on $sname': (t.risk, surface),
@@ -69,15 +73,35 @@ void main() {
           'onErrorContainer': (scheme.onErrorContainer, scheme.errorContainer),
         };
         for (final MapEntry(key: name, value: (fg, bg)) in pairs.entries) {
-          // Known gap: the orange warn of the outside-audit colours (9e0a73cf4) reads 4.44:1 on
-          // the light neutral selected fill. Held at 4.4 until the token is darkened a step.
-          final least = mode == 'light' && name == 'warn on selected' ? 4.4 : 4.5;
           expect(
             contrast(fg, bg),
-            greaterThanOrEqualTo(least),
+            greaterThanOrEqualTo(4.5),
             reason: '$mode $name',
           );
         }
+      });
+
+      test('a field and a well show their edge, a floating surface its soft shadow', () {
+        // WCAG 1.4.11: a field's boundary at 3:1 against its fill and the page.
+        expect(contrast(t.lineField, t.field), greaterThanOrEqualTo(3), reason: '$mode lineField on field');
+        expect(contrast(t.lineField, t.bg), greaterThanOrEqualTo(3), reason: '$mode lineField on bg');
+        final well = t.well;
+        expect(well.color, t.field);
+        expect((well.border! as Border).isUniform, isTrue, reason: 'a well has an edge on every side');
+        expect((well.border! as Border).top.color, t.line);
+        // The shadow is soft and low: never the dialog barrier, which drew a hard band.
+        expect(t.shadow, isNot(t.scrim));
+        expect(t.shadow.a, lessThanOrEqualTo(0.4));
+        expect(t.popShadow.single.blurRadius, greaterThanOrEqualTo(16));
+        final theme = buildWalletTheme(t, b);
+        expect(theme.colorScheme.scrim, t.scrim);
+        expect(theme.popupMenuTheme.color, t.raised);
+      });
+
+      test('a row subtitle is dim, set once in the theme', () {
+        final theme = buildWalletTheme(t, b);
+        expect(theme.listTileTheme.subtitleTextStyle?.color, t.dim);
+        expect(theme.listTileTheme.textColor, isNull, reason: 'textColor would paint the subtitle too');
       });
 
       test('the status colours are not the brand gold', () {
@@ -163,6 +187,51 @@ void main() {
           reason: 'the section head is announced as a heading',
         );
       });
+    });
+  }
+
+  // One palette (ui/theme/palette.dart): every role both front ends have holds one value.
+  for (final (mode, t, c) in [
+    ('dark', protocolDark, deskDark),
+    ('light', protocolLight, deskLight),
+  ]) {
+    test('phone and desktop $mode share every role', () {
+      final pairs = <String, (Color, Color)>{
+        'bg': (t.bg, c.bg),
+        'surface/s1': (t.surface, c.s1),
+        'field/s2': (t.field, c.s2),
+        'surfaceHi/s3': (t.surfaceHi, c.s3),
+        'raised/s4': (t.raised, c.s4),
+        'line': (t.line, c.line),
+        'lineStrong': (t.lineStrong, c.lineStrong),
+        'lineField': (t.lineField, c.lineField),
+        'text': (t.text, c.text),
+        'dim': (t.dim, c.dim),
+        'faint': (t.faint, c.faint),
+        'accent': (t.accent, c.accent),
+        'accentInk': (t.accentInk, c.accentInk),
+        'accentText': (t.accentText, c.accentText),
+        'accentSoft': (t.accentSoft, c.accentSoft),
+        'tick': (t.tick, c.tick),
+        'ok': (t.ok, c.ok),
+        'okSoft': (t.okSoft, c.okSoft),
+        'warn': (t.warn, c.warn),
+        'warnSoft': (t.warnSoft, c.warnSoft),
+        'risk': (t.risk, c.risk),
+        'riskSoft': (t.riskSoft, c.riskSoft),
+        'info': (t.info, c.info),
+        'infoSoft': (t.infoSoft, c.infoSoft),
+        'txSent': (t.txSent, c.txSent),
+        'txReceived': (t.txReceived, c.txReceived),
+        'txCancelled': (t.txCancelled, c.txCancelled),
+        'scrim': (t.scrim, c.scrim),
+        'shadow': (t.shadow, c.shadow),
+      };
+      for (final MapEntry(key: role, value: (phone, desk)) in pairs.entries) {
+        expect(phone, desk, reason: '$mode $role');
+      }
+      // The light field is a white well, as on the desktop.
+      if (mode == 'light') expect(t.field, t.surface);
     });
   }
 

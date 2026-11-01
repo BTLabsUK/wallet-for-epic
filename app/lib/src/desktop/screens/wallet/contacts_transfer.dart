@@ -58,14 +58,6 @@ class ContactsMoreButton extends ConsumerWidget {
     );
     return MenuAnchor(
       consumeOutsideTap: true,
-      style: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(c.s4),
-        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-        padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
-        ),
-      ),
       menuChildren: [
         item(deskContactsImportKey, EIcons.fileDown, l.contactsImport, () => deskImportContacts(context)),
         item(deskContactsExportKey, EIcons.fileUp, l.contactsExport, canExport ? () => deskExportContacts(context) : null),

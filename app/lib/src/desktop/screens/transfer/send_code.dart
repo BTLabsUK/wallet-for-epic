@@ -97,8 +97,9 @@ class CodeBanner extends StatelessWidget {
   }
 }
 
-/// The payee's own words from a code: a quoted block with a start rule, labelled "not verified",
-/// plain text, never a contact's name style. Nothing when both are absent.
+/// The payee's own words from a code: a well ([DeskColors.well], the phone's PayeeClaims has
+/// the same), labelled "not verified", plain text, never a contact's name style. Nothing when
+/// both are absent.
 class EPayeeClaims extends StatelessWidget {
   const EPayeeClaims({super.key, this.label, this.note});
 
@@ -125,12 +126,8 @@ class EPayeeClaims extends StatelessWidget {
     return Container(
       key: const ValueKey('send-code-claims'),
       width: double.infinity,
-      padding: EdgeInsetsDirectional.fromSTEB(Sp.x4, Sp.x3, Sp.x3, Sp.x3),
-      decoration: BoxDecoration(
-        color: c.s1,
-        borderRadius: BorderRadius.circular(Rad.sm),
-        border: BorderDirectional(start: BorderSide(color: c.lineStrong, width: 2)),
-      ),
+      padding: EdgeInsets.all(Sp.x3),
+      decoration: c.well,
       child: Semantics(
         container: true,
         label: lines.map((x) => '${x.$2}: ${x.$3}').join('. '),
@@ -196,7 +193,7 @@ void showCodeDialog(BuildContext context, {required IconData icon, required Stri
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.all(Sp.x3),
-            decoration: BoxDecoration(color: ctx.dc.s1, borderRadius: BorderRadius.circular(Rad.sm)),
+            decoration: ctx.dc.well,
             child: ExcludeSemantics(child: EMonoText(shown)),
           ),
         ),

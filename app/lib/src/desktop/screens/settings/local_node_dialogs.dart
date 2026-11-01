@@ -454,7 +454,7 @@ class _NodeLogDialogState extends ConsumerState<NodeLogDialog> {
           Container(
             height: 320.u,
             padding: EdgeInsets.all(Sp.x3),
-            decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.line)),
+            decoration: c.well,
             child: lines == null
                 ? Text(l10n.deskSetLndReading, style: ts.small.copyWith(color: c.dim))
                 : SingleChildScrollView(

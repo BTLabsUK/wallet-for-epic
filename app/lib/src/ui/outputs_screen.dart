@@ -790,11 +790,7 @@ class _OutputSheet extends ConsumerWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: t.field,
-                border: Border.all(color: t.line),
-                borderRadius: BorderRadius.circular(t.radiusSmall),
-              ),
+              decoration: t.well,
               child: SelectableText(
                 output.commitment,
                 style: mono().copyWith(fontSize: 12),

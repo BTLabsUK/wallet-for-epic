@@ -192,7 +192,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     final l = context.l10n;
     final log = Container(
       constraints: BoxConstraints(maxHeight: 220.u),
-      decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      decoration: c.well,
       child: Semantics(
         label: l.deskSetRescanLog,
         // A scroll view of a column: lines are added at the top, which a lazy list under the
