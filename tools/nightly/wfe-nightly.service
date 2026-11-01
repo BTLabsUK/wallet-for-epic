@@ -2,12 +2,14 @@
 # Epic Wallet nightly full check of local main (tools/nightly/nightly.py), started by
 # wfe-nightly.timer. Refuses outside 01:00-06:00 local time; skips when main was already tested,
 # a build-slot slot is held or a tools/rel run is active.
-# Installed by tools/nightly/install.sh; runs the installed copy, never the worktree's.
+# Installed by tools/nightly/install.sh. It runs launch.py, which runs main's own nightly.py from a
+# fresh worktree at main's sha (~/wfe-worktrees/nightly-code); the installed nightly.py is only the
+# fallback when that commit's copy cannot run.
 [Unit]
 Description=Epic Wallet nightly full check of main
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 %h/.local/lib/wfe-nightly/nightly.py
+ExecStart=/usr/bin/python3 %h/.local/lib/wfe-nightly/launch.py
 TimeoutStartSec=infinity
 Nice=10

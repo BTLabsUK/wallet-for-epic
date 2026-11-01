@@ -139,6 +139,32 @@ def accepted_change(run, name, recorded, actual):
     return bool(e and recorded and e.get("unsigned_sha256") == recorded and e.get("sha256") == actual)
 
 
+def sign_now(engine):
+    """True when sign-android may ask the signer for the owner's code now: [sign] when = "inline"
+    (the code is asked as soon as every build is in, and the step waits up to 35 min for it), or a
+    run where he said he is ready (`tools/rel sign`, or `tools/rel start --sign-inline`)."""
+    when = (getattr(engine.pipeline, "sign", None) or {}).get("when", "inline")
+    return when == "inline" or bool(engine.info.get("sign_requested"))
+
+
+def wait_for_sign(engine, step, todo, say):
+    """[sign] when = "on-demand": the request (and so the code) is bound to the exact bytes, so it
+    can only be made once every build is in, and the owner may not be there then. Instead of holding
+    a request open for 35 min, the step waits (exit 10) with every other lane going on, and he is
+    told once; `tools/rel sign` makes the request when he is ready and the run carries on."""
+    rid = engine.info["run_id"]
+    say(f"{len(todo)} Android file(s) ready to sign; waiting for `tools/rel sign --run {rid}`")
+    st = engine.run.status(step.id)
+    if engine.relmsg and not st.get("sign_notified"):
+        engine.relmsg.alert(f"Android files of {engine.info['version']} ready to sign", step=step.id,
+                            detail=f"{len(todo)} file(s). The other checks go on meanwhile.",
+                            expects=f"when you can enter the code: tools/rel sign --run {rid} (or tell the operator)",
+                            key=f"{rid}/{step.id}/ready")
+        engine.run.set_status(step.id, sign_notified=True)
+    return {"status": "waiting", "note": f"ready to sign {len(todo)} Android file(s): "
+                                         f"tools/rel sign --run {rid} when the owner can enter the code"}
+
+
 def sign_android(engine, step, say):
     from .builtins import page_kinds
     from .engine import sha256_file
@@ -182,6 +208,8 @@ def sign_android(engine, step, say):
         return {"status": "done", "note": f"no signer endpoint: {len(todo)} file(s) signed in the build, checked"}
     if not todo:
         return {"status": "done", "note": f"{len(targets)} Android file(s) already signed"}
+    if not sign_now(engine):
+        return wait_for_sign(engine, step, todo, say)
     # The work folder stays between tries: when the signer already returned these files for
     # exactly these builds (its receipt in out/), a retry checks them again instead of opening
     # a new request (no second code).

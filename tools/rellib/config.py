@@ -86,8 +86,26 @@ class Pipeline:
         self.relmsg = data.get("relmsg", {})
         self.proof = data.get("proof", {})
         self.steps = data.get("step", {})
+        # How a drive shares the machine (tools/rellib/window.py) and when Android signing asks
+        # for the owner's code (tools/rellib/signer.py).
+        self.concurrency = data.get("concurrency", {})
+        self.sign = data.get("sign", {})
         if not self.steps:
             raise ConfigError(f"{path}: no [step.*] tables")
+        c = self.concurrency
+        if "max_heavy" in c and (type(c["max_heavy"]) is not int or c["max_heavy"] < 1):
+            raise ConfigError(f"{path}: [concurrency] max_heavy = {c['max_heavy']!r}: a whole number, 1 or more")
+        if "infra_retries" in c and (type(c["infra_retries"]) is not int or not 0 <= c["infra_retries"] <= 3):
+            raise ConfigError(f"{path}: [concurrency] infra_retries = {c['infra_retries']!r}: 0 to 3")
+        for k in ("external_wait", "poll"):
+            parse_duration(c.get(k))
+        for k in ("apart", "apart_shared"):
+            for pair in c.get(k, []):
+                if not (isinstance(pair, list) and len(pair) == 2 and all(p in self.steps for p in pair)):
+                    raise ConfigError(f"{path}: [concurrency] {k}: {pair!r} is not a pair of step names")
+        if self.sign.get("when", "inline") not in ("inline", "on-demand"):
+            raise ConfigError(f"{path}: [sign] when = {self.sign.get('when')!r}: inline or on-demand")
+        parse_duration(self.defaults.get("timeout"))
         for name, s in self.steps.items():
             kind = s.get("kind", "command")
             if kind not in KINDS:

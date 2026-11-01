@@ -14,6 +14,7 @@ import time
 import queue
 
 from . import failures as known
+from . import window as win
 from .load import LoadSampler
 from .run import SETTLED, now_iso, read_json, write_json
 
@@ -60,6 +61,14 @@ class Engine:
         self.failures = failures or []
         self._q = queue.Queue()
         self.load = LoadSampler()
+        # Machine sharing: the heavy cap, steps kept apart, infra retries (tools/rellib/window.py).
+        # run.json "concurrency" holds a run's own overrides (tools/rel --max-heavy, --exclusive-machine).
+        self.policy = win.Policy(getattr(pipeline, "concurrency", {}), run.info.get("concurrency"))
+        self.heavy_status = win.heavy_status
+        self._deferred = {}
+        self._running = {}
+        self._window = None
+        self._status_cache = (0.0, "")
 
     # ---- context ----
 
@@ -105,6 +114,57 @@ class Engine:
                              "outputs": step.outputs, "scope": self.info.get("scope")}, sort_keys=True).encode())
         return h.hexdigest()[:16]
 
+    # ---- evidence tied to the artefacts (docs/RELEASING.md, "Evidence and rc-manifest.json") ----
+
+    @staticmethod
+    def is_build(step):
+        return bool(step.outputs or step.extras) and not step.publish and not step.proof
+
+    def build_closure(self, step):
+        """The build steps step (transitively) needs."""
+        by_id = {s.id: s for s in self.run.steps}
+        seen, frontier, out = set(), list(step.needs), []
+        while frontier:
+            sid = frontier.pop()
+            if sid in seen or sid not in by_id:
+                continue
+            seen.add(sid)
+            s = by_id[sid]
+            if self.is_build(s):
+                out.append(s)
+            frontier.extend(s.needs)
+        return sorted(out, key=lambda s: s.id)
+
+    def inputs_digest(self, step):
+        """A digest of the bytes every build step needs recorded (name and SHA-256 of each output),
+        or None for a step that needs no build. A build that ran again changes it, so evidence
+        made against the old bytes (a proof, G3, the gate) stops applying."""
+        if self.is_build(step) or step.publish:
+            return None
+        builds = self.build_closure(step)
+        if not builds:
+            return None
+        parts = {}
+        for b in builds:
+            outs = self.run.status(b.id).get("outputs") or {}
+            parts[b.id] = {n: o.get("sha256") for n, o in sorted(outs.items())}
+        return hashlib.sha256(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:24]
+
+    def platform_files(self, step):
+        """{name: path} of the release files a proof step tests: what its platform's builds made."""
+        out = {}
+        for s in self.run.steps:
+            if self.is_build(s) and set(s.platforms) & set(step.platforms):
+                for o in s.outputs:
+                    out[os.path.basename(o)] = os.path.join(self.run.files, os.path.basename(o))
+                for e in s.extras:
+                    out[e] = os.path.join(self.run.extra, e)
+        return out
+
+    def snapshot(self, step):
+        """{name: sha256} of the files a proof step is about to test (None for a missing file)."""
+        return {n: (sha256_file(p) if os.path.isfile(p) else None) for n, p in sorted(self.platform_files(step).items())}
+
     # ---- one step ----
 
     def attempt_log(self, step, attempt):
@@ -120,20 +180,25 @@ class Engine:
             pass
         return log
 
-    def execute(self, step):
-        """Runs one step to an end state; returns its status dict."""
+    def execute(self, step, infra_try=0):
+        """Runs one step to an end state; returns its status dict. A failure whose cause is the
+        machine (window.cause_of: a signal, no proof.json, an ssh drop, no build slot) runs once
+        more by itself ([concurrency] infra_retries); a product failure never does."""
         from . import builtins
         st = self.run.status(step.id)
         attempt = st.get("attempts", 0) + 1
         started = time.time()
         log = self.attempt_log(step, attempt)
         self.run.set_status(step.id, status="running", attempts=attempt, started=now_iso(), ended=None,
-                            note=None, hint=None, rc=None)
-        self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None)
+                            note=None, hint=None, rc=None, cause=None, infra_try=infra_try or None)
+        self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None,
+                       infra_try=infra_try or None)
         self.load.step_started(step.id)
         if self.relmsg:
             self.relmsg.step(step.id, "running", label=step.title, platform=(step.platforms[0] if len(step.platforms) == 1 else None))
-        self.echo(f"▶ {step.id}  [{step.host}]{'  (dry run)' if self.dry else ''}")
+        self.echo(f"▶ {step.id}  [{step.host}]{'  (dry run)' if self.dry else ''}"
+                  + (f"  (automatic retry {infra_try})" if infra_try else ""))
+        tested = self.snapshot(step) if step.proof and not self.dry else None
         tries = 1 + (0 if self.dry else step.retries)
         result = None
         rkey, result = self.try_reuse(step, log)
@@ -148,18 +213,25 @@ class Engine:
             except Exception as e:  # a bug or an environment problem: the step failed, the run is kept
                 with open(log, "a", encoding="utf-8") as f:
                     f.write(f"\ntools/rel: {type(e).__name__}: {e}\n")
-                result = {"status": "failed", "note": f"{type(e).__name__}: {e}"}
+                result = {"status": "failed", "note": f"{type(e).__name__}: {e}", "exception": True}
             if result["status"] != "failed" or t == tries - 1:
                 break
             self.run.event(step.id, "retry", attempt=attempt, try_=t + 1)
         dur = round(time.time() - started, 1)
         result.setdefault("note", None)
+        exception = result.pop("exception", None)
+        will_retry = False
         if result["status"] == "failed":
+            result["cause"] = win.cause_of(step, dict(result, exception=exception), log)
+            # Never a publish step: what reaches the outside world retries only where pipeline.toml
+            # says so (`retries`), after a person looked.
+            will_retry = (result["cause"].startswith("infra:") and infra_try < self.policy.infra_retries
+                          and not self.dry and not step.publish)
             hits = known.match(self.failures, step.base, log)
             if hits:
                 result["hint"] = " | ".join(h for _, h in hits)
                 result["known"] = [i for i, _ in hits]
-            if step.warn_only:
+            if step.warn_only and not will_retry:
                 # After the release is live (pipeline.toml warn_only): a failure is a warning in the
                 # live message and the report; nothing after it is held and the run still ends ok.
                 result.update(status="done", warned=True,
@@ -169,16 +241,27 @@ class Engine:
             result["duration_s"] = dur
         if result["status"] == "done":
             result["input_hash"] = self.input_hash(step)
+            result["inputs_digest"] = None if self.dry else self.inputs_digest(step)
+            if tested is not None:
+                result["tested"] = tested  # the bytes the proof is about (update-trust checks them)
             if rkey:
                 result["reuse_key"] = rkey
         st = self.run.set_status(step.id, **result)
         self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
-                       note=st.get("note"), hint=st.get("hint"))
-        self.metric(step, st, dur, self.load.step_ended(step.id))
+                       note=st.get("note"), hint=st.get("hint"), cause=st.get("cause"))
+        self.metric(step, st, dur, self.load.step_ended(step.id), infra_try=infra_try)
         icon = {"done": "✓", "failed": "✗", "waiting": "⏸", "held": "✋", "closed": "✋", "skipped": "⏭"}.get(st["status"], "?")
-        self.echo(f"{icon} {step.id}  {st['status']}  {dur:.0f}s" + (f"  {st['note']}" if st.get("note") else ""))
+        self.echo(f"{icon} {step.id}  {st['status']}  {dur:.0f}s" + (f"  {st['note']}" if st.get("note") else "")
+                  + (f"  [{st['cause']}]" if st.get("cause") else ""))
         if st.get("hint"):
             self.echo(f"   hint: {st['hint']}")
+        if will_retry:
+            # The machine, not the product: once more, with a fresh attempt log; no alert yet.
+            self.run.event(step.id, "retry", attempt=attempt, cause=st["cause"], automatic=True)
+            self.echo(f"↻ {step.id}  {st['cause']}: one automatic retry")
+            if self.relmsg:
+                self.relmsg.step(step.id, "running", note=f"retrying after an infrastructure failure ({st['cause']})")
+            return self.execute(step, infra_try=infra_try + 1)
         if self.relmsg:
             rs = relmsg_state(st)
             self.relmsg.step(step.id, rs, note=st.get("note"))
@@ -211,10 +294,8 @@ class Engine:
         if not spec.get("reuse") or self.dry:
             return None, None
         from . import reuse
-        nightly = spec.get("reuse_nightly")
-        nightly = os.path.expanduser("/tmp/epic-build/nightly") if nightly is True else nightly
         try:
-            k, parts, src = reuse.find(self, step, spec["reuse"], nightly)
+            k, parts, src = reuse.find(self, step, spec["reuse"], reuse.nightly_dir(spec), reuse.green_dir(spec))
         except Exception as e:  # the check never fails a step: it runs instead
             with open(log, "a", encoding="utf-8") as f:
                 f.write(f"tools/rel: reuse check failed ({type(e).__name__}: {e}); the step runs\n")
@@ -231,15 +312,19 @@ class Engine:
             result.update(reuse.reuse_into(self, step, src))
         return k, result
 
-    def metric(self, step, st, dur, load=None):
+    def metric(self, step, st, dur, load=None, infra_try=0):
         """One line per step end in <state_root>/metrics.jsonl: time, when it started and ended, the
         machine's load meanwhile and the steps beside it (load.py), and the emulator's health when a
-        driver wrote {stage}/emulator.json. These are the data for when trust may start (RELEASING.md)."""
+        driver wrote {stage}/emulator.json. These are the data for when trust may start (RELEASING.md).
+        A failure carries its cause (window.cause_of: infra:<what>, timeout, product, check, error);
+        infra_try counts the automatic retries before this attempt; waited_s is the time the step
+        waited for the heavy cap or a step kept apart."""
         line = {"ts": now_iso(), "run": self.info["run_id"], "version": self.info["version"], "step": step.id,
                 "base": step.base, "host": step.host, "lane": step.lane, "status": st["status"], "duration_s": dur,
                 "started": st.get("started"), "ended": st.get("ended"), "reused": bool(st.get("reused_from")) or None,
                 "attempt": st.get("attempts"), "bytes": st.get("bytes"), "dry": self.dry or None,
-                "test": self.info.get("test") or None}
+                "test": self.info.get("test") or None, "cause": st.get("cause"), "infra_try": infra_try or None,
+                "waited_s": st.get("waited_s"), "max_heavy": self.policy.max_heavy}
         line.update(load or {})
         emu = read_json(os.path.join(self.run.step_dir(step.id), "out", "emulator.json"))
         if isinstance(emu, dict):
@@ -270,6 +355,9 @@ class Engine:
             wrap = self.pipeline.defaults.get("heavy_wrap") or []
             if wrap and shutil.which(wrap[0]) and not os.environ.get("REL_NO_HEAVY"):
                 argv = list(wrap) + argv
+        # The release window's contract (docs/RELEASING.md): build-slot gives these callers priority.
+        env["BUILD_SLOT_PRIORITY"] = "release"
+        env["WFE_RELEASE_RUN"] = self.info["run_id"]
         cwd = step.cwd or self.info.get("src") or self.repo
         signer = self.hosts["host"].get("signer", {})
         if step.host == "signer" and signer and not signer.get("this_machine", True):
@@ -307,6 +395,11 @@ class Engine:
             return {"status": "done", "note": "dry run", "dry": True}
         if not os.path.isdir(cwd):
             return {"status": "failed", "note": f"working dir {cwd} does not exist"}
+        if step.proof:
+            # A proof from an earlier attempt never counts for this one.
+            old = os.path.join(stage, "proof.json")
+            if os.path.exists(old):
+                os.replace(old, os.path.join(stage, f"proof.before-{os.path.basename(log)[:-4]}.json"))
         full_env = {k: v for k, v in os.environ.items()}
         full_env.update(env)
         full_env["LEPIC_NO_CACHE"] = "1"  # release builds come from source, never the prebuilt cache
@@ -322,7 +415,8 @@ class Engine:
                 except subprocess.TimeoutExpired:
                     os.killpg(p.pid, signal.SIGKILL)
                     p.wait()
-                return {"status": "failed", "rc": None, "note": f"timed out after {step.timeout:.0f}s"}
+                return {"status": "failed", "rc": None, "timed_out": True,
+                        "note": f"timed out after {step.timeout:.0f}s (its hard limit)"}
         if step.proof:
             return self._check_proof(step, rc)
         if rc != 0:
@@ -351,7 +445,8 @@ class Engine:
             if reason is not None:
                 return {"status": "done", "waived": True, "rc": rc, "proven": False,
                         "note": f"NOT PROVEN (waived: {reason}): no proof.json (driver exit {rc})"}
-            return {"status": "failed", "rc": rc, "note": f"no proof.json (driver exit {rc})", "proven": False}
+            return {"status": "failed", "rc": rc, "note": f"no proof.json (driver exit {rc})", "proven": False,
+                    "proof_missing": True}
         checks = proof.get("checks", {})
         bad = [c for c in required if checks.get(c) is not True]
         res = {"rc": rc, "proof": proof, "proven": not bad and rc == 0}
@@ -451,18 +546,48 @@ class Engine:
         nothing more can start. Returns the exit code."""
         steps = [s for s in self.run.steps if s.id in selected]
         lanes_busy, running = set(), {}
+        self._running = running
         stop = False
+        window = None
         if not self.dry:
             self.load.start()
+            window = win.Window(win.marker_path(self.policy.marker), self.info, self.policy,
+                                lambda: [r[2] for r in list(running.values())]).open()
+        self._window = window
         try:
             return self._drive(steps, lanes_busy, running, stop, stop_on_fail, selected)
         finally:
+            if window:
+                window.close()
+            self._window = None
             self.load.stop()
             self.overlap_metrics()
+
+    def external_suite(self):
+        """A full suite running in a build-slot slot outside this run, or None (asked at most once
+        per [concurrency] poll)."""
+        t, text = self._status_cache
+        if time.time() - t >= self.policy.poll:
+            text = self.heavy_status()
+            self._status_cache = (time.time(), text)
+        return self.policy.external_suite(text)
+
+    def may_start(self, s, running, now):
+        """None when s may start now, else why it waits ([concurrency], tools/rellib/window.py)."""
+        why = self.policy.why_not(s, [r[2] for r in running.values()])
+        if why is None and self.policy.guards_external(s) and not self.dry:
+            ext = self.external_suite()
+            if ext:
+                first = self._deferred.get(s.id, (None, now))[1]
+                if now - first < self.policy.external_wait:
+                    return f"a full test suite runs outside this run: {ext}"
+                self.run.event(s.id, "external-suite", note=f"started anyway after {now - first:.0f}s: {ext}")
+        return why
 
     def _drive(self, steps, lanes_busy, running, stop, stop_on_fail, selected):
         while True:
             statuses = {s.id: self.run.status(s.id)["status"] for s in self.run.steps}
+            deferred_external = False
             if not stop:
                 for s in steps:
                     if s.id in running or statuses[s.id] not in ("pending", "failed", "waiting", "held", "closed"):
@@ -473,15 +598,36 @@ class Engine:
                         continue
                     if self.run.status(s.id).get("polled") == id(self):
                         continue  # a waiting step is asked once per drive
-                    self.run.set_status(s.id, retry=False)
+                    now = time.time()
+                    why = self.may_start(s, running, now)
+                    if why:
+                        prev = self._deferred.get(s.id)
+                        if not prev or prev[0] != why:
+                            self._deferred[s.id] = (why, prev[1] if prev else now)
+                            self.run.event(s.id, "deferred", reason=why)
+                            self.echo(f"… {s.id}  waits: {why}")
+                        deferred_external = deferred_external or why.startswith("a full test suite")
+                        continue
+                    waited = self._deferred.pop(s.id, (None, now))[1]
+                    self.run.set_status(s.id, retry=False, waited_s=round(now - waited, 1) or None)
                     lanes_busy.add(s.lane)
                     th = threading.Thread(target=self._worker, args=(s,), daemon=True)
-                    running[s.id] = (th, s.lane)
+                    running[s.id] = (th, s.lane, s)
+                    if self._window:
+                        self._window.beat()
                     th.start()
             if not running:
+                if deferred_external:
+                    time.sleep(self.policy.poll)  # only a suite outside the run holds it: look again
+                    continue
                 break
-            sid, st = self._q.get()
-            th, lane = running.pop(sid)
+            try:
+                sid, st = self._q.get(timeout=self.policy.poll if deferred_external else None)
+            except queue.Empty:
+                continue
+            th, lane, _ = running.pop(sid)
+            if self._window:
+                self._window.beat()
             th.join()
             lanes_busy.discard(lane)
             if st["status"] == "waiting" or st["status"] in ("held", "closed"):

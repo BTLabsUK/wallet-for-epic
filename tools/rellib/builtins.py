@@ -497,9 +497,16 @@ def artefacts(engine, step, say):
         for p in problems:
             say("FAIL", p)
         return {"status": "failed", "note": f"{len(problems)} problem(s): " + "; ".join(problems)[:300]}
+    # Every built file's bytes as they ship (after signing): the evidence after G3 is keyed by
+    # this list's hash (tools/rellib/evidence.py).
+    from . import evidence
+    mhash, missing = evidence.write_manifest(engine)
+    if missing:
+        return {"status": "failed", "note": "rc-manifest.json: built files missing: " + ", ".join(missing)[:250]}
+    say(f"rc-manifest.json {mhash}")
     total = sum(m["bytes"] for m in meta.values())
-    return {"status": "done", "note": f"{len(present)} files, {total / 1e6:.0f} MB, SHA256SUMS + provenance.json + {SBOM}",
-            "bytes": total}
+    return {"status": "done", "note": f"{len(present)} files, {total / 1e6:.0f} MB, SHA256SUMS + provenance.json + {SBOM}"
+                                      f"; rc-manifest {mhash[:12]}", "bytes": total, "rc_manifest": mhash}
 
 
 SBOM = "sbom.cdx.json"
@@ -704,13 +711,29 @@ def update_trust(engine, step, say):
         mst = [engine.run.status(x.id) for x in engine.run.steps if x.base == "trust-manifest"]
         if not mst or mst[0]["status"] != "done":
             failed.append("manifests")
-    write_json(os.path.join(engine.run.path, "proof-summary.json"), {k: {"state": v[0], "text": v[1]} for k, v in table.items()})
+    summary = {k: {"state": v[0], "text": v[1]} for k, v in table.items()}
+    write_json(os.path.join(engine.run.path, "proof-summary.json"), summary)
     if failed:
         return {"status": "failed", "note": "not proven: " + ", ".join(failed)}
+    from . import evidence
+    manifest = None if engine.dry else evidence.read_manifest(engine.run)
+    extra = {}
+    if manifest:
+        # A proof counts only for the bytes it tested: those must be the release's (rc-manifest.json).
+        stale = evidence.stale_proofs(engine, manifest)
+        for sid, why in stale:
+            say(f"not applicable: {sid}: {why}")
+        if stale:
+            return {"status": "failed", "note": "proofs made on other bytes than rc-manifest.json: "
+                    + "; ".join(f"{sid} ({why})" for sid, why in stale)[:300]
+                    + " (tools/rel resume runs them again)"}
+        d = evidence.keep(engine, manifest, summary)
+        say(f"evidence for rc-manifest {manifest['hash']}: {d}")
+        extra = {"rc_manifest": manifest["hash"]}
     waived = [p for p, (st, _) in table.items() if st == "waived"]
     head = "dry run: every driver answered its dry run" if engine.dry else "every platform proven"
     return {"status": "done", "note": head + (f"; waived (NOT PROVEN): {', '.join(waived)}" if waived else ""),
-            **({"dry": True} if engine.dry else {})}
+            **extra, **({"dry": True} if engine.dry else {})}
 
 
 # ---- G5 publish gate ----------------------------------------------------------------------------
@@ -743,6 +766,11 @@ def gate_summary(engine):
                      + (" (TEST key)" if info.get("test") else ""))
     elif not s["publish"]["manifests"]:
         lines.append("Manifests: NONE (publish.manifests = false): no app is offered this update")
+    from . import evidence
+    m = evidence.read_manifest(run)
+    if m:
+        lines.append(f"Artefacts: rc-manifest {m['hash'][:16]}… ({len(m['files'])} built files); "
+                     "the proofs below are about exactly these bytes")
     lines.append("Update trust (G4):")
     for p, (state, text) in proof_table(engine).items():
         lines.append(f"- {p}: {text}"[:300])
@@ -812,11 +840,19 @@ def publish_gate(engine, step, say):
     g = gates.get(gname, {})
     if not engine.relmsg or not engine.relmsg.enabled:
         return {"status": "closed", "note": "relmsg is off for this run: the publish gate cannot open (fail closed)"}
+    from . import evidence
+    m = evidence.read_manifest(engine.run)
+    if g.get("gate_id") and m and g.get("rc_manifest") and g["rc_manifest"] != m["hash"]:
+        # Asked about other bytes: that question no longer applies; a new one is asked.
+        engine.run.event(step.id, "gate", gate=gname, gate_id=g["gate_id"], state="superseded")
+        g = {}
     if not g.get("gate_id"):
         gid, err = engine.relmsg.gate_open(gname, path)
         if gid is None:
             return {"status": "closed", "note": f"gate not opened: {err} (fail closed; tools/rel gate publish asks again)"}
         g = {"gate_id": gid, "asked": now_iso()}
+        if m:
+            g["rc_manifest"] = m["hash"]  # the bytes this question is about (tools/rel publish checks)
         gates[gname] = g
         engine.run.save_info()
         engine.run.event(step.id, "gate", gate=gname, gate_id=gid, state="asked")

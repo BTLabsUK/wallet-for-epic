@@ -10,7 +10,11 @@
 #                            tools/ changed.
 #   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
 #                            the web build too. Once per release candidate: tools/rel's source
-#                            gate runs it. Between releases nobody runs --full.
+#                            gate runs it, or the nightly, or the release lead on the candidate.
+#                            Green on a clean tree, it records /tmp/epic-build/green/<sha>.json
+#                            (tools/rellib/green.py), which G2 reuses for that content: tools/rel
+#                            start refuses a candidate without one unless --run-source-check.
+#                            Between releases nobody else runs --full.
 #   tools/check.sh --list    print the mode, the rule and the tests the fast mode would run; run
 #                            nothing.
 # Which tests the fast mode runs: the change is every file that differs from the merge base with
@@ -19,6 +23,7 @@
 # with no matching test runs analyze only. CHECK_BASE=<ref> compares with another ref.
 # Usage: tools/check.sh [--full | --list]   (from anywhere inside the main checkout or a worktree)
 set -euo pipefail
+started_epoch="$(date +%s)"
 root="$(git rev-parse --show-toplevel)"
 . "$(cd "$(dirname "$0")" && pwd)/env.sh"
 
@@ -131,3 +136,7 @@ if [[ $mode == full ]]; then
 fi
 
 printf '\ncheck passed (%s)\n' "$mode"
+if [[ $mode == full ]]; then
+  # For tools/rel's G2 (docs/RELEASING.md, "Reused results"); never fails the check.
+  python3 "$root/tools/rellib/green.py" record --root "$root" --started "$started_epoch" || true
+fi
