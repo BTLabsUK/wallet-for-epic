@@ -1093,8 +1093,11 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           child: EInput(controller: _name, focusNode: _nameFocus, invalid: nameError != null, onChanged: (_) => setState(() {}), autofocus: true),
         ),
         SizedBox(height: Sp.x5),
-        Text(l.contactAddresses, style: ts.label),
-        SizedBox(height: Sp.x2),
+        // A heading only over several fields: one field's own label says what it holds (#17).
+        if (_fields.where((f) => f.text.text.trim().isNotEmpty || free.isNotEmpty).length > 1) ...[
+          Text(l.contactAddresses, style: ts.label),
+          SizedBox(height: Sp.x2),
+        ],
         for (final f in _fields) ...[
           if (f.text.text.trim().isNotEmpty || free.isNotEmpty)
             Padding(
@@ -1133,12 +1136,15 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final kind = _kindOf(f);
     final empty = f.text.text.trim().isEmpty;
     final error = missing ? l.deskConErrAddressEmpty : (_tried || !f.focus.hasFocus ? _errorOf(f) : (f.clash != null ? _errorOf(f) : null));
-    final hint = empty && _fields.length > 1 && free.isNotEmpty ? l.addrDesktopThird(recipientMethodWord(l, free.first)) : l.deskConFieldAddress;
+    // An empty field is labelled by the kind it takes first ("Epicbox address", as Edit contact
+    // labels a typed one); a further one's hint says it may stay empty, the first has none.
+    final shownKind = kind ?? (empty && free.isNotEmpty ? free.first : null);
+    final hint = empty && _fields.length > 1 && free.isNotEmpty ? l.addrDesktopThird(recipientMethodWord(l, free.first)) : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         EField(
-          label: kind == null ? l.addrField : l.addrFieldTyped(recipientMethodWord(l, kind)),
+          label: shownKind == null ? l.addrField : l.addrFieldTyped(recipientMethodWord(l, shownKind)),
           error: error,
           child: EInput(
             controller: f.text,
