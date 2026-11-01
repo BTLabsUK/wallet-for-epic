@@ -18918,19 +18918,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get storeEncrypting => 'Wallet-Daten werden verschlüsselt…';
 
   @override
-  String storeEncryptingCount(int done, int total) {
-    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String doneString = doneNumberFormat.format(done);
-    final intl.NumberFormat totalNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String totalString = totalNumberFormat.format(total);
-
-    return '$doneString von $totalString Einträgen';
-  }
-
-  @override
   String get storeRecordsPlain =>
       'Die Wallet-Daten bleiben vorerst unverschlüsselt. Beim nächsten Start wird es erneut versucht.';
 

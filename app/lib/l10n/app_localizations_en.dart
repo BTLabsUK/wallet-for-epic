@@ -18697,19 +18697,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storeEncrypting => 'Encrypting wallet records…';
 
   @override
-  String storeEncryptingCount(int done, int total) {
-    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String doneString = doneNumberFormat.format(done);
-    final intl.NumberFormat totalNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String totalString = totalNumberFormat.format(total);
-
-    return '$doneString of $totalString records';
-  }
-
-  @override
   String get storeRecordsPlain =>
       'Wallet records stay unencrypted for now. The app tries again next time.';
 

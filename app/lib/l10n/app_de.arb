@@ -4866,7 +4866,6 @@
   "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",
   "deskNodeSwitchStoppingWord": "Stoppt",
   "storeEncrypting": "Wallet-Daten werden verschlüsselt…",
-  "storeEncryptingCount": "{done} von {total} Einträgen",
   "storeRecordsPlain": "Die Wallet-Daten bleiben vorerst unverschlüsselt. Beim nächsten Start wird es erneut versucht.",
   "errorStoreWrongKey": "Die Daten dieser Wallet ließen sich mit dieser Phrase nicht öffnen. Nichts wurde geändert.",
   "contactsClosedTitle": "Adressbuch geschlossen",

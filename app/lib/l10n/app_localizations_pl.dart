@@ -19344,19 +19344,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get storeEncrypting => 'Szyfrowanie danych portfela…';
 
   @override
-  String storeEncryptingCount(int done, int total) {
-    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String doneString = doneNumberFormat.format(done);
-    final intl.NumberFormat totalNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String totalString = totalNumberFormat.format(total);
-
-    return '$doneString z $totalString rekordów';
-  }
-
-  @override
   String get storeRecordsPlain =>
       'Dane portfela na razie pozostają niezaszyfrowane. Kolejna próba nastąpi przy następnym uruchomieniu.';
 

@@ -1283,9 +1283,11 @@ class LepicWalletService implements WalletService {
   /// The count is read before a PIN is tried (the unlock screen, the PIN prompt): with
   /// [keyWrap], the Keystore key that attempt rotates to is made meanwhile, while the user
   /// types ([HardwarePinStore.prepareNextKey]).
-  /// Store encryption (H2): fed from LEPIC's copy-step progress events once the binding has
-  /// them (the open's progress callback or event stream: `done`/`total` rows). Until the pin
-  /// moves, LEPIC opens the plain store and nothing is copied, so no event comes.
+  /// Store encryption (H2): fed from LEPIC's copy-step events once the binding has them, by one
+  /// subscription to `_runtime.storeMigrationProgress()` made with the runtime, before any
+  /// open: `copying` → `StoreMigrationProgress(done:, total:)`, `checking` → the same with
+  /// `done: total`, `finished` → `finished: true`. Until the pin moves, LEPIC opens the plain
+  /// store and nothing is copied, so no event comes.
   final StreamController<StoreMigrationProgress> _storeMigration = StreamController<StoreMigrationProgress>.broadcast();
 
   @override
@@ -1451,9 +1453,12 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   /// Ends this wallet's use of the sealed address book.
   Future<void> Function()? _detachBook;
 
-  /// Store encryption (H2): LEPIC's open outcome (encrypted / migrated now / fell back to
-  /// plain) once the binding reports it, read from the opened wallet here. Until the pin
-  /// moves, every store LEPIC opens is the one it always opened: no fallback notice.
+  /// Store encryption (H2): LEPIC's open outcome once the binding has it, read right after the
+  /// open in `LepicWalletService._session` with `await wallet.storeAtRest()` and kept here:
+  /// `StoreAtRestState.encrypted` / `migratedNow` / `fellBackToPlain` →
+  /// [StoreOpenOutcome.encrypted] / `migratedNow` / `plainFallback` (its `reason` to the log
+  /// only; `rollbackSetAside` needs nothing, LEPIC sets the restore scan). Until the pin moves,
+  /// every store LEPIC opens is the one it always opened: no fallback notice.
   @override
   StoreOpenOutcome get storeOpen => StoreOpenOutcome.encrypted;
 

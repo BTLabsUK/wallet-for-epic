@@ -25305,22 +25305,6 @@
   "@storeEncrypting": {
     "description": "Unlock progress, phone and desktop: the first unlock after the update copies the wallet's records into its encrypted store. Shown while it runs."
   },
-  "storeEncryptingCount": "{done} of {total} records",
-  "@storeEncryptingCount": {
-    "description": "Under 'Encrypting wallet records…' for a large wallet: how many records are copied so far.",
-    "placeholders": {
-      "done": {
-        "type": "int",
-        "example": "4200",
-        "format": "decimalPattern"
-      },
-      "total": {
-        "type": "int",
-        "example": "10000",
-        "format": "decimalPattern"
-      }
-    }
-  },
   "storeRecordsPlain": "Wallet records stay unencrypted for now. The app tries again next time.",
   "@storeRecordsPlain": {
     "description": "Info notice after unlock, once per session, phone and desktop: the copy into the encrypted store did not go through (for example a full disk), so this session uses the unencrypted records."

@@ -2178,29 +2178,31 @@ enum StoreOpenOutcome {
   plainFallback,
 }
 
-/// The copy step of a first open: [done] of [total] records copied into the encrypted store.
+/// The copy step of a first open: [done] of [total] units (LEPIC counts database pages) copied
+/// into the encrypted store. LEPIC sends copying events (which may end short of [total]), one
+/// while it checks the copy, then one with [finished].
 class StoreMigrationProgress {
-  const StoreMigrationProgress({required this.done, required this.total});
+  const StoreMigrationProgress({required this.done, required this.total, this.finished = false});
 
   final int done;
   final int total;
 
-  /// The copy is through; the open goes on.
-  bool get finished => total > 0 && done >= total;
+  /// The copy is through and checked; the open goes on.
+  final bool finished;
+
+  /// How far, 0..1; null before a total is known.
+  double? get fraction => total <= 0 ? null : (done / total).clamp(0.0, 1.0);
 
   @override
-  bool operator ==(Object other) => other is StoreMigrationProgress && other.done == done && other.total == total;
+  bool operator ==(Object other) =>
+      other is StoreMigrationProgress && other.done == done && other.total == total && other.finished == finished;
 
   @override
-  int get hashCode => Object.hash(done, total);
+  int get hashCode => Object.hash(done, total, finished);
 
   @override
-  String toString() => 'StoreMigrationProgress($done/$total)';
+  String toString() => 'StoreMigrationProgress($done/$total${finished ? ', finished' : ''})';
 }
-
-/// From this many records the copy step shows its count and a bar: a smaller wallet copies in
-/// a moment and shows the line only.
-const int storeProgressCountFrom = 1000;
 
 /// The key part of an epicbox address, before `@`. Services are matched on it alone: the
 /// relay checks the signature with the key, never the domain, so the domain proves nothing.

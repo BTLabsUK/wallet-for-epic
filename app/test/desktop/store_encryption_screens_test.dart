@@ -48,15 +48,15 @@ void main() {
     await run(tester);
   }
 
-  testWidgets('a large wallet shows the copy step and its count, then Overview without a notice', (tester) async {
+  testWidgets('the copy step shows in the stage list with how far it is, then Overview without a notice', (tester) async {
     final gate = Completer<void>();
     final api = MockDeskWallet()
-      ..migrationSteps = const [StoreMigrationProgress(done: 4200, total: 10000), StoreMigrationProgress(done: 10000, total: 10000)]
+      ..migrationSteps = const [StoreMigrationProgress(done: 4200, total: 10000), StoreMigrationProgress(done: 10000, total: 10000, finished: true)]
       ..migrationGate = gate;
     await pump(tester, api);
     await typeAndUnlock(tester);
     expect(find.text('Encrypting wallet records…'), findsOneWidget);
-    expect(find.text('4,200 of 10,000 records'), findsOneWidget);
+    expect(tester.widget<EProgress>(find.byType(EProgress)).value, 0.42);
     expect(find.text('Unlocking the wallet'), findsOneWidget, reason: 'still to come');
     gate.complete();
     await run(tester);

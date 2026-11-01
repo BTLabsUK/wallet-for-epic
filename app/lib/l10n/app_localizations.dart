@@ -29198,12 +29198,6 @@ abstract class AppLocalizations {
   /// **'Encrypting wallet records…'**
   String get storeEncrypting;
 
-  /// Under 'Encrypting wallet records…' for a large wallet: how many records are copied so far.
-  ///
-  /// In en, this message translates to:
-  /// **'{done} of {total} records'**
-  String storeEncryptingCount(int done, int total);
-
   /// Info notice after unlock, once per session, phone and desktop: the copy into the encrypted store did not go through (for example a full disk), so this session uses the unencrypted records.
   ///
   /// In en, this message translates to:

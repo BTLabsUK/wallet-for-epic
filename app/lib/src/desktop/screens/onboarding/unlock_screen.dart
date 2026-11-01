@@ -11,7 +11,7 @@ import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../data/remember.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
-import '../../../models.dart' show StoreMigrationProgress, WalletError, WalletErrorKind, storeProgressCountFrom;
+import '../../../models.dart' show StoreMigrationProgress, WalletError, WalletErrorKind;
 import '../../widgets/kit.dart';
 import '../settings/prefs.dart' show settingsPrefsProvider;
 import '../settings/dialogs.dart' show RemoveMode, showRemoveWalletDialog;
@@ -363,15 +363,14 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     }
     if (_stage != null) {
       final copy = _copy;
-      // A large wallet's copy shows how far it is; a small one copies in a moment.
-      final counted = _stage == 'encrypt' && copy != null && copy.total >= storeProgressCountFrom;
+      // How far the copy is, while it runs (LEPIC counts pages, so no number is shown).
+      final fraction = _stage == 'encrypt' ? copy?.fraction : null;
       return ProgressView(
         title: l.deskOnbUnlockUnlocking(name),
         stages: _stages(l),
         current: _stage!,
         note: l.deskOnbUnlockNote,
-        progress: counted ? copy.done / copy.total : null,
-        progressText: counted ? l.storeEncryptingCount(copy.done, copy.total) : null,
+        progress: fraction,
       );
     }
     return _form(context);

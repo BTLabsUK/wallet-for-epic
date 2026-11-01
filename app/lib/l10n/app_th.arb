@@ -4866,7 +4866,6 @@
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
   "deskNodeSwitchStoppingWord": "กำลังหยุด",
   "storeEncrypting": "กำลังเข้ารหัสข้อมูลกระเป๋า…",
-  "storeEncryptingCount": "{done} จาก {total} รายการ",
   "storeRecordsPlain": "ข้อมูลกระเป๋ายังไม่ได้เข้ารหัสในตอนนี้ จะลองอีกครั้งในครั้งถัดไป",
   "errorStoreWrongKey": "ไม่สามารถเปิดข้อมูลของกระเป๋านี้ด้วยวลีนี้ได้ ไม่มีสิ่งใดถูกเปลี่ยนแปลง",
   "contactsClosedTitle": "สมุดที่อยู่ปิดอยู่",

@@ -448,8 +448,7 @@ class _ResetDialogState extends State<_ResetDialog> {
   }
 }
 
-/// The copy step of a first unlock after the update: "Encrypting wallet records…", and for a
-/// large wallet a bar with the count under it.
+/// The copy step of a first unlock after the update: "Encrypting wallet records…" and a bar.
 class StoreCopyLine extends StatelessWidget {
   const StoreCopyLine({super.key, required this.progress});
 
@@ -458,7 +457,7 @@ class StoreCopyLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final counted = progress.total >= storeProgressCountFrom;
+    final fraction = progress.fraction;
     return Semantics(
       liveRegion: true,
       child: Column(
@@ -473,15 +472,9 @@ class StoreCopyLine extends StatelessWidget {
               Flexible(child: Text(l.storeEncrypting, textAlign: TextAlign.center)),
             ],
           ),
-          if (counted) ...[
+          if (fraction != null) ...[
             const SizedBox(height: 12),
-            LinearProgressIndicator(value: progress.done / progress.total),
-            const SizedBox(height: 6),
-            Text(
-              l.storeEncryptingCount(progress.done, progress.total),
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
+            LinearProgressIndicator(value: fraction),
           ],
         ],
       ),

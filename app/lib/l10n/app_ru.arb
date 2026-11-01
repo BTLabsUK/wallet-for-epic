@@ -4866,7 +4866,6 @@
   "deskNodeSwitchStopping": "Остановка локального узла…",
   "deskNodeSwitchStoppingWord": "Остановка",
   "storeEncrypting": "Шифрование данных кошелька…",
-  "storeEncryptingCount": "{done} из {total} записей",
   "storeRecordsPlain": "Данные кошелька пока остаются незашифрованными. Следующая попытка — при следующем запуске.",
   "errorStoreWrongKey": "Данные этого кошелька не удалось открыть этой фразой. Ничего не изменено.",
   "contactsClosedTitle": "Адресная книга закрыта",

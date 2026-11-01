@@ -17633,19 +17633,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get storeEncrypting => '正在加密钱包记录…';
 
   @override
-  String storeEncryptingCount(int done, int total) {
-    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
-      localeName,
-    );
-    final String doneString = doneNumberFormat.format(done);
-    final intl.NumberFormat totalNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String totalString = totalNumberFormat.format(total);
-
-    return '已完成 $doneString/$totalString 条记录';
-  }
-
-  @override
   String get storeRecordsPlain => '钱包记录暂时保持未加密。下次启动时会再次尝试。';
 
   @override

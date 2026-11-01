@@ -1214,14 +1214,15 @@ void main() {
     testWidgets('the first unlock after the update shows the copy of the records, then Home', (tester) async {
       final gate = Completer<void>();
       final service = _existing(session: _fundedSession())
-        ..migrationSteps = const [StoreMigrationProgress(done: 4200, total: 10000), StoreMigrationProgress(done: 10000, total: 10000)]
+        ..migrationSteps = const [StoreMigrationProgress(done: 4200, total: 10000), StoreMigrationProgress(done: 10000, total: 10000, finished: true)]
         ..migrationGate = gate
         ..storeOutcome = StoreOpenOutcome.migratedNow;
+      // LEPIC counts pages: a bar, no number.
       await _pumpApp(tester, service, _Device(sealedMainnet: true));
       expect(find.text('Unlock wallet'), findsOneWidget);
       await _enterNow(tester, 'PIN', _pin);
       expect(find.text('Encrypting wallet records…'), findsOneWidget);
-      expect(find.text('4,200 of 10,000 records'), findsOneWidget);
+      expect(tester.widget<LinearProgressIndicator>(find.descendant(of: find.byKey(const ValueKey('store-copy')), matching: find.byType(LinearProgressIndicator))).value, 0.42);
       gate.complete();
       await _pumpFrames(tester);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
