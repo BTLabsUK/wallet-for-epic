@@ -42,6 +42,7 @@ import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
 import 'badge.dart';
 import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
+import 'levels/relay_down.dart' show relayMovedNoticeTag, showNewAddress;
 import 'notices.dart';
 import 'server_picker.dart'
     show localNodeStatusProvider, networkStatusProvider, publicNodeStatusProvider, relaunchAfterSwitch;
@@ -197,6 +198,17 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   /// Whether a switch is running.
   bool _busy = false;
 
+  /// The server a switch is going to while it runs, then until [_connectedTimer] ends: its row
+  /// says Connecting…, then Connected.
+  String? _switching;
+  bool _connected = false;
+  Timer? _connectedTimer;
+
+  /// The last status the directory gave each server: a refresh or a switch that empties the
+  /// directory's answer keeps the dots as they were.
+  final Map<String, RelayStatus> _lastRelay = {};
+  final Map<String, NodeStatus> _lastNode = {};
+
   /// Whether the typed server is being tested before it joins the list.
   bool _adding = false;
 
@@ -246,6 +258,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   @override
   void dispose() {
     _lineTimer?.cancel();
+    _connectedTimer?.cancel();
     _field.dispose();
     _focus.dispose();
     super.dispose();
@@ -551,27 +564,70 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
   }
 
   Future<void> _switchTo(String value, NetworkChoice choice) async {
-    setState(() => _busy = true);
+    _connectedTimer?.cancel();
+    setState(() {
+      _busy = true;
+      _switching = value;
+      _connected = false;
+    });
     try {
       final nodeUrl = _node ? value : choice.nodeUrl;
       final relay = _node ? choice.relay : EpicboxRelay.parse(value);
       if (relay == null) {
-        setState(() => _busy = false);
+        setState(() {
+          _busy = false;
+          _switching = null;
+        });
         return;
       }
       final live = await widget.liveSwitch(ref, nodeUrl: nodeUrl, relay: relay);
       if (!mounted) return;
       if (live) {
         _field.clear();
-        setState(() => _busy = false);
-        _say(context.l10n.serverSwitched(serverHost(value)));
+        setState(() {
+          _busy = false;
+          _connected = true;
+        });
+        _connectedTimer = Timer(const Duration(seconds: 4), () {
+          if (mounted) {
+            setState(() {
+              _switching = null;
+              _connected = false;
+            });
+          }
+        });
+        if (_node) {
+          _say(context.l10n.serverSwitched(serverHost(value)));
+        } else {
+          // The address changed with the server: the notice the other moves give, with Show.
+          final l = context.l10n;
+          ref
+              .read(noticeProvider.notifier)
+              .show(
+                l.lvShellSwitchedNotice(serverHost(value)),
+                level: NoticeLevel.success,
+                tag: relayMovedNoticeTag,
+                action: NoticeAction(
+                  l.lvShellShowNewAddress,
+                  () => showNewAddress(ref),
+                ),
+              );
+        }
         return;
       }
       widget.afterSave(context);
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _switching = null;
+        });
+      }
     } catch (error) {
       if (mounted) {
-        setState(() => _busy = false);
+        setState(() {
+          _busy = false;
+          _switching = null;
+        });
         _say(describeError(context.l10n, error), note: true);
       }
     }
@@ -597,9 +653,14 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             final p = public.where((n) => _same(n.url, v)).firstOrNull;
             // A local node is asked from this phone; the monitor cannot reach it.
             final local = isLocalNodeUrl(v);
-            final s = local
+            var s = local
                 ? ref.watch(localNodeStatusProvider((url: v, preset: preset))).value
                 : p?.status ?? nodeStatusFor(nodes.value ?? const [], v);
+            if (s != null) {
+              _lastNode[v] = s;
+            } else {
+              s = _lastNode[v];
+            }
             // The user's own node: "Your node · home network" where a public node names its operator.
             final operator = local ? ownNodeLabel(context.l10n, nodeClassOf(v)) : operatorFor(ServerKind.node, v, listed: s?.operator);
             return _Entry(
@@ -609,7 +670,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               tileName: s?.operator ?? operator,
               node: s,
               icon: serverIconFor(s?.icon, s?.operator ?? operator, known),
-              directoryAnswered: !local && nodes is AsyncData,
+              directoryAnswered: !local && (nodes is AsyncData || s != null),
               local: local,
             );
           }(),
@@ -621,15 +682,21 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         () {
           final relay = EpicboxRelay.parse(v);
           final p = relay == null ? null : public.where((r) => r.relay == relay).firstOrNull;
-          final operator = operatorFor(ServerKind.relay, v, listed: p?.status?.operator);
+          var status = p?.status;
+          if (status != null) {
+            _lastRelay[v] = status;
+          } else {
+            status = _lastRelay[v];
+          }
+          final operator = operatorFor(ServerKind.relay, v, listed: status?.operator);
           return _Entry(
             value: v,
             host: v,
             operator: operator,
-            tileName: p?.status?.operator ?? operator,
-            relay: p?.status,
-            icon: serverIconFor(p?.status?.icon, p?.status?.operator ?? operator, known),
-            directoryAnswered: relays is AsyncData,
+            tileName: status?.operator ?? operator,
+            relay: status,
+            icon: serverIconFor(status?.icon, status?.operator ?? operator, known),
+            directoryAnswered: relays is AsyncData || status != null,
           );
         }(),
     ];
@@ -845,6 +912,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
               ? _sel!.defaults.any((d) => _same(d, e.value))
               : !_node && EpicboxRelay.parse(e.value) == EpicboxRelay.parse(shippedHostSettings.epicboxUse),
           addedByYou: listState?.isAddedByUser(widget.kind, e.value) ?? false,
+          connect: _switching != null && _same(e.value, _switching!)
+              ? (_connected ? _Connect.connected : _Connect.connecting)
+              : null,
           current: _sel == null && _same(e.value, current),
           selected: _sel != null ? _isChosen(e.value) : _same(e.value, current),
           check: _sel == null && _same(e.value, current),
@@ -900,6 +970,9 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
 
 // Rows.
 
+/// Where a switch has got to on the row it goes to.
+enum _Connect { connecting, connected }
+
 /// One server: the operator's tile with the health dot, host in mono and its lag, under it
 /// the facts; the check on the selected row and a remove button on every row.
 class _ServerRow extends StatelessWidget {
@@ -909,6 +982,7 @@ class _ServerRow extends StatelessWidget {
     required this.entry,
     required this.isDefault,
     this.addedByYou = false,
+    this.connect,
     required this.current,
     required this.selected,
     required this.check,
@@ -924,6 +998,9 @@ class _ServerRow extends StatelessWidget {
 
   /// The user typed this server in: the "Added by you" badge.
   final bool addedByYou;
+
+  /// This is the server a switch is going to: its line says Connecting…, then Connected.
+  final _Connect? connect;
   final bool current;
   final bool selected;
   final bool check;
@@ -964,7 +1041,12 @@ class _ServerRow extends StatelessWidget {
           );
     final latency = n?.latencyMs ?? e.relay?.latencyMs;
     final facts = [
-      if (current) l.serverCurrent,
+      if (connect != null)
+        connect == _Connect.connected
+            ? l.netStatusConnected
+            : l.netStatusConnecting
+      else if (current)
+        l.serverCurrent,
       if (tip != null) tip.text,
       if (down) e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
       if (unknown) l.serverHealthNone,
@@ -1016,6 +1098,11 @@ class _ServerRow extends StatelessWidget {
                       icon: e.icon,
                       state: state,
                       dimmed: down,
+                      busyDot: switch (connect) {
+                        _Connect.connecting => t.info,
+                        _Connect.connected => t.ok,
+                        null => null,
+                      },
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1295,6 +1382,7 @@ class ServerTile extends StatelessWidget {
     required this.icon,
     required this.state,
     this.dimmed = false,
+    this.busyDot,
     this.size = 36,
   });
 
@@ -1303,6 +1391,9 @@ class ServerTile extends StatelessWidget {
   final ServerIcon? icon;
   final NodeHealthState? state;
   final bool dimmed;
+
+  /// A colour for the dot while a switch runs, over the health.
+  final Color? busyDot;
   final double size;
 
   @override
@@ -1314,6 +1405,7 @@ class ServerTile extends StatelessWidget {
       icon: icon,
       state: state,
       dimmed: dimmed,
+      dotColor: busyDot,
       size: size,
       radius: t.radiusSmall,
       fontFamily: montserrat,

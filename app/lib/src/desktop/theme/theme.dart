@@ -71,6 +71,10 @@ ThemeData buildDeskTheme(Brightness brightness) {
       showDuration: const Duration(seconds: 3),
     ),
     dialogTheme: DialogThemeData(backgroundColor: c.s4),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: c.accent,
+      linearTrackColor: c.line,
+    ),
     popupMenuTheme: PopupMenuThemeData(
       color: c.s4,
       shape: RoundedRectangleBorder(
