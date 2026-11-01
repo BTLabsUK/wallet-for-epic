@@ -3653,6 +3653,7 @@
   "pairInviteMessage": "在 Epic Cash 中与我配对：{link}",
   "pairReplyMessage": "我对 Epic Cash 配对的回复：{link}",
   "pairFinishMessage": "完成我们的 Epic Cash 配对：{link}",
+  "pairFinishLinkMessage": "完成 Epic Cash 配对：{link}",
   "pairCopyMessage": "复制消息",
   "pairMessageCopied": "已复制。粘贴到聊天中即可。",
   "pairAwaitReplyTitle": "正在等待回复",

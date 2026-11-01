@@ -218,7 +218,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   Future<void> _shareFinish({required bool copy}) async {
     final link = _finishLink;
     if (link == null) return;
-    await sharePairingMessage(context, ref, context.l10n.pairFinishMessage(link), copy: copy);
+    await sharePairingMessage(context, ref, context.l10n.pairFinishLinkMessage(link), copy: copy);
   }
 
   void _checkWords(String id) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: id)));

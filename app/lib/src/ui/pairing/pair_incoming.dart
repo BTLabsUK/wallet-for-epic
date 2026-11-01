@@ -559,7 +559,7 @@ class _FinishCodeScreenState extends ConsumerState<FinishCodeScreen> {
   Future<void> _share({required bool copy}) async {
     final link = _link;
     if (link == null) return;
-    await sharePairingMessage(context, ref, context.l10n.pairFinishMessage(link), copy: copy);
+    await sharePairingMessage(context, ref, context.l10n.pairFinishLinkMessage(link), copy: copy);
   }
 
   void _check() => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)));
@@ -600,7 +600,7 @@ class _FinishCodeScreenState extends ConsumerState<FinishCodeScreen> {
           PairLead(l.pairFinishCodeBody(name)),
           const SizedBox(height: 16),
           if (_error != null) ErrorText(_error!),
-          if (link != null) ShareBox(text: l.pairFinishMessage(link)),
+          if (link != null) ShareBox(text: l.pairFinishLinkMessage(link)),
         ],
       ),
     );

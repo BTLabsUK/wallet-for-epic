@@ -14420,6 +14420,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String pairFinishLinkMessage(String link) {
+    return 'Dokończ parowanie w Epic Cash: $link';
+  }
+
+  @override
   String get pairCopyMessage => 'Kopiuj wiadomość';
 
   @override
