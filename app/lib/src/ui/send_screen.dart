@@ -42,6 +42,7 @@ import '../wallet/stored_send.dart';
 import '../devices/device_providers.dart' show heldValueByDevice;
 import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices;
 import 'centered_body.dart';
+import '../address_field.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
 import 'demo_screens.dart' show TestCoinsButton;
@@ -280,7 +281,7 @@ BigInt _pending(WalletSummary s) =>
     s.awaitingConfirmation + s.awaitingFinalization + s.immature + s.locked;
 
 class _SendViewState extends ConsumerState<SendView> {
-  final _recipient = TextEditingController();
+  final _recipient = AddressFieldController();
   final _amount = TextEditingController();
   final _note = TextEditingController();
   final _response = TextEditingController();
