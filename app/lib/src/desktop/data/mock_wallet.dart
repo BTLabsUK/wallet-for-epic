@@ -18,7 +18,7 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show epicboxKey, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
@@ -1607,6 +1607,9 @@ class _MockDeviceHost implements DeviceHost {
 
   @override
   Future<int?> tipHeight() async => null;
+
+  @override
+  Future<KernelLocation?> kernelOnChain(String excess, {int? minHeight}) => Future.error(UnsupportedError('no chain in the mock'));
 
   @override
   set heldOutputs(Set<String> commitments) {}

@@ -41,7 +41,7 @@ void main() {
   /// [a] says [type] with [body] to [b], numbered next, through their real pairing.
   Future<void> say(String type, Map<String, Object?> body, {String? id}) async {
     final d = b.service.book.device(a.service.book.deviceId)!;
-    final env = {'v': 1, 'type': type, 'id': id ?? randomHexId(), 'seq': ++seq, 'dev': a.service.book.deviceId, 'ts': 1, 'body': body};
+    final env = {'v': deviceWireVersion, 'type': type, 'id': id ?? randomHexId(), 'seq': ++seq, 'dev': a.service.book.deviceId, 'ts': 1, 'body': body};
     b.pairing.receivePayload(d.pairings.values.first, utf8.encode(jsonEncode(env)));
     await b.sync();
   }

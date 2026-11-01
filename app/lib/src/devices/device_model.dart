@@ -309,6 +309,8 @@ class HeldPayment {
     this.changedAt,
     this.reason,
     this.why,
+    this.change = const [],
+    this.minedHeight,
   });
 
   final String deviceId;
@@ -342,6 +344,19 @@ class HeldPayment {
   /// `other`), as a status notice carried it.
   final String? why;
 
+  /// The commitments of its change, as its `send` notice named them: once the chain shows one,
+  /// that output is this payment's change, part of its row ([mergeDeviceHistory]). Empty for a
+  /// notice that named none (one stored before notices carried it).
+  final List<String> change;
+
+  /// The block its [kernel] is in, as this device's lookup found it: the payment is on chain.
+  final int? minedHeight;
+
+  /// Its coins went into another payment of the device, or another kernel spent them while its
+  /// own is not on chain ([reason] [replacedReason]): it ended there, and a chain row of those
+  /// coins is never its.
+  bool get replaced => state == HoldState.released && reason == replacedReason;
+
   /// How this payment ended without spending its coins, for its row in the history; null while
   /// it is held or once the chain shows it spent. A hold the device ended itself reads as that
   /// ending; a fallback (past its cutoff, not on chain after posting, seven days) reads Expired.
@@ -356,7 +371,15 @@ class HeldPayment {
     },
   };
 
-  HeldPayment copyWith({HoldState? state, int? postedHeight, String? kernel, DateTime? changedAt, String? reason, String? why}) => HeldPayment(
+  HeldPayment copyWith({
+    HoldState? state,
+    int? postedHeight,
+    String? kernel,
+    DateTime? changedAt,
+    String? reason,
+    String? why,
+    int? minedHeight,
+  }) => HeldPayment(
     deviceId: deviceId,
     slateId: slateId,
     commitments: commitments,
@@ -376,6 +399,8 @@ class HeldPayment {
     changedAt: changedAt ?? this.changedAt,
     reason: reason ?? this.reason,
     why: why ?? this.why,
+    change: change,
+    minedHeight: minedHeight ?? this.minedHeight,
   );
 
   Map<String, Object?> toJson() => {
@@ -398,6 +423,9 @@ class HeldPayment {
     'changed': changedAt?.millisecondsSinceEpoch,
     'reason': reason,
     'why': why,
+    // Written only when known, so a record without them keeps the shape 26.10.24 wrote.
+    if (change.isNotEmpty) 'change': change,
+    if (minedHeight != null) 'mined': minedHeight,
   };
 
   static HeldPayment? fromJson(Object? j) {
@@ -424,9 +452,15 @@ class HeldPayment {
       changedAt: _time(j['changed']),
       reason: j['reason'] as String?,
       why: j['why'] as String?,
+      change: [for (final c in (j['change'] as List? ?? const [])) '$c'],
+      minedHeight: (j['mined'] as num?)?.toInt(),
     );
   }
 }
+
+/// The [HeldPayment.reason] of a payment this device found replaced ([HeldPayment.replaced]):
+/// history reads it as cancelled on its device.
+const String replacedReason = 'replaced';
 
 /// What this device last told the others about one of its own sends.
 enum AnnouncedState { sent, finalized, posted, ended }

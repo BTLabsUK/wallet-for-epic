@@ -74,6 +74,10 @@ abstract interface class DeviceHost {
   /// The chain height last seen, or null.
   Future<int?> tipHeight();
 
+  /// Where the chain holds the kernel [excess] from [minHeight] on, null when it does not;
+  /// throws when the node cannot be asked ([WalletSession.kernelOnChain]).
+  Future<KernelLocation?> kernelOnChain(String excess, {int? minHeight});
+
   /// The coins every send, estimate and Send all leaves out ([WalletSession.heldOutputs]).
   set heldOutputs(Set<String> commitments);
 }
@@ -115,6 +119,9 @@ class SessionDeviceHost implements DeviceHost {
   @override
   Future<int?> tipHeight() async =>
       (await session.summary(refresh: false, minimumConfirmations: _confirmations)).lastConfirmedHeight.toInt();
+
+  @override
+  Future<KernelLocation?> kernelOnChain(String excess, {int? minHeight}) => session.kernelOnChain(excess, minHeight: minHeight);
 
   @override
   set heldOutputs(Set<String> commitments) => session.heldOutputs = commitments;
@@ -753,12 +760,15 @@ class DeviceService {
       _drop('status for a payment this device never held');
       return;
     }
+    final height = n.body['height'] as int?;
     final next = applyStatus(
       book.holds[i],
       n.body['state'] as String,
-      height: n.body['height'] as int?,
+      height: height,
       kernel: n.body['kernel'] as String?,
       why: n.body['why'] as String?,
+      // A first notice may say posted without a height: the post is counted from now.
+      tip: height == null && n.body['state'] == 'posted' ? await host.tipHeight() : null,
       spent: spentFor(book.holds[i], book.holds, await _spent()),
       now: _clock(),
     );
@@ -1065,6 +1075,13 @@ class DeviceService {
             if (o.status == WalletOutputStatus.locked && o.txId == r.id) o.commitment,
         ];
         if (inputs.isEmpty) continue;
+        // Its change: the other device folds it into this payment's row once the chain shows it.
+        final change = r.outputCommits.isNotEmpty
+            ? r.outputCommits
+            : [
+                for (final o in outs)
+                  if (o.status == WalletOutputStatus.unconfirmed && o.txId == r.id) o.commitment,
+              ];
         await _broadcast(NoticeType.send, {
           'slateId': slateId,
           'txId': r.id,
@@ -1076,6 +1093,7 @@ class DeviceService {
           'message': r.messages.where((m) => m.role == SlateRole.sender).firstOrNull?.text,
           'cutoffHeight': r.ttlCutoffHeight?.toInt(),
           'createdAt': r.createdAtUnix,
+          if (change.isNotEmpty) 'change': change.take(maxNoticeChange).toList(),
         });
         announced[slateId] = AnnouncedState.sent;
         if (state.$1 != AnnouncedState.sent) {
@@ -1169,8 +1187,47 @@ class DeviceService {
       return;
     }
     final now = _clock();
-    final next = pruneHolds(sweepHolds(book.holds, spent: await _spent(), tip: await host.tipHeight(), now: now), now);
+    final tip = await host.tipHeight();
+    final kernels = await _lookUpKernels(tip, now);
+    final next = pruneHolds(sweepHolds(book.holds, spent: await _spent(), tip: tip, now: now, kernels: kernels), now);
     await _put(book.copyWith(holds: next));
+  }
+
+  /// When each kernel was last looked up, and first found absent: excess → the tip then.
+  final Map<String, int> _kernelAsked = {};
+  final Map<String, int> _kernelAbsent = {};
+
+  /// Kernels of payments the chain confirmed by their coins only that have their answer.
+  final Set<String> _kernelSettled = {};
+  bool _kernelLookupWarned = false;
+
+  /// The chain's word on the kernels of the payments still open here, each once per block, and
+  /// on those the chain confirmed by their coins only, without a block, until it is found or
+  /// absent ([kernelWanted]). A kernel counts as absent only when two lookups at two heights
+  /// did not find it, so one node answer that missed it ends nothing. A lookup that fails is
+  /// left out: unknown, not absent.
+  Future<KernelAnswers> _lookUpKernels(int? tip, DateTime now) async {
+    if (tip == null || tip <= 0 || !host.online) return const {};
+    final answers = <String, KernelLocation?>{};
+    for (final h in book.holds) {
+      final kernel = h.kernel;
+      if (kernel == null || !kernelWanted(h) || answers.containsKey(kernel) || _kernelSettled.contains(kernel)) continue;
+      final last = _kernelAsked[kernel];
+      if (last != null && last >= tip) continue;
+      _kernelAsked[kernel] = tip;
+      final KernelLocation? found;
+      try {
+        found = await host.kernelOnChain(kernel, minHeight: kernelFloor(h, tip: tip, now: now));
+      } on Object catch (e) {
+        if (!_kernelLookupWarned) logWarn('devices', 'kernel lookup failed: ${_kind(e)}');
+        _kernelLookupWarned = true;
+        continue;
+      }
+      if (found == null && (_kernelAbsent[kernel] ??= tip) >= tip) continue;
+      answers[kernel] = found;
+      if (h.state == HoldState.spent) _kernelSettled.add(kernel);
+    }
+    return answers;
   }
 
   // Pairings: removals by the other side, further pairings to confirm.

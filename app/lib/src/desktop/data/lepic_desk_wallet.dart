@@ -5752,6 +5752,9 @@ class _DeskDeviceHost implements DeviceHost {
   Future<int?> tipHeight() => _host.tipHeight();
 
   @override
+  Future<core.KernelLocation?> kernelOnChain(String excess, {int? minHeight}) => _host.kernelOnChain(excess, minHeight: minHeight);
+
+  @override
   set heldOutputs(Set<String> commitments) {
     if (_wallet._openEntry?.id != _id) return;
     _wallet._deviceHeld = commitments;
