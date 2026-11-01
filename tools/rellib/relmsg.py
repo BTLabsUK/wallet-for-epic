@@ -27,6 +27,18 @@ class Relmsg:
     def release_id(self):
         return (self.run.info.get("relmsg") or {}).get("release_id")
 
+    @property
+    def ended(self):
+        """How the relay release was ended (ok|failed|aborted), once it has been; else None."""
+        return (self.run.info.get("relmsg") or {}).get("ended")
+
+    def reopen(self):
+        """A run that ended failed is resumed: it may end again. (An ok or aborted end is final.)"""
+        rm = self.run.info.get("relmsg") or {}
+        if rm.get("ended") == "failed":
+            rm.pop("ended")
+            self.run.save_info()
+
     def _call(self, args, want_json=True):
         if not self.enabled:
             return 99, {"error": "relmsg disabled for this run"}
@@ -145,6 +157,15 @@ class Relmsg:
         return "error", out
 
     def done(self, status, note=None):
-        if not self.release_id:
-            return
-        self._call(["done", status] + (["--note", note[:500]] if note else []))
+        """Ends the relay release, once: a second call (any status) is a no-op, so every exit path
+        may call it. The end is recorded only when relmsg took it, so a relay that was down is
+        asked again by the next exit."""
+        if not self.release_id or self.ended:
+            return False
+        rc, _ = self._call(["done", status] + (["--note", note[:500]] if note else []))
+        if rc != 0:
+            return False
+        self.run.info.setdefault("relmsg", {})["ended"] = status
+        self.run.save_info()
+        self.run.event("relmsg", "done", status=status)
+        return True

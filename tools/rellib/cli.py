@@ -4,12 +4,17 @@
 Every command takes --json (one JSON object on stdout) and ends with a stable exit code:
 0 ok · 10 waiting (a gate or a hand-off) · 20 a step failed · 30 preflight failed ·
 40 a gate said no (held, or could not be asked: fail closed) · 64 usage or a scope that makes no
-sense · 75 another tools/rel is working on that run."""
+sense · 75 another tools/rel is working on that run.
+
+The run's Telegram release (relmsg) ends exactly once: publish done -> ok, preflight failed (30) ->
+failed, tools/rel stopped by SIGTERM/SIGINT/SIGHUP while driving, or a new run of the same version
+-> aborted. 10, 20, 40, 64 and 75 are not an end: the same run goes on (retry, resume, gate)."""
 import argparse
 import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -17,7 +22,7 @@ import tempfile
 from . import failures as known, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
-from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
+from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
 from .graph import build_graph, dependents
 from .relmsg import Relmsg
 from .run import Busy, Run, read_json, write_json
@@ -77,6 +82,18 @@ def version_at(repo, commit):
         return None
     m = re.search(r"^version:\s*([0-9][^+\s]*)", text, re.M)
     return m.group(1) if m else None
+
+
+class Interrupted(BaseException):
+    """SIGTERM, SIGINT or SIGHUP reached tools/rel: unwinds through the driver's cleanup."""
+
+    def __init__(self, signum):
+        super().__init__(signum)
+        self.signum = signum
+
+
+def _raise_interrupted(signum, frame):
+    raise Interrupted(signum)
 
 
 class App:
@@ -198,6 +215,8 @@ class App:
         for w in warns:
             self.echo(f"warning: {w}")
         eng = self.engine(run, dry=bool(a.dry_run))
+        if eng.relmsg:
+            self.supersede(run)
         self.relmsg_start(run, eng)
         return self.drive(run, eng, phase="build", until=a.until)
 
@@ -229,6 +248,11 @@ class App:
                 if st["status"] == "running":
                     run.set_status(sid, status="pending", note="was running when tools/rel stopped")
             code = eng.drive(sel)
+        except Interrupted as e:
+            # Stopped or killed: this run is over (a new run, not this one, is what comes next).
+            if eng.relmsg:
+                eng.relmsg.done("aborted", note=f"tools/rel stopped by {signal.Signals(e.signum).name}")
+            raise
         finally:
             run.unlock()
         return self.finish(run, eng, code)
@@ -251,7 +275,22 @@ class App:
             msg = f"{run.info['run_id']}: waiting: " + "; ".join(f"{w['id']}: {w.get('note') or w['status']}" for w in waiting)
         else:
             msg = f"{run.info['run_id']}: {EXIT_TEXT.get(code)}"
+        if code == EXIT_PREFLIGHT and eng.relmsg:
+            # Nothing was built: the run is dead. (Waiting, a failed step and a closed gate are not
+            # an end: retry, resume and the gate carry the same run on; publish ends it.)
+            eng.relmsg.done("failed", note=msg[:500])
         return self.out(code, msg, run)
+
+    def supersede(self, new_run):
+        """A new run of a version replaces the older runs of it: their live messages end aborted."""
+        pubs = {p["run_id"] for p in retention.published(self.state_root)}
+        for version, run_id, path, _ in Run.all(self.state_root):
+            if version != new_run.info["version"] or run_id == new_run.info["run_id"] or run_id in pubs:
+                continue
+            old = Run(path)
+            if old.info.get("dry") or old.info.get("no_relmsg"):
+                continue
+            Relmsg(old, self.pipeline.relmsg).done("aborted", note=f"superseded by {new_run.info['run_id']}")
 
     def relmsg_start(self, run, eng):
         """Opens the run's live message (idempotent on the run id) and shows every step's state
@@ -274,6 +313,8 @@ class App:
             run.info["no_relmsg"] = False
             run.save_info()
         eng = self.engine(run)
+        if eng.relmsg:
+            eng.relmsg.reopen()
         self.relmsg_start(run, eng)
         return self.drive(run, eng, phase="publish" if a.publish else "build", until=a.until, retry_failed=True)
 
@@ -745,10 +786,19 @@ def main(argv=None):
         a = p.parse_args(argv)
     except SystemExit as e:
         return EXIT_USAGE if e.code else 0
+    old = {}
+    for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+        try:
+            old[sig] = signal.signal(sig, _raise_interrupted)
+        except ValueError:  # not the main thread (tests): no handlers
+            break
     try:
         app = App(a)
         fn = getattr(app, "cmd_" + a.cmd.replace("-", "_"))
         return fn(a) or 0
+    except Interrupted as e:
+        print(f"tools/rel: stopped by {signal.Signals(e.signum).name}", file=sys.stderr)
+        return 128 + e.signum
     except ConfigError as e:
         if a.json:
             print(json.dumps({"exit": EXIT_USAGE, "result": "usage", "message": str(e)}))
@@ -762,3 +812,6 @@ def main(argv=None):
         else:
             print(f"tools/rel: {msg}", file=sys.stderr)
         return EXIT_USAGE
+    finally:
+        for sig, h in old.items():
+            signal.signal(sig, h)
