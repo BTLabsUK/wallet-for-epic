@@ -304,7 +304,8 @@ void main() {
       expect(find.text('Spent'), findsNothing);
       // Spendable and Total count the one unspent output; the spent one is in no tile.
       expect(find.text('1 output'), findsNWidgets(2));
-      expect(find.text('0 outputs'), findsNWidgets(2));
+      // Confirming, Immature and Locked: every tile is always there, so the row never jumps.
+      expect(find.text('0 outputs'), findsNWidgets(3));
       await tester.tap(find.text('Show spent'));
       await tester.pumpAndSettle();
       expect(find.text('Spent'), findsOneWidget);
