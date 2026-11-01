@@ -39,8 +39,8 @@ import '../../tor_phone.dart';
 import '../../tor_routes.dart' show TorState;
 import '../notices.dart';
 import '../server_picker.dart' show publicNodeStatusProvider;
-import '../status.dart' show serverHost;
-import '../badge.dart';
+import '../../state_language.dart' show ShownState;
+import '../status.dart' show StateDot, StatusDot, serverHost;
 import '../theme/tokens.dart';
 import 'relay_down.dart';
 import 'status_parts.dart';
@@ -239,17 +239,19 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
     final t = context.tokens;
     final theme = Theme.of(context);
     final down = r.health == _Health.down;
-    final (word, tone) = switch (r.health) {
-      _Health.healthy => (l.serverHealthy, BadgeTone.ok),
-      _Health.behind => (l.serverDegraded, BadgeTone.warn),
-      _Health.unknown => (l.serverHealthNone, BadgeTone.neutral),
-      _Health.down => (l.serverNotResponding, BadgeTone.neutral),
+    // One word and one dot per state (state_language.dart); the host wins, the state on its
+    // own line under it, as on the desktop (#20).
+    final shown = switch (r.health) {
+      _Health.healthy => ShownState.healthy,
+      _Health.behind => ShownState.behind,
+      _Health.unknown => ShownState.unchecked,
+      _Health.down => ShownState.notAnswering,
     };
     final busy = _moving == r.value;
     return ListTile(
       key: shallowSwitchRowKey(r.value),
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-      minTileHeight: 52,
+      minTileHeight: 56,
       horizontalTitleGap: 12,
       enabled: !down && _moving == null,
       leading: StatusServerTile(host: r.host, operator: r.face.operator, icon: r.face.icon, size: 32, dimmed: down),
@@ -257,20 +259,31 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
         r.host,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+        softWrap: false,
         style: theme.textTheme.bodyMedium?.copyWith(
           fontFamily: t.monoFamily,
           color: down ? t.faint : null,
         ),
       ),
+      subtitle: Row(
+        children: [
+          StateDot(dot: StatusDot.of(shown), size: 8, ring: Theme.of(context).colorScheme.surface),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              shown.word(l),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+            ),
+          ),
+        ],
+      ),
       trailing: busy
           ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                EBadge(word, tone: tone, dot: true),
-                if (!down) ...[const SizedBox(width: 4), Icon(Icons.chevron_right, size: 20, color: t.dim)],
-              ],
-            ),
+          : down
+          ? null
+          : Icon(Icons.chevron_right, size: 20, color: t.dim),
       onTap: down || _moving != null ? null : () => _pick(r),
     );
   }

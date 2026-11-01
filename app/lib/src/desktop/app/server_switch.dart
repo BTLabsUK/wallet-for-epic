@@ -170,13 +170,16 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
         : netModeOf(deskNetMode(st)) == NetworkMode.killSwitch;
     if (held) return const SizedBox.shrink();
 
+    // The host wins: whole on its own line, the state under it as a dot and its one word
+    // (state_language.dart), so neither is cut for the other (#20).
     Widget row(DeskSwitchServer s) {
       final down = s.health == RelayHealth.down;
-      final (EState state, String word) = switch (s.health) {
-        RelayHealth.healthy => (EState.ok, l.serverHealthy),
-        RelayHealth.down => (EState.risk, l.deskRailNotAnswering),
-        RelayHealth.unknown => (EState.off, l.lvShellNotChecked),
+      final shown = switch (s.health) {
+        RelayHealth.healthy => ShownState.healthy,
+        RelayHealth.down => ShownState.notAnswering,
+        RelayHealth.unknown => ShownState.unchecked,
       };
+      final word = shown.word(l);
       return Semantics(
         button: true,
         enabled: !down,
@@ -193,11 +196,27 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
               children: [
                 DeskServerTile(host: s.name, operator: s.operator, icon: s.icon, size: 26.u, dimmed: down),
                 SizedBox(width: Sp.x2),
-                Expanded(child: Text(s.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.mono(size: Fs.sm, color: down ? c.faint : c.text))),
-                SizedBox(width: Sp.x2),
-                EStateDot(state),
-                SizedBox(width: 6.u),
-                Text(word, style: ts.caption.copyWith(color: down ? c.faint : c.dim)),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ETip.value(
+                        s.name,
+                        mono: true,
+                        child: Text(s.name, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.mono(size: Fs.sm, color: down ? c.faint : c.text)),
+                      ),
+                      SizedBox(height: 2.u),
+                      Row(
+                        children: [
+                          EStateDot.of(shown, size: 7.u),
+                          SizedBox(width: 6.u),
+                          Flexible(child: Text(word, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: c.dim))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
