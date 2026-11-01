@@ -287,7 +287,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
               tone: ETone.warn,
               title: l.deskSetLnodeSettingsChanged,
               text: l.deskSetLnodeSettingsChangedText,
-              actions: [EButton(label: l.deskSetLnodeRestartNow, size: EBtnSize.inline, onPressed: widget.onRestart)],
+              // Restart is the page header's: each action once.
             ),
           ),
         ),

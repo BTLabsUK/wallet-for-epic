@@ -458,8 +458,9 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
       if (s.stalled) {
         return StatusWords(
           detail: l.deskSetLnodeStalledDetail,
-          // The node has stopped: the header says Start, so does the notice (UD-019).
-          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: NodeAct.start),
+          // The node has stopped: the notice says so; Start and View log are the header's and
+          // the status foot's, each once on the page (UD-019).
+          notice: (tone: ETone.risk, title: l.deskSetLnodeNoProgress, text: l.deskSetLnodeNoProgressText, action: null),
         );
       }
       return StatusWords(
@@ -469,11 +470,12 @@ StatusWords statusWords(AppLocalizations l, LocalNodeState s, {required String f
             tone: ETone.risk,
             title: l.deskSetLnodePortInUse('${hostSettings.localNodeApiPort}'),
             text: l.deskSetLnodePortInUseText,
-            action: NodeAct.log,
+            action: null,
           ),
-          NodeFailure.diskLow => (tone: ETone.risk, title: l.deskSetLnodeDiskLow, text: l.deskSetLnodeDiskLowText, action: NodeAct.folder),
+          // The data folder row has Change.
+          NodeFailure.diskLow => (tone: ETone.risk, title: l.deskSetLnodeDiskLow, text: l.deskSetLnodeDiskLowText, action: null),
           NodeFailure.binaryMissing => (tone: ETone.risk, title: l.deskSetLnodeMissing, text: l.deskSetLnodeMissingText, action: null),
-          _ => (tone: ETone.risk, title: l.deskSetLnodeStopped, text: l.deskSetLnodeStoppedText, action: NodeAct.log),
+          _ => (tone: ETone.risk, title: l.deskSetLnodeStopped, text: l.deskSetLnodeStoppedText, action: null),
         },
       );
     case LocalNodePhase.stopped:
@@ -639,15 +641,15 @@ class _StatusTab extends StatelessWidget {
             child: n == null ? const SizedBox.shrink() : Padding(padding: EdgeInsets.only(top: Sp.x4), child: notice(n)),
           ),
         ),
+        // Wide, the Peers panel beside says it; Restart is the header's.
         ExpandFade(
-          open: s.restartNeeded && live,
+          open: s.restartNeeded && live && !wide,
           child: Padding(
             padding: EdgeInsets.only(top: Sp.x4),
             child: ENotice(
               tone: ETone.warn,
               title: l.deskSetLnodeSettingsChanged,
               text: l.deskSetLnodeSettingsChangedText,
-              actions: [EButton(label: l.deskSetLnodeRestartNow, size: EBtnSize.inline, onPressed: onRestart)],
             ),
           ),
         ),
