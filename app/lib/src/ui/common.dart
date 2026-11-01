@@ -921,12 +921,9 @@ class TxStatusLine extends ConsumerWidget {
                   ),
                   style: inProgress ? base?.copyWith(color: t.info) : base,
                 ),
-                if (method != null)
-                  TextSpan(text: ' \u00B7 $method', style: base),
-                TextSpan(text: ' \u00B7 $date', style: base),
-                if (aside != null)
-                  TextSpan(text: ' \u00B7 $aside', style: base),
-              ],
+                if (method != null) TextSpan(text: method, style: base),
+                if (aside != null) TextSpan(text: aside, style: base),
+              ], dot: base),
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -1902,11 +1899,10 @@ class TxTile extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         // Amounts are data, so the mono face.
-                        Text(
+                        AmountText(
                           signed,
                           textAlign: TextAlign.end,
                           style: theme.textTheme.bodyLarge?.copyWith(
-                            fontFamily: context.tokens.monoFamily,
                             fontSize: 14.5,
                             // The amount wears the direction, like the icon: green in, red
                             // out; a cancelled one is struck through in grey.

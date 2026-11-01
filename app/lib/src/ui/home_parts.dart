@@ -205,7 +205,7 @@ class BalanceTiles extends ConsumerWidget {
           ? null
           : hidden
           ? hiddenAmount
-          : localDigits(l, displayEpic(value));
+          : epicFor(l, value, unit: false);
       return _BalanceTile(
         key: balanceTileKey(tile.kind),
         icon: tile.icon,

@@ -462,8 +462,8 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
-          ? '≈ ${epicExact(l, amount)}'
-          : '≈ ${localDigits(l, fiatText(amount, price, currency))}';
+          ? approxText(epicExact(l, amount))
+          : approxText(localDigits(l, fiatText(amount, price, currency)));
     }
 
     return SlotScaffold(
@@ -561,7 +561,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
             onChanged: _onAmountChanged,
             decoration: InputDecoration(
               labelText: l.sendAmountLabel(
-                _fiatEntry ? currency.toUpperCase() : 'EPIC',
+                _fiatEntry ? currency.toUpperCase() : epicUnit,
               ),
               helperText: amountHelper,
               error: _amountError == null
@@ -573,7 +573,7 @@ class _InvoiceRequestScreenState extends ConsumerState<InvoiceRequestScreen> {
                       onPressed: _toggleUnit,
                       child: Text(
                         l.sendUseUnit(
-                          _fiatEntry ? 'EPIC' : currency.toUpperCase(),
+                          _fiatEntry ? epicUnit : currency.toUpperCase(),
                         ),
                       ),
                     )

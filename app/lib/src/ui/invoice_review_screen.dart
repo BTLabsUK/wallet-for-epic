@@ -823,8 +823,8 @@ String _shortKey(String address) {
   return shortAddress(at < 0 ? address : address.substring(0, at));
 }
 
-/// The invoice's amount in the display face at 34, with every decimal, and a small gold
-/// EPIC after it.
+/// The invoice's amount at 34 with every decimal ([AmountSurface.exact]), in the data face as
+/// every amount but the balance headline, and a small gold EPIC after it.
 class ReviewAmount extends StatelessWidget {
   const ReviewAmount({super.key, required this.amount});
 
@@ -845,23 +845,21 @@ class ReviewAmount extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            Text(
-              localDigits(l, formatEpic(amount, grouped: true)),
+            AmountText(
+              epicFor(l, amount, surface: AmountSurface.exact, unit: false),
               key: invoiceReviewAmountKey,
               maxLines: 1,
               style: TextStyle(
-                fontFamily: t.headFamily,
                 fontSize: 34,
                 fontWeight: FontWeight.w600,
                 color: t.text,
-                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
             const SizedBox(width: 6),
             Text(
-              'EPIC',
+              epicUnit,
               style: TextStyle(
-                fontFamily: t.headFamily,
+                fontFamily: t.monoFamily,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: t.accentText,

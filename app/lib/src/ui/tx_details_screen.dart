@@ -721,7 +721,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             Semantics(
               label: hidden ? l.txDetailsAmountHidden : null,
               excludeSemantics: hidden,
-              child: Text(signedEpic(l, tx, hidden: hidden, exact: true), style: theme.textTheme.headlineMedium),
+              child: AmountText(signedEpic(l, tx, hidden: hidden, exact: true), style: theme.textTheme.headlineMedium),
             ),
             if (fiat != null)
               Text(fiat, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
@@ -767,7 +767,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     Semantics(
                       label: hidden ? l.txDetailsAmountHidden : null,
                       excludeSemantics: hidden,
-                      child: Text(
+                      // The exact amount in the data face, as the list shows it.
+                      child: AmountText(
                         signedEpic(l, tx, hidden: hidden, exact: true),
                         style: theme.textTheme.headlineMedium,
                       ),
@@ -1051,6 +1052,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             _DetailRow(
               label: l.txDetailsFee,
               value: shownEpic(l, fee, hidden: hidden, exact: true),
+              amount: true,
             )
           else if (tx.origin == TxOrigin.otherWallet && outgoing)
             // The other wallet paid it; this wallet only saw the coins leave.
@@ -1278,10 +1280,14 @@ class _DetailRow extends StatelessWidget {
     this.copy,
     this.tag,
     this.hint,
+    this.amount = false,
   });
 
   final String label;
   final String value;
+
+  /// [value] is an amount: in the data face ([amountStyle]).
+  final bool amount;
 
   /// A small line under [value]: where it came from or went.
   final String? hint;
@@ -1301,7 +1307,12 @@ class _DetailRow extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: _TitleWithTag(label, tag: tag),
-      subtitle: switch ((copy == null ? SelectableText(value) : Text(value), hint)) {
+      subtitle: switch ((
+        copy == null
+            ? SelectableText(value, style: amount ? amountStyle(context) : null)
+            : Text(value, style: amount ? amountStyle(context) : null),
+        hint,
+      )) {
         (final shown, null) => shown,
         (final shown, final hint?) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
