@@ -43,6 +43,8 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 coverage/
+# tools/t results (latest.json, the run's events) and its lock
+/.test-results/
 
 # Installers and packages
 *.apk
