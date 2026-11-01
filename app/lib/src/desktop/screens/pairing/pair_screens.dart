@@ -427,7 +427,7 @@ class _ConfirmationBox extends StatelessWidget {
     return Container(
       key: deskPairConfirmationKey,
       padding: EdgeInsets.all(Sp.x3),
-      decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+      decoration: c.well,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -600,7 +600,7 @@ class DeskConfirmationDialog extends ConsumerWidget {
           SizedBox(height: Sp.x3),
           Container(
             padding: EdgeInsets.all(Sp.x3),
-            decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+            decoration: c.well,
             child: SelectableText(l.pairFinishMessage(link), style: ts.mono()),
           ),
         ],
@@ -847,7 +847,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
             Container(
               key: deskWaitingAnswerKey,
               padding: EdgeInsets.all(Sp.x3),
-              decoration: BoxDecoration(color: c.s2, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
+              decoration: c.well,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

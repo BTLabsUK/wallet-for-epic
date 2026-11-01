@@ -317,11 +317,7 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
         SizedBox(height: Sp.x4),
         Container(
           padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
-          decoration: BoxDecoration(
-            color: context.dc.s2,
-            borderRadius: BorderRadius.circular(Rad.sm),
-            border: Border.all(color: context.dc.line),
-          ),
+          decoration: context.dc.well,
           child: Row(
             children: [
               Expanded(
