@@ -486,7 +486,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(extra == null ? f.name : '${f.name} · $extra', style: ts.label),
+              Text(extra == null ? f.name : metaLine([f.name, extra]), style: ts.label),
               ETip.value(
                 f.folder,
                 mono: true,

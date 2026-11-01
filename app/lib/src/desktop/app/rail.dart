@@ -407,7 +407,7 @@ class _RailRowState extends State<RailRow> {
           children: [
             EStateDot(i.state),
             SizedBox(width: Sp.x2),
-            Text('${i.name} · ${i.word}', style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
+            Text(metaLine([i.name, i.word]), style: ts.small.copyWith(color: c.text, fontWeight: FontWeight.w600)),
           ],
         ),
         SizedBox(height: Sp.x1),

@@ -11,6 +11,7 @@ import '../data/tor_view.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'surfaces.dart' show ETone;
+import '../../text_join.dart';
 
 export '../../state_language.dart' show ShownState, StateMark, StateTone;
 
@@ -223,7 +224,7 @@ class MethodLine {
   final bool retry;
 
   /// "Word · detail", for tooltips and screen readers.
-  String get text => detail == null ? word : '$word · $detail';
+  String get text => detail == null ? word : metaLine([word, detail]);
 }
 
 /// The state line of [m] for Receive, Settings › Transactions and the rail tooltip. One word

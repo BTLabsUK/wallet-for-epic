@@ -974,7 +974,7 @@ class _ModeMark extends ConsumerWidget {
           builder: (context, m, open) => _BarButton(
             key: const ValueKey('bar-net-mode'),
             label: l.netMarkSemanticsDesk(name),
-            tooltip: glyphOnly ? '$name · ${networkModeMarkLine(l, mode, waitingForTor: waiting)}' : networkModeMarkLine(l, mode, waitingForTor: waiting),
+            tooltip: glyphOnly ? metaLine([name, networkModeMarkLine(l, mode, waitingForTor: waiting)]) : networkModeMarkLine(l, mode, waitingForTor: waiting),
             open: open,
             padding: EdgeInsets.symmetric(horizontal: 4.u),
             onPressed: () => _toggle(m),

@@ -2869,7 +2869,7 @@ class _SendViewState extends ConsumerState<SendView> {
       final marker = fromCode
           ? l.sendAmountFromCode
           : l.sendAmountCodeAsked(epicText(l, asked));
-      amountHelper = amountHelper == null ? marker : '$marker · $amountHelper';
+      amountHelper = amountHelper == null ? marker : metaLine([marker, amountHelper]);
     }
     // Why nothing is available yet, in the header's words.
     final held = [
@@ -3208,10 +3208,10 @@ class _SendViewState extends ConsumerState<SendView> {
         label: l.sendMethodLabel,
         value: switch (to.kind) {
           RecipientKind.epicbox || RecipientKind.http when way == TorWay.overTor =>
-            '${recipientMethodWord(l, to.kind)} · ${l.sendOverTor}',
+            metaLine([recipientMethodWord(l, to.kind), l.sendOverTor]),
           RecipientKind.http
               when way == TorWay.clearnet && torState != TorState.off =>
-            '${recipientMethodWord(l, to.kind)} · ${l.torNotOverTor}',
+            metaLine([recipientMethodWord(l, to.kind), l.torNotOverTor]),
           _ => recipientMethodWord(l, to.kind),
         },
         mono: false,

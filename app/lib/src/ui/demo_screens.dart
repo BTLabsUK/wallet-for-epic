@@ -269,7 +269,7 @@ class _DemoStripeState extends ConsumerState<DemoStripe> {
             const SizedBox(width: 6),
             Flexible(
               child: Text(
-                '${l.demoStripeLabel} · ${l.demoTestCoinsPill} · $time',
+                metaLine([l.demoStripeLabel, l.demoTestCoinsPill, time]),
                 key: demoStripeTextKey,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(color: t.text),

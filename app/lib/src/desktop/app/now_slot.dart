@@ -58,7 +58,7 @@ class NowItem {
   final double? progress;
   final VoidCallback? onTap;
 
-  String get words => [detail == null ? title : '$title · $detail', ?hint].join('\n');
+  String get words => [detail == null ? title : metaLine([title, detail]), ?hint].join('\n');
 }
 
 /// What goes on now, the most important first (the slot shows two).

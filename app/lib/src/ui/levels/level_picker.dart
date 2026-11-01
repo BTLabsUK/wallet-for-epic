@@ -14,6 +14,7 @@ import '../theme/brand.dart';
 import '../theme/tokens.dart';
 import 'level_art.dart';
 import 'level_sheets.dart';
+import '../../text_join.dart';
 
 /// Expand and collapse alike (the motion rule): a layer of the preview, the dial's fill.
 const Duration _motion = Duration(milliseconds: 220);
@@ -461,7 +462,7 @@ class LevelPreview extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          '${l.lvShellQuietArriving('12.5000')} · ${l.lvShellQuietOnHold('25.0000')}', // l10n-ok: sample amounts
+                          metaLine([l.lvShellQuietArriving('12.5000'), l.lvShellQuietOnHold('25.0000')]), // l10n-ok: sample amounts
                           style: s(8.5, color: t.dim),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -501,7 +502,7 @@ class LevelPreview extends StatelessWidget {
                       tick: t.txReceived,
                       colour: t.txReceived,
                       id: 'a1f9e8d7',
-                      casual: '${l.lvPayArriving} · ${l.lvPayConfirming(2, 6)}',
+                      casual: metaLine([l.lvPayArriving, l.lvPayConfirming(2, 6)]),
                       technical: '${l.txDetailsKernel} 8f1c2e…9a3b · ${l.lvPayConfirmations} 2/6', // l10n-ok: sample numbers
                     ),
                     row('Alice', '−25.0000', tick: t.txSent, colour: t.txSent, id: '7c21b0e4'),

@@ -37,6 +37,7 @@ import 'levels/status_parts.dart' show StatusServiceTile;
 import 'status.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
+import '../text_join.dart';
 
 /// The key of the Tor status icon, for tests.
 const Key torIconKey = ValueKey('status-tor');
@@ -145,8 +146,7 @@ typedef StatusEntry = ({
 String statusBrief(String detail, {String? host}) {
   var first = detail.split('\n').first.trim();
   if (host == null || host.isEmpty || first.contains(host)) return first;
-  if (first.endsWith('.') || first.endsWith('。')) first = first.substring(0, first.length - 1);
-  return '$first · $host';
+  return metaLine([first, host]);
 }
 
 /// The statuses in their order, Node, Epicbox, Tor, Link. A service the network mode turns off

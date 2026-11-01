@@ -45,7 +45,7 @@ class NodeView {
   /// The tooltip's lines, only the known ones.
   final List<String> lines;
 
-  String get second => marker == null ? host : '$host · $marker';
+  String get second => marker == null ? host : metaLine([host, marker]);
 }
 
 /// 2914414 → "2,914,414" (`2.914.414` in German), for text shown.
@@ -108,7 +108,7 @@ String ownAddress(String url) {
 NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false}) {
   // An own node: "Your node" on the rail, "Your node · 10.0.1.24:<port>" in the tooltip.
   final own = shownClass(url, info, mine: mine).own;
-  final full = own ? '${l.deskOwnYourNode} · ${ownAddress(url)}' : nodeHost(url);
+  final full = own ? metaLine([l.deskOwnYourNode, ownAddress(url)]) : nodeHost(url);
   final host = own ? l.deskOwnYourNode : railHost('Node', full); // l10n-ok: railHost's kind key
   final probeFailed = info?.state == NodeHealthState.down || info?.source == NodeInfoSource.none;
   if (probeFailed && health == ServiceHealth.ok) return NodeView.of(l, ShownState.synced, host: host, lines: [full]);

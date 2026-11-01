@@ -199,7 +199,7 @@ class _Review extends ConsumerWidget {
                     TrustBadge(pairing),
                     if (pairing.contactId == null) const ClaimedNameBadge(),
                     Text(
-                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : '${l.reqSealedSigned(i.label)} · ${l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!))}',
+                      pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : metaLine([l.reqSealedSigned(i.label), l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!))]),
                       style: ts.small,
                     ),
                   ],
