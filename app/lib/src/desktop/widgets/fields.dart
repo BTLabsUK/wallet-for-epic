@@ -140,7 +140,11 @@ class EInput extends StatefulWidget {
     this.textInputAction,
     this.size = EBtnSize.md,
     this.fadeEnd = false,
+    this.line = false,
   });
+
+  /// No box: a hairline under the text, as [ESearch] draws it. One line only.
+  final bool line;
 
   /// A long one-line value fades out over its last 24 u before [trailing] instead of being cut
   /// through a glyph (an address under the field's buttons, UD-013).
@@ -231,7 +235,8 @@ class _EInputState extends State<EInput> {
         : (_hover ? c.dim : c.lineField);
     final style = widget.mono ? ts.mono(size: Fs.sm) : ts.body;
     final multi = widget.maxLines > 1;
-    final sm = widget.size == EBtnSize.sm && !multi;
+    final line = widget.line && !multi;
+    final sm = (widget.size == EBtnSize.sm || line) && !multi;
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
@@ -239,16 +244,20 @@ class _EInputState extends State<EInput> {
         duration: Dur.fast,
         height: sm ? Ctl.sm : null,
         constraints: sm ? null : BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
-        decoration: BoxDecoration(
-          color: c.s2,
-          borderRadius: BorderRadius.circular(Rad.sm),
-          border: Border.all(color: border),
-          boxShadow: focused
-              ? [
-                  BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 3.u),
-                ]
-              : null,
-        ),
+        decoration: line
+            // The line look: no fill, no box; the hairline under the text takes the
+            // field's states (dim on hover, the accent with focus).
+            ? BoxDecoration(border: Border(bottom: BorderSide(color: border, width: focused ? 1.5 : 1)))
+            : BoxDecoration(
+                color: c.s2,
+                borderRadius: BorderRadius.circular(Rad.sm),
+                border: Border.all(color: border),
+                boxShadow: focused
+                    ? [
+                        BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 3.u),
+                      ]
+                    : null,
+              ),
         child: Opacity(
           opacity: widget.enabled ? 1 : 0.5,
           child: Row(
@@ -256,8 +265,8 @@ class _EInputState extends State<EInput> {
             children: [
               if (widget.leading != null)
                 Padding(
-                  padding: EdgeInsets.only(left: Sp.x3),
-                  child: Icon(widget.leading, size: Ctl.icon, color: c.faint),
+                  padding: EdgeInsets.only(left: line ? Sp.x1 : Sp.x3),
+                  child: Icon(widget.leading, size: line ? Ctl.iconSm + 2.u : Ctl.icon, color: line && focused ? c.dim : c.faint),
                 ),
               Expanded(
                 child: _FadeEnd(
@@ -290,7 +299,7 @@ class _EInputState extends State<EInput> {
                       hintText: widget.hint,
                       hintStyle: ts.body.copyWith(color: c.faint),
                       contentPadding: EdgeInsets.symmetric(
-                        horizontal: Sp.x3,
+                        horizontal: line ? Sp.x2 : Sp.x3,
                         vertical: multi ? Sp.x3 : (sm ? 0 : 12),
                       ),
                     ),
@@ -309,6 +318,100 @@ class _EInputState extends State<EInput> {
         ),
       ),
     );
+  }
+}
+
+/// The one search field of the desktop: a search glyph, the words on a hairline (no box), a
+/// clear button once there is text. [Ctl.sm] tall, so it sits on one centre line with the tabs
+/// and buttons of its row; [width] wide (260 u), or its parent's width when null.
+/// [label] names it to a screen reader; [clearLabel] the clear button. Clearing empties
+/// [controller] and reports it through [onChanged] (or [onClear] when given).
+class ESearch extends StatefulWidget {
+  const ESearch({
+    super.key,
+    required this.controller,
+    required this.hint,
+    required this.label,
+    required this.clearLabel,
+    this.onChanged,
+    this.onSubmitted,
+    this.onClear,
+    this.focusNode,
+    this.enabled = true,
+    this.autofocus = false,
+    this.width,
+    this.clearKey,
+  });
+
+  final TextEditingController controller;
+  final String hint;
+  final String label;
+  final String clearLabel;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final VoidCallback? onClear;
+  final FocusNode? focusNode;
+  final bool enabled;
+  final bool autofocus;
+
+  /// Null fills the parent; [double.nan] takes the standard width, [standardWidth].
+  final double? width;
+  final Key? clearKey;
+
+  static double get standardWidth => 260.u;
+
+  @override
+  State<ESearch> createState() => _ESearchState();
+}
+
+class _ESearchState extends State<ESearch> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_changed);
+  }
+
+  @override
+  void didUpdateWidget(ESearch old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      old.controller.removeListener(_changed);
+      widget.controller.addListener(_changed);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_changed);
+    super.dispose();
+  }
+
+  void _changed() => setState(() {});
+
+  void _clear() {
+    if (widget.onClear != null) return widget.onClear!();
+    widget.controller.clear();
+    widget.onChanged?.call('');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final field = EInput(
+      controller: widget.controller,
+      line: true,
+      enabled: widget.enabled,
+      autofocus: widget.autofocus,
+      focusNode: widget.focusNode,
+      hint: widget.hint,
+      leading: EIcons.search,
+      semanticLabel: widget.label,
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+      trailing: widget.controller.text.isEmpty ? null : EIconButton(key: widget.clearKey, icon: EIcons.close, label: widget.clearLabel, size: EBtnSize.inline, onPressed: _clear),
+    );
+    final w = widget.width;
+    if (w == null) return field;
+    return SizedBox(width: w.isNaN ? ESearch.standardWidth : w, child: field);
   }
 }
 
