@@ -4875,5 +4875,7 @@
   "mailboxResendAction": "Stornieren und senden",
   "mailboxKeepWaiting": "Weiter warten",
   "mailboxResent": "Storniert und per Epicbox gesendet.",
-  "torRelayCaption": "Über Tor sieht der Epicbox-Server die Adresse dieses Geräts nicht."
+  "torRelayCaption": "Über Tor sieht der Epicbox-Server die Adresse dieses Geräts nicht.",
+  "inviteLinkUnreadable": "Dieser Link lässt sich nicht öffnen.",
+  "inviteLinkNoHandler": "{feature} ist ausgeschaltet oder in dieser Wallet nicht verfügbar."
 }

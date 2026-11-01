@@ -18734,4 +18734,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get torRelayCaption =>
       'Over Tor the relay does not see this device’s address.';
+
+  @override
+  String get inviteLinkUnreadable => 'This link can\'t be opened.';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '$feature is off or not available in this wallet.';
+  }
 }

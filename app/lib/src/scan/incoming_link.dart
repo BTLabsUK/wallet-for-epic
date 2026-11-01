@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
+import '../invite_links.dart' show inviteInboxProvider;
 
 /// Longest link accepted; anything longer is dropped before it is looked at.
 const int maxLinkChars = 4096;
@@ -123,6 +124,8 @@ class IncomingLinkNotifier extends Notifier<IncomingLink?> {
       ref.read(linkDroppedBusyProvider.notifier).bump();
       return;
     }
+    // An invite (pairing, device link) waits in the invite inbox for its handler instead.
+    if (ref.read(inviteInboxProvider).deliver(text)) return;
     state = IncomingLink(text: text, at: now);
   }
 

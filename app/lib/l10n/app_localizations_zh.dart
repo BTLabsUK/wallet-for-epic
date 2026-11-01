@@ -17669,4 +17669,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torRelayCaption => '经 Tor 时，Epicbox 服务器看不到此设备的地址。';
+
+  @override
+  String get inviteLinkUnreadable => '无法打开此链接。';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '“$feature”已关闭或在此钱包中不可用。';
+  }
 }

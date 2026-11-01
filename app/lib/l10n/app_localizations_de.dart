@@ -18955,4 +18955,12 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get torRelayCaption =>
       'Über Tor sieht der Epicbox-Server die Adresse dieses Geräts nicht.';
+
+  @override
+  String get inviteLinkUnreadable => 'Dieser Link lässt sich nicht öffnen.';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '$feature ist ausgeschaltet oder in dieser Wallet nicht verfügbar.';
+  }
 }

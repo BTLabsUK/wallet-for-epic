@@ -423,6 +423,11 @@ class HostSettings {
     return v == notSet ? byDefault : v;
   }
 
+  // [invite]
+
+  /// `invite.page`: the page an invite's https link opens; empty shares the bare invite.
+  String get invitePage => value('invite.page') as String;
+
   // [online]
   bool get statusEnabled => value('online.status_site') as bool;
   bool get updatesCheck => value('online.update_check') as bool;

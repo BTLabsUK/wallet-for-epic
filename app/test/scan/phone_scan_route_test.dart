@@ -6,6 +6,7 @@
 
 import 'dart:async';
 
+import 'package:epic_wallet/src/invite_links.dart' show InviteKind, clearInviteHandlers, registerInviteHandler;
 import 'package:epic_wallet/src/demo.dart' show demoModeProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
@@ -790,7 +791,7 @@ void main() {
       expect(_field(tester, sendAmountFieldKey), '1.5');
     });
 
-    testWidgets('under another screen, a pairing link says Pairing link, not Payment link', (tester) async {
+    testWidgets('under another screen, a pairing invite goes to the pairing handler, not Payment link', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       unawaited(
@@ -799,9 +800,23 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      final opened = <String>[];
+      registerInviteHandler(InviteKind.pair, (_, link) async => opened.add(link.invite));
+      addTearDown(clearInviteHandlers);
       h.container.read(incomingLinkProvider.notifier).deliver('epiccash://pair/1/AAAA');
       await tester.pumpAndSettle();
-      expect(find.text('Pairing link received'), findsOneWidget);
+      expect(opened, ['epiccash://pair/1/AAAA']);
+      expect(find.text('Payment link received'), findsNothing);
+      expect(h.container.read(incomingLinkProvider), isNull);
+    });
+
+    testWidgets('a pairing invite with no pairing handler: a short notice', (tester) async {
+      final h = _Harness();
+      await h.pump(tester);
+      h.container.read(incomingLinkProvider.notifier).deliver('epiccash://pair/1/AAAA');
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
+      expect(find.text('Pairing is off or not available in this wallet.'), findsOneWidget);
       expect(find.text('Payment link received'), findsNothing);
     });
 

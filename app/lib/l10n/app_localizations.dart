@@ -29257,6 +29257,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Over Tor the relay does not see this device’s address.'**
   String get torRelayCaption;
+
+  /// Short notice: a pairing or device-link invite link the system opened could not be read, so it was ignored.
+  ///
+  /// In en, this message translates to:
+  /// **'This link can\'t be opened.'**
+  String get inviteLinkUnreadable;
+
+  /// Short notice: an invite link was opened but the part it needs is off or not available in this wallet; the link is dropped. {feature} is the part's switch name (Pairing, Linked devices).
+  ///
+  /// In en, this message translates to:
+  /// **'{feature} is off or not available in this wallet.'**
+  String inviteLinkNoHandler(String feature);
 }
 
 class _AppLocalizationsDelegate

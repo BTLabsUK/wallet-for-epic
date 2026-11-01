@@ -68,8 +68,10 @@
                 <data android:mimeType="application/octet-stream"/>
                 <data android:mimeType="application/json"/>
             </intent-filter>
-            <!-- Payment links (epic:, epiccash:). No host and no autoVerify: custom schemes cannot
-                 be verified. The wallet only opens its review screen for them. -->
+            <!-- Payment links (epic:, epiccash:) and invite links (epiccash://pair/...,
+                 epiccash://device-link/...): the epiccash filter takes every host. No autoVerify
+                 and no https filter: custom schemes cannot be verified. The wallet only opens its
+                 review screen or the invite's confirm sheet for them (lib/src/invite_links.dart). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>

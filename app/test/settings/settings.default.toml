@@ -24,3 +24,6 @@ servers = [
 status_site = true
 update_check = true
 price = true
+
+[invite]
+page = "https://invite.lab.invalid"

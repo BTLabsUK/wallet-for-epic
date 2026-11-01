@@ -14,6 +14,19 @@
 		<string>zh-Hans</string>
 		<string>th</string>
 	</array>
+	<!-- Invite links (epiccash://pair/..., epiccash://device-link/...), handed to Dart by
+	     IncomingLink in AppDelegate.swift. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>uk.btlabs.epiccashwallet.macos.invite</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>epiccash</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>

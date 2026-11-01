@@ -4875,5 +4875,7 @@
   "mailboxResendAction": "取消并发送",
   "mailboxKeepWaiting": "继续等待",
   "mailboxResent": "已取消并经 Epicbox 发送。",
-  "torRelayCaption": "经 Tor 时，Epicbox 服务器看不到此设备的地址。"
+  "torRelayCaption": "经 Tor 时，Epicbox 服务器看不到此设备的地址。",
+  "inviteLinkUnreadable": "无法打开此链接。",
+  "inviteLinkNoHandler": "“{feature}”已关闭或在此钱包中不可用。"
 }

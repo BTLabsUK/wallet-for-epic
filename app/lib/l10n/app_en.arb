@@ -25357,5 +25357,18 @@
   "torRelayCaption": "Over Tor the relay does not see this device’s address.",
   "@torRelayCaption": {
     "description": "Caption under the Epicbox row in Settings while Tor is off, and a Help › Privacy line."
+  },
+  "inviteLinkUnreadable": "This link can't be opened.",
+  "@inviteLinkUnreadable": {
+    "description": "Short notice: a pairing or device-link invite link the system opened could not be read, so it was ignored."
+  },
+  "inviteLinkNoHandler": "{feature} is off or not available in this wallet.",
+  "@inviteLinkNoHandler": {
+    "description": "Short notice: an invite link was opened but the part it needs is off or not available in this wallet; the link is dropped. {feature} is the part's switch name (Pairing, Linked devices).",
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
   }
 }

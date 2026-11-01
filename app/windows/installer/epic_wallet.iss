@@ -140,6 +140,13 @@ Type: dirifempty; Name: "{app}"
 ; Inno undoes these last to first: the parent's if-empty check runs after the child is gone.
 Root: HKCU; Subkey: "Software\BT Labs"; Flags: uninsdeletekeyifempty
 Root: HKCU; Subkey: "Software\BT Labs\Epic Cash Desktop"; Flags: uninsdeletekey
+; Invite links (epiccash://pair/..., epiccash://device-link/...): a browser hands them to the app,
+; which asks before anything happens (lib\src\invite_links.dart). Per user, like the install; the
+; uninstall removes the whole key.
+Root: HKCU; Subkey: "Software\Classes\epiccash"; ValueType: string; ValueName: ""; ValueData: "URL:Epic Cash link"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\epiccash"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: HKCU; Subkey: "Software\Classes\epiccash\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: """{app}\epic_wallet.exe"",0"
+Root: HKCU; Subkey: "Software\Classes\epiccash\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\epic_wallet.exe"" ""%1"""
 
 [Run]
 ; "Open Epic Cash Desktop" on the finish page (the stock Finish button, renamed). The "Close" link

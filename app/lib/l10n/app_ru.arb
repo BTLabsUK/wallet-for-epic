@@ -4875,5 +4875,7 @@
   "mailboxResendAction": "Отменить и отправить",
   "mailboxKeepWaiting": "Подождать ещё",
   "mailboxResent": "Отменено и отправлено через Epicbox.",
-  "torRelayCaption": "Через Tor сервер Epicbox не видит адрес этого устройства."
+  "torRelayCaption": "Через Tor сервер Epicbox не видит адрес этого устройства.",
+  "inviteLinkUnreadable": "Эту ссылку нельзя открыть.",
+  "inviteLinkNoHandler": "«{feature}» выключено или недоступно в этом кошельке."
 }

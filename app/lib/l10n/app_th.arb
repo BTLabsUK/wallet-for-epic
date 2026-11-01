@@ -4875,5 +4875,7 @@
   "mailboxResendAction": "ยกเลิกและส่ง",
   "mailboxKeepWaiting": "รอต่อ",
   "mailboxResent": "ยกเลิกและส่งผ่าน Epicbox แล้ว",
-  "torRelayCaption": "ผ่าน Tor เซิร์ฟเวอร์ Epicbox จะไม่เห็นที่อยู่ของอุปกรณ์นี้"
+  "torRelayCaption": "ผ่าน Tor เซิร์ฟเวอร์ Epicbox จะไม่เห็นที่อยู่ของอุปกรณ์นี้",
+  "inviteLinkUnreadable": "เปิดลิงก์นี้ไม่ได้",
+  "inviteLinkNoHandler": "{feature} ปิดอยู่หรือใช้ไม่ได้ในวอลเล็ตนี้"
 }

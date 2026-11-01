@@ -4,6 +4,7 @@
 /// a sheet saying why not. Nothing here pays: the review and the PIN stay the only way.
 library;
 
+import '../invite_links.dart' show inviteHandler, parseInvite;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -46,22 +47,32 @@ bool requestCarriesMore(PaymentRequest request) =>
     request.problems.isNotEmpty;
 
 /// Opens [text] from Home's scan or a link: a payment code or an address goes to Send, the
-/// rest where it belongs. [scanAgain] reopens the scanner the text came from.
+/// rest where it belongs. [scanAgain] reopens the scanner the text came from. An invite (its
+/// https link or the bare `epiccash://` one) goes to the handler its feature registered
+/// (invite_links.dart), else to today's pairing and device-link routes as the bare invite.
 Future<void> openScannedText(
   BuildContext context,
   WidgetRef ref,
   String text, {
   required CodeOrigin origin,
   Future<void> Function()? scanAgain,
-}) => isDeviceLinkText(text)
-    ? openDeviceLinkText(context, ref, text)
-    : openScannedCode(
-        context,
-        ref,
-        classifyFor(ref.read(walletServiceProvider), text),
-        origin: origin,
-        scanAgain: scanAgain,
-      );
+}) {
+  final invite = parseInvite(text);
+  if (invite != null) {
+    final handler = inviteHandler(invite.kind);
+    if (handler != null) return handler(context, invite);
+    text = invite.invite;
+  }
+  return isDeviceLinkText(text)
+      ? openDeviceLinkText(context, ref, text)
+      : openScannedCode(
+          context,
+          ref,
+          classifyFor(ref.read(walletServiceProvider), text),
+          origin: origin,
+          scanAgain: scanAgain,
+        );
+}
 
 /// A device link code from a scan or a paste: Link a device answers it, or, with Linked devices
 /// turned off, a sheet says it is experimental and where to turn it on.

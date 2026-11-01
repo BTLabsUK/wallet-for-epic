@@ -21,6 +21,7 @@ import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBack
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show showDeskCheckWords;
+import '../../ui/invite_link_gate.dart';
 import '../data/desk_errors.dart' show deskErrorText;
 import '../../levels/wallet_level.dart' show WalletLevel;
 import '../data/desk_levels.dart';
@@ -271,16 +272,21 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         ),
       );
     }
-    return Title(
-      title: deskPageTitle(context.l10n, shown.route),
-      color: c.accent,
-      child: Stack(
-        children: [
-          Positioned.fill(child: ExcludeFocus(excluding: tour, child: frame)),
-          if (tour) Positioned.fill(child: DeskTourOverlay(key: ValueKey(tourStart), startAt: tourStart)),
-          // The clickable prototype (web build on the mock): plays the other side of invoices.
-          if (kIsWeb && !tour) const ProtoButton(),
-        ],
+    // Invites a browser opened (pairing, device link) go to their feature's confirm dialog.
+    return InviteLinkGate(
+      onUnreadable: (context) => showEToast(context, context.l10n.inviteLinkUnreadable, tone: ETone.warn),
+      onNoHandler: (context, kind) => showEToast(context, inviteNoHandlerText(context.l10n, kind), tone: ETone.info),
+      child: Title(
+        title: deskPageTitle(context.l10n, shown.route),
+        color: c.accent,
+        child: Stack(
+          children: [
+            Positioned.fill(child: ExcludeFocus(excluding: tour, child: frame)),
+            if (tour) Positioned.fill(child: DeskTourOverlay(key: ValueKey(tourStart), startAt: tourStart)),
+            // The clickable prototype (web build on the mock): plays the other side of invoices.
+            if (kIsWeb && !tour) const ProtoButton(),
+          ],
+        ),
       ),
     );
   }

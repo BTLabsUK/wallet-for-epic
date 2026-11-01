@@ -19361,4 +19361,12 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get torRelayCaption =>
       'Через Tor сервер Epicbox не видит адрес этого устройства.';
+
+  @override
+  String get inviteLinkUnreadable => 'Эту ссылку нельзя открыть.';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '«$feature» выключено или недоступно в этом кошельке.';
+  }
 }

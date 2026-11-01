@@ -4875,5 +4875,7 @@
   "mailboxResendAction": "Anuluj i wyślij",
   "mailboxKeepWaiting": "Czekaj dalej",
   "mailboxResent": "Anulowano i wysłano przez Epicbox.",
-  "torRelayCaption": "Przez Tor serwer Epicbox nie widzi adresu tego urządzenia."
+  "torRelayCaption": "Przez Tor serwer Epicbox nie widzi adresu tego urządzenia.",
+  "inviteLinkUnreadable": "Nie można otworzyć tego linku.",
+  "inviteLinkNoHandler": "{feature}: wyłączone lub niedostępne w tym portfelu."
 }

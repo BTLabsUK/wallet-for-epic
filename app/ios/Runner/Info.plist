@@ -18,7 +18,8 @@
 	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Epic Cash Mobile</string>
-	<!-- Payment links (epic:, epiccash:), handed to Dart by IncomingLink in AppDelegate.swift. -->
+	<!-- Payment links (epic:, epiccash:) and invite links (epiccash://pair/..., epiccash://device-link/...),
+	     handed to Dart by IncomingLink in AppDelegate.swift. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

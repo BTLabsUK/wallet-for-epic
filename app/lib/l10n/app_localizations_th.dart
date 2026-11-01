@@ -18318,4 +18318,12 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get torRelayCaption =>
       'ผ่าน Tor เซิร์ฟเวอร์ Epicbox จะไม่เห็นที่อยู่ของอุปกรณ์นี้';
+
+  @override
+  String get inviteLinkUnreadable => 'เปิดลิงก์นี้ไม่ได้';
+
+  @override
+  String inviteLinkNoHandler(String feature) {
+    return '$feature ปิดอยู่หรือใช้ไม่ได้ในวอลเล็ตนี้';
+  }
 }

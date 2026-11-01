@@ -5,12 +5,72 @@
 #include <gdk/gdkx.h>
 #endif
 
+#include <string.h>
+
 #include "flutter/generated_plugin_registrant.h"
 
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
+  // epic_wallet/incoming_link: an epiccash:// link a second start handed over (open below),
+  // and one Dart did not take yet, kept for its takePending.
+  FlMethodChannel* link_channel;
+  gchar* pending_link;
 };
+
+// The longest link taken, as the Dart side (lib/src/scan/incoming_link.dart).
+static const gsize kMaxLinkChars = 4096;
+
+// An epiccash:// link (the desktop file's %u, a browser's hand-off).
+static gboolean is_link_argument(const gchar* arg) {
+  return arg != nullptr && g_ascii_strncasecmp(arg, "epiccash:", 9) == 0 &&
+         strlen(arg) > 9 && strlen(arg) <= kMaxLinkChars;
+}
+
+static void link_method_cb(FlMethodChannel* channel, FlMethodCall* call, gpointer user_data) {
+  MyApplication* self = MY_APPLICATION(user_data);
+  g_autoptr(FlMethodResponse) response = nullptr;
+  if (g_strcmp0(fl_method_call_get_name(call), "takePending") == 0) {
+    g_autoptr(FlValue) value =
+        self->pending_link != nullptr ? fl_value_new_string(self->pending_link) : fl_value_new_null();
+    g_clear_pointer(&self->pending_link, g_free);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(value));
+  } else {
+    response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+  }
+  fl_method_call_respond(call, response, nullptr);
+}
+
+typedef struct {
+  MyApplication* self;
+  gchar* link;
+} LinkSent;
+
+static void link_sent_cb(GObject* object, GAsyncResult* result, gpointer user_data) {
+  LinkSent* sent = static_cast<LinkSent*>(user_data);
+  g_autoptr(FlMethodResponse) response =
+      fl_method_channel_invoke_method_finish(FL_METHOD_CHANNEL(object), result, nullptr);
+  // Dart took it: no longer pending. Otherwise its takePending collects it.
+  if (response != nullptr && FL_IS_METHOD_SUCCESS_RESPONSE(response) &&
+      g_strcmp0(sent->self->pending_link, sent->link) == 0) {
+    g_clear_pointer(&sent->self->pending_link, g_free);
+  }
+  g_object_unref(sent->self);
+  g_free(sent->link);
+  g_free(sent);
+}
+
+// Hands [link] to Dart, holding it until Dart answers.
+static void deliver_link(MyApplication* self, const gchar* link) {
+  g_free(self->pending_link);
+  self->pending_link = g_strdup(link);
+  if (self->link_channel == nullptr) return;
+  LinkSent* sent = g_new0(LinkSent, 1);
+  sent->self = MY_APPLICATION(g_object_ref(self));
+  sent->link = g_strdup(link);
+  g_autoptr(FlValue) args = fl_value_new_string(link);
+  fl_method_channel_invoke_method(self->link_channel, "link", args, nullptr, link_sent_cb, sent);
+}
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
@@ -196,6 +256,12 @@ static void my_application_activate(GApplication* application) {
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
 
+  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+  self->link_channel = fl_method_channel_new(
+      fl_engine_get_binary_messenger(fl_view_get_engine(view)), "epic_wallet/incoming_link",
+      FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(self->link_channel, link_method_cb, self, nullptr);
+
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
 
@@ -214,10 +280,44 @@ static gboolean my_application_local_command_line(GApplication* application,
     return TRUE;
   }
 
+  // A second start with an epiccash:// link (a browser): the running app gets it through
+  // open, which also brings its window to the front. A first start passes it to Dart as an
+  // argument instead.
+  if (g_application_get_is_remote(application)) {
+    for (gchar** arg = self->dart_entrypoint_arguments; arg != nullptr && *arg != nullptr; arg++) {
+      if (is_link_argument(*arg)) {
+        g_autoptr(GFile) file = g_file_new_for_uri(*arg);
+        GFile* files[] = {file};
+        g_application_open(application, files, 1, "");
+        *exit_status = 0;
+        return TRUE;
+      }
+    }
+  }
+
   g_application_activate(application);
   *exit_status = 0;
 
   return TRUE;
+}
+
+// Implements GApplication::open: the link a second start handed over (above).
+static void my_application_open(GApplication* application, GFile** files, gint n_files,
+                                const gchar* hint) {
+  MyApplication* self = MY_APPLICATION(application);
+  for (gint i = 0; i < n_files; i++) {
+    g_autofree gchar* uri = g_file_get_uri(files[i]);
+    if (is_link_argument(uri)) {
+      deliver_link(self, uri);
+      break;
+    }
+  }
+  GList* windows = gtk_application_get_windows(GTK_APPLICATION(application));
+  if (windows != nullptr) {
+    gtk_window_present(GTK_WINDOW(windows->data));
+  } else {
+    g_application_activate(application);
+  }
 }
 
 // Implements GApplication::startup.
@@ -243,6 +343,8 @@ static void my_application_shutdown(GApplication* application) {
 static void my_application_dispose(GObject* object) {
   MyApplication* self = MY_APPLICATION(object);
   g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
+  g_clear_object(&self->link_channel);
+  g_clear_pointer(&self->pending_link, g_free);
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);
 }
 
@@ -251,6 +353,7 @@ static void my_application_class_init(MyApplicationClass* klass) {
   G_APPLICATION_CLASS(klass)->local_command_line =
       my_application_local_command_line;
   G_APPLICATION_CLASS(klass)->startup = my_application_startup;
+  G_APPLICATION_CLASS(klass)->open = my_application_open;
   G_APPLICATION_CLASS(klass)->shutdown = my_application_shutdown;
   G_OBJECT_CLASS(klass)->dispose = my_application_dispose;
 }
@@ -266,5 +369,5 @@ MyApplication* my_application_new() {
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",
-                                     static_cast<GApplicationFlags>(0), nullptr));
+                                     G_APPLICATION_HANDLES_OPEN, nullptr));
 }

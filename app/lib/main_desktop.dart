@@ -41,6 +41,7 @@ import 'src/desktop/data/history_files.dart';
 import 'src/desktop/data/lepic_desk_wallet.dart';
 import 'src/desktop/data/logs.dart';
 import 'src/desktop/widgets/kit.dart';
+import 'src/invite_links.dart' show launchArgumentsProvider;
 import 'src/password_lists.dart';
 import 'src/price.dart' show fiatChoiceProvider;
 import 'src/tor_licence.dart';
@@ -62,14 +63,16 @@ AppLifecycleListener? _exitListener;
 /// Keeps the window's size and place (Linux, macOS); saved once more on the way out.
 DeskWindowKeeper? _windowKeeper;
 
-Future<void> main() async {
+/// [args]: the runner's command line; a browser passes an `epiccash://` invite link there.
+Future<void> main(List<String> args) async {
+  final launch = launchArgumentsProvider.overrideWithValue(List<String>.unmodifiable(args));
   if (_mock) {
     WidgetsFlutterBinding.ensureInitialized();
     // The mock wallet shows the shipped servers; it reads and writes no file.
     await loadShippedSettings();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
-    runApp(ProviderScope(overrides: [if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
+    runApp(ProviderScope(overrides: [launch, if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
   }
@@ -106,6 +109,7 @@ Future<void> main() async {
     // The app's own title bar from here on (the keyring screen above keeps the system's).
     final window = await SystemDeskWindow.init();
     if (window != null) overrides.add(deskWindowProvider.overrideWithValue(window));
+    overrides.add(launch);
     // Size and place before the first frame, which shows the window (window_placement.dart).
     _windowKeeper = await placeDeskWindow(DeskStore(createSecretStore()));
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
