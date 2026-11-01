@@ -113,22 +113,11 @@ class WithdrawalBlock extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (!posted) ...[
-            EdgeCard(
-              edge: t.info,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Semantics(
-                  liveRegion: true,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l.reqReceivedWaiting(w.name), style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 4),
-                      Text(l.reqReceivedWaitingBody, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-                    ],
-                  ),
-                ),
-              ),
+            InlineNotice(
+              level: NoticeLevel.info,
+              title: l.reqReceivedWaiting(w.name),
+              text: l.reqReceivedWaitingBody,
+              liveRegion: true,
             ),
             const SizedBox(height: 16),
           ],
