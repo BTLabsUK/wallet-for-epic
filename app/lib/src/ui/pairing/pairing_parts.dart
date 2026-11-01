@@ -559,11 +559,7 @@ class ShareBox extends StatelessWidget {
         ],
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: t.field,
-            border: Border.all(color: t.line),
-            borderRadius: BorderRadius.circular(t.radiusSmall),
-          ),
+          decoration: t.well,
           child: SelectableText(
             text,
             style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily, fontSize: 12.5, height: 1.45),
