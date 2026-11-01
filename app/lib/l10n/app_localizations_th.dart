@@ -18276,4 +18276,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String deskKitPasswordRule(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'อย่างน้อย $count ตัวอักษร',
+    );
+    return '$_temp0';
+  }
 }

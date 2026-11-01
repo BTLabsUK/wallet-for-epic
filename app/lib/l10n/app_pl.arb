@@ -4864,5 +4864,6 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "deskKitPasswordRule": "{count, plural, one{{count} znak lub więcej} few{{count} znaki lub więcej} many{{count} znaków lub więcej} other{{count} znaku lub więcej}}"
 }

@@ -110,6 +110,7 @@
   "deskKitChipNotOverTor": "不使用 Tor",
   "deskKitPasswordNote": "在本设备上根据长度以及常见词语、姓名和模式估算；假设攻击者使用高速硬件，每秒对此钱包文件尝试 100,000 次猜测。仅供参考，不作保证。",
   "deskKitPasswordNoteLabel": "时间如何估算",
+  "deskKitPasswordRule": "{count, plural, other{至少 {count} 个字符}}",
   "deskKitInfoLabel": "更多信息",
   "deskKitNotCopied": "未复制",
   "deskKitCopied": "已复制",

@@ -110,6 +110,7 @@
   "deskKitChipNotOverTor": "Bez Tora",
   "deskKitPasswordNote": "Szacowane na tym urządzeniu na podstawie długości oraz popularnych słów, imion i wzorców, dla atakującego z szybkim sprzętem, który próbuje 100 000 haseł na sekundę na pliku tego portfela. To wskazówka, nie gwarancja.",
   "deskKitPasswordNoteLabel": "Jak szacowany jest czas",
+  "deskKitPasswordRule": "{count, plural, one{{count} znak lub więcej} few{{count} znaki lub więcej} many{{count} znaków lub więcej} other{{count} znaku lub więcej}}",
   "deskKitInfoLabel": "Więcej informacji",
   "deskKitNotCopied": "Nie skopiowano",
   "deskKitCopied": "Skopiowano",

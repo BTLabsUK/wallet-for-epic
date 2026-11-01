@@ -17628,4 +17628,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String deskKitPasswordRule(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '至少 $count 个字符',
+    );
+    return '$_temp0';
+  }
 }

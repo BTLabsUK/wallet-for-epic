@@ -74,7 +74,7 @@ void main() {
     final c = TextEditingController();
     addTearDown(c.dispose);
     await _pump(tester, Column(children: [TextField(controller: c), PasswordHint(controller: c)]));
-    expect(_line(tester), '', reason: 'empty field: no line');
+    expect(_line(tester), '8 characters or more', reason: 'empty field: the least length, never a blank line');
     expect(find.byIcon(EIcons.info), findsNothing);
 
     await _type(tester, find.byType(TextField), 'a');
@@ -94,9 +94,9 @@ void main() {
     expect(_line(tester), isNot(contains('under a minute')));
 
     await _type(tester, find.byType(TextField), '');
-    expect(_line(tester), '');
+    expect(_line(tester), '8 characters or more');
     await tester.pump(const Duration(seconds: 2));
-    expect(_line(tester), '');
+    expect(_line(tester), '8 characters or more');
     await _end(tester);
   });
 
@@ -154,6 +154,7 @@ void main() {
       expect(find.byType(PasswordHint), findsOneWidget);
       expect(find.text('Weak'), findsNothing);
       expect(find.text('Strong'), findsNothing);
+      expect(_line(tester), '8 characters or more', reason: 'the rule at rest');
       await _type(tester, field, 'Password1!');
       await tester.pump(const Duration(milliseconds: 200));
       expect(_line(tester), '10 characters · ${_estimator.crackTime('Password1!')}');

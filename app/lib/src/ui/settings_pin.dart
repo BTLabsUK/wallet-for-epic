@@ -176,8 +176,8 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
   }
 }
 
-/// A new passphrase, typed twice: the heading, the rules, the two fields with their eyes, the
-/// strength hint under the first ([_PassphraseHint]), and Save. The rules are checked on Save:
+/// A new passphrase, typed twice: the heading, the two fields with their eyes, the hint under
+/// the first ([_PassphraseHint]: the rules at rest), and Save. The rules are checked on Save:
 /// too short or only digits under the first field, a mismatch under the second.
 class _PassphraseSetup extends StatefulWidget {
   const _PassphraseSetup({required this.onDone});
@@ -225,12 +225,6 @@ class _PassphraseSetupState extends State<_PassphraseSetup> {
           style: theme.textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
-        Text(
-          l.passphraseRules(minPassphraseLength),
-          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          textAlign: TextAlign.center,
-        ),
         const SizedBox(height: 20),
         PasswordField(
           key: const ValueKey('passphrase-new'),
@@ -259,8 +253,9 @@ class _PassphraseSetupState extends State<_PassphraseSetup> {
 /// word lists); released after it closes.
 final _estimatorProvider = FutureProvider.autoDispose<PasswordEstimator>((ref) => loadPasswordEstimator());
 
-/// The small print under a new passphrase: "14 characters · about 300 years to crack", the
-/// phone twin of the desktop's `PasswordHint` (same [characterCount] and
+/// The small print under a new passphrase: "14 characters · about 300 years to crack", and
+/// before anything is typed the rules ([AppLocalizations.passphraseRules]), so its line is never
+/// blank (the desktop's shows the least length at rest), the phone twin of the desktop's `PasswordHint` (same [characterCount] and
 /// [PasswordEstimator.crackTime], so both read the same). The count follows every keystroke;
 /// the time comes [estimateDelay] after typing stops. It only informs: nothing here blocks
 /// Save, the rules alone decide what it accepts, and no colour judges the passphrase. Screen
@@ -336,11 +331,14 @@ class _PassphraseHintState extends ConsumerState<_PassphraseHint> {
     final l = context.l10n;
     final theme = Theme.of(context);
     final small = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
-    final line = _count == 0 ? '' : [characterCount(_count), ?_time].join(' · ');
+    final line = _count == 0
+        ? l.passphraseRules(minPassphraseLength)
+        : [characterCount(_count), ?_time].join(' · ');
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 12),
-      child: SizedBox(
-        height: 48,
+      // At least a touch target high, so the info icon fits; a long rule wraps.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
         child: Row(
           children: [
             Flexible(
@@ -348,7 +346,11 @@ class _PassphraseHintState extends ConsumerState<_PassphraseHint> {
                 liveRegion: true,
                 label: _announced,
                 child: ExcludeSemantics(
-                  child: Text(line, key: const ValueKey('passphrase-hint'), style: small),
+                  child: Text(
+                    line,
+                    key: const ValueKey('passphrase-hint'),
+                    style: small,
+                  ),
                 ),
               ),
             ),

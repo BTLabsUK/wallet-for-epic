@@ -110,6 +110,7 @@
   "deskKitChipNotOverTor": "ไม่ใช้ Tor",
   "deskKitPasswordNote": "ประเมินบนอุปกรณ์นี้จากความยาวและคำ ชื่อ และรูปแบบที่พบบ่อย สำหรับผู้โจมตีที่ใช้ฮาร์ดแวร์เร็วเดา 100,000 ครั้งต่อวินาทีกับไฟล์ของกระเป๋าเงินนี้ เป็นแนวทาง ไม่ใช่การรับประกัน",
   "deskKitPasswordNoteLabel": "วิธีประเมินเวลา",
+  "deskKitPasswordRule": "{count, plural, other{อย่างน้อย {count} ตัวอักษร}}",
   "deskKitInfoLabel": "ข้อมูลเพิ่มเติม",
   "deskKitNotCopied": "ไม่ได้คัดลอก",
   "deskKitCopied": "คัดลอกแล้ว",

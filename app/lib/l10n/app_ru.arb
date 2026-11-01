@@ -4864,5 +4864,6 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "deskKitPasswordRule": "{count, plural, one{{count} символ или больше} few{{count} символа или больше} many{{count} символов или больше} other{{count} символа или больше}}"
 }

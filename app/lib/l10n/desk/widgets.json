@@ -672,6 +672,15 @@
   "@deskKitPasswordNoteLabel": {
     "description": "Screen-reader name of the info icon under a new-password field."
   },
+  "deskKitPasswordRule": "{count, plural, one{{count} character or more} other{{count} characters or more}}",
+  "@deskKitPasswordRule": {
+    "description": "Small print under a new-password field before anything is typed: the least length. Replaced by the character count and the time to crack while typing.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "deskKitInfoLabel": "More information",
   "@deskKitInfoLabel": {
     "description": "Screen-reader name of an info icon that opens an explanation popover and has no title of its own."
