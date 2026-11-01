@@ -12,7 +12,7 @@ import '../tor_build.dart';
 import '../tor_licence.dart';
 import 'common.dart';
 import 'settings_screen.dart' show projectRepoUrl;
-import 'theme/fonts.dart' show flagsLicenceNote;
+import 'theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 import 'theme/tokens.dart';
 
 /// The key of the button that opens the full texts, for tests.
@@ -44,6 +44,7 @@ class LicencesScreen extends StatelessWidget {
             if (torBuilt) l.licencesTor,
             l.licencesFonts,
             flagsLicenceNote,
+            sasPicturesLicenceNote,
           ])
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
