@@ -5009,5 +5009,6 @@
   "contactsClosedText": "จะเปิดเมื่อปลดล็อกกระเป๋าที่ใช้สมุดนี้",
   "pairSeenAsAskTitle": "ชื่อที่ผู้อื่นเห็น",
   "pairSeenAsHint": "ชื่อของคุณ",
-  "devicesNameWithCode": "{name} {code}"
+  "devicesNameWithCode": "{name} {code}",
+  "deskSetDlgRemoveUnlockHintSecurity": "ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › ความปลอดภัย"
 }

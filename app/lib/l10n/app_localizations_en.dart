@@ -19272,4 +19272,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskSetDlgRemoveUnlockHintSecurity =>
+      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.';
 }

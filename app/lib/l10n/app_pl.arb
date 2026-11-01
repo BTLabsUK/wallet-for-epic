@@ -5009,5 +5009,6 @@
   "contactsClosedText": "Otworzy się po odblokowaniu portfela, który z niej korzysta.",
   "pairSeenAsAskTitle": "Nazwa widoczna dla innych",
   "pairSeenAsHint": "Twoje imię",
-  "devicesNameWithCode": "{name} {code}"
+  "devicesNameWithCode": "{name} {code}",
+  "deskSetDlgRemoveUnlockHintSecurity": "Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Bezpieczeństwo."
 }

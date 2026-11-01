@@ -30065,6 +30065,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} {code}'**
   String devicesNameWithCode(String name, String code);
+
+  /// Remove wallet dialog: shown for a locked wallet. "Settings › Security" is a menu path (the Security page, where Delete wallet is).
+  ///
+  /// In en, this message translates to:
+  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.'**
+  String get deskSetDlgRemoveUnlockHintSecurity;
 }
 
 class _AppLocalizationsDelegate

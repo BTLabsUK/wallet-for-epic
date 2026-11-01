@@ -18188,4 +18188,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskSetDlgRemoveUnlockHintSecurity =>
+      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 安全”中的“删除钱包”。';
 }

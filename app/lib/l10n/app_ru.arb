@@ -5009,5 +5009,6 @@
   "contactsClosedText": "Она откроется, когда будет разблокирован кошелёк, который её использует.",
   "pairSeenAsAskTitle": "Имя, которое видят другие",
   "pairSeenAsHint": "Ваше имя",
-  "devicesNameWithCode": "{name} {code}"
+  "devicesNameWithCode": "{name} {code}",
+  "deskSetDlgRemoveUnlockHintSecurity": "Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Безопасность»."
 }

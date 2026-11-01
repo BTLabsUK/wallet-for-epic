@@ -5009,5 +5009,6 @@
   "contactsClosedText": "Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt.",
   "pairSeenAsAskTitle": "Name, den andere sehen",
   "pairSeenAsHint": "Ihr Name",
-  "devicesNameWithCode": "{name} {code}"
+  "devicesNameWithCode": "{name} {code}",
+  "deskSetDlgRemoveUnlockHintSecurity": "Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Sicherheit."
 }

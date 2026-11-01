@@ -5009,5 +5009,6 @@
   "contactsClosedText": "解锁使用该通讯录的钱包后即可打开。",
   "pairSeenAsAskTitle": "他人看到的名字",
   "pairSeenAsHint": "你的名字",
-  "devicesNameWithCode": "{name} {code}"
+  "devicesNameWithCode": "{name} {code}",
+  "deskSetDlgRemoveUnlockHintSecurity": "如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 安全”中的“删除钱包”。"
 }
