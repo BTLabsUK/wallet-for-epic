@@ -42,6 +42,7 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'levels/pay_details.dart';
 import 'tx_edit_sheet.dart';
 import 'tx_label.dart';
+import 'settings_rows.dart' show NavChevron;
 
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
@@ -995,7 +996,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     : l.txEditAdd,
                 style: theme.textTheme.labelLarge,
               ),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const NavChevron(),
               onTap: _busy ? null : () => _editDetails(tx),
             ),
           if (!device) _LabelTile(tx: tx),

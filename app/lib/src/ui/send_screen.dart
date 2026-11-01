@@ -78,6 +78,7 @@ import 'theme/tokens.dart';
 import 'tor_ui.dart';
 import 'tour/tour_target.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
+import 'settings_rows.dart' show RadioRow;
 
 export '../utf8_limit.dart';
 
@@ -3815,17 +3816,17 @@ class _SendViewState extends ConsumerState<SendView> {
               onChanged: (v) => setState(() => _filePlain = v ?? false),
               child: Column(
                 children: [
-                  RadioListTile<bool>(
+                  RadioRow<bool>(
                     key: sendSealedOptionKey,
                     value: false,
-                    title: Text(l.sendSealedOption),
-                    subtitle: Text(l.sendSealedOptionHint(name)),
+                    title: l.sendSealedOption,
+                    subtitle: l.sendSealedOptionHint(name),
                   ),
-                  RadioListTile<bool>(
+                  RadioRow<bool>(
                     key: sendPlainOptionKey,
                     value: true,
-                    title: Text(l.sendPlainOption),
-                    subtitle: Text(l.sendPlainOptionHint),
+                    title: l.sendPlainOption,
+                    subtitle: l.sendPlainOptionHint,
                   ),
                 ],
               ),

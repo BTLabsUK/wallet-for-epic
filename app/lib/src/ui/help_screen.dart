@@ -317,7 +317,7 @@ class _FeedbackRow extends ConsumerWidget {
           hint: l.settingsSendFeedbackHint,
           icon: Icons.feedback_outlined,
         ),
-        trailing: Icon(Icons.chevron_right, color: t.dim),
+        trailing: const NavChevron(),
         onTap: () => openFeedback(context),
       ),
     );
@@ -437,7 +437,7 @@ class _TopicRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.chevron_right, color: t.dim, size: 20),
+              const NavChevron(size: 20),
             ],
           ),
         ),

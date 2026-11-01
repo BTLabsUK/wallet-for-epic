@@ -14,6 +14,7 @@ import 'common.dart';
 import 'settings_screen.dart' show projectRepoUrl;
 import 'theme/fonts.dart' show flagsLicenceNote;
 import 'theme/tokens.dart';
+import 'settings_rows.dart' show NavChevron;
 
 /// The key of the button that opens the full texts, for tests.
 const Key licencesFullKey = ValueKey('licences-full');
@@ -129,7 +130,7 @@ class _LicenceTextsScreenState extends State<LicenceTextsScreen> {
                   MaterialLocalizations.of(context).licensesPackageDetailText(entries.length),
                   style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                 ),
-                trailing: Icon(Icons.chevron_right, color: t.dim),
+                trailing: const NavChevron(),
                 onTap: () => Navigator.of(context).push<void>(
                   MaterialPageRoute<void>(
                     builder: (_) => _LicenceTextScreen(name: licencePackageName(name), entries: entries),

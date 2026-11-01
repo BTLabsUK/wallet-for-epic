@@ -212,7 +212,9 @@ void main() {
       await container.read(appSettingsProvider.future);
       await container.read(appSettingsProvider.notifier).setNetworkMode(NetworkMode.killSwitch);
       await tester.pumpAndSettle();
-      await _tapKey(tester, networkModeRowKey(NetworkMode.standard));
+      // On its radio: the row's middle is its ⓘ at this width.
+      await tester.tap(find.descendant(of: find.byKey(networkModeRowKey(NetworkMode.standard)), matching: find.byType(Radio<NetworkMode>)));
+      await tester.pumpAndSettle();
       expect(find.byKey(networkModeConfirmKey), findsNothing);
       expect(NetGate.mode, NetworkMode.standard);
     });
