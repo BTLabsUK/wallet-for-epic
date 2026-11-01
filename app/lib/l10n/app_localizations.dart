@@ -27561,7 +27561,7 @@ abstract class AppLocalizations {
   /// Lead of Post a finished payment (phone screen, desktop dialog and the desktop Receive row): put on the chain a payment another device finished without a connection. Plain words.
   ///
   /// In en, this message translates to:
-  /// **'Post a payment that another device finished offline.'**
+  /// **'Post a payment another device finished with no connection.'**
   String get postFinishedIntroOffline;
 
   /// Button: choose the finished payment file.

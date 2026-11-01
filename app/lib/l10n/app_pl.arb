@@ -4592,7 +4592,7 @@
   "txModeRow": "Tryb",
   "postFinishedTitle": "Wyślij gotową płatność",
   "postFinishedIntro": "Wyślij płatność, którą inne urządzenie przygotowało przy Wyłączniku awaryjnym.",
-  "postFinishedIntroOffline": "Wyślij płatność, którą inne urządzenie dokończyło offline.",
+  "postFinishedIntroOffline": "Wyślij płatność, którą inne urządzenie dokończyło bez połączenia.",
   "postFinishedOpenFile": "Otwórz plik",
   "postFinishedScanQr": "Skanuj QR",
   "postFinishedPaste": "Wklej",

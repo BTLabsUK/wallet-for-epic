@@ -23898,7 +23898,7 @@
   "@postFinishedIntro": {
     "description": "Intro line of that screen."
   },
-  "postFinishedIntroOffline": "Post a payment that another device finished offline.",
+  "postFinishedIntroOffline": "Post a payment another device finished with no connection.",
   "@postFinishedIntroOffline": {
     "description": "Lead of Post a finished payment (phone screen, desktop dialog and the desktop Receive row): put on the chain a payment another device finished without a connection. Plain words."
   },

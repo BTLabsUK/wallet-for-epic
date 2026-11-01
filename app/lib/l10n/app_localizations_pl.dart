@@ -18361,7 +18361,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get postFinishedIntroOffline =>
-      'Wyślij płatność, którą inne urządzenie dokończyło offline.';
+      'Wyślij płatność, którą inne urządzenie dokończyło bez połączenia.';
 
   @override
   String get postFinishedOpenFile => 'Otwórz plik';

@@ -4592,7 +4592,7 @@
   "txModeRow": "模式",
   "postFinishedTitle": "广播已完成的付款",
   "postFinishedIntro": "广播另一台设备在“紧急断网”下完成的付款。",
-  "postFinishedIntroOffline": "发布另一台设备离线完成的付款。",
+  "postFinishedIntroOffline": "发布另一台设备在无网络时完成的付款。",
   "postFinishedOpenFile": "打开文件",
   "postFinishedScanQr": "扫描二维码",
   "postFinishedPaste": "粘贴",

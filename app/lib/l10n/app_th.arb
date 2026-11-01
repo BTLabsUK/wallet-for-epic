@@ -4592,7 +4592,7 @@
   "txModeRow": "โหมด",
   "postFinishedTitle": "ส่งรายการที่เสร็จแล้ว",
   "postFinishedIntro": "ส่งรายการที่อุปกรณ์อื่นทำให้เสร็จในสวิตช์ฉุกเฉิน",
-  "postFinishedIntroOffline": "ส่งการชำระที่อุปกรณ์อื่นทำเสร็จแบบออฟไลน์",
+  "postFinishedIntroOffline": "ส่งการชำระที่อุปกรณ์อื่นทำเสร็จโดยไม่มีการเชื่อมต่อ",
   "postFinishedOpenFile": "เปิดไฟล์",
   "postFinishedScanQr": "สแกน QR",
   "postFinishedPaste": "วาง",

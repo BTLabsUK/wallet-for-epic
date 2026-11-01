@@ -4592,7 +4592,7 @@
   "txModeRow": "Modus",
   "postFinishedTitle": "Fertige Zahlung senden",
   "postFinishedIntro": "Senden Sie eine Zahlung, die ein anderes Gerät unter „Notaus“ abgeschlossen hat.",
-  "postFinishedIntroOffline": "Eine Zahlung senden, die ein anderes Gerät offline abgeschlossen hat.",
+  "postFinishedIntroOffline": "Eine Zahlung senden, die ein anderes Gerät ohne Verbindung abgeschlossen hat.",
   "postFinishedOpenFile": "Datei öffnen",
   "postFinishedScanQr": "QR scannen",
   "postFinishedPaste": "Einfügen",

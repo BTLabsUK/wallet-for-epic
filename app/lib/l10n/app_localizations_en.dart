@@ -17723,7 +17723,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get postFinishedIntroOffline =>
-      'Post a payment that another device finished offline.';
+      'Post a payment another device finished with no connection.';
 
   @override
   String get postFinishedOpenFile => 'Open file';

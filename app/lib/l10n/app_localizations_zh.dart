@@ -16699,7 +16699,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get postFinishedIntro => '广播另一台设备在“紧急断网”下完成的付款。';
 
   @override
-  String get postFinishedIntroOffline => '发布另一台设备离线完成的付款。';
+  String get postFinishedIntroOffline => '发布另一台设备在无网络时完成的付款。';
 
   @override
   String get postFinishedOpenFile => '打开文件';

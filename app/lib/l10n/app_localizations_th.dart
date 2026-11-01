@@ -17309,7 +17309,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get postFinishedIntroOffline =>
-      'ส่งการชำระที่อุปกรณ์อื่นทำเสร็จแบบออฟไลน์';
+      'ส่งการชำระที่อุปกรณ์อื่นทำเสร็จโดยไม่มีการเชื่อมต่อ';
 
   @override
   String get postFinishedOpenFile => 'เปิดไฟล์';

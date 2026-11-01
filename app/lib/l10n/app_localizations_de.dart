@@ -17934,7 +17934,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get postFinishedIntroOffline =>
-      'Eine Zahlung senden, die ein anderes Gerät offline abgeschlossen hat.';
+      'Eine Zahlung senden, die ein anderes Gerät ohne Verbindung abgeschlossen hat.';
 
   @override
   String get postFinishedOpenFile => 'Datei öffnen';
