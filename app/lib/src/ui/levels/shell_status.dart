@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The level-1 shell's two status icons in the app bar ([LevelFeatures.statusIcons]: Network
 /// and Epicbox). The same glyphs and one-mark state language as today's icons ([StatusIcon]);
-/// the tooltip reads "Network · OK", and a tap opens the icon's explore sheet
-/// (`status_sheets.dart`) instead of a server list, which level 1 does not show. An Epicbox
-/// relay offer ([relaySwitchProvider]) turns the Epicbox mark amber.
+/// the tooltip reads "Network · OK", and a tap opens the connections sheet
+/// (`home_status.dart`), whose rows open the icons' explore sheets (`status_sheets.dart`)
+/// instead of a server list, which level 1 does not show. An Epicbox relay offer
+/// ([relaySwitchProvider]) turns the Epicbox mark amber.
 library;
 
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ import '../../providers.dart';
 import '../network_status.dart' show nodeBehind;
 import '../status.dart';
 import '../status_icons.dart';
-import 'status_sheets.dart';
+import '../home_status.dart' show showConnectionsSheet;
 
 /// The keys of the level-1 icons, for tests.
 const Key shellNetworkIconKey = ValueKey('shell-status-network');
@@ -91,9 +92,9 @@ class ShellStatusIcons extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (shown.contains(lv.StatusIcon.network))
-          icon(shellNetworkIconKey, EpicGlyphs.node, l.settingsAboutNetwork, net, () => showNetworkSheet(context), pulse: syncing),
+          icon(shellNetworkIconKey, EpicGlyphs.node, l.settingsAboutNetwork, net, () => showConnectionsSheet(context), pulse: syncing),
         if (shown.contains(lv.StatusIcon.epicbox))
-          icon(shellEpicboxIconKey, EpicGlyphs.epicbox, l.netStatusEpicbox, box, () => showEpicboxSheet(context)),
+          icon(shellEpicboxIconKey, EpicGlyphs.epicbox, l.netStatusEpicbox, box, () => showConnectionsSheet(context)),
       ],
     );
   }

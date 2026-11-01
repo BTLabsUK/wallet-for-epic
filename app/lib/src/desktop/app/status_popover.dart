@@ -175,7 +175,7 @@ class DeskStatusPopover extends ConsumerWidget {
               secondMono: secondMono,
             ),
           ),
-          if (facts.isNotEmpty) Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: DeskFactStrip(facts)),
+          if (facts.isNotEmpty) Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: DeskFactStrip(facts, bottomLine: false)),
           if (notes.isNotEmpty)
             Padding(
               padding: EdgeInsets.fromLTRB(Sp.x3, facts.isEmpty ? 0 : Sp.x3, Sp.x3, 0),

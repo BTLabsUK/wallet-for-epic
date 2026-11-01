@@ -289,7 +289,7 @@ void main() {
       // A screen reader hears the detail, then what a tap does.
       expect(
         _hint(tester, nodeStatusKey),
-        '${_tip_(tester, nodeStatusKey)}\nShows the servers',
+        '${_tip_(tester, nodeStatusKey)}\nShows details',
       );
       expect(_label(tester, epicboxStatusKey), 'Epicbox, Connected');
       expect(_icon(tester, epicboxStatusKey), EpicGlyphs.epicbox);
@@ -446,7 +446,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('a tap opens the picker; a long press the connections sheet', (
+    testWidgets('a long press opens the connections sheet with one line per row; a tap too', (
       tester,
     ) async {
       await _pump(tester);
@@ -460,7 +460,8 @@ void main() {
         final label = _label(tester, key);
         expect(find.descendant(of: sheet, matching: find.text(label)), findsOneWidget, reason: label);
       }
-      expect(find.descendant(of: sheet, matching: find.text(_tip_(tester, nodeStatusKey))), findsOneWidget);
+      // One line per row: the first line of the tip with the host, never the whole tooltip.
+      expect(find.descendant(of: sheet, matching: find.text('Up to date · node.example.org')), findsOneWidget);
       // A row closes the sheet and opens the service as its icon does.
       await tester.tap(find.descendant(of: sheet, matching: find.text('Node, Synced')));
       await tester.pumpAndSettle();
@@ -469,10 +470,11 @@ void main() {
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
       expect(find.byType(ServerListSheet), findsNothing);
+      // A tap on an icon opens the connections sheet too: the one entry point at every View.
       await tester.tap(find.byKey(nodeStatusKey));
       await tester.pumpAndSettle();
-      expect(find.byType(ServerListSheet), findsOneWidget);
-      expect(find.text('Node'), findsWidgets);
+      expect(find.byKey(connectionsSheetKey), findsOneWidget);
+      expect(find.byType(ServerListSheet), findsNothing);
     });
   });
 
@@ -486,7 +488,7 @@ void main() {
       expect(_icon(tester, torIconKey), torIcon);
       expect(_dot(tester, torIconKey), t.info);
       expect(_tip_(tester, torIconKey), 'Connecting to Tor… 40%');
-      expect(_hint(tester, torIconKey), endsWith('\nOpens the privacy settings'));
+      expect(_hint(tester, torIconKey), endsWith('\nShows details'));
       // Link waits for Tor too: on, with a blue ring, publishing.
       expect(find.byKey(directIconKey), findsOneWidget);
       for (final key in [nodeStatusKey, epicboxStatusKey]) {
@@ -518,7 +520,7 @@ void main() {
       expect(_tip_(tester, directIconKey), 'Tor receiving is on');
       expect(
         _hint(tester, directIconKey),
-        'Tor receiving is on\nOpens the Link receive address',
+        'Tor receiving is on\nShows details',
       );
       expect(_label(tester, nodeStatusKey), 'Node, Synced, Over Tor');
       expect(_dot(tester, nodeStatusKey), t.ok);
@@ -570,7 +572,9 @@ void main() {
       );
       expect(container.read(shellTabProvider), ShellTab.wallet);
       await tester.tap(find.byKey(directIconKey));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.text(_label(tester, directIconKey))));
+      await tester.pumpAndSettle();
       expect(container.read(shellTabProvider), ShellTab.receive);
       expect(container.read(receiveTabProvider), ReceiveTab.direct);
     });
@@ -623,6 +627,8 @@ void main() {
       expect(_label(tester, epicboxStatusKey), 'Epicbox, Off (Kill switch)');
       expect(_label(tester, directIconKey), 'Link, Off (Kill switch)');
       await tester.tap(find.byKey(epicboxStatusKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.text('Epicbox, Off (Kill switch)')));
       await tester.pumpAndSettle();
       expect(find.byKey(networkSectionKey), findsOneWidget);
       expect(find.byKey(networkModeRowKey(NetworkMode.killSwitch)), findsOneWidget);
@@ -801,9 +807,12 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('a tap opens the same picker as on Wallet; a long press the connections sheet', (tester) async {
+    testWidgets('a tap opens the connections sheet, its Node row the picker; a long press the sheet too', (tester) async {
       await _pump(tester, child: header());
       await tester.tap(find.byKey(barNodeIconKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(connectionsSheetKey), findsOneWidget);
+      await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.text('Node, Synced')));
       await tester.pumpAndSettle();
       expect(find.byType(ServerListSheet), findsOneWidget);
       await tester.tapAt(const Offset(5, 5));
