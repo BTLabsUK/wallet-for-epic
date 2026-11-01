@@ -27,6 +27,7 @@ import '../screens/settings/prefs.dart';
 import '../screens/settings/report_problem.dart' show showReportProblemDialog;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
+import 'title_bar.dart' show DeskBuildLabel;
 import 'update_notice.dart' show deskUpdateAct, deskUpdateWords;
 
 /// One line of the slot.
@@ -496,7 +497,7 @@ class _Line extends StatelessWidget {
   }
 }
 
-/// Help · Report a problem.
+/// Help · Report a problem, and the build under them (the rail has it in the mark's tooltip).
 class _Resting extends ConsumerWidget {
   const _Resting({required this.compact});
 
@@ -516,7 +517,7 @@ class _Resting extends ConsumerWidget {
         child: EIconButton(key: const ValueKey('now-help'), icon: EIcons.help, label: l.deskSlotHelp, size: EBtnSize.inline, onPressed: help),
       );
     }
-    return SizedBox(
+    final links = SizedBox(
       height: 24.u,
       child: Row(
         children: [
@@ -537,6 +538,15 @@ class _Resting extends ConsumerWidget {
           ),
         ],
       ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        links,
+        SizedBox(height: 2.u),
+        const Align(alignment: AlignmentDirectional.centerStart, child: DeskBuildLabel()),
+      ],
     );
   }
 }
