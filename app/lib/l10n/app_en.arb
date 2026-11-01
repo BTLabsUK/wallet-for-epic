@@ -4147,6 +4147,22 @@
   "@settingsSectionPrivacyNetwork": {
     "description": "Settings group on the phone's Settings hub: the Tor switch, the status site and the node and Epicbox servers."
   },
+  "settingsSectionNetworkPrivacy": "Network & privacy",
+  "@settingsSectionNetworkPrivacy": {
+    "description": "Settings: the one page with the network mode, Tor, the status site and node failover. The phone's hub row and page title, the desktop's settings section."
+  },
+  "netSummaryTorOn": "Tor on",
+  "@netSummaryTorOn": {
+    "description": "Second part of the Network & privacy summary under its settings entry (\"Normal · Tor on\"): the Tor switch is on."
+  },
+  "netSummaryTorOff": "Tor off",
+  "@netSummaryTorOff": {
+    "description": "Second part of the Network & privacy summary under its settings entry (\"Normal · Tor off\"): the Tor switch is off."
+  },
+  "netPageServers": "Servers",
+  "@netPageServers": {
+    "description": "Settings › Network & privacy: heading of the group with the node and Epicbox servers, the status site switch and Node failover."
+  },
   "settingsSectionHelpFeedback": "Help",
   "@settingsSectionHelpFeedback": {
     "description": "Settings group on the phone's Settings hub: opens Help, which starts with Send feedback."
@@ -5016,6 +5032,14 @@
   "@tourPhonePrivacyText": {
     "description": "Text of the tour card for Privacy & network; one or two short sentences."
   },
+  "tourPhoneNetworkText": "The network mode, the Tor switch and the servers the wallet uses. Tap a server to change it.",
+  "@tourPhoneNetworkText": {
+    "description": "Text of the tour card for Settings › Network & privacy (first-unlock tour); one or two short sentences."
+  },
+  "tourPhoneNetworkTextNoTor": "The network mode and the servers the wallet uses. Tap a server to change it.",
+  "@tourPhoneNetworkTextNoTor": {
+    "description": "tourPhoneNetworkText in the build without Tor: no Tor switch."
+  },
   "tourPhoneAdvancedTitle": "Advanced",
   "@tourPhoneAdvancedTitle": {
     "description": "Title of the tour card for Settings › Advanced (first-unlock tour). Short."
@@ -5023,6 +5047,10 @@
   "tourPhoneAdvancedText": "Tor-only mode, outputs and technical details live here. Switch on what you need.",
   "@tourPhoneAdvancedText": {
     "description": "Text of the tour card for Settings › Advanced; the tour itself switches nothing on."
+  },
+  "tourAdvancedShowsText": "Outputs and technical details live here. Switch on what you need.",
+  "@tourAdvancedShowsText": {
+    "description": "Text of the tour card for Settings › Advanced on phone and desktop: the switches that show more of the wallet (the network mode is on Network & privacy)."
   },
   "tourPhoneHelpTitle": "Help",
   "@tourPhoneHelpTitle": {
@@ -17300,6 +17328,10 @@
   "@torUndercoverKeepsOn": {
     "description": "Line under the Tor switch (and on a tap of it) while Undercover (Tor only) keeps the switch on and locked. Undercover is the name of the Tor only setting on the level page."
   },
+  "torLockedTorOnly": "On in Tor only.",
+  "@torLockedTorOnly": {
+    "description": "Settings › Network & privacy: line under the Tor switch while the network mode Tor only keeps it on and locked."
+  },
   "torUndercoverChange": "Change Undercover",
   "@torUndercoverChange": {
     "description": "Small link next to the Undercover line under the Tor switch; opens the level page where Undercover is turned on or off."
@@ -17558,9 +17590,17 @@
   "@txLinkTorHint": {
     "description": "Info sheet behind the Link › Tor row on Settings › Transactions (phone)."
   },
+  "txLinkTorHintNet": "Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.",
+  "@txLinkTorHintNet": {
+    "description": "Info text of the Link · Tor switch on Settings › Transactions. Names the page with the Tor switch (Network & privacy)."
+  },
   "txLinkTorNeedsTor": "Needs Tor. Turn it on under Privacy & network.",
   "@txLinkTorNeedsTor": {
     "description": "Line under the Link › Tor row on Settings › Transactions while that switch is on and Tor (Privacy & network) is off. A tap opens Privacy & network."
+  },
+  "txLinkTorNeedsTorNet": "Needs Tor. Turn it on under Network & privacy.",
+  "@txLinkTorNeedsTorNet": {
+    "description": "Line under the Link › Tor row on Settings › Transactions while that switch is on and Tor is off. A tap opens Settings › Network & privacy."
   },
   "txLastMethodNotice": "Keep at least one payment method on.",
   "@txLastMethodNotice": {
@@ -23075,6 +23115,10 @@
   "@netStatusTurnOnHintPrivacy": {
     "description": "Status icons: tooltip of the Tor icon while Tor is off; a tap opens the switch."
   },
+  "netStatusTurnOnHintNet": "Off. Turn on in Settings › Network & privacy.",
+  "@netStatusTurnOnHintNet": {
+    "description": "Home status card: detail of the Tor row while Tor is off; names where the Tor switch is."
+  },
   "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
   "@deskBarTurnOnHint": {
     "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
@@ -23535,6 +23579,10 @@
   "@advModeStandardHint": {
     "description": "Info text of the Normal row (phone)."
   },
+  "advModeStandardHintHere": "Connects directly. Turn on Tor below to hide the IP address.",
+  "@advModeStandardHintHere": {
+    "description": "Settings › Network & privacy: info text of the Normal network mode. The Tor switch is right below the modes on the same page."
+  },
   "advModeStandardHintNoTor": "Connects directly to the node and the services you use.",
   "@advModeStandardHintNoTor": {
     "description": "Info text of the Normal row in the build without Tor."
@@ -23632,6 +23680,10 @@
   "statusOffByModeDetail": "Turned off by the network mode. Change it in Settings › Advanced › Network.",
   "@statusOffByModeDetail": {
     "description": "Detail of a status icon that is off because of the network mode."
+  },
+  "statusOffByModeDetailNet": "Turned off by the network mode. Change it in Settings › Network & privacy.",
+  "@statusOffByModeDetailNet": {
+    "description": "Detail of a service the network mode turned off (status icons, Receive). Names the page where the mode is set."
   },
   "netBlockEpicboxNodeOnly": "Node only is on: Epicbox is off. Direct · QR Payment and Direct · File Transfer work.",
   "@netBlockEpicboxNodeOnly": {
@@ -24484,6 +24536,10 @@
   "lvPickUndercoverHelp": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.",
   "@lvPickUndercoverHelp": {
     "description": "ⓘ sheet of 'Undercover from the start' on the first-start picker."
+  },
+  "lvPickUndercoverHelpNet": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Network & privacy.",
+  "@lvPickUndercoverHelpNet": {
+    "description": "Info text of Undercover on the level picker. Names where Tor only is turned off later (Settings › Network & privacy)."
   },
   "lvPickUndercover": "Undercover",
   "@lvPickUndercover": {
@@ -26158,5 +26214,29 @@
         "example": "3F2A"
       }
     }
+  },
+  "deskRecvHttpTorHintNet": "Turn on Tor in Settings › Network & privacy for a Tor address instead.",
+  "@deskRecvHttpTorHintNet": {
+    "description": "Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy)."
+  },
+  "deskRecvTorIntroNet": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.",
+  "@deskRecvTorIntroNet": {
+    "description": "Receive, Link · Tor: intro line; names where Tor is set (Settings › Network & privacy)."
+  },
+  "deskRecvTorOffTextNet": "The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.",
+  "@deskRecvTorOffTextNet": {
+    "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Network & privacy)."
+  },
+  "deskSetTxTorHintNet": "Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.",
+  "@deskSetTxTorHintNet": {
+    "description": "Info text of the Link · Tor switch on Settings › Transactions. Names the page with the Tor switch (Network & privacy)."
+  },
+  "deskSetTxTorNeedsTorNet": "Tor is off. Turn it on under Network & privacy to be paid at the Tor address.",
+  "@deskSetTxTorNeedsTorNet": {
+    "description": "Notice under the Link › Tor switch on Settings › Transactions while it is on and Tor is off; the button beside it opens Settings › Network & privacy."
+  },
+  "deskRailOpenNetworkPrivacy": "Open Network & privacy",
+  "@deskRailOpenNetworkPrivacy": {
+    "description": "Status rail, Tor row: the link that opens Settings › Network & privacy."
   }
 }

@@ -26,6 +26,7 @@
   "deskRailTorSlow": "{problem} การส่งใช้ได้",
   "deskRailTorNoAddress": "ยังไม่ได้เผยแพร่ที่อยู่ Tor",
   "deskRailOpenPrivacy": "เปิดการตั้งค่าความเป็นส่วนตัว",
+  "deskRailOpenNetworkPrivacy": "เปิดเครือข่ายและความเป็นส่วนตัว",
   "deskRailNode": "โหนด",
   "deskRailOpenNode": "เปิดการตั้งค่าโหนด",
   "deskAppNodeSyncedTitle": "โหนดในเครื่องซิงก์เสร็จแล้ว",

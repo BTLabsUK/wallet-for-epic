@@ -33,8 +33,10 @@
   "deskRecvHttpLocal": "Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Transakcje.",
   "deskRecvHttpIntro": "Dla portfeli na tym komputerze, gdy ten portfel jest otwarty.",
   "deskRecvHttpTorHint": "Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.",
+  "deskRecvHttpTorHintNet": "Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Sieć i prywatność.",
   "deskRecvDirectTor": "Adres Link · Tor",
   "deskRecvTorIntro": "Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Prywatność.",
+  "deskRecvTorIntroNet": "Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Sieć i prywatność.",
   "deskRecvTorAddress": "Adres Link · Tor",
   "deskRecvCopyTor": "Kopiuj adres Tor",
   "deskRecvTorOnion": "Niektóre portfele pokazują adres bez .onion; to ten sam adres.",
@@ -47,6 +49,7 @@
   "deskRecvSwitchLabel": "{title}, odbieranie",
   "deskRecvTorOffTitle": "Link · Tor wymaga Tora.",
   "deskRecvTorOffText": "Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Prywatność; kieruje połączenia portfela przez Tor.",
+  "deskRecvTorOffTextNet": "Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Sieć i prywatność; kieruje połączenia portfela przez Tor.",
   "deskRecvHttpIntroInternet": "Dla portfeli w internecie, gdy ten portfel jest otwarty.",
   "deskRecvHeaderTip": "Odbieranie: {methods}"
 }

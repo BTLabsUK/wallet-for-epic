@@ -26,6 +26,7 @@
   "deskRailTorSlow": "{problem}. Wysyłanie działa.",
   "deskRailTorNoAddress": "Adres Tor nieopublikowany",
   "deskRailOpenPrivacy": "Otwórz ustawienia prywatności",
+  "deskRailOpenNetworkPrivacy": "Otwórz Sieć i prywatność",
   "deskRailNode": "Węzeł",
   "deskRailOpenNode": "Otwórz ustawienia węzła",
   "deskAppNodeSyncedTitle": "Węzeł lokalny zsynchronizowany",

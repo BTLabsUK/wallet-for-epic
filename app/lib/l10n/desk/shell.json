@@ -122,6 +122,10 @@
   "@deskRailOpenPrivacy": {
     "description": "Last line of the sidebar Tor hover card: a click opens the Privacy settings."
   },
+  "deskRailOpenNetworkPrivacy": "Open Network & privacy",
+  "@deskRailOpenNetworkPrivacy": {
+    "description": "Status rail, Tor row: the link that opens Settings › Network & privacy."
+  },
   "deskRailNode": "Node",
   "@deskRailNode": {
     "description": "Name of the sidebar's first row: the node the wallet reads the chain from. Very short."

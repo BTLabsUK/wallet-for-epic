@@ -3271,6 +3271,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => 'Privacy & network';
 
   @override
+  String get settingsSectionNetworkPrivacy => 'Network & privacy';
+
+  @override
+  String get netSummaryTorOn => 'Tor on';
+
+  @override
+  String get netSummaryTorOff => 'Tor off';
+
+  @override
+  String get netPageServers => 'Servers';
+
+  @override
   String get settingsSectionHelpFeedback => 'Help';
 
   @override
@@ -3907,11 +3919,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Which node and Epicbox server the wallet uses, and the Tor switch. Tap a server to change it.';
 
   @override
+  String get tourPhoneNetworkText =>
+      'The network mode, the Tor switch and the servers the wallet uses. Tap a server to change it.';
+
+  @override
+  String get tourPhoneNetworkTextNoTor =>
+      'The network mode and the servers the wallet uses. Tap a server to change it.';
+
+  @override
   String get tourPhoneAdvancedTitle => 'Advanced';
 
   @override
   String get tourPhoneAdvancedText =>
       'Tor-only mode, outputs and technical details live here. Switch on what you need.';
+
+  @override
+  String get tourAdvancedShowsText =>
+      'Outputs and technical details live here. Switch on what you need.';
 
   @override
   String get tourPhoneHelpTitle => 'Help';
@@ -13038,6 +13062,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get torUndercoverKeepsOn => 'Undercover keeps Tor on.';
 
   @override
+  String get torLockedTorOnly => 'On in Tor only.';
+
+  @override
   String get torUndercoverChange => 'Change Undercover';
 
   @override
@@ -13230,8 +13257,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Privacy & network routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
 
   @override
+  String get txLinkTorHintNet =>
+      'Link · Tor pays straight to a wallet at an onion address and gives this phone a Tor address to be paid at. Both wallets must be open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and Receive.';
+
+  @override
   String get txLinkTorNeedsTor =>
       'Needs Tor. Turn it on under Privacy & network.';
+
+  @override
+  String get txLinkTorNeedsTorNet =>
+      'Needs Tor. Turn it on under Network & privacy.';
 
   @override
   String get txLastMethodNotice => 'Keep at least one payment method on.';
@@ -17221,6 +17256,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Off. Turn on in Settings › Privacy & network.';
 
   @override
+  String get netStatusTurnOnHintNet =>
+      'Off. Turn on in Settings › Network & privacy.';
+
+  @override
   String get deskBarTurnOnHint => 'Off. Turn on in Settings › Transactions.';
 
   @override
@@ -17467,6 +17506,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connects directly. Turn on Tor in Privacy & network to hide the IP address.';
 
   @override
+  String get advModeStandardHintHere =>
+      'Connects directly. Turn on Tor below to hide the IP address.';
+
+  @override
   String get advModeStandardHintNoTor =>
       'Connects directly to the node and the services you use.';
 
@@ -17539,6 +17582,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get statusOffByModeDetail =>
       'Turned off by the network mode. Change it in Settings › Advanced › Network.';
+
+  @override
+  String get statusOffByModeDetailNet =>
+      'Turned off by the network mode. Change it in Settings › Network & privacy.';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -18175,6 +18222,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get lvPickUndercoverHelp =>
       'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.';
+
+  @override
+  String get lvPickUndercoverHelpNet =>
+      'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Network & privacy.';
 
   @override
   String get lvPickUndercover => 'Undercover';
@@ -19272,4 +19323,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskRecvHttpTorHintNet =>
+      'Turn on Tor in Settings › Network & privacy for a Tor address instead.';
+
+  @override
+  String get deskRecvTorIntroNet =>
+      'Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.';
+
+  @override
+  String get deskRecvTorOffTextNet =>
+      'The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.';
+
+  @override
+  String get deskSetTxTorHintNet =>
+      'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.';
+
+  @override
+  String get deskSetTxTorNeedsTorNet =>
+      'Tor is off. Turn it on under Network & privacy to be paid at the Tor address.';
+
+  @override
+  String get deskRailOpenNetworkPrivacy => 'Open Network & privacy';
 }

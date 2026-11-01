@@ -202,6 +202,10 @@
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
+  "deskRecvHttpTorHintNet": "Turn on Tor in Settings › Network & privacy for a Tor address instead.",
+  "@deskRecvHttpTorHintNet": {
+    "description": "Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy)."
+  },
   "deskRecvDirectTor": "Link · Tor address",
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
@@ -209,6 +213,10 @@
   "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
+  },
+  "deskRecvTorIntroNet": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Network & privacy.",
+  "@deskRecvTorIntroNet": {
+    "description": "Receive, Link · Tor: intro line; names where Tor is set (Settings › Network & privacy)."
   },
   "deskRecvTorAddress": "Link · Tor address",
   "@deskRecvTorAddress": {
@@ -263,6 +271,10 @@
   "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
   "@deskRecvTorOffText": {
     "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy)."
+  },
+  "deskRecvTorOffTextNet": "The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.",
+  "@deskRecvTorOffTextNet": {
+    "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Network & privacy)."
   },
   "deskRecvHttpIntroInternet": "For wallets on the internet, while this wallet is open.",
   "@deskRecvHttpIntroInternet": {

@@ -3091,6 +3091,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionPrivacyNetwork => '隐私与网络';
 
   @override
+  String get settingsSectionNetworkPrivacy => '网络与隐私';
+
+  @override
+  String get netSummaryTorOn => 'Tor 已开启';
+
+  @override
+  String get netSummaryTorOff => 'Tor 已关闭';
+
+  @override
+  String get netPageServers => '服务器';
+
+  @override
   String get settingsSectionHelpFeedback => '帮助';
 
   @override
@@ -3690,10 +3702,19 @@ class AppLocalizationsZh extends AppLocalizations {
       '钱包使用哪个节点和 Epicbox 服务器，以及 Tor 开关。点一个服务器即可更改。';
 
   @override
+  String get tourPhoneNetworkText => '网络模式、Tor 开关，以及钱包使用的服务器。点一个服务器即可更改。';
+
+  @override
+  String get tourPhoneNetworkTextNoTor => '网络模式，以及钱包使用的服务器。点一个服务器即可更改。';
+
+  @override
   String get tourPhoneAdvancedTitle => '高级';
 
   @override
   String get tourPhoneAdvancedText => '仅 Tor 模式、输出和技术详情都在这里。需要什么就开启什么。';
+
+  @override
+  String get tourAdvancedShowsText => '输出和技术详情都在这里。需要什么就开启什么。';
 
   @override
   String get tourPhoneHelpTitle => '帮助';
@@ -12276,6 +12297,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torUndercoverKeepsOn => '隐身模式让 Tor 保持开启。';
 
   @override
+  String get torLockedTorOnly => '在“仅 Tor”下保持开启。';
+
+  @override
   String get torUndercoverChange => '更改隐身设置';
 
   @override
@@ -12460,7 +12484,14 @@ class AppLocalizationsZh extends AppLocalizations {
       '链接 · Tor 通过 onion 地址直接向对方钱包付款，并为这部手机提供一个可收款的 Tor 地址。双方钱包都必须打开。需要 Tor：“隐私与网络”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”和“接收”中加入 链接 · Tor。';
 
   @override
+  String get txLinkTorHintNet =>
+      '链接 · Tor 通过 onion 地址直接向对方钱包付款，并为这部手机提供一个可收款的 Tor 地址。双方钱包都必须打开。需要 Tor：“网络与隐私”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”和“接收”中加入 链接 · Tor。';
+
+  @override
   String get txLinkTorNeedsTor => '需要 Tor。请在“隐私与网络”中开启。';
+
+  @override
+  String get txLinkTorNeedsTorNet => '需要 Tor。请在“网络与隐私”中开启。';
 
   @override
   String get txLastMethodNotice => '至少保留一种付款方式开启。';
@@ -16227,6 +16258,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusTurnOnHintPrivacy => '已关闭。在“设置 › 隐私与网络”中开启。';
 
   @override
+  String get netStatusTurnOnHintNet => '已关闭。在“设置 › 网络与隐私”中开启。';
+
+  @override
   String get deskBarTurnOnHint => '已关闭。在“设置 › 交易”中开启。';
 
   @override
@@ -16466,6 +16500,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeStandardHint => '直接连接。在“隐私与网络”中开启 Tor 可隐藏 IP 地址。';
 
   @override
+  String get advModeStandardHintHere => '直接连接。在下方开启 Tor 可隐藏 IP 地址。';
+
+  @override
   String get advModeStandardHintNoTor => '直接连接到节点和你使用的服务。';
 
   @override
@@ -16527,6 +16564,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get statusOffByModeDetail => '已被网络模式关闭。可在“设置”›“高级”›“网络”中更改。';
+
+  @override
+  String get statusOffByModeDetailNet => '已被网络模式关闭。可在“设置”›“网络与隐私”中更改。';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -17129,6 +17169,10 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get lvPickUndercoverHelp =>
       '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 网络模式 › 仅 Tor 相同；之后可在 设置 › 高级 中关闭。';
+
+  @override
+  String get lvPickUndercoverHelpNet =>
+      '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 网络模式 › 仅 Tor 相同；之后可在 设置 › 网络与隐私 中关闭。';
 
   @override
   String get lvPickUndercover => '隐身';
@@ -18188,4 +18232,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String devicesNameWithCode(String name, String code) {
     return '$name $code';
   }
+
+  @override
+  String get deskRecvHttpTorHintNet => '如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。';
+
+  @override
+  String get deskRecvTorIntroNet =>
+      '本钱包打开时，经由 Tor 直接从另一个钱包接收。Tor 在“设置 › 网络与隐私”中设置。';
+
+  @override
+  String get deskRecvTorOffTextNet =>
+      'Tor 开启时，Tor 地址才可用。Tor 是设置 › 网络与隐私中的开关，它让钱包的连接走 Tor。';
+
+  @override
+  String get deskSetTxTorHintNet =>
+      '通过 onion 地址、经由 Tor 在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。需要 Tor：“网络与隐私”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”中加入 链接 · Tor，并在“接收”中加入它的地址。';
+
+  @override
+  String get deskSetTxTorNeedsTorNet => 'Tor 已关闭。请在“网络与隐私”中开启，才能通过 Tor 地址收款。';
+
+  @override
+  String get deskRailOpenNetworkPrivacy => '打开网络与隐私';
 }
