@@ -34,7 +34,6 @@ import 'features.dart';
 import 'http_address.dart';
 import 'invoices.dart';
 import 'phrase_check.dart';
-import '../../trust/policy.dart' show PeerCompat;
 import 'models.dart';
 
 export 'invoices.dart' show InvoiceError, InvoiceProblem;

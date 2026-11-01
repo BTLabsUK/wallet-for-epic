@@ -5,7 +5,7 @@
 library;
 
 import '../l10n.dart';
-import '../models.dart' show PairingRecord, PairingState;
+import '../models.dart' show PairingEndReason, PairingRecord, PairingState;
 import 'policy.dart';
 
 /// How long LEPIC keeps what it learned about a key that was silent since: pruned on open.
@@ -23,12 +23,23 @@ Relationship relationshipOf({
     return inContacts ? Relationship(RelationshipKind.contact, hasEpicboxAddress: hasAddress) : const Relationship.none();
   }
   final kind = switch (pairing.state) {
-    PairingState.pendingInvite || PairingState.pendingReply => RelationshipKind.contact,
+    PairingState.pendingInvite || PairingState.pendingReply || PairingState.waiting => RelationshipKind.contact,
     PairingState.paired => RelationshipKind.paired,
     PairingState.verified => RelationshipKind.verified,
     PairingState.keysChanged => RelationshipKind.keysChanged,
+    PairingState.ended => RelationshipKind.ended,
   };
-  return Relationship(kind, waiting: pairing.state.isPending, hasEpicboxAddress: hasAddress);
+  final ended = kind != RelationshipKind.ended
+      ? null
+      : switch (pairing.endedReason) {
+          PairingEndReason.mismatch || PairingEndReason.peerMismatch => EndedReason.mismatch,
+          PairingEndReason.unpaired => EndedReason.unpaired,
+          PairingEndReason.neverFinished => EndedReason.notHeard,
+          null => EndedReason.cancelled,
+        };
+  // Waiting (stored, the other wallet not heard yet) is a started pairing too: nothing seals.
+  final waiting = pairing.state.isPending || pairing.state == PairingState.waiting;
+  return Relationship(kind, waiting: waiting, endedReason: ended, hasEpicboxAddress: hasAddress);
 }
 
 /// The Epicbox address the policy is asked about: the book's, else the pairing card's.

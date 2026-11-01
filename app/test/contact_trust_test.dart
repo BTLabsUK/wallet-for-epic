@@ -131,7 +131,6 @@ class _Harness {
         overrides: [
     walletServiceProvider.overrideWithValue(service),
     secretStoreProvider.overrideWithValue(store),
-    pairingOnProvider.overrideWithValue(true),
     invoicesOnProvider.overrideWithValue(true),
     updatePlatformProvider.overrideWithValue(null),
     priceSourceProvider.overrideWithValue(_NoPrice()),
