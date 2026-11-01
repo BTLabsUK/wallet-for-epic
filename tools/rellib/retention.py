@@ -24,6 +24,17 @@ def published(state_root):
     return read_json(os.path.join(state_root, "published.json"), [])
 
 
+def by_hand(state_root):
+    """Releases made by hand (`published-by-hand.json`, oldest first: {version, dir, tag}; dir is a flat
+    release folder), as {version, dir, tag}. The runner's own published.json wins for a version."""
+    out = []
+    for p in read_json(os.path.join(state_root, "published-by-hand.json"), []):
+        if isinstance(p, dict) and p.get("version") and p.get("dir"):
+            out.append({"version": p["version"], "dir": os.path.expanduser(p["dir"]),
+                        "tag": p.get("tag") or f"v{p['version']}"})
+    return out
+
+
 def mark_published(run):
     root = os.path.dirname(os.path.dirname(run.path))
     pubs = [p for p in published(root) if p["run_id"] != run.info["run_id"]]

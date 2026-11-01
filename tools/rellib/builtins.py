@@ -125,6 +125,10 @@ def resolve_previous(engine):
         p = pubs[-1]
         return {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", f"v{p['version']}"),
                 "extra": os.path.join(p["run"], "extra")}
+    hand = [p for p in retention.by_hand(os.path.dirname(os.path.dirname(engine.run.path)))
+            if p["version"] != engine.info["version"]]
+    if hand:
+        return {"dir": hand[-1]["dir"], "version": hand[-1]["version"], "ref": hand[-1]["tag"]}
     return {}
 
 

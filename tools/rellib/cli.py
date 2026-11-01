@@ -156,6 +156,9 @@ class App:
         elif pubs:
             p = pubs[-1]
             prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", "")}
+        elif retention.by_hand(self.state_root):
+            p = retention.by_hand(self.state_root)[-1]
+            prev = {"dir": p["dir"], "version": p["version"], "ref": p["tag"]}
         warns = validate_scope(scope, self.pipeline, vac, prev.get("version"))
         return commit, scope, prev, warns
 
