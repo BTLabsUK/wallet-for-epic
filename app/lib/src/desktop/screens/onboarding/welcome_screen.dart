@@ -27,7 +27,8 @@ const _folders = {
 };
 
 /// First run, and "add a wallet" later: create, add an existing one, or restore. [arg] `'add'`
-/// is the later visit (wallets exist), `'advanced'` starts with Advanced open.
+/// is the later visit (wallets exist), `'advanced'` starts with Advanced open, a [WalletLevel]
+/// starts with that stop picked (the screenshot tour's first start).
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key, this.arg});
 
@@ -42,7 +43,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   _FolderIssue? _folderError;
 
   /// The stop picked on the dial; null until a pick (a fresh install) or the current level.
-  WalletLevel? _pick;
+  late WalletLevel? _pick = widget.arg is WalletLevel ? widget.arg! as WalletLevel : null;
   bool _undercover = false;
   bool _busy = false;
 
