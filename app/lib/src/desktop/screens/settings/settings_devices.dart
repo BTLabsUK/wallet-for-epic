@@ -186,7 +186,7 @@ class _DevicesGroup extends ConsumerWidget {
                 title: d.name,
                 text: deviceSeen(l, d.lastSeen, now),
                 // The one-device rule and the servers live behind ⓘ.
-                hint: '${l.devicesOneOnly}\n\n${l.devicesServers}: ${(d.servers.isEmpty ? book.servers : d.servers).join(' · ')}',
+                hint: '${l.devicesOneOnly}\n\n${l.devicesServers}: ${metaLine(d.servers.isEmpty ? book.servers : d.servers)}',
                 hintTitle: l.devicesAbout,
                 hintIcon: EIcons.devices,
                 // Its servers under it: the link's channel, as a caption.
