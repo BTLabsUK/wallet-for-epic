@@ -43,6 +43,7 @@ import '../devices/device_providers.dart' show heldValueByDevice;
 import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices;
 import 'centered_body.dart';
 import '../address_field.dart';
+import '../address_format.dart' show addressSpan;
 import 'address_view.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
@@ -4341,6 +4342,42 @@ class _ToChip extends StatelessWidget {
   final String address;
   final String? name;
 
+  /// "To Alice", or the sentence in the sans face with the short address in it as a mono span,
+  /// its ends marked (address_format.dart); shrunk rather than cut, so no host is cut short.
+  Widget _toChipText(BuildContext context, WalletTokens t) {
+    final l = context.l10n;
+    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text);
+    final name = this.name;
+    if (name != null) return Text(l.sendTo(name), overflow: TextOverflow.ellipsis, style: style);
+    // The sentence around a marker, so the address sits where the language puts it.
+    const marker = '\u0000';
+    final sentence = l.sendTo(marker);
+    final at = sentence.indexOf(marker);
+    final shown = shortAddress(address);
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: Text.rich(
+        TextSpan(
+          style: style,
+          children: [
+            TextSpan(text: at < 0 ? '$sentence ' : sentence.substring(0, at)),
+            addressSpan(
+              shown,
+              style: TextStyle(fontFamily: t.monoFamily),
+              mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
+              quiet: TextStyle(color: t.dim),
+            ),
+            if (at >= 0) TextSpan(text: sentence.substring(at + marker.length)),
+          ],
+        ),
+        maxLines: 1,
+        softWrap: false,
+        semanticsLabel: l.sendTo(shown),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -4356,14 +4393,7 @@ class _ToChip extends StatelessWidget {
         children: [
           Transform.scale(scale: 0.8, child: _Initial(name: name)),
           const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              context.l10n.sendTo(name ?? shortAddress(address)),
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: t.text),
-            ),
-          ),
+          Flexible(child: _toChipText(context, t)),
         ],
       ),
     );
