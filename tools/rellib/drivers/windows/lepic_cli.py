@@ -27,7 +27,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
 CLI_ROOT = r"C:\EpicRig\lepic-cli"
 COMMANDS = {"info": ["wallet", "info"], "txs": ["tx", "list"]}
-GLOBAL = ["--network", "mainnet", "--offline", "--output", "json"]
+GLOBAL = ["--network", "mainnet", "--log-level", "error", "--output", "json"]  # --offline is a `contact` flag only
 
 
 class CliError(Exception):
@@ -113,13 +113,13 @@ def ensure(rig, scratch, log, dry=False):
     return exe
 
 
-def read_script(exe, lepic_dir, run, tag, pw_file):
+def read_script(exe, lepic_dir, run, tag, pw_file, settings_toml):
     """PowerShell, run by the rig's user: copy the wallet folder, run the reads on the copy offline."""
     dst = "%s\\cli\\%s" % (run, tag)
     glob_ = " ".join("'%s'" % a for a in GLOBAL)
     parts = []
     for name, args in COMMANDS.items():
-        parts.append("'@@%s'; $pw | & '%s' --data-dir $dst %s %s 2>&1" % (
+        parts.append("'@@%s'; $pw | & '%s' --data-dir $dst --settings \"$dst\\..\\cli-settings.toml\" %s %s 2>>$err" % (
             name, exe, glob_, " ".join("'%s'" % a for a in args)))
     return r"""
 $ErrorActionPreference = 'Stop'
@@ -128,9 +128,11 @@ Remove-Item -Recurse -Force -LiteralPath $dst -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $dst | Out-Null
 Get-ChildItem -LiteralPath $src -Force | Where-Object { $_.Name -notmatch '\.lock$' } | Copy-Item -Destination $dst -Recurse -Force
 $pw = (Get-Content -Raw -LiteralPath '%(pw)s').TrimEnd("`r", "`n")
+$err = "$dst\..\cli-stderr.txt"
+if (Test-Path -LiteralPath '%(settings)s') { Copy-Item -LiteralPath '%(settings)s' "$dst\..\cli-settings.toml" -Force }
 %(parts)s
 Remove-Item -Recurse -Force -LiteralPath $dst -ErrorAction SilentlyContinue
-""" % {"src": lepic_dir, "dst": dst, "pw": pw_file, "parts": "\n".join(parts)}
+""" % {"src": lepic_dir, "dst": dst, "pw": pw_file, "settings": settings_toml, "parts": "\n".join(parts)}
 
 
 def parse(out):

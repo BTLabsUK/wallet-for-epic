@@ -47,6 +47,9 @@ MIGRATION_CHECKS = ("store_encrypted", "app_files_kept", "lan_nodes_kept", "cont
 CHECKS = ("wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept",
           "custom_relays_kept", "settings_kept", "send_ok", "receive_ok") + MIGRATION_CHECKS
 MIGRATE = facts.encrypts_store(E("REL_CANDIDATE_VERSION", ""))
+# The seed and the three app-file checks need a previous release that still keeps the plain files
+# and database; from the first encrypting release on, only the file-set check applies.
+SEED_FILES = MIGRATE and not facts.encrypts_store(E("REL_PREVIOUS_VERSION", ""))
 # Activity rows: "Received 0.05 EPIC from esa57k…ZwzB4d, …", and after a restore
 # "Found on the chain: 0.02 EPIC, received, …".
 TX_RE = re.compile(r"^(Received|Receiving|Sent|Sending|Cancelled|Canceled|Failed|Paid|Payment|Found on the chain)\b.*?\b([0-9]+(?:\.[0-9]+)?) EPIC\b")
@@ -1293,7 +1296,7 @@ def seed_previous_files():
         raise RuntimeError("seeding the previous release's contact and note: %s" % e)
     FILES.put(metas[0], meta)
     FILES.put(facts.CONTACTS_PLAIN, contacts)
-    FILES.put(facts.LAN_NODES_FILE, seed.lan_nodes_json(["http://%s" % CUSTOM["Node"]]))
+    FILES.put(facts.LAN_NODES_FILE, seed.lan_nodes_json([CUSTOM["Node"]]))
     LAN_BEFORE[0] = FILES.text(facts.LAN_NODES_FILE)
     log("seeded into the stopped previous release: contact %r, note %r, plain-http agreement for %s" % (
         seed.CONTACT["name"], seed.NOTE, CUSTOM["Node"]))
@@ -1338,6 +1341,10 @@ def migration_checks():
     FILES.prepare()
     a_list, a_hash = FILES.snapshot()
     res["store_encrypted"], det["store_encrypted"] = migration.store_files(b_list, a_list)
+    if not SEED_FILES:
+        for c in MIGRATION_CHECKS[1:]:
+            res[c], det[c] = True, "not applicable: the previous release already encrypts (nothing plain to carry over)"
+        return res, det
     try:
         ids = [w["id"] for w in json.loads(FILES.text("wallets.json") or "{}").get("wallets") or [] if w.get("id")]
     except (ValueError, AttributeError):
@@ -1409,6 +1416,8 @@ def run():
         return 2
     vn0, vc0 = ph.version(S)
     log(f"installed previous {vn0} ({vc0})")
+    if MIGRATE:  # adb root restarts adbd and drops adb reverse: before the stand-ins are set up
+        FILES.prepare()
     words = (read_secret("phrase") or "").split()
     p_log = os.path.join(OUT, "p.log")
     if words:
@@ -1455,8 +1464,9 @@ def run():
     # 4. update the way the in-app updater does: same package, same signature, data kept. The app is
     # stopped first to seed its files; the file set is read right before the install.
     global BEFORE_FILES
-    if MIGRATE:
+    if SEED_FILES:
         seed_previous_files()
+    if MIGRATE:
         BEFORE_FILES = FILES.snapshot()
     log("candidate APK", os.path.basename(cand_apk))
     r = adb(S, "install", "-r", cand_apk, timeout=300)

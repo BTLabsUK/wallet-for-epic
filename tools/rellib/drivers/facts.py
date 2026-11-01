@@ -198,7 +198,7 @@ STORE_PRE = "wallet.sqlite3.pre-encryption"  # the plain database, set aside aft
 META_PLAIN, META_SEALED = "wfe_meta.json", "wfe_meta.sealed"          # in each wallet's folder
 CONTACTS_PLAIN, CONTACTS_SEALED = "contacts.json", "contacts.sealed"  # in the data folder
 CONTACTS_KEYS_DIR = "contacts.keys"        # contacts.keys/<walletId>.key: the address book's key, wrapped per wallet
-CONTACTS_WRAP_SUFFIX = ".key"              # the plan text also names ".wfeh" for it; the build plan says .key
+CONTACTS_WRAP_SUFFIX = ".key"              # contacts.keys/<walletId>.key (the store-encryption detail plan says .wfeh; ".wfeh" is the history backup)
 LAN_NODES_FILE = "lan_nodes.json"          # {"plainHttp": [...]}: never written again by 26.10.25
 SETTINGS_TOML = "settings.toml"            # [node] plain_http
 

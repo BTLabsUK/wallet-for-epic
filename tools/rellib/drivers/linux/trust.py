@@ -87,6 +87,8 @@ class Run:
         self.via_ver = e.get("REL_VIA_VERSION", "")
         self.funds = e.get("REL_FUNDS", "1") == "1"
         self.migrate = facts.encrypts_store(self.cand_ver)
+        # the seed and the three app-file checks need a previous release that still keeps the plain files
+        self.seed_files = self.migrate and not facts.encrypts_store(self.prev_ver)
         # unset: every check with funds, without send_ok and receive_ok otherwise; the migration checks
         # only for a candidate that encrypts the database
         default = [c for c in CHECKS if (self.funds or c not in ("send_ok", "receive_ok"))
@@ -921,7 +923,8 @@ class Run:
         # the update: the AppImage changes, HOME and the data folder stay
         sandbox.app_stop(self.sb)
         self.log("previous app stopped")
-        self.seed_previous_files()
+        if self.seed_files:
+            self.seed_previous_files()
         if self.via_root:
             self.via_hop(before)
         self.before_files = self.snapshot()
@@ -1140,6 +1143,10 @@ class Run:
         b_list, b_hash = self.before_files
         a_list, a_hash = self.snapshot()
         (self.ok if (r := migration.store_files(b_list, a_list))[0] else self.fail)("store_encrypted", r[1])
+        if not self.seed_files:
+            for c in MIGRATION_CHECKS[1:]:
+                self.ok(c, "not applicable: the previous release already encrypts (nothing plain to carry over)")
+            return
         try:
             with open(os.path.join(self.data_root(), "wallets.json"), encoding="utf-8") as f:
                 ids = [w["id"] for w in json.load(f).get("wallets") or [] if isinstance(w, dict) and w.get("id")]

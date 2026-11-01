@@ -112,6 +112,7 @@ class Run:
         self.cand_ver = e.get("REL_CANDIDATE_VERSION", "")
         self.funds = e.get("REL_FUNDS", "1") == "1"
         self.migrate = facts.encrypts_store(self.cand_ver)
+        self.seed_files = self.migrate and not facts.encrypts_store(self.prev_ver)
         default = [c for c in CHECKS if (self.funds or c not in ("send_ok", "receive_ok"))
                    and (self.migrate or c not in MIGRATION_CHECKS)]
         self.required = [c.strip() for c in (e.get("REL_CHECKS") or ",".join(default)).split(",") if c.strip()]
@@ -373,7 +374,8 @@ class Run:
         if not self.cli_exe:
             raise CannotRun("no lepic.exe at the candidate's LEPIC pin on the rig")
         self.snap_n += 1
-        out = self.rig.as_owner(lepic_cli.read_script(self.cli_exe, lepic_dir, self.rig.run, "%02d" % self.snap_n, self.pw_remote),
+        out = self.rig.as_owner(lepic_cli.read_script(self.cli_exe, lepic_dir, self.rig.run, "%02d" % self.snap_n, self.pw_remote,
+                                                   self.data + "\\" + facts.SETTINGS_TOML),
                                 timeout=600)
         if out is None:
             raise CannotRun("the rig agent did not run the LEPIC CLI read")
@@ -574,8 +576,6 @@ class Run:
         self.call("put_db", **{"from": self.rig.run + "\\seed-wallet.sqlite3", "to": db_remote})
         self.call("store_set", file=store_file, set=new_keys)
         self.call("write_file", file=self.data + "\\wallets.json", text=wallets_text)
-        if self.migrate:
-            self.seed_app_files(entry, seed.first_tx_id(db_local))
         self.log("seeded into the closed previous release: desk.settings (theme, Technical details), %s and "
                  "wallets.json (label), the wallet database (minimum confirmations)" % wallet_key)
         # reopened: the release must take the seeded values as its own
@@ -595,12 +595,17 @@ class Run:
             raise CannotRun("the previous release did not take the seeded settings: %s" % wrong)
         return got
 
-    def seed_app_files(self, entry, tx_id):
-        """While the previous release is closed: a contact, a note on the wallet's first transaction and the
-        stand-in node's plain-http agreement, in its own files and format (seed.py)."""
+    def seed_app_files(self):
+        """After the funding (the wallet has a transaction to put a note on): the previous release is closed,
+        a contact, a note on the first transaction and the stand-in node's plain-http agreement are written
+        into its own files and format (seed.py), and it is reopened and unlocked."""
+        self.call("close", wait_s=60, timeout=90)
+        w = self.wallets()
+        entry = next(x for x in w["wallets"] if x.get("id") == w.get("lastUsedId"))
         meta_path = entry["dataDir"].rstrip("\\/") + "\\" + facts.META_PLAIN
         try:
-            meta = seed.meta_note(self.rig.text(meta_path), tx_id)
+            db = self.rig.fetch_db(entry["dataDir"].rstrip("\\/") + "\\lepic\\wallet.sqlite3", os.path.join(self.work, "db"), "seed-files")
+            meta = seed.meta_note(self.rig.text(meta_path), seed.first_tx_id(db))
             contacts = seed.contacts_json(self.rig.text(self.data + "\\" + facts.CONTACTS_PLAIN), self.p_addr)
         except seed.SeedError as e:
             raise CannotRun("seeding the previous release's contact and note: %s" % e)
@@ -611,6 +616,15 @@ class Run:
         self.lan_before = self.rig.text(self.data + "\\" + facts.LAN_NODES_FILE)
         self.log("seeded into the closed previous release: contact %r, note %r, plain-http agreement for %s" % (
             seed.CONTACT["name"], seed.NOTE, self.custom_node))
+        self.mark()
+        self.call("start", exe=self.exe)
+        self.start_app("previous (files seeded)")
+        time.sleep(6)
+        self.type_password()
+        self.keys(ENTER)
+        self.wait_log(r"wallet opened", 180, "unlock after seeding the files")
+        time.sleep(5)
+        self.keys(ESC)
 
     def snapshot(self):
         """(listing, hashes): the data folder's files and the sha256 of the plain app files in it."""
@@ -629,8 +643,12 @@ class Run:
             return
         b_list, b_hash = self.before_files
         a_list, a_hash = self.snapshot()
-        for check, r in (("store_encrypted", migration.store_files(b_list, a_list)),):
-            (self.ok if r[0] else self.fail)(check, r[1])
+        r = migration.store_files(b_list, a_list)
+        (self.ok if r[0] else self.fail)("store_encrypted", r[1])
+        if not self.seed_files:
+            for c in MIGRATION_CHECKS[1:]:
+                self.ok(c, "not applicable: the previous release already encrypts (nothing plain to carry over)")
+            return
         ids = [w["id"] for w in ((self.wallets() or {}).get("wallets") or []) if isinstance(w, dict) and w.get("id")]
         r = migration.app_files(b_list, b_hash, a_list, a_hash, ids)
         (self.ok if r[0] else self.fail)("app_files_kept", r[1])
@@ -640,7 +658,9 @@ class Run:
         # the rig's screen cannot be read: the contact and the note are judged on the plain files (the
         # address book and notes live in them) being byte-identical, beside their sealed copies
         r = migration.contact_note(seed.CONTACT["name"], seed.NOTE, b_hash, a_hash, None, None,
-                                   "files only: the rig's screen cannot be read; the sealed copies' contents are not read")
+                                   "NOT read in the app or through the CLI: the rig's screen cannot be read and the LEPIC CLI "
+                                   "does not read the app's files; the plain files are byte-identical beside their sealed copies, "
+                                   "the sealed copies' contents are not read")
         (self.ok if r[0] else self.fail)("contact_note_kept", r[1])
 
     def settings_now(self):
@@ -654,7 +674,8 @@ class Run:
         d = self.db()
         if d and d.get("cli"):
             # the LEPIC CLI does not report the wallet's settings: the value read before the update stands
-            self.details["confirmations"] = "not read after the update (the LEPIC CLI does not report it): taken from the read before"
+            self.details["confirmations"] = "NOT read after the update (the LEPIC CLI does not report it): the value read before is carried over, so this part of settings_kept proves nothing"
+            self.details["settings_kept_note"] = self.details["confirmations"]
             conf = self.conf_before
         else:
             conf = conf_of(d)
@@ -919,6 +940,8 @@ class Run:
         if not ok:
             raise CannotRun("funding: %s" % why)
         self.wait_spendable(D(FUND_IN), "funding confirmed")
+        if self.seed_files:
+            self.seed_app_files()
         before = self.digest("previous")
         if not before["txs"]:
             raise CannotRun("no transaction in the wallet before the update")
