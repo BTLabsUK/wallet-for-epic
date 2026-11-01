@@ -535,7 +535,12 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         side: BorderSide(color: t.line),
       ),
     ),
-    listTileTheme: ListTileThemeData(iconColor: t.dim, textColor: t.text),
+    // A row's subtitle (a setting's value: "Dark", "After 15 minutes") is secondary: dim, set
+    // here once. The title keeps the text colour.
+    listTileTheme: ListTileThemeData(
+      iconColor: t.dim,
+      subtitleTextStyle: text.bodyMedium?.copyWith(color: t.dim),
+    ),
     dividerTheme: DividerThemeData(color: t.line, thickness: 1, space: 1),
     // A disabled switch fades to 40%, as the desktop's ESwitch: a locked one never looks live.
     switchTheme: SwitchThemeData(

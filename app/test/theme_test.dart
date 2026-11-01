@@ -97,6 +97,12 @@ void main() {
         expect(theme.colorScheme.scrim, t.scrim);
       });
 
+      test('a row subtitle is dim, set once in the theme', () {
+        final theme = buildWalletTheme(t, b);
+        expect(theme.listTileTheme.subtitleTextStyle?.color, t.dim);
+        expect(theme.listTileTheme.textColor, isNull, reason: 'textColor would paint the subtitle too');
+      });
+
       test('the status colours are not the brand gold', () {
         // Amber is apart from the gold: a clearly lower green channel, so a warning never
         // looks like the accent (which is what made a gold "current" row read as a warning).
