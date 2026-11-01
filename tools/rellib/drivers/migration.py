@@ -14,9 +14,11 @@ applicable".
 import hashlib
 import json
 import os
+import sys
 import tomllib
 
-import facts
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import facts  # noqa: E402
 
 WATCHED = (facts.META_PLAIN, facts.CONTACTS_PLAIN, facts.LAN_NODES_FILE)
 
@@ -201,3 +203,54 @@ def contact_note(want_contact, want_note, before_hashes, after_hashes, shown_con
     if miss:
         return False, "; ".join(miss)
     return True, "contact %r and note %r kept (%s)" % (want_contact, want_note, how)
+
+
+# ---- offline: judge two data folders on disk (a dry run of the file checks, no app, no rig) ---------
+
+def snapshot_dir(root):
+    """(listing, hashes) of a data folder on disk, without logs, tor, cache and lock files."""
+    listing, hashes = [], {}
+    for dp, _dn, fn in os.walk(root):
+        rel = os.path.relpath(dp, root)
+        if rel.split(os.sep)[0] in ("logs", "tor", "cache"):
+            continue
+        for f in fn:
+            if f.endswith((".lock", ".log")) or f.startswith("LOCK"):
+                continue
+            p = os.path.normpath(os.path.join(rel, f)).replace(os.sep, "/")
+            listing.append(p)
+            if f in WATCHED:
+                with open(os.path.join(dp, f), "rb") as fh:
+                    hashes[p] = sha256_bytes(fh.read())
+    return sorted(listing), hashes
+
+
+def _text(root, rel):
+    try:
+        with open(os.path.join(root, rel), encoding="utf-8") as f:
+            return f.read()
+    except OSError:
+        return None
+
+
+def judge(before_root, after_root):
+    """[(check, ok, why)] for the file-set checks of two data folders (before and after an update)."""
+    bl, bh = snapshot_dir(before_root)
+    al, ah = snapshot_dir(after_root)
+    try:
+        ids = [w["id"] for w in json.loads(_text(after_root, "wallets.json") or "{}").get("wallets") or [] if w.get("id")]
+    except (ValueError, AttributeError):
+        ids = []
+    return [("store_encrypted", *store_files(bl, al)), ("app_files_kept", *app_files(bl, bh, al, ah, ids)),
+            ("lan_nodes_kept", *lan_nodes(_text(before_root, facts.LAN_NODES_FILE), bh.get(facts.LAN_NODES_FILE),
+                                          ah.get(facts.LAN_NODES_FILE), _text(after_root, facts.SETTINGS_TOML)))]
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        sys.exit("usage: migration.py <data folder before the update> <data folder after it>")
+    bad = 0
+    for check, ok, why in judge(sys.argv[1], sys.argv[2]):
+        print("%s %s: %s" % ("ok  " if ok else "FAIL", check, why))
+        bad += not ok
+    sys.exit(1 if bad else 0)
