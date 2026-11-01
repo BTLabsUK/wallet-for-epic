@@ -233,7 +233,7 @@ class _ImportTxScreenState extends ConsumerState<ImportTxScreen> {
                 ],
               ),
               actions: [
-                EButton.primary(label: paid ? l.deskImpOpenAnother : l.deskImpAnother, icon: EIcons.fileDown, onPressed: _again),
+                EButton.primary(label: paid ? l.deskImpOpenAnother : l.deskImpAnother, icon: EIcons.fileUp, onPressed: _again),
                 EButton(label: l.deskFinViewActivity, onPressed: () => nav.go(DeskRoute.activity, _tx?.id)),
               ],
             )

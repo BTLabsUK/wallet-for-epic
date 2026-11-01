@@ -796,7 +796,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ESetRow(
             title: casual ? l.deskLvSendSignFile : l.deskRecvSignTitle,
             text: casual ? l.deskLvSendSignFileText : l.deskRecvSignText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileDown, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
+            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
           ),
           Divider(height: 1, thickness: 1, color: c.line),
           ESetRow(
