@@ -175,7 +175,8 @@ void main() {
     for (final bad in ['http://', 'esShort', 'nonsense.onion', 'hello world']) {
       await tester.enterText(_input('Name'), 'Ann');
       // The form adds a second Address field once the first holds text: the first is the one tested.
-      await tester.enterText(_input('Address').first, bad);
+      // Labelled by its kind ("Epicbox address" while empty, "Address" for text of no kind).
+      await tester.enterText(find.descendant(of: find.byWidgetPredicate((w) => w is EField && w.label.toLowerCase().endsWith('address')), matching: find.byType(EditableText)).first, bad);
       await tester.pump();
       await tester.tap(find.text('Save contact'));
       await tester.pump(const Duration(milliseconds: 300));

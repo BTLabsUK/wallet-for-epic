@@ -48,7 +48,8 @@ Future<void> _open(WidgetTester tester, DeskWalletApi api) async {
 Future<void> _fill(WidgetTester tester, String name, String address) async {
   Finder input(String label) => find.descendant(of: find.widgetWithText(EField, label), matching: find.byType(EditableText));
   await tester.enterText(input('Name'), name);
-  await tester.enterText(input('Address'), address);
+  // The empty address field is labelled by the kind it takes first ("Epicbox address").
+  await tester.enterText(find.descendant(of: find.byWidgetPredicate((w) => w is EField && w.label.toLowerCase().endsWith('address')), matching: find.byType(EditableText)).first, address);
   await tester.pump();
   await tester.tap(find.text('Save contact'));
   await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
