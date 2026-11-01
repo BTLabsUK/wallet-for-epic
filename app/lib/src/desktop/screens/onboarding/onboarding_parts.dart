@@ -519,10 +519,14 @@ class ProgressView extends StatelessWidget {
     this.onRetry,
     this.progress,
     this.progressText,
+    this.topAnchored = false,
   });
 
   final String title;
   final String? lead;
+
+  /// The tile at the height of the form it follows ([EHeroScreen.topAnchored]): Unlock's.
+  final bool topAnchored;
 
   /// A bar under the running stage, 0..1, with [progressText] under it; null for none.
   final double? progress;
@@ -544,19 +548,22 @@ class ProgressView extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final failure = this.failure;
+    final short = isShortWindow(context);
     // Back goes to [onBack] after a failure; while the action runs it is held.
     return DeskStepBack(
       onBack: (failure != null ? onBack : null) ?? () {},
       child: EHeroScreen(
       footer: const AuthFoot(),
+      topAnchored: topAnchored,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 480.u),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(child: EGlyphTile(size: 72.u, icon: failure != null ? EIcons.alert : null, risk: failure != null)),
-            SizedBox(height: Sp.x5),
+            // The tile and the gap under it as on [EAuthCard], so a form and its progress share them.
+            Center(child: EGlyphTile(size: short ? 48.u : 72.u, icon: failure != null ? EIcons.alert : null, risk: failure != null)),
+            SizedBox(height: short ? Sp.x3 : Sp.x5),
             Semantics(
               header: true,
               liveRegion: true,

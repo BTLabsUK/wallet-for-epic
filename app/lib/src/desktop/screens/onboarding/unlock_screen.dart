@@ -265,7 +265,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
 
   /// Opens the wallet with the typed password, or with the one remembered on this computer.
   Future<void> _unlock({bool remembered = false}) async {
-    if (_stage != null) return;
+    // Enter in the password field of a wallet whose folder is missing opens nothing.
+    if (_stage != null || _missing) return;
     final password = _password.text;
     if (password.isEmpty && !remembered) {
       setState(() => _error = context.l10n.deskOnbUnlockEnter);
@@ -359,6 +360,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         failure: _failure,
         onBack: _backToForm,
         onRetry: _unlock,
+        topAnchored: true,
       );
     }
     if (_stage != null) {
@@ -371,6 +373,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
         current: _stage!,
         note: l.deskOnbUnlockNote,
         progress: fraction,
+        topAnchored: true,
       );
     }
     return _form(context);
@@ -383,8 +386,11 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final wallets = _wallets;
     final selected = _selected;
     final added = widget.arg is UnlockAdded ? (widget.arg as UnlockAdded).notice ?? context.l10n.deskSetupNewWalletAdded : null;
+    // Top-anchored: the tile stays put across the list, a missing folder, a wrong password
+    // and the progress that follows; a form taller than the window scrolls.
     return EHeroScreen(
       footer: const AuthFoot(),
+      topAnchored: true,
       child: EAuthCard(
         title: l.deskOnbUnlockTitle,
         alternatives: [
@@ -449,6 +455,8 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
             EField(
               label: l.deskOnbStepPassword,
               error: _error,
+              // The error line keeps its room: a wrong password moves nothing under it.
+              reserveError: true,
               child: PasswordBox(
                 controller: _password,
                 focusNode: _passwordFocus,
@@ -467,46 +475,58 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
               label: l.deskOnbUnlockRemember,
               onChanged: (v) => setState(() => _remember = _rememberChosen = v),
             ),
-            if (_remember) ...[
-              SizedBox(height: Sp.x1),
-              Padding(
-                padding: EdgeInsets.only(left: Sp.x8),
-                child: Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption),
+            SizedBox(height: Sp.x1),
+            // Who else can open it, under the ticked box; unticked, its room is kept, so Unlock
+            // does not move under the pointer.
+            Padding(
+              padding: EdgeInsets.only(left: Sp.x8),
+              child: ReservedSlot.like(
+                alignment: AlignmentDirectional.topStart,
+                model: Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption),
+                child: _remember ? Text(l.deskOnbUnlockRememberFor(rememberWho(l)), style: ts.caption) : null,
               ),
-            ],
+            ),
             if (_missing) ...[
-              SizedBox(height: Sp.x5),
-              ENotice(
-                title: l.deskOnbUnlockMissingTitle,
-                text: l.deskOnbUnlockMissingText(selected?.folder ?? ''),
-                tone: ETone.risk,
-                icon: EIcons.alert,
-              ),
-              SizedBox(height: Sp.x3),
-              Wrap(
-                spacing: Sp.x2,
-                runSpacing: Sp.x2,
-                children: [
-                  EButton(
-                    label: l.deskOnbUnlockRemove,
-                    icon: EIcons.trash,
-                    kind: EBtnKind.danger,
-                    size: EBtnSize.sm,
-                    onPressed: selected == null ? null : () => _removeMissing(selected),
-                  ),
-                  // The folder is what is missing: Try again is the way on, Unlock waits.
-                  EButton(
-                    label: l.deskOnbUnlockTryAgain,
-                    icon: EIcons.refresh,
-                    kind: EBtnKind.primarySoft,
-                    size: EBtnSize.sm,
-                    onPressed: () => setState(() => _missing = false),
-                  ),
-                ],
+              SizedBox(height: Sp.x4),
+              Semantics(
+                liveRegion: true,
+                child: ENotice(
+                  title: l.deskOnbUnlockMissingTitle,
+                  text: l.deskOnbUnlockMissingText(selected?.folder ?? ''),
+                  tone: ETone.risk,
+                  icon: EIcons.alert,
+                ),
               ),
             ],
             SizedBox(height: Sp.x6),
-            EButton.primary(key: _unlockKey, label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _missing ? null : _unlock),
+            if (_missing)
+              // The folder is what is missing: Remove and Try again take Unlock's place (a
+              // disabled Unlock beside them only said what could not be done), on its line.
+              Row(
+                key: _unlockKey,
+                children: [
+                  Expanded(
+                    child: EButton(
+                      label: l.deskOnbUnlockRemove,
+                      icon: EIcons.trash,
+                      kind: EBtnKind.danger,
+                      expand: true,
+                      onPressed: selected == null ? null : () => _removeMissing(selected),
+                    ),
+                  ),
+                  SizedBox(width: Sp.x3),
+                  Expanded(
+                    child: EButton.primary(
+                      label: l.deskOnbUnlockTryAgain,
+                      icon: EIcons.refresh,
+                      expand: true,
+                      onPressed: () => setState(() => _missing = false),
+                    ),
+                  ),
+                ],
+              )
+            else
+              EButton.primary(key: _unlockKey, label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _unlock),
           ],
         ),
       ),

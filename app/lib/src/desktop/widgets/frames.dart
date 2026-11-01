@@ -130,15 +130,31 @@ bool isShortWindow(BuildContext context) => MediaQuery.sizeOf(context).height < 
 /// The full-window backdrop of the screens that open the app: a pool of accent light at the
 /// top and a measurement grid fading out.
 class EHeroScreen extends StatelessWidget {
-  const EHeroScreen({super.key, required this.child, this.footer});
+  const EHeroScreen({super.key, required this.child, this.footer, this.topAnchored = false});
 
   final Widget child;
   final Widget? footer;
+
+  /// The content starts at one height from the top whatever its length, instead of being
+  /// centred: for a screen whose states differ in height (Unlock's form, its missing-folder
+  /// notice, its progress), so the tile and the title stay where they were.
+  final bool topAnchored;
+
+  /// Where a [topAnchored] screen's content starts: a tenth of the window, within bounds.
+  static double topInset(BuildContext context) =>
+      isShortWindow(context) ? Sp.x4 : (MediaQuery.sizeOf(context).height * 0.1).clamp(Sp.x8, 120.u);
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final short = isShortWindow(context);
+    final pad = short ? Sp.x4 : Sp.x8;
+    final body = topAnchored
+        ? Padding(
+            padding: EdgeInsets.fromLTRB(pad, topInset(context), pad, pad),
+            child: Align(alignment: Alignment.topCenter, child: child),
+          )
+        : Center(child: Padding(padding: EdgeInsets.all(pad), child: child));
     return ColoredBox(
       color: c.bg,
       child: Stack(
@@ -174,8 +190,8 @@ class EHeroScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(height: footer == null ? 0 : (short ? Sp.x4 : Sp.x10)),
-                    Center(child: Padding(padding: EdgeInsets.all(short ? Sp.x4 : Sp.x8), child: child)),
+                    if (!topAnchored) SizedBox(height: footer == null ? 0 : (short ? Sp.x4 : Sp.x10)),
+                    body,
                     if (footer != null)
                       Padding(
                         padding: EdgeInsets.only(bottom: Sp.x5),
