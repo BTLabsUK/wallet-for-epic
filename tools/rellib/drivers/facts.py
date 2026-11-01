@@ -54,12 +54,14 @@ def label(key, fallback):
 
 
 def _previous_arb():
-    """The previous release's English strings (git tag v<REL_PREVIOUS_VERSION> of this checkout),
-    {} when the version is unset or the tag is not here."""
+    """The previous release's English strings (git ref REL_PREVIOUS_REF of this checkout, else the tag
+    v<REL_PREVIOUS_VERSION>), {} when neither is set or the ref is not here. The ref matters for a
+    rebuild: 26.10.24-r2 carries version 26.10.24 but its own tag."""
+    ref = (os.environ.get("REL_PREVIOUS_REF") or "").strip()
     v = (os.environ.get("REL_PREVIOUS_VERSION") or "").strip()
-    if not v:
+    if not ref and not v:
         return {}
-    tag = v if v.startswith("v") else "v" + v
+    tag = ref or (v if v.startswith("v") else "v" + v)
     try:
         r = subprocess.run(["git", "-C", ROOT, "show", f"{tag}:app/lib/l10n/app_en.arb"],
                            capture_output=True, text=True, timeout=30)
@@ -180,3 +182,32 @@ def same_wallet(before, after):
     if a0 != a1:
         return False, "a different wallet opened: address %s…%s, was %s…%s" % (a1[:6], a1[-6:], a0[:6], a0[-6:])
     return True, a1
+
+
+# ---- the data a release leaves in the data folder: names in one place -------------------------------
+# The first release that keeps the wallet database encrypted (wallet.enc.sqlite3). Checks of the file
+# set below apply to a candidate at or after it.
+FIRST_ENCRYPTED_RELEASE = "26.10.25"
+STORE_DIR = "lepic"                        # under each wallet's folder: wallets/<name>/lepic/
+STORE_PLAIN = "wallet.sqlite3"             # + -wal, -shm
+STORE_ENC = "wallet.enc.sqlite3"           # + -wal, -shm
+STORE_CHECK = "wallet.enc.sqlite3.check"   # the key check beside it
+STORE_TMP = "wallet.enc.sqlite3.tmp"       # a migration in progress: never left behind
+STORE_PRE = "wallet.sqlite3.pre-encryption"  # the plain database, set aside after a verified migration
+# Plain app files stay in place beside their sealed copies until a later release retires them.
+META_PLAIN, META_SEALED = "wfe_meta.json", "wfe_meta.sealed"          # in each wallet's folder
+CONTACTS_PLAIN, CONTACTS_SEALED = "contacts.json", "contacts.sealed"  # in the data folder
+CONTACTS_KEYS_DIR = "contacts.keys"        # contacts.keys/<walletId>.key: the address book's key, wrapped per wallet
+CONTACTS_WRAP_SUFFIX = ".key"              # the plan text also names ".wfeh" for it; the build plan says .key
+LAN_NODES_FILE = "lan_nodes.json"          # {"plainHttp": [...]}: never written again by 26.10.25
+SETTINGS_TOML = "settings.toml"            # [node] plain_http
+
+
+def version_tuple(v):
+    """(26, 10, 25) of "26.10.25", "26.10.24-r2" or "v26.10.25"; () when none."""
+    return tuple(int(x) for x in re.findall(r"\d+", str(v or "").split("-")[0]))
+
+
+def encrypts_store(version):
+    """Whether a release at [version] keeps its wallet database encrypted."""
+    return bool(version_tuple(version)) and version_tuple(version) >= version_tuple(FIRST_ENCRYPTED_RELEASE)
