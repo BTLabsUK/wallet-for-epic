@@ -222,21 +222,18 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Change level: Save waits for a change, stores it and goes back', (tester) async {
+  testWidgets('Change level: a pick applies at once, no Save; the preview follows', (tester) async {
     container = make();
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsLevel);
     await tester.pump();
-    EButton save() => tester.widget<EButton>(find.byKey(deskLevelSaveKey));
-    expect(save().onPressed, isNull, reason: 'nothing changed');
+    expect(find.text('Save'), findsNothing);
+    expect(find.byKey(deskLevelPreviewKey), findsOneWidget);
     await tester.tap(find.byKey(deskLevelStopKey(WalletLevel.casual)));
-    await tester.pump();
-    expect(save().onPressed, isNotNull);
-    await tester.tap(find.byKey(deskLevelSaveKey));
     await wait(tester, 300);
     expect(container.read(deskLevelProvider), WalletLevel.casual);
     expect(await store.read(levelKey), '2');
-    expect(container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
+    expect(container.read(deskNavProvider).route, DeskRoute.settingsLevel, reason: 'stays on the page');
     await end(tester);
   });
 }
