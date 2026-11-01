@@ -352,9 +352,11 @@ void main() {
       final after = compat(marked: day * 2, unmarked: day);
       expect(isProven(after, now), isFalse);
       expect(isFresh(after, now), isFalse);
-      expect(mayOfferMailboxRoute(after, paired), isFalse);
-      expect(mayOfferMailboxRoute(before, paired), isTrue);
-      expect(mayOfferMailboxRoute(before, contact), isFalse);
+      expect(mayOfferMailboxRoute(after, paired, now), isFalse);
+      expect(mayOfferMailboxRoute(before, paired, now, lastSealedIn: now), isTrue);
+      expect(mayOfferMailboxRoute(before, contact, now), isFalse);
+      // Not heard from for over 90 days: the route is hidden too.
+      expect(mayOfferMailboxRoute(compat(marked: day * 100), paired, now, lastSealedIn: now.subtract(day * 100)), isFalse);
     });
     test('recovery by a newer marked slate', () {
       expect(isProven(compat(marked: day, unmarked: day * 2), now), isTrue);

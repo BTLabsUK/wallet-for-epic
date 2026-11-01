@@ -40,9 +40,14 @@ final contactLineProvider = Provider.autoDispose.family<ContactLine, String>((re
 });
 
 /// Whether Send offers the pairing mailbox route for [contact] (paired through [pairing]):
-/// not while its key answers as another wallet app.
+/// not while the contact page shows a trust line for it.
 bool mailboxRouteOffered(WidgetRef ref, Contact contact, PairingRecord pairing) {
   final address = trustAddressOf(contact.epicbox, pairing);
   final compat = address == null ? null : ref.watch(peerCompatProvider(address)).value;
-  return mayOfferMailboxRoute(compat, relationshipOf(inContacts: true, epicboxAddress: contact.epicbox, pairing: pairing));
+  return mayOfferMailboxRoute(
+    compat,
+    relationshipOf(inContacts: true, epicboxAddress: contact.epicbox, pairing: pairing),
+    ref.watch(clockProvider)(),
+    lastSealedIn: pairing.lastSealedIn,
+  );
 }

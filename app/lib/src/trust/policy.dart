@@ -187,10 +187,10 @@ bool mayCancelAndSendByEpicbox(Relationship r, DateTime sentAt, DateTime now) =>
     r.hasEpicboxAddress &&
     mailboxSendStage(sentAt, now) != MailboxSendStage.waiting;
 
-/// Is the mailbox route for sends offered: paired or verified, and the key not answering as
-/// another wallet app.
-bool mayOfferMailboxRoute(PeerCompat? c, Relationship r) =>
-    r.isPaired && !answeredByOtherApp(c);
+/// Is the mailbox route for sends offered: paired or verified, and no contact line shows
+/// (neither "answered by another wallet app" nor "not heard from since").
+bool mayOfferMailboxRoute(PeerCompat? c, Relationship r, DateTime now, {DateTime? lastSealedIn}) =>
+    r.isPaired && contactLine(c, r, now, lastSealedIn: lastSealedIn).kind == ContactLineKind.none;
 
 /// The key's last Epicbox slate came without the marker, after its last marked one.
 bool answeredByOtherApp(PeerCompat? c) {
