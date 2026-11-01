@@ -131,10 +131,12 @@ class GraphTest(unittest.TestCase):
         by = {x.id: x for x in steps}
         # sign-android: every Android file the trust drivers install is the signed one.
         local = ["build-android-tor", "build-android-notor", "sign-android", "build-linux-tor", "build-linux-notor"]
+        # The desktop runs need no signature: they start without waiting for the release's code.
+        desk = [x for x in local if x != "sign-android"]
         for v in ("tor", "notor"):
             self.assertEqual(by[f"trust-android-{v}"].needs, local)
-            self.assertEqual(by[f"trust-linux-{v}"].needs, local)
-            self.assertEqual(by[f"trust-windows-{v}"].needs, local + [f"build-windows-{v}"])
+            self.assertEqual(by[f"trust-linux-{v}"].needs, desk)
+            self.assertEqual(by[f"trust-windows-{v}"].needs, desk + [f"build-windows-{v}"])
             self.assertEqual(by[f"trust-macos-{v}"].needs, local + [f"apple-mac-check-{v}"])
         # A test wallet and emulator per Android variant, a sandbox per Linux variant: all at once.
         self.assertEqual([by[f"trust-android-{v}"].lane for v in ("tor", "notor")], ["trust-android-tor", "trust-android-notor"])

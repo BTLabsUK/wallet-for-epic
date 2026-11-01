@@ -324,7 +324,9 @@ platform = "linux"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-linux-{variant}"
-needs = ["build-android", "build-play", "sign-android", "build-linux"]
+# No sign-android: the AppImage is not signed one by one (SHA256SUMS.sig covers it), so the
+# desktop trust runs need no signature and do not wait for the release's code.
+needs = ["build-android", "build-play", "build-linux"]
 proof = true
 timeout = "180m"
 
@@ -339,7 +341,7 @@ host = "build"
 # and Setup's HKCU uninstall entry: the driver holds a lock per rig user, and two variants whose
 # rigs have the same user still run one after the other. Only rigs with different users overlap.
 lane = "trust-windows-{variant}"
-needs = ["build-android", "build-play", "sign-android", "build-linux", "build-windows@variant"]
+needs = ["build-android", "build-play", "build-linux", "build-windows@variant"]  # no signature, as Linux
 proof = true
 timeout = "180m"
 
