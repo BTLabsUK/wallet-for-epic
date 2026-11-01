@@ -1640,6 +1640,8 @@
   "deskOnbWelcomeCreate": "Utwórz nowy portfel",
   "deskOnbWelcomeImport": "Importuj portfele",
   "deskOnbWelcomeImportSub": "Ze starszego Epic Wallet lub z folderu",
+  "deskOnbWelcomeCreateSub": "Z nową frazą odzyskiwania",
+  "deskOnbWelcomeRestoreSub": "Także ze Stack Wallet lub Epic Pay",
   "deskOnbWelcomeRestore": "Przywróć z frazy",
   "deskOnbWelcomeTestNote": "Nowe portfele powstają w tej sieci testowej.",
   "deskOnbWelcomeBack": "Wróć do odblokowania",

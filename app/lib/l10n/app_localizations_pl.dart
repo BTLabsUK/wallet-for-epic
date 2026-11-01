@@ -9004,6 +9004,12 @@ class AppLocalizationsPl extends AppLocalizations {
       'Ze starszego Epic Wallet lub z folderu';
 
   @override
+  String get deskOnbWelcomeCreateSub => 'Z nową frazą odzyskiwania';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => 'Także ze Stack Wallet lub Epic Pay';
+
+  @override
   String get deskOnbWelcomeRestore => 'Przywróć z frazy';
 
   @override

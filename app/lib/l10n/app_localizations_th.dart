@@ -8342,6 +8342,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskOnbWelcomeImportSub => 'จาก Epic Wallet รุ่นเก่าหรือโฟลเดอร์';
 
   @override
+  String get deskOnbWelcomeCreateSub => 'พร้อมวลีกู้คืนใหม่';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => 'รวมถึงจาก Stack Wallet หรือ Epic Pay';
+
+  @override
   String get deskOnbWelcomeRestore => 'กู้คืนจากวลีกู้คืน';
 
   @override

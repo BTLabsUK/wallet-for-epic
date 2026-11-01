@@ -8720,6 +8720,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Aus einer älteren Epic Wallet oder einem Ordner';
 
   @override
+  String get deskOnbWelcomeCreateSub =>
+      'Mit einer neuen Wiederherstellungsphrase';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => 'Auch aus Stack Wallet oder Epic Pay';
+
+  @override
   String get deskOnbWelcomeRestore => 'Mit Phrase wiederherstellen';
 
   @override

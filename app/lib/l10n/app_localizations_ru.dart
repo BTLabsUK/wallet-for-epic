@@ -8977,6 +8977,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskOnbWelcomeImportSub => 'Из старого Epic Wallet или из папки';
 
   @override
+  String get deskOnbWelcomeCreateSub => 'С новой фразой восстановления';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => 'Также из Stack Wallet или Epic Pay';
+
+  @override
   String get deskOnbWelcomeRestore => 'Восстановить по фразе';
 
   @override

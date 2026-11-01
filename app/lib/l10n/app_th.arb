@@ -1640,6 +1640,8 @@
   "deskOnbWelcomeCreate": "สร้างกระเป๋าเงินใหม่",
   "deskOnbWelcomeImport": "นำเข้ากระเป๋าเงิน",
   "deskOnbWelcomeImportSub": "จาก Epic Wallet รุ่นเก่าหรือโฟลเดอร์",
+  "deskOnbWelcomeCreateSub": "พร้อมวลีกู้คืนใหม่",
+  "deskOnbWelcomeRestoreSub": "รวมถึงจาก Stack Wallet หรือ Epic Pay",
   "deskOnbWelcomeRestore": "กู้คืนจากวลีกู้คืน",
   "deskOnbWelcomeTestNote": "กระเป๋าเงินใหม่จะสร้างบนเครือข่ายทดสอบนี้",
   "deskOnbWelcomeBack": "กลับไปปลดล็อก",

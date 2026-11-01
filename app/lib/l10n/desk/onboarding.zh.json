@@ -4,6 +4,8 @@
   "deskOnbWelcomeCreate": "创建新钱包",
   "deskOnbWelcomeImport": "导入钱包",
   "deskOnbWelcomeImportSub": "从旧版 Epic Wallet 或文件夹导入",
+  "deskOnbWelcomeCreateSub": "生成新的助记词",
+  "deskOnbWelcomeRestoreSub": "也适用于 Stack Wallet 或 Epic Pay",
   "deskOnbWelcomeRestore": "用助记词恢复",
   "deskOnbWelcomeTestNote": "新钱包将创建在此测试网络上。",
   "deskOnbWelcomeBack": "返回解锁",

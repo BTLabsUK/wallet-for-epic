@@ -8067,6 +8067,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbWelcomeImportSub => '从旧版 Epic Wallet 或文件夹导入';
 
   @override
+  String get deskOnbWelcomeCreateSub => '生成新的助记词';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => '也适用于 Stack Wallet 或 Epic Pay';
+
+  @override
   String get deskOnbWelcomeRestore => '用助记词恢复';
 
   @override

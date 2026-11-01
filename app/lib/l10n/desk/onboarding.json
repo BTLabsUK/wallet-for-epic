@@ -19,6 +19,14 @@
   "@deskOnbWelcomeImportSub": {
     "description": "One-line description under 'Import wallets'."
   },
+  "deskOnbWelcomeCreateSub": "With a new recovery phrase",
+  "@deskOnbWelcomeCreateSub": {
+    "description": "One-line description under 'Create a new wallet' on Welcome, like the other cards' lines. No trailing period."
+  },
+  "deskOnbWelcomeRestoreSub": "Also from Stack Wallet or Epic Pay",
+  "@deskOnbWelcomeRestoreSub": {
+    "description": "One-line description under 'Restore from phrase' on Welcome: wallets from the other apps come back by phrase too. No trailing period."
+  },
   "deskOnbWelcomeRestore": "Restore from phrase",
   "@deskOnbWelcomeRestore": {
     "description": "Title of a choice card on the Welcome page: restore a wallet from its recovery words."

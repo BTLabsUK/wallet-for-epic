@@ -13593,6 +13593,18 @@ abstract class AppLocalizations {
   /// **'From an older Epic Wallet or a folder'**
   String get deskOnbWelcomeImportSub;
 
+  /// One-line description under 'Create a new wallet' on Welcome, like the other cards' lines. No trailing period.
+  ///
+  /// In en, this message translates to:
+  /// **'With a new recovery phrase'**
+  String get deskOnbWelcomeCreateSub;
+
+  /// One-line description under 'Restore from phrase' on Welcome: wallets from the other apps come back by phrase too. No trailing period.
+  ///
+  /// In en, this message translates to:
+  /// **'Also from Stack Wallet or Epic Pay'**
+  String get deskOnbWelcomeRestoreSub;
+
   /// Title of a choice card on the Welcome page: restore a wallet from its recovery words.
   ///
   /// In en, this message translates to:

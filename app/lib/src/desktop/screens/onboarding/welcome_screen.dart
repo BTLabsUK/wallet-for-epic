@@ -121,6 +121,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       EChoiceCard(
         key: const ValueKey('door-create'),
         title: l.deskOnbWelcomeCreate,
+        description: l.deskOnbWelcomeCreateSub,
         icon: EIcons.plus,
         selected: false,
         onTap: hasWallets ? toCreate : () => _enter(toCreate),
@@ -136,15 +137,15 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
         onTap: toImport,
       ),
     );
-    // The other apps' line belongs to Restore (their wallets come back by phrase), inside
-    // its card, so the cards keep one rhythm.
+    // The other apps' line belongs to Restore (their wallets come back by phrase): its card's
+    // line, like the others', so the cards keep one rhythm.
     final restore = door(
       EChoiceCard(
         key: const ValueKey('door-restore'),
         title: l.deskOnbWelcomeRestore,
+        description: l.deskOnbWelcomeRestoreSub,
         icon: EIcons.key,
         selected: false,
-        tag: Text(l.deskOnbWelcomeOtherApps, style: ts.small.copyWith(color: context.dc.faint)),
         onTap: hasWallets ? toRestore : () => _enter(toRestore),
       ),
     );
