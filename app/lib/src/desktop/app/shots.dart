@@ -16,6 +16,7 @@ class DeskShot {
     this.arg,
     this.dialog,
     this.prepare,
+    this.after,
     this.before,
     this.width = 1280,
     this.height = 800,
@@ -35,6 +36,10 @@ class DeskShot {
   /// Runs after the route is shown and before the shot: tap, type, open a menu.
   /// Gets the tour's [WidgetRef]-like container and the root context.
   final Future<void> Function(ProviderContainer container, BuildContext context)? prepare;
+
+  /// Runs after [prepare] and a frame or two: a click into what [prepare] opened (a popover's
+  /// own button), which needs the frames in between.
+  final Future<void> Function(ProviderContainer container, BuildContext context)? after;
 
   /// Runs on the fresh container before the route opens, for state the screen reads as it
   /// builds (a method switched on, a contact's address), unlike [prepare], which runs after.

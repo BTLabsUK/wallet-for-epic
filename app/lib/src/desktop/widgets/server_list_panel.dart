@@ -1105,7 +1105,8 @@ class _ErrorLine extends StatelessWidget {
   }
 }
 
-ServerTileColors _tileColors(DeskColors c) => ServerTileColors(
+/// A server tile in the desktop's colours, shared with the status popovers.
+ServerTileColors deskTileColors(DeskColors c) => ServerTileColors(
   surface: c.s2,
   line: c.line,
   initials: c.dim,
@@ -1204,7 +1205,7 @@ class _Row extends StatelessWidget {
                   host: s.host,
                   icon: icon,
                   state: s.state,
-                  colors: _tileColors(c),
+                  colors: deskTileColors(c),
                   dimmed: down,
                   fontFamily: ts.mono().fontFamily,
                 ),

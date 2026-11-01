@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../contact_store.dart' show ContactFields;
 import '../../../contacts_file.dart' show encodeContactsFile;
 import '../../app/shots.dart';
+import '../../../levels/level_providers.dart' show walletLevelProvider;
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/history_files.dart';
@@ -26,7 +27,36 @@ import 'tx_details_dialog.dart';
 import 'tx_label.dart';
 
 /// Shows the screen at [level] (the tour's wallet stands on its own, so the pick is its own).
-Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) => c.read(deskLevelControlProvider).setLevel(level);
+/// Sets the wallet level for a shot. The stored choice is read first: a store before the
+/// notifier's first read lands would be overwritten by that read (Deep end).
+Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async {
+  await c.read(walletLevelProvider.future);
+  await c.read(deskLevelControlProvider).setLevel(level);
+};
+
+/// Clicks the title bar's button with [key] (a status icon, then a button inside its
+/// popover), as the pointer would: the popover opens under the icon.
+Future<void> _click(Key key) async {
+  dynamic found;
+  void visit(Element e) {
+    if (found != null) return;
+    if (e.widget.key == key) {
+      found = e.widget;
+      return;
+    }
+    e.visitChildren(visit);
+  }
+  WidgetsBinding.instance.rootElement!.visitChildren(visit);
+  (found?.onPressed as VoidCallback?)?.call();
+  await Future<void>.delayed(const Duration(milliseconds: 250));
+}
+
+/// Opens the status popover of [jump] (`node`, `epicbox`, `http`, `tor`).
+Future<void> Function(ProviderContainer, BuildContext) _status(String jump) => (c, _) => _click(ValueKey('bar-status-$jump'));
+
+/// Clicks a button inside the open popover (a shot's [DeskShot.after]).
+Future<void> Function(ProviderContainer, BuildContext) _inPopover(String key) => (c, _) => _click(ValueKey(key));
+
 
 Tx _tx(BuildContext context, int id) {
   final container = ProviderScope.containerOf(context);
@@ -75,6 +105,16 @@ final List<DeskShot> walletShots = [
   DeskShot(id: '11-activity-l1', title: 'Activity, Shallow', route: DeskRoute.activity, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '12-tx-detail-l1', title: 'Payment detail, Shallow', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '12-tx-detail-l2', title: 'Payment detail, Deeper', route: DeskRoute.activity, arg: 38, before: _level(WalletLevel.casual)),
+  // The title bar's status popovers: Shallow (Network and Epicbox with Switch server, the
+  // node's list open) and Deep end (Node, Epicbox, Link · HTTP, Tor).
+  DeskShot(id: '10s-status-node-l1', title: 'Network status popover, Shallow', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('node')),
+  DeskShot(id: '10s-status-node-l1-switch', title: 'Network status popover, Shallow, Switch server open', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('node'), after: _inPopover('status-switch-node')),
+  DeskShot(id: '10s-status-epicbox-l1', title: 'Epicbox status popover, Shallow', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('epicbox')),
+  DeskShot(id: '10s-status-epicbox-l1-switch', title: 'Epicbox status popover, Shallow, Switch server open', route: DeskRoute.overview, before: _level(WalletLevel.justSendReceive), prepare: _status('epicbox'), after: _inPopover('status-switch-epicbox')),
+  DeskShot(id: '10s-status-node', title: 'Node status popover', route: DeskRoute.overview, prepare: _status('node')),
+  DeskShot(id: '10s-status-epicbox', title: 'Epicbox status popover', route: DeskRoute.overview, prepare: _status('epicbox')),
+  DeskShot(id: '10s-status-http', title: 'Link · HTTP status popover', route: DeskRoute.overview, prepare: _status('http')),
+  DeskShot(id: '10s-status-tor', title: 'Tor status popover', route: DeskRoute.overview, prepare: _status('tor')),
   const DeskShot(id: '10-overview', title: 'Overview', route: DeskRoute.overview),
   const DeskShot(id: '10-overview-800', title: 'Overview at 800x700, the smallest window', route: DeskRoute.overview, width: 800, height: 700),
   DeskShot(id: '10-overview-narrow', title: 'Overview at 1000x700', route: DeskRoute.overview, width: 1000, height: 700),

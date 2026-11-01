@@ -28,9 +28,10 @@ import '../desk_l10n.dart';
 import '../screens/settings/prefs.dart' show settingsPrefsProvider;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
+import 'status_parts.dart';
 
 /// One server the switch may name.
-typedef DeskSwitchServer = ({String value, String name, RelayHealth health});
+typedef DeskSwitchServer = ({String value, String name, RelayHealth health, String? operator, ServerIcon? icon});
 
 /// The other Epicbox servers of the list, healthy first; empty while NetGate holds Epicbox.
 List<DeskSwitchServer> deskEpicboxSwitchServers(DeskState st, ServerList? list) {
@@ -40,11 +41,18 @@ List<DeskSwitchServer> deskEpicboxSwitchServers(DeskState st, ServerList? list) 
   final listed = st.epicboxes ?? const <EpicboxServer>[];
   final box = st.status?.epicbox;
   final torOnly = netModeOf(mode) == NetworkMode.torOnly;
+  EpicboxServer? listedAs(EpicboxRelay r) => listed.where((s) => s.domain.toLowerCase() == r.host.toLowerCase() && s.port == r.port).firstOrNull;
   return _ordered([
     for (final c in deskRelayCandidates(list, listed))
       if (box == null || c.relay.host.toLowerCase() != box.domain.toLowerCase() || c.relay.port != box.port)
         if (!torOnly || relayOverTor(c.relay, hasOnion: (_, _) => false))
-          (value: c.relay.label, name: c.name, health: deskRelayHealth(listed, c.relay)),
+          (
+            value: c.relay.label,
+            name: c.name,
+            health: deskRelayHealth(listed, c.relay),
+            operator: listedAs(c.relay)?.listedAs ?? listedAs(c.relay)?.operator,
+            icon: listedAs(c.relay)?.icon,
+          ),
   ]);
 }
 
@@ -55,6 +63,7 @@ List<DeskSwitchServer> deskNodeSwitchServers(DeskState st, ServerList? list) {
   final nodes = st.nodes ?? const <NodeServer>[];
   final entries = list?.entries ?? [for (final n in nodes) n.url];
   final current = st.status?.node.url ?? '';
+  NodeServer? listedAs(String url) => nodes.where((n) => sameServer(ServerKind.node, n.url, url)).firstOrNull;
   return _ordered([
     for (final url in entries)
       if (current.isEmpty || !sameServer(ServerKind.node, url, current))
@@ -62,11 +71,13 @@ List<DeskSwitchServer> deskNodeSwitchServers(DeskState st, ServerList? list) {
           (
             value: url,
             name: deskNodeAddress(url),
-            health: switch (nodes.where((n) => sameServer(ServerKind.node, n.url, url)).firstOrNull?.health) {
+            health: switch (listedAs(url)?.health) {
               ServiceHealth.ok => RelayHealth.healthy,
               ServiceHealth.down => RelayHealth.down,
               _ => RelayHealth.unknown,
             },
+            operator: listedAs(url)?.listedAs ?? listedAs(url)?.operator,
+            icon: listedAs(url)?.icon,
           ),
   ]);
 }
@@ -83,13 +94,16 @@ String deskNodeAddress(String url) {
   return u.hasPort ? '${u.host}:${u.port}' : u.host;
 }
 
-/// Switch server and its list, for the Node ([epicbox] false) or Epicbox popover. [close]
-/// closes the popover before the move.
+/// Switch server and its list, for the Node ([epicbox] false) or Epicbox popover: the
+/// popover's footer band, a hairline over it. [close] closes the popover before the move.
 class DeskServerSwitch extends ConsumerStatefulWidget {
-  const DeskServerSwitch({super.key, required this.epicbox, required this.close});
+  const DeskServerSwitch({super.key, required this.epicbox, required this.close, this.trailing});
 
   final bool epicbox;
   final VoidCallback close;
+
+  /// Sits at the end of the Switch server row (the popover's Close).
+  final Widget? trailing;
 
   @override
   ConsumerState<DeskServerSwitch> createState() => _DeskServerSwitchState();
@@ -171,15 +185,18 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
         child: InkWell(
           key: ValueKey('status-switch-$_id-${s.value}'),
           borderRadius: BorderRadius.circular(Rad.sm),
+          hoverColor: c.hover,
           onTap: down ? null : () => _pick(s),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 6.u),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 5.u),
             child: Row(
               children: [
-                EStateDot(state),
+                DeskServerTile(host: s.name, operator: s.operator, icon: s.icon, size: 26.u, dimmed: down),
                 SizedBox(width: Sp.x2),
                 Expanded(child: Text(s.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.mono(size: Fs.sm, color: down ? c.faint : c.text))),
                 SizedBox(width: Sp.x2),
+                EStateDot(state),
+                SizedBox(width: 6.u),
                 Text(word, style: ts.caption.copyWith(color: down ? c.faint : c.dim)),
               ],
             ),
@@ -188,21 +205,29 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
       );
     }
 
-    return Padding(
-      padding: EdgeInsets.only(top: Sp.x3),
+    return Container(
+      padding: EdgeInsets.only(top: Sp.x2),
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: c.lineStrong))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: EButton(
-              key: ValueKey('status-switch-$_id'),
-              label: l.deskLvShellSwitchServer,
-              icon: _open ? EIcons.chevronDown : EIcons.chevronRight,
-              kind: EBtnKind.ghost,
-              size: EBtnSize.sm,
-              onPressed: _toggle,
-            ),
+          // Switch server at the start, the trailing button at the end; on its own run when the
+          // two do not fit on one (a large text scale).
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: Sp.x2,
+            runSpacing: Sp.x2,
+            children: [
+              EButton(
+                key: ValueKey('status-switch-$_id'),
+                label: l.deskLvShellSwitchServer,
+                icon: _open ? EIcons.chevronDown : EIcons.swap,
+                kind: EBtnKind.ghost,
+                size: EBtnSize.sm,
+                onPressed: _toggle,
+              ),
+              ?widget.trailing,
+            ],
           ),
           ExpandFade(
             open: _open,
@@ -219,7 +244,7 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
                         // Said where the server is chosen, plainly: the move gives a new address.
                         if (widget.epicbox)
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 4.u),
+                            padding: EdgeInsets.fromLTRB(Sp.x2, 2.u, Sp.x2, 6.u),
                             child: Text(l.slSwitchBody, style: ts.caption.copyWith(color: c.dim)),
                           ),
                         for (final s in servers) row(s),

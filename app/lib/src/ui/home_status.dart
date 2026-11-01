@@ -30,6 +30,7 @@ import '../phone_http.dart' show PhoneHttpPhase, phoneHttpProvider;
 import '../settings.dart' show appSettingsProvider, networkModeProvider;
 import 'settings_screen.dart' show openPrivacySettings;
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
+import 'levels/status_parts.dart' show StatusServiceTile;
 import 'status.dart';
 import 'theme/tokens.dart';
 import 'tor_ui.dart';
@@ -327,7 +328,9 @@ Future<void> showConnectionsSheet(BuildContext context) => showPhoneSheet<void>(
   builder: (_) => const ConnectionsSheet(),
 );
 
-/// The connections sheet's body.
+/// The connections sheet's body: a header, then one row per service, its glyph with the state
+/// mark on a tile, the service and its state word, the detail under them, a chevron; a hairline
+/// between rows. A row that reports a problem is tinted.
 class ConnectionsSheet extends ConsumerWidget {
   const ConnectionsSheet({super.key});
 
@@ -337,9 +340,11 @@ class ConnectionsSheet extends ConsumerWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final (:mode, :entries) = statusEntries(context, ref, bar: false);
-    final ring = theme.scaffoldBackgroundColor;
+    final ring = t.surface;
     Widget row({
+      required IconData icon,
       required Widget glyph,
+      required bool enabled,
       required String label,
       required String detail,
       required StatusDot dot,
@@ -358,8 +363,8 @@ class ConnectionsSheet extends ConsumerWidget {
           },
           borderRadius: BorderRadius.circular(t.radiusSmall),
           child: Container(
-            constraints: const BoxConstraints(minHeight: 56),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            constraints: const BoxConstraints(minHeight: 64),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: problem
                 ? BoxDecoration(
                     color: t.riskSoft,
@@ -368,13 +373,14 @@ class ConnectionsSheet extends ConsumerWidget {
                 : null,
             child: Row(
               children: [
-                SizedBox(width: 28, child: Center(child: glyph)),
+                StatusServiceTile(icon: icon, enabled: enabled, size: 40, child: glyph),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(label, style: theme.textTheme.bodyLarge),
+                      const SizedBox(height: 2),
                       Text(
                         detail,
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -384,6 +390,7 @@ class ConnectionsSheet extends ConsumerWidget {
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 Icon(Icons.chevron_right, size: 20, color: t.faint),
               ],
             ),
@@ -391,6 +398,28 @@ class ConnectionsSheet extends ConsumerWidget {
         ),
       );
     }
+    final rows = <Widget>[
+      if (mode != NetworkMode.standard)
+        row(
+          icon: networkModeGlyph(mode),
+          glyph: Icon(networkModeGlyph(mode), size: statusGlyph, color: t.dim),
+          enabled: false,
+          label: l.netMarkRowLabel(networkModeName(l, mode)),
+          detail: networkModeMarkLine(l, mode, waitingForTor: mode == NetworkMode.torOnly && ref.watch(phoneTorProvider.select(phoneTorState)) != TorState.on),
+          dot: StatusDot.off,
+          onTap: () => openNetworkSection(context),
+        ),
+      for (final e in entries)
+        row(
+          icon: e.icon,
+          glyph: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: ring),
+          enabled: e.enabled,
+          label: e.label,
+          detail: e.detail,
+          dot: e.enabled ? e.dot : StatusDot.off,
+          onTap: e.onTap,
+        ),
+    ];
     return SingleChildScrollView(
       key: connectionsSheetKey,
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
@@ -405,22 +434,10 @@ class ConnectionsSheet extends ConsumerWidget {
               child: Text(l.connectionsSheetTitle, style: theme.textTheme.titleMedium),
             ),
           ),
-          if (mode != NetworkMode.standard)
-            row(
-              glyph: Icon(networkModeGlyph(mode), size: statusGlyph, color: t.dim),
-              label: l.netMarkRowLabel(networkModeName(l, mode)),
-              detail: networkModeMarkLine(l, mode, waitingForTor: mode == NetworkMode.torOnly && ref.watch(phoneTorProvider.select(phoneTorState)) != TorState.on),
-              dot: StatusDot.off,
-              onTap: () => openNetworkSection(context),
-            ),
-          for (final e in entries)
-            row(
-              glyph: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: ring),
-              label: e.label,
-              detail: e.detail,
-              dot: e.enabled ? e.dot : StatusDot.off,
-              onTap: e.onTap,
-            ),
+          for (final (n, r) in rows.indexed) ...[
+            if (n > 0) Divider(height: 1, thickness: 1, indent: 12, endIndent: 12, color: t.line),
+            r,
+          ],
         ],
       ),
     );

@@ -52,6 +52,7 @@ class ServerTileView extends ConsumerWidget {
     required this.colors,
     this.dimmed = false,
     this.dotColor,
+    this.showDot = true,
     this.size = 36,
     this.radius = 6,
     this.fontFamily,
@@ -68,6 +69,9 @@ class ServerTileView extends ConsumerWidget {
 
   /// A colour that fills the dot whatever the health says (a switch in progress).
   final Color? dotColor;
+
+  /// False leaves the corner dot off: the state is said beside the tile (a status header).
+  final bool showDot;
   final double size;
   final double radius;
   final String? fontFamily;
@@ -143,19 +147,20 @@ class ServerTileView extends ConsumerWidget {
                         ),
                       ),
               ),
-              Positioned(
-                right: -2,
-                bottom: -2,
-                child: Container(
-                  width: 11,
-                  height: 11,
-                  decoration: BoxDecoration(
-                    color: known ? dot : c.surface,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: known ? c.ring : c.unknown, width: known ? 2 : 1.5),
+              if (showDot)
+                Positioned(
+                  right: -2,
+                  bottom: -2,
+                  child: Container(
+                    width: 11,
+                    height: 11,
+                    decoration: BoxDecoration(
+                      color: known ? dot : c.surface,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: known ? c.ring : c.unknown, width: known ? 2 : 1.5),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
